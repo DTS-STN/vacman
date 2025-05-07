@@ -1,0 +1,9 @@
+{
+  "index": {
+    "about": "The VacMan initiative!",
+    "dashboard": "Dashboard",
+    "page-title": "Welcome to VacMan (protected)",
+    "protected": "Go to the employee portal",
+    "public": "Go to the public portal"
+  }
+}
