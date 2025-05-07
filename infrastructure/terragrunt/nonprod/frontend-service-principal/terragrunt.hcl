@@ -22,6 +22,7 @@ inputs = {
 
   app_owners = [
     "gregory.j.baker@hrsdc-rhdcc.gc.ca",
+    "landon.a.harrison@hrsdc-rhdcc.gc.ca",
   ]
 
   app_required_resource_accesses = [{
@@ -59,9 +60,11 @@ inputs = {
   role_assignments = {
     admin = [
       "gregory.j.baker@hrsdc-rhdcc.gc.ca",
+      "landon.a.harrison@hrsdc-rhdcc.gc.ca",
     ]
     user = [
       "gregory.j.baker@hrsdc-rhdcc.gc.ca",
+      "landon.a.harrison@hrsdc-rhdcc.gc.ca",
     ]
   }
 
