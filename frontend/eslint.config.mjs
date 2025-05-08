@@ -1,18 +1,20 @@
 import { fixupConfigRules } from '@eslint/compat';
 import { FlatCompat } from '@eslint/eslintrc';
 import eslint from '@eslint/js';
-// @ts-ignore types package doesn't exist for eslint-plugin-import
+// @ts-ignore TS7016 -- types package does not exist for eslint-plugin-import
 import importPlugin from 'eslint-plugin-import';
 import jsxA11yPlugin from 'eslint-plugin-jsx-a11y';
 import reactPlugin from 'eslint-plugin-react';
-// @ts-ignore types package doesn't exist for eslint-plugin-react-hooks
 import reactHooksPlugin from 'eslint-plugin-react-hooks';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
 const compat = new FlatCompat({ baseDirectory: import.meta.dirname });
 
-export default tseslint.config(
+/**
+ * @type {import("typescript-eslint").ConfigArray}
+ */
+const config = tseslint.config(
   {
     ignores: [
       '**/.react-router/', //
@@ -59,6 +61,7 @@ export default tseslint.config(
       eslint.configs.recommended,
       ...tseslint.configs.strict,
       ...tseslint.configs.stylisticTypeChecked,
+      // @ts-ignore TS2345
       ...fixupConfigRules(compat.config(importPlugin.configs.recommended)),
     ],
     rules: {
@@ -105,8 +108,11 @@ export default tseslint.config(
     files: ['**/*.tsx'],
     extends: [
       ...compat.config(jsxA11yPlugin.configs.recommended),
+      // @ts-ignore TS2345
       ...fixupConfigRules(compat.config(reactPlugin.configs.recommended)),
+      // @ts-ignore TS2345
       ...fixupConfigRules(compat.config(reactPlugin.configs['jsx-runtime'])),
+      // @ts-ignore TS2345
       ...fixupConfigRules(compat.config(reactHooksPlugin.configs.recommended)),
     ],
     rules: {
@@ -125,3 +131,5 @@ export default tseslint.config(
     },
   },
 );
+
+export default config;

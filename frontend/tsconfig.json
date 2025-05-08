@@ -42,6 +42,7 @@
     "skipLibCheck": true,
     "strict": true,
     "target": "ES2022",
+    "tsBuildInfoFile": "./node_modules/.tsbuildinfo",
     "types": ["@react-router/node", "vite/client"]
   }
 }
