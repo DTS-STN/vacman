@@ -9,6 +9,7 @@
   },
   "packageManager": "pnpm@10.10.0",
   "scripts": {
+    "preinstall": "npx only-allow pnpm",
     "build": "pnpm run build:application && pnpm run build:server",
     "build:application": "react-router build",
     "build:server": "vite build --config ./vite.server.config.ts",
