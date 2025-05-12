@@ -5,6 +5,9 @@
     },
     {
       "path": "infrastructure"
+    },
+    {
+      "path": "backend"
     }
   ],
   "settings": {
