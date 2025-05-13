@@ -25,4 +25,8 @@ export const ErrorCodes = {
 
   // dev-only error codes
   TEST_ERROR_CODE: 'DEV-0001',
+
+  // form error codes
+  MISSING_TAB_ID: 'FRM-0000',
+  UNRECOGNIZED_ACTION: 'FRM-0001',
 } as const;

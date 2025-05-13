@@ -2,6 +2,10 @@
   "index": {
     "page-title": "Bienvenue sur VacMan",
     "about": "L'initiative VacMan!",
-    "navigate": "Accédez au portail des employés"
+    "navigate": "Accédez au portail des employés",
+    "register": "Register"
+  },
+  "input": {
+    "required": "obligatoire"
   }
 }
