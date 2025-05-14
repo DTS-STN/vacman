@@ -78,7 +78,7 @@ inputs = {
       "jordan.willis@hrsdc-rhdcc.gc.ca",
       "landon.a.harrison@hrsdc-rhdcc.gc.ca",
     ]
-    user = [
+    employee = [
       "gregory.j.baker@hrsdc-rhdcc.gc.ca",
       "jordan.willis@hrsdc-rhdcc.gc.ca",
       "landon.a.harrison@hrsdc-rhdcc.gc.ca",
