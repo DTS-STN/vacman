@@ -24,6 +24,7 @@
     "typecheck": "react-router typegen && tsc"
   },
   "dependencies": {
+    "@date-fns/tz": "^1.2.0",
     "@fortawesome/fontawesome-svg-core": "^6.7.2",
     "@fortawesome/free-solid-svg-icons": "^6.7.2",
     "@fortawesome/react-fontawesome": "^0.2.2",
@@ -47,6 +48,7 @@
     "compression": "^1.8.0",
     "connect-redis": "^8.0.3",
     "cross-env": "^7.0.3",
+    "date-fns": "^4.1.0",
     "express": "^5.1.0",
     "express-session": "^1.18.1",
     "i18next": "^25.1.1",
