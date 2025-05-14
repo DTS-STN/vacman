@@ -1,117 +1,125 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+<!--
+	* Note: this pom uses 'CI friendly' versioning. For more info see:
+	* 	- https://maven.apache.org/maven-ci-friendly.html
+	*
+	* To build this project with a non-trivial version string, use the following command:
+	* 	- mvn -D revision={version} clean package
+	*
+	* To build a container image, use the following command:
+	* 	- mvn -D image.name=localhost/vacman-api spring-boot:build-image
+	*
+	* To check for depdency updates, use the following commands:
+	* 	- mvn versions:display-property-updates
+-->
+	
 	<modelVersion>4.0.0</modelVersion>
+
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>3.4.5</version>
-		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
+
+
 	<groupId>ca.gov.dts-stn.vacman</groupId>
 	<artifactId>vacman-api</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
-	<!-- <name>vacman-api</name> -->
-	<description>Vacancy Management API</description>
-	<url/>
-	<licenses>
-		<license/>
-	</licenses>
-	<developers>
-		<developer/>
-	</developers>
-	<scm>
-		<connection/>
-		<developerConnection/>
-		<tag/>
-		<url/>
-	</scm>
+	<version>${revision}</version>
+
+
 	<properties>
-		<!-- application version corresponds to {buildDate-buildId-commitId} -->
-		<revision>00000000-00000-00000000</revision>
+		<revision>0.0.0-00000000-00000</revision>
 
 		<!-- container image parameters -->
 
-		<image.name>vacman-api</image.name>
+		<image.name>localhost/vacman-api</image.name>
 
 		<!-- build configuration parameters -->
 
 		<java.version>21</java.version>
-		<spring-boot.build-image.imageName>${image.name}</spring-boot.build-image.imageName>
-
+		
 		<!-- dependency/plugin versions -->
 
-		<duplicate-finder-maven-plugin.version>2.0.1</duplicate-finder-maven-plugin.version>
-		<!-- <gitlog-maven-plugin.version>1.14.0</gitlog-maven-plugin.version> -->
-		<icu4j.version>77.1</icu4j.version>
 		<immutables.version>2.10.1</immutables.version>
 		<mapstruct.version>1.6.3</mapstruct.version>
 		<spring-boot-configuration-processor.version>3.4.5</spring-boot-configuration-processor.version>
 		<springdoc.version>2.8.8</springdoc.version>
 	</properties>
+
+
 	<dependencies>
-		<!-- tag::actuator[] -->
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-actuator</artifactId>
-		</dependency>
-		<!-- end::actuator[] -->
-
-		<!-- Opentelemetry -->
-
 		<dependency>
 			<groupId>io.micrometer</groupId>
-			<artifactId>micrometer-tracing</artifactId>
-			<version>1.4.6</version>
-		</dependency>
-		<dependency>
-			<groupId>io.micrometer</groupId>
-			<artifactId>micrometer-tracing-bridge-otel</artifactId>
-			<version>1.4.6</version>
-		</dependency>
-		<dependency>
-			<groupId>io.opentelemetry</groupId>
-			<artifactId>opentelemetry-exporter-otlp</artifactId>
-			<version>1.50.0</version>
+			<artifactId>micrometer-registry-otlp</artifactId>
 		</dependency>
 
 		<!-- Auth, Database, Caching -->
 		
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-oauth2-client</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.data</groupId>
-			<artifactId>spring-data-jdbc</artifactId>
-			<version>3.4.5</version>
-		</dependency>
-		<!-- <dependency>
-			<groupId>com.azure.spring</groupId>
-			<artifactId>spring-cloud-azure-dependencies</artifactId>
-			<version>5.22.0</version>
-			<type>pom</type>
-			<scope>import</scope>
-		</dependency>
+<!--
 		<dependency>
 			<groupId>org.komamitsu</groupId>
 			<artifactId>spring-data-sqlite</artifactId>
 			<version>1.3.0</version>
-		</dependency> -->
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-data-redis</artifactId>
 		</dependency>
+-->
 		<dependency>
 			<groupId>com.github.ben-manes.caffeine</groupId>
 			<artifactId>caffeine</artifactId>
 		</dependency>
-
 		<dependency>
 			<groupId>org.mapstruct</groupId>
 			<artifactId>mapstruct</artifactId>
 			<version>${mapstruct.version}</version>
 		</dependency>
+
+		<!-- OpenAPI/Swagger -->
+
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+			<version>${springdoc.version}</version>
+		</dependency>
+
+		<!-- Database Structure -->
+
+		<dependency>
+			<groupId>org.flywaydb</groupId>
+			<artifactId>flyway-core</artifactId>
+		</dependency>
+
+		<!-- Spring dependencies -->
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-redis</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-hateoas</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-oauth2-client</artifactId>
+		</dependency>
+		<dependency> 
+			<groupId>org.springframework.boot</groupId> 
+			<artifactId>spring-boot-starter-validation</artifactId> 
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.data</groupId>
+			<artifactId>spring-data-jdbc</artifactId>
+		</dependency>
+
+		<!-- optional/provided dependencies -->
+
 		<dependency>
 			<groupId>org.immutables</groupId>
 			<artifactId>builder</artifactId>
@@ -126,27 +134,6 @@
 			<optional>true</optional>
 			<scope>provided</scope>
 		</dependency>
-		
-		<!-- Validation -->
-
-		<dependency> 
-			<groupId>org.springframework.boot</groupId> 
-			<artifactId>spring-boot-starter-validation</artifactId> 
-		</dependency>
-
-		<!-- OpenAPI/Swagger -->
-
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-hateoas</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springdoc</groupId>
-			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-			<version>${springdoc.version}</version>
-		</dependency>
-
-		<!-- Configuration State -->
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -154,23 +141,15 @@
 			<optional>true</optional>
 			<scope>provided</scope>
 		</dependency>
-
-		<!-- Dev Tooling -->
-
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-devtools</artifactId>
 			<optional>true</optional>
+			<scope>provided</scope>
 		</dependency>
 
-		<!-- Database Structure -->
+		<!-- test dependencies -->
 
-		<dependency>
-			<groupId>org.flywaydb</groupId>
-			<artifactId>flyway-core</artifactId>
-		</dependency>
-
-		<!-- tag::tests[] -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
@@ -181,18 +160,20 @@
 			<artifactId>spring-security-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-		<!-- end::tests[] -->
-
 	</dependencies>
+
 
 	<build>
 		<plugins>
-		
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<image>
+						<name>${image.name}</name>
+					</image>
+				</configuration>
 			</plugin>
-
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -219,9 +200,6 @@
 							<version>${spring-boot-configuration-processor.version}</version>
 						</path>
 					</annotationProcessorPaths>
-					<compilerArgs>
-						<compilerArg>-Amapstruct.unmappedTargetPolicy=ERROR</compilerArg>
-					</compilerArgs>
 				</configuration>
 			</plugin>
 			<plugin>
