@@ -36,3 +36,19 @@ spring:
     import:
       - optional:application-local.yml
       - optional:application-local.yaml
+  datasource:
+    generate-unique-name: false
+    url: jdbc:h2:mem:testdb;MODE=MSSQLServer;DATABASE_TO_UPPER=FALSE;CASE_INSENSITIVE_IDENTIFIERS=TRUE;DB_CLOSE_ON_EXIT=FALSE;
+    hikari: # see https://github.com/brettwooldridge/HikariCP#frequently-used
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      maximum-pool-size: 10
+      minimum-idle: 10
+  devtools:
+    livereload:
+      enabled: false
+  flyway:
+    sql-migration-prefix: v
+    sql-migration-separator: '-'
+    locations: classpath:db-migrations/common, classpath:db-migrations/{vendor}
