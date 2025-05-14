@@ -46,12 +46,26 @@ inputs = {
       value        = "admin"
     },
     {
-      display_name = "User"
-      description  = "User"
-      group_name   = "Vacancy Manager Users (nonprod)"
+      display_name = "Hiring Manager"
+      description  = "Hiring Manager"
+      group_name   = "Vacancy Manager Hiring Managers (nonprod)"
+      id           = "c37fcf70-a2f5-4b02-bae6-b552f4fee249"
+      value        = "hiring-manager"
+    },
+    {
+      display_name = "HR Advisor"
+      description  = "HR Advisor"
+      group_name   = "Vacancy Manager HR Advisors (nonprod)"
+      id           = "7b15982a-d72a-476a-8ac3-2691354680ab"
+      value        = "hr-advisor"
+    },
+    {
+      display_name = "Employee"
+      description  = "Employee"
+      group_name   = "Vacancy Manager Employees (nonprod)"
       id           = "f40d2349-41e5-4e14-9250-6923681c8538"
-      value        = "user"
-    }
+      value        = "employee"
+    },
   ]
 
   app_web_redirect_uris = [
