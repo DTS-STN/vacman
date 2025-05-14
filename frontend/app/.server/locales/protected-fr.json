@@ -5,5 +5,10 @@
     "page-title": "Bienvenue sur VacMan (protégée)",
     "protected": "Accédez au portail des employés",
     "public": "Accédez au portail publique"
+  },
+  "register": {
+    "employee": "Employé",
+    "hiring-manager": "Responsable du recrutement",
+    "page-title": "S'inscrire comme..."
   }
 }

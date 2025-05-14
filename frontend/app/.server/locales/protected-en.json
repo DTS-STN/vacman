@@ -5,5 +5,10 @@
     "page-title": "Welcome to VacMan (protected)",
     "protected": "Go to the employee portal",
     "public": "Go to the public portal"
+  },
+  "register": {
+    "employee": "Employee",
+    "hiring-manager": "Hiring Manager",
+    "page-title": "Register as..."
   }
 }
