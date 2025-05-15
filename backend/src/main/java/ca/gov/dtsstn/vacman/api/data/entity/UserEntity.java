@@ -24,4 +24,14 @@ public record UserEntity(
 		@LastModifiedBy String lastModifiedBy,
 		@LastModifiedDate Instant lastModifiedDate,
 		@Version Long version
-) {}
+) {
+
+	public static UserEntityBuilder builder() {
+		return UserEntityBuilder.builder();
+	}
+
+	public static UserEntityBuilder builder(UserEntity user) {
+		return UserEntityBuilder.builder(user);
+	}
+
+}
