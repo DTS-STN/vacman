@@ -54,5 +54,8 @@
   },
   "screen-reader": {
     "new-tab": "s'ouvre dans un nouvel onglet"
+  },
+  "input-label": {
+    "required": "obligatoire"
   }
 }
