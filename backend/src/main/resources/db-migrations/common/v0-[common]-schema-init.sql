@@ -8,6 +8,7 @@ CREATE TABLE [user]
   [created_date] DATETIME2 NOT NULL,
   [last_modified_by] NVARCHAR(64),
   [last_modified_date] DATETIME2,
+  [version] BIGINT NOT NULL,
 
   CONSTRAINT [pk_user] PRIMARY KEY ([id])
 );
