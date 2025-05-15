@@ -55,7 +55,7 @@
   "screen-reader": {
     "new-tab": "opens in a new tab"
   },
-  "input-label": {
+  "input": {
     "required": "required"
   }
 }

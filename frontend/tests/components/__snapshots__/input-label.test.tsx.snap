@@ -33,7 +33,7 @@ exports[`InputLabel > should render input label component with required > expect
       aria-hidden="true"
     >
       (
-      input-label.required
+      input.required
       )
     </span>
   </label>

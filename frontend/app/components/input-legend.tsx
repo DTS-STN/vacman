@@ -10,7 +10,7 @@ export interface InputLegendProps extends ComponentProps<'legend'> {
 }
 
 export function InputLegend(props: InputLegendProps) {
-  const { t } = useTranslation('public');
+  const { t } = useTranslation('gcweb');
   const { children, className, required, ...restProps } = props;
 
   return (

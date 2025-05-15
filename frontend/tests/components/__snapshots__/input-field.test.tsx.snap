@@ -128,7 +128,7 @@ exports[`InputField > should render input field with required > expected html 1`
         aria-hidden="true"
       >
         (
-        input-label.required
+        input.required
         )
       </span>
     </label>
