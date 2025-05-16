@@ -8,16 +8,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import ca.gov.dtsstn.vacman.api.service.UserService;
+import ca.gov.dtsstn.vacman.api.web.model.UserCollectionModel;
 import ca.gov.dtsstn.vacman.api.web.model.UserCreateModel;
-import ca.gov.dtsstn.vacman.api.web.model.UserModelMapper;
-import ca.gov.dtsstn.vacman.api.web.model.UsersModel;
+import ca.gov.dtsstn.vacman.api.web.model.mapper.UserModelMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping({ "/api/v1/users" })
 @Tag(name = "Users")
+@RequestMapping({ "/api/v1/users" })
 public class UsersController {
 
 	private final UserModelMapper userModelMapper = Mappers.getMapper(UserModelMapper.class);
@@ -29,8 +29,12 @@ public class UsersController {
 
 	@GetMapping
 	@Operation(summary = "Get all users.")
-	public UsersModel getAllUsers() {
-		return new UsersModel(userModelMapper.toModels(userService.getAllUsers()));
+	public UserCollectionModel getAllUsers() {
+		final var users = userService.getAllUsers().stream()
+			.map(userModelMapper::toModel)
+			.toList();
+
+		return new UserCollectionModel(users);
 	}
 
 	@PostMapping

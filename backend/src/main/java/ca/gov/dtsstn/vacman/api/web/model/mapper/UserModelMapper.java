@@ -1,18 +1,16 @@
-package ca.gov.dtsstn.vacman.api.web.model;
-
-import java.util.List;
+package ca.gov.dtsstn.vacman.api.web.model.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
+import ca.gov.dtsstn.vacman.api.web.model.UserCreateModel;
+import ca.gov.dtsstn.vacman.api.web.model.UserReadModel;
 
 @Mapper
 public interface UserModelMapper {
 
-	UserModel toModel(UserEntity entity);
-
-	List<UserModel> toModels(Iterable<UserEntity> entities);
+	UserReadModel toModel(UserEntity entity);
 
 	@Mapping(target = "id", ignore = true)
 	@Mapping(target = "createdBy", ignore = true)
