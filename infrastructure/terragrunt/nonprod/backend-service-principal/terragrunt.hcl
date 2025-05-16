@@ -26,17 +26,6 @@ inputs = {
     "landon.a.harrison@hrsdc-rhdcc.gc.ca",
   ]
 
-  app_oauth2_permission_scopes = [
-    {
-      id                         = "a47c2131-aa47-4d5c-ae3a-484bf1cdd965"
-      value                      = "Users.Manage"
-      admin_consent_description  = "Allows the application to manage user accounts within the system on your behalf."
-      admin_consent_display_name = "Manage users"
-      user_consent_description   = "Allows the application to manage user accounts within the system on your behalf."
-      user_consent_display_name  = "Manage users"
-    }
-  ]
-
   app_roles = [
     {
       display_name = "Administrator"
