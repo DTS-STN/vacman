@@ -19,7 +19,7 @@ export const handle = {
 } as const satisfies RouteHandle;
 
 export function loader({ context, request }: Route.LoaderArgs) {
-  requireAllRoles(context.session, new URL(request.url), ['user']);
+  requireAllRoles(context.session, new URL(request.url), ['employee']);
   return { name: context.session.authState.idTokenClaims.name };
 }
 

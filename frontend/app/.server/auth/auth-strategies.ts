@@ -58,7 +58,7 @@ export interface AuthenticationStrategy {
   /**
    * Generates a sign-in request with the specified scopes.
    *
-   * @param scopes - The requested scopes (defaults to `['openid']`).
+   * @param scopes - The requested scopes (defaults to `['openid profile email']`).
    * @returns A promise resolving to a `SignInRequest` object.
    */
   generateSigninRequest(callbackUrl: URL, scopes?: string[]): Promise<SignInRequest>;
@@ -145,7 +145,10 @@ export abstract class BaseAuthenticationStrategy implements AuthenticationStrate
     );
   }
 
-  public generateSigninRequest = async (callbackUrl: URL, scopes: string[] = ['openid']): Promise<SignInRequest> =>
+  public generateSigninRequest = async (
+    callbackUrl: URL,
+    scopes: string[] = ['openid', 'profile', 'email'],
+  ): Promise<SignInRequest> =>
     withSpan('auth.strategy.generate_signin_request', async (span) => {
       this.log.debug('Generating sign-in request', { strategy: this.name, scopes });
 

@@ -129,6 +129,7 @@ async function handleAuthorizeRequest({ request }: Route.LoaderArgs): Promise<Re
 
   const accessToken = await new SignJWT({
     name: 'Application Developer',
+    roles: ['employee'],
     scopes: scope.split(' '),
   })
     .setProtectedHeader({ alg: 'RS256' })
@@ -142,7 +143,6 @@ async function handleAuthorizeRequest({ request }: Route.LoaderArgs): Promise<Re
   const idToken = await new SignJWT({
     name: 'Application Developer',
     nonce: nonce,
-    roles: ['user'],
   })
     .setProtectedHeader({ alg: 'RS256' })
     .setAudience(config.clientId)

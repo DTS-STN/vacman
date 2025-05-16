@@ -21,7 +21,7 @@ declare global {
   /**
    * The application's supported roles.
    */
-  type Role = 'admin' | 'user';
+  type Role = 'admin' | 'hiring-manager' | 'hr-advisor' | 'employee';
 
   /**
    * Add the client-side environment to the global namespace.

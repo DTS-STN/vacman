@@ -96,7 +96,7 @@ async function handleLogin(
   span?.setAttribute('strategy', authStrategy.name);
 
   span?.addEvent('signin_request.start');
-  const signinRequest = await authStrategy.generateSigninRequest(callbackUrl, ['openid', 'profile', 'email']);
+  const signinRequest = await authStrategy.generateSigninRequest(callbackUrl, serverEnvironment.AUTH_SCOPES.split(' '));
   span?.addEvent('signin_request.success');
 
   if (returnTo && !returnTo.startsWith('/')) {

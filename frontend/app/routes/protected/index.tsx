@@ -14,7 +14,7 @@ export const handle = {
 } as const satisfies RouteHandle;
 
 export async function loader({ context, request }: Route.LoaderArgs) {
-  requireAllRoles(context.session, new URL(request.url), ['user']);
+  requireAllRoles(context.session, new URL(request.url), ['employee']);
   const { t } = await getTranslation(request, handle.i18nNamespace);
   return { documentTitle: t('protected:index.page-title') };
 }
