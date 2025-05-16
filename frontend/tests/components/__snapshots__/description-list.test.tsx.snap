@@ -1,0 +1,21 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`DescriptionListItem > should render description list item component > expected html 1`] = `
+<div>
+  <div
+    class="py-6 sm:grid sm:grid-cols-3 sm:gap-4"
+    id="id"
+  >
+    <dt
+      class="font-semibold"
+    >
+      term
+    </dt>
+    <dd
+      class="mt-1 sm:col-span-2 sm:mt-0"
+    >
+      description list item
+    </dd>
+  </div>
+</div>
+`;
