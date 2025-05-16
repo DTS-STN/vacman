@@ -16,8 +16,8 @@ locals {
 }
 
 inputs = {
-  app_name            = "Vacancy Manager: Backend API (nonprod)"
-  app_identifier_uris = ["api://nonprod.esdc-edsc.gc.ca/vacman-api"]
+  app_name            = "Vacancy Manager (nonprod)"
+  app_identifier_uris = ["api://nonprod.esdc-edsc.gc.ca/vacman"]
   app_passwords       = ["Default secret"]
 
   app_owners = [
