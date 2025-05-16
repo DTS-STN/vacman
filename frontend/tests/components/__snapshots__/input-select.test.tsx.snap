@@ -177,7 +177,7 @@ exports[`InputSelect > should render input select component with required > expe
         aria-hidden="true"
       >
         (
-        input-label.required
+        input.required
         )
       </span>
     </label>
