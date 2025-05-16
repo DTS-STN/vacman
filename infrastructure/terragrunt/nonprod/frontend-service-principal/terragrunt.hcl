@@ -25,4 +25,8 @@ inputs = {
     "jordan.willis@hrsdc-rhdcc.gc.ca",
     "landon.a.harrison@hrsdc-rhdcc.gc.ca",
   ]
+
+  app_web_redirect_uris = [
+    "http://localhost:3000/auth/callback/azuread",
+  ]
 }
