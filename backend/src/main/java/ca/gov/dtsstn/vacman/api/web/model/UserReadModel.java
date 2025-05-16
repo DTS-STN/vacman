@@ -23,5 +23,9 @@ public record UserReadModel(
 	String lastModifiedBy,
 
 	@Schema(accessMode = AccessMode.READ_ONLY, description = "The time this user was last modified.", example = "2000-01-01T00:00:00Z")
-	Instant lastModifiedDate
+	Instant lastModifiedDate,
+
+	@Schema(accessMode = AccessMode.READ_ONLY, description = "The revision version of this user.", example = "0")
+	Long version
+
 ) {}

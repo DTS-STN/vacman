@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import ca.gov.dtsstn.vacman.api.service.UserService;
 import ca.gov.dtsstn.vacman.api.web.model.UserCollectionModel;
 import ca.gov.dtsstn.vacman.api.web.model.UserCreateModel;
+import ca.gov.dtsstn.vacman.api.web.model.UserReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.mapper.UserModelMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -39,8 +40,8 @@ public class UsersController {
 
 	@PostMapping
 	@Operation(summary = "Create a new user.")
-	public void createUser(@RequestBody @Valid UserCreateModel user) {
-		userService.createUser(userModelMapper.toEntity(user));
+	public UserReadModel createUser(@RequestBody @Valid UserCreateModel user) {
+		return userModelMapper.toModel(userService.createUser(userModelMapper.toEntity(user)));
 	}
 
 }
