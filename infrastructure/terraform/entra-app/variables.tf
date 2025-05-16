@@ -65,6 +65,13 @@ variable "app_roles" {
   default = []
 }
 
+variable "app_spa_redirect_uris" {
+  description = "OAuth 2.0 redirect URIs for authentication response handling (e.g., authorization codes, access tokens)."
+  type        = set(string)
+  default     = []
+}
+
+
 variable "app_web_redirect_uris" {
   description = "OAuth 2.0 redirect URIs for authentication response handling (e.g., authorization codes, access tokens)."
   type        = set(string)

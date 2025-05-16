@@ -29,4 +29,5 @@ inputs = {
   app_web_redirect_uris = [
     "http://localhost:3000/auth/callback/azuread",
   ]
+
 }

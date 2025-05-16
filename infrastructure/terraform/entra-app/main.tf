@@ -128,6 +128,10 @@ resource "azuread_application" "main" {
     }
   }
 
+  single_page_application {
+    # define allowed redirect URIs for authentication flows
+    redirect_uris = var.app_spa_redirect_uris
+  }
 
   web {
     # define allowed redirect URIs for authentication flows

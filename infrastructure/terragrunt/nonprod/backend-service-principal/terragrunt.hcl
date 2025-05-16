@@ -57,8 +57,8 @@ inputs = {
     },
   ]
 
-  app_web_redirect_uris = [
-    "http://localhost:3000/auth/callback/azuread",
+  app_spa_redirect_uris = [
+    "http://localhost:8080/swagger-ui/oauth2-redirect.html",
   ]
 
   role_assignments = {
