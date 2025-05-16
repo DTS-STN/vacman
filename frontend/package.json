@@ -18,8 +18,8 @@
     "start": "cross-env NODE_ENV=production node --import ./build/server/telemetry.js ./build/server/server.js",
     "test": "vitest",
     "test:e2e": "playwright test",
-    "format:check": "prettier --cache --check ./",
-    "format:write": "prettier --write ./",
+    "format:check": "prettier --cache --cache-location ./node_modules/.cache/prettier/ --check ./",
+    "format:write": "prettier --cache --cache-location ./node_modules/.cache/prettier/ --write ./",
     "lint:check": "eslint --cache --cache-location: ./node_modules/.cache/eslint/ ./",
     "typecheck": "react-router typegen && tsc"
   },

@@ -35,7 +35,7 @@ updates:
           - '@react-router/*'
 
   # Enable version updates for Docker
-  - package-ecosystem: "docker"
+  - package-ecosystem: 'docker'
     directory: /frontend
     schedule:
       interval: daily
