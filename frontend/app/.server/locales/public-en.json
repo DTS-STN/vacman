@@ -3,8 +3,5 @@
     "page-title": "Welcome to VacMan",
     "about": "The VacMan initiative!",
     "navigate": "Go to the employee portal"
-  },
-  "input": {
-    "required": "required"
   }
 }
