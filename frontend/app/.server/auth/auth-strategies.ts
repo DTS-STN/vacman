@@ -1,7 +1,19 @@
 import { SpanStatusCode } from '@opentelemetry/api';
-import * as jose from 'jose';
-import type { AuthorizationServer, Client, ClientAuth, IDToken } from 'oauth4webapi';
-import * as oauth from 'oauth4webapi';
+import { decodeJwt } from 'jose';
+import type { AuthorizationServer, Client, ClientAuth, IDToken, JWTAccessTokenClaims } from 'oauth4webapi';
+import {
+  allowInsecureRequests,
+  authorizationCodeGrantRequest,
+  calculatePKCECodeChallenge,
+  ClientSecretPost,
+  discoveryRequest,
+  generateRandomCodeVerifier,
+  generateRandomNonce,
+  generateRandomState,
+  processAuthorizationCodeResponse,
+  processDiscoveryResponse,
+  validateAuthResponse,
+} from 'oauth4webapi';
 
 import { LogFactory } from '~/.server/logging';
 import { withSpan } from '~/.server/utils/telemetry-utils';
@@ -20,8 +32,18 @@ export interface AuthServer extends Readonly<AuthorizationServer> {
 /**
  * Like {@link IDToken}, but with an optional `roles` property.
  */
+export interface AccessTokenClaims extends JWTAccessTokenClaims {
+  readonly name?: string;
+  readonly roles?: string[];
+}
+
+/**
+ * Like {@link IDToken}, but with an optional `roles` property.
+ */
 export interface IDTokenClaims extends IDToken {
-  roles?: string[];
+  readonly email?: string;
+  readonly name?: string;
+  readonly roles?: string[];
 }
 
 /**
@@ -39,22 +61,15 @@ export interface SignInRequest {
  */
 export interface TokenSet {
   readonly accessToken: string;
+  readonly accessTokenClaims: AccessTokenClaims;
   readonly idToken: string;
+  readonly idTokenClaims: IDTokenClaims;
 }
 
 /**
  * Defines the interface for an authentication strategy.
  */
 export interface AuthenticationStrategy {
-  /**
-   * Decodes and verifies a JWT access token from the request.
-   *
-   * @param request - The incoming request containing the JWT access token.
-   * @param expectedAudience - The expected audience of the JWT access token.
-   * @returns A promise resolving to the decoded and verified JWT access token claims.
-   */
-  decodeAndVerifyJwt(jwt: string, expectedAudience: string): Promise<jose.JWTPayload & { roles?: string[] }>;
-
   /**
    * Generates a sign-in request with the specified scopes.
    *
@@ -83,7 +98,7 @@ export interface AuthenticationStrategy {
   /**
    * The name of the implementation strategy.
    */
-  name: string;
+  readonly name: string;
 }
 
 /**
@@ -114,9 +129,8 @@ export abstract class BaseAuthenticationStrategy implements AuthenticationStrate
           strategy: this.name,
         });
 
-        oauth
-          .discoveryRequest(issuerUrl, { [oauth.allowInsecureRequests]: this.allowInsecure })
-          .then((response) => oauth.processDiscoveryResponse(issuerUrl, response))
+        discoveryRequest(issuerUrl, { [allowInsecureRequests]: this.allowInsecure })
+          .then((response) => processDiscoveryResponse(issuerUrl, response))
           .then((authorizationServer) => {
             this.log.trace('Fetched authorization server details', { authorizationServer });
 
@@ -159,11 +173,11 @@ export abstract class BaseAuthenticationStrategy implements AuthenticationStrate
 
       const authorizationServer = await this.authorizationServer;
 
-      const codeVerifier = oauth.generateRandomCodeVerifier();
-      const nonce = oauth.generateRandomNonce();
-      const state = oauth.generateRandomState();
+      const codeVerifier = generateRandomCodeVerifier();
+      const nonce = generateRandomNonce();
+      const state = generateRandomState();
 
-      const codeChallenge = await oauth.calculatePKCECodeChallenge(codeVerifier);
+      const codeChallenge = await calculatePKCECodeChallenge(codeVerifier);
       this.log.trace('Calculated code challenge', { codeChallenge });
 
       const authorizationEndpointUrl = new URL(authorizationServer.authorization_endpoint);
@@ -203,19 +217,19 @@ export abstract class BaseAuthenticationStrategy implements AuthenticationStrate
 
       const authorizationServer = await this.authorizationServer;
 
-      const callbackParameters = oauth.validateAuthResponse(authorizationServer, this.client, parameters, expectedState);
+      const callbackParameters = validateAuthResponse(authorizationServer, this.client, parameters, expectedState);
 
-      const response = await oauth.authorizationCodeGrantRequest(
+      const response = await authorizationCodeGrantRequest(
         authorizationServer,
         this.client,
         this.clientAuth,
         callbackParameters,
         callbackUrl.toString(),
         codeVerifier,
-        { [oauth.allowInsecureRequests]: this.allowInsecure },
+        { [allowInsecureRequests]: this.allowInsecure },
       );
 
-      const tokenEndpointResponse = await oauth.processAuthorizationCodeResponse(
+      const tokenEndpointResponse = await processAuthorizationCodeResponse(
         authorizationServer, //
         this.client,
         response,
@@ -224,36 +238,18 @@ export abstract class BaseAuthenticationStrategy implements AuthenticationStrate
 
       this.log.trace('Received token response', { tokenEndpointResponse });
 
-      const idTokenClaims = oauth.getValidatedIdTokenClaims(tokenEndpointResponse);
-
-      if (!tokenEndpointResponse.id_token || !idTokenClaims) {
+      if (!tokenEndpointResponse.id_token) {
         // this should never happen, but oauth4webapi allows for it so 🤷
         throw new AppError('ID token not found in token response', ErrorCodes.MISSING_ID_TOKEN);
       }
 
       return {
         accessToken: tokenEndpointResponse.access_token,
+        accessTokenClaims: decodeJwt<AccessTokenClaims>(tokenEndpointResponse.access_token),
         idToken: tokenEndpointResponse.id_token,
-        idTokenClaims: idTokenClaims,
+        idTokenClaims: decodeJwt<IDTokenClaims>(tokenEndpointResponse.id_token),
       };
     });
-
-  /**
-   * Decodes and verifies a JWT access token.
-   *
-   * @param jwt - The JWT string.
-   * @param expectedAudience - The expected audience claim ('aud').
-   *   This *must* match the intended recipient identifier for the token
-   *   (e.g., the application's client ID or a resource uri).
-   * @returns A promise resolving to the decoded and verified JWT payload.
-   */
-  public async decodeAndVerifyJwt(jwt: string, expectedAudience: string): Promise<jose.JWTPayload & { roles?: string[] }> {
-    this.log.debug('Performing JWT verification');
-    const authorizationServer = await this.authorizationServer;
-    const getKey = jose.createRemoteJWKSet(new URL(authorizationServer.jwks_uri));
-    const options = { audience: expectedAudience, issuer: authorizationServer.issuer };
-    return (await jose.jwtVerify<{ roles?: string[] }>(jwt, getKey, options)).payload;
-  }
 }
 
 /**
@@ -261,7 +257,7 @@ export abstract class BaseAuthenticationStrategy implements AuthenticationStrate
  */
 export class AzureADAuthenticationStrategy extends BaseAuthenticationStrategy {
   public constructor(issuerUrl: URL, clientId: string, clientSecret: string) {
-    super('azuread', issuerUrl, { client_id: clientId }, oauth.ClientSecretPost(clientSecret));
+    super('azuread', issuerUrl, { client_id: clientId }, ClientSecretPost(clientSecret));
   }
 }
 
@@ -271,6 +267,6 @@ export class AzureADAuthenticationStrategy extends BaseAuthenticationStrategy {
  */
 export class LocalAuthenticationStrategy extends BaseAuthenticationStrategy {
   public constructor(issuerUrl: URL, clientId: string, clientSecret: string) {
-    super('local', issuerUrl, { client_id: clientId }, oauth.ClientSecretPost(clientSecret), true);
+    super('local', issuerUrl, { client_id: clientId }, ClientSecretPost(clientSecret), true);
   }
 }

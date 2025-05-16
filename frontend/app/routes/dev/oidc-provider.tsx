@@ -7,7 +7,7 @@ import { setTimeout } from 'node:timers';
 
 import type { Route } from './+types/oidc-provider';
 
-import type { TokenSet } from '~/.server/auth/auth-strategies';
+import type { AccessTokenClaims, IDTokenClaims, TokenSet } from '~/.server/auth/auth-strategies';
 import { serverEnvironment } from '~/.server/environment';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 
@@ -127,11 +127,21 @@ async function handleAuthorizeRequest({ request }: Route.LoaderArgs): Promise<Re
   const code = randomUUID();
   const { privateKey } = await getKeyPair();
 
-  const accessToken = await new SignJWT({
+  const accessTokenClaims = {
+    aud: config.clientId,
+    client_id: config.clientId,
+    exp: Math.floor(Date.now() / 1000) + 24 * 60 * 60,
+    iat: Math.floor(Date.now() / 1000),
+    iss: config.issuer,
+    jti: randomUUID(),
     name: 'Application Developer',
+    nonce: nonce,
     roles: ['employee'],
     scopes: scope.split(' '),
-  })
+    sub: '00000000-0000-0000-0000-000000000000',
+  } as const satisfies AccessTokenClaims;
+
+  const accessToken = await new SignJWT(accessTokenClaims)
     .setProtectedHeader({ alg: 'RS256' })
     .setAudience(config.clientId)
     .setExpirationTime('24h')
@@ -140,10 +150,19 @@ async function handleAuthorizeRequest({ request }: Route.LoaderArgs): Promise<Re
     .setSubject('00000000-0000-0000-0000-000000000000')
     .sign(privateKey);
 
-  const idToken = await new SignJWT({
+  const idTokenClaims = {
+    aud: config.clientId,
+    exp: Math.floor(Date.now() / 1000) + 24 * 60 * 60,
+    iat: Math.floor(Date.now() / 1000),
+    iss: config.issuer,
     name: 'Application Developer',
     nonce: nonce,
-  })
+    roles: ['employee'],
+    scopes: scope.split(' '),
+    sub: '00000000-0000-0000-0000-000000000000',
+  } as const satisfies IDTokenClaims;
+
+  const idToken = await new SignJWT(idTokenClaims)
     .setProtectedHeader({ alg: 'RS256' })
     .setAudience(config.clientId)
     .setExpirationTime('24h')
@@ -153,7 +172,7 @@ async function handleAuthorizeRequest({ request }: Route.LoaderArgs): Promise<Re
     .sign(privateKey);
 
   // store in the token cache for 30 seconds (for retrieval during token exchange step)
-  tokenCache.set(code, { accessToken, idToken });
+  tokenCache.set(code, { accessToken, accessTokenClaims, idToken, idTokenClaims });
   setTimeout(() => tokenCache.delete(code), 30_000);
 
   return redirect(`${redirectUri}?code=${code}&state=${state}`);

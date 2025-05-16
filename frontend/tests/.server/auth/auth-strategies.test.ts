@@ -1,5 +1,16 @@
-import { createRemoteJWKSet, jwtVerify } from 'jose';
-import * as oauth from 'oauth4webapi';
+import { decodeJwt } from 'jose';
+import {
+  allowInsecureRequests,
+  calculatePKCECodeChallenge,
+  ClientSecretPost,
+  discoveryRequest,
+  generateRandomCodeVerifier,
+  generateRandomNonce,
+  generateRandomState,
+  processAuthorizationCodeResponse,
+  processDiscoveryResponse,
+  validateAuthResponse,
+} from 'oauth4webapi';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { mock } from 'vitest-mock-extended';
 
@@ -15,9 +26,9 @@ vi.mock('oauth4webapi');
 
 describe('auth-strategies', () => {
   beforeEach(() => {
-    vi.mocked(oauth.discoveryRequest).mockResolvedValue(mock());
+    vi.mocked(discoveryRequest).mockResolvedValue(mock());
 
-    vi.mocked(oauth.processDiscoveryResponse).mockResolvedValue({
+    vi.mocked(processDiscoveryResponse).mockResolvedValue({
       issuer: 'https://auth.example.com/issuer',
       authorization_endpoint: 'https://auth.example.com/authorize',
       jwks_uri: 'https://auth.example.com/jwks',
@@ -31,7 +42,7 @@ describe('auth-strategies', () => {
           'test',
           new URL('https://auth.example.com/issuer'),
           { client_id: 'test_client_id' },
-          oauth.ClientSecretPost('test_client_secret'),
+          ClientSecretPost('test_client_secret'),
         );
       }
 
@@ -53,7 +64,7 @@ describe('auth-strategies', () => {
       });
 
       it('should reject if no authorization endpoint is found', async () => {
-        vi.mocked(oauth.processDiscoveryResponse).mockResolvedValue({
+        vi.mocked(processDiscoveryResponse).mockResolvedValue({
           issuer: 'https://auth.example.com/issuer',
           jwks_uri: 'https://auth.example.com/jwks',
           authorization_endpoint: undefined,
@@ -66,7 +77,7 @@ describe('auth-strategies', () => {
       });
 
       it('should reject if no jwks endpoint is found', async () => {
-        vi.mocked(oauth.processDiscoveryResponse).mockResolvedValue({
+        vi.mocked(processDiscoveryResponse).mockResolvedValue({
           issuer: 'https://auth.example.com/issuer',
           authorization_endpoint: 'https.auth.example.com/auth',
           jwks_uri: undefined,
@@ -79,47 +90,15 @@ describe('auth-strategies', () => {
       });
     });
 
-    describe('decodeAndVerifyJwt', () => {
-      it('should decode and verify JWT successfully', async () => {
-        vi.mocked(createRemoteJWKSet, { partial: true }).mockReturnThis();
-
-        vi.mocked(jwtVerify, { partial: true }).mockResolvedValue({
-          payload: {
-            roles: ['admin'],
-            sub: '00000000-0000-0000-0000-000000000000',
-          },
-        });
-
-        expect(await new TestAuthStrategy().decodeAndVerifyJwt('jwt', 'audience')).toEqual({
-          roles: ['admin'],
-          sub: '00000000-0000-0000-0000-000000000000',
-        });
-
-        expect(vi.mocked(createRemoteJWKSet)).toHaveBeenCalledWith(new URL('https://auth.example.com/jwks'));
-
-        expect(vi.mocked(jwtVerify)).toHaveBeenCalledWith('jwt', expect.anything(), {
-          audience: 'audience',
-          issuer: 'https://auth.example.com/issuer',
-        });
-      });
-
-      it('should throw an error if JWT verification fails', async () => {
-        vi.mocked(createRemoteJWKSet, { partial: true }).mockReturnThis();
-        vi.mocked(jwtVerify).mockRejectedValue(new Error('Invalid JWT'));
-
-        await expect(new TestAuthStrategy().decodeAndVerifyJwt('jwt', 'audience')).rejects.toThrow('Invalid JWT');
-      });
-    });
-
     describe('exchangeAuthCode', () => {
       it('should exchange authorization code for tokens', async () => {
-        vi.mocked(oauth.processAuthorizationCodeResponse).mockResolvedValue({
+        vi.mocked(processAuthorizationCodeResponse).mockResolvedValue({
           access_token: 'test_access_token',
           token_type: 'bearer',
           id_token: 'test_id_token',
         });
 
-        vi.mocked(oauth.getValidatedIdTokenClaims).mockReturnValue({
+        vi.mocked(decodeJwt).mockReturnValue({
           iss: 'https://auth.example.com/issuer',
           sub: 'test_subject',
           aud: 'test_client_id',
@@ -143,6 +122,13 @@ describe('auth-strategies', () => {
 
         expect(tokenSet).toEqual({
           accessToken: 'test_access_token',
+          accessTokenClaims: {
+            iss: 'https://auth.example.com/issuer',
+            sub: 'test_subject',
+            aud: 'test_client_id',
+            iat: Math.floor(Date.now() / 1000),
+            exp: Math.floor(Date.now() / 1000) + 3600,
+          },
           idToken: 'test_id_token',
           idTokenClaims: {
             iss: 'https://auth.example.com/issuer',
@@ -157,10 +143,10 @@ describe('auth-strategies', () => {
 
     describe('generateSigninRequest', () => {
       it('should generate signin request with default openid scope', async () => {
-        vi.mocked(oauth.generateRandomCodeVerifier).mockReturnValue('mock_code_verifier');
-        vi.mocked(oauth.generateRandomNonce).mockReturnValue('mock_nonce');
-        vi.mocked(oauth.generateRandomState).mockReturnValue('mock_state');
-        vi.mocked(oauth.calculatePKCECodeChallenge).mockResolvedValue('mock_code_challenge');
+        vi.mocked(generateRandomCodeVerifier).mockReturnValue('mock_code_verifier');
+        vi.mocked(generateRandomNonce).mockReturnValue('mock_nonce');
+        vi.mocked(generateRandomState).mockReturnValue('mock_state');
+        vi.mocked(calculatePKCECodeChallenge).mockResolvedValue('mock_code_challenge');
 
         const callbackUrl = new URL('https://auth.example.com/callback');
         const signinRequest = await new TestAuthStrategy().generateSigninRequest(callbackUrl);
@@ -175,7 +161,7 @@ describe('auth-strategies', () => {
             '&nonce=mock_nonce' +
             '&redirect_uri=https%3A%2F%2Fauth.example.com%2Fcallback' +
             '&response_type=code' +
-            '&scope=openid' +
+            '&scope=openid+profile+email' +
             '&state=mock_state'),
           codeVerifier: 'mock_code_verifier',
           nonce: 'mock_nonce',
@@ -187,12 +173,12 @@ describe('auth-strategies', () => {
 
   describe('AzureADAuthenticationStrategy', () => {
     it('should construct a new AzureADAuthenticationStrategy with the correct constructor parameters', async () => {
-      vi.mocked(oauth.processAuthorizationCodeResponse, { partial: true }).mockResolvedValue({
+      vi.mocked(processAuthorizationCodeResponse, { partial: true }).mockResolvedValue({
         access_token: 'access-token',
         id_token: 'id-token',
       });
 
-      vi.mocked(oauth.validateAuthResponse).mockReturnThis();
+      vi.mocked(validateAuthResponse).mockReturnThis();
 
       const authenticationStrategy = new AzureADAuthenticationStrategy(
         new URL('https://auth.example.com/issuer'),
@@ -210,11 +196,11 @@ describe('auth-strategies', () => {
 
       expect(authenticationStrategy.name).toEqual('azuread');
 
-      expect(vi.mocked(oauth.discoveryRequest)).toHaveBeenCalledWith(new URL('https://auth.example.com/issuer'), {
-        [oauth.allowInsecureRequests]: false,
+      expect(vi.mocked(discoveryRequest)).toHaveBeenCalledWith(new URL('https://auth.example.com/issuer'), {
+        [allowInsecureRequests]: false,
       });
 
-      expect(vi.mocked(oauth.validateAuthResponse)).toHaveBeenCalledWith(
+      expect(vi.mocked(validateAuthResponse)).toHaveBeenCalledWith(
         {
           authorization_endpoint: 'https://auth.example.com/authorize',
           issuer: 'https://auth.example.com/issuer',
@@ -229,12 +215,12 @@ describe('auth-strategies', () => {
 
   describe('LocalAuthenticationStrategy', () => {
     it('should construct a new LocalAuthenticationStrategy with the correct constructor parameters', async () => {
-      vi.mocked(oauth.processAuthorizationCodeResponse, { partial: true }).mockResolvedValue({
+      vi.mocked(processAuthorizationCodeResponse, { partial: true }).mockResolvedValue({
         access_token: 'access-token',
         id_token: 'id-token',
       });
 
-      vi.mocked(oauth.validateAuthResponse).mockReturnThis();
+      vi.mocked(validateAuthResponse).mockReturnThis();
 
       const authenticationStrategy = new LocalAuthenticationStrategy(
         new URL('https://auth.example.com/issuer'),
@@ -252,11 +238,11 @@ describe('auth-strategies', () => {
 
       expect(authenticationStrategy.name).toEqual('local');
 
-      expect(vi.mocked(oauth.discoveryRequest)).toHaveBeenCalledWith(new URL('https://auth.example.com/issuer'), {
-        [oauth.allowInsecureRequests]: true,
+      expect(vi.mocked(discoveryRequest)).toHaveBeenCalledWith(new URL('https://auth.example.com/issuer'), {
+        [allowInsecureRequests]: true,
       });
 
-      expect(vi.mocked(oauth.validateAuthResponse)).toHaveBeenCalledWith(
+      expect(vi.mocked(validateAuthResponse)).toHaveBeenCalledWith(
         {
           authorization_endpoint: 'https://auth.example.com/authorize',
           issuer: 'https://auth.example.com/issuer',

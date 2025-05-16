@@ -1,11 +1,12 @@
 import 'express-session';
 
-import type { IDTokenClaims } from '~/.server/auth/auth-strategies';
+import type { AccessTokenClaims, IDTokenClaims } from '~/.server/auth/auth-strategies';
 
 declare module 'express-session' {
   interface SessionData {
     authState: {
       accessToken: string;
+      accessTokenClaims: AccessTokenClaims;
       idToken: string;
       idTokenClaims: IDTokenClaims;
     };

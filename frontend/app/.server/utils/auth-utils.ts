@@ -6,8 +6,6 @@
  */
 import { redirect } from 'react-router';
 
-import { decodeJwt } from 'jose';
-
 import { LogFactory } from '~/.server/logging';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
@@ -24,19 +22,10 @@ export type AuthenticatedSession = AppSession & {
 };
 
 /**
- * Extract the roles claim from the access token that is stored in session.
- * Returns an empty array if token doesn't exist, or if no role claim is found.
- */
-export function getRoles(session: AppSession): string[] {
-  if (!session.authState?.accessToken) return [];
-  return decodeJwt<{ roles?: string[] }>(session.authState.accessToken).roles ?? [];
-}
-
-/**
  * Checks if the user session contains the specified role.
  */
 export function hasRole(session: AppSession, role: Role): boolean {
-  return getRoles(session).includes(role);
+  return session.authState?.accessTokenClaims.roles?.includes(role) ?? false;
 }
 
 /**
