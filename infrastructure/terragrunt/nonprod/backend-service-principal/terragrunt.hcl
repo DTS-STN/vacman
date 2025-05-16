@@ -26,6 +26,17 @@ inputs = {
     "landon.a.harrison@hrsdc-rhdcc.gc.ca",
   ]
 
+  app_oauth2_permission_scopes = [
+    {
+      id                         = "a47c2131-aa47-4d5c-ae3a-484bf1cdd965"
+      value                      = "Users.Manage"
+      admin_consent_description  = "Allows the application to manage system users."
+      admin_consent_display_name = "Manage application users"
+      user_consent_description   = "Allows the application to manage system users."
+      user_consent_display_name  = "Manage application users"
+    }
+  ]
+
   app_required_resource_accesses = [{
     resource_app_id = local.msgraph_api.id
 
@@ -70,6 +81,7 @@ inputs = {
 
   app_web_redirect_uris = [
     "http://localhost:3000/auth/callback/azuread",
+    "https://oauth.tools/callback/code",
   ]
 
   role_assignments = {
