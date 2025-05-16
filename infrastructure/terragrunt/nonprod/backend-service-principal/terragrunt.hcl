@@ -16,8 +16,8 @@ locals {
 }
 
 inputs = {
-  app_name            = "Vacancy Manager: Backend Service Principal (nonprod)"
-  app_identifier_uris = ["api://nonprod.vacman.esdc-edsc.gc.ca/backend"]
+  app_name            = "Vacancy Manager: Backend API (nonprod)"
+  app_identifier_uris = ["api://nonprod.esdc-edsc.gc.ca/vacman-api"]
   app_passwords       = ["Default secret"]
 
   app_owners = [
@@ -37,43 +37,32 @@ inputs = {
     }
   ]
 
-  app_required_resource_accesses = [{
-    resource_app_id = local.msgraph_api.id
-
-    resource_accesses = [
-      {
-        id   = local.msgraph_api.roles["User.Read.All"]
-        type = "Role",
-      },
-    ]
-  }]
-
   app_roles = [
     {
       display_name = "Administrator"
       description  = "Administrator"
-      group_name   = "Vacancy Manager Administrators (nonprod)"
+      group_name   = "Vacancy Manager: Administrators (nonprod)"
       id           = "cb7175b7-6858-4b06-849c-5599cd5c5b9b"
       value        = "admin"
     },
     {
       display_name = "Hiring Manager"
       description  = "Hiring Manager"
-      group_name   = "Vacancy Manager Hiring Managers (nonprod)"
+      group_name   = "Vacancy Manager: Hiring Managers (nonprod)"
       id           = "c37fcf70-a2f5-4b02-bae6-b552f4fee249"
       value        = "hiring-manager"
     },
     {
       display_name = "HR Advisor"
       description  = "HR Advisor"
-      group_name   = "Vacancy Manager HR Advisors (nonprod)"
+      group_name   = "Vacancy Manager: HR Advisors (nonprod)"
       id           = "7b15982a-d72a-476a-8ac3-2691354680ab"
       value        = "hr-advisor"
     },
     {
       display_name = "Employee"
       description  = "Employee"
-      group_name   = "Vacancy Manager Employees (nonprod)"
+      group_name   = "Vacancy Manager: Employees (nonprod)"
       id           = "f40d2349-41e5-4e14-9250-6923681c8538"
       value        = "employee"
     },
@@ -81,7 +70,6 @@ inputs = {
 
   app_web_redirect_uris = [
     "http://localhost:3000/auth/callback/azuread",
-    "https://oauth.tools/callback/code",
   ]
 
   role_assignments = {
