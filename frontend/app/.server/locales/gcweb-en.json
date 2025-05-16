@@ -57,5 +57,9 @@
   },
   "input": {
     "required": "required"
+  },
+  "input-file": {
+    "choose-file": "Choose File",
+    "no-file": "No file chosen"
   }
 }
