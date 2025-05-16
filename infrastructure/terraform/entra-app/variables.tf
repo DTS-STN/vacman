@@ -62,6 +62,7 @@ variable "app_roles" {
     group_name           = string
     value                = string
   }))
+  default = []
 }
 
 variable "app_web_redirect_uris" {
@@ -85,6 +86,7 @@ variable "app_web_implicit_grants_id_token_issuance_enabled" {
 variable "role_assignments" {
   description = "Map of role values to lists of user email addresses to be assigned to those roles."
   type        = map(list(string))
+  default     = {}
 }
 
 variable "service_principal_group_memberships" {
