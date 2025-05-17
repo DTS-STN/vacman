@@ -13,6 +13,7 @@ import ca.gov.dtsstn.vacman.api.web.model.UserCreateModel;
 import ca.gov.dtsstn.vacman.api.web.model.UserReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.mapper.UserModelMapper;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
@@ -29,6 +30,7 @@ public class UsersController {
 	}
 
 	@GetMapping
+	@SecurityRequirement(name = "OAuth")
 	@Operation(summary = "Get all users.")
 	public UserCollectionModel getAllUsers() {
 		final var users = userService.getAllUsers().stream()
@@ -39,6 +41,7 @@ public class UsersController {
 	}
 
 	@PostMapping
+	@SecurityRequirement(name = "OAuth")
 	@Operation(summary = "Create a new user.")
 	public UserReadModel createUser(@RequestBody @Valid UserCreateModel user) {
 		return userModelMapper.toModel(userService.createUser(userModelMapper.toEntity(user)));
