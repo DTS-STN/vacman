@@ -20,7 +20,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.access.AccessDeniedHandler;
-import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -46,7 +45,6 @@ public class AuthErrorHandler implements AccessDeniedHandler, AuthenticationEntr
 	private final ObjectMapper objectMapper;
 
 	public AuthErrorHandler(ObjectMapper objectMapper) {
-		Assert.notNull(objectMapper, "objectMapper is required; it must not be null");
 		this.objectMapper = objectMapper;
 	}
 
