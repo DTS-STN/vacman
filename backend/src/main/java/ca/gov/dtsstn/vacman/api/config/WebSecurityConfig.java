@@ -4,6 +4,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -13,18 +14,25 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 
+import ca.gov.dtsstn.vacman.api.web.AuthenticationErrorHandler;
+
 @Configuration
 @EnableMethodSecurity
 public class WebSecurityConfig {
 
 	private static final Logger log = LoggerFactory.getLogger(WebSecurityConfig.class);
 
+	@Autowired AuthenticationErrorHandler authenticationErrorHandler;
+
 	@Bean SecurityFilterChain apiSecurityFilterChain(HttpSecurity http) throws Exception {
 		log.info("Configuring API security");
 
 		http.securityMatcher("/api/**")
 			.csrf(csrf -> csrf.disable())
-			.oauth2ResourceServer(oauth2ResourceServer -> oauth2ResourceServer.jwt(withDefaults()))
+			.exceptionHandling(exceptionHandling -> exceptionHandling.accessDeniedHandler(authenticationErrorHandler))
+			.oauth2ResourceServer(oauth2ResourceServer -> oauth2ResourceServer
+				.authenticationEntryPoint(authenticationErrorHandler)
+				.jwt(withDefaults()))
 			.sessionManagement(sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
 		http.authorizeHttpRequests(authorizeHttpRequests -> authorizeHttpRequests
