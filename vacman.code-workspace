@@ -11,6 +11,7 @@
     }
   ],
   "settings": {
+    "java.configuration.updateBuildConfiguration": "automatic",
     "tailwindCSS.experimental.configFile": "frontend/app/tailwind.css"
   }
 }

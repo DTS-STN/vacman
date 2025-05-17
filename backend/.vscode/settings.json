@@ -1,0 +1,9 @@
+{
+  "[java]": {
+    "editor.insertSpaces": false
+  },
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": "always"
+  },
+  "files.trimTrailingWhitespace": true
+}
