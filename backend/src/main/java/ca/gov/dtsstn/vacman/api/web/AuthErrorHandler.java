@@ -39,13 +39,13 @@ import jakarta.servlet.http.HttpServletResponse;
  */
 @RestControllerAdvice
 @Order(Ordered.HIGHEST_PRECEDENCE) // this should fire before ApiErrorHandler
-public class AuthenticationErrorHandler implements AccessDeniedHandler, AuthenticationEntryPoint {
+public class AuthErrorHandler implements AccessDeniedHandler, AuthenticationEntryPoint {
 
-	private static final Logger log = LoggerFactory.getLogger(AuthenticationErrorHandler.class);
+	private static final Logger log = LoggerFactory.getLogger(AuthErrorHandler.class);
 
 	private final ObjectMapper objectMapper;
 
-	public AuthenticationErrorHandler(ObjectMapper objectMapper) {
+	public AuthErrorHandler(ObjectMapper objectMapper) {
 		Assert.notNull(objectMapper, "objectMapper is required; it must not be null");
 		this.objectMapper = objectMapper;
 	}

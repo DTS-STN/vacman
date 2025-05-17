@@ -16,10 +16,16 @@ public class Application {
 
 	private static final Logger log = LoggerFactory.getLogger(Application.class);
 
+	/**
+	 * The application entry point.
+	 */
 	public static void main(String[] args) {
 		SpringApplication.run(Application.class, args);
 	}
 
+	/**
+	 * An {@link EventListener} that prints some useful startup information.
+	 */
 	@EventListener({ ApplicationReadyEvent.class })
 	protected void handleApplicationReadyEvent(ApplicationReadyEvent event) {
 		final var environment = event.getApplicationContext().getEnvironment();

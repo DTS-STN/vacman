@@ -14,7 +14,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 
-import ca.gov.dtsstn.vacman.api.web.AuthenticationErrorHandler;
+import ca.gov.dtsstn.vacman.api.web.AuthErrorHandler;
 
 @Configuration
 @EnableMethodSecurity
@@ -22,16 +22,19 @@ public class WebSecurityConfig {
 
 	private static final Logger log = LoggerFactory.getLogger(WebSecurityConfig.class);
 
-	@Autowired AuthenticationErrorHandler authenticationErrorHandler;
+	@Autowired AuthErrorHandler authErrorHandler;
 
+	/**
+	 * Security configuration for API endpoints.
+	 */
 	@Bean SecurityFilterChain apiSecurityFilterChain(HttpSecurity http) throws Exception {
 		log.info("Configuring API security");
 
 		http.securityMatcher("/api/**")
 			.csrf(csrf -> csrf.disable())
-			.exceptionHandling(exceptionHandling -> exceptionHandling.accessDeniedHandler(authenticationErrorHandler))
+			.exceptionHandling(exceptionHandling -> exceptionHandling.accessDeniedHandler(authErrorHandler))
 			.oauth2ResourceServer(oauth2ResourceServer -> oauth2ResourceServer
-				.authenticationEntryPoint(authenticationErrorHandler)
+				.authenticationEntryPoint(authErrorHandler)
 				.jwt(withDefaults()))
 			.sessionManagement(sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
@@ -39,12 +42,15 @@ public class WebSecurityConfig {
 			// allow all XHR preflight checks
 			.requestMatchers(HttpMethod.OPTIONS).permitAll()
 			// TODO ::: GjB ::: figure out specific roles and permissions
-			.requestMatchers("/api/**").hasAuthority("SCOPE_admin")
+			.requestMatchers("/api/**").hasAuthority("SCOPE_employee")
 			.anyRequest().denyAll());
 
 		return http.build();
 	}
 
+	/**
+	 * Security configuration for non-API endpoints (ex: swagger).
+	 */
 	@Bean SecurityFilterChain webSecurityFilterChain(HttpSecurity http) throws Exception {
 		log.info("Configuring non-API web security");
 
