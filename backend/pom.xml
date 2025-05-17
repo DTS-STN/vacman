@@ -44,7 +44,6 @@
 
 		<!-- dependency/plugin versions -->
 
-		<immutables.version>2.10.1</immutables.version>
 		<mapstruct.version>1.6.3</mapstruct.version>
 		<record-builder.version>47</record-builder.version>
 		<spring-boot-configuration-processor.version>3.4.5</spring-boot-configuration-processor.version>
@@ -101,19 +100,15 @@
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-data-redis</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-hateoas</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-validation</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
 
 		<!-- optional/provided dependencies -->
@@ -125,21 +120,6 @@
 			<optional>true</optional>
 			<scope>provided</scope>
 		</dependency>
-		<dependency>
-			<groupId>org.immutables</groupId>
-			<artifactId>builder</artifactId>
-			<version>${immutables.version}</version>
-			<optional>true</optional>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.immutables</groupId>
-			<artifactId>value</artifactId>
-			<version>${immutables.version}</version>
-			<optional>true</optional>
-			<scope>provided</scope>
-		</dependency>
-
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-configuration-processor</artifactId>
@@ -188,16 +168,6 @@
 							<groupId>io.soabase.record-builder</groupId>
 							<artifactId>record-builder-processor</artifactId>
 							<version>${record-builder.version}</version>
-						</path>
-						<path>
-							<groupId>org.immutables</groupId>
-							<artifactId>builder</artifactId>
-							<version>${immutables.version}</version>
-						</path>
-						<path>
-							<groupId>org.immutables</groupId>
-							<artifactId>value</artifactId>
-							<version>${immutables.version}</version>
 						</path>
 						<path>
 							<groupId>org.mapstruct</groupId>

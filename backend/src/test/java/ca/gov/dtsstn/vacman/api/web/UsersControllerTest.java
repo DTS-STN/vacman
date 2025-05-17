@@ -19,6 +19,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -31,6 +33,7 @@ import ca.gov.dtsstn.vacman.api.web.model.UserCollectionModel;
 import ca.gov.dtsstn.vacman.api.web.model.UserCreateModel;
 import ca.gov.dtsstn.vacman.api.web.model.mapper.UserModelMapper;
 
+@ActiveProfiles("test")
 @Import({ WebSecurityConfig.class })
 @WebMvcTest({ UsersController.class })
 class UsersControllerTest {
@@ -52,6 +55,7 @@ class UsersControllerTest {
 	}
 
 	@Test
+	@WithMockUser(authorities = { "SCOPE_employee" })
 	void getAllUsers_shouldReturnUserCollection() throws Exception {
 		final var mockUsers = List.of(
 			UserEntity.builder()
@@ -78,6 +82,7 @@ class UsersControllerTest {
 	}
 
 	@Test
+	@WithMockUser(authorities = { "SCOPE_employee" })
 	void createUser_shouldCreateUser() throws Exception {
 		final var mockUser = UserEntity.builder()
 			.id("00000000-0000-0000-0000-00000000")

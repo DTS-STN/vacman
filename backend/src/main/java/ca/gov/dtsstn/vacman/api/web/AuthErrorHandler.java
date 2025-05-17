@@ -53,7 +53,7 @@ public class AuthErrorHandler implements AccessDeniedHandler, AuthenticationEntr
 	@Override
 	@ExceptionHandler({ AuthenticationException.class })
 	public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authenticationException) throws IOException {
-		log.warn("Authentication Error: statusCode=401, remoteAddress={}", request.getRemoteAddr(), authenticationException);
+		log.warn("Authentication Error: statusCode=401; remoteAddress={}; message={}", request.getRemoteAddr(), authenticationException.getMessage());
 
 		final var problemDetail = ProblemDetail.forStatus(HttpStatus.UNAUTHORIZED);
 		problemDetail.setDetail("The request lacks valid authentication credentials for the requested resource.");
@@ -64,14 +64,14 @@ public class AuthErrorHandler implements AccessDeniedHandler, AuthenticationEntr
 	@Override
 	@ExceptionHandler({ AccessDeniedException.class })
 	public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException) throws IOException {
+		log.warn("Authentication Error: statusCode=403; remoteAddress={}; message={}", request.getRemoteAddr(), accessDeniedException.getMessage());
+
 		if (isAnonymous()) {
 			// Spring Security has this odd quirk whereby it will not throw an
 			// AuthenticationCredentialsNotFoundException if the current user is an anonymous user. 🤷
 			// see: AbstractSecurityInterceptor.beforeInvocation(..) for reference
 			throw new AuthenticationCredentialsNotFoundException(accessDeniedException.getMessage());
 		}
-
-		log.warn("Authentication Error: statusCode=403, remoteAddress={}", request.getRemoteAddr(), accessDeniedException);
 
 		final var problemDetail = ProblemDetail.forStatus(HttpStatus.FORBIDDEN);
 		problemDetail.setDetail("The server understands the request but refuses to authorize it.");

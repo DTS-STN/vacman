@@ -9,11 +9,13 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.jdbc.core.JdbcAggregateTemplate;
+import org.springframework.test.context.ActiveProfiles;
 
 import ca.gov.dtsstn.vacman.api.config.DataSourceConfig;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 
 @DataJdbcTest
+@ActiveProfiles("test")
 @Import({ DataSourceConfig.class })
 @AutoConfigureTestDatabase(replace = Replace.NONE)
 class UserRepositoryTest {
