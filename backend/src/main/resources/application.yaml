@@ -54,6 +54,10 @@ spring:
     sql-migration-prefix: v
     sql-migration-separator: '-'
     locations: classpath:db-migrations/common, classpath:db-migrations/{vendor}
+  jackson:
+    default-property-inclusion: non-null
+    serialization:
+      indent-output: true
   security:
     oauth2:
       resourceserver:

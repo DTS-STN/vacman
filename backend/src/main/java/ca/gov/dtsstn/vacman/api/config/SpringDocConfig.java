@@ -20,6 +20,8 @@ public class SpringDocConfig {
 
 	private static final Logger log = LoggerFactory.getLogger(SpringDocConfig.class);
 
+	public static final String AZURE_AD = "Azure AD";
+
 	@Autowired GitProperties gitProperties;
 
 	@Autowired SwaggerUiProperties swaggerUiProperties;
@@ -38,7 +40,7 @@ public class SpringDocConfig {
 				.version(gitProperties.get("build.version"));
 
 			openApi.getComponents()
-				.addSecuritySchemes("OAuth", new SecurityScheme()
+				.addSecuritySchemes(SpringDocConfig.AZURE_AD, new SecurityScheme()
 					.type(Type.OAUTH2)
 					.flows(new OAuthFlows()
 						.authorizationCode(new OAuthFlow()

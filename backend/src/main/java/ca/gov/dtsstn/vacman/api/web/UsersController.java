@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import ca.gov.dtsstn.vacman.api.config.SpringDocConfig;
 import ca.gov.dtsstn.vacman.api.service.UserService;
 import ca.gov.dtsstn.vacman.api.web.model.UserCollectionModel;
 import ca.gov.dtsstn.vacman.api.web.model.UserCreateModel;
@@ -23,6 +24,7 @@ import jakarta.validation.Valid;
 public class UsersController {
 
 	private final UserModelMapper userModelMapper = Mappers.getMapper(UserModelMapper.class);
+
 	private final UserService userService;
 
 	public UsersController(UserService userService) {
@@ -30,8 +32,8 @@ public class UsersController {
 	}
 
 	@GetMapping
-	@SecurityRequirement(name = "OAuth")
 	@Operation(summary = "Get all users.")
+	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
 	public UserCollectionModel getAllUsers() {
 		final var users = userService.getAllUsers().stream()
 			.map(userModelMapper::toModel)
@@ -41,8 +43,8 @@ public class UsersController {
 	}
 
 	@PostMapping
-	@SecurityRequirement(name = "OAuth")
 	@Operation(summary = "Create a new user.")
+	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
 	public UserReadModel createUser(@RequestBody @Valid UserCreateModel user) {
 		return userModelMapper.toModel(userService.createUser(userModelMapper.toEntity(user)));
 	}
