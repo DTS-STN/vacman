@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -17,6 +18,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 import ca.gov.dtsstn.vacman.api.data.repository.UserRepository;
 
+@DisplayName("UserService Tests")
 @ExtendWith({ MockitoExtension.class })
 class UserServiceTest {
 
@@ -31,6 +33,7 @@ class UserServiceTest {
 	}
 
 	@Test
+	@DisplayName("createUser should save and return a new user with a generated id")
 	void createUser_shouldSaveAndReturnNewUser() {
 		when(userRepository.save(any(UserEntity.class)))
 			.thenAnswer(invocation -> invocation.getArgument(0));
@@ -47,6 +50,7 @@ class UserServiceTest {
 	}
 
 	@Test
+	@DisplayName("getAllUsers should return a list of all existing users")
 	void getAllUsers_shouldReturnListOfUsers() {
 		final var mockUsers = List.of(
 			UserEntity.builder()

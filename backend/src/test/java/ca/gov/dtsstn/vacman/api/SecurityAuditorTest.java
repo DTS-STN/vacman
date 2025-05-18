@@ -17,6 +17,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 
+@DisplayName("SecurityAuditor tests")
 @ExtendWith({ MockitoExtension.class })
 class SecurityAuditorTest {
 
@@ -43,7 +44,7 @@ class SecurityAuditorTest {
 	}
 
 	@Test
-	@DisplayName("Should return application name when JWT token is null")
+	@DisplayName("Should return application name when jwt token is null")
 	void getCurrentAuditor_whenJwtTokenIsNull_returnsApplicationName() {
 		final var authentication = mock(JwtAuthenticationToken.class);
 		when(authentication.getToken()).thenReturn(null);
@@ -68,7 +69,7 @@ class SecurityAuditorTest {
 	}
 
 	@Test
-	@DisplayName("Should return application name when JWT authenticated but name claim is missing")
+	@DisplayName("Should return application name when jwt authenticated but name claim is missing")
 	void getCurrentAuditor_whenJwtAuthenticatedWithoutNameClaim_returnsApplicationName() {
 		final var jwt = mock(Jwt.class);
 		when(jwt.getClaimAsString("name")).thenReturn(null);
@@ -85,7 +86,7 @@ class SecurityAuditorTest {
 	}
 
 	@Test
-	@DisplayName("Should return username from JWT name claim when authenticated with JWT")
+	@DisplayName("Should return username from jwt when authenticated with jwt")
 	void getCurrentAuditor_whenJwtAuthenticatedWithNameClaim_returnsUserName() {
 		final var jwt = mock(Jwt.class);
 		when(jwt.getClaimAsString("name")).thenReturn("User Name");

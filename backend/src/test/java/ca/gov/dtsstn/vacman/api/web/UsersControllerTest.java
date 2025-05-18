@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 import org.mockito.MockitoAnnotations;
@@ -36,6 +37,7 @@ import ca.gov.dtsstn.vacman.api.web.model.mapper.UserModelMapper;
 @ActiveProfiles("test")
 @Import({ WebSecurityConfig.class })
 @WebMvcTest({ UsersController.class })
+@DisplayName("UsersController tests")
 class UsersControllerTest {
 
 	@Autowired
@@ -56,6 +58,7 @@ class UsersControllerTest {
 
 	@Test
 	@WithMockUser(authorities = { "SCOPE_employee" })
+	@DisplayName("GET /api/v1/users - Should return user collection when users exist")
 	void getAllUsers_shouldReturnUserCollection() throws Exception {
 		final var mockUsers = List.of(
 			UserEntity.builder()
@@ -83,6 +86,7 @@ class UsersControllerTest {
 
 	@Test
 	@WithMockUser(authorities = { "SCOPE_employee" })
+	@DisplayName("POST /api/v1/users - Should create and return new user")
 	void createUser_shouldCreateUser() throws Exception {
 		final var mockUser = UserEntity.builder()
 			.id("00000000-0000-0000-0000-00000000")
