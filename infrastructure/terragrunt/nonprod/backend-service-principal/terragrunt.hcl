@@ -26,6 +26,17 @@ inputs = {
     "landon.a.harrison@hrsdc-rhdcc.gc.ca",
   ]
 
+  app_required_resource_accesses = [{
+    resource_app_id = local.msgraph_api.id
+
+    resource_accesses = [
+      {
+        id   = local.msgraph_api.roles["User.Read.All"]
+        type = "Role",
+      },
+    ]
+  }]
+
   app_roles = [
     {
       display_name = "Administrator"
