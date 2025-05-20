@@ -10,5 +10,33 @@
     "employee": "Employé",
     "hiring-manager": "Responsable du recrutement",
     "page-title": "S'inscrire comme..."
+  },
+  "profile": {
+    "about": "Votre profil nous aide à comprendre votre situation actuelle, vos préférences en matière de recommandation et vos qualifications. Vous pouvez mettre à jour chaque section selon vos besoins. Votre progression est enregistrée automatiquement.",
+    "edit": "Modifier les",
+    "add": "Ajouter des",
+    "in-progress": "En cours",
+    "required": "Obligatoire",
+    "fields-complete": "{{completed}} sur {{total}} champs remplis",
+    "contact": {
+      "title": "Coordonnées",
+      "link-label": "informations personnelles et les coordonnées"
+    },
+    "employment": {
+      "title": "Informations sur l'emploi",
+      "link-label": "informations sur l'emploi"
+    },
+    "referral": {
+      "title": "Préférences de recommandation",
+      "link-label": "préférences de recommandation"
+    },
+    "qualifications": {
+      "title": "Qualifications",
+      "link-label": "qualifications"
+    }
+  },
+  "form": {
+    "save": "Enregistrer",
+    "submit": "Soumettre"
   }
 }
