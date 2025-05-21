@@ -77,5 +77,19 @@
   "error-summary": {
     "header_one": "The following error was found in the form:",
     "header_other": "The following {{count}} errors were found in the form:"
+  },
+  "data-table": {
+    "zero-records": "No matching records found",
+    "pagination": {
+      "info_zero": "Showing 0 to 0 of 0 entries",
+      "info_one": "Showing {{start}} to {{end}} of {{count}} entru",
+      "info_other": "Showing {{start}} to {{end}} of {{count}} entries",
+      "page-size": "Entries per page",
+      "page-info": "Page {{index}} of {{count}}",
+      "first-page": "Go to first page",
+      "previous-page": "Go to previous page",
+      "next-page": "Go to next page",
+      "last-page": "Go to last page"
+    }
   }
 }
