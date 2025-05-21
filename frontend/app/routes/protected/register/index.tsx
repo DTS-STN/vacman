@@ -39,10 +39,13 @@ export default function Index() {
       <PageTitle className="after:w-14">{t('protected:register.page-title')}</PageTitle>
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <CardLink icon={faUserPlus} file="routes/protected/index.tsx" title={t('protected:register.employee')} />
-        {/* TODO: redirect to privacy page */}
+        <CardLink
+          icon={faUserPlus}
+          file="routes/protected/register/privacy-consent.tsx"
+          title={t('protected:register.employee')}
+        />
         <CardLink icon={faMagnifyingGlass} file="routes/protected/index.tsx" title={t('protected:register.hiring-manager')} />
-        {/* TODO: redirect to hiring manager dashboard */}
+        {/* TODO: send POST request to register the user as hiring manager and redirect to hiring manager dashboard */}
       </div>
     </div>
   );
