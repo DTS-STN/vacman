@@ -35,6 +35,7 @@ class ApiErrorHandlerTest {
 	}
 
 	@Test
+	@SuppressWarnings({ "unchecked" })
 	@DisplayName("handleMethodArgumentNotValid with field errors should return BadRequest with detailed ProblemDetail")
 	void handleMethodArgumentNotValid_withFieldErrors_returnsBadRequestWithProblemDetail() {
 		final var fieldErrors = List.of(
@@ -68,7 +69,8 @@ class ApiErrorHandlerTest {
 					.extracting(ProblemDetail::getProperties)
 					.extracting("errors", type(Map.class))
 					.satisfies(errors -> {
-						assertThat(errors)
+
+						assertThat((Map<String, String>) errors)
 							.containsEntry("field1", "Error message for field1")
 							.containsEntry("field2", "Error message for field2");
 					});
@@ -76,6 +78,7 @@ class ApiErrorHandlerTest {
 	}
 
 	@Test
+	@SuppressWarnings({ "unchecked" })
 	@DisplayName("handleMethodArgumentNotValid with no field errors should return BadRequest with empty errors map in ProblemDetail")
 	void handleMethodArgumentNotValid_whenNoFieldErrors_returnsBadRequestWithEmptyErrorsMap() {
 		final var bindingResult = mock(BindingResult.class);
