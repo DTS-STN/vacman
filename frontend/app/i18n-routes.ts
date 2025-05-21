@@ -113,12 +113,37 @@ export const i18nRoutes = [
         paths: { en: '/en/protected', fr: '/fr/protege' },
       },
       {
+        id: 'EDIT-0001',
+        file: 'routes/protected/profile/index.tsx',
+        paths: {
+          en: '/en/protected/profile',
+          fr: '/fr/protege/profil',
+        },
+      },
+      {
+        id: 'EDIT-0002',
+        file: 'routes/protected/profile/personal-details.tsx',
+        paths: {
+          en: '/en/protected/profile/personal-details',
+          fr: '/fr/protege/profil/details-personnels',
+        },
+      },
+      {
         id: 'REGI-0001',
         file: 'routes/protected/register/index.tsx',
-        paths: { en: '/en/register', fr: '/fr/inscrire' },
+        paths: { en: '/en/protected/register', fr: '/fr/protege/enregistrer' },
+      },
+      {
+        id: 'REGI-0002',
+        file: 'routes/protected/register/privacy-consent.tsx',
+        paths: {
+          en: '/en/protected/register/privacy-consent',
+          fr: '/fr/protege/enregistrer/consentement-a-la-confidentialite',
+        },
       },
     ],
   },
+
   //
   // Publicly accessable routes (ie: no authentication required)
   //

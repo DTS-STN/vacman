@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import type { Route } from './+types/index';
 
 import { requireAllRoles } from '~/.server/utils/auth-utils';
+import { ButtonLink } from '~/components/button-link';
 import { PageTitle } from '~/components/page-title';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/protected/layout';
@@ -30,6 +31,9 @@ export default function Index() {
     <div className="mb-8">
       <PageTitle className="after:w-14">{t('protected:index.page-title')}</PageTitle>
       <h2 className="mt-10 mb-2 text-2xl font-bold text-slate-700">{t('protected:index.about')}</h2>
+      <ButtonLink className="mt-3" file="routes/protected/profile/index.tsx">
+        Create/View Profile
+      </ButtonLink>
     </div>
   );
 }

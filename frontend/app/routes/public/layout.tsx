@@ -42,6 +42,7 @@ export default function Layout() {
         </div>
         <AppBar>
           <MenuItem file="routes/protected/index.tsx">{t('public:index.navigate')}</MenuItem>
+          <MenuItem file="routes/protected/register/index.tsx">{t('public:index.register')}</MenuItem>
         </AppBar>
       </header>
       <main className="container">
