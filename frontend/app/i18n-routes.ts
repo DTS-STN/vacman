@@ -112,6 +112,11 @@ export const i18nRoutes = [
         file: 'routes/protected/index.tsx',
         paths: { en: '/en/protected', fr: '/fr/protege' },
       },
+      {
+        id: 'REGI-0001',
+        file: 'routes/protected/register/index.tsx',
+        paths: { en: '/en/register', fr: '/fr/inscrire' },
+      },
     ],
   },
   //
