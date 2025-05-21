@@ -91,7 +91,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
         <ProfileCard
           title={t('protected:profile.contact.title')}
           linkLabel={t('protected:profile.contact.link-label')}
-          file="routes/protected/profile/personal-details.tsx"
+          file="routes/protected/profile/contact-information.tsx"
           completed={loaderData.contact.completed}
           total={3}
           required={true}

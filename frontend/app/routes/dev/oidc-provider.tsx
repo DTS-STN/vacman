@@ -156,6 +156,7 @@ async function handleAuthorizeRequest({ request }: Route.LoaderArgs): Promise<Re
     iat: Math.floor(Date.now() / 1000),
     iss: config.issuer,
     name: 'Application Developer',
+    email: 'developer@example.com',
     nonce: nonce,
     roles: ['employee'],
     scopes: scope.split(' '),

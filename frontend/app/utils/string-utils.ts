@@ -17,6 +17,19 @@ export function trimToUndefined(str: string | undefined): string | undefined {
 }
 
 /**
+ * Returns undefined for empty strings, whitespace, or null values.
+ * Otherwise, it returns the FormDataEntryValue as a string if it's not empty.
+ * @param formEntry - The FormDataEntryValue to check, which may be null.
+ * @returns The FormDataEntryValue as a string or undefined.
+ */
+export function formString(formEntry: FormDataEntryValue | null): string | undefined {
+  if (!formEntry) {
+    return undefined;
+  }
+  return trimToUndefined(String(formEntry));
+}
+
+/**
  * Formats an apartment/suite number with the address
  */
 function formatAddressLine(addressLine1: string | undefined, addressLine2: string | undefined): string | undefined {
