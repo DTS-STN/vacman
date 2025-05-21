@@ -25,6 +25,9 @@ export function action({ context, params, request }: Route.ActionArgs) {
   const formData = await request.formData();
   */
   throw i18nRedirect('routes/protected/index.tsx', request);
+  /* 
+  TODO: send POST request to register the user as employee
+  */
 }
 
 export async function loader({ context, request }: Route.LoaderArgs) {
