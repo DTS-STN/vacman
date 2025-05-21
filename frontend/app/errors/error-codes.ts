@@ -29,4 +29,7 @@ export const ErrorCodes = {
   // form error codes
   MISSING_TAB_ID: 'FRM-0000',
   UNRECOGNIZED_ACTION: 'FRM-0001',
+
+  // service error codes
+  NO_PROVINCE_FOUND: 'SVC-0001',
 } as const;
