@@ -7,6 +7,9 @@
       "path": "frontend"
     },
     {
+      "path": "gitops"
+    },
+    {
       "path": "infrastructure"
     }
   ],
