@@ -33,10 +33,25 @@
     "qualifications": {
       "title": "Qualifications",
       "link-label": "qualifications"
-    }
+    },
+    "back": "Back to profile"
   },
   "form": {
     "save": "Save",
     "submit": "Submit"
+  },
+  "contact-information": {
+    "page-title": "Contact information",
+    "preferred-language": "Preferred language of correspondence",
+    "work-email": "Work email address",
+    "personal-email": "Personal email address",
+    "work-phone": "Work phone number",
+    "personal-phone": "Personal phone number",
+    "errors": {
+      "preferred-language": "Preferred language of correspondence is required",
+      "personal-email": "Invalid personal email address",
+      "work-phone": "Invalid work phone number",
+      "personal-phone": "Invalid personal phone number"
+    }
   }
 }

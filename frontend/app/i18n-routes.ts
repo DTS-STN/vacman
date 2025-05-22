@@ -122,6 +122,14 @@ export const i18nRoutes = [
       },
       {
         id: 'EDIT-0002',
+        file: 'routes/protected/profile/contact-information.tsx',
+        paths: {
+          en: '/en/protected/profile/contact-details',
+          fr: '/fr/protege/profil/informations-de-contact',
+        },
+      },
+      {
+        id: 'EDIT-0003',
         file: 'routes/protected/profile/personal-details.tsx',
         paths: {
           en: '/en/protected/profile/personal-details',
