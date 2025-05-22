@@ -1,6 +1,7 @@
 version: 2
 updates:
-  # Enable version updates for npm
+  # Enable version updates for npm (pnpm)
+  # https://docs.github.com/en/code-security/dependabot/ecosystems-supported-by-dependabot/supported-ecosystems-and-repositories#supported-ecosystems-and-repositories
   - package-ecosystem: npm
     directory: /frontend
     schedule:
