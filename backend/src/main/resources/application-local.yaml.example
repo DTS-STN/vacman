@@ -1,0 +1,65 @@
+#######################################################################################################################
+#
+# Example application-local.yaml file...
+#
+# Copy this file to application-local.yaml and update the values as required.
+#
+#######################################################################################################################
+
+---
+
+#
+# Log levels.
+# Increase or decrease logging as desired.
+#
+
+logging:
+  level:
+    '[ca.gov.dtsstn.vacman.api]': trace
+    '[io.micrometer.registry.otlp.OtlpMeterRegistry]': off
+    '[org.springframework]': debug
+
+---
+
+#
+# Import spring profiles.
+# You can import zero or more configsets via spring profiles here.
+#
+
+spring:
+  profiles:
+    include:
+      - mssql-local
+
+---
+
+#
+# Connect to a local MSSQL database.
+#
+
+spring:
+  config:
+    activate:
+      on-profile:
+        - mssql-local
+  datasource:
+    url: jdbc:sqlserver://localhost;databaseName=master;encrypt=false;
+    username: sa
+    password: p@ssword1
+  flyway:
+    clean-disabled: false
+    clean-on-validation-error: true
+
+---
+
+#
+# Configure the MS Graph client secret.
+#
+
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          ms-graph:
+            client-secret: password

@@ -5,85 +5,230 @@
 #
 # This application supports configuration overrides using the following resolution order:
 #
-# 1. The usual Spring Boot configuration resolution:
-#    https://docs.spring.io/spring-boot/docs/current/reference/html/features.html#features.external-config
-# 2. Config file src/dev/resources/application-local.yaml
+#   1. The usual Spring Boot configuration resolution: https://docs.spring.io/spring-boot/docs/current/reference/html/features.html#features.external-config
+#   2. Config file src/main/resources/application-local.yaml
 #
-# To set configuration properties that are local to your development environment
-# (for example log levels or database connection strings), create the file
-# src/dev/resources/application-local.yaml. This file is not managed by Git, so
-# there is no chance of accidentally pushing your custom configuration to the
-# project repository.
+# To set configuration properties that are local to your development environment (for example log levels or database connection
+# strings), create the file src/main/resources/application-local.yaml. This file is not managed by Git, so there is no chance of
+# accidentally pushing your custom configuration to the project repository.
 #
 #######################################################################################################################
 
 ---
 
-logging:
-  level:
-    '[ca.gov.dts_stn.vacman.api]': info
-
----
-
-#######################################################################################################################
 #
-# Spring Boot properties
+# Import developer-specific local configurations (eg: application-local.yaml)
+# for all profiles *except* 'test'. This allows local overrides without affecting tests.
 #
-#######################################################################################################################
 
 spring:
-  application:
-    name: vacman-api
+  activate:
+    on-profile: '!test'
   config:
     import:
       - optional:application-local.yml
       - optional:application-local.yaml
-  datasource:
-    generate-unique-name: false
-    url: jdbc:h2:mem:testdb;MODE=MSSQLServer;DATABASE_TO_UPPER=FALSE;CASE_INSENSITIVE_IDENTIFIERS=TRUE;DB_CLOSE_DELAY=-1;
-    hikari: # see https://github.com/brettwooldridge/HikariCP#frequently-used
-      connection-timeout: 30000
-      idle-timeout: 600000
-      max-lifetime: 1800000
-      maximum-pool-size: 10
-      minimum-idle: 10
+
+---
+
+#
+# ------------------------------------------------------------------------------------
+# Basic Spring Boot properties
+# ------------------------------------------------------------------------------------
+#
+
+spring:
+  application:
+    name: vacman-api
   devtools:
     livereload:
       enabled: false
-  flyway:
-    sql-migration-prefix: v
-    sql-migration-separator: '-'
-    locations: classpath:db-migrations/common, classpath:db-migrations/{vendor}
   jackson:
     default-property-inclusion: non-null
     serialization:
       indent-output: true
+
+---
+
+#
+# ------------------------------------------------------------------------------------
+# DataSource configuration
+# ------------------------------------------------------------------------------------
+# See https://docs.spring.io/spring-boot/reference/data/sql.html
+#
+
+spring:
+  datasource:
+    name: ${spring.application.name}
+
+    # JDBC URL for an H2 in-memory database.
+    #   - jdbc:h2:mem:testdb: Connects to an H2 in-memory database named 'testdb'.
+    #   - MODE=MSSQLServer: Enables H2's MS SQL Server compatibility mode. This attempts to mimic
+    #     SQL Server syntax and behavior, useful for local development/testing if production uses SQL Server.
+    #   - DATABASE_TO_UPPER=false: Prevents H2 from converting unquoted identifiers (table/column names)
+    #     to uppercase. Important for compatibility with SQL Server if it's configured for case-sensitivity
+    #     or if the schema relies on mixed-case identifiers.
+    #   - CASE_INSENSITIVE_IDENTIFIERS=true: Makes unquoted identifiers case-insensitive. Combined with
+    #     DATABASE_TO_UPPER=false, this aims to match typical SQL Server case-insensitivity for object names.
+    #   - DB_CLOSE_DELAY=-1: Keeps the in-memory database alive as long as the JVM is running,
+    #     even if all connections are closed. Crucial for tests or development scenarios where the
+    #     database schema and data need to persist across multiple connection acquisitions.
+    url: jdbc:h2:mem:testdb;MODE=MSSQLServer;DATABASE_TO_UPPER=false;CASE_INSENSITIVE_IDENTIFIERS=true;DB_CLOSE_DELAY=-1;
+
+    # HikariCP Connection Pool specific settings.
+    # HikariCP is the default connection pool in Spring Boot 2.x+ for JDBC DataSources.
+    hikari: # see https://github.com/brettwooldridge/HikariCP#frequently-used
+      # Maximum time (in milliseconds) that a connection is allowed to sit idle in the pool.
+      # This setting only applies when minimumIdle is defined as less than maximumPoolSize.
+      idle-timeout: 600000
+      # Maximum lifetime (in milliseconds) of a connection in the pool.
+      # An in-use connection will be retired upon its return to the pool once this time is exceeded.
+      # Helps in cycling connections and preventing stale connections.
+      max-lifetime: 1800000
+      # Maximum size that the pool is allowed to reach, including both idle and in-use connections.
+      maximum-pool-size: 10
+      # Minimum number of idle connections that HikariCP tries to maintain in the pool.
+      # If idle connections dip below this value, HikariCP will make best-effort attempts to add new connections.
+      # For optimal performance and responsiveness to burst demand, it's recommended to set this
+      # to the same value as maximumPoolSize, creating a fixed-size connection pool.
+      minimum-idle: 10
+
+  # ------------------------------------------------------------------------------------
+  # Flyway Database Migration Configuration
+  # ------------------------------------------------------------------------------------
+  # Configures Flyway for managing and applying database schema migrations. Flyway automatically runs on startup, applying
+  # pending migrations.
+  #
+  # Spring Boot Flyway Docs: https://docs.spring.io/spring-boot/reference/data/sql.html#data.sql.flyway
+  # Flyway Docs: https://documentation.red-gate.com/flyway/
+
+  flyway:
+    # File name prefix for SQL migrations. Changed to 'v' (lowercase) for readability
+    sql-migration-prefix: v
+    # File name separator between version and description for SQL migrations. Changed to '-' (hyphen) for readability.
+    sql-migration-separator: '-'
+    # Locations where Flyway scans for migration scripts.
+    #   - classpath:db-migrations/common: Scans for migrations in 'src/main/resources/db-migrations/common'.
+    #     These are database-agnostic scripts or common base scripts.
+    #   - classpath:db-migrations/{vendor}: A Spring Boot specific feature where '{vendor}' is a placeholder
+    #     that automatically resolves to the detected database type (eg: 'h2', 'sqlserver', etc).
+    #     This allows for organizing vendor-specific migrations (e.g., in 'src/main/resources/db-migrations/h2'
+    #     or 'src/main/resources/db-migrations/sqlserver').
+    locations:
+      - classpath:db-migrations/common
+      - classpath:db-migrations/{vendor}
+
+---
+
+#
+# ------------------------------------------------------------------------------------
+# OAuth 2.0 Resource Server JWT Configuration (for Microsoft Entra ID)
+# ------------------------------------------------------------------------------------
+# Configures this application as an OAuth 2.0 Resource Server, specifically for validating JWTs (JSON Web Tokens) issued by
+# Microsoft Entra ID. This setup enables the protection of API endpoints by requiring valid JWTs.
+#
+# Spring Security JWT Resource Server Documentation:
+# https://docs.spring.io/spring-security/reference/servlet/oauth2/resource-server/jwt.html
+#
+
+spring:
   security:
     oauth2:
       resourceserver:
         jwt:
+          # Specifies the intended audience(s) of the JWT. For Microsoft Entra ID, this is typically the Application (Client) ID
+          # of this API's app registration in Entra ID. The value here MUST exactly match the 'aud' (audience) claim in the
+          # incoming JWT.
           audiences: ea3a6648-7e77-445b-b777-486d26367ee8
+
+          # Defines the JWT claim that contains the user's application roles or permissions. Spring Security will use the values
+          # from this claim (eg: "roles": ["User.Read", "Admin.Write"]) to populate the GrantedAuthorities for the
+          # authenticated principal.
           authorities-claim-name: roles
-          issuer-uri: https://login.microsoftonline.com/9ed55846-8a81-4246-acd8-b1a01abfc0d1/v2.0
+
+          # The URI that uniquely identifies the Microsoft Entra ID tenant as the token issuer. This URI is crucial for JWT
+          # validation as it's used to:
+          #
+          #   1. Assert that the 'iss' (issuer) claim in the JWT matches this value.
+          #   2. Discover the authorization server's public keys (via a well-known JWKS URI derived from this issuer URI) to
+          #      verify the JWT's signature.
+          issuer-uri: https://login.microsoftonline.com/${application.entra-id.tenant-id}/v2.0
 
 ---
 
-#######################################################################################################################
 #
-# SpringDoc properties..
+# ------------------------------------------------------------------------------------
+# OAuth 2.0 Client Configuration (for this application to call other APIs)
+# ------------------------------------------------------------------------------------
+# Configures this application to act as an OAuth 2.0 client, enabling it to securely call external APIs (eg: Microsoft Graph)
+# by obtaining access tokens. This specific setup is for Microsoft Entra ID using the client credentials grant.
 #
-#######################################################################################################################
+# Spring Security OAuth2 Client Documentation:
+# https://docs.spring.io/spring-security/reference/servlet/oauth2/client/index.html
+#
+
+spring:
+  security:
+    oauth2:
+      client:
+        # OAuth 2.0 provider definitions
+        # See: https://docs.spring.io/spring-security/reference/servlet/oauth2/client/core.html#oauth2-client-provider-settings
+        provider:
+          esdc-edsc:
+            issuer-uri: https://login.microsoftonline.com/${application.entra-id.tenant-id}/v2.0
+
+        # OAuth 2.0 client registration definitions
+        registration:
+          ms-graph:
+            provider: esdc-edsc
+
+            # The Application (Client) ID of this application's registration in Microsoft Entra ID.
+            # This ID uniquely identifies this application when it requests tokens from Entra ID.
+            client-id: ea3a6648-7e77-445b-b777-486d26367ee8
+
+            # The client secret for this application's registration in Microsoft Entra ID.
+            # ‼ CRITICAL ‼  ::: This is a sensitive value. It MUST be set externally.
+            client-secret: # (example format: xxxxx~yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy)
+
+            # The scopes this client requests when obtaining an access token for Microsoft Graph.
+            # 'https://graph.microsoft.com/.default' is a special scope for Microsoft identity platform that requests all
+            # statically configured application permissions (not delegated permissions) for this client registration in Entra ID
+            # for the Microsoft Graph resource.
+            scope: https://graph.microsoft.com/.default
+
+            # Specifies the OAuth 2.0 grant type this client will use. 'client_credentials' is used for service-to-service
+            # communication where the application authenticates itself directly to the authorization server using its client ID
+            # and client secret, without any end-user interaction.
+            authorization-grant-type: client_credentials
+
+---
+
+#
+# ------------------------------------------------------------------------------------
+# SpringDoc OpenAPI & Swagger UI Configuration
+# ------------------------------------------------------------------------------------
+# These properties customize the generation of the OpenAPI 3.0 specification for this API and the behavior of the integrated
+# Swagger UI.
+#
+# SpringDoc Documentation: https://springdoc.org/
+#
 
 springdoc:
-  pre-loading-enabled: true
   swagger-ui:
+    # When 'true', the Swagger UI will display the duration of each API request made through its UI.
     display-request-duration: true
-    disable-swagger-default-url: true
+
+    # Configuration for OAuth 2.0 "Authorize" button/flow within Swagger UI.
     oauth:
       client-id: ea3a6648-7e77-445b-b777-486d26367ee8
       scopes: ea3a6648-7e77-445b-b777-486d26367ee8/.default
       use-pkce-with-authorization-code-grant: true
+
+  # When 'true', the generated OpenAPI specification (eg: /v3/api-docs) will be pretty-printed (formatted with indentation and
+  # line breaks), making it more human-readable.
   writer-with-default-pretty-printer: true
+
+  # When 'true', the keys within the generated OpenAPI specification (eg: paths, schemas, properties) will be sorted alphabetically.
   writer-with-order-by-keys: true
 
 ---
@@ -95,13 +240,15 @@ springdoc:
 #######################################################################################################################
 
 application:
+  entra-id:
+    tenant-id: 9ed55846-8a81-4246-acd8-b1a01abfc0d1
   swagger-ui:
     application-name: Vacancy Manager API -- OpenAPI 3.0
     authentication:
       oauth:
         client-id: ea3a6648-7e77-445b-b777-486d26367ee8
-        authorization-url: https://login.microsoftonline.com/9ed55846-8a81-4246-acd8-b1a01abfc0d1/oauth2/v2.0/authorize
-        token-url: https://login.microsoftonline.com/9ed55846-8a81-4246-acd8-b1a01abfc0d1/oauth2/v2.0/token
+        authorization-url: https://login.microsoftonline.com/${application.entra-id.tenant-id}/oauth2/v2.0/authorize
+        token-url: https://login.microsoftonline.com/${application.entra-id.tenant-id}/oauth2/v2.0/token
     contact-name: Digital Technology Solutions
     contact-url: https://github.com/dts-stn/vacman/
     description: |

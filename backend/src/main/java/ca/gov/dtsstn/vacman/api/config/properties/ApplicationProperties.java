@@ -9,8 +9,10 @@ import org.springframework.validation.annotation.Validated;
 @Validated
 @ConfigurationProperties("application")
 @EnableConfigurationProperties({
+	EntraIdProperties.class,
 	SwaggerUiProperties.class
 })
 public record ApplicationProperties(
+	@NestedConfigurationProperty EntraIdProperties entraId,
 	@NestedConfigurationProperty SwaggerUiProperties swaggerUi
 ) {}
