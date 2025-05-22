@@ -1,10 +1,12 @@
 package ca.gov.dtsstn.vacman.api.web;
 
 import org.mapstruct.factory.Mappers;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import ca.gov.dtsstn.vacman.api.config.SpringDocConfig;
@@ -14,6 +16,7 @@ import ca.gov.dtsstn.vacman.api.web.model.UserCreateModel;
 import ca.gov.dtsstn.vacman.api.web.model.UserReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.mapper.UserModelMapper;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -27,19 +30,36 @@ public class UsersController {
 
 	private final UserService userService;
 
+	private static final int DEFAULT_PAGE_SIZE = 2;
+
 	public UsersController(UserService userService) {
 		this.userService = userService;
 	}
 
 	@GetMapping
-	@Operation(summary = "Get all users.")
+	@Operation(summary = "Get users with pagination.")
 	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
-	public UserCollectionModel getAllUsers() {
-		final var users = userService.getAllUsers().stream()
-			.map(userModelMapper::toModel)
-			.toList();
+	public UserCollectionModel getUsers(
+			@Parameter(description = "Page number (0-based)") @RequestParam(defaultValue = "0") int page,
+			@Parameter(description = "Page size") @RequestParam(defaultValue = "2") int size) {
 
-		return new UserCollectionModel(users);
+		// Ensure page size is at most DEFAULT_PAGE_SIZE
+		size = Math.min(size, DEFAULT_PAGE_SIZE);
+
+		final var pageable = PageRequest.of(page, size);
+		final var userPage = userService.getUsers(pageable);
+
+		final var users = userPage.getContent().stream()
+				.map(userModelMapper::toModel)
+				.toList();
+
+		return new UserCollectionModel(
+				users,
+				userPage.getNumber(),
+				userPage.getSize(),
+				userPage.getTotalElements(),
+				userPage.getTotalPages()
+		);
 	}
 
 	@PostMapping

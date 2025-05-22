@@ -30,7 +30,7 @@ public class WebSecurityConfig {
 	@Bean SecurityFilterChain apiSecurityFilterChain(HttpSecurity http) throws Exception {
 		log.info("Configuring API security");
 
-		http.securityMatcher("/api/**")
+		http.securityMatcher("/aapi/**")
 			.csrf(csrf -> csrf.disable())
 			.exceptionHandling(exceptionHandling -> exceptionHandling.accessDeniedHandler(authErrorHandler))
 			.oauth2ResourceServer(oauth2ResourceServer -> oauth2ResourceServer
@@ -42,7 +42,7 @@ public class WebSecurityConfig {
 			// allow all XHR preflight checks
 			.requestMatchers(HttpMethod.OPTIONS).permitAll()
 			// TODO ::: GjB ::: figure out specific roles and permissions
-			.requestMatchers("/api/**").hasAuthority("SCOPE_employee")
+			.requestMatchers("/aapi/**").hasAuthority("SCOPE_employee")
 			.anyRequest().denyAll());
 
 		return http.build();
@@ -55,7 +55,8 @@ public class WebSecurityConfig {
 		log.info("Configuring non-API web security");
 
 		http.authorizeHttpRequests(authorizeHttpRequests -> authorizeHttpRequests
-			.requestMatchers("/").permitAll()
+				.requestMatchers("/api/v1/users").permitAll()
+				.requestMatchers("/").permitAll()
 			.requestMatchers("/swagger-ui/**").permitAll()
 			.requestMatchers("/v3/api-docs/**").permitAll());
 
