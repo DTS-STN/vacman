@@ -21,8 +21,8 @@ public class UserService {
 
 	public UserEntity createUser(UserEntity user) {
 		return userRepository.save(UserEntity.builder(user)
-				.id(UUID.randomUUID().toString())
-				.build());
+			.id(UUID.randomUUID().toString())
+			.build());
 	}
 
 	public List<UserEntity> getAllUsers() {

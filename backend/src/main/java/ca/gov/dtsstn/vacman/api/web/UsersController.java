@@ -43,22 +43,21 @@ public class UsersController {
 			@Parameter(description = "Page number (0-based)") @RequestParam(defaultValue = "0") int page,
 			@Parameter(description = "Page size") @RequestParam(defaultValue = "2") int size) {
 
-		// Ensure page size is at most DEFAULT_PAGE_SIZE
 		size = Math.min(size, DEFAULT_PAGE_SIZE);
 
 		final var pageable = PageRequest.of(page, size);
 		final var userPage = userService.getUsers(pageable);
 
 		final var users = userPage.getContent().stream()
-				.map(userModelMapper::toModel)
-				.toList();
+			.map(userModelMapper::toModel)
+			.toList();
 
 		return new UserCollectionModel(
-				users,
-				userPage.getNumber(),
-				userPage.getSize(),
-				userPage.getTotalElements(),
-				userPage.getTotalPages()
+			users,
+			userPage.getNumber(),
+			userPage.getSize(),
+			userPage.getTotalElements(),
+			userPage.getTotalPages()
 		);
 	}
 

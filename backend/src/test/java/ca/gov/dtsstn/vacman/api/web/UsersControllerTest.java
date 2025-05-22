@@ -67,14 +67,14 @@ class UsersControllerTest {
 	void getUsers_shouldReturnPaginatedUserCollection() throws Exception {
 
 		final var mockUsers = List.of(
-				UserEntity.builder()
-						.id(UUID.randomUUID().toString())
-						.name("User One")
-						.build(),
-				UserEntity.builder()
-						.id(UUID.randomUUID().toString())
-						.name("User Two")
-						.build());
+			UserEntity.builder()
+				.id(UUID.randomUUID().toString())
+				.name("User One")
+				.build(),
+			UserEntity.builder()
+				.id(UUID.randomUUID().toString())
+				.name("User Two")
+				.build());
 
 		final var pageable = PageRequest.of(0, 2);
 		final var mockPage = new PageImpl<>(mockUsers, pageable, 4);
@@ -82,21 +82,21 @@ class UsersControllerTest {
 		when(userService.getUsers(any(PageRequest.class))).thenReturn(mockPage);
 
 		final var userModels = mockUsers.stream()
-				.map(userModelMapper::toModel)
-				.toList();
+			.map(userModelMapper::toModel)
+			.toList();
 
 		final var expectedResponse = new UserCollectionModel(
-				userModels,
-				mockPage.getNumber(),
-				mockPage.getSize(),
-				mockPage.getTotalElements(),
-				mockPage.getTotalPages()
+			userModels,
+			mockPage.getNumber(),
+			mockPage.getSize(),
+			mockPage.getTotalElements(),
+			mockPage.getTotalPages()
 		);
 
 		mockMvc.perform(get("/api/v1/users"))
-				.andExpect(status().isOk())
-				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
-				.andExpect(content().json(objectMapper.writeValueAsString(expectedResponse)));
+			.andExpect(status().isOk())
+			.andExpect(content().contentType(MediaType.APPLICATION_JSON))
+			.andExpect(content().json(objectMapper.writeValueAsString(expectedResponse)));
 
 		verify(userService).getUsers(any(PageRequest.class));
 	}
