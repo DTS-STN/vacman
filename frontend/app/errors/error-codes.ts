@@ -32,4 +32,7 @@ export const ErrorCodes = {
 
   // service error codes
   NO_PROVINCE_FOUND: 'SVC-0001',
+
+  // vacman api error codes
+  VACMAN_API_ERROR: 'API-0001',
 } as const;

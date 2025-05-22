@@ -1,7 +1,25 @@
 import type { LocalizedProvince, Province } from '~/.server/domain/models';
+import type { ProvinceService } from '~/.server/domain/services/province-service';
 import esdcProvincesData from '~/.server/resources/provinces.json';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
+
+export function getMockProvince(): ProvinceService {
+  return {
+    getProvinces(): Promise<readonly Province[]> {
+      return Promise.resolve(getProvinces());
+    },
+    getProvinceById(id: string): Promise<Province | undefined> {
+      return Promise.resolve(getProvinceById(id));
+    },
+    getProvinceByAlphaCode(alphaCode: string): Promise<Province | undefined> {
+      return Promise.resolve(getProvinceByAlphaCode(alphaCode));
+    },
+    getLocalizedProvinces(language: Language): Promise<readonly LocalizedProvince[]> {
+      return Promise.resolve(getLocalizedProvinces(language));
+    },
+  };
+}
 
 /**
  * Retrieves a list of all provinces.
