@@ -101,28 +101,28 @@ class UsersControllerTest {
 		verify(userService).getUsers(any(PageRequest.class));
 	}
 
-//	@Test
-//	@WithMockUser(authorities = { "SCOPE_employee" })
-//	@DisplayName("POST /api/v1/users - Should create and return new user")
-//	void createUser_shouldCreateUser() throws Exception {
-//		final var mockUser = UserEntity.builder()
-//			.id("00000000-0000-0000-0000-00000000")
-//			.name("Test User")
-//			.build();
-//
-//		when(userService.createUser(any(UserEntity.class))).thenReturn(mockUser);
-//
-//		final var expectedResponse = userModelMapper.toModel(mockUser);
-//
-//		mockMvc.perform(post("/api/v1/users")
-//			.contentType(MediaType.APPLICATION_JSON)
-//			.content(objectMapper.writeValueAsString(new UserCreateModel("Test User"))))
-//			.andExpect(status().isOk())
-//			.andExpect(content().json(objectMapper.writeValueAsString(expectedResponse)));
-//
-//		verify(userService).createUser(UserEntity.builder()
-//			.name("Test User")
-//			.build());
-//	}
+	@Test
+	@WithMockUser(authorities = { "SCOPE_employee" })
+	@DisplayName("POST /api/v1/users - Should create and return new user")
+	void createUser_shouldCreateUser() throws Exception {
+		final var mockUser = UserEntity.builder()
+			.id("00000000-0000-0000-0000-00000000")
+			.name("Test User")
+			.build();
+
+		when(userService.createUser(any(UserEntity.class))).thenReturn(mockUser);
+
+		final var expectedResponse = userModelMapper.toModel(mockUser);
+
+		mockMvc.perform(post("/api/v1/users")
+			.contentType(MediaType.APPLICATION_JSON)
+			.content(objectMapper.writeValueAsString(new UserCreateModel("Test User"))))
+			.andExpect(status().isOk())
+			.andExpect(content().json(objectMapper.writeValueAsString(expectedResponse)));
+
+		verify(userService).createUser(UserEntity.builder()
+			.name("Test User")
+			.build());
+	}
 
 }
