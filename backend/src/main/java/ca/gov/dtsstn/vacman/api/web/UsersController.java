@@ -1,6 +1,7 @@
 package ca.gov.dtsstn.vacman.api.web;
 
 import org.mapstruct.factory.Mappers;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -11,7 +12,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import ca.gov.dtsstn.vacman.api.config.SpringDocConfig;
 import ca.gov.dtsstn.vacman.api.service.UserService;
-import ca.gov.dtsstn.vacman.api.web.model.UserCollectionModel;
 import ca.gov.dtsstn.vacman.api.web.model.UserCreateModel;
 import ca.gov.dtsstn.vacman.api.web.model.UserReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.mapper.UserModelMapper;
@@ -39,26 +39,14 @@ public class UsersController {
 	@GetMapping
 	@Operation(summary = "Get users with pagination.")
 	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
-	public UserCollectionModel getUsers(
+	public Page<UserReadModel> getUsers(
 			@Parameter(description = "Page number (0-based)") @RequestParam(defaultValue = "0") int page,
 			@Parameter(description = "Page size") @RequestParam(defaultValue = "2") int size) {
 
 		size = Math.min(size, DEFAULT_PAGE_SIZE);
 
-		final var pageable = PageRequest.of(page, size);
-		final var userPage = userService.getUsers(pageable);
-
-		final var users = userPage.getContent().stream()
-			.map(userModelMapper::toModel)
-			.toList();
-
-		return new UserCollectionModel(
-			users,
-			userPage.getNumber(),
-			userPage.getSize(),
-			userPage.getTotalElements(),
-			userPage.getTotalPages()
-		);
+		return userService.getUsers(PageRequest.of(page, size))
+				.map(userModelMapper::toModel);
 	}
 
 	@PostMapping

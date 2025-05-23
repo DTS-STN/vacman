@@ -3,5 +3,5 @@ INSERT INTO [user]
 VALUES
   ('e15a1fa3-27ae-48e1-a9d7-3ce5ad613780', 'John Doe', 'flyway-community-edition', CURRENT_TIMESTAMP, 'flyway-community-edition', CURRENT_TIMESTAMP, 0),
   ('83b5de63-7d69-44a2-a98f-f8013fc28a04', 'Jane Doe', 'flyway-community-edition', CURRENT_TIMESTAMP, 'flyway-community-edition', CURRENT_TIMESTAMP, 0),
-    ('e15a1fa3-27ae-48e1-a9d7-3ce5ad613780', 'Mike Smith', 'flyway-community-edition', CURRENT_TIMESTAMP, 'flyway-community-edition', CURRENT_TIMESTAMP, 0),
-    ('83b5de63-7d69-44a2-a98f-f8013fc28a04', 'Shawn Burg', 'flyway-community-edition', CURRENT_TIMESTAMP, 'flyway-community-edition', CURRENT_TIMESTAMP, 0);
+    ('e15a1fa3-27ae-48e1-a9d7-3ce5ad613785', 'Mike Smith', 'flyway-community-edition', CURRENT_TIMESTAMP, 'flyway-community-edition', CURRENT_TIMESTAMP, 0),
+    ('83b5de63-7d69-44a2-a98f-f8013fc28a06', 'Shawn Burg', 'flyway-community-edition', CURRENT_TIMESTAMP, 'flyway-community-edition', CURRENT_TIMESTAMP, 0);
