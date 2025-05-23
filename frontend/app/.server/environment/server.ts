@@ -7,6 +7,7 @@ import { logging, defaults as loggingDefaults } from '~/.server/environment/logg
 import { redis, defaults as redisDefaults } from '~/.server/environment/redis';
 import { session, defaults as sessionDefaults } from '~/.server/environment/session';
 import { telemetry, defaults as telemetryDefaults } from '~/.server/environment/telemetry';
+import { vacmanApi, defaults as vacmanApiDefaults } from '~/.server/environment/vacman-api';
 import { LogFactory } from '~/.server/logging';
 import { stringToIntegerSchema } from '~/.server/validation/string-to-integer-schema';
 
@@ -24,6 +25,7 @@ export const defaults = {
   ...redisDefaults,
   ...sessionDefaults,
   ...telemetryDefaults,
+  ...vacmanApiDefaults,
 } as const;
 
 /**
@@ -39,6 +41,7 @@ export const server = v.pipe(
     ...redis.entries,
     ...session.entries,
     ...telemetry.entries,
+    ...vacmanApi.entries,
     NODE_ENV: v.optional(v.picklist(['production', 'development', 'test']), defaults.NODE_ENV),
     PORT: v.optional(v.pipe(stringToIntegerSchema(), v.minValue(0)), defaults.PORT),
   }),
