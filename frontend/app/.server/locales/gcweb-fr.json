@@ -91,5 +91,8 @@
       "next-page": "Aller à la page suivante",
       "last-page": "Aller à la dernière page"
     }
+  },
+  "search-bar": {
+    "search": "Rechercher"
   }
 }
