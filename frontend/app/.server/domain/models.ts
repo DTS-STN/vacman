@@ -20,6 +20,17 @@ export type ClassificationLevel = Readonly<{
   name: string;
 }>;
 
+export type OpportunityType = Readonly<{
+  id: string;
+  nameEn: string;
+  nameFr: string;
+}>;
+
+export type LocalizedOpportunityType = Readonly<{
+  id: string;
+  name: string;
+}>;
+
 export type Province = Readonly<{
   id: string;
   alphaCode: string;

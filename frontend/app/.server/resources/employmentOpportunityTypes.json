@@ -1,0 +1,54 @@
+{
+  "content": [
+    {
+      "id": 664190000,
+      "nameEn": "Assignment",
+      "nameFr": "Affectation"
+    },
+    {
+      "id": 664190001,
+      "nameEn": "Term employment",
+      "nameFr": "Emploi à durée déterminée"
+    },
+    {
+      "id": 664190002,
+      "nameEn": "Lower-level opportunities",
+      "nameFr": "Opportunités de niveau inférieur"
+    },
+    {
+      "id": 664190003,
+      "nameEn": "Part-time hours",
+      "nameFr": "Heures à temps-partiel"
+    },
+    {
+      "id": 664190004,
+      "nameEn": "Not interested",
+      "nameFr": "Pas intéressé"
+    }
+  ],
+  "pageable": {
+    "sort": {
+      "empty": true,
+      "sorted": false,
+      "unsorted": true
+    },
+    "offset": 0,
+    "pageSize": 2,
+    "pageNumber": 0,
+    "paged": true,
+    "unpaged": false
+  },
+  "last": false,
+  "totalPages": 3,
+  "totalElements": 5,
+  "size": 2,
+  "number": 0,
+  "sort": {
+    "empty": true,
+    "sorted": false,
+    "unsorted": true
+  },
+  "first": true,
+  "numberOfElements": 5,
+  "empty": false
+}
