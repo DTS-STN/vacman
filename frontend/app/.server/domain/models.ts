@@ -54,3 +54,14 @@ export type LocalizedProvince = Readonly<{
   alphaCode: string;
   name: string;
 }>;
+
+export type LanguageProfileForReferral = Readonly<{
+  id: string;
+  nameEn: string;
+  nameFr: string;
+}>;
+
+export type LocalizedLanguageProfileForReferral = Readonly<{
+  id: string;
+  name: string;
+}>;
