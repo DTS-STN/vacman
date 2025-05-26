@@ -18,10 +18,17 @@ public record UserEntity(
 		@Id String id,
 		String name,
 
+		Integer fk_name_id,
+  		Integer fk_email_id,
+  		Integer fk_lang_pref_id,
+  		Integer fk_phone_id,
+  		String uuid,
+  		String network_id,
+
 		// tombstone fields
-		@CreatedBy String createdBy,
+		@CreatedBy Integer createdBy,
 		@CreatedDate Instant createdDate,
-		@LastModifiedBy String lastModifiedBy,
+		@LastModifiedBy Integer lastModifiedBy,
 		@LastModifiedDate Instant lastModifiedDate,
 		@Version Long version
 ) {
