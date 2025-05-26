@@ -8,6 +8,8 @@ export type ProvinceService = {
   getProvinceById(id: string): Promise<Province | undefined>;
   getProvinceByAlphaCode(alphaCode: string): Promise<Province | undefined>;
   getLocalizedProvinces(language: Language): Promise<readonly LocalizedProvince[]>;
+  getLocalizedProvinceById(id: string, language: Language): Promise<LocalizedProvince | undefined>;
+  getLocalizedProvinceByAlphaCode(alphaCode: string, language: Language): Promise<LocalizedProvince | undefined>;
 };
 
 export function getProvinceService(): ProvinceService {
