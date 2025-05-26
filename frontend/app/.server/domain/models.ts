@@ -9,6 +9,17 @@ export type LocalizedBranch = Readonly<{
   name: string;
 }>;
 
+export type ClassificationGroup = Readonly<{
+  id: string;
+  name: string;
+  levels: ClassificationLevel[];
+}>;
+
+export type ClassificationLevel = Readonly<{
+  id: string;
+  name: string;
+}>;
+
 export type Province = Readonly<{
   id: string;
   alphaCode: string;

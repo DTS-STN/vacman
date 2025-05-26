@@ -33,6 +33,8 @@ export const ErrorCodes = {
   // service error codes
   NO_PROVINCE_FOUND: 'SVC-0001',
   NO_BRANCH_FOUND: 'SVC-0002',
+  NO_CLASSIFICATION_GROUP_FOUND: 'SVC-0003',
+  NO_CLASSIFICATION_LEVEL_FOUND: 'SVC-0004',
 
   // vacman api error codes
   VACMAN_API_ERROR: 'API-0001',
