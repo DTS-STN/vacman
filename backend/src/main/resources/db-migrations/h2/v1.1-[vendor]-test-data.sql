@@ -6,18 +6,18 @@ INSERT INTO [email]
   [address]
 )
 VALUES
-  (1, 'one@hrsdc-rhdcc.gc.ca'),
-  (2, 'two@hrsdc-rhdcc.gc.ca'),
-  (3, 'three@hrsdc-rhdcc.gc.ca'),
-  (4, 'four@hrsdc-rhdcc.gc.ca'),
-  (5, 'five@hrsdc-rhdcc.gc.ca'),
-  (6, 'hadvisor1@hrsdc-rhdcc.gc.ca'),
-  (7, 'hadvisor2@hrsdc-rhdcc.gc.ca'),
-  (8, 'six@personal.prv'),
-  (9, 'seven@personal.prv'),
-  (10, 'eight@personal.prv'),
-  (11, 'nine@personal.prv'),
-  (12, 'ten@personal.prv');
+  (1, 'one@example.org'),
+  (2, 'two@example.org'),
+  (3, 'three@example.org'),
+  (4, 'four@example.org'),
+  (5, 'five@example.org'),
+  (6, 'hadvisor1@example.org'),
+  (7, 'hadvisor2@example.org'),
+  (8, 'six@example.com'),
+  (9, 'seven@example.com'),
+  (10, 'eight@example.com'),
+  (11, 'nine@example.com'),
+  (12, 'ten@example.com');
 
 -- name definition
 

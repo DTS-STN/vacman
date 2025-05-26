@@ -9,18 +9,18 @@
 --   [address]
 -- )
 -- VALUES
---   (1, 'one@hrsdc-rhdcc.gc.ca'),
---   (2, 'two@hrsdc-rhdcc.gc.ca'),
---   (3, 'three@hrsdc-rhdcc.gc.ca'),
---   (4, 'four@hrsdc-rhdcc.gc.ca'),
---   (5, 'five@hrsdc-rhdcc.gc.ca'),
---   (6, 'hadvisor1@hrsdc-rhdcc.gc.ca'),
---   (7, 'hadvisor2@hrsdc-rhdcc.gc.ca'),
---   (8, 'six@personal.prv'),
---   (9, 'seven@personal.prv'),
---   (10, 'eight@personal.prv'),
---   (11, 'nine@personal.prv'),
---   (12, 'ten@personal.prv');
+--   (1, 'one@example.com'),
+--   (2, 'two@example.com'),
+--   (3, 'three@example.com'),
+--   (4, 'four@example.com'),
+--   (5, 'five@example.com'),
+--   (6, 'hadvisor1@example.com'),
+--   (7, 'hadvisor2@example.com'),
+--   (8, 'six@example.org'),
+--   (9, 'seven@example.org'),
+--   (10, 'eight@example.org'),
+--   (11, 'nine@example.org'),
+--   (12, 'ten@example.org');
 
 -- SET IDENTITY_INSERT [email] OFF
 
