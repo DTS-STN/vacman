@@ -17,7 +17,7 @@ import { InputRadios } from '~/components/input-radios';
 import { InlineLink } from '~/components/links';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { getTranslation } from '~/i18n-config.server';
-import { handle as parentHandle } from '~/routes/protected/layout';
+import { handle as parentHandle } from '~/routes/layout';
 import { formString } from '~/utils/string-utils';
 import { extractValidationKey } from '~/utils/validation-utils';
 
@@ -79,7 +79,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 
   //TODO: Save form data & work email after validation, workEmail: context.session.authState.idTokenClaims.email
 
-  throw i18nRedirect('routes/protected/profile/index.tsx', request);
+  throw i18nRedirect('routes/profile/index.tsx', request);
 }
 
 export async function loader({ context, request }: Route.LoaderArgs) {
@@ -109,7 +109,7 @@ export default function ContactInformation({ loaderData, actionData, params }: R
   }));
   return (
     <>
-      <InlineLink className="mt-6 block" file="routes/protected/profile/index.tsx" id="back-button">
+      <InlineLink className="mt-6 block" file="routes/profile/index.tsx" id="back-button">
         {`<\u0020${t('protected:profile.back')}`}
       </InlineLink>
       <div className="max-w-prose">

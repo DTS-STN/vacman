@@ -3,6 +3,9 @@ import { Outlet } from 'react-router';
 
 import { useTranslation } from 'react-i18next';
 
+import type { Route } from './+types/layout';
+
+import { requireAllRoles } from '~/.server/utils/auth-utils';
 import { AppBar } from '~/components/app-bar';
 import { AppLink } from '~/components/links';
 import { MenuItem } from '~/components/menu';
@@ -12,12 +15,17 @@ import { useLanguage } from '~/hooks/use-language';
 import { useRoute } from '~/hooks/use-route';
 
 export const handle = {
-  i18nNamespace: ['gcweb', 'public'],
+  i18nNamespace: ['gcweb', 'protected'],
 } as const satisfies RouteHandle;
 
-export default function Layout() {
+export function loader({ context, request }: Route.LoaderArgs) {
+  requireAllRoles(context.session, new URL(request.url), ['employee']);
+  return { name: context.session.authState.idTokenClaims.name };
+}
+
+export default function Layout({ loaderData }: Route.ComponentProps) {
   const { currentLanguage } = useLanguage();
-  const { t } = useTranslation(['gcweb', 'public']);
+  const { t } = useTranslation(['gcweb', 'protected']);
   const { id: pageId } = useRoute();
 
   const { BUILD_DATE, BUILD_VERSION } = globalThis.__appEnvironment;
@@ -40,12 +48,15 @@ export default function Layout() {
             </AppLink>
           </div>
         </div>
-        <AppBar>
-          <MenuItem file="routes/protected/index.tsx">{t('public:index.navigate')}</MenuItem>
-          <MenuItem file="routes/protected/register/index.tsx">{t('public:index.register')}</MenuItem>
+        <AppBar
+          name={loaderData.name?.toString()}
+          profileItems={<MenuItem file="routes/index.tsx">{t('protected:index.dashboard')}</MenuItem>}
+        >
+          <MenuItem file="routes/index.tsx">{t('protected:index.public')}</MenuItem>
+          <MenuItem file="routes/index.tsx">{t('protected:index.protected')}</MenuItem>
         </AppBar>
       </header>
-      <main className="container">
+      <main className="container print:w-full print:max-w-none">
         <Outlet />
         <PageDetails buildDate={BUILD_DATE} buildVersion={BUILD_VERSION} pageId={pageId} />
       </main>

@@ -105,48 +105,48 @@ export const i18nRoutes = [
   // Protected routes (ie: authentication required)
   //
   {
-    file: 'routes/protected/layout.tsx',
+    file: 'routes/layout.tsx',
     children: [
       {
         id: 'PROT-0001',
-        file: 'routes/protected/index.tsx',
-        paths: { en: '/en/protected', fr: '/fr/protege' },
+        file: 'routes/index.tsx',
+        paths: { en: '/en/', fr: '/fr/' },
       },
       {
         id: 'EDIT-0001',
-        file: 'routes/protected/profile/index.tsx',
+        file: 'routes/profile/index.tsx',
         paths: {
-          en: '/en/protected/profile',
-          fr: '/fr/protege/profil',
+          en: '/en/profile',
+          fr: '/fr/profil',
         },
       },
       {
         id: 'EDIT-0002',
-        file: 'routes/protected/profile/contact-information.tsx',
+        file: 'routes/profile/contact-information.tsx',
         paths: {
-          en: '/en/protected/profile/contact-details',
-          fr: '/fr/protege/profil/informations-de-contact',
+          en: '/en/profile/contact-details',
+          fr: '/fr/profil/informations-de-contact',
         },
       },
       {
         id: 'EDIT-0003',
-        file: 'routes/protected/profile/personal-details.tsx',
+        file: 'routes/profile/personal-details.tsx',
         paths: {
-          en: '/en/protected/profile/personal-details',
-          fr: '/fr/protege/profil/details-personnels',
+          en: '/en/profile/personal-details',
+          fr: '/fr/profil/details-personnels',
         },
       },
       {
         id: 'REGI-0001',
-        file: 'routes/protected/register/index.tsx',
-        paths: { en: '/en/protected/register', fr: '/fr/protege/enregistrer' },
+        file: 'routes/register/index.tsx',
+        paths: { en: '/en/register', fr: '/fr/protege/enregistrer' },
       },
       {
         id: 'REGI-0002',
-        file: 'routes/protected/register/privacy-consent.tsx',
+        file: 'routes/register/privacy-consent.tsx',
         paths: {
-          en: '/en/protected/register/privacy-consent',
-          fr: '/fr/protege/enregistrer/consentement-a-la-confidentialite',
+          en: '/en/register/privacy-consent',
+          fr: '/fr/enregistrer/consentement-a-la-confidentialite',
         },
       },
     ],
@@ -155,14 +155,14 @@ export const i18nRoutes = [
   //
   // Publicly accessable routes (ie: no authentication required)
   //
-  {
-    file: 'routes/public/layout.tsx',
-    children: [
-      {
-        id: 'PUBL-0001',
-        file: 'routes/public/index.tsx',
-        paths: { en: '/en/public', fr: '/fr/public' },
-      },
-    ],
-  },
+  // {
+  //   file: 'routes/public/layout.tsx',
+  //   children: [
+  //     {
+  //       id: 'PUBL-0001',
+  //       file: 'routes/public/index.tsx',
+  //       paths: { en: '/en/public', fr: '/fr/public' },
+  //     },
+  //   ],
+  // },
 ] as const satisfies I18nRoute[];

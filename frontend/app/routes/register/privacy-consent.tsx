@@ -8,7 +8,7 @@ import { i18nRedirect } from '~/.server/utils/route-utils';
 import { Button } from '~/components/button';
 import { ButtonLink } from '~/components/button-link';
 import { getTranslation } from '~/i18n-config.server';
-import { handle as parentHandle } from '~/routes/protected/layout';
+import { handle as parentHandle } from '~/routes/layout';
 
 export const handle = {
   i18nNamespace: [...parentHandle.i18nNamespace, 'protected'],
@@ -24,7 +24,7 @@ export function action({ context, params, request }: Route.ActionArgs) {
   TODO: Add validation schema
   const formData = await request.formData();
   */
-  throw i18nRedirect('routes/protected/index.tsx', request);
+  throw i18nRedirect('routes/index.tsx', request);
   /* 
   TODO: send POST request to register the user as employee
   */
@@ -57,7 +57,7 @@ export default function PrivacyConsent({ loaderData, params }: Route.ComponentPr
             <Button name="action" variant="primary" id="continue-button">
               Accept
             </Button>
-            <ButtonLink file="routes/protected/register/index.tsx" id="back-button">
+            <ButtonLink file="routes/register/index.tsx" id="back-button">
               Decline
             </ButtonLink>
           </div>

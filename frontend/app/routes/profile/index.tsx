@@ -15,7 +15,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '~/componen
 import { InlineLink } from '~/components/links';
 import { getTranslation } from '~/i18n-config.server';
 import type { I18nRouteFile } from '~/i18n-routes';
-import { handle as parentHandle } from '~/routes/protected/layout';
+import { handle as parentHandle } from '~/routes/layout';
 import { cn } from '~/utils/tailwind-utils';
 
 export const handle = {
@@ -31,7 +31,7 @@ export function action({ context, params, request }: Route.ActionArgs) {
   /*
   TODO: Update redirect to correct page
   */
-  throw i18nRedirect('routes/protected/profile/index.tsx', request);
+  throw i18nRedirect('routes/profile/index.tsx', request);
 }
 
 export async function loader({ context, request }: Route.LoaderArgs) {
@@ -73,12 +73,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
           <p className="mt-4">{t('protected:profile.about')}</p>
         </div>
         <Form className="mt-6 flex place-content-end space-x-5 md:mt-auto" method="post" noValidate>
-          <ButtonLink
-            className="px-11"
-            file="routes/protected/index.tsx"
-            id="back-button"
-            disabled={navigation.state !== 'idle'}
-          >
+          <ButtonLink className="px-11" file="routes/index.tsx" id="back-button" disabled={navigation.state !== 'idle'}>
             {t('protected:form.save')}
           </ButtonLink>
           <Button className="px-11" name="action" variant="primary" id="continue-button" disabled={navigation.state !== 'idle'}>
@@ -91,7 +86,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
         <ProfileCard
           title={t('protected:profile.contact.title')}
           linkLabel={t('protected:profile.contact.link-label')}
-          file="routes/protected/profile/contact-information.tsx"
+          file="routes/profile/contact-information.tsx"
           completed={loaderData.contact.completed}
           total={3}
           required={true}
@@ -102,7 +97,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
         <ProfileCard
           title={t('protected:profile.employment.title')}
           linkLabel={t('protected:profile.employment.link-label')}
-          file="routes/protected/profile/personal-details.tsx"
+          file="routes/profile/personal-details.tsx"
           completed={loaderData.employment.completed}
           total={3}
           required={true}
@@ -112,7 +107,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
         <ProfileCard
           title={t('protected:profile.referral.title')}
           linkLabel={t('protected:profile.referral.link-label')}
-          file="routes/protected/profile/personal-details.tsx"
+          file="routes/profile/personal-details.tsx"
           completed={loaderData.referral.completed}
           total={3}
           required={true}
@@ -122,7 +117,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
         <ProfileCard
           title={t('protected:profile.qualifications.title')}
           linkLabel={t('protected:profile.qualifications.link-label')}
-          file="routes/protected/profile/personal-details.tsx"
+          file="routes/profile/personal-details.tsx"
           completed={loaderData.qualifications.completed}
           total={3}
           required={true}

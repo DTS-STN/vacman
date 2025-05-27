@@ -13,7 +13,7 @@ describe('AppBar', () => {
         path: '/fr/public',
         Component: () => (
           <AppBar>
-            <MenuItem file="routes/public/index.tsx">This is a test</MenuItem>
+            <MenuItem file="routes/index.tsx">This is a test</MenuItem>
           </AppBar>
         ),
       },
@@ -47,7 +47,7 @@ describe('AppBar', () => {
         path: '/fr/public',
         Component: () => (
           <AppBar name="Test User">
-            <MenuItem file="routes/public/index.tsx">This is a test</MenuItem>
+            <MenuItem file="routes/index.tsx">This is a test</MenuItem>
           </AppBar>
         ),
       },
@@ -63,8 +63,8 @@ describe('AppBar', () => {
       {
         path: '/fr/public',
         Component: () => (
-          <AppBar name="Test User" profileItems={<MenuItem file="routes/public/index.tsx">This is a test</MenuItem>}>
-            <MenuItem file="routes/public/index.tsx">This is a test</MenuItem>
+          <AppBar name="Test User" profileItems={<MenuItem file="routes/index.tsx">This is a test</MenuItem>}>
+            <MenuItem file="routes/index.tsx">This is a test</MenuItem>
           </AppBar>
         ),
       },

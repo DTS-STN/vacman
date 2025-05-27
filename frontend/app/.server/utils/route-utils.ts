@@ -12,7 +12,7 @@ import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
 import type { I18nRouteFile } from '~/i18n-routes';
 import { i18nRoutes } from '~/i18n-routes';
-import { getLanguage } from '~/utils/i18n-utils';
+import { getAcceptLanguageHeader, getLanguage } from '~/utils/i18n-utils';
 import { getRouteByFile } from '~/utils/route-utils';
 
 const log = LogFactory.getLogger(import.meta.url);
@@ -60,5 +60,50 @@ export function i18nRedirect(
   const url = search ? `${path}?${search.toString()}` : path;
 
   log.debug('Generating redirect response; url=[%s], init=[%s]', url, init);
+  return redirect(url, init);
+}
+
+/**
+ * Generate an i18n redirect response with Accept-Language fallback for root paths.
+ * This function is specifically designed to handle requests to the root path ("/")
+ * by checking the Accept-Language header when no language can be detected from the URL.
+ *
+ * @param i18nRouteFile - The i18n route file, from i18n-routes.ts.
+ * @param request - The request object to extract language and Accept-Language header from.
+ * @param opts - An optional object containing configuration for the redirect.
+ * @param opts.init - Optional initialization options for the `Response` object.
+ * @param opts.params - Optional path parameters.
+ * @param opts.search - Optional search parameters (query string parameters).
+ * @param opts.defaultLanguage - Default language to use if no language is found in URL or Accept-Language header (defaults to 'en').
+ * @returns A `Response` object configured for redirection.
+ */
+export function i18nRedirectWithAcceptLanguage(
+  i18nRouteFile: I18nRouteFile,
+  request: Request,
+  opts?: {
+    init?: number | ResponseInit;
+    params?: Params;
+    search?: URLSearchParams;
+    defaultLanguage?: Language;
+  },
+): Response {
+  const { init, params, search, defaultLanguage = 'en' } = opts ?? {};
+
+  // First try to get language from the URL path
+  let language = getLanguage(request);
+
+  // If no language found in URL (e.g., root path "/"), check Accept-Language header
+  language ??= getAcceptLanguageHeader(request) ?? defaultLanguage;
+
+  const i18nPageRoute = getRouteByFile(i18nRouteFile, i18nRoutes);
+  const path = generatePath(i18nPageRoute.paths[language], params ?? {});
+  const url = search ? `${path}?${search.toString()}` : path;
+
+  log.debug(
+    'Generating redirect response with Accept-Language fallback; url=[%s], init=[%s], detectedLanguage=[%s]',
+    url,
+    init,
+    language,
+  );
   return redirect(url, init);
 }

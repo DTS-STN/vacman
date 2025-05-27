@@ -15,7 +15,7 @@ import { AppLink } from '~/components/links';
 import { PageTitle } from '~/components/page-title';
 import { getTranslation } from '~/i18n-config.server';
 import type { I18nRouteFile } from '~/i18n-routes';
-import { handle as parentHandle } from '~/routes/protected/layout';
+import { handle as parentHandle } from '~/routes/layout';
 
 export const handle = {
   i18nNamespace: [...parentHandle.i18nNamespace, 'protected'],
@@ -39,12 +39,8 @@ export default function Index() {
       <PageTitle className="after:w-14">{t('protected:register.page-title')}</PageTitle>
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <CardLink
-          icon={faUserPlus}
-          file="routes/protected/register/privacy-consent.tsx"
-          title={t('protected:register.employee')}
-        />
-        <CardLink icon={faMagnifyingGlass} file="routes/protected/index.tsx" title={t('protected:register.hiring-manager')} />
+        <CardLink icon={faUserPlus} file="routes/register/privacy-consent.tsx" title={t('protected:register.employee')} />
+        <CardLink icon={faMagnifyingGlass} file="routes/index.tsx" title={t('protected:register.hiring-manager')} />
         {/* TODO: send POST request to register the user as hiring manager and redirect to hiring manager dashboard */}
       </div>
     </div>

@@ -9,8 +9,8 @@ describe('ButtonLink', () => {
   it('should render a ButtonLink with default styles', () => {
     const RoutesStub = createRoutesStub([
       {
-        path: '/fr/public',
-        Component: () => <ButtonLink file="routes/public/index.tsx">Test ButtonLink</ButtonLink>,
+        path: '/fr/',
+        Component: () => <ButtonLink file="routes/index.tsx">Test ButtonLink</ButtonLink>,
       },
     ]);
 
@@ -21,9 +21,9 @@ describe('ButtonLink', () => {
   it('should render a ButtonLink with custom styles', () => {
     const RoutesStub = createRoutesStub([
       {
-        path: '/fr/public',
+        path: '/fr/',
         Component: () => (
-          <ButtonLink className="text-red-500" file="routes/public/index.tsx" size="sm" variant="primary">
+          <ButtonLink className="text-red-500" file="routes/index.tsx" size="sm" variant="primary">
             Test ButtonLink
           </ButtonLink>
         ),
@@ -37,9 +37,9 @@ describe('ButtonLink', () => {
   it('should render a disabled ButtonLink correctly', () => {
     const RoutesStub = createRoutesStub([
       {
-        path: '/fr/public',
+        path: '/fr/',
         Component: () => (
-          <ButtonLink disabled file="routes/public/index.tsx" pill={true}>
+          <ButtonLink disabled file="routes/index.tsx" pill={true}>
             Test ButtonLink
           </ButtonLink>
         ),
@@ -53,9 +53,9 @@ describe('ButtonLink', () => {
   it('should render a pill ButtonLink correctly', () => {
     const RoutesStub = createRoutesStub([
       {
-        path: '/fr/public',
+        path: '/fr/',
         Component: () => (
-          <ButtonLink file="routes/public/index.tsx" pill={true}>
+          <ButtonLink file="routes/index.tsx" pill={true}>
             Test ButtonLink
           </ButtonLink>
         ),
