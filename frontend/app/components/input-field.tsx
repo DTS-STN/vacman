@@ -1,6 +1,9 @@
 import { useId } from 'react';
 import type { ComponentProps } from 'react';
 
+import type { IconProp } from '@fortawesome/fontawesome-svg-core';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+
 import { InputError } from '~/components/input-error';
 import { InputHelp } from '~/components/input-help';
 import { InputLabel } from '~/components/input-label';
@@ -15,6 +18,7 @@ export interface InputFieldProps extends ComponentProps<'input'> {
   label: string;
   name: string;
   type?: 'email' | 'number' | 'password' | 'search' | 'tel' | 'text' | 'url';
+  icon?: IconProp;
 }
 
 export function InputField({
@@ -29,6 +33,7 @@ export function InputField({
   label,
   required,
   type = 'text',
+  icon,
   ...rest
 }: InputFieldProps) {
   const defaultId = useId();
@@ -68,24 +73,50 @@ export function InputField({
           {helpMessagePrimary}
         </InputHelp>
       )}
-      <input
-        aria-describedby={ariaDescribedbyIds}
-        aria-errormessage={errorMessage ? ids.error : undefined}
-        aria-invalid={errorMessage ? true : undefined}
-        aria-labelledby={ids.label}
-        aria-required={required ? true : undefined}
-        className={cn(
-          'block rounded-lg border-gray-500 focus:border-blue-500 focus:ring-3 focus:ring-blue-500 focus:outline-hidden',
-          'read-only:pointer-events-none read-only:bg-gray-100 read-only:opacity-70',
-          'disabled:pointer-events-none disabled:bg-gray-100 disabled:opacity-70',
-          'aria-invalid:border-red-500 aria-invalid:focus:border-red-500 aria-invalid:focus:ring-red-500',
-          className,
-        )}
-        id={ids.input}
-        required={required}
-        type={type}
-        {...rest}
-      />
+      {icon ? (
+        <div className="relative">
+          <div className="pointer-events-none absolute inset-y-0 start-0 flex h-full items-center ps-3">
+            <FontAwesomeIcon icon={icon} />
+          </div>
+          <input
+            aria-describedby={ariaDescribedbyIds}
+            aria-errormessage={errorMessage ? ids.error : undefined}
+            aria-invalid={errorMessage ? true : undefined}
+            aria-labelledby={ids.label}
+            aria-required={required ? true : undefined}
+            className={cn(
+              'block rounded-lg border-gray-500 ps-10 focus:border-blue-500 focus:ring-3 focus:ring-blue-500 focus:outline-hidden',
+              'read-only:pointer-events-none read-only:bg-gray-100 read-only:opacity-70',
+              'disabled:pointer-events-none disabled:bg-gray-100 disabled:opacity-70',
+              'aria-invalid:border-red-500 aria-invalid:focus:border-red-500 aria-invalid:focus:ring-red-500',
+              className,
+            )}
+            id={ids.input}
+            required={required}
+            type={type}
+            {...rest}
+          />
+        </div>
+      ) : (
+        <input
+          aria-describedby={ariaDescribedbyIds}
+          aria-errormessage={errorMessage ? ids.error : undefined}
+          aria-invalid={errorMessage ? true : undefined}
+          aria-labelledby={ids.label}
+          aria-required={required ? true : undefined}
+          className={cn(
+            'block rounded-lg border-gray-500 focus:border-blue-500 focus:ring-3 focus:ring-blue-500 focus:outline-hidden',
+            'read-only:pointer-events-none read-only:bg-gray-100 read-only:opacity-70',
+            'disabled:pointer-events-none disabled:bg-gray-100 disabled:opacity-70',
+            'aria-invalid:border-red-500 aria-invalid:focus:border-red-500 aria-invalid:focus:ring-red-500',
+            className,
+          )}
+          id={ids.input}
+          required={required}
+          type={type}
+          {...rest}
+        />
+      )}
       {helpMessageSecondary && (
         <InputHelp id={ids.help.secondary} className={helpMessageSecondaryClassName}>
           {helpMessageSecondary}
