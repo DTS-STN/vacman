@@ -13,6 +13,7 @@ import java.util.UUID;
 
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -78,7 +79,7 @@ class UsersControllerTest {
 		final var pageable = PageRequest.of(page, size);
 		final var mockPage = new PageImpl<>(mockUsers, pageable, 4);
 
-		when(userService.getUsers(any(Integer.class), any(Integer.class))).thenReturn(mockPage);
+		when(userService.getUsers(any(Pageable.class))).thenReturn(mockPage);
 
 		final var expectedResponse = mockPage.map(userModelMapper::toModel);
 
@@ -87,7 +88,7 @@ class UsersControllerTest {
 			.andExpect(content().contentType(MediaType.APPLICATION_JSON))
 			.andExpect(content().json(objectMapper.writeValueAsString(expectedResponse)));
 
-		verify(userService).getUsers(any(Integer.class), any(Integer.class));
+		verify(userService).getUsers(any(Pageable.class));
 	}
 
 	@Test

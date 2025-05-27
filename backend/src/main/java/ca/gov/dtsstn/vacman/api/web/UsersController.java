@@ -3,6 +3,8 @@ package ca.gov.dtsstn.vacman.api.web;
 import org.hibernate.validator.constraints.Range;
 import org.mapstruct.factory.Mappers;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -50,7 +52,8 @@ public class UsersController {
 			@Parameter(description = "Page size (between 1 and 100)")
 			int size) {
 
-		return userService.getUsers(page, size)
+		Pageable pageable = PageRequest.of(page, size);
+		return userService.getUsers(pageable)
 				.map(userModelMapper::toModel);
 	}
 

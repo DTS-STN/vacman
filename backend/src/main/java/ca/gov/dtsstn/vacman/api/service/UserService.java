@@ -30,8 +30,7 @@ public class UserService {
 		return List.copyOf(userRepository.findAll());
 	}
 
-	public Page<UserEntity> getUsers(int page, int size) {
-		Pageable pageable = PageRequest.of(page, size);
+	public Page<UserEntity> getUsers(Pageable pageable) {
 		return userRepository.findAll(pageable);
 	}
 
