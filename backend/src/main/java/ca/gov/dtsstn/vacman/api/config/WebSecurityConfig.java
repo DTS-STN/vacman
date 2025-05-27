@@ -32,9 +32,9 @@ public class WebSecurityConfig {
 		log.info("Configuring non-API web security");
 
 		http.authorizeHttpRequests(authorizeHttpRequests -> authorizeHttpRequests
-				.requestMatchers("/").permitAll()
-				.requestMatchers("/swagger-ui/**").permitAll()
-				.requestMatchers("/v3/api-docs/**").permitAll());
+			.requestMatchers("/").permitAll()
+			.requestMatchers("/swagger-ui/**").permitAll()
+			.requestMatchers("/v3/api-docs/**").permitAll());
 
 		return http.build();
 	}

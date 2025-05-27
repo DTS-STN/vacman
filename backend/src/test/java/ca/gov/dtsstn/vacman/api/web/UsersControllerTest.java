@@ -3,7 +3,6 @@ package ca.gov.dtsstn.vacman.api.web;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -12,7 +11,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.util.List;
 import java.util.UUID;
 
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 
@@ -35,7 +33,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import ca.gov.dtsstn.vacman.api.config.WebSecurityConfig;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 import ca.gov.dtsstn.vacman.api.service.UserService;
-import ca.gov.dtsstn.vacman.api.web.model.UserCollectionModel;
 import ca.gov.dtsstn.vacman.api.web.model.UserCreateModel;
 import ca.gov.dtsstn.vacman.api.web.model.mapper.UserModelMapper;
 
@@ -76,29 +73,21 @@ class UsersControllerTest {
 				.name("User Two")
 				.build());
 
-		final var pageable = PageRequest.of(0, 2);
+		final var page = 0;
+		final var size = 2;
+		final var pageable = PageRequest.of(page, size);
 		final var mockPage = new PageImpl<>(mockUsers, pageable, 4);
 
-		when(userService.getUsers(any(PageRequest.class))).thenReturn(mockPage);
+		when(userService.getUsers(any(Integer.class), any(Integer.class))).thenReturn(mockPage);
 
-		final var userModels = mockUsers.stream()
-			.map(userModelMapper::toModel)
-			.toList();
-
-		final var expectedResponse = new UserCollectionModel(
-			userModels,
-			mockPage.getNumber(),
-			mockPage.getSize(),
-			mockPage.getTotalElements(),
-			mockPage.getTotalPages()
-		);
+		final var expectedResponse = mockPage.map(userModelMapper::toModel);
 
 		mockMvc.perform(get("/api/v1/users"))
 			.andExpect(status().isOk())
 			.andExpect(content().contentType(MediaType.APPLICATION_JSON))
 			.andExpect(content().json(objectMapper.writeValueAsString(expectedResponse)));
 
-		verify(userService).getUsers(any(PageRequest.class));
+		verify(userService).getUsers(any(Integer.class), any(Integer.class));
 	}
 
 	@Test

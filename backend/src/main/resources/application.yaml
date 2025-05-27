@@ -138,7 +138,11 @@ spring:
           #   2. Discover the authorization server's public keys (via a well-known JWKS URI derived from this issuer URI) to
           #      verify the JWT's signature.
           issuer-uri: https://login.microsoftonline.com/${application.entra-id.tenant-id}/v2.0
-
+  data:
+    web:
+      pageable:
+        one-indexed-parameters: true
+        max-page-size: 2000
 ---
 
 #

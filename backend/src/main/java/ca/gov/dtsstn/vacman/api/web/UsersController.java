@@ -1,8 +1,8 @@
 package ca.gov.dtsstn.vacman.api.web;
 
+import org.hibernate.validator.constraints.Range;
 import org.mapstruct.factory.Mappers;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -30,22 +30,27 @@ public class UsersController {
 
 	private final UserService userService;
 
-	private static final int DEFAULT_PAGE_SIZE = 2;
-
 	public UsersController(UserService userService) {
 		this.userService = userService;
 	}
 
 	@GetMapping
-	@Operation(summary = "Get users with pagination.")
+	@Operation(
+			summary = "Get users with pagination.",
+			description = "Returns a paginated list of users."
+	)
 	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
 	public Page<UserReadModel> getUsers(
-			@Parameter(description = "Page number (0-based)") @RequestParam(defaultValue = "0") int page,
-			@Parameter(description = "Page size") @RequestParam(defaultValue = "2") int size) {
+			@RequestParam(defaultValue = "0")
+			@Parameter(description = "Page number (0-based)")
+			int page,
 
-		size = Math.min(size, DEFAULT_PAGE_SIZE);
+			@RequestParam(defaultValue = "20")
+			@Range(min = 1, max = 100)
+			@Parameter(description = "Page size (between 1 and 100)")
+			int size) {
 
-		return userService.getUsers(PageRequest.of(page, size))
+		return userService.getUsers(page, size)
 				.map(userModelMapper::toModel);
 	}
 
@@ -55,5 +60,4 @@ public class UsersController {
 	public UserReadModel createUser(@RequestBody @Valid UserCreateModel user) {
 		return userModelMapper.toModel(userService.createUser(userModelMapper.toEntity(user)));
 	}
-
 }
