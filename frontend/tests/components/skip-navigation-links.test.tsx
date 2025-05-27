@@ -10,10 +10,10 @@ describe('SkipNavigationLinks', () => {
     const RoutesStub = createRoutesStub([
       {
         Component: () => <SkipNavigationLinks />,
-        path: '/fr/public',
+        path: '/fr/',
       },
     ]);
-    const { container } = render(<RoutesStub initialEntries={['/fr/public']} />);
+    const { container } = render(<RoutesStub initialEntries={['/fr/']} />);
     expect(container).toMatchSnapshot('expected html');
   });
 });

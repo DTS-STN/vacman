@@ -14,7 +14,7 @@ describe('ButtonLink', () => {
       },
     ]);
 
-    const { container } = render(<RoutesStub initialEntries={['/fr/public']} />);
+    const { container } = render(<RoutesStub initialEntries={['/fr/']} />);
     expect(container).toMatchSnapshot('expected html');
   });
 
@@ -30,7 +30,7 @@ describe('ButtonLink', () => {
       },
     ]);
 
-    const { container } = render(<RoutesStub initialEntries={['/fr/public']} />);
+    const { container } = render(<RoutesStub initialEntries={['/fr/']} />);
     expect(container).toMatchSnapshot('expected html');
   });
 
@@ -46,7 +46,7 @@ describe('ButtonLink', () => {
       },
     ]);
 
-    const { container } = render(<RoutesStub initialEntries={['/fr/public']} />);
+    const { container } = render(<RoutesStub initialEntries={['/fr/']} />);
     expect(container).toMatchSnapshot('expected html');
   });
 
@@ -62,7 +62,7 @@ describe('ButtonLink', () => {
       },
     ]);
 
-    const { container } = render(<RoutesStub initialEntries={['/fr/public']} />);
+    const { container } = render(<RoutesStub initialEntries={['/fr/']} />);
     expect(container).toMatchSnapshot('expected html');
   });
 });

@@ -9,12 +9,12 @@ describe('PageDetails', () => {
   it('should render the pageid, app version, and date modified', () => {
     const RoutesStub = createRoutesStub([
       {
-        path: '/fr/public',
+        path: '/fr/',
         Component: () => <PageDetails buildDate="2000-01-01T00:00:00Z" buildVersion="0.0.0" pageId="PUBL-0001" />,
       },
     ]);
 
-    const { container } = render(<RoutesStub initialEntries={['/fr/public']} />);
+    const { container } = render(<RoutesStub initialEntries={['/fr/']} />);
     expect(container).toMatchSnapshot('expected html');
   });
 });
