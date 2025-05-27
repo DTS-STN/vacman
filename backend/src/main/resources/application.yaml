@@ -17,21 +17,6 @@
 ---
 
 #
-# Import developer-specific local configurations (eg: application-local.yaml)
-# for all profiles *except* 'test'. This allows local overrides without affecting tests.
-#
-
-spring:
-  activate:
-    on-profile: '!test'
-  config:
-    import:
-      - optional:application-local.yml
-      - optional:application-local.yaml
-
----
-
-#
 # ------------------------------------------------------------------------------------
 # Basic Spring Boot properties
 # ------------------------------------------------------------------------------------
@@ -254,3 +239,21 @@ application:
     description: |
       This OpenAPI document describes the key areas where developers typically engage with the Vacancy Manager API.
     tos-url: https://www.canada.ca/en/transparency/terms.html
+
+---
+
+#
+# Import developer-specific local configurations (eg: application-local.yaml)
+# for all profiles *except* 'test'. This allows local overrides without affecting tests.
+#
+# ⚠️ Important: to ensure proper overriding of properties, the `application-local.yaml` imports must
+#               be placed after all other configurations.
+#
+
+spring:
+  activate:
+    on-profile: '!test'
+  config:
+    import:
+      - optional:application-local.yml
+      - optional:application-local.yaml
