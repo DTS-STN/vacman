@@ -1,5 +1,5 @@
 import { useId, useRef, useState } from 'react';
-import type { ChangeEvent, Dispatch, JSX, SetStateAction, KeyboardEvent } from 'react';
+import type { ChangeEvent, Dispatch, JSX, SetStateAction, KeyboardEvent, RefObject } from 'react';
 
 import { faSearch } from '@fortawesome/free-solid-svg-icons';
 import { useTranslation } from 'react-i18next';
@@ -8,12 +8,13 @@ import type { InputFieldProps } from '~/components/input-field';
 import { InputField } from '~/components/input-field';
 import { cn } from '~/utils/tailwind-utils';
 
-interface SearchBarProps extends OmitStrict<InputFieldProps, 'ref' | 'type' | 'icon' | 'label' | 'defaultValue'> {
+interface SearchBarProps extends OmitStrict<InputFieldProps, 'type' | 'icon' | 'label' | 'defaultValue' | 'ref'> {
   onSearch: (search: string, setSuggestions: Dispatch<SetStateAction<string[]>>) => void;
   searchBarClassName?: string;
   suggestionClassName?: string;
   label?: string;
   defaultValue?: string;
+  ref?: RefObject<HTMLInputElement | null>;
 }
 
 export function SearchBar({
@@ -22,7 +23,9 @@ export function SearchBar({
   suggestionClassName,
   label,
   defaultValue,
+  ref,
   className: baseClassName,
+  value: baseValue,
   onChange: baseOnChange,
   onKeyDown: baseOnKeyDown,
   onBlur: baseOnBlur,
@@ -33,7 +36,8 @@ export function SearchBar({
   const [search, setSearch] = useState(defaultValue ?? '');
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [focused, setFocused] = useState(false);
-  const searchRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const searchRef = ref ?? inputRef;
   const containerRef = useRef<HTMLDivElement>(null);
   const suggestionId = useId();
   const showSuggestions = focused && suggestions.length > 0 && search.length > 0;
@@ -57,7 +61,6 @@ export function SearchBar({
   const onInputKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     switch (e.key) {
       case 'ArrowDown': {
-        e.preventDefault();
         document.getElementById(`${suggestionId}0`)?.focus();
         break;
       }
@@ -78,12 +81,10 @@ export function SearchBar({
   const onSuggestionKeyDown = (e: KeyboardEvent<HTMLButtonElement>, index: number) => {
     switch (e.key) {
       case 'ArrowDown': {
-        e.preventDefault();
         document.getElementById(`${suggestionId}${index + 1}`)?.focus();
         break;
       }
       case 'ArrowUp': {
-        e.preventDefault();
         const suggestionElement = document.getElementById(`${suggestionId}${index - 1}`);
         if (suggestionElement) {
           document.getElementById(`${suggestionId}${index - 1}`)?.focus();
@@ -106,7 +107,7 @@ export function SearchBar({
         label={label ?? t('gcweb:search-bar.search')}
         type="search"
         className={cn('w-full rounded-lg', searchBarClassName)}
-        value={search}
+        value={baseValue ?? search}
         onChange={onInputChange}
         onKeyDown={onInputKeyDown}
         onBlur={(e) => {
