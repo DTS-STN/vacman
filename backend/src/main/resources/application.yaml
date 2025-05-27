@@ -48,14 +48,19 @@ spring:
     serialization:
       indent-output: true
 
-  #
-  # ------------------------------------------------------------------------------------
-  # DataSource configuration
-  # ------------------------------------------------------------------------------------
-  # See https://docs.spring.io/spring-boot/reference/data/sql.html
-  #
+---
+
+#
+# ------------------------------------------------------------------------------------
+# DataSource configuration
+# ------------------------------------------------------------------------------------
+# See https://docs.spring.io/spring-boot/reference/data/sql.html
+#
+
+spring:
   datasource:
     name: ${spring.application.name}
+
     # JDBC URL for an H2 in-memory database.
     #   - jdbc:h2:mem:testdb: Connects to an H2 in-memory database named 'testdb'.
     #   - MODE=MSSQLServer: Enables H2's MS SQL Server compatibility mode. This attempts to mimic
@@ -69,6 +74,7 @@ spring:
     #     even if all connections are closed. Crucial for tests or development scenarios where the
     #     database schema and data need to persist across multiple connection acquisitions.
     url: jdbc:h2:mem:testdb;MODE=MSSQLServer;DATABASE_TO_UPPER=false;CASE_INSENSITIVE_IDENTIFIERS=true;DB_CLOSE_DELAY=-1;
+
     # HikariCP Connection Pool specific settings.
     # HikariCP is the default connection pool in Spring Boot 2.x+ for JDBC DataSources.
     hikari: # see https://github.com/brettwooldridge/HikariCP#frequently-used
@@ -95,6 +101,7 @@ spring:
   #
   # Spring Boot Flyway Docs: https://docs.spring.io/spring-boot/reference/data/sql.html#data.sql.flyway
   # Flyway Docs: https://documentation.red-gate.com/flyway/
+
   flyway:
     # File name prefix for SQL migrations. Changed to 'v' (lowercase) for readability
     sql-migration-prefix: v
@@ -111,17 +118,21 @@ spring:
       - classpath:db-migrations/common
       - classpath:db-migrations/{vendor}
 
+---
+
+#
+# ------------------------------------------------------------------------------------
+# OAuth 2.0 Resource Server JWT Configuration (for Microsoft Entra ID)
+# ------------------------------------------------------------------------------------
+# Configures this application as an OAuth 2.0 Resource Server, specifically for validating JWTs (JSON Web Tokens) issued by
+# Microsoft Entra ID. This setup enables the protection of API endpoints by requiring valid JWTs.
+#
+# Spring Security JWT Resource Server Documentation:
+# https://docs.spring.io/spring-security/reference/servlet/oauth2/resource-server/jwt.html
+#
+
+spring:
   security:
-    #
-    # ------------------------------------------------------------------------------------
-    # OAuth 2.0 Resource Server JWT Configuration (for Microsoft Entra ID)
-    # ------------------------------------------------------------------------------------
-    # Configures this application as an OAuth 2.0 Resource Server, specifically for validating JWTs (JSON Web Tokens) issued by
-    # Microsoft Entra ID. This setup enables the protection of API endpoints by requiring valid JWTs.
-    #
-    # Spring Security JWT Resource Server Documentation:
-    # https://docs.spring.io/spring-security/reference/servlet/oauth2/resource-server/jwt.html
-    #
     oauth2:
       resourceserver:
         jwt:
@@ -129,10 +140,12 @@ spring:
           # of this API's app registration in Entra ID. The value here MUST exactly match the 'aud' (audience) claim in the
           # incoming JWT.
           audiences: ea3a6648-7e77-445b-b777-486d26367ee8
+
           # Defines the JWT claim that contains the user's application roles or permissions. Spring Security will use the values
           # from this claim (eg: "roles": ["User.Read", "Admin.Write"]) to populate the GrantedAuthorities for the
           # authenticated principal.
           authorities-claim-name: roles
+
           # The URI that uniquely identifies the Microsoft Entra ID tenant as the token issuer. This URI is crucial for JWT
           # validation as it's used to:
           #
@@ -141,16 +154,22 @@ spring:
           #      verify the JWT's signature.
           issuer-uri: https://login.microsoftonline.com/${application.entra-id.tenant-id}/v2.0
 
-      #
-      # ------------------------------------------------------------------------------------
-      # OAuth 2.0 Client Configuration (for this application to call other APIs)
-      # ------------------------------------------------------------------------------------
-      # Configures this application to act as an OAuth 2.0 client, enabling it to securely call external APIs (eg: Microsoft Graph)
-      # by obtaining access tokens. This specific setup is for Microsoft Entra ID using the client credentials grant.
-      #
-      # Spring Security OAuth2 Client Documentation:
-      # https://docs.spring.io/spring-security/reference/servlet/oauth2/client/index.html
-      #
+---
+
+#
+# ------------------------------------------------------------------------------------
+# OAuth 2.0 Client Configuration (for this application to call other APIs)
+# ------------------------------------------------------------------------------------
+# Configures this application to act as an OAuth 2.0 client, enabling it to securely call external APIs (eg: Microsoft Graph)
+# by obtaining access tokens. This specific setup is for Microsoft Entra ID using the client credentials grant.
+#
+# Spring Security OAuth2 Client Documentation:
+# https://docs.spring.io/spring-security/reference/servlet/oauth2/client/index.html
+#
+
+spring:
+  security:
+    oauth2:
       client:
         # OAuth 2.0 provider definitions
         # See: https://docs.spring.io/spring-security/reference/servlet/oauth2/client/core.html#oauth2-client-provider-settings
@@ -162,21 +181,27 @@ spring:
         registration:
           ms-graph:
             provider: esdc-edsc
+
             # The Application (Client) ID of this application's registration in Microsoft Entra ID.
             # This ID uniquely identifies this application when it requests tokens from Entra ID.
             client-id: ea3a6648-7e77-445b-b777-486d26367ee8
+
             # The client secret for this application's registration in Microsoft Entra ID.
             # ‼ CRITICAL ‼  ::: This is a sensitive value. It MUST be set externally.
             client-secret: # (example format: xxxxx~yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy)
+
             # The scopes this client requests when obtaining an access token for Microsoft Graph.
             # 'https://graph.microsoft.com/.default' is a special scope for Microsoft identity platform that requests all
             # statically configured application permissions (not delegated permissions) for this client registration in Entra ID
             # for the Microsoft Graph resource.
             scope: https://graph.microsoft.com/.default
+
             # Specifies the OAuth 2.0 grant type this client will use. 'client_credentials' is used for service-to-service
             # communication where the application authenticates itself directly to the authorization server using its client ID
             # and client secret, without any end-user interaction.
             authorization-grant-type: client_credentials
+
+---
 
 #
 # ------------------------------------------------------------------------------------
@@ -192,16 +217,21 @@ springdoc:
   swagger-ui:
     # When 'true', the Swagger UI will display the duration of each API request made through its UI.
     display-request-duration: true
+
     # Configuration for OAuth 2.0 "Authorize" button/flow within Swagger UI.
     oauth:
       client-id: ea3a6648-7e77-445b-b777-486d26367ee8
       scopes: ea3a6648-7e77-445b-b777-486d26367ee8/.default
       use-pkce-with-authorization-code-grant: true
+
   # When 'true', the generated OpenAPI specification (eg: /v3/api-docs) will be pretty-printed (formatted with indentation and
   # line breaks), making it more human-readable.
   writer-with-default-pretty-printer: true
+
   # When 'true', the keys within the generated OpenAPI specification (eg: paths, schemas, properties) will be sorted alphabetically.
   writer-with-order-by-keys: true
+
+---
 
 #######################################################################################################################
 #
