@@ -2,7 +2,8 @@ import type { RouteModule } from 'react-router';
 
 import { describe, expect, it } from 'vitest';
 
-import { getAltLanguage, getI18nNamespace, getLanguage, getAcceptLanguageHeader } from '~/utils/i18n-utils';
+import { getAcceptLanguageHeader } from '~/.server/utils/i18n-utils';
+import { getAltLanguage, getI18nNamespace, getLanguage } from '~/utils/i18n-utils';
 
 describe('i18n-utils', () => {
   describe('getI18nNamespace', () => {

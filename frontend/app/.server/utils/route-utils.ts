@@ -8,11 +8,12 @@ import type { Params } from 'react-router';
 import { generatePath, redirect } from 'react-router';
 
 import { LogFactory } from '~/.server/logging';
+import { getAcceptLanguageHeader } from '~/.server/utils/i18n-utils';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
 import type { I18nRouteFile } from '~/i18n-routes';
 import { i18nRoutes } from '~/i18n-routes';
-import { getAcceptLanguageHeader, getLanguage } from '~/utils/i18n-utils';
+import { getLanguage } from '~/utils/i18n-utils';
 import { getRouteByFile } from '~/utils/route-utils';
 
 const log = LogFactory.getLogger(import.meta.url);
