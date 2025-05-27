@@ -15,7 +15,7 @@ import { useLanguage } from '~/hooks/use-language';
 import { useRoute } from '~/hooks/use-route';
 
 export const handle = {
-  i18nNamespace: ['gcweb', 'protected'],
+  i18nNamespace: ['gcweb', 'app'],
 } as const satisfies RouteHandle;
 
 export function loader({ context, request }: Route.LoaderArgs) {
@@ -25,7 +25,7 @@ export function loader({ context, request }: Route.LoaderArgs) {
 
 export default function Layout({ loaderData }: Route.ComponentProps) {
   const { currentLanguage } = useLanguage();
-  const { t } = useTranslation(['gcweb', 'protected']);
+  const { t } = useTranslation(['gcweb', 'app']);
   const { id: pageId } = useRoute();
 
   const { BUILD_DATE, BUILD_VERSION } = globalThis.__appEnvironment;
@@ -50,10 +50,9 @@ export default function Layout({ loaderData }: Route.ComponentProps) {
         </div>
         <AppBar
           name={loaderData.name?.toString()}
-          profileItems={<MenuItem file="routes/index.tsx">{t('protected:index.dashboard')}</MenuItem>}
+          profileItems={<MenuItem file="routes/index.tsx">{t('app:index.dashboard')}</MenuItem>}
         >
-          <MenuItem file="routes/index.tsx">{t('protected:index.public')}</MenuItem>
-          <MenuItem file="routes/index.tsx">{t('protected:index.protected')}</MenuItem>
+          <MenuItem file="routes/index.tsx">{t('app:index.navigate')}</MenuItem>
         </AppBar>
       </header>
       <main className="container print:w-full print:max-w-none">

@@ -22,7 +22,7 @@ import { formString } from '~/utils/string-utils';
 import { extractValidationKey } from '~/utils/validation-utils';
 
 export const handle = {
-  i18nNamespace: [...parentHandle.i18nNamespace, 'protected'],
+  i18nNamespace: [...parentHandle.i18nNamespace],
 } as const satisfies RouteHandle;
 
 export function meta({ data }: Route.MetaArgs) {
@@ -37,17 +37,17 @@ export async function action({ context, params, request }: Route.ActionArgs) {
       v.optional(
         v.picklist(
           getLanguagesOfCorrespondence().map(({ id }) => id),
-          'protected:contact-information.errors.preferred-language',
+          'app:contact-information.errors.preferred-language',
         ),
       ),
     ),
-    personalEmail: v.optional(v.pipe(v.string(), v.trim(), v.email('protected:contact-information.errors.personal-email'))),
+    personalEmail: v.optional(v.pipe(v.string(), v.trim(), v.email('app:contact-information.errors.personal-email'))),
     workPhone: v.optional(
       v.pipe(
         v.string(),
         v.trim(),
-        v.nonEmpty('protected:contact-information.errors.work-phone'),
-        v.custom((val) => isValidPhoneNumber(val as string), 'protected:contact-information.errors.work-phone'),
+        v.nonEmpty('app:contact-information.errors.work-phone'),
+        v.custom((val) => isValidPhoneNumber(val as string), 'app:contact-information.errors.work-phone'),
         v.transform((val) => parsePhoneNumberWithError(val, 'CA').formatInternational().replace(/ /g, '')),
       ),
     ),
@@ -55,8 +55,8 @@ export async function action({ context, params, request }: Route.ActionArgs) {
       v.pipe(
         v.string(),
         v.trim(),
-        v.nonEmpty('protected:contact-information.errors.personal-phone'),
-        v.custom((val) => isValidPhoneNumber(val as string), 'protected:contact-information.errors.personal-phone'),
+        v.nonEmpty('app:contact-information.errors.personal-phone'),
+        v.custom((val) => isValidPhoneNumber(val as string), 'app:contact-information.errors.personal-phone'),
         v.transform((val) => parsePhoneNumberWithError(val, 'CA').formatInternational().replace(/ /g, '')),
       ),
     ),
@@ -86,7 +86,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
   requireAllRoles(context.session, new URL(request.url), ['employee']);
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
   return {
-    documentTitle: t('protected:contact-information.page-title'),
+    documentTitle: t('app:contact-information.page-title'),
     defaultValues: {
       //TODO: Replace with actual values
       preferredLanguage: undefined as string | undefined,
@@ -110,17 +110,17 @@ export default function ContactInformation({ loaderData, actionData, params }: R
   return (
     <>
       <InlineLink className="mt-6 block" file="routes/profile/index.tsx" id="back-button">
-        {`<\u0020${t('protected:profile.back')}`}
+        {`<\u0020${t('app:profile.back')}`}
       </InlineLink>
       <div className="max-w-prose">
-        <h1 className="my-5 text-3xl font-semibold">{t('protected:contact-information.page-title')}</h1>
+        <h1 className="my-5 text-3xl font-semibold">{t('app:contact-information.page-title')}</h1>
         <ActionDataErrorSummary actionData>
           <Form method="post" noValidate>
             <div className="space-y-6">
               <InputRadios
                 id="preferred-language"
                 name="preferredLanguage"
-                legend={t('protected:contact-information.preferred-language')}
+                legend={t('app:contact-information.preferred-language')}
                 options={languageOptions}
                 errorMessage={t(extractValidationKey(errors?.preferredLanguage))}
               />
@@ -129,33 +129,33 @@ export default function ContactInformation({ loaderData, actionData, params }: R
                 className="w-full"
                 id="work-email"
                 name="workEmail"
-                label={t('protected:contact-information.work-email')}
+                label={t('app:contact-information.work-email')}
                 defaultValue={loaderData.defaultValues.workEmail}
               />
               <InputField
                 className="w-full"
                 id="personal-email"
                 name="personalEmail"
-                label={t('protected:contact-information.personal-email')}
+                label={t('app:contact-information.personal-email')}
                 defaultValue={loaderData.defaultValues.personalEmail}
                 errorMessage={t(extractValidationKey(errors?.personalEmail))}
               />
               <InputPhoneField
                 id="work-phone"
                 name="workPhone"
-                label={t('protected:contact-information.work-phone')}
+                label={t('app:contact-information.work-phone')}
                 defaultValue={loaderData.defaultValues.workPhone}
                 errorMessage={t(extractValidationKey(errors?.workPhone))}
               />
               <InputPhoneField
                 id="personal-phone"
                 name="personalPhone"
-                label={t('protected:contact-information.personal-phone')}
+                label={t('app:contact-information.personal-phone')}
                 defaultValue={loaderData.defaultValues.personalPhone}
                 errorMessage={t(extractValidationKey(errors?.personalPhone))}
               />
               <Button className="px-12" name="action" variant="primary" id="save-button">
-                {t('protected:form.save')}
+                {t('app:form.save')}
               </Button>
             </div>
           </Form>

@@ -19,7 +19,7 @@ import { handle as parentHandle } from '~/routes/layout';
 import { cn } from '~/utils/tailwind-utils';
 
 export const handle = {
-  i18nNamespace: [...parentHandle.i18nNamespace, 'protected'],
+  i18nNamespace: [...parentHandle.i18nNamespace],
 } as const satisfies RouteHandle;
 
 export function meta({ data }: Route.MetaArgs) {
@@ -39,7 +39,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
 
   const { t } = await getTranslation(request, handle.i18nNamespace);
   return {
-    documentTitle: t('protected:index.about'),
+    documentTitle: t('app:index.about'),
     name: context.session.authState.idTokenClaims.name,
     email: context.session.authState.idTokenClaims.email,
     completed: 6,
@@ -70,22 +70,22 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
         <div className="max-w-prose">
           <h1 className="mt-5 text-3xl font-semibold">{loaderData.name}</h1>
           {loaderData.email && <p className="mt-1 text-gray-500">{loaderData.email}</p>}
-          <p className="mt-4">{t('protected:profile.about')}</p>
+          <p className="mt-4">{t('app:profile.about')}</p>
         </div>
         <Form className="mt-6 flex place-content-end space-x-5 md:mt-auto" method="post" noValidate>
           <ButtonLink className="px-11" file="routes/index.tsx" id="back-button" disabled={navigation.state !== 'idle'}>
-            {t('protected:form.save')}
+            {t('app:form.save')}
           </ButtonLink>
           <Button className="px-11" name="action" variant="primary" id="continue-button" disabled={navigation.state !== 'idle'}>
-            {t('protected:form.submit')}
+            {t('app:form.submit')}
           </Button>
         </Form>
       </div>
       <ProgressBar completed={loaderData.completed} total={loaderData.total} />
       <div className="grid gap-4 md:grid-cols-2">
         <ProfileCard
-          title={t('protected:profile.contact.title')}
-          linkLabel={t('protected:profile.contact.link-label')}
+          title={t('app:profile.contact.title')}
+          linkLabel={t('app:profile.contact.link-label')}
           file="routes/profile/contact-information.tsx"
           completed={loaderData.contact.completed}
           total={3}
@@ -95,8 +95,8 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
           <ProfileField label="Other field">field value</ProfileField>
         </ProfileCard>
         <ProfileCard
-          title={t('protected:profile.employment.title')}
-          linkLabel={t('protected:profile.employment.link-label')}
+          title={t('app:profile.employment.title')}
+          linkLabel={t('app:profile.employment.link-label')}
           file="routes/profile/personal-details.tsx"
           completed={loaderData.employment.completed}
           total={3}
@@ -105,8 +105,8 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
           <ProfileField label="Other field">field value</ProfileField>
         </ProfileCard>
         <ProfileCard
-          title={t('protected:profile.referral.title')}
-          linkLabel={t('protected:profile.referral.link-label')}
+          title={t('app:profile.referral.title')}
+          linkLabel={t('app:profile.referral.link-label')}
           file="routes/profile/personal-details.tsx"
           completed={loaderData.referral.completed}
           total={3}
@@ -115,8 +115,8 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
           <ProfileField label="Other field">field value</ProfileField>
         </ProfileCard>
         <ProfileCard
-          title={t('protected:profile.qualifications.title')}
-          linkLabel={t('protected:profile.qualifications.link-label')}
+          title={t('app:profile.qualifications.title')}
+          linkLabel={t('app:profile.qualifications.link-label')}
           file="routes/profile/personal-details.tsx"
           completed={loaderData.qualifications.completed}
           total={3}
@@ -174,24 +174,22 @@ interface ProfileCardProps {
 function ProfileCard({ title, linkLabel, file, completed, total, required, children }: ProfileCardProps): JSX.Element {
   const { t } = useTranslation(handle.i18nNamespace);
   const inProgress = completed < total && completed > 0;
-  const labelPrefix = `${inProgress ? t('protected:profile.edit') : t('protected:profile.add')}\u0020`;
+  const labelPrefix = `${inProgress ? t('app:profile.edit') : t('app:profile.add')}\u0020`;
   return (
     <Card className="p-4 sm:p-6">
       <CardHeader className="p-0">
         <div className="mb-6 grid grid-cols-2 justify-between select-none">
           <div>
             <span className="rounded-2xl border border-gray-500 px-3 py-0.5 text-sm text-gray-500">
-              {t('protected:profile.fields-complete', { completed, total })}
+              {t('app:profile.fields-complete', { completed, total })}
             </span>
           </div>
           <div className="ml-auto space-x-2">
             {inProgress && (
-              <span className="rounded-2xl bg-gray-500 px-3 py-0.5 text-sm text-white">
-                {t('protected:profile.in-progress')}
-              </span>
+              <span className="rounded-2xl bg-gray-500 px-3 py-0.5 text-sm text-white">{t('app:profile.in-progress')}</span>
             )}
             {required && (
-              <span className="rounded-2xl bg-gray-500 px-3 py-0.5 text-sm text-white">{t('protected:profile.required')}</span>
+              <span className="rounded-2xl bg-gray-500 px-3 py-0.5 text-sm text-white">{t('app:profile.required')}</span>
             )}
           </div>
         </div>

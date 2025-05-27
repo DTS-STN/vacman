@@ -18,13 +18,13 @@ import type { I18nRouteFile } from '~/i18n-routes';
 import { handle as parentHandle } from '~/routes/layout';
 
 export const handle = {
-  i18nNamespace: [...parentHandle.i18nNamespace, 'protected'],
+  i18nNamespace: [...parentHandle.i18nNamespace],
 } as const satisfies RouteHandle;
 
 export async function loader({ context, request }: Route.LoaderArgs) {
   requireAllRoles(context.session, new URL(request.url), ['employee']);
   const { t } = await getTranslation(request, handle.i18nNamespace);
-  return { documentTitle: t('protected:register.page-title') };
+  return { documentTitle: t('app:register.page-title') };
 }
 
 export function meta({ data }: Route.MetaArgs) {
@@ -36,11 +36,11 @@ export default function Index() {
 
   return (
     <div className="mb-8">
-      <PageTitle className="after:w-14">{t('protected:register.page-title')}</PageTitle>
+      <PageTitle className="after:w-14">{t('app:register.page-title')}</PageTitle>
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <CardLink icon={faUserPlus} file="routes/register/privacy-consent.tsx" title={t('protected:register.employee')} />
-        <CardLink icon={faMagnifyingGlass} file="routes/index.tsx" title={t('protected:register.hiring-manager')} />
+        <CardLink icon={faUserPlus} file="routes/register/privacy-consent.tsx" title={t('app:register.employee')} />
+        <CardLink icon={faMagnifyingGlass} file="routes/index.tsx" title={t('app:register.hiring-manager')} />
         {/* TODO: send POST request to register the user as hiring manager and redirect to hiring manager dashboard */}
       </div>
     </div>

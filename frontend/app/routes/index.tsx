@@ -12,7 +12,7 @@ import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
 
 export const handle = {
-  i18nNamespace: [...parentHandle.i18nNamespace, 'protected'],
+  i18nNamespace: [...parentHandle.i18nNamespace],
 } as const satisfies RouteHandle;
 
 export async function loader({ context, request }: Route.LoaderArgs) {
@@ -25,7 +25,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
 
   requireAllRoles(context.session, new URL(request.url), ['employee']);
   const { t } = await getTranslation(request, handle.i18nNamespace);
-  return { documentTitle: t('protected:index.page-title') };
+  return { documentTitle: t('app:index.page-title') };
 }
 
 export function meta({ data }: Route.MetaArgs) {
@@ -37,8 +37,8 @@ export default function Index() {
 
   return (
     <div className="mb-8">
-      <PageTitle className="after:w-14">{t('protected:index.page-title')}</PageTitle>
-      <h2 className="mt-10 mb-2 text-2xl font-bold text-slate-700">{t('protected:index.about')}</h2>
+      <PageTitle className="after:w-14">{t('app:index.page-title')}</PageTitle>
+      <h2 className="mt-10 mb-2 text-2xl font-bold text-slate-700">{t('app:index.about')}</h2>
       <ButtonLink className="mt-3" file="routes/profile/index.tsx">
         Create/View Profile
       </ButtonLink>

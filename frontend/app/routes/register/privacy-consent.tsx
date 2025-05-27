@@ -11,7 +11,7 @@ import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
 
 export const handle = {
-  i18nNamespace: [...parentHandle.i18nNamespace, 'protected'],
+  i18nNamespace: [...parentHandle.i18nNamespace],
 } as const satisfies RouteHandle;
 
 export function meta({ data }: Route.MetaArgs) {
@@ -34,7 +34,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
   requireAllRoles(context.session, new URL(request.url), ['employee']);
 
   const { t } = await getTranslation(request, handle.i18nNamespace);
-  return { documentTitle: t('protected:index.about'), defaultValues: {} };
+  return { documentTitle: t('app:index.about'), defaultValues: {} };
 }
 
 export default function PrivacyConsent({ loaderData, params }: Route.ComponentProps) {
