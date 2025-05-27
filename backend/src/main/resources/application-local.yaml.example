@@ -48,6 +48,9 @@ spring:
     password: p@ssword1
   flyway:
     clean-disabled: false
+
+application:
+  flyway:
     clean-on-validation-error: true
 
 ---
