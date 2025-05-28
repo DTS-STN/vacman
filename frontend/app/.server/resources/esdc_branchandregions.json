@@ -1,0 +1,154 @@
+{
+  "content": [
+    {
+      "id": "63ba687d-b740-42f3-910a-001b7060d73f",
+      "nameEn": "Integrated Client Service Delivery (ICSD) - Atlantic",
+      "nameFr": "Prestation de services intégrés à la clientèle (PSIC) - Atlantique"
+    },
+    {
+      "id": "63ba687d-b740-42f3-910a-001b7060d740",
+      "nameEn": "Integrated Client Service Delivery (ICSD) - Ontario",
+      "nameFr": "Prestation de services intégrés à la clientèle (PSIC) - Ontario"
+    },
+    {
+      "id": "63ba687d-b740-42f3-910a-001b7060d741",
+      "nameEn": "Integrated Client Service Delivery (ICSD) - Quebec",
+      "nameFr": "Prestation de services intégrés à la clientèle (PSIC) - Québec"
+    },
+    {
+      "id": "63ba687d-b740-42f3-910a-001b7060d742",
+      "nameEn": "Integrated Client Service Delivery (ICSD) - West",
+      "nameFr": "Prestation de services intégrés à la clientèle (PSIC) - Ouest"
+    },
+    {
+      "id": "63ba687d-b740-42f3-910a-001b7060d743",
+      "nameEn": "Benefits Delivery Modernization (BDM) Programme",
+      "nameFr": "Programme de modernisation du versement des prestations (MVP)"
+    },
+    {
+      "id": "63ba687d-b740-42f3-910a-001b7060d744",
+      "nameEn": "Chief Financial Officer Branch",
+      "nameFr": "Direction générale du dirigeant principal des finances"
+    },
+    {
+      "id": "63ba687d-b740-42f3-910a-001b7060d745",
+      "nameEn": "Corporate Secretariat",
+      "nameFr": "Secrétariat ministériel"
+    },
+    {
+      "id": "63ba687d-b740-42f3-910a-001b7060d746",
+      "nameEn": "Human Resources Services Branch",
+      "nameFr": "Direction générale des services de ressources humaines"
+    },
+    {
+      "id": "63ba687d-b740-42f3-910a-001b7060d747",
+      "nameEn": "Income Security and Social Development Branch",
+      "nameFr": "Direction générale de la sécurité du revenu et du développement social"
+    },
+    {
+      "id": "63ba687d-b740-42f3-910a-001b7060d748",
+      "nameEn": "Innovation, Information and Technology Branch",
+      "nameFr": "Direction générale de l'innovation, de l'information et de la technologie"
+    },
+    {
+      "id": "63ba687d-b740-42f3-910a-001b7060d749",
+      "nameEn": "Integrity Services Branch",
+      "nameFr": "Direction générale des services d'intégrité "
+    },
+    {
+      "id": "63ba687d-b740-42f3-910a-001b7060d74a",
+      "nameEn": "Internal Audit & Enterprise Risk Management Branch",
+      "nameFr": "Direction générale d'audit interne et gestion des risques d'entreprise"
+    },
+    {
+      "id": "63ba687d-b740-42f3-910a-001b7060d74b",
+      "nameEn": "Labour Program",
+      "nameFr": "Programme du travail"
+    },
+    {
+      "id": "63ba687d-b740-42f3-910a-001b7060d74c",
+      "nameEn": "Learning Branch",
+      "nameFr": "Direction générale de l'apprentissage"
+    },
+    {
+      "id": "63ba687d-b740-42f3-910a-001b7060d74d",
+      "nameEn": "Legal Services",
+      "nameFr": "Services juridiques"
+    },
+    {
+      "id": "63ba687d-b740-42f3-910a-001b7060d74e",
+      "nameEn": "Policy Horizons Canada",
+      "nameFr": "Horizons de politiques Canada"
+    },
+    {
+      "id": "63ba687d-b740-42f3-910a-001b7060d74f",
+      "nameEn": "Program Operations Branch",
+      "nameFr": "Direction générale des opérations de programmes"
+    },
+    {
+      "id": "63ba687d-b740-42f3-910a-001b7060d750",
+      "nameEn": "Public Affairs and Stakeholder Relations",
+      "nameFr": "Direction générale des affaires publiques et des relations avec les intervenants"
+    },
+    {
+      "id": "63ba687d-b740-42f3-910a-001b7060d751",
+      "nameEn": "Skills and Employment Branch",
+      "nameFr": "Direction générale des compétences et de l'emploi"
+    },
+    {
+      "id": "63ba687d-b740-42f3-910a-001b7060d752",
+      "nameEn": "Strategic and Service Policy Branch",
+      "nameFr": "Direction générale des politiques stratégiques et de service"
+    },
+    {
+      "id": "63ba687d-b740-42f3-910a-001b7060d753",
+      "nameEn": "Temporary Foreign Workers Program",
+      "nameFr": "Programme des travailleurs étrangers temporaires"
+    },
+    {
+      "id": "63ba687d-b740-42f3-910a-001b7060d754",
+      "nameEn": "Chief Data Officer Branch",
+      "nameFr": "Direction générale de la dirigeante principale des données"
+    },
+    {
+      "id": "63ba687d-b740-42f3-910a-001b7060d755",
+      "nameEn": "Canadian Digital Service",
+      "nameFr": "Service numérique canadien"
+    },
+    {
+      "id": "63ba687d-b740-42f3-910a-001b7060d756",
+      "nameEn": "Chief Accessibility Office",
+      "nameFr": "Bureau du dirigeant principal de l'accessibilité"
+    },
+    {
+      "id": "63ba687d-b740-42f3-910a-001b7060d757",
+      "nameEn": "Integrated Services Strategy and Operations (ISSO)",
+      "nameFr": "Stratégie des services intégrés et opérations (SSIO)"
+    }
+  ],
+  "pageable": {
+    "sort": {
+      "empty": true,
+      "sorted": false,
+      "unsorted": true
+    },
+    "offset": 0,
+    "pageSize": 2,
+    "pageNumber": 0,
+    "paged": true,
+    "unpaged": false
+  },
+  "last": false,
+  "totalPages": 13,
+  "totalElements": 25,
+  "size": 2,
+  "number": 0,
+  "sort": {
+    "empty": true,
+    "sorted": false,
+    "unsorted": true
+  },
+  "first": true,
+  "numberOfElements": 25,
+  "empty": false
+}
