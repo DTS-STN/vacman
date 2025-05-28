@@ -1,14 +1,26 @@
 import type { ClassificationGroup, ClassificationLevel } from '~/.server/domain/models';
+import type { ClassificationService } from '~/.server/domain/services/classification-service';
 import esdcClassificationData from '~/.server/resources/classification.json';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
+
+export function getMockClassificationService(): ClassificationService {
+  return {
+    getClassificationGroups: () => Promise.resolve(getClassificationGroup()),
+    getClassificationGroupById: (id: string) => Promise.resolve(getClassificationGroupById(id)),
+    getClassificationLevelByClassificationGroup: (classificationGroupId: string) =>
+      Promise.resolve(getClassificationLevelByClassificationGroup(classificationGroupId)),
+    getClassificationLevelById: (classificationGroupId: string, classificationLevelId: string) =>
+      Promise.resolve(getClassificationLevelById(classificationGroupId, classificationLevelId)),
+  };
+}
 
 /**
  * Retrieves a list of all esdc classification groups.
  *
  * @returns An array of esdc classification group objects.
  */
-export function getClassificationGroup(): readonly ClassificationGroup[] {
+function getClassificationGroup(): readonly ClassificationGroup[] {
   return esdcClassificationData.content.map((classificationGroup) => ({
     id: classificationGroup.id.toString(),
     name: classificationGroup.name,
@@ -26,7 +38,7 @@ export function getClassificationGroup(): readonly ClassificationGroup[] {
  * @returns The esdc classification group object if found.
  * @throws {AppError} If the esdc classification group is not found.
  */
-export function getClassificationGroupById(id: string): ClassificationGroup {
+function getClassificationGroupById(id: string): ClassificationGroup {
   const classificationGroup = getClassificationGroup().find((cg) => cg.id === id);
   if (!classificationGroup) {
     throw new AppError(`Classification group with ID '${id}' not found.`, ErrorCodes.NO_CLASSIFICATION_GROUP_FOUND);
@@ -39,7 +51,7 @@ export function getClassificationGroupById(id: string): ClassificationGroup {
  * @param classificationGroupId The ID of the classification group to retrieve levels from.
  * @returns The esdc classification levels associated with the specified classification group.
  */
-export function getClassificationLevelByClassificationGroup(classificationGroupId: string): readonly ClassificationLevel[] {
+function getClassificationLevelByClassificationGroup(classificationGroupId: string): readonly ClassificationLevel[] {
   const classificationGroup = getClassificationGroupById(classificationGroupId);
   return classificationGroup.levels.map((level) => ({
     id: level.id,
@@ -55,7 +67,7 @@ export function getClassificationLevelByClassificationGroup(classificationGroupI
  * @returns The esdc classification level object associated with the specified classification group if found.
  * @throws {AppError} If the esdc classification level is not found.
  */
-export function getClassificationLevelById(classificationGroupId: string, classificationLevelId: string): ClassificationLevel {
+function getClassificationLevelById(classificationGroupId: string, classificationLevelId: string): ClassificationLevel {
   const classificationGroup = getClassificationGroupById(classificationGroupId);
 
   const level = classificationGroup.levels.find((l) => l.id === classificationLevelId);
