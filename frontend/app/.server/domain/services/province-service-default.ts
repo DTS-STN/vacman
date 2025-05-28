@@ -78,5 +78,47 @@ export function getDefaultProvince(): ProvinceService {
 
       return await response.json();
     },
+    /**
+     * Retrieves a localized province by its ID and language.
+     * @param id The ID of the province to retrieve.
+     * @param language The language code for which to retrieve the localized province.
+     * @returns A promise that resolves to the localized province object, or undefined if not found.
+     * @throws AppError if the request fails or if the server responds with an error status.
+     */
+    async getLocalizedProvinceById(id: string, language: Language): Promise<LocalizedProvince | undefined> {
+      const response = await fetch(`${serverEnvironment.VACMAN_API_BASE_URI}/provinces/${id}/${language}`);
+
+      if (response.status === HttpStatusCodes.NOT_FOUND) {
+        return undefined;
+      }
+
+      if (!response.ok) {
+        const errorMessage = `Failed to find the localized Province with ID. Server responded with status ${response.status}.`;
+        throw new AppError(errorMessage, ErrorCodes.VACMAN_API_ERROR);
+      }
+
+      return await response.json();
+    },
+    /**
+     * Retrieves a localized province by its ALPHA_CODE and language.
+     * @param alphaCode The ALPHA_CODE of the province to retrieve.
+     * @param language The language code for which to retrieve the localized province.
+     * @returns A promise that resolves to the localized province object, or undefined if not found.
+     * @throws AppError if the request fails or if the server responds with an error status.
+     */
+    async getLocalizedProvinceByAlphaCode(alphaCode: string, language: Language): Promise<LocalizedProvince | undefined> {
+      const response = await fetch(`${serverEnvironment.VACMAN_API_BASE_URI}/provinces/${alphaCode}/${language}`);
+
+      if (response.status === HttpStatusCodes.NOT_FOUND) {
+        return undefined;
+      }
+
+      if (!response.ok) {
+        const errorMessage = `Failed to find the localized Province with ALPHA_CODE. Server responded with status ${response.status}.`;
+        throw new AppError(errorMessage, ErrorCodes.VACMAN_API_ERROR);
+      }
+
+      return await response.json();
+    },
   };
 }

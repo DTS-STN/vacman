@@ -18,6 +18,12 @@ export function getMockProvince(): ProvinceService {
     getLocalizedProvinces(language: Language): Promise<readonly LocalizedProvince[]> {
       return Promise.resolve(getLocalizedProvinces(language));
     },
+    getLocalizedProvinceById(id: string, language: Language): Promise<LocalizedProvince | undefined> {
+      return Promise.resolve(getLocalizedProvinceById(id, language));
+    },
+    getLocalizedProvinceByAlphaCode(alphaCode: string, language: Language): Promise<LocalizedProvince | undefined> {
+      return Promise.resolve(getLocalizedProvinceByAlphaCode(alphaCode, language));
+    },
   };
 }
 
@@ -26,7 +32,7 @@ export function getMockProvince(): ProvinceService {
  *
  * @returns An array of province objects.
  */
-export function getProvinces(): readonly Province[] {
+function getProvinces(): readonly Province[] {
   return esdcProvincesData.content.map((province) => ({
     id: province.id,
     alphaCode: province.alphaCode,
@@ -42,7 +48,7 @@ export function getProvinces(): readonly Province[] {
  * @returns The province object if found.
  * @throws {AppError} If the province is not found.
  */
-export function getProvinceById(id: string): Province {
+function getProvinceById(id: string): Province {
   const province = getProvinces().find((p) => p.id === id);
   if (!province) {
     throw new AppError(`Province with ID '${id}' not found.`, ErrorCodes.NO_PROVINCE_FOUND);
@@ -57,7 +63,7 @@ export function getProvinceById(id: string): Province {
  * @returns The province object if found.
  * @throws {AppError} If the province is not found.
  */
-export function getProvinceByAlphaCode(alphaCode: string): Province {
+function getProvinceByAlphaCode(alphaCode: string): Province {
   const province = getProvinces().find((p) => p.alphaCode === alphaCode);
   if (!province) {
     throw new AppError(`Province with alphaCode '${alphaCode}' not found.`, ErrorCodes.NO_PROVINCE_FOUND);
@@ -71,7 +77,7 @@ export function getProvinceByAlphaCode(alphaCode: string): Province {
  * @param language The language to localize the province names to.
  * @returns An array of localized province objects.
  */
-export function getLocalizedProvinces(language: Language): readonly LocalizedProvince[] {
+function getLocalizedProvinces(language: Language): readonly LocalizedProvince[] {
   return getProvinces()
     .map((province) => ({
       id: province.id,
@@ -89,7 +95,7 @@ export function getLocalizedProvinces(language: Language): readonly LocalizedPro
  * @returns The localized province object if found.
  * @throws {AppError} If the province is not found.
  */
-export function getLocalizedProvinceById(id: string, language: Language): LocalizedProvince {
+function getLocalizedProvinceById(id: string, language: Language): LocalizedProvince {
   const province = getLocalizedProvinces(language).find((p) => p.id === id);
   if (!province) {
     throw new AppError(`Localized province with ID '${id}' not found.`, ErrorCodes.NO_PROVINCE_FOUND);
@@ -105,7 +111,7 @@ export function getLocalizedProvinceById(id: string, language: Language): Locali
  * @returns The localized province object if found.
  * @throws {AppError} If the province is not found.
  */
-export function getLocalizedProvinceByAlphaCode(alphaCode: string, language: Language): LocalizedProvince {
+function getLocalizedProvinceByAlphaCode(alphaCode: string, language: Language): LocalizedProvince {
   const province = getLocalizedProvinces(language).find((p) => p.alphaCode === alphaCode);
   if (!province) {
     throw new AppError(`Localized province with alphaCode '${alphaCode}' not found.`, ErrorCodes.NO_PROVINCE_FOUND);
