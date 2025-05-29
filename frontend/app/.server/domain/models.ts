@@ -26,6 +26,17 @@ export type ClassificationLevel = Readonly<{
   name: string;
 }>;
 
+export type CurrentWFAStatus = Readonly<{
+  id: string;
+  nameEn: string;
+  nameFr: string;
+}>;
+
+export type LocalizedCurrentWFAStatus = Readonly<{
+  id: string;
+  name: string;
+}>;
+
 export type EducationLevel = Readonly<{
   id: string;
   nameEn: string;
