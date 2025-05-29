@@ -40,9 +40,6 @@
     "save": "Save",
     "submit": "Submit"
   },
-  "input": {
-    "required": "required"
-  },
   "contact-information": {
     "page-title": "Contact information",
     "preferred-language": "Preferred language of correspondence",
