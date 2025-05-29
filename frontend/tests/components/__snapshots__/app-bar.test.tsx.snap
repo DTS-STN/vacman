@@ -44,16 +44,7 @@ exports[`AppBar > should correctly render an AppBar with a MenuItem when the fil
       </div>
       <div
         class="flex items-center space-x-4 text-right"
-      >
-        <a
-          class="underline text-white hover:text-blue-100 focus:text-blue-200 sm:text-lg"
-          data-discover="true"
-          href="/en"
-          lang="en"
-        >
-          gcweb:language-switcher.alt-lang
-        </a>
-      </div>
+      />
     </div>
   </div>
 </div>
@@ -103,16 +94,7 @@ exports[`AppBar > should correctly render an AppBar with a MenuItem when the to 
       </div>
       <div
         class="flex items-center space-x-4 text-right"
-      >
-        <a
-          class="underline text-white hover:text-blue-100 focus:text-blue-200 sm:text-lg"
-          data-discover="true"
-          href="/en"
-          lang="en"
-        >
-          gcweb:language-switcher.alt-lang
-        </a>
-      </div>
+      />
     </div>
   </div>
 </div>
@@ -216,14 +198,6 @@ exports[`AppBar > should render render an AppBar with a name provided > expected
             />
           </svg>
         </button>
-        <a
-          class="underline text-white hover:text-blue-100 focus:text-blue-200 sm:text-lg"
-          data-discover="true"
-          href="/en"
-          lang="en"
-        >
-          gcweb:language-switcher.alt-lang
-        </a>
       </div>
     </div>
   </div>
@@ -328,14 +302,6 @@ exports[`AppBar > should render render an AppBar with a profile item provided > 
             />
           </svg>
         </button>
-        <a
-          class="underline text-white hover:text-blue-100 focus:text-blue-200 sm:text-lg"
-          data-discover="true"
-          href="/en"
-          lang="en"
-        >
-          gcweb:language-switcher.alt-lang
-        </a>
       </div>
     </div>
   </div>
