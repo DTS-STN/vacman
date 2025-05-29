@@ -9,6 +9,12 @@ export type LocalizedBranch = Readonly<{
   name: string;
 }>;
 
+export type City = Readonly<{
+  id: string;
+  provinceId: string;
+  name: string;
+}>;
+
 export type ClassificationGroup = Readonly<{
   id: string;
   name: string;
