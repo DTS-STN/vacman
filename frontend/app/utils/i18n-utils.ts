@@ -71,11 +71,10 @@ export function getLanguageFromAcceptLanguageHeader(request: Request): Language 
     ?.split(',')
     .map((lang) => lang.trim().split(';q='))
     .filter(([code]) => Boolean(code))
-    .map(([code, qValue]) => {
-      const language = code?.split('-')[0]?.toLowerCase() ?? '';
-      const quality = qValue ? parseFloat(qValue) : 1.0;
-      return { language, quality };
-    })
+    .map(([code, qValue]) => ({
+      language: code?.split('-')[0]?.toLowerCase() ?? '',
+      quality: qValue ? parseFloat(qValue) : 1.0,
+    }))
     .filter(({ language }) => language)
     .toSorted((a, b) => b.quality - a.quality);
 
