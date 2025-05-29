@@ -1,14 +1,25 @@
 import type { LocalizedOpportunityType, OpportunityType } from '~/.server/domain/models';
+import type { OpportunityTypeService } from '~/.server/domain/services/opportunity-type-service';
 import employmentOpportunityTypes from '~/.server/resources/employmentOpportunityTypes.json';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
+
+export function getMockOpportunityTypeService(): OpportunityTypeService {
+  return {
+    getOpportunityTypes: () => Promise.resolve(getOpportunityTypes()),
+    getOpportunityTypeById: (id: string) => Promise.resolve(getOpportunityTypeById(id)),
+    getLocalizedOpportunityTypes: (language: Language) => Promise.resolve(getLocalizedOpportunityTypes(language)),
+    getLocalizedOpportunityTypeById: (id: string, language: Language) =>
+      Promise.resolve(getLocalizedOpportunityTypeById(id, language)),
+  };
+}
 
 /**
  * Retrieves all employment opportunity types.
  *
  * @returns An array of all opportunity types.
  */
-export function getOpportunityTypes(): readonly OpportunityType[] {
+function getOpportunityTypes(): readonly OpportunityType[] {
   return employmentOpportunityTypes.content.map((opportunityType) => ({
     id: opportunityType.id.toString(),
     nameEn: opportunityType.nameEn,
@@ -23,7 +34,7 @@ export function getOpportunityTypes(): readonly OpportunityType[] {
  * @returns The opportunity type object if found.
  * @throws {AppError} If the opportunity type is not found.
  */
-export function getOpportunityTypeById(id: string): OpportunityType | undefined {
+function getOpportunityTypeById(id: string): OpportunityType | undefined {
   const opportunityType = getOpportunityTypes().find((type) => type.id === id);
   if (!opportunityType) {
     throw new AppError(`Opportunity type with ID '${id}' not found.`, ErrorCodes.NO_EMPLOYMENT_OPPORTUNITY_TYPE_FOUND);
@@ -37,7 +48,7 @@ export function getOpportunityTypeById(id: string): OpportunityType | undefined 
  * @param language The language to localize the opportunity name to.
  * @returns An array of localized opportunity types, with names in the specified language.
  */
-export function getLocalizedOpportunityTypes(language: Language): readonly LocalizedOpportunityType[] {
+function getLocalizedOpportunityTypes(language: Language): readonly LocalizedOpportunityType[] {
   return getOpportunityTypes().map((opportunityType) => ({
     id: opportunityType.id,
     name: language === 'fr' ? opportunityType.nameFr : opportunityType.nameEn,
@@ -52,7 +63,7 @@ export function getLocalizedOpportunityTypes(language: Language): readonly Local
  * @returns The localized opportunity type object if found.
  * @throws {AppError} If the opportunity type is not found.
  */
-export function getLocalizedOpportunityTypeById(id: string, language: Language): LocalizedOpportunityType {
+function getLocalizedOpportunityTypeById(id: string, language: Language): LocalizedOpportunityType {
   const opportunityType = getLocalizedOpportunityTypes(language).find((type) => type.id === id);
   if (!opportunityType) {
     throw new AppError(`Opportunity type with ID '${id}' not found.`, ErrorCodes.NO_EMPLOYMENT_OPPORTUNITY_TYPE_FOUND);
