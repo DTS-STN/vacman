@@ -4,7 +4,6 @@ import org.hibernate.validator.constraints.Range;
 import org.mapstruct.factory.Mappers;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -37,11 +36,8 @@ public class UsersController {
 	}
 
 	@GetMapping
-	@Operation(
-			summary = "Get users with pagination.",
-			description = "Returns a paginated list of users."
-	)
 	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
+	@Operation(summary = "Get users with pagination.", description = "Returns a paginated list of users.")
 	public Page<UserReadModel> getUsers(
 			@RequestParam(defaultValue = "0")
 			@Parameter(description = "Page number (0-based)")
@@ -51,10 +47,7 @@ public class UsersController {
 			@Range(min = 1, max = 100)
 			@Parameter(description = "Page size (between 1 and 100)")
 			int size) {
-
-		Pageable pageable = PageRequest.of(page, size);
-		return userService.getUsers(pageable)
-				.map(userModelMapper::toModel);
+		return userService.getUsers(PageRequest.of(page, size)).map(userModelMapper::toModel);
 	}
 
 	@PostMapping
@@ -63,4 +56,5 @@ public class UsersController {
 	public UserReadModel createUser(@RequestBody @Valid UserCreateModel user) {
 		return userModelMapper.toModel(userService.createUser(userModelMapper.toEntity(user)));
 	}
+
 }

@@ -11,10 +11,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.util.List;
 import java.util.UUID;
 
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -23,6 +19,9 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
@@ -39,18 +38,15 @@ import ca.gov.dtsstn.vacman.api.web.model.mapper.UserModelMapper;
 
 @ActiveProfiles("test")
 @Import({ WebSecurityConfig.class })
-@WebMvcTest({ UsersController.class })
 @DisplayName("UsersController tests")
+@WebMvcTest({ UsersController.class })
 class UsersControllerTest {
 
-	@Autowired
-	MockMvc mockMvc;
+	@Autowired MockMvc mockMvc;
 
-	@Autowired
-	ObjectMapper objectMapper;
+	@Autowired ObjectMapper objectMapper;
 
-	@MockitoBean
-	UserService userService;
+	@MockitoBean UserService userService;
 
 	UserModelMapper userModelMapper = Mappers.getMapper(UserModelMapper.class);
 
@@ -74,9 +70,7 @@ class UsersControllerTest {
 				.name("User Two")
 				.build());
 
-		final var page = 0;
-		final var size = 2;
-		final var pageable = PageRequest.of(page, size);
+		final var pageable = PageRequest.of(0, 2);
 		final var mockPage = new PageImpl<>(mockUsers, pageable, 4);
 
 		when(userService.getUsers(any(Pageable.class))).thenReturn(mockPage);

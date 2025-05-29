@@ -10,5 +10,7 @@ import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 
 @Repository
 public interface UserRepository extends ListCrudRepository<UserEntity, String>, PagingAndSortingRepository<UserEntity, String> {
-    Page<UserEntity> findAll(Pageable pageable);
+
+  Page<UserEntity> findAll(Pageable pageable);
+
 }
