@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 
 @Repository
-public interface UserRepository extends ListCrudRepository<UserEntity, String>, PagingAndSortingRepository<UserEntity, String> {
+public interface UserRepository extends ListCrudRepository<UserEntity, Long>, PagingAndSortingRepository<UserEntity, Long> {
 
   Page<UserEntity> findAll(Pageable pageable);
 

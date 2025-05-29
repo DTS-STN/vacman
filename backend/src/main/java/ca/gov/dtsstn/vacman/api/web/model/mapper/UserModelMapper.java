@@ -17,7 +17,6 @@ public interface UserModelMapper {
 	@Mapping(target = "createdDate", ignore = true)
 	@Mapping(target = "lastModifiedBy", ignore = true)
 	@Mapping(target = "lastModifiedDate", ignore = true)
-	@Mapping(target = "version", ignore = true)
 	UserEntity toEntity(UserCreateModel model);
 
 }

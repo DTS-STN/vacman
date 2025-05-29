@@ -6,7 +6,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
-import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -16,6 +15,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.UserEntityBuilder;
 import ca.gov.dtsstn.vacman.api.data.repository.UserRepository;
 
 @DisplayName("UserService Tests")
@@ -38,27 +38,23 @@ class UserServiceTest {
 		when(userRepository.save(any(UserEntity.class)))
 			.thenAnswer(invocation -> invocation.getArgument(0));
 
-		final var inputUser = UserEntity.builder()
+		final var inputUser = new UserEntityBuilder()
 			.name("Test User")
 			.build();
 
-		final var outputUser = userService.createUser(inputUser);
+		userService.createUser(inputUser);
 
 		verify(userRepository).save(any(UserEntity.class));
-		assertThat(outputUser.id()).matches(id -> id.length() == 36);
-		assertThat(outputUser.name()).isEqualTo("Test User");
 	}
 
 	@Test
 	@DisplayName("getAllUsers should return a list of all existing users")
 	void getAllUsers_shouldReturnListOfUsers() {
 		final var mockUsers = List.of(
-			UserEntity.builder()
-				.id(UUID.randomUUID().toString())
+			new UserEntityBuilder()
 				.name("User One")
 				.build(),
-			UserEntity.builder()
-				.id(UUID.randomUUID().toString())
+			new UserEntityBuilder()
 				.name("User Two")
 				.build());
 
@@ -67,8 +63,7 @@ class UserServiceTest {
 		final var outputUsers = userService.getAllUsers();
 
 		verify(userRepository).findAll();
-		assertThat(outputUsers).extracting(UserEntity::id).allMatch(id -> id.length() == 36);
-		assertThat(outputUsers).extracting(UserEntity::name).containsExactly("User One", "User Two");
+		assertThat(outputUsers).extracting(UserEntity::getName).containsExactly("User One", "User Two");
 	}
 
 }

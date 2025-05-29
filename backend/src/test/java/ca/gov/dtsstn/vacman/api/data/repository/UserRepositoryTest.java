@@ -8,55 +8,61 @@ import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.data.jdbc.DataJdbcTest;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.data.jdbc.core.JdbcAggregateTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import ca.gov.dtsstn.vacman.api.SecurityAuditor;
 import ca.gov.dtsstn.vacman.api.config.DataSourceConfig;
-import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.UserEntityBuilder;
 
-@DataJdbcTest
+@DataJpaTest
 @ActiveProfiles("test")
 @Import({ DataSourceConfig.class })
 @DisplayName("UserRepository tests")
 @AutoConfigureTestDatabase(replace = Replace.NONE)
 class UserRepositoryTest {
 
-	@Autowired
-	JdbcAggregateTemplate jdbcAggregateTemplate;
+	@Autowired UserRepository userRepository;
 
-	@Autowired
-	UserRepository userRepository;
-
-	@MockitoBean
-	SecurityAuditor securityAuditor;
+	@MockitoBean SecurityAuditor securityAuditor;
 
 	@Test
 	@DisplayName("findById should return empty Optional when user does not exist")
 	void whenFindById_givenUserDoesNotExist_thenReturnEmptyOptional() {
-		assertThat(userRepository.findById("00000000-0000-0000-0000-000000000000")).isNotPresent();
+		assertThat(userRepository.findById(0L)).isNotPresent();
 	}
 
 	@Test
-	@DisplayName("findById should return User when user exists")
-	void whenFindById_givenUserExists_thenReturnUser() {
+	@DisplayName("save and findById should retrieve the saved user")
+	void whenUserIsSaved_thenFindByIdShouldReturnUser() {
 		when(securityAuditor.getCurrentAuditor()).thenReturn(Optional.of("test-auditor"));
 
-		jdbcAggregateTemplate.save(UserEntity.builder()
-			.id("00000000-0000-0000-0000-000000000000")
-			.name("Test User")
-			.build());
+		final var savedUser = userRepository.save(
+			new UserEntityBuilder()
+				.name("Jane Doe")
+				.build());
 
-		final var user = userRepository.findById("00000000-0000-0000-0000-000000000000");
+		assertThat(savedUser).isNotNull();
+		assertThat(savedUser.getId()).isNotNull();
+		assertThat(savedUser.getName()).isEqualTo("Jane Doe");
 
-		assertThat(user).isPresent()
-			.get().extracting(UserEntity::id, UserEntity::name)
-			.containsExactly("00000000-0000-0000-0000-000000000000", "Test User");
+		final var foundUserOptional = userRepository.findById(savedUser.getId());
+
+		assertThat(foundUserOptional).isPresent();
+
+		final var foundUser = foundUserOptional.get();
+		assertThat(foundUser.getId()).isEqualTo(savedUser.getId());
+		assertThat(foundUser.getName()).isEqualTo("Jane Doe");
+
+		assertThat(foundUser.getCreatedBy()).isEqualTo("test-auditor"); // Example assertion
+		assertThat(foundUser.getCreatedDate()).isNotNull();
+		assertThat(foundUser.getLastModifiedBy()).isEqualTo("test-auditor");
+		assertThat(foundUser.getLastModifiedDate()).isNotNull();
 	}
+
 
 }

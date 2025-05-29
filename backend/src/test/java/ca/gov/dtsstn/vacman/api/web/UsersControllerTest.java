@@ -9,7 +9,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.List;
-import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -32,6 +31,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import ca.gov.dtsstn.vacman.api.config.WebSecurityConfig;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.UserEntityBuilder;
 import ca.gov.dtsstn.vacman.api.service.UserService;
 import ca.gov.dtsstn.vacman.api.web.model.UserCreateModel;
 import ca.gov.dtsstn.vacman.api.web.model.mapper.UserModelMapper;
@@ -59,14 +59,11 @@ class UsersControllerTest {
 	@WithMockUser(authorities = { "SCOPE_employee" })
 	@DisplayName("GET /api/v1/users - Should return paginated user collection")
 	void getUsers_shouldReturnPaginatedUserCollection() throws Exception {
-
 		final var mockUsers = List.of(
-			UserEntity.builder()
-				.id(UUID.randomUUID().toString())
+			new UserEntityBuilder()
 				.name("User One")
 				.build(),
-			UserEntity.builder()
-				.id(UUID.randomUUID().toString())
+			new UserEntityBuilder()
 				.name("User Two")
 				.build());
 
@@ -89,8 +86,7 @@ class UsersControllerTest {
 	@WithMockUser(authorities = { "SCOPE_employee" })
 	@DisplayName("POST /api/v1/users - Should create and return new user")
 	void createUser_shouldCreateUser() throws Exception {
-		final var mockUser = UserEntity.builder()
-			.id("00000000-0000-0000-0000-00000000")
+		final var mockUser = new UserEntityBuilder()
 			.name("Test User")
 			.build();
 
@@ -104,7 +100,7 @@ class UsersControllerTest {
 			.andExpect(status().isOk())
 			.andExpect(content().json(objectMapper.writeValueAsString(expectedResponse)));
 
-		verify(userService).createUser(UserEntity.builder()
+		verify(userService).createUser(new UserEntityBuilder()
 			.name("Test User")
 			.build());
 	}
