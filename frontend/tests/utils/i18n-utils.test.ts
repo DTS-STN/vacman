@@ -2,8 +2,7 @@ import type { RouteModule } from 'react-router';
 
 import { describe, expect, it } from 'vitest';
 
-import { getAcceptLanguageHeader } from '~/.server/utils/i18n-utils';
-import { getAltLanguage, getI18nNamespace, getLanguage } from '~/utils/i18n-utils';
+import { getAltLanguage, getI18nNamespace, getLanguage, getLanguageFromAcceptLanguageHeader } from '~/utils/i18n-utils';
 
 describe('i18n-utils', () => {
   describe('getI18nNamespace', () => {
@@ -69,43 +68,43 @@ describe('i18n-utils', () => {
     });
   });
 
-  describe('getAcceptLanguageHeader', () => {
+  describe('getLanguageFromAcceptLanguageHeader', () => {
     it('should return the preferred supported language from Accept-Language header', () => {
       const requestEn = new Request('http://example.com/', {
         headers: { 'accept-language': 'en-US,en;q=0.9' },
       });
-      expect(getAcceptLanguageHeader(requestEn)).toEqual('en');
+      expect(getLanguageFromAcceptLanguageHeader(requestEn)).toEqual('en');
 
       const requestFr = new Request('http://example.com/', {
         headers: { 'accept-language': 'fr-CA,fr;q=0.9,en;q=0.8' },
       });
-      expect(getAcceptLanguageHeader(requestFr)).toEqual('fr');
+      expect(getLanguageFromAcceptLanguageHeader(requestFr)).toEqual('fr');
     });
 
     it('should return the highest quality supported language', () => {
       const request = new Request('http://example.com/', {
         headers: { 'accept-language': 'es;q=0.9,fr;q=0.8,en;q=0.7' },
       });
-      expect(getAcceptLanguageHeader(request)).toEqual('fr');
+      expect(getLanguageFromAcceptLanguageHeader(request)).toEqual('fr');
     });
 
     it('should return undefined when no supported language is found', () => {
       const request = new Request('http://example.com/', {
         headers: { 'accept-language': 'es,de,it' },
       });
-      expect(getAcceptLanguageHeader(request)).toBeUndefined();
+      expect(getLanguageFromAcceptLanguageHeader(request)).toBeUndefined();
     });
 
     it('should return undefined when no Accept-Language header is present', () => {
       const request = new Request('http://example.com/');
-      expect(getAcceptLanguageHeader(request)).toBeUndefined();
+      expect(getLanguageFromAcceptLanguageHeader(request)).toBeUndefined();
     });
 
     it('should handle complex Accept-Language headers', () => {
       const request = new Request('http://example.com/', {
         headers: { 'accept-language': 'en-US,en;q=0.9,fr-CA;q=0.8,fr;q=0.7,de;q=0.6' },
       });
-      expect(getAcceptLanguageHeader(request)).toEqual('en');
+      expect(getLanguageFromAcceptLanguageHeader(request)).toEqual('en');
     });
   });
 });
