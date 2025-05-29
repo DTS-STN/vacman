@@ -10,16 +10,16 @@ describe('AppBar', () => {
   it('should correctly render an AppBar with a MenuItem when the file property is provided', () => {
     const RoutesStub = createRoutesStub([
       {
-        path: '/fr/public',
+        path: '/fr/',
         Component: () => (
           <AppBar>
-            <MenuItem file="routes/public/index.tsx">This is a test</MenuItem>
+            <MenuItem file="routes/index.tsx">This is a test</MenuItem>
           </AppBar>
         ),
       },
     ]);
 
-    const { container } = render(<RoutesStub initialEntries={['/fr/public']} />);
+    const { container } = render(<RoutesStub initialEntries={['/fr/']} />);
 
     expect(container).toMatchSnapshot('expected html');
   });
@@ -27,7 +27,7 @@ describe('AppBar', () => {
   it('should correctly render an AppBar with a MenuItem when the to property is provided', () => {
     const RoutesStub = createRoutesStub([
       {
-        path: '/fr/public',
+        path: '/fr/',
         Component: () => (
           <AppBar>
             <MenuItem to="https://example.com/">This is a test</MenuItem>
@@ -36,7 +36,7 @@ describe('AppBar', () => {
       },
     ]);
 
-    const { container } = render(<RoutesStub initialEntries={['/fr/public']}></RoutesStub>);
+    const { container } = render(<RoutesStub initialEntries={['/fr/']}></RoutesStub>);
 
     expect(container).toMatchSnapshot('expected html');
   });
@@ -44,16 +44,16 @@ describe('AppBar', () => {
   it('should render render an AppBar with a name provided', () => {
     const RoutesStub = createRoutesStub([
       {
-        path: '/fr/public',
+        path: '/fr/',
         Component: () => (
           <AppBar name="Test User">
-            <MenuItem file="routes/public/index.tsx">This is a test</MenuItem>
+            <MenuItem file="routes/index.tsx">This is a test</MenuItem>
           </AppBar>
         ),
       },
     ]);
 
-    const { container } = render(<RoutesStub initialEntries={['/fr/public']}></RoutesStub>);
+    const { container } = render(<RoutesStub initialEntries={['/fr/']}></RoutesStub>);
 
     expect(container).toMatchSnapshot('expected html');
   });
@@ -61,15 +61,15 @@ describe('AppBar', () => {
   it('should render render an AppBar with a profile item provided', () => {
     const RoutesStub = createRoutesStub([
       {
-        path: '/fr/public',
+        path: '/fr/',
         Component: () => (
-          <AppBar name="Test User" profileItems={<MenuItem file="routes/public/index.tsx">This is a test</MenuItem>}>
-            <MenuItem file="routes/public/index.tsx">This is a test</MenuItem>
+          <AppBar name="Test User" profileItems={<MenuItem file="routes/index.tsx">This is a test</MenuItem>}>
+            <MenuItem file="routes/index.tsx">This is a test</MenuItem>
           </AppBar>
         ),
       },
     ]);
-    const { container } = render(<RoutesStub initialEntries={['/fr/public']}></RoutesStub>);
+    const { container } = render(<RoutesStub initialEntries={['/fr/']}></RoutesStub>);
     expect(container).toMatchSnapshot('expected html');
   });
 });

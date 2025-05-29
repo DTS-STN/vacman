@@ -9,44 +9,44 @@ describe('Progress component', () => {
   it('renders with default props', () => {
     const RoutesStub = createRoutesStub([
       {
-        path: '/en/public',
+        path: '/en/',
         Component: () => <Progress label="test" value={0} />,
       },
     ]);
-    const { container } = render(<RoutesStub initialEntries={['/en/public']} />);
+    const { container } = render(<RoutesStub initialEntries={['/en/']} />);
     expect(container).toMatchSnapshot('expected html');
   });
 
   it('renders with custom size and variant', () => {
     const RoutesStub = createRoutesStub([
       {
-        path: '/en/public',
+        path: '/en/',
         Component: () => <Progress size="lg" variant="blue" label="test" value={0} />,
       },
     ]);
-    const { container } = render(<RoutesStub initialEntries={['/en/public']} />);
+    const { container } = render(<RoutesStub initialEntries={['/en/']} />);
     expect(container).toMatchSnapshot('expected html');
   });
 
   it('renders with custom value', () => {
     const RoutesStub = createRoutesStub([
       {
-        path: '/en/public',
+        path: '/en/',
         Component: () => <Progress value={50} label="test" />,
       },
     ]);
-    const { container } = render(<RoutesStub initialEntries={['/en/public']} />);
+    const { container } = render(<RoutesStub initialEntries={['/en/']} />);
     expect(container).toMatchSnapshot('expected html');
   });
 
   it('renders with custom className', () => {
     const RoutesStub = createRoutesStub([
       {
-        path: '/en/public',
+        path: '/en/',
         Component: () => <Progress className="custom-class" label="test" value={0} />,
       },
     ]);
-    const { container } = render(<RoutesStub initialEntries={['/en/public']} />);
+    const { container } = render(<RoutesStub initialEntries={['/en/']} />);
     expect(container).toMatchSnapshot('expected html');
   });
 });

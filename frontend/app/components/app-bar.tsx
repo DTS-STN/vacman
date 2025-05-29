@@ -62,7 +62,7 @@ function UserButton({ className, children, name }: UserButtonProps): JSX.Element
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-64 bg-slate-700">
         <UserName name={name} />
-        <MenuItem file="routes/protected/index.tsx">{t('gcweb:app.profile')}</MenuItem>
+        <MenuItem file="routes/index.tsx">{t('gcweb:app.profile')}</MenuItem>
         {children}
         <MenuItem to="/auth/logout" className="text-md flex justify-between">
           {t('gcweb:app.logout')}

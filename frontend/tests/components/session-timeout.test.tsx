@@ -31,11 +31,11 @@ describe('SessionTimeout', () => {
     const RoutesStub = createRoutesStub([
       {
         Component: () => <SessionTimeout {...defaultProps} {...props} />,
-        path: '/en/public',
+        path: '/en/',
       },
     ]);
 
-    return render(<RoutesStub initialEntries={['/en/public']} />);
+    return render(<RoutesStub initialEntries={['/en/']} />);
   };
 
   it('should render the session timeout dialog when prompted', () => {

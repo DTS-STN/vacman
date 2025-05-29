@@ -8,10 +8,10 @@ import { i18nRedirect } from '~/.server/utils/route-utils';
 import { Button } from '~/components/button';
 import { ButtonLink } from '~/components/button-link';
 import { getTranslation } from '~/i18n-config.server';
-import { handle as parentHandle } from '~/routes/protected/layout';
+import { handle as parentHandle } from '~/routes/layout';
 
 export const handle = {
-  i18nNamespace: [...parentHandle.i18nNamespace, 'protected'],
+  i18nNamespace: [...parentHandle.i18nNamespace],
 } as const satisfies RouteHandle;
 
 export function meta({ data }: Route.MetaArgs) {
@@ -24,13 +24,13 @@ export function action({ context, params, request }: Route.ActionArgs) {
   TODO: Add validation schema
   const formData = await request.formData();
   */
-  throw i18nRedirect('routes/protected/profile/index.tsx', request);
+  throw i18nRedirect('routes/profile/index.tsx', request);
 }
 
 export async function loader({ context, request }: Route.LoaderArgs) {
   requireAllRoles(context.session, new URL(request.url), ['employee']);
   const { t } = await getTranslation(request, handle.i18nNamespace);
-  return { documentTitle: t('protected:index.about'), defaultValues: {} };
+  return { documentTitle: t('app:index.about'), defaultValues: {} };
 }
 
 export default function PersonalDetails({ loaderData, params }: Route.ComponentProps) {
@@ -43,7 +43,7 @@ export default function PersonalDetails({ loaderData, params }: Route.ComponentP
             <Button name="action" variant="primary" id="continue-button">
               Update
             </Button>
-            <ButtonLink file="routes/protected/profile/index.tsx" id="back-button">
+            <ButtonLink file="routes/profile/index.tsx" id="back-button">
               Back
             </ButtonLink>
           </div>

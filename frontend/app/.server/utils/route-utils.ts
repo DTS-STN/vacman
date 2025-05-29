@@ -8,8 +8,6 @@ import type { Params } from 'react-router';
 import { generatePath, redirect } from 'react-router';
 
 import { LogFactory } from '~/.server/logging';
-import { AppError } from '~/errors/app-error';
-import { ErrorCodes } from '~/errors/error-codes';
 import type { I18nRouteFile } from '~/i18n-routes';
 import { i18nRoutes } from '~/i18n-routes';
 import { getLanguage } from '~/utils/i18n-utils';
@@ -35,8 +33,7 @@ const log = LogFactory.getLogger(import.meta.url);
  *   object where keys are the parameter names and values are their corresponding
  *   values.
  * @param opts.search - Optional search parameters (query string parameters).
- * @throws {AppError} If no language can be determined from the `resource` or if
- *   the provided `i18nRouteFile` is invalid.
+ * @param opts.defaultLanguage - Default language to use if no language is found in URL or Accept-Language header (defaults to 'en').
  * @returns A `Response` object configured for redirection.
  */
 export function i18nRedirect(
@@ -46,14 +43,11 @@ export function i18nRedirect(
     init?: number | ResponseInit;
     params?: Params;
     search?: URLSearchParams;
+    defaultLanguage?: Language;
   },
 ): Response {
-  const { init, params, search } = opts ?? {};
-  const language = getLanguage(resource);
-
-  if (language === undefined) {
-    throw new AppError('No language found in request', ErrorCodes.NO_LANGUAGE_FOUND);
-  }
+  const { init, params, search, defaultLanguage = 'en' } = opts ?? {};
+  const language = getLanguage(resource) ?? defaultLanguage;
 
   const i18nPageRoute = getRouteByFile(i18nRouteFile, i18nRoutes);
   const path = generatePath(i18nPageRoute.paths[language], params);
