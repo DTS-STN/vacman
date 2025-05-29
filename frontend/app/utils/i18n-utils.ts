@@ -84,6 +84,4 @@ export function getLanguageFromAcceptLanguageHeader(request: Request): Language 
       return language;
     }
   }
-
-  return undefined;
 }
