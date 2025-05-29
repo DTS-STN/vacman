@@ -6,24 +6,13 @@ import { ErrorCodes } from '~/errors/error-codes';
 
 export function getMockProvince(): ProvinceService {
   return {
-    getProvinces(): Promise<readonly Province[]> {
-      return Promise.resolve(getProvinces());
-    },
-    getProvinceById(id: string): Promise<Province | undefined> {
-      return Promise.resolve(getProvinceById(id));
-    },
-    getProvinceByAlphaCode(alphaCode: string): Promise<Province | undefined> {
-      return Promise.resolve(getProvinceByAlphaCode(alphaCode));
-    },
-    getLocalizedProvinces(language: Language): Promise<readonly LocalizedProvince[]> {
-      return Promise.resolve(getLocalizedProvinces(language));
-    },
-    getLocalizedProvinceById(id: string, language: Language): Promise<LocalizedProvince | undefined> {
-      return Promise.resolve(getLocalizedProvinceById(id, language));
-    },
-    getLocalizedProvinceByAlphaCode(alphaCode: string, language: Language): Promise<LocalizedProvince | undefined> {
-      return Promise.resolve(getLocalizedProvinceByAlphaCode(alphaCode, language));
-    },
+    getProvinces: () => Promise.resolve(getProvinces()),
+    getProvinceById: (id: string) => Promise.resolve(getProvinceById(id)),
+    getProvinceByAlphaCode: (alphaCode: string) => Promise.resolve(getProvinceByAlphaCode(alphaCode)),
+    getLocalizedProvinces: (language: Language) => Promise.resolve(getLocalizedProvinces(language)),
+    getLocalizedProvinceById: (id: string, language: Language) => Promise.resolve(getLocalizedProvinceById(id, language)),
+    getLocalizedProvinceByAlphaCode: (alphaCode: string, language: Language) =>
+      Promise.resolve(getLocalizedProvinceByAlphaCode(alphaCode, language)),
   };
 }
 

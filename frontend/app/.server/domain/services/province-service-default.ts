@@ -5,6 +5,7 @@ import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 
+//TODO: Revisit when the api endpoints are avaialable
 export function getDefaultProvince(): ProvinceService {
   return {
     /**
@@ -49,18 +50,8 @@ export function getDefaultProvince(): ProvinceService {
      * @throws AppError if the request fails or if the server responds with an error status.
      */
     async getProvinceByAlphaCode(alphaCode: string): Promise<Province | undefined> {
-      const response = await fetch(`${serverEnvironment.VACMAN_API_BASE_URI}/provinces/${alphaCode}`);
-
-      if (response.status === HttpStatusCodes.NOT_FOUND) {
-        return undefined;
-      }
-
-      if (!response.ok) {
-        const errorMessage = `Failed to find the Province with ALPHA_CODE. Server responded with status ${response.status}.`;
-        throw new AppError(errorMessage, ErrorCodes.VACMAN_API_ERROR);
-      }
-
-      return await response.json();
+      const response = await getDefaultProvince().getProvinces();
+      return response.find((p) => p.alphaCode === alphaCode);
     },
     /**
      * Retrieves all localized provinces for a given language.
@@ -69,14 +60,12 @@ export function getDefaultProvince(): ProvinceService {
      * @throws AppError if the request fails or if the server responds with an error status.
      */
     async getLocalizedProvinces(language: Language): Promise<readonly LocalizedProvince[]> {
-      const response = await fetch(`${serverEnvironment.VACMAN_API_BASE_URI}/provinces/${language}`);
-
-      if (!response.ok) {
-        const errorMessage = `Failed to retrieve all localized Provinces. Server responded with status ${response.status}.`;
-        throw new AppError(errorMessage, ErrorCodes.VACMAN_API_ERROR);
-      }
-
-      return await response.json();
+      const response = await getDefaultProvince().getProvinces();
+      return response.map((option) => ({
+        id: option.id,
+        alphaCode: option.alphaCode,
+        name: language === 'fr' ? option.nameFr : option.nameEn,
+      }));
     },
     /**
      * Retrieves a localized province by its ID and language.
@@ -86,18 +75,9 @@ export function getDefaultProvince(): ProvinceService {
      * @throws AppError if the request fails or if the server responds with an error status.
      */
     async getLocalizedProvinceById(id: string, language: Language): Promise<LocalizedProvince | undefined> {
-      const response = await fetch(`${serverEnvironment.VACMAN_API_BASE_URI}/provinces/${id}/${language}`);
+      const response = await getDefaultProvince().getLocalizedProvinces(language);
 
-      if (response.status === HttpStatusCodes.NOT_FOUND) {
-        return undefined;
-      }
-
-      if (!response.ok) {
-        const errorMessage = `Failed to find the localized Province with ID. Server responded with status ${response.status}.`;
-        throw new AppError(errorMessage, ErrorCodes.VACMAN_API_ERROR);
-      }
-
-      return await response.json();
+      return response.find((p) => p.id === id);
     },
     /**
      * Retrieves a localized province by its ALPHA_CODE and language.
@@ -107,18 +87,9 @@ export function getDefaultProvince(): ProvinceService {
      * @throws AppError if the request fails or if the server responds with an error status.
      */
     async getLocalizedProvinceByAlphaCode(alphaCode: string, language: Language): Promise<LocalizedProvince | undefined> {
-      const response = await fetch(`${serverEnvironment.VACMAN_API_BASE_URI}/provinces/${alphaCode}/${language}`);
+      const response = await getDefaultProvince().getLocalizedProvinces(language);
 
-      if (response.status === HttpStatusCodes.NOT_FOUND) {
-        return undefined;
-      }
-
-      if (!response.ok) {
-        const errorMessage = `Failed to find the localized Province with ALPHA_CODE. Server responded with status ${response.status}.`;
-        throw new AppError(errorMessage, ErrorCodes.VACMAN_API_ERROR);
-      }
-
-      return await response.json();
+      return response.find((p) => p.alphaCode === alphaCode);
     },
   };
 }
