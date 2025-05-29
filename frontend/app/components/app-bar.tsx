@@ -15,8 +15,6 @@ type AppBarProps = {
 };
 
 export function AppBar({ children, name, profileItems }: AppBarProps): JSX.Element {
-  const { t } = useTranslation(['gcweb']);
-
   return (
     <div className="bg-slate-700">
       <div className="align-center container mx-auto flex flex-wrap justify-between">
