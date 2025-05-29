@@ -1,0 +1,49 @@
+{
+  "content": [
+    {
+      "id": 329550000,
+      "nameEn": "Affected",
+      "nameFr": "Touché"
+    },
+    {
+      "id": 329550001,
+      "nameEn": "Opting",
+      "nameFr": "Optant"
+    },
+    {
+      "id": 329550002,
+      "nameEn": "Surplus (GRJO)",
+      "nameFr": "Excédentaire (GOER)"
+    },
+    {
+      "id": 329550003,
+      "nameEn": "Surplus (Opting Option A)",
+      "nameFr": "Excédentaire (Optant Option A)"
+    }
+  ],
+  "pageable": {
+    "sort": {
+      "empty": true,
+      "sorted": false,
+      "unsorted": true
+    },
+    "offset": 0,
+    "pageSize": 2,
+    "pageNumber": 0,
+    "paged": true,
+    "unpaged": false
+  },
+  "last": false,
+  "totalPages": 2,
+  "totalElements": 4,
+  "size": 2,
+  "number": 0,
+  "sort": {
+    "empty": true,
+    "sorted": false,
+    "unsorted": true
+  },
+  "first": true,
+  "numberOfElements": 4,
+  "empty": false
+}
