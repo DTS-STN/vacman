@@ -6,18 +6,11 @@ import { ErrorCodes } from '~/errors/error-codes';
 
 export function getMockLanguageProfileForReferral(): LanguageProfileForReferralService {
   return {
-    getLanguagesProfileForReferral(): Promise<readonly LanguageProfileForReferral[]> {
-      return Promise.resolve(getLanguagesProfileForReferral());
-    },
-    getLanguageProfileForReferralById(id): Promise<LanguageProfileForReferral> {
-      return Promise.resolve(getLanguageProfileForReferralById(id));
-    },
-    getLocalizedLanguageProfileForReferral(language): Promise<readonly LocalizedLanguageProfileForReferral[]> {
-      return Promise.resolve(getLocalizedLanguageProfileForReferral(language));
-    },
-    getLocalizedLanguageProfileForReferralById(id, language): Promise<LocalizedLanguageProfileForReferral> {
-      return Promise.resolve(getLocalizedLanguageProfileForReferralById(id, language));
-    },
+    getLanguagesProfileForReferral: () => Promise.resolve(getLanguagesProfileForReferral()),
+    getLanguageProfileForReferralById: (id) => Promise.resolve(getLanguageProfileForReferralById(id)),
+    getLocalizedLanguageProfileForReferral: (language) => Promise.resolve(getLocalizedLanguageProfileForReferral(language)),
+    getLocalizedLanguageProfileForReferralById: (id, language) =>
+      Promise.resolve(getLocalizedLanguageProfileForReferralById(id, language)),
   };
 }
 /**

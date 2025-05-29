@@ -1,14 +1,24 @@
 import type { Branch, LocalizedBranch } from '~/.server/domain/models';
+import type { BranchService } from '~/.server/domain/services/branch-service';
 import esdcBranchData from '~/.server/resources/esdc_branchandregions.json';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
+
+export function getMockBranchService(): BranchService {
+  return {
+    getBranches: () => Promise.resolve(getBranches()),
+    getBranchById: (id: string) => Promise.resolve(getBranchById(id)),
+    getLocalizedBranches: (language: Language) => Promise.resolve(getLocalizedBranches(language)),
+    getLocalizedBranchById: (id: string, language: Language) => Promise.resolve(getLocalizedBranchById(id, language)),
+  };
+}
 
 /**
  * Retrieves a list of all esdc branches.
  *
  * @returns An array of esdc branch objects.
  */
-export function getBranches(): readonly Branch[] {
+function getBranches(): readonly Branch[] {
   return esdcBranchData.content.map((branch) => ({
     id: branch.id,
     nameEn: branch.nameEn,
@@ -23,7 +33,7 @@ export function getBranches(): readonly Branch[] {
  * @returns The branch object if found.
  * @throws {AppError} If the branch is not found.
  */
-export function getBranchById(id: string): Branch {
+function getBranchById(id: string): Branch {
   const branch = getBranches().find((p) => p.id === id);
   if (!branch) {
     throw new AppError(`Branch with ID '${id}' not found.`, ErrorCodes.NO_BRANCH_FOUND);
@@ -37,7 +47,7 @@ export function getBranchById(id: string): Branch {
  * @param language The language to localize the branch names to.
  * @returns An array of localized branch objects.
  */
-export function getLocalizedBranches(language: Language): readonly LocalizedBranch[] {
+function getLocalizedBranches(language: Language): readonly LocalizedBranch[] {
   return getBranches()
     .map((branch) => ({
       id: branch.id,
@@ -54,7 +64,7 @@ export function getLocalizedBranches(language: Language): readonly LocalizedBran
  * @returns The localized branch object if found.
  * @throws {AppError} If the branch is not found.
  */
-export function getLocalizedBranchById(id: string, language: Language): LocalizedBranch {
+function getLocalizedBranchById(id: string, language: Language): LocalizedBranch {
   const branch = getLocalizedBranches(language).find((p) => p.id === id);
   if (!branch) {
     throw new AppError(`Localized branch with ID '${id}' not found.`, ErrorCodes.NO_BRANCH_FOUND);
