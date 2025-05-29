@@ -21,7 +21,7 @@ export function LanguageSwitcher({ className, children, ...props }: LanguageSwit
 
   return (
     <InlineLink
-      className={cn('text-white hover:text-blue-100 focus:text-blue-200 sm:text-lg', className)}
+      className={cn('text-slate-700 sm:text-lg', className)}
       file={file as I18nRouteFile}
       lang={altLanguage}
       params={params}

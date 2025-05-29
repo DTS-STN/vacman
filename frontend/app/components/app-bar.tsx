@@ -5,7 +5,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useTranslation } from 'react-i18next';
 
 import { DropdownMenu, DropdownMenuContent, DropdownMenuLabel, DropdownMenuTrigger } from '~/components/dropdown-menu';
-import { LanguageSwitcher } from '~/components/language-switcher';
 import { Menu, MenuItem } from '~/components/menu';
 import { cn } from '~/utils/tailwind-utils';
 
@@ -26,7 +25,6 @@ export function AppBar({ children, name, profileItems }: AppBarProps): JSX.Eleme
         </div>
         <div className="flex items-center space-x-4 text-right">
           {name && <UserButton name={name}>{profileItems}</UserButton>}
-          <LanguageSwitcher>{t('gcweb:language-switcher.alt-lang')}</LanguageSwitcher>
         </div>
       </div>
     </div>
