@@ -34,8 +34,6 @@ const log = LogFactory.getLogger(import.meta.url);
  *   values.
  * @param opts.search - Optional search parameters (query string parameters).
  * @param opts.defaultLanguage - Default language to use if no language is found in URL or Accept-Language header (defaults to 'en').
- * @throws {AppError} If no language can be determined from the `resource` or if
- *   the provided `i18nRouteFile` is invalid.
  * @returns A `Response` object configured for redirection.
  */
 export function i18nRedirect(
