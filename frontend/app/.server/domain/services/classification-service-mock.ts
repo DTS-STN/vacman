@@ -6,7 +6,7 @@ import { ErrorCodes } from '~/errors/error-codes';
 
 export function getMockClassificationService(): ClassificationService {
   return {
-    getClassificationGroups: () => Promise.resolve(getClassificationGroup()),
+    getClassificationGroups: () => Promise.resolve(getClassificationGroups()),
     getClassificationGroupById: (id: string) => Promise.resolve(getClassificationGroupById(id)),
     getClassificationLevelByClassificationGroup: (classificationGroupId: string) =>
       Promise.resolve(getClassificationLevelByClassificationGroup(classificationGroupId)),
@@ -20,7 +20,7 @@ export function getMockClassificationService(): ClassificationService {
  *
  * @returns An array of esdc classification group objects.
  */
-function getClassificationGroup(): readonly ClassificationGroup[] {
+function getClassificationGroups(): readonly ClassificationGroup[] {
   return esdcClassificationData.content.map((classificationGroup) => ({
     id: classificationGroup.id.toString(),
     name: classificationGroup.name,
@@ -39,7 +39,7 @@ function getClassificationGroup(): readonly ClassificationGroup[] {
  * @throws {AppError} If the esdc classification group is not found.
  */
 function getClassificationGroupById(id: string): ClassificationGroup {
-  const classificationGroup = getClassificationGroup().find((cg) => cg.id === id);
+  const classificationGroup = getClassificationGroups().find((cg) => cg.id === id);
   if (!classificationGroup) {
     throw new AppError(`Classification group with ID '${id}' not found.`, ErrorCodes.NO_CLASSIFICATION_GROUP_FOUND);
   }
