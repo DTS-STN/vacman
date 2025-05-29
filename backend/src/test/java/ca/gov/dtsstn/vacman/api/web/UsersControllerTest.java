@@ -19,6 +19,9 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
@@ -30,24 +33,20 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import ca.gov.dtsstn.vacman.api.config.WebSecurityConfig;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 import ca.gov.dtsstn.vacman.api.service.UserService;
-import ca.gov.dtsstn.vacman.api.web.model.UserCollectionModel;
 import ca.gov.dtsstn.vacman.api.web.model.UserCreateModel;
 import ca.gov.dtsstn.vacman.api.web.model.mapper.UserModelMapper;
 
 @ActiveProfiles("test")
 @Import({ WebSecurityConfig.class })
-@WebMvcTest({ UsersController.class })
 @DisplayName("UsersController tests")
+@WebMvcTest({ UsersController.class })
 class UsersControllerTest {
 
-	@Autowired
-	MockMvc mockMvc;
+	@Autowired MockMvc mockMvc;
 
-	@Autowired
-	ObjectMapper objectMapper;
+	@Autowired ObjectMapper objectMapper;
 
-	@MockitoBean
-	UserService userService;
+	@MockitoBean UserService userService;
 
 	UserModelMapper userModelMapper = Mappers.getMapper(UserModelMapper.class);
 
@@ -58,8 +57,9 @@ class UsersControllerTest {
 
 	@Test
 	@WithMockUser(authorities = { "SCOPE_employee" })
-	@DisplayName("GET /api/v1/users - Should return user collection when users exist")
-	void getAllUsers_shouldReturnUserCollection() throws Exception {
+	@DisplayName("GET /api/v1/users - Should return paginated user collection")
+	void getUsers_shouldReturnPaginatedUserCollection() throws Exception {
+
 		final var mockUsers = List.of(
 			UserEntity.builder()
 				.id(UUID.randomUUID().toString())
@@ -70,18 +70,19 @@ class UsersControllerTest {
 				.name("User Two")
 				.build());
 
-		when(userService.getAllUsers()).thenReturn(mockUsers);
+		final var pageable = PageRequest.of(0, 2);
+		final var mockPage = new PageImpl<>(mockUsers, pageable, 4);
 
-		final var expectedResponse = new UserCollectionModel(mockUsers.stream()
-			.map(userModelMapper::toModel)
-			.toList());
+		when(userService.getUsers(any(Pageable.class))).thenReturn(mockPage);
+
+		final var expectedResponse = mockPage.map(userModelMapper::toModel);
 
 		mockMvc.perform(get("/api/v1/users"))
 			.andExpect(status().isOk())
 			.andExpect(content().contentType(MediaType.APPLICATION_JSON))
 			.andExpect(content().json(objectMapper.writeValueAsString(expectedResponse)));
 
-		verify(userService).getAllUsers();
+		verify(userService).getUsers(any(Pageable.class));
 	}
 
 	@Test

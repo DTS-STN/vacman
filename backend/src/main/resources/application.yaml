@@ -25,6 +25,11 @@
 spring:
   application:
     name: vacman-api
+  data:
+    web:
+      pageable:
+        one-indexed-parameters: true
+        max-page-size: 200
   devtools:
     livereload:
       enabled: false
