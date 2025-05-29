@@ -7,6 +7,7 @@ import type { Route } from './+types/layout';
 
 import { requireAllRoles } from '~/.server/utils/auth-utils';
 import { AppBar } from '~/components/app-bar';
+import { LanguageSwitcher } from '~/components/language-switcher';
 import { AppLink } from '~/components/links';
 import { MenuItem } from '~/components/menu';
 import { PageDetails } from '~/components/page-details';
@@ -46,6 +47,7 @@ export default function Layout({ loaderData }: Route.ComponentProps) {
                 decoding="async"
               />
             </AppLink>
+            <LanguageSwitcher>{t('gcweb:language-switcher.alt-lang')}</LanguageSwitcher>
           </div>
         </div>
         <AppBar
