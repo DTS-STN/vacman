@@ -82,3 +82,14 @@ export type LocalizedLanguageProfileForReferral = Readonly<{
   id: string;
   name: string;
 }>;
+
+export type LanguageOfCorrespondence = Readonly<{
+  id: string;
+  nameEn: string;
+  nameFr: string;
+}>;
+
+export type LocalizedLanguageOfCorrespondence = Readonly<{
+  id: string;
+  name: string;
+}>;
