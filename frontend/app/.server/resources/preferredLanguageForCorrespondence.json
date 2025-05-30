@@ -1,0 +1,39 @@
+{
+  "content": [
+    {
+      "id": 874190000,
+      "nameEn": "English",
+      "nameFr": "Anglais"
+    },
+    {
+      "id": 874190001,
+      "nameEn": "French",
+      "nameFr": "Français"
+    }
+  ],
+  "pageable": {
+    "sort": {
+      "empty": true,
+      "sorted": false,
+      "unsorted": true
+    },
+    "offset": 0,
+    "pageSize": 2,
+    "pageNumber": 0,
+    "paged": true,
+    "unpaged": false
+  },
+  "last": false,
+  "totalPages": 1,
+  "totalElements": 2,
+  "size": 2,
+  "number": 0,
+  "sort": {
+    "empty": true,
+    "sorted": false,
+    "unsorted": true
+  },
+  "first": true,
+  "numberOfElements": 2,
+  "empty": false
+}
