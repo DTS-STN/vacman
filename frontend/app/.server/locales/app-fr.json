@@ -18,9 +18,9 @@
     "in-progress": "En cours",
     "required": "Obligatoire",
     "fields-complete": "{{completed}} sur {{total}} champs remplis",
-    "contact": {
-      "title": "Coordonnées",
-      "link-label": "informations personnelles et les coordonnées"
+    "personal-information": {
+      "title": "Informations personnelles",
+      "link-label": "informations personnelles"
     },
     "employment": {
       "title": "Informations sur l'emploi",
@@ -40,18 +40,25 @@
     "save": "Enregistrer",
     "submit": "Soumettre"
   },
-  "contact-information": {
-    "page-title": "Informations de contact",
+  "personal-information": {
+    "page-title": "Informations personnelles",
     "preferred-language": "Langue de correspondance préférée",
     "work-email": "Adresse e-mail professionnelle",
     "personal-email": "Adresse e-mail personnelle",
     "work-phone": "Numéro de téléphone professionnel",
     "personal-phone": "Numéro de téléphone personnel",
+    "education": "Quel est votre niveau d'études le plus élevé?",
+    "additional-information": "Renseignements supplémentaires",
+    "additional-info-help-message": "Veuillez noter brièvement les absences ou d'autres informations clés.",
     "errors": {
-      "preferred-language": "La langue de correspondance préférée est requise.",
-      "personal-email": "Adresse e-mail personnelle invalide",
-      "work-phone": "Numéro de téléphone professionnel invalide",
-      "personal-phone": "Numéro de téléphone personnel invalide"
+      "preferred-language-required": "La langue de correspondance préférée est requise.",
+      "personal-email-invalid": "Adresse e-mail personnelle invalide.",
+      "personal-email-required": "Une adresse email personnelle est requise.",
+      "work-phone-invalid": "Numéro de téléphone professionnel invalide.",
+      "work-phone-required": "Le numéro de téléphone professionnel est requis.",
+      "personal-phone-invalid": "Numéro de téléphone personnel invalide.",
+      "personal-phone-required": "Un numéro de téléphone personnel est requis.",
+      "education-required": "Niveau d'études est requis."
     }
   }
 }

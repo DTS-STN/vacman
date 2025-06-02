@@ -44,7 +44,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
     email: context.session.authState.idTokenClaims.email,
     completed: 6,
     total: 12,
-    contact: {
+    personalInformation: {
       completed: 2,
       workEmail: 'firstname.lastname@email.ca',
     },
@@ -84,14 +84,14 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
       <ProgressBar completed={loaderData.completed} total={loaderData.total} />
       <div className="grid gap-4 md:grid-cols-2">
         <ProfileCard
-          title={t('app:profile.contact.title')}
-          linkLabel={t('app:profile.contact.link-label')}
-          file="routes/profile/contact-information.tsx"
-          completed={loaderData.contact.completed}
+          title={t('app:profile.personal-information.title')}
+          linkLabel={t('app:profile.personal-information.link-label')}
+          file="routes/profile/personal-information.tsx"
+          completed={loaderData.personalInformation.completed}
           total={3}
           required={true}
         >
-          <ProfileField label="Work email address">{loaderData.contact.workEmail}</ProfileField>
+          <ProfileField label="Work email address">{loaderData.personalInformation.workEmail}</ProfileField>
           <ProfileField label="Other field">field value</ProfileField>
         </ProfileCard>
         <ProfileCard

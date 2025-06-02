@@ -122,10 +122,10 @@ export const i18nRoutes = [
       },
       {
         id: 'EDIT-0002',
-        file: 'routes/profile/contact-information.tsx',
+        file: 'routes/profile/personal-information.tsx',
         paths: {
-          en: '/en/profile/contact-details',
-          fr: '/fr/profil/informations-de-contact',
+          en: '/en/profile/personal-information',
+          fr: '/fr/profil/informations-personnelles',
         },
       },
       {

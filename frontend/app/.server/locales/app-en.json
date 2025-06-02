@@ -18,9 +18,9 @@
     "in-progress": "In progress",
     "required": "Required",
     "fields-complete": "{{completed}} out of {{total}} fields complete",
-    "contact": {
-      "title": "Contact information",
-      "link-label": "personal and contact information"
+    "personal-information": {
+      "title": "Personal information",
+      "link-label": "personal information"
     },
     "employment": {
       "title": "Employment information",
@@ -40,18 +40,25 @@
     "save": "Save",
     "submit": "Submit"
   },
-  "contact-information": {
-    "page-title": "Contact information",
+  "personal-information": {
+    "page-title": "Personal information",
     "preferred-language": "Preferred language of correspondence",
     "work-email": "Work email address",
     "personal-email": "Personal email address",
     "work-phone": "Work phone number",
     "personal-phone": "Personal phone number",
+    "education": "What is your highest level of education?",
+    "additional-information": "Additional information",
+    "additional-info-help-message": "Briefly note absences or other key information.",
     "errors": {
-      "preferred-language": "Preferred language of correspondence is required",
-      "personal-email": "Invalid personal email address",
-      "work-phone": "Invalid work phone number",
-      "personal-phone": "Invalid personal phone number"
+      "preferred-language-required": "Preferred language of correspondence is required.",
+      "personal-email-invalid": "Invalid personal email address.",
+      "personal-email-required": "Personal email address is required.",
+      "work-phone-invalid": "Invalid work phone number.",
+      "work-phone-required": "Work phone number is required.",
+      "personal-phone-invalid": "Invalid personal phone number.",
+      "personal-phone-required": "Personal phone number is required.",
+      "education-required": "Education level is required."
     }
   }
 }

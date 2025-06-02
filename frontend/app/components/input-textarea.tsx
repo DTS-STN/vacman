@@ -44,6 +44,11 @@ export function InputTextarea({
         {label}
       </InputLabel>
       {errorMessage && <InputError id={inputErrorId}>{errorMessage}</InputError>}
+      {helpMessage && (
+        <InputHelp id={inputHelpMessageId} data-testid="input-textarea-help">
+          {helpMessage}
+        </InputHelp>
+      )}
       <textarea
         aria-describedby={helpMessage ? inputHelpMessageId : undefined}
         aria-errormessage={errorMessage && inputErrorId}
@@ -64,11 +69,6 @@ export function InputTextarea({
         rows={rows ?? 3}
         {...restInputProps}
       />
-      {helpMessage && (
-        <InputHelp id={inputHelpMessageId} data-testid="input-textarea-help">
-          {helpMessage}
-        </InputHelp>
-      )}
     </div>
   );
 }
