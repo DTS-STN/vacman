@@ -133,7 +133,7 @@ export const i18nRoutes = [
         file: 'routes/profile/employment-information.tsx',
         paths: {
           en: '/en/profile/employment-information',
-          fr: `/fr/profil/informations-sur-l'emploi`,
+          fr: `/fr/profil/informations-sur-lemploi`,
         },
       },
       {
