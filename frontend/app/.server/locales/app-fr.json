@@ -60,5 +60,33 @@
       "personal-phone-required": "Un numéro de téléphone personnel est requis.",
       "education-required": "Niveau d'études est requis."
     }
+  },
+  "employmeny-information": {
+    "page-title": "Informations sur l'emploi",
+    "personal-record-identifier": "Code d'identification du dossier personnel (CIDP)",
+    "substantive-position-heading": "",
+    "substantive-position-group-and-level": "Groupe et niveau de votre poste substantif",
+    "substantive-group": "Groupe",
+    "substantive-level": "Niveau",
+    "branch-or-service-canada-region": "Direction générale ou Région de Service Canada",
+    "directorate": "Direction",
+    "provinces": "Province du lieu de travail désigné de votre poste substantif",
+    "city": "Ville du lieu de travail désigné de votre poste substantif",
+    "wfa-detils-heading": "Détails RE",
+    "current-wfa-status": "Statut actuel sous le RE",
+    "wfa-effective-date": "Date effective de votre statut de RE (si applicable)",
+    "wfa-end-date": "Date de fin de votre statut de RE (si applicable)",
+    "hr-advisor": "Conseiller en RH identifié dans votre lettre de RE",
+    "errors": {
+      "personal-record-identifier-required": "Le code d'identification du dossier personnel (CIDP) est requis.",
+      "personal-record-identifier-invalid": "Le code d'identification du dossier personnel (CIDP) est invalide.",
+      "substantive-position-group-and-level-required": "Le groupe et le niveau de votre poste substantif sont requis.",
+      "branch-or-service-canada-region-required": "La direction générale ou la région de Service Canada est requise.",
+      "directorate-required": "La direction est requise.",
+      "provinces-required": "La province du lieu de travail désigné de votre poste substantif est requise.",
+      "city-required": "La ville du lieu de travail désigné de votre poste substantif est requise.",
+      "current-wfa-status-required": "Le statut actuel sous le RE est requis.",
+      "hr-advisor-required": "Le conseiller en RH est requis."
+    }
   }
 }

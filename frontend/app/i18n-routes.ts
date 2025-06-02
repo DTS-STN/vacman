@@ -130,6 +130,14 @@ export const i18nRoutes = [
       },
       {
         id: 'EDIT-0003',
+        file: 'routes/profile/employment-information.tsx',
+        paths: {
+          en: '/en/profile/employment-information',
+          fr: `/fr/profil/informations-sur-l'emploi`,
+        },
+      },
+      {
+        id: 'EDIT-0004',
         file: 'routes/profile/personal-details.tsx',
         paths: {
           en: '/en/profile/personal-details',
