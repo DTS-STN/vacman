@@ -40,9 +40,6 @@
     "save": "Enregistrer",
     "submit": "Soumettre"
   },
-  "input": {
-    "required": "obligatoire"
-  },
   "contact-information": {
     "page-title": "Informations de contact",
     "preferred-language": "Langue de correspondance préférée",
