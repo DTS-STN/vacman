@@ -99,7 +99,7 @@ export default function EmploymentInformation({ loaderData, actionData, params }
   return (
     <>
       <InlineLink className="mt-6 block" file="routes/profile/index.tsx" id="back-button">
-        {`<\u0020${t('app:profile.back')}`}
+        {`< ${t('app:profile.back')}`}
       </InlineLink>
       <div className="max-w-prose">
         <h1 className="my-5 text-3xl font-semibold">{t('app:employmeny-information.page-title')}</h1>
