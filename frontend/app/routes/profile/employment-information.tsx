@@ -9,7 +9,6 @@ import type { Route } from './+types/employment-information';
 import { requireAllRoles } from '~/.server/utils/auth-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { Button } from '~/components/button';
-import { ButtonLink } from '~/components/button-link';
 import { ActionDataErrorSummary } from '~/components/error-summary';
 import { InputField } from '~/components/input-field';
 import { InlineLink } from '~/components/links';
@@ -116,14 +115,10 @@ export default function EmploymentInformation({ loaderData, actionData, params }
                 type="number"
                 required
               />
-            </div>
-            <div className="mt-8 flex flex-row-reverse flex-wrap items-center justify-end gap-3">
-              <Button name="action" variant="primary" id="continue-button">
-                Update
+
+              <Button className="px-12" name="action" variant="primary" id="save-button">
+                {t('app:form.save')}
               </Button>
-              <ButtonLink file="routes/profile/index.tsx" id="back-button">
-                Back
-              </ButtonLink>
             </div>
           </Form>
         </ActionDataErrorSummary>
