@@ -60,5 +60,34 @@
       "personal-phone-required": "Personal phone number is required.",
       "education-required": "Education level is required."
     }
+  },
+  "employmeny-information": {
+    "page-title": "Employment information",
+    "personal-record-identifier": "Personal record identifier (PRI)",
+    "substantive-position-heading": "Substantive position",
+    "substantive-position-group-and-level": "Group and level of your substantive position",
+    "substantive-group": "Group",
+    "substantive-level": "Level",
+    "branch-or-service-canada-region": "Branch or Service Canada Region",
+    "directorate": "Directorate",
+    "provinces": "Province of the designated work location of your substantive position",
+    "city": "City of the designated work location of your substantive position",
+    "wfa-detils-heading": "WFA Details",
+    "current-wfa-status": "Current WFA status",
+    "wfa-effective-date": "Efftive date of your WFA status (if applicable)",
+    "wfa-end-date": "End date of your WFA status (if applicable)",
+    "hr-advisor": "HR advisor identified on your WFA letter",
+    "errors": {
+      "personal-record-identifier-required": "Personal record identifier is required.",
+      "personal-record-identifier-invalid": "Invalid personal record identifier.",
+      "substantive-group-required": "Substantive group is required.",
+      "substantive-level-required": "Substantive level is required.",
+      "branch-or-service-canada-region-required": "Branch or Service Canada Region is required.",
+      "directorate-required": "Directorate is required.",
+      "provinces-required": "Province of the designated work location is required.",
+      "city-required": "City of the designated work location is required.",
+      "current-wfa-status-required": "Current WFA status is required.",
+      "hr-advisor-required": "HR advisor is required."
+    }
   }
 }

@@ -97,7 +97,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
         <ProfileCard
           title={t('app:profile.employment.title')}
           linkLabel={t('app:profile.employment.link-label')}
-          file="routes/profile/personal-details.tsx"
+          file="routes/profile/employment-information.tsx"
           completed={loaderData.employment.completed}
           total={3}
           required={true}
