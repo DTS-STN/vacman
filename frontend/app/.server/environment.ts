@@ -22,13 +22,13 @@ const parsedServerEnvironment = v.parse(server, { ...processed, isProduction });
 export const clientEnvironment: ClientEnvironment & { revision: string } = {
   ...parsedClientEnvironment,
   revision: createHash('md5') //
-    .update(String(parsedClientEnvironment))
+    .update(JSON.stringify(parsedClientEnvironment))
     .digest('hex'),
 };
 
 export const serverEnvironment: ServerEnvironment & { revision: string } = {
   ...parsedServerEnvironment,
   revision: createHash('md5') //
-    .update(String(parsedServerEnvironment))
+    .update(JSON.stringify(parsedServerEnvironment))
     .digest('hex'),
 };
