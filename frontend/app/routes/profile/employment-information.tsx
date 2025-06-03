@@ -15,7 +15,7 @@ import { InlineLink } from '~/components/links';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
-import { REGEX_PATTERNS } from '~/utils/regex-utils';
+import { employmentInformationSchema } from '~/routes/profile/validation.server';
 import { formString } from '~/utils/string-utils';
 import { extractValidationKey } from '~/utils/validation-utils';
 
@@ -29,24 +29,6 @@ export function meta({ data }: Route.MetaArgs) {
 
 export async function action({ context, params, request }: Route.ActionArgs) {
   requireAllRoles(context.session, new URL(request.url), ['employee']);
-
-  const employmentInformationSchema = v.object({
-    personalRecordIdentifier: v.pipe(
-      v.string('app:employmentInformation.errors.personalRecordIdentifier_Required'),
-      v.trim(),
-      v.nonEmpty('app:employmentInformation.errors.personalRecordIdentifier_Required'),
-      v.length(9, 'app:employmentInformation.errors.personalRecordIdentifier_Invalid'),
-      v.regex(REGEX_PATTERNS.DIGIT_ONLY, 'app:employmentInformation.errors.personalRecordIdentifier_Invalid'),
-    ),
-    substantiveGroup: v.optional(v.string()),
-    substantiveLevel: v.optional(v.string()),
-    branchOrServiceCanadaRegion: v.optional(v.string()),
-    directorate: v.optional(v.string()),
-    province: v.optional(v.string()),
-    city: v.optional(v.string()),
-    currentWFAStatus: v.optional(v.string()),
-    hrAdvisor: v.optional(v.string()),
-  });
 
   const formData = await request.formData();
   const parseResult = v.safeParse(employmentInformationSchema, {

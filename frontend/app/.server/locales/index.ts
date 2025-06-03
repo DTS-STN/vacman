@@ -58,6 +58,10 @@ export interface Translations {
     personalEmail: string;
     workPhone: string;
     personalPhone: string;
+    personalPhoneHelpMessagePrimary: string;
+    workPhoneHelpMessagePrimary: string
+    workPhoneExtension: string;
+    workPhoneExtensionHelpMessagePrimary: string;
     education: string;
     additionalInformation: string;
     additionalInfoHelpMessage: string;

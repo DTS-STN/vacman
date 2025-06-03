@@ -37,6 +37,17 @@ export type LocalizedCurrentWFAStatus = Readonly<{
   name: string;
 }>;
 
+export type Directorate = Readonly<{
+  id: string;
+  nameEn: string;
+  nameFr: string;
+}>;
+
+export type LocalizedDirectorate = Readonly<{
+  id: string;
+  name: string;
+}>;
+
 export type EducationLevel = Readonly<{
   id: string;
   nameEn: string;
