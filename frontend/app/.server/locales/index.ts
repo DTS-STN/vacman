@@ -59,7 +59,7 @@ export interface Translations {
     workPhone: string;
     personalPhone: string;
     personalPhoneHelpMessagePrimary: string;
-    workPhoneHelpMessagePrimary: string
+    workPhoneHelpMessagePrimary: string;
     workPhoneExtension: string;
     workPhoneExtensionHelpMessagePrimary: string;
     education: string;
