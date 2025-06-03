@@ -1,7 +1,6 @@
 import type { RouteHandle } from 'react-router';
 import { data, Form } from 'react-router';
 
-import { isValidPhoneNumber, parsePhoneNumberWithError } from 'libphonenumber-js';
 import { useTranslation } from 'react-i18next';
 import * as v from 'valibot';
 
@@ -21,6 +20,7 @@ import { InlineLink } from '~/components/links';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
+import { personalInformationSchema } from '~/routes/profile/validation.server';
 import { formString } from '~/utils/string-utils';
 import { extractValidationKey } from '~/utils/validation-utils';
 
@@ -34,57 +34,13 @@ export function meta({ data }: Route.MetaArgs) {
 
 export async function action({ context, params, request }: Route.ActionArgs) {
   requireAllRoles(context.session, new URL(request.url), ['employee']);
-  const languagesOfCorrespondence = await getLanguageForCorrespondenceService().getLanguagesOfCorrespondence();
-  const educationLevels = await getEducationLevelService().getEducationLevels();
-
-  const personalInformationSchema = v.object({
-    preferredLanguage: v.lazy(() =>
-      v.optional(
-        v.picklist(
-          languagesOfCorrespondence.map(({ id }) => id),
-          'app:personal-information.errors.preferred-language-required',
-        ),
-      ),
-    ),
-    personalEmail: v.optional(
-      v.pipe(
-        v.string(),
-        v.trim(),
-        v.nonEmpty('app:personal-information.errors.personal-email-required'),
-        v.email('app:personal-information.errors.personal-email-invalid'),
-      ),
-    ),
-    workPhone: v.optional(
-      v.pipe(
-        v.string(),
-        v.trim(),
-        v.nonEmpty('app:personal-information.errors.work-phone-required'),
-        v.custom((val) => isValidPhoneNumber(val as string), 'app:personal-information.errors.work-phone-invalid'),
-        v.transform((val) => parsePhoneNumberWithError(val, 'CA').formatInternational().replace(/ /g, '')),
-      ),
-    ),
-    personalPhone: v.optional(
-      v.pipe(
-        v.string(),
-        v.trim(),
-        v.nonEmpty('app:personal-information.errors.personal-phone-required'),
-        v.custom((val) => isValidPhoneNumber(val as string), 'app:personal-information.errors.personal-phone-invalid'),
-        v.transform((val) => parsePhoneNumberWithError(val, 'CA').formatInternational().replace(/ /g, '')),
-      ),
-    ),
-    education: v.optional(
-      v.picklist(
-        educationLevels.map(({ id }) => id),
-        'app:personal-information.errors.education-required',
-      ),
-    ),
-  });
 
   const formData = await request.formData();
   const parseResult = v.safeParse(personalInformationSchema, {
     preferredLanguage: formString(formData.get('preferredLanguage')),
     personalEmail: formString(formData.get('personalEmail')),
     workPhone: formString(formData.get('workPhone')),
+    workPhoneExtension: formString(formData.get('workPhoneExtension')),
     personalPhone: formString(formData.get('personalPhone')),
     education: formString(formData.get('education')),
   });
@@ -112,6 +68,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
       workEmail: context.session.authState.idTokenClaims.email,
       personalEmail: undefined,
       workPhone: undefined,
+      workPhoneExtension: undefined,
       personalPhone: undefined,
       education: undefined as string | undefined,
     },
@@ -136,7 +93,7 @@ export default function PersonalInformation({ loaderData, actionData, params }: 
   return (
     <>
       <InlineLink className="mt-6 block" file="routes/profile/index.tsx" id="back-button">
-        {`<\u0020${t('app:profile.back')}`}
+        {`< ${t('app:profile.back')}`}
       </InlineLink>
       <div className="max-w-prose">
         <h1 className="my-5 text-3xl font-semibold">{t('app:personal-information.page-title')}</h1>
@@ -169,20 +126,39 @@ export default function PersonalInformation({ loaderData, actionData, params }: 
                 errorMessage={t(extractValidationKey(errors?.personalEmail))}
                 required
               />
-              <InputPhoneField
-                id="work-phone"
-                name="workPhone"
-                label={t('app:personal-information.work-phone')}
-                defaultValue={loaderData.defaultValues.workPhone}
-                errorMessage={t(extractValidationKey(errors?.workPhone))}
-                required
-              />
+              <div className="grid gap-4 md:grid-cols-2">
+                <InputPhoneField
+                  id="work-phone"
+                  name="workPhone"
+                  type="tel"
+                  inputMode="tel"
+                  autoComplete="tel"
+                  label={t('app:personal-information.work-phone')}
+                  defaultValue={loaderData.defaultValues.workPhone}
+                  errorMessage={t(extractValidationKey(errors?.workPhone))}
+                  helpMessagePrimary={t('app:personal-information.work-phone-help-message-primary')}
+                  required
+                />
+                <InputField
+                  id="work-phone-extension"
+                  name="workPhoneExtension"
+                  className="w-20"
+                  label={t('app:personal-information.work-phone-extension')}
+                  defaultValue={loaderData.defaultValues.workPhoneExtension}
+                  errorMessage={t(extractValidationKey(errors?.workPhoneExtension))}
+                  helpMessagePrimary={t('app:personal-information.work-phone-extension-help-message-primary')}
+                  type="number"
+                />
+              </div>
               <InputPhoneField
                 id="personal-phone"
                 name="personalPhone"
+                type="tel"
+                inputMode="tel"
                 label={t('app:personal-information.personal-phone')}
                 defaultValue={loaderData.defaultValues.personalPhone}
                 errorMessage={t(extractValidationKey(errors?.personalPhone))}
+                helpMessagePrimary={t('app:personal-information.personal-phone-help-message-primary')}
                 required
               />
               <InputRadios
@@ -199,6 +175,7 @@ export default function PersonalInformation({ loaderData, actionData, params }: 
                 label={t('app:personal-information.additional-information')}
                 name="additionalInformation"
                 helpMessage={t('app:personal-information.additional-info-help-message')}
+                maxLength={100}
               />
               <Button className="px-12" name="action" variant="primary" id="save-button">
                 {t('app:form.save')}
