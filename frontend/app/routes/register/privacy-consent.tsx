@@ -15,7 +15,7 @@ export const handle = {
 } as const satisfies RouteHandle;
 
 export function meta({ data }: Route.MetaArgs) {
-  return [{ title: data.documentTitle }];
+  return [{ title: data?.documentTitle }];
 }
 
 export function action({ context, params, request }: Route.ActionArgs) {
@@ -25,7 +25,7 @@ export function action({ context, params, request }: Route.ActionArgs) {
   const formData = await request.formData();
   */
   throw i18nRedirect('routes/index.tsx', request);
-  /* 
+  /*
   TODO: send POST request to register the user as employee
   */
 }
