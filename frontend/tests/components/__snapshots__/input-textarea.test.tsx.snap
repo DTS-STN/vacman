@@ -93,6 +93,13 @@ exports[`InputTextarea > should render with help message > expected html 1`] = `
         label test
       </span>
     </label>
+    <span
+      class="block max-w-prose text-gray-500"
+      data-testid="input-textarea-help"
+      id="input-test-id-help"
+    >
+      help message
+    </span>
     <textarea
       aria-describedby="input-test-id-help"
       aria-invalid="false"
@@ -105,13 +112,6 @@ exports[`InputTextarea > should render with help message > expected html 1`] = `
     >
       default value
     </textarea>
-    <span
-      class="block max-w-prose text-gray-500"
-      data-testid="input-textarea-help"
-      id="input-test-id-help"
-    >
-      help message
-    </span>
   </div>
 </div>
 `;

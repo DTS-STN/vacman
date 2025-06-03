@@ -80,7 +80,8 @@
     "errors": {
       "personal-record-identifier-required": "Le code d'identification du dossier personnel (CIDP) est requis.",
       "personal-record-identifier-invalid": "Le code d'identification du dossier personnel (CIDP) est invalide.",
-      "substantive-position-group-and-level-required": "Le groupe et le niveau de votre poste substantif sont requis.",
+      "substantive-group-required": "Un groupe substantif est requis.",
+      "substantive-level-required": "Le niveau de votre poste substantif est requis.",
       "branch-or-service-canada-region-required": "La direction générale ou la région de Service Canada est requise.",
       "directorate-required": "La direction est requise.",
       "provinces-required": "La province du lieu de travail désigné de votre poste substantif est requise.",
