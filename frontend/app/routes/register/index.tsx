@@ -24,7 +24,7 @@ export const handle = {
 export async function loader({ context, request }: Route.LoaderArgs) {
   requireAllRoles(context.session, new URL(request.url), ['employee']);
   const { t } = await getTranslation(request, handle.i18nNamespace);
-  return { documentTitle: t('app:register.page-title') };
+  return { documentTitle: t('app:register.pageTitle') };
 }
 
 export function meta({ data }: Route.MetaArgs) {
@@ -36,11 +36,11 @@ export default function Index() {
 
   return (
     <div className="mb-8">
-      <PageTitle className="after:w-14">{t('app:register.page-title')}</PageTitle>
+      <PageTitle className="after:w-14">{t('app:register.pageTitle')}</PageTitle>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <CardLink icon={faUserPlus} file="routes/register/privacy-consent.tsx" title={t('app:register.employee')} />
-        <CardLink icon={faMagnifyingGlass} file="routes/index.tsx" title={t('app:register.hiring-manager')} />
+        <CardLink icon={faMagnifyingGlass} file="routes/index.tsx" title={t('app:register.hiringManager')} />
         {/* TODO: send POST request to register the user as hiring manager and redirect to hiring manager dashboard */}
       </div>
     </div>

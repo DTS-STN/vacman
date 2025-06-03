@@ -42,7 +42,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
       v.optional(
         v.picklist(
           languagesOfCorrespondence.map(({ id }) => id),
-          'app:personal-information.errors.preferred-language-required',
+          'app:personalInformation.errors.preferredLanguage_Required',
         ),
       ),
     ),
@@ -50,16 +50,16 @@ export async function action({ context, params, request }: Route.ActionArgs) {
       v.pipe(
         v.string(),
         v.trim(),
-        v.nonEmpty('app:personal-information.errors.personal-email-required'),
-        v.email('app:personal-information.errors.personal-email-invalid'),
+        v.nonEmpty('app:personalInformation.errors.personalEmail_Required'),
+        v.email('app:personalInformation.errors.personalEmail_Invalid'),
       ),
     ),
     workPhone: v.optional(
       v.pipe(
         v.string(),
         v.trim(),
-        v.nonEmpty('app:personal-information.errors.work-phone-required'),
-        v.custom((val) => isValidPhoneNumber(val as string), 'app:personal-information.errors.work-phone-invalid'),
+        v.nonEmpty('app:personalInformation.errors.workPhone_Required'),
+        v.custom((val) => isValidPhoneNumber(val as string), 'app:personalInformation.errors.workPhone_Invalid'),
         v.transform((val) => parsePhoneNumberWithError(val, 'CA').formatInternational().replace(/ /g, '')),
       ),
     ),
@@ -67,15 +67,15 @@ export async function action({ context, params, request }: Route.ActionArgs) {
       v.pipe(
         v.string(),
         v.trim(),
-        v.nonEmpty('app:personal-information.errors.personal-phone-required'),
-        v.custom((val) => isValidPhoneNumber(val as string), 'app:personal-information.errors.personal-phone-invalid'),
+        v.nonEmpty('app:personalInformation.errors.personalPhone_Required'),
+        v.custom((val) => isValidPhoneNumber(val as string), 'app:personalInformation.errors.personalPhone_Invalid'),
         v.transform((val) => parsePhoneNumberWithError(val, 'CA').formatInternational().replace(/ /g, '')),
       ),
     ),
     education: v.optional(
       v.picklist(
         educationLevels.map(({ id }) => id),
-        'app:personal-information.errors.education-required',
+        'app:personalInformation.errors.education_Required',
       ),
     ),
   });
@@ -105,7 +105,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
   requireAllRoles(context.session, new URL(request.url), ['employee']);
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
   return {
-    documentTitle: t('app:personal-information.page-title'),
+    documentTitle: t('app:personalInformation.pageTitle'),
     defaultValues: {
       //TODO: Replace with actual values
       preferredLanguage: undefined as string | undefined,
@@ -139,14 +139,14 @@ export default function PersonalInformation({ loaderData, actionData, params }: 
         {`<\u0020${t('app:profile.back')}`}
       </InlineLink>
       <div className="max-w-prose">
-        <h1 className="my-5 text-3xl font-semibold">{t('app:personal-information.page-title')}</h1>
+        <h1 className="my-5 text-3xl font-semibold">{t('app:personalInformation.pageTitle')}</h1>
         <ActionDataErrorSummary actionData>
           <Form method="post" noValidate>
             <div className="space-y-6">
               <InputRadios
                 id="preferred-language"
                 name="preferredLanguage"
-                legend={t('app:personal-information.preferred-language')}
+                legend={t('app:personalInformation.preferredLanguage')}
                 options={languageOptions}
                 errorMessage={t(extractValidationKey(errors?.preferredLanguage))}
                 required
@@ -156,7 +156,7 @@ export default function PersonalInformation({ loaderData, actionData, params }: 
                 className="w-full"
                 id="work-email"
                 name="workEmail"
-                label={t('app:personal-information.work-email')}
+                label={t('app:personalInformation.workEmail')}
                 defaultValue={loaderData.defaultValues.workEmail}
                 required
               />
@@ -164,7 +164,7 @@ export default function PersonalInformation({ loaderData, actionData, params }: 
                 className="w-full"
                 id="personal-email"
                 name="personalEmail"
-                label={t('app:personal-information.personal-email')}
+                label={t('app:personalInformation.personalEmail')}
                 defaultValue={loaderData.defaultValues.personalEmail}
                 errorMessage={t(extractValidationKey(errors?.personalEmail))}
                 required
@@ -172,7 +172,7 @@ export default function PersonalInformation({ loaderData, actionData, params }: 
               <InputPhoneField
                 id="work-phone"
                 name="workPhone"
-                label={t('app:personal-information.work-phone')}
+                label={t('app:personalInformation.workPhone')}
                 defaultValue={loaderData.defaultValues.workPhone}
                 errorMessage={t(extractValidationKey(errors?.workPhone))}
                 required
@@ -180,7 +180,7 @@ export default function PersonalInformation({ loaderData, actionData, params }: 
               <InputPhoneField
                 id="personal-phone"
                 name="personalPhone"
-                label={t('app:personal-information.personal-phone')}
+                label={t('app:personalInformation.personalPhone')}
                 defaultValue={loaderData.defaultValues.personalPhone}
                 errorMessage={t(extractValidationKey(errors?.personalPhone))}
                 required
@@ -188,7 +188,7 @@ export default function PersonalInformation({ loaderData, actionData, params }: 
               <InputRadios
                 id="education"
                 name="education"
-                legend={t('app:personal-information.education')}
+                legend={t('app:personalInformation.education')}
                 options={educationOptions}
                 errorMessage={t(extractValidationKey(errors?.education))}
                 required
@@ -196,9 +196,9 @@ export default function PersonalInformation({ loaderData, actionData, params }: 
               <InputTextarea
                 id="additional-information"
                 className="w-full"
-                label={t('app:personal-information.additional-information')}
+                label={t('app:personalInformation.additionalInformation')}
                 name="additionalInformation"
-                helpMessage={t('app:personal-information.additional-info-help-message')}
+                helpMessage={t('app:personalInformation.additionalInfoHelpMessage')}
               />
               <Button className="px-12" name="action" variant="primary" id="save-button">
                 {t('app:form.save')}

@@ -32,11 +32,11 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 
   const employmentInformationSchema = v.object({
     personalRecordIdentifier: v.pipe(
-      v.string('app:employmeny-information.errors.personal-record-identifier-required'),
+      v.string('app:employmentInformation.errors.personalRecordIdentifier_Required'),
       v.trim(),
-      v.nonEmpty('app:employmeny-information.errors.personal-record-identifier-required'),
-      v.length(9, 'app:employmeny-information.errors.personal-record-identifier-invalid'),
-      v.regex(REGEX_PATTERNS.DIGIT_ONLY, 'app:employmeny-information.errors.personal-record-identifier-invalid'),
+      v.nonEmpty('app:employmentInformation.errors.personalRecordIdentifier_Required'),
+      v.length(9, 'app:employmentInformation.errors.personalRecordIdentifier_Invalid'),
+      v.regex(REGEX_PATTERNS.DIGIT_ONLY, 'app:employmentInformation.errors.personalRecordIdentifier_Invalid'),
     ),
     substantiveGroup: v.optional(v.string()),
     substantiveLevel: v.optional(v.string()),
@@ -76,7 +76,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
   requireAllRoles(context.session, new URL(request.url), ['employee']);
   const { t } = await getTranslation(request, handle.i18nNamespace);
   return {
-    documentTitle: t('app:employmeny-information.page-title'),
+    documentTitle: t('app:employmentInformation.pageTitle'),
     defaultValues: {
       //TODO: Replace with actual values
       personalRecordIdentifier: undefined,
@@ -101,7 +101,7 @@ export default function EmploymentInformation({ loaderData, actionData, params }
         {`< ${t('app:profile.back')}`}
       </InlineLink>
       <div className="max-w-prose">
-        <h1 className="my-5 text-3xl font-semibold">{t('app:employmeny-information.page-title')}</h1>
+        <h1 className="my-5 text-3xl font-semibold">{t('app:employmentInformation.pageTitle')}</h1>
         <ActionDataErrorSummary actionData>
           <Form method="post" noValidate>
             <div className="space-y-6">
@@ -109,7 +109,7 @@ export default function EmploymentInformation({ loaderData, actionData, params }
                 className="w-full"
                 id="personal-record-identifier"
                 name="personalRecordIdentifier"
-                label={t('app:employmeny-information.personal-record-identifier')}
+                label={t('app:employmentInformation.personalRecordIdentifier')}
                 defaultValue={loaderData.defaultValues.personalRecordIdentifier}
                 errorMessage={t(extractValidationKey(errors?.personalRecordIdentifier))}
                 type="number"

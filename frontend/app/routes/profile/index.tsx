@@ -84,8 +84,8 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
       <ProgressBar completed={loaderData.completed} total={loaderData.total} />
       <div className="grid gap-4 md:grid-cols-2">
         <ProfileCard
-          title={t('app:profile.personal-information.title')}
-          linkLabel={t('app:profile.personal-information.link-label')}
+          title={t('app:profile.personalInformation.title')}
+          linkLabel={t('app:profile.personalInformation.linkLabel')}
           file="routes/profile/personal-information.tsx"
           completed={loaderData.personalInformation.completed}
           total={3}
@@ -96,7 +96,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
         </ProfileCard>
         <ProfileCard
           title={t('app:profile.employment.title')}
-          linkLabel={t('app:profile.employment.link-label')}
+          linkLabel={t('app:profile.employment.linkLabel')}
           file="routes/profile/employment-information.tsx"
           completed={loaderData.employment.completed}
           total={3}
@@ -106,7 +106,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
         </ProfileCard>
         <ProfileCard
           title={t('app:profile.referral.title')}
-          linkLabel={t('app:profile.referral.link-label')}
+          linkLabel={t('app:profile.referral.linkLabel')}
           file="routes/profile/personal-details.tsx"
           completed={loaderData.referral.completed}
           total={3}
@@ -116,7 +116,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
         </ProfileCard>
         <ProfileCard
           title={t('app:profile.qualifications.title')}
-          linkLabel={t('app:profile.qualifications.link-label')}
+          linkLabel={t('app:profile.qualifications.linkLabel')}
           file="routes/profile/personal-details.tsx"
           completed={loaderData.qualifications.completed}
           total={3}
@@ -181,12 +181,12 @@ function ProfileCard({ title, linkLabel, file, completed, total, required, child
         <div className="mb-6 grid grid-cols-2 justify-between select-none">
           <div>
             <span className="rounded-2xl border border-gray-500 px-3 py-0.5 text-sm text-gray-500">
-              {t('app:profile.fields-complete', { completed, total })}
+              {t('app:profile.fieldsComplete', { completed, total })}
             </span>
           </div>
           <div className="ml-auto space-x-2">
             {inProgress && (
-              <span className="rounded-2xl bg-gray-500 px-3 py-0.5 text-sm text-white">{t('app:profile.in-progress')}</span>
+              <span className="rounded-2xl bg-gray-500 px-3 py-0.5 text-sm text-white">{t('app:profile.inProgress')}</span>
             )}
             {required && (
               <span className="rounded-2xl bg-gray-500 px-3 py-0.5 text-sm text-white">{t('app:profile.required')}</span>

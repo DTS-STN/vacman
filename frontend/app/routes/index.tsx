@@ -25,7 +25,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
 
   requireAllRoles(context.session as AppSession, new URL(request.url), ['employee']);
   const { t } = await getTranslation(request, handle.i18nNamespace);
-  return { documentTitle: t('app:index.page-title') };
+  return { documentTitle: t('app:index.pageTitle') };
 }
 
 export function meta({ data }: Route.MetaArgs) {
@@ -37,7 +37,7 @@ export default function Index() {
 
   return (
     <div className="mb-8">
-      <PageTitle className="after:w-14">{t('app:index.page-title')}</PageTitle>
+      <PageTitle className="after:w-14">{t('app:index.pageTitle')}</PageTitle>
       <h2 className="mt-10 mb-2 text-2xl font-bold text-slate-700">{t('app:index.about')}</h2>
       <ButtonLink className="mt-3" file="routes/profile/index.tsx">
         Create/View Profile
