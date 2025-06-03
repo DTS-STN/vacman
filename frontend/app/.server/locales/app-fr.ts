@@ -1,0 +1,97 @@
+import type { Translations } from './index'
+
+const appFr: Translations = {
+  index: {
+    about: "L'initiative VacMan!",
+    dashboard: "Interface",
+    pageTitle: "Bienvenue sur VacMan",
+    navigate: "Accédez au portail des employés",
+    register: "Register"
+  },
+  register: {
+    employee: "Employé",
+    hiringManager: "Responsable du recrutement",
+    pageTitle: "S'inscrire comme..."
+  },
+  profile: {
+    about: "Votre profil nous aide à comprendre votre situation actuelle, vos préférences en matière de recommandation et vos qualifications. Vous pouvez mettre à jour chaque section selon vos besoins. Votre progression est enregistrée automatiquement.",
+    edit: "Modifier les",
+    add: "Ajouter des",
+    inProgress: "En cours",
+    required: "Obligatoire",
+    fieldsComplete: "{{completed}} sur {{total}} champs remplis",
+    personalInformation: {
+      title: "Informations personnelles",
+      linkLabel: "informations personnelles"
+    },
+    employment: {
+      title: "Informations sur l'emploi",
+      linkLabel: "informations sur l'emploi"
+    },
+    referral: {
+      title: "Préférences de recommandation",
+      linkLabel: "préférences de recommandation"
+    },
+    qualifications: {
+      title: "Qualifications",
+      linkLabel: "qualifications"
+    },
+    back: "Retour au profil"
+  },
+  form: {
+    save: "Enregistrer",
+    submit: "Soumettre"
+  },
+  personalInformation: {
+    pageTitle: "Informations personnelles",
+    preferredLanguage: "Langue de correspondance préférée",
+    workEmail: "Adresse e-mail professionnelle",
+    personalEmail: "Adresse e-mail personnelle",
+    workPhone: "Numéro de téléphone professionnel",
+    personalPhone: "Numéro de téléphone personnel",
+    education: "Quel est votre niveau d'études le plus élevé?",
+    additionalInformation: "Renseignements supplémentaires",
+    additionalInfoHelpMessage: "Veuillez noter brièvement les absences ou d'autres informations clés.",
+    errors: {
+      preferredLanguage_Required: "La langue de correspondance préférée est requise.",
+      personalEmail_Invalid: "Adresse e-mail personnelle invalide.",
+      personalEmail_Required: "Une adresse email personnelle est requise.",
+      workPhone_Invalid: "Numéro de téléphone professionnel invalide.",
+      workPhone_Required: "Le numéro de téléphone professionnel est requis.",
+      personalPhone_Invalid: "Numéro de téléphone personnel invalide.",
+      personalPhone_Required: "Un numéro de téléphone personnel est requis.",
+      education_Required: "Niveau d'études est requis."
+    }
+  },
+  employmentInformation: {
+    pageTitle: "Informations sur l'emploi",
+    personalRecordIdentifier: "Code d'identification du dossier personnel (CIDP)",
+    substantivePositionHeading: "",
+    substantivePositionGroupAndLevel: "Groupe et niveau de votre poste substantif",
+    substantiveGroup: "Groupe",
+    substantiveLevel: "Niveau",
+    branchOrServiceCanadaRegion: "Direction générale ou Région de Service Canada",
+    directorate: "Direction",
+    provinces: "Province du lieu de travail désigné de votre poste substantif",
+    city: "Ville du lieu de travail désigné de votre poste substantif",
+    wfaDetailsHeading: "Détails RE",
+    current_Wfa_Status: "Statut actuel sous le RE",
+    wfa_EffectiveDate: "Date effective de votre statut de RE (si applicable)",
+    wfa_EndDate: "Date de fin de votre statut de RE (si applicable)",
+    hrAdvisor: "Conseiller en RH identifié dans votre lettre de RE",
+    errors: {
+      personalRecordIdentifier_Required: "Le code d'identification du dossier personnel (CIDP) est requis.",
+      personalRecordIdentifier_Invalid: "Le code d'identification du dossier personnel (CIDP) est invalide.",
+      substantiveGroup_Required: "Un groupe substantif est requis.",
+      substantiveLevel_Required: "Le niveau de votre poste substantif est requis.",
+      branchOrServiceCanadaRegion_Required: "La direction générale ou la région de Service Canada est requise.",
+      directorate_Required: "La direction est requise.",
+      provinces_Required: "La province du lieu de travail désigné de votre poste substantif est requise.",
+      city_Required: "La ville du lieu de travail désigné de votre poste substantif est requise.",
+      current_Wfa_Status_Required: "Le statut actuel sous le RE est requis.",
+      hrAdvisor_Required: "Le conseiller en RH est requis."
+    }
+  }
+}
+
+export default appFr
