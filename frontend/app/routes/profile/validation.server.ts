@@ -1,8 +1,9 @@
-import { isValidPhoneNumber, parsePhoneNumberWithError } from 'libphonenumber-js';
+import { parsePhoneNumberWithError } from 'libphonenumber-js';
 import * as v from 'valibot';
 
 import { getEducationLevelService } from '~/.server/domain/services/education-level-service';
 import { getLanguageForCorrespondenceService } from '~/.server/domain/services/language-for-correspondence-service';
+import { isValidPhone } from '~/utils/phone-utils';
 import { REGEX_PATTERNS } from '~/utils/regex-utils';
 
 const languagesOfCorrespondence = await getLanguageForCorrespondenceService().getLanguagesOfCorrespondence();
@@ -25,7 +26,7 @@ export const personalInformationSchema = v.object({
     v.string('app:personal-information.errors.work-phone-required'),
     v.trim(),
     v.nonEmpty('app:personal-information.errors.work-phone-required'),
-    v.custom((val) => isValidPhoneNumber(val as string), 'app:personal-information.errors.work-phone-invalid'),
+    v.custom((val) => isValidPhone(val as string), 'app:personal-information.errors.work-phone-invalid'),
     v.transform((val) => parsePhoneNumberWithError(val, 'CA').formatInternational().replace(/ /g, '')),
   ),
   workPhoneExtension: v.optional(
@@ -39,7 +40,7 @@ export const personalInformationSchema = v.object({
     v.string('app:personal-information.errors.personal-phone-required'),
     v.trim(),
     v.nonEmpty('app:personal-information.errors.personal-phone-required'),
-    v.custom((val) => isValidPhoneNumber(val as string), 'app:personal-information.errors.personal-phone-invalid'),
+    v.custom((val) => isValidPhone(val as string), 'app:personal-information.errors.personal-phone-invalid'),
     v.transform((val) => parsePhoneNumberWithError(val, 'CA').formatInternational().replace(/ /g, '')),
   ),
   education: v.lazy(() =>
