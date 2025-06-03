@@ -23,7 +23,7 @@ export const handle = {
 } as const satisfies RouteHandle;
 
 export function meta({ data }: Route.MetaArgs) {
-  return [{ title: data.documentTitle }];
+  return [{ title: data?.documentTitle }];
 }
 
 export function action({ context, params, request }: Route.ActionArgs) {
