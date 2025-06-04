@@ -1,13 +1,17 @@
+import type { Result, Option } from 'oxide.ts';
+
 import type { Branch, LocalizedBranch } from '~/.server/domain/models';
 import { getDefaultBranchService } from '~/.server/domain/services/branch-service-default';
 import { getMockBranchService } from '~/.server/domain/services/branch-service-mock';
 import { serverEnvironment } from '~/.server/environment';
+import type { AppError } from '~/errors/app-error';
 
 export type BranchService = {
-  getBranches(): Promise<readonly Branch[]>;
-  getBranchById(id: string): Promise<Branch | undefined>;
-  getLocalizedBranches(language: Language): Promise<readonly LocalizedBranch[]>;
-  getLocalizedBranchById(id: string, language: Language): Promise<LocalizedBranch | undefined>;
+  getAll(): Promise<Result<readonly Branch[], AppError>>;
+  getById(id: string): Promise<Result<Branch, AppError>>;
+  findById(id: string): Promise<Option<Branch>>;
+  getLocalized(language: Language): Promise<Result<readonly LocalizedBranch[], AppError>>;
+  getLocalizedById(id: string, language: Language): Promise<Result<LocalizedBranch, AppError>>;
 };
 
 export function getBranchService(): BranchService {
