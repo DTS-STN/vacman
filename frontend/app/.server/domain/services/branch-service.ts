@@ -10,7 +10,7 @@ export type BranchService = {
   getAll(): Promise<Result<readonly Branch[], AppError>>;
   getById(id: string): Promise<Result<Branch, AppError>>;
   findById(id: string): Promise<Option<Branch>>;
-  getLocalized(language: Language): Promise<Result<readonly LocalizedBranch[], AppError>>;
+  getAllLocalized(language: Language): Promise<Result<readonly LocalizedBranch[], AppError>>;
   getLocalizedById(id: string, language: Language): Promise<Result<LocalizedBranch, AppError>>;
 };
 

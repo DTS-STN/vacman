@@ -60,7 +60,7 @@ describe('getMockBranchService', () => {
   });
 
   it('should return localized branches in English', async () => {
-    const result = await service.getLocalized('en' as Language);
+    const result = await service.getAllLocalized('en' as Language);
     expect(result.isOk()).toBe(true);
     const localized = result.unwrap();
     expect(localized.length).toBeGreaterThan(0);
@@ -68,14 +68,14 @@ describe('getMockBranchService', () => {
   });
 
   it('should return localized branches in French', async () => {
-    const result = await service.getLocalized('fr' as Language);
+    const result = await service.getAllLocalized('fr' as Language);
     expect(result.isOk()).toBe(true);
     const localized = result.unwrap();
     expect(localized[0]).toHaveProperty('name');
   });
 
   it('should return a localized branch by ID', async () => {
-    const localized = await service.getLocalized('en' as Language);
+    const localized = await service.getAllLocalized('en' as Language);
     const localizedBranches = localized.unwrap();
     const first = localizedBranches[0];
     if (!first) {

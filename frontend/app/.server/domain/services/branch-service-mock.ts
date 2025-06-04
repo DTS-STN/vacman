@@ -12,7 +12,7 @@ export function getMockBranchService(): BranchService {
     getAll: () => Promise.resolve(getAll()),
     getById: (id: string) => Promise.resolve(getById(id)),
     findById: (id: string) => Promise.resolve(findById(id)),
-    getLocalized: (language: Language) => Promise.resolve(getLocalized(language)),
+    getAllLocalized: (language: Language) => Promise.resolve(getAllLocalized(language)),
     getLocalizedById: (id: string, language: Language) => Promise.resolve(getLocalizedById(id, language)),
   };
 }
@@ -76,7 +76,7 @@ function findById(id: string): Option<Branch> {
  * @param language The language to localize the branch names to.
  * @returns An array of localized branch objects.
  */
-function getLocalized(language: Language): Result<readonly LocalizedBranch[], AppError> {
+function getAllLocalized(language: Language): Result<readonly LocalizedBranch[], AppError> {
   return getAll().map((branches) =>
     branches
       .map((branch) => ({
@@ -96,7 +96,7 @@ function getLocalized(language: Language): Result<readonly LocalizedBranch[], Ap
  * @throws {AppError} If the branch is not found.
  */
 function getLocalizedById(id: string, language: Language): Result<LocalizedBranch, AppError> {
-  return getLocalized(language).andThen((branches) => {
+  return getAllLocalized(language).andThen((branches) => {
     const branch = branches.find((b) => b.id === id);
 
     return branch ? Ok(branch) : Err(new AppError(`Localized branch with ID '${id}' not found.`, ErrorCodes.NO_BRANCH_FOUND));

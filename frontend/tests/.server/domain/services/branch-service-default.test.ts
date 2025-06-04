@@ -87,7 +87,7 @@ describe('getDefaultBranchService', () => {
       json: () => mockBranches,
     });
 
-    const result = await service.getLocalized('en');
+    const result = await service.getAllLocalized('en');
     expect(result.isOk()).toBe(true);
     expect(result.unwrap()[0]?.name).toBe('Branch One');
   });

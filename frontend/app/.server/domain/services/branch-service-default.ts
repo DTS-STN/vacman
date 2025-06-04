@@ -101,7 +101,7 @@ export function getDefaultBranchService(): BranchService {
      * @throws AppError if the request fails or if the server responds with an error status.
      */
 
-    async getLocalized(language: Language): Promise<Result<readonly LocalizedBranch[], AppError>> {
+    async getAllLocalized(language: Language): Promise<Result<readonly LocalizedBranch[], AppError>> {
       const result = await getDefaultBranchService().getAll();
 
       return result.map((branches) =>
