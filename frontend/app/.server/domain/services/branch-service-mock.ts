@@ -36,8 +36,7 @@ function getAll(): Result<readonly Branch[], AppError> {
  * Retrieves a single branch by its ID.
  *
  * @param id The ID of the branch to retrieve.
- * @returns The branch object if found.
- * @throws {AppError} If the branch is not found.
+ * @returns The branch object if found or {AppError} If the branch is not found.
  */
 function getById(id: string): Result<Branch, AppError> {
   const result = getAll();
@@ -49,7 +48,7 @@ function getById(id: string): Result<Branch, AppError> {
   const branches = result.unwrap();
   const branch = branches.find((p) => p.id === id);
 
-  return branch ? Ok(branch) : Err(new AppError(`Localized branch with ID '${id}' not found.`, ErrorCodes.NO_BRANCH_FOUND));
+  return branch ? Ok(branch) : Err(new AppError(`Branch with ID '${id}' not found.`, ErrorCodes.NO_BRANCH_FOUND));
 }
 
 /**
@@ -92,8 +91,7 @@ function getAllLocalized(language: Language): Result<readonly LocalizedBranch[],
  *
  * @param id The ID of the branch to retrieve.
  * @param language The language to localize the branch name to.
- * @returns The localized branch object if found.
- * @throws {AppError} If the branch is not found.
+ * @returns The localized branch object if found or {AppError} If the branch is not found.
  */
 function getLocalizedById(id: string, language: Language): Result<LocalizedBranch, AppError> {
   return getAllLocalized(language).andThen((branches) => {

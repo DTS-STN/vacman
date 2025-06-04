@@ -35,7 +35,7 @@ export function getDefaultBranchService(): BranchService {
         return Ok(data);
       } catch (error) {
         return Err(
-          new AppError(`Unexpected error occurred while fetching branches: ${String(error)}`, ErrorCodes.VACMAN_API_ERROR),
+          new AppError(`Unexpected error occurred while fetching ESDC Branches: ${String(error)}`, ErrorCodes.VACMAN_API_ERROR),
         );
       }
     },
@@ -44,8 +44,7 @@ export function getDefaultBranchService(): BranchService {
      * Retrieves a single branch by its ID.
      *
      * @param id The ID of the branch to retrieve.
-     * @returns The branch object if found.
-     * @throws {AppError} If the branch is not found or if the request fails or if the server responds with an error status.
+     * @returns The branch object if found or {AppError} If the branch is not found or if the request fails or if the server responds with an error status.
      */
 
     async getById(id: string): Promise<Result<Branch, AppError>> {
@@ -69,7 +68,10 @@ export function getDefaultBranchService(): BranchService {
         return Ok(data);
       } catch (error) {
         return Err(
-          new AppError(`Unexpected error occurred while fetching branch by ID: ${String(error)}`, ErrorCodes.VACMAN_API_ERROR),
+          new AppError(
+            `Unexpected error occurred while fetching ESDC Branch by ID: ${String(error)}`,
+            ErrorCodes.VACMAN_API_ERROR,
+          ),
         );
       }
     },
