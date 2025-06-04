@@ -9,5 +9,5 @@ export type UserService = {
 };
 
 export function getUserService(): UserService {
-  return serverEnvironment.ENABLE_LOOKUP_FIELD_SERVICES_MOCK ? getMockUserService() : getDefaultUserService();
+  return serverEnvironment.ENABLE_USER_SERVICES_MOCK ? getMockUserService() : getDefaultUserService();
 }
