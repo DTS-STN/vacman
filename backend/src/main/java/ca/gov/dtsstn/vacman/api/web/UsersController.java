@@ -64,6 +64,6 @@ public class UsersController {
 	public UserReadModel getUserById(@PathVariable Long id) {
 		return userService.getUserById(id)
 			.map(userModelMapper::toModel)
-			.orElseThrow(() -> new RuntimeException("User not found"));
+			.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User with ID '" + id + "' not found"));
 	}
 }
