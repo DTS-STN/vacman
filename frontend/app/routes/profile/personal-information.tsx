@@ -1,7 +1,7 @@
 import type { RouteHandle } from 'react-router';
 import { data, Form } from 'react-router';
 
-import { useTranslation } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 import * as v from 'valibot';
 
 import type { Route } from './+types/personal-information';
@@ -37,6 +37,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 
   const formData = await request.formData();
   const parseResult = v.safeParse(personalInformationSchema, {
+    personalRecordIdentifier: formString(formData.get('personalRecordIdentifier')),
     preferredLanguage: formString(formData.get('preferredLanguage')),
     personalEmail: formString(formData.get('personalEmail')),
     workPhone: formString(formData.get('workPhone')),
@@ -64,6 +65,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
     documentTitle: t('app:personal-information.page-title'),
     defaultValues: {
       //TODO: Replace with actual values
+      personalRecordIdentifier: undefined,
       preferredLanguage: undefined as string | undefined,
       workEmail: context.session.authState.idTokenClaims.email,
       personalEmail: undefined,
@@ -100,6 +102,17 @@ export default function PersonalInformation({ loaderData, actionData, params }: 
         <ActionDataErrorSummary actionData>
           <Form method="post" noValidate>
             <div className="space-y-6">
+              <InputField
+                className="w-full"
+                id="personal-record-identifier"
+                name="personalRecordIdentifier"
+                label={t('app:personal-information.personal-record-identifier')}
+                defaultValue={loaderData.defaultValues.personalRecordIdentifier}
+                errorMessage={t(extractValidationKey(errors?.personalRecordIdentifier))}
+                helpMessagePrimary={t('app:personal-information.personal-record-identifier-help-message-primary')}
+                type="number"
+                required
+              />
               <InputRadios
                 id="preferred-language"
                 name="preferredLanguage"
@@ -136,7 +149,13 @@ export default function PersonalInformation({ loaderData, actionData, params }: 
                   label={t('app:personal-information.work-phone')}
                   defaultValue={loaderData.defaultValues.workPhone}
                   errorMessage={t(extractValidationKey(errors?.workPhone))}
-                  helpMessagePrimary={t('app:personal-information.work-phone-help-message-primary')}
+                  helpMessagePrimary={
+                    <Trans
+                      ns={handle.i18nNamespace}
+                      i18nKey="app:personal-information.work-phone-help-message-primary"
+                      components={{ noWrap: <span className="whitespace-nowrap" /> }}
+                    />
+                  }
                   required
                 />
                 <InputField
@@ -158,7 +177,13 @@ export default function PersonalInformation({ loaderData, actionData, params }: 
                 label={t('app:personal-information.personal-phone')}
                 defaultValue={loaderData.defaultValues.personalPhone}
                 errorMessage={t(extractValidationKey(errors?.personalPhone))}
-                helpMessagePrimary={t('app:personal-information.personal-phone-help-message-primary')}
+                helpMessagePrimary={
+                  <Trans
+                    ns={handle.i18nNamespace}
+                    i18nKey="app:personal-information.personal-phone-help-message-primary"
+                    components={{ noWrap: <span className="whitespace-nowrap" /> }}
+                  />
+                }
                 required
               />
               <InputRadios
