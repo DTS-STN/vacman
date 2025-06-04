@@ -15,13 +15,7 @@ export type City = Readonly<{
   name: string;
 }>;
 
-export type ClassificationGroup = Readonly<{
-  id: string;
-  name: string;
-  levels: ClassificationLevel[];
-}>;
-
-export type ClassificationLevel = Readonly<{
+export type Classification = Readonly<{
   id: string;
   name: string;
 }>;
