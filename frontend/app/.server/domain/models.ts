@@ -100,7 +100,7 @@ export type LocalizedLanguageOfCorrespondence = Readonly<{
 }>;
 
 export type User = Readonly<{
-  id: string;
+  id: number;
   name: string;
   createdBy: string;
   createdDate: string;
