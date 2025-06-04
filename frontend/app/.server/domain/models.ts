@@ -93,3 +93,16 @@ export type LocalizedLanguageOfCorrespondence = Readonly<{
   id: string;
   name: string;
 }>;
+
+export type User = Readonly<{
+  id: string;
+  name: string;
+  createdBy: string;
+  createdDate: string;
+  lastModifiedBy: string;
+  lastModifiedDate: string;
+}>;
+
+export type UserCreate = Readonly<{
+  name: string;
+}>;
