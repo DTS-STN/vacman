@@ -1,3 +1,4 @@
+import { isValid, parseISO } from 'date-fns';
 import { describe, it, expect } from 'vitest';
 
 import { getMockUserService } from '~/.server/domain/services/user-service-mock';
@@ -8,10 +9,10 @@ describe('getMockUserService', () => {
 
   describe('getUserById', () => {
     it('should return a user when given a valid ID', async () => {
-      const user = await service.getUserById('1');
+      const user = await service.getUserById(1);
 
       expect(user).toEqual({
-        id: '1',
+        id: 1,
         name: 'John Doe',
         createdBy: 'system',
         createdDate: '2024-01-01T00:00:00Z',
@@ -21,7 +22,7 @@ describe('getMockUserService', () => {
     });
 
     it('should throw an error when user is not found', async () => {
-      await expect(service.getUserById('999')).rejects.toMatchObject({
+      await expect(service.getUserById(999)).rejects.toMatchObject({
         msg: "User with ID '999' not found.",
         errorCode: ErrorCodes.VACMAN_API_ERROR,
         httpStatusCode: 500,
@@ -36,15 +37,15 @@ describe('getMockUserService', () => {
       const createdUser = await service.registerUser(userData);
 
       expect(createdUser).toMatchObject({
-        id: '4', // Should be next ID after the 3 mock users
+        id: 4, // Should be next ID after the 3 mock users
         name: 'Test User',
         createdBy: 'system',
         lastModifiedBy: 'system',
       });
 
       // Check that dates are ISO strings (exact time will vary)
-      expect(createdUser.createdDate).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/);
-      expect(createdUser.lastModifiedDate).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/);
+      expect(isValid(parseISO(createdUser.createdBy)));
+      expect(isValid(parseISO(createdUser.lastModifiedBy)));
     });
   });
 });

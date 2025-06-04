@@ -13,7 +13,7 @@ export function getDefaultUserService(): UserService {
      * @returns A promise that resolves to the user object, or throws an error if not found.
      * @throws AppError if the request fails, if the user is not found, or if the server responds with an error status.
      */
-    async getUserById(id: string): Promise<User> {
+    async getUserById(id: number): Promise<User> {
       const response = await fetch(`${serverEnvironment.VACMAN_API_BASE_URI}/users/${id}`);
 
       if (response.status === HttpStatusCodes.NOT_FOUND) {

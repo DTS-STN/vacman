@@ -4,7 +4,7 @@ import { getMockUserService } from '~/.server/domain/services/user-service-mock'
 import { serverEnvironment } from '~/.server/environment';
 
 export type UserService = {
-  getUserById(id: string): Promise<User>;
+  getUserById(id: number): Promise<User>;
   registerUser(user: UserCreate): Promise<User>;
 };
 
