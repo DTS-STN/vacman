@@ -47,6 +47,10 @@
     "personal-email": "Personal email address",
     "work-phone": "Work phone number",
     "personal-phone": "Personal phone number",
+    "personal-phone-help-message-primary": "Cell, home, or other. For example +1 (615) 555-5555",
+    "work-phone-help-message-primary": "For example: +1 (615) 555-5555",
+    "work-phone-extension": "Extension (if applicable)",
+    "work-phone-extension-help-message-primary": "For example: 1234",
     "education": "What is your highest level of education?",
     "additional-information": "Additional information",
     "additional-info-help-message": "Briefly note absences or other key information.",
@@ -56,6 +60,7 @@
       "personal-email-required": "Personal email address is required.",
       "work-phone-invalid": "Invalid work phone number.",
       "work-phone-required": "Work phone number is required.",
+      "work-phone-extension-invalid": "Invalid work phone extension.",
       "personal-phone-invalid": "Invalid personal phone number.",
       "personal-phone-required": "Personal phone number is required.",
       "education-required": "Education level is required."

@@ -15,13 +15,7 @@ export type City = Readonly<{
   name: string;
 }>;
 
-export type ClassificationGroup = Readonly<{
-  id: string;
-  name: string;
-  levels: ClassificationLevel[];
-}>;
-
-export type ClassificationLevel = Readonly<{
+export type Classification = Readonly<{
   id: string;
   name: string;
 }>;
@@ -33,6 +27,17 @@ export type CurrentWFAStatus = Readonly<{
 }>;
 
 export type LocalizedCurrentWFAStatus = Readonly<{
+  id: string;
+  name: string;
+}>;
+
+export type Directorate = Readonly<{
+  id: string;
+  nameEn: string;
+  nameFr: string;
+}>;
+
+export type LocalizedDirectorate = Readonly<{
   id: string;
   name: string;
 }>;
