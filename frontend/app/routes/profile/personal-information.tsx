@@ -11,6 +11,7 @@ import { getLanguageForCorrespondenceService } from '~/.server/domain/services/l
 import { requireAllRoles } from '~/.server/utils/auth-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { Button } from '~/components/button';
+import { ButtonLink } from '~/components/button-link';
 import { ActionDataErrorSummary } from '~/components/error-summary';
 import { InputField } from '~/components/input-field';
 import { InputPhoneField } from '~/components/input-phone-field';
@@ -202,9 +203,14 @@ export default function PersonalInformation({ loaderData, actionData, params }: 
                 helpMessage={t('app:personal-information.additional-info-help-message')}
                 maxLength={100}
               />
-              <Button className="px-12" name="action" variant="primary" id="save-button">
-                {t('app:form.save')}
-              </Button>
+              <div className="mt-8 grid grid-cols-1 place-items-start gap-6">
+                <Button className="w-30" name="action" variant="primary" id="save-button">
+                  {t('app:form.save')}
+                </Button>
+                <ButtonLink className="w-30" file="routes/profile/index.tsx" id="cancel-button" variant="alternative">
+                  {t('app:form.cancel')}
+                </ButtonLink>
+              </div>
             </div>
           </Form>
         </ActionDataErrorSummary>

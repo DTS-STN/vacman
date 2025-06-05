@@ -37,6 +37,7 @@
     "back": "Back to profile"
   },
   "form": {
+    "cancel": "Cancel",
     "save": "Save",
     "submit": "Submit"
   },
