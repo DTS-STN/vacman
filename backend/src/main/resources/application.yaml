@@ -83,31 +83,6 @@ spring:
       # to the same value as maximumPoolSize, creating a fixed-size connection pool.
       minimum-idle: 10
 
-  # ------------------------------------------------------------------------------------
-  # Flyway Database Migration Configuration
-  # ------------------------------------------------------------------------------------
-  # Configures Flyway for managing and applying database schema migrations. Flyway automatically runs on startup, applying
-  # pending migrations.
-  #
-  # Spring Boot Flyway Docs: https://docs.spring.io/spring-boot/reference/data/sql.html#data.sql.flyway
-  # Flyway Docs: https://documentation.red-gate.com/flyway/
-
-  flyway:
-    # File name prefix for SQL migrations. Changed to 'v' (lowercase) for readability
-    sql-migration-prefix: v
-    # File name separator between version and description for SQL migrations. Changed to '-' (hyphen) for readability.
-    sql-migration-separator: '-'
-    # Locations where Flyway scans for migration scripts.
-    #   - classpath:db-migrations/common: Scans for migrations in 'src/main/resources/db-migrations/common'.
-    #     These are database-agnostic scripts or common base scripts.
-    #   - classpath:db-migrations/{vendor}: A Spring Boot specific feature where '{vendor}' is a placeholder
-    #     that automatically resolves to the detected database type (eg: 'h2', 'sqlserver', etc).
-    #     This allows for organizing vendor-specific migrations (e.g., in 'src/main/resources/db-migrations/h2'
-    #     or 'src/main/resources/db-migrations/sqlserver').
-    locations:
-      - classpath:db-migrations/common
-      - classpath:db-migrations/{vendor}
-
 ---
 
 #

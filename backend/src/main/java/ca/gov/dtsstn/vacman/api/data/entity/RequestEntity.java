@@ -12,13 +12,12 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
-@Entity(name = "User")
-@Table(name = "[USER]")
-@AttributeOverride(name = "id", column = @Column(name = "[USER_ID]"))
-public class UserEntity extends AbstractEntity {
+@Entity(name = "Request")
+@Table(name = "[REQUEST]")
+@AttributeOverride(name = "id", column = @Column(name = "[REQUEST_ID]"))
+public class RequestEntity extends AbstractEntity {
 
 	@Column(name = "[BUSINESS_EMAIL_ADDRESS]", length = 320, nullable = false)
 	private String businessEmailAddress;
@@ -59,10 +58,6 @@ public class UserEntity extends AbstractEntity {
 	@JoinColumn(name = "[PRIORITY_LEVEL_ID]", nullable = false)
 	private PriorityLevelEntity priorityLevel;
 
-	@OneToOne
-	@JoinColumn(name = "[USER_ID]", referencedColumnName = "[PROFILE_ID]", nullable = false)
-	private ProfileEntity profile;
-
 	@ManyToOne
 	@JoinColumn(name = "[USER_TYPE_ID]", nullable = false)
 	private UserTypeEntity userType;
@@ -74,12 +69,12 @@ public class UserEntity extends AbstractEntity {
 	@JoinColumn(name = "[WORK_UNIT_ID]", nullable = false)
 	private WorkUnitEntity workUnit;
 
-	public UserEntity() {
+	public RequestEntity() {
 		super();
 	}
 
 	@Builder.Constructor
-	public UserEntity(
+	public RequestEntity(
 			@Nullable Long id,
 			@Nullable String businessEmailAddress,
 			@Nullable String businessPhoneNumber,
@@ -92,7 +87,6 @@ public class UserEntity extends AbstractEntity {
 			@Nullable String middelName,
 			@Nullable String networkName,
 			@Nullable PriorityLevelEntity priorityLevel,
-			@Nullable ProfileEntity profile,
 			@Nullable UserTypeEntity userType,
 			@Nullable String uuid,
 			@Nullable WorkUnitEntity workUnit,
@@ -112,7 +106,6 @@ public class UserEntity extends AbstractEntity {
 		this.middelName = middelName;
 		this.networkName = networkName;
 		this.priorityLevel = priorityLevel;
-		this.profile = profile;
 		this.userType = userType;
 		this.uuid = uuid;
 		this.workUnit = workUnit;
@@ -214,14 +207,6 @@ public class UserEntity extends AbstractEntity {
 		this.priorityLevel = priorityLevel;
 	}
 
-	public ProfileEntity getProfile() {
-		return profile;
-	}
-
-	public void setProfile(ProfileEntity profile) {
-		this.profile = profile;
-	}
-
 	public UserTypeEntity getUserType() {
 		return userType;
 	}
@@ -262,7 +247,6 @@ public class UserEntity extends AbstractEntity {
 			.append("networkName", networkName)
 			.append("pri", pri)
 			.append("priorityLevel", priorityLevel)
-			.append("profile", profile)
 			.append("userType", userType)
 			.append("uuid", uuid)
 			.append("workUnit", workUnit)
