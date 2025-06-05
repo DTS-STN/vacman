@@ -7,7 +7,8 @@ import { isValidPhone } from '~/utils/phone-utils';
 import { REGEX_PATTERNS } from '~/utils/regex-utils';
 
 const languagesOfCorrespondence = await getLanguageForCorrespondenceService().getLanguagesOfCorrespondence();
-const educationLevels = await getEducationLevelService().getEducationLevels();
+const allEducationLevels = await getEducationLevelService().getAll();
+const educationLevels = allEducationLevels.unwrap();
 
 export const personalInformationSchema = v.object({
   preferredLanguage: v.lazy(() =>
