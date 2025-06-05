@@ -25,24 +25,10 @@ public class CityEntity extends AbstractLookupEntity {
 	@JoinColumn(name = "[PROVINCE_TERRITORY_ID]", nullable = false)
 	protected ProvinceEntity province;
 
-	/**
-	 * Default constructor (required by JPA).
-	 */
 	public CityEntity() {
 		super();
 	}
 
-	/**
-	 * @param id The unique identifier of the user.
-	 * @param code The code.
-	 * @param nameEn The english name of reference.
-	 * @param nameFr The french name of reference.
-	 * @param province The associated province.
-	 * @param createdBy The user who created this entity.
-	 * @param createdDate The date and time when this entity was created.
-	 * @param lastModifiedBy The user who last modified this entity.
-	 * @param lastModifiedDate The date and time when this entity was last modified.
-	 */
 	@Builder.Constructor
 	public CityEntity(
 			@Nullable Long id,

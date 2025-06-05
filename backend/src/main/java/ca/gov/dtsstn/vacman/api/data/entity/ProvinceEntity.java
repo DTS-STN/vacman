@@ -19,23 +19,10 @@ import jakarta.persistence.Table;
 @AttributeOverride(name = "nameFr", column = @Column(name = "[PROVINCE_TERRITORY_NAME_FR]"))
 public class ProvinceEntity extends AbstractLookupEntity {
 
-	/**
-	 * Default constructor (required by JPA).
-	 */
 	public ProvinceEntity() {
 		super();
 	}
 
-	/**
-	 * @param id The unique identifier of the user.
-	 * @param code The code.
-	 * @param nameEn The english name of reference.
-	 * @param nameFr The french name of reference.
-	 * @param createdBy The user who created this entity.
-	 * @param createdDate The date and time when this entity was created.
-	 * @param lastModifiedBy The user who last modified this entity.
-	 * @param lastModifiedDate The date and time when this entity was last modified.
-	 */
 	@Builder.Constructor
 	public ProvinceEntity(
 			@Nullable Long id,
