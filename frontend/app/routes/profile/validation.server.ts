@@ -10,6 +10,13 @@ const languagesOfCorrespondence = await getLanguageForCorrespondenceService().ge
 const educationLevels = await getEducationLevelService().getEducationLevels();
 
 export const personalInformationSchema = v.object({
+  personalRecordIdentifier: v.pipe(
+    v.string('app:personal-information.errors.personal-record-identifier-required'),
+    v.trim(),
+    v.nonEmpty('app:personal-information.errors.personal-record-identifier-required'),
+    v.length(9, 'app:personal-information.errors.personal-record-identifier-invalid'),
+    v.regex(REGEX_PATTERNS.DIGIT_ONLY, 'app:personal-information.errors.personal-record-identifier-invalid'),
+  ),
   preferredLanguage: v.lazy(() =>
     v.picklist(
       languagesOfCorrespondence.map(({ id }) => id),
@@ -52,15 +59,7 @@ export const personalInformationSchema = v.object({
 });
 
 export const employmentInformationSchema = v.object({
-  personalRecordIdentifier: v.pipe(
-    v.string('app:employmeny-information.errors.personal-record-identifier-required'),
-    v.trim(),
-    v.nonEmpty('app:employmeny-information.errors.personal-record-identifier-required'),
-    v.length(9, 'app:employmeny-information.errors.personal-record-identifier-invalid'),
-    v.regex(REGEX_PATTERNS.DIGIT_ONLY, 'app:employmeny-information.errors.personal-record-identifier-invalid'),
-  ),
-  substantiveGroup: v.optional(v.string()),
-  substantiveLevel: v.optional(v.string()),
+  substantivePosition: v.optional(v.string()),
   branchOrServiceCanadaRegion: v.optional(v.string()),
   directorate: v.optional(v.string()),
   province: v.optional(v.string()),
