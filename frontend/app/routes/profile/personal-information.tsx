@@ -62,6 +62,9 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 export async function loader({ context, request }: Route.LoaderArgs) {
   requireAllRoles(context.session, new URL(request.url), ['employee']);
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
+  const allLocalizedEducationLevels = await getEducationLevelService().getAllLocalized(lang);
+  const localizedEducationLevels = allLocalizedEducationLevels.unwrap();
+
   return {
     documentTitle: t('app:personal-information.page-title'),
     defaultValues: {
@@ -76,7 +79,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
       education: undefined as string | undefined,
     },
     languagesOfCorrespondence: await getLanguageForCorrespondenceService().getLocalizedLanguageOfCorrespondence(lang),
-    education: await getEducationLevelService().getLocalizedEducationLevels(lang),
+    education: localizedEducationLevels,
   };
 }
 
