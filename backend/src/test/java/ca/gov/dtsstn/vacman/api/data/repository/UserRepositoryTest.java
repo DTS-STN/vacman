@@ -48,7 +48,7 @@ class UserRepositoryTest {
 
 		assertThat(savedUser).isNotNull();
 		assertThat(savedUser.getId()).isNotNull();
-		assertThat(savedUser.getName()).isEqualTo("Jane Doe");
+		assertThat(savedUser.getFirstName()).isEqualTo("Jane Doe");
 
 		final var foundUserOptional = userRepository.findById(savedUser.getId());
 
@@ -56,7 +56,7 @@ class UserRepositoryTest {
 
 		final var foundUser = foundUserOptional.get();
 		assertThat(foundUser.getId()).isEqualTo(savedUser.getId());
-		assertThat(foundUser.getName()).isEqualTo("Jane Doe");
+		assertThat(foundUser.getFirstName()).isEqualTo("Jane Doe");
 
 		assertThat(foundUser.getCreatedBy()).isEqualTo("test-auditor"); // Example assertion
 		assertThat(foundUser.getCreatedDate()).isNotNull();
