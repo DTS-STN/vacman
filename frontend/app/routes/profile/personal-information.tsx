@@ -206,11 +206,11 @@ export default function PersonalInformation({ loaderData, actionData, params }: 
                 helpMessage={t('app:personal-information.additional-info-help-message')}
                 maxLength={100}
               />
-              <div className="mt-8 grid grid-cols-1 place-items-start gap-6">
-                <Button className="w-30" name="action" variant="primary" id="save-button">
+              <div className="mt-8 flex flex-row-reverse flex-wrap items-center justify-end gap-3">
+                <Button name="action" variant="primary" id="save-button">
                   {t('app:form.save')}
                 </Button>
-                <ButtonLink className="w-30" file="routes/profile/index.tsx" id="cancel-button" variant="alternative">
+                <ButtonLink file="routes/profile/index.tsx" id="cancel-button" variant="alternative">
                   {t('app:form.cancel')}
                 </ButtonLink>
               </div>
