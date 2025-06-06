@@ -122,6 +122,7 @@ export type LocalizedLanguageOfCorrespondence = Readonly<{
 export type User = Readonly<{
   id: number;
   name: string;
+  activeDirectoryId?: string;
   createdBy: string;
   createdDate: string;
   lastModifiedBy: string;
@@ -130,4 +131,5 @@ export type User = Readonly<{
 
 export type UserCreate = Readonly<{
   name: string;
+  activeDirectoryId?: string;
 }>;

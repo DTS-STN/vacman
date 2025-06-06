@@ -1,6 +1,7 @@
 import type { JSX } from 'react';
 
 import type { RouteHandle } from 'react-router';
+import { redirect, Form } from 'react-router';
 
 import type { IconProp } from '@fortawesome/fontawesome-svg-core';
 import { faChevronRight, faMagnifyingGlass, faUserPlus } from '@fortawesome/free-solid-svg-icons';
@@ -9,20 +10,73 @@ import { useTranslation } from 'react-i18next';
 
 import type { Route } from './+types/index';
 
-import { requireAllRoles } from '~/.server/utils/auth-utils';
+import { getUserService } from '~/.server/domain/services/user-service';
+import { requireAuthentication } from '~/.server/utils/auth-utils';
+import { requireUnregisteredUser } from '~/.server/utils/user-registration-utils';
 import { Card, CardHeader, CardIcon, CardTitle } from '~/components/card';
-import { AppLink } from '~/components/links';
 import { PageTitle } from '~/components/page-title';
 import { getTranslation } from '~/i18n-config.server';
-import type { I18nRouteFile } from '~/i18n-routes';
 import { handle as parentHandle } from '~/routes/layout';
 
 export const handle = {
   i18nNamespace: [...parentHandle.i18nNamespace],
 } as const satisfies RouteHandle;
 
+export async function action({ context, request }: Route.ActionArgs) {
+  // Ensure user is authenticated (no specific roles required)
+  requireAuthentication(context.session, new URL(request.url));
+
+  const formData = await request.formData();
+  const role = formData.get('role');
+
+  if (role === 'hiring-manager') {
+    const userService = getUserService();
+    const activeDirectoryId = context.session.authState.idTokenClaims.sub;
+    // TODO: Do not allow a generic name to be submitted
+    const name = context.session.authState.idTokenClaims.name ?? 'Unknown User';
+
+    // Register the user as a hiring manager
+    await userService.registerUser({
+      name,
+      activeDirectoryId,
+    });
+
+    // Get the return URL from the query parameters or default to dashboard
+    const url = new URL(request.url);
+    const returnTo = url.searchParams.get('returnto') ?? '/en/';
+
+    return redirect(returnTo);
+  }
+
+  // For employee role, register the user and redirect to privacy consent page
+  if (role === 'employee') {
+    const userService = getUserService();
+    const activeDirectoryId = context.session.authState.idTokenClaims.sub;
+    // TODO: Do not allow a generic name to be submitted
+    const name = context.session.authState.idTokenClaims.name ?? 'Unknown User';
+
+    // Register the user as an employee
+    await userService.registerUser({
+      name,
+      activeDirectoryId,
+    });
+
+    const url = new URL(request.url);
+    const returnTo = url.searchParams.get('returnto');
+    const privacyConsentUrl = returnTo
+      ? `/en/register/privacy-consent?returnto=${encodeURIComponent(returnTo)}`
+      : '/en/register/privacy-consent';
+
+    return redirect(privacyConsentUrl);
+  }
+
+  // Invalid role
+  return new Response('Invalid role selection', { status: 400 });
+}
+
 export async function loader({ context, request }: Route.LoaderArgs) {
-  requireAllRoles(context.session, new URL(request.url), ['employee']);
+  requireAuthentication(context.session, new URL(request.url));
+  await requireUnregisteredUser(context.session, new URL(request.url));
   const { t } = await getTranslation(request, handle.i18nNamespace);
   return { documentTitle: t('app:register.page-title') };
 }
@@ -39,32 +93,57 @@ export default function Index() {
       <PageTitle className="after:w-14">{t('app:register.page-title')}</PageTitle>
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <CardLink icon={faUserPlus} file="routes/register/privacy-consent.tsx" title={t('app:register.employee')} />
-        <CardLink icon={faMagnifyingGlass} file="routes/index.tsx" title={t('app:register.hiring-manager')} />
-        {/* TODO: send POST request to register the user as hiring manager and redirect to hiring manager dashboard */}
+        <EmployeeCard icon={faUserPlus} title={t('app:register.employee')} />
+        <HiringManagerCard icon={faMagnifyingGlass} title={t('app:register.hiring-manager')} />
       </div>
     </div>
   );
 }
 
-interface CardLinkProps {
+interface EmployeeCardProps {
   icon: IconProp;
-  file: I18nRouteFile;
   title: string;
 }
 
-function CardLink({ icon, file, title }: CardLinkProps): JSX.Element {
+function EmployeeCard({ icon, title }: EmployeeCardProps): JSX.Element {
   return (
-    <Card asChild className="flex items-center gap-4 p-4 sm:p-6">
-      <AppLink file={file}>
-        <CardIcon icon={icon} />
-        <CardHeader className="p-0">
-          <CardTitle className="flex items-center gap-2">
-            <span>{title}</span>
-            <FontAwesomeIcon icon={faChevronRight} />
-          </CardTitle>
-        </CardHeader>
-      </AppLink>
-    </Card>
+    <Form method="post">
+      <input type="hidden" name="role" value="employee" />
+      <Card asChild className="flex cursor-pointer items-center gap-4 p-4 transition-colors hover:bg-gray-50 sm:p-6">
+        <button type="submit" className="w-full text-left">
+          <CardIcon icon={icon} />
+          <CardHeader className="p-0">
+            <CardTitle className="flex items-center gap-2">
+              <span>{title}</span>
+              <FontAwesomeIcon icon={faChevronRight} />
+            </CardTitle>
+          </CardHeader>
+        </button>
+      </Card>
+    </Form>
+  );
+}
+
+interface HiringManagerCardProps {
+  icon: IconProp;
+  title: string;
+}
+
+function HiringManagerCard({ icon, title }: HiringManagerCardProps): JSX.Element {
+  return (
+    <Form method="post">
+      <input type="hidden" name="role" value="hiring-manager" />
+      <Card asChild className="flex cursor-pointer items-center gap-4 p-4 transition-colors hover:bg-gray-50 sm:p-6">
+        <button type="submit" className="w-full text-left">
+          <CardIcon icon={icon} />
+          <CardHeader className="p-0">
+            <CardTitle className="flex items-center gap-2">
+              <span>{title}</span>
+              <FontAwesomeIcon icon={faChevronRight} />
+            </CardTitle>
+          </CardHeader>
+        </button>
+      </Card>
+    </Form>
   );
 }

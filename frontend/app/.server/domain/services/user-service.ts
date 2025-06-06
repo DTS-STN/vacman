@@ -5,6 +5,7 @@ import { serverEnvironment } from '~/.server/environment';
 
 export type UserService = {
   getUserById(id: number): Promise<User>;
+  getUserByActiveDirectoryId(activeDirectoryId: string): Promise<User | null>;
   registerUser(user: UserCreate): Promise<User>;
 };
 

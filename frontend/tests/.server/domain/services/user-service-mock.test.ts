@@ -14,6 +14,7 @@ describe('getMockUserService', () => {
       expect(user).toEqual({
         id: 1,
         name: 'John Doe',
+        activeDirectoryId: '11111111-1111-1111-1111-111111111111',
         createdBy: 'system',
         createdDate: '2024-01-01T00:00:00Z',
         lastModifiedBy: 'system',
@@ -28,6 +29,27 @@ describe('getMockUserService', () => {
         httpStatusCode: 500,
         correlationId: expect.any(String),
       });
+    });
+  });
+
+  describe('getUserByActiveDirectoryId', () => {
+    it('should return a user when given a valid Active Directory ID', async () => {
+      const user = await service.getUserByActiveDirectoryId('11111111-1111-1111-1111-111111111111');
+
+      expect(user).toEqual({
+        id: 1,
+        name: 'John Doe',
+        activeDirectoryId: '11111111-1111-1111-1111-111111111111',
+        createdBy: 'system',
+        createdDate: '2024-01-01T00:00:00Z',
+        lastModifiedBy: 'system',
+        lastModifiedDate: '2024-01-01T00:00:00Z',
+      });
+    });
+
+    it('should return null when user is not found', async () => {
+      const user = await service.getUserByActiveDirectoryId('nonexistent-id');
+      expect(user).toBeNull();
     });
   });
 
