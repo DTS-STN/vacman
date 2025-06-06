@@ -147,7 +147,7 @@ export const i18nRoutes = [
       {
         id: 'REGI-0001',
         file: 'routes/register/index.tsx',
-        paths: { en: '/en/register', fr: '/fr/protege/enregistrer' },
+        paths: { en: '/en/register', fr: '/fr/enregistrer' },
       },
       {
         id: 'REGI-0002',
