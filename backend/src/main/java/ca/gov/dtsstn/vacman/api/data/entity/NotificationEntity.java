@@ -49,9 +49,9 @@ public class NotificationEntity extends AbstractEntity {
 	@Override
 	public String toString() {
 		return new ToStringCreator(this)
-			.append("super", super.toString())
-			.append("notificationPurpose", notificationPurpose)
-			.toString();
+				.append("super", super.toString())
+				.append("notificationPurpose", notificationPurpose)
+				.toString();
 	}
 
 }
