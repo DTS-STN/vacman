@@ -1,5 +1,3 @@
-// gcwebEn
-
 export default {
   'language': 'English',
   'app': {

@@ -1,3 +1,6 @@
+import type { Result, Option } from 'oxide.ts';
+import { Some, None, Ok, Err } from 'oxide.ts';
+
 import type { EducationLevel, LocalizedEducationLevel } from '~/.server/domain/models';
 import type { EducationLevelService } from '~/.server/domain/services/education-level-service';
 import { serverEnvironment } from '~/.server/environment';
@@ -14,37 +17,83 @@ export function getDefaultEducationLevelService(): EducationLevelService {
      * @returns An array of education level objects.
      * @throws {AppError} if the request fails or if the server responds with an error status.
      */
-    async getEducationLevels(): Promise<readonly EducationLevel[]> {
-      const response = await fetch(`${serverEnvironment.VACMAN_API_BASE_URI}/education-levels`);
+    async getAll(): Promise<Result<readonly EducationLevel[], AppError>> {
+      try {
+        const response = await fetch(`${serverEnvironment.VACMAN_API_BASE_URI}/education-levels`);
 
-      if (!response.ok) {
-        const errorMessage = `Failed to retrieve all Education Levels. Server responded with status ${response.status}.`;
-        throw new AppError(errorMessage, ErrorCodes.VACMAN_API_ERROR);
+        if (!response.ok) {
+          return Err(
+            new AppError(
+              `Failed to retrieve all Education Levels. Server responded with status ${response.status}.`,
+              ErrorCodes.VACMAN_API_ERROR,
+            ),
+          );
+        }
+
+        const data: EducationLevel[] = await response.json();
+        return Ok(data);
+      } catch (error) {
+        return Err(
+          new AppError(
+            `Unexpected error occurred while fetching Education Levels: ${String(error)}`,
+            ErrorCodes.VACMAN_API_ERROR,
+          ),
+        );
       }
-
-      return await response.json();
     },
 
     /**
      * Retrieves a single education level by its ID.
      *
      * @param id The ID of the education level to retrieve.
-     * @returns The education level object if found.
-     * @throws {AppError} If the education level is not found or if the request fails or if the server responds with an error status.
+     * @returns The education level object if found or {AppError} If the education level is not found or if the request fails or if the server responds with an error status.
      */
-    async getEducationLevelById(id: string): Promise<EducationLevel | undefined> {
-      const response = await fetch(`${serverEnvironment.VACMAN_API_BASE_URI}/education-levels/${id}`);
+    async getById(id: string): Promise<Result<EducationLevel, AppError>> {
+      try {
+        const response = await fetch(`${serverEnvironment.VACMAN_API_BASE_URI}/education-levels/${id}`);
 
-      if (response.status === HttpStatusCodes.NOT_FOUND) {
-        return undefined;
+        if (response.status === HttpStatusCodes.NOT_FOUND) {
+          return Err(new AppError(`Branch with ID '${id}' not found.`, ErrorCodes.NO_BRANCH_FOUND));
+        }
+
+        if (!response.ok) {
+          return Err(
+            new AppError(
+              `Failed to find the Education Level with ID '${id}'. Server responded with status ${response.status}.`,
+              ErrorCodes.VACMAN_API_ERROR,
+            ),
+          );
+        }
+
+        const data: EducationLevel = await response.json();
+        return Ok(data);
+      } catch (error) {
+        return Err(
+          new AppError(
+            `Unexpected error occurred while fetching Education Level by ID: ${String(error)}`,
+            ErrorCodes.VACMAN_API_ERROR,
+          ),
+        );
+      }
+    },
+
+    /**
+     * Retrieves a single branch by its ID.
+     *
+     * @param id The ID of the branch to retrieve.
+     * @returns The branch object if found or undefined if not found.
+     * @throws {AppError} If the request fails or if the server responds with an error status.
+     */
+
+    async findById(id: string): Promise<Option<EducationLevel>> {
+      const result = await getDefaultEducationLevelService().getAll();
+
+      if (result.isErr()) {
+        return None;
       }
 
-      if (!response.ok) {
-        const errorMessage = `Failed to find the Education Level with ID '${id}'. Server responded with status ${response.status}.`;
-        throw new AppError(errorMessage, ErrorCodes.VACMAN_API_ERROR);
-      }
-
-      return await response.json();
+      const found = result.unwrap().find((level) => level.id === id);
+      return found ? Some(found) : None;
     },
 
     /**
@@ -54,12 +103,15 @@ export function getDefaultEducationLevelService(): EducationLevelService {
      * @returns An array of localized education level objects.
      * @throws {AppError} if the request fails or if the server responds with an error status.
      */
-    async getLocalizedEducationLevels(language: Language): Promise<readonly LocalizedEducationLevel[]> {
-      const educationLevels = await this.getEducationLevels();
-      return educationLevels.map((level) => ({
-        id: level.id,
-        name: language === 'en' ? level.nameEn : level.nameFr,
-      }));
+    async getAllLocalized(language: Language): Promise<Result<readonly LocalizedEducationLevel[], AppError>> {
+      const result = await getDefaultEducationLevelService().getAll();
+
+      return result.map((levels) =>
+        levels.map((level) => ({
+          id: level.id,
+          name: language === 'fr' ? level.nameFr : level.nameEn,
+        })),
+      );
     },
 
     /**
@@ -70,9 +122,13 @@ export function getDefaultEducationLevelService(): EducationLevelService {
      * @returns The localized education level object if found.
      * @throws {AppError} if the request fails or if the server responds with an error status.
      */
-    async getLocalizedEducationLevelById(id: string, language: Language): Promise<LocalizedEducationLevel | undefined> {
-      const localizedLevels = await this.getLocalizedEducationLevels(language);
-      return localizedLevels.find((l) => l.id === id);
+    async getLocalizedById(id: string, language: Language): Promise<Result<LocalizedEducationLevel, AppError>> {
+      const result = await getDefaultEducationLevelService().getById(id);
+
+      return result.map((level) => ({
+        id: level.id,
+        name: language === 'fr' ? level.nameFr : level.nameEn,
+      }));
     },
   };
 }

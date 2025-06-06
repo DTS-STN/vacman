@@ -1,5 +1,3 @@
-// appEn
-
 export default {
   'index': {
     'about': 'The VacMan initiative!',
@@ -14,8 +12,7 @@ export default {
     'page-title': 'Register as...',
   },
   'profile': {
-    'about':
-      'Your profile helps us understand your current position, referral preferences, and qualifications. You can update each section as needed. Your progress is saved automatically.',
+    'about': 'Your profile helps us understand your current position, referral preferences, and qualifications. You can update each section as needed. Your progress is saved automatically.',
     'edit': 'Edit',
     'add': 'Add',
     'in-progress': 'In progress',
@@ -40,11 +37,14 @@ export default {
     'back': 'Back to profile',
   },
   'form': {
-    save: 'Save',
-    submit: 'Submit',
+    'cancel': 'Cancel',
+    'save': 'Save',
+    'submit': 'Submit',
   },
   'personal-information': {
     'page-title': 'Personal information',
+    'personal-record-identifier': 'Personal record identifier (PRI)',
+    'personal-record-identifier-help-message-primary': '9-digit number. For example: 012345678',
     'preferred-language': 'Preferred language of correspondence',
     'work-email': 'Work email address',
     'personal-email': 'Personal email address',
@@ -58,6 +58,8 @@ export default {
     'additional-information': 'Additional information',
     'additional-info-help-message': 'Briefly note absences or other key information.',
     'errors': {
+      "personal-record-identifier-required": "Personal record identifier is required.",
+      "personal-record-identifier-invalid": "Invalid personal record identifier.",
       'preferred-language-required': 'Preferred language of correspondence is required.',
       'personal-email-invalid': 'Invalid personal email address.',
       'personal-email-required': 'Personal email address is required.',
@@ -71,11 +73,8 @@ export default {
   },
   'employmeny-information': {
     'page-title': 'Employment information',
-    'personal-record-identifier': 'Personal record identifier (PRI)',
     'substantive-position-heading': 'Substantive position',
     'substantive-position-group-and-level': 'Group and level of your substantive position',
-    'substantive-group': 'Group',
-    'substantive-level': 'Level',
     'branch-or-service-canada-region': 'Branch or Service Canada Region',
     'directorate': 'Directorate',
     'provinces': 'Province of the designated work location of your substantive position',
@@ -86,8 +85,6 @@ export default {
     'wfa-end-date': 'End date of your WFA status (if applicable)',
     'hr-advisor': 'HR advisor identified on your WFA letter',
     'errors': {
-      'personal-record-identifier-required': 'Personal record identifier is required.',
-      'personal-record-identifier-invalid': 'Invalid personal record identifier.',
       'substantive-group-required': 'Substantive group is required.',
       'substantive-level-required': 'Substantive level is required.',
       'branch-or-service-canada-region-required': 'Branch or Service Canada Region is required.',

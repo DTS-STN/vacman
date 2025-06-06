@@ -1,7 +1,7 @@
 import type { RouteHandle } from 'react-router';
 import { data, Form } from 'react-router';
 
-import { useTranslation } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 import * as v from 'valibot';
 
 import type { Route } from './+types/personal-information';
@@ -11,6 +11,7 @@ import { getLanguageForCorrespondenceService } from '~/.server/domain/services/l
 import { requireAllRoles } from '~/.server/utils/auth-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { Button } from '~/components/button';
+import { ButtonLink } from '~/components/button-link';
 import { ActionDataErrorSummary } from '~/components/error-summary';
 import { InputField } from '~/components/input-field';
 import { InputPhoneField } from '~/components/input-phone-field';
@@ -37,6 +38,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 
   const formData = await request.formData();
   const parseResult = v.safeParse(personalInformationSchema, {
+    personalRecordIdentifier: formString(formData.get('personalRecordIdentifier')),
     preferredLanguage: formString(formData.get('preferredLanguage')),
     personalEmail: formString(formData.get('personalEmail')),
     workPhone: formString(formData.get('workPhone')),
@@ -60,10 +62,14 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 export async function loader({ context, request }: Route.LoaderArgs) {
   requireAllRoles(context.session, new URL(request.url), ['employee']);
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
+  const allLocalizedEducationLevels = await getEducationLevelService().getAllLocalized(lang);
+  const localizedEducationLevels = allLocalizedEducationLevels.unwrap();
+
   return {
     documentTitle: t('app:personal-information.page-title'),
     defaultValues: {
       //TODO: Replace with actual values
+      personalRecordIdentifier: undefined,
       preferredLanguage: undefined as string | undefined,
       workEmail: context.session.authState.idTokenClaims.email,
       personalEmail: undefined,
@@ -73,7 +79,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
       education: undefined as string | undefined,
     },
     languagesOfCorrespondence: await getLanguageForCorrespondenceService().getLocalizedLanguageOfCorrespondence(lang),
-    education: await getEducationLevelService().getLocalizedEducationLevels(lang),
+    education: localizedEducationLevels,
   };
 }
 
@@ -100,6 +106,17 @@ export default function PersonalInformation({ loaderData, actionData, params }: 
         <ActionDataErrorSummary actionData>
           <Form method="post" noValidate>
             <div className="space-y-6">
+              <InputField
+                className="w-full"
+                id="personal-record-identifier"
+                name="personalRecordIdentifier"
+                label={t('app:personal-information.personal-record-identifier')}
+                defaultValue={loaderData.defaultValues.personalRecordIdentifier}
+                errorMessage={t(extractValidationKey(errors?.personalRecordIdentifier))}
+                helpMessagePrimary={t('app:personal-information.personal-record-identifier-help-message-primary')}
+                type="number"
+                required
+              />
               <InputRadios
                 id="preferred-language"
                 name="preferredLanguage"
@@ -136,7 +153,13 @@ export default function PersonalInformation({ loaderData, actionData, params }: 
                   label={t('app:personal-information.work-phone')}
                   defaultValue={loaderData.defaultValues.workPhone}
                   errorMessage={t(extractValidationKey(errors?.workPhone))}
-                  helpMessagePrimary={t('app:personal-information.work-phone-help-message-primary')}
+                  helpMessagePrimary={
+                    <Trans
+                      ns={handle.i18nNamespace}
+                      i18nKey="app:personal-information.work-phone-help-message-primary"
+                      components={{ noWrap: <span className="whitespace-nowrap" /> }}
+                    />
+                  }
                   required
                 />
                 <InputField
@@ -158,7 +181,13 @@ export default function PersonalInformation({ loaderData, actionData, params }: 
                 label={t('app:personal-information.personal-phone')}
                 defaultValue={loaderData.defaultValues.personalPhone}
                 errorMessage={t(extractValidationKey(errors?.personalPhone))}
-                helpMessagePrimary={t('app:personal-information.personal-phone-help-message-primary')}
+                helpMessagePrimary={
+                  <Trans
+                    ns={handle.i18nNamespace}
+                    i18nKey="app:personal-information.personal-phone-help-message-primary"
+                    components={{ noWrap: <span className="whitespace-nowrap" /> }}
+                  />
+                }
                 required
               />
               <InputRadios
@@ -177,9 +206,14 @@ export default function PersonalInformation({ loaderData, actionData, params }: 
                 helpMessage={t('app:personal-information.additional-info-help-message')}
                 maxLength={100}
               />
-              <Button className="px-12" name="action" variant="primary" id="save-button">
-                {t('app:form.save')}
-              </Button>
+              <div className="mt-8 flex flex-row-reverse flex-wrap items-center justify-end gap-3">
+                <Button name="action" variant="primary" id="save-button">
+                  {t('app:form.save')}
+                </Button>
+                <ButtonLink file="routes/profile/index.tsx" id="cancel-button" variant="alternative">
+                  {t('app:form.cancel')}
+                </ButtonLink>
+              </div>
             </div>
           </Form>
         </ActionDataErrorSummary>

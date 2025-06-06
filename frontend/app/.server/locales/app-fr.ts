@@ -14,8 +14,7 @@ export default {
     'page-title': "S'inscrire comme...",
   },
   'profile': {
-    'about':
-      'Votre profil nous aide à comprendre votre situation actuelle, vos préférences en matière de recommandation et vos qualifications. Vous pouvez mettre à jour chaque section selon vos besoins. Votre progression est enregistrée automatiquement.',
+    'about': 'Votre profil nous aide à comprendre votre situation actuelle, vos préférences en matière de recommandation et vos qualifications. Vous pouvez mettre à jour chaque section selon vos besoins. Votre progression est enregistrée automatiquement.',
     'edit': 'Modifier les',
     'add': 'Ajouter des',
     'in-progress': 'En cours',
@@ -40,11 +39,14 @@ export default {
     'back': 'Retour au profil',
   },
   'form': {
-    save: 'Enregistrer',
-    submit: 'Soumettre',
+    'cancel': 'Annuler',
+    'save': 'Enregistrer',
+    'submit': 'Soumettre',
   },
   'personal-information': {
     'page-title': 'Informations personnelles',
+    'personal-record-identifier': "Code d'identification du dossier personnel (CIDP)",
+    'personal-record-identifier-help-message-primary': "numéro à 9 chiffres. Par exemple\u00A0: 012345678",
     'preferred-language': 'Langue de correspondance préférée',
     'work-email': 'Adresse e-mail professionnelle',
     'personal-email': 'Adresse e-mail personnelle',
@@ -58,6 +60,8 @@ export default {
     'additional-information': 'Renseignements supplémentaires',
     'additional-info-help-message': "Veuillez noter brièvement les absences ou d'autres informations clés.",
     'errors': {
+      'personal-record-identifier-required': "Le code d'identification du dossier personnel (CIDP) est requis.",
+      'personal-record-identifier-invalid': "Le code d'identification du dossier personnel (CIDP) est invalide.",
       'preferred-language-required': 'La langue de correspondance préférée est requise.',
       'personal-email-invalid': 'Adresse e-mail personnelle invalide.',
       'personal-email-required': 'Une adresse email personnelle est requise.',
@@ -71,11 +75,8 @@ export default {
   },
   'employmeny-information': {
     'page-title': "Informations sur l'emploi",
-    'personal-record-identifier': "Code d'identification du dossier personnel (CIDP)",
     'substantive-position-heading': '',
     'substantive-position-group-and-level': 'Groupe et niveau de votre poste substantif',
-    'substantive-group': 'Groupe',
-    'substantive-level': 'Niveau',
     'branch-or-service-canada-region': 'Direction générale ou Région de Service Canada',
     'directorate': 'Direction',
     'provinces': 'Province du lieu de travail désigné de votre poste substantif',
@@ -86,8 +87,6 @@ export default {
     'wfa-end-date': 'Date de fin de votre statut de RE (si applicable)',
     'hr-advisor': 'Conseiller en RH identifié dans votre lettre de RE',
     'errors': {
-      'personal-record-identifier-required': "Le code d'identification du dossier personnel (CIDP) est requis.",
-      'personal-record-identifier-invalid': "Le code d'identification du dossier personnel (CIDP) est invalide.",
       'substantive-group-required': 'Un groupe substantif est requis.',
       'substantive-level-required': 'Le niveau de votre poste substantif est requis.',
       'branch-or-service-canada-region-required': 'La direction générale ou la région de Service Canada est requise.',

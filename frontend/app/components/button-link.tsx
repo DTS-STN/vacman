@@ -17,7 +17,7 @@ const sizes = {
 
 // prettier-ignore
 const variants = {
-  alternative: 'border-gray-200 bg-white text-gray-900 hover:bg-gray-100 hover:text-blue-700 focus:bg-gray-100 focus:text-blue-700',
+  alternative: 'border-gray-900 bg-white text-gray-900 hover:bg-gray-100 hover:text-blue-700 focus:bg-gray-100 focus:text-blue-700',
   default: 'border-gray-300 bg-gray-200 text-slate-700 hover:bg-neutral-300 focus:bg-neutral-300',
   dark: 'border-gray-800 bg-gray-800 text-white hover:bg-gray-900 focus:bg-gray-900',
   green: 'border-green-700 bg-green-700 text-white hover:bg-green-800 focus:bg-green-800',
