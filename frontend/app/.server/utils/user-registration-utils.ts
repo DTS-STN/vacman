@@ -74,7 +74,7 @@ export async function requireUnregisteredUser(session: AuthenticatedSession, cur
 
   if (user) {
     // TODO: Update routing
-    log.debug('User is already registered: %s, redirecting to dashboard', user.name);
+    log.debug('User is already registered: %s, redirecting', user.name);
 
     // Get the return URL from query params, or default to dashboard
     const returnTo = currentUrl.searchParams.get('returnto') ?? '/en/';

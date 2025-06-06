@@ -35,32 +35,21 @@ export async function action({ context, request }: Route.ActionArgs) {
     // TODO: Do not allow a generic name to be submitted
     const name = context.session.authState.idTokenClaims.name ?? 'Unknown User';
 
-    // Register the user as a hiring manager
+    // Register the user as a hiring manager immediately
     await userService.registerUser({
       name,
       activeDirectoryId,
     });
 
-    // Get the return URL from the query parameters or default to dashboard
+    // Redirect to dashboard after registration
     const url = new URL(request.url);
     const returnTo = url.searchParams.get('returnto') ?? '/en/';
 
     return redirect(returnTo);
   }
 
-  // For employee role, register the user and redirect to privacy consent page
+  // For employee role, redirect to privacy consent page WITHOUT registering yet
   if (role === 'employee') {
-    const userService = getUserService();
-    const activeDirectoryId = context.session.authState.idTokenClaims.sub;
-    // TODO: Do not allow a generic name to be submitted
-    const name = context.session.authState.idTokenClaims.name ?? 'Unknown User';
-
-    // Register the user as an employee
-    await userService.registerUser({
-      name,
-      activeDirectoryId,
-    });
-
     const url = new URL(request.url);
     const returnTo = url.searchParams.get('returnto');
     const privacyConsentUrl = returnTo
