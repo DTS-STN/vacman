@@ -12,6 +12,13 @@ export function getMockUserService(): UserService {
         return Promise.reject(error);
       }
     },
+    getUserByActiveDirectoryId: (activeDirectoryId: string) => {
+      try {
+        return Promise.resolve(getUserByActiveDirectoryId(activeDirectoryId));
+      } catch (error) {
+        return Promise.reject(error);
+      }
+    },
     registerUser: (user: UserCreate) => Promise.resolve(registerUser(user)),
   };
 }
@@ -22,7 +29,8 @@ export function getMockUserService(): UserService {
 const mockUsers: readonly User[] = [
   {
     id: 1,
-    name: 'John Doe',
+    name: 'Jane Doe',
+    activeDirectoryId: '00000000-0000-0000-0000-000000000001',
     createdBy: 'system',
     createdDate: '2024-01-01T00:00:00Z',
     lastModifiedBy: 'system',
@@ -30,15 +38,26 @@ const mockUsers: readonly User[] = [
   },
   {
     id: 2,
+    name: 'John Doe',
+    activeDirectoryId: '11111111-1111-1111-1111-111111111111',
+    createdBy: 'system',
+    createdDate: '2024-01-01T00:00:00Z',
+    lastModifiedBy: 'system',
+    lastModifiedDate: '2024-01-01T00:00:00Z',
+  },
+  {
+    id: 3,
     name: 'Jane Smith',
+    activeDirectoryId: '22222222-2222-2222-2222-222222222222',
     createdBy: 'system',
     createdDate: '2024-01-02T00:00:00Z',
     lastModifiedBy: 'system',
     lastModifiedDate: '2024-01-02T00:00:00Z',
   },
   {
-    id: 3,
+    id: 4,
     name: 'Michel Tremblay',
+    activeDirectoryId: '33333333-3333-3333-3333-333333333333',
     createdBy: 'system',
     createdDate: '2024-01-03T00:00:00Z',
     lastModifiedBy: 'system',
@@ -62,6 +81,17 @@ function getUserById(id: number): User {
 }
 
 /**
+ * Retrieves a user by their Active Directory ID from mock data.
+ *
+ * @param activeDirectoryId The Active Directory ID of the user to retrieve.
+ * @returns The user object if found, null otherwise.
+ */
+function getUserByActiveDirectoryId(activeDirectoryId: string): User | null {
+  const user = mockUsers.find((u) => u.activeDirectoryId === activeDirectoryId);
+  return user ?? null;
+}
+
+/**
  * Registers a new user with mock data.
  *
  * @param userData The user data to create.
@@ -72,6 +102,7 @@ function registerUser(userData: UserCreate): User {
   const newUser: User = {
     id: mockUsers.length + 1,
     name: userData.name,
+    activeDirectoryId: userData.activeDirectoryId,
     createdBy: 'system',
     createdDate: new Date().toISOString(),
     lastModifiedBy: 'system',

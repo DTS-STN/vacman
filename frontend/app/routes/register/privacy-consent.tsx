@@ -24,7 +24,7 @@ export function action({ context, params, request }: Route.ActionArgs) {
   TODO: Add validation schema
   const formData = await request.formData();
   */
-  throw i18nRedirect('routes/index.tsx', request);
+  throw i18nRedirect('routes/profile/index.tsx', request);
   /*
   TODO: send POST request to register the user as employee
   */
