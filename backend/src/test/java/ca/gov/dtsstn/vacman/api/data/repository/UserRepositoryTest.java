@@ -43,7 +43,8 @@ class UserRepositoryTest {
 
 		final var savedUser = userRepository.save(
 			new UserEntityBuilder()
-				.name("Jane Doe")
+				.firstName("Jane")
+				.lastName("Doe")
 				.build());
 
 		assertThat(savedUser).isNotNull();

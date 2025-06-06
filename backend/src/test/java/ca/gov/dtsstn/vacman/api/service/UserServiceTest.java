@@ -39,7 +39,8 @@ class UserServiceTest {
 			.thenAnswer(invocation -> invocation.getArgument(0));
 
 		final var inputUser = new UserEntityBuilder()
-			.name("Test User")
+			.firstName("Test")
+			.lastName("User")
 			.build();
 
 		userService.createUser(inputUser);
@@ -52,10 +53,12 @@ class UserServiceTest {
 	void getAllUsers_shouldReturnListOfUsers() {
 		final var mockUsers = List.of(
 			new UserEntityBuilder()
-				.name("User One")
+				.firstName("User")
+				.lastName("One")
 				.build(),
 			new UserEntityBuilder()
-				.name("User Two")
+				.firstName("User")
+				.lastName("Two")
 				.build());
 
 		when(userRepository.findAll()).thenReturn(mockUsers);
