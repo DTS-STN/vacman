@@ -14,10 +14,10 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
-@Entity(name = "User")
-@Table(name = "[USER]")
-@AttributeOverride(name = "id", column = @Column(name = "[USER_ID]"))
-public class UserEntity extends AbstractEntity {
+@Entity(name = "Request")
+@Table(name = "[REQUEST]")
+@AttributeOverride(name = "id", column = @Column(name = "[REQUEST_ID]"))
+public class RequestEntity extends AbstractEntity {
 
 	@Column(name = "[BUSINESS_EMAIL_ADDRESS]", length = 320, nullable = false)
 	private String businessEmailAddress;
@@ -69,12 +69,12 @@ public class UserEntity extends AbstractEntity {
 	@JoinColumn(name = "[WORK_UNIT_ID]", nullable = false)
 	private WorkUnitEntity workUnit;
 
-	public UserEntity() {
+	public RequestEntity() {
 		super();
 	}
 
 	@Builder.Constructor
-	public UserEntity(
+	public RequestEntity(
 			@Nullable Long id,
 			@Nullable String businessEmailAddress,
 			@Nullable String businessPhoneNumber,

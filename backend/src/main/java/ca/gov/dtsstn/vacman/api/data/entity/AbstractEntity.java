@@ -11,6 +11,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import jakarta.annotation.Nullable;
+import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -24,34 +25,28 @@ public abstract class AbstractEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+	@Column(length = 6, nullable = false, updatable = false)
+	protected Long id;
 
 	@CreatedBy
-	private String createdBy;
+	@Column(name = "[USER_CREATED]", length = 50, nullable = false, updatable = false)
+	protected String createdBy;
 
 	@CreatedDate
-	private Instant createdDate;
+	@Column(name = "[DATE_CREATED]", nullable = false, updatable = false)
+	protected Instant createdDate;
 
 	@LastModifiedBy
-	private String lastModifiedBy;
+	@Column(name = "[USER_UPDATED]", length = 50)
+	protected String lastModifiedBy;
 
 	@Version
 	@LastModifiedDate
-	private Instant lastModifiedDate;
+	@Column(name = "[DATE_UPDATED]")
+	protected Instant lastModifiedDate;
 
-	/**
-	 * Default constructor (required by JPA).
-	 */
 	public AbstractEntity() {}
 
-	/**
-	 * Constructs a new UserEntity with all fields.
-	 * @param id The unique identifier of the entity.
-	 * @param createdBy The user who created this entity.
-	 * @param createdDate The date and time when this entity was created.
-	 * @param lastModifiedBy The user who last modified this entity.
-	 * @param lastModifiedDate The date and time when this entity was last modified.
-	 */
 	public AbstractEntity(
 			@Nullable Long id,
 			@Nullable String createdBy,

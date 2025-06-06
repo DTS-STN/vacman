@@ -63,7 +63,7 @@ class UserServiceTest {
 		final var outputUsers = userService.getAllUsers();
 
 		verify(userRepository).findAll();
-		assertThat(outputUsers).extracting(UserEntity::getName).containsExactly("User One", "User Two");
+		assertThat(outputUsers).extracting(UserEntity::getFirstName).containsExactly("User One", "User Two");
 	}
 
 }
