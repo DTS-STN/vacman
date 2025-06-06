@@ -3,12 +3,11 @@
  * This module provides functions to check if an authenticated user is registered
  * in the backend system and redirects unregistered users to the registration page.
  */
-import { redirect } from 'react-router';
-
 import type { User } from '~/.server/domain/models';
 import { getUserService } from '~/.server/domain/services/user-service';
 import { LogFactory } from '~/.server/logging';
 import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
+import { i18nRedirect } from '~/.server/utils/route-utils';
 
 const log = LogFactory.getLogger(import.meta.url);
 
@@ -38,12 +37,7 @@ export async function requireUserRegistration(session: AuthenticatedSession, cur
 
   if (!user) {
     log.debug('User not found in backend system, redirecting to registration');
-
-    // Preserve the original URL they were trying to access
-    const { pathname, search } = currentUrl;
-    const returnTo = `${pathname}${search}`;
-
-    throw redirect(`/en/register?returnto=${encodeURIComponent(returnTo)}`);
+    throw i18nRedirect('routes/register/index.tsx', currentUrl);
   }
 
   log.debug('User found in backend system: %s', user.name);
@@ -76,10 +70,7 @@ export async function requireUnregisteredUser(session: AuthenticatedSession, cur
     // TODO: Update routing
     log.debug('User is already registered: %s, redirecting', user.name);
 
-    // Get the return URL from query params, or default to dashboard
-    const returnTo = currentUrl.searchParams.get('returnto') ?? '/en/';
-
-    throw redirect(returnTo);
+    throw i18nRedirect('routes/index.tsx', currentUrl);
   }
 
   log.debug('User is not registered, allowing access to registration page');

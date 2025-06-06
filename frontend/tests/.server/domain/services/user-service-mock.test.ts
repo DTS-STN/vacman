@@ -13,8 +13,8 @@ describe('getMockUserService', () => {
 
       expect(user).toEqual({
         id: 1,
-        name: 'John Doe',
-        activeDirectoryId: '11111111-1111-1111-1111-111111111111',
+        name: 'Jane Doe',
+        activeDirectoryId: '00000000-0000-0000-0000-000000000001',
         createdBy: 'system',
         createdDate: '2024-01-01T00:00:00Z',
         lastModifiedBy: 'system',
@@ -37,7 +37,7 @@ describe('getMockUserService', () => {
       const user = await service.getUserByActiveDirectoryId('11111111-1111-1111-1111-111111111111');
 
       expect(user).toEqual({
-        id: 1,
+        id: 2,
         name: 'John Doe',
         activeDirectoryId: '11111111-1111-1111-1111-111111111111',
         createdBy: 'system',

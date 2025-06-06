@@ -1,7 +1,7 @@
 import type { JSX } from 'react';
 
 import type { RouteHandle } from 'react-router';
-import { redirect, Form } from 'react-router';
+import { Form } from 'react-router';
 
 import type { IconProp } from '@fortawesome/fontawesome-svg-core';
 import { faChevronRight, faMagnifyingGlass, faUserPlus } from '@fortawesome/free-solid-svg-icons';
@@ -12,6 +12,7 @@ import type { Route } from './+types/index';
 
 import { getUserService } from '~/.server/domain/services/user-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
+import { i18nRedirect } from '~/.server/utils/route-utils';
 import { requireUnregisteredUser } from '~/.server/utils/user-registration-utils';
 import { Card, CardHeader, CardIcon, CardTitle } from '~/components/card';
 import { PageTitle } from '~/components/page-title';
@@ -40,23 +41,12 @@ export async function action({ context, request }: Route.ActionArgs) {
       name,
       activeDirectoryId,
     });
-
-    // Redirect to dashboard after registration
-    const url = new URL(request.url);
-    const returnTo = url.searchParams.get('returnto') ?? '/en/';
-
-    return redirect(returnTo);
+    return i18nRedirect('routes/index.tsx', request);
   }
 
   // For employee role, redirect to privacy consent page WITHOUT registering yet
   if (role === 'employee') {
-    const url = new URL(request.url);
-    const returnTo = url.searchParams.get('returnto');
-    const privacyConsentUrl = returnTo
-      ? `/en/register/privacy-consent?returnto=${encodeURIComponent(returnTo)}`
-      : '/en/register/privacy-consent';
-
-    return redirect(privacyConsentUrl);
+    return i18nRedirect('routes/register/privacy-consent.tsx', request);
   }
 
   // Invalid role

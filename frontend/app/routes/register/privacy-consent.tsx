@@ -1,10 +1,11 @@
 import type { RouteHandle } from 'react-router';
-import { Form, redirect } from 'react-router';
+import { Form } from 'react-router';
 
 import type { Route } from './+types/privacy-consent';
 
 import { getUserService } from '~/.server/domain/services/user-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
+import { i18nRedirect } from '~/.server/utils/route-utils';
 import { requireUnregisteredUser } from '~/.server/utils/user-registration-utils';
 import { Button } from '~/components/button';
 import { ButtonLink } from '~/components/button-link';
@@ -37,15 +38,11 @@ export async function action({ context, request }: Route.ActionArgs) {
       activeDirectoryId,
     });
 
-    // Get the return URL from the query parameters or default to dashboard
-    const url = new URL(request.url);
-    const returnTo = url.searchParams.get('returnto') ?? '/en/';
-
-    return redirect(returnTo);
+    return i18nRedirect('routes/profile/index.tsx', request);
   }
 
-  // If declined, redirect back to registration page
-  return redirect('/en/register');
+  // If declined, redirect back to registration page with current locale
+  return i18nRedirect('routes/register/index.tsx', request);
 }
 
 export async function loader({ context, request }: Route.LoaderArgs) {

@@ -9,8 +9,12 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { getUserService } from '~/.server/domain/services/user-service';
 import { getMockUserService } from '~/.server/domain/services/user-service-mock';
 import { isRegistrationPath } from '~/.server/utils/user-registration-utils';
+// Import the route definitions directly to use in our mock
+import { i18nRoutes } from '~/i18n-routes';
 import { action as registerAction, loader as registerLoader } from '~/routes/register/index';
 import { action as privacyAction, loader as privacyLoader } from '~/routes/register/privacy-consent';
+import { getLanguage } from '~/utils/i18n-utils';
+import { findRouteByFile } from '~/utils/route-utils';
 
 // Type definitions for test compatibility
 type TestRouteArgs = {
@@ -30,6 +34,26 @@ vi.mock('~/i18n-config.server', () => ({
       lang: 'en' as const,
       t: mockT,
     };
+  }),
+}));
+
+// Mock i18nRedirect function to use actual route definitions
+vi.mock('~/.server/utils/route-utils', () => ({
+  i18nRedirect: vi.fn((routeId: string, request: Request | URL | string) => {
+    // Determine language from the request
+    const language = getLanguage(request) ?? 'en';
+
+    // Use the actual route finding logic to get the route
+    const route = findRouteByFile(routeId, i18nRoutes);
+
+    // If route is found, use its path; otherwise fall back to default
+    const redirectPath = route?.paths[language] ?? (language === 'fr' ? '/fr/' : '/en/');
+
+    // Return a Response object for redirection
+    return new Response(null, {
+      status: 302,
+      headers: { Location: redirectPath },
+    });
   }),
 }));
 
@@ -226,7 +250,7 @@ describe('Authentication and Registration Flow - Comprehensive Tests', () => {
       // Assert
       expect(response).toBeInstanceOf(Response);
       expect(response.status).toBe(302);
-      expect(response.headers.get('Location')).toBe('/en/');
+      expect(response.headers.get('Location')).toBe('/en/profile');
 
       // Verify user was registered
       expect(mockUserService.registerUser).toHaveBeenCalledWith({
@@ -257,32 +281,9 @@ describe('Authentication and Registration Flow - Comprehensive Tests', () => {
   });
 
   describe('Hiring Manager Registration Flow', () => {
-    it('should register hiring manager immediately and redirect to dashboard', async () => {
+    it('should register hiring manager immediately and redirect to home page', async () => {
       // Arrange
       const context = createMockContext('test-manager-456', 'John Manager');
-      const request = new Request('http://localhost:3000/en/register?returnto=%2Fen%2Fdashboard', {
-        method: 'POST',
-        body: new URLSearchParams({ role: 'hiring-manager' }),
-      });
-
-      // Act
-      const response = await registerAction({ context, request } as TestRouteArgs);
-
-      // Assert
-      expect(response).toBeInstanceOf(Response);
-      expect(response.status).toBe(302);
-      expect(response.headers.get('Location')).toBe('/en/dashboard');
-
-      // Verify user was registered immediately
-      expect(mockUserService.registerUser).toHaveBeenCalledWith({
-        name: 'John Manager',
-        activeDirectoryId: 'test-manager-456',
-      });
-    });
-
-    it('should default to dashboard if no returnto parameter', async () => {
-      // Arrange
-      const context = createMockContext('test-manager-789', 'Default Manager');
       const request = new Request('http://localhost:3000/en/register', {
         method: 'POST',
         body: new URLSearchParams({ role: 'hiring-manager' }),
@@ -296,9 +297,32 @@ describe('Authentication and Registration Flow - Comprehensive Tests', () => {
       expect(response.status).toBe(302);
       expect(response.headers.get('Location')).toBe('/en/');
 
+      // Verify user was registered immediately
+      expect(mockUserService.registerUser).toHaveBeenCalledWith({
+        name: 'John Manager',
+        activeDirectoryId: 'test-manager-456',
+      });
+    });
+
+    it('should work with French locale', async () => {
+      // Arrange
+      const context = createMockContext('test-manager-789', 'French Manager');
+      const request = new Request('http://localhost:3000/fr/enregistrer', {
+        method: 'POST',
+        body: new URLSearchParams({ role: 'hiring-manager' }),
+      });
+
+      // Act
+      const response = await registerAction({ context, request } as TestRouteArgs);
+
+      // Assert
+      expect(response).toBeInstanceOf(Response);
+      expect(response.status).toBe(302);
+      expect(response.headers.get('Location')).toBe('/fr/');
+
       // Verify user was registered
       expect(mockUserService.registerUser).toHaveBeenCalledWith({
-        name: 'Default Manager',
+        name: 'French Manager',
         activeDirectoryId: 'test-manager-789',
       });
     });
@@ -482,12 +506,11 @@ describe('Authentication and Registration Flow - Comprehensive Tests', () => {
     });
   });
 
-  describe('Return URL Handling', () => {
-    it('should preserve complex return URLs for hiring manager', async () => {
+  describe('Registration Flow Redirects', () => {
+    it('should properly redirect hiring manager to home page after registration (English)', async () => {
       // Arrange
-      const context = createMockContext('test-user-123', 'Complex Manager');
-      const returnUrl = '/en/profile?tab=employment&section=details';
-      const request = new Request(`http://localhost:3000/en/register?returnto=${encodeURIComponent(returnUrl)}`, {
+      const context = createMockContext('test-user-123', 'Hiring Manager');
+      const request = new Request('http://localhost:3000/en/register', {
         method: 'POST',
         body: new URLSearchParams({ role: 'hiring-manager' }),
       });
@@ -498,18 +521,38 @@ describe('Authentication and Registration Flow - Comprehensive Tests', () => {
       // Assert
       expect(response).toBeInstanceOf(Response);
       expect(response.status).toBe(302);
-      expect(response.headers.get('Location')).toBe(returnUrl);
+      expect(response.headers.get('Location')).toBe('/en/');
       expect(mockUserService.registerUser).toHaveBeenCalledWith({
-        name: 'Complex Manager',
+        name: 'Hiring Manager',
         activeDirectoryId: 'test-user-123',
       });
     });
 
-    it('should preserve return URLs through employee privacy consent flow', async () => {
+    it('should properly redirect hiring manager to home page after registration (French)', async () => {
       // Arrange
-      const context = createMockContext('test-user-123', 'Flow Employee');
-      const returnUrl = '/en/dashboard';
-      const request = new Request(`http://localhost:3000/en/register?returnto=${encodeURIComponent(returnUrl)}`, {
+      const context = createMockContext('test-user-fr-123', 'Gestionnaire de recrutement');
+      const request = new Request('http://localhost:3000/fr/enregistrer', {
+        method: 'POST',
+        body: new URLSearchParams({ role: 'hiring-manager' }),
+      });
+
+      // Act
+      const response = await registerAction({ context, request } as TestRouteArgs);
+
+      // Assert
+      expect(response).toBeInstanceOf(Response);
+      expect(response.status).toBe(302);
+      expect(response.headers.get('Location')).toBe('/fr/');
+      expect(mockUserService.registerUser).toHaveBeenCalledWith({
+        name: 'Gestionnaire de recrutement',
+        activeDirectoryId: 'test-user-fr-123',
+      });
+    });
+
+    it('should correctly redirect employee role to privacy consent page (English)', async () => {
+      // Arrange
+      const context = createMockContext('test-user-123', 'Employee User');
+      const request = new Request('http://localhost:3000/en/register', {
         method: 'POST',
         body: new URLSearchParams({ role: 'employee' }),
       });
@@ -520,21 +563,35 @@ describe('Authentication and Registration Flow - Comprehensive Tests', () => {
       // Assert
       expect(response).toBeInstanceOf(Response);
       expect(response.status).toBe(302);
-      expect(response.headers.get('Location')).toBe(`/en/register/privacy-consent?returnto=${encodeURIComponent(returnUrl)}`);
+      expect(response.headers.get('Location')).toBe('/en/register/privacy-consent');
       expect(mockUserService.registerUser).not.toHaveBeenCalled();
     });
 
-    it('should use preserved return URL after employee accepts privacy consent', async () => {
+    it('should correctly redirect employee role to privacy consent page (French)', async () => {
       // Arrange
-      const context = createMockContext('test-user-123', 'Final Employee');
-      const returnUrl = '/en/dashboard';
-      const request = new Request(
-        `http://localhost:3000/en/register/privacy-consent?returnto=${encodeURIComponent(returnUrl)}`,
-        {
-          method: 'POST',
-          body: new URLSearchParams({ action: 'accept' }),
-        },
-      );
+      const context = createMockContext('test-user-fr-123', 'Employé');
+      const request = new Request('http://localhost:3000/fr/enregistrer', {
+        method: 'POST',
+        body: new URLSearchParams({ role: 'employee' }),
+      });
+
+      // Act
+      const response = await registerAction({ context, request } as TestRouteArgs);
+
+      // Assert
+      expect(response).toBeInstanceOf(Response);
+      expect(response.status).toBe(302);
+      expect(response.headers.get('Location')).toBe('/fr/enregistrer/consentement-a-la-confidentialite');
+      expect(mockUserService.registerUser).not.toHaveBeenCalled();
+    });
+
+    it('should redirect to profile page when employee accepts privacy consent (English)', async () => {
+      // Arrange
+      const context = createMockContext('test-user-123', 'Privacy Accepting Employee');
+      const request = new Request('http://localhost:3000/en/register/privacy-consent', {
+        method: 'POST',
+        body: new URLSearchParams({ action: 'accept' }),
+      });
 
       // Act
       const response = await privacyAction({ context, request } as TestRouteArgs);
@@ -542,10 +599,31 @@ describe('Authentication and Registration Flow - Comprehensive Tests', () => {
       // Assert
       expect(response).toBeInstanceOf(Response);
       expect(response.status).toBe(302);
-      expect(response.headers.get('Location')).toBe(returnUrl);
+      expect(response.headers.get('Location')).toBe('/en/profile');
       expect(mockUserService.registerUser).toHaveBeenCalledWith({
-        name: 'Final Employee',
+        name: 'Privacy Accepting Employee',
         activeDirectoryId: 'test-user-123',
+      });
+    });
+
+    it('should redirect to profile page when employee accepts privacy consent (French)', async () => {
+      // Arrange
+      const context = createMockContext('test-user-fr-123', 'Employé acceptant la confidentialité');
+      const request = new Request('http://localhost:3000/fr/enregistrer/consentement-a-la-confidentialite', {
+        method: 'POST',
+        body: new URLSearchParams({ action: 'accept' }),
+      });
+
+      // Act
+      const response = await privacyAction({ context, request } as TestRouteArgs);
+
+      // Assert
+      expect(response).toBeInstanceOf(Response);
+      expect(response.status).toBe(302);
+      expect(response.headers.get('Location')).toBe('/fr/profil');
+      expect(mockUserService.registerUser).toHaveBeenCalledWith({
+        name: 'Employé acceptant la confidentialité',
+        activeDirectoryId: 'test-user-fr-123',
       });
     });
   });
