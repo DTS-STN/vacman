@@ -1,10 +1,11 @@
 import type { RouteHandle } from 'react-router';
-import { Form } from 'react-router';
+import { Form, redirect } from 'react-router';
 
 import type { Route } from './+types/privacy-consent';
 
-import { requireAllRoles } from '~/.server/utils/auth-utils';
-import { i18nRedirect } from '~/.server/utils/route-utils';
+import { getUserService } from '~/.server/domain/services/user-service';
+import { requireAuthentication } from '~/.server/utils/auth-utils';
+import { requireUnregisteredUser } from '~/.server/utils/user-registration-utils';
 import { Button } from '~/components/button';
 import { ButtonLink } from '~/components/button-link';
 import { getTranslation } from '~/i18n-config.server';
@@ -18,23 +19,41 @@ export function meta({ data }: Route.MetaArgs) {
   return [{ title: data?.documentTitle }];
 }
 
-export function action({ context, params, request }: Route.ActionArgs) {
-  requireAllRoles(context.session, new URL(request.url), ['employee']);
-  /*
-  TODO: Add validation schema
+export async function action({ context, request }: Route.ActionArgs) {
+  // Ensure user is authenticated (no specific roles required)
+  requireAuthentication(context.session, new URL(request.url));
+
   const formData = await request.formData();
-  */
-  throw i18nRedirect('routes/profile/index.tsx', request);
-  /*
-  TODO: send POST request to register the user as employee
-  */
+  const action = formData.get('action');
+
+  if (action === 'accept') {
+    // Register the user as an employee after accepting privacy consent
+    const userService = getUserService();
+    const activeDirectoryId = context.session.authState.idTokenClaims.sub;
+    const name = context.session.authState.idTokenClaims.name ?? 'Unknown User';
+
+    await userService.registerUser({
+      name,
+      activeDirectoryId,
+    });
+
+    // Get the return URL from the query parameters or default to dashboard
+    const url = new URL(request.url);
+    const returnTo = url.searchParams.get('returnto') ?? '/en/';
+
+    return redirect(returnTo);
+  }
+
+  // If declined, redirect back to registration page
+  return redirect('/en/register');
 }
 
 export async function loader({ context, request }: Route.LoaderArgs) {
-  requireAllRoles(context.session, new URL(request.url), ['employee']);
+  requireAuthentication(context.session, new URL(request.url));
+  await requireUnregisteredUser(context.session, new URL(request.url));
 
   const { t } = await getTranslation(request, handle.i18nNamespace);
-  return { documentTitle: t('app:index.about'), defaultValues: {} };
+  return { documentTitle: t('app:register.page-title') };
 }
 
 export default function PrivacyConsent({ loaderData, params }: Route.ComponentProps) {
@@ -54,7 +73,7 @@ export default function PrivacyConsent({ loaderData, params }: Route.ComponentPr
             taciti sociosqu. Ad litora torquent per conubia nostra inceptos himenaeos.
           </p>
           <div className="mt-8 flex flex-row-reverse flex-wrap items-center justify-end gap-3">
-            <Button name="action" variant="primary" id="continue-button">
+            <Button name="action" value="accept" variant="primary" id="continue-button">
               Accept
             </Button>
             <ButtonLink file="routes/register/index.tsx" id="back-button">
