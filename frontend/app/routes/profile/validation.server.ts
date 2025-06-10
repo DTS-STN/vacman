@@ -6,7 +6,8 @@ import { getLanguageForCorrespondenceService } from '~/.server/domain/services/l
 import { isValidPhone } from '~/utils/phone-utils';
 import { REGEX_PATTERNS } from '~/utils/regex-utils';
 
-const languagesOfCorrespondence = await getLanguageForCorrespondenceService().getLanguagesOfCorrespondence();
+const allLanguagesOfCorrespondance = await getLanguageForCorrespondenceService().getAll();
+const languagesOfCorrespondence = allLanguagesOfCorrespondance.unwrap();
 const allEducationLevels = await getEducationLevelService().getAll();
 const educationLevels = allEducationLevels.unwrap();
 

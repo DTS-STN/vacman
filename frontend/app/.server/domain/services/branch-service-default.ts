@@ -14,8 +14,7 @@ export function getDefaultBranchService(): BranchService {
     /**
      * Retrieves a list of all esdc branches.
      *
-     * @returns An array of esdc branch objects.
-     * @throws AppError if the request fails or if the server responds with an error status.
+     * @returns An array of esdc branch objects or {AppError} if the request fails or if the server responds with an error status.
      */
 
     async getAll(): Promise<Result<readonly Branch[], AppError>> {
@@ -81,7 +80,6 @@ export function getDefaultBranchService(): BranchService {
      *
      * @param id The ID of the branch to retrieve.
      * @returns The branch object if found or undefined if not found.
-     * @throws {AppError} If the request fails or if the server responds with an error status.
      */
 
     async findById(id: string): Promise<Option<Branch>> {
@@ -99,8 +97,7 @@ export function getDefaultBranchService(): BranchService {
      * Retrieves a list of branches localized to the specified language.
      *
      * @param language The language to localize the branch names to.
-     * @returns An array of localized branch objects.
-     * @throws AppError if the request fails or if the server responds with an error status.
+     * @returns An array of localized branch objects or {AppError} if the request fails or if the server responds with an error status.
      */
 
     async getAllLocalized(language: Language): Promise<Result<readonly LocalizedBranch[], AppError>> {
@@ -119,8 +116,7 @@ export function getDefaultBranchService(): BranchService {
      *
      * @param id The ID of the branch to retrieve.
      * @param language The language to localize the branch name to.
-     * @returns The localized branch object if found.
-     * @throws {AppError} If the branch is not found or if the request fails or if the server responds with an error status.
+     * @returns The localized branch object if found or {AppError} If the branch is not found or if the request fails or if the server responds with an error status.
      */
 
     async getLocalizedById(id: string, language: Language): Promise<Result<LocalizedBranch, AppError>> {

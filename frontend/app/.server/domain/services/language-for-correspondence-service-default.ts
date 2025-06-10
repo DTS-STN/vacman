@@ -1,3 +1,6 @@
+import type { Result, Option } from 'oxide.ts';
+import { Some, None, Ok, Err } from 'oxide.ts';
+
 import type { LanguageOfCorrespondence, LocalizedLanguageOfCorrespondence } from '~/.server/domain/models';
 import type { LanguageForCorrespondenceService } from '~/.server/domain/services/language-for-correspondence-service';
 import { serverEnvironment } from '~/.server/environment';
@@ -11,52 +14,106 @@ export function getDefaultLanguageForCorrespondenceService(): LanguageForCorresp
     /**
      * Retrieves a list of languages of correspondence.
      *
-     * @returns An array of language of correspondence objects.
+     * @returns An array of language of correspondence objects or {AppError} if the request fails or if the server responds with an error status.
      */
-    async getLanguagesOfCorrespondence(): Promise<readonly LanguageOfCorrespondence[]> {
-      const response = await fetch(`${serverEnvironment.VACMAN_API_BASE_URI}/languagesOfCorrespondance`);
+    async getAll(): Promise<Result<readonly LanguageOfCorrespondence[], AppError>> {
+      try {
+        const response = await fetch(`${serverEnvironment.VACMAN_API_BASE_URI}/languagesOfCorrespondance`);
 
-      if (!response.ok) {
-        const errorMessage = `Failed to retrieve all Languages. Server responded with status ${response.status}.`;
-        throw new AppError(errorMessage, ErrorCodes.VACMAN_API_ERROR);
+        if (!response.ok) {
+          return Err(
+            new AppError(
+              `Failed to retrieve all Languages of Correspondance. Server responded with status ${response.status}.`,
+              ErrorCodes.VACMAN_API_ERROR,
+            ),
+          );
+        }
+
+        const data: LanguageOfCorrespondence[] = await response.json();
+        return Ok(data);
+      } catch (error) {
+        return Err(
+          new AppError(
+            `Unexpected error occurred while fetching Languages of Correspondance: ${String(error)}`,
+            ErrorCodes.VACMAN_API_ERROR,
+          ),
+        );
       }
-
-      return await response.json();
     },
 
     /**
      * Retrieves a single language of correspondence by its ID.
      *
      * @param id The ID of the language of correspondence to retrieve.
-     * @returns The language of correspondence object if found.
+     * @returns The language of correspondence object if found or {AppError} If the language of correspondence is not found or if the request fails or if the server responds with an error status.
      */
-    async getLanguageOfCorrespondenceById(id: string): Promise<LanguageOfCorrespondence | undefined> {
-      const response = await fetch(`${serverEnvironment.VACMAN_API_BASE_URI}/languagesOfCorrespondance/${id}`);
+    async getById(id: string): Promise<Result<LanguageOfCorrespondence, AppError>> {
+      try {
+        const response = await fetch(`${serverEnvironment.VACMAN_API_BASE_URI}/languagesOfCorrespondance/${id}`);
 
-      if (response.status === HttpStatusCodes.NOT_FOUND) {
-        return undefined;
+        if (response.status === HttpStatusCodes.NOT_FOUND) {
+          return Err(
+            new AppError(
+              `Language of Correspondance with ID '${id}' not found.`,
+              ErrorCodes.NO_LANGUAGE_OF_CORRESPONDENCE_FOUND,
+            ),
+          );
+        }
+
+        if (!response.ok) {
+          return Err(
+            new AppError(
+              `Failed to find the Language of Correspondance with ID '${id}'. Server responded with status ${response.status}.`,
+              ErrorCodes.VACMAN_API_ERROR,
+            ),
+          );
+        }
+
+        const data: LanguageOfCorrespondence = await response.json();
+        return Ok(data);
+      } catch (error) {
+        return Err(
+          new AppError(
+            `Unexpected error occurred while fetching Language of Correspondance by ID: ${String(error)}`,
+            ErrorCodes.VACMAN_API_ERROR,
+          ),
+        );
+      }
+    },
+
+    /**
+     * Retrieves a single language of correspondence by its ID.
+     *
+     * @param id The ID of the language of correspondence to retrieve.
+     * @returns The language of correspondence object if found or undefined if not found.
+     */
+
+    async findById(id: string): Promise<Option<LanguageOfCorrespondence>> {
+      const result = await getDefaultLanguageForCorrespondenceService().getAll();
+
+      if (result.isErr()) {
+        return None;
       }
 
-      if (!response.ok) {
-        const errorMessage = `Failed to find the Language with ID '${id}'. Server responded with status ${response.status}.`;
-        throw new AppError(errorMessage, ErrorCodes.VACMAN_API_ERROR);
-      }
-
-      return await response.json();
+      const found = result.unwrap().find((languageOfCorrespondence) => languageOfCorrespondence.id === id);
+      return found ? Some(found) : None;
     },
 
     /**
      * Retrieves a list of languages of correspondence localized to the specified language.
      *
      * @param language The language to localize the language names to.
-     * @returns An array of localized language of correspondence objects.
+     * @returns An array of localized language of correspondence objects or {AppError} if the request fails or if the server responds with an error status.
      */
-    async getLocalizedLanguageOfCorrespondence(language: Language): Promise<readonly LocalizedLanguageOfCorrespondence[]> {
-      const response = await getDefaultLanguageForCorrespondenceService().getLanguagesOfCorrespondence();
-      return response.map((option) => ({
-        id: option.id,
-        name: language === 'fr' ? option.nameFr : option.nameEn,
-      }));
+    async getAllLocalized(language: Language): Promise<Result<readonly LocalizedLanguageOfCorrespondence[], AppError>> {
+      const result = await getDefaultLanguageForCorrespondenceService().getAll();
+
+      return result.map((languagesOfCorrespondence) =>
+        languagesOfCorrespondence.map((languageOfCorrespondence) => ({
+          id: languageOfCorrespondence.id,
+          name: language === 'fr' ? languageOfCorrespondence.nameFr : languageOfCorrespondence.nameEn,
+        })),
+      );
     },
 
     /**
@@ -64,22 +121,15 @@ export function getDefaultLanguageForCorrespondenceService(): LanguageForCorresp
      *
      * @param id The ID of the localized language of correspondence to retrieve.
      * @param language The language to localize the language names to.
-     * @returns The localized language of correspondence object if found.
+     * @returns The localized language of correspondence object if found or {AppError} If the language of correspondence is not found or if the request fails or if the server responds with an error status.
      */
-    async getLocalizedLanguageOfCorrespondenceById(
-      id: string,
-      language: Language,
-    ): Promise<LocalizedLanguageOfCorrespondence | undefined> {
-      const localizedLanguages =
-        await getDefaultLanguageForCorrespondenceService().getLocalizedLanguageOfCorrespondence(language);
-      const languageOfCorrespondence = localizedLanguages.find((l) => l.id === id);
-      if (!languageOfCorrespondence) {
-        throw new AppError(
-          `Language of correspondence with ID '${id}' not found.`,
-          ErrorCodes.NO_LANGUAGE_OF_CORRESPONDENCE_FOUND,
-        );
-      }
-      return languageOfCorrespondence;
+    async getLocalizedById(id: string, language: Language): Promise<Result<LocalizedLanguageOfCorrespondence, AppError>> {
+      const result = await getDefaultLanguageForCorrespondenceService().getById(id);
+
+      return result.map((languageOfCorrespondence) => ({
+        id: languageOfCorrespondence.id,
+        name: language === 'fr' ? languageOfCorrespondence.nameFr : languageOfCorrespondence.nameEn,
+      }));
     },
   };
 }

@@ -1,16 +1,17 @@
+import type { Result, Option } from 'oxide.ts';
+
 import type { LanguageOfCorrespondence, LocalizedLanguageOfCorrespondence } from '~/.server/domain/models';
 import { getDefaultLanguageForCorrespondenceService } from '~/.server/domain/services/language-for-correspondence-service-default';
 import { getMockLanguageForCorrespondenceService } from '~/.server/domain/services/language-for-correspondence-service-mock';
 import { serverEnvironment } from '~/.server/environment';
+import type { AppError } from '~/errors/app-error';
 
 export type LanguageForCorrespondenceService = {
-  getLanguagesOfCorrespondence(): Promise<readonly LanguageOfCorrespondence[]>;
-  getLanguageOfCorrespondenceById(id: string): Promise<LanguageOfCorrespondence | undefined>;
-  getLocalizedLanguageOfCorrespondence(language: Language): Promise<readonly LocalizedLanguageOfCorrespondence[]>;
-  getLocalizedLanguageOfCorrespondenceById(
-    id: string,
-    language: Language,
-  ): Promise<LocalizedLanguageOfCorrespondence | undefined>;
+  getAll(): Promise<Result<readonly LanguageOfCorrespondence[], AppError>>;
+  getById(id: string): Promise<Result<LanguageOfCorrespondence, AppError>>;
+  findById(id: string): Promise<Option<LanguageOfCorrespondence>>;
+  getAllLocalized(language: Language): Promise<Result<readonly LocalizedLanguageOfCorrespondence[], AppError>>;
+  getLocalizedById(id: string, language: Language): Promise<Result<LocalizedLanguageOfCorrespondence, AppError>>;
 };
 
 export function getLanguageForCorrespondenceService(): LanguageForCorrespondenceService {
