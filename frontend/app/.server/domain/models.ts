@@ -20,13 +20,13 @@ export type Classification = Readonly<{
   name: string;
 }>;
 
-export type CurrentWFAStatus = Readonly<{
+export type WFAStatus = Readonly<{
   id: string;
   nameEn: string;
   nameFr: string;
 }>;
 
-export type LocalizedCurrentWFAStatus = Readonly<{
+export type LocalizedWFAStatus = Readonly<{
   id: string;
   name: string;
 }>;
