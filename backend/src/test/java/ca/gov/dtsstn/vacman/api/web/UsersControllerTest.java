@@ -61,10 +61,12 @@ class UsersControllerTest {
 	void getUsers_shouldReturnPaginatedUserCollection() throws Exception {
 		final var mockUsers = List.of(
 			new UserEntityBuilder()
-				.name("User One")
+				.firstName("User")
+				.lastName("One")
 				.build(),
 			new UserEntityBuilder()
-				.name("User Two")
+				.firstName("User")
+				.firstName("Two")
 				.build());
 
 		final var pageable = PageRequest.of(0, 2);
@@ -87,7 +89,8 @@ class UsersControllerTest {
 	@DisplayName("POST /api/v1/users - Should create and return new user")
 	void createUser_shouldCreateUser() throws Exception {
 		final var mockUser = new UserEntityBuilder()
-			.name("Test User")
+			.firstName("Test")
+			.lastName("User")
 			.build();
 
 		when(userService.createUser(any(UserEntity.class))).thenReturn(mockUser);
@@ -101,7 +104,8 @@ class UsersControllerTest {
 			.andExpect(content().json(objectMapper.writeValueAsString(expectedResponse)));
 
 		verify(userService).createUser(new UserEntityBuilder()
-			.name("Test User")
+			.firstName("Test")
+			.lastName("User")
 			.build());
 	}
 
