@@ -41,13 +41,13 @@ public class CityController {
 			@Parameter(description = "City code to filter by (e.g., 'OT' for Ottawa)") String code) {
 		if (isNotBlank(code)) {
 			return new CollectionModel<>(cityService.getCityByCode(code)
-				.map(cityModelMapper::toModel)
-				.map(List::of)
-				.orElse(List.of()));
+					.map(cityModelMapper::toModel)
+					.map(List::of)
+					.orElse(List.of()));
 		}
 
 		return new CollectionModel<>(cityService.getAllCities().stream()
-			.map(cityModelMapper::toModel)
-			.toList());
+				.map(cityModelMapper::toModel)
+				.toList());
 	}
 }
