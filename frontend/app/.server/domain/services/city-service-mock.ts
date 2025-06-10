@@ -1,3 +1,6 @@
+import type { Result, Option } from 'oxide.ts';
+import { Err, None, Ok, Some } from 'oxide.ts';
+
 import type { City } from '~/.server/domain/models';
 import type { CityService } from '~/.server/domain/services/city-service';
 import esdcCitiesData from '~/.server/resources/cities.json';
@@ -6,9 +9,10 @@ import { ErrorCodes } from '~/errors/error-codes';
 
 export function getMockCityService(): CityService {
   return {
-    getCities: () => Promise.resolve(getCities()),
-    getCityById: (id: string) => Promise.resolve(getCityById(id)),
-    getCityByProvinceId: (provinceId: string) => Promise.resolve(getCityByProvinceId(provinceId)),
+    getAll: () => Promise.resolve(getAll()),
+    getById: (id: string) => Promise.resolve(getById(id)),
+    findById: (id: string) => Promise.resolve(findById(id)),
+    getAllByProvinceId: (provinceId: string) => Promise.resolve(getAllByProvinceId(provinceId)),
   };
 }
 
@@ -17,27 +21,51 @@ export function getMockCityService(): CityService {
  *
  * @returns An array of cities objects.
  */
-function getCities(): readonly City[] {
-  return esdcCitiesData.content.map((city) => ({
+function getAll(): Result<readonly City[], AppError> {
+  const cities: City[] = esdcCitiesData.content.map((city) => ({
     id: city.id.toString(),
     provinceId: city.provinceId,
     name: city.name,
   }));
+
+  return Ok(cities);
 }
 
 /**
  * Retrieves a single city by its ID.
  *
  * @param id The ID of the city to retrieve.
- * @returns The city object if found.
- * @throws {AppError} If the city is not found.
+ * @returns The city object if found or {AppError} If the city is not found.
  */
-function getCityById(id: string): City {
-  const city = getCities().find((p) => p.id === id);
-  if (!city) {
-    throw new AppError(`City with ID '${id}' not found.`, ErrorCodes.NO_CITY_FOUND);
+function getById(id: string): Result<City, AppError> {
+  const result = getAll();
+
+  if (result.isErr()) {
+    return result;
   }
-  return city;
+
+  const cities = result.unwrap();
+  const city = cities.find((p) => p.id === id);
+
+  return city ? Ok(city) : Err(new AppError(`City with ID '${id}' not found.`, ErrorCodes.NO_CITY_FOUND));
+}
+
+/**
+ * Retrieves a single city by its ID.
+ *
+ * @param id The ID of the city to retrieve.
+ * @returns The city object if found or undefined if not found.
+ */
+function findById(id: string): Option<City> {
+  const result = getAll();
+
+  if (result.isErr()) {
+    return None;
+  }
+  const cities = result.unwrap();
+  const city = cities.find((p) => p.id === id);
+
+  return city ? Some(city) : None;
 }
 
 /**
@@ -46,12 +74,22 @@ function getCityById(id: string): City {
  * @param provinceId The ID of the province to retrieve cities.
  * @returns An array of cities objects.
  */
-function getCityByProvinceId(provinceId: string): readonly City[] {
-  return getCities()
+function getAllByProvinceId(provinceId: string): Result<readonly City[], AppError> {
+  const result = getAll();
+
+  if (result.isErr()) {
+    return result;
+  }
+
+  const allCities = result.unwrap();
+
+  const cities = allCities
     .filter((c) => c.provinceId === provinceId)
     .map((city) => ({
       id: city.id.toString(),
       provinceId: city.provinceId,
       name: city.name,
     }));
+
+  return Ok(cities);
 }
