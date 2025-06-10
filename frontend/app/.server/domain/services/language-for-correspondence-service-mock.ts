@@ -1,3 +1,6 @@
+import type { Result, Option } from 'oxide.ts';
+import { Err, None, Ok, Some } from 'oxide.ts';
+
 import type { LanguageOfCorrespondence, LocalizedLanguageOfCorrespondence } from '~/.server/domain/models';
 import type { LanguageForCorrespondenceService } from '~/.server/domain/services/language-for-correspondence-service';
 import esdcLanguageOfCorrespondenceData from '~/.server/resources/preferredLanguageForCorrespondence.json';
@@ -6,11 +9,11 @@ import { ErrorCodes } from '~/errors/error-codes';
 
 export function getMockLanguageForCorrespondenceService(): LanguageForCorrespondenceService {
   return {
-    getLanguagesOfCorrespondence: () => Promise.resolve(getLanguagesOfCorrespondence()),
-    getLanguageOfCorrespondenceById: (id) => Promise.resolve(getLanguageOfCorrespondenceById(id)),
-    getLocalizedLanguageOfCorrespondence: (language) => Promise.resolve(getLocalizedLanguageOfCorrespondence(language)),
-    getLocalizedLanguageOfCorrespondenceById: (id, language) =>
-      Promise.resolve(getLocalizedLanguageOfCorrespondenceById(id, language)),
+    getAll: () => Promise.resolve(getAll()),
+    getById: (id: string) => Promise.resolve(getById(id)),
+    findById: (id: string) => Promise.resolve(findById(id)),
+    getAllLocalized: (language: Language) => Promise.resolve(getAllLocalized(language)),
+    getLocalizedById: (id: string, language: Language) => Promise.resolve(getLocalizedById(id, language)),
   };
 }
 
@@ -19,27 +22,56 @@ export function getMockLanguageForCorrespondenceService(): LanguageForCorrespond
  *
  * @returns An array of language of correspondence objects.
  */
-function getLanguagesOfCorrespondence(): readonly LanguageOfCorrespondence[] {
-  return esdcLanguageOfCorrespondenceData.content.map((option) => ({
+function getAll(): Result<readonly LanguageOfCorrespondence[], AppError> {
+  const languages: LanguageOfCorrespondence[] = esdcLanguageOfCorrespondenceData.content.map((option) => ({
     id: option.id.toString(),
     nameEn: option.nameEn,
     nameFr: option.nameFr,
   }));
+
+  return Ok(languages);
 }
 
 /**
  * Retrieves a single language of correspondence by its ID.
  *
  * @param id The ID of the language of correspondence to retrieve.
- * @returns The language of correspondence object if found.
- * @throws {AppError} If the language of correspondence is not found.
+ * @returns The language of correspondence object if found or {AppError} If the language of correspondence is not found.
  */
-function getLanguageOfCorrespondenceById(id: string): LanguageOfCorrespondence {
-  const languagesOfCorrespondence = getLanguagesOfCorrespondence().find((l) => l.id === id);
-  if (!languagesOfCorrespondence) {
-    throw new AppError(`Language of correspondence with ID '${id}' not found.`, ErrorCodes.NO_LANGUAGE_OF_CORRESPONDENCE_FOUND);
+function getById(id: string): Result<LanguageOfCorrespondence, AppError> {
+  const result = getAll();
+
+  if (result.isErr()) {
+    return result;
   }
-  return languagesOfCorrespondence;
+
+  const languagesOfCorrespondence = result.unwrap();
+  const languageOfCorrespondence = languagesOfCorrespondence.find((l) => l.id === id);
+
+  return languageOfCorrespondence
+    ? Ok(languageOfCorrespondence)
+    : Err(
+        new AppError(`Language of correspondence with ID '${id}' not found.`, ErrorCodes.NO_LANGUAGE_OF_CORRESPONDENCE_FOUND),
+      );
+}
+
+/**
+ * Retrieves a single language of correspondence by its ID.
+ *
+ * @param id The ID of the language of correspondence to retrieve.
+ * @returns The language of correspondence object if found or undefined if not found.
+ */
+function findById(id: string): Option<LanguageOfCorrespondence> {
+  const result = getAll();
+
+  if (result.isErr()) {
+    return None;
+  }
+
+  const languagesOfCorrespondence = result.unwrap();
+  const languageOfCorrespondence = languagesOfCorrespondence.find((l) => l.id === id);
+
+  return languageOfCorrespondence ? Some(languageOfCorrespondence) : None;
 }
 
 /**
@@ -48,11 +80,15 @@ function getLanguageOfCorrespondenceById(id: string): LanguageOfCorrespondence {
  * @param language The language to localize the language names to.
  * @returns An array of localized language of correspondence objects.
  */
-function getLocalizedLanguageOfCorrespondence(language: Language): LocalizedLanguageOfCorrespondence[] {
-  return getLanguagesOfCorrespondence().map((option) => ({
-    id: option.id,
-    name: language === 'fr' ? option.nameFr : option.nameEn,
-  }));
+function getAllLocalized(language: Language): Result<readonly LocalizedLanguageOfCorrespondence[], AppError> {
+  return getAll().map((options) =>
+    options
+      .map((option) => ({
+        id: option.id,
+        name: language === 'fr' ? option.nameFr : option.nameEn,
+      }))
+      .sort((a, b) => a.name.localeCompare(b.name, language, { sensitivity: 'base' })),
+  );
 }
 
 /**
@@ -60,16 +96,19 @@ function getLocalizedLanguageOfCorrespondence(language: Language): LocalizedLang
  *
  * @param id The ID of the language of correspondence to retrieve.
  * @param language The language to localize the language name to.
- * @returns The localized language of correspondence object if found.
- * @throws {AppError} If the language of correspondence is not found.
+ * @returns The localized language of correspondence object if found or {AppError} If the language of correspondence is not found.
  */
-function getLocalizedLanguageOfCorrespondenceById(id: string, language: Language): LocalizedLanguageOfCorrespondence {
-  const languagesOfCorrespondence = getLocalizedLanguageOfCorrespondence(language).find((l) => l.id === id);
-  if (!languagesOfCorrespondence) {
-    throw new AppError(
-      `Localized language of correspondence with ID '${id}' not found.`,
-      ErrorCodes.NO_LANGUAGE_OF_CORRESPONDENCE_FOUND,
-    );
-  }
-  return languagesOfCorrespondence;
+function getLocalizedById(id: string, language: Language): Result<LocalizedLanguageOfCorrespondence, AppError> {
+  return getAllLocalized(language).andThen((languagesOfCorrespondence) => {
+    const languageOfCorrespondence = languagesOfCorrespondence.find((b) => b.id === id);
+
+    return languageOfCorrespondence
+      ? Ok(languageOfCorrespondence)
+      : Err(
+          new AppError(
+            `Localized language of correspondence with ID '${id}' not found.`,
+            ErrorCodes.NO_LANGUAGE_OF_CORRESPONDENCE_FOUND,
+          ),
+        );
+  });
 }
