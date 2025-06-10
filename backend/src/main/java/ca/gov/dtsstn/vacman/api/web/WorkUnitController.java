@@ -44,7 +44,7 @@ public class WorkUnitController {
             return workUnitService.getWorkUnitByCode(code)
                 .map(workUnitModelMapper::toModel)
                 .map(List::of)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Work unit with code '" + code + "' not found"));
+                .orElse(List.of()); // TODO: Return empty list if nothing found? Or throw exception?
         }
         
         return workUnitService.getAllWorkUnits().stream()
