@@ -13,10 +13,10 @@ public record LanguageReferralTypeReadModel(
     @Schema(description = "The code of this language referral type.", example = "EN")
     String code,
 
-    @Schema(description = "The English name of this language referral type.", example = "English Only")
+    @Schema(description = "The English name of this language referral type.", example = "Bilingual")
     String nameEn,
 
-    @Schema(description = "The French name of this language referral type.", example = "Anglais...only")
+    @Schema(description = "The French name of this language referral type.", example = "Bilingue")
     String nameFr,
 
     @Schema(accessMode = AccessMode.READ_ONLY, description = "The user or service that created this language referral type.", example = "vacman-api")
