@@ -53,6 +53,17 @@ export type LocalizedEducationLevel = Readonly<{
   name: string;
 }>;
 
+export type EmploymentTenure = Readonly<{
+  id: string;
+  nameEn: string;
+  nameFr: string;
+}>;
+
+export type LocalizedEmploymentTenure = Readonly<{
+  id: string;
+  name: string;
+}>;
+
 export type OpportunityType = Readonly<{
   id: string;
   nameEn: string;
