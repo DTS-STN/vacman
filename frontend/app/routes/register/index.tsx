@@ -26,6 +26,8 @@ export const handle = {
 export async function action({ context, request }: Route.ActionArgs) {
   // Ensure user is authenticated (no specific roles required)
   requireAuthentication(context.session, new URL(request.url));
+  // Ensure user is unregistered
+  requireUnregisteredUser(context.session, new URL(request.url));
 
   const formData = await request.formData();
   const role = formData.get('role');
@@ -76,46 +78,23 @@ export default function Index() {
       <PageTitle className="after:w-14">{t('app:register.page-title')}</PageTitle>
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <EmployeeCard icon={faUserPlus} title={t('app:register.employee')} />
-        <HiringManagerCard icon={faMagnifyingGlass} title={t('app:register.hiring-manager')} />
+        <RoleCard userRole="employee" icon={faUserPlus} title={t('app:register.employee')} />
+        <RoleCard userRole="hiring-manager" icon={faMagnifyingGlass} title={t('app:register.hiring-manager')} />
       </div>
     </div>
   );
 }
 
-interface EmployeeCardProps {
+interface RoleCardProps {
+  userRole: 'employee' | 'hiring-manager';
   icon: IconProp;
   title: string;
 }
 
-function EmployeeCard({ icon, title }: EmployeeCardProps): JSX.Element {
+function RoleCard({ userRole, icon, title }: RoleCardProps): JSX.Element {
   return (
     <Form method="post">
-      <input type="hidden" name="role" value="employee" />
-      <Card asChild className="flex cursor-pointer items-center gap-4 p-4 transition-colors hover:bg-gray-50 sm:p-6">
-        <button type="submit" className="w-full text-left">
-          <CardIcon icon={icon} />
-          <CardHeader className="p-0">
-            <CardTitle className="flex items-center gap-2">
-              <span>{title}</span>
-              <FontAwesomeIcon icon={faChevronRight} />
-            </CardTitle>
-          </CardHeader>
-        </button>
-      </Card>
-    </Form>
-  );
-}
-
-interface HiringManagerCardProps {
-  icon: IconProp;
-  title: string;
-}
-
-function HiringManagerCard({ icon, title }: HiringManagerCardProps): JSX.Element {
-  return (
-    <Form method="post">
-      <input type="hidden" name="role" value="hiring-manager" />
+      <input type="hidden" name="role" value={userRole} />
       <Card asChild className="flex cursor-pointer items-center gap-4 p-4 transition-colors hover:bg-gray-50 sm:p-6">
         <button type="submit" className="w-full text-left">
           <CardIcon icon={icon} />

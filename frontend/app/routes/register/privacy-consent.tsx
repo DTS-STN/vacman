@@ -23,6 +23,8 @@ export function meta({ data }: Route.MetaArgs) {
 export async function action({ context, request }: Route.ActionArgs) {
   // Ensure user is authenticated (no specific roles required)
   requireAuthentication(context.session, new URL(request.url));
+  // Ensure user is unregistered
+  requireUnregisteredUser(context.session, new URL(request.url));
 
   const formData = await request.formData();
   const action = formData.get('action');
