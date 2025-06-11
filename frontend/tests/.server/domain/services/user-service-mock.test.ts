@@ -57,7 +57,7 @@ describe('getMockUserService', () => {
   describe('registerUser', () => {
     it('should create a new user with generated metadata', async () => {
       const userData = { name: 'Test User', activeDirectoryId: 'test-user-123' };
-      
+
       // Create a mock session for testing
       const mockSession: AuthenticatedSession = {
         authState: {
@@ -83,7 +83,7 @@ describe('getMockUserService', () => {
           idToken: 'mock-id-token',
         },
       } as AuthenticatedSession;
-      
+
       const createdUser = await service.registerUser(userData, mockSession, 'employee');
 
       expect(createdUser.id).toBeDefined();

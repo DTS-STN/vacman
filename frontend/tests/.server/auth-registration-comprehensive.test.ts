@@ -227,7 +227,7 @@ describe('Authentication and Registration Flow - Comprehensive Tests', () => {
           idToken: 'mock-id-token',
         },
       } as unknown as AuthenticatedSession;
-      
+
       await userService.registerUser(newUserData, mockSession2, 'employee');
 
       // Try to find them by Active Directory ID
@@ -336,7 +336,7 @@ describe('Authentication and Registration Flow - Comprehensive Tests', () => {
           activeDirectoryId: 'test-user-123',
         },
         expect.any(Object), // session object
-        'employee'
+        'employee',
       );
     });
 
@@ -385,7 +385,7 @@ describe('Authentication and Registration Flow - Comprehensive Tests', () => {
           activeDirectoryId: 'test-manager-456',
         },
         expect.any(Object), // session object
-        'hiring-manager'
+        'hiring-manager',
       );
     });
 
@@ -412,7 +412,7 @@ describe('Authentication and Registration Flow - Comprehensive Tests', () => {
           activeDirectoryId: 'test-manager-789',
         },
         expect.any(Object), // session object
-        'hiring-manager'
+        'hiring-manager',
       );
     });
   });
@@ -424,7 +424,7 @@ describe('Authentication and Registration Flow - Comprehensive Tests', () => {
         const context = createMockContext('unregistered-user');
         // Override the roles to simulate an unregistered user
         context.session.authState.accessTokenClaims.roles = [];
-        
+
         const request = new Request('http://localhost:3000/en/register');
 
         // Mock user as not registered
@@ -464,7 +464,7 @@ describe('Authentication and Registration Flow - Comprehensive Tests', () => {
         const context = createMockContext('unregistered-user');
         // Override the roles to simulate an unregistered user
         context.session.authState.accessTokenClaims.roles = [];
-        
+
         const request = new Request('http://localhost:3000/en/register/privacy-consent');
 
         // Mock user as not registered
@@ -561,7 +561,7 @@ describe('Authentication and Registration Flow - Comprehensive Tests', () => {
             activeDirectoryId: 'test-user-123',
           },
           expect.any(Object), // session object
-          'hiring-manager'
+          'hiring-manager',
         );
       });
     });
@@ -627,7 +627,7 @@ describe('Authentication and Registration Flow - Comprehensive Tests', () => {
           activeDirectoryId: 'test-user-123',
         },
         expect.any(Object), // session object
-        'hiring-manager'
+        'hiring-manager',
       );
     });
 
@@ -652,7 +652,7 @@ describe('Authentication and Registration Flow - Comprehensive Tests', () => {
           activeDirectoryId: 'test-user-fr-123',
         },
         expect.any(Object), // session object
-        'hiring-manager'
+        'hiring-manager',
       );
     });
 
@@ -713,7 +713,7 @@ describe('Authentication and Registration Flow - Comprehensive Tests', () => {
           activeDirectoryId: 'test-user-123',
         },
         expect.any(Object), // session object
-        'employee'
+        'employee',
       );
     });
 
@@ -738,7 +738,7 @@ describe('Authentication and Registration Flow - Comprehensive Tests', () => {
           activeDirectoryId: 'test-user-fr-123',
         },
         expect.any(Object), // session object
-        'employee'
+        'employee',
       );
     });
   });
