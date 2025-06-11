@@ -77,14 +77,14 @@ export type LocalizedOpportunityType = Readonly<{
 
 export type Province = Readonly<{
   id: string;
-  alphaCode: string;
+  code: string;
   nameEn: string;
   nameFr: string;
 }>;
 
 export type LocalizedProvince = Readonly<{
   id: string;
-  alphaCode: string;
+  code: string;
   name: string;
 }>;
 
