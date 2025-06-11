@@ -15,14 +15,14 @@ import jakarta.persistence.Table;
 
 @Entity(name = "City")
 @Table(name = "[CD_CITY]")
-@AttributeOverride(name = "id", column = @Column(name = "[CITY_ID]"))
+@AttributeOverride(name = "id", column = @Column(name = "[CITY_ID]", columnDefinition = "NUMERIC"))
 @AttributeOverride(name = "code", column = @Column(name = "[CITY_CODE]"))
 @AttributeOverride(name = "nameEn", column = @Column(name = "[CITY_NAME_EN]"))
 @AttributeOverride(name = "nameFr", column = @Column(name = "[CITY_NAME_FR]"))
 public class CityEntity extends AbstractLookupEntity {
 
 	@ManyToOne
-	@JoinColumn(name = "[PROVINCE_TERRITORY_ID]", nullable = false)
+	@JoinColumn(name = "[PROVINCE_TERRITORY_ID]", columnDefinition = "NUMERIC", nullable = false)
 	protected ProvinceEntity province;
 
 	public CityEntity() {

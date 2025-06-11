@@ -12,8 +12,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 
 @Entity(name = "Event")
-@Table(name = "[EVENTS]")
-@AttributeOverride(name = "id", column = @Column(name = "[EVENT_ID]"))
+@Table(name = "[EVENT]")
+@AttributeOverride(name = "id", column = @Column(name = "[EVENT_ID]", columnDefinition = "NUMERIC"))
 public class EventEntity extends AbstractEntity {
 
 	@Column(name = "[EVENT_DESCRIPTION]", length = 4000, nullable = false)

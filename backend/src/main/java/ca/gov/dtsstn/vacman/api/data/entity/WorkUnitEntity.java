@@ -15,14 +15,14 @@ import jakarta.persistence.Table;
 
 @Entity(name = "WorkUnit")
 @Table(name = "[CD_WORK_UNIT]")
-@AttributeOverride(name = "id", column = @Column(name = "[WORK_UNIT_ID]"))
+@AttributeOverride(name = "id", column = @Column(name = "[WORK_UNIT_ID]", columnDefinition = "NUMERIC"))
 @AttributeOverride(name = "code", column = @Column(name = "[WORK_UNIT_CODE]"))
 @AttributeOverride(name = "nameEn", column = @Column(name = "[WORK_UNIT_NAME_EN]"))
 @AttributeOverride(name = "nameFr", column = @Column(name = "[WORK_UNIT_NAME_FR]"))
 public class WorkUnitEntity extends AbstractLookupEntity {
 
 	@ManyToOne
-	@JoinColumn(name = "[WORK_UNIT_ID_PARENT]", nullable = true)
+	@JoinColumn(name = "[PARENT_WORK_UNIT_ID]", columnDefinition = "NUMERIC")
 	protected WorkUnitEntity parent;
 
 	public WorkUnitEntity getParent() {

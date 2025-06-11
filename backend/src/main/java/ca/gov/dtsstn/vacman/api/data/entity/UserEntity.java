@@ -1,67 +1,61 @@
 package ca.gov.dtsstn.vacman.api.data.entity;
 
 import java.time.Instant;
-import java.time.LocalDate;
+import java.util.Set;
 
 import org.immutables.builder.Builder;
 import org.springframework.core.style.ToStringCreator;
 
 import jakarta.annotation.Nullable;
 import jakarta.persistence.AttributeOverride;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity(name = "User")
 @Table(name = "[USER]")
-@AttributeOverride(name = "id", column = @Column(name = "[USER_ID]"))
+@AttributeOverride(name = "id", column = @Column(name = "[USER_ID]", columnDefinition = "NUMERIC"))
 public class UserEntity extends AbstractEntity {
 
 	@Column(name = "[BUSINESS_EMAIL_ADDRESS]", length = 320, nullable = false)
 	private String businessEmailAddress;
 
-	@Column(name = "[BUSINESS_PHONE_NUMBER]", length = 15, nullable = false)
+	@Column(name = "[BUSINESS_PHONE_NUMBER]", length = 15)
 	private String businessPhoneNumber;
-
-	@ManyToOne
-	@JoinColumn(name = "[CITY_ID]", nullable = true)
-	private CityEntity city;
-
-	@ManyToOne
-	@JoinColumn(name = "[CLASSIFICATION_ID]", nullable = true)
-	private ClassificationEntity classification;
 
 	@Column(name = "[FIRST_NAME]", length = 100, nullable = false)
 	private String firstName;
 
-	@Column(name = "[HIRE_DATE]", nullable = true)
-	private LocalDate hireDate;
-
-	@Column(name = "[INITIAL]", length = 4, nullable = true)
+	@Column(name = "[INITIAL]", length = 4)
 	private String initial;
+
+	@ManyToOne
+	@JoinColumn(name = "[LANGUAGE_ID]", nullable = false)
+	private LanguageEntity language;
 
 	@Column(name = "[LAST_NAME]", length = 100, nullable = false)
 	private String lastName;
 
-	@Column(name = "[MIDDLE_NAME]", length = 100, nullable = true)
+	@Column(name = "[MIDDLE_NAME]", length = 100)
 	private String middelName;
 
 	@Column(name = "[NETWORK_NAME]", length = 50, nullable = false)
 	private String networkName;
 
-	@Column(name = "[PERSONAL_RECORD_IDENTIFIER]", length = 10, nullable = true)
+	@ManyToOne
+	@JoinColumn(name = "[NOTIFICATION_PURPOSE_ID]", nullable = false)
+	private NotificationPurposeEntity notificationPurposeEntity;
+
+	@Column(name = "[PERSONAL_RECORD_IDENTIFIER]", length = 10)
 	private String pri;
 
-	@ManyToOne
-	@JoinColumn(name = "[PRIORITY_LEVEL_ID]", nullable = false)
-	private PriorityLevelEntity priorityLevel;
-
-	@OneToOne
-	@JoinColumn(name = "[USER_ID]", referencedColumnName = "[PROFILE_ID]", nullable = false)
-	private ProfileEntity profile;
+	@JoinColumn(name = "[USER_ID]", nullable = false)
+	@OneToMany(cascade = { CascadeType.ALL }, orphanRemoval = true)
+	private Set<ProfileEntity> profiles;
 
 	@ManyToOne
 	@JoinColumn(name = "[USER_TYPE_ID]", nullable = false)
@@ -69,10 +63,6 @@ public class UserEntity extends AbstractEntity {
 
 	@Column(name = "[UU_NAME]", length = 50, nullable = false)
 	private String uuid;
-
-	@ManyToOne
-	@JoinColumn(name = "[WORK_UNIT_ID]", nullable = false)
-	private WorkUnitEntity workUnit;
 
 	public UserEntity() {
 		super();
@@ -83,19 +73,17 @@ public class UserEntity extends AbstractEntity {
 			@Nullable Long id,
 			@Nullable String businessEmailAddress,
 			@Nullable String businessPhoneNumber,
-			@Nullable CityEntity city,
-			@Nullable ClassificationEntity classification,
 			@Nullable String firstName,
-			@Nullable LocalDate hireDate,
 			@Nullable String initial,
+			@Nullable LanguageEntity language,
 			@Nullable String lastName,
 			@Nullable String middelName,
 			@Nullable String networkName,
-			@Nullable PriorityLevelEntity priorityLevel,
-			@Nullable ProfileEntity profile,
+			@Nullable NotificationPurposeEntity notificationPurposeEntity,
+			@Nullable String pri,
+			@Nullable Set<ProfileEntity> profiles,
 			@Nullable UserTypeEntity userType,
 			@Nullable String uuid,
-			@Nullable WorkUnitEntity workUnit,
 			@Nullable String createdBy,
 			@Nullable Instant createdDate,
 			@Nullable String lastModifiedBy,
@@ -103,19 +91,17 @@ public class UserEntity extends AbstractEntity {
 		super(id, createdBy, createdDate, lastModifiedBy, lastModifiedDate);
 		this.businessEmailAddress = businessEmailAddress;
 		this.businessPhoneNumber = businessPhoneNumber;
-		this.city = city;
-		this.classification = classification;
 		this.firstName = firstName;
-		this.hireDate = hireDate;
 		this.initial = initial;
+		this.language = language;
 		this.lastName = lastName;
 		this.middelName = middelName;
 		this.networkName = networkName;
-		this.priorityLevel = priorityLevel;
-		this.profile = profile;
+		this.notificationPurposeEntity = notificationPurposeEntity;
+		this.pri = pri;
+		this.profiles = profiles;
 		this.userType = userType;
 		this.uuid = uuid;
-		this.workUnit = workUnit;
 	}
 
 	public String getBusinessEmailAddress() {
@@ -134,36 +120,12 @@ public class UserEntity extends AbstractEntity {
 		this.businessPhoneNumber = businessPhoneNumber;
 	}
 
-	public CityEntity getCity() {
-		return city;
-	}
-
-	public void setCity(CityEntity city) {
-		this.city = city;
-	}
-
-	public ClassificationEntity getClassification() {
-		return classification;
-	}
-
-	public void setClassification(ClassificationEntity classification) {
-		this.classification = classification;
-	}
-
 	public String getFirstName() {
 		return firstName;
 	}
 
 	public void setFirstName(String name) {
 		this.firstName = name;
-	}
-
-	public LocalDate getHireDate() {
-		return hireDate;
-	}
-
-	public void setHireDate(LocalDate hireDate) {
-		this.hireDate = hireDate;
 	}
 
 	public String getInitial() {
@@ -182,6 +144,14 @@ public class UserEntity extends AbstractEntity {
 		this.lastName = lastName;
 	}
 
+	public LanguageEntity getLanguage() {
+		return language;
+	}
+
+	public void setLanguage(LanguageEntity language) {
+		this.language = language;
+	}
+
 	public String getMiddelName() {
 		return middelName;
 	}
@@ -198,6 +168,14 @@ public class UserEntity extends AbstractEntity {
 		this.networkName = networkName;
 	}
 
+	public NotificationPurposeEntity getNotificationPurposeEntity() {
+		return notificationPurposeEntity;
+	}
+
+	public void setNotificationPurposeEntity(NotificationPurposeEntity notificationPurposeEntity) {
+		this.notificationPurposeEntity = notificationPurposeEntity;
+	}
+
 	public String getPri() {
 		return pri;
 	}
@@ -206,20 +184,12 @@ public class UserEntity extends AbstractEntity {
 		this.pri = pri;
 	}
 
-	public PriorityLevelEntity getPriorityLevel() {
-		return priorityLevel;
+	public Set<ProfileEntity> getProfiles() {
+		return profiles;
 	}
 
-	public void setPriorityLevel(PriorityLevelEntity priorityLevel) {
-		this.priorityLevel = priorityLevel;
-	}
-
-	public ProfileEntity getProfile() {
-		return profile;
-	}
-
-	public void setProfile(ProfileEntity profile) {
-		this.profile = profile;
+	public void setProfile(Set<ProfileEntity> profiles) {
+		this.profiles = profiles;
 	}
 
 	public UserTypeEntity getUserType() {
@@ -238,34 +208,23 @@ public class UserEntity extends AbstractEntity {
 		this.uuid = uuid;
 	}
 
-	public WorkUnitEntity getWorkUnit() {
-		return workUnit;
-	}
-
-	public void setWorkUnit(WorkUnitEntity workUnit) {
-		this.workUnit = workUnit;
-	}
-
 	@Override
 	public String toString() {
 		return new ToStringCreator(this)
 			.append("super", super.toString())
 			.append("businessEmailAddress", businessEmailAddress)
 			.append("businessPhoneNumber", businessPhoneNumber)
-			.append("city", city)
-			.append("classification", classification)
 			.append("firstName", firstName)
-			.append("hireDate", hireDate)
 			.append("initial", initial)
+			.append("language", language)
 			.append("lastName", lastName)
 			.append("middelName", middelName)
 			.append("networkName", networkName)
+			.append("notificationPurposeEntity", notificationPurposeEntity)
 			.append("pri", pri)
-			.append("priorityLevel", priorityLevel)
-			.append("profile", profile)
+			.append("profiles", profiles)
 			.append("userType", userType)
 			.append("uuid", uuid)
-			.append("workUnit", workUnit)
 			.toString();
 	}
 

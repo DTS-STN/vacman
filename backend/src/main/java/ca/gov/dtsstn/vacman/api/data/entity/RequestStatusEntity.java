@@ -1,5 +1,10 @@
 package ca.gov.dtsstn.vacman.api.data.entity;
 
+import java.time.Instant;
+
+import org.immutables.builder.Builder;
+
+import jakarta.annotation.Nullable;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -7,8 +12,27 @@ import jakarta.persistence.Table;
 
 @Entity(name = "RequestStatus")
 @Table(name = "[CD_REQUEST_STATUS]")
-@AttributeOverride(name = "id", column = @Column(name = "[REQUEST_STATUS_ID]"))
+@AttributeOverride(name = "id", column = @Column(name = "[REQUEST_STATUS_ID]", columnDefinition = "NUMERIC"))
 @AttributeOverride(name = "code", column = @Column(name = "[REQUEST_STATUS_CODE]"))
 @AttributeOverride(name = "nameEn", column = @Column(name = "[REQUEST_STATUS_NAME_EN]"))
 @AttributeOverride(name = "nameFr", column = @Column(name = "[REQUEST_STATUS_NAME_FR]"))
-public class RequestStatusEntity extends AbstractLookupEntity {}
+public class RequestStatusEntity extends AbstractLookupEntity {
+
+	public RequestStatusEntity() {
+		super();
+	}
+
+	@Builder.Constructor
+	public RequestStatusEntity(
+			@Nullable Long id,
+			@Nullable String code,
+			@Nullable String nameEn,
+			@Nullable String nameFr,
+			@Nullable String createdBy,
+			@Nullable Instant createdDate,
+			@Nullable String lastModifiedBy,
+			@Nullable Instant lastModifiedDate) {
+		super(id, code, nameEn, nameFr, createdBy, createdDate, lastModifiedBy, lastModifiedDate);
+	}
+
+}

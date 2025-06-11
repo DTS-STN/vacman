@@ -2,68 +2,42 @@ package ca.gov.dtsstn.vacman.api.data.entity;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.immutables.builder.Builder;
 import org.springframework.core.style.ToStringCreator;
 
 import jakarta.annotation.Nullable;
 import jakarta.persistence.AttributeOverride;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity(name = "Request")
 @Table(name = "[REQUEST]")
-@AttributeOverride(name = "id", column = @Column(name = "[REQUEST_ID]"))
+@AttributeOverride(name = "id", column = @Column(name = "[REQUEST_ID]", columnDefinition = "NUMERIC"))
 public class RequestEntity extends AbstractEntity {
 
-	@Column(name = "[BUSINESS_EMAIL_ADDRESS]", length = 320, nullable = false)
-	private String businessEmailAddress;
-
-	@Column(name = "[BUSINESS_PHONE_NUMBER]", length = 15, nullable = false)
-	private String businessPhoneNumber;
-
 	@ManyToOne
-	@JoinColumn(name = "[CITY_ID]", nullable = true)
-	private CityEntity city;
-
-	@ManyToOne
-	@JoinColumn(name = "[CLASSIFICATION_ID]", nullable = true)
+	@JoinColumn(name = "[CLASSIFICATION_ID]", nullable = false)
 	private ClassificationEntity classification;
 
-	@Column(name = "[FIRST_NAME]", length = 100, nullable = false)
-	private String firstName;
+	@Column(name = "[ALLOW_TELEWORK_IND]")
+	private Boolean isTeleworkAllowed;
 
-	@Column(name = "[HIRE_DATE]", nullable = true)
-	private LocalDate hireDate;
+	@Column(name = "[EDUCATIONAL_REQUIREMENT_TXT]", length = 200)
+	private String educationalRequirement;
 
-	@Column(name = "[INITIAL]", length = 4, nullable = true)
-	private String initial;
+	@Column(name = "[END_DATE]")
+	private LocalDate endDate;
 
-	@Column(name = "[LAST_NAME]", length = 100, nullable = false)
-	private String lastName;
-
-	@Column(name = "[MIDDLE_NAME]", length = 100, nullable = true)
-	private String middelName;
-
-	@Column(name = "[NETWORK_NAME]", length = 50, nullable = false)
-	private String networkName;
-
-	@Column(name = "[PERSONAL_RECORD_IDENTIFIER]", length = 10, nullable = true)
-	private String pri;
-
-	@ManyToOne
-	@JoinColumn(name = "[PRIORITY_LEVEL_ID]", nullable = false)
-	private PriorityLevelEntity priorityLevel;
-
-	@ManyToOne
-	@JoinColumn(name = "[USER_TYPE_ID]", nullable = false)
-	private UserTypeEntity userType;
-
-	@Column(name = "[UU_NAME]", length = 50, nullable = false)
-	private String uuid;
+	@OneToMany(mappedBy = "request", cascade = { CascadeType.ALL }, orphanRemoval = true)
+	private Set<ProfileRequestEntity> profileRequests = new HashSet<>();
 
 	@ManyToOne
 	@JoinColumn(name = "[WORK_UNIT_ID]", nullable = false)
@@ -76,63 +50,23 @@ public class RequestEntity extends AbstractEntity {
 	@Builder.Constructor
 	public RequestEntity(
 			@Nullable Long id,
-			@Nullable String businessEmailAddress,
-			@Nullable String businessPhoneNumber,
-			@Nullable CityEntity city,
 			@Nullable ClassificationEntity classification,
-			@Nullable String firstName,
-			@Nullable LocalDate hireDate,
-			@Nullable String initial,
-			@Nullable String lastName,
-			@Nullable String middelName,
-			@Nullable String networkName,
-			@Nullable PriorityLevelEntity priorityLevel,
-			@Nullable UserTypeEntity userType,
-			@Nullable String uuid,
+			@Nullable String educationalRequirement,
+			@Nullable LocalDate endDate,
+			@Nullable Boolean isTeleworkAllowed,
+			@Nullable Set<ProfileRequestEntity> profileRequests,
 			@Nullable WorkUnitEntity workUnit,
 			@Nullable String createdBy,
 			@Nullable Instant createdDate,
 			@Nullable String lastModifiedBy,
 			@Nullable Instant lastModifiedDate) {
 		super(id, createdBy, createdDate, lastModifiedBy, lastModifiedDate);
-		this.businessEmailAddress = businessEmailAddress;
-		this.businessPhoneNumber = businessPhoneNumber;
-		this.city = city;
 		this.classification = classification;
-		this.firstName = firstName;
-		this.hireDate = hireDate;
-		this.initial = initial;
-		this.lastName = lastName;
-		this.middelName = middelName;
-		this.networkName = networkName;
-		this.priorityLevel = priorityLevel;
-		this.userType = userType;
-		this.uuid = uuid;
+		this.educationalRequirement = educationalRequirement;
+		this.endDate = endDate;
+		this.isTeleworkAllowed = isTeleworkAllowed;
+		this.profileRequests = profileRequests;
 		this.workUnit = workUnit;
-	}
-
-	public String getBusinessEmailAddress() {
-		return businessEmailAddress;
-	}
-
-	public void setBusinessEmailAddress(String businessEmailAddress) {
-		this.businessEmailAddress = businessEmailAddress;
-	}
-
-	public String getBusinessPhoneNumber() {
-		return businessPhoneNumber;
-	}
-
-	public void setBusinessPhoneNumber(String businessPhoneNumber) {
-		this.businessPhoneNumber = businessPhoneNumber;
-	}
-
-	public CityEntity getCity() {
-		return city;
-	}
-
-	public void setCity(CityEntity city) {
-		this.city = city;
 	}
 
 	public ClassificationEntity getClassification() {
@@ -143,84 +77,36 @@ public class RequestEntity extends AbstractEntity {
 		this.classification = classification;
 	}
 
-	public String getFirstName() {
-		return firstName;
+	public String getEducationalRequirement() {
+		return educationalRequirement;
 	}
 
-	public void setFirstName(String name) {
-		this.firstName = name;
+	public void setEducationalRequirement(String educationalRequirement) {
+		this.educationalRequirement = educationalRequirement;
 	}
 
-	public LocalDate getHireDate() {
-		return hireDate;
+	public LocalDate getEndDate() {
+		return endDate;
 	}
 
-	public void setHireDate(LocalDate hireDate) {
-		this.hireDate = hireDate;
+	public void setEndDate(LocalDate endDate) {
+		this.endDate = endDate;
 	}
 
-	public String getInitial() {
-		return initial;
+	public Boolean getIsTeleworkAllowed() {
+		return isTeleworkAllowed;
 	}
 
-	public void setInitial(String initial) {
-		this.initial = initial;
+	public void setIsTeleworkAllowed(Boolean isTeleworkAllowed) {
+		this.isTeleworkAllowed = isTeleworkAllowed;
 	}
 
-	public String getLastName() {
-		return lastName;
+	public Set<ProfileRequestEntity> getProfileRequests() {
+		return profileRequests;
 	}
 
-	public void setLastName(String lastName) {
-		this.lastName = lastName;
-	}
-
-	public String getMiddelName() {
-		return middelName;
-	}
-
-	public void setMiddelName(String middelName) {
-		this.middelName = middelName;
-	}
-
-	public String getNetworkName() {
-		return networkName;
-	}
-
-	public void setNetworkName(String networkName) {
-		this.networkName = networkName;
-	}
-
-	public String getPri() {
-		return pri;
-	}
-
-	public void setPri(String pri) {
-		this.pri = pri;
-	}
-
-	public PriorityLevelEntity getPriorityLevel() {
-		return priorityLevel;
-	}
-
-	public void setPriorityLevel(PriorityLevelEntity priorityLevel) {
-		this.priorityLevel = priorityLevel;
-	}
-
-	public UserTypeEntity getUserType() {
-		return userType;
-	}
-
-	public void setUserType(UserTypeEntity userType) {
-		this.userType = userType;
-	}
-
-	public String getUuid() {
-		return uuid;
-	}
-
-	public void setUuid(String uuid) {
-		this.uuid = uuid;
+	public void setProfileRequests(Set<ProfileRequestEntity> profileRequests) {
+		this.profileRequests = profileRequests;
 	}
 
 	public WorkUnitEntity getWorkUnit() {
@@ -235,20 +121,11 @@ public class RequestEntity extends AbstractEntity {
 	public String toString() {
 		return new ToStringCreator(this)
 			.append("super", super.toString())
-			.append("businessEmailAddress", businessEmailAddress)
-			.append("businessPhoneNumber", businessPhoneNumber)
-			.append("city", city)
 			.append("classification", classification)
-			.append("firstName", firstName)
-			.append("hireDate", hireDate)
-			.append("initial", initial)
-			.append("lastName", lastName)
-			.append("middelName", middelName)
-			.append("networkName", networkName)
-			.append("pri", pri)
-			.append("priorityLevel", priorityLevel)
-			.append("userType", userType)
-			.append("uuid", uuid)
+			.append("educationalRequirement", educationalRequirement)
+			.append("endDate", endDate)
+			.append("isTeleworkAllowed", isTeleworkAllowed)
+			.append("profileRequests", profileRequests)
 			.append("workUnit", workUnit)
 			.toString();
 	}

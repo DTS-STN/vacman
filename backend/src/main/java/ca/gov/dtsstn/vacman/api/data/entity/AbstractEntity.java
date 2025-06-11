@@ -25,7 +25,7 @@ public abstract class AbstractEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(length = 6, nullable = false, updatable = false)
+	@Column(columnDefinition = "NUMERIC", nullable = false, updatable = false)
 	protected Long id;
 
 	@CreatedBy
@@ -33,7 +33,7 @@ public abstract class AbstractEntity {
 	protected String createdBy;
 
 	@CreatedDate
-	@Column(name = "[DATE_CREATED]", nullable = false, updatable = false)
+	@Column(name = "[DATE_CREATED]", columnDefinition = "DATETIME",  nullable = false, updatable = false)
 	protected Instant createdDate;
 
 	@LastModifiedBy
@@ -42,7 +42,7 @@ public abstract class AbstractEntity {
 
 	@Version
 	@LastModifiedDate
-	@Column(name = "[DATE_UPDATED]")
+	@Column(name = "[DATE_UPDATED]", columnDefinition = "DATETIME")
 	protected Instant lastModifiedDate;
 
 	public AbstractEntity() {}
