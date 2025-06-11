@@ -67,7 +67,7 @@ const mockUserService = {
 vi.mocked(getUserService).mockReturnValue(mockUserService);
 
 // Helper to create mock context
-function createMockContext(activeDirectoryId: string, name?: string): AppLoadContext {
+function createMockContext(activeDirectoryId: string, name?: string, roles: string[] = ['employee']): AppLoadContext {
   // Create a mock session that satisfies the AppSession type
   const mockSession = {
     // Express session properties
@@ -108,7 +108,7 @@ function createMockContext(activeDirectoryId: string, name?: string): AppLoadCon
         exp: Math.floor(Date.now() / 1000) + 3600,
       },
       accessTokenClaims: {
-        roles: ['employee'],
+        roles,
         iss: 'test-issuer',
         exp: Math.floor(Date.now() / 1000) + 3600,
         aud: 'test-audience',
@@ -421,9 +421,7 @@ describe('Authentication and Registration Flow - Comprehensive Tests', () => {
     describe('Registration Page Access', () => {
       it('should allow access to unregistered users', async () => {
         // Arrange
-        const context = createMockContext('unregistered-user');
-        // Override the roles to simulate an unregistered user
-        context.session.authState.accessTokenClaims.roles = [];
+        const context = createMockContext('unregistered-user', undefined, []); // Empty roles for unregistered user
 
         const request = new Request('http://localhost:3000/en/register');
 
@@ -461,9 +459,7 @@ describe('Authentication and Registration Flow - Comprehensive Tests', () => {
     describe('Privacy Consent Page Access', () => {
       it('should allow access to unregistered users', async () => {
         // Arrange
-        const context = createMockContext('unregistered-user');
-        // Override the roles to simulate an unregistered user
-        context.session.authState.accessTokenClaims.roles = [];
+        const context = createMockContext('unregistered-user', undefined, []); // Empty roles for unregistered user
 
         const request = new Request('http://localhost:3000/en/register/privacy-consent');
 
