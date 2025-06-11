@@ -77,13 +77,13 @@ export type LocalizedProvince = Readonly<{
   name: string;
 }>;
 
-export type LanguageProfileForReferral = Readonly<{
+export type LanguageReferralType = Readonly<{
   id: string;
   nameEn: string;
   nameFr: string;
 }>;
 
-export type LocalizedLanguageProfileForReferral = Readonly<{
+export type LocalizedLanguageReferralType = Readonly<{
   id: string;
   name: string;
 }>;
