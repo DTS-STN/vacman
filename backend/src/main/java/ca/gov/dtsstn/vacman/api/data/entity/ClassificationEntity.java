@@ -7,7 +7,7 @@ import jakarta.persistence.Table;
 
 @Entity(name = "Classification")
 @Table(name = "[CD_CLASSIFICATION]")
-@AttributeOverride(name = "id", column = @Column(name = "[CLASSIFICATION_ID]"))
+@AttributeOverride(name = "id", column = @Column(name = "[CLASSIFICATION_ID]", columnDefinition = "NUMERIC"))
 @AttributeOverride(name = "code", column = @Column(name = "[CLASSIFICATION_CODE]"))
 @AttributeOverride(name = "nameEn", column = @Column(name = "[CLASSIFICATION_NAME_EN]"))
 @AttributeOverride(name = "nameFr", column = @Column(name = "[CLASSIFICATION_NAME_FR]"))

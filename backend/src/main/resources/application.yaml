@@ -83,6 +83,13 @@ spring:
       # to the same value as maximumPoolSize, creating a fixed-size connection pool.
       minimum-idle: 10
 
+  jpa:
+    hibernate:
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+      properties:
+        '[hibernate.globally_quoted_identifiers]': true
+
 ---
 
 #
@@ -207,10 +214,13 @@ springdoc:
 application:
   entra-id:
     tenant-id: 9ed55846-8a81-4246-acd8-b1a01abfc0d1
-  flyway:
-    # when 'true', Flyway will drop all objects (tables, views, procedures, triggers, ...)
-    # in the configured schemas whenever a schema validation fails
-    clean-on-validation-error: false
+  gcnotify:
+    enabled: false
+    api-key: # must be set externally (ex: 00000000-0000-0000-0000-000000000000)
+    base-url: https://api.notification.canada.ca/v2/notifications/email
+    template-id: # must be set externally (ex: 00000000-0000-0000-0000-000000000000)
+    connect-timeout:
+    read-timeout:
   swagger-ui:
     application-name: Vacancy Manager API -- OpenAPI 3.0
     authentication:

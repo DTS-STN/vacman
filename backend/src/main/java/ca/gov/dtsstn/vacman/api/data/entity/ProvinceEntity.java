@@ -13,7 +13,7 @@ import jakarta.persistence.Table;
 
 @Entity(name = "Province")
 @Table(name = "[CD_PROVINCE_TERRITORY]")
-@AttributeOverride(name = "id", column = @Column(name = "[PROVINCE_TERRITORY_ID]"))
+@AttributeOverride(name = "id", column = @Column(name = "[PROVINCE_TERRITORY_ID]", columnDefinition = "NUMERIC"))
 @AttributeOverride(name = "code", column = @Column(name = "[PROVINCE_TERRITORY_CODE]"))
 @AttributeOverride(name = "nameEn", column = @Column(name = "[PROVINCE_TERRITORY_NAME_EN]"))
 @AttributeOverride(name = "nameFr", column = @Column(name = "[PROVINCE_TERRITORY_NAME_FR]"))

@@ -17,7 +17,7 @@ import jakarta.persistence.Table;
 
 @Entity(name = "User")
 @Table(name = "[USER]")
-@AttributeOverride(name = "id", column = @Column(name = "[USER_ID]"))
+@AttributeOverride(name = "id", column = @Column(name = "[USER_ID]", columnDefinition = "NUMERIC"))
 public class UserEntity extends AbstractEntity {
 
 	@Column(name = "[BUSINESS_EMAIL_ADDRESS]", length = 320, nullable = false)

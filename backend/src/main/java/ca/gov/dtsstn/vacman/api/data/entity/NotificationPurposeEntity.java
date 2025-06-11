@@ -7,7 +7,7 @@ import jakarta.persistence.Table;
 
 @Entity(name = "NotificationPurpose")
 @Table(name = "[CD_NOTIFICATION_PURPOSE]")
-@AttributeOverride(name = "id", column = @Column(name = "[NOTIFICATION_PURPOSE_ID]"))
+@AttributeOverride(name = "id", column = @Column(name = "[NOTIFICATION_PURPOSE_ID]", columnDefinition = "NUMERIC"))
 @AttributeOverride(name = "code", column = @Column(name = "[NOTIFICATION_PURPOSE_CODE]"))
 @AttributeOverride(name = "nameEn", column = @Column(name = "[NOTIFICATION_PURPOSE_NAME_EN]"))
 @AttributeOverride(name = "nameFr", column = @Column(name = "[NOTIFICATION_PURPOSE_NAME_FR]"))
