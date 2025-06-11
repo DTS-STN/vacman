@@ -12,7 +12,7 @@ const log = LogFactory.getLogger(import.meta.url);
 /**
  * Checks if the authenticated user has the required roles.
  * Verifies the user has either 'employee' or 'hiring-manager' roles from their access token claims.
- * If the user is authenticated via Azure AD but doesn't have the required roles,
+ * If the user is authenticated but doesn't have the required roles,
  * redirects them to the registration page.
  *
  * @param session - The authenticated session
