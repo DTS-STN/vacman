@@ -91,8 +91,8 @@ describe('getMockUserService', () => {
       expect(createdUser.activeDirectoryId).toBe('test-user-123');
 
       // Check that dates are ISO strings (exact time will vary)
-      expect(isValid(parseISO(createdUser.createdDate))).toBe(true);
-      expect(isValid(parseISO(createdUser.lastModifiedDate))).toBe(true);
+      expect(isValid(parseISO(createdUser.createdDate)));
+      expect(isValid(parseISO(createdUser.lastModifiedDate)));
     });
   });
 });
