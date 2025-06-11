@@ -47,11 +47,18 @@ export function requireUserRegistration(session: AuthenticatedSession, currentUr
 export function requireUnregisteredUser(session: AuthenticatedSession, currentUrl: URL): void {
   // Check for required roles in access token claims
   const userRoles = session.authState.accessTokenClaims.roles ?? [];
-  const hasRequiredRole = userRoles.includes('employee') || userRoles.includes('hiring-manager');
+  // Check if user has any role that indicates they're already registered
+  const registeredRole = userRoles.find((role) => role === 'employee' || role === 'hiring-manager');
 
-  if (hasRequiredRole) {
-    log.debug('User has required roles, redirecting away from registration');
-    throw i18nRedirect('routes/index.tsx', currentUrl);
+  if (registeredRole) {
+    log.debug(`User has ${registeredRole} role, redirecting away from registration`);
+
+    switch (registeredRole) {
+      case 'employee':
+        throw i18nRedirect('routes/profile/index.tsx', currentUrl);
+      case 'hiring-manager':
+        throw i18nRedirect('routes/index.tsx', currentUrl);
+    }
   }
 
   log.debug('User does not have required roles, allowing access to registration page');
