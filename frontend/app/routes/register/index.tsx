@@ -37,10 +37,14 @@ export async function action({ context, request }: Route.ActionArgs) {
     const name = context.session.authState.idTokenClaims.name ?? 'Unknown User';
 
     // Register the user as a hiring manager immediately
-    await userService.registerUser({
-      name,
-      activeDirectoryId,
-    });
+    await userService.registerUser(
+      {
+        name,
+        activeDirectoryId,
+      },
+      context.session,
+      'hiring-manager',
+    );
     return i18nRedirect('routes/index.tsx', request);
   }
 

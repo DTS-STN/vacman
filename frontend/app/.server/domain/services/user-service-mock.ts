@@ -1,5 +1,7 @@
 import type { User, UserCreate } from '~/.server/domain/models';
 import type { UserService } from '~/.server/domain/services/user-service';
+import { serverEnvironment } from '~/.server/environment';
+import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
 
@@ -19,7 +21,8 @@ export function getMockUserService(): UserService {
         return Promise.reject(error);
       }
     },
-    registerUser: (user: UserCreate) => Promise.resolve(registerUser(user)),
+    registerUser: (user: UserCreate, session: AuthenticatedSession, role: 'employee' | 'hiring-manager') =>
+      Promise.resolve(registerUser(user, session, role)),
   };
 }
 
@@ -97,7 +100,19 @@ function getUserByActiveDirectoryId(activeDirectoryId: string): User | null {
  * @param userData The user data to create.
  * @returns The created user object with generated metadata.
  */
-function registerUser(userData: UserCreate): User {
+function registerUser(userData: UserCreate, session: AuthenticatedSession, role: 'employee' | 'hiring-manager'): User {
+  // If using local OIDC for testing, update the session roles
+  if (serverEnvironment.ENABLE_DEVMODE_OIDC) {
+    // Mock function to simulate updating user roles in the session for local testing.
+    if (session.authState.accessTokenClaims.roles) {
+      // Remove any existing employee/hiring-manager roles and add the new one
+      const filteredRoles = session.authState.accessTokenClaims.roles.filter(
+        (r: string) => r !== 'employee' && r !== 'hiring-manager',
+      );
+      // Cast to mutable for testing purposes
+      (session.authState.accessTokenClaims.roles as string[]) = [...filteredRoles, role];
+    }
+  }
   // Generate a mock user with automatic ID and metadata
   const newUser: User = {
     id: mockUsers.length + 1,

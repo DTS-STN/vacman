@@ -1,6 +1,7 @@
 import type { User, UserCreate } from '~/.server/domain/models';
 import type { UserService } from '~/.server/domain/services/user-service';
 import { serverEnvironment } from '~/.server/environment';
+import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
@@ -58,7 +59,7 @@ export function getDefaultUserService(): UserService {
      * @throws AppError if the request fails or if the server responds with an error status.
      */
     // TODO: Also assign user to AD group for roles
-    async registerUser(user: UserCreate): Promise<User> {
+    async registerUser(user: UserCreate, session: AuthenticatedSession, role: 'employee' | 'hiring-manager'): Promise<User> {
       const response = await fetch(`${serverEnvironment.VACMAN_API_BASE_URI}/users`, {
         method: 'POST',
         headers: {

@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next';
 
 import type { Route } from './+types/index';
 
-import { requireAllRoles } from '~/.server/utils/auth-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { ButtonLink } from '~/components/button-link';
 import { PageTitle } from '~/components/page-title';
@@ -22,8 +21,6 @@ export async function loader({ context, request }: Route.LoaderArgs) {
     // Redirect to the appropriate language-specific route based on Accept-Language header
     return i18nRedirect('routes/index.tsx', request);
   }
-
-  requireAllRoles(context.session as AppSession, new URL(request.url), ['employee']);
   const { t } = await getTranslation(request, handle.i18nNamespace);
   return { documentTitle: t('app:index.page-title') };
 }
