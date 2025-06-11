@@ -1,18 +1,24 @@
+import type { Result, Option } from 'oxide.ts';
+import { Err, None, Ok, Some } from 'oxide.ts';
+
 import type { LocalizedProvince, Province } from '~/.server/domain/models';
 import type { ProvinceService } from '~/.server/domain/services/province-service';
 import esdcProvincesData from '~/.server/resources/provinces.json';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
 
-export function getMockProvince(): ProvinceService {
+export function getMockProvinceService(): ProvinceService {
   return {
-    getProvinces: () => Promise.resolve(getProvinces()),
-    getProvinceById: (id: string) => Promise.resolve(getProvinceById(id)),
-    getProvinceByAlphaCode: (alphaCode: string) => Promise.resolve(getProvinceByAlphaCode(alphaCode)),
-    getLocalizedProvinces: (language: Language) => Promise.resolve(getLocalizedProvinces(language)),
-    getLocalizedProvinceById: (id: string, language: Language) => Promise.resolve(getLocalizedProvinceById(id, language)),
-    getLocalizedProvinceByAlphaCode: (alphaCode: string, language: Language) =>
-      Promise.resolve(getLocalizedProvinceByAlphaCode(alphaCode, language)),
+    getAll: () => Promise.resolve(getAll()),
+    getById: (id: string) => Promise.resolve(getById(id)),
+    findById: (id: string) => Promise.resolve(findById(id)),
+    getByCode: (code: string) => Promise.resolve(getByCode(code)),
+    findByCode: (code: string) => Promise.resolve(findByCode(code)),
+    getAllLocalized: (language: Language) => Promise.resolve(getAllLocalized(language)),
+    getLocalizedById: (id: string, language: Language) => Promise.resolve(getLocalizedById(id, language)),
+    findLocalizedById: (id: string, language: Language) => Promise.resolve(findLocalizedById(id, language)),
+    getLocalizedByCode: (code: string, language: Language) => Promise.resolve(getLocalizedByCode(code, language)),
+    findLocalizedByCode: (code: string, language: Language) => Promise.resolve(findLocalizedByCode(code, language)),
   };
 }
 
@@ -21,43 +27,89 @@ export function getMockProvince(): ProvinceService {
  *
  * @returns An array of province objects.
  */
-function getProvinces(): readonly Province[] {
-  return esdcProvincesData.content.map((province) => ({
+function getAll(): Result<readonly Province[], AppError> {
+  const provinces: Province[] = esdcProvincesData.content.map((province) => ({
     id: province.id,
-    alphaCode: province.alphaCode,
+    code: province.alphaCode,
     nameEn: province.nameEn,
     nameFr: province.nameFr,
   }));
+
+  return Ok(provinces);
 }
 
 /**
  * Retrieves a single province by its ID.
  *
  * @param id The ID of the province to retrieve.
- * @returns The province object if found.
- * @throws {AppError} If the province is not found.
+ * @returns The province object if found or {AppError} If the province is not found.
  */
-function getProvinceById(id: string): Province {
-  const province = getProvinces().find((p) => p.id === id);
-  if (!province) {
-    throw new AppError(`Province with ID '${id}' not found.`, ErrorCodes.NO_PROVINCE_FOUND);
+function getById(id: string): Result<Province, AppError> {
+  const result = getAll();
+
+  if (result.isErr()) {
+    return result;
   }
-  return province;
+
+  const provinces = result.unwrap();
+  const province = provinces.find((p) => p.id === id);
+
+  return province ? Ok(province) : Err(new AppError(`Province with ID '${id}' not found.`, ErrorCodes.NO_PROVINCE_FOUND));
 }
 
 /**
- * Retrieves a single province by its alphaCode.
+ * Retrieves a single province by its ID.
  *
- * @param alphaCode The alphaCode of the province to retrieve (ex. 'ON').
- * @returns The province object if found.
- * @throws {AppError} If the province is not found.
+ * @param id The ID of the province to retrieve.
+ * @returns The province object if found or undefined If the province is not found.
  */
-function getProvinceByAlphaCode(alphaCode: string): Province {
-  const province = getProvinces().find((p) => p.alphaCode === alphaCode);
-  if (!province) {
-    throw new AppError(`Province with alphaCode '${alphaCode}' not found.`, ErrorCodes.NO_PROVINCE_FOUND);
+function findById(id: string): Option<Province> {
+  const result = getAll();
+
+  if (result.isErr()) {
+    return None;
   }
-  return province;
+  const provinces = result.unwrap();
+  const province = provinces.find((p) => p.id === id);
+
+  return province ? Some(province) : None;
+}
+
+/**
+ * Retrieves a single province by its code.
+ *
+ * @param code The code of the province to retrieve (ex. 'ON').
+ * @returns The province object if found or {AppError} If the province is not found.
+ */
+function getByCode(code: string): Result<Province, AppError> {
+  const result = getAll();
+
+  if (result.isErr()) {
+    return result;
+  }
+
+  const provinces = result.unwrap();
+  const province = provinces.find((p) => p.code === code);
+
+  return province ? Ok(province) : Err(new AppError(`Province with code '${code}' not found.`, ErrorCodes.NO_PROVINCE_FOUND));
+}
+
+/**
+ * Retrieves a single province by its code.
+ *
+ * @param code The code of the province to retrieve (ex. 'ON').
+ * @returns The province object if found or undefined If the province is not found.
+ */
+function findByCode(code: string): Option<Province> {
+  const result = getAll();
+
+  if (result.isErr()) {
+    return None;
+  }
+  const provinces = result.unwrap();
+  const province = provinces.find((p) => p.code === code);
+
+  return province ? Some(province) : None;
 }
 
 /**
@@ -66,14 +118,14 @@ function getProvinceByAlphaCode(alphaCode: string): Province {
  * @param language The language to localize the province names to.
  * @returns An array of localized province objects.
  */
-function getLocalizedProvinces(language: Language): readonly LocalizedProvince[] {
-  return getProvinces()
-    .map((province) => ({
+function getAllLocalized(language: Language): Result<readonly LocalizedProvince[], AppError> {
+  return getAll().map((provinces) =>
+    provinces.map((province) => ({
       id: province.id,
-      alphaCode: province.alphaCode,
+      code: province.code,
       name: language === 'fr' ? province.nameFr : province.nameEn,
-    }))
-    .sort((a, b) => a.name.localeCompare(b.name, language, { sensitivity: 'base' }));
+    })),
+  );
 }
 
 /**
@@ -81,29 +133,69 @@ function getLocalizedProvinces(language: Language): readonly LocalizedProvince[]
  *
  * @param id The ID of the province to retrieve.
  * @param language The language to localize the province name to.
- * @returns The localized province object if found.
- * @throws {AppError} If the province is not found.
+ * @returns The localized province object if found or {AppError} If the province is not found.
  */
-function getLocalizedProvinceById(id: string, language: Language): LocalizedProvince {
-  const province = getLocalizedProvinces(language).find((p) => p.id === id);
-  if (!province) {
-    throw new AppError(`Localized province with ID '${id}' not found.`, ErrorCodes.NO_PROVINCE_FOUND);
-  }
-  return province;
+function getLocalizedById(id: string, language: Language): Result<LocalizedProvince, AppError> {
+  return getAllLocalized(language).andThen((provinces) => {
+    const province = provinces.find((b) => b.id === id);
+
+    return province
+      ? Ok(province)
+      : Err(new AppError(`Localized province with ID '${id}' not found.`, ErrorCodes.NO_PROVINCE_FOUND));
+  });
 }
 
 /**
- * Retrieves a single localized province by its alphaCode.
+ * Retrieves a single localized province by its ID.
  *
- * @param alphaCode The alphaCode of the province to retrieve (ex. 'ON').
+ * @param id The ID of the province to retrieve.
  * @param language The language to localize the province name to.
- * @returns The localized province object if found.
- * @throws {AppError} If the province is not found.
+ * @returns The localized province object if found or undefined If the province is not found.
  */
-function getLocalizedProvinceByAlphaCode(alphaCode: string, language: Language): LocalizedProvince {
-  const province = getLocalizedProvinces(language).find((p) => p.alphaCode === alphaCode);
-  if (!province) {
-    throw new AppError(`Localized province with alphaCode '${alphaCode}' not found.`, ErrorCodes.NO_PROVINCE_FOUND);
+function findLocalizedById(id: string, language: Language): Option<LocalizedProvince> {
+  const result = getAllLocalized(language);
+
+  if (result.isErr()) {
+    return None;
   }
-  return province;
+  const provinces = result.unwrap();
+  const province = provinces.find((p) => p.id === id);
+
+  return province ? Some(province) : None;
+}
+
+/**
+ * Retrieves a single localized province by its code.
+ *
+ * @param code The code of the province to retrieve (ex. 'ON').
+ * @param language The language to localize the province name to.
+ * @returns The localized province object if found or {AppError} If the province is not found.
+ */
+function getLocalizedByCode(code: string, language: Language): Result<LocalizedProvince, AppError> {
+  return getAllLocalized(language).andThen((provinces) => {
+    const province = provinces.find((b) => b.code === code);
+
+    return province
+      ? Ok(province)
+      : Err(new AppError(`Localized province with code '${code}' not found.`, ErrorCodes.NO_PROVINCE_FOUND));
+  });
+}
+
+/**
+ * Retrieves a single localized province by its code.
+ *
+ * @param code The code of the province to retrieve (ex. 'ON').
+ * @param language The language to localize the province name to.
+ * @returns The localized province object if found or undefined If the province is not found.
+ */
+function findLocalizedByCode(code: string, language: Language): Option<LocalizedProvince> {
+  const result = getAllLocalized(language);
+
+  if (result.isErr()) {
+    return None;
+  }
+  const provinces = result.unwrap();
+  const province = provinces.find((p) => p.code === code);
+
+  return province ? Some(province) : None;
 }

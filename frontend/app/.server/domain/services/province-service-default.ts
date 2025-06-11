@@ -1,3 +1,6 @@
+import type { Result, Option } from 'oxide.ts';
+import { Ok, Err, None, Some } from 'oxide.ts';
+
 import type { LocalizedProvince, Province } from '~/.server/domain/models';
 import type { ProvinceService } from '~/.server/domain/services/province-service';
 import { serverEnvironment } from '~/.server/environment';
@@ -6,90 +9,217 @@ import { ErrorCodes } from '~/errors/error-codes';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 
 //TODO: Revisit when the api endpoints are avaialable
-export function getDefaultProvince(): ProvinceService {
+export function getDefaultProvinceService(): ProvinceService {
   return {
     /**
      * Retrieves all provinces.
-     * @returns A promise that resolves to an array of province objects.
-     * @throws AppError if the request fails or if the server responds with an error status.
+     * @returns A promise that resolves to an array of province objects or {AppError} if the request fails or if the server responds with an error status.
      */
-    async getProvinces(): Promise<readonly Province[]> {
-      const response = await fetch(`${serverEnvironment.VACMAN_API_BASE_URI}/provinces`);
+    async getAll(): Promise<Result<readonly Province[], AppError>> {
+      try {
+        const response = await fetch(`${serverEnvironment.VACMAN_API_BASE_URI}/provinces`);
 
-      if (!response.ok) {
-        const errorMessage = `Failed to retrieve all Provinces. Server responded with status ${response.status}.`;
-        throw new AppError(errorMessage, ErrorCodes.VACMAN_API_ERROR);
+        if (!response.ok) {
+          return Err(
+            new AppError(
+              `Failed to retrieve all Provinces. Server responded with status ${response.status}.`,
+              ErrorCodes.VACMAN_API_ERROR,
+            ),
+          );
+        }
+
+        const data: Province[] = await response.json();
+        return Ok(data);
+      } catch (error) {
+        return Err(
+          new AppError(`Unexpected error occurred while fetching ESDC Branches: ${String(error)}`, ErrorCodes.VACMAN_API_ERROR),
+        );
       }
-
-      return await response.json();
     },
+
     /**
      * Retrieves a province by its ID.
      * @param id The ID of the province to retrieve.
-     * @returns A promise that resolves to the province object, or undefined if not found.
-     * @throws AppError if the request fails or if the server responds with an error status.
+     * @returns A promise that resolves to the province object, or {AppError} if the request fails or if the server responds with an error status.
      */
-    async getProvinceById(id: string): Promise<Province | undefined> {
-      const response = await fetch(`${serverEnvironment.VACMAN_API_BASE_URI}/provinces/${id}`);
+    async getById(id: string): Promise<Result<Province, AppError>> {
+      try {
+        const response = await fetch(`${serverEnvironment.VACMAN_API_BASE_URI}/provinces/${id}`);
 
-      if (response.status === HttpStatusCodes.NOT_FOUND) {
-        return undefined;
+        if (response.status === HttpStatusCodes.NOT_FOUND) {
+          return Err(new AppError(`Province with ID '${id}' not found.`, ErrorCodes.NO_PROVINCE_FOUND));
+        }
+
+        if (!response.ok) {
+          return Err(
+            new AppError(
+              `Failed to find the Province with ID '${id}'. Server responded with status ${response.status}.`,
+              ErrorCodes.VACMAN_API_ERROR,
+            ),
+          );
+        }
+
+        const data: Province = await response.json();
+        return Ok(data);
+      } catch (error) {
+        return Err(
+          new AppError(
+            `Unexpected error occurred while fetching Province by ID: ${String(error)}`,
+            ErrorCodes.VACMAN_API_ERROR,
+          ),
+        );
       }
-
-      if (!response.ok) {
-        const errorMessage = `Failed to find the Province with ID. Server responded with status ${response.status}.`;
-        throw new AppError(errorMessage, ErrorCodes.VACMAN_API_ERROR);
-      }
-
-      return await response.json();
     },
+
     /**
-     * Retrieves a province by its ALPHA_CODE.
-     * @param alphaCode The ALPHA_CODE of the province to retrieve.
-     * @returns A promise that resolves to the province object, or undefined if not found.
-     * @throws AppError if the request fails or if the server responds with an error status.
+     * Retrieves a single province by its ID.
+     *
+     * @param id The ID of the province to retrieve.
+     * @returns The province object if found or undefined if not found.
      */
-    async getProvinceByAlphaCode(alphaCode: string): Promise<Province | undefined> {
-      const response = await getDefaultProvince().getProvinces();
-      return response.find((p) => p.alphaCode === alphaCode);
+    async findById(id: string): Promise<Option<Province>> {
+      const result = await getDefaultProvinceService().getAll();
+
+      if (result.isErr()) {
+        return None;
+      }
+
+      const found = result.unwrap().find((province) => province.id === id);
+      return found ? Some(found) : None;
     },
+
+    /**
+     * Retrieves a province by its CODE.
+     * @param code The CODE of the province to retrieve.
+     * @returns A promise that resolves to the province object, or AppError if the request fails or if the server responds with an error status.
+     */
+    async getByCode(code: string): Promise<Result<Province, AppError>> {
+      try {
+        const response = await fetch(`${serverEnvironment.VACMAN_API_BASE_URI}/provinces?code=${code}`);
+
+        if (response.status === HttpStatusCodes.NOT_FOUND) {
+          return Err(new AppError(`Province with CODE '${code}' not found.`, ErrorCodes.NO_PROVINCE_FOUND));
+        }
+
+        if (!response.ok) {
+          return Err(
+            new AppError(
+              `Failed to find the Province with CODE '${code}'. Server responded with status ${response.status}.`,
+              ErrorCodes.VACMAN_API_ERROR,
+            ),
+          );
+        }
+
+        const data: Province = await response.json();
+        return Ok(data);
+      } catch (error) {
+        return Err(
+          new AppError(
+            `Unexpected error occurred while fetching Province by CODE: ${String(error)}`,
+            ErrorCodes.VACMAN_API_ERROR,
+          ),
+        );
+      }
+    },
+
+    /**
+     * Retrieves a single province by its CODE.
+     *
+     * @param code The CODE of the province to retrieve (ex. 'ON').
+     * @returns The province object if found or undefined if not found.
+     */
+
+    async findByCode(code: string): Promise<Option<Province>> {
+      const result = await getDefaultProvinceService().getAll();
+
+      if (result.isErr()) {
+        return None;
+      }
+
+      const found = result.unwrap().find((province) => province.code === code);
+      return found ? Some(found) : None;
+    },
+
     /**
      * Retrieves all localized provinces for a given language.
      * @param language The language code for which to retrieve localized provinces.
-     * @returns A promise that resolves to an array of localized provinces.
-     * @throws AppError if the request fails or if the server responds with an error status.
+     * @returns A promise that resolves to an array of localized provinces or {AppError} if the request fails or if the server responds with an error status.
      */
-    async getLocalizedProvinces(language: Language): Promise<readonly LocalizedProvince[]> {
-      const response = await getDefaultProvince().getProvinces();
-      return response.map((option) => ({
-        id: option.id,
-        alphaCode: option.alphaCode,
-        name: language === 'fr' ? option.nameFr : option.nameEn,
-      }));
+    async getAllLocalized(language: Language): Promise<Result<readonly LocalizedProvince[], AppError>> {
+      const result = await getDefaultProvinceService().getAll();
+      return result.map((provinces) =>
+        provinces.map((province) => ({
+          id: province.id,
+          code: province.code,
+          name: language === 'fr' ? province.nameFr : province.nameEn,
+        })),
+      );
     },
+
     /**
      * Retrieves a localized province by its ID and language.
      * @param id The ID of the province to retrieve.
      * @param language The language code for which to retrieve the localized province.
-     * @returns A promise that resolves to the localized province object, or undefined if not found.
-     * @throws AppError if the request fails or if the server responds with an error status.
+     * @returns A promise that resolves to the localized province object, or AppError if the request fails or if the server responds with an error status.
      */
-    async getLocalizedProvinceById(id: string, language: Language): Promise<LocalizedProvince | undefined> {
-      const response = await getDefaultProvince().getLocalizedProvinces(language);
+    async getLocalizedById(id: string, language: Language): Promise<Result<LocalizedProvince, AppError>> {
+      const result = await getDefaultProvinceService().getById(id);
 
-      return response.find((p) => p.id === id);
+      return result.map((province) => ({
+        id: province.id,
+        code: province.code,
+        name: language === 'fr' ? province.nameFr : province.nameEn,
+      }));
     },
-    /**
-     * Retrieves a localized province by its ALPHA_CODE and language.
-     * @param alphaCode The ALPHA_CODE of the province to retrieve.
-     * @param language The language code for which to retrieve the localized province.
-     * @returns A promise that resolves to the localized province object, or undefined if not found.
-     * @throws AppError if the request fails or if the server responds with an error status.
-     */
-    async getLocalizedProvinceByAlphaCode(alphaCode: string, language: Language): Promise<LocalizedProvince | undefined> {
-      const response = await getDefaultProvince().getLocalizedProvinces(language);
 
-      return response.find((p) => p.alphaCode === alphaCode);
+    /**
+     * Retrieves a single localized province by its ID.
+     *
+     * @param id The ID of the province to retrieve.
+     * @returns The localized province object if found or undefined if not found.
+     */
+    async findLocalizedById(id: string, language: Language): Promise<Option<LocalizedProvince>> {
+      const result = await getDefaultProvinceService().getAllLocalized(language);
+
+      if (result.isErr()) {
+        return None;
+      }
+
+      const found = result.unwrap().find((province) => province.id === id);
+      return found ? Some(found) : None;
+    },
+
+    /**
+     * Retrieves a localized province by its CODE and language.
+     * @param code The CODE of the province to retrieve (ex. 'ON').
+     * @param language The language code for which to retrieve the localized province.
+     * @returns A promise that resolves to the localized province object, or AppError if the request fails or if the server responds with an error status.
+     */
+    async getLocalizedByCode(code: string, language: Language): Promise<Result<LocalizedProvince, AppError>> {
+      const result = await getDefaultProvinceService().getByCode(code);
+
+      return result.map((province) => ({
+        id: province.id,
+        code: province.code,
+        name: language === 'fr' ? province.nameFr : province.nameEn,
+      }));
+    },
+
+    /**
+     * Retrieves a single localized province by its CODE.
+     *
+     * @param code The CODE of the province to retrieve (ex. 'ON').
+     * @returns The localized province object if found or undefined if not found.
+     */
+    async findLocalizedByCode(code: string, language: Language): Promise<Option<LocalizedProvince>> {
+      const result = await getDefaultProvinceService().getAllLocalized(language);
+
+      if (result.isErr()) {
+        return None;
+      }
+
+      const found = result.unwrap().find((province) => province.code === code);
+      return found ? Some(found) : None;
     },
   };
 }
