@@ -47,7 +47,7 @@ export async function action({ context, request }: Route.ActionArgs) {
 
 export async function loader({ context, request }: Route.LoaderArgs) {
   requireAuthentication(context.session, new URL(request.url));
-  await requireUnregisteredUser(context.session, new URL(request.url));
+  requireUnregisteredUser(context.session, new URL(request.url));
 
   const { t } = await getTranslation(request, handle.i18nNamespace);
   return { documentTitle: t('app:register.page-title') };
