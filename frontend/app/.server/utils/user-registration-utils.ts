@@ -1,10 +1,8 @@
 /**
  * Utility functions for handling user registration flow.
  * This module provides functions to check if an authenticated user is registered
- * in the backend system and redirects unregistered users to the registration page.
+ * based on their access token claims and redirects unregistered users to the registration page.
  */
-import type { User } from '~/.server/domain/models';
-import { getUserService } from '~/.server/domain/services/user-service';
 import { LogFactory } from '~/.server/logging';
 import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
@@ -12,68 +10,51 @@ import { i18nRedirect } from '~/.server/utils/route-utils';
 const log = LogFactory.getLogger(import.meta.url);
 
 /**
- * Checks if the authenticated user is registered in the backend system.
- * If the user is authenticated via Azure AD but not registered in our backend,
+ * Checks if the authenticated user has the required roles.
+ * Verifies the user has either 'employee' or 'hiring-manager' roles from their access token claims.
+ * If the user is authenticated via Azure AD but doesn't have the required roles,
  * redirects them to the registration page.
  *
  * @param session - The authenticated session
  * @param currentUrl - The current request URL
- * @returns Promise that resolves to the registered user or throws a redirect
- * @throws {Response} Redirect to registration page if user is not registered
+ * @throws {Response} Redirect to registration page if user doesn't have required roles
  */
-export async function requireUserRegistration(session: AuthenticatedSession, currentUrl: URL): Promise<User> {
-  // Get the Azure AD user ID from the session
-  const activeDirectoryId = session.authState.idTokenClaims.sub;
+export function requireUserRegistration(session: AuthenticatedSession, currentUrl: URL): void {
+  // Check for required roles in access token claims
+  const userRoles = session.authState.accessTokenClaims.roles ?? [];
+  const hasRequiredRole = userRoles.includes('employee') || userRoles.includes('hiring-manager');
 
-  if (!activeDirectoryId) {
-    log.warn('User session is missing Azure AD subject claim');
-    throw new Error('Invalid authentication state: missing subject claim');
-  }
-
-  log.debug('Checking user registration for Azure AD ID: %s', activeDirectoryId);
-
-  const userService = getUserService();
-  const user = await userService.getUserByActiveDirectoryId(activeDirectoryId);
-
-  if (!user) {
-    log.debug('User not found in backend system, redirecting to registration');
+  if (!hasRequiredRole) {
+    log.debug('User does not have required roles (employee or hiring-manager), redirecting to registration');
     throw i18nRedirect('routes/register/index.tsx', currentUrl);
   }
 
-  log.debug('User found in backend system: %s', user.name);
-  return user;
+  log.debug(
+    'User has required roles:',
+    userRoles.filter((role) => role === 'employee' || role === 'hiring-manager'),
+  );
 }
 
 /**
  * Ensures that only authenticated users who are NOT already registered can access
- * the registration page. If the user is already registered, redirects them away.
+ * the registration page. If the user already has the required roles, they are
+ * considered registered and will be redirected away from registration pages.
  *
  * @param session - The authenticated session
  * @param currentUrl - The current request URL
  * @throws {Response} Redirect to dashboard if user is already registered
  */
-export async function requireUnregisteredUser(session: AuthenticatedSession, currentUrl: URL): Promise<void> {
-  // Get the Azure AD user ID from the session
-  const activeDirectoryId = session.authState.idTokenClaims.sub;
+export function requireUnregisteredUser(session: AuthenticatedSession, currentUrl: URL): void {
+  // Check for required roles in access token claims
+  const userRoles = session.authState.accessTokenClaims.roles ?? [];
+  const hasRequiredRole = userRoles.includes('employee') || userRoles.includes('hiring-manager');
 
-  if (!activeDirectoryId) {
-    log.warn('User session is missing Azure AD subject claim');
-    throw new Error('Invalid authentication state: missing subject claim');
-  }
-
-  log.debug('Checking if user is already registered for Azure AD ID: %s', activeDirectoryId);
-
-  const userService = getUserService();
-  const user = await userService.getUserByActiveDirectoryId(activeDirectoryId);
-
-  if (user) {
-    // TODO: Update routing
-    log.debug('User is already registered: %s, redirecting', user.name);
-
+  if (hasRequiredRole) {
+    log.debug('User has required roles, redirecting away from registration');
     throw i18nRedirect('routes/index.tsx', currentUrl);
   }
 
-  log.debug('User is not registered, allowing access to registration page');
+  log.debug('User does not have required roles, allowing access to registration page');
 }
 
 /**

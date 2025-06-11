@@ -20,7 +20,7 @@ export const handle = {
   i18nNamespace: ['gcweb', 'app'],
 } as const satisfies RouteHandle;
 
-export async function loader({ context, request }: Route.LoaderArgs) {
+export function loader({ context, request }: Route.LoaderArgs) {
   const currentUrl = new URL(request.url);
 
   // First ensure the user is authenticated (no specific roles required)
@@ -28,8 +28,8 @@ export async function loader({ context, request }: Route.LoaderArgs) {
 
   // Skip user registration check if we're already on a registration page
   if (!isRegistrationPath(currentUrl)) {
-    // Check if the authenticated user is registered in our backend system
-    await requireUserRegistration(context.session, currentUrl);
+    // Check if the authenticated user has the required roles
+    requireUserRegistration(context.session, currentUrl);
   }
 
   return { name: context.session.authState.idTokenClaims.name };

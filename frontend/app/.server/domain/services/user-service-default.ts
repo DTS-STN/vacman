@@ -57,6 +57,7 @@ export function getDefaultUserService(): UserService {
      * @returns A promise that resolves to the created user object.
      * @throws AppError if the request fails or if the server responds with an error status.
      */
+    // TODO: Also assign user to AD group for roles
     async registerUser(user: UserCreate): Promise<User> {
       const response = await fetch(`${serverEnvironment.VACMAN_API_BASE_URI}/users`, {
         method: 'POST',
