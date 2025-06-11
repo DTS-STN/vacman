@@ -2,11 +2,12 @@ import type { User, UserCreate } from '~/.server/domain/models';
 import { getDefaultUserService } from '~/.server/domain/services/user-service-default';
 import { getMockUserService } from '~/.server/domain/services/user-service-mock';
 import { serverEnvironment } from '~/.server/environment';
+import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
 
 export type UserService = {
   getUserById(id: number): Promise<User>;
   getUserByActiveDirectoryId(activeDirectoryId: string): Promise<User | null>;
-  registerUser(user: UserCreate): Promise<User>;
+  registerUser(user: UserCreate, session: AuthenticatedSession, role: 'employee' | 'hiring-manager'): Promise<User>;
 };
 
 export function getUserService(): UserService {

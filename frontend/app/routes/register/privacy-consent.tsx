@@ -33,10 +33,14 @@ export async function action({ context, request }: Route.ActionArgs) {
     const activeDirectoryId = context.session.authState.idTokenClaims.sub;
     const name = context.session.authState.idTokenClaims.name ?? 'Unknown User';
 
-    await userService.registerUser({
-      name,
-      activeDirectoryId,
-    });
+    await userService.registerUser(
+      {
+        name,
+        activeDirectoryId,
+      },
+      context.session,
+      'employee',
+    );
 
     return i18nRedirect('routes/profile/index.tsx', request);
   }

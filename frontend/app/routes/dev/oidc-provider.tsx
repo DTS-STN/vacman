@@ -136,7 +136,7 @@ async function handleAuthorizeRequest({ request }: Route.LoaderArgs): Promise<Re
     jti: randomUUID(),
     name: 'Application Developer',
     nonce: nonce,
-    roles: ['employee'],
+    roles: [],
     scopes: scope.split(' '),
     sub: '00000000-0000-0000-0000-000000000000',
   } as const satisfies AccessTokenClaims;
@@ -158,7 +158,7 @@ async function handleAuthorizeRequest({ request }: Route.LoaderArgs): Promise<Re
     name: 'Application Developer',
     email: 'developer@example.com',
     nonce: nonce,
-    roles: ['employee'],
+    roles: [],
     scopes: scope.split(' '),
     sub: '00000000-0000-0000-0000-000000000000',
   } as const satisfies IDTokenClaims;
