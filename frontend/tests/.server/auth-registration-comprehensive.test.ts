@@ -3,6 +3,7 @@
  * This consolidates all authentication, registration, and edge case testing.
  */
 import type { AppLoadContext } from 'react-router';
+import { redirect } from 'react-router';
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
@@ -50,11 +51,8 @@ vi.mock('~/.server/utils/route-utils', () => ({
     // If route is found, use its path; otherwise fall back to default
     const redirectPath = route?.paths[language] ?? (language === 'fr' ? '/fr/' : '/en/');
 
-    // Return a Response object for redirection
-    return new Response(null, {
-      status: 302,
-      headers: { Location: redirectPath },
-    });
+    // Use React Router's redirect function like the real implementation
+    return redirect(redirectPath);
   }),
 }));
 
@@ -67,7 +65,7 @@ const mockUserService = {
 vi.mocked(getUserService).mockReturnValue(mockUserService);
 
 // Helper to create mock context
-function createMockContext(activeDirectoryId: string, name?: string, roles: string[] = ['employee']): AppLoadContext {
+function createMockContext(activeDirectoryId: string, name?: string, roles: string[] = []): AppLoadContext {
   // Create a mock session that satisfies the AppSession type
   const mockSession = {
     // Express session properties
@@ -439,7 +437,7 @@ describe('Authentication and Registration Flow - Comprehensive Tests', () => {
 
       it('should redirect registered users away from registration page', async () => {
         // Arrange
-        const context = createMockContext('registered-user');
+        const context = createMockContext('registered-user', 'Already Registered', ['employee']);
         const request = new Request('http://localhost:3000/en/register');
 
         // Mock user as already registered
@@ -477,7 +475,7 @@ describe('Authentication and Registration Flow - Comprehensive Tests', () => {
 
       it('should redirect registered users away from privacy consent page', async () => {
         // Arrange
-        const context = createMockContext('registered-user');
+        const context = createMockContext('registered-user', 'Already Registered', ['employee']);
         const request = new Request('http://localhost:3000/en/register/privacy-consent');
 
         // Mock user as already registered
