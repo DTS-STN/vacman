@@ -8,6 +8,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 import { getUserService } from '~/.server/domain/services/user-service';
 import { getMockUserService } from '~/.server/domain/services/user-service-mock';
+import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
 import { isRegistrationPath } from '~/.server/utils/user-registration-utils';
 // Import the route definitions directly to use in our mock
 import { i18nRoutes } from '~/i18n-routes';
@@ -158,7 +159,33 @@ describe('Authentication and Registration Flow - Comprehensive Tests', () => {
         activeDirectoryId: 'test-ad-id-123',
       };
 
-      const registeredUser = await userService.registerUser(newUserData);
+      // Create a mock session for testing
+      const mockSession = {
+        authState: {
+          accessTokenClaims: {
+            roles: ['hiring-manager'],
+            sub: 'test-ad-id-123',
+            aud: 'test-audience',
+            client_id: 'test-client',
+            exp: Math.floor(Date.now() / 1000) + 3600,
+            iat: Math.floor(Date.now() / 1000),
+            iss: 'test-issuer',
+            jti: 'test-jti',
+          },
+          idTokenClaims: {
+            sub: 'test-ad-id-123',
+            name: 'Test Hiring Manager',
+            aud: 'test-audience',
+            exp: Math.floor(Date.now() / 1000) + 3600,
+            iat: Math.floor(Date.now() / 1000),
+            iss: 'test-issuer',
+          },
+          accessToken: 'mock-access-token',
+          idToken: 'mock-id-token',
+        },
+      } as unknown as AuthenticatedSession;
+
+      const registeredUser = await userService.registerUser(newUserData, mockSession, 'hiring-manager');
 
       expect(registeredUser).toMatchObject({
         name: 'Test Hiring Manager',
@@ -176,7 +203,32 @@ describe('Authentication and Registration Flow - Comprehensive Tests', () => {
       };
 
       // Register the user
-      await userService.registerUser(newUserData);
+      const mockSession2 = {
+        authState: {
+          accessTokenClaims: {
+            roles: ['employee'],
+            sub: 'test-ad-lookup-456',
+            aud: 'test-audience',
+            client_id: 'test-client',
+            exp: Math.floor(Date.now() / 1000) + 3600,
+            iat: Math.floor(Date.now() / 1000),
+            iss: 'test-issuer',
+            jti: 'test-jti',
+          },
+          idTokenClaims: {
+            sub: 'test-ad-lookup-456',
+            name: 'Test User for Lookup',
+            aud: 'test-audience',
+            exp: Math.floor(Date.now() / 1000) + 3600,
+            iat: Math.floor(Date.now() / 1000),
+            iss: 'test-issuer',
+          },
+          accessToken: 'mock-access-token',
+          idToken: 'mock-id-token',
+        },
+      } as unknown as AuthenticatedSession;
+      
+      await userService.registerUser(newUserData, mockSession2, 'employee');
 
       // Try to find them by Active Directory ID
       const foundUser = await userService.getUserByActiveDirectoryId('test-ad-lookup-456');
@@ -204,7 +256,32 @@ describe('Authentication and Registration Flow - Comprehensive Tests', () => {
         activeDirectoryId: mockActiveDirectoryId,
       };
 
-      const newUser = await userService.registerUser(registrationData);
+      const mockSession3 = {
+        authState: {
+          accessTokenClaims: {
+            roles: ['hiring-manager'],
+            sub: mockActiveDirectoryId,
+            aud: 'test-audience',
+            client_id: 'test-client',
+            exp: Math.floor(Date.now() / 1000) + 3600,
+            iat: Math.floor(Date.now() / 1000),
+            iss: 'test-issuer',
+            jti: 'test-jti',
+          },
+          idTokenClaims: {
+            sub: mockActiveDirectoryId,
+            name: 'New Hiring Manager',
+            aud: 'test-audience',
+            exp: Math.floor(Date.now() / 1000) + 3600,
+            iat: Math.floor(Date.now() / 1000),
+            iss: 'test-issuer',
+          },
+          accessToken: 'mock-access-token',
+          idToken: 'mock-id-token',
+        },
+      } as unknown as AuthenticatedSession;
+
+      const newUser = await userService.registerUser(registrationData, mockSession3, 'hiring-manager');
       expect(newUser).toBeTruthy();
       expect(newUser.activeDirectoryId).toBe(mockActiveDirectoryId);
 
@@ -253,10 +330,14 @@ describe('Authentication and Registration Flow - Comprehensive Tests', () => {
       expect(response.headers.get('Location')).toBe('/en/profile');
 
       // Verify user was registered
-      expect(mockUserService.registerUser).toHaveBeenCalledWith({
-        name: 'Jane Employee',
-        activeDirectoryId: 'test-user-123',
-      });
+      expect(mockUserService.registerUser).toHaveBeenCalledWith(
+        {
+          name: 'Jane Employee',
+          activeDirectoryId: 'test-user-123',
+        },
+        expect.any(Object), // session object
+        'employee'
+      );
     });
 
     it('should redirect back to registration if privacy consent is declined', async () => {
@@ -298,10 +379,14 @@ describe('Authentication and Registration Flow - Comprehensive Tests', () => {
       expect(response.headers.get('Location')).toBe('/en/');
 
       // Verify user was registered immediately
-      expect(mockUserService.registerUser).toHaveBeenCalledWith({
-        name: 'John Manager',
-        activeDirectoryId: 'test-manager-456',
-      });
+      expect(mockUserService.registerUser).toHaveBeenCalledWith(
+        {
+          name: 'John Manager',
+          activeDirectoryId: 'test-manager-456',
+        },
+        expect.any(Object), // session object
+        'hiring-manager'
+      );
     });
 
     it('should work with French locale', async () => {
@@ -321,10 +406,14 @@ describe('Authentication and Registration Flow - Comprehensive Tests', () => {
       expect(response.headers.get('Location')).toBe('/fr/');
 
       // Verify user was registered
-      expect(mockUserService.registerUser).toHaveBeenCalledWith({
-        name: 'French Manager',
-        activeDirectoryId: 'test-manager-789',
-      });
+      expect(mockUserService.registerUser).toHaveBeenCalledWith(
+        {
+          name: 'French Manager',
+          activeDirectoryId: 'test-manager-789',
+        },
+        expect.any(Object), // session object
+        'hiring-manager'
+      );
     });
   });
 
@@ -333,6 +422,9 @@ describe('Authentication and Registration Flow - Comprehensive Tests', () => {
       it('should allow access to unregistered users', async () => {
         // Arrange
         const context = createMockContext('unregistered-user');
+        // Override the roles to simulate an unregistered user
+        context.session.authState.accessTokenClaims.roles = [];
+        
         const request = new Request('http://localhost:3000/en/register');
 
         // Mock user as not registered
@@ -370,6 +462,9 @@ describe('Authentication and Registration Flow - Comprehensive Tests', () => {
       it('should allow access to unregistered users', async () => {
         // Arrange
         const context = createMockContext('unregistered-user');
+        // Override the roles to simulate an unregistered user
+        context.session.authState.accessTokenClaims.roles = [];
+        
         const request = new Request('http://localhost:3000/en/register/privacy-consent');
 
         // Mock user as not registered
@@ -460,10 +555,14 @@ describe('Authentication and Registration Flow - Comprehensive Tests', () => {
         expect(response.status).toBe(302);
 
         // Verify user was registered with fallback name
-        expect(mockUserService.registerUser).toHaveBeenCalledWith({
-          name: 'Unknown User',
-          activeDirectoryId: 'test-user-123',
-        });
+        expect(mockUserService.registerUser).toHaveBeenCalledWith(
+          {
+            name: 'Unknown User',
+            activeDirectoryId: 'test-user-123',
+          },
+          expect.any(Object), // session object
+          'hiring-manager'
+        );
       });
     });
 
@@ -522,10 +621,14 @@ describe('Authentication and Registration Flow - Comprehensive Tests', () => {
       expect(response).toBeInstanceOf(Response);
       expect(response.status).toBe(302);
       expect(response.headers.get('Location')).toBe('/en/');
-      expect(mockUserService.registerUser).toHaveBeenCalledWith({
-        name: 'Hiring Manager',
-        activeDirectoryId: 'test-user-123',
-      });
+      expect(mockUserService.registerUser).toHaveBeenCalledWith(
+        {
+          name: 'Hiring Manager',
+          activeDirectoryId: 'test-user-123',
+        },
+        expect.any(Object), // session object
+        'hiring-manager'
+      );
     });
 
     it('should properly redirect hiring manager to home page after registration (French)', async () => {
@@ -543,10 +646,14 @@ describe('Authentication and Registration Flow - Comprehensive Tests', () => {
       expect(response).toBeInstanceOf(Response);
       expect(response.status).toBe(302);
       expect(response.headers.get('Location')).toBe('/fr/');
-      expect(mockUserService.registerUser).toHaveBeenCalledWith({
-        name: 'Gestionnaire de recrutement',
-        activeDirectoryId: 'test-user-fr-123',
-      });
+      expect(mockUserService.registerUser).toHaveBeenCalledWith(
+        {
+          name: 'Gestionnaire de recrutement',
+          activeDirectoryId: 'test-user-fr-123',
+        },
+        expect.any(Object), // session object
+        'hiring-manager'
+      );
     });
 
     it('should correctly redirect employee role to privacy consent page (English)', async () => {
@@ -600,10 +707,14 @@ describe('Authentication and Registration Flow - Comprehensive Tests', () => {
       expect(response).toBeInstanceOf(Response);
       expect(response.status).toBe(302);
       expect(response.headers.get('Location')).toBe('/en/profile');
-      expect(mockUserService.registerUser).toHaveBeenCalledWith({
-        name: 'Privacy Accepting Employee',
-        activeDirectoryId: 'test-user-123',
-      });
+      expect(mockUserService.registerUser).toHaveBeenCalledWith(
+        {
+          name: 'Privacy Accepting Employee',
+          activeDirectoryId: 'test-user-123',
+        },
+        expect.any(Object), // session object
+        'employee'
+      );
     });
 
     it('should redirect to profile page when employee accepts privacy consent (French)', async () => {
@@ -621,10 +732,14 @@ describe('Authentication and Registration Flow - Comprehensive Tests', () => {
       expect(response).toBeInstanceOf(Response);
       expect(response.status).toBe(302);
       expect(response.headers.get('Location')).toBe('/fr/profil');
-      expect(mockUserService.registerUser).toHaveBeenCalledWith({
-        name: 'Employé acceptant la confidentialité',
-        activeDirectoryId: 'test-user-fr-123',
-      });
+      expect(mockUserService.registerUser).toHaveBeenCalledWith(
+        {
+          name: 'Employé acceptant la confidentialité',
+          activeDirectoryId: 'test-user-fr-123',
+        },
+        expect.any(Object), // session object
+        'employee'
+      );
     });
   });
 });

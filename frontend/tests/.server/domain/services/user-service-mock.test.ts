@@ -2,6 +2,7 @@ import { isValid, parseISO } from 'date-fns';
 import { describe, it, expect } from 'vitest';
 
 import { getMockUserService } from '~/.server/domain/services/user-service-mock';
+import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
 import { ErrorCodes } from '~/errors/error-codes';
 
 describe('getMockUserService', () => {
@@ -55,14 +56,43 @@ describe('getMockUserService', () => {
 
   describe('registerUser', () => {
     it('should create a new user with generated metadata', async () => {
-      const userData = { name: 'Test User' };
-      const createdUser = await service.registerUser(userData);
+      const userData = { name: 'Test User', activeDirectoryId: 'test-user-123' };
+      
+      // Create a mock session for testing
+      const mockSession: AuthenticatedSession = {
+        authState: {
+          accessTokenClaims: {
+            roles: ['employee'],
+            sub: 'test-user-123',
+            aud: 'test-audience',
+            client_id: 'test-client',
+            exp: Math.floor(Date.now() / 1000) + 3600,
+            iat: Math.floor(Date.now() / 1000),
+            iss: 'test-issuer',
+            jti: 'test-jti',
+          },
+          idTokenClaims: {
+            sub: 'test-user-123',
+            name: 'Test User',
+            aud: 'test-audience',
+            exp: Math.floor(Date.now() / 1000) + 3600,
+            iat: Math.floor(Date.now() / 1000),
+            iss: 'test-issuer',
+          },
+          accessToken: 'mock-access-token',
+          idToken: 'mock-id-token',
+        },
+      } as AuthenticatedSession;
+      
+      const createdUser = await service.registerUser(userData, mockSession, 'employee');
 
       expect(createdUser.id).toBeDefined();
+      expect(createdUser.name).toBe('Test User');
+      expect(createdUser.activeDirectoryId).toBe('test-user-123');
 
       // Check that dates are ISO strings (exact time will vary)
-      expect(isValid(parseISO(createdUser.createdBy)));
-      expect(isValid(parseISO(createdUser.lastModifiedBy)));
+      expect(isValid(parseISO(createdUser.createdDate))).toBe(true);
+      expect(isValid(parseISO(createdUser.lastModifiedDate))).toBe(true);
     });
   });
 });
