@@ -11,8 +11,17 @@ export type LocalizedBranch = Readonly<{
 
 export type City = Readonly<{
   id: string;
-  provinceId: string;
+  code: string;
+  nameEn: string;
+  nameFr: string;
+  province: Province;
+}>;
+
+export type LocalizedCity = Readonly<{
+  id: string;
+  code: string;
   name: string;
+  province: LocalizedProvince;
 }>;
 
 export type Classification = Readonly<{
