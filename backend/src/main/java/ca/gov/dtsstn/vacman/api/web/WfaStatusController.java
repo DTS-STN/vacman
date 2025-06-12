@@ -2,6 +2,7 @@ package ca.gov.dtsstn.vacman.api.web;
 
 import java.util.List;
 
+import ca.gov.dtsstn.vacman.api.web.model.CollectionModel;
 import org.mapstruct.factory.Mappers;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,10 +31,12 @@ public class WfaStatusController {
 
     @GetMapping
     @SecurityRequirement(name = SpringDocConfig.AZURE_AD)
-    @Operation(summary = "Get all WFA statuses.", description = "Returns a list of all WFA statuses.")
-    public List<WfaStatusReadModel> getAllWfaStatuses() {
-        return wfaStatusService.getAllWfaStatuses().stream()
-            .map(wfaStatusModelMapper::toModel)
-            .toList();
+    @Operation(summary = "Get all WFA statuses.", description = "Returns a collection of all WFA statuses.")
+    public CollectionModel<WfaStatusReadModel> getAllWfaStatuses() {
+        List<WfaStatusReadModel> statuses = wfaStatusService.getAllWfaStatuses().stream()
+                .map(wfaStatusModelMapper::toModel)
+                .toList();
+
+        return new CollectionModel<>(statuses);
     }
 }

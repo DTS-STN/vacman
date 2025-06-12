@@ -12,6 +12,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import ca.gov.dtsstn.vacman.api.config.SpringDocConfig;
 import ca.gov.dtsstn.vacman.api.service.LanguageService;
+import ca.gov.dtsstn.vacman.api.web.model.CollectionModel;
 import ca.gov.dtsstn.vacman.api.web.model.LanguageReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.mapper.LanguageModelMapper;
 import io.swagger.v3.oas.annotations.Operation;
@@ -34,21 +35,23 @@ public class LanguageController {
 
     @GetMapping
     @SecurityRequirement(name = SpringDocConfig.AZURE_AD)
-    @Operation(summary = "Get all languages or filter by code.", description = "Returns a list of all languages or a specific language if code is provided.")
-    public List<LanguageReadModel> getLanguages(
+    @Operation(summary = "Get all languages or filter by code.", description = "Returns a collection of all languages or a specific language if code is provided.")
+    public CollectionModel<LanguageReadModel> getLanguages(
             @RequestParam(required = false)
             @Parameter(description = "Language code to filter by (e.g., 'EN')")
             String code) {
-        
+
         if (code != null && !code.isEmpty()) {
-            return languageService.getLanguageByCode(code)
+            List<LanguageReadModel> result = languageService.getLanguageByCode(code)
                 .map(languageModelMapper::toModel)
                 .map(List::of)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Language with code '" + code + "' not found"));
+            return new CollectionModel<>(result);
         }
-        
-        return languageService.getAllLanguages().stream()
+
+        List<LanguageReadModel> result = languageService.getAllLanguages().stream()
             .map(languageModelMapper::toModel)
             .toList();
+        return new CollectionModel<>(result);
     }
 }

@@ -12,6 +12,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import ca.gov.dtsstn.vacman.api.config.SpringDocConfig;
 import ca.gov.dtsstn.vacman.api.service.WorkUnitService;
+import ca.gov.dtsstn.vacman.api.web.model.CollectionModel;
 import ca.gov.dtsstn.vacman.api.web.model.WorkUnitReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.mapper.WorkUnitModelMapper;
 import io.swagger.v3.oas.annotations.Operation;
@@ -34,21 +35,23 @@ public class WorkUnitController {
 
     @GetMapping
     @SecurityRequirement(name = SpringDocConfig.AZURE_AD)
-    @Operation(summary = "Get all work units or filter by code.", description = "Returns a list of all work units or a specific work unit if code is provided.")
-    public List<WorkUnitReadModel> getWorkUnits(
+    @Operation(summary = "Get all work units or filter by code.", description = "Returns a collection of all work units or a specific work unit if code is provided.")
+    public CollectionModel<WorkUnitReadModel> getWorkUnits(
             @RequestParam(required = false)
             @Parameter(description = "Work unit code to filter by")
             String code) {
-        
+
         if (code != null && !code.isEmpty()) {
-            return workUnitService.getWorkUnitByCode(code)
+            List<WorkUnitReadModel> result = workUnitService.getWorkUnitByCode(code)
                 .map(workUnitModelMapper::toModel)
                 .map(List::of)
-                .orElse(List.of()); // TODO: Return empty list if nothing found? Or throw exception?
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Work unit with code '" + code + "' not found"));
+            return new CollectionModel<>(result);
         }
-        
-        return workUnitService.getAllWorkUnits().stream()
+
+        List<WorkUnitReadModel> result = workUnitService.getAllWorkUnits().stream()
             .map(workUnitModelMapper::toModel)
             .toList();
+        return new CollectionModel<>(result);
     }
 }

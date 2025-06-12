@@ -12,6 +12,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import ca.gov.dtsstn.vacman.api.config.SpringDocConfig;
 import ca.gov.dtsstn.vacman.api.service.EducationLevelService;
+import ca.gov.dtsstn.vacman.api.web.model.CollectionModel;
 import ca.gov.dtsstn.vacman.api.web.model.EducationLevelReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.mapper.EducationLevelModelMapper;
 import io.swagger.v3.oas.annotations.Operation;
@@ -34,21 +35,23 @@ public class EducationLevelController {
 
     @GetMapping
     @SecurityRequirement(name = SpringDocConfig.AZURE_AD)
-    @Operation(summary = "Get all education levels or filter by code.", description = "Returns a list of all education levels or a specific education level if code is provided.")
-    public List<EducationLevelReadModel> getEducationLevels(
+    @Operation(summary = "Get all education levels or filter by code.", description = "Returns a collection of all education levels or a specific education level if code is provided.")
+    public CollectionModel<EducationLevelReadModel> getEducationLevels(
             @RequestParam(required = false)
             @Parameter(description = "Education level code to filter by (e.g., 'BD' for Bachelor's Degree)")
             String code) {
-        
+
         if (code != null && !code.isEmpty()) {
-            return educationLevelService.getEducationLevelByCode(code)
+            List<EducationLevelReadModel> result = educationLevelService.getEducationLevelByCode(code)
                 .map(educationLevelModelMapper::toModel)
                 .map(List::of)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Education level with code '" + code + "' not found"));
+            return new CollectionModel<>(result);
         }
-        
-        return educationLevelService.getAllEducationLevels().stream()
+
+        List<EducationLevelReadModel> result = educationLevelService.getAllEducationLevels().stream()
             .map(educationLevelModelMapper::toModel)
             .toList();
+        return new CollectionModel<>(result);
     }
 }

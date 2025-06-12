@@ -12,6 +12,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import ca.gov.dtsstn.vacman.api.config.SpringDocConfig;
 import ca.gov.dtsstn.vacman.api.service.LanguageReferralTypeService;
+import ca.gov.dtsstn.vacman.api.web.model.CollectionModel;
 import ca.gov.dtsstn.vacman.api.web.model.LanguageReferralTypeReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.mapper.LanguageReferralTypeModelMapper;
 import io.swagger.v3.oas.annotations.Operation;
@@ -34,21 +35,23 @@ public class LanguageReferralTypeController {
 
     @GetMapping
     @SecurityRequirement(name = SpringDocConfig.AZURE_AD)
-    @Operation(summary = "Get all language referral types or filter by code.", description = "Returns a list of all language referral types or a specific language referral type if code is provided.")
-    public List<LanguageReferralTypeReadModel> getLanguageReferralTypes(
+    @Operation(summary = "Get all language referral types or filter by code.", description = "Returns a collection of all language referral types or a specific language referral type if code is provided.")
+    public CollectionModel<LanguageReferralTypeReadModel> getLanguageReferralTypes(
             @RequestParam(required = false)
             @Parameter(description = "Language referral type code to filter by")
             String code) {
-        
+
         if (code != null && !code.isEmpty()) {
-            return languageReferralTypeService.getLanguageReferralTypeByCode(code)
+            List<LanguageReferralTypeReadModel> result = languageReferralTypeService.getLanguageReferralTypeByCode(code)
                 .map(languageReferralTypeModelMapper::toModel)
                 .map(List::of)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Language referral type with code '" + code + "' not found"));
+            return new CollectionModel<>(result);
         }
-        
-        return languageReferralTypeService.getAllLanguageReferralTypes().stream()
+
+        List<LanguageReferralTypeReadModel> result = languageReferralTypeService.getAllLanguageReferralTypes().stream()
             .map(languageReferralTypeModelMapper::toModel)
             .toList();
+        return new CollectionModel<>(result);
     }
 }
