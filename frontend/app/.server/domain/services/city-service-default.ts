@@ -1,7 +1,7 @@
 import type { Result, Option } from 'oxide.ts';
-import { Some, None, Ok, Err } from 'oxide.ts';
+import { Ok, Err } from 'oxide.ts';
 
-import type { City } from '~/.server/domain/models';
+import type { City, LocalizedCity } from '~/.server/domain/models';
 import type { CityService } from '~/.server/domain/services/city-service';
 import { serverEnvironment } from '~/.server/environment';
 import { AppError } from '~/errors/app-error';
@@ -9,108 +9,112 @@ import { ErrorCodes } from '~/errors/error-codes';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 
 //TODO: Revisit when the api endpoints are avaialable
-export function getDefaultCityService(): CityService {
+// Centralized API request logic
+async function makeApiRequest<T>(path: string, context: string): Promise<Result<T, AppError>> {
+  try {
+    const response = await fetch(`${serverEnvironment.VACMAN_API_BASE_URI}${path}`);
+
+    if (response.status === HttpStatusCodes.NOT_FOUND) {
+      return Err(new AppError(`${context} not found.`, ErrorCodes.NO_CITY_FOUND));
+    }
+
+    if (!response.ok) {
+      return Err(
+        new AppError(
+          `Failed to ${context.toLowerCase()}. Server responded with status ${response.status}.`,
+          ErrorCodes.VACMAN_API_ERROR,
+        ),
+      );
+    }
+
+    // Handle cases where the server returns 204 No Content for a successful empty response
+    if (response.status === HttpStatusCodes.NO_CONTENT) {
+      return Ok([] as unknown as T); // Return an empty array or appropriate empty value
+    }
+
+    const data: T = await response.json();
+    return Ok(data);
+  } catch (error) {
+    return Err(
+      new AppError(`Unexpected error occurred while ${context.toLowerCase()}: ${String(error)}`, ErrorCodes.VACMAN_API_ERROR),
+    );
+  }
+}
+
+// Centralized localization logic
+function localizeCity(city: City, language: Language): LocalizedCity {
   return {
-    /**
-     * Retrieves all cities.
-     * @returns A promise that resolves to an array of city objects or {AppError} if the request fails or if the server responds with an error status.
-     */
-    async getAll(): Promise<Result<readonly City[], AppError>> {
-      try {
-        const response = await fetch(`${serverEnvironment.VACMAN_API_BASE_URI}/cities`);
-
-        if (!response.ok) {
-          return Err(
-            new AppError(
-              `Failed to retrieve all Cities. Server responded with status ${response.status}.`,
-              ErrorCodes.VACMAN_API_ERROR,
-            ),
-          );
-        }
-
-        const data: City[] = await response.json();
-        return Ok(data);
-      } catch (error) {
-        return Err(
-          new AppError(`Unexpected error occurred while fetching Cities: ${String(error)}`, ErrorCodes.VACMAN_API_ERROR),
-        );
-      }
-    },
-
-    /**
-     * Retrieves a city by its ID.
-     * @param id The ID of the city to retrieve.
-     * @returns A promise that resolves to the city object, or undefined if not found or {AppError} If the city is not found or if the request fails or if the server responds with an error status.
-     */
-    async getById(id: string): Promise<Result<City, AppError>> {
-      try {
-        const response = await fetch(`${serverEnvironment.VACMAN_API_BASE_URI}/cities/${id}`);
-
-        if (response.status === HttpStatusCodes.NOT_FOUND) {
-          return Err(new AppError(`City with ID '${id}' not found.`, ErrorCodes.NO_CITY_FOUND));
-        }
-
-        if (!response.ok) {
-          return Err(
-            new AppError(
-              `Failed to find the City with ID '${id}'. Server responded with status ${response.status}.`,
-              ErrorCodes.VACMAN_API_ERROR,
-            ),
-          );
-        }
-
-        const data: City = await response.json();
-        return Ok(data);
-      } catch (error) {
-        return Err(
-          new AppError(`Unexpected error occurred while fetching City by ID: ${String(error)}`, ErrorCodes.VACMAN_API_ERROR),
-        );
-      }
-    },
-
-    /**
-     * Retrieves a single city by its ID.
-     *
-     * @param id The ID of the city to retrieve.
-     * @returns The city object if found or undefined if not found.
-     */
-
-    async findById(id: string): Promise<Option<City>> {
-      const result = await getDefaultCityService().getAll();
-
-      if (result.isErr()) {
-        return None;
-      }
-
-      const found = result.unwrap().find((city) => city.id === id);
-      return found ? Some(found) : None;
-    },
-
-    /**
-     * Retrieves all cities for a given province ID.
-     * @param provinceId The ID of the province for which to retrieve cities.
-     * @returns A promise that resolves to an array of cities in the specified province or {AppError} if the request fails or if the server responds with an error status.
-     */
-    async getAllByProvinceId(provinceId: string): Promise<Result<readonly City[], AppError>> {
-      try {
-        const response = await fetch(`${serverEnvironment.VACMAN_API_BASE_URI}/cities?provinceId=${provinceId}`);
-
-        if (!response.ok) {
-          return Err(
-            new AppError(
-              `Failed to retrieve all Cities for Province ID '${provinceId}'. Server responded with status ${response.status}.`,
-              ErrorCodes.VACMAN_API_ERROR,
-            ),
-          );
-        }
-
-        const data: City[] = await response.json();
-        return Ok(data);
-      } catch (error) {
-        return Err(
-          new AppError(`Unexpected error occurred while fetching Cities: ${String(error)}`, ErrorCodes.VACMAN_API_ERROR),
-        );
-      }
+    id: city.id,
+    code: city.code,
+    name: language === 'fr' ? city.nameFr : city.nameEn,
+    province: {
+      id: city.province.id,
+      code: city.province.code,
+      name: language === 'fr' ? city.province.nameFr : city.province.nameEn,
     },
   };
+}
+
+// Create a single instance of the service (Singleton)
+export const cityService: CityService = {
+  getAll(): Promise<Result<readonly City[], AppError>> {
+    return makeApiRequest('/cities', 'Retrieve all cities');
+  },
+
+  getById(id: string): Promise<Result<City, AppError>> {
+    return makeApiRequest(`/cities/${id}`, `Find city with ID '${id}'`);
+  },
+
+  getByCode(code: string): Promise<Result<City, AppError>> {
+    return makeApiRequest(`/cities?code=${code}`, `Find city with CODE '${code}'`);
+  },
+
+  getAllByProvinceId(provinceId: string): Promise<Result<readonly City[], AppError>> {
+    return makeApiRequest(`/cities?provinceId=${provinceId}`, `Retrieve cities for province ID '${provinceId}'`);
+  },
+
+  getAllByProvinceCode(provinceCode: string): Promise<Result<readonly City[], AppError>> {
+    return makeApiRequest(`/cities?provinceCode=${provinceCode}`, `Retrieve cities for province CODE '${provinceCode}'`);
+  },
+
+  async findById(id: string): Promise<Option<City>> {
+    const result = await this.getById(id);
+    // .ok() converts a Result<T, E> into an Option<T>
+    return result.ok();
+  },
+
+  async findByCode(code: string): Promise<Option<City>> {
+    const result = await this.getByCode(code);
+    return result.ok();
+  },
+
+  // Localized methods
+  async getAllLocalized(language: Language): Promise<Result<readonly LocalizedCity[], AppError>> {
+    const result = await this.getAll();
+    return result.map((cities) => cities.map((city) => localizeCity(city, language)));
+  },
+
+  async getLocalizedById(id: string, language: Language): Promise<Result<LocalizedCity, AppError>> {
+    const result = await this.getById(id);
+    return result.map((city) => localizeCity(city, language));
+  },
+
+  async getLocalizedByCode(code: string, language: Language): Promise<Result<LocalizedCity, AppError>> {
+    const result = await this.getByCode(code);
+    return result.map((city) => localizeCity(city, language));
+  },
+
+  async findLocalizedById(id: string, language: Language): Promise<Option<LocalizedCity>> {
+    const result = await this.getLocalizedById(id, language);
+    return result.ok();
+  },
+
+  async findLocalizedByCode(code: string, language: Language): Promise<Option<LocalizedCity>> {
+    const result = await this.getLocalizedByCode(code, language);
+    return result.ok();
+  },
+};
+
+export function getDefaultCityService(): CityService {
+  return cityService;
 }
