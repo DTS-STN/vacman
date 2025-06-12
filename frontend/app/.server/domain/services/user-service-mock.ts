@@ -21,8 +21,7 @@ export function getMockUserService(): UserService {
         return Promise.reject(error);
       }
     },
-    registerUser: (user: UserCreate, session: AuthenticatedSession, role: 'employee' | 'hiring-manager') =>
-      Promise.resolve(registerUser(user, session, role)),
+    registerUser: (user: UserCreate, session: AuthenticatedSession) => Promise.resolve(registerUser(user, session)),
   };
 }
 
@@ -34,6 +33,7 @@ const mockUsers: readonly User[] = [
     id: 1,
     name: 'Jane Doe',
     activeDirectoryId: '00000000-0000-0000-0000-000000000001',
+    role: 'employee',
     createdBy: 'system',
     createdDate: '2024-01-01T00:00:00Z',
     lastModifiedBy: 'system',
@@ -43,6 +43,7 @@ const mockUsers: readonly User[] = [
     id: 2,
     name: 'John Doe',
     activeDirectoryId: '11111111-1111-1111-1111-111111111111',
+    role: 'employee',
     createdBy: 'system',
     createdDate: '2024-01-01T00:00:00Z',
     lastModifiedBy: 'system',
@@ -52,6 +53,7 @@ const mockUsers: readonly User[] = [
     id: 3,
     name: 'Jane Smith',
     activeDirectoryId: '22222222-2222-2222-2222-222222222222',
+    role: 'employee',
     createdBy: 'system',
     createdDate: '2024-01-02T00:00:00Z',
     lastModifiedBy: 'system',
@@ -61,6 +63,7 @@ const mockUsers: readonly User[] = [
     id: 4,
     name: 'Michel Tremblay',
     activeDirectoryId: '33333333-3333-3333-3333-333333333333',
+    role: 'hiring-manager',
     createdBy: 'system',
     createdDate: '2024-01-03T00:00:00Z',
     lastModifiedBy: 'system',
@@ -97,10 +100,13 @@ function getUserByActiveDirectoryId(activeDirectoryId: string): User | null {
 /**
  * Registers a new user with mock data.
  *
- * @param userData The user data to create.
+ * @param userData The user data to create (including role).
+ * @param session The authenticated session.
  * @returns The created user object with generated metadata.
  */
-function registerUser(userData: UserCreate, session: AuthenticatedSession, role: 'employee' | 'hiring-manager'): User {
+function registerUser(userData: UserCreate, session: AuthenticatedSession): User {
+  // Extract role from user data
+  const role = userData.role as 'employee' | 'hiring-manager';
   // If using local OIDC for testing, update the session roles
   if (serverEnvironment.ENABLE_DEVMODE_OIDC) {
     // Mock function to simulate updating user roles in the session for local testing.
@@ -118,6 +124,7 @@ function registerUser(userData: UserCreate, session: AuthenticatedSession, role:
     id: mockUsers.length + 1,
     name: userData.name,
     activeDirectoryId: userData.activeDirectoryId,
+    role: userData.role,
     createdBy: 'system',
     createdDate: new Date().toISOString(),
     lastModifiedBy: 'system',

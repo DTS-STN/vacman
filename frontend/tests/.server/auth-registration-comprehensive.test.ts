@@ -155,6 +155,7 @@ describe('Authentication and Registration Flow - Comprehensive Tests', () => {
       const newUserData = {
         name: 'Test Hiring Manager',
         activeDirectoryId: 'test-ad-id-123',
+        role: 'hiring-manager',
       };
 
       // Create a mock session for testing
@@ -183,7 +184,7 @@ describe('Authentication and Registration Flow - Comprehensive Tests', () => {
         },
       } as unknown as AuthenticatedSession;
 
-      const registeredUser = await userService.registerUser(newUserData, mockSession, 'hiring-manager');
+      const registeredUser = await userService.registerUser(newUserData, mockSession);
 
       expect(registeredUser).toMatchObject({
         name: 'Test Hiring Manager',
@@ -198,6 +199,7 @@ describe('Authentication and Registration Flow - Comprehensive Tests', () => {
       const newUserData = {
         name: 'Test User for Lookup',
         activeDirectoryId: 'test-ad-lookup-456',
+        role: 'employee',
       };
 
       // Register the user
@@ -226,7 +228,7 @@ describe('Authentication and Registration Flow - Comprehensive Tests', () => {
         },
       } as unknown as AuthenticatedSession;
 
-      await userService.registerUser(newUserData, mockSession2, 'employee');
+      await userService.registerUser(newUserData, mockSession2);
 
       // Try to find them by Active Directory ID
       const foundUser = await userService.getUserByActiveDirectoryId('test-ad-lookup-456');
@@ -252,6 +254,7 @@ describe('Authentication and Registration Flow - Comprehensive Tests', () => {
       const registrationData = {
         name: 'New Hiring Manager',
         activeDirectoryId: mockActiveDirectoryId,
+        role: 'hiring-manager',
       };
 
       const mockSession3 = {
@@ -279,7 +282,7 @@ describe('Authentication and Registration Flow - Comprehensive Tests', () => {
         },
       } as unknown as AuthenticatedSession;
 
-      const newUser = await userService.registerUser(registrationData, mockSession3, 'hiring-manager');
+      const newUser = await userService.registerUser(registrationData, mockSession3);
       expect(newUser).toBeTruthy();
       expect(newUser.activeDirectoryId).toBe(mockActiveDirectoryId);
 
@@ -332,9 +335,9 @@ describe('Authentication and Registration Flow - Comprehensive Tests', () => {
         {
           name: 'Jane Employee',
           activeDirectoryId: 'test-user-123',
+          role: 'employee',
         },
         expect.any(Object), // session object
-        'employee',
       );
     });
 
@@ -381,9 +384,9 @@ describe('Authentication and Registration Flow - Comprehensive Tests', () => {
         {
           name: 'John Manager',
           activeDirectoryId: 'test-manager-456',
+          role: 'hiring-manager',
         },
         expect.any(Object), // session object
-        'hiring-manager',
       );
     });
 
@@ -408,9 +411,9 @@ describe('Authentication and Registration Flow - Comprehensive Tests', () => {
         {
           name: 'French Manager',
           activeDirectoryId: 'test-manager-789',
+          role: 'hiring-manager',
         },
         expect.any(Object), // session object
-        'hiring-manager',
       );
     });
   });
@@ -553,9 +556,9 @@ describe('Authentication and Registration Flow - Comprehensive Tests', () => {
           {
             name: 'Unknown User',
             activeDirectoryId: 'test-user-123',
+            role: 'hiring-manager',
           },
           expect.any(Object), // session object
-          'hiring-manager',
         );
       });
     });
@@ -619,9 +622,9 @@ describe('Authentication and Registration Flow - Comprehensive Tests', () => {
         {
           name: 'Hiring Manager',
           activeDirectoryId: 'test-user-123',
+          role: 'hiring-manager',
         },
         expect.any(Object), // session object
-        'hiring-manager',
       );
     });
 
@@ -644,9 +647,9 @@ describe('Authentication and Registration Flow - Comprehensive Tests', () => {
         {
           name: 'Gestionnaire de recrutement',
           activeDirectoryId: 'test-user-fr-123',
+          role: 'hiring-manager',
         },
         expect.any(Object), // session object
-        'hiring-manager',
       );
     });
 
@@ -705,9 +708,9 @@ describe('Authentication and Registration Flow - Comprehensive Tests', () => {
         {
           name: 'Privacy Accepting Employee',
           activeDirectoryId: 'test-user-123',
+          role: 'employee',
         },
         expect.any(Object), // session object
-        'employee',
       );
     });
 
@@ -730,9 +733,9 @@ describe('Authentication and Registration Flow - Comprehensive Tests', () => {
         {
           name: 'Employé acceptant la confidentialité',
           activeDirectoryId: 'test-user-fr-123',
+          role: 'employee',
         },
         expect.any(Object), // session object
-        'employee',
       );
     });
   });

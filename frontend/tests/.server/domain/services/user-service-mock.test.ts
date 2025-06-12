@@ -56,7 +56,7 @@ describe('getMockUserService', () => {
 
   describe('registerUser', () => {
     it('should create a new user with generated metadata', async () => {
-      const userData = { name: 'Test User', activeDirectoryId: 'test-user-123' };
+      const userData = { name: 'Test User', activeDirectoryId: 'test-user-123', role: 'employee' };
 
       // Create a mock session for testing
       const mockSession: AuthenticatedSession = {
@@ -84,7 +84,7 @@ describe('getMockUserService', () => {
         },
       } as AuthenticatedSession;
 
-      const createdUser = await service.registerUser(userData, mockSession, 'employee');
+      const createdUser = await service.registerUser(userData, mockSession);
 
       expect(createdUser.id).toBeDefined();
       expect(createdUser.name).toBe('Test User');
