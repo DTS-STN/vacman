@@ -31,18 +31,12 @@ export const personalInformationSchema = v.object({
     v.nonEmpty('app:personal-information.errors.personal-email-required'),
     v.email('app:personal-information.errors.personal-email-invalid'),
   ),
-  workPhone: v.pipe(
-    v.string('app:personal-information.errors.work-phone-required'),
-    v.trim(),
-    v.nonEmpty('app:personal-information.errors.work-phone-required'),
-    v.custom((val) => isValidPhone(val as string), 'app:personal-information.errors.work-phone-invalid'),
-    v.transform((val) => parsePhoneNumberWithError(val, 'CA').formatInternational().replace(/ /g, '')),
-  ),
-  workPhoneExtension: v.optional(
+  workPhone: v.optional(
     v.pipe(
-      v.string(),
+      v.string('app:personal-information.errors.work-phone-required'),
       v.trim(),
-      v.regex(REGEX_PATTERNS.DIGIT_ONLY, 'app:personal-information.errors.work-phone-extension-invalid'),
+      v.custom((val) => isValidPhone(val as string), 'app:personal-information.errors.work-phone-invalid'),
+      v.transform((val) => parsePhoneNumberWithError(val, 'CA').formatInternational().replace(/ /g, '')),
     ),
   ),
   personalPhone: v.pipe(

@@ -42,7 +42,6 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     preferredLanguage: formString(formData.get('preferredLanguage')),
     personalEmail: formString(formData.get('personalEmail')),
     workPhone: formString(formData.get('workPhone')),
-    workPhoneExtension: formString(formData.get('workPhoneExtension')),
     personalPhone: formString(formData.get('personalPhone')),
     education: formString(formData.get('education')),
   });
@@ -74,7 +73,6 @@ export async function loader({ context, request }: Route.LoaderArgs) {
       workEmail: context.session.authState.idTokenClaims.email,
       personalEmail: undefined,
       workPhone: undefined,
-      workPhoneExtension: undefined,
       personalPhone: undefined,
       education: undefined as string | undefined,
     },
@@ -143,36 +141,25 @@ export default function PersonalInformation({ loaderData, actionData, params }: 
                 errorMessage={t(extractValidationKey(errors?.personalEmail))}
                 required
               />
-              <div className="grid gap-4 md:grid-cols-2">
-                <InputPhoneField
-                  id="work-phone"
-                  name="workPhone"
-                  type="tel"
-                  inputMode="tel"
-                  autoComplete="tel"
-                  label={t('app:personal-information.work-phone')}
-                  defaultValue={loaderData.defaultValues.workPhone}
-                  errorMessage={t(extractValidationKey(errors?.workPhone))}
-                  helpMessagePrimary={
-                    <Trans
-                      ns={handle.i18nNamespace}
-                      i18nKey="app:personal-information.work-phone-help-message-primary"
-                      components={{ noWrap: <span className="whitespace-nowrap" /> }}
-                    />
-                  }
-                  required
-                />
-                <InputField
-                  id="work-phone-extension"
-                  name="workPhoneExtension"
-                  className="w-20"
-                  label={t('app:personal-information.work-phone-extension')}
-                  defaultValue={loaderData.defaultValues.workPhoneExtension}
-                  errorMessage={t(extractValidationKey(errors?.workPhoneExtension))}
-                  helpMessagePrimary={t('app:personal-information.work-phone-extension-help-message-primary')}
-                  type="number"
-                />
-              </div>
+
+              <InputPhoneField
+                id="work-phone"
+                name="workPhone"
+                type="tel"
+                inputMode="tel"
+                autoComplete="tel"
+                label={t('app:personal-information.work-phone')}
+                defaultValue={loaderData.defaultValues.workPhone}
+                errorMessage={t(extractValidationKey(errors?.workPhone))}
+                helpMessagePrimary={
+                  <Trans
+                    ns={handle.i18nNamespace}
+                    i18nKey="app:personal-information.work-phone-help-message-primary"
+                    components={{ noWrap: <span className="whitespace-nowrap" /> }}
+                  />
+                }
+              />
+
               <InputPhoneField
                 id="personal-phone"
                 name="personalPhone"
