@@ -7,7 +7,7 @@ import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
 export type UserService = {
   getUserById(id: number): Promise<User>;
   getUserByActiveDirectoryId(activeDirectoryId: string): Promise<User | null>;
-  registerUser(user: UserCreate, session: AuthenticatedSession, role: 'employee' | 'hiring-manager'): Promise<User>;
+  registerUser(user: UserCreate, session: AuthenticatedSession): Promise<User>;
 };
 
 export function getUserService(): UserService {

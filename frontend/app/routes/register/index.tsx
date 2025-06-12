@@ -43,9 +43,9 @@ export async function action({ context, request }: Route.ActionArgs) {
       {
         name,
         activeDirectoryId,
+        role,
       },
       context.session,
-      'hiring-manager',
     );
     return i18nRedirect('routes/index.tsx', request);
   }

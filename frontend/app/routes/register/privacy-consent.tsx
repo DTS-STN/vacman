@@ -39,9 +39,9 @@ export async function action({ context, request }: Route.ActionArgs) {
       {
         name,
         activeDirectoryId,
+        role: 'employee',
       },
       context.session,
-      'employee',
     );
 
     return i18nRedirect('routes/profile/index.tsx', request);
