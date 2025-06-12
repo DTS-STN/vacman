@@ -38,9 +38,10 @@ export default {
     'back': 'Back to profile',
   },
   'form': {
-    cancel: 'Cancel',
-    save: 'Save',
-    submit: 'Submit',
+    'cancel': 'Cancel',
+    'save': 'Save',
+    'submit': 'Submit',
+    'select-option': 'Select option',
   },
   'personal-information': {
     'page-title': 'Personal information',
@@ -83,8 +84,7 @@ export default {
     'wfa-end-date': 'End date of your WFA status (if applicable)',
     'hr-advisor': 'HR advisor identified on your WFA letter',
     'errors': {
-      'substantive-group-required': 'Substantive group is required.',
-      'substantive-level-required': 'Substantive level is required.',
+      'substantive-group-and-level-required': 'Group and level of your substantive position is required.',
       'branch-or-service-canada-region-required': 'Branch or Service Canada Region is required.',
       'directorate-required': 'Directorate is required.',
       'provinces-required': 'Province of the designated work location is required.',

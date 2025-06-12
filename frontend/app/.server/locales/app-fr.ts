@@ -40,9 +40,10 @@ export default {
     'back': 'Retour au profil',
   },
   'form': {
-    cancel: 'Annuler',
-    save: 'Enregistrer',
-    submit: 'Soumettre',
+    'cancel': 'Annuler',
+    'save': 'Enregistrer',
+    'submit': 'Soumettre',
+    'select-option': 'Sélectionner une option',
   },
   'personal-information': {
     'page-title': 'Informations personnelles',
@@ -85,8 +86,7 @@ export default {
     'wfa-end-date': 'Date de fin de votre statut de RE (si applicable)',
     'hr-advisor': 'Conseiller en RH identifié dans votre lettre de RE',
     'errors': {
-      'substantive-group-required': 'Un groupe substantif est requis.',
-      'substantive-level-required': 'Le niveau de votre poste substantif est requis.',
+      'substantive-group-and-level-required': 'Groupe et niveau de votre poste substantif est requis.',
       'branch-or-service-canada-region-required': 'La direction générale ou la région de Service Canada est requise.',
       'directorate-required': 'La direction est requise.',
       'provinces-required': 'La province du lieu de travail désigné de votre poste substantif est requise.',
