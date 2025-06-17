@@ -395,6 +395,58 @@ describe('Authentication, Registration, and Privacy Consent Flow', () => {
 
       // Verify no registration attempted
       expect(mockUserService.registerUser).not.toHaveBeenCalled();
+      // Verify no role update attempted since user is already a hiring manager
+      expect(mockUserService.updateUserRole).not.toHaveBeenCalled();
+    });
+
+    it('should update employee role to hiring-manager and redirect to hiring manager dashboard', async () => {
+      const context = createMockContext('test-employee-to-manager-123', 'Jane Employee');
+      const request = new Request('http://localhost:3000/en/', {
+        method: 'POST',
+        body: new URLSearchParams({ dashboard: 'hiring-manager' }),
+      });
+
+      // Mock user as existing employee
+      mockUserService.getUserByActiveDirectoryId.mockResolvedValue({
+        id: '3',
+        name: 'Jane Employee',
+        activeDirectoryId: 'test-employee-to-manager-123',
+        role: 'employee',
+        privacyConsentAccepted: true,
+        createdBy: 'system',
+        createdDate: new Date(),
+        lastModifiedBy: 'system',
+        lastModifiedDate: new Date(),
+      });
+
+      // Mock the updateUserRole response
+      mockUserService.updateUserRole.mockResolvedValue({
+        id: '3',
+        name: 'Jane Employee',
+        activeDirectoryId: 'test-employee-to-manager-123',
+        role: 'hiring-manager',
+        privacyConsentAccepted: true,
+        createdBy: 'system',
+        createdDate: new Date(),
+        lastModifiedBy: 'system',
+        lastModifiedDate: new Date(),
+      });
+
+      const response = await indexAction({ context, request, params: {} } as TestRouteArgs);
+
+      expect(response).toBeInstanceOf(Response);
+      expect(response.status).toBe(302);
+      expect(response.headers.get('Location')).toBe('/en/hiring-manager');
+
+      // Verify role was updated
+      expect(mockUserService.updateUserRole).toHaveBeenCalledWith(
+        'test-employee-to-manager-123',
+        'hiring-manager',
+        expect.any(Object),
+      );
+
+      // Verify no new registration attempted since user already exists
+      expect(mockUserService.registerUser).not.toHaveBeenCalled();
     });
 
     it('should return 400 for invalid dashboard selection', async () => {

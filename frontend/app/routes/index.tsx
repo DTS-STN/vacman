@@ -50,11 +50,18 @@ export async function action({ context, request }: Route.ActionArgs) {
     const activeDirectoryId = authenticatedSession.authState.idTokenClaims.sub;
     const existingUser = await userService.getUserByActiveDirectoryId(activeDirectoryId);
 
-    if (existingUser?.role.includes('hiring-manager')) {
-      // User is registered as hiring-manager, redirect to hiring-manager dashboard
-      return i18nRedirect('routes/hiring-manager/index.tsx', request);
+    if (existingUser) {
+      // User exists in the system
+      if (existingUser.role.includes('hiring-manager')) {
+        // User is already a hiring-manager, redirect to hiring-manager dashboard
+        return i18nRedirect('routes/hiring-manager/index.tsx', request);
+      } else {
+        // User exists but is not a hiring-manager, update their role to hiring-manager
+        await userService.updateUserRole(activeDirectoryId, 'hiring-manager', authenticatedSession);
+        return i18nRedirect('routes/hiring-manager/index.tsx', request);
+      }
     } else {
-      // User is not registered or is not hiring-manager, register them as hiring-manager and redirect
+      // User is not registered, register them as hiring-manager and redirect
       const name = authenticatedSession.authState.idTokenClaims.name ?? 'Unknown User';
 
       await userService.registerUser(
