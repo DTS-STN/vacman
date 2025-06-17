@@ -6,7 +6,6 @@ import { useTranslation } from 'react-i18next';
 import type { Route } from './+types/layout';
 
 import { requireAuthentication } from '~/.server/utils/auth-utils';
-import { requireUserRegistration, isRegistrationPath } from '~/.server/utils/user-registration-utils';
 import { AppBar } from '~/components/app-bar';
 import { LanguageSwitcher } from '~/components/language-switcher';
 import { AppLink } from '~/components/links';
@@ -27,10 +26,10 @@ export function loader({ context, request }: Route.LoaderArgs) {
   requireAuthentication(context.session, currentUrl);
 
   // Skip user registration check if we're already on a registration page
-  if (!isRegistrationPath(currentUrl)) {
-    // Check if the authenticated user has the required roles
-    requireUserRegistration(context.session, currentUrl);
-  }
+  // if (!isRegistrationPath(currentUrl)) {
+  //   // Check if the authenticated user has the required roles
+  //   requireUserRegistration(context.session, currentUrl);
+  // }
 
   return { name: context.session.authState.idTokenClaims.name };
 }

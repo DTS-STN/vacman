@@ -14,6 +14,8 @@ import { getClassificationService } from '~/.server/domain/services/classificati
 import { getDirectorateService } from '~/.server/domain/services/directorate-service';
 import { getProvinceService } from '~/.server/domain/services/province-service';
 import { requireAllRoles } from '~/.server/utils/auth-utils';
+import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
+import { requirePrivacyConsent } from '~/.server/utils/privacy-consent-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { Button } from '~/components/button';
 import { ButtonLink } from '~/components/button-link';
@@ -22,8 +24,8 @@ import { InputSelect } from '~/components/input-select';
 import { InlineLink } from '~/components/links';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { getTranslation } from '~/i18n-config.server';
+import { employmentInformationSchema } from '~/routes/employee/profile/validation.server';
 import { handle as parentHandle } from '~/routes/layout';
-import { employmentInformationSchema } from '~/routes/profile/validation.server';
 import { formString } from '~/utils/string-utils';
 import { extractValidationKey } from '~/utils/validation-utils';
 
@@ -36,7 +38,8 @@ export function meta({ data }: Route.MetaArgs) {
 }
 
 export async function action({ context, params, request }: Route.ActionArgs) {
-  requireAllRoles(context.session, new URL(request.url), ['employee']);
+  // Since parent layout ensures authentication, we can safely cast the session
+  await requirePrivacyConsent(context.session as AuthenticatedSession, new URL(request.url));
 
   const formData = await request.formData();
   const parseResult = v.safeParse(employmentInformationSchema, {
@@ -58,7 +61,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 
   //TODO: Save form data after validation
 
-  throw i18nRedirect('routes/profile/index.tsx', request);
+  throw i18nRedirect('routes/employee/profile/index.tsx', request);
 }
 
 export async function loader({ context, request }: Route.LoaderArgs) {
@@ -69,6 +72,9 @@ export async function loader({ context, request }: Route.LoaderArgs) {
   const directorates = await getDirectorateService().getLocalizedDirectorates(lang);
   const provinces = await getProvinceService().getAllLocalized(lang);
   const cities = await getCityService().getAllLocalized(lang);
+
+  // Since parent layout ensures authentication, we can safely cast the session
+  await requirePrivacyConsent(context.session as AuthenticatedSession, new URL(request.url));
 
   return {
     documentTitle: t('app:employmeny-information.page-title'),
@@ -129,7 +135,7 @@ export default function EmploymentInformation({ loaderData, actionData, params }
 
   return (
     <>
-      <InlineLink className="mt-6 block" file="routes/profile/index.tsx" id="back-button">
+      <InlineLink className="mt-6 block" file="routes/employee/profile/index.tsx" id="back-button">
         {`< ${t('app:profile.back')}`}
       </InlineLink>
       <div className="max-w-prose">

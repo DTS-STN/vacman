@@ -1,12 +1,8 @@
-import type { RouteHandle } from 'react-router';
+import type { RouteHandle, LoaderFunctionArgs, ActionFunctionArgs, MetaFunction } from 'react-router';
 import { Form } from 'react-router';
 
-import type { Route } from './+types/privacy-consent';
-
 import { getUserService } from '~/.server/domain/services/user-service';
-import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
-import { requireUnregisteredUser } from '~/.server/utils/user-registration-utils';
 import { Button } from '~/components/button';
 import { ButtonLink } from '~/components/button-link';
 import { getTranslation } from '~/i18n-config.server';
@@ -16,16 +12,11 @@ export const handle = {
   i18nNamespace: [...parentHandle.i18nNamespace],
 } as const satisfies RouteHandle;
 
-export function meta({ data }: Route.MetaArgs) {
+export const meta: MetaFunction<typeof loader> = ({ data }) => {
   return [{ title: data?.documentTitle }];
-}
+};
 
-export async function action({ context, request }: Route.ActionArgs) {
-  // Ensure user is authenticated (no specific roles required)
-  requireAuthentication(context.session, new URL(request.url));
-  // Ensure user is unregistered
-  requireUnregisteredUser(context.session, new URL(request.url));
-
+export async function action({ context, request }: ActionFunctionArgs) {
   const formData = await request.formData();
   const action = formData.get('action');
 
@@ -40,26 +31,24 @@ export async function action({ context, request }: Route.ActionArgs) {
         name,
         activeDirectoryId,
         role: 'employee',
+        privacyConsentAccepted: true,
       },
       context.session,
     );
 
-    return i18nRedirect('routes/profile/index.tsx', request);
+    return i18nRedirect('routes/employee/index.tsx', request);
   }
 
-  // If declined, redirect back to registration page with current locale
-  return i18nRedirect('routes/register/index.tsx', request);
+  // If declined, redirect back to dashboard selection page with current locale
+  return i18nRedirect('routes/index.tsx', request);
 }
 
-export async function loader({ context, request }: Route.LoaderArgs) {
-  requireAuthentication(context.session, new URL(request.url));
-  requireUnregisteredUser(context.session, new URL(request.url));
-
+export async function loader({ context, request }: LoaderFunctionArgs) {
   const { t } = await getTranslation(request, handle.i18nNamespace);
   return { documentTitle: t('app:register.page-title') };
 }
 
-export default function PrivacyConsent({ loaderData, params }: Route.ComponentProps) {
+export default function PrivacyConsent() {
   return (
     <>
       <div className="max-w-prose">
@@ -79,7 +68,7 @@ export default function PrivacyConsent({ loaderData, params }: Route.ComponentPr
             <Button name="action" value="accept" variant="primary" id="continue-button">
               Accept
             </Button>
-            <ButtonLink file="routes/register/index.tsx" id="back-button">
+            <ButtonLink file="routes/index.tsx" id="back-button">
               Decline
             </ButtonLink>
           </div>

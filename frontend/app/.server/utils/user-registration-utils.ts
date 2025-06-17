@@ -26,7 +26,7 @@ export function requireUserRegistration(session: AuthenticatedSession, currentUr
 
   if (!hasRequiredRole) {
     log.debug('User does not have required roles (employee or hiring-manager), redirecting to registration');
-    throw i18nRedirect('routes/register/index.tsx', currentUrl);
+    throw i18nRedirect('routes/index.tsx', currentUrl);
   }
 
   log.debug(
@@ -55,7 +55,7 @@ export function requireUnregisteredUser(session: AuthenticatedSession, currentUr
 
     switch (registeredRole) {
       case 'employee':
-        throw i18nRedirect('routes/profile/index.tsx', currentUrl);
+        throw i18nRedirect('routes/employee/profile/index.tsx', currentUrl);
       case 'hiring-manager':
         throw i18nRedirect('routes/index.tsx', currentUrl);
     }
@@ -69,12 +69,7 @@ export function requireUnregisteredUser(session: AuthenticatedSession, currentUr
  * This prevents infinite redirects when the user is already on registration pages.
  */
 export function isRegistrationPath(url: URL): boolean {
-  const registrationPaths = [
-    '/en/register',
-    '/fr/enregistrer',
-    '/en/register/privacy-consent',
-    '/fr/enregistrer/consentement-a-la-confidentialite',
-  ];
+  const registrationPaths = ['/en/employee/privacy-consent', '/fr/employe/consentement-a-la-confidentialite'];
 
   return registrationPaths.some((path) => url.pathname.startsWith(path));
 }

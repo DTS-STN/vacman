@@ -124,6 +124,7 @@ export type User = Readonly<{
   name: string;
   activeDirectoryId?: string;
   role: string;
+  privacyConsentAccepted?: boolean;
   createdBy: string;
   createdDate: string;
   lastModifiedBy: string;
@@ -134,4 +135,5 @@ export type UserCreate = Readonly<{
   name: string;
   activeDirectoryId?: string;
   role: string;
+  privacyConsentAccepted?: boolean;
 }>;

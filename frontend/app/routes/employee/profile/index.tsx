@@ -7,7 +7,8 @@ import { useTranslation } from 'react-i18next';
 
 import type { Route } from './+types/index';
 
-import { requireAllRoles } from '~/.server/utils/auth-utils';
+import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
+import { requirePrivacyConsent } from '~/.server/utils/privacy-consent-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { Button } from '~/components/button';
 import { ButtonLink } from '~/components/button-link';
@@ -26,22 +27,25 @@ export function meta({ data }: Route.MetaArgs) {
   return [{ title: data?.documentTitle }];
 }
 
-export function action({ context, params, request }: Route.ActionArgs) {
-  requireAllRoles(context.session, new URL(request.url), ['employee']);
+export async function action({ context, params, request }: Route.ActionArgs) {
+  // Since parent layout ensures authentication, we can safely cast the session
+  await requirePrivacyConsent(context.session as AuthenticatedSession, new URL(request.url));
   /*
   TODO: Update redirect to correct page
   */
-  throw i18nRedirect('routes/profile/index.tsx', request);
+  throw i18nRedirect('routes/employee/profile/index.tsx', request);
 }
 
 export async function loader({ context, request }: Route.LoaderArgs) {
-  requireAllRoles(context.session, new URL(request.url), ['employee']);
+  // Since parent layout ensures authentication, we can safely cast the session
+  const authenticatedSession = context.session as AuthenticatedSession;
+  await requirePrivacyConsent(authenticatedSession, new URL(request.url));
 
   const { t } = await getTranslation(request, handle.i18nNamespace);
   return {
     documentTitle: t('app:index.about'),
-    name: context.session.authState.idTokenClaims.name,
-    email: context.session.authState.idTokenClaims.email,
+    name: authenticatedSession.authState.idTokenClaims.name,
+    email: authenticatedSession.authState.idTokenClaims.email,
     completed: 6,
     total: 12,
     personalInformation: {
@@ -86,7 +90,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
         <ProfileCard
           title={t('app:profile.personal-information.title')}
           linkLabel={t('app:profile.personal-information.link-label')}
-          file="routes/profile/personal-information.tsx"
+          file="routes/employee/profile/personal-information.tsx"
           completed={loaderData.personalInformation.completed}
           total={3}
           required={true}
@@ -97,7 +101,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
         <ProfileCard
           title={t('app:profile.employment.title')}
           linkLabel={t('app:profile.employment.link-label')}
-          file="routes/profile/employment-information.tsx"
+          file="routes/employee/profile/employment-information.tsx"
           completed={loaderData.employment.completed}
           total={3}
           required={true}
@@ -107,7 +111,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
         <ProfileCard
           title={t('app:profile.referral.title')}
           linkLabel={t('app:profile.referral.link-label')}
-          file="routes/profile/personal-details.tsx"
+          file="routes/employee/profile/personal-details.tsx"
           completed={loaderData.referral.completed}
           total={3}
           required={true}
@@ -117,7 +121,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
         <ProfileCard
           title={t('app:profile.qualifications.title')}
           linkLabel={t('app:profile.qualifications.link-label')}
-          file="routes/profile/personal-details.tsx"
+          file="routes/employee/profile/personal-details.tsx"
           completed={loaderData.qualifications.completed}
           total={3}
           required={true}

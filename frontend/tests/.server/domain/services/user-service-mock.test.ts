@@ -16,6 +16,8 @@ describe('getMockUserService', () => {
         id: 1,
         name: 'Jane Doe',
         activeDirectoryId: '00000000-0000-0000-0000-000000000001',
+        role: 'employee',
+        privacyConsentAccepted: true,
         createdBy: 'system',
         createdDate: '2024-01-01T00:00:00Z',
         lastModifiedBy: 'system',
@@ -41,6 +43,8 @@ describe('getMockUserService', () => {
         id: 2,
         name: 'John Doe',
         activeDirectoryId: '11111111-1111-1111-1111-111111111111',
+        role: 'employee',
+        privacyConsentAccepted: true,
         createdBy: 'system',
         createdDate: '2024-01-01T00:00:00Z',
         lastModifiedBy: 'system',
@@ -56,7 +60,12 @@ describe('getMockUserService', () => {
 
   describe('registerUser', () => {
     it('should create a new user with generated metadata', async () => {
-      const userData = { name: 'Test User', activeDirectoryId: 'test-user-123', role: 'employee' };
+      const userData = {
+        name: 'Test User',
+        activeDirectoryId: 'test-user-123',
+        role: 'employee',
+        privacyConsentAccepted: true,
+      };
 
       // Create a mock session for testing
       const mockSession: AuthenticatedSession = {
@@ -89,6 +98,8 @@ describe('getMockUserService', () => {
       expect(createdUser.id).toBeDefined();
       expect(createdUser.name).toBe('Test User');
       expect(createdUser.activeDirectoryId).toBe('test-user-123');
+      expect(createdUser.role).toBe('employee');
+      expect(createdUser.privacyConsentAccepted).toBe(true);
 
       // Check that dates are ISO strings (exact time will vary)
       expect(isValid(parseISO(createdUser.createdDate)));
