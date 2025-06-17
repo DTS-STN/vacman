@@ -202,7 +202,7 @@ export default function PersonalInformation({ loaderData, actionData, params }: 
                 <Button name="action" variant="primary" id="save-button">
                   {t('app:form.save')}
                 </Button>
-                <ButtonLink file="routes/profile/index.tsx" id="cancel-button" variant="alternative">
+                <ButtonLink file="routes/employee/profile/index.tsx" id="cancel-button" variant="alternative">
                   {t('app:form.cancel')}
                 </ButtonLink>
               </div>
