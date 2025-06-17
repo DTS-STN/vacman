@@ -1,6 +1,7 @@
 /**
- * Tests for the current authentication and registration flow.
- * Tests index.tsx dashboard selection and employee privacy consent flow.
+ * Comprehensive tests for authentication, registration, and privacy consent flow.
+ * Consolidates tests for index.tsx dashboard selection, employee privacy consent flow,
+ * and privacy consent utilities.
  */
 import type { AppLoadContext } from 'react-router';
 import { redirect } from 'react-router';
@@ -10,6 +11,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { getUserService } from '~/.server/domain/services/user-service';
 import { getMockUserService } from '~/.server/domain/services/user-service-mock';
 import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
+import { requirePrivacyConsent } from '~/.server/utils/privacy-consent-utils';
 import { action as privacyAction, loader as privacyLoader } from '~/routes/employee/privacy-consent';
 import { action as indexAction, loader as indexLoader } from '~/routes/index';
 
@@ -67,36 +69,8 @@ const mockUserService = {
 vi.mocked(getUserService).mockReturnValue(mockUserService);
 
 // Helper to create mock context
-function createMockContext(activeDirectoryId: string, name?: string): AppLoadContext {
+function createMockContext(activeDirectoryId: string, name?: string, roles: string[] = []): AppLoadContext {
   const mockSession = {
-    // Express session properties
-    id: 'mock-session-id',
-    cookie: {
-      expires: new Date(Date.now() + 3600000),
-      secure: false,
-      httpOnly: true,
-      maxAge: 3600000,
-      originalMaxAge: 3600000,
-      resetMaxAge: vi.fn(),
-    },
-    regenerate: vi.fn((callback?: (err?: unknown) => void) => {
-      if (callback) callback();
-      return mockSession;
-    }),
-    destroy: vi.fn((callback?: (err?: unknown) => void) => {
-      if (callback) callback();
-    }),
-    reload: vi.fn((callback?: (err?: unknown) => void) => {
-      if (callback) callback();
-      return mockSession;
-    }),
-    save: vi.fn((callback?: (err?: unknown) => void) => {
-      if (callback) callback();
-      return mockSession;
-    }),
-    touch: vi.fn(() => mockSession),
-    resetMaxAge: vi.fn(),
-    // Custom session data
     authState: {
       idTokenClaims: {
         sub: activeDirectoryId,
@@ -107,7 +81,7 @@ function createMockContext(activeDirectoryId: string, name?: string): AppLoadCon
         exp: Math.floor(Date.now() / 1000) + 3600,
       },
       accessTokenClaims: {
-        roles: [],
+        roles,
         iss: 'test-issuer',
         exp: Math.floor(Date.now() / 1000) + 3600,
         aud: 'test-audience',
@@ -127,7 +101,7 @@ function createMockContext(activeDirectoryId: string, name?: string): AppLoadCon
   };
 }
 
-describe('Current Authentication and Registration Flow', () => {
+describe('Authentication, Registration, and Privacy Consent Flow', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     // Default: user is not registered
@@ -242,6 +216,7 @@ describe('Current Authentication and Registration Flow', () => {
       expect(response).toBeInstanceOf(Response);
       expect(response.status).toBe(302);
       expect(response.headers.get('Location')).toBe('/en/employee/privacy-consent');
+      expect(mockUserService.getUserByActiveDirectoryId).toHaveBeenCalledWith('test-employee-123');
 
       // Verify user was NOT registered yet
       expect(mockUserService.registerUser).not.toHaveBeenCalled();
@@ -451,6 +426,83 @@ describe('Current Authentication and Registration Flow', () => {
         },
         expect.any(Object),
       );
+    });
+  });
+
+  describe('Privacy Consent Utils', () => {
+    it('should allow access for user with privacy consent accepted', async () => {
+      // Arrange
+      const mockSession = {
+        authState: {
+          accessTokenClaims: { roles: ['employee'] },
+          idTokenClaims: { sub: 'test-user-consent' },
+        },
+      } as AuthenticatedSession;
+
+      mockUserService.getUserByActiveDirectoryId.mockResolvedValue({
+        id: 1,
+        name: 'Test User',
+        activeDirectoryId: 'test-user-consent',
+        role: 'employee',
+        privacyConsentAccepted: true,
+        createdBy: 'system',
+        createdDate: '2024-01-01T00:00:00Z',
+        lastModifiedBy: 'system',
+        lastModifiedDate: '2024-01-01T00:00:00Z',
+      });
+
+      // Act & Assert - should not throw
+      await expect(requirePrivacyConsent(mockSession, new URL('http://localhost:3000/en/employee'))).resolves.not.toThrow();
+    });
+
+    it('should redirect users without privacy consent', async () => {
+      // Arrange
+      const mockSession = {
+        authState: {
+          accessTokenClaims: { roles: ['employee'] },
+          idTokenClaims: { sub: 'test-user-no-consent' },
+        },
+      } as AuthenticatedSession;
+
+      mockUserService.getUserByActiveDirectoryId.mockResolvedValue({
+        id: 2,
+        name: 'Test User No Consent',
+        activeDirectoryId: 'test-user-no-consent',
+        role: 'employee',
+        privacyConsentAccepted: false,
+        createdBy: 'system',
+        createdDate: '2024-01-01T00:00:00Z',
+        lastModifiedBy: 'system',
+        lastModifiedDate: '2024-01-01T00:00:00Z',
+      });
+
+      // Act & Assert - should throw redirect
+      await expect(requirePrivacyConsent(mockSession, new URL('http://localhost:3000/en/employee'))).rejects.toThrow();
+    });
+
+    it('should redirect hiring managers who access employee routes', async () => {
+      // Arrange
+      const mockSession = {
+        authState: {
+          accessTokenClaims: { roles: ['hiring-manager'] },
+          idTokenClaims: { sub: 'test-manager' },
+        },
+      } as AuthenticatedSession;
+
+      // Mock hiring manager user in database
+      mockUserService.getUserByActiveDirectoryId.mockResolvedValue({
+        id: 1,
+        name: 'Test Manager',
+        activeDirectoryId: 'test-manager',
+        role: 'hiring-manager',
+        createdBy: 'system',
+        createdDate: new Date(),
+      });
+
+      // Act & Assert - should redirect to index since hiring managers shouldn't access employee routes
+      await expect(requirePrivacyConsent(mockSession, new URL('http://localhost:3000/en/employee'))).rejects.toThrow();
+
+      expect(mockUserService.getUserByActiveDirectoryId).toHaveBeenCalledWith('test-manager');
     });
   });
 
