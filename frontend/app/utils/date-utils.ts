@@ -1,5 +1,5 @@
 import { TZDate } from '@date-fns/tz';
-import { isBefore, isToday, isValid, parseISO, startOfDay } from 'date-fns';
+import { formatISO, isBefore, isToday, isValid, parseISO, startOfDay } from 'date-fns';
 
 import { padWithZero } from '~/utils/string-utils';
 
@@ -136,6 +136,34 @@ export function isTodayInTimezone(timezone: string, date: number | string | Date
 }
 
 /**
+ * Checks if a given date is in the past or present (today) within a specified timezone.
+ *
+ * This function determines whether the provided date falls on or before the current date
+ * when considering the given timezone. It accepts the date as a number (Unix timestamp in milliseconds),
+ * a string (parsable by the Date constructor), or a Date object.
+ *
+ * @param timeZone - The IANA time zone name (e.g., 'America/New_York', 'Europe/London').
+ * @param date - The date to be validated. Can be a Unix timestamp (milliseconds),
+ *               a date string, or a Date object.
+ * @returns `true` if the date is in the past or today in the specified timezone, `false` otherwise.
+ * @throws TypeError - If the input `date` is not a valid date representation that can be parsed,
+ *         or if the `timezone` string is not a valid IANA time zone name.
+ *
+ * @example
+ * ``` typescript
+ * const validDateInPaste = "2023-05-20";
+ * const invalidDateInFuture = "2078-05-20";
+ * const timezone = 'Canada/Eastern';
+ *
+ * console.log(isDateInPastOrTodayInTimeZone(timezone, validDateInPaste)); // true
+ * console.log(isDateInPastOrTodayInTimeZone(timezone, invalidDateInFuture)); // false
+ * ```
+ */
+export function isDateInPastOrTodayInTimeZone(timezone: string, date: number | string | Date): boolean {
+  return isPastInTimezone(timezone, date) || isTodayInTimezone(timezone, date);
+}
+
+/**
  * Checks if a given string is a valid date string in ISO 8601 format (YYYY-MM-DD).
  *
  * This function uses `parseISO` (presumably from a date/time library like date-fns)
@@ -226,4 +254,36 @@ export function getLocalizedMonths(
     index: i + 1, // month index (1-based)
     text: formatter.format(Date.UTC(0, i, 1)), // formatted month name
   }));
+}
+
+/**
+ * Formats a date into an ISO8601 date string (YYYY-MM-DD).
+ *
+ * This function takes the year, month, and day as numerical inputs and
+ * returns a string representing the date in the "YYYY-MM-DD" format.
+ *
+ * @param year - The year (e.g., 2023).
+ * @param month - The month (1 for January, 12 for December).
+ * @param day - The day of the month.
+ * @returns An ISO 8601 date string in the format "YYYY-MM-DD".
+ */
+export function toISODateString(year: number, month: number, day: number): string {
+  return formatISODate(`${year}-${month}-${day}`);
+}
+
+/**
+ * Formats a date into an ISO8601 date string (YYYY-MM-DD).
+ *
+ * This function accepts a date as a number (Unix timestamp in milliseconds),
+ * a string (parsable by the Date constructor), or a Date object and returns
+ * a string representing the date in the "YYYY-MM-DD" format. It leverages
+ * the `formatISO` function from date-fns library
+ * with the `representation: 'date'` option.
+ *
+ * @param date - The date to be formatted. Can be a Unix timestamp (milliseconds), a date string, or a Date object.
+ * @returns An ISO 8601 date string in the format "YYYY-MM-DD".
+ * @throws {TypeError} If the input `date` is not a valid date representation that can be parsed by `formatISO`.
+ */
+export function formatISODate(date: number | string | Date): string {
+  return formatISO(date, { representation: 'date' });
 }

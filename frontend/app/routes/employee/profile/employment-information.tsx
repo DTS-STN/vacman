@@ -13,17 +13,20 @@ import { getCityService } from '~/.server/domain/services/city-service';
 import { getClassificationService } from '~/.server/domain/services/classification-service';
 import { getDirectorateService } from '~/.server/domain/services/directorate-service';
 import { getProvinceService } from '~/.server/domain/services/province-service';
+import { getWFAStatuses } from '~/.server/domain/services/wfa-status-service';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { Button } from '~/components/button';
 import { ButtonLink } from '~/components/button-link';
+import { DatePickerField } from '~/components/date-picker-field';
 import { ActionDataErrorSummary } from '~/components/error-summary';
 import { InputSelect } from '~/components/input-select';
 import { InlineLink } from '~/components/links';
+import { EMPLOYEE_WFA_STATUS } from '~/domain/constants';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { getTranslation } from '~/i18n-config.server';
-import { employmentInformationSchema } from '~/routes/employee/profile/validation.server';
+import type { employmentInformationSchema } from '~/routes/employee/profile/validation.server';
+import { parseEmploymentInformation } from '~/routes/employee/profile/validation.server';
 import { handle as parentHandle } from '~/routes/layout';
-import { formString } from '~/utils/string-utils';
 import { extractValidationKey } from '~/utils/validation-utils';
 
 export const handle = {
@@ -35,21 +38,12 @@ export function meta({ data }: Route.MetaArgs) {
 }
 
 export async function action({ context, params, request }: Route.ActionArgs) {
-  // Since parent layout ensures authentication, we can safely cast the session
   const formData = await request.formData();
-  const parseResult = v.safeParse(employmentInformationSchema, {
-    substantivePosition: formString(formData.get('substantivePosition')),
-    branchOrServiceCanadaRegion: formString(formData.get('branchOrServiceCanadaRegion')),
-    directorate: formString(formData.get('directorate')),
-    province: formString(formData.get('province')),
-    city: formString(formData.get('city')),
-    currentWFAStatus: formString(formData.get('currentWFAStatus')),
-    hrAdvisor: formString(formData.get('hrAdvisor')),
-  });
+  const { parseResult, formValues } = parseEmploymentInformation(formData);
 
   if (!parseResult.success) {
     return data(
-      { errors: v.flatten<typeof employmentInformationSchema>(parseResult.issues).nested },
+      { formValues: formValues, errors: v.flatten<typeof employmentInformationSchema>(parseResult.issues).nested },
       { status: HttpStatusCodes.BAD_REQUEST },
     );
   }
@@ -66,6 +60,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
   const directorates = await getDirectorateService().getLocalizedDirectorates(lang);
   const provinces = await getProvinceService().getAllLocalized(lang);
   const cities = await getCityService().getAllLocalized(lang);
+  const wfaStatuses = await getWFAStatuses().getAllLocalized(lang);
 
   return {
     documentTitle: t('app:employment-information.page-title'),
@@ -76,7 +71,9 @@ export async function loader({ context, request }: Route.LoaderArgs) {
       directorate: undefined as string | undefined,
       province: undefined as string | undefined,
       city: undefined as string | undefined,
-      currentWFAStatus: undefined as string | undefined,
+      wfaStatus: undefined as string | undefined,
+      wfaEffectiveDate: undefined as string | undefined,
+      wfaEndDate: undefined as string | undefined,
       hrAdvisor: undefined,
     },
     substantivePositions: substantivePositions.unwrap(),
@@ -84,6 +81,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
     directorates: directorates,
     provinces: provinces.unwrap(),
     cities: cities.unwrap(),
+    wfaStatuses: wfaStatuses.unwrap(),
   };
 }
 
@@ -91,6 +89,7 @@ export default function EmploymentInformation({ loaderData, actionData, params }
   const { t } = useTranslation(handle.i18nNamespace);
   const errors = actionData?.errors;
   const [province, setProvince] = useState(loaderData.defaultValues.province);
+  const [wfaStatus, setWfaStatus] = useState(loaderData.defaultValues.wfaStatus);
 
   const substantivePositionOptions = [{ id: 'select-option', name: '' }, ...loaderData.substantivePositions].map(
     ({ id, name }) => ({
@@ -123,6 +122,11 @@ export default function EmploymentInformation({ loaderData, actionData, params }
       children: id === 'select-option' ? t('app:form.select-option') : name,
     }),
   );
+
+  const wfaStatusOptions = [{ id: 'select-option', name: '' }, ...loaderData.wfaStatuses].map(({ id, name }) => ({
+    value: id === 'select-option' ? '' : id,
+    children: id === 'select-option' ? t('app:form.select-option') : name,
+  }));
 
   return (
     <>
@@ -161,7 +165,7 @@ export default function EmploymentInformation({ loaderData, actionData, params }
                 errorMessage={t(extractValidationKey(errors?.directorate))}
                 required
                 options={directorateOptions}
-                label={t('app:employment-information.branch-or-service-canada-region')}
+                label={t('app:employment-information.directorate')}
                 defaultValue={loaderData.defaultValues.directorate ?? ''}
                 className="w-full sm:w-1/2"
               />
@@ -187,6 +191,59 @@ export default function EmploymentInformation({ loaderData, actionData, params }
                     label={t('app:employment-information.city')}
                     defaultValue={loaderData.defaultValues.city ?? ''}
                     className="w-full sm:w-1/2"
+                  />
+                </>
+              )}
+
+              <h2 className="font-lato text-2xl font-bold">{t('app:employment-information.wfa-detils-heading')}</h2>
+              <p>{t('app:employment-information.wfa-detils')}</p>
+              <InputSelect
+                id="wfaStatus"
+                name="wfaStatus"
+                errorMessage={t(extractValidationKey(errors?.wfaStatus))}
+                required
+                options={wfaStatusOptions}
+                label={t('app:employment-information.wfa-status')}
+                defaultValue={loaderData.defaultValues.wfaStatus ?? ''}
+                onChange={({ target }) => setWfaStatus(target.value)}
+                className="w-full sm:w-1/2"
+              />
+              {(wfaStatus === EMPLOYEE_WFA_STATUS.opting ||
+                wfaStatus === EMPLOYEE_WFA_STATUS.surplusGRJO ||
+                wfaStatus === EMPLOYEE_WFA_STATUS.surplusOptingOptionA) && (
+                <>
+                  <DatePickerField
+                    defaultValue={loaderData.defaultValues.wfaEffectiveDate ?? ''}
+                    id="wfaEffectiveDate"
+                    legend={t('app:employment-information.wfa-effective-date')}
+                    names={{
+                      day: 'wfaEffectiveDateDay',
+                      month: 'wfaEffectiveDateMonth',
+                      year: 'wfaEffectiveDateYear',
+                    }}
+                    errorMessages={{
+                      all: t(extractValidationKey(errors?.wfaEffectiveDate)),
+                      year: t(extractValidationKey(errors?.wfaEffectiveDateYear)),
+                      month: t(extractValidationKey(errors?.wfaEffectiveDateMonth)),
+                      day: t(extractValidationKey(errors?.wfaEffectiveDateDay)),
+                    }}
+                    required
+                  />
+                  <DatePickerField
+                    defaultValue={loaderData.defaultValues.wfaEndDate ?? ''}
+                    id="wfaEndDate"
+                    legend={t('app:employment-information.wfa-end-date')}
+                    names={{
+                      day: 'wfaEndDateDay',
+                      month: 'wfaEndDateMonth',
+                      year: 'wfaEndDateYear',
+                    }}
+                    errorMessages={{
+                      all: t(extractValidationKey(errors?.wfaEndDate)),
+                      year: t(extractValidationKey(errors?.wfaEndDateYear)),
+                      month: t(extractValidationKey(errors?.wfaEndDateMonth)),
+                      day: t(extractValidationKey(errors?.wfaEndDateDay)),
+                    }}
                   />
                 </>
               )}
