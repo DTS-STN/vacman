@@ -35,11 +35,11 @@ export async function action({ context, request }: Route.ActionArgs) {
     const activeDirectoryId = authenticatedSession.authState.idTokenClaims.sub;
     const existingUser = await userService.getUserByActiveDirectoryId(activeDirectoryId);
 
-    if (existingUser) {
-      // User is registered, redirect to employee dashboard
+    if (existingUser?.privacyConsentAccepted) {
+      // User is registered and has accepted privacy consent, redirect to employee dashboard
       return i18nRedirect('routes/employee/index.tsx', request);
     } else {
-      // User is not registered, redirect to privacy consent
+      // User is not registered or hasn't accepted privacy consent, redirect to privacy consent
       return i18nRedirect('routes/employee/privacy-consent.tsx', request);
     }
   }
@@ -50,11 +50,11 @@ export async function action({ context, request }: Route.ActionArgs) {
     const activeDirectoryId = authenticatedSession.authState.idTokenClaims.sub;
     const existingUser = await userService.getUserByActiveDirectoryId(activeDirectoryId);
 
-    if (existingUser) {
-      // User is registered, redirect to hiring-manager dashboard
+    if (existingUser?.role.includes('hiring-manager')) {
+      // User is registered as hiring-manager, redirect to hiring-manager dashboard
       return i18nRedirect('routes/hiring-manager/index.tsx', request);
     } else {
-      // User is not registered, register them as hiring-manager and redirect
+      // User is not registered or is not hiring-manager, register them as hiring-manager and redirect
       const name = authenticatedSession.authState.idTokenClaims.name ?? 'Unknown User';
 
       await userService.registerUser(
