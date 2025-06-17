@@ -77,7 +77,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
   await requirePrivacyConsent(context.session as AuthenticatedSession, new URL(request.url));
 
   return {
-    documentTitle: t('app:employmeny-information.page-title'),
+    documentTitle: t('app:employment-information.page-title'),
     defaultValues: {
       //TODO: Replace with actual values
       substantivePosition: undefined as string | undefined,
