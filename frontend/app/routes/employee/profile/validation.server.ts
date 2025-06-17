@@ -72,31 +72,31 @@ export const employmentInformationSchema = v.object({
   substantivePosition: v.lazy(() =>
     v.picklist(
       substantivePositions.map(({ id }) => id),
-      'app:employmeny-information.errors.substantive-group-and-level-required',
+      'app:employment-information.errors.substantive-group-and-level-required',
     ),
   ),
   branchOrServiceCanadaRegion: v.lazy(() =>
     v.picklist(
       branchOrServiceCanadaRegions.map(({ id }) => id),
-      'app:employmeny-information.errors.branch-or-service-canada-region-required',
+      'app:employment-information.errors.branch-or-service-canada-region-required',
     ),
   ),
   directorate: v.lazy(() =>
     v.picklist(
       directorates.map(({ id }) => id),
-      'app:employmeny-information.errors.directorate-required',
+      'app:employment-information.errors.directorate-required',
     ),
   ),
   province: v.lazy(() =>
     v.picklist(
       province.map(({ id }) => id),
-      'app:employmeny-information.errors.provinces-required',
+      'app:employment-information.errors.provinces-required',
     ),
   ),
   city: v.lazy(() =>
     v.picklist(
       cities.map(({ id }) => id),
-      'app:employmeny-information.errors.city-required',
+      'app:employment-information.errors.city-required',
     ),
   ),
   currentWFAStatus: v.optional(v.string()),

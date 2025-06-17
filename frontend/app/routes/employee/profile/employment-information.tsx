@@ -139,18 +139,18 @@ export default function EmploymentInformation({ loaderData, actionData, params }
         {`< ${t('app:profile.back')}`}
       </InlineLink>
       <div className="max-w-prose">
-        <h1 className="my-5 text-3xl font-semibold">{t('app:employmeny-information.page-title')}</h1>
+        <h1 className="my-5 text-3xl font-semibold">{t('app:employment-information.page-title')}</h1>
         <ActionDataErrorSummary actionData>
           <Form method="post" noValidate>
             <div className="space-y-6">
-              <h2 className="font-lato text-2xl font-bold">{t('app:employmeny-information.substantive-position-heading')}</h2>
+              <h2 className="font-lato text-2xl font-bold">{t('app:employment-information.substantive-position-heading')}</h2>
               <InputSelect
                 id="substantivePosition"
                 name="substantivePosition"
                 errorMessage={t(extractValidationKey(errors?.substantivePosition))}
                 required
                 options={substantivePositionOptions}
-                label={t('app:employmeny-information.substantive-position-group-and-level')}
+                label={t('app:employment-information.substantive-position-group-and-level')}
                 defaultValue={loaderData.defaultValues.substantivePosition ?? ''}
                 className="w-full sm:w-1/2"
               />
@@ -160,7 +160,7 @@ export default function EmploymentInformation({ loaderData, actionData, params }
                 errorMessage={t(extractValidationKey(errors?.branchOrServiceCanadaRegion))}
                 required
                 options={branchOrServiceCanadaRegionOptions}
-                label={t('app:employmeny-information.branch-or-service-canada-region')}
+                label={t('app:employment-information.branch-or-service-canada-region')}
                 defaultValue={loaderData.defaultValues.branchOrServiceCanadaRegion ?? ''}
                 className="w-full sm:w-1/2"
               />
@@ -170,7 +170,7 @@ export default function EmploymentInformation({ loaderData, actionData, params }
                 errorMessage={t(extractValidationKey(errors?.directorate))}
                 required
                 options={directorateOptions}
-                label={t('app:employmeny-information.branch-or-service-canada-region')}
+                label={t('app:employment-information.branch-or-service-canada-region')}
                 defaultValue={loaderData.defaultValues.directorate ?? ''}
                 className="w-full sm:w-1/2"
               />
@@ -178,7 +178,7 @@ export default function EmploymentInformation({ loaderData, actionData, params }
                 className="w-full sm:w-1/2"
                 id="province"
                 name="province"
-                label={t('app:employmeny-information.provinces')}
+                label={t('app:employment-information.provinces')}
                 options={provinceOptions}
                 errorMessage={t(extractValidationKey(errors?.province))}
                 value={province}
@@ -193,7 +193,7 @@ export default function EmploymentInformation({ loaderData, actionData, params }
                     errorMessage={t(extractValidationKey(errors?.city))}
                     required
                     options={cityOptions}
-                    label={t('app:employmeny-information.city')}
+                    label={t('app:employment-information.city')}
                     defaultValue={loaderData.defaultValues.city ?? ''}
                     className="w-full sm:w-1/2"
                   />
