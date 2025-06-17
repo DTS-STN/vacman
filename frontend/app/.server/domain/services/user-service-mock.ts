@@ -166,6 +166,10 @@ function updateUserRole(activeDirectoryId: string, newRole: string, session: Aut
   }
 
   const currentUser = mockUsers[userIndex];
+  if (!currentUser) {
+    throw new AppError(`User with Active Directory ID '${activeDirectoryId}' not found.`, ErrorCodes.VACMAN_API_ERROR);
+  }
+
   const updatedUser: User = {
     ...currentUser,
     role: newRole,
