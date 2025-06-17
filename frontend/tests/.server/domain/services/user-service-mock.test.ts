@@ -277,4 +277,89 @@ describe('getMockUserService', () => {
       expect(updatedUser.privacyConsentAccepted).toBe(true);
     });
   });
+
+  describe('updatePrivacyConsent', () => {
+    it('should update an existing user privacy consent status by Active Directory ID', async () => {
+      const activeDirectoryId = '11111111-1111-1111-1111-111111111111';
+      const privacyConsentAccepted = false;
+
+      // Create a mock session for testing
+      const mockSession: AuthenticatedSession = {
+        authState: {
+          accessTokenClaims: {
+            roles: ['employee'],
+            sub: activeDirectoryId,
+            aud: 'test-audience',
+            client_id: 'test-client',
+            exp: Math.floor(Date.now() / 1000) + 3600,
+            iat: Math.floor(Date.now() / 1000),
+            iss: 'test-issuer',
+            jti: 'test-jti',
+          },
+          idTokenClaims: {
+            sub: activeDirectoryId,
+            name: 'John Doe',
+            aud: 'test-audience',
+            exp: Math.floor(Date.now() / 1000) + 3600,
+            iat: Math.floor(Date.now() / 1000),
+            iss: 'test-issuer',
+          },
+          accessToken: 'mock-access-token',
+          idToken: 'mock-id-token',
+        },
+      } as AuthenticatedSession;
+
+      const updatedUser = await service.updatePrivacyConsent(activeDirectoryId, privacyConsentAccepted, mockSession);
+
+      expect(updatedUser.id).toBe(2);
+      expect(updatedUser.name).toBe('John Doe');
+      expect(updatedUser.activeDirectoryId).toBe(activeDirectoryId);
+      expect(updatedUser.privacyConsentAccepted).toBe(privacyConsentAccepted);
+
+      // Check that lastModifiedDate was updated
+      expect(isValid(parseISO(updatedUser.lastModifiedDate))).toBe(true);
+      expect(updatedUser.lastModifiedBy).toBe('system');
+
+      // Verify the user was actually updated in the mock data
+      const verifyUser = await service.getUserByActiveDirectoryId(activeDirectoryId);
+      expect(verifyUser?.privacyConsentAccepted).toBe(privacyConsentAccepted);
+    });
+
+    it('should throw error when updating privacy consent for non-existent user', async () => {
+      const activeDirectoryId = 'nonexistent-id';
+      const privacyConsentAccepted = true;
+
+      const mockSession: AuthenticatedSession = {
+        authState: {
+          accessTokenClaims: {
+            roles: ['employee'],
+            sub: activeDirectoryId,
+            aud: 'test-audience',
+            client_id: 'test-client',
+            exp: Math.floor(Date.now() / 1000) + 3600,
+            iat: Math.floor(Date.now() / 1000),
+            iss: 'test-issuer',
+            jti: 'test-jti',
+          },
+          idTokenClaims: {
+            sub: activeDirectoryId,
+            name: 'Non Existent User',
+            aud: 'test-audience',
+            exp: Math.floor(Date.now() / 1000) + 3600,
+            iat: Math.floor(Date.now() / 1000),
+            iss: 'test-issuer',
+          },
+          accessToken: 'mock-access-token',
+          idToken: 'mock-id-token',
+        },
+      } as AuthenticatedSession;
+
+      await expect(service.updatePrivacyConsent(activeDirectoryId, privacyConsentAccepted, mockSession)).rejects.toMatchObject({
+        msg: "User with Active Directory ID 'nonexistent-id' not found.",
+        errorCode: ErrorCodes.VACMAN_API_ERROR,
+        httpStatusCode: 500,
+        correlationId: expect.any(String),
+      });
+    });
+  });
 });

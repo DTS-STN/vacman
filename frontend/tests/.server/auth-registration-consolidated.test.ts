@@ -67,6 +67,7 @@ const mockUserService = {
   getUserByActiveDirectoryId: vi.fn(),
   registerUser: vi.fn(),
   updateUserRole: vi.fn(),
+  updatePrivacyConsent: vi.fn(),
 };
 
 vi.mocked(getUserService).mockReturnValue(mockUserService);
@@ -572,6 +573,37 @@ describe('Authentication, Registration, and Privacy Consent Flow', () => {
         },
         expect.any(Object),
       );
+    });
+
+    it('should update privacy consent for existing user after accepting privacy consent', async () => {
+      const context = createMockContext('test-existing-employee-123', 'Existing Employee');
+      const request = new Request('http://localhost:3000/en/employee/privacy-consent', {
+        method: 'POST',
+        body: new URLSearchParams({ action: 'accept' }),
+      });
+
+      // Mock existing user without privacy consent
+      mockUserService.getUserByActiveDirectoryId.mockResolvedValue({
+        id: 1,
+        name: 'Existing Employee',
+        activeDirectoryId: 'test-existing-employee-123',
+        role: 'employee',
+        privacyConsentAccepted: false,
+        createdBy: 'system',
+        createdDate: '2024-01-01T00:00:00Z',
+        lastModifiedBy: 'system',
+        lastModifiedDate: '2024-01-01T00:00:00Z',
+      });
+
+      const response = await privacyAction({ context, request, params: {} } as TestRouteArgs);
+
+      expect(response).toBeInstanceOf(Response);
+      expect(response.status).toBe(302);
+      expect(response.headers.get('Location')).toBe('/en/employee');
+
+      // Verify user privacy consent was updated, not registered
+      expect(mockUserService.updatePrivacyConsent).toHaveBeenCalledWith('test-existing-employee-123', true, expect.any(Object));
+      expect(mockUserService.registerUser).not.toHaveBeenCalled();
     });
   });
 

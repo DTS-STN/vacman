@@ -21,20 +21,28 @@ export async function action({ context, request }: ActionFunctionArgs) {
   const action = formData.get('action');
 
   if (action === 'accept') {
-    // Register the user as an employee after accepting privacy consent
     const userService = getUserService();
     const activeDirectoryId = context.session.authState.idTokenClaims.sub;
     const name = context.session.authState.idTokenClaims.name ?? 'Unknown User';
 
-    await userService.registerUser(
-      {
-        name,
-        activeDirectoryId,
-        role: 'employee',
-        privacyConsentAccepted: true,
-      },
-      context.session,
-    );
+    // Check if user already exists
+    const existingUser = await userService.getUserByActiveDirectoryId(activeDirectoryId);
+
+    if (existingUser) {
+      // User exists, update their privacy consent status
+      await userService.updatePrivacyConsent(activeDirectoryId, true, context.session);
+    } else {
+      // User doesn't exist, register them with privacy consent accepted
+      await userService.registerUser(
+        {
+          name,
+          activeDirectoryId,
+          role: 'employee',
+          privacyConsentAccepted: true,
+        },
+        context.session,
+      );
+    }
 
     return i18nRedirect('routes/employee/index.tsx', request);
   }

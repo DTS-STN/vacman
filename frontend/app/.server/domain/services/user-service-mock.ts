@@ -29,6 +29,13 @@ export function getMockUserService(): UserService {
         return Promise.reject(error);
       }
     },
+    updatePrivacyConsent: (activeDirectoryId: string, privacyConsentAccepted: boolean, session: AuthenticatedSession) => {
+      try {
+        return Promise.resolve(updatePrivacyConsent(activeDirectoryId, privacyConsentAccepted, session));
+      } catch (error) {
+        return Promise.reject(error);
+      }
+    },
   };
 }
 
@@ -116,20 +123,6 @@ function getUserByActiveDirectoryId(activeDirectoryId: string): User | null {
  * @returns The created user object with generated metadata.
  */
 function registerUser(userData: UserCreate, session: AuthenticatedSession): User {
-  // Extract role from user data
-  const role = userData.role as 'employee' | 'hiring-manager';
-  // If using local OIDC for testing, update the session roles
-  if (serverEnvironment.ENABLE_DEVMODE_OIDC) {
-    // Mock function to simulate updating user roles in the session for local testing.
-    if (session.authState.accessTokenClaims.roles) {
-      // Remove any existing employee/hiring-manager roles and add the new one
-      const filteredRoles = session.authState.accessTokenClaims.roles.filter(
-        (r: string) => r !== 'employee' && r !== 'hiring-manager',
-      );
-      // Cast to mutable for testing purposes
-      (session.authState.accessTokenClaims.roles as string[]) = [...filteredRoles, role];
-    }
-  }
   // Generate a mock user with automatic ID and metadata
   const newUser: User = {
     id: mockUsers.length + 1,
@@ -192,6 +185,40 @@ function updateUserRole(activeDirectoryId: string, newRole: string, session: Aut
       (session.authState.accessTokenClaims.roles as string[]) = [...filteredRoles, newRole];
     }
   }
+
+  return updatedUser;
+}
+
+/**
+ * Updates a user's privacy consent status identified by their Active Directory ID.
+ *
+ * @param activeDirectoryId The Active Directory ID of the user to update.
+ * @param privacyConsentAccepted The new privacy consent status.
+ * @param session The authenticated session.
+ * @returns The updated user object.
+ * @throws {AppError} If the user is not found.
+ */
+function updatePrivacyConsent(activeDirectoryId: string, privacyConsentAccepted: boolean, session: AuthenticatedSession): User {
+  const userIndex = mockUsers.findIndex((u) => u.activeDirectoryId === activeDirectoryId);
+
+  if (userIndex === -1) {
+    throw new AppError(`User with Active Directory ID '${activeDirectoryId}' not found.`, ErrorCodes.VACMAN_API_ERROR);
+  }
+
+  const currentUser = mockUsers[userIndex];
+  if (!currentUser) {
+    throw new AppError(`User with Active Directory ID '${activeDirectoryId}' not found.`, ErrorCodes.VACMAN_API_ERROR);
+  }
+
+  const updatedUser: User = {
+    ...currentUser,
+    privacyConsentAccepted,
+    lastModifiedBy: 'system',
+    lastModifiedDate: new Date().toISOString(),
+  };
+
+  // Update the user in the mock data
+  (mockUsers as User[])[userIndex] = updatedUser;
 
   return updatedUser;
 }
