@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 
-test('Navigating to / redirects to authentication when not logged in', async ({ page }) => {
+test('Navigating to / routes to /en by default', async ({ page }) => {
   await page.goto('/');
-  // When not authenticated, the app should redirect to Microsoft authentication
-  await expect(page).toHaveURL(/login\.microsoftonline\.com/);
+  // The app should route to /en by default
+  await expect(page).toHaveURL(/\/en/);
 });
