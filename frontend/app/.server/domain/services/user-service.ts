@@ -8,6 +8,7 @@ export type UserService = {
   getUserById(id: number): Promise<User>;
   getUserByActiveDirectoryId(activeDirectoryId: string): Promise<User | null>;
   registerUser(user: UserCreate, session: AuthenticatedSession): Promise<User>;
+  updateUserRole(activeDirectoryId: string, newRole: string, session: AuthenticatedSession): Promise<User>;
 };
 
 export function getUserService(): UserService {

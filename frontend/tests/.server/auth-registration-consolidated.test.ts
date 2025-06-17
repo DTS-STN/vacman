@@ -12,6 +12,7 @@ import { getUserService } from '~/.server/domain/services/user-service';
 import { getMockUserService } from '~/.server/domain/services/user-service-mock';
 import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
 import { requirePrivacyConsent } from '~/.server/utils/privacy-consent-utils';
+import { ErrorCodes } from '~/errors/error-codes';
 import { action as privacyAction, loader as privacyLoader } from '~/routes/employee/privacy-consent';
 import { action as indexAction, loader as indexLoader } from '~/routes/index';
 
@@ -64,6 +65,7 @@ const mockUserService = {
   getUserById: vi.fn(),
   getUserByActiveDirectoryId: vi.fn(),
   registerUser: vi.fn(),
+  updateUserRole: vi.fn(),
 };
 
 vi.mocked(getUserService).mockReturnValue(mockUserService);
@@ -197,6 +199,97 @@ describe('Authentication, Registration, and Privacy Consent Flow', () => {
         role: 'hiring-manager',
       });
       expect(registeredUser.privacyConsentAccepted).toBeUndefined();
+    });
+
+    it('should update user role using updateUserRole method', async () => {
+      const userService = getMockUserService();
+      const activeDirectoryId = 'test-update-role-123';
+      const newRole = 'hiring-manager';
+
+      const mockSession = {
+        authState: {
+          accessTokenClaims: {
+            roles: ['employee'],
+            sub: activeDirectoryId,
+            aud: 'test-audience',
+            client_id: 'test-client',
+            exp: Math.floor(Date.now() / 1000) + 3600,
+            iat: Math.floor(Date.now() / 1000),
+            iss: 'test-issuer',
+            jti: 'test-jti',
+          },
+          idTokenClaims: {
+            sub: activeDirectoryId,
+            name: 'Test User Role Update',
+            aud: 'test-audience',
+            exp: Math.floor(Date.now() / 1000) + 3600,
+            iat: Math.floor(Date.now() / 1000),
+            iss: 'test-issuer',
+          },
+          accessToken: 'mock-access-token',
+          idToken: 'mock-id-token',
+        },
+      } as unknown as AuthenticatedSession;
+
+      // First register a user
+      await userService.registerUser(
+        {
+          name: 'Test User Role Update',
+          activeDirectoryId,
+          role: 'employee',
+          privacyConsentAccepted: true,
+        },
+        mockSession,
+      );
+
+      // Then update their role
+      const updatedUser = await userService.updateUserRole(activeDirectoryId, newRole, mockSession);
+
+      expect(updatedUser).toMatchObject({
+        name: 'Test User Role Update',
+        activeDirectoryId,
+        role: newRole,
+        privacyConsentAccepted: true,
+      });
+      expect(updatedUser.id).toBeDefined();
+      expect(updatedUser.lastModifiedBy).toBe('system');
+      expect(updatedUser.lastModifiedDate).toBeDefined();
+    });
+
+    it('should throw error when updating role for non-existent user', async () => {
+      const userService = getMockUserService();
+      const activeDirectoryId = 'non-existent-user-123';
+      const newRole = 'hiring-manager';
+
+      const mockSession = {
+        authState: {
+          accessTokenClaims: {
+            roles: ['admin'],
+            sub: 'admin-user',
+            aud: 'test-audience',
+            client_id: 'test-client',
+            exp: Math.floor(Date.now() / 1000) + 3600,
+            iat: Math.floor(Date.now() / 1000),
+            iss: 'test-issuer',
+            jti: 'test-jti',
+          },
+          idTokenClaims: {
+            sub: 'admin-user',
+            name: 'Admin User',
+            aud: 'test-audience',
+            exp: Math.floor(Date.now() / 1000) + 3600,
+            iat: Math.floor(Date.now() / 1000),
+            iss: 'test-issuer',
+          },
+          accessToken: 'mock-access-token',
+          idToken: 'mock-id-token',
+        },
+      } as unknown as AuthenticatedSession;
+
+      await expect(userService.updateUserRole(activeDirectoryId, newRole, mockSession)).rejects.toMatchObject({
+        msg: "User with Active Directory ID 'non-existent-user-123' not found.",
+        errorCode: ErrorCodes.VACMAN_API_ERROR,
+      });
     });
   });
 

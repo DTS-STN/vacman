@@ -22,6 +22,13 @@ export function getMockUserService(): UserService {
       }
     },
     registerUser: (user: UserCreate, session: AuthenticatedSession) => Promise.resolve(registerUser(user, session)),
+    updateUserRole: (activeDirectoryId: string, newRole: string, session: AuthenticatedSession) => {
+      try {
+        return Promise.resolve(updateUserRole(activeDirectoryId, newRole, session));
+      } catch (error) {
+        return Promise.reject(error);
+      }
+    },
   };
 }
 
@@ -140,4 +147,47 @@ function registerUser(userData: UserCreate, session: AuthenticatedSession): User
   (mockUsers as User[]).push(newUser);
 
   return newUser;
+}
+
+/**
+ * Updates a user's role identified by their Active Directory ID.
+ *
+ * @param activeDirectoryId The Active Directory ID of the user to update.
+ * @param newRole The new role to assign to the user.
+ * @param session The authenticated session.
+ * @returns The updated user object.
+ * @throws {AppError} If the user is not found.
+ */
+function updateUserRole(activeDirectoryId: string, newRole: string, session: AuthenticatedSession): User {
+  const userIndex = mockUsers.findIndex((u) => u.activeDirectoryId === activeDirectoryId);
+
+  if (userIndex === -1) {
+    throw new AppError(`User with Active Directory ID '${activeDirectoryId}' not found.`, ErrorCodes.VACMAN_API_ERROR);
+  }
+
+  const currentUser = mockUsers[userIndex];
+  const updatedUser: User = {
+    ...currentUser,
+    role: newRole,
+    lastModifiedBy: 'system',
+    lastModifiedDate: new Date().toISOString(),
+  };
+
+  // Update the user in the mock data
+  (mockUsers as User[])[userIndex] = updatedUser;
+
+  // If using local OIDC for testing, update the session roles
+  if (serverEnvironment.ENABLE_DEVMODE_OIDC) {
+    // Mock function to simulate updating user roles in the session for local testing.
+    if (session.authState.accessTokenClaims.roles) {
+      // Remove any existing employee/hiring-manager roles and add the new one
+      const filteredRoles = session.authState.accessTokenClaims.roles.filter(
+        (r: string) => r !== 'employee' && r !== 'hiring-manager',
+      );
+      // Cast to mutable for testing purposes
+      (session.authState.accessTokenClaims.roles as string[]) = [...filteredRoles, newRole];
+    }
+  }
+
+  return updatedUser;
 }
