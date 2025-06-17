@@ -14,6 +14,7 @@ import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
 import { requirePrivacyConsent } from '~/.server/utils/privacy-consent-utils';
 import { ErrorCodes } from '~/errors/error-codes';
 import { action as privacyAction, loader as privacyLoader } from '~/routes/employee/privacy-consent';
+import { loader as hiringManagerLoader } from '~/routes/hiring-manager/index';
 import { action as indexAction, loader as indexLoader } from '~/routes/index';
 
 // Type definitions for test compatibility
@@ -717,6 +718,107 @@ describe('Authentication, Registration, and Privacy Consent Flow', () => {
         },
         expect.any(Object),
       );
+    });
+  });
+
+  describe('Hiring Manager Route Protection', () => {
+    it('should allow access to hiring manager route for registered hiring managers', async () => {
+      // Arrange
+      const context = createMockContext('test-hiring-manager-123', 'John Manager');
+      const request = new Request('http://localhost:3000/en/hiring-manager');
+
+      mockUserService.getUserByActiveDirectoryId.mockResolvedValue({
+        id: '1',
+        name: 'John Manager',
+        activeDirectoryId: 'test-hiring-manager-123',
+        role: 'hiring-manager',
+        createdBy: 'system',
+        createdDate: new Date(),
+      });
+
+      // Act
+      const response = await hiringManagerLoader({ context, request, params: {} } as TestRouteArgs);
+
+      // Assert
+      expect(response).toEqual({
+        documentTitle: expect.any(String),
+      });
+      expect(mockUserService.getUserByActiveDirectoryId).toHaveBeenCalledWith('test-hiring-manager-123');
+    });
+
+    it('should redirect unregistered users trying to access hiring manager route', async () => {
+      // Arrange
+      const context = createMockContext('test-unregistered-123', 'Unregistered User');
+      const request = new Request('http://localhost:3000/en/hiring-manager');
+
+      mockUserService.getUserByActiveDirectoryId.mockResolvedValue(null);
+
+      // Act & Assert
+      await expect(hiringManagerLoader({ context, request, params: {} } as TestRouteArgs)).rejects.toThrow();
+      expect(mockUserService.getUserByActiveDirectoryId).toHaveBeenCalledWith('test-unregistered-123');
+    });
+
+    it('should redirect employees trying to access hiring manager route', async () => {
+      // Arrange
+      const context = createMockContext('test-employee-123', 'Jane Employee');
+      const request = new Request('http://localhost:3000/en/hiring-manager');
+
+      mockUserService.getUserByActiveDirectoryId.mockResolvedValue({
+        id: '2',
+        name: 'Jane Employee',
+        activeDirectoryId: 'test-employee-123',
+        role: 'employee',
+        privacyConsentAccepted: true,
+        createdBy: 'system',
+        createdDate: new Date(),
+      });
+
+      // Act & Assert
+      await expect(hiringManagerLoader({ context, request, params: {} } as TestRouteArgs)).rejects.toThrow();
+      expect(mockUserService.getUserByActiveDirectoryId).toHaveBeenCalledWith('test-employee-123');
+    });
+
+    it('should redirect hr-advisors trying to access hiring manager route', async () => {
+      // Arrange
+      const context = createMockContext('test-hr-advisor-123', 'HR Advisor');
+      const request = new Request('http://localhost:3000/en/hiring-manager');
+
+      mockUserService.getUserByActiveDirectoryId.mockResolvedValue({
+        id: '3',
+        name: 'HR Advisor',
+        activeDirectoryId: 'test-hr-advisor-123',
+        role: 'hr-advisor',
+        createdBy: 'system',
+        createdDate: new Date(),
+      });
+
+      // Act & Assert
+      await expect(hiringManagerLoader({ context, request, params: {} } as TestRouteArgs)).rejects.toThrow();
+      expect(mockUserService.getUserByActiveDirectoryId).toHaveBeenCalledWith('test-hr-advisor-123');
+    });
+
+    it('should work with French locale URLs', async () => {
+      // Arrange
+      const context = createMockContext('test-hiring-manager-fr-123', 'Gestionnaire Test');
+      const request = new Request('http://localhost:3000/fr/gestionnaire-embauche');
+
+      mockUserService.getUserByActiveDirectoryId.mockResolvedValue({
+        id: '4',
+        name: 'Gestionnaire Test',
+        activeDirectoryId: 'test-hiring-manager-fr-123',
+        role: 'hiring-manager',
+        createdBy: 'system',
+        createdDate: new Date(),
+      });
+
+      // Act
+      const response = await hiringManagerLoader({ context, request, params: {} } as TestRouteArgs);
+
+      // Assert
+      expect(response).toEqual({
+        documentTitle: expect.any(String),
+      });
+      expect(mockUserService.getUserByActiveDirectoryId).toHaveBeenCalledWith('test-hiring-manager-fr-123');
     });
   });
 });
