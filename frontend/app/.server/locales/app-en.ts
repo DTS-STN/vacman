@@ -72,7 +72,7 @@ export default {
       'education-required': 'Education level is required.',
     },
   },
-  'employmeny-information': {
+  'employment-information': {
     'page-title': 'Employment information',
     'substantive-position-heading': 'Substantive position',
     'substantive-position-group-and-level': 'Group and level of your substantive position',

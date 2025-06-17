@@ -74,7 +74,7 @@ export default {
       'education-required': "Niveau d'études est requis.",
     },
   },
-  'employmeny-information': {
+  'employment-information': {
     'page-title': "Informations sur l'emploi",
     'substantive-position-heading': '',
     'substantive-position-group-and-level': 'Groupe et niveau de votre poste substantif',
