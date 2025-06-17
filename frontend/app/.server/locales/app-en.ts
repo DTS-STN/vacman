@@ -3,6 +3,7 @@ export default {
     'about': 'The VacMan initiative!',
     'dashboard': 'Dashboard',
     'page-title': 'Welcome to VacMan',
+    'get-started': 'Employee Dashboard',
     'navigate': 'Go to the employee portal',
     'register': 'Register',
   },
@@ -36,6 +37,7 @@ export default {
       'link-label': 'qualifications',
     },
     'back': 'Back to profile',
+    'view': 'View Profile',
   },
   'form': {
     'cancel': 'Cancel',

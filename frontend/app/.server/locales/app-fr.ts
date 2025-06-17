@@ -5,6 +5,7 @@ export default {
     'about': "L'initiative VacMan!",
     'dashboard': 'Interface',
     'page-title': 'Bienvenue sur VacMan',
+    'get-started': 'Tableau de bord des employés',
     'navigate': 'Accédez au portail des employés',
     'register': 'Register',
   },
@@ -38,6 +39,7 @@ export default {
       'link-label': 'qualifications',
     },
     'back': 'Retour au profil',
+    'view': 'Voir le profil',
   },
   'form': {
     'cancel': 'Annuler',
