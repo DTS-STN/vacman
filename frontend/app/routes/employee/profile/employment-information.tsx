@@ -13,7 +13,6 @@ import { getCityService } from '~/.server/domain/services/city-service';
 import { getClassificationService } from '~/.server/domain/services/classification-service';
 import { getDirectorateService } from '~/.server/domain/services/directorate-service';
 import { getProvinceService } from '~/.server/domain/services/province-service';
-import { requireAllRoles } from '~/.server/utils/auth-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { Button } from '~/components/button';
 import { ButtonLink } from '~/components/button-link';
@@ -61,7 +60,6 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 }
 
 export async function loader({ context, request }: Route.LoaderArgs) {
-  requireAllRoles(context.session, new URL(request.url), ['employee']);
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
   const substantivePositions = await getClassificationService().getAll();
   const branchOrServiceCanadaRegions = await getBranchService().getAllLocalized(lang);
