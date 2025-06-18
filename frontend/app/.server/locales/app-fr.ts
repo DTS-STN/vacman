@@ -4,14 +4,14 @@ export default {
   'index': {
     'about': "L'initiative VacMan!",
     'dashboard': 'Interface',
-    'page-title': 'Bienvenue sur VacMan',
+    'page-title': 'Sélectionnez votre tableau de bord',
     'get-started': 'Tableau de bord des employés',
     'navigate': 'Accédez au portail des employés',
     'register': 'Register',
   },
   'register': {
-    'employee': 'Employé',
-    'hiring-manager': 'Responsable du recrutement',
+    'employee': 'Tableau de bord des employés',
+    'hiring-manager': 'Tableau de bord du responsable du recrutement',
     'page-title': "S'inscrire comme...",
   },
   'profile': {
