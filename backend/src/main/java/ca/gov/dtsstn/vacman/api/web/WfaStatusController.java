@@ -18,6 +18,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
+import org.apache.commons.lang3.StringUtils;
+
 @RestController
 @Tag(name = "WFA Statuses")
 @RequestMapping({ "/api/v1/wfa-statuses" })
@@ -39,11 +41,11 @@ public class WfaStatusController {
             @Parameter(description = "WFA status code to filter by")
             String code) {
 
-        if (code != null && !code.isEmpty()) {
+        if (StringUtils.isNotBlank(code)) {
             List<WfaStatusReadModel> result = wfaStatusService.getWfaStatusByCode(code)
-                .map(wfaStatusModelMapper::toModel)
-                .map(List::of)
-                .orElse(List.of());
+                    .map(wfaStatusModelMapper::toModel)
+                    .map(List::of)
+                    .orElse(List.of());
 
             return new CollectionModel<>(result);
         }

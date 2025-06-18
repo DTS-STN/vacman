@@ -3,6 +3,7 @@ package ca.gov.dtsstn.vacman.api.web;
 import java.util.List;
 
 import ca.gov.dtsstn.vacman.api.web.model.CollectionModel;
+import org.apache.commons.lang3.StringUtils;
 import org.mapstruct.factory.Mappers;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -41,7 +42,7 @@ public class CityController {
             @Parameter(description = "City code to filter by (e.g., 'OT' for Ottawa)")
             String code) {
 
-        if (code != null && !code.isEmpty()) {
+        if (StringUtils.isNotBlank(code)) {
             List<CityReadModel> result = cityService.getCityByCode(code)
                 .map(cityModelMapper::toModel)
                 .map(List::of)

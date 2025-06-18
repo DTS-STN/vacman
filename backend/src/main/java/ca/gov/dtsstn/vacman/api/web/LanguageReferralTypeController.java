@@ -2,6 +2,7 @@ package ca.gov.dtsstn.vacman.api.web;
 
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.mapstruct.factory.Mappers;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -41,7 +42,7 @@ public class LanguageReferralTypeController {
             @Parameter(description = "Language referral type code to filter by")
             String code) {
 
-        if (code != null && !code.isEmpty()) {
+        if (StringUtils.isNotBlank(code)) {
             List<LanguageReferralTypeReadModel> result = languageReferralTypeService.getLanguageReferralTypeByCode(code)
                 .map(languageReferralTypeModelMapper::toModel)
                 .map(List::of)

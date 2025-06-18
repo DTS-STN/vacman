@@ -2,6 +2,7 @@ package ca.gov.dtsstn.vacman.api.web;
 
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.mapstruct.factory.Mappers;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -41,7 +42,7 @@ public class EducationLevelController {
             @Parameter(description = "Education level code to filter by (e.g., 'BD' for Bachelor's Degree)")
             String code) {
 
-        if (code != null && !code.isEmpty()) {
+        if (StringUtils.isNotBlank(code)) {
             List<EducationLevelReadModel> result = educationLevelService.getEducationLevelByCode(code)
                 .map(educationLevelModelMapper::toModel)
                 .map(List::of)

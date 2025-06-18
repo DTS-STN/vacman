@@ -2,6 +2,7 @@ package ca.gov.dtsstn.vacman.api.web;
 
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.mapstruct.factory.Mappers;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -41,7 +42,7 @@ public class WorkUnitController {
             @Parameter(description = "Work unit code to filter by")
             String code) {
 
-        if (code != null && !code.isEmpty()) {
+        if (StringUtils.isNotBlank(code)) {
             List<WorkUnitReadModel> result = workUnitService.getWorkUnitByCode(code)
                 .map(workUnitModelMapper::toModel)
                 .map(List::of)

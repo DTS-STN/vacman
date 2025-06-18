@@ -2,6 +2,7 @@ package ca.gov.dtsstn.vacman.api.web;
 
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.mapstruct.factory.Mappers;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -41,7 +42,7 @@ public class LanguageController {
             @Parameter(description = "Language code to filter by (e.g., 'EN')")
             String code) {
 
-        if (code != null && !code.isEmpty()) {
+        if (StringUtils.isNotBlank(code)) {
             List<LanguageReadModel> result = languageService.getLanguageByCode(code)
                 .map(languageModelMapper::toModel)
                 .map(List::of)
