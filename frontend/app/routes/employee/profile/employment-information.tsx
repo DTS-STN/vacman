@@ -14,8 +14,6 @@ import { getClassificationService } from '~/.server/domain/services/classificati
 import { getDirectorateService } from '~/.server/domain/services/directorate-service';
 import { getProvinceService } from '~/.server/domain/services/province-service';
 import { requireAllRoles } from '~/.server/utils/auth-utils';
-import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
-import { requirePrivacyConsent } from '~/.server/utils/privacy-consent-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { Button } from '~/components/button';
 import { ButtonLink } from '~/components/button-link';
@@ -39,8 +37,6 @@ export function meta({ data }: Route.MetaArgs) {
 
 export async function action({ context, params, request }: Route.ActionArgs) {
   // Since parent layout ensures authentication, we can safely cast the session
-  await requirePrivacyConsent(context.session as AuthenticatedSession, new URL(request.url));
-
   const formData = await request.formData();
   const parseResult = v.safeParse(employmentInformationSchema, {
     substantivePosition: formString(formData.get('substantivePosition')),
@@ -72,9 +68,6 @@ export async function loader({ context, request }: Route.LoaderArgs) {
   const directorates = await getDirectorateService().getLocalizedDirectorates(lang);
   const provinces = await getProvinceService().getAllLocalized(lang);
   const cities = await getCityService().getAllLocalized(lang);
-
-  // Since parent layout ensures authentication, we can safely cast the session
-  await requirePrivacyConsent(context.session as AuthenticatedSession, new URL(request.url));
 
   return {
     documentTitle: t('app:employment-information.page-title'),

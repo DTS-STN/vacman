@@ -12,7 +12,6 @@ import type { Route } from './+types/index';
 
 import { getUserService } from '~/.server/domain/services/user-service';
 import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
-import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { Card, CardHeader, CardIcon, CardTitle } from '~/components/card';
 import { PageTitle } from '~/components/page-title';
@@ -89,8 +88,6 @@ export async function loader({ context, request }: Route.LoaderArgs) {
     // Redirect to the appropriate language-specific route based on Accept-Language header
     return i18nRedirect('routes/index.tsx', request);
   }
-
-  requireAuthentication(context.session, new URL(request.url));
   const { t } = await getTranslation(request, handle.i18nNamespace);
   return { documentTitle: t('app:index.page-title') };
 }

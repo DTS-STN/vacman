@@ -9,7 +9,6 @@ import type { Route } from './+types/personal-information';
 import { getEducationLevelService } from '~/.server/domain/services/education-level-service';
 import { getLanguageForCorrespondenceService } from '~/.server/domain/services/language-for-correspondence-service';
 import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
-import { requirePrivacyConsent } from '~/.server/utils/privacy-consent-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { Button } from '~/components/button';
 import { ButtonLink } from '~/components/button-link';
@@ -36,8 +35,6 @@ export function meta({ data }: Route.MetaArgs) {
 
 export async function action({ context, params, request }: Route.ActionArgs) {
   // Since parent layout ensures authentication, we can safely cast the session
-  await requirePrivacyConsent(context.session as AuthenticatedSession, new URL(request.url));
-
   const formData = await request.formData();
   const parseResult = v.safeParse(personalInformationSchema, {
     personalRecordIdentifier: formString(formData.get('personalRecordIdentifier')),
@@ -63,7 +60,6 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 export async function loader({ context, request }: Route.LoaderArgs) {
   // Since parent layout ensures authentication, we can safely cast the session
   const authenticatedSession = context.session as AuthenticatedSession;
-  await requirePrivacyConsent(authenticatedSession, new URL(request.url));
 
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
   const localizedEducationLevels = await getEducationLevelService().getAllLocalized(lang);

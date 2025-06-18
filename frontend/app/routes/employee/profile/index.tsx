@@ -8,7 +8,6 @@ import { useTranslation } from 'react-i18next';
 import type { Route } from './+types/index';
 
 import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
-import { requirePrivacyConsent } from '~/.server/utils/privacy-consent-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { Button } from '~/components/button';
 import { ButtonLink } from '~/components/button-link';
@@ -27,9 +26,8 @@ export function meta({ data }: Route.MetaArgs) {
   return [{ title: data?.documentTitle }];
 }
 
-export async function action({ context, params, request }: Route.ActionArgs) {
+export function action({ context, params, request }: Route.ActionArgs) {
   // Since parent layout ensures authentication, we can safely cast the session
-  await requirePrivacyConsent(context.session as AuthenticatedSession, new URL(request.url));
   /*
   TODO: Update redirect to correct page
   */
@@ -39,7 +37,6 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 export async function loader({ context, request }: Route.LoaderArgs) {
   // Since parent layout ensures authentication, we can safely cast the session
   const authenticatedSession = context.session as AuthenticatedSession;
-  await requirePrivacyConsent(authenticatedSession, new URL(request.url));
 
   const { t } = await getTranslation(request, handle.i18nNamespace);
   return {

@@ -8,7 +8,6 @@ import { faChevronRight, faUser } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useTranslation } from 'react-i18next';
 
-import { requirePrivacyConsent } from '~/.server/utils/privacy-consent-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { Card, CardHeader, CardIcon, CardTitle } from '~/components/card';
 import { PageTitle } from '~/components/page-title';
@@ -20,8 +19,6 @@ export const handle = {
 } as const satisfies RouteHandle;
 
 export async function action({ context, request }: ActionFunctionArgs) {
-  await requirePrivacyConsent(context.session, new URL(request.url));
-
   const formData = await request.formData();
   const action = formData.get('action');
 
@@ -34,8 +31,6 @@ export async function action({ context, request }: ActionFunctionArgs) {
 }
 
 export async function loader({ context, request }: LoaderFunctionArgs) {
-  await requirePrivacyConsent(context.session, new URL(request.url));
-
   const { t } = await getTranslation(request, handle.i18nNamespace);
   return { documentTitle: t('app:index.get-started') };
 }

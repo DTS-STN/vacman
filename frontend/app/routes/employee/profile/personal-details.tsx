@@ -3,8 +3,6 @@ import { Form } from 'react-router';
 
 import type { Route } from './+types/personal-details';
 
-import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
-import { requirePrivacyConsent } from '~/.server/utils/privacy-consent-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { Button } from '~/components/button';
 import { ButtonLink } from '~/components/button-link';
@@ -19,9 +17,8 @@ export function meta({ data }: Route.MetaArgs) {
   return [{ title: data?.documentTitle }];
 }
 
-export async function action({ context, params, request }: Route.ActionArgs) {
+export function action({ context, params, request }: Route.ActionArgs) {
   // Since parent layout ensures authentication, we can safely cast the session
-  await requirePrivacyConsent(context.session as AuthenticatedSession, new URL(request.url));
   /*
   TODO: Add validation schema
   const formData = await request.formData();
@@ -31,7 +28,6 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 
 export async function loader({ context, request }: Route.LoaderArgs) {
   // Since parent layout ensures authentication, we can safely cast the session
-  await requirePrivacyConsent(context.session as AuthenticatedSession, new URL(request.url));
   const { t } = await getTranslation(request, handle.i18nNamespace);
   return { documentTitle: t('app:index.about'), defaultValues: {} };
 }
