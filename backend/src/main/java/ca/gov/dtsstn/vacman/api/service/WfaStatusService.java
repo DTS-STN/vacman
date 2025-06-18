@@ -1,6 +1,7 @@
 package ca.gov.dtsstn.vacman.api.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
@@ -19,4 +20,13 @@ public class WfaStatusService {
     public List<WfaStatusEntity> getAllWfaStatuses() {
         return List.copyOf(wfaStatusRepository.findAll());
     }
+
+    public WfaStatusEntity getWfaStatusById(Long id) {
+        return wfaStatusRepository.findById(id).orElse(null);
+    }
+
+    public Optional<WfaStatusEntity> getWfaStatusByCode(String code) {
+        return wfaStatusRepository.findByCode(code);
+    }
+
 }

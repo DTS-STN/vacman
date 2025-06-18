@@ -2,9 +2,12 @@ package ca.gov.dtsstn.vacman.api.web;
 
 import java.util.List;
 
+import ca.gov.dtsstn.vacman.api.web.model.CollectionModel;
+import io.swagger.v3.oas.annotations.Parameter;
 import org.mapstruct.factory.Mappers;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import ca.gov.dtsstn.vacman.api.config.SpringDocConfig;
@@ -14,6 +17,8 @@ import ca.gov.dtsstn.vacman.api.web.model.mapper.WfaStatusModelMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+
+import org.apache.commons.lang3.StringUtils;
 
 @RestController
 @Tag(name = "WFA Statuses")
@@ -30,10 +35,25 @@ public class WfaStatusController {
 
     @GetMapping
     @SecurityRequirement(name = SpringDocConfig.AZURE_AD)
-    @Operation(summary = "Get all WFA statuses.", description = "Returns a list of all WFA statuses.")
-    public List<WfaStatusReadModel> getAllWfaStatuses() {
-        return wfaStatusService.getAllWfaStatuses().stream()
-            .map(wfaStatusModelMapper::toModel)
-            .toList();
+    @Operation(summary = "Get all WFA statuses or filter by code.", description = "Returns a collection of all WFA statuses or a specific WFA status if code is provided.")
+    public CollectionModel<WfaStatusReadModel> getAllWfaStatuses(
+            @RequestParam(required = false)
+            @Parameter(description = "WFA status code to filter by")
+            String code) {
+
+        if (StringUtils.isNotBlank(code)) {
+            List<WfaStatusReadModel> result = wfaStatusService.getWfaStatusByCode(code)
+                    .map(wfaStatusModelMapper::toModel)
+                    .map(List::of)
+                    .orElse(List.of());
+
+            return new CollectionModel<>(result);
+        }
+
+        List<WfaStatusReadModel> statuses = wfaStatusService.getAllWfaStatuses().stream()
+                .map(wfaStatusModelMapper::toModel)
+                .toList();
+
+        return new CollectionModel<>(statuses);
     }
 }
