@@ -44,9 +44,29 @@ export async function requireHiringManagerRegistration(session: AuthenticatedSes
  * This helps identify routes that need hiring manager registration check.
  */
 export function isHiringManagerPath(url: URL): boolean {
-  const hiringManagerPaths = ['/en/hiring-manager', '/fr/gestionnaire-embauche'];
+  const hiringManagerPaths = ['/en/hiring-manager', '/fr/gestionnaire-recrutement'];
 
   return hiringManagerPaths.some((path) => {
     return url.pathname === path || url.pathname.startsWith(path + '/');
   });
+}
+
+/**
+ * Applies hiring manager registration checking for hiring manager routes in the parent layout.
+ * This function should be called in the layout loader to check if:
+ * 1. The current route is a hiring manager route
+ * If the condition is met, it requires hiring manager registration.
+ *
+ * @param session - The authenticated session
+ * @param currentUrl - The current request URL
+ * @throws {Response} Redirect to index page if user is not registered as a hiring manager
+ */
+export async function checkHiringManagerRouteRegistration(session: AuthenticatedSession, currentUrl: URL): Promise<void> {
+  // Only check hiring manager registration for hiring manager routes
+  if (!isHiringManagerPath(currentUrl)) {
+    return;
+  }
+
+  // Apply hiring manager registration requirement for hiring manager routes
+  await requireHiringManagerRegistration(session, currentUrl);
 }

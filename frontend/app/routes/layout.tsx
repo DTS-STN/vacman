@@ -7,6 +7,7 @@ import type { Route } from './+types/layout';
 
 import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
+import { checkHiringManagerRouteRegistration } from '~/.server/utils/hiring-manager-registration-utils';
 import { checkEmployeeRoutePrivacyConsent } from '~/.server/utils/privacy-consent-utils';
 import { AppBar } from '~/components/app-bar';
 import { LanguageSwitcher } from '~/components/language-switcher';
@@ -30,11 +31,8 @@ export async function loader({ context, request }: Route.LoaderArgs) {
   // Check privacy consent for employee routes (excluding privacy consent pages)
   await checkEmployeeRoutePrivacyConsent(context.session as AuthenticatedSession, currentUrl);
 
-  // Skip user registration check if we're already on a registration page
-  // if (!isRegistrationPath(currentUrl)) {
-  //   // Check if the authenticated user has the required roles
-  //   requireUserRegistration(context.session, currentUrl);
-  // }
+  // Check hiring manager registration for hiring manager routes
+  await checkHiringManagerRouteRegistration(context.session as AuthenticatedSession, currentUrl);
 
   return { name: context.session.authState.idTokenClaims.name };
 }
