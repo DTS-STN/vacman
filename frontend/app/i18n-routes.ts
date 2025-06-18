@@ -165,7 +165,7 @@ export const i18nRoutes = [
         file: 'routes/hiring-manager/index.tsx',
         paths: {
           en: '/en/hiring-manager',
-          fr: '/fr/gestionnaire-recrutement',
+          fr: '/fr/gestionnaire-embauche',
         },
       },
     ],

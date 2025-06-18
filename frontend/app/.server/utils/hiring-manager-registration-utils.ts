@@ -44,7 +44,7 @@ export async function requireHiringManagerRegistration(session: AuthenticatedSes
  * This helps identify routes that need hiring manager registration check.
  */
 export function isHiringManagerPath(url: URL): boolean {
-  const hiringManagerPaths = ['/en/hiring-manager', '/fr/gestionnaire-recrutement'];
+  const hiringManagerPaths = ['/en/hiring-manager', '/fr/gestionnaire-embauche'];
 
   return hiringManagerPaths.some((path) => {
     return url.pathname === path || url.pathname.startsWith(path + '/');

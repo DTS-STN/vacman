@@ -759,98 +759,47 @@ describe('Authentication, Registration, and Privacy Consent Flow', () => {
       const context = createMockContext('test-hiring-manager-123', 'John Manager');
       const request = new Request('http://localhost:3000/en/hiring-manager');
 
-      mockUserService.getUserByActiveDirectoryId.mockResolvedValue({
-        id: '1',
-        name: 'John Manager',
-        activeDirectoryId: 'test-hiring-manager-123',
-        role: 'hiring-manager',
-        createdBy: 'system',
-        createdDate: new Date(),
-      });
-
       // Act
       const response = await hiringManagerLoader({ context, request, params: {} } as TestRouteArgs);
 
-      // Assert
+      // Assert - The route should just return the normal response without doing any registration checks
+      // (Registration checks are handled by the parent layout, not the individual route)
       expect(response).toEqual({
         documentTitle: expect.any(String),
       });
-      expect(mockUserService.getUserByActiveDirectoryId).toHaveBeenCalledWith('test-hiring-manager-123');
+      // The individual route should NOT call getUserByActiveDirectoryId since registration checks are handled by parent layout
+      expect(mockUserService.getUserByActiveDirectoryId).not.toHaveBeenCalled();
     });
 
-    it('should redirect unregistered users trying to access hiring manager route', async () => {
+    it('should not perform registration checks in individual route (handled by parent layout)', async () => {
       // Arrange
       const context = createMockContext('test-unregistered-123', 'Unregistered User');
       const request = new Request('http://localhost:3000/en/hiring-manager');
 
-      mockUserService.getUserByActiveDirectoryId.mockResolvedValue(null);
+      // Act
+      const response = await hiringManagerLoader({ context, request, params: {} } as TestRouteArgs);
 
-      // Act & Assert
-      await expect(hiringManagerLoader({ context, request, params: {} } as TestRouteArgs)).rejects.toThrow();
-      expect(mockUserService.getUserByActiveDirectoryId).toHaveBeenCalledWith('test-unregistered-123');
-    });
-
-    it('should redirect employees trying to access hiring manager route', async () => {
-      // Arrange
-      const context = createMockContext('test-employee-123', 'Jane Employee');
-      const request = new Request('http://localhost:3000/en/hiring-manager');
-
-      mockUserService.getUserByActiveDirectoryId.mockResolvedValue({
-        id: '2',
-        name: 'Jane Employee',
-        activeDirectoryId: 'test-employee-123',
-        role: 'employee',
-        privacyConsentAccepted: true,
-        createdBy: 'system',
-        createdDate: new Date(),
+      // Assert - The route should return normally without performing any checks
+      // Registration protection is handled by the parent layout, not this route
+      expect(response).toEqual({
+        documentTitle: expect.any(String),
       });
-
-      // Act & Assert
-      await expect(hiringManagerLoader({ context, request, params: {} } as TestRouteArgs)).rejects.toThrow();
-      expect(mockUserService.getUserByActiveDirectoryId).toHaveBeenCalledWith('test-employee-123');
+      expect(mockUserService.getUserByActiveDirectoryId).not.toHaveBeenCalled();
     });
 
-    it('should redirect hr-advisors trying to access hiring manager route', async () => {
-      // Arrange
-      const context = createMockContext('test-hr-advisor-123', 'HR Advisor');
-      const request = new Request('http://localhost:3000/en/hiring-manager');
-
-      mockUserService.getUserByActiveDirectoryId.mockResolvedValue({
-        id: '3',
-        name: 'HR Advisor',
-        activeDirectoryId: 'test-hr-advisor-123',
-        role: 'hr-advisor',
-        createdBy: 'system',
-        createdDate: new Date(),
-      });
-
-      // Act & Assert
-      await expect(hiringManagerLoader({ context, request, params: {} } as TestRouteArgs)).rejects.toThrow();
-      expect(mockUserService.getUserByActiveDirectoryId).toHaveBeenCalledWith('test-hr-advisor-123');
-    });
-
-    it('should work with French locale URLs', async () => {
+    it('should work with French locale URLs without performing registration checks', async () => {
       // Arrange
       const context = createMockContext('test-hiring-manager-fr-123', 'Gestionnaire Test');
       const request = new Request('http://localhost:3000/fr/gestionnaire-embauche');
 
-      mockUserService.getUserByActiveDirectoryId.mockResolvedValue({
-        id: '4',
-        name: 'Gestionnaire Test',
-        activeDirectoryId: 'test-hiring-manager-fr-123',
-        role: 'hiring-manager',
-        createdBy: 'system',
-        createdDate: new Date(),
-      });
-
       // Act
       const response = await hiringManagerLoader({ context, request, params: {} } as TestRouteArgs);
 
-      // Assert
+      // Assert - The route should return normally without performing any checks
       expect(response).toEqual({
         documentTitle: expect.any(String),
       });
-      expect(mockUserService.getUserByActiveDirectoryId).toHaveBeenCalledWith('test-hiring-manager-fr-123');
+      expect(mockUserService.getUserByActiveDirectoryId).not.toHaveBeenCalled();
     });
   });
 });
