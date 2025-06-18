@@ -45,7 +45,7 @@ public class EducationLevelController {
             List<EducationLevelReadModel> result = educationLevelService.getEducationLevelByCode(code)
                 .map(educationLevelModelMapper::toModel)
                 .map(List::of)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Education level with code '" + code + "' not found"));
+                .orElse(List.of());
             return new CollectionModel<>(result);
         }
 

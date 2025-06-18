@@ -45,7 +45,8 @@ public class ClassificationController {
             List<ClassificationReadModel> result = classificationService.getClassificationByCode(code)
                 .map(classificationModelMapper::toModel)
                 .map(List::of)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Classification with code '" + code + "' not found"));
+                .orElse(List.of());
+
             return new CollectionModel<>(result);
         }
 

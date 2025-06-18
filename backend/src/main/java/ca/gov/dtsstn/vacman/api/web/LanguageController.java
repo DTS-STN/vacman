@@ -45,7 +45,7 @@ public class LanguageController {
             List<LanguageReadModel> result = languageService.getLanguageByCode(code)
                 .map(languageModelMapper::toModel)
                 .map(List::of)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Language with code '" + code + "' not found"));
+                .orElse(List.of());
             return new CollectionModel<>(result);
         }
 

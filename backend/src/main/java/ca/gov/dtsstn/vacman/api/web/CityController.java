@@ -45,7 +45,8 @@ public class CityController {
             List<CityReadModel> result = cityService.getCityByCode(code)
                 .map(cityModelMapper::toModel)
                 .map(List::of)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "City with code '" + code + "' not found"));
+                .orElse(List.of());
+
             return new CollectionModel<>(result);
         }
 

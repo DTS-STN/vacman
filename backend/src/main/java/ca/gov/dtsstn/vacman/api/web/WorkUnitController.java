@@ -45,7 +45,7 @@ public class WorkUnitController {
             List<WorkUnitReadModel> result = workUnitService.getWorkUnitByCode(code)
                 .map(workUnitModelMapper::toModel)
                 .map(List::of)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Work unit with code '" + code + "' not found"));
+                .orElse(List.of());
             return new CollectionModel<>(result);
         }
 

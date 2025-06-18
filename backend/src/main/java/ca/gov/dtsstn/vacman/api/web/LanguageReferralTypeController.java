@@ -45,7 +45,8 @@ public class LanguageReferralTypeController {
             List<LanguageReferralTypeReadModel> result = languageReferralTypeService.getLanguageReferralTypeByCode(code)
                 .map(languageReferralTypeModelMapper::toModel)
                 .map(List::of)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Language referral type with code '" + code + "' not found"));
+                .orElse(List.of());
+
             return new CollectionModel<>(result);
         }
 
