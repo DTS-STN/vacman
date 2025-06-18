@@ -37,7 +37,7 @@ export default {
       'link-label': 'qualifications',
     },
     'back': 'Back to profile',
-    'view': 'View Profile',
+    'view': 'View my profile',
   },
   'form': {
     'cancel': 'Cancel',

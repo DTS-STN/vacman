@@ -39,7 +39,7 @@ export default {
       'link-label': 'qualifications',
     },
     'back': 'Retour au profil',
-    'view': 'Voir le profil',
+    'view': 'Voir mon profil',
   },
   'form': {
     'cancel': 'Annuler',
