@@ -1,9 +1,7 @@
-import type { RouteHandle } from 'react-router';
+import type { RouteHandle, LoaderFunctionArgs, ActionFunctionArgs, MetaFunction } from 'react-router';
 import { Form } from 'react-router';
 
-import type { Route } from './+types/privacy-consent';
-
-import { requireAllRoles } from '~/.server/utils/auth-utils';
+import { getUserService } from '~/.server/domain/services/user-service';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { Button } from '~/components/button';
 import { ButtonLink } from '~/components/button-link';
@@ -14,30 +12,51 @@ export const handle = {
   i18nNamespace: [...parentHandle.i18nNamespace],
 } as const satisfies RouteHandle;
 
-export function meta({ data }: Route.MetaArgs) {
+export const meta: MetaFunction<typeof loader> = ({ data }) => {
   return [{ title: data?.documentTitle }];
-}
+};
 
-export function action({ context, params, request }: Route.ActionArgs) {
-  requireAllRoles(context.session, new URL(request.url), ['employee']);
-  /*
-  TODO: Add validation schema
+export async function action({ context, request }: ActionFunctionArgs) {
   const formData = await request.formData();
-  */
-  throw i18nRedirect('routes/index.tsx', request);
-  /*
-  TODO: send POST request to register the user as employee
-  */
+  const action = formData.get('action');
+
+  if (action === 'accept') {
+    const userService = getUserService();
+    const activeDirectoryId = context.session.authState.idTokenClaims.sub;
+    const name = context.session.authState.idTokenClaims.name ?? 'Unknown User';
+
+    // Check if user already exists
+    const existingUser = await userService.getUserByActiveDirectoryId(activeDirectoryId);
+
+    if (existingUser) {
+      // User exists, update their privacy consent status
+      await userService.updatePrivacyConsent(activeDirectoryId, true, context.session);
+    } else {
+      // User doesn't exist, register them with privacy consent accepted
+      await userService.registerUser(
+        {
+          name,
+          activeDirectoryId,
+          role: 'employee',
+          privacyConsentAccepted: true,
+        },
+        context.session,
+      );
+    }
+
+    return i18nRedirect('routes/employee/index.tsx', request);
+  }
+
+  // If declined, redirect back to dashboard selection page with current locale
+  return i18nRedirect('routes/index.tsx', request);
 }
 
-export async function loader({ context, request }: Route.LoaderArgs) {
-  requireAllRoles(context.session, new URL(request.url), ['employee']);
-
+export async function loader({ context, request }: LoaderFunctionArgs) {
   const { t } = await getTranslation(request, handle.i18nNamespace);
-  return { documentTitle: t('app:index.about'), defaultValues: {} };
+  return { documentTitle: t('app:register.page-title') };
 }
 
-export default function PrivacyConsent({ loaderData, params }: Route.ComponentProps) {
+export default function PrivacyConsent() {
   return (
     <>
       <div className="max-w-prose">
@@ -54,10 +73,10 @@ export default function PrivacyConsent({ loaderData, params }: Route.ComponentPr
             taciti sociosqu. Ad litora torquent per conubia nostra inceptos himenaeos.
           </p>
           <div className="mt-8 flex flex-row-reverse flex-wrap items-center justify-end gap-3">
-            <Button name="action" variant="primary" id="continue-button">
+            <Button name="action" value="accept" variant="primary" id="continue-button">
               Accept
             </Button>
-            <ButtonLink file="routes/register/index.tsx" id="back-button">
+            <ButtonLink file="routes/index.tsx" id="back-button">
               Decline
             </ButtonLink>
           </div>

@@ -2,13 +2,14 @@ export default {
   'index': {
     'about': 'The VacMan initiative!',
     'dashboard': 'Dashboard',
-    'page-title': 'Welcome to VacMan',
+    'page-title': 'Select your dashboard',
+    'get-started': 'Employee Dashboard',
     'navigate': 'Go to the employee portal',
     'register': 'Register',
   },
   'register': {
-    'employee': 'Employee',
-    'hiring-manager': 'Hiring Manager',
+    'employee': 'Employee dashboard',
+    'hiring-manager': 'Hiring manager dashboard',
     'page-title': 'Register as...',
   },
   'profile': {
@@ -36,6 +37,7 @@ export default {
       'link-label': 'qualifications',
     },
     'back': 'Back to profile',
+    'view': 'View my profile',
   },
   'form': {
     'cancel': 'Cancel',
@@ -70,7 +72,7 @@ export default {
       'education-required': 'Education level is required.',
     },
   },
-  'employmeny-information': {
+  'employment-information': {
     'page-title': 'Employment information',
     'substantive-position-heading': 'Substantive position',
     'substantive-position-group-and-level': 'Group and level of your substantive position',

@@ -22,6 +22,19 @@ export type AuthenticatedSession = AppSession & {
 };
 
 /**
+ * Requires that the user be authenticated but does not check for specific roles.
+ * Will redirect to the login page if the user is not authenticated.
+ */
+export function requireAuthentication(session: AppSession, currentUrl: URL): asserts session is AuthenticatedSession {
+  if (!session.authState) {
+    log.debug('User is not authenticated; redirecting to login page');
+
+    const { pathname, search } = currentUrl;
+    throw redirect(`/auth/login?returnto=${pathname}${search}`);
+  }
+}
+
+/**
  * Checks if the user session contains the specified role.
  */
 export function hasRole(session: AppSession, role: Role): boolean {

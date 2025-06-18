@@ -1,6 +1,7 @@
 import type { User, UserCreate } from '~/.server/domain/models';
 import type { UserService } from '~/.server/domain/services/user-service';
 import { serverEnvironment } from '~/.server/environment';
+import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
@@ -29,12 +30,35 @@ export function getDefaultUserService(): UserService {
     },
 
     /**
+     * Retrieves a user by their Active Directory ID.
+     * @param activeDirectoryId The Active Directory ID of the user to retrieve.
+     * @returns A promise that resolves to the user object, or null if not found.
+     * @throws AppError if the request fails or if the server responds with an error status.
+     */
+    async getUserByActiveDirectoryId(activeDirectoryId: string): Promise<User | null> {
+      const response = await fetch(
+        `${serverEnvironment.VACMAN_API_BASE_URI}/users/by-active-directory-id/${encodeURIComponent(activeDirectoryId)}`,
+      );
+
+      if (response.status === HttpStatusCodes.NOT_FOUND) {
+        return null;
+      }
+
+      if (!response.ok) {
+        const errorMessage = `Failed to retrieve user with Active Directory ID ${activeDirectoryId}. Server responded with status ${response.status}.`;
+        throw new AppError(errorMessage, ErrorCodes.VACMAN_API_ERROR);
+      }
+
+      return await response.json();
+    },
+
+    /**
      * Registers a new user.
      * @param user The user data to create.
      * @returns A promise that resolves to the created user object.
      * @throws AppError if the request fails or if the server responds with an error status.
      */
-    async registerUser(user: UserCreate): Promise<User> {
+    async registerUser(user: UserCreate, session: AuthenticatedSession): Promise<User> {
       const response = await fetch(`${serverEnvironment.VACMAN_API_BASE_URI}/users`, {
         method: 'POST',
         headers: {
@@ -45,6 +69,74 @@ export function getDefaultUserService(): UserService {
 
       if (!response.ok) {
         const errorMessage = `Failed to register user. Server responded with status ${response.status}.`;
+        throw new AppError(errorMessage, ErrorCodes.VACMAN_API_ERROR);
+      }
+
+      return await response.json();
+    },
+
+    /**
+     * Updates a user's role identified by their Active Directory ID.
+     * @param activeDirectoryId The Active Directory ID of the user to update.
+     * @param newRole The new role to assign to the user.
+     * @param session The authenticated session.
+     * @returns A promise that resolves to the updated user object.
+     * @throws AppError if the request fails, if the user is not found, or if the server responds with an error status.
+     */
+    async updateUserRole(activeDirectoryId: string, newRole: string, session: AuthenticatedSession): Promise<User> {
+      const response = await fetch(
+        `${serverEnvironment.VACMAN_API_BASE_URI}/users/by-active-directory-id/${encodeURIComponent(activeDirectoryId)}/role`,
+        {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ role: newRole }),
+        },
+      );
+
+      if (response.status === HttpStatusCodes.NOT_FOUND) {
+        throw new AppError(`User with Active Directory ID '${activeDirectoryId}' not found.`, ErrorCodes.VACMAN_API_ERROR);
+      }
+
+      if (!response.ok) {
+        const errorMessage = `Failed to update user role. Server responded with status ${response.status}.`;
+        throw new AppError(errorMessage, ErrorCodes.VACMAN_API_ERROR);
+      }
+
+      return await response.json();
+    },
+
+    /**
+     * Updates a user's privacy consent status identified by their Active Directory ID.
+     * @param activeDirectoryId The Active Directory ID of the user to update.
+     * @param privacyConsentAccepted The new privacy consent status.
+     * @param session The authenticated session.
+     * @returns A promise that resolves to the updated user object.
+     * @throws AppError if the request fails, if the user is not found, or if the server responds with an error status.
+     */
+    async updatePrivacyConsent(
+      activeDirectoryId: string,
+      privacyConsentAccepted: boolean,
+      session: AuthenticatedSession,
+    ): Promise<User> {
+      const response = await fetch(
+        `${serverEnvironment.VACMAN_API_BASE_URI}/users/by-active-directory-id/${encodeURIComponent(activeDirectoryId)}/privacy-consent`,
+        {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ privacyConsentAccepted }),
+        },
+      );
+
+      if (response.status === HttpStatusCodes.NOT_FOUND) {
+        throw new AppError(`User with Active Directory ID '${activeDirectoryId}' not found.`, ErrorCodes.VACMAN_API_ERROR);
+      }
+
+      if (!response.ok) {
+        const errorMessage = `Failed to update user privacy consent. Server responded with status ${response.status}.`;
         throw new AppError(errorMessage, ErrorCodes.VACMAN_API_ERROR);
       }
 

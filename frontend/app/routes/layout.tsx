@@ -5,7 +5,10 @@ import { useTranslation } from 'react-i18next';
 
 import type { Route } from './+types/layout';
 
-import { requireAllRoles } from '~/.server/utils/auth-utils';
+import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
+import { requireAuthentication } from '~/.server/utils/auth-utils';
+import { checkHiringManagerRouteRegistration } from '~/.server/utils/hiring-manager-registration-utils';
+import { checkEmployeeRoutePrivacyConsent } from '~/.server/utils/privacy-consent-utils';
 import { AppBar } from '~/components/app-bar';
 import { LanguageSwitcher } from '~/components/language-switcher';
 import { AppLink } from '~/components/links';
@@ -19,8 +22,18 @@ export const handle = {
   i18nNamespace: ['gcweb', 'app'],
 } as const satisfies RouteHandle;
 
-export function loader({ context, request }: Route.LoaderArgs) {
-  requireAllRoles(context.session, new URL(request.url), ['employee']);
+export async function loader({ context, request }: Route.LoaderArgs) {
+  const currentUrl = new URL(request.url);
+
+  // First ensure the user is authenticated (no specific roles required)
+  requireAuthentication(context.session, currentUrl);
+
+  // Check privacy consent for employee routes (excluding privacy consent pages)
+  await checkEmployeeRoutePrivacyConsent(context.session as AuthenticatedSession, currentUrl);
+
+  // Check hiring manager registration for hiring manager routes
+  await checkHiringManagerRouteRegistration(context.session as AuthenticatedSession, currentUrl);
+
   return { name: context.session.authState.idTokenClaims.name };
 }
 
