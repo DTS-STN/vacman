@@ -1,15 +1,14 @@
 package ca.gov.dtsstn.vacman.api.web;
 
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+
 import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
 import org.mapstruct.factory.Mappers;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 
 import ca.gov.dtsstn.vacman.api.config.SpringDocConfig;
 import ca.gov.dtsstn.vacman.api.service.LanguageService;
@@ -26,33 +25,30 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @RequestMapping({ "/api/v1/languages" })
 public class LanguageController {
 
-    private final LanguageModelMapper languageModelMapper = Mappers.getMapper(LanguageModelMapper.class);
+	private final LanguageModelMapper languageModelMapper = Mappers.getMapper(LanguageModelMapper.class);
 
-    private final LanguageService languageService;
+	private final LanguageService languageService;
 
-    public LanguageController(LanguageService languageService) {
-        this.languageService = languageService;
-    }
+	public LanguageController(LanguageService languageService) {
+		this.languageService = languageService;
+	}
 
-    @GetMapping
-    @SecurityRequirement(name = SpringDocConfig.AZURE_AD)
-    @Operation(summary = "Get all languages or filter by code.", description = "Returns a collection of all languages or a specific language if code is provided.")
-    public CollectionModel<LanguageReadModel> getLanguages(
-            @RequestParam(required = false)
-            @Parameter(description = "Language code to filter by (e.g., 'EN')")
-            String code) {
+	@GetMapping
+	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
+	@Operation(summary = "Get all languages or filter by code.", description = "Returns a collection of all languages or a specific language if code is provided.")
+	public CollectionModel<LanguageReadModel> getLanguages(
+			@RequestParam(required = false)
+			@Parameter(description = "Language code to filter by (e.g., 'EN')")
+			String code) {
+		if (isNotBlank(code)) {
+			return new CollectionModel<>( languageService.getLanguageByCode(code)
+				.map(languageModelMapper::toModel)
+				.map(List::of)
+				.orElse(List.of()));
+		}
 
-        if (StringUtils.isNotBlank(code)) {
-            List<LanguageReadModel> result = languageService.getLanguageByCode(code)
-                .map(languageModelMapper::toModel)
-                .map(List::of)
-                .orElse(List.of());
-            return new CollectionModel<>(result);
-        }
-
-        List<LanguageReadModel> result = languageService.getAllLanguages().stream()
-            .map(languageModelMapper::toModel)
-            .toList();
-        return new CollectionModel<>(result);
-    }
+		return new CollectionModel<>(languageService.getAllLanguages().stream()
+			.map(languageModelMapper::toModel)
+			.toList());
+	}
 }

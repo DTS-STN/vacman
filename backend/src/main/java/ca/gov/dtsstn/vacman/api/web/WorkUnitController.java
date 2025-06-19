@@ -1,15 +1,14 @@
 package ca.gov.dtsstn.vacman.api.web;
 
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+
 import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
 import org.mapstruct.factory.Mappers;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 
 import ca.gov.dtsstn.vacman.api.config.SpringDocConfig;
 import ca.gov.dtsstn.vacman.api.service.WorkUnitService;
@@ -26,33 +25,29 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @RequestMapping({ "/api/v1/work-units" })
 public class WorkUnitController {
 
-    private final WorkUnitModelMapper workUnitModelMapper = Mappers.getMapper(WorkUnitModelMapper.class);
+	private final WorkUnitModelMapper workUnitModelMapper = Mappers.getMapper(WorkUnitModelMapper.class);
 
-    private final WorkUnitService workUnitService;
+	private final WorkUnitService workUnitService;
 
-    public WorkUnitController(WorkUnitService workUnitService) {
-        this.workUnitService = workUnitService;
-    }
+	public WorkUnitController(WorkUnitService workUnitService) {
+		this.workUnitService = workUnitService;
+	}
 
-    @GetMapping
-    @SecurityRequirement(name = SpringDocConfig.AZURE_AD)
-    @Operation(summary = "Get all work units or filter by code.", description = "Returns a collection of all work units or a specific work unit if code is provided.")
-    public CollectionModel<WorkUnitReadModel> getWorkUnits(
-            @RequestParam(required = false)
-            @Parameter(description = "Work unit code to filter by")
-            String code) {
+	@GetMapping
+	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
+	@Operation(summary = "Get all work units or filter by code.", description = "Returns a collection of all work units or a specific work unit if code is provided.")
+	public CollectionModel<WorkUnitReadModel> getWorkUnits(
+			@RequestParam(required = false)
+			@Parameter(description = "Work unit code to filter by") String code) {
+		if (isNotBlank(code)) {
+			return new CollectionModel<>(workUnitService.getWorkUnitByCode(code)
+				.map(workUnitModelMapper::toModel)
+				.map(List::of)
+				.orElse(List.of()));
+		}
 
-        if (StringUtils.isNotBlank(code)) {
-            List<WorkUnitReadModel> result = workUnitService.getWorkUnitByCode(code)
-                .map(workUnitModelMapper::toModel)
-                .map(List::of)
-                .orElse(List.of());
-            return new CollectionModel<>(result);
-        }
-
-        List<WorkUnitReadModel> result = workUnitService.getAllWorkUnits().stream()
-            .map(workUnitModelMapper::toModel)
-            .toList();
-        return new CollectionModel<>(result);
-    }
+		return new CollectionModel<>(workUnitService.getAllWorkUnits().stream()
+			.map(workUnitModelMapper::toModel)
+			.toList());
+	}
 }
