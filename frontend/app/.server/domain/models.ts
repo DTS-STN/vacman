@@ -1,11 +1,13 @@
 export type Branch = Readonly<{
   id: string;
+  code: string;
   nameEn: string;
   nameFr: string;
 }>;
 
 export type LocalizedBranch = Readonly<{
   id: string;
+  code: string;
   name: string;
 }>;
 
@@ -42,13 +44,17 @@ export type LocalizedWFAStatus = Readonly<{
 
 export type Directorate = Readonly<{
   id: string;
+  code: string;
   nameEn: string;
   nameFr: string;
+  parent: Branch;
 }>;
 
 export type LocalizedDirectorate = Readonly<{
   id: string;
+  code: string;
   name: string;
+  parent: LocalizedBranch;
 }>;
 
 export type EducationLevel = Readonly<{

@@ -3,7 +3,7 @@ import { Err, None, Ok, Some } from 'oxide.ts';
 
 import type { Branch, LocalizedBranch } from '~/.server/domain/models';
 import type { BranchService } from '~/.server/domain/services/branch-service';
-import esdcBranchData from '~/.server/resources/esdc_branchandregions.json';
+import workUnitData from '~/.server/resources/workUnit.json';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
 
@@ -23,11 +23,14 @@ export function getMockBranchService(): BranchService {
  * @returns An array of esdc branch objects.
  */
 function getAll(): Result<readonly Branch[], AppError> {
-  const branches: Branch[] = esdcBranchData.content.map((branch) => ({
-    id: branch.id,
-    nameEn: branch.nameEn,
-    nameFr: branch.nameFr,
-  }));
+  const branches: Branch[] = workUnitData.content
+    .filter((c) => c.parent === null)
+    .map((branch) => ({
+      id: branch.id.toString(),
+      code: branch.code,
+      nameEn: branch.nameEn,
+      nameFr: branch.nameFr,
+    }));
 
   return Ok(branches);
 }
@@ -79,7 +82,8 @@ function getAllLocalized(language: Language): Result<readonly LocalizedBranch[],
   return getAll().map((branches) =>
     branches
       .map((branch) => ({
-        id: branch.id,
+        id: branch.id.toString(),
+        code: branch.code,
         name: language === 'fr' ? branch.nameFr : branch.nameEn,
       }))
       .sort((a, b) => a.name.localeCompare(b.name, language, { sensitivity: 'base' })),

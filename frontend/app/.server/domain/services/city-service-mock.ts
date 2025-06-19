@@ -119,6 +119,7 @@ function findByCode(code: string): Option<City> {
 
   return city ? Some(city) : None;
 }
+
 /**
  * Retrieves a list of all cities by province ID.
  *

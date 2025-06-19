@@ -106,6 +106,7 @@ export function getDefaultBranchService(): BranchService {
       return result.map((branches) =>
         branches.map((branch) => ({
           id: branch.id,
+          code: branch.code,
           name: language === 'fr' ? branch.nameFr : branch.nameEn,
         })),
       );
@@ -124,6 +125,7 @@ export function getDefaultBranchService(): BranchService {
 
       return result.map((branch) => ({
         id: branch.id,
+        code: branch.code,
         name: language === 'fr' ? branch.nameFr : branch.nameEn,
       }));
     },
