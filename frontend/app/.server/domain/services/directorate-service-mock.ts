@@ -200,16 +200,18 @@ function findByCode(code: string): Option<Directorate> {
  */
 function getAllLocalized(language: Language): Result<readonly LocalizedDirectorate[], AppError> {
   return getAll().map((directorates) =>
-    directorates.map((directorate) => ({
-      id: directorate.id,
-      code: directorate.code,
-      name: language === 'fr' ? directorate.nameFr : directorate.nameEn,
-      parent: {
-        id: directorate.parent.id.toString(),
-        code: directorate.parent.code,
-        name: language === 'fr' ? directorate.parent.nameFr : directorate.parent.nameEn,
-      },
-    })),
+    directorates
+      .map((directorate) => ({
+        id: directorate.id,
+        code: directorate.code,
+        name: language === 'fr' ? directorate.nameFr : directorate.nameEn,
+        parent: {
+          id: directorate.parent.id.toString(),
+          code: directorate.parent.code,
+          name: language === 'fr' ? directorate.parent.nameFr : directorate.parent.nameEn,
+        },
+      }))
+      .sort((a, b) => a.name.localeCompare(b.name, language, { sensitivity: 'base' })),
   );
 }
 
