@@ -137,3 +137,17 @@ export type UserCreate = Readonly<{
   role: string;
   privacyConsentAccepted?: boolean;
 }>;
+
+export type MSGraphUser = Readonly<{
+  id: string;
+  displayName: string;
+  givenName?: string;
+  surname?: string;
+  mail?: string;
+  userPrincipalName: string;
+  jobTitle?: string;
+  department?: string;
+  officeLocation?: string;
+  businessPhones: string[];
+  mobilePhone?: string;
+}>;

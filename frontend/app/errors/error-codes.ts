@@ -9,6 +9,7 @@ export const ErrorCodes = {
   MISSING_AUTH_HEADER: 'AUTH-0003',
   DISCOVERY_ENDPOINT_MISSING: 'AUTH-0004',
   MISSING_ID_TOKEN: 'AUTH-0005',
+  AUTHENTICATION_ERROR: 'AUTH-0006',
 
   // component error codes
   MISSING_LANG_PARAM: 'CMP-0001',
@@ -44,4 +45,7 @@ export const ErrorCodes = {
 
   // vacman api error codes
   VACMAN_API_ERROR: 'API-0001',
+
+  // msgraph api error codes
+  MSGRAPH_API_ERROR: 'API-0002',
 } as const;

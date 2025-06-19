@@ -1,6 +1,7 @@
 import type { RouteHandle, LoaderFunctionArgs, ActionFunctionArgs, MetaFunction } from 'react-router';
 import { Form } from 'react-router';
 
+import { getMSGraphService } from '~/.server/domain/services/msgraph-service';
 import { getUserService } from '~/.server/domain/services/user-service';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { Button } from '~/components/button';
@@ -32,6 +33,12 @@ export async function action({ context, request }: ActionFunctionArgs) {
       // User exists, update their privacy consent status
       await userService.updatePrivacyConsent(activeDirectoryId, true, context.session);
     } else {
+      const msGraphService = getMSGraphService();
+
+      const msGraphUserData = await msGraphService.getUserFromMSGraph(activeDirectoryId);
+
+      console.log(msGraphUserData);
+
       // User doesn't exist, register them with privacy consent accepted
       await userService.registerUser(
         {
