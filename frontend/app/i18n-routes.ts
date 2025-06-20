@@ -154,6 +154,14 @@ export const i18nRoutes = [
       },
       {
         id: 'EMPL-0006',
+        file: 'routes/employee/profile/referral-preferences.tsx',
+        paths: {
+          en: '/en/employee/profile/referral-preferences',
+          fr: '/fr/employe/profil/préférences-de-référence',
+        },
+      },
+      {
+        id: 'EMPL-0007',
         file: 'routes/employee/profile/personal-details.tsx',
         paths: {
           en: '/en/employee/profile/personal-details',
