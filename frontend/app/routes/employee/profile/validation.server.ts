@@ -208,6 +208,15 @@ export const employmentInformationSchema = v.intersect([
   ),
 ]);
 
+export const refferralPreferencesSchema = v.object({
+  languageReferralTypes: v.optional(v.string()),
+  classification: v.optional(v.string()),
+  workLocations: v.optional(v.string()),
+  referralAvailibility: v.optional(v.string()),
+  alternateOpportunity: v.optional(v.string()),
+  employmentTenures: v.optional(v.string()),
+});
+
 export function parseEmploymentInformation(formData: FormData) {
   const wfaEffectiveDateYear = formData.get('wfaEffectiveDateYear')?.toString();
   const wfaEffectiveDateMonth = formData.get('wfaEffectiveDateMonth')?.toString();
