@@ -46,6 +46,7 @@ export default {
     'save': 'Enregistrer',
     'submit': 'Soumettre',
     'select-option': 'Sélectionner une option',
+    'select-all-that-apply': "Sélectionnez tout ce qui s'applique",
   },
   'personal-information': {
     'page-title': 'Informations personnelles',
@@ -76,7 +77,7 @@ export default {
   },
   'employment-information': {
     'page-title': "Informations sur l'emploi",
-    'substantive-position-heading': '',
+    'substantive-position-heading': 'Substantive position',
     'substantive-position-group-and-level': 'Groupe et niveau de votre poste substantif',
     'branch-or-service-canada-region': 'Direction générale ou Région de Service Canada',
     'directorate': 'Direction',
@@ -117,6 +118,34 @@ export default {
         'invalid-day': 'La jour de fin de votre statut de RE est invalide.',
       },
       'hr-advisor-required': 'Le conseiller en RH est requis.',
+    },
+  },
+  'referral-preferences': {
+    'page-title': 'Préférences de référence',
+    'language-referral-type': 'Pour quel(s) profil(s) de langue aimeriez-vous être référé?',
+    'classification': 'Pour quel(s) groupe(s) et niveau(x) de classification souhaiteriez-vous être référé?',
+    'classification-group-help-message-primary':
+      'The group and levels selected must be the same or equivalent to your substantive position',
+    'work-location': 'Pour quel(s) lieu(x) de travail aimeriez-vous être référé?',
+    'province': 'Province',
+    'city': 'Ville',
+    'referral-availibility': 'Êtes-vous actuellement disponible pour être référé?',
+    'referral-availibility-help-message-primary':
+      "Select no if you'll be on leave or are currently not interested in referrals",
+    'alternate-opportunity': "Êtes-vous intéressé par des opportunités d'échange de poste?",
+    'what-is-alternation': 'What is alternation?',
+    'alternation-description-text':
+      "Alternation occurs when an employee who has not been given a gaurentee of a reasonable job offer (GRJO) who wishes to continue employment in the core public service exchanges positions with an alternate (non-affected employee) willing to leave the Core Public Administration with a Transition Support Measure (TSM - cash payment based on the employee's years of service) or with an Education Allowance.",
+    'employment-tenure': "Êtes-vous intéressé par las opportunités d'emploi temporaires suivantes?",
+    'errors': {
+      'language-referral-type-required': 'La langue est requise.',
+      'classification-required': 'Groupe et niveau de votre est requis.',
+      'work-location-required': "L'emplacement de travail est requis.",
+      'province-required': 'La ville est requise.',
+      'city-required': 'La ville est requise.',
+      'referral-availibility-required': 'La disponibilité pour les références est requise.',
+      'alternate-opportunity-required': "Opportunités d'échange est requise.",
+      'employment-tenure-required': "Opportunités d'emploi est requise.",
     },
   },
 } satisfies typeof appEn;
