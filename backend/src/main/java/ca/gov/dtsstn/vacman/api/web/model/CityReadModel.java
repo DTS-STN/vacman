@@ -10,7 +10,7 @@ public record CityReadModel(
         @Schema(accessMode = AccessMode.READ_ONLY, description = "The unique identifier for this city.")
         Long id,
 
-        @Schema(description = "The code of this city.", example = "OT")
+        @Schema(description = "The code of this city.", example = "ON52")
         String code,
 
         @Schema(description = "The English name of this city.", example = "Ottawa")
