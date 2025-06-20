@@ -111,14 +111,9 @@ const mockUsers: readonly User[] = [
  * Retrieves a list of users by their role from mock data.
  *
  * @param role The ROLE of the users to retrieve.
- * @returns List of user objects if the role is found.
- * @throws {AppError} If the role is not found.
+ * @returns List of user objects.
  */
 function getUsersByRole(role: string): User[] {
-  const roleFound = mockUsers.find((u) => u.role === role);
-  if (!roleFound) {
-    throw new AppError(`ROLE '${role}' not found.`, ErrorCodes.VACMAN_API_ERROR);
-  }
   const users: User[] = mockUsers.filter((u) => u.role === role);
   return users;
 }
