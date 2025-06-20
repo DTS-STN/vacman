@@ -1,0 +1,9 @@
+# Containerfile to create a Maven image that can be used in TeamCity.
+#
+# Provides Maven 3.9 and Java 21 to support builds requiring newer Java versions,
+# avoiding issues on TeamCity agents limited to Java 8 and ensuring a consistent
+# build environment across systems.
+#
+# Example build command:
+#   $ podman build . --tag vacman-maven-builder:v1-mvn3.9-java21 --file containerfile
+FROM docker.io/maven:3.9-eclipse-temurin-21
