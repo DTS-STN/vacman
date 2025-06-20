@@ -23,4 +23,12 @@ public class CityService {
     public Optional<CityEntity> getCityByCode(String code) {
         return cityRepository.findByCode(code);
     }
+
+    public List<CityEntity> getCitiesByProvinceCode(String provinceCode) {
+        return List.copyOf(cityRepository.findByProvinceCode(provinceCode));
+    }
+
+    public List<CityEntity> getCityByCodeAndProvince(String code, String provinceCode) {
+        return List.copyOf(cityRepository.findByCodeAndProvinceCode(code, provinceCode));
+    }
 }
