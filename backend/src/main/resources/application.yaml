@@ -170,6 +170,31 @@ spring:
 
 #
 # ------------------------------------------------------------------------------------
+# Spring Boot Actuator configuration
+# ------------------------------------------------------------------------------------
+# See https://docs.spring.io/spring-boot/appendix/application-properties/index.html#appendix.application-properties.actuator
+#
+
+management:
+  endpoint:
+    env:
+      show-values: when-authorized
+    health:
+      probes:
+        enabled: true
+      show-components: always
+      show-details: when-authorized
+  endpoints:
+    web:
+      exposure:
+        include:
+          - health
+          - metrics
+
+---
+
+#
+# ------------------------------------------------------------------------------------
 # SpringDoc OpenAPI & Swagger UI Configuration
 # ------------------------------------------------------------------------------------
 # These properties customize the generation of the OpenAPI 3.0 specification for this API and the behavior of the integrated
