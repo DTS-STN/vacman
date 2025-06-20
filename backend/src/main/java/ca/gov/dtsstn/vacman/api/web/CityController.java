@@ -35,10 +35,21 @@ public class CityController {
 
 	@GetMapping
 	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
-	@Operation(summary = "Get all cities or filter by code.", description = "Returns a collection of all cities or a specific city if code is provided.")
+	@Operation(summary = "Get all cities or filter by code or province.", description = "Returns a collection of all cities, or cities filtered by code or province.")
 	public CollectionModel<CityReadModel> getCities(
 			@RequestParam(required = false)
-			@Parameter(description = "City code to filter by (e.g., 'OT' for Ottawa)") String code) {
+			@Parameter(description = "City code to filter by (e.g., 'OT' for Ottawa)") String code,
+			@RequestParam(required = false)
+			@Parameter(description = "Province code to filter by (e.g., 'ON' for Ontario)") String province) {
+
+		// If both parameters are provided, find cities that match both
+		if (isNotBlank(code) && isNotBlank(province)) {
+			return new CollectionModel<>(cityService.getCityByCodeAndProvince(code, province).stream()
+				.map(cityModelMapper::toModel)
+				.toList());
+		}
+
+		// If only code is provided
 		if (isNotBlank(code)) {
 			return new CollectionModel<>(cityService.getCityByCode(code)
 				.map(cityModelMapper::toModel)
@@ -46,6 +57,14 @@ public class CityController {
 				.orElse(List.of()));
 		}
 
+		// If only province is provided
+		if (isNotBlank(province)) {
+			return new CollectionModel<>(cityService.getCitiesByProvinceCode(province).stream()
+				.map(cityModelMapper::toModel)
+				.toList());
+		}
+
+		// If no parameters are provided
 		return new CollectionModel<>(cityService.getAllCities().stream()
 			.map(cityModelMapper::toModel)
 			.toList());
