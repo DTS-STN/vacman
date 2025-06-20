@@ -57,7 +57,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
   const substantivePositions = await getClassificationService().getAll();
   const branchOrServiceCanadaRegions = await getBranchService().getAllLocalized(lang);
-  const directorates = await getDirectorateService().getLocalizedDirectorates(lang);
+  const directorates = await getDirectorateService().getAllLocalized(lang);
   const provinces = await getProvinceService().getAllLocalized(lang);
   const cities = await getCityService().getAllLocalized(lang);
   const wfaStatuses = await getWFAStatuses().getAllLocalized(lang);
@@ -78,7 +78,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
     },
     substantivePositions: substantivePositions.unwrap(),
     branchOrServiceCanadaRegions: branchOrServiceCanadaRegions.unwrap(),
-    directorates: directorates,
+    directorates: directorates.unwrap(),
     provinces: provinces.unwrap(),
     cities: cities.unwrap(),
     wfaStatuses: wfaStatuses.unwrap(),
@@ -88,6 +88,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
 export default function EmploymentInformation({ loaderData, actionData, params }: Route.ComponentProps) {
   const { t } = useTranslation(handle.i18nNamespace);
   const errors = actionData?.errors;
+  const [branch, setBranch] = useState(loaderData.defaultValues.branchOrServiceCanadaRegion);
   const [province, setProvince] = useState(loaderData.defaultValues.province);
   const [wfaStatus, setWfaStatus] = useState(loaderData.defaultValues.wfaStatus);
 
@@ -106,7 +107,10 @@ export default function EmploymentInformation({ loaderData, actionData, params }
     children: id === 'select-option' ? t('app:form.select-option') : name,
   }));
 
-  const directorateOptions = [{ id: 'select-option', name: '' }, ...loaderData.directorates].map(({ id, name }) => ({
+  const directorateOptions = [
+    { id: 'select-option', name: '' },
+    ...loaderData.directorates.filter((c) => c.parent.id === branch),
+  ].map(({ id, name }) => ({
     value: id === 'select-option' ? '' : id,
     children: id === 'select-option' ? t('app:form.select-option') : name,
   }));
@@ -154,21 +158,24 @@ export default function EmploymentInformation({ loaderData, actionData, params }
                 name="branchOrServiceCanadaRegion"
                 errorMessage={t(extractValidationKey(errors?.branchOrServiceCanadaRegion))}
                 required
+                onChange={({ target }) => setBranch(target.value)}
                 options={branchOrServiceCanadaRegionOptions}
                 label={t('app:employment-information.branch-or-service-canada-region')}
                 defaultValue={loaderData.defaultValues.branchOrServiceCanadaRegion ?? ''}
                 className="w-full sm:w-1/2"
               />
-              <InputSelect
-                id="directorate"
-                name="directorate"
-                errorMessage={t(extractValidationKey(errors?.directorate))}
-                required
-                options={directorateOptions}
-                label={t('app:employment-information.directorate')}
-                defaultValue={loaderData.defaultValues.directorate ?? ''}
-                className="w-full sm:w-1/2"
-              />
+              {branch && (
+                <InputSelect
+                  id="directorate"
+                  name="directorate"
+                  errorMessage={t(extractValidationKey(errors?.directorate))}
+                  required
+                  options={directorateOptions}
+                  label={t('app:employment-information.directorate')}
+                  defaultValue={loaderData.defaultValues.directorate ?? ''}
+                  className="w-full sm:w-1/2"
+                />
+              )}
               <InputSelect
                 className="w-full sm:w-1/2"
                 id="province"

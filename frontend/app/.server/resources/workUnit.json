@@ -1,0 +1,3167 @@
+{
+  "content": [
+    {
+      "id": 100789001,
+      "code": "LABOUR-COPD",
+      "nameEn": "Labour - COPD",
+      "nameFr": "Travail - CODP",
+      "parent": null
+    },
+    {
+      "id": 100789002,
+      "code": "LABOUR-SIG",
+      "nameEn": "Labour - SIG",
+      "nameFr": "Travail - ISG",
+      "parent": null
+    },
+    {
+      "id": 100789003,
+      "code": "LABOUR",
+      "nameEn": "DMO Labour Program",
+      "nameFr": "BSM Programme du travail",
+      "parent": null
+    },
+    {
+      "id": 100789004,
+      "code": "LABOUR-PDRIA",
+      "nameEn": "Labour - PDRIA",
+      "nameFr": "Travail - PRDAI",
+      "parent": null
+    },
+    {
+      "id": 100789005,
+      "code": "ICSD-QC",
+      "nameEn": "Integrated Client Service Delivery (ICSD) - Quebec Region",
+      "nameFr": "Prestation de services intégrés à la clientèle (PSIC) - PSIC, Région du Québec",
+      "parent": null
+    },
+    {
+      "id": 100789006,
+      "code": "ISSO",
+      "nameEn": "Integrated Services Strategy and Operations (ISSO)",
+      "nameFr": "Stratégie des services intégrés et opérations (SSIO)",
+      "parent": null
+    },
+    {
+      "id": 100789007,
+      "code": "ISB",
+      "nameEn": "Integrity Services Branch",
+      "nameFr": "Direction générale des services d'intégrité",
+      "parent": null
+    },
+    {
+      "id": 100789008,
+      "code": "ICSD-ON",
+      "nameEn": "Integrated Client Service Delivery (ICSD) - Ontario Region",
+      "nameFr": "Prestation de services intégrés à la clientèle (PSIC) - Région de l'Ontario",
+      "parent": null
+    },
+    {
+      "id": 100789009,
+      "code": "COOO",
+      "nameEn": "COOO, Service Canada",
+      "nameFr": "BCE, Service Canada",
+      "parent": null
+    },
+    {
+      "id": 100789010,
+      "code": "ICSD-ATL",
+      "nameEn": "Integrated Client Service Delivery (ICSD) - Atlantic Region",
+      "nameFr": "Prestation de services intégrés à la clientèle (PSIC) - Région de l'Atlantique",
+      "parent": null
+    },
+    {
+      "id": 100789011,
+      "code": "ICSD-WT",
+      "nameEn": "Integrated Client Service Delivery (ICSD) - W-T Region",
+      "nameFr": "Prestation de services intégrés à la clientèle (PSIC) - Région de l'O-T",
+      "parent": null
+    },
+    {
+      "id": 100789012,
+      "code": "POB",
+      "nameEn": "Program Operations Branch",
+      "nameFr": "Direction générale des opérations de programmes",
+      "parent": null
+    },
+    {
+      "id": 100789013,
+      "code": "TFWPB",
+      "nameEn": "Temporary Foreign Workers Program",
+      "nameFr": "Programme des travailleurs étrangers temporaires",
+      "parent": null
+    },
+    {
+      "id": 100789014,
+      "code": "CCEO",
+      "nameEn": "Chief Client Exp Office",
+      "nameFr": "Bureau chef expérience client",
+      "parent": null
+    },
+    {
+      "id": 100789015,
+      "code": "CDSB",
+      "nameEn": "Canadian Digital Service",
+      "nameFr": "Service numérique canadien",
+      "parent": null
+    },
+    {
+      "id": 100789016,
+      "code": "SDNBCO",
+      "nameEn": "SDN-Business Chg Oversight Ld",
+      "nameFr": "RPS-Resp gstn intégré chgt ops",
+      "parent": null
+    },
+    {
+      "id": 100789017,
+      "code": "SDNCSD",
+      "nameEn": "SDN-Client Service Delivery",
+      "nameFr": "RPS-Prest serv aux clients",
+      "parent": null
+    },
+    {
+      "id": 100789018,
+      "code": "IWWMB",
+      "nameEn": "IWWMB",
+      "nameFr": "DGGICTE",
+      "parent": null
+    },
+    {
+      "id": 100789019,
+      "code": "ICSD",
+      "nameEn": "Integrated Client Service Delivery (ICSD)",
+      "nameFr": "Prestation de services intégrés à la clientèle (PSIC)",
+      "parent": null
+    },
+    {
+      "id": 100789020,
+      "code": "SDRB",
+      "nameEn": "SDRB",
+      "nameFr": "DGCSR",
+      "parent": null
+    },
+    {
+      "id": 100789021,
+      "code": "ICSB",
+      "nameEn": "ICSB",
+      "nameFr": "DGMSSI",
+      "parent": null
+    },
+    {
+      "id": 100789022,
+      "code": "IENB",
+      "nameEn": "IENB",
+      "nameFr": "DGREI",
+      "parent": null
+    },
+    {
+      "id": 100789023,
+      "code": "COS",
+      "nameEn": "Corporate Secretariat",
+      "nameFr": "Secrétariat ministériel",
+      "parent": null
+    },
+    {
+      "id": 100789024,
+      "code": "OO",
+      "nameEn": "Ombuds Office",
+      "nameFr": "Bureau de l'Ombuds",
+      "parent": null
+    },
+    {
+      "id": 100789025,
+      "code": "LB",
+      "nameEn": "Learning Branch",
+      "nameFr": "DG de l'apprentissage",
+      "parent": null
+    },
+    {
+      "id": 100789026,
+      "code": "SEB",
+      "nameEn": "Skills and Employment Branch",
+      "nameFr": "Direction générale des compétences et de l'emploi",
+      "parent": null
+    },
+    {
+      "id": 100789027,
+      "code": "ISSDB",
+      "nameEn": "Income Security and Social Development Branch",
+      "nameFr": "Direction générale de la sécurité du revenu et du développement social",
+      "parent": null
+    },
+    {
+      "id": 100789028,
+      "code": "IAERMB",
+      "nameEn": "Internal Audit & Enterprise Risk Management Branch",
+      "nameFr": "Direction générale d'audit interne et gestion des risques d'entreprise",
+      "parent": null
+    },
+    {
+      "id": 100789029,
+      "code": "IITB",
+      "nameEn": "Innovation, Information and Technology Branch",
+      "nameFr": "Direction générale de l'innovation, de l'information et de la technologie",
+      "parent": null
+    },
+    {
+      "id": 100789030,
+      "code": "HRSB",
+      "nameEn": "Human Resources Services Branch",
+      "nameFr": "Direction générale des services de ressources humaines",
+      "parent": null
+    },
+    {
+      "id": 100789031,
+      "code": "SSPB",
+      "nameEn": "Strategic and Service Policy Branch",
+      "nameFr": "Direction générale des politiques stratégiques et de service",
+      "parent": null
+    },
+    {
+      "id": 100789032,
+      "code": "PASRB",
+      "nameEn": "Public Affairs and Stakeholder Relations",
+      "nameFr": "Direction générale des affaires publiques et des relations avec les intervenants",
+      "parent": null
+    },
+    {
+      "id": 100789033,
+      "code": "CFOB",
+      "nameEn": "Chief Financial Officer Branch",
+      "nameFr": "Direction générale du dirigeant principal des finances",
+      "parent": null
+    },
+    {
+      "id": 100789034,
+      "code": "DMO",
+      "nameEn": "DMO ESDC",
+      "nameFr": "BSM EDSC",
+      "parent": null
+    },
+    {
+      "id": 100789035,
+      "code": "LSU",
+      "nameEn": "Legal Services Unit",
+      "nameFr": "Unité des services juridiques",
+      "parent": null
+    },
+    {
+      "id": 100789036,
+      "code": "PHC",
+      "nameEn": "Policy Horizons Canada",
+      "nameFr": "Horizons Politiques Canada",
+      "parent": null
+    },
+    {
+      "id": 100789037,
+      "code": "CDOB",
+      "nameEn": "Chief Data Officer Branch",
+      "nameFr": "Direction générale de la dirigeante principale des données",
+      "parent": null
+    },
+    {
+      "id": 100789038,
+      "code": "BDM",
+      "nameEn": "Benefits Delivery Modernization (BDM) Programme - Implementation Branch",
+      "nameFr": "Programme de modernisation du versement des prestations (MVP) - DG de la mise en œuvre",
+      "parent": null
+    },
+    {
+      "id": 100789039,
+      "code": "BLO",
+      "nameEn": "BLO - Benefits Delivery Modernization (BDM) Programme",
+      "nameFr": "BDPA Programme de modernisation du versement des prestations (MVP)",
+      "parent": null
+    },
+    {
+      "id": 100789040,
+      "code": "BLI",
+      "nameEn": "Benefits Delivery Modernization (BDM) Programme - Business Lead Implementation",
+      "nameFr": "Programme de modernisation du versement des prestations (MVP) - Resp mise en oeuvre activtés",
+      "parent": null
+    },
+    {
+      "id": 100789041,
+      "code": "PSDB",
+      "nameEn": "Benefits Delivery Modernization (BDM) Programme - Prog Strat & Design Branch",
+      "nameFr": "Programme de modernisation du versement des prestations (MVP) - DG de la strat & conc des prog",
+      "parent": null
+    },
+    {
+      "id": 100789042,
+      "code": "CAO",
+      "nameEn": "Chief Accessibility Officer",
+      "nameFr": "Dirigeant princ accessibilité",
+      "parent": null
+    },
+    {
+      "id": 294550000,
+      "code": "LABOUR-COPD-1",
+      "nameEn": "Workplace Directorate",
+      "nameFr": "Direction du milieu de travail",
+      "parent": {
+        "id": 100789001,
+        "code": "LABOUR-COPD",
+        "nameEn": "Labour - COPD",
+        "nameFr": "Travail - CODP"
+      }
+    },
+    {
+      "id": 294550001,
+      "code": "LABOUR-COPD-2",
+      "nameEn": "ADM's Office, COPD",
+      "nameFr": "Bureau du SMA, CODP",
+      "parent": {
+        "id": 100789001,
+        "code": "LABOUR-COPD",
+        "nameEn": "Labour - COPD",
+        "nameFr": "Travail - CODP"
+      }
+    },
+    {
+      "id": 294550002,
+      "code": "LABOUR-COPD-3",
+      "nameEn": "Reg Opertins & Compliance DGO",
+      "nameFr": "BDG Opération Rég & Conformité",
+      "parent": {
+        "id": 100789001,
+        "code": "LABOUR-COPD",
+        "nameEn": "Labour - COPD",
+        "nameFr": "Travail - CODP"
+      }
+    },
+    {
+      "id": 294550003,
+      "code": "LABOUR-COPD-4",
+      "nameEn": "Federal Programs",
+      "nameFr": "Programmes Federaux",
+      "parent": {
+        "id": 100789001,
+        "code": "LABOUR-COPD",
+        "nameEn": "Labour - COPD",
+        "nameFr": "Travail - CODP"
+      }
+    },
+    {
+      "id": 294550004,
+      "code": "LABOUR-SIG-1",
+      "nameEn": "Strat Integ & Info Solutions",
+      "nameFr": "Integ Strat & Solution Info",
+      "parent": {
+        "id": 100789002,
+        "code": "LABOUR-SIG",
+        "nameEn": "Labour - SIG",
+        "nameFr": "Travail - ISG"
+      }
+    },
+    {
+      "id": 294550005,
+      "code": "LABOUR-SIG-2",
+      "nameEn": "Gov, Engmt & Man Ser",
+      "nameFr": "Gov Mobilisation & Serv Ges",
+      "parent": {
+        "id": 100789002,
+        "code": "LABOUR-SIG",
+        "nameEn": "Labour - SIG",
+        "nameFr": "Travail - ISG"
+      }
+    },
+    {
+      "id": 294550006,
+      "code": "LABOUR-1",
+      "nameEn": "DMO Labour Program",
+      "nameFr": "BSM Programme du travail",
+      "parent": {
+        "id": 100789003,
+        "code": "LABOUR",
+        "nameEn": "DMO Labour Program",
+        "nameFr": "BSM Programme du travail"
+      }
+    },
+    {
+      "id": 294550007,
+      "code": "LABOUR-PDRIA-1",
+      "nameEn": "DGO Fed Mediatn Conciliatn Svc",
+      "nameFr": "DG Serv Fed Mediatn Conciliatn",
+      "parent": {
+        "id": 100789004,
+        "code": "LABOUR-PDRIA",
+        "nameEn": "Labour - PDRIA",
+        "nameFr": "Travail - PRDAI"
+      }
+    },
+    {
+      "id": 294550008,
+      "code": "LABOUR-PDRIA-2",
+      "nameEn": "Intl&Intgov Labour Affairs",
+      "nameFr": "Affrs interntl&intergouv trav",
+      "parent": {
+        "id": 100789004,
+        "code": "LABOUR-PDRIA",
+        "nameEn": "Labour - PDRIA",
+        "nameFr": "Travail - PRDAI"
+      }
+    },
+    {
+      "id": 294550009,
+      "code": "LABOUR-PDRIA-3",
+      "nameEn": "Strat Pol Anls Research Inn",
+      "nameFr": "Politique stratégique",
+      "parent": {
+        "id": 100789004,
+        "code": "LABOUR-PDRIA",
+        "nameEn": "Labour - PDRIA",
+        "nameFr": "Travail - PRDAI"
+      }
+    },
+    {
+      "id": 294550010,
+      "code": "LABOUR-PDRIA-4",
+      "nameEn": "ADM's Office, PDRIA",
+      "nameFr": "Bureau du SMA, PRDAI",
+      "parent": {
+        "id": 100789004,
+        "code": "LABOUR-PDRIA",
+        "nameEn": "Labour - PDRIA",
+        "nameFr": "Travail - PRDAI"
+      }
+    },
+    {
+      "id": 294550011,
+      "code": "ICSD-QC-1",
+      "nameEn": "Integrity Services Branch, QC",
+      "nameFr": "Direction serv d'intégrité, QC",
+      "parent": {
+        "id": 100789005,
+        "code": "ICSD-QC",
+        "nameEn": "Integrated Client Service Delivery (ICSD) - Quebec Region",
+        "nameFr": "Prestation de services intégrés à la clientèle (PSIC) - PSIC, Région du Québec"
+      }
+    },
+    {
+      "id": 294550012,
+      "code": "ICSD-QC-2",
+      "nameEn": "Benefit Delivery Service, QC",
+      "nameFr": "Services de versemnt prestn QC",
+      "parent": {
+        "id": 100789005,
+        "code": "ICSD-QC",
+        "nameEn": "Integrated Client Service Delivery (ICSD) - Quebec Region",
+        "nameFr": "Prestation de services intégrés à la clientèle (PSIC) - PSIC, Région du Québec"
+      }
+    },
+    {
+      "id": 294550013,
+      "code": "ICSD-QC-3",
+      "nameEn": "Director General (DG)",
+      "nameFr": "Directeur Général (DG)",
+      "parent": {
+        "id": 100789005,
+        "code": "ICSD-QC",
+        "nameEn": "Integrated Client Service Delivery (ICSD) - Quebec Region",
+        "nameFr": "Prestation de services intégrés à la clientèle (PSIC) - PSIC, Région du Québec"
+      }
+    },
+    {
+      "id": 294550014,
+      "code": "ICSD-QC-4",
+      "nameEn": "DSC - Director General",
+      "nameFr": "DSC - Directeur Général",
+      "parent": {
+        "id": 100789005,
+        "code": "ICSD-QC",
+        "nameEn": "Integrated Client Service Delivery (ICSD) - Quebec Region",
+        "nameFr": "Prestation de services intégrés à la clientèle (PSIC) - PSIC, Région du Québec"
+      }
+    },
+    {
+      "id": 294550015,
+      "code": "ICSD-QC-5",
+      "nameEn": "ADM's Office, Chief of Staff",
+      "nameFr": "CSMA-Chef de cabinet",
+      "parent": {
+        "id": 100789005,
+        "code": "ICSD-QC",
+        "nameEn": "Integrated Client Service Delivery (ICSD) - Quebec Region",
+        "nameFr": "Prestation de services intégrés à la clientèle (PSIC) - PSIC, Région du Québec"
+      }
+    },
+    {
+      "id": 294550016,
+      "code": "ICSD-QC-6",
+      "nameEn": "Programs Branch, Quebec Region",
+      "nameFr": "Direction des programmes, QC",
+      "parent": {
+        "id": 100789005,
+        "code": "ICSD-QC",
+        "nameEn": "Integrated Client Service Delivery (ICSD) - Quebec Region",
+        "nameFr": "Prestation de services intégrés à la clientèle (PSIC) - PSIC, Région du Québec"
+      }
+    },
+    {
+      "id": 294550017,
+      "code": "ICSD-QC-7",
+      "nameEn": "QC Passport Operations",
+      "nameFr": "QC Opérations de passeport",
+      "parent": {
+        "id": 100789005,
+        "code": "ICSD-QC",
+        "nameEn": "Integrated Client Service Delivery (ICSD) - Quebec Region",
+        "nameFr": "Prestation de services intégrés à la clientèle (PSIC) - PSIC, Région du Québec"
+      }
+    },
+    {
+      "id": 294550018,
+      "code": "ISSO-1",
+      "nameEn": "Digital Service Directorate",
+      "nameFr": "Direction du service numérique",
+      "parent": {
+        "id": 100789006,
+        "code": "ISSO",
+        "nameEn": "Integrated Services Strategy and Operations (ISSO)",
+        "nameFr": "Stratégie des services intégrés et opérations (SSIO)"
+      }
+    },
+    {
+      "id": 294550019,
+      "code": "ISSO-2",
+      "nameEn": "Strategic Directions",
+      "nameFr": "Orientations stratégiques",
+      "parent": {
+        "id": 100789006,
+        "code": "ISSO",
+        "nameEn": "Integrated Services Strategy and Operations (ISSO)",
+        "nameFr": "Stratégie des services intégrés et opérations (SSIO)"
+      }
+    },
+    {
+      "id": 294550020,
+      "code": "ISSO-3",
+      "nameEn": "Citizen Serv Strat & PPT Ops",
+      "nameFr": "Strat serv citoyens et ops PPT",
+      "parent": {
+        "id": 100789006,
+        "code": "ISSO",
+        "nameEn": "Integrated Services Strategy and Operations (ISSO)",
+        "nameFr": "Stratégie des services intégrés et opérations (SSIO)"
+      }
+    },
+    {
+      "id": 294550021,
+      "code": "ISSO-4",
+      "nameEn": "Call Centres",
+      "nameFr": "Centre d'appels",
+      "parent": {
+        "id": 100789006,
+        "code": "ISSO",
+        "nameEn": "Integrated Services Strategy and Operations (ISSO)",
+        "nameFr": "Stratégie des services intégrés et opérations (SSIO)"
+      }
+    },
+    {
+      "id": 294550022,
+      "code": "ISSO-5",
+      "nameEn": "Strategic Directions",
+      "nameFr": "Direction stratégiques",
+      "parent": {
+        "id": 100789006,
+        "code": "ISSO",
+        "nameEn": "Integrated Services Strategy and Operations (ISSO)",
+        "nameFr": "Stratégie des services intégrés et opérations (SSIO)"
+      }
+    },
+    {
+      "id": 294550023,
+      "code": "ISSO-6",
+      "nameEn": "Partnership Development & Mgmt",
+      "nameFr": "Dév et gestion partenariats",
+      "parent": {
+        "id": 100789006,
+        "code": "ISSO",
+        "nameEn": "Integrated Services Strategy and Operations (ISSO)",
+        "nameFr": "Stratégie des services intégrés et opérations (SSIO)"
+      }
+    },
+    {
+      "id": 294550024,
+      "code": "ISSO-7",
+      "nameEn": "Major Projects Execution",
+      "nameFr": "Éxécution des grands project",
+      "parent": {
+        "id": 100789006,
+        "code": "ISSO",
+        "nameEn": "Integrated Services Strategy and Operations (ISSO)",
+        "nameFr": "Stratégie des services intégrés et opérations (SSIO)"
+      }
+    },
+    {
+      "id": 294550025,
+      "code": "ISSO-8",
+      "nameEn": "Ind Paym & On-Demand Srv",
+      "nameFr": "Paiement ind & serv demande",
+      "parent": {
+        "id": 100789006,
+        "code": "ISSO",
+        "nameEn": "Integrated Services Strategy and Operations (ISSO)",
+        "nameFr": "Stratégie des services intégrés et opérations (SSIO)"
+      }
+    },
+    {
+      "id": 294550026,
+      "code": "ISSO-9",
+      "nameEn": "Bus Readiness & Mobilization",
+      "nameFr": "Prép mobilisation entreprise",
+      "parent": {
+        "id": 100789006,
+        "code": "ISSO",
+        "nameEn": "Integrated Services Strategy and Operations (ISSO)",
+        "nameFr": "Stratégie des services intégrés et opérations (SSIO)"
+      }
+    },
+    {
+      "id": 294550027,
+      "code": "ISSO-10",
+      "nameEn": "ADM office passport liaison",
+      "nameFr": "Bureau SMA passeport liaison",
+      "parent": {
+        "id": 100789006,
+        "code": "ISSO",
+        "nameEn": "Integrated Services Strategy and Operations (ISSO)",
+        "nameFr": "Stratégie des services intégrés et opérations (SSIO)"
+      }
+    },
+    {
+      "id": 294550028,
+      "code": "ISSO-11",
+      "nameEn": "Passport Modernization & Strat",
+      "nameFr": "Modernisation passeports strat",
+      "parent": {
+        "id": 100789006,
+        "code": "ISSO",
+        "nameEn": "Integrated Services Strategy and Operations (ISSO)",
+        "nameFr": "Stratégie des services intégrés et opérations (SSIO)"
+      }
+    },
+    {
+      "id": 294550029,
+      "code": "ISSO-12",
+      "nameEn": "In Person Operations",
+      "nameFr": "Opérations du mode en personne",
+      "parent": {
+        "id": 100789006,
+        "code": "ISSO",
+        "nameEn": "Integrated Services Strategy and Operations (ISSO)",
+        "nameFr": "Stratégie des services intégrés et opérations (SSIO)"
+      }
+    },
+    {
+      "id": 294550030,
+      "code": "ISSO-13",
+      "nameEn": "Service Delivery Transition",
+      "nameFr": "Transition prestation services",
+      "parent": {
+        "id": 100789006,
+        "code": "ISSO",
+        "nameEn": "Integrated Services Strategy and Operations (ISSO)",
+        "nameFr": "Stratégie des services intégrés et opérations (SSIO)"
+      }
+    },
+    {
+      "id": 294550031,
+      "code": "ISB-1",
+      "nameEn": "Identity Policy and Program",
+      "nameFr": "Dir. des pol. prog. d'identité",
+      "parent": {
+        "id": 100789007,
+        "code": "ISB",
+        "nameEn": "Integrity Services Branch",
+        "nameFr": "Direction générale des services d'intégrité"
+      }
+    },
+    {
+      "id": 294550032,
+      "code": "ISB-2",
+      "nameEn": "Internal Integrity & Security",
+      "nameFr": "Intégrité interne et Sécurité",
+      "parent": {
+        "id": 100789007,
+        "code": "ISB",
+        "nameEn": "Integrity Services Branch",
+        "nameFr": "Direction générale des services d'intégrité"
+      }
+    },
+    {
+      "id": 294550033,
+      "code": "ISB-3",
+      "nameEn": "NHQ Integrity Operations",
+      "nameFr": "Opérations d'intégrité -RCN",
+      "parent": {
+        "id": 100789007,
+        "code": "ISB",
+        "nameEn": "Integrity Services Branch",
+        "nameFr": "Direction générale des services d'intégrité"
+      }
+    },
+    {
+      "id": 294550034,
+      "code": "ISB-4",
+      "nameEn": "Integrity Strategic Directions",
+      "nameFr": "Orientation stratg d'intégrité",
+      "parent": {
+        "id": 100789007,
+        "code": "ISB",
+        "nameEn": "Integrity Services Branch",
+        "nameFr": "Direction générale des services d'intégrité"
+      }
+    },
+    {
+      "id": 294550035,
+      "code": "ISB-5",
+      "nameEn": "Governance",
+      "nameFr": "Gouvernance",
+      "parent": {
+        "id": 100789007,
+        "code": "ISB",
+        "nameEn": "Integrity Services Branch",
+        "nameFr": "Direction générale des services d'intégrité"
+      }
+    },
+    {
+      "id": 294550036,
+      "code": "ISB-6",
+      "nameEn": "ADMO analystes",
+      "nameFr": "ADMO analysts",
+      "parent": {
+        "id": 100789007,
+        "code": "ISB",
+        "nameEn": "Integrity Services Branch",
+        "nameFr": "Direction générale des services d'intégrité"
+      }
+    },
+    {
+      "id": 294550037,
+      "code": "ICSD-ON-1",
+      "nameEn": "Integrity Service Branch, ON",
+      "nameFr": "DG services d'intégrité ON",
+      "parent": {
+        "id": 100789008,
+        "code": "ICSD-ON",
+        "nameEn": "Integrated Client Service Delivery (ICSD) - Ontario Region",
+        "nameFr": "Prestation de services intégrés à la clientèle (PSIC) - Région de l'Ontario"
+      }
+    },
+    {
+      "id": 294550038,
+      "code": "ICSD-ON-2",
+      "nameEn": "Strategic Services Branch, ON",
+      "nameFr": "Dir Services Stratégiques ON",
+      "parent": {
+        "id": 100789008,
+        "code": "ICSD-ON",
+        "nameEn": "Integrated Client Service Delivery (ICSD) - Ontario Region",
+        "nameFr": "Prestation de services intégrés à la clientèle (PSIC) - Région de l'Ontario"
+      }
+    },
+    {
+      "id": 294550039,
+      "code": "ICSD-ON-3",
+      "nameEn": "Citizen Services Branch, ON",
+      "nameFr": "DG des service aux citoyens ON",
+      "parent": {
+        "id": 100789008,
+        "code": "ICSD-ON",
+        "nameEn": "Integrated Client Service Delivery (ICSD) - Ontario Region",
+        "nameFr": "Prestation de services intégrés à la clientèle (PSIC) - Région de l'Ontario"
+      }
+    },
+    {
+      "id": 294550040,
+      "code": "ICSD-ON-4",
+      "nameEn": "MSB/Director",
+      "nameFr": "DGSG/Directeur",
+      "parent": {
+        "id": 100789008,
+        "code": "ICSD-ON",
+        "nameEn": "Integrated Client Service Delivery (ICSD) - Ontario Region",
+        "nameFr": "Prestation de services intégrés à la clientèle (PSIC) - Région de l'Ontario"
+      }
+    },
+    {
+      "id": 294550041,
+      "code": "ICSD-ON-5",
+      "nameEn": "Benefit Delv Service Branch ON",
+      "nameFr": "DG ser versemnt des prestns ON",
+      "parent": {
+        "id": 100789008,
+        "code": "ICSD-ON",
+        "nameEn": "Integrated Client Service Delivery (ICSD) - Ontario Region",
+        "nameFr": "Prestation de services intégrés à la clientèle (PSIC) - Région de l'Ontario"
+      }
+    },
+    {
+      "id": 294550042,
+      "code": "ICSD-ON-6",
+      "nameEn": "ADM Office, Ontario",
+      "nameFr": "Bureau du SMA, Ontario",
+      "parent": {
+        "id": 100789008,
+        "code": "ICSD-ON",
+        "nameEn": "Integrated Client Service Delivery (ICSD) - Ontario Region",
+        "nameFr": "Prestation de services intégrés à la clientèle (PSIC) - Région de l'Ontario"
+      }
+    },
+    {
+      "id": 294550043,
+      "code": "ICSD-ON-7",
+      "nameEn": "Program Delivery Branch, ON",
+      "nameFr": "DG-livraison des programmes ON",
+      "parent": {
+        "id": 100789008,
+        "code": "ICSD-ON",
+        "nameEn": "Integrated Client Service Delivery (ICSD) - Ontario Region",
+        "nameFr": "Prestation de services intégrés à la clientèle (PSIC) - Région de l'Ontario"
+      }
+    },
+    {
+      "id": 294550044,
+      "code": "ICSD-ON-8",
+      "nameEn": "ADM Office",
+      "nameFr": "Bureau de la SMA",
+      "parent": {
+        "id": 100789008,
+        "code": "ICSD-ON",
+        "nameEn": "Integrated Client Service Delivery (ICSD) - Ontario Region",
+        "nameFr": "Prestation de services intégrés à la clientèle (PSIC) - Région de l'Ontario"
+      }
+    },
+    {
+      "id": 294550045,
+      "code": "ICSD-ON-9",
+      "nameEn": "Management Services Branch-ED",
+      "nameFr": "Dirctn generale serv gestn-DE",
+      "parent": {
+        "id": 100789008,
+        "code": "ICSD-ON",
+        "nameEn": "Integrated Client Service Delivery (ICSD) - Ontario Region",
+        "nameFr": "Prestation de services intégrés à la clientèle (PSIC) - Région de l'Ontario"
+      }
+    },
+    {
+      "id": 294550046,
+      "code": "COOO-1",
+      "nameEn": "COOO, Service Canada",
+      "nameFr": "BCE, Service Canada",
+      "parent": {
+        "id": 100789009,
+        "code": "COOO",
+        "nameEn": "COOO, Service Canada",
+        "nameFr": "BCE, Service Canada"
+      }
+    },
+    {
+      "id": 294550047,
+      "code": "ICSD-ATL-1",
+      "nameEn": "BDS-DirectorGeneralOffice",
+      "nameFr": "SVP-BureauDirecteurGenerale",
+      "parent": {
+        "id": 100789010,
+        "code": "ICSD-ATL",
+        "nameEn": "Integrated Client Service Delivery (ICSD) - Atlantic Region",
+        "nameFr": "Prestation de services intégrés à la clientèle (PSIC) - Région de l'Atlantique"
+      }
+    },
+    {
+      "id": 294550048,
+      "code": "ICSD-ATL-2",
+      "nameEn": "Strategic Services , Atlantic",
+      "nameFr": "Services stratégiques, ATL",
+      "parent": {
+        "id": 100789010,
+        "code": "ICSD-ATL",
+        "nameEn": "Integrated Client Service Delivery (ICSD) - Atlantic Region",
+        "nameFr": "Prestation de services intégrés à la clientèle (PSIC) - Région de l'Atlantique"
+      }
+    },
+    {
+      "id": 294550049,
+      "code": "ICSD-ATL-3",
+      "nameEn": "Integrity Services Branch  ATL",
+      "nameFr": "Dir gén serv d'intégrité ATL",
+      "parent": {
+        "id": 100789010,
+        "code": "ICSD-ATL",
+        "nameEn": "Integrated Client Service Delivery (ICSD) - Atlantic Region",
+        "nameFr": "Prestation de services intégrés à la clientèle (PSIC) - Région de l'Atlantique"
+      }
+    },
+    {
+      "id": 294550050,
+      "code": "ICSD-ATL-4",
+      "nameEn": "PROGRAM DELIVERY ATL",
+      "nameFr": "EXÉCUTION PROGRAMMES ATL",
+      "parent": {
+        "id": 100789010,
+        "code": "ICSD-ATL",
+        "nameEn": "Integrated Client Service Delivery (ICSD) - Atlantic Region",
+        "nameFr": "Prestation de services intégrés à la clientèle (PSIC) - Région de l'Atlantique"
+      }
+    },
+    {
+      "id": 294550051,
+      "code": "ICSD-ATL-5",
+      "nameEn": "Citizen Services Branch",
+      "nameFr": "Dir gén de service citoyens",
+      "parent": {
+        "id": 100789010,
+        "code": "ICSD-ATL",
+        "nameEn": "Integrated Client Service Delivery (ICSD) - Atlantic Region",
+        "nameFr": "Prestation de services intégrés à la clientèle (PSIC) - Région de l'Atlantique"
+      }
+    },
+    {
+      "id": 294550052,
+      "code": "ICSD-ATL-6",
+      "nameEn": "ADMO-Atlantic Region",
+      "nameFr": "SMA-REGION DE L'ATLANTIQUE",
+      "parent": {
+        "id": 100789010,
+        "code": "ICSD-ATL",
+        "nameEn": "Integrated Client Service Delivery (ICSD) - Atlantic Region",
+        "nameFr": "Prestation de services intégrés à la clientèle (PSIC) - Région de l'Atlantique"
+      }
+    },
+    {
+      "id": 294550053,
+      "code": "ICSD-WT-1",
+      "nameEn": "Benefits Delivery Services Br",
+      "nameFr": "Direction générale des service",
+      "parent": {
+        "id": 100789011,
+        "code": "ICSD-WT",
+        "nameEn": "Integrated Client Service Delivery (ICSD) - W-T Region",
+        "nameFr": "Prestation de services intégrés à la clientèle (PSIC) - Région de l'O-T"
+      }
+    },
+    {
+      "id": 294550054,
+      "code": "ICSD-WT-2",
+      "nameEn": "CSB, Western &Territories",
+      "nameFr": "DGSC Ouest et territoires",
+      "parent": {
+        "id": 100789011,
+        "code": "ICSD-WT",
+        "nameEn": "Integrated Client Service Delivery (ICSD) - W-T Region",
+        "nameFr": "Prestation de services intégrés à la clientèle (PSIC) - Région de l'O-T"
+      }
+    },
+    {
+      "id": 294550055,
+      "code": "ICSD-WT-3",
+      "nameEn": "Strategic Services Branch",
+      "nameFr": "Services stratégiques, O et T",
+      "parent": {
+        "id": 100789011,
+        "code": "ICSD-WT",
+        "nameEn": "Integrated Client Service Delivery (ICSD) - W-T Region",
+        "nameFr": "Prestation de services intégrés à la clientèle (PSIC) - Région de l'O-T"
+      }
+    },
+    {
+      "id": 294550056,
+      "code": "ICSD-WT-4",
+      "nameEn": "Integrity Services Branch, W-T",
+      "nameFr": "Dir gén service d'intég O et T",
+      "parent": {
+        "id": 100789011,
+        "code": "ICSD-WT",
+        "nameEn": "Integrated Client Service Delivery (ICSD) - W-T Region",
+        "nameFr": "Prestation de services intégrés à la clientèle (PSIC) - Région de l'O-T"
+      }
+    },
+    {
+      "id": 294550057,
+      "code": "ICSD-WT-5",
+      "nameEn": "ADMO, Western & Territories",
+      "nameFr": "CSMA,  Ouest et territoires",
+      "parent": {
+        "id": 100789011,
+        "code": "ICSD-WT",
+        "nameEn": "Integrated Client Service Delivery (ICSD) - W-T Region",
+        "nameFr": "Prestation de services intégrés à la clientèle (PSIC) - Région de l'O-T"
+      }
+    },
+    {
+      "id": 294550058,
+      "code": "ICSD-WT-6",
+      "nameEn": "Program Delivery Branch, West",
+      "nameFr": "DGEP,région de l'Ouest du Can",
+      "parent": {
+        "id": 100789011,
+        "code": "ICSD-WT",
+        "nameEn": "Integrated Client Service Delivery (ICSD) - W-T Region",
+        "nameFr": "Prestation de services intégrés à la clientèle (PSIC) - Région de l'O-T"
+      }
+    },
+    {
+      "id": 294550059,
+      "code": "ICSD-WT-7",
+      "nameEn": "CofE Diversity & Inclusions",
+      "nameFr": "Cd'E diversité et inclusion",
+      "parent": {
+        "id": 100789011,
+        "code": "ICSD-WT",
+        "nameEn": "Integrated Client Service Delivery (ICSD) - W-T Region",
+        "nameFr": "Prestation de services intégrés à la clientèle (PSIC) - Région de l'O-T"
+      }
+    },
+    {
+      "id": 294550060,
+      "code": "ICSD-WT-8",
+      "nameEn": "W-T Passport Operations",
+      "nameFr": "O-T Opérations de passport",
+      "parent": {
+        "id": 100789011,
+        "code": "ICSD-WT",
+        "nameEn": "Integrated Client Service Delivery (ICSD) - W-T Region",
+        "nameFr": "Prestation de services intégrés à la clientèle (PSIC) - Région de l'O-T"
+      }
+    },
+    {
+      "id": 294550061,
+      "code": "POB-1",
+      "nameEn": "Disability, Seniors and Labour",
+      "nameFr": "Pers handicap, aîné et travail",
+      "parent": {
+        "id": 100789012,
+        "code": "POB",
+        "nameEn": "Program Operations Branch",
+        "nameFr": "Direction générale des opérations de programmes"
+      }
+    },
+    {
+      "id": 294550062,
+      "code": "POB-2",
+      "nameEn": "Branch Management Services",
+      "nameFr": "Services de gestion",
+      "parent": {
+        "id": 100789012,
+        "code": "POB",
+        "nameEn": "Program Operations Branch",
+        "nameFr": "Direction générale des opérations de programmes"
+      }
+    },
+    {
+      "id": 294550063,
+      "code": "POB-3",
+      "nameEn": "Workforce Dev & Youth Programs",
+      "nameFr": "Dév main-d'oeuvre & prog jeune",
+      "parent": {
+        "id": 100789012,
+        "code": "POB",
+        "nameEn": "Program Operations Branch",
+        "nameFr": "Direction générale des opérations de programmes"
+      }
+    },
+    {
+      "id": 294550064,
+      "code": "POB-4",
+      "nameEn": "Strategic Directions",
+      "nameFr": "Orientations stratégiques",
+      "parent": {
+        "id": 100789012,
+        "code": "POB",
+        "nameEn": "Program Operations Branch",
+        "nameFr": "Direction générale des opérations de programmes"
+      }
+    },
+    {
+      "id": 294550065,
+      "code": "POB-5",
+      "nameEn": "ADM Office, Program Operations",
+      "nameFr": "Bureau SMA, Opér de programmes",
+      "parent": {
+        "id": 100789012,
+        "code": "POB",
+        "nameEn": "Program Operations Branch",
+        "nameFr": "Direction générale des opérations de programmes"
+      }
+    },
+    {
+      "id": 294550066,
+      "code": "POB-6",
+      "nameEn": "Natnl Grants & Cs Del Centre",
+      "nameFr": "Ctr ntnl prest subv contribut",
+      "parent": {
+        "id": 100789012,
+        "code": "POB",
+        "nameEn": "Program Operations Branch",
+        "nameFr": "Direction générale des opérations de programmes"
+      }
+    },
+    {
+      "id": 294550067,
+      "code": "POB-7",
+      "nameEn": "Indigenous Fam Child & Soc Dev",
+      "nameFr": "Autoch, fam, enfant et dev soc",
+      "parent": {
+        "id": 100789012,
+        "code": "POB",
+        "nameEn": "Program Operations Branch",
+        "nameFr": "Direction générale des opérations de programmes"
+      }
+    },
+    {
+      "id": 294550068,
+      "code": "POB-8",
+      "nameEn": "ADM's Office",
+      "nameFr": "Bureau du SMA",
+      "parent": {
+        "id": 100789012,
+        "code": "POB",
+        "nameEn": "Program Operations Branch",
+        "nameFr": "Direction générale des opérations de programmes"
+      }
+    },
+    {
+      "id": 294550069,
+      "code": "TFWPB-1",
+      "nameEn": "Prog Pol, Work Prot & Stak Rel",
+      "nameFr": "Pol prog pro tra & rel par pre",
+      "parent": {
+        "id": 100789013,
+        "code": "TFWPB",
+        "nameEn": "Temporary Foreign Workers Program",
+        "nameFr": "Programme des travailleurs étrangers temporaires"
+      }
+    },
+    {
+      "id": 294550070,
+      "code": "TFWPB-2",
+      "nameEn": "Compliance Operations",
+      "nameFr": "Opérations de la conformité",
+      "parent": {
+        "id": 100789013,
+        "code": "TFWPB",
+        "nameEn": "Temporary Foreign Workers Program",
+        "nameFr": "Programme des travailleurs étrangers temporaires"
+      }
+    },
+    {
+      "id": 294550071,
+      "code": "TFWPB-3",
+      "nameEn": "Program Operations",
+      "nameFr": "Opérations de programme",
+      "parent": {
+        "id": 100789013,
+        "code": "TFWPB",
+        "nameEn": "Temporary Foreign Workers Program",
+        "nameFr": "Programme des travailleurs étrangers temporaires"
+      }
+    },
+    {
+      "id": 294550072,
+      "code": "TFWPB-4",
+      "nameEn": "Branch Management Services",
+      "nameFr": "Serv gestn de la Dir générale",
+      "parent": {
+        "id": 100789013,
+        "code": "TFWPB",
+        "nameEn": "Temporary Foreign Workers Program",
+        "nameFr": "Programme des travailleurs étrangers temporaires"
+      }
+    },
+    {
+      "id": 294550073,
+      "code": "TFWPB-5",
+      "nameEn": "ADM Office",
+      "nameFr": "Bureau SMA",
+      "parent": {
+        "id": 100789013,
+        "code": "TFWPB",
+        "nameEn": "Temporary Foreign Workers Program",
+        "nameFr": "Programme des travailleurs étrangers temporaires"
+      }
+    },
+    {
+      "id": 294550074,
+      "code": "TFWPB-6",
+      "nameEn": "Special Project - Litigation",
+      "nameFr": "Projet spécial - Litiges",
+      "parent": {
+        "id": 100789013,
+        "code": "TFWPB",
+        "nameEn": "Temporary Foreign Workers Program",
+        "nameFr": "Programme des travailleurs étrangers temporaires"
+      }
+    },
+    {
+      "id": 294550075,
+      "code": "CCEO-1",
+      "nameEn": "Client Feedback",
+      "nameFr": "Rétroaction Clients",
+      "parent": {
+        "id": 100789014,
+        "code": "CCEO",
+        "nameEn": "Chief Client Exp Office",
+        "nameFr": "Bureau chef expérience client"
+      }
+    },
+    {
+      "id": 294550076,
+      "code": "CCEO-2",
+      "nameEn": "Client Experience CoE",
+      "nameFr": "CdE Experience Client",
+      "parent": {
+        "id": 100789014,
+        "code": "CCEO",
+        "nameEn": "Chief Client Exp Office",
+        "nameFr": "Bureau chef expérience client"
+      }
+    },
+    {
+      "id": 294550077,
+      "code": "CCEO-3",
+      "nameEn": "ADMO - CXO",
+      "nameFr": "BSMA - BEC",
+      "parent": {
+        "id": 100789014,
+        "code": "CCEO",
+        "nameEn": "Chief Client Exp Office",
+        "nameFr": "Bureau chef expérience client"
+      }
+    },
+    {
+      "id": 294550078,
+      "code": "CCEO-4",
+      "nameEn": "Client Experience Ops & Del",
+      "nameFr": "Ops et prest expérience client",
+      "parent": {
+        "id": 100789014,
+        "code": "CCEO",
+        "nameEn": "Chief Client Exp Office",
+        "nameFr": "Bureau chef expérience client"
+      }
+    },
+    {
+      "id": 294550079,
+      "code": "CCEO-5",
+      "nameEn": "CX Usability Testing",
+      "nameFr": "Test de convivialité de l'EC",
+      "parent": {
+        "id": 100789014,
+        "code": "CCEO",
+        "nameEn": "Chief Client Exp Office",
+        "nameFr": "Bureau chef expérience client"
+      }
+    },
+    {
+      "id": 294550080,
+      "code": "CDSB-1",
+      "nameEn": "CDS, Operations",
+      "nameFr": "SNC, Opérations",
+      "parent": {
+        "id": 100789015,
+        "code": "CDSB",
+        "nameEn": "Canadian Digital Service",
+        "nameFr": "Service numérique canadien"
+      }
+    },
+    {
+      "id": 294550081,
+      "code": "CDSB-2",
+      "nameEn": "CDS, Platforms",
+      "nameFr": "SNC, Plates-formes",
+      "parent": {
+        "id": 100789015,
+        "code": "CDSB",
+        "nameEn": "Canadian Digital Service",
+        "nameFr": "Service numérique canadien"
+      }
+    },
+    {
+      "id": 294550082,
+      "code": "CDSB-3",
+      "nameEn": "CDS, Partnerships",
+      "nameFr": "SNC, Partenariats",
+      "parent": {
+        "id": 100789015,
+        "code": "CDSB",
+        "nameEn": "Canadian Digital Service",
+        "nameFr": "Service numérique canadien"
+      }
+    },
+    {
+      "id": 294550083,
+      "code": "CDSB-4",
+      "nameEn": "CDS, Digital Transf Office",
+      "nameFr": "SNC, Bureau transf numérique",
+      "parent": {
+        "id": 100789015,
+        "code": "CDSB",
+        "nameEn": "Canadian Digital Service",
+        "nameFr": "Service numérique canadien"
+      }
+    },
+    {
+      "id": 294550084,
+      "code": "CDSB-5",
+      "nameEn": "CDS, ADMO",
+      "nameFr": "SNC, BSMA",
+      "parent": {
+        "id": 100789015,
+        "code": "CDSB",
+        "nameEn": "Canadian Digital Service",
+        "nameFr": "Service numérique canadien"
+      }
+    },
+    {
+      "id": 294550085,
+      "code": "CDSB-6",
+      "nameEn": "Enterprise Digital Credentials",
+      "nameFr": "Justification num d'entreprise",
+      "parent": {
+        "id": 100789015,
+        "code": "CDSB",
+        "nameEn": "Canadian Digital Service",
+        "nameFr": "Service numérique canadien"
+      }
+    },
+    {
+      "id": 294550086,
+      "code": "SDNBCO-1",
+      "nameEn": "SDN-Business Chg Oversight Ld",
+      "nameFr": "RPS-Resp gstn intégré chgt ops",
+      "parent": {
+        "id": 100789016,
+        "code": "SDNBCO",
+        "nameEn": "SDN-Business Chg Oversight Ld",
+        "nameFr": "RPS-Resp gstn intégré chgt ops"
+      }
+    },
+    {
+      "id": 294550087,
+      "code": "SDNCSD-1",
+      "nameEn": "SDN-Client Service Delivery",
+      "nameFr": "RPS-Prest serv aux clients",
+      "parent": {
+        "id": 100789017,
+        "code": "SDNCSD",
+        "nameEn": "SDN-Client Service Delivery",
+        "nameFr": "RPS-Prest serv aux clients"
+      }
+    },
+    {
+      "id": 294550088,
+      "code": "IWWMB-1",
+      "nameEn": "Ops Centre Data Insight & Rptg",
+      "nameFr": "Ctr ops contrôle anls données",
+      "parent": {
+        "id": 100789018,
+        "code": "IWWMB",
+        "nameEn": "IWWMB",
+        "nameFr": "DGGICTE"
+      }
+    },
+    {
+      "id": 294550089,
+      "code": "IWWMB-2",
+      "nameEn": "ADM Office IWWMB",
+      "nameFr": "Bureau du SMA DGGITE",
+      "parent": {
+        "id": 100789018,
+        "code": "IWWMB",
+        "nameEn": "IWWMB",
+        "nameFr": "DGGICTE"
+      }
+    },
+    {
+      "id": 294550090,
+      "code": "IWWMB-3",
+      "nameEn": "Workforce Strategy",
+      "nameFr": "Stratégie de l'effectif",
+      "parent": {
+        "id": 100789018,
+        "code": "IWWMB",
+        "nameEn": "IWWMB",
+        "nameFr": "DGGICTE"
+      }
+    },
+    {
+      "id": 294550091,
+      "code": "IWWMB-4",
+      "nameEn": "Planning and Forecasting",
+      "nameFr": "Planification et prévision",
+      "parent": {
+        "id": 100789018,
+        "code": "IWWMB",
+        "nameEn": "IWWMB",
+        "nameFr": "DGGICTE"
+      }
+    },
+    {
+      "id": 294550092,
+      "code": "ICSD-1",
+      "nameEn": "Sr ADM Office, CSB",
+      "nameFr": "Bureau SMA princ, DGSC",
+      "parent": {
+        "id": 100789019,
+        "code": "ICSD",
+        "nameEn": "Integrated Client Service Delivery (ICSD)",
+        "nameFr": "Prestation de services intégrés à la clientèle (PSIC)"
+      }
+    },
+    {
+      "id": 294550093,
+      "code": "ICSD-2",
+      "nameEn": "ADMO SCTLB",
+      "nameFr": "BSMA DGRTSC",
+      "parent": {
+        "id": 100789019,
+        "code": "ICSD",
+        "nameEn": "Integrated Client Service Delivery (ICSD)",
+        "nameFr": "Prestation de services intégrés à la clientèle (PSIC)"
+      }
+    },
+    {
+      "id": 294550094,
+      "code": "ICSD-3",
+      "nameEn": "Planning Exec & Governance",
+      "nameFr": "Exéc planif & gouvernance",
+      "parent": {
+        "id": 100789019,
+        "code": "ICSD",
+        "nameEn": "Integrated Client Service Delivery (ICSD)",
+        "nameFr": "Prestation de services intégrés à la clientèle (PSIC)"
+      }
+    },
+    {
+      "id": 294550095,
+      "code": "ICSD-4",
+      "nameEn": "Org Readiness & Engagement",
+      "nameFr": "Préparation & engamnt org",
+      "parent": {
+        "id": 100789019,
+        "code": "ICSD",
+        "nameEn": "Integrated Client Service Delivery (ICSD)",
+        "nameFr": "Prestation de services intégrés à la clientèle (PSIC)"
+      }
+    },
+    {
+      "id": 294550096,
+      "code": "ICSD-5",
+      "nameEn": "Enterprise Culture Change",
+      "nameFr": "Changement culture entreprise",
+      "parent": {
+        "id": 100789019,
+        "code": "ICSD",
+        "nameEn": "Integrated Client Service Delivery (ICSD)",
+        "nameFr": "Prestation de services intégrés à la clientèle (PSIC)"
+      }
+    },
+    {
+      "id": 294550097,
+      "code": "ICSD-6",
+      "nameEn": "Portfolio Analytics",
+      "nameFr": "Analyse du portefeuille",
+      "parent": {
+        "id": 100789019,
+        "code": "ICSD",
+        "nameEn": "Integrated Client Service Delivery (ICSD)",
+        "nameFr": "Prestation de services intégrés à la clientèle (PSIC)"
+      }
+    },
+    {
+      "id": 294550098,
+      "code": "ICSD-7",
+      "nameEn": "SCTO - Transformation Delivery",
+      "nameFr": "BTSC - Livraison de la transfo",
+      "parent": {
+        "id": 100789019,
+        "code": "ICSD",
+        "nameEn": "Integrated Client Service Delivery (ICSD)",
+        "nameFr": "Prestation de services intégrés à la clientèle (PSIC)"
+      }
+    },
+    {
+      "id": 294550099,
+      "code": "ICSD-8",
+      "nameEn": "Project Management Services",
+      "nameFr": "Service gestion projets",
+      "parent": {
+        "id": 100789019,
+        "code": "ICSD",
+        "nameEn": "Integrated Client Service Delivery (ICSD)",
+        "nameFr": "Prestation de services intégrés à la clientèle (PSIC)"
+      }
+    },
+    {
+      "id": 294550100,
+      "code": "SDRB-1",
+      "nameEn": "Workers and Employers",
+      "nameFr": "Travailleurs et employeurs",
+      "parent": {
+        "id": 100789020,
+        "code": "SDRB",
+        "nameEn": "SDRB",
+        "nameFr": "DGCSR"
+      }
+    },
+    {
+      "id": 294550101,
+      "code": "SDRB-2",
+      "nameEn": "Seniors and Pensionners",
+      "nameFr": "Aînés et pensionnés",
+      "parent": {
+        "id": 100789020,
+        "code": "SDRB",
+        "nameEn": "SDRB",
+        "nameFr": "DGCSR"
+      }
+    },
+    {
+      "id": 294550102,
+      "code": "SDRB-3",
+      "nameEn": "ePayroll",
+      "nameFr": "Paie électronique",
+      "parent": {
+        "id": 100789020,
+        "code": "SDRB",
+        "nameEn": "SDRB",
+        "nameFr": "DGCSR"
+      }
+    },
+    {
+      "id": 294550103,
+      "code": "ICSB-1",
+      "nameEn": "ICSB",
+      "nameFr": "DGMSSI",
+      "parent": {
+        "id": 100789021,
+        "code": "ICSB",
+        "nameEn": "ICSB",
+        "nameFr": "DGMSSI"
+      }
+    },
+    {
+      "id": 294550104,
+      "code": "IENB-1",
+      "nameEn": "Strat Planning & Integration",
+      "nameFr": "Planif strat et intégration",
+      "parent": {
+        "id": 100789022,
+        "code": "IENB",
+        "nameEn": "IENB",
+        "nameFr": "DGREI"
+      }
+    },
+    {
+      "id": 294550105,
+      "code": "IENB-2",
+      "nameEn": "Training Delivery",
+      "nameFr": "Prestation services formation",
+      "parent": {
+        "id": 100789022,
+        "code": "IENB",
+        "nameEn": "IENB",
+        "nameFr": "DGREI"
+      }
+    },
+    {
+      "id": 294550106,
+      "code": "IENB-3",
+      "nameEn": "Procedures & Training Develop",
+      "nameFr": "Élaboration procéd formation",
+      "parent": {
+        "id": 100789022,
+        "code": "IENB",
+        "nameEn": "IENB",
+        "nameFr": "DGREI"
+      }
+    },
+    {
+      "id": 294550107,
+      "code": "IENB-4",
+      "nameEn": "Knowledge Management",
+      "nameFr": "Gestion des connaissances",
+      "parent": {
+        "id": 100789022,
+        "code": "IENB",
+        "nameEn": "IENB",
+        "nameFr": "DGREI"
+      }
+    },
+    {
+      "id": 294550108,
+      "code": "IENB-5",
+      "nameEn": "Advice & Guidance, Feedback",
+      "nameFr": "Conseils & orientations, rétro",
+      "parent": {
+        "id": 100789022,
+        "code": "IENB",
+        "nameEn": "IENB",
+        "nameFr": "DGREI"
+      }
+    },
+    {
+      "id": 294550109,
+      "code": "COS-1",
+      "nameEn": "Bus Mngt & Exec Committees",
+      "nameFr": "Gstn des affai et comité exéc",
+      "parent": {
+        "id": 100789023,
+        "code": "COS",
+        "nameEn": "Corporate Secretariat",
+        "nameFr": "Secrétariat ministériel"
+      }
+    },
+    {
+      "id": 294550110,
+      "code": "COS-2",
+      "nameEn": "ATIP",
+      "nameFr": "AIPRP",
+      "parent": {
+        "id": 100789023,
+        "code": "COS",
+        "nameEn": "Corporate Secretariat",
+        "nameFr": "Secrétariat ministériel"
+      }
+    },
+    {
+      "id": 294550111,
+      "code": "COS-3",
+      "nameEn": "Privacy Management",
+      "nameFr": "Gestion des renseign personnel",
+      "parent": {
+        "id": 100789023,
+        "code": "COS",
+        "nameEn": "Corporate Secretariat",
+        "nameFr": "Secrétariat ministériel"
+      }
+    },
+    {
+      "id": 294550112,
+      "code": "COS-4",
+      "nameEn": "Ministerial Services",
+      "nameFr": "Services ministériel",
+      "parent": {
+        "id": 100789023,
+        "code": "COS",
+        "nameEn": "Corporate Secretariat",
+        "nameFr": "Secrétariat ministériel"
+      }
+    },
+    {
+      "id": 294550113,
+      "code": "COS-5",
+      "nameEn": "Corporate Secretariat Office",
+      "nameFr": "Services Administratifs",
+      "parent": {
+        "id": 100789023,
+        "code": "COS",
+        "nameEn": "Corporate Secretariat",
+        "nameFr": "Secrétariat ministériel"
+      }
+    },
+    {
+      "id": 294550114,
+      "code": "COS-6",
+      "nameEn": "Parliamentary Affairs Division",
+      "nameFr": "Div Affaires parlementaires",
+      "parent": {
+        "id": 100789023,
+        "code": "COS",
+        "nameEn": "Corporate Secretariat",
+        "nameFr": "Secrétariat ministériel"
+      }
+    },
+    {
+      "id": 294550115,
+      "code": "COS-7",
+      "nameEn": "EI Board of Appeal",
+      "nameFr": "Conseil d'appel en AE",
+      "parent": {
+        "id": 100789023,
+        "code": "COS",
+        "nameEn": "Corporate Secretariat",
+        "nameFr": "Secrétariat ministériel"
+      }
+    },
+    {
+      "id": 294550116,
+      "code": "OO-1",
+      "nameEn": "Business Change Management",
+      "nameFr": "Gestion du changement d'entre",
+      "parent": {
+        "id": 100789024,
+        "code": "OO",
+        "nameEn": "Ombuds Office",
+        "nameFr": "Bureau de l'Ombuds"
+      }
+    },
+    {
+      "id": 294550117,
+      "code": "OO-2",
+      "nameEn": "Associate Ombuds",
+      "nameFr": "Ombuds déléguée",
+      "parent": {
+        "id": 100789024,
+        "code": "OO",
+        "nameEn": "Ombuds Office",
+        "nameFr": "Bureau de l'Ombuds"
+      }
+    },
+    {
+      "id": 294550118,
+      "code": "OO-3",
+      "nameEn": "Associate Ombuds",
+      "nameFr": "Ombuds déléguée",
+      "parent": {
+        "id": 100789024,
+        "code": "OO",
+        "nameEn": "Ombuds Office",
+        "nameFr": "Bureau de l'Ombuds"
+      }
+    },
+    {
+      "id": 294550119,
+      "code": "LB-1",
+      "nameEn": "Canada Education Savings Progr",
+      "nameFr": "Programme can épargne-études",
+      "parent": {
+        "id": 100789025,
+        "code": "LB",
+        "nameEn": "Learning Branch",
+        "nameFr": "DG de l'apprentissage"
+      }
+    },
+    {
+      "id": 294550120,
+      "code": "LB-2",
+      "nameEn": "Learning Policy & Services Dir",
+      "nameFr": "Politques apprent & Services",
+      "parent": {
+        "id": 100789025,
+        "code": "LB",
+        "nameEn": "Learning Branch",
+        "nameFr": "DG de l'apprentissage"
+      }
+    },
+    {
+      "id": 294550121,
+      "code": "LB-3",
+      "nameEn": "Canada Student Financial Assis",
+      "nameFr": "Can Aide Financiere Etudiants",
+      "parent": {
+        "id": 100789025,
+        "code": "LB",
+        "nameEn": "Learning Branch",
+        "nameFr": "DG de l'apprentissage"
+      }
+    },
+    {
+      "id": 294550122,
+      "code": "LB-4",
+      "nameEn": "ADM Office, Learning",
+      "nameFr": "Bureau du SMA, apprentissage",
+      "parent": {
+        "id": 100789025,
+        "code": "LB",
+        "nameEn": "Learning Branch",
+        "nameFr": "DG de l'apprentissage"
+      }
+    },
+    {
+      "id": 294550123,
+      "code": "LB-5",
+      "nameEn": "Youth Service and Learning",
+      "nameFr": "Serv.apprentissage jeunesse",
+      "parent": {
+        "id": 100789025,
+        "code": "LB",
+        "nameEn": "Learning Branch",
+        "nameFr": "DG de l'apprentissage"
+      }
+    },
+    {
+      "id": 294550124,
+      "code": "SEB-1",
+      "nameEn": "Labour Market Information",
+      "nameFr": "Info sur marché du travail",
+      "parent": {
+        "id": 100789026,
+        "code": "SEB",
+        "nameEn": "Skills and Employment Branch",
+        "nameFr": "Direction générale des compétences et de l'emploi"
+      }
+    },
+    {
+      "id": 294550125,
+      "code": "SEB-2",
+      "nameEn": "Indigenous Affairs",
+      "nameFr": "Affaires autochtones",
+      "parent": {
+        "id": 100789026,
+        "code": "SEB",
+        "nameEn": "Skills and Employment Branch",
+        "nameFr": "Direction générale des compétences et de l'emploi"
+      }
+    },
+    {
+      "id": 294550126,
+      "code": "SEB-3",
+      "nameEn": "Employment Insurance Policy",
+      "nameFr": "Politiques d'assurance-emploi",
+      "parent": {
+        "id": 100789026,
+        "code": "SEB",
+        "nameEn": "Skills and Employment Branch",
+        "nameFr": "Direction générale des compétences et de l'emploi"
+      }
+    },
+    {
+      "id": 294550127,
+      "code": "SEB-4",
+      "nameEn": "Emplnt Program Policy & Design",
+      "nameFr": "Politique concep prog d'emploi",
+      "parent": {
+        "id": 100789026,
+        "code": "SEB",
+        "nameEn": "Skills and Employment Branch",
+        "nameFr": "Direction générale des compétences et de l'emploi"
+      }
+    },
+    {
+      "id": 294550128,
+      "code": "SEB-5",
+      "nameEn": "Apprenticeship/Sect Init Dir",
+      "nameFr": "Dir apprentissages/init sect",
+      "parent": {
+        "id": 100789026,
+        "code": "SEB",
+        "nameEn": "Skills and Employment Branch",
+        "nameFr": "Direction générale des compétences et de l'emploi"
+      }
+    },
+    {
+      "id": 294550129,
+      "code": "SEB-6",
+      "nameEn": "Strat Int & Corp Affairs",
+      "nameFr": "Integ Strat & affaires corp",
+      "parent": {
+        "id": 100789026,
+        "code": "SEB",
+        "nameEn": "Skills and Employment Branch",
+        "nameFr": "Direction générale des compétences et de l'emploi"
+      }
+    },
+    {
+      "id": 294550130,
+      "code": "SEB-7",
+      "nameEn": "ADM's Office",
+      "nameFr": "Bureau du SMA",
+      "parent": {
+        "id": 100789026,
+        "code": "SEB",
+        "nameEn": "Skills and Employment Branch",
+        "nameFr": "Direction générale des compétences et de l'emploi"
+      }
+    },
+    {
+      "id": 294550131,
+      "code": "SEB-8",
+      "nameEn": "Pol Community Partnership Offc",
+      "nameFr": "Bur partenariats comm. pol",
+      "parent": {
+        "id": 100789026,
+        "code": "SEB",
+        "nameEn": "Skills and Employment Branch",
+        "nameFr": "Direction générale des compétences et de l'emploi"
+      }
+    },
+    {
+      "id": 294550132,
+      "code": "SEB-9",
+      "nameEn": "Youth&Skills Innovation Direct",
+      "nameFr": "Jeunesse innovation en matière",
+      "parent": {
+        "id": 100789026,
+        "code": "SEB",
+        "nameEn": "Skills and Employment Branch",
+        "nameFr": "Direction générale des compétences et de l'emploi"
+      }
+    },
+    {
+      "id": 294550133,
+      "code": "SEB-10",
+      "nameEn": "Corporate Affairs",
+      "nameFr": "Affaires corporatives",
+      "parent": {
+        "id": 100789026,
+        "code": "SEB",
+        "nameEn": "Skills and Employment Branch",
+        "nameFr": "Direction générale des compétences et de l'emploi"
+      }
+    },
+    {
+      "id": 294550134,
+      "code": "ISSDB-1",
+      "nameEn": "Social Innovation & Com Dev",
+      "nameFr": "Innovation sociale et dév com",
+      "parent": {
+        "id": 100789027,
+        "code": "ISSDB",
+        "nameEn": "Income Security and Social Development Branch",
+        "nameFr": "Direction générale de la sécurité du revenu et du développement social"
+      }
+    },
+    {
+      "id": 294550135,
+      "code": "ISSDB-2",
+      "nameEn": "Office for Disability Issues",
+      "nameFr": "Bureau enjeux person handicapé",
+      "parent": {
+        "id": 100789027,
+        "code": "ISSDB",
+        "nameEn": "Income Security and Social Development Branch",
+        "nameFr": "Direction générale de la sécurité du revenu et du développement social"
+      }
+    },
+    {
+      "id": 294550136,
+      "code": "ISSDB-3",
+      "nameEn": "Canada Pension Plan Disability",
+      "nameFr": "Régime de pensions du Canada",
+      "parent": {
+        "id": 100789027,
+        "code": "ISSDB",
+        "nameEn": "Income Security and Social Development Branch",
+        "nameFr": "Direction générale de la sécurité du revenu et du développement social"
+      }
+    },
+    {
+      "id": 294550137,
+      "code": "ISSDB-4",
+      "nameEn": "Strgc Intgtn Planning & Acct",
+      "nameFr": "Planifi strtg l'intgr responsb",
+      "parent": {
+        "id": 100789027,
+        "code": "ISSDB",
+        "nameEn": "Income Security and Social Development Branch",
+        "nameFr": "Direction générale de la sécurité du revenu et du développement social"
+      }
+    },
+    {
+      "id": 294550138,
+      "code": "ISSDB-5",
+      "nameEn": "Seniors & Pensions Policy Secr",
+      "nameFr": "Secr Pol Ainés et les pensions",
+      "parent": {
+        "id": 100789027,
+        "code": "ISSDB",
+        "nameEn": "Income Security and Social Development Branch",
+        "nameFr": "Direction générale de la sécurité du revenu et du développement social"
+      }
+    },
+    {
+      "id": 294550139,
+      "code": "ISSDB-6",
+      "nameEn": "IELCC Transformation Sec",
+      "nameFr": "Secrétariat transform l'AGJEA",
+      "parent": {
+        "id": 100789027,
+        "code": "ISSDB",
+        "nameEn": "Income Security and Social Development Branch",
+        "nameFr": "Direction générale de la sécurité du revenu et du développement social"
+      }
+    },
+    {
+      "id": 294550140,
+      "code": "ISSDB-7",
+      "nameEn": "Accessible Canada Directorate",
+      "nameFr": "Direction du Canada accessible",
+      "parent": {
+        "id": 100789027,
+        "code": "ISSDB",
+        "nameEn": "Income Security and Social Development Branch",
+        "nameFr": "Direction générale de la sécurité du revenu et du développement social"
+      }
+    },
+    {
+      "id": 294550141,
+      "code": "ISSDB-8",
+      "nameEn": "Supp Black Can Cmties Initiatv",
+      "nameFr": "Initiatv app cmtés noires Can",
+      "parent": {
+        "id": 100789027,
+        "code": "ISSDB",
+        "nameEn": "Income Security and Social Development Branch",
+        "nameFr": "Direction générale de la sécurité du revenu et du développement social"
+      }
+    },
+    {
+      "id": 294550142,
+      "code": "ISSDB-9",
+      "nameEn": "Federal Anti-Racism Sec",
+      "nameFr": "Sec fédéral contre le racisme",
+      "parent": {
+        "id": 100789027,
+        "code": "ISSDB",
+        "nameEn": "Income Security and Social Development Branch",
+        "nameFr": "Direction générale de la sécurité du revenu et du développement social"
+      }
+    },
+    {
+      "id": 294550143,
+      "code": "ISSDB-10",
+      "nameEn": "FPT Partners-Central & East",
+      "nameFr": "Partenariats FPT-Central & Est",
+      "parent": {
+        "id": 100789027,
+        "code": "ISSDB",
+        "nameEn": "Income Security and Social Development Branch",
+        "nameFr": "Direction générale de la sécurité du revenu et du développement social"
+      }
+    },
+    {
+      "id": 294550144,
+      "code": "ISSDB-11",
+      "nameEn": "Executive Management Support",
+      "nameFr": "Soutien direction exécutive",
+      "parent": {
+        "id": 100789027,
+        "code": "ISSDB",
+        "nameEn": "Income Security and Social Development Branch",
+        "nameFr": "Direction générale de la sécurité du revenu et du développement social"
+      }
+    },
+    {
+      "id": 294550145,
+      "code": "ISSDB-12",
+      "nameEn": "Early Learning and Child Care",
+      "nameFr": "Apprent garde jeunes enfants",
+      "parent": {
+        "id": 100789027,
+        "code": "ISSDB",
+        "nameEn": "Income Security and Social Development Branch",
+        "nameFr": "Direction générale de la sécurité du revenu et du développement social"
+      }
+    },
+    {
+      "id": 294550146,
+      "code": "ISSDB-13",
+      "nameEn": "Domestic & Intrnl Policy Dev",
+      "nameFr": "Élabor pol natl & interntl",
+      "parent": {
+        "id": 100789027,
+        "code": "ISSDB",
+        "nameEn": "Income Security and Social Development Branch",
+        "nameFr": "Direction générale de la sécurité du revenu et du développement social"
+      }
+    },
+    {
+      "id": 294550147,
+      "code": "ISSDB-14",
+      "nameEn": "Ntl Advisory Council & Ext Rel",
+      "nameFr": "Conseil consult natl & rel ext",
+      "parent": {
+        "id": 100789027,
+        "code": "ISSDB",
+        "nameEn": "Income Security and Social Development Branch",
+        "nameFr": "Direction générale de la sécurité du revenu et du développement social"
+      }
+    },
+    {
+      "id": 294550148,
+      "code": "ISSDB-15",
+      "nameEn": "Strategic Pol & Issues Mgmt",
+      "nameFr": "Pol strat & gestion enjeux",
+      "parent": {
+        "id": 100789027,
+        "code": "ISSDB",
+        "nameEn": "Income Security and Social Development Branch",
+        "nameFr": "Direction générale de la sécurité du revenu et du développement social"
+      }
+    },
+    {
+      "id": 294550149,
+      "code": "IAERMB-1",
+      "nameEn": "Audit Operations",
+      "nameFr": "Opérations de l'audit",
+      "parent": {
+        "id": 100789028,
+        "code": "IAERMB",
+        "nameEn": "Internal Audit & Enterprise Risk Management Branch",
+        "nameFr": "Direction générale d'audit interne et gestion des risques d'entreprise"
+      }
+    },
+    {
+      "id": 294550150,
+      "code": "IAERMB-2",
+      "nameEn": "Prof Pract Special Examination",
+      "nameFr": "Exam spéc pratique prof",
+      "parent": {
+        "id": 100789028,
+        "code": "IAERMB",
+        "nameEn": "Internal Audit & Enterprise Risk Management Branch",
+        "nameFr": "Direction générale d'audit interne et gestion des risques d'entreprise"
+      }
+    },
+    {
+      "id": 294550151,
+      "code": "IAERMB-3",
+      "nameEn": "Liaison and DAC",
+      "nameFr": "Liaison et CMV",
+      "parent": {
+        "id": 100789028,
+        "code": "IAERMB",
+        "nameEn": "Internal Audit & Enterprise Risk Management Branch",
+        "nameFr": "Direction générale d'audit interne et gestion des risques d'entreprise"
+      }
+    },
+    {
+      "id": 294550152,
+      "code": "IAERMB-4",
+      "nameEn": "Enterprise Risk Management",
+      "nameFr": "Gestion des Risques Entreprise",
+      "parent": {
+        "id": 100789028,
+        "code": "IAERMB",
+        "nameEn": "Internal Audit & Enterprise Risk Management Branch",
+        "nameFr": "Direction générale d'audit interne et gestion des risques d'entreprise"
+      }
+    },
+    {
+      "id": 294550153,
+      "code": "IAERMB-5",
+      "nameEn": "Chief of Staff - CAE Office",
+      "nameFr": "Chef cabinet - Bureau du DPA",
+      "parent": {
+        "id": 100789028,
+        "code": "IAERMB",
+        "nameEn": "Internal Audit & Enterprise Risk Management Branch",
+        "nameFr": "Direction générale d'audit interne et gestion des risques d'entreprise"
+      }
+    },
+    {
+      "id": 294550154,
+      "code": "IAERMB-6",
+      "nameEn": "Agile Auditing",
+      "nameFr": "Audit Agile",
+      "parent": {
+        "id": 100789028,
+        "code": "IAERMB",
+        "nameEn": "Internal Audit & Enterprise Risk Management Branch",
+        "nameFr": "Direction générale d'audit interne et gestion des risques d'entreprise"
+      }
+    },
+    {
+      "id": 294550155,
+      "code": "IAERMB-7",
+      "nameEn": "Manager BMS",
+      "nameFr": "Gestionnaire SGA",
+      "parent": {
+        "id": 100789028,
+        "code": "IAERMB",
+        "nameEn": "Internal Audit & Enterprise Risk Management Branch",
+        "nameFr": "Direction générale d'audit interne et gestion des risques d'entreprise"
+      }
+    },
+    {
+      "id": 294550156,
+      "code": "IAERMB-8",
+      "nameEn": "Chief of Staff",
+      "nameFr": "Chef de cabinet",
+      "parent": {
+        "id": 100789028,
+        "code": "IAERMB",
+        "nameEn": "Internal Audit & Enterprise Risk Management Branch",
+        "nameFr": "Direction générale d'audit interne et gestion des risques d'entreprise"
+      }
+    },
+    {
+      "id": 294550157,
+      "code": "IITB-1",
+      "nameEn": "Business Solutions and IM",
+      "nameFr": "Sol affa et gest de l'info",
+      "parent": {
+        "id": 100789029,
+        "code": "IITB",
+        "nameEn": "Innovation, Information and Technology Branch",
+        "nameFr": "Direction générale de l'innovation, de l'information et de la technologie"
+      }
+    },
+    {
+      "id": 294550158,
+      "code": "IITB-2",
+      "nameEn": "Strat Arch and Business Rel",
+      "nameFr": "Strat arch et rel d’affaires",
+      "parent": {
+        "id": 100789029,
+        "code": "IITB",
+        "nameEn": "Innovation, Information and Technology Branch",
+        "nameFr": "Direction générale de l'innovation, de l'information et de la technologie"
+      }
+    },
+    {
+      "id": 294550159,
+      "code": "IITB-3",
+      "nameEn": "Enterprise Operations",
+      "nameFr": "Opérations D'Entreprise",
+      "parent": {
+        "id": 100789029,
+        "code": "IITB",
+        "nameEn": "Innovation, Information and Technology Branch",
+        "nameFr": "Direction générale de l'innovation, de l'information et de la technologie"
+      }
+    },
+    {
+      "id": 294550160,
+      "code": "IITB-4",
+      "nameEn": "Business Sol & Innovation",
+      "nameFr": "Innovation Sol d'affaires",
+      "parent": {
+        "id": 100789029,
+        "code": "IITB",
+        "nameEn": "Innovation, Information and Technology Branch",
+        "nameFr": "Direction générale de l'innovation, de l'information et de la technologie"
+      }
+    },
+    {
+      "id": 294550161,
+      "code": "IITB-5",
+      "nameEn": "Enterprise Digital Solutions",
+      "nameFr": "Sol numériques d’entreprise",
+      "parent": {
+        "id": 100789029,
+        "code": "IITB",
+        "nameEn": "Innovation, Information and Technology Branch",
+        "nameFr": "Direction générale de l'innovation, de l'information et de la technologie"
+      }
+    },
+    {
+      "id": 294550162,
+      "code": "IITB-6",
+      "nameEn": "Branch Operations and Planning",
+      "nameFr": "Ope et Planif de la DG",
+      "parent": {
+        "id": 100789029,
+        "code": "IITB",
+        "nameEn": "Innovation, Information and Technology Branch",
+        "nameFr": "Direction générale de l'innovation, de l'information et de la technologie"
+      }
+    },
+    {
+      "id": 294550163,
+      "code": "IITB-7",
+      "nameEn": "Chief Info Officer's Office",
+      "nameFr": "Bur du Dirigeant principl info",
+      "parent": {
+        "id": 100789029,
+        "code": "IITB",
+        "nameEn": "Innovation, Information and Technology Branch",
+        "nameFr": "Direction générale de l'innovation, de l'information et de la technologie"
+      }
+    },
+    {
+      "id": 294550164,
+      "code": "IITB-8",
+      "nameEn": "Enterprise Cloud Services",
+      "nameFr": "ServICES Nuagique dentreprise",
+      "parent": {
+        "id": 100789029,
+        "code": "IITB",
+        "nameEn": "Innovation, Information and Technology Branch",
+        "nameFr": "Direction générale de l'innovation, de l'information et de la technologie"
+      }
+    },
+    {
+      "id": 294550165,
+      "code": "IITB-9",
+      "nameEn": "Business Ops Sustainability",
+      "nameFr": "Durabilité  ops d’entreprise",
+      "parent": {
+        "id": 100789029,
+        "code": "IITB",
+        "nameEn": "Innovation, Information and Technology Branch",
+        "nameFr": "Direction générale de l'innovation, de l'information et de la technologie"
+      }
+    },
+    {
+      "id": 294550166,
+      "code": "IITB-10",
+      "nameEn": "Office Indigenous Initiatives",
+      "nameFr": "Bureau initiatives autochtones",
+      "parent": {
+        "id": 100789029,
+        "code": "IITB",
+        "nameEn": "Innovation, Information and Technology Branch",
+        "nameFr": "Direction générale de l'innovation, de l'information et de la technologie"
+      }
+    },
+    {
+      "id": 294550167,
+      "code": "IITB-11",
+      "nameEn": "Office Chief Inform Officer",
+      "nameFr": "Bureau Dirigeant Princ. Info.",
+      "parent": {
+        "id": 100789029,
+        "code": "IITB",
+        "nameEn": "Innovation, Information and Technology Branch",
+        "nameFr": "Direction générale de l'innovation, de l'information et de la technologie"
+      }
+    },
+    {
+      "id": 294550168,
+      "code": "IITB-12",
+      "nameEn": "Office Chief Inform Officer",
+      "nameFr": "Bureau Dirigeant Princ. Info.",
+      "parent": {
+        "id": 100789029,
+        "code": "IITB",
+        "nameEn": "Innovation, Information and Technology Branch",
+        "nameFr": "Direction générale de l'innovation, de l'information et de la technologie"
+      }
+    },
+    {
+      "id": 294550169,
+      "code": "IITB-13",
+      "nameEn": "Office Chief Inform Officer",
+      "nameFr": "Bureau Dirigeant Princ. Info.",
+      "parent": {
+        "id": 100789029,
+        "code": "IITB",
+        "nameEn": "Innovation, Information and Technology Branch",
+        "nameFr": "Direction générale de l'innovation, de l'information et de la technologie"
+      }
+    },
+    {
+      "id": 294550170,
+      "code": "IITB-14",
+      "nameEn": "Office Chief Inform Officer",
+      "nameFr": "Bureau Dirigeant Princ. Info.",
+      "parent": {
+        "id": 100789029,
+        "code": "IITB",
+        "nameEn": "Innovation, Information and Technology Branch",
+        "nameFr": "Direction générale de l'innovation, de l'information et de la technologie"
+      }
+    },
+    {
+      "id": 294550171,
+      "code": "IITB-15",
+      "nameEn": "Office Chief Inform Officer",
+      "nameFr": "Bureau Dirigeant Princ. Info.",
+      "parent": {
+        "id": 100789029,
+        "code": "IITB",
+        "nameEn": "Innovation, Information and Technology Branch",
+        "nameFr": "Direction générale de l'innovation, de l'information et de la technologie"
+      }
+    },
+    {
+      "id": 294550172,
+      "code": "IITB-16",
+      "nameEn": "Cyber and IT Security",
+      "nameFr": "Cyber et Sécurité TI",
+      "parent": {
+        "id": 100789029,
+        "code": "IITB",
+        "nameEn": "Innovation, Information and Technology Branch",
+        "nameFr": "Direction générale de l'innovation, de l'information et de la technologie"
+      }
+    },
+    {
+      "id": 294550173,
+      "code": "IITB-17",
+      "nameEn": "OAS on BDM Service Operations",
+      "nameFr": "SV Opérations services MVP",
+      "parent": {
+        "id": 100789029,
+        "code": "IITB",
+        "nameEn": "Innovation, Information and Technology Branch",
+        "nameFr": "Direction générale de l'innovation, de l'information et de la technologie"
+      }
+    },
+    {
+      "id": 294550174,
+      "code": "HRSB-1",
+      "nameEn": "Workforce Management",
+      "nameFr": "Gestion de l'effectif",
+      "parent": {
+        "id": 100789030,
+        "code": "HRSB",
+        "nameEn": "Human Resources Services Branch",
+        "nameFr": "Direction générale des services de ressources humaines"
+      }
+    },
+    {
+      "id": 294550175,
+      "code": "HRSB-2",
+      "nameEn": "Strategic Dir & Mngt Services",
+      "nameFr": "Dir Stratg et Serv de Gestion",
+      "parent": {
+        "id": 100789030,
+        "code": "HRSB",
+        "nameEn": "Human Resources Services Branch",
+        "nameFr": "Direction générale des services de ressources humaines"
+      }
+    },
+    {
+      "id": 294550176,
+      "code": "HRSB-3",
+      "nameEn": "Acc Office & College at ESDC",
+      "nameFr": "Bur Acc & Collège à EDSC",
+      "parent": {
+        "id": 100789030,
+        "code": "HRSB",
+        "nameEn": "Human Resources Services Branch",
+        "nameFr": "Direction générale des services de ressources humaines"
+      }
+    },
+    {
+      "id": 294550177,
+      "code": "HRSB-4",
+      "nameEn": "Workplace Management",
+      "nameFr": "Direction de la gestion du mil",
+      "parent": {
+        "id": 100789030,
+        "code": "HRSB",
+        "nameEn": "Human Resources Services Branch",
+        "nameFr": "Direction générale des services de ressources humaines"
+      }
+    },
+    {
+      "id": 294550178,
+      "code": "HRSB-5",
+      "nameEn": "Human Resources Council",
+      "nameFr": "Conseil de ressources humaines",
+      "parent": {
+        "id": 100789030,
+        "code": "HRSB",
+        "nameEn": "Human Resources Services Branch",
+        "nameFr": "Direction générale des services de ressources humaines"
+      }
+    },
+    {
+      "id": 294550179,
+      "code": "HRSB-6",
+      "nameEn": "ADMO HRSB",
+      "nameFr": "BSMA DGSRH",
+      "parent": {
+        "id": 100789030,
+        "code": "HRSB",
+        "nameEn": "Human Resources Services Branch",
+        "nameFr": "Direction générale des services de ressources humaines"
+      }
+    },
+    {
+      "id": 294550180,
+      "code": "HRSB-7",
+      "nameEn": "Compensation Services",
+      "nameFr": "Services de rémunération",
+      "parent": {
+        "id": 100789030,
+        "code": "HRSB",
+        "nameEn": "Human Resources Services Branch",
+        "nameFr": "Direction générale des services de ressources humaines"
+      }
+    },
+    {
+      "id": 294550181,
+      "code": "SSPB-1",
+      "nameEn": "Economic Policy Directorate",
+      "nameFr": "Dir Politique économique",
+      "parent": {
+        "id": 100789031,
+        "code": "SSPB",
+        "nameEn": "Strategic and Service Policy Branch",
+        "nameFr": "Direction générale des politiques stratégiques et de service"
+      }
+    },
+    {
+      "id": 294550182,
+      "code": "SSPB-2",
+      "nameEn": "Social Policy Directorate",
+      "nameFr": "Dir. de la politique sociale",
+      "parent": {
+        "id": 100789031,
+        "code": "SSPB",
+        "nameEn": "Strategic and Service Policy Branch",
+        "nameFr": "Direction générale des politiques stratégiques et de service"
+      }
+    },
+    {
+      "id": 294550183,
+      "code": "SSPB-3",
+      "nameEn": "Evaluation Directorate",
+      "nameFr": "Evaluation des partenariats",
+      "parent": {
+        "id": 100789031,
+        "code": "SSPB",
+        "nameEn": "Strategic and Service Policy Branch",
+        "nameFr": "Direction générale des politiques stratégiques et de service"
+      }
+    },
+    {
+      "id": 294550184,
+      "code": "SSPB-4",
+      "nameEn": "Strategic and Horizontal Polic",
+      "nameFr": "Politiques stratégiques et hor",
+      "parent": {
+        "id": 100789031,
+        "code": "SSPB",
+        "nameEn": "Strategic and Service Policy Branch",
+        "nameFr": "Direction générale des politiques stratégiques et de service"
+      }
+    },
+    {
+      "id": 294550185,
+      "code": "SSPB-5",
+      "nameEn": "Chief of Staff",
+      "nameFr": "Chef de cabinet",
+      "parent": {
+        "id": 100789031,
+        "code": "SSPB",
+        "nameEn": "Strategic and Service Policy Branch",
+        "nameFr": "Direction générale des politiques stratégiques et de service"
+      }
+    },
+    {
+      "id": 294550186,
+      "code": "SSPB-6",
+      "nameEn": "Service Policy and Strategy",
+      "nameFr": "Politique et stratégie de serv",
+      "parent": {
+        "id": 100789031,
+        "code": "SSPB",
+        "nameEn": "Strategic and Service Policy Branch",
+        "nameFr": "Direction générale des politiques stratégiques et de service"
+      }
+    },
+    {
+      "id": 294550187,
+      "code": "SSPB-7",
+      "nameEn": "Corp Planning & Management",
+      "nameFr": "Planifi. et la gestion coropor",
+      "parent": {
+        "id": 100789031,
+        "code": "SSPB",
+        "nameEn": "Strategic and Service Policy Branch",
+        "nameFr": "Direction générale des politiques stratégiques et de service"
+      }
+    },
+    {
+      "id": 294550188,
+      "code": "SSPB-8",
+      "nameEn": "Innovation Lab Director",
+      "nameFr": "Dir. laboratoires d'innovation",
+      "parent": {
+        "id": 100789031,
+        "code": "SSPB",
+        "nameEn": "Strategic and Service Policy Branch",
+        "nameFr": "Direction générale des politiques stratégiques et de service"
+      }
+    },
+    {
+      "id": 294550189,
+      "code": "SSPB-9",
+      "nameEn": "Transformation Management Dire",
+      "nameFr": "DG gestion transformation",
+      "parent": {
+        "id": 100789031,
+        "code": "SSPB",
+        "nameEn": "Strategic and Service Policy Branch",
+        "nameFr": "Direction générale des politiques stratégiques et de service"
+      }
+    },
+    {
+      "id": 294550190,
+      "code": "SSPB-10",
+      "nameEn": "Office of IGA",
+      "nameFr": "Bureau de l'AIG",
+      "parent": {
+        "id": 100789031,
+        "code": "SSPB",
+        "nameEn": "Strategic and Service Policy Branch",
+        "nameFr": "Direction générale des politiques stratégiques et de service"
+      }
+    },
+    {
+      "id": 294550191,
+      "code": "PASRB-1",
+      "nameEn": "Strat Comms & Stkdr Rel Dir",
+      "nameFr": "Dir comms strat & rel interv",
+      "parent": {
+        "id": 100789032,
+        "code": "PASRB",
+        "nameEn": "Public Affairs and Stakeholder Relations",
+        "nameFr": "Direction générale des affaires publiques et des relations avec les intervenants"
+      }
+    },
+    {
+      "id": 294550192,
+      "code": "PASRB-2",
+      "nameEn": "Strategic Directions",
+      "nameFr": "Orientations stratégiques",
+      "parent": {
+        "id": 100789032,
+        "code": "PASRB",
+        "nameEn": "Public Affairs and Stakeholder Relations",
+        "nameFr": "Direction générale des affaires publiques et des relations avec les intervenants"
+      }
+    },
+    {
+      "id": 294550193,
+      "code": "PASRB-3",
+      "nameEn": "Seniors & Social Dev Comms Dir",
+      "nameFr": "Dir Comms ainés & dév social",
+      "parent": {
+        "id": 100789032,
+        "code": "PASRB",
+        "nameEn": "Public Affairs and Stakeholder Relations",
+        "nameFr": "Direction générale des affaires publiques et des relations avec les intervenants"
+      }
+    },
+    {
+      "id": 294550194,
+      "code": "PASRB-4",
+      "nameEn": "Employment Communications",
+      "nameFr": "Communications sur l'emploi",
+      "parent": {
+        "id": 100789032,
+        "code": "PASRB",
+        "nameEn": "Public Affairs and Stakeholder Relations",
+        "nameFr": "Direction générale des affaires publiques et des relations avec les intervenants"
+      }
+    },
+    {
+      "id": 294550195,
+      "code": "CFOB-1",
+      "nameEn": "Integr Corp Actg & Accountblty",
+      "nameFr": "Intgrte Resp. Cmpta. Min.",
+      "parent": {
+        "id": 100789033,
+        "code": "CFOB",
+        "nameEn": "Chief Financial Officer Branch",
+        "nameFr": "Direction générale du dirigeant principal des finances"
+      }
+    },
+    {
+      "id": 294550196,
+      "code": "CFOB-2",
+      "nameEn": "Invest Plan & Proc Mgmt",
+      "nameFr": "Gestn Inv Projet & Approv",
+      "parent": {
+        "id": 100789033,
+        "code": "CFOB",
+        "nameEn": "Chief Financial Officer Branch",
+        "nameFr": "Direction générale du dirigeant principal des finances"
+      }
+    },
+    {
+      "id": 294550197,
+      "code": "CFOB-3",
+      "nameEn": "Business Management Services",
+      "nameFr": "Gestn serv direction générale",
+      "parent": {
+        "id": 100789033,
+        "code": "CFOB",
+        "nameEn": "Chief Financial Officer Branch",
+        "nameFr": "Direction générale du dirigeant principal des finances"
+      }
+    },
+    {
+      "id": 294550198,
+      "code": "CFOB-4",
+      "nameEn": "Financial Management Advisory",
+      "nameFr": "Services consultatifs en gesti",
+      "parent": {
+        "id": 100789033,
+        "code": "CFOB",
+        "nameEn": "Chief Financial Officer Branch",
+        "nameFr": "Direction générale du dirigeant principal des finances"
+      }
+    },
+    {
+      "id": 294550199,
+      "code": "CFOB-5",
+      "nameEn": "Change Mgtm & Reg Services",
+      "nameFr": "Gestn chgmt et services réginx",
+      "parent": {
+        "id": 100789033,
+        "code": "CFOB",
+        "nameEn": "Chief Financial Officer Branch",
+        "nameFr": "Direction générale du dirigeant principal des finances"
+      }
+    },
+    {
+      "id": 294550200,
+      "code": "CFOB-6",
+      "nameEn": "myEMS(SAP) Centre of Expertise",
+      "nameFr": "maSGE (SAP) Centre d'expertise",
+      "parent": {
+        "id": 100789033,
+        "code": "CFOB",
+        "nameEn": "Chief Financial Officer Branch",
+        "nameFr": "Direction générale du dirigeant principal des finances"
+      }
+    },
+    {
+      "id": 294550201,
+      "code": "CFOB-7",
+      "nameEn": "Corporate Financial Planning",
+      "nameFr": "Planification fin minist",
+      "parent": {
+        "id": 100789033,
+        "code": "CFOB",
+        "nameEn": "Chief Financial Officer Branch",
+        "nameFr": "Direction générale du dirigeant principal des finances"
+      }
+    },
+    {
+      "id": 294550202,
+      "code": "CFOB-8",
+      "nameEn": "Chief Finan. Officer's Office",
+      "nameFr": "Bur. Dir. Princ. Finances",
+      "parent": {
+        "id": 100789033,
+        "code": "CFOB",
+        "nameEn": "Chief Financial Officer Branch",
+        "nameFr": "Direction générale du dirigeant principal des finances"
+      }
+    },
+    {
+      "id": 294550203,
+      "code": "DMO-1",
+      "nameEn": "DMO ESDC",
+      "nameFr": "BSM EDSC",
+      "parent": {
+        "id": 100789034,
+        "code": "DMO",
+        "nameEn": "DMO ESDC",
+        "nameFr": "BSM EDSC"
+      }
+    },
+    {
+      "id": 294550204,
+      "code": "LSU-1",
+      "nameEn": "Legal Services - B",
+      "nameFr": "Services juridiques - B",
+      "parent": {
+        "id": 100789035,
+        "code": "LSU",
+        "nameEn": "Legal Services Unit",
+        "nameFr": "Unité des services juridiques"
+      }
+    },
+    {
+      "id": 294550205,
+      "code": "LSU-2",
+      "nameEn": "Legal Services Summary",
+      "nameFr": "Sommaies services juridiques",
+      "parent": {
+        "id": 100789035,
+        "code": "LSU",
+        "nameEn": "Legal Services Unit",
+        "nameFr": "Unité des services juridiques"
+      }
+    },
+    {
+      "id": 294550206,
+      "code": "LSU-3",
+      "nameEn": "Legal Counsel",
+      "nameFr": "Conseillère juridique",
+      "parent": {
+        "id": 100789035,
+        "code": "LSU",
+        "nameEn": "Legal Services Unit",
+        "nameFr": "Unité des services juridiques"
+      }
+    },
+    {
+      "id": 294550207,
+      "code": "LSU-4",
+      "nameEn": "Senior Counsel & Group Head",
+      "nameFr": "Avocat-conseil et chef groupe",
+      "parent": {
+        "id": 100789035,
+        "code": "LSU",
+        "nameEn": "Legal Services Unit",
+        "nameFr": "Unité des services juridiques"
+      }
+    },
+    {
+      "id": 294550208,
+      "code": "LSU-5",
+      "nameEn": "General Counsel & Deputy Head",
+      "nameFr": "Avocat général et chef adjoint",
+      "parent": {
+        "id": 100789035,
+        "code": "LSU",
+        "nameEn": "Legal Services Unit",
+        "nameFr": "Unité des services juridiques"
+      }
+    },
+    {
+      "id": 294550209,
+      "code": "LSU-6",
+      "nameEn": "Legal research",
+      "nameFr": "Recherche legale",
+      "parent": {
+        "id": 100789035,
+        "code": "LSU",
+        "nameEn": "Legal Services Unit",
+        "nameFr": "Unité des services juridiques"
+      }
+    },
+    {
+      "id": 294550210,
+      "code": "PHC-1",
+      "nameEn": "Director General Office -C",
+      "nameFr": "Bureau du Directeur général -C",
+      "parent": {
+        "id": 100789036,
+        "code": "PHC",
+        "nameEn": "Policy Horizons Canada",
+        "nameFr": "Horizons Politiques Canada"
+      }
+    },
+    {
+      "id": 294550211,
+      "code": "PHC-2",
+      "nameEn": "Corpor Operatn & Admin-B",
+      "nameFr": "Srvc admin integrés-B",
+      "parent": {
+        "id": 100789036,
+        "code": "PHC",
+        "nameEn": "Policy Horizons Canada",
+        "nameFr": "Horizons Politiques Canada"
+      }
+    },
+    {
+      "id": 294550212,
+      "code": "PHC-3",
+      "nameEn": "Foresight Projects",
+      "nameFr": "Projets prospective",
+      "parent": {
+        "id": 100789036,
+        "code": "PHC",
+        "nameEn": "Policy Horizons Canada",
+        "nameFr": "Horizons Politiques Canada"
+      }
+    },
+    {
+      "id": 294550213,
+      "code": "CDOB-1",
+      "nameEn": "Enterprise Data Strategy",
+      "nameFr": "Strat des donn organisa",
+      "parent": {
+        "id": 100789037,
+        "code": "CDOB",
+        "nameEn": "Chief Data Officer Branch",
+        "nameFr": "Direction générale de la dirigeante principale des données"
+      }
+    },
+    {
+      "id": 294550214,
+      "code": "CDOB-2",
+      "nameEn": "Data Science",
+      "nameFr": "Science des données",
+      "parent": {
+        "id": 100789037,
+        "code": "CDOB",
+        "nameEn": "Chief Data Officer Branch",
+        "nameFr": "Direction générale de la dirigeante principale des données"
+      }
+    },
+    {
+      "id": 294550215,
+      "code": "CDOB-3",
+      "nameEn": "Data Strategies & Development",
+      "nameFr": "Stratégies de données & dévelo",
+      "parent": {
+        "id": 100789037,
+        "code": "CDOB",
+        "nameEn": "Chief Data Officer Branch",
+        "nameFr": "Direction générale de la dirigeante principale des données"
+      }
+    },
+    {
+      "id": 294550216,
+      "code": "CDOB-4",
+      "nameEn": "Strategic Oversight",
+      "nameFr": "Surveillance stratégique",
+      "parent": {
+        "id": 100789037,
+        "code": "CDOB",
+        "nameEn": "Chief Data Officer Branch",
+        "nameFr": "Direction générale de la dirigeante principale des données"
+      }
+    },
+    {
+      "id": 294550217,
+      "code": "CDOB-5",
+      "nameEn": "Pension Solutions",
+      "nameFr": "Solution Pension",
+      "parent": {
+        "id": 100789037,
+        "code": "CDOB",
+        "nameEn": "Chief Data Officer Branch",
+        "nameFr": "Direction générale de la dirigeante principale des données"
+      }
+    },
+    {
+      "id": 294550218,
+      "code": "CDOB-6",
+      "nameEn": "Programme & Project Management",
+      "nameFr": "Gestion programmes et projets",
+      "parent": {
+        "id": 100789037,
+        "code": "CDOB",
+        "nameEn": "Chief Data Officer Branch",
+        "nameFr": "Direction générale de la dirigeante principale des données"
+      }
+    },
+    {
+      "id": 294550219,
+      "code": "CDOB-7",
+      "nameEn": "Data Intelligence",
+      "nameFr": "Intelligence des donnees",
+      "parent": {
+        "id": 100789037,
+        "code": "CDOB",
+        "nameEn": "Chief Data Officer Branch",
+        "nameFr": "Direction générale de la dirigeante principale des données"
+      }
+    },
+    {
+      "id": 294550220,
+      "code": "BDM-1",
+      "nameEn": "Benefits Delivery Modernization (BDM)",
+      "nameFr": "Programme de modernisation du versement des prestations (MVP)",
+      "parent": {
+        "id": 100789038,
+        "code": "BDM",
+        "nameEn": "Benefits Delivery Modernization (BDM) Programme - Implementation Branch",
+        "nameFr": "Programme de modernisation du versement des prestations (MVP) - DG de la mise en œuvre"
+      }
+    },
+    {
+      "id": 294550221,
+      "code": "BLO-1",
+      "nameEn": "DM Issues Management",
+      "nameFr": "SM Resolution de probleme",
+      "parent": {
+        "id": 100789039,
+        "code": "BLO",
+        "nameEn": "BLO - Benefits Delivery Modernization (BDM) Programme",
+        "nameFr": "BDPA Programme de modernisation du versement des prestations (MVP)"
+      }
+    },
+    {
+      "id": 294550222,
+      "code": "BLO-2",
+      "nameEn": "Issues Management - 2",
+      "nameFr": "Résolution de problème - 2",
+      "parent": {
+        "id": 100789039,
+        "code": "BLO",
+        "nameEn": "BLO - Benefits Delivery Modernization (BDM) Programme",
+        "nameFr": "BDPA Programme de modernisation du versement des prestations (MVP)"
+      }
+    },
+    {
+      "id": 294550223,
+      "code": "BLI-1",
+      "nameEn": "Identity Serv & Acc Mgmt Sol",
+      "nameFr": "Serv ident et syst gestn accès",
+      "parent": {
+        "id": 100789040,
+        "code": "BLI",
+        "nameEn": "Benefits Delivery Modernization (BDM) Programme - Business Lead Implementation",
+        "nameFr": "Programme de modernisation du versement des prestations (MVP) - Resp mise en oeuvre activtés"
+      }
+    },
+    {
+      "id": 294550224,
+      "code": "BLI-2",
+      "nameEn": "Contact Centre Solutions",
+      "nameFr": "Solution centre de contact",
+      "parent": {
+        "id": 100789040,
+        "code": "BLI",
+        "nameEn": "Benefits Delivery Modernization (BDM) Programme - Business Lead Implementation",
+        "nameFr": "Programme de modernisation du versement des prestations (MVP) - Resp mise en oeuvre activtés"
+      }
+    },
+    {
+      "id": 294550225,
+      "code": "BLI-3",
+      "nameEn": "Chief of Staff to ADM",
+      "nameFr": "Chef de Cabinet pour la SMA",
+      "parent": {
+        "id": 100789040,
+        "code": "BLI",
+        "nameEn": "Benefits Delivery Modernization (BDM) Programme - Business Lead Implementation",
+        "nameFr": "Programme de modernisation du versement des prestations (MVP) - Resp mise en oeuvre activtés"
+      }
+    },
+    {
+      "id": 294550226,
+      "code": "BLI-4",
+      "nameEn": "Chief of Staff to ADM",
+      "nameFr": "Chef de Cabinet pour la SMA",
+      "parent": {
+        "id": 100789040,
+        "code": "BLI",
+        "nameEn": "Benefits Delivery Modernization (BDM) Programme - Business Lead Implementation",
+        "nameFr": "Programme de modernisation du versement des prestations (MVP) - Resp mise en oeuvre activtés"
+      }
+    },
+    {
+      "id": 294550227,
+      "code": "BLI-5",
+      "nameEn": "Service Delivery Network",
+      "nameFr": "Réseau prestation des services",
+      "parent": {
+        "id": 100789040,
+        "code": "BLI",
+        "nameEn": "Benefits Delivery Modernization (BDM) Programme - Business Lead Implementation",
+        "nameFr": "Programme de modernisation du versement des prestations (MVP) - Resp mise en oeuvre activtés"
+      }
+    },
+    {
+      "id": 294550228,
+      "code": "BLI-6",
+      "nameEn": "Intg Plan & Perfo Report A",
+      "nameFr": "Plan Integr & Performance A",
+      "parent": {
+        "id": 100789040,
+        "code": "BLI",
+        "nameEn": "Benefits Delivery Modernization (BDM) Programme - Business Lead Implementation",
+        "nameFr": "Programme de modernisation du versement des prestations (MVP) - Resp mise en oeuvre activtés"
+      }
+    },
+    {
+      "id": 294550229,
+      "code": "BLI-7",
+      "nameEn": "Old Age Security",
+      "nameFr": "Sécurité de la vieillesse",
+      "parent": {
+        "id": 100789040,
+        "code": "BLI",
+        "nameEn": "Benefits Delivery Modernization (BDM) Programme - Business Lead Implementation",
+        "nameFr": "Programme de modernisation du versement des prestations (MVP) - Resp mise en oeuvre activtés"
+      }
+    },
+    {
+      "id": 294550230,
+      "code": "BLI-8",
+      "nameEn": "Employment Insurance",
+      "nameFr": "Assurance-emploi",
+      "parent": {
+        "id": 100789040,
+        "code": "BLI",
+        "nameEn": "Benefits Delivery Modernization (BDM) Programme - Business Lead Implementation",
+        "nameFr": "Programme de modernisation du versement des prestations (MVP) - Resp mise en oeuvre activtés"
+      }
+    },
+    {
+      "id": 294550231,
+      "code": "BLI-9",
+      "nameEn": "ADMO, Program Strat & Design",
+      "nameFr": "BSMA, Strat & Concep programme",
+      "parent": {
+        "id": 100789040,
+        "code": "BLI",
+        "nameEn": "Benefits Delivery Modernization (BDM) Programme - Business Lead Implementation",
+        "nameFr": "Programme de modernisation du versement des prestations (MVP) - Resp mise en oeuvre activtés"
+      }
+    },
+    {
+      "id": 294550232,
+      "code": "PSDB-1",
+      "nameEn": "Technology Enablement",
+      "nameFr": "Habilitation technique",
+      "parent": {
+        "id": 100789041,
+        "code": "PSDB",
+        "nameEn": "Benefits Delivery Modernization (BDM) Programme - Prog Strat & Design Branch",
+        "nameFr": "Programme de modernisation du versement des prestations (MVP) - DG de la strat & conc des prog"
+      }
+    },
+    {
+      "id": 294550233,
+      "code": "PSDB-2",
+      "nameEn": "Office Chief Prod Offcr & Arch",
+      "nameFr": "Bureau resp prod et arch chef",
+      "parent": {
+        "id": 100789041,
+        "code": "PSDB",
+        "nameEn": "Benefits Delivery Modernization (BDM) Programme - Prog Strat & Design Branch",
+        "nameFr": "Programme de modernisation du versement des prestations (MVP) - DG de la strat & conc des prog"
+      }
+    },
+    {
+      "id": 294550234,
+      "code": "PSDB-3",
+      "nameEn": "Program Strategic Engagement",
+      "nameFr": "Engagement stratégique du prog",
+      "parent": {
+        "id": 100789041,
+        "code": "PSDB",
+        "nameEn": "Benefits Delivery Modernization (BDM) Programme - Prog Strat & Design Branch",
+        "nameFr": "Programme de modernisation du versement des prestations (MVP) - DG de la strat & conc des prog"
+      }
+    },
+    {
+      "id": 294550235,
+      "code": "PSDB-4",
+      "nameEn": "Programme Management",
+      "nameFr": "Gestion du programme",
+      "parent": {
+        "id": 100789041,
+        "code": "PSDB",
+        "nameEn": "Benefits Delivery Modernization (BDM) Programme - Prog Strat & Design Branch",
+        "nameFr": "Programme de modernisation du versement des prestations (MVP) - DG de la strat & conc des prog"
+      }
+    },
+    {
+      "id": 294550236,
+      "code": "CAO-1",
+      "nameEn": "Office of the CAO",
+      "nameFr": "Bureau du DPA",
+      "parent": {
+        "id": 100789042,
+        "code": "CAO",
+        "nameEn": "Chief Accessibility Officer",
+        "nameFr": "Dirigeant princ accessibilité"
+      }
+    }
+  ],
+  "pageable": {
+    "sort": {
+      "empty": true,
+      "sorted": false,
+      "unsorted": true
+    },
+    "offset": 0,
+    "pageSize": 2,
+    "pageNumber": 0,
+    "paged": true,
+    "unpaged": false
+  },
+  "last": false,
+  "totalPages": 140,
+  "totalElements": 279,
+  "size": 2,
+  "number": 0,
+  "sort": {
+    "empty": true,
+    "sorted": false,
+    "unsorted": true
+  },
+  "first": true,
+  "numberOfElements": 279,
+  "empty": false
+}
