@@ -7,6 +7,13 @@ import { ErrorCodes } from '~/errors/error-codes';
 
 export function getMockUserService(): UserService {
   return {
+    getUsersByRole: (role: string): Promise<User[]> => {
+      try {
+        return Promise.resolve(getUsersByRole(role));
+      } catch (error) {
+        return Promise.reject(error);
+      }
+    },
     getUserById: (id: number) => {
       try {
         return Promise.resolve(getUserById(id));
@@ -87,7 +94,29 @@ const mockUsers: readonly User[] = [
     lastModifiedBy: 'system',
     lastModifiedDate: '2024-01-03T00:00:00Z',
   },
+  {
+    id: 5,
+    name: 'Sarah Baker',
+    activeDirectoryId: '44444444-4444-4444-4444-444444444444',
+    role: 'hr-advisor',
+    privacyConsentAccepted: true,
+    createdBy: 'system',
+    createdDate: '2024-01-03T00:00:00Z',
+    lastModifiedBy: 'system',
+    lastModifiedDate: '2024-01-03T00:00:00Z',
+  },
 ];
+
+/**
+ * Retrieves a list of users by their role from mock data.
+ *
+ * @param role The ROLE of the users to retrieve.
+ * @returns List of user objects.
+ */
+function getUsersByRole(role: string): User[] {
+  const users: User[] = mockUsers.filter((u) => u.role === role);
+  return users;
+}
 
 /**
  * Retrieves a user by their ID from mock data.

@@ -9,6 +9,7 @@ import { getDirectorateService } from '~/.server/domain/services/directorate-ser
 import { getEducationLevelService } from '~/.server/domain/services/education-level-service';
 import { getLanguageForCorrespondenceService } from '~/.server/domain/services/language-for-correspondence-service';
 import { getProvinceService } from '~/.server/domain/services/province-service';
+import { getUserService } from '~/.server/domain/services/user-service';
 import { serverEnvironment } from '~/.server/environment';
 import { stringToIntegerSchema } from '~/.server/validation/string-to-integer-schema';
 import { EMPLOYEE_WFA_STATUS } from '~/domain/constants';
@@ -31,8 +32,7 @@ const allProvinces = await getProvinceService().getAll();
 const province = allProvinces.unwrap();
 const allCities = await getCityService().getAll();
 const cities = allCities.unwrap();
-//const allWfaStatuses = await getWFAStatuses().getAll();
-//const wfaStatuses = allWfaStatuses.unwrap();
+const hrAdvisors = await getUserService().getUsersByRole('hr-advisor');
 
 export const personalInformationSchema = v.object({
   personalRecordIdentifier: v.pipe(
@@ -118,7 +118,12 @@ export const employmentInformationSchema = v.intersect([
       ),
     ),
 
-    hrAdvisor: v.optional(v.string()),
+    hrAdvisor: v.lazy(() =>
+      v.picklist(
+        hrAdvisors.map(({ id }) => id.toString()),
+        'app:employment-information.errors.hr-advisor-required',
+      ),
+    ),
   }),
   v.variant(
     'wfaStatus',
