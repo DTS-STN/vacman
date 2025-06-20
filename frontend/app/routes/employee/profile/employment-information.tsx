@@ -13,6 +13,7 @@ import { getCityService } from '~/.server/domain/services/city-service';
 import { getClassificationService } from '~/.server/domain/services/classification-service';
 import { getDirectorateService } from '~/.server/domain/services/directorate-service';
 import { getProvinceService } from '~/.server/domain/services/province-service';
+import { getUserService } from '~/.server/domain/services/user-service';
 import { getWFAStatuses } from '~/.server/domain/services/wfa-status-service';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { Button } from '~/components/button';
@@ -61,6 +62,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
   const provinces = await getProvinceService().getAllLocalized(lang);
   const cities = await getCityService().getAllLocalized(lang);
   const wfaStatuses = await getWFAStatuses().getAllLocalized(lang);
+  const hrAdvisors = await getUserService().getUsersByRole('hr-advisor');
 
   return {
     documentTitle: t('app:employment-information.page-title'),
@@ -74,7 +76,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
       wfaStatus: undefined as string | undefined,
       wfaEffectiveDate: undefined as string | undefined,
       wfaEndDate: undefined as string | undefined,
-      hrAdvisor: undefined,
+      hrAdvisor: undefined as string | undefined,
     },
     substantivePositions: substantivePositions.unwrap(),
     branchOrServiceCanadaRegions: branchOrServiceCanadaRegions.unwrap(),
@@ -82,6 +84,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
     provinces: provinces.unwrap(),
     cities: cities.unwrap(),
     wfaStatuses: wfaStatuses.unwrap(),
+    hrAdvisors: hrAdvisors,
   };
 }
 
@@ -128,6 +131,11 @@ export default function EmploymentInformation({ loaderData, actionData, params }
   );
 
   const wfaStatusOptions = [{ id: 'select-option', name: '' }, ...loaderData.wfaStatuses].map(({ id, name }) => ({
+    value: id === 'select-option' ? '' : id,
+    children: id === 'select-option' ? t('app:form.select-option') : name,
+  }));
+
+  const hrAdvisorOptions = [{ id: 'select-option', name: '' }, ...loaderData.hrAdvisors].map(({ id, name }) => ({
     value: id === 'select-option' ? '' : id,
     children: id === 'select-option' ? t('app:form.select-option') : name,
   }));
@@ -254,6 +262,16 @@ export default function EmploymentInformation({ loaderData, actionData, params }
                   />
                 </>
               )}
+              <InputSelect
+                id="hrAdvisor"
+                name="hrAdvisor"
+                errorMessage={t(extractValidationKey(errors?.hrAdvisor))}
+                required
+                options={hrAdvisorOptions}
+                label={t('app:employment-information.hr-advisor')}
+                defaultValue={loaderData.defaultValues.hrAdvisor ?? ''}
+                className="w-full sm:w-1/2"
+              />
               <div className="mt-8 flex flex-row-reverse flex-wrap items-center justify-end gap-3">
                 <Button name="action" variant="primary" id="save-button">
                   {t('app:form.save')}

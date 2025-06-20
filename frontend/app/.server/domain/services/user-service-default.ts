@@ -9,6 +9,27 @@ import { HttpStatusCodes } from '~/errors/http-status-codes';
 export function getDefaultUserService(): UserService {
   return {
     /**
+     * Retrieves a list of users by their ROLE.
+     * @param role The ROLE of the user to retrieve.
+     * @returns A promise that resolves to the list of user objects, or throws an error if role not found.
+     * @throws AppError if the request fails, or if the server responds with an error status.
+     */
+    async getUsersByRole(role: string): Promise<User[]> {
+      const response = await fetch(`${serverEnvironment.VACMAN_API_BASE_URI}/users?role=${role}`);
+
+      if (response.status === HttpStatusCodes.NOT_FOUND) {
+        throw new AppError(`ROLE ${role} not found.`, ErrorCodes.VACMAN_API_ERROR);
+      }
+
+      if (!response.ok) {
+        const errorMessage = `Failed to retrieve users with role ${role}. Server responded with status ${response.status}.`;
+        throw new AppError(errorMessage, ErrorCodes.VACMAN_API_ERROR);
+      }
+
+      return await response.json();
+    },
+
+    /**
      * Retrieves a user by their ID.
      * @param id The ID of the user to retrieve.
      * @returns A promise that resolves to the user object, or throws an error if not found.
