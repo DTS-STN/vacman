@@ -4,7 +4,9 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 import java.util.List;
 
+import org.hibernate.validator.constraints.Range;
 import org.mapstruct.factory.Mappers;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -35,10 +37,19 @@ public class EducationLevelController {
 
 	@GetMapping
 	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
-	@Operation(summary = "Get all education levels or filter by code.", description = "Returns a collection of all education levels or a specific education level if code is provided.")
-	public CollectionModel<EducationLevelReadModel> getEducationLevels(
+	@Operation(summary = "Get education levels with pagination or filter by code.", description = "Returns a paginated list of education levels or a specific education level if code is provided.")
+	public Object getEducationLevels(
 			@RequestParam(required = false)
-			@Parameter(description = "Education level code to filter by (e.g., 'BD' for Bachelor's Degree)") String code) {
+			@Parameter(description = "Education level code to filter by (e.g., 'BD' for Bachelor's Degree)") String code,
+
+			@RequestParam(defaultValue = "0")
+			@Parameter(description = "Page number (0-based)")
+			int page,
+
+			@RequestParam(defaultValue = "20")
+			@Range(min = 1, max = 100)
+			@Parameter(description = "Page size (between 1 and 100)")
+			int size) {
 		if (isNotBlank(code)) {
 			return new CollectionModel<>(educationLevelService.getEducationLevelByCode(code)
 				.map(educationLevelModelMapper::toModel)
@@ -46,8 +57,7 @@ public class EducationLevelController {
 				.orElse(List.of()));
 		}
 
-		return new CollectionModel<>(educationLevelService.getAllEducationLevels().stream()
-			.map(educationLevelModelMapper::toModel)
-			.toList());
+		return educationLevelService.getEducationLevels(PageRequest.of(page, size))
+			.map(educationLevelModelMapper::toModel);
 	}
 }

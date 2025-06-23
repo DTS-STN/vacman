@@ -4,7 +4,9 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 import java.util.List;
 
+import org.hibernate.validator.constraints.Range;
 import org.mapstruct.factory.Mappers;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -35,10 +37,19 @@ public class WorkUnitController {
 
 	@GetMapping
 	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
-	@Operation(summary = "Get all work units or filter by code.", description = "Returns a collection of all work units or a specific work unit if code is provided.")
-	public CollectionModel<WorkUnitReadModel> getWorkUnits(
+	@Operation(summary = "Get work units with pagination or filter by code.", description = "Returns a paginated list of work units or a specific work unit if code is provided.")
+	public Object getWorkUnits(
 			@RequestParam(required = false)
-			@Parameter(description = "Work unit code to filter by") String code) {
+			@Parameter(description = "Work unit code to filter by") String code,
+
+			@RequestParam(defaultValue = "0")
+			@Parameter(description = "Page number (0-based)")
+			int page,
+
+			@RequestParam(defaultValue = "20")
+			@Range(min = 1, max = 100)
+			@Parameter(description = "Page size (between 1 and 100)")
+			int size) {
 		if (isNotBlank(code)) {
 			return new CollectionModel<>(workUnitService.getWorkUnitByCode(code)
 				.map(workUnitModelMapper::toModel)
@@ -46,8 +57,7 @@ public class WorkUnitController {
 				.orElse(List.of()));
 		}
 
-		return new CollectionModel<>(workUnitService.getAllWorkUnits().stream()
-			.map(workUnitModelMapper::toModel)
-			.toList());
+		return workUnitService.getWorkUnits(PageRequest.of(page, size))
+			.map(workUnitModelMapper::toModel);
 	}
 }
