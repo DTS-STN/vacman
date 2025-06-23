@@ -79,6 +79,10 @@ export default {
     'choose-file': 'Choisir un fichier',
     'no-file': 'Aucun fichier choisi',
   },
+  'input-option': {
+    yes: 'Oui',
+    no: 'Non',
+  },
   'error-summary': {
     header_one: "L'erreur suivante a été trouvée dans le formulaire\u00a0:",
     header_other: 'Les {{count}} erreurs suivantes ont été trouvées dans le formulaire\u00a0:',

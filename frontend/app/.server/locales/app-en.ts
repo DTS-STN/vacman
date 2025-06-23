@@ -136,6 +136,8 @@ export default {
     'employment-tenure': 'Are you interested in any of the following employment opportunities?',
     'errors': {
       'language-referral-type-required': 'Language profile is required.',
+      'language-referral-type-invalid': 'Language profile is invalid.',
+      'language-referral-type-duplicate': 'Duplicate items for language profile are not allowed.',
       'classification-required': 'Classification group and level is required.',
       'work-location-required': 'Work location is required.',
       'province-required': 'Province is required.',
@@ -143,6 +145,8 @@ export default {
       'referral-availibility-required': 'Availablility for referrals is required.',
       'alternate-opportunity-required': 'Alternation opportunities is required.',
       'employment-tenure-required': 'Employment opportunities is required.',
+      'employment-tenure-invalid': 'Employment opportunities is invalid.',
+      'employment-tenure-duplicate': 'Duplicate items for employment opportunities are not allowed.',
     },
   },
 };

@@ -139,6 +139,8 @@ export default {
     'employment-tenure': "Êtes-vous intéressé par las opportunités d'emploi temporaires suivantes?",
     'errors': {
       'language-referral-type-required': 'La langue est requise.',
+      'language-referral-type-invalid': 'La langue est invalide.',
+      'language-referral-type-duplicate': 'Les éléments dupliqués pour le profil linguistique ne sont pas permis.',
       'classification-required': 'Groupe et niveau de votre est requis.',
       'work-location-required': "L'emplacement de travail est requis.",
       'province-required': 'La ville est requise.',
@@ -146,6 +148,8 @@ export default {
       'referral-availibility-required': 'La disponibilité pour les références est requise.',
       'alternate-opportunity-required': "Opportunités d'échange est requise.",
       'employment-tenure-required': "Opportunités d'emploi est requise.",
+      'employment-tenure-invalid': "Opportunités d'emploi est invalide.",
+      'employment-tenure-duplicate': "Les éléments dupliqués pour les opportunités d'emploi ne sont pas permis.",
     },
   },
 } satisfies typeof appEn;

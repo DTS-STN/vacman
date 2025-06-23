@@ -7,7 +7,9 @@ import { getCityService } from '~/.server/domain/services/city-service';
 import { getClassificationService } from '~/.server/domain/services/classification-service';
 import { getDirectorateService } from '~/.server/domain/services/directorate-service';
 import { getEducationLevelService } from '~/.server/domain/services/education-level-service';
+import { getEmploymentTenureService } from '~/.server/domain/services/employment-tenure-service';
 import { getLanguageForCorrespondenceService } from '~/.server/domain/services/language-for-correspondence-service';
+import { getLanguageReferralTypeService } from '~/.server/domain/services/language-referral-type-service';
 import { getProvinceService } from '~/.server/domain/services/province-service';
 import { getUserService } from '~/.server/domain/services/user-service';
 import { serverEnvironment } from '~/.server/environment';
@@ -33,6 +35,10 @@ const province = allProvinces.unwrap();
 const allCities = await getCityService().getAll();
 const cities = allCities.unwrap();
 const hrAdvisors = await getUserService().getUsersByRole('hr-advisor');
+const allLanguageReferralTypes = await getLanguageReferralTypeService().getAll();
+const languageReferralTypes = allLanguageReferralTypes.unwrap();
+const allEmploymentTenures = await getEmploymentTenureService().getAll();
+const employmentTenures = allEmploymentTenures.unwrap();
 
 export const personalInformationSchema = v.object({
   personalRecordIdentifier: v.pipe(
@@ -209,12 +215,40 @@ export const employmentInformationSchema = v.intersect([
 ]);
 
 export const refferralPreferencesSchema = v.object({
-  languageReferralTypes: v.optional(v.string()),
-  classification: v.optional(v.string()),
-  workLocations: v.optional(v.string()),
-  referralAvailibility: v.optional(v.string()),
-  alternateOpportunity: v.optional(v.string()),
-  employmentTenures: v.optional(v.string()),
+  languageReferralTypes: v.pipe(
+    v.array(
+      v.lazy(() =>
+        v.picklist(
+          languageReferralTypes.map((l) => l.id),
+          'app:referral-preferences.errors.language-referral-type-invalid',
+        ),
+      ),
+    ),
+    v.nonEmpty('app:referral-preferences.errors.language-referral-type-required'),
+    v.checkItems(
+      (item, index, array) => array.indexOf(item) === index,
+      'app:referral-preferences.errors.language-referral-type-duplicate',
+    ),
+  ),
+  classification: v.optional(v.array(v.string())),
+  workLocations: v.optional(v.array(v.string())),
+  referralAvailibility: v.boolean('app:referral-preferences.errors.referral-availibility-required'),
+  alternateOpportunity: v.boolean('app:referral-preferences.errors.alternate-opportunity-required'),
+  employmentTenures: v.pipe(
+    v.array(
+      v.lazy(() =>
+        v.picklist(
+          employmentTenures.map((e) => e.id),
+          'app:referral-preferences.errors.employment-tenure-invalid',
+        ),
+      ),
+    ),
+    v.nonEmpty('app:referral-preferences.errors.employment-tenure-required'),
+    v.checkItems(
+      (item, index, array) => array.indexOf(item) === index,
+      'app:referral-preferences.errors.employment-tenure-duplicate',
+    ),
+  ),
 });
 
 export function parseEmploymentInformation(formData: FormData) {
