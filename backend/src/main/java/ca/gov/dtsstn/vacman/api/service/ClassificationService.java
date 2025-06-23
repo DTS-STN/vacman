@@ -2,6 +2,8 @@ package ca.gov.dtsstn.vacman.api.service;
 
 import ca.gov.dtsstn.vacman.api.data.entity.ClassificationEntity;
 import ca.gov.dtsstn.vacman.api.data.repository.ClassificationRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,5 +24,9 @@ public class ClassificationService {
 
     public Optional<ClassificationEntity> getClassificationByCode(String code) {
         return classificationRepository.findByCode(code);
+    }
+
+    public Page<ClassificationEntity> getClassifications(Pageable pageable) {
+        return classificationRepository.findAll(pageable);
     }
 }
