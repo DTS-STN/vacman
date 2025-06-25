@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import type { MockedFunction } from 'vitest';
 
 import { getDefaultMSGraphService } from '~/.server/domain/services/msgraph-service-default';
 import { serverEnvironment } from '~/.server/environment';
@@ -18,7 +19,8 @@ vi.mock('~/.server/environment', () => ({
 }));
 
 // Mock fetch globally
-global.fetch = vi.fn();
+const mockFetch = vi.fn() as MockedFunction<typeof fetch>;
+global.fetch = mockFetch;
 
 describe('getDefaultMSGraphService', () => {
   const service = getDefaultMSGraphService();
@@ -49,9 +51,9 @@ describe('getDefaultMSGraphService', () => {
           businessPhones: ['+1 425 555 0100'],
           mobilePhone: '+1 425 555 0101',
         }),
-      };
+      } as Partial<Response>;
 
-      (global.fetch as any).mockResolvedValueOnce(mockUserResponse);
+      mockFetch.mockResolvedValueOnce(mockUserResponse as Response);
 
       const result = await service.getUserFromMSGraph('mock-access-token');
 
@@ -91,9 +93,9 @@ describe('getDefaultMSGraphService', () => {
       const mockUserResponse = {
         ok: false,
         status: HttpStatusCodes.NOT_FOUND,
-      };
+      } as Partial<Response>;
 
-      (global.fetch as any).mockResolvedValueOnce(mockUserResponse);
+      mockFetch.mockResolvedValueOnce(mockUserResponse as Response);
 
       const result = await service.getUserFromMSGraph('mock-access-token');
 
@@ -109,9 +111,9 @@ describe('getDefaultMSGraphService', () => {
           displayName: 'Minimal User',
           // Missing optional fields like givenName, surname, etc.
         }),
-      };
+      } as Partial<Response>;
 
-      (global.fetch as any).mockResolvedValueOnce(mockUserResponse);
+      mockFetch.mockResolvedValueOnce(mockUserResponse as Response);
 
       const result = await service.getUserFromMSGraph('mock-access-token');
 
@@ -152,9 +154,9 @@ describe('getDefaultMSGraphService', () => {
         ok: false,
         status: 403,
         text: vi.fn().mockResolvedValue('Insufficient privileges'),
-      };
+      } as Partial<Response>;
 
-      (global.fetch as any).mockResolvedValueOnce(mockUserResponse);
+      mockFetch.mockResolvedValueOnce(mockUserResponse as Response);
 
       await expect(service.getUserFromMSGraph('mock-access-token')).rejects.toMatchObject({
         msg: 'Failed to retrieve user from Microsoft Graph. Status: 403. Error: Insufficient privileges',
@@ -163,7 +165,7 @@ describe('getDefaultMSGraphService', () => {
     });
 
     it('should handle network errors gracefully', async () => {
-      (global.fetch as any).mockRejectedValueOnce(new Error('Network error'));
+      mockFetch.mockRejectedValueOnce(new Error('Network error'));
 
       await expect(service.getUserFromMSGraph('mock-access-token')).rejects.toMatchObject({
         msg: 'Unexpected error occurred while retrieving user from Microsoft Graph: Network error',
@@ -172,7 +174,7 @@ describe('getDefaultMSGraphService', () => {
     });
 
     it('should handle non-Error exceptions gracefully', async () => {
-      (global.fetch as any).mockRejectedValueOnce('String error');
+      mockFetch.mockRejectedValueOnce('String error');
 
       await expect(service.getUserFromMSGraph('mock-access-token')).rejects.toMatchObject({
         msg: 'Unexpected error occurred while retrieving user from Microsoft Graph: String error',
