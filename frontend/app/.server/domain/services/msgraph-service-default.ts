@@ -54,7 +54,6 @@ export function getDefaultMSGraphService(): MSGraphService {
         }
 
         const userData = await userResponse.json();
-        console.log(userData);
 
         // Map Microsoft Graph user response to our MSGraphUser type
         const msGraphUser: MSGraphUser = {
