@@ -18,7 +18,7 @@ export function getDefaultMSGraphService(): MSGraphService {
      * @returns A promise that resolves to the MS Graph user object, or null if not found.
      * @throws AppError if authentication fails or if the request encounters an error.
      */
-    async getUserFromMSGraph(activeDirectoryId: string): Promise<MSGraphUser | null> {
+    async getUserFromMSGraph(authCode: string): Promise<MSGraphUser | null> {
       try {
         // Validate required configuration
         if (!serverEnvironment.AZUREAD_CLIENT_ID || !serverEnvironment.AZUREAD_CLIENT_SECRET) {
@@ -28,38 +28,13 @@ export function getDefaultMSGraphService(): MSGraphService {
           );
         }
 
-        // Get access token using client credentials flow
-        const tokenResponse = await fetch(`${serverEnvironment.AZUREAD_ISSUER_URL}`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-          },
-          body: new URLSearchParams({
-            grant_type: 'client_credentials',
-            client_id: serverEnvironment.AZUREAD_CLIENT_ID,
-            client_secret: serverEnvironment.AZUREAD_CLIENT_SECRET.value(),
-            scope: 'https://graph.microsoft.com/.default',
-          }),
-        });
-
-        if (!tokenResponse.ok) {
-          const errorText = await tokenResponse.text();
-          throw new AppError(
-            `Failed to obtain access token from Azure AD. Status: ${tokenResponse.status}. Error: ${errorText}`,
-            ErrorCodes.AUTHENTICATION_ERROR,
-          );
-        }
-
-        const tokenData = await tokenResponse.json();
-        const accessToken = tokenData.access_token;
-
         // Query Microsoft Graph API for user information
         const userResponse = await fetch(
-          `${serverEnvironment.MSGRAPH_BASE_URL}/users/${encodeURIComponent(activeDirectoryId)}?$select=id,onPremisesSamAccountName,givenName,surname,businessPhones,mail,preferredLanguage,city,state`,
+          `${serverEnvironment.MSGRAPH_BASE_URL}/me?$select=id,onPremisesSamAccountName,givenName,surname,businessPhones,mail,preferredLanguage,city,state,jobTitle,department,officeLocation,mobilePhone`,
           {
             method: 'GET',
             headers: {
-              'Authorization': `Bearer ${accessToken}`,
+              'Authorization': `Bearer ${authCode}`,
               'Content-Type': 'application/json',
               'ConsistencyLevel': 'eventual', // For advanced queries
             },
@@ -79,6 +54,7 @@ export function getDefaultMSGraphService(): MSGraphService {
         }
 
         const userData = await userResponse.json();
+        console.log(userData);
 
         // Map Microsoft Graph user response to our MSGraphUser type
         const msGraphUser: MSGraphUser = {
@@ -93,6 +69,10 @@ export function getDefaultMSGraphService(): MSGraphService {
           officeLocation: userData.officeLocation,
           businessPhones: userData.businessPhones ?? [],
           mobilePhone: userData.mobilePhone,
+          state: userData.state ?? '',
+          city: userData.city ?? '',
+          preferredLanguage: userData.preferredLanguage ?? '',
+          onPremisesSamAccountName: userData.onPremisesSamAccountName ?? '',
         };
 
         return msGraphUser;

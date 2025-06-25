@@ -34,8 +34,9 @@ export async function action({ context, request }: ActionFunctionArgs) {
       await userService.updatePrivacyConsent(activeDirectoryId, true, context.session);
     } else {
       const msGraphService = getMSGraphService();
+      console.log(context.session.authState.accessToken);
 
-      const msGraphUserData = await msGraphService.getUserFromMSGraph(activeDirectoryId);
+      const msGraphUserData = await msGraphService.getUserFromMSGraph(context.session.authState.accessToken);
 
       console.log(msGraphUserData);
 

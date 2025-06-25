@@ -8,7 +8,7 @@ const isProduction = process.env.NODE_ENV === 'production';
 
 export const defaults = {
   AUTH_DEFAULT_PROVIDER: isProduction ? 'azuread' : 'local',
-  AUTH_SCOPES: 'openid profile email',
+  AUTH_SCOPES: 'openid profile email User.Read',
 } as const;
 
 export const authentication = v.object({

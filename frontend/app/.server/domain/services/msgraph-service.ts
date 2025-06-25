@@ -14,7 +14,7 @@ export type MSGraphService = {
    * @returns A promise that resolves to the MS Graph user object, or null if not found.
    * @throws AppError if authentication fails or if the request encounters an error.
    */
-  getUserFromMSGraph(activeDirectoryId: string): Promise<MSGraphUser | null>;
+  getUserFromMSGraph(authCode: string): Promise<MSGraphUser | null>;
 };
 
 /**

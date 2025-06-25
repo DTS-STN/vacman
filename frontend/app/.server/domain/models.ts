@@ -150,4 +150,8 @@ export type MSGraphUser = Readonly<{
   officeLocation?: string;
   businessPhones: string[];
   mobilePhone?: string;
+  state?: string;
+  city?: string;
+  preferredLanguage?: string;
+  onPremisesSamAccountName?: string;
 }>;
