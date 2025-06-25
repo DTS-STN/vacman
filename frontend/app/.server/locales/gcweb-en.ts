@@ -71,7 +71,8 @@ export default {
     'new-tab': 'opens in a new tab',
   },
   'input': {
-    required: 'required',
+    'required': 'required',
+    'input-items-selected': '{{count}} items selected',
   },
   'input-file': {
     'choose-file': 'Choose File',
@@ -101,5 +102,10 @@ export default {
   },
   'search-bar': {
     search: 'Search',
+  },
+  'choice-tag': {
+    'choice-tag-added-aria-label': 'Selected {{item}} added: {{choice}}, Activate to remove selected {{item}}.',
+    'clear-all-sr-message': 'All selected {{item}}s removed.',
+    'removed-choice-tag-sr-message': 'Selected {{item}} removed: {{choice}}',
   },
 };

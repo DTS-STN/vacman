@@ -1,0 +1,43 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`InputMultiSelect > should match the initial snapshot 1`] = `
+<div>
+  <div
+    class="relative"
+    id="input-framework"
+  >
+    <label
+      class="mb-2"
+      for="framework"
+      id="input-framework-label"
+    >
+      Favorite Frameworks
+    </label>
+    <button
+      aria-expanded="false"
+      aria-haspopup="listbox"
+      aria-labelledby="input-framework-label"
+      class="relative flex w-full cursor-pointer items-center justify-between rounded-lg border border-gray-500 bg-white px-3 py-2 text-left focus:border-blue-500 focus:outline-none focus:ring focus:ring-blue-500"
+      id="framework"
+      type="button"
+    >
+      <span
+        class="block truncate"
+      >
+        <span
+          class="text-gray-500"
+        >
+          Select options...
+        </span>
+      </span>
+      <span
+        class="pointer-events-none inset-y-0 right-0 flex items-center pr-2"
+      >
+        <i
+          data-icon="chevron-down"
+        />
+      </span>
+    </button>
+  </div>
+</div>
+`;

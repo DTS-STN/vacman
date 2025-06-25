@@ -8,14 +8,18 @@ import * as v from 'valibot';
 
 import type { Route } from './+types/referral-preferences';
 
+import { getClassificationService } from '~/.server/domain/services/classification-service';
 import { getEmploymentTenureService } from '~/.server/domain/services/employment-tenure-service';
 import { getLanguageReferralTypeService } from '~/.server/domain/services/language-referral-type-service';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { Button } from '~/components/button';
 import { ButtonLink } from '~/components/button-link';
+import type { ChoiceTag, DeleteEventHandler as ChoiceTagDeleteEventHandler } from '~/components/choice-tags';
+import { ChoiceTags } from '~/components/choice-tags';
 import { Collapsible } from '~/components/collapsible';
 import { ActionDataErrorSummary } from '~/components/error-summary';
 import { InputCheckboxes } from '~/components/input-checkboxes';
+import { InputMultiSelect } from '~/components/input-multiselect';
 import { InputRadios } from '~/components/input-radios';
 import type { InputRadiosProps } from '~/components/input-radios';
 import { InlineLink } from '~/components/links';
@@ -43,7 +47,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   const formData = await request.formData();
   const parseResult = v.safeParse(refferralPreferencesSchema, {
     languageReferralTypes: formData.getAll('languageReferralTypes').map(String),
-    classification: formData.getAll('classification').map(String),
+    classifications: formData.getAll('classifications').map(String),
     workLocations: formData.getAll('workLocations').map(String),
     referralAvailibility: formData.get('referralAvailibility')
       ? formData.get('referralAvailibility') === REQUIRE_OPTIONS.yes
@@ -71,6 +75,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
   const localizedLanguageReferralTypes = await getLanguageReferralTypeService().getAllLocalized(lang);
   const localizedEmploymentTenures = await getEmploymentTenureService().getAllLocalized(lang);
+  const classifications = await getClassificationService().getAll();
   return {
     documentTitle: t('app:referral-preferences.page-title'),
     defaultValues: {
@@ -84,6 +89,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
     },
     localizedLanguageReferralTypes: localizedLanguageReferralTypes.unwrap(),
     localizedEmploymentTenures: localizedEmploymentTenures.unwrap(),
+    classifications: classifications.unwrap(),
   };
 }
 
@@ -93,11 +99,17 @@ export default function PersonalDetails({ loaderData, actionData, params }: Rout
 
   const [referralAvailibility, setReferralAvailibility] = useState(loaderData.defaultValues.referralAvailibility);
   const [alternateOpportunity, setAlternateOpportunity] = useState(loaderData.defaultValues.alternateOpportunity);
+  const [selectedClassifications, setSelectedClassifications] = useState(loaderData.defaultValues.classification);
 
   const languageReferralTypeOptions = loaderData.localizedLanguageReferralTypes.map((langReferral) => ({
     value: langReferral.id,
     children: langReferral.name,
     defaultChecked: loaderData.defaultValues.languageReferralTypes?.includes(langReferral.id) ?? false,
+  }));
+  const classificationOptions = loaderData.classifications.map((classification) => ({
+    value: classification.id,
+    label: classification.name,
+    defaultChecked: loaderData.defaultValues.languageReferralTypes?.includes(classification.id) ?? false,
   }));
   const referralAvailibilityOptions: InputRadiosProps['options'] = [
     {
@@ -133,6 +145,22 @@ export default function PersonalDetails({ loaderData, actionData, params }: Rout
     defaultChecked: loaderData.defaultValues.employmentTenures?.includes(employmentTenures.id) ?? false,
   }));
 
+  // Choice tags for classification
+  const classificationChoiceTags: ChoiceTag[] = [];
+
+  selectedClassifications?.forEach((classification) => {
+    const selectedC = loaderData.classifications.find((c) => c.id === classification);
+    classificationChoiceTags.push({ label: selectedC?.name ?? classification, name: 'classification', value: classification });
+  });
+
+  /**
+   * Removes a classification from `classification group(s) and level(s)` and announces the removal to screen readers.
+   * TODO: announce the removal to screen readers
+   */
+  const handleOnDeleteClassificationTag: ChoiceTagDeleteEventHandler = (value) => {
+    setSelectedClassifications((prev) => prev?.filter((classificationId) => classificationId !== value));
+  };
+
   return (
     <>
       <InlineLink className="mt-6 block" file="routes/employee/profile/index.tsx" id="back-button">
@@ -152,6 +180,22 @@ export default function PersonalDetails({ loaderData, actionData, params }: Rout
                 helpMessagePrimary={t('app:form.select-all-that-apply')}
                 required
               />
+              <InputMultiSelect
+                id="classificationsId"
+                name="classifications"
+                label={t('app:referral-preferences.classification')}
+                options={classificationOptions}
+                value={selectedClassifications ?? []}
+                onChange={setSelectedClassifications}
+                placeholder={t('app:form.select-all-that-apply')}
+                helpMessage={t('app:referral-preferences.classification-group-help-message-primary')}
+                errorMessage={t(extractValidationKey(errors?.classifications))}
+              />
+
+              {classificationChoiceTags.length > 0 && (
+                <ChoiceTags choiceTags={classificationChoiceTags} onDelete={handleOnDeleteClassificationTag} />
+              )}
+
               <InputRadios
                 id="referralAvailibilityId"
                 legend={t('app:referral-preferences.referral-availibility')}
@@ -183,6 +227,7 @@ export default function PersonalDetails({ loaderData, actionData, params }: Rout
                 helpMessagePrimary={t('app:form.select-all-that-apply')}
                 required
               />
+
               <div className="mt-8 flex flex-row-reverse flex-wrap items-center justify-end gap-3">
                 <Button name="action" variant="primary" id="save-button">
                   {t('app:form.save')}
