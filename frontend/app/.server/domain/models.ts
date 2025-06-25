@@ -144,10 +144,10 @@ export type UserCreate = Readonly<{
   personalRecordIdentifier?: string;
   businessPhone?: string;
   businessEmail?: string;
-  createdBy: string;
-  createdDate: string;
-  lastModifiedBy: string;
-  lastModifiedDate: string;
+  createdBy?: string;
+  createdDate?: string;
+  lastModifiedBy?: string;
+  lastModifiedDate?: string;
 }>;
 
 export type MSGraphUser = Readonly<{

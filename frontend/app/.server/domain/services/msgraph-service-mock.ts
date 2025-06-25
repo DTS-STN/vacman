@@ -108,7 +108,7 @@ const mockUsers: readonly MSGraphUser[] = [
  * @param activeDirectoryId The Active Directory ID of the user to retrieve.
  * @returns Mock MS Graph user object if found, null otherwise.
  */
-function getMockMSGraphUser(authCode: string, activeDirectoryId = '00000000-0000-0000-0000-000000000001'): MSGraphUser | null {
+function getMockMSGraphUser(authCode: string, activeDirectoryId = '00000000-0000-0000-0000-000000000000'): MSGraphUser | null {
   // Find the corresponding user in our mock data using the id field
   const user = mockUsers.find((u) => u.id === activeDirectoryId);
 

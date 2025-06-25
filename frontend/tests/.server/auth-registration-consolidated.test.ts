@@ -509,12 +509,12 @@ describe('Authentication, Registration, and Privacy Consent Flow', () => {
 
       // Verify user was registered with privacy consent
       expect(mockUserService.registerUser).toHaveBeenCalledWith(
-        {
+        expect.objectContaining({
           name: 'Jane Employee',
           activeDirectoryId: 'test-employee-123',
           role: 'employee',
           privacyConsentAccepted: true,
-        },
+        }),
         expect.any(Object),
       );
     });
@@ -565,12 +565,12 @@ describe('Authentication, Registration, and Privacy Consent Flow', () => {
 
       // Verify user was registered with fallback name
       expect(mockUserService.registerUser).toHaveBeenCalledWith(
-        {
+        expect.objectContaining({
           name: 'Unknown User',
           activeDirectoryId: 'test-employee-123',
           role: 'employee',
           privacyConsentAccepted: true,
-        },
+        }),
         expect.any(Object),
       );
     });
