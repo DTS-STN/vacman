@@ -77,6 +77,10 @@ export default {
     'choose-file': 'Choose File',
     'no-file': 'No file chosen',
   },
+  'input-option': {
+    yes: 'Yes',
+    no: 'No',
+  },
   'error-summary': {
     header_one: 'The following error was found in the form:',
     header_other: 'The following {{count}} errors were found in the form:',

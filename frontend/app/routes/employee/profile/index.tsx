@@ -108,7 +108,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
         <ProfileCard
           title={t('app:profile.referral.title')}
           linkLabel={t('app:profile.referral.link-label')}
-          file="routes/employee/profile/personal-details.tsx"
+          file="routes/employee/profile/referral-preferences.tsx"
           completed={loaderData.referral.completed}
           total={3}
           required={true}

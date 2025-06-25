@@ -44,6 +44,7 @@ export default {
     'save': 'Save',
     'submit': 'Submit',
     'select-option': 'Select option',
+    'select-all-that-apply': 'Select all that apply',
   },
   'personal-information': {
     'page-title': 'Personal information',
@@ -114,6 +115,38 @@ export default {
         'invalid-day': 'Day of end date of your WFA status is invalid.',
       },
       'hr-advisor-required': 'HR advisor is required.',
+    },
+  },
+  'referral-preferences': {
+    'page-title': 'Referral preferences',
+    'language-referral-type': 'Which language profiles would you like to be referred for?',
+    'classification': 'Which classification group(s) and level(s) would you like to be referred for?',
+    'classification-group-help-message-primary':
+      'The group and levels selected must be the same or equivalent to your substantive position.',
+    'work-location': 'Which work location(s) would you like to be referred to?',
+    'province': 'Province',
+    'city': 'City',
+    'referral-availibility': 'Are you currently available for referrals?',
+    'referral-availibility-help-message-primary':
+      "Select no if you'll be on leave or are currently not interested in referrals.",
+    'alternate-opportunity': 'Are you interested in alternation opportunities?',
+    'what-is-alternation': 'What is alternation?',
+    'alternation-description-text':
+      "Alternation occurs when an employee who has not been given a gaurentee of a reasonable job offer (GRJO) who wishes to continue employment in the core public service exchanges positions with an alternate (non-affected employee) willing to leave the Core Public Administration with a Transition Support Measure (TSM - cash payment based on the employee's years of service) or with an Education Allowance.",
+    'employment-tenure': 'Are you interested in any of the following employment opportunities?',
+    'errors': {
+      'language-referral-type-required': 'Language profile is required.',
+      'language-referral-type-invalid': 'Language profile is invalid.',
+      'language-referral-type-duplicate': 'Duplicate items for language profile are not allowed.',
+      'classification-required': 'Classification group and level is required.',
+      'work-location-required': 'Work location is required.',
+      'province-required': 'Province is required.',
+      'city-required': 'City is required.',
+      'referral-availibility-required': 'Availablility for referrals is required.',
+      'alternate-opportunity-required': 'Alternation opportunities is required.',
+      'employment-tenure-required': 'Employment opportunities is required.',
+      'employment-tenure-invalid': 'Employment opportunities is invalid.',
+      'employment-tenure-duplicate': 'Duplicate items for employment opportunities are not allowed.',
     },
   },
 };
