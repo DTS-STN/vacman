@@ -5,3 +5,30 @@
 #######################################################################################################################
 
 ---
+
+#
+# ------------------------------------------------------------------------------------
+# DataSource configuration
+# ------------------------------------------------------------------------------------
+# See https://docs.spring.io/spring-boot/reference/data/sql.html
+#
+
+spring:
+  datasource:
+    # JDBC URL for an H2 in-memory database.
+    #   - jdbc:h2:mem:testdb: Connects to an H2 in-memory database named 'testdb'.
+    #   - MODE=MSSQLServer: Enables H2's MS SQL Server compatibility mode. This attempts to mimic
+    #     SQL Server syntax and behavior, useful for local development/testing if production uses SQL Server.
+    #   - DATABASE_TO_UPPER=false: Prevents H2 from converting unquoted identifiers (table/column names)
+    #     to uppercase. Important for compatibility with SQL Server if it's configured for case-sensitivity
+    #     or if the schema relies on mixed-case identifiers.
+    #   - CASE_INSENSITIVE_IDENTIFIERS=true: Makes unquoted identifiers case-insensitive. Combined with
+    #     DATABASE_TO_UPPER=false, this aims to match typical SQL Server case-insensitivity for object names.
+    #   - DB_CLOSE_DELAY=-1: Keeps the in-memory database alive as long as the JVM is running,
+    #     even if all connections are closed. Crucial for tests or development scenarios where the
+    #     database schema and data need to persist across multiple connection acquisitions.
+    url: jdbc:h2:mem:testdb;MODE=MSSQLServer;DATABASE_TO_UPPER=false;CASE_INSENSITIVE_IDENTIFIERS=true;DB_CLOSE_DELAY=-1;
+  jpa:
+    # Defer datasource initialization so that schema.sql and data.sql are loaded after the datasource is fully initialized.
+    # This is necessary to ensure that data.sql runs correctly.
+    defer-datasource-initialization: true
