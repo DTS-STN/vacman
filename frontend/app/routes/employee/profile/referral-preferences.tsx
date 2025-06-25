@@ -61,7 +61,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     );
   }
 
-  //TODO: Save form data & work email after validation, workEmail: context.session.authState.idTokenClaims.email
+  //TODO: Save form data
 
   throw i18nRedirect('routes/employee/profile/index.tsx', request);
 }
@@ -176,7 +176,7 @@ export default function PersonalDetails({ loaderData, actionData, params }: Rout
               />
               <InputCheckboxes
                 id="employmentTenuresId"
-                errorMessage={t(extractValidationKey(errors?.languageReferralTypes))}
+                errorMessage={t(extractValidationKey(errors?.employmentTenures))}
                 legend={t('app:referral-preferences.employment-tenure')}
                 name="employmentTenures"
                 options={employmentTenureOptions}
