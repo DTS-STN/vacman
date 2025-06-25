@@ -10,11 +10,12 @@ import { serverEnvironment } from '~/.server/environment';
 export type MSGraphService = {
   /**
    * Retrieves user information from Microsoft Graph API by Active Directory ID.
+   * @param authCode The authentication code to be passed to the Microsoft Graph API.
    * @param activeDirectoryId The Active Directory ID (object ID) of the user to retrieve.
    * @returns A promise that resolves to the MS Graph user object, or null if not found.
    * @throws AppError if authentication fails or if the request encounters an error.
    */
-  getUserFromMSGraph(authCode: string): Promise<MSGraphUser | null>;
+  getUserFromMSGraph(authCode: string, activeDirectoryId?: string): Promise<MSGraphUser | null>;
 };
 
 /**

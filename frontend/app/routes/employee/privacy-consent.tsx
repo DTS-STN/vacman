@@ -25,7 +25,6 @@ export async function action({ context, request }: ActionFunctionArgs) {
     const userService = getUserService();
     const activeDirectoryId = context.session.authState.idTokenClaims.sub;
     const name = context.session.authState.idTokenClaims.name ?? 'Unknown User';
-
     // Check if user already exists
     const existingUser = await userService.getUserByActiveDirectoryId(activeDirectoryId);
 
@@ -34,9 +33,7 @@ export async function action({ context, request }: ActionFunctionArgs) {
       await userService.updatePrivacyConsent(activeDirectoryId, true, context.session);
     } else {
       const msGraphService = getMSGraphService();
-      console.log(context.session.authState.accessToken);
-
-      const msGraphUserData = await msGraphService.getUserFromMSGraph(context.session.authState.accessToken);
+      const msGraphUserData = await msGraphService.getUserFromMSGraph(context.session.authState.accessToken, activeDirectoryId);
 
       console.log(msGraphUserData);
 
@@ -47,6 +44,10 @@ export async function action({ context, request }: ActionFunctionArgs) {
           activeDirectoryId,
           role: 'employee',
           privacyConsentAccepted: true,
+          createdBy: 'system',
+          createdDate: new Date().toISOString(),
+          lastModifiedBy: 'system',
+          lastModifiedDate: new Date().toISOString(),
         },
         context.session,
       );

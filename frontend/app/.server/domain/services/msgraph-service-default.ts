@@ -14,7 +14,7 @@ export function getDefaultMSGraphService(): MSGraphService {
     /**
      * Retrieves user information from Microsoft Graph API.
      * Uses client credentials flow for authentication with Azure AD.
-     * @param activeDirectoryId The Active Directory ID (object ID) of the user to retrieve.
+     * @param authCode The token to be passed to the Microsoft Graph API for authentication.
      * @returns A promise that resolves to the MS Graph user object, or null if not found.
      * @throws AppError if authentication fails or if the request encounters an error.
      */

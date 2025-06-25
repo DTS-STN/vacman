@@ -136,6 +136,18 @@ export type UserCreate = Readonly<{
   activeDirectoryId?: string;
   role: string;
   privacyConsentAccepted?: boolean;
+  networkName?: string;
+  firstName?: string;
+  middleName?: string;
+  lastName?: string;
+  initials?: string;
+  personalRecordIdentifier?: string;
+  businessPhone?: string;
+  businessEmail?: string;
+  createdBy: string;
+  createdDate: string;
+  lastModifiedBy: string;
+  lastModifiedDate: string;
 }>;
 
 export type MSGraphUser = Readonly<{
