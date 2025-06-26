@@ -18,10 +18,6 @@ public class WorkUnitService {
         this.workUnitRepository = workUnitRepository;
     }
 
-    public List<WorkUnitEntity> getAllWorkUnits() {
-        return List.copyOf(workUnitRepository.findAll());
-    }
-
     public Optional<WorkUnitEntity> getWorkUnitByCode(String code) {
         return workUnitRepository.findByCode(code);
     }

@@ -19,11 +19,6 @@ public class WfaStatusService {
         this.wfaStatusRepository = wfaStatusRepository;
     }
 
-
-    public WfaStatusEntity getWfaStatusById(Long id) {
-        return wfaStatusRepository.findById(id).orElse(null);
-    }
-
     public Optional<WfaStatusEntity> getWfaStatusByCode(String code) {
         return wfaStatusRepository.findByCode(code);
     }

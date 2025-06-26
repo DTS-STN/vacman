@@ -18,10 +18,6 @@ public class ClassificationService {
         this.classificationRepository = classificationRepository;
     }
 
-    public List<ClassificationEntity> getAllClassifications() {
-        return List.copyOf(classificationRepository.findAll());
-    }
-
     public Optional<ClassificationEntity> getClassificationByCode(String code) {
         return classificationRepository.findByCode(code);
     }

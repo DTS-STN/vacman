@@ -12,6 +12,4 @@ import java.util.Optional;
 @Repository
 public interface WorkUnitRepository extends ListCrudRepository<WorkUnitEntity, Long>, PagingAndSortingRepository<WorkUnitEntity, Long> {
     Optional<WorkUnitEntity> findByCode(String code);
-
-    Page<WorkUnitEntity> findAll(Pageable pageable);
 }
