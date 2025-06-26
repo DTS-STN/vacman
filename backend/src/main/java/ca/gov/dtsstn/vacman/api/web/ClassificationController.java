@@ -8,6 +8,7 @@ import org.hibernate.validator.constraints.Range;
 import org.mapstruct.factory.Mappers;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -39,7 +40,7 @@ public class ClassificationController {
 	@GetMapping
 	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
 	@Operation(summary = "Get classifications with pagination or filter by code.", description = "Returns a paginated list of classifications or a specific classification if code is provided.")
-	public Object getClassifications(
+	public ResponseEntity<?> getClassifications(
 			@RequestParam(required = false)
 			@Parameter(description = "Classification code to filter by (e.g., 'IT3')") String code,
 
@@ -53,13 +54,15 @@ public class ClassificationController {
 			int size) {
 
 		if (isNotBlank(code)) {
-			return new CollectionModel<>(classificationService.getClassificationByCode(code)
+			CollectionModel<ClassificationReadModel> result = new CollectionModel<>(classificationService.getClassificationByCode(code)
 				.map(classificationModelMapper::toModel)
 				.map(List::of)
 				.orElse(List.of()));
+			return ResponseEntity.ok(result);
 		}
 
-		return classificationService.getClassifications(PageRequest.of(page, size))
+		Page<ClassificationReadModel> result = classificationService.getClassifications(PageRequest.of(page, size))
 			.map(classificationModelMapper::toModel);
+		return ResponseEntity.ok(result);
 	}
 }
