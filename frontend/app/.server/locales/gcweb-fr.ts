@@ -106,8 +106,9 @@ export default {
     search: 'Rechercher',
   },
   'choice-tag': {
+    'clear-all': 'Tout effacer',
     'choice-tag-added-aria-label': '{{item}} sélectionné ajouté!: {{choice}}, Activez pour supprimer l{{item}} sélectionné.',
-    'clear-all-sr-message': 'tous les {{item}}s sélectionnés ont été supprimés.',
+    'clear-all-sr-message': 'tous les {{item}} sélectionnés ont été supprimés.',
     'removed-choice-tag-sr-message': '{{item}} sélectionné retiré: {{choice}}',
   },
 } satisfies typeof gcwebEn;

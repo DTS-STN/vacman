@@ -104,8 +104,9 @@ export default {
     search: 'Search',
   },
   'choice-tag': {
+    'clear-all': 'Clear all',
     'choice-tag-added-aria-label': 'Selected {{item}} added: {{choice}}, Activate to remove selected {{item}}.',
-    'clear-all-sr-message': 'All selected {{item}}s removed.',
+    'clear-all-sr-message': 'All selected {{item}} removed.',
     'removed-choice-tag-sr-message': 'Selected {{item}} removed: {{choice}}',
   },
 };
