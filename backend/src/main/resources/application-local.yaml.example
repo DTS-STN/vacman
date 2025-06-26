@@ -6,6 +6,14 @@
 #
 #######################################################################################################################
 
+#
+# Disable security configuration for API endpoints.
+#
+
+application:
+  security:
+    disabled: true
+
 ---
 
 #
@@ -66,3 +74,11 @@ spring:
         registration:
           ms-graph:
             client-secret: password
+
+---
+
+spring:
+  profiles:
+    include:
+      # Uncomment the line below to include the H2 profile
+      # - h2
