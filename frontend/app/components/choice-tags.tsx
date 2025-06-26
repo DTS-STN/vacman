@@ -9,18 +9,18 @@ export interface ChoiceTag {
   value: string;
 }
 //TODO: add clear all event handler
-export type DeleteEventHandler = (value: string) => void;
+export type DeleteEventHandler = (name: string, label: string, value: string) => void;
 
 export interface ChoiceTagsProps {
   choiceTags: ChoiceTag[];
-  onDelete?: (value: string) => void;
+  onDelete?: (name: string, label: string, value: string) => void;
 }
 
 export function ChoiceTags({ choiceTags, onDelete }: ChoiceTagsProps) {
   const { t } = useTranslation(['gcweb']);
 
   const handleOnDelete = (_event: unknown, choice: ChoiceTag) => {
-    if (onDelete) onDelete(choice.value);
+    if (onDelete) onDelete(choice.name, choice.label, choice.value);
   };
 
   return (

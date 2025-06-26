@@ -100,6 +100,7 @@ export default function PersonalDetails({ loaderData, actionData, params }: Rout
   const [referralAvailibility, setReferralAvailibility] = useState(loaderData.defaultValues.referralAvailibility);
   const [alternateOpportunity, setAlternateOpportunity] = useState(loaderData.defaultValues.alternateOpportunity);
   const [selectedClassifications, setSelectedClassifications] = useState(loaderData.defaultValues.classification);
+  const [srAnnouncement, setSrAnnouncement] = useState(''); //screen reader announcement
 
   const languageReferralTypeOptions = loaderData.localizedLanguageReferralTypes.map((langReferral) => ({
     value: langReferral.id,
@@ -155,9 +156,9 @@ export default function PersonalDetails({ loaderData, actionData, params }: Rout
 
   /**
    * Removes a classification from `classification group(s) and level(s)` and announces the removal to screen readers.
-   * TODO: announce the removal to screen readers
    */
-  const handleOnDeleteClassificationTag: ChoiceTagDeleteEventHandler = (value) => {
+  const handleOnDeleteClassificationTag: ChoiceTagDeleteEventHandler = (name, label, value) => {
+    setSrAnnouncement(t('gcweb:choice-tag.removed-choice-tag-sr-message', { item: name, choice: label }));
     setSelectedClassifications((prev) => prev?.filter((classificationId) => classificationId !== value));
   };
 
@@ -195,6 +196,9 @@ export default function PersonalDetails({ loaderData, actionData, params }: Rout
               {classificationChoiceTags.length > 0 && (
                 <ChoiceTags choiceTags={classificationChoiceTags} onDelete={handleOnDeleteClassificationTag} />
               )}
+              <span aria-live="polite" aria-atomic="true" className="sr-only">
+                {srAnnouncement}
+              </span>
 
               <InputRadios
                 id="referralAvailibilityId"

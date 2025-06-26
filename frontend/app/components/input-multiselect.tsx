@@ -11,8 +11,6 @@ import { InputHelp } from '~/components/input-help';
 import { InputLabel } from '~/components/input-label';
 import { cn } from '~/utils/tailwind-utils';
 
-type OmitStrict<T, K extends keyof T> = Omit<T, K>;
-
 const triggerBaseClassName =
   'relative flex w-full cursor-pointer items-center justify-between rounded-lg border border-gray-500 bg-white px-3 py-2 text-left focus:border-blue-500 focus:outline-none focus:ring focus:ring-blue-500';
 const triggerDisabledClassName =
