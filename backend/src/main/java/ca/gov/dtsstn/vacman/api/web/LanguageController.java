@@ -4,7 +4,11 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 import java.util.List;
 
+import org.hibernate.validator.constraints.Range;
 import org.mapstruct.factory.Mappers;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -35,20 +39,30 @@ public class LanguageController {
 
 	@GetMapping
 	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
-	@Operation(summary = "Get all languages or filter by code.", description = "Returns a collection of all languages or a specific language if code is provided.")
-	public CollectionModel<LanguageReadModel> getLanguages(
+	@Operation(summary = "Get languages with pagination or filter by code.", description = "Returns a paginated list of languages or a specific language if code is provided.")
+	public ResponseEntity<?> getLanguages(
 			@RequestParam(required = false)
 			@Parameter(description = "Language code to filter by (e.g., 'EN')")
-			String code) {
+			String code,
+
+			@RequestParam(defaultValue = "0")
+			@Parameter(description = "Page number (0-based)")
+			int page,
+
+			@RequestParam(defaultValue = "20")
+			@Range(min = 1, max = 100)
+			@Parameter(description = "Page size (between 1 and 100)")
+			int size) {
 		if (isNotBlank(code)) {
-			return new CollectionModel<>( languageService.getLanguageByCode(code)
+			CollectionModel<LanguageReadModel> result = new CollectionModel<>( languageService.getLanguageByCode(code)
 				.map(languageModelMapper::toModel)
 				.map(List::of)
 				.orElse(List.of()));
+			return ResponseEntity.ok(result);
 		}
 
-		return new CollectionModel<>(languageService.getAllLanguages().stream()
-			.map(languageModelMapper::toModel)
-			.toList());
+		Page<LanguageReadModel> result = languageService.getLanguages(PageRequest.of(page, size))
+			.map(languageModelMapper::toModel);
+		return ResponseEntity.ok(result);
 	}
 }

@@ -6,7 +6,9 @@ import java.util.List;
 
 import org.hibernate.validator.constraints.Range;
 import org.mapstruct.factory.Mappers;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -38,7 +40,7 @@ public class WorkUnitController {
 	@GetMapping
 	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
 	@Operation(summary = "Get work units with pagination or filter by code.", description = "Returns a paginated list of work units or a specific work unit if code is provided.")
-	public Object getWorkUnits(
+	public ResponseEntity<?> getWorkUnits(
 			@RequestParam(required = false)
 			@Parameter(description = "Work unit code to filter by") String code,
 
@@ -51,13 +53,15 @@ public class WorkUnitController {
 			@Parameter(description = "Page size (between 1 and 100)")
 			int size) {
 		if (isNotBlank(code)) {
-			return new CollectionModel<>(workUnitService.getWorkUnitByCode(code)
+			CollectionModel<WorkUnitReadModel> result = new CollectionModel<>(workUnitService.getWorkUnitByCode(code)
 				.map(workUnitModelMapper::toModel)
 				.map(List::of)
 				.orElse(List.of()));
+			return ResponseEntity.ok(result);
 		}
 
-		return workUnitService.getWorkUnits(PageRequest.of(page, size))
+		Page<WorkUnitReadModel> result = workUnitService.getWorkUnits(PageRequest.of(page, size))
 			.map(workUnitModelMapper::toModel);
+		return ResponseEntity.ok(result);
 	}
 }

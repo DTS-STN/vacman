@@ -5,6 +5,7 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import java.util.List;
 
 import org.mapstruct.factory.Mappers;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -36,19 +37,21 @@ public class LanguageReferralTypeController {
 	@GetMapping
 	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
 	@Operation(summary = "Get all language referral types or filter by code.", description = "Returns a collection of all language referral types or a specific language referral type if code is provided.")
-	public CollectionModel<LanguageReferralTypeReadModel> getLanguageReferralTypes(
+	public ResponseEntity<CollectionModel<LanguageReferralTypeReadModel>> getLanguageReferralTypes(
 			@RequestParam(required = false)
 			@Parameter(description = "Language referral type code to filter by")
 			String code) {
 		if (isNotBlank(code)) {
-			return new CollectionModel<>(languageReferralTypeService.getLanguageReferralTypeByCode(code)
+			CollectionModel<LanguageReferralTypeReadModel> result = new CollectionModel<>(languageReferralTypeService.getLanguageReferralTypeByCode(code)
 				.map(languageReferralTypeModelMapper::toModel)
 				.map(List::of)
 				.orElse(List.of()));
+			return ResponseEntity.ok(result);
 		}
 
-		return new CollectionModel<>(languageReferralTypeService.getAllLanguageReferralTypes().stream()
+		CollectionModel<LanguageReferralTypeReadModel> result = new CollectionModel<>(languageReferralTypeService.getAllLanguageReferralTypes().stream()
 			.map(languageReferralTypeModelMapper::toModel)
 			.toList());
+		return ResponseEntity.ok(result);
 	}
 }

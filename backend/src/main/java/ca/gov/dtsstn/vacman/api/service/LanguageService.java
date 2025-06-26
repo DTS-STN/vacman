@@ -2,6 +2,8 @@ package ca.gov.dtsstn.vacman.api.service;
 
 import ca.gov.dtsstn.vacman.api.data.entity.LanguageEntity;
 import ca.gov.dtsstn.vacman.api.data.repository.LanguageRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,11 +18,11 @@ public class LanguageService {
         this.languageRepository = languageRepository;
     }
 
-    public List<LanguageEntity> getAllLanguages() {
-        return List.copyOf(languageRepository.findAll());
-    }
-
     public Optional<LanguageEntity> getLanguageByCode(String code) {
         return languageRepository.findByCode(code);
+    }
+
+    public Page<LanguageEntity> getLanguages(Pageable pageable) {
+        return languageRepository.findAll(pageable);
     }
 }

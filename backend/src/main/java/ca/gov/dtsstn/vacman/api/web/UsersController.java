@@ -5,6 +5,7 @@ import org.mapstruct.factory.Mappers;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -41,7 +42,7 @@ public class UsersController {
 	@GetMapping
 	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
 	@Operation(summary = "Get users with pagination.", description = "Returns a paginated list of users.")
-	public Page<UserReadModel> getUsers(
+	public ResponseEntity<Page<UserReadModel>> getUsers(
 			@RequestParam(defaultValue = "0")
 			@Parameter(description = "Page number (0-based)")
 			int page,
@@ -50,22 +51,25 @@ public class UsersController {
 			@Range(min = 1, max = 100)
 			@Parameter(description = "Page size (between 1 and 100)")
 			int size) {
-		return userService.getUsers(PageRequest.of(page, size)).map(userModelMapper::toModel);
+		Page<UserReadModel> result = userService.getUsers(PageRequest.of(page, size)).map(userModelMapper::toModel);
+		return ResponseEntity.ok(result);
 	}
 
 	@PostMapping
 	@Operation(summary = "Create a new user.")
 	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
-	public UserReadModel createUser(@RequestBody @Valid UserCreateModel user) {
-		return userModelMapper.toModel(userService.createUser(userModelMapper.toEntity(user)));
+	public ResponseEntity<UserReadModel> createUser(@RequestBody @Valid UserCreateModel user) {
+		UserReadModel result = userModelMapper.toModel(userService.createUser(userModelMapper.toEntity(user)));
+		return ResponseEntity.ok(result);
 	}
 
 	@GetMapping("/{id}")
 	@Operation(summary = "Get a user by ID.")
 	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
-	public UserReadModel getUserById(@PathVariable Long id) {
-		return userService.getUserById(id)
+	public ResponseEntity<UserReadModel> getUserById(@PathVariable Long id) {
+		UserReadModel result = userService.getUserById(id)
 			.map(userModelMapper::toModel)
 			.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User with ID '" + id + "' not found"));
+		return ResponseEntity.ok(result);
 	}
 }

@@ -5,6 +5,7 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import java.util.List;
 
 import org.mapstruct.factory.Mappers;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -36,7 +37,7 @@ public class CityController {
 	@GetMapping
 	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
 	@Operation(summary = "Get all cities or filter by code or province.", description = "Returns a collection of all cities, or cities filtered by code or province.")
-	public CollectionModel<CityReadModel> getCities(
+	public ResponseEntity<CollectionModel<CityReadModel>> getCities(
 			@RequestParam(required = false)
 			@Parameter(description = "City code to filter by (e.g., 'OT' for Ottawa)") String code,
 			@RequestParam(required = false)
@@ -44,29 +45,33 @@ public class CityController {
 
 		// If both parameters are provided, find cities that match both
 		if (isNotBlank(code) && isNotBlank(province)) {
-			return new CollectionModel<>(cityService.getCityByCodeAndProvince(code, province).stream()
+			CollectionModel<CityReadModel> result = new CollectionModel<>(cityService.getCityByCodeAndProvince(code, province).stream()
 				.map(cityModelMapper::toModel)
 				.toList());
+			return ResponseEntity.ok(result);
 		}
 
 		// If only code is provided
 		if (isNotBlank(code)) {
-			return new CollectionModel<>(cityService.getCityByCode(code)
+			CollectionModel<CityReadModel> result = new CollectionModel<>(cityService.getCityByCode(code)
 				.map(cityModelMapper::toModel)
 				.map(List::of)
 				.orElse(List.of()));
+			return ResponseEntity.ok(result);
 		}
 
 		// If only province is provided
 		if (isNotBlank(province)) {
-			return new CollectionModel<>(cityService.getCitiesByProvinceCode(province).stream()
+			CollectionModel<CityReadModel> result = new CollectionModel<>(cityService.getCitiesByProvinceCode(province).stream()
 				.map(cityModelMapper::toModel)
 				.toList());
+			return ResponseEntity.ok(result);
 		}
 
 		// If no parameters are provided
-		return new CollectionModel<>(cityService.getAllCities().stream()
+		CollectionModel<CityReadModel> result = new CollectionModel<>(cityService.getAllCities().stream()
 			.map(cityModelMapper::toModel)
 			.toList());
+		return ResponseEntity.ok(result);
 	}
 }

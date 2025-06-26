@@ -6,7 +6,9 @@ import java.util.List;
 
 import org.hibernate.validator.constraints.Range;
 import org.mapstruct.factory.Mappers;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -38,7 +40,7 @@ public class EducationLevelController {
 	@GetMapping
 	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
 	@Operation(summary = "Get education levels with pagination or filter by code.", description = "Returns a paginated list of education levels or a specific education level if code is provided.")
-	public Object getEducationLevels(
+	public ResponseEntity<?> getEducationLevels(
 			@RequestParam(required = false)
 			@Parameter(description = "Education level code to filter by (e.g., 'BD' for Bachelor's Degree)") String code,
 
@@ -51,13 +53,15 @@ public class EducationLevelController {
 			@Parameter(description = "Page size (between 1 and 100)")
 			int size) {
 		if (isNotBlank(code)) {
-			return new CollectionModel<>(educationLevelService.getEducationLevelByCode(code)
+			CollectionModel<EducationLevelReadModel> result = new CollectionModel<>(educationLevelService.getEducationLevelByCode(code)
 				.map(educationLevelModelMapper::toModel)
 				.map(List::of)
 				.orElse(List.of()));
+			return ResponseEntity.ok(result);
 		}
 
-		return educationLevelService.getEducationLevels(PageRequest.of(page, size))
+		Page<EducationLevelReadModel> result = educationLevelService.getEducationLevels(PageRequest.of(page, size))
 			.map(educationLevelModelMapper::toModel);
+		return ResponseEntity.ok(result);
 	}
 }
