@@ -73,7 +73,8 @@ export default {
     'new-tab': "s'ouvre dans un nouvel onglet",
   },
   'input': {
-    required: 'obligatoire',
+    'required': 'obligatoire',
+    'input-items-selected': '{{count}} éléments sélectionnés',
   },
   'input-file': {
     'choose-file': 'Choisir un fichier',
@@ -103,5 +104,10 @@ export default {
   },
   'search-bar': {
     search: 'Rechercher',
+  },
+  'choice-tag': {
+    'choice-tag-added-aria-label': '{{item}} sélectionné ajouté!: {{choice}}, Activez pour supprimer l{{item}} sélectionné.',
+    'clear-all-sr-message': 'tous les {{item}}s sélectionnés ont été supprimés.',
+    'removed-choice-tag-sr-message': '{{item}} sélectionné retiré: {{choice}}',
   },
 } satisfies typeof gcwebEn;
