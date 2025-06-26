@@ -230,7 +230,21 @@ export const refferralPreferencesSchema = v.object({
       'app:referral-preferences.errors.language-referral-type-duplicate',
     ),
   ),
-  classification: v.optional(v.array(v.string())),
+  classifications: v.pipe(
+    v.array(
+      v.lazy(() =>
+        v.picklist(
+          substantivePositions.map((c) => c.id),
+          'app:referral-preferences.errors.classification-invalid',
+        ),
+      ),
+    ),
+    v.nonEmpty('app:referral-preferences.errors.classification-required'),
+    v.checkItems(
+      (item, index, array) => array.indexOf(item) === index,
+      'app:referral-preferences.errors.classification-duplicate',
+    ),
+  ),
   workLocations: v.optional(v.array(v.string())),
   referralAvailibility: v.boolean('app:referral-preferences.errors.referral-availibility-required'),
   alternateOpportunity: v.boolean('app:referral-preferences.errors.alternate-opportunity-required'),

@@ -139,6 +139,8 @@ export default {
       'language-referral-type-invalid': 'Language profile is invalid.',
       'language-referral-type-duplicate': 'Duplicate items for language profile are not allowed.',
       'classification-required': 'Classification group and level is required.',
+      'classification-invalid': 'Classification group and level is invalid.',
+      'classification-duplicate': 'Duplicate items for classification group and level are not allowed.',
       'work-location-required': 'Work location is required.',
       'province-required': 'Province is required.',
       'city-required': 'City is required.',
