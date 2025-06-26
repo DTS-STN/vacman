@@ -237,7 +237,6 @@
 						</goals>
 						<configuration>
 							<dateFormat>yyyyMMdd-HHmmss</dateFormat>
-							<generateGitPropertiesFile>false</generateGitPropertiesFile>
 						</configuration>
 					</execution>
 				</executions>
