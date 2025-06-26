@@ -256,5 +256,3 @@ spring:
     import:
       - optional:application-local.yml
       - optional:application-local.yaml
-      - optional:application-h2.yml
-      - optional:application-h2.yaml
