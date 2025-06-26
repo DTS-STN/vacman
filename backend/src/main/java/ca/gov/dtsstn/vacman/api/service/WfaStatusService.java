@@ -3,6 +3,8 @@ package ca.gov.dtsstn.vacman.api.service;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import ca.gov.dtsstn.vacman.api.data.entity.WfaStatusEntity;
@@ -17,16 +19,12 @@ public class WfaStatusService {
         this.wfaStatusRepository = wfaStatusRepository;
     }
 
-    public List<WfaStatusEntity> getAllWfaStatuses() {
-        return List.copyOf(wfaStatusRepository.findAll());
-    }
-
-    public WfaStatusEntity getWfaStatusById(Long id) {
-        return wfaStatusRepository.findById(id).orElse(null);
-    }
-
     public Optional<WfaStatusEntity> getWfaStatusByCode(String code) {
         return wfaStatusRepository.findByCode(code);
+    }
+
+    public Page<WfaStatusEntity> getWfaStatuses(Pageable pageable) {
+        return wfaStatusRepository.findAll(pageable);
     }
 
 }
