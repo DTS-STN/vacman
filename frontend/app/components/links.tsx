@@ -142,13 +142,17 @@ export function AppLink({
 export function AnchorLink({ anchorElementId, children, onClick, ...restProps }: AnchorLinkProps): JSX.Element {
   /**
    * handleOnSkipLinkClick is the click event handler for the anchor link.
-   * It prevents the default anchor link behavior, scrolls to and focuses
-   * on the target element specified by 'anchorElementId', and invokes
-   * the optional 'onClick' callback.
+   * It prevents the default anchor link behavior, then finds the target
+   * element by its ID and programmatically sets focus and scrolls to it.
+   * Then invokes the optional 'onClick' callback.
    */
   function handleOnSkipLinkClick(event: MouseEvent<HTMLAnchorElement>) {
     event.preventDefault();
-    scrollAndFocusFromAnchorLink(event.currentTarget.href);
+    const targetElement = document.getElementById(anchorElementId);
+    if (targetElement) {
+      targetElement.focus();
+      targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
     onClick?.(event);
   }
 
@@ -202,26 +206,6 @@ export function InlineLink({
       {children}
     </AppLink>
   );
-}
-
-/**
- * Scrolls and focuses on the element identified by the anchor link's hash.
- *
- * @param href - The anchor link URL.
- */
-function scrollAndFocusFromAnchorLink(href: string): void {
-  if (URL.canParse(href)) {
-    const { hash } = new URL(href);
-
-    if (hash) {
-      const targetElement = document.getElementById(hash.replace('#', ''));
-
-      if (targetElement) {
-        targetElement.scrollIntoView({ behavior: 'smooth' });
-        targetElement.focus();
-      }
-    }
-  }
 }
 
 function NewTabIndicator({ className, ...props }: OmitStrict<ComponentProps<'span'>, 'children'>): JSX.Element {
