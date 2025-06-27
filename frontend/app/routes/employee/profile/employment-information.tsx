@@ -135,9 +135,9 @@ export default function EmploymentInformation({ loaderData, actionData, params }
     children: id === 'select-option' ? t('app:form.select-option') : name,
   }));
 
-  const hrAdvisorOptions = [{ id: 'select-option', name: '' }, ...loaderData.hrAdvisors].map(({ id, name }) => ({
+  const hrAdvisorOptions = [{ id: 'select-option', uuName: '' }, ...loaderData.hrAdvisors].map(({ id, uuName }) => ({
     value: id === 'select-option' ? '' : id,
-    children: id === 'select-option' ? t('app:form.select-option') : name,
+    children: id === 'select-option' ? t('app:form.select-option') : uuName,
   }));
 
   return (

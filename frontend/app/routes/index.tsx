@@ -12,6 +12,7 @@ import type { Route } from './+types/index';
 
 import { getUserService } from '~/.server/domain/services/user-service';
 import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
+import { hasUserProfile } from '~/.server/utils/profile-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { Card, CardHeader, CardIcon, CardTitle } from '~/components/card';
 import { PageTitle } from '~/components/page-title';
@@ -30,15 +31,14 @@ export async function action({ context, request }: Route.ActionArgs) {
 
   if (dashboard === 'employee') {
     // Check if user is registered in the system
-    const userService = getUserService();
-    const activeDirectoryId = authenticatedSession.authState.idTokenClaims.sub;
-    const existingUser = await userService.getUserByActiveDirectoryId(activeDirectoryId);
+    const activeDirectoryId = authenticatedSession.authState.idTokenClaims.oid as string;
+    const existingProfile = await hasUserProfile(activeDirectoryId);
 
-    if (existingUser?.privacyConsentAccepted) {
-      // User is registered and has accepted privacy consent, redirect to employee dashboard
+    if (existingProfile) {
+      // User has existing profile
       return i18nRedirect('routes/employee/index.tsx', request);
     } else {
-      // User is not registered or hasn't accepted privacy consent, redirect to privacy consent
+      // User has no profile, redirect to privacy consent
       return i18nRedirect('routes/employee/privacy-consent.tsx', request);
     }
   }
@@ -46,7 +46,7 @@ export async function action({ context, request }: Route.ActionArgs) {
   if (dashboard === 'hiring-manager') {
     // Check if user is registered in the system
     const userService = getUserService();
-    const activeDirectoryId = authenticatedSession.authState.idTokenClaims.sub;
+    const activeDirectoryId = authenticatedSession.authState.idTokenClaims.oid as string;
     const existingUser = await userService.getUserByActiveDirectoryId(activeDirectoryId);
 
     if (existingUser) {
@@ -61,11 +61,8 @@ export async function action({ context, request }: Route.ActionArgs) {
       }
     } else {
       // User is not registered, register them as hiring-manager and redirect
-      const name = authenticatedSession.authState.idTokenClaims.name ?? 'Unknown User';
-
       await userService.registerUser(
         {
-          name,
           activeDirectoryId,
           role: 'hiring-manager',
           // No privacy consent required for hiring managers

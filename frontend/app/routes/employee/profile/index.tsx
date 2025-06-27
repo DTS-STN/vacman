@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 
 import type { Route } from './+types/index';
 
+import { getUserService } from '~/.server/domain/services/user-service';
 import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { Button } from '~/components/button';
@@ -37,17 +38,20 @@ export function action({ context, params, request }: Route.ActionArgs) {
 export async function loader({ context, request }: Route.LoaderArgs) {
   // Since parent layout ensures authentication, we can safely cast the session
   const authenticatedSession = context.session as AuthenticatedSession;
+  const activeDirectoryId = authenticatedSession.authState.idTokenClaims.oid as string;
+  const userService = getUserService();
+  const user = await userService.getUserByActiveDirectoryId(activeDirectoryId);
 
   const { t } = await getTranslation(request, handle.i18nNamespace);
   return {
     documentTitle: t('app:index.about'),
     name: authenticatedSession.authState.idTokenClaims.name,
-    email: authenticatedSession.authState.idTokenClaims.email,
+    email: user?.businessEmail ?? '',
     completed: 6,
     total: 12,
     personalInformation: {
       completed: 2,
-      workEmail: 'firstname.lastname@email.ca',
+      workEmail: user?.businessEmail ?? '',
     },
     employment: {
       completed: 0,

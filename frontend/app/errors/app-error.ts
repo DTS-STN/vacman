@@ -27,6 +27,11 @@ export class AppError {
   // message is supplied to `log.error(message, error)`
   public readonly msg: string;
 
+  // compatibility getter for standard Error interface
+  public get message(): string {
+    return this.msg;
+  }
+
   public constructor(msg: string, errorCode: ErrorCode = ErrorCodes.UNCAUGHT_ERROR, opts?: AppErrorOptions) {
     this.errorCode = errorCode;
     this.msg = msg;
@@ -34,7 +39,11 @@ export class AppError {
     this.correlationId = opts?.correlationId ?? generateCorrelationId();
     this.httpStatusCode = opts?.httpStatusCode ?? HttpStatusCodes.INTERNAL_SERVER_ERROR;
 
-    Error.captureStackTrace(this, this.constructor);
+    try {
+      Error.captureStackTrace(this, this.constructor);
+    } catch {
+      // Stack trace capture is not available in this environment
+    }
   }
 }
 

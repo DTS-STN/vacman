@@ -22,7 +22,7 @@ const log = LogFactory.getLogger(import.meta.url);
 export async function requireHiringManagerRegistration(session: AuthenticatedSession, currentUrl: URL): Promise<void> {
   // Get user from the database to check hiring manager registration
   const userService = getUserService();
-  const activeDirectoryId = session.authState.idTokenClaims.sub;
+  const activeDirectoryId = session.authState.idTokenClaims.oid as string;
   const user = await userService.getUserByActiveDirectoryId(activeDirectoryId);
 
   if (!user) {

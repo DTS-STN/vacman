@@ -27,7 +27,6 @@ const mockUserService = {
   registerUser: vi.fn(),
   updateUserRole: vi.fn(),
   getUserById: vi.fn(),
-  updatePrivacyConsent: vi.fn(),
 };
 
 vi.mocked(getUserService).mockReturnValue(mockUserService);
@@ -38,7 +37,7 @@ describe('Hiring Manager Registration Utils', () => {
   });
 
   describe('requireHiringManagerRegistration', () => {
-    const createMockSession = (sub: string): AuthenticatedSession =>
+    const createMockSession = (sub: string, oid: string = sub): AuthenticatedSession =>
       ({
         authState: {
           accessTokenClaims: {
@@ -53,6 +52,7 @@ describe('Hiring Manager Registration Utils', () => {
           },
           idTokenClaims: {
             sub,
+            oid,
             name: 'Test User',
             aud: 'test-audience',
             exp: Math.floor(Date.now() / 1000) + 3600,
