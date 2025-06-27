@@ -28,8 +28,6 @@ export async function loader({ context, request }: Route.LoaderArgs) {
   // First ensure the user is authenticated (no specific roles required)
   requireAuthentication(context.session, currentUrl);
 
-  console.log(context.session);
-
   // Check privacy consent for employee routes (excluding privacy consent pages)
   await checkEmployeeRoutePrivacyConsent(context.session as AuthenticatedSession, currentUrl);
 

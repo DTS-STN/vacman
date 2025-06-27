@@ -139,6 +139,7 @@ async function handleAuthorizeRequest({ request }: Route.LoaderArgs): Promise<Re
     roles: [],
     scopes: scope.split(' '),
     sub: '00000000-0000-0000-0000-000000000000',
+    oid: '00000000-0000-0000-0000-000000000000',
   } as const satisfies AccessTokenClaims;
 
   const accessToken = await new SignJWT(accessTokenClaims)
@@ -161,6 +162,7 @@ async function handleAuthorizeRequest({ request }: Route.LoaderArgs): Promise<Re
     roles: [],
     scopes: scope.split(' '),
     sub: '00000000-0000-0000-0000-000000000000',
+    oid: '00000000-0000-0000-0000-000000000000',
   } as const satisfies IDTokenClaims;
 
   const idToken = await new SignJWT(idTokenClaims)

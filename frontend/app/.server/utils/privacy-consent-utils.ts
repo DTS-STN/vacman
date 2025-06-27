@@ -21,12 +21,12 @@ const log = LogFactory.getLogger(import.meta.url);
  */
 export async function requirePrivacyConsent(session: AuthenticatedSession, currentUrl: URL): Promise<void> {
   // Get user from the database to check privacy consent
-  const ProfileService = getProfileService();
-  const activeDirectoryId = session.authState.idTokenClaims.sub;
-  const profile = await ProfileService.getProfile(activeDirectoryId);
+  const profileService = getProfileService();
+  const activeDirectoryId = session.authState.idTokenClaims.oid as string;
+  const profile = await profileService.getProfile(activeDirectoryId);
 
   if (!profile) {
-    log.debug('User not found in database, redirecting to index');
+    log.debug('Profile not found in database, redirecting to index');
     throw i18nRedirect('routes/index.tsx', currentUrl);
   }
 
