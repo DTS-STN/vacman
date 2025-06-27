@@ -128,11 +128,11 @@ export type LocalizedLanguageOfCorrespondence = Readonly<{
 export type User = Readonly<{
   id: number;
   role: string;
-  networkName?: string;
-  uuName?: string;
-  firstName?: string;
+  networkName: string;
+  uuName: string;
+  firstName: string;
   middleName?: string;
-  lastName?: string;
+  lastName: string;
   initials?: string;
   personalRecordIdentifier?: string;
   businessPhone?: string;

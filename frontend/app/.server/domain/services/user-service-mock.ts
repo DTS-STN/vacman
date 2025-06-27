@@ -182,7 +182,7 @@ function registerUser(userData: UserCreate, session: AuthenticatedSession): User
   const fullName = idTokenClaims.name ?? '';
   const nameParts = fullName.trim().split(/\s+/);
   const firstName = nameParts[0] ?? '';
-  const lastName = nameParts.length > 1 ? nameParts[nameParts.length - 1] : '';
+  const lastName = nameParts.length > 1 ? (nameParts[nameParts.length - 1] ?? '') : '';
   const middleName = nameParts.length > 2 ? nameParts.slice(1, -1).join(' ') : undefined;
 
   // Generate initials from the name
@@ -192,15 +192,15 @@ function registerUser(userData: UserCreate, session: AuthenticatedSession): User
   };
 
   // Create the new user with data from session and defaults
-  const activeDirectoryId = userData.activeDirectoryId ?? idTokenClaims.sub;
+  const activeDirectoryId = userData.activeDirectoryId ?? (idTokenClaims.oid as string);
   const newUser: User = {
     id: mockUsers.length + 1,
     role: userData.role,
     networkName: activeDirectoryId,
     uuName: fullName || `${firstName} ${lastName}`.trim() || 'Unknown User',
-    firstName: firstName || undefined,
+    firstName: firstName,
     middleName: middleName ?? undefined,
-    lastName: lastName ?? undefined,
+    lastName: lastName,
     initials: generateInitials(firstName, middleName, lastName) || undefined,
     personalRecordIdentifier: undefined, // This would need to be provided by the user
     businessPhone: undefined, // This would need to be provided by the user
