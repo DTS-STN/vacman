@@ -23,7 +23,6 @@ export async function action({ context, request }: ActionFunctionArgs) {
   if (action === 'accept') {
     const userService = getUserService();
     const activeDirectoryId = context.session.authState.idTokenClaims.sub;
-    const name = context.session.authState.idTokenClaims.name ?? 'Unknown User';
 
     // Check if user already exists
     const existingUser = await userService.getUserByActiveDirectoryId(activeDirectoryId);
@@ -35,10 +34,8 @@ export async function action({ context, request }: ActionFunctionArgs) {
       // User doesn't exist, register them with privacy consent accepted
       await userService.registerUser(
         {
-          name,
           activeDirectoryId,
           role: 'employee',
-          privacyConsentAccepted: true,
         },
         context.session,
       );
