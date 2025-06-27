@@ -127,7 +127,6 @@ export type LocalizedLanguageOfCorrespondence = Readonly<{
 
 export type User = Readonly<{
   id: number;
-  activeDirectoryId?: string;
   role: string;
   networkName?: string;
   uuName?: string;

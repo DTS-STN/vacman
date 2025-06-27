@@ -48,7 +48,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
   return {
     documentTitle: t('app:index.about'),
     name: authenticatedSession.authState.idTokenClaims.name,
-    email: authenticatedSession.authState.idTokenClaims.email,
+    email: user?.businessEmail ?? '',
     completed: 6,
     total: 12,
     personalInformation: {
