@@ -39,8 +39,6 @@ export async function loader({ context, request }: Route.LoaderArgs) {
   // Since parent layout ensures authentication, we can safely cast the session
   const authenticatedSession = context.session as AuthenticatedSession;
   const activeDirectoryId = authenticatedSession.authState.idTokenClaims.oid as string;
-  // const profileService = getProfileService();
-  // const profile = await profileService.getProfile(activeDirectoryId);
   const userService = getUserService();
   const user = await userService.getUserByActiveDirectoryId(activeDirectoryId);
 
