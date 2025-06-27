@@ -10,9 +10,9 @@ import { useTranslation } from 'react-i18next';
 
 import type { Route } from './+types/index';
 
-import { getProfileService } from '~/.server/domain/services/profile-service';
 import { getUserService } from '~/.server/domain/services/user-service';
 import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
+import { hasUserProfile } from '~/.server/utils/profile-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { Card, CardHeader, CardIcon, CardTitle } from '~/components/card';
 import { PageTitle } from '~/components/page-title';
@@ -31,9 +31,8 @@ export async function action({ context, request }: Route.ActionArgs) {
 
   if (dashboard === 'employee') {
     // Check if user is registered in the system
-    const profileService = getProfileService();
     const activeDirectoryId = authenticatedSession.authState.idTokenClaims.oid as string;
-    const existingProfile = await profileService.getProfile(activeDirectoryId);
+    const existingProfile = await hasUserProfile(activeDirectoryId);
 
     if (existingProfile) {
       // User has existing profile

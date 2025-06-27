@@ -3,9 +3,9 @@
  * This module provides functions to verify if users have accepted privacy consent
  * and redirects them appropriately if they haven't.
  */
-import { getProfileService } from '~/.server/domain/services/profile-service';
 import { LogFactory } from '~/.server/logging';
 import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
+import { safeGetUserProfile } from '~/.server/utils/profile-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 
 const log = LogFactory.getLogger(import.meta.url);
@@ -20,10 +20,8 @@ const log = LogFactory.getLogger(import.meta.url);
  * @throws {Response} Redirect to index page if user hasn't accepted privacy consent
  */
 export async function requirePrivacyConsent(session: AuthenticatedSession, currentUrl: URL): Promise<void> {
-  // Get user from the database to check privacy consent
-  const profileService = getProfileService();
   const activeDirectoryId = session.authState.idTokenClaims.oid as string;
-  const profile = await profileService.getProfile(activeDirectoryId);
+  const profile = await safeGetUserProfile(activeDirectoryId);
 
   if (!profile) {
     log.debug('Profile not found in database, redirecting to index');
