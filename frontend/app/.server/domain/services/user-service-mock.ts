@@ -205,9 +205,9 @@ function registerUser(userData: UserCreate, session: AuthenticatedSession): User
     personalRecordIdentifier: undefined, // This would need to be provided by the user
     businessPhone: undefined, // This would need to be provided by the user
     businessEmail: idTokenClaims.email ?? undefined,
-    createdBy: idTokenClaims.sub,
+    createdBy: activeDirectoryId,
     createdDate: new Date().toISOString(),
-    lastModifiedBy: idTokenClaims.sub,
+    lastModifiedBy: activeDirectoryId,
     lastModifiedDate: new Date().toISOString(),
   };
 
