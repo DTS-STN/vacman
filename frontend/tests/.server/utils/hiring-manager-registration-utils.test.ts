@@ -38,7 +38,7 @@ describe('Hiring Manager Registration Utils', () => {
   });
 
   describe('requireHiringManagerRegistration', () => {
-    const createMockSession = (sub: string): AuthenticatedSession =>
+    const createMockSession = (sub: string, oid: string = sub): AuthenticatedSession =>
       ({
         authState: {
           accessTokenClaims: {
@@ -53,6 +53,7 @@ describe('Hiring Manager Registration Utils', () => {
           },
           idTokenClaims: {
             sub,
+            oid,
             name: 'Test User',
             aud: 'test-audience',
             exp: Math.floor(Date.now() / 1000) + 3600,
