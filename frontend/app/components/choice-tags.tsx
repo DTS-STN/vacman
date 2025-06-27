@@ -31,7 +31,7 @@ export function ChoiceTags({ choiceTags, onClearAll, onDelete }: ChoiceTagsProps
     if (onClearAll) onClearAll();
   };
   return (
-    <div id={`selected-${choiceTags[0]?.name}-wrapper`} className="flex flex-wrap gap-3">
+    <div id={`selected-${choiceTags[0]?.name ?? 'default'}-wrapper`} className="flex flex-wrap gap-3">
       {choiceTags.map((choiceTag) => (
         <div
           key={choiceTag.value}
