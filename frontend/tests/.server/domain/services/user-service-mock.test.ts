@@ -77,7 +77,7 @@ describe('getMockUserService', () => {
       };
 
       // Create a mock session for testing
-      const mockSession: AuthenticatedSession = {
+      const mockSession = {
         authState: {
           accessTokenClaims: {
             roles: ['employee'],
@@ -91,6 +91,7 @@ describe('getMockUserService', () => {
           },
           idTokenClaims: {
             sub: 'test-user-123',
+            oid: 'test-user-123',
             name: 'Test User',
             aud: 'test-audience',
             exp: Math.floor(Date.now() / 1000) + 3600,
@@ -100,7 +101,7 @@ describe('getMockUserService', () => {
           accessToken: 'mock-access-token',
           idToken: 'mock-id-token',
         },
-      } as AuthenticatedSession;
+      } as unknown as AuthenticatedSession;
 
       const createdUser = await service.registerUser(userData, mockSession);
 

@@ -4,6 +4,7 @@ import { serverEnvironment } from '~/.server/environment';
 import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
+import type { HttpStatusCode } from '~/errors/http-status-codes';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 
 export function getDefaultProfileService(): ProfileService {
@@ -15,9 +16,21 @@ export function getDefaultProfileService(): ProfileService {
      * @throws AppError if the request fails or if the server responds with an error status.
      */
     async getProfile(activeDirectoryId: string): Promise<Profile | null> {
-      const response = await fetch(
-        `${serverEnvironment.VACMAN_API_BASE_URI}/profiles/by-active-directory-id/${encodeURIComponent(activeDirectoryId)}`,
-      );
+      let response: Response;
+
+      try {
+        response = await fetch(
+          `${serverEnvironment.VACMAN_API_BASE_URI}/profiles/by-active-directory-id/${encodeURIComponent(activeDirectoryId)}`,
+        );
+      } catch (error) {
+        throw new AppError(
+          error instanceof Error
+            ? error.message
+            : `Network error while fetching profile for Active Directory ID ${activeDirectoryId}`,
+          ErrorCodes.PROFILE_NETWORK_ERROR,
+          { httpStatusCode: HttpStatusCodes.SERVICE_UNAVAILABLE },
+        );
+      }
 
       if (response.status === HttpStatusCodes.NOT_FOUND) {
         return null;
@@ -25,10 +38,20 @@ export function getDefaultProfileService(): ProfileService {
 
       if (!response.ok) {
         const errorMessage = `Failed to retrieve profile for Active Directory ID ${activeDirectoryId}. Server responded with status ${response.status}.`;
-        throw new AppError(errorMessage, ErrorCodes.VACMAN_API_ERROR);
+        throw new AppError(errorMessage, ErrorCodes.PROFILE_FETCH_FAILED, {
+          httpStatusCode: response.status as HttpStatusCode,
+        });
       }
 
-      return await response.json();
+      try {
+        return await response.json();
+      } catch {
+        throw new AppError(
+          `Invalid JSON response while fetching profile for Active Directory ID ${activeDirectoryId}`,
+          ErrorCodes.PROFILE_INVALID_RESPONSE,
+          { httpStatusCode: HttpStatusCodes.BAD_GATEWAY },
+        );
+      }
     },
 
     /**
@@ -39,20 +62,42 @@ export function getDefaultProfileService(): ProfileService {
      * @throws AppError if the request fails or if the server responds with an error status.
      */
     async registerProfile(activeDirectoryId: string, session: AuthenticatedSession): Promise<Profile> {
-      const response = await fetch(`${serverEnvironment.VACMAN_API_BASE_URI}/profiles`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ activeDirectoryId }),
-      });
+      let response: Response;
+
+      try {
+        response = await fetch(`${serverEnvironment.VACMAN_API_BASE_URI}/profiles`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ activeDirectoryId }),
+        });
+      } catch (error) {
+        throw new AppError(
+          error instanceof Error
+            ? error.message
+            : `Network error while registering profile for Active Directory ID ${activeDirectoryId}`,
+          ErrorCodes.PROFILE_NETWORK_ERROR,
+          { httpStatusCode: HttpStatusCodes.SERVICE_UNAVAILABLE },
+        );
+      }
 
       if (!response.ok) {
         const errorMessage = `Failed to register profile for Active Directory ID ${activeDirectoryId}. Server responded with status ${response.status}.`;
-        throw new AppError(errorMessage, ErrorCodes.VACMAN_API_ERROR);
+        throw new AppError(errorMessage, ErrorCodes.PROFILE_CREATE_FAILED, {
+          httpStatusCode: response.status as HttpStatusCode,
+        });
       }
 
-      return await response.json();
+      try {
+        return await response.json();
+      } catch {
+        throw new AppError(
+          `Invalid JSON response while registering profile for Active Directory ID ${activeDirectoryId}`,
+          ErrorCodes.PROFILE_INVALID_RESPONSE,
+          { httpStatusCode: HttpStatusCodes.BAD_GATEWAY },
+        );
+      }
     },
   };
 }

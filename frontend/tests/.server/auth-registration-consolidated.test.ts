@@ -148,6 +148,7 @@ describe('Authentication, Registration, and Privacy Consent Flow', () => {
           },
           idTokenClaims: {
             sub: 'test-employee-123',
+            oid: 'test-employee-123',
             name: 'Test Employee',
             aud: 'test-audience',
             exp: Math.floor(Date.now() / 1000) + 3600,
@@ -190,6 +191,7 @@ describe('Authentication, Registration, and Privacy Consent Flow', () => {
           },
           idTokenClaims: {
             sub: 'test-manager-123',
+            oid: 'test-manager-123',
             name: 'Test Hiring Manager',
             aud: 'test-audience',
             exp: Math.floor(Date.now() / 1000) + 3600,
@@ -229,6 +231,7 @@ describe('Authentication, Registration, and Privacy Consent Flow', () => {
           },
           idTokenClaims: {
             sub: activeDirectoryId,
+            oid: activeDirectoryId,
             name: 'Test User Role Update',
             aud: 'test-audience',
             exp: Math.floor(Date.now() / 1000) + 3600,

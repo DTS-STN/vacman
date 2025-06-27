@@ -5,18 +5,10 @@ import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
 export function getMockProfileService(): ProfileService {
   return {
     getProfile: (activeDirectoryId: string) => {
-      try {
-        return Promise.resolve(getProfile(activeDirectoryId));
-      } catch (error) {
-        return Promise.reject(error);
-      }
+      return Promise.resolve(getProfile(activeDirectoryId));
     },
     registerProfile: (activeDirectoryId: string, session: AuthenticatedSession) => {
-      try {
-        return Promise.resolve(registerProfile(activeDirectoryId, session));
-      } catch (error) {
-        return Promise.reject(error);
-      }
+      return Promise.resolve(registerProfile(activeDirectoryId, session));
     },
   };
 }

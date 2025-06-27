@@ -44,4 +44,11 @@ export const ErrorCodes = {
 
   // vacman api error codes
   VACMAN_API_ERROR: 'API-0001',
+
+  // profile error codes
+  PROFILE_NOT_FOUND: 'PRF-0001',
+  PROFILE_FETCH_FAILED: 'PRF-0002',
+  PROFILE_CREATE_FAILED: 'PRF-0003',
+  PROFILE_NETWORK_ERROR: 'PRF-0004',
+  PROFILE_INVALID_RESPONSE: 'PRF-0005',
 } as const;
