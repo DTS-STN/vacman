@@ -130,6 +130,7 @@ export type User = Readonly<{
   activeDirectoryId?: string;
   role: string;
   networkName?: string;
+  uuName?: string;
   firstName?: string;
   middleName?: string;
   lastName?: string;

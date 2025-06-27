@@ -36,13 +36,6 @@ export function getMockUserService(): UserService {
         return Promise.reject(error);
       }
     },
-    updatePrivacyConsent: (activeDirectoryId: string, privacyConsentAccepted: boolean, session: AuthenticatedSession) => {
-      try {
-        return Promise.resolve(updatePrivacyConsent(activeDirectoryId, privacyConsentAccepted, session));
-      } catch (error) {
-        return Promise.reject(error);
-      }
-    },
   };
 }
 
@@ -52,10 +45,9 @@ export function getMockUserService(): UserService {
 const mockUsers: readonly User[] = [
   {
     id: 1,
-    name: 'Jane Doe',
+    uuName: 'Jane Doe',
     activeDirectoryId: '00000000-0000-0000-0000-000000000001',
     role: 'employee',
-    privacyConsentAccepted: true,
     createdBy: 'system',
     createdDate: '2024-01-01T00:00:00Z',
     lastModifiedBy: 'system',
@@ -63,10 +55,9 @@ const mockUsers: readonly User[] = [
   },
   {
     id: 2,
-    name: 'John Doe',
+    uuName: 'John Doe',
     activeDirectoryId: '11111111-1111-1111-1111-111111111111',
     role: 'employee',
-    privacyConsentAccepted: true,
     createdBy: 'system',
     createdDate: '2024-01-01T00:00:00Z',
     lastModifiedBy: 'system',
@@ -74,10 +65,9 @@ const mockUsers: readonly User[] = [
   },
   {
     id: 3,
-    name: 'Jane Smith',
+    uuName: 'Jane Smith',
     activeDirectoryId: '22222222-2222-2222-2222-222222222222',
     role: 'employee',
-    privacyConsentAccepted: true,
     createdBy: 'system',
     createdDate: '2024-01-02T00:00:00Z',
     lastModifiedBy: 'system',
@@ -85,10 +75,9 @@ const mockUsers: readonly User[] = [
   },
   {
     id: 4,
-    name: 'Michel Tremblay',
+    uuName: 'Michel Tremblay',
     activeDirectoryId: '33333333-3333-3333-3333-333333333333',
     role: 'hiring-manager',
-    privacyConsentAccepted: true,
     createdBy: 'system',
     createdDate: '2024-01-03T00:00:00Z',
     lastModifiedBy: 'system',
@@ -96,10 +85,9 @@ const mockUsers: readonly User[] = [
   },
   {
     id: 5,
-    name: 'Sarah Baker',
+    uuName: 'Sarah Baker',
     activeDirectoryId: '44444444-4444-4444-4444-444444444444',
     role: 'hr-advisor',
-    privacyConsentAccepted: true,
     createdBy: 'system',
     createdDate: '2024-01-03T00:00:00Z',
     lastModifiedBy: 'system',
@@ -155,14 +143,8 @@ function registerUser(userData: UserCreate, session: AuthenticatedSession): User
   // Generate a mock user with automatic ID and metadata
   const newUser: User = {
     id: mockUsers.length + 1,
-    name: userData.name,
     activeDirectoryId: userData.activeDirectoryId,
     role: userData.role,
-    ...(userData.privacyConsentAccepted !== undefined && { privacyConsentAccepted: userData.privacyConsentAccepted }),
-    createdBy: 'system',
-    createdDate: new Date().toISOString(),
-    lastModifiedBy: 'system',
-    lastModifiedDate: new Date().toISOString(),
   };
 
   // Add the new user to the mock data for persistence
@@ -214,40 +196,6 @@ function updateUserRole(activeDirectoryId: string, newRole: string, session: Aut
       (session.authState.accessTokenClaims.roles as string[]) = [...filteredRoles, newRole];
     }
   }
-
-  return updatedUser;
-}
-
-/**
- * Updates a user's privacy consent status identified by their Active Directory ID.
- *
- * @param activeDirectoryId The Active Directory ID of the user to update.
- * @param privacyConsentAccepted The new privacy consent status.
- * @param session The authenticated session.
- * @returns The updated user object.
- * @throws {AppError} If the user is not found.
- */
-function updatePrivacyConsent(activeDirectoryId: string, privacyConsentAccepted: boolean, session: AuthenticatedSession): User {
-  const userIndex = mockUsers.findIndex((u) => u.activeDirectoryId === activeDirectoryId);
-
-  if (userIndex === -1) {
-    throw new AppError(`User with Active Directory ID '${activeDirectoryId}' not found.`, ErrorCodes.VACMAN_API_ERROR);
-  }
-
-  const currentUser = mockUsers[userIndex];
-  if (!currentUser) {
-    throw new AppError(`User with Active Directory ID '${activeDirectoryId}' not found.`, ErrorCodes.VACMAN_API_ERROR);
-  }
-
-  const updatedUser: User = {
-    ...currentUser,
-    privacyConsentAccepted,
-    lastModifiedBy: 'system',
-    lastModifiedDate: new Date().toISOString(),
-  };
-
-  // Update the user in the mock data
-  (mockUsers as User[])[userIndex] = updatedUser;
 
   return updatedUser;
 }
