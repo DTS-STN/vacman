@@ -128,7 +128,6 @@ export default function PersonalDetails({ loaderData, actionData, params }: Rout
   const classificationOptions = loaderData.classifications.map((classification) => ({
     value: classification.id,
     label: classification.name,
-    defaultChecked: loaderData.defaultValues.classification?.includes(classification.id) ?? false,
   }));
   const provinceOptions = [{ id: 'select-option', name: '' }, ...loaderData.provinces].map(({ id, name }) => ({
     value: id === 'select-option' ? '' : id,
@@ -140,7 +139,6 @@ export default function PersonalDetails({ loaderData, actionData, params }: Rout
       value: city.id,
       label: city.name,
       group: city.province.name,
-      defaultChecked: loaderData.defaultValues.workLocationCities?.includes(city.id) ?? false,
     }));
   const referralAvailibilityOptions: InputRadiosProps['options'] = [
     {
