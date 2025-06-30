@@ -153,10 +153,10 @@ exports[`AppBar > should render render an AppBar with a name provided > expected
           id="radix-«r6»"
           type="button"
         >
-          <div
+          <span
             class="text-md my-auto flex flex-nowrap items-center space-x-2 py-2"
           >
-            <div
+            <span
               class="flex h-8 w-8 items-center justify-center rounded-full bg-white"
             >
               <svg
@@ -174,14 +174,14 @@ exports[`AppBar > should render render an AppBar with a name provided > expected
                   fill="currentColor"
                 />
               </svg>
-            </div>
+            </span>
             <span
               class="text-md hidden py-2 font-bold sm:block"
-              id="menu-label"
+              id="app-bar-menu-label"
             >
               Test User
             </span>
-          </div>
+          </span>
           <svg
             aria-hidden="true"
             class="svg-inline--fa fa-chevron-down my-auto size-4"
@@ -257,10 +257,10 @@ exports[`AppBar > should render render an AppBar with a profile item provided > 
           id="radix-«ra»"
           type="button"
         >
-          <div
+          <span
             class="text-md my-auto flex flex-nowrap items-center space-x-2 py-2"
           >
-            <div
+            <span
               class="flex h-8 w-8 items-center justify-center rounded-full bg-white"
             >
               <svg
@@ -278,14 +278,14 @@ exports[`AppBar > should render render an AppBar with a profile item provided > 
                   fill="currentColor"
                 />
               </svg>
-            </div>
+            </span>
             <span
               class="text-md hidden py-2 font-bold sm:block"
-              id="menu-label"
+              id="app-bar-menu-label"
             >
               Test User
             </span>
-          </div>
+          </span>
           <svg
             aria-hidden="true"
             class="svg-inline--fa fa-chevron-down my-auto size-4"

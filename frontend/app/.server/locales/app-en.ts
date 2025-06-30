@@ -145,8 +145,6 @@ export default {
       'work-location-city-required': 'Work location city is required.',
       'work-location-city-invalid': 'Work location city is invalid.',
       'work-location-city-duplicate': 'Duplicate items for work location city are not allowed.',
-      'province-required': 'Province is required.',
-      'city-required': 'City is required.',
       'referral-availibility-required': 'Availablility for referrals is required.',
       'alternate-opportunity-required': 'Alternation opportunities is required.',
       'employment-tenure-required': 'Employment opportunities is required.',
