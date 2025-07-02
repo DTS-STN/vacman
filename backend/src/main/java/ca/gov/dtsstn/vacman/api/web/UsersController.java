@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import ca.gov.dtsstn.vacman.api.config.SpringDocConfig;
+import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 import ca.gov.dtsstn.vacman.api.service.UserService;
 import ca.gov.dtsstn.vacman.api.web.model.UserCreateModel;
 import ca.gov.dtsstn.vacman.api.web.model.UserReadModel;
@@ -58,10 +59,12 @@ public class UsersController {
 	@PostMapping
 	@Operation(summary = "Create a new user.")
 	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
-	public ResponseEntity<UserReadModel> createUser(@RequestBody @Valid UserCreateModel user) {
-		UserReadModel result = userModelMapper.toModel(userService.createUser(userModelMapper.toEntity(user)));
-		return ResponseEntity.ok(result);
+	public ResponseEntity<UserReadModel> createUser(@RequestBody @Valid UserCreateModel userCreate) {
+		UserEntity userEntity = userModelMapper.toEntity(userCreate);
+		UserEntity savedUser = userService.createUser(userEntity, userCreate);
+		return ResponseEntity.ok(userModelMapper.toModel(savedUser));
 	}
+
 
 	@GetMapping("/{id}")
 	@Operation(summary = "Get a user by ID.")

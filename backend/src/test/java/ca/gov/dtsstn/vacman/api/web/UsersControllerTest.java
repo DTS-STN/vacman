@@ -93,20 +93,19 @@ class UsersControllerTest {
 			.lastName("User")
 			.build();
 
-		when(userService.createUser(any(UserEntity.class))).thenReturn(mockUser);
+		final var userCreateModel = new UserCreateModel("Test User", "test@example.com", "employee", true);
+
+		when(userService.createUser(any(UserEntity.class), any(UserCreateModel.class))).thenReturn(mockUser);
 
 		final var expectedResponse = userModelMapper.toModel(mockUser);
 
 		mockMvc.perform(post("/api/v1/users")
 			.contentType(MediaType.APPLICATION_JSON)
-			.content(objectMapper.writeValueAsString(new UserCreateModel("Test User"))))
+			.content(objectMapper.writeValueAsString(userCreateModel)))
 			.andExpect(status().isOk())
 			.andExpect(content().json(objectMapper.writeValueAsString(expectedResponse)));
 
-		verify(userService).createUser(new UserEntityBuilder()
-			.firstName("Test")
-			.lastName("User")
-			.build());
+		verify(userService).createUser(any(UserEntity.class), any(UserCreateModel.class));
 	}
 
 }

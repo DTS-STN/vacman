@@ -172,3 +172,29 @@ VALUES (874190000, 'EN', 'English', 'Anglais', 'system', CURRENT_TIMESTAMP, 'sys
 
 INSERT INTO [CD_LANGUAGE] ([LANGUAGE_ID], [LANGUAGE_CODE], [LANGUAGE_NAME_EN], [LANGUAGE_NAME_FR], [USER_CREATED], [DATE_CREATED], [USER_UPDATED], [DATE_UPDATED])
 VALUES (874190001, 'FR', 'French', 'Français', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
+
+-- Add profile status values if not exists
+INSERT INTO [CD_PROFILE_STATUS] ([PROFILE_STATUS_ID], [PROFILE_STATUS_CODE], [PROFILE_STATUS_NAME_EN], [PROFILE_STATUS_NAME_FR], [USER_CREATED], [DATE_CREATED], [USER_UPDATED], [DATE_UPDATED])
+VALUES
+    (1, 'PENDING', 'Pending', 'En attente', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+    (2, 'ACTIVE', 'Active', 'Actif', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+    (3, 'INACTIVE', 'Inactive', 'Inactif', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
+
+-- Add notification purpose values if not exists
+INSERT INTO [CD_NOTIFICATION_PURPOSE] ([NOTIFICATION_PURPOSE_ID], [NOTIFICATION_PURPOSE_CODE], [NOTIFICATION_PURPOSE_NAME_EN], [NOTIFICATION_PURPOSE_NAME_FR], [USER_CREATED], [DATE_CREATED], [USER_UPDATED], [DATE_UPDATED])
+VALUES
+    (1, 'GENERAL', 'General Notifications', 'Notifications générales', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
+
+-- Add priority levels if not exists
+INSERT INTO [CD_PRIORITY_LEVEL] ([PRIORITY_LEVEL_ID], [PRIORITY_LEVEL_CODE], [PRIORITY_LEVEL_NAME_EN], [PRIORITY_LEVEL_NAME_FR], [USER_CREATED], [DATE_CREATED], [USER_UPDATED], [DATE_UPDATED])
+VALUES
+    (1, 'LOW', 'Low', 'Faible', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+    (2, 'NORMAL', 'Normal', 'Normal', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+    (3, 'HIGH', 'High', 'Élevé', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
+
+-- Add user types if not exists
+INSERT INTO [CD_USER_TYPE] ([USER_TYPE_ID], [USER_TYPE_CODE], [USER_TYPE_NAME_EN], [USER_TYPE_NAME_FR], [USER_CREATED], [DATE_CREATED], [USER_UPDATED], [DATE_UPDATED])
+VALUES
+    (1, 'employee', 'Employee', 'Employé', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+    (2, 'admin', 'Administrator', 'Administrateur', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+    (3, 'manager', 'Manager', 'Gestionnaire', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);

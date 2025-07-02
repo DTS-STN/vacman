@@ -13,6 +13,15 @@ public record UserReadModel(
 	@Schema(description = "The full name of this user.", example = "John Doe")
 	String name,
 
+	@Schema(description = "The Active Directory ID of this user.", example = "user@example.com")
+	String activeDirectoryId,
+
+	@Schema(description = "The role of this user.", example = "employee")
+	String role,
+
+	@Schema(description = "Whether the user has accepted the privacy consent.", example = "true")
+	Boolean privacyConsentAccepted,
+
 	@Schema(accessMode = AccessMode.READ_ONLY, description = "The user or service that created this user.", example = "vacman-api")
 	String createdBy,
 
