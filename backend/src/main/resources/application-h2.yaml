@@ -16,9 +16,14 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-    defer-datasource-initialization: true
+    defer-datasource-initialization: false
     show-sql: true
   h2:
     console:
       enabled: true
       path: /h2-console
+  liquibase:
+   enabled: true
+   change-log: classpath:db/changelog/db.changelog-master.yaml
+  #  driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+   contexts: dev

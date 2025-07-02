@@ -1,0 +1,12 @@
+---
+
+databaseChangeLog:
+- include:
+    file: db/changelog/changes/db.init.changelog.sql
+# - includeAll:
+#     contextFilter: dev
+#     file: changes/h2/
+# - includeAll:
+#     contextFilter: prod
+#     file: changes/mssql
+#or includeAll with directories.... test out execution path
