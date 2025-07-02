@@ -111,7 +111,7 @@ export default {
         'invalid-before-effective-date':
           "La date de fin de votre statut de RE doit être postérieure à la date d'entrée en vigueur de votre statut RE.",
         'required-year': "L'année de fin de votre statut de RE est requise.",
-        'invalid-year': "L'année de fin de votre statut de RE est requise.",
+        'invalid-year': "L'année de fin de votre statut de RE est invalide.",
         'required-month': 'La mois de fin de votre statut de RE est requise.',
         'invalid-month': 'La mois de fin de votre statut de RE est invalide.',
         'required-day': 'La jour de fin de votre statut de RE est requise.',
@@ -148,8 +148,6 @@ export default {
       'work-location-city-required': 'La ville de travail est requise.',
       'work-location-city-invalid': "La ville de travail n'est pas valide.",
       'work-location-city-duplicate': 'Les éléments dupliqués pour la ville du lieu de travail ne sont pas permis.',
-      'province-required': 'La ville est requise.',
-      'city-required': 'La ville est requise.',
       'referral-availibility-required': 'La disponibilité pour les références est requise.',
       'alternate-opportunity-required': "Opportunités d'échange est requise.",
       'employment-tenure-required': "Opportunités d'emploi est requise.",

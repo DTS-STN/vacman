@@ -32,11 +32,16 @@ export function Card({ className, asChild, ...props }: CardProps): JSX.Element {
   );
 }
 
+type CardHeaderProps = ComponentProps<'div'> & {
+  asChild?: boolean;
+};
+
 /**
  * CardHeader component renders the header section of a card.
  */
-export function CardHeader({ className, ...props }: ComponentProps<'div'>) {
-  return <div className={cn('flex flex-col space-y-1.5 p-6', className)} {...props} />;
+export function CardHeader({ className, asChild, ...props }: CardHeaderProps) {
+  const Component = asChild ? Slot : 'div';
+  return <Component className={cn('flex flex-col space-y-1.5 p-6', className)} {...props} />;
 }
 
 type CardTitleProps = ComponentProps<'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'> & {
@@ -64,25 +69,40 @@ export function CardTitle({ asChild, className, ...props }: CardTitleProps) {
   );
 }
 
+type CardDescriptionProps = ComponentProps<'div'> & {
+  asChild?: boolean;
+};
+
 /**
  * CardDescription component renders the description of a card.
  */
-export function CardDescription({ className, ...props }: ComponentProps<'div'>) {
-  return <div className={cn('text-sm text-black/60', className)} {...props} />;
+export function CardDescription({ className, asChild, ...props }: CardDescriptionProps) {
+  const Component = asChild ? Slot : 'div';
+  return <Component className={cn('text-sm text-black/60', className)} {...props} />;
 }
+
+type CardContentProps = ComponentProps<'div'> & {
+  asChild?: boolean;
+};
 
 /**
  * CardContent component renders the content section of a card.
  */
-export function CardContent({ className, ...props }: ComponentProps<'div'>) {
-  return <div className={cn('p-6 pt-0', className)} {...props} />;
+export function CardContent({ className, asChild, ...props }: CardContentProps) {
+  const Component = asChild ? Slot : 'div';
+  return <Component className={cn('p-6 pt-0', className)} {...props} />;
 }
+
+type CardFooterProps = ComponentProps<'div'> & {
+  asChild?: boolean;
+};
 
 /**
  * CardFooter component renders the footer section of a card.
  */
-export function CardFooter({ className, ...props }: ComponentProps<'div'>) {
-  return <div className={cn('flex items-center p-6 pt-0', className)} {...props} />;
+export function CardFooter({ className, asChild, ...props }: CardFooterProps) {
+  const Component = asChild ? Slot : 'div';
+  return <Component className={cn('flex items-center p-6 pt-0', className)} {...props} />;
 }
 
 /**
@@ -127,8 +147,8 @@ type CardIconProps = OmitStrict<ComponentProps<'div'>, 'children'> & {
  */
 export function CardIcon({ className, icon, iconClassName, iconFlip, ...props }: CardIconProps) {
   return (
-    <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-slate-700 sm:size-12" {...props}>
+    <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-slate-700 sm:size-12" {...props}>
       <FontAwesomeIcon icon={icon} flip={iconFlip} className={cn('size-4 text-white sm:size-5', iconClassName)} />
-    </div>
+    </span>
   );
 }

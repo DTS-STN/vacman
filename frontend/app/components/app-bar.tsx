@@ -46,14 +46,14 @@ function UserButton({ className, children, name }: UserButtonProps): JSX.Element
           className,
         )}
       >
-        <div className="text-md my-auto flex flex-nowrap items-center space-x-2 py-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white">
+        <span className="text-md my-auto flex flex-nowrap items-center space-x-2 py-2">
+          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white">
             <FontAwesomeIcon icon={faUser} className="size-5 text-slate-700" />
-          </div>
-          <span id="menu-label" className="text-md hidden py-2 font-bold sm:block">
+          </span>
+          <span id="app-bar-menu-label" className="text-md hidden py-2 font-bold sm:block">
             {name}
           </span>
-        </div>
+        </span>
         <FontAwesomeIcon icon={faChevronDown} className="my-auto size-4" />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-64 bg-slate-700">
