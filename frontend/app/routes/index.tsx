@@ -127,7 +127,7 @@ function DashboardCard({ dashboard, icon, title }: DashboardCardProps): JSX.Elem
           <CardHeader asChild className="p-0">
             <span>
               <CardTitle asChild className="flex items-center gap-2">
-                <span role="heading" aria-level={3}>
+                <span role="heading" aria-level={2}>
                   {title}
                   <FontAwesomeIcon icon={faChevronRight} />
                 </span>
