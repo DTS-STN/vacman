@@ -7,9 +7,9 @@ export interface DescriptionListItemProps extends ComponentProps<'div'> {
 }
 export function DescriptionListItem({ className, children, term, ...rest }: DescriptionListItemProps) {
   return (
-    <div className={cn('py-6 sm:grid sm:grid-cols-3 sm:gap-4', className)} {...rest}>
+    <div className={cn('py-2', className)} {...rest}>
       <dt className="font-semibold">{term}</dt>
-      <dd className="mt-1 sm:col-span-2 sm:mt-0">{children}</dd>
+      <dd className="mt-1 text-gray-600 sm:col-span-2 sm:mt-0">{children}</dd>
     </div>
   );
 }

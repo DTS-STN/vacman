@@ -56,7 +56,7 @@ type CardTitleProps = ComponentProps<'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'> & 
  * It supports optional child rendering.
  */
 export function CardTitle({ asChild, className, ...props }: CardTitleProps) {
-  const Component = asChild ? Slot : 'h3';
+  const Component = asChild ? Slot : 'h2';
 
   return (
     <Component

@@ -13,35 +13,39 @@ export default {
     'page-title': 'Register as...',
   },
   'profile': {
-    'about':
-      'Your profile helps us understand your current position, referral preferences, and qualifications. You can update each section as needed. Your progress is saved automatically.',
+    'about-para-1':
+      'This profile outlines your current position, referral preferences, and qualifications. Complete all sections and submit for approval.',
+    'about-para-2': 'Your progress is saved automatically.',
     'edit': 'Edit',
     'add': 'Add',
     'in-progress': 'In progress',
     'required': 'Required',
+    'complete': 'Complete',
     'fields-complete': '{{completed}} out of {{total}} fields complete',
     'personal-information': {
       'title': 'Personal information',
       'link-label': 'personal information',
+      'detail': 'Provide your personal and contact details, language preferences, education, and other relevant information.',
     },
     'employment': {
       'title': 'Employment information',
       'link-label': 'employment information',
+      'detail': 'Share information about your current job and your Work Force Adjustment (WFA) status.',
     },
     'referral': {
       'title': 'Referral preferences',
       'link-label': 'referral preferences',
-    },
-    'qualifications': {
-      'title': 'Qualifications',
-      'link-label': 'qualifications',
+      'detail':
+        'Indicate your preferences for job referrals including job type, classification, language requirements, preferred locations, and availability.',
     },
     'back': 'Back to profile',
     'view': 'View my profile',
+    'not-provided': 'Not provided',
   },
   'form': {
     'cancel': 'Cancel',
     'save': 'Save',
+    'save-and-exit': 'Save and exit',
     'submit': 'Submit',
     'select-option': 'Select option',
     'select-all-that-apply': 'Select all that apply',
