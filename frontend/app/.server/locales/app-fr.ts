@@ -15,35 +15,39 @@ export default {
     'page-title': "S'inscrire comme...",
   },
   'profile': {
-    'about':
-      'Votre profil nous aide à comprendre votre situation actuelle, vos préférences en matière de recommandation et vos qualifications. Vous pouvez mettre à jour chaque section selon vos besoins. Votre progression est enregistrée automatiquement.',
+    'about-para-1':
+      'Ce profil décrit votre position actuelle, vos préférences de référence et vos qualifications. Complétez toutes les sections et soumettez pour approbation.',
+    'about-para-2': 'Vos progrès sont enregistrés automatiquement.',
     'edit': 'Modifier les',
     'add': 'Ajouter des',
     'in-progress': 'En cours',
+    'complete': 'Complet',
     'required': 'Obligatoire',
     'fields-complete': '{{completed}} sur {{total}} champs remplis',
     'personal-information': {
       'title': 'Informations personnelles',
       'link-label': 'informations personnelles',
+      'detail': 'Provide your personal and contact details, language preferences, education, and other relevant information.',
     },
     'employment': {
       'title': "Informations sur l'emploi",
       'link-label': "informations sur l'emploi",
+      'detail': 'Share information about your current job and your Work Force Adjustment (WFA) status.',
     },
     'referral': {
       'title': 'Préférences de recommandation',
       'link-label': 'préférences de recommandation',
-    },
-    'qualifications': {
-      'title': 'Qualifications',
-      'link-label': 'qualifications',
+      'detail':
+        'Indicate your preferences for job referrals including job type, classification, language requirements, preferred locations, and availability.',
     },
     'back': 'Retour au profil',
     'view': 'Voir mon profil',
+    'not-provided': 'Non communiqué',
   },
   'form': {
     'cancel': 'Annuler',
     'save': 'Enregistrer',
+    'save-and-exit': 'Enregistrer et quitter',
     'submit': 'Soumettre',
     'select-option': 'Sélectionner une option',
     'select-all-that-apply': "Sélectionnez tout ce qui s'applique",
