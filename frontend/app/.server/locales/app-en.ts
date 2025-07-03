@@ -49,6 +49,7 @@ export default {
     'submit': 'Submit',
     'select-option': 'Select option',
     'select-all-that-apply': 'Select all that apply',
+    'maximum-characters': 'maximum characters',
   },
   'personal-information': {
     'page-title': 'Personal information',
