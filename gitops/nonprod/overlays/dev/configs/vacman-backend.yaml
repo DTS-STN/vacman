@@ -1,0 +1,37 @@
+#######################################################################################################################
+# Configuration intended to be mounted as `application-local.yaml` for the vacman-backend Spring Boot application.
+#
+# This file provides environment-specific overrides to the default configuration.
+#######################################################################################################################
+
+spring:
+  datasource:
+    # Use an in-memory H2 database with SQL Server compatibility mode.
+    # Keeps identifiers case-sensitive and avoids converting them to uppercase.
+    # DB_CLOSE_DELAY=-1 means the DB will stay open until the JVM shuts down.
+    url: jdbc:h2:mem:testdb;MODE=MSSQLServer;DATABASE_TO_UPPER=false;CASE_INSENSITIVE_IDENTIFIERS=true;DB_CLOSE_DELAY=-1;
+
+  jpa:
+    hibernate:
+      # Automatically update the database schema to match entity definitions.
+      # Use cautiously in production — better for dev/testing.
+      ddl-auto: update
+
+    # Ensures that JPA waits until the datasource is initialized for data.sql scripts.
+    defer-datasource-initialization: true
+
+    # Prints SQL statements in logs — useful for debugging.
+    show-sql: true
+
+  h2:
+    console:
+      # Enables the H2 web console at runtime.
+      enabled: true
+      # Sets the path to access the H2 web console in the browser.
+      path: /h2-console
+
+application:
+  security:
+    # Disables custom application security.
+    # Make sure this is never set to true in production.
+    disabled: true

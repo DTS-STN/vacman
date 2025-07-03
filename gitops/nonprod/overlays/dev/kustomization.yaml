@@ -13,6 +13,7 @@ labels:
       app.kubernetes.io/environment: dev
       app.kubernetes.io/tier: nonprod
 resources:
+  - ../../base/vacman-backend/
   - ../../base/vacman-frontend/
   - ./ingresses.yaml
 patches:
@@ -21,4 +22,8 @@ configMapGenerator:
   - name: vacman-frontend
     behavior: create
     envs:
-      - ./configs/vacman-frontend.conf
+    - ./configs/vacman-frontend.conf
+  - name: vacman-backend-configmap
+    behavior: create
+    files:
+    - application.yaml=./configs/vacman-backend.yaml
