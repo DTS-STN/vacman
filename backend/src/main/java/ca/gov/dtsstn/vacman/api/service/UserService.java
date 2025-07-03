@@ -20,6 +20,7 @@ import ca.gov.dtsstn.vacman.api.data.repository.UserTypeRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.WorkUnitRepository;
 import ca.gov.dtsstn.vacman.api.web.model.UserCreateModel;
 import ca.gov.dtsstn.vacman.api.web.model.mapper.ProfileModelMapper;
+import ca.gov.dtsstn.vacman.api.web.model.mapper.UserModelMapper;
 
 @Service
 public class UserService {
@@ -32,6 +33,7 @@ public class UserService {
 	private final PriorityLevelRepository priorityLevelRepository;
 	private final UserTypeRepository userTypeRepository;
 	private final WorkUnitRepository workUnitRepository;
+	private final UserModelMapper userModelMapper;
 
 	public UserService(UserRepository userRepository,
 					   ProfileRepository profileRepository,
@@ -40,7 +42,8 @@ public class UserService {
 					   ProfileModelMapper profileModelMapper,
 					   PriorityLevelRepository priorityLevelRepository,
 					   UserTypeRepository userTypeRepository,
-					   WorkUnitRepository workUnitRepository) {
+					   WorkUnitRepository workUnitRepository,
+					   UserModelMapper userModelMapper) {
 		this.userRepository = userRepository;
 		this.profileRepository = profileRepository;
 		this.notificationPurposeRepository = notificationPurposeRepository;
@@ -49,10 +52,11 @@ public class UserService {
 		this.priorityLevelRepository = priorityLevelRepository;
 		this.userTypeRepository = userTypeRepository;
 		this.workUnitRepository = workUnitRepository;
+		this.userModelMapper = userModelMapper;
 	}
 
 
-	public UserEntity createUser(UserEntity user, UserCreateModel createModel) {
+	public UserEntity createUser(UserCreateModel createModel) {
 		// Create and setup profile
 		ProfileEntity profile = profileModelMapper.toEntity(createModel);
 
@@ -66,6 +70,9 @@ public class UserService {
 
 		// Save profile
 		ProfileEntity savedProfile = profileRepository.save(profile);
+
+		// Create user entity from model
+		UserEntity user = userModelMapper.toEntity(createModel);
 
 		// Set required relationships for user
 		user.setProfile(savedProfile);

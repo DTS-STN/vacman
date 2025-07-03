@@ -110,7 +110,7 @@ class UsersControllerTest {
 
 		final var userCreateModel = new UserCreateModel("test@example.com", "employee");
 
-		when(userService.createUser(any(UserEntity.class), any(UserCreateModel.class))).thenReturn(mockUser);
+		when(userService.createUser(any(UserCreateModel.class))).thenReturn(mockUser);
 
 		final var expectedResponse = userModelMapper.toModel(mockUser);
 
@@ -120,7 +120,7 @@ class UsersControllerTest {
 			.andExpect(status().isOk())
 			.andExpect(content().json(objectMapper.writeValueAsString(expectedResponse)));
 
-		verify(userService).createUser(any(UserEntity.class), any(UserCreateModel.class));
+		verify(userService).createUser(any(UserCreateModel.class));
 	}
 
 }

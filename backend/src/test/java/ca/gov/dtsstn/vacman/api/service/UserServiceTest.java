@@ -32,6 +32,7 @@ import ca.gov.dtsstn.vacman.api.data.repository.UserTypeRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.WorkUnitRepository;
 import ca.gov.dtsstn.vacman.api.web.model.UserCreateModel;
 import ca.gov.dtsstn.vacman.api.web.model.mapper.ProfileModelMapper;
+import ca.gov.dtsstn.vacman.api.web.model.mapper.UserModelMapper;
 
 @DisplayName("UserService Tests")
 @ExtendWith({ MockitoExtension.class })
@@ -61,6 +62,9 @@ class UserServiceTest {
 	@Mock
 	WorkUnitRepository workUnitRepository;
 
+	@Mock
+	UserModelMapper userModelMapper;
+
 	UserService userService;
 
 	@BeforeEach
@@ -73,7 +77,8 @@ class UserServiceTest {
 			profileModelMapper,
 			priorityLevelRepository,
 			userTypeRepository,
-			workUnitRepository
+			workUnitRepository,
+			userModelMapper
 		);
 	}
 
@@ -96,15 +101,12 @@ class UserServiceTest {
 			.thenReturn(Optional.of(new WorkUnitEntity()));
 		when(profileModelMapper.toEntity(any(UserCreateModel.class)))
 			.thenReturn(new ProfileEntity());
-
-		final var inputUser = new UserEntityBuilder()
-			.firstName("Test")
-			.lastName("User")
-			.build();
+		when(userModelMapper.toEntity(any(UserCreateModel.class)))
+			.thenReturn(new UserEntityBuilder().firstName("Test").lastName("User").build());
 
 		final var userCreateModel = new UserCreateModel("test@example.com", "employee");
 
-		userService.createUser(inputUser, userCreateModel);
+		userService.createUser(userCreateModel);
 
 		verify(userRepository).save(any(UserEntity.class));
 	}
