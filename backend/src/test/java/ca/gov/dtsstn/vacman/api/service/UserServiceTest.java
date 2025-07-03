@@ -31,7 +31,6 @@ import ca.gov.dtsstn.vacman.api.data.repository.UserRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.UserTypeRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.WorkUnitRepository;
 import ca.gov.dtsstn.vacman.api.web.model.UserCreateModel;
-import ca.gov.dtsstn.vacman.api.web.model.mapper.ProfileModelMapper;
 import ca.gov.dtsstn.vacman.api.web.model.mapper.UserModelMapper;
 
 @DisplayName("UserService Tests")
@@ -50,8 +49,6 @@ class UserServiceTest {
 	@Mock
 	ProfileStatusRepository profileStatusRepository;
 
-	@Mock
-	ProfileModelMapper profileModelMapper;
 
 	@Mock
 	PriorityLevelRepository priorityLevelRepository;
@@ -74,7 +71,6 @@ class UserServiceTest {
 			profileRepository,
 			notificationPurposeRepository,
 			profileStatusRepository,
-			profileModelMapper,
 			priorityLevelRepository,
 			userTypeRepository,
 			workUnitRepository,
@@ -99,10 +95,12 @@ class UserServiceTest {
 			.thenReturn(Optional.of(new UserTypeEntity()));
 		when(workUnitRepository.findByCode("LABOUR"))
 			.thenReturn(Optional.of(new WorkUnitEntity()));
-		when(profileModelMapper.toEntity(any(UserCreateModel.class)))
-			.thenReturn(new ProfileEntity());
 		when(userModelMapper.toEntity(any(UserCreateModel.class)))
-			.thenReturn(new UserEntityBuilder().firstName("Test").lastName("User").build());
+			.thenReturn(new UserEntityBuilder()
+				.firstName("Test")
+				.lastName("User")
+				.profile(new ProfileEntity())
+				.build());
 
 		final var userCreateModel = new UserCreateModel("test@example.com", "employee");
 

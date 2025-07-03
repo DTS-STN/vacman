@@ -19,7 +19,6 @@ import ca.gov.dtsstn.vacman.api.data.repository.UserRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.UserTypeRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.WorkUnitRepository;
 import ca.gov.dtsstn.vacman.api.web.model.UserCreateModel;
-import ca.gov.dtsstn.vacman.api.web.model.mapper.ProfileModelMapper;
 import ca.gov.dtsstn.vacman.api.web.model.mapper.UserModelMapper;
 
 @Service
@@ -29,7 +28,6 @@ public class UserService {
 	private final ProfileRepository profileRepository;
 	private final NotificationPurposeRepository notificationPurposeRepository;
 	private final ProfileStatusRepository profileStatusRepository;
-	private final ProfileModelMapper profileModelMapper;
 	private final PriorityLevelRepository priorityLevelRepository;
 	private final UserTypeRepository userTypeRepository;
 	private final WorkUnitRepository workUnitRepository;
@@ -39,7 +37,6 @@ public class UserService {
 					   ProfileRepository profileRepository,
 					   NotificationPurposeRepository notificationPurposeRepository,
 					   ProfileStatusRepository profileStatusRepository,
-					   ProfileModelMapper profileModelMapper,
 					   PriorityLevelRepository priorityLevelRepository,
 					   UserTypeRepository userTypeRepository,
 					   WorkUnitRepository workUnitRepository,
@@ -48,7 +45,6 @@ public class UserService {
 		this.profileRepository = profileRepository;
 		this.notificationPurposeRepository = notificationPurposeRepository;
 		this.profileStatusRepository = profileStatusRepository;
-		this.profileModelMapper = profileModelMapper;
 		this.priorityLevelRepository = priorityLevelRepository;
 		this.userTypeRepository = userTypeRepository;
 		this.workUnitRepository = workUnitRepository;
@@ -57,10 +53,13 @@ public class UserService {
 
 
 	public UserEntity createUser(UserCreateModel createModel) {
-		// Create and setup profile
-		ProfileEntity profile = profileModelMapper.toEntity(createModel);
+		// Create user entity with profile from model
+		UserEntity user = userModelMapper.toEntity(createModel);
 
-		// Set required relationships
+		// Get the profile from the user
+		ProfileEntity profile = user.getProfile();
+
+		// Set required relationships for profile
 		profile.setProfileStatus(profileStatusRepository.findByCode("PENDING")
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
 						"Default profile status not found")));
@@ -71,11 +70,10 @@ public class UserService {
 		// Save profile
 		ProfileEntity savedProfile = profileRepository.save(profile);
 
-		// Create user entity from model
-		UserEntity user = userModelMapper.toEntity(createModel);
+		// Update user with saved profile
+		user.setProfile(savedProfile);
 
 		// Set required relationships for user
-		user.setProfile(savedProfile);
 		user.setPriorityLevel(priorityLevelRepository.findByCode("NORMAL")
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
 						"Default priority level not found")));

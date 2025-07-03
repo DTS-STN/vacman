@@ -41,6 +41,13 @@ public interface UserModelMapper {
     @Mapping(target = "initial", constant = "JAD")
     @Mapping(target = "pri", constant = "12345")
     @Mapping(target = "networkName", source = "activeDirectoryId")
-    @Mapping(target = "profile", ignore = true)
+    @Mapping(target = "profile.id", ignore = true)
+    @Mapping(target = "profile.createdBy", ignore = true)
+    @Mapping(target = "profile.createdDate", ignore = true)
+    @Mapping(target = "profile.lastModifiedBy", ignore = true)
+    @Mapping(target = "profile.lastModifiedDate", ignore = true)
+    @Mapping(target = "profile.hasAcceptedPrivacyTerms", constant = "false")
+    @Mapping(target = "profile.notificationPurpose", ignore = true)
+    @Mapping(target = "profile.profileStatus", ignore = true)
     UserEntity toEntity(UserCreateModel model);
 }
