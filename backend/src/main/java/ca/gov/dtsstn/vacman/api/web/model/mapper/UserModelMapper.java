@@ -10,9 +10,20 @@ import ca.gov.dtsstn.vacman.api.web.model.UserReadModel;
 @Mapper(componentModel = "spring")
 public interface UserModelMapper {
 
-    @Mapping(source = "uuid", target = "activeDirectoryId")
     @Mapping(source = "userType.code", target = "role")
-    @Mapping(source = "profile.hasAcceptedPrivacyTerms", target = "privacyConsentAccepted")
+    @Mapping(source = "networkName", target = "networkName")
+    @Mapping(target = "uuName", expression = "java(entity.getNetworkName() != null ? entity.getNetworkName().split(\"@\")[0] : \"user123\")")
+    @Mapping(source = "firstName", target = "firstName")
+    @Mapping(source = "middelName", target = "middleName")
+    @Mapping(source = "lastName", target = "lastName")
+    @Mapping(source = "initial", target = "initials")
+    @Mapping(source = "pri", target = "personalRecordIdentifier")
+    @Mapping(source = "businessPhoneNumber", target = "businessPhone")
+    @Mapping(source = "businessEmailAddress", target = "businessEmail")
+    @Mapping(source = "createdBy", target = "userCreated")
+    @Mapping(target = "dateCreated", expression = "java(entity.getCreatedDate() != null ? entity.getCreatedDate().toString() : null)")
+    @Mapping(source = "lastModifiedBy", target = "userUpdated")
+    @Mapping(target = "dateUpdated", expression = "java(entity.getLastModifiedDate() != null ? entity.getLastModifiedDate().toString() : null)")
     UserReadModel toModel(UserEntity entity);
 
     @Mapping(target = "id", ignore = true)
@@ -23,9 +34,12 @@ public interface UserModelMapper {
     @Mapping(source = "activeDirectoryId", target = "uuid")
     @Mapping(target = "userType", ignore = true)
     @Mapping(target = "businessEmailAddress", source = "activeDirectoryId")
-    @Mapping(target = "businessPhoneNumber", constant = "TBD")
-    @Mapping(target = "firstName", expression = "java(model.name().split(\" \")[0])")
-    @Mapping(target = "lastName", expression = "java(model.name().substring(model.name().indexOf(\" \") + 1))")
+    @Mapping(target = "businessPhoneNumber", constant = "555-123-4567")
+    @Mapping(target = "firstName", constant = "John")
+    @Mapping(target = "lastName", constant = "Doe")
+    @Mapping(target = "middelName", constant = "A")
+    @Mapping(target = "initial", constant = "JAD")
+    @Mapping(target = "pri", constant = "12345")
     @Mapping(target = "networkName", source = "activeDirectoryId")
     @Mapping(target = "profile", ignore = true)
     UserEntity toEntity(UserCreateModel model);

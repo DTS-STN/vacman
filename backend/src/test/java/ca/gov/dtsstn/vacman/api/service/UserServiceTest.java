@@ -102,7 +102,7 @@ class UserServiceTest {
 			.lastName("User")
 			.build();
 
-		final var userCreateModel = new UserCreateModel("Test User", "test@example.com", "employee", true);
+		final var userCreateModel = new UserCreateModel("test@example.com", "employee");
 
 		userService.createUser(inputUser, userCreateModel);
 

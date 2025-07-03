@@ -14,7 +14,7 @@ public interface ProfileModelMapper {
     @Mapping(target = "createdDate", ignore = true)
     @Mapping(target = "lastModifiedBy", ignore = true)
     @Mapping(target = "lastModifiedDate", ignore = true)
-    @Mapping(source = "privacyConsentAccepted", target = "hasAcceptedPrivacyTerms")
+    @Mapping(target = "hasAcceptedPrivacyTerms", constant = "false")
     @Mapping(target = "notificationPurpose", ignore = true)
     @Mapping(target = "profileStatus", ignore = true)
     ProfileEntity toEntity(UserCreateModel model);
