@@ -55,10 +55,10 @@ const mockUsers: readonly User[] = [
     personalRecordIdentifier: '123456789',
     businessPhone: '+1-613-555-0101',
     businessEmail: 'jane.doe@canada.ca',
-    createdBy: 'system',
-    createdDate: '2024-01-01T00:00:00Z',
-    lastModifiedBy: 'system',
-    lastModifiedDate: '2024-01-01T00:00:00Z',
+    userCreated: 'system',
+    dateCreated: '2024-01-01T00:00:00Z',
+    userUpdated: 'system',
+    dateUpdated: '2024-01-01T00:00:00Z',
   },
   {
     id: 2,
@@ -72,10 +72,10 @@ const mockUsers: readonly User[] = [
     personalRecordIdentifier: '987654321',
     businessPhone: '+1-613-555-0102',
     businessEmail: 'john.doe@canada.ca',
-    createdBy: 'system',
-    createdDate: '2024-01-01T00:00:00Z',
-    lastModifiedBy: 'system',
-    lastModifiedDate: '2024-01-01T00:00:00Z',
+    userCreated: 'system',
+    dateCreated: '2024-01-01T00:00:00Z',
+    userUpdated: 'system',
+    dateUpdated: '2024-01-01T00:00:00Z',
   },
   {
     id: 3,
@@ -89,10 +89,10 @@ const mockUsers: readonly User[] = [
     personalRecordIdentifier: '456789123',
     businessPhone: '+1-613-555-0103',
     businessEmail: 'jane.smith@canada.ca',
-    createdBy: 'system',
-    createdDate: '2024-01-02T00:00:00Z',
-    lastModifiedBy: 'system',
-    lastModifiedDate: '2024-01-02T00:00:00Z',
+    userCreated: 'system',
+    dateCreated: '2024-01-02T00:00:00Z',
+    userUpdated: 'system',
+    dateUpdated: '2024-01-02T00:00:00Z',
   },
   {
     id: 4,
@@ -106,10 +106,10 @@ const mockUsers: readonly User[] = [
     personalRecordIdentifier: '789123456',
     businessPhone: '+1-613-555-0104',
     businessEmail: 'michel.tremblay@canada.ca',
-    createdBy: 'system',
-    createdDate: '2024-01-03T00:00:00Z',
-    lastModifiedBy: 'system',
-    lastModifiedDate: '2024-01-03T00:00:00Z',
+    userCreated: 'system',
+    dateCreated: '2024-01-03T00:00:00Z',
+    userUpdated: 'system',
+    dateUpdated: '2024-01-03T00:00:00Z',
   },
   {
     id: 5,
@@ -123,10 +123,10 @@ const mockUsers: readonly User[] = [
     personalRecordIdentifier: '321654987',
     businessPhone: '+1-613-555-0105',
     businessEmail: 'sarah.baker@canada.ca',
-    createdBy: 'system',
-    createdDate: '2024-01-03T00:00:00Z',
-    lastModifiedBy: 'system',
-    lastModifiedDate: '2024-01-03T00:00:00Z',
+    userCreated: 'system',
+    dateCreated: '2024-01-03T00:00:00Z',
+    userUpdated: 'system',
+    dateUpdated: '2024-01-03T00:00:00Z',
   },
 ];
 
@@ -205,10 +205,10 @@ function registerUser(userData: UserCreate, session: AuthenticatedSession): User
     personalRecordIdentifier: undefined, // This would need to be provided by the user
     businessPhone: undefined, // This would need to be provided by the user
     businessEmail: idTokenClaims.email ?? undefined,
-    createdBy: activeDirectoryId,
-    createdDate: new Date().toISOString(),
-    lastModifiedBy: activeDirectoryId,
-    lastModifiedDate: new Date().toISOString(),
+    userCreated: activeDirectoryId,
+    dateCreated: new Date().toISOString(),
+    userUpdated: activeDirectoryId,
+    dateUpdated: new Date().toISOString(),
   };
 
   // Add the new user to the mock data for persistence
@@ -241,8 +241,8 @@ function updateUserRole(activeDirectoryId: string, newRole: string, session: Aut
   const updatedUser: User = {
     ...currentUser,
     role: newRole,
-    lastModifiedBy: 'system',
-    lastModifiedDate: new Date().toISOString(),
+    userUpdated: 'system',
+    dateUpdated: new Date().toISOString(),
   };
 
   // Update the user in the mock data

@@ -1,5 +1,4 @@
 import { getProfileService } from '~/.server/domain/services/profile-service';
-import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
 
 /**
  * Utility function to get a user's profile by Active Directory ID
@@ -9,20 +8,19 @@ import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
  */
 export async function getUserProfile(activeDirectoryId: string) {
   const profileService = getProfileService();
-  const profile = await profileService.getProfile(activeDirectoryId);
-  return profile;
+  const profileOption = await profileService.getProfile(activeDirectoryId);
+  return profileOption.isSome() ? profileOption.unwrap() : null;
 }
 
 /**
  * Utility function to register a new profile for a user
  * @param activeDirectoryId - The user's Active Directory ID
- * @param session - The authenticated session
  * @returns The newly created profile
  * @throws AppError if there's an issue creating the profile
  */
-export async function createUserProfile(activeDirectoryId: string, session: AuthenticatedSession) {
+export async function createUserProfile(activeDirectoryId: string) {
   const profileService = getProfileService();
-  const newProfile = await profileService.registerProfile(activeDirectoryId, session);
+  const newProfile = await profileService.registerProfile(activeDirectoryId);
   return newProfile;
 }
 
@@ -30,20 +28,21 @@ export async function createUserProfile(activeDirectoryId: string, session: Auth
  * Utility function that ensures a user has a profile
  * If the user doesn't have a profile, it creates one
  * @param activeDirectoryId - The user's Active Directory ID
- * @param session - The authenticated session
  * @returns The user's profile (existing or newly created)
  * @throws AppError if there's an issue with profile operations
  */
-export async function ensureUserProfile(activeDirectoryId: string, session: AuthenticatedSession) {
+export async function ensureUserProfile(activeDirectoryId: string) {
   const profileService = getProfileService();
 
   // First, try to get existing profile
-  let profile = await profileService.getProfile(activeDirectoryId);
+  const profileOption = await profileService.getProfile(activeDirectoryId);
 
   // If no profile exists, create one
-  profile ??= await profileService.registerProfile(activeDirectoryId, session);
-
-  return profile;
+  if (profileOption.isSome()) {
+    return profileOption.unwrap();
+  } else {
+    return await profileService.registerProfile(activeDirectoryId);
+  }
 }
 
 /**

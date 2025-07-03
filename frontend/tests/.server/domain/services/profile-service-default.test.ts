@@ -3,7 +3,6 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Profile } from '~/.server/domain/models';
 import { getDefaultProfileService } from '~/.server/domain/services/profile-service-default';
 import { serverEnvironment } from '~/.server/environment';
-import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 
 // Mock the global fetch
@@ -13,13 +12,6 @@ global.fetch = mockFetch;
 describe('profile-service-default', () => {
   const profileService = getDefaultProfileService();
   const mockActiveDirectoryId = 'test-ad-id-123';
-  const mockSession = {
-    oid: 'test-oid-123',
-    networkName: 'test-network-name',
-    uuName: 'Test User',
-    email: 'test@example.com',
-    role: 'Employee',
-  } as unknown as AuthenticatedSession;
 
   const mockProfile: Profile = {
     profileId: 1,
@@ -121,7 +113,7 @@ describe('profile-service-default', () => {
         json: vi.fn().mockResolvedValueOnce(mockProfile),
       });
 
-      const result = await profileService.registerProfile(mockActiveDirectoryId, mockSession);
+      const result = await profileService.registerProfile(mockActiveDirectoryId);
 
       expect(result).toEqual(mockProfile);
       expect(mockFetch).toHaveBeenCalledWith(`${serverEnvironment.VACMAN_API_BASE_URI}/profiles`, {
@@ -140,7 +132,7 @@ describe('profile-service-default', () => {
         status: errorStatus,
       });
 
-      await expect(profileService.registerProfile(mockActiveDirectoryId, mockSession)).rejects.toThrow();
+      await expect(profileService.registerProfile(mockActiveDirectoryId)).rejects.toThrow();
     });
 
     it('should handle different error status codes', async () => {
@@ -150,13 +142,13 @@ describe('profile-service-default', () => {
         status: errorStatus,
       });
 
-      await expect(profileService.registerProfile(mockActiveDirectoryId, mockSession)).rejects.toThrow();
+      await expect(profileService.registerProfile(mockActiveDirectoryId)).rejects.toThrow();
     });
 
     it('should throw AppError when fetch fails', async () => {
       mockFetch.mockRejectedValueOnce(new Error('Network error'));
 
-      await expect(profileService.registerProfile(mockActiveDirectoryId, mockSession)).rejects.toThrow('Network error');
+      await expect(profileService.registerProfile(mockActiveDirectoryId)).rejects.toThrow('Network error');
     });
 
     it('should send correct request body with activeDirectoryId', async () => {
@@ -166,7 +158,7 @@ describe('profile-service-default', () => {
         json: vi.fn().mockResolvedValueOnce(mockProfile),
       });
 
-      await profileService.registerProfile(mockActiveDirectoryId, mockSession);
+      await profileService.registerProfile(mockActiveDirectoryId);
 
       const expectedBody = JSON.stringify({ activeDirectoryId: mockActiveDirectoryId });
       expect(mockFetch).toHaveBeenCalledWith(

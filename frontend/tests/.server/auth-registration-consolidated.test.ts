@@ -6,6 +6,7 @@
 import type { AppLoadContext } from 'react-router';
 import { redirect } from 'react-router';
 
+import { None, Some } from 'oxide.ts';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 import { getProfileService } from '~/.server/domain/services/profile-service';
@@ -123,7 +124,7 @@ describe('Authentication, Registration, and Privacy Consent Flow', () => {
     // Default: user is not registered
     mockUserService.getUserByActiveDirectoryId.mockResolvedValue(null);
     // Default: no profile exists
-    mockProfileService.getProfile.mockResolvedValue(null);
+    mockProfileService.getProfile.mockResolvedValue(None);
   });
 
   describe('Mock User Service Integration', () => {
@@ -168,8 +169,8 @@ describe('Authentication, Registration, and Privacy Consent Flow', () => {
         role: 'employee',
       });
       expect(registeredUser.id).toBeDefined();
-      expect(registeredUser.createdBy).toBe('test-employee-123');
-      expect(registeredUser.createdDate).toBeDefined();
+      expect(registeredUser.userCreated).toBe('test-employee-123');
+      expect(registeredUser.dateCreated).toBeDefined();
     });
 
     it('should register a new hiring manager without privacy consent', async () => {
@@ -260,8 +261,8 @@ describe('Authentication, Registration, and Privacy Consent Flow', () => {
         role: newRole,
       });
       expect(updatedUser.id).toBeDefined();
-      expect(updatedUser.lastModifiedBy).toBe('system');
-      expect(updatedUser.lastModifiedDate).toBeDefined();
+      expect(updatedUser.userUpdated).toBe('system');
+      expect(updatedUser.dateUpdated).toBeDefined();
     });
 
     it('should throw error when updating role for non-existent user', async () => {
@@ -310,7 +311,7 @@ describe('Authentication, Registration, and Privacy Consent Flow', () => {
       });
 
       // Mock user as not having a profile (default mock)
-      mockProfileService.getProfile.mockResolvedValue(null);
+      mockProfileService.getProfile.mockResolvedValue(None);
 
       const response = await indexAction({ context, request, params: {} } as TestRouteArgs);
 
@@ -336,19 +337,21 @@ describe('Authentication, Registration, and Privacy Consent Flow', () => {
         uuName: 'Jane Employee',
         networkName: 'test-employee-123',
         role: 'employee',
-        createdBy: 'system',
-        createdDate: '2024-01-01T00:00:00Z',
+        userCreated: 'system',
+        dateCreated: '2024-01-01T00:00:00Z',
       });
 
       // Mock that profile exists and has privacy consent accepted
-      mockProfileService.getProfile.mockResolvedValue({
-        profileId: 1,
-        userId: 1,
-        profileStatusId: 1,
-        privacyConsentInd: true,
-        userCreated: 'test-employee-123',
-        dateCreated: '2024-01-01T00:00:00Z',
-      });
+      mockProfileService.getProfile.mockResolvedValue(
+        Some({
+          profileId: 1,
+          userId: 1,
+          profileStatusId: 1,
+          privacyConsentInd: true,
+          userCreated: 'test-employee-123',
+          dateCreated: '2024-01-01T00:00:00Z',
+        }),
+      );
 
       const response = await indexAction({ context, request, params: {} } as TestRouteArgs);
 
@@ -399,8 +402,8 @@ describe('Authentication, Registration, and Privacy Consent Flow', () => {
         uuName: 'John Manager',
         networkName: 'test-manager-123',
         role: 'hiring-manager',
-        createdBy: 'system',
-        createdDate: '2024-01-01T00:00:00Z',
+        userCreated: 'system',
+        dateCreated: '2024-01-01T00:00:00Z',
       });
 
       const response = await indexAction({ context, request, params: {} } as TestRouteArgs);
@@ -428,10 +431,10 @@ describe('Authentication, Registration, and Privacy Consent Flow', () => {
         uuName: 'Jane Employee',
         networkName: 'test-employee-to-manager-123',
         role: 'employee',
-        createdBy: 'system',
-        createdDate: '2024-01-01T00:00:00Z',
-        lastModifiedBy: 'system',
-        lastModifiedDate: '2024-01-01T00:00:00Z',
+        userCreated: 'system',
+        dateCreated: '2024-01-01T00:00:00Z',
+        userUpdated: 'system',
+        dateUpdated: '2024-01-01T00:00:00Z',
       });
 
       // Mock the updateUserRole response
@@ -440,10 +443,10 @@ describe('Authentication, Registration, and Privacy Consent Flow', () => {
         uuName: 'Jane Employee',
         networkName: 'test-employee-to-manager-123',
         role: 'hiring-manager',
-        createdBy: 'system',
-        createdDate: '2024-01-01T00:00:00Z',
-        lastModifiedBy: 'system',
-        lastModifiedDate: '2024-01-01T00:00:00Z',
+        userCreated: 'system',
+        dateCreated: '2024-01-01T00:00:00Z',
+        userUpdated: 'system',
+        dateUpdated: '2024-01-01T00:00:00Z',
       });
 
       const response = await indexAction({ context, request, params: {} } as TestRouteArgs);
@@ -595,10 +598,10 @@ describe('Authentication, Registration, and Privacy Consent Flow', () => {
         uuName: 'Existing Employee',
         networkName: 'test-existing-employee-123',
         role: 'employee',
-        createdBy: 'system',
-        createdDate: '2024-01-01T00:00:00Z',
-        lastModifiedBy: 'system',
-        lastModifiedDate: '2024-01-01T00:00:00Z',
+        userCreated: 'system',
+        dateCreated: '2024-01-01T00:00:00Z',
+        userUpdated: 'system',
+        dateUpdated: '2024-01-01T00:00:00Z',
       });
 
       const response = await privacyAction({ context, request, params: {} } as TestRouteArgs);
@@ -628,21 +631,23 @@ describe('Authentication, Registration, and Privacy Consent Flow', () => {
         uuName: 'Test User',
         networkName: 'test-user-consent',
         role: 'employee',
-        createdBy: 'system',
-        createdDate: '2024-01-01T00:00:00Z',
-        lastModifiedBy: 'system',
-        lastModifiedDate: '2024-01-01T00:00:00Z',
+        userCreated: 'system',
+        dateCreated: '2024-01-01T00:00:00Z',
+        userUpdated: 'system',
+        dateUpdated: '2024-01-01T00:00:00Z',
       });
 
       // Mock that profile exists and has privacy consent accepted
-      mockProfileService.getProfile.mockResolvedValue({
-        profileId: 1,
-        userId: 1,
-        profileStatusId: 1,
-        privacyConsentInd: true,
-        userCreated: 'test-user-consent',
-        dateCreated: '2024-01-01T00:00:00Z',
-      });
+      mockProfileService.getProfile.mockResolvedValue(
+        Some({
+          profileId: 1,
+          userId: 1,
+          profileStatusId: 1,
+          privacyConsentInd: true,
+          userCreated: 'test-user-consent',
+          dateCreated: '2024-01-01T00:00:00Z',
+        }),
+      );
 
       // Act & Assert - should not throw
       await expect(requirePrivacyConsent(mockSession, new URL('http://localhost:3000/en/employee'))).resolves.not.toThrow();
@@ -662,10 +667,10 @@ describe('Authentication, Registration, and Privacy Consent Flow', () => {
         uuName: 'Test User No Consent',
         networkName: 'test-user-no-consent',
         role: 'employee',
-        createdBy: 'system',
-        createdDate: '2024-01-01T00:00:00Z',
-        lastModifiedBy: 'system',
-        lastModifiedDate: '2024-01-01T00:00:00Z',
+        userCreated: 'system',
+        dateCreated: '2024-01-01T00:00:00Z',
+        userUpdated: 'system',
+        dateUpdated: '2024-01-01T00:00:00Z',
       });
 
       // Act & Assert - should throw redirect
@@ -682,7 +687,7 @@ describe('Authentication, Registration, and Privacy Consent Flow', () => {
       } as unknown as AuthenticatedSession;
 
       // Mock that no profile exists for hiring manager (they shouldn't have employee profiles)
-      mockProfileService.getProfile.mockResolvedValue(null);
+      mockProfileService.getProfile.mockResolvedValue(None);
 
       // Act & Assert - should redirect to index since hiring managers shouldn't access employee routes
       await expect(requirePrivacyConsent(mockSession, new URL('http://localhost:3000/en/employee'))).rejects.toThrow();

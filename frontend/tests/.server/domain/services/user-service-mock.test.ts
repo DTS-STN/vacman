@@ -17,10 +17,10 @@ describe('getMockUserService', () => {
         uuName: 'Jane Doe',
         networkName: '00000000-0000-0000-0000-000000000001',
         role: 'employee',
-        createdBy: 'system',
-        createdDate: '2024-01-01T00:00:00Z',
-        lastModifiedBy: 'system',
-        lastModifiedDate: '2024-01-01T00:00:00Z',
+        userCreated: 'system',
+        dateCreated: '2024-01-01T00:00:00Z',
+        userUpdated: 'system',
+        dateUpdated: '2024-01-01T00:00:00Z',
         firstName: 'Jane',
         middleName: undefined,
         lastName: 'Doe',
@@ -50,10 +50,10 @@ describe('getMockUserService', () => {
         uuName: 'John Doe',
         networkName: '11111111-1111-1111-1111-111111111111',
         role: 'employee',
-        createdBy: 'system',
-        createdDate: '2024-01-01T00:00:00Z',
-        lastModifiedBy: 'system',
-        lastModifiedDate: '2024-01-01T00:00:00Z',
+        userCreated: 'system',
+        dateCreated: '2024-01-01T00:00:00Z',
+        userUpdated: 'system',
+        dateUpdated: '2024-01-01T00:00:00Z',
         firstName: 'John',
         middleName: 'Michael',
         lastName: 'Doe',
@@ -111,13 +111,13 @@ describe('getMockUserService', () => {
       expect(createdUser.role).toBe('employee');
 
       // Check that dates are ISO strings (exact time will vary)
-      expect(createdUser.createdDate).toBeDefined();
-      expect(createdUser.lastModifiedDate).toBeDefined();
-      if (createdUser.createdDate) {
-        expect(isValid(parseISO(createdUser.createdDate))).toBe(true);
+      expect(createdUser.dateCreated).toBeDefined();
+      expect(createdUser.dateUpdated).toBeDefined();
+      if (createdUser.dateCreated) {
+        expect(isValid(parseISO(createdUser.dateCreated))).toBe(true);
       }
-      if (createdUser.lastModifiedDate) {
-        expect(isValid(parseISO(createdUser.lastModifiedDate))).toBe(true);
+      if (createdUser.dateUpdated) {
+        expect(isValid(parseISO(createdUser.dateUpdated))).toBe(true);
       }
     });
   });
@@ -160,11 +160,11 @@ describe('getMockUserService', () => {
       expect(updatedUser.networkName).toBe(activeDirectoryId);
       expect(updatedUser.role).toBe(newRole);
 
-      // Check that lastModifiedDate was updated
-      if (updatedUser.lastModifiedDate) {
-        expect(isValid(parseISO(updatedUser.lastModifiedDate))).toBe(true);
+      // Check that dateUpdated was updated
+      if (updatedUser.dateUpdated) {
+        expect(isValid(parseISO(updatedUser.dateUpdated))).toBe(true);
       }
-      expect(updatedUser.lastModifiedBy).toBe('system');
+      expect(updatedUser.userUpdated).toBe('system');
 
       // Verify the user was actually updated in the mock data
       const verifyUser = await service.getUserByActiveDirectoryId(activeDirectoryId);

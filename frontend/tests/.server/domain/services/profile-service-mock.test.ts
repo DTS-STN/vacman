@@ -1,7 +1,6 @@
 import { describe, it, expect } from 'vitest';
 
 import { getMockProfileService } from '~/.server/domain/services/profile-service-mock';
-import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
 
 describe('getMockProfileService', () => {
   const service = getMockProfileService();
@@ -47,34 +46,7 @@ describe('getMockProfileService', () => {
     it('should create a new profile with generated metadata', async () => {
       const activeDirectoryId = 'test-user-new-profile';
 
-      // Create a mock session for testing
-      const mockSession: AuthenticatedSession = {
-        authState: {
-          accessTokenClaims: {
-            roles: ['employee'],
-            sub: activeDirectoryId,
-            aud: 'test-audience',
-            client_id: 'test-client',
-            exp: Math.floor(Date.now() / 1000) + 3600,
-            iat: Math.floor(Date.now() / 1000),
-            iss: 'test-issuer',
-            jti: 'test-jti',
-          },
-          idTokenClaims: {
-            sub: activeDirectoryId,
-            oid: activeDirectoryId,
-            name: 'Test User',
-            aud: 'test-audience',
-            exp: Math.floor(Date.now() / 1000) + 3600,
-            iat: Math.floor(Date.now() / 1000),
-            iss: 'test-issuer',
-          },
-          accessToken: 'mock-access-token',
-          idToken: 'mock-id-token',
-        },
-      } as unknown as AuthenticatedSession;
-
-      const createdProfile = await service.registerProfile(activeDirectoryId, mockSession);
+      const createdProfile = await service.registerProfile(activeDirectoryId);
 
       expect(createdProfile.profileId).toBeDefined();
       expect(createdProfile.userId).toBeDefined();
@@ -94,33 +66,7 @@ describe('getMockProfileService', () => {
     it('should create a profile for existing user mapping', async () => {
       const activeDirectoryId = '11111111-1111-1111-1111-111111111111';
 
-      const mockSession: AuthenticatedSession = {
-        authState: {
-          accessTokenClaims: {
-            roles: ['employee'],
-            sub: activeDirectoryId,
-            aud: 'test-audience',
-            client_id: 'test-client',
-            exp: Math.floor(Date.now() / 1000) + 3600,
-            iat: Math.floor(Date.now() / 1000),
-            iss: 'test-issuer',
-            jti: 'test-jti',
-          },
-          idTokenClaims: {
-            sub: activeDirectoryId,
-            oid: activeDirectoryId,
-            name: 'John Doe',
-            aud: 'test-audience',
-            exp: Math.floor(Date.now() / 1000) + 3600,
-            iat: Math.floor(Date.now() / 1000),
-            iss: 'test-issuer',
-          },
-          accessToken: 'mock-access-token',
-          idToken: 'mock-id-token',
-        },
-      } as unknown as AuthenticatedSession;
-
-      const createdProfile = await service.registerProfile(activeDirectoryId, mockSession);
+      const createdProfile = await service.registerProfile(activeDirectoryId);
 
       expect(createdProfile.profileId).toBeDefined();
       expect(createdProfile.userId).toBe(2); // Should map to existing user ID
@@ -133,64 +79,12 @@ describe('getMockProfileService', () => {
       const firstUser = 'first-user-123';
       const secondUser = 'second-user-456';
 
-      const mockSession1: AuthenticatedSession = {
-        authState: {
-          accessTokenClaims: {
-            roles: ['employee'],
-            sub: firstUser,
-            aud: 'test-audience',
-            client_id: 'test-client',
-            exp: Math.floor(Date.now() / 1000) + 3600,
-            iat: Math.floor(Date.now() / 1000),
-            iss: 'test-issuer',
-            jti: 'test-jti',
-          },
-          idTokenClaims: {
-            sub: firstUser,
-            oid: firstUser,
-            name: 'First User',
-            aud: 'test-audience',
-            exp: Math.floor(Date.now() / 1000) + 3600,
-            iat: Math.floor(Date.now() / 1000),
-            iss: 'test-issuer',
-          },
-          accessToken: 'mock-access-token',
-          idToken: 'mock-id-token',
-        },
-      } as unknown as AuthenticatedSession;
-
-      const mockSession2: AuthenticatedSession = {
-        authState: {
-          accessTokenClaims: {
-            roles: ['employee'],
-            sub: secondUser,
-            aud: 'test-audience',
-            client_id: 'test-client',
-            exp: Math.floor(Date.now() / 1000) + 3600,
-            iat: Math.floor(Date.now() / 1000),
-            iss: 'test-issuer',
-            jti: 'test-jti',
-          },
-          idTokenClaims: {
-            sub: secondUser,
-            oid: secondUser,
-            name: 'Second User',
-            aud: 'test-audience',
-            exp: Math.floor(Date.now() / 1000) + 3600,
-            iat: Math.floor(Date.now() / 1000),
-            iss: 'test-issuer',
-          },
-          accessToken: 'mock-access-token',
-          idToken: 'mock-id-token',
-        },
-      } as unknown as AuthenticatedSession;
-
       // Register first profile
-      const profile1 = await service.registerProfile(firstUser, mockSession1);
+      const profile1 = await service.registerProfile(firstUser);
       expect(profile1.profileId).toBeDefined();
 
       // Register second profile
-      const profile2 = await service.registerProfile(secondUser, mockSession2);
+      const profile2 = await service.registerProfile(secondUser);
       expect(profile2.profileId).toBeDefined();
       expect(profile2.profileId).not.toBe(profile1.profileId);
 

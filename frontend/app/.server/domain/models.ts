@@ -137,10 +137,10 @@ export type User = Readonly<{
   personalRecordIdentifier?: string;
   businessPhone?: string;
   businessEmail?: string;
-  createdBy?: string;
-  createdDate?: string;
-  lastModifiedBy?: string;
-  lastModifiedDate?: string;
+  userCreated?: string;
+  dateCreated?: string;
+  userUpdated?: string;
+  dateUpdated?: string;
 }>;
 
 export type UserCreate = Readonly<{

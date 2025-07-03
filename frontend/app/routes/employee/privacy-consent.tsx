@@ -29,7 +29,7 @@ export async function action({ context, request }: ActionFunctionArgs) {
     const existingUser = await userService.getUserByActiveDirectoryId(activeDirectoryId);
 
     if (existingUser) {
-      await ensureUserProfile(activeDirectoryId, context.session);
+      await ensureUserProfile(activeDirectoryId);
     } else {
       // User doesn't exist, register them with privacy consent accepted
       await userService.registerUser(
@@ -39,7 +39,7 @@ export async function action({ context, request }: ActionFunctionArgs) {
         },
         context.session,
       );
-      await createUserProfile(activeDirectoryId, context.session);
+      await createUserProfile(activeDirectoryId);
     }
 
     return i18nRedirect('routes/employee/index.tsx', request);
