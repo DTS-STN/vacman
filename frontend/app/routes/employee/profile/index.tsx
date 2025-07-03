@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next';
 
 import type { Route } from './+types/index';
 
+import { getUserService } from '~/.server/domain/services/user-service';
 import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { Button } from '~/components/button';
@@ -42,6 +43,9 @@ export function action({ context, params, request }: Route.ActionArgs) {
 export async function loader({ context, request }: Route.LoaderArgs) {
   // Since parent layout ensures authentication, we can safely cast the session
   const authenticatedSession = context.session as AuthenticatedSession;
+  const activeDirectoryId = authenticatedSession.authState.idTokenClaims.oid as string;
+  const userService = getUserService();
+  const user = await userService.getUserByActiveDirectoryId(activeDirectoryId);
 
   const { t } = await getTranslation(request, handle.i18nNamespace);
   const completed = 1; //TODO: Replace with a function to count completed items by checking undefined values
@@ -51,7 +55,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
   return {
     documentTitle: t('app:index.about'),
     name: authenticatedSession.authState.idTokenClaims.name,
-    email: authenticatedSession.authState.idTokenClaims.email,
+    email: user?.businessEmail ?? 'firstname.lastname@email.ca',
     amountCompleted: amountCompleted,
     //TODO: Replace with actual values
     personalInformation: {
@@ -59,7 +63,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
       total: 6, //TODO: Replace with a function to count total items by checking length
       personalRecordIdentifier: undefined as string | undefined,
       preferredLanguage: undefined as string | undefined,
-      workEmail: 'firstname.lastname@email.ca',
+      workEmail: user?.businessEmail ?? 'firstname.lastname@email.ca',
       personalEmail: undefined as string | undefined,
       workPhone: undefined as string | undefined,
       personalPhone: undefined as string | undefined,

@@ -2,6 +2,7 @@ import type { RouteHandle, LoaderFunctionArgs, ActionFunctionArgs, MetaFunction 
 import { Form } from 'react-router';
 
 import { getUserService } from '~/.server/domain/services/user-service';
+import { createUserProfile, ensureUserProfile } from '~/.server/utils/profile-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { Button } from '~/components/button';
 import { ButtonLink } from '~/components/button-link';
@@ -22,26 +23,23 @@ export async function action({ context, request }: ActionFunctionArgs) {
 
   if (action === 'accept') {
     const userService = getUserService();
-    const activeDirectoryId = context.session.authState.idTokenClaims.sub;
-    const name = context.session.authState.idTokenClaims.name ?? 'Unknown User';
+    const activeDirectoryId = context.session.authState.idTokenClaims.oid;
 
     // Check if user already exists
     const existingUser = await userService.getUserByActiveDirectoryId(activeDirectoryId);
 
     if (existingUser) {
-      // User exists, update their privacy consent status
-      await userService.updatePrivacyConsent(activeDirectoryId, true, context.session);
+      await ensureUserProfile(activeDirectoryId);
     } else {
       // User doesn't exist, register them with privacy consent accepted
       await userService.registerUser(
         {
-          name,
           activeDirectoryId,
           role: 'employee',
-          privacyConsentAccepted: true,
         },
         context.session,
       );
+      await createUserProfile(activeDirectoryId);
     }
 
     return i18nRedirect('routes/employee/index.tsx', request);

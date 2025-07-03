@@ -122,41 +122,5 @@ export function getDefaultUserService(): UserService {
 
       return await response.json();
     },
-
-    /**
-     * Updates a user's privacy consent status identified by their Active Directory ID.
-     * @param activeDirectoryId The Active Directory ID of the user to update.
-     * @param privacyConsentAccepted The new privacy consent status.
-     * @param session The authenticated session.
-     * @returns A promise that resolves to the updated user object.
-     * @throws AppError if the request fails, if the user is not found, or if the server responds with an error status.
-     */
-    async updatePrivacyConsent(
-      activeDirectoryId: string,
-      privacyConsentAccepted: boolean,
-      session: AuthenticatedSession,
-    ): Promise<User> {
-      const response = await fetch(
-        `${serverEnvironment.VACMAN_API_BASE_URI}/users/by-active-directory-id/${encodeURIComponent(activeDirectoryId)}/privacy-consent`,
-        {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ privacyConsentAccepted }),
-        },
-      );
-
-      if (response.status === HttpStatusCodes.NOT_FOUND) {
-        throw new AppError(`User with Active Directory ID '${activeDirectoryId}' not found.`, ErrorCodes.VACMAN_API_ERROR);
-      }
-
-      if (!response.ok) {
-        const errorMessage = `Failed to update user privacy consent. Server responded with status ${response.status}.`;
-        throw new AppError(errorMessage, ErrorCodes.VACMAN_API_ERROR);
-      }
-
-      return await response.json();
-    },
   };
 }
