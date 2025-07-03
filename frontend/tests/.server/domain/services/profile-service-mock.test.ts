@@ -15,24 +15,41 @@ describe('getMockProfileService', () => {
         userId: 1,
         userIdReviewedBy: undefined,
         userIdApprovedBy: undefined,
-        educationLevelId: 1,
-        wfaStatusId: 1,
-        classificationId: 1,
-        cityId: 1,
         priorityLevelId: 1,
-        workUnitId: 1,
-        languageId: 1,
         profileStatusId: 1,
-        personalPhoneNumber: '613-555-0001',
-        personalEmailAddress: 'jane.doe@example.com',
         privacyConsentInd: true,
-        availableForReferralInd: true,
-        interestedInAlternationInd: false,
-        additionalCommentTxt: 'Looking for opportunities in software development.',
         userCreated: 'system',
         dateCreated: '2024-01-01T00:00:00Z',
         userUpdated: undefined,
         dateUpdated: undefined,
+        personalInformation: {
+          personalRecordIdentifier: '123456789',
+          preferredLanguageId: undefined,
+          workEmail: 'firstname.lastname@email.ca',
+          personalEmail: 'jane.doe@example.com',
+          workPhone: undefined,
+          personalPhone: '613-555-0001',
+          educationLevelId: '764190003',
+          additionalInformation: 'Looking for opportunities in software development.',
+        },
+        employmentInformation: {
+          classificationId: undefined,
+          workUnitId: undefined,
+          provinceId: undefined,
+          cityId: undefined,
+          wfaStatusId: undefined,
+          wfaEffectiveDate: undefined,
+          wfaEndDate: undefined,
+          hrAdvisor: undefined,
+        },
+        referralPreferences: {
+          languageReferralTypeIds: ['864190000'],
+          classificationIds: ['905190000', '905190001'],
+          workLocationCitieIds: ['411290001', '411290002'],
+          availableForReferralInd: true,
+          interestedInAlternationInd: false,
+          employmentTenureIds: ['664190000', '664190001', '664190003'],
+        },
       });
     });
 
@@ -54,8 +71,8 @@ describe('getMockProfileService', () => {
       expect(createdProfile.dateCreated).toBeDefined();
       expect(createdProfile.profileStatusId).toBe(1);
       expect(createdProfile.privacyConsentInd).toBe(true);
-      expect(createdProfile.availableForReferralInd).toBe(false);
-      expect(createdProfile.interestedInAlternationInd).toBe(true);
+      expect(createdProfile.referralPreferences.availableForReferralInd).toBe(undefined);
+      expect(createdProfile.referralPreferences.interestedInAlternationInd).toBe(undefined);
 
       // Verify the profile was actually added to the mock data
       const retrievedProfile = await service.getProfile(activeDirectoryId);

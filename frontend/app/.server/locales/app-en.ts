@@ -40,6 +40,7 @@ export default {
     },
     'back': 'Back to profile',
     'view': 'View my profile',
+    'profile-completion-progress': 'Profile completion progress',
     'not-provided': 'Not provided',
   },
   'form': {

@@ -42,6 +42,7 @@ export default {
     },
     'back': 'Retour au profil',
     'view': 'Voir mon profil',
+    'profile-completion-progress': 'Avancement de la complétion du profil',
     'not-provided': 'Non communiqué',
   },
   'form': {
