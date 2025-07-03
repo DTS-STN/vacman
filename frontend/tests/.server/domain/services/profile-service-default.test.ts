@@ -60,7 +60,8 @@ describe('profile-service-default', () => {
 
       const result = await profileService.getProfile(mockActiveDirectoryId);
 
-      expect(result).toEqual(mockProfile);
+      expect(result.isSome()).toBe(true);
+      expect(result.unwrap()).toEqual(mockProfile);
       expect(mockFetch).toHaveBeenCalledWith(
         `${serverEnvironment.VACMAN_API_BASE_URI}/profiles/by-active-directory-id/${encodeURIComponent(mockActiveDirectoryId)}`,
       );
@@ -74,7 +75,7 @@ describe('profile-service-default', () => {
 
       const result = await profileService.getProfile(mockActiveDirectoryId);
 
-      expect(result).toBeNull();
+      expect(result.isNone()).toBe(true);
       expect(mockFetch).toHaveBeenCalledWith(
         `${serverEnvironment.VACMAN_API_BASE_URI}/profiles/by-active-directory-id/${encodeURIComponent(mockActiveDirectoryId)}`,
       );

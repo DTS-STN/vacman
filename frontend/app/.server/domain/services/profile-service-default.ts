@@ -1,3 +1,6 @@
+import { None, Some } from 'oxide.ts';
+import type { Option } from 'oxide.ts';
+
 import type { Profile } from '~/.server/domain/models';
 import type { ProfileService } from '~/.server/domain/services/profile-service';
 import { serverEnvironment } from '~/.server/environment';
@@ -12,10 +15,10 @@ export function getDefaultProfileService(): ProfileService {
     /**
      * Retrieves a profile by Active Directory ID.
      * @param activeDirectoryId The Active Directory ID of the user whose profile to retrieve.
-     * @returns A promise that resolves to the profile object, or null if not found.
+     * @returns A promise that resolves to the profile object, or None if not found.
      * @throws AppError if the request fails or if the server responds with an error status.
      */
-    async getProfile(activeDirectoryId: string): Promise<Profile | null> {
+    async getProfile(activeDirectoryId: string): Promise<Option<Profile>> {
       let response: Response;
 
       try {
@@ -33,7 +36,7 @@ export function getDefaultProfileService(): ProfileService {
       }
 
       if (response.status === HttpStatusCodes.NOT_FOUND) {
-        return null;
+        return None;
       }
 
       if (!response.ok) {
@@ -44,7 +47,8 @@ export function getDefaultProfileService(): ProfileService {
       }
 
       try {
-        return await response.json();
+        const profile = await response.json();
+        return Some(profile);
       } catch {
         throw new AppError(
           `Invalid JSON response while fetching profile for Active Directory ID ${activeDirectoryId}`,

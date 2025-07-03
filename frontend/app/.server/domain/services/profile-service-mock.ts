@@ -1,3 +1,5 @@
+import { None, Some } from 'oxide.ts';
+
 import type { Profile } from '~/.server/domain/models';
 import type { ProfileService } from '~/.server/domain/services/profile-service';
 import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
@@ -5,7 +7,8 @@ import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
 export function getMockProfileService(): ProfileService {
   return {
     getProfile: (activeDirectoryId: string) => {
-      return Promise.resolve(getProfile(activeDirectoryId));
+      const profile = getProfile(activeDirectoryId);
+      return Promise.resolve(profile ? Some(profile) : None);
     },
     registerProfile: (activeDirectoryId: string, session: AuthenticatedSession) => {
       return Promise.resolve(registerProfile(activeDirectoryId, session));

@@ -10,7 +10,8 @@ describe('getMockProfileService', () => {
     it('should return a profile when given a valid Active Directory ID', async () => {
       const profile = await service.getProfile('00000000-0000-0000-0000-000000000001');
 
-      expect(profile).toEqual({
+      expect(profile.isSome()).toBe(true);
+      expect(profile.unwrap()).toEqual({
         profileId: 1,
         userId: 1,
         userIdReviewedBy: undefined,
@@ -38,7 +39,7 @@ describe('getMockProfileService', () => {
 
     it('should return null when profile is not found', async () => {
       const profile = await service.getProfile('nonexistent-id');
-      expect(profile).toBeNull();
+      expect(profile.isNone()).toBe(true);
     });
   });
 
@@ -86,8 +87,8 @@ describe('getMockProfileService', () => {
 
       // Verify the profile was actually added to the mock data
       const retrievedProfile = await service.getProfile(activeDirectoryId);
-      expect(retrievedProfile).not.toBeNull();
-      expect(retrievedProfile?.profileId).toBe(createdProfile.profileId);
+      expect(retrievedProfile.isSome()).toBe(true);
+      expect(retrievedProfile.unwrap().profileId).toBe(createdProfile.profileId);
     });
 
     it('should create a profile for existing user mapping', async () => {
@@ -197,10 +198,10 @@ describe('getMockProfileService', () => {
       const retrievedProfile1 = await service.getProfile(firstUser);
       const retrievedProfile2 = await service.getProfile(secondUser);
 
-      expect(retrievedProfile1).not.toBeNull();
-      expect(retrievedProfile2).not.toBeNull();
-      expect(retrievedProfile1?.profileId).toBe(profile1.profileId);
-      expect(retrievedProfile2?.profileId).toBe(profile2.profileId);
+      expect(retrievedProfile1.isSome()).toBe(true);
+      expect(retrievedProfile2.isSome()).toBe(true);
+      expect(retrievedProfile1.unwrap().profileId).toBe(profile1.profileId);
+      expect(retrievedProfile2.unwrap().profileId).toBe(profile2.profileId);
     });
   });
 });
