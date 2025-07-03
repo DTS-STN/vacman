@@ -27,7 +27,6 @@ const mockUserService = {
   registerUser: vi.fn(),
   updateUserRole: vi.fn(),
   getUserById: vi.fn(),
-  updatePrivacyConsent: vi.fn(),
 };
 
 vi.mocked(getUserService).mockReturnValue(mockUserService);
@@ -38,7 +37,7 @@ describe('Hiring Manager Registration Utils', () => {
   });
 
   describe('requireHiringManagerRegistration', () => {
-    const createMockSession = (sub: string): AuthenticatedSession =>
+    const createMockSession = (sub: string, oid: string = sub): AuthenticatedSession =>
       ({
         authState: {
           accessTokenClaims: {
@@ -53,6 +52,7 @@ describe('Hiring Manager Registration Utils', () => {
           },
           idTokenClaims: {
             sub,
+            oid,
             name: 'Test User',
             aud: 'test-audience',
             exp: Math.floor(Date.now() / 1000) + 3600,
@@ -74,10 +74,10 @@ describe('Hiring Manager Registration Utils', () => {
         name: 'Test Hiring Manager',
         activeDirectoryId: 'test-hiring-manager-123',
         role: 'hiring-manager',
-        createdBy: 'system',
-        createdDate: '2024-01-01T00:00:00Z',
-        lastModifiedBy: 'system',
-        lastModifiedDate: '2024-01-01T00:00:00Z',
+        userCreated: 'system',
+        dateCreated: '2024-01-01T00:00:00Z',
+        userUpdated: 'system',
+        dateUpdated: '2024-01-01T00:00:00Z',
       });
 
       // Act & Assert - should not throw
@@ -110,10 +110,10 @@ describe('Hiring Manager Registration Utils', () => {
         activeDirectoryId: 'test-employee-123',
         role: 'employee',
         privacyConsentAccepted: true,
-        createdBy: 'system',
-        createdDate: '2024-01-01T00:00:00Z',
-        lastModifiedBy: 'system',
-        lastModifiedDate: '2024-01-01T00:00:00Z',
+        userCreated: 'system',
+        dateCreated: '2024-01-01T00:00:00Z',
+        userUpdated: 'system',
+        dateUpdated: '2024-01-01T00:00:00Z',
       });
 
       // Act & Assert - should throw redirect
@@ -132,10 +132,10 @@ describe('Hiring Manager Registration Utils', () => {
         name: 'Test HR Advisor',
         activeDirectoryId: 'test-hr-advisor-123',
         role: 'hr-advisor',
-        createdBy: 'system',
-        createdDate: '2024-01-01T00:00:00Z',
-        lastModifiedBy: 'system',
-        lastModifiedDate: '2024-01-01T00:00:00Z',
+        userCreated: 'system',
+        dateCreated: '2024-01-01T00:00:00Z',
+        userUpdated: 'system',
+        dateUpdated: '2024-01-01T00:00:00Z',
       });
 
       // Act & Assert - should throw redirect
@@ -154,10 +154,10 @@ describe('Hiring Manager Registration Utils', () => {
         name: 'Gestionnaire Test',
         activeDirectoryId: 'test-hiring-manager-fr',
         role: 'hiring-manager',
-        createdBy: 'system',
-        createdDate: '2024-01-01T00:00:00Z',
-        lastModifiedBy: 'system',
-        lastModifiedDate: '2024-01-01T00:00:00Z',
+        userCreated: 'system',
+        dateCreated: '2024-01-01T00:00:00Z',
+        userUpdated: 'system',
+        dateUpdated: '2024-01-01T00:00:00Z',
       });
 
       // Act & Assert - should not throw

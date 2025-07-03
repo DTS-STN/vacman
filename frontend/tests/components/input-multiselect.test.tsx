@@ -26,7 +26,22 @@ vi.mock('~/components/input-help', () => ({
   InputHelp: (props: ComponentProps<'p'>) => <p {...props}>{props.children}</p>,
 }));
 vi.mock('~/components/input-checkbox', () => ({
-  InputCheckbox: ({ children, ...props }: ComponentProps<'input'>) => (
+  InputCheckbox: ({
+    children,
+    hasError,
+    errorMessage,
+    labelClassName,
+    appendClassName,
+    append,
+    ...props
+  }: {
+    children: React.ReactNode;
+    hasError?: boolean;
+    errorMessage?: string;
+    labelClassName?: string;
+    appendClassName?: string;
+    append?: React.ReactNode;
+  } & ComponentProps<'input'>) => (
     <div>
       <input type="checkbox" {...props} />
       <label>{children}</label>

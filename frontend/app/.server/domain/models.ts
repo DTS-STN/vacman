@@ -127,19 +127,48 @@ export type LocalizedLanguageOfCorrespondence = Readonly<{
 
 export type User = Readonly<{
   id: number;
-  name: string;
-  activeDirectoryId?: string;
   role: string;
-  privacyConsentAccepted?: boolean;
-  createdBy: string;
-  createdDate: string;
-  lastModifiedBy: string;
-  lastModifiedDate: string;
+  networkName: string;
+  uuName: string;
+  firstName: string;
+  middleName?: string;
+  lastName: string;
+  initials?: string;
+  personalRecordIdentifier?: string;
+  businessPhone?: string;
+  businessEmail?: string;
+  userCreated?: string;
+  dateCreated?: string;
+  userUpdated?: string;
+  dateUpdated?: string;
 }>;
 
 export type UserCreate = Readonly<{
-  name: string;
   activeDirectoryId?: string;
   role: string;
-  privacyConsentAccepted?: boolean;
+}>;
+
+export type Profile = Readonly<{
+  profileId: number;
+  userId: number;
+  userIdReviewedBy?: number;
+  userIdApprovedBy?: number;
+  educationLevelId?: number;
+  wfaStatusId?: number;
+  classificationId?: number;
+  cityId?: number;
+  priorityLevelId?: number;
+  workUnitId?: number;
+  languageId?: number;
+  profileStatusId: number;
+  personalPhoneNumber?: string;
+  personalEmailAddress?: string;
+  privacyConsentInd?: boolean;
+  availableForReferralInd?: boolean;
+  interestedInAlternationInd?: boolean;
+  additionalCommentTxt?: string;
+  userCreated: string;
+  dateCreated: string;
+  userUpdated?: string;
+  dateUpdated?: string;
 }>;

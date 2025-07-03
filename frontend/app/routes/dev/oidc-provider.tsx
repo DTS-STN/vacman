@@ -134,11 +134,12 @@ async function handleAuthorizeRequest({ request }: Route.LoaderArgs): Promise<Re
     iat: Math.floor(Date.now() / 1000),
     iss: config.issuer,
     jti: randomUUID(),
-    name: 'Application Developer',
+    name: 'John Doe',
     nonce: nonce,
     roles: [],
     scopes: scope.split(' '),
     sub: '00000000-0000-0000-0000-000000000000',
+    oid: '00000000-0000-0000-0000-000000000000',
   } as const satisfies AccessTokenClaims;
 
   const accessToken = await new SignJWT(accessTokenClaims)
@@ -155,12 +156,13 @@ async function handleAuthorizeRequest({ request }: Route.LoaderArgs): Promise<Re
     exp: Math.floor(Date.now() / 1000) + 24 * 60 * 60,
     iat: Math.floor(Date.now() / 1000),
     iss: config.issuer,
-    name: 'Application Developer',
+    name: 'John Doe',
     email: 'developer@example.com',
     nonce: nonce,
     roles: [],
     scopes: scope.split(' '),
     sub: '00000000-0000-0000-0000-000000000000',
+    oid: '00000000-0000-0000-0000-000000000000',
   } as const satisfies IDTokenClaims;
 
   const idToken = await new SignJWT(idTokenClaims)

@@ -76,6 +76,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
       workPhone: undefined,
       personalPhone: undefined,
       education: undefined as string | undefined,
+      additionalInformation: undefined as string | undefined,
     },
     languagesOfCorrespondence: localizedLanguagesOfCorrespondance.unwrap(),
     education: localizedEducationLevels.unwrap(),
@@ -191,6 +192,7 @@ export default function PersonalInformation({ loaderData, actionData, params }: 
                 className="w-full"
                 label={t('app:personal-information.additional-information')}
                 name="additionalInformation"
+                defaultValue={loaderData.defaultValues.additionalInformation}
                 helpMessage={t('app:personal-information.additional-info-help-message')}
                 maxLength={100}
               />
