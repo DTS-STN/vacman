@@ -1,4 +1,7 @@
 import { getProfileService } from '~/.server/domain/services/profile-service';
+import { LogFactory } from '~/.server/logging';
+
+const log = LogFactory.getLogger(import.meta.url);
 
 /**
  * Utility function to get a user's profile by Active Directory ID
@@ -65,7 +68,7 @@ export async function safeGetUserProfile(activeDirectoryId: string) {
   try {
     return await getUserProfile(activeDirectoryId);
   } catch (error) {
-    console.error(`Safe get profile failed for user ${activeDirectoryId}:`, error);
+    log.error(`Safe get profile failed for user ${activeDirectoryId}:`, error);
     return null;
   }
 }
