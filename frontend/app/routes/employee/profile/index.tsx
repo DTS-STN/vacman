@@ -3,6 +3,8 @@ import type { JSX, ReactNode } from 'react';
 import type { RouteHandle } from 'react-router';
 import { Form, useNavigation } from 'react-router';
 
+import { faCheck, faPenToSquare, faPlus } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useTranslation } from 'react-i18next';
 
 import type { Route } from './+types/index';
@@ -13,7 +15,10 @@ import { i18nRedirect } from '~/.server/utils/route-utils';
 import { Button } from '~/components/button';
 import { ButtonLink } from '~/components/button-link';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '~/components/card';
+import { DescriptionList, DescriptionListItem } from '~/components/description-list';
 import { InlineLink } from '~/components/links';
+import { Progress } from '~/components/progress';
+import { EMPLOYEE_WFA_STATUS } from '~/domain/constants';
 import { getTranslation } from '~/i18n-config.server';
 import type { I18nRouteFile } from '~/i18n-routes';
 import { handle as parentHandle } from '~/routes/layout';
@@ -43,24 +48,50 @@ export async function loader({ context, request }: Route.LoaderArgs) {
   const user = await userService.getUserByActiveDirectoryId(activeDirectoryId);
 
   const { t } = await getTranslation(request, handle.i18nNamespace);
+  const completed = 1; //TODO: Replace with a function to count completed items by checking undefined values
+  const total = 21; //TODO: Replace with a function to count total items by checking length
+  const amountCompleted = (completed / total) * 100;
+
   return {
     documentTitle: t('app:index.about'),
     name: authenticatedSession.authState.idTokenClaims.name,
-    email: user?.businessEmail ?? '',
-    completed: 6,
-    total: 12,
+    email: user?.businessEmail ?? 'firstname.lastname@email.ca',
+    amountCompleted: amountCompleted,
+    //TODO: Replace with actual values
     personalInformation: {
-      completed: 2,
-      workEmail: user?.businessEmail ?? '',
+      completed: 1, //TODO: Replace with a function to count completed items by checking undefined values
+      total: 6, //TODO: Replace with a function to count total items by checking length
+      personalRecordIdentifier: undefined as string | undefined,
+      preferredLanguage: undefined as string | undefined,
+      workEmail: user?.businessEmail ?? 'firstname.lastname@email.ca',
+      personalEmail: undefined as string | undefined,
+      workPhone: undefined as string | undefined,
+      personalPhone: undefined as string | undefined,
+      education: undefined as string | undefined,
+      additionalInformation: undefined as string | undefined,
     },
-    employment: {
-      completed: 0,
+    employmentInformation: {
+      completed: 0, //TODO: Replace with a function to count completed items by checking undefined values
+      total: 9, //TODO: Replace with a function to count total items by checking length
+      substantivePosition: undefined as string | undefined,
+      branchOrServiceCanadaRegion: undefined as string | undefined,
+      directorate: undefined as string | undefined,
+      province: undefined as string | undefined,
+      city: undefined as string | undefined,
+      wfaStatus: undefined as string | undefined,
+      wfaEffectiveDate: undefined as string | undefined,
+      wfaEndDate: undefined as string | undefined,
+      hrAdvisor: undefined as string | undefined,
     },
-    referral: {
-      completed: 0,
-    },
-    qualifications: {
-      completed: 0,
+    referralPreferences: {
+      completed: 0, //TODO: Replace with a function to count completed items by checking undefined values
+      total: 6, //TODO: Replace with a function to count total items by checking length
+      languageReferralTypes: undefined as string[] | undefined,
+      classification: undefined as string[] | undefined,
+      workLocationCities: undefined as string[] | undefined,
+      referralAvailibility: undefined as boolean | undefined,
+      alternateOpportunity: undefined as boolean | undefined,
+      employmentTenures: undefined as string[] | undefined,
     },
   };
 }
@@ -75,92 +106,174 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
         <div className="max-w-prose">
           <h1 className="mt-5 text-3xl font-semibold">{loaderData.name}</h1>
           {loaderData.email && <p className="mt-1 text-gray-500">{loaderData.email}</p>}
-          <p className="mt-4">{t('app:profile.about')}</p>
+          <p className="mt-4">{t('app:profile.about-para-1')}</p>
+          <p className="mt-4">{t('app:profile.about-para-2')}</p>
         </div>
         <Form className="mt-6 flex place-content-end space-x-5 md:mt-auto" method="post" noValidate>
-          <ButtonLink className="px-11" file="routes/index.tsx" id="back-button" disabled={navigation.state !== 'idle'}>
-            {t('app:form.save')}
+          <ButtonLink variant="alternative" file="routes/index.tsx" id="save" disabled={navigation.state !== 'idle'}>
+            {t('app:form.save-and-exit')}
           </ButtonLink>
-          <Button className="px-11" name="action" variant="primary" id="continue-button" disabled={navigation.state !== 'idle'}>
+          <Button name="action" variant="primary" id="submit" disabled={navigation.state !== 'idle'}>
             {t('app:form.submit')}
           </Button>
         </Form>
       </div>
-      <ProgressBar completed={loaderData.completed} total={loaderData.total} />
-      <div className="grid gap-4 md:grid-cols-2">
+
+      <Progress className="mt-8 mb-8" label="" value={loaderData.amountCompleted} />
+      <div className="mt-8 max-w-prose space-y-10">
         <ProfileCard
           title={t('app:profile.personal-information.title')}
           linkLabel={t('app:profile.personal-information.link-label')}
           file="routes/employee/profile/personal-information.tsx"
           completed={loaderData.personalInformation.completed}
-          total={3}
-          required={true}
+          total={loaderData.personalInformation.total}
+          required
         >
-          <ProfileField label="Work email address">{loaderData.personalInformation.workEmail}</ProfileField>
-          <ProfileField label="Other field">field value</ProfileField>
+          {loaderData.personalInformation.completed === 1 ? ( // only work email is available
+            <>
+              {t('app:profile.personal-information.detail')}
+              <DescriptionList>
+                <DescriptionListItem term={t('app:personal-information.work-email')}>
+                  {loaderData.personalInformation.workEmail}
+                </DescriptionListItem>
+              </DescriptionList>
+            </>
+          ) : (
+            <DescriptionList>
+              <DescriptionListItem term={t('app:personal-information.personal-record-identifier')}>
+                {loaderData.personalInformation.personalRecordIdentifier ?? t('app:profile.not-provided')}
+              </DescriptionListItem>
+              <DescriptionListItem term={t('app:personal-information.preferred-language')}>
+                {loaderData.personalInformation.preferredLanguage ?? t('app:profile.not-provided')}
+              </DescriptionListItem>
+              <DescriptionListItem term={t('app:personal-information.work-email')}>
+                {loaderData.personalInformation.workEmail}
+              </DescriptionListItem>
+              <DescriptionListItem term={t('app:personal-information.personal-email')}>
+                {loaderData.personalInformation.personalEmail ?? t('app:profile.not-provided')}
+              </DescriptionListItem>
+              <DescriptionListItem term={t('app:personal-information.work-phone')}>
+                {loaderData.personalInformation.workPhone ?? t('app:profile.not-provided')}
+              </DescriptionListItem>
+              <DescriptionListItem term={t('app:personal-information.personal-phone')}>
+                {loaderData.personalInformation.personalPhone ?? t('app:profile.not-provided')}
+              </DescriptionListItem>
+              <DescriptionListItem term={t('app:personal-information.education')}>
+                {loaderData.personalInformation.education ?? t('app:profile.not-provided')}
+              </DescriptionListItem>
+              <DescriptionListItem term={t('app:personal-information.additional-information')}>
+                {loaderData.personalInformation.additionalInformation ?? t('app:profile.not-provided')}
+              </DescriptionListItem>
+            </DescriptionList>
+          )}
         </ProfileCard>
         <ProfileCard
           title={t('app:profile.employment.title')}
           linkLabel={t('app:profile.employment.link-label')}
           file="routes/employee/profile/employment-information.tsx"
-          completed={loaderData.employment.completed}
-          total={3}
-          required={true}
+          completed={loaderData.employmentInformation.completed}
+          total={loaderData.employmentInformation.total}
+          required
         >
-          <ProfileField label="Other field">field value</ProfileField>
+          {loaderData.employmentInformation.completed === 0 ? (
+            <>{t('app:profile.employment.detail')}</>
+          ) : (
+            <>
+              <h3 className="font-lato text-xl font-bold">{t('app:employment-information.substantive-position-heading')}</h3>
+              <DescriptionList>
+                <DescriptionListItem term={t('app:employment-information.substantive-position-group-and-level')}>
+                  {loaderData.employmentInformation.substantivePosition ?? t('app:profile.not-provided')}
+                </DescriptionListItem>
+                <DescriptionListItem term={t('app:employment-information.branch-or-service-canada-region')}>
+                  {loaderData.employmentInformation.branchOrServiceCanadaRegion ?? t('app:profile.not-provided')}
+                </DescriptionListItem>
+                <DescriptionListItem term={t('app:employment-information.directorate')}>
+                  {loaderData.employmentInformation.directorate ?? t('app:profile.not-provided')}
+                </DescriptionListItem>
+                <DescriptionListItem term={t('app:employment-information.provinces')}>
+                  {loaderData.employmentInformation.province ?? t('app:profile.not-provided')}
+                </DescriptionListItem>
+                <DescriptionListItem term={t('app:employment-information.city')}>
+                  {loaderData.employmentInformation.city ?? t('app:profile.not-provided')}
+                </DescriptionListItem>
+              </DescriptionList>
+              <h3 className="font-lato text-xl font-bold">{t('app:employment-information.wfa-detils-heading')}</h3>
+              <DescriptionList>
+                <DescriptionListItem term={t('app:employment-information.wfa-status')}>
+                  {loaderData.employmentInformation.wfaStatus ?? t('app:profile.not-provided')}
+                </DescriptionListItem>
+                {(loaderData.employmentInformation.wfaStatus === EMPLOYEE_WFA_STATUS.opting ||
+                  loaderData.employmentInformation.wfaStatus === EMPLOYEE_WFA_STATUS.surplusGRJO ||
+                  loaderData.employmentInformation.wfaStatus === EMPLOYEE_WFA_STATUS.surplusOptingOptionA) && (
+                  <>
+                    <DescriptionListItem term={t('app:employment-information.wfa-effective-date')}>
+                      {loaderData.employmentInformation.wfaEffectiveDate ?? t('app:profile.not-provided')}
+                    </DescriptionListItem>
+                    <DescriptionListItem term={t('app:employment-information.wfa-end-date')}>
+                      {loaderData.employmentInformation.wfaEndDate ?? t('app:profile.not-provided')}
+                    </DescriptionListItem>
+                  </>
+                )}
+                <DescriptionListItem term={t('app:employment-information.hr-advisor')}>
+                  {loaderData.employmentInformation.hrAdvisor ?? t('app:profile.not-provided')}
+                </DescriptionListItem>
+              </DescriptionList>
+            </>
+          )}
         </ProfileCard>
         <ProfileCard
           title={t('app:profile.referral.title')}
           linkLabel={t('app:profile.referral.link-label')}
           file="routes/employee/profile/referral-preferences.tsx"
-          completed={loaderData.referral.completed}
-          total={3}
-          required={true}
+          completed={loaderData.referralPreferences.completed}
+          total={loaderData.referralPreferences.total}
+          required
         >
-          <ProfileField label="Other field">field value</ProfileField>
+          {loaderData.referralPreferences.completed === 0 ? (
+            <>{t('app:profile.referral.detail')}</>
+          ) : (
+            <DescriptionList>
+              <DescriptionListItem term={t('app:referral-preferences.language-referral-type')}>
+                {loaderData.referralPreferences.languageReferralTypes === undefined
+                  ? t('app:profile.not-provided')
+                  : loaderData.referralPreferences.languageReferralTypes.length > 0 &&
+                    loaderData.referralPreferences.languageReferralTypes.join(', ')}
+              </DescriptionListItem>
+              <DescriptionListItem term={t('app:referral-preferences.classification')}>
+                {loaderData.referralPreferences.classification === undefined
+                  ? t('app:profile.not-provided')
+                  : loaderData.referralPreferences.classification.length > 0 &&
+                    loaderData.referralPreferences.classification.join(', ')}
+              </DescriptionListItem>
+              <DescriptionListItem term={t('app:referral-preferences.work-location')}>
+                {loaderData.referralPreferences.workLocationCities === undefined
+                  ? t('app:profile.not-provided')
+                  : loaderData.referralPreferences.workLocationCities.length > 0 &&
+                    loaderData.referralPreferences.workLocationCities.join(', ')}
+              </DescriptionListItem>
+              <DescriptionListItem term={t('app:referral-preferences.referral-availibility')}>
+                {loaderData.referralPreferences.referralAvailibility === undefined
+                  ? t('app:profile.not-provided')
+                  : loaderData.referralPreferences.referralAvailibility
+                    ? t('gcweb:input-option.yes')
+                    : t('gcweb:input-option.no')}
+              </DescriptionListItem>
+              <DescriptionListItem term={t('app:referral-preferences.alternate-opportunity')}>
+                {loaderData.referralPreferences.alternateOpportunity === undefined
+                  ? t('app:profile.not-provided')
+                  : loaderData.referralPreferences.alternateOpportunity
+                    ? t('gcweb:input-option.yes')
+                    : t('gcweb:input-option.no')}
+              </DescriptionListItem>
+              <DescriptionListItem term={t('app:referral-preferences.employment-tenure')}>
+                {loaderData.referralPreferences.employmentTenures === undefined
+                  ? t('app:profile.not-provided')
+                  : loaderData.referralPreferences.employmentTenures.length > 0 &&
+                    loaderData.referralPreferences.employmentTenures.join(', ')}
+              </DescriptionListItem>
+            </DescriptionList>
+          )}
         </ProfileCard>
-        <ProfileCard
-          title={t('app:profile.qualifications.title')}
-          linkLabel={t('app:profile.qualifications.link-label')}
-          file="routes/employee/profile/personal-details.tsx"
-          completed={loaderData.qualifications.completed}
-          total={3}
-          required={true}
-        >
-          <ProfileField label="Other field">field value</ProfileField>
-        </ProfileCard>
-      </div>
-    </div>
-  );
-}
-
-interface ProgressBarProps {
-  completed: number;
-  total: number;
-}
-
-function ProgressBar({ completed, total }: ProgressBarProps): JSX.Element {
-  const amountCompleted = completed / total;
-  const width =
-    {
-      0: 'w-0',
-      10: 'w-[10%]',
-      20: 'w-[20%]',
-      30: 'w-[30%]',
-      40: 'w-[40%]',
-      50: 'w-[50%]',
-      60: 'w-[60%]',
-      70: 'w-[70%]',
-      80: 'w-[80%]',
-      90: 'w-[90%]',
-      100: 'w-[100%]',
-    }[Math.round(amountCompleted * 10) * 10] ?? 'w-0';
-  const percentage = Math.round(amountCompleted * 100);
-  const textColor = width !== 'w-0' ? 'text-white text-shadow-sm' : 'text-black';
-  return (
-    <div className="rounded-2xl border border-gray-600 select-none">
-      <div className={cn('rounded-2xl bg-gray-600 whitespace-nowrap', width)}>
-        <span className={cn('ml-5 text-sm', textColor)}>{percentage}% complete</span>
       </div>
     </div>
   );
@@ -179,30 +292,42 @@ interface ProfileCardProps {
 function ProfileCard({ title, linkLabel, file, completed, total, required, children }: ProfileCardProps): JSX.Element {
   const { t } = useTranslation(handle.i18nNamespace);
   const inProgress = completed < total && completed > 0;
+  const complete = completed / total;
   const labelPrefix = `${inProgress ? t('app:profile.edit') : t('app:profile.add')}\u0020`;
   return (
     <Card className="p-4 sm:p-6">
       <CardHeader className="p-0">
         <div className="mb-6 grid grid-cols-2 justify-between select-none">
           <div>
-            <span className="rounded-2xl border border-gray-500 px-3 py-0.5 text-sm text-gray-500">
-              {t('app:profile.fields-complete', { completed, total })}
-            </span>
+            <FieldsCompletedTag completed={completed} total={total} />
           </div>
           <div className="ml-auto space-x-2">
-            {inProgress && (
-              <span className="rounded-2xl bg-gray-500 px-3 py-0.5 text-sm text-white">{t('app:profile.in-progress')}</span>
-            )}
-            {required && (
-              <span className="rounded-2xl bg-gray-500 px-3 py-0.5 text-sm text-white">{t('app:profile.required')}</span>
+            {complete === 1 ? (
+              <CompleteTag />
+            ) : (
+              <>
+                {inProgress && <InProgressTag />}
+                {required && <RequiredTag />}
+              </>
             )}
           </div>
         </div>
         <CardTitle className="text-2xl">{title}</CardTitle>
       </CardHeader>
       <CardContent className="my-3 space-y-3 p-0">{children}</CardContent>
-      <CardFooter className="mt-3 p-0">
-        <InlineLink file={file}>
+      <CardFooter
+        className={cn(
+          'mt-3 flex items-center gap-2',
+          'bg-gray-100', // Add background
+          '-mx-4 sm:-mx-6', // Pull horizontally to cancel parent padding
+          '-mb-4 sm:-mb-6', // Pull down to cancel parent bottom padding
+          'px-4 sm:px-6', // Add horizontal padding back for the content
+          'py-4', // Add vertical padding for the content
+          'rounded-b-xs', // Re-apply bottom rounding
+        )}
+      >
+        {inProgress ? <FontAwesomeIcon icon={faPenToSquare} /> : <FontAwesomeIcon icon={faPlus} />}
+        <InlineLink className="font-semibold" file={file}>
           {labelPrefix}
           {linkLabel}
         </InlineLink>
@@ -211,16 +336,48 @@ function ProfileCard({ title, linkLabel, file, completed, total, required, child
   );
 }
 
-export interface ProfileFieldProps {
-  label: string;
-  children: ReactNode;
+function CompleteTag(): JSX.Element {
+  const { t } = useTranslation(handle.i18nNamespace);
+
+  return (
+    <span className="rounded-2xl border border-green-600 bg-green-600 px-3 py-0.5 text-sm font-semibold text-white">
+      <FontAwesomeIcon className="mr-1" icon={faCheck} />
+      {t('app:profile.complete')}
+    </span>
+  );
 }
 
-function ProfileField({ label, children }: ProfileFieldProps): JSX.Element {
+function InProgressTag(): JSX.Element {
+  const { t } = useTranslation(handle.i18nNamespace);
+
   return (
-    <div>
-      <dt className="font-semibold">{label}</dt>
-      <dd className="mt-1 text-gray-500 sm:col-span-2 sm:mt-0">{children}</dd>
-    </div>
+    <span className="rounded-2xl border border-blue-400 bg-blue-100 px-3 py-0.5 text-sm font-semibold text-blue-800">
+      {t('app:profile.in-progress')}
+    </span>
+  );
+}
+
+function RequiredTag(): JSX.Element {
+  const { t } = useTranslation(handle.i18nNamespace);
+
+  return (
+    <span className="rounded-2xl border border-gray-400 bg-gray-100 px-3 py-0.5 text-sm font-semibold text-black">
+      {t('app:profile.required')}
+    </span>
+  );
+}
+
+interface FieldsCompletedTagProps {
+  completed: number;
+  total: number;
+}
+
+function FieldsCompletedTag({ completed, total }: FieldsCompletedTagProps): JSX.Element {
+  const { t } = useTranslation(handle.i18nNamespace);
+
+  return (
+    <span className="rounded-2xl border border-gray-100 bg-gray-100 px-3 py-0.5 text-sm text-black">
+      {t('app:profile.fields-complete', { completed, total })}
+    </span>
   );
 }

@@ -106,7 +106,7 @@ describe('links', () => {
 
       expect(container).toMatchSnapshot('expected html');
       expect(HTMLElement.prototype.focus).toHaveBeenCalled();
-      expect(HTMLElement.prototype.scrollIntoView).toHaveBeenCalledWith({ behavior: 'smooth' });
+      expect(HTMLElement.prototype.scrollIntoView).toHaveBeenCalledWith({ behavior: 'smooth', block: 'center' });
     });
 
     it('should handle click event without an onClick callback', () => {
@@ -124,7 +124,7 @@ describe('links', () => {
 
       expect(container).toMatchSnapshot('expected html');
       expect(HTMLElement.prototype.focus).toHaveBeenCalled();
-      expect(HTMLElement.prototype.scrollIntoView).toHaveBeenCalledWith({ behavior: 'smooth' });
+      expect(HTMLElement.prototype.scrollIntoView).toHaveBeenCalledWith({ behavior: 'smooth', block: 'center' });
     });
   });
 

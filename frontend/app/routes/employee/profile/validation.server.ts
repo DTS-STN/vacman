@@ -245,7 +245,27 @@ export const refferralPreferencesSchema = v.object({
       'app:referral-preferences.errors.classification-duplicate',
     ),
   ),
-  workLocations: v.optional(v.array(v.string())),
+  workLocationProvince: v.lazy(() =>
+    v.picklist(
+      province.map(({ id }) => id),
+      'app:referral-preferences.errors.work-location-province-required',
+    ),
+  ),
+  workLocationCities: v.pipe(
+    v.array(
+      v.lazy(() =>
+        v.picklist(
+          cities.map((c) => c.id),
+          'app:referral-preferences.errors.work-location-city-invalid',
+        ),
+      ),
+    ),
+    v.nonEmpty('app:referral-preferences.errors.work-location-city-required'),
+    v.checkItems(
+      (item, index, array) => array.indexOf(item) === index,
+      'app:referral-preferences.errors.work-location-city-duplicate',
+    ),
+  ),
   referralAvailibility: v.boolean('app:referral-preferences.errors.referral-availibility-required'),
   alternateOpportunity: v.boolean('app:referral-preferences.errors.alternate-opportunity-required'),
   employmentTenures: v.pipe(

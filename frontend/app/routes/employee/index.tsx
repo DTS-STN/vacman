@@ -66,11 +66,15 @@ function ActionCard({ action, icon, title }: ActionCardProps): JSX.Element {
       <Card asChild className="flex cursor-pointer items-center gap-4 p-4 transition-colors hover:bg-gray-50 sm:p-6">
         <button type="submit" className="w-full text-left">
           <CardIcon icon={icon} />
-          <CardHeader className="p-0">
-            <CardTitle className="flex items-center gap-2">
-              <span>{title}</span>
-              <FontAwesomeIcon icon={faChevronRight} />
-            </CardTitle>
+          <CardHeader asChild className="p-0">
+            <span>
+              <CardTitle asChild className="flex items-center gap-2">
+                <span role="heading" aria-level={2}>
+                  {title}
+                  <FontAwesomeIcon icon={faChevronRight} />
+                </span>
+              </CardTitle>
+            </span>
           </CardHeader>
         </button>
       </Card>

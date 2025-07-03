@@ -86,18 +86,18 @@ describe('InputMultiSelect', () => {
     expect(screen.queryByRole('listbox')).toBeNull();
   });
 
-  it('should toggle the dropdown on button click', async () => {
+  it('should toggle the dropdown on click', async () => {
     const user = userEvent.setup();
     renderComponent();
+    const combobox = screen.getByRole('combobox', { name: 'Favorite Frameworks' });
 
-    const triggerButton = screen.getByRole('button', { name: 'Favorite Frameworks' });
-    expect(triggerButton.getAttribute('aria-expanded')).toBe('false');
+    expect(combobox.getAttribute('aria-expanded')).toBe('false');
 
-    await user.click(triggerButton);
+    await user.click(combobox);
     expect(screen.getByRole('listbox')).toBeTruthy();
-    expect(triggerButton.getAttribute('aria-expanded')).toBe('true');
+    expect(combobox.getAttribute('aria-expanded')).toBe('true');
 
-    await user.click(triggerButton);
+    await user.click(combobox);
     expect(screen.queryByRole('listbox')).toBeNull();
   });
 
@@ -105,17 +105,17 @@ describe('InputMultiSelect', () => {
     const user = userEvent.setup();
     renderComponent();
 
-    await user.click(screen.getByRole('button'));
+    await user.click(screen.getByRole('combobox'));
     await user.click(screen.getByText('Svelte'));
 
     expect(onChange).toHaveBeenCalledWith(['svelte']);
   });
 
-  it('should select an option with the Enter key', async () => {
+  it('should select an option with the Enter key on the option', async () => {
     const user = userEvent.setup();
     renderComponent();
 
-    await user.click(screen.getByRole('button'));
+    await user.click(screen.getByRole('combobox'));
     const vueOption = screen.getByText('Vue').closest('div[role="option"]');
 
     expect(vueOption).toBeInstanceOf(HTMLElement);
@@ -128,14 +128,17 @@ describe('InputMultiSelect', () => {
   it('should render an error message and apply error styles', () => {
     renderComponent({ errorMessage: 'This field is required' });
     expect(screen.getByText('This field is required')).toBeTruthy();
-    const button = screen.getByRole('button');
-    expect(button.className).toContain('border-red-500');
+    const combobox = screen.getByRole('combobox');
+
+    expect(combobox.className).toContain('border-red-500');
   });
 
   it('should be disabled when the disabled prop is true', () => {
     renderComponent({ disabled: true });
-    const button = screen.getByRole('button') as HTMLButtonElement;
-    expect(button.disabled).toBe(true);
+    const combobox = screen.getByRole('combobox');
+
+    expect(combobox.getAttribute('aria-disabled')).toBe('true');
+    expect(combobox.getAttribute('tabIndex')).toBe('-1');
   });
 
   it('should render multiple hidden inputs for form submission', () => {

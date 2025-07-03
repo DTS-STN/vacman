@@ -67,6 +67,7 @@ export function InputMultiSelect(props: InputMultiSelectProps) {
   const inputHelpMessageId = `input-${id}-help`;
   const inputLabelId = `input-${id}-label`;
   const inputWrapperId = `input-${id}`;
+  const dropdownId = `${id}-dropdown`;
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -132,23 +133,35 @@ export function InputMultiSelect(props: InputMultiSelectProps) {
         </InputHelp>
       )}
 
-      <button
-        type="button"
+      <div
         id={id}
-        disabled={disabled}
-        onClick={() => setIsOpen(!isOpen)}
+        role="combobox"
+        tabIndex={disabled ? -1 : 0}
+        aria-disabled={disabled}
+        aria-haspopup="listbox"
+        aria-expanded={isOpen}
+        aria-controls={dropdownId}
+        aria-invalid={!!errorMessage}
+        aria-errormessage={errorMessage ? inputErrorId : undefined}
+        aria-labelledby={inputLabelId}
+        aria-describedby={[helpMessage && inputHelpMessageId].filter(Boolean).join(' ') || undefined}
+        onClick={disabled ? undefined : () => setIsOpen(!isOpen)}
+        onKeyDown={
+          disabled
+            ? undefined
+            : (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault(); // Prevent space from scrolling
+                  setIsOpen(!isOpen);
+                }
+              }
+        }
         className={cn(
           triggerBaseClassName,
           disabled && triggerDisabledClassName,
           errorMessage && triggerErrorClassName,
           className,
         )}
-        aria-haspopup="listbox"
-        aria-expanded={isOpen}
-        aria-labelledby={inputLabelId}
-        aria-describedby={
-          [errorMessage && inputErrorId, helpMessage && inputHelpMessageId].filter(Boolean).join(' ') || undefined
-        }
       >
         <span className="block truncate">{getDisplayValue()}</span>
         <span className="pointer-events-none inset-y-0 right-0 flex items-center pr-2">
@@ -158,10 +171,10 @@ export function InputMultiSelect(props: InputMultiSelectProps) {
             <FontAwesomeIcon icon={faChevronDown} className="my-auto size-3 text-gray-400" />
           )}
         </span>
-      </button>
+      </div>
 
       {isOpen && (
-        <div role="listbox" aria-multiselectable="true" className={dropdownClassName}>
+        <div id={dropdownId} role="listbox" aria-multiselectable="true" className={dropdownClassName}>
           {options.map((optionProps, index) => {
             const isSelected = value.includes(optionProps.value);
             const optionId = `${id}-multiselect-option-${index}`;

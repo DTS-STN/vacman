@@ -15,35 +15,39 @@ export default {
     'page-title': "S'inscrire comme...",
   },
   'profile': {
-    'about':
-      'Votre profil nous aide à comprendre votre situation actuelle, vos préférences en matière de recommandation et vos qualifications. Vous pouvez mettre à jour chaque section selon vos besoins. Votre progression est enregistrée automatiquement.',
+    'about-para-1':
+      'Ce profil décrit votre position actuelle, vos préférences de référence et vos qualifications. Complétez toutes les sections et soumettez pour approbation.',
+    'about-para-2': 'Vos progrès sont enregistrés automatiquement.',
     'edit': 'Modifier les',
     'add': 'Ajouter des',
     'in-progress': 'En cours',
+    'complete': 'Complet',
     'required': 'Obligatoire',
     'fields-complete': '{{completed}} sur {{total}} champs remplis',
     'personal-information': {
       'title': 'Informations personnelles',
       'link-label': 'informations personnelles',
+      'detail': 'Provide your personal and contact details, language preferences, education, and other relevant information.',
     },
     'employment': {
       'title': "Informations sur l'emploi",
       'link-label': "informations sur l'emploi",
+      'detail': 'Share information about your current job and your Work Force Adjustment (WFA) status.',
     },
     'referral': {
       'title': 'Préférences de recommandation',
       'link-label': 'préférences de recommandation',
-    },
-    'qualifications': {
-      'title': 'Qualifications',
-      'link-label': 'qualifications',
+      'detail':
+        'Indicate your preferences for job referrals including job type, classification, language requirements, preferred locations, and availability.',
     },
     'back': 'Retour au profil',
     'view': 'Voir mon profil',
+    'not-provided': 'Non communiqué',
   },
   'form': {
     'cancel': 'Annuler',
     'save': 'Enregistrer',
+    'save-and-exit': 'Enregistrer et quitter',
     'submit': 'Soumettre',
     'select-option': 'Sélectionner une option',
     'select-all-that-apply': "Sélectionnez tout ce qui s'applique",
@@ -111,7 +115,7 @@ export default {
         'invalid-before-effective-date':
           "La date de fin de votre statut de RE doit être postérieure à la date d'entrée en vigueur de votre statut RE.",
         'required-year': "L'année de fin de votre statut de RE est requise.",
-        'invalid-year': "L'année de fin de votre statut de RE est requise.",
+        'invalid-year': "L'année de fin de votre statut de RE est invalide.",
         'required-month': 'La mois de fin de votre statut de RE est requise.',
         'invalid-month': 'La mois de fin de votre statut de RE est invalide.',
         'required-day': 'La jour de fin de votre statut de RE est requise.',
@@ -144,9 +148,10 @@ export default {
       'classification-required': 'Groupe et niveau de classification est requis.',
       'classification-invalid': 'Groupe et niveau de classification est invalide.',
       'classification-duplicate': 'Les éléments dupliqués pour groupe et niveau de classification ne sont pas permis.',
-      'work-location-required': "L'emplacement de travail est requis.",
-      'province-required': 'La ville est requise.',
-      'city-required': 'La ville est requise.',
+      'work-location-province-required': 'La province du lieu de travail est requise.',
+      'work-location-city-required': 'La ville de travail est requise.',
+      'work-location-city-invalid': "La ville de travail n'est pas valide.",
+      'work-location-city-duplicate': 'Les éléments dupliqués pour la ville du lieu de travail ne sont pas permis.',
       'referral-availibility-required': 'La disponibilité pour les références est requise.',
       'alternate-opportunity-required': "Opportunités d'échange est requise.",
       'employment-tenure-required': "Opportunités d'emploi est requise.",

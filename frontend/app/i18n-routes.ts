@@ -161,14 +161,6 @@ export const i18nRoutes = [
         },
       },
       {
-        id: 'EMPL-0007',
-        file: 'routes/employee/profile/personal-details.tsx',
-        paths: {
-          en: '/en/employee/profile/personal-details',
-          fr: '/fr/employe/profil/details-personnels',
-        },
-      },
-      {
         id: 'HIRE-0001',
         file: 'routes/hiring-manager/index.tsx',
         paths: {
