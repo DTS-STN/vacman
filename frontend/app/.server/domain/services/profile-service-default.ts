@@ -4,7 +4,6 @@ import type { Option } from 'oxide.ts';
 import type { Profile } from '~/.server/domain/models';
 import type { ProfileService } from '~/.server/domain/services/profile-service';
 import { serverEnvironment } from '~/.server/environment';
-import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
 import type { HttpStatusCode } from '~/errors/http-status-codes';
@@ -65,7 +64,7 @@ export function getDefaultProfileService(): ProfileService {
      * @returns A promise that resolves to the created profile object.
      * @throws AppError if the request fails or if the server responds with an error status.
      */
-    async registerProfile(activeDirectoryId: string, session: AuthenticatedSession): Promise<Profile> {
+    async registerProfile(activeDirectoryId: string): Promise<Profile> {
       let response: Response;
 
       try {

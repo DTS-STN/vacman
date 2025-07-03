@@ -2,7 +2,6 @@ import { None, Some } from 'oxide.ts';
 
 import type { Profile } from '~/.server/domain/models';
 import type { ProfileService } from '~/.server/domain/services/profile-service';
-import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
 
 export function getMockProfileService(): ProfileService {
   return {
@@ -10,8 +9,8 @@ export function getMockProfileService(): ProfileService {
       const profile = getProfile(activeDirectoryId);
       return Promise.resolve(profile ? Some(profile) : None);
     },
-    registerProfile: (activeDirectoryId: string, session: AuthenticatedSession) => {
-      return Promise.resolve(registerProfile(activeDirectoryId, session));
+    registerProfile: (activeDirectoryId: string) => {
+      return Promise.resolve(registerProfile(activeDirectoryId));
     },
   };
 }
@@ -100,7 +99,7 @@ function getProfile(activeDirectoryId: string): Profile | null {
  * @returns The created profile object.
  * @throws {AppError} If the profile cannot be created (e.g., user not found).
  */
-function registerProfile(activeDirectoryId: string, session: AuthenticatedSession): Profile {
+function registerProfile(activeDirectoryId: string): Profile {
   let userId = activeDirectoryToUserIdMap[activeDirectoryId];
   if (!userId) {
     // Create new entry in activeDirectoryToUserIdMap if it doesn't exist
@@ -128,7 +127,7 @@ function registerProfile(activeDirectoryId: string, session: AuthenticatedSessio
     availableForReferralInd: false,
     interestedInAlternationInd: true,
     additionalCommentTxt: 'Interested in management positions.',
-    userCreated: session.authState.idTokenClaims.oid as string,
+    userCreated: activeDirectoryId,
     dateCreated: new Date().toISOString(),
     userUpdated: undefined,
     dateUpdated: undefined,
