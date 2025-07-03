@@ -60,7 +60,6 @@ export function getDefaultProfileService(): ProfileService {
     /**
      * Registers a new profile for a user.
      * @param activeDirectoryId The Active Directory ID of the user to create a profile for.
-     * @param session The authenticated session.
      * @returns A promise that resolves to the created profile object.
      * @throws AppError if the request fails or if the server responds with an error status.
      */
