@@ -8,7 +8,6 @@ import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 
-//TODO: Revisit when the api endpoints are avaialable
 // Centralized API request logic
 async function makeApiRequest<T>(path: string, context: string): Promise<Result<T, AppError>> {
   try {
@@ -139,7 +138,7 @@ export const directorateService: DirectorateService = {
    */
   async getAllLocalized(language: Language): Promise<Result<readonly LocalizedDirectorate[], AppError>> {
     const result = await this.getAll();
-    return result.map((cities) => cities.map((directorate) => localizeDirectorate(directorate, language)));
+    return result.map((directorates) => directorates.map((directorate) => localizeDirectorate(directorate, language)));
   },
 
   /**
