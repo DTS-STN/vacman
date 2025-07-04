@@ -41,7 +41,7 @@ export class DefaultVerificationCodeRepository implements VerificationCodeReposi
   private readonly log: Logger;
   private readonly serverConfig: Pick<
     Server,
-    'GC_NOTIFY_API_KEY' | 'HTTP_PROXY_URL' | 'INTEROP_API_BASE_URI' | 'INTEROP_API_SUBSCRIPTION_KEY'
+    'GC_NOTIFY_API_KEY' | 'HTTP_PROXY_URL' | 'GC_NOTIFY_API_URL' | 'INTEROP_API_BASE_URI' | 'INTEROP_API_SUBSCRIPTION_KEY'
   >;
   private readonly httpClient: HttpClient;
   private readonly baseUrl: string;
@@ -49,14 +49,14 @@ export class DefaultVerificationCodeRepository implements VerificationCodeReposi
   constructor(
     serverConfig: Pick<
       Server,
-      'GC_NOTIFY_API_KEY' | 'HTTP_PROXY_URL' | 'INTEROP_API_BASE_URI' | 'INTEROP_API_SUBSCRIPTION_KEY'
+      'GC_NOTIFY_API_KEY' | 'HTTP_PROXY_URL' | 'GC_NOTIFY_API_URL' | 'INTEROP_API_BASE_URI' | 'INTEROP_API_SUBSCRIPTION_KEY'
     >,
     httpClient: HttpClient,
   ) {
     this.log = LogFactory.getLogger(import.meta.url);
     this.serverConfig = serverConfig;
     this.httpClient = httpClient;
-    this.baseUrl = `${this.serverConfig.INTEROP_API_BASE_URI}`;
+    this.baseUrl = `${this.serverConfig.GC_NOTIFY_API_URL}`;
   }
 
   async sendVerificationCodeEmail(
