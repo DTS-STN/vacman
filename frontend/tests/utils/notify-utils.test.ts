@@ -40,7 +40,7 @@ beforeEach(() => {
   global.fetch = vi.fn() as unknown as typeof fetch;
 });
 
-describe('notfy-utils', () => {
+describe('notify-utils', () => {
   it('should mock sending an email to gc-notify in english', async () => {
     // Arrange: mock fetch to simulate a successful response
     (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
