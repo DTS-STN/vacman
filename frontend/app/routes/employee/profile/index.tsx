@@ -82,8 +82,9 @@ export async function loader({ context, request }: Route.LoaderArgs) {
   // convert the IDs to display names
   const preferredLanguage =
     profileData.personalInformation.preferredLanguageId &&
-    (await getLanguageForCorrespondenceService().getLocalizedById(profileData.personalInformation.preferredLanguageId, lang)) //TODO add find localized by ID in service
-      .unwrap().name;
+    (
+      await getLanguageForCorrespondenceService().findLocalizedById(profileData.personalInformation.preferredLanguageId, lang)
+    ).unwrap().name;
   const education =
     profileData.personalInformation.educationLevelId &&
     (await getEducationLevelService().getLocalizedById(profileData.personalInformation.educationLevelId, lang)).unwrap().name; //TODO add find localized by ID in service

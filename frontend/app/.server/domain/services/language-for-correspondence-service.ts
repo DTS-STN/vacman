@@ -10,8 +10,13 @@ export type LanguageForCorrespondenceService = {
   getAll(): Promise<Result<readonly LanguageOfCorrespondence[], AppError>>;
   getById(id: string): Promise<Result<LanguageOfCorrespondence, AppError>>;
   findById(id: string): Promise<Option<LanguageOfCorrespondence>>;
+  getByCode(code: string): Promise<Result<LanguageOfCorrespondence, AppError>>;
+  findByCode(code: string): Promise<Option<LanguageOfCorrespondence>>;
   getAllLocalized(language: Language): Promise<Result<readonly LocalizedLanguageOfCorrespondence[], AppError>>;
   getLocalizedById(id: string, language: Language): Promise<Result<LocalizedLanguageOfCorrespondence, AppError>>;
+  findLocalizedById(id: string, language: Language): Promise<Option<LocalizedLanguageOfCorrespondence>>;
+  getLocalizedByCode(code: string, language: Language): Promise<Result<LocalizedLanguageOfCorrespondence, AppError>>;
+  findLocalizedByCode(code: string, language: Language): Promise<Option<LocalizedLanguageOfCorrespondence>>;
 };
 
 export function getLanguageForCorrespondenceService(): LanguageForCorrespondenceService {
