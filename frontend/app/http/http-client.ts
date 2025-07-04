@@ -22,7 +22,7 @@ export type FetchOptions = RequestInit & {
 };
 
 /**
- * TODO Service interface for managing HTTP requests with optional instrumentation and proxy support. 
+ * TODO Service interface for managing HTTP requests with optional instrumentation and proxy support.
  */
 
 export interface HttpClient {
