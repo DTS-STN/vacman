@@ -32,12 +32,11 @@ exports[`InputTextarea > should render > expected html 1`] = `
         default value
       </textarea>
       <span
+        aria-atomic="true"
+        aria-live="polite"
         class="absolute right-0 text-sm text-gray-500"
       >
-        0
-        /
-         
-        form.maximum-characters
+        0/undefined form.maximum-characters
       </span>
     </div>
   </div>
@@ -85,12 +84,11 @@ exports[`InputTextarea > should render with error message > expected html 1`] = 
         default value
       </textarea>
       <span
+        aria-atomic="true"
+        aria-live="polite"
         class="absolute right-0 text-sm text-gray-500"
       >
-        0
-        /
-         
-        form.maximum-characters
+        0/undefined form.maximum-characters
       </span>
     </div>
   </div>
@@ -137,12 +135,11 @@ exports[`InputTextarea > should render with help message > expected html 1`] = `
         default value
       </textarea>
       <span
+        aria-atomic="true"
+        aria-live="polite"
         class="absolute right-0 text-sm text-gray-500"
       >
-        0
-        /
-         
-        form.maximum-characters
+        0/undefined form.maximum-characters
       </span>
     </div>
   </div>
@@ -191,12 +188,11 @@ exports[`InputTextarea > should render with required > expected html 1`] = `
         default value
       </textarea>
       <span
+        aria-atomic="true"
+        aria-live="polite"
         class="absolute right-0 text-sm text-gray-500"
       >
-        0
-        /
-         
-        form.maximum-characters
+        0/undefined form.maximum-characters
       </span>
     </div>
   </div>
