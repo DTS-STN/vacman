@@ -9,7 +9,19 @@ import { useTranslation } from 'react-i18next';
 
 import type { Route } from './+types/index';
 
+import type { Profile } from '~/.server/domain/models';
+import { getBranchService } from '~/.server/domain/services/branch-service';
+import { getCityService } from '~/.server/domain/services/city-service';
+import { getClassificationService } from '~/.server/domain/services/classification-service';
+import { getDirectorateService } from '~/.server/domain/services/directorate-service';
+import { getEducationLevelService } from '~/.server/domain/services/education-level-service';
+import { getEmploymentTenureService } from '~/.server/domain/services/employment-tenure-service';
+import { getLanguageForCorrespondenceService } from '~/.server/domain/services/language-for-correspondence-service';
+import { getLanguageReferralTypeService } from '~/.server/domain/services/language-referral-type-service';
+import { getProfileService } from '~/.server/domain/services/profile-service';
+import { getProvinceService } from '~/.server/domain/services/province-service';
 import { getUserService } from '~/.server/domain/services/user-service';
+import { getWFAStatuses } from '~/.server/domain/services/wfa-status-service';
 import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { Button } from '~/components/button';
@@ -22,6 +34,7 @@ import { EMPLOYEE_WFA_STATUS } from '~/domain/constants';
 import { getTranslation } from '~/i18n-config.server';
 import type { I18nRouteFile } from '~/i18n-routes';
 import { handle as parentHandle } from '~/routes/layout';
+import { countCompletedItems } from '~/utils/string-utils';
 import { cn } from '~/utils/tailwind-utils';
 
 export const handle = {
@@ -43,55 +56,116 @@ export function action({ context, params, request }: Route.ActionArgs) {
 export async function loader({ context, request }: Route.LoaderArgs) {
   // Since parent layout ensures authentication, we can safely cast the session
   const authenticatedSession = context.session as AuthenticatedSession;
-  const activeDirectoryId = authenticatedSession.authState.idTokenClaims.oid as string;
+  const authId = authenticatedSession.authState.idTokenClaims.oid as string;
   const userService = getUserService();
-  const user = await userService.getUserByActiveDirectoryId(activeDirectoryId);
+  const user = await userService.getUserByActiveDirectoryId(authId);
 
-  const { t } = await getTranslation(request, handle.i18nNamespace);
-  const completed = 1; //TODO: Replace with a function to count completed items by checking undefined values
-  const total = 21; //TODO: Replace with a function to count total items by checking length
+  const [profileResult, allLanguageReferralTypes, allClassifications, allCities, allEmploymentTenures] = await Promise.all([
+    getProfileService().getProfile(authId),
+    getLanguageReferralTypeService().getAll(),
+    getClassificationService().getAll(),
+    getCityService().getAll(),
+    getEmploymentTenureService().getAll(),
+  ]);
+
+  if (profileResult.isNone()) {
+    throw new Response('Profile not found', { status: 404 });
+  }
+
+  const profileData: Profile = profileResult.unwrap();
+
+  const { lang, t } = await getTranslation(request, handle.i18nNamespace);
+  const completed = countCompletedItems(profileData);
+  const total = Object.keys(profileData).length;
   const amountCompleted = (completed / total) * 100;
+
+  // convert the IDs to display names
+  const preferredLanguage =
+    profileData.personalInformation.preferredLanguageId &&
+    (await getLanguageForCorrespondenceService().getLocalizedById(profileData.personalInformation.preferredLanguageId, lang)) //TODO add find localized by ID in service
+      .unwrap().name;
+  const education =
+    profileData.personalInformation.educationLevelId &&
+    (await getEducationLevelService().getLocalizedById(profileData.personalInformation.educationLevelId, lang)).unwrap().name; //TODO add find localized by ID in service
+  const substantivePosition =
+    profileData.employmentInformation.classificationId &&
+    (await getClassificationService().findById(profileData.employmentInformation.classificationId)).unwrap().name;
+  const branchOrServiceCanadaRegion =
+    profileData.employmentInformation.workUnitId &&
+    (await getBranchService().getLocalizedById(profileData.employmentInformation.workUnitId, lang)).unwrap().name; //TODO add find localized by ID in service
+  const directorate =
+    profileData.employmentInformation.workUnitId &&
+    (await getDirectorateService().findLocalizedById(profileData.employmentInformation.workUnitId, lang)).unwrap().name;
+  const province =
+    profileData.employmentInformation.provinceId &&
+    (await getProvinceService().findLocalizedById(profileData.employmentInformation.provinceId, lang)).unwrap().name;
+  const city =
+    profileData.employmentInformation.cityId &&
+    (await getCityService().findLocalizedById(profileData.employmentInformation.cityId, lang)).unwrap().name;
+  const wfaStatus =
+    profileData.employmentInformation.wfaStatusId &&
+    (await getWFAStatuses().getLocalizedById(profileData.employmentInformation.wfaStatusId, lang)).unwrap().name; //TODO add find localized by ID in service
+  const hrAdvisor =
+    profileData.employmentInformation.hrAdvisor &&
+    (await getUserService().getUserById(profileData.employmentInformation.hrAdvisor));
+  const languageReferralTypes = profileData.referralPreferences.languageReferralTypeIds
+    ?.map((langId) => allLanguageReferralTypes.unwrap().find((l) => l.id === langId))
+    .filter(Boolean);
+  const classifications = profileData.referralPreferences.classificationIds
+    ?.map((classificationId) => allClassifications.unwrap().find((c) => c.id === classificationId))
+    .filter(Boolean);
+  const cities = profileData.referralPreferences.workLocationCitieIds
+    ?.map((cityId) => allCities.unwrap().find((c) => c.id === cityId))
+    .filter(Boolean);
+  const employmentTenures = profileData.referralPreferences.employmentTenureIds
+    ?.map((employmentTenureId) => allEmploymentTenures.unwrap().find((c) => c.id === employmentTenureId))
+    .filter(Boolean);
 
   return {
     documentTitle: t('app:index.about'),
     name: authenticatedSession.authState.idTokenClaims.name,
-    email: user?.businessEmail ?? 'firstname.lastname@email.ca',
+    email: user?.businessEmail ?? profileData.personalInformation.workEmail,
     amountCompleted: amountCompleted,
-    //TODO: Replace with actual values
     personalInformation: {
-      completed: 1, //TODO: Replace with a function to count completed items by checking undefined values
-      total: 6, //TODO: Replace with a function to count total items by checking length
-      personalRecordIdentifier: undefined as string | undefined,
-      preferredLanguage: undefined as string | undefined,
-      workEmail: user?.businessEmail ?? 'firstname.lastname@email.ca',
-      personalEmail: undefined as string | undefined,
-      workPhone: undefined as string | undefined,
-      personalPhone: undefined as string | undefined,
-      education: undefined as string | undefined,
-      additionalInformation: undefined as string | undefined,
+      completed: countCompletedItems(profileData.personalInformation),
+      total: Object.keys(profileData.personalInformation).length,
+      personalRecordIdentifier: profileData.personalInformation.personalRecordIdentifier,
+      preferredLanguage: preferredLanguage,
+      workEmail: user?.businessEmail ?? profileData.personalInformation.workEmail,
+      personalEmail: profileData.personalInformation.personalEmail,
+      workPhone: profileData.personalInformation.workPhone,
+      personalPhone: profileData.personalInformation.personalPhone,
+      education: education,
+      additionalInformation: profileData.personalInformation.additionalInformation,
     },
     employmentInformation: {
-      completed: 0, //TODO: Replace with a function to count completed items by checking undefined values
-      total: 9, //TODO: Replace with a function to count total items by checking length
-      substantivePosition: undefined as string | undefined,
-      branchOrServiceCanadaRegion: undefined as string | undefined,
-      directorate: undefined as string | undefined,
-      province: undefined as string | undefined,
-      city: undefined as string | undefined,
-      wfaStatus: undefined as string | undefined,
-      wfaEffectiveDate: undefined as string | undefined,
-      wfaEndDate: undefined as string | undefined,
-      hrAdvisor: undefined as string | undefined,
+      completed: countCompletedItems(profileData.employmentInformation),
+      total: Object.keys(profileData.employmentInformation).length,
+      substantivePosition: substantivePosition,
+      branchOrServiceCanadaRegion: branchOrServiceCanadaRegion,
+      directorate: directorate,
+      province: province,
+      city: city,
+      wfaStatus: wfaStatus,
+      wfaEffectiveDate: profileData.employmentInformation.wfaEffectiveDate,
+      wfaEndDate: profileData.employmentInformation.wfaEndDate,
+      hrAdvisor: hrAdvisor && hrAdvisor.firstName + ' ' + hrAdvisor.lastName,
     },
     referralPreferences: {
-      completed: 0, //TODO: Replace with a function to count completed items by checking undefined values
-      total: 6, //TODO: Replace with a function to count total items by checking length
-      languageReferralTypes: undefined as string[] | undefined,
-      classification: undefined as string[] | undefined,
-      workLocationCities: undefined as string[] | undefined,
-      referralAvailibility: undefined as boolean | undefined,
-      alternateOpportunity: undefined as boolean | undefined,
-      employmentTenures: undefined as string[] | undefined,
+      completed: countCompletedItems(profileData.referralPreferences),
+      total: Object.keys(profileData.referralPreferences).length,
+      languageReferralTypes: languageReferralTypes?.map((languageReferralType) =>
+        lang === 'en' ? languageReferralType?.nameEn : languageReferralType?.nameFr,
+      ),
+      classifications: classifications?.map((c) => c?.name),
+      workLocationCities: cities?.map((city) =>
+        lang === 'en' ? city?.province.nameEn + ' - ' + city?.nameEn : city?.province.nameFr + ' - ' + city?.nameFr,
+      ),
+      referralAvailibility: profileData.referralPreferences.availableForReferralInd,
+      alternateOpportunity: profileData.referralPreferences.interestedInAlternationInd,
+      employmentTenures: employmentTenures?.map((employmentTenure) =>
+        lang === 'en' ? employmentTenure?.nameEn : employmentTenure?.nameFr,
+      ),
     },
   };
 }
@@ -119,7 +193,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
         </Form>
       </div>
 
-      <Progress className="mt-8 mb-8" label="" value={loaderData.amountCompleted} />
+      <Progress className="mt-8 mb-8" label={t('app:profile.profile-completion-progress')} value={loaderData.amountCompleted} />
       <div className="mt-8 max-w-prose space-y-10">
         <ProfileCard
           title={t('app:profile.personal-information.title')}
@@ -240,10 +314,10 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
                     loaderData.referralPreferences.languageReferralTypes.join(', ')}
               </DescriptionListItem>
               <DescriptionListItem term={t('app:referral-preferences.classification')}>
-                {loaderData.referralPreferences.classification === undefined
+                {loaderData.referralPreferences.classifications === undefined
                   ? t('app:profile.not-provided')
-                  : loaderData.referralPreferences.classification.length > 0 &&
-                    loaderData.referralPreferences.classification.join(', ')}
+                  : loaderData.referralPreferences.classifications.length > 0 &&
+                    loaderData.referralPreferences.classifications.join(', ')}
               </DescriptionListItem>
               <DescriptionListItem term={t('app:referral-preferences.work-location')}>
                 {loaderData.referralPreferences.workLocationCities === undefined
@@ -292,8 +366,8 @@ interface ProfileCardProps {
 function ProfileCard({ title, linkLabel, file, completed, total, required, children }: ProfileCardProps): JSX.Element {
   const { t } = useTranslation(handle.i18nNamespace);
   const inProgress = completed < total && completed > 0;
-  const complete = completed / total;
-  const labelPrefix = `${inProgress ? t('app:profile.edit') : t('app:profile.add')}\u0020`;
+  const isComplete = completed === total;
+  const labelPrefix = `${inProgress || isComplete ? t('app:profile.edit') : t('app:profile.add')}\u0020`;
   return (
     <Card className="p-4 sm:p-6">
       <CardHeader className="p-0">
@@ -302,7 +376,7 @@ function ProfileCard({ title, linkLabel, file, completed, total, required, child
             <FieldsCompletedTag completed={completed} total={total} />
           </div>
           <div className="ml-auto space-x-2">
-            {complete === 1 ? (
+            {isComplete ? (
               <CompleteTag />
             ) : (
               <>
@@ -326,7 +400,7 @@ function ProfileCard({ title, linkLabel, file, completed, total, required, child
           'rounded-b-xs', // Re-apply bottom rounding
         )}
       >
-        {inProgress ? <FontAwesomeIcon icon={faPenToSquare} /> : <FontAwesomeIcon icon={faPlus} />}
+        {inProgress || isComplete ? <FontAwesomeIcon icon={faPenToSquare} /> : <FontAwesomeIcon icon={faPlus} />}
         <InlineLink className="font-semibold" file={file}>
           {labelPrefix}
           {linkLabel}
@@ -340,8 +414,8 @@ function CompleteTag(): JSX.Element {
   const { t } = useTranslation(handle.i18nNamespace);
 
   return (
-    <span className="rounded-2xl border border-green-600 bg-green-600 px-3 py-0.5 text-sm font-semibold text-white">
-      <FontAwesomeIcon className="mr-1" icon={faCheck} />
+    <span className="flex items-center gap-2 rounded-2xl border border-green-600 bg-green-600 px-3 py-0.5 text-sm font-semibold text-white">
+      <FontAwesomeIcon icon={faCheck} />
       {t('app:profile.complete')}
     </span>
   );

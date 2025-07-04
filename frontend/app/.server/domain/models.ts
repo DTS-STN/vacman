@@ -153,22 +153,43 @@ export type Profile = Readonly<{
   userId: number;
   userIdReviewedBy?: number;
   userIdApprovedBy?: number;
-  educationLevelId?: number;
-  wfaStatusId?: number;
-  classificationId?: number;
-  cityId?: number;
   priorityLevelId?: number;
-  workUnitId?: number;
-  languageId?: number;
   profileStatusId: number;
-  personalPhoneNumber?: string;
-  personalEmailAddress?: string;
   privacyConsentInd?: boolean;
-  availableForReferralInd?: boolean;
-  interestedInAlternationInd?: boolean;
-  additionalCommentTxt?: string;
   userCreated: string;
   dateCreated: string;
   userUpdated?: string;
   dateUpdated?: string;
+  personalInformation: UserPersonalInformation;
+  employmentInformation: UserEmploymentInformation;
+  referralPreferences: UserReferralPreferences;
 }>;
+
+export type UserPersonalInformation = {
+  personalRecordIdentifier?: string;
+  preferredLanguageId?: string;
+  workEmail: string;
+  personalEmail?: string;
+  workPhone?: string;
+  personalPhone?: string;
+  educationLevelId?: string;
+  additionalInformation?: string;
+};
+export type UserEmploymentInformation = {
+  classificationId?: string;
+  workUnitId?: string;
+  provinceId?: string;
+  cityId?: string;
+  wfaStatusId?: string;
+  wfaEffectiveDate?: string;
+  wfaEndDate?: string;
+  hrAdvisor?: number;
+};
+export type UserReferralPreferences = {
+  languageReferralTypeIds?: string[];
+  classificationIds?: string[];
+  workLocationCitieIds?: string[];
+  availableForReferralInd?: boolean;
+  interestedInAlternationInd?: boolean;
+  employmentTenureIds?: string[];
+};
