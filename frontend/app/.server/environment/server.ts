@@ -4,6 +4,7 @@ import { authentication, defaults as authenticationDefaults } from '~/.server/en
 import { client, defaults as clientDefaults } from '~/.server/environment/client';
 import { features, defaults as featuresDefaults } from '~/.server/environment/features';
 import { logging, defaults as loggingDefaults } from '~/.server/environment/logging';
+import { notify, defaults as notifyDefaults } from '~/.server/environment/notify';
 import { redis, defaults as redisDefaults } from '~/.server/environment/redis';
 import { session, defaults as sessionDefaults } from '~/.server/environment/session';
 import { telemetry, defaults as telemetryDefaults } from '~/.server/environment/telemetry';
@@ -22,6 +23,7 @@ export const defaults = {
   ...clientDefaults,
   ...featuresDefaults,
   ...loggingDefaults,
+  ...notifyDefaults,
   ...redisDefaults,
   ...sessionDefaults,
   ...telemetryDefaults,
@@ -38,6 +40,7 @@ export const server = v.pipe(
     ...client.entries,
     ...features.entries,
     ...logging.entries,
+    ...notify.entries,
     ...redis.entries,
     ...session.entries,
     ...telemetry.entries,
