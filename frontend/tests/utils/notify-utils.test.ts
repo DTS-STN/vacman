@@ -5,7 +5,7 @@ import { DefaultHttpClient } from '~/http/http-client';
 import { DefaultVerificationCodeRepository } from '~/utils/gc-notify';
 
 const serverConfig = {
-  GC_NOTIFY_API_KEY: process.env.GC_NOTIFY_API_KEY,
+  GC_NOTIFY_API_KEY: process.env.GC_NOTIFY_API_KEY ?? '',
   HTTP_PROXY_URL: '',
   GC_NOTIFY_API_URL: process.env.GC_NOTIFY_API_URL ?? '', 
   INTEROP_API_BASE_URI: '',
