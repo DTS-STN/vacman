@@ -37,6 +37,7 @@ export interface VerificationCodeRepository {
   checkHealth(): Promise<void>;
 }
 
+//
 export class DefaultVerificationCodeRepository implements VerificationCodeRepository {
   private readonly log: Logger;
   private readonly serverConfig: Pick<
