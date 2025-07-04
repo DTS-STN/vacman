@@ -51,6 +51,7 @@ export default {
     'submit': 'Soumettre',
     'select-option': 'Sélectionner une option',
     'select-all-that-apply': "Sélectionnez tout ce qui s'applique",
+    'maximum-characters': 'caractères maximum',
   },
   'personal-information': {
     'page-title': 'Informations personnelles',

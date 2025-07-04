@@ -1,3 +1,7 @@
+import { useState } from 'react';
+
+import { useTranslation } from 'react-i18next';
+
 import { InputError } from '~/components/input-error';
 import { InputHelp } from '~/components/input-help';
 import { InputLabel } from '~/components/input-label';
@@ -31,12 +35,16 @@ export function InputTextarea({
   label,
   required,
   rows,
+  maxLength,
   ...restInputProps
 }: InputTextareaProps) {
   const inputErrorId = `input-${id}-error`;
   const inputHelpMessageId = `input-${id}-help`;
   const inputLabelId = `input-${id}-label`;
   const inputWrapperId = `input-${id}`;
+  const { t } = useTranslation('app');
+
+  const [characterCount, setCharacterCount] = useState(0);
 
   return (
     <div id={inputWrapperId} data-testid={inputWrapperId} className="form-group space-y-2">
@@ -49,26 +57,32 @@ export function InputTextarea({
           {helpMessage}
         </InputHelp>
       )}
-      <textarea
-        aria-describedby={helpMessage ? inputHelpMessageId : undefined}
-        aria-errormessage={errorMessage && inputErrorId}
-        aria-invalid={!!errorMessage}
-        aria-labelledby={inputLabelId}
-        aria-required={required}
-        className={cn(
-          inputBaseClassName,
-          inputDisabledClassName,
-          inputReadOnlyClassName,
-          inputReadOnlyClassName,
-          errorMessage && inputErrorClassName,
-          className,
-        )}
-        data-testid="input-textarea"
-        id={id}
-        required={required}
-        rows={rows ?? 3}
-        {...restInputProps}
-      />
+      <div className="relative">
+        <textarea
+          aria-describedby={helpMessage ? inputHelpMessageId : undefined}
+          aria-errormessage={errorMessage && inputErrorId}
+          aria-invalid={!!errorMessage}
+          aria-labelledby={inputLabelId}
+          aria-required={required}
+          className={cn(
+            inputBaseClassName,
+            inputDisabledClassName,
+            inputReadOnlyClassName,
+            inputReadOnlyClassName,
+            errorMessage && inputErrorClassName,
+            className,
+          )}
+          data-testid="input-textarea"
+          id={id}
+          required={required}
+          maxLength={maxLength}
+          onChange={(e) => setCharacterCount(e.target.value.length)}
+          {...restInputProps}
+        />
+        <span className="absolute right-0 text-sm text-gray-500" aria-live="polite" aria-atomic="true">
+          {`${characterCount}/${maxLength} ${t('form.maximum-characters')}`}
+        </span>
+      </div>
     </div>
   );
 }
