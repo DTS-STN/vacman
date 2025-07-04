@@ -1,4 +1,3 @@
-
 export type VerificationCodeEmailRequestEntity = {
   email_address: string;
   template_id: string;
@@ -10,19 +9,18 @@ export type VerificationCodeEmailRequestEntity = {
 export type VerificationCodeEmailResponseEntity = {
   id: string;
   reference?: string;
-    uri: string;
+  uri: string;
   template: {
     id: string;
     version: number;
     uri: string;
   };
-  scheduled_for?: string
+  scheduled_for?: string;
   content: {
     from_email: string;
     body: string;
     subject: string;
   };
-
 };
 
 // original code from Canadian-dental-care-plan
