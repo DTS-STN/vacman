@@ -47,13 +47,12 @@ export const ErrorCodes = {
 
   // external api error codes
   XAPI_TOO_MANY_REQUESTS: 'XAPI-0002', //http 429 Too Many Requests
-  XAPI_NETWORK_500_ERROR: 'XAPI-0500', //network error 
- 
+  XAPI_NETWORK_500_ERROR: 'XAPI-0500', //network error
+
   // profile error codes
   PROFILE_NOT_FOUND: 'PRF-0001',
   PROFILE_FETCH_FAILED: 'PRF-0002',
   PROFILE_CREATE_FAILED: 'PRF-0003',
   PROFILE_NETWORK_ERROR: 'PRF-0004',
   PROFILE_INVALID_RESPONSE: 'PRF-0005',
-
 } as const;

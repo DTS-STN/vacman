@@ -2,7 +2,7 @@ import * as v from 'valibot';
 
 export type GcNotify = Readonly<v.InferOutput<typeof notify>>;
 
-//const isProduction = process.env.NODE_ENV === 'production'; 
+//const isProduction = process.env.NODE_ENV === 'production';
 
 export const defaults = {
   GC_NOTIFY_API_KEY: '00000000000000000000000000000000000000000000000000000',

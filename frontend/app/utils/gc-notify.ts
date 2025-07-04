@@ -4,11 +4,11 @@ import type { Logger } from 'winston';
 
 import type { VerificationCodeEmailRequestEntity, VerificationCodeEmailResponseEntity } from '~/.server/email';
 import type { Server } from '~/.server/environment/server';
-import type { HttpClient } from '~/http/http-client';
 import { LogFactory } from '~/.server/logging';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
+import type { HttpClient } from '~/http/http-client';
 
 export interface VerificationCodeRepository {
   /**
@@ -36,7 +36,6 @@ export interface VerificationCodeRepository {
    */
   checkHealth(): Promise<void>;
 }
-
 
 export class DefaultVerificationCodeRepository implements VerificationCodeRepository {
   private readonly log: Logger;
@@ -76,7 +75,7 @@ export class DefaultVerificationCodeRepository implements VerificationCodeReposi
       },
       body: JSON.stringify(verificationCodeEmailRequestEntity),
     });
-    
+
     //.log('gc-notify:response =', response);
 
     if (!response.ok) {
