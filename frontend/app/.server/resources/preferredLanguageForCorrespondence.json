@@ -2,11 +2,13 @@
   "content": [
     {
       "id": 874190000,
+      "code": "EN",
       "nameEn": "English",
       "nameFr": "Anglais"
     },
     {
       "id": 874190001,
+      "code": "FR",
       "nameEn": "French",
       "nameFr": "Français"
     }

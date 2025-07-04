@@ -116,12 +116,14 @@ export type LocalizedLanguageReferralType = Readonly<{
 
 export type LanguageOfCorrespondence = Readonly<{
   id: string;
+  code: string;
   nameEn: string;
   nameFr: string;
 }>;
 
 export type LocalizedLanguageOfCorrespondence = Readonly<{
   id: string;
+  code: string;
   name: string;
 }>;
 
