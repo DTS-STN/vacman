@@ -71,8 +71,8 @@ describe('getMockProfileService', () => {
       expect(createdProfile.dateCreated).toBeDefined();
       expect(createdProfile.profileStatusId).toBe(1);
       expect(createdProfile.privacyConsentInd).toBe(true);
-      expect(createdProfile.referralPreferences.availableForReferralInd).toBe(undefined);
-      expect(createdProfile.referralPreferences.interestedInAlternationInd).toBe(undefined);
+      expect(createdProfile.referralPreferences.availableForReferralInd).toBe(true);
+      expect(createdProfile.referralPreferences.interestedInAlternationInd).toBe(false);
 
       // Verify the profile was actually added to the mock data
       const retrievedProfile = await service.getProfile(activeDirectoryId);
