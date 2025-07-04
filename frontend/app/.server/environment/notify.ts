@@ -23,5 +23,5 @@ export const notify = v.object({
   INTEROP_API_SUBSCRIPTION_KEY: v.optional(v.string(), ' '),
 
   // http proxy settings
-  HTTP_PROXY_URL: v.optional(v.string(), ''),
+  HTTP_PROXY_URL: v.optional(v.string(), ' '),
 });
