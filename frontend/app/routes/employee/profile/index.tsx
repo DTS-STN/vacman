@@ -56,13 +56,12 @@ export function action({ context, params, request }: Route.ActionArgs) {
 export async function loader({ context, request }: Route.LoaderArgs) {
   // Since parent layout ensures authentication, we can safely cast the session
   const authenticatedSession = context.session as AuthenticatedSession;
-  const activeDirectoryId = authenticatedSession.authState.idTokenClaims.oid as string;
+  const authId = authenticatedSession.authState.idTokenClaims.oid as string;
   const userService = getUserService();
-  const user = await userService.getUserByActiveDirectoryId(activeDirectoryId);
-  const userId = '00000000-0000-0000-0000-000000000001'; // Displaying mock, change it to "activeDirectoryId" for current user
+  const user = await userService.getUserByActiveDirectoryId(authId);
 
   const [profileResult, allLanguageReferralTypes, allClassifications, allCities, allEmploymentTenures] = await Promise.all([
-    getProfileService().getProfile(userId),
+    getProfileService().getProfile(authId),
     getLanguageReferralTypeService().getAll(),
     getClassificationService().getAll(),
     getCityService().getAll(),
