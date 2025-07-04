@@ -2,16 +2,19 @@
   "content": [
     {
       "id": 864190000,
+      "code": "BILINGUAL",
       "nameEn": "Bilingual",
       "nameFr": "Bilingue"
     },
     {
       "id": 864190001,
+      "code": "ENGLISH",
       "nameEn": "English only",
       "nameFr": "Anglais seulement"
     },
     {
       "id": 864190002,
+      "code": "FRENCH",
       "nameEn": "French only",
       "nameFr": "Français seulement"
     }

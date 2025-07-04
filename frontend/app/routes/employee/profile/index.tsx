@@ -59,13 +59,20 @@ export async function loader({ context, request }: Route.LoaderArgs) {
   const authId = authenticatedSession.authState.idTokenClaims.oid as string;
   const userService = getUserService();
   const user = await userService.getUserByActiveDirectoryId(authId);
+  const { lang, t } = await getTranslation(request, handle.i18nNamespace);
 
-  const [profileResult, allLanguageReferralTypes, allClassifications, allCities, allEmploymentTenures] = await Promise.all([
+  const [
+    profileResult,
+    allLocalizedLanguageReferralTypes,
+    allClassifications,
+    allLocalizedCities,
+    allLocalizedEmploymentTenures,
+  ] = await Promise.all([
     getProfileService().getProfile(authId),
-    getLanguageReferralTypeService().getAll(),
+    getLanguageReferralTypeService().getAllLocalized(lang),
     getClassificationService().getAll(),
-    getCityService().getAll(),
-    getEmploymentTenureService().getAll(),
+    getCityService().getAllLocalized(lang),
+    getEmploymentTenureService().getAllLocalized(lang),
   ]);
 
   if (profileResult.isNone()) {
@@ -74,7 +81,6 @@ export async function loader({ context, request }: Route.LoaderArgs) {
 
   const profileData: Profile = profileResult.unwrap();
 
-  const { lang, t } = await getTranslation(request, handle.i18nNamespace);
   const completed = countCompletedItems(profileData);
   const total = Object.keys(profileData).length;
   const amountCompleted = (completed / total) * 100;
@@ -110,16 +116,16 @@ export async function loader({ context, request }: Route.LoaderArgs) {
     profileData.employmentInformation.hrAdvisor &&
     (await getUserService().getUserById(profileData.employmentInformation.hrAdvisor));
   const languageReferralTypes = profileData.referralPreferences.languageReferralTypeIds
-    ?.map((langId) => allLanguageReferralTypes.unwrap().find((l) => l.id === langId))
+    ?.map((langId) => allLocalizedLanguageReferralTypes.unwrap().find((l) => l.id === langId))
     .filter(Boolean);
   const classifications = profileData.referralPreferences.classificationIds
     ?.map((classificationId) => allClassifications.unwrap().find((c) => c.id === classificationId))
     .filter(Boolean);
   const cities = profileData.referralPreferences.workLocationCitieIds
-    ?.map((cityId) => allCities.unwrap().find((c) => c.id === cityId))
+    ?.map((cityId) => allLocalizedCities.unwrap().find((c) => c.id === cityId))
     .filter(Boolean);
   const employmentTenures = profileData.referralPreferences.employmentTenureIds
-    ?.map((employmentTenureId) => allEmploymentTenures.unwrap().find((c) => c.id === employmentTenureId))
+    ?.map((employmentTenureId) => allLocalizedEmploymentTenures.unwrap().find((c) => c.id === employmentTenureId))
     .filter(Boolean);
 
   return {
@@ -155,18 +161,12 @@ export async function loader({ context, request }: Route.LoaderArgs) {
     referralPreferences: {
       completed: countCompletedItems(profileData.referralPreferences),
       total: Object.keys(profileData.referralPreferences).length,
-      languageReferralTypes: languageReferralTypes?.map((languageReferralType) =>
-        lang === 'en' ? languageReferralType?.nameEn : languageReferralType?.nameFr,
-      ),
+      languageReferralTypes: languageReferralTypes?.map((l) => l?.name),
       classifications: classifications?.map((c) => c?.name),
-      workLocationCities: cities?.map((city) =>
-        lang === 'en' ? city?.province.nameEn + ' - ' + city?.nameEn : city?.province.nameFr + ' - ' + city?.nameFr,
-      ),
+      workLocationCities: cities?.map((city) => city?.province.name + ' - ' + city?.name),
       referralAvailibility: profileData.referralPreferences.availableForReferralInd,
       alternateOpportunity: profileData.referralPreferences.interestedInAlternationInd,
-      employmentTenures: employmentTenures?.map((employmentTenure) =>
-        lang === 'en' ? employmentTenure?.nameEn : employmentTenure?.nameFr,
-      ),
+      employmentTenures: employmentTenures?.map((e) => e?.name),
     },
   };
 }

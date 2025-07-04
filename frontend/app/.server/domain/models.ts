@@ -105,12 +105,14 @@ export type LocalizedProvince = Readonly<{
 
 export type LanguageReferralType = Readonly<{
   id: string;
+  code: string;
   nameEn: string;
   nameFr: string;
 }>;
 
 export type LocalizedLanguageReferralType = Readonly<{
   id: string;
+  code: string;
   name: string;
 }>;
 
