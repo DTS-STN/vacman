@@ -45,6 +45,10 @@ export const ErrorCodes = {
   // vacman api error codes
   VACMAN_API_ERROR: 'API-0001',
 
+  // external api error codes
+  XAPI_TOO_MANY_REQUESTS: 'XAPI-0002', //http 429 Too Many Requests
+  XAPI_NETWORK_500_ERROR: 'XAPI-0500', //network error
+
   // profile error codes
   PROFILE_NOT_FOUND: 'PRF-0001',
   PROFILE_FETCH_FAILED: 'PRF-0002',
