@@ -51,4 +51,8 @@ export const ErrorCodes = {
   PROFILE_CREATE_FAILED: 'PRF-0003',
   PROFILE_NETWORK_ERROR: 'PRF-0004',
   PROFILE_INVALID_RESPONSE: 'PRF-0005',
+  
+  // external api error codes
+  XAPI_TOO_MANY_REQUESTS: 'XAPI-0002', //http 429 Too Many Requests
+  XAPI_NETWORK_500_ERROR: 'XAPI-0500', //network error
 } as const;
