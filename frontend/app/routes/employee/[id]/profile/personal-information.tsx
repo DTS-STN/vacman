@@ -63,7 +63,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
 
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
   const localizedEducationLevels = await getEducationLevelService().getAllLocalized(lang);
-  const localizedLanguagesOfCorrespondance = await getLanguageForCorrespondenceService().getAllLocalized(lang);
+  const localizedLanguagesOfCorrespondenceResult = await getLanguageForCorrespondenceService().listAllLocalized(lang);
 
   return {
     documentTitle: t('app:personal-information.page-title'),
@@ -78,7 +78,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
       education: undefined as string | undefined,
       additionalInformation: undefined as string | undefined,
     },
-    languagesOfCorrespondence: localizedLanguagesOfCorrespondance.unwrap(),
+    languagesOfCorrespondence: localizedLanguagesOfCorrespondenceResult,
     education: localizedEducationLevels.unwrap(),
   };
 }
@@ -87,7 +87,7 @@ export default function PersonalInformation({ loaderData, actionData, params }: 
   const { t } = useTranslation(handle.i18nNamespace);
   const errors = actionData?.errors;
   const languageOptions = loaderData.languagesOfCorrespondence.map(({ id, name }) => ({
-    value: id,
+    value: String(id),
     children: name,
     defaultChecked: id === loaderData.defaultValues.preferredLanguage,
   }));

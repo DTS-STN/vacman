@@ -7,12 +7,12 @@ import { serverEnvironment } from '~/.server/environment';
 import type { AppError } from '~/errors/app-error';
 
 export type LanguageReferralTypeService = {
-  getAll(): Promise<Result<readonly LanguageReferralType[], AppError>>;
+  listAll(): Promise<readonly LanguageReferralType[]>;
   getById(id: string): Promise<Result<LanguageReferralType, AppError>>;
   findById(id: string): Promise<Option<LanguageReferralType>>;
   getByCode(code: string): Promise<Result<LanguageReferralType, AppError>>;
   findByCode(code: string): Promise<Option<LanguageReferralType>>;
-  getAllLocalized(language: Language): Promise<Result<readonly LocalizedLanguageReferralType[], AppError>>;
+  listAllLocalized(language: Language): Promise<readonly LocalizedLanguageReferralType[]>;
   getLocalizedById(id: string, language: Language): Promise<Result<LocalizedLanguageReferralType, AppError>>;
   findLocalizedById(id: string, language: Language): Promise<Option<LocalizedLanguageReferralType>>;
   getLocalizedByCode(code: string, language: Language): Promise<Result<LocalizedLanguageReferralType, AppError>>;

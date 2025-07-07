@@ -84,7 +84,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 export async function loader({ context, request }: Route.LoaderArgs) {
   // Since parent layout ensures authentication, we can safely cast the session
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
-  const localizedLanguageReferralTypes = await getLanguageReferralTypeService().getAllLocalized(lang);
+  const localizedLanguageReferralTypesResult = await getLanguageReferralTypeService().listAllLocalized(lang);
   const localizedEmploymentTenures = await getEmploymentTenureService().getAllLocalized(lang);
   const classifications = await getClassificationService().getAll();
   const localizedProvinces = await getProvinceService().getAllLocalized(lang);
@@ -101,7 +101,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
       alternateOpportunity: undefined as boolean | undefined,
       employmentTenures: undefined as string[] | undefined,
     },
-    languageReferralTypes: localizedLanguageReferralTypes.unwrap(),
+    languageReferralTypes: localizedLanguageReferralTypesResult,
     employmentTenures: localizedEmploymentTenures.unwrap(),
     classifications: classifications.unwrap(),
     provinces: localizedProvinces.unwrap(),
@@ -121,7 +121,7 @@ export default function PersonalDetails({ loaderData, actionData, params }: Rout
   const [srAnnouncement, setSrAnnouncement] = useState(''); //screen reader announcement
 
   const languageReferralTypeOptions = loaderData.languageReferralTypes.map((langReferral) => ({
-    value: langReferral.id,
+    value: String(langReferral.id),
     children: langReferral.name,
     defaultChecked: loaderData.defaultValues.languageReferralTypes?.includes(langReferral.id) ?? false,
   }));
