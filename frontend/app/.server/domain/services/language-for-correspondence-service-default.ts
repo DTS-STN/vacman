@@ -8,14 +8,13 @@ import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 
-//TODO: Revisit when the api endpoints are avaialable
 // Centralized API request logic
 async function makeApiRequest<T>(path: string, context: string): Promise<Result<T, AppError>> {
   try {
     const response = await fetch(`${serverEnvironment.VACMAN_API_BASE_URI}${path}`);
 
     if (response.status === HttpStatusCodes.NOT_FOUND) {
-      return Err(new AppError(`${context} not found.`, ErrorCodes.NO_DIRECTORATE_FOUND));
+      return Err(new AppError(`${context} not found.`, ErrorCodes.NO_LANGUAGE_OF_CORRESPONDENCE_FOUND));
     }
 
     if (!response.ok) {
