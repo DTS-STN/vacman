@@ -142,7 +142,7 @@ export default function EmploymentInformation({ loaderData, actionData, params }
 
   return (
     <>
-      <InlineLink className="mt-6 block" file="routes/employee/[id]/profile/index.tsx" id="back-button">
+      <InlineLink className="mt-6 block" file="routes/employee/[id]/profile/index.tsx" params={params} id="back-button">
         {`< ${t('app:profile.back')}`}
       </InlineLink>
       <div className="max-w-prose">
@@ -276,7 +276,12 @@ export default function EmploymentInformation({ loaderData, actionData, params }
                 <Button name="action" variant="primary" id="save-button">
                   {t('app:form.save')}
                 </Button>
-                <ButtonLink file="routes/employee/[id]/profile/index.tsx" id="cancel-button" variant="alternative">
+                <ButtonLink
+                  file="routes/employee/[id]/profile/index.tsx"
+                  params={params}
+                  id="cancel-button"
+                  variant="alternative"
+                >
                   {t('app:form.cancel')}
                 </ButtonLink>
               </div>

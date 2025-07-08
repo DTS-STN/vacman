@@ -1,6 +1,6 @@
 import type { JSX, ReactNode } from 'react';
 
-import type { RouteHandle } from 'react-router';
+import type { Params, RouteHandle } from 'react-router';
 import { Form, useNavigation } from 'react-router';
 
 import { faCheck, faPenToSquare, faPlus } from '@fortawesome/free-solid-svg-icons';
@@ -23,7 +23,6 @@ import { getProvinceService } from '~/.server/domain/services/province-service';
 import { getUserService } from '~/.server/domain/services/user-service';
 import { getWFAStatuses } from '~/.server/domain/services/wfa-status-service';
 import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
-import { i18nRedirect } from '~/.server/utils/route-utils';
 import { Button } from '~/components/button';
 import { ButtonLink } from '~/components/button-link';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '~/components/card';
@@ -45,14 +44,14 @@ export function meta({ data }: Route.MetaArgs) {
   return [{ title: data?.documentTitle }];
 }
 
-export function action({ context, request }: Route.ActionArgs) {
-  // Get the current user's ID from the authenticated session
-  const authenticatedSession = context.session as AuthenticatedSession;
-  const currentUserId = authenticatedSession.authState.idTokenClaims.oid as string;
-  return i18nRedirect('routes/employee/[id]/profile/index.tsx', request, {
-    params: { id: currentUserId },
-  });
-}
+// export function action({ context, request }: Route.ActionArgs) {
+//   // Get the current user's ID from the authenticated session
+//   const authenticatedSession = context.session as AuthenticatedSession;
+//   const currentUserId = authenticatedSession.authState.idTokenClaims.oid as string;
+//   return i18nRedirect('routes/employee/[id]/profile/index.tsx', request, {
+//     params: { id: currentUserId },
+//   });
+// }
 
 export async function loader({ context, request }: Route.LoaderArgs) {
   // Since parent layout ensures authentication, we can safely cast the session
@@ -203,6 +202,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
           file="routes/employee/[id]/profile/personal-information.tsx"
           completed={loaderData.personalInformation.completed}
           total={loaderData.personalInformation.total}
+          params={params}
           required
         >
           {loaderData.personalInformation.completed === 1 ? ( // only work email is available
@@ -249,6 +249,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
           file="routes/employee/[id]/profile/employment-information.tsx"
           completed={loaderData.employmentInformation.completed}
           total={loaderData.employmentInformation.total}
+          params={params}
           required
         >
           {loaderData.employmentInformation.completed === 0 ? (
@@ -303,6 +304,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
           file="routes/employee/[id]/profile/referral-preferences.tsx"
           completed={loaderData.referralPreferences.completed}
           total={loaderData.referralPreferences.total}
+          params={params}
           required
         >
           {loaderData.referralPreferences.completed === 0 ? (
@@ -363,9 +365,10 @@ interface ProfileCardProps {
   total: number;
   required: boolean;
   children: ReactNode;
+  params?: Params;
 }
 
-function ProfileCard({ title, linkLabel, file, completed, total, required, children }: ProfileCardProps): JSX.Element {
+function ProfileCard({ title, linkLabel, file, completed, total, required, children, params }: ProfileCardProps): JSX.Element {
   const { t } = useTranslation(handle.i18nNamespace);
   const inProgress = completed < total && completed > 0;
   const isComplete = completed === total;
@@ -403,7 +406,7 @@ function ProfileCard({ title, linkLabel, file, completed, total, required, child
         )}
       >
         {inProgress || isComplete ? <FontAwesomeIcon icon={faPenToSquare} /> : <FontAwesomeIcon icon={faPlus} />}
-        <InlineLink className="font-semibold" file={file}>
+        <InlineLink className="font-semibold" file={file} params={params}>
           {labelPrefix}
           {linkLabel}
         </InlineLink>

@@ -18,16 +18,23 @@ const log = LogFactory.getLogger(import.meta.url);
  * Profile routes are those that match the pattern /en/employee/[id]/profile/* or /fr/employe/[id]/profil/*
  */
 export function isProfileRoute(url: URL): boolean {
-  const profilePathPrefixes = ['/en/employee/', '/fr/employe/'];
-  const profilePathSuffixes = ['/profile/', '/profil/'];
+  log.debug(`Checking if ${url.pathname} is a profile route`);
 
-  return profilePathPrefixes.some((prefix) =>
-    profilePathSuffixes.some((suffix) => {
-      const pattern = `${prefix}[^/]+${suffix}`;
-      const regex = new RegExp(pattern);
-      return regex.test(url.pathname);
-    }),
-  );
+  // Pattern for English: /en/employee/{id}/profile (and any subpaths)
+  const englishPattern = /^\/en\/employee\/[^/]+\/profile(?:\/|$)/;
+
+  // Pattern for French: /fr/employe/{id}/profil (and any subpaths)
+  const frenchPattern = /^\/fr\/employe\/[^/]+\/profil(?:\/|$)/;
+
+  const englishMatches = englishPattern.test(url.pathname);
+  const frenchMatches = frenchPattern.test(url.pathname);
+
+  log.debug(`Testing ${url.pathname} against English pattern: ${englishMatches}`);
+  log.debug(`Testing ${url.pathname} against French pattern: ${frenchMatches}`);
+
+  const result = englishMatches || frenchMatches;
+  log.debug(`isProfileRoute result for ${url.pathname}: ${result}`);
+  return result;
 }
 
 /**
@@ -35,20 +42,27 @@ export function isProfileRoute(url: URL): boolean {
  * Returns null if the URL doesn't match the expected pattern or if no ID is found.
  */
 export function extractUserIdFromProfileRoute(url: URL): string | null {
-  const profilePathPrefixes = ['/en/employee/', '/fr/employe/'];
+  log.debug(`Extracting user ID from profile route: ${url.pathname}`);
 
-  for (const prefix of profilePathPrefixes) {
-    if (url.pathname.startsWith(prefix)) {
-      const remainingPath = url.pathname.substring(prefix.length);
-      const segments = remainingPath.split('/');
-
-      // The first segment should be the user ID
-      if (segments.length > 0 && segments[0]) {
-        return segments[0];
-      }
-    }
+  // Pattern for English: /en/employee/{id}/profile
+  const englishRegex = /^\/en\/employee\/([^/]+)\/profile(?:\/|$)/;
+  const englishMatch = englishRegex.exec(url.pathname);
+  if (englishMatch?.[1]) {
+    const userId = englishMatch[1];
+    log.debug(`Extracted user ID from English route: ${userId}`);
+    return userId;
   }
 
+  // Pattern for French: /fr/employe/{id}/profil
+  const frenchRegex = /^\/fr\/employe\/([^/]+)\/profil(?:\/|$)/;
+  const frenchMatch = frenchRegex.exec(url.pathname);
+  if (frenchMatch?.[1]) {
+    const userId = frenchMatch[1];
+    log.debug(`Extracted user ID from French route: ${userId}`);
+    return userId;
+  }
+
+  log.debug(`Could not extract user ID from ${url.pathname}`);
   return null;
 }
 
@@ -172,10 +186,15 @@ export async function getProfileWithAccess(session: AuthenticatedSession, target
  * @throws {AppError} If the profile is not found or access is denied
  */
 export async function checkProfileRouteAccess(session: AuthenticatedSession, currentUrl: URL): Promise<void> {
+  log.debug(`Checking profile route access for URL: ${currentUrl.pathname}`);
+
   // Only check profile access for profile routes
   if (!isProfileRoute(currentUrl)) {
+    log.debug(`URL ${currentUrl.pathname} is not a profile route, skipping access check`);
     return;
   }
+
+  log.debug(`URL ${currentUrl.pathname} is a profile route, checking access`);
 
   // Extract the user ID from the URL
   const targetUserId = extractUserIdFromProfileRoute(currentUrl);
@@ -185,6 +204,8 @@ export async function checkProfileRouteAccess(session: AuthenticatedSession, cur
       httpStatusCode: HttpStatusCodes.BAD_REQUEST,
     });
   }
+
+  log.debug(`Extracted user ID: ${targetUserId} from URL: ${currentUrl.pathname}`);
 
   // Apply profile access requirement
   await requireProfileAccess(session, targetUserId);
