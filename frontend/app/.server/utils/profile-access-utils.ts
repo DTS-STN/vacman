@@ -8,64 +8,12 @@ import { getUserService } from '~/.server/domain/services/user-service';
 import { LogFactory } from '~/.server/logging';
 import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
 import { requirePrivacyConsentForOwnProfile } from '~/.server/utils/privacy-consent-utils';
+import { extractUserIdFromProfileRoute, isProfileRoute } from '~/.server/utils/route-matching-utils';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 
 const log = LogFactory.getLogger(import.meta.url);
-
-/**
- * Checks if the current request is for a profile route that requires access control.
- * Profile routes are those that match the pattern /en/employee/[id]/profile/* or /fr/employe/[id]/profil/*
- */
-export function isProfileRoute(url: URL): boolean {
-  log.debug(`Checking if ${url.pathname} is a profile route`);
-
-  // Pattern for English: /en/employee/{id}/profile (and any subpaths)
-  const englishPattern = /^\/en\/employee\/[^/]+\/profile(?:\/|$)/;
-
-  // Pattern for French: /fr/employe/{id}/profil (and any subpaths)
-  const frenchPattern = /^\/fr\/employe\/[^/]+\/profil(?:\/|$)/;
-
-  const englishMatches = englishPattern.test(url.pathname);
-  const frenchMatches = frenchPattern.test(url.pathname);
-
-  log.debug(`Testing ${url.pathname} against English pattern: ${englishMatches}`);
-  log.debug(`Testing ${url.pathname} against French pattern: ${frenchMatches}`);
-
-  const result = englishMatches || frenchMatches;
-  log.debug(`isProfileRoute result for ${url.pathname}: ${result}`);
-  return result;
-}
-
-/**
- * Extracts the user ID from profile routes like /en/employee/[id]/profile/* or /fr/employe/[id]/profil/*
- * Returns null if the URL doesn't match the expected pattern or if no ID is found.
- */
-export function extractUserIdFromProfileRoute(url: URL): string | null {
-  log.debug(`Extracting user ID from profile route: ${url.pathname}`);
-
-  // Pattern for English: /en/employee/{id}/profile
-  const englishRegex = /^\/en\/employee\/([^/]+)\/profile(?:\/|$)/;
-  const englishMatch = englishRegex.exec(url.pathname);
-  if (englishMatch?.[1]) {
-    const userId = englishMatch[1];
-    log.debug(`Extracted user ID from English route: ${userId}`);
-    return userId;
-  }
-
-  // Pattern for French: /fr/employe/{id}/profil
-  const frenchRegex = /^\/fr\/employe\/([^/]+)\/profil(?:\/|$)/;
-  const frenchMatch = frenchRegex.exec(url.pathname);
-  if (frenchMatch?.[1]) {
-    const userId = frenchMatch[1];
-    log.debug(`Extracted user ID from French route: ${userId}`);
-    return userId;
-  }
-
-  log.debug(`Could not extract user ID from ${url.pathname}`);
-  return null;
-}
 
 /**
  * Checks if the authenticated user has access to view or modify a specific profile.
@@ -77,20 +25,25 @@ export function extractUserIdFromProfileRoute(url: URL): string | null {
  *
  * @param session - The authenticated session containing the requester's information
  * @param targetUserId - The ID parameter from the route (the profile being accessed)
+ * @param currentUrl - The current request URL for redirect context (optional, used for privacy consent redirect)
  * @throws {AppError} If the profile is not found or access is denied
  * @throws {Response} Redirect if privacy consent is required
  */
-export async function requireProfileAccess(session: AuthenticatedSession, targetUserId: string): Promise<void> {
+export async function requireProfileAccess(
+  session: AuthenticatedSession,
+  targetUserId: string,
+  currentUrl?: URL,
+): Promise<void> {
   const requesterId = session.authState.idTokenClaims.oid as string;
 
-  log.debug(`Checking profile access for requester ${requesterId} accessing profile ${targetUserId}`);
+  log.debug(`Profile access check: requester=${requesterId}, target=${targetUserId}`);
 
   // First, check if the profile exists
   const profileService = getProfileService();
   const profileOption = await profileService.getProfile(targetUserId);
 
   if (profileOption.isNone()) {
-    log.debug(`Profile not found for user ID: ${targetUserId}`);
+    log.debug(`Profile not found: ${targetUserId}`);
     throw new AppError(`Profile not found for user ID: ${targetUserId}`, ErrorCodes.PROFILE_NOT_FOUND, {
       httpStatusCode: HttpStatusCodes.NOT_FOUND,
     });
@@ -98,9 +51,11 @@ export async function requireProfileAccess(session: AuthenticatedSession, target
 
   // If the requester is accessing their own profile, check privacy consent and grant access
   if (requesterId === targetUserId) {
-    log.debug('User accessing their own profile, checking privacy consent');
-    await requirePrivacyConsentForOwnProfile(session, targetUserId);
-    log.debug('Privacy consent verified, access granted to own profile');
+    log.debug('Own profile access - checking privacy consent');
+    if (currentUrl) {
+      await requirePrivacyConsentForOwnProfile(session, targetUserId, currentUrl);
+    }
+    log.debug('Own profile access granted');
     return;
   }
 
@@ -109,19 +64,19 @@ export async function requireProfileAccess(session: AuthenticatedSession, target
   const requesterUser = await userService.getUserByActiveDirectoryId(requesterId);
 
   if (!requesterUser) {
-    log.debug(`Requester user not found in system: ${requesterId}`);
+    log.debug(`Requester not found: ${requesterId}`);
     throw new AppError('Requester not found in system', ErrorCodes.ACCESS_FORBIDDEN, {
       httpStatusCode: HttpStatusCodes.FORBIDDEN,
     });
   }
 
   if (requesterUser.role === 'hiring-manager') {
-    log.debug('User has hiring-manager role, access granted');
+    log.debug('Hiring manager access granted');
     return;
   }
 
   // Access denied - user is not accessing their own profile and doesn't have hiring-manager role
-  log.debug(`Access denied for user ${requesterId} to profile ${targetUserId}. User role: ${requesterUser.role}`);
+  log.debug(`Access denied: requester=${requesterId}, role=${requesterUser.role}`);
   throw new AppError(
     'Access denied. You can only access your own profile unless you have hiring-manager privileges.',
     ErrorCodes.ACCESS_FORBIDDEN,
@@ -135,11 +90,16 @@ export async function requireProfileAccess(session: AuthenticatedSession, target
  *
  * @param session - The authenticated session containing the requester's information
  * @param targetUserId - The ID parameter from the route (the profile being accessed)
+ * @param currentUrl - The current request URL for redirect context (optional)
  * @returns Promise<boolean> - True if access is granted, false otherwise
  */
-export async function hasProfileAccess(session: AuthenticatedSession, targetUserId: string): Promise<boolean> {
+export async function hasProfileAccess(
+  session: AuthenticatedSession,
+  targetUserId: string,
+  currentUrl?: URL,
+): Promise<boolean> {
   try {
-    await requireProfileAccess(session, targetUserId);
+    await requireProfileAccess(session, targetUserId, currentUrl);
     return true;
   } catch (error) {
     if (error instanceof AppError) {
@@ -157,11 +117,12 @@ export async function hasProfileAccess(session: AuthenticatedSession, targetUser
  *
  * @param session - The authenticated session containing the requester's information
  * @param targetUserId - The ID parameter from the route (the profile being accessed)
+ * @param currentUrl - The current request URL for redirect context (optional)
  * @returns The profile if access is granted
  * @throws {AppError} If the profile is not found or access is denied
  */
-export async function getProfileWithAccess(session: AuthenticatedSession, targetUserId: string) {
-  await requireProfileAccess(session, targetUserId);
+export async function getProfileWithAccess(session: AuthenticatedSession, targetUserId: string, currentUrl?: URL) {
+  await requireProfileAccess(session, targetUserId, currentUrl);
 
   const profileService = getProfileService();
   const profileOption = await profileService.getProfile(targetUserId);
@@ -192,27 +153,20 @@ export async function getProfileWithAccess(session: AuthenticatedSession, target
  * @throws {AppError} If the profile is not found or access is denied
  */
 export async function checkProfileRouteAccess(session: AuthenticatedSession, currentUrl: URL): Promise<void> {
-  log.debug(`Checking profile route access for URL: ${currentUrl.pathname}`);
-
   // Only check profile access for profile routes
   if (!isProfileRoute(currentUrl)) {
-    log.debug(`URL ${currentUrl.pathname} is not a profile route, skipping access check`);
     return;
   }
-
-  log.debug(`URL ${currentUrl.pathname} is a profile route, checking access`);
 
   // Extract the user ID from the URL
   const targetUserId = extractUserIdFromProfileRoute(currentUrl);
   if (!targetUserId) {
-    log.debug('Could not extract user ID from profile route');
+    log.debug('Invalid profile route - no user ID found');
     throw new AppError('Invalid profile route - user ID not found', ErrorCodes.ROUTE_NOT_FOUND, {
       httpStatusCode: HttpStatusCodes.BAD_REQUEST,
     });
   }
 
-  log.debug(`Extracted user ID: ${targetUserId} from URL: ${currentUrl.pathname}`);
-
   // Apply profile access requirement
-  await requireProfileAccess(session, targetUserId);
+  await requireProfileAccess(session, targetUserId, currentUrl);
 }

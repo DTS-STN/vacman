@@ -6,6 +6,7 @@
 import { getUserService } from '~/.server/domain/services/user-service';
 import { LogFactory } from '~/.server/logging';
 import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
+import { isHiringManagerPath } from '~/.server/utils/route-matching-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 
 const log = LogFactory.getLogger(import.meta.url);
@@ -37,18 +38,6 @@ export async function requireHiringManagerRegistration(session: AuthenticatedSes
   }
 
   log.debug('User is registered as a hiring manager, allowing access');
-}
-
-/**
- * Checks if the current request is for a hiring manager route.
- * This helps identify routes that need hiring manager registration check.
- */
-export function isHiringManagerPath(url: URL): boolean {
-  const hiringManagerPaths = ['/en/hiring-manager', '/fr/gestionnaire-embauche'];
-
-  return hiringManagerPaths.some((path) => {
-    return url.pathname === path || url.pathname.startsWith(path + '/');
-  });
 }
 
 /**
