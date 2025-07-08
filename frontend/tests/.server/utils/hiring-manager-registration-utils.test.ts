@@ -2,7 +2,8 @@ import { describe, expect, it, vi, beforeEach } from 'vitest';
 
 import { getUserService } from '~/.server/domain/services/user-service';
 import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
-import { requireHiringManagerRegistration, isHiringManagerPath } from '~/.server/utils/hiring-manager-registration-utils';
+import { requireHiringManagerRegistration } from '~/.server/utils/hiring-manager-registration-utils';
+import { isHiringManagerPath } from '~/.server/utils/route-matching-utils';
 
 // Mock the getUserService
 vi.mock('~/.server/domain/services/user-service', () => ({
