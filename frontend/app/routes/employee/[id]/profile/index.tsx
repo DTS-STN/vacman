@@ -22,7 +22,6 @@ import { getProfileService } from '~/.server/domain/services/profile-service';
 import { getProvinceService } from '~/.server/domain/services/province-service';
 import { getUserService } from '~/.server/domain/services/user-service';
 import { getWFAStatuses } from '~/.server/domain/services/wfa-status-service';
-import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
 import { Button } from '~/components/button';
 import { ButtonLink } from '~/components/button-link';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '~/components/card';
@@ -53,26 +52,29 @@ export function meta({ data }: Route.MetaArgs) {
 //   });
 // }
 
-export async function loader({ context, request }: Route.LoaderArgs) {
-  // Since parent layout ensures authentication, we can safely cast the session
-  const authenticatedSession = context.session as AuthenticatedSession;
-  const authId = authenticatedSession.authState.idTokenClaims.oid as string;
+export async function loader({ context, request, params }: Route.LoaderArgs) {
+  // Use the id parameter from the URL to fetch the profile
+  const profileUserId = params.id;
+
+  // Get the user service
   const userService = getUserService();
-  const user = await userService.getUserByActiveDirectoryId(authId);
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
 
+  // Fetch both the profile user and the profile data
   const [
+    profileUser,
     profileResult,
     allLocalizedLanguageReferralTypes,
     allClassifications,
     allLocalizedCities,
     allLocalizedEmploymentTenures,
   ] = await Promise.all([
-    getProfileService().getProfile(authId),
-    getLanguageReferralTypeService().getAllLocalized(lang),
+    userService.getUserByActiveDirectoryId(profileUserId),
+    getProfileService().getProfile(profileUserId),
+    getLanguageReferralTypeService().getAll(),
     getClassificationService().getAll(),
-    getCityService().getAllLocalized(lang),
-    getEmploymentTenureService().getAllLocalized(lang),
+    getCityService().getAll(),
+    getEmploymentTenureService().getAll(),
   ]);
 
   if (profileResult.isNone()) {
@@ -130,15 +132,15 @@ export async function loader({ context, request }: Route.LoaderArgs) {
 
   return {
     documentTitle: t('app:index.about'),
-    name: authenticatedSession.authState.idTokenClaims.name,
-    email: user?.businessEmail ?? profileData.personalInformation.workEmail,
+    name: profileUser?.uuName ?? 'Unknown User',
+    email: profileUser?.businessEmail ?? profileData.personalInformation.workEmail,
     amountCompleted: amountCompleted,
     personalInformation: {
       completed: countCompletedItems(profileData.personalInformation),
       total: Object.keys(profileData.personalInformation).length,
       personalRecordIdentifier: profileData.personalInformation.personalRecordIdentifier,
       preferredLanguage: preferredLanguage,
-      workEmail: user?.businessEmail ?? profileData.personalInformation.workEmail,
+      workEmail: profileUser?.businessEmail ?? profileData.personalInformation.workEmail,
       personalEmail: profileData.personalInformation.personalEmail,
       workPhone: profileData.personalInformation.workPhone,
       personalPhone: profileData.personalInformation.personalPhone,

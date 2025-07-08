@@ -7,6 +7,7 @@ import { getProfileService } from '~/.server/domain/services/profile-service';
 import { getUserService } from '~/.server/domain/services/user-service';
 import { LogFactory } from '~/.server/logging';
 import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
+import { requirePrivacyConsentForOwnProfile } from '~/.server/utils/privacy-consent-utils';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
@@ -72,9 +73,12 @@ export function extractUserIdFromProfileRoute(url: URL): string | null {
  * 1. The requester is accessing their own profile, OR
  * 2. The requester has the "hiring-manager" role
  *
+ * For users accessing their own profile, privacy consent is also checked.
+ *
  * @param session - The authenticated session containing the requester's information
  * @param targetUserId - The ID parameter from the route (the profile being accessed)
  * @throws {AppError} If the profile is not found or access is denied
+ * @throws {Response} Redirect if privacy consent is required
  */
 export async function requireProfileAccess(session: AuthenticatedSession, targetUserId: string): Promise<void> {
   const requesterId = session.authState.idTokenClaims.oid as string;
@@ -92,9 +96,11 @@ export async function requireProfileAccess(session: AuthenticatedSession, target
     });
   }
 
-  // If the requester is accessing their own profile, grant access
+  // If the requester is accessing their own profile, check privacy consent and grant access
   if (requesterId === targetUserId) {
-    log.debug('User accessing their own profile, access granted');
+    log.debug('User accessing their own profile, checking privacy consent');
+    await requirePrivacyConsentForOwnProfile(session, targetUserId);
+    log.debug('Privacy consent verified, access granted to own profile');
     return;
   }
 
