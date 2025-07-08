@@ -15,7 +15,7 @@ describe('User Service Integration', () => {
   describe('Mock User Service', () => {
     const userService = getMockUserService();
 
-    it('should register a new employee with privacy consent', async () => {
+    it('should register a new employee', async () => {
       const newUserData = {
         role: 'employee',
       };
@@ -58,7 +58,7 @@ describe('User Service Integration', () => {
       expect(registeredUser.dateCreated).toBeDefined();
     });
 
-    it('should register a new hiring manager without privacy consent', async () => {
+    it('should register a new hiring manager', async () => {
       const newUserData = {
         role: 'hiring-manager',
       };
