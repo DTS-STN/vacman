@@ -71,10 +71,10 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   ] = await Promise.all([
     userService.getUserByActiveDirectoryId(profileUserId),
     getProfileService().getProfile(profileUserId),
-    getLanguageReferralTypeService().getAll(),
+    getLanguageReferralTypeService().getAllLocalized(lang),
     getClassificationService().getAll(),
-    getCityService().getAll(),
-    getEmploymentTenureService().getAll(),
+    getCityService().getAllLocalized(lang),
+    getEmploymentTenureService().getAllLocalized(lang),
   ]);
 
   if (profileResult.isNone()) {
