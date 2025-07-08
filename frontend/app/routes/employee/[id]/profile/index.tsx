@@ -45,12 +45,13 @@ export function meta({ data }: Route.MetaArgs) {
   return [{ title: data?.documentTitle }];
 }
 
-export function action({ context, params, request }: Route.ActionArgs) {
-  // Since parent layout ensures authentication, we can safely cast the session
-  /*
-  TODO: Update redirect to correct page
-  */
-  throw i18nRedirect('routes/employee/profile/index.tsx', request);
+export function action({ context, request }: Route.ActionArgs) {
+  // Get the current user's ID from the authenticated session
+  const authenticatedSession = context.session as AuthenticatedSession;
+  const currentUserId = authenticatedSession.authState.idTokenClaims.oid as string;
+  return i18nRedirect('routes/employee/[id]/profile/index.tsx', request, {
+    params: { id: currentUserId },
+  });
 }
 
 export async function loader({ context, request }: Route.LoaderArgs) {
@@ -199,7 +200,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
         <ProfileCard
           title={t('app:profile.personal-information.title')}
           linkLabel={t('app:profile.personal-information.link-label')}
-          file="routes/employee/profile/personal-information.tsx"
+          file="routes/employee/[id]/profile/personal-information.tsx"
           completed={loaderData.personalInformation.completed}
           total={loaderData.personalInformation.total}
           required
@@ -245,7 +246,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
         <ProfileCard
           title={t('app:profile.employment.title')}
           linkLabel={t('app:profile.employment.link-label')}
-          file="routes/employee/profile/employment-information.tsx"
+          file="routes/employee/[id]/profile/employment-information.tsx"
           completed={loaderData.employmentInformation.completed}
           total={loaderData.employmentInformation.total}
           required
@@ -299,7 +300,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
         <ProfileCard
           title={t('app:profile.referral.title')}
           linkLabel={t('app:profile.referral.link-label')}
-          file="routes/employee/profile/referral-preferences.tsx"
+          file="routes/employee/[id]/profile/referral-preferences.tsx"
           completed={loaderData.referralPreferences.completed}
           total={loaderData.referralPreferences.total}
           required

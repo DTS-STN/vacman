@@ -42,7 +42,7 @@ export async function action({ context, request }: ActionFunctionArgs) {
       await createUserProfile(activeDirectoryId);
     }
 
-    return i18nRedirect('routes/employee/index.tsx', request);
+    return i18nRedirect('routes/employee/[id]/profile/index.tsx', request, { params: { id: activeDirectoryId } });
   }
 
   // If declined, redirect back to dashboard selection page with current locale
