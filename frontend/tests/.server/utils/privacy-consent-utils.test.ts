@@ -157,7 +157,7 @@ describe('Privacy Consent Flow', () => {
 
       expect(response).toBeInstanceOf(Response);
       expect(response.status).toBe(302);
-      expect(response.headers.get('Location')).toBe('/en/employee/test-employee-123/profile');
+      expect(response.headers.get('Location')).toBe('/en/employee');
 
       // Verify user was registered with privacy consent
       expect(mockUserService.registerUser).toHaveBeenCalledWith(
@@ -246,7 +246,7 @@ describe('Privacy Consent Flow', () => {
 
       expect(response).toBeInstanceOf(Response);
       expect(response.status).toBe(302);
-      expect(response.headers.get('Location')).toBe('/en/employee/test-existing-employee-123/profile');
+      expect(response.headers.get('Location')).toBe('/en/employee');
 
       // Verify user was not registered again since they already exist
       expect(mockUserService.registerUser).not.toHaveBeenCalled();
