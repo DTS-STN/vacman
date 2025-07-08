@@ -61,12 +61,22 @@ class UsersControllerTest {
 	void getUsers_shouldReturnPaginatedUserCollection() throws Exception {
 		final var mockUsers = List.of(
 			new UserEntityBuilder()
-				.firstName("User")
-				.lastName("One")
+				.firstName("John")
+				.lastName("Doe")
+				.middelName("A")
+				.initial("JAD")
+				.networkName("john.doe@example.com")
+				.businessEmailAddress("john.doe@example.com")
+				.businessPhoneNumber("555-123-4567")
 				.build(),
 			new UserEntityBuilder()
-				.firstName("User")
-				.firstName("Two")
+				.firstName("Jane")
+				.lastName("Smith")
+				.middelName("B")
+				.initial("JBS")
+				.networkName("jane.smith@example.com")
+				.businessEmailAddress("jane.smith@example.com")
+				.businessPhoneNumber("555-987-6543")
 				.build());
 
 		final var pageable = PageRequest.of(0, 2);
@@ -89,24 +99,28 @@ class UsersControllerTest {
 	@DisplayName("POST /api/v1/users - Should create and return new user")
 	void createUser_shouldCreateUser() throws Exception {
 		final var mockUser = new UserEntityBuilder()
-			.firstName("Test")
-			.lastName("User")
+			.firstName("John")
+			.lastName("Doe")
+			.middelName("A")
+			.initial("JAD")
+			.networkName("test@example.com")
+			.businessEmailAddress("test@example.com")
+			.businessPhoneNumber("555-123-4567")
 			.build();
 
-		when(userService.createUser(any(UserEntity.class))).thenReturn(mockUser);
+		final var userCreateModel = new UserCreateModel("test@example.com", "employee");
+
+		when(userService.createUser(any(UserCreateModel.class))).thenReturn(mockUser);
 
 		final var expectedResponse = userModelMapper.toModel(mockUser);
 
 		mockMvc.perform(post("/api/v1/users")
 			.contentType(MediaType.APPLICATION_JSON)
-			.content(objectMapper.writeValueAsString(new UserCreateModel("Test User"))))
+			.content(objectMapper.writeValueAsString(userCreateModel)))
 			.andExpect(status().isOk())
 			.andExpect(content().json(objectMapper.writeValueAsString(expectedResponse)));
 
-		verify(userService).createUser(new UserEntityBuilder()
-			.firstName("Test")
-			.lastName("User")
-			.build());
+		verify(userService).createUser(any(UserCreateModel.class));
 	}
 
 }
