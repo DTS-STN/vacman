@@ -34,7 +34,9 @@ export function meta({ data }: Route.MetaArgs) {
 }
 
 export async function action({ context, params, request }: Route.ActionArgs) {
-  // Since parent layout ensures authentication, we can safely cast the session
+  // Get the current user's ID from the authenticated session
+  const authenticatedSession = context.session as AuthenticatedSession;
+  const currentUserId = authenticatedSession.authState.idTokenClaims.oid as string;
   const formData = await request.formData();
   const parseResult = v.safeParse(personalInformationSchema, {
     personalRecordIdentifier: formString(formData.get('personalRecordIdentifier')),
@@ -54,7 +56,9 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 
   //TODO: Save form data & work email after validation, workEmail: context.session.authState.idTokenClaims.email
 
-  throw i18nRedirect('routes/employee/[id]/profile/index.tsx', request);
+  return i18nRedirect('routes/employee/[id]/profile/index.tsx', request, {
+    params: { id: currentUserId },
+  });
 }
 
 export async function loader({ context, request }: Route.LoaderArgs) {

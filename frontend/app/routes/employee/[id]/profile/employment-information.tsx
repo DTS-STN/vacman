@@ -15,6 +15,7 @@ import { getDirectorateService } from '~/.server/domain/services/directorate-ser
 import { getProvinceService } from '~/.server/domain/services/province-service';
 import { getUserService } from '~/.server/domain/services/user-service';
 import { getWFAStatuses } from '~/.server/domain/services/wfa-status-service';
+import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { Button } from '~/components/button';
 import { ButtonLink } from '~/components/button-link';
@@ -39,6 +40,9 @@ export function meta({ data }: Route.MetaArgs) {
 }
 
 export async function action({ context, params, request }: Route.ActionArgs) {
+  // Get the current user's ID from the authenticated session
+  const authenticatedSession = context.session as AuthenticatedSession;
+  const currentUserId = authenticatedSession.authState.idTokenClaims.oid as string;
   const formData = await request.formData();
   const { parseResult, formValues } = parseEmploymentInformation(formData);
 
@@ -51,7 +55,9 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 
   //TODO: Save form data after validation
 
-  throw i18nRedirect('routes/employee/[id]/profile/index.tsx', request);
+  return i18nRedirect('routes/employee/[id]/profile/index.tsx', request, {
+    params: { id: currentUserId },
+  });
 }
 
 export async function loader({ context, request }: Route.LoaderArgs) {
