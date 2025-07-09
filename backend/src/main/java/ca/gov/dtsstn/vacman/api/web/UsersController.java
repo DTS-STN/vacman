@@ -1,6 +1,7 @@
 package ca.gov.dtsstn.vacman.api.web;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.validator.constraints.Range;
@@ -11,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,6 +25,7 @@ import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 import ca.gov.dtsstn.vacman.api.service.UserService;
 import ca.gov.dtsstn.vacman.api.web.model.UserCreateModel;
 import ca.gov.dtsstn.vacman.api.web.model.UserReadModel;
+import ca.gov.dtsstn.vacman.api.web.model.UserUpdateModel;
 import ca.gov.dtsstn.vacman.api.web.model.mapper.UserModelMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -88,5 +91,25 @@ public class UsersController {
 			.map(userModelMapper::toModel)
 			.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User with ID '" + id + "' not found"));
 		return ResponseEntity.ok(result);
+	}
+
+	@PatchMapping("/{id}")
+	@Operation(summary = "Update an existing user.")
+	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
+	public ResponseEntity<UserReadModel> updateUser(@PathVariable Long id, @RequestBody @Valid UserUpdateModel userUpdate) {
+		// Ensure the ID in the path matches the ID in the request body
+		if (!id.equals(userUpdate.id())) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, 
+				"Path ID does not match request body ID");
+		}
+		
+		Optional<UserEntity> updatedUser = userService.updateUser(userUpdate);
+		
+		if (updatedUser.isEmpty()) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, 
+				"User with ID '" + id + "' not found");
+		}
+		
+		return ResponseEntity.ok(userModelMapper.toModel(updatedUser.get()));
 	}
 }

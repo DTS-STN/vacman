@@ -4,6 +4,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -34,6 +35,7 @@ import ca.gov.dtsstn.vacman.api.config.WebSecurityConfig;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntityBuilder;
 import ca.gov.dtsstn.vacman.api.service.UserService;
 import ca.gov.dtsstn.vacman.api.web.model.UserCreateModel;
+import ca.gov.dtsstn.vacman.api.web.model.UserUpdateModel;
 import ca.gov.dtsstn.vacman.api.web.model.mapper.UserModelMapper;
 
 @ActiveProfiles("test")
@@ -202,6 +204,75 @@ class UsersControllerTest {
 			.andExpect(content().json(objectMapper.writeValueAsString(expectedResponse)));
 
 		verify(userService).getUsers(any(Pageable.class));
+	}
+
+	@Test
+	@WithMockUser
+	@DisplayName("PATCH /api/v1/users/{id} should update and return user when user exists")
+	void patchUser_givenUserExists_shouldUpdateAndReturnUser() throws Exception {
+		final var userId = 1L;
+		final var userUpdate = new UserUpdateModel(
+			userId, "admin", "2ca209f5-7913-491e-af5a-1f488ce0613b", 
+			"Jane", "M", "Smith", "JMS", "67890", 
+			"555-987-6543", "jane.smith@example.com"
+		);
+
+		final var updatedUser = new UserEntityBuilder()
+			.id(userId)
+			.firstName("Jane")
+			.lastName("Smith")
+			.networkName("2ca209f5-7913-491e-af5a-1f488ce0613b")
+			.build();
+
+		when(userService.updateUser(any(UserUpdateModel.class))).thenReturn(Optional.of(updatedUser));
+
+		mockMvc.perform(patch("/api/v1/users/" + userId)
+			.contentType(MediaType.APPLICATION_JSON)
+			.content(objectMapper.writeValueAsString(userUpdate)))
+			.andExpect(status().isOk())
+			.andExpect(content().contentType(MediaType.APPLICATION_JSON))
+			.andExpect(content().json(objectMapper.writeValueAsString(userModelMapper.toModel(updatedUser))));
+
+		verify(userService).updateUser(userUpdate);
+	}
+
+	@Test
+	@WithMockUser
+	@DisplayName("PATCH /api/v1/users/{id} should return 404 when user does not exist")
+	void patchUser_givenUserDoesNotExist_shouldReturn404() throws Exception {
+		final var userId = 999L;
+		final var userUpdate = new UserUpdateModel(
+			userId, "admin", "2ca209f5-7913-491e-af5a-1f488ce0613b", 
+			"Jane", "M", "Smith", "JMS", "67890", 
+			"555-987-6543", "jane.smith@example.com"
+		);
+
+		when(userService.updateUser(any(UserUpdateModel.class))).thenReturn(Optional.empty());
+
+		mockMvc.perform(patch("/api/v1/users/" + userId)
+			.contentType(MediaType.APPLICATION_JSON)
+			.content(objectMapper.writeValueAsString(userUpdate)))
+			.andExpect(status().isNotFound());
+
+		verify(userService).updateUser(userUpdate);
+	}
+
+	@Test
+	@WithMockUser
+	@DisplayName("PATCH /api/v1/users/{id} should return 400 when path ID does not match body ID")
+	void patchUser_givenMismatchedIds_shouldReturn400() throws Exception {
+		final var pathId = 1L;
+		final var bodyId = 2L;
+		final var userUpdate = new UserUpdateModel(
+			bodyId, "admin", "2ca209f5-7913-491e-af5a-1f488ce0613b", 
+			"Jane", "M", "Smith", "JMS", "67890", 
+			"555-987-6543", "jane.smith@example.com"
+		);
+
+		mockMvc.perform(patch("/api/v1/users/" + pathId)
+			.contentType(MediaType.APPLICATION_JSON)
+			.content(objectMapper.writeValueAsString(userUpdate)))
+			.andExpect(status().isBadRequest());
 	}
 
 }

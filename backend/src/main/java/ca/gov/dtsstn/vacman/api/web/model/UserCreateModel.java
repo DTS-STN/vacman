@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotNull;
 
 @Schema(name = "UserCreate")
 public record UserCreateModel(
-	@Schema(description = "The Active Directory ID of this user.", example = "user@example.com")
+	@Schema(description = "The Active Directory ID of this user.", example = "12345678-1234-1234-1234-123456789abc")
 	String activeDirectoryId,
 
 	@NotNull(message = "Role is required.")
