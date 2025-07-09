@@ -368,7 +368,7 @@ describe('Profile Access Utils', () => {
       const session = createMockSession('test-user-123');
       const currentUrl = new URL('http://localhost:3000/en/employee/test-user-123/profile');
       mockIsProfileRoute.mockReturnValue(true);
-      mockExtractUserIdFromProfileRoute.mockReturnValue('test-user-123');
+      mockExtractUserIdFromProfileRoute.mockReturnValue(Some('test-user-123'));
 
       // Act & Assert - should not throw
       await expect(checkProfileRouteAccess(session, currentUrl)).resolves.not.toThrow();
@@ -381,7 +381,7 @@ describe('Profile Access Utils', () => {
       const session = createMockSession('test-user-123');
       const currentUrl = new URL('http://localhost:3000/en/employee/profile');
       mockIsProfileRoute.mockReturnValue(true);
-      mockExtractUserIdFromProfileRoute.mockReturnValue(null);
+      mockExtractUserIdFromProfileRoute.mockReturnValue(None);
 
       // Act & Assert
       await expect(checkProfileRouteAccess(session, currentUrl)).rejects.toThrow(AppError);
@@ -396,7 +396,7 @@ describe('Profile Access Utils', () => {
       const session = createMockSession('test-employee-456');
       const currentUrl = new URL('http://localhost:3000/en/employee/test-employee-123/profile');
       mockIsProfileRoute.mockReturnValue(true);
-      mockExtractUserIdFromProfileRoute.mockReturnValue('test-employee-123');
+      mockExtractUserIdFromProfileRoute.mockReturnValue(Some('test-employee-123'));
       mockUserService.getUserByActiveDirectoryId.mockResolvedValue({
         ...mockEmployee,
         activeDirectoryId: 'test-employee-456',
@@ -452,7 +452,7 @@ describe('Profile Access Utils', () => {
       const session = createMockSession('test-user-123');
       const currentUrl = new URL('http://localhost:3000/en/employee/test-user-123/profile');
       mockIsProfileRoute.mockReturnValue(true);
-      mockExtractUserIdFromProfileRoute.mockReturnValue('test-user-123');
+      mockExtractUserIdFromProfileRoute.mockReturnValue(Some('test-user-123'));
 
       // Act & Assert - should not throw
       await expect(checkProfileRouteAccess(session, currentUrl)).resolves.not.toThrow();

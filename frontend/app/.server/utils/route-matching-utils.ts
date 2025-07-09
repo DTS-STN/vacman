@@ -55,10 +55,13 @@ export function extractUserIdFromProfileRoute(url: URL): Option<string> {
 /**
  * Checks if the current request is for an employee route.
  * Employee routes are those that start with /en/employee or /fr/employe.
+ * Ensures that the path is exactly the prefix or has a / immediately after the prefix.
  */
 export function isEmployeeRoute(url: URL): boolean {
   const employeePathPrefixes = ['/en/employee', '/fr/employe'];
-  return employeePathPrefixes.some((prefix) => url.pathname.startsWith(prefix));
+  return employeePathPrefixes.some((prefix) => {
+    return url.pathname === prefix || url.pathname.startsWith(prefix + '/');
+  });
 }
 
 /**
