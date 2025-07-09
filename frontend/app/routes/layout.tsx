@@ -9,6 +9,7 @@ import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { checkHiringManagerRouteRegistration } from '~/.server/utils/hiring-manager-registration-utils';
 import { checkEmployeeRoutePrivacyConsent } from '~/.server/utils/privacy-consent-utils';
+import { checkProfileRouteAccess } from '~/.server/utils/profile-access-utils';
 import { AppBar } from '~/components/app-bar';
 import { LanguageSwitcher } from '~/components/language-switcher';
 import { AppLink } from '~/components/links';
@@ -33,6 +34,9 @@ export async function loader({ context, request }: Route.LoaderArgs) {
 
   // Check hiring manager registration for hiring manager routes
   await checkHiringManagerRouteRegistration(context.session as AuthenticatedSession, currentUrl);
+
+  // Check profile access for profile routes
+  await checkProfileRouteAccess(context.session as AuthenticatedSession, currentUrl);
 
   return { name: context.session.authState.idTokenClaims.name };
 }

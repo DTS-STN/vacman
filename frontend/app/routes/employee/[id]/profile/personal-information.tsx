@@ -20,7 +20,7 @@ import { InputTextarea } from '~/components/input-textarea';
 import { InlineLink } from '~/components/links';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { getTranslation } from '~/i18n-config.server';
-import { personalInformationSchema } from '~/routes/employee/profile/validation.server';
+import { personalInformationSchema } from '~/routes/employee/[id]/profile/validation.server';
 import { handle as parentHandle } from '~/routes/layout';
 import { formString } from '~/utils/string-utils';
 import { extractValidationKey } from '~/utils/validation-utils';
@@ -54,7 +54,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 
   //TODO: Save form data & work email after validation, workEmail: context.session.authState.idTokenClaims.email
 
-  throw i18nRedirect('routes/employee/profile/index.tsx', request);
+  throw i18nRedirect('routes/employee/[id]/profile/index.tsx', request);
 }
 
 export async function loader({ context, request }: Route.LoaderArgs) {
@@ -98,7 +98,7 @@ export default function PersonalInformation({ loaderData, actionData, params }: 
   }));
   return (
     <>
-      <InlineLink className="mt-6 block" file="routes/employee/profile/index.tsx" id="back-button">
+      <InlineLink className="mt-6 block" file="routes/employee/[id]/profile/index.tsx" params={params} id="back-button">
         {`< ${t('app:profile.back')}`}
       </InlineLink>
       <div className="max-w-prose">
@@ -200,7 +200,12 @@ export default function PersonalInformation({ loaderData, actionData, params }: 
                 <Button name="action" variant="primary" id="save-button">
                   {t('app:form.save')}
                 </Button>
-                <ButtonLink file="routes/employee/profile/index.tsx" id="cancel-button" variant="alternative">
+                <ButtonLink
+                  file="routes/employee/[id]/profile/index.tsx"
+                  params={params}
+                  id="cancel-button"
+                  variant="alternative"
+                >
                   {t('app:form.cancel')}
                 </ButtonLink>
               </div>

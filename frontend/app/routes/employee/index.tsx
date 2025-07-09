@@ -8,6 +8,7 @@ import { faChevronRight, faUser } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useTranslation } from 'react-i18next';
 
+import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { Card, CardHeader, CardIcon, CardTitle } from '~/components/card';
 import { PageTitle } from '~/components/page-title';
@@ -23,7 +24,12 @@ export async function action({ context, request }: ActionFunctionArgs) {
   const action = formData.get('action');
 
   if (action === 'view-profile') {
-    return i18nRedirect('routes/employee/profile/index.tsx', request);
+    // Get the current user's ID from the authenticated session
+    const authenticatedSession = context.session as AuthenticatedSession;
+    const currentUserId = authenticatedSession.authState.idTokenClaims.oid as string;
+    return i18nRedirect('routes/employee/[id]/profile/index.tsx', request, {
+      params: { id: currentUserId },
+    });
   }
 
   // Invalid action

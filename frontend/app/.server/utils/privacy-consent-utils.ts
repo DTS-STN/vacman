@@ -6,9 +6,27 @@
 import { LogFactory } from '~/.server/logging';
 import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
 import { safeGetUserProfile } from '~/.server/utils/profile-utils';
+import { isEmployeeRoute, isPrivacyConsentPath, isProfileRoute } from '~/.server/utils/route-matching-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 
 const log = LogFactory.getLogger(import.meta.url);
+
+/**
+ * Internal function to check if a user has accepted privacy consent.
+ * This function encapsulates the common logic for privacy consent checking.
+ *
+ * @param userId - The user ID to check privacy consent for
+ * @param currentUrl - The current request URL for redirect context
+ * @throws {Response} Redirect to index page if user hasn't accepted privacy consent
+ */
+async function checkPrivacyConsentForUser(userId: string, currentUrl: URL): Promise<void> {
+  const profile = await safeGetUserProfile(userId);
+
+  if (!profile?.privacyConsentInd) {
+    log.debug(`Privacy consent required for user ${userId}`);
+    throw i18nRedirect('routes/index.tsx', currentUrl);
+  }
+}
 
 /**
  * Checks if the authenticated employee user has accepted privacy consent.
@@ -21,39 +39,33 @@ const log = LogFactory.getLogger(import.meta.url);
  */
 export async function requirePrivacyConsent(session: AuthenticatedSession, currentUrl: URL): Promise<void> {
   const activeDirectoryId = session.authState.idTokenClaims.oid as string;
-  const profile = await safeGetUserProfile(activeDirectoryId);
-
-  if (!profile) {
-    log.debug('Profile not found in database, redirecting to index');
-    throw i18nRedirect('routes/index.tsx', currentUrl);
-  }
-
-  if (!profile.privacyConsentInd) {
-    log.debug('User has not accepted privacy consent, redirecting to index');
-    throw i18nRedirect('routes/index.tsx', currentUrl);
-  }
-
-  log.debug('User has profile and accepted privacy consent, allowing access');
+  await checkPrivacyConsentForUser(activeDirectoryId, currentUrl);
 }
 
 /**
- * Checks if the current request is for the privacy consent page.
- * This prevents checking privacy consent on the consent page itself.
+ * Checks if the authenticated user has accepted privacy consent for accessing their own profile.
+ * This function only checks privacy consent when a user is accessing their own profile data,
+ * not when a hiring manager is accessing another employee's profile.
+ *
+ * @param session - The authenticated session
+ * @param targetUserId - The ID of the profile being accessed
+ * @param currentUrl - The current request URL for redirect context
+ * @throws {Response} Redirect to index page if user hasn't accepted privacy consent
  */
-export function isPrivacyConsentPath(url: URL): boolean {
-  const privacyConsentPaths = ['/en/employee/privacy-consent', '/fr/employe/consentement-a-la-confidentialite'];
+export async function requirePrivacyConsentForOwnProfile(
+  session: AuthenticatedSession,
+  targetUserId: string,
+  currentUrl: URL,
+): Promise<void> {
+  const requesterId = session.authState.idTokenClaims.oid as string;
 
-  return privacyConsentPaths.some((path) => url.pathname.startsWith(path));
-}
+  // Only check privacy consent if the user is accessing their own profile
+  if (requesterId !== targetUserId) {
+    return;
+  }
 
-/**
- * Checks if the current request is for an employee route.
- * Employee routes are those that start with /en/employee or /fr/employe.
- */
-export function isEmployeeRoute(url: URL): boolean {
-  const employeePathPrefixes = ['/en/employee', '/fr/employe'];
-
-  return employeePathPrefixes.some((prefix) => url.pathname.startsWith(prefix));
+  log.debug(`Privacy consent check for own profile: ${requesterId}`);
+  await checkPrivacyConsentForUser(requesterId, currentUrl);
 }
 
 /**
@@ -61,7 +73,11 @@ export function isEmployeeRoute(url: URL): boolean {
  * This function should be called in the layout loader to check if:
  * 1. The current route is an employee route
  * 2. The current route is NOT a privacy consent page
- * If both conditions are met, it requires privacy consent.
+ * 3. The current route is NOT a profile route (profile routes handle their own privacy consent logic)
+ *
+ * The logic is:
+ * - For profile routes: Skip privacy consent check (handled by profile access logic)
+ * - For other employee routes: Always check privacy consent
  *
  * @param session - The authenticated session
  * @param currentUrl - The current request URL
@@ -78,6 +94,12 @@ export async function checkEmployeeRoutePrivacyConsent(session: AuthenticatedSes
     return;
   }
 
-  // Apply privacy consent requirement for employee routes
+  // Skip privacy consent check for profile routes (handled by profile access logic)
+  if (isProfileRoute(currentUrl)) {
+    return;
+  }
+
+  // For all other employee routes, apply general privacy consent requirement
+  log.debug(`Privacy consent check for employee route: ${currentUrl.pathname}`);
   await requirePrivacyConsent(session, currentUrl);
 }
