@@ -1,5 +1,8 @@
 package ca.gov.dtsstn.vacman.api.web;
 
+import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.validator.constraints.Range;
 import org.mapstruct.factory.Mappers;
 import org.springframework.data.domain.Page;
@@ -43,7 +46,11 @@ public class UsersController {
 	@GetMapping
 	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
 	@Operation(summary = "Get users with pagination.", description = "Returns a paginated list of users.")
-	public ResponseEntity<Page<UserReadModel>> getUsers(
+	public ResponseEntity<?> getUsers(
+			@RequestParam(required = false)
+			@Parameter(description = "Network name to filter by.")
+			String networkName,
+
 			@RequestParam(defaultValue = "0")
 			@Parameter(description = "Page number (0-based)")
 			int page,
@@ -52,6 +59,14 @@ public class UsersController {
 			@Range(min = 1, max = 100)
 			@Parameter(description = "Page size (between 1 and 100)")
 			int size) {
+		if (StringUtils.isNotBlank(networkName)) {
+			final var users = userService.getUserByNetworkName(networkName.trim())
+				.map(userModelMapper::toModel)
+				.map(List::of)
+				.orElse(List.of());
+			return ResponseEntity.ok(users);
+		}
+
 		Page<UserReadModel> result = userService.getUsers(PageRequest.of(page, size)).map(userModelMapper::toModel);
 		return ResponseEntity.ok(result);
 	}

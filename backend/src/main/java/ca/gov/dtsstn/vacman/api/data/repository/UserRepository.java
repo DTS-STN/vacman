@@ -1,5 +1,7 @@
 package ca.gov.dtsstn.vacman.api.data.repository;
 
+import java.util.Optional;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.ListCrudRepository;
@@ -12,5 +14,7 @@ import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 public interface UserRepository extends ListCrudRepository<UserEntity, Long>, PagingAndSortingRepository<UserEntity, Long> {
 
   Page<UserEntity> findAll(Pageable pageable);
+
+  Optional<UserEntity> findByNetworkName(String networkName);
 
 }
