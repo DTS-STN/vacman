@@ -43,6 +43,7 @@ export function meta({ data }: Route.MetaArgs) {
   return [{ title: data?.documentTitle }];
 }
 
+// TODO: Setup form action to submit user's profile data for review
 // export function action({ context, request }: Route.ActionArgs) {
 //   // Get the current user's ID from the authenticated session
 //   const authenticatedSession = context.session as AuthenticatedSession;
