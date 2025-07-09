@@ -224,4 +224,4 @@ INSERT INTO [CD_USER_TYPE] ([USER_TYPE_ID], [USER_TYPE_CODE], [USER_TYPE_NAME_EN
 VALUES
     (1, 'employee', 'Employee', 'Employé', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
     (2, 'admin', 'Administrator', 'Administrateur', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
-    (3, 'manager', 'Manager', 'Gestionnaire', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
+    (3, 'hiring-manager', 'Hiring Manager', 'Gestionnaire de recrutement', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
