@@ -7,12 +7,12 @@ import { serverEnvironment } from '~/.server/environment';
 import type { AppError } from '~/errors/app-error';
 
 export type LanguageForCorrespondenceService = {
-  getAll(): Promise<Result<readonly LanguageOfCorrespondence[], AppError>>;
+  listAll(): Promise<readonly LanguageOfCorrespondence[]>;
   getById(id: string): Promise<Result<LanguageOfCorrespondence, AppError>>;
   findById(id: string): Promise<Option<LanguageOfCorrespondence>>;
   getByCode(code: string): Promise<Result<LanguageOfCorrespondence, AppError>>;
   findByCode(code: string): Promise<Option<LanguageOfCorrespondence>>;
-  getAllLocalized(language: Language): Promise<Result<readonly LocalizedLanguageOfCorrespondence[], AppError>>;
+  listAllLocalized(language: Language): Promise<readonly LocalizedLanguageOfCorrespondence[]>;
   getLocalizedById(id: string, language: Language): Promise<Result<LocalizedLanguageOfCorrespondence, AppError>>;
   findLocalizedById(id: string, language: Language): Promise<Option<LocalizedLanguageOfCorrespondence>>;
   getLocalizedByCode(code: string, language: Language): Promise<Result<LocalizedLanguageOfCorrespondence, AppError>>;

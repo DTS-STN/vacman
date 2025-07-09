@@ -3,42 +3,10 @@ import { Ok, Err } from 'oxide.ts';
 
 import type { LanguageOfCorrespondence, LocalizedLanguageOfCorrespondence } from '~/.server/domain/models';
 import type { LanguageForCorrespondenceService } from '~/.server/domain/services/language-for-correspondence-service';
-import { serverEnvironment } from '~/.server/environment';
+import { apiFetch } from '~/.server/domain/services/makeApiRequest';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
-
-// Centralized API request logic
-async function makeApiRequest<T>(path: string, context: string): Promise<Result<T, AppError>> {
-  try {
-    const response = await fetch(`${serverEnvironment.VACMAN_API_BASE_URI}${path}`);
-
-    if (response.status === HttpStatusCodes.NOT_FOUND) {
-      return Err(new AppError(`${context} not found.`, ErrorCodes.NO_LANGUAGE_OF_CORRESPONDENCE_FOUND));
-    }
-
-    if (!response.ok) {
-      return Err(
-        new AppError(
-          `Failed to ${context.toLowerCase()}. Server responded with status ${response.status}.`,
-          ErrorCodes.VACMAN_API_ERROR,
-        ),
-      );
-    }
-
-    // Handle cases where the server returns 204 No Content for a successful empty response
-    if (response.status === HttpStatusCodes.NO_CONTENT) {
-      return Ok([] as unknown as T); // Return an empty array or appropriate empty value
-    }
-
-    const data: T = await response.json();
-    return Ok(data);
-  } catch (error) {
-    return Err(
-      new AppError(`Unexpected error occurred while ${context.toLowerCase()}: ${String(error)}`, ErrorCodes.VACMAN_API_ERROR),
-    );
-  }
-}
 
 // Centralized localization logic
 function localizedLanguageOfCorrespondence(
@@ -55,32 +23,71 @@ function localizedLanguageOfCorrespondence(
 // Create a single instance of the service (Singleton)
 export const languageForCorrespondenceService: LanguageForCorrespondenceService = {
   /**
-   * Retrieves a list of languages of correspondence.
+   * Retrieves a list of all languages of correspondence.
    *
-   * @returns An array of language of correspondence objects or {AppError} if the request fails or if the server responds with an error status.
+   * @returns A promise that resolves to an array of languages of correspondence objects. The array will be empty if none are found.
+   * @throws {AppError} if the API call fails for any reason (e.g., network error, server error).
    */
-  getAll(): Promise<Result<readonly LanguageOfCorrespondence[], AppError>> {
-    return makeApiRequest('/languagesOfCorrespondance', 'Retrieve all directorates');
+  async listAll(): Promise<readonly LanguageOfCorrespondence[]> {
+    type ApiResponse = {
+      content: readonly LanguageOfCorrespondence[];
+    };
+    const context = 'list all language of correspondence';
+    const response = await apiFetch('/languages', context);
+
+    const data: ApiResponse = await response.json();
+    return data.content;
   },
 
   /**
    * Retrieves a single language of correspondence by its ID.
    *
    * @param id The ID of the language of correspondence to retrieve.
-   * @returns The language of correspondence object if found or {AppError} If the language of correspondence is not found or if the request fails or if the server responds with an error status.
+   * @returns A `Result` containing the language of correspondence object if found, or an `AppError` if not found.
+   * @throws {AppError} if the API call fails for any reason other than a 404 not found.
    */
-  getById(id: string): Promise<Result<LanguageOfCorrespondence, AppError>> {
-    return makeApiRequest(`/languagesOfCorrespondance/${id}`, `Find Language of Correspondance with ID '${id}'`);
+  async getById(id: string): Promise<Result<LanguageOfCorrespondence, AppError>> {
+    const context = `get language of correspondence with ID '${id}'`;
+    try {
+      const response = await apiFetch(`/languages/${id}`, context);
+      const data: LanguageOfCorrespondence = await response.json();
+      return Ok(data);
+    } catch (error) {
+      if (error instanceof AppError && error.httpStatusCode === HttpStatusCodes.NOT_FOUND) {
+        return Err(
+          new AppError(`Language of Correspondence with ID '${id}' not found.`, ErrorCodes.NO_LANGUAGE_OF_CORRESPONDENCE_FOUND),
+        );
+      }
+      // Re-throw any other error
+      throw error;
+    }
   },
 
   /**
    * Retrieves a single language of correspondence by its CODE.
    *
    * @param code The CODE of the language of correspondence to retrieve.
-   * @returns The language of correspondence object if found or {AppError} If the language of correspondence is not found or if the request fails or if the server responds with an error status.
+   * @returns A `Result` containing the language of correspondence object if found, or an `AppError` if not found.
+   * @throws {AppError} if the API call fails for any reason other than a 404 not found.
    */
-  getByCode(code: string): Promise<Result<LanguageOfCorrespondence, AppError>> {
-    return makeApiRequest(`/languagesOfCorrespondance?code=${code}`, `Find Language of Correspondance with CODE '${code}'`);
+  async getByCode(code: string): Promise<Result<LanguageOfCorrespondence, AppError>> {
+    const context = `get Language of Correspondence with CODE '${code}'`;
+    try {
+      const response = await apiFetch(`/languages?code=${code}`, context);
+      const data: LanguageOfCorrespondence = await response.json();
+      return Ok(data);
+    } catch (error) {
+      if (error instanceof AppError && error.httpStatusCode === HttpStatusCodes.NOT_FOUND) {
+        return Err(
+          new AppError(
+            `Language of Correspondence with CODE '${code}' not found.`,
+            ErrorCodes.NO_LANGUAGE_OF_CORRESPONDENCE_FOUND,
+          ),
+        );
+      }
+      // Re-throw any other error
+      throw error;
+    }
   },
 
   /**
@@ -91,8 +98,7 @@ export const languageForCorrespondenceService: LanguageForCorrespondenceService 
    */
   async findById(id: string): Promise<Option<LanguageOfCorrespondence>> {
     const result = await this.getById(id);
-    // .ok() converts a Result<T, E> into an Option<T>
-    return result.ok();
+    return result.ok(); // .ok() converts a Result<T, E> into an Option<T>
   },
 
   /**
@@ -109,18 +115,15 @@ export const languageForCorrespondenceService: LanguageForCorrespondenceService 
   // Localized methods
 
   /**
-   * Retrieves a list of language of correspondence localized to the specified language.
+   * Retrieves a list of all language of correspondence, localized to the specified language.
    *
-   * @param language The language to localize the branch names to.
-   * @returns An array of localized language of correspondence objects or AppError if the request fails or if the server responds with an error status.
+   * @param language The language for localization.
+   * @returns A promise that resolves to an array of localized language of correspondence objects.
+   * @throws {AppError} if the API call fails for any reason.
    */
-  async getAllLocalized(language: Language): Promise<Result<readonly LocalizedLanguageOfCorrespondence[], AppError>> {
-    const result = await this.getAll();
-    return result.map((languagesOfCorrespondance) =>
-      languagesOfCorrespondance.map((languageOfCorrespondance) =>
-        localizedLanguageOfCorrespondence(languageOfCorrespondance, language),
-      ),
-    );
+  async listAllLocalized(language: Language): Promise<readonly LocalizedLanguageOfCorrespondence[]> {
+    const languagesOfCorrespondence = await this.listAll();
+    return languagesOfCorrespondence.map((type) => localizedLanguageOfCorrespondence(type, language));
   },
 
   /**
@@ -132,7 +135,7 @@ export const languageForCorrespondenceService: LanguageForCorrespondenceService 
    */
   async getLocalizedById(id: string, language: Language): Promise<Result<LocalizedLanguageOfCorrespondence, AppError>> {
     const result = await this.getById(id);
-    return result.map((languageOfCorrespondance) => localizedLanguageOfCorrespondence(languageOfCorrespondance, language));
+    return result.map((languageOfCorrespondence) => localizedLanguageOfCorrespondence(languageOfCorrespondence, language));
   },
 
   /**
@@ -144,7 +147,7 @@ export const languageForCorrespondenceService: LanguageForCorrespondenceService 
    */
   async getLocalizedByCode(code: string, language: Language): Promise<Result<LocalizedLanguageOfCorrespondence, AppError>> {
     const result = await this.getByCode(code);
-    return result.map((languageOfCorrespondance) => localizedLanguageOfCorrespondence(languageOfCorrespondance, language));
+    return result.map((languageOfCorrespondence) => localizedLanguageOfCorrespondence(languageOfCorrespondence, language));
   },
 
   /**

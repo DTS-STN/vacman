@@ -1,5 +1,5 @@
 import type { Result, Option } from 'oxide.ts';
-import { Err, None, Ok, Some } from 'oxide.ts';
+import { Err, Ok } from 'oxide.ts';
 
 import type { LanguageOfCorrespondence, LocalizedLanguageOfCorrespondence } from '~/.server/domain/models';
 import type { LanguageForCorrespondenceService } from '~/.server/domain/services/language-for-correspondence-service';
@@ -9,12 +9,12 @@ import { ErrorCodes } from '~/errors/error-codes';
 
 export function getMockLanguageForCorrespondenceService(): LanguageForCorrespondenceService {
   return {
-    getAll: () => Promise.resolve(getAll()),
+    listAll: () => Promise.resolve(listAll()),
     getById: (id: string) => Promise.resolve(getById(id)),
     findById: (id: string) => Promise.resolve(findById(id)),
     getByCode: (code: string) => Promise.resolve(getByCode(code)),
     findByCode: (code: string) => Promise.resolve(findByCode(code)),
-    getAllLocalized: (language: Language) => Promise.resolve(getAllLocalized(language)),
+    listAllLocalized: (language: Language) => Promise.resolve(listAllLocalized(language)),
     getLocalizedById: (id: string, language: Language) => Promise.resolve(getLocalizedById(id, language)),
     findLocalizedById: (id: string, language: Language) => Promise.resolve(findLocalizedById(id, language)),
     getLocalizedByCode: (code: string, language: Language) => Promise.resolve(getLocalizedByCode(code, language)),
@@ -27,7 +27,7 @@ export function getMockLanguageForCorrespondenceService(): LanguageForCorrespond
  *
  * @returns An array of language of correspondence objects.
  */
-function getAll(): Result<readonly LanguageOfCorrespondence[], AppError> {
+function listAll(): LanguageOfCorrespondence[] {
   const languages: LanguageOfCorrespondence[] = esdcLanguageOfCorrespondenceData.content.map((option) => ({
     id: option.id.toString(),
     code: option.code,
@@ -35,7 +35,7 @@ function getAll(): Result<readonly LanguageOfCorrespondence[], AppError> {
     nameFr: option.nameFr,
   }));
 
-  return Ok(languages);
+  return languages;
 }
 
 /**
@@ -45,14 +45,8 @@ function getAll(): Result<readonly LanguageOfCorrespondence[], AppError> {
  * @returns The language of correspondence object if found or {AppError} If the language of correspondence is not found.
  */
 function getById(id: string): Result<LanguageOfCorrespondence, AppError> {
-  const result = getAll();
-
-  if (result.isErr()) {
-    return result;
-  }
-
-  const languagesOfCorrespondence = result.unwrap();
-  const languageOfCorrespondence = languagesOfCorrespondence.find((l) => l.id === id);
+  const result = listAll();
+  const languageOfCorrespondence = result.find((l) => l.id === id);
 
   return languageOfCorrespondence
     ? Ok(languageOfCorrespondence)
@@ -68,16 +62,8 @@ function getById(id: string): Result<LanguageOfCorrespondence, AppError> {
  * @returns The language of correspondence object if found or undefined if not found.
  */
 function findById(id: string): Option<LanguageOfCorrespondence> {
-  const result = getAll();
-
-  if (result.isErr()) {
-    return None;
-  }
-
-  const languagesOfCorrespondence = result.unwrap();
-  const languageOfCorrespondence = languagesOfCorrespondence.find((l) => l.id === id);
-
-  return languageOfCorrespondence ? Some(languageOfCorrespondence) : None;
+  const result = getById(id);
+  return result.ok();
 }
 
 /**
@@ -87,14 +73,8 @@ function findById(id: string): Option<LanguageOfCorrespondence> {
  * @returns The language of correspondence object if found or {AppError} If the language of correspondence is not found.
  */
 function getByCode(code: string): Result<LanguageOfCorrespondence, AppError> {
-  const result = getAll();
-
-  if (result.isErr()) {
-    return result;
-  }
-
-  const languagesOfCorrespondence = result.unwrap();
-  const languageOfCorrespondence = languagesOfCorrespondence.find((l) => l.code === code);
+  const result = listAll();
+  const languageOfCorrespondence = result.find((l) => l.code === code);
 
   return languageOfCorrespondence
     ? Ok(languageOfCorrespondence)
@@ -113,16 +93,8 @@ function getByCode(code: string): Result<LanguageOfCorrespondence, AppError> {
  * @returns The language of correspondence object if found or undefined if not found.
  */
 function findByCode(code: string): Option<LanguageOfCorrespondence> {
-  const result = getAll();
-
-  if (result.isErr()) {
-    return None;
-  }
-
-  const languagesOfCorrespondence = result.unwrap();
-  const languageOfCorrespondence = languagesOfCorrespondence.find((l) => l.code === code);
-
-  return languageOfCorrespondence ? Some(languageOfCorrespondence) : None;
+  const result = getByCode(code);
+  return result.ok();
 }
 
 /**
@@ -131,16 +103,12 @@ function findByCode(code: string): Option<LanguageOfCorrespondence> {
  * @param language The language to localize the language names to.
  * @returns An array of localized language of correspondence objects.
  */
-function getAllLocalized(language: Language): Result<readonly LocalizedLanguageOfCorrespondence[], AppError> {
-  return getAll().map((options) =>
-    options
-      .map((option) => ({
-        id: option.id,
-        code: option.code,
-        name: language === 'fr' ? option.nameFr : option.nameEn,
-      }))
-      .sort((a, b) => a.name.localeCompare(b.name, language, { sensitivity: 'base' })),
-  );
+function listAllLocalized(language: Language): LocalizedLanguageOfCorrespondence[] {
+  return listAll().map((options) => ({
+    id: options.id,
+    code: options.code,
+    name: language === 'fr' ? options.nameFr : options.nameEn,
+  }));
 }
 
 /**
@@ -151,18 +119,12 @@ function getAllLocalized(language: Language): Result<readonly LocalizedLanguageO
  * @returns The localized language of correspondence object if found or {AppError} If the language of correspondence is not found.
  */
 function getLocalizedById(id: string, language: Language): Result<LocalizedLanguageOfCorrespondence, AppError> {
-  return getAllLocalized(language).andThen((languagesOfCorrespondence) => {
-    const languageOfCorrespondence = languagesOfCorrespondence.find((b) => b.id === id);
-
-    return languageOfCorrespondence
-      ? Ok(languageOfCorrespondence)
-      : Err(
-          new AppError(
-            `Localized language of correspondence with ID '${id}' not found.`,
-            ErrorCodes.NO_LANGUAGE_OF_CORRESPONDENCE_FOUND,
-          ),
-        );
-  });
+  const result = getById(id);
+  return result.map((languagesOfCorrespondence) => ({
+    id: languagesOfCorrespondence.id,
+    code: languagesOfCorrespondence.code,
+    name: language === 'fr' ? languagesOfCorrespondence.nameFr : languagesOfCorrespondence.nameEn,
+  }));
 }
 
 /**
@@ -173,15 +135,8 @@ function getLocalizedById(id: string, language: Language): Result<LocalizedLangu
  * @returns The localized language of correspondence object if found or undefined If the language of correspondence is not found.
  */
 function findLocalizedById(id: string, language: Language): Option<LocalizedLanguageOfCorrespondence> {
-  const result = getAllLocalized(language);
-
-  if (result.isErr()) {
-    return None;
-  }
-  const languagesOfCorrespondence = result.unwrap();
-  const languageOfCorrespondence = languagesOfCorrespondence.find((p) => p.id === id);
-
-  return languageOfCorrespondence ? Some(languageOfCorrespondence) : None;
+  const result = getLocalizedById(id, language);
+  return result.ok();
 }
 
 /**
@@ -192,18 +147,12 @@ function findLocalizedById(id: string, language: Language): Option<LocalizedLang
  * @returns The localized language of correspondence object if found or {AppError} If the language of correspondence is not found.
  */
 function getLocalizedByCode(code: string, language: Language): Result<LocalizedLanguageOfCorrespondence, AppError> {
-  return getAllLocalized(language).andThen((languagesOfCorrespondence) => {
-    const languageOfCorrespondence = languagesOfCorrespondence.find((b) => b.code === code);
-
-    return languageOfCorrespondence
-      ? Ok(languageOfCorrespondence)
-      : Err(
-          new AppError(
-            `Localized language of correspondence with CODE '${code}' not found.`,
-            ErrorCodes.NO_LANGUAGE_OF_CORRESPONDENCE_FOUND,
-          ),
-        );
-  });
+  const result = getByCode(code);
+  return result.map((languagesOfCorrespondence) => ({
+    id: languagesOfCorrespondence.id,
+    code: languagesOfCorrespondence.code,
+    name: language === 'fr' ? languagesOfCorrespondence.nameFr : languagesOfCorrespondence.nameEn,
+  }));
 }
 
 /**
@@ -214,13 +163,6 @@ function getLocalizedByCode(code: string, language: Language): Result<LocalizedL
  * @returns The localized language of correspondence object if found or undefined If the language of correspondence is not found.
  */
 function findLocalizedByCode(code: string, language: Language): Option<LocalizedLanguageOfCorrespondence> {
-  const result = getAllLocalized(language);
-
-  if (result.isErr()) {
-    return None;
-  }
-  const languagesOfCorrespondence = result.unwrap();
-  const languageOfCorrespondence = languagesOfCorrespondence.find((p) => p.code === code);
-
-  return languageOfCorrespondence ? Some(languageOfCorrespondence) : None;
+  const result = getLocalizedByCode(code, language);
+  return result.ok();
 }

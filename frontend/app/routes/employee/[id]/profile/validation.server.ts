@@ -20,8 +20,7 @@ import { isValidPhone } from '~/utils/phone-utils';
 import { REGEX_PATTERNS } from '~/utils/regex-utils';
 import { formString } from '~/utils/string-utils';
 
-const allLanguagesOfCorrespondance = await getLanguageForCorrespondenceService().getAll();
-const languagesOfCorrespondence = allLanguagesOfCorrespondance.unwrap();
+const allLanguagesOfCorrespondence = await getLanguageForCorrespondenceService().listAll();
 const allEducationLevels = await getEducationLevelService().getAll();
 const educationLevels = allEducationLevels.unwrap();
 const allSubstantivePositions = await getClassificationService().getAll();
@@ -35,8 +34,7 @@ const province = allProvinces.unwrap();
 const allCities = await getCityService().getAll();
 const cities = allCities.unwrap();
 const hrAdvisors = await getUserService().getUsersByRole('hr-advisor');
-const allLanguageReferralTypes = await getLanguageReferralTypeService().getAll();
-const languageReferralTypes = allLanguageReferralTypes.unwrap();
+const allLanguageReferralTypes = await getLanguageReferralTypeService().listAll();
 const allEmploymentTenures = await getEmploymentTenureService().getAll();
 const employmentTenures = allEmploymentTenures.unwrap();
 
@@ -50,7 +48,7 @@ export const personalInformationSchema = v.object({
   ),
   preferredLanguage: v.lazy(() =>
     v.picklist(
-      languagesOfCorrespondence.map(({ id }) => id),
+      allLanguagesOfCorrespondence.map(({ id }) => String(id)),
       'app:personal-information.errors.preferred-language-required',
     ),
   ),
@@ -219,7 +217,7 @@ export const refferralPreferencesSchema = v.object({
     v.array(
       v.lazy(() =>
         v.picklist(
-          languageReferralTypes.map((l) => l.id),
+          allLanguageReferralTypes.map((l) => String(l.id)),
           'app:referral-preferences.errors.language-referral-type-invalid',
         ),
       ),

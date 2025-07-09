@@ -72,7 +72,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   ] = await Promise.all([
     userService.getUserByActiveDirectoryId(profileUserId),
     getProfileService().getProfile(profileUserId),
-    getLanguageReferralTypeService().getAllLocalized(lang),
+    getLanguageReferralTypeService().listAllLocalized(lang),
     getClassificationService().getAll(),
     getCityService().getAllLocalized(lang),
     getEmploymentTenureService().getAllLocalized(lang),
@@ -84,16 +84,17 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 
   const profileData: Profile = profileResult.unwrap();
 
+  const preferredLanguageResult =
+    profileData.personalInformation.preferredLanguageId &&
+    (await getLanguageForCorrespondenceService().findLocalizedById(profileData.personalInformation.preferredLanguageId, lang));
+
   const completed = countCompletedItems(profileData);
   const total = Object.keys(profileData).length;
   const amountCompleted = (completed / total) * 100;
 
   // convert the IDs to display names
   const preferredLanguage =
-    profileData.personalInformation.preferredLanguageId &&
-    (
-      await getLanguageForCorrespondenceService().findLocalizedById(profileData.personalInformation.preferredLanguageId, lang)
-    ).unwrap().name;
+    preferredLanguageResult && preferredLanguageResult.isSome() ? preferredLanguageResult.unwrap().name : undefined;
   const education =
     profileData.personalInformation.educationLevelId &&
     (await getEducationLevelService().getLocalizedById(profileData.personalInformation.educationLevelId, lang)).unwrap().name; //TODO add find localized by ID in service
@@ -119,7 +120,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     profileData.employmentInformation.hrAdvisor &&
     (await getUserService().getUserById(profileData.employmentInformation.hrAdvisor));
   const languageReferralTypes = profileData.referralPreferences.languageReferralTypeIds
-    ?.map((langId) => allLocalizedLanguageReferralTypes.unwrap().find((l) => l.id === langId))
+    ?.map((langId) => allLocalizedLanguageReferralTypes.find((l) => String(l.id) === langId))
     .filter(Boolean);
   const classifications = profileData.referralPreferences.classificationIds
     ?.map((classificationId) => allClassifications.unwrap().find((c) => c.id === classificationId))
