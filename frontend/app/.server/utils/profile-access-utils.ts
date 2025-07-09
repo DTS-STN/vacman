@@ -166,7 +166,7 @@ export async function checkProfileRouteAccess(session: AuthenticatedSession, cur
       httpStatusCode: HttpStatusCodes.BAD_REQUEST,
     });
   }
-  
+
   const targetUserId = targetUserIdOption.unwrap();
 
   // Apply profile access requirement

@@ -4,7 +4,13 @@
  */
 import { describe, it, expect } from 'vitest';
 
-import { extractUserIdFromProfileRoute, isEmployeeRoute, isHiringManagerPath, isPrivacyConsentPath, isProfileRoute } from '~/.server/utils/route-matching-utils';
+import {
+  extractUserIdFromProfileRoute,
+  isEmployeeRoute,
+  isHiringManagerPath,
+  isPrivacyConsentPath,
+  isProfileRoute,
+} from '~/.server/utils/route-matching-utils';
 
 describe('Route Matching Utils', () => {
   describe('isProfileRoute', () => {
