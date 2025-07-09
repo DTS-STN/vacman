@@ -130,4 +130,38 @@ class UserServiceTest {
 		assertThat(outputUsers).extracting(UserEntity::getLastName).containsExactly("One", "Two");
 	}
 
+	@Test
+	@DisplayName("getUserByNetworkName should return empty Optional when user does not exist")
+	void getUserByNetworkName_givenUserDoesNotExist_shouldReturnEmptyOptional() {
+		when(userRepository.findByNetworkName("12345678-1234-1234-1234-123456789abc"))
+			.thenReturn(Optional.empty());
+
+		final var result = userService.getUserByNetworkName("12345678-1234-1234-1234-123456789abc");
+
+		assertThat(result).isNotPresent();
+		verify(userRepository).findByNetworkName("12345678-1234-1234-1234-123456789abc");
+	}
+
+	@Test
+	@DisplayName("getUserByNetworkName should return user when networkName exists")
+	void getUserByNetworkName_givenUserExists_shouldReturnUser() {
+		final var testNetworkName = "2ca209f5-7913-491e-af5a-1f488ce0613b";
+		final var mockUser = new UserEntityBuilder()
+			.firstName("Test")
+			.lastName("User")
+			.networkName(testNetworkName)
+			.build();
+
+		when(userRepository.findByNetworkName(testNetworkName))
+			.thenReturn(Optional.of(mockUser));
+
+		final var result = userService.getUserByNetworkName(testNetworkName);
+
+		assertThat(result).isPresent();
+		assertThat(result.get().getNetworkName()).isEqualTo(testNetworkName);
+		assertThat(result.get().getFirstName()).isEqualTo("Test");
+		assertThat(result.get().getLastName()).isEqualTo("User");
+		verify(userRepository).findByNetworkName(testNetworkName);
+	}
+
 }

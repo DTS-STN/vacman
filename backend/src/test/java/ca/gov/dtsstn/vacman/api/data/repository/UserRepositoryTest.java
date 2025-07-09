@@ -67,5 +67,40 @@ class UserRepositoryTest {
 		assertThat(foundUser.getLastModifiedDate()).isNotNull();
 	}
 
+	@Test
+	@DisplayName("findByNetworkName should return empty Optional when user does not exist")
+	void whenFindByNetworkName_givenUserDoesNotExist_thenReturnEmptyOptional() {
+		assertThat(userRepository.findByNetworkName("12345678-1234-1234-1234-123456789abc")).isNotPresent();
+	}
+
+	@Test
+	@Disabled("Needs to be updated to latest entity models")
+	@DisplayName("findByNetworkName should return user when networkName exists")
+	void whenFindByNetworkName_givenUserExists_thenReturnUser() {
+		when(securityAuditor.getCurrentAuditor()).thenReturn(Optional.of("test-auditor"));
+
+		final var testNetworkName = "2ca209f5-7913-491e-af5a-1f488ce0613b";
+		final var savedUser = userRepository.save(
+			new UserEntityBuilder()
+				.firstName("Test")
+				.lastName("User")
+				.networkName(testNetworkName)
+				.build());
+
+		assertThat(savedUser).isNotNull();
+		assertThat(savedUser.getId()).isNotNull();
+		assertThat(savedUser.getNetworkName()).isEqualTo(testNetworkName);
+
+		final var foundUserOptional = userRepository.findByNetworkName(testNetworkName);
+
+		assertThat(foundUserOptional).isPresent();
+
+		final var foundUser = foundUserOptional.get();
+		assertThat(foundUser.getId()).isEqualTo(savedUser.getId());
+		assertThat(foundUser.getNetworkName()).isEqualTo(testNetworkName);
+		assertThat(foundUser.getFirstName()).isEqualTo("Test");
+		assertThat(foundUser.getLastName()).isEqualTo("User");
+	}
+
 
 }
