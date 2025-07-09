@@ -47,6 +47,8 @@ export const ErrorCodes = {
 
   // external api error codes
   XAPI_TOO_MANY_REQUESTS: 'XAPI-0002', //http 429 Too Many Requests
+  XAPI_AUTHENTICATION: 'XAPI-403', //http 402 Invalid Api Key
+  XAPI_TEMPLATE: 'XAPI-400', //http 400 Invalid Email/Template Id
   XAPI_NETWORK_500_ERROR: 'XAPI-0500', //network error
 
   // profile error codes
