@@ -65,7 +65,7 @@ export async function requireProfileAccess(
 
   if (!requesterUser) {
     log.debug(`Requester not found: ${requesterId}`);
-    throw new AppError('Requester not found in system', ErrorCodes.ACCESS_FORBIDDEN, {
+    throw new AppError(`Requester not found in system: ${requesterId}`, ErrorCodes.ACCESS_FORBIDDEN, {
       httpStatusCode: HttpStatusCodes.FORBIDDEN,
     });
   }
@@ -78,7 +78,7 @@ export async function requireProfileAccess(
   // Access denied - user is not accessing their own profile and doesn't have hiring-manager role
   log.debug(`Access denied: requester=${requesterId}, role=${requesterUser.role}`);
   throw new AppError(
-    'Access denied. You can only access your own profile unless you have hiring-manager privileges.',
+    `Access denied. requester=${requesterId}, role=${requesterUser.role}. You can only access your own profile unless you have hiring-manager privileges.`,
     ErrorCodes.ACCESS_FORBIDDEN,
     { httpStatusCode: HttpStatusCodes.FORBIDDEN },
   );
