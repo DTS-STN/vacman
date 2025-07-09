@@ -21,7 +21,6 @@ import ca.gov.dtsstn.vacman.api.data.repository.WorkUnitRepository;
 import ca.gov.dtsstn.vacman.api.web.model.UserCreateModel;
 import ca.gov.dtsstn.vacman.api.web.model.UserUpdateModel;
 import ca.gov.dtsstn.vacman.api.web.model.mapper.UserModelMapper;
-import ca.gov.dtsstn.vacman.api.web.model.UserUpdateModel;
 
 @Service
 public class UserService {
@@ -113,23 +112,23 @@ public class UserService {
 
 	public Optional<UserEntity> updateUser(UserUpdateModel updateModel) {
 		Optional<UserEntity> optionalUser = userRepository.findById(updateModel.id());
-		
+
 		if (optionalUser.isEmpty()) {
 			return Optional.empty();
 		}
-		
+
 		UserEntity existingUser = optionalUser.get();
-		
+
 		// Update the user entity using the mapper
 		userModelMapper.updateEntityFromModel(updateModel, existingUser);
-		
+
 		// Handle role update if provided
 		if (updateModel.role() != null) {
 			existingUser.setUserType(userTypeRepository.findByCode(updateModel.role())
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
 					"User type not found for role: " + updateModel.role())));
 		}
-		
+
 		// Save and return updated user
 		UserEntity savedUser = userRepository.save(existingUser);
 		return Optional.of(savedUser);

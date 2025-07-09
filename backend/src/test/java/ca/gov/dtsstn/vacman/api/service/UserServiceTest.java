@@ -170,8 +170,8 @@ class UserServiceTest {
 	@DisplayName("updateUser should return empty Optional when user does not exist")
 	void updateUser_givenUserDoesNotExist_shouldReturnEmptyOptional() {
 		final var updateModel = new UserUpdateModel(
-			999L, "admin", "2ca209f5-7913-491e-af5a-1f488ce0613b", 
-			"Jane", "M", "Smith", "JMS", "67890", 
+			999L, "admin", "2ca209f5-7913-491e-af5a-1f488ce0613b",
+			"Jane", "M", "Smith", "JMS", "67890",
 			"555-987-6543", "jane.smith@example.com"
 		);
 
@@ -195,8 +195,8 @@ class UserServiceTest {
 			.build();
 
 		final var updateModel = new UserUpdateModel(
-			userId, "admin", "2ca209f5-7913-491e-af5a-1f488ce0613b", 
-			"Jane", "M", "Smith", "JMS", "67890", 
+			userId, "admin", "2ca209f5-7913-491e-af5a-1f488ce0613b",
+			"Jane", "M", "Smith", "JMS", "67890",
 			"555-987-6543", "jane.smith@example.com"
 		);
 
@@ -224,7 +224,7 @@ class UserServiceTest {
 		final var userId = 1L;
 		final var existingUserType = new UserTypeEntity();
 		existingUserType.setCode("employee");
-		
+
 		final var existingUser = new UserEntityBuilder()
 			.id(userId)
 			.firstName("John")
@@ -234,8 +234,8 @@ class UserServiceTest {
 			.build();
 
 		final var updateModel = new UserUpdateModel(
-			userId, null, "2ca209f5-7913-491e-af5a-1f488ce0613b", 
-			"Jane", "M", "Smith", "JMS", "67890", 
+			userId, null, "2ca209f5-7913-491e-af5a-1f488ce0613b",
+			"Jane", "M", "Smith", "JMS", "67890",
 			"555-987-6543", "jane.smith@example.com"
 		);
 

@@ -11,8 +11,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -99,17 +99,17 @@ public class UsersController {
 	public ResponseEntity<UserReadModel> updateUser(@PathVariable Long id, @RequestBody @Valid UserUpdateModel userUpdate) {
 		// Ensure the ID in the path matches the ID in the request body
 		if (!id.equals(userUpdate.id())) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, 
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
 				"Path ID does not match request body ID");
 		}
-		
+
 		Optional<UserEntity> updatedUser = userService.updateUser(userUpdate);
-		
+
 		if (updatedUser.isEmpty()) {
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND, 
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND,
 				"User with ID '" + id + "' not found");
 		}
-		
+
 		return ResponseEntity.ok(userModelMapper.toModel(updatedUser.get()));
 	}
 }

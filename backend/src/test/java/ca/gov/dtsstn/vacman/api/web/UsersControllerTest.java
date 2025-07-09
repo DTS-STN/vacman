@@ -212,8 +212,8 @@ class UsersControllerTest {
 	void patchUser_givenUserExists_shouldUpdateAndReturnUser() throws Exception {
 		final var userId = 1L;
 		final var userUpdate = new UserUpdateModel(
-			userId, "admin", "2ca209f5-7913-491e-af5a-1f488ce0613b", 
-			"Jane", "M", "Smith", "JMS", "67890", 
+			userId, "admin", "2ca209f5-7913-491e-af5a-1f488ce0613b",
+			"Jane", "M", "Smith", "JMS", "67890",
 			"555-987-6543", "jane.smith@example.com"
 		);
 
@@ -242,8 +242,8 @@ class UsersControllerTest {
 	void patchUser_givenUserDoesNotExist_shouldReturn404() throws Exception {
 		final var userId = 999L;
 		final var userUpdate = new UserUpdateModel(
-			userId, "admin", "2ca209f5-7913-491e-af5a-1f488ce0613b", 
-			"Jane", "M", "Smith", "JMS", "67890", 
+			userId, "admin", "2ca209f5-7913-491e-af5a-1f488ce0613b",
+			"Jane", "M", "Smith", "JMS", "67890",
 			"555-987-6543", "jane.smith@example.com"
 		);
 
@@ -264,8 +264,8 @@ class UsersControllerTest {
 		final var pathId = 1L;
 		final var bodyId = 2L;
 		final var userUpdate = new UserUpdateModel(
-			bodyId, "admin", "2ca209f5-7913-491e-af5a-1f488ce0613b", 
-			"Jane", "M", "Smith", "JMS", "67890", 
+			bodyId, "admin", "2ca209f5-7913-491e-af5a-1f488ce0613b",
+			"Jane", "M", "Smith", "JMS", "67890",
 			"555-987-6543", "jane.smith@example.com"
 		);
 
