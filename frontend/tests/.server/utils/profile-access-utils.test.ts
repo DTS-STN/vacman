@@ -34,6 +34,7 @@ const mockProfileService = {
 const mockUserService = {
   getUserByActiveDirectoryId: vi.fn(),
   registerUser: vi.fn(),
+  updateUser: vi.fn(),
   updateUserRole: vi.fn(),
   getUsersByRole: vi.fn(),
   getUserById: vi.fn(),

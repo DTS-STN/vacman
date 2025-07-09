@@ -122,5 +122,48 @@ export function getDefaultUserService(): UserService {
 
       return await response.json();
     },
+
+    /**
+     * Updates a user by ID with the provided partial user data.
+     * @param id The ID of the user to update.
+     * @param user The partial user data to update.
+     * @param session The authenticated session.
+     * @returns A promise that resolves to the updated user object.
+     * @throws AppError if the request fails, if the user is not found, or if the server responds with an error status.
+     */
+    async updateUser(id: number, user: Partial<User>, session: AuthenticatedSession): Promise<User> {
+      const response = await fetch(
+        `${serverEnvironment.VACMAN_API_BASE_URI}/users/${id}`,
+        {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            id: id,
+            role: user.role,
+            networkName: user.networkName,
+            firstName: user.firstName,
+            middleName: user.middleName,
+            lastName: user.lastName,
+            initials: user.initials,
+            personalRecordIdentifier: user.personalRecordIdentifier,
+            businessPhone: user.businessPhone,
+            businessEmail: user.businessEmail
+          }),
+        },
+      );
+
+      if (response.status === HttpStatusCodes.NOT_FOUND) {
+        throw new AppError(`User with ID ${id} not found.`, ErrorCodes.VACMAN_API_ERROR);
+      }
+
+      if (!response.ok) {
+        const errorMessage = `Failed to update user. Server responded with status ${response.status}.`;
+        throw new AppError(errorMessage, ErrorCodes.VACMAN_API_ERROR);
+      }
+
+      return await response.json();
+    },
   };
 }
