@@ -74,10 +74,12 @@ export default function Layout({ loaderData }: Route.ComponentProps) {
           <MenuItem file="routes/index.tsx">{t('app:index.navigate')}</MenuItem>
         </AppBar>
       </header>
-      <main className="container print:w-full print:max-w-none">
-        <Outlet />
-        <PageDetails buildDate={BUILD_DATE} buildVersion={BUILD_VERSION} pageId={pageId} />
-      </main>
+      <div className="relative">
+        <main className="container print:w-full print:max-w-none">
+          <Outlet />
+          <PageDetails buildDate={BUILD_DATE} buildVersion={BUILD_VERSION} pageId={pageId} />
+        </main>
+      </div>
       <footer id="wb-info" tabIndex={-1} className="bg-stone-50 print:hidden">
         <div className="container flex items-center justify-end gap-6 py-2.5 sm:py-3.5">
           <div>
