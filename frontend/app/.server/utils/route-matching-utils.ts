@@ -3,6 +3,9 @@
  * This module provides route matching and parsing functions for various URL patterns
  * including profile routes, employee routes, and privacy consent routes.
  */
+import type { Option } from 'oxide.ts';
+import { Some, None } from 'oxide.ts';
+
 import { LogFactory } from '~/.server/logging';
 
 const log = LogFactory.getLogger(import.meta.url);
@@ -26,14 +29,14 @@ export function isProfileRoute(url: URL): boolean {
  * Extracts the user ID from profile routes like /en/employee/[id]/profile/* or /fr/employe/[id]/profil/*
  * Returns null if the URL doesn't match the expected pattern or if no ID is found.
  */
-export function extractUserIdFromProfileRoute(url: URL): string | null {
+export function extractUserIdFromProfileRoute(url: URL): Option<string> {
   // Pattern for English: /en/employee/{id}/profile
   const englishRegex = /^\/en\/employee\/([^/]+)\/profile(?:\/|$)/;
   const englishMatch = englishRegex.exec(url.pathname);
   if (englishMatch?.[1]) {
     const userId = englishMatch[1];
     log.debug(`extractUserIdFromProfileRoute(${url.pathname}): ${userId}`);
-    return userId;
+    return Some(userId);
   }
 
   // Pattern for French: /fr/employe/{id}/profil
@@ -42,11 +45,11 @@ export function extractUserIdFromProfileRoute(url: URL): string | null {
   if (frenchMatch?.[1]) {
     const userId = frenchMatch[1];
     log.debug(`extractUserIdFromProfileRoute(${url.pathname}): ${userId}`);
-    return userId;
+    return Some(userId);
   }
 
   log.debug(`extractUserIdFromProfileRoute(${url.pathname}): null`);
-  return null;
+  return None;
 }
 
 /**

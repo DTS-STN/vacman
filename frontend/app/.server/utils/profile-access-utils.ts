@@ -159,7 +159,7 @@ export async function checkProfileRouteAccess(session: AuthenticatedSession, cur
   }
 
   // Extract the user ID from the URL
-  const targetUserId = extractUserIdFromProfileRoute(currentUrl);
+  const targetUserId = extractUserIdFromProfileRoute(currentUrl).unwrap();
   if (!targetUserId) {
     log.debug('Invalid profile route - no user ID found');
     throw new AppError('Invalid profile route - user ID not found', ErrorCodes.ROUTE_NOT_FOUND, {
