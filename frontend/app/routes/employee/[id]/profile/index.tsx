@@ -22,6 +22,8 @@ import { getProfileService } from '~/.server/domain/services/profile-service';
 import { getProvinceService } from '~/.server/domain/services/province-service';
 import { getUserService } from '~/.server/domain/services/user-service';
 import { getWFAStatuses } from '~/.server/domain/services/wfa-status-service';
+import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
+import { i18nRedirect } from '~/.server/utils/route-utils';
 import { Button } from '~/components/button';
 import { ButtonLink } from '~/components/button-link';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '~/components/card';
@@ -44,14 +46,14 @@ export function meta({ data }: Route.MetaArgs) {
 }
 
 // TODO: Setup form action to submit user's profile data for review
-// export function action({ context, request }: Route.ActionArgs) {
-//   // Get the current user's ID from the authenticated session
-//   const authenticatedSession = context.session as AuthenticatedSession;
-//   const currentUserId = authenticatedSession.authState.idTokenClaims.oid as string;
-//   return i18nRedirect('routes/employee/[id]/profile/index.tsx', request, {
-//     params: { id: currentUserId },
-//   });
-// }
+export function action({ context, request }: Route.ActionArgs) {
+  // Get the current user's ID from the authenticated session
+  const authenticatedSession = context.session as AuthenticatedSession;
+  const currentUserId = authenticatedSession.authState.idTokenClaims.oid as string;
+  return i18nRedirect('routes/employee/[id]/profile/index.tsx', request, {
+    params: { id: currentUserId },
+  });
+}
 
 export async function loader({ context, request, params }: Route.LoaderArgs) {
   // Use the id parameter from the URL to fetch the profile
