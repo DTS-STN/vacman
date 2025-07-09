@@ -74,4 +74,15 @@ public class UsersController {
 			.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User with ID '" + id + "' not found"));
 		return ResponseEntity.ok(result);
 	}
+
+	@GetMapping("/by-network-name")
+	@Operation(summary = "Get a user by network name.")
+	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
+	public ResponseEntity<UserReadModel> getUserByNetworkName(
+			@RequestParam String networkName) {
+		UserReadModel result = userService.getUserByNetworkName(networkName)
+			.map(userModelMapper::toModel)
+			.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User with network name '" + networkName + "' not found"));
+		return ResponseEntity.ok(result);
+	}
 }

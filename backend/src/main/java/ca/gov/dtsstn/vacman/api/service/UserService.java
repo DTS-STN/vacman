@@ -97,6 +97,10 @@ public class UserService {
 		return userRepository.findById(id);
 	}
 
+	public Optional<UserEntity> getUserByNetworkName(String networkName) {
+		return userRepository.findByNetworkName(networkName);
+	}
+
 	public List<UserEntity> getAllUsers() {
 		return List.copyOf(userRepository.findAll());
 	}
