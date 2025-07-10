@@ -28,7 +28,11 @@ app:
   database:
     seeder:
       enabled: true
-      seedJunctionTables: false  # Disable junction tables for now to focus on core functionality
+      seedLookupTables: true
+      seedJunctionTables: true  # Enable junction tables now that they're working
       userCount: 5
       profileCount: 5
       requestCount: 2
+      clearDataFirst: true
+      skipIfDataExists: false
+      logSeedingProgress: true

@@ -37,6 +37,6 @@ app:
       userCount: 10
       profileCount: 15
       requestCount: 8
-      clearDataFirst: false
-      skipIfDataExists: true
+      clearDataFirst: true
+      skipIfDataExists: false
       logSeedingProgress: true
