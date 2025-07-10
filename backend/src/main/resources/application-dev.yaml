@@ -1,6 +1,10 @@
+application:
+  security:
+    disabled: true
+
 spring:
   datasource:
-    # JDBC URL for an H2 in-memory database.
+    # JDBC URL for an H2 in-memory database for dev mode.
     #   - jdbc:h2:mem:testdb: Connects to an H2 in-memory database named 'testdb'.
     #   - MODE=MSSQLServer: Enables H2's MS SQL Server compatibility mode. This attempts to mimic
     #     SQL Server syntax and behavior, useful for local development/testing if production uses SQL Server.
@@ -23,12 +27,16 @@ spring:
       enabled: true
       path: /h2-console
 
-# Database seeder configuration for H2 profile
+# Database seeder configuration for dev profile
 app:
   database:
     seeder:
       enabled: true
-      seedJunctionTables: false  # Disable junction tables for now to focus on core functionality
-      userCount: 5
-      profileCount: 5
-      requestCount: 2
+      seedLookupTables: true
+      seedJunctionTables: false  # Disable junction tables initially to focus on core functionality
+      userCount: 10
+      profileCount: 15
+      requestCount: 8
+      clearDataFirst: false
+      skipIfDataExists: true
+      logSeedingProgress: true
