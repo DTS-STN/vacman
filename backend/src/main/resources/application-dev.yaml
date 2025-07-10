@@ -33,7 +33,7 @@ app:
     seeder:
       enabled: true
       seedLookupTables: true
-      seedJunctionTables: false  # Disable junction tables initially to focus on core functionality
+      seedJunctionTables: true  # Enable junction tables to test many-to-many relationships
       userCount: 10
       profileCount: 15
       requestCount: 8

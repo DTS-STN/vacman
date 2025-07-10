@@ -1,6 +1,8 @@
 package ca.gov.dtsstn.vacman.api.seeder;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
@@ -11,6 +13,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import ca.gov.dtsstn.vacman.api.config.DatabaseSeederConfig;
+import ca.gov.dtsstn.vacman.api.data.entity.AssessmentResultEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.CityEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.CityProfileEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.ClassificationEntity;
@@ -24,6 +27,8 @@ import ca.gov.dtsstn.vacman.api.data.entity.RequestCityEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.RequestEmploymentTenureEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.RequestEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.RequestLanguageReferralTypeEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
+import ca.gov.dtsstn.vacman.api.data.repository.AssessmentResultRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.CityProfileRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.CityRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.ClassificationProfileRepository;
@@ -37,6 +42,7 @@ import ca.gov.dtsstn.vacman.api.data.repository.RequestCityRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.RequestEmploymentTenureRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.RequestLanguageReferralTypeRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.RequestRepository;
+import ca.gov.dtsstn.vacman.api.data.repository.UserRepository;
 
 /**
  * Seeds junction/relationship tables with sample data.
@@ -67,6 +73,8 @@ public class JunctionDataSeeder {
     private final EmploymentTenureRepository employmentTenureRepository;
     private final LanguageReferralTypeRepository languageReferralTypeRepository;
     private final ClassificationRepository classificationRepository;
+    private final UserRepository userRepository;
+    private final AssessmentResultRepository assessmentResultRepository;
 
     public JunctionDataSeeder(
         DatabaseSeederConfig config,
@@ -82,7 +90,9 @@ public class JunctionDataSeeder {
         CityRepository cityRepository,
         EmploymentTenureRepository employmentTenureRepository,
         LanguageReferralTypeRepository languageReferralTypeRepository,
-        ClassificationRepository classificationRepository
+        ClassificationRepository classificationRepository,
+        UserRepository userRepository,
+        AssessmentResultRepository assessmentResultRepository
     ) {
         this.config = config;
         this.profileRequestRepository = profileRequestRepository;
@@ -98,6 +108,8 @@ public class JunctionDataSeeder {
         this.employmentTenureRepository = employmentTenureRepository;
         this.languageReferralTypeRepository = languageReferralTypeRepository;
         this.classificationRepository = classificationRepository;
+        this.userRepository = userRepository;
+        this.assessmentResultRepository = assessmentResultRepository;
     }
 
     @Transactional
@@ -169,13 +181,20 @@ public class JunctionDataSeeder {
             return;
         }
 
-        // Associate requests with cities
-        List<RequestCityEntity> requestCities = requests.stream()
-            .flatMap(request -> Arrays.asList(
-                createRequestCity(request, getRandomElement(cities)),
-                createRequestCity(request, getRandomElement(cities))
-            ).stream())
-            .toList();
+        // TODO: This creates sample city associations for dev - should be replaced with meaningful data
+        // Associate each request with 1-2 unique cities to avoid constraint violations
+        List<RequestCityEntity> requestCities = new ArrayList<>();
+        for (RequestEntity request : requests) {
+            // Create a list of unique cities for this request
+            List<CityEntity> shuffledCities = new ArrayList<>(cities);
+            Collections.shuffle(shuffledCities, random);
+
+            // Add 1-2 cities per request (ensuring uniqueness)
+            int citiesToAdd = Math.min(random.nextInt(2) + 1, shuffledCities.size());
+            for (int i = 0; i < citiesToAdd; i++) {
+                requestCities.add(createRequestCity(request, shuffledCities.get(i)));
+            }
+        }
 
         requestCityRepository.saveAll(requestCities);
         logSeeded("Request Cities", requestCities.size());
@@ -282,6 +301,19 @@ public class JunctionDataSeeder {
         entity.setProfile(profile);
         entity.setRequest(request);
         entity.setCreatedBy("SYSTEM");
+
+        // Get default assessment result and users for seeding
+        List<AssessmentResultEntity> assessmentResults = assessmentResultRepository.findAll();
+        List<UserEntity> users = userRepository.findAll();
+
+        if (!assessmentResults.isEmpty()) {
+            entity.setAssessmentResult(getRandomElement(assessmentResults));
+        }
+        if (!users.isEmpty()) {
+            entity.setAssessedBy(getRandomElement(users));
+            entity.setApprovedBy(getRandomElement(users));
+        }
+
         return entity;
     }
 
