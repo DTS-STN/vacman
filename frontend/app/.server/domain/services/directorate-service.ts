@@ -7,14 +7,10 @@ import { serverEnvironment } from '~/.server/environment';
 import type { AppError } from '~/errors/app-error';
 
 export type DirectorateService = {
-  getAll(): Promise<Result<readonly Directorate[], AppError>>;
+  listAll(): Promise<readonly Directorate[]>;
   getById(id: string): Promise<Result<Directorate, AppError>>;
-  findById(id: string): Promise<Option<Directorate>>;
   getByCode(code: string): Promise<Result<Directorate, AppError>>;
-  findByCode(code: string): Promise<Option<Directorate>>;
-  getAllByBranchId(branchId: string): Promise<Result<readonly Directorate[], AppError>>;
-  getAllByBranchCode(branchCode: string): Promise<Result<readonly Directorate[], AppError>>;
-  getAllLocalized(language: Language): Promise<Result<readonly LocalizedDirectorate[], AppError>>;
+  listAllLocalized(language: Language): Promise<readonly LocalizedDirectorate[]>;
   getLocalizedById(id: string, language: Language): Promise<Result<LocalizedDirectorate, AppError>>;
   findLocalizedById(id: string, language: Language): Promise<Option<LocalizedDirectorate>>;
   getLocalizedByCode(code: string, language: Language): Promise<Result<LocalizedDirectorate, AppError>>;

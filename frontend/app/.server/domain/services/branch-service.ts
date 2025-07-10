@@ -7,11 +7,14 @@ import { serverEnvironment } from '~/.server/environment';
 import type { AppError } from '~/errors/app-error';
 
 export type BranchService = {
-  getAll(): Promise<Result<readonly Branch[], AppError>>;
+  listAll(): Promise<readonly Branch[]>;
   getById(id: string): Promise<Result<Branch, AppError>>;
-  findById(id: string): Promise<Option<Branch>>;
-  getAllLocalized(language: Language): Promise<Result<readonly LocalizedBranch[], AppError>>;
+  getByCode(code: string): Promise<Result<Branch, AppError>>;
+  listAllLocalized(language: Language): Promise<readonly LocalizedBranch[]>;
   getLocalizedById(id: string, language: Language): Promise<Result<LocalizedBranch, AppError>>;
+  findLocalizedById(id: string, language: Language): Promise<Option<LocalizedBranch>>;
+  getLocalizedByCode(code: string, language: Language): Promise<Result<LocalizedBranch, AppError>>;
+  findLocalizedByCode(code: string, language: Language): Promise<Option<LocalizedBranch>>;
 };
 
 export function getBranchService(): BranchService {

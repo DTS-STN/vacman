@@ -1,44 +1,12 @@
-import type { Result, Option } from 'oxide.ts';
 import { Ok, Err } from 'oxide.ts';
+import type { Result, Option } from 'oxide.ts';
 
-import type { Directorate, LocalizedDirectorate } from '~/.server/domain/models';
+import type { LocalizedDirectorate, Directorate, Branch } from '~/.server/domain/models';
 import type { DirectorateService } from '~/.server/domain/services/directorate-service';
-import { serverEnvironment } from '~/.server/environment';
+import { apiFetch } from '~/.server/domain/services/makeApiRequest';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
-
-// Centralized API request logic
-async function makeApiRequest<T>(path: string, context: string): Promise<Result<T, AppError>> {
-  try {
-    const response = await fetch(`${serverEnvironment.VACMAN_API_BASE_URI}${path}`);
-
-    if (response.status === HttpStatusCodes.NOT_FOUND) {
-      return Err(new AppError(`${context} not found.`, ErrorCodes.NO_DIRECTORATE_FOUND));
-    }
-
-    if (!response.ok) {
-      return Err(
-        new AppError(
-          `Failed to ${context.toLowerCase()}. Server responded with status ${response.status}.`,
-          ErrorCodes.VACMAN_API_ERROR,
-        ),
-      );
-    }
-
-    // Handle cases where the server returns 204 No Content for a successful empty response
-    if (response.status === HttpStatusCodes.NO_CONTENT) {
-      return Ok([] as unknown as T); // Return an empty array or appropriate empty value
-    }
-
-    const data: T = await response.json();
-    return Ok(data);
-  } catch (error) {
-    return Err(
-      new AppError(`Unexpected error occurred while ${context.toLowerCase()}: ${String(error)}`, ErrorCodes.VACMAN_API_ERROR),
-    );
-  }
-}
 
 // Centralized localization logic
 function localizeDirectorate(directorate: Directorate, language: Language): LocalizedDirectorate {
@@ -54,99 +22,111 @@ function localizeDirectorate(directorate: Directorate, language: Language): Loca
   };
 }
 
+// Helper to convert API WorkUnit object to Branch
+function toBranch(obj: Branch): Branch {
+  return {
+    id: obj.id.toString(),
+    code: obj.code,
+    nameEn: obj.nameEn,
+    nameFr: obj.nameFr,
+  };
+}
+// Helper to convert API WorkUnit object to Directorate
+function toDirectorate(obj: Directorate): Directorate {
+  return {
+    id: obj.id.toString(),
+    code: obj.code,
+    nameEn: obj.nameEn,
+    nameFr: obj.nameFr,
+    parent: toBranch(obj.parent),
+  };
+}
+
 // Create a single instance of the service (Singleton)
 export const directorateService: DirectorateService = {
   /**
    * Retrieves a list of all esdc directorates.
    *
-   * @returns An array of esdc directorate objects or AppError if the request fails or if the server responds with an error status.
+   * @returns A promise that resolves to an array of esdc directorate objects. The array will be empty if none are found.
+   * @throws {AppError} if the API call fails for any reason (e.g., network error, server error).
    */
-  getAll(): Promise<Result<readonly Directorate[], AppError>> {
-    return makeApiRequest('/directorates', 'Retrieve all directorates');
+  async listAll(): Promise<readonly Directorate[]> {
+    type ApiResponse = {
+      content: readonly Directorate[];
+    };
+    const context = 'list all esdc directorates';
+    const response = await apiFetch('/work-units', context);
+
+    const data: ApiResponse = await response.json();
+    // Directorates: items WITH a parent property
+    return data.content.filter((c) => 'parent' in c).map(toDirectorate);
   },
 
   /**
-   * Retrieves a single directorate by its ID.
+   * Retrieves a single esdc directorate by its ID.
    *
-   * @param id The ID of the directorate to retrieve.
-   * @returns The directorate object if found or {AppError} If the directorate is not found or if the request fails or if the server responds with an error status.
+   * @param id The ID of the esdc directorate to retrieve.
+   * @returns A `Result` containing the esdc directorate object if found, or an `AppError` if not found.
+   * @throws {AppError} if the API call fails for any reason other than a 404 not found.
    */
-  getById(id: string): Promise<Result<Directorate, AppError>> {
-    return makeApiRequest(`/directorates/${id}`, `Find directorate with ID '${id}'`);
+  async getById(id: string): Promise<Result<Directorate, AppError>> {
+    const context = `get esdc directorate with ID '${id}'`;
+    try {
+      const response = await apiFetch(`/work-units/${id}`, context);
+      const data: Directorate = await response.json();
+      return Ok(data);
+    } catch (error) {
+      if (error instanceof AppError && error.httpStatusCode === HttpStatusCodes.NOT_FOUND) {
+        return Err(new AppError(`ESDC Directorate with ID '${id}' not found.`, ErrorCodes.NO_DIRECTORATE_FOUND));
+      }
+      // Re-throw any other error
+      throw error;
+    }
   },
 
   /**
-   * Retrieves a single directorate by its CODE.
+   * Retrieves a single esdc directorate by its CODE.
    *
-   * @param code The CODE of the directorate to retrieve.
-   * @returns The directorate object if found or {AppError} If the directorate is not found or if the request fails or if the server responds with an error status.
+   * @param code The CODE of the esdc directorate to retrieve.
+   * @returns A `Result` containing the esdc directorate object if found, or an `AppError` if not found.
+   * @throws {AppError} if the API call fails for any reason other than a 404 not found.
    */
-  getByCode(code: string): Promise<Result<Directorate, AppError>> {
-    return makeApiRequest(`/directorates?code=${code}`, `Find directorate with CODE '${code}'`);
-  },
-
-  /**
-   * Retrieves a list of all esdc directorates by Branch id.
-   *
-   * @param branchId The ID of the Branch to retrieve directorates.
-   * @returns An array of esdc directorate objects or AppError if the request fails or if the server responds with an error status.
-   */
-  getAllByBranchId(branchId: string): Promise<Result<readonly Directorate[], AppError>> {
-    return makeApiRequest(`/directorates?branchId=${branchId}`, `Retrieve directorates for branch ID '${branchId}'`);
-  },
-
-  /**
-   * Retrieves a list of all esdc directorates by Branch id.
-   *
-   * @param branchCode The CODE of the Branch to retrieve directorates.
-   * @returns An array of esdc directorate objects or AppError if the request fails or if the server responds with an error status.
-   */
-  getAllByBranchCode(branchCode: string): Promise<Result<readonly Directorate[], AppError>> {
-    return makeApiRequest(`/directorates?branchCode=${branchCode}`, `Retrieve directorates for branche CODE '${branchCode}'`);
-  },
-
-  /**
-   * Retrieves a single directorate by its ID.
-   *
-   * @param id The ID of the directorate to retrieve.
-   * @returns The directorate object if found or undefined If the directorate is not found or if the request fails or if the server responds with an error status.
-   */
-  async findById(id: string): Promise<Option<Directorate>> {
-    const result = await this.getById(id);
-    // .ok() converts a Result<T, E> into an Option<T>
-    return result.ok();
-  },
-
-  /**
-   * Retrieves a single directorate by its CODE.
-   *
-   * @param code The CODE of the directorate to retrieve.
-   * @returns The directorate object if found or undefined If the directorate is not found or if the request fails or if the server responds with an error status.
-   */
-  async findByCode(code: string): Promise<Option<Directorate>> {
-    const result = await this.getByCode(code);
-    return result.ok();
+  async getByCode(code: string): Promise<Result<Directorate, AppError>> {
+    const context = `esdc directorate with CODE '${code}'`;
+    try {
+      const response = await apiFetch(`/work-units?code=${code}`, context);
+      const data: Directorate = await response.json();
+      return Ok(data);
+    } catch (error) {
+      if (error instanceof AppError && error.httpStatusCode === HttpStatusCodes.NOT_FOUND) {
+        return Err(new AppError(`ESDC Directorate with CODE '${code}' not found.`, ErrorCodes.NO_DIRECTORATE_FOUND));
+      }
+      // Re-throw any other error
+      throw error;
+    }
   },
 
   // Localized methods
 
   /**
-   * Retrieves a list of directorates localized to the specified language.
+   * Retrieves a list of all esdc directorates, localized to the specified language.
    *
-   * @param language The language to localize the branch names to.
-   * @returns An array of localized branch objects or AppError if the request fails or if the server responds with an error status.
+   * @param language The language for localization.
+   * @returns A promise that resolves to an array of localized esdc directorate objects.
+   * @throws {AppError} if the API call fails for any reason.
    */
-  async getAllLocalized(language: Language): Promise<Result<readonly LocalizedDirectorate[], AppError>> {
-    const result = await this.getAll();
-    return result.map((directorates) => directorates.map((directorate) => localizeDirectorate(directorate, language)));
+  async listAllLocalized(language: Language): Promise<readonly LocalizedDirectorate[]> {
+    const directorates = await this.listAll();
+    return directorates.map((directorate) => localizeDirectorate(directorate, language));
   },
 
   /**
-   * Retrieves a single localized directorate by its ID.
+   * Retrieves a single localized esdc directorate by its ID.
    *
-   * @param id The ID of the directorate to retrieve.
-   * @param language The language to localize the directorate name to.
-   * @returns The localized directorate object if found or AppError if the request fails or if the server responds with an error status.
+   * @param id The ID of the esdc directorate to retrieve.
+   * @param language The language for localization.
+   * @returns A `Result` containing the localized esdc directorate object if found, or an `AppError` if not found.
+   * @throws {AppError} if the API call fails for any reason other than a 404 not found.
    */
   async getLocalizedById(id: string, language: Language): Promise<Result<LocalizedDirectorate, AppError>> {
     const result = await this.getById(id);
@@ -154,11 +134,12 @@ export const directorateService: DirectorateService = {
   },
 
   /**
-   * Retrieves a single localized directorate by its ID.
+   * Retrieves a single localized esdc directorate by its CODE.
    *
-   * @param code The CODE of the directorate to retrieve.
-   * @param language The language to localize the directorate name to.
-   * @returns The localized directorate object if found or AppError if the request fails or if the server responds with an error status.
+   * @param code The CODE of the esdc directorate to retrieve.
+   * @param language The language for localization.
+   * @returns A `Result` containing the localized esdc directorate object if found, or an `AppError` if not found.
+   * @throws {AppError} if the API call fails for any reason other than a 404 not found.
    */
   async getLocalizedByCode(code: string, language: Language): Promise<Result<LocalizedDirectorate, AppError>> {
     const result = await this.getByCode(code);
@@ -166,11 +147,12 @@ export const directorateService: DirectorateService = {
   },
 
   /**
-   * Retrieves a single localized directorate by its ID.
+   * Finds a single localized esdc directorate by its ID.
    *
-   * @param id The ID of the directorate to retrieve.
-   * @param language The language to localize the directorate name to.
-   * @returns The localized directorate object if found or undefined if the request fails or if the server responds with an error status.
+   * @param id The ID of the esdc directorate to find.
+   * @param language The language for localization.
+   * @returns An `Option` containing the localized esdc directorate object if found, or `None`.
+   * @throws {AppError} if the API call fails for any reason other than a 404 not found.
    */
   async findLocalizedById(id: string, language: Language): Promise<Option<LocalizedDirectorate>> {
     const result = await this.getLocalizedById(id, language);
@@ -178,11 +160,12 @@ export const directorateService: DirectorateService = {
   },
 
   /**
-   * Retrieves a single localized directorate by its ID.
+   * Finds a single localized esdc directorate by its CODE.
    *
-   * @param code The CODE of the directorate to retrieve.
-   * @param language The language to localize the directorate name to.
-   * @returns The localized directorate object if found or undefined if the request fails or if the server responds with an error status.
+   * @param code The CODE of the esdc directorate to find.
+   * @param language The language for localization.
+   * @returns An `Option` containing the localized esdc directorate object if found, or `None`.
+   * @throws {AppError} if the API call fails for any reason other than a 404 not found.
    */
   async findLocalizedByCode(code: string, language: Language): Promise<Option<LocalizedDirectorate>> {
     const result = await this.getLocalizedByCode(code, language);

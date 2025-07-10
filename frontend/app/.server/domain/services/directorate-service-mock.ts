@@ -1,7 +1,7 @@
 import type { Result, Option } from 'oxide.ts';
-import { Err, None, Ok, Some } from 'oxide.ts';
+import { Err, Ok } from 'oxide.ts';
 
-import type { Directorate, LocalizedDirectorate } from '~/.server/domain/models';
+import type { LocalizedDirectorate, Directorate } from '~/.server/domain/models';
 import type { DirectorateService } from '~/.server/domain/services/directorate-service';
 import workUnitData from '~/.server/resources/workUnit.json';
 import { AppError } from '~/errors/app-error';
@@ -9,14 +9,10 @@ import { ErrorCodes } from '~/errors/error-codes';
 
 export function getMockDirectorateService(): DirectorateService {
   return {
-    getAll: () => Promise.resolve(getAll()),
+    listAll: () => Promise.resolve(listAll()),
     getById: (id: string) => Promise.resolve(getById(id)),
-    findById: (id: string) => Promise.resolve(findById(id)),
     getByCode: (code: string) => Promise.resolve(getByCode(code)),
-    findByCode: (code: string) => Promise.resolve(findByCode(code)),
-    getAllByBranchId: (branchId: string) => Promise.resolve(getAllByBranchId(branchId)),
-    getAllByBranchCode: (branchCode: string) => Promise.resolve(getAllByBranchCode(branchCode)),
-    getAllLocalized: (language: Language) => Promise.resolve(getAllLocalized(language)),
+    listAllLocalized: (language: Language) => Promise.resolve(listAllLocalized(language)),
     getLocalizedById: (id: string, language: Language) => Promise.resolve(getLocalizedById(id, language)),
     findLocalizedById: (id: string, language: Language) => Promise.resolve(findLocalizedById(id, language)),
     getLocalizedByCode: (code: string, language: Language) => Promise.resolve(getLocalizedByCode(code, language)),
@@ -27,9 +23,10 @@ export function getMockDirectorateService(): DirectorateService {
 /**
  * Retrieves a list of all esdc directorates.
  *
- * @returns An array of esdc directorate objects.
+ * @returns A promise that resolves to an array of esdc directorates objects. The array will be empty if none are found.
+ * @throws {AppError} if the API call fails for any reason (e.g., network error, server error).
  */
-function getAll(): Result<readonly Directorate[], AppError> {
+function listAll(): Directorate[] {
   const directorates: Directorate[] = workUnitData.content
     .filter((c) => c.parent !== null)
     .map((directorate) => ({
@@ -44,8 +41,7 @@ function getAll(): Result<readonly Directorate[], AppError> {
         nameFr: directorate.parent.nameFr,
       },
     }));
-
-  return Ok(directorates);
+  return directorates;
 }
 
 /**
@@ -55,36 +51,12 @@ function getAll(): Result<readonly Directorate[], AppError> {
  * @returns The directorate object if found or {AppError} If the directorate is not found.
  */
 function getById(id: string): Result<Directorate, AppError> {
-  const result = getAll();
-
-  if (result.isErr()) {
-    return result;
-  }
-
-  const directorates = result.unwrap();
-  const directorate = directorates.find((p) => p.id === id);
+  const result = listAll();
+  const directorate = result.find((p) => p.id === id);
 
   return directorate
     ? Ok(directorate)
     : Err(new AppError(`Directorate with ID '${id}' not found.`, ErrorCodes.NO_DIRECTORATE_FOUND));
-}
-
-/**
- * Retrieves a single directorate by its ID.
- *
- * @param id The ID of the directorate to retrieve.
- * @returns The directorate object if found or undefined if not found.
- */
-function findById(id: string): Option<Directorate> {
-  const result = getAll();
-
-  if (result.isErr()) {
-    return None;
-  }
-  const directorates = result.unwrap();
-  const directorate = directorates.find((p) => p.id === id);
-
-  return directorate ? Some(directorate) : None;
 }
 
 /**
@@ -94,125 +66,34 @@ function findById(id: string): Option<Directorate> {
  * @returns The directorate object if found or {AppError} If the directorate is not found.
  */
 function getByCode(code: string): Result<Directorate, AppError> {
-  const result = getAll();
-
-  if (result.isErr()) {
-    return result;
-  }
-
-  const directorates = result.unwrap();
-  const directorate = directorates.find((p) => p.code === code);
+  const result = listAll();
+  const directorate = result.find((p) => p.code === code);
 
   return directorate
     ? Ok(directorate)
-    : Err(new AppError(`Directorate with ID '${code}' not found.`, ErrorCodes.NO_DIRECTORATE_FOUND));
+    : Err(new AppError(`Directorate with CODE '${code}' not found.`, ErrorCodes.NO_DIRECTORATE_FOUND));
 }
 
 /**
- * Retrieves a list of all directorates by branch ID.
+ * Retrieves a list of all directorates, localized to the specified language.
  *
- * @param branchId The ID of the branch to retrieve directorates.
- * @returns An array of directorates objects.
+ * @param language The language for localization.
+ * @returns A promise that resolves to an array of localized directorate objects.
+ * @throws {AppError} if the API call fails for any reason.
  */
-function getAllByBranchId(branchId: string): Result<readonly Directorate[], AppError> {
-  const result = getAll();
-
-  if (result.isErr()) {
-    return result;
-  }
-
-  const allDirectorates = result.unwrap();
-
-  const directorates = allDirectorates
-    .filter((c) => c.parent.id === branchId)
+function listAllLocalized(language: Language): LocalizedDirectorate[] {
+  return listAll()
     .map((directorate) => ({
-      id: directorate.id.toString(),
+      id: directorate.id,
       code: directorate.code,
-      nameEn: directorate.nameEn,
-      nameFr: directorate.nameFr,
+      name: language === 'fr' ? directorate.nameFr : directorate.nameEn,
       parent: {
-        id: directorate.parent.id.toString(),
+        id: directorate.parent.id,
         code: directorate.parent.code,
-        nameEn: directorate.parent.nameEn,
-        nameFr: directorate.parent.nameFr,
+        name: language === 'fr' ? directorate.parent.nameFr : directorate.parent.nameEn,
       },
-    }));
-
-  return Ok(directorates);
-}
-
-/**
- * Retrieves a list of all directorates by branch ID.
- *
- * @param branchId The ID of the branch to retrieve directorates.
- * @returns An array of directorates objects.
- */
-function getAllByBranchCode(branchCode: string): Result<readonly Directorate[], AppError> {
-  const result = getAll();
-
-  if (result.isErr()) {
-    return result;
-  }
-
-  const allDirectorates = result.unwrap();
-
-  const directorates = allDirectorates
-    .filter((c) => c.parent.code === branchCode)
-    .map((directorate) => ({
-      id: directorate.id.toString(),
-      code: directorate.code,
-      nameEn: directorate.nameEn,
-      nameFr: directorate.nameFr,
-      parent: {
-        id: directorate.parent.id.toString(),
-        code: directorate.parent.code,
-        nameEn: directorate.parent.nameEn,
-        nameFr: directorate.parent.nameFr,
-      },
-    }));
-
-  return Ok(directorates);
-}
-
-/**
- * Retrieves a single directorate by its CODE.
- *
- * @param code The CODE of the directorate to retrieve.
- * @returns The directorate object if found or undefined if not found.
- */
-function findByCode(code: string): Option<Directorate> {
-  const result = getAll();
-
-  if (result.isErr()) {
-    return None;
-  }
-  const directorates = result.unwrap();
-  const directorate = directorates.find((p) => p.code === code);
-
-  return directorate ? Some(directorate) : None;
-}
-
-/**
- * Retrieves a list of directorates localized to the specified language.
- *
- * @param language The language to localize the directorate names to.
- * @returns An array of localized directorate objects.
- */
-function getAllLocalized(language: Language): Result<readonly LocalizedDirectorate[], AppError> {
-  return getAll().map((directorates) =>
-    directorates
-      .map((directorate) => ({
-        id: directorate.id,
-        code: directorate.code,
-        name: language === 'fr' ? directorate.nameFr : directorate.nameEn,
-        parent: {
-          id: directorate.parent.id.toString(),
-          code: directorate.parent.code,
-          name: language === 'fr' ? directorate.parent.nameFr : directorate.parent.nameEn,
-        },
-      }))
-      .sort((a, b) => a.name.localeCompare(b.name, language, { sensitivity: 'base' })),
-  );
+    }))
+    .sort((a, b) => a.name.localeCompare(b.name, language, { sensitivity: 'base' }));
 }
 
 /**
@@ -223,13 +104,17 @@ function getAllLocalized(language: Language): Result<readonly LocalizedDirectora
  * @returns The localized directorate object if found or {AppError} If the directorate is not found.
  */
 function getLocalizedById(id: string, language: Language): Result<LocalizedDirectorate, AppError> {
-  return getAllLocalized(language).andThen((directorates) => {
-    const directorate = directorates.find((c) => c.id === id);
-
-    return directorate
-      ? Ok(directorate)
-      : Err(new AppError(`Localized directorate with ID '${id}' not found.`, ErrorCodes.NO_DIRECTORATE_FOUND));
-  });
+  const result = getById(id);
+  return result.map((directorate) => ({
+    id: directorate.id,
+    code: directorate.code,
+    name: language === 'fr' ? directorate.nameFr : directorate.nameEn,
+    parent: {
+      id: directorate.parent.id,
+      code: directorate.parent.code,
+      name: language === 'fr' ? directorate.parent.nameFr : directorate.parent.nameEn,
+    },
+  }));
 }
 
 /**
@@ -240,15 +125,8 @@ function getLocalizedById(id: string, language: Language): Result<LocalizedDirec
  * @returns The localized directorate object if found or undefined If the directorate is not found.
  */
 function findLocalizedById(id: string, language: Language): Option<LocalizedDirectorate> {
-  const result = getAllLocalized(language);
-
-  if (result.isErr()) {
-    return None;
-  }
-  const directorates = result.unwrap();
-  const directorate = directorates.find((p) => p.id === id);
-
-  return directorate ? Some(directorate) : None;
+  const result = getLocalizedById(id, language);
+  return result.ok();
 }
 
 /**
@@ -259,13 +137,17 @@ function findLocalizedById(id: string, language: Language): Option<LocalizedDire
  * @returns The localized directorate object if found or {AppError} If the directorate is not found.
  */
 function getLocalizedByCode(code: string, language: Language): Result<LocalizedDirectorate, AppError> {
-  return getAllLocalized(language).andThen((directorates) => {
-    const directorate = directorates.find((c) => c.code === code);
-
-    return directorate
-      ? Ok(directorate)
-      : Err(new AppError(`Localized Directorate with code '${code}' not found.`, ErrorCodes.NO_DIRECTORATE_FOUND));
-  });
+  const result = getByCode(code);
+  return result.map((directorate) => ({
+    id: directorate.id,
+    code: directorate.code,
+    name: language === 'fr' ? directorate.nameFr : directorate.nameEn,
+    parent: {
+      id: directorate.parent.id,
+      code: directorate.parent.code,
+      name: language === 'fr' ? directorate.parent.nameFr : directorate.parent.nameEn,
+    },
+  }));
 }
 
 /**
@@ -276,13 +158,6 @@ function getLocalizedByCode(code: string, language: Language): Result<LocalizedD
  * @returns The localized directorate object if found or undefined If the directorate is not found.
  */
 function findLocalizedByCode(code: string, language: Language): Option<LocalizedDirectorate> {
-  const result = getAllLocalized(language);
-
-  if (result.isErr()) {
-    return None;
-  }
-  const directorates = result.unwrap();
-  const directorate = directorates.find((c) => c.code === code);
-
-  return directorate ? Some(directorate) : None;
+  const result = getLocalizedByCode(code, language);
+  return result.ok();
 }
