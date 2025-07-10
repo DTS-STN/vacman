@@ -5,6 +5,7 @@ import { Form, useNavigation } from 'react-router';
 
 import { faCheck, faPenToSquare, faPlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { format } from 'date-fns';
 import { useTranslation } from 'react-i18next';
 
 import type { Route } from './+types/index';
@@ -174,6 +175,8 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       alternateOpportunity: profileData.referralPreferences.interestedInAlternationInd,
       employmentTenures: employmentTenures?.map((e) => e?.name),
     },
+    lastUpdated: profileUser?.dateUpdated ?? '0000-00-00',
+    lastUpdatedBy: profileUser?.userUpdated ?? 'Unknown User',
   };
 }
 
@@ -181,13 +184,29 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
   const { t } = useTranslation(handle.i18nNamespace);
   const navigation = useNavigation();
 
+  const formattedDate = format(new Date(loaderData.lastUpdated), 'yyy-MM-dd');
+
   return (
-    <div className="mt-8 space-y-8">
+    <div className="space-y-8">
+      <div className="space-y-4 py-8 text-white">
+        {!loaderData.employmentInformation.completed ||
+        !loaderData.employmentInformation.completed ||
+        !loaderData.referralPreferences.completed
+          ? InProgressTag()
+          : CompleteTag()}
+        <h1 className="mt-6 text-3xl font-semibold">{loaderData.name}</h1>
+        {loaderData.email && <p className="mt-1">{loaderData.email}</p>}
+        <p className="font-normal text-gray-500">
+          {t('app:profile.last-updated', { date: formattedDate, name: loaderData.lastUpdatedBy })}
+        </p>
+        <div
+          role="presentation"
+          className="absolute top-0 left-0 -z-10 h-60 w-screen scale-x-[-1] bg-[rgba(9,28,45,1)] bg-[url('/VacMan-design-element-06.svg')] bg-size-[450px] bg-left-bottom bg-no-repeat"
+        />
+      </div>
       <div className="justify-between md:grid md:grid-cols-2">
         <div className="max-w-prose">
-          <h1 className="mt-5 text-3xl font-semibold">{loaderData.name}</h1>
-          {loaderData.email && <p className="mt-1 text-gray-500">{loaderData.email}</p>}
-          <p className="mt-4">{t('app:profile.about-para-1')}</p>
+          <p className="mt-12">{t('app:profile.about-para-1')}</p>
           <p className="mt-4">{t('app:profile.about-para-2')}</p>
         </div>
         <Form className="mt-6 flex place-content-end space-x-5 md:mt-auto" method="post" noValidate>
@@ -425,7 +444,7 @@ function CompleteTag(): JSX.Element {
   const { t } = useTranslation(handle.i18nNamespace);
 
   return (
-    <span className="flex items-center gap-2 rounded-2xl border border-green-600 bg-green-600 px-3 py-0.5 text-sm font-semibold text-white">
+    <span className="flex w-fit items-center gap-2 rounded-2xl border border-green-600 bg-green-600 px-3 py-0.5 text-sm font-semibold text-white">
       <FontAwesomeIcon icon={faCheck} />
       {t('app:profile.complete')}
     </span>
@@ -436,7 +455,7 @@ function InProgressTag(): JSX.Element {
   const { t } = useTranslation(handle.i18nNamespace);
 
   return (
-    <span className="rounded-2xl border border-blue-400 bg-blue-100 px-3 py-0.5 text-sm font-semibold text-blue-800">
+    <span className="w-fit rounded-2xl border border-blue-400 bg-blue-100 px-3 py-0.5 text-sm font-semibold text-blue-800">
       {t('app:profile.in-progress')}
     </span>
   );
