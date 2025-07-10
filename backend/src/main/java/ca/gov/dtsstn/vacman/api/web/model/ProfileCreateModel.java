@@ -8,16 +8,16 @@ public record ProfileCreateModel(
 	@Schema(description = "ID of the user who approved this profile.", example = "1")
 	Long approvedByUserId,
 
-	@Schema(description = "City code where the user is located.", example = "OTT")
+	@Schema(description = "City code where the user is located.", example = "ON52")
 	String cityCode,
 
-	@Schema(description = "Classification code for the user.", example = "CS-02")
+	@Schema(description = "Classification code for the user.", example = "AS-03")
 	String classificationCode,
 
 	@Schema(description = "Additional comments about the profile.", example = "Interested in remote work")
 	String comment,
 
-	@Schema(description = "Education level code.", example = "BACH")
+	@Schema(description = "Education level code.", example = "POSTDEG")
 	String educationLevelCode,
 
 	@Schema(description = "Whether the user has accepted privacy terms.", example = "true")
@@ -52,9 +52,9 @@ public record ProfileCreateModel(
 	@Schema(description = "ID of the user this profile belongs to.", example = "2")
 	Long userId,
 
-	@Schema(description = "WFA status code.", example = "APPROVED")
+	@Schema(description = "WFA status code.", example = "AFFECTED")
 	String wfaStatusCode,
 
-	@Schema(description = "Work unit code.", example = "ITSB")
+	@Schema(description = "Work unit code.", example = "LABOUR")
 	String workUnitCode
 ) {}
