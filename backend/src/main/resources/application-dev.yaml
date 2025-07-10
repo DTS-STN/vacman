@@ -34,9 +34,9 @@ app:
       enabled: true
       seedLookupTables: true
       seedJunctionTables: true  # Enable junction tables to test many-to-many relationships
-      userCount: 10
+      userCount: 15
       profileCount: 15
       requestCount: 8
-      clearDataFirst: true
+      clearDataFirst: false
       skipIfDataExists: false
       logSeedingProgress: true

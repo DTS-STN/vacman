@@ -30,9 +30,9 @@ app:
       enabled: true
       seedLookupTables: true
       seedJunctionTables: true  # Enable junction tables now that they're working
-      userCount: 5
-      profileCount: 5
-      requestCount: 2
-      clearDataFirst: true
+      userCount: 10
+      profileCount: 10
+      requestCount: 5
+      clearDataFirst: false
       skipIfDataExists: false
       logSeedingProgress: true

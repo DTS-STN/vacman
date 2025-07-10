@@ -24,11 +24,16 @@ import ca.gov.dtsstn.vacman.api.data.entity.SecurityClearanceEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.UserTypeEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.WorkUnitEntity;
+import ca.gov.dtsstn.vacman.api.data.repository.CityProfileRepository;
+import ca.gov.dtsstn.vacman.api.data.repository.ClassificationProfileRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.ClassificationRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.EducationLevelRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.EventRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.LanguageRepository;
+import ca.gov.dtsstn.vacman.api.data.repository.ProfileEmploymentTenureRepository;
+import ca.gov.dtsstn.vacman.api.data.repository.ProfileLanguageReferralTypeRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.ProfileRepository;
+import ca.gov.dtsstn.vacman.api.data.repository.ProfileRequestRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.ProfileStatusRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.RequestRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.RequestStatusRepository;
@@ -56,6 +61,13 @@ public class MainDataSeeder {
     private final EventRepository eventRepository;
     private final ProfileRepository profileRepository;
 
+    // Child entity repositories for proper deletion order
+    private final CityProfileRepository cityProfileRepository;
+    private final ClassificationProfileRepository classificationProfileRepository;
+    private final ProfileEmploymentTenureRepository profileEmploymentTenureRepository;
+    private final ProfileLanguageReferralTypeRepository profileLanguageReferralTypeRepository;
+    private final ProfileRequestRepository profileRequestRepository;
+
     // Lookup repositories for foreign key references
     private final UserTypeRepository userTypeRepository;
     private final LanguageRepository languageRepository;
@@ -72,6 +84,11 @@ public class MainDataSeeder {
         RequestRepository requestRepository,
         EventRepository eventRepository,
         ProfileRepository profileRepository,
+        CityProfileRepository cityProfileRepository,
+        ClassificationProfileRepository classificationProfileRepository,
+        ProfileEmploymentTenureRepository profileEmploymentTenureRepository,
+        ProfileLanguageReferralTypeRepository profileLanguageReferralTypeRepository,
+        ProfileRequestRepository profileRequestRepository,
         UserTypeRepository userTypeRepository,
         LanguageRepository languageRepository,
         ClassificationRepository classificationRepository,
@@ -86,6 +103,11 @@ public class MainDataSeeder {
         this.requestRepository = requestRepository;
         this.eventRepository = eventRepository;
         this.profileRepository = profileRepository;
+        this.cityProfileRepository = cityProfileRepository;
+        this.classificationProfileRepository = classificationProfileRepository;
+        this.profileEmploymentTenureRepository = profileEmploymentTenureRepository;
+        this.profileLanguageReferralTypeRepository = profileLanguageReferralTypeRepository;
+        this.profileRequestRepository = profileRequestRepository;
         this.userTypeRepository = userTypeRepository;
         this.languageRepository = languageRepository;
         this.classificationRepository = classificationRepository;
@@ -110,18 +132,26 @@ public class MainDataSeeder {
         if (config.isLogSeedingProgress()) {
             logger.info("Main data tables seeded successfully");
         }
-    }
-
-    @Transactional
+    }    @Transactional
     public void clearMainData() {
         if (config.isLogSeedingProgress()) {
             logger.info("Clearing main data tables...");
         }
 
-        // Clear in dependency order
+        // Clear in dependency order - child entities first to avoid cascade issues
         eventRepository.deleteAll();
         requestRepository.deleteAll();
+
+        // Clear profile child entities first before deleting profiles
+        profileRequestRepository.deleteAll();
+        profileLanguageReferralTypeRepository.deleteAll();
+        profileEmploymentTenureRepository.deleteAll();
+        classificationProfileRepository.deleteAll();
+        cityProfileRepository.deleteAll();
+
+        // Now safe to delete profiles - cascade will handle user.profile references
         profileRepository.deleteAll();
+
         userRepository.deleteAll();
     }
 

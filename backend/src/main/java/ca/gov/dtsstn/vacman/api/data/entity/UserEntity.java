@@ -52,6 +52,7 @@ public class UserEntity extends AbstractEntity {
 
 	// Profile relationship - User does not own the FK, Profile does
 	// This creates a bidirectional relationship where Profile owns the FK
+	// No cascade on User side to avoid deletion conflicts
 	@OneToOne(mappedBy = "user")
 	private ProfileEntity profile;
 
