@@ -5,7 +5,6 @@ import { Form, useNavigation } from 'react-router';
 
 import { faCheck, faPenToSquare, faPlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { format } from 'date-fns';
 import { useTranslation } from 'react-i18next';
 
 import type { Route } from './+types/index';
@@ -175,8 +174,8 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       alternateOpportunity: profileData.referralPreferences.interestedInAlternationInd,
       employmentTenures: employmentTenures?.map((e) => e?.name),
     },
-    lastUpdated: profileUser?.dateUpdated ?? '0000-00-00',
-    lastUpdatedBy: profileUser?.userUpdated ?? 'Unknown User',
+    lastUpdated: profileData.dateUpdated ?? '0000-00-00',
+    lastUpdatedBy: profileData.userUpdated ?? 'Unknown User',
   };
 }
 
@@ -184,12 +183,10 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
   const { t } = useTranslation(handle.i18nNamespace);
   const navigation = useNavigation();
 
-  const formattedDate = format(new Date(loaderData.lastUpdated), 'yyy-MM-dd');
-
   return (
     <div className="space-y-8">
       <div className="space-y-4 py-8 text-white">
-        {!loaderData.employmentInformation.completed ||
+        {!loaderData.personalInformation.completed ||
         !loaderData.employmentInformation.completed ||
         !loaderData.referralPreferences.completed
           ? InProgressTag()
@@ -197,7 +194,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
         <h1 className="mt-6 text-3xl font-semibold">{loaderData.name}</h1>
         {loaderData.email && <p className="mt-1">{loaderData.email}</p>}
         <p className="font-normal text-gray-500">
-          {t('app:profile.last-updated', { date: formattedDate, name: loaderData.lastUpdatedBy })}
+          {t('app:profile.last-updated', { date: loaderData.lastUpdated, name: loaderData.lastUpdatedBy })}
         </p>
         <div
           role="presentation"
