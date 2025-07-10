@@ -67,13 +67,6 @@ public class MainDataSeeder {
     private final EventRepository eventRepository;
     private final ProfileRepository profileRepository;
 
-    // Child entity repositories for proper deletion order
-    private final CityProfileRepository cityProfileRepository;
-    private final ClassificationProfileRepository classificationProfileRepository;
-    private final ProfileEmploymentTenureRepository profileEmploymentTenureRepository;
-    private final ProfileLanguageReferralTypeRepository profileLanguageReferralTypeRepository;
-    private final ProfileRequestRepository profileRequestRepository;
-
     // Lookup repositories for foreign key references
     private final UserTypeRepository userTypeRepository;
     private final LanguageRepository languageRepository;
@@ -109,11 +102,6 @@ public class MainDataSeeder {
         this.requestRepository = requestRepository;
         this.eventRepository = eventRepository;
         this.profileRepository = profileRepository;
-        this.cityProfileRepository = cityProfileRepository;
-        this.classificationProfileRepository = classificationProfileRepository;
-        this.profileEmploymentTenureRepository = profileEmploymentTenureRepository;
-        this.profileLanguageReferralTypeRepository = profileLanguageReferralTypeRepository;
-        this.profileRequestRepository = profileRequestRepository;
         this.userTypeRepository = userTypeRepository;
         this.languageRepository = languageRepository;
         this.classificationRepository = classificationRepository;
