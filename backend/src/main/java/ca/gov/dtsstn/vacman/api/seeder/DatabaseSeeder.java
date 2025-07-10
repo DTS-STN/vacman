@@ -119,7 +119,12 @@ public class DatabaseSeeder implements CommandLineRunner {
         // Clear in reverse dependency order
         junctionDataSeeder.clearJunctionData();
         mainDataSeeder.clearMainData();
-        lookupDataSeeder.clearLookupTables();
+
+        // Only clear lookup tables if we're going to reseed them with the Java seeder
+        // If seedLookupTables is false, we want to keep the data.sql loaded lookup data
+        if (config.isSeedLookupTables()) {
+            lookupDataSeeder.clearLookupTables();
+        }
 
         if (config.isLogSeedingProgress()) {
             logger.info("Existing data cleared");

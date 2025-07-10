@@ -158,6 +158,23 @@ VALUES ('ENGLISH', 'English only', 'Anglais seulement', 'system', CURRENT_TIMEST
 INSERT INTO [CD_LANGUAGE_REFERRAL_TYPE] ([LANGUAGE_REFERRAL_TYPE_CODE], [LANGUAGE_REFERRAL_TYPE_NAME_EN], [LANGUAGE_REFERRAL_TYPE_NAME_FR], [USER_CREATED], [DATE_CREATED], [USER_UPDATED], [DATE_UPDATED])
 VALUES ('FRENCH', 'French only', 'Français seulement', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
 
+-- Initialize employment tenures
+INSERT INTO [CD_EMPLOYMENT_TENURE] ([EMPLOYMENT_TENURE_CODE], [EMPLOYMENT_TENURE_NAME_EN], [EMPLOYMENT_TENURE_NAME_FR], [USER_CREATED], [DATE_CREATED], [USER_UPDATED], [DATE_UPDATED])
+VALUES
+    ('PERM', 'Permanent', 'Permanent', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+    ('TERM', 'Term', 'Durée déterminée', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+    ('CASUAL', 'Casual', 'Occasionnel', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+    ('STUDENT', 'Student', 'Étudiant', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+    ('CONTRACT', 'Contract', 'Contrat', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
+
+-- Initialize assessment results
+INSERT INTO [CD_ASSESSMENT_RESULT] ([ASSESSMENT_RESULT_CODE], [ASSESSMENT_RESULT_NAME_EN], [ASSESSMENT_RESULT_NAME_FR], [USER_CREATED], [DATE_CREATED], [USER_UPDATED], [DATE_UPDATED])
+VALUES
+    ('QUALIFIED', 'Qualified', 'Qualifié', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+    ('NOT_QUALIFIED', 'Not Qualified', 'Non qualifié', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+    ('PARTIALLY_QUALIFIED', 'Partially Qualified', 'Partiellement qualifié', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+    ('REFERRED', 'Referred for Further Assessment', 'Référé pour évaluation supplémentaire', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
+
 -- Initialize work units (parent entities)
 INSERT INTO [CD_WORK_UNIT] ([WORK_UNIT_CODE], [WORK_UNIT_NAME_EN], [WORK_UNIT_NAME_FR], [PARENT_WORK_UNIT_ID], [USER_CREATED], [DATE_CREATED], [USER_UPDATED], [DATE_UPDATED])
 VALUES ('LABOUR-COPD', 'Labour - COPD', 'Travail - CODP', NULL, 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
@@ -229,16 +246,17 @@ VALUES
 -- Add security clearance levels
 INSERT INTO [CD_SECURITY_CLEARANCE] ([SECURITY_CLEARANCE_CODE], [SECURITY_CLEARANCE_NAME_EN], [SECURITY_CLEARANCE_NAME_FR], [USER_CREATED], [DATE_CREATED], [USER_UPDATED], [DATE_UPDATED])
 VALUES
+    ('NONE', 'No Clearance Required', 'Aucune autorisation requise', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
     ('RELIABILITY', 'Reliability', 'Fiabilité', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
     ('SECRET', 'Secret', 'Secret', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
-    ('TOP_SECRET', 'Top Secret', 'Très secret', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
-    ('NONE', 'None Required', 'Aucune requise', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
+    ('TOP_SECRET', 'Top Secret', 'Très secret', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
 
 -- Add request status values
 INSERT INTO [CD_REQUEST_STATUS] ([REQUEST_STATUS_CODE], [REQUEST_STATUS_NAME_EN], [REQUEST_STATUS_NAME_FR], [USER_CREATED], [DATE_CREATED], [USER_UPDATED], [DATE_UPDATED])
 VALUES
-    ('PENDING', 'Pending', 'En attente', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+    ('DRAFT', 'Draft', 'Brouillon', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
     ('SUBMITTED', 'Submitted', 'Soumis', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+    ('UNDER_REVIEW', 'Under Review', 'En cours d''examen', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
     ('APPROVED', 'Approved', 'Approuvé', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
     ('REJECTED', 'Rejected', 'Rejeté', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
     ('CANCELLED', 'Cancelled', 'Annulé', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
