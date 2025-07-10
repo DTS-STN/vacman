@@ -182,10 +182,9 @@ public class LookupDataSeeder {
         if (userTypeRepository.count() > 0) return;
 
         List<UserTypeEntity> userTypes = Arrays.asList(
-            createUserType("ADMIN", "Administrator", "Administrateur"),
-            createUserType("MANAGER", "Manager", "Gestionnaire"),
-            createUserType("EMPLOYEE", "Employee", "Employé"),
-            createUserType("CONTRACTOR", "Contractor", "Contractuel")
+            createUserType("admin", "Administrator", "Administrateur"),
+            createUserType("hiring-manager", "Manager", "Gestionnaire"),
+            createUserType("employee", "Employee", "Employé")
         );
 
         userTypeRepository.saveAll(userTypes);

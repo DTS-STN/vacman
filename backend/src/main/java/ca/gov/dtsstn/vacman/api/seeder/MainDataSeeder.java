@@ -1,6 +1,7 @@
 package ca.gov.dtsstn.vacman.api.seeder;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
@@ -41,6 +42,8 @@ import ca.gov.dtsstn.vacman.api.data.repository.SecurityClearanceRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.UserRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.UserTypeRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.WorkUnitRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 
 /**
  * Seeds main business data tables with sample data.
@@ -51,6 +54,9 @@ import ca.gov.dtsstn.vacman.api.data.repository.WorkUnitRepository;
 public class MainDataSeeder {
 
     private static final Logger logger = LoggerFactory.getLogger(MainDataSeeder.class);
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
     private final DatabaseSeederConfig config;
     private final Random random = new Random(12345); // Fixed seed for reproducible data
@@ -138,21 +144,47 @@ public class MainDataSeeder {
             logger.info("Clearing main data tables...");
         }
 
-        // Clear in dependency order - child entities first to avoid cascade issues
-        eventRepository.deleteAll();
-        requestRepository.deleteAll();
+        try {
+            // Clear Hibernate session to avoid transient object issues
+            entityManager.clear();
 
-        // Clear profile child entities first before deleting profiles
-        profileRequestRepository.deleteAll();
-        profileLanguageReferralTypeRepository.deleteAll();
-        profileEmploymentTenureRepository.deleteAll();
-        classificationProfileRepository.deleteAll();
-        cityProfileRepository.deleteAll();
+            // Clear in dependency order using native queries to avoid Hibernate cascade issues
+            // This directly executes DELETE statements without going through Hibernate's session management
 
-        // Now safe to delete profiles - cascade will handle user.profile references
-        profileRepository.deleteAll();
+            // First delete EVENT table (it doesn't have dependencies to other main tables)
+            entityManager.createNativeQuery("DELETE FROM [EVENT]").executeUpdate();
 
-        userRepository.deleteAll();
+            // Delete all junction tables that reference REQUEST before deleting REQUEST
+            entityManager.createNativeQuery("DELETE FROM [PROFILE_REQUEST]").executeUpdate();
+            entityManager.createNativeQuery("DELETE FROM [REQUEST_LANGUAGE_REFERRAL_TYPE]").executeUpdate();
+            entityManager.createNativeQuery("DELETE FROM [REQUEST_EMPLOYMENT_TENURE]").executeUpdate();
+            entityManager.createNativeQuery("DELETE FROM [REQUEST_CITY]").executeUpdate();
+
+            // Now safe to delete REQUEST table
+            entityManager.createNativeQuery("DELETE FROM [REQUEST]").executeUpdate();
+
+            // Delete profile child entities before deleting profiles
+            entityManager.createNativeQuery("DELETE FROM [PROFILE_LANGUAGE_REFERRAL_TYPE]").executeUpdate();
+            entityManager.createNativeQuery("DELETE FROM [PROFILE_EMPLOYMENT_TENURE]").executeUpdate();
+            entityManager.createNativeQuery("DELETE FROM [CLASSIFICATION_PROFILE]").executeUpdate();
+            entityManager.createNativeQuery("DELETE FROM [CITY_PROFILE]").executeUpdate();
+
+            // Now safe to delete profiles
+            entityManager.createNativeQuery("DELETE FROM [PROFILE]").executeUpdate();
+
+            // Finally delete users
+            entityManager.createNativeQuery("DELETE FROM [USER]").executeUpdate();
+
+            // Flush all changes
+            entityManager.flush();
+
+            if (config.isLogSeedingProgress()) {
+                logger.info("Main data tables cleared successfully");
+            }
+        } catch (Exception e) {
+            logger.error("Error clearing main data tables", e);
+            throw e;
+        }
     }
 
     private void seedUsers() {
@@ -166,13 +198,67 @@ public class MainDataSeeder {
             return;
         }
 
-        List<UserEntity> users = Arrays.asList(
-            createUser(1001L, "john.doe@example.com", "John", "Doe", getUserType(userTypes, "ADMIN"), getRandomElement(languages)),
-            createUser(1002L, "jane.smith@example.com", "Jane", "Smith", getUserType(userTypes, "MANAGER"), getRandomElement(languages)),
-            createUser(1003L, "bob.wilson@example.com", "Bob", "Wilson", getUserType(userTypes, "EMPLOYEE"), getRandomElement(languages)),
-            createUser(1004L, "alice.brown@example.com", "Alice", "Brown", getUserType(userTypes, "EMPLOYEE"), getRandomElement(languages)),
-            createUser(1005L, "charlie.davis@example.com", "Charlie", "Davis", getUserType(userTypes, "CONTRACTOR"), getRandomElement(languages))
-        );
+        // Calculate how many users we need - either the configured count or at least enough for profiles
+        int requiredUsers = Math.max(config.getUserCount(), config.getProfileCount());
+
+        // Predefined user data for consistent seeding (used as templates)
+        String[][] userDataTemplates = {
+            {"john.doe@example.com", "John", "Doe", "admin"},
+            {"jane.smith@example.com", "Jane", "Smith", "hiring-manager"},
+            {"bob.wilson@example.com", "Bob", "Wilson", "employee"},
+            {"alice.brown@example.com", "Alice", "Brown", "employee"},
+            {"charlie.davis@example.com", "Charlie", "Davis", "employee"},
+            {"emily.johnson@example.com", "Emily", "Johnson", "admin"},
+            {"david.miller@example.com", "David", "Miller", "hiring-manager"},
+            {"sarah.taylor@example.com", "Sarah", "Taylor", "employee"}
+        };
+
+        // Additional name pools for dynamic generation
+        String[] firstNames = {"Michael", "Emma", "William", "Olivia", "James", "Sophia", "Benjamin", "Isabella",
+                              "Lucas", "Mia", "Henry", "Charlotte", "Alexander", "Amelia", "Mason", "Harper",
+                              "Ethan", "Evelyn", "Daniel", "Abigail", "Matthew", "Emily", "Anthony", "Elizabeth",
+                              "Joshua", "Sofia", "Andrew", "Avery", "Christopher", "Ella", "Samuel", "Madison",
+                              "Joseph", "Scarlett", "Gabriel", "Victoria", "Carter", "Aria", "Jayden", "Grace"};
+
+        String[] lastNames = {"Anderson", "Thomas", "Jackson", "White", "Harris", "Martin", "Thompson", "Garcia",
+                             "Martinez", "Robinson", "Clark", "Rodriguez", "Lewis", "Lee", "Walker", "Hall",
+                             "Allen", "Young", "Hernandez", "King", "Wright", "Lopez", "Hill", "Scott",
+                             "Green", "Adams", "Baker", "Gonzalez", "Nelson", "Carter", "Mitchell", "Perez",
+                             "Roberts", "Turner", "Phillips", "Campbell", "Parker", "Evans", "Edwards", "Collins"};
+
+        // Valid user types that exist in data.sql
+        String[] validUserTypes = {"admin", "hiring-manager", "employee"};
+
+        List<UserEntity> users = new ArrayList<>();
+
+        for (int i = 0; i < requiredUsers; i++) {
+            String firstName, lastName, email, userType;
+
+            if (i < userDataTemplates.length) {
+                // Use predefined template data for first users
+                String[] template = userDataTemplates[i];
+                email = template[0];
+                firstName = template[1];
+                lastName = template[2];
+                userType = template[3];
+            } else {
+                // Generate dynamic data for additional users
+                firstName = firstNames[random.nextInt(firstNames.length)];
+                lastName = lastNames[random.nextInt(lastNames.length)];
+                email = firstName.toLowerCase() + "." + lastName.toLowerCase() + (i + 1) + "@example.com";
+                userType = validUserTypes[random.nextInt(validUserTypes.length)];
+            }
+
+            UserEntity user = createUser(
+                1001L + i,
+                email,
+                firstName,
+                lastName,
+                getUserType(userTypes, userType),
+                getRandomElement(languages)
+            );
+            users.add(user);
+        }
 
         userRepository.saveAll(users);
         logSeeded("Users", users.size());
@@ -197,15 +283,21 @@ public class MainDataSeeder {
             return;
         }
 
-        List<ProfileEntity> profiles = users.stream()
-            .map(user -> createProfile(
+        List<ProfileEntity> profiles = new ArrayList<>();
+        int profileCount = config.getProfileCount();
+
+        // Create profiles up to the configured count, cycling through users if needed
+        for (int i = 0; i < profileCount; i++) {
+            UserEntity user = users.get(i % users.size()); // Cycle through available users
+            ProfileEntity profile = createProfile(
                 user,
                 getRandomElement(classifications),
                 getRandomElement(educationLevels),
                 getRandomElement(workUnits),
                 getRandomElement(profileStatuses)
-            ))
-            .toList();
+            );
+            profiles.add(profile);
+        }
 
         profileRepository.saveAll(profiles);
         logSeeded("Profiles", profiles.size());
@@ -225,29 +317,32 @@ public class MainDataSeeder {
             return;
         }
 
-        // Create sample requests
-        List<RequestEntity> requests = Arrays.asList(
-            createRequest(
-                "Software Developer Position",
-                "Poste de développeur logiciel",
+        // Predefined request templates
+        String[][] requestData = {
+            {"Software Developer Position", "Poste de développeur logiciel", "SUBMITTED"},
+            {"Data Analyst Role", "Rôle d'analyste de données", "APPROVED"},
+            {"Project Manager Position", "Poste de gestionnaire de projet", "SUBMITTED"},
+            {"Business Analyst Role", "Rôle d'analyste d'affaires", "PENDING"},
+            {"Technical Writer Position", "Poste de rédacteur technique", "APPROVED"}
+        };
+
+        int requestCount = Math.min(config.getRequestCount(), requestData.length);
+        List<RequestEntity> requests = new ArrayList<>();
+
+        for (int i = 0; i < requestCount; i++) {
+            String[] data = requestData[i];
+            RequestEntity request = createRequest(
+                data[0],
+                data[1],
                 getRandomElement(clearances),
                 getRandomElement(users), // reviewedBy
                 getRandomElement(users), // approvedBy
                 getRandomElement(workUnits),
                 getRandomElement(classifications),
-                getRequestStatus(statuses, "SUBMITTED")
-            ),
-            createRequest(
-                "Data Analyst Role",
-                "Rôle d'analyste de données",
-                getRandomElement(clearances),
-                getRandomElement(users), // reviewedBy
-                getRandomElement(users), // approvedBy
-                getRandomElement(workUnits),
-                getRandomElement(classifications),
-                getRequestStatus(statuses, "APPROVED")
-            )
-        );
+                getRequestStatus(statuses, data[2])
+            );
+            requests.add(request);
+        }
 
         requestRepository.saveAll(requests);
         logSeeded("Requests", requests.size());
