@@ -18,12 +18,14 @@ import org.springframework.web.bind.annotation.RestController;
 import ca.gov.dtsstn.vacman.api.config.SpringDocConfig;
 import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
 import ca.gov.dtsstn.vacman.api.service.ProfileService;
+import ca.gov.dtsstn.vacman.api.web.model.ProfileCreateModel;
 import ca.gov.dtsstn.vacman.api.web.model.ProfileReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.mapper.ProfileModelMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 
 @RestController
 @Tag(name = "Profiles")
@@ -68,8 +70,8 @@ public class ProfileController {
 	@PostMapping
 	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
 	@Operation(summary = "Create a new profile", description = "Creates a new profile.")
-	public ResponseEntity<ProfileReadModel> createProfile(@RequestBody ProfileEntity profile) {
-		ProfileEntity savedProfile = profileService.saveProfile(profile);
+	public ResponseEntity<ProfileReadModel> createProfile(@RequestBody @Valid ProfileCreateModel profileCreate) {
+		ProfileEntity savedProfile = profileService.createProfile(profileCreate);
 		return ResponseEntity.ok(profileModelMapper.toModel(savedProfile));
 	}
 
