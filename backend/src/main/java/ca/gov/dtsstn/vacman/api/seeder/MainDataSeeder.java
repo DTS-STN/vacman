@@ -201,19 +201,7 @@ public class MainDataSeeder {
         // Calculate how many users we need - either the configured count or at least enough for profiles
         int requiredUsers = Math.max(config.getUserCount(), config.getProfileCount());
 
-        // Predefined user data for consistent seeding (used as templates)
-        String[][] userDataTemplates = {
-            {"john.doe@example.com", "John", "Doe", "admin"},
-            {"jane.smith@example.com", "Jane", "Smith", "hiring-manager"},
-            {"bob.wilson@example.com", "Bob", "Wilson", "employee"},
-            {"alice.brown@example.com", "Alice", "Brown", "employee"},
-            {"charlie.davis@example.com", "Charlie", "Davis", "employee"},
-            {"emily.johnson@example.com", "Emily", "Johnson", "admin"},
-            {"david.miller@example.com", "David", "Miller", "hiring-manager"},
-            {"sarah.taylor@example.com", "Sarah", "Taylor", "employee"}
-        };
-
-        // Additional name pools for dynamic generation
+        // Name pools for dynamic generation
         String[] firstNames = {"Michael", "Emma", "William", "Olivia", "James", "Sophia", "Benjamin", "Isabella",
                               "Lucas", "Mia", "Henry", "Charlotte", "Alexander", "Amelia", "Mason", "Harper",
                               "Ethan", "Evelyn", "Daniel", "Abigail", "Matthew", "Emily", "Anthony", "Elizabeth",
@@ -232,22 +220,11 @@ public class MainDataSeeder {
         List<UserEntity> users = new ArrayList<>();
 
         for (int i = 0; i < requiredUsers; i++) {
-            String firstName, lastName, email, userType;
-
-            if (i < userDataTemplates.length) {
-                // Use predefined template data for first users
-                String[] template = userDataTemplates[i];
-                email = template[0];
-                firstName = template[1];
-                lastName = template[2];
-                userType = template[3];
-            } else {
-                // Generate dynamic data for additional users
-                firstName = firstNames[random.nextInt(firstNames.length)];
-                lastName = lastNames[random.nextInt(lastNames.length)];
-                email = firstName.toLowerCase() + "." + lastName.toLowerCase() + (i + 1) + "@example.com";
-                userType = validUserTypes[random.nextInt(validUserTypes.length)];
-            }
+            // Generate dynamic data for all users
+            String firstName = firstNames[random.nextInt(firstNames.length)];
+            String lastName = lastNames[random.nextInt(lastNames.length)];
+            String email = firstName.toLowerCase() + "." + lastName.toLowerCase() + (i + 1) + "@example.com";
+            String userType = validUserTypes[random.nextInt(validUserTypes.length)];
 
             UserEntity user = createUser(
                 1001L + i,
