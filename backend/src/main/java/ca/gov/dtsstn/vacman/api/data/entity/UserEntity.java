@@ -1,6 +1,8 @@
 package ca.gov.dtsstn.vacman.api.data.entity;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.immutables.builder.Builder;
 import org.springframework.core.style.ToStringCreator;
@@ -11,7 +13,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
@@ -50,11 +52,12 @@ public class UserEntity extends AbstractEntity {
 	@Column(name = "[PERSONAL_RECORD_IDENTIFIER]", length = 10, nullable = true)
 	private String personalRecordIdentifier;
 
-	// Profile relationship - User does not own the FK, Profile does
-	// This creates a bidirectional relationship where Profile owns the FK
+	// Profile relationship - One user can have many profiles
+	// User does not own the FK, Profile does
+	// This creates a bidirectional one-to-many relationship where Profile owns the FK
 	// No cascade on User side to avoid deletion conflicts
-	@OneToOne(mappedBy = "user")
-	private ProfileEntity profile;
+	@OneToMany(mappedBy = "user")
+	private List<ProfileEntity> profiles = new ArrayList<>();
 
 	@ManyToOne
 	@JoinColumn(name = "[USER_TYPE_ID]", nullable = false)
@@ -79,7 +82,7 @@ public class UserEntity extends AbstractEntity {
 			@Nullable String middleName,
 			@Nullable String networkName,
 			@Nullable String personalRecordIdentifier,
-			@Nullable ProfileEntity profile,
+			@Nullable List<ProfileEntity> profiles,
 			@Nullable UserTypeEntity userType,
 			@Nullable String uuName,
 			@Nullable String createdBy,
@@ -96,7 +99,7 @@ public class UserEntity extends AbstractEntity {
 		this.middleName = middleName;
 		this.networkName = networkName;
 		this.personalRecordIdentifier = personalRecordIdentifier;
-		this.profile = profile;
+		this.profiles = profiles != null ? profiles : new ArrayList<>();
 		this.userType = userType;
 		this.uuName = uuName;
 	}
@@ -165,12 +168,12 @@ public class UserEntity extends AbstractEntity {
 		this.personalRecordIdentifier = personalRecordIdentifier;
 	}
 
-	public ProfileEntity getProfile() {
-		return profile;
+	public List<ProfileEntity> getProfiles() {
+		return profiles;
 	}
 
-	public void setProfile(ProfileEntity profile) {
-		this.profile = profile;
+	public void setProfiles(List<ProfileEntity> profiles) {
+		this.profiles = profiles != null ? profiles : new ArrayList<>();
 	}
 
 	public UserTypeEntity getUserType() {
@@ -210,7 +213,7 @@ public class UserEntity extends AbstractEntity {
 			.append("middleName", middleName)
 			.append("networkName", networkName)
 			.append("personalRecordIdentifier", personalRecordIdentifier)
-			.append("profile", profile)
+			.append("profiles", profiles)
 			.append("userType", userType)
 			.append("uuName", uuName)
 			.toString();

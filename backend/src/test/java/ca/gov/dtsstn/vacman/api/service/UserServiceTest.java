@@ -18,12 +18,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
-import ca.gov.dtsstn.vacman.api.data.entity.ProfileStatusEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntityBuilder;
 import ca.gov.dtsstn.vacman.api.data.entity.UserTypeEntity;
-import ca.gov.dtsstn.vacman.api.data.repository.ProfileRepository;
-import ca.gov.dtsstn.vacman.api.data.repository.ProfileStatusRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.UserRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.UserTypeRepository;
 import ca.gov.dtsstn.vacman.api.web.model.UserCreateModel;
@@ -34,15 +31,8 @@ import ca.gov.dtsstn.vacman.api.web.model.mapper.UserModelMapper;
 @ExtendWith({ MockitoExtension.class })
 class UserServiceTest {
 
- @Mock
+	@Mock
 	UserRepository userRepository;
-
-	@Mock
-	ProfileRepository profileRepository;
-
-	@Mock
-	ProfileStatusRepository profileStatusRepository;
-
 
 	@Mock
 	UserTypeRepository userTypeRepository;
@@ -56,8 +46,6 @@ class UserServiceTest {
 	void beforeEach() {
 		this.userService = new UserService(
 			userRepository,
-			profileRepository,
-			profileStatusRepository,
 			userTypeRepository,
 			userModelMapper
 		);
@@ -68,17 +56,13 @@ class UserServiceTest {
 	void createUser_shouldSaveAndReturnNewUser() {
 		when(userRepository.save(any(UserEntity.class)))
 			.thenAnswer(invocation -> invocation.getArgument(0));
-		when(profileRepository.save(any(ProfileEntity.class)))
-			.thenAnswer(invocation -> invocation.getArgument(0));
-		when(profileStatusRepository.findByCode("PENDING"))
-			.thenReturn(Optional.of(new ProfileStatusEntity()));
 		when(userTypeRepository.findByCode("employee"))
 			.thenReturn(Optional.of(new UserTypeEntity()));
 		when(userModelMapper.toEntity(any(UserCreateModel.class)))
 			.thenReturn(new UserEntityBuilder()
 				.firstName("Test")
 				.lastName("User")
-				.profile(new ProfileEntity())
+				.profiles(List.of(new ProfileEntity()))
 				.build());
 
 		final var userCreateModel = new UserCreateModel("test@example.com", "employee");

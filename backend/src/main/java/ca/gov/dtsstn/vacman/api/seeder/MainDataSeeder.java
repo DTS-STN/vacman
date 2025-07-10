@@ -264,6 +264,7 @@ public class MainDataSeeder {
         int profileCount = config.getProfileCount();
 
         // Create profiles up to the configured count, cycling through users if needed
+        // This allows multiple profiles per user, which aligns with the one-to-many relationship
         for (int i = 0; i < profileCount; i++) {
             UserEntity user = users.get(i % users.size()); // Cycle through available users
             ProfileEntity profile = createProfile(

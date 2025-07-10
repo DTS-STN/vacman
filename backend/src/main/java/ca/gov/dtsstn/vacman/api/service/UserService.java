@@ -9,10 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
-import ca.gov.dtsstn.vacman.api.data.repository.ProfileRepository;
-import ca.gov.dtsstn.vacman.api.data.repository.ProfileStatusRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.UserRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.UserTypeRepository;
 import ca.gov.dtsstn.vacman.api.web.model.UserCreateModel;
@@ -23,48 +20,28 @@ import ca.gov.dtsstn.vacman.api.web.model.mapper.UserModelMapper;
 public class UserService {
 
 	private final UserRepository userRepository;
-	private final ProfileRepository profileRepository;
-	private final ProfileStatusRepository profileStatusRepository;
 	private final UserTypeRepository userTypeRepository;
 	private final UserModelMapper userModelMapper;
 
 	public UserService(UserRepository userRepository,
-					   ProfileRepository profileRepository,
-					   ProfileStatusRepository profileStatusRepository,
 					   UserTypeRepository userTypeRepository,
 					   UserModelMapper userModelMapper) {
 		this.userRepository = userRepository;
-		this.profileRepository = profileRepository;
-		this.profileStatusRepository = profileStatusRepository;
 		this.userTypeRepository = userTypeRepository;
 		this.userModelMapper = userModelMapper;
 	}
 
 
 	public UserEntity createUser(UserCreateModel createModel) {
-		// Create user entity with profile from model
+		// Create user entity from model
 		UserEntity user = userModelMapper.toEntity(createModel);
-
-		// Get the profile from the user
-		ProfileEntity profile = user.getProfile();
-
-		// Set required relationships for profile
-		profile.setProfileStatus(profileStatusRepository.findByCode("PENDING")
-				.orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
-						"Default profile status not found")));
-
-		// Save profile
-		ProfileEntity savedProfile = profileRepository.save(profile);
-
-		// Update user with saved profile
-		user.setProfile(savedProfile);
 
 		// Set user type based on role
 		user.setUserType(userTypeRepository.findByCode(createModel.role())
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
 						"User type not found for role: " + createModel.role())));
 
-		// Save and return user
+		// Save and return the user (profiles are created separately as needed)
 		return userRepository.save(user);
 	}
 
