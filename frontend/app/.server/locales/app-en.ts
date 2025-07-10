@@ -42,6 +42,7 @@ export default {
     'view': 'View my profile',
     'profile-completion-progress': 'Profile completion progress',
     'not-provided': 'Not provided',
+    'last-updated': 'Last updated: {{date}} by {{name}}',
   },
   'form': {
     'cancel': 'Cancel',
