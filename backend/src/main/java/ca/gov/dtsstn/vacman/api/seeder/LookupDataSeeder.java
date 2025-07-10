@@ -169,9 +169,7 @@ public class LookupDataSeeder {
 
         List<LanguageEntity> languages = Arrays.asList(
             createLanguage("EN", "English", "Anglais"),
-            createLanguage("FR", "French", "Français"),
-            createLanguage("ES", "Spanish", "Espagnol"),
-            createLanguage("DE", "German", "Allemand")
+            createLanguage("FR", "French", "Français")
         );
 
         languageRepository.saveAll(languages);
@@ -182,9 +180,9 @@ public class LookupDataSeeder {
         if (userTypeRepository.count() > 0) return;
 
         List<UserTypeEntity> userTypes = Arrays.asList(
+            createUserType("employee", "Employee", "Employé"),
             createUserType("admin", "Administrator", "Administrateur"),
-            createUserType("hiring-manager", "Manager", "Gestionnaire"),
-            createUserType("employee", "Employee", "Employé")
+            createUserType("hiring-manager", "Hiring Manager", "Gestionnaire de recrutement")
         );
 
         userTypeRepository.saveAll(userTypes);
@@ -230,15 +228,22 @@ public class LookupDataSeeder {
             .filter(p -> "BC".equals(p.getCode()))
             .findFirst()
             .orElse(null);
+        ProvinceEntity alberta = provinceRepository.findAll().stream()
+            .filter(p -> "AB".equals(p.getCode()))
+            .findFirst()
+            .orElse(null);
 
         List<CityEntity> cities = Arrays.asList(
-            createCity("OTT", "Ottawa", "Ottawa", ontario),
-            createCity("TOR", "Toronto", "Toronto", ontario),
-            createCity("HAM", "Hamilton", "Hamilton", ontario),
-            createCity("MTL", "Montreal", "Montréal", quebec),
-            createCity("QBC", "Quebec City", "Ville de Québec", quebec),
-            createCity("VAN", "Vancouver", "Vancouver", bc),
-            createCity("VIC", "Victoria", "Victoria", bc)
+            createCity("ON72", "Toronto", "Toronto", ontario),
+            createCity("ON52", "Ottawa", "Ottawa", ontario),
+            createCity("ON27", "Hamilton", "Hamilton", ontario),
+            createCity("QC39", "Montreal", "Montréal", quebec),
+            createCity("QC42", "Quebec City", "Québec", quebec),
+            createCity("QC21", "Gatineau", "Gatineau", quebec),
+            createCity("BC32", "Vancouver", "Vancouver", bc),
+            createCity("BC35", "Victoria", "Victoria", bc),
+            createCity("AB2", "Calgary", "Calgary", alberta),
+            createCity("AB4", "Edmonton", "Edmonton", alberta)
         );
 
         cityRepository.saveAll(cities);
@@ -249,12 +254,21 @@ public class LookupDataSeeder {
         if (classificationRepository.count() > 0) return;
 
         List<ClassificationEntity> classifications = Arrays.asList(
-            createClassification("AS", "Administrative Services", "Services administratifs"),
-            createClassification("CS", "Computer Systems", "Systèmes d'ordinateur"),
-            createClassification("EC", "Economics and Social Science Services", "Services économiques et sciences sociales"),
-            createClassification("ENG", "Engineering and Land Survey", "Ingénierie et arpentage"),
-            createClassification("FI", "Financial Management", "Gestion financière"),
-            createClassification("PM", "Programme Management", "Gestion de programmes")
+            createClassification("AS-01", "AS-01", "AS-01"),
+            createClassification("AS-02", "AS-02", "AS-02"),
+            createClassification("AS-03", "AS-03", "AS-03"),
+            createClassification("AS-04", "AS-04", "AS-04"),
+            createClassification("AS-05", "AS-05", "AS-05"),
+            createClassification("AS-06", "AS-06", "AS-06"),
+            createClassification("AS-07", "AS-07", "AS-07"),
+            createClassification("CR-03", "CR-03", "CR-03"),
+            createClassification("CR-04", "CR-04", "CR-04"),
+            createClassification("CR-05", "CR-05", "CR-05"),
+            createClassification("CT-FIN-01", "CT-FIN-01", "CT-FIN-01"),
+            createClassification("CT-FIN-02", "CT-FIN-02", "CT-FIN-02"),
+            createClassification("CT-FIN-03", "CT-FIN-03", "CT-FIN-03"),
+            createClassification("CT-FIN-04", "CT-FIN-04", "CT-FIN-04"),
+            createClassification("CT-IAU-01", "CT-IAU-01", "CT-IAU-01")
         );
 
         classificationRepository.saveAll(classifications);
@@ -265,12 +279,10 @@ public class LookupDataSeeder {
         if (educationLevelRepository.count() > 0) return;
 
         List<EducationLevelEntity> educationLevels = Arrays.asList(
-            createEducationLevel("HS", "High School", "Études secondaires"),
-            createEducationLevel("CERT", "Certificate", "Certificat"),
-            createEducationLevel("DIP", "Diploma", "Diplôme"),
-            createEducationLevel("BACH", "Bachelor's Degree", "Baccalauréat"),
-            createEducationLevel("MAST", "Master's Degree", "Maîtrise"),
-            createEducationLevel("PHD", "Doctorate", "Doctorat")
+            createEducationLevel("SEC2", "Completed two years of secondary school", "Complété deux ans d'études secondaires"),
+            createEducationLevel("SECDIP", "Secondary (high) school diploma or equivalent", "Diplôme d'études secondaires ou équivalent"),
+            createEducationLevel("POST2", "Completed two years of a post-secondary program", "Complété deux ans d'un programme postsecondaire"),
+            createEducationLevel("POSTDEG", "Graduated with a degree from a recognized post-secondary institution", "Graduation avec un grade d'un établissement d'enseignement postsecondaire reconnu")
         );
 
         educationLevelRepository.saveAll(educationLevels);
@@ -296,10 +308,9 @@ public class LookupDataSeeder {
         if (languageReferralTypeRepository.count() > 0) return;
 
         List<LanguageReferralTypeEntity> types = Arrays.asList(
-            createLanguageReferralType("ORAL", "Oral Proficiency", "Compétence orale"),
-            createLanguageReferralType("WRITTEN", "Written Proficiency", "Compétence écrite"),
-            createLanguageReferralType("COMPREHENSION", "Reading Comprehension", "Compréhension de lecture"),
-            createLanguageReferralType("INTERACTION", "Interaction", "Interaction")
+            createLanguageReferralType("BILINGUAL", "Bilingual", "Bilingue"),
+            createLanguageReferralType("ENGLISH", "English only", "Anglais seulement"),
+            createLanguageReferralType("FRENCH", "French only", "Français seulement")
         );
 
         languageReferralTypeRepository.saveAll(types);
@@ -310,10 +321,9 @@ public class LookupDataSeeder {
         if (priorityLevelRepository.count() > 0) return;
 
         List<PriorityLevelEntity> levels = Arrays.asList(
-            createPriorityLevel("HIGH", "High Priority", "Priorité élevée"),
-            createPriorityLevel("MEDIUM", "Medium Priority", "Priorité moyenne"),
-            createPriorityLevel("LOW", "Low Priority", "Priorité faible"),
-            createPriorityLevel("URGENT", "Urgent", "Urgent")
+            createPriorityLevel("LOW", "Low", "Faible"),
+            createPriorityLevel("NORMAL", "Normal", "Normal"),
+            createPriorityLevel("HIGH", "High", "Élevé")
         );
 
         priorityLevelRepository.saveAll(levels);
@@ -324,11 +334,9 @@ public class LookupDataSeeder {
         if (profileStatusRepository.count() > 0) return;
 
         List<ProfileStatusEntity> statuses = Arrays.asList(
+            createProfileStatus("PENDING", "Pending", "En attente"),
             createProfileStatus("ACTIVE", "Active", "Actif"),
-            createProfileStatus("INACTIVE", "Inactive", "Inactif"),
-            createProfileStatus("PENDING", "Pending Review", "En attente d'examen"),
-            createProfileStatus("APPROVED", "Approved", "Approuvé"),
-            createProfileStatus("REJECTED", "Rejected", "Rejeté")
+            createProfileStatus("INACTIVE", "Inactive", "Inactif")
         );
 
         profileStatusRepository.saveAll(statuses);
@@ -369,10 +377,11 @@ public class LookupDataSeeder {
         if (wfaStatusRepository.count() > 0) return;
 
         List<WfaStatusEntity> statuses = Arrays.asList(
-            createWfaStatus("ELIGIBLE", "Eligible", "Admissible"),
-            createWfaStatus("NOT_ELIGIBLE", "Not Eligible", "Non admissible"),
-            createWfaStatus("PENDING", "Pending Assessment", "Évaluation en attente"),
-            createWfaStatus("EXPIRED", "Expired", "Expiré")
+            createWfaStatus("AFFECTED", "Affected", "Touché"),
+            createWfaStatus("SURPLUS_GRJO", "Surplus with GRJO", "Excédentaire avec GOE"),
+            createWfaStatus("SURPLUS_NO_GRJO", "Surplus without a GRJO", "Excédentaire sans GOE"),
+            createWfaStatus("RELOCATION", "Relocation of work unit", "Réinstallation de l'unité de travail"),
+            createWfaStatus("LAYOFF", "Lay-off", "Mise à pied")
         );
 
         wfaStatusRepository.saveAll(statuses);
@@ -382,25 +391,36 @@ public class LookupDataSeeder {
     private void seedWorkUnits() {
         if (workUnitRepository.count() > 0) return;
 
-        List<WorkUnitEntity> workUnits = Arrays.asList(
-            createWorkUnit("IT", "Information Technology", "Technologie de l'information", null),
-            createWorkUnit("HR", "Human Resources", "Ressources humaines", null),
-            createWorkUnit("FIN", "Finance", "Finances", null),
-            createWorkUnit("OPS", "Operations", "Opérations", null)
+        // Create parent work units first
+        List<WorkUnitEntity> parentUnits = Arrays.asList(
+            createWorkUnit("LABOUR-COPD", "Labour - COPD", "Travail - CODP", null),
+            createWorkUnit("LABOUR-SIG", "Labour - SIG", "Travail - ISG", null),
+            createWorkUnit("LABOUR", "DMO Labour Program", "BSM Programme du travail", null),
+            createWorkUnit("LABOUR-PDRIA", "Labour - PDRIA", "Travail - PRDAI", null),
+            createWorkUnit("ICSD-QC", "Integrated Client Service Delivery (ICSD) - Quebec Region", "Prestation de services intégrés à la clientèle (PSIC) - PSIC, Région du Québec", null)
         );
 
-        workUnitRepository.saveAll(workUnits);
+        workUnitRepository.saveAll(parentUnits);
 
-        // Create sub-units
-        WorkUnitEntity itParent = workUnits.get(0);
-        List<WorkUnitEntity> subUnits = Arrays.asList(
-            createWorkUnit("IT-DEV", "Development", "Développement", itParent),
-            createWorkUnit("IT-SEC", "Security", "Sécurité", itParent),
-            createWorkUnit("IT-NET", "Networking", "Réseautage", itParent)
+        // Get saved parent units for child references
+        WorkUnitEntity labourCopd = parentUnits.get(0);
+        WorkUnitEntity labourSig = parentUnits.get(1);
+        WorkUnitEntity labour = parentUnits.get(2);
+        WorkUnitEntity labourPdria = parentUnits.get(3);
+        WorkUnitEntity icsdQc = parentUnits.get(4);
+
+        // Create child work units
+        List<WorkUnitEntity> childUnits = Arrays.asList(
+            createWorkUnit("LABOUR-COPD-1", "Workplace Directorate", "Direction du milieu de travail", labourCopd),
+            createWorkUnit("LABOUR-COPD-2", "ADM's Office, COPD", "Bureau du SMA, CODP", labourCopd),
+            createWorkUnit("LABOUR-SIG-1", "Strat Integ & Info Solutions", "Integ Strat & Solution Info", labourSig),
+            createWorkUnit("LABOUR-1", "DMO Labour Program - Unit 1", "BSM Programme du travail - Unité 1", labour),
+            createWorkUnit("LABOUR-PDRIA-1", "DGO Fed Mediatn Conciliatn Svc", "DG Serv Fed Mediatn Conciliatn", labourPdria),
+            createWorkUnit("ICSD-QC-1", "Integrity Services Branch, QC", "Direction serv d'intégrité, QC", icsdQc)
         );
 
-        workUnitRepository.saveAll(subUnits);
-        logSeeded("Work Units", workUnits.size() + subUnits.size());
+        workUnitRepository.saveAll(childUnits);
+        logSeeded("Work Units", parentUnits.size() + childUnits.size());
     }
 
     private void seedAssessmentResults() {
@@ -421,10 +441,7 @@ public class LookupDataSeeder {
         if (notificationPurposeRepository.count() > 0) return;
 
         List<NotificationPurposeEntity> purposes = Arrays.asList(
-            createNotificationPurpose("PROFILE_CREATED", "Profile Created", "Profil créé", "template-123"),
-            createNotificationPurpose("PROFILE_UPDATED", "Profile Updated", "Profil mis à jour", "template-124"),
-            createNotificationPurpose("REQUEST_SUBMITTED", "Request Submitted", "Demande soumise", "template-125"),
-            createNotificationPurpose("ASSESSMENT_COMPLETE", "Assessment Complete", "Évaluation terminée", "template-126")
+            createNotificationPurpose("GENERAL", "General Notifications", "Notifications générales", "00000000-0000-0000-0000-000000000000")
         );
 
         notificationPurposeRepository.saveAll(purposes);
