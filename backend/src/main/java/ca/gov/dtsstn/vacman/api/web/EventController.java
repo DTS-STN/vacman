@@ -1,8 +1,9 @@
 package ca.gov.dtsstn.vacman.api.web;
 
+import org.hibernate.validator.constraints.Range;
 import org.mapstruct.factory.Mappers;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,12 +12,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import ca.gov.dtsstn.vacman.api.config.SpringDocConfig;
 import ca.gov.dtsstn.vacman.api.data.entity.EventEntity;
 import ca.gov.dtsstn.vacman.api.service.EventService;
-import ca.gov.dtsstn.vacman.api.web.model.CollectionModel;
 import ca.gov.dtsstn.vacman.api.web.model.EventReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.mapper.EventModelMapper;
 import io.swagger.v3.oas.annotations.Operation;
@@ -39,14 +40,17 @@ public class EventController {
 
 	@GetMapping
 	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
-	@Operation(summary = "Get all events", description = "Returns a collection of all events with pagination support.")
-	public ResponseEntity<CollectionModel<EventReadModel>> getEvents(Pageable pageable) {
-		Page<EventEntity> eventPage = eventService.getEvents(pageable);
+	@Operation(summary = "Get all events", description = "Returns a paginated list of events.")
+	public ResponseEntity<Page<EventReadModel>> getEvents(
+			@RequestParam(defaultValue = "0")
+			@Parameter(description = "Page number (0-based)")
+			int page,
 
-		CollectionModel<EventReadModel> result = new CollectionModel<>(eventPage.getContent().stream()
-			.map(eventModelMapper::toModel)
-			.toList());
-
+			@RequestParam(defaultValue = "20")
+			@Range(min = 1, max = 100)
+			@Parameter(description = "Page size (between 1 and 100)")
+			int size) {
+		Page<EventReadModel> result = eventService.getEvents(PageRequest.of(page, size)).map(eventModelMapper::toModel);
 		return ResponseEntity.ok(result);
 	}
 
