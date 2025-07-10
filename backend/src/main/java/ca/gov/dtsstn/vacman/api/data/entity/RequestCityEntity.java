@@ -18,7 +18,7 @@ import jakarta.persistence.UniqueConstraint;
 @Table(name = "[REQUEST_CITY]", uniqueConstraints = {
     @UniqueConstraint(name = "RQSTCTY_UK", columnNames = {"[CITY_ID]", "[REQUEST_ID]"})
 })
-@AttributeOverride(name = "id", column = @Column(name = "[REQUEST_CITY_ID]", columnDefinition = "NUMERIC(10) IDENTITY NOT FOR REPLICATION"))
+@AttributeOverride(name = "id", column = @Column(name = "[REQUEST_CITY_ID]"))
 public class RequestCityEntity extends AbstractEntity {
 
 	@ManyToOne

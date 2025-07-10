@@ -10,7 +10,7 @@ import jakarta.persistence.UniqueConstraint;
 @Table(name = "[CD_LANGUAGE_REFERRAL_TYPE]", uniqueConstraints = {
     @UniqueConstraint(name = "LNGRFRTYP_UK", columnNames = "[LANGUAGE_REFERRAL_TYPE_NAME_EN]")
 })
-@AttributeOverride(name = "id", column = @Column(name = "[LANGUAGE_REFERRAL_TYPE_ID]", columnDefinition = "NUMERIC(6) IDENTITY NOT FOR REPLICATION"))
+@AttributeOverride(name = "id", column = @Column(name = "[LANGUAGE_REFERRAL_TYPE_ID]"))
 @AttributeOverride(name = "code", column = @Column(name = "[LANGUAGE_REFERRAL_TYPE_CODE]"))
 @AttributeOverride(name = "nameEn", column = @Column(name = "[LANGUAGE_REFERRAL_TYPE_NAME_EN]"))
 @AttributeOverride(name = "nameFr", column = @Column(name = "[LANGUAGE_REFERRAL_TYPE_NAME_FR]"))

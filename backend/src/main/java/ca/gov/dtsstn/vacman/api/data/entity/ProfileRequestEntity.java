@@ -19,7 +19,7 @@ import jakarta.persistence.UniqueConstraint;
 @Table(name = "[PROFILE_REQUEST]", uniqueConstraints = {
     @UniqueConstraint(name = "PRFLRQST_UK", columnNames = {"[PROFILE_ID]", "[REQUEST_ID]"})
 })
-@AttributeOverride(name = "id", column = @Column(name = "[PROFILE_REQUEST_ID]", columnDefinition = "NUMERIC(10) IDENTITY NOT FOR REPLICATION"))
+@AttributeOverride(name = "id", column = @Column(name = "[PROFILE_REQUEST_ID]"))
 public class ProfileRequestEntity extends AbstractEntity {
 
 	@ManyToOne

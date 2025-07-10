@@ -13,7 +13,7 @@ import jakarta.persistence.Table;
 
 @Entity(name = "Event")
 @Table(name = "[EVENT]")
-@AttributeOverride(name = "id", column = @Column(name = "[EVENT_ID]", columnDefinition = "NUMERIC(10) IDENTITY NOT FOR REPLICATION"))
+@AttributeOverride(name = "id", column = @Column(name = "[EVENT_ID]"))
 @AttributeOverride(name = "createdDate", column = @Column(name = "[DATE_CREATED]", nullable = false, updatable = false, columnDefinition = "DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP"))
 public class EventEntity extends AbstractEntity {
 

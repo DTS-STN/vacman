@@ -18,7 +18,7 @@ import jakarta.persistence.Table;
 
 @Entity(name = "Profile")
 @Table(name = "[PROFILE]")
-@AttributeOverride(name = "id", column = @Column(name = "[PROFILE_ID]", columnDefinition = "NUMERIC(10) IDENTITY NOT FOR REPLICATION"))
+@AttributeOverride(name = "id", column = @Column(name = "[PROFILE_ID]"))
 public class ProfileEntity extends AbstractEntity {
 
 	@ManyToOne
@@ -40,13 +40,13 @@ public class ProfileEntity extends AbstractEntity {
 	@JoinColumn(name = "[EDUCATION_LEVEL_ID]", nullable = true)
 	private EducationLevelEntity educationLevel;
 
-	@Column(name = "[PRIVACY_CONSENT_IND]", nullable = true, columnDefinition = "BIT DEFAULT 1")
+	@Column(name = "[PRIVACY_CONSENT_IND]", nullable = true)
 	private Boolean hasAcceptedPrivacyTerms;
 
-	@Column(name = "[AVAILABLE_FOR_REFERRAL_IND]", nullable = true, columnDefinition = "BIT DEFAULT 1")
+	@Column(name = "[AVAILABLE_FOR_REFERRAL_IND]", nullable = true)
 	private Boolean isAvailableForReferral;
 
-	@Column(name = "[INTERESTED_IN_ALTERNATION_IND]", nullable = true, columnDefinition = "BIT DEFAULT 1")
+	@Column(name = "[INTERESTED_IN_ALTERNATION_IND]", nullable = true)
 	private Boolean isInterestedInAlternation;
 
 	@ManyToOne

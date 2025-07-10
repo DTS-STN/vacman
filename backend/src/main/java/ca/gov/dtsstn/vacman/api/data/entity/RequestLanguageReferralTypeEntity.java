@@ -18,7 +18,7 @@ import jakarta.persistence.UniqueConstraint;
 @Table(name = "[REQUEST_LANGUAGE_REFERRAL_TYPE]", uniqueConstraints = {
     @UniqueConstraint(name = "RLNGRLTYP_UK", columnNames = {"[REQUEST_ID]", "[LANGUAGE_REFERRAL_TYPE_ID]"})
 })
-@AttributeOverride(name = "id", column = @Column(name = "[REQUEST_LANGUAGE_REFERRAL_TYPE_ID]", columnDefinition = "NUMERIC(10) IDENTITY NOT FOR REPLICATION"))
+@AttributeOverride(name = "id", column = @Column(name = "[REQUEST_LANGUAGE_REFERRAL_TYPE_ID]"))
 public class RequestLanguageReferralTypeEntity extends AbstractEntity {
 
 	@ManyToOne
