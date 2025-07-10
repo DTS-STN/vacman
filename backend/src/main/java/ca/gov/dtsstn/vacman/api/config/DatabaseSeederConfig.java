@@ -13,8 +13,9 @@ public class DatabaseSeederConfig {
 
     private boolean enabled = true;
     private boolean clearDataFirst = false;
+    // Defaults
     private int userCount = 10;
-    private int profileCount = 15;
+    private int profileCount = 10;
     private int requestCount = 8;
     private int profileRequestCount = 20;
     private boolean seedLookupTables = true;

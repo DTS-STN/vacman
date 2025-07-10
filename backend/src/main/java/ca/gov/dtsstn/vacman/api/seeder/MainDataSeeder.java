@@ -215,7 +215,6 @@ public class MainDataSeeder {
             String userType = validUserTypes[random.nextInt(validUserTypes.length)];
 
             UserEntity user = createUser(
-                1001L + i,
                 email,
                 firstName,
                 lastName,
@@ -329,15 +328,15 @@ public class MainDataSeeder {
     }
 
     // Helper methods to create entities
-    private UserEntity createUser(Long userId, String email, String firstName, String lastName, UserTypeEntity userType, LanguageEntity language) {
+    private UserEntity createUser(String email, String firstName, String lastName, UserTypeEntity userType, LanguageEntity language) {
         UserEntity user = new UserEntity();
         user.setBusinessEmailAddress(email);
         user.setFirstName(firstName);
         user.setLastName(lastName);
         user.setUserType(userType);
         user.setLanguage(language);
-        user.setNetworkName("NET" + userId);
-        user.setUuName("UU" + userId);
+        user.setNetworkName("NET" + random.nextInt(1000));
+        user.setUuName("UU" + random.nextInt(1000));
         user.setCreatedBy("SYSTEM");
         return user;
     }
