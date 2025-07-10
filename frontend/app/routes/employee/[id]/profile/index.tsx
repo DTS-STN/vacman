@@ -193,7 +193,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
           : CompleteTag()}
         <h1 className="mt-6 text-3xl font-semibold">{loaderData.name}</h1>
         {loaderData.email && <p className="mt-1">{loaderData.email}</p>}
-        <p className="font-normal text-gray-500">
+        <p className="font-normal text-[#9FA3AD]">
           {t('app:profile.last-updated', { date: loaderData.lastUpdated, name: loaderData.lastUpdatedBy })}
         </p>
         <div
