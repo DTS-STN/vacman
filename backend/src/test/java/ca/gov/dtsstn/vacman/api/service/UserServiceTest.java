@@ -2,6 +2,7 @@ package ca.gov.dtsstn.vacman.api.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -16,21 +17,15 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import ca.gov.dtsstn.vacman.api.data.entity.NotificationPurposeEntity;
-import ca.gov.dtsstn.vacman.api.data.entity.PriorityLevelEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.ProfileStatusEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntityBuilder;
 import ca.gov.dtsstn.vacman.api.data.entity.UserTypeEntity;
-import ca.gov.dtsstn.vacman.api.data.entity.WorkUnitEntity;
-import ca.gov.dtsstn.vacman.api.data.repository.NotificationPurposeRepository;
-import ca.gov.dtsstn.vacman.api.data.repository.PriorityLevelRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.ProfileRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.ProfileStatusRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.UserRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.UserTypeRepository;
-import ca.gov.dtsstn.vacman.api.data.repository.WorkUnitRepository;
 import ca.gov.dtsstn.vacman.api.web.model.UserCreateModel;
 import ca.gov.dtsstn.vacman.api.web.model.UserUpdateModel;
 import ca.gov.dtsstn.vacman.api.web.model.mapper.UserModelMapper;
@@ -46,20 +41,11 @@ class UserServiceTest {
 	ProfileRepository profileRepository;
 
 	@Mock
-	NotificationPurposeRepository notificationPurposeRepository;
-
-	@Mock
 	ProfileStatusRepository profileStatusRepository;
 
 
 	@Mock
-	PriorityLevelRepository priorityLevelRepository;
-
-	@Mock
 	UserTypeRepository userTypeRepository;
-
-	@Mock
-	WorkUnitRepository workUnitRepository;
 
 	@Mock
 	UserModelMapper userModelMapper;
@@ -71,11 +57,8 @@ class UserServiceTest {
 		this.userService = new UserService(
 			userRepository,
 			profileRepository,
-			notificationPurposeRepository,
 			profileStatusRepository,
-			priorityLevelRepository,
 			userTypeRepository,
-			workUnitRepository,
 			userModelMapper
 		);
 	}
@@ -89,14 +72,8 @@ class UserServiceTest {
 			.thenAnswer(invocation -> invocation.getArgument(0));
 		when(profileStatusRepository.findByCode("PENDING"))
 			.thenReturn(Optional.of(new ProfileStatusEntity()));
-		when(notificationPurposeRepository.findByCode("GENERAL"))
-			.thenReturn(Optional.of(new NotificationPurposeEntity()));
-		when(priorityLevelRepository.findByCode("NORMAL"))
-			.thenReturn(Optional.of(new PriorityLevelEntity()));
 		when(userTypeRepository.findByCode("employee"))
 			.thenReturn(Optional.of(new UserTypeEntity()));
-		when(workUnitRepository.findByCode("LABOUR"))
-			.thenReturn(Optional.of(new WorkUnitEntity()));
 		when(userModelMapper.toEntity(any(UserCreateModel.class)))
 			.thenReturn(new UserEntityBuilder()
 				.firstName("Test")
@@ -207,9 +184,28 @@ class UserServiceTest {
 		when(userTypeRepository.findByCode("admin")).thenReturn(Optional.of(mockUserType));
 		when(userRepository.save(any(UserEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
+		// Configure the mock mapper to simulate the mapping behavior
+		doAnswer(invocation -> {
+			UserUpdateModel model = invocation.getArgument(0);
+			UserEntity entity = invocation.getArgument(1);
+			// Simulate the mapping by updating the entity fields
+			entity.setFirstName(model.firstName());
+			entity.setLastName(model.lastName());
+			entity.setNetworkName(model.networkName());
+			entity.setBusinessPhoneNumber(model.businessPhone());
+			entity.setBusinessEmailAddress(model.businessEmail());
+			entity.setMiddleName(model.middleName());
+			entity.setInitial(model.initials());
+			entity.setPersonalRecordIdentifier(model.personalRecordIdentifier());
+			return null; // void method
+		}).when(userModelMapper).updateEntityFromModel(any(UserUpdateModel.class), any(UserEntity.class));
+
 		final var result = userService.updateUser(updateModel);
 
 		assertThat(result).isPresent();
+		// Check that the existing user object was modified
+		assertThat(existingUser.getFirstName()).isEqualTo("Jane");
+		assertThat(existingUser.getLastName()).isEqualTo("Smith");
 		assertThat(result.get().getFirstName()).isEqualTo("Jane");
 		assertThat(result.get().getLastName()).isEqualTo("Smith");
 		assertThat(result.get().getUserType().getCode()).isEqualTo("admin");
@@ -242,9 +238,28 @@ class UserServiceTest {
 		when(userRepository.findById(userId)).thenReturn(Optional.of(existingUser));
 		when(userRepository.save(any(UserEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
+		// Configure the mock mapper to simulate the mapping behavior
+		doAnswer(invocation -> {
+			UserUpdateModel model = invocation.getArgument(0);
+			UserEntity entity = invocation.getArgument(1);
+			// Simulate the mapping by updating the entity fields
+			entity.setFirstName(model.firstName());
+			entity.setLastName(model.lastName());
+			entity.setNetworkName(model.networkName());
+			entity.setBusinessPhoneNumber(model.businessPhone());
+			entity.setBusinessEmailAddress(model.businessEmail());
+			entity.setMiddleName(model.middleName());
+			entity.setInitial(model.initials());
+			entity.setPersonalRecordIdentifier(model.personalRecordIdentifier());
+			return null; // void method
+		}).when(userModelMapper).updateEntityFromModel(any(UserUpdateModel.class), any(UserEntity.class));
+
 		final var result = userService.updateUser(updateModel);
 
 		assertThat(result).isPresent();
+		// Check that the existing user object was modified
+		assertThat(existingUser.getFirstName()).isEqualTo("Jane");
+		assertThat(existingUser.getLastName()).isEqualTo("Smith");
 		assertThat(result.get().getFirstName()).isEqualTo("Jane");
 		assertThat(result.get().getLastName()).isEqualTo("Smith");
 		assertThat(result.get().getUserType().getCode()).isEqualTo("employee"); // Should remain unchanged

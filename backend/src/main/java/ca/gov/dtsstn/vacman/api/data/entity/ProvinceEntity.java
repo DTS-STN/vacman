@@ -10,10 +10,13 @@ import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 
 @Entity(name = "Province")
-@Table(name = "[CD_PROVINCE_TERRITORY]")
-@AttributeOverride(name = "id", column = @Column(name = "[PROVINCE_TERRITORY_ID]"))
+@Table(name = "[CD_PROVINCE_TERRITORY]", uniqueConstraints = {
+    @UniqueConstraint(name = "PRVNCTRY_UK", columnNames = "[PROVINCE_TERRITORY_NAME_EN]")
+})
+@AttributeOverride(name = "id", column = @Column(name = "[PROVINCE_TERRITORY_ID]", columnDefinition = "NUMERIC(6) IDENTITY NOT FOR REPLICATION"))
 @AttributeOverride(name = "code", column = @Column(name = "[PROVINCE_TERRITORY_CODE]"))
 @AttributeOverride(name = "nameEn", column = @Column(name = "[PROVINCE_TERRITORY_NAME_EN]"))
 @AttributeOverride(name = "nameFr", column = @Column(name = "[PROVINCE_TERRITORY_NAME_FR]"))

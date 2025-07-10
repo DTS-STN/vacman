@@ -12,15 +12,16 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 
 @Entity(name = "Event")
-@Table(name = "[EVENTS]")
-@AttributeOverride(name = "id", column = @Column(name = "[EVENT_ID]"))
+@Table(name = "[EVENT]")
+@AttributeOverride(name = "id", column = @Column(name = "[EVENT_ID]", columnDefinition = "NUMERIC(10) IDENTITY NOT FOR REPLICATION"))
+@AttributeOverride(name = "createdDate", column = @Column(name = "[DATE_CREATED]", nullable = false, updatable = false, columnDefinition = "DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP"))
 public class EventEntity extends AbstractEntity {
 
-	@Column(name = "[EVENT_DESCRIPTION]", length = 4000, nullable = false)
-	private String payload;
+	@Column(name = "[EVENT_DESCRIPTION]", length = 4000, nullable = true)
+	private String eventDescription;
 
 	@Column(name = "[EVENT_NAME]", length = 255, nullable = false)
-	private String type;
+	private String eventName;
 
 	public EventEntity() {
 		super();
@@ -29,39 +30,39 @@ public class EventEntity extends AbstractEntity {
 	@Builder.Constructor
 	public EventEntity(
 			@Nullable Long id,
-			@Nullable String payload,
-			@Nullable String type,
+			@Nullable String eventDescription,
+			@Nullable String eventName,
 			@Nullable String createdBy,
 			@Nullable Instant createdDate,
 			@Nullable String lastModifiedBy,
 			@Nullable Instant lastModifiedDate) {
 		super(id, createdBy, createdDate, lastModifiedBy, lastModifiedDate);
-		this.payload = payload;
-		this.type = type;
+		this.eventDescription = eventDescription;
+		this.eventName = eventName;
 	}
 
-	public String getPayload() {
-		return payload;
+	public String getEventDescription() {
+		return eventDescription;
 	}
 
-	public void setPayload(String payload) {
-		this.payload = payload;
+	public void setEventDescription(String eventDescription) {
+		this.eventDescription = eventDescription;
 	}
 
-	public String getType() {
-		return type;
+	public String getEventName() {
+		return eventName;
 	}
 
-	public void setType(String type) {
-		this.type = type;
+	public void setEventName(String eventName) {
+		this.eventName = eventName;
 	}
 
 	@Override
 	public String toString() {
 		return new ToStringCreator(this)
 			.append("super", super.toString())
-			.append("payload", payload)
-			.append("type", type)
+			.append("eventDescription", eventDescription)
+			.append("eventName", eventName)
 			.toString();
 	}
 

@@ -1,83 +1,103 @@
 package ca.gov.dtsstn.vacman.api.data.entity;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.core.style.ToStringCreator;
 
 import jakarta.annotation.Nullable;
 import jakarta.persistence.AttributeOverride;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity(name = "Profile")
 @Table(name = "[PROFILE]")
-@AttributeOverride(name = "id", column = @Column(name = "[PROFILE_ID]"))
+@AttributeOverride(name = "id", column = @Column(name = "[PROFILE_ID]", columnDefinition = "NUMERIC(10) IDENTITY NOT FOR REPLICATION"))
 public class ProfileEntity extends AbstractEntity {
 
 	@ManyToOne
-	@JoinColumn(name = "[user_id_approved_by]", nullable = true)
+	@JoinColumn(name = "[USER_ID_APPROVED_BY]", nullable = true)
 	private UserEntity approvedBy;
 
 	@ManyToOne
-	@JoinColumn(name = "[city_id]", nullable = true)
+	@JoinColumn(name = "[CITY_ID]", nullable = true)
 	private CityEntity city;
 
 	@ManyToOne
-	@JoinColumn(name = "[classification_id]", nullable = true)
+	@JoinColumn(name = "[CLASSIFICATION_ID]", nullable = true)
 	private ClassificationEntity classification;
 
-	@Column(name = "[additional_comment_txt]", length = 200, nullable = true)
+	@Column(name = "[ADDITIONAL_COMMENT_TXT]", length = 200, nullable = true)
 	private String comment;
 
 	@ManyToOne
-	@JoinColumn(name = "[education_level_id]", nullable = true)
+	@JoinColumn(name = "[EDUCATION_LEVEL_ID]", nullable = true)
 	private EducationLevelEntity educationLevel;
 
-	@Column(name = "[privacy_consent_ind]", nullable = true)
+	@Column(name = "[PRIVACY_CONSENT_IND]", nullable = true, columnDefinition = "BIT DEFAULT 1")
 	private Boolean hasAcceptedPrivacyTerms;
 
-	@Column(name = "[available_for_referral_ind]", nullable = true)
+	@Column(name = "[AVAILABLE_FOR_REFERRAL_IND]", nullable = true, columnDefinition = "BIT DEFAULT 1")
 	private Boolean isAvailableForReferral;
 
-	@Column(name = "[interested_in_alternation_ind]", nullable = true)
+	@Column(name = "[INTERESTED_IN_ALTERNATION_IND]", nullable = true, columnDefinition = "BIT DEFAULT 1")
 	private Boolean isInterestedInAlternation;
 
 	@ManyToOne
-	@JoinColumn(name = "[language_id]", nullable = true)
+	@JoinColumn(name = "[LANGUAGE_ID]", nullable = true)
 	private LanguageEntity language;
 
-	@ManyToOne
-	@JoinColumn(name = "[notification_purpose_id]", nullable = false)
-	private NotificationPurposeEntity notificationPurpose;
-
-	@Column(name = "[personal_email_address]", length = 320, nullable = true)
+	@Column(name = "[PERSONAL_EMAIL_ADDRESS]", length = 320, nullable = true)
 	private String personalEmailAddress;
 
-	@Column(name = "[personal_phone_number]", length = 15, nullable = true)
+	@Column(name = "[PERSONAL_PHONE_NUMBER]", length = 15, nullable = true)
 	private String personalPhoneNumber;
 
 	@ManyToOne
-	@JoinColumn(name = "[priority_level_id]", nullable = true)
+	@JoinColumn(name = "[PRIORITY_LEVEL_ID]", nullable = true)
 	private PriorityLevelEntity priorityLevel;
 
 	@ManyToOne
-	@JoinColumn(name = "[profile_status_id]", nullable = false)
+	@JoinColumn(name = "[PROFILE_STATUS_ID]", nullable = false)
 	private ProfileStatusEntity profileStatus;
 
 	@ManyToOne
-	@JoinColumn(name = "[user_id_reviewed_by]", nullable = true)
+	@JoinColumn(name = "[USER_ID_REVIEWED_BY]", nullable = true)
 	private UserEntity reviewedBy;
 
 	@ManyToOne
-	@JoinColumn(name = "[wfa_status_id]", nullable = true)
+	@JoinColumn(name = "[WFA_STATUS_ID]", nullable = true)
 	private WfaStatusEntity wfaStatus;
 
 	@ManyToOne
-	@JoinColumn(name = "[work_unit_id]", nullable = true)
+	@JoinColumn(name = "[WORK_UNIT_ID]", nullable = true)
 	private WorkUnitEntity workUnit;
+
+	@ManyToOne
+	@JoinColumn(name = "[USER_ID]", nullable = false)
+	private UserEntity user;
+
+	// Collection relationships for many-to-many tables
+	@OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<CityProfileEntity> cityProfiles = new ArrayList<>();
+
+	@OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<ClassificationProfileEntity> classificationProfiles = new ArrayList<>();
+
+	@OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<ProfileEmploymentTenureEntity> employmentTenures = new ArrayList<>();
+
+	@OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<ProfileLanguageReferralTypeEntity> languageReferralTypes = new ArrayList<>();
+
+	@OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<ProfileRequestEntity> profileRequests = new ArrayList<>();
 
 	public ProfileEntity() {
 		super();
@@ -94,7 +114,6 @@ public class ProfileEntity extends AbstractEntity {
 			@Nullable Boolean isAvailableForReferral,
 			@Nullable Boolean isInterestedInAlternation,
 			@Nullable LanguageEntity language,
-			@Nullable NotificationPurposeEntity notificationPurpose,
 			@Nullable String personalEmailAddress,
 			@Nullable String personalPhoneNumber,
 			@Nullable PriorityLevelEntity priorityLevel,
@@ -102,6 +121,7 @@ public class ProfileEntity extends AbstractEntity {
 			@Nullable UserEntity reviewedBy,
 			@Nullable WfaStatusEntity wfaStatus,
 			@Nullable WorkUnitEntity workUnit,
+			@Nullable UserEntity user,
 			@Nullable String createdBy,
 			@Nullable Instant createdDate,
 			@Nullable String lastModifiedBy,
@@ -116,7 +136,6 @@ public class ProfileEntity extends AbstractEntity {
 		this.isAvailableForReferral = isAvailableForReferral;
 		this.isInterestedInAlternation = isInterestedInAlternation;
 		this.language = language;
-		this.notificationPurpose = notificationPurpose;
 		this.personalEmailAddress = personalEmailAddress;
 		this.personalPhoneNumber = personalPhoneNumber;
 		this.priorityLevel = priorityLevel;
@@ -124,6 +143,7 @@ public class ProfileEntity extends AbstractEntity {
 		this.reviewedBy = reviewedBy;
 		this.wfaStatus = wfaStatus;
 		this.workUnit = workUnit;
+		this.user = user;
 	}
 
 	public UserEntity getApprovedBy() {
@@ -198,14 +218,6 @@ public class ProfileEntity extends AbstractEntity {
 		this.language = language;
 	}
 
-	public NotificationPurposeEntity getNotificationPurpose() {
-		return notificationPurpose;
-	}
-
-	public void setNotificationPurpose(NotificationPurposeEntity notificationPurpose) {
-		this.notificationPurpose = notificationPurpose;
-	}
-
 	public String getPersonalEmailAddress() {
 		return personalEmailAddress;
 	}
@@ -262,6 +274,54 @@ public class ProfileEntity extends AbstractEntity {
 		this.workUnit = workUnit;
 	}
 
+	public UserEntity getUser() {
+		return user;
+	}
+
+	public void setUser(UserEntity user) {
+		this.user = user;
+	}
+
+	public List<CityProfileEntity> getCityProfiles() {
+		return cityProfiles;
+	}
+
+	public void setCityProfiles(List<CityProfileEntity> cityProfiles) {
+		this.cityProfiles = cityProfiles;
+	}
+
+	public List<ClassificationProfileEntity> getClassificationProfiles() {
+		return classificationProfiles;
+	}
+
+	public void setClassificationProfiles(List<ClassificationProfileEntity> classificationProfiles) {
+		this.classificationProfiles = classificationProfiles;
+	}
+
+	public List<ProfileEmploymentTenureEntity> getEmploymentTenures() {
+		return employmentTenures;
+	}
+
+	public void setEmploymentTenures(List<ProfileEmploymentTenureEntity> employmentTenures) {
+		this.employmentTenures = employmentTenures;
+	}
+
+	public List<ProfileLanguageReferralTypeEntity> getLanguageReferralTypes() {
+		return languageReferralTypes;
+	}
+
+	public void setLanguageReferralTypes(List<ProfileLanguageReferralTypeEntity> languageReferralTypes) {
+		this.languageReferralTypes = languageReferralTypes;
+	}
+
+	public List<ProfileRequestEntity> getProfileRequests() {
+		return profileRequests;
+	}
+
+	public void setProfileRequests(List<ProfileRequestEntity> profileRequests) {
+		this.profileRequests = profileRequests;
+	}
+
 	@Override
 	public String toString() {
 		return new ToStringCreator(this)
@@ -275,7 +335,6 @@ public class ProfileEntity extends AbstractEntity {
 			.append("isAvailableForReferral", isAvailableForReferral)
 			.append("isInterestedInAlternation", isInterestedInAlternation)
 			.append("language", language)
-			.append("notificationPurpose", notificationPurpose)
 			.append("personalEmailAddress", personalEmailAddress)
 			.append("personalPhoneNumber", personalPhoneNumber)
 			.append("priorityLevel", priorityLevel)
@@ -283,6 +342,7 @@ public class ProfileEntity extends AbstractEntity {
 			.append("reviewedBy", reviewedBy)
 			.append("wfaStatus", wfaStatus)
 			.append("workUnit", workUnit)
+			.append("user", user)
 			.toString();
 	}
 

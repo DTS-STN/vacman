@@ -1,11 +1,12 @@
 package ca.gov.dtsstn.vacman.api.service;
 
-import ca.gov.dtsstn.vacman.api.data.entity.CityEntity;
-import ca.gov.dtsstn.vacman.api.data.repository.CityRepository;
-import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.Optional;
+
+import org.springframework.stereotype.Service;
+
+import ca.gov.dtsstn.vacman.api.data.entity.CityEntity;
+import ca.gov.dtsstn.vacman.api.data.repository.CityRepository;
 
 @Service
 public class CityService {
@@ -25,10 +26,10 @@ public class CityService {
     }
 
     public List<CityEntity> getCitiesByProvinceCode(String provinceCode) {
-        return List.copyOf(cityRepository.findByProvinceCode(provinceCode));
+        return List.copyOf(cityRepository.findByProvinceTerritoryCode(provinceCode));
     }
 
     public List<CityEntity> getCityByCodeAndProvince(String code, String provinceCode) {
-        return List.copyOf(cityRepository.findByCodeAndProvinceCode(code, provinceCode));
+        return List.copyOf(cityRepository.findByCodeAndProvinceTerritoryCode(code, provinceCode));
     }
 }
