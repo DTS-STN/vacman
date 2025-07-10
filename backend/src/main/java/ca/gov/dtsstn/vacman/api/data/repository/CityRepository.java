@@ -13,5 +13,7 @@ public interface CityRepository extends ListCrudRepository<CityEntity, Long> {
 
     List<CityEntity> findByProvinceCode(String provinceCode);
 
+    List<CityEntity> findByProvince_Id(Long provinceId);
+
     List<CityEntity> findByCodeAndProvinceCode(String code, String provinceCode);
 }
