@@ -13,25 +13,35 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import ca.gov.dtsstn.vacman.api.config.DatabaseSeederConfig;
+import ca.gov.dtsstn.vacman.api.data.entity.AppointmentNonAdvertisedEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.ClassificationEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.EmploymentTenureEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.LanguageEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.LanguageRequirementEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.ProfileStatusEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.RequestEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.RequestStatusEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.SecurityClearanceEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.SelectionProcessTypeEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.UserTypeEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.WorkScheduleEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.WorkUnitEntity;
+import ca.gov.dtsstn.vacman.api.data.repository.AppointmentNonAdvertisedRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.ClassificationRepository;
+import ca.gov.dtsstn.vacman.api.data.repository.EmploymentTenureRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.LanguageRepository;
+import ca.gov.dtsstn.vacman.api.data.repository.LanguageRequirementRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.ProfileRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.ProfileStatusRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.RequestRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.RequestStatusRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.SecurityClearanceRepository;
+import ca.gov.dtsstn.vacman.api.data.repository.SelectionProcessTypeRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.UserRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.UserTypeRepository;
+import ca.gov.dtsstn.vacman.api.data.repository.WorkScheduleRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.WorkUnitRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -66,6 +76,13 @@ public class MainDataSeeder {
     private final WorkUnitRepository workUnitRepository;
     private final ProfileStatusRepository profileStatusRepository;
 
+    // Additional repositories for Request entity requirements
+    private final AppointmentNonAdvertisedRepository appointmentNonAdvertisedRepository;
+    private final LanguageRequirementRepository languageRequirementRepository;
+    private final EmploymentTenureRepository employmentTenureRepository;
+    private final SelectionProcessTypeRepository selectionProcessTypeRepository;
+    private final WorkScheduleRepository workScheduleRepository;
+
     // Cached lookup data for better performance
     private List<UserTypeEntity> userTypes;
     private List<LanguageEntity> languages;
@@ -74,6 +91,11 @@ public class MainDataSeeder {
     private List<RequestStatusEntity> requestStatuses;
     private List<WorkUnitEntity> workUnits;
     private List<ProfileStatusEntity> profileStatuses;
+    private List<AppointmentNonAdvertisedEntity> appointmentNonAdvertiseds;
+    private List<LanguageRequirementEntity> languageRequirements;
+    private List<EmploymentTenureEntity> employmentTenures;
+    private List<SelectionProcessTypeEntity> selectionProcessTypes;
+    private List<WorkScheduleEntity> workSchedules;
 
     public MainDataSeeder(
         DatabaseSeederConfig config,
@@ -86,7 +108,12 @@ public class MainDataSeeder {
         SecurityClearanceRepository securityClearanceRepository,
         RequestStatusRepository requestStatusRepository,
         WorkUnitRepository workUnitRepository,
-        ProfileStatusRepository profileStatusRepository
+        ProfileStatusRepository profileStatusRepository,
+        AppointmentNonAdvertisedRepository appointmentNonAdvertisedRepository,
+        LanguageRequirementRepository languageRequirementRepository,
+        EmploymentTenureRepository employmentTenureRepository,
+        SelectionProcessTypeRepository selectionProcessTypeRepository,
+        WorkScheduleRepository workScheduleRepository
     ) {
         this.config = config;
         this.userRepository = userRepository;
@@ -99,6 +126,11 @@ public class MainDataSeeder {
         this.requestStatusRepository = requestStatusRepository;
         this.workUnitRepository = workUnitRepository;
         this.profileStatusRepository = profileStatusRepository;
+        this.appointmentNonAdvertisedRepository = appointmentNonAdvertisedRepository;
+        this.languageRequirementRepository = languageRequirementRepository;
+        this.employmentTenureRepository = employmentTenureRepository;
+        this.selectionProcessTypeRepository = selectionProcessTypeRepository;
+        this.workScheduleRepository = workScheduleRepository;
 
         // Initialize random with configurable seed for reproducible data
         this.random = config.isUseFixedSeed() ?
@@ -169,6 +201,13 @@ public class MainDataSeeder {
         requestStatuses = requestStatusRepository.findAll();
         workUnits = workUnitRepository.findAll();
         profileStatuses = profileStatusRepository.findAll();
+
+        // Cache additional lookup data required for requests
+        appointmentNonAdvertiseds = appointmentNonAdvertisedRepository.findAll();
+        languageRequirements = languageRequirementRepository.findAll();
+        employmentTenures = employmentTenureRepository.findAll();
+        selectionProcessTypes = selectionProcessTypeRepository.findAll();
+        workSchedules = workScheduleRepository.findAll();
     }
 
     private boolean validateLookupData() {
@@ -198,6 +237,27 @@ public class MainDataSeeder {
 
         if (profileStatuses.isEmpty()) {
             logger.warn("No profile statuses found - profiles may not be created properly");
+        }
+
+        // Validate additional lookup entities required for requests
+        if (languageRequirements.isEmpty()) {
+            logger.warn("No language requirements found - requests may not be created properly");
+        }
+
+        if (employmentTenures.isEmpty()) {
+            logger.warn("No employment tenures found - requests may not be created properly");
+        }
+
+        if (selectionProcessTypes.isEmpty()) {
+            logger.warn("No selection process types found - requests may not be created properly");
+        }
+
+        if (appointmentNonAdvertiseds.isEmpty()) {
+            logger.warn("No appointment non-advertised records found - requests may not be created properly");
+        }
+
+        if (workSchedules.isEmpty()) {
+            logger.warn("No work schedules found - requests may not be created properly");
         }
 
         return valid;
@@ -360,7 +420,10 @@ public class MainDataSeeder {
 
         List<UserEntity> users = userRepository.findAll();
         if (users.isEmpty() || securityClearances.isEmpty() || workUnits.isEmpty() ||
-            classifications.isEmpty() || requestStatuses.isEmpty()) {
+            classifications.isEmpty() || requestStatuses.isEmpty() || languages.isEmpty() ||
+            languageRequirements.isEmpty() || employmentTenures.isEmpty() ||
+            selectionProcessTypes.isEmpty() || appointmentNonAdvertiseds.isEmpty() ||
+            workSchedules.isEmpty()) {
             logger.warn("Cannot seed requests: missing required lookup data");
             return;
         }
@@ -489,6 +552,16 @@ public class MainDataSeeder {
         request.setClassification(classification);
         request.setRequestStatus(status);
 
+        // Set all required lookup entities
+        request.setHiringManager(findHiringManager(hrAdvisor));
+        request.setSubDelegatedManager(hrAdvisor); // Use hrAdvisor as fallback
+        request.setLanguage(getRandomElement(languages));
+        request.setLanguageRequirement(getRandomElement(languageRequirements));
+        request.setEmploymentTenure(getRandomElement(employmentTenures));
+        request.setSelectionProcessType(getRandomElement(selectionProcessTypes));
+        request.setAppointmentNonAdvertised(getRandomElement(appointmentNonAdvertiseds));
+        request.setWorkSchedule(getRandomElement(workSchedules));
+
         // Set realistic date ranges based on status
         LocalDate startDate = generateStartDate(status);
         request.setStartDate(startDate);
@@ -551,6 +624,18 @@ public class MainDataSeeder {
             .filter(ps -> code.equals(ps.getCode()))
             .findFirst()
             .orElse(null);
+    }
+
+    private UserEntity findHiringManager(UserEntity fallback) {
+        List<UserEntity> hiringManagers = userRepository.findAll().stream()
+            .filter(u -> "hiring-manager".equals(u.getUserType().getCode()))
+            .toList();
+
+        if (hiringManagers.isEmpty()) {
+            return fallback; // Use fallback if no hiring managers exist
+        }
+
+        return getRandomElement(hiringManagers);
     }
 
     private void validateSeededData() {
