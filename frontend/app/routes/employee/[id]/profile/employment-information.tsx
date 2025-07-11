@@ -62,7 +62,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 
 export async function loader({ context, request }: Route.LoaderArgs) {
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
-  const substantivePositions = await getClassificationService().getAll();
+  const substantivePositions = await getClassificationService().listAllLocalized(lang);
   const branchOrServiceCanadaRegions = await getBranchService().listAllLocalized(lang);
   const directorates = await getDirectorateService().listAllLocalized(lang);
   const provinces = await getProvinceService().getAllLocalized(lang);
@@ -84,7 +84,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
       wfaEndDate: undefined as string | undefined,
       hrAdvisor: undefined as string | undefined,
     },
-    substantivePositions: substantivePositions.unwrap(),
+    substantivePositions: substantivePositions,
     branchOrServiceCanadaRegions: branchOrServiceCanadaRegions,
     directorates: directorates,
     provinces: provinces.unwrap(),
