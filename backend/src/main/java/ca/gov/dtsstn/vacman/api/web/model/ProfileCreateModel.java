@@ -31,9 +31,9 @@ public record ProfileCreateModel(
 	@Schema(description = "Language ID.", example = "1")
 	Long languageId,
 
-	@NotNull(message = "Profile status code is required.")
-	@Schema(description = "Profile status code.", example = "ACTIVE")
-	String profileStatusCode,
+	@NotNull(message = "Profile status ID is required.")
+	@Schema(description = "Profile status ID.", example = "1")
+	Long profileStatusId,
 
 	@Schema(description = "Personal phone number.", example = "613-555-1234")
 	String personalPhoneNumber,

@@ -67,9 +67,9 @@ public class ProfileService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
                         "HR Advisor not found with ID: " + createModel.hrAdvisorUserId())));
 
-        profile.setProfileStatus(profileStatusRepository.findByCode(createModel.profileStatusCode())
+        profile.setProfileStatus(profileStatusRepository.findById(createModel.profileStatusId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                        "Profile status not found with code: " + createModel.profileStatusCode())));
+                        "Profile status not found with ID: " + createModel.profileStatusId())));
 
         // Set optional relationship fields
         if (createModel.cityCode() != null) {

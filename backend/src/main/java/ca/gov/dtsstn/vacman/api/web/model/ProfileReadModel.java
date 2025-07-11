@@ -42,9 +42,9 @@ public record ProfileReadModel(
     @JsonProperty("languageId")
     Long languageId,
 
-    @Schema(description = "Profile status code", example = "ACTIVE")
-    @JsonProperty("profileStatusCode")
-    String profileStatusCode,
+    @Schema(description = "Profile status ID", example = "1")
+    @JsonProperty("profileStatusId")
+    Long profileStatusId,
 
     @Schema(description = "Personal phone number", example = "613-555-1234")
     @JsonProperty("personalPhoneNumber")
