@@ -33,12 +33,14 @@ export type Classification = Readonly<{
 
 export type WFAStatus = Readonly<{
   id: string;
+  code: string;
   nameEn: string;
   nameFr: string;
 }>;
 
 export type LocalizedWFAStatus = Readonly<{
   id: string;
+  code: string;
   name: string;
 }>;
 
