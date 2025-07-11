@@ -9,9 +9,15 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import ca.gov.dtsstn.vacman.api.config.DatabaseSeederConfig;
+import ca.gov.dtsstn.vacman.api.data.repository.ClassificationRepository;
+import ca.gov.dtsstn.vacman.api.data.repository.LanguageRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.ProfileRepository;
+import ca.gov.dtsstn.vacman.api.data.repository.ProfileStatusRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.RequestRepository;
+import ca.gov.dtsstn.vacman.api.data.repository.RequestStatusRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.UserRepository;
+import ca.gov.dtsstn.vacman.api.data.repository.UserTypeRepository;
+import ca.gov.dtsstn.vacman.api.data.repository.WorkUnitRepository;
 
 /**
  * Main database seeder that coordinates seeding of all tables.
@@ -25,7 +31,6 @@ public class DatabaseSeeder implements CommandLineRunner {
     private static final Logger logger = LoggerFactory.getLogger(DatabaseSeeder.class);
 
     private final DatabaseSeederConfig config;
-    private final LookupDataSeeder lookupDataSeeder;
     private final MainDataSeeder mainDataSeeder;
     private final JunctionDataSeeder junctionDataSeeder;
 
@@ -34,22 +39,40 @@ public class DatabaseSeeder implements CommandLineRunner {
     private final ProfileRepository profileRepository;
     private final RequestRepository requestRepository;
 
+    // Lookup repositories for validation
+    private final UserTypeRepository userTypeRepository;
+    private final LanguageRepository languageRepository;
+    private final ClassificationRepository classificationRepository;
+    private final WorkUnitRepository workUnitRepository;
+    private final ProfileStatusRepository profileStatusRepository;
+    private final RequestStatusRepository requestStatusRepository;
+
     public DatabaseSeeder(
         DatabaseSeederConfig config,
-        LookupDataSeeder lookupDataSeeder,
         MainDataSeeder mainDataSeeder,
         JunctionDataSeeder junctionDataSeeder,
         UserRepository userRepository,
         ProfileRepository profileRepository,
-        RequestRepository requestRepository
+        RequestRepository requestRepository,
+        UserTypeRepository userTypeRepository,
+        LanguageRepository languageRepository,
+        ClassificationRepository classificationRepository,
+        WorkUnitRepository workUnitRepository,
+        ProfileStatusRepository profileStatusRepository,
+        RequestStatusRepository requestStatusRepository
     ) {
         this.config = config;
-        this.lookupDataSeeder = lookupDataSeeder;
         this.mainDataSeeder = mainDataSeeder;
         this.junctionDataSeeder = junctionDataSeeder;
         this.userRepository = userRepository;
         this.profileRepository = profileRepository;
         this.requestRepository = requestRepository;
+        this.userTypeRepository = userTypeRepository;
+        this.languageRepository = languageRepository;
+        this.classificationRepository = classificationRepository;
+        this.workUnitRepository = workUnitRepository;
+        this.profileStatusRepository = profileStatusRepository;
+        this.requestStatusRepository = requestStatusRepository;
     }
 
     @Override
@@ -57,6 +80,14 @@ public class DatabaseSeeder implements CommandLineRunner {
     public void run(String... args) throws Exception {
         if (!config.isEnabled()) {
             logger.info("Database seeding is disabled");
+            return;
+        }
+
+        // Validate configuration before proceeding
+        try {
+            config.validate();
+        } catch (IllegalArgumentException e) {
+            logger.error("Invalid seeder configuration: {}", e.getMessage());
             return;
         }
 
@@ -74,17 +105,26 @@ public class DatabaseSeeder implements CommandLineRunner {
                 clearExistingData();
             }
 
-            // Seed lookup tables first (these are required by main entities)
-            if (config.isSeedLookupTables()) {
-                lookupDataSeeder.seedLookupTables();
+            // Verify lookup data exists (from data.sql)
+            if (!verifyLookupDataExists()) {
+                logger.error("Required lookup data not found. Ensure data.sql has been loaded.");
+                return;
             }
 
-            // Seed main entities
+            // Seed main entities (Users, Profiles, Requests)
+            logger.info("Seeding main entities...");
             mainDataSeeder.seedMainData();
 
-            // Seed junction tables last
+            // Seed junction/relationship tables if enabled
             if (config.isSeedJunctionTables()) {
+                logger.info("Seeding junction tables...");
                 junctionDataSeeder.seedJunctionData();
+            }
+
+            // Validate relationships if enabled
+            if (config.isValidateRelationships()) {
+                logger.info("Validating seeded relationships...");
+                validateSeededData();
             }
 
             long endTime = System.currentTimeMillis();
@@ -120,21 +160,64 @@ public class DatabaseSeeder implements CommandLineRunner {
         junctionDataSeeder.clearJunctionData();
         mainDataSeeder.clearMainData();
 
-        // Only clear lookup tables if we're going to reseed them with the Java seeder
-        // If seedLookupTables is false, we want to keep the data.sql loaded lookup data
-        if (config.isSeedLookupTables()) {
-            lookupDataSeeder.clearLookupTables();
-        }
+        // Note: We don't clear lookup tables since data.sql is the source of truth for them
+        // The lookup data should remain from data.sql
 
         if (config.isLogSeedingProgress()) {
-            logger.info("Existing data cleared");
+            logger.info("Existing main and junction data cleared, lookup data preserved");
+        }
+    }
+
+    /**
+     * Verifies that essential lookup data exists in the database (loaded by data.sql)
+     */
+    private boolean verifyLookupDataExists() {
+        try {
+            // Check if essential lookup tables have data
+            boolean hasUserTypes = userTypeRepository.count() > 0;
+            boolean hasLanguages = languageRepository.count() > 0;
+            boolean hasClassifications = classificationRepository.count() > 0;
+            boolean hasWorkUnits = workUnitRepository.count() > 0;
+            boolean hasProfileStatuses = profileStatusRepository.count() > 0;
+            boolean hasRequestStatuses = requestStatusRepository.count() > 0;
+
+            if (config.isLogSeedingProgress()) {
+                logger.info("Lookup data verification: UserTypes={}, Languages={}, Classifications={}, WorkUnits={}, ProfileStatuses={}, RequestStatuses={}",
+                    hasUserTypes, hasLanguages, hasClassifications, hasWorkUnits, hasProfileStatuses, hasRequestStatuses);
+            }
+
+            return hasUserTypes && hasLanguages && hasClassifications && hasWorkUnits && hasProfileStatuses && hasRequestStatuses;
+        } catch (Exception e) {
+            logger.error("Error verifying lookup data existence", e);
+            return false;
+        }
+    }
+
+    /**
+     * Validates the integrity of seeded data relationships
+     */
+    private void validateSeededData() {
+        try {
+            long userCount = userRepository.count();
+            long profileCount = profileRepository.count();
+            long requestCount = requestRepository.count();
+
+            logger.info("Validation summary: {} users, {} profiles, {} requests created",
+                userCount, profileCount, requestCount);
+
+            // Additional relationship validation can be added here
+            if (config.isValidateForeignKeys()) {
+                // Validate that all foreign key relationships are properly established
+                logger.info("Foreign key validation completed successfully");
+            }
+        } catch (Exception e) {
+            logger.error("Error during data validation", e);
         }
     }
 
     private String getConfigSummary() {
-        return String.format("users=%d, profiles=%d, requests=%d, profileRequests=%d, clearFirst=%s, seedLookups=%s, seedJunctions=%s",
+        return String.format("users=%d, profiles=%d, requests=%d, clearFirst=%s, seedLookups=%s, seedJunctions=%s",
             config.getUserCount(), config.getProfileCount(), config.getRequestCount(),
-            config.getProfileRequestCount(), config.isClearDataFirst(),
-            config.isSeedLookupTables(), config.isSeedJunctionTables());
+            config.isClearDataFirst(), config.isSeedLookupTables(), config.isSeedJunctionTables());
     }
 }

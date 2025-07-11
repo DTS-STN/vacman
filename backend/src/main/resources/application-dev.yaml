@@ -32,11 +32,50 @@ app:
   database:
     seeder:
       enabled: true
-      seedLookupTables: true
-      seedJunctionTables: true  # Enable junction tables to test many-to-many relationships
-      userCount: 15
-      profileCount: 15
-      requestCount: 8
-      clearDataFirst: false
-      skipIfDataExists: false
+      # data.sql is the source of truth for lookup data
+      seedLookupTables: false
+      seedJunctionTables: true
+      userCount: 25
+      profileCount: 20
+      requestCount: 15
+      clearDataFirst: true
+      skipIfDataExists: true
       logSeedingProgress: true
+      ensureDataConsistency: true
+      validateRelationships: true
+      useFixedSeed: true
+      randomSeed: 42
+      ensureRealisticDistribution: true
+      validateForeignKeys: true
+      batchSize: 50
+
+      # User type distribution (must sum to 1.0)
+      adminUserPercentage: 0.08     # 8% admins (realistic for government)
+      hiringManagerPercentage: 0.32 # 32% hiring managers
+      employeeUserPercentage: 0.60  # 60% employees
+
+      # Request status distribution (must sum to 1.0)
+      draftRequestPercentage: 0.25       # 25% draft
+      submittedRequestPercentage: 0.30   # 30% submitted
+      underReviewRequestPercentage: 0.20 # 20% under review
+      approvedRequestPercentage: 0.15    # 15% approved
+      rejectedRequestPercentage: 0.10    # 10% rejected
+
+      # Profile status distribution (must sum to 1.0)
+      activeProfilePercentage: 0.75   # 75% active (most profiles are active)
+      inactiveProfilePercentage: 0.15 # 15% inactive
+      pendingProfilePercentage: 0.10  # 10% pending
+
+      # Relationship configuration - realistic ranges for government context
+      minCitiesPerProfile: 1
+      maxCitiesPerProfile: 3
+      minClassificationsPerProfile: 1
+      maxClassificationsPerProfile: 2
+      minEmploymentOpportunitiesPerProfile: 1
+      maxEmploymentOpportunitiesPerProfile: 3
+      minLanguageReferralTypesPerProfile: 1
+      maxLanguageReferralTypesPerProfile: 2
+      minCitiesPerRequest: 1
+      maxCitiesPerRequest: 4
+      minEmploymentEquitiesPerRequest: 0
+      maxEmploymentEquitiesPerRequest: 2
