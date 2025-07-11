@@ -131,7 +131,7 @@ export default function PersonalDetails({ loaderData, actionData, params }: Rout
     defaultChecked: loaderData.defaultValues.languageReferralTypes?.includes(langReferral.id) ?? false,
   }));
   const classificationOptions = loaderData.classifications.map((classification) => ({
-    value: classification.id,
+    value: String(classification.id),
     label: classification.name,
   }));
   const provinceOptions = [{ id: 'select-option', name: '' }, ...loaderData.provinces].map(({ id, name }) => ({
