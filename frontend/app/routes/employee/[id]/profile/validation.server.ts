@@ -11,6 +11,7 @@ import { getLanguageForCorrespondenceService } from '~/.server/domain/services/l
 import { getLanguageReferralTypeService } from '~/.server/domain/services/language-referral-type-service';
 import { getProvinceService } from '~/.server/domain/services/province-service';
 import { getUserService } from '~/.server/domain/services/user-service';
+import { getWFAStatuses } from '~/.server/domain/services/wfa-status-service';
 import { serverEnvironment } from '~/.server/environment';
 import { stringToIntegerSchema } from '~/.server/validation/string-to-integer-schema';
 import { EMPLOYEE_WFA_STATUS } from '~/domain/constants';
@@ -21,6 +22,7 @@ import { formString } from '~/utils/string-utils';
 
 const allLanguagesOfCorrespondence = await getLanguageForCorrespondenceService().listAll();
 const allSubstantivePositions = await getClassificationService().listAll();
+const allWfaStatus = await getWFAStatuses().listAll();
 const allBranchOrServiceCanadaRegions = await getBranchService().listAll();
 const allDirectorates = await getDirectorateService().listAll();
 const allProvinces = await getProvinceService().listAll();
@@ -87,6 +89,24 @@ const validWFAStatusesForRequiredDate = [
 
 const validWFAStatusesForOptionalDate = [EMPLOYEE_WFA_STATUS.affected] as const;
 
+const selectedValidWfaStatusesForRequiredDate = allWfaStatus
+  .filter((c) => validWFAStatusesForRequiredDate.toString().includes(c.code))
+  .map((status) => ({
+    id: status.id.toString(),
+    code: status.code,
+    nameEn: status.nameEn,
+    nameFr: status.nameFr,
+  }));
+
+const selectedValidWfaStatusesForOptionalDate = allWfaStatus
+  .filter((c) => validWFAStatusesForOptionalDate.toString().includes(c.code))
+  .map((status) => ({
+    id: status.id.toString(),
+    code: status.code,
+    nameEn: status.nameEn,
+    nameFr: status.nameFr,
+  }));
+
 export const employmentInformationSchema = v.pipe(
   v.intersect([
     v.object({
@@ -132,7 +152,7 @@ export const employmentInformationSchema = v.pipe(
       'wfaStatus',
       [
         v.object({
-          wfaStatus: v.picklist(validWFAStatusesForOptionalDate),
+          wfaStatus: v.picklist(selectedValidWfaStatusesForOptionalDate.map(({ id }) => String(id))),
           wfaEffectiveDateYear: v.optional(v.string()),
           wfaEffectiveDateMonth: v.optional(v.string()),
           wfaEffectiveDateDay: v.optional(v.string()),
@@ -143,7 +163,7 @@ export const employmentInformationSchema = v.pipe(
           wfaEndDate: v.optional(v.string()),
         }),
         v.object({
-          wfaStatus: v.picklist(validWFAStatusesForRequiredDate),
+          wfaStatus: v.picklist(selectedValidWfaStatusesForRequiredDate.map(({ id }) => String(id))),
           wfaEffectiveDateYear: v.pipe(
             stringToIntegerSchema('app:employment-information.errors.wfa-effective-date.required-year'),
             v.minValue(1, 'app:employment-information.errors.wfa-effective-date.invalid-year'),
@@ -216,8 +236,8 @@ export const employmentInformationSchema = v.pipe(
   v.forward(
     v.partialCheck(
       [['wfaEffectiveDate'], ['wfaEndDate']],
-      (input) =>
-        input.wfaEffectiveDate !== undefined && input.wfaEndDate !== undefined && input.wfaEffectiveDate < input.wfaEndDate,
+      //wfaEffectiveDate and wfaEndDate are optional, but if both are present, then check that wfaEffectiveDate < wfaEndDate
+      (input) => !input.wfaEffectiveDate || !input.wfaEndDate || input.wfaEffectiveDate < input.wfaEndDate,
       'app:employment-information.errors.wfa-end-date.invalid-before-effective-date',
     ),
     ['wfaEndDate'],
