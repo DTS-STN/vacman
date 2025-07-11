@@ -74,7 +74,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     userService.getUserByActiveDirectoryId(profileUserId),
     getProfileService().getProfile(profileUserId),
     getLanguageReferralTypeService().listAllLocalized(lang),
-    getClassificationService().getAll(),
+    getClassificationService().listAllLocalized(lang),
     getCityService().getAllLocalized(lang),
     getEmploymentTenureService().getAllLocalized(lang),
   ]);
@@ -91,6 +91,9 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const workUnitResult =
     profileData.employmentInformation.workUnitId &&
     (await getDirectorateService().findLocalizedById(profileData.employmentInformation.workUnitId, lang));
+  const substantivePositionResult =
+    profileData.employmentInformation.classificationId &&
+    (await getClassificationService().findLocalizedById(profileData.employmentInformation.classificationId, lang));
 
   const completed = countCompletedItems(profileData);
   const total = Object.keys(profileData).length;
@@ -103,8 +106,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     profileData.personalInformation.educationLevelId &&
     (await getEducationLevelService().getLocalizedById(profileData.personalInformation.educationLevelId, lang)).unwrap().name; //TODO add find localized by ID in service
   const substantivePosition =
-    profileData.employmentInformation.classificationId &&
-    (await getClassificationService().findById(profileData.employmentInformation.classificationId)).unwrap().name;
+    substantivePositionResult && substantivePositionResult.isSome() ? substantivePositionResult.unwrap().name : undefined;
   const branchOrServiceCanadaRegion =
     workUnitResult && workUnitResult.isSome() ? workUnitResult.unwrap().parent.name : undefined;
   const directorate = workUnitResult && workUnitResult.isSome() ? workUnitResult.unwrap().name : undefined;
@@ -124,7 +126,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     ?.map((langId) => allLocalizedLanguageReferralTypes.find((l) => String(l.id) === langId))
     .filter(Boolean);
   const classifications = profileData.referralPreferences.classificationIds
-    ?.map((classificationId) => allClassifications.unwrap().find((c) => c.id === classificationId))
+    ?.map((classificationId) => allClassifications.find((c) => c.id === classificationId))
     .filter(Boolean);
   const cities = profileData.referralPreferences.workLocationCitieIds
     ?.map((cityId) => allLocalizedCities.unwrap().find((c) => c.id === cityId))

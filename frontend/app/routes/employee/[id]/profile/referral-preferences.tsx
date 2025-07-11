@@ -91,7 +91,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
   const localizedLanguageReferralTypesResult = await getLanguageReferralTypeService().listAllLocalized(lang);
   const localizedEmploymentTenures = await getEmploymentTenureService().getAllLocalized(lang);
-  const classifications = await getClassificationService().getAll();
+  const localizedClassifications = await getClassificationService().listAllLocalized(lang);
   const localizedProvinces = await getProvinceService().getAllLocalized(lang);
   const localizedCities = await getCityService().getAllLocalized(lang);
 
@@ -108,7 +108,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
     },
     languageReferralTypes: localizedLanguageReferralTypesResult,
     employmentTenures: localizedEmploymentTenures.unwrap(),
-    classifications: classifications.unwrap(),
+    classifications: localizedClassifications,
     provinces: localizedProvinces.unwrap(),
     cities: localizedCities.unwrap(),
   };

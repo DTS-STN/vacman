@@ -28,6 +28,14 @@ export type LocalizedCity = Readonly<{
 
 export type Classification = Readonly<{
   id: string;
+  code: string;
+  nameEn: string;
+  nameFr: string;
+}>;
+
+export type LocalizedClassification = Readonly<{
+  id: string;
+  code: string;
   name: string;
 }>;
 
