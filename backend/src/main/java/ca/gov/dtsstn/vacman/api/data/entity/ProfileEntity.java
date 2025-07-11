@@ -94,6 +94,9 @@ public class ProfileEntity extends AbstractEntity {
 	private List<ProfileEmploymentTenureEntity> employmentTenures = new ArrayList<>();
 
 	@OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<ProfileEmploymentOpportunityEntity> employmentOpportunities = new ArrayList<>();
+
+	@OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<ProfileLanguageReferralTypeEntity> languageReferralTypes = new ArrayList<>();
 
 	@OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -304,6 +307,14 @@ public class ProfileEntity extends AbstractEntity {
 
 	public void setEmploymentTenures(List<ProfileEmploymentTenureEntity> employmentTenures) {
 		this.employmentTenures = employmentTenures;
+	}
+
+	public List<ProfileEmploymentOpportunityEntity> getEmploymentOpportunities() {
+		return employmentOpportunities;
+	}
+
+	public void setEmploymentOpportunities(List<ProfileEmploymentOpportunityEntity> employmentOpportunities) {
+		this.employmentOpportunities = employmentOpportunities;
 	}
 
 	public List<ProfileLanguageReferralTypeEntity> getLanguageReferralTypes() {

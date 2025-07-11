@@ -300,8 +300,8 @@ public class MainDataSeeder {
                 data[0],
                 data[1],
                 getRandomElement(clearances),
-                getRandomElement(users), // reviewedBy
-                getRandomElement(users), // approvedBy
+                getRandomElement(users), // submitter
+                getRandomElement(users), // hrAdvisor
                 getRandomElement(workUnits),
                 getRandomElement(classifications),
                 getRequestStatus(statuses, data[2])
@@ -356,14 +356,14 @@ public class MainDataSeeder {
     }
 
     private RequestEntity createRequest(String nameEn, String nameFr, SecurityClearanceEntity clearance,
-                                       UserEntity reviewedBy, UserEntity approvedBy, WorkUnitEntity workUnit,
+                                       UserEntity submitter, UserEntity hrAdvisor, WorkUnitEntity workUnit,
                                        ClassificationEntity classification, RequestStatusEntity status) {
         RequestEntity request = new RequestEntity();
         request.setRequestNameEn(nameEn);
         request.setRequestNameFr(nameFr);
         request.setSecurityClearance(clearance);
-        request.setReviewedBy(reviewedBy);
-        request.setApprovedBy(approvedBy);
+        request.setSubmitter(submitter);
+        request.setHrAdvisor(hrAdvisor);
         request.setWorkUnit(workUnit);
         request.setClassification(classification);
         request.setRequestStatus(status);
