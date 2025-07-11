@@ -28,8 +28,6 @@ export function getDefaultNotificationService(): NotificationService {
           headers: {
             'Authorization': `ApiKey-v1 ${serverEnvironment.GC_NOTIFY_API_KEY}`,
             'Content-Type': 'application/json',
-            // uncommenting next line creates an error 
-            //'Ocp-Apim-Subscription-Key': serverEnvironment.INTEROP_API_SUBSCRIPTION_KEY,
           },
           body: JSON.stringify({ emailData }),
         });
