@@ -234,10 +234,6 @@ public class MainDataSeeder {
         selectionProcessTypes = selectionProcessTypeRepository.findAll();
         workSchedules = workScheduleRepository.findAll();
 
-        // Always log this regardless of config - it's critical for debugging
-        logger.info("Loaded lookup data counts - Languages: {}, UserTypes: {}, Classifications: {}, Cities: {}",
-                   languages.size(), userTypes.size(), classifications.size(), cities.size());
-
         if (!languages.isEmpty()) {
             logger.info("Available languages: {}",
                        languages.stream().map(l -> l.getCode() + ":" + l.getNameEn()).toList());
