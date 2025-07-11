@@ -7,11 +7,14 @@ import { serverEnvironment } from '~/.server/environment';
 import type { AppError } from '~/errors/app-error';
 
 export type WFAStatusService = {
-  getAll(): Promise<Result<readonly WFAStatus[], AppError>>;
+  listAll(): Promise<readonly WFAStatus[]>;
   getById(id: string): Promise<Result<WFAStatus, AppError>>;
-  findById(id: string): Promise<Option<WFAStatus>>;
-  getAllLocalized(language: Language): Promise<Result<readonly LocalizedWFAStatus[], AppError>>;
+  getByCode(code: string): Promise<Result<WFAStatus, AppError>>;
+  listAllLocalized(language: Language): Promise<readonly LocalizedWFAStatus[]>;
   getLocalizedById(id: string, language: Language): Promise<Result<LocalizedWFAStatus, AppError>>;
+  findLocalizedById(id: string, language: Language): Promise<Option<LocalizedWFAStatus>>;
+  getLocalizedByCode(code: string, language: Language): Promise<Result<LocalizedWFAStatus, AppError>>;
+  findLocalizedByCode(code: string, language: Language): Promise<Option<LocalizedWFAStatus>>;
 };
 
 export function getWFAStatuses(): WFAStatusService {

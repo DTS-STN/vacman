@@ -91,6 +91,9 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const workUnitResult =
     profileData.employmentInformation.workUnitId &&
     (await getDirectorateService().findLocalizedById(profileData.employmentInformation.workUnitId, lang));
+  const wfaStatusResult =
+    profileData.employmentInformation.wfaStatusId &&
+    (await getWFAStatuses().findLocalizedById(profileData.employmentInformation.wfaStatusId, lang));
 
   const completed = countCompletedItems(profileData);
   const total = Object.keys(profileData).length;
@@ -114,9 +117,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const city =
     profileData.employmentInformation.cityId &&
     (await getCityService().findLocalizedById(profileData.employmentInformation.cityId, lang)).unwrap().name;
-  const wfaStatus =
-    profileData.employmentInformation.wfaStatusId &&
-    (await getWFAStatuses().getLocalizedById(profileData.employmentInformation.wfaStatusId, lang)).unwrap().name; //TODO add find localized by ID in service
+  const wfaStatus = wfaStatusResult && wfaStatusResult.isSome() ? wfaStatusResult.unwrap().name : undefined;
   const hrAdvisor =
     profileData.employmentInformation.hrAdvisor &&
     (await getUserService().getUserById(profileData.employmentInformation.hrAdvisor));
