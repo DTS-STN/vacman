@@ -8,21 +8,16 @@ const service = getMockBranchService();
 
 describe('getMockBranchService', () => {
   it('should return all mock branches data', async () => {
-    const result = await service.getAll();
-    expect(result.isOk()).toBe(true);
-    const branches = result.unwrap();
-    expect(Array.isArray(branches)).toBe(true);
-    expect(branches.length).toBeGreaterThan(0);
+    const result = await service.listAll();
+    expect(Array.isArray(result)).toBe(true);
+    expect(result.length).toBeGreaterThan(0);
   });
 
   it('should return a branch by ID', async () => {
-    const all = await service.getAll();
-    expect(all.isOk()).toBe(true);
+    const all = await service.listAll();
+    expect(all.length).toBeGreaterThan(0);
 
-    const branches = all.unwrap();
-    expect(branches.length).toBeGreaterThan(0);
-
-    const first = branches[0];
+    const first = all[0];
     if (!first) {
       throw new Error('Expected at least one branch in the list');
     }
@@ -42,41 +37,35 @@ describe('getMockBranchService', () => {
   });
 
   it('should find a branch by ID using Option', async () => {
-    const all = await service.getAll();
-    const branches = all.unwrap();
+    const branches = await service.listAll();
     const first = branches[0];
     if (!first) {
       throw new AppError('Expected at least one branch in the list');
     }
 
-    const result = await service.findById(first.id);
+    const result = await service.findLocalizedById(first.id, 'en');
     expect(result.isSome()).toBe(true);
     expect(result.unwrap().id).toBe(first.id);
   });
 
   it('should return None if branch not found using Option', async () => {
-    const result = await service.findById('non-existent-id');
+    const result = await service.findLocalizedById('non-existent-id', 'en');
     expect(result.isNone()).toBe(true);
   });
 
   it('should return localized branches in English', async () => {
-    const result = await service.getAllLocalized('en' as Language);
-    expect(result.isOk()).toBe(true);
-    const localized = result.unwrap();
-    expect(localized.length).toBeGreaterThan(0);
-    expect(localized[0]).toHaveProperty('name');
+    const result = await service.listAllLocalized('en' as Language);
+    expect(result.length).toBeGreaterThan(0);
+    expect(result[0]).toHaveProperty('name');
   });
 
   it('should return localized branches in French', async () => {
-    const result = await service.getAllLocalized('fr' as Language);
-    expect(result.isOk()).toBe(true);
-    const localized = result.unwrap();
-    expect(localized[0]).toHaveProperty('name');
+    const result = await service.listAllLocalized('fr' as Language);
+    expect(result[0]).toHaveProperty('name');
   });
 
   it('should return a localized branch by ID', async () => {
-    const localized = await service.getAllLocalized('en' as Language);
-    const localizedBranches = localized.unwrap();
+    const localizedBranches = await service.listAllLocalized('en' as Language);
     const first = localizedBranches[0];
     if (!first) {
       throw new AppError('Expected at least one branch in the list');

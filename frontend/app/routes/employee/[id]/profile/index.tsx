@@ -10,7 +10,6 @@ import { useTranslation } from 'react-i18next';
 import type { Route } from './+types/index';
 
 import type { Profile } from '~/.server/domain/models';
-import { getBranchService } from '~/.server/domain/services/branch-service';
 import { getCityService } from '~/.server/domain/services/city-service';
 import { getClassificationService } from '~/.server/domain/services/classification-service';
 import { getDirectorateService } from '~/.server/domain/services/directorate-service';
@@ -89,6 +88,9 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const preferredLanguageResult =
     profileData.personalInformation.preferredLanguageId &&
     (await getLanguageForCorrespondenceService().findLocalizedById(profileData.personalInformation.preferredLanguageId, lang));
+  const workUnitResult =
+    profileData.employmentInformation.workUnitId &&
+    (await getDirectorateService().findLocalizedById(profileData.employmentInformation.workUnitId, lang));
 
   const completed = countCompletedItems(profileData);
   const total = Object.keys(profileData).length;
@@ -104,11 +106,8 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     profileData.employmentInformation.classificationId &&
     (await getClassificationService().findById(profileData.employmentInformation.classificationId)).unwrap().name;
   const branchOrServiceCanadaRegion =
-    profileData.employmentInformation.workUnitId &&
-    (await getBranchService().getLocalizedById(profileData.employmentInformation.workUnitId, lang)).unwrap().name; //TODO add find localized by ID in service
-  const directorate =
-    profileData.employmentInformation.workUnitId &&
-    (await getDirectorateService().findLocalizedById(profileData.employmentInformation.workUnitId, lang)).unwrap().name;
+    workUnitResult && workUnitResult.isSome() ? workUnitResult.unwrap().parent.name : undefined;
+  const directorate = workUnitResult && workUnitResult.isSome() ? workUnitResult.unwrap().name : undefined;
   const province =
     profileData.employmentInformation.provinceId &&
     (await getProvinceService().findLocalizedById(profileData.employmentInformation.provinceId, lang)).unwrap().name;

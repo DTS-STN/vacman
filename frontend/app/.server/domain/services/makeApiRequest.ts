@@ -1,6 +1,7 @@
 import { serverEnvironment } from '~/.server/environment';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
+import type { HttpStatusCode } from '~/errors/http-status-codes';
 
 /**
  * Centralized API request logic.
@@ -29,6 +30,7 @@ export async function apiFetch(path: string, context: string): Promise<Response>
     throw new AppError(
       `Failed to ${context.toLowerCase()}. The server responded with status ${response.status}.`,
       ErrorCodes.VACMAN_API_ERROR,
+      { httpStatusCode: response.status as HttpStatusCode },
     );
   }
 

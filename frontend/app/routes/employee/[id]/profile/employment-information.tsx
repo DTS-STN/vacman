@@ -63,8 +63,8 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 export async function loader({ context, request }: Route.LoaderArgs) {
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
   const substantivePositions = await getClassificationService().getAll();
-  const branchOrServiceCanadaRegions = await getBranchService().getAllLocalized(lang);
-  const directorates = await getDirectorateService().getAllLocalized(lang);
+  const branchOrServiceCanadaRegions = await getBranchService().listAllLocalized(lang);
+  const directorates = await getDirectorateService().listAllLocalized(lang);
   const provinces = await getProvinceService().getAllLocalized(lang);
   const cities = await getCityService().getAllLocalized(lang);
   const wfaStatuses = await getWFAStatuses().getAllLocalized(lang);
@@ -85,8 +85,8 @@ export async function loader({ context, request }: Route.LoaderArgs) {
       hrAdvisor: undefined as string | undefined,
     },
     substantivePositions: substantivePositions.unwrap(),
-    branchOrServiceCanadaRegions: branchOrServiceCanadaRegions.unwrap(),
-    directorates: directorates.unwrap(),
+    branchOrServiceCanadaRegions: branchOrServiceCanadaRegions,
+    directorates: directorates,
     provinces: provinces.unwrap(),
     cities: cities.unwrap(),
     wfaStatuses: wfaStatuses.unwrap(),
@@ -112,7 +112,7 @@ export default function EmploymentInformation({ loaderData, actionData, params }
     { id: 'select-option', name: '' },
     ...loaderData.branchOrServiceCanadaRegions,
   ].map(({ id, name }) => ({
-    value: id === 'select-option' ? '' : id,
+    value: id === 'select-option' ? '' : String(id),
     children: id === 'select-option' ? t('app:form.select-option') : name,
   }));
 
@@ -120,7 +120,7 @@ export default function EmploymentInformation({ loaderData, actionData, params }
     { id: 'select-option', name: '' },
     ...loaderData.directorates.filter((c) => c.parent.id === branch),
   ].map(({ id, name }) => ({
-    value: id === 'select-option' ? '' : id,
+    value: id === 'select-option' ? '' : String(id),
     children: id === 'select-option' ? t('app:form.select-option') : name,
   }));
 
