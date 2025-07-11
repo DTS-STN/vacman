@@ -9,20 +9,16 @@ import ca.gov.dtsstn.vacman.api.web.model.UserCreateModel;
 import ca.gov.dtsstn.vacman.api.web.model.UserReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.UserUpdateModel;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = {
+    UserTypeModelMapper.class,
+    LanguageModelMapper.class
+})
 public interface UserModelMapper {
 
-    @Mapping(source = "userType.code", target = "role")
-    @Mapping(source = "networkName", target = "networkName")
-    @Mapping(source = "uuName", target = "uuName")
-    @Mapping(source = "firstName", target = "firstName")
-    @Mapping(source = "middleName", target = "middleName")
-    @Mapping(source = "lastName", target = "lastName")
     @Mapping(source = "initial", target = "initials")
     @Mapping(source = "personalRecordIdentifier", target = "personalRecordIdentifier")
     @Mapping(source = "businessPhoneNumber", target = "businessPhone")
     @Mapping(source = "businessEmailAddress", target = "businessEmail")
-    @Mapping(source = "language.id", target = "languageId")
     @Mapping(source = "createdBy", target = "userCreated")
     @Mapping(target = "dateCreated", expression = "java(entity.getCreatedDate() != null ? entity.getCreatedDate().toString() : null)")
     @Mapping(source = "lastModifiedBy", target = "userUpdated")

@@ -1,7 +1,6 @@
 package ca.gov.dtsstn.vacman.api.web;
 
 import org.hibernate.validator.constraints.Range;
-import org.mapstruct.factory.Mappers;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
@@ -32,12 +31,13 @@ import jakarta.validation.Valid;
 @RequestMapping({ "/api/v1/profiles" })
 public class ProfileController {
 
-	private final ProfileModelMapper profileModelMapper = Mappers.getMapper(ProfileModelMapper.class);
+	private final ProfileModelMapper profileModelMapper;
 
 	private final ProfileService profileService;
 
-	public ProfileController(ProfileService profileService) {
+	public ProfileController(ProfileService profileService, ProfileModelMapper profileModelMapper) {
 		this.profileService = profileService;
+		this.profileModelMapper = profileModelMapper;
 	}
 
 	@GetMapping

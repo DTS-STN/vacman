@@ -3,48 +3,49 @@ package ca.gov.dtsstn.vacman.api.web.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Schema.AccessMode;
 
 @Schema(name = "Profile", description = "Profile model aligned with DDL PROFILE table structure")
 public record ProfileReadModel(
-    @Schema(description = "Profile ID", example = "123")
+    @Schema(accessMode = AccessMode.READ_ONLY, description = "The unique identifier for this profile.")
     @JsonProperty("id")
     Long id,
 
-    @Schema(description = "User ID", example = "456")
-    @JsonProperty("userId")
-    Long userId,
+    @Schema(description = "The user associated with this profile.")
+    @JsonProperty("user")
+    UserReadModel user,
 
-    @Schema(description = "HR Advisor User ID", example = "789")
-    @JsonProperty("hrAdvisorUserId")
-    Long hrAdvisorUserId,
+    @Schema(description = "The HR advisor associated with this profile.")
+    @JsonProperty("hrAdvisor")
+    UserReadModel hrAdvisor,
 
-    @Schema(description = "WFA status code", example = "APPROVED")
-    @JsonProperty("wfaStatusCode")
-    String wfaStatusCode,
+    @Schema(description = "The WFA status of this profile.")
+    @JsonProperty("wfaStatus")
+    WfaStatusReadModel wfaStatus,
 
-    @Schema(description = "Classification code", example = "CS-02")
-    @JsonProperty("classificationCode")
-    String classificationCode,
+    @Schema(description = "The classification of this profile.")
+    @JsonProperty("classification")
+    ClassificationReadModel classification,
 
-    @Schema(description = "City code", example = "OTT")
-    @JsonProperty("cityCode")
-    String cityCode,
+    @Schema(description = "The city associated with this profile.")
+    @JsonProperty("city")
+    CityReadModel city,
 
-    @Schema(description = "Priority level code", example = "HIGH")
-    @JsonProperty("priorityLevelCode")
-    String priorityLevelCode,
+    @Schema(description = "The priority level of this profile.")
+    @JsonProperty("priorityLevel")
+    PriorityLevelReadModel priorityLevel,
 
-    @Schema(description = "Work unit code", example = "ITSB")
-    @JsonProperty("workUnitCode")
-    String workUnitCode,
+    @Schema(description = "The work unit associated with this profile.")
+    @JsonProperty("workUnit")
+    WorkUnitReadModel workUnit,
 
-    @Schema(description = "Language ID", example = "1")
-    @JsonProperty("languageId")
-    Long languageId,
+    @Schema(description = "The language associated with this profile.")
+    @JsonProperty("language")
+    LanguageReadModel language,
 
-    @Schema(description = "Profile status ID", example = "1")
-    @JsonProperty("profileStatusId")
-    Long profileStatusId,
+    @Schema(description = "The status of this profile.")
+    @JsonProperty("profileStatus")
+    ProfileStatusReadModel profileStatus,
 
     @Schema(description = "Personal phone number", example = "613-555-1234")
     @JsonProperty("personalPhoneNumber")
@@ -70,19 +71,19 @@ public record ProfileReadModel(
     @JsonProperty("additionalComment")
     String additionalComment,
 
-    @Schema(description = "Created date", example = "2024-01-15T10:30:00Z")
-    @JsonProperty("createdDate")
-    String createdDate,
-
-    @Schema(description = "Created by", example = "system")
+    @Schema(accessMode = AccessMode.READ_ONLY, description = "The user or service that created this profile.", example = "vacman-api")
     @JsonProperty("createdBy")
     String createdBy,
 
-    @Schema(description = "Last modified date", example = "2024-01-20T14:45:00Z")
-    @JsonProperty("lastModifiedDate")
-    String lastModifiedDate,
+    @Schema(accessMode = AccessMode.READ_ONLY, description = "The time this profile was created.", example = "2000-01-01T00:00:00Z")
+    @JsonProperty("createdDate")
+    String createdDate,
 
-    @Schema(description = "Last modified by", example = "admin")
+    @Schema(accessMode = AccessMode.READ_ONLY, description = "The user or service that last modified this profile.", example = "vacman-api")
     @JsonProperty("lastModifiedBy")
-    String lastModifiedBy
+    String lastModifiedBy,
+
+    @Schema(accessMode = AccessMode.READ_ONLY, description = "The time this profile was last modified.", example = "2000-01-01T00:00:00Z")
+    @JsonProperty("lastModifiedDate")
+    String lastModifiedDate
 ) {}

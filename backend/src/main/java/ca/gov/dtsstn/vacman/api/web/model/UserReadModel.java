@@ -8,8 +8,8 @@ public record UserReadModel(
 	@Schema(accessMode = AccessMode.READ_ONLY, description = "The unique identifier for this user.", example = "1")
 	Long id,
 
-	@Schema(description = "The role of this user.", example = "employee")
-	String role,
+	@Schema(description = "The type of this user.")
+	UserTypeReadModel userType,
 
 	@Schema(description = "The network name of this user.", example = "user@example.com")
 	String networkName,
@@ -38,8 +38,8 @@ public record UserReadModel(
 	@Schema(description = "The business email of this user.", example = "john.doe@example.com")
 	String businessEmail,
 
-	@Schema(description = "The language ID for this user.", example = "1")
-	Long languageId,
+	@Schema(description = "The language associated with this user.")
+	LanguageReadModel language,
 
 	@Schema(accessMode = AccessMode.READ_ONLY, description = "The user or service that created this user.", example = "vacman-api")
 	String userCreated,
