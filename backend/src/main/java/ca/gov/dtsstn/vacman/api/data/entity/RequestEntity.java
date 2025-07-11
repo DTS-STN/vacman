@@ -134,9 +134,6 @@ public class RequestEntity extends AbstractEntity {
 	@OneToMany(mappedBy = "request", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<RequestEmploymentEquityEntity> requestEmploymentEquities = new ArrayList<>();
 
-	@OneToMany(mappedBy = "request", cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<ProfileRequestEntity> profileRequests = new ArrayList<>();
-
 	public RequestEntity() {
 		super();
 	}
@@ -465,14 +462,6 @@ public class RequestEntity extends AbstractEntity {
 
 	public void setRequestEmploymentEquities(List<RequestEmploymentEquityEntity> requestEmploymentEquities) {
 		this.requestEmploymentEquities = requestEmploymentEquities;
-	}
-
-	public List<ProfileRequestEntity> getProfileRequests() {
-		return profileRequests;
-	}
-
-	public void setProfileRequests(List<ProfileRequestEntity> profileRequests) {
-		this.profileRequests = profileRequests;
 	}
 
 	@Override

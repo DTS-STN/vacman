@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Repository interface for {@link ProfileEmploymentOpportunityEntity}.
@@ -62,4 +63,13 @@ public interface ProfileEmploymentOpportunityRepository extends JpaRepository<Pr
      * @param employmentOpportunity the employment opportunity
      */
     void deleteByEmploymentOpportunity(EmploymentOpportunityEntity employmentOpportunity);
+
+    /**
+     * Find a profile employment opportunity by profile ID and employment opportunity ID.
+     *
+     * @param profileId the profile ID
+     * @param employmentOpportunityId the employment opportunity ID
+     * @return an optional profile employment opportunity
+     */
+    Optional<ProfileEmploymentOpportunityEntity> findByProfileIdAndEmploymentOpportunityId(Long profileId, Long employmentOpportunityId);
 }

@@ -8,7 +8,7 @@ import jakarta.persistence.UniqueConstraint;
 
 @Entity(name = "ProfileStatus")
 @Table(name = "[CD_PROFILE_STATUS]", uniqueConstraints = {
-    @UniqueConstraint(name = "CDRSTS_UKv1", columnNames = "[PROFILE_STATUS_NAME_EN]")
+    @UniqueConstraint(name = "PRFLSTS_UK", columnNames = "[PROFILE_STATUS_NAME_EN]")
 })
 @AttributeOverride(name = "id", column = @Column(name = "[PROFILE_STATUS_ID]"))
 @AttributeOverride(name = "code", column = @Column(name = "[PROFILE_STATUS_CODE]"))

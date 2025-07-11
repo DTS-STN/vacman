@@ -1,5 +1,6 @@
 package ca.gov.dtsstn.vacman.api.seeder;
 
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 
@@ -10,42 +11,49 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import ca.gov.dtsstn.vacman.api.config.DatabaseSeederConfig;
-import ca.gov.dtsstn.vacman.api.data.entity.AssessmentResultEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.AppointmentNonAdvertisedEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.CityEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.ClassificationEntity;
-import ca.gov.dtsstn.vacman.api.data.entity.EducationLevelEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.EmploymentEquityEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.EmploymentOpportunityEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.EmploymentTenureEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.LanguageEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.LanguageReferralTypeEntity;
-import ca.gov.dtsstn.vacman.api.data.entity.NotificationPurposeEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.LanguageRequirementEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.PriorityLevelEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.ProfileStatusEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.ProvinceEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.RequestStatusEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.SecurityClearanceEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.SelectionProcessTypeEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.UserTypeEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.WfaStatusEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.WorkScheduleEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.WorkUnitEntity;
-import ca.gov.dtsstn.vacman.api.data.repository.AssessmentResultRepository;
+import ca.gov.dtsstn.vacman.api.data.repository.AppointmentNonAdvertisedRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.CityRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.ClassificationRepository;
-import ca.gov.dtsstn.vacman.api.data.repository.EducationLevelRepository;
+import ca.gov.dtsstn.vacman.api.data.repository.EmploymentEquityRepository;
+import ca.gov.dtsstn.vacman.api.data.repository.EmploymentOpportunityRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.EmploymentTenureRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.LanguageReferralTypeRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.LanguageRepository;
-import ca.gov.dtsstn.vacman.api.data.repository.NotificationPurposeRepository;
+import ca.gov.dtsstn.vacman.api.data.repository.LanguageRequirementRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.PriorityLevelRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.ProfileStatusRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.ProvinceRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.RequestStatusRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.SecurityClearanceRepository;
+import ca.gov.dtsstn.vacman.api.data.repository.SelectionProcessTypeRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.UserTypeRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.WfaStatusRepository;
+import ca.gov.dtsstn.vacman.api.data.repository.WorkScheduleRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.WorkUnitRepository;
 
 /**
  * Seeds lookup/reference tables with predefined data.
  * These tables contain relatively static data used throughout the application.
+ * Aligned with DDL tables.
  */
 @Component
 @Profile({"dev", "local", "h2"})
@@ -55,113 +63,130 @@ public class LookupDataSeeder {
 
     private final DatabaseSeederConfig config;
 
-    // Lookup table repositories
-    private final AssessmentResultRepository assessmentResultRepository;
+    // All lookup table repositories based on DDL CD_ tables
+    private final AppointmentNonAdvertisedRepository appointmentNonAdvertisedRepository;
     private final CityRepository cityRepository;
     private final ClassificationRepository classificationRepository;
-    private final EducationLevelRepository educationLevelRepository;
+    private final EmploymentEquityRepository employmentEquityRepository;
+    private final EmploymentOpportunityRepository employmentOpportunityRepository;
     private final EmploymentTenureRepository employmentTenureRepository;
     private final LanguageRepository languageRepository;
     private final LanguageReferralTypeRepository languageReferralTypeRepository;
-    private final NotificationPurposeRepository notificationPurposeRepository;
+    private final LanguageRequirementRepository languageRequirementRepository;
     private final PriorityLevelRepository priorityLevelRepository;
     private final ProfileStatusRepository profileStatusRepository;
     private final ProvinceRepository provinceRepository;
     private final RequestStatusRepository requestStatusRepository;
     private final SecurityClearanceRepository securityClearanceRepository;
+    private final SelectionProcessTypeRepository selectionProcessTypeRepository;
     private final UserTypeRepository userTypeRepository;
     private final WfaStatusRepository wfaStatusRepository;
+    private final WorkScheduleRepository workScheduleRepository;
     private final WorkUnitRepository workUnitRepository;
 
     public LookupDataSeeder(
         DatabaseSeederConfig config,
-        AssessmentResultRepository assessmentResultRepository,
+        AppointmentNonAdvertisedRepository appointmentNonAdvertisedRepository,
         CityRepository cityRepository,
         ClassificationRepository classificationRepository,
-        EducationLevelRepository educationLevelRepository,
+        EmploymentEquityRepository employmentEquityRepository,
+        EmploymentOpportunityRepository employmentOpportunityRepository,
         EmploymentTenureRepository employmentTenureRepository,
         LanguageRepository languageRepository,
         LanguageReferralTypeRepository languageReferralTypeRepository,
-        NotificationPurposeRepository notificationPurposeRepository,
+        LanguageRequirementRepository languageRequirementRepository,
         PriorityLevelRepository priorityLevelRepository,
         ProfileStatusRepository profileStatusRepository,
         ProvinceRepository provinceRepository,
         RequestStatusRepository requestStatusRepository,
         SecurityClearanceRepository securityClearanceRepository,
+        SelectionProcessTypeRepository selectionProcessTypeRepository,
         UserTypeRepository userTypeRepository,
         WfaStatusRepository wfaStatusRepository,
+        WorkScheduleRepository workScheduleRepository,
         WorkUnitRepository workUnitRepository
     ) {
         this.config = config;
-        this.assessmentResultRepository = assessmentResultRepository;
+        this.appointmentNonAdvertisedRepository = appointmentNonAdvertisedRepository;
         this.cityRepository = cityRepository;
         this.classificationRepository = classificationRepository;
-        this.educationLevelRepository = educationLevelRepository;
+        this.employmentEquityRepository = employmentEquityRepository;
+        this.employmentOpportunityRepository = employmentOpportunityRepository;
         this.employmentTenureRepository = employmentTenureRepository;
         this.languageRepository = languageRepository;
         this.languageReferralTypeRepository = languageReferralTypeRepository;
-        this.notificationPurposeRepository = notificationPurposeRepository;
+        this.languageRequirementRepository = languageRequirementRepository;
         this.priorityLevelRepository = priorityLevelRepository;
         this.profileStatusRepository = profileStatusRepository;
         this.provinceRepository = provinceRepository;
         this.requestStatusRepository = requestStatusRepository;
         this.securityClearanceRepository = securityClearanceRepository;
+        this.selectionProcessTypeRepository = selectionProcessTypeRepository;
         this.userTypeRepository = userTypeRepository;
         this.wfaStatusRepository = wfaStatusRepository;
+        this.workScheduleRepository = workScheduleRepository;
         this.workUnitRepository = workUnitRepository;
     }
 
     @Transactional
-    public void seedLookupTables() {
-        if (config.isLogSeedingProgress()) {
-            logger.info("Seeding lookup tables...");
+    public void seedLookupData() {
+        if (!config.isSeedLookupTables()) {
+            logger.debug("Lookup data seeding is disabled.");
+            return;
         }
 
+        logger.info("Seeding lookup data...");
+
+        // Seed all lookup tables in DDL order
         seedLanguages();
-        seedUserTypes();
         seedProvinces();
         seedCities();
         seedClassifications();
-        seedEducationLevels();
-        seedEmploymentTenures();
+        seedEmploymentEquity();
+        seedEmploymentOpportunity();
+        seedEmploymentTenure();
         seedLanguageReferralTypes();
+        seedLanguageRequirements();
         seedPriorityLevels();
         seedProfileStatuses();
         seedRequestStatuses();
         seedSecurityClearances();
+        seedSelectionProcessTypes();
+        seedUserTypes();
         seedWfaStatuses();
+        seedWorkSchedules();
         seedWorkUnits();
-        seedAssessmentResults();
-        seedNotificationPurposes();
+        seedAppointmentNonAdvertised();
 
-        if (config.isLogSeedingProgress()) {
-            logger.info("Lookup tables seeded successfully");
-        }
+        logger.info("Lookup data seeding completed.");
     }
 
     @Transactional
-    public void clearLookupTables() {
-        if (config.isLogSeedingProgress()) {
-            logger.info("Clearing lookup tables...");
-        }
+    public void clearLookupData() {
+        logger.info("Clearing lookup data...");
 
         // Clear in reverse dependency order
-        cityRepository.deleteAll();
-        notificationPurposeRepository.deleteAll();
-        assessmentResultRepository.deleteAll();
+        appointmentNonAdvertisedRepository.deleteAll();
         workUnitRepository.deleteAll();
+        workScheduleRepository.deleteAll();
         wfaStatusRepository.deleteAll();
+        userTypeRepository.deleteAll();
+        selectionProcessTypeRepository.deleteAll();
         securityClearanceRepository.deleteAll();
         requestStatusRepository.deleteAll();
         profileStatusRepository.deleteAll();
         priorityLevelRepository.deleteAll();
+        languageRequirementRepository.deleteAll();
         languageReferralTypeRepository.deleteAll();
         employmentTenureRepository.deleteAll();
-        educationLevelRepository.deleteAll();
+        employmentOpportunityRepository.deleteAll();
+        employmentEquityRepository.deleteAll();
         classificationRepository.deleteAll();
+        cityRepository.deleteAll();
         provinceRepository.deleteAll();
-        userTypeRepository.deleteAll();
         languageRepository.deleteAll();
+
+        logger.info("Lookup data cleared.");
     }
 
     private void seedLanguages() {
@@ -169,178 +194,178 @@ public class LookupDataSeeder {
 
         List<LanguageEntity> languages = Arrays.asList(
             createLanguage("EN", "English", "Anglais"),
-            createLanguage("FR", "French", "Français")
+            createLanguage("FR", "French", "Français"),
+            createLanguage("BOTH", "Both Official Languages", "Les deux langues officielles")
         );
 
         languageRepository.saveAll(languages);
-        logSeeded("Languages", languages.size());
-    }
-
-    private void seedUserTypes() {
-        if (userTypeRepository.count() > 0) return;
-
-        List<UserTypeEntity> userTypes = Arrays.asList(
-            createUserType("employee", "Employee", "Employé"),
-            createUserType("admin", "Administrator", "Administrateur"),
-            createUserType("hiring-manager", "Hiring Manager", "Gestionnaire de recrutement")
-        );
-
-        userTypeRepository.saveAll(userTypes);
-        logSeeded("User Types", userTypes.size());
+        logger.info("Seeded {} languages.", languages.size());
     }
 
     private void seedProvinces() {
         if (provinceRepository.count() > 0) return;
 
         List<ProvinceEntity> provinces = Arrays.asList(
-            createProvince("ON", "Ontario", "Ontario"),
-            createProvince("QC", "Quebec", "Québec"),
-            createProvince("BC", "British Columbia", "Colombie-Britannique"),
             createProvince("AB", "Alberta", "Alberta"),
-            createProvince("SK", "Saskatchewan", "Saskatchewan"),
+            createProvince("BC", "British Columbia", "Colombie-Britannique"),
             createProvince("MB", "Manitoba", "Manitoba"),
             createProvince("NB", "New Brunswick", "Nouveau-Brunswick"),
-            createProvince("NS", "Nova Scotia", "Nouvelle-Écosse"),
-            createProvince("PE", "Prince Edward Island", "Île-du-Prince-Édouard"),
             createProvince("NL", "Newfoundland and Labrador", "Terre-Neuve-et-Labrador"),
             createProvince("NT", "Northwest Territories", "Territoires du Nord-Ouest"),
-            createProvince("YT", "Yukon", "Yukon"),
-            createProvince("NU", "Nunavut", "Nunavut")
+            createProvince("NS", "Nova Scotia", "Nouvelle-Écosse"),
+            createProvince("NU", "Nunavut", "Nunavut"),
+            createProvince("ON", "Ontario", "Ontario"),
+            createProvince("PE", "Prince Edward Island", "Île-du-Prince-Édouard"),
+            createProvince("QC", "Quebec", "Québec"),
+            createProvince("SK", "Saskatchewan", "Saskatchewan"),
+            createProvince("YT", "Yukon", "Yukon")
         );
 
         provinceRepository.saveAll(provinces);
-        logSeeded("Provinces", provinces.size());
+        logger.info("Seeded {} provinces/territories.", provinces.size());
     }
 
     private void seedCities() {
         if (cityRepository.count() > 0) return;
 
-        // Get provinces to link cities
-        ProvinceEntity ontario = provinceRepository.findAll().stream()
-            .filter(p -> "ON".equals(p.getCode()))
-            .findFirst()
-            .orElse(null);
-        ProvinceEntity quebec = provinceRepository.findAll().stream()
-            .filter(p -> "QC".equals(p.getCode()))
-            .findFirst()
-            .orElse(null);
-        ProvinceEntity bc = provinceRepository.findAll().stream()
-            .filter(p -> "BC".equals(p.getCode()))
-            .findFirst()
-            .orElse(null);
-        ProvinceEntity alberta = provinceRepository.findAll().stream()
-            .filter(p -> "AB".equals(p.getCode()))
-            .findFirst()
-            .orElse(null);
+        // Get provinces for foreign key relationships
+        ProvinceEntity ontario = provinceRepository.findByCode("ON").orElseThrow();
+        ProvinceEntity quebec = provinceRepository.findByCode("QC").orElseThrow();
+        ProvinceEntity bc = provinceRepository.findByCode("BC").orElseThrow();
+        ProvinceEntity alberta = provinceRepository.findByCode("AB").orElseThrow();
 
         List<CityEntity> cities = Arrays.asList(
-            createCity("ON72", "Toronto", "Toronto", ontario),
-            createCity("ON52", "Ottawa", "Ottawa", ontario),
-            createCity("ON27", "Hamilton", "Hamilton", ontario),
-            createCity("QC39", "Montreal", "Montréal", quebec),
-            createCity("QC42", "Quebec City", "Québec", quebec),
-            createCity("QC21", "Gatineau", "Gatineau", quebec),
-            createCity("BC32", "Vancouver", "Vancouver", bc),
-            createCity("BC35", "Victoria", "Victoria", bc),
-            createCity("AB2", "Calgary", "Calgary", alberta),
-            createCity("AB4", "Edmonton", "Edmonton", alberta)
+            createCity("OTT", "Ottawa", "Ottawa", ontario),
+            createCity("TOR", "Toronto", "Toronto", ontario),
+            createCity("MTL", "Montreal", "Montréal", quebec),
+            createCity("QC", "Quebec City", "Ville de Québec", quebec),
+            createCity("VAN", "Vancouver", "Vancouver", bc),
+            createCity("CAL", "Calgary", "Calgary", alberta),
+            createCity("EDM", "Edmonton", "Edmonton", alberta)
         );
 
         cityRepository.saveAll(cities);
-        logSeeded("Cities", cities.size());
+        logger.info("Seeded {} cities.", cities.size());
     }
 
     private void seedClassifications() {
         if (classificationRepository.count() > 0) return;
 
         List<ClassificationEntity> classifications = Arrays.asList(
-            createClassification("AS-01", "AS-01", "AS-01"),
-            createClassification("AS-02", "AS-02", "AS-02"),
-            createClassification("AS-03", "AS-03", "AS-03"),
-            createClassification("AS-04", "AS-04", "AS-04"),
-            createClassification("AS-05", "AS-05", "AS-05"),
-            createClassification("AS-06", "AS-06", "AS-06"),
-            createClassification("AS-07", "AS-07", "AS-07"),
-            createClassification("CR-03", "CR-03", "CR-03"),
-            createClassification("CR-04", "CR-04", "CR-04"),
-            createClassification("CR-05", "CR-05", "CR-05"),
-            createClassification("CT-FIN-01", "CT-FIN-01", "CT-FIN-01"),
-            createClassification("CT-FIN-02", "CT-FIN-02", "CT-FIN-02"),
-            createClassification("CT-FIN-03", "CT-FIN-03", "CT-FIN-03"),
-            createClassification("CT-FIN-04", "CT-FIN-04", "CT-FIN-04"),
-            createClassification("CT-IAU-01", "CT-IAU-01", "CT-IAU-01")
+            createClassification("AS-01", "Administrative Services AS-01", "Services administratifs AS-01"),
+            createClassification("AS-02", "Administrative Services AS-02", "Services administratifs AS-02"),
+            createClassification("AS-03", "Administrative Services AS-03", "Services administratifs AS-03"),
+            createClassification("CS-01", "Computer Systems CS-01", "Systèmes informatiques CS-01"),
+            createClassification("CS-02", "Computer Systems CS-02", "Systèmes informatiques CS-02"),
+            createClassification("CS-03", "Computer Systems CS-03", "Systèmes informatiques CS-03"),
+            createClassification("EC-02", "Economics and Social Science Services EC-02", "Services d'économique et de sciences sociales EC-02"),
+            createClassification("EC-03", "Economics and Social Science Services EC-03", "Services d'économique et de sciences sociales EC-03"),
+            createClassification("PM-01", "Program and Administrative Services PM-01", "Services des programmes et de l'administration PM-01"),
+            createClassification("PM-02", "Program and Administrative Services PM-02", "Services des programmes et de l'administration PM-02")
         );
 
         classificationRepository.saveAll(classifications);
-        logSeeded("Classifications", classifications.size());
+        logger.info("Seeded {} classifications.", classifications.size());
     }
 
-    private void seedEducationLevels() {
-        if (educationLevelRepository.count() > 0) return;
+    private void seedEmploymentEquity() {
+        if (employmentEquityRepository.count() > 0) return;
 
-        List<EducationLevelEntity> educationLevels = Arrays.asList(
-            createEducationLevel("SEC2", "Completed two years of secondary school", "Complété deux ans d'études secondaires"),
-            createEducationLevel("SECDIP", "Secondary (high) school diploma or equivalent", "Diplôme d'études secondaires ou équivalent"),
-            createEducationLevel("POST2", "Completed two years of a post-secondary program", "Complété deux ans d'un programme postsecondaire"),
-            createEducationLevel("POSTDEG", "Graduated with a degree from a recognized post-secondary institution", "Graduation avec un grade d'un établissement d'enseignement postsecondaire reconnu")
+        List<EmploymentEquityEntity> equities = Arrays.asList(
+            createEmploymentEquity("WOMEN", "Women", "Femmes"),
+            createEmploymentEquity("INDIGENOUS", "Indigenous Peoples", "Peuples autochtones"),
+            createEmploymentEquity("PERSONS_DISABILITIES", "Persons with Disabilities", "Personnes handicapées"),
+            createEmploymentEquity("VISIBLE_MINORITIES", "Visible Minorities", "Minorités visibles")
         );
 
-        educationLevelRepository.saveAll(educationLevels);
-        logSeeded("Education Levels", educationLevels.size());
+        employmentEquityRepository.saveAll(equities);
+        logger.info("Seeded {} employment equity categories.", equities.size());
     }
 
-    private void seedEmploymentTenures() {
+    private void seedEmploymentOpportunity() {
+        if (employmentOpportunityRepository.count() > 0) return;
+
+        List<EmploymentOpportunityEntity> opportunities = Arrays.asList(
+            createEmploymentOpportunity("FULL_TIME", "Full-time", "Temps plein"),
+            createEmploymentOpportunity("PART_TIME", "Part-time", "Temps partiel"),
+            createEmploymentOpportunity("TERM", "Term", "Durée déterminée"),
+            createEmploymentOpportunity("CASUAL", "Casual", "Occasionnel"),
+            createEmploymentOpportunity("STUDENT", "Student", "Étudiant")
+        );
+
+        employmentOpportunityRepository.saveAll(opportunities);
+        logger.info("Seeded {} employment opportunities.", opportunities.size());
+    }
+
+    private void seedEmploymentTenure() {
         if (employmentTenureRepository.count() > 0) return;
 
         List<EmploymentTenureEntity> tenures = Arrays.asList(
-            createEmploymentTenure("PERM", "Permanent", "Permanent"),
+            createEmploymentTenure("INDETERMINATE", "Indeterminate", "Indéterminée"),
             createEmploymentTenure("TERM", "Term", "Durée déterminée"),
             createEmploymentTenure("CASUAL", "Casual", "Occasionnel"),
-            createEmploymentTenure("STUDENT", "Student", "Étudiant"),
-            createEmploymentTenure("CONTRACT", "Contract", "Contrat")
+            createEmploymentTenure("STUDENT", "Student", "Étudiant")
         );
 
         employmentTenureRepository.saveAll(tenures);
-        logSeeded("Employment Tenures", tenures.size());
+        logger.info("Seeded {} employment tenures.", tenures.size());
     }
 
     private void seedLanguageReferralTypes() {
         if (languageReferralTypeRepository.count() > 0) return;
 
         List<LanguageReferralTypeEntity> types = Arrays.asList(
-            createLanguageReferralType("BILINGUAL", "Bilingual", "Bilingue"),
-            createLanguageReferralType("ENGLISH", "English only", "Anglais seulement"),
-            createLanguageReferralType("FRENCH", "French only", "Français seulement")
+            createLanguageReferralType("ENGLISH_ESSENTIAL", "English Essential", "Anglais essentiel"),
+            createLanguageReferralType("FRENCH_ESSENTIAL", "French Essential", "Français essentiel"),
+            createLanguageReferralType("BILINGUAL_IMPERATIVE", "Bilingual Imperative", "Bilingue impératif"),
+            createLanguageReferralType("BILINGUAL_NON_IMPERATIVE", "Bilingual Non-Imperative", "Bilingue non impératif")
         );
 
         languageReferralTypeRepository.saveAll(types);
-        logSeeded("Language Referral Types", types.size());
+        logger.info("Seeded {} language referral types.", types.size());
+    }
+
+    private void seedLanguageRequirements() {
+        if (languageRequirementRepository.count() > 0) return;
+
+        List<LanguageRequirementEntity> requirements = Arrays.asList(
+            createLanguageRequirement("BBB", "BBB - Bilingual Imperative", "BBB - Bilingue impératif"),
+            createLanguageRequirement("CBC", "CBC - Bilingual Imperative", "CBC - Bilingue impératif"),
+            createLanguageRequirement("CCC", "CCC - Bilingual Imperative", "CCC - Bilingue impératif"),
+            createLanguageRequirement("EEE", "English Essential", "Anglais essentiel"),
+            createLanguageRequirement("000", "French Essential", "Français essentiel")
+        );
+
+        languageRequirementRepository.saveAll(requirements);
+        logger.info("Seeded {} language requirements.", requirements.size());
     }
 
     private void seedPriorityLevels() {
         if (priorityLevelRepository.count() > 0) return;
 
         List<PriorityLevelEntity> levels = Arrays.asList(
-            createPriorityLevel("LOW", "Low", "Faible"),
-            createPriorityLevel("NORMAL", "Normal", "Normal"),
-            createPriorityLevel("HIGH", "High", "Élevé")
+            createPriorityLevel("HIGH", "High Priority", "Priorité élevée"),
+            createPriorityLevel("MEDIUM", "Medium Priority", "Priorité moyenne"),
+            createPriorityLevel("LOW", "Low Priority", "Priorité faible"),
+            createPriorityLevel("URGENT", "Urgent", "Urgent")
         );
 
         priorityLevelRepository.saveAll(levels);
-        logSeeded("Priority Levels", levels.size());
+        logger.info("Seeded {} priority levels.", levels.size());
     }
 
     private void seedProfileStatuses() {
         if (profileStatusRepository.count() > 0) return;
 
         List<ProfileStatusEntity> statuses = Arrays.asList(
-            createProfileStatus("PENDING", "Pending", "En attente"),
             createProfileStatus("ACTIVE", "Active", "Actif"),
-            createProfileStatus("INACTIVE", "Inactive", "Inactif")
+            createProfileStatus("INACTIVE", "Inactive", "Inactif"),
+            createProfileStatus("PENDING", "Pending", "En attente"),
+            createProfileStatus("SUSPENDED", "Suspended", "Suspendu")
         );
 
         profileStatusRepository.saveAll(statuses);
-        logSeeded("Profile Statuses", statuses.size());
+        logger.info("Seeded {} profile statuses.", statuses.size());
     }
 
     private void seedRequestStatuses() {
@@ -349,103 +374,112 @@ public class LookupDataSeeder {
         List<RequestStatusEntity> statuses = Arrays.asList(
             createRequestStatus("DRAFT", "Draft", "Brouillon"),
             createRequestStatus("SUBMITTED", "Submitted", "Soumis"),
-            createRequestStatus("UNDER_REVIEW", "Under Review", "En cours d'examen"),
-            createRequestStatus("APPROVED", "Approved", "Approuvé"),
-            createRequestStatus("REJECTED", "Rejected", "Rejeté"),
+            createRequestStatus("IN_PROGRESS", "In Progress", "En cours"),
+            createRequestStatus("COMPLETED", "Completed", "Terminé"),
             createRequestStatus("CANCELLED", "Cancelled", "Annulé")
         );
 
         requestStatusRepository.saveAll(statuses);
-        logSeeded("Request Statuses", statuses.size());
+        logger.info("Seeded {} request statuses.", statuses.size());
     }
 
     private void seedSecurityClearances() {
         if (securityClearanceRepository.count() > 0) return;
 
         List<SecurityClearanceEntity> clearances = Arrays.asList(
-            createSecurityClearance("NONE", "No Clearance Required", "Aucune autorisation requise"),
             createSecurityClearance("RELIABILITY", "Reliability", "Fiabilité"),
             createSecurityClearance("SECRET", "Secret", "Secret"),
-            createSecurityClearance("TOP_SECRET", "Top Secret", "Très secret")
+            createSecurityClearance("TOP_SECRET", "Top Secret", "Très secret"),
+            createSecurityClearance("ENHANCED_RELIABILITY", "Enhanced Reliability", "Fiabilité renforcée")
         );
 
         securityClearanceRepository.saveAll(clearances);
-        logSeeded("Security Clearances", clearances.size());
+        logger.info("Seeded {} security clearances.", clearances.size());
+    }
+
+    private void seedSelectionProcessTypes() {
+        if (selectionProcessTypeRepository.count() > 0) return;
+
+        List<SelectionProcessTypeEntity> types = Arrays.asList(
+            createSelectionProcessType("ADVERTISED", "Advertised Process", "Processus annoncé"),
+            createSelectionProcessType("NON_ADVERTISED", "Non-Advertised Process", "Processus non annoncé"),
+            createSelectionProcessType("POOL", "Pool Process", "Processus de bassin"),
+            createSelectionProcessType("DIRECT_APPOINTMENT", "Direct Appointment", "Nomination directe")
+        );
+
+        selectionProcessTypeRepository.saveAll(types);
+        logger.info("Seeded {} selection process types.", types.size());
+    }
+
+    private void seedUserTypes() {
+        if (userTypeRepository.count() > 0) return;
+
+        List<UserTypeEntity> types = Arrays.asList(
+            createUserType("EMPLOYEE", "Employee", "Employé"),
+            createUserType("HR_ADVISOR", "HR Advisor", "Conseiller RH"),
+            createUserType("HIRING_MANAGER", "Hiring Manager", "Gestionnaire d'embauche"),
+            createUserType("ADMINISTRATOR", "Administrator", "Administrateur")
+        );
+
+        userTypeRepository.saveAll(types);
+        logger.info("Seeded {} user types.", types.size());
     }
 
     private void seedWfaStatuses() {
         if (wfaStatusRepository.count() > 0) return;
 
         List<WfaStatusEntity> statuses = Arrays.asList(
-            createWfaStatus("AFFECTED", "Affected", "Touché"),
-            createWfaStatus("SURPLUS_GRJO", "Surplus with GRJO", "Excédentaire avec GOE"),
-            createWfaStatus("SURPLUS_NO_GRJO", "Surplus without a GRJO", "Excédentaire sans GOE"),
-            createWfaStatus("RELOCATION", "Relocation of work unit", "Réinstallation de l'unité de travail"),
-            createWfaStatus("LAYOFF", "Lay-off", "Mise à pied")
+            createWfaStatus("AVAILABLE", "Available", "Disponible"),
+            createWfaStatus("DEPLOYED", "Deployed", "Déployé"),
+            createWfaStatus("NOT_AVAILABLE", "Not Available", "Non disponible"),
+            createWfaStatus("ON_ASSIGNMENT", "On Assignment", "En affectation")
         );
 
         wfaStatusRepository.saveAll(statuses);
-        logSeeded("WFA Statuses", statuses.size());
+        logger.info("Seeded {} WFA statuses.", statuses.size());
+    }
+
+    private void seedWorkSchedules() {
+        if (workScheduleRepository.count() > 0) return;
+
+        List<WorkScheduleEntity> schedules = Arrays.asList(
+            createWorkSchedule("FULL_TIME", "Full-time (37.5 hours)", "Temps plein (37,5 heures)"),
+            createWorkSchedule("PART_TIME_75", "Part-time (75%)", "Temps partiel (75 %)"),
+            createWorkSchedule("PART_TIME_50", "Part-time (50%)", "Temps partiel (50 %)"),
+            createWorkSchedule("FLEXIBLE", "Flexible Schedule", "Horaire flexible")
+        );
+
+        workScheduleRepository.saveAll(schedules);
+        logger.info("Seeded {} work schedules.", schedules.size());
     }
 
     private void seedWorkUnits() {
         if (workUnitRepository.count() > 0) return;
 
-        // Create parent work units first
-        List<WorkUnitEntity> parentUnits = Arrays.asList(
-            createWorkUnit("LABOUR-COPD", "Labour - COPD", "Travail - CODP", null),
-            createWorkUnit("LABOUR-SIG", "Labour - SIG", "Travail - ISG", null),
-            createWorkUnit("LABOUR", "DMO Labour Program", "BSM Programme du travail", null),
-            createWorkUnit("LABOUR-PDRIA", "Labour - PDRIA", "Travail - PRDAI", null),
-            createWorkUnit("ICSD-QC", "Integrated Client Service Delivery (ICSD) - Quebec Region", "Prestation de services intégrés à la clientèle (PSIC) - PSIC, Région du Québec", null)
+        List<WorkUnitEntity> units = Arrays.asList(
+            createWorkUnit("ESDC", "Employment and Social Development Canada", "Emploi et Développement social Canada", null),
+            createWorkUnit("DTS", "Digital Technology Solutions", "Solutions technologiques numériques", null),
+            createWorkUnit("HR", "Human Resources", "Ressources humaines", null),
+            createWorkUnit("FINANCE", "Finance", "Finances", null),
+            createWorkUnit("OPERATIONS", "Operations", "Opérations", null)
         );
 
-        workUnitRepository.saveAll(parentUnits);
-
-        // Get saved parent units for child references
-        WorkUnitEntity labourCopd = parentUnits.get(0);
-        WorkUnitEntity labourSig = parentUnits.get(1);
-        WorkUnitEntity labour = parentUnits.get(2);
-        WorkUnitEntity labourPdria = parentUnits.get(3);
-        WorkUnitEntity icsdQc = parentUnits.get(4);
-
-        // Create child work units
-        List<WorkUnitEntity> childUnits = Arrays.asList(
-            createWorkUnit("LABOUR-COPD-1", "Workplace Directorate", "Direction du milieu de travail", labourCopd),
-            createWorkUnit("LABOUR-COPD-2", "ADM's Office, COPD", "Bureau du SMA, CODP", labourCopd),
-            createWorkUnit("LABOUR-SIG-1", "Strat Integ & Info Solutions", "Integ Strat & Solution Info", labourSig),
-            createWorkUnit("LABOUR-1", "DMO Labour Program - Unit 1", "BSM Programme du travail - Unité 1", labour),
-            createWorkUnit("LABOUR-PDRIA-1", "DGO Fed Mediatn Conciliatn Svc", "DG Serv Fed Mediatn Conciliatn", labourPdria),
-            createWorkUnit("ICSD-QC-1", "Integrity Services Branch, QC", "Direction serv d'intégrité, QC", icsdQc)
-        );
-
-        workUnitRepository.saveAll(childUnits);
-        logSeeded("Work Units", parentUnits.size() + childUnits.size());
+        workUnitRepository.saveAll(units);
+        logger.info("Seeded {} work units.", units.size());
     }
 
-    private void seedAssessmentResults() {
-        if (assessmentResultRepository.count() > 0) return;
+    private void seedAppointmentNonAdvertised() {
+        if (appointmentNonAdvertisedRepository.count() > 0) return;
 
-        List<AssessmentResultEntity> results = Arrays.asList(
-            createAssessmentResult("QUALIFIED", "Qualified", "Qualifié"),
-            createAssessmentResult("NOT_QUALIFIED", "Not Qualified", "Non qualifié"),
-            createAssessmentResult("PARTIALLY_QUALIFIED", "Partially Qualified", "Partiellement qualifié"),
-            createAssessmentResult("REFERRED", "Referred for Further Assessment", "Référé pour évaluation supplémentaire")
+        List<AppointmentNonAdvertisedEntity> appointments = Arrays.asList(
+            createAppointmentNonAdvertised("DEPLOYMENT", "Deployment", "Déploiement"),
+            createAppointmentNonAdvertised("ASSIGNMENT", "Assignment", "Affectation"),
+            createAppointmentNonAdvertised("SECONDMENT", "Secondment", "Détachement"),
+            createAppointmentNonAdvertised("INTERCHANGE", "Interchange", "Échange")
         );
 
-        assessmentResultRepository.saveAll(results);
-        logSeeded("Assessment Results", results.size());
-    }
-
-    private void seedNotificationPurposes() {
-        if (notificationPurposeRepository.count() > 0) return;
-
-        List<NotificationPurposeEntity> purposes = Arrays.asList(
-            createNotificationPurpose("GENERAL", "General Notifications", "Notifications générales", "00000000-0000-0000-0000-000000000000")
-        );
-
-        notificationPurposeRepository.saveAll(purposes);
-        logSeeded("Notification Purposes", purposes.size());
+        appointmentNonAdvertisedRepository.saveAll(appointments);
+        logger.info("Seeded {} appointment non-advertised types.", appointments.size());
     }
 
     // Helper methods to create entities
@@ -454,14 +488,8 @@ public class LookupDataSeeder {
         entity.setCode(code);
         entity.setNameEn(nameEn);
         entity.setNameFr(nameFr);
-        return entity;
-    }
-
-    private UserTypeEntity createUserType(String code, String nameEn, String nameFr) {
-        UserTypeEntity entity = new UserTypeEntity();
-        entity.setCode(code);
-        entity.setNameEn(nameEn);
-        entity.setNameFr(nameFr);
+        entity.setEffectiveDate(LocalDateTime.now());
+        entity.setCreatedBy("SYSTEM");
         return entity;
     }
 
@@ -470,6 +498,8 @@ public class LookupDataSeeder {
         entity.setCode(code);
         entity.setNameEn(nameEn);
         entity.setNameFr(nameFr);
+        entity.setEffectiveDate(LocalDateTime.now());
+        entity.setCreatedBy("SYSTEM");
         return entity;
     }
 
@@ -477,8 +507,9 @@ public class LookupDataSeeder {
         CityEntity entity = new CityEntity();
         entity.setCode(code);
         entity.setNameEn(nameEn);
-        entity.setNameFr(nameFr);
-        entity.setProvinceTerritory(province);
+        entity.setNameFr(nameFr);            entity.setProvinceTerritory(province);
+        entity.setEffectiveDate(LocalDateTime.now());
+        entity.setCreatedBy("SYSTEM");
         return entity;
     }
 
@@ -487,14 +518,28 @@ public class LookupDataSeeder {
         entity.setCode(code);
         entity.setNameEn(nameEn);
         entity.setNameFr(nameFr);
+        entity.setEffectiveDate(LocalDateTime.now());
+        entity.setCreatedBy("SYSTEM");
         return entity;
     }
 
-    private EducationLevelEntity createEducationLevel(String code, String nameEn, String nameFr) {
-        EducationLevelEntity entity = new EducationLevelEntity();
+    private EmploymentEquityEntity createEmploymentEquity(String code, String nameEn, String nameFr) {
+        EmploymentEquityEntity entity = new EmploymentEquityEntity();
         entity.setCode(code);
         entity.setNameEn(nameEn);
         entity.setNameFr(nameFr);
+        entity.setEffectiveDate(LocalDateTime.now());
+        entity.setCreatedBy("SYSTEM");
+        return entity;
+    }
+
+    private EmploymentOpportunityEntity createEmploymentOpportunity(String code, String nameEn, String nameFr) {
+        EmploymentOpportunityEntity entity = new EmploymentOpportunityEntity();
+        entity.setCode(code);
+        entity.setNameEn(nameEn);
+        entity.setNameFr(nameFr);
+        entity.setEffectiveDate(LocalDateTime.now());
+        entity.setCreatedBy("SYSTEM");
         return entity;
     }
 
@@ -503,6 +548,8 @@ public class LookupDataSeeder {
         entity.setCode(code);
         entity.setNameEn(nameEn);
         entity.setNameFr(nameFr);
+        entity.setEffectiveDate(LocalDateTime.now());
+        entity.setCreatedBy("SYSTEM");
         return entity;
     }
 
@@ -511,6 +558,18 @@ public class LookupDataSeeder {
         entity.setCode(code);
         entity.setNameEn(nameEn);
         entity.setNameFr(nameFr);
+        entity.setEffectiveDate(LocalDateTime.now());
+        entity.setCreatedBy("SYSTEM");
+        return entity;
+    }
+
+    private LanguageRequirementEntity createLanguageRequirement(String code, String nameEn, String nameFr) {
+        LanguageRequirementEntity entity = new LanguageRequirementEntity();
+        entity.setCode(code);
+        entity.setNameEn(nameEn);
+        entity.setNameFr(nameFr);
+        entity.setEffectiveDate(LocalDateTime.now());
+        entity.setCreatedBy("SYSTEM");
         return entity;
     }
 
@@ -519,6 +578,8 @@ public class LookupDataSeeder {
         entity.setCode(code);
         entity.setNameEn(nameEn);
         entity.setNameFr(nameFr);
+        entity.setEffectiveDate(LocalDateTime.now());
+        entity.setCreatedBy("SYSTEM");
         return entity;
     }
 
@@ -527,6 +588,8 @@ public class LookupDataSeeder {
         entity.setCode(code);
         entity.setNameEn(nameEn);
         entity.setNameFr(nameFr);
+        entity.setEffectiveDate(LocalDateTime.now());
+        entity.setCreatedBy("SYSTEM");
         return entity;
     }
 
@@ -535,6 +598,8 @@ public class LookupDataSeeder {
         entity.setCode(code);
         entity.setNameEn(nameEn);
         entity.setNameFr(nameFr);
+        entity.setEffectiveDate(LocalDateTime.now());
+        entity.setCreatedBy("SYSTEM");
         return entity;
     }
 
@@ -543,6 +608,28 @@ public class LookupDataSeeder {
         entity.setCode(code);
         entity.setNameEn(nameEn);
         entity.setNameFr(nameFr);
+        entity.setEffectiveDate(LocalDateTime.now());
+        entity.setCreatedBy("SYSTEM");
+        return entity;
+    }
+
+    private SelectionProcessTypeEntity createSelectionProcessType(String code, String nameEn, String nameFr) {
+        SelectionProcessTypeEntity entity = new SelectionProcessTypeEntity();
+        entity.setCode(code);
+        entity.setNameEn(nameEn);
+        entity.setNameFr(nameFr);
+        entity.setEffectiveDate(LocalDateTime.now());
+        entity.setCreatedBy("SYSTEM");
+        return entity;
+    }
+
+    private UserTypeEntity createUserType(String code, String nameEn, String nameFr) {
+        UserTypeEntity entity = new UserTypeEntity();
+        entity.setCode(code);
+        entity.setNameEn(nameEn);
+        entity.setNameFr(nameFr);
+        entity.setEffectiveDate(LocalDateTime.now());
+        entity.setCreatedBy("SYSTEM");
         return entity;
     }
 
@@ -551,6 +638,18 @@ public class LookupDataSeeder {
         entity.setCode(code);
         entity.setNameEn(nameEn);
         entity.setNameFr(nameFr);
+        entity.setEffectiveDate(LocalDateTime.now());
+        entity.setCreatedBy("SYSTEM");
+        return entity;
+    }
+
+    private WorkScheduleEntity createWorkSchedule(String code, String nameEn, String nameFr) {
+        WorkScheduleEntity entity = new WorkScheduleEntity();
+        entity.setCode(code);
+        entity.setNameEn(nameEn);
+        entity.setNameFr(nameFr);
+        entity.setEffectiveDate(LocalDateTime.now());
+        entity.setCreatedBy("SYSTEM");
         return entity;
     }
 
@@ -558,31 +657,62 @@ public class LookupDataSeeder {
         WorkUnitEntity entity = new WorkUnitEntity();
         entity.setCode(code);
         entity.setNameEn(nameEn);
-        entity.setNameFr(nameFr);
-        entity.setParent(parent);
+        entity.setNameFr(nameFr);            entity.setParent(parent);
+        entity.setEffectiveDate(LocalDateTime.now());
+        entity.setCreatedBy("SYSTEM");
         return entity;
     }
 
-    private AssessmentResultEntity createAssessmentResult(String code, String nameEn, String nameFr) {
-        AssessmentResultEntity entity = new AssessmentResultEntity();
+    private AppointmentNonAdvertisedEntity createAppointmentNonAdvertised(String code, String nameEn, String nameFr) {
+        AppointmentNonAdvertisedEntity entity = new AppointmentNonAdvertisedEntity();
         entity.setCode(code);
         entity.setNameEn(nameEn);
         entity.setNameFr(nameFr);
+        entity.setEffectiveDate(LocalDateTime.now());
+        entity.setCreatedBy("SYSTEM");
         return entity;
     }
 
-    private NotificationPurposeEntity createNotificationPurpose(String code, String nameEn, String nameFr, String templateId) {
-        NotificationPurposeEntity entity = new NotificationPurposeEntity();
-        entity.setCode(code);
-        entity.setNameEn(nameEn);
-        entity.setNameFr(nameFr);
-        entity.setGcNotifyTemplateId(templateId);
-        return entity;
+    /**
+     * Public method to seed all lookup tables - called by DatabaseSeeder
+     */
+    @Transactional
+    public void seedLookupTables() {
+        seedLookupData();
     }
 
-    private void logSeeded(String entityType, int count) {
+    /**
+     * Public method to clear all lookup tables - called by DatabaseSeeder
+     */
+    @Transactional
+    public void clearLookupTables() {
         if (config.isLogSeedingProgress()) {
-            logger.info("Seeded {} {} records", count, entityType);
+            logger.info("Clearing lookup tables...");
+        }
+
+        // Clear all lookup repositories in reverse dependency order
+        cityRepository.deleteAll();
+        provinceRepository.deleteAll();
+        workUnitRepository.deleteAll();
+        appointmentNonAdvertisedRepository.deleteAll();
+        workScheduleRepository.deleteAll();
+        wfaStatusRepository.deleteAll();
+        userTypeRepository.deleteAll();
+        selectionProcessTypeRepository.deleteAll();
+        securityClearanceRepository.deleteAll();
+        requestStatusRepository.deleteAll();
+        profileStatusRepository.deleteAll();
+        priorityLevelRepository.deleteAll();
+        languageRequirementRepository.deleteAll();
+        languageReferralTypeRepository.deleteAll();
+        employmentTenureRepository.deleteAll();
+        employmentOpportunityRepository.deleteAll();
+        employmentEquityRepository.deleteAll();
+        classificationRepository.deleteAll();
+        languageRepository.deleteAll();
+
+        if (config.isLogSeedingProgress()) {
+            logger.info("Lookup tables cleared");
         }
     }
 }

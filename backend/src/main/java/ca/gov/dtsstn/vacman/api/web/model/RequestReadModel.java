@@ -35,17 +35,9 @@ public class RequestReadModel {
     @JsonProperty("requestStatusCode")
     private String requestStatusCode;
 
-    @Schema(description = "Educational requirement text", example = "Bachelor's degree in Computer Science")
-    @JsonProperty("educationalRequirementText")
-    private String educationalRequirementText;
-
     @Schema(description = "Priority clearance number", example = "PCN-2024-001")
     @JsonProperty("priorityClearanceNumber")
     private String priorityClearanceNumber;
-
-    @Schema(description = "Request posting date", example = "2024-01-15")
-    @JsonProperty("requestPostingDate")
-    private String requestPostingDate;
 
     @Schema(description = "Allow telework indicator", example = "true")
     @JsonProperty("allowTeleworkIndicator")
@@ -119,28 +111,12 @@ public class RequestReadModel {
         this.requestStatusCode = requestStatusCode;
     }
 
-    public String getEducationalRequirementText() {
-        return educationalRequirementText;
-    }
-
-    public void setEducationalRequirementText(String educationalRequirementText) {
-        this.educationalRequirementText = educationalRequirementText;
-    }
-
     public String getPriorityClearanceNumber() {
         return priorityClearanceNumber;
     }
 
     public void setPriorityClearanceNumber(String priorityClearanceNumber) {
         this.priorityClearanceNumber = priorityClearanceNumber;
-    }
-
-    public String getRequestPostingDate() {
-        return requestPostingDate;
-    }
-
-    public void setRequestPostingDate(String requestPostingDate) {
-        this.requestPostingDate = requestPostingDate;
     }
 
     public Boolean getAllowTeleworkIndicator() {

@@ -2,7 +2,6 @@ package ca.gov.dtsstn.vacman.api.seeder;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -14,8 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import ca.gov.dtsstn.vacman.api.config.DatabaseSeederConfig;
 import ca.gov.dtsstn.vacman.api.data.entity.ClassificationEntity;
-import ca.gov.dtsstn.vacman.api.data.entity.EducationLevelEntity;
-import ca.gov.dtsstn.vacman.api.data.entity.EventEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.LanguageEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.ProfileStatusEntity;
@@ -28,13 +25,9 @@ import ca.gov.dtsstn.vacman.api.data.entity.WorkUnitEntity;
 import ca.gov.dtsstn.vacman.api.data.repository.CityProfileRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.ClassificationProfileRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.ClassificationRepository;
-import ca.gov.dtsstn.vacman.api.data.repository.EducationLevelRepository;
-import ca.gov.dtsstn.vacman.api.data.repository.EventRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.LanguageRepository;
-import ca.gov.dtsstn.vacman.api.data.repository.ProfileEmploymentTenureRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.ProfileLanguageReferralTypeRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.ProfileRepository;
-import ca.gov.dtsstn.vacman.api.data.repository.ProfileRequestRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.ProfileStatusRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.RequestRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.RequestStatusRepository;
@@ -64,14 +57,12 @@ public class MainDataSeeder {
     // Main table repositories
     private final UserRepository userRepository;
     private final RequestRepository requestRepository;
-    private final EventRepository eventRepository;
     private final ProfileRepository profileRepository;
 
     // Lookup repositories for foreign key references
     private final UserTypeRepository userTypeRepository;
     private final LanguageRepository languageRepository;
     private final ClassificationRepository classificationRepository;
-    private final EducationLevelRepository educationLevelRepository;
     private final SecurityClearanceRepository securityClearanceRepository;
     private final RequestStatusRepository requestStatusRepository;
     private final WorkUnitRepository workUnitRepository;
@@ -81,17 +72,13 @@ public class MainDataSeeder {
         DatabaseSeederConfig config,
         UserRepository userRepository,
         RequestRepository requestRepository,
-        EventRepository eventRepository,
         ProfileRepository profileRepository,
         CityProfileRepository cityProfileRepository,
         ClassificationProfileRepository classificationProfileRepository,
-        ProfileEmploymentTenureRepository profileEmploymentTenureRepository,
         ProfileLanguageReferralTypeRepository profileLanguageReferralTypeRepository,
-        ProfileRequestRepository profileRequestRepository,
         UserTypeRepository userTypeRepository,
         LanguageRepository languageRepository,
         ClassificationRepository classificationRepository,
-        EducationLevelRepository educationLevelRepository,
         SecurityClearanceRepository securityClearanceRepository,
         RequestStatusRepository requestStatusRepository,
         WorkUnitRepository workUnitRepository,
@@ -100,12 +87,10 @@ public class MainDataSeeder {
         this.config = config;
         this.userRepository = userRepository;
         this.requestRepository = requestRepository;
-        this.eventRepository = eventRepository;
         this.profileRepository = profileRepository;
         this.userTypeRepository = userTypeRepository;
         this.languageRepository = languageRepository;
         this.classificationRepository = classificationRepository;
-        this.educationLevelRepository = educationLevelRepository;
         this.securityClearanceRepository = securityClearanceRepository;
         this.requestStatusRepository = requestStatusRepository;
         this.workUnitRepository = workUnitRepository;
@@ -121,7 +106,6 @@ public class MainDataSeeder {
         seedUsers();
         seedProfiles();
         seedRequests();
-        seedEvents();
 
         if (config.isLogSeedingProgress()) {
             logger.info("Main data tables seeded successfully");
@@ -233,7 +217,6 @@ public class MainDataSeeder {
 
         List<UserEntity> users = userRepository.findAll();
         List<ClassificationEntity> classifications = classificationRepository.findAll();
-        List<EducationLevelEntity> educationLevels = educationLevelRepository.findAll();
         List<WorkUnitEntity> workUnits = workUnitRepository.findAll();
         List<ProfileStatusEntity> profileStatuses = profileStatusRepository.findAll();
 
@@ -254,10 +237,11 @@ public class MainDataSeeder {
         // This allows multiple profiles per user, which aligns with the one-to-many relationship
         for (int i = 0; i < profileCount; i++) {
             UserEntity user = users.get(i % users.size()); // Cycle through available users
+            UserEntity hrAdvisor = users.get((i + 1) % users.size()); // Use different user as HR advisor
             ProfileEntity profile = createProfile(
                 user,
                 getRandomElement(classifications),
-                getRandomElement(educationLevels),
+                hrAdvisor,
                 getRandomElement(workUnits),
                 getRandomElement(profileStatuses)
             );
@@ -313,20 +297,6 @@ public class MainDataSeeder {
         logSeeded("Requests", requests.size());
     }
 
-    private void seedEvents() {
-        if (eventRepository.count() > 0) return;
-
-        List<EventEntity> events = Arrays.asList(
-            createEvent("System Startup", "Application started successfully"),
-            createEvent("User Login", "User authentication event"),
-            createEvent("Data Seeding", "Database seeding completed"),
-            createEvent("Profile Update", "User profile information updated")
-        );
-
-        eventRepository.saveAll(events);
-        logSeeded("Events", events.size());
-    }
-
     // Helper methods to create entities
     private UserEntity createUser(String email, String firstName, String lastName, UserTypeEntity userType, LanguageEntity language) {
         UserEntity user = new UserEntity();
@@ -342,15 +312,15 @@ public class MainDataSeeder {
     }
 
     private ProfileEntity createProfile(UserEntity user, ClassificationEntity classification,
-                                      EducationLevelEntity education, WorkUnitEntity workUnit,
+                                      UserEntity hrAdvisor, WorkUnitEntity workUnit,
                                       ProfileStatusEntity profileStatus) {
         ProfileEntity profile = new ProfileEntity();
         profile.setUser(user);
+        profile.setHrAdvisor(hrAdvisor); // DDL requires HR_ADVISOR
         profile.setClassification(classification);
-        profile.setEducationLevel(education);
         profile.setWorkUnit(workUnit);
         profile.setProfileStatus(profileStatus);
-        profile.setComment("Sample profile for " + user.getFirstName() + " " + user.getLastName());
+        profile.setAdditionalComment("Sample profile for " + user.getFirstName() + " " + user.getLastName());
         profile.setCreatedBy("SYSTEM");
         return profile;
     }
@@ -378,14 +348,6 @@ public class MainDataSeeder {
 
         request.setCreatedBy("SYSTEM");
         return request;
-    }
-
-    private EventEntity createEvent(String name, String description) {
-        EventEntity event = new EventEntity();
-        event.setEventName(name);
-        event.setEventDescription(description);
-        event.setCreatedBy("SYSTEM");
-        return event;
     }
 
     // Helper methods for finding lookup data

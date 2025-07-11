@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Repository interface for {@link RequestEmploymentEquityEntity}.
@@ -62,4 +63,13 @@ public interface RequestEmploymentEquityRepository extends JpaRepository<Request
      * @param employmentEquity the employment equity
      */
     void deleteByEmploymentEquity(EmploymentEquityEntity employmentEquity);
+
+    /**
+     * Find a request employment equity by request ID and employment equity ID.
+     *
+     * @param requestId the request ID
+     * @param employmentEquityId the employment equity ID
+     * @return an optional request employment equity
+     */
+    Optional<RequestEmploymentEquityEntity> findByRequestIdAndEmploymentEquityId(Long requestId, Long employmentEquityId);
 }

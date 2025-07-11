@@ -5,56 +5,51 @@ import jakarta.validation.constraints.NotNull;
 
 @Schema(name = "ProfileCreate")
 public record ProfileCreateModel(
-	@Schema(description = "ID of the user who approved this profile.", example = "1")
-	Long approvedByUserId,
+	@NotNull(message = "User ID is required.")
+	@Schema(description = "ID of the user this profile belongs to.", example = "2")
+	Long userId,
 
-	@Schema(description = "City code where the user is located.", example = "ON52")
-	String cityCode,
+	@NotNull(message = "HR Advisor User ID is required.")
+	@Schema(description = "ID of the HR Advisor for this profile.", example = "1")
+	Long hrAdvisorUserId,
+
+	@Schema(description = "WFA status code.", example = "AFFECTED")
+	String wfaStatusCode,
 
 	@Schema(description = "Classification code for the user.", example = "AS-03")
 	String classificationCode,
 
-	@Schema(description = "Additional comments about the profile.", example = "Interested in remote work")
-	String comment,
-
-	@Schema(description = "Education level code.", example = "POSTDEG")
-	String educationLevelCode,
-
-	@Schema(description = "Whether the user has accepted privacy terms.", example = "true")
-	Boolean hasAcceptedPrivacyTerms,
-
-	@Schema(description = "Whether the user is available for referral.", example = "true")
-	Boolean isAvailableForReferral,
-
-	@Schema(description = "Whether the user is interested in alternation.", example = "false")
-	Boolean isInterestedInAlternation,
-
-	@Schema(description = "Language code.", example = "EN")
-	String languageCode,
-
-	@Schema(description = "Personal email address.", example = "john.doe@example.com")
-	String personalEmailAddress,
-
-	@Schema(description = "Personal phone number.", example = "613-555-1234")
-	String personalPhoneNumber,
+	@Schema(description = "City code where the user is located.", example = "ON52")
+	String cityCode,
 
 	@Schema(description = "Priority level code.", example = "HIGH")
 	String priorityLevelCode,
+
+	@Schema(description = "Work unit code.", example = "LABOUR")
+	String workUnitCode,
+
+	@Schema(description = "Language code.", example = "EN")
+	String languageCode,
 
 	@NotNull(message = "Profile status code is required.")
 	@Schema(description = "Profile status code.", example = "ACTIVE")
 	String profileStatusCode,
 
-	@Schema(description = "ID of the user who reviewed this profile.", example = "1")
-	Long reviewedByUserId,
+	@Schema(description = "Personal phone number.", example = "613-555-1234")
+	String personalPhoneNumber,
 
-	@NotNull(message = "User ID is required.")
-	@Schema(description = "ID of the user this profile belongs to.", example = "2")
-	Long userId,
+	@Schema(description = "Personal email address.", example = "john.doe@example.com")
+	String personalEmailAddress,
 
-	@Schema(description = "WFA status code.", example = "AFFECTED")
-	String wfaStatusCode,
+	@Schema(description = "Whether the user has given privacy consent.", example = "true")
+	Boolean privacyConsentInd,
 
-	@Schema(description = "Work unit code.", example = "LABOUR")
-	String workUnitCode
+	@Schema(description = "Whether the user is available for referral.", example = "true")
+	Boolean availableForReferralInd,
+
+	@Schema(description = "Whether the user is interested in alternation.", example = "false")
+	Boolean interestedInAlternationInd,
+
+	@Schema(description = "Additional comments about the profile.", example = "Interested in remote work")
+	String additionalComment
 ) {}

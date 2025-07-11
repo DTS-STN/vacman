@@ -1,6 +1,7 @@
 package ca.gov.dtsstn.vacman.api.data.entity;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 
 import org.springframework.core.style.ToStringCreator;
 
@@ -20,6 +21,12 @@ public abstract class AbstractLookupEntity extends AbstractEntity {
 	@Column(length = 100, nullable = false, unique = true)
 	protected String nameFr;
 
+	@Column(name = "EFFECTIVE_DATE", nullable = false)
+	protected LocalDateTime effectiveDate;
+
+	@Column(name = "EXPIRY_DATE", nullable = true)
+	protected LocalDateTime expiryDate;
+
 	public AbstractLookupEntity() {
 		super();
 	}
@@ -29,6 +36,8 @@ public abstract class AbstractLookupEntity extends AbstractEntity {
 			@Nullable String code,
 			@Nullable String nameEn,
 			@Nullable String nameFr,
+			@Nullable LocalDateTime effectiveDate,
+			@Nullable LocalDateTime expiryDate,
 			@Nullable String createdBy,
 			@Nullable Instant createdDate,
 			@Nullable String lastModifiedBy,
@@ -37,6 +46,8 @@ public abstract class AbstractLookupEntity extends AbstractEntity {
 		this.code = code;
 		this.nameEn = nameEn;
 		this.nameFr = nameFr;
+		this.effectiveDate = effectiveDate;
+		this.expiryDate = expiryDate;
 	}
 
 	public String getCode() {
@@ -63,6 +74,22 @@ public abstract class AbstractLookupEntity extends AbstractEntity {
 		this.nameFr = nameFr;
 	}
 
+	public LocalDateTime getEffectiveDate() {
+		return effectiveDate;
+	}
+
+	public void setEffectiveDate(LocalDateTime effectiveDate) {
+		this.effectiveDate = effectiveDate;
+	}
+
+	public LocalDateTime getExpiryDate() {
+		return expiryDate;
+	}
+
+	public void setExpiryDate(LocalDateTime expiryDate) {
+		this.expiryDate = expiryDate;
+	}
+
 	@Override
 	public String toString() {
 		return new ToStringCreator(this)
@@ -70,6 +97,8 @@ public abstract class AbstractLookupEntity extends AbstractEntity {
 			.append("code", code)
 			.append("nameEn", nameEn)
 			.append("nameFr", nameFr)
+			.append("effectiveDate", effectiveDate)
+			.append("expiryDate", expiryDate)
 			.toString();
 	}
 

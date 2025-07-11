@@ -12,7 +12,6 @@ import org.springframework.web.server.ResponseStatusException;
 import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
 import ca.gov.dtsstn.vacman.api.data.repository.CityRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.ClassificationRepository;
-import ca.gov.dtsstn.vacman.api.data.repository.EducationLevelRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.LanguageRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.PriorityLevelRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.ProfileRepository;
@@ -28,7 +27,6 @@ public class ProfileService {
     private final ProfileRepository profileRepository;
     private final CityRepository cityRepository;
     private final ClassificationRepository classificationRepository;
-    private final EducationLevelRepository educationLevelRepository;
     private final LanguageRepository languageRepository;
     private final PriorityLevelRepository priorityLevelRepository;
     private final ProfileStatusRepository profileStatusRepository;
@@ -40,7 +38,6 @@ public class ProfileService {
             ProfileRepository profileRepository,
             CityRepository cityRepository,
             ClassificationRepository classificationRepository,
-            EducationLevelRepository educationLevelRepository,
             LanguageRepository languageRepository,
             PriorityLevelRepository priorityLevelRepository,
             ProfileStatusRepository profileStatusRepository,
@@ -50,7 +47,6 @@ public class ProfileService {
         this.profileRepository = profileRepository;
         this.cityRepository = cityRepository;
         this.classificationRepository = classificationRepository;
-        this.educationLevelRepository = educationLevelRepository;
         this.languageRepository = languageRepository;
         this.priorityLevelRepository = priorityLevelRepository;
         this.profileStatusRepository = profileStatusRepository;
@@ -67,17 +63,15 @@ public class ProfileService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
                         "User not found with ID: " + createModel.userId())));
 
+        profile.setHrAdvisor(userRepository.findById(createModel.hrAdvisorUserId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        "HR Advisor not found with ID: " + createModel.hrAdvisorUserId())));
+
         profile.setProfileStatus(profileStatusRepository.findByCode(createModel.profileStatusCode())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
                         "Profile status not found with code: " + createModel.profileStatusCode())));
 
         // Set optional relationship fields
-        if (createModel.approvedByUserId() != null) {
-            profile.setApprovedBy(userRepository.findById(createModel.approvedByUserId())
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                            "Approved by user not found with ID: " + createModel.approvedByUserId())));
-        }
-
         if (createModel.cityCode() != null) {
             profile.setCity(cityRepository.findByCode(createModel.cityCode())
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
@@ -90,12 +84,6 @@ public class ProfileService {
                             "Classification not found with code: " + createModel.classificationCode())));
         }
 
-        if (createModel.educationLevelCode() != null) {
-            profile.setEducationLevel(educationLevelRepository.findByCode(createModel.educationLevelCode())
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                            "Education level not found with code: " + createModel.educationLevelCode())));
-        }
-
         if (createModel.languageCode() != null) {
             profile.setLanguage(languageRepository.findByCode(createModel.languageCode())
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
@@ -106,12 +94,6 @@ public class ProfileService {
             profile.setPriorityLevel(priorityLevelRepository.findByCode(createModel.priorityLevelCode())
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
                             "Priority level not found with code: " + createModel.priorityLevelCode())));
-        }
-
-        if (createModel.reviewedByUserId() != null) {
-            profile.setReviewedBy(userRepository.findById(createModel.reviewedByUserId())
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                            "Reviewed by user not found with ID: " + createModel.reviewedByUserId())));
         }
 
         if (createModel.wfaStatusCode() != null) {
@@ -127,12 +109,12 @@ public class ProfileService {
         }
 
         // Set simple fields
-        profile.setComment(createModel.comment());
-        profile.setHasAcceptedPrivacyTerms(createModel.hasAcceptedPrivacyTerms());
-        profile.setIsAvailableForReferral(createModel.isAvailableForReferral());
-        profile.setIsInterestedInAlternation(createModel.isInterestedInAlternation());
-        profile.setPersonalEmailAddress(createModel.personalEmailAddress());
         profile.setPersonalPhoneNumber(createModel.personalPhoneNumber());
+        profile.setPersonalEmailAddress(createModel.personalEmailAddress());
+        profile.setPrivacyConsentInd(createModel.privacyConsentInd());
+        profile.setAvailableForReferralInd(createModel.availableForReferralInd());
+        profile.setInterestedInAlternationInd(createModel.interestedInAlternationInd());
+        profile.setAdditionalComment(createModel.additionalComment());
 
         return profileRepository.save(profile);
     }
