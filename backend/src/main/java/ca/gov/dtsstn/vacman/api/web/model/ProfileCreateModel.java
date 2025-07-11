@@ -28,8 +28,8 @@ public record ProfileCreateModel(
 	@Schema(description = "Work unit code.", example = "LABOUR")
 	String workUnitCode,
 
-	@Schema(description = "Language code.", example = "EN")
-	String languageCode,
+	@Schema(description = "Language ID.", example = "1")
+	Long languageId,
 
 	@NotNull(message = "Profile status code is required.")
 	@Schema(description = "Profile status code.", example = "ACTIVE")

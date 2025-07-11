@@ -1,7 +1,5 @@
 package ca.gov.dtsstn.vacman.api.web.model;
 
-import java.time.Instant;
-
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.AccessMode;
 
@@ -39,6 +37,9 @@ public record UserReadModel(
 
 	@Schema(description = "The business email of this user.", example = "john.doe@example.com")
 	String businessEmail,
+
+	@Schema(description = "The language ID for this user.", example = "1")
+	Long languageId,
 
 	@Schema(accessMode = AccessMode.READ_ONLY, description = "The user or service that created this user.", example = "vacman-api")
 	String userCreated,

@@ -110,7 +110,7 @@ class UsersControllerTest {
 			.businessPhoneNumber("555-123-4567")
 			.build();
 
-		final var userCreateModel = new UserCreateModel("test@example.com", "employee");
+		final var userCreateModel = new UserCreateModel("test@example.com", "employee", 1L);
 
 		when(userService.createUser(any(UserCreateModel.class))).thenReturn(mockUser);
 
@@ -214,7 +214,7 @@ class UsersControllerTest {
 		final var userUpdate = new UserUpdateModel(
 			userId, "admin", "2ca209f5-7913-491e-af5a-1f488ce0613b",
 			"Jane", "M", "Smith", "JMS", "67890",
-			"555-987-6543", "jane.smith@example.com"
+			"555-987-6543", "jane.smith@example.com", 1L
 		);
 
 		final var updatedUser = new UserEntityBuilder()
@@ -244,7 +244,7 @@ class UsersControllerTest {
 		final var userUpdate = new UserUpdateModel(
 			userId, "admin", "2ca209f5-7913-491e-af5a-1f488ce0613b",
 			"Jane", "M", "Smith", "JMS", "67890",
-			"555-987-6543", "jane.smith@example.com"
+			"555-987-6543", "jane.smith@example.com", 1L
 		);
 
 		when(userService.updateUser(any(UserUpdateModel.class))).thenReturn(Optional.empty());
@@ -266,7 +266,7 @@ class UsersControllerTest {
 		final var userUpdate = new UserUpdateModel(
 			bodyId, "admin", "2ca209f5-7913-491e-af5a-1f488ce0613b",
 			"Jane", "M", "Smith", "JMS", "67890",
-			"555-987-6543", "jane.smith@example.com"
+			"555-987-6543", "jane.smith@example.com", 1L
 		);
 
 		mockMvc.perform(patch("/api/v1/users/" + pathId)

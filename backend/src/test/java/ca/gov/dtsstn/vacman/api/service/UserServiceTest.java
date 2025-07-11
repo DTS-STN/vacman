@@ -17,10 +17,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import ca.gov.dtsstn.vacman.api.data.entity.LanguageEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntityBuilder;
 import ca.gov.dtsstn.vacman.api.data.entity.UserTypeEntity;
+import ca.gov.dtsstn.vacman.api.data.repository.LanguageRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.UserRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.UserTypeRepository;
 import ca.gov.dtsstn.vacman.api.web.model.UserCreateModel;
@@ -38,6 +40,9 @@ class UserServiceTest {
 	UserTypeRepository userTypeRepository;
 
 	@Mock
+	LanguageRepository languageRepository;
+
+	@Mock
 	UserModelMapper userModelMapper;
 
 	UserService userService;
@@ -47,6 +52,7 @@ class UserServiceTest {
 		this.userService = new UserService(
 			userRepository,
 			userTypeRepository,
+			languageRepository,
 			userModelMapper
 		);
 	}
@@ -58,6 +64,8 @@ class UserServiceTest {
 			.thenAnswer(invocation -> invocation.getArgument(0));
 		when(userTypeRepository.findByCode("employee"))
 			.thenReturn(Optional.of(new UserTypeEntity()));
+		when(languageRepository.findById(1L))
+			.thenReturn(Optional.of(createMockLanguageEntity(1L, "EN", "English", "Anglais")));
 		when(userModelMapper.toEntity(any(UserCreateModel.class)))
 			.thenReturn(new UserEntityBuilder()
 				.firstName("Test")
@@ -65,7 +73,7 @@ class UserServiceTest {
 				.profiles(List.of(new ProfileEntity()))
 				.build());
 
-		final var userCreateModel = new UserCreateModel("test@example.com", "employee");
+		final var userCreateModel = new UserCreateModel("test@example.com", "employee", 1L);
 
 		userService.createUser(userCreateModel);
 
@@ -133,7 +141,7 @@ class UserServiceTest {
 		final var updateModel = new UserUpdateModel(
 			999L, "admin", "2ca209f5-7913-491e-af5a-1f488ce0613b",
 			"Jane", "M", "Smith", "JMS", "67890",
-			"555-987-6543", "jane.smith@example.com"
+			"555-987-6543", "jane.smith@example.com", 1L
 		);
 
 		when(userRepository.findById(999L)).thenReturn(Optional.empty());
@@ -158,7 +166,7 @@ class UserServiceTest {
 		final var updateModel = new UserUpdateModel(
 			userId, "admin", "2ca209f5-7913-491e-af5a-1f488ce0613b",
 			"Jane", "M", "Smith", "JMS", "67890",
-			"555-987-6543", "jane.smith@example.com"
+			"555-987-6543", "jane.smith@example.com", 2L
 		);
 
 		final var mockUserType = new UserTypeEntity();
@@ -166,6 +174,8 @@ class UserServiceTest {
 
 		when(userRepository.findById(userId)).thenReturn(Optional.of(existingUser));
 		when(userTypeRepository.findByCode("admin")).thenReturn(Optional.of(mockUserType));
+		when(languageRepository.findById(2L))
+			.thenReturn(Optional.of(createMockLanguageEntity(2L, "FR", "French", "Français")));
 		when(userRepository.save(any(UserEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
 		// Configure the mock mapper to simulate the mapping behavior
@@ -216,7 +226,7 @@ class UserServiceTest {
 		final var updateModel = new UserUpdateModel(
 			userId, null, "2ca209f5-7913-491e-af5a-1f488ce0613b",
 			"Jane", "M", "Smith", "JMS", "67890",
-			"555-987-6543", "jane.smith@example.com"
+			"555-987-6543", "jane.smith@example.com", null
 		);
 
 		when(userRepository.findById(userId)).thenReturn(Optional.of(existingUser));
@@ -250,6 +260,15 @@ class UserServiceTest {
 		verify(userRepository).findById(userId);
 		verify(userRepository).save(any(UserEntity.class));
 		verify(userTypeRepository, never()).findByCode(any());
+	}
+
+	private LanguageEntity createMockLanguageEntity(Long id, String code, String nameEn, String nameFr) {
+		LanguageEntity language = new LanguageEntity();
+		language.setId(id);
+		language.setCode(code);
+		language.setNameEn(nameEn);
+		language.setNameFr(nameFr);
+		return language;
 	}
 
 }

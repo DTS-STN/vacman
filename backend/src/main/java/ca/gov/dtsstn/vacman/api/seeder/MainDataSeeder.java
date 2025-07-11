@@ -14,10 +14,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import ca.gov.dtsstn.vacman.api.config.DatabaseSeederConfig;
 import ca.gov.dtsstn.vacman.api.data.entity.AppointmentNonAdvertisedEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.CityEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.ClassificationEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.EmploymentTenureEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.LanguageEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.LanguageRequirementEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.PriorityLevelEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.ProfileStatusEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.RequestEntity;
@@ -26,13 +28,16 @@ import ca.gov.dtsstn.vacman.api.data.entity.SecurityClearanceEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.SelectionProcessTypeEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.UserTypeEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.WfaStatusEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.WorkScheduleEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.WorkUnitEntity;
 import ca.gov.dtsstn.vacman.api.data.repository.AppointmentNonAdvertisedRepository;
+import ca.gov.dtsstn.vacman.api.data.repository.CityRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.ClassificationRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.EmploymentTenureRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.LanguageRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.LanguageRequirementRepository;
+import ca.gov.dtsstn.vacman.api.data.repository.PriorityLevelRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.ProfileRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.ProfileStatusRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.RequestRepository;
@@ -41,6 +46,7 @@ import ca.gov.dtsstn.vacman.api.data.repository.SecurityClearanceRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.SelectionProcessTypeRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.UserRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.UserTypeRepository;
+import ca.gov.dtsstn.vacman.api.data.repository.WfaStatusRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.WorkScheduleRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.WorkUnitRepository;
 import jakarta.persistence.EntityManager;
@@ -75,6 +81,9 @@ public class MainDataSeeder {
     private final RequestStatusRepository requestStatusRepository;
     private final WorkUnitRepository workUnitRepository;
     private final ProfileStatusRepository profileStatusRepository;
+    private final CityRepository cityRepository;
+    private final WfaStatusRepository wfaStatusRepository;
+    private final PriorityLevelRepository priorityLevelRepository;
 
     // Additional repositories for Request entity requirements
     private final AppointmentNonAdvertisedRepository appointmentNonAdvertisedRepository;
@@ -91,6 +100,9 @@ public class MainDataSeeder {
     private List<RequestStatusEntity> requestStatuses;
     private List<WorkUnitEntity> workUnits;
     private List<ProfileStatusEntity> profileStatuses;
+    private List<CityEntity> cities;
+    private List<WfaStatusEntity> wfaStatuses;
+    private List<PriorityLevelEntity> priorityLevels;
     private List<AppointmentNonAdvertisedEntity> appointmentNonAdvertiseds;
     private List<LanguageRequirementEntity> languageRequirements;
     private List<EmploymentTenureEntity> employmentTenures;
@@ -109,6 +121,9 @@ public class MainDataSeeder {
         RequestStatusRepository requestStatusRepository,
         WorkUnitRepository workUnitRepository,
         ProfileStatusRepository profileStatusRepository,
+        CityRepository cityRepository,
+        WfaStatusRepository wfaStatusRepository,
+        PriorityLevelRepository priorityLevelRepository,
         AppointmentNonAdvertisedRepository appointmentNonAdvertisedRepository,
         LanguageRequirementRepository languageRequirementRepository,
         EmploymentTenureRepository employmentTenureRepository,
@@ -126,6 +141,9 @@ public class MainDataSeeder {
         this.requestStatusRepository = requestStatusRepository;
         this.workUnitRepository = workUnitRepository;
         this.profileStatusRepository = profileStatusRepository;
+        this.cityRepository = cityRepository;
+        this.wfaStatusRepository = wfaStatusRepository;
+        this.priorityLevelRepository = priorityLevelRepository;
         this.appointmentNonAdvertisedRepository = appointmentNonAdvertisedRepository;
         this.languageRequirementRepository = languageRequirementRepository;
         this.employmentTenureRepository = employmentTenureRepository;
@@ -140,6 +158,8 @@ public class MainDataSeeder {
 
     @Transactional
     public void seedMainData() {
+        logger.info("=== STARTING MAIN DATA SEEDING ===");
+
         if (config.isLogSeedingProgress()) {
             logger.info("Starting main data seeding...");
         }
@@ -147,8 +167,8 @@ public class MainDataSeeder {
         // Validate configuration
         config.validate();
 
-        // Cache lookup data for better performance
-        cacheLookupData();
+        // Load lookup data from database
+        loadLookupData();
 
         // Validate that we have required lookup data
         if (!validateLookupData()) {
@@ -193,7 +213,9 @@ public class MainDataSeeder {
         }
     }
 
-    private void cacheLookupData() {
+    private void loadLookupData() {
+        logger.info("=== LOADING LOOKUP DATA FROM DATABASE ===");
+
         userTypes = userTypeRepository.findAll();
         languages = languageRepository.findAll();
         classifications = classificationRepository.findAll();
@@ -201,6 +223,9 @@ public class MainDataSeeder {
         requestStatuses = requestStatusRepository.findAll();
         workUnits = workUnitRepository.findAll();
         profileStatuses = profileStatusRepository.findAll();
+        cities = cityRepository.findAll();
+        wfaStatuses = wfaStatusRepository.findAll();
+        priorityLevels = priorityLevelRepository.findAll();
 
         // Cache additional lookup data required for requests
         appointmentNonAdvertiseds = appointmentNonAdvertisedRepository.findAll();
@@ -208,6 +233,19 @@ public class MainDataSeeder {
         employmentTenures = employmentTenureRepository.findAll();
         selectionProcessTypes = selectionProcessTypeRepository.findAll();
         workSchedules = workScheduleRepository.findAll();
+
+        // Always log this regardless of config - it's critical for debugging
+        logger.info("Loaded lookup data counts - Languages: {}, UserTypes: {}, Classifications: {}, Cities: {}",
+                   languages.size(), userTypes.size(), classifications.size(), cities.size());
+
+        if (!languages.isEmpty()) {
+            logger.info("Available languages: {}",
+                       languages.stream().map(l -> l.getCode() + ":" + l.getNameEn()).toList());
+        } else {
+            logger.error("CRITICAL: No languages found in database! User creation will fail!");
+        }
+
+        logger.info("=== LOOKUP DATA LOADING COMPLETE ===");
     }
 
     private boolean validateLookupData() {
@@ -237,6 +275,18 @@ public class MainDataSeeder {
 
         if (profileStatuses.isEmpty()) {
             logger.warn("No profile statuses found - profiles may not be created properly");
+        }
+
+        if (cities.isEmpty()) {
+            logger.warn("No cities found - profiles may not have location data");
+        }
+
+        if (wfaStatuses.isEmpty()) {
+            logger.warn("No WFA statuses found - profiles may not have WFA status data");
+        }
+
+        if (priorityLevels.isEmpty()) {
+            logger.warn("No priority levels found - profiles may not have priority data");
         }
 
         // Validate additional lookup entities required for requests
@@ -323,12 +373,25 @@ public class MainDataSeeder {
             return;
         }
 
+        // Ensure we have languages available
+        if (languages.isEmpty()) {
+            logger.error("Cannot create users: no languages available");
+            return;
+        }
+
         for (int i = 0; i < count; i++) {
             String firstName = firstNames[random.nextInt(firstNames.length)];
             String lastName = lastNames[random.nextInt(lastNames.length)];
             String email = generateUniqueEmail(firstName, lastName, users.size() + i + 1);
 
-            UserEntity user = createUser(email, firstName, lastName, userType, getRandomElement(languages));
+            // Get a valid language - use first language as fallback if random selection fails
+            LanguageEntity language = getRandomElement(languages);
+            if (language == null) {
+                language = languages.get(0); // Fallback to first language
+                logger.warn("Random language selection failed, using fallback language: {}", language.getNameEn());
+            }
+
+            UserEntity user = createUser(email, firstName, lastName, userType, language);
             users.add(user);
         }
     }
@@ -508,8 +571,42 @@ public class MainDataSeeder {
         user.setLanguage(language);
         user.setNetworkName("NET" + String.format("%04d", random.nextInt(10000)));
         user.setUuName("UU" + String.format("%04d", random.nextInt(10000)));
+
+        // Add optional fields with realistic data
+        if (random.nextBoolean()) {
+            user.setMiddleName(generateMiddleName());
+        }
+
+        if (random.nextDouble() < 0.3) { // 30% chance of having initials
+            user.setInitial(firstName.substring(0, 1) + (user.getMiddleName() != null ? user.getMiddleName().substring(0, 1) : "") + lastName.substring(0, 1));
+        }
+
+        if (random.nextDouble() < 0.8) { // 80% chance of having a business phone
+            user.setBusinessPhoneNumber(generateBusinessPhoneNumber());
+        }
+
+        if (random.nextDouble() < 0.6) { // 60% chance of having a PRI
+            user.setPersonalRecordIdentifier(String.format("PRI%07d", random.nextInt(10000000)));
+        }
+
         user.setCreatedBy("SYSTEM");
         return user;
+    }
+
+    private String generateMiddleName() {
+        String[] middleNames = {
+            "James", "Marie", "Anne", "Michael", "Elizabeth", "David", "Catherine", "Robert",
+            "Michelle", "Christopher", "Jennifer", "Daniel", "Patricia", "Matthew", "Linda"
+        };
+        return middleNames[random.nextInt(middleNames.length)];
+    }
+
+    private String generateBusinessPhoneNumber() {
+        // Generate Canadian government phone number format: +1-XXX-XXX-XXXX
+        int areaCode = 613 + random.nextInt(3); // 613, 614, 615 (Ottawa area codes)
+        int exchange = 200 + random.nextInt(800); // Valid exchange codes
+        int number = random.nextInt(10000);
+        return String.format("+1-%03d-%03d-%04d", areaCode, exchange, number);
     }
 
     private ProfileEntity createProfile(UserEntity user, ClassificationEntity classification,
@@ -521,9 +618,62 @@ public class MainDataSeeder {
         profile.setClassification(classification);
         profile.setWorkUnit(workUnit);
         profile.setProfileStatus(profileStatus);
+
+        // Populate additional foreign key relationships
+        if (!cities.isEmpty() && random.nextDouble() < 0.8) { // 80% chance of having a city
+            profile.setCity(getRandomElement(cities));
+        }
+
+        if (!wfaStatuses.isEmpty() && random.nextDouble() < 0.4) { // 40% chance of having WFA status
+            profile.setWfaStatus(getRandomElement(wfaStatuses));
+        }
+
+        if (!priorityLevels.isEmpty() && random.nextDouble() < 0.3) { // 30% chance of having priority level
+            profile.setPriorityLevel(getRandomElement(priorityLevels));
+        }
+
+        if (!languages.isEmpty() && random.nextDouble() < 1.0) { // 100% chance of having a language preference
+            profile.setLanguage(getRandomElement(languages));
+        }
+
+        // Populate boolean indicators with realistic distributions
+        profile.setPrivacyConsentInd(random.nextDouble() < 0.95); // 95% consent to privacy
+        profile.setAvailableForReferralInd(random.nextDouble() < 0.8); // 80% available for referral
+        profile.setInterestedInAlternationInd(random.nextDouble() < 0.6); // 60% interested in alternation
+
+        // Add personal contact information for some profiles
+        if (random.nextDouble() < 0.6) { // 60% chance of personal phone
+            profile.setPersonalPhoneNumber(generatePersonalPhoneNumber());
+        }
+
+        if (random.nextDouble() < 0.4) { // 40% chance of personal email
+            profile.setPersonalEmailAddress(generatePersonalEmail(user.getFirstName(), user.getLastName()));
+        }
+
         profile.setAdditionalComment(generateProfileComment(user, profileStatus));
         profile.setCreatedBy("SYSTEM");
         return profile;
+    }
+
+    private String generatePersonalPhoneNumber() {
+        // Generate Canadian mobile number format: +1-XXX-XXX-XXXX
+        int areaCode = 416 + random.nextInt(10); // Various Canadian area codes
+        int exchange = 300 + random.nextInt(700); // Mobile exchange codes
+        int number = random.nextInt(10000);
+        return String.format("+1-%03d-%03d-%04d", areaCode, exchange, number);
+    }
+
+    private String generatePersonalEmail(String firstName, String lastName) {
+        String[] domains = {"gmail.com", "yahoo.ca", "hotmail.com", "outlook.com", "icloud.com"};
+        String domain = domains[random.nextInt(domains.length)];
+        String prefix = firstName.toLowerCase() + "." + lastName.toLowerCase();
+
+        // Sometimes add a number to make it unique
+        if (random.nextBoolean()) {
+            prefix += random.nextInt(100);
+        }
+
+        return prefix + "@" + domain;
     }
 
     private String generateProfileComment(UserEntity user, ProfileStatusEntity status) {
@@ -569,8 +719,97 @@ public class MainDataSeeder {
         LocalDate endDate = generateEndDate(startDate, status);
         request.setEndDate(endDate);
 
+        // Populate optional fields with realistic data
+        if (random.nextDouble() < 0.7) { // 70% chance of having priority clearance number
+            request.setPriorityClearanceNumber("PC-" + String.format("%06d", random.nextInt(1000000)));
+        }
+
+        request.setAllowTeleworkIndicator(random.nextDouble() < 0.8); // 80% allow telework
+
+        if (random.nextDouble() < 0.3) { // 30% chance of alternate contact email
+            request.setAlternateContactEmailAddress(generateAlternateContactEmail());
+        }
+
+        if (random.nextDouble() < 0.9) { // 90% chance of having request number
+            request.setRequestNumber("REQ" + String.format("%07d", random.nextInt(10000000)));
+        }
+
+        request.setEmploymentEquityNeedIdentifiedIndicator(random.nextDouble() < 0.25); // 25% have EE need
+
+        if (random.nextDouble() < 0.6) { // 60% chance of selection process number
+            request.setSelectionProcessNumber("SP-" + String.format("%08d", random.nextInt(100000000)));
+        }
+
+        if (random.nextDouble() < 0.8) { // 80% chance of position number
+            request.setPositionNumber(generatePositionNumber());
+        }
+
+        // Language profiles (official language requirements)
+        if (random.nextDouble() < 0.7) { // 70% chance of having language profiles
+            String[] languageProfiles = {"BBB", "BBC", "CCC", "CBB", "BCC"};
+            request.setLanguageProfileEn(languageProfiles[random.nextInt(languageProfiles.length)]);
+            request.setLanguageProfileFr(languageProfiles[random.nextInt(languageProfiles.length)]);
+        }
+
+        // SOMC and conditions of employment
+        if (random.nextDouble() < 0.4) { // 40% chance of having SOMC
+            request.setSomcAndConditionEmploymentEn(generateSomcConditions("en"));
+            request.setSomcAndConditionEmploymentFr(generateSomcConditions("fr"));
+        }
+
+        if (random.nextDouble() < 0.5) { // 50% chance of additional comments
+            request.setAdditionalComment(generateRequestComment(nameEn, status));
+        }
+
         request.setCreatedBy("SYSTEM");
         return request;
+    }
+
+    private String generateAlternateContactEmail() {
+        String[] domains = {"gc.ca", "canada.ca", "tpsgc-pwgsc.gc.ca", "ic.gc.ca"};
+        String domain = domains[random.nextInt(domains.length)];
+        String prefix = "contact" + random.nextInt(1000);
+        return prefix + "@" + domain;
+    }
+
+    private String generatePositionNumber() {
+        // Generate realistic government position number format
+        String[] departments = {"DTSSTN", "ESDC", "HRSDC", "CRA", "PSPC"};
+        String dept = departments[random.nextInt(departments.length)];
+        int positionNum = 100000 + random.nextInt(900000);
+        return dept + "-" + positionNum;
+    }
+
+    private String generateSomcConditions(String language) {
+        if ("fr".equals(language)) {
+            String[] conditionsFr = {
+                "Conditions d'emploi spéciales selon les exigences du poste",
+                "Horaire de travail flexible avec possibilité de télétravail",
+                "Exigences de sécurité selon le niveau de classification",
+                "Formation obligatoire dans les 90 premiers jours"
+            };
+            return conditionsFr[random.nextInt(conditionsFr.length)];
+        } else {
+            String[] conditionsEn = {
+                "Special conditions of employment as per position requirements",
+                "Flexible work schedule with telework opportunities",
+                "Security requirements based on classification level",
+                "Mandatory training within the first 90 days"
+            };
+            return conditionsEn[random.nextInt(conditionsEn.length)];
+        }
+    }
+
+    private String generateRequestComment(String requestName, RequestStatusEntity status) {
+        String[] commentTemplates = {
+            "Request for %s - Status: %s",
+            "Staffing action: %s (Current status: %s)",
+            "Workforce planning request: %s - %s",
+            "Position filling request: %s (%s)"
+        };
+
+        String template = commentTemplates[random.nextInt(commentTemplates.length)];
+        return String.format(template, requestName, status.getNameEn().toLowerCase());
     }
 
     private LocalDate generateStartDate(RequestStatusEntity status) {
@@ -601,7 +840,10 @@ public class MainDataSeeder {
 
     // Helper methods for finding lookup data
     private <T> T getRandomElement(List<T> list) {
-        if (list.isEmpty()) return null;
+        if (list == null || list.isEmpty()) {
+            logger.warn("Attempting to get random element from null or empty list");
+            return null;
+        }
         return list.get(random.nextInt(list.size()));
     }
 

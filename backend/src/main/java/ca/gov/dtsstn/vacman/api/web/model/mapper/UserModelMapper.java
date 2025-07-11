@@ -22,6 +22,7 @@ public interface UserModelMapper {
     @Mapping(source = "personalRecordIdentifier", target = "personalRecordIdentifier")
     @Mapping(source = "businessPhoneNumber", target = "businessPhone")
     @Mapping(source = "businessEmailAddress", target = "businessEmail")
+    @Mapping(source = "language.id", target = "languageId")
     @Mapping(source = "createdBy", target = "userCreated")
     @Mapping(target = "dateCreated", expression = "java(entity.getCreatedDate() != null ? entity.getCreatedDate().toString() : null)")
     @Mapping(source = "lastModifiedBy", target = "userUpdated")

@@ -84,10 +84,10 @@ public class ProfileService {
                             "Classification not found with code: " + createModel.classificationCode())));
         }
 
-        if (createModel.languageCode() != null) {
-            profile.setLanguage(languageRepository.findByCode(createModel.languageCode())
+        if (createModel.languageId() != null) {
+            profile.setLanguage(languageRepository.findById(createModel.languageId())
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                            "Language not found with code: " + createModel.languageCode())));
+                            "Language not found with ID: " + createModel.languageId())));
         }
 
         if (createModel.priorityLevelCode() != null) {

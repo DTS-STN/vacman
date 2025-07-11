@@ -9,14 +9,17 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import ca.gov.dtsstn.vacman.api.config.DatabaseSeederConfig;
+import ca.gov.dtsstn.vacman.api.data.repository.CityRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.ClassificationRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.LanguageRepository;
+import ca.gov.dtsstn.vacman.api.data.repository.PriorityLevelRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.ProfileRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.ProfileStatusRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.RequestRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.RequestStatusRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.UserRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.UserTypeRepository;
+import ca.gov.dtsstn.vacman.api.data.repository.WfaStatusRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.WorkUnitRepository;
 
 /**
@@ -46,6 +49,9 @@ public class DatabaseSeeder implements CommandLineRunner {
     private final WorkUnitRepository workUnitRepository;
     private final ProfileStatusRepository profileStatusRepository;
     private final RequestStatusRepository requestStatusRepository;
+    private final CityRepository cityRepository;
+    private final WfaStatusRepository wfaStatusRepository;
+    private final PriorityLevelRepository priorityLevelRepository;
 
     public DatabaseSeeder(
         DatabaseSeederConfig config,
@@ -59,7 +65,10 @@ public class DatabaseSeeder implements CommandLineRunner {
         ClassificationRepository classificationRepository,
         WorkUnitRepository workUnitRepository,
         ProfileStatusRepository profileStatusRepository,
-        RequestStatusRepository requestStatusRepository
+        RequestStatusRepository requestStatusRepository,
+        CityRepository cityRepository,
+        WfaStatusRepository wfaStatusRepository,
+        PriorityLevelRepository priorityLevelRepository
     ) {
         this.config = config;
         this.mainDataSeeder = mainDataSeeder;
@@ -73,6 +82,9 @@ public class DatabaseSeeder implements CommandLineRunner {
         this.workUnitRepository = workUnitRepository;
         this.profileStatusRepository = profileStatusRepository;
         this.requestStatusRepository = requestStatusRepository;
+        this.cityRepository = cityRepository;
+        this.wfaStatusRepository = wfaStatusRepository;
+        this.priorityLevelRepository = priorityLevelRepository;
     }
 
     @Override
@@ -180,13 +192,16 @@ public class DatabaseSeeder implements CommandLineRunner {
             boolean hasWorkUnits = workUnitRepository.count() > 0;
             boolean hasProfileStatuses = profileStatusRepository.count() > 0;
             boolean hasRequestStatuses = requestStatusRepository.count() > 0;
+            boolean hasCities = cityRepository.count() > 0;
+            boolean hasWfaStatuses = wfaStatusRepository.count() > 0;
+            boolean hasPriorityLevels = priorityLevelRepository.count() > 0;
 
             if (config.isLogSeedingProgress()) {
-                logger.info("Lookup data verification: UserTypes={}, Languages={}, Classifications={}, WorkUnits={}, ProfileStatuses={}, RequestStatuses={}",
-                    hasUserTypes, hasLanguages, hasClassifications, hasWorkUnits, hasProfileStatuses, hasRequestStatuses);
+                logger.info("Lookup data verification: UserTypes={}, Languages={}, Classifications={}, WorkUnits={}, ProfileStatuses={}, RequestStatuses={}, Cities={}, WfaStatuses={}, PriorityLevels={}",
+                    hasUserTypes, hasLanguages, hasClassifications, hasWorkUnits, hasProfileStatuses, hasRequestStatuses, hasCities, hasWfaStatuses, hasPriorityLevels);
             }
 
-            return hasUserTypes && hasLanguages && hasClassifications && hasWorkUnits && hasProfileStatuses && hasRequestStatuses;
+            return hasUserTypes && hasLanguages && hasClassifications && hasWorkUnits && hasProfileStatuses && hasRequestStatuses && hasCities && hasWfaStatuses && hasPriorityLevels;
         } catch (Exception e) {
             logger.error("Error verifying lookup data existence", e);
             return false;

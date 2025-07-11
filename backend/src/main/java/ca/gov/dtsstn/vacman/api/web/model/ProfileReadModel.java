@@ -38,9 +38,9 @@ public record ProfileReadModel(
     @JsonProperty("workUnitCode")
     String workUnitCode,
 
-    @Schema(description = "Language code", example = "EN")
-    @JsonProperty("languageCode")
-    String languageCode,
+    @Schema(description = "Language ID", example = "1")
+    @JsonProperty("languageId")
+    Long languageId,
 
     @Schema(description = "Profile status code", example = "ACTIVE")
     @JsonProperty("profileStatusCode")

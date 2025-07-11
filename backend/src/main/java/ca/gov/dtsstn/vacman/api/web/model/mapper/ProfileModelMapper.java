@@ -16,7 +16,7 @@ public interface ProfileModelMapper {
     @Mapping(target = "cityCode", source = "city.code")
     @Mapping(target = "priorityLevelCode", source = "priorityLevel.code")
     @Mapping(target = "workUnitCode", source = "workUnit.code")
-    @Mapping(target = "languageCode", source = "language.code")
+    @Mapping(target = "languageId", source = "language.id")
     @Mapping(target = "profileStatusCode", source = "profileStatus.code")
     ProfileReadModel toModel(ProfileEntity entity);
 
