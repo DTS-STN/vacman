@@ -115,9 +115,7 @@ describe('notification-service-default', () => {
         json: vi.fn().mockResolvedValueOnce(mockEmailResultError400),
       });
 
-      const response = await notificationService.sendEmailNotification(engParams);
-
-      expect(response).toEqual(mockEmailResultError400);
+      await expect(notificationService.sendEmailNotification(engParams)).rejects.toThrow();
     });
 
     it('should mock sending an email with an invalid API-Key', async () => {
@@ -129,9 +127,7 @@ describe('notification-service-default', () => {
         json: vi.fn().mockResolvedValueOnce(mockEmailResultError403),
       });
 
-      const response = await notificationService.sendEmailNotification(engParams);
-
-      expect(response).toEqual(mockEmailResultError403);
+      await expect(notificationService.sendEmailNotification(engParams)).rejects.toThrow();
     });
   });
 });

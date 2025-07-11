@@ -28,6 +28,7 @@ export function getDefaultNotificationService(): NotificationService {
           headers: {
             'Authorization': `ApiKey-v1 ${serverEnvironment.GC_NOTIFY_API_KEY}`,
             'Content-Type': 'application/json',
+            'Ocp-ApimSubscription-Key': `${serverEnvironment.INTEROP_API_SUBSCRIPTION_KEY}`,
           },
           body: JSON.stringify({ emailData }),
         });
@@ -41,16 +42,13 @@ export function getDefaultNotificationService(): NotificationService {
         );
       }
 
+      // One single error code for all errors from the GC-Notify API
       if (!response.ok) {
-        if (response.status === HttpStatusCodes.TOO_MANY_REQUESTS) {
-          throw new AppError(
-            'Failed to POST to /notifications/email. Status: 429, Status Text: Too Many Requests',
-            ErrorCodes.XAPI_TOO_MANY_REQUESTS,
-          );
-        }
-
-        // Next line crashes the tests when testing for errors
-        //throw new Error(`Failed to 'POST' email notification. Status: ${response.status}, Status Text: ${response.statusText}`);
+        throw new AppError(
+          `Failed to POST to ${serverEnvironment.GC_NOTIFY_API_URL}. Status: ${response.status}, Status Text: ${response.statusText}`,
+          ErrorCodes.GC_NOTIFY_API_ERROR,
+          { httpStatusCode: HttpStatusCodes.SERVICE_UNAVAILABLE },
+        );
       }
 
       try {

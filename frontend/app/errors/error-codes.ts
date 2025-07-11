@@ -50,6 +50,7 @@ export const ErrorCodes = {
   XAPI_AUTHENTICATION: 'XAPI-403', //http 402 Invalid Api Key
   XAPI_TEMPLATE: 'XAPI-400', //http 400 Invalid Email/Template Id
   XAPI_NETWORK_500_ERROR: 'XAPI-0500', //network error
+  GC_NOTIFY_API_ERROR: 'GCNOT-0001', //error from the GC Notify API
 
   // profile error codes
   PROFILE_NOT_FOUND: 'PRF-0001',
