@@ -12,19 +12,19 @@ import jakarta.persistence.MappedSuperclass;
 @MappedSuperclass
 public abstract class AbstractLookupEntity extends AbstractEntity {
 
-	@Column(length = 20, nullable = false, unique = true)
+	@Column(length = 20, nullable = false)
 	protected String code;
 
-	@Column(length = 100, nullable = false, unique = true)
+	@Column(length = 100, nullable = false)
 	protected String nameEn;
 
-	@Column(length = 100, nullable = false, unique = true)
+	@Column(length = 100, nullable = false)
 	protected String nameFr;
 
-	@Column(name = "EFFECTIVE_DATE", nullable = false)
+	@Column(name = "[EFFECTIVE_DATE]", nullable = false)
 	protected LocalDateTime effectiveDate;
 
-	@Column(name = "EXPIRY_DATE", nullable = true)
+	@Column(name = "[EXPIRY_DATE]", nullable = true)
 	protected LocalDateTime expiryDate;
 
 	public AbstractLookupEntity() {
