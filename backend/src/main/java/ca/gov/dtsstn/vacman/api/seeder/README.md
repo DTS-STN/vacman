@@ -29,9 +29,9 @@ The seeder verifies that lookup data exists before creating main entities, ensur
 
 The seeder is configured via application YAML files with environment-specific settings:
 
-- `application-dev.yaml` - Development environment (25 users, 20 profiles, 15 requests)
-- `application-local.yaml` - Local development (12 users, 22 profiles, 8 requests)
-- `application-h2.yaml` - H2 database testing (10 users, 10 profiles, 5 requests)
+- `application-dev.yaml` - Development environment
+- `application-local.yaml` - Local development
+- `application-h2.yaml` - H2 database testing
 
 ### Key Configuration Options
 
@@ -228,7 +228,7 @@ app:
 
 ### Users
 
-- **Count**: Configurable (default: 25 for dev, 12 for local, 10 for h2)
+- **Count**: Configurable
 - **Types**: Admin (8-10%), Hiring Manager (30-32%), Employee (60%)
 - **Languages**: Randomly assigned from available languages
 - **Attributes**: Unique emails, realistic names, proper foreign keys
@@ -255,7 +255,7 @@ app:
 
 ### Requests
 
-- **Count**: Configurable (default: 15 for dev, 8 for local, 5 for h2)
+- **Count**: Configurable
 - **Status**: Draft (25-30%), Submitted (30%), Under Review (20%), Approved (10-15%), Rejected (10%)
 - **Creators**: Randomly assigned from existing users
 - **Priority**: Randomly assigned priority levels

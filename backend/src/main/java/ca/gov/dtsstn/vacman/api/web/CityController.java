@@ -4,7 +4,6 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 import java.util.List;
 
-import org.mapstruct.factory.Mappers;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,12 +24,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @Tag(name = "Cities")
 @RequestMapping({ "/api/v1/cities" })
 public class CityController {
-
-	private final CityModelMapper cityModelMapper = Mappers.getMapper(CityModelMapper.class);
-
+	private final CityModelMapper cityModelMapper;
 	private final CityService cityService;
 
-	public CityController(CityService cityService) {
+	public CityController(CityModelMapper cityModelMapper, CityService cityService) {
+		this.cityModelMapper = cityModelMapper;
 		this.cityService = cityService;
 	}
 
