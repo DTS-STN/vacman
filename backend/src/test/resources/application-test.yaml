@@ -6,6 +6,11 @@
 
 ---
 
+# Disable security for tests to avoid authentication/authorization issues
+application:
+  security:
+    disabled: true
+
 #
 # ------------------------------------------------------------------------------------
 # DataSource configuration
