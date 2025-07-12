@@ -4,18 +4,16 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 import java.util.List;
 
-import org.mapstruct.factory.Mappers;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import ca.gov.dtsstn.vacman.api.config.SpringDocConfig;
 import ca.gov.dtsstn.vacman.api.service.EmploymentTenureService;
-import ca.gov.dtsstn.vacman.api.web.model.EmploymentTenureReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.CollectionModel;
+import ca.gov.dtsstn.vacman.api.web.model.EmploymentTenureReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.mapper.EmploymentTenureModelMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -27,12 +25,13 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @RequestMapping({ "/api/v1/employment-tenure" })
 public class EmploymentTenureController {
 
-	private final EmploymentTenureModelMapper employmentTenureModelMapper = Mappers.getMapper(EmploymentTenureModelMapper.class);
+	private final EmploymentTenureModelMapper employmentTenureModelMapper;
 
 	private final EmploymentTenureService employmentTenureService;
 
-	public EmploymentTenureController(EmploymentTenureService employmentTenureService) {
+	public EmploymentTenureController(EmploymentTenureService employmentTenureService, EmploymentTenureModelMapper employmentTenureModelMapper) {
 		this.employmentTenureService = employmentTenureService;
+		this.employmentTenureModelMapper = employmentTenureModelMapper;
 	}
 
 	@GetMapping
