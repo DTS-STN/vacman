@@ -12,7 +12,7 @@ public record UserCreateModel(
 	@Schema(description = "The role of this user.", example = "employee")
 	String role,
 
-	@NotNull(message = "Language ID is required.")
-	@Schema(description = "The language ID for this user.", example = "1")
-	Long languageId
+	@NotNull(message = "Language code is required.")
+	@Schema(description = "The language code for this user.", example = "EN")
+	String languageCode
 ) {}

@@ -64,7 +64,7 @@ class UserServiceTest {
 			.thenAnswer(invocation -> invocation.getArgument(0));
 		when(userTypeRepository.findByCode("employee"))
 			.thenReturn(Optional.of(new UserTypeEntity()));
-		when(languageRepository.findById(1L))
+		when(languageRepository.findByCode("EN"))
 			.thenReturn(Optional.of(createMockLanguageEntity(1L, "EN", "English", "Anglais")));
 		when(userModelMapper.toEntity(any(UserCreateModel.class)))
 			.thenReturn(new UserEntityBuilder()
@@ -73,7 +73,7 @@ class UserServiceTest {
 				.profiles(List.of(new ProfileEntity()))
 				.build());
 
-		final var userCreateModel = new UserCreateModel("test@example.com", "employee", 1L);
+		final var userCreateModel = new UserCreateModel("test@example.com", "employee", "EN");
 
 		userService.createUser(userCreateModel);
 
@@ -141,7 +141,7 @@ class UserServiceTest {
 		final var updateModel = new UserUpdateModel(
 			999L, "admin", "2ca209f5-7913-491e-af5a-1f488ce0613b",
 			"Jane", "M", "Smith", "JMS", "67890",
-			"555-987-6543", "jane.smith@example.com", 1L
+			"555-987-6543", "jane.smith@example.com", "FR"
 		);
 
 		when(userRepository.findById(999L)).thenReturn(Optional.empty());
@@ -166,7 +166,7 @@ class UserServiceTest {
 		final var updateModel = new UserUpdateModel(
 			userId, "admin", "2ca209f5-7913-491e-af5a-1f488ce0613b",
 			"Jane", "M", "Smith", "JMS", "67890",
-			"555-987-6543", "jane.smith@example.com", 2L
+			"555-987-6543", "jane.smith@example.com", "BOTH"
 		);
 
 		final var mockUserType = new UserTypeEntity();
@@ -174,8 +174,8 @@ class UserServiceTest {
 
 		when(userRepository.findById(userId)).thenReturn(Optional.of(existingUser));
 		when(userTypeRepository.findByCode("admin")).thenReturn(Optional.of(mockUserType));
-		when(languageRepository.findById(2L))
-			.thenReturn(Optional.of(createMockLanguageEntity(2L, "FR", "French", "Français")));
+		when(languageRepository.findByCode("BOTH"))
+			.thenReturn(Optional.of(createMockLanguageEntity(2L, "BOTH", "Both Official Languages", "Les deux langues officielles")));
 		when(userRepository.save(any(UserEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
 		// Configure the mock mapper to simulate the mapping behavior

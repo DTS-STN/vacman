@@ -4,7 +4,6 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 import java.util.List;
 
-import org.mapstruct.factory.Mappers;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,12 +25,12 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @RequestMapping({ "/api/v1/user-type" })
 public class UserTypeController {
 
-	private final UserTypeModelMapper userTypeModelMapper = Mappers.getMapper(UserTypeModelMapper.class);
-
+	private final UserTypeModelMapper userTypeModelMapper;
 	private final UserTypeService userTypeService;
 
-	public UserTypeController(UserTypeService userTypeService) {
+	public UserTypeController(UserTypeService userTypeService, UserTypeModelMapper userTypeModelMapper) {
 		this.userTypeService = userTypeService;
+		this.userTypeModelMapper = userTypeModelMapper;
 	}
 
 	@GetMapping

@@ -67,9 +67,9 @@ public class ProfileService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
                         "HR Advisor not found with ID: " + createModel.hrAdvisorUserId())));
 
-        profile.setProfileStatus(profileStatusRepository.findById(createModel.profileStatusId())
+        profile.setProfileStatus(profileStatusRepository.findByCode(createModel.profileStatusCode())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                        "Profile status not found with ID: " + createModel.profileStatusId())));
+                        "Profile status not found with code: " + createModel.profileStatusCode())));
 
         // Set optional relationship fields
         if (createModel.cityCode() != null) {
@@ -84,10 +84,10 @@ public class ProfileService {
                             "Classification not found with code: " + createModel.classificationCode())));
         }
 
-        if (createModel.languageId() != null) {
-            profile.setLanguage(languageRepository.findById(createModel.languageId())
+        if (createModel.languageCode() != null) {
+            profile.setLanguage(languageRepository.findByCode(createModel.languageCode())
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                            "Language not found with ID: " + createModel.languageId())));
+                            "Language not found with code: " + createModel.languageCode())));
         }
 
         if (createModel.priorityLevelCode() != null) {

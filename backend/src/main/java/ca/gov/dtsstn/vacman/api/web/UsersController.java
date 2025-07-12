@@ -5,7 +5,6 @@ import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.validator.constraints.Range;
-import org.mapstruct.factory.Mappers;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
@@ -38,12 +37,12 @@ import jakarta.validation.Valid;
 @RequestMapping({ "/api/v1/users" })
 public class UsersController {
 
-	private final UserModelMapper userModelMapper = Mappers.getMapper(UserModelMapper.class);
-
+	private final UserModelMapper userModelMapper;
 	private final UserService userService;
 
-	public UsersController(UserService userService) {
+	public UsersController(UserService userService, UserModelMapper userModelMapper) {
 		this.userService = userService;
+		this.userModelMapper = userModelMapper;
 	}
 
 	@GetMapping

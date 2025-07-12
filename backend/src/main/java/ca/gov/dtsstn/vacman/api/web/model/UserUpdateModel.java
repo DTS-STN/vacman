@@ -36,6 +36,6 @@ public record UserUpdateModel(
 	@Schema(description = "The business email of this user.", example = "john.doe@example.com")
 	String businessEmail,
 
-	@Schema(description = "The language ID for this user.", example = "1")
-	Long languageId
+	@Schema(description = "The language code for this user.", example = "EN")
+	String languageCode
 ) {}

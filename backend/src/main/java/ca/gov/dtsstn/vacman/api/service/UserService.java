@@ -45,10 +45,10 @@ public class UserService {
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
 						"User type not found for role: " + createModel.role())));
 
-		// Set language based on languageId
-		user.setLanguage(languageRepository.findById(createModel.languageId())
+		// Set language based on languageCode
+		user.setLanguage(languageRepository.findByCode(createModel.languageCode())
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
-						"Language not found with ID: " + createModel.languageId())));
+						"Language not found with code: " + createModel.languageCode())));
 
 		// Save and return the user (profiles are created separately as needed)
 		return userRepository.save(user);
@@ -91,10 +91,10 @@ public class UserService {
 		}
 
 		// Handle language update if provided
-		if (updateModel.languageId() != null) {
-			existingUser.setLanguage(languageRepository.findById(updateModel.languageId())
+		if (updateModel.languageCode() != null) {
+			existingUser.setLanguage(languageRepository.findByCode(updateModel.languageCode())
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
-					"Language not found with ID: " + updateModel.languageId())));
+					"Language not found with code: " + updateModel.languageCode())));
 		}
 
 		// Save and return updated user
