@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.AccessMode;
 
-@Schema(name = "Profile", description = "Profile model aligned with DDL PROFILE table structure")
+@Schema(name = "Profile", description = "Profile model")
 public record ProfileReadModel(
     @Schema(accessMode = AccessMode.READ_ONLY, description = "The unique identifier for this profile.")
     @JsonProperty("id")

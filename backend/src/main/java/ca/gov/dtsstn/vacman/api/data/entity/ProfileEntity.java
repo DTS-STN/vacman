@@ -18,7 +18,6 @@ import jakarta.persistence.Table;
 
 /**
  * Entity representing the PROFILE table.
- * Aligned exactly with the DDL PROFILE table structure.
  */
 @Entity(name = "Profile")
 @Table(name = "[PROFILE]")
