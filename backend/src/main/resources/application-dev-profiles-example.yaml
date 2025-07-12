@@ -16,9 +16,8 @@ app:
       clearDataFirst: true
       logSeedingProgress: true
 
-      # Independent counts - users and profiles are now decoupled
+      # Independent counts - now using flexible User-Profile relationships
       userCount: 50       # Total number of users to create
-      profileCount: 75    # Total number of profiles to create
       requestCount: 30    # Total number of requests to create
 
       # User type distribution (must sum to 1.0)

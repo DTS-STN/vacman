@@ -16,7 +16,6 @@ public class DatabaseSeederConfig {
 
     // Main entity counts
     private int userCount = 10;
-    private int profileCount = 10;
     private int requestCount = 8;
 
     // Relationship configuration
@@ -98,14 +97,6 @@ public class DatabaseSeederConfig {
 
     public void setUserCount(int userCount) {
         this.userCount = userCount;
-    }
-
-    public int getProfileCount() {
-        return profileCount;
-    }
-
-    public void setProfileCount(int profileCount) {
-        this.profileCount = profileCount;
     }
 
     public int getRequestCount() {
@@ -440,8 +431,8 @@ public class DatabaseSeederConfig {
      * Validates configuration constraints
      */
     public void validate() {
-        if (userCount <= 0 || profileCount <= 0 || requestCount <= 0) {
-            throw new IllegalArgumentException("Counts must be positive");
+        if (userCount <= 0 || requestCount <= 0) {
+            throw new IllegalArgumentException("User and request counts must be positive");
         }
 
         if (Math.abs(adminUserPercentage + hiringManagerPercentage + employeeUserPercentage - 1.0) > 0.001) {

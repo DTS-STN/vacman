@@ -31,8 +31,16 @@ app:
       seedLookupTables: true
       seedJunctionTables: true  # Enable junction tables now that they're working
       userCount: 10
-      profileCount: 10
       requestCount: 5
       clearDataFirst: false
       skipIfDataExists: false
       logSeedingProgress: true
+
+      # User-Profile relationship configuration (must sum to 1.0)
+      # Simple configuration for H2 testing
+      usersWithZeroProfilesPercentage: 0.1     # 10% of users have no profiles
+      usersWithOneProfilePercentage: 0.9       # 90% of users have exactly one profile
+      usersWithMultipleProfilesPercentage: 0.0 # 0% of users have multiple profiles (simple for testing)
+      minProfilesPerUserWithMultiple: 2        # Not used since percentage is 0
+      maxProfilesPerUserWithMultiple: 2        # Not used since percentage is 0
+      ensureOneActiveProfilePerUser: true      # Ensure only one ACTIVE profile per user

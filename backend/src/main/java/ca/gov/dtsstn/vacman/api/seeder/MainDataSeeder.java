@@ -462,20 +462,6 @@ public class MainDataSeeder {
             }
         }
 
-        // If we have fewer profiles than configured, create additional standalone profiles
-        int additionalProfilesNeeded = config.getProfileCount() - allProfiles.size();
-        if (additionalProfilesNeeded > 0) {
-            if (config.isLogSeedingProgress()) {
-                logger.info("Creating {} additional standalone profiles to reach target count", additionalProfilesNeeded);
-            }
-
-            for (int i = 0; i < additionalProfilesNeeded; i++) {
-                UserEntity randomUser = getRandomElement(users);
-                ProfileEntity profile = createProfileForUser(randomUser, selectProfileStatus(false));
-                allProfiles.add(profile);
-            }
-        }
-
         // Shuffle final list to randomize order
         Collections.shuffle(allProfiles, random);
 

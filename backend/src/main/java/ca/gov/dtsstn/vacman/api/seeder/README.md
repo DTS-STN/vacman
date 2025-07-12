@@ -50,8 +50,15 @@ app:
 
       # Entity counts (environment-specific)
       userCount: 25                   # Number of users to create
-      profileCount: 20                # Number of profiles to create
       requestCount: 15                # Number of requests to create
+
+      # User-Profile relationship configuration (replaces deprecated profileCount)
+      usersWithZeroProfilesPercentage: 0.1    # 10% of users have no profiles
+      usersWithOneProfilePercentage: 0.7      # 70% of users have exactly one profile
+      usersWithMultipleProfilesPercentage: 0.2 # 20% of users have multiple profiles
+      minProfilesPerUserWithMultiple: 2       # Minimum profiles for "multiple" users
+      maxProfilesPerUserWithMultiple: 4       # Maximum profiles for "multiple" users
+      ensureOneActiveProfilePerUser: true     # Ensure only one ACTIVE profile per user
 
       # User type distribution (must sum to 1.0)
       adminUserPercentage: 0.08       # 8% administrators
@@ -92,12 +99,31 @@ app:
 
 ## Features
 
+### Flexible User-Profile Relationships (NEW)
+
+The seeder now supports **independent configuration** of users and profiles, breaking away from the traditional 1:1 relationship:
+
+- **Zero Profiles**: Some users can have no profiles (useful for inactive/pending users)
+- **Single Profile**: Users can have exactly one profile (traditional approach)
+- **Multiple Profiles**: Users can have multiple profiles with different statuses
+- **Active Profile Control**: Optionally ensure only one ACTIVE profile per user
+- **Realistic Distribution**: Configurable percentages for each relationship type
+
+This allows for more realistic test scenarios where user-profile relationships vary based on business needs.
+
 ### Realistic Data Generation
 
 - **Names**: Uses pools of realistic first and last names
 - **Email addresses**: Generated with unique patterns (firstname.lastname{n}@example.com)
 - **Distributions**: Configurable percentages for user types, request statuses, profile statuses
 - **Relationships**: Proper foreign key relationships with configurable cardinalities
+
+### Enhanced Configuration Validation
+
+- **Percentage Validation**: All distribution percentages must sum to exactly 1.0
+- **Range Validation**: Min/max values are validated for logical consistency
+- **Dependency Validation**: Profile configuration dependencies are checked
+- **Negative Value Protection**: All percentages and counts must be non-negative
 
 ### Data Integrity
 
@@ -155,6 +181,49 @@ public void reseedDatabase() {
 }
 ```
 
+### Common Configuration Examples
+
+#### Scenario 1: Testing User Registration Flow (Many users, few profiles)
+
+```yaml
+app:
+  database:
+    seeder:
+      userCount: 50
+      usersWithZeroProfilesPercentage: 0.6   # 60% no profiles (new users)
+      usersWithOneProfilePercentage: 0.3     # 30% one profile
+      usersWithMultipleProfilesPercentage: 0.1 # 10% multiple profiles
+      ensureOneActiveProfilePerUser: true
+```
+
+#### Scenario 2: Testing Profile Management (Active users with profiles)
+
+```yaml
+app:
+  database:
+    seeder:
+      userCount: 30
+      usersWithZeroProfilesPercentage: 0.1   # 10% no profiles
+      usersWithOneProfilePercentage: 0.4     # 40% one profile
+      usersWithMultipleProfilesPercentage: 0.5 # 50% multiple profiles
+      minProfilesPerUserWithMultiple: 2
+      maxProfilesPerUserWithMultiple: 5
+      ensureOneActiveProfilePerUser: true
+```
+
+#### Scenario 3: Load Testing (High volume, simple relationships)
+
+```yaml
+app:
+  database:
+    seeder:
+      userCount: 1000
+      usersWithZeroProfilesPercentage: 0.0   # All users have profiles
+      usersWithOneProfilePercentage: 1.0     # All users have exactly one profile
+      usersWithMultipleProfilesPercentage: 0.0
+      ensureOneActiveProfilePerUser: true
+```
+
 ## Generated Data
 
 ### Users
@@ -166,11 +235,23 @@ public void reseedDatabase() {
 
 ### Profiles
 
-- **Count**: Configurable (default: 20 for dev, 22 for local, 10 for h2)
-- **Status**: Active (75%), Inactive (15%), Pending (10%)
+- **Distribution**: Now based on user relationships rather than fixed count
+- **Zero Profiles**: Configurable percentage of users with no profiles
+- **Single Profile**: Configurable percentage of users with exactly one profile
+- **Multiple Profiles**: Configurable percentage of users with 2+ profiles
+- **Status Control**: Can enforce single ACTIVE profile per user or allow multiple
+- **Status Distribution**: Active (75%), Inactive (15%), Pending (10%) applied per profile
 - **Classification**: Randomly assigned from available classifications
 - **Work Unit**: Randomly assigned from available work units
 - **HR Advisor**: Attempts to assign hiring managers as HR advisors
+
+**Example Distribution with 100 users:**
+
+- 10% (10 users) have zero profiles → 0 profiles
+- 70% (70 users) have one profile → 70 profiles
+- 20% (20 users) have 2-4 profiles → 40-80 profiles
+
+**Total**: 110-150 profiles (dynamic based on configuration)
 
 ### Requests
 
@@ -187,6 +268,45 @@ public void reseedDatabase() {
 - **Language Referral Types**: 1-2 per profile (configurable)
 - **Request-City**: 1-4 cities per request (configurable)
 - **Request-Employment Equity**: 0-2 equity groups per request (configurable)
+
+## Configuration Migration
+
+### Migration from profileCount to Profile Distribution (COMPLETED)
+
+The deprecated `profileCount` configuration has been removed. All configurations now use the new User-Profile relationship configuration.
+
+**Previous Configuration (Removed):**
+
+```yaml
+app:
+  database:
+    seeder:
+      userCount: 25
+      profileCount: 20  # REMOVED - No longer supported
+```
+
+**Current Configuration (Required):**
+
+```yaml
+app:
+  database:
+    seeder:
+      userCount: 25
+      # Profile distribution percentages (must sum to 1.0)
+      usersWithZeroProfilesPercentage: 0.1   # 10% no profiles
+      usersWithOneProfilePercentage: 0.7     # 70% one profile
+      usersWithMultipleProfilesPercentage: 0.2 # 20% multiple profiles
+      minProfilesPerUserWithMultiple: 2
+      maxProfilesPerUserWithMultiple: 4
+      ensureOneActiveProfilePerUser: true
+```
+
+**Migration Benefits:**
+
+- More realistic user-profile relationships
+- Better test scenario coverage
+- Configurable business logic enforcement
+- Dynamic profile count based on actual usage patterns
 
 ## Troubleshooting
 
@@ -216,7 +336,23 @@ public void reseedDatabase() {
 
    - Solution: Check that main entities are seeded before relationships
 
-4. **Profile Configuration Issues**
+4. **Profile Distribution Configuration Errors**
+
+   ```text
+   Error: Profile distribution percentages must sum to 1.0
+   ```
+
+   - Solution: Ensure `usersWithZeroProfilesPercentage + usersWithOneProfilePercentage + usersWithMultipleProfilesPercentage = 1.0`
+
+5. **Profile Range Configuration Errors**
+
+   ```text
+   Error: Minimum profiles per user with multiple must be at least 2
+   ```
+
+   - Solution: Set `minProfilesPerUserWithMultiple >= 2` and `maxProfilesPerUserWithMultiple >= minProfilesPerUserWithMultiple`
+
+6. **Profile Configuration Issues**
    - Issue: Seeder not running in expected environment
    - Solution: Verify the correct Spring profile is active (`dev`, `local`, or `h2`) and `app.database.seeder.enabled: true`
 
@@ -253,7 +389,24 @@ app:
    - Use government-appropriate classification distributions
    - Maintain realistic workflow state percentages
 
-4. **Keep lookup data in data.sql**:
+4. **Configure appropriate user-profile relationships**:
+
+   ```yaml
+   # Conservative distribution (most users have 0-1 profiles)
+   usersWithZeroProfilesPercentage: 0.2
+   usersWithOneProfilePercentage: 0.7
+   usersWithMultipleProfilesPercentage: 0.1
+
+   # Active distribution (more users with multiple profiles)
+   usersWithZeroProfilesPercentage: 0.1
+   usersWithOneProfilePercentage: 0.5
+   usersWithMultipleProfilesPercentage: 0.4
+
+   # Always ensure only one active profile per user for business logic
+   ensureOneActiveProfilePerUser: true
+   ```
+
+5. **Keep lookup data in data.sql**:
    - Don't modify lookup data via Java seeders
    - Use data.sql as the authoritative source
    - Let seeders focus on business entities and relationships

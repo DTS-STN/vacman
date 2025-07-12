@@ -36,7 +36,6 @@ app:
       seedLookupTables: false
       seedJunctionTables: true
       userCount: 25
-      profileCount: 20
       requestCount: 15
       clearDataFirst: true
       skipIfDataExists: true

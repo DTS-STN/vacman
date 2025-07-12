@@ -231,8 +231,8 @@ public class DatabaseSeeder implements CommandLineRunner {
     }
 
     private String getConfigSummary() {
-        return String.format("users=%d, profiles=%d, requests=%d, clearFirst=%s, seedLookups=%s, seedJunctions=%s",
-            config.getUserCount(), config.getProfileCount(), config.getRequestCount(),
+        return String.format("users=%d, requests=%d, clearFirst=%s, seedLookups=%s, seedJunctions=%s",
+            config.getUserCount(), config.getRequestCount(),
             config.isClearDataFirst(), config.isSeedLookupTables(), config.isSeedJunctionTables());
     }
 }
