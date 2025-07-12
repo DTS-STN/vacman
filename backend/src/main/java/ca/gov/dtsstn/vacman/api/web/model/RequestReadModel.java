@@ -19,19 +19,19 @@ public class RequestReadModel {
     @JsonProperty("requestNameFr")
     private String requestNameFr;
 
-    @Schema(description = "Security clearance code", example = "SECRET")
+    @Schema(description = "Security clearance code", example = "RELIABILITY")
     @JsonProperty("securityClearanceCode")
     private String securityClearanceCode;
 
-    @Schema(description = "Work unit code", example = "ITSB")
+    @Schema(description = "Work unit code", example = "LABOUR-SIG")
     @JsonProperty("workUnitCode")
     private String workUnitCode;
 
-    @Schema(description = "Classification code", example = "CS-02")
+    @Schema(description = "Classification code", example = "AS-04")
     @JsonProperty("classificationCode")
     private String classificationCode;
 
-    @Schema(description = "Request status code", example = "OPEN")
+    @Schema(description = "Request status code", example = "DRAFT")
     @JsonProperty("requestStatusCode")
     private String requestStatusCode;
 

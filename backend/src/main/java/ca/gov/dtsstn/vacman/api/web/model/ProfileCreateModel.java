@@ -13,26 +13,26 @@ public record ProfileCreateModel(
 	@Schema(description = "ID of the HR Advisor for this profile.", example = "1")
 	Long hrAdvisorUserId,
 
-	@Schema(description = "WFA status code.", example = "AVAILABLE")
+	@Schema(description = "WFA status code.", example = "AFFECTED")
 	String wfaStatusCode,
 
-	@Schema(description = "Classification code for the user.", example = "AS-03")
+	@Schema(description = "Classification code for the user.", example = "AS-05")
 	String classificationCode,
 
-	@Schema(description = "City code where the user is located.", example = "OTT")
+	@Schema(description = "City code where the user is located.", example = "ON52")
 	String cityCode,
 
-	@Schema(description = "Priority level code.", example = "HIGH")
+	@Schema(description = "Priority level code.", example = "NORMAL")
 	String priorityLevelCode,
 
-	@Schema(description = "Work unit code.", example = "HR")
+	@Schema(description = "Work unit code.", example = "LABOUR-COPD")
 	String workUnitCode,
 
-	@Schema(description = "Language code.", example = "EN")
+	@Schema(description = "Language code.", example = "FR")
 	String languageCode,
 
 	@NotNull(message = "Profile status code is required.")
-	@Schema(description = "Profile status code.", example = "ACTIVE")
+	@Schema(description = "Profile status code.", example = "PENDING")
 	String profileStatusCode,
 
 	@Schema(description = "Personal phone number.", example = "613-555-1234")

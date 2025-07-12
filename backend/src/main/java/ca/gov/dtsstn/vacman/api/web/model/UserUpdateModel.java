@@ -9,7 +9,7 @@ public record UserUpdateModel(
 	@Schema(description = "The unique identifier for this user.", example = "1")
 	Long id,
 
-	@Schema(description = "The role of this user.", example = "employee")
+	@Schema(description = "The role of this user.", example = "hiring-manager")
 	String role,
 
 	@Schema(description = "The network name of this user.", example = "2ca209f5-7913-491e-af5a-1f488ce0613b")
@@ -36,6 +36,6 @@ public record UserUpdateModel(
 	@Schema(description = "The business email of this user.", example = "john.doe@example.com")
 	String businessEmail,
 
-	@Schema(description = "The language code for this user.", example = "EN")
+	@Schema(description = "The language code for this user.", example = "FR")
 	String languageCode
 ) {}

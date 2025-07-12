@@ -19,7 +19,7 @@ public class CityProfileReadModel {
     @JsonProperty("cityId")
     private Long cityId;
 
-    @Schema(description = "City code", example = "OTTAWA")
+    @Schema(description = "City code", example = "ON52")
     @JsonProperty("cityCode")
     private String cityCode;
 

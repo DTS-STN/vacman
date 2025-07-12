@@ -9,10 +9,10 @@ public record UserCreateModel(
 	String activeDirectoryId,
 
 	@NotNull(message = "Role is required.")
-	@Schema(description = "The role of this user.", example = "employee")
+	@Schema(description = "The role of this user.", example = "admin")
 	String role,
 
 	@NotNull(message = "Language code is required.")
-	@Schema(description = "The language code for this user.", example = "EN")
+	@Schema(description = "The language code for this user.", example = "FR")
 	String languageCode
 ) {}
