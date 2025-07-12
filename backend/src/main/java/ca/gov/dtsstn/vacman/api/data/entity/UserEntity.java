@@ -22,7 +22,7 @@ import jakarta.persistence.UniqueConstraint;
     @UniqueConstraint(name = "USER_NAME_UK", columnNames = {"[NETWORK_NAME]", "[UU_NAME]"})
 })
 @AttributeOverride(name = "id", column = @Column(name = "[USER_ID]"))
-public class UserEntity extends AbstractEntity {
+public class UserEntity extends AbstractBusinessEntity {
 
 	@Column(name = "[BUSINESS_EMAIL_ADDRESS]", length = 320, nullable = false)
 	private String businessEmailAddress;

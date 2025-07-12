@@ -19,7 +19,7 @@ import jakarta.persistence.UniqueConstraint;
     @UniqueConstraint(name = "PLNGRLTYP_UK", columnNames = {"[PROFILE_ID]", "[LANGUAGE_REFERRAL_TYPE_ID]"})
 })
 @AttributeOverride(name = "id", column = @Column(name = "[PROFILE_LANGUAGE_REFERRAL_TYPE_ID]"))
-public class ProfileLanguageReferralTypeEntity extends AbstractEntity {
+public class ProfileLanguageReferralTypeEntity extends AbstractBusinessEntity {
 
 	@ManyToOne
 	@JoinColumn(name = "[PROFILE_ID]", nullable = false)

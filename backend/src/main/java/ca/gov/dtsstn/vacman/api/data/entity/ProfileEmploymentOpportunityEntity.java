@@ -23,7 +23,7 @@ import jakarta.persistence.UniqueConstraint;
     @UniqueConstraint(name = "PEMPOPPR_UK", columnNames = {"[EMPLOYMENT_OPPORTUNITY_ID]", "[PROFILE_ID]"})
 })
 @AttributeOverride(name = "id", column = @Column(name = "[PROFILE_EMPLOYMENT_OPPORTUNITY_ID]"))
-public class ProfileEmploymentOpportunityEntity extends AbstractEntity {
+public class ProfileEmploymentOpportunityEntity extends AbstractBusinessEntity {
 
     @ManyToOne
     @JoinColumn(name = "[EMPLOYMENT_OPPORTUNITY_ID]", nullable = false)

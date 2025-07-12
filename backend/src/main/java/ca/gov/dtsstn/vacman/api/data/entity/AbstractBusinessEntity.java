@@ -13,26 +13,29 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 
 /**
- * Legacy abstract entity - consider using AbstractCodeEntity or AbstractBusinessEntity instead.
- * This maintains backward compatibility but doesn't enforce database ID constraints.
- *
- * @deprecated Use AbstractCodeEntity for NUMERIC(6) IDs or AbstractBusinessEntity for NUMERIC(10) IDs
+ * Abstract entity for main business entities with NUMERIC(10) ID constraints.
+ * Maximum ID value: 9,999,999,999
  */
 @MappedSuperclass
 @EntityListeners({ AuditingEntityListener.class })
-@Deprecated(since = "1.0", forRemoval = false)
-public abstract class AbstractEntity extends AbstractAuditableEntity {
+public abstract class AbstractBusinessEntity extends AbstractAuditableEntity {
+
+	public static final long MAX_BUSINESS_ID = 9_999_999_999L;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(nullable = false, updatable = false)
+	@Min(value = 1, message = "ID must be positive")
+	@Max(value = MAX_BUSINESS_ID, message = "ID cannot exceed " + MAX_BUSINESS_ID)
 	protected Long id;
 
-	public AbstractEntity() {}
+	public AbstractBusinessEntity() {}
 
-	public AbstractEntity(
+	public AbstractBusinessEntity(
 			@Nullable Long id,
 			@Nullable String createdBy,
 			@Nullable Instant createdDate,
@@ -47,6 +50,9 @@ public abstract class AbstractEntity extends AbstractAuditableEntity {
 	}
 
 	public void setId(Long id) {
+		if (id != null && id > MAX_BUSINESS_ID) {
+			throw new IllegalArgumentException("ID cannot exceed " + MAX_BUSINESS_ID);
+		}
 		this.id = id;
 	}
 
@@ -56,8 +62,7 @@ public abstract class AbstractEntity extends AbstractAuditableEntity {
 		if (obj == null) { return false; }
 		if (getClass() != obj.getClass()) { return false; }
 
-		final var other = (AbstractEntity) obj;
-
+		final var other = (AbstractBusinessEntity) obj;
 		return Objects.equals(id, other.id);
 	}
 

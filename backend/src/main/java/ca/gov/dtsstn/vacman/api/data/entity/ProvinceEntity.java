@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import org.immutables.builder.Builder;
 import org.springframework.core.style.ToStringCreator;
 
+import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
@@ -33,7 +34,7 @@ public class ProvinceEntity extends AbstractLookupEntity {
 			@Nullable String code,
 			@Nullable String nameEn,
 			@Nullable String nameFr,
-			@Nullable LocalDateTime effectiveDate,
+			@Nonnull LocalDateTime effectiveDate,
 			@Nullable LocalDateTime expiryDate,
 			@Nullable String createdBy,
 			@Nullable Instant createdDate,

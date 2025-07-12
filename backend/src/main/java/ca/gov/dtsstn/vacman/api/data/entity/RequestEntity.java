@@ -21,7 +21,7 @@ import jakarta.persistence.Table;
 @Entity(name = "Request")
 @Table(name = "[REQUEST]")
 @AttributeOverride(name = "id", column = @Column(name = "[REQUEST_ID]"))
-public class RequestEntity extends AbstractEntity {
+public class RequestEntity extends AbstractBusinessEntity {
 
 	@ManyToOne
 	@JoinColumn(name = "[SECURITY_CLEARANCE_ID]", nullable = false)
