@@ -1,249 +1,150 @@
 package ca.gov.dtsstn.vacman.api.data.entity;
 
-import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
+import org.immutables.builder.Builder;
 import org.springframework.core.style.ToStringCreator;
 
 import jakarta.annotation.Nullable;
 import jakarta.persistence.AttributeOverride;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
+/**
+ * Entity representing the PROFILE table.
+ */
 @Entity(name = "Profile")
 @Table(name = "[PROFILE]")
 @AttributeOverride(name = "id", column = @Column(name = "[PROFILE_ID]"))
-public class ProfileEntity extends AbstractEntity {
+public class ProfileEntity extends AbstractBusinessEntity {
 
 	@ManyToOne
-	@JoinColumn(name = "[user_id_approved_by]", nullable = true)
-	private UserEntity approvedBy;
+	@JoinColumn(name = "[USER_ID]", nullable = false)
+	private UserEntity user;
 
 	@ManyToOne
-	@JoinColumn(name = "[city_id]", nullable = true)
-	private CityEntity city;
+	@JoinColumn(name = "[USER_ID_HR_ADVISOR]", nullable = false)
+	private UserEntity hrAdvisor;
 
 	@ManyToOne
-	@JoinColumn(name = "[classification_id]", nullable = true)
-	private ClassificationEntity classification;
-
-	@Column(name = "[additional_comment_txt]", length = 200, nullable = true)
-	private String comment;
-
-	@ManyToOne
-	@JoinColumn(name = "[education_level_id]", nullable = true)
-	private EducationLevelEntity educationLevel;
-
-	@Column(name = "[privacy_consent_ind]", nullable = true)
-	private Boolean hasAcceptedPrivacyTerms;
-
-	@Column(name = "[available_for_referral_ind]", nullable = true)
-	private Boolean isAvailableForReferral;
-
-	@Column(name = "[interested_in_alternation_ind]", nullable = true)
-	private Boolean isInterestedInAlternation;
-
-	@ManyToOne
-	@JoinColumn(name = "[language_id]", nullable = true)
-	private LanguageEntity language;
-
-	@ManyToOne
-	@JoinColumn(name = "[notification_purpose_id]", nullable = false)
-	private NotificationPurposeEntity notificationPurpose;
-
-	@Column(name = "[personal_email_address]", length = 320, nullable = true)
-	private String personalEmailAddress;
-
-	@Column(name = "[personal_phone_number]", length = 15, nullable = true)
-	private String personalPhoneNumber;
-
-	@ManyToOne
-	@JoinColumn(name = "[priority_level_id]", nullable = true)
-	private PriorityLevelEntity priorityLevel;
-
-	@ManyToOne
-	@JoinColumn(name = "[profile_status_id]", nullable = false)
-	private ProfileStatusEntity profileStatus;
-
-	@ManyToOne
-	@JoinColumn(name = "[user_id_reviewed_by]", nullable = true)
-	private UserEntity reviewedBy;
-
-	@ManyToOne
-	@JoinColumn(name = "[wfa_status_id]", nullable = true)
+	@JoinColumn(name = "[WFA_STATUS_ID]", nullable = true)
 	private WfaStatusEntity wfaStatus;
 
 	@ManyToOne
-	@JoinColumn(name = "[work_unit_id]", nullable = true)
+	@JoinColumn(name = "[CLASSIFICATION_ID]", nullable = true)
+	private ClassificationEntity classification;
+
+	@ManyToOne
+	@JoinColumn(name = "[CITY_ID]", nullable = true)
+	private CityEntity city;
+
+	@ManyToOne
+	@JoinColumn(name = "[PRIORITY_LEVEL_ID]", nullable = true)
+	private PriorityLevelEntity priorityLevel;
+
+	@ManyToOne
+	@JoinColumn(name = "[WORK_UNIT_ID]", nullable = true)
 	private WorkUnitEntity workUnit;
+
+	@ManyToOne
+	@JoinColumn(name = "[LANGUAGE_ID]", nullable = true)
+	private LanguageEntity language;
+
+	@ManyToOne
+	@JoinColumn(name = "[PROFILE_STATUS_ID]", nullable = false)
+	private ProfileStatusEntity profileStatus;
+
+	@Column(name = "[PERSONAL_PHONE_NUMBER]", length = 15, nullable = true)
+	private String personalPhoneNumber;
+
+	@Column(name = "[PERSONAL_EMAIL_ADDRESS]", length = 320, nullable = true)
+	private String personalEmailAddress;
+
+	@Column(name = "[PRIVACY_CONSENT_IND]", nullable = true)
+	private Boolean privacyConsentInd;
+
+	@Column(name = "[AVAILABLE_FOR_REFERRAL_IND]", nullable = true)
+	private Boolean availableForReferralInd;
+
+	@Column(name = "[INTERESTED_IN_ALTERNATION_IND]", nullable = true)
+	private Boolean interestedInAlternationInd;
+
+	@Column(name = "[ADDITIONAL_COMMENT]", length = 200, nullable = true)
+	private String additionalComment;
+
+	// Collection relationships for many-to-many tables
+	@OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<CityProfileEntity> cityProfiles = new ArrayList<>();
+
+	@OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<ClassificationProfileEntity> classificationProfiles = new ArrayList<>();
+
+	@OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<ProfileEmploymentOpportunityEntity> employmentOpportunities = new ArrayList<>();
+
+	@OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<ProfileLanguageReferralTypeEntity> languageReferralTypes = new ArrayList<>();
 
 	public ProfileEntity() {
 		super();
 	}
 
+	@Builder.Constructor
 	public ProfileEntity(
 			@Nullable Long id,
-			@Nullable UserEntity approvedBy,
-			@Nullable CityEntity city,
-			@Nullable ClassificationEntity classification,
-			@Nullable String comment,
-			@Nullable EducationLevelEntity educationLevel,
-			@Nullable Boolean hasAcceptedPrivacyTerms,
-			@Nullable Boolean isAvailableForReferral,
-			@Nullable Boolean isInterestedInAlternation,
-			@Nullable LanguageEntity language,
-			@Nullable NotificationPurposeEntity notificationPurpose,
-			@Nullable String personalEmailAddress,
-			@Nullable String personalPhoneNumber,
-			@Nullable PriorityLevelEntity priorityLevel,
-			@Nullable ProfileStatusEntity profileStatus,
-			@Nullable UserEntity reviewedBy,
+			@Nullable UserEntity user,
+			@Nullable UserEntity hrAdvisor,
 			@Nullable WfaStatusEntity wfaStatus,
+			@Nullable ClassificationEntity classification,
+			@Nullable CityEntity city,
+			@Nullable PriorityLevelEntity priorityLevel,
 			@Nullable WorkUnitEntity workUnit,
-			@Nullable String createdBy,
-			@Nullable Instant createdDate,
-			@Nullable String lastModifiedBy,
-			@Nullable Instant lastModifiedDate) {
-		super(id, createdBy, createdDate, lastModifiedBy, lastModifiedDate);
-		this.approvedBy = approvedBy;
-		this.city = city;
-		this.classification = classification;
-		this.comment = comment;
-		this.educationLevel = educationLevel;
-		this.hasAcceptedPrivacyTerms = hasAcceptedPrivacyTerms;
-		this.isAvailableForReferral = isAvailableForReferral;
-		this.isInterestedInAlternation = isInterestedInAlternation;
-		this.language = language;
-		this.notificationPurpose = notificationPurpose;
-		this.personalEmailAddress = personalEmailAddress;
-		this.personalPhoneNumber = personalPhoneNumber;
-		this.priorityLevel = priorityLevel;
-		this.profileStatus = profileStatus;
-		this.reviewedBy = reviewedBy;
+			@Nullable LanguageEntity language,
+			@Nullable ProfileStatusEntity profileStatus,
+			@Nullable String personalPhoneNumber,
+			@Nullable String personalEmailAddress,
+			@Nullable Boolean privacyConsentInd,
+			@Nullable Boolean availableForReferralInd,
+			@Nullable Boolean interestedInAlternationInd,
+			@Nullable String additionalComment) {
+		super(id);
+		this.user = user;
+		this.hrAdvisor = hrAdvisor;
 		this.wfaStatus = wfaStatus;
-		this.workUnit = workUnit;
-	}
-
-	public UserEntity getApprovedBy() {
-		return approvedBy;
-	}
-
-	public void setApprovedBy(UserEntity approvedBy) {
-		this.approvedBy = approvedBy;
-	}
-
-	public CityEntity getCity() {
-		return city;
-	}
-
-	public void setCity(CityEntity city) {
-		this.city = city;
-	}
-
-	public ClassificationEntity getClassification() {
-		return classification;
-	}
-
-	public void setClassification(ClassificationEntity classification) {
 		this.classification = classification;
-	}
-
-	public String getComment() {
-		return comment;
-	}
-
-	public void setComment(String comment) {
-		this.comment = comment;
-	}
-
-	public EducationLevelEntity getEducationLevel() {
-		return educationLevel;
-	}
-
-	public void setEducationLevel(EducationLevelEntity educationLevel) {
-		this.educationLevel = educationLevel;
-	}
-
-	public Boolean getHasAcceptedPrivacyTerms() {
-		return hasAcceptedPrivacyTerms;
-	}
-
-	public void setHasAcceptedPrivacyTerms(Boolean hasAcceptedPrivacyTerms) {
-		this.hasAcceptedPrivacyTerms = hasAcceptedPrivacyTerms;
-	}
-
-	public Boolean getIsAvailableForReferral() {
-		return isAvailableForReferral;
-	}
-
-	public void setIsAvailableForReferral(Boolean isAvailableForReferral) {
-		this.isAvailableForReferral = isAvailableForReferral;
-	}
-
-	public Boolean getIsInterestedInAlternation() {
-		return isInterestedInAlternation;
-	}
-
-	public void setIsInterestedInAlternation(Boolean isInterestedInAlternation) {
-		this.isInterestedInAlternation = isInterestedInAlternation;
-	}
-
-	public LanguageEntity getLanguage() {
-		return language;
-	}
-
-	public void setLanguage(LanguageEntity language) {
-		this.language = language;
-	}
-
-	public NotificationPurposeEntity getNotificationPurpose() {
-		return notificationPurpose;
-	}
-
-	public void setNotificationPurpose(NotificationPurposeEntity notificationPurpose) {
-		this.notificationPurpose = notificationPurpose;
-	}
-
-	public String getPersonalEmailAddress() {
-		return personalEmailAddress;
-	}
-
-	public void setPersonalEmailAddress(String personalEmailAddress) {
-		this.personalEmailAddress = personalEmailAddress;
-	}
-
-	public String getPersonalPhoneNumber() {
-		return personalPhoneNumber;
-	}
-
-	public void setPersonalPhoneNumber(String personalPhoneNumber) {
-		this.personalPhoneNumber = personalPhoneNumber;
-	}
-
-	public PriorityLevelEntity getPriorityLevel() {
-		return priorityLevel;
-	}
-
-	public void setPriorityLevel(PriorityLevelEntity priorityLevel) {
+		this.city = city;
 		this.priorityLevel = priorityLevel;
-	}
-
-	public ProfileStatusEntity getProfileStatus() {
-		return profileStatus;
-	}
-
-	public void setProfileStatus(ProfileStatusEntity profileStatus) {
+		this.workUnit = workUnit;
+		this.language = language;
 		this.profileStatus = profileStatus;
+		this.personalPhoneNumber = personalPhoneNumber;
+		this.personalEmailAddress = personalEmailAddress;
+		this.privacyConsentInd = privacyConsentInd;
+		this.availableForReferralInd = availableForReferralInd;
+		this.interestedInAlternationInd = interestedInAlternationInd;
+		this.additionalComment = additionalComment;
 	}
 
-	public UserEntity getReviewedBy() {
-		return reviewedBy;
+	public UserEntity getUser() {
+		return user;
 	}
 
-	public void setReviewedBy(UserEntity reviewedBy) {
-		this.reviewedBy = reviewedBy;
+	public void setUser(UserEntity user) {
+		this.user = user;
+	}
+
+	public UserEntity getHrAdvisor() {
+		return hrAdvisor;
+	}
+
+	public void setHrAdvisor(UserEntity hrAdvisor) {
+		this.hrAdvisor = hrAdvisor;
 	}
 
 	public WfaStatusEntity getWfaStatus() {
@@ -254,6 +155,30 @@ public class ProfileEntity extends AbstractEntity {
 		this.wfaStatus = wfaStatus;
 	}
 
+	public ClassificationEntity getClassification() {
+		return classification;
+	}
+
+	public void setClassification(ClassificationEntity classification) {
+		this.classification = classification;
+	}
+
+	public CityEntity getCity() {
+		return city;
+	}
+
+	public void setCity(CityEntity city) {
+		this.city = city;
+	}
+
+	public PriorityLevelEntity getPriorityLevel() {
+		return priorityLevel;
+	}
+
+	public void setPriorityLevel(PriorityLevelEntity priorityLevel) {
+		this.priorityLevel = priorityLevel;
+	}
+
 	public WorkUnitEntity getWorkUnit() {
 		return workUnit;
 	}
@@ -262,28 +187,121 @@ public class ProfileEntity extends AbstractEntity {
 		this.workUnit = workUnit;
 	}
 
+	public LanguageEntity getLanguage() {
+		return language;
+	}
+
+	public void setLanguage(LanguageEntity language) {
+		this.language = language;
+	}
+
+	public ProfileStatusEntity getProfileStatus() {
+		return profileStatus;
+	}
+
+	public void setProfileStatus(ProfileStatusEntity profileStatus) {
+		this.profileStatus = profileStatus;
+	}
+
+	public String getPersonalPhoneNumber() {
+		return personalPhoneNumber;
+	}
+
+	public void setPersonalPhoneNumber(String personalPhoneNumber) {
+		this.personalPhoneNumber = personalPhoneNumber;
+	}
+
+	public String getPersonalEmailAddress() {
+		return personalEmailAddress;
+	}
+
+	public void setPersonalEmailAddress(String personalEmailAddress) {
+		this.personalEmailAddress = personalEmailAddress;
+	}
+
+	public Boolean getPrivacyConsentInd() {
+		return privacyConsentInd;
+	}
+
+	public void setPrivacyConsentInd(Boolean privacyConsentInd) {
+		this.privacyConsentInd = privacyConsentInd;
+	}
+
+	public Boolean getAvailableForReferralInd() {
+		return availableForReferralInd;
+	}
+
+	public void setAvailableForReferralInd(Boolean availableForReferralInd) {
+		this.availableForReferralInd = availableForReferralInd;
+	}
+
+	public Boolean getInterestedInAlternationInd() {
+		return interestedInAlternationInd;
+	}
+
+	public void setInterestedInAlternationInd(Boolean interestedInAlternationInd) {
+		this.interestedInAlternationInd = interestedInAlternationInd;
+	}
+
+	public String getAdditionalComment() {
+		return additionalComment;
+	}
+
+	public void setAdditionalComment(String additionalComment) {
+		this.additionalComment = additionalComment;
+	}
+
+	public List<CityProfileEntity> getCityProfiles() {
+		return cityProfiles;
+	}
+
+	public void setCityProfiles(List<CityProfileEntity> cityProfiles) {
+		this.cityProfiles = cityProfiles;
+	}
+
+	public List<ClassificationProfileEntity> getClassificationProfiles() {
+		return classificationProfiles;
+	}
+
+	public void setClassificationProfiles(List<ClassificationProfileEntity> classificationProfiles) {
+		this.classificationProfiles = classificationProfiles;
+	}
+
+	public List<ProfileEmploymentOpportunityEntity> getEmploymentOpportunities() {
+		return employmentOpportunities;
+	}
+
+	public void setEmploymentOpportunities(List<ProfileEmploymentOpportunityEntity> employmentOpportunities) {
+		this.employmentOpportunities = employmentOpportunities;
+	}
+
+	public List<ProfileLanguageReferralTypeEntity> getLanguageReferralTypes() {
+		return languageReferralTypes;
+	}
+
+	public void setLanguageReferralTypes(List<ProfileLanguageReferralTypeEntity> languageReferralTypes) {
+		this.languageReferralTypes = languageReferralTypes;
+	}
+
 	@Override
 	public String toString() {
 		return new ToStringCreator(this)
 			.append("super", super.toString())
-			.append("approvedBy", approvedBy)
-			.append("city", city)
-			.append("classification", classification)
-			.append("comment", comment)
-			.append("educationLevel", educationLevel)
-			.append("hasAcceptedPrivacyTerms", hasAcceptedPrivacyTerms)
-			.append("isAvailableForReferral", isAvailableForReferral)
-			.append("isInterestedInAlternation", isInterestedInAlternation)
-			.append("language", language)
-			.append("notificationPurpose", notificationPurpose)
-			.append("personalEmailAddress", personalEmailAddress)
-			.append("personalPhoneNumber", personalPhoneNumber)
-			.append("priorityLevel", priorityLevel)
-			.append("profileStatus", profileStatus)
-			.append("reviewedBy", reviewedBy)
+			.append("user", user)
+			.append("hrAdvisor", hrAdvisor)
 			.append("wfaStatus", wfaStatus)
+			.append("classification", classification)
+			.append("city", city)
+			.append("priorityLevel", priorityLevel)
 			.append("workUnit", workUnit)
+			.append("language", language)
+			.append("profileStatus", profileStatus)
+			.append("personalPhoneNumber", personalPhoneNumber)
+			.append("personalEmailAddress", personalEmailAddress)
+			.append("privacyConsentInd", privacyConsentInd)
+			.append("availableForReferralInd", availableForReferralInd)
+			.append("interestedInAlternationInd", interestedInAlternationInd)
+			.append("additionalComment", additionalComment)
 			.toString();
 	}
-
 }

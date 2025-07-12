@@ -85,6 +85,7 @@ const mockUserService = {
   getUserById: vi.fn(),
   getUserByActiveDirectoryId: vi.fn(),
   registerUser: vi.fn(),
+  updateUser: vi.fn(),
   updateUserRole: vi.fn(),
 };
 

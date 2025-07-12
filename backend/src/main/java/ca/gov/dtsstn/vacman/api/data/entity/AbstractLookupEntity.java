@@ -1,23 +1,24 @@
 package ca.gov.dtsstn.vacman.api.data.entity;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 
 import org.springframework.core.style.ToStringCreator;
 
+import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
 
 @MappedSuperclass
-public abstract class AbstractLookupEntity extends AbstractEntity {
+public abstract class AbstractLookupEntity extends AbstractCodeEntity {
 
-	@Column(length = 20, nullable = false, unique = true)
+	@Column(length = 20, nullable = false)
 	protected String code;
 
-	@Column(length = 100, nullable = false, unique = true)
+	@Column(length = 100, nullable = false)
 	protected String nameEn;
 
-	@Column(length = 100, nullable = false, unique = true)
+	@Column(length = 100, nullable = false)
 	protected String nameFr;
 
 	public AbstractLookupEntity() {
@@ -29,11 +30,9 @@ public abstract class AbstractLookupEntity extends AbstractEntity {
 			@Nullable String code,
 			@Nullable String nameEn,
 			@Nullable String nameFr,
-			@Nullable String createdBy,
-			@Nullable Instant createdDate,
-			@Nullable String lastModifiedBy,
-			@Nullable Instant lastModifiedDate) {
-		super(id, createdBy, createdDate, lastModifiedBy, lastModifiedDate);
+			@Nonnull LocalDateTime effectiveDate,
+			@Nullable LocalDateTime expiryDate) {
+		super(id, effectiveDate, expiryDate);
 		this.code = code;
 		this.nameEn = nameEn;
 		this.nameFr = nameFr;

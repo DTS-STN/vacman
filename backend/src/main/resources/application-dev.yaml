@@ -1,0 +1,91 @@
+application:
+  security:
+    disabled: true
+
+spring:
+  datasource:
+    # JDBC URL for an H2 in-memory database for dev mode.
+    #   - jdbc:h2:mem:testdb: Connects to an H2 in-memory database named 'testdb'.
+    #   - MODE=MSSQLServer: Enables H2's MS SQL Server compatibility mode. This attempts to mimic
+    #     SQL Server syntax and behavior, useful for local development/testing if production uses SQL Server.
+    #   - DATABASE_TO_UPPER=false: Prevents H2 from converting unquoted identifiers (table/column names)
+    #     to uppercase. Important for compatibility with SQL Server if it's configured for case-sensitivity
+    #     or if the schema relies on mixed-case identifiers.
+    #   - CASE_INSENSITIVE_IDENTIFIERS=true: Makes unquoted identifiers case-insensitive. Combined with
+    #     DATABASE_TO_UPPER=false, this aims to match typical SQL Server case-insensitivity for object names.
+    #   - DB_CLOSE_DELAY=-1: Keeps the in-memory database alive as long as the JVM is running,
+    #     even if all connections are closed. Crucial for tests or development scenarios where the
+    #     database schema and data need to persist across multiple connection acquisitions.
+    url: jdbc:h2:mem:testdb;MODE=MSSQLServer;DATABASE_TO_UPPER=false;CASE_INSENSITIVE_IDENTIFIERS=true;DB_CLOSE_DELAY=-1;
+  jpa:
+    hibernate:
+      ddl-auto: update
+    defer-datasource-initialization: true
+    show-sql: false
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+# Database seeder configuration for dev profile
+app:
+  database:
+    seeder:
+      enabled: true
+      # data.sql is the source of truth for lookup data
+      seedLookupTables: false
+      seedJunctionTables: true
+      userCount: 25
+      requestCount: 15
+      clearDataFirst: true
+      skipIfDataExists: true
+      logSeedingProgress: true
+      ensureDataConsistency: true
+      validateRelationships: true
+      useFixedSeed: true
+      randomSeed: 42
+      ensureRealisticDistribution: true
+      validateForeignKeys: true
+      batchSize: 50
+
+      # User type distribution (must sum to 1.0)
+      adminUserPercentage: 0.08     # 8% admins (realistic for government)
+      hiringManagerPercentage: 0.32 # 32% hiring managers
+      employeeUserPercentage: 0.60  # 60% employees
+
+      # Request status distribution (must sum to 1.0)
+      draftRequestPercentage: 0.25       # 25% draft
+      submittedRequestPercentage: 0.30   # 30% submitted
+      underReviewRequestPercentage: 0.20 # 20% under review
+      approvedRequestPercentage: 0.15    # 15% approved
+      rejectedRequestPercentage: 0.10    # 10% rejected
+
+      # Profile status distribution (must sum to 1.0)
+      activeProfilePercentage: 0.75   # 75% active (most profiles are active)
+      inactiveProfilePercentage: 0.15 # 15% inactive
+      pendingProfilePercentage: 0.10  # 10% pending
+
+      # Profile-to-user relationship configuration (must sum to 1.0)
+      # This allows independent control of user count vs profile count
+      usersWithZeroProfilesPercentage: 0.12    # 12% of users have no profiles (realistic for new employees)
+      usersWithOneProfilePercentage: 0.68      # 68% of users have exactly one profile (most common case)
+      usersWithMultipleProfilesPercentage: 0.20 # 20% of users have multiple profiles (career growth, role changes)
+
+      # Configuration for users with multiple profiles
+      minProfilesPerUserWithMultiple: 2        # Minimum profiles when user has multiple (must be >= 2)
+      maxProfilesPerUserWithMultiple: 4        # Maximum profiles when user has multiple
+      ensureOneActiveProfilePerUser: true      # Ensure users with profiles have exactly one ACTIVE profile
+
+      # Relationship configuration - realistic ranges for government context
+      minCitiesPerProfile: 1
+      maxCitiesPerProfile: 3
+      minClassificationsPerProfile: 1
+      maxClassificationsPerProfile: 2
+      minEmploymentOpportunitiesPerProfile: 1
+      maxEmploymentOpportunitiesPerProfile: 3
+      minLanguageReferralTypesPerProfile: 1
+      maxLanguageReferralTypesPerProfile: 2
+      minCitiesPerRequest: 1
+      maxCitiesPerRequest: 4
+      minEmploymentEquitiesPerRequest: 0
+      maxEmploymentEquitiesPerRequest: 2

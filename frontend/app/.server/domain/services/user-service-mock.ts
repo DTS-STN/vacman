@@ -29,6 +29,13 @@ export function getMockUserService(): UserService {
       }
     },
     registerUser: (user: UserCreate, session: AuthenticatedSession) => Promise.resolve(registerUser(user, session)),
+    updateUser: (id: number, user: Partial<User>, session: AuthenticatedSession) => {
+      try {
+        return Promise.resolve(updateUser(id, user, session));
+      } catch (error) {
+        return Promise.reject(error);
+      }
+    },
     updateUserRole: (activeDirectoryId: string, newRole: string, session: AuthenticatedSession) => {
       try {
         return Promise.resolve(updateUserRole(activeDirectoryId, newRole, session));
@@ -260,6 +267,40 @@ function updateUserRole(activeDirectoryId: string, newRole: string, session: Aut
       (session.authState.accessTokenClaims.roles as string[]) = [...filteredRoles, newRole];
     }
   }
+
+  return updatedUser;
+}
+
+/**
+ * Updates a user by ID with the provided partial user data.
+ * @param id The ID of the user to update.
+ * @param userUpdate The partial user data to update.
+ * @param session The authenticated session.
+ * @returns The updated user object.
+ * @throws {AppError} If the user is not found.
+ */
+function updateUser(id: number, userUpdate: Partial<User>, session: AuthenticatedSession): User {
+  const userIndex = mockUsers.findIndex((u) => u.id === id);
+
+  if (userIndex === -1) {
+    throw new AppError(`User with ID '${id}' not found.`, ErrorCodes.VACMAN_API_ERROR);
+  }
+
+  const currentUser = mockUsers[userIndex];
+  if (!currentUser) {
+    throw new AppError(`User with ID '${id}' not found.`, ErrorCodes.VACMAN_API_ERROR);
+  }
+
+  const updatedUser: User = {
+    ...currentUser,
+    ...userUpdate,
+    id: currentUser.id, // Ensure ID cannot be changed
+    userUpdated: 'system',
+    dateUpdated: new Date().toISOString(),
+  };
+
+  // Update the user in the mock data
+  (mockUsers as User[])[userIndex] = updatedUser;
 
   return updatedUser;
 }
