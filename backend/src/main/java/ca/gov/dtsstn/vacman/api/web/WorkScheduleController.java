@@ -26,12 +26,12 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @RequestMapping({ "/api/v1/work-schedule" })
 public class WorkScheduleController {
 
-	private final WorkScheduleModelMapper workScheduleModelMapper = Mappers.getMapper(WorkScheduleModelMapper.class);
-
+	private final WorkScheduleModelMapper workScheduleModelMapper;
 	private final WorkScheduleService workScheduleService;
 
-	public WorkScheduleController(WorkScheduleService workScheduleService) {
+	public WorkScheduleController(WorkScheduleService workScheduleService, WorkScheduleModelMapper workScheduleModelMapper) {
 		this.workScheduleService = workScheduleService;
+		this.workScheduleModelMapper = workScheduleModelMapper;
 	}
 
 	@GetMapping
