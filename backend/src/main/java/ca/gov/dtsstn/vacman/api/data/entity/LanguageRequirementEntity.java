@@ -1,6 +1,5 @@
 package ca.gov.dtsstn.vacman.api.data.entity;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
 
 import org.immutables.builder.Builder;
@@ -55,12 +54,8 @@ public class LanguageRequirementEntity extends AbstractBusinessEntity {
             @Nullable String nameEn,
             @Nullable String nameFr,
             @Nonnull LocalDateTime effectiveDate,
-            @Nullable LocalDateTime expiryDate,
-            @Nullable String createdBy,
-            @Nullable Instant createdDate,
-            @Nullable String lastModifiedBy,
-            @Nullable Instant lastModifiedDate) {
-        super(id, createdBy, createdDate, lastModifiedBy, lastModifiedDate);
+            @Nullable LocalDateTime expiryDate) {
+        super(id);
         this.code = code;
         this.nameEn = nameEn;
         this.nameFr = nameFr;

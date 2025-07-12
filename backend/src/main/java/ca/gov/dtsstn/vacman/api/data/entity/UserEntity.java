@@ -1,6 +1,5 @@
 package ca.gov.dtsstn.vacman.api.data.entity;
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -84,12 +83,8 @@ public class UserEntity extends AbstractBusinessEntity {
 			@Nullable String personalRecordIdentifier,
 			@Nullable List<ProfileEntity> profiles,
 			@Nullable UserTypeEntity userType,
-			@Nullable String uuName,
-			@Nullable String createdBy,
-			@Nullable Instant createdDate,
-			@Nullable String lastModifiedBy,
-			@Nullable Instant lastModifiedDate) {
-		super(id, createdBy, createdDate, lastModifiedBy, lastModifiedDate);
+			@Nullable String uuName) {
+		super(id);
 		this.businessEmailAddress = businessEmailAddress;
 		this.businessPhoneNumber = businessPhoneNumber;
 		this.firstName = firstName;

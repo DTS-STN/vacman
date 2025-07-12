@@ -1,6 +1,5 @@
 package ca.gov.dtsstn.vacman.api.data.entity;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
 
 import org.immutables.builder.Builder;
@@ -42,12 +41,8 @@ public class CityEntity extends AbstractLookupEntity {
 			@Nullable String nameFr,
 			@Nonnull LocalDateTime effectiveDate,
 			@Nullable LocalDateTime expiryDate,
-			@Nullable ProvinceEntity provinceTerritory,
-			@Nullable String createdBy,
-			@Nullable Instant createdDate,
-			@Nullable String lastModifiedBy,
-			@Nullable Instant lastModifiedDate) {
-		super(id, code, nameEn, nameFr, effectiveDate, expiryDate, createdBy, createdDate, lastModifiedBy, lastModifiedDate);
+			@Nullable ProvinceEntity provinceTerritory) {
+		super(id, code, nameEn, nameFr, effectiveDate, expiryDate);
 		this.provinceTerritory = provinceTerritory;
 	}
 

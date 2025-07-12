@@ -1,6 +1,5 @@
 package ca.gov.dtsstn.vacman.api.data.entity;
 
-import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -170,12 +169,8 @@ public class RequestEntity extends AbstractBusinessEntity {
 			@Nullable String languageProfileFr,
 			@Nullable String somcAndConditionEmploymentEn,
 			@Nullable String somcAndConditionEmploymentFr,
-			@Nullable String additionalComment,
-			@Nullable String createdBy,
-			@Nullable Instant createdDate,
-			@Nullable String lastModifiedBy,
-			@Nullable Instant lastModifiedDate) {
-		super(id, createdBy, createdDate, lastModifiedBy, lastModifiedDate);
+			@Nullable String additionalComment) {
+		super(id);
 		this.securityClearance = securityClearance;
 		this.workUnit = workUnit;
 		this.classification = classification;

@@ -1,6 +1,5 @@
 package ca.gov.dtsstn.vacman.api.data.entity;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
@@ -49,12 +48,8 @@ public abstract class AbstractCodeEntity extends AbstractAuditableEntity {
 	public AbstractCodeEntity(
 			@Nullable Long id,
 			@Nonnull LocalDateTime effectiveDate,
-			@Nullable LocalDateTime expiryDate,
-			@Nullable String createdBy,
-			@Nullable Instant createdDate,
-			@Nullable String lastModifiedBy,
-			@Nullable Instant lastModifiedDate) {
-		super(createdBy, createdDate, lastModifiedBy, lastModifiedDate);
+			@Nullable LocalDateTime expiryDate) {
+		super();
 		this.id = id;
 		if (effectiveDate == null) {
 			throw new IllegalArgumentException("Effective date cannot be null");
@@ -114,10 +109,7 @@ public abstract class AbstractCodeEntity extends AbstractAuditableEntity {
 			.append("id", id)
 			.append("effectiveDate", effectiveDate)
 			.append("expiryDate", expiryDate)
-			.append("createdBy", createdBy)
-			.append("createdDate", createdDate)
-			.append("lastModifiedBy", lastModifiedBy)
-			.append("lastModifiedDate", lastModifiedDate)
+			.append("super", super.toString())
 			.toString();
 	}
 

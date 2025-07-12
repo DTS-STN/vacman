@@ -1,6 +1,5 @@
 package ca.gov.dtsstn.vacman.api.data.entity;
 
-import java.time.Instant;
 import java.util.Objects;
 
 import org.springframework.core.style.ToStringCreator;
@@ -35,13 +34,8 @@ public abstract class AbstractBusinessEntity extends AbstractAuditableEntity {
 
 	public AbstractBusinessEntity() {}
 
-	public AbstractBusinessEntity(
-			@Nullable Long id,
-			@Nullable String createdBy,
-			@Nullable Instant createdDate,
-			@Nullable String lastModifiedBy,
-			@Nullable Instant lastModifiedDate) {
-		super(createdBy, createdDate, lastModifiedBy, lastModifiedDate);
+	public AbstractBusinessEntity(@Nullable Long id) {
+		super();
 		this.id = id;
 	}
 
@@ -75,10 +69,7 @@ public abstract class AbstractBusinessEntity extends AbstractAuditableEntity {
 	public String toString() {
 		return new ToStringCreator(this)
 			.append("id", id)
-			.append("createdBy", createdBy)
-			.append("createdDate", createdDate)
-			.append("lastModifiedBy", lastModifiedBy)
-			.append("lastModifiedDate", lastModifiedDate)
+			.append("super", super.toString())
 			.toString();
 	}
 

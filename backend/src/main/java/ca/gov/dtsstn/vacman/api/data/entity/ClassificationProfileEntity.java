@@ -1,7 +1,5 @@
 package ca.gov.dtsstn.vacman.api.data.entity;
 
-import java.time.Instant;
-
 import org.immutables.builder.Builder;
 import org.springframework.core.style.ToStringCreator;
 
@@ -37,12 +35,8 @@ public class ClassificationProfileEntity extends AbstractBusinessEntity {
 	public ClassificationProfileEntity(
 			@Nullable Long id,
 			@Nullable ClassificationEntity classification,
-			@Nullable ProfileEntity profile,
-			@Nullable String createdBy,
-			@Nullable Instant createdDate,
-			@Nullable String lastModifiedBy,
-			@Nullable Instant lastModifiedDate) {
-		super(id, createdBy, createdDate, lastModifiedBy, lastModifiedDate);
+			@Nullable ProfileEntity profile) {
+		super(id);
 		this.classification = classification;
 		this.profile = profile;
 	}

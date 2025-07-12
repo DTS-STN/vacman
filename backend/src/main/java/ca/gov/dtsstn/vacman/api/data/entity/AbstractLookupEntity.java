@@ -1,6 +1,5 @@
 package ca.gov.dtsstn.vacman.api.data.entity;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
 
 import org.springframework.core.style.ToStringCreator;
@@ -32,12 +31,8 @@ public abstract class AbstractLookupEntity extends AbstractCodeEntity {
 			@Nullable String nameEn,
 			@Nullable String nameFr,
 			@Nonnull LocalDateTime effectiveDate,
-			@Nullable LocalDateTime expiryDate,
-			@Nullable String createdBy,
-			@Nullable Instant createdDate,
-			@Nullable String lastModifiedBy,
-			@Nullable Instant lastModifiedDate) {
-		super(id, effectiveDate, expiryDate, createdBy, createdDate, lastModifiedBy, lastModifiedDate);
+			@Nullable LocalDateTime expiryDate) {
+		super(id, effectiveDate, expiryDate);
 		this.code = code;
 		this.nameEn = nameEn;
 		this.nameFr = nameFr;

@@ -1,6 +1,5 @@
 package ca.gov.dtsstn.vacman.api.data.entity;
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -114,12 +113,8 @@ public class ProfileEntity extends AbstractBusinessEntity {
 			@Nullable Boolean privacyConsentInd,
 			@Nullable Boolean availableForReferralInd,
 			@Nullable Boolean interestedInAlternationInd,
-			@Nullable String additionalComment,
-			@Nullable String createdBy,
-			@Nullable Instant createdDate,
-			@Nullable String lastModifiedBy,
-			@Nullable Instant lastModifiedDate) {
-		super(id, createdBy, createdDate, lastModifiedBy, lastModifiedDate);
+			@Nullable String additionalComment) {
+		super(id);
 		this.user = user;
 		this.hrAdvisor = hrAdvisor;
 		this.wfaStatus = wfaStatus;
