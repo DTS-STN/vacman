@@ -50,6 +50,14 @@ public class DatabaseSeederConfig {
     private double inactiveProfilePercentage = 0.2;
     private double pendingProfilePercentage = 0.1;
 
+    // Profile-to-user relationship configuration
+    private double usersWithZeroProfilesPercentage = 0.1; // 10% of users have no profiles
+    private double usersWithOneProfilePercentage = 0.7;   // 70% of users have exactly one profile
+    private double usersWithMultipleProfilesPercentage = 0.2; // 20% of users have multiple profiles
+    private int minProfilesPerUserWithMultiple = 2;  // When users have multiple profiles, minimum is 2
+    private int maxProfilesPerUserWithMultiple = 4;  // When users have multiple profiles, maximum is 4
+    private boolean ensureOneActiveProfilePerUser = true; // Ensure each user with profiles has exactly one ACTIVE profile
+
     // Feature toggles
     private boolean seedLookupTables = false; // Let data.sql handle lookup data
     private boolean seedJunctionTables = true;
@@ -292,6 +300,54 @@ public class DatabaseSeederConfig {
         this.pendingProfilePercentage = pendingProfilePercentage;
     }
 
+    public double getUsersWithZeroProfilesPercentage() {
+        return usersWithZeroProfilesPercentage;
+    }
+
+    public void setUsersWithZeroProfilesPercentage(double usersWithZeroProfilesPercentage) {
+        this.usersWithZeroProfilesPercentage = usersWithZeroProfilesPercentage;
+    }
+
+    public double getUsersWithOneProfilePercentage() {
+        return usersWithOneProfilePercentage;
+    }
+
+    public void setUsersWithOneProfilePercentage(double usersWithOneProfilePercentage) {
+        this.usersWithOneProfilePercentage = usersWithOneProfilePercentage;
+    }
+
+    public double getUsersWithMultipleProfilesPercentage() {
+        return usersWithMultipleProfilesPercentage;
+    }
+
+    public void setUsersWithMultipleProfilesPercentage(double usersWithMultipleProfilesPercentage) {
+        this.usersWithMultipleProfilesPercentage = usersWithMultipleProfilesPercentage;
+    }
+
+    public int getMinProfilesPerUserWithMultiple() {
+        return minProfilesPerUserWithMultiple;
+    }
+
+    public void setMinProfilesPerUserWithMultiple(int minProfilesPerUserWithMultiple) {
+        this.minProfilesPerUserWithMultiple = minProfilesPerUserWithMultiple;
+    }
+
+    public int getMaxProfilesPerUserWithMultiple() {
+        return maxProfilesPerUserWithMultiple;
+    }
+
+    public void setMaxProfilesPerUserWithMultiple(int maxProfilesPerUserWithMultiple) {
+        this.maxProfilesPerUserWithMultiple = maxProfilesPerUserWithMultiple;
+    }
+
+    public boolean isEnsureOneActiveProfilePerUser() {
+        return ensureOneActiveProfilePerUser;
+    }
+
+    public void setEnsureOneActiveProfilePerUser(boolean ensureOneActiveProfilePerUser) {
+        this.ensureOneActiveProfilePerUser = ensureOneActiveProfilePerUser;
+    }
+
     public boolean isSeedLookupTables() {
         return seedLookupTables;
     }
@@ -388,9 +444,27 @@ public class DatabaseSeederConfig {
             throw new IllegalArgumentException("Counts must be positive");
         }
 
-        if (adminUserPercentage + hiringManagerPercentage + employeeUserPercentage != 1.0) {
+        if (Math.abs(adminUserPercentage + hiringManagerPercentage + employeeUserPercentage - 1.0) > 0.001) {
             throw new IllegalArgumentException("User type percentages must sum to 1.0");
         }
+
+        if (Math.abs(usersWithZeroProfilesPercentage + usersWithOneProfilePercentage + usersWithMultipleProfilesPercentage - 1.0) > 0.001) {
+            throw new IllegalArgumentException("Profile distribution percentages must sum to 1.0");
+        }
+
+        if (usersWithZeroProfilesPercentage < 0 || usersWithOneProfilePercentage < 0 || usersWithMultipleProfilesPercentage < 0) {
+            throw new IllegalArgumentException("Profile percentages must be non-negative");
+        }
+
+        if (minProfilesPerUserWithMultiple < 2) {
+            throw new IllegalArgumentException("Minimum profiles per user with multiple must be at least 2");
+        }
+
+        if (maxProfilesPerUserWithMultiple < minProfilesPerUserWithMultiple) {
+            throw new IllegalArgumentException("Maximum profiles per user with multiple must be >= minimum");
+        }
+
+        // Add other existing validations...
 
         if (minCitiesPerProfile < 0 || maxCitiesPerProfile < minCitiesPerProfile) {
             throw new IllegalArgumentException("Invalid cities per profile range");

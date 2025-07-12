@@ -66,6 +66,17 @@ app:
       inactiveProfilePercentage: 0.15 # 15% inactive
       pendingProfilePercentage: 0.10  # 10% pending
 
+      # Profile-to-user relationship configuration (must sum to 1.0)
+      # This allows independent control of user count vs profile count
+      usersWithZeroProfilesPercentage: 0.12    # 12% of users have no profiles (realistic for new employees)
+      usersWithOneProfilePercentage: 0.68      # 68% of users have exactly one profile (most common case)
+      usersWithMultipleProfilesPercentage: 0.20 # 20% of users have multiple profiles (career growth, role changes)
+
+      # Configuration for users with multiple profiles
+      minProfilesPerUserWithMultiple: 2        # Minimum profiles when user has multiple (must be >= 2)
+      maxProfilesPerUserWithMultiple: 4        # Maximum profiles when user has multiple
+      ensureOneActiveProfilePerUser: true      # Ensure users with profiles have exactly one ACTIVE profile
+
       # Relationship configuration - realistic ranges for government context
       minCitiesPerProfile: 1
       maxCitiesPerProfile: 3

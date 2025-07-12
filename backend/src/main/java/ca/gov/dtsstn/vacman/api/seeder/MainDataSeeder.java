@@ -315,13 +315,13 @@ public class MainDataSeeder {
             return;
         }
 
-        // Calculate how many users we need - ensure we have enough for all profiles
-        int requiredUsers = Math.max(config.getUserCount(), config.getProfileCount());
+        // Use the configured user count directly - don't adjust based on profiles
+        int totalUsers = config.getUserCount();
 
         // Calculate user type distribution
-        int adminCount = (int) (requiredUsers * config.getAdminUserPercentage());
-        int hiringManagerCount = (int) (requiredUsers * config.getHiringManagerPercentage());
-        int employeeCount = requiredUsers - adminCount - hiringManagerCount;
+        int adminCount = (int) (totalUsers * config.getAdminUserPercentage());
+        int hiringManagerCount = (int) (totalUsers * config.getHiringManagerPercentage());
+        int employeeCount = totalUsers - adminCount - hiringManagerCount;
 
         // Name pools for realistic data generation
         String[] firstNames = {
@@ -416,51 +416,135 @@ public class MainDataSeeder {
             return;
         }
 
-        List<ProfileEntity> profiles = new ArrayList<>();
-        int profileCount = config.getProfileCount();
+        // Calculate user distribution based on configuration
+        int totalUsers = users.size();
+        int usersWithZeroProfiles = (int) (totalUsers * config.getUsersWithZeroProfilesPercentage());
+        int usersWithOneProfile = (int) (totalUsers * config.getUsersWithOneProfilePercentage());
+        int usersWithMultipleProfiles = totalUsers - usersWithZeroProfiles - usersWithOneProfile;
 
-        // Calculate profile status distribution
-        int activeCount = (int) (profileCount * config.getActiveProfilePercentage());
-        int inactiveCount = (int) (profileCount * config.getInactiveProfilePercentage());
-        int pendingCount = profileCount - activeCount - inactiveCount;
+        // Shuffle users to randomize assignment
+        Collections.shuffle(users, random);
 
-        // Create profiles with proper status distribution
-        createProfilesForStatus("ACTIVE", activeCount, profiles, users);
-        createProfilesForStatus("INACTIVE", inactiveCount, profiles, users);
-        createProfilesForStatus("PENDING", pendingCount, profiles, users);
+        List<ProfileEntity> allProfiles = new ArrayList<>();
+        int userIndex = 0;
 
-        // Shuffle to randomize order
-        Collections.shuffle(profiles, random);
+        // Users with zero profiles (skip first usersWithZeroProfiles users)
+        userIndex += usersWithZeroProfiles;
 
-        profileRepository.saveAll(profiles);
-        logSeeded("Profiles", profiles.size());
+        // Users with one profile
+        for (int i = 0; i < usersWithOneProfile && userIndex < users.size(); i++, userIndex++) {
+            UserEntity user = users.get(userIndex);
+            ProfileEntity profile = createProfileForUser(user, selectProfileStatus(false)); // Not necessarily active
+            allProfiles.add(profile);
+        }
+
+        // Users with multiple profiles
+        for (int i = 0; i < usersWithMultipleProfiles && userIndex < users.size(); i++, userIndex++) {
+            UserEntity user = users.get(userIndex);
+            int profileCount = random.nextInt(config.getMaxProfilesPerUserWithMultiple() - config.getMinProfilesPerUserWithMultiple() + 1)
+                             + config.getMinProfilesPerUserWithMultiple();
+
+            boolean hasActiveProfile = false;
+            for (int j = 0; j < profileCount; j++) {
+                boolean makeActive = false;
+                if (config.isEnsureOneActiveProfilePerUser() && !hasActiveProfile && (j == profileCount - 1 || random.nextDouble() < 0.3)) {
+                    makeActive = true;
+                    hasActiveProfile = true;
+                }
+
+                ProfileStatusEntity status = makeActive ? getProfileStatusByCode("ACTIVE") : selectProfileStatus(true); // Exclude active for non-primary profiles
+                if (status == null) {
+                    status = getRandomElement(profileStatuses);
+                }
+
+                ProfileEntity profile = createProfileForUser(user, status);
+                allProfiles.add(profile);
+            }
+        }
+
+        // If we have fewer profiles than configured, create additional standalone profiles
+        int additionalProfilesNeeded = config.getProfileCount() - allProfiles.size();
+        if (additionalProfilesNeeded > 0) {
+            if (config.isLogSeedingProgress()) {
+                logger.info("Creating {} additional standalone profiles to reach target count", additionalProfilesNeeded);
+            }
+
+            for (int i = 0; i < additionalProfilesNeeded; i++) {
+                UserEntity randomUser = getRandomElement(users);
+                ProfileEntity profile = createProfileForUser(randomUser, selectProfileStatus(false));
+                allProfiles.add(profile);
+            }
+        }
+
+        // Shuffle final list to randomize order
+        Collections.shuffle(allProfiles, random);
+
+        profileRepository.saveAll(allProfiles);
+        logSeeded("Profiles", allProfiles.size());
 
         if (config.isLogSeedingProgress()) {
-            logger.info("Profile distribution: {} active, {} inactive, {} pending",
-                       activeCount, inactiveCount, pendingCount);
+            logger.info("Profile distribution: {} users with zero profiles, {} users with one profile, {} users with multiple profiles",
+                       usersWithZeroProfiles, usersWithOneProfile, usersWithMultipleProfiles);
+
+            // Log distribution by status
+            long activeCount = allProfiles.stream().filter(p -> "ACTIVE".equals(p.getProfileStatus().getCode())).count();
+            long inactiveCount = allProfiles.stream().filter(p -> "INACTIVE".equals(p.getProfileStatus().getCode())).count();
+            long pendingCount = allProfiles.size() - activeCount - inactiveCount;
+
+            logger.info("Profile status distribution: {} active, {} inactive, {} other", activeCount, inactiveCount, pendingCount);
         }
     }
 
-    private void createProfilesForStatus(String statusCode, int count, List<ProfileEntity> profiles, List<UserEntity> users) {
-        ProfileStatusEntity status = getProfileStatusByCode(statusCode);
-        if (status == null) {
-            // Fall back to random status if specific status not found
-            status = getRandomElement(profileStatuses);
-        }
+    /**
+     * Selects a profile status based on configured distributions
+     * @param excludeActive whether to exclude ACTIVE status from selection
+     * @return selected ProfileStatusEntity
+     */
+    private ProfileStatusEntity selectProfileStatus(boolean excludeActive) {
+        if (excludeActive) {
+            // Redistribute percentages excluding active
+            double inactiveWeight = config.getInactiveProfilePercentage();
+            double pendingWeight = config.getPendingProfilePercentage();
+            double totalWeight = inactiveWeight + pendingWeight;
 
-        for (int i = 0; i < count; i++) {
-            UserEntity user = users.get(i % users.size()); // Cycle through available users
-            UserEntity hrAdvisor = findHrAdvisor(users);
+            if (totalWeight <= 0) {
+                return getRandomElement(profileStatuses.stream()
+                    .filter(ps -> !"ACTIVE".equals(ps.getCode()))
+                    .toList());
+            }
 
-            ProfileEntity profile = createProfile(
-                user,
-                getRandomElement(classifications),
-                hrAdvisor,
-                getRandomElement(workUnits),
-                status
-            );
-            profiles.add(profile);
+            double randomValue = random.nextDouble() * totalWeight;
+            if (randomValue < inactiveWeight) {
+                return getProfileStatusByCode("INACTIVE");
+            } else {
+                return getProfileStatusByCode("PENDING");
+            }
+        } else {
+            // Use normal distribution
+            double randomValue = random.nextDouble();
+            if (randomValue < config.getActiveProfilePercentage()) {
+                return getProfileStatusByCode("ACTIVE");
+            } else if (randomValue < config.getActiveProfilePercentage() + config.getInactiveProfilePercentage()) {
+                return getProfileStatusByCode("INACTIVE");
+            } else {
+                return getProfileStatusByCode("PENDING");
+            }
         }
+    }
+
+    /**
+     * Creates a profile for the specified user with the given status
+     */
+    private ProfileEntity createProfileForUser(UserEntity user, ProfileStatusEntity status) {
+        UserEntity hrAdvisor = findHrAdvisor(List.of(user)); // Pass list with single user for consistency
+
+        return createProfile(
+            user,
+            getRandomElement(classifications),
+            hrAdvisor,
+            getRandomElement(workUnits),
+            status
+        );
     }
 
     private UserEntity findHrAdvisor(List<UserEntity> users) {
