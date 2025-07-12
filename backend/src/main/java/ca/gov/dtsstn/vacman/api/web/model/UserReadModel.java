@@ -42,14 +42,14 @@ public record UserReadModel(
 	LanguageReadModel language,
 
 	@Schema(accessMode = AccessMode.READ_ONLY, description = "The user or service that created this user.", example = "vacman-api")
-	String userCreated,
+	String createdBy,
 
 	@Schema(accessMode = AccessMode.READ_ONLY, description = "The time this user was created.", example = "2000-01-01T00:00:00Z")
-	String dateCreated,
+	String createdDate,
 
 	@Schema(accessMode = AccessMode.READ_ONLY, description = "The user or service that last modified this user.", example = "vacman-api")
-	String userUpdated,
+	String lastModifiedBy,
 
 	@Schema(accessMode = AccessMode.READ_ONLY, description = "The time this user was last modified.", example = "2000-01-01T00:00:00Z")
-	String dateUpdated
+	String lastModifiedDate
 ) {}

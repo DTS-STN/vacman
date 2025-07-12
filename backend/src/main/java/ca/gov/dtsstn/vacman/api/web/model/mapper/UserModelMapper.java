@@ -19,10 +19,10 @@ public interface UserModelMapper {
     @Mapping(source = "personalRecordIdentifier", target = "personalRecordIdentifier")
     @Mapping(source = "businessPhoneNumber", target = "businessPhone")
     @Mapping(source = "businessEmailAddress", target = "businessEmail")
-    @Mapping(source = "createdBy", target = "userCreated")
-    @Mapping(target = "dateCreated", expression = "java(entity.getCreatedDate() != null ? entity.getCreatedDate().toString() : null)")
-    @Mapping(source = "lastModifiedBy", target = "userUpdated")
-    @Mapping(target = "dateUpdated", expression = "java(entity.getLastModifiedDate() != null ? entity.getLastModifiedDate().toString() : null)")
+    @Mapping(source = "createdBy", target = "createdBy")
+    @Mapping(target = "createdDate", expression = "java(entity.getCreatedDate() != null ? entity.getCreatedDate().toString() : null)")
+    @Mapping(source = "lastModifiedBy", target = "lastModifiedBy")
+    @Mapping(target = "lastModifiedDate", expression = "java(entity.getLastModifiedDate() != null ? entity.getLastModifiedDate().toString() : null)")
     UserReadModel toModel(UserEntity entity);
 
     @Mapping(target = "id", ignore = true)
