@@ -7,7 +7,5 @@ import ca.gov.dtsstn.vacman.api.web.model.CityReadModel;
 
 @Mapper(componentModel = "spring", uses = {ProvinceModelMapper.class})
 public interface CityModelMapper {
-
     CityReadModel toModel(CityEntity entity);
-
 }

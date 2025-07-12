@@ -1,22 +1,22 @@
 package ca.gov.dtsstn.vacman.api.web.model;
 
-import java.time.Instant;
-
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.AccessMode;
+
+import java.time.Instant;
 
 @Schema(name = "ProvinceRead", description = "Standard representation of a province.")
 public record ProvinceReadModel(
         @Schema(accessMode = AccessMode.READ_ONLY, description = "The unique identifier for this province.")
         Long id,
 
-        @Schema(description = "The code of this province.", example = "YT")
+        @Schema(description = "The code of this province.", example = "ON")
         String code,
 
-        @Schema(description = "The English name of this province.", example = "Yukon")
+        @Schema(description = "The English name of this province.", example = "Ontario")
         String nameEn,
 
-        @Schema(description = "The French name of this province.", example = "Yukon")
+        @Schema(description = "The French name of this province.", example = "Ontario")
         String nameFr,
 
         @Schema(accessMode = AccessMode.READ_ONLY, description = "The user or service that created this province.", example = "vacman-api")

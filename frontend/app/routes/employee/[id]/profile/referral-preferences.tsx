@@ -13,6 +13,7 @@ import { getClassificationService } from '~/.server/domain/services/classificati
 import { getEmploymentTenureService } from '~/.server/domain/services/employment-tenure-service';
 import { getLanguageReferralTypeService } from '~/.server/domain/services/language-referral-type-service';
 import { getProvinceService } from '~/.server/domain/services/province-service';
+import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { Button } from '~/components/button';
 import { ButtonLink } from '~/components/button-link';
@@ -53,7 +54,9 @@ export function meta({ data }: Route.MetaArgs) {
 }
 
 export async function action({ context, params, request }: Route.ActionArgs) {
-  // Since parent layout ensures authentication, we can safely cast the session
+  // Get the current user's ID from the authenticated session
+  const authenticatedSession = context.session as AuthenticatedSession;
+  const currentUserId = authenticatedSession.authState.idTokenClaims.oid as string;
   const formData = await request.formData();
   const parseResult = v.safeParse(refferralPreferencesSchema, {
     languageReferralTypes: formData.getAll('languageReferralTypes').map(String),
@@ -78,7 +81,9 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 
   //TODO: Save form data
 
-  throw i18nRedirect('routes/employee/[id]/profile/index.tsx', request);
+  return i18nRedirect('routes/employee/[id]/profile/index.tsx', request, {
+    params: { id: currentUserId },
+  });
 }
 
 export async function loader({ context, request }: Route.LoaderArgs) {
@@ -220,7 +225,7 @@ export default function PersonalDetails({ loaderData, actionData, params }: Rout
 
   return (
     <>
-      <InlineLink className="mt-6 block" file="routes/employee/[id]/profile/index.tsx" id="back-button">
+      <InlineLink className="mt-6 block" file="routes/employee/[id]/profile/index.tsx" params={params} id="back-button">
         {`< ${t('app:profile.back')}`}
       </InlineLink>
       <div className="max-w-prose">
@@ -338,7 +343,12 @@ export default function PersonalDetails({ loaderData, actionData, params }: Rout
                 <Button name="action" variant="primary" id="save-button">
                   {t('app:form.save')}
                 </Button>
-                <ButtonLink file="routes/employee/[id]/profile/index.tsx" id="cancel-button" variant="alternative">
+                <ButtonLink
+                  file="routes/employee/[id]/profile/index.tsx"
+                  params={params}
+                  id="cancel-button"
+                  variant="alternative"
+                >
                   {t('app:form.cancel')}
                 </ButtonLink>
               </div>

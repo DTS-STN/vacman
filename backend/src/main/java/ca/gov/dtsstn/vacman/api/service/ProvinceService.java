@@ -23,4 +23,8 @@ public class ProvinceService {
     public Optional<ProvinceEntity> getProvinceByCode(String code) {
         return provinceRepository.findByCode(code);
     }
+
+    public Optional<ProvinceEntity> getProvinceById(Long id) {
+        return provinceRepository.findById(id);
+    }
 }

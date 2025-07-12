@@ -25,10 +25,8 @@ const allEducationLevels = await getEducationLevelService().getAll();
 const educationLevels = allEducationLevels.unwrap();
 const allSubstantivePositions = await getClassificationService().getAll();
 const substantivePositions = allSubstantivePositions.unwrap();
-const allBranchOrServiceCanadaRegions = await getBranchService().getAll();
-const branchOrServiceCanadaRegions = allBranchOrServiceCanadaRegions.unwrap();
-const allDirectorates = await getDirectorateService().getAll();
-const directorates = allDirectorates.unwrap();
+const allBranchOrServiceCanadaRegions = await getBranchService().listAll();
+const allDirectorates = await getDirectorateService().listAll();
 const allProvinces = await getProvinceService().getAll();
 const province = allProvinces.unwrap();
 const allCities = await getCityService().getAll();
@@ -99,13 +97,13 @@ export const employmentInformationSchema = v.intersect([
     ),
     branchOrServiceCanadaRegion: v.lazy(() =>
       v.picklist(
-        branchOrServiceCanadaRegions.map(({ id }) => id),
+        allBranchOrServiceCanadaRegions.map(({ id }) => String(id)),
         'app:employment-information.errors.branch-or-service-canada-region-required',
       ),
     ),
     directorate: v.lazy(() =>
       v.picklist(
-        directorates.map(({ id }) => id),
+        allDirectorates.map(({ id }) => String(id)),
         'app:employment-information.errors.directorate-required',
       ),
     ),

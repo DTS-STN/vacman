@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -39,9 +40,19 @@ public class CityController {
 			@RequestParam(required = false)
 			@Parameter(description = "City code to filter by (e.g., 'OT' for Ottawa)") String code,
 			@RequestParam(required = false)
-			@Parameter(description = "Province code to filter by (e.g., 'ON' for Ontario)") String province) {
+			@Parameter(description = "Province code to filter by (e.g., 'ON' for Ontario)") String province,
+			@RequestParam(required = false)
+			@Parameter(description = "Province ID to filter by") Long provinceId) {
 
-		// If both parameters are provided, find cities that match both
+		// If provinceId is provided
+		if (provinceId != null) {
+			CollectionModel<CityReadModel> result = new CollectionModel<>(cityService.getCitiesByProvinceId(provinceId).stream()
+				.map(cityModelMapper::toModel)
+				.toList());
+			return ResponseEntity.ok(result);
+		}
+
+		// If both code and province parameters are provided, find cities that match both
 		if (isNotBlank(code) && isNotBlank(province)) {
 			CollectionModel<CityReadModel> result = new CollectionModel<>(cityService.getCityByCodeAndProvince(code, province).stream()
 				.map(cityModelMapper::toModel)
@@ -71,5 +82,18 @@ public class CityController {
 			.map(cityModelMapper::toModel)
 			.toList());
 		return ResponseEntity.ok(result);
+	}
+
+	@GetMapping("/{id}")
+	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
+	@Operation(summary = "Get a city by ID.", description = "Returns a city by its ID.")
+	public ResponseEntity<CityReadModel> getCityById(
+			@PathVariable
+			@Parameter(description = "City ID") Long id) {
+
+		return cityService.getCityById(id)
+			.map(cityModelMapper::toModel)
+			.map(ResponseEntity::ok)
+			.orElse(ResponseEntity.notFound().build());
 	}
 }

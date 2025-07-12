@@ -1,133 +1,162 @@
+import { Ok, Err } from 'oxide.ts';
 import type { Result, Option } from 'oxide.ts';
-import { Some, None, Ok, Err } from 'oxide.ts';
 
-import type { Branch, LocalizedBranch } from '~/.server/domain/models';
+import type { LocalizedBranch, Branch } from '~/.server/domain/models';
 import type { BranchService } from '~/.server/domain/services/branch-service';
-import { serverEnvironment } from '~/.server/environment';
+import { apiFetch } from '~/.server/domain/services/makeApiRequest';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 
-//TODO: Revisit when the api endpoints are avaialable
-export function getDefaultBranchService(): BranchService {
+// Centralized localization logic
+function localizeBranch(branch: Branch, language: Language): LocalizedBranch {
   return {
-    /**
-     * Retrieves a list of all esdc branches.
-     *
-     * @returns An array of esdc branch objects or {AppError} if the request fails or if the server responds with an error status.
-     */
-
-    async getAll(): Promise<Result<readonly Branch[], AppError>> {
-      try {
-        const response = await fetch(`${serverEnvironment.VACMAN_API_BASE_URI}/branches`);
-
-        if (!response.ok) {
-          return Err(
-            new AppError(
-              `Failed to retrieve all ESDC Branches. Server responded with status ${response.status}.`,
-              ErrorCodes.VACMAN_API_ERROR,
-            ),
-          );
-        }
-
-        const data: Branch[] = await response.json();
-        return Ok(data);
-      } catch (error) {
-        return Err(
-          new AppError(`Unexpected error occurred while fetching ESDC Branches: ${String(error)}`, ErrorCodes.VACMAN_API_ERROR),
-        );
-      }
-    },
-
-    /**
-     * Retrieves a single branch by its ID.
-     *
-     * @param id The ID of the branch to retrieve.
-     * @returns The branch object if found or {AppError} If the branch is not found or if the request fails or if the server responds with an error status.
-     */
-
-    async getById(id: string): Promise<Result<Branch, AppError>> {
-      try {
-        const response = await fetch(`${serverEnvironment.VACMAN_API_BASE_URI}/branches/${id}`);
-
-        if (response.status === HttpStatusCodes.NOT_FOUND) {
-          return Err(new AppError(`Branch with ID '${id}' not found.`, ErrorCodes.NO_BRANCH_FOUND));
-        }
-
-        if (!response.ok) {
-          return Err(
-            new AppError(
-              `Failed to find the ESDC Branch with ID '${id}'. Server responded with status ${response.status}.`,
-              ErrorCodes.VACMAN_API_ERROR,
-            ),
-          );
-        }
-
-        const data: Branch = await response.json();
-        return Ok(data);
-      } catch (error) {
-        return Err(
-          new AppError(
-            `Unexpected error occurred while fetching ESDC Branch by ID: ${String(error)}`,
-            ErrorCodes.VACMAN_API_ERROR,
-          ),
-        );
-      }
-    },
-
-    /**
-     * Retrieves a single branch by its ID.
-     *
-     * @param id The ID of the branch to retrieve.
-     * @returns The branch object if found or undefined if not found.
-     */
-
-    async findById(id: string): Promise<Option<Branch>> {
-      const result = await getDefaultBranchService().getAll();
-
-      if (result.isErr()) {
-        return None;
-      }
-
-      const found = result.unwrap().find((branch) => branch.id === id);
-      return found ? Some(found) : None;
-    },
-
-    /**
-     * Retrieves a list of branches localized to the specified language.
-     *
-     * @param language The language to localize the branch names to.
-     * @returns An array of localized branch objects or {AppError} if the request fails or if the server responds with an error status.
-     */
-
-    async getAllLocalized(language: Language): Promise<Result<readonly LocalizedBranch[], AppError>> {
-      const result = await getDefaultBranchService().getAll();
-
-      return result.map((branches) =>
-        branches.map((branch) => ({
-          id: branch.id,
-          code: branch.code,
-          name: language === 'fr' ? branch.nameFr : branch.nameEn,
-        })),
-      );
-    },
-
-    /**
-     * Retrieves a single localized branch by its ID.
-     *
-     * @param id The ID of the branch to retrieve.
-     * @param language The language to localize the branch name to.
-     * @returns The localized branch object if found or {AppError} If the branch is not found or if the request fails or if the server responds with an error status.
-     */
-
-    async getLocalizedById(id: string, language: Language): Promise<Result<LocalizedBranch, AppError>> {
-      const result = await getDefaultBranchService().getById(id);
-
-      return result.map((branch) => ({
-        id: branch.id,
-        code: branch.code,
-        name: language === 'fr' ? branch.nameFr : branch.nameEn,
-      }));
-    },
+    id: branch.id,
+    code: branch.code,
+    name: language === 'fr' ? branch.nameFr : branch.nameEn,
   };
+}
+
+// Helper to convert API WorkUnit object to Branch
+function toBranch(obj: Branch): Branch {
+  return {
+    id: obj.id.toString(),
+    code: obj.code,
+    nameEn: obj.nameEn,
+    nameFr: obj.nameFr,
+  };
+}
+
+// Create a single instance of the service (Singleton)
+export const branchService: BranchService = {
+  /**
+   * Retrieves a list of all esdc branches.
+   *
+   * @returns A promise that resolves to an array of esdc branches objects. The array will be empty if none are found.
+   * @throws {AppError} if the API call fails for any reason (e.g., network error, server error).
+   */
+  async listAll(): Promise<readonly Branch[]> {
+    type ApiResponse = {
+      content: readonly Branch[];
+    };
+    const context = 'list all esdc branches';
+    const response = await apiFetch('/work-units', context);
+
+    const data: ApiResponse = await response.json();
+    // Branches: items WITHOUT a parent property
+    return data.content.filter((c) => !('parent' in c)).map(toBranch);
+  },
+
+  /**
+   * Retrieves a single esdc branches by its ID.
+   *
+   * @param id The ID of the esdc branches to retrieve.
+   * @returns A `Result` containing the esdc branches object if found, or an `AppError` if not found.
+   * @throws {AppError} if the API call fails for any reason other than a 404 not found.
+   */
+  async getById(id: string): Promise<Result<Branch, AppError>> {
+    const context = `get esdc branches with ID '${id}'`;
+    try {
+      const response = await apiFetch(`/work-units/${id}`, context);
+      const data: Branch = await response.json();
+      return Ok(data);
+    } catch (error) {
+      if (error instanceof AppError && error.httpStatusCode === HttpStatusCodes.NOT_FOUND) {
+        return Err(new AppError(`ESDC Branches with ID '${id}' not found.`, ErrorCodes.NO_BRANCH_FOUND));
+      }
+      // Re-throw any other error
+      throw error;
+    }
+  },
+
+  /**
+   * Retrieves a single esdc branches by its CODE.
+   *
+   * @param code The CODE of the esdc branches to retrieve.
+   * @returns A `Result` containing the esdc branches object if found, or an `AppError` if not found.
+   * @throws {AppError} if the API call fails for any reason other than a 404 not found.
+   */
+  async getByCode(code: string): Promise<Result<Branch, AppError>> {
+    const context = `esdc branches with CODE '${code}'`;
+    try {
+      const response = await apiFetch(`/work-units?code=${code}`, context);
+      const data: Branch = await response.json();
+      return Ok(data);
+    } catch (error) {
+      if (error instanceof AppError && error.httpStatusCode === HttpStatusCodes.NOT_FOUND) {
+        return Err(new AppError(`ESDC Branches with CODE '${code}' not found.`, ErrorCodes.NO_BRANCH_FOUND));
+      }
+      // Re-throw any other error
+      throw error;
+    }
+  },
+
+  // Localized methods
+
+  /**
+   * Retrieves a list of all esdc branches, localized to the specified language.
+   *
+   * @param language The language for localization.
+   * @returns A promise that resolves to an array of localized esdc branche objects.
+   * @throws {AppError} if the API call fails for any reason.
+   */
+  async listAllLocalized(language: Language): Promise<readonly LocalizedBranch[]> {
+    const branches = await this.listAll();
+    return branches.map((branch) => localizeBranch(branch, language));
+  },
+
+  /**
+   * Retrieves a single localized esdc branch by its ID.
+   *
+   * @param id The ID of the esdc branch to retrieve.
+   * @param language The language for localization.
+   * @returns A `Result` containing the localized esdc branch object if found, or an `AppError` if not found.
+   * @throws {AppError} if the API call fails for any reason other than a 404 not found.
+   */
+  async getLocalizedById(id: string, language: Language): Promise<Result<LocalizedBranch, AppError>> {
+    const result = await this.getById(id);
+    return result.map((branch) => localizeBranch(branch, language));
+  },
+
+  /**
+   * Retrieves a single localized esdc branch by its CODE.
+   *
+   * @param code The CODE of the esdc branch to retrieve.
+   * @param language The language for localization.
+   * @returns A `Result` containing the localized esdc branch object if found, or an `AppError` if not found.
+   * @throws {AppError} if the API call fails for any reason other than a 404 not found.
+   */
+  async getLocalizedByCode(code: string, language: Language): Promise<Result<LocalizedBranch, AppError>> {
+    const result = await this.getByCode(code);
+    return result.map((branch) => localizeBranch(branch, language));
+  },
+
+  /**
+   * Finds a single localized esdc branch by its ID.
+   *
+   * @param id The ID of the esdc branch to find.
+   * @param language The language for localization.
+   * @returns An `Option` containing the localized esdc branch object if found, or `None`.
+   * @throws {AppError} if the API call fails for any reason other than a 404 not found.
+   */
+  async findLocalizedById(id: string, language: Language): Promise<Option<LocalizedBranch>> {
+    const result = await this.getLocalizedById(id, language);
+    return result.ok();
+  },
+
+  /**
+   * Finds a single localized esdc branch by its CODE.
+   *
+   * @param code The CODE of the esdc branch to find.
+   * @param language The language for localization.
+   * @returns An `Option` containing the localized esdc branch object if found, or `None`.
+   * @throws {AppError} if the API call fails for any reason other than a 404 not found.
+   */
+  async findLocalizedByCode(code: string, language: Language): Promise<Option<LocalizedBranch>> {
+    const result = await this.getLocalizedByCode(code, language);
+    return result.ok();
+  },
+};
+export function getDefaultBranchService(): BranchService {
+  return branchService;
 }

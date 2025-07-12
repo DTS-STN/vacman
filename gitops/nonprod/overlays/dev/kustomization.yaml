@@ -15,9 +15,11 @@ labels:
 resources:
   - ../../base/vacman-backend/
   - ../../base/vacman-frontend/
+  - ./external-secrets.yaml
   - ./ingresses.yaml
 patches:
-  - path: ./patches/deployments.yaml
+  - path: ./patches/deployments-backend.yaml
+  - path: ./patches/deployments-frontend.yaml
 configMapGenerator:
   - name: vacman-frontend
     behavior: create
