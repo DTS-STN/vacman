@@ -1,10 +1,11 @@
 package ca.gov.dtsstn.vacman.api.data.entity;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 
 import org.immutables.builder.Builder;
 import org.springframework.core.style.ToStringCreator;
 
+import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
@@ -32,11 +33,9 @@ public class EmploymentTenureEntity extends AbstractLookupEntity {
 			@Nullable String code,
 			@Nullable String nameEn,
 			@Nullable String nameFr,
-			@Nullable String createdBy,
-			@Nullable Instant createdDate,
-			@Nullable String lastModifiedBy,
-			@Nullable Instant lastModifiedDate) {
-		super(id, code, nameEn, nameFr, createdBy, createdDate, lastModifiedBy, lastModifiedDate);
+			@Nonnull LocalDateTime effectiveDate,
+			@Nullable LocalDateTime expiryDate) {
+		super(id, code, nameEn, nameFr, effectiveDate, expiryDate);
 	}
 
 	@Override

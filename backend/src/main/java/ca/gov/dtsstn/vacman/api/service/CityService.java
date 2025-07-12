@@ -34,7 +34,7 @@ public class CityService {
     }
 
     public List<CityEntity> getCitiesByProvinceId(Long provinceId) {
-        return List.copyOf(cityRepository.findByProvince_Id(provinceId));
+        return List.copyOf(cityRepository.findByProvinceTerritory_Id(provinceId));
     }
 
     public List<CityEntity> getCityByCodeAndProvince(String code, String provinceCode) {
