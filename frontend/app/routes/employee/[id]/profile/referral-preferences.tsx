@@ -90,8 +90,8 @@ export async function loader({ context, request }: Route.LoaderArgs) {
   // Since parent layout ensures authentication, we can safely cast the session
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
   const localizedLanguageReferralTypesResult = await getLanguageReferralTypeService().listAllLocalized(lang);
-  const localizedEmploymentTenures = await getEmploymentTenureService().getAllLocalized(lang);
   const localizedClassifications = await getClassificationService().listAllLocalized(lang);
+  const localizedEmploymentTenures = await getEmploymentTenureService().listAllLocalized(lang);
   const localizedProvinces = await getProvinceService().getAllLocalized(lang);
   const localizedCities = await getCityService().getAllLocalized(lang);
 
@@ -107,8 +107,8 @@ export async function loader({ context, request }: Route.LoaderArgs) {
       employmentTenures: undefined as string[] | undefined,
     },
     languageReferralTypes: localizedLanguageReferralTypesResult,
-    employmentTenures: localizedEmploymentTenures.unwrap(),
     classifications: localizedClassifications,
+    employmentTenures: localizedEmploymentTenures,
     provinces: localizedProvinces.unwrap(),
     cities: localizedCities.unwrap(),
   };
@@ -131,7 +131,7 @@ export default function PersonalDetails({ loaderData, actionData, params }: Rout
     defaultChecked: loaderData.defaultValues.languageReferralTypes?.includes(langReferral.id) ?? false,
   }));
   const classificationOptions = loaderData.classifications.map((classification) => ({
-    value: classification.id,
+    value: String(classification.id),
     label: classification.name,
   }));
   const provinceOptions = [{ id: 'select-option', name: '' }, ...loaderData.provinces].map(({ id, name }) => ({
@@ -174,7 +174,7 @@ export default function PersonalDetails({ loaderData, actionData, params }: Rout
     },
   ];
   const employmentTenureOptions = loaderData.employmentTenures.map((employmentTenures) => ({
-    value: employmentTenures.id,
+    value: String(employmentTenures.id),
     children: employmentTenures.name,
     defaultChecked: loaderData.defaultValues.employmentTenures?.includes(employmentTenures.id) ?? false,
   }));

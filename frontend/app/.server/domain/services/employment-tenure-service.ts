@@ -7,11 +7,14 @@ import { serverEnvironment } from '~/.server/environment';
 import type { AppError } from '~/errors/app-error';
 
 export type EmploymentTenureService = {
-  getAll(): Promise<Result<readonly EmploymentTenure[], AppError>>;
+  listAll(): Promise<readonly EmploymentTenure[]>;
   getById(id: string): Promise<Result<EmploymentTenure, AppError>>;
-  findById(id: string): Promise<Option<EmploymentTenure>>;
-  getAllLocalized(language: Language): Promise<Result<readonly LocalizedEmploymentTenure[], AppError>>;
+  getByCode(code: string): Promise<Result<EmploymentTenure, AppError>>;
+  listAllLocalized(language: Language): Promise<readonly LocalizedEmploymentTenure[]>;
   getLocalizedById(id: string, language: Language): Promise<Result<LocalizedEmploymentTenure, AppError>>;
+  findLocalizedById(id: string, language: Language): Promise<Option<LocalizedEmploymentTenure>>;
+  getLocalizedByCode(code: string, language: Language): Promise<Result<LocalizedEmploymentTenure, AppError>>;
+  findLocalizedByCode(code: string, language: Language): Promise<Option<LocalizedEmploymentTenure>>;
 };
 
 export function getEmploymentTenureService(): EmploymentTenureService {

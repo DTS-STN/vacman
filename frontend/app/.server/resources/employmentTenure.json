@@ -2,26 +2,31 @@
   "content": [
     {
       "id": 664190000,
+      "code": "ASSIGNMENT",
       "nameEn": "Assignment",
       "nameFr": "Affectation"
     },
     {
       "id": 664190001,
+      "code": "TERM",
       "nameEn": "Term employment",
       "nameFr": "Emploi à durée déterminée"
     },
     {
       "id": 664190002,
+      "code": "LOWER_LEVEL",
       "nameEn": "Lower-level opportunities",
       "nameFr": "Opportunités de niveau inférieur"
     },
     {
       "id": 664190003,
+      "code": "PART_TIME",
       "nameEn": "Part-time hours",
       "nameFr": "Heures à temps-partiel"
     },
     {
       "id": 664190004,
+      "code": "NOT_INTERESTED",
       "nameEn": "Not interested",
       "nameFr": "Pas intéressé"
     }

@@ -67,12 +67,14 @@ export type LocalizedDirectorate = Readonly<{
 
 export type EmploymentTenure = Readonly<{
   id: string;
+  code: string;
   nameEn: string;
   nameFr: string;
 }>;
 
 export type LocalizedEmploymentTenure = Readonly<{
   id: string;
+  code: string;
   name: string;
 }>;
 
