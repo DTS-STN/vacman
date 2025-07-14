@@ -75,7 +75,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     getLanguageReferralTypeService().listAllLocalized(lang),
     getClassificationService().listAllLocalized(lang),
     getCityService().getAllLocalized(lang),
-    getEmploymentTenureService().getAllLocalized(lang),
+    getEmploymentTenureService().listAllLocalized(lang),
   ]);
 
   if (profileResult.isNone()) {
@@ -122,13 +122,13 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     ?.map((langId) => allLocalizedLanguageReferralTypes.find((l) => String(l.id) === langId))
     .filter(Boolean);
   const classifications = profileData.referralPreferences.classificationIds
-    ?.map((classificationId) => allClassifications.find((c) => c.id === classificationId))
+    ?.map((classificationId) => allClassifications.find((c) => String(c.id) === classificationId))
     .filter(Boolean);
   const cities = profileData.referralPreferences.workLocationCitieIds
     ?.map((cityId) => allLocalizedCities.unwrap().find((c) => c.id === cityId))
     .filter(Boolean);
   const employmentTenures = profileData.referralPreferences.employmentTenureIds
-    ?.map((employmentTenureId) => allLocalizedEmploymentTenures.unwrap().find((c) => c.id === employmentTenureId))
+    ?.map((employmentTenureId) => allLocalizedEmploymentTenures.find((c) => String(c.id) === employmentTenureId))
     .filter(Boolean);
 
   return {

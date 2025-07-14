@@ -29,8 +29,7 @@ const allCities = await getCityService().getAll();
 const cities = allCities.unwrap();
 const hrAdvisors = await getUserService().getUsersByRole('hr-advisor');
 const allLanguageReferralTypes = await getLanguageReferralTypeService().listAll();
-const allEmploymentTenures = await getEmploymentTenureService().getAll();
-const employmentTenures = allEmploymentTenures.unwrap();
+const allEmploymentTenures = await getEmploymentTenureService().listAll();
 
 export const personalInformationSchema = v.object({
   personalRecordIdentifier: v.pipe(
@@ -258,7 +257,7 @@ export const refferralPreferencesSchema = v.object({
     v.array(
       v.lazy(() =>
         v.picklist(
-          employmentTenures.map((e) => e.id),
+          allEmploymentTenures.map((e) => String(e.id)),
           'app:referral-preferences.errors.employment-tenure-invalid',
         ),
       ),
