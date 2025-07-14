@@ -180,7 +180,6 @@ export type UserPersonalInformation = {
 export type UserEmploymentInformation = {
   classificationId?: string;
   workUnitId?: string;
-  provinceId?: string;
   cityId?: string;
   wfaStatusId?: string;
   wfaEffectiveDate?: string;
@@ -190,7 +189,7 @@ export type UserEmploymentInformation = {
 export type UserReferralPreferences = {
   languageReferralTypeIds?: string[];
   classificationIds?: string[];
-  workLocationCitieIds?: string[];
+  workLocationCitiesIds?: string[];
   availableForReferralInd?: boolean;
   interestedInAlternationInd?: boolean;
   employmentTenureIds?: string[];

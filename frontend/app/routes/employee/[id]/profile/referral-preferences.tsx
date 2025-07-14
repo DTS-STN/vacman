@@ -92,8 +92,8 @@ export async function loader({ context, request }: Route.LoaderArgs) {
   const localizedLanguageReferralTypesResult = await getLanguageReferralTypeService().listAllLocalized(lang);
   const localizedClassifications = await getClassificationService().listAllLocalized(lang);
   const localizedEmploymentTenures = await getEmploymentTenureService().listAllLocalized(lang);
-  const localizedProvinces = await getProvinceService().getAllLocalized(lang);
-  const localizedCities = await getCityService().getAllLocalized(lang);
+  const localizedProvinces = await getProvinceService().listAllLocalized(lang);
+  const localizedCities = await getCityService().listAllLocalized(lang);
 
   return {
     documentTitle: t('app:referral-preferences.page-title'),
@@ -109,8 +109,8 @@ export async function loader({ context, request }: Route.LoaderArgs) {
     languageReferralTypes: localizedLanguageReferralTypesResult,
     classifications: localizedClassifications,
     employmentTenures: localizedEmploymentTenures,
-    provinces: localizedProvinces.unwrap(),
-    cities: localizedCities.unwrap(),
+    provinces: localizedProvinces,
+    cities: localizedCities,
   };
 }
 
@@ -135,13 +135,13 @@ export default function PersonalDetails({ loaderData, actionData, params }: Rout
     label: classification.name,
   }));
   const provinceOptions = [{ id: 'select-option', name: '' }, ...loaderData.provinces].map(({ id, name }) => ({
-    value: id === 'select-option' ? '' : id,
+    value: id === 'select-option' ? '' : String(id),
     children: id === 'select-option' ? t('app:form.select-option') : name,
   }));
   const cityOptions = loaderData.cities
-    .filter((c) => c.province.id === province)
+    .filter((c) => String(c.province.id) === province)
     .map((city) => ({
-      value: city.id,
+      value: String(city.id),
       label: city.name,
       group: city.province.name,
     }));
@@ -204,7 +204,7 @@ export default function PersonalDetails({ loaderData, actionData, params }: Rout
   const citiesChoiceTags: ChoiceTag[] = [];
 
   selectedCities?.forEach((city) => {
-    const selectedC = loaderData.cities.find((c) => c.id === city);
+    const selectedC = loaderData.cities.find((c) => String(c.id) === city);
     citiesChoiceTags.push({ label: selectedC?.name ?? city, name: 'city', value: city, group: selectedC?.province.name });
   });
 
