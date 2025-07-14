@@ -13,7 +13,6 @@ import type { Profile } from '~/.server/domain/models';
 import { getCityService } from '~/.server/domain/services/city-service';
 import { getClassificationService } from '~/.server/domain/services/classification-service';
 import { getDirectorateService } from '~/.server/domain/services/directorate-service';
-import { getEducationLevelService } from '~/.server/domain/services/education-level-service';
 import { getEmploymentTenureService } from '~/.server/domain/services/employment-tenure-service';
 import { getLanguageForCorrespondenceService } from '~/.server/domain/services/language-for-correspondence-service';
 import { getLanguageReferralTypeService } from '~/.server/domain/services/language-referral-type-service';
@@ -102,9 +101,6 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   // convert the IDs to display names
   const preferredLanguage =
     preferredLanguageResult && preferredLanguageResult.isSome() ? preferredLanguageResult.unwrap().name : undefined;
-  const education =
-    profileData.personalInformation.educationLevelId &&
-    (await getEducationLevelService().getLocalizedById(profileData.personalInformation.educationLevelId, lang)).unwrap().name; //TODO add find localized by ID in service
   const substantivePosition =
     substantivePositionResult && substantivePositionResult.isSome() ? substantivePositionResult.unwrap().name : undefined;
   const branchOrServiceCanadaRegion =
@@ -149,7 +145,6 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       personalEmail: profileData.personalInformation.personalEmail,
       workPhone: profileData.personalInformation.workPhone,
       personalPhone: profileData.personalInformation.personalPhone,
-      education: education,
       additionalInformation: profileData.personalInformation.additionalInformation,
     },
     employmentInformation: {
@@ -256,9 +251,6 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
               </DescriptionListItem>
               <DescriptionListItem term={t('app:personal-information.personal-phone')}>
                 {loaderData.personalInformation.personalPhone ?? t('app:profile.not-provided')}
-              </DescriptionListItem>
-              <DescriptionListItem term={t('app:personal-information.education')}>
-                {loaderData.personalInformation.education ?? t('app:profile.not-provided')}
               </DescriptionListItem>
               <DescriptionListItem term={t('app:personal-information.additional-information')}>
                 {loaderData.personalInformation.additionalInformation ?? t('app:profile.not-provided')}

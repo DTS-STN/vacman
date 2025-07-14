@@ -66,7 +66,6 @@ export default {
     'personal-phone': 'Numéro de téléphone personnel',
     'personal-phone-help-message-primary': 'Cellule, domicile ou autre. Par exemple\u00A0: <noWrap>123 456 7890</noWrap>',
     'work-phone-help-message-primary': 'Par exemple\u00A0: <noWrap>123 456 7890</noWrap>',
-    'education': "Quel est votre niveau d'études le plus élevé?",
     'additional-information': 'Renseignements supplémentaires',
     'additional-info-help-message': "Veuillez noter brièvement les absences ou d'autres informations clés.",
     'errors': {
@@ -79,7 +78,6 @@ export default {
       'work-phone-required': 'Le numéro de téléphone professionnel est requis.',
       'personal-phone-invalid': 'Numéro de téléphone personnel invalide.',
       'personal-phone-required': 'Un numéro de téléphone personnel est requis.',
-      'education-required': "Niveau d'études est requis.",
     },
   },
   'employment-information': {
