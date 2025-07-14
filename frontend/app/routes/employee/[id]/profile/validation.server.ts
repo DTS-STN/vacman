@@ -23,8 +23,7 @@ import { formString } from '~/utils/string-utils';
 const allLanguagesOfCorrespondence = await getLanguageForCorrespondenceService().listAll();
 const allEducationLevels = await getEducationLevelService().getAll();
 const educationLevels = allEducationLevels.unwrap();
-const allSubstantivePositions = await getClassificationService().getAll();
-const substantivePositions = allSubstantivePositions.unwrap();
+const allSubstantivePositions = await getClassificationService().listAll();
 const allBranchOrServiceCanadaRegions = await getBranchService().listAll();
 const allDirectorates = await getDirectorateService().listAll();
 const allProvinces = await getProvinceService().getAll();
@@ -91,7 +90,7 @@ export const employmentInformationSchema = v.intersect([
   v.object({
     substantivePosition: v.lazy(() =>
       v.picklist(
-        substantivePositions.map(({ id }) => id),
+        allSubstantivePositions.map(({ id }) => String(id)),
         'app:employment-information.errors.substantive-group-and-level-required',
       ),
     ),
@@ -230,7 +229,7 @@ export const refferralPreferencesSchema = v.object({
     v.array(
       v.lazy(() =>
         v.picklist(
-          substantivePositions.map((c) => c.id),
+          allSubstantivePositions.map((c) => String(c.id)),
           'app:referral-preferences.errors.classification-invalid',
         ),
       ),

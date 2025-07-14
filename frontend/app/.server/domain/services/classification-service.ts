@@ -1,15 +1,20 @@
 import type { Result, Option } from 'oxide.ts';
 
-import type { Classification } from '~/.server/domain/models';
+import type { Classification, LocalizedClassification } from '~/.server/domain/models';
 import { getDefaultClassificationService } from '~/.server/domain/services/classification-service-default';
 import { getMockClassificationService } from '~/.server/domain/services/classification-service-mock';
 import { serverEnvironment } from '~/.server/environment';
 import type { AppError } from '~/errors/app-error';
 
 export type ClassificationService = {
-  getAll(): Promise<Result<readonly Classification[], AppError>>;
+  listAll(): Promise<readonly Classification[]>;
   getById(id: string): Promise<Result<Classification, AppError>>;
-  findById(id: string): Promise<Option<Classification>>;
+  getByCode(code: string): Promise<Result<Classification, AppError>>;
+  listAllLocalized(language: Language): Promise<readonly LocalizedClassification[]>;
+  getLocalizedById(id: string, language: Language): Promise<Result<LocalizedClassification, AppError>>;
+  findLocalizedById(id: string, language: Language): Promise<Option<LocalizedClassification>>;
+  getLocalizedByCode(code: string, language: Language): Promise<Result<LocalizedClassification, AppError>>;
+  findLocalizedByCode(code: string, language: Language): Promise<Option<LocalizedClassification>>;
 };
 
 export function getClassificationService(): ClassificationService {
