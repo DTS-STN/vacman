@@ -6,7 +6,6 @@ import * as v from 'valibot';
 
 import type { Route } from './+types/personal-information';
 
-import { getEducationLevelService } from '~/.server/domain/services/education-level-service';
 import { getLanguageForCorrespondenceService } from '~/.server/domain/services/language-for-correspondence-service';
 import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
@@ -44,7 +43,6 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     personalEmail: formString(formData.get('personalEmail')),
     workPhone: formString(formData.get('workPhone')),
     personalPhone: formString(formData.get('personalPhone')),
-    education: formString(formData.get('education')),
   });
 
   if (!parseResult.success) {
@@ -66,7 +64,6 @@ export async function loader({ context, request }: Route.LoaderArgs) {
   const authenticatedSession = context.session as AuthenticatedSession;
 
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
-  const localizedEducationLevels = await getEducationLevelService().getAllLocalized(lang);
   const localizedLanguagesOfCorrespondenceResult = await getLanguageForCorrespondenceService().listAllLocalized(lang);
 
   return {
@@ -79,11 +76,9 @@ export async function loader({ context, request }: Route.LoaderArgs) {
       personalEmail: undefined,
       workPhone: undefined,
       personalPhone: undefined,
-      education: undefined as string | undefined,
       additionalInformation: undefined as string | undefined,
     },
     languagesOfCorrespondence: localizedLanguagesOfCorrespondenceResult,
-    education: localizedEducationLevels.unwrap(),
   };
 }
 
@@ -95,11 +90,7 @@ export default function PersonalInformation({ loaderData, actionData, params }: 
     children: name,
     defaultChecked: id === loaderData.defaultValues.preferredLanguage,
   }));
-  const educationOptions = loaderData.education.map(({ id, name }) => ({
-    value: id,
-    children: name,
-    defaultChecked: id === loaderData.defaultValues.education,
-  }));
+
   return (
     <>
       <InlineLink className="mt-6 block" file="routes/employee/[id]/profile/index.tsx" params={params} id="back-button">
@@ -181,14 +172,6 @@ export default function PersonalInformation({ loaderData, actionData, params }: 
                     components={{ noWrap: <span className="whitespace-nowrap" /> }}
                   />
                 }
-                required
-              />
-              <InputRadios
-                id="education"
-                name="education"
-                legend={t('app:personal-information.education')}
-                options={educationOptions}
-                errorMessage={t(extractValidationKey(errors?.education))}
                 required
               />
               <InputTextarea

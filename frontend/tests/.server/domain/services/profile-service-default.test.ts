@@ -32,7 +32,6 @@ describe('profile-service-default', () => {
       personalEmail: 'john.doe@example.com',
       workPhone: undefined,
       personalPhone: '555-0123',
-      educationLevelId: '764190003',
       additionalInformation: 'Looking for opportunities in software development.',
     },
     employmentInformation: {

@@ -38,7 +38,6 @@ const mockProfiles: Profile[] = [
       personalEmail: 'jane.doe@example.com',
       workPhone: undefined,
       personalPhone: '613-555-0001',
-      educationLevelId: '764190003',
       additionalInformation: 'Looking for opportunities in software development.',
     },
     employmentInformation: {
@@ -79,7 +78,6 @@ const mockProfiles: Profile[] = [
       personalEmail: undefined,
       workPhone: undefined,
       personalPhone: undefined,
-      educationLevelId: undefined,
       additionalInformation: undefined,
     },
     employmentInformation: {
@@ -161,7 +159,6 @@ function registerProfile(activeDirectoryId: string): Profile {
       personalEmail: 'personal.email@example.com',
       workPhone: undefined,
       personalPhone: '613-938-0001',
-      educationLevelId: '764190003',
       additionalInformation: 'Looking for opportunities in software development.',
     },
     employmentInformation: {

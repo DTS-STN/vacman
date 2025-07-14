@@ -65,17 +65,6 @@ export type LocalizedDirectorate = Readonly<{
   parent: LocalizedBranch;
 }>;
 
-export type EducationLevel = Readonly<{
-  id: string;
-  nameEn: string;
-  nameFr: string;
-}>;
-
-export type LocalizedEducationLevel = Readonly<{
-  id: string;
-  name: string;
-}>;
-
 export type EmploymentTenure = Readonly<{
   id: string;
   nameEn: string;
@@ -184,7 +173,6 @@ export type UserPersonalInformation = {
   personalEmail?: string;
   workPhone?: string;
   personalPhone?: string;
-  educationLevelId?: string;
   additionalInformation?: string;
 };
 export type UserEmploymentInformation = {

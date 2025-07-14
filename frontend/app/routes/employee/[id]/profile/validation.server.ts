@@ -6,7 +6,6 @@ import { getBranchService } from '~/.server/domain/services/branch-service';
 import { getCityService } from '~/.server/domain/services/city-service';
 import { getClassificationService } from '~/.server/domain/services/classification-service';
 import { getDirectorateService } from '~/.server/domain/services/directorate-service';
-import { getEducationLevelService } from '~/.server/domain/services/education-level-service';
 import { getEmploymentTenureService } from '~/.server/domain/services/employment-tenure-service';
 import { getLanguageForCorrespondenceService } from '~/.server/domain/services/language-for-correspondence-service';
 import { getLanguageReferralTypeService } from '~/.server/domain/services/language-referral-type-service';
@@ -21,8 +20,6 @@ import { REGEX_PATTERNS } from '~/utils/regex-utils';
 import { formString } from '~/utils/string-utils';
 
 const allLanguagesOfCorrespondence = await getLanguageForCorrespondenceService().listAll();
-const allEducationLevels = await getEducationLevelService().getAll();
-const educationLevels = allEducationLevels.unwrap();
 const allSubstantivePositions = await getClassificationService().listAll();
 const allBranchOrServiceCanadaRegions = await getBranchService().listAll();
 const allDirectorates = await getDirectorateService().listAll();
@@ -69,12 +66,6 @@ export const personalInformationSchema = v.object({
     v.nonEmpty('app:personal-information.errors.personal-phone-required'),
     v.custom((val) => isValidPhone(val as string), 'app:personal-information.errors.personal-phone-invalid'),
     v.transform((val) => parsePhoneNumberWithError(val, 'CA').formatInternational().replace(/ /g, '')),
-  ),
-  education: v.lazy(() =>
-    v.picklist(
-      educationLevels.map(({ id }) => id),
-      'app:personal-information.errors.education-required',
-    ),
   ),
 });
 

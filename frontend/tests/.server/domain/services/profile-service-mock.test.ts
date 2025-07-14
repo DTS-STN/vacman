@@ -29,7 +29,6 @@ describe('getMockProfileService', () => {
           personalEmail: 'jane.doe@example.com',
           workPhone: undefined,
           personalPhone: '613-555-0001',
-          educationLevelId: '764190003',
           additionalInformation: 'Looking for opportunities in software development.',
         },
         employmentInformation: {
