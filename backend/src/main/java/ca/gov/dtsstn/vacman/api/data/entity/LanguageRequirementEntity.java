@@ -95,9 +95,6 @@ public class LanguageRequirementEntity extends AbstractBusinessEntity {
     }
 
     public void setEffectiveDate(LocalDateTime effectiveDate) {
-        if (effectiveDate == null) {
-            throw new IllegalArgumentException("Effective date cannot be null");
-        }
         this.effectiveDate = effectiveDate;
     }
 
