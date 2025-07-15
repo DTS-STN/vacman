@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.ProfileStatusEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 import ca.gov.dtsstn.vacman.api.data.repository.CityRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.ClassificationRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.LanguageRepository;
@@ -19,6 +21,7 @@ import ca.gov.dtsstn.vacman.api.data.repository.ProfileStatusRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.UserRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.WfaStatusRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.WorkUnitRepository;
+import ca.gov.dtsstn.vacman.api.web.model.ProfileCreateByActiveDirectoryIdModel;
 import ca.gov.dtsstn.vacman.api.web.model.ProfileCreateModel;
 
 @Service
@@ -115,6 +118,43 @@ public class ProfileService {
         profile.setAvailableForReferralInd(createModel.availableForReferralInd());
         profile.setInterestedInAlternationInd(createModel.interestedInAlternationInd());
         profile.setAdditionalComment(createModel.additionalComment());
+
+        return profileRepository.save(profile);
+    }
+
+    /**
+     * Creates a profile for a user identified by their Active Directory ID (networkName).
+     * This method looks up the user by their networkName and creates a profile with minimal defaults.
+     *
+     * @param createModel the model containing the activeDirectoryId
+     * @return the created profile entity
+     * @throws ResponseStatusException if the user is not found or required defaults are missing
+     */
+    public ProfileEntity createProfileByActiveDirectoryId(ProfileCreateByActiveDirectoryIdModel createModel) {
+        ProfileEntity profile = new ProfileEntity();
+
+        // Look up the user by their networkName (activeDirectoryId)
+        UserEntity user = userRepository.findByNetworkName(createModel.activeDirectoryId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        "User not found with network name (Active Directory ID): " + createModel.activeDirectoryId()));
+
+        // Set the user
+        profile.setUser(user);
+
+        // For now, set the HR Advisor to the same user (this could be changed based on business rules)
+        // In a real scenario, you might want to assign a default HR advisor or derive it from business logic
+        profile.setHrAdvisor(user);
+
+        // Set a default profile status - typically "PENDING" for new profiles
+        ProfileStatusEntity defaultStatus = profileStatusRepository.findByCode("PENDING")
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                        "Default profile status 'PENDING' not found in system"));
+        profile.setProfileStatus(defaultStatus);
+
+        // Set some reasonable defaults for new profiles
+        profile.setPrivacyConsentInd(true); // Default to true as shown in frontend tests
+        profile.setAvailableForReferralInd(true); // Default to true as shown in frontend tests
+        profile.setInterestedInAlternationInd(false); // Default to false as shown in frontend tests
 
         return profileRepository.save(profile);
     }

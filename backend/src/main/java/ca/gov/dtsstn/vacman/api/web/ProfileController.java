@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import ca.gov.dtsstn.vacman.api.config.SpringDocConfig;
 import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
 import ca.gov.dtsstn.vacman.api.service.ProfileService;
+import ca.gov.dtsstn.vacman.api.web.model.ProfileCreateByActiveDirectoryIdModel;
 import ca.gov.dtsstn.vacman.api.web.model.ProfileCreateModel;
 import ca.gov.dtsstn.vacman.api.web.model.ProfileReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.mapper.ProfileModelMapper;
@@ -24,7 +25,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 
 @RestController
 @Tag(name = "Profiles")
@@ -69,9 +69,30 @@ public class ProfileController {
 
 	@PostMapping
 	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
-	@Operation(summary = "Create a new profile", description = "Creates a new profile.")
-	public ResponseEntity<ProfileReadModel> createProfile(@RequestBody @Valid ProfileCreateModel profileCreate) {
-		ProfileEntity savedProfile = profileService.createProfile(profileCreate);
+	@Operation(summary = "Create a new profile",
+			description = "Creates a new profile. If activeDirectoryId parameter is provided, creates a profile with default values for that user. Otherwise, expects a full ProfileCreateModel in the request body.")
+	public ResponseEntity<ProfileReadModel> createProfile(
+			@RequestParam(required = false)
+			@Parameter(description = "Active Directory ID (network name) to create a profile with default values")
+			String activeDirectoryId,
+			@RequestBody(required = false) ProfileCreateModel createModel) {
+
+		ProfileEntity savedProfile;
+
+		// If activeDirectoryId parameter is provided, use the simplified creation
+		if (activeDirectoryId != null && !activeDirectoryId.trim().isEmpty()) {
+			ProfileCreateByActiveDirectoryIdModel simpleModel = new ProfileCreateByActiveDirectoryIdModel(activeDirectoryId);
+			savedProfile = profileService.createProfileByActiveDirectoryId(simpleModel);
+		}
+		// Otherwise, use the full create model from request body
+		else if (createModel != null) {
+			savedProfile = profileService.createProfile(createModel);
+		}
+		// Neither parameter nor body provided
+		else {
+			return ResponseEntity.badRequest().build();
+		}
+
 		return ResponseEntity.ok(profileModelMapper.toModel(savedProfile));
 	}
 
