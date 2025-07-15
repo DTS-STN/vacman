@@ -14,8 +14,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
 /**
@@ -27,13 +25,9 @@ import jakarta.validation.constraints.NotNull;
 @EntityListeners({ AuditingEntityListener.class })
 public abstract class AbstractCodeEntity extends AbstractAuditableEntity {
 
-	public static final long MAX_CODE_ID = 999_999L;
-
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(nullable = false, updatable = false)
-	@Min(value = 1, message = "ID must be positive")
-	@Max(value = MAX_CODE_ID, message = "ID cannot exceed " + MAX_CODE_ID)
 	protected Long id;
 
 	@Column(name = "[EFFECTIVE_DATE]", nullable = false)
@@ -63,9 +57,6 @@ public abstract class AbstractCodeEntity extends AbstractAuditableEntity {
 	}
 
 	public void setId(Long id) {
-		if (id != null && id > MAX_CODE_ID) {
-			throw new IllegalArgumentException("ID cannot exceed " + MAX_CODE_ID);
-		}
 		this.id = id;
 	}
 
