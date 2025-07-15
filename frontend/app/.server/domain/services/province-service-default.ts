@@ -27,13 +27,13 @@ export const provinceService: ProvinceService = {
    */
   async listAll(): Promise<readonly Province[]> {
     type ApiResponse = {
-      data: readonly Province[];
+      content: readonly Province[];
     };
     const context = 'list all provinces';
     const response = await apiFetch('/provinces', context);
 
     const data: ApiResponse = await response.json();
-    return data.data; //TODO: The API is returning "data" instead of "content". Need to fix API to return "content" and then update it to return data.content
+    return data.content; //TODO: The API is returning "data" instead of "content". Need to fix API to return "content" and then update it to return data.content
   },
 
   /**

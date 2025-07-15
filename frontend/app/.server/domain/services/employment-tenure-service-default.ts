@@ -27,13 +27,13 @@ export const employmentTenureService: EmploymentTenureService = {
    */
   async listAll(): Promise<readonly EmploymentTenure[]> {
     type ApiResponse = {
-      data: readonly EmploymentTenure[];
+      content: readonly EmploymentTenure[];
     };
     const context = 'list all employment tenures';
     const response = await apiFetch('/employment-tenures', context);
 
     const data: ApiResponse = await response.json();
-    return data.data; //TODO: The API is returning "data" instead of "content". Need to fix API to return "content" and then update it to return data.content
+    return data.content;
   },
 
   /**

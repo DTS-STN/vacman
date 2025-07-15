@@ -5,7 +5,7 @@ import { AppError } from '~/errors/app-error';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 
 const mockCities = {
-  data: [
+  content: [
     {
       id: '1',
       code: 'CITY-1',
@@ -37,14 +37,14 @@ describe('getDefaultCityService', () => {
     });
 
     const result = await service.listAll();
-    expect(result).toEqual(mockCities.data);
+    expect(result).toEqual(mockCities.content);
     expect(result.length).toBe(2);
   });
 
   it('getById should return a city if found', async () => {
     (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
       ok: true,
-      json: () => mockCities.data[0],
+      json: () => mockCities.content[0],
     });
 
     const result = await service.getById('1');
@@ -66,7 +66,7 @@ describe('getDefaultCityService', () => {
   it('findLocalizedById should return Some if city exists', async () => {
     (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
       ok: true,
-      json: () => Promise.resolve(mockCities.data[0]),
+      json: () => Promise.resolve(mockCities.content[0]),
     });
 
     const result = await service.findLocalizedById('1', 'en');
@@ -99,7 +99,7 @@ describe('getDefaultCityService', () => {
   it('getLocalizedById should return localized city', async () => {
     (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
       ok: true,
-      json: () => mockCities.data[0],
+      json: () => mockCities.content[0],
     });
 
     const result = await service.getLocalizedById('1', 'fr');

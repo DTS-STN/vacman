@@ -32,13 +32,13 @@ export const cityService: CityService = {
    */
   async listAll(): Promise<readonly City[]> {
     type ApiResponse = {
-      data: readonly City[];
+      content: readonly City[];
     };
     const context = 'list all cities';
     const response = await apiFetch('/cities', context);
 
     const data: ApiResponse = await response.json();
-    return data.data; //TODO: The API is returning "data" instead of "content". Need to fix API to return "content" and then update it to return data.content
+    return data.content;
   },
 
   /**
