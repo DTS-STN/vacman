@@ -1,45 +1,12 @@
-import type { Result, Option } from 'oxide.ts';
 import { Ok, Err } from 'oxide.ts';
+import type { Result, Option } from 'oxide.ts';
 
 import type { City, LocalizedCity } from '~/.server/domain/models';
 import type { CityService } from '~/.server/domain/services/city-service';
-import { serverEnvironment } from '~/.server/environment';
+import { apiFetch } from '~/.server/domain/services/makeApiRequest';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
-
-//TODO: Revisit when the api endpoints are avaialable
-// Centralized API request logic
-async function makeApiRequest<T>(path: string, context: string): Promise<Result<T, AppError>> {
-  try {
-    const response = await fetch(`${serverEnvironment.VACMAN_API_BASE_URI}${path}`);
-
-    if (response.status === HttpStatusCodes.NOT_FOUND) {
-      return Err(new AppError(`${context} not found.`, ErrorCodes.NO_CITY_FOUND));
-    }
-
-    if (!response.ok) {
-      return Err(
-        new AppError(
-          `Failed to ${context.toLowerCase()}. Server responded with status ${response.status}.`,
-          ErrorCodes.VACMAN_API_ERROR,
-        ),
-      );
-    }
-
-    // Handle cases where the server returns 204 No Content for a successful empty response
-    if (response.status === HttpStatusCodes.NO_CONTENT) {
-      return Ok([] as unknown as T); // Return an empty array or appropriate empty value
-    }
-
-    const data: T = await response.json();
-    return Ok(data);
-  } catch (error) {
-    return Err(
-      new AppError(`Unexpected error occurred while ${context.toLowerCase()}: ${String(error)}`, ErrorCodes.VACMAN_API_ERROR),
-    );
-  }
-}
 
 // Centralized localization logic
 function localizeCity(city: City, language: Language): LocalizedCity {
@@ -57,58 +24,128 @@ function localizeCity(city: City, language: Language): LocalizedCity {
 
 // Create a single instance of the service (Singleton)
 export const cityService: CityService = {
-  getAll(): Promise<Result<readonly City[], AppError>> {
-    return makeApiRequest('/cities', 'Retrieve all cities');
+  /**
+   * Retrieves a list of all cities.
+   *
+   * @returns A promise that resolves to an array of city objects. The array will be empty if none are found.
+   * @throws {AppError} if the API call fails for any reason (e.g., network error, server error).
+   */
+  async listAll(): Promise<readonly City[]> {
+    type ApiResponse = {
+      content: readonly City[];
+    };
+    const context = 'list all cities';
+    const response = await apiFetch('/cities', context);
+
+    const data: ApiResponse = await response.json();
+    return data.content;
   },
 
-  getById(id: string): Promise<Result<City, AppError>> {
-    return makeApiRequest(`/cities/${id}`, `Find city with ID '${id}'`);
+  /**
+   * Retrieves a single city by its ID.
+   *
+   * @param id The ID of the city to retrieve.
+   * @returns A `Result` containing the city object if found, or an `AppError` if not found.
+   * @throws {AppError} if the API call fails for any reason other than a 404 not found.
+   */
+  async getById(id: string): Promise<Result<City, AppError>> {
+    const context = `get city with ID '${id}'`;
+    try {
+      const response = await apiFetch(`/cities/${id}`, context);
+      const data: City = await response.json();
+      return Ok(data);
+    } catch (error) {
+      if (error instanceof AppError && error.httpStatusCode === HttpStatusCodes.NOT_FOUND) {
+        return Err(new AppError(`City type with ID '${id}' not found.`, ErrorCodes.NO_CITY_FOUND));
+      }
+      // Re-throw any other error
+      throw error;
+    }
   },
 
-  getByCode(code: string): Promise<Result<City, AppError>> {
-    return makeApiRequest(`/cities?code=${code}`, `Find city with CODE '${code}'`);
-  },
-
-  getAllByProvinceId(provinceId: string): Promise<Result<readonly City[], AppError>> {
-    return makeApiRequest(`/cities?provinceId=${provinceId}`, `Retrieve cities for province ID '${provinceId}'`);
-  },
-
-  getAllByProvinceCode(provinceCode: string): Promise<Result<readonly City[], AppError>> {
-    return makeApiRequest(`/cities?provinceCode=${provinceCode}`, `Retrieve cities for province CODE '${provinceCode}'`);
-  },
-
-  async findById(id: string): Promise<Option<City>> {
-    const result = await this.getById(id);
-    // .ok() converts a Result<T, E> into an Option<T>
-    return result.ok();
-  },
-
-  async findByCode(code: string): Promise<Option<City>> {
-    const result = await this.getByCode(code);
-    return result.ok();
+  /**
+   * Retrieves a single city by its Code.
+   *
+   * @param code The CODE of the city to retrieve.
+   * @returns A `Result` containing the city object if found, or an `AppError` if not found.
+   * @throws {AppError} if the API call fails for any reason other than a 404 not found.
+   */
+  async getByCode(code: string): Promise<Result<City, AppError>> {
+    const context = `get city with CODE '${code}'`;
+    try {
+      const response = await apiFetch(`/cities?code=${code}`, context);
+      const data: City = await response.json();
+      return Ok(data);
+    } catch (error) {
+      if (error instanceof AppError && error.httpStatusCode === HttpStatusCodes.NOT_FOUND) {
+        return Err(new AppError(`City with CODE '${code}' not found.`, ErrorCodes.NO_CITY_FOUND));
+      }
+      // Re-throw any other error
+      throw error;
+    }
   },
 
   // Localized methods
-  async getAllLocalized(language: Language): Promise<Result<readonly LocalizedCity[], AppError>> {
-    const result = await this.getAll();
-    return result.map((cities) => cities.map((city) => localizeCity(city, language)));
+
+  /**
+   * Retrieves a list of all cities, localized to the specified language.
+   *
+   * @param language The language for localization.
+   * @returns A promise that resolves to an array of city type objects.
+   * @throws {AppError} if the API call fails for any reason.
+   */
+  async listAllLocalized(language: Language): Promise<readonly LocalizedCity[]> {
+    const cities = await this.listAll();
+    return cities.map((city) => localizeCity(city, language));
   },
 
+  /**
+   * Retrieves a single localized city by its ID.
+   *
+   * @param id The ID of the city to retrieve.
+   * @param language The language for localization.
+   * @returns A `Result` containing the localized city object if found, or an `AppError` if not found.
+   * @throws {AppError} if the API call fails for any reason other than a 404 not found.
+   */
   async getLocalizedById(id: string, language: Language): Promise<Result<LocalizedCity, AppError>> {
     const result = await this.getById(id);
     return result.map((city) => localizeCity(city, language));
   },
 
+  /**
+   * Retrieves a single localized city by its CODE.
+   *
+   * @param code The CODE of the city to retrieve.
+   * @param language The language for localization.
+   * @returns A `Result` containing the localized city object if found, or an `AppError` if not found.
+   * @throws {AppError} if the API call fails for any reason other than a 404 not found.
+   */
   async getLocalizedByCode(code: string, language: Language): Promise<Result<LocalizedCity, AppError>> {
     const result = await this.getByCode(code);
     return result.map((city) => localizeCity(city, language));
   },
 
+  /**
+   * Finds a single localized city by its ID.
+   *
+   * @param id The ID of the city to find.
+   * @param language The language for localization.
+   * @returns An `Option` containing the localized city object if found, or `None`.
+   * @throws {AppError} if the API call fails for any reason other than a 404 not found.
+   */
   async findLocalizedById(id: string, language: Language): Promise<Option<LocalizedCity>> {
     const result = await this.getLocalizedById(id, language);
     return result.ok();
   },
 
+  /**
+   * Finds a single localized city by its CODE.
+   *
+   * @param code The CODE of the city to find.
+   * @param language The language for localization.
+   * @returns An `Option` containing the localized city object if found, or `None`.
+   * @throws {AppError} if the API call fails for any reason other than a 404 not found.
+   */
   async findLocalizedByCode(code: string, language: Language): Promise<Option<LocalizedCity>> {
     const result = await this.getLocalizedByCode(code, language);
     return result.ok();

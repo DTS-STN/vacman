@@ -43,7 +43,6 @@ const mockProfiles: Profile[] = [
     employmentInformation: {
       classificationId: undefined,
       workUnitId: undefined,
-      provinceId: undefined,
       cityId: undefined,
       wfaStatusId: undefined,
       wfaEffectiveDate: undefined,
@@ -53,7 +52,7 @@ const mockProfiles: Profile[] = [
     referralPreferences: {
       languageReferralTypeIds: ['864190000'],
       classificationIds: ['905190000', '905190001'],
-      workLocationCitieIds: ['411290001', '411290002'],
+      workLocationCitiesIds: ['411290001', '411290002'],
       availableForReferralInd: true,
       interestedInAlternationInd: false,
       employmentTenureIds: ['664190000', '664190001', '664190003'],
@@ -83,7 +82,6 @@ const mockProfiles: Profile[] = [
     employmentInformation: {
       classificationId: undefined,
       workUnitId: undefined,
-      provinceId: undefined,
       cityId: undefined,
       wfaStatusId: undefined,
       wfaEffectiveDate: undefined,
@@ -93,7 +91,7 @@ const mockProfiles: Profile[] = [
     referralPreferences: {
       languageReferralTypeIds: undefined,
       classificationIds: undefined,
-      workLocationCitieIds: undefined,
+      workLocationCitiesIds: undefined,
       availableForReferralInd: undefined,
       interestedInAlternationInd: undefined,
       employmentTenureIds: undefined,
@@ -164,7 +162,6 @@ function registerProfile(activeDirectoryId: string): Profile {
     employmentInformation: {
       classificationId: undefined,
       workUnitId: undefined,
-      provinceId: undefined,
       cityId: undefined,
       wfaStatusId: undefined,
       wfaEffectiveDate: undefined,
@@ -174,7 +171,7 @@ function registerProfile(activeDirectoryId: string): Profile {
     referralPreferences: {
       languageReferralTypeIds: ['864190000'],
       classificationIds: ['905190000', '905190001'],
-      workLocationCitieIds: ['411290001', '411290002'],
+      workLocationCitiesIds: ['411290001', '411290002'],
       availableForReferralInd: true,
       interestedInAlternationInd: false,
       employmentTenureIds: ['664190000', '664190001', '664190003'],

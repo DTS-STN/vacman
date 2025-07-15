@@ -23,10 +23,8 @@ const allLanguagesOfCorrespondence = await getLanguageForCorrespondenceService()
 const allSubstantivePositions = await getClassificationService().listAll();
 const allBranchOrServiceCanadaRegions = await getBranchService().listAll();
 const allDirectorates = await getDirectorateService().listAll();
-const allProvinces = await getProvinceService().getAll();
-const province = allProvinces.unwrap();
-const allCities = await getCityService().getAll();
-const cities = allCities.unwrap();
+const allProvinces = await getProvinceService().listAll();
+const allCities = await getCityService().listAll();
 const hrAdvisors = await getUserService().getUsersByRole('hr-advisor');
 const allLanguageReferralTypes = await getLanguageReferralTypeService().listAll();
 const allEmploymentTenures = await getEmploymentTenureService().listAll();
@@ -98,13 +96,13 @@ export const employmentInformationSchema = v.intersect([
     ),
     province: v.lazy(() =>
       v.picklist(
-        province.map(({ id }) => id),
+        allProvinces.map(({ id }) => String(id)),
         'app:employment-information.errors.provinces-required',
       ),
     ),
     city: v.lazy(() =>
       v.picklist(
-        cities.map(({ id }) => id),
+        allCities.map(({ id }) => String(id)),
         'app:employment-information.errors.city-required',
       ),
     ),
@@ -232,7 +230,7 @@ export const refferralPreferencesSchema = v.object({
   ),
   workLocationProvince: v.lazy(() =>
     v.picklist(
-      province.map(({ id }) => id),
+      allProvinces.map(({ id }) => String(id)),
       'app:referral-preferences.errors.work-location-province-required',
     ),
   ),
@@ -240,7 +238,7 @@ export const refferralPreferencesSchema = v.object({
     v.array(
       v.lazy(() =>
         v.picklist(
-          cities.map((c) => c.id),
+          allCities.map((c) => String(c.id)),
           'app:referral-preferences.errors.work-location-city-invalid',
         ),
       ),

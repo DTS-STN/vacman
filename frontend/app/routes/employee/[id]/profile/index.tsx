@@ -17,7 +17,6 @@ import { getEmploymentTenureService } from '~/.server/domain/services/employment
 import { getLanguageForCorrespondenceService } from '~/.server/domain/services/language-for-correspondence-service';
 import { getLanguageReferralTypeService } from '~/.server/domain/services/language-referral-type-service';
 import { getProfileService } from '~/.server/domain/services/profile-service';
-import { getProvinceService } from '~/.server/domain/services/province-service';
 import { getUserService } from '~/.server/domain/services/user-service';
 import { getWFAStatuses } from '~/.server/domain/services/wfa-status-service';
 import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
@@ -74,7 +73,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     getProfileService().getProfile(profileUserId),
     getLanguageReferralTypeService().listAllLocalized(lang),
     getClassificationService().listAllLocalized(lang),
-    getCityService().getAllLocalized(lang),
+    getCityService().listAllLocalized(lang),
     getEmploymentTenureService().listAllLocalized(lang),
   ]);
 
@@ -93,6 +92,9 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const substantivePositionResult =
     profileData.employmentInformation.classificationId &&
     (await getClassificationService().findLocalizedById(profileData.employmentInformation.classificationId, lang));
+  const cityResult =
+    profileData.employmentInformation.cityId &&
+    (await getCityService().findLocalizedById(profileData.employmentInformation.cityId, lang));
 
   const completed = countCompletedItems(profileData);
   const total = Object.keys(profileData).length;
@@ -106,12 +108,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const branchOrServiceCanadaRegion =
     workUnitResult && workUnitResult.isSome() ? workUnitResult.unwrap().parent.name : undefined;
   const directorate = workUnitResult && workUnitResult.isSome() ? workUnitResult.unwrap().name : undefined;
-  const province =
-    profileData.employmentInformation.provinceId &&
-    (await getProvinceService().findLocalizedById(profileData.employmentInformation.provinceId, lang)).unwrap().name;
-  const city =
-    profileData.employmentInformation.cityId &&
-    (await getCityService().findLocalizedById(profileData.employmentInformation.cityId, lang)).unwrap().name;
+  const city = cityResult && cityResult.isSome() ? cityResult.unwrap() : undefined;
   const wfaStatus =
     profileData.employmentInformation.wfaStatusId &&
     (await getWFAStatuses().getLocalizedById(profileData.employmentInformation.wfaStatusId, lang)).unwrap().name; //TODO add find localized by ID in service
@@ -124,8 +121,8 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const classifications = profileData.referralPreferences.classificationIds
     ?.map((classificationId) => allClassifications.find((c) => String(c.id) === classificationId))
     .filter(Boolean);
-  const cities = profileData.referralPreferences.workLocationCitieIds
-    ?.map((cityId) => allLocalizedCities.unwrap().find((c) => c.id === cityId))
+  const cities = profileData.referralPreferences.workLocationCitiesIds
+    ?.map((cityId) => allLocalizedCities.find((c) => String(c.id) === cityId))
     .filter(Boolean);
   const employmentTenures = profileData.referralPreferences.employmentTenureIds
     ?.map((employmentTenureId) => allLocalizedEmploymentTenures.find((c) => String(c.id) === employmentTenureId))
@@ -153,8 +150,8 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       substantivePosition: substantivePosition,
       branchOrServiceCanadaRegion: branchOrServiceCanadaRegion,
       directorate: directorate,
-      province: province,
-      city: city,
+      province: city?.province.name,
+      city: city?.name,
       wfaStatus: wfaStatus,
       wfaEffectiveDate: profileData.employmentInformation.wfaEffectiveDate,
       wfaEndDate: profileData.employmentInformation.wfaEndDate,

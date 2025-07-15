@@ -7,12 +7,10 @@ import { serverEnvironment } from '~/.server/environment';
 import type { AppError } from '~/errors/app-error';
 
 export type ProvinceService = {
-  getAll(): Promise<Result<readonly Province[], AppError>>;
+  listAll(): Promise<readonly Province[]>;
   getById(id: string): Promise<Result<Province, AppError>>;
-  findById(id: string): Promise<Option<Province>>;
   getByCode(code: string): Promise<Result<Province, AppError>>;
-  findByCode(code: string): Promise<Option<Province>>;
-  getAllLocalized(language: Language): Promise<Result<readonly LocalizedProvince[], AppError>>;
+  listAllLocalized(language: Language): Promise<readonly LocalizedProvince[]>;
   getLocalizedById(id: string, language: Language): Promise<Result<LocalizedProvince, AppError>>;
   findLocalizedById(id: string, language: Language): Promise<Option<LocalizedProvince>>;
   getLocalizedByCode(code: string, language: Language): Promise<Result<LocalizedProvince, AppError>>;

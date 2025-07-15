@@ -6,9 +6,7 @@ import provincesData from '~/.server/resources/provinces.json';
 describe('getMockProvince', () => {
   it('should return the mock provinces data', async () => {
     const service = getMockProvinceService();
-    const result = await service.getAll();
-    expect(result.isOk()).toBe(true);
-    const provinces = result.unwrap();
+    const result = await service.listAll();
 
     const expected = provincesData.content.map((province) => ({
       id: province.id,
@@ -17,6 +15,6 @@ describe('getMockProvince', () => {
       nameFr: province.nameFr,
     }));
 
-    expect(provinces).toEqual(expected);
+    expect(result).toEqual(expected);
   });
 });

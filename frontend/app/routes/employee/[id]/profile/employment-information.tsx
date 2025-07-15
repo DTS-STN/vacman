@@ -65,8 +65,8 @@ export async function loader({ context, request }: Route.LoaderArgs) {
   const substantivePositions = await getClassificationService().listAllLocalized(lang);
   const branchOrServiceCanadaRegions = await getBranchService().listAllLocalized(lang);
   const directorates = await getDirectorateService().listAllLocalized(lang);
-  const provinces = await getProvinceService().getAllLocalized(lang);
-  const cities = await getCityService().getAllLocalized(lang);
+  const provinces = await getProvinceService().listAllLocalized(lang);
+  const cities = await getCityService().listAllLocalized(lang);
   const wfaStatuses = await getWFAStatuses().getAllLocalized(lang);
   const hrAdvisors = await getUserService().getUsersByRole('hr-advisor');
 
@@ -87,8 +87,8 @@ export async function loader({ context, request }: Route.LoaderArgs) {
     substantivePositions: substantivePositions,
     branchOrServiceCanadaRegions: branchOrServiceCanadaRegions,
     directorates: directorates,
-    provinces: provinces.unwrap(),
-    cities: cities.unwrap(),
+    provinces: provinces,
+    cities: cities,
     wfaStatuses: wfaStatuses.unwrap(),
     hrAdvisors: hrAdvisors,
   };
@@ -125,16 +125,17 @@ export default function EmploymentInformation({ loaderData, actionData, params }
   }));
 
   const provinceOptions = [{ id: 'select-option', name: '' }, ...loaderData.provinces].map(({ id, name }) => ({
-    value: id === 'select-option' ? '' : id,
+    value: id === 'select-option' ? '' : String(id),
     children: id === 'select-option' ? t('app:form.select-option') : name,
   }));
 
-  const cityOptions = [{ id: 'select-option', name: '' }, ...loaderData.cities.filter((c) => c.province.id === province)].map(
-    ({ id, name }) => ({
-      value: id === 'select-option' ? '' : id,
-      children: id === 'select-option' ? t('app:form.select-option') : name,
-    }),
-  );
+  const cityOptions = [
+    { id: 'select-option', name: '' },
+    ...loaderData.cities.filter((c) => String(c.province.id) === province),
+  ].map(({ id, name }) => ({
+    value: id === 'select-option' ? '' : String(id),
+    children: id === 'select-option' ? t('app:form.select-option') : name,
+  }));
 
   const wfaStatusOptions = [{ id: 'select-option', name: '' }, ...loaderData.wfaStatuses].map(({ id, name }) => ({
     value: id === 'select-option' ? '' : id,

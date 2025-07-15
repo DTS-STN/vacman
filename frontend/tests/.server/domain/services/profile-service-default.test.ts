@@ -37,7 +37,6 @@ describe('profile-service-default', () => {
     employmentInformation: {
       classificationId: undefined,
       workUnitId: undefined,
-      provinceId: undefined,
       cityId: undefined,
       wfaStatusId: undefined,
       wfaEffectiveDate: undefined,
@@ -47,7 +46,7 @@ describe('profile-service-default', () => {
     referralPreferences: {
       languageReferralTypeIds: ['864190000'],
       classificationIds: ['905190000', '905190001'],
-      workLocationCitieIds: ['411290001', '411290002'],
+      workLocationCitiesIds: ['411290001', '411290002'],
       availableForReferralInd: true,
       interestedInAlternationInd: false,
       employmentTenureIds: ['664190000', '664190001', '664190003'],
