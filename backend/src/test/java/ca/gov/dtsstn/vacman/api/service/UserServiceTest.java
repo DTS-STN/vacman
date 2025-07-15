@@ -2,6 +2,8 @@ package ca.gov.dtsstn.vacman.api.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -15,49 +17,30 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import ca.gov.dtsstn.vacman.api.data.entity.NotificationPurposeEntity;
-import ca.gov.dtsstn.vacman.api.data.entity.PriorityLevelEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.LanguageEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
-import ca.gov.dtsstn.vacman.api.data.entity.ProfileStatusEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntityBuilder;
 import ca.gov.dtsstn.vacman.api.data.entity.UserTypeEntity;
-import ca.gov.dtsstn.vacman.api.data.entity.WorkUnitEntity;
-import ca.gov.dtsstn.vacman.api.data.repository.NotificationPurposeRepository;
-import ca.gov.dtsstn.vacman.api.data.repository.PriorityLevelRepository;
-import ca.gov.dtsstn.vacman.api.data.repository.ProfileRepository;
-import ca.gov.dtsstn.vacman.api.data.repository.ProfileStatusRepository;
+import ca.gov.dtsstn.vacman.api.data.repository.LanguageRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.UserRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.UserTypeRepository;
-import ca.gov.dtsstn.vacman.api.data.repository.WorkUnitRepository;
 import ca.gov.dtsstn.vacman.api.web.model.UserCreateModel;
+import ca.gov.dtsstn.vacman.api.web.model.UserUpdateModel;
 import ca.gov.dtsstn.vacman.api.web.model.mapper.UserModelMapper;
 
 @DisplayName("UserService Tests")
 @ExtendWith({ MockitoExtension.class })
 class UserServiceTest {
 
- @Mock
+	@Mock
 	UserRepository userRepository;
-
-	@Mock
-	ProfileRepository profileRepository;
-
-	@Mock
-	NotificationPurposeRepository notificationPurposeRepository;
-
-	@Mock
-	ProfileStatusRepository profileStatusRepository;
-
-
-	@Mock
-	PriorityLevelRepository priorityLevelRepository;
 
 	@Mock
 	UserTypeRepository userTypeRepository;
 
 	@Mock
-	WorkUnitRepository workUnitRepository;
+	LanguageRepository languageRepository;
 
 	@Mock
 	UserModelMapper userModelMapper;
@@ -68,12 +51,8 @@ class UserServiceTest {
 	void beforeEach() {
 		this.userService = new UserService(
 			userRepository,
-			profileRepository,
-			notificationPurposeRepository,
-			profileStatusRepository,
-			priorityLevelRepository,
 			userTypeRepository,
-			workUnitRepository,
+			languageRepository,
 			userModelMapper
 		);
 	}
@@ -83,26 +62,18 @@ class UserServiceTest {
 	void createUser_shouldSaveAndReturnNewUser() {
 		when(userRepository.save(any(UserEntity.class)))
 			.thenAnswer(invocation -> invocation.getArgument(0));
-		when(profileRepository.save(any(ProfileEntity.class)))
-			.thenAnswer(invocation -> invocation.getArgument(0));
-		when(profileStatusRepository.findByCode("PENDING"))
-			.thenReturn(Optional.of(new ProfileStatusEntity()));
-		when(notificationPurposeRepository.findByCode("GENERAL"))
-			.thenReturn(Optional.of(new NotificationPurposeEntity()));
-		when(priorityLevelRepository.findByCode("NORMAL"))
-			.thenReturn(Optional.of(new PriorityLevelEntity()));
 		when(userTypeRepository.findByCode("employee"))
 			.thenReturn(Optional.of(new UserTypeEntity()));
-		when(workUnitRepository.findByCode("LABOUR"))
-			.thenReturn(Optional.of(new WorkUnitEntity()));
+		when(languageRepository.findByCode("EN"))
+			.thenReturn(Optional.of(createMockLanguageEntity(1L, "EN", "English", "Anglais")));
 		when(userModelMapper.toEntity(any(UserCreateModel.class)))
 			.thenReturn(new UserEntityBuilder()
 				.firstName("Test")
 				.lastName("User")
-				.profile(new ProfileEntity())
+				.profiles(List.of(new ProfileEntity()))
 				.build());
 
-		final var userCreateModel = new UserCreateModel("test@example.com", "employee");
+		final var userCreateModel = new UserCreateModel("test@example.com", "employee", "EN");
 
 		userService.createUser(userCreateModel);
 
@@ -162,6 +133,142 @@ class UserServiceTest {
 		assertThat(result.get().getFirstName()).isEqualTo("Test");
 		assertThat(result.get().getLastName()).isEqualTo("User");
 		verify(userRepository).findByNetworkName(testNetworkName);
+	}
+
+	@Test
+	@DisplayName("updateUser should return empty Optional when user does not exist")
+	void updateUser_givenUserDoesNotExist_shouldReturnEmptyOptional() {
+		final var updateModel = new UserUpdateModel(
+			999L, "admin", "2ca209f5-7913-491e-af5a-1f488ce0613b",
+			"Jane", "M", "Smith", "JMS", "67890",
+			"555-987-6543", "jane.smith@example.com", "FR"
+		);
+
+		when(userRepository.findById(999L)).thenReturn(Optional.empty());
+
+		final var result = userService.updateUser(updateModel);
+
+		assertThat(result).isNotPresent();
+		verify(userRepository).findById(999L);
+	}
+
+	@Test
+	@DisplayName("updateUser should update and return user when user exists")
+	void updateUser_givenUserExists_shouldUpdateAndReturnUser() {
+		final var userId = 1L;
+		final var existingUser = new UserEntityBuilder()
+			.id(userId)
+			.firstName("John")
+			.lastName("Doe")
+			.networkName("12345678-1234-1234-1234-123456789abc")
+			.build();
+
+		final var updateModel = new UserUpdateModel(
+			userId, "admin", "2ca209f5-7913-491e-af5a-1f488ce0613b",
+			"Jane", "M", "Smith", "JMS", "67890",
+			"555-987-6543", "jane.smith@example.com", "BOTH"
+		);
+
+		final var mockUserType = new UserTypeEntity();
+		mockUserType.setCode("admin");
+
+		when(userRepository.findById(userId)).thenReturn(Optional.of(existingUser));
+		when(userTypeRepository.findByCode("admin")).thenReturn(Optional.of(mockUserType));
+		when(languageRepository.findByCode("BOTH"))
+			.thenReturn(Optional.of(createMockLanguageEntity(2L, "BOTH", "Both Official Languages", "Les deux langues officielles")));
+		when(userRepository.save(any(UserEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+		// Configure the mock mapper to simulate the mapping behavior
+		doAnswer(invocation -> {
+			UserUpdateModel model = invocation.getArgument(0);
+			UserEntity entity = invocation.getArgument(1);
+			// Simulate the mapping by updating the entity fields
+			entity.setFirstName(model.firstName());
+			entity.setLastName(model.lastName());
+			entity.setNetworkName(model.networkName());
+			entity.setBusinessPhoneNumber(model.businessPhone());
+			entity.setBusinessEmailAddress(model.businessEmail());
+			entity.setMiddleName(model.middleName());
+			entity.setInitial(model.initials());
+			entity.setPersonalRecordIdentifier(model.personalRecordIdentifier());
+			return null; // void method
+		}).when(userModelMapper).updateEntityFromModel(any(UserUpdateModel.class), any(UserEntity.class));
+
+		final var result = userService.updateUser(updateModel);
+
+		assertThat(result).isPresent();
+		// Check that the existing user object was modified
+		assertThat(existingUser.getFirstName()).isEqualTo("Jane");
+		assertThat(existingUser.getLastName()).isEqualTo("Smith");
+		assertThat(result.get().getFirstName()).isEqualTo("Jane");
+		assertThat(result.get().getLastName()).isEqualTo("Smith");
+		assertThat(result.get().getUserType().getCode()).isEqualTo("admin");
+		verify(userRepository).findById(userId);
+		verify(userRepository).save(any(UserEntity.class));
+		verify(userTypeRepository).findByCode("admin");
+	}
+
+	@Test
+	@DisplayName("updateUser should update user without changing role when role is null")
+	void updateUser_givenNullRole_shouldUpdateUserWithoutChangingRole() {
+		final var userId = 1L;
+		final var existingUserType = new UserTypeEntity();
+		existingUserType.setCode("employee");
+
+		final var existingUser = new UserEntityBuilder()
+			.id(userId)
+			.firstName("John")
+			.lastName("Doe")
+			.userType(existingUserType)
+			.networkName("12345678-1234-1234-1234-123456789abc")
+			.build();
+
+		final var updateModel = new UserUpdateModel(
+			userId, null, "2ca209f5-7913-491e-af5a-1f488ce0613b",
+			"Jane", "M", "Smith", "JMS", "67890",
+			"555-987-6543", "jane.smith@example.com", null
+		);
+
+		when(userRepository.findById(userId)).thenReturn(Optional.of(existingUser));
+		when(userRepository.save(any(UserEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+		// Configure the mock mapper to simulate the mapping behavior
+		doAnswer(invocation -> {
+			UserUpdateModel model = invocation.getArgument(0);
+			UserEntity entity = invocation.getArgument(1);
+			// Simulate the mapping by updating the entity fields
+			entity.setFirstName(model.firstName());
+			entity.setLastName(model.lastName());
+			entity.setNetworkName(model.networkName());
+			entity.setBusinessPhoneNumber(model.businessPhone());
+			entity.setBusinessEmailAddress(model.businessEmail());
+			entity.setMiddleName(model.middleName());
+			entity.setInitial(model.initials());
+			entity.setPersonalRecordIdentifier(model.personalRecordIdentifier());
+			return null; // void method
+		}).when(userModelMapper).updateEntityFromModel(any(UserUpdateModel.class), any(UserEntity.class));
+
+		final var result = userService.updateUser(updateModel);
+
+		assertThat(result).isPresent();
+		// Check that the existing user object was modified
+		assertThat(existingUser.getFirstName()).isEqualTo("Jane");
+		assertThat(existingUser.getLastName()).isEqualTo("Smith");
+		assertThat(result.get().getFirstName()).isEqualTo("Jane");
+		assertThat(result.get().getLastName()).isEqualTo("Smith");
+		assertThat(result.get().getUserType().getCode()).isEqualTo("employee"); // Should remain unchanged
+		verify(userRepository).findById(userId);
+		verify(userRepository).save(any(UserEntity.class));
+		verify(userTypeRepository, never()).findByCode(any());
+	}
+
+	private LanguageEntity createMockLanguageEntity(Long id, String code, String nameEn, String nameFr) {
+		LanguageEntity language = new LanguageEntity();
+		language.setId(id);
+		language.setCode(code);
+		language.setNameEn(nameEn);
+		language.setNameFr(nameFr);
+		return language;
 	}
 
 }
