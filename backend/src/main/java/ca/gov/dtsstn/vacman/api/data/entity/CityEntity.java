@@ -48,7 +48,7 @@ public class CityEntity extends AbstractLookupEntity {
 		return province;
 	}
 
-	public void setProvinceId(ProvinceEntity province) {
+	public void setProvince(ProvinceEntity province) {
 		this.province = province;
 	}
 
