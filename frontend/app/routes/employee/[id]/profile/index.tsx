@@ -191,7 +191,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
         </p>
         <div
           role="presentation"
-          className="absolute top-0 left-0 -z-10 h-60 w-screen scale-x-[-1] bg-[rgba(9,28,45,1)] bg-[url('/VacMan-design-element-06.svg')] bg-size-[450px] bg-left-bottom bg-no-repeat"
+          className="absolute top-0 left-0 -z-10 h-60 w-full scale-x-[-1] bg-[rgba(9,28,45,1)] bg-[url('/VacMan-design-element-06.svg')] bg-size-[450px] bg-left-bottom bg-no-repeat"
         />
       </div>
       <div className="justify-between md:grid md:grid-cols-2">
