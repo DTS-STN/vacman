@@ -102,15 +102,15 @@ class UserServiceTest {
 	}
 
 	@Test
-	@DisplayName("getUserByNetworkName should return empty Optional when user does not exist")
-	void getUserByNetworkName_givenUserDoesNotExist_shouldReturnEmptyOptional() {
-		when(userRepository.findByNetworkName("12345678-1234-1234-1234-123456789abc"))
+	@DisplayName("getUserByActiveDirectoryId should return empty Optional when user does not exist")
+	void getUserByActiveDirectoryId_givenUserDoesNotExist_shouldReturnEmptyOptional() {
+		when(userRepository.findByActiveDirectoryId("12345678-1234-1234-1234-123456789abc"))
 			.thenReturn(Optional.empty());
 
-		final var result = userService.getUserByNetworkName("12345678-1234-1234-1234-123456789abc");
+		final var result = userService.getUserByActiveDirectoryId("12345678-1234-1234-1234-123456789abc");
 
 		assertThat(result).isNotPresent();
-		verify(userRepository).findByNetworkName("12345678-1234-1234-1234-123456789abc");
+		verify(userRepository).findByActiveDirectoryId("12345678-1234-1234-1234-123456789abc");
 	}
 
 	@Test
@@ -120,19 +120,19 @@ class UserServiceTest {
 		final var mockUser = new UserEntityBuilder()
 			.firstName("Test")
 			.lastName("User")
-			.networkName(testNetworkName)
+			.activeDirectoryId(testNetworkName)
 			.build();
 
-		when(userRepository.findByNetworkName(testNetworkName))
+		when(userRepository.findByActiveDirectoryId(testNetworkName))
 			.thenReturn(Optional.of(mockUser));
 
-		final var result = userService.getUserByNetworkName(testNetworkName);
+		final var result = userService.getUserByActiveDirectoryId(testNetworkName);
 
 		assertThat(result).isPresent();
-		assertThat(result.get().getNetworkName()).isEqualTo(testNetworkName);
+		assertThat(result.get().getActiveDirectoryId()).isEqualTo(testNetworkName);
 		assertThat(result.get().getFirstName()).isEqualTo("Test");
 		assertThat(result.get().getLastName()).isEqualTo("User");
-		verify(userRepository).findByNetworkName(testNetworkName);
+		verify(userRepository).findByActiveDirectoryId(testNetworkName);
 	}
 
 	@Test
@@ -160,7 +160,7 @@ class UserServiceTest {
 			.id(userId)
 			.firstName("John")
 			.lastName("Doe")
-			.networkName("12345678-1234-1234-1234-123456789abc")
+			.activeDirectoryId("12345678-1234-1234-1234-123456789abc")
 			.build();
 
 		final var updateModel = new UserUpdateModel(
@@ -185,7 +185,7 @@ class UserServiceTest {
 			// Simulate the mapping by updating the entity fields
 			entity.setFirstName(model.firstName());
 			entity.setLastName(model.lastName());
-			entity.setNetworkName(model.networkName());
+			entity.setActiveDirectoryId(model.activeDirectoryId());
 			entity.setBusinessPhoneNumber(model.businessPhone());
 			entity.setBusinessEmailAddress(model.businessEmail());
 			entity.setMiddleName(model.middleName());
@@ -220,7 +220,7 @@ class UserServiceTest {
 			.firstName("John")
 			.lastName("Doe")
 			.userType(existingUserType)
-			.networkName("12345678-1234-1234-1234-123456789abc")
+			.activeDirectoryId("12345678-1234-1234-1234-123456789abc")
 			.build();
 
 		final var updateModel = new UserUpdateModel(
@@ -239,7 +239,7 @@ class UserServiceTest {
 			// Simulate the mapping by updating the entity fields
 			entity.setFirstName(model.firstName());
 			entity.setLastName(model.lastName());
-			entity.setNetworkName(model.networkName());
+			entity.setActiveDirectoryId(model.activeDirectoryId());
 			entity.setBusinessPhoneNumber(model.businessPhone());
 			entity.setBusinessEmailAddress(model.businessEmail());
 			entity.setMiddleName(model.middleName());

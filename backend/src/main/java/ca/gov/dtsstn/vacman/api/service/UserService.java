@@ -59,8 +59,8 @@ public class UserService {
 		return userRepository.findById(id);
 	}
 
-	public Optional<UserEntity> getUserByNetworkName(String networkName) {
-		return userRepository.findByNetworkName(networkName);
+	public Optional<UserEntity> getUserByActiveDirectoryId(String activeDirectoryId) {
+		return userRepository.findByActiveDirectoryId(activeDirectoryId);
 	}
 
 	public List<UserEntity> getAllUsers() {
