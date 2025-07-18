@@ -32,6 +32,11 @@ export function BilingualErrorBoundary({ actionData, error, loaderData, params }
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
         <Links />
+        <script //
+          nonce={loaderData?.nonce}
+          src={`/api/client-env?v=${loaderData?.clientEnvRevision}`}
+          suppressHydrationWarning={true}
+        />
       </head>
       <body>
         <header className="border-b-[3px] border-slate-700 print:hidden">
@@ -139,11 +144,6 @@ export function BilingualErrorBoundary({ actionData, error, loaderData, params }
           </div>
         </footer>
         <Scripts nonce={loaderData?.nonce} />
-        <script //
-          nonce={loaderData?.nonce}
-          src={`/api/client-env?v=${loaderData?.clientEnvRevision}`}
-          suppressHydrationWarning={true}
-        />
       </body>
     </html>
   );
@@ -164,6 +164,11 @@ export function BilingualNotFound({ actionData, error, loaderData, params }: Rou
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
         <Links />
+        <script //
+          nonce={loaderData?.nonce}
+          src={`/api/client-env?v=${loaderData?.clientEnvRevision}`}
+          suppressHydrationWarning={true}
+        />
       </head>
       <body>
         <header className="border-b-[3px] border-slate-700 print:hidden">
@@ -222,11 +227,6 @@ export function BilingualNotFound({ actionData, error, loaderData, params }: Rou
           </div>
         </footer>
         <Scripts nonce={loaderData?.nonce} />
-        <script //
-          nonce={loaderData?.nonce}
-          src={`/api/client-env?v=${loaderData?.clientEnvRevision}`}
-          suppressHydrationWarning={true}
-        />
       </body>
     </html>
   );
@@ -252,6 +252,11 @@ export function UnilingualErrorBoundary({ actionData, error, loaderData, params 
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
         <Links />
+        <script //
+          nonce={loaderData?.nonce}
+          src={`/api/client-env?v=${loaderData?.clientEnvRevision}`}
+          suppressHydrationWarning={true}
+        />
       </head>
       <body>
         <header className="border-b-[3px] border-slate-700 print:hidden">
@@ -318,11 +323,6 @@ export function UnilingualErrorBoundary({ actionData, error, loaderData, params 
           </div>
         </footer>
         <Scripts nonce={loaderData?.nonce} />
-        <script //
-          nonce={loaderData?.nonce}
-          src={`/api/client-env?v=${loaderData?.clientEnvRevision}`}
-          suppressHydrationWarning={true}
-        />
       </body>
     </html>
   );
@@ -342,6 +342,11 @@ export function UnilingualNotFound({ actionData, error, loaderData, params }: Ro
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
         <Links />
+        <script //
+          nonce={loaderData?.nonce}
+          src={`/api/client-env?v=${loaderData?.clientEnvRevision}`}
+          suppressHydrationWarning={true}
+        />
       </head>
       <body>
         <header className="border-b-[3px] border-slate-700 print:hidden">
@@ -384,11 +389,6 @@ export function UnilingualNotFound({ actionData, error, loaderData, params }: Ro
           </div>
         </footer>
         <Scripts nonce={loaderData?.nonce} />
-        <script //
-          nonce={loaderData?.nonce}
-          src={`/api/client-env?v=${loaderData?.clientEnvRevision}`}
-          suppressHydrationWarning={true}
-        />
       </body>
     </html>
   );
