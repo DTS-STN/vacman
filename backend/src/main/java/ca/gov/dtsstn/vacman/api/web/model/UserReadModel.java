@@ -1,7 +1,5 @@
 package ca.gov.dtsstn.vacman.api.web.model;
 
-import java.time.Instant;
-
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.AccessMode;
 

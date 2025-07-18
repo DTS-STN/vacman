@@ -1,13 +1,13 @@
 package ca.gov.dtsstn.vacman.api.service;
 
-import ca.gov.dtsstn.vacman.api.data.entity.EducationLevelEntity;
-import ca.gov.dtsstn.vacman.api.data.repository.EducationLevelRepository;
+import java.util.Optional;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
+import ca.gov.dtsstn.vacman.api.data.entity.EducationLevelEntity;
+import ca.gov.dtsstn.vacman.api.data.repository.EducationLevelRepository;
 
 @Service
 public class EducationLevelService {
