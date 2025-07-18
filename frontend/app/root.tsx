@@ -68,16 +68,16 @@ export default function App({ loaderData }: Route.ComponentProps) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
         <Links />
-      </head>
-      <body vocab="http://schema.org/" typeof="WebPage">
-        <Outlet />
-        <ScrollRestoration nonce={loaderData.nonce} />
-        <Scripts nonce={loaderData.nonce} />
         <script //
           nonce={loaderData.nonce}
           src={`/api/client-env?v=${loaderData.clientEnvRevision}`}
           suppressHydrationWarning={true}
         />
+      </head>
+      <body vocab="http://schema.org/" typeof="WebPage">
+        <Outlet />
+        <ScrollRestoration nonce={loaderData.nonce} />
+        <Scripts nonce={loaderData.nonce} />
       </body>
     </html>
   );
