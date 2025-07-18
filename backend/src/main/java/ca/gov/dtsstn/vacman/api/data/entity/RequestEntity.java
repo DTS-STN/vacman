@@ -88,7 +88,7 @@ public class RequestEntity extends AbstractBusinessEntity {
 	private String priorityClearanceNumber;
 
 	@Column(name = "[ALLOW_TELEWORK_IND]", nullable = true)
-	private Boolean allowTeleworkIndicator;
+	private Boolean teleworkAllowed;
 
 	@Column(name = "[START_DATE]", nullable = false)
 	private LocalDate startDate;
@@ -157,7 +157,7 @@ public class RequestEntity extends AbstractBusinessEntity {
 			@Nullable String requestNameEn,
 			@Nullable String requestNameFr,
 			@Nullable String priorityClearanceNumber,
-			@Nullable Boolean allowTeleworkIndicator,
+			@Nullable Boolean teleworkAllowed,
 			@Nullable LocalDate startDate,
 			@Nullable LocalDate endDate,
 			@Nullable String alternateContactEmailAddress,
@@ -188,7 +188,7 @@ public class RequestEntity extends AbstractBusinessEntity {
 		this.requestNameEn = requestNameEn;
 		this.requestNameFr = requestNameFr;
 		this.priorityClearanceNumber = priorityClearanceNumber;
-		this.allowTeleworkIndicator = allowTeleworkIndicator;
+		this.teleworkAllowed = teleworkAllowed;
 		this.startDate = startDate;
 		this.endDate = endDate;
 		this.alternateContactEmailAddress = alternateContactEmailAddress;
@@ -339,12 +339,12 @@ public class RequestEntity extends AbstractBusinessEntity {
 		this.priorityClearanceNumber = priorityClearanceNumber;
 	}
 
-	public Boolean getAllowTeleworkIndicator() {
-		return allowTeleworkIndicator;
+	public Boolean getTeleworkAllowed() {
+		return teleworkAllowed;
 	}
 
-	public void setAllowTeleworkIndicator(Boolean allowTeleworkIndicator) {
-		this.allowTeleworkIndicator = allowTeleworkIndicator;
+	public void setTeleworkAllowed(Boolean teleworkAllowed) {
+		this.teleworkAllowed = teleworkAllowed;
 	}
 
 	public LocalDate getStartDate() {
@@ -480,7 +480,7 @@ public class RequestEntity extends AbstractBusinessEntity {
 			.append("requestNameEn", requestNameEn)
 			.append("requestNameFr", requestNameFr)
 			.append("priorityClearanceNumber", priorityClearanceNumber)
-			.append("allowTeleworkIndicator", allowTeleworkIndicator)
+			.append("teleworkAllowed", teleworkAllowed)
 			.append("startDate", startDate)
 			.append("endDate", endDate)
 			.append("alternateContactEmailAddress", alternateContactEmailAddress)

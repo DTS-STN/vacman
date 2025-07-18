@@ -4,12 +4,9 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 
 import org.springframework.core.style.ToStringCreator;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.Column;
-import jakarta.persistence.EntityListeners;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -17,12 +14,10 @@ import jakarta.persistence.MappedSuperclass;
 import jakarta.validation.constraints.NotNull;
 
 /**
- * Abstract entity for code/lookup tables with NUMERIC(6) ID constraints.
- * Maximum ID value: 999,999
+ * Abstract entity for code/lookup tables.
  * Includes common effective/expiry date fields for all code tables.
  */
 @MappedSuperclass
-@EntityListeners({ AuditingEntityListener.class })
 public abstract class AbstractCodeEntity extends AbstractAuditableEntity {
 
 	@Id
@@ -37,17 +32,16 @@ public abstract class AbstractCodeEntity extends AbstractAuditableEntity {
 	@Column(name = "[EXPIRY_DATE]")
 	protected LocalDateTime expiryDate;
 
-	public AbstractCodeEntity() {}
+	public AbstractCodeEntity() {
+		super();
+	}
 
 	public AbstractCodeEntity(
 			@Nullable Long id,
-			@Nonnull LocalDateTime effectiveDate,
+			@Nullable LocalDateTime effectiveDate,
 			@Nullable LocalDateTime expiryDate) {
 		super();
 		this.id = id;
-		if (effectiveDate == null) {
-			throw new IllegalArgumentException("Effective date cannot be null");
-		}
 		this.effectiveDate = effectiveDate;
 		this.expiryDate = expiryDate;
 	}
@@ -65,9 +59,6 @@ public abstract class AbstractCodeEntity extends AbstractAuditableEntity {
 	}
 
 	public void setEffectiveDate(LocalDateTime effectiveDate) {
-		if (effectiveDate == null) {
-			throw new IllegalArgumentException("Effective date cannot be null");
-		}
 		this.effectiveDate = effectiveDate;
 	}
 

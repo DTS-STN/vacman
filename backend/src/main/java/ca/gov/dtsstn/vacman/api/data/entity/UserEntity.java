@@ -46,7 +46,7 @@ public class UserEntity extends AbstractBusinessEntity {
 	private String middleName;
 
 	@Column(name = "[NETWORK_NAME]", length = 50, nullable = false)
-	private String networkName;
+	private String activeDirectoryId;
 
 	@Column(name = "[PERSONAL_RECORD_IDENTIFIER]", length = 10, nullable = true)
 	private String personalRecordIdentifier;
@@ -63,7 +63,7 @@ public class UserEntity extends AbstractBusinessEntity {
 	private UserTypeEntity userType;
 
 	@Column(name = "[UU_NAME]", length = 50, nullable = false)
-	private String uuName;
+	private String uuid;
 
 	public UserEntity() {
 		super();
@@ -79,11 +79,11 @@ public class UserEntity extends AbstractBusinessEntity {
 			@Nullable LanguageEntity language,
 			@Nullable String lastName,
 			@Nullable String middleName,
-			@Nullable String networkName,
+			@Nullable String activeDirectoryId,
 			@Nullable String personalRecordIdentifier,
 			@Nullable List<ProfileEntity> profiles,
 			@Nullable UserTypeEntity userType,
-			@Nullable String uuName) {
+			@Nullable String uuid) {
 		super(id);
 		this.businessEmailAddress = businessEmailAddress;
 		this.businessPhoneNumber = businessPhoneNumber;
@@ -92,11 +92,11 @@ public class UserEntity extends AbstractBusinessEntity {
 		this.language = language;
 		this.lastName = lastName;
 		this.middleName = middleName;
-		this.networkName = networkName;
+		this.activeDirectoryId = activeDirectoryId;
 		this.personalRecordIdentifier = personalRecordIdentifier;
 		this.profiles = profiles != null ? profiles : new ArrayList<>();
 		this.userType = userType;
-		this.uuName = uuName;
+		this.uuid = uuid;
 	}
 
 	public String getBusinessEmailAddress() {
@@ -147,12 +147,12 @@ public class UserEntity extends AbstractBusinessEntity {
 		this.middleName = middleName;
 	}
 
-	public String getNetworkName() {
-		return networkName;
+	public String getActiveDirectoryId() {
+		return activeDirectoryId;
 	}
 
-	public void setNetworkName(String networkName) {
-		this.networkName = networkName;
+	public void setActiveDirectoryId(String activeDirectoryId) {
+		this.activeDirectoryId = activeDirectoryId;
 	}
 
 	public String getPersonalRecordIdentifier() {
@@ -179,12 +179,12 @@ public class UserEntity extends AbstractBusinessEntity {
 		this.userType = userType;
 	}
 
-	public String getUuName() {
-		return uuName;
+	public String getUuid() {
+		return uuid;
 	}
 
-	public void setUuName(String uuName) {
-		this.uuName = uuName;
+	public void setUuid(String uuid) {
+		this.uuid = uuid;
 	}
 
 	public LanguageEntity getLanguage() {
@@ -206,11 +206,11 @@ public class UserEntity extends AbstractBusinessEntity {
 			.append("language", language)
 			.append("lastName", lastName)
 			.append("middleName", middleName)
-			.append("networkName", networkName)
+			.append("activeDirectoryId", activeDirectoryId)
 			.append("personalRecordIdentifier", personalRecordIdentifier)
 			.append("profiles", profiles)
 			.append("userType", userType)
-			.append("uuName", uuName)
+			.append("uuid", uuid)
 			.toString();
 	}
 

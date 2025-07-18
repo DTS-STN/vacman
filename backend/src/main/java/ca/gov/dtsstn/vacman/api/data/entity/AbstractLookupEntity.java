@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 
 import org.springframework.core.style.ToStringCreator;
 
-import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
@@ -30,7 +29,7 @@ public abstract class AbstractLookupEntity extends AbstractCodeEntity {
 			@Nullable String code,
 			@Nullable String nameEn,
 			@Nullable String nameFr,
-			@Nonnull LocalDateTime effectiveDate,
+			@Nullable LocalDateTime effectiveDate,
 			@Nullable LocalDateTime expiryDate) {
 		super(id, effectiveDate, expiryDate);
 		this.code = code;

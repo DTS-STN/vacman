@@ -96,11 +96,6 @@ public class UsersController {
 	@Operation(summary = "Update an existing user.")
 	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
 	public ResponseEntity<UserReadModel> updateUser(@PathVariable Long id, @RequestBody @Valid UserUpdateModel userUpdate) {
-		// Ensure the ID in the path matches the ID in the request body
-		if (!id.equals(userUpdate.id())) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-				"Path ID does not match request body ID");
-		}
 
 		Optional<UserEntity> updatedUser = userService.updateUser(userUpdate);
 

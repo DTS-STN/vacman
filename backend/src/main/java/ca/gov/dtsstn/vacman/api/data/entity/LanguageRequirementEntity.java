@@ -25,7 +25,7 @@ import jakarta.validation.constraints.NotNull;
 @AttributeOverride(name = "id", column = @Column(name = "[LNG_REQUIREMENT_ID]"))
 @AttributeOverride(name = "createdDate", column = @Column(name = "[DATE_CREATED]", columnDefinition = "DATE"))
 @AttributeOverride(name = "lastModifiedDate", column = @Column(name = "[DATE_UPDATED]", columnDefinition = "DATE"))
-public class LanguageRequirementEntity extends AbstractBusinessEntity {
+public class LanguageRequirementEntity extends AbstractLookupEntity {
 
     @Column(name = "[LNG_REQUIREMENT_CODE]", length = 20, nullable = false)
     protected String code;
@@ -55,7 +55,6 @@ public class LanguageRequirementEntity extends AbstractBusinessEntity {
             @Nullable String nameFr,
             @Nonnull LocalDateTime effectiveDate,
             @Nullable LocalDateTime expiryDate) {
-        super(id);
         this.code = code;
         this.nameEn = nameEn;
         this.nameFr = nameFr;
@@ -112,16 +111,12 @@ public class LanguageRequirementEntity extends AbstractBusinessEntity {
     @Override
     public String toString() {
         return new ToStringCreator(this)
-                .append("id", getId())
+                .append("super", super.toString())
                 .append("code", getCode())
                 .append("nameEn", getNameEn())
                 .append("nameFr", getNameFr())
                 .append("effectiveDate", getEffectiveDate())
                 .append("expiryDate", getExpiryDate())
-                .append("createdBy", getCreatedBy())
-                .append("createdDate", getCreatedDate())
-                .append("lastModifiedBy", getLastModifiedBy())
-                .append("lastModifiedDate", getLastModifiedDate())
                 .toString();
     }
 

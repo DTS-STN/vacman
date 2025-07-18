@@ -67,13 +67,13 @@ public class ProfileEntity extends AbstractBusinessEntity {
 	private String personalEmailAddress;
 
 	@Column(name = "[PRIVACY_CONSENT_IND]", nullable = true)
-	private Boolean privacyConsentInd;
+	private Boolean hasConsentedToPrivacyTerms;
 
 	@Column(name = "[AVAILABLE_FOR_REFERRAL_IND]", nullable = true)
-	private Boolean availableForReferralInd;
+	private Boolean isAvailableForReferral;
 
 	@Column(name = "[INTERESTED_IN_ALTERNATION_IND]", nullable = true)
-	private Boolean interestedInAlternationInd;
+	private Boolean isInterestedInAlternation;
 
 	@Column(name = "[ADDITIONAL_COMMENT]", length = 200, nullable = true)
 	private String additionalComment;
@@ -109,9 +109,9 @@ public class ProfileEntity extends AbstractBusinessEntity {
 			@Nullable ProfileStatusEntity profileStatus,
 			@Nullable String personalPhoneNumber,
 			@Nullable String personalEmailAddress,
-			@Nullable Boolean privacyConsentInd,
-			@Nullable Boolean availableForReferralInd,
-			@Nullable Boolean interestedInAlternationInd,
+			@Nullable Boolean hasConsentedToPrivacyTerms,
+			@Nullable Boolean isAvailableForReferral,
+			@Nullable Boolean isInterestedInAlternation,
 			@Nullable String additionalComment) {
 		super(id);
 		this.user = user;
@@ -125,9 +125,9 @@ public class ProfileEntity extends AbstractBusinessEntity {
 		this.profileStatus = profileStatus;
 		this.personalPhoneNumber = personalPhoneNumber;
 		this.personalEmailAddress = personalEmailAddress;
-		this.privacyConsentInd = privacyConsentInd;
-		this.availableForReferralInd = availableForReferralInd;
-		this.interestedInAlternationInd = interestedInAlternationInd;
+		this.hasConsentedToPrivacyTerms = hasConsentedToPrivacyTerms;
+		this.isAvailableForReferral = isAvailableForReferral;
+		this.isInterestedInAlternation = isInterestedInAlternation;
 		this.additionalComment = additionalComment;
 	}
 
@@ -219,28 +219,28 @@ public class ProfileEntity extends AbstractBusinessEntity {
 		this.personalEmailAddress = personalEmailAddress;
 	}
 
-	public Boolean getPrivacyConsentInd() {
-		return privacyConsentInd;
+	public Boolean getHasConsentedToPrivacyTerms() {
+		return hasConsentedToPrivacyTerms;
 	}
 
-	public void setPrivacyConsentInd(Boolean privacyConsentInd) {
-		this.privacyConsentInd = privacyConsentInd;
+	public void setHasConsentedToPrivacyTerms(Boolean hasConsentedToPrivacyTerms) {
+		this.hasConsentedToPrivacyTerms = hasConsentedToPrivacyTerms;
 	}
 
-	public Boolean getAvailableForReferralInd() {
-		return availableForReferralInd;
+	public Boolean getIsAvailableForReferral() {
+		return isAvailableForReferral;
 	}
 
-	public void setAvailableForReferralInd(Boolean availableForReferralInd) {
-		this.availableForReferralInd = availableForReferralInd;
+	public void setIsAvailableForReferral(Boolean isAvailableForReferral) {
+		this.isAvailableForReferral = isAvailableForReferral;
 	}
 
-	public Boolean getInterestedInAlternationInd() {
-		return interestedInAlternationInd;
+	public Boolean getIsInterestedInAlternation() {
+		return isInterestedInAlternation;
 	}
 
-	public void setInterestedInAlternationInd(Boolean interestedInAlternationInd) {
-		this.interestedInAlternationInd = interestedInAlternationInd;
+	public void setIsInterestedInAlternation(Boolean isInterestedInAlternation) {
+		this.isInterestedInAlternation = isInterestedInAlternation;
 	}
 
 	public String getAdditionalComment() {
@@ -298,9 +298,9 @@ public class ProfileEntity extends AbstractBusinessEntity {
 			.append("profileStatus", profileStatus)
 			.append("personalPhoneNumber", personalPhoneNumber)
 			.append("personalEmailAddress", personalEmailAddress)
-			.append("privacyConsentInd", privacyConsentInd)
-			.append("availableForReferralInd", availableForReferralInd)
-			.append("interestedInAlternationInd", interestedInAlternationInd)
+			.append("hasConsentedToPrivacyTerms", hasConsentedToPrivacyTerms)
+			.append("isAvailableForReferral", isAvailableForReferral)
+			.append("isInterestedInAlternation", isInterestedInAlternation)
 			.append("additionalComment", additionalComment)
 			.toString();
 	}
