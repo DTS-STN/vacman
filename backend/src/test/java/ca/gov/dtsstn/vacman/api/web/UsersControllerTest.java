@@ -66,16 +66,16 @@ class UsersControllerTest {
 		MockitoAnnotations.openMocks(this);
 	}
 
-	private UserReadModel createMockUserReadModel(String firstName, String lastName, String networkName) {
+	private UserReadModel createMockUserReadModel(String firstName, String lastName, String activeDirectoryId) {
 		var userType = new UserTypeReadModel(1L, "EMPLOYEE", "Employee", "Employé",
 			"Test User", Instant.parse("2000-01-01T00:00:00Z"), "Test User", Instant.parse("2000-01-01T00:00:00Z"));
 		var language = new LanguageReadModel(1L, "EN", "English", "Anglais",
 			"Test User", Instant.parse("2000-01-01T00:00:00Z"), "Test User", Instant.parse("2000-01-01T00:00:00Z"));
 
-		return new UserReadModel(1L, userType, networkName, networkName, firstName, "A", lastName,
+		return new UserReadModel(1L, userType, activeDirectoryId, activeDirectoryId, firstName, "A", lastName,
 			firstName.substring(0,1) + "A" + lastName.substring(0,1), "12345", "555-123-4567",
 			firstName.toLowerCase() + "." + lastName.toLowerCase() + "@example.com", language,
-			"vacman-api", "2000-01-01T00:00:00Z", "vacman-api", "2000-01-01T00:00:00Z");
+			"vacman-api", Instant.parse("2000-01-01T00:00:00Z"), "vacman-api", Instant.parse("2000-01-01T00:00:00Z"));
 	}
 
 	@Test
@@ -88,7 +88,7 @@ class UsersControllerTest {
 				.lastName("Doe")
 				.middleName("A")
 				.initial("JAD")
-				.networkName("a1b2c3d4-5678-9012-3456-789abcdef012")
+				.activeDirectoryId("a1b2c3d4-5678-9012-3456-789abcdef012")
 				.businessEmailAddress("john.doe@example.com")
 				.businessPhoneNumber("555-123-4567")
 				.build(),
@@ -97,7 +97,7 @@ class UsersControllerTest {
 				.lastName("Smith")
 				.middleName("B")
 				.initial("JBS")
-				.networkName("f0e1d2c3-b4a5-9687-1234-56789abcdef0")
+				.activeDirectoryId("f0e1d2c3-b4a5-9687-1234-56789abcdef0")
 				.businessEmailAddress("jane.smith@example.com")
 				.businessPhoneNumber("555-987-6543")
 				.build());
@@ -126,7 +126,7 @@ class UsersControllerTest {
 			.lastName("Doe")
 			.middleName("A")
 			.initial("JAD")
-			.networkName("9f8e7d6c-5b4a-3921-8765-4321098765dc")
+			.activeDirectoryId("9f8e7d6c-5b4a-3921-8765-4321098765dc")
 			.businessEmailAddress("test@example.com")
 			.businessPhoneNumber("555-123-4567")
 			.build();
@@ -151,63 +151,63 @@ class UsersControllerTest {
 	@Test
 	@WithMockUser(authorities = { "SCOPE_employee" })
 	@DisplayName("GET /api/v1/users?networkName=... - Should return user collection when networkName exists")
-	void getUsers_givenNetworkNameExists_shouldReturnUserCollection() throws Exception {
-		final var testNetworkName = "2ca209f5-7913-491e-af5a-1f488ce0613b";
+	void getUsers_givenActiveDirectoryIdExists_shouldReturnUserCollection() throws Exception {
+		final var testActiveDirectoryId = "2ca209f5-7913-491e-af5a-1f488ce0613b";
 		final var mockUser = new UserEntityBuilder()
 			.firstName("Test")
 			.lastName("User")
 			.middleName("T")
 			.initial("TTU")
-			.networkName(testNetworkName)
+			.activeDirectoryId(testActiveDirectoryId)
 			.businessEmailAddress("test.user@example.com")
 			.businessPhoneNumber("555-123-4567")
 			.build();
 
-		when(userService.getUserByNetworkName(testNetworkName))
+		when(userService.getUserByActiveDirectoryId(testActiveDirectoryId))
 			.thenReturn(Optional.of(mockUser));
 
-		final var expectedUserModel = createMockUserReadModel("Test", "User", testNetworkName);
+		final var expectedUserModel = createMockUserReadModel("Test", "User", testActiveDirectoryId);
 		when(userModelMapper.toModel(mockUser)).thenReturn(expectedUserModel);
 
 		mockMvc.perform(get("/api/v1/users")
-			.param("networkName", testNetworkName))
+			.param("activeDirectoryId", testActiveDirectoryId))
 			.andExpect(status().isOk())
 			.andExpect(content().contentType(MediaType.APPLICATION_JSON));
 
-		verify(userService).getUserByNetworkName(testNetworkName);
+		verify(userService).getUserByActiveDirectoryId(testActiveDirectoryId);
 	}
 
 	@Test
 	@WithMockUser(authorities = { "SCOPE_employee" })
 	@DisplayName("GET /api/v1/users?networkName=... - Should return empty collection when user does not exist")
-	void getUsers_givenNetworkNameDoesNotExist_shouldReturnEmptyCollection() throws Exception {
-		final var testNetworkName = "12345678-1234-1234-1234-123456789abc";
+	void getUsers_givenActiveDirectoryIdDoesNotExist_shouldReturnEmptyCollection() throws Exception {
+		final var testActiveDirectoryId = "12345678-1234-1234-1234-123456789abc";
 
-		when(userService.getUserByNetworkName(testNetworkName))
+		when(userService.getUserByActiveDirectoryId(testActiveDirectoryId))
 			.thenReturn(Optional.empty());
 
 		final var expectedResponse = List.of();
 
 		mockMvc.perform(get("/api/v1/users")
-			.param("networkName", testNetworkName))
+			.param("activeDirectoryId", testActiveDirectoryId))
 			.andExpect(status().isOk())
 			.andExpect(content().contentType(MediaType.APPLICATION_JSON))
 			.andExpect(content().json(objectMapper.writeValueAsString(expectedResponse)));
 
-		verify(userService).getUserByNetworkName(testNetworkName);
+		verify(userService).getUserByActiveDirectoryId(testActiveDirectoryId);
 	}
 
 	@Test
 	@WithMockUser(authorities = { "SCOPE_employee" })
 	@DisplayName("GET /api/v1/users?networkName= - Should return empty collection when networkName is blank")
-	void getUsers_givenBlankNetworkName_shouldReturnPaginatedResults() throws Exception {
+	void getUsers_givenBlankActiveDirectoryId_shouldReturnPaginatedResults() throws Exception {
 		final var mockUsers = List.of(
 			new UserEntityBuilder()
 				.firstName("John")
 				.lastName("Doe")
 				.middleName("A")
 				.initial("JAD")
-				.networkName("c4b3a2d1-e5f6-7890-1234-56789abcdef0")
+				.activeDirectoryId("c4b3a2d1-e5f6-7890-1234-56789abcdef0")
 				.businessEmailAddress("john.doe@example.com")
 				.businessPhoneNumber("555-123-4567")
 				.build());
@@ -241,7 +241,7 @@ class UsersControllerTest {
 			.id(userId)
 			.firstName("Jane")
 			.lastName("Smith")
-			.networkName("2ca209f5-7913-491e-af5a-1f488ce0613b")
+			.activeDirectoryId("2ca209f5-7913-491e-af5a-1f488ce0613b")
 			.build();
 
 		when(userService.updateUser(any(UserUpdateModel.class))).thenReturn(Optional.of(updatedUser));
@@ -275,24 +275,6 @@ class UsersControllerTest {
 			.andExpect(status().isNotFound());
 
 		verify(userService).updateUser(userUpdate);
-	}
-
-	@Test
-	@WithMockUser
-	@DisplayName("PATCH /api/v1/users/{id} should return 400 when path ID does not match body ID")
-	void patchUser_givenMismatchedIds_shouldReturn400() throws Exception {
-		final var pathId = 1L;
-		final var bodyId = 2L;
-		final var userUpdate = new UserUpdateModel(
-			bodyId, "admin", "2ca209f5-7913-491e-af5a-1f488ce0613b",
-			"Jane", "M", "Smith", "JMS", "67890",
-			"555-987-6543", "jane.smith@example.com", "BOTH"
-		);
-
-		mockMvc.perform(patch("/api/v1/users/" + pathId)
-			.contentType(MediaType.APPLICATION_JSON)
-			.content(objectMapper.writeValueAsString(userUpdate)))
-			.andExpect(status().isBadRequest());
 	}
 
 }

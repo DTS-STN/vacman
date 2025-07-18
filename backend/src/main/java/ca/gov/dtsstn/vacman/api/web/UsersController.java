@@ -50,8 +50,8 @@ public class UsersController {
 	@Operation(summary = "Get users with pagination.", description = "Returns a paginated list of users.")
 	public ResponseEntity<?> getUsers(
 			@RequestParam(required = false)
-			@Parameter(description = "Network name to filter by.")
-			String networkName,
+			@Parameter(description = "Active Directory ID to filter by.")
+			String activeDirectoryId,
 
 			@RequestParam(defaultValue = "0")
 			@Parameter(description = "Page number (0-based)")
@@ -61,8 +61,8 @@ public class UsersController {
 			@Range(min = 1, max = 100)
 			@Parameter(description = "Page size (between 1 and 100)")
 			int size) {
-		if (StringUtils.isNotBlank(networkName)) {
-			final var users = userService.getUserByNetworkName(networkName.trim())
+		if (StringUtils.isNotBlank(activeDirectoryId)) {
+			final var users = userService.getUserByActiveDirectoryId(activeDirectoryId.trim())
 				.map(userModelMapper::toModel)
 				.map(List::of)
 				.orElse(List.of());
