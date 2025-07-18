@@ -1,9 +1,9 @@
 package ca.gov.dtsstn.vacman.api.web.model;
 
+import java.time.Instant;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.AccessMode;
-
-import java.time.Instant;
 
 @Schema(name = "CityRead", description = "Standard representation of a city.")
 public record CityReadModel(
@@ -32,8 +32,5 @@ public record CityReadModel(
         String lastModifiedBy,
 
         @Schema(accessMode = AccessMode.READ_ONLY, description = "The time this city was last modified.", example = "2000-01-01T00:00:00Z")
-        Instant lastModifiedDate,
-
-        @Schema(description = "The province this city belongs to.")
-        ProvinceReadModel province
+        Instant lastModifiedDate
 ) {}
