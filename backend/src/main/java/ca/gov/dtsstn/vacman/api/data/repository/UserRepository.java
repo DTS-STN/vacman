@@ -15,6 +15,6 @@ public interface UserRepository extends ListCrudRepository<UserEntity, Long>, Pa
 
   Page<UserEntity> findAll(Pageable pageable);
 
-  Optional<UserEntity> findByNetworkName(String networkName);
+  Optional<UserEntity> findByActiveDirectoryId(String activeDirectoryId);
 
 }

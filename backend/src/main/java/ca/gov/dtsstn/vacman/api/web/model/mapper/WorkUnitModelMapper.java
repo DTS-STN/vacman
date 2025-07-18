@@ -5,7 +5,7 @@ import org.mapstruct.Mapper;
 import ca.gov.dtsstn.vacman.api.data.entity.WorkUnitEntity;
 import ca.gov.dtsstn.vacman.api.web.model.WorkUnitReadModel;
 
-@Mapper
+@Mapper(componentModel = "spring")
 public interface WorkUnitModelMapper {
 
     WorkUnitReadModel toModel(WorkUnitEntity entity);

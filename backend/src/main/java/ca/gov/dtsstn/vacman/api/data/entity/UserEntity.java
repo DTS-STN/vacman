@@ -1,7 +1,7 @@
 package ca.gov.dtsstn.vacman.api.data.entity;
 
-import java.time.Instant;
-import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.immutables.builder.Builder;
 import org.springframework.core.style.ToStringCreator;
@@ -12,56 +12,51 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 
 @Entity(name = "User")
-@Table(name = "[USER]")
+@Table(name = "[USER]", uniqueConstraints = {
+    @UniqueConstraint(name = "USER_NAME_UK", columnNames = {"[NETWORK_NAME]", "[UU_NAME]"})
+})
 @AttributeOverride(name = "id", column = @Column(name = "[USER_ID]"))
-public class UserEntity extends AbstractEntity {
+public class UserEntity extends AbstractBusinessEntity {
 
 	@Column(name = "[BUSINESS_EMAIL_ADDRESS]", length = 320, nullable = false)
 	private String businessEmailAddress;
 
-	@Column(name = "[BUSINESS_PHONE_NUMBER]", length = 15, nullable = false)
+	@Column(name = "[BUSINESS_PHONE_NUMBER]", length = 15, nullable = true)
 	private String businessPhoneNumber;
-
-	@ManyToOne
-	@JoinColumn(name = "[CITY_ID]", nullable = true)
-	private CityEntity city;
-
-	@ManyToOne
-	@JoinColumn(name = "[CLASSIFICATION_ID]", nullable = true)
-	private ClassificationEntity classification;
 
 	@Column(name = "[FIRST_NAME]", length = 100, nullable = false)
 	private String firstName;
 
-	@Column(name = "[HIRE_DATE]", nullable = true)
-	private LocalDate hireDate;
-
 	@Column(name = "[INITIAL]", length = 4, nullable = true)
 	private String initial;
+
+	@ManyToOne
+	@JoinColumn(name = "[LANGUAGE_ID]", nullable = false)
+	private LanguageEntity language;
 
 	@Column(name = "[LAST_NAME]", length = 100, nullable = false)
 	private String lastName;
 
 	@Column(name = "[MIDDLE_NAME]", length = 100, nullable = true)
-	private String middelName;
+	private String middleName;
 
 	@Column(name = "[NETWORK_NAME]", length = 50, nullable = false)
-	private String networkName;
+	private String activeDirectoryId;
 
 	@Column(name = "[PERSONAL_RECORD_IDENTIFIER]", length = 10, nullable = true)
-	private String pri;
+	private String personalRecordIdentifier;
 
-	@ManyToOne
-	@JoinColumn(name = "[PRIORITY_LEVEL_ID]", nullable = false)
-	private PriorityLevelEntity priorityLevel;
-
-	@OneToOne
-	@JoinColumn(name = "[USER_ID]", referencedColumnName = "[PROFILE_ID]", nullable = false)
-	private ProfileEntity profile;
+	// Profile relationship - One user can have many profiles
+	// User does not own the FK, Profile does
+	// This creates a bidirectional one-to-many relationship where Profile owns the FK
+	// No cascade on User side to avoid deletion conflicts
+	@OneToMany(mappedBy = "user")
+	private List<ProfileEntity> profiles = new ArrayList<>();
 
 	@ManyToOne
 	@JoinColumn(name = "[USER_TYPE_ID]", nullable = false)
@@ -69,10 +64,6 @@ public class UserEntity extends AbstractEntity {
 
 	@Column(name = "[UU_NAME]", length = 50, nullable = false)
 	private String uuid;
-
-	@ManyToOne
-	@JoinColumn(name = "[WORK_UNIT_ID]", nullable = false)
-	private WorkUnitEntity workUnit;
 
 	public UserEntity() {
 		super();
@@ -83,39 +74,29 @@ public class UserEntity extends AbstractEntity {
 			@Nullable Long id,
 			@Nullable String businessEmailAddress,
 			@Nullable String businessPhoneNumber,
-			@Nullable CityEntity city,
-			@Nullable ClassificationEntity classification,
 			@Nullable String firstName,
-			@Nullable LocalDate hireDate,
 			@Nullable String initial,
+			@Nullable LanguageEntity language,
 			@Nullable String lastName,
-			@Nullable String middelName,
-			@Nullable String networkName,
-			@Nullable PriorityLevelEntity priorityLevel,
-			@Nullable ProfileEntity profile,
+			@Nullable String middleName,
+			@Nullable String activeDirectoryId,
+			@Nullable String personalRecordIdentifier,
+			@Nullable List<ProfileEntity> profiles,
 			@Nullable UserTypeEntity userType,
-			@Nullable String uuid,
-			@Nullable WorkUnitEntity workUnit,
-			@Nullable String createdBy,
-			@Nullable Instant createdDate,
-			@Nullable String lastModifiedBy,
-			@Nullable Instant lastModifiedDate) {
-		super(id, createdBy, createdDate, lastModifiedBy, lastModifiedDate);
+			@Nullable String uuid) {
+		super(id);
 		this.businessEmailAddress = businessEmailAddress;
 		this.businessPhoneNumber = businessPhoneNumber;
-		this.city = city;
-		this.classification = classification;
 		this.firstName = firstName;
-		this.hireDate = hireDate;
 		this.initial = initial;
+		this.language = language;
 		this.lastName = lastName;
-		this.middelName = middelName;
-		this.networkName = networkName;
-		this.priorityLevel = priorityLevel;
-		this.profile = profile;
+		this.middleName = middleName;
+		this.activeDirectoryId = activeDirectoryId;
+		this.personalRecordIdentifier = personalRecordIdentifier;
+		this.profiles = profiles != null ? profiles : new ArrayList<>();
 		this.userType = userType;
 		this.uuid = uuid;
-		this.workUnit = workUnit;
 	}
 
 	public String getBusinessEmailAddress() {
@@ -134,36 +115,12 @@ public class UserEntity extends AbstractEntity {
 		this.businessPhoneNumber = businessPhoneNumber;
 	}
 
-	public CityEntity getCity() {
-		return city;
-	}
-
-	public void setCity(CityEntity city) {
-		this.city = city;
-	}
-
-	public ClassificationEntity getClassification() {
-		return classification;
-	}
-
-	public void setClassification(ClassificationEntity classification) {
-		this.classification = classification;
-	}
-
 	public String getFirstName() {
 		return firstName;
 	}
 
 	public void setFirstName(String name) {
 		this.firstName = name;
-	}
-
-	public LocalDate getHireDate() {
-		return hireDate;
-	}
-
-	public void setHireDate(LocalDate hireDate) {
-		this.hireDate = hireDate;
 	}
 
 	public String getInitial() {
@@ -182,44 +139,36 @@ public class UserEntity extends AbstractEntity {
 		this.lastName = lastName;
 	}
 
-	public String getMiddelName() {
-		return middelName;
+	public String getMiddleName() {
+		return middleName;
 	}
 
-	public void setMiddelName(String middelName) {
-		this.middelName = middelName;
+	public void setMiddleName(String middleName) {
+		this.middleName = middleName;
 	}
 
-	public String getNetworkName() {
-		return networkName;
+	public String getActiveDirectoryId() {
+		return activeDirectoryId;
 	}
 
-	public void setNetworkName(String networkName) {
-		this.networkName = networkName;
+	public void setActiveDirectoryId(String activeDirectoryId) {
+		this.activeDirectoryId = activeDirectoryId;
 	}
 
-	public String getPri() {
-		return pri;
+	public String getPersonalRecordIdentifier() {
+		return personalRecordIdentifier;
 	}
 
-	public void setPri(String pri) {
-		this.pri = pri;
+	public void setPersonalRecordIdentifier(String personalRecordIdentifier) {
+		this.personalRecordIdentifier = personalRecordIdentifier;
 	}
 
-	public PriorityLevelEntity getPriorityLevel() {
-		return priorityLevel;
+	public List<ProfileEntity> getProfiles() {
+		return profiles;
 	}
 
-	public void setPriorityLevel(PriorityLevelEntity priorityLevel) {
-		this.priorityLevel = priorityLevel;
-	}
-
-	public ProfileEntity getProfile() {
-		return profile;
-	}
-
-	public void setProfile(ProfileEntity profile) {
-		this.profile = profile;
+	public void setProfiles(List<ProfileEntity> profiles) {
+		this.profiles = profiles != null ? profiles : new ArrayList<>();
 	}
 
 	public UserTypeEntity getUserType() {
@@ -238,12 +187,12 @@ public class UserEntity extends AbstractEntity {
 		this.uuid = uuid;
 	}
 
-	public WorkUnitEntity getWorkUnit() {
-		return workUnit;
+	public LanguageEntity getLanguage() {
+		return language;
 	}
 
-	public void setWorkUnit(WorkUnitEntity workUnit) {
-		this.workUnit = workUnit;
+	public void setLanguage(LanguageEntity language) {
+		this.language = language;
 	}
 
 	@Override
@@ -252,20 +201,16 @@ public class UserEntity extends AbstractEntity {
 			.append("super", super.toString())
 			.append("businessEmailAddress", businessEmailAddress)
 			.append("businessPhoneNumber", businessPhoneNumber)
-			.append("city", city)
-			.append("classification", classification)
 			.append("firstName", firstName)
-			.append("hireDate", hireDate)
 			.append("initial", initial)
+			.append("language", language)
 			.append("lastName", lastName)
-			.append("middelName", middelName)
-			.append("networkName", networkName)
-			.append("pri", pri)
-			.append("priorityLevel", priorityLevel)
-			.append("profile", profile)
+			.append("middleName", middleName)
+			.append("activeDirectoryId", activeDirectoryId)
+			.append("personalRecordIdentifier", personalRecordIdentifier)
+			.append("profiles", profiles)
 			.append("userType", userType)
 			.append("uuid", uuid)
-			.append("workUnit", workUnit)
 			.toString();
 	}
 
