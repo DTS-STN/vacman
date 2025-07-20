@@ -11,19 +11,18 @@ import { HttpStatusCodes } from '~/errors/http-status-codes';
 
 // Mock the global fetch
 const mockFetch = vi.fn();
-global.fetch = mockFetch;
+globalThis.fetch = mockFetch;
 
 describe('notification-service-default', () => {
-  //
   const notificationService = getDefaultNotificationService();
 
-  const notifyEmail = 'simulate-delivered@notification.canada.ca';
-  const notifyEngEmail = `${serverEnvironment.GC_NOTIFY_ENGLISH_TEMPLATE_ID}`;
-  const notifyFrEmail = `${serverEnvironment.GC_NOTIFY_FRENCH_TEMPLATE_ID}`;
+  const notifyEmail = 'simulate-delivered@example.com';
+  const notifyEngEmailTemplateId = `${serverEnvironment.GC_NOTIFY_ENGLISH_TEMPLATE_ID}`;
+  const notifyFrEmailTemplateId = `${serverEnvironment.GC_NOTIFY_FRENCH_TEMPLATE_ID}`;
 
   const engParams: NotificationEmailRequest = {
     email_address: notifyEmail,
-    template_id: notifyEngEmail,
+    template_id: notifyEngEmailTemplateId,
     personalisation: {
       emailVerificationCode: '123456',
     },
@@ -31,7 +30,7 @@ describe('notification-service-default', () => {
 
   const frParams: NotificationEmailRequest = {
     email_address: notifyEmail,
-    template_id: notifyFrEmail,
+    template_id: notifyFrEmailTemplateId,
     personalisation: {
       emailVerificationCode: '123456',
     },
@@ -40,15 +39,15 @@ describe('notification-service-default', () => {
   const mockEmailResultOK: NotificationEmailResponseOK = {
     id: '0de093e1-fa55-4444-2222-736666661962',
     reference: null,
-    uri: 'https://api.notification.canada.ca/v2/notifications/0de093e1-8888-77777-4444-73a0e8351962',
+    uri: 'https://api.exmaple.com',
     template: {
-      id: 'b78df0ea-4444-4444-4444-4b433444444',
+      id: 'b78df0ea-fake-4444-fake-4b433444444',
       version: 1,
-      uri: 'https://api.notification.canada.ca/services/70b3e3ae-6666-4444-8888-a1e2c95cfedd/templates/b78df0ea-4444-4444-4444-4b433444444',
+      uri: 'https://api.exmaple.com',
     },
     scheduled_for: null,
     content: {
-      from_email: 'vacman@notification.canada.ca',
+      from_email: 'for.testing@examaple.com',
       body: 'test for template from vacman',
       subject: 'vacman english',
     },
@@ -79,7 +78,6 @@ describe('notification-service-default', () => {
   });
 
   describe('sendEmailNotification', () => {
-    //
     it('should mock sending an email to gc-notify in english', async () => {
       //
       mockFetch.mockResolvedValueOnce({
@@ -94,7 +92,6 @@ describe('notification-service-default', () => {
     });
 
     it('should mock sending an email to gc-notify in french', async () => {
-      //
       mockFetch.mockResolvedValueOnce({
         ok: true,
         status: HttpStatusCodes.OK,
@@ -107,7 +104,6 @@ describe('notification-service-default', () => {
     });
 
     it('should mock sending an email with an invalid template_id', async () => {
-      //
       mockFetch.mockResolvedValueOnce({
         ok: false,
         status: HttpStatusCodes.BAD_REQUEST,
@@ -119,7 +115,6 @@ describe('notification-service-default', () => {
     });
 
     it('should mock sending an email with an invalid API-Key', async () => {
-      //
       mockFetch.mockResolvedValueOnce({
         ok: false,
         status: HttpStatusCodes.FORBIDDEN,

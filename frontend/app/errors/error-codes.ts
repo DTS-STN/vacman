@@ -46,11 +46,7 @@ export const ErrorCodes = {
   VACMAN_API_ERROR: 'API-0001',
 
   // external api error codes
-  XAPI_TOO_MANY_REQUESTS: 'XAPI-0002', //http 429 Too Many Requests
-  XAPI_AUTHENTICATION: 'XAPI-403', //http 402 Invalid Api Key
-  XAPI_TEMPLATE: 'XAPI-400', //http 400 Invalid Email/Template Id
-  XAPI_NETWORK_500_ERROR: 'XAPI-0500', //network error
-  GC_NOTIFY_API_ERROR: 'GCNOT-0001', //error from the GC Notify API
+  GC_NOTIFY_API_ERROR: 'GCNOTIFY-0001', //error from the GC Notify API
 
   // profile error codes
   PROFILE_NOT_FOUND: 'PRF-0001',

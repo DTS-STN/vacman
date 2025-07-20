@@ -18,17 +18,17 @@ export function getMockNotificationService(): NotificationService {
  * Mock email result for testing and development.
  */
 const emailResult: NotificationEmailResponseOK = {
-  id: '0de093e1-fa55-4444-2222-736666661962',
+  id: '0de093e1-fake-4444-fake-736666661962',
   reference: null,
-  uri: 'https://api.notification.canada.ca/v2/notifications/0de093e1-fa55-4444-2222-736666661962',
+  uri: 'https://api.example.com',
   template: {
-    id: 'b78df0ea-4444-4444-4444-4b433444444',
+    id: 'b78df0ea-fake-4444-fake-4b433444444',
     version: 1,
-    uri: 'https://api.notification.canada.ca/services/70b3e3ae-6666-4444-8888-a1e2c95cfedd/templates/b78df0ea-4444-4444-4444-4b433444444',
+    uri: 'https://api.exmaple.com',
   },
   scheduled_for: null,
   content: {
-    from_email: 'vacman@notification.canada.ca',
+    from_email: 'for.testing@example.com',
     body: 'test for template from vacman in english',
     subject: 'vacman english',
   },
@@ -43,6 +43,5 @@ const emailResult: NotificationEmailResponseOK = {
 function sendEmailNotification(
   emailData: NotificationEmailRequest,
 ): NotificationEmailResponseOK | NotificationEmailResponseError {
-  const result = emailResult;
-  return result;
+  return emailResult;
 }
