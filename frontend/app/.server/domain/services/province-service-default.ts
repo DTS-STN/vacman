@@ -2,7 +2,7 @@ import type { Result, Option } from 'oxide.ts';
 import { Ok, Err } from 'oxide.ts';
 
 import type { LocalizedProvince, Province } from '~/.server/domain/models';
-import { apiFetch } from '~/.server/domain/services/makeApiRequest';
+import { apiFetch } from '~/.server/domain/services/make-api-request';
 import type { ProvinceService } from '~/.server/domain/services/province-service';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';

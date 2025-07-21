@@ -3,7 +3,7 @@ import type { Result, Option } from 'oxide.ts';
 
 import type { LocalizedBranch, Branch } from '~/.server/domain/models';
 import type { BranchService } from '~/.server/domain/services/branch-service';
-import { apiFetch } from '~/.server/domain/services/makeApiRequest';
+import { apiFetch } from '~/.server/domain/services/make-api-request';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
