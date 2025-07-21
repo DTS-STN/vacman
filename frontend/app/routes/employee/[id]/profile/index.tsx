@@ -21,6 +21,7 @@ import { getProfileService } from '~/.server/domain/services/profile-service';
 import { getUserService } from '~/.server/domain/services/user-service';
 import { getWFAStatuses } from '~/.server/domain/services/wfa-status-service';
 import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
+import { AlertMessage } from '~/components/alert-message';
 import { Button } from '~/components/button';
 import { ButtonLink } from '~/components/button-link';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '~/components/card';
@@ -185,6 +186,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     },
     lastUpdated: profileData.dateUpdated ?? '0000-00-00',
     lastUpdatedBy: profileData.userUpdated ?? 'Unknown User',
+    profileCompleted: completed === total,
   };
 }
 
@@ -193,19 +195,11 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
   const navigation = useNavigation();
   const actionData = useActionData();
 
-  const personalCardRef = useRef<HTMLDivElement>(null);
-  const employmentCardRef = useRef<HTMLDivElement>(null);
-  const referralCardRef = useRef<HTMLDivElement>(null);
+  const alertRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (actionData) {
-      if (actionData.personalInfoComplete === false && personalCardRef.current) {
-        personalCardRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      } else if (actionData.employmentInfoComplete === false && employmentCardRef.current) {
-        employmentCardRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      } else if (actionData.referralComplete === false && referralCardRef.current) {
-        referralCardRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
+    if (actionData && alertRef.current) {
+      alertRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
   }, [actionData]);
 
@@ -242,10 +236,17 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
         </Form>
       </div>
 
+      {actionData && (
+        <AlertMessage
+          ref={alertRef}
+          type={loaderData.profileCompleted ? 'success' : 'error'}
+          message={loaderData.profileCompleted ? t('app:profile.profile-submitted') : t('app:profile.profile-incomplete')}
+        />
+      )}
+
       <Progress className="mt-8 mb-8" label={t('app:profile.profile-completion-progress')} value={loaderData.amountCompleted} />
       <div className="mt-8 max-w-prose space-y-10">
         <ProfileCard
-          ref={personalCardRef}
           title={t('app:profile.personal-information.title')}
           linkLabel={t('app:profile.personal-information.link-label')}
           file="routes/employee/[id]/profile/personal-information.tsx"
