@@ -1,5 +1,5 @@
 import type { Ref, JSX, ReactNode } from 'react';
-import { useEffect, useRef } from 'react';
+import { useRef } from 'react';
 
 import type { Params, RouteHandle } from 'react-router';
 import { Form, useActionData, useNavigation } from 'react-router';
@@ -197,11 +197,9 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
 
   const alertRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    if (actionData && alertRef.current) {
-      alertRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
-  }, [actionData]);
+  if (actionData && alertRef.current) {
+    alertRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
 
   return (
     <div className="space-y-8">
