@@ -43,6 +43,7 @@ export default {
     'profile-completion-progress': 'Profile completion progress',
     'not-provided': 'Not provided',
     'last-updated': 'Last updated: {{date}} by {{name}}',
+    'field-incomplete': 'Required fields incomplete',
   },
   'form': {
     'cancel': 'Cancel',

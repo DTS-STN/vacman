@@ -45,6 +45,7 @@ export default {
     'profile-completion-progress': 'Avancement de la complétion du profil',
     'not-provided': 'Non communiqué',
     'last-updated': 'Dernière mise à jour\u00A0: {{date}} par {{name}}', // TODO: French translation needs to be verified
+    'field-incomplete': 'Champs obligatoires incomplets', // TODO: French translation needs to be verified
   },
   'form': {
     'cancel': 'Annuler',

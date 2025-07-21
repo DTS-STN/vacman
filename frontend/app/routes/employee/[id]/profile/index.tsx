@@ -459,22 +459,25 @@ function ProfileCard({
       <CardContent className="my-3 space-y-3 p-0">{children}</CardContent>
       <CardFooter
         className={cn(
-          'mt-3 flex items-center gap-2',
+          'mt-3',
           errorState ? 'bg-[#FFD9D9]' : 'bg-gray-100', // Add background
           '-mx-4 sm:-mx-6', // Pull horizontally to cancel parent padding
           '-mb-4 sm:-mb-6', // Pull down to cancel parent bottom padding
           'px-4 sm:px-6', // Add horizontal padding back for the content
-          'py-4', // Add vertical padding for the content
-          'rounded-b-xs', // Re-apply bottom rounding
+          'py-4', // Add vertical padding for the contents
+          'rounded-b-xs', // Re-apply bottom roundings
         )}
       >
-        {errorState && <FontAwesomeIcon icon={faTriangleExclamation} className="text-[#A62A1E]" />}
-        {!errorState &&
-          (inProgress || isComplete ? <FontAwesomeIcon icon={faPenToSquare} /> : <FontAwesomeIcon icon={faPlus} />)}
-        <InlineLink className={`${errorState && 'text-[#A62A1E]'} font-semibold`} file={file} params={params}>
-          {labelPrefix}
-          {linkLabel}
-        </InlineLink>
+        {errorState && <p className="pb-4 text-lg font-bold text-[#333333]">{t('app:profile.field-incomplete')}</p>}
+        <span className="flex items-center gap-x-2">
+          {errorState && <FontAwesomeIcon icon={faTriangleExclamation} className="text-[#A62A1E]" />}
+          {!errorState &&
+            (inProgress || isComplete ? <FontAwesomeIcon icon={faPenToSquare} /> : <FontAwesomeIcon icon={faPlus} />)}
+          <InlineLink className={`${errorState && 'text-[#A62A1E]'} font-semibold`} file={file} params={params}>
+            {labelPrefix}
+            {linkLabel}
+          </InlineLink>
+        </span>
       </CardFooter>
     </Card>
   );
