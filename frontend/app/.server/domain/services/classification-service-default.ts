@@ -2,7 +2,7 @@ import type { Result, Option } from 'oxide.ts';
 import { Ok, Err } from 'oxide.ts';
 
 import type { Classification, LocalizedClassification } from '~/.server/domain/models';
-import { apiFetch } from '~/.server/domain/services/api-client';
+import { apiClient } from '~/.server/domain/services/api-client';
 import type { ClassificationService } from '~/.server/domain/services/classification-service';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
@@ -30,9 +30,13 @@ export const classificationService: ClassificationService = {
       content: readonly Classification[];
     };
     const context = 'list all esdc classification groups and levels';
-    const response = await apiFetch('/classifications', context);
+    const response = await apiClient.get<ApiResponse>('/classifications', context);
 
-    const data: ApiResponse = await response.json();
+    if (response.isErr()) {
+      throw response.unwrapErr();
+    }
+
+    const data = response.unwrap();
     return data.content;
   },
 
@@ -44,18 +48,20 @@ export const classificationService: ClassificationService = {
    * @throws {AppError} if the API call fails for any reason other than a 404 not found.
    */
   async getById(id: string): Promise<Result<Classification, AppError>> {
-    const context = `get classification with ID '${id}'`;
-    try {
-      const response = await apiFetch(`/classifications/${id}`, context);
-      const data: Classification = await response.json();
-      return Ok(data);
-    } catch (error) {
-      if (error instanceof AppError && error.httpStatusCode === HttpStatusCodes.NOT_FOUND) {
-        return Err(new AppError(`Classification with ID '${id}' not found.`, ErrorCodes.NO_CLASSIFICATION_FOUND));
+    const context = `Get Classification with ID '${id}'`;
+
+    const response = await apiClient.get<Classification>(`/classifications/${id}`, context);
+    if (response.isErr()) {
+      const apiFetchError = response.unwrapErr();
+
+      if (apiFetchError.httpStatusCode === HttpStatusCodes.NOT_FOUND) {
+        return Err(new AppError(`${context} not found.`, ErrorCodes.NO_CLASSIFICATION_FOUND));
       }
-      // Re-throw any other error
-      throw error;
+
+      // For all other errors (500, parsing, network), just return them as is.
+      return Err(apiFetchError);
     }
+    return response;
   },
 
   /**
@@ -67,17 +73,22 @@ export const classificationService: ClassificationService = {
    */
   async getByCode(code: string): Promise<Result<Classification, AppError>> {
     const context = `get classification with CODE '${code}'`;
-    try {
-      const response = await apiFetch(`/classifications?code=${code}`, context);
-      const data: Classification = await response.json();
-      return Ok(data);
-    } catch (error) {
-      if (error instanceof AppError && error.httpStatusCode === HttpStatusCodes.NOT_FOUND) {
-        return Err(new AppError(`Classification with CODE '${code}' not found.`, ErrorCodes.NO_CLASSIFICATION_FOUND));
-      }
-      // Re-throw any other error
-      throw error;
+    type ApiResponse = {
+      content: readonly Classification[];
+    };
+    const response = await apiClient.get<ApiResponse>(`/classifications?code=${code}`, context);
+    if (response.isErr()) {
+      throw response.unwrapErr();
     }
+    const data = response.unwrap();
+    const classification = data.content[0]; // Get the first element from the response array
+
+    if (!classification) {
+      // The request was successful, but no status with that code exists.
+      return Err(new AppError(`'${context} not found.`, ErrorCodes.NO_WFA_STATUS_FOUND));
+    }
+
+    return Ok(classification);
   },
 
   // Localized methods

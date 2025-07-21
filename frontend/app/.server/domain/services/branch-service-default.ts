@@ -2,7 +2,7 @@ import { Ok, Err } from 'oxide.ts';
 import type { Result, Option } from 'oxide.ts';
 
 import type { LocalizedBranch, Branch } from '~/.server/domain/models';
-import { apiFetch } from '~/.server/domain/services/api-client';
+import { apiClient } from '~/.server/domain/services/api-client';
 import type { BranchService } from '~/.server/domain/services/branch-service';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
@@ -40,9 +40,13 @@ export const branchService: BranchService = {
       content: readonly Branch[];
     };
     const context = 'list all esdc branches';
-    const response = await apiFetch('/work-units', context);
+    const response = await apiClient.get<ApiResponse>('/work-units', context);
 
-    const data: ApiResponse = await response.json();
+    if (response.isErr()) {
+      throw response.unwrapErr();
+    }
+
+    const data = response.unwrap();
     // Branches: items WITHOUT a parent property
     return data.content.filter((c) => !('parent' in c)).map(toBranch);
   },
@@ -55,18 +59,20 @@ export const branchService: BranchService = {
    * @throws {AppError} if the API call fails for any reason other than a 404 not found.
    */
   async getById(id: string): Promise<Result<Branch, AppError>> {
-    const context = `get esdc branches with ID '${id}'`;
-    try {
-      const response = await apiFetch(`/work-units/${id}`, context);
-      const data: Branch = await response.json();
-      return Ok(data);
-    } catch (error) {
-      if (error instanceof AppError && error.httpStatusCode === HttpStatusCodes.NOT_FOUND) {
-        return Err(new AppError(`ESDC Branches with ID '${id}' not found.`, ErrorCodes.NO_BRANCH_FOUND));
+    const context = `Get ESDC Branches with ID '${id}'`;
+    const response = await apiClient.get<Branch>(`/work-units/${id}`, context);
+
+    if (response.isErr()) {
+      const apiFetchError = response.unwrapErr();
+
+      if (apiFetchError.httpStatusCode === HttpStatusCodes.NOT_FOUND) {
+        return Err(new AppError(`${context} not found.`, ErrorCodes.NO_BRANCH_FOUND));
       }
-      // Re-throw any other error
-      throw error;
+
+      // For all other errors (500, parsing, network), just return them as is.
+      return Err(apiFetchError);
     }
+    return response;
   },
 
   /**
@@ -77,18 +83,23 @@ export const branchService: BranchService = {
    * @throws {AppError} if the API call fails for any reason other than a 404 not found.
    */
   async getByCode(code: string): Promise<Result<Branch, AppError>> {
-    const context = `esdc branches with CODE '${code}'`;
-    try {
-      const response = await apiFetch(`/work-units?code=${code}`, context);
-      const data: Branch = await response.json();
-      return Ok(data);
-    } catch (error) {
-      if (error instanceof AppError && error.httpStatusCode === HttpStatusCodes.NOT_FOUND) {
-        return Err(new AppError(`ESDC Branches with CODE '${code}' not found.`, ErrorCodes.NO_BRANCH_FOUND));
-      }
-      // Re-throw any other error
-      throw error;
+    const context = `ESDC Branches with CODE '${code}'`;
+    type ApiResponse = {
+      content: readonly Branch[];
+    };
+    const response = await apiClient.get<ApiResponse>(`/work-units?code=${code}`, context);
+    if (response.isErr()) {
+      throw response.unwrapErr();
     }
+    const data = response.unwrap();
+    const branch = data.content[0]; // Get the first element from the response array
+
+    if (!branch) {
+      // The request was successful, but no status with that code exists.
+      return Err(new AppError(`'${context}' not found.`, ErrorCodes.NO_BRANCH_FOUND));
+    }
+
+    return Ok(branch);
   },
 
   // Localized methods

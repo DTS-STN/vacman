@@ -1,8 +1,8 @@
 import type { Result, Option } from 'oxide.ts';
-import { Ok, Err } from 'oxide.ts';
+import { Err, Ok } from 'oxide.ts';
 
 import type { LanguageOfCorrespondence, LocalizedLanguageOfCorrespondence } from '~/.server/domain/models';
-import { apiFetch } from '~/.server/domain/services/api-client';
+import { apiClient } from '~/.server/domain/services/api-client';
 import type { LanguageForCorrespondenceService } from '~/.server/domain/services/language-for-correspondence-service';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
@@ -33,9 +33,13 @@ export const languageForCorrespondenceService: LanguageForCorrespondenceService 
       content: readonly LanguageOfCorrespondence[];
     };
     const context = 'list all language of correspondence';
-    const response = await apiFetch('/languages', context);
+    const response = await apiClient.get<ApiResponse>('/languages', context);
 
-    const data: ApiResponse = await response.json();
+    if (response.isErr()) {
+      throw response.unwrapErr();
+    }
+
+    const data = response.unwrap();
     return data.content;
   },
 
@@ -47,20 +51,21 @@ export const languageForCorrespondenceService: LanguageForCorrespondenceService 
    * @throws {AppError} if the API call fails for any reason other than a 404 not found.
    */
   async getById(id: string): Promise<Result<LanguageOfCorrespondence, AppError>> {
-    const context = `get language of correspondence with ID '${id}'`;
-    try {
-      const response = await apiFetch(`/languages/${id}`, context);
-      const data: LanguageOfCorrespondence = await response.json();
-      return Ok(data);
-    } catch (error) {
-      if (error instanceof AppError && error.httpStatusCode === HttpStatusCodes.NOT_FOUND) {
-        return Err(
-          new AppError(`Language of Correspondence with ID '${id}' not found.`, ErrorCodes.NO_LANGUAGE_OF_CORRESPONDENCE_FOUND),
-        );
+    const context = `Get Language of correspondence with ID '${id}'`;
+
+    const response = await apiClient.get<LanguageOfCorrespondence>(`/languages/${id}`, context);
+
+    if (response.isErr()) {
+      const apiFetchError = response.unwrapErr();
+
+      if (apiFetchError.httpStatusCode === HttpStatusCodes.NOT_FOUND) {
+        return Err(new AppError(`${context} not found.`, ErrorCodes.NO_LANGUAGE_OF_CORRESPONDENCE_FOUND));
       }
-      // Re-throw any other error
-      throw error;
+
+      // For all other errors (500, parsing, network), just return them as is.
+      return Err(apiFetchError);
     }
+    return response;
   },
 
   /**
@@ -72,22 +77,23 @@ export const languageForCorrespondenceService: LanguageForCorrespondenceService 
    */
   async getByCode(code: string): Promise<Result<LanguageOfCorrespondence, AppError>> {
     const context = `get Language of Correspondence with CODE '${code}'`;
-    try {
-      const response = await apiFetch(`/languages?code=${code}`, context);
-      const data: LanguageOfCorrespondence = await response.json();
-      return Ok(data);
-    } catch (error) {
-      if (error instanceof AppError && error.httpStatusCode === HttpStatusCodes.NOT_FOUND) {
-        return Err(
-          new AppError(
-            `Language of Correspondence with CODE '${code}' not found.`,
-            ErrorCodes.NO_LANGUAGE_OF_CORRESPONDENCE_FOUND,
-          ),
-        );
-      }
-      // Re-throw any other error
-      throw error;
+    type ApiResponse = {
+      content: readonly LanguageOfCorrespondence[];
+    };
+    const response = await apiClient.get<ApiResponse>(`/languages?code=${code}`, context);
+
+    if (response.isErr()) {
+      throw response.unwrapErr();
     }
+    const data = response.unwrap();
+    const correspondenceLanguage = data.content[0]; // Get the first element from the response array
+
+    if (!correspondenceLanguage) {
+      // The request was successful, but no status with that code exists.
+      return Err(new AppError(`${context} not found.`, ErrorCodes.NO_LANGUAGE_OF_CORRESPONDENCE_FOUND));
+    }
+
+    return Ok(correspondenceLanguage);
   },
 
   /**

@@ -2,10 +2,11 @@ import type { Result, Option } from 'oxide.ts';
 import { Ok, Err } from 'oxide.ts';
 
 import type { LocalizedWFAStatus, WFAStatus } from '~/.server/domain/models';
-import { apiFetch } from '~/.server/domain/services/api-client';
+import { apiClient } from '~/.server/domain/services/api-client';
 import type { WFAStatusService } from '~/.server/domain/services/wfa-status-service';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
+import { HttpStatusCodes } from '~/errors/http-status-codes';
 
 // Centralized localization logic
 function localizeWFAStatus(wfaStatus: WFAStatus, language: Language): LocalizedWFAStatus {
@@ -29,9 +30,13 @@ export const wfaStatusService: WFAStatusService = {
       content: readonly WFAStatus[];
     };
     const context = 'list all wfa statuses';
-    const response = await apiFetch('/wfa-statuses', context);
+    const response = await apiClient.get<ApiResponse>('/wfa-statuses', context);
 
-    const data: ApiResponse = await response.json();
+    if (response.isErr()) {
+      throw response.unwrapErr();
+    }
+
+    const data = response.unwrap();
     return data.content;
   },
 
@@ -43,18 +48,21 @@ export const wfaStatusService: WFAStatusService = {
    * @throws {AppError} if the API call fails for any reason other than a 404 not found.
    */
   async getById(id: string): Promise<Result<WFAStatus, AppError>> {
-    const context = `get wfa statuses with ID '${id}'`;
-    try {
-      const response = await apiFetch(`/work-units/${id}`, context);
-      const data: WFAStatus = await response.json();
-      return Ok(data);
-    } catch (error) {
-      if (error instanceof AppError && error.errorCode === ErrorCodes.VACMAN_API_ERROR) {
-        return Err(new AppError(`${error.message}`, ErrorCodes.NO_WFA_STATUS_FOUND));
+    const context = `Get WFA Statuses with ID '${id}'`;
+
+    const response = await apiClient.get<WFAStatus>(`/work-units/${id}`, context);
+
+    if (response.isErr()) {
+      const apiFetchError = response.unwrapErr();
+
+      if (apiFetchError.httpStatusCode === HttpStatusCodes.NOT_FOUND) {
+        return Err(new AppError(`${context} not found.`, ErrorCodes.NO_WFA_STATUS_FOUND));
       }
-      // Re-throw any other error
-      throw error;
+
+      // For all other errors (500, parsing, network), just return them as is.
+      return Err(apiFetchError);
     }
+    return response;
   },
 
   /**
@@ -69,9 +77,12 @@ export const wfaStatusService: WFAStatusService = {
     type ApiResponse = {
       content: readonly WFAStatus[];
     };
-    const response = await apiFetch(`/wfa-statuses?code=${code}`, context);
+    const response = await apiClient.get<ApiResponse>(`/wfa-statuses?code=${code}`, context);
 
-    const data: ApiResponse = await response.json();
+    if (response.isErr()) {
+      throw response.unwrapErr();
+    }
+    const data = response.unwrap();
     const wfaStatus = data.content[0]; // Get the first element from the response array
 
     if (!wfaStatus) {

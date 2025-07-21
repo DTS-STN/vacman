@@ -1,12 +1,6 @@
-import type { Result, Option } from 'oxide.ts';
-import { Ok, Err } from 'oxide.ts';
-
 import type { LocalizedProvince, Province } from '~/.server/domain/models';
-import { apiFetch } from '~/.server/domain/services/api-client';
+import { apiClient } from '~/.server/domain/services/api-client';
 import type { ProvinceService } from '~/.server/domain/services/province-service';
-import { AppError } from '~/errors/app-error';
-import { ErrorCodes } from '~/errors/error-codes';
-import { HttpStatusCodes } from '~/errors/http-status-codes';
 
 // Centralized localization logic
 function localizeProvince(province: Province, language: Language): LocalizedProvince {
@@ -30,50 +24,14 @@ export const provinceService: ProvinceService = {
       content: readonly Province[];
     };
     const context = 'list all provinces';
-    const response = await apiFetch('/provinces', context);
+    const response = await apiClient.get<ApiResponse>('/provinces', context);
 
-    const data: ApiResponse = await response.json();
+    if (response.isErr()) {
+      throw response.unwrapErr();
+    }
+
+    const data = response.unwrap();
     return data.content;
-  },
-
-  /**
-   * Retrieves a province by its ID.
-   * @param id The ID of the province to retrieve.
-   * @returns A promise that resolves to the province object, or {AppError} if the request fails or if the server responds with an error status.
-   */
-  async getById(id: string): Promise<Result<Province, AppError>> {
-    const context = `get province with ID '${id}'`;
-    try {
-      const response = await apiFetch(`/provinces/${id}`, context);
-      const data: Province = await response.json();
-      return Ok(data);
-    } catch (error) {
-      if (error instanceof AppError && error.httpStatusCode === HttpStatusCodes.NOT_FOUND) {
-        return Err(new AppError(`Province with ID '${id}' not found.`, ErrorCodes.NO_PROVINCE_FOUND));
-      }
-      // Re-throw any other error
-      throw error;
-    }
-  },
-
-  /**
-   * Retrieves a province by its CODE.
-   * @param code The CODE of the province to retrieve.
-   * @returns A promise that resolves to the province object, or AppError if the request fails or if the server responds with an error status.
-   */
-  async getByCode(code: string): Promise<Result<Province, AppError>> {
-    const context = `get province with CODE '${code}'`;
-    try {
-      const response = await apiFetch(`/provinces?code=${code}`, context);
-      const data: Province = await response.json();
-      return Ok(data);
-    } catch (error) {
-      if (error instanceof AppError && error.httpStatusCode === HttpStatusCodes.NOT_FOUND) {
-        return Err(new AppError(`Province with CODE '${code}' not found.`, ErrorCodes.NO_PROVINCE_FOUND));
-      }
-      // Re-throw any other error
-      throw error;
-    }
   },
 
   // Localized methods
@@ -88,51 +46,6 @@ export const provinceService: ProvinceService = {
   async listAllLocalized(language: Language): Promise<readonly LocalizedProvince[]> {
     const provinces = await this.listAll();
     return provinces.map((province) => localizeProvince(province, language));
-  },
-
-  /**
-   * Retrieves a localized province by its ID and language.
-   * @param id The ID of the province to retrieve.
-   * @param language The language code for which to retrieve the localized province.
-   * @returns A promise that resolves to the localized province object, or AppError if the request fails or if the server responds with an error status.
-   * @throws {AppError} if the API call fails for any reason other than a 404 not found.
-   */
-  async getLocalizedById(id: string, language: Language): Promise<Result<LocalizedProvince, AppError>> {
-    const result = await this.getById(id);
-    return result.map((province) => localizeProvince(province, language));
-  },
-
-  /**
-   * Retrieves a single localized province by its ID.
-   *
-   * @param id The ID of the province to retrieve.
-   * @returns The localized province object if found or undefined if not found.
-   */
-  async findLocalizedById(id: string, language: Language): Promise<Option<LocalizedProvince>> {
-    const result = await this.getLocalizedById(id, language);
-    return result.ok();
-  },
-
-  /**
-   * Retrieves a localized province by its CODE and language.
-   * @param code The CODE of the province to retrieve (ex. 'ON').
-   * @param language The language code for which to retrieve the localized province.
-   * @returns A promise that resolves to the localized province object, or AppError if the request fails or if the server responds with an error status.
-   */
-  async getLocalizedByCode(code: string, language: Language): Promise<Result<LocalizedProvince, AppError>> {
-    const result = await this.getByCode(code);
-    return result.map((province) => localizeProvince(province, language));
-  },
-
-  /**
-   * Retrieves a single localized province by its CODE.
-   *
-   * @param code The CODE of the province to retrieve (ex. 'ON').
-   * @returns The localized province object if found or undefined if not found.
-   */
-  async findLocalizedByCode(code: string, language: Language): Promise<Option<LocalizedProvince>> {
-    const result = await this.getLocalizedByCode(code, language);
-    return result.ok();
   },
 };
 

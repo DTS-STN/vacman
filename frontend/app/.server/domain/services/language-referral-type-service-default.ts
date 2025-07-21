@@ -1,8 +1,8 @@
 import type { Result, Option } from 'oxide.ts';
-import { Ok, Err } from 'oxide.ts';
+import { Err, Ok } from 'oxide.ts';
 
 import type { LanguageReferralType, LocalizedLanguageReferralType } from '~/.server/domain/models';
-import { apiFetch } from '~/.server/domain/services/api-client';
+import { apiClient } from '~/.server/domain/services/api-client';
 import type { LanguageReferralTypeService } from '~/.server/domain/services/language-referral-type-service';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
@@ -33,9 +33,13 @@ export const languageReferralTypeService: LanguageReferralTypeService = {
       content: readonly LanguageReferralType[];
     };
     const context = 'list all language referral types';
-    const response = await apiFetch('/language-referral-types', context);
+    const response = await apiClient.get<ApiResponse>('/language-referral-types', context);
 
-    const data: ApiResponse = await response.json();
+    if (response.isErr()) {
+      throw response.unwrapErr();
+    }
+
+    const data = response.unwrap();
     return data.content;
   },
 
@@ -47,20 +51,20 @@ export const languageReferralTypeService: LanguageReferralTypeService = {
    * @throws {AppError} if the API call fails for any reason other than a 404 not found.
    */
   async getById(id: string): Promise<Result<LanguageReferralType, AppError>> {
-    const context = `get language referral type with ID '${id}'`;
-    try {
-      const response = await apiFetch(`/language-referral-types/${id}`, context);
-      const data: LanguageReferralType = await response.json();
-      return Ok(data);
-    } catch (error) {
-      if (error instanceof AppError && error.httpStatusCode === HttpStatusCodes.NOT_FOUND) {
-        return Err(
-          new AppError(`Language referral type with ID '${id}' not found.`, ErrorCodes.NO_LANGUAGE_REFERRAL_TYPE_FOUND),
-        );
+    const context = `Get Language referral type with ID '${id}'`;
+    const response = await apiClient.get<LanguageReferralType>(`/language-referral-types/${id}`, context);
+
+    if (response.isErr()) {
+      const apiFetchError = response.unwrapErr();
+
+      if (apiFetchError.httpStatusCode === HttpStatusCodes.NOT_FOUND) {
+        return Err(new AppError(`${context} not found.`, ErrorCodes.NO_LANGUAGE_REFERRAL_TYPE_FOUND));
       }
-      // Re-throw any other error
-      throw error;
+
+      // For all other errors (500, parsing, network), just return them as is.
+      return Err(apiFetchError);
     }
+    return response;
   },
 
   /**
@@ -72,19 +76,23 @@ export const languageReferralTypeService: LanguageReferralTypeService = {
    */
   async getByCode(code: string): Promise<Result<LanguageReferralType, AppError>> {
     const context = `get language referral type with CODE '${code}'`;
-    try {
-      const response = await apiFetch(`/language-referral-types?code=${code}`, context);
-      const data: LanguageReferralType = await response.json();
-      return Ok(data);
-    } catch (error) {
-      if (error instanceof AppError && error.httpStatusCode === HttpStatusCodes.NOT_FOUND) {
-        return Err(
-          new AppError(`Language referral type with CODE '${code}' not found.`, ErrorCodes.NO_LANGUAGE_REFERRAL_TYPE_FOUND),
-        );
-      }
-      // Re-throw any other error
-      throw error;
+    type ApiResponse = {
+      content: readonly LanguageReferralType[];
+    };
+    const response = await apiClient.get<ApiResponse>(`/language-referral-types?code=${code}`, context);
+
+    if (response.isErr()) {
+      throw response.unwrapErr();
     }
+    const data = response.unwrap();
+    const referralLanguage = data.content[0]; // Get the first element from the response array
+
+    if (!referralLanguage) {
+      // The request was successful, but no status with that code exists.
+      return Err(new AppError(`${context} not found.`, ErrorCodes.NO_LANGUAGE_REFERRAL_TYPE_FOUND));
+    }
+
+    return Ok(referralLanguage);
   },
 
   /**
