@@ -43,6 +43,12 @@ export const personalInformationSchema = v.object({
       'app:personal-information.errors.preferred-language-required',
     ),
   ),
+  workEmail: v.pipe(
+    v.string('app:personal-information.errors.work-email-required'),
+    v.trim(),
+    v.nonEmpty('app:personal-information.errors.work-email-required'),
+    v.email('app:personal-information.errors.work-email-invalid'),
+  ),
   personalEmail: v.pipe(
     v.string('app:personal-information.errors.personal-email-required'),
     v.trim(),
@@ -63,6 +69,13 @@ export const personalInformationSchema = v.object({
     v.nonEmpty('app:personal-information.errors.personal-phone-required'),
     v.custom((val) => isValidPhone(val as string), 'app:personal-information.errors.personal-phone-invalid'),
     v.transform((val) => parsePhoneNumberWithError(val, 'CA').formatInternational().replace(/ /g, '')),
+  ),
+  additionalInformation: v.optional(
+    v.pipe(
+      v.string('app:personal-information.errors.additional-information-required'),
+      v.trim(),
+      v.length(100, 'app:personal-information.errors.additional-information-max-length'),
+    ),
   ),
 });
 
