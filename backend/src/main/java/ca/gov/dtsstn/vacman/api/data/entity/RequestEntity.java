@@ -139,68 +139,68 @@ public class RequestEntity extends AbstractBusinessEntity {
 
 	@Builder.Constructor
 	public RequestEntity(
-			@Nullable Long id,
-			@Nullable SecurityClearanceEntity securityClearance,
-			@Nullable WorkUnitEntity workUnit,
+			@Nullable String additionalComment,
+			@Nullable String alternateContactEmailAddress,
+			@Nullable AppointmentNonAdvertisedEntity appointmentNonAdvertised,
 			@Nullable ClassificationEntity classification,
-			@Nullable RequestStatusEntity requestStatus,
-			@Nullable UserEntity submitter,
+			@Nullable EmploymentTenureEntity employmentTenure,
+			@Nullable Boolean employmentEquityNeedIdentifiedIndicator,
+			@Nullable LocalDate endDate,
 			@Nullable UserEntity hrAdvisor,
 			@Nullable UserEntity hiringManager,
-			@Nullable UserEntity subDelegatedManager,
+			@Nullable Long id,
 			@Nullable LanguageEntity language,
-			@Nullable LanguageRequirementEntity languageRequirement,
-			@Nullable EmploymentTenureEntity employmentTenure,
-			@Nullable SelectionProcessTypeEntity selectionProcessType,
-			@Nullable AppointmentNonAdvertisedEntity appointmentNonAdvertised,
-			@Nullable WorkScheduleEntity workSchedule,
-			@Nullable String requestNameEn,
-			@Nullable String requestNameFr,
-			@Nullable String priorityClearanceNumber,
-			@Nullable Boolean teleworkAllowed,
-			@Nullable LocalDate startDate,
-			@Nullable LocalDate endDate,
-			@Nullable String alternateContactEmailAddress,
-			@Nullable String requestNumber,
-			@Nullable Boolean employmentEquityNeedIdentifiedIndicator,
-			@Nullable String selectionProcessNumber,
-			@Nullable String positionNumber,
 			@Nullable String languageProfileEn,
 			@Nullable String languageProfileFr,
+			@Nullable LanguageRequirementEntity languageRequirement,
+			@Nullable String positionNumber,
+			@Nullable String priorityClearanceNumber,
+			@Nullable String requestNameEn,
+			@Nullable String requestNameFr,
+			@Nullable String requestNumber,
+			@Nullable RequestStatusEntity requestStatus,
+			@Nullable SecurityClearanceEntity securityClearance,
+			@Nullable String selectionProcessNumber,
+			@Nullable SelectionProcessTypeEntity selectionProcessType,
 			@Nullable String somcAndConditionEmploymentEn,
 			@Nullable String somcAndConditionEmploymentFr,
-			@Nullable String additionalComment) {
+			@Nullable LocalDate startDate,
+			@Nullable UserEntity subDelegatedManager,
+			@Nullable UserEntity submitter,
+			@Nullable Boolean teleworkAllowed,
+			@Nullable WorkScheduleEntity workSchedule,
+			@Nullable WorkUnitEntity workUnit) {
 		super(id);
-		this.securityClearance = securityClearance;
-		this.workUnit = workUnit;
+		this.additionalComment = additionalComment;
+		this.alternateContactEmailAddress = alternateContactEmailAddress;
+		this.appointmentNonAdvertised = appointmentNonAdvertised;
 		this.classification = classification;
-		this.requestStatus = requestStatus;
-		this.submitter = submitter;
+		this.employmentTenure = employmentTenure;
+		this.employmentEquityNeedIdentifiedIndicator = employmentEquityNeedIdentifiedIndicator;
+		this.endDate = endDate;
 		this.hrAdvisor = hrAdvisor;
 		this.hiringManager = hiringManager;
-		this.subDelegatedManager = subDelegatedManager;
 		this.language = language;
-		this.languageRequirement = languageRequirement;
-		this.employmentTenure = employmentTenure;
-		this.selectionProcessType = selectionProcessType;
-		this.appointmentNonAdvertised = appointmentNonAdvertised;
-		this.workSchedule = workSchedule;
-		this.requestNameEn = requestNameEn;
-		this.requestNameFr = requestNameFr;
-		this.priorityClearanceNumber = priorityClearanceNumber;
-		this.teleworkAllowed = teleworkAllowed;
-		this.startDate = startDate;
-		this.endDate = endDate;
-		this.alternateContactEmailAddress = alternateContactEmailAddress;
-		this.requestNumber = requestNumber;
-		this.employmentEquityNeedIdentifiedIndicator = employmentEquityNeedIdentifiedIndicator;
-		this.selectionProcessNumber = selectionProcessNumber;
-		this.positionNumber = positionNumber;
 		this.languageProfileEn = languageProfileEn;
 		this.languageProfileFr = languageProfileFr;
+		this.languageRequirement = languageRequirement;
+		this.positionNumber = positionNumber;
+		this.priorityClearanceNumber = priorityClearanceNumber;
+		this.requestNameEn = requestNameEn;
+		this.requestNameFr = requestNameFr;
+		this.requestNumber = requestNumber;
+		this.requestStatus = requestStatus;
+		this.securityClearance = securityClearance;
+		this.selectionProcessNumber = selectionProcessNumber;
+		this.selectionProcessType = selectionProcessType;
 		this.somcAndConditionEmploymentEn = somcAndConditionEmploymentEn;
 		this.somcAndConditionEmploymentFr = somcAndConditionEmploymentFr;
-		this.additionalComment = additionalComment;
+		this.startDate = startDate;
+		this.subDelegatedManager = subDelegatedManager;
+		this.submitter = submitter;
+		this.teleworkAllowed = teleworkAllowed;
+		this.workSchedule = workSchedule;
+		this.workUnit = workUnit;
 	}
 
 	public SecurityClearanceEntity getSecurityClearance() {
@@ -463,36 +463,36 @@ public class RequestEntity extends AbstractBusinessEntity {
 	public String toString() {
 		return new ToStringCreator(this)
 			.append("super", super.toString())
-			.append("securityClearance", securityClearance)
-			.append("workUnit", workUnit)
+			.append("additionalComment", additionalComment)
+			.append("alternateContactEmailAddress", alternateContactEmailAddress)
+			.append("appointmentNonAdvertised", appointmentNonAdvertised)
 			.append("classification", classification)
-			.append("requestStatus", requestStatus)
-			.append("submitter", submitter)
+			.append("employmentEquityNeedIdentifiedIndicator", employmentEquityNeedIdentifiedIndicator)
+			.append("employmentTenure", employmentTenure)
+			.append("endDate", endDate)
 			.append("hrAdvisor", hrAdvisor)
 			.append("hiringManager", hiringManager)
-			.append("subDelegatedManager", subDelegatedManager)
 			.append("language", language)
-			.append("languageRequirement", languageRequirement)
-			.append("employmentTenure", employmentTenure)
-			.append("selectionProcessType", selectionProcessType)
-			.append("appointmentNonAdvertised", appointmentNonAdvertised)
-			.append("workSchedule", workSchedule)
-			.append("requestNameEn", requestNameEn)
-			.append("requestNameFr", requestNameFr)
-			.append("priorityClearanceNumber", priorityClearanceNumber)
-			.append("teleworkAllowed", teleworkAllowed)
-			.append("startDate", startDate)
-			.append("endDate", endDate)
-			.append("alternateContactEmailAddress", alternateContactEmailAddress)
-			.append("requestNumber", requestNumber)
-			.append("employmentEquityNeedIdentifiedIndicator", employmentEquityNeedIdentifiedIndicator)
-			.append("selectionProcessNumber", selectionProcessNumber)
-			.append("positionNumber", positionNumber)
 			.append("languageProfileEn", languageProfileEn)
 			.append("languageProfileFr", languageProfileFr)
+			.append("languageRequirement", languageRequirement)
+			.append("positionNumber", positionNumber)
+			.append("priorityClearanceNumber", priorityClearanceNumber)
+			.append("requestNameEn", requestNameEn)
+			.append("requestNameFr", requestNameFr)
+			.append("requestNumber", requestNumber)
+			.append("requestStatus", requestStatus)
+			.append("securityClearance", securityClearance)
+			.append("selectionProcessNumber", selectionProcessNumber)
+			.append("selectionProcessType", selectionProcessType)
 			.append("somcAndConditionEmploymentEn", somcAndConditionEmploymentEn)
 			.append("somcAndConditionEmploymentFr", somcAndConditionEmploymentFr)
-			.append("additionalComment", additionalComment)
+			.append("startDate", startDate)
+			.append("subDelegatedManager", subDelegatedManager)
+			.append("submitter", submitter)
+			.append("teleworkAllowed", teleworkAllowed)
+			.append("workSchedule", workSchedule)
+			.append("workUnit", workUnit)
 			.toString();
 	}
 
