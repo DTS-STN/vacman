@@ -10,5 +10,7 @@ import ca.gov.dtsstn.vacman.api.data.entity.NotificationPurposeEntity;
 
 @Repository
 public interface NotificationPurposeRepository extends ListCrudRepository<NotificationPurposeEntity, Long>, PagingAndSortingRepository<NotificationPurposeEntity, Long> {
-    Optional<NotificationPurposeEntity> findByCode(String code);
+
+	Optional<NotificationPurposeEntity> findByCode(String code);
+
 }

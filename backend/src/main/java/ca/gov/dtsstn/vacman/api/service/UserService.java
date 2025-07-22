@@ -34,13 +34,13 @@ public class UserService {
 	private final UserModelMapper userModelMapper;
 
 	public UserService(UserRepository userRepository,
-					   ProfileRepository profileRepository,
-					   NotificationPurposeRepository notificationPurposeRepository,
-					   ProfileStatusRepository profileStatusRepository,
-					   PriorityLevelRepository priorityLevelRepository,
-					   UserTypeRepository userTypeRepository,
-					   WorkUnitRepository workUnitRepository,
-					   UserModelMapper userModelMapper) {
+			ProfileRepository profileRepository,
+			NotificationPurposeRepository notificationPurposeRepository,
+			ProfileStatusRepository profileStatusRepository,
+			PriorityLevelRepository priorityLevelRepository,
+			UserTypeRepository userTypeRepository,
+			WorkUnitRepository workUnitRepository,
+			UserModelMapper userModelMapper) {
 		this.userRepository = userRepository;
 		this.profileRepository = profileRepository;
 		this.notificationPurposeRepository = notificationPurposeRepository;
@@ -54,39 +54,34 @@ public class UserService {
 
 	public UserEntity createUser(UserCreateModel createModel) {
 		// Create user entity with profile from model
-		UserEntity user = userModelMapper.toEntity(createModel);
+		final UserEntity user = userModelMapper.toEntity(createModel);
 
 		// Get the profile from the user
-		ProfileEntity profile = user.getProfile();
+		final ProfileEntity profile = user.getProfile();
 
 		// Set required relationships for profile
 		profile.setProfileStatus(profileStatusRepository.findByCode("PENDING")
-				.orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
-						"Default profile status not found")));
+			.orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Default profile status not found")));
 		profile.setNotificationPurpose(notificationPurposeRepository.findByCode("GENERAL")
-				.orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
-						"Default notification purpose not found")));
+			.orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Default notification purpose not found")));
 
 		// Save profile
-		ProfileEntity savedProfile = profileRepository.save(profile);
+		final ProfileEntity savedProfile = profileRepository.save(profile);
 
 		// Update user with saved profile
 		user.setProfile(savedProfile);
 
 		// Set required relationships for user
 		user.setPriorityLevel(priorityLevelRepository.findByCode("NORMAL")
-				.orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
-						"Default priority level not found")));
+			.orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Default priority level not found")));
 
 		// Set user type based on role
 		user.setUserType(userTypeRepository.findByCode(createModel.role())
-				.orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
-						"User type not found for role: " + createModel.role())));
+			.orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "User type not found for role: " + createModel.role())));
 
 		// Set default work unit
 		user.setWorkUnit(workUnitRepository.findByCode("LABOUR")
-				.orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
-						"Default work unit not found")));
+			.orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Default work unit not found")));
 
 		// Save and return user
 		return userRepository.save(user);

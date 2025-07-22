@@ -12,17 +12,18 @@ import ca.gov.dtsstn.vacman.api.data.repository.ClassificationRepository;
 @Service
 public class ClassificationService {
 
-    private final ClassificationRepository classificationRepository;
+	private final ClassificationRepository classificationRepository;
 
-    public ClassificationService(ClassificationRepository classificationRepository) {
-        this.classificationRepository = classificationRepository;
-    }
+	public ClassificationService(ClassificationRepository classificationRepository) {
+		this.classificationRepository = classificationRepository;
+	}
 
-    public Optional<ClassificationEntity> getClassificationByCode(String code) {
-        return classificationRepository.findByCode(code);
-    }
+	public Optional<ClassificationEntity> getClassificationByCode(String code) {
+		return classificationRepository.findByCode(code);
+	}
 
-    public Page<ClassificationEntity> getClassifications(Pageable pageable) {
-        return classificationRepository.findAll(pageable);
-    }
+	public Page<ClassificationEntity> getClassifications(Pageable pageable) {
+		return classificationRepository.findAll(pageable);
+	}
+
 }

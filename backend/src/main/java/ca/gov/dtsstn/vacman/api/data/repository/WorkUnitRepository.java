@@ -10,5 +10,7 @@ import ca.gov.dtsstn.vacman.api.data.entity.WorkUnitEntity;
 
 @Repository
 public interface WorkUnitRepository extends ListCrudRepository<WorkUnitEntity, Long>, PagingAndSortingRepository<WorkUnitEntity, Long> {
-    Optional<WorkUnitEntity> findByCode(String code);
+
+	Optional<WorkUnitEntity> findByCode(String code);
+
 }

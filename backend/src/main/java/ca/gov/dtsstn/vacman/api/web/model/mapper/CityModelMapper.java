@@ -9,7 +9,7 @@ import ca.gov.dtsstn.vacman.api.web.model.CityReadModel;
 @Mapper(uses = ProvinceModelMapper.class)
 public interface CityModelMapper {
 
-    @Mapping(target = "province", source = "province")
-    CityReadModel toModel(CityEntity entity);
+	@Mapping(target = "province", source = "province")
+	CityReadModel toModel(CityEntity entity);
 
 }

@@ -12,17 +12,18 @@ import ca.gov.dtsstn.vacman.api.data.repository.EducationLevelRepository;
 @Service
 public class EducationLevelService {
 
-    private final EducationLevelRepository educationLevelRepository;
+	private final EducationLevelRepository educationLevelRepository;
 
-    public EducationLevelService(EducationLevelRepository educationLevelRepository) {
-        this.educationLevelRepository = educationLevelRepository;
-    }
+	public EducationLevelService(EducationLevelRepository educationLevelRepository) {
+		this.educationLevelRepository = educationLevelRepository;
+	}
 
-    public Optional<EducationLevelEntity> getEducationLevelByCode(String code) {
-        return educationLevelRepository.findByCode(code);
-    }
+	public Optional<EducationLevelEntity> getEducationLevelByCode(String code) {
+		return educationLevelRepository.findByCode(code);
+	}
 
-    public Page<EducationLevelEntity> getEducationLevels(Pageable pageable) {
-        return educationLevelRepository.findAll(pageable);
-    }
+	public Page<EducationLevelEntity> getEducationLevels(Pageable pageable) {
+		return educationLevelRepository.findAll(pageable);
+	}
+
 }

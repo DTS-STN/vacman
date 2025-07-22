@@ -8,6 +8,6 @@ import ca.gov.dtsstn.vacman.api.web.model.WorkUnitReadModel;
 @Mapper
 public interface WorkUnitModelMapper {
 
-    WorkUnitReadModel toModel(WorkUnitEntity entity);
+	WorkUnitReadModel toModel(WorkUnitEntity entity);
 
 }

@@ -8,6 +8,6 @@ import ca.gov.dtsstn.vacman.api.web.model.ProvinceReadModel;
 @Mapper
 public interface ProvinceModelMapper {
 
-    ProvinceReadModel toModel(ProvinceEntity entity);
+	ProvinceReadModel toModel(ProvinceEntity entity);
 
 }

@@ -8,6 +8,6 @@ import ca.gov.dtsstn.vacman.api.web.model.ClassificationReadModel;
 @Mapper
 public interface ClassificationModelMapper {
 
-    ClassificationReadModel toModel(ClassificationEntity entity);
+	ClassificationReadModel toModel(ClassificationEntity entity);
 
 }

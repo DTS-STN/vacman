@@ -10,5 +10,7 @@ import ca.gov.dtsstn.vacman.api.data.entity.ProfileStatusEntity;
 
 @Repository
 public interface ProfileStatusRepository extends ListCrudRepository<ProfileStatusEntity, Long>, PagingAndSortingRepository<ProfileStatusEntity, Long> {
-    Optional<ProfileStatusEntity> findByCode(String code);
+
+	Optional<ProfileStatusEntity> findByCode(String code);
+
 }

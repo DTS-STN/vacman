@@ -27,45 +27,46 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @RequestMapping({ "/api/v1/provinces" })
 public class ProvinceController {
 
-    private final ProvinceModelMapper provinceModelMapper = Mappers.getMapper(ProvinceModelMapper.class);
+	private final ProvinceModelMapper provinceModelMapper = Mappers.getMapper(ProvinceModelMapper.class);
 
-    private final ProvinceService provinceService;
+	private final ProvinceService provinceService;
 
-    public ProvinceController(ProvinceService provinceService) {
-        this.provinceService = provinceService;
-    }
+	public ProvinceController(ProvinceService provinceService) {
+		this.provinceService = provinceService;
+	}
 
-    @GetMapping
-    @SecurityRequirement(name = SpringDocConfig.AZURE_AD)
-    @Operation(summary = "Get all provinces or filter by code.", description = "Returns a collection of all provinces, or provinces filtered by code.")
-    public ResponseEntity<CollectionModel<ProvinceReadModel>> getProvinces(
-            @RequestParam(required = false)
-            @Parameter(description = "Province code to filter by (e.g., 'YT' for Yukon)") String code) {
+	@GetMapping
+	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
+	@Operation(summary = "Get all provinces or filter by code.", description = "Returns a collection of all provinces, or provinces filtered by code.")
+	public ResponseEntity<CollectionModel<ProvinceReadModel>> getProvinces(
+			@RequestParam(required = false)
+			@Parameter(description = "Province code to filter by (e.g., 'YT' for Yukon)")
+			String code) {
+		if (isNotBlank(code)) {
+			final var result = new CollectionModel<>(provinceService.getProvinceByCode(code)
+				.map(provinceModelMapper::toModel)
+				.map(List::of)
+				.orElse(List.of()));
+			return ResponseEntity.ok(result);
+		}
 
-        if (isNotBlank(code)) {
-            CollectionModel<ProvinceReadModel> result = new CollectionModel<>(provinceService.getProvinceByCode(code)
-                .map(provinceModelMapper::toModel)
-                .map(List::of)
-                .orElse(List.of()));
-            return ResponseEntity.ok(result);
-        }
+		final var result = new CollectionModel<>(provinceService.getAllProvinces().stream()
+			.map(provinceModelMapper::toModel)
+			.toList());
+		return ResponseEntity.ok(result);
+	}
 
-        CollectionModel<ProvinceReadModel> result = new CollectionModel<>(provinceService.getAllProvinces().stream()
-            .map(provinceModelMapper::toModel)
-            .toList());
-        return ResponseEntity.ok(result);
-    }
+	@GetMapping("/{id}")
+	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
+	@Operation(summary = "Get a province by ID.", description = "Returns a province by its ID.")
+	public ResponseEntity<ProvinceReadModel> getProvinceById(
+			@PathVariable
+			@Parameter(description = "Province ID")
+			Long id) {
+		return provinceService.getProvinceById(id)
+			.map(provinceModelMapper::toModel)
+			.map(ResponseEntity::ok)
+			.orElse(ResponseEntity.notFound().build());
+	}
 
-    @GetMapping("/{id}")
-    @SecurityRequirement(name = SpringDocConfig.AZURE_AD)
-    @Operation(summary = "Get a province by ID.", description = "Returns a province by its ID.")
-    public ResponseEntity<ProvinceReadModel> getProvinceById(
-            @PathVariable
-            @Parameter(description = "Province ID") Long id) {
-
-        return provinceService.getProvinceById(id)
-            .map(provinceModelMapper::toModel)
-            .map(ResponseEntity::ok)
-            .orElse(ResponseEntity.notFound().build());
-    }
 }

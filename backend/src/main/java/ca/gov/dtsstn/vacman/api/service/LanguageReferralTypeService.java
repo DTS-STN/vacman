@@ -12,17 +12,18 @@ import ca.gov.dtsstn.vacman.api.data.repository.LanguageReferralTypeRepository;
 @Service
 public class LanguageReferralTypeService {
 
-    private final LanguageReferralTypeRepository languageReferralTypeRepository;
+	private final LanguageReferralTypeRepository languageReferralTypeRepository;
 
-    public LanguageReferralTypeService(LanguageReferralTypeRepository languageReferralTypeRepository) {
-        this.languageReferralTypeRepository = languageReferralTypeRepository;
-    }
+	public LanguageReferralTypeService(LanguageReferralTypeRepository languageReferralTypeRepository) {
+		this.languageReferralTypeRepository = languageReferralTypeRepository;
+	}
 
-    public Optional<LanguageReferralTypeEntity> getLanguageReferralTypeByCode(String code) {
-        return languageReferralTypeRepository.findByCode(code);
-    }
+	public Optional<LanguageReferralTypeEntity> getLanguageReferralTypeByCode(String code) {
+		return languageReferralTypeRepository.findByCode(code);
+	}
 
-    public Page<LanguageReferralTypeEntity> getLanguageReferralTypes(Pageable pageable) {
-        return languageReferralTypeRepository.findAll(pageable);
-    }
+	public Page<LanguageReferralTypeEntity> getLanguageReferralTypes(Pageable pageable) {
+		return languageReferralTypeRepository.findAll(pageable);
+	}
+
 }

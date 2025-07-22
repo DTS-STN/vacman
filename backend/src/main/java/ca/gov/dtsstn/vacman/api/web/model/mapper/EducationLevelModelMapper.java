@@ -8,6 +8,6 @@ import ca.gov.dtsstn.vacman.api.web.model.EducationLevelReadModel;
 @Mapper
 public interface EducationLevelModelMapper {
 
-    EducationLevelReadModel toModel(EducationLevelEntity entity);
+	EducationLevelReadModel toModel(EducationLevelEntity entity);
 
 }

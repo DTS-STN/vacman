@@ -8,6 +8,6 @@ import ca.gov.dtsstn.vacman.api.web.model.LanguageReadModel;
 @Mapper
 public interface LanguageModelMapper {
 
-    LanguageReadModel toModel(LanguageEntity entity);
+	LanguageReadModel toModel(LanguageEntity entity);
 
 }

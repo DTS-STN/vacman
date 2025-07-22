@@ -1,12 +1,15 @@
 package ca.gov.dtsstn.vacman.api.data.repository;
 
-import ca.gov.dtsstn.vacman.api.data.entity.EmploymentTenureEntity;
+import java.util.Optional;
+
 import org.springframework.data.repository.ListCrudRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
+import ca.gov.dtsstn.vacman.api.data.entity.EmploymentTenureEntity;
 
 @Repository
 public interface EmploymentTenureRepository extends ListCrudRepository<EmploymentTenureEntity, Long> {
-    Optional<EmploymentTenureEntity> findByCode(String code);
+
+	Optional<EmploymentTenureEntity> findByCode(String code);
+
 }
