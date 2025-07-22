@@ -42,14 +42,6 @@ export function ErrorSummary({ className, errors, ...rest }: ErrorSummaryProps):
   const { t } = useTranslation(['gcweb']);
   const sectionRef = useRef<HTMLElement>(null);
 
-  // Scroll and focus on the error summary when errors are updated.
-  useEffect(() => {
-    if (errors.length > 0 && sectionRef.current) {
-      sectionRef.current.scrollIntoView({ behavior: 'smooth' });
-      sectionRef.current.focus();
-    }
-  }, [errors]);
-
   if (errors.length === 0) {
     return null;
   }
