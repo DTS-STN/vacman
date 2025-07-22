@@ -255,7 +255,7 @@ class UsersControllerTest {
 	}
 
 	@Test
-	@WithMockUser
+	@WithMockUser(authorities = { "SCOPE_employee" })
 	@DisplayName("PATCH /api/v1/users/{id} should update and return user when user exists")
 	void patchUser_givenUserExists_shouldUpdateAndReturnUser() throws Exception {
 		final var userId = 1L;
@@ -287,7 +287,7 @@ class UsersControllerTest {
 	}
 
 	@Test
-	@WithMockUser
+	@WithMockUser(authorities = { "SCOPE_employee" })
 	@DisplayName("PATCH /api/v1/users/{id} should return 404 when user does not exist")
 	void patchUser_givenUserDoesNotExist_shouldReturn404() throws Exception {
 		final var userId = 999L;
