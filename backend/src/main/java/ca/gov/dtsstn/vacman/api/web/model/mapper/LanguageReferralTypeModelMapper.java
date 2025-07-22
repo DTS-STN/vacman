@@ -8,6 +8,6 @@ import ca.gov.dtsstn.vacman.api.web.model.LanguageReferralTypeReadModel;
 @Mapper
 public interface LanguageReferralTypeModelMapper {
 
-    LanguageReferralTypeReadModel toModel(LanguageReferralTypeEntity entity);
+	LanguageReferralTypeReadModel toModel(LanguageReferralTypeEntity entity);
 
 }

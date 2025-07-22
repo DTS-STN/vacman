@@ -40,15 +40,17 @@ public class CityController {
 	@Operation(summary = "Get all cities or filter by code or province.", description = "Returns a collection of all cities, or cities filtered by code or province.")
 	public ResponseEntity<CollectionModel<CityReadModel>> getCities(
 			@RequestParam(required = false)
-			@Parameter(description = "City code to filter by (e.g., 'OT' for Ottawa)") String code,
+			@Parameter(description = "City code to filter by (e.g., 'OT' for Ottawa)")
+			String code,
 			@RequestParam(required = false)
-			@Parameter(description = "Province code to filter by (e.g., 'ON' for Ontario)") String province,
+			@Parameter(description = "Province code to filter by (e.g., 'ON' for Ontario)")
+			String province,
 			@RequestParam(required = false)
-			@Parameter(description = "Province ID to filter by") Long provinceId) {
-
+			@Parameter(description = "Province ID to filter by")
+			Long provinceId) {
 		// If provinceId is provided
 		if (provinceId != null) {
-			CollectionModel<CityReadModel> result = new CollectionModel<>(cityService.getCitiesByProvinceId(provinceId).stream()
+			final var result = new CollectionModel<>(cityService.getCitiesByProvinceId(provinceId).stream()
 				.map(cityModelMapper::toModel)
 				.toList());
 			return ResponseEntity.ok(result);
@@ -56,7 +58,7 @@ public class CityController {
 
 		// If both code and province parameters are provided, find cities that match both
 		if (isNotBlank(code) && isNotBlank(province)) {
-			CollectionModel<CityReadModel> result = new CollectionModel<>(cityService.getCityByCodeAndProvince(code, province).stream()
+			final var result = new CollectionModel<>(cityService.getCityByCodeAndProvince(code, province).stream()
 				.map(cityModelMapper::toModel)
 				.toList());
 			return ResponseEntity.ok(result);
@@ -64,7 +66,7 @@ public class CityController {
 
 		// If only code is provided
 		if (isNotBlank(code)) {
-			CollectionModel<CityReadModel> result = new CollectionModel<>(cityService.getCityByCode(code)
+			final var result = new CollectionModel<>(cityService.getCityByCode(code)
 				.map(cityModelMapper::toModel)
 				.map(List::of)
 				.orElse(List.of()));
@@ -73,14 +75,14 @@ public class CityController {
 
 		// If only province is provided
 		if (isNotBlank(province)) {
-			CollectionModel<CityReadModel> result = new CollectionModel<>(cityService.getCitiesByProvinceCode(province).stream()
+			final var result = new CollectionModel<>(cityService.getCitiesByProvinceCode(province).stream()
 				.map(cityModelMapper::toModel)
 				.toList());
 			return ResponseEntity.ok(result);
 		}
 
 		// If no parameters are provided
-		CollectionModel<CityReadModel> result = new CollectionModel<>(cityService.getAllCities().stream()
+		final var result = new CollectionModel<>(cityService.getAllCities().stream()
 			.map(cityModelMapper::toModel)
 			.toList());
 		return ResponseEntity.ok(result);
@@ -91,11 +93,12 @@ public class CityController {
 	@Operation(summary = "Get a city by ID.", description = "Returns a city by its ID.")
 	public ResponseEntity<CityReadModel> getCityById(
 			@PathVariable
-			@Parameter(description = "City ID") Long id) {
-
+			@Parameter(description = "City ID")
+			Long id) {
 		return cityService.getCityById(id)
 			.map(cityModelMapper::toModel)
 			.map(ResponseEntity::ok)
 			.orElse(ResponseEntity.notFound().build());
 	}
+
 }

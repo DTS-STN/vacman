@@ -8,6 +8,6 @@ import ca.gov.dtsstn.vacman.api.web.model.EmploymentTenureReadModel;
 @Mapper
 public interface EmploymentTenureModelMapper {
 
-    EmploymentTenureReadModel toModel(EmploymentTenureEntity entity);
+	EmploymentTenureReadModel toModel(EmploymentTenureEntity entity);
 
 }

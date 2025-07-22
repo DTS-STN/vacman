@@ -8,6 +8,6 @@ import ca.gov.dtsstn.vacman.api.web.model.WfaStatusReadModel;
 @Mapper(componentModel = "spring")
 public interface WfaStatusModelMapper {
 
-    WfaStatusReadModel toModel(WfaStatusEntity entity);
+	WfaStatusReadModel toModel(WfaStatusEntity entity);
 
 }

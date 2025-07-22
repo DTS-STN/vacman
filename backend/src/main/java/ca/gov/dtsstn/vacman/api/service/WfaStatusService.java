@@ -12,18 +12,18 @@ import ca.gov.dtsstn.vacman.api.data.repository.WfaStatusRepository;
 @Service
 public class WfaStatusService {
 
-    private final WfaStatusRepository wfaStatusRepository;
+	private final WfaStatusRepository wfaStatusRepository;
 
-    public WfaStatusService(WfaStatusRepository wfaStatusRepository) {
-        this.wfaStatusRepository = wfaStatusRepository;
-    }
+	public WfaStatusService(WfaStatusRepository wfaStatusRepository) {
+		this.wfaStatusRepository = wfaStatusRepository;
+	}
 
-    public Optional<WfaStatusEntity> getWfaStatusByCode(String code) {
-        return wfaStatusRepository.findByCode(code);
-    }
+	public Optional<WfaStatusEntity> getWfaStatusByCode(String code) {
+		return wfaStatusRepository.findByCode(code);
+	}
 
-    public Page<WfaStatusEntity> getWfaStatuses(Pageable pageable) {
-        return wfaStatusRepository.findAll(pageable);
-    }
+	public Page<WfaStatusEntity> getWfaStatuses(Pageable pageable) {
+		return wfaStatusRepository.findAll(pageable);
+	}
 
 }

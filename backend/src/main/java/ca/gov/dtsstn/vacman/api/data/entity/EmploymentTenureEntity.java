@@ -44,4 +44,5 @@ public class EmploymentTenureEntity extends AbstractLookupEntity {
 			.append("super", super.toString())
 			.toString();
 	}
+
 }

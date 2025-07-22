@@ -10,5 +10,7 @@ import ca.gov.dtsstn.vacman.api.data.entity.UserTypeEntity;
 
 @Repository
 public interface UserTypeRepository extends ListCrudRepository<UserTypeEntity, Long>, PagingAndSortingRepository<UserTypeEntity, Long> {
-    Optional<UserTypeEntity> findByCode(String code);
+
+	Optional<UserTypeEntity> findByCode(String code);
+
 }

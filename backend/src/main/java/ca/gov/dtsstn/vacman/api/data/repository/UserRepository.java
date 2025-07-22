@@ -13,7 +13,8 @@ import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 @Repository
 public interface UserRepository extends ListCrudRepository<UserEntity, Long>, PagingAndSortingRepository<UserEntity, Long> {
 
-  Page<UserEntity> findAll(Pageable pageable);
+	@Override
+	Page<UserEntity> findAll(Pageable pageable);
 
   Optional<UserEntity> findByActiveDirectoryId(String activeDirectoryId);
 

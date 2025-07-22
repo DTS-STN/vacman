@@ -29,8 +29,8 @@ public class WorkUnitEntity extends AbstractLookupEntity {
 	@JoinColumn(name = "[PARENT_WORK_UNIT_ID]", nullable = true)
 	protected WorkUnitEntity parent;
 
-	public WorkUnitEntity getParent() {
-		return parent;
+	public WorkUnitEntity() {
+		super();
 	}
 
 	@Builder.Constructor
@@ -46,13 +46,12 @@ public class WorkUnitEntity extends AbstractLookupEntity {
 		this.parent = parent;
 	}
 
+	public WorkUnitEntity getParent() {
+		return parent;
+	}
 
 	public void setParent(WorkUnitEntity parent) {
 		this.parent = parent;
-	}
-
-	public WorkUnitEntity() {
-		super();
 	}
 
 	@Override

@@ -10,5 +10,7 @@ import ca.gov.dtsstn.vacman.api.data.entity.PriorityLevelEntity;
 
 @Repository
 public interface PriorityLevelRepository extends ListCrudRepository<PriorityLevelEntity, Long>, PagingAndSortingRepository<PriorityLevelEntity, Long> {
-    Optional<PriorityLevelEntity> findByCode(String code);
+
+	Optional<PriorityLevelEntity> findByCode(String code);
+
 }

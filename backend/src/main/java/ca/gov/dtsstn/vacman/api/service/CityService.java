@@ -11,33 +11,33 @@ import ca.gov.dtsstn.vacman.api.data.repository.CityRepository;
 @Service
 public class CityService {
 
-    private final CityRepository cityRepository;
+	private final CityRepository cityRepository;
 
-    public CityService(CityRepository cityRepository) {
-        this.cityRepository = cityRepository;
-    }
+	public CityService(CityRepository cityRepository) {
+		this.cityRepository = cityRepository;
+	}
 
-    public List<CityEntity> getAllCities() {
-        return List.copyOf(cityRepository.findAll());
-    }
+	public List<CityEntity> getAllCities() {
+		return List.copyOf(cityRepository.findAll());
+	}
 
-    public Optional<CityEntity> getCityById(Long id) {
-        return cityRepository.findById(id);
-    }
+	public Optional<CityEntity> getCityById(Long id) {
+		return cityRepository.findById(id);
+	}
 
-    public Optional<CityEntity> getCityByCode(String code) {
-        return cityRepository.findByCode(code);
-    }
+	public Optional<CityEntity> getCityByCode(String code) {
+		return cityRepository.findByCode(code);
+	}
 
-    public List<CityEntity> getCitiesByProvinceCode(String provinceCode) {
-        return List.copyOf(cityRepository.findByProvinceTerritoryCode(provinceCode));
-    }
+	public List<CityEntity> getCitiesByProvinceCode(String provinceCode) {
+			return List.copyOf(cityRepository.findByProvinceTerritoryCode(provinceCode));
+	}
 
-    public List<CityEntity> getCitiesByProvinceId(Long provinceId) {
-        return List.copyOf(cityRepository.findByProvinceTerritory_Id(provinceId));
-    }
+	public List<CityEntity> getCitiesByProvinceId(Long provinceId) {
+			return List.copyOf(cityRepository.findByProvinceTerritory_Id(provinceId));
+	}
 
-    public List<CityEntity> getCityByCodeAndProvince(String code, String provinceCode) {
-        return List.copyOf(cityRepository.findByCodeAndProvinceTerritoryCode(code, provinceCode));
-    }
+	public List<CityEntity> getCityByCodeAndProvince(String code, String provinceCode) {
+			return List.copyOf(cityRepository.findByCodeAndProvinceTerritoryCode(code, provinceCode));
+	}
 }

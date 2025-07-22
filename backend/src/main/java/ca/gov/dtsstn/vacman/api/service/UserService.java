@@ -42,8 +42,7 @@ public class UserService {
 
 		// Set user type based on role
 		user.setUserType(userTypeRepository.findByCode(createModel.role())
-				.orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
-						"User type not found for role: " + createModel.role())));
+			.orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "User type not found for role: " + createModel.role())));
 
 		// Set language based on languageCode
 		user.setLanguage(languageRepository.findByCode(createModel.languageCode())

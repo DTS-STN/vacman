@@ -10,11 +10,13 @@ import ca.gov.dtsstn.vacman.api.data.entity.CityEntity;
 
 @Repository
 public interface CityRepository extends ListCrudRepository<CityEntity, Long> {
-    Optional<CityEntity> findByCode(String code);
 
-    List<CityEntity> findByProvinceTerritoryCode(String provinceCode);
+	Optional<CityEntity> findByCode(String code);
 
-    List<CityEntity> findByCodeAndProvinceTerritoryCode(String code, String provinceCode);
+	List<CityEntity> findByProvinceTerritoryCode(String provinceCode);
 
-    List<CityEntity> findByProvinceTerritory_Id(Long provinceId);
+	List<CityEntity> findByProvinceTerritory_Id(Long provinceId);
+
+	List<CityEntity> findByCodeAndProvinceTerritoryCode(String code, String provinceCode);
+
 }

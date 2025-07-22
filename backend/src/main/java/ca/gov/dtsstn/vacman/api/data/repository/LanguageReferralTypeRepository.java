@@ -10,5 +10,7 @@ import ca.gov.dtsstn.vacman.api.data.entity.LanguageReferralTypeEntity;
 
 @Repository
 public interface LanguageReferralTypeRepository extends ListCrudRepository<LanguageReferralTypeEntity, Long>, PagingAndSortingRepository<LanguageReferralTypeEntity, Long> {
-    Optional<LanguageReferralTypeEntity> findByCode(String code);
+
+	Optional<LanguageReferralTypeEntity> findByCode(String code);
+
 }

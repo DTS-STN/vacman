@@ -41,79 +41,79 @@ import ca.gov.dtsstn.vacman.api.web.model.mapper.LanguageModelMapper;
 @WebMvcTest({ LanguageController.class })
 class LanguageControllerTest {
 
-    @Autowired MockMvc mockMvc;
+	@Autowired MockMvc mockMvc;
 
-    @Autowired ObjectMapper objectMapper;
+	@Autowired ObjectMapper objectMapper;
 
-    @MockitoBean LanguageService languageService;
+	@MockitoBean LanguageService languageService;
 
-    LanguageModelMapper languageModelMapper = Mappers.getMapper(LanguageModelMapper.class);
+	LanguageModelMapper languageModelMapper = Mappers.getMapper(LanguageModelMapper.class);
 
-    @BeforeEach
-    void beforeEach() {
-        MockitoAnnotations.openMocks(this);
-    }
+	@BeforeEach
+	void beforeEach() {
+		MockitoAnnotations.openMocks(this);
+	}
 
-    @Test
-    @WithMockUser(authorities = { "SCOPE_employee" })
-    @DisplayName("GET /api/v1/languages - Should return paginated language collection")
-    void getLanguages_shouldReturnPaginatedLanguageCollection() throws Exception {
-        // Create mock languages
-        final var mockLanguages = List.of(
-            createLanguageEntity(1L, "EN", "English", "Anglais"),
-            createLanguageEntity(2L, "FR", "French", "Français")
-        );
+	@Test
+	@WithMockUser(authorities = { "SCOPE_employee" })
+	@DisplayName("GET /api/v1/languages - Should return paginated language collection")
+	void getLanguages_shouldReturnPaginatedLanguageCollection() throws Exception {
+		// Create mock languages
+		final var mockLanguages = List.of(
+			createLanguageEntity(1L, "EN", "English", "Anglais"),
+			createLanguageEntity(2L, "FR", "French", "Français"));
 
-        // Create pageable and page
-        final var pageable = PageRequest.of(0, 2);
-        final var mockPage = new PageImpl<>(mockLanguages, pageable, 4);
+		// Create pageable and page
+		final var pageable = PageRequest.of(0, 2);
+		final var mockPage = new PageImpl<>(mockLanguages, pageable, 4);
 
-        // Mock service response
-        when(languageService.getLanguages(any(Pageable.class))).thenReturn(mockPage);
+		// Mock service response
+		when(languageService.getLanguages(any(Pageable.class))).thenReturn(mockPage);
 
-        // Map to expected response
-        final var expectedResponse = mockPage.map(languageModelMapper::toModel);
+		// Map to expected response
+		final var expectedResponse = mockPage.map(languageModelMapper::toModel);
 
-        // Perform request and verify
-        mockMvc.perform(get("/api/v1/languages"))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-            .andExpect(content().json(objectMapper.writeValueAsString(expectedResponse)));
+		// Perform request and verify
+		mockMvc.perform(get("/api/v1/languages"))
+			.andExpect(status().isOk())
+			.andExpect(content().contentType(MediaType.APPLICATION_JSON))
+			.andExpect(content().json(objectMapper.writeValueAsString(expectedResponse)));
 
-        // Verify service was called
-        verify(languageService).getLanguages(any(Pageable.class));
-    }
+		// Verify service was called
+		verify(languageService).getLanguages(any(Pageable.class));
+	}
 
-    @Test
-    @WithMockUser(authorities = { "SCOPE_employee" })
-    @DisplayName("GET /api/v1/languages?code=EN - Should return filtered language")
-    void getLanguages_withCode_shouldReturnFilteredLanguage() throws Exception {
-        // Create mock language
-        final var mockLanguage = createLanguageEntity(1L, "EN", "English", "Anglais");
+	@Test
+	@WithMockUser(authorities = { "SCOPE_employee" })
+	@DisplayName("GET /api/v1/languages?code=EN - Should return filtered language")
+	void getLanguages_withCode_shouldReturnFilteredLanguage() throws Exception {
+		// Create mock language
+		final var mockLanguage = createLanguageEntity(1L, "EN", "English", "Anglais");
 
-        // Mock service response
-        when(languageService.getLanguageByCode("EN")).thenReturn(Optional.of(mockLanguage));
+		// Mock service response
+		when(languageService.getLanguageByCode("EN")).thenReturn(Optional.of(mockLanguage));
 
-        // Perform request and verify
-        mockMvc.perform(get("/api/v1/languages?code=EN"))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+		// Perform request and verify
+		mockMvc.perform(get("/api/v1/languages?code=EN"))
+			.andExpect(status().isOk())
+			.andExpect(content().contentType(MediaType.APPLICATION_JSON));
 
-        // Verify service was called
-        verify(languageService).getLanguageByCode("EN");
-    }
+		// Verify service was called
+		verify(languageService).getLanguageByCode("EN");
+	}
 
-    // Helper method to create a LanguageEntity
-    private LanguageEntity createLanguageEntity(Long id, String code, String nameEn, String nameFr) {
-        LanguageEntity entity = new LanguageEntity();
-        entity.setId(id);
-        entity.setCode(code);
-        entity.setNameEn(nameEn);
-        entity.setNameFr(nameFr);
-        entity.setCreatedBy("test-user");
-        entity.setCreatedDate(Instant.now());
-        entity.setLastModifiedBy("test-user");
-        entity.setLastModifiedDate(Instant.now());
-        return entity;
-    }
+	// Helper method to create a LanguageEntity
+	private LanguageEntity createLanguageEntity(Long id, String code, String nameEn, String nameFr) {
+		final var entity = new LanguageEntity();
+		entity.setId(id);
+		entity.setCode(code);
+		entity.setNameEn(nameEn);
+		entity.setNameFr(nameFr);
+		entity.setCreatedBy("test-user");
+		entity.setCreatedDate(Instant.now());
+		entity.setLastModifiedBy("test-user");
+		entity.setLastModifiedDate(Instant.now());
+		return entity;
+	}
+
 }

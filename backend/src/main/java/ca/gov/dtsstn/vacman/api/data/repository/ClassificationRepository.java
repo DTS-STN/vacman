@@ -10,5 +10,7 @@ import ca.gov.dtsstn.vacman.api.data.entity.ClassificationEntity;
 
 @Repository
 public interface ClassificationRepository extends ListCrudRepository<ClassificationEntity, Long>, PagingAndSortingRepository<ClassificationEntity, Long> {
-    Optional<ClassificationEntity> findByCode(String code);
+
+	Optional<ClassificationEntity> findByCode(String code);
+
 }
