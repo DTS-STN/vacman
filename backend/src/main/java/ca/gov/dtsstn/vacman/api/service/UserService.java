@@ -67,14 +67,9 @@ public class UserService {
 		return userRepository.findAll(pageable);
 	}
 
-	public Optional<UserEntity> updateUser(UserUpdateModel updateModel) {
-		Optional<UserEntity> optionalUser = userRepository.findById(updateModel.id());
-
-		if (optionalUser.isEmpty()) {
-			return Optional.empty();
-		}
-
-		UserEntity existingUser = optionalUser.get();
+	public UserEntity updateUser(UserUpdateModel updateModel) {
+		UserEntity existingUser = userRepository.findById(updateModel.id())
+			.orElseThrow();
 
 		// Update the user entity using the mapper
 		userModelMapper.updateEntityFromModel(updateModel, existingUser);
@@ -92,8 +87,7 @@ public class UserService {
 		}
 
 		// Save and return updated user
-		UserEntity savedUser = userRepository.save(existingUser);
-		return Optional.of(savedUser);
+		return userRepository.save(existingUser);
 	}
 
 }
