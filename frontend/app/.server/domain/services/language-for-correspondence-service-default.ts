@@ -2,8 +2,8 @@ import type { Result, Option } from 'oxide.ts';
 import { Ok, Err } from 'oxide.ts';
 
 import type { LanguageOfCorrespondence, LocalizedLanguageOfCorrespondence } from '~/.server/domain/models';
+import { apiFetch } from '~/.server/domain/services/api-client';
 import type { LanguageForCorrespondenceService } from '~/.server/domain/services/language-for-correspondence-service';
-import { apiFetch } from '~/.server/domain/services/make-api-request';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
 import { HttpStatusCodes } from '~/errors/http-status-codes';

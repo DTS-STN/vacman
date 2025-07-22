@@ -2,8 +2,8 @@ import { Ok, Err } from 'oxide.ts';
 import type { Result, Option } from 'oxide.ts';
 
 import type { LocalizedBranch, Branch } from '~/.server/domain/models';
+import { apiFetch } from '~/.server/domain/services/api-client';
 import type { BranchService } from '~/.server/domain/services/branch-service';
-import { apiFetch } from '~/.server/domain/services/make-api-request';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
