@@ -10,16 +10,10 @@ interface AlertMessageProps {
   ref?: Ref<HTMLDivElement>;
 }
 
-const CUSTOM_COLORS = {
-  red: '#a62a1e',
-  green: '#289f58',
-  blue: '#2572b4',
-};
-
 const styles: Record<NonNullable<AlertMessageProps['type']>, string> = {
-  success: `border-[${CUSTOM_COLORS.green}] bg-[#e7fff1]`,
-  error: `border-[${CUSTOM_COLORS.red}] bg-[#ffd9d9]`,
-  info: `bg-opacity-80 border-[${CUSTOM_COLORS.blue}] bg-[${CUSTOM_COLORS.blue}]`,
+  success: `border-custom-green bg-light-green`,
+  error: `border-custom-red bg-light-red`,
+  info: `bg-opacity-80 border-custom-blue bg-custom-blue`,
 };
 
 const icons: Record<NonNullable<AlertMessageProps['type']>, IconDefinition> = {
@@ -28,16 +22,13 @@ const icons: Record<NonNullable<AlertMessageProps['type']>, IconDefinition> = {
   info: faCircleExclamation,
 };
 
-const iconColors: Record<NonNullable<AlertMessageProps['type']>, string> = {
-  success: CUSTOM_COLORS.green,
-  error: CUSTOM_COLORS.red,
-  info: CUSTOM_COLORS.blue,
-};
-
 export function AlertMessage({ ref, message, type = 'info' }: AlertMessageProps) {
   return (
     <div ref={ref} className={`${styles[type]} flex w-full items-center border-l-4 p-2`}>
-      <FontAwesomeIcon style={{ color: iconColors[type] }} icon={icons[type]} className="mr-2" />
+      <FontAwesomeIcon
+        icon={icons[type]}
+        className={`${type === 'success' ? 'text-custom-green' : type === 'error' ? 'text-custom-red' : 'text-custom-blue'} mr-2`}
+      />
       {message}
     </div>
   );

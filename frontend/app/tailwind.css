@@ -28,6 +28,12 @@
   */
   --font-lato: Lato, sans-serif;
   --font-sans: 'Noto Sans', sans-serif;
+
+  --color-custom-red: #a62a1e;
+  --color-custom-green: #289f58;
+  --color-custom-blue: #78dcca;
+  --color-light-red: #ffd9d9;
+  --color-light-green: #e7fff1;
 }
 
 /*
