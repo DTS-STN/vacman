@@ -5,9 +5,7 @@ import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 import ca.gov.dtsstn.vacman.api.data.repository.LanguageRepository;
@@ -40,14 +38,13 @@ public class UserService {
 		// Create user entity from model
 		UserEntity user = userModelMapper.toEntity(createModel);
 
-		// Set user type based on role
+		// Set user type based on role (validation ensures it exists)
 		user.setUserType(userTypeRepository.findByCode(createModel.role())
-			.orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "User type not found for role: " + createModel.role())));
+			.orElseThrow());
 
-		// Set language based on languageCode
+		// Set language based on languageCode (validation ensures it exists)
 		user.setLanguage(languageRepository.findByCode(createModel.languageCode())
-				.orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
-						"Language not found with code: " + createModel.languageCode())));
+				.orElseThrow());
 
 		// Save and return the user (profiles are created separately as needed)
 		return userRepository.save(user);
@@ -82,18 +79,16 @@ public class UserService {
 		// Update the user entity using the mapper
 		userModelMapper.updateEntityFromModel(updateModel, existingUser);
 
-		// Handle role update if provided
+		// Handle role update if provided (validation ensures it exists)
 		if (updateModel.role() != null) {
 			existingUser.setUserType(userTypeRepository.findByCode(updateModel.role())
-				.orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
-					"User type not found for role: " + updateModel.role())));
+				.orElseThrow());
 		}
 
-		// Handle language update if provided
+		// Handle language update if provided (validation ensures it exists)
 		if (updateModel.languageCode() != null) {
 			existingUser.setLanguage(languageRepository.findByCode(updateModel.languageCode())
-				.orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
-					"Language not found with code: " + updateModel.languageCode())));
+				.orElseThrow());
 		}
 
 		// Save and return updated user
