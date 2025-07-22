@@ -20,9 +20,6 @@ public record CityReadModel(
 	@Schema(description = "The province/territory this city belongs to.")
 	ProvinceReadModel provinceTerritory,
 
-	@Schema(description = "The code of the province this city belongs to.", example = "ON")
-	String provinceCode,
-
 	@Schema(accessMode = AccessMode.READ_ONLY, description = "The user or service that created this city.", example = "vacman-api")
 	String createdBy,
 
