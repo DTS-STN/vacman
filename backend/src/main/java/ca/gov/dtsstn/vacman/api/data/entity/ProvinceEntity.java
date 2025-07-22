@@ -1,6 +1,6 @@
 package ca.gov.dtsstn.vacman.api.data.entity;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 import org.immutables.builder.Builder;
 import org.springframework.core.style.ToStringCreator;
@@ -21,7 +21,7 @@ import jakarta.persistence.UniqueConstraint;
 @AttributeOverride(name = "code", column = @Column(name = "[PROVINCE_TERRITORY_CODE]"))
 @AttributeOverride(name = "nameEn", column = @Column(name = "[PROVINCE_TERRITORY_NAME_EN]"))
 @AttributeOverride(name = "nameFr", column = @Column(name = "[PROVINCE_TERRITORY_NAME_FR]"))
-public class ProvinceEntity extends AbstractLookupEntity {
+public class ProvinceEntity extends AbstractCodeEntity {
 
 	public ProvinceEntity() {
 		super();
@@ -33,9 +33,13 @@ public class ProvinceEntity extends AbstractLookupEntity {
 			@Nullable String code,
 			@Nullable String nameEn,
 			@Nullable String nameFr,
-			@Nonnull LocalDateTime effectiveDate,
-			@Nullable LocalDateTime expiryDate) {
-		super(id, code, nameEn, nameFr, effectiveDate, expiryDate);
+			@Nonnull Instant effectiveDate,
+			@Nullable Instant expiryDate,
+			@Nullable String createdBy,
+			@Nullable Instant createdDate,
+			@Nullable String lastModifiedBy,
+			@Nullable Instant lastModifiedDate) {
+		super(id, code, nameEn, nameFr, effectiveDate, expiryDate, createdBy, createdDate, lastModifiedBy, lastModifiedDate);
 	}
 
 	@Override

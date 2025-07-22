@@ -5,6 +5,7 @@ import java.time.Instant;
 import org.immutables.builder.Builder;
 import org.springframework.core.style.ToStringCreator;
 
+import jakarta.annotation.Nullable;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -19,7 +20,7 @@ import jakarta.persistence.UniqueConstraint;
 @AttributeOverride(name = "code", column = @Column(name = "[USER_TYPE_CODE]"))
 @AttributeOverride(name = "nameEn", column = @Column(name = "[USER_TYPE_NAME_EN]"))
 @AttributeOverride(name = "nameFr", column = @Column(name = "[USER_TYPE_NAME_FR]"))
-public class UserTypeEntity extends AbstractLookupEntity {
+public class UserTypeEntity extends AbstractCodeEntity {
 
 	public UserTypeEntity() {
 		super();
@@ -27,15 +28,17 @@ public class UserTypeEntity extends AbstractLookupEntity {
 
 	@Builder.Constructor
 	public UserTypeEntity(
-			Long id,
-			String code,
-			String nameEn,
-			String nameFr,
-			String createdBy,
-			Instant createdDate,
-			String lastModifiedBy,
-			Instant lastModifiedDate) {
-		super(id, code, nameEn, nameFr, createdBy, createdDate, lastModifiedBy, lastModifiedDate);
+			@Nullable Long id,
+			@Nullable String code,
+			@Nullable String nameEn,
+			@Nullable String nameFr,
+			@Nullable Instant effectiveDate,
+			@Nullable Instant expiryDate,
+			@Nullable String createdBy,
+			@Nullable Instant createdDate,
+			@Nullable String lastModifiedBy,
+			@Nullable Instant lastModifiedDate) {
+		super(id, code, nameEn, nameFr, effectiveDate, expiryDate, createdBy, createdDate, lastModifiedBy, lastModifiedDate);
 	}
 
 	@Override

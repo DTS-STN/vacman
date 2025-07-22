@@ -20,7 +20,7 @@ import jakarta.persistence.UniqueConstraint;
 @AttributeOverride(name = "code", column = @Column(name = "[LANGUAGE_REFERRAL_TYPE_CODE]"))
 @AttributeOverride(name = "nameEn", column = @Column(name = "[LANGUAGE_REFERRAL_TYPE_NAME_EN]"))
 @AttributeOverride(name = "nameFr", column = @Column(name = "[LANGUAGE_REFERRAL_TYPE_NAME_FR]"))
-public class LanguageReferralTypeEntity extends AbstractLookupEntity {
+public class LanguageReferralTypeEntity extends AbstractCodeEntity {
 
 	public LanguageReferralTypeEntity() {
 		super();
@@ -32,11 +32,13 @@ public class LanguageReferralTypeEntity extends AbstractLookupEntity {
 			@Nullable String code,
 			@Nullable String nameEn,
 			@Nullable String nameFr,
+			@Nullable Instant effectiveDate,
+			@Nullable Instant expiryDate,
 			@Nullable String createdBy,
 			@Nullable Instant createdDate,
 			@Nullable String lastModifiedBy,
 			@Nullable Instant lastModifiedDate) {
-		super(id, code, nameEn, nameFr, createdBy, createdDate, lastModifiedBy, lastModifiedDate);
+		super(id, code, nameEn, nameFr, effectiveDate, expiryDate, createdBy, createdDate, lastModifiedBy, lastModifiedDate);
 	}
 
 	@Override

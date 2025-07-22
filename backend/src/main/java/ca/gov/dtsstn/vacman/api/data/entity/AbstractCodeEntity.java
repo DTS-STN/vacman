@@ -1,6 +1,6 @@
 package ca.gov.dtsstn.vacman.api.data.entity;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.Objects;
 
 import org.springframework.core.style.ToStringCreator;
@@ -27,10 +27,19 @@ public abstract class AbstractCodeEntity extends AbstractAuditableEntity {
 
 	@Column(name = "[EFFECTIVE_DATE]", nullable = false)
 	@NotNull(message = "Effective date is required")
-	protected LocalDateTime effectiveDate;
+	protected Instant effectiveDate;
 
 	@Column(name = "[EXPIRY_DATE]")
-	protected LocalDateTime expiryDate;
+	protected Instant expiryDate;
+
+	@Column(length = 20, nullable = false)
+	protected String code;
+
+	@Column(length = 100, nullable = false)
+	protected String nameEn;
+
+	@Column(length = 100, nullable = false)
+	protected String nameFr;
 
 	public AbstractCodeEntity() {
 		super();
@@ -38,10 +47,36 @@ public abstract class AbstractCodeEntity extends AbstractAuditableEntity {
 
 	public AbstractCodeEntity(
 			@Nullable Long id,
-			@Nullable LocalDateTime effectiveDate,
-			@Nullable LocalDateTime expiryDate) {
+			@Nullable String code,
+			@Nullable String nameEn,
+			@Nullable String nameFr,
+			@Nullable Instant effectiveDate,
+			@Nullable Instant expiryDate) {
 		super();
 		this.id = id;
+		this.code = code;
+		this.nameEn = nameEn;
+		this.nameFr = nameFr;
+		this.effectiveDate = effectiveDate;
+		this.expiryDate = expiryDate;
+	}
+
+	public AbstractCodeEntity(
+			@Nullable Long id,
+			@Nullable String code,
+			@Nullable String nameEn,
+			@Nullable String nameFr,
+			@Nullable Instant effectiveDate,
+			@Nullable Instant expiryDate,
+			@Nullable String createdBy,
+			@Nullable Instant createdDate,
+			@Nullable String lastModifiedBy,
+			@Nullable Instant lastModifiedDate) {
+		super(createdBy, createdDate, lastModifiedBy, lastModifiedDate);
+		this.id = id;
+		this.code = code;
+		this.nameEn = nameEn;
+		this.nameFr = nameFr;
 		this.effectiveDate = effectiveDate;
 		this.expiryDate = expiryDate;
 	}
@@ -54,20 +89,44 @@ public abstract class AbstractCodeEntity extends AbstractAuditableEntity {
 		this.id = id;
 	}
 
-	public LocalDateTime getEffectiveDate() {
+	public Instant getEffectiveDate() {
 		return effectiveDate;
 	}
 
-	public void setEffectiveDate(LocalDateTime effectiveDate) {
+	public void setEffectiveDate(Instant effectiveDate) {
 		this.effectiveDate = effectiveDate;
 	}
 
-	public LocalDateTime getExpiryDate() {
+	public Instant getExpiryDate() {
 		return expiryDate;
 	}
 
-	public void setExpiryDate(LocalDateTime expiryDate) {
+	public void setExpiryDate(Instant expiryDate) {
 		this.expiryDate = expiryDate;
+	}
+
+	public String getCode() {
+		return code;
+	}
+
+	public void setCode(String code) {
+		this.code = code;
+	}
+
+	public String getNameEn() {
+		return nameEn;
+	}
+
+	public void setNameEn(String nameEn) {
+		this.nameEn = nameEn;
+	}
+
+	public String getNameFr() {
+		return nameFr;
+	}
+
+	public void setNameFr(String nameFr) {
+		this.nameFr = nameFr;
 	}
 
 	@Override
@@ -89,6 +148,9 @@ public abstract class AbstractCodeEntity extends AbstractAuditableEntity {
 	public String toString() {
 		return new ToStringCreator(this)
 			.append("id", id)
+			.append("code", code)
+			.append("nameEn", nameEn)
+			.append("nameFr", nameFr)
 			.append("effectiveDate", effectiveDate)
 			.append("expiryDate", expiryDate)
 			.append("super", super.toString())

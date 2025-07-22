@@ -1,6 +1,6 @@
 package ca.gov.dtsstn.vacman.api.data.entity;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 import org.immutables.builder.Builder;
 import org.springframework.core.style.ToStringCreator;
@@ -23,7 +23,7 @@ import jakarta.persistence.UniqueConstraint;
 @AttributeOverride(name = "code", column = @Column(name = "[WORK_UNIT_CODE]"))
 @AttributeOverride(name = "nameEn", column = @Column(name = "[WORK_UNIT_NAME_EN]"))
 @AttributeOverride(name = "nameFr", column = @Column(name = "[WORK_UNIT_NAME_FR]"))
-public class WorkUnitEntity extends AbstractLookupEntity {
+public class WorkUnitEntity extends AbstractCodeEntity {
 
 	@ManyToOne
 	@JoinColumn(name = "[PARENT_WORK_UNIT_ID]", nullable = true)
@@ -39,10 +39,14 @@ public class WorkUnitEntity extends AbstractLookupEntity {
 			@Nullable String code,
 			@Nullable String nameEn,
 			@Nullable String nameFr,
-			@Nonnull LocalDateTime effectiveDate,
-			@Nullable LocalDateTime expiryDate,
-			@Nullable WorkUnitEntity parent) {
-		super(id, code, nameEn, nameFr, effectiveDate, expiryDate);
+			@Nonnull Instant effectiveDate,
+			@Nullable Instant expiryDate,
+			@Nullable WorkUnitEntity parent,
+			@Nullable String createdBy,
+			@Nullable Instant createdDate,
+			@Nullable String lastModifiedBy,
+			@Nullable Instant lastModifiedDate) {
+		super(id, code, nameEn, nameFr, effectiveDate, expiryDate, createdBy, createdDate, lastModifiedBy, lastModifiedDate);
 		this.parent = parent;
 	}
 
