@@ -1,7 +1,6 @@
 package ca.gov.dtsstn.vacman.api.web;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.validator.constraints.Range;
@@ -97,13 +96,14 @@ public class UsersController {
 	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
 	public ResponseEntity<UserReadModel> updateUser(@PathVariable Long id, @RequestBody @Valid UserUpdateModel userUpdate) {
 
-		Optional<UserEntity> updatedUser = userService.updateUser(userUpdate);
+		// First verify the user exists
+		userService.getUserById(id)
+			.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+				"User with ID '" + id + "' not found"));
 
-		if (updatedUser.isEmpty()) {
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND,
-				"User with ID '" + id + "' not found");
-		}
+		// Now perform the update (UserService.updateUser assumes the user exists)
+		UserEntity updatedUser = userService.updateUser(userUpdate);
 
-		return ResponseEntity.ok(userModelMapper.toModel(updatedUser.get()));
+		return ResponseEntity.ok(userModelMapper.toModel(updatedUser));
 	}
 }

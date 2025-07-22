@@ -1,6 +1,7 @@
 package ca.gov.dtsstn.vacman.api.web;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -32,7 +33,11 @@ import org.springframework.test.web.servlet.MockMvc;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import ca.gov.dtsstn.vacman.api.config.WebSecurityConfig;
+import ca.gov.dtsstn.vacman.api.data.entity.LanguageEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntityBuilder;
+import ca.gov.dtsstn.vacman.api.data.entity.UserTypeEntity;
+import ca.gov.dtsstn.vacman.api.data.repository.LanguageRepository;
+import ca.gov.dtsstn.vacman.api.data.repository.UserTypeRepository;
 import ca.gov.dtsstn.vacman.api.service.UserService;
 import ca.gov.dtsstn.vacman.api.web.model.LanguageReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.UserCreateModel;
@@ -61,9 +66,32 @@ class UsersControllerTest {
 
 	@MockitoBean LanguageModelMapper languageModelMapper;
 
+	@MockitoBean LanguageRepository languageRepository;
+
+	@MockitoBean UserTypeRepository userTypeRepository;
+
 	@BeforeEach
 	void beforeEach() {
 		MockitoAnnotations.openMocks(this);
+		
+		// Setup mock repositories for validation
+		// Mock language repository for language code validation
+		LanguageEntity englishLang = new LanguageEntity(1L, "EN", "English", "Anglais", 
+			Instant.parse("2000-01-01T00:00:00Z"), null, "test", Instant.now(), "test", Instant.now());
+		LanguageEntity frenchLang = new LanguageEntity(2L, "FR", "French", "Français", 
+			Instant.parse("2000-01-01T00:00:00Z"), null, "test", Instant.now(), "test", Instant.now());
+		
+		when(languageRepository.findByCode("EN")).thenReturn(Optional.of(englishLang));
+		when(languageRepository.findByCode("FR")).thenReturn(Optional.of(frenchLang));
+		
+		// Mock user type repository for user type code validation
+		UserTypeEntity employeeType = new UserTypeEntity(1L, "employee", "Employee", "Employé", 
+			Instant.parse("2000-01-01T00:00:00Z"), null, "test", Instant.now(), "test", Instant.now());
+		UserTypeEntity adminType = new UserTypeEntity(2L, "admin", "Administrator", "Administrateur", 
+			Instant.parse("2000-01-01T00:00:00Z"), null, "test", Instant.now(), "test", Instant.now());
+		
+		when(userTypeRepository.findByCode("employee")).thenReturn(Optional.of(employeeType));
+		when(userTypeRepository.findByCode("admin")).thenReturn(Optional.of(adminType));
 	}
 
 	private UserReadModel createMockUserReadModel(String firstName, String lastName, String activeDirectoryId) {
@@ -244,7 +272,8 @@ class UsersControllerTest {
 			.activeDirectoryId("2ca209f5-7913-491e-af5a-1f488ce0613b")
 			.build();
 
-		when(userService.updateUser(any(UserUpdateModel.class))).thenReturn(Optional.of(updatedUser));
+		when(userService.getUserById(userId)).thenReturn(Optional.of(updatedUser));
+		when(userService.updateUser(any(UserUpdateModel.class))).thenReturn(updatedUser);
 		when(userModelMapper.toModel(updatedUser)).thenReturn(createMockUserReadModel("Jane", "Smith", "2ca209f5-7913-491e-af5a-1f488ce0613b"));
 
 		mockMvc.perform(patch("/api/v1/users/" + userId)
@@ -253,6 +282,7 @@ class UsersControllerTest {
 			.andExpect(status().isOk())
 			.andExpect(content().contentType(MediaType.APPLICATION_JSON));
 
+		verify(userService).getUserById(userId);
 		verify(userService).updateUser(userUpdate);
 	}
 
@@ -267,14 +297,15 @@ class UsersControllerTest {
 			"555-987-6543", "jane.smith@example.com", "EN"
 		);
 
-		when(userService.updateUser(any(UserUpdateModel.class))).thenReturn(Optional.empty());
+		when(userService.getUserById(userId)).thenReturn(Optional.empty());
 
 		mockMvc.perform(patch("/api/v1/users/" + userId)
 			.contentType(MediaType.APPLICATION_JSON)
 			.content(objectMapper.writeValueAsString(userUpdate)))
 			.andExpect(status().isNotFound());
 
-		verify(userService).updateUser(userUpdate);
+		verify(userService).getUserById(userId);
+		verify(userService, never()).updateUser(any(UserUpdateModel.class));
 	}
 
 }

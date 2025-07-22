@@ -1,6 +1,7 @@
 package ca.gov.dtsstn.vacman.api.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.never;
@@ -8,6 +9,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -136,8 +138,8 @@ class UserServiceTest {
 	}
 
 	@Test
-	@DisplayName("updateUser should return empty Optional when user does not exist")
-	void updateUser_givenUserDoesNotExist_shouldReturnEmptyOptional() {
+	@DisplayName("updateUser should throw exception when user does not exist")
+	void updateUser_givenUserDoesNotExist_shouldThrowException() {
 		final var updateModel = new UserUpdateModel(
 			999L, "admin", "2ca209f5-7913-491e-af5a-1f488ce0613b",
 			"Jane", "M", "Smith", "JMS", "67890",
@@ -146,9 +148,8 @@ class UserServiceTest {
 
 		when(userRepository.findById(999L)).thenReturn(Optional.empty());
 
-		final var result = userService.updateUser(updateModel);
+		assertThrows(NoSuchElementException.class, () -> userService.updateUser(updateModel));
 
-		assertThat(result).isNotPresent();
 		verify(userRepository).findById(999L);
 	}
 
@@ -196,13 +197,13 @@ class UserServiceTest {
 
 		final var result = userService.updateUser(updateModel);
 
-		assertThat(result).isPresent();
+		assertThat(result).isNotNull();
 		// Check that the existing user object was modified
 		assertThat(existingUser.getFirstName()).isEqualTo("Jane");
 		assertThat(existingUser.getLastName()).isEqualTo("Smith");
-		assertThat(result.get().getFirstName()).isEqualTo("Jane");
-		assertThat(result.get().getLastName()).isEqualTo("Smith");
-		assertThat(result.get().getUserType().getCode()).isEqualTo("admin");
+		assertThat(result.getFirstName()).isEqualTo("Jane");
+		assertThat(result.getLastName()).isEqualTo("Smith");
+		assertThat(result.getUserType().getCode()).isEqualTo("admin");
 		verify(userRepository).findById(userId);
 		verify(userRepository).save(any(UserEntity.class));
 		verify(userTypeRepository).findByCode("admin");
@@ -250,13 +251,13 @@ class UserServiceTest {
 
 		final var result = userService.updateUser(updateModel);
 
-		assertThat(result).isPresent();
+		assertThat(result).isNotNull();
 		// Check that the existing user object was modified
 		assertThat(existingUser.getFirstName()).isEqualTo("Jane");
 		assertThat(existingUser.getLastName()).isEqualTo("Smith");
-		assertThat(result.get().getFirstName()).isEqualTo("Jane");
-		assertThat(result.get().getLastName()).isEqualTo("Smith");
-		assertThat(result.get().getUserType().getCode()).isEqualTo("employee"); // Should remain unchanged
+		assertThat(result.getFirstName()).isEqualTo("Jane");
+		assertThat(result.getLastName()).isEqualTo("Smith");
+		assertThat(result.getUserType().getCode()).isEqualTo("employee"); // Should remain unchanged
 		verify(userRepository).findById(userId);
 		verify(userRepository).save(any(UserEntity.class));
 		verify(userTypeRepository, never()).findByCode(any());
