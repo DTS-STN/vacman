@@ -1,5 +1,5 @@
 import type { Result, Option } from 'oxide.ts';
-import { Err, None, Ok, Some } from 'oxide.ts';
+import { Err, Ok } from 'oxide.ts';
 
 import type { LocalizedWFAStatus, WFAStatus } from '~/.server/domain/models';
 import type { WFAStatusService } from '~/.server/domain/services/wfa-status-service';
@@ -9,65 +9,56 @@ import { ErrorCodes } from '~/errors/error-codes';
 
 export function getMockWFAStatusService(): WFAStatusService {
   return {
-    getAll: () => Promise.resolve(getAll()),
+    listAll: () => Promise.resolve(listAll()),
     getById: (id: string) => Promise.resolve(getById(id)),
-    findById: (id: string) => Promise.resolve(findById(id)),
-    getAllLocalized: (language: Language) => Promise.resolve(getAllLocalized(language)),
+    getByCode: (code: string) => Promise.resolve(getByCode(code)),
+    listAllLocalized: (language: Language) => Promise.resolve(listAllLocalized(language)),
     getLocalizedById: (id: string, language: Language) => Promise.resolve(getLocalizedById(id, language)),
+    findLocalizedById: (id: string, language: Language) => Promise.resolve(findLocalizedById(id, language)),
+    getLocalizedByCode: (code: string, language: Language) => Promise.resolve(getLocalizedByCode(code, language)),
+    findLocalizedByCode: (code: string, language: Language) => Promise.resolve(findLocalizedByCode(code, language)),
   };
 }
 
 /**
  *  Retrieves a list of all WFA statuses.
  *
- * @returns An array of WFA status objects.
+ * @returns An array of WFA status objects. The array will be empty if none are found.
  */
-function getAll(): Result<readonly WFAStatus[], AppError> {
+function listAll(): WFAStatus[] {
   const statuses: WFAStatus[] = wfaStatusData.content.map((status) => ({
     id: status.id.toString(),
+    code: status.code,
     nameEn: status.nameEn,
     nameFr: status.nameFr,
   }));
-
-  return Ok(statuses);
-}
-
-/**
- * Retrieves a single  WFA status by its ID.
- *
- * @param id The ID of the WFA status to retrieve.
- * @returns The WFA status object if found or {AppError} If the WFA status is not found.
- */
-function getById(id: string): Result<WFAStatus, AppError> {
-  const result = getAll();
-
-  if (result.isErr()) {
-    return result;
-  }
-
-  const statuses = result.unwrap();
-  const status = statuses.find((p) => p.id === id);
-
-  return status ? Ok(status) : Err(new AppError(`WFA status with ID '${id}' not found.`, ErrorCodes.NO_WFA_STATUS_FOUND));
+  return statuses;
 }
 
 /**
  * Retrieves a single WFA status by its ID.
  *
  * @param id The ID of the WFA status to retrieve.
- * @returns The WFA status object if found or undefined if not found.
+ * @returns The WFA status object if found or {AppError} If the WFA status is not found.
  */
-function findById(id: string): Option<WFAStatus> {
-  const result = getAll();
+function getById(id: string): Result<WFAStatus, AppError> {
+  const result = listAll();
+  const status = result.find((p) => p.id === id);
 
-  if (result.isErr()) {
-    return None;
-  }
+  return status ? Ok(status) : Err(new AppError(`WFA status with ID '${id}' not found.`, ErrorCodes.NO_WFA_STATUS_FOUND));
+}
 
-  const statuses = result.unwrap();
-  const status = statuses.find((p) => p.id === id);
+/**
+ * Retrieves a single WFA status by its CODE.
+ *
+ * @param code The CODE of the WFA status to retrieve.
+ * @returns The WFA status object if found or {AppError} If the WFA status is not found.
+ */
+function getByCode(code: string): Result<WFAStatus, AppError> {
+  const result = listAll();
+  const status = result.find((p) => p.code === code);
 
-  return status ? Some(status) : None;
+  return status ? Ok(status) : Err(new AppError(`WFA status with CODE '${code}' not found.`, ErrorCodes.NO_WFA_STATUS_FOUND));
 }
 
 /**
@@ -75,14 +66,14 @@ function findById(id: string): Option<WFAStatus> {
  *
  * @param language The language to localize the WFA status.
  * @returns An array of localized  WFA status objects.
+ * @throws {AppError} if the API call fails for any reason.
  */
-function getAllLocalized(language: Language): Result<readonly LocalizedWFAStatus[], AppError> {
-  return getAll().map((statuses) =>
-    statuses.map((status) => ({
-      id: status.id,
-      name: language === 'fr' ? status.nameFr : status.nameEn,
-    })),
-  );
+function listAllLocalized(language: Language): LocalizedWFAStatus[] {
+  return listAll().map((status) => ({
+    id: status.id,
+    code: status.code,
+    name: language === 'fr' ? status.nameFr : status.nameEn,
+  }));
 }
 
 /**
@@ -90,14 +81,53 @@ function getAllLocalized(language: Language): Result<readonly LocalizedWFAStatus
  *
  * @param id The ID of the  WFA status to retrieve.
  * @param language The language to localize the  WFA status.
- * @returns The localized WFA status object if found or {Error} If the  WFA status is not found.
+ * @returns The localized WFA status object if found or {AppError} If the  WFA status is not found.
  */
 function getLocalizedById(id: string, language: Language): Result<LocalizedWFAStatus, AppError> {
-  return getAllLocalized(language).andThen((statuses) => {
-    const status = statuses.find((b) => b.id === id);
+  const result = getById(id);
+  return result.map((status) => ({
+    id: status.id,
+    code: status.code,
+    name: language === 'fr' ? status.nameFr : status.nameEn,
+  }));
+}
 
-    return status
-      ? Ok(status)
-      : Err(new AppError(`Localized WFA Status with ID '${id}' not found.`, ErrorCodes.NO_WFA_STATUS_FOUND));
-  });
+/**
+ * Retrieves a single WFA status by its ID in the specified language.
+ *
+ * @param id The ID of the  WFA status to retrieve.
+ * @param language The language to localize the  WFA status.
+ * @returns The localized WFA status object if found or undefined If the  WFA status is not found.
+ */
+function findLocalizedById(id: string, language: Language): Option<LocalizedWFAStatus> {
+  const result = getLocalizedById(id, language);
+  return result.ok();
+}
+
+/**
+ * Retrieves a single localized WFA status by its CODE.
+ *
+ * @param code The CODE of the WFA status to retrieve.
+ * @param language The language to localize the language name to.
+ * @returns The localized WFA status object if found or {AppError} If the WFA status is not found.
+ */
+function getLocalizedByCode(code: string, language: Language): Result<LocalizedWFAStatus, AppError> {
+  const result = getByCode(code);
+  return result.map((status) => ({
+    id: status.id,
+    code: status.code,
+    name: language === 'fr' ? status.nameFr : status.nameEn,
+  }));
+}
+
+/**
+ * Retrieves a single localized WFA status by its CODE.
+ *
+ * @param code The CODE of the WFA status to retrieve.
+ * @param language The language to localize the directorate name to.
+ * @returns The localized WFA status object if found or undefined if not found.
+ */
+function findLocalizedByCode(code: string, language: Language): Option<LocalizedWFAStatus> {
+  const result = getLocalizedByCode(code, language);
+  return result.ok();
 }

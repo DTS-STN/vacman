@@ -1,22 +1,26 @@
 {
   "content": [
     {
-      "id": 329550000,
+      "id": 1,
+      "code": "AFFECTED",
       "nameEn": "Affected",
       "nameFr": "Touché"
     },
     {
-      "id": 329550001,
+      "id": 2,
+      "code": "OPTING",
       "nameEn": "Opting",
       "nameFr": "Optant"
     },
     {
-      "id": 329550002,
+      "id": 3,
+      "code": "SURPLUS_GRJO",
       "nameEn": "Surplus (GRJO)",
       "nameFr": "Excédentaire (GOER)"
     },
     {
-      "id": 329550003,
+      "id": 4,
+      "code": "SURPLUS_OPTION_A",
       "nameEn": "Surplus (Opting Option A)",
       "nameFr": "Excédentaire (Optant Option A)"
     }

@@ -33,7 +33,7 @@ export const provinceService: ProvinceService = {
     const response = await apiFetch('/provinces', context);
 
     const data: ApiResponse = await response.json();
-    return data.content; //TODO: The API is returning "data" instead of "content". Need to fix API to return "content" and then update it to return data.content
+    return data.content;
   },
 
   /**
