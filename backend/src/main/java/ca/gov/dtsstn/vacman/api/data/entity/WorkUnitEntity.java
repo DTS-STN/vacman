@@ -23,10 +23,10 @@ public class WorkUnitEntity extends AbstractLookupEntity {
 
 	@ManyToOne
 	@JoinColumn(name = "[WORK_UNIT_ID_PARENT]", nullable = true)
-	protected WorkUnitEntity parent;
+	private WorkUnitEntity parent;
 
-	public WorkUnitEntity getParent() {
-		return parent;
+	public WorkUnitEntity() {
+		super();
 	}
 
 	@Builder.Constructor
@@ -35,22 +35,21 @@ public class WorkUnitEntity extends AbstractLookupEntity {
 			@Nullable String code,
 			@Nullable String nameEn,
 			@Nullable String nameFr,
-			@Nullable WorkUnitEntity parent,
 			@Nullable String createdBy,
 			@Nullable Instant createdDate,
 			@Nullable String lastModifiedBy,
-			@Nullable Instant lastModifiedDate) {
+			@Nullable Instant lastModifiedDate,
+			@Nullable WorkUnitEntity parent) {
 		super(id, code, nameEn, nameFr, createdBy, createdDate, lastModifiedBy, lastModifiedDate);
 		this.parent = parent;
 	}
 
+	public WorkUnitEntity getParent() {
+		return parent;
+	}
 
 	public void setParent(WorkUnitEntity parent) {
 		this.parent = parent;
-	}
-
-	public WorkUnitEntity() {
-		super();
 	}
 
 	@Override

@@ -2,6 +2,7 @@ package ca.gov.dtsstn.vacman.api.data.entity;
 
 import java.time.Instant;
 
+import org.immutables.builder.Builder;
 import org.springframework.core.style.ToStringCreator;
 
 import jakarta.annotation.Nullable;
@@ -83,6 +84,7 @@ public class ProfileEntity extends AbstractEntity {
 		super();
 	}
 
+	@Builder.Constructor
 	public ProfileEntity(
 			@Nullable Long id,
 			@Nullable UserEntity approvedBy,

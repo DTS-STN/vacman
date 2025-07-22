@@ -23,7 +23,7 @@ public class CityEntity extends AbstractLookupEntity {
 
 	@ManyToOne
 	@JoinColumn(name = "[PROVINCE_TERRITORY_ID]", nullable = false)
-	protected ProvinceEntity province;
+	private ProvinceEntity province;
 
 	public CityEntity() {
 		super();
