@@ -73,23 +73,23 @@ class UsersControllerTest {
 	@BeforeEach
 	void beforeEach() {
 		MockitoAnnotations.openMocks(this);
-		
+
 		// Setup mock repositories for validation
 		// Mock language repository for language code validation
-		LanguageEntity englishLang = new LanguageEntity(1L, "EN", "English", "Anglais", 
+		LanguageEntity englishLang = new LanguageEntity(1L, "EN", "English", "Anglais",
 			Instant.parse("2000-01-01T00:00:00Z"), null, "test", Instant.now(), "test", Instant.now());
-		LanguageEntity frenchLang = new LanguageEntity(2L, "FR", "French", "Français", 
+		LanguageEntity frenchLang = new LanguageEntity(2L, "FR", "French", "Français",
 			Instant.parse("2000-01-01T00:00:00Z"), null, "test", Instant.now(), "test", Instant.now());
-		
+
 		when(languageRepository.findByCode("EN")).thenReturn(Optional.of(englishLang));
 		when(languageRepository.findByCode("FR")).thenReturn(Optional.of(frenchLang));
-		
+
 		// Mock user type repository for user type code validation
-		UserTypeEntity employeeType = new UserTypeEntity(1L, "employee", "Employee", "Employé", 
+		UserTypeEntity employeeType = new UserTypeEntity(1L, "employee", "Employee", "Employé",
 			Instant.parse("2000-01-01T00:00:00Z"), null, "test", Instant.now(), "test", Instant.now());
-		UserTypeEntity adminType = new UserTypeEntity(2L, "admin", "Administrator", "Administrateur", 
+		UserTypeEntity adminType = new UserTypeEntity(2L, "admin", "Administrator", "Administrateur",
 			Instant.parse("2000-01-01T00:00:00Z"), null, "test", Instant.now(), "test", Instant.now());
-		
+
 		when(userTypeRepository.findByCode("employee")).thenReturn(Optional.of(employeeType));
 		when(userTypeRepository.findByCode("admin")).thenReturn(Optional.of(adminType));
 	}
