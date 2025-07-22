@@ -40,9 +40,11 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   const parseResult = v.safeParse(personalInformationSchema, {
     personalRecordIdentifier: formString(formData.get('personalRecordIdentifier')),
     preferredLanguage: formString(formData.get('preferredLanguage')),
+    workEmail: authenticatedSession.authState.idTokenClaims.email,
     personalEmail: formString(formData.get('personalEmail')),
     workPhone: formString(formData.get('workPhone')),
     personalPhone: formString(formData.get('personalPhone')),
+    additionalInformation: formString(formData.get('additionalInformation')),
   });
 
   if (!parseResult.success) {
@@ -109,7 +111,6 @@ export default function PersonalInformation({ loaderData, actionData, params }: 
                 defaultValue={loaderData.defaultValues.personalRecordIdentifier}
                 errorMessage={t(extractValidationKey(errors?.personalRecordIdentifier))}
                 helpMessagePrimary={t('app:personal-information.personal-record-identifier-help-message-primary')}
-                type="number"
                 required
               />
               <InputRadios
