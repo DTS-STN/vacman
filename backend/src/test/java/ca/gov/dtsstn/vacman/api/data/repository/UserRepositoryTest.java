@@ -3,9 +3,9 @@ package ca.gov.dtsstn.vacman.api.data.repository;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
+import java.time.Instant;
 import java.util.Optional;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +18,11 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import ca.gov.dtsstn.vacman.api.SecurityAuditor;
 import ca.gov.dtsstn.vacman.api.config.DataSourceConfig;
+import ca.gov.dtsstn.vacman.api.data.entity.LanguageEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.LanguageEntityBuilder;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntityBuilder;
+import ca.gov.dtsstn.vacman.api.data.entity.UserTypeEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.UserTypeEntityBuilder;
 
 @DataJpaTest
 @ActiveProfiles("test")
@@ -28,31 +32,59 @@ import ca.gov.dtsstn.vacman.api.data.entity.UserEntityBuilder;
 class UserRepositoryTest {
 
 	@Autowired UserRepository userRepository;
+	@Autowired LanguageRepository languageRepository;
+	@Autowired UserTypeRepository userTypeRepository;
 
 	@MockitoBean SecurityAuditor securityAuditor;
 
+	private LanguageEntity createTestLanguage() {
+		return languageRepository.save(new LanguageEntityBuilder()
+			.code("EN")
+			.nameEn("English")
+			.nameFr("Anglais")
+			.effectiveDate(Instant.now())
+			.build());
+	}
+
+	private UserTypeEntity createTestUserType() {
+		return userTypeRepository.save(new UserTypeEntityBuilder()
+			.code("ADMIN")
+			.nameEn("Administrator")
+			.nameFr("Administrateur")
+			.effectiveDate(Instant.now())
+			.build());
+	}
+
 	@Test
-	@Disabled("Problematic test needs to be updated")
 	@DisplayName("findById should return empty Optional when user does not exist")
 	void whenFindById_givenUserDoesNotExist_thenReturnEmptyOptional() {
 		assertThat(userRepository.findById(0L)).isNotPresent();
 	}
 
 	@Test
-	@Disabled("Needs to be updated to latest entity models")
 	@DisplayName("save and findById should retrieve the saved user")
 	void whenUserIsSaved_thenFindByIdShouldReturnUser() {
 		when(securityAuditor.getCurrentAuditor()).thenReturn(Optional.of("test-auditor"));
+
+		// Create required entities
+		final var language = createTestLanguage();
+		final var userType = createTestUserType();
 
 		final var savedUser = userRepository.save(
 			new UserEntityBuilder()
 				.firstName("Jane")
 				.lastName("Doe")
+				.businessEmailAddress("jane.doe@test.com")
+				.activeDirectoryId("jane-doe-ad-id")
+				.uuid("jane-doe-uuid")
+				.language(language)
+				.userType(userType)
 				.build());
 
 		assertThat(savedUser).isNotNull();
 		assertThat(savedUser.getId()).isNotNull();
-		assertThat(savedUser.getFirstName()).isEqualTo("Jane Doe");
+		assertThat(savedUser.getFirstName()).isEqualTo("Jane");
+		assertThat(savedUser.getLastName()).isEqualTo("Doe");
 
 		final var foundUserOptional = userRepository.findById(savedUser.getId());
 
@@ -60,7 +92,8 @@ class UserRepositoryTest {
 
 		final var foundUser = foundUserOptional.get();
 		assertThat(foundUser.getId()).isEqualTo(savedUser.getId());
-		assertThat(foundUser.getFirstName()).isEqualTo("Jane Doe");
+		assertThat(foundUser.getFirstName()).isEqualTo("Jane");
+		assertThat(foundUser.getLastName()).isEqualTo("Doe");
 
 		assertThat(foundUser.getCreatedBy()).isEqualTo("test-auditor"); // Example assertion
 		assertThat(foundUser.getCreatedDate()).isNotNull();
@@ -69,24 +102,30 @@ class UserRepositoryTest {
 	}
 
 	@Test
-	@Disabled("Problematic test that needs to be updated")
 	@DisplayName("findByNetworkName should return empty Optional when user does not exist")
 	void whenFindByNetworkName_givenUserDoesNotExist_thenReturnEmptyOptional() {
 		assertThat(userRepository.findByActiveDirectoryId("12345678-1234-1234-1234-123456789abc")).isNotPresent();
 	}
 
 	@Test
-	@Disabled("Needs to be updated to latest entity models")
 	@DisplayName("findByNetworkName should return user when networkName exists")
 	void whenFindByNetworkName_givenUserExists_thenReturnUser() {
 		when(securityAuditor.getCurrentAuditor()).thenReturn(Optional.of("test-auditor"));
+
+		// Create required entities
+		final var language = createTestLanguage();
+		final var userType = createTestUserType();
 
 		final var testNetworkName = "2ca209f5-7913-491e-af5a-1f488ce0613b";
 		final var savedUser = userRepository.save(
 			new UserEntityBuilder()
 				.firstName("Test")
 				.lastName("User")
+				.businessEmailAddress("test.user@test.com")
 				.activeDirectoryId(testNetworkName)
+				.uuid("test-user-uuid")
+				.language(language)
+				.userType(userType)
 				.build());
 
 		assertThat(savedUser).isNotNull();
