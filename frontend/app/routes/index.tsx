@@ -97,12 +97,33 @@ export default function Index() {
   const { t } = useTranslation(handle.i18nNamespace);
 
   return (
-    <div className="mb-8">
-      <PageTitle className="after:w-14">{t('app:index.page-title')}</PageTitle>
-
-      <div className="grid gap-4 sm:grid-cols-2">
-        <DashboardCard dashboard="employee" icon={faUserPlus} title={t('app:register.employee')} />
-        <DashboardCard dashboard="hiring-manager" icon={faMagnifyingGlass} title={t('app:register.hiring-manager')} />
+    <div className="flex">
+      <aside className="absolute inset-y-0 right-0 z-0 hidden w-2/5 bg-[rgba(9,28,45,1)] sm:block">
+        <div
+          role="presentation"
+          className="absolute top-0 right-0 size-1/2 h-full bg-[url('/VacMan-design-element-07.svg')] bg-contain bg-top bg-no-repeat"
+        />
+        <div
+          role="presentation"
+          className="absolute inset-x-0 bottom-0 h-1/2 bg-[url('/VacMan-design-element-06.svg')] bg-contain bg-bottom bg-no-repeat"
+        />
+      </aside>
+      <div className="mb-8 w-full px-4 sm:w-3/5 sm:px-6">
+        <PageTitle className="after:w-14">{t('app:index.page-title')}</PageTitle>
+        <div className="grid gap-4">
+          <DashboardCard
+            dashboard="employee"
+            icon={faUserPlus}
+            title={t('app:register.employee')}
+            body={t('app:register.employee-manage')}
+          />
+          <DashboardCard
+            dashboard="hiring-manager"
+            icon={faMagnifyingGlass}
+            title={t('app:register.hiring-manager')}
+            body={t('app:register.hiring-manager-manage')}
+          />
+        </div>
       </div>
     </div>
   );
@@ -112,25 +133,29 @@ interface DashboardCardProps {
   dashboard: 'employee' | 'hiring-manager';
   icon: IconProp;
   title: string;
+  body: string;
 }
 
-function DashboardCard({ dashboard, icon, title }: DashboardCardProps): JSX.Element {
+function DashboardCard({ dashboard, icon, title, body }: DashboardCardProps): JSX.Element {
   return (
     <Form method="post">
       <input type="hidden" name="dashboard" value={dashboard} />
       <Card asChild className="flex cursor-pointer items-center gap-4 p-4 transition-colors hover:bg-gray-50 sm:p-6">
         <button type="submit" className="w-full text-left">
           <CardIcon icon={icon} />
-          <CardHeader asChild className="p-0">
-            <span>
-              <CardTitle asChild className="flex items-center gap-2">
-                <span role="heading" aria-level={2}>
-                  {title}
-                  <FontAwesomeIcon icon={faChevronRight} />
-                </span>
-              </CardTitle>
-            </span>
-          </CardHeader>
+          <div className="flex flex-col gap-2">
+            <CardHeader asChild className="p-0">
+              <span>
+                <CardTitle asChild className="flex items-center gap-2">
+                  <span role="heading" aria-level={2}>
+                    {title}
+                    <FontAwesomeIcon icon={faChevronRight} />
+                  </span>
+                </CardTitle>
+              </span>
+            </CardHeader>
+            <div>{body}</div>
+          </div>
         </button>
       </Card>
     </Form>

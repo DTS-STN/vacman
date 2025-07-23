@@ -9,7 +9,9 @@ export default {
   },
   'register': {
     'employee': 'Employee dashboard',
+    'employee-manage': 'Manage your profile',
     'hiring-manager': 'Hiring manager dashboard',
+    'hiring-manager-manage': 'Manage your requests',
     'page-title': 'Register as...',
   },
   'profile': {
