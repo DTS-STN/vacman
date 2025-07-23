@@ -2,7 +2,7 @@ import type { Result, Option } from 'oxide.ts';
 import { Ok, Err } from 'oxide.ts';
 
 import type { LocalizedProvince, Province } from '~/.server/domain/models';
-import { apiFetch } from '~/.server/domain/services/makeApiRequest';
+import { apiFetch } from '~/.server/domain/services/api-client';
 import type { ProvinceService } from '~/.server/domain/services/province-service';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
@@ -33,7 +33,7 @@ export const provinceService: ProvinceService = {
     const response = await apiFetch('/provinces', context);
 
     const data: ApiResponse = await response.json();
-    return data.content; //TODO: The API is returning "data" instead of "content". Need to fix API to return "content" and then update it to return data.content
+    return data.content;
   },
 
   /**

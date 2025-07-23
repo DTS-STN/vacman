@@ -67,7 +67,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
   const directorates = await getDirectorateService().listAllLocalized(lang);
   const provinces = await getProvinceService().listAllLocalized(lang);
   const cities = await getCityService().listAllLocalized(lang);
-  const wfaStatuses = await getWFAStatuses().getAllLocalized(lang);
+  const wfaStatuses = await getWFAStatuses().listAllLocalized(lang);
   const hrAdvisors = await getUserService().getUsersByRole('hr-advisor');
 
   return {
@@ -89,7 +89,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
     directorates: directorates,
     provinces: provinces,
     cities: cities,
-    wfaStatuses: wfaStatuses.unwrap(),
+    wfaStatuses: wfaStatuses,
     hrAdvisors: hrAdvisors,
   };
 }
@@ -99,7 +99,9 @@ export default function EmploymentInformation({ loaderData, actionData, params }
   const errors = actionData?.errors;
   const [branch, setBranch] = useState(loaderData.defaultValues.branchOrServiceCanadaRegion);
   const [province, setProvince] = useState(loaderData.defaultValues.province);
-  const [wfaStatus, setWfaStatus] = useState(loaderData.defaultValues.wfaStatus);
+  const [wfaStatusCode, setWfaStatusCode] = useState(
+    loaderData.wfaStatuses.find((c) => String(c.id) === loaderData.defaultValues.wfaStatus)?.code,
+  );
 
   const substantivePositionOptions = [{ id: 'select-option', name: '' }, ...loaderData.substantivePositions].map(
     ({ id, name }) => ({
@@ -146,6 +148,11 @@ export default function EmploymentInformation({ loaderData, actionData, params }
     value: id === 'select-option' ? '' : id,
     children: id === 'select-option' ? t('app:form.select-option') : uuName,
   }));
+
+  const handleWFAStatusChange = (optionValue: string) => {
+    const selectedStatus = loaderData.wfaStatuses.find((c) => String(c.id) === optionValue)?.code;
+    setWfaStatusCode(selectedStatus);
+  };
 
   return (
     <>
@@ -227,12 +234,12 @@ export default function EmploymentInformation({ loaderData, actionData, params }
                 options={wfaStatusOptions}
                 label={t('app:employment-information.wfa-status')}
                 defaultValue={loaderData.defaultValues.wfaStatus ?? ''}
-                onChange={({ target }) => setWfaStatus(target.value)}
+                onChange={({ target }) => handleWFAStatusChange(target.value)}
                 className="w-full sm:w-1/2"
               />
-              {(wfaStatus === EMPLOYEE_WFA_STATUS.opting ||
-                wfaStatus === EMPLOYEE_WFA_STATUS.surplusGRJO ||
-                wfaStatus === EMPLOYEE_WFA_STATUS.surplusOptingOptionA) && (
+              {(wfaStatusCode === EMPLOYEE_WFA_STATUS.opting ||
+                wfaStatusCode === EMPLOYEE_WFA_STATUS.surplusGRJO ||
+                wfaStatusCode === EMPLOYEE_WFA_STATUS.surplusOptingOptionA) && (
                 <>
                   <DatePickerField
                     defaultValue={loaderData.defaultValues.wfaEffectiveDate ?? ''}

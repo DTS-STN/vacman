@@ -54,12 +54,6 @@ spring:
     url: jdbc:sqlserver://localhost;databaseName=master;encrypt=false;
     username: sa
     password: p@ssword1
-  flyway:
-    clean-disabled: false
-
-application:
-  flyway:
-    clean-on-validation-error: true
 
 ---
 
