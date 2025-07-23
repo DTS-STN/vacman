@@ -159,6 +159,16 @@ spring:
 
 #
 # ------------------------------------------------------------------------------------
+# MSGraph configuration
+# ------------------------------------------------------------------------------------
+application:
+  microsoft-graph:
+    base-url: https://graph.microsoft.com/v1.0
+
+---
+
+#
+# ------------------------------------------------------------------------------------
 # Spring Boot Actuator configuration
 # ------------------------------------------------------------------------------------
 # See https://docs.spring.io/spring-boot/appendix/application-properties/index.html#appendix.application-properties.actuator
