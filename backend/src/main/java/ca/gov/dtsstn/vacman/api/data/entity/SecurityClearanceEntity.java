@@ -10,14 +10,17 @@ import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 
 @Entity(name = "SecurityClearance")
-@Table(name = "[CD_SECURITY_CLEARANCE]")
+@Table(name = "[CD_SECURITY_CLEARANCE]", uniqueConstraints = {
+    @UniqueConstraint(name = "SCRCLNC_UK", columnNames = "[SECURITY_CLEARANCE_NAME_EN]")
+})
 @AttributeOverride(name = "id", column = @Column(name = "[SECURITY_CLEARANCE_ID]"))
 @AttributeOverride(name = "code", column = @Column(name = "[SECURITY_CLEARANCE_CODE]"))
 @AttributeOverride(name = "nameEn", column = @Column(name = "[SECURITY_CLEARANCE_NAME_EN]"))
 @AttributeOverride(name = "nameFr", column = @Column(name = "[SECURITY_CLEARANCE_NAME_FR]"))
-public class SecurityClearanceEntity extends AbstractLookupEntity {
+public class SecurityClearanceEntity extends AbstractCodeEntity {
 
 	public SecurityClearanceEntity() {
 		super();
@@ -29,11 +32,13 @@ public class SecurityClearanceEntity extends AbstractLookupEntity {
 			@Nullable String code,
 			@Nullable String nameEn,
 			@Nullable String nameFr,
+			@Nullable Instant effectiveDate,
+			@Nullable Instant expiryDate,
 			@Nullable String createdBy,
 			@Nullable Instant createdDate,
 			@Nullable String lastModifiedBy,
 			@Nullable Instant lastModifiedDate) {
-		super(id, code, nameEn, nameFr, createdBy, createdDate, lastModifiedBy, lastModifiedDate);
+		super(id, code, nameEn, nameFr, effectiveDate, expiryDate, createdBy, createdDate, lastModifiedBy, lastModifiedDate);
 	}
 
 	@Override

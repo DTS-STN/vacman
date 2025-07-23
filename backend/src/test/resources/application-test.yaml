@@ -4,8 +4,6 @@
 #
 #######################################################################################################################
 
----
-
 #
 # ------------------------------------------------------------------------------------
 # DataSource configuration
@@ -32,3 +30,7 @@ spring:
     # Defer datasource initialization so that schema.sql and data.sql are loaded after the datasource is fully initialized.
     # This is necessary to ensure that data.sql runs correctly.
     defer-datasource-initialization: true
+  sql:
+    init:
+      # Disable SQL initialization for tests - let tests create their own test data
+      mode: never

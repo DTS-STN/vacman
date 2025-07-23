@@ -5,6 +5,7 @@ import java.time.Instant;
 import org.immutables.builder.Builder;
 import org.springframework.core.style.ToStringCreator;
 
+import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
@@ -12,18 +13,21 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 
 @Entity(name = "City")
-@Table(name = "[CD_CITY]")
+@Table(name = "[CD_CITY]", uniqueConstraints = {
+    @UniqueConstraint(name = "CITY_UK", columnNames = {"[CITY_NAME_EN]", "[PROVINCE_TERRITORY_ID]"})
+})
 @AttributeOverride(name = "id", column = @Column(name = "[CITY_ID]"))
 @AttributeOverride(name = "code", column = @Column(name = "[CITY_CODE]"))
 @AttributeOverride(name = "nameEn", column = @Column(name = "[CITY_NAME_EN]"))
 @AttributeOverride(name = "nameFr", column = @Column(name = "[CITY_NAME_FR]"))
-public class CityEntity extends AbstractLookupEntity {
+public class CityEntity extends AbstractCodeEntity {
 
 	@ManyToOne
 	@JoinColumn(name = "[PROVINCE_TERRITORY_ID]", nullable = false)
-	private ProvinceEntity province;
+	protected ProvinceEntity provinceTerritory;
 
 	public CityEntity() {
 		super();
@@ -35,28 +39,30 @@ public class CityEntity extends AbstractLookupEntity {
 			@Nullable String code,
 			@Nullable String nameEn,
 			@Nullable String nameFr,
-			@Nullable ProvinceEntity province,
+			@Nonnull Instant effectiveDate,
+			@Nullable Instant expiryDate,
+			@Nullable ProvinceEntity provinceTerritory,
 			@Nullable String createdBy,
 			@Nullable Instant createdDate,
 			@Nullable String lastModifiedBy,
 			@Nullable Instant lastModifiedDate) {
-		super(id, code, nameEn, nameFr, createdBy, createdDate, lastModifiedBy, lastModifiedDate);
-		this.province = province;
+		super(id, code, nameEn, nameFr, effectiveDate, expiryDate, createdBy, createdDate, lastModifiedBy, lastModifiedDate);
+		this.provinceTerritory = provinceTerritory;
 	}
 
-	public ProvinceEntity getProvince() {
-		return province;
+	public ProvinceEntity getProvinceTerritory() {
+		return provinceTerritory;
 	}
 
-	public void setProvince(ProvinceEntity province) {
-		this.province = province;
+	public void setProvinceTerritory(ProvinceEntity provinceTerritory) {
+		this.provinceTerritory = provinceTerritory;
 	}
 
 	@Override
 	public String toString() {
 		return new ToStringCreator(this)
 			.append("super", super.toString())
-			.append("province", province)
+			.append("provinceTerritory", provinceTerritory)
 			.toString();
 	}
 

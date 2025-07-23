@@ -10,14 +10,17 @@ import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 
 @Entity(name = "ProfileStatus")
-@Table(name = "[CD_PROFILE_STATUS]")
+@Table(name = "[CD_PROFILE_STATUS]", uniqueConstraints = {
+    @UniqueConstraint(name = "PRFLSTS_UK", columnNames = "[PROFILE_STATUS_NAME_EN]")
+})
 @AttributeOverride(name = "id", column = @Column(name = "[PROFILE_STATUS_ID]"))
 @AttributeOverride(name = "code", column = @Column(name = "[PROFILE_STATUS_CODE]"))
 @AttributeOverride(name = "nameEn", column = @Column(name = "[PROFILE_STATUS_NAME_EN]"))
 @AttributeOverride(name = "nameFr", column = @Column(name = "[PROFILE_STATUS_NAME_FR]"))
-public class ProfileStatusEntity extends AbstractLookupEntity {
+public class ProfileStatusEntity extends AbstractCodeEntity {
 
 	public ProfileStatusEntity() {
 		super();
@@ -29,11 +32,13 @@ public class ProfileStatusEntity extends AbstractLookupEntity {
 			@Nullable String code,
 			@Nullable String nameEn,
 			@Nullable String nameFr,
+			@Nullable Instant effectiveDate,
+			@Nullable Instant expiryDate,
 			@Nullable String createdBy,
 			@Nullable Instant createdDate,
 			@Nullable String lastModifiedBy,
 			@Nullable Instant lastModifiedDate) {
-		super(id, code, nameEn, nameFr, createdBy, createdDate, lastModifiedBy, lastModifiedDate);
+		super(id, code, nameEn, nameFr, effectiveDate, expiryDate, createdBy, createdDate, lastModifiedBy, lastModifiedDate);
 	}
 
 	@Override

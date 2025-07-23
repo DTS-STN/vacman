@@ -30,15 +30,14 @@ public class CityService {
 	}
 
 	public List<CityEntity> getCitiesByProvinceCode(String provinceCode) {
-		return List.copyOf(cityRepository.findByProvinceCode(provinceCode));
+			return List.copyOf(cityRepository.findByProvinceTerritoryCode(provinceCode));
 	}
 
 	public List<CityEntity> getCitiesByProvinceId(Long provinceId) {
-		return List.copyOf(cityRepository.findByProvince_Id(provinceId));
+			return List.copyOf(cityRepository.findByProvinceTerritory_Id(provinceId));
 	}
 
 	public List<CityEntity> getCityByCodeAndProvince(String code, String provinceCode) {
-		return List.copyOf(cityRepository.findByCodeAndProvinceCode(code, provinceCode));
+			return List.copyOf(cityRepository.findByCodeAndProvinceTerritoryCode(code, provinceCode));
 	}
-
 }

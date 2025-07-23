@@ -10,14 +10,17 @@ import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 
 @Entity(name = "WfaStatus")
-@Table(name = "[CD_WFA_STATUS]")
+@Table(name = "[CD_WFA_STATUS]", uniqueConstraints = {
+    @UniqueConstraint(name = "WFASTS_UK", columnNames = "[WFA_STATUS_NAME_EN]")
+})
 @AttributeOverride(name = "id", column = @Column(name = "[WFA_STATUS_ID]"))
 @AttributeOverride(name = "code", column = @Column(name = "[WFA_STATUS_CODE]"))
 @AttributeOverride(name = "nameEn", column = @Column(name = "[WFA_STATUS_NAME_EN]"))
 @AttributeOverride(name = "nameFr", column = @Column(name = "[WFA_STATUS_NAME_FR]"))
-public class WfaStatusEntity extends AbstractLookupEntity {
+public class WfaStatusEntity extends AbstractCodeEntity {
 
 	public WfaStatusEntity() {
 		super();
@@ -29,11 +32,13 @@ public class WfaStatusEntity extends AbstractLookupEntity {
 			@Nullable String code,
 			@Nullable String nameEn,
 			@Nullable String nameFr,
+			@Nullable Instant effectiveDate,
+			@Nullable Instant expiryDate,
 			@Nullable String createdBy,
 			@Nullable Instant createdDate,
 			@Nullable String lastModifiedBy,
 			@Nullable Instant lastModifiedDate) {
-		super(id, code, nameEn, nameFr, createdBy, createdDate, lastModifiedBy, lastModifiedDate);
+		super(id, code, nameEn, nameFr, effectiveDate, expiryDate, createdBy, createdDate, lastModifiedBy, lastModifiedDate);
 	}
 
 	@Override
