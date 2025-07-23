@@ -42,7 +42,7 @@ public class EmploymentOpportunityEntity extends AbstractCodeEntity {
             @Nullable Instant createdDate,
             @Nullable String lastModifiedBy,
             @Nullable Instant lastModifiedDate) {
-        super(id, code, nameEn, nameFr, effectiveDate, expiryDate, createdBy, createdDate, lastModifiedBy, lastModifiedDate);
+        super(id, createdBy, createdDate, lastModifiedBy, lastModifiedDate, code, nameEn, nameFr, effectiveDate, expiryDate);
     }
 
     @Override

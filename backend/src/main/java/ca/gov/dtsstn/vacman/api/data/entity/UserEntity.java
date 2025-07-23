@@ -1,5 +1,6 @@
 package ca.gov.dtsstn.vacman.api.data.entity;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,7 +22,7 @@ import jakarta.persistence.UniqueConstraint;
     @UniqueConstraint(name = "USER_NAME_UK", columnNames = {"[NETWORK_NAME]", "[UU_NAME]"})
 })
 @AttributeOverride(name = "id", column = @Column(name = "[USER_ID]"))
-public class UserEntity extends AbstractBusinessEntity {
+public class UserEntity extends AbstractBaseEntity {
 
 	@Column(name = "[BUSINESS_EMAIL_ADDRESS]", length = 320, nullable = false)
 	private String businessEmailAddress;
@@ -83,8 +84,12 @@ public class UserEntity extends AbstractBusinessEntity {
 			@Nullable String personalRecordIdentifier,
 			@Nullable List<ProfileEntity> profiles,
 			@Nullable UserTypeEntity userType,
-			@Nullable String uuid) {
-		super(id);
+			@Nullable String uuid,
+			@Nullable String createdBy,
+			@Nullable Instant createdDate,
+			@Nullable String lastModifiedBy,
+			@Nullable Instant lastModifiedDate) {
+		super(id, createdBy, createdDate, lastModifiedBy, lastModifiedDate);
 		this.businessEmailAddress = businessEmailAddress;
 		this.businessPhoneNumber = businessPhoneNumber;
 		this.firstName = firstName;

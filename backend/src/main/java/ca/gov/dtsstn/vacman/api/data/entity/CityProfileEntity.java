@@ -1,5 +1,7 @@
 package ca.gov.dtsstn.vacman.api.data.entity;
 
+import java.time.Instant;
+
 import org.immutables.builder.Builder;
 import org.springframework.core.style.ToStringCreator;
 
@@ -17,7 +19,7 @@ import jakarta.persistence.UniqueConstraint;
     @UniqueConstraint(name = "CTYPRFL_UK", columnNames = {"[PROFILE_ID]", "[CITY_ID]"})
 })
 @AttributeOverride(name = "id", column = @Column(name = "[CITY_PROFILE_ID]"))
-public class CityProfileEntity extends AbstractBusinessEntity {
+public class CityProfileEntity extends AbstractBaseEntity {
 
 	@ManyToOne
 	@JoinColumn(name = "[PROFILE_ID]", nullable = false)
@@ -34,18 +36,14 @@ public class CityProfileEntity extends AbstractBusinessEntity {
 	@Builder.Constructor
 	public CityProfileEntity(
 			@Nullable Long id,
+			@Nullable CityEntity city,
 			@Nullable ProfileEntity profile,
-			@Nullable CityEntity city) {
-		super(id);
-		this.profile = profile;
+			@Nullable String createdBy,
+			@Nullable Instant createdDate,
+			@Nullable String lastModifiedBy,
+			@Nullable Instant lastModifiedDate) {
+		super(id, createdBy, createdDate, lastModifiedBy, lastModifiedDate);
 		this.city = city;
-	}
-
-	public ProfileEntity getProfile() {
-		return profile;
-	}
-
-	public void setProfile(ProfileEntity profile) {
 		this.profile = profile;
 	}
 
@@ -57,12 +55,20 @@ public class CityProfileEntity extends AbstractBusinessEntity {
 		this.city = city;
 	}
 
+	public ProfileEntity getProfile() {
+		return profile;
+	}
+
+	public void setProfile(ProfileEntity profile) {
+		this.profile = profile;
+	}
+
 	@Override
 	public String toString() {
 		return new ToStringCreator(this)
 			.append("super", super.toString())
-			.append("profile", profile)
 			.append("city", city)
+			.append("profile", profile)
 			.toString();
 	}
 

@@ -1,5 +1,7 @@
 package ca.gov.dtsstn.vacman.api.data.entity;
 
+import java.time.Instant;
+
 import org.immutables.builder.Builder;
 import org.springframework.core.style.ToStringCreator;
 
@@ -17,7 +19,7 @@ import jakarta.persistence.UniqueConstraint;
     @UniqueConstraint(name = "RQSTCTY_UK", columnNames = {"[CITY_ID]", "[REQUEST_ID]"})
 })
 @AttributeOverride(name = "id", column = @Column(name = "[REQUEST_CITY_ID]"))
-public class RequestCityEntity extends AbstractBusinessEntity {
+public class RequestCityEntity extends AbstractBaseEntity {
 
 	@ManyToOne
 	@JoinColumn(name = "[CITY_ID]", nullable = false)
@@ -35,8 +37,12 @@ public class RequestCityEntity extends AbstractBusinessEntity {
 	public RequestCityEntity(
 			@Nullable Long id,
 			@Nullable CityEntity city,
-			@Nullable RequestEntity request) {
-		super(id);
+			@Nullable RequestEntity request,
+			@Nullable String createdBy,
+			@Nullable Instant createdDate,
+			@Nullable String lastModifiedBy,
+			@Nullable Instant lastModifiedDate) {
+		super(id, createdBy, createdDate, lastModifiedBy, lastModifiedDate);
 		this.city = city;
 		this.request = request;
 	}

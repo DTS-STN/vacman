@@ -1,6 +1,7 @@
 package ca.gov.dtsstn.vacman.api.data.entity;
 
 import java.time.Instant;
+import java.util.Objects;
 
 import org.springframework.core.style.ToStringCreator;
 import org.springframework.data.annotation.CreatedBy;
@@ -12,16 +13,20 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.Version;
 
-/**
- * Abstract base entity providing audit fields for all entities.
- * This contains the common audit fields without ID field.
- */
 @MappedSuperclass
 @EntityListeners({ AuditingEntityListener.class })
-public abstract class AbstractAuditableEntity {
+public abstract class AbstractBaseEntity {
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "[ID]", nullable = false, updatable = false)
+	protected Long id;
 
 	@CreatedBy
 	@Column(name = "[USER_CREATED]", length = 50, nullable = false, updatable = false)
@@ -40,17 +45,29 @@ public abstract class AbstractAuditableEntity {
 	@Column(name = "[DATE_UPDATED]")
 	protected Instant lastModifiedDate;
 
-	public AbstractAuditableEntity() {}
+	public AbstractBaseEntity() {
+		super();
+	}
 
-	public AbstractAuditableEntity(
+	public AbstractBaseEntity(
+			@Nullable Long id,
 			@Nullable String createdBy,
 			@Nullable Instant createdDate,
 			@Nullable String lastModifiedBy,
 			@Nullable Instant lastModifiedDate) {
+		this.id = id;
 		this.createdBy = createdBy;
 		this.createdDate = createdDate;
 		this.lastModifiedBy = lastModifiedBy;
 		this.lastModifiedDate = lastModifiedDate;
+	}
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
 	}
 
 	public String getCreatedBy() {
@@ -86,8 +103,24 @@ public abstract class AbstractAuditableEntity {
 	}
 
 	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) { return true; }
+		if (obj == null) { return false; }
+		if (getClass() != obj.getClass()) { return false; }
+
+		final var other = (AbstractBaseEntity) obj;
+		return Objects.equals(id, other.id);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(id);
+	}
+
+	@Override
 	public String toString() {
 		return new ToStringCreator(this)
+			.append("id", id)
 			.append("createdBy", createdBy)
 			.append("createdDate", createdDate)
 			.append("lastModifiedBy", lastModifiedBy)

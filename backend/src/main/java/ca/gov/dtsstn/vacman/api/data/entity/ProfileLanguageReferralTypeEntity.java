@@ -1,5 +1,7 @@
 package ca.gov.dtsstn.vacman.api.data.entity;
 
+import java.time.Instant;
+
 import org.immutables.builder.Builder;
 import org.springframework.core.style.ToStringCreator;
 
@@ -17,7 +19,7 @@ import jakarta.persistence.UniqueConstraint;
     @UniqueConstraint(name = "PLNGRLTYP_UK", columnNames = {"[PROFILE_ID]", "[LANGUAGE_REFERRAL_TYPE_ID]"})
 })
 @AttributeOverride(name = "id", column = @Column(name = "[PROFILE_LANGUAGE_REFERRAL_TYPE_ID]"))
-public class ProfileLanguageReferralTypeEntity extends AbstractBusinessEntity {
+public class ProfileLanguageReferralTypeEntity extends AbstractBaseEntity {
 
 	@ManyToOne
 	@JoinColumn(name = "[PROFILE_ID]", nullable = false)
@@ -35,8 +37,12 @@ public class ProfileLanguageReferralTypeEntity extends AbstractBusinessEntity {
 	public ProfileLanguageReferralTypeEntity(
 			@Nullable Long id,
 			@Nullable ProfileEntity profile,
-			@Nullable LanguageReferralTypeEntity languageReferralType) {
-		super(id);
+			@Nullable LanguageReferralTypeEntity languageReferralType,
+			@Nullable String createdBy,
+			@Nullable Instant createdDate,
+			@Nullable String lastModifiedBy,
+			@Nullable Instant lastModifiedDate) {
+		super(id, createdBy, createdDate, lastModifiedBy, lastModifiedDate);
 		this.profile = profile;
 		this.languageReferralType = languageReferralType;
 	}
