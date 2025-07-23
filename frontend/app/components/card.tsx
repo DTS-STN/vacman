@@ -102,7 +102,7 @@ type CardFooterProps = ComponentProps<'div'> & {
  */
 export function CardFooter({ className, asChild, ...props }: CardFooterProps) {
   const Component = asChild ? Slot : 'div';
-  return <Component className={cn('flex items-center p-6 pt-0', className)} {...props} />;
+  return <Component className={cn('p-6 pt-0', className)} {...props} />;
 }
 
 /**

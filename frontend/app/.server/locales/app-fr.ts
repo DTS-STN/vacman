@@ -45,6 +45,10 @@ export default {
     'profile-completion-progress': 'Avancement de la complétion du profil',
     'not-provided': 'Non communiqué',
     'last-updated': 'Dernière mise à jour\u00A0: {{date}} par {{name}}', // TODO: French translation needs to be verified
+    'field-incomplete': 'Champs obligatoires incomplets', // TODO: French translation needs to be verified
+    'profile-incomplete': '(FR) Please complete all required fields before submitting your profile',
+    'profile-submitted': '(FR) Profile submitted successfully! Your HR advisor will now review it for approval',
+    'profile-pending-approval': '(FR) Your profile edits will require re-approval by your HR advisor', // TODO: French translations not yet available
   },
   'form': {
     'cancel': 'Annuler',

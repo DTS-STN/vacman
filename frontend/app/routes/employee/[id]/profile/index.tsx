@@ -1,9 +1,10 @@
-import type { JSX, ReactNode } from 'react';
+import type { Ref, JSX, ReactNode } from 'react';
+import { useRef } from 'react';
 
 import type { Params, RouteHandle } from 'react-router';
-import { Form, useNavigation } from 'react-router';
+import { Form, useActionData, useNavigation } from 'react-router';
 
-import { faCheck, faPenToSquare, faPlus } from '@fortawesome/free-solid-svg-icons';
+import { faCheck, faPenToSquare, faPlus, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useTranslation } from 'react-i18next';
 
@@ -20,7 +21,7 @@ import { getProfileService } from '~/.server/domain/services/profile-service';
 import { getUserService } from '~/.server/domain/services/user-service';
 import { getWFAStatuses } from '~/.server/domain/services/wfa-status-service';
 import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
-import { i18nRedirect } from '~/.server/utils/route-utils';
+import { AlertMessage } from '~/components/alert-message';
 import { Button } from '~/components/button';
 import { ButtonLink } from '~/components/button-link';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '~/components/card';
@@ -43,13 +44,29 @@ export function meta({ data }: Route.MetaArgs) {
 }
 
 // TODO: Setup form action to submit user's profile data for review
-export function action({ context, request }: Route.ActionArgs) {
+export async function action({ context, request }: Route.ActionArgs) {
   // Get the current user's ID from the authenticated session
   const authenticatedSession = context.session as AuthenticatedSession;
   const currentUserId = authenticatedSession.authState.idTokenClaims.oid as string;
-  return i18nRedirect('routes/employee/[id]/profile/index.tsx', request, {
-    params: { id: currentUserId },
-  });
+
+  const profileResult = await getProfileService().getProfile(currentUserId);
+  if (profileResult.isNone()) {
+    return { status: 'profile-not-found' };
+  }
+  const profileData: Profile = profileResult.unwrap();
+
+  const personalInfoComplete =
+    countCompletedItems(profileData.personalInformation) === Object.keys(profileData.personalInformation).length;
+  const employmentInfoComplete =
+    countCompletedItems(profileData.employmentInformation) === Object.keys(profileData.employmentInformation).length;
+  const referralComplete =
+    countCompletedItems(profileData.referralPreferences) === Object.keys(profileData.referralPreferences).length;
+
+  return {
+    personalInfoComplete,
+    employmentInfoComplete,
+    referralComplete,
+  };
 }
 
 export async function loader({ context, request, params }: Route.LoaderArgs) {
@@ -170,19 +187,27 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     },
     lastUpdated: profileData.dateUpdated ?? '0000-00-00',
     lastUpdatedBy: profileData.userUpdated ?? 'Unknown User',
+    profileCompleted: completed === total,
   };
 }
 
 export default function EditProfile({ loaderData, params }: Route.ComponentProps) {
   const { t } = useTranslation(handle.i18nNamespace);
   const navigation = useNavigation();
+  const actionData = useActionData();
+
+  const alertRef = useRef<HTMLDivElement>(null);
+
+  if (actionData && alertRef.current) {
+    alertRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
 
   return (
     <div className="space-y-8">
       <div className="space-y-4 py-8 text-white">
-        {!loaderData.personalInformation.completed ||
-        !loaderData.employmentInformation.completed ||
-        !loaderData.referralPreferences.completed
+        {loaderData.personalInformation.completed !== loaderData.personalInformation.total ||
+        loaderData.employmentInformation.completed !== loaderData.employmentInformation.total ||
+        loaderData.referralPreferences.completed !== loaderData.referralPreferences.total
           ? InProgressTag()
           : CompleteTag()}
         <h1 className="mt-6 text-3xl font-semibold">{loaderData.name}</h1>
@@ -210,6 +235,14 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
         </Form>
       </div>
 
+      {actionData && (
+        <AlertMessage
+          ref={alertRef}
+          type={loaderData.profileCompleted ? 'success' : 'error'}
+          message={loaderData.profileCompleted ? t('app:profile.profile-submitted') : t('app:profile.profile-incomplete')}
+        />
+      )}
+
       <Progress className="mt-8 mb-8" label={t('app:profile.profile-completion-progress')} value={loaderData.amountCompleted} />
       <div className="mt-8 max-w-prose space-y-10">
         <ProfileCard
@@ -219,6 +252,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
           completed={loaderData.personalInformation.completed}
           total={loaderData.personalInformation.total}
           params={params}
+          errorState={actionData?.personalInfoComplete === false}
           required
         >
           {loaderData.personalInformation.completed === 1 ? ( // only work email is available
@@ -264,6 +298,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
           total={loaderData.employmentInformation.total}
           params={params}
           required
+          errorState={actionData?.employmentInfoComplete === false}
         >
           {loaderData.employmentInformation.completed === 0 ? (
             <>{t('app:profile.employment.detail')}</>
@@ -319,6 +354,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
           total={loaderData.referralPreferences.total}
           params={params}
           required
+          errorState={actionData?.referralComplete === false}
         >
           {loaderData.referralPreferences.completed === 0 ? (
             <>{t('app:profile.referral.detail')}</>
@@ -379,15 +415,29 @@ interface ProfileCardProps {
   required: boolean;
   children: ReactNode;
   params?: Params;
+  errorState?: boolean;
+  ref?: Ref<HTMLDivElement>;
 }
 
-function ProfileCard({ title, linkLabel, file, completed, total, required, children, params }: ProfileCardProps): JSX.Element {
+// TODO: Consider moving this to a separate file as a reusable component
+function ProfileCard({
+  title,
+  linkLabel,
+  file,
+  completed,
+  total,
+  required,
+  errorState,
+  children,
+  params,
+  ref,
+}: ProfileCardProps): JSX.Element {
   const { t } = useTranslation(handle.i18nNamespace);
   const inProgress = completed < total && completed > 0;
   const isComplete = completed === total;
   const labelPrefix = `${inProgress || isComplete ? t('app:profile.edit') : t('app:profile.add')}\u0020`;
   return (
-    <Card className="p-4 sm:p-6">
+    <Card ref={ref} className={`${errorState && 'border-b-6 border-[#C90101]'} rounded-md p-4 sm:p-6`}>
       <CardHeader className="p-0">
         <div className="mb-6 grid grid-cols-2 justify-between select-none">
           <div>
@@ -409,20 +459,25 @@ function ProfileCard({ title, linkLabel, file, completed, total, required, child
       <CardContent className="my-3 space-y-3 p-0">{children}</CardContent>
       <CardFooter
         className={cn(
-          'mt-3 flex items-center gap-2',
-          'bg-gray-100', // Add background
+          'mt-3',
+          errorState ? 'bg-light-red' : 'bg-gray-100', // Add background
           '-mx-4 sm:-mx-6', // Pull horizontally to cancel parent padding
           '-mb-4 sm:-mb-6', // Pull down to cancel parent bottom padding
           'px-4 sm:px-6', // Add horizontal padding back for the content
-          'py-4', // Add vertical padding for the content
-          'rounded-b-xs', // Re-apply bottom rounding
+          'py-4', // Add vertical padding for the contents
+          'rounded-b-xs', // Re-apply bottom roundings
         )}
       >
-        {inProgress || isComplete ? <FontAwesomeIcon icon={faPenToSquare} /> : <FontAwesomeIcon icon={faPlus} />}
-        <InlineLink className="font-semibold" file={file} params={params}>
-          {labelPrefix}
-          {linkLabel}
-        </InlineLink>
+        {errorState && <p className="pb-4 text-lg font-bold text-[#333333]">{t('app:profile.field-incomplete')}</p>}
+        <span className="flex items-center gap-x-2">
+          {errorState && <FontAwesomeIcon icon={faTriangleExclamation} className="text-red-800" />}
+          {!errorState &&
+            (inProgress || isComplete ? <FontAwesomeIcon icon={faPenToSquare} /> : <FontAwesomeIcon icon={faPlus} />)}
+          <InlineLink className={`${errorState && 'text-red-800'} font-semibold`} file={file} params={params}>
+            {labelPrefix}
+            {linkLabel}
+          </InlineLink>
+        </span>
       </CardFooter>
     </Card>
   );
