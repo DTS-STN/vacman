@@ -237,7 +237,8 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
       {actionData && (
         <AlertMessage
           ref={alertRef}
-          type={loaderData.profileCompleted ? 'success' : 'error'}
+          type="info"
+          //type={loaderData.profileCompleted ? 'success' : 'error'}
           message={loaderData.profileCompleted ? t('app:profile.profile-submitted') : t('app:profile.profile-incomplete')}
         />
       )}
@@ -469,10 +470,10 @@ function ProfileCard({
       >
         {errorState && <p className="pb-4 text-lg font-bold text-[#333333]">{t('app:profile.field-incomplete')}</p>}
         <span className="flex items-center gap-x-2">
-          {errorState && <FontAwesomeIcon icon={faTriangleExclamation} className="text-custom-red" />}
+          {errorState && <FontAwesomeIcon icon={faTriangleExclamation} className="text-red-800" />}
           {!errorState &&
             (inProgress || isComplete ? <FontAwesomeIcon icon={faPenToSquare} /> : <FontAwesomeIcon icon={faPlus} />)}
-          <InlineLink className={`${errorState && 'text-custom-red'} font-semibold`} file={file} params={params}>
+          <InlineLink className={`${errorState && 'text-red-800'} font-semibold`} file={file} params={params}>
             {labelPrefix}
             {linkLabel}
           </InlineLink>

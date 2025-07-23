@@ -11,9 +11,9 @@ interface AlertMessageProps {
 }
 
 const styles: Record<NonNullable<AlertMessageProps['type']>, string> = {
-  success: `border-custom-green bg-light-green`,
-  error: `border-custom-red bg-light-red`,
-  info: `bg-opacity-80 border-custom-blue bg-custom-blue`,
+  success: `border-green-600 bg-green-100`,
+  error: `border-red-800 bg-red-100`,
+  info: `border-sky-700 bg-sky-100`,
 };
 
 const icons: Record<NonNullable<AlertMessageProps['type']>, IconDefinition> = {
@@ -27,7 +27,7 @@ export function AlertMessage({ ref, message, type = 'info' }: AlertMessageProps)
     <div ref={ref} className={`${styles[type]} flex w-full items-center border-l-4 p-2`}>
       <FontAwesomeIcon
         icon={icons[type]}
-        className={`${type === 'success' ? 'text-custom-green' : type === 'error' ? 'text-custom-red' : 'text-custom-blue'} mr-2`}
+        className={`${type === 'success' ? 'text-green-600' : type === 'error' ? 'text-red-800' : 'text-sky-700'} mr-2`}
       />
       {message}
     </div>
