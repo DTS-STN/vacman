@@ -9,10 +9,9 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.event.EventListener;
 
 import ca.gov.dtsstn.vacman.api.config.properties.ApplicationProperties;
-import ca.gov.dtsstn.vacman.api.config.properties.MicrosoftGraphProperties;
 
 @SpringBootApplication
-@EnableConfigurationProperties({ ApplicationProperties.class, MicrosoftGraphProperties.class })
+@EnableConfigurationProperties({ ApplicationProperties.class })
 public class Application {
 
 	private static final Logger log = LoggerFactory.getLogger(Application.class);
