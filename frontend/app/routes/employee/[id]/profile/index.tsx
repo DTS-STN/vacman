@@ -237,8 +237,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
       {actionData && (
         <AlertMessage
           ref={alertRef}
-          type="info"
-          //type={loaderData.profileCompleted ? 'success' : 'error'}
+          type={loaderData.profileCompleted ? 'success' : 'error'}
           message={loaderData.profileCompleted ? t('app:profile.profile-submitted') : t('app:profile.profile-incomplete')}
         />
       )}
