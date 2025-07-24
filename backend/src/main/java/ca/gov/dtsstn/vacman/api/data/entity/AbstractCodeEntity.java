@@ -2,6 +2,7 @@ package ca.gov.dtsstn.vacman.api.data.entity;
 
 import java.time.Instant;
 
+import org.hibernate.annotations.Immutable;
 import org.springframework.core.style.ToStringCreator;
 
 import jakarta.annotation.Nullable;
@@ -9,6 +10,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.validation.constraints.NotNull;
 
+@Immutable
 @MappedSuperclass
 public abstract class AbstractCodeEntity extends AbstractBaseEntity {
 

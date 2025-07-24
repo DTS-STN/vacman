@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.validator.constraints.Range;
+import org.mapstruct.factory.Mappers;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
@@ -19,7 +20,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import ca.gov.dtsstn.vacman.api.config.SpringDocConfig;
-import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 import ca.gov.dtsstn.vacman.api.service.UserService;
 import ca.gov.dtsstn.vacman.api.web.model.UserCreateModel;
 import ca.gov.dtsstn.vacman.api.web.model.UserReadModel;
@@ -36,12 +36,11 @@ import jakarta.validation.Valid;
 @RequestMapping({ "/api/v1/users" })
 public class UsersController {
 
-	private final UserModelMapper userModelMapper;
+	private final UserModelMapper userModelMapper = Mappers.getMapper(UserModelMapper.class);
 	private final UserService userService;
 
-	public UsersController(UserService userService, UserModelMapper userModelMapper) {
+	public UsersController(UserService userService) {
 		this.userService = userService;
-		this.userModelMapper = userModelMapper;
 	}
 
 	@GetMapping
@@ -68,7 +67,7 @@ public class UsersController {
 			return ResponseEntity.ok(users);
 		}
 
-		Page<UserReadModel> result = userService.getUsers(PageRequest.of(page, size)).map(userModelMapper::toModel);
+		final Page<UserReadModel> result = userService.getUsers(PageRequest.of(page, size)).map(userModelMapper::toModel);
 		return ResponseEntity.ok(result);
 	}
 
@@ -76,7 +75,7 @@ public class UsersController {
 	@Operation(summary = "Create a new user.")
 	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
 	public ResponseEntity<UserReadModel> createUser(@RequestBody @Valid UserCreateModel userCreate) {
-		UserEntity savedUser = userService.createUser(userCreate);
+		final var savedUser = userService.createUser(userCreate);
 		return ResponseEntity.ok(userModelMapper.toModel(savedUser));
 	}
 
@@ -85,7 +84,7 @@ public class UsersController {
 	@Operation(summary = "Get a user by ID.")
 	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
 	public ResponseEntity<UserReadModel> getUserById(@PathVariable Long id) {
-		UserReadModel result = userService.getUserById(id)
+		final var result = userService.getUserById(id)
 			.map(userModelMapper::toModel)
 			.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User with ID '" + id + "' not found"));
 		return ResponseEntity.ok(result);
@@ -102,7 +101,7 @@ public class UsersController {
 				"User with ID '" + id + "' not found"));
 
 		// Now perform the update (UserService.updateUser assumes the user exists)
-		UserEntity updatedUser = userService.updateUser(userUpdate);
+		final var updatedUser = userService.updateUser(userUpdate);
 
 		return ResponseEntity.ok(userModelMapper.toModel(updatedUser));
 	}

@@ -2,8 +2,8 @@ package ca.gov.dtsstn.vacman.api.data.entity;
 
 import java.time.Instant;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.immutables.builder.Builder;
 import org.springframework.core.style.ToStringCreator;
@@ -73,7 +73,7 @@ public class RequestEntity extends AbstractBaseEntity {
 
 	@ManyToOne
 	@JoinColumn(name = "[APPOINTMENT_NON_ADVERTISED_ID]", nullable = false)
-	private AppointmentNonAdvertisedEntity appointmentNonAdvertised;
+	private NonAdvertisedAppointmentEntity appointmentNonAdvertised;
 
 	@ManyToOne
 	@JoinColumn(name = "[WORK_SCHEDULE_ID]", nullable = false)
@@ -129,10 +129,10 @@ public class RequestEntity extends AbstractBaseEntity {
 
 	// Collection relationships for many-to-many tables
 	@OneToMany(mappedBy = "request", cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<RequestCityEntity> requestCities = new ArrayList<>();
+	private Set<RequestCityEntity> requestCities = new HashSet<>();
 
 	@OneToMany(mappedBy = "request", cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<RequestEmploymentEquityEntity> requestEmploymentEquities = new ArrayList<>();
+	private Set<RequestEmploymentEquityEntity> requestEmploymentEquities = new HashSet<>();
 
 	public RequestEntity() {
 		super();
@@ -142,7 +142,7 @@ public class RequestEntity extends AbstractBaseEntity {
 	public RequestEntity(
 			@Nullable String additionalComment,
 			@Nullable String alternateContactEmailAddress,
-			@Nullable AppointmentNonAdvertisedEntity appointmentNonAdvertised,
+			@Nullable NonAdvertisedAppointmentEntity appointmentNonAdvertised,
 			@Nullable ClassificationEntity classification,
 			@Nullable EmploymentTenureEntity employmentTenure,
 			@Nullable Boolean employmentEquityNeedIdentifiedIndicator,
@@ -304,11 +304,11 @@ public class RequestEntity extends AbstractBaseEntity {
 		this.selectionProcessType = selectionProcessType;
 	}
 
-	public AppointmentNonAdvertisedEntity getAppointmentNonAdvertised() {
+	public NonAdvertisedAppointmentEntity getAppointmentNonAdvertised() {
 		return appointmentNonAdvertised;
 	}
 
-	public void setAppointmentNonAdvertised(AppointmentNonAdvertisedEntity appointmentNonAdvertised) {
+	public void setAppointmentNonAdvertised(NonAdvertisedAppointmentEntity appointmentNonAdvertised) {
 		this.appointmentNonAdvertised = appointmentNonAdvertised;
 	}
 
@@ -448,19 +448,19 @@ public class RequestEntity extends AbstractBaseEntity {
 		this.additionalComment = additionalComment;
 	}
 
-	public List<RequestCityEntity> getRequestCities() {
+	public Set<RequestCityEntity> getRequestCities() {
 		return requestCities;
 	}
 
-	public void setRequestCities(List<RequestCityEntity> requestCities) {
+	public void setRequestCities(Set<RequestCityEntity> requestCities) {
 		this.requestCities = requestCities;
 	}
 
-	public List<RequestEmploymentEquityEntity> getRequestEmploymentEquities() {
+	public Set<RequestEmploymentEquityEntity> getRequestEmploymentEquities() {
 		return requestEmploymentEquities;
 	}
 
-	public void setRequestEmploymentEquities(List<RequestEmploymentEquityEntity> requestEmploymentEquities) {
+	public void setRequestEmploymentEquities(Set<RequestEmploymentEquityEntity> requestEmploymentEquities) {
 		this.requestEmploymentEquities = requestEmploymentEquities;
 	}
 

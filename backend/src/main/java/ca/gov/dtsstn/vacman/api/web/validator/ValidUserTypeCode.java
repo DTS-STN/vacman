@@ -14,14 +14,15 @@ import jakarta.validation.Payload;
  * When validation fails, Spring Boot will automatically return a 400 Bad Request.
  */
 @Documented
-@Constraint(validatedBy = UserTypeCodeValidator.class)
-@Target({ElementType.FIELD, ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.FIELD, ElementType.PARAMETER})
+@Constraint(validatedBy = UserTypeCodeValidator.class)
 public @interface ValidUserTypeCode {
 
-    String message() default "User type code does not exist";
+	String message() default "User type code does not exist";
 
-    Class<?>[] groups() default {};
+	Class<?>[] groups() default {};
 
-    Class<? extends Payload>[] payload() default {};
+	Class<? extends Payload>[] payload() default {};
+
 }

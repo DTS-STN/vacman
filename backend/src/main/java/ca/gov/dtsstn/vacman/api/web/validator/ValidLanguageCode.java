@@ -14,14 +14,15 @@ import jakarta.validation.Payload;
  * When validation fails, Spring Boot will automatically return a 400 Bad Request.
  */
 @Documented
-@Constraint(validatedBy = LanguageCodeValidator.class)
-@Target({ElementType.FIELD, ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.FIELD, ElementType.PARAMETER})
+@Constraint(validatedBy = LanguageCodeValidator.class)
 public @interface ValidLanguageCode {
 
-    String message() default "Language code does not exist";
+	String message() default "Language code does not exist";
 
-    Class<?>[] groups() default {};
+	Class<?>[] groups() default {};
 
-    Class<? extends Payload>[] payload() default {};
+	Class<? extends Payload>[] payload() default {};
+
 }

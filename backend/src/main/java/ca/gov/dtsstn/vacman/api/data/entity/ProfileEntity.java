@@ -1,8 +1,8 @@
 package ca.gov.dtsstn.vacman.api.data.entity;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.immutables.builder.Builder;
 import org.springframework.core.style.ToStringCreator;
@@ -78,16 +78,16 @@ public class ProfileEntity extends AbstractBaseEntity {
 
 	// Collection relationships for many-to-many tables
 	@OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<CityProfileEntity> cityProfiles = new ArrayList<>();
+	private Set<CityProfileEntity> cityProfiles = new HashSet<>();
 
 	@OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<ClassificationProfileEntity> classificationProfiles = new ArrayList<>();
+	private Set<ClassificationProfileEntity> classificationProfiles = new HashSet<>();
 
 	@OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<ProfileEmploymentOpportunityEntity> employmentOpportunities = new ArrayList<>();
+	private Set<ProfileEmploymentOpportunityEntity> employmentOpportunities = new HashSet<>();
 
 	@OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<ProfileLanguageReferralTypeEntity> languageReferralTypes = new ArrayList<>();
+	private Set<ProfileLanguageReferralTypeEntity> languageReferralTypes = new HashSet<>();
 
 	public ProfileEntity() {
 		super();
@@ -253,35 +253,35 @@ public class ProfileEntity extends AbstractBaseEntity {
 		this.additionalComment = additionalComment;
 	}
 
-	public List<CityProfileEntity> getCityProfiles() {
+	public Set<CityProfileEntity> getCityProfiles() {
 		return cityProfiles;
 	}
 
-	public void setCityProfiles(List<CityProfileEntity> cityProfiles) {
+	public void setCityProfiles(Set<CityProfileEntity> cityProfiles) {
 		this.cityProfiles = cityProfiles;
 	}
 
-	public List<ClassificationProfileEntity> getClassificationProfiles() {
+	public Set<ClassificationProfileEntity> getClassificationProfiles() {
 		return classificationProfiles;
 	}
 
-	public void setClassificationProfiles(List<ClassificationProfileEntity> classificationProfiles) {
+	public void setClassificationProfiles(Set<ClassificationProfileEntity> classificationProfiles) {
 		this.classificationProfiles = classificationProfiles;
 	}
 
-	public List<ProfileEmploymentOpportunityEntity> getEmploymentOpportunities() {
+	public Set<ProfileEmploymentOpportunityEntity> getEmploymentOpportunities() {
 		return employmentOpportunities;
 	}
 
-	public void setEmploymentOpportunities(List<ProfileEmploymentOpportunityEntity> employmentOpportunities) {
+	public void setEmploymentOpportunities(Set<ProfileEmploymentOpportunityEntity> employmentOpportunities) {
 		this.employmentOpportunities = employmentOpportunities;
 	}
 
-	public List<ProfileLanguageReferralTypeEntity> getLanguageReferralTypes() {
+	public Set<ProfileLanguageReferralTypeEntity> getLanguageReferralTypes() {
 		return languageReferralTypes;
 	}
 
-	public void setLanguageReferralTypes(List<ProfileLanguageReferralTypeEntity> languageReferralTypes) {
+	public void setLanguageReferralTypes(Set<ProfileLanguageReferralTypeEntity> languageReferralTypes) {
 		this.languageReferralTypes = languageReferralTypes;
 	}
 

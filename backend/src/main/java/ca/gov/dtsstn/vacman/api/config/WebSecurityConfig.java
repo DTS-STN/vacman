@@ -12,6 +12,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
+import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 
@@ -62,7 +63,7 @@ public class WebSecurityConfig {
 			log.info("Configuring API security");
 
 			http.securityMatcher("/api/**")
-				.csrf(csrf -> csrf.disable())
+				.csrf(CsrfConfigurer::disable)
 				.exceptionHandling(exceptionHandling -> exceptionHandling.accessDeniedHandler(authErrorHandler))
 				.oauth2ResourceServer(oauth2ResourceServer -> oauth2ResourceServer
 					.authenticationEntryPoint(authErrorHandler)
@@ -72,6 +73,8 @@ public class WebSecurityConfig {
 			http.authorizeHttpRequests(authorizeHttpRequests -> authorizeHttpRequests
 				// allow all XHR preflight checks
 				.requestMatchers(HttpMethod.OPTIONS).permitAll()
+				// codes have no protected data, so they require no auth to fetch
+				.requestMatchers("/api/*/codes/**").permitAll()
 				// TODO ::: GjB ::: figure out specific roles and permissions
 				.requestMatchers("/api/**").hasAuthority("SCOPE_employee")
 				.anyRequest().denyAll());

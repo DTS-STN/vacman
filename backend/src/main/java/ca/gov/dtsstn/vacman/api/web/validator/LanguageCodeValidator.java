@@ -1,8 +1,9 @@
 package ca.gov.dtsstn.vacman.api.web.validator;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
-import ca.gov.dtsstn.vacman.api.data.repository.LanguageRepository;
+import ca.gov.dtsstn.vacman.api.service.CodeService;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
@@ -13,24 +14,24 @@ import jakarta.validation.ConstraintValidatorContext;
 @Component
 public class LanguageCodeValidator implements ConstraintValidator<ValidLanguageCode, String> {
 
-    private final LanguageRepository languageRepository;
+	private final CodeService codeService;
 
-    public LanguageCodeValidator(LanguageRepository languageRepository) {
-        this.languageRepository = languageRepository;
-    }
+	public LanguageCodeValidator(CodeService codeService) {
+		this.codeService = codeService;
+	}
 
-    @Override
-    public void initialize(ValidLanguageCode constraintAnnotation) {
-        // No initialization needed
-    }
+	@Override
+	public void initialize(ValidLanguageCode constraintAnnotation) {
+		// No initialization needed
+	}
 
-    @Override
-    public boolean isValid(String languageCode, ConstraintValidatorContext context) {
-        if (languageCode == null) {
-            return true;
-        }
+	@Override
+	public boolean isValid(String languageCode, ConstraintValidatorContext context) {
+		if (languageCode == null) { return true; }
 
-        // Check if the language code exists in the database
-        return languageRepository.findByCode(languageCode).isPresent();
-    }
+		return codeService.getAllLanguages(Pageable.unpaged()).stream()
+			.filter(language -> language.getCode().equals(languageCode))
+			.findFirst().isPresent();
+	}
+
 }

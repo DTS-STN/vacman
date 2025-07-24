@@ -1,8 +1,8 @@
 package ca.gov.dtsstn.vacman.api.data.entity;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.immutables.builder.Builder;
 import org.springframework.core.style.ToStringCreator;
@@ -55,7 +55,7 @@ public class UserEntity extends AbstractBaseEntity {
 	// This creates a bidirectional one-to-many relationship where Profile owns the FK
 	// No cascade on User side to avoid deletion conflicts
 	@OneToMany(mappedBy = "user")
-	private List<ProfileEntity> profiles = new ArrayList<>();
+	private Set<ProfileEntity> profiles = new HashSet<>();
 
 	@ManyToOne
 	@JoinColumn(name = "[USER_TYPE_ID]", nullable = false)
@@ -80,7 +80,7 @@ public class UserEntity extends AbstractBaseEntity {
 			@Nullable String middleName,
 			@Nullable String activeDirectoryId,
 			@Nullable String personalRecordIdentifier,
-			@Nullable List<ProfileEntity> profiles,
+			@Nullable Set<ProfileEntity> profiles,
 			@Nullable UserTypeEntity userType,
 			@Nullable String uuid,
 			@Nullable String createdBy,
@@ -97,9 +97,12 @@ public class UserEntity extends AbstractBaseEntity {
 		this.middleName = middleName;
 		this.activeDirectoryId = activeDirectoryId;
 		this.personalRecordIdentifier = personalRecordIdentifier;
-		this.profiles = profiles != null ? profiles : new ArrayList<>();
 		this.userType = userType;
 		this.uuid = uuid;
+
+		if (profiles != null) {
+			this.profiles.addAll(profiles);
+		}
 	}
 
 	public String getBusinessEmailAddress() {
@@ -166,12 +169,15 @@ public class UserEntity extends AbstractBaseEntity {
 		this.personalRecordIdentifier = personalRecordIdentifier;
 	}
 
-	public List<ProfileEntity> getProfiles() {
+	public Set<ProfileEntity> getProfiles() {
 		return profiles;
 	}
 
-	public void setProfiles(List<ProfileEntity> profiles) {
-		this.profiles = profiles != null ? profiles : new ArrayList<>();
+	public void setProfiles(Set<ProfileEntity> profiles) {
+		this.profiles.clear();
+		if (profiles != null) {
+			this.profiles.addAll(profiles);
+		}
 	}
 
 	public UserTypeEntity getUserType() {

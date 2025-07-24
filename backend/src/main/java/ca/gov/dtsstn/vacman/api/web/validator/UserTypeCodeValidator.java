@@ -1,8 +1,9 @@
 package ca.gov.dtsstn.vacman.api.web.validator;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
-import ca.gov.dtsstn.vacman.api.data.repository.UserTypeRepository;
+import ca.gov.dtsstn.vacman.api.service.CodeService;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
@@ -13,24 +14,23 @@ import jakarta.validation.ConstraintValidatorContext;
 @Component
 public class UserTypeCodeValidator implements ConstraintValidator<ValidUserTypeCode, String> {
 
-    private final UserTypeRepository userTypeRepository;
+	private final CodeService codeService;
 
-    public UserTypeCodeValidator(UserTypeRepository userTypeRepository) {
-        this.userTypeRepository = userTypeRepository;
-    }
+	public UserTypeCodeValidator(CodeService codeService) {
+		this.codeService = codeService;
+	}
 
-    @Override
-    public void initialize(ValidUserTypeCode constraintAnnotation) {
-        // No initialization needed
-    }
+	@Override
+	public void initialize(ValidUserTypeCode constraintAnnotation) {
+		// No initialization needed
+	}
 
-    @Override
-    public boolean isValid(String userTypeCode, ConstraintValidatorContext context) {
-        if (userTypeCode == null) {
-            return true;
-        }
+	@Override
+	public boolean isValid(String userTypeCode, ConstraintValidatorContext context) {
+		if (userTypeCode == null) { return true; }
 
-        // Check if the user type code exists in the database
-        return userTypeRepository.findByCode(userTypeCode).isPresent();
-    }
+		return codeService.getAllUserTypes(Pageable.unpaged()).stream()
+				.filter(userType -> userType.getCode().equals(userTypeCode))
+				.findFirst().isPresent();
+	}
 }
