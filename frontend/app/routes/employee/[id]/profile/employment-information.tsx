@@ -22,7 +22,7 @@ import { i18nRedirect } from '~/.server/utils/route-utils';
 import { Button } from '~/components/button';
 import { ButtonLink } from '~/components/button-link';
 import { DatePickerField } from '~/components/date-picker-field';
-import { ActionDataErrorSummary } from '~/components/error-summary';
+import { FormErrorSummary } from '~/components/error-summary';
 import { InputSelect } from '~/components/input-select';
 import { InlineLink } from '~/components/links';
 import { EMPLOYEE_WFA_STATUS } from '~/domain/constants';
@@ -176,7 +176,7 @@ export default function EmploymentInformation({ loaderData, actionData, params }
       </InlineLink>
       <div className="max-w-prose">
         <h1 className="my-5 text-3xl font-semibold">{t('app:employment-information.page-title')}</h1>
-        <ActionDataErrorSummary actionData>
+        <FormErrorSummary>
           <Form method="post" noValidate>
             <div className="space-y-6">
               <h2 className="font-lato text-2xl font-bold">{t('app:employment-information.substantive-position-heading')}</h2>
@@ -316,7 +316,7 @@ export default function EmploymentInformation({ loaderData, actionData, params }
               </div>
             </div>
           </Form>
-        </ActionDataErrorSummary>
+        </FormErrorSummary>
       </div>
     </>
   );
