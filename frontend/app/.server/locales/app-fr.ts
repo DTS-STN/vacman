@@ -12,6 +12,8 @@ export default {
   'register': {
     'employee': 'Tableau de bord des employés',
     'hiring-manager': 'Tableau de bord du responsable du recrutement',
+    'employee-manage': 'Gérer votre profil',
+    'hiring-manager-manage': 'Gérez vos demandes',
     'page-title': "S'inscrire comme...",
   },
   'profile': {
