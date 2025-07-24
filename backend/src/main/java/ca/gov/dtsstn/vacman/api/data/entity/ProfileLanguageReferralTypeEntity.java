@@ -1,5 +1,7 @@
 package ca.gov.dtsstn.vacman.api.data.entity;
 
+import java.time.Instant;
+
 import org.immutables.builder.Builder;
 import org.springframework.core.style.ToStringCreator;
 
@@ -13,11 +15,9 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
 @Entity(name = "ProfileLanguageReferralType")
-@Table(name = "[PROFILE_LANGUAGE_REFERRAL_TYPE]", uniqueConstraints = {
-    @UniqueConstraint(name = "PLNGRLTYP_UK", columnNames = {"[PROFILE_ID]", "[LANGUAGE_REFERRAL_TYPE_ID]"})
-})
 @AttributeOverride(name = "id", column = @Column(name = "[PROFILE_LANGUAGE_REFERRAL_TYPE_ID]"))
-public class ProfileLanguageReferralTypeEntity extends AbstractBusinessEntity {
+@Table(name = "[PROFILE_LANGUAGE_REFERRAL_TYPE]", uniqueConstraints = { @UniqueConstraint(name = "PLNGRLTYP_UK", columnNames = { "[PROFILE_ID]", "[LANGUAGE_REFERRAL_TYPE_ID]" }) })
+public class ProfileLanguageReferralTypeEntity extends AbstractBaseEntity {
 
 	@ManyToOne
 	@JoinColumn(name = "[PROFILE_ID]", nullable = false)
@@ -34,18 +34,14 @@ public class ProfileLanguageReferralTypeEntity extends AbstractBusinessEntity {
 	@Builder.Constructor
 	public ProfileLanguageReferralTypeEntity(
 			@Nullable Long id,
+			@Nullable LanguageReferralTypeEntity languageReferralType,
 			@Nullable ProfileEntity profile,
-			@Nullable LanguageReferralTypeEntity languageReferralType) {
-		super(id);
-		this.profile = profile;
+			@Nullable String createdBy,
+			@Nullable Instant createdDate,
+			@Nullable String lastModifiedBy,
+			@Nullable Instant lastModifiedDate) {
+		super(id, createdBy, createdDate, lastModifiedBy, lastModifiedDate);
 		this.languageReferralType = languageReferralType;
-	}
-
-	public ProfileEntity getProfile() {
-		return profile;
-	}
-
-	public void setProfile(ProfileEntity profile) {
 		this.profile = profile;
 	}
 
@@ -57,12 +53,20 @@ public class ProfileLanguageReferralTypeEntity extends AbstractBusinessEntity {
 		this.languageReferralType = languageReferralType;
 	}
 
+	public ProfileEntity getProfile() {
+		return profile;
+	}
+
+	public void setProfile(ProfileEntity profile) {
+		this.profile = profile;
+	}
+
 	@Override
 	public String toString() {
 		return new ToStringCreator(this)
 			.append("super", super.toString())
-			.append("profile", profile)
 			.append("languageReferralType", languageReferralType)
+			.append("profile", profile)
 			.toString();
 	}
 

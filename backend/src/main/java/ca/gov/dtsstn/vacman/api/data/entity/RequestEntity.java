@@ -1,5 +1,6 @@
 package ca.gov.dtsstn.vacman.api.data.entity;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +21,7 @@ import jakarta.persistence.Table;
 @Entity(name = "Request")
 @Table(name = "[REQUEST]")
 @AttributeOverride(name = "id", column = @Column(name = "[REQUEST_ID]"))
-public class RequestEntity extends AbstractBusinessEntity {
+public class RequestEntity extends AbstractBaseEntity {
 
 	@ManyToOne
 	@JoinColumn(name = "[SECURITY_CLEARANCE_ID]", nullable = false)
@@ -169,8 +170,12 @@ public class RequestEntity extends AbstractBusinessEntity {
 			@Nullable UserEntity submitter,
 			@Nullable Boolean teleworkAllowed,
 			@Nullable WorkScheduleEntity workSchedule,
-			@Nullable WorkUnitEntity workUnit) {
-		super(id);
+			@Nullable WorkUnitEntity workUnit,
+			@Nullable String createdBy,
+			@Nullable Instant createdDate,
+			@Nullable String lastModifiedBy,
+			@Nullable Instant lastModifiedDate) {
+		super(id, createdBy, createdDate, lastModifiedBy, lastModifiedDate);
 		this.additionalComment = additionalComment;
 		this.alternateContactEmailAddress = alternateContactEmailAddress;
 		this.appointmentNonAdvertised = appointmentNonAdvertised;

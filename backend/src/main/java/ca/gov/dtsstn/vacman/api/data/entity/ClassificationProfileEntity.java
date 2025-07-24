@@ -1,5 +1,7 @@
 package ca.gov.dtsstn.vacman.api.data.entity;
 
+import java.time.Instant;
+
 import org.immutables.builder.Builder;
 import org.springframework.core.style.ToStringCreator;
 
@@ -13,11 +15,9 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
 @Entity(name = "ClassificationProfile")
-@Table(name = "[CLASSIFICATION_PROFILE]", uniqueConstraints = {
-    @UniqueConstraint(name = "CLSPRFL_UK", columnNames = {"[CLASSIFICATION_ID]", "[PROFILE_ID]"})
-})
 @AttributeOverride(name = "id", column = @Column(name = "[CLASSIFICATION_PROFILE_ID]"))
-public class ClassificationProfileEntity extends AbstractBusinessEntity {
+@Table(name = "[CLASSIFICATION_PROFILE]", uniqueConstraints = { @UniqueConstraint(name = "CLSPRFL_UK", columnNames = { "[CLASSIFICATION_ID]", "[PROFILE_ID]"}) })
+public class ClassificationProfileEntity extends AbstractBaseEntity {
 
 	@ManyToOne
 	@JoinColumn(name = "[CLASSIFICATION_ID]", nullable = false)
@@ -35,8 +35,12 @@ public class ClassificationProfileEntity extends AbstractBusinessEntity {
 	public ClassificationProfileEntity(
 			@Nullable Long id,
 			@Nullable ClassificationEntity classification,
-			@Nullable ProfileEntity profile) {
-		super(id);
+			@Nullable ProfileEntity profile,
+			@Nullable String createdBy,
+			@Nullable Instant createdDate,
+			@Nullable String lastModifiedBy,
+			@Nullable Instant lastModifiedDate) {
+		super(id, createdBy, createdDate, lastModifiedBy, lastModifiedDate);
 		this.classification = classification;
 		this.profile = profile;
 	}

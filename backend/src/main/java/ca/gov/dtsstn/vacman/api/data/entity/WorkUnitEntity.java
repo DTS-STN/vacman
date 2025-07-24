@@ -16,13 +16,11 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
 @Entity(name = "WorkUnit")
-@Table(name = "[CD_WORK_UNIT]", uniqueConstraints = {
-    @UniqueConstraint(name = "WRKUNT_UK", columnNames = "[WORK_UNIT_NAME_EN]")
-})
 @AttributeOverride(name = "id", column = @Column(name = "[WORK_UNIT_ID]"))
 @AttributeOverride(name = "code", column = @Column(name = "[WORK_UNIT_CODE]"))
 @AttributeOverride(name = "nameEn", column = @Column(name = "[WORK_UNIT_NAME_EN]"))
 @AttributeOverride(name = "nameFr", column = @Column(name = "[WORK_UNIT_NAME_FR]"))
+@Table(name = "[CD_WORK_UNIT]", uniqueConstraints = { @UniqueConstraint(name = "WRKUNT_UK", columnNames = "[WORK_UNIT_NAME_EN]") })
 public class WorkUnitEntity extends AbstractCodeEntity {
 
 	@ManyToOne

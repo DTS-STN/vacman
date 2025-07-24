@@ -1,5 +1,6 @@
 package ca.gov.dtsstn.vacman.api.data.entity;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,13 +17,10 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
-/**
- * Entity representing the PROFILE table.
- */
 @Entity(name = "Profile")
 @Table(name = "[PROFILE]")
 @AttributeOverride(name = "id", column = @Column(name = "[PROFILE_ID]"))
-public class ProfileEntity extends AbstractBusinessEntity {
+public class ProfileEntity extends AbstractBaseEntity {
 
 	@ManyToOne
 	@JoinColumn(name = "[USER_ID]", nullable = false)
@@ -112,8 +110,12 @@ public class ProfileEntity extends AbstractBusinessEntity {
 			@Nullable Boolean hasConsentedToPrivacyTerms,
 			@Nullable Boolean isAvailableForReferral,
 			@Nullable Boolean isInterestedInAlternation,
-			@Nullable String additionalComment) {
-		super(id);
+			@Nullable String additionalComment,
+			@Nullable String createdBy,
+			@Nullable Instant createdDate,
+			@Nullable String lastModifiedBy,
+			@Nullable Instant lastModifiedDate) {
+		super(id, createdBy, createdDate, lastModifiedBy, lastModifiedDate);
 		this.user = user;
 		this.hrAdvisor = hrAdvisor;
 		this.wfaStatus = wfaStatus;
@@ -304,4 +306,5 @@ public class ProfileEntity extends AbstractBusinessEntity {
 			.append("additionalComment", additionalComment)
 			.toString();
 	}
+
 }
