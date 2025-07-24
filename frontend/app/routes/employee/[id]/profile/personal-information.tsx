@@ -14,7 +14,7 @@ import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { Button } from '~/components/button';
 import { ButtonLink } from '~/components/button-link';
-import { ActionDataErrorSummary } from '~/components/error-summary';
+import { FormErrorSummary } from '~/components/error-summary';
 import { InputField } from '~/components/input-field';
 import { InputPhoneField } from '~/components/input-phone-field';
 import { InputRadios } from '~/components/input-radios';
@@ -106,7 +106,7 @@ export default function PersonalInformation({ loaderData, actionData, params }: 
       </InlineLink>
       <div className="max-w-prose">
         <h1 className="my-5 text-3xl font-semibold">{t('app:personal-information.page-title')}</h1>
-        <ActionDataErrorSummary actionData>
+        <FormErrorSummary>
           <Form method="post" noValidate>
             <div className="space-y-6">
               <InputField
@@ -205,7 +205,7 @@ export default function PersonalInformation({ loaderData, actionData, params }: 
               </div>
             </div>
           </Form>
-        </ActionDataErrorSummary>
+        </FormErrorSummary>
       </div>
     </>
   );

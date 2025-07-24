@@ -26,7 +26,7 @@ import type {
 } from '~/components/choice-tags';
 import { ChoiceTags } from '~/components/choice-tags';
 import { Collapsible } from '~/components/collapsible';
-import { ActionDataErrorSummary } from '~/components/error-summary';
+import { FormErrorSummary } from '~/components/error-summary';
 import { InputCheckboxes } from '~/components/input-checkboxes';
 import { InputHelp } from '~/components/input-help';
 import { InputLegend } from '~/components/input-legend';
@@ -241,7 +241,7 @@ export default function PersonalDetails({ loaderData, actionData, params }: Rout
       </InlineLink>
       <div className="max-w-prose">
         <h1 className="my-5 text-3xl">{t('app:referral-preferences.page-title')}</h1>
-        <ActionDataErrorSummary actionData>
+        <FormErrorSummary>
           <Form method="post" noValidate>
             <div className="space-y-6">
               <InputCheckboxes
@@ -365,7 +365,7 @@ export default function PersonalDetails({ loaderData, actionData, params }: Rout
               </div>
             </div>
           </Form>
-        </ActionDataErrorSummary>
+        </FormErrorSummary>
       </div>
     </>
   );
