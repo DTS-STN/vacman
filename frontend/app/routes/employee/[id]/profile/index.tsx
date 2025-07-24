@@ -129,7 +129,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     workUnitResult && workUnitResult.isSome() ? workUnitResult.unwrap().parent.name : undefined;
   const directorate = workUnitResult && workUnitResult.isSome() ? workUnitResult.unwrap().name : undefined;
   const city = cityResult && cityResult.isSome() ? cityResult.unwrap() : undefined;
-  const wfaStatus = wfaStatusResult ? (wfaStatusResult.isSome() ? wfaStatusResult.unwrap().name : undefined) : undefined;
+  const wfaStatus = wfaStatusResult ? (wfaStatusResult.isSome() ? wfaStatusResult.unwrap() : undefined) : undefined;
   const hrAdvisor =
     profileData.employmentInformation.hrAdvisor &&
     (await getUserService().getUserById(profileData.employmentInformation.hrAdvisor));
@@ -170,7 +170,8 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       directorate: directorate,
       province: city?.province.name,
       city: city?.name,
-      wfaStatus: wfaStatus,
+      wfaStatus: wfaStatus?.name,
+      wfaStatusCode: wfaStatus?.code,
       wfaEffectiveDate: profileData.employmentInformation.wfaEffectiveDate,
       wfaEndDate: profileData.employmentInformation.wfaEndDate,
       hrAdvisor: hrAdvisor && hrAdvisor.firstName + ' ' + hrAdvisor.lastName,
@@ -327,9 +328,9 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
                 <DescriptionListItem term={t('app:employment-information.wfa-status')}>
                   {loaderData.employmentInformation.wfaStatus ?? t('app:profile.not-provided')}
                 </DescriptionListItem>
-                {(loaderData.employmentInformation.wfaStatus === EMPLOYEE_WFA_STATUS.opting ||
-                  loaderData.employmentInformation.wfaStatus === EMPLOYEE_WFA_STATUS.surplusGRJO ||
-                  loaderData.employmentInformation.wfaStatus === EMPLOYEE_WFA_STATUS.surplusOptingOptionA) && (
+                {(loaderData.employmentInformation.wfaStatusCode === EMPLOYEE_WFA_STATUS.opting ||
+                  loaderData.employmentInformation.wfaStatusCode === EMPLOYEE_WFA_STATUS.surplusGRJO ||
+                  loaderData.employmentInformation.wfaStatusCode === EMPLOYEE_WFA_STATUS.surplusOptingOptionA) && (
                   <>
                     <DescriptionListItem term={t('app:employment-information.wfa-effective-date')}>
                       {loaderData.employmentInformation.wfaEffectiveDate ?? t('app:profile.not-provided')}
