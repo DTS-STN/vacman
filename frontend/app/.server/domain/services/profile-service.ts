@@ -14,6 +14,7 @@ export type ProfileService = {
     employmentInfo: UserEmploymentInformation,
   ): Promise<Result<void, AppError>>;
   updateReferralPreferences(activeDirectoryId: string, referralPrefs: UserReferralPreferences): Promise<Result<void, AppError>>;
+  getAllProfiles(): Promise<Profile[]>;
 };
 
 export function getProfileService(): ProfileService {

@@ -6,6 +6,7 @@ export default {
     'get-started': 'Employee Dashboard',
     'navigate': 'Go to the employee portal',
     'register': 'Register',
+    'employees': 'Employees',
   },
   'register': {
     'employee': 'Employee dashboard',
@@ -165,5 +166,16 @@ export default {
       'employment-tenure-invalid': 'Employment opportunities (confirmation of interest) is invalid.',
       'employment-tenure-duplicate': 'Duplicate items for the selection of employment opportunities are not allowed.',
     },
+  },
+  'employee-dashboard': {
+    'page-title': 'Employees',
+    'view': 'View',
+    'show-all': 'Show all',
+    'show-mine': 'Show mine',
+    'employee': 'Employee',
+    'email': 'Work email address',
+    'updated': 'Updated',
+    'status': 'Status',
+    'action': 'Action',
   },
 };
