@@ -13,13 +13,11 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
 @Entity(name = "PriorityLevel")
-@Table(name = "[CD_PRIORITY_LEVEL]", uniqueConstraints = {
-    @UniqueConstraint(name = "PRTYLVL_UK", columnNames = "[PRIORITY_LEVEL_NAME_EN]")
-})
 @AttributeOverride(name = "id", column = @Column(name = "[PRIORITY_LEVEL_ID]"))
 @AttributeOverride(name = "code", column = @Column(name = "[PRIORITY_LEVEL_CODE]"))
 @AttributeOverride(name = "nameEn", column = @Column(name = "[PRIORITY_LEVEL_NAME_EN]"))
 @AttributeOverride(name = "nameFr", column = @Column(name = "[PRIORITY_LEVEL_NAME_FR]"))
+@Table(name = "[CD_PRIORITY_LEVEL]", uniqueConstraints = { @UniqueConstraint(name = "PRTYLVL_UK", columnNames = "[PRIORITY_LEVEL_NAME_EN]") })
 public class PriorityLevelEntity extends AbstractCodeEntity {
 
 	public PriorityLevelEntity() {
@@ -38,7 +36,7 @@ public class PriorityLevelEntity extends AbstractCodeEntity {
 			@Nullable Instant createdDate,
 			@Nullable String lastModifiedBy,
 			@Nullable Instant lastModifiedDate) {
-		super(id, createdBy, createdDate, lastModifiedBy, lastModifiedDate, code, nameEn, nameFr, effectiveDate, expiryDate);
+		super(id, code, nameEn, nameFr, effectiveDate, expiryDate, createdBy, createdDate, lastModifiedBy, lastModifiedDate);
 	}
 
 	@Override

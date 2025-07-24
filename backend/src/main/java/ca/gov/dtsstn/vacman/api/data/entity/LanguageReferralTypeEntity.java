@@ -13,13 +13,11 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
 @Entity(name = "LanguageReferralType")
-@Table(name = "[CD_LANGUAGE_REFERRAL_TYPE]", uniqueConstraints = {
-    @UniqueConstraint(name = "LNGRFRTYP_UK", columnNames = "[LANGUAGE_REFERRAL_TYPE_NAME_EN]")
-})
 @AttributeOverride(name = "id", column = @Column(name = "[LANGUAGE_REFERRAL_TYPE_ID]"))
 @AttributeOverride(name = "code", column = @Column(name = "[LANGUAGE_REFERRAL_TYPE_CODE]"))
 @AttributeOverride(name = "nameEn", column = @Column(name = "[LANGUAGE_REFERRAL_TYPE_NAME_EN]"))
 @AttributeOverride(name = "nameFr", column = @Column(name = "[LANGUAGE_REFERRAL_TYPE_NAME_FR]"))
+@Table(name = "[CD_LANGUAGE_REFERRAL_TYPE]", uniqueConstraints = { @UniqueConstraint(name = "LNGRFRTYP_UK", columnNames = "[LANGUAGE_REFERRAL_TYPE_NAME_EN]") })
 public class LanguageReferralTypeEntity extends AbstractCodeEntity {
 
 	public LanguageReferralTypeEntity() {
@@ -38,7 +36,7 @@ public class LanguageReferralTypeEntity extends AbstractCodeEntity {
 			@Nullable Instant createdDate,
 			@Nullable String lastModifiedBy,
 			@Nullable Instant lastModifiedDate) {
-		super(id, createdBy, createdDate, lastModifiedBy, lastModifiedDate, code, nameEn, nameFr, effectiveDate, expiryDate);
+		super(id, code, nameEn, nameFr, effectiveDate, expiryDate, createdBy, createdDate, lastModifiedBy, lastModifiedDate);
 	}
 
 	@Override

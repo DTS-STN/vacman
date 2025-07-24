@@ -16,13 +16,11 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
 @Entity(name = "City")
-@Table(name = "[CD_CITY]", uniqueConstraints = {
-    @UniqueConstraint(name = "CITY_UK", columnNames = {"[CITY_NAME_EN]", "[PROVINCE_TERRITORY_ID]"})
-})
 @AttributeOverride(name = "id", column = @Column(name = "[CITY_ID]"))
 @AttributeOverride(name = "code", column = @Column(name = "[CITY_CODE]"))
 @AttributeOverride(name = "nameEn", column = @Column(name = "[CITY_NAME_EN]"))
 @AttributeOverride(name = "nameFr", column = @Column(name = "[CITY_NAME_FR]"))
+@Table(name = "[CD_CITY]", uniqueConstraints = { @UniqueConstraint(name = "CITY_UK", columnNames = { "[CITY_NAME_EN]", "[PROVINCE_TERRITORY_ID]" }) })
 public class CityEntity extends AbstractCodeEntity {
 
 	@ManyToOne
@@ -46,7 +44,7 @@ public class CityEntity extends AbstractCodeEntity {
 			@Nullable Instant createdDate,
 			@Nullable String lastModifiedBy,
 			@Nullable Instant lastModifiedDate) {
-		super(id, createdBy, createdDate, lastModifiedBy, lastModifiedDate, code, nameEn, nameFr, effectiveDate, expiryDate);
+		super(id, code, nameEn, nameFr, effectiveDate, expiryDate, createdBy, createdDate, lastModifiedBy, lastModifiedDate);
 		this.provinceTerritory = provinceTerritory;
 	}
 

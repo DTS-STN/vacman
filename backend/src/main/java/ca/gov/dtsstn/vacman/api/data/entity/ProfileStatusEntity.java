@@ -13,13 +13,11 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
 @Entity(name = "ProfileStatus")
-@Table(name = "[CD_PROFILE_STATUS]", uniqueConstraints = {
-    @UniqueConstraint(name = "PRFLSTS_UK", columnNames = "[PROFILE_STATUS_NAME_EN]")
-})
 @AttributeOverride(name = "id", column = @Column(name = "[PROFILE_STATUS_ID]"))
 @AttributeOverride(name = "code", column = @Column(name = "[PROFILE_STATUS_CODE]"))
 @AttributeOverride(name = "nameEn", column = @Column(name = "[PROFILE_STATUS_NAME_EN]"))
 @AttributeOverride(name = "nameFr", column = @Column(name = "[PROFILE_STATUS_NAME_FR]"))
+@Table(name = "[CD_PROFILE_STATUS]", uniqueConstraints = { @UniqueConstraint(name = "PRFLSTS_UK", columnNames = "[PROFILE_STATUS_NAME_EN]") })
 public class ProfileStatusEntity extends AbstractCodeEntity {
 
 	public ProfileStatusEntity() {
@@ -38,7 +36,7 @@ public class ProfileStatusEntity extends AbstractCodeEntity {
 			@Nullable Instant createdDate,
 			@Nullable String lastModifiedBy,
 			@Nullable Instant lastModifiedDate) {
-		super(id, createdBy, createdDate, lastModifiedBy, lastModifiedDate, code, nameEn, nameFr, effectiveDate, expiryDate);
+		super(id, code, nameEn, nameFr, effectiveDate, expiryDate, createdBy, createdDate, lastModifiedBy, lastModifiedDate);
 	}
 
 	@Override

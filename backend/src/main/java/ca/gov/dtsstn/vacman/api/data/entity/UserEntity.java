@@ -18,10 +18,8 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
 @Entity(name = "User")
-@Table(name = "[USER]", uniqueConstraints = {
-    @UniqueConstraint(name = "USER_NAME_UK", columnNames = {"[NETWORK_NAME]", "[UU_NAME]"})
-})
 @AttributeOverride(name = "id", column = @Column(name = "[USER_ID]"))
+@Table(name = "[USER]", uniqueConstraints = { @UniqueConstraint(name = "USER_NAME_UK", columnNames = { "[NETWORK_NAME]", "[UU_NAME]" }) })
 public class UserEntity extends AbstractBaseEntity {
 
 	@Column(name = "[BUSINESS_EMAIL_ADDRESS]", length = 320, nullable = false)

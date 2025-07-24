@@ -12,43 +12,38 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
-/**
- * Entity representing work schedule code lookup table.
- * Maps to CD_WORK_SCHEDULE database table.
- */
 @Entity(name = "WorkSchedule")
-@Table(name = "[CD_WORK_SCHEDULE]", uniqueConstraints = {
-    @UniqueConstraint(name = "WRKSCHDL_UK", columnNames = "[WORK_SCHEDULE_NAME_EN]")
-})
 @AttributeOverride(name = "id", column = @Column(name = "[WORK_SCHEDULE_ID]"))
 @AttributeOverride(name = "code", column = @Column(name = "[WORK_SCHEDULE_CODE]"))
 @AttributeOverride(name = "nameEn", column = @Column(name = "[WORK_SCHEDULE_NAME_EN]"))
 @AttributeOverride(name = "nameFr", column = @Column(name = "[WORK_SCHEDULE_NAME_FR]"))
+@Table(name = "[CD_WORK_SCHEDULE]", uniqueConstraints = { @UniqueConstraint(name = "WRKSCHDL_UK", columnNames = "[WORK_SCHEDULE_NAME_EN]") })
 public class WorkScheduleEntity extends AbstractCodeEntity {
 
-    public WorkScheduleEntity() {
-        super();
-    }
+	public WorkScheduleEntity() {
+		super();
+	}
 
-    @Builder.Constructor
-    public WorkScheduleEntity(
-            @Nullable Long id,
-            @Nullable String code,
-            @Nullable String nameEn,
-            @Nullable String nameFr,
-            @Nullable Instant effectiveDate,
-            @Nullable Instant expiryDate,
-            @Nullable String createdBy,
-            @Nullable Instant createdDate,
-            @Nullable String lastModifiedBy,
-            @Nullable Instant lastModifiedDate) {
-        super(id, createdBy, createdDate, lastModifiedBy, lastModifiedDate, code, nameEn, nameFr, effectiveDate, expiryDate);
-    }
+	@Builder.Constructor
+	public WorkScheduleEntity(
+			@Nullable Long id,
+			@Nullable String code,
+			@Nullable String nameEn,
+			@Nullable String nameFr,
+			@Nullable Instant effectiveDate,
+			@Nullable Instant expiryDate,
+			@Nullable String createdBy,
+			@Nullable Instant createdDate,
+			@Nullable String lastModifiedBy,
+			@Nullable Instant lastModifiedDate) {
+		super(id, code, nameEn, nameFr, effectiveDate, expiryDate, createdBy, createdDate, lastModifiedBy, lastModifiedDate);
+	}
 
-    @Override
-    public String toString() {
-        return new ToStringCreator(this)
-                .append("super", super.toString())
-                .toString();
-    }
+	@Override
+	public String toString() {
+		return new ToStringCreator(this)
+			.append("super", super.toString())
+			.toString();
+	}
+
 }

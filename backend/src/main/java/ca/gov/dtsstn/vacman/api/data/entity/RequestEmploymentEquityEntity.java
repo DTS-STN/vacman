@@ -14,15 +14,9 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
-/**
- * Junction entity representing the many-to-many relationship between Request and EmploymentEquity.
- * Maps to REQUEST_EMPLOYMENT_EQUITY database table.
- */
 @Entity(name = "RequestEmploymentEquity")
-@Table(name = "[REQUEST_EMPLOYMENT_EQUITY]", uniqueConstraints = {
-		@UniqueConstraint(name = "RQSTEMPLYMNTEQT_UK", columnNames = {"[EMPLOYMENT_EQUITY_ID]", "[REQUEST_ID]"})
-})
 @AttributeOverride(name = "id", column = @Column(name = "[REQUEST_EMPLOYMENT_EQUITY_ID]"))
+@Table(name = "[REQUEST_EMPLOYMENT_EQUITY]", uniqueConstraints = { @UniqueConstraint(name = "RQSTEMPLYMNTEQT_UK", columnNames = { "[EMPLOYMENT_EQUITY_ID]", "[REQUEST_ID]" }) })
 public class RequestEmploymentEquityEntity extends AbstractBaseEntity {
 
 	@ManyToOne
@@ -70,9 +64,10 @@ public class RequestEmploymentEquityEntity extends AbstractBaseEntity {
 	@Override
 	public String toString() {
 		return new ToStringCreator(this)
-				.append("super", super.toString())
-				.append("employmentEquity", employmentEquity)
-				.append("request", request)
-				.toString();
+			.append("super", super.toString())
+			.append("employmentEquity", employmentEquity)
+			.append("request", request)
+			.toString();
 	}
+
 }

@@ -17,9 +17,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
-/**
- * Entity representing the PROFILE table.
- */
 @Entity(name = "Profile")
 @Table(name = "[PROFILE]")
 @AttributeOverride(name = "id", column = @Column(name = "[PROFILE_ID]"))
@@ -309,4 +306,5 @@ public class ProfileEntity extends AbstractBaseEntity {
 			.append("additionalComment", additionalComment)
 			.toString();
 	}
+
 }

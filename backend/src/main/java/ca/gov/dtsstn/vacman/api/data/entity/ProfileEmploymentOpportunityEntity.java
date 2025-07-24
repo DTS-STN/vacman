@@ -14,15 +14,9 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
-/**
- * Junction entity representing the many-to-many relationship between Profile and EmploymentOpportunity.
- * Maps to PROFILE_EMPLOYMENT_OPPORTUNITY database table.
- */
 @Entity(name = "ProfileEmploymentOpportunity")
-@Table(name = "[PROFILE_EMPLOYMENT_OPPORTUNITY]", uniqueConstraints = {
-		@UniqueConstraint(name = "PEMPOPPR_UK", columnNames = {"[EMPLOYMENT_OPPORTUNITY_ID]", "[PROFILE_ID]"})
-})
 @AttributeOverride(name = "id", column = @Column(name = "[PROFILE_EMPLOYMENT_OPPORTUNITY_ID]"))
+@Table(name = "[PROFILE_EMPLOYMENT_OPPORTUNITY]", uniqueConstraints = { @UniqueConstraint(name = "PEMPOPPR_UK", columnNames = { "[EMPLOYMENT_OPPORTUNITY_ID]", "[PROFILE_ID]" }) })
 public class ProfileEmploymentOpportunityEntity extends AbstractBaseEntity {
 
 	@ManyToOne
@@ -75,4 +69,5 @@ public class ProfileEmploymentOpportunityEntity extends AbstractBaseEntity {
 				.append("profile", profile)
 				.toString();
 	}
+
 }

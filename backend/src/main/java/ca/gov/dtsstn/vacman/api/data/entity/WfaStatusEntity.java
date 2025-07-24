@@ -13,13 +13,11 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
 @Entity(name = "WfaStatus")
-@Table(name = "[CD_WFA_STATUS]", uniqueConstraints = {
-    @UniqueConstraint(name = "WFASTS_UK", columnNames = "[WFA_STATUS_NAME_EN]")
-})
 @AttributeOverride(name = "id", column = @Column(name = "[WFA_STATUS_ID]"))
 @AttributeOverride(name = "code", column = @Column(name = "[WFA_STATUS_CODE]"))
 @AttributeOverride(name = "nameEn", column = @Column(name = "[WFA_STATUS_NAME_EN]"))
 @AttributeOverride(name = "nameFr", column = @Column(name = "[WFA_STATUS_NAME_FR]"))
+@Table(name = "[CD_WFA_STATUS]", uniqueConstraints = { @UniqueConstraint(name = "WFASTS_UK", columnNames = "[WFA_STATUS_NAME_EN]") })
 public class WfaStatusEntity extends AbstractCodeEntity {
 
 	public WfaStatusEntity() {
@@ -38,7 +36,7 @@ public class WfaStatusEntity extends AbstractCodeEntity {
 			@Nullable Instant createdDate,
 			@Nullable String lastModifiedBy,
 			@Nullable Instant lastModifiedDate) {
-		super(id, createdBy, createdDate, lastModifiedBy, lastModifiedDate, code, nameEn, nameFr, effectiveDate, expiryDate);
+		super(id, code, nameEn, nameFr, effectiveDate, expiryDate, createdBy, createdDate, lastModifiedBy, lastModifiedDate);
 	}
 
 	@Override

@@ -13,13 +13,11 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
 @Entity(name = "AppointmentNonAdvertised")
-@Table(name = "[CD_APPOINTMENT_NON_ADVERTISED]", uniqueConstraints = {
-	@UniqueConstraint(name = "APPNTMNTNONADVRTSD_UK", columnNames = "[APPOINTMENT_NON_ADVERTISED_NAME_EN]")
-})
 @AttributeOverride(name = "id", column = @Column(name = "[APPOINTMENT_NON_ADVERTISED_ID]"))
 @AttributeOverride(name = "code", column = @Column(name = "[APPOINTMENT_NON_ADVERTISED_CODE]"))
 @AttributeOverride(name = "nameEn", column = @Column(name = "[APPOINTMENT_NON_ADVERTISED_NAME_EN]"))
 @AttributeOverride(name = "nameFr", column = @Column(name = "[APPOINTMENT_NON_ADVERTISED_NAME_FR]"))
+@Table(name = "[CD_APPOINTMENT_NON_ADVERTISED]", uniqueConstraints = { @UniqueConstraint(name = "APPNTMNTNONADVRTSD_UK", columnNames = "[APPOINTMENT_NON_ADVERTISED_NAME_EN]") })
 public class AppointmentNonAdvertisedEntity extends AbstractCodeEntity {
 
 	public AppointmentNonAdvertisedEntity() {
@@ -38,7 +36,7 @@ public class AppointmentNonAdvertisedEntity extends AbstractCodeEntity {
 			@Nullable Instant createdDate,
 			@Nullable String lastModifiedBy,
 			@Nullable Instant lastModifiedDate) {
-		super(id, createdBy, createdDate, lastModifiedBy, lastModifiedDate, code, nameEn, nameFr, effectiveDate, expiryDate);
+		super(id, code, nameEn, nameFr, effectiveDate, expiryDate, createdBy, createdDate, lastModifiedBy, lastModifiedDate);
 	}
 
 	@Override
@@ -47,4 +45,5 @@ public class AppointmentNonAdvertisedEntity extends AbstractCodeEntity {
 				.append("super", super.toString())
 				.toString();
 	}
+
 }

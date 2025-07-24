@@ -34,15 +34,15 @@ public abstract class AbstractCodeEntity extends AbstractBaseEntity {
 
 	public AbstractCodeEntity(
 			@Nullable Long id,
-			@Nullable String createdBy,
-			@Nullable Instant createdDate,
-			@Nullable String lastModifiedBy,
-			@Nullable Instant lastModifiedDate,
 			@Nullable String code,
 			@Nullable String nameEn,
 			@Nullable String nameFr,
 			@Nullable Instant effectiveDate,
-			@Nullable Instant expiryDate) {
+			@Nullable Instant expiryDate,
+			@Nullable String createdBy,
+			@Nullable Instant createdDate,
+			@Nullable String lastModifiedBy,
+			@Nullable Instant lastModifiedDate) {
 		super(id, createdBy, createdDate, lastModifiedBy, lastModifiedDate);
 		this.code = code;
 		this.effectiveDate = effectiveDate;
