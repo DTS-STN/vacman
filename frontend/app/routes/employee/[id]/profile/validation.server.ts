@@ -76,7 +76,7 @@ export const personalInformationSchema = v.object({
     v.pipe(
       v.string('app:personal-information.errors.additional-information-required'),
       v.trim(),
-      v.length(100, 'app:personal-information.errors.additional-information-max-length'),
+      v.maxLength(100, 'app:personal-information.errors.additional-information-max-length'),
     ),
   ),
 });

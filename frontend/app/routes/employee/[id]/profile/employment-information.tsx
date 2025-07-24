@@ -8,10 +8,12 @@ import * as v from 'valibot';
 
 import type { Route } from './+types/employment-information';
 
+import type { Profile } from '~/.server/domain/models';
 import { getBranchService } from '~/.server/domain/services/branch-service';
 import { getCityService } from '~/.server/domain/services/city-service';
 import { getClassificationService } from '~/.server/domain/services/classification-service';
 import { getDirectorateService } from '~/.server/domain/services/directorate-service';
+import { getProfileService } from '~/.server/domain/services/profile-service';
 import { getProvinceService } from '~/.server/domain/services/province-service';
 import { getUserService } from '~/.server/domain/services/user-service';
 import { getWFAStatuses } from '~/.server/domain/services/wfa-status-service';
@@ -60,7 +62,11 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   });
 }
 
-export async function loader({ context, request }: Route.LoaderArgs) {
+export async function loader({ context, request, params }: Route.LoaderArgs) {
+  // Use the id parameter from the URL to fetch the profile
+  const profileUserId = params.id;
+  const profileResult = await getProfileService().getProfile(profileUserId);
+
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
   const substantivePositions = await getClassificationService().listAllLocalized(lang);
   const branchOrServiceCanadaRegions = await getBranchService().listAllLocalized(lang);
@@ -69,20 +75,29 @@ export async function loader({ context, request }: Route.LoaderArgs) {
   const cities = await getCityService().listAllLocalized(lang);
   const wfaStatuses = await getWFAStatuses().listAllLocalized(lang);
   const hrAdvisors = await getUserService().getUsersByRole('hr-advisor');
+  const profileData: Profile = profileResult.unwrap();
+
+  const workUnitResult =
+    profileData.employmentInformation.workUnitId &&
+    (await getDirectorateService().findLocalizedById(profileData.employmentInformation.workUnitId, lang));
+  const workUnit = workUnitResult && workUnitResult.isSome() ? workUnitResult.unwrap() : undefined;
+  const cityResult =
+    profileData.employmentInformation.cityId &&
+    (await getCityService().findLocalizedById(profileData.employmentInformation.cityId, lang));
+  const city = cityResult && cityResult.isSome() ? cityResult.unwrap() : undefined;
 
   return {
     documentTitle: t('app:employment-information.page-title'),
     defaultValues: {
-      //TODO: Replace with actual values
-      substantivePosition: undefined as string | undefined,
-      branchOrServiceCanadaRegion: undefined as string | undefined,
-      directorate: undefined as string | undefined,
-      province: undefined as string | undefined,
-      city: undefined as string | undefined,
-      wfaStatus: undefined as string | undefined,
-      wfaEffectiveDate: undefined as string | undefined,
-      wfaEndDate: undefined as string | undefined,
-      hrAdvisor: undefined as string | undefined,
+      substantivePosition: profileData.employmentInformation.classificationId,
+      branchOrServiceCanadaRegion: workUnit?.parent.id,
+      directorate: workUnit?.id,
+      province: city?.province.id,
+      city: profileData.employmentInformation.cityId,
+      wfaStatus: profileData.employmentInformation.wfaStatusId,
+      wfaEffectiveDate: profileData.employmentInformation.wfaEffectiveDate,
+      wfaEndDate: profileData.employmentInformation.wfaEndDate,
+      hrAdvisor: profileData.employmentInformation.hrAdvisor?.toString(),
     },
     substantivePositions: substantivePositions,
     branchOrServiceCanadaRegions: branchOrServiceCanadaRegions,
@@ -105,7 +120,7 @@ export default function EmploymentInformation({ loaderData, actionData, params }
 
   const substantivePositionOptions = [{ id: 'select-option', name: '' }, ...loaderData.substantivePositions].map(
     ({ id, name }) => ({
-      value: id === 'select-option' ? '' : id,
+      value: id === 'select-option' ? '' : String(id),
       children: id === 'select-option' ? t('app:form.select-option') : name,
     }),
   );
@@ -145,7 +160,7 @@ export default function EmploymentInformation({ loaderData, actionData, params }
   }));
 
   const hrAdvisorOptions = [{ id: 'select-option', uuName: '' }, ...loaderData.hrAdvisors].map(({ id, uuName }) => ({
-    value: id === 'select-option' ? '' : id,
+    value: id === 'select-option' ? '' : String(id),
     children: id === 'select-option' ? t('app:form.select-option') : uuName,
   }));
 

@@ -8,10 +8,12 @@ import * as v from 'valibot';
 
 import type { Route } from './+types/referral-preferences';
 
+import type { Profile } from '~/.server/domain/models';
 import { getCityService } from '~/.server/domain/services/city-service';
 import { getClassificationService } from '~/.server/domain/services/classification-service';
 import { getEmploymentTenureService } from '~/.server/domain/services/employment-tenure-service';
 import { getLanguageReferralTypeService } from '~/.server/domain/services/language-referral-type-service';
+import { getProfileService } from '~/.server/domain/services/profile-service';
 import { getProvinceService } from '~/.server/domain/services/province-service';
 import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
@@ -86,7 +88,10 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   });
 }
 
-export async function loader({ context, request }: Route.LoaderArgs) {
+export async function loader({ context, request, params }: Route.LoaderArgs) {
+  // Use the id parameter from the URL to fetch the profile
+  const profileUserId = params.id;
+  const profileResult = await getProfileService().getProfile(profileUserId);
   // Since parent layout ensures authentication, we can safely cast the session
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
   const localizedLanguageReferralTypesResult = await getLanguageReferralTypeService().listAllLocalized(lang);
@@ -94,17 +99,23 @@ export async function loader({ context, request }: Route.LoaderArgs) {
   const localizedEmploymentTenures = await getEmploymentTenureService().listAllLocalized(lang);
   const localizedProvinces = await getProvinceService().listAllLocalized(lang);
   const localizedCities = await getCityService().listAllLocalized(lang);
+  const profileData: Profile = profileResult.unwrap();
+
+  const cityResult =
+    profileData.referralPreferences.workLocationCitiesIds?.[0] &&
+    (await getCityService().findLocalizedById(profileData.referralPreferences.workLocationCitiesIds[0], lang)); //get the province from first city only to avoid validation error on province
+  const city = cityResult && cityResult.isSome() ? cityResult.unwrap() : undefined;
 
   return {
     documentTitle: t('app:referral-preferences.page-title'),
     defaultValues: {
-      //TODO: Replace with actual values
-      languageReferralTypes: undefined as string[] | undefined,
-      classification: undefined as string[] | undefined,
-      workLocationCities: undefined as string[] | undefined,
-      referralAvailibility: undefined as boolean | undefined,
-      alternateOpportunity: undefined as boolean | undefined,
-      employmentTenures: undefined as string[] | undefined,
+      languageReferralTypes: profileData.referralPreferences.languageReferralTypeIds,
+      classification: profileData.referralPreferences.classificationIds,
+      workLocationProvince: city?.province.id,
+      workLocationCities: profileData.referralPreferences.workLocationCitiesIds,
+      referralAvailibility: profileData.referralPreferences.availableForReferralInd,
+      alternateOpportunity: profileData.referralPreferences.interestedInAlternationInd,
+      employmentTenures: profileData.referralPreferences.employmentTenureIds,
     },
     languageReferralTypes: localizedLanguageReferralTypesResult,
     classifications: localizedClassifications,
@@ -122,7 +133,7 @@ export default function PersonalDetails({ loaderData, actionData, params }: Rout
   const [alternateOpportunity, setAlternateOpportunity] = useState(loaderData.defaultValues.alternateOpportunity);
   const [selectedClassifications, setSelectedClassifications] = useState(loaderData.defaultValues.classification);
   const [selectedCities, setSelectedCities] = useState(loaderData.defaultValues.workLocationCities);
-  const [province, setProvince] = useState('');
+  const [province, setProvince] = useState(loaderData.defaultValues.workLocationProvince);
   const [srAnnouncement, setSrAnnouncement] = useState(''); //screen reader announcement
 
   const languageReferralTypeOptions = loaderData.languageReferralTypes.map((langReferral) => ({
