@@ -184,13 +184,20 @@ export const employmentInformationSchema = v.pipe(
           ),
           wfaEffectiveDate: v.pipe(
             v.string(),
-            v.custom(
-              (input) => isValidDateString(input as string),
-              'app:employment-information.errors.wfa-effective-date.invalid',
-            ),
-            v.custom(
-              (input) => isDateInPastOrTodayInTimeZone(serverEnvironment.BASE_TIMEZONE, input as string),
-              'app:employment-information.errors.wfa-effective-date.invalid-future-date',
+            v.trim(),
+            v.transform((input) => (input === '' ? undefined : input)),
+            v.optional(
+              v.pipe(
+                v.string(),
+                v.custom(
+                  (input) => isValidDateString(input as string),
+                  'app:employment-information.errors.wfa-effective-date.invalid',
+                ),
+                v.custom(
+                  (input) => isDateInPastOrTodayInTimeZone(serverEnvironment.BASE_TIMEZONE, input as string),
+                  'app:employment-information.errors.wfa-effective-date.invalid-future-date',
+                ),
+              ),
             ),
           ),
           wfaEndDateYear: optionalString(
