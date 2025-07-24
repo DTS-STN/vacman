@@ -1,4 +1,5 @@
-import { isValidPhoneNumber } from 'libphonenumber-js';
+import { isValidPhoneNumber, parsePhoneNumberFromString } from 'libphonenumber-js';
+import type { CountryCode } from 'libphonenumber-js';
 
 /**
  * Validates phone number based on the following conditions:
@@ -35,4 +36,23 @@ export function isValidPhone(phoneNumber: string): boolean {
  */
 export function extractDigits(input: string) {
   return input.match(/\d/g)?.join('') ?? '';
+}
+
+/**
+ * Converts a phone number string to the E.164 international format.
+ *
+ * @param phoneNumber The phone number string to convert (e.g., "613-938-0001").
+ * @param defaultCountry The ISO 3166-1 alpha-2 country code to use as a hint if the number is not in international format (e.g., 'CA', 'US').
+ * @returns The phone number in E.164 format (e.g., "+16139380001") if valid, otherwise undefined.
+ */
+export function toE164(phoneNumber: string | undefined | null, defaultCountry?: CountryCode): string | undefined {
+  if (!phoneNumber) {
+    return undefined;
+  }
+
+  // parsePhoneNumberFromString is more lenient than parsePhoneNumber
+  const phone = parsePhoneNumberFromString(phoneNumber, defaultCountry ?? 'CA');
+
+  // If the phone number is valid, return it in E.164 format. Otherwise, it returns undefined.
+  return phone?.format('E.164');
 }

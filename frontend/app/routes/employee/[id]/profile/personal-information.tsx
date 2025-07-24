@@ -6,7 +6,10 @@ import * as v from 'valibot';
 
 import type { Route } from './+types/personal-information';
 
+import type { Profile } from '~/.server/domain/models';
 import { getLanguageForCorrespondenceService } from '~/.server/domain/services/language-for-correspondence-service';
+import { getProfileService } from '~/.server/domain/services/profile-service';
+import { getUserService } from '~/.server/domain/services/user-service';
 import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { Button } from '~/components/button';
@@ -21,6 +24,7 @@ import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { getTranslation } from '~/i18n-config.server';
 import { personalInformationSchema } from '~/routes/employee/[id]/profile/validation.server';
 import { handle as parentHandle } from '~/routes/layout';
+import { toE164 } from '~/utils/phone-utils';
 import { formString } from '~/utils/string-utils';
 import { extractValidationKey } from '~/utils/validation-utils';
 
@@ -40,7 +44,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   const parseResult = v.safeParse(personalInformationSchema, {
     personalRecordIdentifier: formString(formData.get('personalRecordIdentifier')),
     preferredLanguage: formString(formData.get('preferredLanguage')),
-    workEmail: authenticatedSession.authState.idTokenClaims.email,
+    workEmail: formString(formData.get('workEmail')),
     personalEmail: formString(formData.get('personalEmail')),
     workPhone: formString(formData.get('workPhone')),
     personalPhone: formString(formData.get('personalPhone')),
@@ -61,24 +65,26 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   });
 }
 
-export async function loader({ context, request }: Route.LoaderArgs) {
-  // Since parent layout ensures authentication, we can safely cast the session
-  const authenticatedSession = context.session as AuthenticatedSession;
+export async function loader({ context, request, params }: Route.LoaderArgs) {
+  // Use the id parameter from the URL to fetch the profile
+  const profileUserId = params.id;
+  const profileUser = await getUserService().getUserByActiveDirectoryId(profileUserId);
+  const profileResult = await getProfileService().getProfile(profileUserId);
 
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
   const localizedLanguagesOfCorrespondenceResult = await getLanguageForCorrespondenceService().listAllLocalized(lang);
+  const profileData: Profile = profileResult.unwrap();
 
   return {
     documentTitle: t('app:personal-information.page-title'),
     defaultValues: {
-      //TODO: Replace with actual values
-      personalRecordIdentifier: undefined,
-      preferredLanguage: undefined as string | undefined,
-      workEmail: authenticatedSession.authState.idTokenClaims.email,
-      personalEmail: undefined,
-      workPhone: undefined,
-      personalPhone: undefined,
-      additionalInformation: undefined as string | undefined,
+      personalRecordIdentifier: profileData.personalInformation.personalRecordIdentifier,
+      preferredLanguage: profileData.personalInformation.preferredLanguageId,
+      workEmail: profileUser?.businessEmail ?? profileData.personalInformation.workPhone,
+      personalEmail: profileData.personalInformation.personalEmail,
+      workPhone: toE164(profileData.personalInformation.workPhone),
+      personalPhone: toE164(profileData.personalInformation.personalPhone),
+      additionalInformation: profileData.personalInformation.additionalInformation,
     },
     languagesOfCorrespondence: localizedLanguagesOfCorrespondenceResult,
   };
@@ -122,7 +128,7 @@ export default function PersonalInformation({ loaderData, actionData, params }: 
                 required
               />
               <InputField
-                disabled
+                readOnly
                 className="w-full"
                 id="work-email"
                 name="workEmail"
