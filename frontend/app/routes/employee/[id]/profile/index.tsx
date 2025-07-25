@@ -463,7 +463,7 @@ function ProfileCard({
       <CardFooter
         className={cn(
           'mt-3',
-          errorState ? 'bg-light-red' : 'bg-gray-100', // Add background
+          errorState ? 'bg-red-100' : 'bg-gray-100', // Add background
           '-mx-4 sm:-mx-6', // Pull horizontally to cancel parent padding
           '-mb-4 sm:-mb-6', // Pull down to cancel parent bottom padding
           'px-4 sm:px-6', // Add horizontal padding back for the content
