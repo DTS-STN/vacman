@@ -100,21 +100,23 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 
   const profileData: Profile = profileResult.unwrap();
 
+  console.log(profileData);
+
   const preferredLanguageResult =
     profileData.personalInformation.preferredLanguageId &&
     (await getLanguageForCorrespondenceService().findLocalizedById(profileData.personalInformation.preferredLanguageId, lang));
   const workUnitResult =
-    profileData.employmentInformation.workUnitId &&
-    (await getDirectorateService().findLocalizedById(profileData.employmentInformation.workUnitId, lang));
+    profileData.employmentInformation.directorate &&
+    (await getDirectorateService().findLocalizedById(profileData.employmentInformation.directorate, lang));
   const substantivePositionResult =
-    profileData.employmentInformation.classificationId &&
-    (await getClassificationService().findLocalizedById(profileData.employmentInformation.classificationId, lang));
+    profileData.employmentInformation.substantivePosition &&
+    (await getClassificationService().findLocalizedById(profileData.employmentInformation.substantivePosition, lang));
   const cityResult =
     profileData.employmentInformation.cityId &&
     (await getCityService().findLocalizedById(profileData.employmentInformation.cityId, lang));
   const wfaStatusResult =
-    profileData.employmentInformation.wfaStatusId &&
-    (await getWFAStatuses().findLocalizedById(profileData.employmentInformation.wfaStatusId, lang));
+    profileData.employmentInformation.wfaStatus &&
+    (await getWFAStatuses().findLocalizedById(profileData.employmentInformation.wfaStatus, lang));
 
   const completed = countCompletedItems(profileData);
   const total = Object.keys(profileData).length;

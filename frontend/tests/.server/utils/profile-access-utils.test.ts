@@ -30,6 +30,7 @@ vi.mock('~/.server/utils/route-matching-utils');
 const mockProfileService = {
   getProfile: vi.fn(),
   registerProfile: vi.fn(),
+  updateEmploymentInformation: vi.fn(),
 };
 const mockUserService = {
   getUserByActiveDirectoryId: vi.fn(),

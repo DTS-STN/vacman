@@ -134,13 +134,12 @@ export const employmentInformationSchema = v.pipe(
           'app:employment-information.errors.provinces-required',
         ),
       ),
-      city: v.lazy(() =>
+      cityId: v.lazy(() =>
         v.picklist(
           allCities.map(({ id }) => String(id)),
           'app:employment-information.errors.city-required',
         ),
       ),
-
       hrAdvisor: v.lazy(() =>
         v.picklist(
           hrAdvisors.map(({ id }) => id.toString()),
@@ -336,7 +335,7 @@ export function parseEmploymentInformation(formData: FormData) {
     branchOrServiceCanadaRegion: formString(formData.get('branchOrServiceCanadaRegion')),
     directorate: formString(formData.get('directorate')),
     province: formString(formData.get('province')),
-    city: formString(formData.get('city')),
+    cityId: formString(formData.get('cityId')),
     wfaStatus: formString(formData.get('wfaStatus')),
     wfaEffectiveDate: toDateString(wfaEffectiveDateYear, wfaEffectiveDateMonth, wfaEffectiveDateDay),
     wfaEffectiveDateYear: wfaEffectiveDateYear,
@@ -356,7 +355,7 @@ export function parseEmploymentInformation(formData: FormData) {
       branchOrServiceCanadaRegion: formValues.branchOrServiceCanadaRegion,
       directorate: formValues.directorate,
       province: formValues.province,
-      city: formValues.city,
+      cityId: formValues.cityId,
       wfaStatus: formValues.wfaStatus,
       wfaEffectiveDateYear: formValues.wfaEffectiveDateYear,
       wfaEffectiveDateMonth: formValues.wfaEffectiveDateMonth,
