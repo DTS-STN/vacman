@@ -159,16 +159,6 @@ spring:
 
 #
 # ------------------------------------------------------------------------------------
-# MSGraph configuration
-# ------------------------------------------------------------------------------------
-application:
-  microsoft-graph:
-    base-url: https://graph.microsoft.com/v1.0
-
----
-
-#
-# ------------------------------------------------------------------------------------
 # Spring Boot Actuator configuration
 # ------------------------------------------------------------------------------------
 # See https://docs.spring.io/spring-boot/appendix/application-properties/index.html#appendix.application-properties.actuator
@@ -303,7 +293,8 @@ application:
     description: |
       This OpenAPI document describes the key areas where developers typically engage with the Vacancy Manager API.
     tos-url: https://www.canada.ca/en/transparency/terms.html
-
+  microsoft-graph:
+    base-url: https://graph.microsoft.com/v1.0
 ---
 
 #
