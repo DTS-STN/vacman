@@ -5,21 +5,24 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useTranslation } from 'react-i18next';
 
 import { DropdownMenu, DropdownMenuContent, DropdownMenuLabel, DropdownMenuTrigger } from '~/components/dropdown-menu';
-import { Menu, MenuItem } from '~/components/menu';
+
+import { MenuItem } from '~/components/menu';
 import { cn } from '~/utils/tailwind-utils';
 
 type AppBarProps = {
-  children: React.ReactNode;
+  children?: React.ReactNode;
   name?: string;
   profileItems?: React.ReactNode;
 };
 
 export function AppBar({ children, name, profileItems }: AppBarProps): JSX.Element {
+  const { t } = useTranslation(['gcweb']);
+
   return (
     <div className="bg-slate-700">
       <div className="align-center container mx-auto flex flex-wrap justify-between">
         <div className="align-center flex">
-          <Menu>{children}</Menu>
+          <AppTitle title={t('gcweb:app.title')}></AppTitle>
         </div>
         <div className="flex items-center space-x-4 text-right">
           {name && <UserButton name={name}>{profileItems}</UserButton>}
@@ -85,3 +88,18 @@ function UserName({ name }: UserNameProps): JSX.Element {
     </>
   );
 }
+
+type AppTitleProps = {
+  title: string;
+};
+
+function AppTitle({ title }: AppTitleProps): JSX.Element {
+  return (
+    <>
+      <span id="app-bar-title-label" className={'my-auto py-2 text-white sm:text-2xl'}>
+        {title}
+      </span>
+    </>
+  );
+}
+
