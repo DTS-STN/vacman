@@ -10,6 +10,8 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.Duration;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -55,7 +57,11 @@ class MicrosoftGraphServiceTest {
 
     @BeforeEach
     void setUp() {
-        properties = new MicrosoftGraphProperties("https://graph.microsoft.com/v1.0");
+        properties = new MicrosoftGraphProperties(
+            "https://graph.microsoft.com/v1.0",
+            Duration.ofSeconds(10),
+            Duration.ofSeconds(30)
+        );
 
         when(restTemplateBuilder.connectTimeout(any())).thenReturn(restTemplateBuilder);
         when(restTemplateBuilder.readTimeout(any())).thenReturn(restTemplateBuilder);
