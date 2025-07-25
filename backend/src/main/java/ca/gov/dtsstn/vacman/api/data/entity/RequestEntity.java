@@ -60,7 +60,7 @@ public class RequestEntity extends AbstractBaseEntity {
 	private LanguageEntity language;
 
 	@ManyToOne
-	@JoinColumn(name = "[LNG_REQUIREMENT_ID]", nullable = false)
+	@JoinColumn(name = "[LANGUAGE_REQUIREMENT_ID]", nullable = false)
 	private LanguageRequirementEntity languageRequirement;
 
 	@ManyToOne

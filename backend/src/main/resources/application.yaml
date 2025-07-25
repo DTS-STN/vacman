@@ -50,11 +50,7 @@ spring:
 spring:
   datasource:
     name: ${spring.application.name}
-
-    # Production db config and properties go here
-    # url: ...
-
-
+    url: jdbc:h2:mem:testdb;MODE=MSSQLServer;DATABASE_TO_UPPER=false;CASE_INSENSITIVE_IDENTIFIERS=true;DB_CLOSE_DELAY=-1;
     # HikariCP Connection Pool specific settings.
     # HikariCP is the default connection pool in Spring Boot 2.x+ for JDBC DataSources.
     hikari: # see https://github.com/brettwooldridge/HikariCP#frequently-used
@@ -73,6 +69,8 @@ spring:
       # For optimal performance and responsiveness to burst demand, it's recommended to set this
       # to the same value as maximumPoolSize, creating a fixed-size connection pool.
       minimum-idle: 10
+  jpa:
+    defer-datasource-initialization: true
 
 ---
 
@@ -247,9 +245,9 @@ application:
 #
 
 spring:
-  activate:
-    on-profile: '!test'
   config:
+    activate:
+      on-profile: '!test'
     import:
       - optional:application-local.yml
       - optional:application-local.yaml
