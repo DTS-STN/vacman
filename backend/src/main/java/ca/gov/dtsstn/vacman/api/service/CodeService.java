@@ -46,7 +46,6 @@ import ca.gov.dtsstn.vacman.api.data.repository.WorkUnitRepository;
 @Service
 public class CodeService {
 
-
 	private final CityRepository cityRepository;
 
 	private final ClassificationRepository classificationRepository;
@@ -125,7 +124,6 @@ public class CodeService {
 		this.workScheduleRepository = workScheduleRepository;
 		this.workUnitRepository = workUnitRepository;
 	}
-
 
 	public Page<CityEntity> getAllCities(Pageable pageable) {
 		return cityRepository.findAll(pageable);
