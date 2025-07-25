@@ -23,7 +23,6 @@ export default {
     'in-progress': 'In progress',
     'required': 'Required',
     'complete': 'Complete',
-    'fields-complete': '{{completed}} out of {{total}} fields complete',
     'personal-information': {
       'title': 'Personal information',
       'link-label': 'personal information',
