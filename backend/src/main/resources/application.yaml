@@ -235,7 +235,8 @@ application:
     description: |
       This OpenAPI document describes the key areas where developers typically engage with the Vacancy Manager API.
     tos-url: https://www.canada.ca/en/transparency/terms.html
-
+  microsoft-graph:
+    base-url: https://graph.microsoft.com/v1.0
 ---
 
 #
