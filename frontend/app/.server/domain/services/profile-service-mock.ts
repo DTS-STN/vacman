@@ -1,7 +1,7 @@
 import { None, Some, Err, Ok } from 'oxide.ts';
 import type { Result } from 'oxide.ts';
 
-import type { Profile, UserEmploymentInformation } from '~/.server/domain/models';
+import type { Profile, UserEmploymentInformation, UserReferralPreferences } from '~/.server/domain/models';
 import type { ProfileService } from '~/.server/domain/services/profile-service';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
@@ -46,6 +46,36 @@ export function getMockProfileService(): ProfileService {
       );
 
       return await Promise.resolve(Ok(undefined));
+    },
+    async updateReferralPreferences(
+      activeDirectoryId: string,
+      referralPrefs: UserReferralPreferences,
+    ): Promise<Result<void, AppError>> {
+      const userId = activeDirectoryToUserIdMap[activeDirectoryId];
+      const profileIndex = mockProfiles.findIndex((p) => p.userId === userId);
+
+      if (profileIndex === -1) {
+        return Err(new AppError('Profile not found', ErrorCodes.PROFILE_NOT_FOUND));
+      }
+
+      mockProfiles = mockProfiles.map((profile, idx) =>
+        idx === profileIndex
+          ? {
+              ...profile,
+              referralPreferences: {
+                ...profile.referralPreferences,
+                languageReferralTypeIds: referralPrefs.languageReferralTypeIds,
+                classificationIds: referralPrefs.classificationIds,
+                workLocationCitiesIds: referralPrefs.workLocationCitiesIds,
+                availableForReferralInd: referralPrefs.availableForReferralInd,
+                interestedInAlternationInd: referralPrefs.interestedInAlternationInd,
+                employmentTenureIds: referralPrefs.employmentTenureIds,
+              },
+            }
+          : profile,
+      );
+
+      return Promise.resolve(Ok(undefined));
     },
   };
 }

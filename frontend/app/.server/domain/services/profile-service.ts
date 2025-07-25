@@ -1,6 +1,6 @@
 import type { Option, Result } from 'oxide.ts';
 
-import type { Profile, UserEmploymentInformation } from '~/.server/domain/models';
+import type { Profile, UserEmploymentInformation, UserReferralPreferences } from '~/.server/domain/models';
 import { getDefaultProfileService } from '~/.server/domain/services/profile-service-default';
 import { getMockProfileService } from '~/.server/domain/services/profile-service-mock';
 import { serverEnvironment } from '~/.server/environment';
@@ -13,6 +13,7 @@ export type ProfileService = {
     activeDirectoryId: string,
     employmentInfo: UserEmploymentInformation,
   ): Promise<Result<void, AppError>>;
+  updateReferralPreferences(activeDirectoryId: string, referralPrefs: UserReferralPreferences): Promise<Result<void, AppError>>;
 };
 
 export function getProfileService(): ProfileService {

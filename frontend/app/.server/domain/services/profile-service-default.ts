@@ -1,7 +1,7 @@
 import { Err, None, Ok, Some } from 'oxide.ts';
 import type { Option, Result } from 'oxide.ts';
 
-import type { Profile, UserEmploymentInformation } from '~/.server/domain/models';
+import type { Profile, UserEmploymentInformation, UserReferralPreferences } from '~/.server/domain/models';
 import type { ProfileService } from '~/.server/domain/services/profile-service';
 import { serverEnvironment } from '~/.server/environment';
 import { AppError } from '~/errors/app-error';
@@ -107,13 +107,65 @@ export function getDefaultProfileService(): ProfileService {
       employmentInfo: UserEmploymentInformation,
     ): Promise<Result<void, AppError>> {
       try {
-        await fetch(`/profiles/${activeDirectoryId}/employment`, {
+        const response = await fetch(`/profiles/${activeDirectoryId}/employment`, {
           method: 'PUT',
           body: JSON.stringify(employmentInfo),
         });
+
+        if (!response.ok) {
+          return Err(
+            new AppError(
+              `Failed to update employment preferences. Server responded with status ${response.status}`,
+              ErrorCodes.PROFILE_UPDATE_FAILED,
+              { httpStatusCode: response.status as HttpStatusCode },
+            ),
+          );
+        }
+
         return Ok(undefined);
-      } catch {
-        return Err(new AppError('Failed to update employment information', ErrorCodes.PROFILE_UPDATE_FAILED));
+      } catch (error) {
+        return Err(
+          new AppError(
+            error instanceof Error ? error.message : 'Failed to update employment information',
+            ErrorCodes.PROFILE_NETWORK_ERROR,
+            { httpStatusCode: HttpStatusCodes.SERVICE_UNAVAILABLE },
+          ),
+        );
+      }
+    },
+
+    async updateReferralPreferences(
+      activeDirectoryId: string,
+      referralPrefs: UserReferralPreferences,
+    ): Promise<Result<void, AppError>> {
+      try {
+        const response = await fetch(
+          `${serverEnvironment.VACMAN_API_BASE_URI}/profiles/${activeDirectoryId}/referral-preferences`,
+          {
+            method: 'PUT',
+            body: JSON.stringify(referralPrefs),
+          },
+        );
+
+        if (!response.ok) {
+          return Err(
+            new AppError(
+              `Failed to update referral preferences. Server responded with status ${response.status}`,
+              ErrorCodes.PROFILE_UPDATE_FAILED,
+              { httpStatusCode: response.status as HttpStatusCode },
+            ),
+          );
+        }
+
+        return Ok(undefined);
+      } catch (error) {
+        return Err(
+          new AppError(
+            error instanceof Error ? error.message : 'Failed to update referral preferences',
+            ErrorCodes.PROFILE_NETWORK_ERROR,
+            { httpStatusCode: HttpStatusCodes.SERVICE_UNAVAILABLE },
+          ),
+        );
       }
     },
   };

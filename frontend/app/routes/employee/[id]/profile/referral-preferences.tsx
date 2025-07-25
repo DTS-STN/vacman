@@ -61,17 +61,17 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   const currentUserId = authenticatedSession.authState.idTokenClaims.oid as string;
   const formData = await request.formData();
   const parseResult = v.safeParse(refferralPreferencesSchema, {
-    languageReferralTypes: formData.getAll('languageReferralTypes').map(String),
-    classifications: formData.getAll('classifications').map(String),
+    languageReferralTypeIds: formData.getAll('languageReferralTypes').map(String),
+    classificationIds: formData.getAll('classifications').map(String),
     workLocationProvince: formString(formData.get('workLocationProvince')),
-    workLocationCities: formData.getAll('workLocationCities').map(String),
-    referralAvailibility: formData.get('referralAvailibility')
+    workLocationCitiesIds: formData.getAll('workLocationCities').map(String),
+    availableForReferralInd: formData.get('referralAvailibility')
       ? formData.get('referralAvailibility') === REQUIRE_OPTIONS.yes
       : undefined,
-    alternateOpportunity: formData.get('alternateOpportunity')
+    interestedInAlternationInd: formData.get('alternateOpportunity')
       ? formData.get('alternateOpportunity') === REQUIRE_OPTIONS.yes
       : undefined,
-    employmentTenures: formData.getAll('employmentTenures').map(String),
+    employmentTenureIds: formData.getAll('employmentTenures').map(String),
   });
 
   if (!parseResult.success) {
@@ -81,7 +81,11 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     );
   }
 
-  //TODO: Save form data
+  const updateResult = await getProfileService().updateReferralPreferences(currentUserId, parseResult.output);
+
+  if (updateResult.isErr()) {
+    throw updateResult.unwrapErr();
+  }
 
   return i18nRedirect('routes/employee/[id]/profile/index.tsx', request, {
     params: { id: currentUserId },
@@ -109,13 +113,13 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   return {
     documentTitle: t('app:referral-preferences.page-title'),
     defaultValues: {
-      languageReferralTypes: profileData.referralPreferences.languageReferralTypeIds,
-      classification: profileData.referralPreferences.classificationIds,
+      languageReferralTypeIds: profileData.referralPreferences.languageReferralTypeIds,
+      classificationIds: profileData.referralPreferences.classificationIds,
       workLocationProvince: city?.province.id,
-      workLocationCities: profileData.referralPreferences.workLocationCitiesIds,
-      referralAvailibility: profileData.referralPreferences.availableForReferralInd,
-      alternateOpportunity: profileData.referralPreferences.interestedInAlternationInd,
-      employmentTenures: profileData.referralPreferences.employmentTenureIds,
+      workLocationCitiesIds: profileData.referralPreferences.workLocationCitiesIds,
+      availableForReferralInd: profileData.referralPreferences.availableForReferralInd,
+      interestedInAlternationInd: profileData.referralPreferences.interestedInAlternationInd,
+      employmentTenureIds: profileData.referralPreferences.employmentTenureIds,
     },
     languageReferralTypes: localizedLanguageReferralTypesResult,
     classifications: localizedClassifications,
@@ -129,17 +133,17 @@ export default function PersonalDetails({ loaderData, actionData, params }: Rout
   const { t } = useTranslation(handle.i18nNamespace);
   const errors = actionData?.errors;
 
-  const [referralAvailibility, setReferralAvailibility] = useState(loaderData.defaultValues.referralAvailibility);
-  const [alternateOpportunity, setAlternateOpportunity] = useState(loaderData.defaultValues.alternateOpportunity);
-  const [selectedClassifications, setSelectedClassifications] = useState(loaderData.defaultValues.classification);
-  const [selectedCities, setSelectedCities] = useState(loaderData.defaultValues.workLocationCities);
+  const [referralAvailibility, setReferralAvailibility] = useState(loaderData.defaultValues.availableForReferralInd);
+  const [alternateOpportunity, setAlternateOpportunity] = useState(loaderData.defaultValues.interestedInAlternationInd);
+  const [selectedClassifications, setSelectedClassifications] = useState(loaderData.defaultValues.classificationIds);
+  const [selectedCities, setSelectedCities] = useState(loaderData.defaultValues.workLocationCitiesIds);
   const [province, setProvince] = useState(loaderData.defaultValues.workLocationProvince);
   const [srAnnouncement, setSrAnnouncement] = useState(''); //screen reader announcement
 
   const languageReferralTypeOptions = loaderData.languageReferralTypes.map((langReferral) => ({
     value: String(langReferral.id),
     children: langReferral.name,
-    defaultChecked: loaderData.defaultValues.languageReferralTypes?.includes(langReferral.id) ?? false,
+    defaultChecked: loaderData.defaultValues.languageReferralTypeIds?.includes(langReferral.id) ?? false,
   }));
   const classificationOptions = loaderData.classifications.map((classification) => ({
     value: String(classification.id),
@@ -187,7 +191,7 @@ export default function PersonalDetails({ loaderData, actionData, params }: Rout
   const employmentTenureOptions = loaderData.employmentTenures.map((employmentTenures) => ({
     value: String(employmentTenures.id),
     children: employmentTenures.name,
-    defaultChecked: loaderData.defaultValues.employmentTenures?.includes(employmentTenures.id) ?? false,
+    defaultChecked: loaderData.defaultValues.employmentTenureIds?.includes(employmentTenures.id) ?? false,
   }));
 
   // Choice tags for classification
@@ -246,7 +250,7 @@ export default function PersonalDetails({ loaderData, actionData, params }: Rout
             <div className="space-y-6">
               <InputCheckboxes
                 id="languageReferralTypesId"
-                errorMessage={t(extractValidationKey(errors?.languageReferralTypes))}
+                errorMessage={t(extractValidationKey(errors?.languageReferralTypeIds))}
                 legend={t('app:referral-preferences.language-referral-type')}
                 name="languageReferralTypes"
                 options={languageReferralTypeOptions}
@@ -262,7 +266,7 @@ export default function PersonalDetails({ loaderData, actionData, params }: Rout
                 onChange={setSelectedClassifications}
                 placeholder={t('app:form.select-all-that-apply')}
                 helpMessage={t('app:referral-preferences.classification-group-help-message-primary')}
-                errorMessage={t(extractValidationKey(errors?.classifications))}
+                errorMessage={t(extractValidationKey(errors?.classificationIds))}
                 required
               />
 
@@ -294,7 +298,7 @@ export default function PersonalDetails({ loaderData, actionData, params }: Rout
                     <InputMultiSelect
                       id="workLocationCitiesId"
                       name="workLocationCities"
-                      errorMessage={t(extractValidationKey(errors?.workLocationCities))}
+                      errorMessage={t(extractValidationKey(errors?.workLocationCitiesIds))}
                       options={cityOptions}
                       value={selectedCities ?? []}
                       onChange={setSelectedCities}
@@ -324,7 +328,7 @@ export default function PersonalDetails({ loaderData, actionData, params }: Rout
                 name="referralAvailibility"
                 options={referralAvailibilityOptions}
                 required
-                errorMessage={t(extractValidationKey(errors?.referralAvailibility))}
+                errorMessage={t(extractValidationKey(errors?.availableForReferralInd))}
                 helpMessagePrimary={t('app:referral-preferences.referral-availibility-help-message-primary')}
               />
               <InputRadios
@@ -333,7 +337,7 @@ export default function PersonalDetails({ loaderData, actionData, params }: Rout
                 name="alternateOpportunity"
                 options={alternateOpportunityOptions}
                 required
-                errorMessage={t(extractValidationKey(errors?.alternateOpportunity))}
+                errorMessage={t(extractValidationKey(errors?.interestedInAlternationInd))}
                 helpMessagePrimary={
                   <Collapsible summary={t('app:referral-preferences.what-is-alternation')}>
                     {t('app:referral-preferences.alternation-description-text')}
@@ -342,7 +346,7 @@ export default function PersonalDetails({ loaderData, actionData, params }: Rout
               />
               <InputCheckboxes
                 id="employmentTenuresId"
-                errorMessage={t(extractValidationKey(errors?.employmentTenures))}
+                errorMessage={t(extractValidationKey(errors?.employmentTenureIds))}
                 legend={t('app:referral-preferences.employment-tenure')}
                 name="employmentTenures"
                 options={employmentTenureOptions}
