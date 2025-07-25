@@ -55,7 +55,11 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     );
   }
 
-  //TODO: Save form data after validation
+  const updateResult = await getProfileService().updateEmploymentInformation(currentUserId, parseResult.output);
+
+  if (updateResult.isErr()) {
+    throw updateResult.unwrapErr();
+  }
 
   return i18nRedirect('routes/employee/[id]/profile/index.tsx', request, {
     params: { id: currentUserId },
@@ -78,8 +82,8 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const profileData: Profile = profileResult.unwrap();
 
   const workUnitResult =
-    profileData.employmentInformation.workUnitId &&
-    (await getDirectorateService().findLocalizedById(profileData.employmentInformation.workUnitId, lang));
+    profileData.employmentInformation.directorate &&
+    (await getDirectorateService().findLocalizedById(profileData.employmentInformation.directorate, lang));
   const workUnit = workUnitResult && workUnitResult.isSome() ? workUnitResult.unwrap() : undefined;
   const cityResult =
     profileData.employmentInformation.cityId &&
@@ -89,12 +93,12 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   return {
     documentTitle: t('app:employment-information.page-title'),
     defaultValues: {
-      substantivePosition: profileData.employmentInformation.classificationId,
+      substantivePosition: profileData.employmentInformation.substantivePosition,
       branchOrServiceCanadaRegion: workUnit?.parent.id,
       directorate: workUnit?.id,
       province: city?.province.id,
-      city: profileData.employmentInformation.cityId,
-      wfaStatus: profileData.employmentInformation.wfaStatusId,
+      cityId: profileData.employmentInformation.cityId,
+      wfaStatus: profileData.employmentInformation.wfaStatus,
       wfaEffectiveDate: profileData.employmentInformation.wfaEffectiveDate,
       wfaEndDate: profileData.employmentInformation.wfaEndDate,
       hrAdvisor: profileData.employmentInformation.hrAdvisor?.toString(),
@@ -227,13 +231,13 @@ export default function EmploymentInformation({ loaderData, actionData, params }
               {province && (
                 <>
                   <InputSelect
-                    id="city"
-                    name="city"
-                    errorMessage={t(extractValidationKey(errors?.city))}
+                    id="cityId"
+                    name="cityId"
+                    errorMessage={t(extractValidationKey(errors?.cityId))}
                     required
                     options={cityOptions}
                     label={t('app:employment-information.city')}
-                    defaultValue={loaderData.defaultValues.city ?? ''}
+                    defaultValue={loaderData.defaultValues.cityId ?? ''}
                     className="w-full sm:w-1/2"
                   />
                 </>

@@ -22,6 +22,7 @@ vi.mock('~/.server/domain/services/profile-service');
 const mockProfileService = {
   getProfile: vi.fn(),
   registerProfile: vi.fn(),
+  updateEmploymentInformation: vi.fn(),
 };
 
 vi.mocked(getProfileService).mockReturnValue(mockProfileService);

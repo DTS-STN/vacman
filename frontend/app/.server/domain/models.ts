@@ -131,7 +131,7 @@ export type LocalizedLanguageOfCorrespondence = Readonly<{
 }>;
 
 export type User = Readonly<{
-  id: number;
+  id: string;
   role: string;
   networkName: string;
   uuName: string;
@@ -180,13 +180,14 @@ export type UserPersonalInformation = {
   additionalInformation?: string;
 };
 export type UserEmploymentInformation = {
-  classificationId?: string;
-  workUnitId?: string;
+  substantivePosition?: string;
+  branchOrServiceCanadaRegion?: string;
+  directorate?: string;
   cityId?: string;
-  wfaStatusId?: string;
+  wfaStatus?: string;
   wfaEffectiveDate?: string;
   wfaEndDate?: string;
-  hrAdvisor?: number;
+  hrAdvisor?: string;
 };
 export type UserReferralPreferences = {
   languageReferralTypeIds?: string[];

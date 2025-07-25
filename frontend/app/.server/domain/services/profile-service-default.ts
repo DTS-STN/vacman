@@ -1,7 +1,7 @@
-import { None, Some } from 'oxide.ts';
-import type { Option } from 'oxide.ts';
+import { Err, None, Ok, Some } from 'oxide.ts';
+import type { Option, Result } from 'oxide.ts';
 
-import type { Profile } from '~/.server/domain/models';
+import type { Profile, UserEmploymentInformation } from '~/.server/domain/models';
 import type { ProfileService } from '~/.server/domain/services/profile-service';
 import { serverEnvironment } from '~/.server/environment';
 import { AppError } from '~/errors/app-error';
@@ -99,6 +99,21 @@ export function getDefaultProfileService(): ProfileService {
           ErrorCodes.PROFILE_INVALID_RESPONSE,
           { httpStatusCode: HttpStatusCodes.BAD_GATEWAY },
         );
+      }
+    },
+
+    async updateEmploymentInformation(
+      activeDirectoryId: string,
+      employmentInfo: UserEmploymentInformation,
+    ): Promise<Result<void, AppError>> {
+      try {
+        await fetch(`/profiles/${activeDirectoryId}/employment`, {
+          method: 'PUT',
+          body: JSON.stringify(employmentInfo),
+        });
+        return Ok(undefined);
+      } catch {
+        return Err(new AppError('Failed to update employment information', ErrorCodes.PROFILE_UPDATE_FAILED));
       }
     },
   };

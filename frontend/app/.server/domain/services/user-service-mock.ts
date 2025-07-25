@@ -14,7 +14,7 @@ export function getMockUserService(): UserService {
         return Promise.reject(error);
       }
     },
-    getUserById: (id: number) => {
+    getUserById: (id: string) => {
       try {
         return Promise.resolve(getUserById(id));
       } catch (error) {
@@ -44,7 +44,7 @@ export function getMockUserService(): UserService {
  */
 const mockUsers: readonly User[] = [
   {
-    id: 1,
+    id: '1',
     role: 'employee',
     networkName: '00000000-0000-0000-0000-000000000001',
     uuName: 'Jane Doe',
@@ -61,7 +61,7 @@ const mockUsers: readonly User[] = [
     dateUpdated: '2024-01-01T00:00:00Z',
   },
   {
-    id: 2,
+    id: '2',
     role: 'employee',
     networkName: '11111111-1111-1111-1111-111111111111',
     uuName: 'John Doe',
@@ -78,7 +78,7 @@ const mockUsers: readonly User[] = [
     dateUpdated: '2024-01-01T00:00:00Z',
   },
   {
-    id: 3,
+    id: '3',
     role: 'employee',
     networkName: '22222222-2222-2222-2222-222222222222',
     uuName: 'Jane Smith',
@@ -95,7 +95,7 @@ const mockUsers: readonly User[] = [
     dateUpdated: '2024-01-02T00:00:00Z',
   },
   {
-    id: 4,
+    id: '4',
     role: 'hiring-manager',
     networkName: '33333333-3333-3333-3333-333333333333',
     uuName: 'Michel Tremblay',
@@ -112,7 +112,7 @@ const mockUsers: readonly User[] = [
     dateUpdated: '2024-01-03T00:00:00Z',
   },
   {
-    id: 5,
+    id: '5',
     role: 'hr-advisor',
     networkName: '44444444-4444-4444-4444-444444444444',
     uuName: 'Sarah Baker',
@@ -148,7 +148,7 @@ function getUsersByRole(role: string): User[] {
  * @returns The user object if found.
  * @throws {AppError} If the user is not found.
  */
-function getUserById(id: number): User {
+function getUserById(id: string): User {
   const user = mockUsers.find((u) => u.id === id);
   if (!user) {
     throw new AppError(`User with ID '${id}' not found.`, ErrorCodes.VACMAN_API_ERROR);
@@ -194,7 +194,7 @@ function registerUser(userData: UserCreate, session: AuthenticatedSession): User
   // Create the new user with data from session and defaults
   const activeDirectoryId = userData.activeDirectoryId ?? (idTokenClaims.oid as string);
   const newUser: User = {
-    id: mockUsers.length + 1,
+    id: String(mockUsers.length + 1),
     role: userData.role,
     networkName: activeDirectoryId,
     uuName: fullName || `${firstName} ${lastName}`.trim() || 'Unknown User',

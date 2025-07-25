@@ -1,7 +1,10 @@
-import { None, Some } from 'oxide.ts';
+import { None, Some, Err, Ok } from 'oxide.ts';
+import type { Result } from 'oxide.ts';
 
-import type { Profile } from '~/.server/domain/models';
+import type { Profile, UserEmploymentInformation } from '~/.server/domain/models';
 import type { ProfileService } from '~/.server/domain/services/profile-service';
+import { AppError } from '~/errors/app-error';
+import { ErrorCodes } from '~/errors/error-codes';
 
 export function getMockProfileService(): ProfileService {
   return {
@@ -12,13 +15,45 @@ export function getMockProfileService(): ProfileService {
     registerProfile: (activeDirectoryId: string) => {
       return Promise.resolve(registerProfile(activeDirectoryId));
     },
+    async updateEmploymentInformation(
+      activeDirectoryId: string,
+      employmentInfo: UserEmploymentInformation,
+    ): Promise<Result<void, AppError>> {
+      const mockProfile = getProfile(activeDirectoryId);
+
+      if (!mockProfile) {
+        return Err(new AppError('Failed to update employment information', ErrorCodes.PROFILE_UPDATE_FAILED));
+      }
+
+      const userId = activeDirectoryToUserIdMap[activeDirectoryId];
+
+      mockProfiles = mockProfiles.map((profile) =>
+        profile.userId === userId
+          ? {
+              ...profile,
+              employmentInformation: {
+                substantivePosition: employmentInfo.substantivePosition,
+                branchOrServiceCanadaRegion: employmentInfo.branchOrServiceCanadaRegion,
+                directorate: employmentInfo.directorate,
+                cityId: employmentInfo.cityId,
+                wfaStatus: employmentInfo.wfaStatus,
+                wfaEffectiveDate: employmentInfo.wfaEffectiveDate,
+                wfaEndDate: employmentInfo.wfaEndDate,
+                hrAdvisor: employmentInfo.hrAdvisor,
+              },
+            }
+          : profile,
+      );
+
+      return await Promise.resolve(Ok(undefined));
+    },
   };
 }
 
 /**
  * Mock profile data for testing and development.
  */
-const mockProfiles: Profile[] = [
+let mockProfiles: Profile[] = [
   {
     profileId: 1,
     userId: 1,
@@ -41,10 +76,11 @@ const mockProfiles: Profile[] = [
       additionalInformation: 'Looking for opportunities in software development.',
     },
     employmentInformation: {
-      classificationId: undefined,
-      workUnitId: undefined,
+      substantivePosition: undefined,
+      branchOrServiceCanadaRegion: undefined,
+      directorate: undefined,
       cityId: undefined,
-      wfaStatusId: undefined,
+      wfaStatus: undefined,
       wfaEffectiveDate: undefined,
       wfaEndDate: undefined,
       hrAdvisor: undefined,
@@ -80,10 +116,11 @@ const mockProfiles: Profile[] = [
       additionalInformation: undefined,
     },
     employmentInformation: {
-      classificationId: undefined,
-      workUnitId: undefined,
+      substantivePosition: undefined,
+      branchOrServiceCanadaRegion: undefined,
+      directorate: undefined,
       cityId: undefined,
-      wfaStatusId: undefined,
+      wfaStatus: undefined,
       wfaEffectiveDate: undefined,
       wfaEndDate: undefined,
       hrAdvisor: undefined,
@@ -160,10 +197,11 @@ function registerProfile(activeDirectoryId: string): Profile {
       additionalInformation: 'Looking for opportunities in software development.',
     },
     employmentInformation: {
-      classificationId: undefined,
-      workUnitId: undefined,
+      substantivePosition: undefined,
+      branchOrServiceCanadaRegion: undefined,
+      directorate: undefined,
       cityId: undefined,
-      wfaStatusId: undefined,
+      wfaStatus: undefined,
       wfaEffectiveDate: undefined,
       wfaEndDate: undefined,
       hrAdvisor: undefined,
