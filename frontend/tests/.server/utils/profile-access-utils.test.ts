@@ -31,6 +31,7 @@ const mockProfileService = {
   getProfile: vi.fn(),
   registerProfile: vi.fn(),
   updateEmploymentInformation: vi.fn(),
+  updateReferralPreferences: vi.fn(),
 };
 const mockUserService = {
   getUserByActiveDirectoryId: vi.fn(),

@@ -251,7 +251,7 @@ export const employmentInformationSchema = v.pipe(
 );
 
 export const refferralPreferencesSchema = v.object({
-  languageReferralTypes: v.pipe(
+  languageReferralTypeIds: v.pipe(
     v.array(
       v.lazy(() =>
         v.picklist(
@@ -266,7 +266,7 @@ export const refferralPreferencesSchema = v.object({
       'app:referral-preferences.errors.language-referral-type-duplicate',
     ),
   ),
-  classifications: v.pipe(
+  classificationIds: v.pipe(
     v.array(
       v.lazy(() =>
         v.picklist(
@@ -287,7 +287,7 @@ export const refferralPreferencesSchema = v.object({
       'app:referral-preferences.errors.work-location-province-required',
     ),
   ),
-  workLocationCities: v.pipe(
+  workLocationCitiesIds: v.pipe(
     v.array(
       v.lazy(() =>
         v.picklist(
@@ -302,9 +302,9 @@ export const refferralPreferencesSchema = v.object({
       'app:referral-preferences.errors.work-location-city-duplicate',
     ),
   ),
-  referralAvailibility: v.boolean('app:referral-preferences.errors.referral-availibility-required'),
-  alternateOpportunity: v.boolean('app:referral-preferences.errors.alternate-opportunity-required'),
-  employmentTenures: v.pipe(
+  availableForReferralInd: v.boolean('app:referral-preferences.errors.referral-availibility-required'),
+  interestedInAlternationInd: v.boolean('app:referral-preferences.errors.alternate-opportunity-required'),
+  employmentTenureIds: v.pipe(
     v.array(
       v.lazy(() =>
         v.picklist(
