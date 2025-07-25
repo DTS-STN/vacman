@@ -168,5 +168,33 @@ export function getDefaultProfileService(): ProfileService {
         );
       }
     },
+
+    async getAllProfiles(): Promise<Profile[]> {
+      let response: Response;
+      try {
+        response = await fetch(`${serverEnvironment.VACMAN_API_BASE_URI}/profiles`);
+      } catch (error) {
+        throw new AppError(
+          error instanceof Error ? error.message : `Network error while fetching all profiles`,
+          ErrorCodes.PROFILE_NETWORK_ERROR,
+          { httpStatusCode: HttpStatusCodes.SERVICE_UNAVAILABLE },
+        );
+      }
+
+      if (!response.ok) {
+        const errorMessage = `Failed to retrieve all profiles. Server responded with status ${response.status}.`;
+        throw new AppError(errorMessage, ErrorCodes.PROFILE_FETCH_FAILED, {
+          httpStatusCode: response.status as HttpStatusCode,
+        });
+      }
+
+      try {
+        return await response.json();
+      } catch {
+        throw new AppError(`Invalid JSON response while fetching all profiles`, ErrorCodes.PROFILE_INVALID_RESPONSE, {
+          httpStatusCode: HttpStatusCodes.BAD_GATEWAY,
+        });
+      }
+    },
   };
 }

@@ -8,6 +8,7 @@ export default {
     'get-started': 'Tableau de bord des employés',
     'navigate': 'Accédez au portail des employés',
     'register': 'Register',
+    'employees': 'Employés',
   },
   'register': {
     'employee': 'Tableau de bord des employés',
@@ -168,5 +169,18 @@ export default {
       'employment-tenure-invalid': "La confirmation d'intérêt pour les occasions d'emploi n'est pas valide.",
       'employment-tenure-duplicate': "Les éléments dupliqués pour la sélection d'occasion d'emploi ne sont pas permis.",
     },
+  },
+  // TODO: Update French translations
+  'employee-dashboard': {
+    'page-title': '(FR) Employees',
+    'view': '(FR) View',
+    'my-employees': '(FR) My employees',
+    'all-employees': '(FR) All employees',
+    'employee': '(FR) Employee',
+    'email': '(FR) Work email address',
+    'updated': '(FR) Updated',
+    'status': '(FR) Status',
+    'action': '(FR) Action',
+    'next-page': '(FR) Next',
   },
 } satisfies typeof appEn;

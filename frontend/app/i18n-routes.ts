@@ -162,10 +162,18 @@ export const i18nRoutes = [
       },
       {
         id: 'HIRE-0001',
-        file: 'routes/hiring-manager/index.tsx',
+        file: 'routes/hiring-manager/index.tsx', //TODO: use employee-dashboard.tsx
         paths: {
           en: '/en/hiring-manager',
           fr: '/fr/gestionnaire-embauche',
+        },
+      },
+      {
+        id: 'HRAD-0001',
+        file: 'routes/employees.tsx',
+        paths: {
+          en: '/en/employees',
+          fr: '/fr/employes',
         },
       },
     ],

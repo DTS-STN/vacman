@@ -168,9 +168,12 @@ export type Profile = Readonly<{
   personalInformation: UserPersonalInformation;
   employmentInformation: UserEmploymentInformation;
   referralPreferences: UserReferralPreferences;
+  status?: 'pending-approval' | 'approved' | 'incomplete';
 }>;
 
 export type UserPersonalInformation = {
+  surname?: string;
+  givenName?: string;
   personalRecordIdentifier?: string;
   preferredLanguageId?: string;
   workEmail: string;
