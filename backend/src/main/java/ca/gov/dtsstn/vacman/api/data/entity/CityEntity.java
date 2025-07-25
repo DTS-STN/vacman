@@ -5,7 +5,6 @@ import java.time.Instant;
 import org.immutables.builder.Builder;
 import org.springframework.core.style.ToStringCreator;
 
-import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
@@ -37,7 +36,7 @@ public class CityEntity extends AbstractCodeEntity {
 			@Nullable String code,
 			@Nullable String nameEn,
 			@Nullable String nameFr,
-			@Nonnull Instant effectiveDate,
+			@Nullable Instant effectiveDate,
 			@Nullable Instant expiryDate,
 			@Nullable ProvinceEntity provinceTerritory,
 			@Nullable String createdBy,
