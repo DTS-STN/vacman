@@ -58,13 +58,14 @@ spring:
     # HikariCP Connection Pool specific settings.
     # HikariCP is the default connection pool in Spring Boot 2.x+ for JDBC DataSources.
     hikari: # see https://github.com/brettwooldridge/HikariCP#frequently-used
+      # Specifies the maximum time (in milliseconds) to wait for a connection from the pool before timing out.
+      connection-timeout: 30000
       # Maximum time (in milliseconds) that a connection is allowed to sit idle in the pool.
       # This setting only applies when minimumIdle is defined as less than maximumPoolSize.
       idle-timeout: 600000
-      # Maximum lifetime (in milliseconds) of a connection in the pool.
       # An in-use connection will be retired upon its return to the pool once this time is exceeded.
       # Helps in cycling connections and preventing stale connections.
-      max-lifetime: 1800000
+      max-lifetime: 900000 # 900,000 ms is 15 minutes
       # Maximum size that the pool is allowed to reach, including both idle and in-use connections.
       maximum-pool-size: 10
       # Minimum number of idle connections that HikariCP tries to maintain in the pool.
