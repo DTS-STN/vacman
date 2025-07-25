@@ -101,7 +101,7 @@ interface DataTablePaginationProps<TData> {
 }
 
 export function DataTablePagination<TData>({ table }: DataTablePaginationProps<TData>) {
-  const { t } = useTranslation(['gcweb']);
+  const { t } = useTranslation(['gcweb', 'app']);
   const pageCount = table.getPageCount();
   const pageIndex = table.getState().pagination.pageIndex;
 
@@ -130,7 +130,7 @@ export function DataTablePagination<TData>({ table }: DataTablePaginationProps<T
             className={cn('h-8 border-hidden px-2 text-sm font-medium underline transition-colors duration-200')}
           >
             <span className="sr-only">{t('gcweb:data-table.pagination.next-page')}</span>
-            Next
+            {t('app:employee-dashboard.next-page')}
           </Button>
         </div>
       </div>

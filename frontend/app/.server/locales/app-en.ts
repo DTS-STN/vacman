@@ -177,5 +177,6 @@ export default {
     'updated': 'Updated',
     'status': 'Status',
     'action': 'Action',
+    'next-page': 'Next',
   },
 };

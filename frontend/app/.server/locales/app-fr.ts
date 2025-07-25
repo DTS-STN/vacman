@@ -181,5 +181,6 @@ export default {
     'updated': '(FR) Updated',
     'status': '(FR) Status',
     'action': '(FR) Action',
+    'next-page': '(FR) Next',
   },
 } satisfies typeof appEn;
