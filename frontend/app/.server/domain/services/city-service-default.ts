@@ -88,7 +88,7 @@ export const cityService: CityService = {
       throw response.unwrapErr();
     }
     const data = response.unwrap();
-    const city = data.content[0]; // Get the first element from the response array
+    const city = data.content.at(0); // Get the first element from the response array
 
     if (!city) {
       // The request was successful, but no status with that code exists.
