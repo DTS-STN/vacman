@@ -2,7 +2,7 @@ import type { Result, Option } from 'oxide.ts';
 import { Ok, Err } from 'oxide.ts';
 
 import type { EmploymentTenure, LocalizedEmploymentTenure } from '~/.server/domain/models';
-import { apiFetch } from '~/.server/domain/services/api-client';
+import { apiClient } from '~/.server/domain/services/api-client';
 import type { EmploymentTenureService } from '~/.server/domain/services/employment-tenure-service';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
@@ -30,9 +30,13 @@ export const employmentTenureService: EmploymentTenureService = {
       content: readonly EmploymentTenure[];
     };
     const context = 'list all employment tenures';
-    const response = await apiFetch('/employment-tenures', context);
+    const response = await apiClient.get<ApiResponse>('/employment-tenures', context);
 
-    const data: ApiResponse = await response.json();
+    if (response.isErr()) {
+      throw response.unwrapErr();
+    }
+
+    const data = response.unwrap();
     return data.content;
   },
 
@@ -44,18 +48,21 @@ export const employmentTenureService: EmploymentTenureService = {
    * @throws {AppError} if the API call fails for any reason other than a 404 not found.
    */
   async getById(id: string): Promise<Result<EmploymentTenure, AppError>> {
-    const context = `get employment tenure with ID '${id}'`;
-    try {
-      const response = await apiFetch(`/employment-tenures/${id}`, context);
-      const data: EmploymentTenure = await response.json();
-      return Ok(data);
-    } catch (error) {
-      if (error instanceof AppError && error.httpStatusCode === HttpStatusCodes.NOT_FOUND) {
-        return Err(new AppError(`Employment tenure with ID '${id}' not found.`, ErrorCodes.NO_EMPLOYMENT_TENURE_FOUND));
+    const context = `Get Employment tenure with ID '${id}'`;
+
+    const response = await apiClient.get<EmploymentTenure>(`/employment-tenures/${id}`, context);
+
+    if (response.isErr()) {
+      const apiFetchError = response.unwrapErr();
+
+      if (apiFetchError.httpStatusCode === HttpStatusCodes.NOT_FOUND) {
+        return Err(new AppError(`${context} not found.`, ErrorCodes.NO_EMPLOYMENT_TENURE_FOUND));
       }
-      // Re-throw any other error
-      throw error;
+
+      // For all other errors (500, parsing, network), just return them as is.
+      return Err(apiFetchError);
     }
+    return response;
   },
 
   /**
@@ -67,17 +74,23 @@ export const employmentTenureService: EmploymentTenureService = {
    */
   async getByCode(code: string): Promise<Result<EmploymentTenure, AppError>> {
     const context = `get employment tenure with CODE '${code}'`;
-    try {
-      const response = await apiFetch(`/employment-tenures?code=${code}`, context);
-      const data: EmploymentTenure = await response.json();
-      return Ok(data);
-    } catch (error) {
-      if (error instanceof AppError && error.httpStatusCode === HttpStatusCodes.NOT_FOUND) {
-        return Err(new AppError(`Employment tenure with CODE '${code}' not found.`, ErrorCodes.NO_EMPLOYMENT_TENURE_FOUND));
-      }
-      // Re-throw any other error
-      throw error;
+    type ApiResponse = {
+      content: readonly EmploymentTenure[];
+    };
+    const response = await apiClient.get<ApiResponse>(`/employment-tenures?code=${code}`, context);
+
+    if (response.isErr()) {
+      throw response.unwrapErr();
     }
+    const data = response.unwrap();
+    const tenure = data.content[0]; // Get the first element from the response array
+
+    if (!tenure) {
+      // The request was successful, but no status with that code exists.
+      return Err(new AppError(`${context} not found.`, ErrorCodes.NO_EMPLOYMENT_TENURE_FOUND));
+    }
+
+    return Ok(tenure);
   },
 
   // Localized methods

@@ -69,7 +69,7 @@ describe('getDefaultBranchService', () => {
     const err = result.unwrapErr();
     expect(err).toBeInstanceOf(AppError);
     expect(err.errorCode).toBe(ErrorCodes.NO_BRANCH_FOUND);
-    expect(err.message).toBe("ESDC Branches with ID '999' not found.");
+    expect(err.message).toBe("Get ESDC Branches with ID '999' not found.");
   });
 
   it('findLocalizedById should return Some(LocalizedBranch) if branch exists', async () => {

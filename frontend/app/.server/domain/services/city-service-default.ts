@@ -2,7 +2,7 @@ import { Ok, Err } from 'oxide.ts';
 import type { Result, Option } from 'oxide.ts';
 
 import type { City, LocalizedCity } from '~/.server/domain/models';
-import { apiFetch } from '~/.server/domain/services/api-client';
+import { apiClient } from '~/.server/domain/services/api-client';
 import type { CityService } from '~/.server/domain/services/city-service';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
@@ -35,9 +35,13 @@ export const cityService: CityService = {
       content: readonly City[];
     };
     const context = 'list all cities';
-    const response = await apiFetch('/cities', context);
+    const response = await apiClient.get<ApiResponse>('/cities', context);
 
-    const data: ApiResponse = await response.json();
+    if (response.isErr()) {
+      throw response.unwrapErr();
+    }
+
+    const data = response.unwrap();
     return data.content;
   },
 
@@ -49,18 +53,22 @@ export const cityService: CityService = {
    * @throws {AppError} if the API call fails for any reason other than a 404 not found.
    */
   async getById(id: string): Promise<Result<City, AppError>> {
-    const context = `get city with ID '${id}'`;
-    try {
-      const response = await apiFetch(`/cities/${id}`, context);
-      const data: City = await response.json();
-      return Ok(data);
-    } catch (error) {
-      if (error instanceof AppError && error.httpStatusCode === HttpStatusCodes.NOT_FOUND) {
-        return Err(new AppError(`City type with ID '${id}' not found.`, ErrorCodes.NO_CITY_FOUND));
+    const context = `Get City with ID '${id}'`;
+
+    const response = await apiClient.get<City>(`/cities/${id}`, context);
+
+    if (response.isErr()) {
+      const apiFetchError = response.unwrapErr();
+
+      if (apiFetchError.httpStatusCode === HttpStatusCodes.NOT_FOUND) {
+        return Err(new AppError(`${context} not found.`, ErrorCodes.NO_CITY_FOUND));
       }
-      // Re-throw any other error
-      throw error;
+
+      // For all other errors (500, parsing, network), just return them as is.
+      return Err(apiFetchError);
     }
+
+    return response;
   },
 
   /**
@@ -72,17 +80,22 @@ export const cityService: CityService = {
    */
   async getByCode(code: string): Promise<Result<City, AppError>> {
     const context = `get city with CODE '${code}'`;
-    try {
-      const response = await apiFetch(`/cities?code=${code}`, context);
-      const data: City = await response.json();
-      return Ok(data);
-    } catch (error) {
-      if (error instanceof AppError && error.httpStatusCode === HttpStatusCodes.NOT_FOUND) {
-        return Err(new AppError(`City with CODE '${code}' not found.`, ErrorCodes.NO_CITY_FOUND));
-      }
-      // Re-throw any other error
-      throw error;
+    type ApiResponse = {
+      content: readonly City[];
+    };
+    const response = await apiClient.get<ApiResponse>(`/cities?code=${code}`, context);
+    if (response.isErr()) {
+      throw response.unwrapErr();
     }
+    const data = response.unwrap();
+    const city = data.content.at(0); // Get the first element from the response array
+
+    if (!city) {
+      // The request was successful, but no status with that code exists.
+      return Err(new AppError(`'${context}' not found.`, ErrorCodes.NO_CITY_FOUND));
+    }
+
+    return Ok(city);
   },
 
   // Localized methods

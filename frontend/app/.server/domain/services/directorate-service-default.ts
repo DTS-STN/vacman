@@ -2,7 +2,7 @@ import { Ok, Err } from 'oxide.ts';
 import type { Result, Option } from 'oxide.ts';
 
 import type { LocalizedDirectorate, Directorate, Branch } from '~/.server/domain/models';
-import { apiFetch } from '~/.server/domain/services/api-client';
+import { apiClient } from '~/.server/domain/services/api-client';
 import type { DirectorateService } from '~/.server/domain/services/directorate-service';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
@@ -55,9 +55,13 @@ export const directorateService: DirectorateService = {
       content: readonly Directorate[];
     };
     const context = 'list all esdc directorates';
-    const response = await apiFetch('/work-units', context);
+    const response = await apiClient.get<ApiResponse>('/work-units', context);
 
-    const data: ApiResponse = await response.json();
+    if (response.isErr()) {
+      throw response.unwrapErr();
+    }
+
+    const data = response.unwrap();
     // Directorates: items WITH a parent property
     return data.content.filter((c) => 'parent' in c).map(toDirectorate);
   },
@@ -70,18 +74,25 @@ export const directorateService: DirectorateService = {
    * @throws {AppError} if the API call fails for any reason other than a 404 not found.
    */
   async getById(id: string): Promise<Result<Directorate, AppError>> {
-    const context = `get esdc directorate with ID '${id}'`;
-    try {
-      const response = await apiFetch(`/work-units/${id}`, context);
-      const data: Directorate = await response.json();
-      return Ok(data);
-    } catch (error) {
-      if (error instanceof AppError && error.httpStatusCode === HttpStatusCodes.NOT_FOUND) {
-        return Err(new AppError(`ESDC Directorate with ID '${id}' not found.`, ErrorCodes.NO_DIRECTORATE_FOUND));
+    const context = `Get ESDC Directorate with ID '${id}'`;
+    const response = await apiClient.get<Directorate>(`/work-units/${id}`, context);
+
+    if (response.isErr()) {
+      const apiFetchError = response.unwrapErr();
+
+      if (apiFetchError.httpStatusCode === HttpStatusCodes.NOT_FOUND) {
+        return Err(new AppError(`${context} not found.`, ErrorCodes.NO_DIRECTORATE_FOUND));
       }
-      // Re-throw any other error
-      throw error;
+
+      // For all other errors (500, parsing, network), just return them as is.
+      return Err(apiFetchError);
     }
+    return response;
+  },
+
+  /**
+   * Retrieves a single esdc branches by its CODE.
+    
   },
 
   /**
@@ -93,17 +104,22 @@ export const directorateService: DirectorateService = {
    */
   async getByCode(code: string): Promise<Result<Directorate, AppError>> {
     const context = `esdc directorate with CODE '${code}'`;
-    try {
-      const response = await apiFetch(`/work-units?code=${code}`, context);
-      const data: Directorate = await response.json();
-      return Ok(data);
-    } catch (error) {
-      if (error instanceof AppError && error.httpStatusCode === HttpStatusCodes.NOT_FOUND) {
-        return Err(new AppError(`ESDC Directorate with CODE '${code}' not found.`, ErrorCodes.NO_DIRECTORATE_FOUND));
-      }
-      // Re-throw any other error
-      throw error;
+    type ApiResponse = {
+      content: readonly Directorate[];
+    };
+    const response = await apiClient.get<ApiResponse>(`/work-units?code=${code}`, context);
+    if (response.isErr()) {
+      throw response.unwrapErr();
     }
+    const data = response.unwrap();
+    const directorate = data.content[0]; // Get the first element from the response array
+
+    if (!directorate) {
+      // The request was successful, but no status with that code exists.
+      return Err(new AppError(`'${context} not found.`, ErrorCodes.NO_DIRECTORATE_FOUND));
+    }
+
+    return Ok(directorate);
   },
 
   // Localized methods
