@@ -49,11 +49,11 @@ export default function EmployeeDashboard() {
   const { t } = useTranslation(handle.i18nNamespace);
 
   return (
-    <div className="flex">
+    <div className="flex h-screen">
       <aside className="absolute inset-y-0 right-0 z-0 hidden w-2/5 bg-[rgba(9,28,45,1)] sm:block">
         <div
           role="presentation"
-          className="absolute top-0 right-0 size-1/2 h-full bg-[url('/VacMan-design-element-07.svg')] bg-contain bg-top bg-no-repeat"
+          className="absolute top-0 right-0 size-1/2 w-full bg-[url('/VacMan-design-element-07.svg')] bg-contain bg-top bg-no-repeat"
         />
         <div
           role="presentation"
