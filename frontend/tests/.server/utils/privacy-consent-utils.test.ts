@@ -95,6 +95,7 @@ const mockProfileService = {
   registerProfile: vi.fn(),
   updateEmploymentInformation: vi.fn(),
   updateReferralPreferences: vi.fn(),
+  getAllProfiles: vi.fn(),
 };
 
 vi.mocked(getProfileService).mockReturnValue(mockProfileService);

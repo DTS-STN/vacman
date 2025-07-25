@@ -50,9 +50,10 @@ export default function EmployeeDashboard({ params }: Route.ComponentProps) {
 
   const columns: ColumnDef<Profile>[] = [
     {
-      accessorKey: 'personalInformation.fullName',
+      accessorKey: 'personalInformation.givenName',
+      accessorFn: (row) => `${row.personalInformation.givenName ?? ''} ${row.personalInformation.surname ?? ''}`.trim(),
       header: ({ column }) => <DataTableColumnHeader column={column} title={t('app:employee-dashboard.employee')} />,
-      cell: (info) => info.row.original.personalInformation.fullName,
+      cell: (info) => <p>{info.getValue() as string}</p>,
     },
     {
       accessorKey: 'personalInformation.workEmail',
@@ -88,6 +89,11 @@ export default function EmployeeDashboard({ params }: Route.ComponentProps) {
         />
       ),
       cell: (info) => (info.row.original.status ? statusTag(info.row.original.status) : ''),
+      filterFn: (row, columnId, filterValue: string[]) => {
+        const status = row.getValue(columnId) as string;
+        return filterValue.length === 0 || filterValue.includes(status);
+      },
+      enableColumnFilter: true,
     },
     {
       header: t('app:employee-dashboard.action'),
@@ -110,8 +116,9 @@ export default function EmployeeDashboard({ params }: Route.ComponentProps) {
   return (
     <div className="mb-8">
       <PageTitle className="after:w-14">{t('app:index.employees')}</PageTitle>
+      {/* TODO:  This button should select between "My employees" and "All employees" in case an HR advisor needs to pick up an employee assigned to the wrong advisor*/}
       <Button variant="alternative" className="float-right my-4">
-        Show all
+        {t('app:employee-dashboard.all-employees')}
       </Button>
       <DataTable columns={columns} data={loaderData.profileData} />
     </div>

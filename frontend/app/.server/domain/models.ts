@@ -172,7 +172,8 @@ export type Profile = Readonly<{
 }>;
 
 export type UserPersonalInformation = {
-  fullName?: string;
+  surname?: string;
+  givenName?: string;
   personalRecordIdentifier?: string;
   preferredLanguageId?: string;
   workEmail: string;

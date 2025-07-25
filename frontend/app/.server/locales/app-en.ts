@@ -170,8 +170,8 @@ export default {
   'employee-dashboard': {
     'page-title': 'Employees',
     'view': 'View',
-    'show-all': 'Show all',
-    'show-mine': 'Show mine',
+    'my-employees': 'My employees',
+    'all-employees': 'All employees',
     'employee': 'Employee',
     'email': 'Work email address',
     'updated': 'Updated',

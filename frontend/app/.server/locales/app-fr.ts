@@ -174,8 +174,8 @@ export default {
   'employee-dashboard': {
     'page-title': '(FR) Employees',
     'view': '(FR) View',
-    'show-all': '(FR) Show all',
-    'show-mine': '(FR) Show mine',
+    'my-employees': '(FR) My employees',
+    'all-employees': '(FR) All employees',
     'employee': '(FR) Employee',
     'email': '(FR) Work email address',
     'updated': '(FR) Updated',

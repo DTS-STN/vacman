@@ -101,7 +101,8 @@ let mockProfiles: Profile[] = [
     dateUpdated: undefined,
     status: 'approved',
     personalInformation: {
-      fullName: 'Jane Doe',
+      surname: 'Doe',
+      givenName: 'Jane',
       personalRecordIdentifier: '123456789',
       preferredLanguageId: undefined,
       workEmail: 'firstname.lastname@email.ca',
@@ -143,7 +144,8 @@ let mockProfiles: Profile[] = [
     dateUpdated: '2024-01-15T10:30:00Z',
     status: 'incomplete',
     personalInformation: {
-      fullName: 'John Smith',
+      surname: 'Smith',
+      givenName: 'John',
       personalRecordIdentifier: undefined,
       preferredLanguageId: undefined,
       workEmail: 'example@email.ca',
@@ -185,7 +187,8 @@ let mockProfiles: Profile[] = [
     dateUpdated: '2024-02-10T14:00:00Z',
     status: 'pending-approval',
     personalInformation: {
-      fullName: 'full name',
+      surname: 'fname',
+      givenName: 'lname',
       personalRecordIdentifier: '987654321',
       preferredLanguageId: 'en',
       workEmail: 'john.smith@email.ca',
@@ -227,7 +230,8 @@ let mockProfiles: Profile[] = [
     dateUpdated: undefined,
     status: 'approved',
     personalInformation: {
-      fullName: 'Marie Curie',
+      surname: 'Curie',
+      givenName: 'Marie',
       personalRecordIdentifier: '555555555',
       preferredLanguageId: 'fr',
       workEmail: 'marie.curie@email.ca',
@@ -269,7 +273,8 @@ let mockProfiles: Profile[] = [
     dateUpdated: '2024-05-01T10:00:00Z',
     status: 'pending-approval',
     personalInformation: {
-      fullName: 'Alex Tan',
+      surname: 'Tan',
+      givenName: 'Alex',
       personalRecordIdentifier: '222333444',
       preferredLanguageId: 'en',
       workEmail: 'alex.tan@email.ca',
@@ -311,7 +316,8 @@ let mockProfiles: Profile[] = [
     dateUpdated: undefined,
     status: 'approved',
     personalInformation: {
-      fullName: 'Sam Lee',
+      surname: 'Lee',
+      givenName: 'Sam',
       personalRecordIdentifier: '111222333',
       preferredLanguageId: 'en',
       workEmail: 'sam.lee@example.com',
@@ -353,7 +359,8 @@ let mockProfiles: Profile[] = [
     dateUpdated: '2024-06-12T10:00:00Z',
     status: 'pending-approval',
     personalInformation: {
-      fullName: 'Linda Park',
+      surname: 'Park',
+      givenName: 'Linda',
       personalRecordIdentifier: '444555666',
       preferredLanguageId: 'fr',
       workEmail: 'linda.park@example.com',
@@ -362,7 +369,7 @@ let mockProfiles: Profile[] = [
       personalPhone: '613-555-2002',
       additionalInformation: 'Fluent in French and English.',
     },
-employmentInformation: {
+    employmentInformation: {
       substantivePosition: undefined,
       branchOrServiceCanadaRegion: undefined,
       directorate: undefined,
@@ -395,7 +402,8 @@ employmentInformation: {
     dateUpdated: undefined,
     status: 'incomplete',
     personalInformation: {
-      fullName: 'Carlos Gomez',
+      surname: 'Gomez',
+      givenName: 'Carlos',
       personalRecordIdentifier: '777888999',
       preferredLanguageId: 'en',
       workEmail: 'carlos.gomez@example.com',
@@ -437,7 +445,8 @@ employmentInformation: {
     dateUpdated: '2024-06-14T12:00:00Z',
     status: 'pending-approval',
     personalInformation: {
-      fullName: 'Priya Singh',
+      surname: 'Singh',
+      givenName: 'Priya',
       personalRecordIdentifier: '101112131',
       preferredLanguageId: 'fr',
       workEmail: 'priya.singh@example.com',
@@ -479,7 +488,8 @@ employmentInformation: {
     dateUpdated: undefined,
     status: 'approved',
     personalInformation: {
-      fullName: 'Mohammed',
+      surname: undefined,
+      givenName: 'Mohammed',
       personalRecordIdentifier: '141516171',
       preferredLanguageId: 'en',
       workEmail: 'mohammedi@example.com',
@@ -521,7 +531,8 @@ employmentInformation: {
     dateUpdated: '2024-06-16T14:00:00Z',
     status: 'pending-approval',
     personalInformation: {
-      fullName: 'Emily Chen',
+      surname: undefined,
+      givenName: 'Emily',
       personalRecordIdentifier: '181920212',
       preferredLanguageId: 'fr',
       workEmail: 'emily.chen@example.com',
@@ -563,7 +574,8 @@ employmentInformation: {
     dateUpdated: undefined,
     status: 'approved',
     personalInformation: {
-      fullName: 'Olivia Brown',
+      surname: 'Brown',
+      givenName: 'Olivia',
       personalRecordIdentifier: '222324252',
       preferredLanguageId: 'en',
       workEmail: 'olivia.brown@example.com',
@@ -605,7 +617,8 @@ employmentInformation: {
     dateUpdated: '2024-07-08T16:00:00Z',
     status: 'pending-approval',
     personalInformation: {
-      fullName: 'David Kim',
+      surname: 'Kim',
+      givenName: 'David',
       personalRecordIdentifier: '262728292',
       preferredLanguageId: 'fr',
       workEmail: 'david.kim@example.com',
@@ -647,7 +660,8 @@ employmentInformation: {
     dateUpdated: undefined,
     status: 'incomplete',
     personalInformation: {
-      fullName: 'Sofia Rossi',
+      surname: 'Rossi',
+      givenName: 'Sofia',
       personalRecordIdentifier: '303132333',
       preferredLanguageId: 'en',
       workEmail: 'sofia.rossi@example.com',
@@ -689,7 +703,8 @@ employmentInformation: {
     dateUpdated: '2024-07-12T18:00:00Z',
     status: 'pending-approval',
     personalInformation: {
-      fullName: 'Tom Muller',
+      surname: 'Muller',
+      givenName: 'Tom',
       personalRecordIdentifier: '343536373',
       preferredLanguageId: 'fr',
       workEmail: 'tom.muller@example.com',
