@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { faChevronUp, faChevronDown } from '@fortawesome/free-solid-svg-icons';
+import { faSortUp, faSortDown } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import type { ColumnDef, SortingState, Column, Table as ReactTable, ColumnFiltersState } from '@tanstack/react-table';
 import {
@@ -182,7 +182,7 @@ export function DataTableColumnHeaderWithOptions<TData, TValue>({
           >
             {title}
             <span className="ml-1 rounded-sm p-1 text-neutral-500 hover:bg-slate-300">
-              <FontAwesomeIcon icon={faChevronDown} />
+              <FontAwesomeIcon icon={faSortDown} />
             </span>
           </Button>
         </DropdownMenuTrigger>
@@ -220,7 +220,7 @@ export function DataTableColumnHeader<TData, TValue>({ column, title, className 
     >
       {title}
       <span className="rounded-sm p-1 text-neutral-500 hover:bg-slate-300">
-        <FontAwesomeIcon icon={sortDirection === 'desc' ? faChevronDown : faChevronUp} />
+        <FontAwesomeIcon icon={sortDirection === 'desc' ? faSortDown : faSortUp} />
       </span>
     </button>
   );
