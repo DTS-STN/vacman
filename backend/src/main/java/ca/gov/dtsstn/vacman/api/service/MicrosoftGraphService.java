@@ -1,7 +1,5 @@
 package ca.gov.dtsstn.vacman.api.service;
 
-import java.time.Duration;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -46,13 +44,14 @@ public class MicrosoftGraphService {
      */
     public MicrosoftGraphService(RestTemplateBuilder restTemplateBuilder, MicrosoftGraphProperties properties) {
         this.properties = properties;
-        // Configure RestTemplate with timeouts and error handling
+        // Configure RestTemplate with configurable timeouts and error handling
         this.restTemplate = restTemplateBuilder
-            .connectTimeout(Duration.ofSeconds(10))
-            .readTimeout(Duration.ofSeconds(30))
+            .connectTimeout(properties.connectTimeout())
+            .readTimeout(properties.readTimeout())
             .build();
 
-        log.info("Initialized Microsoft Graph Service with base URL: {}", properties.baseUrl());
+        log.info("Initialized Microsoft Graph Service with base URL: {}, connect timeout: {}, read timeout: {}",
+            properties.baseUrl(), properties.connectTimeout(), properties.readTimeout());
     }
 
     /**
