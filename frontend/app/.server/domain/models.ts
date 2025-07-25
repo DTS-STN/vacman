@@ -197,3 +197,39 @@ export type UserReferralPreferences = {
   interestedInAlternationInd?: boolean;
   employmentTenureIds?: string[];
 };
+
+export type NotificationEmailRequest = {
+  email_address: string;
+  template_id: string;
+  personalisation: {
+    // data fields to be determined
+    emailVerificationCode: string;
+  };
+};
+
+export type NotificationEmailResponseOK = {
+  id: string;
+  reference?: string | null;
+  uri: string;
+  template: {
+    id: string;
+    version: number;
+    uri: string;
+  };
+  scheduled_for?: string | null;
+  content: {
+    from_email: string;
+    body: string;
+    subject: string;
+  };
+};
+
+export type NotificationEmailResponseError = {
+  status_code: number;
+  errors: [
+    {
+      error: string;
+      message: string;
+    },
+  ];
+};

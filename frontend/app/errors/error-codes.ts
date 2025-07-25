@@ -45,6 +45,9 @@ export const ErrorCodes = {
   // vacman api error codes
   VACMAN_API_ERROR: 'API-0001',
 
+  // external api error codes
+  GC_NOTIFY_API_ERROR: 'GCNOTIFY-0001', //error from the GC Notify API
+
   // profile error codes
   PROFILE_NOT_FOUND: 'PRF-0001',
   PROFILE_FETCH_FAILED: 'PRF-0002',
