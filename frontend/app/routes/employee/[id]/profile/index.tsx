@@ -444,7 +444,7 @@ function ProfileCard({
       <CardHeader className="p-0">
         <div className="mb-6 grid grid-cols-2 justify-between select-none">
           <div>
-            <FieldsCompletedTag completed={completed} total={total} />
+            <CardTitle className="text-2xl">{title}</CardTitle>
           </div>
           <div className="ml-auto space-x-2">
             {isComplete ? (
@@ -457,7 +457,6 @@ function ProfileCard({
             )}
           </div>
         </div>
-        <CardTitle className="text-2xl">{title}</CardTitle>
       </CardHeader>
       <CardContent className="my-3 space-y-3 p-0">{children}</CardContent>
       <CardFooter
@@ -513,21 +512,6 @@ function RequiredTag(): JSX.Element {
   return (
     <span className="rounded-2xl border border-gray-400 bg-gray-100 px-3 py-0.5 text-sm font-semibold text-black">
       {t('app:profile.required')}
-    </span>
-  );
-}
-
-interface FieldsCompletedTagProps {
-  completed: number;
-  total: number;
-}
-
-function FieldsCompletedTag({ completed, total }: FieldsCompletedTagProps): JSX.Element {
-  const { t } = useTranslation(handle.i18nNamespace);
-
-  return (
-    <span className="rounded-2xl border border-gray-100 bg-gray-100 px-3 py-0.5 text-sm text-black">
-      {t('app:profile.fields-complete', { completed, total })}
     </span>
   );
 }

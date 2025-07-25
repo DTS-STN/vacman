@@ -25,7 +25,6 @@ export default {
     'in-progress': 'En cours',
     'complete': 'Complet',
     'required': 'Obligatoire',
-    'fields-complete': '{{completed}} sur {{total}} champs remplis',
     'personal-information': {
       'title': 'Informations personnelles',
       'link-label': 'informations personnelles',
