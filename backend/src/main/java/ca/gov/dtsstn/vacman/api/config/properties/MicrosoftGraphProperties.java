@@ -15,12 +15,4 @@ public record MicrosoftGraphProperties(
      * Default: https://graph.microsoft.com/v1.0
      */
     String baseUrl
-) {
-
-    /**
-     * Default constructor with fallback values.
-     */
-    public MicrosoftGraphProperties() {
-        this("https://graph.microsoft.com/v1.0");
-    }
-}
+) {}
