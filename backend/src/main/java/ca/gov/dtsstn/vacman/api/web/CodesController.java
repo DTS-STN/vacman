@@ -2,7 +2,6 @@ package ca.gov.dtsstn.vacman.api.web;
 
 import org.mapstruct.factory.Mappers;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PagedModel;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -10,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 import ca.gov.dtsstn.vacman.api.service.CodeService;
 import ca.gov.dtsstn.vacman.api.web.model.CityReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.ClassificationReadModel;
+import ca.gov.dtsstn.vacman.api.web.model.CollectionModel;
 import ca.gov.dtsstn.vacman.api.web.model.EmploymentEquityReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.EmploymentOpportunityReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.EmploymentTenureReadModel;
@@ -46,116 +46,192 @@ public class CodesController {
 
 	@GetMapping({ "/cities" })
 	@Operation(summary = "Get all city codes")
-	public PagedModel<CityReadModel> getCities() {
-		return new PagedModel<>(codeService.getAllCities(Pageable.unpaged()).map(codeMapper::map));
+	public CollectionModel<CityReadModel> getCities() {
+		final var cities = codeService.getAllCities(Pageable.unpaged())
+			.map(codeMapper::map)
+			.toList();
+
+		return new CollectionModel<>(cities);
 	}
 
 	@GetMapping({ "/classifications" })
 	@Operation(summary = "Get all classification codes")
-	public PagedModel<ClassificationReadModel> getClassifications() {
-		return new PagedModel<>(codeService.getAllClassifications(Pageable.unpaged()).map(codeMapper::map));
+	public CollectionModel<ClassificationReadModel> getClassifications() {
+		final var classifications = codeService.getAllClassifications(Pageable.unpaged())
+			.map(codeMapper::map)
+			.toList();
+
+		return new CollectionModel<>(classifications);
 	}
 
 	@GetMapping({ "/employment-equities" })
 	@Operation(summary = "Get all employment equity codes")
-	public PagedModel<EmploymentEquityReadModel> getEmploymentEquities() {
-		return new PagedModel<>(codeService.getAllEmploymentEquities(Pageable.unpaged()).map(codeMapper::map));
+	public CollectionModel<EmploymentEquityReadModel> getEmploymentEquities() {
+		final var employmentEquities = codeService.getAllEmploymentEquities(Pageable.unpaged())
+			.map(codeMapper::map)
+			.toList();
+
+		return new CollectionModel<>(employmentEquities);
 	}
 
 	@GetMapping({ "/employment-opportunities" })
 	@Operation(summary = "Get all employment opportunity codes")
-	public PagedModel<EmploymentOpportunityReadModel> getEmploymentOpportunities() {
-		return new PagedModel<>(codeService.getAllEmploymentOpportunities(Pageable.unpaged()).map(codeMapper::map));
+	public CollectionModel<EmploymentOpportunityReadModel> getEmploymentOpportunities() {
+		final var employmentOpportunities = codeService.getAllEmploymentOpportunities(Pageable.unpaged())
+			.map(codeMapper::map)
+			.toList();
+
+		return new CollectionModel<>(employmentOpportunities);
 	}
 
 	@GetMapping({ "/employment-tenures" })
 	@Operation(summary = "Get all employment tenure codes")
-	public PagedModel<EmploymentTenureReadModel> getEmploymentTenures() {
-		return new PagedModel<>(codeService.getAllEmploymentTenures(Pageable.unpaged()).map(codeMapper::map));
+	public CollectionModel<EmploymentTenureReadModel> getEmploymentTenures() {
+		final var employmentTenures = codeService.getAllEmploymentTenures(Pageable.unpaged())
+			.map(codeMapper::map)
+			.toList();
+
+		return new CollectionModel<>(employmentTenures);
 	}
 
 	@GetMapping({ "/languages" })
 	@Operation(summary = "Get all language codes")
-	public PagedModel<LanguageReadModel> getLanguages() {
-		return new PagedModel<>(codeService.getAllLanguages(Pageable.unpaged()).map(codeMapper::map));
+	public CollectionModel<LanguageReadModel> getLanguages() {
+		final var languages = codeService.getAllLanguages(Pageable.unpaged())
+			.map(codeMapper::map)
+			.toList();
+
+		return new CollectionModel<>(languages);
 	}
 
 	@GetMapping({ "/language-referral-types" })
 	@Operation(summary = "Get all language referral type codes")
-	public PagedModel<LanguageReferralTypeReadModel> getLanguageReferralTypes() {
-		return new PagedModel<>(codeService.getAllLanguageReferralTypes(Pageable.unpaged()).map(codeMapper::map));
+	public CollectionModel<LanguageReferralTypeReadModel> getLanguageReferralTypes() {
+		final var languageReferralTypes = codeService.getAllLanguageReferralTypes(Pageable.unpaged())
+			.map(codeMapper::map)
+			.toList();
+
+		return new CollectionModel<>(languageReferralTypes);
 	}
 
 	@GetMapping({ "/language-requirements" })
 	@Operation(summary = "Get all language requirement codes")
-	public PagedModel<LanguageRequirementReadModel> getLanguageRequirements() {
-		return new PagedModel<>(codeService.getAllLanguageRequirements(Pageable.unpaged()).map(codeMapper::map));
+	public CollectionModel<LanguageRequirementReadModel> getLanguageRequirements() {
+		final var languageRequirements = codeService.getAllLanguageRequirements(Pageable.unpaged())
+			.map(codeMapper::map)
+			.toList();
+
+		return new CollectionModel<>(languageRequirements);
 	}
 
 	@GetMapping({ "/non-advertised-appointments" })
 	@Operation(summary = "Get all non-advertised appointment codes")
-	public PagedModel<NonAdvertisedAppointmentReadModel> getNonAdvertisedAppointments() {
-		return new PagedModel<>(codeService.getAllNonAdvertisedAppointments(Pageable.unpaged()).map(codeMapper::map));
+	public CollectionModel<NonAdvertisedAppointmentReadModel> getNonAdvertisedAppointments() {
+		final var nonAdvertisedAppointments = codeService.getAllNonAdvertisedAppointments(Pageable.unpaged())
+			.map(codeMapper::map)
+			.toList();
+
+		return new CollectionModel<>(nonAdvertisedAppointments);
 	}
 
 	@GetMapping({ "/priority-levels" })
 	@Operation(summary = "Get all priority level codes")
-	public PagedModel<PriorityLevelReadModel> getPriorityLevels() {
-		return new PagedModel<>(codeService.getAllPriorityLevels(Pageable.unpaged()).map(codeMapper::map));
+	public CollectionModel<PriorityLevelReadModel> getPriorityLevels() {
+		final var priorityLevels = codeService.getAllPriorityLevels(Pageable.unpaged())
+			.map(codeMapper::map)
+			.toList();
+
+		return new CollectionModel<>(priorityLevels);
 	}
 
 	@GetMapping({ "/profile-statuses" })
 	@Operation(summary = "Get all profile status codes")
-	public PagedModel<ProfileStatusReadModel> getProfileStatuses() {
-		return new PagedModel<>(codeService.getAllProfileStatuses(Pageable.unpaged()).map(codeMapper::map));
+	public CollectionModel<ProfileStatusReadModel> getProfileStatuses() {
+		final var profileStatuses = codeService.getAllProfileStatuses(Pageable.unpaged())
+			.map(codeMapper::map)
+			.toList();
+
+		return new CollectionModel<>(profileStatuses);
 	}
 
 	@GetMapping({ "/provinces" })
 	@Operation(summary = "Get all province codes")
-	public PagedModel<ProvinceReadModel> getProvinces() {
-		return new PagedModel<>(codeService.getAllProvinces(Pageable.unpaged()).map(codeMapper::map));
+	public CollectionModel<ProvinceReadModel> getProvinces() {
+		final var provinces = codeService.getAllProvinces(Pageable.unpaged())
+			.map(codeMapper::map)
+			.toList();
+
+		return new CollectionModel<>(provinces);
 	}
 
 	@GetMapping({ "/request-statuses" })
 	@Operation(summary = "Get all request status codes")
-	public PagedModel<RequestStatusReadModel> getRequestStatuses() {
-		return new PagedModel<>(codeService.getAllRequestStatuses(Pageable.unpaged()).map(codeMapper::map));
+	public CollectionModel<RequestStatusReadModel> getRequestStatuses() {
+		final var requestStatuses = codeService.getAllRequestStatuses(Pageable.unpaged())
+			.map(codeMapper::map)
+			.toList();
+
+		return new CollectionModel<>(requestStatuses);
 	}
 
 	@GetMapping({ "/security-clearances" })
 	@Operation(summary = "Get all security clearance codes")
-	public PagedModel<SecurityClearanceReadModel> getSecurityClearances() {
-		return new PagedModel<>(codeService.getAllSecurityClearances(Pageable.unpaged()).map(codeMapper::map));
+	public CollectionModel<SecurityClearanceReadModel> getSecurityClearances() {
+		final var securityClearances = codeService.getAllSecurityClearances(Pageable.unpaged())
+			.map(codeMapper::map)
+			.toList();
+
+		return new CollectionModel<>(securityClearances);
 	}
 
 	@GetMapping({ "/selection-process-types" })
 	@Operation(summary = "Get all selection process type codes")
-	public PagedModel<SelectionProcessTypeReadModel> getSelectionProcessTypes() {
-		return new PagedModel<>(codeService.getAllSelectionProcessTypes(Pageable.unpaged()).map(codeMapper::map));
+	public CollectionModel<SelectionProcessTypeReadModel> getSelectionProcessTypes() {
+		final var selectionProcessTypes = codeService.getAllSelectionProcessTypes(Pageable.unpaged())
+			.map(codeMapper::map)
+			.toList();
+
+		return new CollectionModel<>(selectionProcessTypes);
 	}
 
 	@GetMapping({ "/user-types" })
 	@Operation(summary = "Get all user type codes")
-	public PagedModel<UserTypeReadModel> getUserTypes() {
-		return new PagedModel<>(codeService.getAllUserTypes(Pageable.unpaged()).map(codeMapper::map));
+	public CollectionModel<UserTypeReadModel> getUserTypes() {
+		final var userTypes = codeService.getAllUserTypes(Pageable.unpaged())
+			.map(codeMapper::map)
+			.toList();
+
+		return new CollectionModel<>(userTypes);
 	}
 
 	@GetMapping({ "/wfa-statuses" })
 	@Operation(summary = "Get all WFA status codes")
-	public PagedModel<WfaStatusReadModel> getWfaStatuses() {
-		return new PagedModel<>(codeService.getAllWfaStatuses(Pageable.unpaged()).map(codeMapper::map));
+	public CollectionModel<WfaStatusReadModel> getWfaStatuses() {
+		final var wfaStatuses = codeService.getAllWfaStatuses(Pageable.unpaged())
+			.map(codeMapper::map)
+			.toList();
+
+		return new CollectionModel<>(wfaStatuses);
 	}
 
 	@GetMapping({ "/work-schedules" })
 	@Operation(summary = "Get all work schedule codes")
-	public PagedModel<WorkScheduleReadModel> getWorkSchedules() {
-		return new PagedModel<>(codeService.getAllWorkSchedules(Pageable.unpaged()).map(codeMapper::map));
+	public CollectionModel<WorkScheduleReadModel> getWorkSchedules() {
+		final var workSchedules = codeService.getAllWorkSchedules(Pageable.unpaged())
+			.map(codeMapper::map)
+			.toList();
+
+		return new CollectionModel<>(workSchedules);
 	}
 
 	@GetMapping({ "/work-units" })
 	@Operation(summary = "Get all work unit codes")
-	public PagedModel<WorkUnitReadModel> getWorkUnits() {
-		return new PagedModel<>(codeService.getAllWorkUnits(Pageable.unpaged()).map(codeMapper::map));
+	public CollectionModel<WorkUnitReadModel> getWorkUnits() {
+		final var workUnits = codeService.getAllWorkUnits(Pageable.unpaged())
+			.map(codeMapper::map)
+			.toList();
+
+		return new CollectionModel<>(workUnits);
 	}
 
 }
