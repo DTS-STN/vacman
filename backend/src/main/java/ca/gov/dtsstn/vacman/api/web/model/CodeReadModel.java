@@ -17,10 +17,16 @@ public interface CodeReadModel {
 	String getNameEn();
 
 	@Schema(accessMode = AccessMode.READ_ONLY)
+	String getNameFr();
+
+	@Schema(accessMode = AccessMode.READ_ONLY)
 	String getCreatedBy();
 
 	@Schema(accessMode = AccessMode.READ_ONLY)
 	Instant getCreatedDate();
+
+	@Schema(accessMode = AccessMode.READ_ONLY)
+	String getLastModifiedBy();
 
 	@Schema(accessMode = AccessMode.READ_ONLY)
 	Instant getLastModifiedDate();
