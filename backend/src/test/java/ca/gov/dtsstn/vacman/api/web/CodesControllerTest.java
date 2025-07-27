@@ -20,7 +20,6 @@ import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 
 import ca.gov.dtsstn.vacman.api.config.WebSecurityConfig;
 import ca.gov.dtsstn.vacman.api.data.entity.CityEntityBuilder;
@@ -84,7 +83,6 @@ class CodesControllerTest {
 		when(codeService.getCities(Pageable.unpaged())).thenReturn(new PageImpl<>(List.of(city)));
 
 		mockMvc.perform(get("/api/v1/codes/cities"))
-			.andDo(MockMvcResultHandlers.print())
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.content", hasSize(1)))
 			.andExpect(jsonPath("$.content[0].id").value(city.getId()))
