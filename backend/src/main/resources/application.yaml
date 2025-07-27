@@ -219,6 +219,66 @@ springdoc:
 #######################################################################################################################
 
 application:
+  caching:
+    enabled: true
+    caches:
+      cities:
+        expire-after-write: 1
+        time-unit: minutes
+      classifications:
+        expire-after-write: 1
+        time-unit: minutes
+      employment-equities:
+        expire-after-write: 1
+        time-unit: minutes
+      employment-opportunities:
+        expire-after-write: 1
+        time-unit: minutes
+      employment-tenures:
+        expire-after-write: 1
+        time-unit: minutes
+      languages:
+        expire-after-write: 1
+        time-unit: minutes
+      language-referral-types:
+        expire-after-write: 1
+        time-unit: minutes
+      language-requirements:
+        expire-after-write: 1
+        time-unit: minutes
+      non-advertised-appointments:
+        expire-after-write: 1
+        time-unit: minutes
+      priority-levels:
+        expire-after-write: 1
+        time-unit: minutes
+      profile-statuses:
+        expire-after-write: 1
+        time-unit: minutes
+      provinces:
+        expire-after-write: 1
+        time-unit: minutes
+      request-statuses:
+        expire-after-write: 1
+        time-unit: minutes
+      security-clearances:
+        expire-after-write: 1
+        time-unit: minutes
+      selection-process-types:
+        expire-after-write: 1
+        time-unit: minutes
+      user-types:
+        expire-after-write: 1
+        time-unit: minutes
+      wfa-statuses:
+        expire-after-write: 1
+        time-unit: minutes
+      work-schedules:
+        expire-after-write: 1
+        time-unit: minutes
+      work-units:
+        expire-after-write: 1
+        time-unit: minutes
   entra-id:
     tenant-id: 9ed55846-8a81-4246-acd8-b1a01abfc0d1
   swagger-ui:
