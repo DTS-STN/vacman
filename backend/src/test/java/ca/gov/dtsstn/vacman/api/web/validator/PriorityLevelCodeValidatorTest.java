@@ -37,7 +37,7 @@ class PriorityLevelCodeValidatorTest {
 	@Test
 	@DisplayName("isValid() returns true when priority level code is valid")
 	void isValidReturnsTrueWhenPriorityLevelCodeIsValid() {
-		when(codeService.getAllPriorityLevels(Pageable.unpaged()))
+		when(codeService.getPriorityLevels(Pageable.unpaged()))
 			.thenReturn(new PageImpl<>(List.of(new PriorityLevelEntityBuilder().code("VALID").build())));
 
 		assertTrue(priorityLevelCodeValidator.isValid("VALID", null));
@@ -46,7 +46,7 @@ class PriorityLevelCodeValidatorTest {
 	@Test
 	@DisplayName("isValid() returns false when priority level code is invalid")
 	void isValidReturnsFalseWhenPriorityLevelCodeIsInvalid() {
-		when(codeService.getAllPriorityLevels(Pageable.unpaged()))
+		when(codeService.getPriorityLevels(Pageable.unpaged()))
 			.thenReturn(new PageImpl<>(List.of(new PriorityLevelEntityBuilder().code("VALID").build())));
 
 		assertFalse(priorityLevelCodeValidator.isValid("INVALID", null));

@@ -59,7 +59,7 @@ class CodesControllerTest {
 	@Test
 	@WithAnonymousUser
 	@DisplayName("GET /codes/cities - Should return 200 OK with a page of cities")
-	void getAllCities_shouldReturnOk() throws Exception {
+	void getCities_shouldReturnOk() throws Exception {
 		final var city = new CityEntityBuilder()
 			.id(0L)
 			.code("TEST")
@@ -81,7 +81,7 @@ class CodesControllerTest {
 			.lastModifiedDate(Instant.EPOCH)
 			.build();
 
-		when(codeService.getAllCities(Pageable.unpaged())).thenReturn(new PageImpl<>(List.of(city)));
+		when(codeService.getCities(Pageable.unpaged())).thenReturn(new PageImpl<>(List.of(city)));
 
 		mockMvc.perform(get("/api/v1/codes/cities"))
 			.andDo(MockMvcResultHandlers.print())
@@ -108,7 +108,7 @@ class CodesControllerTest {
 	@Test
 	@WithAnonymousUser
 	@DisplayName("GET /codes/classifications - Should return 200 OK with a page of classifications")
-	void getAllClassifications_shouldReturnOk() throws Exception {
+	void getClassifications_shouldReturnOk() throws Exception {
 		final var classification = new ClassificationEntityBuilder()
 			.id(0L)
 			.code("TEST")
@@ -120,7 +120,7 @@ class CodesControllerTest {
 			.lastModifiedDate(Instant.EPOCH)
 			.build();
 
-		when(codeService.getAllClassifications(Pageable.unpaged())).thenReturn(new PageImpl<>(List.of(classification)));
+		when(codeService.getClassifications(Pageable.unpaged())).thenReturn(new PageImpl<>(List.of(classification)));
 
 		mockMvc.perform(get("/api/v1/codes/classifications"))
 			.andExpect(status().isOk())
@@ -138,7 +138,7 @@ class CodesControllerTest {
 	@Test
 	@WithAnonymousUser
 	@DisplayName("GET /codes/employment-equities - Should return 200 OK with a page of employment equities")
-	void getAllEmploymentEquities_shouldReturnOk() throws Exception {
+	void getEmploymentEquities_shouldReturnOk() throws Exception {
 		final var employmentEquity = new EmploymentEquityEntityBuilder()
 			.id(0L)
 			.code("TEST")
@@ -150,7 +150,7 @@ class CodesControllerTest {
 			.lastModifiedDate(Instant.EPOCH)
 			.build();
 
-		when(codeService.getAllEmploymentEquities(Pageable.unpaged())).thenReturn(new PageImpl<>(List.of(employmentEquity)));
+		when(codeService.getEmploymentEquities(Pageable.unpaged())).thenReturn(new PageImpl<>(List.of(employmentEquity)));
 
 		mockMvc.perform(get("/api/v1/codes/employment-equities"))
 			.andExpect(status().isOk())
@@ -168,7 +168,7 @@ class CodesControllerTest {
 	@Test
 	@WithAnonymousUser
 	@DisplayName("GET /codes/employment-opportunities - Should return 200 OK with a page of employment opportunities")
-	void getAllEmploymentOpportunities_shouldReturnOk() throws Exception {
+	void getEmploymentOpportunities_shouldReturnOk() throws Exception {
 		final var employmentOpportunity = new EmploymentOpportunityEntityBuilder()
 			.id(0L)
 			.code("TEST")
@@ -180,7 +180,7 @@ class CodesControllerTest {
 			.lastModifiedDate(Instant.EPOCH)
 			.build();
 
-		when(codeService.getAllEmploymentOpportunities(Pageable.unpaged())).thenReturn(new PageImpl<>(List.of(employmentOpportunity)));
+		when(codeService.getEmploymentOpportunities(Pageable.unpaged())).thenReturn(new PageImpl<>(List.of(employmentOpportunity)));
 
 		mockMvc.perform(get("/api/v1/codes/employment-opportunities"))
 			.andExpect(status().isOk())
@@ -198,7 +198,7 @@ class CodesControllerTest {
 	@Test
 	@WithAnonymousUser
 	@DisplayName("GET /codes/employment-tenures - Should return 200 OK with a page of employment tenures")
-	void getAllEmploymentTenures_shouldReturnOk() throws Exception {
+	void getEmploymentTenures_shouldReturnOk() throws Exception {
 		final var employmentTenure = new EmploymentTenureEntityBuilder()
 			.id(0L)
 			.code("TEST")
@@ -210,7 +210,7 @@ class CodesControllerTest {
 			.lastModifiedDate(Instant.EPOCH)
 			.build();
 
-		when(codeService.getAllEmploymentTenures(Pageable.unpaged())).thenReturn(new PageImpl<>(List.of(employmentTenure)));
+		when(codeService.getEmploymentTenures(Pageable.unpaged())).thenReturn(new PageImpl<>(List.of(employmentTenure)));
 
 		mockMvc.perform(get("/api/v1/codes/employment-tenures"))
 			.andExpect(status().isOk())
@@ -228,7 +228,7 @@ class CodesControllerTest {
 	@Test
 	@WithAnonymousUser
 	@DisplayName("GET /codes/languages - Should return 200 OK with a page of languages")
-	void getAllLanguages_shouldReturnOk() throws Exception {
+	void getLanguages_shouldReturnOk() throws Exception {
 		final var language = new LanguageEntityBuilder()
 			.id(0L)
 			.code("TEST")
@@ -240,7 +240,7 @@ class CodesControllerTest {
 			.lastModifiedDate(Instant.EPOCH)
 			.build();
 
-		when(codeService.getAllLanguages(Pageable.unpaged())).thenReturn(new PageImpl<>(List.of(language)));
+		when(codeService.getLanguages(Pageable.unpaged())).thenReturn(new PageImpl<>(List.of(language)));
 
 		mockMvc.perform(get("/api/v1/codes/languages"))
 			.andExpect(status().isOk())
@@ -258,7 +258,7 @@ class CodesControllerTest {
 	@Test
 	@WithAnonymousUser
 	@DisplayName("GET /codes/language-referral-types - Should return 200 OK with a page of language referral types")
-	void getAllLanguageReferralTypes_shouldReturnOk() throws Exception {
+	void getLanguageReferralTypes_shouldReturnOk() throws Exception {
 		final var languageReferralType = new LanguageReferralTypeEntityBuilder()
 			.id(0L)
 			.code("TEST")
@@ -270,7 +270,7 @@ class CodesControllerTest {
 			.lastModifiedDate(Instant.EPOCH)
 			.build();
 
-		when(codeService.getAllLanguageReferralTypes(Pageable.unpaged())).thenReturn(new PageImpl<>(List.of(languageReferralType)));
+		when(codeService.getLanguageReferralTypes(Pageable.unpaged())).thenReturn(new PageImpl<>(List.of(languageReferralType)));
 
 		mockMvc.perform(get("/api/v1/codes/language-referral-types"))
 			.andExpect(status().isOk())
@@ -288,7 +288,7 @@ class CodesControllerTest {
 	@Test
 	@WithAnonymousUser
 	@DisplayName("GET /codes/language-requirements - Should return 200 OK with a page of language requirements")
-	void getAllLanguageRequirements_shouldReturnOk() throws Exception {
+	void getLanguageRequirements_shouldReturnOk() throws Exception {
 		final var languageRequirement = new LanguageRequirementEntityBuilder()
 			.id(0L)
 			.code("TEST")
@@ -300,7 +300,7 @@ class CodesControllerTest {
 			.lastModifiedDate(Instant.EPOCH)
 			.build();
 
-		when(codeService.getAllLanguageRequirements(Pageable.unpaged())).thenReturn(new PageImpl<>(List.of(languageRequirement)));
+		when(codeService.getLanguageRequirements(Pageable.unpaged())).thenReturn(new PageImpl<>(List.of(languageRequirement)));
 
 		mockMvc.perform(get("/api/v1/codes/language-requirements"))
 			.andExpect(status().isOk())
@@ -318,7 +318,7 @@ class CodesControllerTest {
 	@Test
 	@WithAnonymousUser
 	@DisplayName("GET /codes/non-advertised-appointments - Should return 200 OK with a page of non-advertised appointments")
-	void getAllNonAdvertisedAppointments_shouldReturnOk() throws Exception {
+	void getNonAdvertisedAppointments_shouldReturnOk() throws Exception {
 		final var nonAdvertisedAppointment = new NonAdvertisedAppointmentEntityBuilder()
 			.id(0L)
 			.code("TEST")
@@ -330,7 +330,7 @@ class CodesControllerTest {
 			.lastModifiedDate(Instant.EPOCH)
 			.build();
 
-		when(codeService.getAllNonAdvertisedAppointments(Pageable.unpaged())).thenReturn(new PageImpl<>(List.of(nonAdvertisedAppointment)));
+		when(codeService.getNonAdvertisedAppointments(Pageable.unpaged())).thenReturn(new PageImpl<>(List.of(nonAdvertisedAppointment)));
 
 		mockMvc.perform(get("/api/v1/codes/non-advertised-appointments"))
 			.andExpect(status().isOk())
@@ -348,7 +348,7 @@ class CodesControllerTest {
 	@Test
 	@WithAnonymousUser
 	@DisplayName("GET /codes/priority-levels - Should return 200 OK with a page of priority levels")
-	void getAllPriorityLevels_shouldReturnOk() throws Exception {
+	void getPriorityLevels_shouldReturnOk() throws Exception {
 		final var priorityLevel = new PriorityLevelEntityBuilder()
 			.id(0L)
 			.code("TEST")
@@ -360,7 +360,7 @@ class CodesControllerTest {
 			.lastModifiedDate(Instant.EPOCH)
 			.build();
 
-		when(codeService.getAllPriorityLevels(Pageable.unpaged())).thenReturn(new PageImpl<>(List.of(priorityLevel)));
+		when(codeService.getPriorityLevels(Pageable.unpaged())).thenReturn(new PageImpl<>(List.of(priorityLevel)));
 
 		mockMvc.perform(get("/api/v1/codes/priority-levels"))
 			.andExpect(status().isOk())
@@ -378,7 +378,7 @@ class CodesControllerTest {
 	@Test
 	@WithAnonymousUser
 	@DisplayName("GET /codes/profile-statuses - Should return 200 OK with a page of profile statuses")
-	void getAllProfileStatuses_shouldReturnOk() throws Exception {
+	void getProfileStatuses_shouldReturnOk() throws Exception {
 		final var profileStatus = new ProfileStatusEntityBuilder()
 			.id(0L)
 			.code("TEST")
@@ -390,7 +390,7 @@ class CodesControllerTest {
 			.lastModifiedDate(Instant.EPOCH)
 			.build();
 
-		when(codeService.getAllProfileStatuses(Pageable.unpaged())).thenReturn(new PageImpl<>(List.of(profileStatus)));
+		when(codeService.getProfileStatuses(Pageable.unpaged())).thenReturn(new PageImpl<>(List.of(profileStatus)));
 
 		mockMvc.perform(get("/api/v1/codes/profile-statuses"))
 			.andExpect(status().isOk())
@@ -408,7 +408,7 @@ class CodesControllerTest {
 	@Test
 	@WithAnonymousUser
 	@DisplayName("GET /codes/provinces - Should return 200 OK with a page of provinces")
-	void getAllProvinces_shouldReturnOk() throws Exception {
+	void getProvinces_shouldReturnOk() throws Exception {
 		final var province = new ProvinceEntityBuilder()
 			.id(0L)
 			.code("TEST")
@@ -420,7 +420,7 @@ class CodesControllerTest {
 			.lastModifiedDate(Instant.EPOCH)
 			.build();
 
-		when(codeService.getAllProvinces(Pageable.unpaged())).thenReturn(new PageImpl<>(List.of(province)));
+		when(codeService.getProvinces(Pageable.unpaged())).thenReturn(new PageImpl<>(List.of(province)));
 
 		mockMvc.perform(get("/api/v1/codes/provinces"))
 			.andExpect(status().isOk())
@@ -438,7 +438,7 @@ class CodesControllerTest {
 	@Test
 	@WithAnonymousUser
 	@DisplayName("GET /codes/request-statuses - Should return 200 OK with a page of request statuses")
-	void getAllRequestStatuses_shouldReturnOk() throws Exception {
+	void getRequestStatuses_shouldReturnOk() throws Exception {
 		final var requestStatus = new RequestStatusEntityBuilder()
 			.id(0L)
 			.code("TEST")
@@ -450,7 +450,7 @@ class CodesControllerTest {
 			.lastModifiedDate(Instant.EPOCH)
 			.build();
 
-		when(codeService.getAllRequestStatuses(Pageable.unpaged())).thenReturn(new PageImpl<>(List.of(requestStatus)));
+		when(codeService.getRequestStatuses(Pageable.unpaged())).thenReturn(new PageImpl<>(List.of(requestStatus)));
 
 		mockMvc.perform(get("/api/v1/codes/request-statuses"))
 			.andExpect(status().isOk())
@@ -468,7 +468,7 @@ class CodesControllerTest {
 	@Test
 	@WithAnonymousUser
 	@DisplayName("GET /codes/security-clearances - Should return 200 OK with a page of security clearances")
-	void getAllSecurityClearances_shouldReturnOk() throws Exception {
+	void getSecurityClearances_shouldReturnOk() throws Exception {
 		final var securityClearance = new SecurityClearanceEntityBuilder()
 			.id(0L)
 			.code("TEST")
@@ -480,7 +480,7 @@ class CodesControllerTest {
 			.lastModifiedDate(Instant.EPOCH)
 			.build();
 
-		when(codeService.getAllSecurityClearances(Pageable.unpaged())).thenReturn(new PageImpl<>(List.of(securityClearance)));
+		when(codeService.getSecurityClearances(Pageable.unpaged())).thenReturn(new PageImpl<>(List.of(securityClearance)));
 
 		mockMvc.perform(get("/api/v1/codes/security-clearances"))
 			.andExpect(status().isOk())
@@ -498,7 +498,7 @@ class CodesControllerTest {
 	@Test
 	@WithAnonymousUser
 	@DisplayName("GET /codes/selection-process-types - Should return 200 OK with a page of selection process types")
-	void getAllSelectionProcessTypes_shouldReturnOk() throws Exception {
+	void getSelectionProcessTypes_shouldReturnOk() throws Exception {
 		final var selectionProcessType = new SelectionProcessTypeEntityBuilder()
 			.id(0L)
 			.code("TEST")
@@ -510,7 +510,7 @@ class CodesControllerTest {
 			.lastModifiedDate(Instant.EPOCH)
 			.build();
 
-		when(codeService.getAllSelectionProcessTypes(Pageable.unpaged())).thenReturn(new PageImpl<>(List.of(selectionProcessType)));
+		when(codeService.getSelectionProcessTypes(Pageable.unpaged())).thenReturn(new PageImpl<>(List.of(selectionProcessType)));
 
 		mockMvc.perform(get("/api/v1/codes/selection-process-types"))
 			.andExpect(status().isOk())
@@ -528,7 +528,7 @@ class CodesControllerTest {
 	@Test
 	@WithAnonymousUser
 	@DisplayName("GET /codes/user-types - Should return 200 OK with a page of user types")
-	void getAllUserTypes_shouldReturnOk() throws Exception {
+	void getUserTypes_shouldReturnOk() throws Exception {
 		final var userType = new UserTypeEntityBuilder()
 			.id(0L)
 			.code("TEST")
@@ -540,7 +540,7 @@ class CodesControllerTest {
 			.lastModifiedDate(Instant.EPOCH)
 			.build();
 
-		when(codeService.getAllUserTypes(Pageable.unpaged())).thenReturn(new PageImpl<>(List.of(userType)));
+		when(codeService.getUserTypes(Pageable.unpaged())).thenReturn(new PageImpl<>(List.of(userType)));
 
 		mockMvc.perform(get("/api/v1/codes/user-types"))
 			.andExpect(status().isOk())
@@ -558,7 +558,7 @@ class CodesControllerTest {
 	@Test
 	@WithAnonymousUser
 	@DisplayName("GET /codes/wfa-statuses - Should return 200 OK with a page of WFA statuses")
-	void getAllWfaStatuses_shouldReturnOk() throws Exception {
+	void getWfaStatuses_shouldReturnOk() throws Exception {
 		final var wfaStatus = new WfaStatusEntityBuilder()
 			.id(0L)
 			.code("TEST")
@@ -570,7 +570,7 @@ class CodesControllerTest {
 			.lastModifiedDate(Instant.EPOCH)
 			.build();
 
-		when(codeService.getAllWfaStatuses(Pageable.unpaged())).thenReturn(new PageImpl<>(List.of(wfaStatus)));
+		when(codeService.getWfaStatuses(Pageable.unpaged())).thenReturn(new PageImpl<>(List.of(wfaStatus)));
 
 		mockMvc.perform(get("/api/v1/codes/wfa-statuses"))
 			.andExpect(status().isOk())
@@ -588,7 +588,7 @@ class CodesControllerTest {
 	@Test
 	@WithAnonymousUser
 	@DisplayName("GET /codes/work-schedules - Should return 200 OK with a page of work schedules")
-	void getAllWorkSchedules_shouldReturnOk() throws Exception {
+	void getWorkSchedules_shouldReturnOk() throws Exception {
 		final var workSchedule = new WorkScheduleEntityBuilder()
 			.id(0L)
 			.code("TEST")
@@ -600,7 +600,7 @@ class CodesControllerTest {
 			.lastModifiedDate(Instant.EPOCH)
 			.build();
 
-		when(codeService.getAllWorkSchedules(Pageable.unpaged())).thenReturn(new PageImpl<>(List.of(workSchedule)));
+		when(codeService.getWorkSchedules(Pageable.unpaged())).thenReturn(new PageImpl<>(List.of(workSchedule)));
 
 		mockMvc.perform(get("/api/v1/codes/work-schedules"))
 			.andExpect(status().isOk())
@@ -618,7 +618,7 @@ class CodesControllerTest {
 	@Test
 	@WithAnonymousUser
 	@DisplayName("GET /codes/work-units - Should return 200 OK with a page of work units")
-	void getAllWorkUnits_shouldReturnOk() throws Exception {
+	void getWorkUnits_shouldReturnOk() throws Exception {
 		final var workUnit = new WorkUnitEntityBuilder()
 			.id(0L)
 			.code("TEST")
@@ -630,7 +630,7 @@ class CodesControllerTest {
 			.lastModifiedDate(Instant.EPOCH)
 			.build();
 
-		when(codeService.getAllWorkUnits(Pageable.unpaged())).thenReturn(new PageImpl<>(List.of(workUnit)));
+		when(codeService.getWorkUnits(Pageable.unpaged())).thenReturn(new PageImpl<>(List.of(workUnit)));
 
 		mockMvc.perform(get("/api/v1/codes/work-units"))
 			.andExpect(status().isOk())

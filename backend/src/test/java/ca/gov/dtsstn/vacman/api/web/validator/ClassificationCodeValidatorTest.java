@@ -37,7 +37,7 @@ class ClassificationCodeValidatorTest {
 	@Test
 	@DisplayName("isValid() returns true when classification code is valid")
 	void isValidReturnsTrueWhenClassificationCodeIsValid() {
-		when(codeService.getAllClassifications(Pageable.unpaged()))
+		when(codeService.getClassifications(Pageable.unpaged()))
 			.thenReturn(new PageImpl<>(List.of(new ClassificationEntityBuilder().code("VALID").build())));
 
 		assertTrue(classificationCodeValidator.isValid("VALID", null));
@@ -46,7 +46,7 @@ class ClassificationCodeValidatorTest {
 	@Test
 	@DisplayName("isValid() returns false when classification code is invalid")
 	void isValidReturnsFalseWhenClassificationCodeIsInvalid() {
-		when(codeService.getAllClassifications(Pageable.unpaged()))
+		when(codeService.getClassifications(Pageable.unpaged()))
 			.thenReturn(new PageImpl<>(List.of(new ClassificationEntityBuilder().code("VALID").build())));
 
 		assertFalse(classificationCodeValidator.isValid("INVALID", null));

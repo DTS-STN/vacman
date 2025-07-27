@@ -37,7 +37,7 @@ class EmploymentOpportunityCodeValidatorTest {
 	@Test
 	@DisplayName("isValid() returns true when employment opportunity code is valid")
 	void isValidReturnsTrueWhenEmploymentOpportunityCodeIsValid() {
-		when(codeService.getAllEmploymentOpportunities(Pageable.unpaged()))
+		when(codeService.getEmploymentOpportunities(Pageable.unpaged()))
 			.thenReturn(new PageImpl<>(List.of(new EmploymentOpportunityEntityBuilder().code("VALID").build())));
 
 		assertTrue(employmentOpportunityCodeValidator.isValid("VALID", null));
@@ -46,7 +46,7 @@ class EmploymentOpportunityCodeValidatorTest {
 	@Test
 	@DisplayName("isValid() returns false when employment opportunity code is invalid")
 	void isValidReturnsFalseWhenEmploymentOpportunityCodeIsInvalid() {
-		when(codeService.getAllEmploymentOpportunities(Pageable.unpaged()))
+		when(codeService.getEmploymentOpportunities(Pageable.unpaged()))
 			.thenReturn(new PageImpl<>(List.of(new EmploymentOpportunityEntityBuilder().code("VALID").build())));
 
 		assertFalse(employmentOpportunityCodeValidator.isValid("INVALID", null));

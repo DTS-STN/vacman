@@ -37,7 +37,7 @@ class EmploymentEquityCodeValidatorTest {
 	@Test
 	@DisplayName("isValid() returns true when employment equity code is valid")
 	void isValidReturnsTrueWhenEmploymentEquityCodeIsValid() {
-		when(codeService.getAllEmploymentEquities(Pageable.unpaged()))
+		when(codeService.getEmploymentEquities(Pageable.unpaged()))
 			.thenReturn(new PageImpl<>(List.of(new EmploymentEquityEntityBuilder().code("VALID").build())));
 
 		assertTrue(employmentEquityCodeValidator.isValid("VALID", null));
@@ -46,7 +46,7 @@ class EmploymentEquityCodeValidatorTest {
 	@Test
 	@DisplayName("isValid() returns false when employment equity code is invalid")
 	void isValidReturnsFalseWhenEmploymentEquityCodeIsInvalid() {
-		when(codeService.getAllEmploymentEquities(Pageable.unpaged()))
+		when(codeService.getEmploymentEquities(Pageable.unpaged()))
 			.thenReturn(new PageImpl<>(List.of(new EmploymentEquityEntityBuilder().code("VALID").build())));
 
 		assertFalse(employmentEquityCodeValidator.isValid("INVALID", null));

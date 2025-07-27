@@ -37,7 +37,7 @@ class WorkUnitCodeValidatorTest {
 	@Test
 	@DisplayName("isValid() returns true when work unit code is valid")
 	void isValidReturnsTrueWhenWorkUnitCodeIsValid() {
-		when(codeService.getAllWorkUnits(Pageable.unpaged()))
+		when(codeService.getWorkUnits(Pageable.unpaged()))
 			.thenReturn(new PageImpl<>(List.of(new WorkUnitEntityBuilder().code("VALID").build())));
 
 		assertTrue(workUnitCodeValidator.isValid("VALID", null));
@@ -46,7 +46,7 @@ class WorkUnitCodeValidatorTest {
 	@Test
 	@DisplayName("isValid() returns false when work unit code is invalid")
 	void isValidReturnsFalseWhenWorkUnitCodeIsInvalid() {
-		when(codeService.getAllWorkUnits(Pageable.unpaged()))
+		when(codeService.getWorkUnits(Pageable.unpaged()))
 			.thenReturn(new PageImpl<>(List.of(new WorkUnitEntityBuilder().code("VALID").build())));
 
 		assertFalse(workUnitCodeValidator.isValid("INVALID", null));

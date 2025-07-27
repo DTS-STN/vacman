@@ -47,7 +47,7 @@ public class CodesController {
 	@GetMapping({ "/cities" })
 	@Operation(summary = "Get all city codes")
 	public CollectionModel<CityReadModel> getCities() {
-		final var cities = codeService.getAllCities(Pageable.unpaged())
+		final var cities = codeService.getCities(Pageable.unpaged())
 			.map(codeMapper::map)
 			.toList();
 
@@ -57,7 +57,7 @@ public class CodesController {
 	@GetMapping({ "/classifications" })
 	@Operation(summary = "Get all classification codes")
 	public CollectionModel<ClassificationReadModel> getClassifications() {
-		final var classifications = codeService.getAllClassifications(Pageable.unpaged())
+		final var classifications = codeService.getClassifications(Pageable.unpaged())
 			.map(codeMapper::map)
 			.toList();
 
@@ -67,7 +67,7 @@ public class CodesController {
 	@GetMapping({ "/employment-equities" })
 	@Operation(summary = "Get all employment equity codes")
 	public CollectionModel<EmploymentEquityReadModel> getEmploymentEquities() {
-		final var employmentEquities = codeService.getAllEmploymentEquities(Pageable.unpaged())
+		final var employmentEquities = codeService.getEmploymentEquities(Pageable.unpaged())
 			.map(codeMapper::map)
 			.toList();
 
@@ -77,7 +77,7 @@ public class CodesController {
 	@GetMapping({ "/employment-opportunities" })
 	@Operation(summary = "Get all employment opportunity codes")
 	public CollectionModel<EmploymentOpportunityReadModel> getEmploymentOpportunities() {
-		final var employmentOpportunities = codeService.getAllEmploymentOpportunities(Pageable.unpaged())
+		final var employmentOpportunities = codeService.getEmploymentOpportunities(Pageable.unpaged())
 			.map(codeMapper::map)
 			.toList();
 
@@ -87,7 +87,7 @@ public class CodesController {
 	@GetMapping({ "/employment-tenures" })
 	@Operation(summary = "Get all employment tenure codes")
 	public CollectionModel<EmploymentTenureReadModel> getEmploymentTenures() {
-		final var employmentTenures = codeService.getAllEmploymentTenures(Pageable.unpaged())
+		final var employmentTenures = codeService.getEmploymentTenures(Pageable.unpaged())
 			.map(codeMapper::map)
 			.toList();
 
@@ -97,7 +97,7 @@ public class CodesController {
 	@GetMapping({ "/languages" })
 	@Operation(summary = "Get all language codes")
 	public CollectionModel<LanguageReadModel> getLanguages() {
-		final var languages = codeService.getAllLanguages(Pageable.unpaged())
+		final var languages = codeService.getLanguages(Pageable.unpaged())
 			.map(codeMapper::map)
 			.toList();
 
@@ -107,7 +107,7 @@ public class CodesController {
 	@GetMapping({ "/language-referral-types" })
 	@Operation(summary = "Get all language referral type codes")
 	public CollectionModel<LanguageReferralTypeReadModel> getLanguageReferralTypes() {
-		final var languageReferralTypes = codeService.getAllLanguageReferralTypes(Pageable.unpaged())
+		final var languageReferralTypes = codeService.getLanguageReferralTypes(Pageable.unpaged())
 			.map(codeMapper::map)
 			.toList();
 
@@ -117,7 +117,7 @@ public class CodesController {
 	@GetMapping({ "/language-requirements" })
 	@Operation(summary = "Get all language requirement codes")
 	public CollectionModel<LanguageRequirementReadModel> getLanguageRequirements() {
-		final var languageRequirements = codeService.getAllLanguageRequirements(Pageable.unpaged())
+		final var languageRequirements = codeService.getLanguageRequirements(Pageable.unpaged())
 			.map(codeMapper::map)
 			.toList();
 
@@ -127,7 +127,7 @@ public class CodesController {
 	@GetMapping({ "/non-advertised-appointments" })
 	@Operation(summary = "Get all non-advertised appointment codes")
 	public CollectionModel<NonAdvertisedAppointmentReadModel> getNonAdvertisedAppointments() {
-		final var nonAdvertisedAppointments = codeService.getAllNonAdvertisedAppointments(Pageable.unpaged())
+		final var nonAdvertisedAppointments = codeService.getNonAdvertisedAppointments(Pageable.unpaged())
 			.map(codeMapper::map)
 			.toList();
 
@@ -137,7 +137,7 @@ public class CodesController {
 	@GetMapping({ "/priority-levels" })
 	@Operation(summary = "Get all priority level codes")
 	public CollectionModel<PriorityLevelReadModel> getPriorityLevels() {
-		final var priorityLevels = codeService.getAllPriorityLevels(Pageable.unpaged())
+		final var priorityLevels = codeService.getPriorityLevels(Pageable.unpaged())
 			.map(codeMapper::map)
 			.toList();
 
@@ -147,7 +147,7 @@ public class CodesController {
 	@GetMapping({ "/profile-statuses" })
 	@Operation(summary = "Get all profile status codes")
 	public CollectionModel<ProfileStatusReadModel> getProfileStatuses() {
-		final var profileStatuses = codeService.getAllProfileStatuses(Pageable.unpaged())
+		final var profileStatuses = codeService.getProfileStatuses(Pageable.unpaged())
 			.map(codeMapper::map)
 			.toList();
 
@@ -157,7 +157,7 @@ public class CodesController {
 	@GetMapping({ "/provinces" })
 	@Operation(summary = "Get all province codes")
 	public CollectionModel<ProvinceReadModel> getProvinces() {
-		final var provinces = codeService.getAllProvinces(Pageable.unpaged())
+		final var provinces = codeService.getProvinces(Pageable.unpaged())
 			.map(codeMapper::map)
 			.toList();
 
@@ -167,7 +167,7 @@ public class CodesController {
 	@GetMapping({ "/request-statuses" })
 	@Operation(summary = "Get all request status codes")
 	public CollectionModel<RequestStatusReadModel> getRequestStatuses() {
-		final var requestStatuses = codeService.getAllRequestStatuses(Pageable.unpaged())
+		final var requestStatuses = codeService.getRequestStatuses(Pageable.unpaged())
 			.map(codeMapper::map)
 			.toList();
 
@@ -177,7 +177,7 @@ public class CodesController {
 	@GetMapping({ "/security-clearances" })
 	@Operation(summary = "Get all security clearance codes")
 	public CollectionModel<SecurityClearanceReadModel> getSecurityClearances() {
-		final var securityClearances = codeService.getAllSecurityClearances(Pageable.unpaged())
+		final var securityClearances = codeService.getSecurityClearances(Pageable.unpaged())
 			.map(codeMapper::map)
 			.toList();
 
@@ -187,7 +187,7 @@ public class CodesController {
 	@GetMapping({ "/selection-process-types" })
 	@Operation(summary = "Get all selection process type codes")
 	public CollectionModel<SelectionProcessTypeReadModel> getSelectionProcessTypes() {
-		final var selectionProcessTypes = codeService.getAllSelectionProcessTypes(Pageable.unpaged())
+		final var selectionProcessTypes = codeService.getSelectionProcessTypes(Pageable.unpaged())
 			.map(codeMapper::map)
 			.toList();
 
@@ -197,7 +197,7 @@ public class CodesController {
 	@GetMapping({ "/user-types" })
 	@Operation(summary = "Get all user type codes")
 	public CollectionModel<UserTypeReadModel> getUserTypes() {
-		final var userTypes = codeService.getAllUserTypes(Pageable.unpaged())
+		final var userTypes = codeService.getUserTypes(Pageable.unpaged())
 			.map(codeMapper::map)
 			.toList();
 
@@ -207,7 +207,7 @@ public class CodesController {
 	@GetMapping({ "/wfa-statuses" })
 	@Operation(summary = "Get all WFA status codes")
 	public CollectionModel<WfaStatusReadModel> getWfaStatuses() {
-		final var wfaStatuses = codeService.getAllWfaStatuses(Pageable.unpaged())
+		final var wfaStatuses = codeService.getWfaStatuses(Pageable.unpaged())
 			.map(codeMapper::map)
 			.toList();
 
@@ -217,7 +217,7 @@ public class CodesController {
 	@GetMapping({ "/work-schedules" })
 	@Operation(summary = "Get all work schedule codes")
 	public CollectionModel<WorkScheduleReadModel> getWorkSchedules() {
-		final var workSchedules = codeService.getAllWorkSchedules(Pageable.unpaged())
+		final var workSchedules = codeService.getWorkSchedules(Pageable.unpaged())
 			.map(codeMapper::map)
 			.toList();
 
@@ -227,7 +227,7 @@ public class CodesController {
 	@GetMapping({ "/work-units" })
 	@Operation(summary = "Get all work unit codes")
 	public CollectionModel<WorkUnitReadModel> getWorkUnits() {
-		final var workUnits = codeService.getAllWorkUnits(Pageable.unpaged())
+		final var workUnits = codeService.getWorkUnits(Pageable.unpaged())
 			.map(codeMapper::map)
 			.toList();
 

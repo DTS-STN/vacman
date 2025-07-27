@@ -37,7 +37,7 @@ class EmploymentTenureCodeValidatorTest {
 	@Test
 	@DisplayName("isValid() returns true when employment tenure code is valid")
 	void isValidReturnsTrueWhenEmploymentTenureCodeIsValid() {
-		when(codeService.getAllEmploymentTenures(Pageable.unpaged()))
+		when(codeService.getEmploymentTenures(Pageable.unpaged()))
 			.thenReturn(new PageImpl<>(List.of(new EmploymentTenureEntityBuilder().code("VALID").build())));
 
 		assertTrue(employmentTenureCodeValidator.isValid("VALID", null));
@@ -46,7 +46,7 @@ class EmploymentTenureCodeValidatorTest {
 	@Test
 	@DisplayName("isValid() returns false when employment tenure code is invalid")
 	void isValidReturnsFalseWhenEmploymentTenureCodeIsInvalid() {
-		when(codeService.getAllEmploymentTenures(Pageable.unpaged()))
+		when(codeService.getEmploymentTenures(Pageable.unpaged()))
 			.thenReturn(new PageImpl<>(List.of(new EmploymentTenureEntityBuilder().code("VALID").build())));
 
 		assertFalse(employmentTenureCodeValidator.isValid("INVALID", null));

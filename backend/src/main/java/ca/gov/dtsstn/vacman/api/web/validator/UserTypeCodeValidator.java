@@ -29,7 +29,7 @@ public class UserTypeCodeValidator implements ConstraintValidator<ValidUserTypeC
 	public boolean isValid(String userTypeCode, ConstraintValidatorContext context) {
 		if (userTypeCode == null) { return true; }
 
-		return codeService.getAllUserTypes(Pageable.unpaged()).stream()
+		return codeService.getUserTypes(Pageable.unpaged()).stream()
 				.filter(userType -> userType.getCode().equals(userTypeCode))
 				.findFirst().isPresent();
 	}

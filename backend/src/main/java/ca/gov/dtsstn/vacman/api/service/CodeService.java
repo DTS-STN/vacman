@@ -43,6 +43,12 @@ import ca.gov.dtsstn.vacman.api.data.repository.WfaStatusRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.WorkScheduleRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.WorkUnitRepository;
 
+/**
+ * Service class for retrieving code table values.
+ *
+ * This service provides methods to access various code entities,
+ * which represent lookup values used throughout the application.
+ */
 @Service
 public class CodeService {
 
@@ -125,79 +131,193 @@ public class CodeService {
 		this.workUnitRepository = workUnitRepository;
 	}
 
-	public Page<CityEntity> getAllCities(Pageable pageable) {
+	/**
+	 * Retrieves a paginated list of cities.
+	 *
+	 * @param pageable pagination information
+	 * @return a page of {@link CityEntity} objects
+	 */
+	public Page<CityEntity> getCities(Pageable pageable) {
 		return cityRepository.findAll(pageable);
 	}
 
-	public Page<ClassificationEntity> getAllClassifications(Pageable pageable) {
+	/**
+	 * Retrieves a paginated list of classifications.
+	 *
+	 * @param pageable pagination information
+	 * @return a page of {@link ClassificationEntity} objects
+	 */
+	public Page<ClassificationEntity> getClassifications(Pageable pageable) {
 		return classificationRepository.findAll(pageable);
 	}
 
-	public Page<EmploymentEquityEntity> getAllEmploymentEquities(Pageable pageable) {
+	/**
+	 * Retrieves a paginated list of employment equities.
+	 *
+	 * @param pageable pagination information
+	 * @return a page of {@link EmploymentEquityEntity} objects
+	 */
+	public Page<EmploymentEquityEntity> getEmploymentEquities(Pageable pageable) {
 		return employmentEquityRepository.findAll(pageable);
 	}
 
-	public Page<EmploymentOpportunityEntity> getAllEmploymentOpportunities(Pageable pageable) {
+	/**
+	 * Retrieves a paginated list of employment opportunities.
+	 *
+	 * @param pageable pagination information
+	 * @return a page of {@link EmploymentOpportunityEntity} objects
+	 */
+	public Page<EmploymentOpportunityEntity> getEmploymentOpportunities(Pageable pageable) {
 		return employmentOpportunityRepository.findAll(pageable);
 	}
 
-	public Page<EmploymentTenureEntity> getAllEmploymentTenures(Pageable pageable) {
+	/**
+	 * Retrieves a paginated list of employment tenures.
+	 *
+	 * @param pageable pagination information
+	 * @return a page of {@link EmploymentTenureEntity} objects
+	 */
+	public Page<EmploymentTenureEntity> getEmploymentTenures(Pageable pageable) {
 		return employmentTenureRepository.findAll(pageable);
 	}
 
-	public Page<LanguageEntity> getAllLanguages(Pageable pageable) {
+	/**
+	 * Retrieves a paginated list of languages.
+	 *
+	 * @param pageable pagination information
+	 * @return a page of {@link LanguageEntity} objects
+	 */
+	public Page<LanguageEntity> getLanguages(Pageable pageable) {
 		return languageRepository.findAll(pageable);
 	}
 
-	public Page<LanguageReferralTypeEntity> getAllLanguageReferralTypes(Pageable pageable) {
+	/**
+	 * Retrieves a paginated list of language referral types.
+	 *
+	 * @param pageable pagination information
+	 * @return a page of {@link LanguageReferralTypeEntity} objects
+	 */
+	public Page<LanguageReferralTypeEntity> getLanguageReferralTypes(Pageable pageable) {
 		return languageReferralTypeRepository.findAll(pageable);
 	}
 
-	public Page<LanguageRequirementEntity> getAllLanguageRequirements(Pageable pageable) {
+	/**
+	 * Retrieves a paginated list of language requirements.
+	 *
+	 * @param pageable pagination information
+	 * @return a page of {@link LanguageRequirementEntity} objects
+	 */
+	public Page<LanguageRequirementEntity> getLanguageRequirements(Pageable pageable) {
 		return languageRequirementRepository.findAll(pageable);
 	}
 
-	public Page<NonAdvertisedAppointmentEntity> getAllNonAdvertisedAppointments(Pageable pageable) {
+	/**
+	 * Retrieves a paginated list of non-advertised appointments.
+	 *
+	 * @param pageable pagination information
+	 * @return a page of {@link NonAdvertisedAppointmentEntity} objects
+	 */
+	public Page<NonAdvertisedAppointmentEntity> getNonAdvertisedAppointments(Pageable pageable) {
 		return nonAdvertisedAppointmentRepository.findAll(pageable);
 	}
 
-	public Page<PriorityLevelEntity> getAllPriorityLevels(Pageable pageable) {
+	/**
+	 * Retrieves a paginated list of priority levels.
+	 *
+	 * @param pageable pagination information
+	 * @return a page of {@link PriorityLevelEntity} objects
+	 */
+	public Page<PriorityLevelEntity> getPriorityLevels(Pageable pageable) {
 		return priorityLevelRepository.findAll(pageable);
 	}
 
-	public Page<ProfileStatusEntity> getAllProfileStatuses(Pageable pageable) {
+	/**
+	 * Retrieves a paginated list of profile statuses.
+	 *
+	 * @param pageable pagination information
+	 * @return a page of {@link ProfileStatusEntity} objects
+	 */
+	public Page<ProfileStatusEntity> getProfileStatuses(Pageable pageable) {
 		return profileStatusRepository.findAll(pageable);
 	}
 
-	public Page<ProvinceEntity> getAllProvinces(Pageable pageable) {
+	/**
+	 * Retrieves a paginated list of provinces.
+	 *
+	 * @param pageable pagination information
+	 * @return a page of {@link ProvinceEntity} objects
+	 */
+	public Page<ProvinceEntity> getProvinces(Pageable pageable) {
 		return provinceRepository.findAll(pageable);
 	}
 
-	public Page<RequestStatusEntity> getAllRequestStatuses(Pageable pageable) {
+	/**
+	 * Retrieves a paginated list of request statuses.
+	 *
+	 * @param pageable pagination information
+	 * @return a page of {@link RequestStatusEntity} objects
+	 */
+	public Page<RequestStatusEntity> getRequestStatuses(Pageable pageable) {
 		return requestStatusRepository.findAll(pageable);
 	}
 
-	public Page<SecurityClearanceEntity> getAllSecurityClearances(Pageable pageable) {
+	/**
+	 * Retrieves a paginated list of security clearances.
+	 *
+	 * @param pageable pagination information
+	 * @return a page of {@link SecurityClearanceEntity} objects
+	 */
+	public Page<SecurityClearanceEntity> getSecurityClearances(Pageable pageable) {
 		return securityClearanceRepository.findAll(pageable);
 	}
 
-	public Page<SelectionProcessTypeEntity> getAllSelectionProcessTypes(Pageable pageable) {
+	/**
+	 * Retrieves a paginated list of selection process types.
+	 *
+	 * @param pageable pagination information
+	 * @return a page of {@link SelectionProcessTypeEntity} objects
+	 */
+	public Page<SelectionProcessTypeEntity> getSelectionProcessTypes(Pageable pageable) {
 		return selectionProcessTypeRepository.findAll(pageable);
 	}
 
-	public Page<UserTypeEntity> getAllUserTypes(Pageable pageable) {
+	/**
+	 * Retrieves a paginated list of user types.
+	 *
+	 * @param pageable pagination information
+	 * @return a page of {@link UserTypeEntity} objects
+	 */
+	public Page<UserTypeEntity> getUserTypes(Pageable pageable) {
 		return userTypeRepository.findAll(pageable);
 	}
 
-	public Page<WfaStatusEntity> getAllWfaStatuses(Pageable pageable) {
+	/**
+	 * Retrieves a paginated list of WFA statuses.
+	 *
+	 * @param pageable pagination information
+	 * @return a page of {@link WfaStatusEntity} objects
+	 */
+	public Page<WfaStatusEntity> getWfaStatuses(Pageable pageable) {
 		return wfaStatusRepository.findAll(pageable);
 	}
 
-	public Page<WorkScheduleEntity> getAllWorkSchedules(Pageable pageable) {
+	/**
+	 * Retrieves a paginated list of work schedules.
+	 *
+	 * @param pageable pagination information
+	 * @return a page of {@link WorkScheduleEntity} objects
+	 */
+	public Page<WorkScheduleEntity> getWorkSchedules(Pageable pageable) {
 		return workScheduleRepository.findAll(pageable);
 	}
 
-	public Page<WorkUnitEntity> getAllWorkUnits(Pageable pageable) {
+	/**
+	 * Retrieves a paginated list of work units.
+	 *
+	 * @param pageable pagination information
+	 * @return a page of {@link WorkUnitEntity} objects
+	 */
+	public Page<WorkUnitEntity> getWorkUnits(Pageable pageable) {
 		return workUnitRepository.findAll(pageable);
 	}
 

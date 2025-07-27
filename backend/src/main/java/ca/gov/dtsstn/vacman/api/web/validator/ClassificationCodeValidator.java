@@ -25,7 +25,7 @@ public class ClassificationCodeValidator implements ConstraintValidator<ValidCla
 	public boolean isValid(String classificationCode, ConstraintValidatorContext context) {
 		if (classificationCode == null) { return true; }
 
-		return codeService.getAllClassifications(Pageable.unpaged()).stream()
+		return codeService.getClassifications(Pageable.unpaged()).stream()
 			.filter(classification -> classification.getCode().equals(classificationCode))
 			.findFirst().isPresent();
 	}

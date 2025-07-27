@@ -37,7 +37,7 @@ class CityCodeValidatorTest {
 	@Test
 	@DisplayName("isValid() returns true when city code is valid")
 	void isValidReturnsTrueWhenCityCodeIsValid() {
-		when(codeService.getAllCities(Pageable.unpaged()))
+		when(codeService.getCities(Pageable.unpaged()))
 			.thenReturn(new PageImpl<>(List.of(new CityEntityBuilder().code("VALID").build())));
 
 		assertTrue(cityCodeValidator.isValid("VALID", null));
@@ -46,7 +46,7 @@ class CityCodeValidatorTest {
 	@Test
 	@DisplayName("isValid() returns false when city code is invalid")
 	void isValidReturnsFalseWhenCityCodeIsInvalid() {
-		when(codeService.getAllCities(Pageable.unpaged()))
+		when(codeService.getCities(Pageable.unpaged()))
 			.thenReturn(new PageImpl<>(List.of(new CityEntityBuilder().code("VALID").build())));
 
 		assertFalse(cityCodeValidator.isValid("INVALID", null));

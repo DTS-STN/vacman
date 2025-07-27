@@ -37,7 +37,7 @@ class WfaStatusCodeValidatorTest {
 	@Test
 	@DisplayName("isValid() returns true when WFA status code is valid")
 	void isValidReturnsTrueWhenWfaStatusCodeIsValid() {
-		when(codeService.getAllWfaStatuses(Pageable.unpaged()))
+		when(codeService.getWfaStatuses(Pageable.unpaged()))
 			.thenReturn(new PageImpl<>(List.of(new WfaStatusEntityBuilder().code("VALID").build())));
 
 		assertTrue(wfaStatusCodeValidator.isValid("VALID", null));
@@ -46,7 +46,7 @@ class WfaStatusCodeValidatorTest {
 	@Test
 	@DisplayName("isValid() returns false when WFA status code is invalid")
 	void isValidReturnsFalseWhenWfaStatusCodeIsInvalid() {
-		when(codeService.getAllWfaStatuses(Pageable.unpaged()))
+		when(codeService.getWfaStatuses(Pageable.unpaged()))
 			.thenReturn(new PageImpl<>(List.of(new WfaStatusEntityBuilder().code("VALID").build())));
 
 		assertFalse(wfaStatusCodeValidator.isValid("INVALID", null));

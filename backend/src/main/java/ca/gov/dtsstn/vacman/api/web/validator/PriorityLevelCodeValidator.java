@@ -25,7 +25,7 @@ public class PriorityLevelCodeValidator implements ConstraintValidator<ValidPrio
 	public boolean isValid(String priorityLevelCode, ConstraintValidatorContext context) {
 		if (priorityLevelCode == null) { return true; }
 
-		return codeService.getAllPriorityLevels(Pageable.unpaged()).stream()
+		return codeService.getPriorityLevels(Pageable.unpaged()).stream()
 			.filter(priorityLevel -> priorityLevel.getCode().equals(priorityLevelCode))
 			.findFirst().isPresent();
 	}

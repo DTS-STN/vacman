@@ -25,7 +25,7 @@ public class WorkScheduleCodeValidator implements ConstraintValidator<ValidWorkS
 	public boolean isValid(String workScheduleCode, ConstraintValidatorContext context) {
 		if (workScheduleCode == null) { return true; }
 
-		return codeService.getAllWorkSchedules(Pageable.unpaged()).stream()
+		return codeService.getWorkSchedules(Pageable.unpaged()).stream()
 			.filter(workSchedule -> workSchedule.getCode().equals(workScheduleCode))
 			.findFirst().isPresent();
 	}

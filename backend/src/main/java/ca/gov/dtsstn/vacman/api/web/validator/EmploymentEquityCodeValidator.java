@@ -25,7 +25,7 @@ public class EmploymentEquityCodeValidator implements ConstraintValidator<ValidE
 	public boolean isValid(String employmentEquityCode, ConstraintValidatorContext context) {
 		if (employmentEquityCode == null) { return true; }
 
-		return codeService.getAllEmploymentEquities(Pageable.unpaged()).stream()
+		return codeService.getEmploymentEquities(Pageable.unpaged()).stream()
 			.filter(employmentEquity -> employmentEquity.getCode().equals(employmentEquityCode))
 			.findFirst().isPresent();
 	}

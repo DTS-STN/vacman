@@ -25,7 +25,7 @@ public class LanguageRequirementCodeValidator implements ConstraintValidator<Val
 	public boolean isValid(String languageRequirementCode, ConstraintValidatorContext context) {
 		if (languageRequirementCode == null) { return true; }
 
-		return codeService.getAllLanguageRequirements(Pageable.unpaged()).stream()
+		return codeService.getLanguageRequirements(Pageable.unpaged()).stream()
 			.filter(languageRequirement -> languageRequirement.getCode().equals(languageRequirementCode))
 			.findFirst().isPresent();
 	}

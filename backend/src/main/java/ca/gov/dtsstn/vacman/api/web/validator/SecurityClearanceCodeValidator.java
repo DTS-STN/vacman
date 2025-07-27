@@ -25,7 +25,7 @@ public class SecurityClearanceCodeValidator implements ConstraintValidator<Valid
 	public boolean isValid(String securityClearanceCode, ConstraintValidatorContext context) {
 		if (securityClearanceCode == null) { return true; }
 
-		return codeService.getAllSecurityClearances(Pageable.unpaged()).stream()
+		return codeService.getSecurityClearances(Pageable.unpaged()).stream()
 			.filter(securityClearance -> securityClearance.getCode().equals(securityClearanceCode))
 			.findFirst().isPresent();
 	}

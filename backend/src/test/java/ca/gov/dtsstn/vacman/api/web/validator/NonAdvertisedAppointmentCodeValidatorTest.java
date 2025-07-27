@@ -37,7 +37,7 @@ class NonAdvertisedAppointmentCodeValidatorTest {
 	@Test
 	@DisplayName("isValid() returns true when non-advertised appointment code is valid")
 	void isValidReturnsTrueWhenNonAdvertisedAppointmentCodeIsValid() {
-		when(codeService.getAllNonAdvertisedAppointments(Pageable.unpaged()))
+		when(codeService.getNonAdvertisedAppointments(Pageable.unpaged()))
 			.thenReturn(new PageImpl<>(List.of(new NonAdvertisedAppointmentEntityBuilder().code("VALID").build())));
 
 		assertTrue(nonAdvertisedAppointmentCodeValidator.isValid("VALID", null));
@@ -46,7 +46,7 @@ class NonAdvertisedAppointmentCodeValidatorTest {
 	@Test
 	@DisplayName("isValid() returns false when non-advertised appointment code is invalid")
 	void isValidReturnsFalseWhenNonAdvertisedAppointmentCodeIsInvalid() {
-		when(codeService.getAllNonAdvertisedAppointments(Pageable.unpaged()))
+		when(codeService.getNonAdvertisedAppointments(Pageable.unpaged()))
 			.thenReturn(new PageImpl<>(List.of(new NonAdvertisedAppointmentEntityBuilder().code("VALID").build())));
 
 		assertFalse(nonAdvertisedAppointmentCodeValidator.isValid("INVALID", null));

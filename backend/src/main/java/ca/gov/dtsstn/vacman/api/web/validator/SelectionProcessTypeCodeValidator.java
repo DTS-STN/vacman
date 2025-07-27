@@ -25,7 +25,7 @@ public class SelectionProcessTypeCodeValidator implements ConstraintValidator<Va
 	public boolean isValid(String selectionProcessTypeCode, ConstraintValidatorContext context) {
 		if (selectionProcessTypeCode == null) { return true; }
 
-		return codeService.getAllSelectionProcessTypes(Pageable.unpaged()).stream()
+		return codeService.getSelectionProcessTypes(Pageable.unpaged()).stream()
 			.filter(selectionProcessType -> selectionProcessType.getCode().equals(selectionProcessTypeCode))
 			.findFirst().isPresent();
 	}

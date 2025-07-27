@@ -25,7 +25,7 @@ public class CityCodeValidator implements ConstraintValidator<ValidCityCode, Str
 	public boolean isValid(String cityCode, ConstraintValidatorContext context) {
 		if (cityCode == null) { return true; }
 
-		return codeService.getAllCities(Pageable.unpaged()).stream()
+		return codeService.getCities(Pageable.unpaged()).stream()
 			.filter(city -> city.getCode().equals(cityCode))
 			.findFirst().isPresent();
 	}

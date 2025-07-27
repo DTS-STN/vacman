@@ -25,7 +25,7 @@ public class WorkUnitCodeValidator implements ConstraintValidator<ValidWorkUnitC
 	public boolean isValid(String workUnitCode, ConstraintValidatorContext context) {
 		if (workUnitCode == null) { return true; }
 
-		return codeService.getAllWorkUnits(Pageable.unpaged()).stream()
+		return codeService.getWorkUnits(Pageable.unpaged()).stream()
 			.filter(workUnit -> workUnit.getCode().equals(workUnitCode))
 			.findFirst().isPresent();
 	}
