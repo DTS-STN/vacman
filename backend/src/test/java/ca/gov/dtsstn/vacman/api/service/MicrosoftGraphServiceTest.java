@@ -63,6 +63,7 @@ class MicrosoftGraphServiceTest {
             Duration.ofSeconds(30)
         );
 
+        when(restTemplateBuilder.rootUri(anyString())).thenReturn(restTemplateBuilder);
         when(restTemplateBuilder.connectTimeout(any())).thenReturn(restTemplateBuilder);
         when(restTemplateBuilder.readTimeout(any())).thenReturn(restTemplateBuilder);
         when(restTemplateBuilder.build()).thenReturn(restTemplate);
@@ -111,7 +112,7 @@ class MicrosoftGraphServiceTest {
         assertEquals(expectedUser.surname(), result.surname());
 
         verify(restTemplate).exchange(
-            eq("https://graph.microsoft.com/v1.0/me?$select=id,onPremisesSamAccountName,givenName,surname,businessPhones,mail,preferredLanguage,city,state,jobTitle,department,officeLocation,mobilePhone"),
+            eq("/me?$select=id,onPremisesSamAccountName,givenName,surname,businessPhones,mail,preferredLanguage,city,state,jobTitle,department,officeLocation,mobilePhone"),
             eq(HttpMethod.GET),
             any(HttpEntity.class),
             eq(MicrosoftGraphUserModel.class)
