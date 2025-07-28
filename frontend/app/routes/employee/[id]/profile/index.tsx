@@ -110,13 +110,10 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   // Use the id parameter from the URL to fetch the profile
   const profileUserId = params.id;
 
-  // Get the user service
-  const userService = getUserService();
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
 
   // Fetch both the profile user and the profile data
   const [
-    profileUser,
     profileResult,
     allLocalizedLanguageReferralTypes,
     allClassifications,
@@ -124,7 +121,6 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     allLocalizedEmploymentTenures,
     allWfaStatus,
   ] = await Promise.all([
-    userService.getUserByActiveDirectoryId(profileUserId),
     getProfileService().getProfile(profileUserId),
     getLanguageReferralTypeService().listAllLocalized(lang),
     getClassificationService().listAllLocalized(lang),
@@ -214,8 +210,8 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 
   return {
     documentTitle: t('app:index.about'),
-    name: profileUser?.uuName ?? 'Unknown User',
-    email: profileUser?.businessEmail ?? profileData.personalInformation.workEmail,
+    name: profileData.personalInformation.givenName + ' ' + profileData.personalInformation.surname,
+    email: profileData.personalInformation.workEmail,
     amountCompleted: amountCompleted,
     isProfileComplete: isCompletePersonalInformation && isCompleteEmploymentInformation && isCompleteReferralPreferences,
     personalInformation: {
@@ -223,7 +219,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       isNew: countCompletedItems(profileData.personalInformation) === 1, // only work email is available
       personalRecordIdentifier: profileData.personalInformation.personalRecordIdentifier,
       preferredLanguage: preferredLanguage,
-      workEmail: profileUser?.businessEmail ?? profileData.personalInformation.workEmail,
+      workEmail: profileData.personalInformation.workEmail,
       personalEmail: profileData.personalInformation.personalEmail,
       workPhone: profileData.personalInformation.workPhone,
       personalPhone: profileData.personalInformation.personalPhone,

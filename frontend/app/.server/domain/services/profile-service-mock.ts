@@ -808,6 +808,8 @@ function registerProfile(activeDirectoryId: string): Profile {
     userUpdated: undefined,
     dateUpdated: undefined,
     personalInformation: {
+      surname: 'Doe',
+      givenName: 'John',
       personalRecordIdentifier: '123456789',
       preferredLanguageId: undefined,
       workEmail: 'work.email@example.ca',
