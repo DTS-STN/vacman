@@ -44,7 +44,6 @@ public class MicrosoftGraphService {
      */
     public MicrosoftGraphService(RestTemplateBuilder restTemplateBuilder, MicrosoftGraphProperties properties) {
         this.properties = properties;
-        // Configure RestTemplate with configurable timeouts and error handling
         this.restTemplate = restTemplateBuilder
             .connectTimeout(properties.connectTimeout())
             .readTimeout(properties.readTimeout())
