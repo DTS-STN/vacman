@@ -196,7 +196,7 @@ INSERT INTO [CD_PROFILE_STATUS] ([PROFILE_STATUS_CODE], [PROFILE_STATUS_NAME_EN]
 VALUES
     ('PENDING', 'Pending', 'En attente', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
     ('ACTIVE', 'Active', 'Actif', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
-    ('INACTIVE', 'Inactive', 'Inactif', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
+    ('INCOMPLETE', 'Incomplete', 'Incomplet', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
 
 -- Add priority levels if not exists
 INSERT INTO [CD_PRIORITY_LEVEL] ([PRIORITY_LEVEL_CODE], [PRIORITY_LEVEL_NAME_EN], [PRIORITY_LEVEL_NAME_FR], [EFFECTIVE_DATE], [USER_CREATED], [DATE_CREATED], [USER_UPDATED], [DATE_UPDATED])
@@ -210,7 +210,8 @@ INSERT INTO [CD_USER_TYPE] ([USER_TYPE_CODE], [USER_TYPE_NAME_EN], [USER_TYPE_NA
 VALUES
     ('employee', 'Employee', 'Employé', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
     ('admin', 'Administrator', 'Administrateur', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
-    ('hiring-manager', 'Hiring Manager', 'Gestionnaire de recrutement', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
+    ('hiring-manager', 'Hiring Manager', 'Gestionnaire de recrutement', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+    ('hr-advisor', 'HR Advisor', 'Conseiller RH', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
 
 -- Add security clearance levels
 INSERT INTO [CD_SECURITY_CLEARANCE] ([SECURITY_CLEARANCE_CODE], [SECURITY_CLEARANCE_NAME_EN], [SECURITY_CLEARANCE_NAME_FR], [EFFECTIVE_DATE], [USER_CREATED], [DATE_CREATED], [USER_UPDATED], [DATE_UPDATED])
