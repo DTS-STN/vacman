@@ -17,3 +17,13 @@ spec:
                 name: vacman-frontend
                 port:
                   name: http
+    - host: vacman-dev-api.dev-dp-internal.dts-stn.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: vacman-backend
+                port:
+                  name: http
