@@ -24,7 +24,7 @@ export const provinceService: ProvinceService = {
       content: readonly Province[];
     };
     const context = 'list all provinces';
-    const response = await apiClient.get<ApiResponse>('/provinces', context);
+    const response = await apiClient.get<ApiResponse>('/codes/provinces', context);
 
     if (response.isErr()) {
       throw response.unwrapErr();

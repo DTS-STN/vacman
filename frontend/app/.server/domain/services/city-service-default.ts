@@ -35,7 +35,7 @@ export const cityService: CityService = {
       content: readonly City[];
     };
     const context = 'list all cities';
-    const response = await apiClient.get<ApiResponse>('/cities', context);
+    const response = await apiClient.get<ApiResponse>('/codes/cities', context);
 
     if (response.isErr()) {
       throw response.unwrapErr();
@@ -55,7 +55,7 @@ export const cityService: CityService = {
   async getById(id: string): Promise<Result<City, AppError>> {
     const context = `Get City with ID '${id}'`;
 
-    const response = await apiClient.get<City>(`/cities/${id}`, context);
+    const response = await apiClient.get<City>(`/codes/cities/${id}`, context);
 
     if (response.isErr()) {
       const apiFetchError = response.unwrapErr();
@@ -83,7 +83,7 @@ export const cityService: CityService = {
     type ApiResponse = {
       content: readonly City[];
     };
-    const response = await apiClient.get<ApiResponse>(`/cities?code=${code}`, context);
+    const response = await apiClient.get<ApiResponse>(`/codes/cities?code=${code}`, context);
     if (response.isErr()) {
       throw response.unwrapErr();
     }

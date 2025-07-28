@@ -30,7 +30,7 @@ export const wfaStatusService: WFAStatusService = {
       content: readonly WFAStatus[];
     };
     const context = 'list all wfa statuses';
-    const response = await apiClient.get<ApiResponse>('/wfa-statuses', context);
+    const response = await apiClient.get<ApiResponse>('/codes/wfa-statuses', context);
 
     if (response.isErr()) {
       throw response.unwrapErr();
@@ -50,7 +50,7 @@ export const wfaStatusService: WFAStatusService = {
   async getById(id: string): Promise<Result<WFAStatus, AppError>> {
     const context = `Get WFA Statuses with ID '${id}'`;
 
-    const response = await apiClient.get<WFAStatus>(`/work-units/${id}`, context);
+    const response = await apiClient.get<WFAStatus>(`/codes/wfa-statuses/${id}`, context);
 
     if (response.isErr()) {
       const apiFetchError = response.unwrapErr();
@@ -77,7 +77,7 @@ export const wfaStatusService: WFAStatusService = {
     type ApiResponse = {
       content: readonly WFAStatus[];
     };
-    const response = await apiClient.get<ApiResponse>(`/wfa-statuses?code=${code}`, context);
+    const response = await apiClient.get<ApiResponse>(`/codes/wfa-statuses?code=${code}`, context);
 
     if (response.isErr()) {
       throw response.unwrapErr();

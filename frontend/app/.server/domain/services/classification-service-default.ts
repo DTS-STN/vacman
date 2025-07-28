@@ -30,7 +30,7 @@ export const classificationService: ClassificationService = {
       content: readonly Classification[];
     };
     const context = 'list all esdc classification groups and levels';
-    const response = await apiClient.get<ApiResponse>('/classifications', context);
+    const response = await apiClient.get<ApiResponse>('/codes/classifications', context);
 
     if (response.isErr()) {
       throw response.unwrapErr();
@@ -50,7 +50,7 @@ export const classificationService: ClassificationService = {
   async getById(id: string): Promise<Result<Classification, AppError>> {
     const context = `Get Classification with ID '${id}'`;
 
-    const response = await apiClient.get<Classification>(`/classifications/${id}`, context);
+    const response = await apiClient.get<Classification>(`/codes/classifications/${id}`, context);
     if (response.isErr()) {
       const apiFetchError = response.unwrapErr();
 
@@ -76,7 +76,7 @@ export const classificationService: ClassificationService = {
     type ApiResponse = {
       content: readonly Classification[];
     };
-    const response = await apiClient.get<ApiResponse>(`/classifications?code=${code}`, context);
+    const response = await apiClient.get<ApiResponse>(`/codes/classifications?code=${code}`, context);
     if (response.isErr()) {
       throw response.unwrapErr();
     }

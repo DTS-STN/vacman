@@ -33,7 +33,7 @@ export const languageForCorrespondenceService: LanguageForCorrespondenceService 
       content: readonly LanguageOfCorrespondence[];
     };
     const context = 'list all language of correspondence';
-    const response = await apiClient.get<ApiResponse>('/languages', context);
+    const response = await apiClient.get<ApiResponse>('/codes/languages', context);
 
     if (response.isErr()) {
       throw response.unwrapErr();
@@ -53,7 +53,7 @@ export const languageForCorrespondenceService: LanguageForCorrespondenceService 
   async getById(id: string): Promise<Result<LanguageOfCorrespondence, AppError>> {
     const context = `Get Language of correspondence with ID '${id}'`;
 
-    const response = await apiClient.get<LanguageOfCorrespondence>(`/languages/${id}`, context);
+    const response = await apiClient.get<LanguageOfCorrespondence>(`/codes/languages/${id}`, context);
 
     if (response.isErr()) {
       const apiFetchError = response.unwrapErr();
@@ -80,7 +80,7 @@ export const languageForCorrespondenceService: LanguageForCorrespondenceService 
     type ApiResponse = {
       content: readonly LanguageOfCorrespondence[];
     };
-    const response = await apiClient.get<ApiResponse>(`/languages?code=${code}`, context);
+    const response = await apiClient.get<ApiResponse>(`/codes/languages?code=${code}`, context);
 
     if (response.isErr()) {
       throw response.unwrapErr();
