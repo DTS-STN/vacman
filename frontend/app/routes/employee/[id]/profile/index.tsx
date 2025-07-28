@@ -21,6 +21,7 @@ import { getProfileService } from '~/.server/domain/services/profile-service';
 import { getUserService } from '~/.server/domain/services/user-service';
 import { getWFAStatuses } from '~/.server/domain/services/wfa-status-service';
 import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
+import { countCompletedItems, omitObjectProperties } from '~/.server/utils/profile-utils';
 import { AlertMessage } from '~/components/alert-message';
 import { Button } from '~/components/button';
 import { ButtonLink } from '~/components/button-link';
@@ -32,7 +33,6 @@ import { EMPLOYEE_WFA_STATUS } from '~/domain/constants';
 import { getTranslation } from '~/i18n-config.server';
 import type { I18nRouteFile } from '~/i18n-routes';
 import { handle as parentHandle } from '~/routes/layout';
-import { countCompletedItems, omit } from '~/utils/string-utils';
 import { cn } from '~/utils/tailwind-utils';
 
 export const handle = {
@@ -56,7 +56,10 @@ export async function action({ context, request }: Route.ActionArgs) {
   const profileData: Profile = profileResult.unwrap();
   const allWfaStatus = await getWFAStatuses().listAll();
 
-  const requiredPersonalInformation = omit(profileData.personalInformation, ['workPhone', 'additionalInformation']);
+  const requiredPersonalInformation = omitObjectProperties(profileData.personalInformation, [
+    'workPhone',
+    'additionalInformation',
+  ]);
   const validWFAStatusesForOptionalDate = [EMPLOYEE_WFA_STATUS.affected] as const;
   const selectedValidWfaStatusesForOptionalDate = allWfaStatus
     .filter((c) => validWFAStatusesForOptionalDate.toString().includes(c.code))
@@ -70,8 +73,8 @@ export async function action({ context, request }: Route.ActionArgs) {
     (status) => String(status.id) === profileData.employmentInformation.wfaStatus,
   );
   const requiredEmploymentInformation = isWfaDateOptional
-    ? omit(profileData.employmentInformation, ['wfaEndDate', 'wfaEffectiveDate']) // If status is "Affected", omit the effective date
-    : omit(profileData.employmentInformation, ['wfaEndDate']);
+    ? omitObjectProperties(profileData.employmentInformation, ['wfaEndDate', 'wfaEffectiveDate']) // If status is "Affected", omit the effective date
+    : omitObjectProperties(profileData.employmentInformation, ['wfaEndDate']);
 
   const personalInfoComplete =
     countCompletedItems(requiredPersonalInformation) === Object.keys(requiredPersonalInformation).length;
@@ -166,7 +169,10 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     ?.map((employmentTenureId) => allLocalizedEmploymentTenures.find((c) => String(c.id) === employmentTenureId))
     .filter(Boolean);
 
-  const requiredPersonalInformation = omit(profileData.personalInformation, ['workPhone', 'additionalInformation']);
+  const requiredPersonalInformation = omitObjectProperties(profileData.personalInformation, [
+    'workPhone',
+    'additionalInformation',
+  ]);
   const validWFAStatusesForOptionalDate = [EMPLOYEE_WFA_STATUS.affected] as const;
   const selectedValidWfaStatusesForOptionalDate = allWfaStatus
     .filter((c) => validWFAStatusesForOptionalDate.toString().includes(c.code))
@@ -180,8 +186,8 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     (status) => String(status.id) === profileData.employmentInformation.wfaStatus,
   );
   const requiredEmploymentInformation = isWfaDateOptional
-    ? omit(profileData.employmentInformation, ['wfaEndDate', 'wfaEffectiveDate']) // If status is "Affected", omit the effective date
-    : omit(profileData.employmentInformation, ['wfaEndDate']);
+    ? omitObjectProperties(profileData.employmentInformation, ['wfaEndDate', 'wfaEffectiveDate']) // If status is "Affected", omit the effective date
+    : omitObjectProperties(profileData.employmentInformation, ['wfaEndDate']);
 
   const isCompletePersonalInformation =
     countCompletedItems(requiredPersonalInformation) === Object.keys(requiredPersonalInformation).length;
