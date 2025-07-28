@@ -79,6 +79,26 @@ export function getMockProfileService(): ProfileService {
 
       return Promise.resolve(Ok(undefined));
     },
+    submitProfileForReview: (activeDirectoryId: string): Promise<Result<Profile, AppError>> => {
+      const mockProfile = getProfile(activeDirectoryId);
+
+      if (!mockProfile) {
+        return Promise.resolve(Err(new AppError('Profile not found', ErrorCodes.PROFILE_NOT_FOUND)));
+      }
+
+      const userId = activeDirectoryToUserIdMap[activeDirectoryId];
+
+      const updatedProfile: Profile = {
+        ...mockProfile,
+        status: 'pending-approval',
+        dateUpdated: new Date().toISOString(),
+        userUpdated: activeDirectoryId,
+      };
+
+      mockProfiles = mockProfiles.map((profile) => (profile.userId === userId ? updatedProfile : profile));
+
+      return Promise.resolve(Ok(updatedProfile));
+    },
     getAllProfiles: () => {
       return Promise.resolve(mockProfiles);
     },
