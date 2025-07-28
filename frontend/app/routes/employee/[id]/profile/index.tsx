@@ -100,8 +100,6 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 
   const profileData: Profile = profileResult.unwrap();
 
-  console.log(profileData);
-
   const preferredLanguageResult =
     profileData.personalInformation.preferredLanguageId &&
     (await getLanguageForCorrespondenceService().findLocalizedById(profileData.personalInformation.preferredLanguageId, lang));
