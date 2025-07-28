@@ -33,7 +33,7 @@ export const languageReferralTypeService: LanguageReferralTypeService = {
       content: readonly LanguageReferralType[];
     };
     const context = 'list all language referral types';
-    const response = await apiClient.get<ApiResponse>('/language-referral-types', context);
+    const response = await apiClient.get<ApiResponse>('/codes/language-referral-types', context);
 
     if (response.isErr()) {
       throw response.unwrapErr();
@@ -52,7 +52,7 @@ export const languageReferralTypeService: LanguageReferralTypeService = {
    */
   async getById(id: string): Promise<Result<LanguageReferralType, AppError>> {
     const context = `Get Language referral type with ID '${id}'`;
-    const response = await apiClient.get<LanguageReferralType>(`/language-referral-types/${id}`, context);
+    const response = await apiClient.get<LanguageReferralType>(`/codes/language-referral-types/${id}`, context);
 
     if (response.isErr()) {
       const apiFetchError = response.unwrapErr();
@@ -79,7 +79,7 @@ export const languageReferralTypeService: LanguageReferralTypeService = {
     type ApiResponse = {
       content: readonly LanguageReferralType[];
     };
-    const response = await apiClient.get<ApiResponse>(`/language-referral-types?code=${code}`, context);
+    const response = await apiClient.get<ApiResponse>(`/codes/language-referral-types?code=${code}`, context);
 
     if (response.isErr()) {
       throw response.unwrapErr();

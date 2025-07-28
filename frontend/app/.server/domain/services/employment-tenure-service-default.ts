@@ -30,7 +30,7 @@ export const employmentTenureService: EmploymentTenureService = {
       content: readonly EmploymentTenure[];
     };
     const context = 'list all employment tenures';
-    const response = await apiClient.get<ApiResponse>('/employment-tenures', context);
+    const response = await apiClient.get<ApiResponse>('/codes/employment-tenures', context);
 
     if (response.isErr()) {
       throw response.unwrapErr();
@@ -50,7 +50,7 @@ export const employmentTenureService: EmploymentTenureService = {
   async getById(id: string): Promise<Result<EmploymentTenure, AppError>> {
     const context = `Get Employment tenure with ID '${id}'`;
 
-    const response = await apiClient.get<EmploymentTenure>(`/employment-tenures/${id}`, context);
+    const response = await apiClient.get<EmploymentTenure>(`/codes/employment-tenures/${id}`, context);
 
     if (response.isErr()) {
       const apiFetchError = response.unwrapErr();
@@ -77,7 +77,7 @@ export const employmentTenureService: EmploymentTenureService = {
     type ApiResponse = {
       content: readonly EmploymentTenure[];
     };
-    const response = await apiClient.get<ApiResponse>(`/employment-tenures?code=${code}`, context);
+    const response = await apiClient.get<ApiResponse>(`/codes/employment-tenures?code=${code}`, context);
 
     if (response.isErr()) {
       throw response.unwrapErr();

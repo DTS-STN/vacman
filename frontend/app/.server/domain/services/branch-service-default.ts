@@ -40,7 +40,7 @@ export const branchService: BranchService = {
       content: readonly Branch[];
     };
     const context = 'list all esdc branches';
-    const response = await apiClient.get<ApiResponse>('/work-units', context);
+    const response = await apiClient.get<ApiResponse>('/codes/work-units', context);
 
     if (response.isErr()) {
       throw response.unwrapErr();
@@ -60,7 +60,7 @@ export const branchService: BranchService = {
    */
   async getById(id: string): Promise<Result<Branch, AppError>> {
     const context = `Get ESDC Branches with ID '${id}'`;
-    const response = await apiClient.get<Branch>(`/work-units/${id}`, context);
+    const response = await apiClient.get<Branch>(`/codes/work-units/${id}`, context);
 
     if (response.isErr()) {
       const apiFetchError = response.unwrapErr();
@@ -87,7 +87,7 @@ export const branchService: BranchService = {
     type ApiResponse = {
       content: readonly Branch[];
     };
-    const response = await apiClient.get<ApiResponse>(`/work-units?code=${code}`, context);
+    const response = await apiClient.get<ApiResponse>(`/codes/work-units?code=${code}`, context);
     if (response.isErr()) {
       throw response.unwrapErr();
     }

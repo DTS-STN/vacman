@@ -55,7 +55,7 @@ export const directorateService: DirectorateService = {
       content: readonly Directorate[];
     };
     const context = 'list all esdc directorates';
-    const response = await apiClient.get<ApiResponse>('/work-units', context);
+    const response = await apiClient.get<ApiResponse>('/codes/work-units', context);
 
     if (response.isErr()) {
       throw response.unwrapErr();
@@ -75,7 +75,7 @@ export const directorateService: DirectorateService = {
    */
   async getById(id: string): Promise<Result<Directorate, AppError>> {
     const context = `Get ESDC Directorate with ID '${id}'`;
-    const response = await apiClient.get<Directorate>(`/work-units/${id}`, context);
+    const response = await apiClient.get<Directorate>(`/codes/work-units/${id}`, context);
 
     if (response.isErr()) {
       const apiFetchError = response.unwrapErr();
@@ -107,7 +107,7 @@ export const directorateService: DirectorateService = {
     type ApiResponse = {
       content: readonly Directorate[];
     };
-    const response = await apiClient.get<ApiResponse>(`/work-units?code=${code}`, context);
+    const response = await apiClient.get<ApiResponse>(`/codes/work-units?code=${code}`, context);
     if (response.isErr()) {
       throw response.unwrapErr();
     }
