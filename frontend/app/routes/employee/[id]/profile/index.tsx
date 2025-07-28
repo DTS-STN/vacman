@@ -43,7 +43,6 @@ export function meta({ data }: Route.MetaArgs) {
   return [{ title: data?.documentTitle }];
 }
 
-// TODO: Setup form action to submit user's profile data for review
 export async function action({ context, request }: Route.ActionArgs) {
   // Get the current user's ID from the authenticated session
   const authenticatedSession = context.session as AuthenticatedSession;
@@ -53,6 +52,7 @@ export async function action({ context, request }: Route.ActionArgs) {
   if (profileResult.isNone()) {
     return { status: 'profile-not-found' };
   }
+
   const profileData: Profile = profileResult.unwrap();
   const allWfaStatus = await getWFAStatuses().listAll();
 
@@ -76,6 +76,7 @@ export async function action({ context, request }: Route.ActionArgs) {
     ? omitObjectProperties(profileData.employmentInformation, ['wfaEndDate', 'wfaEffectiveDate']) // If status is "Affected", omit the effective date
     : omitObjectProperties(profileData.employmentInformation, ['wfaEndDate']);
 
+  // Check if all sections are complete
   const personalInfoComplete =
     countCompletedItems(requiredPersonalInformation) === Object.keys(requiredPersonalInformation).length;
   const employmentInfoComplete =
@@ -83,10 +84,25 @@ export async function action({ context, request }: Route.ActionArgs) {
   const referralComplete =
     countCompletedItems(profileData.referralPreferences) === Object.keys(profileData.referralPreferences).length;
 
+  // If any section is incomplete, return incomplete state
+  if (!personalInfoComplete || !employmentInfoComplete || !referralComplete) {
+    return {
+      personalInfoComplete,
+      employmentInfoComplete,
+      referralComplete,
+      status: 'incomplete',
+    };
+  }
+
+  // If all complete, submit for review
+  const submitResult = await getProfileService().submitProfileForReview(currentUserId);
+  if (submitResult.isErr()) {
+    throw submitResult.unwrap();
+  }
+
   return {
-    personalInfoComplete,
-    employmentInfoComplete,
-    referralComplete,
+    status: 'submitted',
+    profileStatus: submitResult.unwrap().status,
   };
 }
 
