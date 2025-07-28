@@ -58,7 +58,11 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     );
   }
 
-  //TODO: Save form data & work email after validation, workEmail: context.session.authState.idTokenClaims.email
+  const updateResult = await getProfileService().updatePersonalInformation(currentUserId, parseResult.output);
+
+  if (updateResult.isErr()) {
+    throw updateResult.unwrapErr();
+  }
 
   return i18nRedirect('routes/employee/[id]/profile/index.tsx', request, {
     params: { id: currentUserId },

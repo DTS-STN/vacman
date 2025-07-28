@@ -1,7 +1,12 @@
 import { Err, None, Ok, Some } from 'oxide.ts';
 import type { Option, Result } from 'oxide.ts';
 
-import type { Profile, UserEmploymentInformation, UserReferralPreferences } from '~/.server/domain/models';
+import type {
+  Profile,
+  UserEmploymentInformation,
+  UserPersonalInformation,
+  UserReferralPreferences,
+} from '~/.server/domain/models';
 import type { ProfileService } from '~/.server/domain/services/profile-service';
 import { serverEnvironment } from '~/.server/environment';
 import { AppError } from '~/errors/app-error';
@@ -101,7 +106,20 @@ export function getDefaultProfileService(): ProfileService {
         );
       }
     },
-
+    async updatePersonalInformation(
+      activeDirectoryId: string,
+      personalInfo: UserPersonalInformation,
+    ): Promise<Result<void, AppError>> {
+      try {
+        await fetch(`/profiles/${activeDirectoryId}/personal`, {
+          method: 'PUT',
+          body: JSON.stringify(personalInfo),
+        });
+        return Ok(undefined);
+      } catch {
+        return Err(new AppError('Failed to update personal information', ErrorCodes.PROFILE_UPDATE_FAILED));
+      }
+    },
     async updateEmploymentInformation(
       activeDirectoryId: string,
       employmentInfo: UserEmploymentInformation,

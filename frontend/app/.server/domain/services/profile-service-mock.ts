@@ -1,7 +1,12 @@
 import { None, Some, Err, Ok } from 'oxide.ts';
 import type { Result } from 'oxide.ts';
 
-import type { Profile, UserEmploymentInformation, UserReferralPreferences } from '~/.server/domain/models';
+import type {
+  Profile,
+  UserEmploymentInformation,
+  UserPersonalInformation,
+  UserReferralPreferences,
+} from '~/.server/domain/models';
 import type { ProfileService } from '~/.server/domain/services/profile-service';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
@@ -14,6 +19,40 @@ export function getMockProfileService(): ProfileService {
     },
     registerProfile: (activeDirectoryId: string) => {
       return Promise.resolve(registerProfile(activeDirectoryId));
+    },
+    updatePersonalInformation: (
+      activeDirectoryId: string,
+      personalInfo: UserPersonalInformation,
+    ): Promise<Result<void, AppError>> => {
+      const mockProfile = getProfile(activeDirectoryId);
+
+      if (!mockProfile) {
+        return Promise.resolve(Err(new AppError('Failed to update personal information', ErrorCodes.PROFILE_UPDATE_FAILED)));
+      }
+
+      const userId = activeDirectoryToUserIdMap[activeDirectoryId];
+
+      mockProfiles = mockProfiles.map((profile) =>
+        profile.userId === userId
+          ? {
+              ...profile,
+              personalInformation: {
+                ...profile.personalInformation,
+                surname: personalInfo.surname,
+                givenName: personalInfo.givenName,
+                personalRecordIdentifier: personalInfo.personalRecordIdentifier,
+                preferredLanguageId: personalInfo.preferredLanguageId,
+                workEmail: personalInfo.workEmail,
+                personalEmail: personalInfo.personalEmail,
+                workPhone: personalInfo.workPhone,
+                personalPhone: personalInfo.personalPhone,
+                additionalInformation: personalInfo.additionalInformation,
+              },
+            }
+          : profile,
+      );
+
+      return Promise.resolve(Ok(undefined));
     },
     updateEmploymentInformation: (
       activeDirectoryId: string,
