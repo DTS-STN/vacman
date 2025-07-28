@@ -5,9 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -82,14 +80,11 @@ public class MicrosoftGraphService {
             // Make the request to Microsoft Graph
             log.debug("Making request to Microsoft Graph: {}", USER_PROFILE_ENDPOINT);
 
-            ResponseEntity<MicrosoftGraphUserModel> response = restTemplate.exchange(
+            MicrosoftGraphUserModel user = restTemplate.getForObject(
                 USER_PROFILE_ENDPOINT,
-                HttpMethod.GET,
-                entity,
-                MicrosoftGraphUserModel.class
+                MicrosoftGraphUserModel.class,
+                entity
             );
-
-            MicrosoftGraphUserModel user = response.getBody();
             if (user != null) {
                 log.info("Successfully retrieved user information for user ID: {}", user.id());
                 return user;
