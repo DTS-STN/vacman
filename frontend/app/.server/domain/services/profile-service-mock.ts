@@ -15,14 +15,14 @@ export function getMockProfileService(): ProfileService {
     registerProfile: (activeDirectoryId: string) => {
       return Promise.resolve(registerProfile(activeDirectoryId));
     },
-    async updateEmploymentInformation(
+    updateEmploymentInformation: (
       activeDirectoryId: string,
       employmentInfo: UserEmploymentInformation,
-    ): Promise<Result<void, AppError>> {
+    ): Promise<Result<void, AppError>> => {
       const mockProfile = getProfile(activeDirectoryId);
 
       if (!mockProfile) {
-        return Err(new AppError('Failed to update employment information', ErrorCodes.PROFILE_UPDATE_FAILED));
+        return Promise.resolve(Err(new AppError('Failed to update employment information', ErrorCodes.PROFILE_UPDATE_FAILED)));
       }
 
       const userId = activeDirectoryToUserIdMap[activeDirectoryId];
@@ -32,6 +32,7 @@ export function getMockProfileService(): ProfileService {
           ? {
               ...profile,
               employmentInformation: {
+                ...profile.employmentInformation,
                 substantivePosition: employmentInfo.substantivePosition,
                 branchOrServiceCanadaRegion: employmentInfo.branchOrServiceCanadaRegion,
                 directorate: employmentInfo.directorate,
@@ -45,21 +46,22 @@ export function getMockProfileService(): ProfileService {
           : profile,
       );
 
-      return await Promise.resolve(Ok(undefined));
+      return Promise.resolve(Ok(undefined));
     },
-    async updateReferralPreferences(
+    updateReferralPreferences: (
       activeDirectoryId: string,
       referralPrefs: UserReferralPreferences,
-    ): Promise<Result<void, AppError>> {
-      const userId = activeDirectoryToUserIdMap[activeDirectoryId];
-      const profileIndex = mockProfiles.findIndex((p) => p.userId === userId);
+    ): Promise<Result<void, AppError>> => {
+      const mockProfile = getProfile(activeDirectoryId);
 
-      if (profileIndex === -1) {
-        return Err(new AppError('Profile not found', ErrorCodes.PROFILE_NOT_FOUND));
+      if (!mockProfile) {
+        return Promise.resolve(Err(new AppError('Profile not found', ErrorCodes.PROFILE_NOT_FOUND)));
       }
 
-      mockProfiles = mockProfiles.map((profile, idx) =>
-        idx === profileIndex
+      const userId = activeDirectoryToUserIdMap[activeDirectoryId];
+
+      mockProfiles = mockProfiles.map((profile) =>
+        profile.userId === userId
           ? {
               ...profile,
               referralPreferences: {
