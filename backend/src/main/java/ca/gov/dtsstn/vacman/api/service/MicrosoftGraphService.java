@@ -45,6 +45,7 @@ public class MicrosoftGraphService {
     public MicrosoftGraphService(RestTemplateBuilder restTemplateBuilder, MicrosoftGraphProperties properties) {
         this.properties = properties;
         this.restTemplate = restTemplateBuilder
+            .rootUri(properties.baseUrl())
             .connectTimeout(properties.connectTimeout())
             .readTimeout(properties.readTimeout())
             .build();
@@ -79,11 +80,10 @@ public class MicrosoftGraphService {
 
         try {
             // Make the request to Microsoft Graph
-            String url = properties.baseUrl() + USER_PROFILE_ENDPOINT;
-            log.debug("Making request to Microsoft Graph: {}", url);
+            log.debug("Making request to Microsoft Graph: {}", USER_PROFILE_ENDPOINT);
 
             ResponseEntity<MicrosoftGraphUserModel> response = restTemplate.exchange(
-                url,
+                USER_PROFILE_ENDPOINT,
                 HttpMethod.GET,
                 entity,
                 MicrosoftGraphUserModel.class
