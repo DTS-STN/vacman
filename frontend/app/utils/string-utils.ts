@@ -203,3 +203,24 @@ export function countCompletedItems<T extends object>(data: T): number {
 
   return completedCount;
 }
+
+/**
+ * Creates a new object by omitting the specified keys from the original object.
+ * @param obj The object to remove properties from.
+ * @param keys The array of property keys to omit.
+ * @returns A new object without the specified properties.
+ */
+export function omit<T extends object, K extends keyof T>(obj: T, keysToOmit: K[]): Omit<T, K> {
+  const result = {} as Omit<T, K>;
+  const keysToOmitSet = new Set(keysToOmit);
+
+  for (const key of Object.keys(obj) as (keyof T)[]) {
+    // Check if the current key is not in the set of keys to omit.
+    if (!keysToOmitSet.has(key as K)) {
+      // Add this key and its value to the result object
+      (result as T)[key] = obj[key];
+    }
+  }
+
+  return result;
+}
