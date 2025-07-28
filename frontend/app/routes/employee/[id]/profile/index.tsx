@@ -21,6 +21,7 @@ import { getProfileService } from '~/.server/domain/services/profile-service';
 import { getUserService } from '~/.server/domain/services/user-service';
 import { getWFAStatuses } from '~/.server/domain/services/wfa-status-service';
 import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
+import { countCompletedItems, omitObjectProperties } from '~/.server/utils/profile-utils';
 import { AlertMessage } from '~/components/alert-message';
 import { Button } from '~/components/button';
 import { ButtonLink } from '~/components/button-link';
@@ -32,7 +33,6 @@ import { EMPLOYEE_WFA_STATUS } from '~/domain/constants';
 import { getTranslation } from '~/i18n-config.server';
 import type { I18nRouteFile } from '~/i18n-routes';
 import { handle as parentHandle } from '~/routes/layout';
-import { countCompletedItems } from '~/utils/string-utils';
 import { cn } from '~/utils/tailwind-utils';
 
 export const handle = {
@@ -54,11 +54,32 @@ export async function action({ context, request }: Route.ActionArgs) {
     return { status: 'profile-not-found' };
   }
   const profileData: Profile = profileResult.unwrap();
+  const allWfaStatus = await getWFAStatuses().listAll();
+
+  const requiredPersonalInformation = omitObjectProperties(profileData.personalInformation, [
+    'workPhone',
+    'additionalInformation',
+  ]);
+  const validWFAStatusesForOptionalDate = [EMPLOYEE_WFA_STATUS.affected] as const;
+  const selectedValidWfaStatusesForOptionalDate = allWfaStatus
+    .filter((c) => validWFAStatusesForOptionalDate.toString().includes(c.code))
+    .map((status) => ({
+      id: status.id.toString(),
+      code: status.code,
+      nameEn: status.nameEn,
+      nameFr: status.nameFr,
+    }));
+  const isWfaDateOptional = selectedValidWfaStatusesForOptionalDate.some(
+    (status) => String(status.id) === profileData.employmentInformation.wfaStatus,
+  );
+  const requiredEmploymentInformation = isWfaDateOptional
+    ? omitObjectProperties(profileData.employmentInformation, ['wfaEndDate', 'wfaEffectiveDate']) // If status is "Affected", omit the effective date
+    : omitObjectProperties(profileData.employmentInformation, ['wfaEndDate']);
 
   const personalInfoComplete =
-    countCompletedItems(profileData.personalInformation) === Object.keys(profileData.personalInformation).length;
+    countCompletedItems(requiredPersonalInformation) === Object.keys(requiredPersonalInformation).length;
   const employmentInfoComplete =
-    countCompletedItems(profileData.employmentInformation) === Object.keys(profileData.employmentInformation).length;
+    countCompletedItems(requiredEmploymentInformation) === Object.keys(requiredEmploymentInformation).length;
   const referralComplete =
     countCompletedItems(profileData.referralPreferences) === Object.keys(profileData.referralPreferences).length;
 
@@ -85,6 +106,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     allClassifications,
     allLocalizedCities,
     allLocalizedEmploymentTenures,
+    allWfaStatus,
   ] = await Promise.all([
     userService.getUserByActiveDirectoryId(profileUserId),
     getProfileService().getProfile(profileUserId),
@@ -92,6 +114,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     getClassificationService().listAllLocalized(lang),
     getCityService().listAllLocalized(lang),
     getEmploymentTenureService().listAllLocalized(lang),
+    getWFAStatuses().listAll(),
   ]);
 
   if (profileResult.isNone()) {
@@ -146,14 +169,42 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     ?.map((employmentTenureId) => allLocalizedEmploymentTenures.find((c) => String(c.id) === employmentTenureId))
     .filter(Boolean);
 
+  const requiredPersonalInformation = omitObjectProperties(profileData.personalInformation, [
+    'workPhone',
+    'additionalInformation',
+  ]);
+  const validWFAStatusesForOptionalDate = [EMPLOYEE_WFA_STATUS.affected] as const;
+  const selectedValidWfaStatusesForOptionalDate = allWfaStatus
+    .filter((c) => validWFAStatusesForOptionalDate.toString().includes(c.code))
+    .map((status) => ({
+      id: status.id.toString(),
+      code: status.code,
+      nameEn: status.nameEn,
+      nameFr: status.nameFr,
+    }));
+  const isWfaDateOptional = selectedValidWfaStatusesForOptionalDate.some(
+    (status) => String(status.id) === profileData.employmentInformation.wfaStatus,
+  );
+  const requiredEmploymentInformation = isWfaDateOptional
+    ? omitObjectProperties(profileData.employmentInformation, ['wfaEndDate', 'wfaEffectiveDate']) // If status is "Affected", omit the effective date
+    : omitObjectProperties(profileData.employmentInformation, ['wfaEndDate']);
+
+  const isCompletePersonalInformation =
+    countCompletedItems(requiredPersonalInformation) === Object.keys(requiredPersonalInformation).length;
+  const isCompleteEmploymentInformation =
+    countCompletedItems(requiredEmploymentInformation) === Object.keys(requiredEmploymentInformation).length;
+  const isCompleteReferralPreferences =
+    countCompletedItems(profileData.referralPreferences) === Object.keys(profileData.referralPreferences).length;
+
   return {
     documentTitle: t('app:index.about'),
     name: profileUser?.uuName ?? 'Unknown User',
     email: profileUser?.businessEmail ?? profileData.personalInformation.workEmail,
     amountCompleted: amountCompleted,
+    isProfileComplete: isCompletePersonalInformation && isCompleteEmploymentInformation && isCompleteReferralPreferences,
     personalInformation: {
-      completed: countCompletedItems(profileData.personalInformation),
-      total: Object.keys(profileData.personalInformation).length,
+      isComplete: isCompletePersonalInformation,
+      isNew: countCompletedItems(profileData.personalInformation) === 1, // only work email is available
       personalRecordIdentifier: profileData.personalInformation.personalRecordIdentifier,
       preferredLanguage: preferredLanguage,
       workEmail: profileUser?.businessEmail ?? profileData.personalInformation.workEmail,
@@ -163,8 +214,8 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       additionalInformation: profileData.personalInformation.additionalInformation,
     },
     employmentInformation: {
-      completed: countCompletedItems(profileData.employmentInformation),
-      total: Object.keys(profileData.employmentInformation).length,
+      isComplete: isCompleteEmploymentInformation,
+      isNew: countCompletedItems(profileData.employmentInformation) === 0,
       substantivePosition: substantivePosition,
       branchOrServiceCanadaRegion: branchOrServiceCanadaRegion,
       directorate: directorate,
@@ -177,8 +228,8 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       hrAdvisor: hrAdvisor && hrAdvisor.firstName + ' ' + hrAdvisor.lastName,
     },
     referralPreferences: {
-      completed: countCompletedItems(profileData.referralPreferences),
-      total: Object.keys(profileData.referralPreferences).length,
+      isComplete: isCompleteReferralPreferences,
+      isNew: countCompletedItems(profileData.referralPreferences) === 0,
       languageReferralTypes: languageReferralTypes?.map((l) => l?.name),
       classifications: classifications?.map((c) => c?.name),
       workLocationCities: cities?.map((city) => city?.province.name + ' - ' + city?.name),
@@ -188,7 +239,6 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     },
     lastUpdated: profileData.dateUpdated ?? '0000-00-00',
     lastUpdatedBy: profileData.userUpdated ?? 'Unknown User',
-    profileCompleted: completed === total,
   };
 }
 
@@ -206,11 +256,8 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
   return (
     <div className="space-y-8">
       <div className="space-y-4 py-8 text-white">
-        {loaderData.personalInformation.completed !== loaderData.personalInformation.total ||
-        loaderData.employmentInformation.completed !== loaderData.employmentInformation.total ||
-        loaderData.referralPreferences.completed !== loaderData.referralPreferences.total
-          ? InProgressTag()
-          : CompleteTag()}
+        {loaderData.isProfileComplete ? CompleteTag() : InProgressTag()}{' '}
+        {/*TODO: Show profile status instead of the Complete */}
         <h1 className="mt-6 text-3xl font-semibold">{loaderData.name}</h1>
         {loaderData.email && <p className="mt-1">{loaderData.email}</p>}
         <p className="font-normal text-[#9FA3AD]">
@@ -239,8 +286,8 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
       {actionData && (
         <AlertMessage
           ref={alertRef}
-          type={loaderData.profileCompleted ? 'success' : 'error'}
-          message={loaderData.profileCompleted ? t('app:profile.profile-submitted') : t('app:profile.profile-incomplete')}
+          type={loaderData.isProfileComplete ? 'success' : 'error'}
+          message={loaderData.isProfileComplete ? t('app:profile.profile-submitted') : t('app:profile.profile-incomplete')}
         />
       )}
 
@@ -250,13 +297,13 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
           title={t('app:profile.personal-information.title')}
           linkLabel={t('app:profile.personal-information.link-label')}
           file="routes/employee/[id]/profile/personal-information.tsx"
-          completed={loaderData.personalInformation.completed}
-          total={loaderData.personalInformation.total}
+          isComplete={loaderData.personalInformation.isComplete}
+          isNew={loaderData.personalInformation.isNew}
           params={params}
           errorState={actionData?.personalInfoComplete === false}
           required
         >
-          {loaderData.personalInformation.completed === 1 ? ( // only work email is available
+          {loaderData.personalInformation.isNew ? (
             <>
               {t('app:profile.personal-information.detail')}
               <DescriptionList>
@@ -295,13 +342,13 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
           title={t('app:profile.employment.title')}
           linkLabel={t('app:profile.employment.link-label')}
           file="routes/employee/[id]/profile/employment-information.tsx"
-          completed={loaderData.employmentInformation.completed}
-          total={loaderData.employmentInformation.total}
+          isComplete={loaderData.employmentInformation.isComplete}
+          isNew={loaderData.employmentInformation.isNew}
           params={params}
           required
           errorState={actionData?.employmentInfoComplete === false}
         >
-          {loaderData.employmentInformation.completed === 0 ? (
+          {loaderData.employmentInformation.isNew ? (
             <>{t('app:profile.employment.detail')}</>
           ) : (
             <>
@@ -351,13 +398,13 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
           title={t('app:profile.referral.title')}
           linkLabel={t('app:profile.referral.link-label')}
           file="routes/employee/[id]/profile/referral-preferences.tsx"
-          completed={loaderData.referralPreferences.completed}
-          total={loaderData.referralPreferences.total}
+          isComplete={loaderData.referralPreferences.isComplete}
+          isNew={loaderData.referralPreferences.isNew}
           params={params}
           required
           errorState={actionData?.referralComplete === false}
         >
-          {loaderData.referralPreferences.completed === 0 ? (
+          {loaderData.referralPreferences.isNew ? (
             <>{t('app:profile.referral.detail')}</>
           ) : (
             <DescriptionList>
@@ -411,8 +458,8 @@ interface ProfileCardProps {
   title: string;
   linkLabel: string;
   file: I18nRouteFile;
-  completed: number;
-  total: number;
+  isComplete: boolean;
+  isNew: boolean;
   required: boolean;
   children: ReactNode;
   params?: Params;
@@ -425,8 +472,8 @@ function ProfileCard({
   title,
   linkLabel,
   file,
-  completed,
-  total,
+  isComplete,
+  isNew,
   required,
   errorState,
   children,
@@ -434,9 +481,8 @@ function ProfileCard({
   ref,
 }: ProfileCardProps): JSX.Element {
   const { t } = useTranslation(handle.i18nNamespace);
-  const inProgress = completed < total && completed > 0;
-  const isComplete = completed === total;
-  const labelPrefix = `${inProgress || isComplete ? t('app:profile.edit') : t('app:profile.add')}\u0020`;
+
+  const labelPrefix = `${isNew ? t('app:profile.add') : t('app:profile.edit')}\u0020`;
   return (
     <Card ref={ref} className={`${errorState && 'border-b-6 border-[#C90101]'} rounded-md p-4 sm:p-6`}>
       <CardHeader className="p-0">
@@ -449,7 +495,7 @@ function ProfileCard({
               <CompleteTag />
             ) : (
               <>
-                {inProgress && <InProgressTag />}
+                <InProgressTag />
                 {required && <RequiredTag />}
               </>
             )}
@@ -471,8 +517,7 @@ function ProfileCard({
         {errorState && <p className="pb-4 text-lg font-bold text-[#333333]">{t('app:profile.field-incomplete')}</p>}
         <span className="flex items-center gap-x-2">
           {errorState && <FontAwesomeIcon icon={faTriangleExclamation} className="text-red-800" />}
-          {!errorState &&
-            (inProgress || isComplete ? <FontAwesomeIcon icon={faPenToSquare} /> : <FontAwesomeIcon icon={faPlus} />)}
+          {!errorState && (isNew ? <FontAwesomeIcon icon={faPlus} /> : <FontAwesomeIcon icon={faPenToSquare} />)}
           <InlineLink className={`${errorState && 'text-red-800'} font-semibold`} file={file} params={params}>
             {labelPrefix}
             {linkLabel}

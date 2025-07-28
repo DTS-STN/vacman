@@ -173,33 +173,3 @@ export function padWithZero(value: number, maxLength: number): string {
   if (value.toString().length >= maxLength) return value.toString();
   return value.toString().padStart(maxLength, '0');
 }
-
-/**
- * Counts the number of "completed" items in a given data object.
- * A value is considered "completed" if it is not:
- * - null or undefined
- * - an empty string ('')
- * - an empty array ([])
- * - the number 0
- *
- * @param data The object containing the data fields.
- * @returns The number of completed fields.
- */
-export function countCompletedItems<T extends object>(data: T): number {
-  let completedCount = 0;
-
-  for (const item of Object.values(data)) {
-    // --- Define all INCOMPLETE conditions ---
-
-    if (item === null) continue; // Skip null
-    if (item === undefined) continue; // Skip undefined
-    if (typeof item === 'string' && item.length === 0) continue; // Skip empty strings
-    if (Array.isArray(item) && item.length === 0) continue; // Skip empty arrays
-    if (typeof item === 'number' && item === 0) continue; // Skip the number 0
-
-    // If it passed all the checks, it's completed!
-    completedCount++;
-  }
-
-  return completedCount;
-}
