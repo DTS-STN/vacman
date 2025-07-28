@@ -60,10 +60,9 @@ export default function EmployeeDashboard() {
           className="absolute inset-x-0 bottom-0 h-1/2 bg-[url('/VacMan-design-element-06.svg')] bg-contain bg-bottom bg-no-repeat"
         />
       </aside>
-      <div className="mb-8">
+      <div className="mb-8 w-full px-4 sm:w-3/5 sm:px-6">
         <PageTitle className="after:w-14">{t('app:index.get-started')}</PageTitle>
-
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid gap-4">
           <ActionCard action="view-profile" icon={faUser} title={t('app:profile.view')} />
         </div>
       </div>
