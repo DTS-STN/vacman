@@ -119,7 +119,7 @@ export function ActionDataErrorSummary({ actionData, children, ...rest }: Action
   useEffect(() => {
     if (!containerRef.current) return;
     setErrors(collectFormValidationErrors(containerRef.current));
-  }, [actionData, children]);
+  }, [actionData]);
 
   return (
     <div ref={containerRef} {...rest}>
