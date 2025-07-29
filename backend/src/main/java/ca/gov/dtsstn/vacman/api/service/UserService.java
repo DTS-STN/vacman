@@ -7,11 +7,13 @@ import org.mapstruct.factory.Mappers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.UserEntityBuilder;
 import ca.gov.dtsstn.vacman.api.data.repository.LanguageRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.UserRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.UserTypeRepository;
@@ -72,7 +74,7 @@ public class UserService {
 	}
 
 	public Optional<UserEntity> getUserByActiveDirectoryId(String activeDirectoryId) {
-		return userRepository.findByActiveDirectoryId(activeDirectoryId);
+		return userRepository.findOne(Example.of(new UserEntityBuilder().activeDirectoryId(activeDirectoryId).build()));
 	}
 
 	public List<UserEntity> getAllUsers() {
