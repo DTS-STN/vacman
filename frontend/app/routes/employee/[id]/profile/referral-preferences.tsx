@@ -216,11 +216,9 @@ export default function PersonalDetails({ loaderData, actionData, params }: Rout
   };
 
   // Choice tags for cities
-  const citiesChoiceTags: ChoiceTag[] = [];
-
-  selectedCities?.forEach((city) => {
+  const citiesChoiceTags: ChoiceTag[] = (selectedCities ?? []).map((city) => {
     const selectedC = loaderData.cities.find((c) => String(c.id) === city);
-    citiesChoiceTags.push({ label: selectedC?.name ?? city, name: 'city', value: city, group: selectedC?.province.name });
+    return { label: selectedC?.name ?? city, name: 'city', value: city, group: selectedC?.province.name };
   });
 
   /**
@@ -236,6 +234,16 @@ export default function PersonalDetails({ loaderData, actionData, params }: Rout
   const handleOnClearAllCities: ChoiceTagClearAllEventHandler = () => {
     setSrAnnouncement(t('gcweb:choice-tag.clear-all-sr-message', { item: 'cities' }));
     setSelectedCities([]);
+  };
+
+  const handleOnClearCityGroup = (groupName: string) => {
+    setSrAnnouncement(t('gcweb:choice-tag.clear-group-label', { items: 'cities', groupName }));
+    setSelectedCities((prev) =>
+      prev?.filter((cityId) => {
+        const city = loaderData.cities.find((c) => String(c.id) === cityId);
+        return city?.province.name !== groupName;
+      }),
+    );
   };
 
   return (
@@ -315,6 +323,7 @@ export default function PersonalDetails({ loaderData, actionData, params }: Rout
                   choiceTags={citiesChoiceTags}
                   onClearAll={handleOnClearAllCities}
                   onDelete={handleOnDeleteCityTag}
+                  onClearGroup={handleOnClearCityGroup}
                 />
               )}
 
