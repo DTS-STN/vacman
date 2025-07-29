@@ -3,15 +3,3 @@
 # Application configuration for tests
 #
 #######################################################################################################################
-
-#
-# ------------------------------------------------------------------------------------
-# DataSource configuration
-# ------------------------------------------------------------------------------------
-# See https://docs.spring.io/spring-boot/reference/data/sql.html
-#
-
-#spring:
-#  sql:
-#    init:
-#      mode: never # let tests create their own test data
