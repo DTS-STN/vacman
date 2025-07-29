@@ -139,6 +139,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const profileUpdatedByUser = profileData.userUpdated
     ? await getUserService().getUserByActiveDirectoryId(profileData.userUpdated)
     : undefined;
+  const profileUpdatedByUserName = profileUpdatedByUser && `${profileUpdatedByUser.firstName} ${profileUpdatedByUser.lastName}`;
 
   const preferredLanguageResult =
     profileData.personalInformation.preferredLanguageId &&
@@ -215,7 +216,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 
   return {
     documentTitle: t('app:index.about'),
-    name: profileData.personalInformation.givenName + ' ' + profileData.personalInformation.surname,
+    name: `${profileData.personalInformation.givenName} ${profileData.personalInformation.surname}`,
     email: profileData.personalInformation.workEmail,
     amountCompleted: amountCompleted,
     isProfileComplete: isCompletePersonalInformation && isCompleteEmploymentInformation && isCompleteReferralPreferences,
@@ -255,7 +256,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       employmentTenures: employmentTenures?.map((e) => e?.name),
     },
     lastUpdated: profileData.dateUpdated ? formatDateTime(profileData.dateUpdated) : '0000-00-00 00:00',
-    lastUpdatedBy: profileUpdatedByUser?.uuName ?? 'Unknown User',
+    lastUpdatedBy: profileUpdatedByUserName ?? 'Unknown User',
   };
 }
 
