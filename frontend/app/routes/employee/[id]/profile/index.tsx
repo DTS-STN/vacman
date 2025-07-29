@@ -498,11 +498,11 @@ function ProfileCard({
   return (
     <Card ref={ref} className={`${errorState && 'border-b-6 border-[#C90101]'} rounded-md p-4 sm:p-6`}>
       <CardHeader className="p-0">
-        <div className="mb-6 grid grid-cols-2 justify-between select-none">
+        <div className="mb-6 grid justify-between gap-2 select-none sm:grid-cols-2">
           <div>
             <CardTitle className="text-2xl">{title}</CardTitle>
           </div>
-          <div className="ml-auto space-x-2">
+          <div className="space-x-2 sm:ml-auto">
             {isComplete ? (
               <CompleteTag />
             ) : (
