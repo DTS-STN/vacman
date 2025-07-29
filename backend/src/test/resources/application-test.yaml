@@ -3,28 +3,3 @@
 # Application configuration for tests
 #
 #######################################################################################################################
-
-#
-# ------------------------------------------------------------------------------------
-# Microsoft Graph configuration
-# ------------------------------------------------------------------------------------
-# Configuration for Microsoft Graph API integration in tests
-#
-
-application:
-  microsoft-graph:
-    base-url: https://graph.microsoft.com/v1.0
-    connect-timeout: 5s
-    read-timeout: 15s
-
-#
-# ------------------------------------------------------------------------------------
-# DataSource configuration
-# ------------------------------------------------------------------------------------
-# See https://docs.spring.io/spring-boot/reference/data/sql.html
-#
-
-#spring:
-#  sql:
-#    init:
-#      mode: never # let tests create their own test data

@@ -51,8 +51,6 @@ spring:
   datasource:
     name: ${spring.application.name}
     url: jdbc:h2:mem:testdb;MODE=MSSQLServer;DATABASE_TO_UPPER=false;CASE_INSENSITIVE_IDENTIFIERS=true;DB_CLOSE_DELAY=-1;
-    # HikariCP Connection Pool specific settings.
-    # HikariCP is the default connection pool in Spring Boot 2.x+ for JDBC DataSources.
     hikari: # see https://github.com/brettwooldridge/HikariCP#frequently-used
       # Specifies the maximum time (in milliseconds) to wait for a connection from the pool before timing out.
       connection-timeout: 30000
@@ -70,6 +68,7 @@ spring:
       # to the same value as maximumPoolSize, creating a fixed-size connection pool.
       minimum-idle: 10
   jpa:
+    # defer execution of data.sql until hibernate creates the schema 
     defer-datasource-initialization: true
 
 ---
@@ -91,21 +90,12 @@ spring:
       resourceserver:
         jwt:
           # Specifies the intended audience(s) of the JWT. For Microsoft Entra ID, this is typically the Application (Client) ID
-          # of this API's app registration in Entra ID. The value here MUST exactly match the 'aud' (audience) claim in the
-          # incoming JWT.
+          # of this API's app registration in Entra ID. The value here MUST exactly match the 'aud' (audience) claim in the incoming JWT.
           audiences: ea3a6648-7e77-445b-b777-486d26367ee8
-
-          # Defines the JWT claim that contains the user's application roles or permissions. Spring Security will use the values
-          # from this claim (eg: "roles": ["User.Read", "Admin.Write"]) to populate the GrantedAuthorities for the
-          # authenticated principal.
+          # Defines the JWT claim that contains the user's application roles or permissions. Spring Security will use the values from this
+          # claim (eg: "roles": ["User.Read", "Admin.Write"]) to populate the GrantedAuthorities for the authenticated principal.
           authorities-claim-name: roles
-
-          # The URI that uniquely identifies the Microsoft Entra ID tenant as the token issuer. This URI is crucial for JWT
-          # validation as it's used to:
-          #
-          #   1. Assert that the 'iss' (issuer) claim in the JWT matches this value.
-          #   2. Discover the authorization server's public keys (via a well-known JWKS URI derived from this issuer URI) to
-          #      verify the JWT's signature.
+          # The URI that uniquely identifies the Microsoft Entra ID tenant as the token issuer.
           issuer-uri: https://login.microsoftonline.com/${application.entra-id.tenant-id}/v2.0
 
 ---
@@ -125,31 +115,25 @@ spring:
   security:
     oauth2:
       client:
-        # OAuth 2.0 provider definitions
         # See: https://docs.spring.io/spring-security/reference/servlet/oauth2/client/core.html#oauth2-client-provider-settings
         provider:
           esdc-edsc:
             issuer-uri: https://login.microsoftonline.com/${application.entra-id.tenant-id}/v2.0
-
-        # OAuth 2.0 client registration definitions
         registration:
           ms-graph:
             provider: esdc-edsc
-
             # The Application (Client) ID of this application's registration in Microsoft Entra ID.
             # This ID uniquely identifies this application when it requests tokens from Entra ID.
+            # client-id: ea3a6648-7e77-445b-b777-486d26367ee8
             client-id: ea3a6648-7e77-445b-b777-486d26367ee8
-
             # The client secret for this application's registration in Microsoft Entra ID.
             # ‼ CRITICAL ‼  ::: This is a sensitive value. It MUST be set externally.
             client-secret: # (example format: xxxxx~yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy)
-
             # The scopes this client requests when obtaining an access token for Microsoft Graph.
             # 'https://graph.microsoft.com/.default' is a special scope for Microsoft identity platform that requests all
             # statically configured application permissions (not delegated permissions) for this client registration in Entra ID
             # for the Microsoft Graph resource.
             scope: https://graph.microsoft.com/.default
-
             # Specifies the OAuth 2.0 grant type this client will use. 'client_credentials' is used for service-to-service
             # communication where the application authenticates itself directly to the authorization server using its client ID
             # and client secret, without any end-user interaction.
@@ -194,20 +178,12 @@ management:
 
 springdoc:
   swagger-ui:
-    # When 'true', the Swagger UI will display the duration of each API request made through its UI.
     display-request-duration: true
-
-    # Configuration for OAuth 2.0 "Authorize" button/flow within Swagger UI.
     oauth:
-      client-id: ea3a6648-7e77-445b-b777-486d26367ee8
-      scopes: ea3a6648-7e77-445b-b777-486d26367ee8/.default
+      client-id: ${application.swagger-ui.authentication.oauth.client-id}
+      scopes: ${application.swagger-ui.authentication.oauth.client-id}/.default
       use-pkce-with-authorization-code-grant: true
-
-  # When 'true', the generated OpenAPI specification (eg: /v3/api-docs) will be pretty-printed (formatted with indentation and
-  # line breaks), making it more human-readable.
   writer-with-default-pretty-printer: true
-
-  # When 'true', the keys within the generated OpenAPI specification (eg: paths, schemas, properties) will be sorted alphabetically.
   writer-with-order-by-keys: true
 
 ---
@@ -281,6 +257,10 @@ application:
         time-unit: minutes
   entra-id:
     tenant-id: 9ed55846-8a81-4246-acd8-b1a01abfc0d1
+  ms-graph:
+    base-url: https://graph.microsoft.com/v1.0
+    connect-timeout: 10s
+    read-timeout: 30s
   swagger-ui:
     application-name: Vacancy Manager API -- OpenAPI 3.0
     authentication:
@@ -293,8 +273,7 @@ application:
     description: |
       This OpenAPI document describes the key areas where developers typically engage with the Vacancy Manager API.
     tos-url: https://www.canada.ca/en/transparency/terms.html
-  microsoft-graph:
-    base-url: https://graph.microsoft.com/v1.0
+
 ---
 
 #

@@ -10,11 +10,11 @@ import org.springframework.validation.annotation.Validated;
 @ConfigurationProperties("application")
 @EnableConfigurationProperties({
 	EntraIdProperties.class,
+	MSGraphProperties.class,
 	SwaggerUiProperties.class,
-	MicrosoftGraphProperties.class
 })
 public record ApplicationProperties(
 	@NestedConfigurationProperty EntraIdProperties entraId,
-	@NestedConfigurationProperty SwaggerUiProperties swaggerUi,
-	@NestedConfigurationProperty MicrosoftGraphProperties microsoftGraph
+	@NestedConfigurationProperty MSGraphProperties msGraph,
+	@NestedConfigurationProperty SwaggerUiProperties swaggerUi
 ) {}
