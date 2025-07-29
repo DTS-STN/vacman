@@ -1,0 +1,46 @@
+{
+  "content": [
+    {
+      "id": 1,
+      "code": "NONE",
+      "nameEn": "Not Applicable",
+      "nameFr": "Sans objet"
+    },
+    {
+      "id": 2,
+      "code": "EXCEPTIONAL_CASE",
+      "nameEn": "Exceptional Case",
+      "nameFr": "Cas exceptionnel"
+    },
+    {
+      "id": 3,
+      "code": "URGENT_REQUIREMENT",
+      "nameEn": "Urgent Requirement",
+      "nameFr": "Besoin urgent"
+    },
+    {
+      "id": 4,
+      "code": "DEPLOYMENT",
+      "nameEn": "Deployment",
+      "nameFr": "Déploiement"
+    },
+    {
+      "id": 5,
+      "code": "ASSIGNMENT",
+      "nameEn": "Assignment",
+      "nameFr": "Affectation"
+    },
+    {
+      "id": 6,
+      "code": "SECONDMENT",
+      "nameEn": "Secondment",
+      "nameFr": "Détachement"
+    },
+    {
+      "id": 7,
+      "code": "INTERCHANGE",
+      "nameEn": "Interchange",
+      "nameFr": "Interchange"
+    }
+  ]
+}

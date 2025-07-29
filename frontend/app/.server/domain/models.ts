@@ -117,6 +117,19 @@ export type LocalizedLanguageReferralType = Readonly<{
   name: string;
 }>;
 
+export type NonAdvertisedAppointment = Readonly<{
+  id: string;
+  code: string;
+  nameEn: string;
+  nameFr: string;
+}>;
+
+export type LocalizedNonAdvertisedAppointment = Readonly<{
+  id: string;
+  code: string;
+  name: string;
+}>;
+
 export type LanguageOfCorrespondence = Readonly<{
   id: string;
   code: string;
