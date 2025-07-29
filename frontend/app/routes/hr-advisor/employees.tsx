@@ -11,6 +11,7 @@ import type { Route } from '../+types/index';
 
 import type { Profile } from '~/.server/domain/models';
 import { getProfileService } from '~/.server/domain/services/profile-service';
+import { getProfileStatusService } from '~/.server/domain/services/profile-status-service';
 import { Button } from '~/components/button';
 import { DataTable, DataTableColumnHeader, DataTableColumnHeaderWithOptions } from '~/components/data-table';
 import { InlineLink } from '~/components/links';
@@ -18,10 +19,10 @@ import { PageTitle } from '~/components/page-title';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
 
-const STATUS_OPTIONS = {
-  pendingApproval: 'pending-approval',
-  approved: 'approved',
-  incomplete: 'incomplete',
+type StatusOptions = {
+  pending: string;
+  approved: string;
+  incomplete: string;
 };
 
 export const handle = {
@@ -29,15 +30,12 @@ export const handle = {
 } as const satisfies RouteHandle;
 
 export async function loader({ context, request }: LoaderFunctionArgs) {
-  const { t } = await getTranslation(request, handle.i18nNamespace);
+  const { lang, t } = await getTranslation(request, handle.i18nNamespace);
 
-  const allProfiles = await getProfileService().getAllProfiles();
+  const profileData = await getProfileService().getAllProfiles();
+  const status = await getProfileStatusService().listAllLocalized(lang);
 
-  const profileData = allProfiles.filter(
-    (profile) => profile.status === STATUS_OPTIONS.approved || profile.status === STATUS_OPTIONS.pendingApproval,
-  );
-
-  return { documentTitle: t('app:index.employees'), profileData };
+  return { documentTitle: t('app:index.employees'), profileData, status };
 }
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
@@ -47,6 +45,19 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
 export default function EmployeeDashboard({ params }: Route.ComponentProps) {
   const { t } = useTranslation(handle.i18nNamespace);
   const loaderData = useLoaderData<typeof loader>();
+
+  const statusMap = Object.fromEntries(loaderData.status.map((s) => [s.id, s.name]));
+
+  const statusOptions = {
+    pending: statusMap[1],
+    incomplete: statusMap[3],
+    approved: statusMap[2],
+  };
+
+  const filteredProfiles = loaderData.profileData.filter((profile: Profile) => {
+    const statusName = statusMap[profile.profileStatusId];
+    return [statusOptions.approved, statusOptions.pending].includes(statusName);
+  });
 
   const columns: ColumnDef<Profile>[] = [
     {
@@ -85,10 +96,14 @@ export default function EmployeeDashboard({ params }: Route.ComponentProps) {
         <DataTableColumnHeaderWithOptions
           column={column}
           title={t('app:employee-dashboard.status')}
-          options={[STATUS_OPTIONS.approved, STATUS_OPTIONS.pendingApproval]}
+          options={[statusOptions.approved, statusOptions.pending]}
         />
       ),
-      cell: (info) => statusTag(info.row.original.status),
+      cell: (info) => {
+        const profile = info.row.original;
+        const status = statusMap[profile.profileStatusId] ?? '';
+        return statusTag(status, statusOptions);
+      },
       filterFn: (row, columnId, filterValue: string[]) => {
         const status = row.getValue(columnId) as string;
         return filterValue.length === 0 || filterValue.includes(status);
@@ -120,15 +135,15 @@ export default function EmployeeDashboard({ params }: Route.ComponentProps) {
       <Button variant="alternative" className="float-right my-4">
         {t('app:employee-dashboard.all-employees')}
       </Button>
-      <DataTable columns={columns} data={loaderData.profileData} />
+      <DataTable columns={columns} data={filteredProfiles} />
     </div>
   );
 }
 
-function statusTag(status?: string): JSX.Element {
+function statusTag(status: string, option: StatusOptions): JSX.Element {
   return (
     <div
-      className={`${status === STATUS_OPTIONS.incomplete ? 'bg-gray-100 text-slate-700' : status === STATUS_OPTIONS.approved ? 'bg-sky-100 text-sky-700' : 'bg-amber-100 text-yellow-700'} flex w-fit items-center gap-2 rounded-md px-3 py-1 text-sm font-semibold`}
+      className={`${status === option.incomplete ? 'bg-gray-100 text-slate-700' : status === option.approved ? 'bg-sky-100 text-sky-700' : 'bg-amber-100 text-yellow-700'} flex w-fit items-center gap-2 rounded-md px-3 py-1 text-sm font-semibold`}
     >
       <p>{status}</p>
     </div>
