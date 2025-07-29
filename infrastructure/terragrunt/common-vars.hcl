@@ -22,6 +22,7 @@ locals {
         "Directory.Read.All" = "7ab1d382-f21e-4acd-a863-ba3e13f7da61"
         "Group.Read.All"     = "5b567255-7703-4780-807c-7be8301ae99b"
         "User.Read.All"      = "df021288-bdef-4463-88db-98f22de89214"
+        "User.ReadBasic.All" = "97235f07-e226-4f63-ace3-39588e11d3a1"
       }
 
       scopes = {
