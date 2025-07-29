@@ -29,6 +29,18 @@
       "code": "ASSIGNMENT",
       "nameEn": "Assignment",
       "nameFr": "Affectation"
+    },
+    {
+      "id": 6,
+      "code": "SECONDMENT",
+      "nameEn": "Secondment",
+      "nameFr": "Détachement"
+    },
+    {
+      "id": 7,
+      "code": "INTERCHANGE",
+      "nameEn": "Interchange",
+      "nameFr": "Interchange"
     }
   ]
 }
