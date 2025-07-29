@@ -130,14 +130,14 @@ export type LocalizedLanguageOfCorrespondence = Readonly<{
   name: string;
 }>;
 
-export type LocalizedStatus = Readonly<{
-  id: number;
+export type LocalizedProfileStatus = Readonly<{
+  id: string;
   code: string;
   name: string;
 }>;
 
 export type ProfileStatus = Readonly<{
-  id: number;
+  id: string;
   code: string;
   nameEn: string;
   nameFr: string;

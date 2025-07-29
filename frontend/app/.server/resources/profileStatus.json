@@ -1,47 +1,44 @@
 {
   "content": [
     {
-      "id": 574190001,
+      "id": 1,
+      "code": "PENDING",
+      "nameEn": "Pending",
+      "nameFr": "En attente",
+      "createdBy": "system",
+      "createdDate": "2025-07-28T11:15:03.453582Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-07-28T11:15:03.453582Z"
+    },
+    {
+      "id": 2,
       "code": "APPROVED",
       "nameEn": "Approved",
-      "nameFr": "Approuvé"
+      "nameFr": "Approuvé",
+      "createdBy": "system",
+      "createdDate": "2025-07-28T11:15:03.453582Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-07-28T11:15:03.453582Z"
     },
     {
-      "id": 574190002,
-      "code": "PENDING_APPROVAL",
-      "nameEn": "Pending approval",
-      "nameFr": "En attente d'approbation"
+      "id": 3,
+      "code": "INCOMPLETE",
+      "nameEn": "Incomplete",
+      "nameFr": "Incomplet",
+      "createdBy": "system",
+      "createdDate": "2025-07-28T11:15:03.453582Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-07-28T11:15:03.453582Z"
     },
     {
-      "id": 574190003,
-      "code": "IN_PROGRESS",
-      "nameEn": "In progress",
-      "nameFr": "En cours"
+      "id": 3,
+      "code": "ARCHIVED",
+      "nameEn": "Archived",
+      "nameFr": "Archivé",
+      "createdBy": "system",
+      "createdDate": "2025-07-28T11:15:03.453582Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-07-28T11:15:03.453582Z"
     }
-  ],
-  "pageable": {
-    "sort": {
-      "empty": true,
-      "sorted": false,
-      "unsorted": true
-    },
-    "offset": 0,
-    "pageSize": 2,
-    "pageNumber": 0,
-    "paged": true,
-    "unpaged": false
-  },
-  "last": false,
-  "totalPages": 1,
-  "totalElements": 2,
-  "size": 2,
-  "number": 0,
-  "sort": {
-    "empty": true,
-    "sorted": false,
-    "unsorted": true
-  },
-  "first": true,
-  "numberOfElements": 2,
-  "empty": false
+  ]
 }

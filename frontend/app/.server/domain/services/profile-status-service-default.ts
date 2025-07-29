@@ -1,10 +1,16 @@
+import type { Result, Option } from 'oxide.ts';
+import { Err } from 'oxide.ts';
+
 import type { ProfileStatusService } from './profile-status-service';
 
-import type { LocalizedStatus, ProfileStatus } from '~/.server/domain/models';
+import type { LocalizedProfileStatus, ProfileStatus } from '~/.server/domain/models';
 import { apiClient } from '~/.server/domain/services/api-client';
+import { AppError } from '~/errors/app-error';
+import { ErrorCodes } from '~/errors/error-codes';
+import { HttpStatusCodes } from '~/errors/http-status-codes';
 
 // Centralized localization logic
-function localizedStatus(status: ProfileStatus, language: Language): LocalizedStatus {
+function localizedProfileStatus(status: ProfileStatus, language: Language): LocalizedProfileStatus {
   return {
     id: status.id,
     code: status.code,
@@ -25,7 +31,7 @@ export const profileStatusService: ProfileStatusService = {
       content: readonly ProfileStatus[];
     };
     const context = 'list all profile status';
-    const response = await apiClient.get<ApiResponse>('/profile-status', context);
+    const response = await apiClient.get<ApiResponse>('/codes/profile-statuses', context);
 
     if (response.isErr()) {
       throw response.unwrapErr();
@@ -44,9 +50,60 @@ export const profileStatusService: ProfileStatusService = {
    * @returns A promise that resolves to an array of localized profile status objects.
    * @throws {AppError} if the API call fails for any reason.
    */
-  async listAllLocalized(language: Language): Promise<readonly LocalizedStatus[]> {
+  async listAllLocalized(language: Language): Promise<readonly LocalizedProfileStatus[]> {
     const profileStatus = await this.listAll();
-    return profileStatus.map((status) => localizedStatus(status, language));
+    return profileStatus.map((status) => localizedProfileStatus(status, language));
+  },
+
+  /**
+   * Retrieves a single  profile statuses by its ID.
+   *
+   * @param id The ID of the  profile statuses to retrieve.
+   * @returns A `Result` containing the  profile statuses object if found, or an `AppError` if not found.
+   * @throws {AppError} if the API call fails for any reason other than a 404 not found.
+   */
+  async getById(id: string): Promise<Result<ProfileStatus, AppError>> {
+    const context = `Get Profile Status with ID '${id}'`;
+
+    const response = await apiClient.get<ProfileStatus>(`/profile-status/${id}`, context);
+
+    if (response.isErr()) {
+      const apiFetchError = response.unwrapErr();
+
+      if (apiFetchError.httpStatusCode === HttpStatusCodes.NOT_FOUND) {
+        return Err(new AppError(`${context} not found.`, ErrorCodes.NO_PROFILE_STATUS_FOUND));
+      }
+
+      // For all other errors (500, parsing, network), just return them as is.
+      return Err(apiFetchError);
+    }
+    return response;
+  },
+
+  /**
+   * Retrieves a single localized profile statuses by its ID.
+   *
+   * @param id The ID of the profile statuses to retrieve.
+   * @param language The language for localization.
+   * @returns A `Result` containing the localized profile statuses object if found, or an `AppError` if not found.
+   * @throws {AppError} if the API call fails for any reason other than a 404 not found.
+   */
+  async getLocalizedById(id: string, language: Language): Promise<Result<LocalizedProfileStatus, AppError>> {
+    const result = await this.getById(id);
+    return result.map((profileStatus) => localizedProfileStatus(profileStatus, language));
+  },
+
+  /**
+   * Finds a single localized profile status by its ID.
+   *
+   * @param id The ID of the profile status to find.
+   * @param language The language for localization.
+   * @returns An `Option` containing the localized profile status object if found, or `None`.
+   * @throws {AppError} if the API call fails for any reason other than a 404 not found.
+   */
+  async findLocalizedById(id: string, language: Language): Promise<Option<LocalizedProfileStatus>> {
+    const result = await this.getLocalizedById(id, language);
+    return result.ok();
   },
 };
 
