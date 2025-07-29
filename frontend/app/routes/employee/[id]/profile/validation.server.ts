@@ -32,6 +32,16 @@ const allLanguageReferralTypes = await getLanguageReferralTypeService().listAll(
 const allEmploymentTenures = await getEmploymentTenureService().listAll();
 
 export const personalInformationSchema = v.object({
+  surname: v.pipe(
+    v.string('app:personal-information.errors.surname-required'),
+    v.trim(),
+    v.nonEmpty('app:personal-information.errors.surname-required'),
+  ),
+  givenName: v.pipe(
+    v.string('app:personal-information.errors.givenName-required'),
+    v.trim(),
+    v.nonEmpty('app:personal-information.errors.givenName-required'),
+  ),
   personalRecordIdentifier: v.pipe(
     v.string('app:personal-information.errors.personal-record-identifier-required'),
     v.trim(),
@@ -39,7 +49,7 @@ export const personalInformationSchema = v.object({
     v.length(9, 'app:personal-information.errors.personal-record-identifier-invalid'),
     v.regex(REGEX_PATTERNS.DIGIT_ONLY, 'app:personal-information.errors.personal-record-identifier-invalid'),
   ),
-  preferredLanguage: v.lazy(() =>
+  preferredLanguageId: v.lazy(() =>
     v.picklist(
       allLanguagesOfCorrespondence.map(({ id }) => String(id)),
       'app:personal-information.errors.preferred-language-required',

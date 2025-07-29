@@ -73,6 +73,8 @@ export default {
     'additional-information': 'Additional information',
     'additional-info-help-message': 'Briefly note absences or other key information.',
     'errors': {
+      'surname-required': 'Surname is required',
+      'givenName-required': 'Given name is required',
       'personal-record-identifier-required': 'Personal record identifier is required.',
       'personal-record-identifier-invalid': 'Invalid personal record identifier.',
       'preferred-language-required': 'Preferred language of correspondence is required.',

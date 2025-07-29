@@ -42,8 +42,10 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   const currentUserId = authenticatedSession.authState.idTokenClaims.oid as string;
   const formData = await request.formData();
   const parseResult = v.safeParse(personalInformationSchema, {
+    surname: formString(formData.get('surname')),
+    givenName: formString(formData.get('givenName')),
     personalRecordIdentifier: formString(formData.get('personalRecordIdentifier')),
-    preferredLanguage: formString(formData.get('preferredLanguage')),
+    preferredLanguageId: formString(formData.get('preferredLanguageId')),
     workEmail: formString(formData.get('workEmail')),
     personalEmail: formString(formData.get('personalEmail')),
     workPhone: formString(formData.get('workPhone')),
@@ -82,8 +84,10 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   return {
     documentTitle: t('app:personal-information.page-title'),
     defaultValues: {
+      surname: profileData.personalInformation.surname,
+      givenName: profileData.personalInformation.givenName,
       personalRecordIdentifier: profileData.personalInformation.personalRecordIdentifier,
-      preferredLanguage: profileData.personalInformation.preferredLanguageId,
+      preferredLanguageId: profileData.personalInformation.preferredLanguageId,
       workEmail: profileUser?.businessEmail ?? profileData.personalInformation.workPhone,
       personalEmail: profileData.personalInformation.personalEmail,
       workPhone: toE164(profileData.personalInformation.workPhone),
@@ -100,7 +104,7 @@ export default function PersonalInformation({ loaderData, actionData, params }: 
   const languageOptions = loaderData.languagesOfCorrespondence.map(({ id, name }) => ({
     value: String(id),
     children: name,
-    defaultChecked: id === loaderData.defaultValues.preferredLanguage,
+    defaultChecked: id === loaderData.defaultValues.preferredLanguageId,
   }));
 
   return (
@@ -113,6 +117,8 @@ export default function PersonalInformation({ loaderData, actionData, params }: 
         <FormErrorSummary>
           <Form method="post" noValidate>
             <div className="space-y-6">
+              <input type="hidden" name="surname" value={loaderData.defaultValues.surname} />
+              <input type="hidden" name="givenName" value={loaderData.defaultValues.givenName} />
               <InputField
                 className="w-full"
                 id="personal-record-identifier"
@@ -125,10 +131,10 @@ export default function PersonalInformation({ loaderData, actionData, params }: 
               />
               <InputRadios
                 id="preferred-language"
-                name="preferredLanguage"
+                name="preferredLanguageId"
                 legend={t('app:personal-information.preferred-language')}
                 options={languageOptions}
-                errorMessage={t(extractValidationKey(errors?.preferredLanguage))}
+                errorMessage={t(extractValidationKey(errors?.preferredLanguageId))}
                 required
               />
               <InputField

@@ -75,6 +75,8 @@ export default {
     'additional-information': 'Renseignements supplémentaires',
     'additional-info-help-message': 'Veuillez noter brièvement les absences ou autres informations clés.',
     'errors': {
+      'surname-required': 'Le nom de famille est requis',
+      'givenName-required': 'Le prénom est requis',
       'personal-record-identifier-required': "Le code d'identification du dossier personnel (CIDP) est requis.",
       'personal-record-identifier-invalid': "Le code d'identification du dossier personnel (CIDP) est invalide.",
       'preferred-language-required': 'La langue de préférence pour la correspondance est requise.',
