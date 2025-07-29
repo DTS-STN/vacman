@@ -192,8 +192,8 @@ VALUES ('FR', 'French', 'Français', CURRENT_TIMESTAMP, 'system', CURRENT_TIMEST
 INSERT INTO [CD_PROFILE_STATUS] ([PROFILE_STATUS_CODE], [PROFILE_STATUS_NAME_EN], [PROFILE_STATUS_NAME_FR], [EFFECTIVE_DATE], [USER_CREATED], [DATE_CREATED], [USER_UPDATED], [DATE_UPDATED])
 VALUES
     ('APPROVED', 'Approved', 'Approuvé', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
-    ('ARCHIVED', 'Archived', 'Archivé', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
-    ('PENDING', 'Pending approval', "En attente d'approbation", CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+    ('ARCHIVED', 'Archived', 'Archivé', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+    ('PENDING', 'Pending approval', 'En attente d''approbation', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
     ('INCOMPLETE', 'In Progress', 'En cours', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
 
 -- Add priority levels if not exists
