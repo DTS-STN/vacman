@@ -1,0 +1,47 @@
+{
+  "content": [
+    {
+      "id": 574190001,
+      "code": "APPROVED",
+      "nameEn": "Approved",
+      "nameFr": "Approuvé"
+    },
+    {
+      "id": 574190002,
+      "code": "PENDING_APPROVAL",
+      "nameEn": "Pending approval",
+      "nameFr": "En attente d'approbation"
+    },
+    {
+      "id": 574190003,
+      "code": "IN_PROGRESS",
+      "nameEn": "In progress",
+      "nameFr": "En cours"
+    }
+  ],
+  "pageable": {
+    "sort": {
+      "empty": true,
+      "sorted": false,
+      "unsorted": true
+    },
+    "offset": 0,
+    "pageSize": 2,
+    "pageNumber": 0,
+    "paged": true,
+    "unpaged": false
+  },
+  "last": false,
+  "totalPages": 1,
+  "totalElements": 2,
+  "size": 2,
+  "number": 0,
+  "sort": {
+    "empty": true,
+    "sorted": false,
+    "unsorted": true
+  },
+  "first": true,
+  "numberOfElements": 2,
+  "empty": false
+}
