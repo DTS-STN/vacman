@@ -1,5 +1,6 @@
 package ca.gov.dtsstn.vacman.api.web.model;
 
+import ca.gov.dtsstn.vacman.api.web.validator.UniqueActiveDirectoryId;
 import ca.gov.dtsstn.vacman.api.web.validator.ValidLanguageCode;
 import ca.gov.dtsstn.vacman.api.web.validator.ValidUserTypeCode;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -7,6 +8,8 @@ import jakarta.validation.constraints.NotNull;
 
 @Schema(name = "UserCreate")
 public record UserCreateModel(
+	@NotNull(message = "Active Directory ID is required.")
+	@UniqueActiveDirectoryId(message = "User with this Active Directory ID already exists")
 	@Schema(description = "The Active Directory ID of this user.", example = "12345678-1234-1234-1234-123456789abc")
 	String activeDirectoryId,
 

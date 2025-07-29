@@ -10,17 +10,17 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 
-@Entity
-@Table(name = "EVENT")
+@Entity(name = "Event")
+@Table(name = "[EVENT]")
 public class EventEntity extends AbstractBaseEntity {
 
-    @Column(name = "EVENT_NAME", nullable = false, length = 255)
+    @Column(name = "[EVENT_NAME]", nullable = false, length = 255)
     private String eventName;
 
-    @Column(name = "EVENT_DESCRIPTION", length = 4000)
+    @Column(name = "[EVENT_DESCRIPTION]", length = 4000)
     private String eventDescription;
 
-    @Column(name = "EVENT_DETAILS", length = 4000)
+    @Column(name = "[EVENT_DETAILS]", length = 4000)
     private String eventDetails;
 
     public EventEntity() {
