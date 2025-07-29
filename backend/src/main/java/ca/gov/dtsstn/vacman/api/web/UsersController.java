@@ -75,7 +75,9 @@ public class UsersController {
 	@Operation(summary = "Create a new user.")
 	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
 	public ResponseEntity<UserReadModel> createUser(@RequestBody @Valid UserCreateModel userCreate) {
-		final var savedUser = userService.createUser(userCreate);
+		final var userEntity = userModelMapper.toEntity(userCreate);
+		final var savedUser = userService.createUser(userEntity, userCreate.role(), userCreate.languageCode());
+
 		return ResponseEntity.ok(userModelMapper.toModel(savedUser));
 	}
 

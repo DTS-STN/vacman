@@ -45,18 +45,15 @@ public class UserService {
 		this.codeService = codeService;
 	}
 
-	public UserEntity createUser(UserCreateModel createModel) {
-		// Create user entity from model
-		final var user = userModelMapper.toEntity(createModel);
-
+	public UserEntity createUser(UserEntity user, String roleCode, String languageCode) {
 		// Set user type based on role (validation ensures it exists)
 		user.setUserType(codeService.getUserTypes(Pageable.unpaged()).stream()
-			.filter(userType -> userType.getCode().equals(createModel.role()))
+			.filter(userType -> userType.getCode().equals(roleCode))
 			.findFirst().orElseThrow());
 
 		// Set language based on languageCode (validation ensures it exists)
 		user.setLanguage(codeService.getLanguages(Pageable.unpaged()).stream()
-			.filter(language -> language.getCode().equals(createModel.languageCode()))
+			.filter(language -> language.getCode().equals(languageCode))
 			.findFirst().orElseThrow());
 
 		// Save the user (profiles are created separately as needed)
