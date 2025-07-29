@@ -65,7 +65,7 @@ export const profileStatusService: ProfileStatusService = {
   async getById(id: string): Promise<Result<ProfileStatus, AppError>> {
     const context = `Get Profile Status with ID '${id}'`;
 
-    const response = await apiClient.get<ProfileStatus>(`/profile-status/${id}`, context);
+    const response = await apiClient.get<ProfileStatus>(`/codes/profile-statuses/${id}`, context);
 
     if (response.isErr()) {
       const apiFetchError = response.unwrapErr();
