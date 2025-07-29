@@ -195,12 +195,12 @@ export default function PersonalDetails({ loaderData, actionData, params }: Rout
   }));
 
   // Choice tags for classification
-  const classificationChoiceTags: ChoiceTag[] = [];
-
-  selectedClassifications?.forEach((classification) => {
-    const selectedC = loaderData.classifications.find((c) => c.id === classification);
-    classificationChoiceTags.push({ label: selectedC?.name ?? classification, name: 'classification', value: classification });
-  });
+  const classificationChoiceTags: ChoiceTag[] = (selectedClassifications ?? [])
+    .map((classification) => {
+      const selectedC = loaderData.classifications.find((c) => c.id === classification);
+      return { label: selectedC?.name ?? classification, name: 'classification', value: classification };
+    })
+    .toSorted((a, b) => a.label.localeCompare(b.label));
 
   /**
    * Removes a classification from `classification group(s) and level(s)` and announces the removal to screen readers.
