@@ -1,0 +1,44 @@
+{
+  "content": [
+    {
+      "id": 1,
+      "code": "PENDING",
+      "nameEn": "Pending approval",
+      "nameFr": "En attente d'approbation",
+      "createdBy": "system",
+      "createdDate": "2025-07-28T11:15:03.453582Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-07-28T11:15:03.453582Z"
+    },
+    {
+      "id": 2,
+      "code": "APPROVED",
+      "nameEn": "Approved",
+      "nameFr": "Approuvé",
+      "createdBy": "system",
+      "createdDate": "2025-07-28T11:15:03.453582Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-07-28T11:15:03.453582Z"
+    },
+    {
+      "id": 3,
+      "code": "INCOMPLETE",
+      "nameEn": "In progress",
+      "nameFr": "En cours",
+      "createdBy": "system",
+      "createdDate": "2025-07-28T11:15:03.453582Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-07-28T11:15:03.453582Z"
+    },
+    {
+      "id": 3,
+      "code": "ARCHIVED",
+      "nameEn": "Archived",
+      "nameFr": "Archivé",
+      "createdBy": "system",
+      "createdDate": "2025-07-28T11:15:03.453582Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-07-28T11:15:03.453582Z"
+    }
+  ]
+}
