@@ -1,0 +1,34 @@
+{
+  "content": [
+    {
+      "id": 1,
+      "code": "VISIBLE_MINORITY",
+      "nameEn": "Visible Minority",
+      "nameFr": "Minorité visible"
+    },
+    {
+      "id": 2,
+      "code": "ABORIGINAL",
+      "nameEn": "Aboriginal Peoples",
+      "nameFr": "Peuples autochtones"
+    },
+    {
+      "id": 3,
+      "code": "PERSONS_WITH_DISABILITIES",
+      "nameEn": "Persons with Disabilities",
+      "nameFr": "Personnes handicapées"
+    },
+    {
+      "id": 4,
+      "code": "WOMEN",
+      "nameEn": "Women",
+      "nameFr": "Femmes"
+    },
+    {
+      "id": 5,
+      "code": "NOT_APPLICABLE",
+      "nameEn": "Not Applicable",
+      "nameFr": "Sans objet"
+    }
+  ]
+}
