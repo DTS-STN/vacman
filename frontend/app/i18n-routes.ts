@@ -176,6 +176,38 @@ export const i18nRoutes = [
           fr: '/fr/hr-advisor/employes',
         },
       },
+      {
+        id: 'HRAD-0002',
+        file: 'routes/hr-advisor/[id]/profile/index.tsx',
+        paths: {
+          en: '/en/hr-advisor/:id/profile',
+          fr: '/fr/hr-advisor/:id/profil',
+        },
+      },
+      {
+        id: 'HRAD-0003',
+        file: 'routes/hr-advisor/[id]/profile/personal-information.tsx',
+        paths: {
+          en: '/en/hr-advisor/:id/profile/personal-information',
+          fr: '/fr/hr-advisor/:id/profil/informations-personnelles',
+        },
+      },
+      {
+        id: 'HRAD-0004',
+        file: 'routes/hr-advisor/[id]/profile/employment-information.tsx',
+        paths: {
+          en: '/en/hr-advisor/:id/profile/employment-information',
+          fr: `/fr/hr-advisor/:id/profil/informations-sur-lemploi`,
+        },
+      },
+      {
+        id: 'HRAD-0005',
+        file: 'routes/hr-advisor/[id]/profile/referral-preferences.tsx',
+        paths: {
+          en: '/en/hr-advisor/:id/profile/referral-preferences',
+          fr: '/fr/hr-advisor/:id/profil/préférences-de-référence',
+        },
+      },
     ],
   },
 
