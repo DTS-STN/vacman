@@ -13,11 +13,8 @@ public record UserReadModel(
 	@Schema(description = "The type of this user.")
 	UserTypeReadModel userType,
 
-	@Schema(description = "The active directory ID of this user.", example = "user@example.com")
-	String activeDirectoryId,
-
-	@Schema(description = "The UUID of this user.", example = "user123")
-	String uuid,
+	@Schema(description = "The Microsoft Entra ID of this user.", example = "user@example.com")
+	String microsoftEntraId,
 
 	@Schema(description = "The first name of this user.", example = "John")
 	String firstName,

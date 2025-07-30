@@ -66,8 +66,8 @@ public class UserService {
 		return userRepository.findById(id);
 	}
 
-	public Optional<UserEntity> getUserByActiveDirectoryId(String activeDirectoryId) {
-		return userRepository.findOne(Example.of(new UserEntityBuilder().activeDirectoryId(activeDirectoryId).build()));
+	public Optional<UserEntity> getUserByMicrosoftEntraId(String microsoftEntraId) {
+		return userRepository.findOne(Example.of(new UserEntityBuilder().microsoftEntraId(microsoftEntraId).build()));
 	}
 
 	public List<UserEntity> getAllUsers() {
