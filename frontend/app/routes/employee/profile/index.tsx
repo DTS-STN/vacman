@@ -8,7 +8,7 @@ import { faCheck, faPenToSquare, faPlus, faTriangleExclamation } from '@fortawes
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useTranslation } from 'react-i18next';
 
-import type { Route } from './+types/index';
+import type { Route } from '../profile/+types/index';
 
 import type { Profile } from '~/.server/domain/models';
 import { getCityService } from '~/.server/domain/services/city-service';
@@ -320,7 +320,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
         <ProfileCard
           title={t('app:profile.personal-information.title')}
           linkLabel={t('app:profile.personal-information.link-label')}
-          file="routes/employee/[id]/profile/personal-information.tsx"
+          file="routes/employee/profile/personal-information.tsx"
           isComplete={loaderData.personalInformation.isComplete}
           isNew={loaderData.personalInformation.isNew}
           params={params}
@@ -365,7 +365,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
         <ProfileCard
           title={t('app:profile.employment.title')}
           linkLabel={t('app:profile.employment.link-label')}
-          file="routes/employee/[id]/profile/employment-information.tsx"
+          file="routes/employee/profile/employment-information.tsx"
           isComplete={loaderData.employmentInformation.isComplete}
           isNew={loaderData.employmentInformation.isNew}
           params={params}
@@ -421,7 +421,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
         <ProfileCard
           title={t('app:profile.referral.title')}
           linkLabel={t('app:profile.referral.link-label')}
-          file="routes/employee/[id]/profile/referral-preferences.tsx"
+          file="routes/employee/profile/referral-preferences.tsx"
           isComplete={loaderData.referralPreferences.isComplete}
           isNew={loaderData.referralPreferences.isNew}
           params={params}
