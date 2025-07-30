@@ -10,7 +10,7 @@ describe('getMockProvince', () => {
 
     const expected = provincesData.content.map((province) => ({
       id: province.id,
-      code: province.alphaCode,
+      code: province.code,
       nameEn: province.nameEn,
       nameFr: province.nameFr,
     }));
