@@ -298,7 +298,12 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
           <p className="mt-4">{t('app:profile.about-para-2')}</p>
         </div>
         <Form className="mt-6 flex place-content-end space-x-5 md:mt-auto" method="post" noValidate>
-          <ButtonLink variant="alternative" file="routes/hr-advisor/index.tsx" id="save" disabled={navigation.state !== 'idle'}>
+          <ButtonLink
+            variant="alternative"
+            file="routes/hr-advisor/employees.tsx"
+            id="save"
+            disabled={navigation.state !== 'idle'}
+          >
             {t('app:form.save-and-exit')}
           </ButtonLink>
           <Button name="action" variant="primary" id="submit" disabled={navigation.state !== 'idle'}>
