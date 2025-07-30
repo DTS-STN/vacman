@@ -21,6 +21,8 @@ export default {
     'about-para-1':
       'Ce profil décrit votre position actuelle, vos préférences de référence et vos qualifications. Complétez toutes les sections et soumettez pour approbation.',
     'about-para-2': 'Vos progrès sont enregistrés automatiquement.',
+    'about-manager-para-1':
+      'Review profile details below for approval. If changes are needed, contact the employee directly to discuss and update before approving.',
     'edit': 'Modifier les',
     'add': 'Ajouter des',
     'in-progress': 'En cours',
