@@ -1,160 +1,75 @@
-export type Branch = Readonly<{
+// Generic base types for all lookup models
+export type LookupModel = Readonly<{
   id: string;
   code: string;
   nameEn: string;
   nameFr: string;
 }>;
 
-export type LocalizedBranch = Readonly<{
+export type LocalizedLookupModel = Readonly<{
   id: string;
   code: string;
   name: string;
 }>;
 
-export type City = Readonly<{
-  id: string;
-  code: string;
-  nameEn: string;
-  nameFr: string;
-  province: Province;
-}>;
+// Generic type for lookup models with parent relationships
+export type HierarchicalLookupModel<TParent = LookupModel> = LookupModel &
+  Readonly<{
+    parent: TParent;
+  }>;
 
-export type LocalizedCity = Readonly<{
-  id: string;
-  code: string;
-  name: string;
-  province: LocalizedProvince;
-}>;
+export type LocalizedHierarchicalLookupModel<TParent = LocalizedLookupModel> = LocalizedLookupModel &
+  Readonly<{
+    parent: TParent;
+  }>;
 
-export type Classification = Readonly<{
-  id: string;
-  code: string;
-  nameEn: string;
-  nameFr: string;
-}>;
+// Type aliases for specific lookup types (for better developer experience)
+export type Branch = LookupModel;
+export type LocalizedBranch = LocalizedLookupModel;
 
-export type LocalizedClassification = Readonly<{
-  id: string;
-  code: string;
-  name: string;
-}>;
+// City types need special handling to maintain 'province' property name for backward compatibility
+export type City = LookupModel &
+  Readonly<{
+    province: Province;
+  }>;
 
-export type WFAStatus = Readonly<{
-  id: string;
-  code: string;
-  nameEn: string;
-  nameFr: string;
-}>;
+export type LocalizedCity = LocalizedLookupModel &
+  Readonly<{
+    province: LocalizedProvince;
+  }>;
 
-export type LocalizedWFAStatus = Readonly<{
-  id: string;
-  code: string;
-  name: string;
-}>;
+export type Classification = LookupModel;
+export type LocalizedClassification = LocalizedLookupModel;
 
-export type Directorate = Readonly<{
-  id: string;
-  code: string;
-  nameEn: string;
-  nameFr: string;
-  parent: Branch;
-}>;
+export type WFAStatus = LookupModel;
+export type LocalizedWFAStatus = LocalizedLookupModel;
 
-export type LocalizedDirectorate = Readonly<{
-  id: string;
-  code: string;
-  name: string;
-  parent: LocalizedBranch;
-}>;
+export type Directorate = HierarchicalLookupModel<Branch>;
+export type LocalizedDirectorate = LocalizedHierarchicalLookupModel<LocalizedBranch>;
 
-export type EmploymentTenure = Readonly<{
-  id: string;
-  code: string;
-  nameEn: string;
-  nameFr: string;
-}>;
+export type EmploymentTenure = LookupModel;
+export type LocalizedEmploymentTenure = LocalizedLookupModel;
 
-export type LocalizedEmploymentTenure = Readonly<{
-  id: string;
-  code: string;
-  name: string;
-}>;
+export type OpportunityType = LookupModel;
+export type LocalizedOpportunityType = LocalizedLookupModel;
 
-export type OpportunityType = Readonly<{
-  id: string;
-  nameEn: string;
-  nameFr: string;
-}>;
+export type Province = LookupModel;
+export type LocalizedProvince = LocalizedLookupModel;
 
-export type LocalizedOpportunityType = Readonly<{
-  id: string;
-  name: string;
-}>;
+export type LanguageReferralType = LookupModel;
+export type LocalizedLanguageReferralType = LocalizedLookupModel;
 
-export type Province = Readonly<{
-  id: string;
-  code: string;
-  nameEn: string;
-  nameFr: string;
-}>;
+export type NonAdvertisedAppointment = LookupModel;
+export type LocalizedNonAdvertisedAppointment = LocalizedLookupModel;
 
-export type LocalizedProvince = Readonly<{
-  id: string;
-  code: string;
-  name: string;
-}>;
+export type LanguageOfCorrespondence = LookupModel;
+export type LocalizedLanguageOfCorrespondence = LocalizedLookupModel;
 
-export type LanguageReferralType = Readonly<{
-  id: string;
-  code: string;
-  nameEn: string;
-  nameFr: string;
-}>;
+export type ProfileStatus = LookupModel;
+export type LocalizedProfileStatus = LocalizedLookupModel;
 
-export type LocalizedLanguageReferralType = Readonly<{
-  id: string;
-  code: string;
-  name: string;
-}>;
-
-export type NonAdvertisedAppointment = Readonly<{
-  id: string;
-  code: string;
-  nameEn: string;
-  nameFr: string;
-}>;
-
-export type LocalizedNonAdvertisedAppointment = Readonly<{
-  id: string;
-  code: string;
-  name: string;
-}>;
-
-export type LanguageOfCorrespondence = Readonly<{
-  id: string;
-  code: string;
-  nameEn: string;
-  nameFr: string;
-}>;
-
-export type LocalizedLanguageOfCorrespondence = Readonly<{
-  id: string;
-  code: string;
-  name: string;
-}>;
-
-export type LocalizedProfileStatus = Readonly<{
-  id: string;
-  code: string;
-  name: string;
-}>;
-
-export type ProfileStatus = Readonly<{
-  id: string;
-  code: string;
-  nameEn: string;
-  nameFr: string;
-}>;
+export type EmploymentEquity = LookupModel;
+export type LocalizedEmploymentEquity = LocalizedLookupModel;
 
 export type User = Readonly<{
   id: string;
@@ -226,16 +141,3 @@ export type UserReferralPreferences = {
   interestedInAlternationInd?: boolean;
   employmentTenureIds?: string[];
 };
-
-export type EmploymentEquity = Readonly<{
-  id: string;
-  code: string;
-  nameEn: string;
-  nameFr: string;
-}>;
-
-export type LocalizedEmploymentEquity = Readonly<{
-  id: string;
-  code: string;
-  name: string;
-}>;
