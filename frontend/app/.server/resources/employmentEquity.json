@@ -23,12 +23,6 @@
       "code": "WOMEN",
       "nameEn": "Women",
       "nameFr": "Femmes"
-    },
-    {
-      "id": 5,
-      "code": "NOT_APPLICABLE",
-      "nameEn": "Not Applicable",
-      "nameFr": "Sans objet"
     }
   ]
 }
