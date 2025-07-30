@@ -18,6 +18,7 @@ import { getEmploymentTenureService } from '~/.server/domain/services/employment
 import { getLanguageForCorrespondenceService } from '~/.server/domain/services/language-for-correspondence-service';
 import { getLanguageReferralTypeService } from '~/.server/domain/services/language-referral-type-service';
 import { getProfileService } from '~/.server/domain/services/profile-service';
+import { getProfileStatusService } from '~/.server/domain/services/profile-status-service';
 import { getUserService } from '~/.server/domain/services/user-service';
 import { getWFAStatuses } from '~/.server/domain/services/wfa-status-service';
 import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
@@ -121,6 +122,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     allLocalizedCities,
     allLocalizedEmploymentTenures,
     allWfaStatus,
+    profileStatus,
   ] = await Promise.all([
     getProfileService().getProfile(profileUserId),
     getLanguageReferralTypeService().listAllLocalized(lang),
@@ -128,6 +130,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     getCityService().listAllLocalized(lang),
     getEmploymentTenureService().listAllLocalized(lang),
     getWFAStatuses().listAll(),
+    getProfileStatusService().listAllLocalized(lang),
   ]);
 
   if (profileResult.isNone()) {
@@ -263,6 +266,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     },
     lastUpdated: profileData.dateUpdated ? formatDateTime(profileData.dateUpdated) : '0000-00-00 00:00',
     lastUpdatedBy: profileUpdatedByUserName ?? 'Unknown User',
+    profileStatus,
   };
 }
 
@@ -280,7 +284,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
   return (
     <div className="space-y-8">
       <div className="space-y-4 py-8 text-white">
-        {loaderData.isProfileComplete ? CompleteTag() : InProgressTag()}{' '}
+        {loaderData.isProfileComplete ? statusTag(loaderData.profileStatus[0]?.name ?? '') : InProgressTag()}
         {/*TODO: Show profile status instead of the Complete */}
         <h1 className="mt-6 text-3xl font-semibold">{loaderData.name}</h1>
         {loaderData.email && <p className="mt-1">{loaderData.email}</p>}
@@ -294,17 +298,21 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
       </div>
       <div className="justify-between md:grid md:grid-cols-2">
         <div className="max-w-prose">
-          <p className="mt-12">{t('app:profile.about-para-1')}</p>
+          <p className="mt-12">
+            {loaderData.isProfileComplete ? t('app:profile.about-para-1-pending') : t('app:profile.about-para-1')}
+          </p>
           <p className="mt-4">{t('app:profile.about-para-2')}</p>
         </div>
-        <Form className="mt-6 flex place-content-end space-x-5 md:mt-auto" method="post" noValidate>
-          <ButtonLink variant="alternative" file="routes/employee/index.tsx" id="save" disabled={navigation.state !== 'idle'}>
-            {t('app:form.save-and-exit')}
-          </ButtonLink>
-          <Button name="action" variant="primary" id="submit" disabled={navigation.state !== 'idle'}>
-            {t('app:form.submit')}
-          </Button>
-        </Form>
+        {!loaderData.isProfileComplete && (
+          <Form className="mt-6 flex place-content-end space-x-5 md:mt-auto" method="post" noValidate>
+            <ButtonLink variant="alternative" file="routes/employee/index.tsx" id="save" disabled={navigation.state !== 'idle'}>
+              {t('app:form.save-and-exit')}
+            </ButtonLink>
+            <Button name="action" variant="primary" id="submit" disabled={navigation.state !== 'idle'}>
+              {t('app:form.submit')}
+            </Button>
+          </Form>
+        )}
       </div>
 
       {actionData && (
@@ -315,7 +323,13 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
         />
       )}
 
-      <Progress className="mt-8 mb-8" label={t('app:profile.profile-completion-progress')} value={loaderData.amountCompleted} />
+      {!loaderData.isProfileComplete && (
+        <Progress
+          className="mt-8 mb-8"
+          label={t('app:profile.profile-completion-progress')}
+          value={loaderData.amountCompleted}
+        />
+      )}
       <div className="mt-8 max-w-prose space-y-10">
         <ProfileCard
           title={t('app:profile.personal-information.title')}
@@ -579,6 +593,14 @@ function RequiredTag(): JSX.Element {
   return (
     <span className="rounded-2xl border border-gray-400 bg-gray-100 px-3 py-0.5 text-sm font-semibold text-black">
       {t('app:profile.required')}
+    </span>
+  );
+}
+
+function statusTag(status?: string): JSX.Element {
+  return (
+    <span className="w-fit rounded-2xl border border-blue-400 bg-blue-100 px-3 py-0.5 text-sm font-semibold text-blue-800">
+      {status}
     </span>
   );
 }

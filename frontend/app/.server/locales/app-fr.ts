@@ -20,6 +20,8 @@ export default {
   'profile': {
     'about-para-1':
       'Ce profil décrit votre position actuelle, vos préférences de référence et vos qualifications. Complétez toutes les sections et soumettez pour approbation.',
+    'about-para-1-pending':
+      'Ce profil décrit votre poste actuel, vos préférences en matière de présentation de candidature et vos qualifications. Remplissez toutes les sections et soumettez-les pour approbation.',
     'about-para-2': 'Vos progrès sont enregistrés automatiquement.',
     'edit': 'Modifier les',
     'add': 'Ajouter des',
