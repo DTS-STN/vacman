@@ -34,7 +34,7 @@ public class NotificationService {
 	public NotificationService(GcNotifyProperties gcNotifyProperties, RestTemplateBuilder restTemplateBuilder) {
 		log.info("Creating 'notificationService' bean");
 
-		Assert.notNull(gcNotifyProperties, "gcNotifyProperties is requred; it must not be null");
+		Assert.notNull(gcNotifyProperties, "gcNotifyProperties is required; it must not be null");
 		Assert.notNull(restTemplateBuilder, "restTemplateBuilder is required; it must not be null");
 
 		this.gcNotifyProperties = gcNotifyProperties;
