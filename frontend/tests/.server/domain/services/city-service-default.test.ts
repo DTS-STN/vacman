@@ -7,14 +7,14 @@ import { HttpStatusCodes } from '~/errors/http-status-codes';
 const mockCities = {
   content: [
     {
-      id: '1',
+      id: 1,
       code: 'CITY-1',
       nameEn: 'City One',
       nameFr: 'Ville Un',
       province: { id: '1', code: 'ABC', nameEn: 'Province One', nameFr: 'Province Un' },
     },
     {
-      id: '2',
+      id: 2,
       code: 'CITY-2',
       nameEn: 'City Two',
       nameFr: 'Ville Deux',
@@ -47,9 +47,9 @@ describe('getDefaultCityService', () => {
       json: () => mockCities.content[0],
     });
 
-    const result = await service.getById('1');
+    const result = await service.getById(1);
     expect(result.isOk()).toBe(true);
-    expect(result.unwrap().id).toBe('1');
+    expect(result.unwrap().id).toBe(1);
   });
 
   it('getById should return not found error', async () => {
@@ -58,7 +58,7 @@ describe('getDefaultCityService', () => {
       status: HttpStatusCodes.NOT_FOUND,
     });
 
-    const result = await service.getById('999');
+    const result = await service.getById(999);
     expect(result.isErr()).toBe(true);
     expect(result.unwrapErr()).toBeInstanceOf(AppError);
   });
@@ -69,9 +69,9 @@ describe('getDefaultCityService', () => {
       json: () => Promise.resolve(mockCities.content[0]),
     });
 
-    const result = await service.findLocalizedById('1', 'en');
+    const result = await service.findLocalizedById(1, 'en');
     expect(result.isSome()).toBe(true);
-    expect(result.unwrap().id).toBe('1');
+    expect(result.unwrap().id).toBe(1);
   });
 
   it('findLocalizedById should return None if city does not exist', async () => {
@@ -80,7 +80,7 @@ describe('getDefaultCityService', () => {
       status: HttpStatusCodes.NOT_FOUND,
     });
 
-    const result = await service.findLocalizedById('999', 'en');
+    const result = await service.findLocalizedById(999, 'en');
     expect(result.isNone()).toBe(true);
   });
 
@@ -102,7 +102,7 @@ describe('getDefaultCityService', () => {
       json: () => mockCities.content[0],
     });
 
-    const result = await service.getLocalizedById('1', 'fr');
+    const result = await service.getLocalizedById(1, 'fr');
     expect(result.isOk()).toBe(true);
     expect(result.unwrap().name).toBe('Ville Un');
   });

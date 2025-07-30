@@ -48,7 +48,7 @@ describe('getMockNonAdvertisedAppointmentService', () => {
     });
 
     it('should return error if appointment ID not found', async () => {
-      const result = await service.getById('non-existent-id');
+      const result = await service.getById(25);
       expect(result.isErr()).toBe(true);
 
       const err = result.unwrapErr();
@@ -59,9 +59,9 @@ describe('getMockNonAdvertisedAppointmentService', () => {
 
     it('should handle string ID conversion correctly', async () => {
       // Test with the first appointment which should have ID "1"
-      const result = await service.getById('1');
+      const result = await service.getById(1);
       expect(result.isOk()).toBe(true);
-      expect(result.unwrap().id).toBe('1');
+      expect(result.unwrap().id).toBe(1);
     });
   });
 
@@ -111,7 +111,7 @@ describe('getMockNonAdvertisedAppointmentService', () => {
     });
 
     it('should return None if appointment ID not found', async () => {
-      const result = await service.findById('non-existent-id');
+      const result = await service.findById(25);
       expect(result.isNone()).toBe(true);
     });
   });
@@ -215,7 +215,7 @@ describe('getMockNonAdvertisedAppointmentService', () => {
     });
 
     it('should return error if appointment ID not found', async () => {
-      const result = await service.getLocalizedById('non-existent-id', 'en');
+      const result = await service.getLocalizedById(25, 'en');
       expect(result.isErr()).toBe(true);
       expect(result.unwrapErr().errorCode).toBe(ErrorCodes.NO_NON_ADVERTISED_APPOINTMENT_FOUND);
     });
@@ -276,7 +276,7 @@ describe('getMockNonAdvertisedAppointmentService', () => {
     });
 
     it('should return None if appointment ID not found', async () => {
-      const result = await service.findLocalizedById('non-existent-id', 'en');
+      const result = await service.findLocalizedById(25, 'en');
       expect(result.isNone()).toBe(true);
     });
 
@@ -337,9 +337,9 @@ describe('getMockNonAdvertisedAppointmentService', () => {
 
   describe('error handling consistency', () => {
     it('should use consistent error codes for not found scenarios', async () => {
-      const getByIdError = await service.getById('non-existent-id');
+      const getByIdError = await service.getById(25);
       const getByCodeError = await service.getByCode('NON_EXISTENT_CODE');
-      const getLocalizedByIdError = await service.getLocalizedById('non-existent-id', 'en');
+      const getLocalizedByIdError = await service.getLocalizedById(25, 'en');
       const getLocalizedByCodeError = await service.getLocalizedByCode('NON_EXISTENT_CODE', 'en');
 
       expect(getByIdError.isErr()).toBe(true);
