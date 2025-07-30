@@ -100,9 +100,10 @@ describe('getDefaultEmploymentEquityService', () => {
     it('should return an Ok result with an employment equity if found', async () => {
       vi.mocked(fetch).mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve({
-          content: [singleMockEmploymentEquity]
-        }),
+        json: () =>
+          Promise.resolve({
+            content: [singleMockEmploymentEquity],
+          }),
       } as Response);
 
       const result = await service.getByCode('WOMEN');
@@ -115,9 +116,10 @@ describe('getDefaultEmploymentEquityService', () => {
     it('should return an Err result if code not found (empty response)', async () => {
       vi.mocked(fetch).mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve({
-          content: []
-        }),
+        json: () =>
+          Promise.resolve({
+            content: [],
+          }),
       } as Response);
 
       const result = await service.getByCode('NON_EXISTENT');
@@ -181,9 +183,10 @@ describe('getDefaultEmploymentEquityService', () => {
     it('should return Some with an employment equity if found', async () => {
       vi.mocked(fetch).mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve({
-          content: [singleMockEmploymentEquity]
-        }),
+        json: () =>
+          Promise.resolve({
+            content: [singleMockEmploymentEquity],
+          }),
       } as Response);
 
       const result = await service.findByCode('WOMEN');
@@ -195,9 +198,10 @@ describe('getDefaultEmploymentEquityService', () => {
     it('should return None if code not found', async () => {
       vi.mocked(fetch).mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve({
-          content: []
-        }),
+        json: () =>
+          Promise.resolve({
+            content: [],
+          }),
       } as Response);
 
       const result = await service.findByCode('NON_EXISTENT');
@@ -313,9 +317,10 @@ describe('getDefaultEmploymentEquityService', () => {
     it('should return localized employment equity in English', async () => {
       vi.mocked(fetch).mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve({
-          content: [singleMockEmploymentEquity]
-        }),
+        json: () =>
+          Promise.resolve({
+            content: [singleMockEmploymentEquity],
+          }),
       } as Response);
 
       const result = await service.getLocalizedByCode('WOMEN', 'en');
@@ -331,9 +336,10 @@ describe('getDefaultEmploymentEquityService', () => {
     it('should return localized employment equity in French', async () => {
       vi.mocked(fetch).mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve({
-          content: [singleMockEmploymentEquity]
-        }),
+        json: () =>
+          Promise.resolve({
+            content: [singleMockEmploymentEquity],
+          }),
       } as Response);
 
       const result = await service.getLocalizedByCode('WOMEN', 'fr');
@@ -409,9 +415,10 @@ describe('getDefaultEmploymentEquityService', () => {
     it('should return Some with localized employment equity in English', async () => {
       vi.mocked(fetch).mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve({
-          content: [singleMockEmploymentEquity]
-        }),
+        json: () =>
+          Promise.resolve({
+            content: [singleMockEmploymentEquity],
+          }),
       } as Response);
 
       const result = await service.findLocalizedByCode('WOMEN', 'en');
@@ -427,9 +434,10 @@ describe('getDefaultEmploymentEquityService', () => {
     it('should return Some with localized employment equity in French', async () => {
       vi.mocked(fetch).mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve({
-          content: [singleMockEmploymentEquity]
-        }),
+        json: () =>
+          Promise.resolve({
+            content: [singleMockEmploymentEquity],
+          }),
       } as Response);
 
       const result = await service.findLocalizedByCode('WOMEN', 'fr');
@@ -445,9 +453,10 @@ describe('getDefaultEmploymentEquityService', () => {
     it('should return None if employment equity not found', async () => {
       vi.mocked(fetch).mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve({
-          content: []
-        }),
+        json: () =>
+          Promise.resolve({
+            content: [],
+          }),
       } as Response);
 
       const result = await service.findLocalizedByCode('NON_EXISTENT', 'en');
