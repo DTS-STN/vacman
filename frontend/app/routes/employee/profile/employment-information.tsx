@@ -6,7 +6,7 @@ import { data, Form } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import * as v from 'valibot';
 
-import type { Route } from './+types/employment-information';
+import type { Route } from '../profile/+types/employment-information';
 
 import type { Profile } from '~/.server/domain/models';
 import { getBranchService } from '~/.server/domain/services/branch-service';
@@ -28,8 +28,8 @@ import { InlineLink } from '~/components/links';
 import { EMPLOYEE_WFA_STATUS } from '~/domain/constants';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { getTranslation } from '~/i18n-config.server';
-import type { employmentInformationSchema } from '~/routes/employee/[id]/profile/validation.server';
-import { parseEmploymentInformation } from '~/routes/employee/[id]/profile/validation.server';
+import type { employmentInformationSchema } from '~/routes/employee/profile/validation.server';
+import { parseEmploymentInformation } from '~/routes/employee/profile/validation.server';
 import { handle as parentHandle } from '~/routes/layout';
 import { extractValidationKey } from '~/utils/validation-utils';
 
@@ -61,7 +61,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     throw updateResult.unwrapErr();
   }
 
-  return i18nRedirect('routes/employee/[id]/profile/index.tsx', request, {
+  return i18nRedirect('routes/employee/profile/index.tsx', request, {
     params: { id: currentUserId },
   });
 }
@@ -175,7 +175,7 @@ export default function EmploymentInformation({ loaderData, actionData, params }
 
   return (
     <>
-      <InlineLink className="mt-6 block" file="routes/employee/[id]/profile/index.tsx" params={params} id="back-button">
+      <InlineLink className="mt-6 block" file="routes/employee/profile/index.tsx" params={params} id="back-button">
         {`< ${t('app:profile.back')}`}
       </InlineLink>
       <div className="max-w-prose">
@@ -309,12 +309,7 @@ export default function EmploymentInformation({ loaderData, actionData, params }
                 <Button name="action" variant="primary" id="save-button">
                   {t('app:form.save')}
                 </Button>
-                <ButtonLink
-                  file="routes/employee/[id]/profile/index.tsx"
-                  params={params}
-                  id="cancel-button"
-                  variant="alternative"
-                >
+                <ButtonLink file="routes/employee/profile/index.tsx" params={params} id="cancel-button" variant="alternative">
                   {t('app:form.cancel')}
                 </ButtonLink>
               </div>
