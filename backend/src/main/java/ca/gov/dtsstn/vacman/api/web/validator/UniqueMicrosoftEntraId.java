@@ -10,16 +10,16 @@ import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 
 /**
- * Validation annotation to check if a user with the given Active Directory ID already exists.
+ * Validation annotation to check if a user with the given Microsoft Entra ID already exists.
  * When validation fails, Spring Boot will automatically return a 400 Bad Request.
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD, ElementType.PARAMETER})
-@Constraint(validatedBy = UniqueActiveDirectoryIdValidator.class)
-public @interface UniqueActiveDirectoryId {
+@Constraint(validatedBy = UniqueMicrosoftEntraIdValidator.class)
+public @interface UniqueMicrosoftEntraId {
 
-	String message() default "User with this Active Directory ID already exists";
+	String message() default "User with this Microsoft Entra ID already exists";
 
 	Class<?>[] groups() default {};
 

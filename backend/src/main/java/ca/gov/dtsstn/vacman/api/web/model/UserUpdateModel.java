@@ -15,8 +15,8 @@ public record UserUpdateModel(
 	@Schema(description = "The role of this user.", example = "hiring-manager")
 	String role,
 
-	@Schema(description = "The active directory ID of this user.", example = "2ca209f5-7913-491e-af5a-1f488ce0613b")
-	String activeDirectoryId,
+	@Schema(description = "The Microsoft Entra ID of this user.", example = "2ca209f5-7913-491e-af5a-1f488ce0613b")
+	String microsoftEntraId,
 
 	@Schema(description = "The first name of this user.", example = "John")
 	String firstName,

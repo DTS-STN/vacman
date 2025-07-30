@@ -37,8 +37,6 @@ public interface UserModelMapper {
 	@Mapping(target = "middleName", constant = "A")
 	@Mapping(target = "initial", constant = "JAD")
 	@Mapping(target = "personalRecordIdentifier", constant = "12345")
-	@Mapping(target = "activeDirectoryId", source = "activeDirectoryId")
-	@Mapping(target = "uuid", constant = "00000000-0000-0000-0000-000000000000")
 	UserEntity toEntity(UserCreateModel model);
 
 	@Mapping(target = "id", ignore = true)
@@ -46,17 +44,15 @@ public interface UserModelMapper {
 	@Mapping(target = "createdDate", ignore = true)
 	@Mapping(target = "lastModifiedBy", ignore = true)
 	@Mapping(target = "lastModifiedDate", ignore = true)
-	@Mapping(target = "uuid", ignore = true)
 	@Mapping(target = "userType", ignore = true)
 	@Mapping(target = "language", ignore = true)
 	@Mapping(target = "profiles", ignore = true)
-	@Mapping(source = "firstName", target = "firstName")
-	@Mapping(source = "lastName", target = "lastName")
-	@Mapping(source = "activeDirectoryId", target = "activeDirectoryId")
-	@Mapping(source = "businessPhone", target = "businessPhoneNumber")
 	@Mapping(source = "businessEmail", target = "businessEmailAddress")
-	@Mapping(source = "middleName", target = "middleName")
+	@Mapping(source = "businessPhone", target = "businessPhoneNumber")
+	@Mapping(source = "firstName", target = "firstName")
 	@Mapping(source = "initials", target = "initial")
+	@Mapping(source = "lastName", target = "lastName")
+	@Mapping(source = "middleName", target = "middleName")
 	@Mapping(source = "personalRecordIdentifier", target = "personalRecordIdentifier")
 	void updateEntityFromModel(UserUpdateModel model, @MappingTarget UserEntity entity);
 
