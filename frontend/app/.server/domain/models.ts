@@ -50,8 +50,8 @@ export type LocalizedDirectorate = LocalizedHierarchicalLookupModel<LocalizedBra
 export type EmploymentTenure = LookupModel;
 export type LocalizedEmploymentTenure = LocalizedLookupModel;
 
-export type OpportunityType = LookupModel;
-export type LocalizedOpportunityType = LocalizedLookupModel;
+export type EmploymentOpportunityType = LookupModel;
+export type LocalizedEmploymentOpportunityType = LocalizedLookupModel;
 
 export type Province = LookupModel;
 export type LocalizedProvince = LocalizedLookupModel;
