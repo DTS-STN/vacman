@@ -6,8 +6,8 @@ import { ErrorCodes } from '~/errors/error-codes';
 
 // Transform the JSON data to match the expected format
 const transformedData: Province[] = esdcProvincesData.content.map((province) => ({
-  id: province.id.toString(),
-  code: province.alphaCode,
+  id: province.id,
+  code: province.code,
   nameEn: province.nameEn,
   nameFr: province.nameFr,
 }));
