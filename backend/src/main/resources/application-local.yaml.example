@@ -52,6 +52,11 @@ spring:
       '[hibernate.default_schema]': dbo
       '[hibernate.format_sql]': true
     show-sql: true
+  gcnotify:
+    notifyApiKey: 00000000-0000-0000-0000-000000000000
+    emailProfileCreated: 82eee16d-a836-fake-9314-441b7628e235
+    emailProfileUpdated: 82eee16d-a836-fake-9314-441b7628e235
+    emailProfileApproved: 82eee16d-a836-fake-9314-441b7628e235
 
 ---
 

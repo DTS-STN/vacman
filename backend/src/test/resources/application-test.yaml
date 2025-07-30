@@ -3,3 +3,10 @@
 # Application configuration for tests
 #
 #######################################################################################################################
+application:
+  gcnotify:
+    notifyApiKey: # must be set externally (ex: 00000000-0000-0000-0000-000000000000)
+    base-url: https://api.notification.canada.ca/v2/notifications/email
+    emailProfileCreated: # must be set externally (ex: 00000000-0000-0000-0000-000000000000)
+    emailProfileUpdated:  # must be set externally (ex: 00000000-0000-0000-0000-000000000000)
+    emailProfileApproved: # must be set externally (ex: 00000000-0000-0000-0000-000000000000)
