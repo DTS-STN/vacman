@@ -170,10 +170,10 @@ export const i18nRoutes = [
       },
       {
         id: 'HRAD-0001',
-        file: 'routes/employees.tsx',
+        file: 'routes/hr-advisor/employees.tsx',
         paths: {
-          en: '/en/employees',
-          fr: '/fr/employes',
+          en: '/en/hr-advisor/employees',
+          fr: '/fr/hr-advisor/employes',
         },
       },
     ],
