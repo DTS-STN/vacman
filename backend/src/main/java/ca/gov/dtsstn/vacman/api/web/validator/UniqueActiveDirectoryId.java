@@ -19,9 +19,10 @@ import jakarta.validation.Payload;
 @Constraint(validatedBy = UniqueActiveDirectoryIdValidator.class)
 public @interface UniqueActiveDirectoryId {
 
-    String message() default "User with this Active Directory ID already exists";
+	String message() default "User with this Active Directory ID already exists";
 
-    Class<?>[] groups() default {};
+	Class<?>[] groups() default {};
 
-    Class<? extends Payload>[] payload() default {};
+	Class<? extends Payload>[] payload() default {};
+
 }

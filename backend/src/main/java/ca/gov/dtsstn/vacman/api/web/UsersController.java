@@ -5,8 +5,10 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.validator.constraints.Range;
 import org.mapstruct.factory.Mappers;
-import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -37,6 +39,7 @@ import jakarta.validation.Valid;
 public class UsersController {
 
 	private final UserModelMapper userModelMapper = Mappers.getMapper(UserModelMapper.class);
+
 	private final UserService userService;
 
 	public UsersController(UserService userService) {
@@ -46,7 +49,7 @@ public class UsersController {
 	@GetMapping
 	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
 	@Operation(summary = "Get users with pagination.", description = "Returns a paginated list of users.")
-	public ResponseEntity<?> getUsers(
+	public ResponseEntity<PagedModel<UserReadModel>> getUsers(
 			@RequestParam(required = false)
 			@Parameter(description = "Active Directory ID to filter by.")
 			String activeDirectoryId,
@@ -64,20 +67,19 @@ public class UsersController {
 				.map(userModelMapper::toModel)
 				.map(List::of)
 				.orElse(List.of());
-			return ResponseEntity.ok(users);
+
+			return ResponseEntity.ok(new PagedModel<>(new PageImpl<>(users, Pageable.ofSize(size), users.size())));
 		}
 
-		final Page<UserReadModel> result = userService.getUsers(PageRequest.of(page, size)).map(userModelMapper::toModel);
-		return ResponseEntity.ok(result);
+		final var users = userService.getUsers(PageRequest.of(page, size)).map(userModelMapper::toModel);
+		return ResponseEntity.ok(new PagedModel<>(users));
 	}
 
 	@PostMapping
 	@Operation(summary = "Create a new user.")
 	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
-	public ResponseEntity<UserReadModel> createUser(@RequestBody @Valid UserCreateModel userCreate) {
-		final var userEntity = userModelMapper.toEntity(userCreate);
-		final var savedUser = userService.createUser(userEntity, userCreate.role(), userCreate.languageCode());
-
+	public ResponseEntity<UserReadModel> createUser(@RequestBody @Valid UserCreateModel user) {
+		final var savedUser = userService.createUser(userModelMapper.toEntity(user), user.languageCode(), user.role());
 		return ResponseEntity.ok(userModelMapper.toModel(savedUser));
 	}
 
@@ -96,15 +98,13 @@ public class UsersController {
 	@Operation(summary = "Update an existing user.")
 	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
 	public ResponseEntity<UserReadModel> updateUser(@PathVariable Long id, @RequestBody @Valid UserUpdateModel userUpdate) {
-
 		// First verify the user exists
 		userService.getUserById(id)
-			.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-				"User with ID '" + id + "' not found"));
+			.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User with ID '" + id + "' not found"));
 
 		// Now perform the update (UserService.updateUser assumes the user exists)
 		final var updatedUser = userService.updateUser(userUpdate);
-
 		return ResponseEntity.ok(userModelMapper.toModel(updatedUser));
 	}
+
 }

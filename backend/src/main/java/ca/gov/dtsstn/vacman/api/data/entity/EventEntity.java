@@ -14,66 +14,67 @@ import jakarta.persistence.Table;
 @Table(name = "[EVENT]")
 public class EventEntity extends AbstractBaseEntity {
 
-    @Column(name = "[EVENT_NAME]", nullable = false, length = 255)
-    private String eventName;
+	@Column(name = "[EVENT_DETAILS]", length = 4000)
+	private String details;
 
-    @Column(name = "[EVENT_DESCRIPTION]", length = 4000)
-    private String eventDescription;
+	@Column(name = "[EVENT_DESCRIPTION]", length = 4000)
+	private String description;
 
-    @Column(name = "[EVENT_DETAILS]", length = 4000)
-    private String eventDetails;
+	@Column(name = "[EVENT_NAME]", nullable = false, length = 255)
+	private String name;
 
-    public EventEntity() {
-        super();
-    }
+	public EventEntity() {
+		super();
+	}
 
-    @Builder.Constructor
-    public EventEntity(
-            @Nullable Long id,
-            @Nullable String eventName,
-            @Nullable String eventDescription,
-            @Nullable String eventDetails,
-            @Nullable String createdBy,
-            @Nullable Instant createdDate,
-            @Nullable String lastModifiedBy,
-            @Nullable Instant lastModifiedDate) {
-        super(id, createdBy, createdDate, lastModifiedBy, lastModifiedDate);
-        this.eventName = eventName;
-        this.eventDescription = eventDescription;
-        this.eventDetails = eventDetails;
-    }
+	@Builder.Constructor
+	public EventEntity(
+			@Nullable Long id,
+			@Nullable String details,
+			@Nullable String description,
+			@Nullable String name,
+			@Nullable String createdBy,
+			@Nullable Instant createdDate,
+			@Nullable String lastModifiedBy,
+			@Nullable Instant lastModifiedDate) {
+		super(id, createdBy, createdDate, lastModifiedBy, lastModifiedDate);
+		this.details = details;
+		this.description = description;
+		this.name = name;
+	}
 
-    public String getEventName() {
-        return eventName;
-    }
+	public String getDetails() {
+		return details;
+	}
 
-    public void setEventName(String eventName) {
-        this.eventName = eventName;
-    }
+	public void setDetails(String eventDetails) {
+		this.details = eventDetails;
+	}
 
-    public String getEventDescription() {
-        return eventDescription;
-    }
+	public String getDescription() {
+		return description;
+	}
 
-    public void setEventDescription(String eventDescription) {
-        this.eventDescription = eventDescription;
-    }
+	public void setDescription(String eventDescription) {
+		this.description = eventDescription;
+	}
 
-    public String getEventDetails() {
-        return eventDetails;
-    }
+	public String getName() {
+		return name;
+	}
 
-    public void setEventDetails(String eventDetails) {
-        this.eventDetails = eventDetails;
-    }
+	public void setName(String eventName) {
+		this.name = eventName;
+	}
 
-    @Override
-    public String toString() {
-        return new ToStringCreator(this)
-            .append("super", super.toString())
-            .append("eventName", eventName)
-            .append("eventDescription", eventDescription)
-            .append("eventDetails", eventDetails)
-            .toString();
-    }
+	@Override
+	public String toString() {
+		return new ToStringCreator(this)
+			.append("super", super.toString())
+			.append("details", details)
+			.append("description", description)
+			.append("name", name)
+			.toString();
+	}
+
 }

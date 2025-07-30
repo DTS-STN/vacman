@@ -2,7 +2,7 @@ package ca.gov.dtsstn.vacman.api.web.validator;
 
 import org.springframework.stereotype.Component;
 
-import ca.gov.dtsstn.vacman.api.data.repository.UserRepository;
+import ca.gov.dtsstn.vacman.api.service.UserService;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
@@ -13,21 +13,22 @@ import jakarta.validation.ConstraintValidatorContext;
 @Component
 public class UniqueActiveDirectoryIdValidator implements ConstraintValidator<UniqueActiveDirectoryId, String> {
 
-    private final UserRepository userRepository;
+	private final UserService userService;
 
-    public UniqueActiveDirectoryIdValidator(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
+	public UniqueActiveDirectoryIdValidator(UserService userService) {
+		this.userService = userService;
+	}
 
-    @Override
-    public void initialize(UniqueActiveDirectoryId constraintAnnotation) {
-        // No initialization needed
-    }
+	@Override
+	public void initialize(UniqueActiveDirectoryId constraintAnnotation) {
+		// No initialization needed
+	}
 
-    @Override
-    public boolean isValid(String activeDirectoryId, ConstraintValidatorContext context) {
-        if (activeDirectoryId == null) { return true; }
+	@Override
+	public boolean isValid(String activeDirectoryId, ConstraintValidatorContext context) {
+		if (activeDirectoryId == null) { return true; }
 
-        return userRepository.findByActiveDirectoryId(activeDirectoryId).isEmpty();
-    }
+		return userService.getUserByActiveDirectoryId(activeDirectoryId).isEmpty();
+	}
+
 }
