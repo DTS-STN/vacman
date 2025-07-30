@@ -19,8 +19,6 @@ export default {
     'about-para-1':
       'This profile outlines your current position, referral preferences, and qualifications. Complete all sections and submit for approval.',
     'about-para-2': 'Your progress is saved automatically.',
-    'about-manager-para-1':
-      'Review profile details below for approval. If changes are needed, contact the employee directly to discuss and update before approving.',
     'edit': 'Edit',
     'add': 'Add',
     'in-progress': 'In progress',
