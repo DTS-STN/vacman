@@ -169,38 +169,6 @@ export const i18nRoutes = [
         },
       },
       {
-        id: 'HIRE-0002',
-        file: 'routes/hiring-manager/[id]/profile/index.tsx',
-        paths: {
-          en: '/en/hiring-manager/:id/profile',
-          fr: '/fr/gestionnaire-embauche/:id/profil',
-        },
-      },
-      {
-        id: 'HIRE-0003',
-        file: 'routes/hiring-manager/[id]/profile/personal-information.tsx',
-        paths: {
-          en: '/en/hiring-manager/:id/profile/personal-information',
-          fr: '/fr/gestionnaire-embauche/:id/profil/informations-personnelles',
-        },
-      },
-      {
-        id: 'HIRE-0004',
-        file: 'routes/hiring-manager/[id]/profile/employment-information.tsx',
-        paths: {
-          en: '/en/hiring-manager/:id/profile/employment-information',
-          fr: `/fr/gestionnaire-embauche/:id/profil/informations-sur-lemploi`,
-        },
-      },
-      {
-        id: 'HIRE-0005',
-        file: 'routes/hiring-manager/[id]/profile/referral-preferences.tsx',
-        paths: {
-          en: '/en/hiring-manager/:id/profile/referral-preferences',
-          fr: '/fr/gestionnaire-embauche/:id/profil/préférences-de-référence',
-        },
-      },
-      {
         id: 'HRAD-0001',
         file: 'routes/employees.tsx',
         paths: {
