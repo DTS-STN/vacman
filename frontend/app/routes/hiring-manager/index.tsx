@@ -12,7 +12,7 @@ export const handle = {
 
 export async function loader({ context, request }: LoaderFunctionArgs) {
   const { t } = await getTranslation(request, handle.i18nNamespace);
-  return { documentTitle: t('app:register.page-title') };
+  return { documentTitle: t('app:register.hiring-manager') };
 }
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {

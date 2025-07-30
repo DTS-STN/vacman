@@ -1,11 +1,6 @@
-import type { JSX } from 'react';
-
 import type { RouteHandle } from 'react-router';
-import { Form } from 'react-router';
 
-import type { IconProp } from '@fortawesome/fontawesome-svg-core';
-import { faChevronRight, faMagnifyingGlass, faUserPlus } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faMagnifyingGlass, faUserPlus } from '@fortawesome/free-solid-svg-icons';
 import { useTranslation } from 'react-i18next';
 
 import type { Route } from './+types/index';
@@ -14,7 +9,7 @@ import { getUserService } from '~/.server/domain/services/user-service';
 import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
 import { hasUserProfile } from '~/.server/utils/profile-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
-import { Card, CardHeader, CardIcon, CardTitle } from '~/components/card';
+import { DashboardActionCard } from '~/components/dashboard-card';
 import { PageTitle } from '~/components/page-title';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
@@ -93,6 +88,8 @@ export function meta({ data }: Route.MetaArgs) {
   return [{ title: data?.documentTitle }];
 }
 
+//TODO: Remove when the "Register as" screen is removed
+
 export default function Index() {
   const { t } = useTranslation(handle.i18nNamespace);
 
@@ -111,13 +108,13 @@ export default function Index() {
       <div className="mb-8 w-full px-4 sm:w-3/5 sm:px-6">
         <PageTitle className="after:w-14">{t('app:index.page-title')}</PageTitle>
         <div className="grid gap-4">
-          <DashboardCard
+          <DashboardActionCard
             dashboard="employee"
             icon={faUserPlus}
             title={t('app:register.employee')}
             body={t('app:register.employee-manage')}
           />
-          <DashboardCard
+          <DashboardActionCard
             dashboard="hiring-manager"
             icon={faMagnifyingGlass}
             title={t('app:register.hiring-manager')}
@@ -126,38 +123,5 @@ export default function Index() {
         </div>
       </div>
     </div>
-  );
-}
-
-interface DashboardCardProps {
-  dashboard: 'employee' | 'hiring-manager';
-  icon: IconProp;
-  title: string;
-  body: string;
-}
-
-function DashboardCard({ dashboard, icon, title, body }: DashboardCardProps): JSX.Element {
-  return (
-    <Form method="post">
-      <input type="hidden" name="dashboard" value={dashboard} />
-      <Card asChild className="flex cursor-pointer items-center gap-4 p-4 transition-colors hover:bg-gray-50 sm:p-6">
-        <button type="submit" className="w-full text-left">
-          <CardIcon icon={icon} />
-          <div className="flex flex-col gap-2">
-            <CardHeader asChild className="p-0">
-              <span>
-                <CardTitle asChild className="flex items-center gap-2">
-                  <span role="heading" aria-level={2}>
-                    {title}
-                    <FontAwesomeIcon icon={faChevronRight} />
-                  </span>
-                </CardTitle>
-              </span>
-            </CardHeader>
-            <div>{body}</div>
-          </div>
-        </button>
-      </Card>
-    </Form>
   );
 }

@@ -3,10 +3,11 @@ export default {
     'about': 'The VacMan initiative!',
     'dashboard': 'Dashboard',
     'page-title': 'Select your dashboard',
-    'get-started': 'Employee Dashboard',
+    'get-started': 'Get started',
     'navigate': 'Go to the employee portal',
     'register': 'Register',
     'employees': 'Employees',
+    'requests': 'Requests',
   },
   'register': {
     'employee': 'Employee dashboard',
@@ -49,6 +50,7 @@ export default {
     'profile-incomplete': 'Please complete all required fields before submitting your profile',
     'profile-submitted': 'Profile submitted successfully! Your HR advisor will now review it for approval',
     'profile-pending-approval': 'Your profile edits will require re-approval by your HR advisor',
+    'page-title': 'Profile',
   },
   'form': {
     'cancel': 'Cancel',
@@ -180,5 +182,11 @@ export default {
     'status': 'Status',
     'action': 'Action',
     'next-page': 'Next',
+  },
+  'hr-advisor-dashboard': {
+    'page-title': 'HR Advisor dashboard',
+    'employees': 'Employees',
+    'requests': 'Requests',
+    'back': 'Back to dashboard',
   },
 };

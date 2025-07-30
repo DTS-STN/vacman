@@ -1,11 +1,8 @@
-import type { RouteHandle, MetaFunction, Params } from 'react-router';
+import type { RouteHandle, LoaderFunctionArgs, MetaFunction } from 'react-router';
 
-import { faUser } from '@fortawesome/free-solid-svg-icons';
+import { faMagnifyingGlass, faUserPlus } from '@fortawesome/free-solid-svg-icons';
 import { useTranslation } from 'react-i18next';
 
-import type { Route } from '.react-router/types/app/+types/root';
-
-import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
 import { DashboardCard } from '~/components/dashboard-card';
 import { PageTitle } from '~/components/page-title';
 import { getTranslation } from '~/i18n-config.server';
@@ -15,28 +12,16 @@ export const handle = {
   i18nNamespace: [...parentHandle.i18nNamespace],
 } as const satisfies RouteHandle;
 
-export async function loader({ context, request }: Route.LoaderArgs) {
+export async function loader({ context, request }: LoaderFunctionArgs) {
   const { t } = await getTranslation(request, handle.i18nNamespace);
-  const authenticatedSession = context.session as AuthenticatedSession;
-  const currentUserId = authenticatedSession.authState.idTokenClaims.oid as string;
-
-  const profileLink = {
-    href: 'routes/employee/profile/index.tsx' as const,
-    params: { id: currentUserId },
-  };
-
-  return { documentTitle: t('app:register.employee'), profileLink: profileLink };
+  return { documentTitle: t('app:hr-advisor-dashboard.page-title') };
 }
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
   return [{ title: data?.documentTitle }];
 };
-type ComponentProps = {
-  loaderData: Awaited<ReturnType<typeof loader>>;
-  params: Params<string>;
-};
 
-export default function EmployeeDashboard({ loaderData, params }: ComponentProps) {
+export default function HRAdvisorDashboard() {
   const { t } = useTranslation(handle.i18nNamespace);
 
   return (
@@ -55,10 +40,14 @@ export default function EmployeeDashboard({ loaderData, params }: ComponentProps
         <PageTitle className="after:w-14">{t('app:index.get-started')}</PageTitle>
         <div className="grid gap-4">
           <DashboardCard
-            href={loaderData.profileLink.href}
-            params={loaderData.profileLink.params}
-            icon={faUser}
-            title={t('app:profile.view')}
+            href={'routes/hr-advisor/employees.tsx'}
+            icon={faUserPlus}
+            title={t('app:hr-advisor-dashboard.employees')}
+          />
+          <DashboardCard
+            href={'routes/hr-advisor/requests.tsx'}
+            icon={faMagnifyingGlass}
+            title={t('app:hr-advisor-dashboard.requests')}
           />
         </div>
       </div>
