@@ -151,10 +151,6 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     profileData.employmentInformation.wfaStatus &&
     (await getWFAStatuses().findLocalizedById(profileData.employmentInformation.wfaStatus, lang));
 
-  const completed = countCompletedItems(profileData);
-  const total = Object.keys(profileData).length;
-  const amountCompleted = (completed / total) * 100;
-
   // convert the IDs to display names
   const preferredLanguage =
     preferredLanguageResult && preferredLanguageResult.isSome() ? preferredLanguageResult.unwrap().name : undefined;
@@ -181,10 +177,14 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     ?.map((employmentTenureId) => allLocalizedEmploymentTenures.find((c) => String(c.id) === employmentTenureId))
     .filter(Boolean);
 
+  // Check each section if the required feilds are complete
   const requiredPersonalInformation = omitObjectProperties(profileData.personalInformation, [
     'workPhone',
     'additionalInformation',
   ]);
+  const personalInformationCompleted = countCompletedItems(requiredPersonalInformation);
+  const personalInformationTotalFeilds = Object.keys(requiredPersonalInformation).length;
+
   const validWFAStatusesForOptionalDate = [EMPLOYEE_WFA_STATUS.affected] as const;
   const selectedValidWfaStatusesForOptionalDate = allWfaStatus
     .filter((c) => validWFAStatusesForOptionalDate.toString().includes(c.code))
@@ -200,13 +200,19 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const requiredEmploymentInformation = isWfaDateOptional
     ? omitObjectProperties(profileData.employmentInformation, ['wfaEndDate', 'wfaEffectiveDate']) // If status is "Affected", omit the effective date
     : omitObjectProperties(profileData.employmentInformation, ['wfaEndDate']);
+  const employmentInformationCompleted = countCompletedItems(requiredEmploymentInformation);
+  const employmentInformationTotalFields = Object.keys(requiredEmploymentInformation).length;
 
-  const isCompletePersonalInformation =
-    countCompletedItems(requiredPersonalInformation) === Object.keys(requiredPersonalInformation).length;
-  const isCompleteEmploymentInformation =
-    countCompletedItems(requiredEmploymentInformation) === Object.keys(requiredEmploymentInformation).length;
-  const isCompleteReferralPreferences =
-    countCompletedItems(profileData.referralPreferences) === Object.keys(profileData.referralPreferences).length;
+  const referralPreferencesCompleted = countCompletedItems(profileData.referralPreferences);
+  const referralPreferencesTotalFields = Object.keys(profileData.referralPreferences).length;
+
+  const isCompletePersonalInformation = personalInformationCompleted === personalInformationTotalFeilds;
+  const isCompleteEmploymentInformation = employmentInformationCompleted === employmentInformationTotalFields;
+  const isCompleteReferralPreferences = referralPreferencesCompleted === referralPreferencesTotalFields;
+
+  const profileCompleted = personalInformationCompleted + employmentInformationCompleted + referralPreferencesCompleted;
+  const profileTotalFields = personalInformationTotalFeilds + employmentInformationTotalFields + referralPreferencesTotalFields;
+  const amountCompleted = (profileCompleted / profileTotalFields) * 100;
 
   return {
     documentTitle: t('app:index.about'),
