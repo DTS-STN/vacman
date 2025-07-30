@@ -16,7 +16,7 @@ describe('getMockProfileService', () => {
         userIdReviewedBy: undefined,
         userIdApprovedBy: undefined,
         priorityLevelId: 1,
-        profileStatusId: 1,
+        profileStatusId: 3,
         privacyConsentInd: true,
         userCreated: 'system',
         dateCreated: '2024-01-01T00:00:00Z',
@@ -70,7 +70,7 @@ describe('getMockProfileService', () => {
       expect(createdProfile.userId).toBeDefined();
       expect(createdProfile.userCreated).toBe(activeDirectoryId);
       expect(createdProfile.dateCreated).toBeDefined();
-      expect(createdProfile.profileStatusId).toBe(1);
+      expect(createdProfile.profileStatusId).toBe(3);
       expect(createdProfile.privacyConsentInd).toBe(true);
       expect(createdProfile.referralPreferences.availableForReferralInd).toBe(true);
       expect(createdProfile.referralPreferences.interestedInAlternationInd).toBe(false);

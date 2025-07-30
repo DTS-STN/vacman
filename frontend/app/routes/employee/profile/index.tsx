@@ -18,6 +18,7 @@ import { getEmploymentTenureService } from '~/.server/domain/services/employment
 import { getLanguageForCorrespondenceService } from '~/.server/domain/services/language-for-correspondence-service';
 import { getLanguageReferralTypeService } from '~/.server/domain/services/language-referral-type-service';
 import { getProfileService } from '~/.server/domain/services/profile-service';
+import { getProfileStatusService } from '~/.server/domain/services/profile-status-service';
 import { getUserService } from '~/.server/domain/services/user-service';
 import { getWFAStatuses } from '~/.server/domain/services/wfa-status-service';
 import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
@@ -103,7 +104,7 @@ export async function action({ context, request }: Route.ActionArgs) {
 
   return {
     status: 'submitted',
-    profileStatus: submitResult.unwrap().status,
+    profileStatus: submitResult.unwrap().profileStatusId,
   };
 }
 
@@ -140,6 +141,9 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     ? await getUserService().getUserByActiveDirectoryId(profileData.userUpdated)
     : undefined;
   const profileUpdatedByUserName = profileUpdatedByUser && `${profileUpdatedByUser.firstName} ${profileUpdatedByUser.lastName}`;
+  const profileStatus = (
+    await getProfileStatusService().findLocalizedById(profileData.profileStatusId.toString(), lang)
+  ).unwrap();
 
   const preferredLanguageResult =
     profileData.personalInformation.preferredLanguageId &&
@@ -226,6 +230,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     email: profileData.personalInformation.workEmail,
     amountCompleted: amountCompleted,
     isProfileComplete: isCompletePersonalInformation && isCompleteEmploymentInformation && isCompleteReferralPreferences,
+    profileStatus,
     personalInformation: {
       isComplete: isCompletePersonalInformation,
       isNew: countCompletedItems(profileData.personalInformation) === 1, // only work email is available
@@ -280,8 +285,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
   return (
     <div className="space-y-8">
       <div className="space-y-4 py-8 text-white">
-        {loaderData.isProfileComplete ? CompleteTag() : InProgressTag()}{' '}
-        {/*TODO: Show profile status instead of the Complete */}
+        <StatusTag status={loaderData.profileStatus.name} />
         <h1 className="mt-6 text-3xl font-semibold">{loaderData.name}</h1>
         {loaderData.email && <p className="mt-1">{loaderData.email}</p>}
         <p className="font-normal text-[#9FA3AD]">
@@ -549,6 +553,14 @@ function ProfileCard({
         </span>
       </CardFooter>
     </Card>
+  );
+}
+
+function StatusTag({ status }: { status: string }): JSX.Element {
+  return (
+    <span className="w-fit rounded-2xl border border-blue-400 bg-blue-100 px-3 py-0.5 text-sm font-semibold text-blue-800">
+      {status}
+    </span>
   );
 }
 
