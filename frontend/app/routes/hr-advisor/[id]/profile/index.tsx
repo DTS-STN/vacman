@@ -298,7 +298,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
           <p className="mt-4">{t('app:profile.about-para-2')}</p>
         </div>
         <Form className="mt-6 flex place-content-end space-x-5 md:mt-auto" method="post" noValidate>
-          <ButtonLink variant="alternative" file="routes/employee/index.tsx" id="save" disabled={navigation.state !== 'idle'}>
+          <ButtonLink variant="alternative" file="routes/hr-advisor/index.tsx" id="save" disabled={navigation.state !== 'idle'}>
             {t('app:form.save-and-exit')}
           </ButtonLink>
           <Button name="action" variant="primary" id="submit" disabled={navigation.state !== 'idle'}>
@@ -320,7 +320,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
         <ProfileCard
           title={t('app:profile.personal-information.title')}
           linkLabel={t('app:profile.personal-information.link-label')}
-          file="routes/employee/profile/personal-information.tsx"
+          file="routes/hr-advisor/[id]/profile/personal-information.tsx"
           isComplete={loaderData.personalInformation.isComplete}
           isNew={loaderData.personalInformation.isNew}
           params={params}
@@ -365,7 +365,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
         <ProfileCard
           title={t('app:profile.employment.title')}
           linkLabel={t('app:profile.employment.link-label')}
-          file="routes/employee/profile/employment-information.tsx"
+          file="routes/hr-advisor/[id]/profile/employment-information.tsx"
           isComplete={loaderData.employmentInformation.isComplete}
           isNew={loaderData.employmentInformation.isNew}
           params={params}
@@ -421,7 +421,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
         <ProfileCard
           title={t('app:profile.referral.title')}
           linkLabel={t('app:profile.referral.link-label')}
-          file="routes/employee/profile/referral-preferences.tsx"
+          file="routes/hr-advisor/[id]/profile/referral-preferences.tsx"
           isComplete={loaderData.referralPreferences.isComplete}
           isNew={loaderData.referralPreferences.isNew}
           params={params}
