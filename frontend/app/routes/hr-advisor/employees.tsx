@@ -103,7 +103,7 @@ export default function EmployeeDashboard({ params }: Route.ComponentProps) {
         return (
           <InlineLink
             className="text-sky-800 no-underline decoration-slate-400 decoration-2 hover:underline"
-            file="routes/employee/[id]/profile/personal-information.tsx"
+            file="routes/employee/profile/personal-information.tsx"
             params={{ id: String(profileId) }}
           >
             {t('app:employee-dashboard.view')}
