@@ -19,12 +19,6 @@ import { PageTitle } from '~/components/page-title';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
 
-type StatusOptions = {
-  pending: string;
-  approved: string;
-  incomplete: string;
-};
-
 export const handle = {
   i18nNamespace: [...parentHandle.i18nNamespace],
 } as const satisfies RouteHandle;
@@ -32,10 +26,20 @@ export const handle = {
 export async function loader({ context, request }: LoaderFunctionArgs) {
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
 
-  const profileData = await getProfileService().getAllProfiles();
-  const status = await getProfileStatusService().listAllLocalized(lang);
+  const profiles = await getProfileService().getAllProfiles();
+  const statuses = await getProfileStatusService().listAllLocalized(lang);
 
-  return { documentTitle: t('app:index.employees'), profileData, status };
+  const allowedStatusCodes = ['APPROVED', 'PENDING']; // TODO: Should we store the codes in env?
+  const statusIds = statuses.filter((s) => allowedStatusCodes.includes(s.code)).map((s) => s.id);
+
+  // Filter profiles based on allowed status codes
+  const filteredProfiles = profiles.filter((profile) => statusIds.includes(profile.profileStatusId.toString()));
+
+  return {
+    documentTitle: t('app:index.employees'),
+    profiles: filteredProfiles,
+    statuses,
+  };
 }
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
@@ -46,18 +50,7 @@ export default function EmployeeDashboard({ params }: Route.ComponentProps) {
   const { t } = useTranslation(handle.i18nNamespace);
   const loaderData = useLoaderData<typeof loader>();
 
-  const statusMap = Object.fromEntries(loaderData.status.map((s) => [s.id, s.name]));
-
-  const statusOptions = {
-    pending: statusMap[1],
-    incomplete: statusMap[3],
-    approved: statusMap[2],
-  };
-
-  const filteredProfiles = loaderData.profileData.filter((profile: Profile) => {
-    const statusName = statusMap[profile.profileStatusId];
-    return [statusOptions.approved, statusOptions.pending].includes(statusName);
-  });
+  const statusMap = Object.fromEntries(loaderData.statuses.map((s) => [s.id, s.name]));
 
   const columns: ColumnDef<Profile>[] = [
     {
@@ -92,17 +85,18 @@ export default function EmployeeDashboard({ params }: Route.ComponentProps) {
     },
     {
       accessorKey: 'status',
+      accessorFn: (row) => statusMap[row.profileStatusId] ?? '',
       header: ({ column }) => (
         <DataTableColumnHeaderWithOptions
           column={column}
           title={t('app:employee-dashboard.status')}
-          options={[statusOptions.approved, statusOptions.pending]}
+          options={[t('app:profile.approved'), t('app:profile.pending')]}
         />
       ),
       cell: (info) => {
         const profile = info.row.original;
-        const status = statusMap[profile.profileStatusId] ?? '';
-        return statusTag(status, statusOptions);
+        const status = loaderData.statuses.find((s) => s.id === profile.profileStatusId.toString());
+        return status && statusTag(status.code, status.name);
       },
       filterFn: (row, columnId, filterValue: string[]) => {
         const status = row.getValue(columnId) as string;
@@ -135,17 +129,22 @@ export default function EmployeeDashboard({ params }: Route.ComponentProps) {
       <Button variant="alternative" className="float-right my-4">
         {t('app:employee-dashboard.all-employees')}
       </Button>
-      <DataTable columns={columns} data={filteredProfiles} />
+      <DataTable columns={columns} data={loaderData.profiles} />
     </div>
   );
 }
 
-function statusTag(status: string, option: StatusOptions): JSX.Element {
+function statusTag(statusCode: string, label: string): JSX.Element {
+  const styleMap: Record<string, string> = {
+    APPROVED: 'bg-sky-100 text-sky-700',
+    PENDING: 'bg-amber-100 text-yellow-700',
+  };
+
+  const style = styleMap[statusCode] ?? styleMap.DEFAULT;
+
   return (
-    <div
-      className={`${status === option.incomplete ? 'bg-gray-100 text-slate-700' : status === option.approved ? 'bg-sky-100 text-sky-700' : 'bg-amber-100 text-yellow-700'} flex w-fit items-center gap-2 rounded-md px-3 py-1 text-sm font-semibold`}
-    >
-      <p>{status}</p>
+    <div className={`${style} flex w-fit items-center gap-2 rounded-md px-3 py-1 text-sm font-semibold`}>
+      <p>{label}</p>
     </div>
   );
 }

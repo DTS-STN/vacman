@@ -24,6 +24,8 @@ export default {
     'in-progress': 'In progress',
     'required': 'Required',
     'complete': 'Complete',
+    'approved': 'Approved',
+    'pending': 'Pending approval',
     'personal-information': {
       'title': 'Personal information',
       'link-label': 'personal information',

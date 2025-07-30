@@ -22,7 +22,6 @@ describe('getMockProfileService', () => {
         dateCreated: '2024-01-01T00:00:00Z',
         userUpdated: undefined,
         dateUpdated: undefined,
-        status: 'approved',
         personalInformation: {
           givenName: 'Jane',
           surname: 'Doe',
