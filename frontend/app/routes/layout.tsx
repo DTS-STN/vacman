@@ -8,6 +8,7 @@ import type { Route } from './+types/layout';
 import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { checkHiringManagerRouteRegistration } from '~/.server/utils/hiring-manager-registration-utils';
+import { checkHrAdvisorRouteRegistration } from '~/.server/utils/hr-advisor-registration-utils';
 import { checkEmployeeRoutePrivacyConsent } from '~/.server/utils/privacy-consent-utils';
 import { checkProfileRouteAccess } from '~/.server/utils/profile-access-utils';
 import { AppBar } from '~/components/app-bar';
@@ -35,6 +36,9 @@ export async function loader({ context, request }: Route.LoaderArgs) {
   // Check hiring manager registration for hiring manager routes
   await checkHiringManagerRouteRegistration(context.session as AuthenticatedSession, currentUrl);
 
+  // Check hr-advisor registration for hr-advisor routes
+  await checkHrAdvisorRouteRegistration(context.session as AuthenticatedSession, currentUrl);
+
   // Check profile access for profile routes
   await checkProfileRouteAccess(context.session as AuthenticatedSession, currentUrl);
 
@@ -47,7 +51,6 @@ export default function Layout({ loaderData }: Route.ComponentProps) {
   const { id: pageId } = useRoute();
 
   const { BUILD_DATE, BUILD_VERSION } = globalThis.__appEnvironment;
-
   return (
     <div className="flex min-h-screen flex-col">
       <header className="print:hidden">
