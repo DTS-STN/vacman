@@ -17,7 +17,7 @@ public record UserCreateModel(
 
 	@NotNull(message = "Microsoft Entra ID is required.")
 	@UniqueMicrosoftEntraId(message = "User with this Microsoft Entra ID already exists")
-	@Schema(description = "The Microsoft Entra ID of this user.", example = "12345678-1234-1234-1234-123456789abc")
+	@Schema(description = "The Microsoft Entra ID of this user.", example = "00000000-0000-0000-0000-000000000000")
 	String microsoftEntraId,
 
 	@NotNull(message = "Role is required.")

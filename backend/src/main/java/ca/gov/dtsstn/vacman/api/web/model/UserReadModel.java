@@ -13,7 +13,7 @@ public record UserReadModel(
 	@Schema(description = "The type of this user.")
 	UserTypeReadModel userType,
 
-	@Schema(description = "The Microsoft Entra ID of this user.", example = "user@example.com")
+	@Schema(description = "The Microsoft Entra ID of this user.", example = "00000000-0000-0000-0000-000000000000")
 	String microsoftEntraId,
 
 	@Schema(description = "The first name of this user.", example = "John")
