@@ -7,7 +7,7 @@ import type { ColumnDef } from '@tanstack/react-table';
 import { format } from 'date-fns';
 import { useTranslation } from 'react-i18next';
 
-import type { Route } from './+types/index';
+import type { Route } from '../+types/index';
 
 import type { Profile } from '~/.server/domain/models';
 import { getProfileService } from '~/.server/domain/services/profile-service';

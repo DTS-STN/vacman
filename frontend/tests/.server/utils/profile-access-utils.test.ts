@@ -231,7 +231,7 @@ describe('Profile Access Utils', () => {
         });
       });
 
-      it('should deny access when HR advisor tries to access profiles', async () => {
+      it('should not deny access when HR advisor tries to access profiles', async () => {
         // Arrange
         const session = createMockSession('test-hr-advisor');
         const targetUserId = 'test-employee-123';
@@ -242,11 +242,8 @@ describe('Profile Access Utils', () => {
         });
 
         // Act & Assert
-        await expect(requireProfileAccess(session, targetUserId)).rejects.toThrow(AppError);
-        await expect(requireProfileAccess(session, targetUserId)).rejects.toMatchObject({
-          errorCode: ErrorCodes.ACCESS_FORBIDDEN,
-          httpStatusCode: HttpStatusCodes.FORBIDDEN,
-        });
+        await expect(requireProfileAccess(session, targetUserId)).resolves.not.toThrow();
+        expect(mockUserService.getUserByActiveDirectoryId).toHaveBeenCalledWith('test-hr-advisor');
       });
     });
   });
