@@ -1,5 +1,5 @@
 import { TZDate } from '@date-fns/tz';
-import { formatISO, isBefore, isToday, isValid, parseISO, startOfDay } from 'date-fns';
+import { format, formatISO, isBefore, isToday, isValid, parseISO, startOfDay } from 'date-fns';
 
 import { padWithZero } from '~/utils/string-utils';
 
@@ -286,4 +286,26 @@ export function toISODateString(year: number, month: number, day: number): strin
  */
 export function formatISODate(date: number | string | Date): string {
   return formatISO(date, { representation: 'date' });
+}
+
+/**
+ * Formats a date into a custom string with date and time (YYYY-MM-DD HH:MM).
+ *
+ * This function accepts a date as a string, a number (Unix timestamp in milliseconds),
+ * or a Date object and returns a string representing the date and time in the
+ * "YYYY-MM-DD HH:mm" format.
+ *
+ * @param date - The date to be formatted. Can be an ISO string, a Unix timestamp, or a Date object.
+ * @returns A formatted string in the "YYYY-MM-DD HH:mm" format.
+ */
+export function formatDateTime(date: string | number | Date): string {
+  // If the input is an ISO string like '2025-07-29T18:20:11.406Z',
+  // it's best to parse it first to ensure correct handling.
+  const dateObj = typeof date === 'string' ? parseISO(date) : new Date(date);
+
+  if (!isValid(dateObj)) {
+    return 'Invalid Date';
+  }
+
+  return format(dateObj, 'yyyy-MM-dd HH:mm');
 }
