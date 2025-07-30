@@ -90,7 +90,7 @@ export default function EmployeeDashboard({ params }: Route.ComponentProps) {
         <DataTableColumnHeaderWithOptions
           column={column}
           title={t('app:employee-dashboard.status')}
-          options={[loaderData.statuses[0]?.name ?? '', loaderData.statuses[1]?.name ?? '']}
+          options={loaderData.statuses.map((status) => status.name)}
         />
       ),
       cell: (info) => {
