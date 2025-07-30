@@ -30,7 +30,7 @@ public interface UserModelMapper {
 	@Mapping(target = "userType", ignore = true)
 	@Mapping(target = "language", ignore = true)
 	@Mapping(target = "profiles", ignore = true)
-	@Mapping(target = "businessEmailAddress", ignore = true)
+	@Mapping(target = "businessEmailAddress", constant = "user@example.com")
 	@Mapping(target = "businessPhoneNumber", constant = "555-123-4567")
 	@Mapping(target = "firstName", constant = "John")
 	@Mapping(target = "lastName", constant = "Doe")
@@ -38,7 +38,7 @@ public interface UserModelMapper {
 	@Mapping(target = "initial", constant = "JAD")
 	@Mapping(target = "personalRecordIdentifier", constant = "12345")
 	@Mapping(target = "activeDirectoryId", source = "activeDirectoryId")
-	@Mapping(target = "uuid", ignore = true)
+	@Mapping(target = "uuid", constant = "00000000-0000-0000-0000-000000000000")
 	UserEntity toEntity(UserCreateModel model);
 
 	@Mapping(target = "id", ignore = true)
