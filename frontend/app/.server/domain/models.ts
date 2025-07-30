@@ -226,3 +226,16 @@ export type UserReferralPreferences = {
   interestedInAlternationInd?: boolean;
   employmentTenureIds?: string[];
 };
+
+export type EmploymentEquity = Readonly<{
+  id: string;
+  code: string;
+  nameEn: string;
+  nameFr: string;
+}>;
+
+export type LocalizedEmploymentEquity = Readonly<{
+  id: string;
+  code: string;
+  name: string;
+}>;
