@@ -6,7 +6,7 @@ import { ErrorCodes } from '~/errors/error-codes';
 
 // Transform the data to match the expected format
 const mockData: WFAStatus[] = wfaStatusData.content.map((status) => ({
-  id: status.id.toString(),
+  id: status.id,
   code: status.code,
   nameEn: status.nameEn,
   nameFr: status.nameFr,
@@ -21,11 +21,11 @@ export function getMockWFAStatusService(): WFAStatusService {
       return Promise.resolve(sharedService.listAll());
     },
 
-    getById(id: string) {
+    getById(id: number) {
       return Promise.resolve(sharedService.getById(id));
     },
 
-    findById(id: string) {
+    findById(id: number) {
       return Promise.resolve(sharedService.findById(id));
     },
 
@@ -41,11 +41,11 @@ export function getMockWFAStatusService(): WFAStatusService {
       return Promise.resolve(sharedService.listAllLocalized(language));
     },
 
-    getLocalizedById(id: string, language: Language) {
+    getLocalizedById(id: number, language: Language) {
       return Promise.resolve(sharedService.getLocalizedById(id, language));
     },
 
-    findLocalizedById(id: string, language: Language) {
+    findLocalizedById(id: number, language: Language) {
       return Promise.resolve(sharedService.findLocalizedById(id, language));
     },
 
