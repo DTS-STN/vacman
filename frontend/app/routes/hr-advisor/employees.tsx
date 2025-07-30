@@ -90,7 +90,7 @@ export default function EmployeeDashboard({ params }: Route.ComponentProps) {
         <DataTableColumnHeaderWithOptions
           column={column}
           title={t('app:employee-dashboard.status')}
-          options={[t('app:profile.approved'), t('app:profile.pending')]}
+          options={[loaderData.statuses[0]?.name ?? '', loaderData.statuses[1]?.name ?? '']}
         />
       ),
       cell: (info) => {

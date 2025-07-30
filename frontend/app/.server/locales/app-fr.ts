@@ -26,8 +26,6 @@ export default {
     'in-progress': 'En cours',
     'complete': 'Complet',
     'required': 'Obligatoire',
-    'approved': 'Approuvé',
-    'pending': "En attente d'approbation",
     'personal-information': {
       'title': 'Informations personnelles',
       'link-label': 'informations personnelles',
