@@ -12,6 +12,7 @@ import type { Route } from '../+types/index';
 import type { Profile } from '~/.server/domain/models';
 import { getProfileService } from '~/.server/domain/services/profile-service';
 import { getProfileStatusService } from '~/.server/domain/services/profile-status-service';
+import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { Button } from '~/components/button';
 import { DataTable, DataTableColumnHeader, DataTableColumnHeaderWithOptions } from '~/components/data-table';
 import { InlineLink } from '~/components/links';
@@ -25,6 +26,10 @@ export const handle = {
 } as const satisfies RouteHandle;
 
 export async function loader({ context, request }: LoaderFunctionArgs) {
+  const currentUrl = new URL(request.url);
+  // Check if the user is authenticated (no specific roles required)
+  requireAuthentication(context.session, currentUrl);
+
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
 
   const profiles = await getProfileService().getAllProfiles();
@@ -132,14 +137,19 @@ export default function EmployeeDashboard({ params }: Route.ComponentProps) {
   ];
 
   return (
-    <div className="mb-8">
-      <PageTitle className="after:w-14">{t('app:index.employees')}</PageTitle>
-      {/* TODO:  This button should select between "My employees" and "All employees" in case an HR advisor needs to pick up an employee assigned to the wrong advisor*/}
-      <Button variant="alternative" className="float-right my-4">
-        {t('app:employee-dashboard.all-employees')}
-      </Button>
-      <DataTable columns={columns} data={loaderData.profiles} />
-    </div>
+    <>
+      <InlineLink className="mt-6 block" file="routes/hr-advisor/index.tsx" params={params} id="back-button">
+        {`< ${t('app:hr-advisor-dashboard.back')}`}
+      </InlineLink>
+      <div className="mb-8">
+        <PageTitle className="after:w-14">{t('app:index.employees')}</PageTitle>
+        {/* TODO:  This button should select between "My employees" and "All employees" in case an HR advisor needs to pick up an employee assigned to the wrong advisor*/}
+        <Button variant="alternative" className="float-right my-4">
+          {t('app:employee-dashboard.all-employees')}
+        </Button>
+        <DataTable columns={columns} data={loaderData.profiles} />
+      </div>
+    </>
   );
 }
 

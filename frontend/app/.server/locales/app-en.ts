@@ -10,6 +10,7 @@ export default {
     'employee-dashboard': 'Employee dashboard',
     'hiring-manager-dashboard': 'Hiring manager dashboard',
     'register-as': 'Register as...',
+    'requests': 'Requests',
   },
   'register': {
     'employee': 'Employee dashboard',
@@ -186,5 +187,11 @@ export default {
     'status': 'Status',
     'action': 'Action',
     'next-page': 'Next',
+  },
+  'hr-advisor-dashboard': {
+    'page-title': 'HR Advisor dashboard',
+    'employees': 'Employees',
+    'requests': 'Requests',
+    'back': 'Back to dashboard',
   },
 };

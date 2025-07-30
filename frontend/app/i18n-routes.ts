@@ -170,26 +170,28 @@ export const i18nRoutes = [
       },
       {
         id: 'HRAD-0001',
+        file: 'routes/hr-advisor/index.tsx',
+        paths: {
+          en: '/en/hr-advisor',
+          fr: '/fr/hr-advisor',
+        },
+      },
+      {
+        id: 'HRAD-0002',
         file: 'routes/hr-advisor/employees.tsx',
         paths: {
           en: '/en/hr-advisor/employees',
           fr: '/fr/hr-advisor/employes',
         },
       },
+      {
+        id: 'HRAD-0003',
+        file: 'routes/hr-advisor/requests.tsx',
+        paths: {
+          en: '/en/hr-advisor/requests',
+          fr: '/fr/hr-advisor/demandes',
+        },
+      },
     ],
   },
-
-  //
-  // Publicly accessable routes (ie: no authentication required)
-  //
-  // {
-  //   file: 'routes/public/layout.tsx',
-  //   children: [
-  //     {
-  //       id: 'PUBL-0001',
-  //       file: 'routes/public/index.tsx',
-  //       paths: { en: '/en/public', fr: '/fr/public' },
-  //     },
-  //   ],
-  // },
 ] as const satisfies I18nRoute[];

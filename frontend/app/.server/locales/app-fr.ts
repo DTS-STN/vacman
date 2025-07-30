@@ -12,6 +12,7 @@ export default {
     'employee-dashboard': 'Tableau de bord des employés',
     'hiring-manager-dashboard': 'Tableau de bord du responsable du recrutement',
     'register-as': "S'inscrire comme...",
+    'requests': 'Demandes',
   },
   'register': {
     'employee': 'Tableau de bord des employés',
@@ -191,5 +192,11 @@ export default {
     'status': '(FR) Status',
     'action': '(FR) Action',
     'next-page': '(FR) Next',
+  },
+  'hr-advisor-dashboard': {
+    'page-title': 'Conseiller RH interface',
+    'employees': 'Employees',
+    'requests': 'Demandes',
+    'back': 'Retour au interface',
   },
 } satisfies typeof appEn;
