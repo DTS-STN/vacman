@@ -1,26 +1,26 @@
 // Generic base types for all lookup models
 export type LookupModel = Readonly<{
-  id: string;
+  id: number;
   code: string;
   nameEn: string;
   nameFr: string;
 }>;
 
 export type LocalizedLookupModel = Readonly<{
-  id: string;
+  id: number;
   code: string;
   name: string;
 }>;
 
 // Generic type for lookup models with parent relationships
-export type HierarchicalLookupModel<TParent = LookupModel> = LookupModel &
+export type HierarchicalLookupModel<TParent = LookupModel | null> = LookupModel &
   Readonly<{
-    parent: TParent;
+    parent: TParent | null;
   }>;
 
-export type LocalizedHierarchicalLookupModel<TParent = LocalizedLookupModel> = LocalizedLookupModel &
+export type LocalizedHierarchicalLookupModel<TParent = LocalizedLookupModel | null> = LocalizedLookupModel &
   Readonly<{
-    parent: TParent;
+    parent: TParent | null;
   }>;
 
 // Type aliases for specific lookup types (for better developer experience)
