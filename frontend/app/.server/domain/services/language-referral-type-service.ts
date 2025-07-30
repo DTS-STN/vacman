@@ -1,7 +1,7 @@
 import type { Result, Option } from 'oxide.ts';
 
 import type { LanguageReferralType, LocalizedLanguageReferralType } from '~/.server/domain/models';
-import { getDefaultLanguageReferralType } from '~/.server/domain/services/language-referral-type-service-default';
+import { getDefaultLanguageReferralTypeService } from '~/.server/domain/services/language-referral-type-service-default';
 import { getMockLanguageReferralType } from '~/.server/domain/services/language-referral-type-service-mock';
 import { serverEnvironment } from '~/.server/environment';
 import type { AppError } from '~/errors/app-error';
@@ -20,5 +20,7 @@ export type LanguageReferralTypeService = {
 };
 
 export function getLanguageReferralTypeService(): LanguageReferralTypeService {
-  return serverEnvironment.ENABLE_LOOKUP_FIELD_SERVICES_MOCK ? getMockLanguageReferralType() : getDefaultLanguageReferralType();
+  return serverEnvironment.ENABLE_LOOKUP_FIELD_SERVICES_MOCK
+    ? getMockLanguageReferralType()
+    : getDefaultLanguageReferralTypeService();
 }
