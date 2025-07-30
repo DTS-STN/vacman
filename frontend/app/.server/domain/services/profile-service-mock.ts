@@ -48,6 +48,8 @@ export function getMockProfileService(): ProfileService {
                 personalPhone: personalInfo.personalPhone,
                 additionalInformation: personalInfo.additionalInformation,
               },
+              dateUpdated: new Date().toISOString(),
+              userUpdated: activeDirectoryId,
             }
           : profile,
       );
@@ -81,6 +83,8 @@ export function getMockProfileService(): ProfileService {
                 wfaEndDate: employmentInfo.wfaEndDate,
                 hrAdvisor: employmentInfo.hrAdvisor,
               },
+              dateUpdated: new Date().toISOString(),
+              userUpdated: activeDirectoryId,
             }
           : profile,
       );
@@ -112,6 +116,8 @@ export function getMockProfileService(): ProfileService {
                 interestedInAlternationInd: referralPrefs.interestedInAlternationInd,
                 employmentTenureIds: referralPrefs.employmentTenureIds,
               },
+              dateUpdated: new Date().toISOString(),
+              userUpdated: activeDirectoryId,
             }
           : profile,
       );
@@ -844,8 +850,8 @@ function registerProfile(activeDirectoryId: string): Profile {
     privacyConsentInd: true,
     userCreated: activeDirectoryId,
     dateCreated: new Date().toISOString(),
-    userUpdated: undefined,
-    dateUpdated: undefined,
+    userUpdated: activeDirectoryId,
+    dateUpdated: new Date().toISOString(),
     personalInformation: {
       surname: 'Doe',
       givenName: 'John',

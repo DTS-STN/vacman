@@ -33,6 +33,7 @@ import { EMPLOYEE_WFA_STATUS } from '~/domain/constants';
 import { getTranslation } from '~/i18n-config.server';
 import type { I18nRouteFile } from '~/i18n-routes';
 import { handle as parentHandle } from '~/routes/layout';
+import { formatDateTime } from '~/utils/date-utils';
 import { cn } from '~/utils/tailwind-utils';
 
 export const handle = {
@@ -135,6 +136,11 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 
   const profileData: Profile = profileResult.unwrap();
 
+  const profileUpdatedByUser = profileData.userUpdated
+    ? await getUserService().getUserByActiveDirectoryId(profileData.userUpdated)
+    : undefined;
+  const profileUpdatedByUserName = profileUpdatedByUser && `${profileUpdatedByUser.firstName} ${profileUpdatedByUser.lastName}`;
+
   const preferredLanguageResult =
     profileData.personalInformation.preferredLanguageId &&
     (await getLanguageForCorrespondenceService().findLocalizedById(profileData.personalInformation.preferredLanguageId, lang));
@@ -216,7 +222,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 
   return {
     documentTitle: t('app:index.about'),
-    name: profileData.personalInformation.givenName + ' ' + profileData.personalInformation.surname,
+    name: `${profileData.personalInformation.givenName} ${profileData.personalInformation.surname}`,
     email: profileData.personalInformation.workEmail,
     amountCompleted: amountCompleted,
     isProfileComplete: isCompletePersonalInformation && isCompleteEmploymentInformation && isCompleteReferralPreferences,
@@ -255,8 +261,8 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       alternateOpportunity: profileData.referralPreferences.interestedInAlternationInd,
       employmentTenures: employmentTenures?.map((e) => e?.name),
     },
-    lastUpdated: profileData.dateUpdated ?? '0000-00-00',
-    lastUpdatedBy: profileData.userUpdated ?? 'Unknown User',
+    lastUpdated: profileData.dateUpdated ? formatDateTime(profileData.dateUpdated) : '0000-00-00 00:00',
+    lastUpdatedBy: profileUpdatedByUserName ?? 'Unknown User',
   };
 }
 
