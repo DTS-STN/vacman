@@ -105,6 +105,8 @@ export default {
   },
   'choice-tag': {
     'clear-all': 'Clear all',
+    'clear-group': 'Clear group',
+    'clear-group-label': 'Clear group {{groupName}} of items {{items}}',
     'choice-tag-added-aria-label': 'Selected {{item}} added: {{choice}}, Activate to remove selected {{item}}.',
     'clear-all-sr-message': 'All selected {{item}} removed.',
     'removed-choice-tag-sr-message': 'Selected {{item}} removed: {{choice}}',
