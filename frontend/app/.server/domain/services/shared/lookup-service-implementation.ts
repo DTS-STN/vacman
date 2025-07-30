@@ -52,7 +52,7 @@ export class LookupServiceImplementation<T extends LookupModel, L extends Locali
   /**
    * Retrieves a single entity by its ID.
    */
-  async getById(id: string): Promise<Result<T, AppError>> {
+  async getById(id: number): Promise<Result<T, AppError>> {
     const context = `Get ${this.config.entityName} with ID '${id}'`;
     const response = await apiClient.get<T>(`${this.config.apiEndpoint}/${id}`, context);
 
@@ -96,7 +96,7 @@ export class LookupServiceImplementation<T extends LookupModel, L extends Locali
   /**
    * Finds a single entity by its ID.
    */
-  async findById(id: string): Promise<Option<T>> {
+  async findById(id: number): Promise<Option<T>> {
     const result = await this.getById(id);
     return result.ok(); // .ok() converts Result<T, E> to Option<T>
   }
@@ -122,7 +122,7 @@ export class LookupServiceImplementation<T extends LookupModel, L extends Locali
   /**
    * Retrieves a single localized entity by its ID.
    */
-  async getLocalizedById(id: string, language: Language): Promise<Result<L, AppError>> {
+  async getLocalizedById(id: number, language: Language): Promise<Result<L, AppError>> {
     const result = await this.getById(id);
     return result.map((entity) => this.config.localizeEntity(entity, language));
   }
@@ -138,7 +138,7 @@ export class LookupServiceImplementation<T extends LookupModel, L extends Locali
   /**
    * Finds a single localized entity by its ID.
    */
-  async findLocalizedById(id: string, language: Language): Promise<Option<L>> {
+  async findLocalizedById(id: number, language: Language): Promise<Option<L>> {
     const result = await this.getLocalizedById(id, language);
     return result.ok();
   }

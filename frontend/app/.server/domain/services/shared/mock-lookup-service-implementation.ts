@@ -39,7 +39,7 @@ export class MockLookupServiceImplementation<T extends LookupModel, L extends Lo
   /**
    * Retrieves a single entity by its ID.
    */
-  getById(id: string): Result<T, AppError> {
+  getById(id: number): Result<T, AppError> {
     const entity = this.config.data.find((item) => item.id === id);
 
     return entity
@@ -61,7 +61,7 @@ export class MockLookupServiceImplementation<T extends LookupModel, L extends Lo
   /**
    * Finds a single entity by its ID.
    */
-  findById(id: string): Option<T> {
+  findById(id: number): Option<T> {
     const result = this.getById(id);
     return result.ok();
   }
@@ -86,7 +86,7 @@ export class MockLookupServiceImplementation<T extends LookupModel, L extends Lo
   /**
    * Retrieves a single localized entity by its ID.
    */
-  getLocalizedById(id: string, language: Language): Result<L, AppError> {
+  getLocalizedById(id: number, language: Language): Result<L, AppError> {
     const result = this.getById(id);
     return result.map((entity) => this.config.localizeEntity(entity, language));
   }
@@ -102,7 +102,7 @@ export class MockLookupServiceImplementation<T extends LookupModel, L extends Lo
   /**
    * Finds a single localized entity by its ID.
    */
-  findLocalizedById(id: string, language: Language): Option<L> {
+  findLocalizedById(id: number, language: Language): Option<L> {
     const result = this.getLocalizedById(id, language);
     return result.ok();
   }
