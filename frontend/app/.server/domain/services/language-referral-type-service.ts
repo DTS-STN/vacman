@@ -8,13 +8,13 @@ import type { AppError } from '~/errors/app-error';
 
 export type LanguageReferralTypeService = {
   listAll(): Promise<readonly LanguageReferralType[]>;
-  getById(id: string): Promise<Result<LanguageReferralType, AppError>>;
-  findById(id: string): Promise<Option<LanguageReferralType>>;
+  getById(id: number): Promise<Result<LanguageReferralType, AppError>>;
+  findById(id: number): Promise<Option<LanguageReferralType>>;
   getByCode(code: string): Promise<Result<LanguageReferralType, AppError>>;
   findByCode(code: string): Promise<Option<LanguageReferralType>>;
   listAllLocalized(language: Language): Promise<readonly LocalizedLanguageReferralType[]>;
-  getLocalizedById(id: string, language: Language): Promise<Result<LocalizedLanguageReferralType, AppError>>;
-  findLocalizedById(id: string, language: Language): Promise<Option<LocalizedLanguageReferralType>>;
+  getLocalizedById(id: number, language: Language): Promise<Result<LocalizedLanguageReferralType, AppError>>;
+  findLocalizedById(id: number, language: Language): Promise<Option<LocalizedLanguageReferralType>>;
   getLocalizedByCode(code: string, language: Language): Promise<Result<LocalizedLanguageReferralType, AppError>>;
   findLocalizedByCode(code: string, language: Language): Promise<Option<LocalizedLanguageReferralType>>;
 };
