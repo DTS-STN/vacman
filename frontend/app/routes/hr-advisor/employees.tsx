@@ -30,10 +30,12 @@ export async function loader({ context, request }: LoaderFunctionArgs) {
   const profiles = await getProfileService().getAllProfiles();
   const statuses = await getProfileStatusService().listAllLocalized(lang);
 
-  const allowedStatusCodes = [EMPLOYEE_STATUS_CODE.approved, EMPLOYEE_STATUS_CODE.pending];
+  const hrRelevantEmployeeStatusCodes = [EMPLOYEE_STATUS_CODE.approved, EMPLOYEE_STATUS_CODE.pending];
   const statusIds = statuses
     .filter((s) =>
-      allowedStatusCodes.includes(s.code as typeof EMPLOYEE_STATUS_CODE.approved | typeof EMPLOYEE_STATUS_CODE.pending),
+      hrRelevantEmployeeStatusCodes.includes(
+        s.code as typeof EMPLOYEE_STATUS_CODE.approved | typeof EMPLOYEE_STATUS_CODE.pending,
+      ),
     )
     .map((s) => s.id);
 

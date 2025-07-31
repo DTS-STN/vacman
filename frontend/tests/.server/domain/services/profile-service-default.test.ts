@@ -21,7 +21,6 @@ describe('profile-service-default', () => {
     priorityLevelId: 1,
     profileStatusId: 1,
     privacyConsentInd: true,
-    status: 'in-progress',
     userCreated: 'test-user',
     dateCreated: '2024-01-01T00:00:00Z',
     userUpdated: 'test-user',
