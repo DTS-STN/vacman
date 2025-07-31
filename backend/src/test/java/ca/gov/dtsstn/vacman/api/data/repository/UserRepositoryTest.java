@@ -54,7 +54,6 @@ class UserRepositoryTest {
 			.businessEmailAddress("test.user@example.com")
 			.firstName("Test")
 			.lastName("User")
-			.uuid("00000000-0000-0000-0000-000000000000")
 			.build();
 
 		final var savedUser = userRepository.save(user);

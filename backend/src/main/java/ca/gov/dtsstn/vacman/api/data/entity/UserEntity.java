@@ -79,7 +79,6 @@ public class UserEntity extends AbstractBaseEntity {
 			@Nullable String personalRecordIdentifier,
 			@Nullable Set<ProfileEntity> profiles,
 			@Nullable UserTypeEntity userType,
-			@Nullable String uuid,
 			@Nullable String createdBy,
 			@Nullable Instant createdDate,
 			@Nullable String lastModifiedBy,
