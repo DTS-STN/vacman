@@ -86,12 +86,12 @@ describe('LookupServiceImplementation', () => {
 
       expect(result).toHaveLength(2);
       expect(result[0]).toEqual({
-        id: '1',
+        id: 1,
         code: 'TEST1',
         name: 'Test Un',
       });
       expect(result[1]).toEqual({
-        id: '2',
+        id: 2,
         code: 'TEST2',
         name: 'Test Deux',
       });
@@ -146,7 +146,7 @@ describe('LookupServiceImplementation', () => {
       const result = mockService.listAllLocalized('en');
       expect(result).toHaveLength(2);
       expect(result[0]).toEqual({
-        id: '1',
+        id: 1,
         code: 'TEST1',
         name: 'Test One',
       });
@@ -172,7 +172,7 @@ describe('LookupServiceImplementation', () => {
 
       const result = standardLocalize(testEntity, 'en');
       expect(result).toEqual({
-        id: '1',
+        id: 1,
         code: 'TEST1',
         name: 'Test One',
       });
@@ -184,7 +184,7 @@ describe('LookupServiceImplementation', () => {
 
       const result = standardLocalize(testEntity, 'fr');
       expect(result).toEqual({
-        id: '1',
+        id: 1,
         code: 'TEST1',
         name: 'Test Un',
       });

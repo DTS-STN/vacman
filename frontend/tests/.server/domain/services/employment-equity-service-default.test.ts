@@ -231,7 +231,7 @@ describe('getDefaultEmploymentEquityService', () => {
 
       expect(result).toHaveLength(mockEmploymentEquityList.length);
       expect(result[0]).toEqual({
-        id: '1',
+        id: 1,
         code: 'WOMEN',
         name: 'Women',
       });
@@ -247,7 +247,7 @@ describe('getDefaultEmploymentEquityService', () => {
 
       expect(result).toHaveLength(mockEmploymentEquityList.length);
       expect(result[0]).toEqual({
-        id: '1',
+        id: 1,
         code: 'WOMEN',
         name: 'Femmes',
       });
@@ -275,7 +275,7 @@ describe('getDefaultEmploymentEquityService', () => {
 
       expect(result.isOk()).toBe(true);
       expect(result.unwrap()).toEqual({
-        id: '1',
+        id: 1,
         code: 'WOMEN',
         name: 'Women',
       });
@@ -291,7 +291,7 @@ describe('getDefaultEmploymentEquityService', () => {
 
       expect(result.isOk()).toBe(true);
       expect(result.unwrap()).toEqual({
-        id: '1',
+        id: 1,
         code: 'WOMEN',
         name: 'Femmes',
       });
@@ -327,7 +327,7 @@ describe('getDefaultEmploymentEquityService', () => {
 
       expect(result.isOk()).toBe(true);
       expect(result.unwrap()).toEqual({
-        id: '1',
+        id: 1,
         code: 'WOMEN',
         name: 'Women',
       });
@@ -346,7 +346,7 @@ describe('getDefaultEmploymentEquityService', () => {
 
       expect(result.isOk()).toBe(true);
       expect(result.unwrap()).toEqual({
-        id: '1',
+        id: 1,
         code: 'WOMEN',
         name: 'Femmes',
       });
@@ -364,7 +364,7 @@ describe('getDefaultEmploymentEquityService', () => {
 
       expect(result.isSome()).toBe(true);
       expect(result.unwrap()).toEqual({
-        id: '1',
+        id: 1,
         code: 'WOMEN',
         name: 'Women',
       });
@@ -380,7 +380,7 @@ describe('getDefaultEmploymentEquityService', () => {
 
       expect(result.isSome()).toBe(true);
       expect(result.unwrap()).toEqual({
-        id: '1',
+        id: 1,
         code: 'WOMEN',
         name: 'Femmes',
       });
@@ -425,7 +425,7 @@ describe('getDefaultEmploymentEquityService', () => {
 
       expect(result.isSome()).toBe(true);
       expect(result.unwrap()).toEqual({
-        id: '1',
+        id: 1,
         code: 'WOMEN',
         name: 'Women',
       });
@@ -444,7 +444,7 @@ describe('getDefaultEmploymentEquityService', () => {
 
       expect(result.isSome()).toBe(true);
       expect(result.unwrap()).toEqual({
-        id: '1',
+        id: 1,
         code: 'WOMEN',
         name: 'Femmes',
       });

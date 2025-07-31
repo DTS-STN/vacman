@@ -206,7 +206,7 @@ describe('getDefaultNonAdvertisedAppointmentService', () => {
       const result = await service.listAllLocalized('en');
       expect(result).toHaveLength(3);
       expect(result[0]).toEqual({
-        id: '1',
+        id: 1,
         code: 'NONE',
         name: 'Not Applicable',
       });
@@ -221,7 +221,7 @@ describe('getDefaultNonAdvertisedAppointmentService', () => {
       const result = await service.listAllLocalized('fr');
       expect(result).toHaveLength(3);
       expect(result[0]).toEqual({
-        id: '1',
+        id: 1,
         code: 'NONE',
         name: 'Sans objet',
       });
@@ -248,7 +248,7 @@ describe('getDefaultNonAdvertisedAppointmentService', () => {
       const result = await service.getLocalizedById(1, 'en');
       expect(result.isOk()).toBe(true);
       expect(result.unwrap()).toEqual({
-        id: '1',
+        id: 1,
         code: 'NONE',
         name: 'Not Applicable',
       });
@@ -263,7 +263,7 @@ describe('getDefaultNonAdvertisedAppointmentService', () => {
       const result = await service.getLocalizedById(1, 'fr');
       expect(result.isOk()).toBe(true);
       expect(result.unwrap()).toEqual({
-        id: '1',
+        id: 1,
         code: 'NONE',
         name: 'Sans objet',
       });
@@ -292,7 +292,7 @@ describe('getDefaultNonAdvertisedAppointmentService', () => {
       const result = await service.getLocalizedByCode('NONE', 'en');
       expect(result.isOk()).toBe(true);
       expect(result.unwrap()).toEqual({
-        id: '1',
+        id: 1,
         code: 'NONE',
         name: 'Not Applicable',
       });
@@ -307,7 +307,7 @@ describe('getDefaultNonAdvertisedAppointmentService', () => {
       const result = await service.getLocalizedByCode('NONE', 'fr');
       expect(result.isOk()).toBe(true);
       expect(result.unwrap()).toEqual({
-        id: '1',
+        id: 1,
         code: 'NONE',
         name: 'Sans objet',
       });
@@ -335,7 +335,7 @@ describe('getDefaultNonAdvertisedAppointmentService', () => {
       const result = await service.findLocalizedById(1, 'en');
       expect(result.isSome()).toBe(true);
       expect(result.unwrap()).toEqual({
-        id: '1',
+        id: 1,
         code: 'NONE',
         name: 'Not Applicable',
       });
@@ -363,7 +363,7 @@ describe('getDefaultNonAdvertisedAppointmentService', () => {
       const result = await service.findLocalizedByCode('NONE', 'en');
       expect(result.isSome()).toBe(true);
       expect(result.unwrap()).toEqual({
-        id: '1',
+        id: 1,
         code: 'NONE',
         name: 'Not Applicable',
       });
