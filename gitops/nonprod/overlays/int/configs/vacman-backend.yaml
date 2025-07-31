@@ -4,21 +4,23 @@
 # This file provides environment-specific overrides to the default configuration.
 #######################################################################################################################
 
-spring:
-  datasource:
-    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
-  jpa:
-    properties:
-      hibernate.dialect: org.hibernate.dialect.SQLServerDialect
+logging:
+  level:
+    '[ca.gov.dts_stn.vacman.api]': trace
 
 management:
   otlp:
     metrics:
       export:
         url: https://dynatrace.dev-dp.admin.dts-stn.com/e/21a07aef-852b-4d9b-aa87-ee5f8b79f8c9/api/v2/otlp/v1/metrics
-  
-application:
+
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: validate
   security:
-    # Disables custom application security.
-    # Make sure this is never set to true in production.
-    disabled: true
+    oauth2:
+      client:
+        registration:
+          ms-graph:
+            client-id: ea3a6648-7e77-445b-b777-486d26367ee8
