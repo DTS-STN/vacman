@@ -72,7 +72,7 @@ export type EmploymentEquity = LookupModel;
 export type LocalizedEmploymentEquity = LocalizedLookupModel;
 
 export type User = Readonly<{
-  id: string;
+  id: number;
   role: string;
   networkName: string;
   uuName: string;
@@ -115,7 +115,7 @@ export type UserPersonalInformation = {
   surname?: string;
   givenName?: string;
   personalRecordIdentifier?: string;
-  preferredLanguageId?: string;
+  preferredLanguageId?: number;
   workEmail: string;
   personalEmail?: string;
   workPhone?: string;
@@ -123,20 +123,22 @@ export type UserPersonalInformation = {
   additionalInformation?: string;
 };
 export type UserEmploymentInformation = {
-  substantivePosition?: string;
-  branchOrServiceCanadaRegion?: string;
-  directorate?: string;
-  cityId?: string;
-  wfaStatus?: string;
+  substantivePosition?: number;
+  branchOrServiceCanadaRegion?: number;
+  directorate?: number;
+  province?: number;
+  cityId?: number;
+  wfaStatus?: number;
   wfaEffectiveDate?: string;
   wfaEndDate?: string;
-  hrAdvisor?: string;
+  hrAdvisor?: number;
 };
 export type UserReferralPreferences = {
-  languageReferralTypeIds?: string[];
-  classificationIds?: string[];
-  workLocationCitiesIds?: string[];
+  languageReferralTypeIds?: number[];
+  classificationIds?: number[];
+  workLocationProvince?: number;
+  workLocationCitiesIds?: number[];
   availableForReferralInd?: boolean;
   interestedInAlternationInd?: boolean;
-  employmentTenureIds?: string[];
+  employmentTenureIds?: number[];
 };
