@@ -10,9 +10,6 @@ import org.springframework.lang.Nullable;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
-/**
- * @author based on code by Greg Baker
- */
 @Immutable
 @Style(validationMethod = ValidationMethod.NONE)
 @JsonDeserialize(as = ImmutableNotificationReceipt.class)
