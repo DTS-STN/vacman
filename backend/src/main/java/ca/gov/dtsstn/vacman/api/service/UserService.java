@@ -18,6 +18,8 @@ import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntityBuilder;
 import ca.gov.dtsstn.vacman.api.data.repository.UserRepository;
 import ca.gov.dtsstn.vacman.api.event.UserCreatedEvent;
+import ca.gov.dtsstn.vacman.api.event.UserDeletedEvent;
+import ca.gov.dtsstn.vacman.api.event.UserUpdatedEvent;
 import ca.gov.dtsstn.vacman.api.web.model.UserUpdateModel;
 import ca.gov.dtsstn.vacman.api.web.model.mapper.UserModelMapper;
 
@@ -99,7 +101,22 @@ public class UserService {
 					.findFirst().orElseThrow());
 		});
 
-		return userRepository.save(existingUser);
+		final var updatedUser = userRepository.save(existingUser);
+
+		// Publish updated event
+		eventPublisher.publishEvent(new UserUpdatedEvent(updatedUser));
+		log.info("User updated with ID: {}", updatedUser.getId());
+
+		return updatedUser;
+	}
+
+	public void deleteUser(Long id) {
+		userRepository.findById(id)
+			.ifPresent(user -> {
+				userRepository.deleteById(id);
+				eventPublisher.publishEvent(new UserDeletedEvent(user));
+				log.info("User deleted with ID: {}", id);
+			});
 	}
 
 }
