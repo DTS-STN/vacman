@@ -135,9 +135,13 @@ export default function PersonalDetails({ loaderData, actionData, params }: Rout
 
   const [referralAvailibility, setReferralAvailibility] = useState(loaderData.defaultValues.availableForReferralInd);
   const [alternateOpportunity, setAlternateOpportunity] = useState(loaderData.defaultValues.interestedInAlternationInd);
-  const [selectedClassifications, setSelectedClassifications] = useState(loaderData.defaultValues.classificationIds);
-  const [selectedCities, setSelectedCities] = useState(loaderData.defaultValues.workLocationCitiesIds);
-  const [province, setProvince] = useState(loaderData.defaultValues.workLocationProvince);
+  const [selectedClassifications, setSelectedClassifications] = useState(
+    loaderData.defaultValues.classificationIds?.map(String) ?? [],
+  );
+  const [selectedCities, setSelectedCities] = useState(loaderData.defaultValues.workLocationCitiesIds?.map(String) ?? []);
+  const [province, setProvince] = useState(
+    loaderData.defaultValues.workLocationProvince ? String(loaderData.defaultValues.workLocationProvince) : undefined,
+  );
   const [srAnnouncement, setSrAnnouncement] = useState(''); //screen reader announcement
 
   const languageReferralTypeOptions = loaderData.languageReferralTypes.map((langReferral) => ({
@@ -154,7 +158,7 @@ export default function PersonalDetails({ loaderData, actionData, params }: Rout
     children: id === 'select-option' ? t('app:form.select-option') : name,
   }));
   const cityOptions = loaderData.cities
-    .filter((c) => c.province.id === province)
+    .filter((c) => c.province.id === Number(province))
     .map((city) => ({
       value: String(city.id),
       label: city.name,
@@ -195,10 +199,10 @@ export default function PersonalDetails({ loaderData, actionData, params }: Rout
   }));
 
   // Choice tags for classification
-  const classificationChoiceTags: ChoiceTag[] = (selectedClassifications ?? [])
+  const classificationChoiceTags: ChoiceTag[] = selectedClassifications
     .map((classification) => {
-      const selectedC = loaderData.classifications.find((c) => c.id === classification);
-      return { label: selectedC?.name ?? String(classification), name: 'classification', value: String(classification) };
+      const selectedC = loaderData.classifications.find((c) => c.id === Number(classification));
+      return { label: selectedC?.name ?? classification, name: 'classification', value: classification };
     })
     .toSorted((a, b) => String(a.label).localeCompare(String(b.label)));
 
@@ -207,7 +211,7 @@ export default function PersonalDetails({ loaderData, actionData, params }: Rout
    */
   const handleOnDeleteClassificationTag: ChoiceTagDeleteEventHandler = (name, label, value) => {
     setSrAnnouncement(t('gcweb:choice-tag.removed-choice-tag-sr-message', { item: name, choice: label }));
-    setSelectedClassifications((prev) => prev?.filter((classificationId) => classificationId !== Number(value)));
+    setSelectedClassifications((prev) => prev.filter((classificationId) => classificationId !== value));
   };
 
   const handleOnClearAllClassifications: ChoiceTagClearAllEventHandler = () => {
@@ -216,9 +220,9 @@ export default function PersonalDetails({ loaderData, actionData, params }: Rout
   };
 
   // Choice tags for cities
-  const citiesChoiceTags: ChoiceTag[] = (selectedCities ?? []).map((city) => {
-    const selectedC = loaderData.cities.find((c) => c.id === city);
-    return { label: selectedC?.name ?? String(city), name: 'city', value: String(city), group: selectedC?.province.name };
+  const citiesChoiceTags: ChoiceTag[] = selectedCities.map((city) => {
+    const selectedC = loaderData.cities.find((c) => c.id === Number(city));
+    return { label: selectedC?.name ?? city, name: 'city', value: city, group: selectedC?.province.name };
   });
 
   /**
@@ -228,7 +232,7 @@ export default function PersonalDetails({ loaderData, actionData, params }: Rout
     setSrAnnouncement(
       t('gcweb:choice-tag.removed-choice-tag-sr-message', { item: name, choice: group ? group + ' - ' + label : label }),
     );
-    setSelectedCities((prev) => prev?.filter((cityId) => cityId !== Number(value)));
+    setSelectedCities((prev) => prev.filter((cityId) => cityId !== value));
   };
 
   const handleOnClearAllCities: ChoiceTagClearAllEventHandler = () => {
@@ -239,8 +243,8 @@ export default function PersonalDetails({ loaderData, actionData, params }: Rout
   const handleOnClearCityGroup = (groupName: string) => {
     setSrAnnouncement(t('gcweb:choice-tag.clear-group-label', { items: 'cities', groupName }));
     setSelectedCities((prev) =>
-      prev?.filter((cityId) => {
-        const city = loaderData.cities.find((c) => c.id === cityId);
+      prev.filter((cityId) => {
+        const city = loaderData.cities.find((c) => c.id === Number(cityId));
         return city?.province.name !== groupName;
       }),
     );
@@ -270,8 +274,8 @@ export default function PersonalDetails({ loaderData, actionData, params }: Rout
                 name="classifications"
                 label={t('app:referral-preferences.classification')}
                 options={classificationOptions}
-                value={(selectedClassifications ?? []).map(String)}
-                onChange={(values) => setSelectedClassifications(values.map(Number))}
+                value={selectedClassifications}
+                onChange={(values) => setSelectedClassifications(values)}
                 placeholder={t('app:form.select-all-that-apply')}
                 helpMessage={t('app:referral-preferences.classification-group-help-message-primary')}
                 errorMessage={t(extractValidationKey(errors?.classificationIds))}
@@ -298,8 +302,8 @@ export default function PersonalDetails({ loaderData, actionData, params }: Rout
                   label={t('app:referral-preferences.province')}
                   options={provinceOptions}
                   errorMessage={t(extractValidationKey(errors?.workLocationProvince))}
-                  value={province ? String(province) : ''}
-                  onChange={({ target }) => setProvince(Number(target.value) || undefined)}
+                  value={province ?? ''}
+                  onChange={({ target }) => setProvince(target.value || undefined)}
                 />
                 {province && (
                   <>
@@ -308,8 +312,8 @@ export default function PersonalDetails({ loaderData, actionData, params }: Rout
                       name="workLocationCities"
                       errorMessage={t(extractValidationKey(errors?.workLocationCitiesIds))}
                       options={cityOptions}
-                      value={(selectedCities ?? []).map(String)}
-                      onChange={(values) => setSelectedCities(values.map(Number))}
+                      value={selectedCities}
+                      onChange={(values) => setSelectedCities(values)}
                       placeholder={t('app:form.select-all-that-apply')}
                       label={t('app:referral-preferences.city')}
                       className="w-full sm:w-1/2"

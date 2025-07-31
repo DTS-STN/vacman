@@ -116,8 +116,14 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 export default function EmploymentInformation({ loaderData, actionData, params }: Route.ComponentProps) {
   const { t } = useTranslation(handle.i18nNamespace);
   const errors = actionData?.errors;
-  const [branch, setBranch] = useState(loaderData.defaultValues.branchOrServiceCanadaRegion);
-  const [province, setProvince] = useState(loaderData.defaultValues.province);
+  const [branch, setBranch] = useState(
+    loaderData.defaultValues.branchOrServiceCanadaRegion
+      ? String(loaderData.defaultValues.branchOrServiceCanadaRegion)
+      : undefined,
+  );
+  const [province, setProvince] = useState(
+    loaderData.defaultValues.province ? String(loaderData.defaultValues.province) : undefined,
+  );
   const [wfaStatusCode, setWfaStatusCode] = useState(
     loaderData.wfaStatuses.find((c) => c.id === loaderData.defaultValues.wfaStatus)?.code,
   );
@@ -139,7 +145,7 @@ export default function EmploymentInformation({ loaderData, actionData, params }
 
   const directorateOptions = [
     { id: 'select-option', name: '' },
-    ...loaderData.directorates.filter((c) => c.parent?.id === branch),
+    ...loaderData.directorates.filter((c) => c.parent?.id === Number(branch)),
   ].map(({ id, name }) => ({
     value: id === 'select-option' ? '' : String(id),
     children: id === 'select-option' ? t('app:form.select-option') : name,
@@ -150,12 +156,13 @@ export default function EmploymentInformation({ loaderData, actionData, params }
     children: id === 'select-option' ? t('app:form.select-option') : name,
   }));
 
-  const cityOptions = [{ id: 'select-option', name: '' }, ...loaderData.cities.filter((c) => c.province.id === province)].map(
-    ({ id, name }) => ({
-      value: id === 'select-option' ? '' : String(id),
-      children: id === 'select-option' ? t('app:form.select-option') : name,
-    }),
-  );
+  const cityOptions = [
+    { id: 'select-option', name: '' },
+    ...loaderData.cities.filter((c) => c.province.id === Number(province)),
+  ].map(({ id, name }) => ({
+    value: id === 'select-option' ? '' : String(id),
+    children: id === 'select-option' ? t('app:form.select-option') : name,
+  }));
 
   const wfaStatusOptions = [{ id: 'select-option', name: '' }, ...loaderData.wfaStatuses].map(({ id, name }) => ({
     value: id === 'select-option' ? '' : id,
@@ -200,7 +207,7 @@ export default function EmploymentInformation({ loaderData, actionData, params }
                 name="branchOrServiceCanadaRegion"
                 errorMessage={t(extractValidationKey(errors?.branchOrServiceCanadaRegion))}
                 required
-                onChange={({ target }) => setBranch(Number(target.value) || undefined)}
+                onChange={({ target }) => setBranch(target.value || undefined)}
                 options={branchOrServiceCanadaRegionOptions}
                 label={t('app:employment-information.branch-or-service-canada-region')}
                 defaultValue={
@@ -229,8 +236,8 @@ export default function EmploymentInformation({ loaderData, actionData, params }
                 label={t('app:employment-information.provinces')}
                 options={provinceOptions}
                 errorMessage={t(extractValidationKey(errors?.province))}
-                value={province ? String(province) : ''}
-                onChange={({ target }) => setProvince(Number(target.value) || undefined)}
+                value={province ?? ''}
+                onChange={({ target }) => setProvince(target.value || undefined)}
                 required
               />
               {province && (
