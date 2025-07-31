@@ -27,7 +27,7 @@ class BranchServiceImplementation extends LookupServiceImplementation<Branch, Lo
   }
 }
 
-// Create a single instance of the service (Singleton)
+// Export a single shared instance
 export const branchService: BranchService = new BranchServiceImplementation();
 
 /**

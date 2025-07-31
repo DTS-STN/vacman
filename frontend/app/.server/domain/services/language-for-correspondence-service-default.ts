@@ -10,7 +10,7 @@ const sharedService = createLookupService<LanguageOfCorrespondence>(
   ErrorCodes.NO_LANGUAGE_OF_CORRESPONDENCE_FOUND,
 );
 
-// Create a single instance of the service (Singleton)
+// Create a shared instance of the service (module-level singleton)
 export const languageForCorrespondenceService: LanguageForCorrespondenceService = sharedService;
 
 /**

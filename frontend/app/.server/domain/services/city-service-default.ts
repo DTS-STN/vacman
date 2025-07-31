@@ -25,7 +25,7 @@ const sharedService = createCustomLookupService<City, LocalizedCity>(
   localizeCity,
 );
 
-// Create a single instance of the service (Singleton)
+// Create a shared instance of the service (module-level singleton)
 export const cityService: CityService = sharedService;
 
 /**

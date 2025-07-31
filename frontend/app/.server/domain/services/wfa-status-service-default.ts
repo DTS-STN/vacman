@@ -6,7 +6,7 @@ import { ErrorCodes } from '~/errors/error-codes';
 // Create a single instance of the service using shared implementation with standard localization
 const sharedService = createLookupService<WFAStatus>('/codes/wfa-statuses', 'wfa status', ErrorCodes.NO_WFA_STATUS_FOUND);
 
-// Create a single instance of the service (Singleton)
+// Create a shared instance of the service (module-level singleton)
 export const wfaStatusService: WFAStatusService = sharedService;
 
 /**

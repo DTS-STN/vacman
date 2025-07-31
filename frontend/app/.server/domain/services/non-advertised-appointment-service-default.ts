@@ -10,7 +10,7 @@ const service = createLookupService<NonAdvertisedAppointment>(
   ErrorCodes.NO_NON_ADVERTISED_APPOINTMENT_FOUND,
 );
 
-// Create a single instance of the service (Singleton)
+// Create a shared instance of the service (module-level singleton)
 export const nonAdvertisedAppointmentService: NonAdvertisedAppointmentService = service;
 
 export function getDefaultNonAdvertisedAppointmentService(): NonAdvertisedAppointmentService {

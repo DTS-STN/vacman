@@ -10,7 +10,7 @@ const sharedService = createLookupService<LanguageReferralType>(
   ErrorCodes.NO_LANGUAGE_REFERRAL_TYPE_FOUND,
 );
 
-// Create a single instance of the service (Singleton)
+// Create a shared instance of the service (module-level singleton)
 export const languageReferralTypeService: LanguageReferralTypeService = sharedService;
 
 /**

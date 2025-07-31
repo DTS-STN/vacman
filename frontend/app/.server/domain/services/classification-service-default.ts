@@ -10,7 +10,7 @@ const sharedService = createLookupService<Classification>(
   ErrorCodes.NO_CLASSIFICATION_FOUND,
 );
 
-// Create a single instance of the service (Singleton)
+// Create a shared instance of the service (module-level singleton)
 export const classificationService: ClassificationService = sharedService;
 
 /**

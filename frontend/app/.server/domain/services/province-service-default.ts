@@ -6,7 +6,7 @@ import { ErrorCodes } from '~/errors/error-codes';
 // Create a single instance of the service using shared implementation with standard localization
 const sharedService = createLookupService<Province>('/codes/provinces', 'province', ErrorCodes.NO_PROVINCE_FOUND);
 
-// Create a single instance of the service (Singleton)
+// Create a shared instance of the service (module-level singleton)
 export const provinceService: ProvinceService = sharedService;
 
 /**

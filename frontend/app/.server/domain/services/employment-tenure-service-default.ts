@@ -10,7 +10,7 @@ const sharedService = createLookupService<EmploymentTenure>(
   ErrorCodes.NO_EMPLOYMENT_TENURE_FOUND,
 );
 
-// Create a single instance of the service (Singleton)
+// Create a shared instance of the service (module-level singleton)
 export const employmentTenureService: EmploymentTenureService = sharedService;
 
 /**

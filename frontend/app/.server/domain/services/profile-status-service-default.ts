@@ -10,7 +10,7 @@ const sharedService = createLookupService<ProfileStatus>(
   ErrorCodes.NO_PROFILE_STATUS_FOUND,
 );
 
-// Create a single instance of the service (Singleton)
+// Create a shared instance of the service (module-level singleton)
 export const profileStatusService: ProfileStatusService = sharedService;
 
 /**
