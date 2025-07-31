@@ -16,6 +16,7 @@ import { Button } from '~/components/button';
 import { DataTable, DataTableColumnHeader, DataTableColumnHeaderWithOptions } from '~/components/data-table';
 import { InlineLink } from '~/components/links';
 import { PageTitle } from '~/components/page-title';
+import { EMPLOYEE_STATUS_CODE } from '~/domain/constants';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
 
@@ -29,8 +30,12 @@ export async function loader({ context, request }: LoaderFunctionArgs) {
   const profiles = await getProfileService().getAllProfiles();
   const statuses = await getProfileStatusService().listAllLocalized(lang);
 
-  const allowedStatusCodes = ['APPROVED', 'PENDING']; // TODO: Should we store the codes in env?
-  const statusIds = statuses.filter((s) => allowedStatusCodes.includes(s.code)).map((s) => s.id);
+  const allowedStatusCodes = [EMPLOYEE_STATUS_CODE.approved, EMPLOYEE_STATUS_CODE.pending];
+  const statusIds = statuses
+    .filter((s) =>
+      allowedStatusCodes.includes(s.code as typeof EMPLOYEE_STATUS_CODE.approved | typeof EMPLOYEE_STATUS_CODE.pending),
+    )
+    .map((s) => s.id);
 
   // Filter profiles based on allowed status codes
   const filteredProfiles = profiles.filter((profile) => statusIds.includes(profile.profileStatusId.toString()));
@@ -90,7 +95,9 @@ export default function EmployeeDashboard({ params }: Route.ComponentProps) {
         <DataTableColumnHeaderWithOptions
           column={column}
           title={t('app:employee-dashboard.status')}
-          options={loaderData.statuses.map((status) => status.name)}
+          options={loaderData.statuses
+            .filter((status) => status.code === EMPLOYEE_STATUS_CODE.approved || status.code === EMPLOYEE_STATUS_CODE.pending)
+            .map((status) => status.name)}
         />
       ),
       cell: (info) => {

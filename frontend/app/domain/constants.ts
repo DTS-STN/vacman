@@ -5,3 +5,10 @@ export const EMPLOYEE_WFA_STATUS = {
   surplusGRJO: 'SURPLUS_GRJO',
   surplusOptingOptionA: 'SURPLUS_OPTION_A',
 } as const;
+
+export const EMPLOYEE_STATUS_CODE = {
+  approved: 'APPROVED',
+  pending: 'PENDING',
+  incomplete: 'INCOMPLETE',
+  archived: 'ARCHIVED',
+} as const;
