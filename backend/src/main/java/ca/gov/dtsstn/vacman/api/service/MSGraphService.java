@@ -49,11 +49,12 @@ public class MSGraphService {
 			.build();
 	}
 
-	public Optional<MSGraphUser> getUser(String id) {
-		final var response = restTemplate.getForEntity("/users/{id}?$select={properties}", MSGraphUser.class, id, SELECTED_USER_PROPERTIES);
+	public Optional<MSGraphUser> getUser(String microsoftEntraId) {
+		log.debug("Fetching user with id=[{}] from MSGraph", microsoftEntraId);
+		final var response = restTemplate.getForEntity("/users/{id}?$select={properties}", MSGraphUser.class, microsoftEntraId, SELECTED_USER_PROPERTIES);
 
 		if (response.getStatusCode().isSameCodeAs(HttpStatus.NOT_FOUND)) {
-			log.debug("Could not find user with id=[{}] in MSGraph", id);
+			log.warn("Could not find user with id=[{}] in MSGraph", microsoftEntraId);
 			return Optional.empty();
 		}
 
@@ -62,7 +63,7 @@ public class MSGraphService {
 			throw new RestClientException("Unexpected response from MSGraph: " + response.getStatusCode());
 		}
 
-		log.debug("Successfully retrieved user with id=[{}] from MSGraph", id);
+		log.debug("Successfully retrieved user with id=[{}] from MSGraph: [{}]", microsoftEntraId, response.getBody());
 		return Optional.ofNullable(response.getBody());
 	}
 

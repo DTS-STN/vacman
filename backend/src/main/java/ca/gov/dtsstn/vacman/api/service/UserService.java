@@ -40,15 +40,15 @@ public class UserService {
 		this.codeService = codeService;
 	}
 
-	public UserEntity createUser(UserEntity user, String languageCode, String roleCode) {
+	public UserEntity createUser(UserEntity user, String languageCode) {
 		// Set language based on languageCode (validation ensures it exists)
 		user.setLanguage(codeService.getLanguages(Pageable.unpaged()).stream()
-				.filter(byCode(languageCode))
-				.findFirst().orElseThrow());
+			.filter(byCode(languageCode))
+			.findFirst().orElseThrow());
 
 		// Set user type based on role (validation ensures it exists)
 		user.setUserType(codeService.getUserTypes(Pageable.unpaged()).stream()
-			.filter(byCode(roleCode))
+			.filter(byCode("employee"))
 			.findFirst().orElseThrow());
 
 		// Save the user (profiles are created separately as needed)

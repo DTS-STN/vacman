@@ -5,6 +5,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.UserEntityBuilder;
 import ca.gov.dtsstn.vacman.api.web.model.UserCreateModel;
 import ca.gov.dtsstn.vacman.api.web.model.UserReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.UserUpdateModel;
@@ -38,6 +39,23 @@ public interface UserModelMapper {
 	@Mapping(target = "initial", constant = "JAD")
 	@Mapping(target = "personalRecordIdentifier", constant = "12345")
 	UserEntity toEntity(UserCreateModel model);
+
+	@Mapping(target = "id", ignore = true)
+	@Mapping(target = "createdBy", ignore = true)
+	@Mapping(target = "createdDate", ignore = true)
+	@Mapping(target = "lastModifiedBy", ignore = true)
+	@Mapping(target = "lastModifiedDate", ignore = true)
+	@Mapping(target = "userType", ignore = true)
+	@Mapping(target = "language", ignore = true)
+	@Mapping(target = "profiles", ignore = true)
+	@Mapping(target = "businessEmailAddress", constant = "user@example.com")
+	@Mapping(target = "businessPhoneNumber", constant = "555-123-4567")
+	@Mapping(target = "firstName", constant = "John")
+	@Mapping(target = "lastName", constant = "Doe")
+	@Mapping(target = "middleName", constant = "A")
+	@Mapping(target = "initial", constant = "JAD")
+	@Mapping(target = "personalRecordIdentifier", constant = "12345")
+	UserEntityBuilder toEntityBuilder(UserCreateModel model);
 
 	@Mapping(target = "id", ignore = true)
 	@Mapping(target = "createdBy", ignore = true)
