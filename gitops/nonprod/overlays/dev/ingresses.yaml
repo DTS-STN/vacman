@@ -1,7 +1,7 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: vacman-frontend
+  name: vacman
   labels:
     app.kubernetes.io/name: vacman-frontend
 spec:
@@ -17,6 +17,28 @@ spec:
                 name: vacman-frontend
                 port:
                   name: http
+    - host: vacman-dev-api.dev-dp-internal.dts-stn.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: vacman-backend
+                port:
+                  name: http
+
+---
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: vacman
+  labels:
+    app.kubernetes.io/name: vacman-backend
+spec:
+  ingressClassName: nginx
+  rules:
     - host: vacman-dev-api.dev-dp-internal.dts-stn.com
       http:
         paths:
