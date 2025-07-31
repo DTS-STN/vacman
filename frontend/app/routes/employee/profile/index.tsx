@@ -66,13 +66,13 @@ export async function action({ context, request }: Route.ActionArgs) {
   const selectedValidWfaStatusesForOptionalDate = allWfaStatus
     .filter((c) => validWFAStatusesForOptionalDate.toString().includes(c.code))
     .map((status) => ({
-      id: status.id.toString(),
+      id: status.id,
       code: status.code,
       nameEn: status.nameEn,
       nameFr: status.nameFr,
     }));
   const isWfaDateOptional = selectedValidWfaStatusesForOptionalDate.some(
-    (status) => String(status.id) === profileData.employmentInformation.wfaStatus,
+    (status) => status.id === profileData.employmentInformation.wfaStatus,
   );
   const requiredEmploymentInformation = isWfaDateOptional
     ? omitObjectProperties(profileData.employmentInformation, ['wfaEndDate', 'wfaEffectiveDate']) // If status is "Affected", omit the effective date
@@ -167,7 +167,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const substantivePosition =
     substantivePositionResult && substantivePositionResult.isSome() ? substantivePositionResult.unwrap().name : undefined;
   const branchOrServiceCanadaRegion =
-    workUnitResult && workUnitResult.isSome() ? workUnitResult.unwrap().parent.name : undefined;
+    workUnitResult && workUnitResult.isSome() ? workUnitResult.unwrap().parent?.name : undefined;
   const directorate = workUnitResult && workUnitResult.isSome() ? workUnitResult.unwrap().name : undefined;
   const city = cityResult && cityResult.isSome() ? cityResult.unwrap() : undefined;
   const wfaStatus = wfaStatusResult ? (wfaStatusResult.isSome() ? wfaStatusResult.unwrap() : undefined) : undefined;
@@ -175,16 +175,16 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     profileData.employmentInformation.hrAdvisor &&
     (await getUserService().getUserById(profileData.employmentInformation.hrAdvisor));
   const languageReferralTypes = profileData.referralPreferences.languageReferralTypeIds
-    ?.map((langId) => allLocalizedLanguageReferralTypes.find((l) => String(l.id) === langId))
+    ?.map((langId) => allLocalizedLanguageReferralTypes.find((l) => l.id === langId))
     .filter(Boolean);
   const classifications = profileData.referralPreferences.classificationIds
-    ?.map((classificationId) => allClassifications.find((c) => String(c.id) === classificationId))
+    ?.map((classificationId) => allClassifications.find((c) => c.id === classificationId))
     .filter(Boolean);
   const cities = profileData.referralPreferences.workLocationCitiesIds
-    ?.map((cityId) => allLocalizedCities.find((c) => String(c.id) === cityId))
+    ?.map((cityId) => allLocalizedCities.find((c) => c.id === cityId))
     .filter(Boolean);
   const employmentTenures = profileData.referralPreferences.employmentTenureIds
-    ?.map((employmentTenureId) => allLocalizedEmploymentTenures.find((c) => String(c.id) === employmentTenureId))
+    ?.map((employmentTenureId) => allLocalizedEmploymentTenures.find((c) => c.id === employmentTenureId))
     .filter(Boolean);
 
   // Check each section if the required feilds are complete
@@ -199,13 +199,13 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const selectedValidWfaStatusesForOptionalDate = allWfaStatus
     .filter((c) => validWFAStatusesForOptionalDate.toString().includes(c.code))
     .map((status) => ({
-      id: status.id.toString(),
+      id: status.id,
       code: status.code,
       nameEn: status.nameEn,
       nameFr: status.nameFr,
     }));
   const isWfaDateOptional = selectedValidWfaStatusesForOptionalDate.some(
-    (status) => String(status.id) === profileData.employmentInformation.wfaStatus,
+    (status) => status.id === profileData.employmentInformation.wfaStatus,
   );
   const requiredEmploymentInformation = isWfaDateOptional
     ? omitObjectProperties(profileData.employmentInformation, ['wfaEndDate', 'wfaEffectiveDate']) // If status is "Affected", omit the effective date
