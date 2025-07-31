@@ -94,14 +94,14 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     documentTitle: t('app:employment-information.page-title'),
     defaultValues: {
       substantivePosition: profileData.employmentInformation.substantivePosition,
-      branchOrServiceCanadaRegion: workUnit?.parent.id,
+      branchOrServiceCanadaRegion: workUnit?.parent?.id,
       directorate: workUnit?.id,
       province: city?.province.id,
       cityId: profileData.employmentInformation.cityId,
       wfaStatus: profileData.employmentInformation.wfaStatus,
       wfaEffectiveDate: profileData.employmentInformation.wfaEffectiveDate,
       wfaEndDate: profileData.employmentInformation.wfaEndDate,
-      hrAdvisor: profileData.employmentInformation.hrAdvisor?.toString(),
+      hrAdvisor: profileData.employmentInformation.hrAdvisor,
     },
     substantivePositions: substantivePositions,
     branchOrServiceCanadaRegions: branchOrServiceCanadaRegions,
@@ -119,7 +119,7 @@ export default function EmploymentInformation({ loaderData, actionData, params }
   const [branch, setBranch] = useState(loaderData.defaultValues.branchOrServiceCanadaRegion);
   const [province, setProvince] = useState(loaderData.defaultValues.province);
   const [wfaStatusCode, setWfaStatusCode] = useState(
-    loaderData.wfaStatuses.find((c) => String(c.id) === loaderData.defaultValues.wfaStatus)?.code,
+    loaderData.wfaStatuses.find((c) => c.id === loaderData.defaultValues.wfaStatus)?.code,
   );
 
   const substantivePositionOptions = [{ id: 'select-option', name: '' }, ...loaderData.substantivePositions].map(
@@ -139,7 +139,7 @@ export default function EmploymentInformation({ loaderData, actionData, params }
 
   const directorateOptions = [
     { id: 'select-option', name: '' },
-    ...loaderData.directorates.filter((c) => c.parent.id === branch),
+    ...loaderData.directorates.filter((c) => c.parent?.id === branch),
   ].map(({ id, name }) => ({
     value: id === 'select-option' ? '' : String(id),
     children: id === 'select-option' ? t('app:form.select-option') : name,
@@ -150,13 +150,12 @@ export default function EmploymentInformation({ loaderData, actionData, params }
     children: id === 'select-option' ? t('app:form.select-option') : name,
   }));
 
-  const cityOptions = [
-    { id: 'select-option', name: '' },
-    ...loaderData.cities.filter((c) => String(c.province.id) === province),
-  ].map(({ id, name }) => ({
-    value: id === 'select-option' ? '' : String(id),
-    children: id === 'select-option' ? t('app:form.select-option') : name,
-  }));
+  const cityOptions = [{ id: 'select-option', name: '' }, ...loaderData.cities.filter((c) => c.province.id === province)].map(
+    ({ id, name }) => ({
+      value: id === 'select-option' ? '' : String(id),
+      children: id === 'select-option' ? t('app:form.select-option') : name,
+    }),
+  );
 
   const wfaStatusOptions = [{ id: 'select-option', name: '' }, ...loaderData.wfaStatuses].map(({ id, name }) => ({
     value: id === 'select-option' ? '' : id,
@@ -169,7 +168,7 @@ export default function EmploymentInformation({ loaderData, actionData, params }
   }));
 
   const handleWFAStatusChange = (optionValue: string) => {
-    const selectedStatus = loaderData.wfaStatuses.find((c) => String(c.id) === optionValue)?.code;
+    const selectedStatus = loaderData.wfaStatuses.find((c) => c.id === Number(optionValue))?.code;
     setWfaStatusCode(selectedStatus);
   };
 
@@ -191,7 +190,9 @@ export default function EmploymentInformation({ loaderData, actionData, params }
                 required
                 options={substantivePositionOptions}
                 label={t('app:employment-information.substantive-position-group-and-level')}
-                defaultValue={loaderData.defaultValues.substantivePosition ?? ''}
+                defaultValue={
+                  loaderData.defaultValues.substantivePosition ? String(loaderData.defaultValues.substantivePosition) : ''
+                }
                 className="w-full sm:w-1/2"
               />
               <InputSelect
@@ -199,10 +200,14 @@ export default function EmploymentInformation({ loaderData, actionData, params }
                 name="branchOrServiceCanadaRegion"
                 errorMessage={t(extractValidationKey(errors?.branchOrServiceCanadaRegion))}
                 required
-                onChange={({ target }) => setBranch(target.value)}
+                onChange={({ target }) => setBranch(Number(target.value) || undefined)}
                 options={branchOrServiceCanadaRegionOptions}
                 label={t('app:employment-information.branch-or-service-canada-region')}
-                defaultValue={loaderData.defaultValues.branchOrServiceCanadaRegion ?? ''}
+                defaultValue={
+                  loaderData.defaultValues.branchOrServiceCanadaRegion
+                    ? String(loaderData.defaultValues.branchOrServiceCanadaRegion)
+                    : ''
+                }
                 className="w-full sm:w-1/2"
               />
               {branch && (
@@ -213,7 +218,7 @@ export default function EmploymentInformation({ loaderData, actionData, params }
                   required
                   options={directorateOptions}
                   label={t('app:employment-information.directorate')}
-                  defaultValue={loaderData.defaultValues.directorate ?? ''}
+                  defaultValue={loaderData.defaultValues.directorate ? String(loaderData.defaultValues.directorate) : ''}
                   className="w-full sm:w-1/2"
                 />
               )}
@@ -224,8 +229,8 @@ export default function EmploymentInformation({ loaderData, actionData, params }
                 label={t('app:employment-information.provinces')}
                 options={provinceOptions}
                 errorMessage={t(extractValidationKey(errors?.province))}
-                value={province}
-                onChange={({ target }) => setProvince(target.value)}
+                value={province ? String(province) : ''}
+                onChange={({ target }) => setProvince(Number(target.value) || undefined)}
                 required
               />
               {province && (
@@ -237,7 +242,7 @@ export default function EmploymentInformation({ loaderData, actionData, params }
                     required
                     options={cityOptions}
                     label={t('app:employment-information.city')}
-                    defaultValue={loaderData.defaultValues.cityId ?? ''}
+                    defaultValue={loaderData.defaultValues.cityId ? String(loaderData.defaultValues.cityId) : ''}
                     className="w-full sm:w-1/2"
                   />
                 </>
@@ -252,7 +257,7 @@ export default function EmploymentInformation({ loaderData, actionData, params }
                 required
                 options={wfaStatusOptions}
                 label={t('app:employment-information.wfa-status')}
-                defaultValue={loaderData.defaultValues.wfaStatus ?? ''}
+                defaultValue={loaderData.defaultValues.wfaStatus ? String(loaderData.defaultValues.wfaStatus) : ''}
                 onChange={({ target }) => handleWFAStatusChange(target.value)}
                 className="w-full sm:w-1/2"
               />
@@ -302,7 +307,7 @@ export default function EmploymentInformation({ loaderData, actionData, params }
                 required
                 options={hrAdvisorOptions}
                 label={t('app:employment-information.hr-advisor')}
-                defaultValue={loaderData.defaultValues.hrAdvisor ?? ''}
+                defaultValue={loaderData.defaultValues.hrAdvisor ? String(loaderData.defaultValues.hrAdvisor) : ''}
                 className="w-full sm:w-1/2"
               />
               <div className="mt-8 flex flex-row-reverse flex-wrap items-center justify-end gap-3">
