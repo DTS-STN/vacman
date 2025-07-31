@@ -19,6 +19,7 @@ import ca.gov.dtsstn.vacman.api.data.entity.UserEntityBuilder;
 import ca.gov.dtsstn.vacman.api.data.repository.UserRepository;
 import ca.gov.dtsstn.vacman.api.event.UserCreatedEvent;
 import ca.gov.dtsstn.vacman.api.event.UserDeletedEvent;
+import ca.gov.dtsstn.vacman.api.event.UserReadEvent;
 import ca.gov.dtsstn.vacman.api.event.UserUpdatedEvent;
 import ca.gov.dtsstn.vacman.api.web.model.UserUpdateModel;
 import ca.gov.dtsstn.vacman.api.web.model.mapper.UserModelMapper;
@@ -65,11 +66,21 @@ public class UserService {
 
 
 	public Optional<UserEntity> getUserById(Long id) {
-		return userRepository.findById(id);
+		final var userOptional = userRepository.findById(id);
+		userOptional.ifPresent(user -> {
+			eventPublisher.publishEvent(new UserReadEvent(user));
+			log.info("User read with ID: {}", user.getId());
+		});
+		return userOptional;
 	}
 
 	public Optional<UserEntity> getUserByMicrosoftEntraId(String microsoftEntraId) {
-		return userRepository.findOne(Example.of(new UserEntityBuilder().microsoftEntraId(microsoftEntraId).build()));
+		final var userOptional = userRepository.findOne(Example.of(new UserEntityBuilder().microsoftEntraId(microsoftEntraId).build()));
+		userOptional.ifPresent(user -> {
+			eventPublisher.publishEvent(new UserReadEvent(user));
+			log.info("User read with Microsoft Entra ID: {}", user.getMicrosoftEntraId());
+		});
+		return userOptional;
 	}
 
 	public List<UserEntity> getAllUsers() {

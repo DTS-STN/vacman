@@ -15,6 +15,7 @@ import ca.gov.dtsstn.vacman.api.data.repository.EventRepository;
 import ca.gov.dtsstn.vacman.api.event.UserCreateConflictEvent;
 import ca.gov.dtsstn.vacman.api.event.UserCreatedEvent;
 import ca.gov.dtsstn.vacman.api.event.UserDeletedEvent;
+import ca.gov.dtsstn.vacman.api.event.UserReadEvent;
 import ca.gov.dtsstn.vacman.api.event.UserUpdatedEvent;
 
 @Component
@@ -78,6 +79,18 @@ public class UserEventListener {
 			.build());
 
 		log.info("Event: user deleted - ID: {}", event.entity().getId());
+	}
+
+	@Async
+	@EventListener({ UserReadEvent.class })
+	public void handleUserRead(UserReadEvent event) throws JsonProcessingException {
+		eventRepository.save(new EventEntityBuilder()
+			.name("USER_READ")
+			.description("User read with ID: " + event.entity().getId())
+			.details(objectMapper.writeValueAsString(event))
+			.build());
+
+		log.info("Event: user read - ID: {}", event.entity().getId());
 	}
 
 }
