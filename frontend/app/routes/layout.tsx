@@ -1,3 +1,5 @@
+import { useState } from 'react';
+
 import type { RouteHandle } from 'react-router';
 import { Outlet } from 'react-router';
 
@@ -50,6 +52,8 @@ export default function Layout({ loaderData }: Route.ComponentProps) {
   const { t } = useTranslation(['gcweb', 'app']);
   const { id: pageId } = useRoute();
 
+  const [viewingAsRole, setViewingAsRole] = useState('employee');
+
   const { BUILD_DATE, BUILD_VERSION } = globalThis.__appEnvironment;
   return (
     <div className="flex min-h-screen flex-col">
@@ -73,6 +77,8 @@ export default function Layout({ loaderData }: Route.ComponentProps) {
         <AppBar
           name={loaderData.name?.toString()}
           profileItems={<MenuItem file="routes/index.tsx">{t('app:index.dashboard')}</MenuItem>}
+          viewingAsRole={viewingAsRole}
+          setViewingAsRole={setViewingAsRole}
         >
           <MenuItem file="routes/index.tsx">{t('app:index.navigate')}</MenuItem>
         </AppBar>

@@ -1,10 +1,17 @@
 export default {
   'language': 'English',
   'app': {
-    form: 'Form',
-    logout: 'Logout',
-    profile: 'Profile',
-    title: 'VacMan',
+    'form': 'Form',
+    'logout': 'Logout',
+    'profile': 'Profile',
+    'title': 'VacMan',
+    'viewing-as': 'Viewing as',
+    'employee': 'Employee',
+    'hiring-manager': 'Hiring Manager',
+    'confirm-role-change': 'Confirm Role Change',
+    'confirm-role-change-message': 'You are currently viewing as {{current}}. Are you sure you want to switch to {{new}} view?',
+    'cancel': 'Cancel',
+    'confirm': 'Confirm',
   },
   'nav': {
     'skip-to-content': 'Skip to main content',

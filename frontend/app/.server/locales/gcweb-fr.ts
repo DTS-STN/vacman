@@ -3,10 +3,17 @@ import type gcwebEn from '~/.server/locales/gcweb-en';
 export default {
   'language': 'Français',
   'app': {
-    form: 'Forme',
-    logout: 'Déconnexion',
-    profile: 'Profil',
-    title: 'VacMan',
+    'form': 'Forme',
+    'logout': 'Déconnexion',
+    'profile': 'Profil',
+    'title': 'VacMan',
+    'viewing-as': 'Viewing as', //TODO add translations
+    'employee': 'Employee',
+    'hiring-manager': 'Hiring Manager',
+    'confirm-role-change': 'Confirm Role Change',
+    'confirm-role-change-message': 'You are currently viewing as {{current}}. Are you sure you want to switch to {{new}} view?',
+    'cancel': 'Cancel',
+    'confirm': 'Confirm',
   },
   'nav': {
     'skip-to-content': 'Passer au contenu principal',
