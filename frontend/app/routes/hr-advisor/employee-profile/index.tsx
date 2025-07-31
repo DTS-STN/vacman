@@ -21,7 +21,6 @@ import { getProfileService } from '~/.server/domain/services/profile-service';
 import { getUserService } from '~/.server/domain/services/user-service';
 import { getWFAStatuses } from '~/.server/domain/services/wfa-status-service';
 import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
-import { countCompletedItems, omitObjectProperties } from '~/.server/utils/profile-utils';
 import { AlertMessage } from '~/components/alert-message';
 import { Button } from '~/components/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '~/components/card';
@@ -52,57 +51,9 @@ export async function action({ context, request }: Route.ActionArgs) {
     return { status: 'profile-not-found' };
   }
 
-  const profileData: Profile = profileResult.unwrap();
-  const allWfaStatus = await getWFAStatuses().listAll();
+  //TODO: add logic to approve employee profile
 
-  const requiredPersonalInformation = omitObjectProperties(profileData.personalInformation, [
-    'workPhone',
-    'additionalInformation',
-  ]);
-  const validWFAStatusesForOptionalDate = [EMPLOYEE_WFA_STATUS.affected] as const;
-  const selectedValidWfaStatusesForOptionalDate = allWfaStatus
-    .filter((c) => validWFAStatusesForOptionalDate.toString().includes(c.code))
-    .map((status) => ({
-      id: status.id.toString(),
-      code: status.code,
-      nameEn: status.nameEn,
-      nameFr: status.nameFr,
-    }));
-  const isWfaDateOptional = selectedValidWfaStatusesForOptionalDate.some(
-    (status) => String(status.id) === profileData.employmentInformation.wfaStatus,
-  );
-  const requiredEmploymentInformation = isWfaDateOptional
-    ? omitObjectProperties(profileData.employmentInformation, ['wfaEndDate', 'wfaEffectiveDate']) // If status is "Affected", omit the effective date
-    : omitObjectProperties(profileData.employmentInformation, ['wfaEndDate']);
-
-  // Check if all sections are complete
-  const personalInfoComplete =
-    countCompletedItems(requiredPersonalInformation) === Object.keys(requiredPersonalInformation).length;
-  const employmentInfoComplete =
-    countCompletedItems(requiredEmploymentInformation) === Object.keys(requiredEmploymentInformation).length;
-  const referralComplete =
-    countCompletedItems(profileData.referralPreferences) === Object.keys(profileData.referralPreferences).length;
-
-  // If any section is incomplete, return incomplete state
-  if (!personalInfoComplete || !employmentInfoComplete || !referralComplete) {
-    return {
-      personalInfoComplete,
-      employmentInfoComplete,
-      referralComplete,
-      status: 'incomplete',
-    };
-  }
-
-  // If all complete, submit for review
-  const submitResult = await getProfileService().submitProfileForReview(currentUserId);
-  if (submitResult.isErr()) {
-    throw submitResult.unwrap();
-  }
-
-  return {
-    status: 'submitted',
-    profileStatus: submitResult.unwrap().status,
-  };
+  return {};
 }
 
 export async function loader({ context, request, params }: Route.LoaderArgs) {
