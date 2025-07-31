@@ -111,13 +111,30 @@ export function getDefaultProfileService(): ProfileService {
       personalInfo: UserPersonalInformation,
     ): Promise<Result<void, AppError>> {
       try {
-        await fetch(`/profiles/${activeDirectoryId}/personal`, {
+        const response = await fetch(`/profiles/${activeDirectoryId}/personal`, {
           method: 'PUT',
           body: JSON.stringify(personalInfo),
         });
+
+        if (!response.ok) {
+          return Err(
+            new AppError(
+              `Failed to update personal information. Server responded with status ${response.status}`,
+              ErrorCodes.PROFILE_UPDATE_FAILED,
+              { httpStatusCode: response.status as HttpStatusCode },
+            ),
+          );
+        }
+
         return Ok(undefined);
-      } catch {
-        return Err(new AppError('Failed to update personal information', ErrorCodes.PROFILE_UPDATE_FAILED));
+      } catch (error) {
+        return Err(
+          new AppError(
+            error instanceof Error ? error.message : 'Failed to update personal information',
+            ErrorCodes.PROFILE_NETWORK_ERROR,
+            { httpStatusCode: HttpStatusCodes.SERVICE_UNAVAILABLE },
+          ),
+        );
       }
     },
     async updateEmploymentInformation(
