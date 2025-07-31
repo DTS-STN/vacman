@@ -15,7 +15,7 @@ class BranchServiceImplementation extends LookupServiceImplementation<Branch, Lo
   }
 
   async listAll(): Promise<readonly Branch[]> {
-    // Get all work units and filter out ones with parent property (directorates)
+    // Get all work units and keep only ones without a parent property
     const allWorkUnits = await super.listAll();
     return allWorkUnits.filter((workUnit: Branch & { parent?: unknown }) => !('parent' in workUnit));
   }
