@@ -4,7 +4,7 @@ import { data, Form } from 'react-router';
 import { Trans, useTranslation } from 'react-i18next';
 import * as v from 'valibot';
 
-import type { Route } from '../profile/+types/personal-information';
+import type { Route } from '../employee-profile/+types/personal-information';
 
 import type { Profile } from '~/.server/domain/models';
 import { getLanguageForCorrespondenceService } from '~/.server/domain/services/language-for-correspondence-service';
@@ -22,7 +22,7 @@ import { InputTextarea } from '~/components/input-textarea';
 import { InlineLink } from '~/components/links';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { getTranslation } from '~/i18n-config.server';
-import { personalInformationSchema } from '~/routes/hr-advisor/[id]/profile/validation.server';
+import { personalInformationSchema } from '~/routes/hr-advisor/employee-profile/validation.server';
 import { handle as parentHandle } from '~/routes/layout';
 import { toE164 } from '~/utils/phone-utils';
 import { formString } from '~/utils/string-utils';
@@ -66,7 +66,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     throw updateResult.unwrapErr();
   }
 
-  return i18nRedirect('routes/hr-advisor/[id]/profile/index.tsx', request, {
+  return i18nRedirect('routes/hr-advisor/employee-profile/index.tsx', request, {
     params: { id: currentUserId },
   });
 }
@@ -109,7 +109,7 @@ export default function PersonalInformation({ loaderData, actionData, params }: 
 
   return (
     <>
-      <InlineLink className="mt-6 block" file="routes/hr-advisor/[id]/profile/index.tsx" params={params} id="back-button">
+      <InlineLink className="mt-6 block" file="routes/hr-advisor/employee-profile/index.tsx" params={params} id="back-button">
         {`< ${t('app:profile.back')}`}
       </InlineLink>
       <div className="max-w-prose">
@@ -205,7 +205,7 @@ export default function PersonalInformation({ loaderData, actionData, params }: 
                   {t('app:form.save')}
                 </Button>
                 <ButtonLink
-                  file="routes/hr-advisor/[id]/profile/index.tsx"
+                  file="routes/hr-advisor/employee-profile/index.tsx"
                   params={params}
                   id="cancel-button"
                   variant="alternative"
