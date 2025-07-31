@@ -30,7 +30,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '~/componen
 import { DescriptionList, DescriptionListItem } from '~/components/description-list';
 import { InlineLink } from '~/components/links';
 import { Progress } from '~/components/progress';
-import { EMPLOYEE_WFA_STATUS } from '~/domain/constants';
+import { EMPLOYEE_STATUS_CODE, EMPLOYEE_WFA_STATUS } from '~/domain/constants';
 import { getTranslation } from '~/i18n-config.server';
 import type { I18nRouteFile } from '~/i18n-routes';
 import { handle as parentHandle } from '~/routes/layout';
@@ -298,16 +298,23 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
       </div>
       <div className="justify-between md:grid md:grid-cols-2">
         <div className="max-w-prose">
-          <p className="mt-12">{t('app:profile.about-para-1')}</p>
+          <p className="mt-12">
+            {loaderData.profileStatus.code === EMPLOYEE_STATUS_CODE.pending
+              ? t('app:profile.about-para-1-pending')
+              : t('app:profile.about-para-1')}
+          </p>
           <p className="mt-4">{t('app:profile.about-para-2')}</p>
         </div>
         <Form className="mt-6 flex place-content-end space-x-5 md:mt-auto" method="post" noValidate>
+          {/* TODO: save and exit button should show in edit state, check ADO task 6297 */}
           <ButtonLink variant="alternative" file="routes/employee/index.tsx" id="save" disabled={navigation.state !== 'idle'}>
             {t('app:form.save-and-exit')}
           </ButtonLink>
-          <Button name="action" variant="primary" id="submit" disabled={navigation.state !== 'idle'}>
-            {t('app:form.submit')}
-          </Button>
+          {loaderData.profileStatus.code === EMPLOYEE_STATUS_CODE.incomplete && (
+            <Button name="action" variant="primary" id="submit" disabled={navigation.state !== 'idle'}>
+              {t('app:form.submit')}
+            </Button>
+          )}
         </Form>
       </div>
 
@@ -319,7 +326,13 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
         />
       )}
 
-      <Progress className="mt-8 mb-8" label={t('app:profile.profile-completion-progress')} value={loaderData.amountCompleted} />
+      {loaderData.profileStatus.code === EMPLOYEE_STATUS_CODE.incomplete && (
+        <Progress
+          className="mt-8 mb-8"
+          label={t('app:profile.profile-completion-progress')}
+          value={loaderData.amountCompleted}
+        />
+      )}
       <div className="mt-8 max-w-prose space-y-10">
         <ProfileCard
           title={t('app:profile.personal-information.title')}

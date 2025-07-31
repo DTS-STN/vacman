@@ -18,6 +18,8 @@ export default {
   'profile': {
     'about-para-1':
       'This profile outlines your current position, referral preferences, and qualifications. Complete all sections and submit for approval.',
+    'about-para-1-pending':
+      'This profile outlines your current position, referral preferences, and qualifications. You can make edits at any time. Changes to certain fields will require re-approval.',
     'about-para-2': 'Your progress is saved automatically.',
     'edit': 'Edit',
     'add': 'Add',
