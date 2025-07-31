@@ -181,7 +181,7 @@ springdoc:
     display-request-duration: true
     oauth:
       client-id: ${application.swagger-ui.authentication.oauth.client-id}
-      scopes: api://nonprod.esdc-edsc.gc.ca/vacman/.default
+      scopes: ${application.swagger-ui.authentication.oauth.client-id}/.default
       use-pkce-with-authorization-code-grant: true
   writer-with-default-pretty-printer: true
   writer-with-order-by-keys: true
