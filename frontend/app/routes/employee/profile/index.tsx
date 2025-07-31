@@ -141,9 +141,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     ? await getUserService().getUserByActiveDirectoryId(profileData.userUpdated)
     : undefined;
   const profileUpdatedByUserName = profileUpdatedByUser && `${profileUpdatedByUser.firstName} ${profileUpdatedByUser.lastName}`;
-  const profileStatus = (
-    await getProfileStatusService().findLocalizedById(profileData.profileStatusId.toString(), lang)
-  ).unwrap();
+  const profileStatus = (await getProfileStatusService().findLocalizedById(profileData.profileStatusId, lang)).unwrap();
 
   const preferredLanguageResult =
     profileData.personalInformation.preferredLanguageId &&

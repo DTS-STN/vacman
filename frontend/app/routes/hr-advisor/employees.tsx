@@ -40,7 +40,7 @@ export async function loader({ context, request }: LoaderFunctionArgs) {
     .map((s) => s.id);
 
   // Filter profiles based on allowed status codes
-  const filteredProfiles = profiles.filter((profile) => statusIds.includes(profile.profileStatusId.toString()));
+  const filteredProfiles = profiles.filter((profile) => statusIds.includes(profile.profileStatusId));
 
   return {
     documentTitle: t('app:index.employees'),
@@ -104,7 +104,7 @@ export default function EmployeeDashboard({ params }: Route.ComponentProps) {
       ),
       cell: (info) => {
         const profile = info.row.original;
-        const status = loaderData.statuses.find((s) => s.id === profile.profileStatusId.toString());
+        const status = loaderData.statuses.find((s) => s.id === profile.profileStatusId);
         return status && statusTag(status.code, status.name);
       },
       filterFn: (row, columnId, filterValue: string[]) => {
