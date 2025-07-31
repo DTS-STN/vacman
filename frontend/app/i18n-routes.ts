@@ -178,34 +178,34 @@ export const i18nRoutes = [
       },
       {
         id: 'HRAD-0002',
-        file: 'routes/hr-advisor/[id]/profile/index.tsx',
+        file: 'routes/hr-advisor/employee-profile/[id]/profile/index.tsx',
         paths: {
-          en: '/en/hr-advisor/:id/profile',
-          fr: '/fr/hr-advisor/:id/profil',
+          en: '/en/hr-advisor/employee-profile/:id/profile',
+          fr: '/fr/hr-advisor/employee-profile/:id/profil',
         },
       },
       {
         id: 'HRAD-0003',
-        file: 'routes/hr-advisor/[id]/profile/personal-information.tsx',
+        file: 'routes/hr-advisor/employee-profile/[id]/profile/personal-information.tsx',
         paths: {
-          en: '/en/hr-advisor/:id/profile/personal-information',
-          fr: '/fr/hr-advisor/:id/profil/informations-personnelles',
+          en: '/en/hr-advisor/employee-profile/:id/profile/personal-information',
+          fr: '/fr/hr-advisor/employee-profile/:id/profil/informations-personnelles',
         },
       },
       {
         id: 'HRAD-0004',
-        file: 'routes/hr-advisor/[id]/profile/employment-information.tsx',
+        file: 'routes/hr-advisor/employee-profile/[id]/profile/employment-information.tsx',
         paths: {
-          en: '/en/hr-advisor/:id/profile/employment-information',
-          fr: `/fr/hr-advisor/:id/profil/informations-sur-lemploi`,
+          en: '/en/hr-advisor/employee-profile/:id/profile/employment-information',
+          fr: `/fr/hr-advisor/employee-profile/:id/profil/informations-sur-lemploi`,
         },
       },
       {
         id: 'HRAD-0005',
-        file: 'routes/hr-advisor/[id]/profile/referral-preferences.tsx',
+        file: 'routes/hr-advisor/employee-profile/[id]/profile/referral-preferences.tsx',
         paths: {
-          en: '/en/hr-advisor/:id/profile/referral-preferences',
-          fr: '/fr/hr-advisor/:id/profil/préférences-de-référence',
+          en: '/en/hr-advisor/employee-profile/:id/profile/referral-preferences',
+          fr: '/fr/hr-advisor/employee-profile/:id/profil/préférences-de-référence',
         },
       },
     ],
