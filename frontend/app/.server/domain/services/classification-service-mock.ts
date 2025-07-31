@@ -6,7 +6,7 @@ import { ErrorCodes } from '~/errors/error-codes';
 
 // Transform the JSON data to match the expected format
 const transformedData: Classification[] = esdcClassificationData.content.map((classification) => ({
-  id: classification.id.toString(),
+  id: classification.id,
   code: classification.name,
   nameEn: classification.name,
   nameFr: classification.name,
@@ -25,7 +25,7 @@ export function getMockClassificationService(): ClassificationService {
       return Promise.resolve(sharedService.listAll());
     },
 
-    getById(id: string) {
+    getById(id: number) {
       return Promise.resolve(sharedService.getById(id));
     },
 
@@ -37,11 +37,11 @@ export function getMockClassificationService(): ClassificationService {
       return Promise.resolve(sharedService.listAllLocalized(language));
     },
 
-    getLocalizedById(id: string, language: Language) {
+    getLocalizedById(id: number, language: Language) {
       return Promise.resolve(sharedService.getLocalizedById(id, language));
     },
 
-    findLocalizedById(id: string, language: Language) {
+    findLocalizedById(id: number, language: Language) {
       return Promise.resolve(sharedService.findLocalizedById(id, language));
     },
 
