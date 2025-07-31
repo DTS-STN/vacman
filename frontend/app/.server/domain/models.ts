@@ -109,7 +109,7 @@ export type Profile = Readonly<{
   personalInformation: UserPersonalInformation;
   employmentInformation: UserEmploymentInformation;
   referralPreferences: UserReferralPreferences;
-  status?: 'pending-approval' | 'approved' | 'incomplete';
+  status?: 'pending-approval' | 'approved' | 'in-progress'; //TODO remove once all open PRs using status are merged
 }>;
 
 export type UserPersonalInformation = {

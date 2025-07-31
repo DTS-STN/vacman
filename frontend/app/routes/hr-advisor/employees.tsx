@@ -88,7 +88,7 @@ export default function EmployeeDashboard({ params }: Route.ComponentProps) {
           options={[STATUS_OPTIONS.approved, STATUS_OPTIONS.pendingApproval]}
         />
       ),
-      cell: (info) => (info.row.original.status ? statusTag(info.row.original.status) : ''),
+      cell: (info) => statusTag(info.row.original.status),
       filterFn: (row, columnId, filterValue: string[]) => {
         const status = row.getValue(columnId) as string;
         return filterValue.length === 0 || filterValue.includes(status);
