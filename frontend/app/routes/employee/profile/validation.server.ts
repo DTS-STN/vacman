@@ -50,9 +50,12 @@ export const personalInformationSchema = v.object({
     v.regex(REGEX_PATTERNS.DIGIT_ONLY, 'app:personal-information.errors.personal-record-identifier-invalid'),
   ),
   preferredLanguageId: v.lazy(() =>
-    v.picklist(
-      allLanguagesOfCorrespondence.map(({ id }) => String(id)),
-      'app:personal-information.errors.preferred-language-required',
+    v.pipe(
+      stringToIntegerSchema('app:personal-information.errors.preferred-language-required'),
+      v.picklist(
+        allLanguagesOfCorrespondence.map(({ id }) => id),
+        'app:personal-information.errors.preferred-language-required',
+      ),
     ),
   ),
   workEmail: v.pipe(
@@ -102,7 +105,7 @@ const validWFAStatusesForOptionalDate = [EMPLOYEE_WFA_STATUS.affected] as const;
 const selectedValidWfaStatusesForRequiredDate = allWfaStatus
   .filter((c) => validWFAStatusesForRequiredDate.toString().includes(c.code))
   .map((status) => ({
-    id: status.id.toString(),
+    id: status.id,
     code: status.code,
     nameEn: status.nameEn,
     nameFr: status.nameFr,
@@ -111,7 +114,7 @@ const selectedValidWfaStatusesForRequiredDate = allWfaStatus
 const selectedValidWfaStatusesForOptionalDate = allWfaStatus
   .filter((c) => validWFAStatusesForOptionalDate.toString().includes(c.code))
   .map((status) => ({
-    id: status.id.toString(),
+    id: status.id,
     code: status.code,
     nameEn: status.nameEn,
     nameFr: status.nameFr,
@@ -121,39 +124,57 @@ export const employmentInformationSchema = v.pipe(
   v.intersect([
     v.object({
       substantivePosition: v.lazy(() =>
-        v.picklist(
-          allSubstantivePositions.map(({ id }) => String(id)),
-          'app:employment-information.errors.substantive-group-and-level-required',
+        v.pipe(
+          stringToIntegerSchema('app:employment-information.errors.substantive-group-and-level-required'),
+          v.picklist(
+            allSubstantivePositions.map(({ id }) => id),
+            'app:employment-information.errors.substantive-group-and-level-required',
+          ),
         ),
       ),
       branchOrServiceCanadaRegion: v.lazy(() =>
-        v.picklist(
-          allBranchOrServiceCanadaRegions.map(({ id }) => String(id)),
-          'app:employment-information.errors.branch-or-service-canada-region-required',
+        v.pipe(
+          stringToIntegerSchema('app:employment-information.errors.branch-or-service-canada-region-required'),
+          v.picklist(
+            allBranchOrServiceCanadaRegions.map(({ id }) => id),
+            'app:employment-information.errors.branch-or-service-canada-region-required',
+          ),
         ),
       ),
       directorate: v.lazy(() =>
-        v.picklist(
-          allDirectorates.map(({ id }) => String(id)),
-          'app:employment-information.errors.directorate-required',
+        v.pipe(
+          stringToIntegerSchema('app:employment-information.errors.directorate-required'),
+          v.picklist(
+            allDirectorates.map(({ id }) => id),
+            'app:employment-information.errors.directorate-required',
+          ),
         ),
       ),
       province: v.lazy(() =>
-        v.picklist(
-          allProvinces.map(({ id }) => String(id)),
-          'app:employment-information.errors.provinces-required',
+        v.pipe(
+          stringToIntegerSchema('app:employment-information.errors.provinces-required'),
+          v.picklist(
+            allProvinces.map(({ id }) => id),
+            'app:employment-information.errors.provinces-required',
+          ),
         ),
       ),
       cityId: v.lazy(() =>
-        v.picklist(
-          allCities.map(({ id }) => String(id)),
-          'app:employment-information.errors.city-required',
+        v.pipe(
+          stringToIntegerSchema('app:employment-information.errors.city-required'),
+          v.picklist(
+            allCities.map(({ id }) => id),
+            'app:employment-information.errors.city-required',
+          ),
         ),
       ),
       hrAdvisor: v.lazy(() =>
-        v.picklist(
-          hrAdvisors.map(({ id }) => id.toString()),
-          'app:employment-information.errors.hr-advisor-required',
+        v.pipe(
+          stringToIntegerSchema('app:employment-information.errors.hr-advisor-required'),
+          v.picklist(
+            hrAdvisors.map(({ id }) => Number(id)),
+            'app:employment-information.errors.hr-advisor-required',
+          ),
         ),
       ),
     }),
@@ -161,7 +182,7 @@ export const employmentInformationSchema = v.pipe(
       'wfaStatus',
       [
         v.object({
-          wfaStatus: v.picklist(selectedValidWfaStatusesForOptionalDate.map(({ id }) => String(id))),
+          wfaStatus: v.pipe(stringToIntegerSchema(), v.picklist(selectedValidWfaStatusesForOptionalDate.map(({ id }) => id))),
           wfaEffectiveDateYear: v.optional(v.string()),
           wfaEffectiveDateMonth: v.optional(v.string()),
           wfaEffectiveDateDay: v.optional(v.string()),
@@ -172,7 +193,7 @@ export const employmentInformationSchema = v.pipe(
           wfaEndDate: v.optional(v.string()),
         }),
         v.object({
-          wfaStatus: v.picklist(selectedValidWfaStatusesForRequiredDate.map(({ id }) => String(id))),
+          wfaStatus: v.pipe(stringToIntegerSchema(), v.picklist(selectedValidWfaStatusesForRequiredDate.map(({ id }) => id))),
           wfaEffectiveDateYear: v.pipe(
             stringToIntegerSchema('app:employment-information.errors.wfa-effective-date.required-year'),
             v.minValue(1, 'app:employment-information.errors.wfa-effective-date.invalid-year'),
@@ -260,13 +281,16 @@ export const employmentInformationSchema = v.pipe(
   ),
 );
 
-export const refferralPreferencesSchema = v.object({
+export const referralPreferencesSchema = v.object({
   languageReferralTypeIds: v.pipe(
     v.array(
       v.lazy(() =>
-        v.picklist(
-          allLanguageReferralTypes.map((l) => String(l.id)),
-          'app:referral-preferences.errors.language-referral-type-invalid',
+        v.pipe(
+          stringToIntegerSchema('app:referral-preferences.errors.language-referral-type-invalid'),
+          v.picklist(
+            allLanguageReferralTypes.map((l) => l.id),
+            'app:referral-preferences.errors.language-referral-type-invalid',
+          ),
         ),
       ),
     ),
@@ -279,9 +303,12 @@ export const refferralPreferencesSchema = v.object({
   classificationIds: v.pipe(
     v.array(
       v.lazy(() =>
-        v.picklist(
-          allSubstantivePositions.map((c) => String(c.id)),
-          'app:referral-preferences.errors.classification-invalid',
+        v.pipe(
+          stringToIntegerSchema('app:referral-preferences.errors.classification-invalid'),
+          v.picklist(
+            allSubstantivePositions.map((c) => c.id),
+            'app:referral-preferences.errors.classification-invalid',
+          ),
         ),
       ),
     ),
@@ -292,17 +319,23 @@ export const refferralPreferencesSchema = v.object({
     ),
   ),
   workLocationProvince: v.lazy(() =>
-    v.picklist(
-      allProvinces.map(({ id }) => String(id)),
-      'app:referral-preferences.errors.work-location-province-required',
+    v.pipe(
+      stringToIntegerSchema('app:referral-preferences.errors.work-location-province-required'),
+      v.picklist(
+        allProvinces.map(({ id }) => id),
+        'app:referral-preferences.errors.work-location-province-required',
+      ),
     ),
   ),
   workLocationCitiesIds: v.pipe(
     v.array(
       v.lazy(() =>
-        v.picklist(
-          allCities.map((c) => String(c.id)),
-          'app:referral-preferences.errors.work-location-city-invalid',
+        v.pipe(
+          stringToIntegerSchema('app:referral-preferences.errors.work-location-city-invalid'),
+          v.picklist(
+            allCities.map((c) => c.id),
+            'app:referral-preferences.errors.work-location-city-invalid',
+          ),
         ),
       ),
     ),
@@ -317,9 +350,12 @@ export const refferralPreferencesSchema = v.object({
   employmentTenureIds: v.pipe(
     v.array(
       v.lazy(() =>
-        v.picklist(
-          allEmploymentTenures.map((e) => String(e.id)),
-          'app:referral-preferences.errors.employment-tenure-invalid',
+        v.pipe(
+          stringToIntegerSchema('app:referral-preferences.errors.employment-tenure-invalid'),
+          v.picklist(
+            allEmploymentTenures.map((e) => e.id),
+            'app:referral-preferences.errors.employment-tenure-invalid',
+          ),
         ),
       ),
     ),
