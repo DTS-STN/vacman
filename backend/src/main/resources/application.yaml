@@ -181,7 +181,7 @@ springdoc:
     display-request-duration: true
     oauth:
       client-id: ${application.swagger-ui.authentication.oauth.client-id}
-      scopes: ${application.swagger-ui.authentication.oauth.client-id}/.default
+      scopes: api://nonprod.esdc-edsc.gc.ca/vacman/.default
       use-pkce-with-authorization-code-grant: true
   writer-with-default-pretty-printer: true
   writer-with-order-by-keys: true
@@ -257,6 +257,14 @@ application:
         time-unit: minutes
   entra-id:
     tenant-id: 9ed55846-8a81-4246-acd8-b1a01abfc0d1
+  gcnotify:
+    base-url: https://api.notification.canada.ca/v2/notifications
+    connect-timeout: 30s
+    read-timeout: 30s
+    api-key: # must be set externally (ex: 00000000-0000-0000-0000-000000000000)
+    profile-approved-template-id: # must be set externally (ex: 00000000-0000-0000-0000-000000000000)
+    profile-created-template-id: # must be set externally (ex: 00000000-0000-0000-0000-000000000000)
+    profile-updated-template-id:  # must be set externally (ex: 00000000-0000-0000-0000-000000000000)
   ms-graph:
     base-url: https://graph.microsoft.com/v1.0
     connect-timeout: 10s
