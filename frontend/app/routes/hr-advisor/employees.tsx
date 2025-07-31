@@ -11,33 +11,42 @@ import type { Route } from '../+types/index';
 
 import type { Profile } from '~/.server/domain/models';
 import { getProfileService } from '~/.server/domain/services/profile-service';
+import { getProfileStatusService } from '~/.server/domain/services/profile-status-service';
 import { Button } from '~/components/button';
 import { DataTable, DataTableColumnHeader, DataTableColumnHeaderWithOptions } from '~/components/data-table';
 import { InlineLink } from '~/components/links';
 import { PageTitle } from '~/components/page-title';
+import { EMPLOYEE_STATUS_CODE } from '~/domain/constants';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
-
-const STATUS_OPTIONS = {
-  pendingApproval: 'pending-approval',
-  approved: 'approved',
-  incomplete: 'incomplete',
-};
 
 export const handle = {
   i18nNamespace: [...parentHandle.i18nNamespace],
 } as const satisfies RouteHandle;
 
 export async function loader({ context, request }: LoaderFunctionArgs) {
-  const { t } = await getTranslation(request, handle.i18nNamespace);
+  const { lang, t } = await getTranslation(request, handle.i18nNamespace);
 
-  const allProfiles = await getProfileService().getAllProfiles();
+  const profiles = await getProfileService().getAllProfiles();
+  const statuses = await getProfileStatusService().listAllLocalized(lang);
 
-  const profileData = allProfiles.filter(
-    (profile) => profile.status === STATUS_OPTIONS.approved || profile.status === STATUS_OPTIONS.pendingApproval,
-  );
+  const hrRelevantEmployeeStatusCodes = [EMPLOYEE_STATUS_CODE.approved, EMPLOYEE_STATUS_CODE.pending];
+  const statusIds = statuses
+    .filter((s) =>
+      hrRelevantEmployeeStatusCodes.includes(
+        s.code as typeof EMPLOYEE_STATUS_CODE.approved | typeof EMPLOYEE_STATUS_CODE.pending,
+      ),
+    )
+    .map((s) => s.id);
 
-  return { documentTitle: t('app:index.employees'), profileData };
+  // Filter profiles based on allowed status codes
+  const filteredProfiles = profiles.filter((profile) => statusIds.includes(profile.profileStatusId.toString()));
+
+  return {
+    documentTitle: t('app:index.employees'),
+    profiles: filteredProfiles,
+    statuses,
+  };
 }
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
@@ -47,6 +56,8 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
 export default function EmployeeDashboard({ params }: Route.ComponentProps) {
   const { t } = useTranslation(handle.i18nNamespace);
   const loaderData = useLoaderData<typeof loader>();
+
+  const statusMap = Object.fromEntries(loaderData.statuses.map((s) => [s.id, s.name]));
 
   const columns: ColumnDef<Profile>[] = [
     {
@@ -81,14 +92,21 @@ export default function EmployeeDashboard({ params }: Route.ComponentProps) {
     },
     {
       accessorKey: 'status',
+      accessorFn: (row) => statusMap[row.profileStatusId] ?? '',
       header: ({ column }) => (
         <DataTableColumnHeaderWithOptions
           column={column}
           title={t('app:employee-dashboard.status')}
-          options={[STATUS_OPTIONS.approved, STATUS_OPTIONS.pendingApproval]}
+          options={loaderData.statuses
+            .filter((status) => status.code === EMPLOYEE_STATUS_CODE.approved || status.code === EMPLOYEE_STATUS_CODE.pending)
+            .map((status) => status.name)}
         />
       ),
-      cell: (info) => statusTag(info.row.original.status),
+      cell: (info) => {
+        const profile = info.row.original;
+        const status = loaderData.statuses.find((s) => s.id === profile.profileStatusId.toString());
+        return status && statusTag(status.code, status.name);
+      },
       filterFn: (row, columnId, filterValue: string[]) => {
         const status = row.getValue(columnId) as string;
         return filterValue.length === 0 || filterValue.includes(status);
@@ -120,17 +138,22 @@ export default function EmployeeDashboard({ params }: Route.ComponentProps) {
       <Button variant="alternative" className="float-right my-4">
         {t('app:employee-dashboard.all-employees')}
       </Button>
-      <DataTable columns={columns} data={loaderData.profileData} />
+      <DataTable columns={columns} data={loaderData.profiles} />
     </div>
   );
 }
 
-function statusTag(status?: string): JSX.Element {
+function statusTag(statusCode: string, label: string): JSX.Element {
+  const styleMap: Record<string, string> = {
+    APPROVED: 'bg-sky-100 text-sky-700',
+    PENDING: 'bg-amber-100 text-yellow-700',
+  };
+
+  const style = styleMap[statusCode] ?? styleMap.DEFAULT;
+
   return (
-    <div
-      className={`${status === STATUS_OPTIONS.incomplete ? 'bg-gray-100 text-slate-700' : status === STATUS_OPTIONS.approved ? 'bg-sky-100 text-sky-700' : 'bg-amber-100 text-yellow-700'} flex w-fit items-center gap-2 rounded-md px-3 py-1 text-sm font-semibold`}
-    >
-      <p>{status}</p>
+    <div className={`${style} flex w-fit items-center gap-2 rounded-md px-3 py-1 text-sm font-semibold`}>
+      <p>{label}</p>
     </div>
   );
 }

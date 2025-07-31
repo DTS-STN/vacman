@@ -92,7 +92,7 @@ export async function action({ context, request }: Route.ActionArgs) {
       personalInfoComplete,
       employmentInfoComplete,
       referralComplete,
-      status: 'incomplete',
+      profileStatusId: 3, // Incomplete status
     };
   }
 

@@ -136,7 +136,6 @@ export function getMockProfileService(): ProfileService {
       const updatedProfile: Profile = {
         ...mockProfile,
         profileStatusId: 1,
-        status: 'pending-approval',
         dateUpdated: new Date().toISOString(),
         userUpdated: activeDirectoryId,
       };
@@ -162,13 +161,12 @@ let mockProfiles: Profile[] = [
     userIdReviewedBy: undefined,
     userIdApprovedBy: undefined,
     priorityLevelId: 1,
-    profileStatusId: 3,
+    profileStatusId: 1,
     privacyConsentInd: true,
     userCreated: 'system',
     dateCreated: '2024-01-01T00:00:00Z',
     userUpdated: undefined,
     dateUpdated: undefined,
-    status: 'approved',
     personalInformation: {
       surname: 'Doe',
       givenName: 'Jane',
@@ -205,7 +203,7 @@ let mockProfiles: Profile[] = [
     userIdReviewedBy: undefined,
     userIdApprovedBy: undefined,
     priorityLevelId: 2,
-    profileStatusId: 3,
+    profileStatusId: 1,
     privacyConsentInd: true,
     userCreated: 'system',
     dateCreated: '2024-01-01T00:00:00Z',
@@ -253,7 +251,6 @@ let mockProfiles: Profile[] = [
     dateCreated: '2024-02-01T09:00:00Z',
     userUpdated: 'john.smith',
     dateUpdated: '2024-02-10T14:00:00Z',
-    status: 'pending-approval',
     personalInformation: {
       surname: 'fname',
       givenName: 'lname',
@@ -290,13 +287,12 @@ let mockProfiles: Profile[] = [
     userIdReviewedBy: undefined,
     userIdApprovedBy: undefined,
     priorityLevelId: 2,
-    profileStatusId: 3,
+    profileStatusId: 1,
     privacyConsentInd: false,
     userCreated: 'system',
     dateCreated: '2024-03-15T08:30:00Z',
     userUpdated: undefined,
     dateUpdated: undefined,
-    status: 'approved',
     personalInformation: {
       surname: 'Curie',
       givenName: 'Marie',
@@ -339,7 +335,6 @@ let mockProfiles: Profile[] = [
     dateCreated: '2024-04-20T11:45:00Z',
     userUpdated: 'alex.tan',
     dateUpdated: '2024-05-01T10:00:00Z',
-    status: 'pending-approval',
     personalInformation: {
       surname: 'Tan',
       givenName: 'Alex',
@@ -376,13 +371,12 @@ let mockProfiles: Profile[] = [
     userIdReviewedBy: undefined,
     userIdApprovedBy: undefined,
     priorityLevelId: 1,
-    profileStatusId: 3,
+    profileStatusId: 1,
     privacyConsentInd: true,
     userCreated: 'system',
     dateCreated: '2024-06-01T08:00:00Z',
     userUpdated: undefined,
     dateUpdated: undefined,
-    status: 'approved',
     personalInformation: {
       surname: 'Lee',
       givenName: 'Sam',
@@ -425,7 +419,6 @@ let mockProfiles: Profile[] = [
     dateCreated: '2024-06-02T09:00:00Z',
     userUpdated: 'sam.lee',
     dateUpdated: '2024-06-12T10:00:00Z',
-    status: 'pending-approval',
     personalInformation: {
       surname: 'Park',
       givenName: 'Linda',
@@ -510,7 +503,6 @@ let mockProfiles: Profile[] = [
     dateCreated: '2024-06-04T11:00:00Z',
     userUpdated: 'carlos.gomez',
     dateUpdated: '2024-06-14T12:00:00Z',
-    status: 'pending-approval',
     personalInformation: {
       surname: 'Singh',
       givenName: 'Priya',
@@ -553,7 +545,6 @@ let mockProfiles: Profile[] = [
     dateCreated: '2024-06-05T12:00:00Z',
     userUpdated: undefined,
     dateUpdated: undefined,
-    status: 'approved',
     personalInformation: {
       surname: undefined,
       givenName: 'Mohammed',
@@ -596,7 +587,6 @@ let mockProfiles: Profile[] = [
     dateCreated: '2024-06-06T13:00:00Z',
     userUpdated: 'mohammed.alfarsi',
     dateUpdated: '2024-06-16T14:00:00Z',
-    status: 'pending-approval',
     personalInformation: {
       surname: undefined,
       givenName: 'Emily',
@@ -639,7 +629,6 @@ let mockProfiles: Profile[] = [
     dateCreated: '2024-06-07T14:00:00Z',
     userUpdated: undefined,
     dateUpdated: undefined,
-    status: 'approved',
     personalInformation: {
       surname: 'Brown',
       givenName: 'Olivia',
@@ -682,7 +671,6 @@ let mockProfiles: Profile[] = [
     dateCreated: '2024-06-08T15:00:00Z',
     userUpdated: 'olivia.brown',
     dateUpdated: '2024-07-08T16:00:00Z',
-    status: 'pending-approval',
     personalInformation: {
       surname: 'Kim',
       givenName: 'David',
@@ -767,7 +755,6 @@ let mockProfiles: Profile[] = [
     dateCreated: '2024-06-10T17:00:00Z',
     userUpdated: 'sofia.rossi',
     dateUpdated: '2024-07-12T18:00:00Z',
-    status: 'pending-approval',
     personalInformation: {
       surname: 'Muller',
       givenName: 'Tom',
