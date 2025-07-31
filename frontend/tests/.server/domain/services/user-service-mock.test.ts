@@ -10,7 +10,7 @@ describe('getMockUserService', () => {
 
   describe('getUserById', () => {
     it('should return a user when given a valid ID', async () => {
-      const user = await service.getUserById('1');
+      const user = await service.getUserById(1);
 
       expect(user).toEqual({
         id: '1',
@@ -32,7 +32,7 @@ describe('getMockUserService', () => {
     });
 
     it('should throw an error when user is not found', async () => {
-      await expect(service.getUserById('999')).rejects.toMatchObject({
+      await expect(service.getUserById(999)).rejects.toMatchObject({
         msg: "User with ID '999' not found.",
         errorCode: ErrorCodes.VACMAN_API_ERROR,
         httpStatusCode: 500,

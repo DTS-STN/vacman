@@ -20,15 +20,15 @@ vi.mock('~/.server/domain/services/api-client', () => ({
 const mockApiClient = vi.mocked(apiClient);
 
 interface TestEntity {
-  id: string;
+  id: number;
   code: string;
   nameEn: string;
   nameFr: string;
 }
 
 const mockTestData: TestEntity[] = [
-  { id: '1', code: 'TEST1', nameEn: 'Test One', nameFr: 'Test Un' },
-  { id: '2', code: 'TEST2', nameEn: 'Test Two', nameFr: 'Test Deux' },
+  { id: 1, code: 'TEST1', nameEn: 'Test One', nameFr: 'Test Un' },
+  { id: 2, code: 'TEST2', nameEn: 'Test Two', nameFr: 'Test Deux' },
 ];
 
 describe('LookupServiceImplementation', () => {
@@ -60,7 +60,7 @@ describe('LookupServiceImplementation', () => {
     it('should retrieve entity by ID successfully', async () => {
       mockApiClient.get.mockResolvedValue(Ok(mockTestData[0]));
 
-      const result = await service.getById('1');
+      const result = await service.getById(1);
 
       expect(result.isOk()).toBe(true);
       expect(result.unwrap()).toEqual(mockTestData[0]);
@@ -111,7 +111,7 @@ describe('LookupServiceImplementation', () => {
     it('should convert Result to Option for find methods', async () => {
       mockApiClient.get.mockResolvedValue(Ok(mockTestData[0]));
 
-      const result = await service.findById('1');
+      const result = await service.findById(1);
 
       expect(result.isSome()).toBe(true);
       expect(result.unwrap()).toEqual(mockTestData[0]);
@@ -131,7 +131,7 @@ describe('LookupServiceImplementation', () => {
     });
 
     it('should retrieve entity by ID', () => {
-      const result = mockService.getById('1');
+      const result = mockService.getById(1);
       expect(result.isOk()).toBe(true);
       expect(result.unwrap()).toEqual(mockTestData[0]);
     });
@@ -153,13 +153,13 @@ describe('LookupServiceImplementation', () => {
     });
 
     it('should handle entity not found', () => {
-      const result = mockService.getById('999');
+      const result = mockService.getById(999);
       expect(result.isErr()).toBe(true);
       expect(result.unwrapErr()).toBeInstanceOf(AppError);
     });
 
     it('should convert Result to Option for find methods', () => {
-      const result = mockService.findById('1');
+      const result = mockService.findById(1);
       expect(result.isSome()).toBe(true);
       expect(result.unwrap()).toEqual(mockTestData[0]);
     });
