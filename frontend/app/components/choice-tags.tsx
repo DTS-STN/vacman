@@ -55,15 +55,15 @@ export function ChoiceTags({ choiceTags, onClearAll, onDelete, onClearGroup }: C
           ([groupName, tags]) =>
             groupName &&
             tags.length > 0 && (
-              <div key={groupName} className="flex flex-col gap-2">
-                <div className="flex items-center justify-between">
+              <div key={groupName} className="flex flex-col gap-2 bg-gray-100 p-2">
+                <div className="xs:flex-row xs:items-center flex flex-col justify-between gap-2">
                   <h3 className="text-lg font-semibold">{groupName}</h3>
                   {tags.length > 1 && (
                     <Button
-                      variant="link"
-                      size="sm"
+                      variant="primary"
+                      size="xs"
                       onClick={() => handleOnClearGroup(groupName)}
-                      className="text-blue-600 hover:text-blue-800"
+                      className="xs:w-auto w-fit rounded-full"
                       aria-label={t('gcweb:choice-tag.clear-group-label', {
                         items: tags[0]?.name,
                         groupName,
