@@ -35,8 +35,7 @@ public class UserEventListener {
 	public void handleUserCreated(UserCreatedEvent event) throws JsonProcessingException {
 		eventRepository.save(new EventEntityBuilder()
 			.name("USER_CREATED")
-			.description("User created with ID: " + event.entity().getId())
-			.details(objectMapper.writeValueAsString(event))
+			.description(objectMapper.writeValueAsString(event))
 			.build());
 
 		log.info("Event: user created - ID: {}", event.entity().getId());
@@ -54,8 +53,7 @@ public class UserEventListener {
 	public void handleUserCreateConflict(UserCreateConflictEvent event) throws JsonProcessingException {
 		eventRepository.save(new EventEntityBuilder()
 			.name("USER_CREATE_CONFLICT")
-			.description("User create conflict with ID: " + event.entity().getId())
-			.details(objectMapper.writeValueAsString(event))
+			.description(objectMapper.writeValueAsString(event))
 			.build());
 
 		log.info("Event: user create conflict - ID: {}", event.entity().getId());
