@@ -37,8 +37,8 @@ import { InputSelect } from '~/components/input-select';
 import { InlineLink } from '~/components/links';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { getTranslation } from '~/i18n-config.server';
-import { referralPreferencesSchema } from '~/routes/employee/profile/validation.server';
 import { handle as parentHandle } from '~/routes/layout';
+import { referralPreferencesSchema } from '~/routes/page-components/employees/validation.server';
 import { formString } from '~/utils/string-utils';
 import { extractValidationKey } from '~/utils/validation-utils';
 
