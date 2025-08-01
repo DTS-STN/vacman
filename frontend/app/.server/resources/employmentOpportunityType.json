@@ -1,0 +1,28 @@
+{
+  "content": [
+    {
+      "id": 1001,
+      "code": "INTERNAL",
+      "nameEn": "Internal Opportunities",
+      "nameFr": "Opportunités internes"
+    },
+    {
+      "id": 1002,
+      "code": "EXTERNAL",
+      "nameEn": "External Opportunities",
+      "nameFr": "Opportunités externes"
+    },
+    {
+      "id": 1003,
+      "code": "ADVERTISED",
+      "nameEn": "Advertised Processes",
+      "nameFr": "Processus annoncés"
+    },
+    {
+      "id": 1004,
+      "code": "NON_ADVERTISED",
+      "nameEn": "Non-Advertised Processes",
+      "nameFr": "Processus non annoncés"
+    }
+  ]
+}
