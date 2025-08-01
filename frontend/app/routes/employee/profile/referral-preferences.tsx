@@ -61,17 +61,17 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   const currentUserId = authenticatedSession.authState.idTokenClaims.oid as string;
   const formData = await request.formData();
   const parseResult = v.safeParse(referralPreferencesSchema, {
-    languageReferralTypeIds: formData.getAll('languageReferralTypes').map((val) => val.toString()),
-    classificationIds: formData.getAll('classifications').map((val) => val.toString()),
+    languageReferralTypeIds: formData.getAll('languageReferralTypes'),
+    classificationIds: formData.getAll('classifications'),
     workLocationProvince: formString(formData.get('workLocationProvince')),
-    workLocationCitiesIds: formData.getAll('workLocationCities').map((val) => val.toString()),
+    workLocationCitiesIds: formData.getAll('workLocationCities'),
     availableForReferralInd: formData.get('referralAvailibility')
       ? formData.get('referralAvailibility') === REQUIRE_OPTIONS.yes
       : undefined,
     interestedInAlternationInd: formData.get('alternateOpportunity')
       ? formData.get('alternateOpportunity') === REQUIRE_OPTIONS.yes
       : undefined,
-    employmentTenureIds: formData.getAll('employmentTenures').map((val) => val.toString()),
+    employmentTenureIds: formData.getAll('employmentTenures'),
   });
 
   if (!parseResult.success) {
