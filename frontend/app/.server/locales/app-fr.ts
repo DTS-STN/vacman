@@ -5,10 +5,13 @@ export default {
     'about': "L'initiative VacMan!",
     'dashboard': 'Interface',
     'page-title': 'Sélectionnez votre tableau de bord',
-    'get-started': 'Tableau de bord des employés',
+    'get-started': 'Débuter',
     'navigate': 'Accédez au portail des employés',
     'register': 'Register',
     'employees': 'Employés',
+    'employee-dashboard': 'Tableau de bord des employés',
+    'hiring-manager-dashboard': 'Tableau de bord du responsable du recrutement',
+    'register-as': "S'inscrire comme...",
   },
   'register': {
     'employee': 'Tableau de bord des employés',
@@ -53,6 +56,7 @@ export default {
     'profile-incomplete': '(FR) Please complete all required fields before submitting your profile',
     'profile-submitted': '(FR) Profile submitted successfully! Your HR advisor will now review it for approval',
     'profile-pending-approval': '(FR) Your profile edits will require re-approval by your HR advisor', // TODO: French translations not yet available
+    'page-title': 'Profil',
   },
   'form': {
     'cancel': 'Annuler',

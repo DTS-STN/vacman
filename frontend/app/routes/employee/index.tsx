@@ -38,7 +38,7 @@ export async function action({ context, request }: ActionFunctionArgs) {
 
 export async function loader({ context, request }: LoaderFunctionArgs) {
   const { t } = await getTranslation(request, handle.i18nNamespace);
-  return { documentTitle: t('app:index.get-started') };
+  return { documentTitle: t('app:index.employee-dashboard') };
 }
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {

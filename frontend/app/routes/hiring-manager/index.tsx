@@ -12,7 +12,7 @@ export const handle = {
 
 export async function loader({ context, request }: LoaderFunctionArgs) {
   const { t } = await getTranslation(request, handle.i18nNamespace);
-  return { documentTitle: t('app:register.page-title') };
+  return { documentTitle: t('app:index.hiring-manager-dashboard') };
 }
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
@@ -24,7 +24,7 @@ export default function HiringManagerDashboard() {
 
   return (
     <div className="mb-8">
-      <PageTitle className="after:w-14">{t('app:register.hiring-manager')}</PageTitle>
+      <PageTitle className="after:w-14">{t('app:index.hiring-manager-dashboard')}</PageTitle>
       <p className="mt-4 text-lg text-slate-700">{t('app:index.about')}</p>
     </div>
   );
