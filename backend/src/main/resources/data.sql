@@ -235,7 +235,12 @@ VALUES
     ('INTERNAL', 'Internal Opportunities', 'Opportunités internes', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
     ('EXTERNAL', 'External Opportunities', 'Opportunités externes', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
     ('ADVERTISED', 'Advertised Processes', 'Processus annoncés', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
-    ('NON_ADVERTISED', 'Non-Advertised Processes', 'Processus non annoncés', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
+    ('NON_ADVERTISED', 'Non-Advertised Processes', 'Processus non annoncés', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+    ('DEPLOYMENT', 'Deployment', 'Mutation', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+    ('PROMOTION', 'Promotion', 'Promotion', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+    ('APPOINTMENT', 'Appointment', 'Nomination', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+    ('ACTING', 'Acting Assignment', 'Intérim', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+    ('SECONDMENT', 'Secondment', 'Détachement', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
 
 -- Initialize language requirements (using DATE fields as per DDL)
 INSERT INTO [CD_LANGUAGE_REQUIREMENT] ([LANGUAGE_REQUIREMENT_CODE], [LANGUAGE_REQUIREMENT_NAME_EN], [LANGUAGE_REQUIREMENT_NAME_FR], [EFFECTIVE_DATE], [USER_CREATED], [DATE_CREATED], [USER_UPDATED], [DATE_UPDATED])
@@ -270,15 +275,6 @@ VALUES
     ('ABORIGINAL', 'Aboriginal', 'Autochtone', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
     ('WOMEN', 'Women', 'Femmes', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
     ('PERSONS_WITH_DISABILITIES', 'Persons with Disabilities', 'Personnes handicapées', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
-
--- Initialize employment opportunities
-INSERT INTO [CD_EMPLOYMENT_OPPORTUNITY] ([EMPLOYMENT_OPPORTUNITY_CODE], [EMPLOYMENT_OPPORTUNITY_NAME_EN], [EMPLOYMENT_OPPORTUNITY_NAME_FR], [EFFECTIVE_DATE], [USER_CREATED], [DATE_CREATED], [USER_UPDATED], [DATE_UPDATED])
-VALUES
-    ('DEPLOYMENT', 'Deployment', 'Mutation', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
-    ('PROMOTION', 'Promotion', 'Promotion', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
-    ('APPOINTMENT', 'Appointment', 'Nomination', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
-    ('ACTING', 'Acting Assignment', 'Intérim', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
-    ('SECONDMENT', 'Secondment', 'Détachement', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
 
 -- Initialize language referral types
 INSERT INTO [CD_LANGUAGE_REFERRAL_TYPE] ([LANGUAGE_REFERRAL_TYPE_CODE], [LANGUAGE_REFERRAL_TYPE_NAME_EN], [LANGUAGE_REFERRAL_TYPE_NAME_FR], [EFFECTIVE_DATE], [USER_CREATED], [DATE_CREATED], [USER_UPDATED], [DATE_UPDATED])
