@@ -70,6 +70,10 @@ spring:
   jpa:
     # defer execution of data.sql until hibernate creates the schema 
     defer-datasource-initialization: true
+    hibernate:
+      naming:
+        # Use the exact names for tables and columns as specified in the entity classes
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
 
 ---
 
