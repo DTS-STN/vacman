@@ -44,6 +44,7 @@ public class WebSecurityConfig {
 
 		http.authorizeHttpRequests(authorizeHttpRequests -> authorizeHttpRequests
 			.requestMatchers("/").permitAll()
+			.requestMatchers("/actuator/health/**").permitAll()
 			.requestMatchers("/swagger-ui/**").permitAll()
 			.requestMatchers("/v3/api-docs/**").permitAll());
 
