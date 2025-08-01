@@ -18,6 +18,7 @@ import { getProvinceService } from '~/.server/domain/services/province-service';
 import { getUserService } from '~/.server/domain/services/user-service';
 import { getWFAStatuses } from '~/.server/domain/services/wfa-status-service';
 import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
+import { hasEmploymentDataChanged } from '~/.server/utils/profile-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { Button } from '~/components/button';
 import { ButtonLink } from '~/components/button-link';
@@ -25,7 +26,7 @@ import { DatePickerField } from '~/components/date-picker-field';
 import { FormErrorSummary } from '~/components/error-summary';
 import { InputSelect } from '~/components/input-select';
 import { InlineLink } from '~/components/links';
-import { EMPLOYEE_WFA_STATUS } from '~/domain/constants';
+import { EMPLOYEE_WFA_STATUS, PROFILE_STATUS_ID } from '~/domain/constants';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { getTranslation } from '~/i18n-config.server';
 import type { employmentInformationSchema } from '~/routes/employee/profile/validation.server';
@@ -55,7 +56,18 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     );
   }
 
-  const updateResult = await getProfileService().updateEmploymentInformation(currentUserId, parseResult.output);
+  const profileService = getProfileService();
+  const currentProfileOption = await profileService.getProfile(currentUserId);
+  const currentProfile = currentProfileOption.unwrap();
+  if (
+    currentProfile.profileStatusId === PROFILE_STATUS_ID.approved &&
+    hasEmploymentDataChanged(currentProfile.employmentInformation, parseResult.output)
+  ) {
+    // profile needs to be re-approved if and only if the current profile status is 'approved'
+    await profileService.submitProfileForReview(currentUserId);
+  }
+
+  const updateResult = await profileService.updateEmploymentInformation(currentUserId, parseResult.output);
 
   if (updateResult.isErr()) {
     throw updateResult.unwrapErr();

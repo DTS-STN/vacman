@@ -1,3 +1,5 @@
+import type { UserEmploymentInformation } from '../domain/models';
+
 import { getProfileService } from '~/.server/domain/services/profile-service';
 import { LogFactory } from '~/.server/logging';
 
@@ -122,4 +124,18 @@ export function omitObjectProperties<T extends object, K extends keyof T>(obj: T
   }
 
   return result;
+}
+
+export function hasEmploymentDataChanged(oldData: UserEmploymentInformation, newData: UserEmploymentInformation) {
+  const keysToCheck: (keyof UserEmploymentInformation)[] = [
+    'substantivePosition',
+    'wfaStatus',
+    'wfaEffectiveDate',
+    'wfaEndDate',
+    'hrAdvisor',
+  ];
+  for (const key of keysToCheck) {
+    if (newData[key] !== oldData[key]) return true;
+  }
+  return false;
 }
