@@ -45,8 +45,8 @@ export async function action({ context, request }: ActionFunctionArgs) {
     return i18nRedirect('routes/employee/index.tsx', request);
   }
 
-  // If declined, redirect back to dashboard selection page with current locale
-  return i18nRedirect('routes/index.tsx', request);
+  // If declined do nothing except redirect to same page => business logic to be decided?
+  return i18nRedirect('routes/employee/privacy-consent.tsx', request);
 }
 
 export async function loader({ context, request }: LoaderFunctionArgs) {
@@ -74,7 +74,7 @@ export default function PrivacyConsent() {
             <Button name="action" value="accept" variant="primary" id="continue-button">
               Accept
             </Button>
-            <ButtonLink file="routes/index.tsx" id="back-button">
+            <ButtonLink file="routes/employee/privacy-consent.tsx" id="back-button">
               Decline
             </ButtonLink>
           </div>

@@ -334,15 +334,15 @@ describe('Index Dashboard Selection Flow', () => {
   });
 
   describe('Index Loader', () => {
-    it('should load index page successfully', async () => {
+    it('should load index page successfully', () => {
       const context = createMockContext('test-user-123');
       const request = new Request('http://localhost:3000/en/');
 
-      const response = await indexLoader({ context, request, params: {} } as TestRouteArgs);
+      const response = indexLoader({ context, request, params: {} } as TestRouteArgs);
 
-      expect(response).toEqual({
-        documentTitle: expect.any(String),
-      });
+      expect(response).toBeInstanceOf(Response);
+      expect(response.status).toBe(302);
+      expect(response.headers.get('Location')).toBe('/en/employee');
     });
   });
 
