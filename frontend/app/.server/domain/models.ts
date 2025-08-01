@@ -74,6 +74,9 @@ export type LocalizedProfileStatus = LocalizedLookupModel;
 export type PriorityLevel = LookupModel;
 export type LocalizedPriorityLevel = LocalizedLookupModel;
 
+export type RequestStatus = LookupModel;
+export type LocalizedRequestStatus = LocalizedLookupModel;
+
 export type EmploymentEquity = LookupModel;
 export type LocalizedEmploymentEquity = LocalizedLookupModel;
 
