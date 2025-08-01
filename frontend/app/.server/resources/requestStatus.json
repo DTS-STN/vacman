@@ -1,0 +1,40 @@
+{
+  "content": [
+    {
+      "id": 4001,
+      "code": "DRAFT",
+      "nameEn": "Draft",
+      "nameFr": "Brouillon"
+    },
+    {
+      "id": 4002,
+      "code": "SUBMITTED",
+      "nameEn": "Submitted",
+      "nameFr": "Soumis"
+    },
+    {
+      "id": 4003,
+      "code": "UNDER_REVIEW",
+      "nameEn": "Under Review",
+      "nameFr": "En cours d'examen"
+    },
+    {
+      "id": 4004,
+      "code": "APPROVED",
+      "nameEn": "Approved",
+      "nameFr": "Approuvé"
+    },
+    {
+      "id": 4005,
+      "code": "REJECTED",
+      "nameEn": "Rejected",
+      "nameFr": "Rejeté"
+    },
+    {
+      "id": 4006,
+      "code": "CANCELLED",
+      "nameEn": "Cancelled",
+      "nameFr": "Annulé"
+    }
+  ]
+}
