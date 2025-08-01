@@ -16,7 +16,7 @@ import { Button } from '~/components/button';
 import { DataTable, DataTableColumnHeader, DataTableColumnHeaderWithOptions } from '~/components/data-table';
 import { InlineLink } from '~/components/links';
 import { PageTitle } from '~/components/page-title';
-import { EMPLOYEE_STATUS_CODE } from '~/domain/constants';
+import { PROFILE_STATUS_CODE } from '~/domain/constants';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
 
@@ -30,11 +30,11 @@ export async function loader({ context, request }: LoaderFunctionArgs) {
   const profiles = await getProfileService().getAllProfiles();
   const statuses = await getProfileStatusService().listAllLocalized(lang);
 
-  const hrRelevantEmployeeStatusCodes = [EMPLOYEE_STATUS_CODE.approved, EMPLOYEE_STATUS_CODE.pending];
+  const hrRelevantEmployeeStatusCodes = [PROFILE_STATUS_CODE.approved, PROFILE_STATUS_CODE.pending];
   const statusIds = statuses
     .filter((s) =>
       hrRelevantEmployeeStatusCodes.includes(
-        s.code as typeof EMPLOYEE_STATUS_CODE.approved | typeof EMPLOYEE_STATUS_CODE.pending,
+        s.code as typeof PROFILE_STATUS_CODE.approved | typeof PROFILE_STATUS_CODE.pending,
       ),
     )
     .map((s) => s.id);
@@ -98,7 +98,7 @@ export default function EmployeeDashboard({ params }: Route.ComponentProps) {
           column={column}
           title={t('app:employee-dashboard.status')}
           options={loaderData.statuses
-            .filter((status) => status.code === EMPLOYEE_STATUS_CODE.approved || status.code === EMPLOYEE_STATUS_CODE.pending)
+            .filter((status) => status.code === PROFILE_STATUS_CODE.approved || status.code === PROFILE_STATUS_CODE.pending)
             .map((status) => status.name)}
         />
       ),
