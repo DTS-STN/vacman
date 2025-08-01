@@ -1,0 +1,22 @@
+{
+  "content": [
+    {
+      "id": 3001,
+      "code": "LOW",
+      "nameEn": "Low",
+      "nameFr": "Faible"
+    },
+    {
+      "id": 3002,
+      "code": "NORMAL",
+      "nameEn": "Normal",
+      "nameFr": "Normal"
+    },
+    {
+      "id": 3003,
+      "code": "HIGH",
+      "nameEn": "High",
+      "nameFr": "Élevé"
+    }
+  ]
+}
