@@ -15,7 +15,7 @@ import jakarta.validation.Payload;
 @Constraint(validatedBy = RequestStatusCodeValidator.class)
 public @interface ValidRequestStatusCode {
 
-	String message() default "Request status code does not exist";
+	String message() default "Request status does not exist";
 
 	Class<?>[] groups() default {};
 

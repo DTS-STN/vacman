@@ -15,7 +15,7 @@ import jakarta.validation.Payload;
 @Constraint(validatedBy = LanguageReferralTypeCodeValidator.class)
 public @interface ValidLanguageReferralTypeCode {
 
-	String message() default "Language referral type code does not exist";
+	String message() default "Language referral type does not exist";
 
 	Class<?>[] groups() default {};
 

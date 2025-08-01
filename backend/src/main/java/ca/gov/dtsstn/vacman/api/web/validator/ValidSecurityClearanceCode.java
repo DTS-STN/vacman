@@ -15,7 +15,7 @@ import jakarta.validation.Payload;
 @Constraint(validatedBy = SecurityClearanceCodeValidator.class)
 public @interface ValidSecurityClearanceCode {
 
-	String message() default "Security clearance code does not exist";
+	String message() default "Security clearance does not exist";
 
 	Class<?>[] groups() default {};
 

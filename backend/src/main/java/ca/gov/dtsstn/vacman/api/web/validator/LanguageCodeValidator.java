@@ -12,7 +12,7 @@ import jakarta.validation.ConstraintValidatorContext;
  * This is used by the web layer to validate incoming language codes.
  */
 @Component
-public class LanguageCodeValidator implements ConstraintValidator<ValidLanguageCode, String> {
+public class LanguageCodeValidator implements ConstraintValidator<ValidLanguageCode, Long> {
 
 	private final CodeService codeService;
 
@@ -26,11 +26,11 @@ public class LanguageCodeValidator implements ConstraintValidator<ValidLanguageC
 	}
 
 	@Override
-	public boolean isValid(String languageCode, ConstraintValidatorContext context) {
-		if (languageCode == null) { return true; }
+	public boolean isValid(Long languageId, ConstraintValidatorContext context) {
+		if (languageId == null) { return true; }
 
 		return codeService.getLanguages(Pageable.unpaged()).stream()
-			.filter(language -> language.getCode().equals(languageCode))
+			.filter(language -> language.getId().equals(languageId))
 			.findFirst().isPresent();
 	}
 

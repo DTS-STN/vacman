@@ -8,7 +8,7 @@ import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
 @Component
-public class WorkUnitCodeValidator implements ConstraintValidator<ValidWorkUnitCode, String> {
+public class WorkUnitCodeValidator implements ConstraintValidator<ValidWorkUnitCode, Long> {
 
 	private final CodeService codeService;
 
@@ -22,11 +22,11 @@ public class WorkUnitCodeValidator implements ConstraintValidator<ValidWorkUnitC
 	}
 
 	@Override
-	public boolean isValid(String workUnitCode, ConstraintValidatorContext context) {
-		if (workUnitCode == null) { return true; }
+	public boolean isValid(Long workUnitId, ConstraintValidatorContext context) {
+		if (workUnitId == null) { return true; }
 
 		return codeService.getWorkUnits(Pageable.unpaged()).stream()
-			.filter(workUnit -> workUnit.getCode().equals(workUnitCode))
+			.filter(workUnit -> workUnit.getId().equals(workUnitId))
 			.findFirst().isPresent();
 	}
 

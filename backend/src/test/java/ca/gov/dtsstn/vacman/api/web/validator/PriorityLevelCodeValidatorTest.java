@@ -12,6 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
@@ -38,18 +39,16 @@ class PriorityLevelCodeValidatorTest {
 	@DisplayName("isValid() returns true when priority level code is valid")
 	void isValidReturnsTrueWhenPriorityLevelCodeIsValid() {
 		when(codeService.getPriorityLevels(Pageable.unpaged()))
-			.thenReturn(new PageImpl<>(List.of(new PriorityLevelEntityBuilder().code("VALID").build())));
+			.thenReturn(new PageImpl<>(List.of(new PriorityLevelEntityBuilder().id(0L).build())));
 
-		assertTrue(priorityLevelCodeValidator.isValid("VALID", null));
+		assertTrue(priorityLevelCodeValidator.isValid(0L, null));
 	}
 
 	@Test
 	@DisplayName("isValid() returns false when priority level code is invalid")
 	void isValidReturnsFalseWhenPriorityLevelCodeIsInvalid() {
-		when(codeService.getPriorityLevels(Pageable.unpaged()))
-			.thenReturn(new PageImpl<>(List.of(new PriorityLevelEntityBuilder().code("VALID").build())));
-
-		assertFalse(priorityLevelCodeValidator.isValid("INVALID", null));
+		when(codeService.getPriorityLevels(Pageable.unpaged())).thenReturn(Page.empty());
+		assertFalse(priorityLevelCodeValidator.isValid(0L, null));
 	}
 
 }

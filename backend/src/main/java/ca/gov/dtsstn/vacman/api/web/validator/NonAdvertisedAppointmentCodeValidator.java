@@ -8,7 +8,7 @@ import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
 @Component
-public class NonAdvertisedAppointmentCodeValidator implements ConstraintValidator<ValidNonAdvertisedAppointmentCode, String> {
+public class NonAdvertisedAppointmentCodeValidator implements ConstraintValidator<ValidNonAdvertisedAppointmentCode, Long> {
 
 	private final CodeService codeService;
 
@@ -22,11 +22,11 @@ public class NonAdvertisedAppointmentCodeValidator implements ConstraintValidato
 	}
 
 	@Override
-	public boolean isValid(String nonAdvertisedAppointmentCode, ConstraintValidatorContext context) {
-		if (nonAdvertisedAppointmentCode == null) { return true; }
+	public boolean isValid(Long nonAdvertisedAppointmentId, ConstraintValidatorContext context) {
+		if (nonAdvertisedAppointmentId == null) { return true; }
 
 		return codeService.getNonAdvertisedAppointments(Pageable.unpaged()).stream()
-			.filter(nonAdvertisedAppointment -> nonAdvertisedAppointment.getCode().equals(nonAdvertisedAppointmentCode))
+			.filter(nonAdvertisedAppointment -> nonAdvertisedAppointment.getId().equals(nonAdvertisedAppointmentId))
 			.findFirst().isPresent();
 	}
 

@@ -12,6 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
@@ -38,18 +39,16 @@ class ClassificationCodeValidatorTest {
 	@DisplayName("isValid() returns true when classification code is valid")
 	void isValidReturnsTrueWhenClassificationCodeIsValid() {
 		when(codeService.getClassifications(Pageable.unpaged()))
-			.thenReturn(new PageImpl<>(List.of(new ClassificationEntityBuilder().code("VALID").build())));
+			.thenReturn(new PageImpl<>(List.of(new ClassificationEntityBuilder().id(0L).build())));
 
-		assertTrue(classificationCodeValidator.isValid("VALID", null));
+		assertTrue(classificationCodeValidator.isValid(0L, null));
 	}
 
 	@Test
 	@DisplayName("isValid() returns false when classification code is invalid")
 	void isValidReturnsFalseWhenClassificationCodeIsInvalid() {
-		when(codeService.getClassifications(Pageable.unpaged()))
-			.thenReturn(new PageImpl<>(List.of(new ClassificationEntityBuilder().code("VALID").build())));
-
-		assertFalse(classificationCodeValidator.isValid("INVALID", null));
+		when(codeService.getClassifications(Pageable.unpaged())).thenReturn(Page.empty());
+		assertFalse(classificationCodeValidator.isValid(0L, null));
 	}
 
 }

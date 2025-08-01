@@ -15,7 +15,7 @@ import jakarta.validation.Payload;
 @Constraint(validatedBy = WorkUnitCodeValidator.class)
 public @interface ValidWorkUnitCode {
 
-	String message() default "Work unit code does not exist";
+	String message() default "Work unit does not exist";
 
 	Class<?>[] groups() default {};
 

@@ -12,6 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
@@ -38,18 +39,16 @@ class WorkScheduleCodeValidatorTest {
 	@DisplayName("isValid() returns true when work schedule code is valid")
 	void isValidReturnsTrueWhenWorkScheduleCodeIsValid() {
 		when(codeService.getWorkSchedules(Pageable.unpaged()))
-			.thenReturn(new PageImpl<>(List.of(new WorkScheduleEntityBuilder().code("VALID").build())));
+			.thenReturn(new PageImpl<>(List.of(new WorkScheduleEntityBuilder().id(0L).build())));
 
-		assertTrue(workScheduleCodeValidator.isValid("VALID", null));
+		assertTrue(workScheduleCodeValidator.isValid(0L, null));
 	}
 
 	@Test
 	@DisplayName("isValid() returns false when work schedule code is invalid")
 	void isValidReturnsFalseWhenWorkScheduleCodeIsInvalid() {
-		when(codeService.getWorkSchedules(Pageable.unpaged()))
-		.thenReturn(new PageImpl<>(List.of(new WorkScheduleEntityBuilder().code("VALID").build())));
-
-		assertFalse(workScheduleCodeValidator.isValid("INVALID", null));
+		when(codeService.getWorkSchedules(Pageable.unpaged())).thenReturn(Page.empty());
+		assertFalse(workScheduleCodeValidator.isValid(0L, null));
 	}
 
 }

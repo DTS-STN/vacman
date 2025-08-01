@@ -12,6 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
@@ -38,18 +39,16 @@ class WfaStatusCodeValidatorTest {
 	@DisplayName("isValid() returns true when WFA status code is valid")
 	void isValidReturnsTrueWhenWfaStatusCodeIsValid() {
 		when(codeService.getWfaStatuses(Pageable.unpaged()))
-			.thenReturn(new PageImpl<>(List.of(new WfaStatusEntityBuilder().code("VALID").build())));
+			.thenReturn(new PageImpl<>(List.of(new WfaStatusEntityBuilder().id(0L).build())));
 
-		assertTrue(wfaStatusCodeValidator.isValid("VALID", null));
+		assertTrue(wfaStatusCodeValidator.isValid(0L, null));
 	}
 
 	@Test
 	@DisplayName("isValid() returns false when WFA status code is invalid")
 	void isValidReturnsFalseWhenWfaStatusCodeIsInvalid() {
-		when(codeService.getWfaStatuses(Pageable.unpaged()))
-			.thenReturn(new PageImpl<>(List.of(new WfaStatusEntityBuilder().code("VALID").build())));
-
-		assertFalse(wfaStatusCodeValidator.isValid("INVALID", null));
+		when(codeService.getWfaStatuses(Pageable.unpaged())).thenReturn(Page.empty());
+		assertFalse(wfaStatusCodeValidator.isValid(0L, null));
 	}
 
 }

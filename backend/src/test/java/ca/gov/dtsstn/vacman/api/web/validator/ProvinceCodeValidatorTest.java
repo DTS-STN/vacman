@@ -12,6 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
@@ -38,18 +39,16 @@ class ProvinceCodeValidatorTest {
 	@DisplayName("isValid() returns true when province code is valid")
 	void isValidReturnsTrueWhenProvinceCodeIsValid() {
 		when(codeService.getProvinces(Pageable.unpaged()))
-			.thenReturn(new PageImpl<>(List.of(new ProvinceEntityBuilder().code("VALID").build())));
+			.thenReturn(new PageImpl<>(List.of(new ProvinceEntityBuilder().id(0L).build())));
 
-		assertTrue(provinceCodeValidator.isValid("VALID", null));
+		assertTrue(provinceCodeValidator.isValid(0L, null));
 	}
 
 	@Test
 	@DisplayName("isValid() returns false when province code is invalid")
 	void isValidReturnsFalseWhenProvinceCodeIsInvalid() {
-		when(codeService.getProvinces(Pageable.unpaged()))
-			.thenReturn(new PageImpl<>(List.of(new ProvinceEntityBuilder().code("VALID").build())));
-
-		assertFalse(provinceCodeValidator.isValid("INVALID", null));
+		when(codeService.getProvinces(Pageable.unpaged())).thenReturn(Page.empty());
+		assertFalse(provinceCodeValidator.isValid(0L, null));
 	}
 
 }

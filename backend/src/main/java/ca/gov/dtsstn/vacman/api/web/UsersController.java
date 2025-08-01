@@ -92,7 +92,7 @@ public class UsersController {
 
 		log.debug("Creating user in database...");
 
-		final var createdUser = userModelMapper.toModel(userService.createUser(userEntity, user.languageCode()));
+		final var createdUser = userModelMapper.toModel(userService.createUser(userEntity, user.languageId()));
 
 		log.trace("Successfully created new user: [{}]", createdUser);
 

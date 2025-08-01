@@ -8,7 +8,7 @@ import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
 @Component
-public class CityCodeValidator implements ConstraintValidator<ValidCityCode, String> {
+public class CityCodeValidator implements ConstraintValidator<ValidCityCode, Long> {
 
 	private final CodeService codeService;
 
@@ -22,11 +22,11 @@ public class CityCodeValidator implements ConstraintValidator<ValidCityCode, Str
 	}
 
 	@Override
-	public boolean isValid(String cityCode, ConstraintValidatorContext context) {
-		if (cityCode == null) { return true; }
+	public boolean isValid(Long cityId, ConstraintValidatorContext context) {
+		if (cityId == null) { return true; }
 
 		return codeService.getCities(Pageable.unpaged()).stream()
-			.filter(city -> city.getCode().equals(cityCode))
+			.filter(city -> city.getId().equals(cityId))
 			.findFirst().isPresent();
 	}
 

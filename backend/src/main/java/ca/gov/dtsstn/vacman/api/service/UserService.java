@@ -1,6 +1,7 @@
 package ca.gov.dtsstn.vacman.api.service;
 
 import static ca.gov.dtsstn.vacman.api.data.entity.AbstractCodeEntity.byCode;
+import static ca.gov.dtsstn.vacman.api.data.entity.AbstractCodeEntity.byId;
 
 import java.util.List;
 import java.util.Optional;
@@ -40,10 +41,10 @@ public class UserService {
 		this.codeService = codeService;
 	}
 
-	public UserEntity createUser(UserEntity user, String languageCode) {
+	public UserEntity createUser(UserEntity user, Long languageId) {
 		// Set language based on languageCode (validation ensures it exists)
 		user.setLanguage(codeService.getLanguages(Pageable.unpaged()).stream()
-			.filter(byCode(languageCode))
+			.filter(byId(languageId))
 			.findFirst().orElseThrow());
 
 		// Set user type based on role (validation ensures it exists)
@@ -86,16 +87,16 @@ public class UserService {
 		userModelMapper.updateEntityFromModel(updateModel, existingUser);
 
 		// Handle role update if provided (validation ensures it exists)
-		Optional.ofNullable(updateModel.role()).ifPresent(role -> {
+		Optional.ofNullable(updateModel.userTypeId()).ifPresent(role -> {
 			existingUser.setUserType(codeService.getUserTypes(Pageable.unpaged()).stream()
-				.filter(byCode(updateModel.role()))
+				.filter(byId(updateModel.userTypeId()))
 				.findFirst().orElseThrow());
 		});
 
 		// Handle language update if provided (validation ensures it exists)
-		Optional.ofNullable(updateModel.languageCode()).ifPresent(languageCode -> {
+		Optional.ofNullable(updateModel.languageId()).ifPresent(languageCode -> {
 			existingUser.setLanguage(codeService.getLanguages(Pageable.unpaged()).stream()
-					.filter(language -> language.getCode().equals(updateModel.languageCode()))
+					.filter(byId(updateModel.languageId()))
 					.findFirst().orElseThrow());
 		});
 

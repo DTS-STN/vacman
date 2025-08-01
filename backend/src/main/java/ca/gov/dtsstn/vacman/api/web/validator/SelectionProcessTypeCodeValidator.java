@@ -8,7 +8,7 @@ import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
 @Component
-public class SelectionProcessTypeCodeValidator implements ConstraintValidator<ValidSelectionProcessTypeCode, String> {
+public class SelectionProcessTypeCodeValidator implements ConstraintValidator<ValidSelectionProcessTypeCode, Long> {
 
 	private final CodeService codeService;
 
@@ -22,11 +22,11 @@ public class SelectionProcessTypeCodeValidator implements ConstraintValidator<Va
 	}
 
 	@Override
-	public boolean isValid(String selectionProcessTypeCode, ConstraintValidatorContext context) {
-		if (selectionProcessTypeCode == null) { return true; }
+	public boolean isValid(Long selectionProcessTypeId, ConstraintValidatorContext context) {
+		if (selectionProcessTypeId == null) { return true; }
 
 		return codeService.getSelectionProcessTypes(Pageable.unpaged()).stream()
-			.filter(selectionProcessType -> selectionProcessType.getCode().equals(selectionProcessTypeCode))
+			.filter(selectionProcessType -> selectionProcessType.getId().equals(selectionProcessTypeId))
 			.findFirst().isPresent();
 	}
 

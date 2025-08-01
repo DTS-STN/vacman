@@ -12,6 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
@@ -38,18 +39,16 @@ class WorkUnitCodeValidatorTest {
 	@DisplayName("isValid() returns true when work unit code is valid")
 	void isValidReturnsTrueWhenWorkUnitCodeIsValid() {
 		when(codeService.getWorkUnits(Pageable.unpaged()))
-			.thenReturn(new PageImpl<>(List.of(new WorkUnitEntityBuilder().code("VALID").build())));
+			.thenReturn(new PageImpl<>(List.of(new WorkUnitEntityBuilder().id(0L).build())));
 
-		assertTrue(workUnitCodeValidator.isValid("VALID", null));
+		assertTrue(workUnitCodeValidator.isValid(0L, null));
 	}
 
 	@Test
 	@DisplayName("isValid() returns false when work unit code is invalid")
 	void isValidReturnsFalseWhenWorkUnitCodeIsInvalid() {
-		when(codeService.getWorkUnits(Pageable.unpaged()))
-			.thenReturn(new PageImpl<>(List.of(new WorkUnitEntityBuilder().code("VALID").build())));
-
-		assertFalse(workUnitCodeValidator.isValid("INVALID", null));
+		when(codeService.getWorkUnits(Pageable.unpaged())).thenReturn(Page.empty());
+		assertFalse(workUnitCodeValidator.isValid(0L, null));
 	}
 
 }

@@ -15,7 +15,7 @@ import jakarta.validation.Payload;
 @Constraint(validatedBy = EmploymentTenureCodeValidator.class)
 public @interface ValidEmploymentTenureCode {
 
-	String message() default "Employment tenure code does not exist";
+	String message() default "Employment tenure does not exist";
 
 	Class<?>[] groups() default {};
 

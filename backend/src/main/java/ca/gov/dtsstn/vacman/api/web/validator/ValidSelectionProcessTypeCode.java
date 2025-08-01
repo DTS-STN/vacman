@@ -15,7 +15,7 @@ import jakarta.validation.Payload;
 @Constraint(validatedBy = SelectionProcessTypeCodeValidator.class)
 public @interface ValidSelectionProcessTypeCode {
 
-	String message() default "Selection process type code does not exist";
+	String message() default "Selection process type does not exist";
 
 	Class<?>[] groups() default {};
 

@@ -8,7 +8,7 @@ import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
 @Component
-public class WfaStatusCodeValidator implements ConstraintValidator<ValidWfaStatusCode, String> {
+public class WfaStatusCodeValidator implements ConstraintValidator<ValidWfaStatusCode, Long> {
 
 	private final CodeService codeService;
 
@@ -22,11 +22,11 @@ public class WfaStatusCodeValidator implements ConstraintValidator<ValidWfaStatu
 	}
 
 	@Override
-	public boolean isValid(String wfaStatusCode, ConstraintValidatorContext context) {
-		if (wfaStatusCode == null) { return true; }
+	public boolean isValid(Long wfaStatusId, ConstraintValidatorContext context) {
+		if (wfaStatusId == null) { return true; }
 
 		return codeService.getWfaStatuses(Pageable.unpaged()).stream()
-			.filter(wfaStatus -> wfaStatus.getCode().equals(wfaStatusCode))
+			.filter(wfaStatus -> wfaStatus.getId().equals(wfaStatusId))
 			.findFirst().isPresent();
 	}
 

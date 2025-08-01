@@ -15,7 +15,7 @@ import jakarta.validation.Payload;
 @Constraint(validatedBy = EmploymentOpportunityCodeValidator.class)
 public @interface ValidEmploymentOpportunityCode {
 
-	String message() default "Employment opportunity code does not exist";
+	String message() default "Employment opportunity does not exist";
 
 	Class<?>[] groups() default {};
 

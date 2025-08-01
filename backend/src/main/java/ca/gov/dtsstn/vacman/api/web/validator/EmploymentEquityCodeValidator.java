@@ -8,7 +8,7 @@ import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
 @Component
-public class EmploymentEquityCodeValidator implements ConstraintValidator<ValidEmploymentEquityCode, String> {
+public class EmploymentEquityCodeValidator implements ConstraintValidator<ValidEmploymentEquityCode, Long> {
 
 	private final CodeService codeService;
 
@@ -22,11 +22,11 @@ public class EmploymentEquityCodeValidator implements ConstraintValidator<ValidE
 	}
 
 	@Override
-	public boolean isValid(String employmentEquityCode, ConstraintValidatorContext context) {
-		if (employmentEquityCode == null) { return true; }
+	public boolean isValid(Long employmentEquityId, ConstraintValidatorContext context) {
+		if (employmentEquityId == null) { return true; }
 
 		return codeService.getEmploymentEquities(Pageable.unpaged()).stream()
-			.filter(employmentEquity -> employmentEquity.getCode().equals(employmentEquityCode))
+			.filter(employmentEquity -> employmentEquity.getId().equals(employmentEquityId))
 			.findFirst().isPresent();
 	}
 

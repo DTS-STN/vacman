@@ -8,7 +8,7 @@ import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
 @Component
-public class ProfileStatusCodeValidator implements ConstraintValidator<ValidProfileStatusCode, String> {
+public class ProfileStatusCodeValidator implements ConstraintValidator<ValidProfileStatusCode, Long> {
 
 	private final CodeService codeService;
 
@@ -22,11 +22,11 @@ public class ProfileStatusCodeValidator implements ConstraintValidator<ValidProf
 	}
 
 	@Override
-	public boolean isValid(String profileStatusCode, ConstraintValidatorContext context) {
-		if (profileStatusCode == null) { return true; }
+	public boolean isValid(Long profileStatusId, ConstraintValidatorContext context) {
+		if (profileStatusId == null) { return true; }
 
 		return codeService.getProfileStatuses(Pageable.unpaged()).stream()
-			.filter(profileStatus -> profileStatus.getCode().equals(profileStatusCode))
+			.filter(profileStatus -> profileStatus.getId().equals(profileStatusId))
 			.findFirst().isPresent();
 	}
 

@@ -8,7 +8,7 @@ import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
 @Component
-public class ClassificationCodeValidator implements ConstraintValidator<ValidClassificationCode, String> {
+public class ClassificationCodeValidator implements ConstraintValidator<ValidClassificationCode, Long> {
 
 	private final CodeService codeService;
 
@@ -22,11 +22,11 @@ public class ClassificationCodeValidator implements ConstraintValidator<ValidCla
 	}
 
 	@Override
-	public boolean isValid(String classificationCode, ConstraintValidatorContext context) {
-		if (classificationCode == null) { return true; }
+	public boolean isValid(Long classificationId, ConstraintValidatorContext context) {
+		if (classificationId == null) { return true; }
 
 		return codeService.getClassifications(Pageable.unpaged()).stream()
-			.filter(classification -> classification.getCode().equals(classificationCode))
+			.filter(classification -> classification.getId().equals(classificationId))
 			.findFirst().isPresent();
 	}
 

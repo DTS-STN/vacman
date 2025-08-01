@@ -12,7 +12,7 @@ import jakarta.validation.ConstraintValidatorContext;
  * This is used by the web layer to validate incoming role codes.
  */
 @Component
-public class UserTypeCodeValidator implements ConstraintValidator<ValidUserTypeCode, String> {
+public class UserTypeCodeValidator implements ConstraintValidator<ValidUserTypeCode, Long> {
 
 	private final CodeService codeService;
 
@@ -26,11 +26,11 @@ public class UserTypeCodeValidator implements ConstraintValidator<ValidUserTypeC
 	}
 
 	@Override
-	public boolean isValid(String userTypeCode, ConstraintValidatorContext context) {
-		if (userTypeCode == null) { return true; }
+	public boolean isValid(Long userTypeId, ConstraintValidatorContext context) {
+		if (userTypeId == null) { return true; }
 
 		return codeService.getUserTypes(Pageable.unpaged()).stream()
-				.filter(userType -> userType.getCode().equals(userTypeCode))
+				.filter(userType -> userType.getId().equals(userTypeId))
 				.findFirst().isPresent();
 	}
 }

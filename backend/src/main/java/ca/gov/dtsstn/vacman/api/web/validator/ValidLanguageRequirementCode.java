@@ -15,7 +15,7 @@ import jakarta.validation.Payload;
 @Constraint(validatedBy = LanguageRequirementCodeValidator.class)
 public @interface ValidLanguageRequirementCode {
 
-	String message() default "Language requirement code does not exist";
+	String message() default "Language requirement does not exist";
 
 	Class<?>[] groups() default {};
 

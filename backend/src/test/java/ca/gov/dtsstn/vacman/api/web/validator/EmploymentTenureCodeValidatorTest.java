@@ -12,6 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
@@ -38,18 +39,16 @@ class EmploymentTenureCodeValidatorTest {
 	@DisplayName("isValid() returns true when employment tenure code is valid")
 	void isValidReturnsTrueWhenEmploymentTenureCodeIsValid() {
 		when(codeService.getEmploymentTenures(Pageable.unpaged()))
-			.thenReturn(new PageImpl<>(List.of(new EmploymentTenureEntityBuilder().code("VALID").build())));
+			.thenReturn(new PageImpl<>(List.of(new EmploymentTenureEntityBuilder().id(0L).build())));
 
-		assertTrue(employmentTenureCodeValidator.isValid("VALID", null));
+		assertTrue(employmentTenureCodeValidator.isValid(0L, null));
 	}
 
 	@Test
 	@DisplayName("isValid() returns false when employment tenure code is invalid")
 	void isValidReturnsFalseWhenEmploymentTenureCodeIsInvalid() {
-		when(codeService.getEmploymentTenures(Pageable.unpaged()))
-			.thenReturn(new PageImpl<>(List.of(new EmploymentTenureEntityBuilder().code("VALID").build())));
-
-		assertFalse(employmentTenureCodeValidator.isValid("INVALID", null));
+		when(codeService.getEmploymentTenures(Pageable.unpaged())).thenReturn(Page.empty());
+		assertFalse(employmentTenureCodeValidator.isValid(0L, null));
 	}
 
 }

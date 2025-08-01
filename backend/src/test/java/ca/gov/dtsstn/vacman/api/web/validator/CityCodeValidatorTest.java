@@ -12,6 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
@@ -38,18 +39,16 @@ class CityCodeValidatorTest {
 	@DisplayName("isValid() returns true when city code is valid")
 	void isValidReturnsTrueWhenCityCodeIsValid() {
 		when(codeService.getCities(Pageable.unpaged()))
-			.thenReturn(new PageImpl<>(List.of(new CityEntityBuilder().code("VALID").build())));
+			.thenReturn(new PageImpl<>(List.of(new CityEntityBuilder().id(0L).build())));
 
-		assertTrue(cityCodeValidator.isValid("VALID", null));
+		assertTrue(cityCodeValidator.isValid(0L, null));
 	}
 
 	@Test
 	@DisplayName("isValid() returns false when city code is invalid")
 	void isValidReturnsFalseWhenCityCodeIsInvalid() {
-		when(codeService.getCities(Pageable.unpaged()))
-			.thenReturn(new PageImpl<>(List.of(new CityEntityBuilder().code("VALID").build())));
-
-		assertFalse(cityCodeValidator.isValid("INVALID", null));
+		when(codeService.getCities(Pageable.unpaged())).thenReturn(Page.empty());
+		assertFalse(cityCodeValidator.isValid(0L, null));
 	}
 
 }

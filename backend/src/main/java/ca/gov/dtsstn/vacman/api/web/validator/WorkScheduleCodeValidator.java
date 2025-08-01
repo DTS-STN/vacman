@@ -8,7 +8,7 @@ import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
 @Component
-public class WorkScheduleCodeValidator implements ConstraintValidator<ValidWorkScheduleCode, String> {
+public class WorkScheduleCodeValidator implements ConstraintValidator<ValidWorkScheduleCode, Long> {
 
 	private final CodeService codeService;
 
@@ -22,11 +22,11 @@ public class WorkScheduleCodeValidator implements ConstraintValidator<ValidWorkS
 	}
 
 	@Override
-	public boolean isValid(String workScheduleCode, ConstraintValidatorContext context) {
-		if (workScheduleCode == null) { return true; }
+	public boolean isValid(Long workScheduleId, ConstraintValidatorContext context) {
+		if (workScheduleId == null) { return true; }
 
 		return codeService.getWorkSchedules(Pageable.unpaged()).stream()
-			.filter(workSchedule -> workSchedule.getCode().equals(workScheduleCode))
+			.filter(workSchedule -> workSchedule.getId().equals(workScheduleId))
 			.findFirst().isPresent();
 	}
 

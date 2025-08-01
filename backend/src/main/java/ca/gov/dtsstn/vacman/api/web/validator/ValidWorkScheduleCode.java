@@ -15,7 +15,7 @@ import jakarta.validation.Payload;
 @Constraint(validatedBy = WorkScheduleCodeValidator.class)
 public @interface ValidWorkScheduleCode {
 
-	String message() default "Work schedule code does not exist";
+	String message() default "Work schedule does not exist";
 
 	Class<?>[] groups() default {};
 

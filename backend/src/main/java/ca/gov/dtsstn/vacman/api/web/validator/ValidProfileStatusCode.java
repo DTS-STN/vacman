@@ -15,7 +15,7 @@ import jakarta.validation.Payload;
 @Constraint(validatedBy = ProfileStatusCodeValidator.class)
 public @interface ValidProfileStatusCode {
 
-	String message() default "Profile status code does not exist";
+	String message() default "Profile status does not exist";
 
 	Class<?>[] groups() default {};
 

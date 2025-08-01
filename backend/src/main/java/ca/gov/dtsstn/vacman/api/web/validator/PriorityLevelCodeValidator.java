@@ -8,7 +8,7 @@ import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
 @Component
-public class PriorityLevelCodeValidator implements ConstraintValidator<ValidPriorityLevelCode, String> {
+public class PriorityLevelCodeValidator implements ConstraintValidator<ValidPriorityLevelCode, Long> {
 
 	private final CodeService codeService;
 
@@ -22,11 +22,11 @@ public class PriorityLevelCodeValidator implements ConstraintValidator<ValidPrio
 	}
 
 	@Override
-	public boolean isValid(String priorityLevelCode, ConstraintValidatorContext context) {
-		if (priorityLevelCode == null) { return true; }
+	public boolean isValid(Long priorityLevelId, ConstraintValidatorContext context) {
+		if (priorityLevelId == null) { return true; }
 
 		return codeService.getPriorityLevels(Pageable.unpaged()).stream()
-			.filter(priorityLevel -> priorityLevel.getCode().equals(priorityLevelCode))
+			.filter(priorityLevel -> priorityLevel.getId().equals(priorityLevelId))
 			.findFirst().isPresent();
 	}
 

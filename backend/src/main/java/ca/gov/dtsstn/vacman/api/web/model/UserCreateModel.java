@@ -8,8 +8,8 @@ import jakarta.validation.constraints.NotNull;
 @RecordBuilder
 @Schema(name = "UserCreate")
 public record UserCreateModel(
-	@NotNull(message = "Language code is required.")
-	@ValidLanguageCode(message = "Language not found with code")
-	@Schema(description = "The language code for this user.", example = "FR")
-	String languageCode
+	@NotNull(message = "Language ID is required.")
+	@ValidLanguageCode(message = "Language not found")
+	@Schema(description = "The language ID for this user.", example = "00000000-0000-0000-0000-000000000000")
+	Long languageId
 ) {}
