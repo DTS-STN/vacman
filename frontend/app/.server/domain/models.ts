@@ -59,6 +59,9 @@ export type LocalizedProvince = LocalizedLookupModel;
 export type LanguageReferralType = LookupModel;
 export type LocalizedLanguageReferralType = LocalizedLookupModel;
 
+export type LanguageRequirement = LookupModel;
+export type LocalizedLanguageRequirement = LocalizedLookupModel;
+
 export type NonAdvertisedAppointment = LookupModel;
 export type LocalizedNonAdvertisedAppointment = LocalizedLookupModel;
 
@@ -67,6 +70,9 @@ export type LocalizedLanguageOfCorrespondence = LocalizedLookupModel;
 
 export type ProfileStatus = LookupModel;
 export type LocalizedProfileStatus = LocalizedLookupModel;
+
+export type PriorityLevel = LookupModel;
+export type LocalizedPriorityLevel = LocalizedLookupModel;
 
 export type EmploymentEquity = LookupModel;
 export type LocalizedEmploymentEquity = LocalizedLookupModel;
