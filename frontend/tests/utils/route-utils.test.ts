@@ -9,10 +9,10 @@ import { findRouteByFile, findRouteByPath, getRouteByFile, getRouteByPath } from
 describe('route-utils', () => {
   describe('findRouteByFile', () => {
     it('should return the correct route for a given file', () => {
-      expect(findRouteByFile('routes/index.tsx', i18nRoutes)).toEqual({
-        id: 'PROT-0001',
-        file: 'routes/index.tsx',
-        paths: { en: '/en/', fr: '/fr/' },
+      expect(findRouteByFile('routes/employee/index.tsx', i18nRoutes)).toEqual({
+        id: 'EMPL-0001',
+        file: 'routes/employee/index.tsx',
+        paths: { en: '/en/employee', fr: '/fr/employe' },
       });
     });
 
@@ -23,10 +23,10 @@ describe('route-utils', () => {
 
   describe('findRouteByPath', () => {
     it('should return the correct route for a given path', () => {
-      expect(findRouteByPath('/en/', i18nRoutes)).toEqual({
-        id: 'PROT-0001',
-        file: 'routes/index.tsx',
-        paths: { en: '/en/', fr: '/fr/' },
+      expect(findRouteByPath('/en/employee', i18nRoutes)).toEqual({
+        id: 'EMPL-0001',
+        file: 'routes/employee/index.tsx',
+        paths: { en: '/en/employee', fr: '/fr/employe' },
       });
     });
 
@@ -37,10 +37,10 @@ describe('route-utils', () => {
 
   describe('getRouteByFile', () => {
     it('should return the correct route for a given file', () => {
-      expect(getRouteByFile('routes/index.tsx', i18nRoutes)).toEqual({
-        id: 'PROT-0001',
-        file: 'routes/index.tsx',
-        paths: { en: '/en/', fr: '/fr/' },
+      expect(getRouteByFile('routes/employee/index.tsx', i18nRoutes)).toEqual({
+        id: 'EMPL-0001',
+        file: 'routes/employee/index.tsx',
+        paths: { en: '/en/employee', fr: '/fr/employe' },
       });
     });
 
@@ -59,10 +59,10 @@ describe('route-utils', () => {
 
   describe('getRouteByPath', () => {
     it('should return the correct route for a given path', () => {
-      expect(getRouteByPath('/en/', i18nRoutes)).toEqual({
-        id: 'PROT-0001',
-        file: 'routes/index.tsx',
-        paths: { en: '/en/', fr: '/fr/' },
+      expect(getRouteByPath('/en/employee', i18nRoutes)).toEqual({
+        id: 'EMPL-0001',
+        file: 'routes/employee/index.tsx',
+        paths: { en: '/en/employee', fr: '/fr/employe' },
       });
     });
 
@@ -95,7 +95,9 @@ describe('route-utils', () => {
       expect(isI18nPageRoute([])).toEqual(false);
       expect(isI18nPageRoute(null)).toEqual(false);
       expect(isI18nPageRoute(undefined)).toEqual(false);
-      expect(isI18nPageRoute({ file: 'routes/index.tsx', paths: { en: '/en', fr: '/fr' } })).toEqual(true);
+      expect(isI18nPageRoute({ file: 'routes/employee/index.tsx', paths: { en: '/en/employee', fr: '/fr/employe' } })).toEqual(
+        true,
+      );
     });
   });
 });
