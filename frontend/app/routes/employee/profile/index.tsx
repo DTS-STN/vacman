@@ -218,7 +218,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const amountCompleted = (profileCompleted / profileTotalFields) * 100;
 
   return {
-    documentTitle: t('app:index.about'),
+    documentTitle: t('app:profile.page-title'),
     name: `${profileData.personalInformation.givenName} ${profileData.personalInformation.surname}`,
     email: profileData.personalInformation.workEmail,
     amountCompleted: amountCompleted,

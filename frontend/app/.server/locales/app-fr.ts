@@ -5,10 +5,11 @@ export default {
     'about': "L'initiative VacMan!",
     'dashboard': 'Interface',
     'page-title': 'Sélectionnez votre tableau de bord',
-    'get-started': 'Tableau de bord des employés',
+    'get-started': 'Débuter',
     'navigate': 'Accédez au portail des employés',
     'register': 'Register',
     'employees': 'Employés',
+    'requests': 'Demandes',
   },
   'register': {
     'employee': 'Tableau de bord des employés',
@@ -53,6 +54,7 @@ export default {
     'profile-incomplete': '(FR) Please complete all required fields before submitting your profile',
     'profile-submitted': '(FR) Profile submitted successfully! Your HR advisor will now review it for approval',
     'profile-pending-approval': '(FR) Your profile edits will require re-approval by your HR advisor', // TODO: French translations not yet available
+    'page-title': 'Profil',
   },
   'form': {
     'cancel': 'Annuler',
@@ -186,5 +188,11 @@ export default {
     'status': '(FR) Status',
     'action': '(FR) Action',
     'next-page': '(FR) Next',
+  },
+  'hr-advisor-dashboard': {
+    'page-title': 'Conseiller RH interface',
+    'employees': 'Employees',
+    'requests': 'Demandes',
+    'back': 'Retour au interface',
   },
 } satisfies typeof appEn;
