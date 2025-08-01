@@ -1,6 +1,7 @@
 import type { RouteHandle, LoaderFunctionArgs, ActionFunctionArgs, MetaFunction } from 'react-router';
 import { Form } from 'react-router';
 
+import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { createUserProfile } from '~/.server/utils/profile-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { Button } from '~/components/button';
@@ -17,6 +18,10 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
 };
 
 export async function action({ context, request }: ActionFunctionArgs) {
+  const currentUrl = new URL(request.url);
+  // Check if the user is authenticated (no specific roles required)
+  requireAuthentication(context.session, currentUrl);
+
   const activeDirectoryId = context.session.authState.idTokenClaims.oid;
 
   // TODO move profile creation to /employee/index after user creation then use profileService.updateProfile (needs to be created first) to indicate the consent in true
@@ -26,6 +31,10 @@ export async function action({ context, request }: ActionFunctionArgs) {
 }
 
 export async function loader({ context, request }: LoaderFunctionArgs) {
+  const currentUrl = new URL(request.url);
+  // Check if the user is authenticated (no specific roles required)
+  requireAuthentication(context.session, currentUrl);
+
   const { t } = await getTranslation(request, handle.i18nNamespace);
   return { documentTitle: t('app:index.register-as') };
 }

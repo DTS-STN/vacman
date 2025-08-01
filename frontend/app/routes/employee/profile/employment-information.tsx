@@ -37,9 +37,9 @@ export function meta({ data }: Route.MetaArgs) {
 
 export async function action({ context, params, request }: Route.ActionArgs) {
   const currentUrl = new URL(request.url);
+  // Check if the user is authenticated (no specific roles required)
   requireAuthentication(context.session, currentUrl);
 
-  // Get the current user's ID from the authenticated session
   const authenticatedSession = context.session;
   const currentUserId = authenticatedSession.authState.idTokenClaims.oid;
   const formData = await request.formData();
@@ -90,6 +90,10 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 }
 
 export async function loader({ context, request, params }: Route.LoaderArgs) {
+  const currentUrl = new URL(request.url);
+  // Check if the user is authenticated (no specific roles required)
+  requireAuthentication(context.session, currentUrl);
+
   // Use the id parameter from the URL to fetch the profile
   const profileUserId = params.id;
   const profileResult = await getProfileService().getProfile(profileUserId);

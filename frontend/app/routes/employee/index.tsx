@@ -25,8 +25,11 @@ export const handle = {
 
 export async function action({ context, request }: ActionFunctionArgs) {
   const currentUrl = new URL(request.url);
-  // Check privacy consent for employee routes (excluding privacy consent pages)
 
+  // Check if the user is authenticated (no specific roles required)
+  requireAuthentication(context.session, currentUrl);
+
+  // Check privacy consent for employee routes (excluding privacy consent pages)
   await checkEmployeeRoutePrivacyConsent(context.session as AuthenticatedSession, currentUrl);
 
   const formData = await request.formData();
@@ -47,6 +50,8 @@ export async function action({ context, request }: ActionFunctionArgs) {
 
 export async function loader({ context, request }: LoaderFunctionArgs) {
   const currentUrl = new URL(request.url);
+
+  // Check if the user is authenticated (no specific roles required)
   requireAuthentication(context.session, currentUrl);
 
   const authenticatedSession = context.session as AuthenticatedSession;
