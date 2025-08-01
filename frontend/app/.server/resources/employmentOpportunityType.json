@@ -23,6 +23,36 @@
       "code": "NON_ADVERTISED",
       "nameEn": "Non-Advertised Processes",
       "nameFr": "Processus non annoncés"
+    },
+    {
+      "id": 1005,
+      "code": "DEPLOYMENT",
+      "nameEn": "Deployment",
+      "nameFr": "Mutation"
+    },
+    {
+      "id": 1006,
+      "code": "PROMOTION",
+      "nameEn": "Promotion",
+      "nameFr": "Promotion"
+    },
+    {
+      "id": 1007,
+      "code": "APPOINTMENT",
+      "nameEn": "Appointment",
+      "nameFr": "Nomination"
+    },
+    {
+      "id": 1008,
+      "code": "ACTING",
+      "nameEn": "Acting Assignment",
+      "nameFr": "Intérim"
+    },
+    {
+      "id": 1009,
+      "code": "SECONDMENT",
+      "nameEn": "Secondment",
+      "nameFr": "Détachement"
     }
   ]
 }
