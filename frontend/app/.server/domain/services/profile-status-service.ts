@@ -10,9 +10,9 @@ import type { AppError } from '~/errors/app-error';
 export type ProfileStatusService = {
   listAll(): Promise<readonly ProfileStatus[]>;
   listAllLocalized(language: Language): Promise<readonly LocalizedProfileStatus[]>;
-  getById(id: string): Promise<Result<ProfileStatus, AppError>>;
-  getLocalizedById(id: string, language: Language): Promise<Result<LocalizedProfileStatus, AppError>>;
-  findLocalizedById(id: string, language: Language): Promise<Option<LocalizedProfileStatus>>;
+  getById(id: number): Promise<Result<ProfileStatus, AppError>>;
+  getLocalizedById(id: number, language: Language): Promise<Result<LocalizedProfileStatus, AppError>>;
+  findLocalizedById(id: number, language: Language): Promise<Option<LocalizedProfileStatus>>;
 };
 
 export function getProfileStatusService(): ProfileStatusService {

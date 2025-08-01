@@ -8,9 +8,9 @@ import { ErrorCodes } from '~/errors/error-codes';
 // Mock API data that mirrors the structure returned by the API
 const mockApiData = {
   content: [
-    { id: '1', code: 'WOMEN', nameEn: 'Women', nameFr: 'Femmes' },
-    { id: '2', code: 'INDIGENOUS', nameEn: 'Indigenous Peoples', nameFr: 'Peuples autochtones' },
-    { id: '3', code: 'VISIBLE_MINORITY', nameEn: 'Visible Minorities', nameFr: 'Minorités visibles' },
+    { id: 1, code: 'WOMEN', nameEn: 'Women', nameFr: 'Femmes' },
+    { id: 2, code: 'INDIGENOUS', nameEn: 'Indigenous Peoples', nameFr: 'Peuples autochtones' },
+    { id: 3, code: 'VISIBLE_MINORITY', nameEn: 'Visible Minorities', nameFr: 'Minorités visibles' },
   ],
 };
 
@@ -58,7 +58,7 @@ describe('getDefaultEmploymentEquityService', () => {
         json: () => Promise.resolve(singleMockEmploymentEquity),
       } as Response);
 
-      const result = await service.getById('1');
+      const result = await service.getById(1);
 
       expect(result.isOk()).toBe(true);
       expect(result.unwrap()).toEqual(singleMockEmploymentEquity);
@@ -72,7 +72,7 @@ describe('getDefaultEmploymentEquityService', () => {
         statusText: 'Not Found',
       } as Response);
 
-      const result = await service.getById('999');
+      const result = await service.getById(999);
 
       expect(result.isErr()).toBe(true);
       const error = result.unwrapErr();
@@ -87,7 +87,7 @@ describe('getDefaultEmploymentEquityService', () => {
         statusText: 'Internal Server Error',
       } as Response);
 
-      const result = await service.getById('1');
+      const result = await service.getById(1);
 
       expect(result.isErr()).toBe(true);
       const error = result.unwrapErr();
@@ -148,7 +148,7 @@ describe('getDefaultEmploymentEquityService', () => {
         json: () => Promise.resolve(singleMockEmploymentEquity),
       } as Response);
 
-      const result = await service.findById('1');
+      const result = await service.findById(1);
 
       expect(result.isSome()).toBe(true);
       expect(result.unwrap()).toEqual(singleMockEmploymentEquity);
@@ -161,7 +161,7 @@ describe('getDefaultEmploymentEquityService', () => {
         statusText: 'Not Found',
       } as Response);
 
-      const result = await service.findById('999');
+      const result = await service.findById(999);
 
       expect(result.isNone()).toBe(true);
     });
@@ -173,7 +173,7 @@ describe('getDefaultEmploymentEquityService', () => {
         statusText: 'Internal Server Error',
       } as Response);
 
-      const result = await service.findById('1');
+      const result = await service.findById(1);
 
       expect(result.isNone()).toBe(true);
     });
@@ -231,7 +231,7 @@ describe('getDefaultEmploymentEquityService', () => {
 
       expect(result).toHaveLength(mockEmploymentEquityList.length);
       expect(result[0]).toEqual({
-        id: '1',
+        id: 1,
         code: 'WOMEN',
         name: 'Women',
       });
@@ -247,7 +247,7 @@ describe('getDefaultEmploymentEquityService', () => {
 
       expect(result).toHaveLength(mockEmploymentEquityList.length);
       expect(result[0]).toEqual({
-        id: '1',
+        id: 1,
         code: 'WOMEN',
         name: 'Femmes',
       });
@@ -271,11 +271,11 @@ describe('getDefaultEmploymentEquityService', () => {
         json: () => Promise.resolve(singleMockEmploymentEquity),
       } as Response);
 
-      const result = await service.getLocalizedById('1', 'en');
+      const result = await service.getLocalizedById(1, 'en');
 
       expect(result.isOk()).toBe(true);
       expect(result.unwrap()).toEqual({
-        id: '1',
+        id: 1,
         code: 'WOMEN',
         name: 'Women',
       });
@@ -287,11 +287,11 @@ describe('getDefaultEmploymentEquityService', () => {
         json: () => Promise.resolve(singleMockEmploymentEquity),
       } as Response);
 
-      const result = await service.getLocalizedById('1', 'fr');
+      const result = await service.getLocalizedById(1, 'fr');
 
       expect(result.isOk()).toBe(true);
       expect(result.unwrap()).toEqual({
-        id: '1',
+        id: 1,
         code: 'WOMEN',
         name: 'Femmes',
       });
@@ -304,7 +304,7 @@ describe('getDefaultEmploymentEquityService', () => {
         statusText: 'Not Found',
       } as Response);
 
-      const result = await service.getLocalizedById('999', 'en');
+      const result = await service.getLocalizedById(999, 'en');
 
       expect(result.isErr()).toBe(true);
       const error = result.unwrapErr();
@@ -327,7 +327,7 @@ describe('getDefaultEmploymentEquityService', () => {
 
       expect(result.isOk()).toBe(true);
       expect(result.unwrap()).toEqual({
-        id: '1',
+        id: 1,
         code: 'WOMEN',
         name: 'Women',
       });
@@ -346,7 +346,7 @@ describe('getDefaultEmploymentEquityService', () => {
 
       expect(result.isOk()).toBe(true);
       expect(result.unwrap()).toEqual({
-        id: '1',
+        id: 1,
         code: 'WOMEN',
         name: 'Femmes',
       });
@@ -360,11 +360,11 @@ describe('getDefaultEmploymentEquityService', () => {
         json: () => Promise.resolve(singleMockEmploymentEquity),
       } as Response);
 
-      const result = await service.findLocalizedById('1', 'en');
+      const result = await service.findLocalizedById(1, 'en');
 
       expect(result.isSome()).toBe(true);
       expect(result.unwrap()).toEqual({
-        id: '1',
+        id: 1,
         code: 'WOMEN',
         name: 'Women',
       });
@@ -376,11 +376,11 @@ describe('getDefaultEmploymentEquityService', () => {
         json: () => Promise.resolve(singleMockEmploymentEquity),
       } as Response);
 
-      const result = await service.findLocalizedById('1', 'fr');
+      const result = await service.findLocalizedById(1, 'fr');
 
       expect(result.isSome()).toBe(true);
       expect(result.unwrap()).toEqual({
-        id: '1',
+        id: 1,
         code: 'WOMEN',
         name: 'Femmes',
       });
@@ -393,7 +393,7 @@ describe('getDefaultEmploymentEquityService', () => {
         statusText: 'Not Found',
       } as Response);
 
-      const result = await service.findLocalizedById('999', 'en');
+      const result = await service.findLocalizedById(999, 'en');
 
       expect(result.isNone()).toBe(true);
     });
@@ -405,7 +405,7 @@ describe('getDefaultEmploymentEquityService', () => {
         statusText: 'Internal Server Error',
       } as Response);
 
-      const result = await service.findLocalizedById('1', 'en');
+      const result = await service.findLocalizedById(1, 'en');
 
       expect(result.isNone()).toBe(true);
     });
@@ -425,7 +425,7 @@ describe('getDefaultEmploymentEquityService', () => {
 
       expect(result.isSome()).toBe(true);
       expect(result.unwrap()).toEqual({
-        id: '1',
+        id: 1,
         code: 'WOMEN',
         name: 'Women',
       });
@@ -444,7 +444,7 @@ describe('getDefaultEmploymentEquityService', () => {
 
       expect(result.isSome()).toBe(true);
       expect(result.unwrap()).toEqual({
-        id: '1',
+        id: 1,
         code: 'WOMEN',
         name: 'Femmes',
       });

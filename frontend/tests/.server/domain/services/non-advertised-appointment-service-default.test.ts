@@ -9,9 +9,9 @@ import { HttpStatusCodes } from '~/errors/http-status-codes';
 // Mock API data that mirrors the structure returned by the API
 const mockApiData = {
   content: [
-    { id: '1', code: 'NONE', nameEn: 'Not Applicable', nameFr: 'Sans objet' },
-    { id: '2', code: 'EXCEPTIONAL_CASE', nameEn: 'Exceptional Case', nameFr: 'Cas exceptionnel' },
-    { id: '3', code: 'URGENT_REQUIREMENT', nameEn: 'Urgent Requirement', nameFr: 'Besoin urgent' },
+    { id: 1, code: 'NONE', nameEn: 'Not Applicable', nameFr: 'Sans objet' },
+    { id: 2, code: 'EXCEPTIONAL_CASE', nameEn: 'Exceptional Case', nameFr: 'Cas exceptionnel' },
+    { id: 3, code: 'URGENT_REQUIREMENT', nameEn: 'Urgent Requirement', nameFr: 'Besoin urgent' },
   ],
 };
 
@@ -55,7 +55,7 @@ describe('getDefaultNonAdvertisedAppointmentService', () => {
         json: () => Promise.resolve(singleMockAppointment),
       });
 
-      const result = await service.getById('1');
+      const result = await service.getById(1);
       expect(result.isOk()).toBe(true);
       expect(result.unwrap()).toEqual(singleMockAppointment);
     });
@@ -67,7 +67,7 @@ describe('getDefaultNonAdvertisedAppointmentService', () => {
         statusText: 'Not Found',
       });
 
-      const result = await service.getById('non-existent-id');
+      const result = await service.getById(25);
       expect(result.isErr()).toBe(true);
 
       const error = result.unwrapErr();
@@ -83,7 +83,7 @@ describe('getDefaultNonAdvertisedAppointmentService', () => {
         statusText: 'Internal Server Error',
       });
 
-      const result = await service.getById('1');
+      const result = await service.getById(1);
       expect(result.isErr()).toBe(true);
       expect(result.unwrapErr()).toBeInstanceOf(AppError);
     });
@@ -134,7 +134,7 @@ describe('getDefaultNonAdvertisedAppointmentService', () => {
         json: () => Promise.resolve(singleMockAppointment),
       });
 
-      const result = await service.findById('1');
+      const result = await service.findById(1);
       expect(result.isSome()).toBe(true);
       expect(result.unwrap()).toEqual(singleMockAppointment);
     });
@@ -146,7 +146,7 @@ describe('getDefaultNonAdvertisedAppointmentService', () => {
         statusText: 'Not Found',
       });
 
-      const result = await service.findById('non-existent-id');
+      const result = await service.findById(25);
       expect(result.isNone()).toBe(true);
     });
 
@@ -158,7 +158,7 @@ describe('getDefaultNonAdvertisedAppointmentService', () => {
       });
 
       // findById calls getById which returns Err for server errors, .ok() converts Err to None
-      const result = await service.findById('1');
+      const result = await service.findById(1);
       expect(result.isNone()).toBe(true);
     });
   });
@@ -206,7 +206,7 @@ describe('getDefaultNonAdvertisedAppointmentService', () => {
       const result = await service.listAllLocalized('en');
       expect(result).toHaveLength(3);
       expect(result[0]).toEqual({
-        id: '1',
+        id: 1,
         code: 'NONE',
         name: 'Not Applicable',
       });
@@ -221,7 +221,7 @@ describe('getDefaultNonAdvertisedAppointmentService', () => {
       const result = await service.listAllLocalized('fr');
       expect(result).toHaveLength(3);
       expect(result[0]).toEqual({
-        id: '1',
+        id: 1,
         code: 'NONE',
         name: 'Sans objet',
       });
@@ -245,10 +245,10 @@ describe('getDefaultNonAdvertisedAppointmentService', () => {
         json: () => Promise.resolve(singleMockAppointment),
       });
 
-      const result = await service.getLocalizedById('1', 'en');
+      const result = await service.getLocalizedById(1, 'en');
       expect(result.isOk()).toBe(true);
       expect(result.unwrap()).toEqual({
-        id: '1',
+        id: 1,
         code: 'NONE',
         name: 'Not Applicable',
       });
@@ -260,10 +260,10 @@ describe('getDefaultNonAdvertisedAppointmentService', () => {
         json: () => Promise.resolve(singleMockAppointment),
       });
 
-      const result = await service.getLocalizedById('1', 'fr');
+      const result = await service.getLocalizedById(1, 'fr');
       expect(result.isOk()).toBe(true);
       expect(result.unwrap()).toEqual({
-        id: '1',
+        id: 1,
         code: 'NONE',
         name: 'Sans objet',
       });
@@ -276,7 +276,7 @@ describe('getDefaultNonAdvertisedAppointmentService', () => {
         statusText: 'Not Found',
       });
 
-      const result = await service.getLocalizedById('non-existent-id', 'en');
+      const result = await service.getLocalizedById(25, 'en');
       expect(result.isErr()).toBe(true);
       expect(result.unwrapErr().errorCode).toBe(ErrorCodes.NO_NON_ADVERTISED_APPOINTMENT_FOUND);
     });
@@ -292,7 +292,7 @@ describe('getDefaultNonAdvertisedAppointmentService', () => {
       const result = await service.getLocalizedByCode('NONE', 'en');
       expect(result.isOk()).toBe(true);
       expect(result.unwrap()).toEqual({
-        id: '1',
+        id: 1,
         code: 'NONE',
         name: 'Not Applicable',
       });
@@ -307,7 +307,7 @@ describe('getDefaultNonAdvertisedAppointmentService', () => {
       const result = await service.getLocalizedByCode('NONE', 'fr');
       expect(result.isOk()).toBe(true);
       expect(result.unwrap()).toEqual({
-        id: '1',
+        id: 1,
         code: 'NONE',
         name: 'Sans objet',
       });
@@ -332,10 +332,10 @@ describe('getDefaultNonAdvertisedAppointmentService', () => {
         json: () => Promise.resolve(singleMockAppointment),
       });
 
-      const result = await service.findLocalizedById('1', 'en');
+      const result = await service.findLocalizedById(1, 'en');
       expect(result.isSome()).toBe(true);
       expect(result.unwrap()).toEqual({
-        id: '1',
+        id: 1,
         code: 'NONE',
         name: 'Not Applicable',
       });
@@ -348,7 +348,7 @@ describe('getDefaultNonAdvertisedAppointmentService', () => {
         statusText: 'Not Found',
       });
 
-      const result = await service.findLocalizedById('non-existent-id', 'en');
+      const result = await service.findLocalizedById(25, 'en');
       expect(result.isNone()).toBe(true);
     });
   });
@@ -363,7 +363,7 @@ describe('getDefaultNonAdvertisedAppointmentService', () => {
       const result = await service.findLocalizedByCode('NONE', 'en');
       expect(result.isSome()).toBe(true);
       expect(result.unwrap()).toEqual({
-        id: '1',
+        id: 1,
         code: 'NONE',
         name: 'Not Applicable',
       });

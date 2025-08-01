@@ -51,7 +51,7 @@ describe('getMockEmploymentEquityService', () => {
     });
 
     it('should return error if employment equity ID not found', async () => {
-      const result = await service.getById('non-existent-id');
+      const result = await service.getById(25);
 
       expect(result.isErr()).toBe(true);
       const err = result.unwrapErr();
@@ -62,12 +62,12 @@ describe('getMockEmploymentEquityService', () => {
 
     it('should handle string ID conversion correctly', async () => {
       const all = await service.listAll();
-      const testEmploymentEquity = all.find((eq) => eq.id === '1');
+      const testEmploymentEquity = all.find((eq) => eq.id === 1);
 
       if (testEmploymentEquity) {
-        const result = await service.getById('1');
+        const result = await service.getById(1);
         expect(result.isOk()).toBe(true);
-        expect(result.unwrap().id).toBe('1');
+        expect(result.unwrap().id).toBe(1);
       }
     });
   });
@@ -128,7 +128,7 @@ describe('getMockEmploymentEquityService', () => {
     });
 
     it('should return None if employment equity ID not found', async () => {
-      const result = await service.findById('non-existent-id');
+      const result = await service.findById(25);
 
       expect(result.isNone()).toBe(true);
     });
@@ -254,7 +254,7 @@ describe('getMockEmploymentEquityService', () => {
     });
 
     it('should return error if employment equity ID not found', async () => {
-      const result = await service.getLocalizedById('non-existent-id', 'en');
+      const result = await service.getLocalizedById(25, 'en');
 
       expect(result.isErr()).toBe(true);
       const err = result.unwrapErr();
@@ -316,7 +316,7 @@ describe('getMockEmploymentEquityService', () => {
     });
 
     it('should return None if employment equity ID not found', async () => {
-      const result = await service.findLocalizedById('non-existent-id', 'en');
+      const result = await service.findLocalizedById(25, 'en');
 
       expect(result.isNone()).toBe(true);
     });
@@ -383,9 +383,9 @@ describe('getMockEmploymentEquityService', () => {
 
   describe('error handling consistency', () => {
     it('should use consistent error codes for not found scenarios', async () => {
-      const getByIdResult = await service.getById('non-existent');
+      const getByIdResult = await service.getById(25);
       const getByCodeResult = await service.getByCode('NON_EXISTENT');
-      const getLocalizedByIdResult = await service.getLocalizedById('non-existent', 'en');
+      const getLocalizedByIdResult = await service.getLocalizedById(25, 'en');
       const getLocalizedByCodeResult = await service.getLocalizedByCode('NON_EXISTENT', 'en');
 
       expect(getByIdResult.isErr()).toBe(true);

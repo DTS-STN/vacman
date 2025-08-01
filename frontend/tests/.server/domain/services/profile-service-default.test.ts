@@ -38,6 +38,7 @@ describe('profile-service-default', () => {
       substantivePosition: undefined,
       branchOrServiceCanadaRegion: undefined,
       directorate: undefined,
+      province: undefined,
       cityId: undefined,
       wfaStatus: undefined,
       wfaEffectiveDate: undefined,
@@ -45,12 +46,13 @@ describe('profile-service-default', () => {
       hrAdvisor: undefined,
     },
     referralPreferences: {
-      languageReferralTypeIds: ['864190000'],
-      classificationIds: ['905190000', '905190001'],
-      workLocationCitiesIds: ['411290001', '411290002'],
+      languageReferralTypeIds: [864190000],
+      classificationIds: [905190000, 905190001],
+      workLocationProvince: 1,
+      workLocationCitiesIds: [411290001, 411290002],
       availableForReferralInd: true,
       interestedInAlternationInd: false,
-      employmentTenureIds: ['664190000', '664190001', '664190003'],
+      employmentTenureIds: [664190000, 664190001, 664190003],
     },
   };
 

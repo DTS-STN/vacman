@@ -9,7 +9,7 @@ import { HttpStatusCodes } from '~/errors/http-status-codes';
 // Helper to convert API WorkUnit object to Branch, mirroring the implementation
 function toBranch(obj: Branch): Branch {
   return {
-    id: obj.id.toString(),
+    id: obj.id,
     code: obj.code,
     nameEn: obj.nameEn,
     nameFr: obj.nameFr,
@@ -19,9 +19,9 @@ function toBranch(obj: Branch): Branch {
 // More robust mock data that also tests the filtering logic in `listAll`
 const mockApiData = {
   content: [
-    { id: '1', code: 'B01', nameEn: 'Branch One', nameFr: 'Branche Un' },
-    { id: '2', code: 'B02', nameEn: 'Branch Two', nameFr: 'Branche Deux' },
-    { id: '3', code: 'S01', nameEn: 'Sub One', nameFr: 'Sous Un', parent: { id: '1' } }, // This should be filtered out
+    { id: 1, code: 'B01', nameEn: 'Branch One', nameFr: 'Branche Un' },
+    { id: 2, code: 'B02', nameEn: 'Branch Two', nameFr: 'Branche Deux' },
+    { id: 3, code: 'S01', nameEn: 'Sub One', nameFr: 'Sous Un', parent: { id: 1 } }, // This should be filtered out
   ],
 };
 
@@ -52,7 +52,7 @@ describe('getDefaultBranchService', () => {
       json: () => Promise.resolve(singleMockBranch),
     });
 
-    const result = await service.getById('1');
+    const result = await service.getById(1);
     expect(result.isOk()).toBe(true);
     expect(result.unwrap()).toEqual(singleMockBranch);
   });
@@ -64,7 +64,7 @@ describe('getDefaultBranchService', () => {
       status: HttpStatusCodes.NOT_FOUND,
     });
 
-    const result = await service.getById('999');
+    const result = await service.getById(999);
     expect(result.isErr()).toBe(true);
     const err = result.unwrapErr();
     expect(err).toBeInstanceOf(AppError);
@@ -79,10 +79,10 @@ describe('getDefaultBranchService', () => {
       json: () => Promise.resolve(singleMockBranch),
     });
 
-    const result = await service.findLocalizedById('1', 'en');
+    const result = await service.findLocalizedById(1, 'en');
     expect(result.isSome()).toBe(true);
     const branch = result.unwrap();
-    expect(branch.id).toBe('1');
+    expect(branch.id).toBe(1);
     expect(branch.name).toBe('Branch One'); // Check for correct localization
   });
 
@@ -93,7 +93,7 @@ describe('getDefaultBranchService', () => {
       status: HttpStatusCodes.NOT_FOUND,
     });
 
-    const result = await service.findLocalizedById('999', 'en');
+    const result = await service.findLocalizedById(999, 'en');
     // The service handles the 404, converts it to an Err, and find... converts the Err to None.
     expect(result.isNone()).toBe(true);
   });
@@ -118,7 +118,7 @@ describe('getDefaultBranchService', () => {
       json: () => Promise.resolve(singleMockBranch),
     });
 
-    const result = await service.getLocalizedById('1', 'fr');
+    const result = await service.getLocalizedById(1, 'fr');
     expect(result.isOk()).toBe(true);
     expect(result.unwrap().name).toBe('Branche Un'); // Check for correct FR localization
   });

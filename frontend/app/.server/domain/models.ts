@@ -1,26 +1,26 @@
 // Generic base types for all lookup models
 export type LookupModel = Readonly<{
-  id: string;
+  id: number;
   code: string;
   nameEn: string;
   nameFr: string;
 }>;
 
 export type LocalizedLookupModel = Readonly<{
-  id: string;
+  id: number;
   code: string;
   name: string;
 }>;
 
 // Generic type for lookup models with parent relationships
-export type HierarchicalLookupModel<TParent = LookupModel> = LookupModel &
+export type HierarchicalLookupModel<TParent = LookupModel | null> = LookupModel &
   Readonly<{
-    parent: TParent;
+    parent: TParent | null;
   }>;
 
-export type LocalizedHierarchicalLookupModel<TParent = LocalizedLookupModel> = LocalizedLookupModel &
+export type LocalizedHierarchicalLookupModel<TParent = LocalizedLookupModel | null> = LocalizedLookupModel &
   Readonly<{
-    parent: TParent;
+    parent: TParent | null;
   }>;
 
 // Type aliases for specific lookup types (for better developer experience)
@@ -50,8 +50,8 @@ export type LocalizedDirectorate = LocalizedHierarchicalLookupModel<LocalizedBra
 export type EmploymentTenure = LookupModel;
 export type LocalizedEmploymentTenure = LocalizedLookupModel;
 
-export type OpportunityType = LookupModel;
-export type LocalizedOpportunityType = LocalizedLookupModel;
+export type EmploymentOpportunityType = LookupModel;
+export type LocalizedEmploymentOpportunityType = LocalizedLookupModel;
 
 export type Province = LookupModel;
 export type LocalizedProvince = LocalizedLookupModel;
@@ -72,7 +72,7 @@ export type EmploymentEquity = LookupModel;
 export type LocalizedEmploymentEquity = LocalizedLookupModel;
 
 export type User = Readonly<{
-  id: string;
+  id: number;
   role: string;
   networkName: string;
   uuName: string;
@@ -115,7 +115,7 @@ export type UserPersonalInformation = {
   surname?: string;
   givenName?: string;
   personalRecordIdentifier?: string;
-  preferredLanguageId?: string;
+  preferredLanguageId?: number;
   workEmail: string;
   personalEmail?: string;
   workPhone?: string;
@@ -123,20 +123,22 @@ export type UserPersonalInformation = {
   additionalInformation?: string;
 };
 export type UserEmploymentInformation = {
-  substantivePosition?: string;
-  branchOrServiceCanadaRegion?: string;
-  directorate?: string;
-  cityId?: string;
-  wfaStatus?: string;
+  substantivePosition?: number;
+  branchOrServiceCanadaRegion?: number;
+  directorate?: number;
+  province?: number;
+  cityId?: number;
+  wfaStatus?: number;
   wfaEffectiveDate?: string;
   wfaEndDate?: string;
-  hrAdvisor?: string;
+  hrAdvisor?: number;
 };
 export type UserReferralPreferences = {
-  languageReferralTypeIds?: string[];
-  classificationIds?: string[];
-  workLocationCitiesIds?: string[];
+  languageReferralTypeIds?: number[];
+  classificationIds?: number[];
+  workLocationProvince?: number;
+  workLocationCitiesIds?: number[];
   availableForReferralInd?: boolean;
   interestedInAlternationInd?: boolean;
-  employmentTenureIds?: string[];
+  employmentTenureIds?: number[];
 };

@@ -8,11 +8,11 @@ import type { AppError } from '~/errors/app-error';
 
 export type ClassificationService = {
   listAll(): Promise<readonly Classification[]>;
-  getById(id: string): Promise<Result<Classification, AppError>>;
+  getById(id: number): Promise<Result<Classification, AppError>>;
   getByCode(code: string): Promise<Result<Classification, AppError>>;
   listAllLocalized(language: Language): Promise<readonly LocalizedClassification[]>;
-  getLocalizedById(id: string, language: Language): Promise<Result<LocalizedClassification, AppError>>;
-  findLocalizedById(id: string, language: Language): Promise<Option<LocalizedClassification>>;
+  getLocalizedById(id: number, language: Language): Promise<Result<LocalizedClassification, AppError>>;
+  findLocalizedById(id: number, language: Language): Promise<Option<LocalizedClassification>>;
   getLocalizedByCode(code: string, language: Language): Promise<Result<LocalizedClassification, AppError>>;
   findLocalizedByCode(code: string, language: Language): Promise<Option<LocalizedClassification>>;
 };

@@ -10,10 +10,10 @@ describe('getMockUserService', () => {
 
   describe('getUserById', () => {
     it('should return a user when given a valid ID', async () => {
-      const user = await service.getUserById('1');
+      const user = await service.getUserById(1);
 
       expect(user).toEqual({
-        id: '1',
+        id: 1,
         uuName: 'Jane Doe',
         networkName: '00000000-0000-0000-0000-000000000000',
         role: 'hr-advisor',
@@ -32,7 +32,7 @@ describe('getMockUserService', () => {
     });
 
     it('should throw an error when user is not found', async () => {
-      await expect(service.getUserById('999')).rejects.toMatchObject({
+      await expect(service.getUserById(999)).rejects.toMatchObject({
         msg: "User with ID '999' not found.",
         errorCode: ErrorCodes.VACMAN_API_ERROR,
         httpStatusCode: 500,
@@ -46,7 +46,7 @@ describe('getMockUserService', () => {
       const user = await service.getUserByActiveDirectoryId('11111111-1111-1111-1111-111111111111');
 
       expect(user).toEqual({
-        id: '2',
+        id: 2,
         uuName: 'John Doe',
         networkName: '11111111-1111-1111-1111-111111111111',
         role: 'employee',
@@ -155,7 +155,7 @@ describe('getMockUserService', () => {
 
       const updatedUser = await service.updateUserRole(activeDirectoryId, newRole, mockSession);
 
-      expect(updatedUser.id).toBe('2');
+      expect(updatedUser.id).toBe(2);
       expect(updatedUser.uuName).toBe('John Doe');
       expect(updatedUser.networkName).toBe(activeDirectoryId);
       expect(updatedUser.role).toBe(newRole);
@@ -245,7 +245,7 @@ describe('getMockUserService', () => {
       // Update role
       const updatedUser = await service.updateUserRole(activeDirectoryId, newRole, mockSession);
 
-      expect(updatedUser.id).toBe('3');
+      expect(updatedUser.id).toBe(3);
       expect(updatedUser.uuName).toBe('Jane Smith');
       expect(updatedUser.role).toBe(newRole);
     });
@@ -286,7 +286,7 @@ describe('getMockUserService', () => {
       // Update role
       const updatedUser = await service.updateUserRole(activeDirectoryId, newRole, mockSession);
 
-      expect(updatedUser.id).toBe('4');
+      expect(updatedUser.id).toBe(4);
       expect(updatedUser.uuName).toBe('Michel Tremblay');
       expect(updatedUser.role).toBe(newRole);
     });
