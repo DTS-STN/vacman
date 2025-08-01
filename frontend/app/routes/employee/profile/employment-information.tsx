@@ -28,9 +28,9 @@ import { InlineLink } from '~/components/links';
 import { EMPLOYEE_WFA_STATUS } from '~/domain/constants';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { getTranslation } from '~/i18n-config.server';
-import type { employmentInformationSchema } from '~/routes/employee/profile/validation.server';
-import { parseEmploymentInformation } from '~/routes/employee/profile/validation.server';
 import { handle as parentHandle } from '~/routes/layout';
+import type { employmentInformationSchema } from '~/routes/page-components/employees/validation.server';
+import { parseEmploymentInformation } from '~/routes/page-components/employees/validation.server';
 import { extractValidationKey } from '~/utils/validation-utils';
 
 export const handle = {
