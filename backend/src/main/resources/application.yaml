@@ -95,7 +95,7 @@ spring:
         jwt:
           # Specifies the intended audience(s) of the JWT. For Microsoft Entra ID, this is typically the Application (Client) ID
           # of this API's app registration in Entra ID. The value here MUST exactly match the 'aud' (audience) claim in the incoming JWT.
-          audiences: ea3a6648-7e77-445b-b777-486d26367ee8
+          audiences: ${application.entra-id.client-id}
           # Defines the JWT claim that contains the user's application roles or permissions. Spring Security will use the values from this
           # claim (eg: "roles": ["User.Read", "Admin.Write"]) to populate the GrantedAuthorities for the authenticated principal.
           authorities-claim-name: roles
@@ -128,8 +128,7 @@ spring:
             provider: esdc-edsc
             # The Application (Client) ID of this application's registration in Microsoft Entra ID.
             # This ID uniquely identifies this application when it requests tokens from Entra ID.
-            # client-id: ea3a6648-7e77-445b-b777-486d26367ee8
-            client-id: ea3a6648-7e77-445b-b777-486d26367ee8
+            client-id: ${application.entra-id.client-id}
             # The client secret for this application's registration in Microsoft Entra ID.
             # ‼ CRITICAL ‼  ::: This is a sensitive value. It MUST be set externally.
             client-secret: # (example format: xxxxx~yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy)
@@ -260,6 +259,7 @@ application:
         expire-after-write: 1
         time-unit: minutes
   entra-id:
+    client-id: ea3a6648-7e77-445b-b777-486d26367ee8
     tenant-id: 9ed55846-8a81-4246-acd8-b1a01abfc0d1
   gcnotify:
     base-url: https://api.notification.canada.ca/v2/notifications
@@ -277,7 +277,7 @@ application:
     application-name: Vacancy Manager API -- OpenAPI 3.0
     authentication:
       oauth:
-        client-id: ea3a6648-7e77-445b-b777-486d26367ee8
+        client-id: ${application.entra-id.client-id}
         authorization-url: https://login.microsoftonline.com/${application.entra-id.tenant-id}/oauth2/v2.0/authorize
         token-url: https://login.microsoftonline.com/${application.entra-id.tenant-id}/oauth2/v2.0/token
     contact-name: Digital Technology Solutions

@@ -8,5 +8,6 @@ import jakarta.validation.constraints.NotBlank;
 @Validated
 @ConfigurationProperties("application.entra-id")
 public record EntraIdProperties(
+	@NotBlank String clientId,
 	@NotBlank String tenantId
 ) {}
