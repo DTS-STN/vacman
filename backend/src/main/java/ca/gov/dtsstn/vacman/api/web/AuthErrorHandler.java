@@ -38,7 +38,7 @@ import jakarta.servlet.http.HttpServletResponse;
  */
 @RestControllerAdvice
 @Order(Ordered.HIGHEST_PRECEDENCE) // this should fire before ApiErrorHandler
-public class AuthErrorHandler implements AccessDeniedHandler, AuthenticationEntryPoint {
+public class AuthErrorHandler implements AccessDeniedHandler, AuthenticationEntryPoint{
 
 	private static final Logger log = LoggerFactory.getLogger(AuthErrorHandler.class);
 
