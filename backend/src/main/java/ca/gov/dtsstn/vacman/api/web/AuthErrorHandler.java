@@ -3,6 +3,7 @@ package ca.gov.dtsstn.vacman.api.web;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,10 +52,12 @@ public class AuthErrorHandler implements AccessDeniedHandler, AuthenticationEntr
 	@Override
 	@ExceptionHandler({ AuthenticationException.class })
 	public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authenticationException) throws IOException {
-		log.warn("Authentication Error: statusCode=401; remoteAddress={}; message={}", request.getRemoteAddr(), authenticationException.getMessage());
+		final var correlationId = generateCorrelationId();
+		log.warn("[correlationId: {}] Authentication Error: statusCode=401; remoteAddress={}; message={}", correlationId, request.getRemoteAddr(), authenticationException.getMessage());
 
-		final var problemDetail = ProblemDetail.forStatus(HttpStatus.UNAUTHORIZED);
-		problemDetail.setDetail("The request lacks valid authentication credentials for the requested resource.");
+		final var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, "The request lacks valid authentication credentials for the requested resource.");
+		problemDetail.setProperty("correlationId", correlationId);
+		problemDetail.setProperty("errorCode", "API-0401");
 
 		sendResponse(response, HttpStatus.UNAUTHORIZED, problemDetail);
 	}
@@ -62,7 +65,8 @@ public class AuthErrorHandler implements AccessDeniedHandler, AuthenticationEntr
 	@Override
 	@ExceptionHandler({ AccessDeniedException.class })
 	public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException) throws IOException {
-		log.warn("Authentication Error: statusCode=403; remoteAddress={}; message={}", request.getRemoteAddr(), accessDeniedException.getMessage());
+		final var correlationId = generateCorrelationId();
+		log.warn("[correlationId: {}] Authentication Error: statusCode=403; remoteAddress={}; message={}", correlationId, request.getRemoteAddr(), accessDeniedException.getMessage());
 
 		if (isAnonymous()) {
 			// Spring Security has this odd quirk whereby it will not throw an
@@ -71,8 +75,9 @@ public class AuthErrorHandler implements AccessDeniedHandler, AuthenticationEntr
 			throw new AuthenticationCredentialsNotFoundException(accessDeniedException.getMessage());
 		}
 
-		final var problemDetail = ProblemDetail.forStatus(HttpStatus.FORBIDDEN);
-		problemDetail.setDetail("The server understands the request but refuses to authorize it.");
+		final var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN, "The server understands the request but refuses to authorize it.");
+		problemDetail.setProperty("correlationId", correlationId);
+		problemDetail.setProperty("errorCode", "API-0403");
 
 		sendResponse(response, HttpStatus.FORBIDDEN, problemDetail);
 	}
@@ -92,6 +97,10 @@ public class AuthErrorHandler implements AccessDeniedHandler, AuthenticationEntr
 		return Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication())
 			.map(Authentication::getAuthorities).orElse(Collections.emptyList()).stream()
 			.map(GrantedAuthority::getAuthority).anyMatch("ROLE_ANONYMOUS"::equals);
+	}
+
+	protected String generateCorrelationId() {
+		return UUID.randomUUID().toString();
 	}
 
 }
