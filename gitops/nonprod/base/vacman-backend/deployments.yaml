@@ -55,4 +55,4 @@ spec:
       volumes:
         - name: config
           configMap:
-            name: vacman-backend-configmap
+            name: vacman-backend
