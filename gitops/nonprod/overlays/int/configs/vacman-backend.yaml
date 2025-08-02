@@ -19,15 +19,10 @@ spring:
   jpa:
     hibernate:
       ddl-auto: validate
-  security:
-    oauth2:
-      client:
-        registration:
-          ms-graph:
-            client-id: ea3a6648-7e77-445b-b777-486d26367ee8
+    show-sql: true
 
 application:
   gcnotify:
     profile-approved-template-id: ba6ff621-5b4b-4f5b-8509-387b63d3ddf4
     profile-created-template-id: 9a62f432-c590-44e2-89c5-6d4d697a2524
-    profile-updated-template-id:  ac981e25-2bb1-4d60-9d78-d4efaad754ff
+    profile-updated-template-id: ac981e25-2bb1-4d60-9d78-d4efaad754ff
