@@ -9,6 +9,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useTranslation } from 'react-i18next';
 
 import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
+import { hasUserProfile } from '~/.server/utils/profile-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { Card, CardHeader, CardIcon, CardTitle } from '~/components/card';
 import { PageTitle } from '~/components/page-title';
@@ -20,6 +21,16 @@ export const handle = {
 } as const satisfies RouteHandle;
 
 export async function action({ context, request }: ActionFunctionArgs) {
+  const authenticatedSession = context.session as AuthenticatedSession;
+  // Check if user is registered in the system
+  const activeDirectoryId = authenticatedSession.authState.idTokenClaims.oid as string;
+  const existingProfile = await hasUserProfile(activeDirectoryId);
+
+  if (!existingProfile) {
+    // User has no profile, redirect to privacy consent
+    throw i18nRedirect('routes/employee/privacy-consent.tsx', request);
+  }
+
   const formData = await request.formData();
   const action = formData.get('action');
 
@@ -37,6 +48,16 @@ export async function action({ context, request }: ActionFunctionArgs) {
 }
 
 export async function loader({ context, request }: LoaderFunctionArgs) {
+  const authenticatedSession = context.session as AuthenticatedSession;
+  // Check if user is registered in the system
+  const activeDirectoryId = authenticatedSession.authState.idTokenClaims.oid as string;
+  const existingProfile = await hasUserProfile(activeDirectoryId);
+
+  if (!existingProfile) {
+    // User has no profile, redirect to privacy consent
+    throw i18nRedirect('routes/employee/privacy-consent.tsx', request);
+  }
+
   const { t } = await getTranslation(request, handle.i18nNamespace);
   return { documentTitle: t('app:index.get-started') };
 }

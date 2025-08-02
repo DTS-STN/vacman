@@ -20,7 +20,8 @@ import { getProfileStatusService } from '~/.server/domain/services/profile-statu
 import { getUserService } from '~/.server/domain/services/user-service';
 import { getWFAStatuses } from '~/.server/domain/services/wfa-status-service';
 import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
-import { countCompletedItems, omitObjectProperties } from '~/.server/utils/profile-utils';
+import { countCompletedItems, hasUserProfile, omitObjectProperties } from '~/.server/utils/profile-utils';
+import { i18nRedirect } from '~/.server/utils/route-utils';
 import { AlertMessage } from '~/components/alert-message';
 import { Button } from '~/components/button';
 import { ButtonLink } from '~/components/button-link';
@@ -41,8 +42,17 @@ export function meta({ data }: Route.MetaArgs) {
 }
 
 export async function action({ context, request }: Route.ActionArgs) {
-  // Get the current user's ID from the authenticated session
   const authenticatedSession = context.session as AuthenticatedSession;
+  // Check if user is registered in the system
+  const activeDirectoryId = authenticatedSession.authState.idTokenClaims.oid as string;
+  const existingProfile = await hasUserProfile(activeDirectoryId);
+
+  if (!existingProfile) {
+    // User has no profile, redirect to privacy consent
+    throw i18nRedirect('routes/employee/privacy-consent.tsx', request);
+  }
+
+  // Get the current user's ID from the authenticated session
   const currentUserId = authenticatedSession.authState.idTokenClaims.oid as string;
 
   const profileResult = await getProfileService().getProfile(currentUserId);
@@ -104,6 +114,16 @@ export async function action({ context, request }: Route.ActionArgs) {
 }
 
 export async function loader({ context, request, params }: Route.LoaderArgs) {
+  const authenticatedSession = context.session as AuthenticatedSession;
+  // Check if user is registered in the system
+  const activeDirectoryId = authenticatedSession.authState.idTokenClaims.oid as string;
+  const existingProfile = await hasUserProfile(activeDirectoryId);
+
+  if (!existingProfile) {
+    // User has no profile, redirect to privacy consent
+    throw i18nRedirect('routes/employee/privacy-consent.tsx', request);
+  }
+
   // Use the id parameter from the URL to fetch the profile
   const profileUserId = params.id;
 

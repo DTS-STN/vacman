@@ -11,6 +11,7 @@ import { getLanguageForCorrespondenceService } from '~/.server/domain/services/l
 import { getProfileService } from '~/.server/domain/services/profile-service';
 import { getUserService } from '~/.server/domain/services/user-service';
 import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
+import { hasUserProfile } from '~/.server/utils/profile-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { InlineLink } from '~/components/links';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
@@ -30,8 +31,17 @@ export function meta({ data }: Route.MetaArgs) {
 }
 
 export async function action({ context, params, request }: Route.ActionArgs) {
-  // Get the current user's ID from the authenticated session
   const authenticatedSession = context.session as AuthenticatedSession;
+  // Check if user is registered in the system
+  const activeDirectoryId = authenticatedSession.authState.idTokenClaims.oid as string;
+  const existingProfile = await hasUserProfile(activeDirectoryId);
+
+  if (!existingProfile) {
+    // User has no profile, redirect to privacy consent
+    throw i18nRedirect('routes/employee/privacy-consent.tsx', request);
+  }
+
+  // Get the current user's ID from the authenticated session
   const currentUserId = authenticatedSession.authState.idTokenClaims.oid as string;
   const formData = await request.formData();
   const parseResult = v.safeParse(personalInformationSchema, {
@@ -65,6 +75,16 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 }
 
 export async function loader({ context, request, params }: Route.LoaderArgs) {
+  const authenticatedSession = context.session as AuthenticatedSession;
+  // Check if user is registered in the system
+  const activeDirectoryId = authenticatedSession.authState.idTokenClaims.oid as string;
+  const existingProfile = await hasUserProfile(activeDirectoryId);
+
+  if (!existingProfile) {
+    // User has no profile, redirect to privacy consent
+    throw i18nRedirect('routes/employee/privacy-consent.tsx', request);
+  }
+
   // Use the id parameter from the URL to fetch the profile
   const profileUserId = params.id;
   const profileUser = await getUserService().getUserByActiveDirectoryId(profileUserId);

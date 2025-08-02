@@ -12,6 +12,9 @@ import type { Route } from '../+types/index';
 import type { Profile } from '~/.server/domain/models';
 import { getProfileService } from '~/.server/domain/services/profile-service';
 import { getProfileStatusService } from '~/.server/domain/services/profile-status-service';
+import { getUserService } from '~/.server/domain/services/user-service';
+import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
+import { i18nRedirect } from '~/.server/utils/route-utils';
 import { Button } from '~/components/button';
 import { DataTable, DataTableColumnHeader, DataTableColumnHeaderWithOptions } from '~/components/data-table';
 import { InlineLink } from '~/components/links';
@@ -25,6 +28,29 @@ export const handle = {
 } as const satisfies RouteHandle;
 
 export async function loader({ context, request }: LoaderFunctionArgs) {
+  // Check if user is registered in the system
+  const authenticatedSession = context.session as AuthenticatedSession;
+  const userService = getUserService();
+  const activeDirectoryId = authenticatedSession.authState.idTokenClaims.oid as string;
+  const existingUser = await userService.getUserByActiveDirectoryId(activeDirectoryId);
+
+  if (existingUser) {
+    // User exists in the system
+    if (!existingUser.role.includes('hr-advisor')) {
+      // User exists but is not a hr-advisor, update their role to hr-advisor
+      await userService.updateUserRole(activeDirectoryId, 'hr-advisor', authenticatedSession);
+      return i18nRedirect('routes/hiring-manager/index.tsx', request); //TODO: update it to redirect to correct route
+    }
+  } else {
+    // User is not registered, register them as hr-advisor and redirect
+    await userService.registerUser(
+      {
+        activeDirectoryId,
+        role: 'hr-advisor',
+      },
+      authenticatedSession,
+    );
+  }
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
 
   const profiles = await getProfileService().getAllProfiles();
