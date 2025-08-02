@@ -24,7 +24,7 @@ patches:
   - path: ./patches/deployments-backend.yaml
   - path: ./patches/deployments-frontend.yaml
 configMapGenerator:
-  - name: vacman-backend-configmap
+  - name: vacman-backend
     behavior: create
     files:
       - application.yaml=./configs/vacman-backend.yaml
