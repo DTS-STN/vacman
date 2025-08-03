@@ -51,7 +51,7 @@ export async function action({ context, request }: ActionFunctionArgs) {
 
 export async function loader({ context, request }: LoaderFunctionArgs) {
   const { t } = await getTranslation(request, handle.i18nNamespace);
-  return { documentTitle: t('app:register.page-title') };
+  return { documentTitle: t('app:index.register-as') };
 }
 
 export default function PrivacyConsent() {
