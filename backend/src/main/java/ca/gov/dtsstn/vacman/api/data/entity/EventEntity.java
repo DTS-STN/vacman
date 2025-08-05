@@ -22,6 +22,9 @@ public class EventEntity extends AbstractBaseEntity {
 	@Column(name = "[EVENT_NAME]", nullable = false, length = 255)
 	private String name;
 
+	@Column(name = "[DETAIL]", length = 4000)
+	private String details;
+
 	public EventEntity() {
 		super();
 	}
@@ -31,6 +34,7 @@ public class EventEntity extends AbstractBaseEntity {
 			@Nullable Long id,
 			@Nullable String description,
 			@Nullable String name,
+			@Nullable String details,
 			@Nullable String createdBy,
 			@Nullable Instant createdDate,
 			@Nullable String lastModifiedBy,
@@ -38,6 +42,7 @@ public class EventEntity extends AbstractBaseEntity {
 		super(id, createdBy, createdDate, lastModifiedBy, lastModifiedDate);
 		this.description = description;
 		this.name = name;
+		this.details = details;
 	}
 
 	public String getDescription() {
@@ -56,12 +61,21 @@ public class EventEntity extends AbstractBaseEntity {
 		this.name = eventName;
 	}
 
+	public String getDetails() {
+		return details;
+	}
+
+	public void setDetails(String details) {
+		this.details = details;
+	}
+
 	@Override
 	public String toString() {
 		return new ToStringCreator(this)
 			.append("super", super.toString())
 			.append("description", description)
 			.append("name", name)
+			.append("details", details)
 			.toString();
 	}
 
