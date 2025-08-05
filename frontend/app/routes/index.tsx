@@ -61,7 +61,7 @@ export async function action({ context, request }: Route.ActionArgs) {
       }
     } else {
       // User is not registered, register them as hiring-manager and redirect
-      await userService.registerUser(
+      await userService.registerCurrentUser(
         {
           activeDirectoryId,
           role: 'hiring-manager',

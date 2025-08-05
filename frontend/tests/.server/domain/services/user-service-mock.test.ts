@@ -70,7 +70,7 @@ describe('getMockUserService', () => {
     });
   });
 
-  describe('registerUser', () => {
+  describe('registerCurrentUser', () => {
     it('should create a new user with generated metadata', async () => {
       const userData = {
         role: 'employee',
@@ -103,7 +103,7 @@ describe('getMockUserService', () => {
         },
       } as unknown as AuthenticatedSession;
 
-      const createdUser = await service.registerUser(userData, mockSession);
+      const createdUser = await service.registerCurrentUser(userData, mockSession);
 
       expect(createdUser.id).toBeDefined();
       expect(createdUser.uuName).toBe('Test User');

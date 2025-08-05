@@ -69,29 +69,6 @@ export function getDefaultUserService(): UserService {
     },
 
     /**
-     * Registers a new user.
-     * @param user The user data to create.
-     * @returns A promise that resolves to the created user object.
-     * @throws AppError if the request fails or if the server responds with an error status.
-     */
-    async registerUser(user: UserCreate, session: AuthenticatedSession): Promise<User> {
-      const response = await fetch(`${serverEnvironment.VACMAN_API_BASE_URI}/users`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(user),
-      });
-
-      if (!response.ok) {
-        const errorMessage = `Failed to register user. Server responded with status ${response.status}.`;
-        throw new AppError(errorMessage, ErrorCodes.VACMAN_API_ERROR);
-      }
-
-      return await response.json();
-    },
-
-    /**
      * Updates a user's role identified by their Active Directory ID.
      * @param activeDirectoryId The Active Directory ID of the user to update.
      * @param newRole The new role to assign to the user.
@@ -117,6 +94,39 @@ export function getDefaultUserService(): UserService {
 
       if (!response.ok) {
         const errorMessage = `Failed to update user role. Server responded with status ${response.status}.`;
+        throw new AppError(errorMessage, ErrorCodes.VACMAN_API_ERROR);
+      }
+
+      return await response.json();
+    },
+
+    async getCurrentUser(session: AuthenticatedSession): Promise<User> {
+      const response = await fetch(`${serverEnvironment.VACMAN_API_BASE_URI}/users/me`, {
+        headers: {
+          Authorization: `Bearer ${session.authState.accessToken}`,
+        },
+      });
+
+      if (!response.ok) {
+        const errorMessage = `Failed to get current user. Server responded with status ${response.status}.`;
+        throw new AppError(errorMessage, ErrorCodes.VACMAN_API_ERROR);
+      }
+
+      return await response.json();
+    },
+
+    async registerCurrentUser(user: UserCreate, session: AuthenticatedSession): Promise<User> {
+      const response = await fetch(`${serverEnvironment.VACMAN_API_BASE_URI}/users/me`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.authState.accessToken}`,
+        },
+        body: JSON.stringify(user),
+      });
+
+      if (!response.ok) {
+        const errorMessage = `Failed to register current user. Server responded with status ${response.status}.`;
         throw new AppError(errorMessage, ErrorCodes.VACMAN_API_ERROR);
       }
 

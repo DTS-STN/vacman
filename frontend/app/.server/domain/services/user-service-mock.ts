@@ -28,10 +28,25 @@ export function getMockUserService(): UserService {
         return Promise.reject(error);
       }
     },
-    registerUser: (user: UserCreate, session: AuthenticatedSession) => Promise.resolve(registerUser(user, session)),
     updateUserRole: (activeDirectoryId: string, newRole: string, session: AuthenticatedSession) => {
       try {
         return Promise.resolve(updateUserRole(activeDirectoryId, newRole, session));
+      } catch (error) {
+        return Promise.reject(error);
+      }
+    },
+    getCurrentUser: (session: AuthenticatedSession): Promise<User> => {
+      try {
+        const user = mockUsers[0];
+        if (!user) return Promise.reject(new Error('No mock users available'));
+        return Promise.resolve(user);
+      } catch (error) {
+        return Promise.reject(error);
+      }
+    },
+    registerCurrentUser: (user: UserCreate, session: AuthenticatedSession): Promise<User> => {
+      try {
+        return Promise.resolve(registerCurrentUser(user, session));
       } catch (error) {
         return Promise.reject(error);
       }
@@ -174,7 +189,7 @@ function getUserByActiveDirectoryId(activeDirectoryId: string): User | null {
  * @param session The authenticated session.
  * @returns The created user object with generated metadata.
  */
-function registerUser(userData: UserCreate, session: AuthenticatedSession): User {
+function registerCurrentUser(userData: UserCreate, session: AuthenticatedSession): User {
   // Extract user information from session tokens
   const idTokenClaims = session.authState.idTokenClaims;
 
