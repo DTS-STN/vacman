@@ -9,10 +9,10 @@ function localizeCity(city: City, language: Language): LocalizedCity {
     id: city.id,
     code: city.code,
     name: language === 'fr' ? city.nameFr : city.nameEn,
-    province: {
-      id: city.province.id,
-      code: city.province.code,
-      name: language === 'fr' ? city.province.nameFr : city.province.nameEn,
+    provinceTerritory: {
+      id: city.provinceTerritory.id,
+      code: city.provinceTerritory.code,
+      name: language === 'fr' ? city.provinceTerritory.nameFr : city.provinceTerritory.nameEn,
     },
   };
 }

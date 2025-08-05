@@ -1,11 +1,11 @@
 import type { Result, Option } from 'oxide.ts';
-import { Err } from 'oxide.ts';
+import { Err, Ok } from 'oxide.ts';
 
 import type { LookupModel, LocalizedLookupModel } from '~/.server/domain/models';
 import { apiClient } from '~/.server/domain/services/api-client';
 import { AppError } from '~/errors/app-error';
 import type { ErrorCode } from '~/errors/error-codes';
-import { HttpStatusCodes } from '~/errors/http-status-codes';
+import queryClient from '~/query-client';
 
 /**
  * Configuration for lookup service implementation
@@ -33,40 +33,81 @@ export class LookupServiceImplementation<T extends LookupModel, L extends Locali
 
   /**
    * Retrieves a list of all entities.
+   * It returns a Result to handle fetch errors without throwing.
+   */
+  private async getAll(): Promise<Result<readonly (T | null | undefined)[], AppError>> {
+    const queryKey = ['lookup', this.config.apiEndpoint];
+
+    const queryFn = async (): Promise<readonly (T | null | undefined)[]> => {
+      type ApiResponse = {
+        content: readonly (T | null | undefined)[];
+      };
+      const context = `list all ${this.config.entityName} codes`;
+      const response = await apiClient.get<ApiResponse>(this.config.apiEndpoint, context);
+
+      if (response.isErr()) {
+        throw response.unwrapErr();
+      }
+
+      return response.unwrap().content;
+    };
+
+    // Provide the generic types to fetchQuery
+    try {
+      const data = await queryClient.fetchQuery<
+        readonly (T | null | undefined)[],
+        AppError,
+        readonly (T | null | undefined)[],
+        (string | undefined)[]
+      >({
+        queryKey,
+        queryFn,
+      });
+      return Ok(data);
+    } catch (error) {
+      return Err(error as AppError);
+    }
+  }
+
+  /**
+   * Retrieves a list of all entities.
    */
   async listAll(): Promise<readonly T[]> {
-    type ApiResponse = {
-      content: readonly T[];
-    };
-    const context = `list all ${this.config.entityName} codes`;
-    const response = await apiClient.get<ApiResponse>(this.config.apiEndpoint, context);
+    const result = await this.getAll();
 
-    if (response.isErr()) {
-      throw response.unwrapErr();
+    if (result.isErr()) {
+      throw result.unwrapErr();
     }
 
-    const data = response.unwrap();
-    return data.content;
+    const dirtyList = result.unwrap();
+
+    // Sanitize the data before returning it.
+    return dirtyList.filter((item): item is T => {
+      return item !== null && typeof item === 'object' && 'id' in item;
+    });
   }
 
   /**
    * Retrieves a single entity by its ID.
    */
   async getById(id: number): Promise<Result<T, AppError>> {
-    const context = `Get ${this.config.entityName} with ID '${id}'`;
-    const response = await apiClient.get<T>(`${this.config.apiEndpoint}/${id}`, context);
+    const result = await this.getAll();
 
-    if (response.isErr()) {
-      const apiFetchError = response.unwrapErr();
-
-      if (apiFetchError.httpStatusCode === HttpStatusCodes.NOT_FOUND) {
-        return Err(new AppError(`${context} not found.`, this.config.notFoundErrorCode));
-      }
-
-      // For all other errors (500, parsing, network), just return them as is.
-      return Err(apiFetchError);
+    if (result.isErr()) {
+      // If the fetch failed, propagate the error.
+      return Err(result.unwrapErr());
     }
-    return response;
+
+    const dirtyList = result.unwrap();
+    const foundItem = dirtyList.find((item) => item?.id === id);
+
+    if (foundItem) {
+      return Ok(foundItem);
+    }
+
+    // If not found, return the specific "not found" error.
+    const context = `Get ${this.config.entityName} with ID '${id}'`;
+    return Err(new AppError(`${context} not found.`, this.config.notFoundErrorCode));
   }
 
   /**

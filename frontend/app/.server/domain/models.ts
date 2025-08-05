@@ -30,12 +30,12 @@ export type LocalizedBranch = LocalizedLookupModel;
 // City types need special handling to maintain 'province' property name for backward compatibility
 export type City = LookupModel &
   Readonly<{
-    province: Province;
+    provinceTerritory: Province;
   }>;
 
 export type LocalizedCity = LocalizedLookupModel &
   Readonly<{
-    province: LocalizedProvince;
+    provinceTerritory: LocalizedProvince;
   }>;
 
 export type Classification = LookupModel;

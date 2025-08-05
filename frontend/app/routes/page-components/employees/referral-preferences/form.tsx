@@ -85,11 +85,11 @@ export function ReferralPreferencesForm({
     children: id === 'select-option' ? tApp('form.select-option') : name,
   }));
   const cityOptions = cities
-    .filter((c) => c.province.id === Number(province))
+    .filter((c) => c.provinceTerritory.id === Number(province))
     .map((city) => ({
       value: String(city.id),
       label: city.name,
-      group: city.province.name,
+      group: city.provinceTerritory.name,
     }));
   const referralAvailibilityOptions: InputRadiosProps['options'] = [
     {
@@ -149,7 +149,7 @@ export function ReferralPreferencesForm({
   // Choice tags for cities
   const citiesChoiceTags: ChoiceTag[] = selectedCities.map((city) => {
     const selectedC = cities.find((c) => c.id === Number(city));
-    return { label: selectedC?.name ?? city, name: 'city', value: city, group: selectedC?.province.name };
+    return { label: selectedC?.name ?? city, name: 'city', value: city, group: selectedC?.provinceTerritory.name };
   });
 
   /**
@@ -172,7 +172,7 @@ export function ReferralPreferencesForm({
     setSelectedCities((prev) =>
       prev.filter((cityId) => {
         const city = cities.find((c) => c.id === Number(cityId));
-        return city?.province.name !== groupName;
+        return city?.provinceTerritory.name !== groupName;
       }),
     );
   };

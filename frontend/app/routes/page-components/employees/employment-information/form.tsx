@@ -86,12 +86,13 @@ export function EmploymentInformationForm({
     children: id === 'select-option' ? t('form.select-option') : name,
   }));
 
-  const cityOptions = [{ id: 'select-option', name: '' }, ...cities.filter((c) => c.province.id === Number(province))].map(
-    ({ id, name }) => ({
-      value: id === 'select-option' ? '' : String(id),
-      children: id === 'select-option' ? t('form.select-option') : name,
-    }),
-  );
+  const cityOptions = [
+    { id: 'select-option', name: '' },
+    ...cities.filter((c) => c.provinceTerritory.id === Number(province)),
+  ].map(({ id, name }) => ({
+    value: id === 'select-option' ? '' : String(id),
+    children: id === 'select-option' ? t('form.select-option') : name,
+  }));
 
   const wfaStatusOptions = [{ id: 'select-option', name: '' }, ...wfaStatuses].map(({ id, name }) => ({
     value: id === 'select-option' ? '' : id,
