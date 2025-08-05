@@ -32,7 +32,7 @@ export async function action({ context, request }: ActionFunctionArgs) {
       await ensureUserProfile(activeDirectoryId);
     } else {
       // User doesn't exist, register them with privacy consent accepted
-      await userService.registerUser(
+      await userService.registerCurrentUser(
         {
           activeDirectoryId,
           role: 'employee',

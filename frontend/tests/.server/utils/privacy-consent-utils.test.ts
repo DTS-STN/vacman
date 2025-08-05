@@ -84,8 +84,9 @@ const mockUserService = {
   getUsersByRole: vi.fn(),
   getUserById: vi.fn(),
   getUserByActiveDirectoryId: vi.fn(),
-  registerUser: vi.fn(),
   updateUserRole: vi.fn(),
+  getCurrentUser: vi.fn(),
+  registerCurrentUser: vi.fn(),
 };
 
 vi.mocked(getUserService).mockReturnValue(mockUserService);
@@ -165,7 +166,7 @@ describe('Privacy Consent Flow', () => {
       expect(response.headers.get('Location')).toBe('/en/employee');
 
       // Verify user was registered with privacy consent
-      expect(mockUserService.registerUser).toHaveBeenCalledWith(
+      expect(mockUserService.registerCurrentUser).toHaveBeenCalledWith(
         {
           activeDirectoryId: 'test-employee-123',
           role: 'employee',
@@ -188,7 +189,7 @@ describe('Privacy Consent Flow', () => {
       expect(response.headers.get('Location')).toBe('/en/');
 
       // Verify user was NOT registered
-      expect(mockUserService.registerUser).not.toHaveBeenCalled();
+      expect(mockUserService.registerCurrentUser).not.toHaveBeenCalled();
     });
 
     it('should redirect back to index for missing action', async () => {
@@ -203,7 +204,7 @@ describe('Privacy Consent Flow', () => {
       expect(response).toBeInstanceOf(Response);
       expect(response.status).toBe(302);
       expect(response.headers.get('Location')).toBe('/en/');
-      expect(mockUserService.registerUser).not.toHaveBeenCalled();
+      expect(mockUserService.registerCurrentUser).not.toHaveBeenCalled();
     });
 
     it('should handle missing employee name gracefully', async () => {
@@ -219,7 +220,7 @@ describe('Privacy Consent Flow', () => {
       expect(response.status).toBe(302);
 
       // Verify user was registered with fallback name
-      expect(mockUserService.registerUser).toHaveBeenCalledWith(
+      expect(mockUserService.registerCurrentUser).toHaveBeenCalledWith(
         {
           activeDirectoryId: 'test-employee-123',
           role: 'employee',
@@ -254,7 +255,7 @@ describe('Privacy Consent Flow', () => {
       expect(response.headers.get('Location')).toBe('/en/employee');
 
       // Verify user was not registered again since they already exist
-      expect(mockUserService.registerUser).not.toHaveBeenCalled();
+      expect(mockUserService.registerCurrentUser).not.toHaveBeenCalled();
       // The ensureUserProfile function would be called but we're not mocking profile services here
     });
 

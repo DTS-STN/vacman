@@ -52,8 +52,9 @@ const mockUserService = {
   getUsersByRole: vi.fn(),
   getUserById: vi.fn(),
   getUserByActiveDirectoryId: vi.fn(),
-  registerUser: vi.fn(),
   updateUserRole: vi.fn(),
+  getCurrentUser: vi.fn(),
+  registerCurrentUser: vi.fn(),
 };
 
 vi.mocked(getUserService).mockReturnValue(mockUserService);

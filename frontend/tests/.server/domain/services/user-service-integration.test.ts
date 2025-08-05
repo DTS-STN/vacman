@@ -46,7 +46,7 @@ describe('User Service Integration', () => {
         },
       } as unknown as AuthenticatedSession;
 
-      const registeredUser = await userService.registerUser(newUserData, mockSession);
+      const registeredUser = await userService.registerCurrentUser(newUserData, mockSession);
 
       expect(registeredUser).toMatchObject({
         uuName: 'Test Employee',
@@ -89,7 +89,7 @@ describe('User Service Integration', () => {
         },
       } as unknown as AuthenticatedSession;
 
-      const registeredUser = await userService.registerUser(newUserData, mockSession);
+      const registeredUser = await userService.registerCurrentUser(newUserData, mockSession);
 
       expect(registeredUser).toMatchObject({
         uuName: 'Test Hiring Manager',
@@ -130,7 +130,7 @@ describe('User Service Integration', () => {
       } as unknown as AuthenticatedSession;
 
       // First register a user
-      await userService.registerUser(
+      await userService.registerCurrentUser(
         {
           role: 'employee',
         },

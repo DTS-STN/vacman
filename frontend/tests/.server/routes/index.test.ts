@@ -63,8 +63,9 @@ const mockUserService = {
   getUsersByRole: vi.fn(),
   getUserById: vi.fn(),
   getUserByActiveDirectoryId: vi.fn(),
-  registerUser: vi.fn(),
   updateUserRole: vi.fn(),
+  getCurrentUser: vi.fn(),
+  registerCurrentUser: vi.fn(),
 };
 
 vi.mocked(getUserService).mockReturnValue(mockUserService);
@@ -143,7 +144,7 @@ describe('Index Dashboard Selection Flow', () => {
       expect(mockProfileService.getProfile).toHaveBeenCalledWith('test-employee-123');
 
       // Verify user was NOT registered yet
-      expect(mockUserService.registerUser).not.toHaveBeenCalled();
+      expect(mockUserService.registerCurrentUser).not.toHaveBeenCalled();
     });
 
     it('should redirect registered employee to employee dashboard', async () => {
@@ -182,7 +183,7 @@ describe('Index Dashboard Selection Flow', () => {
       expect(response.headers.get('Location')).toBe('/en/employee');
 
       // Verify no registration attempted
-      expect(mockUserService.registerUser).not.toHaveBeenCalled();
+      expect(mockUserService.registerCurrentUser).not.toHaveBeenCalled();
     });
   });
 
@@ -204,7 +205,7 @@ describe('Index Dashboard Selection Flow', () => {
       expect(response.headers.get('Location')).toBe('/en/hiring-manager');
 
       // Verify user was registered immediately
-      expect(mockUserService.registerUser).toHaveBeenCalledWith(
+      expect(mockUserService.registerCurrentUser).toHaveBeenCalledWith(
         {
           activeDirectoryId: 'test-manager-123',
           role: 'hiring-manager',
@@ -237,7 +238,7 @@ describe('Index Dashboard Selection Flow', () => {
       expect(response.headers.get('Location')).toBe('/en/hiring-manager');
 
       // Verify no registration attempted
-      expect(mockUserService.registerUser).not.toHaveBeenCalled();
+      expect(mockUserService.registerCurrentUser).not.toHaveBeenCalled();
       // Verify no role update attempted since user is already a hiring manager
       expect(mockUserService.updateUserRole).not.toHaveBeenCalled();
     });
@@ -287,7 +288,7 @@ describe('Index Dashboard Selection Flow', () => {
       );
 
       // Verify no new registration attempted since user already exists
-      expect(mockUserService.registerUser).not.toHaveBeenCalled();
+      expect(mockUserService.registerCurrentUser).not.toHaveBeenCalled();
     });
   });
 
@@ -304,7 +305,7 @@ describe('Index Dashboard Selection Flow', () => {
       expect(response).toBeInstanceOf(Response);
       expect(response.status).toBe(400);
       expect(await response.text()).toBe('Invalid dashboard selection');
-      expect(mockUserService.registerUser).not.toHaveBeenCalled();
+      expect(mockUserService.registerCurrentUser).not.toHaveBeenCalled();
     });
 
     it('should handle missing name gracefully', async () => {
@@ -323,7 +324,7 @@ describe('Index Dashboard Selection Flow', () => {
       expect(response.status).toBe(302);
 
       // Verify user was registered with fallback name
-      expect(mockUserService.registerUser).toHaveBeenCalledWith(
+      expect(mockUserService.registerCurrentUser).toHaveBeenCalledWith(
         {
           activeDirectoryId: 'test-manager-123',
           role: 'hiring-manager',
@@ -380,7 +381,7 @@ describe('Index Dashboard Selection Flow', () => {
       expect(response.status).toBe(302);
       expect(response.headers.get('Location')).toBe('/fr/gestionnaire-embauche');
 
-      expect(mockUserService.registerUser).toHaveBeenCalledWith(
+      expect(mockUserService.registerCurrentUser).toHaveBeenCalledWith(
         {
           activeDirectoryId: 'test-manager-fr-123',
           role: 'hiring-manager',

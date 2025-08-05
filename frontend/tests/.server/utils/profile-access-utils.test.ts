@@ -38,10 +38,11 @@ const mockProfileService = {
 };
 const mockUserService = {
   getUserByActiveDirectoryId: vi.fn(),
-  registerUser: vi.fn(),
   updateUserRole: vi.fn(),
   getUsersByRole: vi.fn(),
   getUserById: vi.fn(),
+  getCurrentUser: vi.fn(),
+  registerCurrentUser: vi.fn(),
 };
 const mockRequirePrivacyConsentForOwnProfile = vi.fn();
 const mockExtractUserIdFromProfileRoute = vi.fn();
