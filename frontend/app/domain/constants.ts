@@ -19,3 +19,8 @@ export const PROFILE_STATUS_ID = {
   incomplete: 3,
   archived: 4,
 } as const;
+
+export const REQUIRE_OPTIONS = {
+  yes: 'yes',
+  no: 'no',
+} as const;
