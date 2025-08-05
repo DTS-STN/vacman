@@ -8,6 +8,7 @@ import { faChevronRight, faUser } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useTranslation } from 'react-i18next';
 
+import { getUserService } from '~/.server/domain/services/user-service';
 import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { checkEmployeeRoutePrivacyConsent } from '~/.server/utils/privacy-consent-utils';
@@ -39,6 +40,18 @@ export async function action({ context, request }: ActionFunctionArgs) {
 }
 
 export async function loader({ context, request }: LoaderFunctionArgs) {
+  const authenticatedSession = context.session as AuthenticatedSession;
+  if (!authenticatedSession.currentUser) {
+    try {
+      const currentUser = await getUserService().getCurrentUser(authenticatedSession);
+      authenticatedSession.currentUser = currentUser;
+    } catch {
+      // TODO registerCurrentUser '{user: CreateUser}' argument needs to be updated to match the backend
+      const currentUser = await getUserService().registerCurrentUser({ role: 'employee' }, authenticatedSession);
+      authenticatedSession.currentUser = currentUser;
+    }
+  }
+
   const currentUrl = new URL(request.url);
 
   // First ensure the user is authenticated (no specific roles required)
