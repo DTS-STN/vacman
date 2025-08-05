@@ -119,7 +119,7 @@ export function ActionDataErrorSummary({ actionData, children, ...rest }: Action
   useEffect(() => {
     if (!containerRef.current) return;
     setErrors(collectFormValidationErrors(containerRef.current));
-  }, [actionData, children]);
+  }, [actionData]);
 
   return (
     <div ref={containerRef} {...rest}>
@@ -187,6 +187,7 @@ function getErrorMessageIds(input: Element): readonly string[] {
  */
 function createErrorItem(input: Element, errorMessageId: string): ErrorSummaryItem | null {
   const errorMessageElement = document.getElementById(errorMessageId);
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   const errorMessageContent = errorMessageElement?.textContent?.trim();
 
   if (!errorMessageContent) {

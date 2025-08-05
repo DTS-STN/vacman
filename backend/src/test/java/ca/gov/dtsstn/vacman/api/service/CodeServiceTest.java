@@ -119,12 +119,12 @@ class CodeServiceTest {
 	CodeService codeService;
 
 	@Test
-	@DisplayName("getAllCities() returns a page of cities")
-	void getAllCitiesReturnsPageOfCities() {
+	@DisplayName("getCities() returns a page of cities")
+	void getCitiesReturnsPageOfCities() {
 		when(cityRepository.findAll(Pageable.unpaged()))
 			.thenReturn(new PageImpl<>(List.of(new CityEntityBuilder().code("TEST_CITY").build())));
 
-		final var result = codeService.getAllCities(Pageable.unpaged());
+		final var result = codeService.getCities(Pageable.unpaged());
 
 		assertNotNull(result);
 		assertEquals(1, result.getTotalElements());
@@ -132,12 +132,12 @@ class CodeServiceTest {
 	}
 
 	@Test
-	@DisplayName("getAllClassifications() returns a page of classifications")
-	void getAllClassificationsReturnsPageOfClassifications() {
+	@DisplayName("getClassifications() returns a page of classifications")
+	void getClassificationsReturnsPageOfClassifications() {
 		when(classificationRepository.findAll(Pageable.unpaged()))
 			.thenReturn(new PageImpl<>(List.of(new ClassificationEntityBuilder().code("TEST_CLASSIFICATION").build())));
 
-		final var result = codeService.getAllClassifications(Pageable.unpaged());
+		final var result = codeService.getClassifications(Pageable.unpaged());
 
 		assertNotNull(result);
 		assertEquals(1, result.getTotalElements());
@@ -145,12 +145,12 @@ class CodeServiceTest {
 	}
 
 	@Test
-	@DisplayName("getAllEmploymentEquities() returns a page of employment equities")
-	void getAllEmploymentEquitiesReturnsPageOfEmploymentEquities() {
+	@DisplayName("getEmploymentEquities() returns a page of employment equities")
+	void getEmploymentEquitiesReturnsPageOfEmploymentEquities() {
 		when(employmentEquityRepository.findAll(Pageable.unpaged()))
 			.thenReturn(new PageImpl<>(List.of(new EmploymentEquityEntityBuilder().code("TEST_EE").build())));
 
-		final var result = codeService.getAllEmploymentEquities(Pageable.unpaged());
+		final var result = codeService.getEmploymentEquities(Pageable.unpaged());
 
 		assertNotNull(result);
 		assertEquals(1, result.getTotalElements());
@@ -158,12 +158,12 @@ class CodeServiceTest {
 	}
 
 	@Test
-	@DisplayName("getAllEmploymentOpportunities() returns a page of employment opportunities")
-	void getAllEmploymentOpportunitiesReturnsPageOfEmploymentOpportunities() {
+	@DisplayName("getEmploymentOpportunities() returns a page of employment opportunities")
+	void getEmploymentOpportunitiesReturnsPageOfEmploymentOpportunities() {
 		when(employmentOpportunityRepository.findAll(Pageable.unpaged()))
 			.thenReturn(new PageImpl<>(List.of(new EmploymentOpportunityEntityBuilder().code("TEST_EO").build())));
 
-		final var result = codeService.getAllEmploymentOpportunities(Pageable.unpaged());
+		final var result = codeService.getEmploymentOpportunities(Pageable.unpaged());
 
 		assertNotNull(result);
 		assertEquals(1, result.getTotalElements());
@@ -171,12 +171,12 @@ class CodeServiceTest {
 	}
 
 	@Test
-	@DisplayName("getAllEmploymentTenures() returns a page of employment tenures")
-	void getAllEmploymentTenuresReturnsPageOfEmploymentTenures() {
+	@DisplayName("getEmploymentTenures() returns a page of employment tenures")
+	void getEmploymentTenuresReturnsPageOfEmploymentTenures() {
 		when(employmentTenureRepository.findAll(Pageable.unpaged()))
 			.thenReturn(new PageImpl<>(List.of(new EmploymentTenureEntityBuilder().code("TEST_ET").build())));
 
-		final var result = codeService.getAllEmploymentTenures(Pageable.unpaged());
+		final var result = codeService.getEmploymentTenures(Pageable.unpaged());
 
 		assertNotNull(result);
 		assertEquals(1, result.getTotalElements());
@@ -184,12 +184,12 @@ class CodeServiceTest {
 	}
 
 	@Test
-	@DisplayName("getAllLanguages() returns a page of languages")
-	void getAllLanguagesReturnsPageOfLanguages() {
+	@DisplayName("getLanguages() returns a page of languages")
+	void getLanguagesReturnsPageOfLanguages() {
 		when(languageRepository.findAll(Pageable.unpaged()))
 			.thenReturn(new PageImpl<>(List.of(new LanguageEntityBuilder().code("TEST_LANG").build())));
 
-		final var result = codeService.getAllLanguages(Pageable.unpaged());
+		final var result = codeService.getLanguages(Pageable.unpaged());
 
 		assertNotNull(result);
 		assertEquals(1, result.getTotalElements());
@@ -197,12 +197,12 @@ class CodeServiceTest {
 	}
 
 	@Test
-	@DisplayName("getAllLanguageReferralTypes() returns a page of language referral types")
-	void getAllLanguageReferralTypesReturnsPageOfLanguageReferralTypes() {
+	@DisplayName("getLanguageReferralTypes() returns a page of language referral types")
+	void getLanguageReferralTypesReturnsPageOfLanguageReferralTypes() {
 		when(languageReferralTypeRepository.findAll(Pageable.unpaged()))
 			.thenReturn(new PageImpl<>(List.of(new LanguageReferralTypeEntityBuilder().code("TEST_LRT").build())));
 
-		final var result = codeService.getAllLanguageReferralTypes(Pageable.unpaged());
+		final var result = codeService.getLanguageReferralTypes(Pageable.unpaged());
 
 		assertNotNull(result);
 		assertEquals(1, result.getTotalElements());
@@ -210,12 +210,12 @@ class CodeServiceTest {
 	}
 
 	@Test
-	@DisplayName("getAllLanguageRequirements() returns a page of language requirements")
-	void getAllLanguageRequirementsReturnsPageOfLanguageRequirements() {
+	@DisplayName("getLanguageRequirements() returns a page of language requirements")
+	void getLanguageRequirementsReturnsPageOfLanguageRequirements() {
 		when(languageRequirementRepository.findAll(Pageable.unpaged()))
 			.thenReturn(new PageImpl<>(List.of(new LanguageRequirementEntityBuilder().code("TEST_LR").build())));
 
-		final var result = codeService.getAllLanguageRequirements(Pageable.unpaged());
+		final var result = codeService.getLanguageRequirements(Pageable.unpaged());
 
 		assertNotNull(result);
 		assertEquals(1, result.getTotalElements());
@@ -223,12 +223,12 @@ class CodeServiceTest {
 	}
 
 	@Test
-	@DisplayName("getAllNonAdvertisedAppointments() returns a page of non-advertised appointments")
-	void getAllNonAdvertisedAppointmentsReturnsPageOfNonAdvertisedAppointments() {
+	@DisplayName("getNonAdvertisedAppointments() returns a page of non-advertised appointments")
+	void getNonAdvertisedAppointmentsReturnsPageOfNonAdvertisedAppointments() {
 		when(nonAdvertisedAppointmentRepository.findAll(Pageable.unpaged()))
 			.thenReturn(new PageImpl<>(List.of(new NonAdvertisedAppointmentEntityBuilder().code("TEST_NAA").build())));
 
-		final var result = codeService.getAllNonAdvertisedAppointments(Pageable.unpaged());
+		final var result = codeService.getNonAdvertisedAppointments(Pageable.unpaged());
 
 		assertNotNull(result);
 		assertEquals(1, result.getTotalElements());
@@ -236,12 +236,12 @@ class CodeServiceTest {
 	}
 
 	@Test
-	@DisplayName("getAllPriorityLevels() returns a page of priority levels")
-	void getAllPriorityLevelsReturnsPageOfPriorityLevels() {
+	@DisplayName("getPriorityLevels() returns a page of priority levels")
+	void getPriorityLevelsReturnsPageOfPriorityLevels() {
 		when(priorityLevelRepository.findAll(Pageable.unpaged()))
 			.thenReturn(new PageImpl<>(List.of(new PriorityLevelEntityBuilder().code("TEST_PL").build())));
 
-		final var result = codeService.getAllPriorityLevels(Pageable.unpaged());
+		final var result = codeService.getPriorityLevels(Pageable.unpaged());
 
 		assertNotNull(result);
 		assertEquals(1, result.getTotalElements());
@@ -249,12 +249,12 @@ class CodeServiceTest {
 	}
 
 	@Test
-	@DisplayName("getAllProfileStatuses() returns a page of profile statuses")
-	void getAllProfileStatusesReturnsPageOfProfileStatuses() {
+	@DisplayName("getProfileStatuses() returns a page of profile statuses")
+	void getProfileStatusesReturnsPageOfProfileStatuses() {
 		when(profileStatusRepository.findAll(Pageable.unpaged()))
 			.thenReturn(new PageImpl<>(List.of(new ProfileStatusEntityBuilder().code("TEST_PS").build())));
 
-		final var result = codeService.getAllProfileStatuses(Pageable.unpaged());
+		final var result = codeService.getProfileStatuses(Pageable.unpaged());
 
 		assertNotNull(result);
 		assertEquals(1, result.getTotalElements());
@@ -262,12 +262,12 @@ class CodeServiceTest {
 	}
 
 	@Test
-	@DisplayName("getAllProvinces() returns a page of provinces")
-	void getAllProvincesReturnsPageOfProvinces() {
+	@DisplayName("getProvinces() returns a page of provinces")
+	void getProvincesReturnsPageOfProvinces() {
 		when(provinceRepository.findAll(Pageable.unpaged()))
 			.thenReturn(new PageImpl<>(List.of(new ProvinceEntityBuilder().code("TEST_PROV").build())));
 
-		final var result = codeService.getAllProvinces(Pageable.unpaged());
+		final var result = codeService.getProvinces(Pageable.unpaged());
 
 		assertNotNull(result);
 		assertEquals(1, result.getTotalElements());
@@ -275,12 +275,12 @@ class CodeServiceTest {
 	}
 
 	@Test
-	@DisplayName("getAllRequestStatuses() returns a page of request statuses")
-	void getAllRequestStatusesReturnsPageOfRequestStatuses() {
+	@DisplayName("getRequestStatuses() returns a page of request statuses")
+	void getRequestStatusesReturnsPageOfRequestStatuses() {
 		when(requestStatusRepository.findAll(Pageable.unpaged()))
 			.thenReturn(new PageImpl<>(List.of(new RequestStatusEntityBuilder().code("TEST_RS").build())));
 
-		final var result = codeService.getAllRequestStatuses(Pageable.unpaged());
+		final var result = codeService.getRequestStatuses(Pageable.unpaged());
 
 		assertNotNull(result);
 		assertEquals(1, result.getTotalElements());
@@ -288,12 +288,12 @@ class CodeServiceTest {
 	}
 
 	@Test
-	@DisplayName("getAllSecurityClearances() returns a page of security clearances")
-	void getAllSecurityClearancesReturnsPageOfSecurityClearances() {
+	@DisplayName("getSecurityClearances() returns a page of security clearances")
+	void getSecurityClearancesReturnsPageOfSecurityClearances() {
 		when(securityClearanceRepository.findAll(Pageable.unpaged()))
 			.thenReturn(new PageImpl<>(List.of(new SecurityClearanceEntityBuilder().code("TEST_SC").build())));
 
-		final var result = codeService.getAllSecurityClearances(Pageable.unpaged());
+		final var result = codeService.getSecurityClearances(Pageable.unpaged());
 
 		assertNotNull(result);
 		assertEquals(1, result.getTotalElements());
@@ -301,12 +301,12 @@ class CodeServiceTest {
 	}
 
 	@Test
-	@DisplayName("getAllSelectionProcessTypes() returns a page of selection process types")
-	void getAllSelectionProcessTypesReturnsPageOfSelectionProcessTypes() {
+	@DisplayName("getSelectionProcessTypes() returns a page of selection process types")
+	void getSelectionProcessTypesReturnsPageOfSelectionProcessTypes() {
 		when(selectionProcessTypeRepository.findAll(Pageable.unpaged()))
 			.thenReturn(new PageImpl<>(List.of(new SelectionProcessTypeEntityBuilder().code("TEST_SPT").build())));
 
-		final var result = codeService.getAllSelectionProcessTypes(Pageable.unpaged());
+		final var result = codeService.getSelectionProcessTypes(Pageable.unpaged());
 
 		assertNotNull(result);
 		assertEquals(1, result.getTotalElements());
@@ -314,12 +314,12 @@ class CodeServiceTest {
 	}
 
 	@Test
-	@DisplayName("getAllUserTypes() returns a page of user types")
-	void getAllUserTypesReturnsPageOfUserTypes() {
+	@DisplayName("getUserTypes() returns a page of user types")
+	void getUserTypesReturnsPageOfUserTypes() {
 		when(userTypeRepository.findAll(Pageable.unpaged()))
 			.thenReturn(new PageImpl<>(List.of(new UserTypeEntityBuilder().code("TEST_UT").build())));
 
-		final var result = codeService.getAllUserTypes(Pageable.unpaged());
+		final var result = codeService.getUserTypes(Pageable.unpaged());
 
 		assertNotNull(result);
 		assertEquals(1, result.getTotalElements());
@@ -327,12 +327,12 @@ class CodeServiceTest {
 	}
 
 	@Test
-	@DisplayName("getAllWfaStatuses() returns a page of WFA statuses")
-	void getAllWfaStatusesReturnsPageOfWfaStatuses() {
+	@DisplayName("getWfaStatuses() returns a page of WFA statuses")
+	void getWfaStatusesReturnsPageOfWfaStatuses() {
 		when(wfaStatusRepository.findAll(Pageable.unpaged()))
 			.thenReturn(new PageImpl<>(List.of(new WfaStatusEntityBuilder().code("TEST_WFA").build())));
 
-		final var result = codeService.getAllWfaStatuses(Pageable.unpaged());
+		final var result = codeService.getWfaStatuses(Pageable.unpaged());
 
 		assertNotNull(result);
 		assertEquals(1, result.getTotalElements());
@@ -340,12 +340,12 @@ class CodeServiceTest {
 	}
 
 	@Test
-	@DisplayName("getAllWorkSchedules() returns a page of work schedules")
-	void getAllWorkSchedulesReturnsPageOfWorkSchedules() {
+	@DisplayName("getWorkSchedules() returns a page of work schedules")
+	void getWorkSchedulesReturnsPageOfWorkSchedules() {
 		when(workScheduleRepository.findAll(Pageable.unpaged()))
 			.thenReturn(new PageImpl<>(List.of(new WorkScheduleEntityBuilder().code("TEST_WS").build())));
 
-		final var result = codeService.getAllWorkSchedules(Pageable.unpaged());
+		final var result = codeService.getWorkSchedules(Pageable.unpaged());
 
 		assertNotNull(result);
 		assertEquals(1, result.getTotalElements());
@@ -353,12 +353,12 @@ class CodeServiceTest {
 	}
 
 	@Test
-	@DisplayName("getAllWorkUnits() returns a page of work units")
-	void getAllWorkUnitsReturnsPageOfWorkUnits() {
+	@DisplayName("getWorkUnits() returns a page of work units")
+	void getWorkUnitsReturnsPageOfWorkUnits() {
 		when(workUnitRepository.findAll(Pageable.unpaged()))
 			.thenReturn(new PageImpl<>(List.of(new WorkUnitEntityBuilder().code("TEST_WU").build())));
 
-		final var result = codeService.getAllWorkUnits(Pageable.unpaged());
+		final var result = codeService.getWorkUnits(Pageable.unpaged());
 
 		assertNotNull(result);
 		assertEquals(1, result.getTotalElements());

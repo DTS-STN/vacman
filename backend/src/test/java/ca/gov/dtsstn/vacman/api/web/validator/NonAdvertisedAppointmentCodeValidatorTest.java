@@ -12,6 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
@@ -37,19 +38,17 @@ class NonAdvertisedAppointmentCodeValidatorTest {
 	@Test
 	@DisplayName("isValid() returns true when non-advertised appointment code is valid")
 	void isValidReturnsTrueWhenNonAdvertisedAppointmentCodeIsValid() {
-		when(codeService.getAllNonAdvertisedAppointments(Pageable.unpaged()))
-			.thenReturn(new PageImpl<>(List.of(new NonAdvertisedAppointmentEntityBuilder().code("VALID").build())));
+		when(codeService.getNonAdvertisedAppointments(Pageable.unpaged()))
+			.thenReturn(new PageImpl<>(List.of(new NonAdvertisedAppointmentEntityBuilder().id(0L).build())));
 
-		assertTrue(nonAdvertisedAppointmentCodeValidator.isValid("VALID", null));
+		assertTrue(nonAdvertisedAppointmentCodeValidator.isValid(0L, null));
 	}
 
 	@Test
 	@DisplayName("isValid() returns false when non-advertised appointment code is invalid")
 	void isValidReturnsFalseWhenNonAdvertisedAppointmentCodeIsInvalid() {
-		when(codeService.getAllNonAdvertisedAppointments(Pageable.unpaged()))
-			.thenReturn(new PageImpl<>(List.of(new NonAdvertisedAppointmentEntityBuilder().code("VALID").build())));
-
-		assertFalse(nonAdvertisedAppointmentCodeValidator.isValid("INVALID", null));
+		when(codeService.getNonAdvertisedAppointments(Pageable.unpaged())).thenReturn(Page.empty());
+		assertFalse(nonAdvertisedAppointmentCodeValidator.isValid(0L, null));
 	}
 
 }

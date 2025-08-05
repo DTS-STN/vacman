@@ -15,7 +15,7 @@ import jakarta.validation.Payload;
 @Constraint(validatedBy = ProvinceCodeValidator.class)
 public @interface ValidProvinceCode {
 
-	String message() default "Province code does not exist";
+	String message() default "Province does not exist";
 
 	Class<?>[] groups() default {};
 

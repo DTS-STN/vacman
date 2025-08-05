@@ -3,9 +3,13 @@ export default {
     'about': 'The VacMan initiative!',
     'dashboard': 'Dashboard',
     'page-title': 'Select your dashboard',
-    'get-started': 'Employee Dashboard',
+    'get-started': 'Get started',
     'navigate': 'Go to the employee portal',
     'register': 'Register',
+    'employees': 'Employees',
+    'employee-dashboard': 'Employee dashboard',
+    'hiring-manager-dashboard': 'Hiring manager dashboard',
+    'register-as': 'Register as...',
   },
   'register': {
     'employee': 'Employee dashboard',
@@ -17,13 +21,14 @@ export default {
   'profile': {
     'about-para-1':
       'This profile outlines your current position, referral preferences, and qualifications. Complete all sections and submit for approval.',
+    'about-para-1-pending':
+      'This profile outlines your current position, referral preferences, and qualifications. You can make edits at any time. Changes to certain fields will require re-approval.',
     'about-para-2': 'Your progress is saved automatically.',
     'edit': 'Edit',
     'add': 'Add',
     'in-progress': 'In progress',
     'required': 'Required',
     'complete': 'Complete',
-    'fields-complete': '{{completed}} out of {{total}} fields complete',
     'personal-information': {
       'title': 'Personal information',
       'link-label': 'personal information',
@@ -49,6 +54,7 @@ export default {
     'profile-incomplete': 'Please complete all required fields before submitting your profile',
     'profile-submitted': 'Profile submitted successfully! Your HR advisor will now review it for approval',
     'profile-pending-approval': 'Your profile edits will require re-approval by your HR advisor',
+    'page-title': 'Profile',
   },
   'form': {
     'cancel': 'Cancel',
@@ -73,6 +79,8 @@ export default {
     'additional-information': 'Additional information',
     'additional-info-help-message': 'Briefly note absences or other key information.',
     'errors': {
+      'surname-required': 'Surname is required',
+      'givenName-required': 'Given name is required',
       'personal-record-identifier-required': 'Personal record identifier is required.',
       'personal-record-identifier-invalid': 'Invalid personal record identifier.',
       'preferred-language-required': 'Preferred language of correspondence is required.',
@@ -166,5 +174,17 @@ export default {
       'employment-tenure-invalid': 'Employment opportunities (confirmation of interest) is invalid.',
       'employment-tenure-duplicate': 'Duplicate items for the selection of employment opportunities are not allowed.',
     },
+  },
+  'employee-dashboard': {
+    'page-title': 'Employees',
+    'view': 'View',
+    'my-employees': 'My employees',
+    'all-employees': 'All employees',
+    'employee': 'Employee',
+    'email': 'Work email address',
+    'updated': 'Updated',
+    'status': 'Status',
+    'action': 'Action',
+    'next-page': 'Next',
   },
 };

@@ -1,0 +1,40 @@
+{
+  "content": [
+    {
+      "id": 2001,
+      "code": "BBB",
+      "nameEn": "BBB/BBB",
+      "nameFr": "BBB/BBB"
+    },
+    {
+      "id": 2002,
+      "code": "CBC",
+      "nameEn": "CBC/CBC",
+      "nameFr": "CBC/CBC"
+    },
+    {
+      "id": 2003,
+      "code": "CCC",
+      "nameEn": "CCC/CCC",
+      "nameFr": "CCC/CCC"
+    },
+    {
+      "id": 2004,
+      "code": "ENG_ESSENTIAL",
+      "nameEn": "English Essential",
+      "nameFr": "Anglais essentiel"
+    },
+    {
+      "id": 2005,
+      "code": "FRE_ESSENTIAL",
+      "nameEn": "French Essential",
+      "nameFr": "Français essentiel"
+    },
+    {
+      "id": 2006,
+      "code": "BILINGUAL_ESSENTIAL",
+      "nameEn": "Bilingual Essential",
+      "nameFr": "Bilingue essentiel"
+    }
+  ]
+}

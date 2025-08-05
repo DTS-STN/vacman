@@ -19,7 +19,7 @@ import jakarta.persistence.UniqueConstraint;
 
 @Entity(name = "User")
 @AttributeOverride(name = "id", column = @Column(name = "[USER_ID]"))
-@Table(name = "[USER]", uniqueConstraints = { @UniqueConstraint(name = "USER_NAME_UK", columnNames = { "[NETWORK_NAME]", "[UU_NAME]" }) })
+@Table(name = "[USER]", uniqueConstraints = { @UniqueConstraint(name = "USER_NAME_UK", columnNames = { "[MS_ENTRA_ID]" }) })
 public class UserEntity extends AbstractBaseEntity {
 
 	@Column(name = "[BUSINESS_EMAIL_ADDRESS]", length = 320, nullable = false)
@@ -41,11 +41,11 @@ public class UserEntity extends AbstractBaseEntity {
 	@Column(name = "[LAST_NAME]", length = 100, nullable = false)
 	private String lastName;
 
+	@Column(name = "[MS_ENTRA_ID]", length = 50, nullable = false)
+	private String microsoftEntraId;
+
 	@Column(name = "[MIDDLE_NAME]", length = 100, nullable = true)
 	private String middleName;
-
-	@Column(name = "[NETWORK_NAME]", length = 50, nullable = false)
-	private String activeDirectoryId;
 
 	@Column(name = "[PERSONAL_RECORD_IDENTIFIER]", length = 10, nullable = true)
 	private String personalRecordIdentifier;
@@ -55,14 +55,11 @@ public class UserEntity extends AbstractBaseEntity {
 	// This creates a bidirectional one-to-many relationship where Profile owns the FK
 	// No cascade on User side to avoid deletion conflicts
 	@OneToMany(mappedBy = "user")
-	private Set<ProfileEntity> profiles = new HashSet<>();
+	private final Set<ProfileEntity> profiles = new HashSet<>();
 
 	@ManyToOne
 	@JoinColumn(name = "[USER_TYPE_ID]", nullable = false)
 	private UserTypeEntity userType;
-
-	@Column(name = "[UU_NAME]", length = 50, nullable = false)
-	private String uuid;
 
 	public UserEntity() {
 		super();
@@ -77,12 +74,11 @@ public class UserEntity extends AbstractBaseEntity {
 			@Nullable String initial,
 			@Nullable LanguageEntity language,
 			@Nullable String lastName,
+			@Nullable String microsoftEntraId,
 			@Nullable String middleName,
-			@Nullable String activeDirectoryId,
 			@Nullable String personalRecordIdentifier,
 			@Nullable Set<ProfileEntity> profiles,
 			@Nullable UserTypeEntity userType,
-			@Nullable String uuid,
 			@Nullable String createdBy,
 			@Nullable Instant createdDate,
 			@Nullable String lastModifiedBy,
@@ -94,11 +90,10 @@ public class UserEntity extends AbstractBaseEntity {
 		this.initial = initial;
 		this.language = language;
 		this.lastName = lastName;
+		this.microsoftEntraId = microsoftEntraId;
 		this.middleName = middleName;
-		this.activeDirectoryId = activeDirectoryId;
 		this.personalRecordIdentifier = personalRecordIdentifier;
 		this.userType = userType;
-		this.uuid = uuid;
 
 		if (profiles != null) {
 			this.profiles.addAll(profiles);
@@ -137,6 +132,14 @@ public class UserEntity extends AbstractBaseEntity {
 		this.initial = initial;
 	}
 
+	public LanguageEntity getLanguage() {
+		return language;
+	}
+
+	public void setLanguage(LanguageEntity language) {
+		this.language = language;
+	}
+
 	public String getLastName() {
 		return lastName;
 	}
@@ -145,20 +148,20 @@ public class UserEntity extends AbstractBaseEntity {
 		this.lastName = lastName;
 	}
 
+	public String getMicrosoftEntraId() {
+		return microsoftEntraId;
+	}
+
+	public void setMicrosoftEntraId(String microsoftEntraId) {
+		this.microsoftEntraId = microsoftEntraId;
+	}
+
 	public String getMiddleName() {
 		return middleName;
 	}
 
 	public void setMiddleName(String middleName) {
 		this.middleName = middleName;
-	}
-
-	public String getActiveDirectoryId() {
-		return activeDirectoryId;
-	}
-
-	public void setActiveDirectoryId(String activeDirectoryId) {
-		this.activeDirectoryId = activeDirectoryId;
 	}
 
 	public String getPersonalRecordIdentifier() {
@@ -188,22 +191,6 @@ public class UserEntity extends AbstractBaseEntity {
 		this.userType = userType;
 	}
 
-	public String getUuid() {
-		return uuid;
-	}
-
-	public void setUuid(String uuid) {
-		this.uuid = uuid;
-	}
-
-	public LanguageEntity getLanguage() {
-		return language;
-	}
-
-	public void setLanguage(LanguageEntity language) {
-		this.language = language;
-	}
-
 	@Override
 	public String toString() {
 		return new ToStringCreator(this)
@@ -214,12 +201,11 @@ public class UserEntity extends AbstractBaseEntity {
 			.append("initial", initial)
 			.append("language", language)
 			.append("lastName", lastName)
+			.append("microsoftEntraId", microsoftEntraId)
 			.append("middleName", middleName)
-			.append("activeDirectoryId", activeDirectoryId)
 			.append("personalRecordIdentifier", personalRecordIdentifier)
 			.append("profiles", profiles)
 			.append("userType", userType)
-			.append("uuid", uuid)
 			.toString();
 	}
 

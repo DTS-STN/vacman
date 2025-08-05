@@ -15,7 +15,7 @@ import jakarta.validation.Payload;
 @Constraint(validatedBy = ClassificationCodeValidator.class)
 public @interface ValidClassificationCode {
 
-	String message() default "Classification code does not exist";
+	String message() default "Classification does not exist";
 
 	Class<?>[] groups() default {};
 

@@ -15,7 +15,7 @@ import jakarta.validation.Payload;
 @Constraint(validatedBy = CityCodeValidator.class)
 public @interface ValidCityCode {
 
-	String message() default "City code does not exist";
+	String message() default "City does not exist";
 
 	Class<?>[] groups() default {};
 

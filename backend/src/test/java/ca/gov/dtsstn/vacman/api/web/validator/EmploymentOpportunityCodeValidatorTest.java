@@ -12,6 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
@@ -37,19 +38,17 @@ class EmploymentOpportunityCodeValidatorTest {
 	@Test
 	@DisplayName("isValid() returns true when employment opportunity code is valid")
 	void isValidReturnsTrueWhenEmploymentOpportunityCodeIsValid() {
-		when(codeService.getAllEmploymentOpportunities(Pageable.unpaged()))
-			.thenReturn(new PageImpl<>(List.of(new EmploymentOpportunityEntityBuilder().code("VALID").build())));
+		when(codeService.getEmploymentOpportunities(Pageable.unpaged()))
+			.thenReturn(new PageImpl<>(List.of(new EmploymentOpportunityEntityBuilder().id(0L).build())));
 
-		assertTrue(employmentOpportunityCodeValidator.isValid("VALID", null));
+		assertTrue(employmentOpportunityCodeValidator.isValid(0L, null));
 	}
 
 	@Test
 	@DisplayName("isValid() returns false when employment opportunity code is invalid")
 	void isValidReturnsFalseWhenEmploymentOpportunityCodeIsInvalid() {
-		when(codeService.getAllEmploymentOpportunities(Pageable.unpaged()))
-			.thenReturn(new PageImpl<>(List.of(new EmploymentOpportunityEntityBuilder().code("VALID").build())));
-
-		assertFalse(employmentOpportunityCodeValidator.isValid("INVALID", null));
+		when(codeService.getEmploymentOpportunities(Pageable.unpaged())).thenReturn(Page.empty());
+		assertFalse(employmentOpportunityCodeValidator.isValid(0L, null));
 	}
 
 }

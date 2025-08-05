@@ -8,11 +8,11 @@ import type { AppError } from '~/errors/app-error';
 
 export type BranchService = {
   listAll(): Promise<readonly Branch[]>;
-  getById(id: string): Promise<Result<Branch, AppError>>;
+  getById(id: number): Promise<Result<Branch, AppError>>;
   getByCode(code: string): Promise<Result<Branch, AppError>>;
   listAllLocalized(language: Language): Promise<readonly LocalizedBranch[]>;
-  getLocalizedById(id: string, language: Language): Promise<Result<LocalizedBranch, AppError>>;
-  findLocalizedById(id: string, language: Language): Promise<Option<LocalizedBranch>>;
+  getLocalizedById(id: number, language: Language): Promise<Result<LocalizedBranch, AppError>>;
+  findLocalizedById(id: number, language: Language): Promise<Option<LocalizedBranch>>;
   getLocalizedByCode(code: string, language: Language): Promise<Result<LocalizedBranch, AppError>>;
   findLocalizedByCode(code: string, language: Language): Promise<Option<LocalizedBranch>>;
 };

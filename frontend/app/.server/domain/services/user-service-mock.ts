@@ -45,8 +45,8 @@ export function getMockUserService(): UserService {
 const mockUsers: readonly User[] = [
   {
     id: 1,
-    role: 'employee',
-    networkName: '00000000-0000-0000-0000-000000000001',
+    role: 'hr-advisor',
+    networkName: '00000000-0000-0000-0000-000000000000',
     uuName: 'Jane Doe',
     firstName: 'Jane',
     middleName: undefined,
@@ -254,7 +254,7 @@ function updateUserRole(activeDirectoryId: string, newRole: string, session: Aut
     if (session.authState.accessTokenClaims.roles) {
       // Remove any existing employee/hiring-manager roles and add the new one
       const filteredRoles = session.authState.accessTokenClaims.roles.filter(
-        (r: string) => r !== 'employee' && r !== 'hiring-manager',
+        (r: string) => r !== 'employee' && r !== 'hiring-manager' && r !== 'hr-advisor',
       );
       // Cast to mutable for testing purposes
       (session.authState.accessTokenClaims.roles as string[]) = [...filteredRoles, newRole];

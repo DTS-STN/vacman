@@ -1,0 +1,17 @@
+# This service provides functionality intended for development or testing purposes.
+#
+# Note: This service should not be exposed in production environments as it may
+#       introduce security risks or unintended behavior.
+apiVersion: v1
+kind: Service
+metadata:
+  name: vacman-backend
+  labels:
+    app.kubernetes.io/name: vacman-backend
+spec:
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+  selector:
+    app.kubernetes.io/name: vacman-backend

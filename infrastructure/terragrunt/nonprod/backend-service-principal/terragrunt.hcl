@@ -24,6 +24,7 @@ inputs = {
     "gregory.j.baker@hrsdc-rhdcc.gc.ca",
     "jordan.willis@hrsdc-rhdcc.gc.ca",
     "landon.a.harrison@hrsdc-rhdcc.gc.ca",
+    "marcus.blais@hrsdc-rhdcc.gc.ca",
   ]
 
   app_required_resource_accesses = [{
@@ -31,7 +32,19 @@ inputs = {
 
     resource_accesses = [
       {
-        id   = local.msgraph_api.roles["User.Read.All"]
+        id   = local.msgraph_api.scopes["openid"]
+        type = "Scope",
+      },
+      {
+        id   = local.msgraph_api.scopes["email"]
+        type = "Scope",
+      },
+      {
+        id   = local.msgraph_api.scopes["profile"]
+        type = "Scope",
+      },
+      {
+        id   = local.msgraph_api.roles["User.ReadBasic.All"]
         type = "Role",
       },
     ]
@@ -70,6 +83,14 @@ inputs = {
 
   app_spa_redirect_uris = [
     "http://localhost:8080/swagger-ui/oauth2-redirect.html",
+    "https://vacman-dev-api.dev-dp-internal.dts-stn.com/swagger-ui/oauth2-redirect.html",
+    "https://vacman-int-api.dev-dp-internal.dts-stn.com/swagger-ui/oauth2-redirect.html",
+  ]
+
+  app_web_redirect_uris = [
+    "http://localhost:3000/auth/callback/azuread",
+    "https://vacman-dev.dev-dp-internal.dts-stn.com/auth/callback/azuread",
+    "https://vacman-int.dev-dp-internal.dts-stn.com/auth/callback/azuread",
   ]
 
   role_assignments = {

@@ -8,7 +8,7 @@ import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
 @Component
-public class SecurityClearanceCodeValidator implements ConstraintValidator<ValidSecurityClearanceCode, String> {
+public class SecurityClearanceCodeValidator implements ConstraintValidator<ValidSecurityClearanceCode, Long> {
 
 	private final CodeService codeService;
 
@@ -22,11 +22,11 @@ public class SecurityClearanceCodeValidator implements ConstraintValidator<Valid
 	}
 
 	@Override
-	public boolean isValid(String securityClearanceCode, ConstraintValidatorContext context) {
-		if (securityClearanceCode == null) { return true; }
+	public boolean isValid(Long securityClearanceId, ConstraintValidatorContext context) {
+		if (securityClearanceId == null) { return true; }
 
-		return codeService.getAllSecurityClearances(Pageable.unpaged()).stream()
-			.filter(securityClearance -> securityClearance.getCode().equals(securityClearanceCode))
+		return codeService.getSecurityClearances(Pageable.unpaged()).stream()
+			.filter(securityClearance -> securityClearance.getId().equals(securityClearanceId))
 			.findFirst().isPresent();
 	}
 

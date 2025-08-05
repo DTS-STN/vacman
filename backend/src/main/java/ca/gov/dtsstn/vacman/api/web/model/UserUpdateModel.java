@@ -11,12 +11,12 @@ public record UserUpdateModel(
 	@Schema(description = "The unique identifier for this user.", example = "1")
 	Long id,
 
-	@ValidUserTypeCode(message = "User type not found for role")
-	@Schema(description = "The role of this user.", example = "hiring-manager")
-	String role,
+	@ValidUserTypeCode(message = "User type not found")
+	@Schema(description = "The user type of this user.", example = "00000000-0000-0000-0000-000000000000")
+	Long userTypeId,
 
-	@Schema(description = "The active directory ID of this user.", example = "2ca209f5-7913-491e-af5a-1f488ce0613b")
-	String activeDirectoryId,
+	@Schema(description = "The Microsoft Entra ID of this user.", example = "00000000-0000-0000-0000-000000000000")
+	String microsoftEntraId,
 
 	@Schema(description = "The first name of this user.", example = "John")
 	String firstName,
@@ -39,7 +39,7 @@ public record UserUpdateModel(
 	@Schema(description = "The business email of this user.", example = "john.doe@example.com")
 	String businessEmail,
 
-	@ValidLanguageCode(message = "Language not found with code")
-	@Schema(description = "The language code for this user.", example = "FR")
-	String languageCode
+	@ValidLanguageCode(message = "Language not found")
+	@Schema(description = "The language ID for this user.", example = "00000000-0000-0000-0000-000000000000")
+	Long languageId
 ) {}

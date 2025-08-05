@@ -15,8 +15,8 @@ describe('getMockUserService', () => {
       expect(user).toEqual({
         id: 1,
         uuName: 'Jane Doe',
-        networkName: '00000000-0000-0000-0000-000000000001',
-        role: 'employee',
+        networkName: '00000000-0000-0000-0000-000000000000',
+        role: 'hr-advisor',
         userCreated: 'system',
         dateCreated: '2024-01-01T00:00:00Z',
         userUpdated: 'system',

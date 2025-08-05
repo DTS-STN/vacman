@@ -15,7 +15,7 @@ import jakarta.validation.Payload;
 @Constraint(validatedBy = EmploymentEquityCodeValidator.class)
 public @interface ValidEmploymentEquityCode {
 
-	String message() default "Employment equity code does not exist";
+	String message() default "Employment equity does not exist";
 
 	Class<?>[] groups() default {};
 

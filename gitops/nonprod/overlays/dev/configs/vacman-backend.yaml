@@ -4,31 +4,10 @@
 # This file provides environment-specific overrides to the default configuration.
 #######################################################################################################################
 
-spring:
-  datasource:
-    # Use an in-memory H2 database with SQL Server compatibility mode.
-    # Keeps identifiers case-sensitive and avoids converting them to uppercase.
-    # DB_CLOSE_DELAY=-1 means the DB will stay open until the JVM shuts down.
-    url: jdbc:h2:mem:testdb;MODE=MSSQLServer;DATABASE_TO_UPPER=false;CASE_INSENSITIVE_IDENTIFIERS=true;DB_CLOSE_DELAY=-1;
-
-  jpa:
-    hibernate:
-      # Automatically update the database schema to match entity definitions.
-      # Use cautiously in production — better for dev/testing.
-      ddl-auto: update
-
-    # Ensures that JPA waits until the datasource is initialized for data.sql scripts.
-    defer-datasource-initialization: true
-
-    # Prints SQL statements in logs — useful for debugging.
-    show-sql: true
-
-  h2:
-    console:
-      # Enables the H2 web console at runtime.
-      enabled: true
-      # Sets the path to access the H2 web console in the browser.
-      path: /h2-console
+logging:
+  level:
+    '[ca.gov.dts_stn.vacman.api]': trace
+    '[org.springframework]': debug
 
 management:
   otlp:
@@ -36,8 +15,17 @@ management:
       export:
         url: https://dynatrace.dev-dp.admin.dts-stn.com/e/21a07aef-852b-4d9b-aa87-ee5f8b79f8c9/api/v2/otlp/v1/metrics
 
+spring:
+  jpa:
+    show-sql: true
+
 application:
+  gcnotify:
+    base-url: https://api.notification.example.com/v2/notifications
+    profile-approved-template-id: 00000000-0000-0000-0000-000000000000
+    profile-created-template-id: 00000000-0000-0000-0000-000000000000
+    profile-updated-template-id: 00000000-0000-0000-0000-000000000000
   security:
     # Disables custom application security.
-    # Make sure this is never set to true in production.
+    # ⚠️ MAKE SURE THIS IS NEVER SET TO TRUE IN PRODUCTION ⚠️
     disabled: true

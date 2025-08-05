@@ -12,6 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
@@ -37,19 +38,17 @@ class RequestStatusCodeValidatorTest {
 	@Test
 	@DisplayName("isValid() returns true when request status code is valid")
 	void isValidReturnsTrueWhenRequestStatusCodeIsValid() {
-		when(codeService.getAllRequestStatuses(Pageable.unpaged()))
-			.thenReturn(new PageImpl<>(List.of(new RequestStatusEntityBuilder().code("VALID").build())));
+		when(codeService.getRequestStatuses(Pageable.unpaged()))
+			.thenReturn(new PageImpl<>(List.of(new RequestStatusEntityBuilder().id(0L).build())));
 
-		assertTrue(requestStatusCodeValidator.isValid("VALID", null));
+		assertTrue(requestStatusCodeValidator.isValid(0L, null));
 	}
 
 	@Test
 	@DisplayName("isValid() returns false when request status code is invalid")
 	void isValidReturnsFalseWhenRequestStatusCodeIsInvalid() {
-		when(codeService.getAllRequestStatuses(Pageable.unpaged()))
-			.thenReturn(new PageImpl<>(List.of(new RequestStatusEntityBuilder().code("VALID").build())));
-
-		assertFalse(requestStatusCodeValidator.isValid("INVALID", null));
+		when(codeService.getRequestStatuses(Pageable.unpaged())).thenReturn(Page.empty());
+		assertFalse(requestStatusCodeValidator.isValid(0L, null));
 	}
 
 }

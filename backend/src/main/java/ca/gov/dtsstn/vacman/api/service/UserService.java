@@ -1,56 +1,65 @@
 package ca.gov.dtsstn.vacman.api.service;
 
+import static ca.gov.dtsstn.vacman.api.data.entity.AbstractCodeEntity.byCode;
+import static ca.gov.dtsstn.vacman.api.data.entity.AbstractCodeEntity.byId;
+
 import java.util.List;
 import java.util.Optional;
 
 import org.mapstruct.factory.Mappers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import ca.gov.dtsstn.vacman.api.data.entity.LanguageEntityBuilder;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntityBuilder;
-import ca.gov.dtsstn.vacman.api.data.entity.UserTypeEntityBuilder;
-import ca.gov.dtsstn.vacman.api.data.repository.LanguageRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.UserRepository;
-import ca.gov.dtsstn.vacman.api.data.repository.UserTypeRepository;
-import ca.gov.dtsstn.vacman.api.web.model.UserCreateModel;
+import ca.gov.dtsstn.vacman.api.event.UserCreatedEvent;
 import ca.gov.dtsstn.vacman.api.web.model.UserUpdateModel;
 import ca.gov.dtsstn.vacman.api.web.model.mapper.UserModelMapper;
 
 @Service
 public class UserService {
 
-	private final UserRepository userRepository;
-	private final UserTypeRepository userTypeRepository;
-	private final LanguageRepository languageRepository;
+	private static final Logger log = LoggerFactory.getLogger(UserService.class);
+
+	private final ApplicationEventPublisher eventPublisher;
+
+	private final CodeService codeService;
+
 	private final UserModelMapper userModelMapper = Mappers.getMapper(UserModelMapper.class);
 
-	public UserService(UserRepository userRepository,
-			UserTypeRepository userTypeRepository,
-			LanguageRepository languageRepository) {
+	private final UserRepository userRepository;
+
+	public UserService(ApplicationEventPublisher eventPublisher, CodeService codeService, UserRepository userRepository) {
 		this.userRepository = userRepository;
-		this.userTypeRepository = userTypeRepository;
-		this.languageRepository = languageRepository;
+		this.eventPublisher = eventPublisher;
+		this.codeService = codeService;
 	}
 
-
-	public UserEntity createUser(UserCreateModel createModel) {
-		// Create user entity from model
-		final var user = userModelMapper.toEntity(createModel);
+	public UserEntity createUser(UserEntity user, Long languageId) {
+		// Set language based on languageCode (validation ensures it exists)
+		user.setLanguage(codeService.getLanguages(Pageable.unpaged()).stream()
+			.filter(byId(languageId))
+			.findFirst().orElseThrow());
 
 		// Set user type based on role (validation ensures it exists)
-		final var userType = userTypeRepository.findOne(Example.of(new UserTypeEntityBuilder().code(createModel.role()).build())).orElseThrow();
-		user.setUserType(userType);
+		user.setUserType(codeService.getUserTypes(Pageable.unpaged()).stream()
+			.filter(byCode("employee"))
+			.findFirst().orElseThrow());
 
-		// Set language based on languageCode (validation ensures it exists)
-		final var language = languageRepository.findOne(Example.of(new LanguageEntityBuilder().code(createModel.languageCode()).build())).orElseThrow();
-		user.setLanguage(language);
+		// Save the user (profiles are created separately as needed)
+		final var createdUser = userRepository.save(user);
 
-		// Save and return the user (profiles are created separately as needed)
-		return userRepository.save(user);
+		// Publish created event
+		eventPublisher.publishEvent(new UserCreatedEvent(createdUser));
+		log.info("User created with ID: {}", createdUser.getId());
+
+		return createdUser;
 	}
 
 
@@ -58,8 +67,8 @@ public class UserService {
 		return userRepository.findById(id);
 	}
 
-	public Optional<UserEntity> getUserByActiveDirectoryId(String activeDirectoryId) {
-		return userRepository.findOne(Example.of(new UserEntityBuilder().activeDirectoryId(activeDirectoryId).build()));
+	public Optional<UserEntity> getUserByMicrosoftEntraId(String microsoftEntraId) {
+		return userRepository.findOne(Example.of(new UserEntityBuilder().microsoftEntraId(microsoftEntraId).build()));
 	}
 
 	public List<UserEntity> getAllUsers() {
@@ -70,21 +79,26 @@ public class UserService {
 		return userRepository.findAll(pageable);
 	}
 
+	//
+	// TODO ::: GjB ::: this should not use a REST model; it should use an entity (or DTO)
+	//
 	public UserEntity updateUser(UserUpdateModel updateModel) {
 		final var existingUser = userRepository.findById(updateModel.id()).orElseThrow();
 		userModelMapper.updateEntityFromModel(updateModel, existingUser);
 
 		// Handle role update if provided (validation ensures it exists)
-		if (updateModel.role() != null) {
-			final var userType = userTypeRepository.findOne(Example.of(new UserTypeEntityBuilder().code(updateModel.role()).build())).orElseThrow();
-			existingUser.setUserType(userType);
-		}
+		Optional.ofNullable(updateModel.userTypeId()).ifPresent(role -> {
+			existingUser.setUserType(codeService.getUserTypes(Pageable.unpaged()).stream()
+				.filter(byId(updateModel.userTypeId()))
+				.findFirst().orElseThrow());
+		});
 
 		// Handle language update if provided (validation ensures it exists)
-		if (updateModel.languageCode() != null) {
-			final var language = languageRepository.findOne(Example.of(new LanguageEntityBuilder().code(updateModel.languageCode()).build())).orElseThrow();
-			existingUser.setLanguage(language);
-		}
+		Optional.ofNullable(updateModel.languageId()).ifPresent(languageCode -> {
+			existingUser.setLanguage(codeService.getLanguages(Pageable.unpaged()).stream()
+					.filter(byId(updateModel.languageId()))
+					.findFirst().orElseThrow());
+		});
 
 		return userRepository.save(existingUser);
 	}

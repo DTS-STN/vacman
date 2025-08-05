@@ -1,6 +1,7 @@
 package ca.gov.dtsstn.vacman.api.data.entity;
 
 import java.time.Instant;
+import java.util.function.Predicate;
 
 import org.hibernate.annotations.Immutable;
 import org.springframework.core.style.ToStringCreator;
@@ -13,6 +14,20 @@ import jakarta.validation.constraints.NotNull;
 @Immutable
 @MappedSuperclass
 public abstract class AbstractCodeEntity extends AbstractBaseEntity {
+
+	/**
+	 * Returns a predicate that can be used to filter collections by code.
+	 */
+	public static <T extends AbstractCodeEntity> Predicate<T> byCode(String code) {
+		return entity -> entity.getCode().equals(code);
+	}
+
+	/**
+	 * Returns a predicate that can be used to filter collections by id.
+	 */
+	public static <T extends AbstractCodeEntity> Predicate<T> byId(Long id) {
+		return entity -> entity.getId().equals(id);
+	}
 
 	@Column(name = "[CODE]", length = 20, nullable = false)
 	protected String code;
@@ -29,6 +44,7 @@ public abstract class AbstractCodeEntity extends AbstractBaseEntity {
 
 	@Column(name = "[NAME_FR]", length = 100, nullable = false)
 	protected String nameFr;
+
 
 	public AbstractCodeEntity() {
 		super();

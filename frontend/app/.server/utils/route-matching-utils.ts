@@ -83,3 +83,15 @@ export function isHiringManagerPath(url: URL): boolean {
     return url.pathname === path || url.pathname.startsWith(path + '/');
   });
 }
+
+/**
+ * Checks if the current request is for a hr advisor route.
+ * This helps identify routes that need hr advisor registration check.
+ */
+export function isHrAdvisorPath(url: URL): boolean {
+  // TODO update french route once translated
+  const hrAdvisorPaths = ['/en/hr-advisor', '/fr/hr-advisor'];
+  return hrAdvisorPaths.some((path) => {
+    return url.pathname === path || url.pathname.startsWith(path + '/');
+  });
+}

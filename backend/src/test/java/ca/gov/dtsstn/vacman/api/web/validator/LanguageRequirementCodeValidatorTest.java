@@ -12,6 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
@@ -37,19 +38,17 @@ class LanguageRequirementCodeValidatorTest {
 	@Test
 	@DisplayName("isValid() returns true when language requirement code is valid")
 	void isValidReturnsTrueWhenLanguageRequirementCodeIsValid() {
-		when(codeService.getAllLanguageRequirements(Pageable.unpaged()))
-			.thenReturn(new PageImpl<>(List.of(new LanguageRequirementEntityBuilder().code("VALID").build())));
+		when(codeService.getLanguageRequirements(Pageable.unpaged()))
+			.thenReturn(new PageImpl<>(List.of(new LanguageRequirementEntityBuilder().id(0L).build())));
 
-		assertTrue(languageRequirementCodeValidator.isValid("VALID", null));
+		assertTrue(languageRequirementCodeValidator.isValid(0L, null));
 	}
 
 	@Test
 	@DisplayName("isValid() returns false when language requirement code is invalid")
 	void isValidReturnsFalseWhenLanguageRequirementCodeIsInvalid() {
-		when(codeService.getAllLanguageRequirements(Pageable.unpaged()))
-			.thenReturn(new PageImpl<>(List.of(new LanguageRequirementEntityBuilder().code("VALID").build())));
-
-		assertFalse(languageRequirementCodeValidator.isValid("INVALID", null));
+		when(codeService.getLanguageRequirements(Pageable.unpaged())).thenReturn(Page.empty());
+		assertFalse(languageRequirementCodeValidator.isValid(0L, null));
 	}
 
 }

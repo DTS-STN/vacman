@@ -8,11 +8,11 @@ import type { AppError } from '~/errors/app-error';
 
 export type CityService = {
   listAll(): Promise<readonly City[]>;
-  getById(id: string): Promise<Result<City, AppError>>;
+  getById(id: number): Promise<Result<City, AppError>>;
   getByCode(code: string): Promise<Result<City, AppError>>;
   listAllLocalized(language: Language): Promise<readonly LocalizedCity[]>;
-  getLocalizedById(id: string, language: Language): Promise<Result<LocalizedCity, AppError>>;
-  findLocalizedById(id: string, language: Language): Promise<Option<LocalizedCity>>;
+  getLocalizedById(id: number, language: Language): Promise<Result<LocalizedCity, AppError>>;
+  findLocalizedById(id: number, language: Language): Promise<Option<LocalizedCity>>;
   getLocalizedByCode(code: string, language: Language): Promise<Result<LocalizedCity, AppError>>;
   findLocalizedByCode(code: string, language: Language): Promise<Option<LocalizedCity>>;
 };

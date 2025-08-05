@@ -8,11 +8,11 @@ import type { AppError } from '~/errors/app-error';
 
 export type EmploymentTenureService = {
   listAll(): Promise<readonly EmploymentTenure[]>;
-  getById(id: string): Promise<Result<EmploymentTenure, AppError>>;
+  getById(id: number): Promise<Result<EmploymentTenure, AppError>>;
   getByCode(code: string): Promise<Result<EmploymentTenure, AppError>>;
   listAllLocalized(language: Language): Promise<readonly LocalizedEmploymentTenure[]>;
-  getLocalizedById(id: string, language: Language): Promise<Result<LocalizedEmploymentTenure, AppError>>;
-  findLocalizedById(id: string, language: Language): Promise<Option<LocalizedEmploymentTenure>>;
+  getLocalizedById(id: number, language: Language): Promise<Result<LocalizedEmploymentTenure, AppError>>;
+  findLocalizedById(id: number, language: Language): Promise<Option<LocalizedEmploymentTenure>>;
   getLocalizedByCode(code: string, language: Language): Promise<Result<LocalizedEmploymentTenure, AppError>>;
   findLocalizedByCode(code: string, language: Language): Promise<Option<LocalizedEmploymentTenure>>;
 };

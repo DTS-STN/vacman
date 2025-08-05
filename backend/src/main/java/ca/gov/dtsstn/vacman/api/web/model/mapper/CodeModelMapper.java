@@ -1,6 +1,7 @@
 package ca.gov.dtsstn.vacman.api.web.model.mapper;
 
 import org.mapstruct.Mapper;
+import org.mapstruct.NullValueMappingStrategy;
 
 import ca.gov.dtsstn.vacman.api.data.entity.CityEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.ClassificationEntity;
@@ -41,7 +42,7 @@ import ca.gov.dtsstn.vacman.api.web.model.WfaStatusReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.WorkScheduleReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.WorkUnitReadModel;
 
-@Mapper
+@Mapper(nullValueMappingStrategy = NullValueMappingStrategy.RETURN_NULL)
 public interface CodeModelMapper {
 
 	CityReadModel map(CityEntity entity);

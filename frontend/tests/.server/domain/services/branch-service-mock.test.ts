@@ -28,7 +28,7 @@ describe('getMockBranchService', () => {
   });
 
   it('should return error if branch ID not found', async () => {
-    const result = await service.getById('non-existent-id');
+    const result = await service.getById(25);
     expect(result.isErr()).toBe(true);
 
     const err = result.unwrapErr();
@@ -49,7 +49,7 @@ describe('getMockBranchService', () => {
   });
 
   it('should return None if branch not found using Option', async () => {
-    const result = await service.findLocalizedById('non-existent-id', 'en');
+    const result = await service.findLocalizedById(25, 'en');
     expect(result.isNone()).toBe(true);
   });
 
@@ -77,7 +77,7 @@ describe('getMockBranchService', () => {
   });
 
   it('should return error if localized branch ID not found', async () => {
-    const result = await service.getLocalizedById('non-existent-id', 'en' as Language);
+    const result = await service.getLocalizedById(25, 'en' as Language);
     expect(result.isErr()).toBe(true);
     expect(result.unwrapErr().errorCode).toBe(ErrorCodes.NO_BRANCH_FOUND);
   });

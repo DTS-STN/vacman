@@ -15,7 +15,7 @@ import jakarta.validation.Payload;
 @Constraint(validatedBy = PriorityLevelCodeValidator.class)
 public @interface ValidPriorityLevelCode {
 
-	String message() default "Priority level code does not exist";
+	String message() default "Priority level does not exist";
 
 	Class<?>[] groups() default {};
 

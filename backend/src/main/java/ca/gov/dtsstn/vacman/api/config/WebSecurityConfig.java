@@ -44,6 +44,7 @@ public class WebSecurityConfig {
 
 		http.authorizeHttpRequests(authorizeHttpRequests -> authorizeHttpRequests
 			.requestMatchers("/").permitAll()
+			.requestMatchers("/actuator/health/**").permitAll()
 			.requestMatchers("/swagger-ui/**").permitAll()
 			.requestMatchers("/v3/api-docs/**").permitAll());
 
@@ -76,7 +77,8 @@ public class WebSecurityConfig {
 				// codes have no protected data, so they require no auth to fetch
 				.requestMatchers("/api/*/codes/**").permitAll()
 				// TODO ::: GjB ::: figure out specific roles and permissions
-				.requestMatchers("/api/**").hasAuthority("SCOPE_employee")
+				.requestMatchers("/api/*/users/me").authenticated()
+//				.requestMatchers("/api/**").hasAuthority("SCOPE_employee")
 				.anyRequest().denyAll());
 
 			return http.build();

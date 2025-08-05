@@ -25,19 +25,8 @@ logging:
   level:
     '[ca.gov.dtsstn.vacman.api]': trace
     '[io.micrometer.registry.otlp.OtlpMeterRegistry]': off
+    '[org.hibernate]': debug
     '[org.springframework]': debug
-
----
-
-#
-# Import spring profiles.
-# You can import zero or more configsets via spring profiles here.
-#
-
-spring:
-  profiles:
-    include:
-      - mssql-local
 
 ---
 
@@ -54,6 +43,15 @@ spring:
     url: jdbc:sqlserver://localhost;databaseName=master;encrypt=false;
     username: sa
     password: p@ssword1
+  jpa:
+    hibernate:
+      ddl-auto: validate
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    properties:
+      '[hibernate.default_schema]': dbo
+      '[hibernate.format_sql]': true
+    show-sql: true
 
 ---
 
@@ -71,8 +69,13 @@ spring:
 
 ---
 
-spring:
-  profiles:
-    include:
-      # Uncomment the line below to include the H2 profile
-      # - h2
+#
+# GCNotify settings
+#
+
+application:
+  gcnotify:
+    api-key: # must be set externally (ex: 00000000-0000-0000-0000-000000000000)
+    profile-created-template-id: # must be set externally (ex: 00000000-0000-0000-0000-000000000000)
+    profile-updated-template-id:  # must be set externally (ex: 00000000-0000-0000-0000-000000000000)
+    profile-approved-template-id: # must be set externally (ex: 00000000-0000-0000-0000-000000000000)

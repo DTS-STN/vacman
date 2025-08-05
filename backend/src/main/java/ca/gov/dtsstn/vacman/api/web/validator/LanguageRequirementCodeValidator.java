@@ -8,7 +8,7 @@ import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
 @Component
-public class LanguageRequirementCodeValidator implements ConstraintValidator<ValidLanguageRequirementCode, String> {
+public class LanguageRequirementCodeValidator implements ConstraintValidator<ValidLanguageRequirementCode, Long> {
 
 	private final CodeService codeService;
 
@@ -22,11 +22,11 @@ public class LanguageRequirementCodeValidator implements ConstraintValidator<Val
 	}
 
 	@Override
-	public boolean isValid(String languageRequirementCode, ConstraintValidatorContext context) {
-		if (languageRequirementCode == null) { return true; }
+	public boolean isValid(Long languageRequirementId, ConstraintValidatorContext context) {
+		if (languageRequirementId == null) { return true; }
 
-		return codeService.getAllLanguageRequirements(Pageable.unpaged()).stream()
-			.filter(languageRequirement -> languageRequirement.getCode().equals(languageRequirementCode))
+		return codeService.getLanguageRequirements(Pageable.unpaged()).stream()
+			.filter(languageRequirement -> languageRequirement.getId().equals(languageRequirementId))
 			.findFirst().isPresent();
 	}
 

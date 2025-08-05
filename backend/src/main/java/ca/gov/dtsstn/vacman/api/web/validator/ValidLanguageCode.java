@@ -9,17 +9,13 @@ import java.lang.annotation.Target;
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 
-/**
- * Validation annotation to check if a language code exists in the database.
- * When validation fails, Spring Boot will automatically return a 400 Bad Request.
- */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD, ElementType.PARAMETER})
 @Constraint(validatedBy = LanguageCodeValidator.class)
 public @interface ValidLanguageCode {
 
-	String message() default "Language code does not exist";
+	String message() default "Language does not exist";
 
 	Class<?>[] groups() default {};
 

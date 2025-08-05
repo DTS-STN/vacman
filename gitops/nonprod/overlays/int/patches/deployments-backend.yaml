@@ -13,3 +13,13 @@ spec:
           envFrom:
             - secretRef:
                 name: vacman-backend-int
+      hostAliases:
+        # Override DNS so that esdcvacmansqlsrv.database.windows.net
+        # always resolves to 10.72.61.197 inside this pod.
+        #
+        # ⚠️ WARNING:
+        # - This hardcodes the IP, so if it ever changes, the pod config must be updated.
+        # - Storing IPs in YAML can reveal internal network details.
+        - ip: 10.72.61.197
+          hostnames:
+            - esdcvacmansqlsrv.database.windows.net

@@ -8,7 +8,7 @@ import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
 @Component
-public class LanguageReferralTypeCodeValidator implements ConstraintValidator<ValidLanguageReferralTypeCode, String> {
+public class LanguageReferralTypeCodeValidator implements ConstraintValidator<ValidLanguageReferralTypeCode, Long> {
 
 	private final CodeService codeService;
 
@@ -22,11 +22,11 @@ public class LanguageReferralTypeCodeValidator implements ConstraintValidator<Va
 	}
 
 	@Override
-	public boolean isValid(String languageReferralTypeCode, ConstraintValidatorContext context) {
-		if (languageReferralTypeCode == null) { return true; }
+	public boolean isValid(Long languageReferralTypeId, ConstraintValidatorContext context) {
+		if (languageReferralTypeId == null) { return true; }
 
-		return codeService.getAllLanguageReferralTypes(Pageable.unpaged()).stream()
-			.filter(languageReferralType -> languageReferralType.getCode().equals(languageReferralTypeCode))
+		return codeService.getLanguageReferralTypes(Pageable.unpaged()).stream()
+			.filter(languageReferralType -> languageReferralType.getId().equals(languageReferralTypeId))
 			.findFirst().isPresent();
 	}
 

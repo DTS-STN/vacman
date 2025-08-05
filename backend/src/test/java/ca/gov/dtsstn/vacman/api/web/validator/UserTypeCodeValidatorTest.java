@@ -12,6 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
@@ -37,19 +38,17 @@ class UserTypeCodeValidatorTest {
 	@Test
 	@DisplayName("isValid() returns true when user type code is valid")
 	void isValidReturnsTrueWhenUserTypeCodeIsValid() {
-		when(codeService.getAllUserTypes(Pageable.unpaged()))
-			.thenReturn(new PageImpl<>(List.of(new UserTypeEntityBuilder().code("VALID").build())));
+		when(codeService.getUserTypes(Pageable.unpaged()))
+			.thenReturn(new PageImpl<>(List.of(new UserTypeEntityBuilder().id(0L).build())));
 
-		assertTrue(userTypeCodeValidator.isValid("VALID", null));
+		assertTrue(userTypeCodeValidator.isValid(0L, null));
 	}
 
 	@Test
 	@DisplayName("isValid() returns false when user type code is invalid")
 	void isValidReturnsFalseWhenUserTypeCodeIsInvalid() {
-		when(codeService.getAllUserTypes(Pageable.unpaged()))
-			.thenReturn(new PageImpl<>(List.of(new UserTypeEntityBuilder().code("VALID").build())));
-
-		assertFalse(userTypeCodeValidator.isValid("INVALID", null));
+		when(codeService.getUserTypes(Pageable.unpaged())).thenReturn(Page.empty());
+		assertFalse(userTypeCodeValidator.isValid(0L, null));
 	}
 
 }

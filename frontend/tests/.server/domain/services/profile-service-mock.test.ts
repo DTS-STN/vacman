@@ -23,6 +23,8 @@ describe('getMockProfileService', () => {
         userUpdated: undefined,
         dateUpdated: undefined,
         personalInformation: {
+          givenName: 'Jane',
+          surname: 'Doe',
           personalRecordIdentifier: '123456789',
           preferredLanguageId: undefined,
           workEmail: 'firstname.lastname@email.ca',
@@ -32,21 +34,24 @@ describe('getMockProfileService', () => {
           additionalInformation: 'Looking for opportunities in software development.',
         },
         employmentInformation: {
-          classificationId: undefined,
-          workUnitId: undefined,
+          substantivePosition: undefined,
+          branchOrServiceCanadaRegion: undefined,
+          directorate: undefined,
+          province: undefined,
           cityId: undefined,
-          wfaStatusId: undefined,
+          wfaStatus: undefined,
           wfaEffectiveDate: undefined,
           wfaEndDate: undefined,
           hrAdvisor: undefined,
         },
         referralPreferences: {
-          languageReferralTypeIds: ['864190000'],
-          classificationIds: ['905190000', '905190001'],
-          workLocationCitiesIds: ['411290001', '411290002'],
+          languageReferralTypeIds: [864190000],
+          classificationIds: [905190000, 905190001],
+          workLocationProvince: 1,
+          workLocationCitiesIds: [411290001, 411290002],
           availableForReferralInd: true,
           interestedInAlternationInd: false,
-          employmentTenureIds: ['664190000', '664190001', '664190003'],
+          employmentTenureIds: [664190000, 664190001, 664190003],
         },
       });
     });
@@ -67,7 +72,7 @@ describe('getMockProfileService', () => {
       expect(createdProfile.userId).toBeDefined();
       expect(createdProfile.userCreated).toBe(activeDirectoryId);
       expect(createdProfile.dateCreated).toBeDefined();
-      expect(createdProfile.profileStatusId).toBe(1);
+      expect(createdProfile.profileStatusId).toBe(3);
       expect(createdProfile.privacyConsentInd).toBe(true);
       expect(createdProfile.referralPreferences.availableForReferralInd).toBe(true);
       expect(createdProfile.referralPreferences.interestedInAlternationInd).toBe(false);

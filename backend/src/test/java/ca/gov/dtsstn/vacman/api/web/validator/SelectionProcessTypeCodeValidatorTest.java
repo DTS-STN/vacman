@@ -12,6 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
@@ -37,19 +38,17 @@ class SelectionProcessTypeCodeValidatorTest {
 	@Test
 	@DisplayName("isValid() returns true when selection process type code is valid")
 	void isValidReturnsTrueWhenSelectionProcessTypeCodeIsValid() {
-		when(codeService.getAllSelectionProcessTypes(Pageable.unpaged()))
-			.thenReturn(new PageImpl<>(List.of(new SelectionProcessTypeEntityBuilder().code("VALID").build())));
+		when(codeService.getSelectionProcessTypes(Pageable.unpaged()))
+			.thenReturn(new PageImpl<>(List.of(new SelectionProcessTypeEntityBuilder().id(0L).build())));
 
-		assertTrue(selectionProcessTypeCodeValidator.isValid("VALID", null));
+		assertTrue(selectionProcessTypeCodeValidator.isValid(0L, null));
 	}
 
 	@Test
 	@DisplayName("isValid() returns false when selection process type code is invalid")
 	void isValidReturnsFalseWhenSelectionProcessTypeCodeIsInvalid() {
-		when(codeService.getAllSelectionProcessTypes(Pageable.unpaged()))
-			.thenReturn(new PageImpl<>(List.of(new SelectionProcessTypeEntityBuilder().code("VALID").build())));
-
-		assertFalse(selectionProcessTypeCodeValidator.isValid("INVALID", null));
+		when(codeService.getSelectionProcessTypes(Pageable.unpaged())).thenReturn(Page.empty());
+		assertFalse(selectionProcessTypeCodeValidator.isValid(0L, null));
 	}
 
 }

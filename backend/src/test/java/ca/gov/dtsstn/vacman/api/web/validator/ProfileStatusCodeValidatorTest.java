@@ -12,6 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
@@ -37,19 +38,17 @@ class ProfileStatusCodeValidatorTest {
 	@Test
 	@DisplayName("isValid() returns true when profile status code is valid")
 	void isValidReturnsTrueWhenProfileStatusCodeIsValid() {
-		when(codeService.getAllProfileStatuses(Pageable.unpaged()))
-			.thenReturn(new PageImpl<>(List.of(new ProfileStatusEntityBuilder().code("VALID").build())));
+		when(codeService.getProfileStatuses(Pageable.unpaged()))
+			.thenReturn(new PageImpl<>(List.of(new ProfileStatusEntityBuilder().id(0L).build())));
 
-		assertTrue(profileStatusCodeValidator.isValid("VALID", null));
+		assertTrue(profileStatusCodeValidator.isValid(0L, null));
 	}
 
 	@Test
 	@DisplayName("isValid() returns false when profile status code is invalid")
 	void isValidReturnsFalseWhenProfileStatusCodeIsInvalid() {
-		when(codeService.getAllProfileStatuses(Pageable.unpaged()))
-			.thenReturn(new PageImpl<>(List.of(new ProfileStatusEntityBuilder().code("VALID").build())));
-
-		assertFalse(profileStatusCodeValidator.isValid("INVALID", null));
+		when(codeService.getProfileStatuses(Pageable.unpaged())).thenReturn(Page.empty());
+		assertFalse(profileStatusCodeValidator.isValid(0L, null));
 	}
 
 }

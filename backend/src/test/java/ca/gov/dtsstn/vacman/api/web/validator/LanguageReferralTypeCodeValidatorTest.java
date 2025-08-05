@@ -12,6 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
@@ -37,19 +38,17 @@ class LanguageReferralTypeCodeValidatorTest {
 	@Test
 	@DisplayName("isValid() returns true when language referral type code is valid")
 	void isValidReturnsTrueWhenLanguageReferralTypeCodeIsValid() {
-		when(codeService.getAllLanguageReferralTypes(Pageable.unpaged()))
-			.thenReturn(new PageImpl<>(List.of(new LanguageReferralTypeEntityBuilder().code("VALID").build())));
+		when(codeService.getLanguageReferralTypes(Pageable.unpaged()))
+			.thenReturn(new PageImpl<>(List.of(new LanguageReferralTypeEntityBuilder().id(0L).build())));
 
-		assertTrue(languageReferralTypeCodeValidator.isValid("VALID", null));
+		assertTrue(languageReferralTypeCodeValidator.isValid(0L, null));
 	}
 
 	@Test
 	@DisplayName("isValid() returns false when language referral type code is invalid")
 	void isValidReturnsFalseWhenLanguageReferralTypeCodeIsInvalid() {
-		when(codeService.getAllLanguageReferralTypes(Pageable.unpaged()))
-			.thenReturn(new PageImpl<>(List.of(new LanguageReferralTypeEntityBuilder().code("VALID").build())));
-
-		assertFalse(languageReferralTypeCodeValidator.isValid("INVALID", null));
+		when(codeService.getLanguageReferralTypes(Pageable.unpaged())).thenReturn(Page.empty());
+		assertFalse(languageReferralTypeCodeValidator.isValid(0L, null));
 	}
 
 }

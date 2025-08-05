@@ -19,7 +19,7 @@ const log = LogFactory.getLogger(import.meta.url);
  * Checks if the authenticated user has access to view or modify a specific profile.
  * Access is granted if:
  * 1. The requester is accessing their own profile, OR
- * 2. The requester has the "hiring-manager" role
+ * 2. The requester has the "hiring-manager" or "hr-advisor" role
  *
  * For users accessing their own profile, privacy consent is also checked.
  *
@@ -59,7 +59,7 @@ export async function requireProfileAccess(
     return;
   }
 
-  // If not accessing own profile, check if requester has hiring-manager role
+  // If not accessing own profile, check if requester has hiring-manager or hr-advisor role
   const userService = getUserService();
   const requesterUser = await userService.getUserByActiveDirectoryId(requesterId);
 
@@ -70,15 +70,15 @@ export async function requireProfileAccess(
     });
   }
 
-  if (requesterUser.role === 'hiring-manager') {
-    log.debug('Hiring manager access granted');
+  if (requesterUser.role === 'hiring-manager' || requesterUser.role === 'hr-advisor') {
+    log.debug(`${requesterUser.role} access granted`);
     return;
   }
 
-  // Access denied - user is not accessing their own profile and doesn't have hiring-manager role
+  // Access denied - user is not accessing their own profile and doesn't have hiring-manager or hr-advisor role
   log.debug(`Access denied: requester=${requesterId}, role=${requesterUser.role}`);
   throw new AppError(
-    `Access denied. requester=${requesterId}, role=${requesterUser.role}. You can only access your own profile unless you have hiring-manager privileges.`,
+    `Access denied. requester=${requesterId}, role=${requesterUser.role}. You can only access your own profile unless you have hiring-manager or hr-advisor privileges.`,
     ErrorCodes.ACCESS_FORBIDDEN,
     { httpStatusCode: HttpStatusCodes.FORBIDDEN },
   );
@@ -146,7 +146,7 @@ export async function getProfileWithAccess(session: AuthenticatedSession, target
  *
  * Access is granted if:
  * - The requester is accessing their own profile, OR
- * - The requester has the "hiring-manager" role
+ * - The requester has the "hiring-manager" or "hr-advisor" role
  *
  * @param session - The authenticated session
  * @param currentUrl - The current request URL

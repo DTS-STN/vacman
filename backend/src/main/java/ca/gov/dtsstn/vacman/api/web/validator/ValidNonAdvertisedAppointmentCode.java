@@ -15,7 +15,7 @@ import jakarta.validation.Payload;
 @Constraint(validatedBy = NonAdvertisedAppointmentCodeValidator.class)
 public @interface ValidNonAdvertisedAppointmentCode {
 
-	String message() default "Non-advertised appointment code does not exist";
+	String message() default "Non-advertised appointment does not exist";
 
 	Class<?>[] groups() default {};
 

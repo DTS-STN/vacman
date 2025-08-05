@@ -12,6 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
@@ -37,19 +38,17 @@ class SecurityClearanceCodeValidatorTest {
 	@Test
 	@DisplayName("isValid() returns true when security clearance code is valid")
 	void isValidReturnsTrueWhenSecurityClearanceCodeIsValid() {
-		when(codeService.getAllSecurityClearances(Pageable.unpaged()))
-			.thenReturn(new PageImpl<>(List.of(new SecurityClearanceEntityBuilder().code("VALID").build())));
+		when(codeService.getSecurityClearances(Pageable.unpaged()))
+			.thenReturn(new PageImpl<>(List.of(new SecurityClearanceEntityBuilder().id(0L).build())));
 
-		assertTrue(securityClearanceCodeValidator.isValid("VALID", null));
+		assertTrue(securityClearanceCodeValidator.isValid(0L, null));
 	}
 
 	@Test
 	@DisplayName("isValid() returns false when security clearance code is invalid")
 	void isValidReturnsFalseWhenSecurityClearanceCodeIsInvalid() {
-		when(codeService.getAllSecurityClearances(Pageable.unpaged()))
-			.thenReturn(new PageImpl<>(List.of(new SecurityClearanceEntityBuilder().code("VALID").build())));
-
-		assertFalse(securityClearanceCodeValidator.isValid("INVALID", null));
+		when(codeService.getSecurityClearances(Pageable.unpaged())).thenReturn(Page.empty());
+		assertFalse(securityClearanceCodeValidator.isValid(0L, null));
 	}
 
 }

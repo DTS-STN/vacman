@@ -5,9 +5,13 @@ export default {
     'about': "L'initiative VacMan!",
     'dashboard': 'Interface',
     'page-title': 'Sélectionnez votre tableau de bord',
-    'get-started': 'Tableau de bord des employés',
+    'get-started': 'Débuter',
     'navigate': 'Accédez au portail des employés',
     'register': 'Register',
+    'employees': 'Employés',
+    'employee-dashboard': 'Tableau de bord des employés',
+    'hiring-manager-dashboard': 'Tableau de bord du responsable du recrutement',
+    'register-as': "S'inscrire comme...",
   },
   'register': {
     'employee': 'Tableau de bord des employés',
@@ -19,13 +23,14 @@ export default {
   'profile': {
     'about-para-1':
       'Ce profil décrit votre position actuelle, vos préférences de référence et vos qualifications. Complétez toutes les sections et soumettez pour approbation.',
+    'about-para-1-pending':
+      'Ce profil décrit votre poste actuel, vos préférences en matière de présentation de candidature et vos qualifications. Remplissez toutes les sections et soumettez-les pour approbation.',
     'about-para-2': 'Vos progrès sont enregistrés automatiquement.',
     'edit': 'Modifier les',
     'add': 'Ajouter des',
     'in-progress': 'En cours',
     'complete': 'Complet',
     'required': 'Obligatoire',
-    'fields-complete': '{{completed}} sur {{total}} champs remplis',
     'personal-information': {
       'title': 'Informations personnelles',
       'link-label': 'informations personnelles',
@@ -51,6 +56,7 @@ export default {
     'profile-incomplete': '(FR) Please complete all required fields before submitting your profile',
     'profile-submitted': '(FR) Profile submitted successfully! Your HR advisor will now review it for approval',
     'profile-pending-approval': '(FR) Your profile edits will require re-approval by your HR advisor', // TODO: French translations not yet available
+    'page-title': 'Profil',
   },
   'form': {
     'cancel': 'Annuler',
@@ -75,6 +81,8 @@ export default {
     'additional-information': 'Renseignements supplémentaires',
     'additional-info-help-message': 'Veuillez noter brièvement les absences ou autres informations clés.',
     'errors': {
+      'surname-required': 'Le nom de famille est requis',
+      'givenName-required': 'Le prénom est requis',
       'personal-record-identifier-required': "Le code d'identification du dossier personnel (CIDP) est requis.",
       'personal-record-identifier-invalid': "Le code d'identification du dossier personnel (CIDP) est invalide.",
       'preferred-language-required': 'La langue de préférence pour la correspondance est requise.',
@@ -169,5 +177,18 @@ export default {
       'employment-tenure-invalid': "La confirmation d'intérêt pour les occasions d'emploi n'est pas valide.",
       'employment-tenure-duplicate': "Les éléments dupliqués pour la sélection d'occasion d'emploi ne sont pas permis.",
     },
+  },
+  // TODO: Update French translations
+  'employee-dashboard': {
+    'page-title': '(FR) Employees',
+    'view': '(FR) View',
+    'my-employees': '(FR) My employees',
+    'all-employees': '(FR) All employees',
+    'employee': '(FR) Employee',
+    'email': '(FR) Work email address',
+    'updated': '(FR) Updated',
+    'status': '(FR) Status',
+    'action': '(FR) Action',
+    'next-page': '(FR) Next',
   },
 } satisfies typeof appEn;

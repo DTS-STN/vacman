@@ -15,7 +15,7 @@ import jakarta.validation.Payload;
 @Constraint(validatedBy = WfaStatusCodeValidator.class)
 public @interface ValidWfaStatusCode {
 
-	String message() default "WFA status code does not exist";
+	String message() default "WFA status does not exist";
 
 	Class<?>[] groups() default {};
 
