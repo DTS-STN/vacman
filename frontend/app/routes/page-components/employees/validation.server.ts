@@ -31,6 +31,8 @@ const hrAdvisors = await getUserService().getUsersByRole('hr-advisor');
 const allLanguageReferralTypes = await getLanguageReferralTypeService().listAll();
 const allEmploymentTenures = await getEmploymentTenureService().listAll();
 
+export type Errors = Readonly<Record<string, [string, ...string[]] | undefined>>;
+
 export const personalInformationSchema = v.object({
   surname: v.pipe(
     v.string('app:personal-information.errors.surname-required'),
