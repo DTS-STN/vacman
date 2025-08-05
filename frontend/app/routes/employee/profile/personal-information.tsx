@@ -107,7 +107,7 @@ export default function PersonalInformation({ loaderData, actionData, params }: 
           formValues={loaderData.defaultValues}
           isReadOnly={false}
           languagesOfCorrespondence={loaderData.languagesOfCorrespondence}
-          param={params}
+          params={params}
         />
       </div>
     </>
