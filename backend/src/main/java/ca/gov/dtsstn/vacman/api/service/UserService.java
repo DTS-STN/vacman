@@ -19,6 +19,9 @@ import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntityBuilder;
 import ca.gov.dtsstn.vacman.api.data.repository.UserRepository;
 import ca.gov.dtsstn.vacman.api.event.UserCreatedEvent;
+import ca.gov.dtsstn.vacman.api.event.UserDeletedEvent;
+import ca.gov.dtsstn.vacman.api.event.UserReadEvent;
+import ca.gov.dtsstn.vacman.api.event.UserUpdatedEvent;
 import ca.gov.dtsstn.vacman.api.web.model.UserUpdateModel;
 import ca.gov.dtsstn.vacman.api.web.model.mapper.UserModelMapper;
 
@@ -64,11 +67,21 @@ public class UserService {
 
 
 	public Optional<UserEntity> getUserById(Long id) {
-		return userRepository.findById(id);
+		final var userOptional = userRepository.findById(id);
+		userOptional.ifPresent(user -> {
+			eventPublisher.publishEvent(new UserReadEvent(user));
+			log.info("User read with ID: {}", user.getId());
+		});
+		return userOptional;
 	}
 
 	public Optional<UserEntity> getUserByMicrosoftEntraId(String microsoftEntraId) {
-		return userRepository.findOne(Example.of(new UserEntityBuilder().microsoftEntraId(microsoftEntraId).build()));
+		final var userOptional = userRepository.findOne(Example.of(new UserEntityBuilder().microsoftEntraId(microsoftEntraId).build()));
+		userOptional.ifPresent(user -> {
+			eventPublisher.publishEvent(new UserReadEvent(user));
+			log.info("User read with Microsoft Entra ID: {}", user.getMicrosoftEntraId());
+		});
+		return userOptional;
 	}
 
 	public List<UserEntity> getAllUsers() {
@@ -100,7 +113,22 @@ public class UserService {
 					.findFirst().orElseThrow());
 		});
 
-		return userRepository.save(existingUser);
+		final var updatedUser = userRepository.save(existingUser);
+
+		// Publish updated event
+		eventPublisher.publishEvent(new UserUpdatedEvent(updatedUser));
+		log.info("User updated with ID: {}", updatedUser.getId());
+
+		return updatedUser;
+	}
+
+	public void deleteUser(Long id) {
+		userRepository.findById(id)
+			.ifPresent(user -> {
+				userRepository.deleteById(id);
+				eventPublisher.publishEvent(new UserDeletedEvent(user));
+				log.info("User deleted with ID: {}", id);
+			});
 	}
 
 }
