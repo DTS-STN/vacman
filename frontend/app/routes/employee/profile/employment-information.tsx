@@ -58,6 +58,13 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   ) {
     // profile needs to be re-approved if and only if the current profile status is 'approved'
     await profileService.submitProfileForReview(currentUserId);
+
+    return i18nRedirect('routes/employee/profile/index.tsx', request, {
+      params: { id: currentUserId },
+      search: new URLSearchParams({
+        edited: 'true',
+      }),
+    });
   }
 
   const updateResult = await profileService.updateEmploymentInformation(currentUserId, parseResult.output);
