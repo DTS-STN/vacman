@@ -10,13 +10,9 @@ export type NonAdvertisedAppointmentService = {
   listAll(): Promise<readonly NonAdvertisedAppointment[]>;
   getById(id: number): Promise<Result<NonAdvertisedAppointment, AppError>>;
   findById(id: number): Promise<Option<NonAdvertisedAppointment>>;
-  getByCode(code: string): Promise<Result<NonAdvertisedAppointment, AppError>>;
-  findByCode(code: string): Promise<Option<NonAdvertisedAppointment>>;
   listAllLocalized(language: Language): Promise<readonly LocalizedNonAdvertisedAppointment[]>;
   getLocalizedById(id: number, language: Language): Promise<Result<LocalizedNonAdvertisedAppointment, AppError>>;
   findLocalizedById(id: number, language: Language): Promise<Option<LocalizedNonAdvertisedAppointment>>;
-  getLocalizedByCode(code: string, language: Language): Promise<Result<LocalizedNonAdvertisedAppointment, AppError>>;
-  findLocalizedByCode(code: string, language: Language): Promise<Option<LocalizedNonAdvertisedAppointment>>;
 };
 
 export function getNonAdvertisedAppointmentService(): NonAdvertisedAppointmentService {

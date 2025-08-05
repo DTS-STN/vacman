@@ -29,10 +29,6 @@ export function getMockEmploymentTenureService(): EmploymentTenureService {
       return Promise.resolve(sharedService.getById(id));
     },
 
-    getByCode(code: string) {
-      return Promise.resolve(sharedService.getByCode(code));
-    },
-
     listAllLocalized(language: Language) {
       return Promise.resolve(sharedService.listAllLocalized(language));
     },
@@ -43,14 +39,6 @@ export function getMockEmploymentTenureService(): EmploymentTenureService {
 
     findLocalizedById(id: number, language: Language) {
       return Promise.resolve(sharedService.findLocalizedById(id, language));
-    },
-
-    getLocalizedByCode(code: string, language: Language) {
-      return Promise.resolve(sharedService.getLocalizedByCode(code, language));
-    },
-
-    findLocalizedByCode(code: string, language: Language) {
-      return Promise.resolve(sharedService.findLocalizedByCode(code, language));
     },
   };
 }

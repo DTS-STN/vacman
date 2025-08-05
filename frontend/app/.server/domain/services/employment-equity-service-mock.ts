@@ -33,14 +33,6 @@ export function getMockEmploymentEquityService(): EmploymentEquityService {
       return Promise.resolve(sharedService.findById(id));
     },
 
-    getByCode(code: string) {
-      return Promise.resolve(sharedService.getByCode(code));
-    },
-
-    findByCode(code: string) {
-      return Promise.resolve(sharedService.findByCode(code));
-    },
-
     listAllLocalized(language: Language) {
       return Promise.resolve(sharedService.listAllLocalized(language));
     },
@@ -51,14 +43,6 @@ export function getMockEmploymentEquityService(): EmploymentEquityService {
 
     findLocalizedById(id: number, language: Language) {
       return Promise.resolve(sharedService.findLocalizedById(id, language));
-    },
-
-    getLocalizedByCode(code: string, language: Language) {
-      return Promise.resolve(sharedService.getLocalizedByCode(code, language));
-    },
-
-    findLocalizedByCode(code: string, language: Language) {
-      return Promise.resolve(sharedService.findLocalizedByCode(code, language));
     },
   };
 }

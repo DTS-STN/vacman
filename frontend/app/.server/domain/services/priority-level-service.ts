@@ -9,14 +9,10 @@ import type { AppError } from '~/errors/app-error';
 export type PriorityLevelService = {
   listAll(): Promise<readonly PriorityLevel[]>;
   getById(id: number): Promise<Result<PriorityLevel, AppError>>;
-  getByCode(code: string): Promise<Result<PriorityLevel, AppError>>;
   findById(id: number): Promise<Option<PriorityLevel>>;
-  findByCode(code: string): Promise<Option<PriorityLevel>>;
   listAllLocalized(language: Language): Promise<readonly LocalizedPriorityLevel[]>;
   getLocalizedById(id: number, language: Language): Promise<Result<LocalizedPriorityLevel, AppError>>;
   findLocalizedById(id: number, language: Language): Promise<Option<LocalizedPriorityLevel>>;
-  getLocalizedByCode(code: string, language: Language): Promise<Result<LocalizedPriorityLevel, AppError>>;
-  findLocalizedByCode(code: string, language: Language): Promise<Option<LocalizedPriorityLevel>>;
 };
 
 export function getPriorityLevelService(): PriorityLevelService {

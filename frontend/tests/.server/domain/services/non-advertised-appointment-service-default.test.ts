@@ -89,44 +89,6 @@ describe('getDefaultNonAdvertisedAppointmentService', () => {
     });
   });
 
-  describe('getByCode', () => {
-    it('should return an Ok result with a non-advertised appointment if found', async () => {
-      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
-        ok: true,
-        json: () => Promise.resolve(mockApiData),
-      });
-
-      const result = await service.getByCode('NONE');
-      expect(result.isOk()).toBe(true);
-      expect(result.unwrap()).toEqual(singleMockAppointment);
-    });
-
-    it('should return an Err result if code not found (empty response)', async () => {
-      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
-        ok: true,
-        json: () => Promise.resolve({ content: [] }),
-      });
-
-      const result = await service.getByCode('NON_EXISTENT_CODE');
-      expect(result.isErr()).toBe(true);
-
-      const error = result.unwrapErr();
-      expect(error).toBeInstanceOf(AppError);
-      expect(error.errorCode).toBe(ErrorCodes.NO_NON_ADVERTISED_APPOINTMENT_FOUND);
-      expect(error.msg).toContain('not found');
-    });
-
-    it('should throw AppError on API failure', async () => {
-      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
-        ok: false,
-        status: HttpStatusCodes.INTERNAL_SERVER_ERROR,
-        statusText: 'Internal Server Error',
-      });
-
-      await expect(service.getByCode('NONE')).rejects.toThrow(AppError);
-    });
-  });
-
   describe('findById', () => {
     it('should return Some with a non-advertised appointment if found', async () => {
       (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
@@ -160,39 +122,6 @@ describe('getDefaultNonAdvertisedAppointmentService', () => {
       // findById calls getById which returns Err for server errors, .ok() converts Err to None
       const result = await service.findById(1);
       expect(result.isNone()).toBe(true);
-    });
-  });
-
-  describe('findByCode', () => {
-    it('should return Some with a non-advertised appointment if found', async () => {
-      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
-        ok: true,
-        json: () => Promise.resolve(mockApiData),
-      });
-
-      const result = await service.findByCode('NONE');
-      expect(result.isSome()).toBe(true);
-      expect(result.unwrap()).toEqual(singleMockAppointment);
-    });
-
-    it('should return None if code not found', async () => {
-      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
-        ok: true,
-        json: () => Promise.resolve({ content: [] }),
-      });
-
-      const result = await service.findByCode('NON_EXISTENT_CODE');
-      expect(result.isNone()).toBe(true);
-    });
-
-    it('should throw AppError on server error', async () => {
-      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
-        ok: false,
-        status: HttpStatusCodes.INTERNAL_SERVER_ERROR,
-        statusText: 'Internal Server Error',
-      });
-
-      await expect(service.findByCode('NONE')).rejects.toThrow(AppError);
     });
   });
 
@@ -282,49 +211,6 @@ describe('getDefaultNonAdvertisedAppointmentService', () => {
     });
   });
 
-  describe('getLocalizedByCode', () => {
-    it('should return localized appointment in English', async () => {
-      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
-        ok: true,
-        json: () => Promise.resolve(mockApiData),
-      });
-
-      const result = await service.getLocalizedByCode('NONE', 'en');
-      expect(result.isOk()).toBe(true);
-      expect(result.unwrap()).toEqual({
-        id: 1,
-        code: 'NONE',
-        name: 'Not Applicable',
-      });
-    });
-
-    it('should return localized appointment in French', async () => {
-      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
-        ok: true,
-        json: () => Promise.resolve(mockApiData),
-      });
-
-      const result = await service.getLocalizedByCode('NONE', 'fr');
-      expect(result.isOk()).toBe(true);
-      expect(result.unwrap()).toEqual({
-        id: 1,
-        code: 'NONE',
-        name: 'Sans objet',
-      });
-    });
-
-    it('should return Err if code not found', async () => {
-      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
-        ok: true,
-        json: () => Promise.resolve({ content: [] }),
-      });
-
-      const result = await service.getLocalizedByCode('NON_EXISTENT_CODE', 'en');
-      expect(result.isErr()).toBe(true);
-      expect(result.unwrapErr().errorCode).toBe(ErrorCodes.NO_NON_ADVERTISED_APPOINTMENT_FOUND);
-    });
-  });
-
   describe('findLocalizedById', () => {
     it('should return Some with localized appointment if found', async () => {
       (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
@@ -349,33 +235,6 @@ describe('getDefaultNonAdvertisedAppointmentService', () => {
       });
 
       const result = await service.findLocalizedById(25, 'en');
-      expect(result.isNone()).toBe(true);
-    });
-  });
-
-  describe('findLocalizedByCode', () => {
-    it('should return Some with localized appointment if found', async () => {
-      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
-        ok: true,
-        json: () => Promise.resolve(mockApiData),
-      });
-
-      const result = await service.findLocalizedByCode('NONE', 'en');
-      expect(result.isSome()).toBe(true);
-      expect(result.unwrap()).toEqual({
-        id: 1,
-        code: 'NONE',
-        name: 'Not Applicable',
-      });
-    });
-
-    it('should return None if code not found', async () => {
-      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
-        ok: true,
-        json: () => Promise.resolve({ content: [] }),
-      });
-
-      const result = await service.findLocalizedByCode('NON_EXISTENT_CODE', 'en');
       expect(result.isNone()).toBe(true);
     });
   });
