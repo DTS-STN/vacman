@@ -9,12 +9,9 @@ import type { AppError } from '~/errors/app-error';
 export type DirectorateService = {
   listAll(): Promise<readonly Directorate[]>;
   getById(id: number): Promise<Result<Directorate, AppError>>;
-  getByCode(code: string): Promise<Result<Directorate, AppError>>;
   listAllLocalized(language: Language): Promise<readonly LocalizedDirectorate[]>;
   getLocalizedById(id: number, language: Language): Promise<Result<LocalizedDirectorate, AppError>>;
   findLocalizedById(id: number, language: Language): Promise<Option<LocalizedDirectorate>>;
-  getLocalizedByCode(code: string, language: Language): Promise<Result<LocalizedDirectorate, AppError>>;
-  findLocalizedByCode(code: string, language: Language): Promise<Option<LocalizedDirectorate>>;
 };
 
 export function getDirectorateService(): DirectorateService {

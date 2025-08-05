@@ -48,29 +48,10 @@ export class MockLookupServiceImplementation<T extends LookupModel, L extends Lo
   }
 
   /**
-   * Retrieves a single entity by its CODE.
-   */
-  getByCode(code: string): Result<T, AppError> {
-    const entity = this.config.data.find((item) => item.code === code);
-
-    return entity
-      ? Ok(entity)
-      : Err(new AppError(`${this.config.entityName} with CODE '${code}' not found.`, this.config.notFoundErrorCode));
-  }
-
-  /**
    * Finds a single entity by its ID.
    */
   findById(id: number): Option<T> {
     const result = this.getById(id);
-    return result.ok();
-  }
-
-  /**
-   * Finds a single entity by its CODE.
-   */
-  findByCode(code: string): Option<T> {
-    const result = this.getByCode(code);
     return result.ok();
   }
 
@@ -92,26 +73,10 @@ export class MockLookupServiceImplementation<T extends LookupModel, L extends Lo
   }
 
   /**
-   * Retrieves a single localized entity by its CODE.
-   */
-  getLocalizedByCode(code: string, language: Language): Result<L, AppError> {
-    const result = this.getByCode(code);
-    return result.map((entity) => this.config.localizeEntity(entity, language));
-  }
-
-  /**
    * Finds a single localized entity by its ID.
    */
   findLocalizedById(id: number, language: Language): Option<L> {
     const result = this.getLocalizedById(id, language);
-    return result.ok();
-  }
-
-  /**
-   * Finds a single localized entity by its CODE.
-   */
-  findLocalizedByCode(code: string, language: Language): Option<L> {
-    const result = this.getLocalizedByCode(code, language);
     return result.ok();
   }
 }

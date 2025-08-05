@@ -1,5 +1,5 @@
 import type { Result, Option } from 'oxide.ts';
-import { Err, Ok } from 'oxide.ts';
+import { Err } from 'oxide.ts';
 
 import type { LookupModel, LocalizedLookupModel } from '~/.server/domain/models';
 import { apiClient } from '~/.server/domain/services/api-client';
@@ -70,43 +70,11 @@ export class LookupServiceImplementation<T extends LookupModel, L extends Locali
   }
 
   /**
-   * Retrieves a single entity by its CODE.
-   */
-  async getByCode(code: string): Promise<Result<T, AppError>> {
-    const context = `get ${this.config.entityName} with CODE '${code}'`;
-    type ApiResponse = {
-      content: readonly T[];
-    };
-    const response = await apiClient.get<ApiResponse>(`${this.config.apiEndpoint}?code=${code}`, context);
-
-    if (response.isErr()) {
-      throw response.unwrapErr();
-    }
-    const data = response.unwrap();
-    const entity = data.content[0]; // Get the first element from the response array
-
-    if (!entity) {
-      // The request was successful, but no entity with that code exists.
-      return Err(new AppError(`${context} not found.`, this.config.notFoundErrorCode));
-    }
-
-    return Ok(entity);
-  }
-
-  /**
    * Finds a single entity by its ID.
    */
   async findById(id: number): Promise<Option<T>> {
     const result = await this.getById(id);
     return result.ok(); // .ok() converts Result<T, E> to Option<T>
-  }
-
-  /**
-   * Finds a single entity by its CODE.
-   */
-  async findByCode(code: string): Promise<Option<T>> {
-    const result = await this.getByCode(code);
-    return result.ok();
   }
 
   // Localized methods
@@ -128,26 +96,10 @@ export class LookupServiceImplementation<T extends LookupModel, L extends Locali
   }
 
   /**
-   * Retrieves a single localized entity by its CODE.
-   */
-  async getLocalizedByCode(code: string, language: Language): Promise<Result<L, AppError>> {
-    const result = await this.getByCode(code);
-    return result.map((entity) => this.config.localizeEntity(entity, language));
-  }
-
-  /**
    * Finds a single localized entity by its ID.
    */
   async findLocalizedById(id: number, language: Language): Promise<Option<L>> {
     const result = await this.getLocalizedById(id, language);
-    return result.ok();
-  }
-
-  /**
-   * Finds a single localized entity by its CODE.
-   */
-  async findLocalizedByCode(code: string, language: Language): Promise<Option<L>> {
-    const result = await this.getLocalizedByCode(code, language);
     return result.ok();
   }
 }

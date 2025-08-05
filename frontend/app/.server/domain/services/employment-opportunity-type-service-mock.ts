@@ -29,16 +29,8 @@ export function getMockEmploymentOpportunityTypeService(): EmploymentOpportunity
       return Promise.resolve(sharedService.getById(id));
     },
 
-    getByCode(code: string) {
-      return Promise.resolve(sharedService.getByCode(code));
-    },
-
     findById(id: number) {
       return Promise.resolve(sharedService.findById(id));
-    },
-
-    findByCode(code: string) {
-      return Promise.resolve(sharedService.findByCode(code));
     },
 
     listAllLocalized(language: Language): Promise<readonly LocalizedEmploymentOpportunityType[]> {
@@ -51,14 +43,6 @@ export function getMockEmploymentOpportunityTypeService(): EmploymentOpportunity
 
     findLocalizedById(id: number, language: Language) {
       return Promise.resolve(sharedService.findLocalizedById(id, language));
-    },
-
-    getLocalizedByCode(code: string, language: Language) {
-      return Promise.resolve(sharedService.getLocalizedByCode(code, language));
-    },
-
-    findLocalizedByCode(code: string, language: Language) {
-      return Promise.resolve(sharedService.findLocalizedByCode(code, language));
     },
   };
 }

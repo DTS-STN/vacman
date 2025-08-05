@@ -9,14 +9,10 @@ import type { AppError } from '~/errors/app-error';
 export type LanguageRequirementService = {
   listAll(): Promise<readonly LanguageRequirement[]>;
   getById(id: number): Promise<Result<LanguageRequirement, AppError>>;
-  getByCode(code: string): Promise<Result<LanguageRequirement, AppError>>;
   findById(id: number): Promise<Option<LanguageRequirement>>;
-  findByCode(code: string): Promise<Option<LanguageRequirement>>;
   listAllLocalized(language: Language): Promise<readonly LocalizedLanguageRequirement[]>;
   getLocalizedById(id: number, language: Language): Promise<Result<LocalizedLanguageRequirement, AppError>>;
   findLocalizedById(id: number, language: Language): Promise<Option<LocalizedLanguageRequirement>>;
-  getLocalizedByCode(code: string, language: Language): Promise<Result<LocalizedLanguageRequirement, AppError>>;
-  findLocalizedByCode(code: string, language: Language): Promise<Option<LocalizedLanguageRequirement>>;
 };
 
 export function getLanguageRequirementService(): LanguageRequirementService {

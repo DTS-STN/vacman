@@ -67,17 +67,6 @@ describe('LookupServiceImplementation', () => {
       expect(mockApiClient.get).toHaveBeenCalledWith('/test-endpoint/1', "Get test entity with ID '1'");
     });
 
-    it('should retrieve entity by CODE successfully', async () => {
-      const mockResponse = { content: [mockTestData[0]] };
-      mockApiClient.get.mockResolvedValue(Ok(mockResponse));
-
-      const result = await service.getByCode('TEST1');
-
-      expect(result.isOk()).toBe(true);
-      expect(result.unwrap()).toEqual(mockTestData[0]);
-      expect(mockApiClient.get).toHaveBeenCalledWith('/test-endpoint?code=TEST1', "get test entity with CODE 'TEST1'");
-    });
-
     it('should return localized entities', async () => {
       const mockResponse = { content: mockTestData };
       mockApiClient.get.mockResolvedValue(Ok(mockResponse));
@@ -95,17 +84,6 @@ describe('LookupServiceImplementation', () => {
         code: 'TEST2',
         name: 'Test Deux',
       });
-    });
-
-    it('should handle entity not found by CODE', async () => {
-      const mockResponse = { content: [] };
-      mockApiClient.get.mockResolvedValue(Ok(mockResponse));
-
-      const result = await service.getByCode('NONEXISTENT');
-
-      expect(result.isErr()).toBe(true);
-      expect(result.unwrapErr()).toBeInstanceOf(AppError);
-      expect(result.unwrapErr().message).toContain('not found');
     });
 
     it('should convert Result to Option for find methods', async () => {
@@ -132,12 +110,6 @@ describe('LookupServiceImplementation', () => {
 
     it('should retrieve entity by ID', () => {
       const result = mockService.getById(1);
-      expect(result.isOk()).toBe(true);
-      expect(result.unwrap()).toEqual(mockTestData[0]);
-    });
-
-    it('should retrieve entity by CODE', () => {
-      const result = mockService.getByCode('TEST1');
       expect(result.isOk()).toBe(true);
       expect(result.unwrap()).toEqual(mockTestData[0]);
     });
