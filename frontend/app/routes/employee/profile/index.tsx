@@ -299,7 +299,6 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
           <p className="mt-4">{t('app:profile.about-para-2')}</p>
         </div>
         <Form className="mt-6 flex place-content-end space-x-5 md:mt-auto" method="post" noValidate>
-          {/* TODO: save and exit button should show in edit state, check ADO task 6297 */}
           <ButtonLink variant="alternative" file="routes/employee/index.tsx" id="save" disabled={navigation.state !== 'idle'}>
             {t('app:form.save-and-exit')}
           </ButtonLink>
