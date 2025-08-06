@@ -1,4 +1,3 @@
-import type { JSX } from 'react';
 import { useRef } from 'react';
 
 import type { RouteHandle } from 'react-router';
@@ -25,7 +24,7 @@ import { DescriptionList, DescriptionListItem } from '~/components/description-l
 import { InlineLink } from '~/components/links';
 import { ProfileCard } from '~/components/profile-card';
 import { StatusTag } from '~/components/status-tag';
-import { PROFILE_STATUS_CODE, EMPLOYEE_WFA_STATUS } from '~/domain/constants';
+import { EMPLOYEE_WFA_STATUS } from '~/domain/constants';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
 import { formatDateTime } from '~/utils/date-utils';

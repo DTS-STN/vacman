@@ -1,4 +1,3 @@
-import type { JSX } from 'react';
 import { useEffect, useRef, useState } from 'react';
 
 import type { RouteHandle } from 'react-router';

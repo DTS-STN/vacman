@@ -1,4 +1,4 @@
-import { JSX } from 'react';
+import type { JSX } from 'react';
 
 import { PROFILE_STATUS_CODE } from '~/domain/constants';
 
