@@ -32,7 +32,7 @@ export async function action({ context, request }: ActionFunctionArgs) {
   await createUserProfile(activeDirectoryId);
 
   // TODO the id should be revised and corrected (as in should this be the profileId?)
-  return i18nRedirect('routes/employee/profile/index.tsx', request, { params: { id: activeDirectoryId } });
+  return i18nRedirect('routes/employee/index.tsx', request, { params: { id: activeDirectoryId } });
 }
 
 export async function loader({ context, request }: LoaderFunctionArgs) {
