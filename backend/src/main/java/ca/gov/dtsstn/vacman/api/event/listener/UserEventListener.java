@@ -37,8 +37,8 @@ public class UserEventListener {
 	@EventListener({ UserCreatedEvent.class })
 	public void handleUserCreated(UserCreatedEvent event) throws JsonProcessingException {
 		eventRepository.save(new EventEntityBuilder()
-			.name("USER_CREATED")
-			.description(objectMapper.writeValueAsString(event))
+			.type("USER_CREATED")
+			.details(objectMapper.writeValueAsString(event))
 			.build());
 
 		log.info("Event: user created - ID: {}", event.entity().getId());
@@ -48,8 +48,8 @@ public class UserEventListener {
 	@EventListener({ UserCreateConflictEvent.class })
 	public void handleUserCreateConflict(UserCreateConflictEvent event) throws JsonProcessingException {
 		eventRepository.save(new EventEntityBuilder()
-			.name("USER_CREATE_CONFLICT")
-			.description(objectMapper.writeValueAsString(event))
+			.type("USER_CREATE_CONFLICT")
+			.details(objectMapper.writeValueAsString(event))
 			.build());
 
 		log.info("Event: user create conflict - ID: {}", event.entity().getId());
@@ -59,8 +59,7 @@ public class UserEventListener {
 	@EventListener({ UserUpdatedEvent.class })
 	public void handleUserUpdated(UserUpdatedEvent event) throws JsonProcessingException {
 		eventRepository.save(new EventEntityBuilder()
-			.name("USER_UPDATED")
-			.description("User updated with ID: " + event.entity().getId())
+			.type("USER_UPDATED")
 			.details(objectMapper.writeValueAsString(event))
 			.build());
 
@@ -71,8 +70,7 @@ public class UserEventListener {
 	@EventListener({ UserDeletedEvent.class })
 	public void handleUserDeleted(UserDeletedEvent event) throws JsonProcessingException {
 		eventRepository.save(new EventEntityBuilder()
-			.name("USER_DELETED")
-			.description("User deleted with ID: " + event.entity().getId())
+			.type("USER_DELETED")
 			.details(objectMapper.writeValueAsString(event))
 			.build());
 
@@ -83,8 +81,7 @@ public class UserEventListener {
 	@EventListener({ UserReadEvent.class })
 	public void handleUserRead(UserReadEvent event) throws JsonProcessingException {
 		eventRepository.save(new EventEntityBuilder()
-			.name("USER_READ")
-			.description("User read with ID: " + event.entity().getId())
+			.type("USER_READ")
 			.details(objectMapper.writeValueAsString(event))
 			.build());
 
