@@ -61,7 +61,7 @@
     "libphonenumber-js": "^1.12.10",
     "minimatch": "^10.0.3",
     "morgan": "^1.10.0",
-    "oauth4webapi": "^3.6.0",
+    "oauth4webapi": "^3.6.1",
     "oxide.ts": "^1.1.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.0",
