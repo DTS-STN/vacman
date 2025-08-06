@@ -101,7 +101,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       substantivePosition: profileData.employmentInformation.substantivePosition,
       branchOrServiceCanadaRegion: workUnit?.parent?.id,
       directorate: workUnit?.id,
-      province: city?.province.id,
+      province: city?.provinceTerritory.id,
       cityId: profileData.employmentInformation.cityId,
       wfaStatus: profileData.employmentInformation.wfaStatus,
       wfaEffectiveDate: profileData.employmentInformation.wfaEffectiveDate,

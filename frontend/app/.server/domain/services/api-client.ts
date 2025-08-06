@@ -17,7 +17,16 @@ import type { HttpStatusCode } from '~/errors/http-status-codes';
  */
 async function baseFetch(path: string, context: string): Promise<Result<Response, AppError>> {
   try {
-    const response = await fetch(`${serverEnvironment.VACMAN_API_BASE_URI}${path}`);
+    // Sanitize the paths to prevent double slashes.
+    const cleanBase = serverEnvironment.VACMAN_API_BASE_URI.endsWith('/')
+      ? serverEnvironment.VACMAN_API_BASE_URI.slice(0, -1)
+      : serverEnvironment.VACMAN_API_BASE_URI;
+
+    const cleanPath = path.startsWith('/') ? path.slice(1) : path;
+
+    const finalUrl = `${cleanBase}/${cleanPath}`;
+
+    const response = await fetch(finalUrl);
 
     // Check for non-successful status codes (4xx, 5xx)
     if (!response.ok) {

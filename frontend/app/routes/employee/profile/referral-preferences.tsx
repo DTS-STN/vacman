@@ -92,7 +92,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     defaultValues: {
       languageReferralTypeIds: profileData.referralPreferences.languageReferralTypeIds,
       classificationIds: profileData.referralPreferences.classificationIds,
-      workLocationProvince: city?.province.id,
+      workLocationProvince: city?.provinceTerritory.id,
       workLocationCitiesIds: profileData.referralPreferences.workLocationCitiesIds,
       availableForReferralInd: profileData.referralPreferences.availableForReferralInd,
       interestedInAlternationInd: profileData.referralPreferences.interestedInAlternationInd,
