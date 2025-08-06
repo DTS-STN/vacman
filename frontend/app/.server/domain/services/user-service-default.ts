@@ -14,7 +14,7 @@ export function getDefaultUserService(): UserService {
      * @returns A promise that resolves to the list of user objects.
      */
     async getUsersByRole(role: string): Promise<User[]> {
-      const response = await fetch(`${serverEnvironment.VACMAN_API_BASE_URI}/users?${role}=true`);
+      const response = await fetch(`${serverEnvironment.VACMAN_API_BASE_URI}/users?type=${role}`);
 
       if (!response.ok) {
         const errorMessage = `Failed to retrieve users with role ${role}. Server responded with status ${response.status}.`;
