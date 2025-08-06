@@ -1,6 +1,6 @@
 import type { UserType, LocalizedUserType } from '~/.server/domain/models';
-import type { UserTypeService } from '~/.server/domain/services/user-type-service';
 import { createMockLookupService } from '~/.server/domain/services/shared/lookup-service-helpers';
+import type { UserTypeService } from '~/.server/domain/services/user-type-service';
 import userTypeData from '~/.server/resources/userType.json';
 import { ErrorCodes } from '~/errors/error-codes';
 
@@ -13,11 +13,7 @@ const transformedData: UserType[] = userTypeData.content.map((item) => ({
 }));
 
 // Create a single instance of the service using shared implementation with standard localization
-const sharedService = createMockLookupService<UserType>(
-  transformedData,
-  'user type',
-  ErrorCodes.NO_USER_TYPE_FOUND,
-);
+const sharedService = createMockLookupService<UserType>(transformedData, 'user type', ErrorCodes.NO_USER_TYPE_FOUND);
 
 export function getMockUserTypeService(): UserTypeService {
   return {

@@ -16,7 +16,5 @@ export type UserTypeService = {
 };
 
 export function getUserTypeService(): UserTypeService {
-  return serverEnvironment.ENABLE_LOOKUP_FIELD_SERVICES_MOCK
-    ? getMockUserTypeService()
-    : getDefaultUserTypeService();
+  return serverEnvironment.ENABLE_LOOKUP_FIELD_SERVICES_MOCK ? getMockUserTypeService() : getDefaultUserTypeService();
 }
