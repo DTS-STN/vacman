@@ -69,7 +69,7 @@ public final class SecurityUtils {
 	 * @return {@code true} if the current user has at least one of the given authorities, {@code false} otherwise.
 	 */
 	public static boolean hasCurrentUserAnyOfAuthorities(String... authorities) {
-		var authoritiesToFind = new HashSet<>(Arrays.asList(authorities));
+		final var authoritiesToFind = new HashSet<>(Arrays.asList(authorities));
 		return getCurrentAuthentication()
 			.map(SecurityUtils::getAuthorities)
 			.map(authoritiesStream -> authoritiesStream.anyMatch(authoritiesToFind::contains))

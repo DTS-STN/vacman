@@ -1,7 +1,6 @@
 package ca.gov.dtsstn.vacman.api.web;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.validator.constraints.Range;
@@ -13,8 +12,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedModel;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import ca.gov.dtsstn.vacman.api.config.SpringDocConfig;
+import ca.gov.dtsstn.vacman.api.security.SecurityUtils;
 import ca.gov.dtsstn.vacman.api.service.MSGraphService;
 import ca.gov.dtsstn.vacman.api.service.UserService;
 import ca.gov.dtsstn.vacman.api.web.exception.ResourceConflictException;
@@ -64,11 +62,7 @@ public class UsersController {
 	public ResponseEntity<UserReadModel> createCurrentUser(@Valid @RequestBody UserCreateModel user) {
 		log.info("Received request to create new user; request: [{}]", user);
 
-		final var microsoftEntraId = Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication())
-			.filter(JwtAuthenticationToken.class::isInstance)
-			.map(JwtAuthenticationToken.class::cast)
-			.map(JwtAuthenticationToken::getToken)
-			.map(jwt -> jwt.getClaimAsString("oid"))
+		final var microsoftEntraId = SecurityUtils.getCurrentUserEntraId()
 			.orElseThrow(() -> new UnauthorizedException("Could not extract 'oid' claim from JWT token"));
 
 		log.debug("Checking if user with microsoftEntraId=[{}] already exists", microsoftEntraId);
@@ -105,11 +99,7 @@ public class UsersController {
 	public ResponseEntity<UserReadModel> getCurrentUser() {
 		log.debug("Received request to get current user");
 
-		final var microsoftEntraId = Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication())
-			.filter(JwtAuthenticationToken.class::isInstance)
-			.map(JwtAuthenticationToken.class::cast)
-			.map(JwtAuthenticationToken::getToken)
-			.map(jwt -> jwt.getClaimAsString("oid"))
+		final var microsoftEntraId = SecurityUtils.getCurrentUserEntraId()
 			.orElseThrow(() -> new UnauthorizedException("Could not extract 'oid' claim from JWT token"));
 
 		log.debug("Fetching user with microsoftEntraId=[{}]", microsoftEntraId);
