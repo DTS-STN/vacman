@@ -65,10 +65,11 @@ export function getMockProfileService(): ProfileService {
     },
     getActiveProfile: (session: AuthenticatedSession) => {
       // In mock service, return profiles that are incomplete, pending, or approved
-      const activeProfiles = mockProfiles.filter(profile => 
-        profile.profileStatusId === PROFILE_STATUS_ID.incomplete ||
-        profile.profileStatusId === PROFILE_STATUS_ID.pending ||
-        profile.profileStatusId === PROFILE_STATUS_ID.approved
+      const activeProfiles = mockProfiles.filter(
+        (profile) =>
+          profile.profileStatusId === PROFILE_STATUS_ID.incomplete ||
+          profile.profileStatusId === PROFILE_STATUS_ID.pending ||
+          profile.profileStatusId === PROFILE_STATUS_ID.approved,
       );
       return Promise.resolve(activeProfiles);
     },

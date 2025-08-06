@@ -204,7 +204,7 @@ export function getDefaultProfileService(): ProfileService {
 
     async getActiveProfile(session: AuthenticatedSession): Promise<Profile[]> {
       let response: Response;
-      
+
       try {
         response = await fetch(`${serverEnvironment.VACMAN_API_BASE_URI}/profiles/me?active=true`, {
           headers: {
