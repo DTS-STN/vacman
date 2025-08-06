@@ -19,7 +19,8 @@ import { getProfileService } from '~/.server/domain/services/profile-service';
 import { getProfileStatusService } from '~/.server/domain/services/profile-status-service';
 import { getUserService } from '~/.server/domain/services/user-service';
 import { getWFAStatuses } from '~/.server/domain/services/wfa-status-service';
-import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
+import { requireAuthentication, type AuthenticatedSession } from '~/.server/utils/auth-utils';
+import { checkEmployeeRoutePrivacyConsent } from '~/.server/utils/privacy-consent-utils';
 import { countCompletedItems, omitObjectProperties } from '~/.server/utils/profile-utils';
 import { AlertMessage } from '~/components/alert-message';
 import { Button } from '~/components/button';
@@ -104,6 +105,9 @@ export async function action({ context, request }: Route.ActionArgs) {
 }
 
 export async function loader({ context, request, params }: Route.LoaderArgs) {
+  const currentUrl = new URL(request.url);
+  await checkEmployeeRoutePrivacyConsent(context.session as AuthenticatedSession, currentUrl);
+
   // Use the id parameter from the URL to fetch the profile
   const profileUserId = params.id;
 
