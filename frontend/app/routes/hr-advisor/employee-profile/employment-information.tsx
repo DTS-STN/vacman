@@ -4,7 +4,7 @@ import { data } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import * as v from 'valibot';
 
-import type { Route } from '../profile/+types/employment-information';
+import type { Route } from '../employee-profile/+types/employment-information';
 
 import type { Profile } from '~/.server/domain/models';
 import { getBranchService } from '~/.server/domain/services/branch-service';
