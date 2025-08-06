@@ -64,12 +64,21 @@ export function getMockProfileService(): ProfileService {
       return Promise.resolve(mockProfiles);
     },
     getActiveProfile: (session: AuthenticatedSession) => {
-      // In mock service, return profiles that are incomplete, pending, or approved
+      const activeDirectoryId = session.authState.idTokenClaims.oid as string;
+      const userId = activeDirectoryToUserIdMap[activeDirectoryId];
+
+      // If user not found, return empty array
+      if (!userId) {
+        return Promise.resolve([]);
+      }
+
+      // Filter for active profiles that belong to the current user
       const activeProfiles = mockProfiles.filter(
         (profile) =>
-          profile.profileStatusId === PROFILE_STATUS_ID.incomplete ||
-          profile.profileStatusId === PROFILE_STATUS_ID.pending ||
-          profile.profileStatusId === PROFILE_STATUS_ID.approved,
+          profile.userId === userId &&
+          (profile.profileStatusId === PROFILE_STATUS_ID.incomplete ||
+            profile.profileStatusId === PROFILE_STATUS_ID.pending ||
+            profile.profileStatusId === PROFILE_STATUS_ID.approved),
       );
       return Promise.resolve(activeProfiles);
     },
@@ -779,6 +788,8 @@ function registerProfile(activeDirectoryId: string): Profile {
     userId = mockProfiles.length + 1;
     activeDirectoryToUserIdMap[activeDirectoryId] = userId;
   }
+
+  console.log(activeDirectoryToUserIdMap);
 
   // Create new profile
   const newProfile: Profile = {
