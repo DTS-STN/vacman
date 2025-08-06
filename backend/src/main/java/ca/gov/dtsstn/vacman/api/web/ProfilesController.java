@@ -1,19 +1,16 @@
 package ca.gov.dtsstn.vacman.api.web;
 
 import ca.gov.dtsstn.vacman.api.config.SpringDocConfig;
-import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
 import ca.gov.dtsstn.vacman.api.security.SecurityUtils;
 import ca.gov.dtsstn.vacman.api.service.ProfileService;
-import ca.gov.dtsstn.vacman.api.service.UserService;
-import ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException;
 import ca.gov.dtsstn.vacman.api.web.exception.UnauthorizedException;
 import ca.gov.dtsstn.vacman.api.web.model.ProfileReadModel;
+import ca.gov.dtsstn.vacman.api.web.model.ProfilesStatusParam;
 import ca.gov.dtsstn.vacman.api.web.model.mapper.ProfileModelMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.apache.commons.lang3.StringUtils;
 import org.hibernate.validator.constraints.Range;
 import org.mapstruct.factory.Mappers;
 import org.springframework.data.domain.PageRequest;
@@ -24,8 +21,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.function.Function;
-
 @RestController
 @Tag(name = "Profiles")
 @RequestMapping({ "/api/v1/profiles" })
@@ -33,13 +28,10 @@ public class ProfilesController {
 
     private final ProfileService profileService;
 
-    private final UserService userService;
-
     private final ProfileModelMapper profileModelMapper = Mappers.getMapper(ProfileModelMapper.class);
 
-    public ProfilesController(ProfileService profileService, UserService userService) {
+    public ProfilesController(ProfileService profileService) {
         this.profileService = profileService;
-        this.userService = userService;
     }
 
     @GetMapping
@@ -55,46 +47,20 @@ public class ProfilesController {
             @Parameter(description = "Page size (between 1 and 100)")
             int size,
 
-            @RequestParam(name = "active", required = false)
-            @Parameter(name = "active", description = "Return only active or inactive profiles")
-            Boolean isActive,
+            @RequestParam
+            @Parameter(description = "Return either active or inactive profiles.")
+            ProfilesStatusParam status,
 
-            @RequestParam(name = "hr-advisor", required = false)
-            @Parameter(name = "hr-advisor", description = "Return only the profiles that are associated with the HR advisor")
-            String hrAdvisor,
-
-           @RequestParam(name = "user-data", defaultValue = "false")
-           @Parameter(name = "user-data", description = "Return user first name, last name, and email address with profile")
-           boolean wantUserData
+            @RequestParam(required = false)
+            @Parameter(description = "Return only the profiles that are associated with the HR advisor")
+            Long hrAdvisorId
     ) {
         if (!SecurityUtils.hasHrAdvisorId()) {
             throw new UnauthorizedException("JWT token does not have hr-advisor claim.");
         }
 
-        // Determine the advisor ID based on the advisor param (or lack thereof).
-        Long hrAdvisorId;
-        if (StringUtils.isBlank(hrAdvisor)) {
-            hrAdvisorId = null;
-        } else if (hrAdvisor.equalsIgnoreCase("me")) {
-            // Retrieve the advisor ID via the incoming oid claim
-            var entraId = SecurityUtils.getCurrentUserEntraId()
-                    .orElseThrow(() -> new UnauthorizedException("Could not extract 'oid' claim from JWT token"));
-
-            hrAdvisorId = userService.getUserByMicrosoftEntraId(entraId)
-                    .orElseThrow(() -> new ResourceNotFoundException("No user found for given entra ID."))
-                    .getId();
-        } else {
-            hrAdvisorId = Long.valueOf(hrAdvisor);
-        }
-
-        // Determine the mapping function to use.
-        final Function<ProfileEntity, ProfileReadModel> mapper = (wantUserData)
-                ? profileModelMapper::toModel
-                : profileModelMapper::toModelNoUserData;
-
-        final var profiles =
-                profileService.getProfilesByStatusAndHrId(PageRequest.of(page, size), isActive, hrAdvisorId)
-                        .map(mapper);
+        final var profiles = profileService.getProfilesByStatusAndHrId(PageRequest.of(page, size), status, hrAdvisorId)
+                .map(profileModelMapper::toModel);
 
        return ResponseEntity.ok(new PagedModel<>(profiles));
     }

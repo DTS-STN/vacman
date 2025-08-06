@@ -12,15 +12,6 @@ import java.util.Collection;
 public interface ProfileRepository extends AbstractBaseRepository<ProfileEntity> {
 
     /**
-     * Returns all profiles whose HR Advisor ID matches the provided value & which fall under the given page.
-     *
-     * @param hrAdvisorId The ID of the HR Advisor whose profiles we are filtering for.
-     * @param pageable The pagination information
-     * @return A page of profiles.
-     */
-    Page<ProfileEntity> findAllByHrAdvisorId(Long hrAdvisorId, Pageable pageable);
-
-    /**
      * Returns all profiles whose status is contained within the parameter {@code profileStatusCodes} & which fall under
      * the given page.
      *
