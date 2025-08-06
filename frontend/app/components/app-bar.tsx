@@ -1,12 +1,11 @@
 import type { JSX } from 'react';
 
-import { faChevronDown, faRightFromBracket, faUser } from '@fortawesome/free-solid-svg-icons';
+import { faChevronDown, faUser } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useTranslation } from 'react-i18next';
 
 import { DropdownMenu, DropdownMenuContent, DropdownMenuLabel, DropdownMenuTrigger } from '~/components/dropdown-menu';
 
-import { MenuItem } from '~/components/menu';
 import { cn } from '~/utils/tailwind-utils';
 
 type AppBarProps = {
@@ -39,8 +38,6 @@ type UserButtonProps = {
 };
 
 function UserButton({ className, children, name }: UserButtonProps): JSX.Element {
-  const { t } = useTranslation(['gcweb']);
-
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
@@ -61,12 +58,7 @@ function UserButton({ className, children, name }: UserButtonProps): JSX.Element
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-64 bg-slate-700">
         <UserName name={name} />
-        <MenuItem file="routes/index.tsx">{t('gcweb:app.profile')}</MenuItem>
         {children}
-        <MenuItem to="/auth/logout" className="text-md flex justify-between">
-          {t('gcweb:app.logout')}
-          <FontAwesomeIcon icon={faRightFromBracket} className="my-auto size-8" />
-        </MenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );
