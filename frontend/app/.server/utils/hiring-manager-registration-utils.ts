@@ -28,13 +28,13 @@ export async function requireHiringManagerRegistration(session: AuthenticatedSes
 
   if (!user) {
     log.debug('User not found in database, redirecting to index to register as hiring manager');
-    throw i18nRedirect('routes/index.tsx', currentUrl);
+    throw i18nRedirect('routes/employee/index.tsx', currentUrl);
   }
 
   // Check if user has hiring-manager role
   if (user.role !== 'hiring-manager') {
     log.debug('User is not registered as a hiring manager, redirecting to index');
-    throw i18nRedirect('routes/index.tsx', currentUrl);
+    throw i18nRedirect('routes/employee/index.tsx', currentUrl);
   }
 
   log.debug('User is registered as a hiring manager, allowing access');

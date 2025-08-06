@@ -28,13 +28,13 @@ export async function requireHrAdvisorRegistration(session: AuthenticatedSession
 
   if (!user) {
     log.debug('User not found in database, redirecting to index to register as hr-advisor');
-    throw i18nRedirect('routes/index.tsx', currentUrl);
+    throw i18nRedirect('routes/employee/index.tsx', currentUrl);
   }
 
   // Check if user has hr-advisor role
   if (user.role !== 'hr-advisor') {
     log.debug('User is not registered as a hr-advisor, redirecting to index');
-    throw i18nRedirect('routes/index.tsx', currentUrl);
+    throw i18nRedirect('routes/employee/index.tsx', currentUrl);
   }
 
   log.debug('User is registered as a hr-advisor, allowing access');

@@ -24,7 +24,7 @@ async function checkPrivacyConsentForUser(userId: string, currentUrl: URL): Prom
 
   if (!profile?.privacyConsentInd) {
     log.debug(`Privacy consent required for user ${userId}`);
-    throw i18nRedirect('routes/index.tsx', currentUrl);
+    throw i18nRedirect('routes/employee/privacy-consent.tsx', currentUrl);
   }
 }
 
