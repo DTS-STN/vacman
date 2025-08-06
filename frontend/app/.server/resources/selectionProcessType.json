@@ -1,0 +1,28 @@
+{
+  "content": [
+    {
+      "id": 1,
+      "code": "COMPETITIVE",
+      "nameEn": "Competitive Process",
+      "nameFr": "Processus concurrentiel"
+    },
+    {
+      "id": 2,
+      "code": "NON_COMPETITIVE",
+      "nameEn": "Non-Competitive Process",
+      "nameFr": "Processus non concurrentiel"
+    },
+    {
+      "id": 3,
+      "code": "INVENTORY",
+      "nameEn": "Inventory Process",
+      "nameFr": "Processus d'inventaire"
+    },
+    {
+      "id": 4,
+      "code": "POOL",
+      "nameEn": "Pool Process",
+      "nameFr": "Processus de bassin"
+    }
+  ]
+}
