@@ -80,6 +80,9 @@ export type LocalizedRequestStatus = LocalizedLookupModel;
 export type SecurityClearance = LookupModel;
 export type LocalizedSecurityClearance = LocalizedLookupModel;
 
+export type SelectionProcessType = LookupModel;
+export type LocalizedSelectionProcessType = LocalizedLookupModel;
+
 export type EmploymentEquity = LookupModel;
 export type LocalizedEmploymentEquity = LocalizedLookupModel;
 
