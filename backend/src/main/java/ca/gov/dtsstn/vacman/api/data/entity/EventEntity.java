@@ -13,14 +13,11 @@ import jakarta.persistence.Table;
 
 @Entity(name = "Event")
 @Table(name = "[EVENT]")
-@AttributeOverride(name = "id", column = @Column(name = "[EVENT_ID]"))
+@AttributeOverride(name = "id", column = @Column(name = "[ID]"))
 public class EventEntity extends AbstractBaseEntity {
 
-	@Column(name = "[EVENT_DESCRIPTION]", length = 4000)
-	private String description;
-
-	@Column(name = "[EVENT_NAME]", nullable = false, length = 255)
-	private String name;
+	@Column(name = "[TYPE]", nullable = false, length = 255)
+	private String type;
 
 	@Column(name = "[DETAIL]", length = 4000)
 	private String details;
@@ -32,33 +29,23 @@ public class EventEntity extends AbstractBaseEntity {
 	@Builder.Constructor
 	public EventEntity(
 			@Nullable Long id,
-			@Nullable String description,
-			@Nullable String name,
+			@Nullable String type,
 			@Nullable String details,
 			@Nullable String createdBy,
 			@Nullable Instant createdDate,
 			@Nullable String lastModifiedBy,
 			@Nullable Instant lastModifiedDate) {
 		super(id, createdBy, createdDate, lastModifiedBy, lastModifiedDate);
-		this.description = description;
-		this.name = name;
+		this.type = type;
 		this.details = details;
 	}
 
-	public String getDescription() {
-		return description;
+	public String getType() {
+		return type;
 	}
 
-	public void setDescription(String eventDescription) {
-		this.description = eventDescription;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String eventName) {
-		this.name = eventName;
+	public void setType(String type) {
+		this.type = type;
 	}
 
 	public String getDetails() {
@@ -73,8 +60,7 @@ public class EventEntity extends AbstractBaseEntity {
 	public String toString() {
 		return new ToStringCreator(this)
 			.append("super", super.toString())
-			.append("description", description)
-			.append("name", name)
+			.append("type", type)
 			.append("details", details)
 			.toString();
 	}
