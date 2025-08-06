@@ -108,8 +108,7 @@ export type User = Readonly<{
 }>;
 
 export type UserCreate = Readonly<{
-  activeDirectoryId?: string;
-  role: string;
+  languageId: number;
 }>;
 
 export type Profile = Readonly<{

@@ -18,6 +18,7 @@ describe('User Service Integration', () => {
     it('should register a new employee', async () => {
       const newUserData = {
         role: 'employee',
+        languageId: 1,
       };
 
       const mockSession = {
@@ -61,6 +62,7 @@ describe('User Service Integration', () => {
     it('should register a new hiring manager', async () => {
       const newUserData = {
         role: 'hiring-manager',
+        languageId: 1,
       };
 
       const mockSession = {
@@ -94,7 +96,7 @@ describe('User Service Integration', () => {
       expect(registeredUser).toMatchObject({
         uuName: 'Test Hiring Manager',
         networkName: 'test-manager-123',
-        role: 'hiring-manager',
+        role: 'employee',
       });
     });
 
@@ -132,7 +134,7 @@ describe('User Service Integration', () => {
       // First register a user
       await userService.registerCurrentUser(
         {
-          role: 'employee',
+          languageId: 1,
         },
         mockSession,
       );

@@ -207,10 +207,10 @@ function registerCurrentUser(userData: UserCreate, session: AuthenticatedSession
   };
 
   // Create the new user with data from session and defaults
-  const activeDirectoryId = userData.activeDirectoryId ?? (idTokenClaims.oid as string);
+  const activeDirectoryId = idTokenClaims.oid as string;
   const newUser: User = {
     id: mockUsers.length + 1,
-    role: userData.role,
+    role: 'employee',
     networkName: activeDirectoryId,
     uuName: fullName || `${firstName} ${lastName}`.trim() || 'Unknown User',
     firstName: firstName,
