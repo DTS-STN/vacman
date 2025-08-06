@@ -1,0 +1,28 @@
+{
+  "content": [
+    {
+      "id": 1,
+      "code": "employee",
+      "nameEn": "Employee",
+      "nameFr": "Employé"
+    },
+    {
+      "id": 2,
+      "code": "admin",
+      "nameEn": "Administrator",
+      "nameFr": "Administrateur"
+    },
+    {
+      "id": 3,
+      "code": "hiring-manager",
+      "nameEn": "Hiring Manager",
+      "nameFr": "Gestionnaire de recrutement"
+    },
+    {
+      "id": 4,
+      "code": "hr-advisor",
+      "nameEn": "HR Advisor",
+      "nameFr": "Conseiller RH"
+    }
+  ]
+}

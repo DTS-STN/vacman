@@ -83,6 +83,9 @@ export type LocalizedSecurityClearance = LocalizedLookupModel;
 export type SelectionProcessType = LookupModel;
 export type LocalizedSelectionProcessType = LocalizedLookupModel;
 
+export type UserType = LookupModel;
+export type LocalizedUserType = LocalizedLookupModel;
+
 export type EmploymentEquity = LookupModel;
 export type LocalizedEmploymentEquity = LocalizedLookupModel;
 
