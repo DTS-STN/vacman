@@ -79,10 +79,6 @@ export async function action({ context, params, request }: Route.ActionArgs) {
         }),
       });
     }
-
-    return i18nRedirect('routes/employee/profile/index.tsx', request, {
-      params: { id: currentUserId },
-    });
   }
 
   const updateResult = await profileService.updateEmploymentInformation(currentUserId, parseResult.output);
