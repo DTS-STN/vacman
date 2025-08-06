@@ -21,7 +21,6 @@ export type ProfileService = {
   ): Promise<Result<void, AppError>>;
   updateReferralPreferences(activeDirectoryId: string, referralPrefs: UserReferralPreferences): Promise<Result<void, AppError>>;
   submitProfileForReview(activeDirectoryId: string): Promise<Result<Profile, AppError>>;
-  approveProfile(activeDirectoryId: string): Promise<Result<Profile, AppError>>;
   getAllProfiles(): Promise<Profile[]>;
 };
 

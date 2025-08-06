@@ -243,41 +243,6 @@ export function getDefaultProfileService(): ProfileService {
       }
     },
 
-    async approveProfile(activeDirectoryId: string): Promise<Result<Profile, AppError>> {
-      try {
-        const response = await fetch(`${serverEnvironment.VACMAN_API_BASE_URI}/profiles/${activeDirectoryId}/approve`, {
-          method: 'POST',
-        });
-
-        if (!response.ok) {
-          return Err(
-            new AppError(
-              `Failed to approve profile. Server responded with status ${response.status}`,
-              ErrorCodes.PROFILE_APPROVE_FAILED,
-              { httpStatusCode: response.status as HttpStatusCode },
-            ),
-          );
-        }
-
-        try {
-          const profile = await response.json();
-          return Ok(profile);
-        } catch {
-          return Err(
-            new AppError('Invalid JSON response while approving profile', ErrorCodes.PROFILE_INVALID_RESPONSE, {
-              httpStatusCode: HttpStatusCodes.BAD_GATEWAY,
-            }),
-          );
-        }
-      } catch (error) {
-        return Err(
-          new AppError(error instanceof Error ? error.message : 'Failed to approve profile', ErrorCodes.PROFILE_NETWORK_ERROR, {
-            httpStatusCode: HttpStatusCodes.SERVICE_UNAVAILABLE,
-          }),
-        );
-      }
-    },
-
     async getAllProfiles(): Promise<Profile[]> {
       let response: Response;
       try {
