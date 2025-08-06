@@ -4,6 +4,7 @@ import type { Option, Result } from 'oxide.ts';
 import type { Profile } from '~/.server/domain/models';
 import type { ProfileService } from '~/.server/domain/services/profile-service';
 import { serverEnvironment } from '~/.server/environment';
+import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
 import type { HttpStatusCode } from '~/errors/http-status-codes';
@@ -196,6 +197,39 @@ export function getDefaultProfileService(): ProfileService {
         return await response.json();
       } catch {
         throw new AppError(`Invalid JSON response while fetching all profiles`, ErrorCodes.PROFILE_INVALID_RESPONSE, {
+          httpStatusCode: HttpStatusCodes.BAD_GATEWAY,
+        });
+      }
+    },
+
+    async getActiveProfile(session: AuthenticatedSession): Promise<Profile[]> {
+      let response: Response;
+      
+      try {
+        response = await fetch(`${serverEnvironment.VACMAN_API_BASE_URI}/profiles/me?active=true`, {
+          headers: {
+            Authorization: `Bearer ${session.authState.accessToken}`,
+          },
+        });
+      } catch (error) {
+        throw new AppError(
+          error instanceof Error ? error.message : `Network error while fetching active profiles`,
+          ErrorCodes.PROFILE_NETWORK_ERROR,
+          { httpStatusCode: HttpStatusCodes.SERVICE_UNAVAILABLE },
+        );
+      }
+
+      if (!response.ok) {
+        const errorMessage = `Failed to retrieve active profiles. Server responded with status ${response.status}.`;
+        throw new AppError(errorMessage, ErrorCodes.PROFILE_FETCH_FAILED, {
+          httpStatusCode: response.status as HttpStatusCode,
+        });
+      }
+
+      try {
+        return await response.json();
+      } catch {
+        throw new AppError(`Invalid JSON response while fetching active profiles`, ErrorCodes.PROFILE_INVALID_RESPONSE, {
           httpStatusCode: HttpStatusCodes.BAD_GATEWAY,
         });
       }

@@ -3,6 +3,7 @@ import type { Result } from 'oxide.ts';
 
 import type { Profile } from '~/.server/domain/models';
 import type { ProfileService } from '~/.server/domain/services/profile-service';
+import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
 import { PROFILE_STATUS_ID } from '~/domain/constants';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
@@ -61,6 +62,15 @@ export function getMockProfileService(): ProfileService {
     },
     getAllProfiles: () => {
       return Promise.resolve(mockProfiles);
+    },
+    getActiveProfile: (session: AuthenticatedSession) => {
+      // In mock service, return profiles that are incomplete, pending, or approved
+      const activeProfiles = mockProfiles.filter(profile => 
+        profile.profileStatusId === PROFILE_STATUS_ID.incomplete ||
+        profile.profileStatusId === PROFILE_STATUS_ID.pending ||
+        profile.profileStatusId === PROFILE_STATUS_ID.approved
+      );
+      return Promise.resolve(activeProfiles);
     },
   };
 }
