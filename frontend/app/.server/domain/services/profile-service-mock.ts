@@ -157,7 +157,6 @@ export function getMockProfileService(): ProfileService {
  * Mock profile data for testing and development.
  */
 let mockProfiles: Profile[] = [
-  // TODO remove 'status' once all current PRs using it are merged
   {
     profileId: 1,
     userId: 1,
