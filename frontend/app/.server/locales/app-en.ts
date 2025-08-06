@@ -88,6 +88,7 @@ export default {
     'profile-incomplete': 'Please complete all required fields before submitting your profile',
     'profile-submitted': 'Profile submitted successfully! Your HR advisor will now review it for approval',
     'profile-pending-approval': 'Your profile edits will require re-approval by your HR advisor',
+    'page-title': 'Employee Profile',
   },
   'form': {
     'approve': 'Approve',

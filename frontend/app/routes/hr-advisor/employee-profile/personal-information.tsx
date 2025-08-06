@@ -1,7 +1,7 @@
 import type { RouteHandle } from 'react-router';
-import { data, Form } from 'react-router';
+import { data } from 'react-router';
 
-import { Trans, useTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import * as v from 'valibot';
 
 import type { Route } from '../employee-profile/+types/personal-information';
@@ -12,21 +12,14 @@ import { getProfileService } from '~/.server/domain/services/profile-service';
 import { getUserService } from '~/.server/domain/services/user-service';
 import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
-import { Button } from '~/components/button';
-import { ButtonLink } from '~/components/button-link';
-import { FormErrorSummary } from '~/components/error-summary';
-import { InputField } from '~/components/input-field';
-import { InputPhoneField } from '~/components/input-phone-field';
-import { InputRadios } from '~/components/input-radios';
-import { InputTextarea } from '~/components/input-textarea';
 import { InlineLink } from '~/components/links';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { getTranslation } from '~/i18n-config.server';
-import { personalInformationSchema } from '~/routes/hr-advisor/employee-profile/validation.server';
 import { handle as parentHandle } from '~/routes/layout';
+import { PersonalInformationForm } from '~/routes/page-components/employees/personal-information/form';
+import { personalInformationSchema } from '~/routes/page-components/employees/validation.server';
 import { toE164 } from '~/utils/phone-utils';
 import { formString } from '~/utils/string-utils';
-import { extractValidationKey } from '~/utils/validation-utils';
 
 export const handle = {
   i18nNamespace: [...parentHandle.i18nNamespace],
@@ -101,11 +94,6 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 export default function PersonalInformation({ loaderData, actionData, params }: Route.ComponentProps) {
   const { t } = useTranslation(handle.i18nNamespace);
   const errors = actionData?.errors;
-  const languageOptions = loaderData.languagesOfCorrespondence.map(({ id, name }) => ({
-    value: String(id),
-    children: name,
-    defaultChecked: id === loaderData.defaultValues.preferredLanguageId,
-  }));
 
   return (
     <>
@@ -113,109 +101,14 @@ export default function PersonalInformation({ loaderData, actionData, params }: 
         {`< ${t('app:profile.back')}`}
       </InlineLink>
       <div className="max-w-prose">
-        <h1 className="my-5 text-3xl font-semibold">{t('app:personal-information.page-title')}</h1>
-        <FormErrorSummary>
-          <Form method="post" noValidate>
-            <div className="space-y-6">
-              <input type="hidden" name="surname" value={loaderData.defaultValues.surname} />
-              <input type="hidden" name="givenName" value={loaderData.defaultValues.givenName} />
-              <InputField
-                className="w-full"
-                id="personal-record-identifier"
-                name="personalRecordIdentifier"
-                label={t('app:personal-information.personal-record-identifier')}
-                defaultValue={loaderData.defaultValues.personalRecordIdentifier}
-                errorMessage={t(extractValidationKey(errors?.personalRecordIdentifier))}
-                helpMessagePrimary={t('app:personal-information.personal-record-identifier-help-message-primary')}
-                required
-              />
-              <InputRadios
-                id="preferred-language"
-                name="preferredLanguageId"
-                legend={t('app:personal-information.preferred-language')}
-                options={languageOptions}
-                errorMessage={t(extractValidationKey(errors?.preferredLanguageId))}
-                required
-              />
-              <InputField
-                readOnly
-                className="w-full"
-                id="work-email"
-                name="workEmail"
-                label={t('app:personal-information.work-email')}
-                defaultValue={loaderData.defaultValues.workEmail}
-                required
-              />
-              <InputField
-                className="w-full"
-                id="personal-email"
-                name="personalEmail"
-                label={t('app:personal-information.personal-email')}
-                defaultValue={loaderData.defaultValues.personalEmail}
-                errorMessage={t(extractValidationKey(errors?.personalEmail))}
-                required
-              />
-
-              <InputPhoneField
-                id="work-phone"
-                name="workPhone"
-                type="tel"
-                inputMode="tel"
-                autoComplete="tel"
-                label={t('app:personal-information.work-phone')}
-                defaultValue={loaderData.defaultValues.workPhone}
-                errorMessage={t(extractValidationKey(errors?.workPhone))}
-                helpMessagePrimary={
-                  <Trans
-                    ns={handle.i18nNamespace}
-                    i18nKey="app:personal-information.work-phone-help-message-primary"
-                    components={{ noWrap: <span className="whitespace-nowrap" /> }}
-                  />
-                }
-              />
-
-              <InputPhoneField
-                id="personal-phone"
-                name="personalPhone"
-                type="tel"
-                inputMode="tel"
-                label={t('app:personal-information.personal-phone')}
-                defaultValue={loaderData.defaultValues.personalPhone}
-                errorMessage={t(extractValidationKey(errors?.personalPhone))}
-                helpMessagePrimary={
-                  <Trans
-                    ns={handle.i18nNamespace}
-                    i18nKey="app:personal-information.personal-phone-help-message-primary"
-                    components={{ noWrap: <span className="whitespace-nowrap" /> }}
-                  />
-                }
-                required
-              />
-              <InputTextarea
-                id="additional-information"
-                className="w-full"
-                label={t('app:personal-information.additional-information')}
-                name="additionalInformation"
-                defaultValue={loaderData.defaultValues.additionalInformation}
-                helpMessage={t('app:personal-information.additional-info-help-message')}
-                maxLength={100}
-              />
-              <div className="mt-8 flex flex-row-reverse flex-wrap items-center justify-end gap-3">
-                <Button name="action" variant="primary" id="save-button">
-                  {t('app:form.save')}
-                </Button>
-                <ButtonLink
-                  file="routes/hr-advisor/employee-profile/index.tsx"
-                  params={params}
-                  id="cancel-button"
-                  variant="alternative"
-                >
-                  {t('app:form.cancel')}
-                </ButtonLink>
-              </div>
-            </div>
-          </Form>
-        </FormErrorSummary>
+        <PersonalInformationForm
+          cancelLink={'routes/hr-advisor/employee-profile/index.tsx'}
+          formErrors={errors}
+          formValues={loaderData.defaultValues}
+          isReadOnly={false}
+          languagesOfCorrespondence={loaderData.languagesOfCorrespondence}
+          params={params}
+        />
       </div>
     </>
   );

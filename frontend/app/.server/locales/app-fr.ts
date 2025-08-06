@@ -91,6 +91,7 @@ export default {
     'profile-incomplete': '(FR) Please complete all required fields before submitting your profile',
     'profile-submitted': '(FR) Profile submitted successfully! Your HR advisor will now review it for approval',
     'profile-pending-approval': '(FR) Your profile edits will require re-approval by your HR advisor', // TODO: French translations not yet available
+    'page-title': 'Employe Profile',
   },
   'form': {
     'approve': 'Approuver',
