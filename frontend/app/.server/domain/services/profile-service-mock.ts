@@ -789,8 +789,6 @@ function registerProfile(activeDirectoryId: string): Profile {
     activeDirectoryToUserIdMap[activeDirectoryId] = userId;
   }
 
-  console.log(activeDirectoryToUserIdMap);
-
   // Create new profile
   const newProfile: Profile = {
     profileId: mockProfiles.length + 1,
