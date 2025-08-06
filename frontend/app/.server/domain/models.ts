@@ -86,6 +86,9 @@ export type LocalizedSelectionProcessType = LocalizedLookupModel;
 export type UserType = LookupModel;
 export type LocalizedUserType = LocalizedLookupModel;
 
+export type WorkSchedule = LookupModel;
+export type LocalizedWorkSchedule = LocalizedLookupModel;
+
 export type EmploymentEquity = LookupModel;
 export type LocalizedEmploymentEquity = LocalizedLookupModel;
 

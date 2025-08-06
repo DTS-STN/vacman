@@ -1,0 +1,28 @@
+{
+  "content": [
+    {
+      "id": 1,
+      "code": "FULL_TIME",
+      "nameEn": "Full-time",
+      "nameFr": "Temps plein"
+    },
+    {
+      "id": 2,
+      "code": "PART_TIME",
+      "nameEn": "Part-time",
+      "nameFr": "Temps partiel"
+    },
+    {
+      "id": 3,
+      "code": "CASUAL",
+      "nameEn": "Casual",
+      "nameFr": "Occasionnel"
+    },
+    {
+      "id": 4,
+      "code": "TERM",
+      "nameEn": "Term",
+      "nameFr": "Durée déterminée"
+    }
+  ]
+}
