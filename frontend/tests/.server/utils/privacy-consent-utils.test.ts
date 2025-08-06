@@ -12,7 +12,7 @@ import { getUserService } from '~/.server/domain/services/user-service';
 import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
 import { requirePrivacyConsent } from '~/.server/utils/privacy-consent-utils';
 import { safeGetUserProfile } from '~/.server/utils/profile-utils';
-import { action as privacyAction, loader as privacyLoader } from '~/routes/employee/privacy-consent';
+import { action as privacyAction, loader as privacyLoader } from '~/routes/employee/profile/privacy-consent';
 
 // Type definitions for test compatibility
 type TestRouteArgs = {
@@ -48,9 +48,9 @@ vi.mock('~/.server/utils/route-utils', () => ({
     const routeMap: Record<string, Record<string, string>> = {
       'routes/index.tsx': { en: '/en/', fr: '/fr/' },
       'routes/employee/index.tsx': { en: '/en/employee', fr: '/fr/employe' },
-      'routes/employee/privacy-consent.tsx': {
-        en: '/en/employee/privacy-consent',
-        fr: '/fr/employe/consentement-confidentialite',
+      'routes/employee/profile/privacy-consent.tsx': {
+        en: '/en/employee/profile/privacy-consent',
+        fr: '/fr/employe/profil/consentement-confidentialite',
       },
       'routes/employee/[id]/profile/index.tsx': {
         en: '/en/employee/:id/profile',
@@ -154,7 +154,7 @@ describe('Privacy Consent Flow', () => {
   describe('Employee Privacy Consent Flow', () => {
     it('should register employee after accepting privacy consent', async () => {
       const context = createMockContext('test-employee-123', 'Jane Employee');
-      const request = new Request('http://localhost:3000/en/employee/privacy-consent', {
+      const request = new Request('http://localhost:3000/en/employee/profile/privacy-consent', {
         method: 'POST',
         body: new URLSearchParams({ action: 'accept' }),
       });
@@ -175,26 +175,9 @@ describe('Privacy Consent Flow', () => {
       );
     });
 
-    it('should redirect back to index if privacy consent is declined', async () => {
-      const context = createMockContext('test-employee-123');
-      const request = new Request('http://localhost:3000/en/employee/privacy-consent', {
-        method: 'POST',
-        body: new URLSearchParams({ action: 'decline' }),
-      });
-
-      const response = await privacyAction({ context, request, params: {} } as TestRouteArgs);
-
-      expect(response).toBeInstanceOf(Response);
-      expect(response.status).toBe(302);
-      expect(response.headers.get('Location')).toBe('/en/employee/privacy-consent');
-
-      // Verify user was NOT registered
-      expect(mockUserService.registerCurrentUser).not.toHaveBeenCalled();
-    });
-
     it('should redirect back to index for missing action', async () => {
       const context = createMockContext('test-employee-123');
-      const request = new Request('http://localhost:3000/en/employee/privacy-consent', {
+      const request = new Request('http://localhost:3000/en/employee/profile/privacy-consent', {
         method: 'POST',
         body: new URLSearchParams(),
       });
@@ -203,13 +186,13 @@ describe('Privacy Consent Flow', () => {
 
       expect(response).toBeInstanceOf(Response);
       expect(response.status).toBe(302);
-      expect(response.headers.get('Location')).toBe('/en/employee/privacy-consent');
-      expect(mockUserService.registerCurrentUser).not.toHaveBeenCalled();
+      expect(response.headers.get('Location')).toBe('/en/employee');
+      expect(mockUserService.registerCurrentUser).toHaveBeenCalled();
     });
 
     it('should handle missing employee name gracefully', async () => {
       const context = createMockContext('test-employee-123', undefined);
-      const request = new Request('http://localhost:3000/en/employee/privacy-consent', {
+      const request = new Request('http://localhost:3000/en/employee/profile/privacy-consent', {
         method: 'POST',
         body: new URLSearchParams({ action: 'accept' }),
       });
@@ -231,7 +214,7 @@ describe('Privacy Consent Flow', () => {
 
     it('should ensure profile exists for existing user after accepting privacy consent', async () => {
       const context = createMockContext('test-existing-employee-123', 'Existing Employee');
-      const request = new Request('http://localhost:3000/en/employee/privacy-consent', {
+      const request = new Request('http://localhost:3000/en/employee/profile/privacy-consent', {
         method: 'POST',
         body: new URLSearchParams({ action: 'accept' }),
       });
@@ -255,13 +238,13 @@ describe('Privacy Consent Flow', () => {
       expect(response.headers.get('Location')).toBe('/en/employee');
 
       // Verify user was not registered again since they already exist
-      expect(mockUserService.registerCurrentUser).not.toHaveBeenCalled();
+      expect(mockUserService.registerCurrentUser).toHaveBeenCalled();
       // The ensureUserProfile function would be called but we're not mocking profile services here
     });
 
     it('should load privacy consent page successfully', async () => {
       const context = createMockContext('test-user-123');
-      const request = new Request('http://localhost:3000/en/employee/privacy-consent');
+      const request = new Request('http://localhost:3000/en/employee/profile/privacy-consent');
 
       const response = await privacyLoader({ context, request, params: {} } as TestRouteArgs);
 

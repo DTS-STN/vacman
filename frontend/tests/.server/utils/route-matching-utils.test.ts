@@ -231,9 +231,9 @@ describe('Route Matching Utils', () => {
   describe('isPrivacyConsentPath', () => {
     it('should return true for English privacy consent paths', () => {
       const urls = [
-        'http://localhost:3000/en/employee/privacy-consent',
-        'http://localhost:3000/en/employee/privacy-consent/',
-        'http://localhost:3000/en/employee/privacy-consent/form',
+        'http://localhost:3000/en/employee/profile/privacy-consent',
+        'http://localhost:3000/en/employee/profile/privacy-consent/',
+        'http://localhost:3000/en/employee/profile/privacy-consent/form',
       ];
 
       urls.forEach((urlString) => {
@@ -244,9 +244,9 @@ describe('Route Matching Utils', () => {
 
     it('should return true for French privacy consent paths', () => {
       const urls = [
-        'http://localhost:3000/fr/employe/consentement-a-la-confidentialite',
-        'http://localhost:3000/fr/employe/consentement-a-la-confidentialite/',
-        'http://localhost:3000/fr/employe/consentement-a-la-confidentialite/formulaire',
+        'http://localhost:3000/fr/employe/profil/consentement-a-la-confidentialite',
+        'http://localhost:3000/fr/employe/profil/consentement-a-la-confidentialite/',
+        'http://localhost:3000/fr/employe/profil/consentement-a-la-confidentialite/formulaire',
       ];
 
       urls.forEach((urlString) => {
