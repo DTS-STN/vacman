@@ -2,7 +2,7 @@ import type { RouteHandle, LoaderFunctionArgs, ActionFunctionArgs, MetaFunction 
 import { Form } from 'react-router';
 
 import { getUserService } from '~/.server/domain/services/user-service';
-import { createUserProfile, ensureUserProfile } from '~/.server/utils/profile-utils';
+import { createUserProfile } from '~/.server/utils/profile-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { Button } from '~/components/button';
 import { ButtonLink } from '~/components/button-link';
@@ -18,35 +18,21 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
 };
 
 export async function action({ context, request }: ActionFunctionArgs) {
-  const formData = await request.formData();
-  const action = formData.get('action');
+  const userService = getUserService();
+  const activeDirectoryId = context.session.authState.idTokenClaims.oid;
 
-  if (action === 'accept') {
-    const userService = getUserService();
-    const activeDirectoryId = context.session.authState.idTokenClaims.oid;
+  // TODO call registerCurrentUser with correct {user: UserCreate} arguments that the backend expects
+  await userService.registerCurrentUser(
+    {
+      activeDirectoryId,
+      role: 'employee',
+    },
+    context.session,
+  );
+  await createUserProfile(activeDirectoryId);
 
-    // Check if user already exists
-    const existingUser = await userService.getUserByActiveDirectoryId(activeDirectoryId);
-
-    if (existingUser) {
-      await ensureUserProfile(activeDirectoryId);
-    } else {
-      // User doesn't exist, register them with privacy consent accepted
-      await userService.registerCurrentUser(
-        {
-          activeDirectoryId,
-          role: 'employee',
-        },
-        context.session,
-      );
-      await createUserProfile(activeDirectoryId);
-    }
-
-    return i18nRedirect('routes/employee/index.tsx', request);
-  }
-
-  // If declined do nothing except redirect to same page => business logic to be decided?
-  return i18nRedirect('routes/employee/privacy-consent.tsx', request);
+  // TODO the id should be revised and corrected (as in should this be the profileId?)
+  return i18nRedirect('routes/employee/index.tsx', request, { params: { id: activeDirectoryId } });
 }
 
 export async function loader({ context, request }: LoaderFunctionArgs) {
@@ -71,10 +57,10 @@ export default function PrivacyConsent() {
             taciti sociosqu. Ad litora torquent per conubia nostra inceptos himenaeos.
           </p>
           <div className="mt-8 flex flex-row-reverse flex-wrap items-center justify-end gap-3">
-            <Button name="action" value="accept" variant="primary" id="continue-button">
+            <Button variant="primary" id="continue-button">
               Accept
             </Button>
-            <ButtonLink file="routes/employee/privacy-consent.tsx" id="back-button">
+            <ButtonLink file="routes/index.tsx" id="back-button">
               Decline
             </ButtonLink>
           </div>

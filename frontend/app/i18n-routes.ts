@@ -122,10 +122,10 @@ export const i18nRoutes = [
       },
       {
         id: 'EMPL-0002',
-        file: 'routes/employee/privacy-consent.tsx',
+        file: 'routes/employee/profile/privacy-consent.tsx',
         paths: {
-          en: '/en/employee/privacy-consent',
-          fr: '/fr/employe/consentement-a-la-confidentialite',
+          en: '/en/employee/profile/privacy-consent',
+          fr: '/fr/employe/profil/consentement-a-la-confidentialite',
         },
       },
       {

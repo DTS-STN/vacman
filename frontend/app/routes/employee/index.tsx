@@ -23,6 +23,11 @@ export const handle = {
 } as const satisfies RouteHandle;
 
 export async function action({ context, request }: ActionFunctionArgs) {
+  const currentUrl = new URL(request.url);
+  // Check privacy consent for employee routes (excluding privacy consent pages)
+
+  await checkEmployeeRoutePrivacyConsent(context.session as AuthenticatedSession, currentUrl);
+
   const formData = await request.formData();
   const action = formData.get('action');
 
@@ -56,9 +61,6 @@ export async function loader({ context, request }: LoaderFunctionArgs) {
 
   // First ensure the user is authenticated (no specific roles required)
   requireAuthentication(context.session, currentUrl);
-
-  // Check privacy consent for employee routes (excluding privacy consent pages)
-  await checkEmployeeRoutePrivacyConsent(context.session as AuthenticatedSession, currentUrl);
 
   const { t } = await getTranslation(request, handle.i18nNamespace);
   return { documentTitle: t('app:index.employee-dashboard') };
