@@ -41,31 +41,32 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   const currentUserId = authenticatedSession.authState.idTokenClaims.oid as string;
   const formData = await request.formData();
   const { parseResult, formValues } = parseEmploymentInformation(formData);
-
   if (!parseResult.success) {
     return data(
       { formValues: formValues, errors: v.flatten<typeof employmentInformationSchema>(parseResult.issues).nested },
       { status: HttpStatusCodes.BAD_REQUEST },
     );
   }
-
   const profileService = getProfileService();
   const currentProfileOption = await profileService.getProfile(currentUserId);
   const currentProfile = currentProfileOption.unwrap();
+  const updateResult = await profileService.updateEmploymentInformation(currentUserId, parseResult.output);
+  if (updateResult.isErr()) {
+    throw updateResult.unwrapErr();
+  }
   if (
     currentProfile.profileStatusId === PROFILE_STATUS_ID.approved &&
     hasEmploymentDataChanged(currentProfile.employmentInformation, parseResult.output)
   ) {
     // profile needs to be re-approved if and only if the current profile status is 'approved'
     await profileService.submitProfileForReview(currentUserId);
+    return i18nRedirect('routes/employee/profile/index.tsx', request, {
+      params: { id: currentUserId },
+      search: new URLSearchParams({
+        edited: 'true',
+      }),
+    });
   }
-
-  const updateResult = await profileService.updateEmploymentInformation(currentUserId, parseResult.output);
-
-  if (updateResult.isErr()) {
-    throw updateResult.unwrapErr();
-  }
-
   return i18nRedirect('routes/employee/profile/index.tsx', request, {
     params: { id: currentUserId },
   });

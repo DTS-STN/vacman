@@ -1,8 +1,8 @@
 import type { JSX } from 'react';
-import { useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import type { RouteHandle } from 'react-router';
-import { Form, useActionData, useNavigation } from 'react-router';
+import { Form, useActionData, useLocation, useNavigate, useNavigation, useSearchParams } from 'react-router';
 
 import { useTranslation } from 'react-i18next';
 
@@ -108,6 +108,9 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const profileUserId = params.id;
 
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
+
+  const url = new URL(request.url);
+  const hasEmploymentChanged = url.searchParams.get('edited') === 'true';
 
   // Fetch both the profile user and the profile data
   const [
@@ -261,6 +264,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     },
     lastUpdated: profileData.dateUpdated ? formatDateTime(profileData.dateUpdated) : '0000-00-00 00:00',
     lastUpdatedBy: profileUpdatedByUserName ?? 'Unknown User',
+    hasEmploymentChanged,
   };
 }
 
@@ -274,6 +278,21 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
   if (actionData && alertRef.current) {
     alertRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
+
+  const [searchParams] = useSearchParams();
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const [hasEmploymentChanged, setHasEmploymentChanged] = useState(loaderData.hasEmploymentChanged);
+
+  // Clean the URL after reading the param
+  useEffect(() => {
+    if (searchParams.get('edited') === 'true') {
+      setHasEmploymentChanged(true);
+      const newUrl = location.pathname;
+      void navigate(newUrl, { replace: true });
+    }
+  }, [searchParams, location.pathname, navigate]);
 
   return (
     <div className="space-y-8">
@@ -317,6 +336,8 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
           message={loaderData.isProfileComplete ? t('app:profile.profile-submitted') : t('app:profile.profile-incomplete')}
         />
       )}
+
+      {hasEmploymentChanged && <AlertMessage ref={alertRef} type="info" message={t('app:profile.profile-pending-approval')} />}
 
       {loaderData.profileStatus.code === PROFILE_STATUS_CODE.incomplete && (
         <Progress
