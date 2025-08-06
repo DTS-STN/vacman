@@ -5,7 +5,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useTranslation } from 'react-i18next';
 
 import { DropdownMenu, DropdownMenuContent, DropdownMenuLabel, DropdownMenuTrigger } from '~/components/dropdown-menu';
-
 import { cn } from '~/utils/tailwind-utils';
 
 type AppBarProps = {
@@ -94,4 +93,3 @@ function AppTitle({ title }: AppTitleProps): JSX.Element {
     </>
   );
 }
-

@@ -51,7 +51,9 @@ export default function Layout({ loaderData }: Route.ComponentProps) {
   const { id: pageId } = useRoute();
 
   const { BUILD_DATE, BUILD_VERSION } = globalThis.__appEnvironment;
-  {console.log('routes=', t('app:index.dashboard'), ' navigate=', t('app:index.navigate') )}
+  {
+    console.log('routes=', t('app:index.dashboard'), ' navigate=', t('app:index.navigate'));
+  }
   return (
     <div className="flex min-h-screen flex-col">
       <header className="print:hidden">
@@ -74,8 +76,7 @@ export default function Layout({ loaderData }: Route.ComponentProps) {
         <AppBar
           name={loaderData.name?.toString()}
           profileItems={<MenuItem file="routes/employee/index.tsx">{t('app:index.dashboard')}</MenuItem>}
-        >
-        </AppBar>
+        ></AppBar>
       </header>
 
       <main className="flex-grow">
