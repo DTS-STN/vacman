@@ -1,7 +1,6 @@
 import type { RouteHandle, LoaderFunctionArgs, ActionFunctionArgs, MetaFunction } from 'react-router';
 import { Form } from 'react-router';
 
-import { getUserService } from '~/.server/domain/services/user-service';
 import { createUserProfile } from '~/.server/utils/profile-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { Button } from '~/components/button';
@@ -18,21 +17,12 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
 };
 
 export async function action({ context, request }: ActionFunctionArgs) {
-  const userService = getUserService();
   const activeDirectoryId = context.session.authState.idTokenClaims.oid;
 
-  // TODO call registerCurrentUser with correct {user: UserCreate} arguments that the backend expects
-  await userService.registerCurrentUser(
-    {
-      activeDirectoryId,
-      role: 'employee',
-    },
-    context.session,
-  );
-  await createUserProfile(activeDirectoryId);
+  // TODO move profile creation to /employee/index after user creation then use profileService.updateProfile (needs to be created first) to indicate the consent in true
+  const profile = await createUserProfile(activeDirectoryId);
 
-  // TODO the id should be revised and corrected (as in should this be the profileId?)
-  return i18nRedirect('routes/employee/index.tsx', request, { params: { id: activeDirectoryId } });
+  return i18nRedirect('routes/employee/index.tsx', request, { params: { id: profile.profileId.toString() } });
 }
 
 export async function loader({ context, request }: LoaderFunctionArgs) {

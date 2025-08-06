@@ -74,6 +74,7 @@ describe('getMockUserService', () => {
     it('should create a new user with generated metadata', async () => {
       const userData = {
         role: 'employee',
+        languageId: 1,
       };
 
       // Create a mock session for testing

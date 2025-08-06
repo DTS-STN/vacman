@@ -4,14 +4,13 @@
 import type { AppLoadContext } from 'react-router';
 import { redirect } from 'react-router';
 
-import { None } from 'oxide.ts';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 import { getProfileService } from '~/.server/domain/services/profile-service';
 import { getUserService } from '~/.server/domain/services/user-service';
 import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
 import { requirePrivacyConsent } from '~/.server/utils/privacy-consent-utils';
-import { safeGetUserProfile } from '~/.server/utils/profile-utils';
+import { createUserProfile, safeGetUserProfile } from '~/.server/utils/profile-utils';
 import { action as privacyAction, loader as privacyLoader } from '~/routes/employee/profile/privacy-consent';
 
 // Type definitions for test compatibility
@@ -146,7 +145,47 @@ describe('Privacy Consent Flow', () => {
     // Default: user is not registered
     mockUserService.getUserByActiveDirectoryId.mockResolvedValue(null);
     // Default: no profile exists
-    mockProfileService.getProfile.mockResolvedValue(None);
+    mockProfileService.getProfile.mockResolvedValue(null);
+    // Mock createUserProfile to return a profile with profileId
+    vi.mocked(createUserProfile).mockResolvedValue({
+      profileId: 1,
+      userId: 1,
+      profileStatusId: 1,
+      privacyConsentInd: true,
+      userCreated: 'system',
+      dateCreated: new Date().toISOString(),
+      personalInformation: {
+        surname: 'Doe',
+        givenName: 'John',
+        personalRecordIdentifier: '123456789',
+        preferredLanguageId: undefined,
+        workEmail: 'work.email@example.ca',
+        personalEmail: 'personal.email@example.com',
+        workPhone: undefined,
+        personalPhone: '613-938-0001',
+        additionalInformation: 'Looking for opportunities in software development.',
+      },
+      employmentInformation: {
+        substantivePosition: undefined,
+        branchOrServiceCanadaRegion: undefined,
+        directorate: undefined,
+        province: undefined,
+        cityId: undefined,
+        wfaStatus: undefined,
+        wfaEffectiveDate: undefined,
+        wfaEndDate: undefined,
+        hrAdvisor: undefined,
+      },
+      referralPreferences: {
+        languageReferralTypeIds: [864190000],
+        classificationIds: [905190000, 905190001],
+        workLocationProvince: 1,
+        workLocationCitiesIds: [411290001, 411290002],
+        availableForReferralInd: true,
+        interestedInAlternationInd: false,
+        employmentTenureIds: [664190000, 664190001, 664190003],
+      },
+    });
     // Default: safeGetUserProfile returns null
     mockSafeGetUserProfile.mockResolvedValue(null);
   });
@@ -164,15 +203,6 @@ describe('Privacy Consent Flow', () => {
       expect(response).toBeInstanceOf(Response);
       expect(response.status).toBe(302);
       expect(response.headers.get('Location')).toBe('/en/employee');
-
-      // Verify user was registered with privacy consent
-      expect(mockUserService.registerCurrentUser).toHaveBeenCalledWith(
-        {
-          activeDirectoryId: 'test-employee-123',
-          role: 'employee',
-        },
-        expect.any(Object),
-      );
     });
 
     it('should redirect back to index for missing action', async () => {
@@ -187,7 +217,6 @@ describe('Privacy Consent Flow', () => {
       expect(response).toBeInstanceOf(Response);
       expect(response.status).toBe(302);
       expect(response.headers.get('Location')).toBe('/en/employee');
-      expect(mockUserService.registerCurrentUser).toHaveBeenCalled();
     });
 
     it('should handle missing employee name gracefully', async () => {
@@ -201,15 +230,6 @@ describe('Privacy Consent Flow', () => {
 
       expect(response).toBeInstanceOf(Response);
       expect(response.status).toBe(302);
-
-      // Verify user was registered with fallback name
-      expect(mockUserService.registerCurrentUser).toHaveBeenCalledWith(
-        {
-          activeDirectoryId: 'test-employee-123',
-          role: 'employee',
-        },
-        expect.any(Object),
-      );
     });
 
     it('should ensure profile exists for existing user after accepting privacy consent', async () => {
@@ -236,10 +256,6 @@ describe('Privacy Consent Flow', () => {
       expect(response).toBeInstanceOf(Response);
       expect(response.status).toBe(302);
       expect(response.headers.get('Location')).toBe('/en/employee');
-
-      // Verify user was not registered again since they already exist
-      expect(mockUserService.registerCurrentUser).toHaveBeenCalled();
-      // The ensureUserProfile function would be called but we're not mocking profile services here
     });
 
     it('should load privacy consent page successfully', async () => {

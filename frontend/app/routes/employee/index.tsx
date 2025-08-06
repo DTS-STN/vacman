@@ -17,6 +17,7 @@ import { Card, CardHeader, CardIcon, CardTitle } from '~/components/card';
 import { PageTitle } from '~/components/page-title';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
+import { getLanguage } from '~/utils/i18n-utils';
 
 export const handle = {
   i18nNamespace: [...parentHandle.i18nNamespace],
@@ -51,8 +52,11 @@ export async function loader({ context, request }: LoaderFunctionArgs) {
       const currentUser = await getUserService().getCurrentUser(authenticatedSession);
       authenticatedSession.currentUser = currentUser;
     } catch {
-      // TODO registerCurrentUser '{user: CreateUser}' argument needs to be updated to match the backend
-      const currentUser = await getUserService().registerCurrentUser({ role: 'employee' }, authenticatedSession);
+      const lang = getLanguage(request);
+      // TODO congifure the IDs or do a lookup with one of our services (provided our service returns the correct ID)
+      // This assumes the IDs in the DB are autoincrementing starting at 1 (look at data.sql)
+      const languageId = lang === 'en' ? 1 : 2;
+      const currentUser = await getUserService().registerCurrentUser({ languageId }, authenticatedSession);
       authenticatedSession.currentUser = currentUser;
     }
   }
