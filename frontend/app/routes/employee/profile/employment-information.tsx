@@ -57,13 +57,31 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     hasEmploymentDataChanged(currentProfile.employmentInformation, parseResult.output)
   ) {
     // profile needs to be re-approved if and only if the current profile status is 'approved'
-    await profileService.submitProfileForReview(currentUserId);
+    const profileService = getProfileService();
+    const currentProfileOption = await profileService.getProfile(currentUserId);
+    const currentProfile = currentProfileOption.unwrap();
+    const updateResult = await profileService.updateEmploymentInformation(currentUserId, parseResult.output);
+    if (updateResult.isErr()) {
+      throw updateResult.unwrapErr();
+    }
+
+    if (
+      currentProfile.profileStatusId === PROFILE_STATUS_ID.approved &&
+      hasEmploymentDataChanged(currentProfile.employmentInformation, parseResult.output)
+    ) {
+      // profile needs to be re-approved if and only if the current profile status is 'approved'
+      await profileService.submitProfileForReview(currentUserId);
+
+      return i18nRedirect('routes/employee/profile/index.tsx', request, {
+        params: { id: currentUserId },
+        search: new URLSearchParams({
+          edited: 'true',
+        }),
+      });
+    }
 
     return i18nRedirect('routes/employee/profile/index.tsx', request, {
       params: { id: currentUserId },
-      search: new URLSearchParams({
-        edited: 'true',
-      }),
     });
   }
 
