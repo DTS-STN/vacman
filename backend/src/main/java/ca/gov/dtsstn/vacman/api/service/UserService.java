@@ -15,6 +15,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import ca.gov.dtsstn.vacman.api.constants.AppConstants;
+
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntityBuilder;
 import ca.gov.dtsstn.vacman.api.data.repository.UserRepository;
@@ -52,7 +54,7 @@ public class UserService {
 
 		// Set user type based on role (validation ensures it exists)
 		user.setUserType(codeService.getUserTypes(Pageable.unpaged()).stream()
-			.filter(byCode("employee"))
+			.filter(byCode(AppConstants.UserType.EMPLOYEE))
 			.findFirst().orElseThrow());
 
 		// Save the user (profiles are created separately as needed)

@@ -2,6 +2,8 @@ package ca.gov.dtsstn.vacman.api.web;
 
 import java.util.List;
 
+import ca.gov.dtsstn.vacman.api.constants.AppConstants;
+
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.validator.constraints.Range;
 import org.mapstruct.factory.Mappers;
@@ -40,7 +42,7 @@ import jakarta.validation.Valid;
 
 @RestController
 @Tag(name = "Users")
-@RequestMapping({ "/api/v1/users" })
+@RequestMapping({ AppConstants.ApiPaths.USERS })
 public class UsersController {
 
 	private static final Logger log = LoggerFactory.getLogger(UsersController.class);
