@@ -72,6 +72,7 @@ const mockProfileService = {
   updateEmploymentInformation: vi.fn(),
   updateReferralPreferences: vi.fn(),
   submitProfileForReview: vi.fn(),
+  approveProfile: vi.fn(),
   getAllProfiles: vi.fn(),
 };
 
