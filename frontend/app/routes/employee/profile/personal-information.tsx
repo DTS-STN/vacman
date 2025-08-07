@@ -10,7 +10,7 @@ import type { Profile } from '~/.server/domain/models';
 import { getLanguageForCorrespondenceService } from '~/.server/domain/services/language-for-correspondence-service';
 import { getProfileService } from '~/.server/domain/services/profile-service';
 import { getUserService } from '~/.server/domain/services/user-service';
-import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
+import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { InlineLink } from '~/components/links';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
@@ -30,8 +30,11 @@ export function meta({ data }: Route.MetaArgs) {
 }
 
 export async function action({ context, params, request }: Route.ActionArgs) {
+  const currentUrl = new URL(request.url);
+  requireAuthentication(context.session, currentUrl);
+
   // Get the current user's ID from the authenticated session
-  const authenticatedSession = context.session as AuthenticatedSession;
+  const authenticatedSession = context.session;
   const currentUserId = authenticatedSession.authState.idTokenClaims.oid as string;
   const formData = await request.formData();
   const parseResult = v.safeParse(personalInformationSchema, {
@@ -56,9 +59,14 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   const profileService = getProfileService();
   const currentProfileOption = await profileService.getProfile(currentUserId);
   const currentProfile = currentProfileOption.unwrap();
-  const updateResult = await profileService.updateProfile(authenticatedSession, currentProfile.profileId.toString(), {
-    personalInformation: parseResult.output,
-  });
+  const updateResult = await profileService.updateProfile(
+    authenticatedSession.authState.accessToken,
+    currentProfile.profileId.toString(),
+    currentUserId,
+    {
+      personalInformation: parseResult.output,
+    },
+  );
 
   if (updateResult.isErr()) {
     throw updateResult.unwrapErr();

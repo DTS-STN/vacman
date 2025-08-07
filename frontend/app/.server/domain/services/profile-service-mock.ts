@@ -3,7 +3,6 @@ import type { Result } from 'oxide.ts';
 
 import type { Profile, ProfileFormData } from '~/.server/domain/models';
 import type { ProfileService } from '~/.server/domain/services/profile-service';
-import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
 import { PROFILE_STATUS_ID } from '~/domain/constants';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
@@ -18,14 +17,12 @@ export function getMockProfileService(): ProfileService {
       return Promise.resolve(registerProfile(activeDirectoryId));
     },
     updateProfile: (
-      session: AuthenticatedSession,
+      accessToken: string,
       profileId: string,
+      userUpdated: string,
       data: ProfileFormData,
     ): Promise<Result<void, AppError>> => {
-      const activeDirectoryId = session.authState.idTokenClaims.oid as string;
-      const userId = activeDirectoryToUserIdMap[activeDirectoryId];
-
-      if (!userId) {
+      if (!mockProfiles.find((p) => p.profileId.toString() === profileId)) {
         return Promise.resolve(Err(new AppError('Profile not found', ErrorCodes.PROFILE_NOT_FOUND)));
       }
 
@@ -35,7 +32,7 @@ export function getMockProfileService(): ProfileService {
               ...profile,
               ...data,
               dateUpdated: new Date().toISOString(),
-              userUpdated: activeDirectoryId,
+              userUpdated,
             }
           : profile,
       );

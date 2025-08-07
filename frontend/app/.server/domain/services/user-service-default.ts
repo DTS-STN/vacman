@@ -1,3 +1,4 @@
+import type { IDTokenClaims } from '~/.server/auth/auth-strategies';
 import type { User, UserCreate } from '~/.server/domain/models';
 import type { UserService } from '~/.server/domain/services/user-service';
 import { serverEnvironment } from '~/.server/environment';
@@ -100,10 +101,10 @@ export function getDefaultUserService(): UserService {
       return await response.json();
     },
 
-    async getCurrentUser(session: AuthenticatedSession): Promise<User> {
+    async getCurrentUser(accessToken: string): Promise<User> {
       const response = await fetch(`${serverEnvironment.VACMAN_API_BASE_URI}/users/me`, {
         headers: {
-          Authorization: `Bearer ${session.authState.accessToken}`,
+          Authorization: `Bearer ${accessToken}`,
         },
       });
 
@@ -115,12 +116,12 @@ export function getDefaultUserService(): UserService {
       return await response.json();
     },
 
-    async registerCurrentUser(user: UserCreate, session: AuthenticatedSession): Promise<User> {
+    async registerCurrentUser(user: UserCreate, accessToken: string, idTokenClaims: IDTokenClaims): Promise<User> {
       const response = await fetch(`${serverEnvironment.VACMAN_API_BASE_URI}/users/me`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.authState.accessToken}`,
+          'Authorization': `Bearer ${accessToken}`,
         },
         body: JSON.stringify(user),
       });

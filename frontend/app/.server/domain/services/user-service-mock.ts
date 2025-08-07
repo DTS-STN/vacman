@@ -1,3 +1,4 @@
+import type { IDTokenClaims } from '~/.server/auth/auth-strategies';
 import type { User, UserCreate } from '~/.server/domain/models';
 import type { UserService } from '~/.server/domain/services/user-service';
 import { serverEnvironment } from '~/.server/environment';
@@ -35,7 +36,7 @@ export function getMockUserService(): UserService {
         return Promise.reject(error);
       }
     },
-    getCurrentUser: (session: AuthenticatedSession): Promise<User> => {
+    getCurrentUser: (accessToken: string): Promise<User> => {
       try {
         const user = mockUsers[0];
         if (!user) return Promise.reject(new Error('No mock users available'));
@@ -44,9 +45,9 @@ export function getMockUserService(): UserService {
         return Promise.reject(error);
       }
     },
-    registerCurrentUser: (user: UserCreate, session: AuthenticatedSession): Promise<User> => {
+    registerCurrentUser: (user: UserCreate, accessToken: string, idTokenClaims: IDTokenClaims): Promise<User> => {
       try {
-        return Promise.resolve(registerCurrentUser(user, session));
+        return Promise.resolve(registerCurrentUser(user, accessToken, idTokenClaims));
       } catch (error) {
         return Promise.reject(error);
       }
@@ -189,10 +190,7 @@ function getUserByActiveDirectoryId(activeDirectoryId: string): User | null {
  * @param session The authenticated session.
  * @returns The created user object with generated metadata.
  */
-function registerCurrentUser(userData: UserCreate, session: AuthenticatedSession): User {
-  // Extract user information from session tokens
-  const idTokenClaims = session.authState.idTokenClaims;
-
+function registerCurrentUser(userData: UserCreate, accessToken: string, idTokenClaims: IDTokenClaims): User {
   // Parse the name field to extract first and last name
   const fullName = idTokenClaims.name ?? '';
   const nameParts = fullName.trim().split(/\s+/);

@@ -1,3 +1,4 @@
+import type { IDTokenClaims } from '~/.server/auth/auth-strategies';
 import type { User, UserCreate } from '~/.server/domain/models';
 import { getDefaultUserService } from '~/.server/domain/services/user-service-default';
 import { getMockUserService } from '~/.server/domain/services/user-service-mock';
@@ -9,8 +10,8 @@ export type UserService = {
   getUserById(id: number): Promise<User>;
   getUserByActiveDirectoryId(activeDirectoryId: string): Promise<User | null>;
   updateUserRole(activeDirectoryId: string, newRole: string, session: AuthenticatedSession): Promise<User>;
-  getCurrentUser(session: AuthenticatedSession): Promise<User>;
-  registerCurrentUser(user: UserCreate, session: AuthenticatedSession): Promise<User>;
+  getCurrentUser(accessToken: string): Promise<User>;
+  registerCurrentUser(user: UserCreate, accessToken: string, idTokenClaims: IDTokenClaims): Promise<User>;
 };
 
 export function getUserService(): UserService {

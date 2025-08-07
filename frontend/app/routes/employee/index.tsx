@@ -46,25 +46,27 @@ export async function action({ context, request }: ActionFunctionArgs) {
 }
 
 export async function loader({ context, request }: LoaderFunctionArgs) {
+  const currentUrl = new URL(request.url);
+  requireAuthentication(context.session, currentUrl);
+
   const authenticatedSession = context.session as AuthenticatedSession;
   if (!authenticatedSession.currentUser) {
     try {
-      const currentUser = await getUserService().getCurrentUser(authenticatedSession);
+      const currentUser = await getUserService().getCurrentUser(authenticatedSession.authState.accessToken);
       authenticatedSession.currentUser = currentUser;
     } catch {
       const lang = getLanguage(request);
       // TODO congifure the IDs or do a lookup with one of our services (provided our service returns the correct ID)
       // This assumes the IDs in the DB are autoincrementing starting at 1 (look at data.sql)
       const languageId = lang === 'en' ? 1 : 2;
-      const currentUser = await getUserService().registerCurrentUser({ languageId }, authenticatedSession);
+      const currentUser = await getUserService().registerCurrentUser(
+        { languageId },
+        authenticatedSession.authState.accessToken,
+        authenticatedSession.authState.idTokenClaims,
+      );
       authenticatedSession.currentUser = currentUser;
     }
   }
-
-  const currentUrl = new URL(request.url);
-
-  // First ensure the user is authenticated (no specific roles required)
-  requireAuthentication(context.session, currentUrl);
 
   const { t } = await getTranslation(request, handle.i18nNamespace);
   return { documentTitle: t('app:index.employee-dashboard') };
