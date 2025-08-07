@@ -3,7 +3,6 @@ import { Form } from 'react-router';
 
 import type { Profile } from '~/.server/domain/models';
 import { getProfileService } from '~/.server/domain/services/profile-service';
-import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
 import { createUserProfile } from '~/.server/utils/profile-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { Button } from '~/components/button';
@@ -20,6 +19,9 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
 };
 
 export async function action({ context, request }: ActionFunctionArgs) {
+  const authenticatedSession = context.session;
+  const currentUserId = authenticatedSession.authState.idTokenClaims.oid;
+
   const activeDirectoryId = context.session.authState.idTokenClaims.oid;
 
   // TODO move profile creation to /employee/index after user creation then use profileService.updateProfile (needs to be created first) to indicate the consent in true
@@ -33,8 +35,9 @@ export async function action({ context, request }: ActionFunctionArgs) {
   };
 
   await profileService.updateProfile(
-    context.session as AuthenticatedSession,
+    authenticatedSession.authState.accessToken,
     profile.profileId.toString(),
+    currentUserId,
     updatePrivacyConsent,
   );
 
