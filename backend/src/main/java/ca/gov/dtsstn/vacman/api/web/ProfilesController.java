@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Collection;
 import java.util.function.Function;
 
 @RestController
@@ -97,5 +98,24 @@ public class ProfilesController {
                         .map(mapper);
 
        return ResponseEntity.ok(new PagedModel<>(profiles));
+    }
+
+    @GetMapping(path = "/me")
+    @SecurityRequirement(name = SpringDocConfig.AZURE_AD)
+    @Operation(summary = "Retrieve the profiles associated with the authenticated user with optional filters on active profiles, inactive profiles, and HR advisor association.")
+    public ResponseEntity<Collection<ProfileReadModel>> getProfileMe(
+            @RequestParam(name = "active", required = false)
+            @Parameter(name = "active", description = "Return only active or inactive profiles")
+            Boolean isActive
+    ) {
+        var entraId = SecurityUtils.getCurrentUserEntraId()
+                .orElseThrow(() -> new UnauthorizedException("Could not extract 'oid' claim from JWT token"));
+
+        final var profiles = profileService.getProfilesByEntraId(entraId, isActive)
+                .stream()
+                .map(profileModelMapper::toModelNoUserData)
+                .toList();
+
+        return ResponseEntity.ok(profiles);
     }
 }

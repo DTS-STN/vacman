@@ -79,6 +79,7 @@ public class WebSecurityConfig {
 				// TODO ::: GjB ::: figure out specific roles and permissions
 				.requestMatchers("/api/*/users/me").authenticated()
 				.requestMatchers("/api/*/profiles").authenticated()
+				.requestMatchers("/api/*/profiles/*").authenticated()
 //				.requestMatchers("/api/**").hasAuthority("SCOPE_employee")
 				.anyRequest().denyAll());
 
