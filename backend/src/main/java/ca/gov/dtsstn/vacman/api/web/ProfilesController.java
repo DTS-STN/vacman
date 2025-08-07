@@ -5,7 +5,6 @@ import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
 import ca.gov.dtsstn.vacman.api.security.SecurityUtils;
 import ca.gov.dtsstn.vacman.api.service.ProfileService;
 import ca.gov.dtsstn.vacman.api.service.UserService;
-import ca.gov.dtsstn.vacman.api.web.exception.ResourceConflictException;
 import ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException;
 import ca.gov.dtsstn.vacman.api.web.exception.UnauthorizedException;
 import ca.gov.dtsstn.vacman.api.web.model.ProfileReadModel;
@@ -142,7 +141,7 @@ public class ProfilesController {
                 .orElseThrow(() -> new UnauthorizedException(OID_NOT_FOUND_MESSAGE));
 
         var user = userService.getUserByMicrosoftEntraId(microsoftEntraId)
-                .orElseThrow(() ->  new ResourceConflictException("A user with microsoftEntraId=[" + microsoftEntraId + "] does not exist"));
+                .orElseThrow(() ->  new ResourceNotFoundException("A user with microsoftEntraId=[" + microsoftEntraId + "] does not exist"));
 
         var foundProfile = user.getProfiles().stream()
                 .filter(p -> p.getId().equals(profileId))
