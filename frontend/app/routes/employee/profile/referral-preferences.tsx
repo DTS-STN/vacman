@@ -58,7 +58,12 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     );
   }
 
-  const updateResult = await getProfileService().updateReferralPreferences(currentUserId, parseResult.output);
+  const profileService = getProfileService();
+  const currentProfileOption = await profileService.getProfile(currentUserId);
+  const currentProfile = currentProfileOption.unwrap();
+  const updateResult = await profileService.updateProfile(authenticatedSession, currentProfile.profileId.toString(), {
+    referralPreferences: parseResult.output,
+  });
 
   if (updateResult.isErr()) {
     throw updateResult.unwrapErr();

@@ -16,7 +16,7 @@ import { getProvinceService } from '~/.server/domain/services/province-service';
 import { getUserService } from '~/.server/domain/services/user-service';
 import { getWFAStatuses } from '~/.server/domain/services/wfa-status-service';
 import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
-import { hasEmploymentDataChanged } from '~/.server/utils/profile-utils';
+import { hasEmploymentDataChanged, omitObjectProperties } from '~/.server/utils/profile-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { InlineLink } from '~/components/links';
 import { PROFILE_STATUS_ID } from '~/domain/constants';
@@ -50,7 +50,16 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   const profileService = getProfileService();
   const currentProfileOption = await profileService.getProfile(currentUserId);
   const currentProfile = currentProfileOption.unwrap();
-  const updateResult = await profileService.updateEmploymentInformation(currentUserId, parseResult.output);
+  const updateResult = await profileService.updateProfile(authenticatedSession, currentProfile.profileId.toString(), {
+    employmentInformation: omitObjectProperties(parseResult.output, [
+      'wfaEffectiveDateYear',
+      'wfaEffectiveDateMonth',
+      'wfaEffectiveDateDay',
+      'wfaEndDateYear',
+      'wfaEndDateMonth',
+      'wfaEndDateDay',
+    ]),
+  });
   if (updateResult.isErr()) {
     throw updateResult.unwrapErr();
   }
