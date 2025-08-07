@@ -8,6 +8,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuLabel, DropdownMenuTrigg
 import { cn } from '~/utils/tailwind-utils';
 
 type AppBarProps = {
+  children?: React.ReactNode;
   name?: string;
   profileItems?: React.ReactNode;
 };
