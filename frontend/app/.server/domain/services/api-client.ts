@@ -6,6 +6,10 @@ import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
 import type { HttpStatusCode } from '~/errors/http-status-codes';
 
+type baseFetchOptions = {
+  accessToken?: string;
+  body?: BodyInit;
+};
 /**
  * Centralized API request logic.
  * Performs the raw fetch and handles network/HTTP status errors.
@@ -19,8 +23,7 @@ async function baseFetch(
   path: string,
   context: string,
   method: string,
-  token?: string,
-  jsonBody?: string,
+  options?: baseFetchOptions,
 ): Promise<Result<Response, AppError>> {
   try {
     const cleanBase = serverEnvironment.VACMAN_API_BASE_URI.endsWith('/')
@@ -33,10 +36,10 @@ async function baseFetch(
     const response = await fetch(finalUrl, {
       method: method,
       headers: {
-        'Authorization': token ? `Bearer ${token}` : '',
+        'Authorization': options?.accessToken ? `Bearer ${options.accessToken}` : '',
         'Content-Type': 'application/json',
       },
-      body: jsonBody ?? undefined,
+      body: options?.body ?? undefined,
     });
 
     if (!response.ok) {
@@ -70,7 +73,7 @@ export const apiClient = {
    * @returns {Promise<Result<TResponseData, AppError>>} A Promise resolving to a Result containing the typed response data or an AppError.
    */
   async get<TResponseData>(path: string, context: string, token?: string): Promise<Result<TResponseData, AppError>> {
-    const responseResult = await baseFetch(path, context, 'GET', token);
+    const responseResult = await baseFetch(path, context, 'GET', { accessToken: token });
     if (responseResult.isErr()) {
       return responseResult;
     }
@@ -105,7 +108,7 @@ export const apiClient = {
     data: TRequestData,
     token?: string,
   ): Promise<Result<TResponseData, AppError>> {
-    const responseResult = await baseFetch(path, context, 'POST', token, JSON.stringify(data));
+    const responseResult = await baseFetch(path, context, 'POST', { accessToken: token, body: JSON.stringify(data) });
     if (responseResult.isErr()) {
       return responseResult;
     }
@@ -140,7 +143,7 @@ export const apiClient = {
     data: TRequestData,
     token?: string,
   ): Promise<Result<TResponseData, AppError>> {
-    const responseResult = await baseFetch(path, context, 'PUT', token, JSON.stringify(data));
+    const responseResult = await baseFetch(path, context, 'PUT', { accessToken: token, body: JSON.stringify(data) });
     if (responseResult.isErr()) {
       return responseResult;
     }
@@ -176,7 +179,7 @@ export const apiClient = {
     token?: string,
   ): Promise<Result<TResponseData, AppError>> {
     const jsonBody = data ? JSON.stringify(data) : undefined;
-    const responseResult = await baseFetch(path, context, 'DELETE', token, jsonBody);
+    const responseResult = await baseFetch(path, context, 'DELETE', { accessToken: token, body: jsonBody });
     if (responseResult.isErr()) {
       return responseResult;
     }
