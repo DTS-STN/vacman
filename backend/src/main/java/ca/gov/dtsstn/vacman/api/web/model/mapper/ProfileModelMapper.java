@@ -15,4 +15,8 @@ public interface ProfileModelMapper {
     @Mapping(source = "hrAdvisor.id", target = "hrAdvisorId")
     ProfileReadModel toModel(ProfileEntity entity);
 
+    @Mapping(source = "user.id", target = "userId")
+    @Mapping(source = "hrAdvisor.id", target = "hrAdvisorId")
+    ProfileReadModel toModelNoUserData(ProfileEntity entity);
+
 }

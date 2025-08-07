@@ -301,17 +301,24 @@ VALUES
     ('SECONDMENT', 'Secondment', 'Détachement', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
     ('INTERCHANGE', 'Interchange', 'Échange', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
 
--- Max needs a dummy user and profile
+-- Max needs some dummy users and profiles
 INSERT INTO [USER] ([USER_ID], [BUSINESS_EMAIL_ADDRESS], [BUSINESS_PHONE_NUMBER], [FIRST_NAME], [INITIAL], [LANGUAGE_ID],
  [LAST_NAME], [MS_ENTRA_ID], [MIDDLE_NAME], [PERSONAL_RECORD_IDENTIFIER], [USER_TYPE_ID], [USER_CREATED], [DATE_CREATED])
 VALUES
     ('400000000', 'the-worm-who-is-god@godemperorofdune.arakis', '1021913728', 'Leto II', null, '1', 'Atriedes',
      'f38b7d5e-f49f-4abc-ad2c-695e4494e4ee', null, '2', '1', 'system', CURRENT_TIMESTAMP);
 
+INSERT INTO [USER] ([USER_ID], [BUSINESS_EMAIL_ADDRESS], [BUSINESS_PHONE_NUMBER], [FIRST_NAME], [INITIAL], [LANGUAGE_ID],
+ [LAST_NAME], [MS_ENTRA_ID], [MIDDLE_NAME], [PERSONAL_RECORD_IDENTIFIER], [USER_TYPE_ID], [USER_CREATED], [DATE_CREATED])
+VALUES
+    ('840', 'maxwell.haley@hrsdc-rhdcc.gc.ca', '18196434806', 'Maxwell', 'R', '1', 'Haley',
+     '04cce928-acc3-491f-805e-2a82e540e2f8', 'Read', '4', '4', 'system', CURRENT_TIMESTAMP);
+
+
 INSERT INTO [PROFILE] ([USER_ID], [USER_ID_HR_ADVISOR], [WFA_STATUS_ID], [CLASSIFICATION_ID], [PRIORITY_LEVEL_ID],
  [WORK_UNIT_ID], [LANGUAGE_ID], [PROFILE_STATUS_ID], [PERSONAL_PHONE_NUMBER], [PERSONAL_EMAIL_ADDRESS],
  [PRIVACY_CONSENT_IND], [AVAILABLE_FOR_REFERRAL_IND], [INTERESTED_IN_ALTERNATION_IND], [ADDITIONAL_COMMENT],
  [USER_CREATED], [DATE_CREATED])
 VALUES
-    ('400000000', '400000000', 1, 1, 1, 1, 1, 1, '5551113333', 'noah-arkwright@godemperorofdune.arakis', true, true,
+    ('400000000', '840', 1, 1, 1, 1, 1, 1, '5551113333', 'noah-arkwright@godemperorofdune.arakis', true, true,
      true, 'A giant worm God.', 'system', CURRENT_TIMESTAMP);
