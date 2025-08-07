@@ -1,7 +1,7 @@
 import { Err, None, Ok, Some } from 'oxide.ts';
 import type { Option, Result } from 'oxide.ts';
 
-import type { Profile, ProfileFormData } from '~/.server/domain/models';
+import type { Profile } from '~/.server/domain/models';
 import type { ProfileService } from '~/.server/domain/services/profile-service';
 import { serverEnvironment } from '~/.server/environment';
 import { AppError } from '~/errors/app-error';
@@ -106,13 +106,14 @@ export function getDefaultProfileService(): ProfileService {
       accessToken: string,
       profileId: string,
       userUpdated: string,
-      data: ProfileFormData,
+      data: Profile,
     ): Promise<Result<void, AppError>> {
       try {
         const response = await fetch(`${serverEnvironment.VACMAN_API_BASE_URI}/profiles/${profileId}`, {
           method: 'PUT',
           headers: {
-            Authorization: `Bearer ${accessToken}`,
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
           },
           body: JSON.stringify(data),
         });

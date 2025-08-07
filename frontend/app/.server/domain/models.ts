@@ -162,8 +162,3 @@ export type UserReferralPreferences = {
   interestedInAlternationInd?: boolean;
   employmentTenureIds?: number[];
 };
-
-export type ProfileFormData =
-  | { personalInformation: UserPersonalInformation }
-  | { employmentInformation: UserEmploymentInformation }
-  | { referralPreferences: UserReferralPreferences };

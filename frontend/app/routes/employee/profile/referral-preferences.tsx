@@ -69,6 +69,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     currentProfile.profileId.toString(),
     currentUserId,
     {
+      ...currentProfile,
       referralPreferences: parseResult.output,
     },
   );

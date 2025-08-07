@@ -58,6 +58,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     currentProfile.profileId.toString(),
     currentUserId,
     {
+      ...currentProfile,
       employmentInformation: omitObjectProperties(parseResult.output, [
         'wfaEffectiveDateYear',
         'wfaEffectiveDateMonth',
