@@ -81,7 +81,6 @@ export default {
     },
     'back': 'Back to employees',
     'view': 'View my profile',
-    'profile-completion-progress': 'Profile completion progress',
     'not-provided': 'Not provided',
     'last-updated': 'Last updated: {{date}} by {{name}}',
     'field-incomplete': 'Required fields incomplete',
