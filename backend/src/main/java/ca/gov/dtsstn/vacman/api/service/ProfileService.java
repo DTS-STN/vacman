@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -46,5 +47,18 @@ public class ProfileService {
                     ? profileRepository.findAll(pageRequest)
                     : profileRepository.findAllByHrAdvisorId(hrAdvisorId, pageRequest);
         }
+    }
+
+    /**
+     * Returns all profiles that are either "active" or "inactive" depending on the argument value & that
+     * have a matching Microsoft Entra ID.
+     * @param entraId The Microsoft Entra ID for filtering.
+     * @param isActive Filter return based on active status.
+     * @return A collection of profile entities.
+     */
+    public List<ProfileEntity> getProfilesByEntraId(String entraId, Boolean isActive) {
+        return (isActive != null)
+                ? profileRepository.findByUserMicrosoftEntraIdIsAndProfileStatusCodeIn(entraId, profileStatusSets.get(isActive))
+                : profileRepository.findAllByUserMicrosoftEntraId(entraId);
     }
 }
