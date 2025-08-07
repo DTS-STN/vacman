@@ -35,7 +35,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 
   // Get the current user's ID from the authenticated session
   const authenticatedSession = context.session;
-  const currentUserId = authenticatedSession.authState.idTokenClaims.oid as string;
+  const currentUserId = authenticatedSession.authState.idTokenClaims.oid;
   const formData = await request.formData();
   const parseResult = v.safeParse(personalInformationSchema, {
     surname: formString(formData.get('surname')),
