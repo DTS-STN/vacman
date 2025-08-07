@@ -1,4 +1,3 @@
-import type { JSX } from 'react';
 import { useEffect, useRef, useState } from 'react';
 
 import type { RouteHandle } from 'react-router';
@@ -28,6 +27,7 @@ import { ButtonLink } from '~/components/button-link';
 import { DescriptionList, DescriptionListItem } from '~/components/description-list';
 import { ProfileCard } from '~/components/profile-card';
 import { Progress } from '~/components/progress';
+import { StatusTag } from '~/components/status-tag';
 import { PROFILE_STATUS_CODE, EMPLOYEE_WFA_STATUS } from '~/domain/constants';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
@@ -301,7 +301,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
   return (
     <div className="space-y-8">
       <div className="space-y-4 py-8 text-white">
-        <StatusTag status={loaderData.profileStatus.name} />
+        <StatusTag status={{ code: loaderData.profileStatus.code, name: loaderData.profileStatus.name }} />
         <h1 className="mt-6 text-3xl font-semibold">{loaderData.name}</h1>
         {loaderData.email && <p className="mt-1">{loaderData.email}</p>}
         <p className="font-normal text-[#9FA3AD]">
@@ -512,13 +512,5 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
         </ProfileCard>
       </div>
     </div>
-  );
-}
-
-function StatusTag({ status }: { status: string }): JSX.Element {
-  return (
-    <span className="w-fit rounded-2xl border border-blue-400 bg-blue-100 px-3 py-0.5 text-sm font-semibold text-blue-800">
-      {status}
-    </span>
   );
 }

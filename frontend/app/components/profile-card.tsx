@@ -15,14 +15,14 @@ interface ProfileCardProps {
   title: string;
   linkLabel: string;
   file: I18nRouteFile;
-  isComplete: boolean;
-  isNew: boolean;
-  required: boolean;
+  isComplete?: boolean;
+  isNew?: boolean;
+  required?: boolean;
   children: ReactNode;
   params?: Params;
   errorState?: boolean;
   ref?: Ref<HTMLDivElement>;
-  showStatus: boolean;
+  showStatus?: boolean;
 }
 
 export function ProfileCard({
