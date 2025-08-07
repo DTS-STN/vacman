@@ -1,7 +1,6 @@
 import type { RouteHandle } from 'react-router';
 
 import { useTranslation } from 'react-i18next';
-import * as v from 'valibot';
 
 import type { Route } from './+types/referral-preferences';
 
@@ -27,7 +26,7 @@ export function meta({ data }: Route.MetaArgs) {
   return [{ title: data?.documentTitle }];
 }
 
-export async function action({ context, params, request }: Route.ActionArgs) {
+export function action({ context, params, request }: Route.ActionArgs) {
   // Get the current user's ID from the authenticated session
   const authenticatedSession = context.session as AuthenticatedSession;
   const currentUserId = authenticatedSession.authState.idTokenClaims.oid as string;
