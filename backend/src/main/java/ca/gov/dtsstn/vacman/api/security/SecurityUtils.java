@@ -22,6 +22,11 @@ public final class SecurityUtils {
 	 */
 	public static final String USER_ID_CLAIM = "oid";
 
+	/**
+	 * The name of the claim within the JWT that holds the user's roles.
+	 */
+	public static final String ROLE_CLAIM = "roles";
+
 	private SecurityUtils() { }
 
 	/**
@@ -46,6 +51,19 @@ public final class SecurityUtils {
 			.map(JwtAuthenticationToken.class::cast)
 			.map(JwtAuthenticationToken::getToken)
 			.map(jwt -> jwt.getClaimAsString(USER_ID_CLAIM));
+	}
+
+	/**
+	 * Checks the {@code roles} claim for the presence of the {@code hr-advisor} role.
+	 */
+	public static boolean hasHrAdvisorId() {
+		return getCurrentAuthentication()
+				.filter(JwtAuthenticationToken.class::isInstance)
+				.map(JwtAuthenticationToken.class::cast)
+				.map(JwtAuthenticationToken::getToken)
+				.map(jwt -> jwt.getClaimAsStringList(ROLE_CLAIM))
+				.filter(n -> n.stream().anyMatch(s -> s.equals("hr-advisor")))
+				.isPresent();
 	}
 
 	/**
