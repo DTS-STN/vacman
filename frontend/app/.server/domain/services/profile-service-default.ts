@@ -1,6 +1,8 @@
 import { Err, None, Ok, Some } from 'oxide.ts';
 import type { Option, Result } from 'oxide.ts';
 
+import { apiClient } from './api-client';
+
 import type { Profile } from '~/.server/domain/models';
 import { apiClient } from '~/.server/domain/services/api-client';
 import type { ProfileService } from '~/.server/domain/services/profile-service';
@@ -65,46 +67,19 @@ export function getDefaultProfileService(): ProfileService {
      * @throws AppError if the request fails or if the server responds with an error status.
      */
     async getProfileById(accessToken: string, profileId: string): Promise<Option<Profile>> {
-      let response: Response;
+      const response = await apiClient.get<Profile>(`/profiles/${profileId}`, 'fetch profile by ID', accessToken);
 
-      try {
-        response = await fetch(`${serverEnvironment.VACMAN_API_BASE_URI}/profiles/${profileId}`, {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${accessToken}`,
-            'Content-Type': 'application/json',
-          },
-        });
-      } catch (error) {
-        throw new AppError(
-          error instanceof Error ? error.message : `Network error while fetching profile for profile ID ${profileId}`,
-          ErrorCodes.PROFILE_NETWORK_ERROR,
-          { httpStatusCode: HttpStatusCodes.SERVICE_UNAVAILABLE },
-        );
+      if (response.isErr()) {
+        const error = response.unwrapErr();
+
+        if (error.errorCode === HttpStatusCodes.NOT_FOUND.toString()) {
+          return None;
+        }
+
+        throw new AppError(error.message, ErrorCodes.PROFILE_FETCH_FAILED);
       }
 
-      if (response.status === HttpStatusCodes.NOT_FOUND) {
-        return None;
-      }
-
-      if (!response.ok) {
-        throw new AppError(
-          `Failed to retrieve profile for profile ID ${profileId}. Server responded with status ${response.status}.`,
-          ErrorCodes.PROFILE_FETCH_FAILED,
-          { httpStatusCode: response.status as HttpStatusCode },
-        );
-      }
-
-      try {
-        const profile = await response.json();
-        return Some(profile);
-      } catch {
-        throw new AppError(
-          `Invalid JSON response while fetching profile for profile ID ${profileId}`,
-          ErrorCodes.PROFILE_INVALID_RESPONSE,
-          { httpStatusCode: HttpStatusCodes.BAD_GATEWAY },
-        );
-      }
+      return Some(response.unwrap());
     },
 
     /**
