@@ -45,29 +45,6 @@ export function getDefaultUserService(): UserService {
       return await response.json();
     },
 
-    /**
-     * Retrieves a user by their Active Directory ID.
-     * @param activeDirectoryId The Active Directory ID of the user to retrieve.
-     * @returns A promise that resolves to the user object, or null if not found.
-     * @throws AppError if the request fails or if the server responds with an error status.
-     */
-    async getUserByActiveDirectoryId(activeDirectoryId: string): Promise<User | null> {
-      const response = await fetch(
-        `${serverEnvironment.VACMAN_API_BASE_URI}/users/by-active-directory-id/${encodeURIComponent(activeDirectoryId)}`,
-      );
-
-      if (response.status === HttpStatusCodes.NOT_FOUND) {
-        return null;
-      }
-
-      if (!response.ok) {
-        const errorMessage = `Failed to retrieve user with Active Directory ID ${activeDirectoryId}. Server responded with status ${response.status}.`;
-        throw new AppError(errorMessage, ErrorCodes.VACMAN_API_ERROR);
-      }
-
-      return await response.json();
-    },
-
     async getCurrentUser(accessToken: string): Promise<User> {
       const response = await fetch(`${serverEnvironment.VACMAN_API_BASE_URI}/users/me`, {
         headers: {

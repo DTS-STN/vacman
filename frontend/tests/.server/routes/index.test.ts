@@ -57,7 +57,6 @@ vi.mock('~/.server/utils/route-utils', () => ({
 const mockUserService = {
   getUsersByRole: vi.fn(),
   getUserById: vi.fn(),
-  getUserByActiveDirectoryId: vi.fn(),
   updateUserRole: vi.fn(),
   getCurrentUser: vi.fn(),
   registerCurrentUser: vi.fn(),
@@ -115,7 +114,7 @@ describe('Index Dashboard Selection Flow', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     // Default: user is not registered
-    mockUserService.getUserByActiveDirectoryId.mockResolvedValue(null);
+    mockUserService.getCurrentUser.mockResolvedValue(null);
     // Default: no profile exists
     mockProfileService.getProfile.mockResolvedValue(None);
   });

@@ -61,14 +61,11 @@ export async function requireProfileAccess(
 
   // If not accessing own profile, check if requester has hiring-manager or hr-advisor role
   const userService = getUserService();
-  const requesterUser = await userService.getUserByActiveDirectoryId(requesterId);
+  // TODO the commented line doesn't make sense.  requesterId is pulled from the session, thus this is an alias for the currentUser?
+  // const requesterUser = await userService.getUserByActiveDirectoryId(requesterId);
 
-  if (!requesterUser) {
-    log.debug(`Requester not found: ${requesterId}`);
-    throw new AppError(`Requester not found in system: ${requesterId}`, ErrorCodes.ACCESS_FORBIDDEN, {
-      httpStatusCode: HttpStatusCodes.FORBIDDEN,
-    });
-  }
+  // TODO verify the logic aftet this line is correct or needed
+  const requesterUser = await userService.getCurrentUser(session.authState.accessToken);
 
   if (requesterUser.role === 'hiring-manager' || requesterUser.role === 'hr-advisor') {
     log.debug(`${requesterUser.role} access granted`);

@@ -18,7 +18,7 @@ import { getProfileService } from '~/.server/domain/services/profile-service';
 import { getProfileStatusService } from '~/.server/domain/services/profile-status-service';
 import { getUserService } from '~/.server/domain/services/user-service';
 import { getWFAStatuses } from '~/.server/domain/services/wfa-status-service';
-import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
+import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { requirePrivacyConsentForOwnProfile } from '~/.server/utils/privacy-consent-utils';
 import { countCompletedItems, omitObjectProperties } from '~/.server/utils/profile-utils';
 import { AlertMessage } from '~/components/alert-message';
@@ -42,11 +42,14 @@ export function meta({ data }: Route.MetaArgs) {
 }
 
 export async function action({ context, request }: Route.ActionArgs) {
+  const currentUrl = new URL(request.url);
+  requireAuthentication(context.session, currentUrl);
+
   // Get the current user's ID from the authenticated session
-  const authenticatedSession = context.session as AuthenticatedSession;
+  const authenticatedSession = context.session;
   const currentUserId = authenticatedSession.authState.idTokenClaims.oid;
 
-  const profileResult = await getProfileService().getProfile(currentUserId);
+  const profileResult = await getProfileService().getCurrentUserProfile(authenticatedSession.authState.accessToken);
   if (profileResult.isNone()) {
     return { status: 'profile-not-found' };
   }
@@ -105,11 +108,13 @@ export async function action({ context, request }: Route.ActionArgs) {
 }
 
 export async function loader({ context, request, params }: Route.LoaderArgs) {
+  const currentUrl = new URL(request.url);
+  requireAuthentication(context.session, currentUrl);
+
   // Use the id parameter from the URL to fetch the profile
   const profileUserId = params.id;
 
-  const currentUrl = new URL(request.url);
-  await requirePrivacyConsentForOwnProfile(context.session as AuthenticatedSession, profileUserId, currentUrl);
+  await requirePrivacyConsentForOwnProfile(context.session, profileUserId, currentUrl);
 
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
 
@@ -125,7 +130,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     allLocalizedEmploymentTenures,
     allWfaStatus,
   ] = await Promise.all([
-    getProfileService().getProfile(profileUserId),
+    getProfileService().getCurrentUserProfile(context.session.authState.accessToken),
     getLanguageReferralTypeService().listAllLocalized(lang),
     getClassificationService().listAllLocalized(lang),
     getCityService().listAllLocalized(lang),
@@ -139,9 +144,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 
   const profileData: Profile = profileResult.unwrap();
 
-  const profileUpdatedByUser = profileData.userUpdated
-    ? await getUserService().getUserByActiveDirectoryId(profileData.userUpdated)
-    : undefined;
+  const profileUpdatedByUser = profileData.userUpdated ? await getUserService().getUserById(profileData.userId) : undefined;
   const profileUpdatedByUserName = profileUpdatedByUser && `${profileUpdatedByUser.firstName} ${profileUpdatedByUser.lastName}`;
   const profileStatus = (await getProfileStatusService().findLocalizedById(profileData.profileStatusId, lang)).unwrap();
 

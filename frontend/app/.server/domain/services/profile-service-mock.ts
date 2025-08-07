@@ -1,6 +1,8 @@
 import { None, Some, Err, Ok } from 'oxide.ts';
 import type { Result } from 'oxide.ts';
 
+import { getUserService } from './user-service';
+
 import type { Profile } from '~/.server/domain/models';
 import type { ProfileService } from '~/.server/domain/services/profile-service';
 import { PROFILE_STATUS_ID } from '~/domain/constants';
@@ -68,18 +70,13 @@ export function getMockProfileService(): ProfileService {
     getAllProfiles: () => {
       return Promise.resolve(mockProfiles);
     },
-    getCurrentUserProfile: (accessToken: string) => {
-      const userId = activeDirectoryToUserIdMap[accessToken];
-
-      if (!userId) {
-        // No user found for this token
-        return Promise.resolve(None);
-      }
+    getCurrentUserProfile: async (accessToken: string) => {
+      const user = await getUserService().getCurrentUser(accessToken);
 
       // Find the active profile for this specific user
       const activeProfile = mockProfiles.find(
         (profile) =>
-          profile.userId === userId &&
+          profile.userId === user.id &&
           (profile.profileStatusId === PROFILE_STATUS_ID.incomplete ||
             profile.profileStatusId === PROFILE_STATUS_ID.pending ||
             profile.profileStatusId === PROFILE_STATUS_ID.approved),
