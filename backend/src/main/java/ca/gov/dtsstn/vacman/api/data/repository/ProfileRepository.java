@@ -7,6 +7,8 @@ import org.springframework.stereotype.Repository;
 import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.Set;
 
 @Repository
 public interface ProfileRepository extends AbstractBaseRepository<ProfileEntity> {
@@ -40,4 +42,23 @@ public interface ProfileRepository extends AbstractBaseRepository<ProfileEntity>
      * @return A page of profiles.
      */
     Page<ProfileEntity> findByProfileStatusCodeInAndHrAdvisorIdIs(Collection<String> profileStatusCodes, Long hrAdvisorId, Pageable pageable);
+
+    /**
+     * Returns all profiles whose user's Microsoft Entra ID matches the provided value.
+     *
+     * @param entraId The Microsoft Entra ID of the user whose profiles we are filtering for.
+     * @return A list of profiles.
+     */
+    List<ProfileEntity> findAllByUserMicrosoftEntraId(String entraId);
+
+    /**
+     * Returns all profiles whose user's Microsoft Entra ID matches the provided value & whose status is contained within
+     * the parameter {@code profileStatusCodes}.
+     *
+     * @param entraId The Microsoft Entra ID of the user whose profiles we are filtering for.
+     * @param profileStatusCodes A collection of status codes used for filtering the results.
+     * @return A list of profiles.
+     */
+    List<ProfileEntity> findByUserMicrosoftEntraIdIsAndProfileStatusCodeIn(String entraId, Set<String> profileStatusCodes);
+
 }
