@@ -1,5 +1,4 @@
 import type { RouteHandle } from 'react-router';
-import { data } from 'react-router';
 
 import { useTranslation } from 'react-i18next';
 import * as v from 'valibot';
@@ -13,13 +12,10 @@ import { getUserService } from '~/.server/domain/services/user-service';
 import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { InlineLink } from '~/components/links';
-import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
 import { PersonalInformationForm } from '~/routes/page-components/employees/personal-information/form';
-import { personalInformationSchema } from '~/routes/page-components/employees/validation.server';
 import { toE164 } from '~/utils/phone-utils';
-import { formString } from '~/utils/string-utils';
 
 export const handle = {
   i18nNamespace: [...parentHandle.i18nNamespace],
@@ -33,31 +29,8 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   // Get the current user's ID from the authenticated session
   const authenticatedSession = context.session as AuthenticatedSession;
   const currentUserId = authenticatedSession.authState.idTokenClaims.oid as string;
-  const formData = await request.formData();
-  const parseResult = v.safeParse(personalInformationSchema, {
-    surname: formString(formData.get('surname')),
-    givenName: formString(formData.get('givenName')),
-    personalRecordIdentifier: formString(formData.get('personalRecordIdentifier')),
-    preferredLanguageId: formString(formData.get('preferredLanguageId')),
-    workEmail: formString(formData.get('workEmail')),
-    personalEmail: formString(formData.get('personalEmail')),
-    workPhone: formString(formData.get('workPhone')),
-    personalPhone: formString(formData.get('personalPhone')),
-    additionalInformation: formString(formData.get('additionalInformation')),
-  });
 
-  if (!parseResult.success) {
-    return data(
-      { errors: v.flatten<typeof personalInformationSchema>(parseResult.issues).nested },
-      { status: HttpStatusCodes.BAD_REQUEST },
-    );
-  }
-
-  const updateResult = await getProfileService().updatePersonalInformation(currentUserId, parseResult.output);
-
-  if (updateResult.isErr()) {
-    throw updateResult.unwrapErr();
-  }
+  //TODO: Implement approval logic
 
   return i18nRedirect('routes/hr-advisor/employee-profile/index.tsx', request, {
     params: { id: currentUserId },

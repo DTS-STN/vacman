@@ -1,5 +1,4 @@
 import type { RouteHandle } from 'react-router';
-import { data } from 'react-router';
 
 import { useTranslation } from 'react-i18next';
 import * as v from 'valibot';
@@ -18,12 +17,9 @@ import { getWFAStatuses } from '~/.server/domain/services/wfa-status-service';
 import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { InlineLink } from '~/components/links';
-import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
 import { EmploymentInformationForm } from '~/routes/page-components/employees/employment-information/form';
-import type { employmentInformationSchema } from '~/routes/page-components/employees/validation.server';
-import { parseEmploymentInformation } from '~/routes/page-components/employees/validation.server';
 
 export const handle = {
   i18nNamespace: [...parentHandle.i18nNamespace],
@@ -37,15 +33,8 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   // Get the current user's ID from the authenticated session
   const authenticatedSession = context.session as AuthenticatedSession;
   const currentUserId = authenticatedSession.authState.idTokenClaims.oid as string;
-  const formData = await request.formData();
-  const { parseResult, formValues } = parseEmploymentInformation(formData);
 
-  if (!parseResult.success) {
-    return data(
-      { formValues: formValues, errors: v.flatten<typeof employmentInformationSchema>(parseResult.issues).nested },
-      { status: HttpStatusCodes.BAD_REQUEST },
-    );
-  }
+  //TODO: Implement approval logic
 
   return i18nRedirect('routes/hr-advisor/employee-profile/index.tsx', request, {
     params: { id: currentUserId },

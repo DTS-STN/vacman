@@ -1,5 +1,4 @@
 import type { RouteHandle } from 'react-router';
-import { data } from 'react-router';
 
 import { useTranslation } from 'react-i18next';
 import * as v from 'valibot';
@@ -16,13 +15,9 @@ import { getProvinceService } from '~/.server/domain/services/province-service';
 import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { InlineLink } from '~/components/links';
-import { REQUIRE_OPTIONS } from '~/domain/constants';
-import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
 import { ReferralPreferencesForm } from '~/routes/page-components/employees/referral-preferences/form';
-import { referralPreferencesSchema } from '~/routes/page-components/employees/validation.server';
-import { formString } from '~/utils/string-utils';
 
 export const handle = {
   i18nNamespace: [...parentHandle.i18nNamespace],
@@ -36,33 +31,8 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   // Get the current user's ID from the authenticated session
   const authenticatedSession = context.session as AuthenticatedSession;
   const currentUserId = authenticatedSession.authState.idTokenClaims.oid as string;
-  const formData = await request.formData();
-  const parseResult = v.safeParse(referralPreferencesSchema, {
-    languageReferralTypeIds: formData.getAll('languageReferralTypes'),
-    classificationIds: formData.getAll('classifications'),
-    workLocationProvince: formString(formData.get('workLocationProvince')),
-    workLocationCitiesIds: formData.getAll('workLocationCities'),
-    availableForReferralInd: formData.get('referralAvailibility')
-      ? formData.get('referralAvailibility') === REQUIRE_OPTIONS.yes
-      : undefined,
-    interestedInAlternationInd: formData.get('alternateOpportunity')
-      ? formData.get('alternateOpportunity') === REQUIRE_OPTIONS.yes
-      : undefined,
-    employmentTenureIds: formData.getAll('employmentTenures'),
-  });
 
-  if (!parseResult.success) {
-    return data(
-      { errors: v.flatten<typeof referralPreferencesSchema>(parseResult.issues).nested },
-      { status: HttpStatusCodes.BAD_REQUEST },
-    );
-  }
-
-  const updateResult = await getProfileService().updateReferralPreferences(currentUserId, parseResult.output);
-
-  if (updateResult.isErr()) {
-    throw updateResult.unwrapErr();
-  }
+  //TODO: Implement approval logic
 
   return i18nRedirect('routes/hr-advisor/employee-profile/index.tsx', request, {
     params: { id: currentUserId },
