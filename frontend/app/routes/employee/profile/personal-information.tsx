@@ -57,7 +57,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   }
 
   const profileService = getProfileService();
-  const currentProfileOption = await profileService.getProfile(currentUserId);
+  const currentProfileOption = await profileService.getCurrentUserProfile(context.session.authState.accessToken);
   const currentProfile = currentProfileOption.unwrap();
   const updateResult = await profileService.updateProfile(
     authenticatedSession.authState.accessToken,
@@ -79,10 +79,12 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 }
 
 export async function loader({ context, request, params }: Route.LoaderArgs) {
-  // Use the id parameter from the URL to fetch the profile
-  const profileUserId = params.id;
-  const profileUser = await getUserService().getUserByActiveDirectoryId(profileUserId);
-  const profileResult = await getProfileService().getProfile(profileUserId);
+  const currentUrl = new URL(request.url);
+  requireAuthentication(context.session, currentUrl);
+
+  const accessToken = context.session.authState.accessToken;
+  const currentUser = await getUserService().getCurrentUser(accessToken);
+  const profileResult = await getProfileService().getCurrentUserProfile(accessToken);
 
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
   const localizedLanguagesOfCorrespondenceResult = await getLanguageForCorrespondenceService().listAllLocalized(lang);
@@ -95,7 +97,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       givenName: profileData.personalInformation.givenName,
       personalRecordIdentifier: profileData.personalInformation.personalRecordIdentifier,
       preferredLanguageId: profileData.personalInformation.preferredLanguageId,
-      workEmail: profileUser?.businessEmail ?? profileData.personalInformation.workPhone,
+      workEmail: currentUser.businessEmail ?? profileData.personalInformation.workPhone,
       personalEmail: profileData.personalInformation.personalEmail,
       workPhone: toE164(profileData.personalInformation.workPhone),
       personalPhone: toE164(profileData.personalInformation.personalPhone),

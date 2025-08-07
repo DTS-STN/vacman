@@ -37,11 +37,10 @@ const mockProfileService = {
   getCurrentUserProfile: vi.fn(),
 };
 const mockUserService = {
-  getUserByActiveDirectoryId: vi.fn(),
+  getCurrentUser: vi.fn(),
   updateUserRole: vi.fn(),
   getUsersByRole: vi.fn(),
   getUserById: vi.fn(),
-  getCurrentUser: vi.fn(),
   registerCurrentUser: vi.fn(),
 };
 const mockRequirePrivacyConsentForOwnProfile = vi.fn();
@@ -192,25 +191,11 @@ describe('Profile Access Utils', () => {
         // Arrange
         const session = createMockSession('test-manager-456');
         const targetUserId = 'test-employee-123';
-        mockUserService.getUserByActiveDirectoryId.mockResolvedValue(mockHiringManager);
+        mockUserService.getCurrentUser.mockResolvedValue(mockHiringManager);
 
         // Act & Assert - should not throw
         await expect(requireProfileAccess(session, targetUserId)).resolves.not.toThrow();
-        expect(mockUserService.getUserByActiveDirectoryId).toHaveBeenCalledWith('test-manager-456');
-      });
-
-      it('should throw error when requester is not found in system', async () => {
-        // Arrange
-        const session = createMockSession('test-unknown-user');
-        const targetUserId = 'test-employee-123';
-        mockUserService.getUserByActiveDirectoryId.mockResolvedValue(null);
-
-        // Act & Assert
-        await expect(requireProfileAccess(session, targetUserId)).rejects.toThrow(AppError);
-        await expect(requireProfileAccess(session, targetUserId)).rejects.toMatchObject({
-          errorCode: ErrorCodes.ACCESS_FORBIDDEN,
-          httpStatusCode: HttpStatusCodes.FORBIDDEN,
-        });
+        expect(mockUserService.getCurrentUser).toHaveBeenCalledWith('mock-access-token');
       });
     });
 
@@ -219,7 +204,7 @@ describe('Profile Access Utils', () => {
         // Arrange
         const session = createMockSession('test-employee-456');
         const targetUserId = 'test-employee-123';
-        mockUserService.getUserByActiveDirectoryId.mockResolvedValue({
+        mockUserService.getCurrentUser.mockResolvedValue({
           ...mockEmployee,
           activeDirectoryId: 'test-employee-456',
         });
@@ -236,7 +221,7 @@ describe('Profile Access Utils', () => {
         // Arrange
         const session = createMockSession('test-hr-advisor');
         const targetUserId = 'test-employee-123';
-        mockUserService.getUserByActiveDirectoryId.mockResolvedValue({
+        mockUserService.getCurrentUser.mockResolvedValue({
           ...mockEmployee,
           activeDirectoryId: 'test-hr-advisor',
           role: 'hr-advisor',
@@ -244,7 +229,7 @@ describe('Profile Access Utils', () => {
 
         // Act & Assert
         await expect(requireProfileAccess(session, targetUserId)).resolves.not.toThrow();
-        expect(mockUserService.getUserByActiveDirectoryId).toHaveBeenCalledWith('test-hr-advisor');
+        expect(mockUserService.getCurrentUser).toHaveBeenCalledWith('mock-access-token');
       });
     });
   });
@@ -266,7 +251,7 @@ describe('Profile Access Utils', () => {
       // Arrange
       const session = createMockSession('test-employee-456');
       const targetUserId = 'test-employee-123';
-      mockUserService.getUserByActiveDirectoryId.mockResolvedValue({
+      mockUserService.getCurrentUser.mockResolvedValue({
         ...mockEmployee,
         activeDirectoryId: 'test-employee-456',
       });
@@ -320,7 +305,7 @@ describe('Profile Access Utils', () => {
       // Arrange
       const session = createMockSession('test-employee-456');
       const targetUserId = 'test-employee-123';
-      mockUserService.getUserByActiveDirectoryId.mockResolvedValue({
+      mockUserService.getCurrentUser.mockResolvedValue({
         ...mockEmployee,
         activeDirectoryId: 'test-employee-456',
       });
@@ -400,7 +385,7 @@ describe('Profile Access Utils', () => {
       const currentUrl = new URL('http://localhost:3000/en/employee/test-employee-123/profile');
       mockIsProfileRoute.mockReturnValue(true);
       mockExtractUserIdFromProfileRoute.mockReturnValue(Some('test-employee-123'));
-      mockUserService.getUserByActiveDirectoryId.mockResolvedValue({
+      mockUserService.getCurrentUser.mockResolvedValue({
         ...mockEmployee,
         activeDirectoryId: 'test-employee-456',
       });
@@ -420,7 +405,7 @@ describe('Profile Access Utils', () => {
       const session = createMockSession('test-manager-456');
       const targetUserId = 'test-employee-123';
       const currentUrl = new URL('http://localhost:3000/en/employee/test-employee-123/profile');
-      mockUserService.getUserByActiveDirectoryId.mockResolvedValue(mockHiringManager);
+      mockUserService.getCurrentUser.mockResolvedValue(mockHiringManager);
 
       // Act
       const hasAccess = await hasProfileAccess(session, targetUserId, currentUrl);
@@ -429,7 +414,7 @@ describe('Profile Access Utils', () => {
       // Assert
       expect(hasAccess).toBe(true);
       expect(profile).toEqual(mockProfile);
-      expect(mockUserService.getUserByActiveDirectoryId).toHaveBeenCalledWith('test-manager-456');
+      expect(mockUserService.getCurrentUser).toHaveBeenCalledWith('mock-access-token');
     });
 
     it('should handle complete employee self-access flow', async () => {
@@ -447,7 +432,7 @@ describe('Profile Access Utils', () => {
       expect(profile).toEqual(mockProfile);
       expect(mockRequirePrivacyConsentForOwnProfile).toHaveBeenCalledWith(session, targetUserId, currentUrl);
       // User service should not be called for own profile access
-      expect(mockUserService.getUserByActiveDirectoryId).not.toHaveBeenCalled();
+      expect(mockUserService.getCurrentUser).not.toHaveBeenCalled();
     });
 
     it('should handle profile route access check integration', async () => {

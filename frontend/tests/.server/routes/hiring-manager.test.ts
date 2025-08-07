@@ -51,7 +51,6 @@ vi.mock('~/.server/utils/route-utils', () => ({
 const mockUserService = {
   getUsersByRole: vi.fn(),
   getUserById: vi.fn(),
-  getUserByActiveDirectoryId: vi.fn(),
   updateUserRole: vi.fn(),
   getCurrentUser: vi.fn(),
   registerCurrentUser: vi.fn(),
@@ -111,8 +110,8 @@ describe('Hiring Manager Route Protection', () => {
     expect(response).toEqual({
       documentTitle: expect.any(String),
     });
-    // The individual route should NOT call getUserByActiveDirectoryId since registration checks are handled by parent layout
-    expect(mockUserService.getUserByActiveDirectoryId).not.toHaveBeenCalled();
+    // The individual route should NOT call getCurrentUser since registration checks are handled by parent layout
+    expect(mockUserService.getCurrentUser).not.toHaveBeenCalled();
   });
 
   it('should not perform registration checks in individual route (handled by parent layout)', async () => {
@@ -128,7 +127,7 @@ describe('Hiring Manager Route Protection', () => {
     expect(response).toEqual({
       documentTitle: expect.any(String),
     });
-    expect(mockUserService.getUserByActiveDirectoryId).not.toHaveBeenCalled();
+    expect(mockUserService.getCurrentUser).not.toHaveBeenCalled();
   });
 
   it('should work with French locale URLs without performing registration checks', async () => {
@@ -143,6 +142,6 @@ describe('Hiring Manager Route Protection', () => {
     expect(response).toEqual({
       documentTitle: expect.any(String),
     });
-    expect(mockUserService.getUserByActiveDirectoryId).not.toHaveBeenCalled();
+    expect(mockUserService.getCurrentUser).not.toHaveBeenCalled();
   });
 });

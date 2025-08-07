@@ -80,9 +80,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 
   const profileData: Profile = profileResult.unwrap();
 
-  const profileUpdatedByUser = profileData.userUpdated
-    ? await getUserService().getUserByActiveDirectoryId(profileData.userUpdated)
-    : undefined;
+  const profileUpdatedByUser = profileData.userUpdated ? await getUserService().getUserById(profileData.userId) : undefined;
   const profileUpdatedByUserName = profileUpdatedByUser && `${profileUpdatedByUser.firstName} ${profileUpdatedByUser.lastName}`;
   const profileStatus = (await getProfileStatusService().findLocalizedById(profileData.profileStatusId, lang)).unwrap();
 
