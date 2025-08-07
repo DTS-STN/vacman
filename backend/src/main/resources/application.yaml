@@ -69,12 +69,15 @@ spring:
       minimum-idle: 10
   jpa:
     # defer execution of data.sql until hibernate creates the schema 
-    defer-datasource-initialization: true
+    defer-datasource-initialization: false
     hibernate:
       naming:
         # Use the exact names for tables and columns as specified in the entity classes
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
-
+  liquibase:
+    enabled: true
+    contexts: h2
+    change-log: classpath:db/changelog/db.changelog-master.yaml
 ---
 
 #
