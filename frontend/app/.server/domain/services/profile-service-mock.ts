@@ -1,7 +1,7 @@
 import { None, Some, Err, Ok } from 'oxide.ts';
 import type { Result } from 'oxide.ts';
 
-import type { Profile, ProfileFormData } from '~/.server/domain/models';
+import type { Profile } from '~/.server/domain/models';
 import type { ProfileService } from '~/.server/domain/services/profile-service';
 import { PROFILE_STATUS_ID } from '~/domain/constants';
 import { AppError } from '~/errors/app-error';
@@ -20,7 +20,7 @@ export function getMockProfileService(): ProfileService {
       accessToken: string,
       profileId: string,
       userUpdated: string,
-      data: ProfileFormData,
+      data: Profile,
     ): Promise<Result<void, AppError>> => {
       if (!mockProfiles.find((p) => p.profileId.toString() === profileId)) {
         return Promise.resolve(Err(new AppError('Profile not found', ErrorCodes.PROFILE_NOT_FOUND)));
