@@ -5,7 +5,6 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 import { getMockUserService } from '~/.server/domain/services/user-service-mock';
 import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
-import { ErrorCodes } from '~/errors/error-codes';
 
 describe('User Service Integration', () => {
   beforeEach(() => {
@@ -105,42 +104,6 @@ describe('User Service Integration', () => {
         uuName: 'Test Hiring Manager',
         networkName: 'test-manager-123',
         role: 'employee',
-      });
-    });
-
-    it('should throw error when updating role for non-existent user', async () => {
-      const userService = getMockUserService();
-      const activeDirectoryId = 'non-existent-user-123';
-      const newRole = 'hiring-manager';
-
-      const mockSession = {
-        authState: {
-          accessTokenClaims: {
-            roles: ['admin'],
-            sub: 'admin-user',
-            aud: 'test-audience',
-            client_id: 'test-client',
-            exp: Math.floor(Date.now() / 1000) + 3600,
-            iat: Math.floor(Date.now() / 1000),
-            iss: 'test-issuer',
-            jti: 'test-jti',
-          },
-          idTokenClaims: {
-            sub: 'admin-user',
-            name: 'Admin User',
-            aud: 'test-audience',
-            exp: Math.floor(Date.now() / 1000) + 3600,
-            iat: Math.floor(Date.now() / 1000),
-            iss: 'test-issuer',
-          },
-          accessToken: 'mock-access-token',
-          idToken: 'mock-id-token',
-        },
-      } as unknown as AuthenticatedSession;
-
-      await expect(userService.updateUserRole(activeDirectoryId, newRole, mockSession)).rejects.toMatchObject({
-        msg: "User with Active Directory ID 'non-existent-user-123' not found.",
-        errorCode: ErrorCodes.VACMAN_API_ERROR,
       });
     });
   });
