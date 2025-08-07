@@ -13,6 +13,10 @@ export function getMockProfileService(): ProfileService {
       const profile = getProfile(activeDirectoryId);
       return Promise.resolve(profile ? Some(profile) : None);
     },
+    getProfileById: (accessToken: string, profileId: string) => {
+      const profile = mockProfiles.find((p) => p.profileId.toString() === profileId);
+      return Promise.resolve(profile ? Some(profile) : None);
+    },
     registerProfile: (activeDirectoryId: string) => {
       return Promise.resolve(registerProfile(activeDirectoryId));
     },

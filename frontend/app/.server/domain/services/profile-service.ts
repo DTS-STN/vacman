@@ -12,6 +12,7 @@ export type ProfileService = {
   updateProfile(accessToken: string, profileId: string, userUpdated: string, data: Profile): Promise<Result<void, AppError>>;
   submitProfileForReview(activeDirectoryId: string): Promise<Result<Profile, AppError>>;
   getAllProfiles(): Promise<Profile[]>;
+  getProfileById(accessToken: string, profileId: string): Promise<Option<Profile>>;
 };
 
 export function getProfileService(): ProfileService {
