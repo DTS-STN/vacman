@@ -105,7 +105,7 @@ export default function PersonalInformation({ loaderData, actionData, params }: 
           cancelLink={'routes/hr-advisor/employee-profile/index.tsx'}
           formErrors={errors}
           formValues={loaderData.defaultValues}
-          isReadOnly={false}
+          isReadOnly={true}
           languagesOfCorrespondence={loaderData.languagesOfCorrespondence}
           params={params}
         />

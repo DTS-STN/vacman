@@ -16,10 +16,8 @@ import { getProvinceService } from '~/.server/domain/services/province-service';
 import { getUserService } from '~/.server/domain/services/user-service';
 import { getWFAStatuses } from '~/.server/domain/services/wfa-status-service';
 import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
-import { hasEmploymentDataChanged } from '~/.server/utils/profile-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { InlineLink } from '~/components/links';
-import { PROFILE_STATUS_ID } from '~/domain/constants';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
@@ -47,23 +45,6 @@ export async function action({ context, params, request }: Route.ActionArgs) {
       { formValues: formValues, errors: v.flatten<typeof employmentInformationSchema>(parseResult.issues).nested },
       { status: HttpStatusCodes.BAD_REQUEST },
     );
-  }
-
-  const profileService = getProfileService();
-  const currentProfileOption = await profileService.getProfile(currentUserId);
-  const currentProfile = currentProfileOption.unwrap();
-  if (
-    currentProfile.profileStatusId === PROFILE_STATUS_ID.approved &&
-    hasEmploymentDataChanged(currentProfile.employmentInformation, parseResult.output)
-  ) {
-    // profile needs to be re-approved if and only if the current profile status is 'approved'
-    await profileService.submitProfileForReview(currentUserId);
-  }
-
-  const updateResult = await profileService.updateEmploymentInformation(currentUserId, parseResult.output);
-
-  if (updateResult.isErr()) {
-    throw updateResult.unwrapErr();
   }
 
   return i18nRedirect('routes/hr-advisor/employee-profile/index.tsx', request, {
