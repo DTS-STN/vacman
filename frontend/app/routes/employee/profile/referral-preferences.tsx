@@ -13,7 +13,7 @@ import { getEmploymentTenureService } from '~/.server/domain/services/employment
 import { getLanguageReferralTypeService } from '~/.server/domain/services/language-referral-type-service';
 import { getProfileService } from '~/.server/domain/services/profile-service';
 import { getProvinceService } from '~/.server/domain/services/province-service';
-import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
+import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { InlineLink } from '~/components/links';
 import { REQUIRE_OPTIONS } from '~/domain/constants';
@@ -33,8 +33,11 @@ export function meta({ data }: Route.MetaArgs) {
 }
 
 export async function action({ context, params, request }: Route.ActionArgs) {
+  const currentUrl = new URL(request.url);
+  requireAuthentication(context.session, currentUrl);
+
   // Get the current user's ID from the authenticated session
-  const authenticatedSession = context.session as AuthenticatedSession;
+  const authenticatedSession = context.session;
   const currentUserId = authenticatedSession.authState.idTokenClaims.oid as string;
   const formData = await request.formData();
   const parseResult = v.safeParse(referralPreferencesSchema, {
@@ -61,9 +64,14 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   const profileService = getProfileService();
   const currentProfileOption = await profileService.getProfile(currentUserId);
   const currentProfile = currentProfileOption.unwrap();
-  const updateResult = await profileService.updateProfile(authenticatedSession, currentProfile.profileId.toString(), {
-    referralPreferences: parseResult.output,
-  });
+  const updateResult = await profileService.updateProfile(
+    authenticatedSession.authState.accessToken,
+    currentProfile.profileId.toString(),
+    currentUserId,
+    {
+      referralPreferences: parseResult.output,
+    },
+  );
 
   if (updateResult.isErr()) {
     throw updateResult.unwrapErr();

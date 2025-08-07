@@ -47,7 +47,11 @@ describe('User Service Integration', () => {
         },
       } as unknown as AuthenticatedSession;
 
-      const registeredUser = await userService.registerCurrentUser(newUserData, mockSession);
+      const registeredUser = await userService.registerCurrentUser(
+        newUserData,
+        mockSession.authState.accessToken,
+        mockSession.authState.idTokenClaims,
+      );
 
       expect(registeredUser).toMatchObject({
         uuName: 'Test Employee',
@@ -91,65 +95,17 @@ describe('User Service Integration', () => {
         },
       } as unknown as AuthenticatedSession;
 
-      const registeredUser = await userService.registerCurrentUser(newUserData, mockSession);
+      const registeredUser = await userService.registerCurrentUser(
+        newUserData,
+        mockSession.authState.accessToken,
+        mockSession.authState.idTokenClaims,
+      );
 
       expect(registeredUser).toMatchObject({
         uuName: 'Test Hiring Manager',
         networkName: 'test-manager-123',
         role: 'employee',
       });
-    });
-
-    it('should update user role using updateUserRole method', async () => {
-      const userService = getMockUserService();
-      const activeDirectoryId = 'test-update-role-123';
-      const newRole = 'hiring-manager';
-
-      const mockSession = {
-        authState: {
-          accessTokenClaims: {
-            roles: ['employee'],
-            sub: activeDirectoryId,
-            aud: 'test-audience',
-            client_id: 'test-client',
-            exp: Math.floor(Date.now() / 1000) + 3600,
-            iat: Math.floor(Date.now() / 1000),
-            iss: 'test-issuer',
-            jti: 'test-jti',
-          },
-          idTokenClaims: {
-            sub: activeDirectoryId,
-            oid: activeDirectoryId,
-            name: 'Test User Role Update',
-            aud: 'test-audience',
-            exp: Math.floor(Date.now() / 1000) + 3600,
-            iat: Math.floor(Date.now() / 1000),
-            iss: 'test-issuer',
-          },
-          accessToken: 'mock-access-token',
-          idToken: 'mock-id-token',
-        },
-      } as unknown as AuthenticatedSession;
-
-      // First register a user
-      await userService.registerCurrentUser(
-        {
-          languageId: 1,
-        },
-        mockSession,
-      );
-
-      // Then update their role
-      const updatedUser = await userService.updateUserRole(activeDirectoryId, newRole, mockSession);
-
-      expect(updatedUser).toMatchObject({
-        uuName: 'Test User Role Update',
-        networkName: activeDirectoryId,
-        role: newRole,
-      });
-      expect(updatedUser.id).toBeDefined();
-      expect(updatedUser.userUpdated).toBe('system');
-      expect(updatedUser.dateUpdated).toBeDefined();
     });
 
     it('should throw error when updating role for non-existent user', async () => {

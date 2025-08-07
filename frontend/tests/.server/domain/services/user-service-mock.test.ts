@@ -104,7 +104,11 @@ describe('getMockUserService', () => {
         },
       } as unknown as AuthenticatedSession;
 
-      const createdUser = await service.registerCurrentUser(userData, mockSession);
+      const createdUser = await service.registerCurrentUser(
+        userData,
+        mockSession.authState.accessToken,
+        mockSession.authState.idTokenClaims,
+      );
 
       expect(createdUser.id).toBeDefined();
       expect(createdUser.uuName).toBe('Test User');

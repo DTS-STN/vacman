@@ -15,7 +15,7 @@ import { getProfileService } from '~/.server/domain/services/profile-service';
 import { getProvinceService } from '~/.server/domain/services/province-service';
 import { getUserService } from '~/.server/domain/services/user-service';
 import { getWFAStatuses } from '~/.server/domain/services/wfa-status-service';
-import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
+import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { hasEmploymentDataChanged, omitObjectProperties } from '~/.server/utils/profile-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { InlineLink } from '~/components/links';
@@ -36,8 +36,11 @@ export function meta({ data }: Route.MetaArgs) {
 }
 
 export async function action({ context, params, request }: Route.ActionArgs) {
+  const currentUrl = new URL(request.url);
+  requireAuthentication(context.session, currentUrl);
+
   // Get the current user's ID from the authenticated session
-  const authenticatedSession = context.session as AuthenticatedSession;
+  const authenticatedSession = context.session;
   const currentUserId = authenticatedSession.authState.idTokenClaims.oid as string;
   const formData = await request.formData();
   const { parseResult, formValues } = parseEmploymentInformation(formData);
@@ -50,16 +53,21 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   const profileService = getProfileService();
   const currentProfileOption = await profileService.getProfile(currentUserId);
   const currentProfile = currentProfileOption.unwrap();
-  const updateResult = await profileService.updateProfile(authenticatedSession, currentProfile.profileId.toString(), {
-    employmentInformation: omitObjectProperties(parseResult.output, [
-      'wfaEffectiveDateYear',
-      'wfaEffectiveDateMonth',
-      'wfaEffectiveDateDay',
-      'wfaEndDateYear',
-      'wfaEndDateMonth',
-      'wfaEndDateDay',
-    ]),
-  });
+  const updateResult = await profileService.updateProfile(
+    authenticatedSession.authState.accessToken,
+    currentProfile.profileId.toString(),
+    currentUserId,
+    {
+      employmentInformation: omitObjectProperties(parseResult.output, [
+        'wfaEffectiveDateYear',
+        'wfaEffectiveDateMonth',
+        'wfaEffectiveDateDay',
+        'wfaEndDateYear',
+        'wfaEndDateMonth',
+        'wfaEndDateDay',
+      ]),
+    },
+  );
   if (updateResult.isErr()) {
     throw updateResult.unwrapErr();
   }
