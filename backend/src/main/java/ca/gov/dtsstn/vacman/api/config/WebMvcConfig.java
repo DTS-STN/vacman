@@ -16,5 +16,4 @@ public class WebMvcConfig implements WebMvcConfigurer {
 		log.info("Redirecting / to /swagger-ui/index.html");
 		registry.addRedirectViewController("/", "/swagger-ui/index.html");
 	}
-
 }

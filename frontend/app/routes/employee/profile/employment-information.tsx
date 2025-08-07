@@ -1,7 +1,5 @@
-import { useState } from 'react';
-
 import type { RouteHandle } from 'react-router';
-import { data, Form } from 'react-router';
+import { data } from 'react-router';
 
 import { useTranslation } from 'react-i18next';
 import * as v from 'valibot';
@@ -17,22 +15,17 @@ import { getProfileService } from '~/.server/domain/services/profile-service';
 import { getProvinceService } from '~/.server/domain/services/province-service';
 import { getUserService } from '~/.server/domain/services/user-service';
 import { getWFAStatuses } from '~/.server/domain/services/wfa-status-service';
-import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
-import { hasEmploymentDataChanged } from '~/.server/utils/profile-utils';
+import { requireAuthentication } from '~/.server/utils/auth-utils';
+import { hasEmploymentDataChanged, omitObjectProperties } from '~/.server/utils/profile-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
-import { Button } from '~/components/button';
-import { ButtonLink } from '~/components/button-link';
-import { DatePickerField } from '~/components/date-picker-field';
-import { FormErrorSummary } from '~/components/error-summary';
-import { InputSelect } from '~/components/input-select';
 import { InlineLink } from '~/components/links';
-import { EMPLOYEE_WFA_STATUS, PROFILE_STATUS_ID } from '~/domain/constants';
+import { PROFILE_STATUS_ID } from '~/domain/constants';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
+import { EmploymentInformationForm } from '~/routes/page-components/employees/employment-information/form';
 import type { employmentInformationSchema } from '~/routes/page-components/employees/validation.server';
 import { parseEmploymentInformation } from '~/routes/page-components/employees/validation.server';
-import { extractValidationKey } from '~/utils/validation-utils';
 
 export const handle = {
   i18nNamespace: [...parentHandle.i18nNamespace],
@@ -43,36 +36,55 @@ export function meta({ data }: Route.MetaArgs) {
 }
 
 export async function action({ context, params, request }: Route.ActionArgs) {
+  const currentUrl = new URL(request.url);
+  requireAuthentication(context.session, currentUrl);
+
   // Get the current user's ID from the authenticated session
-  const authenticatedSession = context.session as AuthenticatedSession;
-  const currentUserId = authenticatedSession.authState.idTokenClaims.oid as string;
+  const authenticatedSession = context.session;
+  const currentUserId = authenticatedSession.authState.idTokenClaims.oid;
   const formData = await request.formData();
   const { parseResult, formValues } = parseEmploymentInformation(formData);
-
   if (!parseResult.success) {
     return data(
       { formValues: formValues, errors: v.flatten<typeof employmentInformationSchema>(parseResult.issues).nested },
       { status: HttpStatusCodes.BAD_REQUEST },
     );
   }
-
   const profileService = getProfileService();
-  const currentProfileOption = await profileService.getProfile(currentUserId);
+  const currentProfileOption = await profileService.getCurrentUserProfile(context.session.authState.accessToken);
   const currentProfile = currentProfileOption.unwrap();
+  const updateResult = await profileService.updateProfile(
+    authenticatedSession.authState.accessToken,
+    currentProfile.profileId.toString(),
+    currentUserId,
+    {
+      ...currentProfile,
+      employmentInformation: omitObjectProperties(parseResult.output, [
+        'wfaEffectiveDateYear',
+        'wfaEffectiveDateMonth',
+        'wfaEffectiveDateDay',
+        'wfaEndDateYear',
+        'wfaEndDateMonth',
+        'wfaEndDateDay',
+      ]),
+    },
+  );
+  if (updateResult.isErr()) {
+    throw updateResult.unwrapErr();
+  }
   if (
     currentProfile.profileStatusId === PROFILE_STATUS_ID.approved &&
     hasEmploymentDataChanged(currentProfile.employmentInformation, parseResult.output)
   ) {
     // profile needs to be re-approved if and only if the current profile status is 'approved'
     await profileService.submitProfileForReview(currentUserId);
+    return i18nRedirect('routes/employee/profile/index.tsx', request, {
+      params: { id: currentUserId },
+      search: new URLSearchParams({
+        edited: 'true',
+      }),
+    });
   }
-
-  const updateResult = await profileService.updateEmploymentInformation(currentUserId, parseResult.output);
-
-  if (updateResult.isErr()) {
-    throw updateResult.unwrapErr();
-  }
-
   return i18nRedirect('routes/employee/profile/index.tsx', request, {
     params: { id: currentUserId },
   });
@@ -108,7 +120,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       substantivePosition: profileData.employmentInformation.substantivePosition,
       branchOrServiceCanadaRegion: workUnit?.parent?.id,
       directorate: workUnit?.id,
-      province: city?.province.id,
+      province: city?.provinceTerritory.id,
       cityId: profileData.employmentInformation.cityId,
       wfaStatus: profileData.employmentInformation.wfaStatus,
       wfaEffectiveDate: profileData.employmentInformation.wfaEffectiveDate,
@@ -128,68 +140,6 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 export default function EmploymentInformation({ loaderData, actionData, params }: Route.ComponentProps) {
   const { t } = useTranslation(handle.i18nNamespace);
   const errors = actionData?.errors;
-  const [branch, setBranch] = useState(
-    loaderData.defaultValues.branchOrServiceCanadaRegion
-      ? String(loaderData.defaultValues.branchOrServiceCanadaRegion)
-      : undefined,
-  );
-  const [province, setProvince] = useState(
-    loaderData.defaultValues.province ? String(loaderData.defaultValues.province) : undefined,
-  );
-  const [wfaStatusCode, setWfaStatusCode] = useState(
-    loaderData.wfaStatuses.find((c) => c.id === loaderData.defaultValues.wfaStatus)?.code,
-  );
-
-  const substantivePositionOptions = [{ id: 'select-option', name: '' }, ...loaderData.substantivePositions].map(
-    ({ id, name }) => ({
-      value: id === 'select-option' ? '' : String(id),
-      children: id === 'select-option' ? t('app:form.select-option') : name,
-    }),
-  );
-
-  const branchOrServiceCanadaRegionOptions = [
-    { id: 'select-option', name: '' },
-    ...loaderData.branchOrServiceCanadaRegions,
-  ].map(({ id, name }) => ({
-    value: id === 'select-option' ? '' : String(id),
-    children: id === 'select-option' ? t('app:form.select-option') : name,
-  }));
-
-  const directorateOptions = [
-    { id: 'select-option', name: '' },
-    ...loaderData.directorates.filter((c) => c.parent?.id === Number(branch)),
-  ].map(({ id, name }) => ({
-    value: id === 'select-option' ? '' : String(id),
-    children: id === 'select-option' ? t('app:form.select-option') : name,
-  }));
-
-  const provinceOptions = [{ id: 'select-option', name: '' }, ...loaderData.provinces].map(({ id, name }) => ({
-    value: id === 'select-option' ? '' : String(id),
-    children: id === 'select-option' ? t('app:form.select-option') : name,
-  }));
-
-  const cityOptions = [
-    { id: 'select-option', name: '' },
-    ...loaderData.cities.filter((c) => c.province.id === Number(province)),
-  ].map(({ id, name }) => ({
-    value: id === 'select-option' ? '' : String(id),
-    children: id === 'select-option' ? t('app:form.select-option') : name,
-  }));
-
-  const wfaStatusOptions = [{ id: 'select-option', name: '' }, ...loaderData.wfaStatuses].map(({ id, name }) => ({
-    value: id === 'select-option' ? '' : id,
-    children: id === 'select-option' ? t('app:form.select-option') : name,
-  }));
-
-  const hrAdvisorOptions = [{ id: 'select-option', uuName: '' }, ...loaderData.hrAdvisors].map(({ id, uuName }) => ({
-    value: id === 'select-option' ? '' : String(id),
-    children: id === 'select-option' ? t('app:form.select-option') : uuName,
-  }));
-
-  const handleWFAStatusChange = (optionValue: string) => {
-    const selectedStatus = loaderData.wfaStatuses.find((c) => c.id === Number(optionValue))?.code;
-    setWfaStatusCode(selectedStatus);
-  };
 
   return (
     <>
@@ -197,149 +147,19 @@ export default function EmploymentInformation({ loaderData, actionData, params }
         {`< ${t('app:profile.back')}`}
       </InlineLink>
       <div className="max-w-prose">
-        <h1 className="my-5 text-3xl font-semibold">{t('app:employment-information.page-title')}</h1>
-        <FormErrorSummary>
-          <Form method="post" noValidate>
-            <div className="space-y-6">
-              <h2 className="font-lato text-2xl font-bold">{t('app:employment-information.substantive-position-heading')}</h2>
-              <InputSelect
-                id="substantivePosition"
-                name="substantivePosition"
-                errorMessage={t(extractValidationKey(errors?.substantivePosition))}
-                required
-                options={substantivePositionOptions}
-                label={t('app:employment-information.substantive-position-group-and-level')}
-                defaultValue={
-                  loaderData.defaultValues.substantivePosition ? String(loaderData.defaultValues.substantivePosition) : ''
-                }
-                className="w-full sm:w-1/2"
-              />
-              <InputSelect
-                id="branchOrServiceCanadaRegion"
-                name="branchOrServiceCanadaRegion"
-                errorMessage={t(extractValidationKey(errors?.branchOrServiceCanadaRegion))}
-                required
-                onChange={({ target }) => setBranch(target.value || undefined)}
-                options={branchOrServiceCanadaRegionOptions}
-                label={t('app:employment-information.branch-or-service-canada-region')}
-                defaultValue={
-                  loaderData.defaultValues.branchOrServiceCanadaRegion
-                    ? String(loaderData.defaultValues.branchOrServiceCanadaRegion)
-                    : ''
-                }
-                className="w-full sm:w-1/2"
-              />
-              {branch && (
-                <InputSelect
-                  id="directorate"
-                  name="directorate"
-                  errorMessage={t(extractValidationKey(errors?.directorate))}
-                  required
-                  options={directorateOptions}
-                  label={t('app:employment-information.directorate')}
-                  defaultValue={loaderData.defaultValues.directorate ? String(loaderData.defaultValues.directorate) : ''}
-                  className="w-full sm:w-1/2"
-                />
-              )}
-              <InputSelect
-                className="w-full sm:w-1/2"
-                id="province"
-                name="province"
-                label={t('app:employment-information.provinces')}
-                options={provinceOptions}
-                errorMessage={t(extractValidationKey(errors?.province))}
-                value={province ?? ''}
-                onChange={({ target }) => setProvince(target.value || undefined)}
-                required
-              />
-              {province && (
-                <>
-                  <InputSelect
-                    id="cityId"
-                    name="cityId"
-                    errorMessage={t(extractValidationKey(errors?.cityId))}
-                    required
-                    options={cityOptions}
-                    label={t('app:employment-information.city')}
-                    defaultValue={loaderData.defaultValues.cityId ? String(loaderData.defaultValues.cityId) : ''}
-                    className="w-full sm:w-1/2"
-                  />
-                </>
-              )}
-
-              <h2 className="font-lato text-2xl font-bold">{t('app:employment-information.wfa-detils-heading')}</h2>
-              <p>{t('app:employment-information.wfa-detils')}</p>
-              <InputSelect
-                id="wfaStatus"
-                name="wfaStatus"
-                errorMessage={t(extractValidationKey(errors?.wfaStatus))}
-                required
-                options={wfaStatusOptions}
-                label={t('app:employment-information.wfa-status')}
-                defaultValue={loaderData.defaultValues.wfaStatus ? String(loaderData.defaultValues.wfaStatus) : ''}
-                onChange={({ target }) => handleWFAStatusChange(target.value)}
-                className="w-full sm:w-1/2"
-              />
-              {(wfaStatusCode === EMPLOYEE_WFA_STATUS.opting ||
-                wfaStatusCode === EMPLOYEE_WFA_STATUS.surplusGRJO ||
-                wfaStatusCode === EMPLOYEE_WFA_STATUS.surplusOptingOptionA) && (
-                <>
-                  <DatePickerField
-                    defaultValue={loaderData.defaultValues.wfaEffectiveDate ?? ''}
-                    id="wfaEffectiveDate"
-                    legend={t('app:employment-information.wfa-effective-date')}
-                    names={{
-                      day: 'wfaEffectiveDateDay',
-                      month: 'wfaEffectiveDateMonth',
-                      year: 'wfaEffectiveDateYear',
-                    }}
-                    errorMessages={{
-                      all: t(extractValidationKey(errors?.wfaEffectiveDate)),
-                      year: t(extractValidationKey(errors?.wfaEffectiveDateYear)),
-                      month: t(extractValidationKey(errors?.wfaEffectiveDateMonth)),
-                      day: t(extractValidationKey(errors?.wfaEffectiveDateDay)),
-                    }}
-                    required
-                  />
-                  <DatePickerField
-                    defaultValue={loaderData.defaultValues.wfaEndDate ?? ''}
-                    id="wfaEndDate"
-                    legend={t('app:employment-information.wfa-end-date')}
-                    names={{
-                      day: 'wfaEndDateDay',
-                      month: 'wfaEndDateMonth',
-                      year: 'wfaEndDateYear',
-                    }}
-                    errorMessages={{
-                      all: t(extractValidationKey(errors?.wfaEndDate)),
-                      year: t(extractValidationKey(errors?.wfaEndDateYear)),
-                      month: t(extractValidationKey(errors?.wfaEndDateMonth)),
-                      day: t(extractValidationKey(errors?.wfaEndDateDay)),
-                    }}
-                  />
-                </>
-              )}
-              <InputSelect
-                id="hrAdvisor"
-                name="hrAdvisor"
-                errorMessage={t(extractValidationKey(errors?.hrAdvisor))}
-                required
-                options={hrAdvisorOptions}
-                label={t('app:employment-information.hr-advisor')}
-                defaultValue={loaderData.defaultValues.hrAdvisor ? String(loaderData.defaultValues.hrAdvisor) : ''}
-                className="w-full sm:w-1/2"
-              />
-              <div className="mt-8 flex flex-row-reverse flex-wrap items-center justify-end gap-3">
-                <Button name="action" variant="primary" id="save-button">
-                  {t('app:form.save')}
-                </Button>
-                <ButtonLink file="routes/employee/profile/index.tsx" params={params} id="cancel-button" variant="alternative">
-                  {t('app:form.cancel')}
-                </ButtonLink>
-              </div>
-            </div>
-          </Form>
-        </FormErrorSummary>
+        <EmploymentInformationForm
+          cancelLink={'routes/employee/profile/index.tsx'}
+          formValues={loaderData.defaultValues}
+          formErrors={errors}
+          substantivePositions={loaderData.substantivePositions}
+          branchOrServiceCanadaRegions={loaderData.branchOrServiceCanadaRegions}
+          directorates={loaderData.directorates}
+          provinces={loaderData.provinces}
+          cities={loaderData.cities}
+          wfaStatuses={loaderData.wfaStatuses}
+          hrAdvisors={loaderData.hrAdvisors}
+          params={params}
+        />
       </div>
     </>
   );

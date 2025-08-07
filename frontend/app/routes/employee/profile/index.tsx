@@ -1,8 +1,7 @@
-import type { JSX } from 'react';
-import { useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import type { RouteHandle } from 'react-router';
-import { Form, useActionData, useNavigation } from 'react-router';
+import { Form, useActionData, useLocation, useNavigate, useNavigation, useSearchParams } from 'react-router';
 
 import { useTranslation } from 'react-i18next';
 
@@ -19,7 +18,8 @@ import { getProfileService } from '~/.server/domain/services/profile-service';
 import { getProfileStatusService } from '~/.server/domain/services/profile-status-service';
 import { getUserService } from '~/.server/domain/services/user-service';
 import { getWFAStatuses } from '~/.server/domain/services/wfa-status-service';
-import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
+import { requireAuthentication } from '~/.server/utils/auth-utils';
+import { requirePrivacyConsentForOwnProfile } from '~/.server/utils/privacy-consent-utils';
 import { countCompletedItems, omitObjectProperties } from '~/.server/utils/profile-utils';
 import { AlertMessage } from '~/components/alert-message';
 import { Button } from '~/components/button';
@@ -27,6 +27,7 @@ import { ButtonLink } from '~/components/button-link';
 import { DescriptionList, DescriptionListItem } from '~/components/description-list';
 import { ProfileCard } from '~/components/profile-card';
 import { Progress } from '~/components/progress';
+import { StatusTag } from '~/components/status-tag';
 import { PROFILE_STATUS_CODE, EMPLOYEE_WFA_STATUS } from '~/domain/constants';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
@@ -41,11 +42,14 @@ export function meta({ data }: Route.MetaArgs) {
 }
 
 export async function action({ context, request }: Route.ActionArgs) {
-  // Get the current user's ID from the authenticated session
-  const authenticatedSession = context.session as AuthenticatedSession;
-  const currentUserId = authenticatedSession.authState.idTokenClaims.oid as string;
+  const currentUrl = new URL(request.url);
+  requireAuthentication(context.session, currentUrl);
 
-  const profileResult = await getProfileService().getProfile(currentUserId);
+  // Get the current user's ID from the authenticated session
+  const authenticatedSession = context.session;
+  const currentUserId = authenticatedSession.authState.idTokenClaims.oid;
+
+  const profileResult = await getProfileService().getCurrentUserProfile(authenticatedSession.authState.accessToken);
   if (profileResult.isNone()) {
     return { status: 'profile-not-found' };
   }
@@ -104,10 +108,18 @@ export async function action({ context, request }: Route.ActionArgs) {
 }
 
 export async function loader({ context, request, params }: Route.LoaderArgs) {
+  const currentUrl = new URL(request.url);
+  requireAuthentication(context.session, currentUrl);
+
   // Use the id parameter from the URL to fetch the profile
   const profileUserId = params.id;
 
+  await requirePrivacyConsentForOwnProfile(context.session, profileUserId, currentUrl);
+
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
+
+  const url = new URL(request.url);
+  const hasEmploymentChanged = url.searchParams.get('edited') === 'true';
 
   // Fetch both the profile user and the profile data
   const [
@@ -118,7 +130,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     allLocalizedEmploymentTenures,
     allWfaStatus,
   ] = await Promise.all([
-    getProfileService().getProfile(profileUserId),
+    getProfileService().getCurrentUserProfile(context.session.authState.accessToken),
     getLanguageReferralTypeService().listAllLocalized(lang),
     getClassificationService().listAllLocalized(lang),
     getCityService().listAllLocalized(lang),
@@ -132,9 +144,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 
   const profileData: Profile = profileResult.unwrap();
 
-  const profileUpdatedByUser = profileData.userUpdated
-    ? await getUserService().getUserByActiveDirectoryId(profileData.userUpdated)
-    : undefined;
+  const profileUpdatedByUser = profileData.userUpdated ? await getUserService().getUserById(profileData.userId) : undefined;
   const profileUpdatedByUserName = profileUpdatedByUser && `${profileUpdatedByUser.firstName} ${profileUpdatedByUser.lastName}`;
   const profileStatus = (await getProfileStatusService().findLocalizedById(profileData.profileStatusId, lang)).unwrap();
 
@@ -241,7 +251,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       substantivePosition: substantivePosition,
       branchOrServiceCanadaRegion: branchOrServiceCanadaRegion,
       directorate: directorate,
-      province: city?.province.name,
+      province: city?.provinceTerritory.name,
       city: city?.name,
       wfaStatus: wfaStatus?.name,
       wfaStatusCode: wfaStatus?.code,
@@ -254,13 +264,14 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       isNew: countCompletedItems(profileData.referralPreferences) === 0,
       languageReferralTypes: languageReferralTypes?.map((l) => l?.name),
       classifications: classifications?.map((c) => c?.name),
-      workLocationCities: cities?.map((city) => city?.province.name + ' - ' + city?.name),
+      workLocationCities: cities?.map((city) => city?.provinceTerritory.name + ' - ' + city?.name),
       referralAvailibility: profileData.referralPreferences.availableForReferralInd,
       alternateOpportunity: profileData.referralPreferences.interestedInAlternationInd,
       employmentTenures: employmentTenures?.map((e) => e?.name),
     },
     lastUpdated: profileData.dateUpdated ? formatDateTime(profileData.dateUpdated) : '0000-00-00 00:00',
     lastUpdatedBy: profileUpdatedByUserName ?? 'Unknown User',
+    hasEmploymentChanged,
   };
 }
 
@@ -275,10 +286,25 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
     alertRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
 
+  const [searchParams] = useSearchParams();
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const [hasEmploymentChanged, setHasEmploymentChanged] = useState(loaderData.hasEmploymentChanged);
+
+  // Clean the URL after reading the param
+  useEffect(() => {
+    if (searchParams.get('edited') === 'true') {
+      setHasEmploymentChanged(true);
+      const newUrl = location.pathname;
+      void navigate(newUrl, { replace: true });
+    }
+  }, [searchParams, location.pathname, navigate]);
+
   return (
     <div className="space-y-8">
       <div className="space-y-4 py-8 text-white">
-        <StatusTag status={loaderData.profileStatus.name} />
+        <StatusTag status={{ code: loaderData.profileStatus.code, name: loaderData.profileStatus.name }} />
         <h1 className="mt-6 text-3xl font-semibold">{loaderData.name}</h1>
         {loaderData.email && <p className="mt-1">{loaderData.email}</p>}
         <p className="font-normal text-[#9FA3AD]">
@@ -299,7 +325,6 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
           <p className="mt-4">{t('app:profile.about-para-2')}</p>
         </div>
         <Form className="mt-6 flex place-content-end space-x-5 md:mt-auto" method="post" noValidate>
-          {/* TODO: save and exit button should show in edit state, check ADO task 6297 */}
           <ButtonLink variant="alternative" file="routes/employee/index.tsx" id="save" disabled={navigation.state !== 'idle'}>
             {t('app:form.save-and-exit')}
           </ButtonLink>
@@ -318,6 +343,8 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
           message={loaderData.isProfileComplete ? t('app:profile.profile-submitted') : t('app:profile.profile-incomplete')}
         />
       )}
+
+      {hasEmploymentChanged && <AlertMessage ref={alertRef} type="info" message={t('app:profile.profile-pending-approval')} />}
 
       {loaderData.profileStatus.code === PROFILE_STATUS_CODE.incomplete && (
         <Progress
@@ -488,13 +515,5 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
         </ProfileCard>
       </div>
     </div>
-  );
-}
-
-function StatusTag({ status }: { status: string }): JSX.Element {
-  return (
-    <span className="w-fit rounded-2xl border border-blue-400 bg-blue-100 px-3 py-0.5 text-sm font-semibold text-blue-800">
-      {status}
-    </span>
   );
 }

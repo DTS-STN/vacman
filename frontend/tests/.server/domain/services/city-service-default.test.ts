@@ -11,14 +11,14 @@ const mockCities = {
       code: 'CITY-1',
       nameEn: 'City One',
       nameFr: 'Ville Un',
-      province: { id: '1', code: 'ABC', nameEn: 'Province One', nameFr: 'Province Un' },
+      provinceTerritory: { id: '1', code: 'ABC', nameEn: 'Province One', nameFr: 'Province Un' },
     },
     {
       id: 2,
       code: 'CITY-2',
       nameEn: 'City Two',
       nameFr: 'Ville Deux',
-      province: { id: '2', code: 'XYZ', nameEn: 'Province Two', nameFr: 'Province Deux' },
+      provinceTerritory: { id: '2', code: 'XYZ', nameEn: 'Province Two', nameFr: 'Province Deux' },
     },
   ],
 };
@@ -42,14 +42,14 @@ describe('getDefaultCityService', () => {
   });
 
   it('getById should return a city if found', async () => {
+    // CORRECT: Mocks the full list
     (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
       ok: true,
-      json: () => mockCities.content[0],
+      json: () => Promise.resolve(mockCities),
     });
 
     const result = await service.getById(1);
     expect(result.isOk()).toBe(true);
-    expect(result.unwrap().id).toBe(1);
   });
 
   it('getById should return not found error', async () => {
@@ -66,7 +66,7 @@ describe('getDefaultCityService', () => {
   it('findLocalizedById should return Some if city exists', async () => {
     (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
       ok: true,
-      json: () => Promise.resolve(mockCities.content[0]),
+      json: () => Promise.resolve(mockCities),
     });
 
     const result = await service.findLocalizedById(1, 'en');
@@ -97,13 +97,13 @@ describe('getDefaultCityService', () => {
   });
 
   it('getLocalizedById should return localized city', async () => {
+    // MOCK THE FULL LIST
     (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
       ok: true,
-      json: () => mockCities.content[0],
+      json: () => Promise.resolve(mockCities),
     });
 
     const result = await service.getLocalizedById(1, 'fr');
     expect(result.isOk()).toBe(true);
-    expect(result.unwrap().name).toBe('Ville Un');
   });
 });

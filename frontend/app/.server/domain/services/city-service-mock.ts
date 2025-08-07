@@ -10,7 +10,7 @@ const mockData: City[] = esdcCitiesData.content.map((city) => ({
   code: city.code,
   nameEn: city.nameEn,
   nameFr: city.nameFr,
-  province: {
+  provinceTerritory: {
     id: city.province.id,
     code: city.province.code,
     nameEn: city.province.nameEn,
@@ -24,10 +24,10 @@ function localizeCity(city: City, language: Language): LocalizedCity {
     id: city.id,
     code: city.code,
     name: language === 'fr' ? city.nameFr : city.nameEn,
-    province: {
-      id: city.province.id,
-      code: city.province.code,
-      name: language === 'fr' ? city.province.nameFr : city.province.nameEn,
+    provinceTerritory: {
+      id: city.provinceTerritory.id,
+      code: city.provinceTerritory.code,
+      name: language === 'fr' ? city.provinceTerritory.nameFr : city.provinceTerritory.nameEn,
     },
   };
 }
@@ -50,10 +50,6 @@ export function getMockCityService(): CityService {
       return Promise.resolve(sharedService.getById(id));
     },
 
-    getByCode(code: string) {
-      return Promise.resolve(sharedService.getByCode(code));
-    },
-
     listAllLocalized(language: Language) {
       return Promise.resolve(sharedService.listAllLocalized(language));
     },
@@ -64,14 +60,6 @@ export function getMockCityService(): CityService {
 
     findLocalizedById(id: number, language: Language) {
       return Promise.resolve(sharedService.findLocalizedById(id, language));
-    },
-
-    getLocalizedByCode(code: string, language: Language) {
-      return Promise.resolve(sharedService.getLocalizedByCode(code, language));
-    },
-
-    findLocalizedByCode(code: string, language: Language) {
-      return Promise.resolve(sharedService.findLocalizedByCode(code, language));
     },
   };
 }

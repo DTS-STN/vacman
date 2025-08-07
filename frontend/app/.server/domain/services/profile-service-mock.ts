@@ -1,12 +1,9 @@
 import { None, Some, Err, Ok } from 'oxide.ts';
 import type { Result } from 'oxide.ts';
 
-import type {
-  Profile,
-  UserEmploymentInformation,
-  UserPersonalInformation,
-  UserReferralPreferences,
-} from '~/.server/domain/models';
+import { getUserService } from './user-service';
+
+import type { Profile } from '~/.server/domain/models';
 import type { ProfileService } from '~/.server/domain/services/profile-service';
 import { PROFILE_STATUS_ID } from '~/domain/constants';
 import { AppError } from '~/errors/app-error';
@@ -18,109 +15,32 @@ export function getMockProfileService(): ProfileService {
       const profile = getProfile(activeDirectoryId);
       return Promise.resolve(profile ? Some(profile) : None);
     },
-    registerProfile: (activeDirectoryId: string) => {
-      return Promise.resolve(registerProfile(activeDirectoryId));
+    registerProfile: (accessToken: string) => {
+      // For mock purposes, directly pass the accessToken to the helper function
+      // since it's already set up to handle tokens as keys in the mapping
+      return Promise.resolve(registerProfile(accessToken));
     },
-    updatePersonalInformation: (
-      activeDirectoryId: string,
-      personalInfo: UserPersonalInformation,
-    ): Promise<Result<void, AppError>> => {
-      const mockProfile = getProfile(activeDirectoryId);
-
-      if (!mockProfile) {
-        return Promise.resolve(Err(new AppError('Failed to update personal information', ErrorCodes.PROFILE_UPDATE_FAILED)));
-      }
-
-      const userId = activeDirectoryToUserIdMap[activeDirectoryId];
-
-      mockProfiles = mockProfiles.map((profile) =>
-        profile.userId === userId
-          ? {
-              ...profile,
-              personalInformation: {
-                ...profile.personalInformation,
-                surname: personalInfo.surname,
-                givenName: personalInfo.givenName,
-                personalRecordIdentifier: personalInfo.personalRecordIdentifier,
-                preferredLanguageId: personalInfo.preferredLanguageId,
-                workEmail: personalInfo.workEmail,
-                personalEmail: personalInfo.personalEmail,
-                workPhone: personalInfo.workPhone,
-                personalPhone: personalInfo.personalPhone,
-                additionalInformation: personalInfo.additionalInformation,
-              },
-              dateUpdated: new Date().toISOString(),
-              userUpdated: activeDirectoryId,
-            }
-          : profile,
-      );
-
-      return Promise.resolve(Ok(undefined));
+    getProfileById: (accessToken: string, profileId: string) => {
+      const profile = mockProfiles.find((p) => p.profileId.toString() === profileId);
+      return Promise.resolve(profile ? Some(profile) : None);
     },
-    updateEmploymentInformation: (
-      activeDirectoryId: string,
-      employmentInfo: UserEmploymentInformation,
+    updateProfile: (
+      accessToken: string,
+      profileId: string,
+      userUpdated: string,
+      data: Profile,
     ): Promise<Result<void, AppError>> => {
-      const mockProfile = getProfile(activeDirectoryId);
-
-      if (!mockProfile) {
-        return Promise.resolve(Err(new AppError('Failed to update employment information', ErrorCodes.PROFILE_UPDATE_FAILED)));
-      }
-
-      const userId = activeDirectoryToUserIdMap[activeDirectoryId];
-
-      mockProfiles = mockProfiles.map((profile) =>
-        profile.userId === userId
-          ? {
-              ...profile,
-              employmentInformation: {
-                ...profile.employmentInformation,
-                substantivePosition: employmentInfo.substantivePosition,
-                branchOrServiceCanadaRegion: employmentInfo.branchOrServiceCanadaRegion,
-                directorate: employmentInfo.directorate,
-                province: employmentInfo.province,
-                cityId: employmentInfo.cityId,
-                wfaStatus: employmentInfo.wfaStatus,
-                wfaEffectiveDate: employmentInfo.wfaEffectiveDate,
-                wfaEndDate: employmentInfo.wfaEndDate,
-                hrAdvisor: employmentInfo.hrAdvisor,
-              },
-              dateUpdated: new Date().toISOString(),
-              userUpdated: activeDirectoryId,
-            }
-          : profile,
-      );
-
-      return Promise.resolve(Ok(undefined));
-    },
-    updateReferralPreferences: (
-      activeDirectoryId: string,
-      referralPrefs: UserReferralPreferences,
-    ): Promise<Result<void, AppError>> => {
-      const mockProfile = getProfile(activeDirectoryId);
-
-      if (!mockProfile) {
+      if (!mockProfiles.find((p) => p.profileId.toString() === profileId)) {
         return Promise.resolve(Err(new AppError('Profile not found', ErrorCodes.PROFILE_NOT_FOUND)));
       }
 
-      const userId = activeDirectoryToUserIdMap[activeDirectoryId];
-
       mockProfiles = mockProfiles.map((profile) =>
-        profile.userId === userId
+        profile.profileId.toString() === profileId
           ? {
               ...profile,
-              referralPreferences: {
-                ...profile.referralPreferences,
-                languageReferralTypeIds: referralPrefs.languageReferralTypeIds,
-                classificationIds: referralPrefs.classificationIds,
-                workLocationProvince: referralPrefs.workLocationProvince,
-                workLocationCitiesIds: referralPrefs.workLocationCitiesIds,
-                availableForReferralInd: referralPrefs.availableForReferralInd,
-                interestedInAlternationInd: referralPrefs.interestedInAlternationInd,
-                employmentTenureIds: referralPrefs.employmentTenureIds,
-              },
+              ...data,
               dateUpdated: new Date().toISOString(),
-              userUpdated: activeDirectoryId,
+              userUpdated,
             }
           : profile,
       );
@@ -150,6 +70,20 @@ export function getMockProfileService(): ProfileService {
     getAllProfiles: () => {
       return Promise.resolve(mockProfiles);
     },
+    getCurrentUserProfile: async (accessToken: string) => {
+      const user = await getUserService().getCurrentUser(accessToken);
+
+      // Find the active profile for this specific user
+      const activeProfile = mockProfiles.find(
+        (profile) =>
+          profile.userId === user.id &&
+          (profile.profileStatusId === PROFILE_STATUS_ID.incomplete ||
+            profile.profileStatusId === PROFILE_STATUS_ID.pending ||
+            profile.profileStatusId === PROFILE_STATUS_ID.approved),
+      );
+
+      return Promise.resolve(activeProfile ? Some(activeProfile) : None);
+    },
   };
 }
 
@@ -157,7 +91,6 @@ export function getMockProfileService(): ProfileService {
  * Mock profile data for testing and development.
  */
 let mockProfiles: Profile[] = [
-  // TODO remove 'status' once all current PRs using it are merged
   {
     profileId: 1,
     userId: 1,
@@ -845,17 +778,17 @@ function getProfile(activeDirectoryId: string): Profile | null {
 /**
  * Registers a new profile with mock data.
  *
- * @param activeDirectoryId The Active Directory ID of the user to create a profile for.
+ * @param accessToken The access token of the user to create a profile for.
  * @param session The authenticated session.
  * @returns The created profile object.
  * @throws {AppError} If the profile cannot be created (e.g., user not found).
  */
-function registerProfile(activeDirectoryId: string): Profile {
-  let userId = activeDirectoryToUserIdMap[activeDirectoryId];
+function registerProfile(accessToken: string): Profile {
+  let userId = activeDirectoryToUserIdMap[accessToken];
   if (!userId) {
     // Create new entry in activeDirectoryToUserIdMap if it doesn't exist
     userId = mockProfiles.length + 1;
-    activeDirectoryToUserIdMap[activeDirectoryId] = userId;
+    activeDirectoryToUserIdMap[accessToken] = userId;
   }
 
   // Create new profile
@@ -867,9 +800,9 @@ function registerProfile(activeDirectoryId: string): Profile {
     priorityLevelId: 2,
     profileStatusId: PROFILE_STATUS_ID.incomplete,
     privacyConsentInd: true,
-    userCreated: activeDirectoryId,
+    userCreated: accessToken,
     dateCreated: new Date().toISOString(),
-    userUpdated: activeDirectoryId,
+    userUpdated: accessToken,
     dateUpdated: new Date().toISOString(),
     personalInformation: {
       surname: 'Doe',

@@ -1,7 +1,6 @@
+import type { IDTokenClaims } from '~/.server/auth/auth-strategies';
 import type { User, UserCreate } from '~/.server/domain/models';
 import type { UserService } from '~/.server/domain/services/user-service';
-import { serverEnvironment } from '~/.server/environment';
-import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
 
@@ -21,17 +20,18 @@ export function getMockUserService(): UserService {
         return Promise.reject(error);
       }
     },
-    getUserByActiveDirectoryId: (activeDirectoryId: string) => {
+    getCurrentUser: (accessToken: string): Promise<User> => {
       try {
-        return Promise.resolve(getUserByActiveDirectoryId(activeDirectoryId));
+        const user = mockUsers[0];
+        if (!user) return Promise.reject(new Error('No mock users available'));
+        return Promise.resolve(user);
       } catch (error) {
         return Promise.reject(error);
       }
     },
-    registerUser: (user: UserCreate, session: AuthenticatedSession) => Promise.resolve(registerUser(user, session)),
-    updateUserRole: (activeDirectoryId: string, newRole: string, session: AuthenticatedSession) => {
+    registerCurrentUser: (user: UserCreate, accessToken: string, idTokenClaims: IDTokenClaims): Promise<User> => {
       try {
-        return Promise.resolve(updateUserRole(activeDirectoryId, newRole, session));
+        return Promise.resolve(registerCurrentUser(user, accessToken, idTokenClaims));
       } catch (error) {
         return Promise.reject(error);
       }
@@ -157,27 +157,13 @@ function getUserById(id: number): User {
 }
 
 /**
- * Retrieves a user by their Active Directory ID from mock data.
- *
- * @param activeDirectoryId The Active Directory ID of the user to retrieve.
- * @returns The user object if found, null otherwise.
- */
-function getUserByActiveDirectoryId(activeDirectoryId: string): User | null {
-  const user = mockUsers.find((u) => u.networkName === activeDirectoryId);
-  return user ?? null;
-}
-
-/**
  * Registers a new user with mock data.
  *
  * @param userData The user data to create (including role).
  * @param session The authenticated session.
  * @returns The created user object with generated metadata.
  */
-function registerUser(userData: UserCreate, session: AuthenticatedSession): User {
-  // Extract user information from session tokens
-  const idTokenClaims = session.authState.idTokenClaims;
-
+function registerCurrentUser(userData: UserCreate, accessToken: string, idTokenClaims: IDTokenClaims): User {
   // Parse the name field to extract first and last name
   const fullName = idTokenClaims.name ?? '';
   const nameParts = fullName.trim().split(/\s+/);
@@ -192,10 +178,10 @@ function registerUser(userData: UserCreate, session: AuthenticatedSession): User
   };
 
   // Create the new user with data from session and defaults
-  const activeDirectoryId = userData.activeDirectoryId ?? (idTokenClaims.oid as string);
+  const activeDirectoryId = idTokenClaims.oid;
   const newUser: User = {
     id: mockUsers.length + 1,
-    role: userData.role,
+    role: 'employee',
     networkName: activeDirectoryId,
     uuName: fullName || `${firstName} ${lastName}`.trim() || 'Unknown User',
     firstName: firstName,
@@ -215,51 +201,4 @@ function registerUser(userData: UserCreate, session: AuthenticatedSession): User
   (mockUsers as User[]).push(newUser);
 
   return newUser;
-}
-
-/**
- * Updates a user's role identified by their Active Directory ID.
- *
- * @param activeDirectoryId The Active Directory ID of the user to update.
- * @param newRole The new role to assign to the user.
- * @param session The authenticated session.
- * @returns The updated user object.
- * @throws {AppError} If the user is not found.
- */
-function updateUserRole(activeDirectoryId: string, newRole: string, session: AuthenticatedSession): User {
-  const userIndex = mockUsers.findIndex((u) => u.networkName === activeDirectoryId);
-
-  if (userIndex === -1) {
-    throw new AppError(`User with Active Directory ID '${activeDirectoryId}' not found.`, ErrorCodes.VACMAN_API_ERROR);
-  }
-
-  const currentUser = mockUsers[userIndex];
-  if (!currentUser) {
-    throw new AppError(`User with Active Directory ID '${activeDirectoryId}' not found.`, ErrorCodes.VACMAN_API_ERROR);
-  }
-
-  const updatedUser: User = {
-    ...currentUser,
-    role: newRole,
-    userUpdated: 'system',
-    dateUpdated: new Date().toISOString(),
-  };
-
-  // Update the user in the mock data
-  (mockUsers as User[])[userIndex] = updatedUser;
-
-  // If using local OIDC for testing, update the session roles
-  if (serverEnvironment.ENABLE_DEVMODE_OIDC) {
-    // Mock function to simulate updating user roles in the session for local testing.
-    if (session.authState.accessTokenClaims.roles) {
-      // Remove any existing employee/hiring-manager roles and add the new one
-      const filteredRoles = session.authState.accessTokenClaims.roles.filter(
-        (r: string) => r !== 'employee' && r !== 'hiring-manager' && r !== 'hr-advisor',
-      );
-      // Cast to mutable for testing purposes
-      (session.authState.accessTokenClaims.roles as string[]) = [...filteredRoles, newRole];
-    }
-  }
-
-  return updatedUser;
 }

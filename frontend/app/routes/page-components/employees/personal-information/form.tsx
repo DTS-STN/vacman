@@ -14,17 +14,16 @@ import { InputPhoneField } from '~/components/input-phone-field';
 import { InputRadios } from '~/components/input-radios';
 import { InputTextarea } from '~/components/input-textarea';
 import type { I18nRouteFile } from '~/i18n-routes';
+import type { Errors } from '~/routes/page-components/employees/validation.server';
 import { extractValidationKey } from '~/utils/validation-utils';
 
-type Errors = Readonly<Record<string, [string, ...string[]] | undefined>>;
-
-interface ProfileCardProps {
+interface PersonalInformationFormProps {
   cancelLink: I18nRouteFile;
   formValues: Partial<UserPersonalInformation> | undefined;
   formErrors?: Errors;
   isReadOnly: boolean;
   languagesOfCorrespondence: readonly LocalizedLanguageOfCorrespondence[];
-  param: Params;
+  params: Params;
 }
 
 export function PersonalInformationForm({
@@ -33,8 +32,8 @@ export function PersonalInformationForm({
   formValues,
   formErrors,
   languagesOfCorrespondence,
-  param,
-}: ProfileCardProps): JSX.Element {
+  params,
+}: PersonalInformationFormProps): JSX.Element {
   const { t } = useTranslation('app');
 
   const languageOptions = languagesOfCorrespondence.map(({ id, name }) => ({
@@ -138,7 +137,7 @@ export function PersonalInformationForm({
               <Button name="action" variant="primary" id="save-button">
                 {t('form.save')}
               </Button>
-              <ButtonLink file={cancelLink} params={param} id="cancel-button" variant="alternative">
+              <ButtonLink file={cancelLink} params={params} id="cancel-button" variant="alternative">
                 {t('form.cancel')}
               </ButtonLink>
             </div>

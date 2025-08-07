@@ -41,39 +41,11 @@ describe('getMockUserService', () => {
     });
   });
 
-  describe('getUserByActiveDirectoryId', () => {
-    it('should return a user when given a valid Active Directory ID', async () => {
-      const user = await service.getUserByActiveDirectoryId('11111111-1111-1111-1111-111111111111');
-
-      expect(user).toEqual({
-        id: 2,
-        uuName: 'John Doe',
-        networkName: '11111111-1111-1111-1111-111111111111',
-        role: 'employee',
-        userCreated: 'system',
-        dateCreated: '2024-01-01T00:00:00Z',
-        userUpdated: 'system',
-        dateUpdated: '2024-01-01T00:00:00Z',
-        firstName: 'John',
-        middleName: 'Michael',
-        lastName: 'Doe',
-        initials: 'J.M.D.',
-        personalRecordIdentifier: '987654321',
-        businessPhone: '+1-613-555-0102',
-        businessEmail: 'john.doe@canada.ca',
-      });
-    });
-
-    it('should return null when user is not found', async () => {
-      const user = await service.getUserByActiveDirectoryId('nonexistent-id');
-      expect(user).toBeNull();
-    });
-  });
-
-  describe('registerUser', () => {
+  describe('registerCurrentUser', () => {
     it('should create a new user with generated metadata', async () => {
       const userData = {
         role: 'employee',
+        languageId: 1,
       };
 
       // Create a mock session for testing
@@ -103,7 +75,11 @@ describe('getMockUserService', () => {
         },
       } as unknown as AuthenticatedSession;
 
-      const createdUser = await service.registerUser(userData, mockSession);
+      const createdUser = await service.registerCurrentUser(
+        userData,
+        mockSession.authState.accessToken,
+        mockSession.authState.idTokenClaims,
+      );
 
       expect(createdUser.id).toBeDefined();
       expect(createdUser.uuName).toBe('Test User');
@@ -119,176 +95,6 @@ describe('getMockUserService', () => {
       if (createdUser.dateUpdated) {
         expect(isValid(parseISO(createdUser.dateUpdated))).toBe(true);
       }
-    });
-  });
-
-  describe('updateUserRole', () => {
-    it('should update an existing user role by Active Directory ID', async () => {
-      const activeDirectoryId = '11111111-1111-1111-1111-111111111111';
-      const newRole = 'hiring-manager';
-
-      // Create a mock session for testing
-      const mockSession: AuthenticatedSession = {
-        authState: {
-          accessTokenClaims: {
-            roles: ['employee'],
-            sub: activeDirectoryId,
-            aud: 'test-audience',
-            client_id: 'test-client',
-            exp: Math.floor(Date.now() / 1000) + 3600,
-            iat: Math.floor(Date.now() / 1000),
-            iss: 'test-issuer',
-            jti: 'test-jti',
-          },
-          idTokenClaims: {
-            sub: activeDirectoryId,
-            name: 'John Doe',
-            aud: 'test-audience',
-            exp: Math.floor(Date.now() / 1000) + 3600,
-            iat: Math.floor(Date.now() / 1000),
-            iss: 'test-issuer',
-          },
-          accessToken: 'mock-access-token',
-          idToken: 'mock-id-token',
-        },
-      } as AuthenticatedSession;
-
-      const updatedUser = await service.updateUserRole(activeDirectoryId, newRole, mockSession);
-
-      expect(updatedUser.id).toBe(2);
-      expect(updatedUser.uuName).toBe('John Doe');
-      expect(updatedUser.networkName).toBe(activeDirectoryId);
-      expect(updatedUser.role).toBe(newRole);
-
-      // Check that dateUpdated was updated
-      if (updatedUser.dateUpdated) {
-        expect(isValid(parseISO(updatedUser.dateUpdated))).toBe(true);
-      }
-      expect(updatedUser.userUpdated).toBe('system');
-
-      // Verify the user was actually updated in the mock data
-      const verifyUser = await service.getUserByActiveDirectoryId(activeDirectoryId);
-      expect(verifyUser?.role).toBe(newRole);
-    });
-
-    it('should throw error when updating role for non-existent user', async () => {
-      const activeDirectoryId = 'nonexistent-id';
-      const newRole = 'hiring-manager';
-
-      // Create a mock session for testing
-      const mockSession: AuthenticatedSession = {
-        authState: {
-          accessTokenClaims: {
-            roles: ['admin'],
-            sub: 'admin-user',
-            aud: 'test-audience',
-            client_id: 'test-client',
-            exp: Math.floor(Date.now() / 1000) + 3600,
-            iat: Math.floor(Date.now() / 1000),
-            iss: 'test-issuer',
-            jti: 'test-jti',
-          },
-          idTokenClaims: {
-            sub: 'admin-user',
-            name: 'Admin User',
-            aud: 'test-audience',
-            exp: Math.floor(Date.now() / 1000) + 3600,
-            iat: Math.floor(Date.now() / 1000),
-            iss: 'test-issuer',
-          },
-          accessToken: 'mock-access-token',
-          idToken: 'mock-id-token',
-        },
-      } as AuthenticatedSession;
-
-      await expect(service.updateUserRole(activeDirectoryId, newRole, mockSession)).rejects.toMatchObject({
-        msg: "User with Active Directory ID 'nonexistent-id' not found.",
-        errorCode: ErrorCodes.VACMAN_API_ERROR,
-        httpStatusCode: 500,
-        correlationId: expect.any(String),
-      });
-    });
-
-    it('should update user role from employee to hiring-manager', async () => {
-      const activeDirectoryId = '22222222-2222-2222-2222-222222222222';
-      const newRole = 'hiring-manager';
-
-      const mockSession: AuthenticatedSession = {
-        authState: {
-          accessTokenClaims: {
-            roles: ['employee'],
-            sub: activeDirectoryId,
-            aud: 'test-audience',
-            client_id: 'test-client',
-            exp: Math.floor(Date.now() / 1000) + 3600,
-            iat: Math.floor(Date.now() / 1000),
-            iss: 'test-issuer',
-            jti: 'test-jti',
-          },
-          idTokenClaims: {
-            sub: activeDirectoryId,
-            name: 'Jane Smith',
-            aud: 'test-audience',
-            exp: Math.floor(Date.now() / 1000) + 3600,
-            iat: Math.floor(Date.now() / 1000),
-            iss: 'test-issuer',
-          },
-          accessToken: 'mock-access-token',
-          idToken: 'mock-id-token',
-        },
-      } as AuthenticatedSession;
-
-      // Verify initial state
-      const initialUser = await service.getUserByActiveDirectoryId(activeDirectoryId);
-      expect(initialUser?.role).toBe('employee');
-
-      // Update role
-      const updatedUser = await service.updateUserRole(activeDirectoryId, newRole, mockSession);
-
-      expect(updatedUser.id).toBe(3);
-      expect(updatedUser.uuName).toBe('Jane Smith');
-      expect(updatedUser.role).toBe(newRole);
-    });
-
-    it('should update user role from hiring-manager to employee', async () => {
-      const activeDirectoryId = '33333333-3333-3333-3333-333333333333';
-      const newRole = 'employee';
-
-      const mockSession: AuthenticatedSession = {
-        authState: {
-          accessTokenClaims: {
-            roles: ['hiring-manager'],
-            sub: activeDirectoryId,
-            aud: 'test-audience',
-            client_id: 'test-client',
-            exp: Math.floor(Date.now() / 1000) + 3600,
-            iat: Math.floor(Date.now() / 1000),
-            iss: 'test-issuer',
-            jti: 'test-jti',
-          },
-          idTokenClaims: {
-            sub: activeDirectoryId,
-            name: 'Michel Tremblay',
-            aud: 'test-audience',
-            exp: Math.floor(Date.now() / 1000) + 3600,
-            iat: Math.floor(Date.now() / 1000),
-            iss: 'test-issuer',
-          },
-          accessToken: 'mock-access-token',
-          idToken: 'mock-id-token',
-        },
-      } as AuthenticatedSession;
-
-      // Verify initial state
-      const initialUser = await service.getUserByActiveDirectoryId(activeDirectoryId);
-      expect(initialUser?.role).toBe('hiring-manager');
-
-      // Update role
-      const updatedUser = await service.updateUserRole(activeDirectoryId, newRole, mockSession);
-
-      expect(updatedUser.id).toBe(4);
-      expect(updatedUser.uuName).toBe('Michel Tremblay');
-      expect(updatedUser.role).toBe(newRole);
     });
   });
 });

@@ -1,8 +1,9 @@
 import type { RouteHandle, LoaderFunctionArgs, ActionFunctionArgs, MetaFunction } from 'react-router';
 import { Form } from 'react-router';
 
-import { getUserService } from '~/.server/domain/services/user-service';
-import { createUserProfile, ensureUserProfile } from '~/.server/utils/profile-utils';
+import type { Profile } from '~/.server/domain/models';
+import { getProfileService } from '~/.server/domain/services/profile-service';
+import { createUserProfile } from '~/.server/utils/profile-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { Button } from '~/components/button';
 import { ButtonLink } from '~/components/button-link';
@@ -18,35 +19,29 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
 };
 
 export async function action({ context, request }: ActionFunctionArgs) {
-  const formData = await request.formData();
-  const action = formData.get('action');
+  const authenticatedSession = context.session;
+  const currentUserId = authenticatedSession.authState.idTokenClaims.oid;
 
-  if (action === 'accept') {
-    const userService = getUserService();
-    const activeDirectoryId = context.session.authState.idTokenClaims.oid;
+  const activeDirectoryId = context.session.authState.idTokenClaims.oid;
 
-    // Check if user already exists
-    const existingUser = await userService.getUserByActiveDirectoryId(activeDirectoryId);
+  // TODO move profile creation to /employee/index after user creation then use profileService.updateProfile (needs to be created first) to indicate the consent in true
+  const profile = await createUserProfile(activeDirectoryId);
 
-    if (existingUser) {
-      await ensureUserProfile(activeDirectoryId);
-    } else {
-      // User doesn't exist, register them with privacy consent accepted
-      await userService.registerUser(
-        {
-          activeDirectoryId,
-          role: 'employee',
-        },
-        context.session,
-      );
-      await createUserProfile(activeDirectoryId);
-    }
+  const profileService = getProfileService();
 
-    return i18nRedirect('routes/employee/index.tsx', request);
-  }
+  const updatePrivacyConsent: Profile = {
+    ...profile,
+    privacyConsentInd: true,
+  };
 
-  // If declined, redirect back to dashboard selection page with current locale
-  return i18nRedirect('routes/index.tsx', request);
+  await profileService.updateProfile(
+    authenticatedSession.authState.accessToken,
+    profile.profileId.toString(),
+    currentUserId,
+    updatePrivacyConsent,
+  );
+
+  return i18nRedirect('routes/employee/index.tsx', request, { params: { id: profile.profileId.toString() } });
 }
 
 export async function loader({ context, request }: LoaderFunctionArgs) {
@@ -71,7 +66,7 @@ export default function PrivacyConsent() {
             taciti sociosqu. Ad litora torquent per conubia nostra inceptos himenaeos.
           </p>
           <div className="mt-8 flex flex-row-reverse flex-wrap items-center justify-end gap-3">
-            <Button name="action" value="accept" variant="primary" id="continue-button">
+            <Button variant="primary" id="continue-button">
               Accept
             </Button>
             <ButtonLink file="routes/index.tsx" id="back-button">

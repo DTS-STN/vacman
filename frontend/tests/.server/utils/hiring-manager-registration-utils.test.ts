@@ -24,10 +24,10 @@ vi.mock('~/.server/utils/route-utils', () => ({
 
 const mockUserService = {
   getUsersByRole: vi.fn(),
-  getUserByActiveDirectoryId: vi.fn(),
-  registerUser: vi.fn(),
   updateUserRole: vi.fn(),
   getUserById: vi.fn(),
+  getCurrentUser: vi.fn(),
+  registerCurrentUser: vi.fn(),
 };
 
 vi.mocked(getUserService).mockReturnValue(mockUserService);
@@ -70,7 +70,7 @@ describe('Hiring Manager Registration Utils', () => {
       const mockSession = createMockSession('test-hiring-manager-123');
       const currentUrl = new URL('http://localhost:3000/en/hiring-manager');
 
-      mockUserService.getUserByActiveDirectoryId.mockResolvedValue({
+      mockUserService.getCurrentUser.mockResolvedValue({
         id: 1,
         name: 'Test Hiring Manager',
         activeDirectoryId: 'test-hiring-manager-123',
@@ -84,7 +84,7 @@ describe('Hiring Manager Registration Utils', () => {
       // Act & Assert - should not throw
       await expect(requireHiringManagerRegistration(mockSession, currentUrl)).resolves.not.toThrow();
 
-      expect(mockUserService.getUserByActiveDirectoryId).toHaveBeenCalledWith('test-hiring-manager-123');
+      expect(mockUserService.getCurrentUser).toHaveBeenCalledWith('mock-access-token');
     });
 
     it('should redirect when user is not found in database', async () => {
@@ -92,12 +92,12 @@ describe('Hiring Manager Registration Utils', () => {
       const mockSession = createMockSession('test-unregistered-user');
       const currentUrl = new URL('http://localhost:3000/en/hiring-manager');
 
-      mockUserService.getUserByActiveDirectoryId.mockResolvedValue(null);
+      mockUserService.getCurrentUser.mockResolvedValue(null);
 
       // Act & Assert - should throw redirect
       await expect(requireHiringManagerRegistration(mockSession, currentUrl)).rejects.toThrow();
 
-      expect(mockUserService.getUserByActiveDirectoryId).toHaveBeenCalledWith('test-unregistered-user');
+      expect(mockUserService.getCurrentUser).toHaveBeenCalledWith('mock-access-token');
     });
 
     it('should redirect when user is not a hiring manager', async () => {
@@ -105,7 +105,7 @@ describe('Hiring Manager Registration Utils', () => {
       const mockSession = createMockSession('test-employee-123');
       const currentUrl = new URL('http://localhost:3000/en/hiring-manager');
 
-      mockUserService.getUserByActiveDirectoryId.mockResolvedValue({
+      mockUserService.getCurrentUser.mockResolvedValue({
         id: 1,
         name: 'Test Employee',
         activeDirectoryId: 'test-employee-123',
@@ -120,7 +120,7 @@ describe('Hiring Manager Registration Utils', () => {
       // Act & Assert - should throw redirect
       await expect(requireHiringManagerRegistration(mockSession, currentUrl)).rejects.toThrow();
 
-      expect(mockUserService.getUserByActiveDirectoryId).toHaveBeenCalledWith('test-employee-123');
+      expect(mockUserService.getCurrentUser).toHaveBeenCalledWith('mock-access-token');
     });
 
     it('should redirect when user has hr-advisor role instead of hiring-manager', async () => {
@@ -128,7 +128,7 @@ describe('Hiring Manager Registration Utils', () => {
       const mockSession = createMockSession('test-hr-advisor-123');
       const currentUrl = new URL('http://localhost:3000/en/hiring-manager');
 
-      mockUserService.getUserByActiveDirectoryId.mockResolvedValue({
+      mockUserService.getCurrentUser.mockResolvedValue({
         id: 1,
         name: 'Test HR Advisor',
         activeDirectoryId: 'test-hr-advisor-123',
@@ -142,7 +142,7 @@ describe('Hiring Manager Registration Utils', () => {
       // Act & Assert - should throw redirect
       await expect(requireHiringManagerRegistration(mockSession, currentUrl)).rejects.toThrow();
 
-      expect(mockUserService.getUserByActiveDirectoryId).toHaveBeenCalledWith('test-hr-advisor-123');
+      expect(mockUserService.getCurrentUser).toHaveBeenCalledWith('mock-access-token');
     });
 
     it('should work with French locale URLs', async () => {
@@ -150,7 +150,7 @@ describe('Hiring Manager Registration Utils', () => {
       const mockSession = createMockSession('test-hiring-manager-fr');
       const currentUrl = new URL('http://localhost:3000/fr/gestionnaire-embauche');
 
-      mockUserService.getUserByActiveDirectoryId.mockResolvedValue({
+      mockUserService.getCurrentUser.mockResolvedValue({
         id: 1,
         name: 'Gestionnaire Test',
         activeDirectoryId: 'test-hiring-manager-fr',
@@ -164,7 +164,7 @@ describe('Hiring Manager Registration Utils', () => {
       // Act & Assert - should not throw
       await expect(requireHiringManagerRegistration(mockSession, currentUrl)).resolves.not.toThrow();
 
-      expect(mockUserService.getUserByActiveDirectoryId).toHaveBeenCalledWith('test-hiring-manager-fr');
+      expect(mockUserService.getCurrentUser).toHaveBeenCalledWith('mock-access-token');
     });
   });
 

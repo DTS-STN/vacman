@@ -72,6 +72,7 @@ public interface UserModelMapper {
 	@Mapping(source = "lastName", target = "lastName")
 	@Mapping(source = "middleName", target = "middleName")
 	@Mapping(source = "personalRecordIdentifier", target = "personalRecordIdentifier")
+	@Mapping(source = "microsoftEntraId", target = "microsoftEntraId")
 	void updateEntityFromModel(UserUpdateModel model, @MappingTarget UserEntity entity);
 
 }

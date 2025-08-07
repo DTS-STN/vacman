@@ -1,12 +1,7 @@
 import { Err, None, Ok, Some } from 'oxide.ts';
 import type { Option, Result } from 'oxide.ts';
 
-import type {
-  Profile,
-  UserEmploymentInformation,
-  UserPersonalInformation,
-  UserReferralPreferences,
-} from '~/.server/domain/models';
+import type { Profile } from '~/.server/domain/models';
 import type { ProfileService } from '~/.server/domain/services/profile-service';
 import { serverEnvironment } from '~/.server/environment';
 import { AppError } from '~/errors/app-error';
@@ -63,12 +58,61 @@ export function getDefaultProfileService(): ProfileService {
     },
 
     /**
+     * Retrieves a profile by profile ID.
+     * @param profileId The profile ID to retrieve.
+     * @returns A promise that resolves to Some(profile) if found, or None if not found.
+     * @throws AppError if the request fails or if the server responds with an error status.
+     */
+    async getProfileById(accessToken: string, profileId: string): Promise<Option<Profile>> {
+      let response: Response;
+
+      try {
+        response = await fetch(`${serverEnvironment.VACMAN_API_BASE_URI}/profiles/${profileId}`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+          },
+        });
+      } catch (error) {
+        throw new AppError(
+          error instanceof Error ? error.message : `Network error while fetching profile for profile ID ${profileId}`,
+          ErrorCodes.PROFILE_NETWORK_ERROR,
+          { httpStatusCode: HttpStatusCodes.SERVICE_UNAVAILABLE },
+        );
+      }
+
+      if (response.status === HttpStatusCodes.NOT_FOUND) {
+        return None;
+      }
+
+      if (!response.ok) {
+        throw new AppError(
+          `Failed to retrieve profile for profile ID ${profileId}. Server responded with status ${response.status}.`,
+          ErrorCodes.PROFILE_FETCH_FAILED,
+          { httpStatusCode: response.status as HttpStatusCode },
+        );
+      }
+
+      try {
+        const profile = await response.json();
+        return Some(profile);
+      } catch {
+        throw new AppError(
+          `Invalid JSON response while fetching profile for profile ID ${profileId}`,
+          ErrorCodes.PROFILE_INVALID_RESPONSE,
+          { httpStatusCode: HttpStatusCodes.BAD_GATEWAY },
+        );
+      }
+    },
+
+    /**
      * Registers a new profile for a user.
-     * @param activeDirectoryId The Active Directory ID of the user to create a profile for.
+     * @param accessToken The access token of the user to create a profile for.
      * @returns A promise that resolves to the created profile object.
      * @throws AppError if the request fails or if the server responds with an error status.
      */
-    async registerProfile(activeDirectoryId: string): Promise<Profile> {
+    async registerProfile(accessToken: string): Promise<Profile> {
       let response: Response;
 
       try {
@@ -76,21 +120,19 @@ export function getDefaultProfileService(): ProfileService {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            'Authorization': `Bearer ${accessToken}`,
           },
-          body: JSON.stringify({ activeDirectoryId }),
         });
       } catch (error) {
         throw new AppError(
-          error instanceof Error
-            ? error.message
-            : `Network error while registering profile for Active Directory ID ${activeDirectoryId}`,
+          error instanceof Error ? error.message : `Network error while registering profile`,
           ErrorCodes.PROFILE_NETWORK_ERROR,
           { httpStatusCode: HttpStatusCodes.SERVICE_UNAVAILABLE },
         );
       }
 
       if (!response.ok) {
-        const errorMessage = `Failed to register profile for Active Directory ID ${activeDirectoryId}. Server responded with status ${response.status}.`;
+        const errorMessage = `Failed to register profile. Server responded with status ${response.status}.`;
         throw new AppError(errorMessage, ErrorCodes.PROFILE_CREATE_FAILED, {
           httpStatusCode: response.status as HttpStatusCode,
         });
@@ -99,93 +141,32 @@ export function getDefaultProfileService(): ProfileService {
       try {
         return await response.json();
       } catch {
-        throw new AppError(
-          `Invalid JSON response while registering profile for Active Directory ID ${activeDirectoryId}`,
-          ErrorCodes.PROFILE_INVALID_RESPONSE,
-          { httpStatusCode: HttpStatusCodes.BAD_GATEWAY },
-        );
-      }
-    },
-    async updatePersonalInformation(
-      activeDirectoryId: string,
-      personalInfo: UserPersonalInformation,
-    ): Promise<Result<void, AppError>> {
-      try {
-        const response = await fetch(`/profiles/${activeDirectoryId}/personal`, {
-          method: 'PUT',
-          body: JSON.stringify(personalInfo),
+        throw new AppError(`Invalid JSON response while registering profile`, ErrorCodes.PROFILE_INVALID_RESPONSE, {
+          httpStatusCode: HttpStatusCodes.BAD_GATEWAY,
         });
-
-        if (!response.ok) {
-          return Err(
-            new AppError(
-              `Failed to update personal information. Server responded with status ${response.status}`,
-              ErrorCodes.PROFILE_UPDATE_FAILED,
-              { httpStatusCode: response.status as HttpStatusCode },
-            ),
-          );
-        }
-
-        return Ok(undefined);
-      } catch (error) {
-        return Err(
-          new AppError(
-            error instanceof Error ? error.message : 'Failed to update personal information',
-            ErrorCodes.PROFILE_NETWORK_ERROR,
-            { httpStatusCode: HttpStatusCodes.SERVICE_UNAVAILABLE },
-          ),
-        );
       }
     },
-    async updateEmploymentInformation(
-      activeDirectoryId: string,
-      employmentInfo: UserEmploymentInformation,
+
+    async updateProfile(
+      accessToken: string,
+      profileId: string,
+      userUpdated: string,
+      data: Profile,
     ): Promise<Result<void, AppError>> {
       try {
-        const response = await fetch(`/profiles/${activeDirectoryId}/employment`, {
+        const response = await fetch(`${serverEnvironment.VACMAN_API_BASE_URI}/profiles/${profileId}`, {
           method: 'PUT',
-          body: JSON.stringify(employmentInfo),
-        });
-
-        if (!response.ok) {
-          return Err(
-            new AppError(
-              `Failed to update employment preferences. Server responded with status ${response.status}`,
-              ErrorCodes.PROFILE_UPDATE_FAILED,
-              { httpStatusCode: response.status as HttpStatusCode },
-            ),
-          );
-        }
-
-        return Ok(undefined);
-      } catch (error) {
-        return Err(
-          new AppError(
-            error instanceof Error ? error.message : 'Failed to update employment information',
-            ErrorCodes.PROFILE_NETWORK_ERROR,
-            { httpStatusCode: HttpStatusCodes.SERVICE_UNAVAILABLE },
-          ),
-        );
-      }
-    },
-
-    async updateReferralPreferences(
-      activeDirectoryId: string,
-      referralPrefs: UserReferralPreferences,
-    ): Promise<Result<void, AppError>> {
-      try {
-        const response = await fetch(
-          `${serverEnvironment.VACMAN_API_BASE_URI}/profiles/${activeDirectoryId}/referral-preferences`,
-          {
-            method: 'PUT',
-            body: JSON.stringify(referralPrefs),
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
           },
-        );
+          body: JSON.stringify(data),
+        });
 
         if (!response.ok) {
           return Err(
             new AppError(
-              `Failed to update referral preferences. Server responded with status ${response.status}`,
+              `Failed to update profile. Server responded with status ${response.status}`,
               ErrorCodes.PROFILE_UPDATE_FAILED,
               { httpStatusCode: response.status as HttpStatusCode },
             ),
@@ -195,11 +176,9 @@ export function getDefaultProfileService(): ProfileService {
         return Ok(undefined);
       } catch (error) {
         return Err(
-          new AppError(
-            error instanceof Error ? error.message : 'Failed to update referral preferences',
-            ErrorCodes.PROFILE_NETWORK_ERROR,
-            { httpStatusCode: HttpStatusCodes.SERVICE_UNAVAILABLE },
-          ),
+          new AppError(error instanceof Error ? error.message : 'Failed to update profile', ErrorCodes.PROFILE_NETWORK_ERROR, {
+            httpStatusCode: HttpStatusCodes.SERVICE_UNAVAILABLE,
+          }),
         );
       }
     },
@@ -262,6 +241,44 @@ export function getDefaultProfileService(): ProfileService {
         return await response.json();
       } catch {
         throw new AppError(`Invalid JSON response while fetching all profiles`, ErrorCodes.PROFILE_INVALID_RESPONSE, {
+          httpStatusCode: HttpStatusCodes.BAD_GATEWAY,
+        });
+      }
+    },
+
+    async getCurrentUserProfile(accessToken: string): Promise<Option<Profile>> {
+      let response: Response;
+
+      try {
+        response = await fetch(`${serverEnvironment.VACMAN_API_BASE_URI}/profiles/me?active=true`, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
+      } catch (error) {
+        throw new AppError(
+          error instanceof Error ? error.message : `Network error while fetching current user profile`,
+          ErrorCodes.PROFILE_NETWORK_ERROR,
+          { httpStatusCode: HttpStatusCodes.SERVICE_UNAVAILABLE },
+        );
+      }
+
+      if (response.status === HttpStatusCodes.NOT_FOUND) {
+        return None;
+      }
+
+      if (!response.ok) {
+        const errorMessage = `Failed to retrieve current user profile. Server responded with status ${response.status}.`;
+        throw new AppError(errorMessage, ErrorCodes.PROFILE_FETCH_FAILED, {
+          httpStatusCode: response.status as HttpStatusCode,
+        });
+      }
+
+      try {
+        const profile = await response.json();
+        return Some(profile);
+      } catch {
+        throw new AppError(`Invalid JSON response while fetching current user profile`, ErrorCodes.PROFILE_INVALID_RESPONSE, {
           httpStatusCode: HttpStatusCodes.BAD_GATEWAY,
         });
       }

@@ -9,7 +9,6 @@ import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { checkHiringManagerRouteRegistration } from '~/.server/utils/hiring-manager-registration-utils';
 import { checkHrAdvisorRouteRegistration } from '~/.server/utils/hr-advisor-registration-utils';
-import { checkEmployeeRoutePrivacyConsent } from '~/.server/utils/privacy-consent-utils';
 import { checkProfileRouteAccess } from '~/.server/utils/profile-access-utils';
 import { AppBar } from '~/components/app-bar';
 import { LanguageSwitcher } from '~/components/language-switcher';
@@ -29,9 +28,6 @@ export async function loader({ context, request }: Route.LoaderArgs) {
 
   // First ensure the user is authenticated (no specific roles required)
   requireAuthentication(context.session, currentUrl);
-
-  // Check privacy consent for employee routes (excluding privacy consent pages)
-  await checkEmployeeRoutePrivacyConsent(context.session as AuthenticatedSession, currentUrl);
 
   // Check hiring manager registration for hiring manager routes
   await checkHiringManagerRouteRegistration(context.session as AuthenticatedSession, currentUrl);

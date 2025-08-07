@@ -56,7 +56,38 @@ export default {
     'profile-pending-approval': 'Your profile edits will require re-approval by your HR advisor',
     'page-title': 'Profile',
   },
+  'employee-profile': {
+    'about-para-1':
+      'Review profile details below for approval. If changes are needed, contact the employee directly to discuss and update before approving.',
+    'edit': 'Edit',
+    'add': 'Add',
+    'pending': 'Pending Approval',
+    'approved': 'Approved',
+    'personal-information': {
+      'title': 'Personal information',
+      'link-label': 'personal information',
+      'detail': 'Provide your personal and contact details, language preferences, education, and other relevant information.',
+    },
+    'employment': {
+      'title': 'Employment information',
+      'link-label': 'employment information',
+      'detail': 'Share information about your current job and your Work Force Adjustment (WFA) status.',
+    },
+    'referral': {
+      'title': 'Referral preferences',
+      'link-label': 'referral preferences',
+      'detail':
+        'Indicate your preferences for job referrals including job type, classification, language requirements, preferred locations, and availability.',
+    },
+    'back': 'Back to employees',
+    'view': 'View my profile',
+    'not-provided': 'Not provided',
+    'last-updated': 'Last updated: {{date}} by {{name}}',
+    'field-incomplete': 'Required fields incomplete',
+    'page-title': 'Employee Profile',
+  },
   'form': {
+    'approve': 'Approve',
     'cancel': 'Cancel',
     'save': 'Save',
     'save-and-exit': 'Save and exit',

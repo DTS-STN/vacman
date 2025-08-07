@@ -1,0 +1,28 @@
+{
+  "content": [
+    {
+      "id": 5001,
+      "code": "NONE",
+      "nameEn": "No Clearance Required",
+      "nameFr": "Aucune autorisation requise"
+    },
+    {
+      "id": 5002,
+      "code": "RELIABILITY",
+      "nameEn": "Reliability",
+      "nameFr": "Fiabilité"
+    },
+    {
+      "id": 5003,
+      "code": "SECRET",
+      "nameEn": "Secret",
+      "nameFr": "Secret"
+    },
+    {
+      "id": 5004,
+      "code": "TOP_SECRET",
+      "nameEn": "Top Secret",
+      "nameFr": "Très secret"
+    }
+  ]
+}

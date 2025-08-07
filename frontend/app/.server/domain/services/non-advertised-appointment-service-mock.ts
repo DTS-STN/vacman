@@ -24,12 +24,8 @@ export function getMockNonAdvertisedAppointmentService(): NonAdvertisedAppointme
     listAll: () => Promise.resolve(mockService.listAll()),
     getById: (id: number) => Promise.resolve(mockService.getById(id)),
     findById: (id: number) => Promise.resolve(mockService.findById(id)),
-    getByCode: (code: string) => Promise.resolve(mockService.getByCode(code)),
-    findByCode: (code: string) => Promise.resolve(mockService.findByCode(code)),
     listAllLocalized: (language: Language) => Promise.resolve(mockService.listAllLocalized(language)),
     getLocalizedById: (id: number, language: Language) => Promise.resolve(mockService.getLocalizedById(id, language)),
     findLocalizedById: (id: number, language: Language) => Promise.resolve(mockService.findLocalizedById(id, language)),
-    getLocalizedByCode: (code: string, language: Language) => Promise.resolve(mockService.getLocalizedByCode(code, language)),
-    findLocalizedByCode: (code: string, language: Language) => Promise.resolve(mockService.findLocalizedByCode(code, language)),
   };
 }

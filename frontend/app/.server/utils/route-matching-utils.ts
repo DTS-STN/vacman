@@ -69,7 +69,7 @@ export function isEmployeeRoute(url: URL): boolean {
  * This prevents checking privacy consent on the consent page itself.
  */
 export function isPrivacyConsentPath(url: URL): boolean {
-  const privacyConsentPaths = ['/en/employee/privacy-consent', '/fr/employe/consentement-a-la-confidentialite'];
+  const privacyConsentPaths = ['/en/employee/profile/privacy-consent', '/fr/employe/profil/consentement-a-la-confidentialite'];
   return privacyConsentPaths.some((path) => url.pathname.startsWith(path));
 }
 

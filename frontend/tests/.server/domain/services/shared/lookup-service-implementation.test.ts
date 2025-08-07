@@ -9,6 +9,7 @@ import { standardLocalize } from '~/.server/domain/services/shared/lookup-servic
 import type { MockLookupServiceImplementation } from '~/.server/domain/services/shared/mock-lookup-service-implementation';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
+import queryClient from '~/query-client';
 
 // Mock the API client
 vi.mock('~/.server/domain/services/api-client', () => ({
@@ -33,6 +34,7 @@ const mockTestData: TestEntity[] = [
 
 describe('LookupServiceImplementation', () => {
   beforeEach(() => {
+    queryClient.clear();
     vi.resetAllMocks();
   });
 
@@ -58,24 +60,21 @@ describe('LookupServiceImplementation', () => {
     });
 
     it('should retrieve entity by ID successfully', async () => {
-      mockApiClient.get.mockResolvedValue(Ok(mockTestData[0]));
-
-      const result = await service.getById(1);
-
-      expect(result.isOk()).toBe(true);
-      expect(result.unwrap()).toEqual(mockTestData[0]);
-      expect(mockApiClient.get).toHaveBeenCalledWith('/test-endpoint/1', "Get test entity with ID '1'");
-    });
-
-    it('should retrieve entity by CODE successfully', async () => {
-      const mockResponse = { content: [mockTestData[0]] };
+      // ARRANGE: Mock the response for the LIST endpoint, because that's what getById now calls internally.
+      const mockResponse = { content: mockTestData };
       mockApiClient.get.mockResolvedValue(Ok(mockResponse));
 
-      const result = await service.getByCode('TEST1');
+      // ACT: Call the service method.
+      const result = await service.getById(1);
 
+      // ASSERT
+      // 1. Check that the operation was successful and returned the correct single item.
       expect(result.isOk()).toBe(true);
       expect(result.unwrap()).toEqual(mockTestData[0]);
-      expect(mockApiClient.get).toHaveBeenCalledWith('/test-endpoint?code=TEST1', "get test entity with CODE 'TEST1'");
+
+      // 2. Check that the LIST endpoint was called correctly.
+      expect(mockApiClient.get).toHaveBeenCalledTimes(1);
+      expect(mockApiClient.get).toHaveBeenCalledWith('/test-endpoint', 'list all test entity codes');
     });
 
     it('should return localized entities', async () => {
@@ -97,19 +96,9 @@ describe('LookupServiceImplementation', () => {
       });
     });
 
-    it('should handle entity not found by CODE', async () => {
-      const mockResponse = { content: [] };
-      mockApiClient.get.mockResolvedValue(Ok(mockResponse));
-
-      const result = await service.getByCode('NONEXISTENT');
-
-      expect(result.isErr()).toBe(true);
-      expect(result.unwrapErr()).toBeInstanceOf(AppError);
-      expect(result.unwrapErr().message).toContain('not found');
-    });
-
     it('should convert Result to Option for find methods', async () => {
-      mockApiClient.get.mockResolvedValue(Ok(mockTestData[0]));
+      const mockResponse = { content: mockTestData };
+      mockApiClient.get.mockResolvedValue(Ok(mockResponse));
 
       const result = await service.findById(1);
 
@@ -132,12 +121,6 @@ describe('LookupServiceImplementation', () => {
 
     it('should retrieve entity by ID', () => {
       const result = mockService.getById(1);
-      expect(result.isOk()).toBe(true);
-      expect(result.unwrap()).toEqual(mockTestData[0]);
-    });
-
-    it('should retrieve entity by CODE', () => {
-      const result = mockService.getByCode('TEST1');
       expect(result.isOk()).toBe(true);
       expect(result.unwrap()).toEqual(mockTestData[0]);
     });

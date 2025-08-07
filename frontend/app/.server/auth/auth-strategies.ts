@@ -35,6 +35,7 @@ export interface AuthServer extends Readonly<AuthorizationServer> {
 export interface AccessTokenClaims extends JWTAccessTokenClaims {
   readonly name?: string;
   readonly roles?: string[];
+  readonly oid: string;
 }
 
 /**
@@ -44,6 +45,7 @@ export interface IDTokenClaims extends IDToken {
   readonly email?: string;
   readonly name?: string;
   readonly roles?: string[];
+  readonly oid: string;
 }
 
 /**

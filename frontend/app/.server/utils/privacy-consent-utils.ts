@@ -24,7 +24,7 @@ async function checkPrivacyConsentForUser(userId: string, currentUrl: URL): Prom
 
   if (!profile?.privacyConsentInd) {
     log.debug(`Privacy consent required for user ${userId}`);
-    throw i18nRedirect('routes/index.tsx', currentUrl);
+    throw i18nRedirect('routes/employee/profile/privacy-consent.tsx', currentUrl);
   }
 }
 
@@ -38,7 +38,7 @@ async function checkPrivacyConsentForUser(userId: string, currentUrl: URL): Prom
  * @throws {Response} Redirect to index page if user hasn't accepted privacy consent
  */
 export async function requirePrivacyConsent(session: AuthenticatedSession, currentUrl: URL): Promise<void> {
-  const activeDirectoryId = session.authState.idTokenClaims.oid as string;
+  const activeDirectoryId = session.authState.idTokenClaims.oid;
   await checkPrivacyConsentForUser(activeDirectoryId, currentUrl);
 }
 
@@ -57,7 +57,7 @@ export async function requirePrivacyConsentForOwnProfile(
   targetUserId: string,
   currentUrl: URL,
 ): Promise<void> {
-  const requesterId = session.authState.idTokenClaims.oid as string;
+  const requesterId = session.authState.idTokenClaims.oid;
 
   // Only check privacy consent if the user is accessing their own profile
   if (requesterId !== targetUserId) {

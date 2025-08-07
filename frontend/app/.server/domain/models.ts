@@ -30,12 +30,12 @@ export type LocalizedBranch = LocalizedLookupModel;
 // City types need special handling to maintain 'province' property name for backward compatibility
 export type City = LookupModel &
   Readonly<{
-    province: Province;
+    provinceTerritory: Province;
   }>;
 
 export type LocalizedCity = LocalizedLookupModel &
   Readonly<{
-    province: LocalizedProvince;
+    provinceTerritory: LocalizedProvince;
   }>;
 
 export type Classification = LookupModel;
@@ -77,6 +77,18 @@ export type LocalizedPriorityLevel = LocalizedLookupModel;
 export type RequestStatus = LookupModel;
 export type LocalizedRequestStatus = LocalizedLookupModel;
 
+export type SecurityClearance = LookupModel;
+export type LocalizedSecurityClearance = LocalizedLookupModel;
+
+export type SelectionProcessType = LookupModel;
+export type LocalizedSelectionProcessType = LocalizedLookupModel;
+
+export type UserType = LookupModel;
+export type LocalizedUserType = LocalizedLookupModel;
+
+export type WorkSchedule = LookupModel;
+export type LocalizedWorkSchedule = LocalizedLookupModel;
+
 export type EmploymentEquity = LookupModel;
 export type LocalizedEmploymentEquity = LocalizedLookupModel;
 
@@ -99,8 +111,7 @@ export type User = Readonly<{
 }>;
 
 export type UserCreate = Readonly<{
-  activeDirectoryId?: string;
-  role: string;
+  languageId: number;
 }>;
 
 export type Profile = Readonly<{

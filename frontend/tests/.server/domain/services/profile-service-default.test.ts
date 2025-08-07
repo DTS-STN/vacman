@@ -138,8 +138,8 @@ describe('profile-service-default', () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${mockActiveDirectoryId}`,
         },
-        body: JSON.stringify({ activeDirectoryId: mockActiveDirectoryId }),
       });
     });
 
@@ -169,7 +169,7 @@ describe('profile-service-default', () => {
       await expect(profileService.registerProfile(mockActiveDirectoryId)).rejects.toThrow('Network error');
     });
 
-    it('should send correct request body with activeDirectoryId', async () => {
+    it('should send correct request headers with authorization', async () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
         status: HttpStatusCodes.CREATED,
@@ -178,11 +178,14 @@ describe('profile-service-default', () => {
 
       await profileService.registerProfile(mockActiveDirectoryId);
 
-      const expectedBody = JSON.stringify({ activeDirectoryId: mockActiveDirectoryId });
       expect(mockFetch).toHaveBeenCalledWith(
         `${serverEnvironment.VACMAN_API_BASE_URI}/profiles`,
         expect.objectContaining({
-          body: expectedBody,
+          headers: expect.objectContaining({
+            'Authorization': `Bearer ${mockActiveDirectoryId}`,
+            'Content-Type': 'application/json',
+          }),
+          method: 'POST',
         }),
       );
     });

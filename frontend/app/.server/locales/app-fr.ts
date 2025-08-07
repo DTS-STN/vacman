@@ -51,14 +51,46 @@ export default {
     'view': 'Voir mon profil',
     'profile-completion-progress': 'Avancement de la complétion du profil',
     'not-provided': 'Non communiqué',
-    'last-updated': 'Dernière mise à jour\u00A0: {{date}} par {{name}}', // TODO: French translation needs to be verified
+    'last-updated': 'Dernière mise-à-jour\u00A0: {{date}} par {{name}}',
     'field-incomplete': 'Champs obligatoires incomplets', // TODO: French translation needs to be verified
-    'profile-incomplete': '(FR) Please complete all required fields before submitting your profile',
-    'profile-submitted': '(FR) Profile submitted successfully! Your HR advisor will now review it for approval',
-    'profile-pending-approval': '(FR) Your profile edits will require re-approval by your HR advisor', // TODO: French translations not yet available
+    'profile-incomplete': 'Veuillez remplir tous les champs obligatoires avant de soumettre votre profil',
+    'profile-submitted': "Profil soumis avec succès! Votre conseiller(ère) RH va maintenant l'examiner pour approbation",
+    'profile-pending-approval':
+      'Les modifications de votre profil nécessiteront une nouvelle approbation de votre conseiller(ère) RH',
     'page-title': 'Profil',
   },
+  'employee-profile': {
+    'about-para-1':
+      'Review profile details below for approval. If changes are needed, contact the employee directly to discuss and update before approving.',
+    'edit': 'Modifier les',
+    'add': 'Ajouter des',
+    'pending': 'Pending Approval',
+    'approved': 'Approved',
+    'personal-information': {
+      'title': 'Informations personnelles',
+      'link-label': 'informations personnelles',
+      'detail': 'Provide your personal and contact details, language preferences, education, and other relevant information.',
+    },
+    'employment': {
+      'title': "Informations sur l'emploi",
+      'link-label': "informations sur l'emploi",
+      'detail': 'Share information about your current job and your Work Force Adjustment (WFA) status.',
+    },
+    'referral': {
+      'title': 'Préférences de recommandation',
+      'link-label': 'préférences de recommandation',
+      'detail':
+        'Indicate your preferences for job referrals including job type, classification, language requirements, preferred locations, and availability.',
+    },
+    'back': "Retour au l'employes",
+    'view': 'Voir mon profil',
+    'not-provided': 'Non communiqué',
+    'last-updated': 'Dernière mise à jour\u00A0: {{date}} par {{name}}', // TODO: French translation needs to be verified
+    'field-incomplete': 'Champs obligatoires incomplets', // TODO: French translation needs to be verified
+    'page-title': 'Employe Profile',
+  },
   'form': {
+    'approve': 'Approuver',
     'cancel': 'Annuler',
     'save': 'Enregistrer',
     'save-and-exit': 'Enregistrer et quitter',

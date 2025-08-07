@@ -10,7 +10,7 @@ import type { Profile } from '~/.server/domain/models';
 import { getLanguageForCorrespondenceService } from '~/.server/domain/services/language-for-correspondence-service';
 import { getProfileService } from '~/.server/domain/services/profile-service';
 import { getUserService } from '~/.server/domain/services/user-service';
-import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
+import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { InlineLink } from '~/components/links';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
@@ -30,9 +30,12 @@ export function meta({ data }: Route.MetaArgs) {
 }
 
 export async function action({ context, params, request }: Route.ActionArgs) {
+  const currentUrl = new URL(request.url);
+  requireAuthentication(context.session, currentUrl);
+
   // Get the current user's ID from the authenticated session
-  const authenticatedSession = context.session as AuthenticatedSession;
-  const currentUserId = authenticatedSession.authState.idTokenClaims.oid as string;
+  const authenticatedSession = context.session;
+  const currentUserId = authenticatedSession.authState.idTokenClaims.oid;
   const formData = await request.formData();
   const parseResult = v.safeParse(personalInformationSchema, {
     surname: formString(formData.get('surname')),
@@ -53,7 +56,18 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     );
   }
 
-  const updateResult = await getProfileService().updatePersonalInformation(currentUserId, parseResult.output);
+  const profileService = getProfileService();
+  const currentProfileOption = await profileService.getCurrentUserProfile(context.session.authState.accessToken);
+  const currentProfile = currentProfileOption.unwrap();
+  const updateResult = await profileService.updateProfile(
+    authenticatedSession.authState.accessToken,
+    currentProfile.profileId.toString(),
+    currentUserId,
+    {
+      ...currentProfile,
+      personalInformation: parseResult.output,
+    },
+  );
 
   if (updateResult.isErr()) {
     throw updateResult.unwrapErr();
@@ -65,10 +79,12 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 }
 
 export async function loader({ context, request, params }: Route.LoaderArgs) {
-  // Use the id parameter from the URL to fetch the profile
-  const profileUserId = params.id;
-  const profileUser = await getUserService().getUserByActiveDirectoryId(profileUserId);
-  const profileResult = await getProfileService().getProfile(profileUserId);
+  const currentUrl = new URL(request.url);
+  requireAuthentication(context.session, currentUrl);
+
+  const accessToken = context.session.authState.accessToken;
+  const currentUser = await getUserService().getCurrentUser(accessToken);
+  const profileResult = await getProfileService().getCurrentUserProfile(accessToken);
 
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
   const localizedLanguagesOfCorrespondenceResult = await getLanguageForCorrespondenceService().listAllLocalized(lang);
@@ -81,7 +97,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       givenName: profileData.personalInformation.givenName,
       personalRecordIdentifier: profileData.personalInformation.personalRecordIdentifier,
       preferredLanguageId: profileData.personalInformation.preferredLanguageId,
-      workEmail: profileUser?.businessEmail ?? profileData.personalInformation.workPhone,
+      workEmail: currentUser.businessEmail ?? profileData.personalInformation.workPhone,
       personalEmail: profileData.personalInformation.personalEmail,
       workPhone: toE164(profileData.personalInformation.workPhone),
       personalPhone: toE164(profileData.personalInformation.personalPhone),
@@ -107,7 +123,7 @@ export default function PersonalInformation({ loaderData, actionData, params }: 
           formValues={loaderData.defaultValues}
           isReadOnly={false}
           languagesOfCorrespondence={loaderData.languagesOfCorrespondence}
-          param={params}
+          params={params}
         />
       </div>
     </>
