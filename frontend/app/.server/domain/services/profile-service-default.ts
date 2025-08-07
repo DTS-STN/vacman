@@ -202,7 +202,7 @@ export function getDefaultProfileService(): ProfileService {
       }
     },
 
-    async getActiveProfile(session: AuthenticatedSession): Promise<Profile[]> {
+    async getCurrentUserProfile(session: AuthenticatedSession): Promise<Option<Profile>> {
       let response: Response;
 
       try {
@@ -213,23 +213,28 @@ export function getDefaultProfileService(): ProfileService {
         });
       } catch (error) {
         throw new AppError(
-          error instanceof Error ? error.message : `Network error while fetching active profiles`,
+          error instanceof Error ? error.message : `Network error while fetching current user profile`,
           ErrorCodes.PROFILE_NETWORK_ERROR,
           { httpStatusCode: HttpStatusCodes.SERVICE_UNAVAILABLE },
         );
       }
 
+      if (response.status === HttpStatusCodes.NOT_FOUND) {
+        return None;
+      }
+
       if (!response.ok) {
-        const errorMessage = `Failed to retrieve active profiles. Server responded with status ${response.status}.`;
+        const errorMessage = `Failed to retrieve current user profile. Server responded with status ${response.status}.`;
         throw new AppError(errorMessage, ErrorCodes.PROFILE_FETCH_FAILED, {
           httpStatusCode: response.status as HttpStatusCode,
         });
       }
 
       try {
-        return await response.json();
+        const profile = await response.json();
+        return Some(profile);
       } catch {
-        throw new AppError(`Invalid JSON response while fetching active profiles`, ErrorCodes.PROFILE_INVALID_RESPONSE, {
+        throw new AppError(`Invalid JSON response while fetching current user profile`, ErrorCodes.PROFILE_INVALID_RESPONSE, {
           httpStatusCode: HttpStatusCodes.BAD_GATEWAY,
         });
       }

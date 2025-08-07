@@ -33,7 +33,7 @@ const mockProfileService = {
   updateProfile: vi.fn(),
   submitProfileForReview: vi.fn(),
   getAllProfiles: vi.fn(),
-  getActiveProfile: vi.fn(),
+  getCurrentUserProfile: vi.fn(),
 };
 const mockUserService = {
   getUserByActiveDirectoryId: vi.fn(),

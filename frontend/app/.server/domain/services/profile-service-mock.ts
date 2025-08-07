@@ -63,24 +63,25 @@ export function getMockProfileService(): ProfileService {
     getAllProfiles: () => {
       return Promise.resolve(mockProfiles);
     },
-    getActiveProfile: (session: AuthenticatedSession) => {
+    getCurrentUserProfile: (session: AuthenticatedSession) => {
       const activeDirectoryId = session.authState.idTokenClaims.oid as string;
       const userId = activeDirectoryToUserIdMap[activeDirectoryId];
 
-      // If user not found, return empty array
+      // If user not found, return None
       if (!userId) {
-        return Promise.resolve([]);
+        return Promise.resolve(None);
       }
 
-      // Filter for active profiles that belong to the current user
-      const activeProfiles = mockProfiles.filter(
+      // Find the first active profile that belongs to the current user
+      const activeProfile = mockProfiles.find(
         (profile) =>
           profile.userId === userId &&
           (profile.profileStatusId === PROFILE_STATUS_ID.incomplete ||
             profile.profileStatusId === PROFILE_STATUS_ID.pending ||
             profile.profileStatusId === PROFILE_STATUS_ID.approved),
       );
-      return Promise.resolve(activeProfiles);
+
+      return Promise.resolve(activeProfile ? Some(activeProfile) : None);
     },
   };
 }
