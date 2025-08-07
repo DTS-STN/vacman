@@ -4,7 +4,6 @@ import type { Option, Result } from 'oxide.ts';
 import type { Profile, ProfileFormData } from '~/.server/domain/models';
 import type { ProfileService } from '~/.server/domain/services/profile-service';
 import { serverEnvironment } from '~/.server/environment';
-import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
 import type { HttpStatusCode } from '~/errors/http-status-codes';
@@ -104,15 +103,16 @@ export function getDefaultProfileService(): ProfileService {
     },
 
     async updateProfile(
-      session: AuthenticatedSession,
+      accessToken: string,
       profileId: string,
+      userUpdated: string,
       data: ProfileFormData,
     ): Promise<Result<void, AppError>> {
       try {
         const response = await fetch(`${serverEnvironment.VACMAN_API_BASE_URI}/profiles/${profileId}`, {
           method: 'PUT',
           headers: {
-            Authorization: `Bearer ${session.authState.accessToken}`,
+            Authorization: `Bearer ${accessToken}`,
           },
           body: JSON.stringify(data),
         });
