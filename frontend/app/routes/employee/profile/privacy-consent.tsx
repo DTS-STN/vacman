@@ -1,6 +1,8 @@
 import type { RouteHandle, LoaderFunctionArgs, ActionFunctionArgs, MetaFunction } from 'react-router';
 import { Form } from 'react-router';
 
+import type { Profile } from '~/.server/domain/models';
+import { getProfileService } from '~/.server/domain/services/profile-service';
 import { createUserProfile } from '~/.server/utils/profile-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { Button } from '~/components/button';
@@ -17,10 +19,27 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
 };
 
 export async function action({ context, request }: ActionFunctionArgs) {
+  const authenticatedSession = context.session;
+  const currentUserId = authenticatedSession.authState.idTokenClaims.oid;
+
   const activeDirectoryId = context.session.authState.idTokenClaims.oid;
 
   // TODO move profile creation to /employee/index after user creation then use profileService.updateProfile (needs to be created first) to indicate the consent in true
   const profile = await createUserProfile(activeDirectoryId);
+
+  const profileService = getProfileService();
+
+  const updatePrivacyConsent: Profile = {
+    ...profile,
+    privacyConsentInd: true,
+  };
+
+  await profileService.updateProfile(
+    authenticatedSession.authState.accessToken,
+    profile.profileId.toString(),
+    currentUserId,
+    updatePrivacyConsent,
+  );
 
   return i18nRedirect('routes/employee/index.tsx', request, { params: { id: profile.profileId.toString() } });
 }
