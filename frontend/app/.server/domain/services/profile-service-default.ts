@@ -1,14 +1,10 @@
 import { Err, None, Ok, Some } from 'oxide.ts';
 import type { Option, Result } from 'oxide.ts';
 
-import type {
-  Profile,
-  UserEmploymentInformation,
-  UserPersonalInformation,
-  UserReferralPreferences,
-} from '~/.server/domain/models';
+import type { Profile, ProfileFormData } from '~/.server/domain/models';
 import type { ProfileService } from '~/.server/domain/services/profile-service';
 import { serverEnvironment } from '~/.server/environment';
+import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
 import type { HttpStatusCode } from '~/errors/http-status-codes';
@@ -107,89 +103,24 @@ export function getDefaultProfileService(): ProfileService {
       }
     },
 
-    /*TODO: There is no PATCH on the API for updating partial user profile,
-      so we need to get the user profile data, and update the related fields inside the service, and then send it to the API for the update*/
-
-    async updatePersonalInformation(
-      activeDirectoryId: string,
-      personalInfo: UserPersonalInformation,
+    async updateProfile(
+      session: AuthenticatedSession,
+      profileId: string,
+      data: ProfileFormData,
     ): Promise<Result<void, AppError>> {
       try {
-        const response = await fetch(`/profiles/${activeDirectoryId}/personal`, {
+        const response = await fetch(`${serverEnvironment.VACMAN_API_BASE_URI}/profiles/${profileId}`, {
           method: 'PUT',
-          body: JSON.stringify(personalInfo),
-        });
-
-        if (!response.ok) {
-          return Err(
-            new AppError(
-              `Failed to update personal information. Server responded with status ${response.status}`,
-              ErrorCodes.PROFILE_UPDATE_FAILED,
-              { httpStatusCode: response.status as HttpStatusCode },
-            ),
-          );
-        }
-
-        return Ok(undefined);
-      } catch (error) {
-        return Err(
-          new AppError(
-            error instanceof Error ? error.message : 'Failed to update personal information',
-            ErrorCodes.PROFILE_NETWORK_ERROR,
-            { httpStatusCode: HttpStatusCodes.SERVICE_UNAVAILABLE },
-          ),
-        );
-      }
-    },
-    async updateEmploymentInformation(
-      activeDirectoryId: string,
-      employmentInfo: UserEmploymentInformation,
-    ): Promise<Result<void, AppError>> {
-      try {
-        const response = await fetch(`/profiles/${activeDirectoryId}/employment`, {
-          method: 'PUT',
-          body: JSON.stringify(employmentInfo),
-        });
-
-        if (!response.ok) {
-          return Err(
-            new AppError(
-              `Failed to update employment preferences. Server responded with status ${response.status}`,
-              ErrorCodes.PROFILE_UPDATE_FAILED,
-              { httpStatusCode: response.status as HttpStatusCode },
-            ),
-          );
-        }
-
-        return Ok(undefined);
-      } catch (error) {
-        return Err(
-          new AppError(
-            error instanceof Error ? error.message : 'Failed to update employment information',
-            ErrorCodes.PROFILE_NETWORK_ERROR,
-            { httpStatusCode: HttpStatusCodes.SERVICE_UNAVAILABLE },
-          ),
-        );
-      }
-    },
-
-    async updateReferralPreferences(
-      activeDirectoryId: string,
-      referralPrefs: UserReferralPreferences,
-    ): Promise<Result<void, AppError>> {
-      try {
-        const response = await fetch(
-          `${serverEnvironment.VACMAN_API_BASE_URI}/profiles/${activeDirectoryId}/referral-preferences`,
-          {
-            method: 'PUT',
-            body: JSON.stringify(referralPrefs),
+          headers: {
+            Authorization: `Bearer ${session.authState.accessToken}`,
           },
-        );
+          body: JSON.stringify(data),
+        });
 
         if (!response.ok) {
           return Err(
             new AppError(
-              `Failed to update referral preferences. Server responded with status ${response.status}`,
+              `Failed to update profile. Server responded with status ${response.status}`,
               ErrorCodes.PROFILE_UPDATE_FAILED,
               { httpStatusCode: response.status as HttpStatusCode },
             ),
@@ -199,11 +130,9 @@ export function getDefaultProfileService(): ProfileService {
         return Ok(undefined);
       } catch (error) {
         return Err(
-          new AppError(
-            error instanceof Error ? error.message : 'Failed to update referral preferences',
-            ErrorCodes.PROFILE_NETWORK_ERROR,
-            { httpStatusCode: HttpStatusCodes.SERVICE_UNAVAILABLE },
-          ),
+          new AppError(error instanceof Error ? error.message : 'Failed to update profile', ErrorCodes.PROFILE_NETWORK_ERROR, {
+            httpStatusCode: HttpStatusCodes.SERVICE_UNAVAILABLE,
+          }),
         );
       }
     },

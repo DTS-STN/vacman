@@ -53,7 +53,12 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     );
   }
 
-  const updateResult = await getProfileService().updatePersonalInformation(currentUserId, parseResult.output);
+  const profileService = getProfileService();
+  const currentProfileOption = await profileService.getProfile(currentUserId);
+  const currentProfile = currentProfileOption.unwrap();
+  const updateResult = await profileService.updateProfile(authenticatedSession, currentProfile.profileId.toString(), {
+    personalInformation: parseResult.output,
+  });
 
   if (updateResult.isErr()) {
     throw updateResult.unwrapErr();

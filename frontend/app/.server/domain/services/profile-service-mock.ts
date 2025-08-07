@@ -1,13 +1,9 @@
 import { None, Some, Err, Ok } from 'oxide.ts';
 import type { Result } from 'oxide.ts';
 
-import type {
-  Profile,
-  UserEmploymentInformation,
-  UserPersonalInformation,
-  UserReferralPreferences,
-} from '~/.server/domain/models';
+import type { Profile, ProfileFormData } from '~/.server/domain/models';
 import type { ProfileService } from '~/.server/domain/services/profile-service';
+import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
 import { PROFILE_STATUS_ID } from '~/domain/constants';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
@@ -21,104 +17,23 @@ export function getMockProfileService(): ProfileService {
     registerProfile: (activeDirectoryId: string) => {
       return Promise.resolve(registerProfile(activeDirectoryId));
     },
-    updatePersonalInformation: (
-      activeDirectoryId: string,
-      personalInfo: UserPersonalInformation,
+    updateProfile: (
+      session: AuthenticatedSession,
+      profileId: string,
+      data: ProfileFormData,
     ): Promise<Result<void, AppError>> => {
-      const mockProfile = getProfile(activeDirectoryId);
-
-      if (!mockProfile) {
-        return Promise.resolve(Err(new AppError('Failed to update personal information', ErrorCodes.PROFILE_UPDATE_FAILED)));
-      }
-
+      const activeDirectoryId = session.authState.idTokenClaims.oid as string;
       const userId = activeDirectoryToUserIdMap[activeDirectoryId];
 
-      mockProfiles = mockProfiles.map((profile) =>
-        profile.userId === userId
-          ? {
-              ...profile,
-              personalInformation: {
-                ...profile.personalInformation,
-                surname: personalInfo.surname,
-                givenName: personalInfo.givenName,
-                personalRecordIdentifier: personalInfo.personalRecordIdentifier,
-                preferredLanguageId: personalInfo.preferredLanguageId,
-                workEmail: personalInfo.workEmail,
-                personalEmail: personalInfo.personalEmail,
-                workPhone: personalInfo.workPhone,
-                personalPhone: personalInfo.personalPhone,
-                additionalInformation: personalInfo.additionalInformation,
-              },
-              dateUpdated: new Date().toISOString(),
-              userUpdated: activeDirectoryId,
-            }
-          : profile,
-      );
-
-      return Promise.resolve(Ok(undefined));
-    },
-    updateEmploymentInformation: (
-      activeDirectoryId: string,
-      employmentInfo: UserEmploymentInformation,
-    ): Promise<Result<void, AppError>> => {
-      const mockProfile = getProfile(activeDirectoryId);
-
-      if (!mockProfile) {
-        return Promise.resolve(Err(new AppError('Failed to update employment information', ErrorCodes.PROFILE_UPDATE_FAILED)));
-      }
-
-      const userId = activeDirectoryToUserIdMap[activeDirectoryId];
-
-      mockProfiles = mockProfiles.map((profile) =>
-        profile.userId === userId
-          ? {
-              ...profile,
-              employmentInformation: {
-                ...profile.employmentInformation,
-                substantivePosition: employmentInfo.substantivePosition,
-                branchOrServiceCanadaRegion: employmentInfo.branchOrServiceCanadaRegion,
-                directorate: employmentInfo.directorate,
-                province: employmentInfo.province,
-                cityId: employmentInfo.cityId,
-                wfaStatus: employmentInfo.wfaStatus,
-                wfaEffectiveDate: employmentInfo.wfaEffectiveDate,
-                wfaEndDate: employmentInfo.wfaEndDate,
-                hrAdvisor: employmentInfo.hrAdvisor,
-              },
-              dateUpdated: new Date().toISOString(),
-              userUpdated: activeDirectoryId,
-            }
-          : profile,
-      );
-
-      return Promise.resolve(Ok(undefined));
-    },
-    updateReferralPreferences: (
-      activeDirectoryId: string,
-      referralPrefs: UserReferralPreferences,
-    ): Promise<Result<void, AppError>> => {
-      const mockProfile = getProfile(activeDirectoryId);
-
-      if (!mockProfile) {
+      if (!userId) {
         return Promise.resolve(Err(new AppError('Profile not found', ErrorCodes.PROFILE_NOT_FOUND)));
       }
 
-      const userId = activeDirectoryToUserIdMap[activeDirectoryId];
-
       mockProfiles = mockProfiles.map((profile) =>
-        profile.userId === userId
+        profile.profileId.toString() === profileId
           ? {
               ...profile,
-              referralPreferences: {
-                ...profile.referralPreferences,
-                languageReferralTypeIds: referralPrefs.languageReferralTypeIds,
-                classificationIds: referralPrefs.classificationIds,
-                workLocationProvince: referralPrefs.workLocationProvince,
-                workLocationCitiesIds: referralPrefs.workLocationCitiesIds,
-                availableForReferralInd: referralPrefs.availableForReferralInd,
-                interestedInAlternationInd: referralPrefs.interestedInAlternationInd,
-                employmentTenureIds: referralPrefs.employmentTenureIds,
-              },
+              ...data,
               dateUpdated: new Date().toISOString(),
               userUpdated: activeDirectoryId,
             }
