@@ -62,7 +62,12 @@ async function baseFetch(
 
 export const apiClient = {
   /**
-   * Fetches data and parses it as JSON. The response is the only generic type.
+   * Fetches data from a given path and parses it as JSON.
+   * @template TResponseData The expected type of the data in the successful response.
+   * @param {string} path The API endpoint path.
+   * @param {string} context A descriptive string for the action, used in error messages.
+   * @param {string} [token] An optional access token for authorization.
+   * @returns {Promise<Result<TResponseData, AppError>>} A Promise resolving to a Result containing the typed response data or an AppError.
    */
   async get<TResponseData>(path: string, context: string, token?: string): Promise<Result<TResponseData, AppError>> {
     const responseResult = await baseFetch(path, context, 'GET', token);
@@ -85,13 +90,20 @@ export const apiClient = {
   },
 
   /**
-   * Sends data via POST. Uses separate types for the request body and the expected response.
+   * Sends data to a given path using the POST method.
+   * @template TRequestData The type of the data being sent in the request body.
+   * @template TResponseData The expected type of the data in the successful response.
+   * @param {string} path The API endpoint path.
+   * @param {string} context A descriptive string for the action, used in error messages.
+   * @param {string} [token] An optional access token for authorization.
+   * @param {TRequestData} [model] The data to be sent in the request body.
+   * @returns {Promise<Result<TResponseData, AppError>>} A Promise resolving to a Result containing the typed response data or an AppError.
    */
   async post<TRequestData, TResponseData = unknown>(
     path: string,
     context: string,
+    data: TRequestData,
     token?: string,
-    data?: TRequestData,
   ): Promise<Result<TResponseData, AppError>> {
     const responseResult = await baseFetch(path, context, 'POST', token, JSON.stringify(data));
     if (responseResult.isErr()) {
@@ -113,13 +125,20 @@ export const apiClient = {
   },
 
   /**
-   * Sends data via PUT. Uses separate types for the request body and the expected response.
+   * Updates data at a given path using the PUT method.
+   * @template TRequestData The type of the data being sent in the request body.
+   * @template TResponseData The expected type of the data in the successful response.
+   * @param {string} path The API endpoint path.
+   * @param {string} context A descriptive string for the action, used in error messages.
+   * @param {string} [token] An optional access token for authorization.
+   * @param {TRequestData} [model] The data to be sent in the request body.
+   * @returns {Promise<Result<TResponseData, AppError>>} A Promise resolving to a Result containing the typed response data or an AppError.
    */
   async put<TRequestData, TResponseData = unknown>(
     path: string,
     context: string,
+    data: TRequestData,
     token?: string,
-    data?: TRequestData,
   ): Promise<Result<TResponseData, AppError>> {
     const responseResult = await baseFetch(path, context, 'PUT', token, JSON.stringify(data));
     if (responseResult.isErr()) {
@@ -141,13 +160,20 @@ export const apiClient = {
   },
 
   /**
-   * Sends a DELETE request. Allows for an optional request body and an expected response type.
+   * Deletes a resource at a given path.
+   * @template TRequestData The type of the data being sent in the optional request body.
+   * @template TResponseData The expected type of the data in the successful response. Can be `null` for empty responses.
+   * @param {string} path The API endpoint path.
+   * @param {string} context A descriptive string for the action, used in error messages.
+   * @param {string} [token] An optional access token for authorization.
+   * @param {TRequestData} [model] An optional request body to send with the DELETE request.
+   * @returns {Promise<Result<TResponseData, AppError>>} A Promise resolving to a Result containing the typed response data or an AppError.
    */
   async delete<TRequestData, TResponseData = unknown>(
     path: string,
     context: string,
-    token?: string,
     data?: TRequestData,
+    token?: string,
   ): Promise<Result<TResponseData, AppError>> {
     const jsonBody = data ? JSON.stringify(data) : undefined;
     const responseResult = await baseFetch(path, context, 'DELETE', token, jsonBody);
