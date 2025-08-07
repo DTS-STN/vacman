@@ -5,6 +5,7 @@ import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
 import ca.gov.dtsstn.vacman.api.security.SecurityUtils;
 import ca.gov.dtsstn.vacman.api.service.ProfileService;
 import ca.gov.dtsstn.vacman.api.service.UserService;
+import ca.gov.dtsstn.vacman.api.web.exception.ResourceConflictException;
 import ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException;
 import ca.gov.dtsstn.vacman.api.web.exception.UnauthorizedException;
 import ca.gov.dtsstn.vacman.api.web.model.ProfileReadModel;
@@ -16,13 +17,12 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.validator.constraints.Range;
 import org.mapstruct.factory.Mappers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.web.PagedModel;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
 import java.util.function.Function;
@@ -31,6 +31,10 @@ import java.util.function.Function;
 @Tag(name = "Profiles")
 @RequestMapping({ "/api/v1/profiles" })
 public class ProfilesController {
+
+    private static final Logger log = LoggerFactory.getLogger(ProfilesController.class);
+
+    public static final String OID_NOT_FOUND_MESSAGE = "Could not extract 'oid' claim from JWT token";
 
     private final ProfileService profileService;
 
@@ -79,7 +83,7 @@ public class ProfilesController {
         } else if (hrAdvisor.equalsIgnoreCase("me")) {
             // Retrieve the advisor ID via the incoming oid claim
             var entraId = SecurityUtils.getCurrentUserEntraId()
-                    .orElseThrow(() -> new UnauthorizedException("Could not extract 'oid' claim from JWT token"));
+                    .orElseThrow(() -> new UnauthorizedException(OID_NOT_FOUND_MESSAGE));
 
             hrAdvisorId = userService.getUserByMicrosoftEntraId(entraId)
                     .orElseThrow(() -> new ResourceNotFoundException("No user found for given entra ID."))
@@ -109,7 +113,7 @@ public class ProfilesController {
             Boolean isActive
     ) {
         var entraId = SecurityUtils.getCurrentUserEntraId()
-                .orElseThrow(() -> new UnauthorizedException("Could not extract 'oid' claim from JWT token"));
+                .orElseThrow(() -> new UnauthorizedException(OID_NOT_FOUND_MESSAGE));
 
         final var profiles = profileService.getProfilesByEntraId(entraId, isActive)
                 .stream()
@@ -117,5 +121,42 @@ public class ProfilesController {
                 .toList();
 
         return ResponseEntity.ok(profiles);
+    }
+
+    @GetMapping(path = "/{id}")
+    @SecurityRequirement(name = SpringDocConfig.AZURE_AD)
+    @Operation(summary = "Retrieve the profile specified by ID that is associated with the authenticated user.")
+    public ResponseEntity<ProfileReadModel> getProfileById(
+            @PathVariable(name = "id")
+            Long profileId
+    ) {
+        log.info("Received request to get profile; ID: [{}]", profileId);
+
+        log.debug("Checking if caller has hr-advisor claim");
+        if (!SecurityUtils.hasHrAdvisorId()) {
+            throw new UnauthorizedException("JWT token does not have hr-advisor claim.");
+        }
+
+        log.debug("Checking if caller is a user, that user owns the profile matching the profile ID, and the profile is active.");
+        final var microsoftEntraId = SecurityUtils.getCurrentUserEntraId()
+                .orElseThrow(() -> new UnauthorizedException(OID_NOT_FOUND_MESSAGE));
+
+        var user = userService.getUserByMicrosoftEntraId(microsoftEntraId)
+                .orElseThrow(() ->  new ResourceConflictException("A user with microsoftEntraId=[" + microsoftEntraId + "] does not exist"));
+
+        var foundProfile = user.getProfiles().stream()
+                .filter(p -> p.getId().equals(profileId))
+                .filter(p ->
+                        ProfileService.ACTIVE_PROFILE_STATUS.stream()
+                                .anyMatch(s -> s.equals(p.getProfileStatus().getCode())))
+                // Only one active status profile is allowed at a time, so the above filter is guaranteed to return
+                // only one result
+                .findFirst()
+                .orElseThrow(() -> new ResourceNotFoundException("Could not find profile with id=[" + profileId + "] and with an active status"));
+
+        var profile = profileModelMapper.toModelNoUserData(foundProfile);
+        log.trace("Found profile: [{}]", profile);
+
+        return ResponseEntity.ok(profile);
     }
 }

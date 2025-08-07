@@ -79,10 +79,13 @@ public class UserService {
 
 	public Optional<UserEntity> getUserByMicrosoftEntraId(String microsoftEntraId) {
 		final var userOptional = userRepository.findOne(Example.of(new UserEntityBuilder().microsoftEntraId(microsoftEntraId).build()));
+		// HACK(Max) - Commented out as this appears to be causing a SO.
+		/*
 		userOptional.ifPresent(user -> {
 			eventPublisher.publishEvent(new UserReadEvent(user));
 			log.info("User read with Microsoft Entra ID: {}", user.getMicrosoftEntraId());
 		});
+		 */
 		return userOptional;
 	}
 

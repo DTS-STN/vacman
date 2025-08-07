@@ -13,12 +13,18 @@ import java.util.Set;
 @Service
 public class ProfileService {
 
+    /** A collection of active profile status codes. */
+    public static final Set<String> ACTIVE_PROFILE_STATUS = Set.of("APPROVED", "PENDING", "INCOMPLETE");
+
+    /** A collection of inactive profile status codes. */
+    public static final Set<String> INACTIVE_PROFILE_STATUS = Set.of("ARCHIVED");
+
     private final ProfileRepository profileRepository;
 
     // Keys are tied to the potential values of getProfilesByStatusAndHrId parameter isActive.
-    private final Map<Boolean, Set<String>> profileStatusSets = Map.of(
-            Boolean.TRUE, Set.of("APPROVED", "PENDING", "INCOMPLETE"),
-            Boolean.FALSE, Set.of("ARCHIVED")
+    private static final Map<Boolean, Set<String>> profileStatusSets = Map.of(
+            Boolean.TRUE, ACTIVE_PROFILE_STATUS,
+            Boolean.FALSE, INACTIVE_PROFILE_STATUS
     );
 
     public ProfileService(ProfileRepository profileRepository) {
