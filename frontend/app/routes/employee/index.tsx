@@ -35,7 +35,7 @@ export async function action({ context, request }: ActionFunctionArgs) {
   if (action === 'view-profile') {
     // Get the current user's ID from the authenticated session
     const authenticatedSession = context.session as AuthenticatedSession;
-    const currentUserId = authenticatedSession.authState.idTokenClaims.oid as string;
+    const currentUserId = authenticatedSession.authState.idTokenClaims.oid;
     return i18nRedirect('routes/employee/profile/index.tsx', request, {
       params: { id: currentUserId },
     });

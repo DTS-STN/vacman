@@ -44,7 +44,7 @@ export function meta({ data }: Route.MetaArgs) {
 export async function action({ context, request }: Route.ActionArgs) {
   // Get the current user's ID from the authenticated session
   const authenticatedSession = context.session as AuthenticatedSession;
-  const currentUserId = authenticatedSession.authState.idTokenClaims.oid as string;
+  const currentUserId = authenticatedSession.authState.idTokenClaims.oid;
 
   const profileResult = await getProfileService().getProfile(currentUserId);
   if (profileResult.isNone()) {

@@ -34,7 +34,7 @@ export async function requireProfileAccess(
   targetUserId: string,
   currentUrl?: URL,
 ): Promise<void> {
-  const requesterId = session.authState.idTokenClaims.oid as string;
+  const requesterId = session.authState.idTokenClaims.oid;
 
   log.debug(`Profile access check: requester=${requesterId}, target=${targetUserId}`);
 
