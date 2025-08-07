@@ -87,13 +87,13 @@ export const apiClient = {
   /**
    * Sends data via POST. Uses separate types for the request body and the expected response.
    */
-  async post<TRequestData, TResponseData>(
+  async post<TRequestData, TResponseData = unknown>(
     path: string,
     context: string,
     token?: string,
-    model?: TRequestData,
+    data?: TRequestData,
   ): Promise<Result<TResponseData, AppError>> {
-    const responseResult = await baseFetch(path, context, 'POST', token, JSON.stringify(model));
+    const responseResult = await baseFetch(path, context, 'POST', token, JSON.stringify(data));
     if (responseResult.isErr()) {
       return responseResult;
     }
@@ -115,13 +115,13 @@ export const apiClient = {
   /**
    * Sends data via PUT. Uses separate types for the request body and the expected response.
    */
-  async put<TRequestData, TResponseData>(
+  async put<TRequestData, TResponseData = unknown>(
     path: string,
     context: string,
     token?: string,
-    model?: TRequestData,
+    data?: TRequestData,
   ): Promise<Result<TResponseData, AppError>> {
-    const responseResult = await baseFetch(path, context, 'PUT', token, JSON.stringify(model));
+    const responseResult = await baseFetch(path, context, 'PUT', token, JSON.stringify(data));
     if (responseResult.isErr()) {
       return responseResult;
     }
@@ -143,13 +143,13 @@ export const apiClient = {
   /**
    * Sends a DELETE request. Allows for an optional request body and an expected response type.
    */
-  async delete<TRequestData, TResponseData>(
+  async delete<TRequestData, TResponseData = unknown>(
     path: string,
     context: string,
     token?: string,
-    model?: TRequestData,
+    data?: TRequestData,
   ): Promise<Result<TResponseData, AppError>> {
-    const jsonBody = model ? JSON.stringify(model) : undefined;
+    const jsonBody = data ? JSON.stringify(data) : undefined;
     const responseResult = await baseFetch(path, context, 'DELETE', token, jsonBody);
     if (responseResult.isErr()) {
       return responseResult;
