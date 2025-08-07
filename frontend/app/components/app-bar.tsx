@@ -86,8 +86,8 @@ type AppTitleProps = {
 
 function AppTitle({ title }: AppTitleProps): JSX.Element {
   return (
-      <span id="app-bar-title-label" className={'my-auto py-2 text-white sm:text-2xl'}>
-        {title}
-      </span>
+    <span id="app-bar-title-label" className={'my-auto py-2 text-white sm:text-2xl'}>
+      {title}
+    </span>
   );
 }
