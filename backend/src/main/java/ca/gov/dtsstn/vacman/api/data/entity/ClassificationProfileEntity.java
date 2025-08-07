@@ -15,7 +15,6 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
 @Entity(name = "ClassificationProfile")
-@AttributeOverride(name = "id", column = @Column(name = "[CLASSIFICATION_PROFILE_ID]"))
 @Table(name = "[CLASSIFICATION_PROFILE]", uniqueConstraints = { @UniqueConstraint(name = "CLSPRFL_UK", columnNames = { "[CLASSIFICATION_ID]", "[PROFILE_ID]"}) })
 public class ClassificationProfileEntity extends AbstractBaseEntity {
 

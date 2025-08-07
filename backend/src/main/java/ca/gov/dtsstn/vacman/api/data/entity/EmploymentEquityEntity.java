@@ -13,10 +13,6 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
 @Entity(name = "EmploymentEquity")
-@AttributeOverride(name = "id", column = @Column(name = "[EMPLOYMENT_EQUITY_ID]"))
-@AttributeOverride(name = "code", column = @Column(name = "[EMPLOYMENT_EQUITY_CODE]"))
-@AttributeOverride(name = "nameEn", column = @Column(name = "[EMPLOYMENT_EQUITY_NAME_EN]"))
-@AttributeOverride(name = "nameFr", column = @Column(name = "[EMPLOYMENT_EQUITY_NAME_FR]"))
 @Table(name = "[CD_EMPLOYMENT_EQUITY]", uniqueConstraints = { @UniqueConstraint(name = "EMPLYMNTEQT_UK", columnNames = "[EMPLOYMENT_EQUITY_NAME_EN]") })
 public class EmploymentEquityEntity extends AbstractCodeEntity {
 

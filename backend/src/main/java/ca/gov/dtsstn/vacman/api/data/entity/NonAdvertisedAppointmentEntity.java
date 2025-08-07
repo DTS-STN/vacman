@@ -13,10 +13,6 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
 @Entity(name = "NonAdvertisedAppointment")
-@AttributeOverride(name = "id", column = @Column(name = "[APPOINTMENT_NON_ADVERTISED_ID]"))
-@AttributeOverride(name = "code", column = @Column(name = "[APPOINTMENT_NON_ADVERTISED_CODE]"))
-@AttributeOverride(name = "nameEn", column = @Column(name = "[APPOINTMENT_NON_ADVERTISED_NAME_EN]"))
-@AttributeOverride(name = "nameFr", column = @Column(name = "[APPOINTMENT_NON_ADVERTISED_NAME_FR]"))
 @Table(name = "[CD_APPOINTMENT_NON_ADVERTISED]", uniqueConstraints = { @UniqueConstraint(name = "APPNTMNTNONADVRTSD_UK", columnNames = "[APPOINTMENT_NON_ADVERTISED_NAME_EN]") })
 public class NonAdvertisedAppointmentEntity extends AbstractCodeEntity {
 

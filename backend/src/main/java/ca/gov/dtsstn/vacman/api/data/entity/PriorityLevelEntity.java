@@ -13,10 +13,6 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
 @Entity(name = "PriorityLevel")
-@AttributeOverride(name = "id", column = @Column(name = "[PRIORITY_LEVEL_ID]"))
-@AttributeOverride(name = "code", column = @Column(name = "[PRIORITY_LEVEL_CODE]"))
-@AttributeOverride(name = "nameEn", column = @Column(name = "[PRIORITY_LEVEL_NAME_EN]"))
-@AttributeOverride(name = "nameFr", column = @Column(name = "[PRIORITY_LEVEL_NAME_FR]"))
 @Table(name = "[CD_PRIORITY_LEVEL]", uniqueConstraints = { @UniqueConstraint(name = "PRTYLVL_UK", columnNames = "[PRIORITY_LEVEL_NAME_EN]") })
 public class PriorityLevelEntity extends AbstractCodeEntity {
 

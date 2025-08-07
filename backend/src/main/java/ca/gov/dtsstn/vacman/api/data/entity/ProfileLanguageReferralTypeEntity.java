@@ -15,7 +15,6 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
 @Entity(name = "ProfileLanguageReferralType")
-@AttributeOverride(name = "id", column = @Column(name = "[PROFILE_LANGUAGE_REFERRAL_TYPE_ID]"))
 @Table(name = "[PROFILE_LANGUAGE_REFERRAL_TYPE]", uniqueConstraints = { @UniqueConstraint(name = "PLNGRLTYP_UK", columnNames = { "[PROFILE_ID]", "[LANGUAGE_REFERRAL_TYPE_ID]" }) })
 public class ProfileLanguageReferralTypeEntity extends AbstractBaseEntity {
 

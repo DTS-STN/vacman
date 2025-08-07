@@ -909,9 +909,9 @@ SET IDENTITY_INSERT CD_MATCH_STATUS ON;
 
 --changeset system:cd_match_status
 INSERT INTO [CD_MATCH_STATUS] ([ID], [CODE], [NAME_EN], [NAME_FR], [EFFECTIVE_DATE], [USER_CREATED], [DATE_CREATED], [USER_UPDATED], [DATE_UPDATED])
-VALUES (0, 'IP-FR', 'In Progress', 'NAME_FR', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
-(1, 'PA-FR', 'Pending Approval', 'NAME_FR', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
-(2, 'A-FR', 'Approved', 'NAME_FR', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
+VALUES (0, 'IP-EC', 'In Progress', 'En cours', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+(1, 'PA-EAA', 'Pending Approval', 'En attente d''approbation', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+(2, 'A-A', 'Approved', 'Approuvé', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
 
 --changeset system:cd_match_status_off context:mssql
 SET IDENTITY_INSERT CD_MATCH_STATUS OFF;

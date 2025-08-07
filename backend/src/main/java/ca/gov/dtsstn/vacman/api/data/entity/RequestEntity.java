@@ -20,7 +20,6 @@ import jakarta.persistence.Table;
 
 @Entity(name = "Request")
 @Table(name = "[REQUEST]")
-@AttributeOverride(name = "id", column = @Column(name = "[REQUEST_ID]"))
 public class RequestEntity extends AbstractBaseEntity {
 
 	@ManyToOne

@@ -15,7 +15,6 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
 @Entity(name = "ProfileEmploymentOpportunity")
-@AttributeOverride(name = "id", column = @Column(name = "[PROFILE_EMPLOYMENT_OPPORTUNITY_ID]"))
 @Table(name = "[PROFILE_EMPLOYMENT_OPPORTUNITY]", uniqueConstraints = { @UniqueConstraint(name = "PEMPOPPR_UK", columnNames = { "[EMPLOYMENT_OPPORTUNITY_ID]", "[PROFILE_ID]" }) })
 public class ProfileEmploymentOpportunityEntity extends AbstractBaseEntity {
 

@@ -18,7 +18,6 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
 @Entity(name = "User")
-@AttributeOverride(name = "id", column = @Column(name = "[USER_ID]"))
 @Table(name = "[USER]", uniqueConstraints = { @UniqueConstraint(name = "USER_NAME_UK", columnNames = { "[MS_ENTRA_ID]" }) })
 public class UserEntity extends AbstractBaseEntity {
 
