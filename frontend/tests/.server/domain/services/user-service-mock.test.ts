@@ -41,35 +41,6 @@ describe('getMockUserService', () => {
     });
   });
 
-  describe('getUserByActiveDirectoryId', () => {
-    it('should return a user when given a valid Active Directory ID', async () => {
-      const user = await service.getUserByActiveDirectoryId('11111111-1111-1111-1111-111111111111');
-
-      expect(user).toEqual({
-        id: 2,
-        uuName: 'John Doe',
-        networkName: '11111111-1111-1111-1111-111111111111',
-        role: 'employee',
-        userCreated: 'system',
-        dateCreated: '2024-01-01T00:00:00Z',
-        userUpdated: 'system',
-        dateUpdated: '2024-01-01T00:00:00Z',
-        firstName: 'John',
-        middleName: 'Michael',
-        lastName: 'Doe',
-        initials: 'J.M.D.',
-        personalRecordIdentifier: '987654321',
-        businessPhone: '+1-613-555-0102',
-        businessEmail: 'john.doe@canada.ca',
-      });
-    });
-
-    it('should return null when user is not found', async () => {
-      const user = await service.getUserByActiveDirectoryId('nonexistent-id');
-      expect(user).toBeNull();
-    });
-  });
-
   describe('registerCurrentUser', () => {
     it('should create a new user with generated metadata', async () => {
       const userData = {

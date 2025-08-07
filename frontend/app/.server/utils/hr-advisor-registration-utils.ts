@@ -23,13 +23,7 @@ const log = LogFactory.getLogger(import.meta.url);
 export async function requireHrAdvisorRegistration(session: AuthenticatedSession, currentUrl: URL): Promise<void> {
   // Get user from the database to check hr-advisor registration
   const userService = getUserService();
-  const activeDirectoryId = session.authState.idTokenClaims.oid;
-  const user = await userService.getUserByActiveDirectoryId(activeDirectoryId);
-
-  if (!user) {
-    log.debug('User not found in database, redirecting to index to register as hr-advisor');
-    throw i18nRedirect('routes/employee/index.tsx', currentUrl);
-  }
+  const user = await userService.getCurrentUser(session.authState.accessToken);
 
   // Check if user has hr-advisor role
   if (user.role !== 'hr-advisor') {

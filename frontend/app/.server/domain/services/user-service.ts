@@ -7,7 +7,6 @@ import { serverEnvironment } from '~/.server/environment';
 export type UserService = {
   getUsersByRole(role: string): Promise<User[]>;
   getUserById(id: number): Promise<User>;
-  getUserByActiveDirectoryId(activeDirectoryId: string): Promise<User | null>;
   getCurrentUser(accessToken: string): Promise<User>;
   registerCurrentUser(user: UserCreate, accessToken: string, idTokenClaims: IDTokenClaims): Promise<User>;
 };

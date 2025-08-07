@@ -20,13 +20,6 @@ export function getMockUserService(): UserService {
         return Promise.reject(error);
       }
     },
-    getUserByActiveDirectoryId: (activeDirectoryId: string) => {
-      try {
-        return Promise.resolve(getUserByActiveDirectoryId(activeDirectoryId));
-      } catch (error) {
-        return Promise.reject(error);
-      }
-    },
     getCurrentUser: (accessToken: string): Promise<User> => {
       try {
         const user = mockUsers[0];
@@ -161,17 +154,6 @@ function getUserById(id: number): User {
     throw new AppError(`User with ID '${id}' not found.`, ErrorCodes.VACMAN_API_ERROR);
   }
   return user;
-}
-
-/**
- * Retrieves a user by their Active Directory ID from mock data.
- *
- * @param activeDirectoryId The Active Directory ID of the user to retrieve.
- * @returns The user object if found, null otherwise.
- */
-function getUserByActiveDirectoryId(activeDirectoryId: string): User | null {
-  const user = mockUsers.find((u) => u.networkName === activeDirectoryId);
-  return user ?? null;
 }
 
 /**
