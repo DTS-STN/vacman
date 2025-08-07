@@ -13,12 +13,14 @@ export function getMockProfileService(): ProfileService {
       const profile = getProfile(activeDirectoryId);
       return Promise.resolve(profile ? Some(profile) : None);
     },
+    registerProfile: (accessToken: string) => {
+      // For mock purposes, directly pass the accessToken to the helper function
+      // since it's already set up to handle tokens as keys in the mapping
+      return Promise.resolve(registerProfile(accessToken));
+    },
     getProfileById: (accessToken: string, profileId: string) => {
       const profile = mockProfiles.find((p) => p.profileId.toString() === profileId);
       return Promise.resolve(profile ? Some(profile) : None);
-    },
-    registerProfile: (activeDirectoryId: string) => {
-      return Promise.resolve(registerProfile(activeDirectoryId));
     },
     updateProfile: (
       accessToken: string,
@@ -65,6 +67,25 @@ export function getMockProfileService(): ProfileService {
     },
     getAllProfiles: () => {
       return Promise.resolve(mockProfiles);
+    },
+    getCurrentUserProfile: (accessToken: string) => {
+      const userId = activeDirectoryToUserIdMap[accessToken];
+
+      if (!userId) {
+        // No user found for this token
+        return Promise.resolve(None);
+      }
+
+      // Find the active profile for this specific user
+      const activeProfile = mockProfiles.find(
+        (profile) =>
+          profile.userId === userId &&
+          (profile.profileStatusId === PROFILE_STATUS_ID.incomplete ||
+            profile.profileStatusId === PROFILE_STATUS_ID.pending ||
+            profile.profileStatusId === PROFILE_STATUS_ID.approved),
+      );
+
+      return Promise.resolve(activeProfile ? Some(activeProfile) : None);
     },
   };
 }
@@ -760,17 +781,17 @@ function getProfile(activeDirectoryId: string): Profile | null {
 /**
  * Registers a new profile with mock data.
  *
- * @param activeDirectoryId The Active Directory ID of the user to create a profile for.
+ * @param accessToken The access token of the user to create a profile for.
  * @param session The authenticated session.
  * @returns The created profile object.
  * @throws {AppError} If the profile cannot be created (e.g., user not found).
  */
-function registerProfile(activeDirectoryId: string): Profile {
-  let userId = activeDirectoryToUserIdMap[activeDirectoryId];
+function registerProfile(accessToken: string): Profile {
+  let userId = activeDirectoryToUserIdMap[accessToken];
   if (!userId) {
     // Create new entry in activeDirectoryToUserIdMap if it doesn't exist
     userId = mockProfiles.length + 1;
-    activeDirectoryToUserIdMap[activeDirectoryId] = userId;
+    activeDirectoryToUserIdMap[accessToken] = userId;
   }
 
   // Create new profile
@@ -782,9 +803,9 @@ function registerProfile(activeDirectoryId: string): Profile {
     priorityLevelId: 2,
     profileStatusId: PROFILE_STATUS_ID.incomplete,
     privacyConsentInd: true,
-    userCreated: activeDirectoryId,
+    userCreated: accessToken,
     dateCreated: new Date().toISOString(),
-    userUpdated: activeDirectoryId,
+    userUpdated: accessToken,
     dateUpdated: new Date().toISOString(),
     personalInformation: {
       surname: 'Doe',

@@ -97,6 +97,7 @@ const mockProfileService = {
   updateProfile: vi.fn(),
   submitProfileForReview: vi.fn(),
   getAllProfiles: vi.fn(),
+  getCurrentUserProfile: vi.fn(),
 };
 
 vi.mocked(getProfileService).mockReturnValue(mockProfileService);
