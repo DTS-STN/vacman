@@ -18,6 +18,10 @@ export function getMockProfileService(): ProfileService {
       // since it's already set up to handle tokens as keys in the mapping
       return Promise.resolve(registerProfile(accessToken));
     },
+    getProfileById: (accessToken: string, profileId: string) => {
+      const profile = mockProfiles.find((p) => p.profileId.toString() === profileId);
+      return Promise.resolve(profile ? Some(profile) : None);
+    },
     updateProfile: (
       accessToken: string,
       profileId: string,
