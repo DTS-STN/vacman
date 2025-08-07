@@ -1,7 +1,9 @@
 package ca.gov.dtsstn.vacman.api.service;
 
 import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 import ca.gov.dtsstn.vacman.api.data.repository.ProfileRepository;
+import ca.gov.dtsstn.vacman.api.data.repository.ProfileStatusRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -15,14 +17,17 @@ public class ProfileService {
 
     private final ProfileRepository profileRepository;
 
+    private final ProfileStatusRepository profileStatusRepository;
+
     // Keys are tied to the potential values of getProfilesByStatusAndHrId parameter isActive.
     private final Map<Boolean, Set<String>> profileStatusSets = Map.of(
             Boolean.TRUE, Set.of("APPROVED", "PENDING", "INCOMPLETE"),
             Boolean.FALSE, Set.of("ARCHIVED")
     );
 
-    public ProfileService(ProfileRepository profileRepository) {
+    public ProfileService(ProfileRepository profileRepository, ProfileStatusRepository profileStatusRepository) {
         this.profileRepository = profileRepository;
+        this.profileStatusRepository = profileStatusRepository;
     }
 
     /**
@@ -60,5 +65,22 @@ public class ProfileService {
         return (isActive != null)
                 ? profileRepository.findByUserMicrosoftEntraIdIsAndProfileStatusCodeIn(entraId, profileStatusSets.get(isActive))
                 : profileRepository.findAllByUserMicrosoftEntraId(entraId);
+    }
+
+    /**
+     * Creates a new profile associated with the {@code user} argument. Defaults the profile status to
+     * {@code INCOMPLETE}.
+     *
+     * @param user The user who is associated with the profile.
+     * @return The new profile entity.
+     */
+    public ProfileEntity createProfile(UserEntity user) {
+        var incompleteStatus = profileStatusRepository.findByCode("INCOMPLETE");
+
+        ProfileEntity profile = new ProfileEntity();
+        profile.setUser(user);
+        profile.setProfileStatus(incompleteStatus);
+
+        return profileRepository.save(profile);
     }
 }
