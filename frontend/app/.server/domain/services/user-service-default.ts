@@ -2,7 +2,6 @@ import type { IDTokenClaims } from '~/.server/auth/auth-strategies';
 import type { User, UserCreate } from '~/.server/domain/models';
 import type { UserService } from '~/.server/domain/services/user-service';
 import { serverEnvironment } from '~/.server/environment';
-import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
@@ -63,38 +62,6 @@ export function getDefaultUserService(): UserService {
 
       if (!response.ok) {
         const errorMessage = `Failed to retrieve user with Active Directory ID ${activeDirectoryId}. Server responded with status ${response.status}.`;
-        throw new AppError(errorMessage, ErrorCodes.VACMAN_API_ERROR);
-      }
-
-      return await response.json();
-    },
-
-    /**
-     * Updates a user's role identified by their Active Directory ID.
-     * @param activeDirectoryId The Active Directory ID of the user to update.
-     * @param newRole The new role to assign to the user.
-     * @param session The authenticated session.
-     * @returns A promise that resolves to the updated user object.
-     * @throws AppError if the request fails, if the user is not found, or if the server responds with an error status.
-     */
-    async updateUserRole(activeDirectoryId: string, newRole: string, session: AuthenticatedSession): Promise<User> {
-      const response = await fetch(
-        `${serverEnvironment.VACMAN_API_BASE_URI}/users/by-active-directory-id/${encodeURIComponent(activeDirectoryId)}/role`,
-        {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ role: newRole }),
-        },
-      );
-
-      if (response.status === HttpStatusCodes.NOT_FOUND) {
-        throw new AppError(`User with Active Directory ID '${activeDirectoryId}' not found.`, ErrorCodes.VACMAN_API_ERROR);
-      }
-
-      if (!response.ok) {
-        const errorMessage = `Failed to update user role. Server responded with status ${response.status}.`;
         throw new AppError(errorMessage, ErrorCodes.VACMAN_API_ERROR);
       }
 

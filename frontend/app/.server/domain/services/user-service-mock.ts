@@ -1,8 +1,6 @@
 import type { IDTokenClaims } from '~/.server/auth/auth-strategies';
 import type { User, UserCreate } from '~/.server/domain/models';
 import type { UserService } from '~/.server/domain/services/user-service';
-import { serverEnvironment } from '~/.server/environment';
-import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
 
@@ -25,13 +23,6 @@ export function getMockUserService(): UserService {
     getUserByActiveDirectoryId: (activeDirectoryId: string) => {
       try {
         return Promise.resolve(getUserByActiveDirectoryId(activeDirectoryId));
-      } catch (error) {
-        return Promise.reject(error);
-      }
-    },
-    updateUserRole: (activeDirectoryId: string, newRole: string, session: AuthenticatedSession) => {
-      try {
-        return Promise.resolve(updateUserRole(activeDirectoryId, newRole, session));
       } catch (error) {
         return Promise.reject(error);
       }
@@ -228,51 +219,4 @@ function registerCurrentUser(userData: UserCreate, accessToken: string, idTokenC
   (mockUsers as User[]).push(newUser);
 
   return newUser;
-}
-
-/**
- * Updates a user's role identified by their Active Directory ID.
- *
- * @param activeDirectoryId The Active Directory ID of the user to update.
- * @param newRole The new role to assign to the user.
- * @param session The authenticated session.
- * @returns The updated user object.
- * @throws {AppError} If the user is not found.
- */
-function updateUserRole(activeDirectoryId: string, newRole: string, session: AuthenticatedSession): User {
-  const userIndex = mockUsers.findIndex((u) => u.networkName === activeDirectoryId);
-
-  if (userIndex === -1) {
-    throw new AppError(`User with Active Directory ID '${activeDirectoryId}' not found.`, ErrorCodes.VACMAN_API_ERROR);
-  }
-
-  const currentUser = mockUsers[userIndex];
-  if (!currentUser) {
-    throw new AppError(`User with Active Directory ID '${activeDirectoryId}' not found.`, ErrorCodes.VACMAN_API_ERROR);
-  }
-
-  const updatedUser: User = {
-    ...currentUser,
-    role: newRole,
-    userUpdated: 'system',
-    dateUpdated: new Date().toISOString(),
-  };
-
-  // Update the user in the mock data
-  (mockUsers as User[])[userIndex] = updatedUser;
-
-  // If using local OIDC for testing, update the session roles
-  if (serverEnvironment.ENABLE_DEVMODE_OIDC) {
-    // Mock function to simulate updating user roles in the session for local testing.
-    if (session.authState.accessTokenClaims.roles) {
-      // Remove any existing employee/hiring-manager roles and add the new one
-      const filteredRoles = session.authState.accessTokenClaims.roles.filter(
-        (r: string) => r !== 'employee' && r !== 'hiring-manager' && r !== 'hr-advisor',
-      );
-      // Cast to mutable for testing purposes
-      (session.authState.accessTokenClaims.roles as string[]) = [...filteredRoles, newRole];
-    }
-  }
-
-  return updatedUser;
 }
