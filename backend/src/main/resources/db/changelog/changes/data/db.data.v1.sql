@@ -327,13 +327,11 @@ SET IDENTITY_INSERT CD_WFA_STATUS ON;
 
 --changeset system:cd_wfa_status
 INSERT INTO [CD_WFA_STATUS] ([ID], [CODE], [NAME_EN], [NAME_FR], [SORT_ORDER], [EFFECTIVE_DATE], [USER_CREATED], [DATE_CREATED], [USER_UPDATED], [DATE_UPDATED])
-VALUES (0, 'AFFECTED', 'Affected', 'Touché', 0, '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
-(1, 'SURPLUS_GRJO', 'Surplus with GRJO', 'Excédentaire avec GOE', 0, '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
-(2, 'SURPLUS_NO_GRJO', 'Surplus without a GRJO', 'Excédentaire sans GOE', 0, '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
-(3, 'RELOCATION', 'Relocation of work unit', 'Réinstallation de l''unité de travail', 0, '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
-(4, 'LAYOFF', 'Lay-off', 'Mise à pied', 0, '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
-(5, 'EXAFFECTED', 'Affected - EX', 'Touché - EX', 0, '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
-(6, 'EXSURPLUSCPA', 'Surplus - EX (Stay CPA)', 'Excédentaire - EX (Reste APC)', 0, '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
+VALUES (0, 'AFFECTED', 'Affected', 'Touché',3, '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+(1, 'SURPLUS_GRJO', 'Surplus (GRJO)', 'Excédentaire (GOER)', 1, '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+(2, 'SURPLUS_NO_GRJO', 'Surplus (Opting Option A)', 'Excédentaire (Optant Option A)', 2, '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+(3, 'EXAFFECTED', 'Affected - EX', 'Touché - EX', 5, '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+(4, 'EXSURPLUSCPA', 'Surplus - EX (Stay CPA)', 'Excédentaire - EX (Reste APC)', 4, '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
 
 --changeset system:cd_wfa_status_off context:mssql
 SET IDENTITY_INSERT CD_WFA_STATUS OFF;
