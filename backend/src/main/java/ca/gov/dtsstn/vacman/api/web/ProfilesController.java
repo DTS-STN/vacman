@@ -140,17 +140,11 @@ public class ProfilesController {
         final var microsoftEntraId = SecurityUtils.getCurrentUserEntraId()
                 .orElseThrow(() -> new UnauthorizedException(OID_NOT_FOUND_MESSAGE));
 
-        var user = userService.getUserByMicrosoftEntraId(microsoftEntraId)
-                .orElseThrow(() ->  new ResourceNotFoundException("A user with microsoftEntraId=[" + microsoftEntraId + "] does not exist"));
+        var userId = userService.getUserByMicrosoftEntraId(microsoftEntraId)
+                .orElseThrow(() ->  new ResourceNotFoundException("A user with microsoftEntraId=[" + microsoftEntraId + "] does not exist"))
+                .getId();
 
-        var foundProfile = user.getProfiles().stream()
-                .filter(p -> p.getId().equals(profileId))
-                .filter(p ->
-                        ProfileService.ACTIVE_PROFILE_STATUS.stream()
-                                .anyMatch(s -> s.equals(p.getProfileStatus().getCode())))
-                // Only one active status profile is allowed at a time, so the above filter is guaranteed to return
-                // only one result
-                .findFirst()
+        var foundProfile = profileService.getActiveProfileByIdAndUserId(profileId, userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Could not find profile with id=[" + profileId + "] and with an active status"));
 
         var profile = profileModelMapper.toModelNoUserData(foundProfile);

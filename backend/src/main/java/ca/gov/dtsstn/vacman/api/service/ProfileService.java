@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -66,5 +67,16 @@ public class ProfileService {
         return (isActive != null)
                 ? profileRepository.findByUserMicrosoftEntraIdIsAndProfileStatusCodeIn(entraId, profileStatusSets.get(isActive))
                 : profileRepository.findAllByUserMicrosoftEntraId(entraId);
+    }
+
+    /**
+     * Returns a profile by ID assuming the user's ID matches & the profile is active.
+     *
+     * @param profileId The target profile's ID.
+     * @param userId The ID of the user associated with the target profile.
+     * @return The profile matching the above requirements, if any.
+     */
+    public Optional<ProfileEntity> getActiveProfileByIdAndUserId(Long profileId, Long userId) {
+        return profileRepository.findByIdAndUserIdIsAndProfileStatusCodeIn(profileId, userId, ACTIVE_PROFILE_STATUS);
     }
 }
