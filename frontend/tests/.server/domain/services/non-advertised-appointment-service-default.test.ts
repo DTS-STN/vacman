@@ -64,7 +64,7 @@ describe('getDefaultNonAdvertisedAppointmentService', () => {
       expect(result.isOk()).toBe(true);
       expect(result.unwrap()).toEqual(singleMockAppointment);
       expect(fetch).toHaveBeenCalledTimes(1);
-      expect(fetch).toHaveBeenCalledWith('http://localhost:8080/api/v1/codes/non-advertised-appointments', expect.anything());
+      expect(fetch).toHaveBeenCalledWith('http://localhost:8080/api/v1/codes/non-advertised-appointments');
     });
 
     it('should return an Err result with AppError if not found', async () => {
