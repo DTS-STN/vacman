@@ -46,19 +46,15 @@ describe('User Service Integration', () => {
         },
       } as unknown as AuthenticatedSession;
 
-      const registeredUser = await userService.registerCurrentUser(
-        newUserData,
-        mockSession.authState.accessToken,
-        mockSession.authState.idTokenClaims,
-      );
+      const registeredUser = await userService.registerCurrentUser(newUserData, mockSession.authState.accessToken);
 
       expect(registeredUser).toMatchObject({
-        uuName: 'Test Employee',
-        networkName: 'test-employee-123',
+        uuName: 'Test User',
+        networkName: 'mock-active-directory-id',
         role: 'employee',
       });
       expect(registeredUser.id).toBeDefined();
-      expect(registeredUser.userCreated).toBe('test-employee-123');
+      expect(registeredUser.userCreated).toBe('mock-active-directory-id');
       expect(registeredUser.dateCreated).toBeDefined();
     });
 
@@ -94,15 +90,11 @@ describe('User Service Integration', () => {
         },
       } as unknown as AuthenticatedSession;
 
-      const registeredUser = await userService.registerCurrentUser(
-        newUserData,
-        mockSession.authState.accessToken,
-        mockSession.authState.idTokenClaims,
-      );
+      const registeredUser = await userService.registerCurrentUser(newUserData, mockSession.authState.accessToken);
 
       expect(registeredUser).toMatchObject({
-        uuName: 'Test Hiring Manager',
-        networkName: 'test-manager-123',
+        uuName: 'Test User',
+        networkName: 'mock-active-directory-id',
         role: 'employee',
       });
     });
