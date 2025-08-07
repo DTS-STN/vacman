@@ -78,7 +78,6 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 
 export default function PersonalDetails({ loaderData, actionData, params }: Route.ComponentProps) {
   const { t } = useTranslation(handle.i18nNamespace);
-  const errors = actionData?.errors;
 
   return (
     <>
@@ -89,7 +88,6 @@ export default function PersonalDetails({ loaderData, actionData, params }: Rout
         <ReferralPreferencesForm
           cancelLink={'routes/hr-advisor/employee-profile/index.tsx'}
           formValues={loaderData.defaultValues}
-          formErrors={errors}
           languageReferralTypes={loaderData.languageReferralTypes}
           classifications={loaderData.classifications}
           employmentTenures={loaderData.employmentTenures}

@@ -90,7 +90,6 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 
 export default function EmploymentInformation({ loaderData, actionData, params }: Route.ComponentProps) {
   const { t } = useTranslation(handle.i18nNamespace);
-  const errors = actionData?.errors;
 
   return (
     <>
@@ -101,7 +100,6 @@ export default function EmploymentInformation({ loaderData, actionData, params }
         <EmploymentInformationForm
           cancelLink={'routes/hr-advisor/employee-profile/index.tsx'}
           formValues={loaderData.defaultValues}
-          formErrors={errors}
           substantivePositions={loaderData.substantivePositions}
           branchOrServiceCanadaRegions={loaderData.branchOrServiceCanadaRegions}
           directorates={loaderData.directorates}

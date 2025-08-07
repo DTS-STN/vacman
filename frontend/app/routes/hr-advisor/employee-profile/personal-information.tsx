@@ -66,7 +66,6 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 
 export default function PersonalInformation({ loaderData, actionData, params }: Route.ComponentProps) {
   const { t } = useTranslation(handle.i18nNamespace);
-  const errors = actionData?.errors;
 
   return (
     <>
@@ -76,7 +75,6 @@ export default function PersonalInformation({ loaderData, actionData, params }: 
       <div className="max-w-prose">
         <PersonalInformationForm
           cancelLink={'routes/hr-advisor/employee-profile/index.tsx'}
-          formErrors={errors}
           formValues={loaderData.defaultValues}
           isReadOnly={true}
           languagesOfCorrespondence={loaderData.languagesOfCorrespondence}
