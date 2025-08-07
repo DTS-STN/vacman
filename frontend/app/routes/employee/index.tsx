@@ -62,7 +62,6 @@ export async function loader({ context, request }: LoaderFunctionArgs) {
       const currentUser = await getUserService().registerCurrentUser(
         { languageId },
         authenticatedSession.authState.accessToken,
-        authenticatedSession.authState.idTokenClaims,
       );
       authenticatedSession.currentUser = currentUser;
     }
