@@ -2,6 +2,7 @@ import { parsePhoneNumberWithError } from 'libphonenumber-js';
 import * as v from 'valibot';
 import type { BaseSchema, BaseIssue } from 'valibot';
 
+import type { User } from '~/.server/domain/models';
 import { getBranchService } from '~/.server/domain/services/branch-service';
 import { getCityService } from '~/.server/domain/services/city-service';
 import { getClassificationService } from '~/.server/domain/services/classification-service';
@@ -20,6 +21,7 @@ import { isValidPhone } from '~/utils/phone-utils';
 import { REGEX_PATTERNS } from '~/utils/regex-utils';
 import { formString } from '~/utils/string-utils';
 
+// Services that don't require authentication can be called at module level
 const allLanguagesOfCorrespondence = await getLanguageForCorrespondenceService().listAll();
 const allSubstantivePositions = await getClassificationService().listAll();
 const allWfaStatus = await getWFAStatuses().listAll();
@@ -27,9 +29,182 @@ const allBranchOrServiceCanadaRegions = await getBranchService().listAll();
 const allDirectorates = await getDirectorateService().listAll();
 const allProvinces = await getProvinceService().listAll();
 const allCities = await getCityService().listAll();
-const hrAdvisors = await getUserService().getUsersByRole('hr-advisor');
 const allLanguageReferralTypes = await getLanguageReferralTypeService().listAll();
 const allEmploymentTenures = await getEmploymentTenureService().listAll();
+
+// Function to get HR advisors that requires authentication
+async function getHrAdvisors(accessToken: string): Promise<User[]> {
+  return await getUserService().getUsersByRole('hr-advisor', accessToken);
+}
+
+// Function to create employment information schema with HR advisors
+export async function createEmploymentInformationSchema(accessToken: string) {
+  const hrAdvisors = await getHrAdvisors(accessToken);
+
+  return v.pipe(
+    v.intersect([
+      v.object({
+        substantivePosition: v.lazy(() =>
+          v.pipe(
+            stringToIntegerSchema('app:employment-information.errors.substantive-group-and-level-required'),
+            v.picklist(
+              allSubstantivePositions.map(({ id }) => id),
+              'app:employment-information.errors.substantive-group-and-level-required',
+            ),
+          ),
+        ),
+        branchOrServiceCanadaRegion: v.lazy(() =>
+          v.pipe(
+            stringToIntegerSchema('app:employment-information.errors.branch-or-service-canada-region-required'),
+            v.picklist(
+              allBranchOrServiceCanadaRegions.map(({ id }) => id),
+              'app:employment-information.errors.branch-or-service-canada-region-required',
+            ),
+          ),
+        ),
+        directorate: v.lazy(() =>
+          v.pipe(
+            stringToIntegerSchema('app:employment-information.errors.directorate-required'),
+            v.picklist(
+              allDirectorates.map(({ id }) => id),
+              'app:employment-information.errors.directorate-required',
+            ),
+          ),
+        ),
+        province: v.lazy(() =>
+          v.pipe(
+            stringToIntegerSchema('app:employment-information.errors.provinces-required'),
+            v.picklist(
+              allProvinces.map(({ id }) => id),
+              'app:employment-information.errors.provinces-required',
+            ),
+          ),
+        ),
+        cityId: v.lazy(() =>
+          v.pipe(
+            stringToIntegerSchema('app:employment-information.errors.city-required'),
+            v.picklist(
+              allCities.map(({ id }) => id),
+              'app:employment-information.errors.city-required',
+            ),
+          ),
+        ),
+        hrAdvisor: v.lazy(() =>
+          v.pipe(
+            stringToIntegerSchema('app:employment-information.errors.hr-advisor-required'),
+            v.picklist(
+              hrAdvisors.map(({ id }) => Number(id)),
+              'app:employment-information.errors.hr-advisor-required',
+            ),
+          ),
+        ),
+      }),
+      v.variant(
+        'wfaStatus',
+        [
+          v.object({
+            wfaStatus: v.pipe(stringToIntegerSchema(), v.picklist(selectedValidWfaStatusesForOptionalDate.map(({ id }) => id))),
+            wfaEffectiveDateYear: v.optional(v.string()),
+            wfaEffectiveDateMonth: v.optional(v.string()),
+            wfaEffectiveDateDay: v.optional(v.string()),
+            wfaEffectiveDate: v.optional(v.string()),
+            wfaEndDateYear: v.optional(v.string()),
+            wfaEndDateMonth: v.optional(v.string()),
+            wfaEndDateDay: v.optional(v.string()),
+            wfaEndDate: v.optional(v.string()),
+          }),
+          v.object({
+            wfaStatus: v.pipe(stringToIntegerSchema(), v.picklist(selectedValidWfaStatusesForRequiredDate.map(({ id }) => id))),
+            wfaEffectiveDateYear: v.pipe(
+              stringToIntegerSchema('app:employment-information.errors.wfa-effective-date.required-year'),
+              v.minValue(1, 'app:employment-information.errors.wfa-effective-date.invalid-year'),
+              v.maxValue(
+                getStartOfDayInTimezone(serverEnvironment.BASE_TIMEZONE).getFullYear(),
+                'app:employment-information.errors.wfa-effective-date.invalid-year',
+              ),
+            ),
+            wfaEffectiveDateMonth: v.pipe(
+              stringToIntegerSchema('app:employment-information.errors.wfa-effective-date.required-month'),
+              v.minValue(1, 'app:employment-information.errors.wfa-effective-date.invalid-month'),
+              v.maxValue(12, 'app:employment-information.errors.wfa-effective-date.invalid-month'),
+            ),
+            wfaEffectiveDateDay: v.pipe(
+              stringToIntegerSchema('app:employment-information.errors.wfa-effective-date.required-day'),
+              v.minValue(1, 'app:employment-information.errors.wfa-effective-date.invalid-day'),
+              v.maxValue(31, 'app:employment-information.errors.wfa-effective-date.invalid-day'),
+            ),
+            wfaEffectiveDate: v.pipe(
+              v.string(),
+              v.trim(),
+              v.transform((input) => (input === '' ? undefined : input)),
+              v.optional(
+                v.pipe(
+                  v.string(),
+                  v.custom(
+                    (input) => isValidDateString(input as string),
+                    'app:employment-information.errors.wfa-effective-date.invalid',
+                  ),
+                  v.custom(
+                    (input) => isDateInPastOrTodayInTimeZone(serverEnvironment.BASE_TIMEZONE, input as string),
+                    'app:employment-information.errors.wfa-effective-date.invalid-future-date',
+                  ),
+                ),
+              ),
+            ),
+            wfaEndDateYear: optionalString(
+              v.optional(
+                v.pipe(
+                  stringToIntegerSchema('app:employment-information.errors.wfa-end-date.invalid-year'),
+                  v.minValue(1, 'app:employment-information.errors.wfa-end-date.invalid-year'),
+                ),
+              ),
+            ),
+            wfaEndDateMonth: v.optional(
+              v.pipe(
+                stringToIntegerSchema('app:employment-information.errors.wfa-end-date.required-month'),
+                v.minValue(1, 'app:employment-information.errors.wfa-end-date.invalid-month'),
+                v.maxValue(12, 'app:employment-information.errors.wfa-end-date.invalid-month'),
+              ),
+            ),
+            wfaEndDateDay: optionalString(
+              v.optional(
+                v.pipe(
+                  stringToIntegerSchema('app:employment-information.errors.wfa-end-date.required-day'),
+                  v.minValue(1, 'app:employment-information.errors.wfa-end-date.invalid-day'),
+                  v.maxValue(31, 'app:employment-information.errors.wfa-end-date.invalid-day'),
+                ),
+              ),
+            ),
+            wfaEndDate: optionalString(
+              v.optional(
+                v.pipe(
+                  v.string(),
+                  v.custom(
+                    (input) => isValidDateString(input as string),
+                    'app:employment-information.errors.wfa-end-date.invalid',
+                  ),
+                ),
+              ),
+            ),
+          }),
+        ],
+        'app:employment-information.errors.wfa-status-required',
+      ),
+    ]),
+    v.forward(
+      v.partialCheck(
+        [['wfaEffectiveDate'], ['wfaEndDate']],
+        //wfaEffectiveDate and wfaEndDate are optional, but if both are present, then check that wfaEffectiveDate < wfaEndDate
+        (input) => !input.wfaEffectiveDate || !input.wfaEndDate || input.wfaEffectiveDate < input.wfaEndDate,
+        'app:employment-information.errors.wfa-end-date.invalid-before-effective-date',
+      ),
+      ['wfaEndDate'],
+    ),
+  );
+}
+
+// Export type alias for backward compatibility
+export type EmploymentInformationSchema = Awaited<ReturnType<typeof createEmploymentInformationSchema>>;
 
 export type Errors = Readonly<Record<string, [string, ...string[]] | undefined>>;
 
@@ -122,167 +297,6 @@ const selectedValidWfaStatusesForOptionalDate = allWfaStatus
     nameFr: status.nameFr,
   }));
 
-export const employmentInformationSchema = v.pipe(
-  v.intersect([
-    v.object({
-      substantivePosition: v.lazy(() =>
-        v.pipe(
-          stringToIntegerSchema('app:employment-information.errors.substantive-group-and-level-required'),
-          v.picklist(
-            allSubstantivePositions.map(({ id }) => id),
-            'app:employment-information.errors.substantive-group-and-level-required',
-          ),
-        ),
-      ),
-      branchOrServiceCanadaRegion: v.lazy(() =>
-        v.pipe(
-          stringToIntegerSchema('app:employment-information.errors.branch-or-service-canada-region-required'),
-          v.picklist(
-            allBranchOrServiceCanadaRegions.map(({ id }) => id),
-            'app:employment-information.errors.branch-or-service-canada-region-required',
-          ),
-        ),
-      ),
-      directorate: v.lazy(() =>
-        v.pipe(
-          stringToIntegerSchema('app:employment-information.errors.directorate-required'),
-          v.picklist(
-            allDirectorates.map(({ id }) => id),
-            'app:employment-information.errors.directorate-required',
-          ),
-        ),
-      ),
-      province: v.lazy(() =>
-        v.pipe(
-          stringToIntegerSchema('app:employment-information.errors.provinces-required'),
-          v.picklist(
-            allProvinces.map(({ id }) => id),
-            'app:employment-information.errors.provinces-required',
-          ),
-        ),
-      ),
-      cityId: v.lazy(() =>
-        v.pipe(
-          stringToIntegerSchema('app:employment-information.errors.city-required'),
-          v.picklist(
-            allCities.map(({ id }) => id),
-            'app:employment-information.errors.city-required',
-          ),
-        ),
-      ),
-      hrAdvisor: v.lazy(() =>
-        v.pipe(
-          stringToIntegerSchema('app:employment-information.errors.hr-advisor-required'),
-          v.picklist(
-            hrAdvisors.map(({ id }) => Number(id)),
-            'app:employment-information.errors.hr-advisor-required',
-          ),
-        ),
-      ),
-    }),
-    v.variant(
-      'wfaStatus',
-      [
-        v.object({
-          wfaStatus: v.pipe(stringToIntegerSchema(), v.picklist(selectedValidWfaStatusesForOptionalDate.map(({ id }) => id))),
-          wfaEffectiveDateYear: v.optional(v.string()),
-          wfaEffectiveDateMonth: v.optional(v.string()),
-          wfaEffectiveDateDay: v.optional(v.string()),
-          wfaEffectiveDate: v.optional(v.string()),
-          wfaEndDateYear: v.optional(v.string()),
-          wfaEndDateMonth: v.optional(v.string()),
-          wfaEndDateDay: v.optional(v.string()),
-          wfaEndDate: v.optional(v.string()),
-        }),
-        v.object({
-          wfaStatus: v.pipe(stringToIntegerSchema(), v.picklist(selectedValidWfaStatusesForRequiredDate.map(({ id }) => id))),
-          wfaEffectiveDateYear: v.pipe(
-            stringToIntegerSchema('app:employment-information.errors.wfa-effective-date.required-year'),
-            v.minValue(1, 'app:employment-information.errors.wfa-effective-date.invalid-year'),
-            v.maxValue(
-              getStartOfDayInTimezone(serverEnvironment.BASE_TIMEZONE).getFullYear(),
-              'app:employment-information.errors.wfa-effective-date.invalid-year',
-            ),
-          ),
-          wfaEffectiveDateMonth: v.pipe(
-            stringToIntegerSchema('app:employment-information.errors.wfa-effective-date.required-month'),
-            v.minValue(1, 'app:employment-information.errors.wfa-effective-date.invalid-month'),
-            v.maxValue(12, 'app:employment-information.errors.wfa-effective-date.invalid-month'),
-          ),
-          wfaEffectiveDateDay: v.pipe(
-            stringToIntegerSchema('app:employment-information.errors.wfa-effective-date.required-day'),
-            v.minValue(1, 'app:employment-information.errors.wfa-effective-date.invalid-day'),
-            v.maxValue(31, 'app:employment-information.errors.wfa-effective-date.invalid-day'),
-          ),
-          wfaEffectiveDate: v.pipe(
-            v.string(),
-            v.trim(),
-            v.transform((input) => (input === '' ? undefined : input)),
-            v.optional(
-              v.pipe(
-                v.string(),
-                v.custom(
-                  (input) => isValidDateString(input as string),
-                  'app:employment-information.errors.wfa-effective-date.invalid',
-                ),
-                v.custom(
-                  (input) => isDateInPastOrTodayInTimeZone(serverEnvironment.BASE_TIMEZONE, input as string),
-                  'app:employment-information.errors.wfa-effective-date.invalid-future-date',
-                ),
-              ),
-            ),
-          ),
-          wfaEndDateYear: optionalString(
-            v.optional(
-              v.pipe(
-                stringToIntegerSchema('app:employment-information.errors.wfa-end-date.invalid-year'),
-                v.minValue(1, 'app:employment-information.errors.wfa-end-date.invalid-year'),
-              ),
-            ),
-          ),
-          wfaEndDateMonth: v.optional(
-            v.pipe(
-              stringToIntegerSchema('app:employment-information.errors.wfa-end-date.required-month'),
-              v.minValue(1, 'app:employment-information.errors.wfa-end-date.invalid-month'),
-              v.maxValue(12, 'app:employment-information.errors.wfa-end-date.invalid-month'),
-            ),
-          ),
-          wfaEndDateDay: optionalString(
-            v.optional(
-              v.pipe(
-                stringToIntegerSchema('app:employment-information.errors.wfa-end-date.required-day'),
-                v.minValue(1, 'app:employment-information.errors.wfa-end-date.invalid-day'),
-                v.maxValue(31, 'app:employment-information.errors.wfa-end-date.invalid-day'),
-              ),
-            ),
-          ),
-          wfaEndDate: optionalString(
-            v.optional(
-              v.pipe(
-                v.string(),
-                v.custom(
-                  (input) => isValidDateString(input as string),
-                  'app:employment-information.errors.wfa-end-date.invalid',
-                ),
-              ),
-            ),
-          ),
-        }),
-      ],
-      'app:employment-information.errors.wfa-status-required',
-    ),
-  ]),
-  v.forward(
-    v.partialCheck(
-      [['wfaEffectiveDate'], ['wfaEndDate']],
-      //wfaEffectiveDate and wfaEndDate are optional, but if both are present, then check that wfaEffectiveDate < wfaEndDate
-      (input) => !input.wfaEffectiveDate || !input.wfaEndDate || input.wfaEffectiveDate < input.wfaEndDate,
-      'app:employment-information.errors.wfa-end-date.invalid-before-effective-date',
-    ),
-    ['wfaEndDate'],
-  ),
-);
-
 export const referralPreferencesSchema = v.object({
   languageReferralTypeIds: v.pipe(
     v.array(
@@ -369,7 +383,7 @@ export const referralPreferencesSchema = v.object({
   ),
 });
 
-export function parseEmploymentInformation(formData: FormData) {
+export async function parseEmploymentInformation(formData: FormData, accessToken: string) {
   const wfaEffectiveDateYear = formData.get('wfaEffectiveDateYear')?.toString();
   const wfaEffectiveDateMonth = formData.get('wfaEffectiveDateMonth')?.toString();
   const wfaEffectiveDateDay = formData.get('wfaEffectiveDateDay')?.toString();
@@ -395,6 +409,8 @@ export function parseEmploymentInformation(formData: FormData) {
     wfaEndDateDay: wfaEndDateDay,
     hrAdvisor: formString(formData.get('hrAdvisor')),
   };
+
+  const employmentInformationSchema = await createEmploymentInformationSchema(accessToken);
 
   return {
     parseResult: v.safeParse(employmentInformationSchema, formValues),

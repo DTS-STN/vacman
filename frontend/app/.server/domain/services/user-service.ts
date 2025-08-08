@@ -4,7 +4,7 @@ import { getMockUserService } from '~/.server/domain/services/user-service-mock'
 import { serverEnvironment } from '~/.server/environment';
 
 export type UserService = {
-  getUsersByRole(role: string, accessToken?: string): Promise<User[]>;
+  getUsersByRole(role: string, accessToken: string): Promise<User[]>;
   getUserById(id: number, accessToken: string): Promise<User>;
   getCurrentUser(accessToken: string): Promise<User>;
   registerCurrentUser(user: UserCreate, accessToken: string): Promise<User>;
