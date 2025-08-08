@@ -814,7 +814,7 @@ function createMockProfile(accessToken: string): Profile {
   if (!userId) {
     // Create new entry in activeDirectoryToUserIdMap if it doesn't exist
     userId = mockProfiles.length + 1;
-    activeDirectoryToUserIdMap[accessToken] = userId;
+    activeDirectoryToUserIdMap['00000000-0000-0000-0000-000000000000'] = userId;
   }
 
   // Create new profile
