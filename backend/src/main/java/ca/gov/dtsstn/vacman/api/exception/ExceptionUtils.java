@@ -1,6 +1,7 @@
 package ca.gov.dtsstn.vacman.api.exception;
 
 import ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException;
+import ca.gov.dtsstn.vacman.api.web.exception.UnauthorizedException;
 
 /**
  * A utility class for creating consistent exceptions.
@@ -44,6 +45,14 @@ public class ExceptionUtils {
 	 */
 	public static ResourceNotFoundException generateUserWithFieldDoesNotExistException(String field, String value) {
 		return generateEntityWithFieldDoesNotExistException("user", field, value);
+	}
+
+	/**
+	 * Returns a {@link UnauthorizedException} with a message explaining that the caller does not have an OID claim.
+	 * @return An exception with the appropriate message.
+	 */
+	public static UnauthorizedException generateCouldNotExtractOidException() {
+		return new UnauthorizedException("Could not extract 'oid' claim from JWT token");
 	}
 
 	private static ResourceNotFoundException generateEntityWithFieldDoesNotExistException(String entity, String field, String value) {

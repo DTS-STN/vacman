@@ -21,13 +21,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import ca.gov.dtsstn.vacman.api.config.SpringDocConfig;
 import ca.gov.dtsstn.vacman.api.constants.AppConstants;
+import ca.gov.dtsstn.vacman.api.exception.ExceptionUtils;
 import ca.gov.dtsstn.vacman.api.security.SecurityManager;
 import ca.gov.dtsstn.vacman.api.security.SecurityUtils;
 import ca.gov.dtsstn.vacman.api.service.MSGraphService;
 import ca.gov.dtsstn.vacman.api.service.UserService;
 import ca.gov.dtsstn.vacman.api.web.exception.ResourceConflictException;
 import ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException;
-import ca.gov.dtsstn.vacman.api.web.exception.UnauthorizedException;
 import ca.gov.dtsstn.vacman.api.web.model.UserCreateModel;
 import ca.gov.dtsstn.vacman.api.web.model.UserPatchModel;
 import ca.gov.dtsstn.vacman.api.web.model.UserReadModel;
@@ -65,7 +65,7 @@ public class UsersController {
 		log.info("Received request to create new user; request: [{}]", user);
 
 		final var entraId = SecurityUtils.getCurrentUserEntraId()
-			.orElseThrow(() -> new UnauthorizedException("Entra ID not found in security context"));
+			.orElseThrow(ExceptionUtils::generateCouldNotExtractOidException);
 
 		log.debug("Checking if user with entraId=[{}] already exists", entraId);
 
@@ -100,7 +100,7 @@ public class UsersController {
 		log.debug("Received request to get current user");
 
 		final var entraId = SecurityUtils.getCurrentUserEntraId()
-			.orElseThrow(() -> new UnauthorizedException("Entra ID not found in security context"));
+			.orElseThrow(ExceptionUtils::generateCouldNotExtractOidException);
 
 		log.debug("Fetching current user with microsoftEntraId=[{}]", entraId);
 
