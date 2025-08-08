@@ -39,17 +39,12 @@ spring:
     activate:
       on-profile:
         - mssql-local
-  sql:
-    init:
-      mode: never #TODO: this can be removed once the data.sql is deleted
   datasource:
     url: jdbc:sqlserver://localhost;databaseName=master;encrypt=false;
     username: sa
     password: p@ssword1
   jpa:
     hibernate:
-      #ddl-auto: validate
-
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
     properties:
