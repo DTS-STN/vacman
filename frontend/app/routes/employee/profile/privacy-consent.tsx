@@ -20,11 +20,10 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
 
 export async function action({ context, request }: ActionFunctionArgs) {
   requireAuthentication(context.session, request);
-  const authenticatedSession = context.session;
-  const currentUserId = authenticatedSession.authState.idTokenClaims.oid;
+  const currentUserId = context.session.authState.idTokenClaims.oid;
 
   const profileService = getProfileService();
-  const profileOption = await profileService.getCurrentUserProfile(authenticatedSession.authState.accessToken);
+  const profileOption = await profileService.getCurrentUserProfile(context.session.authState.accessToken);
 
   if (profileOption.isNone()) {
     return i18nRedirect('routes/index.tsx', request);
@@ -38,7 +37,7 @@ export async function action({ context, request }: ActionFunctionArgs) {
   };
 
   await profileService.updateProfile(
-    authenticatedSession.authState.accessToken,
+    context.session.authState.accessToken,
     profile.profileId.toString(),
     currentUserId,
     updatePrivacyConsent,

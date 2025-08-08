@@ -32,8 +32,7 @@ export function action({ context, params, request }: Route.ActionArgs) {
   requireAuthentication(context.session, request);
 
   // Get the current user's ID from the authenticated session
-  const authenticatedSession = context.session;
-  const currentUserId = authenticatedSession.authState.idTokenClaims.oid;
+  const currentUserId = context.session.authState.idTokenClaims.oid;
 
   //TODO: Implement approval logic
 
@@ -58,8 +57,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const provinces = await getProvinceService().listAllLocalized(lang);
   const cities = await getCityService().listAllLocalized(lang);
   const wfaStatuses = await getWFAStatuses().listAllLocalized(lang);
-  const authenticatedSession = context.session;
-  const hrAdvisors = await getUserService().getUsersByRole('hr-advisor', authenticatedSession.authState.accessToken);
+  const hrAdvisors = await getUserService().getUsersByRole('hr-advisor', context.session.authState.accessToken);
   const profileData: Profile = currentProfileOption.unwrap();
 
   const workUnitResult =

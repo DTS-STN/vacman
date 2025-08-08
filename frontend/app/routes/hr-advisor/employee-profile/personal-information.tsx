@@ -27,8 +27,7 @@ export function meta({ data }: Route.MetaArgs) {
 export function action({ context, params, request }: Route.ActionArgs) {
   requireAuthentication(context.session, request);
 
-  const authenticatedSession = context.session;
-  const currentUserId = authenticatedSession.authState.idTokenClaims.oid;
+  const currentUserId = context.session.authState.idTokenClaims.oid;
 
   //TODO: Implement approval logic
 

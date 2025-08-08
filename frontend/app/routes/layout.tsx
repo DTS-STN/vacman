@@ -5,7 +5,6 @@ import { useTranslation } from 'react-i18next';
 
 import type { Route } from './+types/layout';
 
-import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { checkHiringManagerRouteRegistration } from '~/.server/utils/hiring-manager-registration-utils';
 import { checkHrAdvisorRouteRegistration } from '~/.server/utils/hr-advisor-registration-utils';
@@ -30,13 +29,13 @@ export async function loader({ context, request }: Route.LoaderArgs) {
   requireAuthentication(context.session, currentUrl);
 
   // Check hiring manager registration for hiring manager routes
-  await checkHiringManagerRouteRegistration(context.session as AuthenticatedSession, currentUrl);
+  await checkHiringManagerRouteRegistration(context.session, currentUrl);
 
   // Check hr-advisor registration for hr-advisor routes
-  await checkHrAdvisorRouteRegistration(context.session as AuthenticatedSession, currentUrl);
+  await checkHrAdvisorRouteRegistration(context.session, currentUrl);
 
   // Check profile access for profile routes
-  await checkProfileRouteAccess(context.session as AuthenticatedSession, currentUrl);
+  await checkProfileRouteAccess(context.session, currentUrl);
 
   return { name: context.session.authState.idTokenClaims.name };
 }
