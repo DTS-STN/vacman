@@ -16,6 +16,7 @@ import { getProvinceService } from '~/.server/domain/services/province-service';
 import { getUserService } from '~/.server/domain/services/user-service';
 import { getWFAStatuses } from '~/.server/domain/services/wfa-status-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
+import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
 import { hasEmploymentDataChanged, omitObjectProperties } from '~/.server/utils/profile-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { InlineLink } from '~/components/links';
@@ -90,6 +91,9 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 }
 
 export async function loader({ context, request, params }: Route.LoaderArgs) {
+  const currentUrl = new URL(request.url);
+  requireAuthentication(context.session, currentUrl);
+
   // Use the id parameter from the URL to fetch the profile
   const profileUserId = params.id;
   const profileResult = await getProfileService().getProfile(profileUserId);
@@ -101,7 +105,8 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const provinces = await getProvinceService().listAllLocalized(lang);
   const cities = await getCityService().listAllLocalized(lang);
   const wfaStatuses = await getWFAStatuses().listAllLocalized(lang);
-  const hrAdvisors = await getUserService().getUsersByRole('hr-advisor');
+  const authenticatedSession = context.session as AuthenticatedSession;
+  const hrAdvisors = await getUserService().getUsersByRole('hr-advisor', authenticatedSession.authState.accessToken);
   const profileData: Profile = profileResult.unwrap();
 
   const workUnitResult =

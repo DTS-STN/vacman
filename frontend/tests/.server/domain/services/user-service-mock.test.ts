@@ -10,7 +10,7 @@ describe('getMockUserService', () => {
 
   describe('getUserById', () => {
     it('should return a user when given a valid ID', async () => {
-      const user = await service.getUserById(1);
+      const user = await service.getUserById(1, 'mock-access-token');
 
       expect(user).toEqual({
         id: 1,
@@ -32,7 +32,7 @@ describe('getMockUserService', () => {
     });
 
     it('should throw an error when user is not found', async () => {
-      await expect(service.getUserById(999)).rejects.toMatchObject({
+      await expect(service.getUserById(999, 'mock-access-token')).rejects.toMatchObject({
         msg: "User with ID '999' not found.",
         errorCode: ErrorCodes.VACMAN_API_ERROR,
         httpStatusCode: 500,
@@ -75,15 +75,11 @@ describe('getMockUserService', () => {
         },
       } as unknown as AuthenticatedSession;
 
-      const createdUser = await service.registerCurrentUser(
-        userData,
-        mockSession.authState.accessToken,
-        mockSession.authState.idTokenClaims,
-      );
+      const createdUser = await service.registerCurrentUser(userData, mockSession.authState.accessToken);
 
       expect(createdUser.id).toBeDefined();
       expect(createdUser.uuName).toBe('Test User');
-      expect(createdUser.networkName).toBe('test-user-123');
+      expect(createdUser.networkName).toBe('mock-active-directory-id');
       expect(createdUser.role).toBe('employee');
 
       // Check that dates are ISO strings (exact time will vary)
