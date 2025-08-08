@@ -1,46 +1,58 @@
 package ca.gov.dtsstn.vacman.api.service;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.ProfileStatusEntity;
 import ca.gov.dtsstn.vacman.api.data.repository.ProfileRepository;
-import ca.gov.dtsstn.vacman.api.event.ProfileCreateEvent;
+import ca.gov.dtsstn.vacman.api.data.repository.ProfileStatusRepository;
+import ca.gov.dtsstn.vacman.api.event.ProfileStatusChangeEvent;
+import ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException;
 
 /**
- * TODO: Remove this class once the profile service is implemented.
- * This is a sample implementation showing how to publish the ProfileCreateEvent.
- * It should be integrated with the actual profile service implementation once Maxwell has implemented the profile endpoints.
+ * Temporary reference file for ProfileService implementation of status change functionality.
+ * This code should be integrated into the actual ProfileService class when the PUT /profiles/{id}/status endpoint is implemented.
  */
 @Service
 public class ProfileService_temp {
 
-    private static final Logger log = LoggerFactory.getLogger(ProfileService_temp.class);
-
-    private final ApplicationEventPublisher eventPublisher;
     private final ProfileRepository profileRepository;
+    private final ProfileStatusRepository profileStatusRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
-    public ProfileService_temp(ApplicationEventPublisher eventPublisher, ProfileRepository profileRepository) {
-        this.eventPublisher = eventPublisher;
+    public ProfileService_temp(ProfileRepository profileRepository, 
+                          ProfileStatusRepository profileStatusRepository,
+                          ApplicationEventPublisher eventPublisher) {
         this.profileRepository = profileRepository;
+        this.profileStatusRepository = profileStatusRepository;
+        this.eventPublisher = eventPublisher;
     }
 
     /**
-     * Creates a new profile and publishes a ProfileCreateEvent.
-     * 
-     * @param profile The profile entity to create
-     * @return The created profile entity
+     * Updates the status of a profile and emits a ProfileStatusChangeEvent.
+     * This method should be called when the PUT /profiles/{id}/status endpoint is implemented.
+     *
+     * @param profileId The ID of the profile to update
+     * @param statusId The new status ID
+     * @return The updated profile entity
+     * @throws ResourceNotFoundException if the profile or status is not found
      */
-    public ProfileEntity createProfile(ProfileEntity profile) {
-        // Save the profile
-        final var createdProfile = profileRepository.save(profile);
-
-        // Publish created event
-        eventPublisher.publishEvent(new ProfileCreateEvent(createdProfile));
-        log.info("Profile created with ID: {}", createdProfile.getId());
-
-        return createdProfile;
+    public ProfileEntity updateProfileStatus(Long profileId, Long statusId) {
+        ProfileEntity profileEntity = profileRepository.findById(profileId)
+            .orElseThrow(() -> new ResourceNotFoundException("Profile not found"));
+        
+        Long previousStatusId = profileEntity.getProfileStatus() != null ?
+            profileEntity.getProfileStatus().getId() : null;
+        
+        ProfileStatusEntity newStatus = profileStatusRepository.findById(statusId)
+            .orElseThrow(() -> new ResourceNotFoundException("Profile status not found"));
+        profileEntity.setProfileStatus(newStatus);
+        
+        profileEntity = profileRepository.save(profileEntity);
+        
+        eventPublisher.publishEvent(new ProfileStatusChangeEvent(profileEntity, previousStatusId, newStatus.getId()));
+        
+        return profileEntity;
     }
 }
