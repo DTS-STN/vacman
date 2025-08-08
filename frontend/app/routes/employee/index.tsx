@@ -9,7 +9,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useTranslation } from 'react-i18next';
 
 import { getUserService } from '~/.server/domain/services/user-service';
-import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { checkEmployeeRoutePrivacyConsent } from '~/.server/utils/privacy-consent-utils';
 import { createUserProfile } from '~/.server/utils/profile-utils';
@@ -25,17 +24,18 @@ export const handle = {
 } as const satisfies RouteHandle;
 
 export async function action({ context, request }: ActionFunctionArgs) {
-  const currentUrl = new URL(request.url);
-  // Check privacy consent for employee routes (excluding privacy consent pages)
+  requireAuthentication(context.session, request);
 
-  await checkEmployeeRoutePrivacyConsent(context.session as AuthenticatedSession, currentUrl);
+  // Check privacy consent for employee routes (excluding privacy consent pages)
+  const currentUrl = new URL(request.url);
+  await checkEmployeeRoutePrivacyConsent(context.session, currentUrl);
 
   const formData = await request.formData();
   const action = formData.get('action');
 
   if (action === 'view-profile') {
     // Get the current user's ID from the authenticated session
-    const authenticatedSession = context.session as AuthenticatedSession;
+    const authenticatedSession = context.session;
     const currentUserId = authenticatedSession.authState.idTokenClaims.oid;
     return i18nRedirect('routes/employee/profile/index.tsx', request, {
       params: { id: currentUserId },
@@ -49,7 +49,7 @@ export async function action({ context, request }: ActionFunctionArgs) {
 export async function loader({ context, request }: LoaderFunctionArgs) {
   requireAuthentication(context.session, request);
 
-  const authenticatedSession = context.session as AuthenticatedSession;
+  const authenticatedSession = context.session;
   if (!authenticatedSession.currentUser) {
     try {
       const currentUser = await getUserService().getCurrentUser(authenticatedSession.authState.accessToken);

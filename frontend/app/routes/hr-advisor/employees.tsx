@@ -12,6 +12,7 @@ import type { Route } from '../+types/index';
 import type { Profile } from '~/.server/domain/models';
 import { getProfileService } from '~/.server/domain/services/profile-service';
 import { getProfileStatusService } from '~/.server/domain/services/profile-status-service';
+import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { Button } from '~/components/button';
 import { DataTable, DataTableColumnHeader, DataTableColumnHeaderWithOptions } from '~/components/data-table';
 import { InlineLink } from '~/components/links';
@@ -25,6 +26,8 @@ export const handle = {
 } as const satisfies RouteHandle;
 
 export async function loader({ context, request }: LoaderFunctionArgs) {
+  requireAuthentication(context.session, request);
+
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
 
   const profiles = await getProfileService().getAllProfiles();

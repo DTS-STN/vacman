@@ -19,8 +19,7 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
 };
 
 export async function action({ context, request }: ActionFunctionArgs) {
-  const currentUrl = new URL(request.url);
-  requireAuthentication(context.session, currentUrl);
+  requireAuthentication(context.session, request);
   const authenticatedSession = context.session;
   const currentUserId = authenticatedSession.authState.idTokenClaims.oid;
 
@@ -49,6 +48,7 @@ export async function action({ context, request }: ActionFunctionArgs) {
 }
 
 export async function loader({ context, request }: LoaderFunctionArgs) {
+  requireAuthentication(context.session, request);
   const { t } = await getTranslation(request, handle.i18nNamespace);
   return { documentTitle: t('app:index.register-as') };
 }
