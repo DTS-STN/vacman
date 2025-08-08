@@ -1,13 +1,13 @@
 import type { JSX } from 'react';
 
 import { useLoaderData } from 'react-router';
-import type { RouteHandle, LoaderFunctionArgs, MetaFunction } from 'react-router';
+import type { RouteHandle, LoaderFunctionArgs } from 'react-router';
 
 import type { ColumnDef } from '@tanstack/react-table';
 import { format } from 'date-fns';
 import { useTranslation } from 'react-i18next';
 
-import type { Route } from '../+types/index';
+import type { Route } from './+types/employees';
 
 import type { Profile } from '~/.server/domain/models';
 import { getProfileService } from '~/.server/domain/services/profile-service';
@@ -24,6 +24,10 @@ import { handle as parentHandle } from '~/routes/layout';
 export const handle = {
   i18nNamespace: [...parentHandle.i18nNamespace],
 } as const satisfies RouteHandle;
+
+export function meta({ loaderData }: Route.MetaArgs) {
+  return [{ title: loaderData?.documentTitle }];
+}
 
 export async function loader({ context, request }: LoaderFunctionArgs) {
   requireAuthentication(context.session, request);
@@ -51,10 +55,6 @@ export async function loader({ context, request }: LoaderFunctionArgs) {
     statuses,
   };
 }
-
-export const meta: MetaFunction<typeof loader> = ({ data }) => {
-  return [{ title: data?.documentTitle }];
-};
 
 export default function EmployeeDashboard({ params }: Route.ComponentProps) {
   const { t } = useTranslation(handle.i18nNamespace);
