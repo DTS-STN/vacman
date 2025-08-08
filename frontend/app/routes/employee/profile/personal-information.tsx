@@ -35,6 +35,8 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   // Get the current user's ID from the authenticated session
   const authenticatedSession = context.session;
   const currentUserId = authenticatedSession.authState.idTokenClaims.oid;
+
+  // Parse form data
   const formData = await request.formData();
   const parseResult = v.safeParse(personalInformationSchema, {
     surname: formString(formData.get('surname')),
@@ -56,22 +58,26 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   }
 
   const profileService = getProfileService();
+
+  // Fetch the current profile
   const currentProfileOption = await profileService.getCurrentUserProfile(context.session.authState.accessToken);
   const currentProfile = currentProfileOption.unwrap();
-  const updateResult = await profileService.updateProfile(
-    authenticatedSession.authState.accessToken,
-    currentProfile.profileId.toString(),
-    currentUserId,
-    {
-      ...currentProfile,
-      personalInformation: parseResult.output,
-    },
-  );
+
+  // Create updated profile object
+  const updatedProfile: Profile = {
+    ...currentProfile,
+    personalInformation: parseResult.output,
+    userUpdated: currentUserId,
+  };
+
+  // Call new updateProfileById method
+  const updateResult = await profileService.updateProfileById(authenticatedSession.authState.accessToken, updatedProfile);
 
   if (updateResult.isErr()) {
     throw updateResult.unwrapErr();
   }
 
+  // Redirect to profile index page
   return i18nRedirect('routes/employee/profile/index.tsx', request, {
     params: { id: currentUserId },
   });

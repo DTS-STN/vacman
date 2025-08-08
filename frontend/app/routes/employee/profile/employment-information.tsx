@@ -44,47 +44,55 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   const currentUserId = authenticatedSession.authState.idTokenClaims.oid;
   const formData = await request.formData();
   const { parseResult, formValues } = parseEmploymentInformation(formData);
+
   if (!parseResult.success) {
     return data(
-      { formValues: formValues, errors: v.flatten<typeof employmentInformationSchema>(parseResult.issues).nested },
+      {
+        formValues: formValues,
+        errors: v.flatten<typeof employmentInformationSchema>(parseResult.issues).nested,
+      },
       { status: HttpStatusCodes.BAD_REQUEST },
     );
   }
+
   const profileService = getProfileService();
+
+  // Get current profile
   const currentProfileOption = await profileService.getCurrentUserProfile(context.session.authState.accessToken);
   const currentProfile = currentProfileOption.unwrap();
-  const updateResult = await profileService.updateProfile(
-    authenticatedSession.authState.accessToken,
-    currentProfile.profileId.toString(),
-    currentUserId,
-    {
-      ...currentProfile,
-      employmentInformation: omitObjectProperties(parseResult.output, [
-        'wfaEffectiveDateYear',
-        'wfaEffectiveDateMonth',
-        'wfaEffectiveDateDay',
-        'wfaEndDateYear',
-        'wfaEndDateMonth',
-        'wfaEndDateDay',
-      ]),
-    },
-  );
+
+  // Build updated profile object
+  const updatedProfile: Profile = {
+    ...currentProfile,
+    employmentInformation: omitObjectProperties(parseResult.output, [
+      'wfaEffectiveDateYear',
+      'wfaEffectiveDateMonth',
+      'wfaEffectiveDateDay',
+      'wfaEndDateYear',
+      'wfaEndDateMonth',
+      'wfaEndDateDay',
+    ]),
+    userUpdated: currentUserId,
+  };
+
+  const updateResult = await profileService.updateProfileById(authenticatedSession.authState.accessToken, updatedProfile);
+
   if (updateResult.isErr()) {
     throw updateResult.unwrapErr();
   }
+
+  // If status was approved and employment info changed, submit for review
   if (
     currentProfile.profileStatusId === PROFILE_STATUS_ID.approved &&
     hasEmploymentDataChanged(currentProfile.employmentInformation, parseResult.output)
   ) {
-    // profile needs to be re-approved if and only if the current profile status is 'approved'
     await profileService.submitProfileForReview(currentUserId);
     return i18nRedirect('routes/employee/profile/index.tsx', request, {
       params: { id: currentUserId },
-      search: new URLSearchParams({
-        edited: 'true',
-      }),
+      search: new URLSearchParams({ edited: 'true' }),
     });
   }
+
   return i18nRedirect('routes/employee/profile/index.tsx', request, {
     params: { id: currentUserId },
   });

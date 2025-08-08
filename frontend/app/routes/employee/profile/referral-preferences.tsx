@@ -35,9 +35,9 @@ export function meta({ data }: Route.MetaArgs) {
 export async function action({ context, params, request }: Route.ActionArgs) {
   requireAuthentication(context.session, request);
 
-  // Get the current user's ID from the authenticated session
   const authenticatedSession = context.session;
   const currentUserId = authenticatedSession.authState.idTokenClaims.oid;
+
   const formData = await request.formData();
   const parseResult = v.safeParse(referralPreferencesSchema, {
     languageReferralTypeIds: formData.getAll('languageReferralTypes'),
@@ -61,17 +61,17 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   }
 
   const profileService = getProfileService();
-  const currentProfileOption = await profileService.getCurrentUserProfile(context.session.authState.accessToken);
+  const currentProfileOption = await profileService.getCurrentUserProfile(authenticatedSession.authState.accessToken);
+
   const currentProfile = currentProfileOption.unwrap();
-  const updateResult = await profileService.updateProfile(
-    authenticatedSession.authState.accessToken,
-    currentProfile.profileId.toString(),
-    currentUserId,
-    {
-      ...currentProfile,
-      referralPreferences: parseResult.output,
-    },
-  );
+
+  const updatedProfile: Profile = {
+    ...currentProfile,
+    referralPreferences: parseResult.output,
+    userUpdated: currentUserId,
+  };
+
+  const updateResult = await profileService.updateProfileById(authenticatedSession.authState.accessToken, updatedProfile);
 
   if (updateResult.isErr()) {
     throw updateResult.unwrapErr();

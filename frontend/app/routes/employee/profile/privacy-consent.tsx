@@ -21,6 +21,7 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
 export async function action({ context, request }: ActionFunctionArgs) {
   const currentUrl = new URL(request.url);
   requireAuthentication(context.session, currentUrl);
+
   const authenticatedSession = context.session;
   const currentUserId = authenticatedSession.authState.idTokenClaims.oid;
 
@@ -33,19 +34,23 @@ export async function action({ context, request }: ActionFunctionArgs) {
 
   const profile = profileOption.unwrap();
 
-  const updatePrivacyConsent: Profile = {
+  // Create updated profile object with consent flag
+  const updatedProfile: Profile = {
     ...profile,
     privacyConsentInd: true,
+    userUpdated: currentUserId,
   };
 
-  await profileService.updateProfile(
-    authenticatedSession.authState.accessToken,
-    profile.profileId.toString(),
-    currentUserId,
-    updatePrivacyConsent,
-  );
+  const updateResult = await profileService.updateProfileById(authenticatedSession.authState.accessToken, updatedProfile);
 
-  return i18nRedirect('routes/employee/index.tsx', request, { params: { id: profile.profileId.toString() } });
+  if (updateResult.isErr()) {
+    throw updateResult.unwrapErr();
+  }
+
+  // Redirect to profile index page (new behavior)
+  return i18nRedirect('routes/employee/profile/index.tsx', request, {
+    params: { id: profile.profileId.toString() },
+  });
 }
 
 export async function loader({ context, request }: LoaderFunctionArgs) {
