@@ -22,6 +22,7 @@ vi.mock('~/.server/domain/services/profile-service');
 const mockProfileService = {
   getProfile: vi.fn(),
   getProfileById: vi.fn(),
+  findProfileById: vi.fn(),
   registerProfile: vi.fn(),
   updateProfile: vi.fn(),
   submitProfileForReview: vi.fn(),

@@ -81,6 +81,11 @@ export function getDefaultProfileService(): ProfileService {
       });
     },
 
+    async findProfileById(accessToken: string, profileId: string): Promise<Option<Profile>> {
+      const result = await this.getProfileById(accessToken, profileId);
+      return result.ok();
+    },
+
     /**
      * Registers a new profile for a user.
      * @param accessToken The access token of the user to create a profile for.
