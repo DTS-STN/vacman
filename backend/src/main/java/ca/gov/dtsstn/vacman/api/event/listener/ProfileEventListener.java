@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import ca.gov.dtsstn.vacman.api.data.entity.EventEntityBuilder;
 import ca.gov.dtsstn.vacman.api.data.repository.EventRepository;
 import ca.gov.dtsstn.vacman.api.event.ProfileCreateEvent;
+import ca.gov.dtsstn.vacman.api.event.ProfileReadEvent;
 
 /**
  * Listener for profile-related events.
@@ -41,5 +42,16 @@ public class ProfileEventListener {
 			.build());
 
 		log.info("Event: profile created - ID: {}", event.entity().getId());
+	}
+
+	@Async
+	@EventListener({ ProfileReadEvent.class })
+	public void handleProfileRead(ProfileReadEvent event) throws JsonProcessingException {
+		eventRepository.save(new EventEntityBuilder()
+			.type("PROFILE_READ")
+			.details(objectMapper.writeValueAsString(event))
+			.build());
+
+		log.info("Event: profiles read - Entra ID: {}, count: {}", event.entraId(), event.entities().size());
 	}
 }
