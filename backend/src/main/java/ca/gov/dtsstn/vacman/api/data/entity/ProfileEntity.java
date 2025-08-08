@@ -76,7 +76,7 @@ public class ProfileEntity extends AbstractBaseEntity {
 
 	// Collection relationships for many-to-many tables
 	@OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
-	private Set<CityProfileEntity> cityProfiles = new HashSet<>();
+	private Set<ProfileCityEntity> profileCities = new HashSet<>();
 
 	@OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
 	private Set<ClassificationProfileEntity> classificationProfiles = new HashSet<>();
@@ -251,12 +251,12 @@ public class ProfileEntity extends AbstractBaseEntity {
 		this.additionalComment = additionalComment;
 	}
 
-	public Set<CityProfileEntity> getCityProfiles() {
-		return cityProfiles;
+	public Set<ProfileCityEntity> getProfileCities() {
+		return profileCities;
 	}
 
-	public void setCityProfiles(Set<CityProfileEntity> cityProfiles) {
-		this.cityProfiles = cityProfiles;
+	public void setProfileCities(Set<ProfileCityEntity> profileCities) {
+		this.profileCities = profileCities;
 	}
 
 	public Set<ClassificationProfileEntity> getClassificationProfiles() {
