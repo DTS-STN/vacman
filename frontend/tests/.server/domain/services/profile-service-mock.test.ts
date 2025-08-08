@@ -19,7 +19,7 @@ describe('getMockProfileService', () => {
         userIdApprovedBy: undefined,
         priorityLevelId: 1,
         profileStatusId: 3,
-        privacyConsentInd: true,
+        privacyConsentInd: false,
         userCreated: 'system',
         dateCreated: '2024-01-01T00:00:00Z',
         userUpdated: undefined,
@@ -81,8 +81,15 @@ describe('getMockProfileService', () => {
       expect(createdProfile.userId).toBeDefined();
       expect(createdProfile.userCreated).toBe(activeDirectoryId);
       expect(createdProfile.dateCreated).toBeDefined();
-      expect(createdProfile.profileStatusId).toBe(3); // Assuming PROFILE_STATUS_ID.incomplete
-      expect(createdProfile.privacyConsentInd).toBe(true);
+      expect(createdProfile.profileStatusId).toBe(3);
+      expect(createdProfile.privacyConsentInd).toBe(false);
+      expect(createdProfile.referralPreferences.availableForReferralInd).toBe(true);
+      expect(createdProfile.referralPreferences.interestedInAlternationInd).toBe(false);
+
+      // Verify the profile was actually added to the mock data
+      const retrievedProfile = await service.getProfile(activeDirectoryId);
+      expect(retrievedProfile.isSome()).toBe(true);
+      expect(retrievedProfile.unwrap().profileId).toBe(createdProfile.profileId);
     });
 
     it('should correctly map to an existing user ID', async () => {

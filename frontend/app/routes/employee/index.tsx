@@ -12,6 +12,7 @@ import { getUserService } from '~/.server/domain/services/user-service';
 import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { checkEmployeeRoutePrivacyConsent } from '~/.server/utils/privacy-consent-utils';
+import { createUserProfile } from '~/.server/utils/profile-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { Card, CardHeader, CardIcon, CardTitle } from '~/components/card';
 import { PageTitle } from '~/components/page-title';
@@ -63,6 +64,8 @@ export async function loader({ context, request }: LoaderFunctionArgs) {
         authenticatedSession.authState.accessToken,
       );
       authenticatedSession.currentUser = currentUser;
+    } finally {
+      await createUserProfile(authenticatedSession.authState.idTokenClaims.oid);
     }
   }
 

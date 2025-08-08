@@ -3,9 +3,10 @@
  * This module provides functions to verify if users have accepted privacy consent
  * and redirects them appropriately if they haven't.
  */
+import { getProfileService } from '../domain/services/profile-service';
+
 import { LogFactory } from '~/.server/logging';
 import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
-import { safeGetUserProfile } from '~/.server/utils/profile-utils';
 import { isEmployeeRoute, isPrivacyConsentPath, isProfileRoute } from '~/.server/utils/route-matching-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 
@@ -19,10 +20,15 @@ const log = LogFactory.getLogger(import.meta.url);
  * @param currentUrl - The current request URL for redirect context
  * @throws {Response} Redirect to index page if user hasn't accepted privacy consent
  */
-async function checkPrivacyConsentForUser(userId: string, currentUrl: URL): Promise<void> {
-  const profile = await safeGetUserProfile(userId);
+async function checkPrivacyConsentForUser(accessToken: string, userId: string, currentUrl: URL): Promise<void> {
+  const profileOption = await getProfileService().getCurrentUserProfile(accessToken);
 
-  if (!profile?.privacyConsentInd) {
+  if (profileOption.isNone()) {
+    log.debug(`Profile not found for user ${userId}`);
+    throw i18nRedirect('routes/index.tsx', currentUrl);
+  }
+
+  if (!profileOption.unwrap().privacyConsentInd) {
     log.debug(`Privacy consent required for user ${userId}`);
     throw i18nRedirect('routes/employee/profile/privacy-consent.tsx', currentUrl);
   }
@@ -39,7 +45,7 @@ async function checkPrivacyConsentForUser(userId: string, currentUrl: URL): Prom
  */
 export async function requirePrivacyConsent(session: AuthenticatedSession, currentUrl: URL): Promise<void> {
   const activeDirectoryId = session.authState.idTokenClaims.oid;
-  await checkPrivacyConsentForUser(activeDirectoryId, currentUrl);
+  await checkPrivacyConsentForUser(session.authState.accessToken, activeDirectoryId, currentUrl);
 }
 
 /**
@@ -65,7 +71,7 @@ export async function requirePrivacyConsentForOwnProfile(
   }
 
   log.debug(`Privacy consent check for own profile: ${requesterId}`);
-  await checkPrivacyConsentForUser(requesterId, currentUrl);
+  await checkPrivacyConsentForUser(session.authState.accessToken, requesterId, currentUrl);
 }
 
 /**
