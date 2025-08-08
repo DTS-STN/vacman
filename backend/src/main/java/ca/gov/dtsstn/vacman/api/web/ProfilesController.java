@@ -5,6 +5,7 @@ import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
 import ca.gov.dtsstn.vacman.api.security.SecurityUtils;
 import ca.gov.dtsstn.vacman.api.service.ProfileService;
 import ca.gov.dtsstn.vacman.api.service.UserService;
+import ca.gov.dtsstn.vacman.api.web.exception.ResourceConflictException;
 import ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException;
 import ca.gov.dtsstn.vacman.api.web.exception.UnauthorizedException;
 import ca.gov.dtsstn.vacman.api.web.model.ProfileReadModel;
@@ -21,7 +22,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.web.PagedModel;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Collection;
 import java.util.function.Function;
@@ -33,7 +39,7 @@ public class ProfilesController {
 
     private static final Logger log = LoggerFactory.getLogger(ProfilesController.class);
 
-    public static final String OID_NOT_FOUND_MESSAGE = "Could not extract 'oid' claim from JWT token";
+    private static final String OID_NOT_FOUND_MESSAGE = "Could not extract 'oid' claim from JWT token";
 
     private final ProfileService profileService;
 
@@ -151,5 +157,30 @@ public class ProfilesController {
         log.trace("Found profile: [{}]", profile);
 
         return ResponseEntity.ok(profile);
+    }
+
+    @PostMapping(path = "/me")
+    @SecurityRequirement(name = SpringDocConfig.AZURE_AD)
+    @Operation(summary = "Create a new profile associated with the authenticated user.")
+    public ResponseEntity<ProfileReadModel> createCurrentUserProfile() {
+        log.info("Received request to create new profile");
+        final var microsoftEntraId = SecurityUtils.getCurrentUserEntraId()
+                .orElseThrow(() -> new UnauthorizedException(OID_NOT_FOUND_MESSAGE));
+
+        log.debug("Checking if user with microsoftEntraId=[{}] already exists", microsoftEntraId);
+        final var existingUser = userService.getUserByMicrosoftEntraId(microsoftEntraId)
+                .orElseThrow(() -> new ResourceConflictException("A user with microsoftEntraId=[" + microsoftEntraId + "] does not exist"));
+
+        log.debug("Checking if user with microsoftEntraId=[{}] has an active profile", microsoftEntraId);
+        if (!profileService.getProfilesByEntraId(microsoftEntraId, true).isEmpty()) {
+            throw new ResourceConflictException("Use with microsoftEntraId=[" + microsoftEntraId + "] has an existing active profile");
+        }
+
+        log.debug("Creating profile in database...");
+        final var createdProfile = profileModelMapper.toModel(profileService.createProfile(existingUser));
+
+        log.trace("Successfully created profile user: [{}]", createdProfile);
+
+        return ResponseEntity.ok(createdProfile);
     }
 }

@@ -42,6 +42,7 @@ const mockUserService = {
   getUsersByRole: vi.fn(),
   getUserById: vi.fn(),
   registerCurrentUser: vi.fn(),
+  updateUser: vi.fn(),
 };
 const mockRequirePrivacyConsentForOwnProfile = vi.fn();
 const mockExtractUserIdFromProfileRoute = vi.fn();

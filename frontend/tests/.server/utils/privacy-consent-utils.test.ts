@@ -4,14 +4,16 @@
 import type { AppLoadContext } from 'react-router';
 import { redirect } from 'react-router';
 
+import { Ok, None, Some } from 'oxide.ts';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
+import type { Profile } from '~/.server/domain/models';
 import { getProfileService } from '~/.server/domain/services/profile-service';
 import { getUserService } from '~/.server/domain/services/user-service';
 import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
 import { requirePrivacyConsent } from '~/.server/utils/privacy-consent-utils';
 import { createUserProfile, safeGetUserProfile } from '~/.server/utils/profile-utils';
-import { action as privacyAction, loader as privacyLoader } from '~/routes/employee/profile/privacy-consent';
+import { loader as privacyLoader } from '~/routes/employee/profile/privacy-consent';
 
 // Type definitions for test compatibility
 type TestRouteArgs = {
@@ -85,6 +87,7 @@ const mockUserService = {
   updateUserRole: vi.fn(),
   getCurrentUser: vi.fn(),
   registerCurrentUser: vi.fn(),
+  updateUser: vi.fn(),
 };
 
 vi.mocked(getUserService).mockReturnValue(mockUserService);
@@ -97,6 +100,46 @@ const mockProfileService = {
   submitProfileForReview: vi.fn(),
   getAllProfiles: vi.fn(),
   getCurrentUserProfile: vi.fn(),
+};
+
+const mockProfile: Profile = {
+  profileId: 1,
+  userId: 1,
+  profileStatusId: 1,
+  privacyConsentInd: true,
+  userCreated: 'system',
+  dateCreated: new Date().toISOString(),
+  personalInformation: {
+    surname: 'Doe',
+    givenName: 'John',
+    personalRecordIdentifier: '123456789',
+    preferredLanguageId: undefined,
+    workEmail: 'work.email@example.ca',
+    personalEmail: 'personal.email@example.com',
+    workPhone: undefined,
+    personalPhone: '613-938-0001',
+    additionalInformation: 'Looking for opportunities in software development.',
+  },
+  employmentInformation: {
+    substantivePosition: undefined,
+    branchOrServiceCanadaRegion: undefined,
+    directorate: undefined,
+    province: undefined,
+    cityId: undefined,
+    wfaStatus: undefined,
+    wfaEffectiveDate: undefined,
+    wfaEndDate: undefined,
+    hrAdvisor: undefined,
+  },
+  referralPreferences: {
+    languageReferralTypeIds: [864190000],
+    classificationIds: [905190000, 905190001],
+    workLocationProvince: 1,
+    workLocationCitiesIds: [411290001, 411290002],
+    availableForReferralInd: true,
+    interestedInAlternationInd: false,
+    employmentTenureIds: [664190000, 664190001, 664190003],
+  },
 };
 
 vi.mocked(getProfileService).mockReturnValue(mockProfileService);
@@ -146,117 +189,12 @@ describe('Privacy Consent Flow', () => {
     // Default: no profile exists
     mockProfileService.getProfile.mockResolvedValue(null);
     // Mock createUserProfile to return a profile with profileId
-    vi.mocked(createUserProfile).mockResolvedValue({
-      profileId: 1,
-      userId: 1,
-      profileStatusId: 1,
-      privacyConsentInd: true,
-      userCreated: 'system',
-      dateCreated: new Date().toISOString(),
-      personalInformation: {
-        surname: 'Doe',
-        givenName: 'John',
-        personalRecordIdentifier: '123456789',
-        preferredLanguageId: undefined,
-        workEmail: 'work.email@example.ca',
-        personalEmail: 'personal.email@example.com',
-        workPhone: undefined,
-        personalPhone: '613-938-0001',
-        additionalInformation: 'Looking for opportunities in software development.',
-      },
-      employmentInformation: {
-        substantivePosition: undefined,
-        branchOrServiceCanadaRegion: undefined,
-        directorate: undefined,
-        province: undefined,
-        cityId: undefined,
-        wfaStatus: undefined,
-        wfaEffectiveDate: undefined,
-        wfaEndDate: undefined,
-        hrAdvisor: undefined,
-      },
-      referralPreferences: {
-        languageReferralTypeIds: [864190000],
-        classificationIds: [905190000, 905190001],
-        workLocationProvince: 1,
-        workLocationCitiesIds: [411290001, 411290002],
-        availableForReferralInd: true,
-        interestedInAlternationInd: false,
-        employmentTenureIds: [664190000, 664190001, 664190003],
-      },
-    });
+    vi.mocked(createUserProfile).mockResolvedValue(Ok(mockProfile));
     // Default: safeGetUserProfile returns null
     mockSafeGetUserProfile.mockResolvedValue(null);
   });
 
   describe('Employee Privacy Consent Flow', () => {
-    it('should register employee after accepting privacy consent', async () => {
-      const context = createMockContext('test-employee-123', 'Jane Employee');
-      const request = new Request('http://localhost:3000/en/employee/profile/privacy-consent', {
-        method: 'POST',
-        body: new URLSearchParams({ action: 'accept' }),
-      });
-
-      const response = await privacyAction({ context, request, params: {} } as TestRouteArgs);
-
-      expect(response).toBeInstanceOf(Response);
-      expect(response.status).toBe(302);
-      expect(response.headers.get('Location')).toBe('/en/employee');
-    });
-
-    it('should redirect back to index for missing action', async () => {
-      const context = createMockContext('test-employee-123');
-      const request = new Request('http://localhost:3000/en/employee/profile/privacy-consent', {
-        method: 'POST',
-        body: new URLSearchParams(),
-      });
-
-      const response = await privacyAction({ context, request, params: {} } as TestRouteArgs);
-
-      expect(response).toBeInstanceOf(Response);
-      expect(response.status).toBe(302);
-      expect(response.headers.get('Location')).toBe('/en/employee');
-    });
-
-    it('should handle missing employee name gracefully', async () => {
-      const context = createMockContext('test-employee-123', undefined);
-      const request = new Request('http://localhost:3000/en/employee/profile/privacy-consent', {
-        method: 'POST',
-        body: new URLSearchParams({ action: 'accept' }),
-      });
-
-      const response = await privacyAction({ context, request, params: {} } as TestRouteArgs);
-
-      expect(response).toBeInstanceOf(Response);
-      expect(response.status).toBe(302);
-    });
-
-    it('should ensure profile exists for existing user after accepting privacy consent', async () => {
-      const context = createMockContext('test-existing-employee-123', 'Existing Employee');
-      const request = new Request('http://localhost:3000/en/employee/profile/privacy-consent', {
-        method: 'POST',
-        body: new URLSearchParams({ action: 'accept' }),
-      });
-
-      // Mock existing user
-      mockUserService.getCurrentUser.mockResolvedValue({
-        id: 1,
-        uuName: 'Existing Employee',
-        networkName: 'test-existing-employee-123',
-        role: 'employee',
-        userCreated: 'system',
-        dateCreated: '2024-01-01T00:00:00Z',
-        userUpdated: 'system',
-        dateUpdated: '2024-01-01T00:00:00Z',
-      });
-
-      const response = await privacyAction({ context, request, params: {} } as TestRouteArgs);
-
-      expect(response).toBeInstanceOf(Response);
-      expect(response.status).toBe(302);
-      expect(response.headers.get('Location')).toBe('/en/employee');
-    });
-
     it('should load privacy consent page successfully', async () => {
       const context = createMockContext('test-user-123');
       const request = new Request('http://localhost:3000/en/employee/profile/privacy-consent');
@@ -289,6 +227,17 @@ describe('Privacy Consent Flow', () => {
         dateCreated: '2024-01-01T00:00:00Z',
       });
 
+      mockProfileService.getCurrentUserProfile.mockResolvedValue(
+        Some({
+          profileId: 1,
+          userId: 1,
+          profileStatusId: 1,
+          privacyConsentInd: true,
+          userCreated: 'test-user-consent',
+          dateCreated: '2024-01-01T00:00:00Z',
+        }),
+      );
+
       // Act & Assert - should not throw
       await expect(requirePrivacyConsent(mockSession, new URL('http://localhost:3000/en/employee'))).resolves.not.toThrow();
     });
@@ -303,14 +252,16 @@ describe('Privacy Consent Flow', () => {
       } as unknown as AuthenticatedSession;
 
       // Mock that profile exists but privacy consent is not accepted
-      mockSafeGetUserProfile.mockResolvedValue({
-        profileId: 2,
-        userId: 2,
-        profileStatusId: 1,
-        privacyConsentInd: false,
-        userCreated: 'test-user-no-consent',
-        dateCreated: '2024-01-01T00:00:00Z',
-      });
+      mockProfileService.getCurrentUserProfile.mockResolvedValue(
+        Some({
+          profileId: 2,
+          userId: 2,
+          profileStatusId: 1,
+          privacyConsentInd: false,
+          userCreated: 'test-user-no-consent',
+          dateCreated: '2024-01-01T00:00:00Z',
+        }),
+      );
 
       // Act & Assert - should throw redirect
       await expect(requirePrivacyConsent(mockSession, new URL('http://localhost:3000/en/employee'))).rejects.toThrow();
@@ -326,7 +277,7 @@ describe('Privacy Consent Flow', () => {
       } as unknown as AuthenticatedSession;
 
       // Mock that no profile exists
-      mockSafeGetUserProfile.mockResolvedValue(null);
+      mockProfileService.getCurrentUserProfile.mockResolvedValue(None);
 
       // Act & Assert - should throw redirect
       await expect(requirePrivacyConsent(mockSession, new URL('http://localhost:3000/en/employee'))).rejects.toThrow();

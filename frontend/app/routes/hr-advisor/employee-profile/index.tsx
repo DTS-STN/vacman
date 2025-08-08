@@ -19,6 +19,7 @@ import { getProfileStatusService } from '~/.server/domain/services/profile-statu
 import { getUserService } from '~/.server/domain/services/user-service';
 import { getWFAStatuses } from '~/.server/domain/services/wfa-status-service';
 import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
+import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { Button } from '~/components/button';
 import { DescriptionList, DescriptionListItem } from '~/components/description-list';
 import { InlineLink } from '~/components/links';
@@ -53,6 +54,9 @@ export async function action({ context, request }: Route.ActionArgs) {
 }
 
 export async function loader({ context, request, params }: Route.LoaderArgs) {
+  const currentUrl = new URL(request.url);
+  requireAuthentication(context.session, currentUrl);
+
   // Use the id parameter from the URL to fetch the profile
   const profileUserId = params.id;
 
@@ -79,11 +83,13 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   }
 
   const profileData: Profile = profileResult.unwrap();
+  const authenticatedSession = context.session as AuthenticatedSession;
 
-  const profileUpdatedByUser = profileData.userUpdated ? await getUserService().getUserById(profileData.userId) : undefined;
+  const profileUpdatedByUser = profileData.userUpdated
+    ? await getUserService().getUserById(profileData.userId, authenticatedSession.authState.accessToken)
+    : undefined;
   const profileUpdatedByUserName = profileUpdatedByUser && `${profileUpdatedByUser.firstName} ${profileUpdatedByUser.lastName}`;
   const profileStatus = (await getProfileStatusService().findLocalizedById(profileData.profileStatusId, lang)).unwrap();
-
   const preferredLanguageResult =
     profileData.personalInformation.preferredLanguageId &&
     (await getLanguageForCorrespondenceService().findLocalizedById(profileData.personalInformation.preferredLanguageId, lang));
@@ -112,7 +118,10 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const wfaStatus = wfaStatusResult ? (wfaStatusResult.isSome() ? wfaStatusResult.unwrap() : undefined) : undefined;
   const hrAdvisor =
     profileData.employmentInformation.hrAdvisor &&
-    (await getUserService().getUserById(profileData.employmentInformation.hrAdvisor));
+    (await getUserService().getUserById(
+      profileData.employmentInformation.hrAdvisor,
+      authenticatedSession.authState.accessToken,
+    ));
   const languageReferralTypes = profileData.referralPreferences.languageReferralTypeIds
     ?.map((langId) => allLocalizedLanguageReferralTypes.find((l) => l.id === langId))
     .filter(Boolean);

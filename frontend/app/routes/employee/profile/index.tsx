@@ -42,8 +42,7 @@ export function meta({ data }: Route.MetaArgs) {
 }
 
 export async function action({ context, request }: Route.ActionArgs) {
-  const currentUrl = new URL(request.url);
-  requireAuthentication(context.session, currentUrl);
+  requireAuthentication(context.session, request);
 
   // Get the current user's ID from the authenticated session
   const authenticatedSession = context.session;
@@ -111,10 +110,15 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const currentUrl = new URL(request.url);
   requireAuthentication(context.session, currentUrl);
 
-  // Use the id parameter from the URL to fetch the profile
-  const profileUserId = params.id;
+  const profileResult = await getProfileService().getCurrentUserProfile(context.session.authState.accessToken);
 
-  await requirePrivacyConsentForOwnProfile(context.session, profileUserId, currentUrl);
+  if (profileResult.isNone()) {
+    throw new Response('Profile not found', { status: 404 });
+  }
+
+  const profileData: Profile = profileResult.unwrap();
+
+  await requirePrivacyConsentForOwnProfile(context.session, profileData.profileId.toString(), currentUrl);
 
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
 
@@ -123,14 +127,14 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 
   // Fetch both the profile user and the profile data
   const [
-    profileResult,
+    currentUser,
     allLocalizedLanguageReferralTypes,
     allClassifications,
     allLocalizedCities,
     allLocalizedEmploymentTenures,
     allWfaStatus,
   ] = await Promise.all([
-    getProfileService().getCurrentUserProfile(context.session.authState.accessToken),
+    getUserService().getUserById(profileData.userId, context.session.authState.accessToken),
     getLanguageReferralTypeService().listAllLocalized(lang),
     getClassificationService().listAllLocalized(lang),
     getCityService().listAllLocalized(lang),
@@ -138,13 +142,9 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     getWFAStatuses().listAll(),
   ]);
 
-  if (profileResult.isNone()) {
-    throw new Response('Profile not found', { status: 404 });
-  }
-
-  const profileData: Profile = profileResult.unwrap();
-
-  const profileUpdatedByUser = profileData.userUpdated ? await getUserService().getUserById(profileData.userId) : undefined;
+  const profileUpdatedByUser = profileData.userUpdated
+    ? await getUserService().getUserById(profileData.userId, context.session.authState.accessToken)
+    : undefined;
   const profileUpdatedByUserName = profileUpdatedByUser && `${profileUpdatedByUser.firstName} ${profileUpdatedByUser.lastName}`;
   const profileStatus = (await getProfileStatusService().findLocalizedById(profileData.profileStatusId, lang)).unwrap();
 
@@ -176,7 +176,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const wfaStatus = wfaStatusResult ? (wfaStatusResult.isSome() ? wfaStatusResult.unwrap() : undefined) : undefined;
   const hrAdvisor =
     profileData.employmentInformation.hrAdvisor &&
-    (await getUserService().getUserById(profileData.employmentInformation.hrAdvisor));
+    (await getUserService().getUserById(profileData.employmentInformation.hrAdvisor, context.session.authState.accessToken));
   const languageReferralTypes = profileData.referralPreferences.languageReferralTypeIds
     ?.map((langId) => allLocalizedLanguageReferralTypes.find((l) => l.id === langId))
     .filter(Boolean);
@@ -229,8 +229,8 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 
   return {
     documentTitle: t('app:profile.page-title'),
-    name: `${profileData.personalInformation.givenName} ${profileData.personalInformation.surname}`,
-    email: profileData.personalInformation.workEmail,
+    name: `${currentUser.firstName} ${currentUser.lastName}`, //for first time employee login, the name is not in profile data
+    email: currentUser.businessEmail ?? profileData.personalInformation.workEmail, //for first time employee login, the work email is not in profile data
     amountCompleted: amountCompleted,
     isProfileComplete: isCompletePersonalInformation && isCompleteEmploymentInformation && isCompleteReferralPreferences,
     profileStatus,
@@ -239,9 +239,9 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       isNew: countCompletedItems(profileData.personalInformation) === 1, // only work email is available
       personalRecordIdentifier: profileData.personalInformation.personalRecordIdentifier,
       preferredLanguage: preferredLanguage,
-      workEmail: profileData.personalInformation.workEmail,
+      workEmail: currentUser.businessEmail ?? profileData.personalInformation.workEmail,
       personalEmail: profileData.personalInformation.personalEmail,
-      workPhone: profileData.personalInformation.workPhone,
+      workPhone: currentUser.businessPhone,
       personalPhone: profileData.personalInformation.personalPhone,
       additionalInformation: profileData.personalInformation.additionalInformation,
     },

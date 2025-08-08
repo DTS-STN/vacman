@@ -8,6 +8,7 @@ import type { ProfileService } from '~/.server/domain/services/profile-service';
 import { PROFILE_STATUS_ID } from '~/domain/constants';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
+import { HttpStatusCodes } from '~/errors/http-status-codes';
 
 export function getMockProfileService(): ProfileService {
   return {
@@ -15,10 +16,22 @@ export function getMockProfileService(): ProfileService {
       const profile = getProfile(activeDirectoryId);
       return Promise.resolve(profile ? Some(profile) : None);
     },
-    registerProfile: (accessToken: string) => {
-      // For mock purposes, directly pass the accessToken to the helper function
-      // since it's already set up to handle tokens as keys in the mapping
-      return Promise.resolve(registerProfile(accessToken));
+    /**
+     * Mocks the registration of a new profile.
+     * - If the accessToken is 'FAIL_TOKEN', it returns an AppError.
+     * - Otherwise, it returns a successfully created mock Profile.
+     */
+    registerProfile(accessToken: string): Promise<Result<Profile, AppError>> {
+      // Simulate a failure case for testing error handling in the UI.
+      if (accessToken === 'FAIL_TOKEN') {
+        const error = new AppError('Mock Error: Profile creation failed as requested.', ErrorCodes.PROFILE_CREATE_FAILED, {
+          httpStatusCode: HttpStatusCodes.BAD_REQUEST,
+        });
+        return Promise.resolve(Err(error));
+      }
+
+      const newProfile = createMockProfile(accessToken);
+      return Promise.resolve(Ok(newProfile));
     },
     getProfileById: (accessToken: string, profileId: string) => {
       const profile = mockProfiles.find((p) => p.profileId.toString() === profileId);
@@ -47,23 +60,23 @@ export function getMockProfileService(): ProfileService {
 
       return Promise.resolve(Ok(undefined));
     },
-    submitProfileForReview: (activeDirectoryId: string): Promise<Result<Profile, AppError>> => {
-      const mockProfile = getProfile(activeDirectoryId);
+    submitProfileForReview: async (accessToken: string): Promise<Result<Profile, AppError>> => {
+      const user = await getUserService().getCurrentUser(accessToken);
+      const profileOption = await getMockProfileService().getCurrentUserProfile(accessToken);
 
-      if (!mockProfile) {
-        return Promise.resolve(Err(new AppError('Profile not found', ErrorCodes.PROFILE_NOT_FOUND)));
+      if (profileOption.isNone()) {
+        return Err(new AppError(`Failed to find profile.`, ErrorCodes.PROFILE_NOT_FOUND));
       }
 
-      const userId = activeDirectoryToUserIdMap[activeDirectoryId];
-
+      const profile = profileOption.unwrap();
       const updatedProfile: Profile = {
-        ...mockProfile,
+        ...profile,
         profileStatusId: PROFILE_STATUS_ID.pending,
         dateUpdated: new Date().toISOString(),
-        userUpdated: activeDirectoryId,
+        userUpdated: user.networkName,
       };
 
-      mockProfiles = mockProfiles.map((profile) => (profile.userId === userId ? updatedProfile : profile));
+      mockProfiles = mockProfiles.map((p) => (p.profileId === profile.profileId ? updatedProfile : p));
 
       return Promise.resolve(Ok(updatedProfile));
     },
@@ -97,8 +110,8 @@ let mockProfiles: Profile[] = [
     userIdReviewedBy: undefined,
     userIdApprovedBy: undefined,
     priorityLevelId: 1,
-    profileStatusId: PROFILE_STATUS_ID.pending,
-    privacyConsentInd: true,
+    profileStatusId: PROFILE_STATUS_ID.incomplete,
+    privacyConsentInd: false,
     userCreated: 'system',
     dateCreated: '2024-01-01T00:00:00Z',
     userUpdated: undefined,
@@ -141,8 +154,8 @@ let mockProfiles: Profile[] = [
     userIdReviewedBy: undefined,
     userIdApprovedBy: undefined,
     priorityLevelId: 2,
-    profileStatusId: PROFILE_STATUS_ID.pending,
-    privacyConsentInd: true,
+    profileStatusId: PROFILE_STATUS_ID.incomplete,
+    privacyConsentInd: false,
     userCreated: 'system',
     dateCreated: '2024-01-01T00:00:00Z',
     userUpdated: 'jane.doe',
@@ -185,8 +198,8 @@ let mockProfiles: Profile[] = [
     userIdReviewedBy: undefined,
     userIdApprovedBy: undefined,
     priorityLevelId: 1,
-    profileStatusId: PROFILE_STATUS_ID.approved,
-    privacyConsentInd: true,
+    profileStatusId: PROFILE_STATUS_ID.incomplete,
+    privacyConsentInd: false,
     userCreated: 'system',
     dateCreated: '2024-02-01T09:00:00Z',
     userUpdated: 'john.smith',
@@ -229,7 +242,7 @@ let mockProfiles: Profile[] = [
     userIdReviewedBy: undefined,
     userIdApprovedBy: undefined,
     priorityLevelId: 2,
-    profileStatusId: PROFILE_STATUS_ID.pending,
+    profileStatusId: PROFILE_STATUS_ID.incomplete,
     privacyConsentInd: false,
     userCreated: 'system',
     dateCreated: '2024-03-15T08:30:00Z',
@@ -273,8 +286,8 @@ let mockProfiles: Profile[] = [
     userIdReviewedBy: undefined,
     userIdApprovedBy: undefined,
     priorityLevelId: 3,
-    profileStatusId: PROFILE_STATUS_ID.approved,
-    privacyConsentInd: true,
+    profileStatusId: PROFILE_STATUS_ID.incomplete,
+    privacyConsentInd: false,
     userCreated: 'system',
     dateCreated: '2024-04-20T11:45:00Z',
     userUpdated: 'alex.tan',
@@ -317,8 +330,8 @@ let mockProfiles: Profile[] = [
     userIdReviewedBy: undefined,
     userIdApprovedBy: undefined,
     priorityLevelId: 1,
-    profileStatusId: PROFILE_STATUS_ID.pending,
-    privacyConsentInd: true,
+    profileStatusId: PROFILE_STATUS_ID.incomplete,
+    privacyConsentInd: false,
     userCreated: 'system',
     dateCreated: '2024-06-01T08:00:00Z',
     userUpdated: undefined,
@@ -361,8 +374,8 @@ let mockProfiles: Profile[] = [
     userIdReviewedBy: undefined,
     userIdApprovedBy: undefined,
     priorityLevelId: 2,
-    profileStatusId: PROFILE_STATUS_ID.approved,
-    privacyConsentInd: true,
+    profileStatusId: PROFILE_STATUS_ID.incomplete,
+    privacyConsentInd: false,
     userCreated: 'system',
     dateCreated: '2024-06-02T09:00:00Z',
     userUpdated: 'sam.lee',
@@ -449,8 +462,8 @@ let mockProfiles: Profile[] = [
     userIdReviewedBy: undefined,
     userIdApprovedBy: undefined,
     priorityLevelId: 1,
-    profileStatusId: PROFILE_STATUS_ID.approved,
-    privacyConsentInd: true,
+    profileStatusId: PROFILE_STATUS_ID.incomplete,
+    privacyConsentInd: false,
     userCreated: 'system',
     dateCreated: '2024-06-04T11:00:00Z',
     userUpdated: 'carlos.gomez',
@@ -494,7 +507,7 @@ let mockProfiles: Profile[] = [
     userIdApprovedBy: undefined,
     priorityLevelId: 2,
     profileStatusId: PROFILE_STATUS_ID.incomplete,
-    privacyConsentInd: true,
+    privacyConsentInd: false,
     userCreated: 'system',
     dateCreated: '2024-06-05T12:00:00Z',
     userUpdated: undefined,
@@ -537,7 +550,7 @@ let mockProfiles: Profile[] = [
     userIdReviewedBy: undefined,
     userIdApprovedBy: undefined,
     priorityLevelId: 3,
-    profileStatusId: PROFILE_STATUS_ID.approved,
+    profileStatusId: PROFILE_STATUS_ID.incomplete,
     privacyConsentInd: false,
     userCreated: 'system',
     dateCreated: '2024-06-06T13:00:00Z',
@@ -582,7 +595,7 @@ let mockProfiles: Profile[] = [
     userIdApprovedBy: undefined,
     priorityLevelId: 1,
     profileStatusId: PROFILE_STATUS_ID.incomplete,
-    privacyConsentInd: true,
+    privacyConsentInd: false,
     userCreated: 'system',
     dateCreated: '2024-06-07T14:00:00Z',
     userUpdated: undefined,
@@ -625,8 +638,8 @@ let mockProfiles: Profile[] = [
     userIdReviewedBy: undefined,
     userIdApprovedBy: undefined,
     priorityLevelId: 2,
-    profileStatusId: PROFILE_STATUS_ID.approved,
-    privacyConsentInd: true,
+    profileStatusId: PROFILE_STATUS_ID.incomplete,
+    privacyConsentInd: false,
     userCreated: 'system',
     dateCreated: '2024-06-08T15:00:00Z',
     userUpdated: 'olivia.brown',
@@ -713,8 +726,8 @@ let mockProfiles: Profile[] = [
     userIdReviewedBy: undefined,
     userIdApprovedBy: undefined,
     priorityLevelId: 1,
-    profileStatusId: PROFILE_STATUS_ID.approved,
-    privacyConsentInd: true,
+    profileStatusId: PROFILE_STATUS_ID.incomplete,
+    privacyConsentInd: false,
     userCreated: 'system',
     dateCreated: '2024-06-10T17:00:00Z',
     userUpdated: 'sofia.rossi',
@@ -776,14 +789,13 @@ function getProfile(activeDirectoryId: string): Profile | null {
 }
 
 /**
- * Registers a new profile with mock data.
+ * A private helper function to generate a mock profile.
  *
  * @param accessToken The access token of the user to create a profile for.
- * @param session The authenticated session.
  * @returns The created profile object.
  * @throws {AppError} If the profile cannot be created (e.g., user not found).
  */
-function registerProfile(accessToken: string): Profile {
+function createMockProfile(accessToken: string): Profile {
   let userId = activeDirectoryToUserIdMap[accessToken];
   if (!userId) {
     // Create new entry in activeDirectoryToUserIdMap if it doesn't exist
@@ -799,7 +811,7 @@ function registerProfile(accessToken: string): Profile {
     userIdApprovedBy: undefined,
     priorityLevelId: 2,
     profileStatusId: PROFILE_STATUS_ID.incomplete,
-    privacyConsentInd: true,
+    privacyConsentInd: false,
     userCreated: accessToken,
     dateCreated: new Date().toISOString(),
     userUpdated: accessToken,

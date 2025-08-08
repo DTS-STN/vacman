@@ -1,17 +1,32 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { Ok, Err } from 'oxide.ts';
+import { vi, describe, it, expect, beforeEach } from 'vitest';
 
 import type { Profile } from '~/.server/domain/models';
+import { apiClient } from '~/.server/domain/services/api-client';
 import { getDefaultProfileService } from '~/.server/domain/services/profile-service-default';
 import { serverEnvironment } from '~/.server/environment';
+import { AppError } from '~/errors/app-error';
+import { ErrorCodes } from '~/errors/error-codes';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
+
+// Mock the entire apiClient module
+vi.mock('~/.server/domain/services/api-client', () => ({
+  apiClient: {
+    get: vi.fn(),
+    post: vi.fn(),
+    put: vi.fn(),
+    delete: vi.fn(),
+  },
+}));
 
 // Mock the global fetch
 const mockFetch = vi.fn();
 global.fetch = mockFetch;
 
-describe('profile-service-default', () => {
+describe('getDefaultProfileService', () => {
   const profileService = getDefaultProfileService();
   const mockActiveDirectoryId = 'test-ad-id-123';
+  const mockAccessToken = 'test-ad-id-123';
 
   const mockProfile: Profile = {
     profileId: 1,
@@ -57,7 +72,7 @@ describe('profile-service-default', () => {
   };
 
   beforeEach(() => {
-    vi.resetAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('getProfile', () => {
@@ -124,70 +139,37 @@ describe('profile-service-default', () => {
   });
 
   describe('registerProfile', () => {
-    it('should successfully register a new profile', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        status: HttpStatusCodes.CREATED,
-        json: vi.fn().mockResolvedValueOnce(mockProfile),
-      });
+    it('should return an Ok result with the profile on successful API call', async () => {
+      // Arrange: Configure the mocked apiClient.post to return a successful `Ok` result
+      vi.mocked(apiClient.post).mockResolvedValue(Ok(mockProfile));
 
-      const result = await profileService.registerProfile(mockActiveDirectoryId);
+      // Act: Call the service method
+      const result = await profileService.registerProfile(mockAccessToken);
 
-      expect(result).toEqual(mockProfile);
-      expect(mockFetch).toHaveBeenCalledWith(`${serverEnvironment.VACMAN_API_BASE_URI}/profiles`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${mockActiveDirectoryId}`,
-        },
-      });
+      // Assert
+      expect(apiClient.post).toHaveBeenCalledWith('/profiles/me', 'register a new user profile', {}, mockAccessToken);
+      expect(result.isOk()).toBe(true);
+      expect(result.unwrap()).toEqual(mockProfile);
     });
 
-    it('should throw AppError when server responds with error status', async () => {
-      const errorStatus = HttpStatusCodes.BAD_REQUEST;
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: errorStatus,
+    it('should return an Err with a specific error code when API call fails', async () => {
+      // Arrange: Create a generic error that the apiClient would produce
+      const mockApiError = new AppError('The server responded with status 500.', ErrorCodes.VACMAN_API_ERROR, {
+        httpStatusCode: HttpStatusCodes.INTERNAL_SERVER_ERROR,
       });
+      // Configure the mocked apiClient.post to return a failure `Err` result
+      vi.mocked(apiClient.post).mockResolvedValue(Err(mockApiError));
 
-      await expect(profileService.registerProfile(mockActiveDirectoryId)).rejects.toThrow();
-    });
+      // Act: Call the service method
+      const result = await profileService.registerProfile(mockAccessToken);
 
-    it('should handle different error status codes', async () => {
-      const errorStatus = HttpStatusCodes.UNAUTHORIZED;
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: errorStatus,
-      });
+      // Assert
+      expect(result.isErr()).toBe(true);
 
-      await expect(profileService.registerProfile(mockActiveDirectoryId)).rejects.toThrow();
-    });
-
-    it('should throw AppError when fetch fails', async () => {
-      mockFetch.mockRejectedValueOnce(new Error('Network error'));
-
-      await expect(profileService.registerProfile(mockActiveDirectoryId)).rejects.toThrow('Network error');
-    });
-
-    it('should send correct request headers with authorization', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        status: HttpStatusCodes.CREATED,
-        json: vi.fn().mockResolvedValueOnce(mockProfile),
-      });
-
-      await profileService.registerProfile(mockActiveDirectoryId);
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        `${serverEnvironment.VACMAN_API_BASE_URI}/profiles`,
-        expect.objectContaining({
-          headers: expect.objectContaining({
-            'Authorization': `Bearer ${mockActiveDirectoryId}`,
-            'Content-Type': 'application/json',
-          }),
-          method: 'POST',
-        }),
-      );
+      const finalError = result.unwrapErr();
+      expect(finalError.errorCode).toBe(ErrorCodes.PROFILE_CREATE_FAILED);
+      expect(finalError.message).toContain('Failed to register profile. Reason:');
+      expect(finalError.httpStatusCode).toBe(HttpStatusCodes.INTERNAL_SERVER_ERROR);
     });
   });
 });

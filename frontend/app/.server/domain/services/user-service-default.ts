@@ -1,7 +1,6 @@
-import type { IDTokenClaims } from '~/.server/auth/auth-strategies';
-import type { User, UserCreate } from '~/.server/domain/models';
+import type { User, UserCreate, UserUpdate } from '~/.server/domain/models';
+import { apiClient } from '~/.server/domain/services/api-client';
 import type { UserService } from '~/.server/domain/services/user-service';
-import { serverEnvironment } from '~/.server/environment';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
@@ -11,71 +10,86 @@ export function getDefaultUserService(): UserService {
     /**
      * Retrieves a list of users by their ROLE.
      * @param role The ROLE of the user to retrieve.
+     * @param accessToken The access token for authorization.
      * @returns A promise that resolves to the list of user objects.
      */
-    async getUsersByRole(role: string): Promise<User[]> {
-      const response = await fetch(`${serverEnvironment.VACMAN_API_BASE_URI}/users?type=${role}`);
+    async getUsersByRole(role: string, accessToken: string): Promise<User[]> {
+      const result = await apiClient.get<User[]>(`/users?type=${role}`, `retrieve users with role ${role}`, accessToken);
 
-      if (!response.ok) {
-        const errorMessage = `Failed to retrieve users with role ${role}. Server responded with status ${response.status}.`;
-        throw new AppError(errorMessage, ErrorCodes.VACMAN_API_ERROR);
+      if (result.isErr()) {
+        throw result.unwrapErr();
       }
 
-      return await response.json();
+      return result.unwrap();
     },
 
     /**
      * Retrieves a user by their ID.
      * @param id The ID of the user to retrieve.
+     * @param accessToken The access token for authorization.
      * @returns A promise that resolves to the user object, or throws an error if not found.
      * @throws AppError if the request fails, if the user is not found, or if the server responds with an error status.
      */
-    async getUserById(id: number): Promise<User> {
-      const response = await fetch(`${serverEnvironment.VACMAN_API_BASE_URI}/users/${id}`);
+    async getUserById(id: number, accessToken: string): Promise<User> {
+      const result = await apiClient.get<User>(`/users/${id}`, `retrieve user with ID ${id}`, accessToken);
 
-      if (response.status === HttpStatusCodes.NOT_FOUND) {
-        throw new AppError(`User with ID ${id} not found.`, ErrorCodes.VACMAN_API_ERROR);
+      if (result.isErr()) {
+        const error = result.unwrapErr();
+        // Check if it's a 404 error and provide a more specific message
+        if (error.httpStatusCode === HttpStatusCodes.NOT_FOUND) {
+          throw new AppError(`User with ID ${id} not found.`, ErrorCodes.VACMAN_API_ERROR);
+        }
+        throw error;
       }
 
-      if (!response.ok) {
-        const errorMessage = `Failed to retrieve user with ID ${id}. Server responded with status ${response.status}.`;
-        throw new AppError(errorMessage, ErrorCodes.VACMAN_API_ERROR);
-      }
-
-      return await response.json();
+      return result.unwrap();
     },
 
     async getCurrentUser(accessToken: string): Promise<User> {
-      const response = await fetch(`${serverEnvironment.VACMAN_API_BASE_URI}/users/me`, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
+      const result = await apiClient.get<User>('/users/me', 'get current user', accessToken);
 
-      if (!response.ok) {
-        const errorMessage = `Failed to get current user. Server responded with status ${response.status}.`;
-        throw new AppError(errorMessage, ErrorCodes.VACMAN_API_ERROR);
+      if (result.isErr()) {
+        throw result.unwrapErr();
       }
 
-      return await response.json();
+      return result.unwrap();
     },
 
-    async registerCurrentUser(user: UserCreate, accessToken: string, idTokenClaims: IDTokenClaims): Promise<User> {
-      const response = await fetch(`${serverEnvironment.VACMAN_API_BASE_URI}/users/me`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify(user),
-      });
+    async registerCurrentUser(user: UserCreate, accessToken: string): Promise<User> {
+      const result = await apiClient.post<UserCreate, User>('/users/me', 'register current user', user, accessToken);
 
-      if (!response.ok) {
-        const errorMessage = `Failed to register current user. Server responded with status ${response.status}.`;
-        throw new AppError(errorMessage, ErrorCodes.VACMAN_API_ERROR);
+      if (result.isErr()) {
+        throw result.unwrapErr();
       }
 
-      return await response.json();
+      return result.unwrap();
+    },
+
+    /**
+     * Updates a user by their ID.
+     * @param user The user data to update, containing the ID and fields to update.
+     * @param accessToken The access token for authorization.
+     * @returns A promise that resolves to the updated user object.
+     * @throws AppError if the request fails, if the user is not found, or if the server responds with an error status.
+     */
+    async updateUser(user: UserUpdate, accessToken: string): Promise<User> {
+      const result = await apiClient.put<UserUpdate, User>(
+        `/users/${user.id}`,
+        `update user with ID ${user.id}`,
+        user,
+        accessToken,
+      );
+
+      if (result.isErr()) {
+        const error = result.unwrapErr();
+        // Check if it's a 404 error and provide a more specific message
+        if (error.httpStatusCode === HttpStatusCodes.NOT_FOUND) {
+          throw new AppError(`User with ID ${user.id} not found.`, ErrorCodes.VACMAN_API_ERROR);
+        }
+        throw error;
+      }
+
+      return result.unwrap();
     },
   };
 }

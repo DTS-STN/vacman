@@ -114,6 +114,20 @@ export type UserCreate = Readonly<{
   languageId: number;
 }>;
 
+export type UserUpdate = Readonly<{
+  id: number;
+  userTypeId?: number;
+  microsoftEntraId?: string;
+  firstName?: string;
+  middleName?: string;
+  lastName?: string;
+  initials?: string;
+  personalRecordIdentifier?: string;
+  businessPhone?: string;
+  businessEmail?: string;
+  languageId?: number;
+}>;
+
 export type Profile = Readonly<{
   profileId: number;
   userId: number;
