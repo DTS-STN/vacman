@@ -25,6 +25,7 @@ const mockProfileService = {
   findProfileById: vi.fn(),
   registerProfile: vi.fn(),
   updateProfile: vi.fn(),
+  updateProfileStatus: vi.fn(),
   submitProfileForReview: vi.fn(),
   getAllProfiles: vi.fn(),
   getCurrentUserProfile: vi.fn(),
