@@ -8,7 +8,6 @@ import org.immutables.builder.Builder;
 import org.springframework.core.style.ToStringCreator;
 
 import jakarta.annotation.Nullable;
-import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -19,7 +18,6 @@ import jakarta.persistence.Table;
 
 @Entity(name = "Profile")
 @Table(name = "[PROFILE]")
-@AttributeOverride(name = "id", column = @Column(name = "[PROFILE_ID]"))
 public class ProfileEntity extends AbstractBaseEntity {
 
 	@ManyToOne

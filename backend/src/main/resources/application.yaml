@@ -48,6 +48,9 @@ spring:
 #
 
 spring:
+  sql:
+    init:
+      mode: never #TODO: this can be removed once the data.sql is deleted
   datasource:
     name: ${spring.application.name}
     url: jdbc:h2:mem:testdb;MODE=MSSQLServer;DATABASE_TO_UPPER=false;CASE_INSENSITIVE_IDENTIFIERS=true;DB_CLOSE_DELAY=-1;
@@ -69,12 +72,15 @@ spring:
       minimum-idle: 10
   jpa:
     # defer execution of data.sql until hibernate creates the schema 
-    defer-datasource-initialization: true
+    defer-datasource-initialization: false
     hibernate:
       naming:
         # Use the exact names for tables and columns as specified in the entity classes
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
-
+  liquibase:
+    enabled: true
+    contexts: h2,dev
+    change-log: classpath:db/changelog/db.changelog-master.yaml
 ---
 
 #
@@ -265,10 +271,10 @@ application:
     base-url: https://api.notification.canada.ca/v2/notifications
     connect-timeout: 30s
     read-timeout: 30s
-    api-key: # must be set externally (ex: 00000000-0000-0000-0000-000000000000)
-    profile-approved-template-id: # must be set externally (ex: 00000000-0000-0000-0000-000000000000)
-    profile-created-template-id: # must be set externally (ex: 00000000-0000-0000-0000-000000000000)
-    profile-updated-template-id:  # must be set externally (ex: 00000000-0000-0000-0000-000000000000)
+    api-key: 00000000-0000-0000-0000-000000000000 # must be set externally (ex: 00000000-0000-0000-0000-000000000000)
+    profile-approved-template-id: 00000000-0000-0000-0000-000000000000 # must be set externally (ex: 00000000-0000-0000-0000-000000000000)
+    profile-created-template-id: 00000000-0000-0000-0000-000000000000 # must be set externally (ex: 00000000-0000-0000-0000-000000000000)
+    profile-updated-template-id: 00000000-0000-0000-0000-000000000000 # must be set externally (ex: 00000000-0000-0000-0000-000000000000)
   ms-graph:
     base-url: https://graph.microsoft.com/v1.0
     connect-timeout: 10s
