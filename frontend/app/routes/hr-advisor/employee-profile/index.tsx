@@ -290,7 +290,6 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
           params={params}
           required
           errorState={actionData?.referralComplete === false}
-          showStatus
         >
           <DescriptionList>
             <DescriptionListItem term={t('app:referral-preferences.language-referral-type')}>
