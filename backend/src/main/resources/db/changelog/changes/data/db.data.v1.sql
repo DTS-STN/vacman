@@ -5,7 +5,8 @@ SET IDENTITY_INSERT CD_PROVINCE_TERRITORY ON;
 
 --changeset system:cd_province_territory
 INSERT INTO [CD_PROVINCE_TERRITORY] ([ID], [CODE], [NAME_EN], [NAME_FR], [EFFECTIVE_DATE], [USER_CREATED], [DATE_CREATED], [USER_UPDATED], [DATE_UPDATED])
-VALUES (0, 'ON', 'Ontario', 'Ontario', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+VALUES
+(0, 'ON', 'Ontario', 'Ontario', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
 (1, 'QC', 'Quebec', 'Québec', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
 (2, 'BC', 'British Columbia', 'Colombie-Britannique', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
 (3, 'AB', 'Alberta', 'Alberta', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
@@ -27,7 +28,8 @@ SET IDENTITY_INSERT CD_CITY ON;
 
 --changeset system:cd_city
 INSERT INTO [CD_CITY] ([ID], [CODE], [NAME_EN], [NAME_FR], [EFFECTIVE_DATE], [PROVINCE_TERRITORY_ID], [USER_CREATED], [DATE_CREATED], [USER_UPDATED], [DATE_UPDATED])
-VALUES (0, 'AB1', 'Brooks', 'Brooks', '1970-01-01 00:00:00', 3, 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+VALUES
+(0, 'AB1', 'Brooks', 'Brooks', '1970-01-01 00:00:00', 3, 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
 (1, 'AB2', 'Calgary', 'Calgary', '1970-01-01 00:00:00', 3, 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
 (2, 'AB3', 'Camrose', 'Camrose', '1970-01-01 00:00:00', 3, 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
 (3, 'AB4', 'Edmonton', 'Edmonton', '1970-01-01 00:00:00', 3, 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
@@ -434,7 +436,8 @@ SET IDENTITY_INSERT CD_LANGUAGE_REFERRAL_TYPE ON;
 
 --changeset system:cd_language_referral_type
 INSERT INTO [CD_LANGUAGE_REFERRAL_TYPE] ([ID], [CODE], [NAME_EN], [NAME_FR], [EFFECTIVE_DATE], [USER_CREATED], [DATE_CREATED], [USER_UPDATED], [DATE_UPDATED])
-VALUES (0, 'BILINGUAL', 'Bilingual', 'Bilingue', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+VALUES
+(0, 'BILINGUAL', 'Bilingual', 'Bilingue', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
 (1, 'ENGLISH', 'English only', 'Anglais seulement', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
 (2, 'FRENCH', 'French only', 'Français seulement', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
 
@@ -446,7 +449,8 @@ SET IDENTITY_INSERT CD_WORK_UNIT ON;
 
 --changeset system:cd_work_unit
 INSERT INTO [CD_WORK_UNIT] ([ID], [CODE], [NAME_EN], [NAME_FR], [PARENT_WORK_UNIT_ID], [EFFECTIVE_DATE], [USER_CREATED], [DATE_CREATED], [USER_UPDATED], [DATE_UPDATED])
-VALUES (0, '100713', 'Labour - COPD', 'Travail - CODP', NULL, '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+VALUES
+(0, '100713', 'Labour - COPD', 'Travail - CODP', NULL, '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
 (1, '100732', 'Labour - SIG', 'Travail - ISG', NULL, '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
 (2, '101560', 'DMO Labour Program', 'BSM Programme du travail', NULL, '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
 (3, '103634', 'Labour - PDRIA', 'Travail - PRDAI', NULL, '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
@@ -723,7 +727,8 @@ SET IDENTITY_INSERT CD_LANGUAGE ON;
 
 --changeset system:cd_language
 INSERT INTO [CD_LANGUAGE] ([ID], [CODE], [NAME_EN], [NAME_FR], [EFFECTIVE_DATE], [USER_CREATED], [DATE_CREATED], [USER_UPDATED], [DATE_UPDATED])
-VALUES (0, 'EN', 'English', 'Anglais', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+VALUES
+(0, 'EN', 'English', 'Anglais', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
 (1, 'FR', 'French', 'Français', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
 
 --changeset system:cd_language_off context:mssql
@@ -734,7 +739,8 @@ SET IDENTITY_INSERT CD_APPOINTMENT_NON_ADVERTISED ON;
 
 --changeset system:cd_appointment_non_advertised
 INSERT INTO [CD_APPOINTMENT_NON_ADVERTISED] ([ID], [CODE], [NAME_EN], [NAME_FR], [INTERNAL_IND], [EFFECTIVE_DATE], [USER_CREATED], [DATE_CREATED], [USER_UPDATED], [DATE_UPDATED])
-VALUES (0, 'INT_DIL', 'Objectives related to diversity, inclusion or land claims', 'Objectifs liés à la diversité, l''inclusion ou les revendications territoriales', '1', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+VALUES
+(0, 'INT_DIL', 'Objectives related to diversity, inclusion or land claims', 'Objectifs liés à la diversité, l''inclusion ou les revendications territoriales', '1', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
 (1, 'INT_QCSAP', 'Qualified candidate from a similar appointment process / an existing pool ', 'Candidat(e) qualifié(e) issu(e) d''un bassin d''un processus de nomination similaire ou d''un bassin existant ', '1', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
 (2, 'INT_PTM', 'Promotion in the context of talent management / succession planning', 'Promotion dans le cadre d''un plan de gestion de talents / de la relève', '1', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
 (3, 'INT_OPN', 'Immediate needs (pressing operational needs or urgent situations) ', 'Besoins immédiats (besoins opérationnels pressants ou situations d''urgence) ', '1', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
@@ -758,7 +764,8 @@ SET IDENTITY_INSERT CD_EMPLOYMENT_EQUITY ON;
 
 --changeset system:cd_employment_equity
 INSERT INTO [CD_EMPLOYMENT_EQUITY] ([ID], [CODE], [NAME_EN], [NAME_FR], [EFFECTIVE_DATE], [USER_CREATED], [DATE_CREATED], [USER_UPDATED], [DATE_UPDATED])
-VALUES (0, 'VM-MV', 'Visible Minorities', 'Minorités visibles', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+VALUES
+(0, 'VM-MV', 'Visible Minorities', 'Minorités visibles', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
 (1, 'PD-PSH', 'Persons with Disabilities', 'Personnes en situation de handicap', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
 (2, 'AP-A', 'Aboriginal Peoples', 'Autochtones', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
 (3, 'W-F', 'Women', 'Femmes', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
@@ -771,7 +778,8 @@ SET IDENTITY_INSERT CD_EMPLOYMENT_OPPORTUNITY ON;
 
 --changeset system:cd_employment_opportunity
 INSERT INTO [CD_EMPLOYMENT_OPPORTUNITY] ([ID], [CODE], [NAME_EN], [NAME_FR], [EFFECTIVE_DATE], [USER_CREATED], [DATE_CREATED], [USER_UPDATED], [DATE_UPDATED])
-VALUES (0, 'INTERNAL', 'Internal Opportunities', 'Opportunités internes', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+VALUES
+(0, 'INTERNAL', 'Internal Opportunities', 'Opportunités internes', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
 (1, 'EXTERNAL', 'External Opportunities', 'Opportunités externes', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
 (2, 'ADVERTISED', 'Advertised Processes', 'Processus annoncés', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
 (3, 'NON_ADVERTISED', 'Non-Advertised Processes', 'Processus non annoncés', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
@@ -789,10 +797,11 @@ SET IDENTITY_INSERT CD_EMPLOYMENT_TENURE ON;
 
 --changeset system:cd_employment_tenure
 INSERT INTO [CD_EMPLOYMENT_TENURE] ([ID], [CODE], [NAME_EN], [NAME_FR], [EFFECTIVE_DATE], [USER_CREATED], [DATE_CREATED], [USER_UPDATED], [DATE_UPDATED])
-VALUES (0, 'INDETERMINATE', 'Indeterminate', 'Indéterminée', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
-    (1, 'TERM', 'Term', 'Durée déterminée', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
-    (2, 'CASUAL', 'Casual', 'Occasionnel', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
-    (3, 'STUDENT', 'Student', 'Étudiant', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
+VALUES
+(0, 'INDETERMINATE', 'Indeterminate', 'Indéterminée', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+(1, 'TERM', 'Term', 'Durée déterminée', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+(2, 'CASUAL', 'Casual', 'Occasionnel', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+(3, 'STUDENT', 'Student', 'Étudiant', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
 
 --changeset system:cd_employment_tenure_off context:mssql
 SET IDENTITY_INSERT CD_EMPLOYMENT_TENURE OFF;
@@ -802,7 +811,8 @@ SET IDENTITY_INSERT CD_LANGUAGE_REQUIREMENT ON;
 
 --changeset system:cd_language_requirement
 INSERT INTO [CD_LANGUAGE_REQUIREMENT] ([ID], [CODE], [NAME_EN], [NAME_FR], [EFFECTIVE_DATE], [USER_CREATED], [DATE_CREATED], [USER_UPDATED], [DATE_UPDATED])
-VALUES (0, 'BI', 'Bilingual Imperative', 'Bilingue impératif', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+VALUES
+(0, 'BI', 'Bilingual Imperative', 'Bilingue impératif', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
 (1, 'BNI', 'Bilingual Non-imperative', 'Bilingue non-impérative', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
 (2, 'EE-AE', 'English Essential', 'Anglais essentiel', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
 (3, 'FE', 'French Essential', 'Français essentiel', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
@@ -817,7 +827,8 @@ SET IDENTITY_INSERT CD_PROFILE_STATUS ON;
 
 --changeset system:cd_profile_status
 INSERT INTO [CD_PROFILE_STATUS] ([ID], [CODE], [NAME_EN], [NAME_FR], [EFFECTIVE_DATE], [USER_CREATED], [DATE_CREATED], [USER_UPDATED], [DATE_UPDATED])
-VALUES (0, 'PENDING', 'Pending approval', 'En attente d''approbation', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+VALUES
+(0, 'PENDING', 'Pending approval', 'En attente d''approbation', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
 (1, 'APPROVED', 'Approved', 'Approuvé', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
 (2, 'INCOMPLETE', 'In progress', 'En cours', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
 (3, 'ARCHIVED', 'Archived', 'Archivé', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
@@ -830,7 +841,8 @@ SET IDENTITY_INSERT CD_REQUEST_STATUS ON;
 
 --changeset system:cd_request_status
 INSERT INTO [CD_REQUEST_STATUS] ([ID], [CODE], [NAME_EN], [NAME_FR], [EFFECTIVE_DATE], [USER_CREATED], [DATE_CREATED], [USER_UPDATED], [DATE_UPDATED])
-VALUES (0, 'DR-EB', 'Draft', 'Ébauche', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+VALUES
+(0, 'DR-EB', 'Draft', 'Ébauche', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
 (1, 'RS-DS', 'Request Submitted', 'Demande soumise', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
 (2, 'AHR-ARH', 'Assigned - HR review', 'Assignée - Revue RH', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
 (3, 'APP', 'Approved -  Assessment Feedback Pending', 'Approuvée - En attente de retroaction d''évaluation', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
@@ -846,7 +858,8 @@ SET IDENTITY_INSERT CD_SECURITY_CLEARANCE ON;
 
 --changeset system:cd_security_clearance
 INSERT INTO [CD_SECURITY_CLEARANCE] ([ID], [CODE], [NAME_EN], [NAME_FR], [EFFECTIVE_DATE], [USER_CREATED], [DATE_CREATED], [USER_UPDATED], [DATE_UPDATED])
-VALUES (0, 'R-F', 'Reliability', 'Fiabilité', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+VALUES
+(0, 'R-F', 'Reliability', 'Fiabilité', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
 (1, 'ER-FA', 'Enhanced Reliability', 'Fiabilité approfondie', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
 (2, 'SEC', 'Secret', 'Secret', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
 (3, 'ES-SA', 'Enhanced Secret', 'Secret approfondie', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
@@ -862,7 +875,8 @@ SET IDENTITY_INSERT CD_SELECTION_PROCESS_TYPE ON;
 
 --changeset system:cd_selection_process_type
 INSERT INTO [CD_SELECTION_PROCESS_TYPE] ([ID], [CODE], [NAME_EN], [NAME_FR], [EFFECTIVE_DATE], [USER_CREATED], [DATE_CREATED], [USER_UPDATED], [DATE_UPDATED])
-VALUES (0, 'AEP', 'Appointment - ESDC Priority', 'Nomination - Priorité d''EDSC', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+VALUES
+(0, 'AEP', 'Appointment - ESDC Priority', 'Nomination - Priorité d''EDSC', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
 (1, 'AODP', 'Appointment - Other Department Priority', 'Nomination - Priorité autre ministère', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
 (2, 'AEA', 'Appointment - External Advertised (from outside the public service)', 'Nomination - Externe annoncé (de l''extérieur de la fonction publique)', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
 (3, 'AENA', 'Appointment - External Non-Advertised (from outside the public service)', 'Nomination - Externe non-annoncé (de l''extérieur de la fonction publique)', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
@@ -881,7 +895,8 @@ SET IDENTITY_INSERT CD_USER_TYPE ON;
 
 --changeset system:cd_user_type
 INSERT INTO [CD_USER_TYPE] ([ID], [CODE], [NAME_EN], [NAME_FR], [EFFECTIVE_DATE], [USER_CREATED], [DATE_CREATED], [USER_UPDATED], [DATE_UPDATED])
-VALUES (0, 'employee', 'Employee', 'Employé', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+VALUES
+(0, 'employee', 'Employee', 'Employé', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
 (1, 'admin', 'Administrator', 'Administrateur', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
 (2, 'hiring-manager', 'Hiring Manager', 'Gestionnaire de recrutement', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
 (3, 'HRA', 'HR Advisor', 'Conseiller en R.H.', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
@@ -894,7 +909,8 @@ SET IDENTITY_INSERT CD_WORK_SCHEDULE ON;
 
 --changeset system:cd_work_schedule
 INSERT INTO [CD_WORK_SCHEDULE] ([ID], [CODE], [NAME_EN], [NAME_FR], [EFFECTIVE_DATE], [USER_CREATED], [DATE_CREATED], [USER_UPDATED], [DATE_UPDATED])
-VALUES (0, 'FULL_TIME', 'Full-time', 'Temps plein', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+VALUES
+(0, 'FULL_TIME', 'Full-time', 'Temps plein', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
 (1, 'PART_TIME', 'Part-time', 'Temps partiel', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
 (2, 'CASUAL', 'Casual', 'Occasionnel', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
 (3, 'TERM', 'Term', 'Durée déterminée', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
@@ -907,7 +923,8 @@ SET IDENTITY_INSERT CD_MATCH_STATUS ON;
 
 --changeset system:cd_match_status
 INSERT INTO [CD_MATCH_STATUS] ([ID], [CODE], [NAME_EN], [NAME_FR], [EFFECTIVE_DATE], [USER_CREATED], [DATE_CREATED], [USER_UPDATED], [DATE_UPDATED])
-VALUES (0, 'IP-EC', 'In Progress', 'En cours', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+VALUES
+(0, 'IP-EC', 'In Progress', 'En cours', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
 (1, 'PA-EAA', 'Pending Approval', 'En attente d''approbation', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
 (2, 'A-A', 'Approved', 'Approuvé', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
 
