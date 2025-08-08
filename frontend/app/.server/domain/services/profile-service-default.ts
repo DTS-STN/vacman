@@ -2,6 +2,7 @@ import { Err, None, Ok, Some } from 'oxide.ts';
 import type { Option, Result } from 'oxide.ts';
 
 import type { Profile } from '~/.server/domain/models';
+import { apiClient } from '~/.server/domain/services/api-client';
 import type { ProfileService } from '~/.server/domain/services/profile-service';
 import { serverEnvironment } from '~/.server/environment';
 import { AppError } from '~/errors/app-error';
@@ -112,39 +113,26 @@ export function getDefaultProfileService(): ProfileService {
      * @returns A promise that resolves to the created profile object.
      * @throws AppError if the request fails or if the server responds with an error status.
      */
-    async registerProfile(accessToken: string): Promise<Profile> {
-      let response: Response;
+    async registerProfile(accessToken: string): Promise<Result<Profile, AppError>> {
+      const context = 'register a new user profile';
+      const endpoint = '/profiles/me';
+      // There's no request body needed for this specific POST request, so we pass an empty object.
+      const requestBody = {};
 
-      try {
-        response = await fetch(`${serverEnvironment.VACMAN_API_BASE_URI}/profiles`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${accessToken}`,
-          },
-        });
-      } catch (error) {
-        throw new AppError(
-          error instanceof Error ? error.message : `Network error while registering profile`,
-          ErrorCodes.PROFILE_NETWORK_ERROR,
-          { httpStatusCode: HttpStatusCodes.SERVICE_UNAVAILABLE },
+      const result = await apiClient.post<typeof requestBody, Profile>(endpoint, context, requestBody, accessToken);
+
+      if (result.isErr()) {
+        const originalError = result.unwrapErr();
+
+        return Err(
+          new AppError(`Failed to register profile. Reason: ${originalError.message}`, ErrorCodes.PROFILE_CREATE_FAILED, {
+            httpStatusCode: originalError.httpStatusCode,
+            correlationId: originalError.correlationId,
+          }),
         );
       }
 
-      if (!response.ok) {
-        const errorMessage = `Failed to register profile. Server responded with status ${response.status}.`;
-        throw new AppError(errorMessage, ErrorCodes.PROFILE_CREATE_FAILED, {
-          httpStatusCode: response.status as HttpStatusCode,
-        });
-      }
-
-      try {
-        return await response.json();
-      } catch {
-        throw new AppError(`Invalid JSON response while registering profile`, ErrorCodes.PROFILE_INVALID_RESPONSE, {
-          httpStatusCode: HttpStatusCodes.BAD_GATEWAY,
-        });
-      }
+      return result;
     },
 
     async updateProfile(

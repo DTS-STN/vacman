@@ -4,8 +4,10 @@
 import type { AppLoadContext } from 'react-router';
 import { redirect } from 'react-router';
 
+import { Ok } from 'oxide.ts';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
+import type { Profile } from '~/.server/domain/models';
 import { getProfileService } from '~/.server/domain/services/profile-service';
 import { getUserService } from '~/.server/domain/services/user-service';
 import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
@@ -99,6 +101,46 @@ const mockProfileService = {
   getCurrentUserProfile: vi.fn(),
 };
 
+const mockProfile: Profile = {
+  profileId: 1,
+  userId: 1,
+  profileStatusId: 1,
+  privacyConsentInd: true,
+  userCreated: 'system',
+  dateCreated: new Date().toISOString(),
+  personalInformation: {
+    surname: 'Doe',
+    givenName: 'John',
+    personalRecordIdentifier: '123456789',
+    preferredLanguageId: undefined,
+    workEmail: 'work.email@example.ca',
+    personalEmail: 'personal.email@example.com',
+    workPhone: undefined,
+    personalPhone: '613-938-0001',
+    additionalInformation: 'Looking for opportunities in software development.',
+  },
+  employmentInformation: {
+    substantivePosition: undefined,
+    branchOrServiceCanadaRegion: undefined,
+    directorate: undefined,
+    province: undefined,
+    cityId: undefined,
+    wfaStatus: undefined,
+    wfaEffectiveDate: undefined,
+    wfaEndDate: undefined,
+    hrAdvisor: undefined,
+  },
+  referralPreferences: {
+    languageReferralTypeIds: [864190000],
+    classificationIds: [905190000, 905190001],
+    workLocationProvince: 1,
+    workLocationCitiesIds: [411290001, 411290002],
+    availableForReferralInd: true,
+    interestedInAlternationInd: false,
+    employmentTenureIds: [664190000, 664190001, 664190003],
+  },
+};
+
 vi.mocked(getProfileService).mockReturnValue(mockProfileService);
 
 const mockSafeGetUserProfile = vi.fn();
@@ -146,45 +188,7 @@ describe('Privacy Consent Flow', () => {
     // Default: no profile exists
     mockProfileService.getProfile.mockResolvedValue(null);
     // Mock createUserProfile to return a profile with profileId
-    vi.mocked(createUserProfile).mockResolvedValue({
-      profileId: 1,
-      userId: 1,
-      profileStatusId: 1,
-      privacyConsentInd: true,
-      userCreated: 'system',
-      dateCreated: new Date().toISOString(),
-      personalInformation: {
-        surname: 'Doe',
-        givenName: 'John',
-        personalRecordIdentifier: '123456789',
-        preferredLanguageId: undefined,
-        workEmail: 'work.email@example.ca',
-        personalEmail: 'personal.email@example.com',
-        workPhone: undefined,
-        personalPhone: '613-938-0001',
-        additionalInformation: 'Looking for opportunities in software development.',
-      },
-      employmentInformation: {
-        substantivePosition: undefined,
-        branchOrServiceCanadaRegion: undefined,
-        directorate: undefined,
-        province: undefined,
-        cityId: undefined,
-        wfaStatus: undefined,
-        wfaEffectiveDate: undefined,
-        wfaEndDate: undefined,
-        hrAdvisor: undefined,
-      },
-      referralPreferences: {
-        languageReferralTypeIds: [864190000],
-        classificationIds: [905190000, 905190001],
-        workLocationProvince: 1,
-        workLocationCitiesIds: [411290001, 411290002],
-        availableForReferralInd: true,
-        interestedInAlternationInd: false,
-        employmentTenureIds: [664190000, 664190001, 664190003],
-      },
-    });
+    vi.mocked(createUserProfile).mockResolvedValue(Ok(mockProfile));
     // Default: safeGetUserProfile returns null
     mockSafeGetUserProfile.mockResolvedValue(null);
   });
