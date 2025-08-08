@@ -14,6 +14,7 @@ import ca.gov.dtsstn.vacman.api.data.entity.EventEntityBuilder;
 import ca.gov.dtsstn.vacman.api.data.repository.EventRepository;
 import ca.gov.dtsstn.vacman.api.event.ProfileCreateEvent;
 import ca.gov.dtsstn.vacman.api.event.ProfileReadEvent;
+import ca.gov.dtsstn.vacman.api.event.ProfileStateChangeEvent;
 
 /**
  * Listener for profile-related events.
@@ -53,5 +54,16 @@ public class ProfileEventListener {
 			.build());
 
 		log.info("Event: profiles read - Entra ID: {}, count: {}", event.entraId(), event.profileIds().size());
+	}
+
+	@Async
+	@EventListener({ ProfileStateChangeEvent.class })
+	public void handleProfileStateChange(ProfileStateChangeEvent event) throws JsonProcessingException {
+		eventRepository.save(new EventEntityBuilder()
+			.type("PROFILE_STATE_CHANGE")
+			.details(objectMapper.writeValueAsString(event))
+			.build());
+
+		log.info("Event: profile state changed - ID: {}, from: {}, to: {}", event.entity().getId(), event.previousState(), event.newState());
 	}
 }
