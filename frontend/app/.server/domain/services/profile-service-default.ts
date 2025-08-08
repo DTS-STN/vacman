@@ -61,25 +61,24 @@ export function getDefaultProfileService(): ProfileService {
     },
 
     /**
-     * Retrieves a profile by profile ID.
+     * Retrieves a profile by its ID from the profile service.
+     *
+     * @param accessToken The access token used to authenticate the request.
      * @param profileId The profile ID to retrieve.
-     * @returns A promise that resolves to Some(profile) if found, or None if not found.
-     * @throws AppError if the request fails or if the server responds with an error status.
+     * @returns A Promise that resolves to:
+     *   - Ok(Profile) if the profile is found.
+     *   - Err(AppError) if the profile is not found or if the request fails.
      */
-    async getProfileById(accessToken: string, profileId: string): Promise<Option<Profile>> {
-      const response = await apiClient.get<Profile>(`/profiles/${profileId}`, 'fetch profile by ID', accessToken);
+    async getProfileById(accessToken: string, profileId: string): Promise<Result<Profile, AppError>> {
+      const result = await apiClient.get<Profile>(`/profiles/${profileId}`, 'fetch profile by ID', accessToken);
 
-      if (response.isErr()) {
-        const error = response.unwrapErr();
-
+      return result.mapErr((error) => {
         if (error.errorCode === HttpStatusCodes.NOT_FOUND.toString()) {
-          return None;
+          return new AppError(`Profile with ID ${profileId} not found.`, ErrorCodes.PROFILE_NOT_FOUND);
         }
 
-        throw new AppError(error.message, ErrorCodes.PROFILE_FETCH_FAILED);
-      }
-
-      return Some(response.unwrap());
+        return new AppError(error.message, ErrorCodes.PROFILE_FETCH_FAILED);
+      });
     },
 
     /**

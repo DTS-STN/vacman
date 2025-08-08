@@ -35,7 +35,12 @@ export function getMockProfileService(): ProfileService {
     },
     getProfileById: (accessToken: string, profileId: string) => {
       const profile = mockProfiles.find((p) => p.profileId.toString() === profileId);
-      return Promise.resolve(profile ? Some(profile) : None);
+
+      if (profile) {
+        return Promise.resolve(Ok(profile));
+      }
+
+      return Promise.resolve(Err(new AppError(`Profile not found.`, ErrorCodes.PROFILE_NOT_FOUND)));
     },
     updateProfile: (
       accessToken: string,
