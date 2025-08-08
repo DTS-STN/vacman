@@ -19,7 +19,7 @@ import { getProfileStatusService } from '~/.server/domain/services/profile-statu
 import { getUserService } from '~/.server/domain/services/user-service';
 import { getWFAStatuses } from '~/.server/domain/services/wfa-status-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
-import { requirePrivacyConsentForOwnProfile } from '~/.server/utils/privacy-consent-utils';
+import { checkEmployeeRoutePrivacyConsent, requirePrivacyConsentForOwnProfile } from '~/.server/utils/privacy-consent-utils';
 import { countCompletedItems, omitObjectProperties } from '~/.server/utils/profile-utils';
 import { AlertMessage } from '~/components/alert-message';
 import { Button } from '~/components/button';
@@ -106,8 +106,10 @@ export async function action({ context, request }: Route.ActionArgs) {
 }
 
 export async function loader({ context, request, params }: Route.LoaderArgs) {
+  requireAuthentication(context.session, request);
+  // Check privacy consent for employee routes
   const currentUrl = new URL(request.url);
-  requireAuthentication(context.session, currentUrl);
+  await checkEmployeeRoutePrivacyConsent(context.session, currentUrl);
 
   const profileResult = await getProfileService().getCurrentUserProfile(context.session.authState.accessToken);
 
