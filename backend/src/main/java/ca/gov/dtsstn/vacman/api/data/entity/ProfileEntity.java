@@ -27,7 +27,7 @@ public class ProfileEntity extends AbstractBaseEntity {
 	private UserEntity user;
 
 	@ManyToOne
-	@JoinColumn(name = "[USER_ID_HR_ADVISOR]", nullable = false)
+	@JoinColumn(name = "[USER_ID_HR_ADVISOR]", nullable = true)
 	private UserEntity hrAdvisor;
 
 	@ManyToOne

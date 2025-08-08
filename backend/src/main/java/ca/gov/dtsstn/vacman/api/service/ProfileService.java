@@ -10,19 +10,26 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 @Service
 public class ProfileService {
+
+    /** A collection of active profile status codes. */
+    public static final Set<String> ACTIVE_PROFILE_STATUS = Set.of("APPROVED", "PENDING", "INCOMPLETE");
+
+    /** A collection of inactive profile status codes. */
+    public static final Set<String> INACTIVE_PROFILE_STATUS = Set.of("ARCHIVED");
 
     private final ProfileRepository profileRepository;
 
     private final ProfileStatusRepository profileStatusRepository;
 
     // Keys are tied to the potential values of getProfilesByStatusAndHrId parameter isActive.
-    private final Map<Boolean, Set<String>> profileStatusSets = Map.of(
-            Boolean.TRUE, Set.of("APPROVED", "PENDING", "INCOMPLETE"),
-            Boolean.FALSE, Set.of("ARCHIVED")
+    private static final Map<Boolean, Set<String>> profileStatusSets = Map.of(
+            Boolean.TRUE, ACTIVE_PROFILE_STATUS,
+            Boolean.FALSE, INACTIVE_PROFILE_STATUS
     );
 
     public ProfileService(ProfileRepository profileRepository, ProfileStatusRepository profileStatusRepository) {
@@ -65,6 +72,17 @@ public class ProfileService {
         return (isActive != null)
                 ? profileRepository.findByUserMicrosoftEntraIdIsAndProfileStatusCodeIn(entraId, profileStatusSets.get(isActive))
                 : profileRepository.findAllByUserMicrosoftEntraId(entraId);
+    }
+
+    /**
+     * Returns a profile by ID assuming the user's ID matches & the profile is active.
+     *
+     * @param profileId The target profile's ID.
+     * @param userId The ID of the user associated with the target profile.
+     * @return The profile matching the above requirements, if any.
+     */
+    public Optional<ProfileEntity> getActiveProfileByIdAndUserId(Long profileId, Long userId) {
+        return profileRepository.findByIdAndUserIdIsAndProfileStatusCodeIn(profileId, userId, ACTIVE_PROFILE_STATUS);
     }
 
     /**

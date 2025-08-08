@@ -22,7 +22,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.web.PagedModel;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Collection;
 import java.util.function.Function;
@@ -121,6 +126,37 @@ public class ProfilesController {
                 .toList();
 
         return ResponseEntity.ok(profiles);
+    }
+
+    @GetMapping(path = "/{id}")
+    @SecurityRequirement(name = SpringDocConfig.AZURE_AD)
+    @Operation(summary = "Retrieve the profile specified by ID that is associated with the authenticated user.")
+    public ResponseEntity<ProfileReadModel> getProfileById(
+            @PathVariable(name = "id")
+            Long profileId
+    ) {
+        log.info("Received request to get profile; ID: [{}]", profileId);
+
+        log.debug("Checking if caller has hr-advisor claim");
+        if (!SecurityUtils.hasHrAdvisorId()) {
+            throw new UnauthorizedException("JWT token does not have hr-advisor claim.");
+        }
+
+        log.debug("Checking if caller is a user, that user owns the profile matching the profile ID, and the profile is active.");
+        final var microsoftEntraId = SecurityUtils.getCurrentUserEntraId()
+                .orElseThrow(() -> new UnauthorizedException(OID_NOT_FOUND_MESSAGE));
+
+        var userId = userService.getUserByMicrosoftEntraId(microsoftEntraId)
+                .orElseThrow(() ->  new ResourceNotFoundException("A user with microsoftEntraId=[" + microsoftEntraId + "] does not exist"))
+                .getId();
+
+        var foundProfile = profileService.getActiveProfileByIdAndUserId(profileId, userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Could not find profile with id=[" + profileId + "] and with an active status"));
+
+        var profile = profileModelMapper.toModelNoUserData(foundProfile);
+        log.trace("Found profile: [{}]", profile);
+
+        return ResponseEntity.ok(profile);
     }
 
     @PostMapping(path = "/me")
