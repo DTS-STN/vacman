@@ -36,8 +36,7 @@ export function meta({ data }: Route.MetaArgs) {
 }
 
 export async function action({ context, params, request }: Route.ActionArgs) {
-  const currentUrl = new URL(request.url);
-  requireAuthentication(context.session, currentUrl);
+  requireAuthentication(context.session, request);
 
   // Get the current user's ID from the authenticated session
   const authenticatedSession = context.session;

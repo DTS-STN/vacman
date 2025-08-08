@@ -38,8 +38,7 @@ export function action({ context, params, request }: Route.ActionArgs) {
 }
 
 export async function loader({ context, request, params }: Route.LoaderArgs) {
-  const currentUrl = new URL(request.url);
-  requireAuthentication(context.session, currentUrl);
+  requireAuthentication(context.session, request);
 
   const accessToken = context.session.authState.accessToken;
   const currentUser = await getUserService().getCurrentUser(accessToken);
