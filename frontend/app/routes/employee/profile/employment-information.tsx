@@ -25,7 +25,7 @@ import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
 import { EmploymentInformationForm } from '~/routes/page-components/employees/employment-information/form';
-import type { employmentInformationSchema } from '~/routes/page-components/employees/validation.server';
+import type { EmploymentInformationSchema } from '~/routes/page-components/employees/validation.server';
 import { parseEmploymentInformation } from '~/routes/page-components/employees/validation.server';
 
 export const handle = {
@@ -43,10 +43,10 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   const authenticatedSession = context.session;
   const currentUserId = authenticatedSession.authState.idTokenClaims.oid;
   const formData = await request.formData();
-  const { parseResult, formValues } = parseEmploymentInformation(formData);
+  const { parseResult, formValues } = await parseEmploymentInformation(formData, authenticatedSession.authState.accessToken);
   if (!parseResult.success) {
     return data(
-      { formValues: formValues, errors: v.flatten<typeof employmentInformationSchema>(parseResult.issues).nested },
+      { formValues: formValues, errors: v.flatten<EmploymentInformationSchema>(parseResult.issues).nested },
       { status: HttpStatusCodes.BAD_REQUEST },
     );
   }
