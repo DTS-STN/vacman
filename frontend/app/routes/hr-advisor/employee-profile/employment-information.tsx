@@ -13,7 +13,6 @@ import { getProfileService } from '~/.server/domain/services/profile-service';
 import { getProvinceService } from '~/.server/domain/services/province-service';
 import { getUserService } from '~/.server/domain/services/user-service';
 import { getWFAStatuses } from '~/.server/domain/services/wfa-status-service';
-import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { InlineLink } from '~/components/links';
@@ -30,9 +29,11 @@ export function meta({ data }: Route.MetaArgs) {
 }
 
 export function action({ context, params, request }: Route.ActionArgs) {
+  requireAuthentication(context.session, request);
+
   // Get the current user's ID from the authenticated session
-  const authenticatedSession = context.session as AuthenticatedSession;
-  const currentUserId = authenticatedSession.authState.idTokenClaims.oid as string;
+  const authenticatedSession = context.session;
+  const currentUserId = authenticatedSession.authState.idTokenClaims.oid;
 
   //TODO: Implement approval logic
 
@@ -42,12 +43,13 @@ export function action({ context, params, request }: Route.ActionArgs) {
 }
 
 export async function loader({ context, request, params }: Route.LoaderArgs) {
-  const currentUrl = new URL(request.url);
-  requireAuthentication(context.session, currentUrl);
+  requireAuthentication(context.session, request);
 
-  // Use the id parameter from the URL to fetch the profile
-  const profileUserId = params.id;
-  const profileResult = await getProfileService().getProfile(profileUserId);
+  const currentProfileOption = await getProfileService().getProfileById(context.session.authState.accessToken, params.id);
+
+  if (currentProfileOption.isErr()) {
+    throw new Response('Profile not found', { status: 404 });
+  }
 
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
   const substantivePositions = await getClassificationService().listAllLocalized(lang);
@@ -56,9 +58,9 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const provinces = await getProvinceService().listAllLocalized(lang);
   const cities = await getCityService().listAllLocalized(lang);
   const wfaStatuses = await getWFAStatuses().listAllLocalized(lang);
-  const authenticatedSession = context.session as AuthenticatedSession;
+  const authenticatedSession = context.session;
   const hrAdvisors = await getUserService().getUsersByRole('hr-advisor', authenticatedSession.authState.accessToken);
-  const profileData: Profile = profileResult.unwrap();
+  const profileData: Profile = currentProfileOption.unwrap();
 
   const workUnitResult =
     profileData.employmentInformation.directorate &&
