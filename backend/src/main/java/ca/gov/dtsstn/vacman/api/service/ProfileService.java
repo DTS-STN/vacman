@@ -14,6 +14,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import static ca.gov.dtsstn.vacman.api.exception.ExceptionUtils.generateIdDoesNotExistException;
+
 @Service
 public class ProfileService {
 
@@ -181,7 +183,4 @@ public class ProfileService {
         return profileRepository.save(existingEntity);
     }
 
-    private static ResourceNotFoundException generateIdDoesNotExistException(String entityName, Long id) {
-        return new ResourceNotFoundException(String.format("A(n) %s with id=[%d] does not exist", entityName, id));
-    }
 }

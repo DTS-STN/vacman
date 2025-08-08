@@ -6,7 +6,6 @@ import ca.gov.dtsstn.vacman.api.security.SecurityUtils;
 import ca.gov.dtsstn.vacman.api.service.ProfileService;
 import ca.gov.dtsstn.vacman.api.service.UserService;
 import ca.gov.dtsstn.vacman.api.web.exception.ResourceConflictException;
-import ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException;
 import ca.gov.dtsstn.vacman.api.web.exception.UnauthorizedException;
 import ca.gov.dtsstn.vacman.api.web.model.ProfileReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.mapper.ProfileModelMapper;
@@ -27,6 +26,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
 import java.util.function.Function;
+
+import static ca.gov.dtsstn.vacman.api.constants.AppConstants.UserFields.MS_ENTRA_ID;
+import static ca.gov.dtsstn.vacman.api.exception.ExceptionUtils.generateUserWithFieldDoesNotExistException;
+import static ca.gov.dtsstn.vacman.api.exception.ExceptionUtils.generateProfileWithFieldDoesNotExistException;
 
 @RestController
 @Tag(name = "Profiles")
@@ -87,7 +90,7 @@ public class ProfilesController {
                     .orElseThrow(() -> new UnauthorizedException(OID_NOT_FOUND_MESSAGE));
 
             hrAdvisorId = userService.getUserByMicrosoftEntraId(entraId)
-                    .orElseThrow(() -> new ResourceNotFoundException("No user found for given entra ID."))
+                    .orElseThrow(() -> generateUserWithFieldDoesNotExistException(MS_ENTRA_ID, entraId))
                     .getId();
         } else {
             hrAdvisorId = Long.valueOf(hrAdvisor);
@@ -134,11 +137,11 @@ public class ProfilesController {
 
         log.debug("Checking if user with microsoftEntraId=[{}] already exists", microsoftEntraId);
         final var existingUser = userService.getUserByMicrosoftEntraId(microsoftEntraId)
-                .orElseThrow(() -> new ResourceConflictException("A user with microsoftEntraId=[" + microsoftEntraId + "] does not exist"));
+                .orElseThrow(() -> generateUserWithFieldDoesNotExistException(MS_ENTRA_ID, microsoftEntraId));
 
         log.debug("Checking if user with microsoftEntraId=[{}] has an active profile", microsoftEntraId);
         if (!profileService.getProfilesByEntraId(microsoftEntraId, true).isEmpty()) {
-            throw new ResourceConflictException("Use with microsoftEntraId=[" + microsoftEntraId + "] has an existing active profile");
+            throw new ResourceConflictException("User with microsoftEntraId=[" + microsoftEntraId + "] has an existing active profile");
         }
 
         log.debug("Creating profile in database...");
@@ -172,12 +175,11 @@ public class ProfilesController {
                 .orElseThrow(() -> new UnauthorizedException(OID_NOT_FOUND_MESSAGE));
 
         var userId = userService.getUserByMicrosoftEntraId(microsoftEntraId)
-                .orElseThrow(() ->  new ResourceNotFoundException("A user with microsoftEntraId=[" + microsoftEntraId + "] does not exist"))
+                .orElseThrow(() -> generateUserWithFieldDoesNotExistException(MS_ENTRA_ID, microsoftEntraId))
                 .getId();
 
         var foundProfile = profileService.getProfileByIdAndUserId(profileId, userId)
-                .orElseThrow(() -> new ResourceNotFoundException("A profile with id=[" + profileId
-                        + "] for user with microsoftEntraId=[" + microsoftEntraId + "] does not exist"));
+                .orElseThrow(() -> generateProfileWithFieldDoesNotExistException(MS_ENTRA_ID, microsoftEntraId));
 
         log.trace("Found profile: [{}]", foundProfile);
 

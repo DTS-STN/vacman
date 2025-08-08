@@ -40,6 +40,10 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
+import static ca.gov.dtsstn.vacman.api.constants.AppConstants.UserFields.MS_ENTRA_ID;
+import static ca.gov.dtsstn.vacman.api.exception.ExceptionUtils.generateIdDoesNotExistException;
+import static ca.gov.dtsstn.vacman.api.exception.ExceptionUtils.generateUserWithFieldDoesNotExistException;
+
 @RestController
 @Tag(name = "Users")
 @RequestMapping({ AppConstants.ApiPaths.USERS })
@@ -108,7 +112,7 @@ public class UsersController {
 
 		final var user = userService.getUserByMicrosoftEntraId(microsoftEntraId)
 			.map(userModelMapper::toModel)
-			.orElseThrow(() -> new ResourceNotFoundException("User with microsoftEntraId=[" + microsoftEntraId + "] not found"));
+			.orElseThrow(() -> generateUserWithFieldDoesNotExistException(MS_ENTRA_ID, microsoftEntraId));
 
 		log.debug("Found user:  [{}]", user);
 
@@ -150,7 +154,7 @@ public class UsersController {
 	public ResponseEntity<UserReadModel> getUserById(@PathVariable Long id) {
 		final var result = userService.getUserById(id)
 			.map(userModelMapper::toModel)
-			.orElseThrow(() -> new ResourceNotFoundException("User with id=[" + id + "] not found"));
+			.orElseThrow(() -> generateIdDoesNotExistException("user", id));
 
 		return ResponseEntity.ok(result);
 	}
@@ -159,7 +163,7 @@ public class UsersController {
 	@Operation(summary = "Update an existing user.")
 	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
 	public ResponseEntity<UserReadModel> updateUser(@PathVariable Long id, @RequestBody @Valid UserUpdateModel userUpdate) {
-		userService.getUserById(id).orElseThrow(() -> new ResourceNotFoundException("User with id=[" + id + "] not found"));
+		userService.getUserById(id).orElseThrow(() -> generateIdDoesNotExistException("user", id));
 		final var updatedUser = userService.updateUser(userUpdate);
 		return ResponseEntity.ok(userModelMapper.toModel(updatedUser));
 	}
