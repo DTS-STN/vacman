@@ -17,9 +17,12 @@ management:
 
 spring:
   jpa:
-    hibernate:
-      ddl-auto: validate
+    defer-datasource-initialization: false
     show-sql: true
+  liquibase:
+    enabled: true
+    contexts: mssql
+    change-log: classpath:db/changelog/db.changelog-master.yaml
 
 application:
   gcnotify:
