@@ -41,10 +41,6 @@ public class ProfileEntity extends AbstractBaseEntity {
 	private CityEntity city;
 
 	@ManyToOne
-	@JoinColumn(name = "[PRIORITY_LEVEL_ID]", nullable = true)
-	private PriorityLevelEntity priorityLevel;
-
-	@ManyToOne
 	@JoinColumn(name = "[WORK_UNIT_ID]", nullable = true)
 	private WorkUnitEntity workUnit;
 
@@ -119,7 +115,6 @@ public class ProfileEntity extends AbstractBaseEntity {
 		this.wfaStatus = wfaStatus;
 		this.classification = classification;
 		this.city = city;
-		this.priorityLevel = priorityLevel;
 		this.workUnit = workUnit;
 		this.language = language;
 		this.profileStatus = profileStatus;
@@ -169,14 +164,6 @@ public class ProfileEntity extends AbstractBaseEntity {
 
 	public void setCity(CityEntity city) {
 		this.city = city;
-	}
-
-	public PriorityLevelEntity getPriorityLevel() {
-		return priorityLevel;
-	}
-
-	public void setPriorityLevel(PriorityLevelEntity priorityLevel) {
-		this.priorityLevel = priorityLevel;
 	}
 
 	public WorkUnitEntity getWorkUnit() {
@@ -292,7 +279,6 @@ public class ProfileEntity extends AbstractBaseEntity {
 			.append("wfaStatus", wfaStatus)
 			.append("classification", classification)
 			.append("city", city)
-			.append("priorityLevel", priorityLevel)
 			.append("workUnit", workUnit)
 			.append("language", language)
 			.append("profileStatus", profileStatus)
