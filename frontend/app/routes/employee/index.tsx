@@ -35,8 +35,7 @@ export async function action({ context, request }: ActionFunctionArgs) {
 
   if (action === 'view-profile') {
     // Get the current user's ID from the authenticated session
-    const authenticatedSession = context.session;
-    const currentUserId = authenticatedSession.authState.idTokenClaims.oid;
+    const currentUserId = context.session.authState.idTokenClaims.oid;
     return i18nRedirect('routes/employee/profile/index.tsx', request, {
       params: { id: currentUserId },
     });
@@ -49,23 +48,19 @@ export async function action({ context, request }: ActionFunctionArgs) {
 export async function loader({ context, request }: LoaderFunctionArgs) {
   requireAuthentication(context.session, request);
 
-  const authenticatedSession = context.session;
-  if (!authenticatedSession.currentUser) {
+  if (!context.session.currentUser) {
     try {
-      const currentUser = await getUserService().getCurrentUser(authenticatedSession.authState.accessToken);
-      authenticatedSession.currentUser = currentUser;
+      const currentUser = await getUserService().getCurrentUser(context.session.authState.accessToken);
+      context.session.currentUser = currentUser;
     } catch {
       const lang = getLanguage(request);
       // TODO congifure the IDs or do a lookup with one of our services (provided our service returns the correct ID)
       // This assumes the IDs in the DB are autoincrementing starting at 1 (look at data.sql)
       const languageId = lang === 'en' ? 1 : 2;
-      const currentUser = await getUserService().registerCurrentUser(
-        { languageId },
-        authenticatedSession.authState.accessToken,
-      );
-      authenticatedSession.currentUser = currentUser;
+      const currentUser = await getUserService().registerCurrentUser({ languageId }, context.session.authState.accessToken);
+      context.session.currentUser = currentUser;
     } finally {
-      await createUserProfile(authenticatedSession.authState.idTokenClaims.oid);
+      await createUserProfile(context.session.authState.idTokenClaims.oid);
     }
   }
 

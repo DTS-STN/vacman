@@ -36,8 +36,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   requireAuthentication(context.session, request);
 
   // Get the current user's ID from the authenticated session
-  const authenticatedSession = context.session;
-  const currentUserId = authenticatedSession.authState.idTokenClaims.oid;
+  const currentUserId = context.session.authState.idTokenClaims.oid;
   const formData = await request.formData();
   const parseResult = v.safeParse(referralPreferencesSchema, {
     languageReferralTypeIds: formData.getAll('languageReferralTypes'),
@@ -64,7 +63,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   const currentProfileOption = await profileService.getCurrentUserProfile(context.session.authState.accessToken);
   const currentProfile = currentProfileOption.unwrap();
   const updateResult = await profileService.updateProfile(
-    authenticatedSession.authState.accessToken,
+    context.session.authState.accessToken,
     currentProfile.profileId.toString(),
     currentUserId,
     {

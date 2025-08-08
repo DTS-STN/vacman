@@ -45,10 +45,9 @@ export async function action({ context, request }: Route.ActionArgs) {
   requireAuthentication(context.session, request);
 
   // Get the current user's ID from the authenticated session
-  const authenticatedSession = context.session;
-  const currentUserId = authenticatedSession.authState.idTokenClaims.oid;
+  const currentUserId = context.session.authState.idTokenClaims.oid;
 
-  const profileResult = await getProfileService().getCurrentUserProfile(authenticatedSession.authState.accessToken);
+  const profileResult = await getProfileService().getCurrentUserProfile(context.session.authState.accessToken);
   if (profileResult.isNone()) {
     return { status: 'profile-not-found' };
   }
