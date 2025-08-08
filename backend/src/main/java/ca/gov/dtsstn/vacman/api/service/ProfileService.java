@@ -4,7 +4,7 @@ import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 import ca.gov.dtsstn.vacman.api.data.repository.*;
 import ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException;
-import ca.gov.dtsstn.vacman.api.web.model.ProfileUpdateModel;
+import ca.gov.dtsstn.vacman.api.web.model.ProfileReadModel;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -126,52 +126,51 @@ public class ProfileService {
      * @return The updated profile entity.
      * @throws ResourceNotFoundException When any given ID does not exist within the DB.
      */
-    public ProfileEntity updateProfile(ProfileUpdateModel updateModel, ProfileEntity existingEntity) throws ResourceNotFoundException {
-        if (updateModel.workUnitId() != null
-                && !updateModel.workUnitId().equals(existingEntity.getHrAdvisor().getId())) {
-            UserEntity hrAdvisor = userService.getUserById(updateModel.hrAdvisorId())
-                    .orElseThrow(() -> generateIdDoesNotExistException("HR Advisor", updateModel.hrAdvisorId()));
+    public ProfileEntity updateProfile(ProfileReadModel updateModel, ProfileEntity existingEntity)
+            throws ResourceNotFoundException {
+
+        final var hrAdvisorId = updateModel.hrAdvisorId();
+        if (hrAdvisorId != null
+                && !hrAdvisorId.equals(existingEntity.getHrAdvisor().getId())) {
+            UserEntity hrAdvisor = userService.getUserById(hrAdvisorId)
+                    .orElseThrow(() -> generateIdDoesNotExistException("HR Advisor", hrAdvisorId));
 
             if (!hrAdvisor.getUserType().getCode().equals("hr-advisor")) {
-                throw generateIdDoesNotExistException("HR Advisor", updateModel.hrAdvisorId());
+                throw generateIdDoesNotExistException("HR Advisor", hrAdvisorId);
             }
 
             existingEntity.setHrAdvisor(hrAdvisor);
         }
 
-        if (updateModel.classificationId() != null
-                && !updateModel.classificationId().equals(existingEntity.getClassification().getId())) {
+        final var classificationId = updateModel.classification().getId();
+        if (classificationId != null && !classificationId.equals(existingEntity.getClassification().getId())) {
             existingEntity.setClassification(
-                    classificationRepository.findById(updateModel.classificationId())
-                            .orElseThrow(() -> generateIdDoesNotExistException("Classification", updateModel.classificationId())));
+                    classificationRepository.findById(classificationId)
+                            .orElseThrow(() -> generateIdDoesNotExistException("Classification", classificationId)));
         }
 
-        if (updateModel.priorityLevelId() != null
-                && !updateModel.priorityLevelId().equals(existingEntity.getPriorityLevel().getId())) {
+        final var priorityLevelId = updateModel.priorityLevel().getId();
+        if (priorityLevelId != null
+                && !priorityLevelId.equals(existingEntity.getPriorityLevel().getId())) {
             existingEntity.setPriorityLevel(
-                    priorityLevelRepository.findById(updateModel.priorityLevelId())
-                            .orElseThrow(() -> generateIdDoesNotExistException("Priority Level", updateModel.priorityLevelId())));
+                    priorityLevelRepository.findById(priorityLevelId)
+                            .orElseThrow(() -> generateIdDoesNotExistException("Priority Level", priorityLevelId)));
         }
 
-        if (updateModel.workUnitId() != null
-                && !updateModel.workUnitId().equals(existingEntity.getWorkUnit().getId())) {
+        final var workUnitId = updateModel.workUnit().getId();
+        if (workUnitId != null
+                && !workUnitId.equals(existingEntity.getWorkUnit().getId())) {
             existingEntity.setWorkUnit(
-                    workUnitRepository.findById(updateModel.workUnitId())
-                            .orElseThrow(() -> generateIdDoesNotExistException("Work Unit", updateModel.workUnitId())));
+                    workUnitRepository.findById(workUnitId)
+                            .orElseThrow(() -> generateIdDoesNotExistException("Work Unit", workUnitId)));
         }
 
-        if (updateModel.profileStatusId() != null
-                && !updateModel.profileStatusId().equals(existingEntity.getProfileStatus().getId())) {
-            existingEntity.setProfileStatus(
-                    profileStatusRepository.findById(updateModel.profileStatusId())
-                            .orElseThrow(() -> generateIdDoesNotExistException("Profile Status", updateModel.profileStatusId())));
-        }
-
-        if (updateModel.wfaStatusId() != null
-                && !updateModel.wfaStatusId().equals(existingEntity.getWfaStatus().getId())) {
+        final var wfaStatusId = updateModel.wfaStatus().getId();
+        if (wfaStatusId != null
+                && !wfaStatusId.equals(existingEntity.getWfaStatus().getId())) {
             existingEntity.setWfaStatus(
-                    wfaStatusRepository.findById(updateModel.wfaStatusId())
-                            .orElseThrow(() -> generateIdDoesNotExistException("WFA Status", updateModel.wfaStatusId())));
+                    wfaStatusRepository.findById(wfaStatusId)
+                            .orElseThrow(() -> generateIdDoesNotExistException("WFA Status", wfaStatusId)));
         }
 
         existingEntity.setPersonalEmailAddress(updateModel.personalEmailAddress());

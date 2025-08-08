@@ -9,7 +9,6 @@ import ca.gov.dtsstn.vacman.api.web.exception.ResourceConflictException;
 import ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException;
 import ca.gov.dtsstn.vacman.api.web.exception.UnauthorizedException;
 import ca.gov.dtsstn.vacman.api.web.model.ProfileReadModel;
-import ca.gov.dtsstn.vacman.api.web.model.ProfileUpdateModel;
 import ca.gov.dtsstn.vacman.api.web.model.mapper.ProfileModelMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -154,12 +153,12 @@ public class ProfilesController {
     @SecurityRequirement(name = SpringDocConfig.AZURE_AD)
     @Operation(summary = "Update the profile identified by ID.")
     public ResponseEntity<ProfileReadModel> updateProfileById(
-           @PathVariable(name = "id")
-           Long profileId,
+            @PathVariable(name = "id")
+            Long profileId,
 
             @Valid
             @RequestBody
-            ProfileUpdateModel updatedProfile
+            ProfileReadModel updatedProfile
     ) {
         log.info("Received request to get profile; ID: [{}]", profileId);
 
