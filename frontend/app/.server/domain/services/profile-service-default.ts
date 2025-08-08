@@ -2,6 +2,7 @@ import { Err, None, Ok, Some } from 'oxide.ts';
 import type { Option, Result } from 'oxide.ts';
 
 import { apiClient } from './api-client';
+import { getProfileStatusService } from './profile-status-service';
 
 import type { Profile } from '~/.server/domain/models';
 import type { ListProfilesParams, ProfileApiResponse, ProfileService } from '~/.server/domain/services/profile-service';
@@ -148,6 +149,47 @@ export function getDefaultProfileService(): ProfileService {
       }
 
       return result;
+    },
+
+    async updateProfileStatus(
+      accessToken: string,
+      profileId: string,
+      profileStatusCode: string,
+    ): Promise<Result<void, AppError>> {
+      const status = (await getProfileStatusService().listAll()).find((status) => status.code === profileStatusCode);
+
+      try {
+        const response = await fetch(`${serverEnvironment.VACMAN_API_BASE_URI}/profiles/${profileId}/status`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(status),
+        });
+
+        if (!response.ok) {
+          return Err(
+            new AppError(
+              `Failed to update profile status. Server responded with status ${response.status}`,
+              ErrorCodes.PROFILE_STATUS_UPDATE_FAILED,
+              { httpStatusCode: response.status as HttpStatusCode },
+            ),
+          );
+        }
+
+        return Ok(undefined);
+      } catch (error) {
+        return Err(
+          new AppError(
+            error instanceof Error ? error.message : 'Failed to update profile status',
+            ErrorCodes.PROFILE_NETWORK_ERROR,
+            {
+              httpStatusCode: HttpStatusCodes.SERVICE_UNAVAILABLE,
+            },
+          ),
+        );
+      }
     },
 
     async submitProfileForReview(accessToken: string): Promise<Result<Profile, AppError>> {

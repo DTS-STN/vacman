@@ -1,6 +1,7 @@
 import { None, Some, Err, Ok } from 'oxide.ts';
 import type { Result, Option } from 'oxide.ts';
 
+import { getProfileStatusService } from './profile-status-service';
 import { getUserService } from './user-service';
 
 import type { Profile, UserPersonalInformation } from '~/.server/domain/models';
@@ -68,6 +69,29 @@ export function getMockProfileService(): ProfileService {
       mockProfiles = mockProfiles.map((p) => (p.profileId === profile.profileId ? updatedProfile : p));
 
       return Promise.resolve(Ok(updatedProfile));
+    },
+    updateProfileStatus: async (
+      accessToken: string,
+      profileId: string,
+      profileStatusCode: string,
+    ): Promise<Result<void, AppError>> => {
+      if (!mockProfiles.find((p) => p.profileId.toString() === profileId)) {
+        return Promise.resolve(Err(new AppError('Profile not found', ErrorCodes.PROFILE_NOT_FOUND)));
+      }
+
+      const status = (await getProfileStatusService().listAll()).find((status) => status.code === profileStatusCode);
+
+      mockProfiles = mockProfiles.map((profile) =>
+        profile.profileId.toString() === profileId
+          ? {
+              ...profile,
+              profileStatusId: status?.id ?? profile.profileStatusId,
+              dateUpdated: new Date().toISOString(),
+            }
+          : profile,
+      );
+
+      return Promise.resolve(Ok(undefined));
     },
     submitProfileForReview: async (accessToken: string): Promise<Result<Profile, AppError>> => {
       const user = await getUserService().getCurrentUser(accessToken);
