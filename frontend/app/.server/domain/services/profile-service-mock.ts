@@ -47,23 +47,23 @@ export function getMockProfileService(): ProfileService {
 
       return Promise.resolve(Ok(undefined));
     },
-    submitProfileForReview: (activeDirectoryId: string): Promise<Result<Profile, AppError>> => {
-      const mockProfile = getProfile(activeDirectoryId);
+    submitProfileForReview: async (accessToken: string): Promise<Result<Profile, AppError>> => {
+      const user = await getUserService().getCurrentUser(accessToken);
+      const profileOption = await getMockProfileService().getCurrentUserProfile(accessToken);
 
-      if (!mockProfile) {
-        return Promise.resolve(Err(new AppError('Profile not found', ErrorCodes.PROFILE_NOT_FOUND)));
+      if (profileOption.isNone()) {
+        return Err(new AppError(`Failed to find profile.`, ErrorCodes.PROFILE_NOT_FOUND));
       }
 
-      const userId = activeDirectoryToUserIdMap[activeDirectoryId];
-
+      const profile = profileOption.unwrap();
       const updatedProfile: Profile = {
-        ...mockProfile,
+        ...profile,
         profileStatusId: PROFILE_STATUS_ID.pending,
         dateUpdated: new Date().toISOString(),
-        userUpdated: activeDirectoryId,
+        userUpdated: user.networkName,
       };
 
-      mockProfiles = mockProfiles.map((profile) => (profile.userId === userId ? updatedProfile : profile));
+      mockProfiles = mockProfiles.map((p) => (p.profileId === profile.profileId ? updatedProfile : p));
 
       return Promise.resolve(Ok(updatedProfile));
     },
@@ -97,7 +97,7 @@ let mockProfiles: Profile[] = [
     userIdReviewedBy: undefined,
     userIdApprovedBy: undefined,
     priorityLevelId: 1,
-    profileStatusId: PROFILE_STATUS_ID.pending,
+    profileStatusId: PROFILE_STATUS_ID.incomplete,
     privacyConsentInd: true,
     userCreated: 'system',
     dateCreated: '2024-01-01T00:00:00Z',
@@ -141,7 +141,7 @@ let mockProfiles: Profile[] = [
     userIdReviewedBy: undefined,
     userIdApprovedBy: undefined,
     priorityLevelId: 2,
-    profileStatusId: PROFILE_STATUS_ID.pending,
+    profileStatusId: PROFILE_STATUS_ID.incomplete,
     privacyConsentInd: true,
     userCreated: 'system',
     dateCreated: '2024-01-01T00:00:00Z',
@@ -185,7 +185,7 @@ let mockProfiles: Profile[] = [
     userIdReviewedBy: undefined,
     userIdApprovedBy: undefined,
     priorityLevelId: 1,
-    profileStatusId: PROFILE_STATUS_ID.approved,
+    profileStatusId: PROFILE_STATUS_ID.incomplete,
     privacyConsentInd: true,
     userCreated: 'system',
     dateCreated: '2024-02-01T09:00:00Z',
@@ -229,7 +229,7 @@ let mockProfiles: Profile[] = [
     userIdReviewedBy: undefined,
     userIdApprovedBy: undefined,
     priorityLevelId: 2,
-    profileStatusId: PROFILE_STATUS_ID.pending,
+    profileStatusId: PROFILE_STATUS_ID.incomplete,
     privacyConsentInd: false,
     userCreated: 'system',
     dateCreated: '2024-03-15T08:30:00Z',
@@ -273,7 +273,7 @@ let mockProfiles: Profile[] = [
     userIdReviewedBy: undefined,
     userIdApprovedBy: undefined,
     priorityLevelId: 3,
-    profileStatusId: PROFILE_STATUS_ID.approved,
+    profileStatusId: PROFILE_STATUS_ID.incomplete,
     privacyConsentInd: true,
     userCreated: 'system',
     dateCreated: '2024-04-20T11:45:00Z',
@@ -317,7 +317,7 @@ let mockProfiles: Profile[] = [
     userIdReviewedBy: undefined,
     userIdApprovedBy: undefined,
     priorityLevelId: 1,
-    profileStatusId: PROFILE_STATUS_ID.pending,
+    profileStatusId: PROFILE_STATUS_ID.incomplete,
     privacyConsentInd: true,
     userCreated: 'system',
     dateCreated: '2024-06-01T08:00:00Z',
@@ -361,7 +361,7 @@ let mockProfiles: Profile[] = [
     userIdReviewedBy: undefined,
     userIdApprovedBy: undefined,
     priorityLevelId: 2,
-    profileStatusId: PROFILE_STATUS_ID.approved,
+    profileStatusId: PROFILE_STATUS_ID.incomplete,
     privacyConsentInd: true,
     userCreated: 'system',
     dateCreated: '2024-06-02T09:00:00Z',
@@ -449,7 +449,7 @@ let mockProfiles: Profile[] = [
     userIdReviewedBy: undefined,
     userIdApprovedBy: undefined,
     priorityLevelId: 1,
-    profileStatusId: PROFILE_STATUS_ID.approved,
+    profileStatusId: PROFILE_STATUS_ID.incomplete,
     privacyConsentInd: true,
     userCreated: 'system',
     dateCreated: '2024-06-04T11:00:00Z',
@@ -537,7 +537,7 @@ let mockProfiles: Profile[] = [
     userIdReviewedBy: undefined,
     userIdApprovedBy: undefined,
     priorityLevelId: 3,
-    profileStatusId: PROFILE_STATUS_ID.approved,
+    profileStatusId: PROFILE_STATUS_ID.incomplete,
     privacyConsentInd: false,
     userCreated: 'system',
     dateCreated: '2024-06-06T13:00:00Z',
@@ -625,7 +625,7 @@ let mockProfiles: Profile[] = [
     userIdReviewedBy: undefined,
     userIdApprovedBy: undefined,
     priorityLevelId: 2,
-    profileStatusId: PROFILE_STATUS_ID.approved,
+    profileStatusId: PROFILE_STATUS_ID.incomplete,
     privacyConsentInd: true,
     userCreated: 'system',
     dateCreated: '2024-06-08T15:00:00Z',
@@ -713,7 +713,7 @@ let mockProfiles: Profile[] = [
     userIdReviewedBy: undefined,
     userIdApprovedBy: undefined,
     priorityLevelId: 1,
-    profileStatusId: PROFILE_STATUS_ID.approved,
+    profileStatusId: PROFILE_STATUS_ID.incomplete,
     privacyConsentInd: true,
     userCreated: 'system',
     dateCreated: '2024-06-10T17:00:00Z',

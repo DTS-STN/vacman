@@ -183,10 +183,14 @@ export function getDefaultProfileService(): ProfileService {
       }
     },
 
-    async submitProfileForReview(activeDirectoryId: string): Promise<Result<Profile, AppError>> {
+    async submitProfileForReview(accessToken: string): Promise<Result<Profile, AppError>> {
       try {
-        const response = await fetch(`${serverEnvironment.VACMAN_API_BASE_URI}/profiles/${activeDirectoryId}/submit`, {
+        const response = await fetch(`${serverEnvironment.VACMAN_API_BASE_URI}/profiles/submit`, {
           method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+          },
         });
 
         if (!response.ok) {

@@ -16,7 +16,7 @@ describe('getMockProfileService', () => {
         userIdReviewedBy: undefined,
         userIdApprovedBy: undefined,
         priorityLevelId: 1,
-        profileStatusId: 1,
+        profileStatusId: 3,
         privacyConsentInd: true,
         userCreated: 'system',
         dateCreated: '2024-01-01T00:00:00Z',
