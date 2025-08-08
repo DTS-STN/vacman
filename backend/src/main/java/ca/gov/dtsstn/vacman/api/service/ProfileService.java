@@ -1,9 +1,16 @@
 package ca.gov.dtsstn.vacman.api.service;
 
 import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.ProfileStatusEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 import ca.gov.dtsstn.vacman.api.data.repository.ProfileRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.ProfileStatusRepository;
+import ca.gov.dtsstn.vacman.api.event.ProfileCreateEvent;
+import ca.gov.dtsstn.vacman.api.event.ProfileReadEvent;
+import ca.gov.dtsstn.vacman.api.event.ProfileStatusChangeEvent;
+import ca.gov.dtsstn.vacman.api.event.ProfileUpdatedEvent;
+import ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -26,15 +33,20 @@ public class ProfileService {
 
     private final ProfileStatusRepository profileStatusRepository;
 
+    private final ApplicationEventPublisher eventPublisher;
+
     // Keys are tied to the potential values of getProfilesByStatusAndHrId parameter isActive.
     private static final Map<Boolean, Set<String>> profileStatusSets = Map.of(
             Boolean.TRUE, ACTIVE_PROFILE_STATUS,
             Boolean.FALSE, INACTIVE_PROFILE_STATUS
     );
 
-    public ProfileService(ProfileRepository profileRepository, ProfileStatusRepository profileStatusRepository) {
+    public ProfileService(ProfileRepository profileRepository, 
+                          ProfileStatusRepository profileStatusRepository,
+                          ApplicationEventPublisher eventPublisher) {
         this.profileRepository = profileRepository;
         this.profileStatusRepository = profileStatusRepository;
+        this.eventPublisher = eventPublisher;
     }
 
     /**
@@ -48,17 +60,28 @@ public class ProfileService {
      */
     public Page<ProfileEntity> getProfilesByStatusAndHrId(PageRequest pageRequest, Boolean isActive, Long hrAdvisorId) {
         // Dispatch DB call based on presence of isActive & advisor ID
+        Page<ProfileEntity> profilesPage;
         if (isActive != null) {
             final var statusCodes = profileStatusSets.get(isActive);
 
-            return (hrAdvisorId == null)
+            profilesPage = (hrAdvisorId == null)
                     ? profileRepository.findByProfileStatusCodeIn(statusCodes, pageRequest)
                     : profileRepository.findByProfileStatusCodeInAndHrAdvisorIdIs(statusCodes, hrAdvisorId, pageRequest);
         } else {
-            return (hrAdvisorId == null)
+            profilesPage = (hrAdvisorId == null)
                     ? profileRepository.findAll(pageRequest)
                     : profileRepository.findAllByHrAdvisorId(hrAdvisorId, pageRequest);
         }
+
+        if (profilesPage != null && !profilesPage.isEmpty()) {
+            List<Long> profileIds = profilesPage.getContent().stream()
+                    .map(ProfileEntity::getId)
+                    .toList();
+
+            eventPublisher.publishEvent(new ProfileReadEvent(profileIds, null, isActive));
+        }
+
+        return profilesPage;
     }
 
     /**
@@ -69,9 +92,18 @@ public class ProfileService {
      * @return A collection of profile entities.
      */
     public List<ProfileEntity> getProfilesByEntraId(String entraId, Boolean isActive) {
-        return (isActive != null)
+        List<ProfileEntity> profiles = (isActive != null)
                 ? profileRepository.findByUserMicrosoftEntraIdIsAndProfileStatusCodeIn(entraId, profileStatusSets.get(isActive))
                 : profileRepository.findAllByUserMicrosoftEntraId(entraId);
+
+        if (profiles != null && !profiles.isEmpty()) {
+            List<Long> profileIds = profiles.stream()
+                    .map(ProfileEntity::getId)
+                    .toList();
+            eventPublisher.publishEvent(new ProfileReadEvent(profileIds, entraId, isActive));
+        }
+
+        return profiles;
     }
 
     /**
@@ -99,6 +131,50 @@ public class ProfileService {
         profile.setUser(user);
         profile.setProfileStatus(incompleteStatus);
 
-        return profileRepository.save(profile);
+        profile = profileRepository.save(profile);
+
+        eventPublisher.publishEvent(new ProfileCreateEvent(profile));
+
+        return profile;
+    }
+
+    /**
+     * Updates the status of a profile and emits a ProfileStatusChangeEvent.
+     * TODO: This method should be called when the PUT /profiles/{id}/status endpoint is implemented.
+     * @param profileId The ID of the profile to update
+     * @param statusId The new status ID
+     * @return The updated profile entity
+     * @throws ResourceNotFoundException if the profile or status is not found
+     */
+    public ProfileEntity updateProfileStatus(Long profileId, Long statusId) {
+        ProfileEntity profileEntity = profileRepository.findById(profileId)
+            .orElseThrow(() -> new ResourceNotFoundException("Profile not found"));
+
+        Long previousStatusId = profileEntity.getProfileStatus() != null ?
+            profileEntity.getProfileStatus().getId() : null;
+
+        ProfileStatusEntity newStatus = profileStatusRepository.findById(statusId)
+            .orElseThrow(() -> new ResourceNotFoundException("Profile status not found"));
+        profileEntity.setProfileStatus(newStatus);
+
+        profileEntity = profileRepository.save(profileEntity);
+
+        eventPublisher.publishEvent(new ProfileStatusChangeEvent(profileEntity, previousStatusId, newStatus.getId()));
+
+        return profileEntity;
+    }
+
+    /**
+     * Updates a profile and emits a ProfileUpdatedEvent.
+     * TODO: This method should be called when the PUT /profiles/{id} endpoint is implemented.
+     * @param profileEntity The profile entity to update
+     * @return The updated profile entity
+     */
+    public ProfileEntity updateProfile(ProfileEntity profileEntity) {
+        profileEntity = profileRepository.save(profileEntity);
+
+        eventPublisher.publishEvent(new ProfileUpdatedEvent(profileEntity));
+
+        return profileEntity;
     }
 }

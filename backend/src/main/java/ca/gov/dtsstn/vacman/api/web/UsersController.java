@@ -104,13 +104,13 @@ public class UsersController {
 		final var microsoftEntraId = SecurityUtils.getCurrentUserEntraId()
 			.orElseThrow(() -> new UnauthorizedException("Could not extract 'oid' claim from JWT token"));
 
-		log.debug("Fetching user with microsoftEntraId=[{}]", microsoftEntraId);
+		log.debug("Fetching current user with microsoftEntraId=[{}]", microsoftEntraId);
 
-		final var user = userService.getUserByMicrosoftEntraId(microsoftEntraId)
+		final var user = userService.getCurrentUserByMicrosoftEntraId(microsoftEntraId)
 			.map(userModelMapper::toModel)
 			.orElseThrow(() -> new ResourceNotFoundException("User with microsoftEntraId=[" + microsoftEntraId + "] not found"));
 
-		log.debug("Found user:  [{}]", user);
+		log.debug("Found current user: [{}]", user);
 
 		return ResponseEntity.ok(user);
 	}
