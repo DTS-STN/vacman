@@ -22,7 +22,6 @@ export function meta({ loaderData }: Route.MetaArgs) {
 
 export async function action({ context, request }: ActionFunctionArgs) {
   requireAuthentication(context.session, request);
-  const currentUserId = context.session.authState.idTokenClaims.oid;
 
   const profileService = getProfileService();
   const profileOption = await profileService.getCurrentUserProfile(context.session.authState.accessToken);
@@ -38,12 +37,7 @@ export async function action({ context, request }: ActionFunctionArgs) {
     privacyConsentInd: true,
   };
 
-  await profileService.updateProfile(
-    context.session.authState.accessToken,
-    profile.profileId,
-    currentUserId,
-    updatePrivacyConsent,
-  );
+  await profileService.updateProfileById(context.session.authState.accessToken, updatePrivacyConsent);
 
   return i18nRedirect('routes/employee/index.tsx', request, { params: { id: profile.profileId.toString() } });
 }

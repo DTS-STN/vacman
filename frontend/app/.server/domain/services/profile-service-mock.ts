@@ -51,28 +51,23 @@ export function getMockProfileService(): ProfileService {
 
       return Promise.resolve(None);
     },
-    updateProfile: (
-      accessToken: string,
-      profileId: number,
-      userUpdated: string,
-      data: Profile,
-    ): Promise<Result<void, AppError>> => {
-      if (!mockProfiles.find((p) => p.profileId === profileId)) {
+    updateProfileById: (accessToken: string, profile: Profile): Promise<Result<Profile, AppError>> => {
+      const existingProfile = mockProfiles.find((p) => p.profileId === profile.profileId);
+
+      if (!existingProfile) {
         return Promise.resolve(Err(new AppError('Profile not found', ErrorCodes.PROFILE_NOT_FOUND)));
       }
 
-      mockProfiles = mockProfiles.map((profile) =>
-        profile.profileId === profileId
-          ? {
-              ...profile,
-              ...data,
-              dateUpdated: new Date().toISOString(),
-              userUpdated,
-            }
-          : profile,
-      );
+      const updatedProfile = {
+        ...existingProfile,
+        ...profile,
+        dateUpdated: new Date().toISOString(),
+        userUpdated: profile.userUpdated ?? existingProfile.userUpdated,
+      };
 
-      return Promise.resolve(Ok(undefined));
+      mockProfiles = mockProfiles.map((p) => (p.profileId === profile.profileId ? updatedProfile : p));
+
+      return Promise.resolve(Ok(updatedProfile));
     },
     submitProfileForReview: async (accessToken: string): Promise<Result<Profile, AppError>> => {
       const user = await getUserService().getCurrentUser(accessToken);
