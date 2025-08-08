@@ -4,7 +4,6 @@ import type { Option, Result } from 'oxide.ts';
 import { apiClient } from './api-client';
 
 import type { Profile } from '~/.server/domain/models';
-import { apiClient } from '~/.server/domain/services/api-client';
 import type { ProfileService } from '~/.server/domain/services/profile-service';
 import { serverEnvironment } from '~/.server/environment';
 import { AppError } from '~/errors/app-error';
