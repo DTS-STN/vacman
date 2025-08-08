@@ -135,7 +135,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     allLocalizedEmploymentTenures,
     allWfaStatus,
   ] = await Promise.all([
-    getUserService().getUserById(profileData.userId),
+    getUserService().getUserById(profileData.userId, context.session.authState.accessToken),
     getLanguageReferralTypeService().listAllLocalized(lang),
     getClassificationService().listAllLocalized(lang),
     getCityService().listAllLocalized(lang),
@@ -143,7 +143,9 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     getWFAStatuses().listAll(),
   ]);
 
-  const profileUpdatedByUser = profileData.userUpdated ? await getUserService().getUserById(profileData.userId) : undefined;
+  const profileUpdatedByUser = profileData.userUpdated
+    ? await getUserService().getUserById(profileData.userId, context.session.authState.accessToken)
+    : undefined;
   const profileUpdatedByUserName = profileUpdatedByUser && `${profileUpdatedByUser.firstName} ${profileUpdatedByUser.lastName}`;
   const profileStatus = (await getProfileStatusService().findLocalizedById(profileData.profileStatusId, lang)).unwrap();
 
