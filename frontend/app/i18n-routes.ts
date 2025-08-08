@@ -170,6 +170,14 @@ export const i18nRoutes = [
       },
       {
         id: 'HRAD-0001',
+        file: 'routes/hr-advisor/index.tsx',
+        paths: {
+          en: '/en/hr-advisor',
+          fr: '/fr/hr-advisor',
+        },
+      },
+      {
+        id: 'HRAD-0002',
         file: 'routes/hr-advisor/employees.tsx',
         paths: {
           en: '/en/hr-advisor/employees',
@@ -177,7 +185,7 @@ export const i18nRoutes = [
         },
       },
       {
-        id: 'HRAD-0002',
+        id: 'HRAD-0003',
         file: 'routes/hr-advisor/employee-profile/index.tsx',
         paths: {
           en: '/en/hr-advisor/:id/employee-profile',
@@ -185,7 +193,7 @@ export const i18nRoutes = [
         },
       },
       {
-        id: 'HRAD-0003',
+        id: 'HRAD-0004',
         file: 'routes/hr-advisor/employee-profile/personal-information.tsx',
         paths: {
           en: '/en/hr-advisor/:id/employee-profile/personal-information',
@@ -193,7 +201,7 @@ export const i18nRoutes = [
         },
       },
       {
-        id: 'HRAD-0004',
+        id: 'HRAD-0005',
         file: 'routes/hr-advisor/employee-profile/employment-information.tsx',
         paths: {
           en: '/en/hr-advisor/:id/employee-profile/employment-information',
@@ -201,7 +209,7 @@ export const i18nRoutes = [
         },
       },
       {
-        id: 'HRAD-0005',
+        id: 'HRAD-0006',
         file: 'routes/hr-advisor/employee-profile/referral-preferences.tsx',
         paths: {
           en: '/en/hr-advisor/:id/employee-profile/referral-preferences',

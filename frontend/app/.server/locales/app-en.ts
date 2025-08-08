@@ -218,4 +218,8 @@ export default {
     'action': 'Action',
     'next-page': 'Next',
   },
+  'hr-advisor-dashboard': {
+    'page-title': 'HR Advisor Dashboard',
+    'all-employees': 'All employees',
+  },
 };
