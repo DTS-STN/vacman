@@ -106,7 +106,7 @@ public class UsersController {
 
 		final var user = userService.getUserByMicrosoftEntraId(entraId)
 			.map(userModelMapper::toModel)
-			.orElseThrow(() -> new ResourceNotFoundException("User with microsoftEntraId=[" + entraId + "] not found"));
+				.orElseThrow(() -> ExceptionUtils.generateUserWithFieldDoesNotExistException("microsoftEntraId", entraId));
 
 		log.debug("Found current user: [{}]", user);
 
@@ -137,7 +137,7 @@ public class UsersController {
 	public ResponseEntity<UserReadModel> getUserById(@PathVariable Long id) {
 		final var result = userService.getUserById(id)
 			.map(userModelMapper::toModel)
-			.orElseThrow(() -> new ResourceNotFoundException("User with id=[" + id + "] not found"));
+			.orElseThrow(() -> ExceptionUtils.generateIdDoesNotExistException("user", id));
 
 		return ResponseEntity.ok(result);
 	}
@@ -147,7 +147,7 @@ public class UsersController {
 	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
 	@PreAuthorize("hasAuthority('hr-advisor') || @securityManager.canAccessUser(#id)")
 	public ResponseEntity<UserReadModel> updateUser(@PathVariable long id, @RequestBody @Valid UserPatchModel updates) {
-		userService.getUserById(id).orElseThrow(() -> new ResourceNotFoundException("User with id=[" + id + "] not found"));
+		userService.getUserById(id).orElseThrow(() -> ExceptionUtils.generateIdDoesNotExistException("user", id));
 		final var updatedUser = userService.updateUser(id, userModelMapper.toEntity(updates));
 		return ResponseEntity.ok(userModelMapper.toModel(updatedUser));
 	}
@@ -157,7 +157,7 @@ public class UsersController {
 	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
 	@PreAuthorize("hasAuthority('hr-advisor') || @securityManager.canAccessUser(#id)")
 	public ResponseEntity<UserReadModel> updateUser(@PathVariable Long id, @RequestBody @Valid UserPatchModel userUpdate) {
-		userService.getUserById(id).orElseThrow(() -> new ResourceNotFoundException("User with id=[" + id + "] not found"));
+		userService.getUserById(id).orElseThrow(() -> ExceptionUtils.generateIdDoesNotExistException("user", id));
 		final var updatedUser = userService.overwriteUser(id, userModelMapper.toEntity(userUpdate));
 		return ResponseEntity.ok(userModelMapper.toModel(updatedUser));
 	}

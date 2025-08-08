@@ -55,6 +55,15 @@ public class ExceptionUtils {
 		return new UnauthorizedException("Could not extract 'oid' claim from JWT token");
 	}
 
+	/**
+	 * Returns a {@link UnauthorizedException} with a message explaining that the caller does not have the
+	 * {@code hr-advisor} role within the {@code roles} claim.
+	 * @return An exception with the appropriate message.
+	 */
+	public static UnauthorizedException generateCouldNotExtractHrAdvisorRoleException() {
+		return new UnauthorizedException("Could not extract role 'hr-advisor' in 'roles' claim from JWT token");
+	}
+
 	private static ResourceNotFoundException generateEntityWithFieldDoesNotExistException(String entity, String field, String value) {
 		return new ResourceNotFoundException(String.format("A(n) %s with %s=[%s] does not exist", entity, field, value));
 	}

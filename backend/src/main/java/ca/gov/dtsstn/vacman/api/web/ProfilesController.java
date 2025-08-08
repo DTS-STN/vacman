@@ -36,7 +36,6 @@ import ca.gov.dtsstn.vacman.api.security.SecurityUtils;
 import ca.gov.dtsstn.vacman.api.service.ProfileService;
 import ca.gov.dtsstn.vacman.api.service.UserService;
 import ca.gov.dtsstn.vacman.api.web.exception.ResourceConflictException;
-import ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException;
 import ca.gov.dtsstn.vacman.api.web.model.CollectionModel;
 import ca.gov.dtsstn.vacman.api.web.model.ProfileReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.ProfileStatusUpdateModel;
@@ -55,7 +54,7 @@ public class ProfilesController {
 
 	private static final Logger log = LoggerFactory.getLogger(ProfilesController.class);
 
-    private final ProfileService profileService;
+	private final ProfileService profileService;
 
 	private final UserService userService;
 
@@ -143,7 +142,7 @@ public class ProfilesController {
 
 		final var profile = profileService.getProfile(id)
 			.map(profileModelMapper::toModel)
-			.orElseThrow(() -> new ResourceNotFoundException("Could not find profile with id=[" + id + "]"));
+			.orElseThrow(() -> generateIdDoesNotExistException("profile", id));
 
 		log.trace("Found profile: [{}]", profile);
 
