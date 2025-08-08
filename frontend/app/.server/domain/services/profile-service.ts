@@ -13,7 +13,8 @@ export type ProfileService = {
   submitProfileForReview(accessToken: string): Promise<Result<Profile, AppError>>;
   getAllProfiles(): Promise<Profile[]>;
   getCurrentUserProfile(accessToken: string): Promise<Option<Profile>>;
-  getProfileById(accessToken: string, profileId: string): Promise<Option<Profile>>;
+  getProfileById(accessToken: string, profileId: string): Promise<Result<Profile, AppError>>;
+  findProfileById(accessToken: string, profileId: string): Promise<Option<Profile>>;
 };
 
 export function getProfileService(): ProfileService {

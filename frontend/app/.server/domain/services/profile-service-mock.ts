@@ -1,5 +1,5 @@
 import { None, Some, Err, Ok } from 'oxide.ts';
-import type { Result } from 'oxide.ts';
+import type { Result, Option } from 'oxide.ts';
 
 import { getUserService } from './user-service';
 
@@ -33,9 +33,23 @@ export function getMockProfileService(): ProfileService {
       const newProfile = createMockProfile(accessToken);
       return Promise.resolve(Ok(newProfile));
     },
-    getProfileById: (accessToken: string, profileId: string) => {
+    getProfileById: (accessToken: string, profileId: string): Promise<Result<Profile, AppError>> => {
       const profile = mockProfiles.find((p) => p.profileId.toString() === profileId);
-      return Promise.resolve(profile ? Some(profile) : None);
+
+      if (profile) {
+        return Promise.resolve(Ok(profile));
+      }
+
+      return Promise.resolve(Err(new AppError(`Profile not found.`, ErrorCodes.PROFILE_NOT_FOUND)));
+    },
+    findProfileById: async (accessToken: string, profileId: string): Promise<Option<Profile>> => {
+      const profile = mockProfiles.find((p) => p.profileId.toString() === profileId);
+
+      if (profile) {
+        return Promise.resolve(Some(profile));
+      }
+
+      return Promise.resolve(None);
     },
     updateProfile: (
       accessToken: string,
