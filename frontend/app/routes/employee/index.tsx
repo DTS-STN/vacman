@@ -1,12 +1,14 @@
 import type { JSX } from 'react';
 
-import type { RouteHandle, LoaderFunctionArgs, ActionFunctionArgs, MetaFunction } from 'react-router';
+import type { RouteHandle, LoaderFunctionArgs, ActionFunctionArgs } from 'react-router';
 import { Form } from 'react-router';
 
 import type { IconProp } from '@fortawesome/fontawesome-svg-core';
 import { faChevronRight, faUser } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useTranslation } from 'react-i18next';
+
+import type { Route } from './+types';
 
 import { getUserService } from '~/.server/domain/services/user-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
@@ -22,6 +24,10 @@ import { getLanguage } from '~/utils/i18n-utils';
 export const handle = {
   i18nNamespace: [...parentHandle.i18nNamespace],
 } as const satisfies RouteHandle;
+
+export function meta({ loaderData }: Route.MetaArgs) {
+  return [{ title: loaderData?.documentTitle }];
+}
 
 export async function action({ context, request }: ActionFunctionArgs) {
   requireAuthentication(context.session, request);
@@ -72,10 +78,6 @@ export async function loader({ context, request }: LoaderFunctionArgs) {
   const { t } = await getTranslation(request, handle.i18nNamespace);
   return { documentTitle: t('app:index.employee-dashboard') };
 }
-
-export const meta: MetaFunction<typeof loader> = ({ data }) => {
-  return [{ title: data?.documentTitle }];
-};
 
 export default function EmployeeDashboard() {
   const { t } = useTranslation(handle.i18nNamespace);

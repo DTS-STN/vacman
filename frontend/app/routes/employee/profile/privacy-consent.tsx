@@ -1,5 +1,7 @@
-import type { RouteHandle, LoaderFunctionArgs, ActionFunctionArgs, MetaFunction } from 'react-router';
+import type { RouteHandle, LoaderFunctionArgs, ActionFunctionArgs } from 'react-router';
 import { Form } from 'react-router';
+
+import type { Route } from './+types/privacy-consent';
 
 import type { Profile } from '~/.server/domain/models';
 import { getProfileService } from '~/.server/domain/services/profile-service';
@@ -14,9 +16,9 @@ export const handle = {
   i18nNamespace: [...parentHandle.i18nNamespace],
 } as const satisfies RouteHandle;
 
-export const meta: MetaFunction<typeof loader> = ({ data }) => {
-  return [{ title: data?.documentTitle }];
-};
+export function meta({ loaderData }: Route.MetaArgs) {
+  return [{ title: loaderData?.documentTitle }];
+}
 
 export async function action({ context, request }: ActionFunctionArgs) {
   requireAuthentication(context.session, request);
