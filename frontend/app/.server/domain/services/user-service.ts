@@ -1,4 +1,4 @@
-import type { User, UserCreate } from '~/.server/domain/models';
+import type { User, UserCreate, UserUpdate } from '~/.server/domain/models';
 import { getDefaultUserService } from '~/.server/domain/services/user-service-default';
 import { getMockUserService } from '~/.server/domain/services/user-service-mock';
 import { serverEnvironment } from '~/.server/environment';
@@ -8,6 +8,7 @@ export type UserService = {
   getUserById(id: number, accessToken: string): Promise<User>;
   getCurrentUser(accessToken: string): Promise<User>;
   registerCurrentUser(user: UserCreate, accessToken: string): Promise<User>;
+  updateUser(user: UserUpdate, accessToken: string): Promise<User>;
 };
 
 export function getUserService(): UserService {
