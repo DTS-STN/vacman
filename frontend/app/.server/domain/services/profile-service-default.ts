@@ -216,42 +216,34 @@ export function getDefaultProfileService(): ProfileService {
       }
     },
 
+    /**
+     * Fetches the current active user profile from the API.
+     *
+     * Uses the provided access token to authenticate the request.
+     * Returns an Option containing the profile if found and active,
+     * or None if no active profile exists (i.e., HTTP 404 response).
+     *
+     * Throws an AppError for network issues, unexpected HTTP errors,
+     * or JSON parsing failures.
+     *
+     * @param accessToken - The bearer token used for API authentication.
+     * @returns A Promise resolving to Some(Profile) if found, or None if not found.
+     */
     async getCurrentUserProfile(accessToken: string): Promise<Option<Profile>> {
-      let response: Response;
+      const result = await apiClient.get<Profile>('/profiles/me?active=true', 'fetch current user profile', accessToken);
 
-      try {
-        response = await fetch(`${serverEnvironment.VACMAN_API_BASE_URI}/profiles/me?active=true`, {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        });
-      } catch (error) {
-        throw new AppError(
-          error instanceof Error ? error.message : `Network error while fetching current user profile`,
-          ErrorCodes.PROFILE_NETWORK_ERROR,
-          { httpStatusCode: HttpStatusCodes.SERVICE_UNAVAILABLE },
-        );
+      if (result.isErr()) {
+        const err = result.unwrapErr();
+
+        if (err.httpStatusCode === HttpStatusCodes.NOT_FOUND) {
+          return None;
+        }
+
+        throw err;
       }
 
-      if (response.status === HttpStatusCodes.NOT_FOUND) {
-        return None;
-      }
-
-      if (!response.ok) {
-        const errorMessage = `Failed to retrieve current user profile. Server responded with status ${response.status}.`;
-        throw new AppError(errorMessage, ErrorCodes.PROFILE_FETCH_FAILED, {
-          httpStatusCode: response.status as HttpStatusCode,
-        });
-      }
-
-      try {
-        const profile = await response.json();
-        return Some(profile);
-      } catch {
-        throw new AppError(`Invalid JSON response while fetching current user profile`, ErrorCodes.PROFILE_INVALID_RESPONSE, {
-          httpStatusCode: HttpStatusCodes.BAD_GATEWAY,
-        });
-      }
+      const profile = result.unwrap();
+      return Some(profile);
     },
   };
 }
