@@ -46,8 +46,7 @@ export async function action({ context, request }: ActionFunctionArgs) {
 }
 
 export async function loader({ context, request }: LoaderFunctionArgs) {
-  const currentUrl = new URL(request.url);
-  requireAuthentication(context.session, currentUrl);
+  requireAuthentication(context.session, request);
 
   const authenticatedSession = context.session as AuthenticatedSession;
   if (!authenticatedSession.currentUser) {
