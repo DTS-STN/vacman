@@ -1,4 +1,4 @@
-import type { User, UserCreate } from '~/.server/domain/models';
+import type { User, UserCreate, UserUpdate } from '~/.server/domain/models';
 import type { UserService } from '~/.server/domain/services/user-service';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
@@ -31,6 +31,13 @@ export function getMockUserService(): UserService {
     registerCurrentUser: (user: UserCreate, accessToken: string): Promise<User> => {
       try {
         return Promise.resolve(registerCurrentUser(user, accessToken));
+      } catch (error) {
+        return Promise.reject(error);
+      }
+    },
+    updateUser: (user: UserUpdate, accessToken: string): Promise<User> => {
+      try {
+        return Promise.resolve(updateUser(user));
       } catch (error) {
         return Promise.reject(error);
       }
@@ -200,4 +207,42 @@ function registerCurrentUser(userData: UserCreate, accessToken: string): User {
   (mockUsers as User[]).push(newUser);
 
   return newUser;
+}
+
+/**
+ * Updates a user in the mock data.
+ *
+ * @param userData The user data to update.
+ * @returns The updated user object.
+ * @throws {AppError} If the user is not found.
+ */
+function updateUser(userData: UserUpdate): User {
+  const userIndex = mockUsers.findIndex((u) => u.id === userData.id);
+  if (userIndex === -1) {
+    throw new AppError(`User with ID '${userData.id}' not found.`, ErrorCodes.VACMAN_API_ERROR);
+  }
+
+  const existingUser = mockUsers[userIndex];
+  if (!existingUser) {
+    throw new AppError(`User with ID '${userData.id}' not found.`, ErrorCodes.VACMAN_API_ERROR);
+  }
+
+  // Create updated user with existing data and new data merged
+  const updatedUser: User = {
+    ...existingUser,
+    firstName: userData.firstName ?? existingUser.firstName,
+    middleName: userData.middleName ?? existingUser.middleName,
+    lastName: userData.lastName ?? existingUser.lastName,
+    initials: userData.initials ?? existingUser.initials,
+    personalRecordIdentifier: userData.personalRecordIdentifier ?? existingUser.personalRecordIdentifier,
+    businessPhone: userData.businessPhone ?? existingUser.businessPhone,
+    businessEmail: userData.businessEmail ?? existingUser.businessEmail,
+    userUpdated: 'mock-active-directory-id',
+    dateUpdated: new Date().toISOString(),
+  };
+
+  // Update the mock data
+  (mockUsers as User[])[userIndex] = updatedUser;
+
+  return updatedUser;
 }
