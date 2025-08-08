@@ -71,7 +71,7 @@ public class UserService {
 	public Optional<UserEntity> getUserById(Long id) {
 		final var userOptional = userRepository.findById(id);
 		userOptional.ifPresent(user -> {
-			eventPublisher.publishEvent(new UserReadEvent(user));
+			eventPublisher.publishEvent(new UserReadEvent(user.getId()));
 			log.info("User read with ID: {}", user.getId());
 		});
 		return userOptional;
@@ -82,7 +82,7 @@ public class UserService {
 		// HACK(Max) - Commented out as this appears to be causing a SO.
 		/*
 		userOptional.ifPresent(user -> {
-			eventPublisher.publishEvent(new UserReadEvent(user));
+			eventPublisher.publishEvent(new UserReadEvent(user.getId()));
 			log.info("User read with Microsoft Entra ID: {}", user.getMicrosoftEntraId());
 		});
 		 */

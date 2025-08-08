@@ -85,7 +85,7 @@ public class UserEventListener {
 			.details(objectMapper.writeValueAsString(event))
 			.build());
 
-		log.info("Event: user read - ID: {}", event.entity().getId());
+		log.info("Event: user read - ID: {}", event.userId());
 	}
 
 }

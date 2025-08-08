@@ -52,6 +52,6 @@ public class ProfileEventListener {
 			.details(objectMapper.writeValueAsString(event))
 			.build());
 
-		log.info("Event: profiles read - Entra ID: {}, count: {}", event.entraId(), event.entities().size());
+		log.info("Event: profiles read - Entra ID: {}, count: {}", event.entraId(), event.profileIds().size());
 	}
 }
