@@ -6,18 +6,15 @@ import org.immutables.builder.Builder;
 import org.springframework.core.style.ToStringCreator;
 
 import jakarta.annotation.Nullable;
-import jakarta.persistence.AttributeOverride;
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
-@Entity(name = "CityProfile")
-@AttributeOverride(name = "id", column = @Column(name = "[CITY_PROFILE_ID]"))
-@Table(name = "[CITY_PROFILE]", uniqueConstraints = { @UniqueConstraint(name = "CTYPRFL_UK", columnNames = { "[PROFILE_ID]", "[CITY_ID]" }) })
-public class CityProfileEntity extends AbstractBaseEntity {
+@Entity(name = "ProfileCity")
+@Table(name = "[PROFILE_CITY]", uniqueConstraints = { @UniqueConstraint(name = "PRFLCTY_UK", columnNames = { "[PROFILE_ID]", "[CITY_ID]" }) })
+public class ProfileCityEntity extends AbstractBaseEntity {
 
 	@ManyToOne
 	@JoinColumn(name = "[PROFILE_ID]", nullable = false)
@@ -27,12 +24,12 @@ public class CityProfileEntity extends AbstractBaseEntity {
 	@JoinColumn(name = "[CITY_ID]", nullable = false)
 	private CityEntity city;
 
-	public CityProfileEntity() {
+	public ProfileCityEntity() {
 		super();
 	}
 
 	@Builder.Constructor
-	public CityProfileEntity(
+	public ProfileCityEntity(
 			@Nullable Long id,
 			@Nullable CityEntity city,
 			@Nullable ProfileEntity profile,

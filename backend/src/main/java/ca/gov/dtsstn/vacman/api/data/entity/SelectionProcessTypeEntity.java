@@ -6,17 +6,11 @@ import org.immutables.builder.Builder;
 import org.springframework.core.style.ToStringCreator;
 
 import jakarta.annotation.Nullable;
-import jakarta.persistence.AttributeOverride;
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
 @Entity(name = "SelectionProcessType")
-@AttributeOverride(name = "id", column = @Column(name = "[SELECTION_PROCESS_TYPE_ID]"))
-@AttributeOverride(name = "code", column = @Column(name = "[SELECTION_PROCESS_TYPE_CODE]"))
-@AttributeOverride(name = "nameEn", column = @Column(name = "[SELECTION_PROCESS_TYPE_NAME_EN]"))
-@AttributeOverride(name = "nameFr", column = @Column(name = "[SELECTION_PROCESS_TYPE_NAME_FR]"))
 @Table(name = "[CD_SELECTION_PROCESS_TYPE]", uniqueConstraints = { @UniqueConstraint(name = "SLCTNPRCSSTYP_UK", columnNames = "[SELECTION_PROCESS_TYPE_NAME_EN]") })
 public class SelectionProcessTypeEntity extends AbstractCodeEntity {
 
