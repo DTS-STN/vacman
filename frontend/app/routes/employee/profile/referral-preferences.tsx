@@ -83,17 +83,21 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 }
 
 export async function loader({ context, request, params }: Route.LoaderArgs) {
-  // Use the id parameter from the URL to fetch the profile
-  const profileUserId = params.id;
-  const profileResult = await getProfileService().getProfile(profileUserId);
-  // Since parent layout ensures authentication, we can safely cast the session
+  requireAuthentication(context.session, request);
+
+  const currentProfileOption = await getProfileService().getCurrentUserProfile(context.session.authState.accessToken);
+
+  if (currentProfileOption.isNone()) {
+    throw new Response('Profile not found', { status: 404 });
+  }
+
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
   const localizedLanguageReferralTypesResult = await getLanguageReferralTypeService().listAllLocalized(lang);
   const localizedClassifications = await getClassificationService().listAllLocalized(lang);
   const localizedEmploymentTenures = await getEmploymentTenureService().listAllLocalized(lang);
   const localizedProvinces = await getProvinceService().listAllLocalized(lang);
   const localizedCities = await getCityService().listAllLocalized(lang);
-  const profileData: Profile = profileResult.unwrap();
+  const profileData: Profile = currentProfileOption.unwrap();
 
   const cityResult =
     profileData.referralPreferences.workLocationCitiesIds?.[0] &&
