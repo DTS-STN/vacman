@@ -8,6 +8,7 @@ import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Repository
@@ -61,4 +62,12 @@ public interface ProfileRepository extends AbstractBaseRepository<ProfileEntity>
      */
     List<ProfileEntity> findByUserMicrosoftEntraIdIsAndProfileStatusCodeIn(String entraId, Set<String> profileStatusCodes);
 
+    /**
+     * Returns a profile whose ID matches the provided value & whose user has the provided user ID.
+     *
+     * @param profileId The ID of the target profile.
+     * @param userId The ID of the user whose profile we are targetting.
+     * @return The target profile, if it exists.
+     */
+    Optional<ProfileEntity> findByIdAndUserId(Long profileId, Long userId);
 }
