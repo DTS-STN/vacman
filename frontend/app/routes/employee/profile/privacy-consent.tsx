@@ -25,8 +25,14 @@ export async function action({ context, request }: ActionFunctionArgs) {
   const activeDirectoryId = context.session.authState.idTokenClaims.oid;
 
   // TODO move profile creation to /employee/index after user creation then use profileService.updateProfile (needs to be created first) to indicate the consent in true
-  const profile = await createUserProfile(activeDirectoryId);
+  const profileResult = await createUserProfile(activeDirectoryId);
 
+  if (profileResult.isErr()) {
+    const error = profileResult.unwrapErr();
+    throw error;
+  }
+
+  const profile = profileResult.unwrap();
   const profileService = getProfileService();
 
   const updatePrivacyConsent: Profile = {

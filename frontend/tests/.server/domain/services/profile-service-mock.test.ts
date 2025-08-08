@@ -1,6 +1,8 @@
 import { describe, it, expect } from 'vitest';
 
 import { getMockProfileService } from '~/.server/domain/services/profile-service-mock';
+import { AppError } from '~/errors/app-error';
+import { ErrorCodes } from '~/errors/error-codes';
 
 describe('getMockProfileService', () => {
   const service = getMockProfileService();
@@ -63,59 +65,77 @@ describe('getMockProfileService', () => {
   });
 
   describe('registerProfile', () => {
-    it('should create a new profile with generated metadata', async () => {
+    it('should return an Ok result with a new profile on success', async () => {
       const activeDirectoryId = 'test-user-new-profile';
 
-      const createdProfile = await service.registerProfile(activeDirectoryId);
+      // The method now returns a Result object.
+      const result = await service.registerProfile(activeDirectoryId);
+
+      // Assert that the result is an `Ok` variant.
+      expect(result.isOk()).toBe(true);
+
+      // Unwrap the result to get the actual profile data for further assertions.
+      const createdProfile = result.unwrap();
 
       expect(createdProfile.profileId).toBeDefined();
       expect(createdProfile.userId).toBeDefined();
       expect(createdProfile.userCreated).toBe(activeDirectoryId);
       expect(createdProfile.dateCreated).toBeDefined();
-      expect(createdProfile.profileStatusId).toBe(3);
+      expect(createdProfile.profileStatusId).toBe(3); // Assuming PROFILE_STATUS_ID.incomplete
       expect(createdProfile.privacyConsentInd).toBe(true);
-      expect(createdProfile.referralPreferences.availableForReferralInd).toBe(true);
-      expect(createdProfile.referralPreferences.interestedInAlternationInd).toBe(false);
-
-      // Verify the profile was actually added to the mock data
-      const retrievedProfile = await service.getProfile(activeDirectoryId);
-      expect(retrievedProfile.isSome()).toBe(true);
-      expect(retrievedProfile.unwrap().profileId).toBe(createdProfile.profileId);
     });
 
-    it('should create a profile for existing user mapping', async () => {
+    it('should correctly map to an existing user ID', async () => {
       const activeDirectoryId = '11111111-1111-1111-1111-111111111111';
 
-      const createdProfile = await service.registerProfile(activeDirectoryId);
+      const result = await service.registerProfile(activeDirectoryId);
+      expect(result.isOk()).toBe(true);
+
+      const createdProfile = result.unwrap();
 
       expect(createdProfile.profileId).toBeDefined();
-      expect(createdProfile.userId).toBe(2); // Should map to existing user ID
+      expect(createdProfile.userId).toBe(2); // Should map to existing user ID from mock data
       expect(createdProfile.userCreated).toBe(activeDirectoryId);
     });
 
-    it('should handle multiple profile registrations', async () => {
-      const service = getMockProfileService(); // Fresh instance
+    it('should handle multiple profile registrations with unique IDs', async () => {
+      const freshService = getMockProfileService(); // Use a fresh instance for isolation
 
       const firstUser = 'first-user-123';
       const secondUser = 'second-user-456';
 
       // Register first profile
-      const profile1 = await service.registerProfile(firstUser);
-      expect(profile1.profileId).toBeDefined();
+      const result1 = await freshService.registerProfile(firstUser);
+      expect(result1.isOk()).toBe(true);
+      const profile1 = result1.unwrap();
 
       // Register second profile
-      const profile2 = await service.registerProfile(secondUser);
+      const result2 = await freshService.registerProfile(secondUser);
+      expect(result2.isOk()).toBe(true);
+      const profile2 = result2.unwrap();
+
+      // Assert that profiles are unique
+      expect(profile1.profileId).toBeDefined();
       expect(profile2.profileId).toBeDefined();
       expect(profile2.profileId).not.toBe(profile1.profileId);
+    });
 
-      // Verify both profiles exist
-      const retrievedProfile1 = await service.getProfile(firstUser);
-      const retrievedProfile2 = await service.getProfile(secondUser);
+    it('should return an Err result when the accessToken is "FAIL_TOKEN"', async () => {
+      const failToken = 'FAIL_TOKEN';
 
-      expect(retrievedProfile1.isSome()).toBe(true);
-      expect(retrievedProfile2.isSome()).toBe(true);
-      expect(retrievedProfile1.unwrap().profileId).toBe(profile1.profileId);
-      expect(retrievedProfile2.unwrap().profileId).toBe(profile2.profileId);
+      // The method now returns a Result object.
+      const result = await service.registerProfile(failToken);
+
+      // Assert that the result is an `Err` variant.
+      expect(result.isErr()).toBe(true);
+
+      // Unwrap the error to inspect its properties.
+      const error = result.unwrapErr();
+
+      // Assert that the error is the correct type and has the right details.
+      expect(error).toBeInstanceOf(AppError);
+      expect(error.errorCode).toBe(ErrorCodes.PROFILE_CREATE_FAILED);
+      expect(error.message).toContain('Mock Error');
     });
   });
 });

@@ -8,6 +8,7 @@ import type { ProfileService } from '~/.server/domain/services/profile-service';
 import { PROFILE_STATUS_ID } from '~/domain/constants';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
+import { HttpStatusCodes } from '~/errors/http-status-codes';
 
 export function getMockProfileService(): ProfileService {
   return {
@@ -15,10 +16,22 @@ export function getMockProfileService(): ProfileService {
       const profile = getProfile(activeDirectoryId);
       return Promise.resolve(profile ? Some(profile) : None);
     },
-    registerProfile: (accessToken: string) => {
-      // For mock purposes, directly pass the accessToken to the helper function
-      // since it's already set up to handle tokens as keys in the mapping
-      return Promise.resolve(registerProfile(accessToken));
+    /**
+     * Mocks the registration of a new profile.
+     * - If the accessToken is 'FAIL_TOKEN', it returns an AppError.
+     * - Otherwise, it returns a successfully created mock Profile.
+     */
+    registerProfile(accessToken: string): Promise<Result<Profile, AppError>> {
+      // Simulate a failure case for testing error handling in the UI.
+      if (accessToken === 'FAIL_TOKEN') {
+        const error = new AppError('Mock Error: Profile creation failed as requested.', ErrorCodes.PROFILE_CREATE_FAILED, {
+          httpStatusCode: HttpStatusCodes.BAD_REQUEST,
+        });
+        return Promise.resolve(Err(error));
+      }
+
+      const newProfile = createMockProfile(accessToken);
+      return Promise.resolve(Ok(newProfile));
     },
     getProfileById: (accessToken: string, profileId: string) => {
       const profile = mockProfiles.find((p) => p.profileId.toString() === profileId);
@@ -776,14 +789,13 @@ function getProfile(activeDirectoryId: string): Profile | null {
 }
 
 /**
- * Registers a new profile with mock data.
+ * A private helper function to generate a mock profile.
  *
  * @param accessToken The access token of the user to create a profile for.
- * @param session The authenticated session.
  * @returns The created profile object.
  * @throws {AppError} If the profile cannot be created (e.g., user not found).
  */
-function registerProfile(accessToken: string): Profile {
+function createMockProfile(accessToken: string): Profile {
   let userId = activeDirectoryToUserIdMap[accessToken];
   if (!userId) {
     // Create new entry in activeDirectoryToUserIdMap if it doesn't exist
