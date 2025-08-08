@@ -6,7 +6,7 @@ import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
 import io.soabase.recordbuilder.core.RecordBuilder;
 
 /**
- * Event that is published when a profile is updated.
+ * Event that is published when a profile is updated. If just the status is updated, ProfileStatusChangeEvent event should be published.
  */
 @RecordBuilder
 public record ProfileUpdatedEvent(ProfileEntity entity, Instant timestamp) {
