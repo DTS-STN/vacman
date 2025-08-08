@@ -65,26 +65,26 @@ public class UsersController {
 		log.info("Received request to create new user; request: [{}]", user);
 
 		final var microsoftEntraId = SecurityUtils.getCurrentUserEntraId()
-			.orElseThrow(() -> new UnauthorizedException("Could not extract 'oid' claim from JWT token"));
+				.orElseThrow(() -> new UnauthorizedException("Could not extract 'oid' claim from JWT token"));
 
 		log.debug("Checking if user with microsoftEntraId=[{}] already exists", microsoftEntraId);
 
 		userService.getUserByMicrosoftEntraId(microsoftEntraId)
-			.ifPresent(existingUser -> { throw new ResourceConflictException("A user with microsoftEntraId=[" + microsoftEntraId + "] already exists"); });
+				.ifPresent(existingUser -> { throw new ResourceConflictException("A user with microsoftEntraId=[" + microsoftEntraId + "] already exists"); });
 
 		log.debug("Fetching user with microsoftEntraId=[{}] from MSGraph", microsoftEntraId);
 
 		final var msGraphUser = msGraphService.getUser(microsoftEntraId)
-			.orElseThrow(() -> new ResourceNotFoundException("User with microsoftEntraId=[" + microsoftEntraId + "] not found in MSGraph"));
+				.orElseThrow(() -> new ResourceNotFoundException("User with microsoftEntraId=[" + microsoftEntraId + "] not found in MSGraph"));
 
 		log.debug("MSGraph user details: [{}]", msGraphUser);
 
 		final var userEntity = userModelMapper.toEntityBuilder(user)
-			.businessEmailAddress(msGraphUser.mail())
-			.firstName(msGraphUser.givenName())
-			.lastName(msGraphUser.surname())
-			.microsoftEntraId(msGraphUser.id())
-			.build();
+				.businessEmailAddress(msGraphUser.mail())
+				.firstName(msGraphUser.givenName())
+				.lastName(msGraphUser.surname())
+				.microsoftEntraId(msGraphUser.id())
+				.build();
 
 		log.debug("Creating user in database...");
 
@@ -102,15 +102,15 @@ public class UsersController {
 		log.debug("Received request to get current user");
 
 		final var microsoftEntraId = SecurityUtils.getCurrentUserEntraId()
-			.orElseThrow(() -> new UnauthorizedException("Could not extract 'oid' claim from JWT token"));
+				.orElseThrow(() -> new UnauthorizedException("Could not extract 'oid' claim from JWT token"));
 
-		log.debug("Fetching user with microsoftEntraId=[{}]", microsoftEntraId);
+		log.debug("Fetching current user with microsoftEntraId=[{}]", microsoftEntraId);
 
-		final var user = userService.getUserByMicrosoftEntraId(microsoftEntraId)
-			.map(userModelMapper::toModel)
-			.orElseThrow(() -> new ResourceNotFoundException("User with microsoftEntraId=[" + microsoftEntraId + "] not found"));
+		final var user = userService.getCurrentUserByMicrosoftEntraId(microsoftEntraId)
+				.map(userModelMapper::toModel)
+				.orElseThrow(() -> new ResourceNotFoundException("User with microsoftEntraId=[" + microsoftEntraId + "] not found"));
 
-		log.debug("Found user:  [{}]", user);
+		log.debug("Found current user: [{}]", user);
 
 		return ResponseEntity.ok(user);
 	}
@@ -133,9 +133,9 @@ public class UsersController {
 			int size) {
 		if (StringUtils.isNotBlank(microsoftEntraId)) {
 			final var users = userService.getUserByMicrosoftEntraId(microsoftEntraId.trim())
-				.map(userModelMapper::toModel)
-				.map(List::of)
-				.orElse(List.of());
+					.map(userModelMapper::toModel)
+					.map(List::of)
+					.orElse(List.of());
 
 			return ResponseEntity.ok(new PagedModel<>(new PageImpl<>(users, Pageable.ofSize(size), users.size())));
 		}
@@ -149,8 +149,8 @@ public class UsersController {
 	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
 	public ResponseEntity<UserReadModel> getUserById(@PathVariable Long id) {
 		final var result = userService.getUserById(id)
-			.map(userModelMapper::toModel)
-			.orElseThrow(() -> new ResourceNotFoundException("User with id=[" + id + "] not found"));
+				.map(userModelMapper::toModel)
+				.orElseThrow(() -> new ResourceNotFoundException("User with id=[" + id + "] not found"));
 
 		return ResponseEntity.ok(result);
 	}

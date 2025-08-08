@@ -20,6 +20,7 @@ import ca.gov.dtsstn.vacman.api.constants.AppConstants;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntityBuilder;
 import ca.gov.dtsstn.vacman.api.data.repository.UserRepository;
+import ca.gov.dtsstn.vacman.api.event.CurrentUserReadEvent;
 import ca.gov.dtsstn.vacman.api.event.UserCreatedEvent;
 import ca.gov.dtsstn.vacman.api.event.UserDeletedEvent;
 import ca.gov.dtsstn.vacman.api.event.UserReadEvent;
@@ -77,13 +78,18 @@ public class UserService {
 		return userOptional;
 	}
 
+	// No need to emit an event here because this is used in intermediary steps by other methods that emit events.
 	public Optional<UserEntity> getUserByMicrosoftEntraId(String microsoftEntraId) {
+		return userRepository.findOne(Example.of(new UserEntityBuilder().microsoftEntraId(microsoftEntraId).build()));
+	}
+
+	public Optional<UserEntity> getCurrentUserByMicrosoftEntraId(String microsoftEntraId) {
 		final var userOptional = userRepository.findOne(Example.of(new UserEntityBuilder().microsoftEntraId(microsoftEntraId).build()));
 		// HACK(Max) - Commented out as this appears to be causing a SO.
 		/*
 		userOptional.ifPresent(user -> {
-			eventPublisher.publishEvent(new UserReadEvent(user.getId()));
-			log.info("User read with Microsoft Entra ID: {}", user.getMicrosoftEntraId());
+			eventPublisher.publishEvent(new CurrentUserReadEvent(user.getId(), microsoftEntraId));
+			log.info("Current user read with Microsoft Entra ID: {}", microsoftEntraId);
 		});
 		 */
 		return userOptional;
