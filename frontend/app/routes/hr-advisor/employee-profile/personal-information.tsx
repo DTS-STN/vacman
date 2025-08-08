@@ -8,7 +8,6 @@ import type { Profile } from '~/.server/domain/models';
 import { getLanguageForCorrespondenceService } from '~/.server/domain/services/language-for-correspondence-service';
 import { getProfileService } from '~/.server/domain/services/profile-service';
 import { getUserService } from '~/.server/domain/services/user-service';
-import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { InlineLink } from '~/components/links';
@@ -26,9 +25,10 @@ export function meta({ data }: Route.MetaArgs) {
 }
 
 export function action({ context, params, request }: Route.ActionArgs) {
-  // Get the current user's ID from the authenticated session
-  const authenticatedSession = context.session as AuthenticatedSession;
-  const currentUserId = authenticatedSession.authState.idTokenClaims.oid as string;
+  requireAuthentication(context.session, request);
+
+  const authenticatedSession = context.session;
+  const currentUserId = authenticatedSession.authState.idTokenClaims.oid;
 
   //TODO: Implement approval logic
 
@@ -42,11 +42,15 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 
   const accessToken = context.session.authState.accessToken;
   const currentUser = await getUserService().getCurrentUser(accessToken);
-  const profileResult = await getProfileService().getCurrentUserProfile(accessToken);
+  const currentProfileOption = await getProfileService().getProfileById(accessToken, params.id);
+
+  if (currentProfileOption.isErr()) {
+    throw new Response('Profile not found', { status: 404 });
+  }
 
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
   const localizedLanguagesOfCorrespondenceResult = await getLanguageForCorrespondenceService().listAllLocalized(lang);
-  const profileData: Profile = profileResult.unwrap();
+  const profileData: Profile = currentProfileOption.unwrap();
 
   return {
     documentTitle: t('app:personal-information.page-title'),

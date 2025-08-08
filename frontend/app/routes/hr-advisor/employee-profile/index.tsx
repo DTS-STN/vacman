@@ -18,7 +18,6 @@ import { getProfileService } from '~/.server/domain/services/profile-service';
 import { getProfileStatusService } from '~/.server/domain/services/profile-status-service';
 import { getUserService } from '~/.server/domain/services/user-service';
 import { getWFAStatuses } from '~/.server/domain/services/wfa-status-service';
-import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { Button } from '~/components/button';
 import { DescriptionList, DescriptionListItem } from '~/components/description-list';
@@ -39,9 +38,10 @@ export function meta({ data }: Route.MetaArgs) {
 }
 
 export async function action({ context, request }: Route.ActionArgs) {
-  // Get the current user's ID from the authenticated session
-  const authenticatedSession = context.session as AuthenticatedSession;
-  const currentUserId = authenticatedSession.authState.idTokenClaims.oid as string;
+  requireAuthentication(context.session, request);
+
+  const authenticatedSession = context.session;
+  const currentUserId = authenticatedSession.authState.idTokenClaims.oid;
 
   const profileResult = await getProfileService().getProfile(currentUserId);
   if (profileResult.isNone()) {
@@ -54,8 +54,7 @@ export async function action({ context, request }: Route.ActionArgs) {
 }
 
 export async function loader({ context, request, params }: Route.LoaderArgs) {
-  const currentUrl = new URL(request.url);
-  requireAuthentication(context.session, currentUrl);
+  requireAuthentication(context.session, request);
 
   // Use the id parameter from the URL to fetch the profile
   const profileUserId = params.id;
@@ -70,7 +69,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     allLocalizedCities,
     allLocalizedEmploymentTenures,
   ] = await Promise.all([
-    getProfileService().getProfile(profileUserId),
+    getProfileService().getProfileById(context.session.authState.accessToken, profileUserId),
     getLanguageReferralTypeService().listAllLocalized(lang),
     getClassificationService().listAllLocalized(lang),
     getCityService().listAllLocalized(lang),
@@ -78,12 +77,12 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     getWFAStatuses().listAll(),
   ]);
 
-  if (profileResult.isNone()) {
+  if (profileResult.isErr()) {
     throw new Response('Profile not found', { status: 404 });
   }
 
   const profileData: Profile = profileResult.unwrap();
-  const authenticatedSession = context.session as AuthenticatedSession;
+  const authenticatedSession = context.session;
 
   const profileUpdatedByUser = profileData.userUpdated
     ? await getUserService().getUserById(profileData.userId, authenticatedSession.authState.accessToken)
