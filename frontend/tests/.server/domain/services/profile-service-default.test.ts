@@ -4,10 +4,12 @@ import { vi, describe, it, expect, beforeEach } from 'vitest';
 import type { Profile } from '~/.server/domain/models';
 import { apiClient } from '~/.server/domain/services/api-client';
 import { getDefaultProfileService } from '~/.server/domain/services/profile-service-default';
-import { serverEnvironment } from '~/.server/environment';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
+import queryClient from '~/query-client';
+
+vi.unmock('~/.server/infra/query-client');
 
 // Mock the entire apiClient module
 vi.mock('~/.server/domain/services/api-client', () => ({
@@ -25,7 +27,6 @@ global.fetch = mockFetch;
 
 describe('getDefaultProfileService', () => {
   const profileService = getDefaultProfileService();
-  const mockActiveDirectoryId = 'test-ad-id-123';
   const mockAccessToken = 'test-ad-id-123';
 
   const mockProfile: Profile = {
@@ -71,70 +72,122 @@ describe('getDefaultProfileService', () => {
     },
   };
 
+  // A valid profile that we expect to be returned after sanitization
+  const mockCleanProfile: Profile = {
+    profileId: 1,
+    userId: 123,
+    userIdReviewedBy: 456,
+    userIdApprovedBy: 789,
+    priorityLevelId: 1,
+    profileStatusId: 1,
+    privacyConsentInd: true,
+    userCreated: 'test-user',
+    dateCreated: '2024-01-01T00:00:00Z',
+    userUpdated: 'test-user',
+    dateUpdated: '2024-01-01T00:00:00Z',
+    personalInformation: {
+      personalRecordIdentifier: '444555666',
+      preferredLanguageId: 2,
+      workEmail: 'firstname.lastname@example.ca',
+      personalEmail: 'john.doe@example.com',
+      workPhone: undefined,
+      personalPhone: '555-0123',
+      additionalInformation: 'Looking for opportunities in software development.',
+    },
+    employmentInformation: {
+      substantivePosition: 914190001,
+      branchOrServiceCanadaRegion: 100789008,
+      directorate: 294550040,
+      province: 1,
+      cityId: 411290002,
+      wfaStatus: 1,
+      wfaEffectiveDate: undefined,
+      wfaEndDate: undefined,
+      hrAdvisor: 5,
+    },
+    referralPreferences: {
+      languageReferralTypeIds: [864190000],
+      classificationIds: [905190000, 905190001],
+      workLocationProvince: 1,
+      workLocationCitiesIds: [411290001, 411290002],
+      availableForReferralInd: true,
+      interestedInAlternationInd: false,
+      employmentTenureIds: [664190000, 664190001, 664190003],
+    },
+  };
+
+  // An invalid item that should be filtered out by the service
+  const mockInvalidItem = null;
+
+  // The raw API response before sanitization
+  const mockDirtyApiResponse = {
+    content: [mockCleanProfile, mockInvalidItem],
+  };
+
   beforeEach(() => {
     vi.clearAllMocks();
+    queryClient.clear();
   });
 
-  describe('getProfile', () => {
-    it('should return a profile when found', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        status: HttpStatusCodes.OK,
-        json: vi.fn().mockResolvedValueOnce(mockProfile),
+  describe('listAllProfiles', () => {
+    it('should fetch, sanitize, and return profiles on success', async () => {
+      // Arrange:
+      vi.mocked(apiClient.get).mockResolvedValue(Ok(mockDirtyApiResponse));
+      const params = { accessToken: mockAccessToken, includeUserData: true };
+
+      // Act
+      const result = await profileService.listAllProfiles(params);
+
+      // Assert
+      expect(apiClient.get).toHaveBeenCalledWith('/profiles?user-data=true', 'list filtered profiles', mockAccessToken);
+      expect(apiClient.get).toHaveBeenCalledTimes(1);
+
+      // Verify the final output is sanitized
+      expect(result.length).toBe(1);
+      expect(result[0]).toEqual(mockCleanProfile);
+    });
+
+    it('should throw a specific AppError when the fetch fails', async () => {
+      // Arrange:
+      const mockApiError = new AppError('API is down', ErrorCodes.VACMAN_API_ERROR);
+      vi.mocked(apiClient.get).mockResolvedValue(Err(mockApiError));
+      const params = { accessToken: mockAccessToken, includeUserData: true };
+
+      // Act & Assert
+      await expect(profileService.listAllProfiles(params)).rejects.toSatisfy((error: AppError) => {
+        expect(error.errorCode).toBe(ErrorCodes.PROFILE_FETCH_FAILED);
+        expect(error.message).toContain(mockApiError.message);
+        return true;
       });
+    });
+  });
 
-      const result = await profileService.getProfile(mockActiveDirectoryId);
+  describe('findAllProfiles', () => {
+    it('should return Some(sanitizedProfiles) on success', async () => {
+      // Arrange
+      vi.mocked(apiClient.get).mockResolvedValue(Ok(mockDirtyApiResponse));
+      const params = { accessToken: mockAccessToken, includeUserData: true };
 
+      // Act
+      const result = await profileService.findAllProfiles(params);
+
+      // Assert
+      expect(apiClient.get).toHaveBeenCalledTimes(1);
       expect(result.isSome()).toBe(true);
-      expect(result.unwrap()).toEqual(mockProfile);
-      expect(mockFetch).toHaveBeenCalledWith(
-        `${serverEnvironment.VACMAN_API_BASE_URI}/profiles/by-active-directory-id/${encodeURIComponent(mockActiveDirectoryId)}`,
-      );
+      expect(result.unwrap().length).toBe(1);
     });
 
-    it('should return null when profile is not found', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: HttpStatusCodes.NOT_FOUND,
-      });
+    it('should return None() when the fetch fails', async () => {
+      // Arrange
+      const mockApiError = new AppError('API is down', ErrorCodes.VACMAN_API_ERROR);
+      vi.mocked(apiClient.get).mockResolvedValue(Err(mockApiError));
+      const params = { accessToken: mockAccessToken, includeUserData: true };
 
-      const result = await profileService.getProfile(mockActiveDirectoryId);
+      // Act
+      const result = await profileService.findAllProfiles(params);
 
+      // Assert
       expect(result.isNone()).toBe(true);
-      expect(mockFetch).toHaveBeenCalledWith(
-        `${serverEnvironment.VACMAN_API_BASE_URI}/profiles/by-active-directory-id/${encodeURIComponent(mockActiveDirectoryId)}`,
-      );
-    });
-
-    it('should throw AppError when server responds with error status', async () => {
-      const errorStatus = HttpStatusCodes.INTERNAL_SERVER_ERROR;
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: errorStatus,
-      });
-
-      await expect(profileService.getProfile(mockActiveDirectoryId)).rejects.toThrow();
-    });
-
-    it('should handle URL encoding for special characters in activeDirectoryId', async () => {
-      const specialCharId = 'user@domain.com';
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        status: HttpStatusCodes.OK,
-        json: vi.fn().mockResolvedValueOnce(mockProfile),
-      });
-
-      await profileService.getProfile(specialCharId);
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        `${serverEnvironment.VACMAN_API_BASE_URI}/profiles/by-active-directory-id/${encodeURIComponent(specialCharId)}`,
-      );
-    });
-
-    it('should throw AppError when fetch fails', async () => {
-      mockFetch.mockRejectedValueOnce(new Error('Network error'));
-
-      await expect(profileService.getProfile(mockActiveDirectoryId)).rejects.toThrow('Network error');
     });
   });
 

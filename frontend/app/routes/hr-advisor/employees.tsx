@@ -34,8 +34,20 @@ export async function loader({ context, request }: LoaderFunctionArgs) {
 
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
 
-  const profiles = await getProfileService().getAllProfiles();
-  const statuses = await getProfileStatusService().listAllLocalized(lang);
+  const profileParams = {
+    accessToken: context.session.authState.accessToken,
+    active: true, // will return In Progress, Pending Approval and Approved
+    hrAdvisorId: null, // if null : will return everything, if a UserId : will return profiles linked to that hr-advisor, if "me" : will return profiles linked to the logged in hr-advisor -> to be used later in filtering
+    includeUserData: true, // will add user data (names and email)
+  };
+
+  const profileService = getProfileService();
+  const profileStatusService = getProfileStatusService();
+
+  const [profiles, statuses] = await Promise.all([
+    profileService.listAllProfiles(profileParams),
+    profileStatusService.listAllLocalized(lang),
+  ]);
 
   const hrRelevantEmployeeStatusCodes = [PROFILE_STATUS_CODE.approved, PROFILE_STATUS_CODE.pending];
   const statusIds = statuses
