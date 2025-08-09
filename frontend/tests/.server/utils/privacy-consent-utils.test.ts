@@ -4,15 +4,13 @@
 import type { AppLoadContext } from 'react-router';
 import { redirect } from 'react-router';
 
-import { Ok, None, Some } from 'oxide.ts';
+import { None, Some } from 'oxide.ts';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
-import type { Profile } from '~/.server/domain/models';
 import { getProfileService } from '~/.server/domain/services/profile-service';
 import { getUserService } from '~/.server/domain/services/user-service';
 import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
 import { requirePrivacyConsent } from '~/.server/utils/privacy-consent-utils';
-import { createUserProfile, safeGetUserProfile } from '~/.server/utils/profile-utils';
 import { loader as privacyLoader } from '~/routes/employee/profile/privacy-consent';
 
 // Type definitions for test compatibility
@@ -74,13 +72,6 @@ vi.mock('~/.server/utils/route-utils', () => ({
   }),
 }));
 
-// Mock profile utils
-vi.mock('~/.server/utils/profile-utils', () => ({
-  createUserProfile: vi.fn(),
-  ensureUserProfile: vi.fn(),
-  safeGetUserProfile: vi.fn(),
-}));
-
 const mockUserService = {
   getUsersByRole: vi.fn(),
   getUserById: vi.fn(),
@@ -103,50 +94,7 @@ const mockProfileService = {
   getCurrentUserProfile: vi.fn(),
 };
 
-const mockProfile: Profile = {
-  profileId: 1,
-  userId: 1,
-  profileStatusId: 1,
-  privacyConsentInd: true,
-  userCreated: 'system',
-  dateCreated: new Date().toISOString(),
-  personalInformation: {
-    surname: 'Doe',
-    givenName: 'John',
-    personalRecordIdentifier: '123456789',
-    preferredLanguageId: undefined,
-    workEmail: 'work.email@example.ca',
-    personalEmail: 'personal.email@example.com',
-    workPhone: undefined,
-    personalPhone: '613-938-0001',
-    additionalInformation: 'Looking for opportunities in software development.',
-  },
-  employmentInformation: {
-    substantivePosition: undefined,
-    branchOrServiceCanadaRegion: undefined,
-    directorate: undefined,
-    province: undefined,
-    cityId: undefined,
-    wfaStatus: undefined,
-    wfaEffectiveDate: undefined,
-    wfaEndDate: undefined,
-    hrAdvisor: undefined,
-  },
-  referralPreferences: {
-    languageReferralTypeIds: [864190000],
-    classificationIds: [905190000, 905190001],
-    workLocationProvince: 1,
-    workLocationCitiesIds: [411290001, 411290002],
-    availableForReferralInd: true,
-    interestedInAlternationInd: false,
-    employmentTenureIds: [664190000, 664190001, 664190003],
-  },
-};
-
 vi.mocked(getProfileService).mockReturnValue(mockProfileService);
-
-const mockSafeGetUserProfile = vi.fn();
-vi.mocked(safeGetUserProfile).mockImplementation(mockSafeGetUserProfile);
 
 // Helper to create mock context
 function createMockContext(activeDirectoryId: string, name?: string, roles: string[] = []): AppLoadContext {
@@ -189,10 +137,6 @@ describe('Privacy Consent Flow', () => {
     mockUserService.getCurrentUser.mockResolvedValue(null);
     // Default: no profile exists
     mockProfileService.getProfile.mockResolvedValue(null);
-    // Mock createUserProfile to return a profile with profileId
-    vi.mocked(createUserProfile).mockResolvedValue(Ok(mockProfile));
-    // Default: safeGetUserProfile returns null
-    mockSafeGetUserProfile.mockResolvedValue(null);
   });
 
   describe('Employee Privacy Consent Flow', () => {
@@ -217,16 +161,6 @@ describe('Privacy Consent Flow', () => {
           idTokenClaims: { sub: 'test-user-consent', oid: 'test-user-consent' },
         },
       } as unknown as AuthenticatedSession;
-
-      // Mock that profile exists and has privacy consent accepted
-      mockSafeGetUserProfile.mockResolvedValue({
-        profileId: 1,
-        userId: 1,
-        profileStatusId: 1,
-        privacyConsentInd: true,
-        userCreated: 'test-user-consent',
-        dateCreated: '2024-01-01T00:00:00Z',
-      });
 
       mockProfileService.getCurrentUserProfile.mockResolvedValue(
         Some({

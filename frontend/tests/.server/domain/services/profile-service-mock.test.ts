@@ -66,7 +66,7 @@ describe('getMockProfileService', () => {
 
   describe('registerProfile', () => {
     it('should return an Ok result with a new profile on success', async () => {
-      const activeDirectoryId = 'test-user-new-profile';
+      const activeDirectoryId = '00000000-0000-0000-0000-000000000000';
 
       // The method now returns a Result object.
       const result = await service.registerProfile(activeDirectoryId);

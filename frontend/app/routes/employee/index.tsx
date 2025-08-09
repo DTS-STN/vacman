@@ -10,10 +10,10 @@ import { useTranslation } from 'react-i18next';
 
 import type { Route } from './+types';
 
+import { getProfileService } from '~/.server/domain/services/profile-service';
 import { getUserService } from '~/.server/domain/services/user-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { checkEmployeeRoutePrivacyConsent } from '~/.server/utils/privacy-consent-utils';
-import { createUserProfile } from '~/.server/utils/profile-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { Card, CardHeader, CardIcon, CardTitle } from '~/components/card';
 import { PageTitle } from '~/components/page-title';
@@ -66,7 +66,7 @@ export async function loader({ context, request }: LoaderFunctionArgs) {
       const currentUser = await getUserService().registerCurrentUser({ languageId }, context.session.authState.accessToken);
       context.session.currentUser = currentUser;
     } finally {
-      await createUserProfile(context.session.authState.idTokenClaims.oid);
+      await getProfileService().registerProfile(context.session.authState.accessToken);
     }
   }
 
