@@ -6,7 +6,7 @@ export default {
     form: 'Forme',
     logout: 'Déconnexion',
     profile: 'Profil',
-    title: 'VacMan',
+    title: 'Gestion des postes vacants',
   },
   'nav': {
     'skip-to-content': 'Passer au contenu principal',

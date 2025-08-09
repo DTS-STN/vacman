@@ -11,34 +11,12 @@ exports[`AppBar > should correctly render an AppBar with a MenuItem when the fil
       <div
         class="align-center flex"
       >
-        <button
-          aria-expanded="false"
-          aria-haspopup="menu"
-          class="flex h-full flex-nowrap space-x-2 bg-slate-700 px-2 text-white hover:bg-slate-600 hover:underline focus:ring-2 focus:ring-black focus:ring-offset-2 focus:outline-hidden aria-expanded:bg-slate-900 aria-expanded:text-white sm:space-x-3 sm:px-4"
-          data-state="closed"
-          id="radix-«r0»"
-          type="button"
+        <span
+          class="my-auto py-2 text-white sm:text-2xl"
+          id="app-bar-title-label"
         >
-          <span
-            class="my-auto py-2 sm:text-2xl"
-            id="menu-label"
-          >
-            gcweb:app.title
-          </span>
-          <svg
-            aria-hidden="true"
-            class="svg-inline--fa fa-chevron-down my-auto size-4"
-            data-icon="chevron-down"
-            data-prefix="fas"
-            role="img"
-            viewBox="0 0 448 512"
-          >
-            <path
-              d="M201.4 406.6c12.5 12.5 32.8 12.5 45.3 0l192-192c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L224 338.7 54.6 169.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l192 192z"
-              fill="currentColor"
-            />
-          </svg>
-        </button>
+          gcweb:app.title
+        </span>
       </div>
       <div
         class="flex items-center space-x-4 text-right"
@@ -59,34 +37,12 @@ exports[`AppBar > should correctly render an AppBar with a MenuItem when the to 
       <div
         class="align-center flex"
       >
-        <button
-          aria-expanded="false"
-          aria-haspopup="menu"
-          class="flex h-full flex-nowrap space-x-2 bg-slate-700 px-2 text-white hover:bg-slate-600 hover:underline focus:ring-2 focus:ring-black focus:ring-offset-2 focus:outline-hidden aria-expanded:bg-slate-900 aria-expanded:text-white sm:space-x-3 sm:px-4"
-          data-state="closed"
-          id="radix-«r2»"
-          type="button"
+        <span
+          class="my-auto py-2 text-white sm:text-2xl"
+          id="app-bar-title-label"
         >
-          <span
-            class="my-auto py-2 sm:text-2xl"
-            id="menu-label"
-          >
-            gcweb:app.title
-          </span>
-          <svg
-            aria-hidden="true"
-            class="svg-inline--fa fa-chevron-down my-auto size-4"
-            data-icon="chevron-down"
-            data-prefix="fas"
-            role="img"
-            viewBox="0 0 448 512"
-          >
-            <path
-              d="M201.4 406.6c12.5 12.5 32.8 12.5 45.3 0l192-192c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L224 338.7 54.6 169.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l192 192z"
-              fill="currentColor"
-            />
-          </svg>
-        </button>
+          gcweb:app.title
+        </span>
       </div>
       <div
         class="flex items-center space-x-4 text-right"
@@ -107,34 +63,12 @@ exports[`AppBar > should render render an AppBar with a name provided > expected
       <div
         class="align-center flex"
       >
-        <button
-          aria-expanded="false"
-          aria-haspopup="menu"
-          class="flex h-full flex-nowrap space-x-2 bg-slate-700 px-2 text-white hover:bg-slate-600 hover:underline focus:ring-2 focus:ring-black focus:ring-offset-2 focus:outline-hidden aria-expanded:bg-slate-900 aria-expanded:text-white sm:space-x-3 sm:px-4"
-          data-state="closed"
-          id="radix-«r4»"
-          type="button"
+        <span
+          class="my-auto py-2 text-white sm:text-2xl"
+          id="app-bar-title-label"
         >
-          <span
-            class="my-auto py-2 sm:text-2xl"
-            id="menu-label"
-          >
-            gcweb:app.title
-          </span>
-          <svg
-            aria-hidden="true"
-            class="svg-inline--fa fa-chevron-down my-auto size-4"
-            data-icon="chevron-down"
-            data-prefix="fas"
-            role="img"
-            viewBox="0 0 448 512"
-          >
-            <path
-              d="M201.4 406.6c12.5 12.5 32.8 12.5 45.3 0l192-192c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L224 338.7 54.6 169.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l192 192z"
-              fill="currentColor"
-            />
-          </svg>
-        </button>
+          gcweb:app.title
+        </span>
       </div>
       <div
         class="flex items-center space-x-4 text-right"
@@ -144,7 +78,7 @@ exports[`AppBar > should render render an AppBar with a name provided > expected
           aria-haspopup="menu"
           class="flex h-full flex-nowrap space-x-2 bg-slate-600 px-2 text-sm text-white hover:bg-slate-500 hover:underline focus:ring-2 focus:ring-black focus:ring-offset-2 focus:outline-hidden aria-expanded:bg-slate-800 aria-expanded:text-white sm:space-x-4 sm:px-4"
           data-state="closed"
-          id="radix-«r6»"
+          id="radix-«r0»"
           type="button"
         >
           <span
@@ -205,34 +139,12 @@ exports[`AppBar > should render render an AppBar with a profile item provided > 
       <div
         class="align-center flex"
       >
-        <button
-          aria-expanded="false"
-          aria-haspopup="menu"
-          class="flex h-full flex-nowrap space-x-2 bg-slate-700 px-2 text-white hover:bg-slate-600 hover:underline focus:ring-2 focus:ring-black focus:ring-offset-2 focus:outline-hidden aria-expanded:bg-slate-900 aria-expanded:text-white sm:space-x-3 sm:px-4"
-          data-state="closed"
-          id="radix-«r8»"
-          type="button"
+        <span
+          class="my-auto py-2 text-white sm:text-2xl"
+          id="app-bar-title-label"
         >
-          <span
-            class="my-auto py-2 sm:text-2xl"
-            id="menu-label"
-          >
-            gcweb:app.title
-          </span>
-          <svg
-            aria-hidden="true"
-            class="svg-inline--fa fa-chevron-down my-auto size-4"
-            data-icon="chevron-down"
-            data-prefix="fas"
-            role="img"
-            viewBox="0 0 448 512"
-          >
-            <path
-              d="M201.4 406.6c12.5 12.5 32.8 12.5 45.3 0l192-192c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L224 338.7 54.6 169.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l192 192z"
-              fill="currentColor"
-            />
-          </svg>
-        </button>
+          gcweb:app.title
+        </span>
       </div>
       <div
         class="flex items-center space-x-4 text-right"
@@ -242,7 +154,7 @@ exports[`AppBar > should render render an AppBar with a profile item provided > 
           aria-haspopup="menu"
           class="flex h-full flex-nowrap space-x-2 bg-slate-600 px-2 text-sm text-white hover:bg-slate-500 hover:underline focus:ring-2 focus:ring-black focus:ring-offset-2 focus:outline-hidden aria-expanded:bg-slate-800 aria-expanded:text-white sm:space-x-4 sm:px-4"
           data-state="closed"
-          id="radix-«ra»"
+          id="radix-«r2»"
           type="button"
         >
           <span
