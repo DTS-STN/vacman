@@ -12,10 +12,6 @@ import { HttpStatusCodes } from '~/errors/http-status-codes';
 
 export function getMockProfileService(): ProfileService {
   return {
-    getProfile: (activeDirectoryId: string) => {
-      const profile = getProfile(activeDirectoryId);
-      return Promise.resolve(profile ? Some(profile) : None);
-    },
     /**
      * Mocks the registration of a new profile.
      * - If the accessToken is 'FAIL_TOKEN', it returns an AppError.
@@ -785,22 +781,6 @@ const activeDirectoryToUserIdMap: Record<string, number> = {
   '00000000-0000-0000-0000-000000000001': 1,
   '11111111-1111-1111-1111-111111111111': 2,
 };
-
-/**
- * Retrieves a profile by Active Directory ID from mock data.
- *
- * @param activeDirectoryId The Active Directory ID of the user whose profile to retrieve.
- * @returns The profile object if found, null otherwise.
- */
-function getProfile(activeDirectoryId: string): Profile | null {
-  const userId = activeDirectoryToUserIdMap[activeDirectoryId];
-  if (!userId) {
-    return null;
-  }
-
-  const profile = mockProfiles.find((p) => p.userId === userId);
-  return profile ?? null;
-}
 
 /**
  * A private helper function to generate a mock profile.

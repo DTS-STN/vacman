@@ -131,7 +131,7 @@ describe('Profile Access Utils', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     // Default: profile exists
-    mockProfileService.getProfile.mockResolvedValue(Some(mockProfile));
+    mockProfileService.getCurrentUserProfile.mockResolvedValue(Some(mockProfile));
     // Default: no privacy consent check required
     mockRequirePrivacyConsentForOwnProfile.mockResolvedValue(undefined);
   });
@@ -142,7 +142,7 @@ describe('Profile Access Utils', () => {
         // Arrange
         const session = createMockSession('test-user-123');
         const targetUserId = 'non-existent-user';
-        mockProfileService.getProfile.mockResolvedValue(None);
+        mockProfileService.getCurrentUserProfile.mockResolvedValue(None);
 
         // Act & Assert
         await expect(requireProfileAccess(session, targetUserId)).rejects.toThrow(AppError);
@@ -269,7 +269,7 @@ describe('Profile Access Utils', () => {
       // Arrange
       const session = createMockSession('test-user-123');
       const targetUserId = 'non-existent-user';
-      mockProfileService.getProfile.mockResolvedValue(None);
+      mockProfileService.getCurrentUserProfile.mockResolvedValue(None);
 
       // Act
       const result = await hasProfileAccess(session, targetUserId);
@@ -283,7 +283,7 @@ describe('Profile Access Utils', () => {
       const session = createMockSession('test-user-123');
       const targetUserId = 'test-user-123';
       const unexpectedError = new Error('Unexpected error');
-      mockProfileService.getProfile.mockRejectedValue(unexpectedError);
+      mockProfileService.getCurrentUserProfile.mockRejectedValue(unexpectedError);
 
       // Act & Assert
       await expect(hasProfileAccess(session, targetUserId)).rejects.toThrow(unexpectedError);
@@ -323,7 +323,7 @@ describe('Profile Access Utils', () => {
 
       // Mock profile exists for access check but not for retrieval
       let callCount = 0;
-      mockProfileService.getProfile.mockImplementation(() => {
+      mockProfileService.getCurrentUserProfile.mockImplementation(() => {
         callCount++;
         if (callCount === 1) {
           return Promise.resolve(Some(mockProfile)); // First call in requireProfileAccess

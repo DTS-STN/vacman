@@ -4,7 +4,6 @@ import { vi, describe, it, expect, beforeEach } from 'vitest';
 import type { Profile } from '~/.server/domain/models';
 import { apiClient } from '~/.server/domain/services/api-client';
 import { getDefaultProfileService } from '~/.server/domain/services/profile-service-default';
-import { serverEnvironment } from '~/.server/environment';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
@@ -25,7 +24,6 @@ global.fetch = mockFetch;
 
 describe('getDefaultProfileService', () => {
   const profileService = getDefaultProfileService();
-  const mockActiveDirectoryId = 'test-ad-id-123';
   const mockAccessToken = 'test-ad-id-123';
 
   const mockProfile: Profile = {
@@ -73,69 +71,6 @@ describe('getDefaultProfileService', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-  });
-
-  describe('getProfile', () => {
-    it('should return a profile when found', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        status: HttpStatusCodes.OK,
-        json: vi.fn().mockResolvedValueOnce(mockProfile),
-      });
-
-      const result = await profileService.getProfile(mockActiveDirectoryId);
-
-      expect(result.isSome()).toBe(true);
-      expect(result.unwrap()).toEqual(mockProfile);
-      expect(mockFetch).toHaveBeenCalledWith(
-        `${serverEnvironment.VACMAN_API_BASE_URI}/profiles/by-active-directory-id/${encodeURIComponent(mockActiveDirectoryId)}`,
-      );
-    });
-
-    it('should return null when profile is not found', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: HttpStatusCodes.NOT_FOUND,
-      });
-
-      const result = await profileService.getProfile(mockActiveDirectoryId);
-
-      expect(result.isNone()).toBe(true);
-      expect(mockFetch).toHaveBeenCalledWith(
-        `${serverEnvironment.VACMAN_API_BASE_URI}/profiles/by-active-directory-id/${encodeURIComponent(mockActiveDirectoryId)}`,
-      );
-    });
-
-    it('should throw AppError when server responds with error status', async () => {
-      const errorStatus = HttpStatusCodes.INTERNAL_SERVER_ERROR;
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: errorStatus,
-      });
-
-      await expect(profileService.getProfile(mockActiveDirectoryId)).rejects.toThrow();
-    });
-
-    it('should handle URL encoding for special characters in activeDirectoryId', async () => {
-      const specialCharId = 'user@domain.com';
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        status: HttpStatusCodes.OK,
-        json: vi.fn().mockResolvedValueOnce(mockProfile),
-      });
-
-      await profileService.getProfile(specialCharId);
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        `${serverEnvironment.VACMAN_API_BASE_URI}/profiles/by-active-directory-id/${encodeURIComponent(specialCharId)}`,
-      );
-    });
-
-    it('should throw AppError when fetch fails', async () => {
-      mockFetch.mockRejectedValueOnce(new Error('Network error'));
-
-      await expect(profileService.getProfile(mockActiveDirectoryId)).rejects.toThrow('Network error');
-    });
   });
 
   describe('registerProfile', () => {
