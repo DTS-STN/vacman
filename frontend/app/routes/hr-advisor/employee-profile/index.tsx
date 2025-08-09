@@ -37,15 +37,8 @@ export function meta({ loaderData }: Route.MetaArgs) {
   return [{ title: loaderData?.documentTitle }];
 }
 
-export async function action({ context, request }: Route.ActionArgs) {
+export function action({ context, request }: Route.ActionArgs) {
   requireAuthentication(context.session, request);
-
-  const currentUserId = context.session.authState.idTokenClaims.oid;
-
-  const profileResult = await getProfileService().getProfile(currentUserId);
-  if (profileResult.isNone()) {
-    return { status: 'profile-not-found' };
-  }
 
   //TODO: add logic to approve employee profile
 
