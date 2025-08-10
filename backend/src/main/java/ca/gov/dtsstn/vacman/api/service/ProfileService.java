@@ -1,5 +1,7 @@
 package ca.gov.dtsstn.vacman.api.service;
 
+import static ca.gov.dtsstn.vacman.api.security.SecurityUtils.getCurrentUserEntraId;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -79,7 +81,7 @@ public class ProfileService {
 				.map(ProfileEntity::getId)
 				.toList();
 
-			eventPublisher.publishEvent(new ProfileReadEvent(profileIds, null, isActive));
+			eventPublisher.publishEvent(new ProfileReadEvent(profileIds, null));
 		}
 
 		return profilesPage;
@@ -102,10 +104,19 @@ public class ProfileService {
 				.map(ProfileEntity::getId)
 				.toList();
 
-			eventPublisher.publishEvent(new ProfileReadEvent(profileIds, entraId, isActive));
+			eventPublisher.publishEvent(new ProfileReadEvent(profileIds, entraId));
 		}
 
 		return profiles;
+	}
+
+	public Optional<ProfileEntity> getProfile(long id) {
+		return profileRepository.findById(id).map(profile -> {
+			final var entraId = getCurrentUserEntraId().orElse("N/A");
+			final var profileReadEvent = new ProfileReadEvent(List.of(profile.getId()), entraId);
+			eventPublisher.publishEvent(profileReadEvent);
+			return profile;
+		});
 	}
 
 	/**
