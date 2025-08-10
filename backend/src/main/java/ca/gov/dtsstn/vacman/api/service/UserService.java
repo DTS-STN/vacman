@@ -53,13 +53,13 @@ public class UserService {
 	public UserEntity createUser(UserEntity user, long languageId) {
 		// Set language based on languageCode (validation ensures it exists)
 		user.setLanguage(codeService.getLanguages(Pageable.unpaged()).stream()
-			.filter(byId(languageId))
-			.findFirst().orElseThrow());
+				.filter(byId(languageId))
+				.findFirst().orElseThrow());
 
 		// Set user type based on role (validation ensures it exists)
 		user.setUserType(codeService.getUserTypes(Pageable.unpaged()).stream()
-			.filter(byCode(AppConstants.UserType.EMPLOYEE))
-			.findFirst().orElseThrow());
+				.filter(byCode(AppConstants.UserType.EMPLOYEE))
+				.findFirst().orElseThrow());
 
 		// Save the user (profiles are created separately as needed)
 		final var createdUser = userRepository.save(user);
@@ -100,35 +100,45 @@ public class UserService {
 	}
 
 <<<<<<< Upstream, based on origin/main
+<<<<<<< Upstream, based on origin/main
 	public UserEntity updateUser(long id, UserEntity updates) {
 		final var existingUser = userRepository.findById(id).orElseThrow();
 		userEntityMapper.update(updates, existingUser);
 		final var updatedUser = userRepository.save(existingUser);
 =======
 	//
+=======
+	/**
+	 * Used by PATCH method
+	 */
+>>>>>>> 09a334f make another updateUser method to be used by PUT and move auth logic to the controller
 	// TODO ::: GjB ::: this should not use a REST model; it should use an entity (or DTO)
-	//
- public UserEntity updateUser(UserUpdateModel updateModel) {
- 	final var existingUser = userRepository.findById(updateModel.id()).orElseThrow();
- 	userModelMapper.updateEntityFromModel(updateModel, existingUser);
+	public UserEntity updateUser(UserUpdateModel updateModel) {
+		final var existingUser = userRepository.findById(updateModel.id()).orElseThrow();
+		userModelMapper.updateEntityFromModel(updateModel, existingUser);
 
- 	// Handle role update if provided (validation ensures it exists)
- 	Optional.ofNullable(updateModel.userTypeId()).ifPresent(role -> {
- 		existingUser.setUserType(codeService.getUserTypes(Pageable.unpaged()).stream()
- 			.filter(byId(updateModel.userTypeId()))
- 			.findFirst().orElseThrow());
- 	});
+		// Handle role update if provided (validation ensures it exists)
+		Optional.ofNullable(updateModel.userTypeId()).ifPresent(role -> {
+			existingUser.setUserType(codeService.getUserTypes(Pageable.unpaged()).stream()
+					.filter(byId(updateModel.userTypeId()))
+					.findFirst().orElseThrow());
+		});
 
- 	// Handle language update if provided (validation ensures it exists)
- 	Optional.ofNullable(updateModel.languageId()).ifPresent(languageCode -> {
- 		existingUser.setLanguage(codeService.getLanguages(Pageable.unpaged()).stream()
- 				.filter(byId(updateModel.languageId()))
- 				.findFirst().orElseThrow());
- 	});
+		// Handle language update if provided (validation ensures it exists)
+		Optional.ofNullable(updateModel.languageId()).ifPresent(languageCode -> {
+			existingUser.setLanguage(codeService.getLanguages(Pageable.unpaged()).stream()
+					.filter(byId(updateModel.languageId()))
+					.findFirst().orElseThrow());
+		});
 
+<<<<<<< Upstream, based on origin/main
  	final var updatedUser = userRepository.save(existingUser);
 >>>>>>> 9b719ab allow PUT if user is updating themselves or done by hr-advisor
+=======
+		final var updatedUser = userRepository.save(existingUser);
+>>>>>>> 09a334f make another updateUser method to be used by PUT and move auth logic to the controller
 
+<<<<<<< Upstream, based on origin/main
 <<<<<<< Upstream, based on origin/main
 		eventPublisher.publishEvent(new UserUpdatedEvent(updatedUser));
 		log.info("User updated with ID: {}", updatedUser.getId());
@@ -137,40 +147,47 @@ public class UserService {
  	eventPublisher.publishEvent(new UserUpdatedEvent(updatedUser));
  	log.info("User updated with ID: {}", updatedUser.getId());
 >>>>>>> 9b719ab allow PUT if user is updating themselves or done by hr-advisor
+=======
+		// Publish updated event
+		eventPublisher.publishEvent(new UserUpdatedEvent(updatedUser));
+		log.info("User updated with ID: {}", updatedUser.getId());
+>>>>>>> 09a334f make another updateUser method to be used by PUT and move auth logic to the controller
 
- 	return updatedUser;
- }
+		return updatedUser;
+	}
 
- /**
-  * Gets a user by ID and updates it.
-  * This method does not perform authorization checks.
-  * The updateModel must have its ID set to match the userId parameter.
-  *
-  * @param userId the ID of the user to update
-  * @param updateModel the model containing the updated user data (with ID matching userId)
-  * @return the updated user entity
-  * @throws ResourceNotFoundException if the user does not exist
-  */
- public UserEntity updateUserWithoutAuth(Long userId, UserUpdateModel updateModel) {
- 	// Check if user exists
- 	userRepository.findById(userId)
- 		.orElseThrow(() -> new ResourceNotFoundException("User with id=[" + userId + "] not found"));
+	/**
+	 * Used by PUT method
+	 * The updateModel must have its ID set to match the userId parameter.
+	 */
+	public UserEntity updateUser(Long userId, UserUpdateModel updateModel) {
+		// Check if user exists
+		userRepository.findById(userId)
+				.orElseThrow(() -> new ResourceNotFoundException("User with id=[" + userId + "] not found"));
 
- 	// Verify that the ID in the model matches the userId parameter
- 	if (!userId.equals(updateModel.id())) {
- 		throw new IllegalArgumentException("ID in update model must match the user ID parameter");
- 	}
+		if (!userId.equals(updateModel.id())) {
+			throw new IllegalArgumentException("ID in update model must match the user ID parameter");
+		}
 
- 	// Update the user directly with the provided model
- 	return updateUser(updateModel);
- }
+		return updateUser(updateModel);
+	}
 
+<<<<<<< Upstream, based on origin/main
 	public void deleteUser(long id) {
 		userRepository.findById(id).ifPresent(user -> {
 			userRepository.deleteById(id);
 			eventPublisher.publishEvent(new UserDeletedEvent(user));
 			log.info("User deleted with ID: {}", id);
 		});
+=======
+	public void deleteUser(Long id) {
+		userRepository.findById(id)
+				.ifPresent(user -> {
+					userRepository.deleteById(id);
+					eventPublisher.publishEvent(new UserDeletedEvent(user));
+					log.info("User deleted with ID: {}", id);
+				});
+>>>>>>> 09a334f make another updateUser method to be used by PUT and move auth logic to the controller
 	}
 
 }

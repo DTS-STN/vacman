@@ -163,35 +163,33 @@ public class UsersController {
 	@PatchMapping("/{id}")
 	@Operation(summary = "Update an existing user.")
 	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
+<<<<<<< Upstream, based on origin/main
 	@PreAuthorize("hasAuthority('hr-advisor') || @securityManager.canAccessUser(#id)")
 	public ResponseEntity<UserReadModel> updateUser(@PathVariable long id, @RequestBody @Valid UserUpdateModel updates) {
+=======
+	public ResponseEntity<UserReadModel> patchUser(@PathVariable Long id, @RequestBody @Valid UserUpdateModel userUpdate) {
+>>>>>>> 09a334f make another updateUser method to be used by PUT and move auth logic to the controller
 		userService.getUserById(id).orElseThrow(() -> new ResourceNotFoundException("User with id=[" + id + "] not found"));
 		final var updatedUser = userService.updateUser(id, userModelMapper.toEntity(updates));
 		return ResponseEntity.ok(userModelMapper.toModel(updatedUser));
 	}
 
 	@PutMapping("/{id}")
-	@Operation(summary = "Update an existing user with authorization checks.", 
-		description = "The user can only be updated if either: " +
-			"1. The database user id linked to the UUID in the header token is the same as {id}, or " +
-			"2. The header token has a claim to the \"hr-advisor\" security group.")
+	@Operation(summary = "Update an existing user.")
 	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
-	public ResponseEntity<UserReadModel> putUser(@PathVariable Long id, @RequestBody @Valid UserUpdateModel userUpdate) {
+	public ResponseEntity<UserReadModel> updateUser(@PathVariable Long id, @RequestBody @Valid UserUpdateModel userUpdate) {
 		try {
-			// Check if user exists
 			final var existingUser = userService.getUserById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("User with id=[" + id + "] not found"));
 
-			// Check if current user is the same as the user being updated
 			final var currentUserEntraId = SecurityUtils.getCurrentUserEntraId()
 				.orElseThrow(() -> new UnauthorizedException("Could not extract 'oid' claim from JWT token"));
 
-			// Check authorization - user can update if they are the same user OR have hr-advisor role
 			if (!(existingUser.getMicrosoftEntraId().equals(currentUserEntraId) || SecurityUtils.hasHrAdvisorId())) {
 				throw new UnauthorizedException("Not authorized to update user with id=[" + id + "]");
 			}
 
-			// Create the updated model after authorization checks
+			// If user is updating their own data OR user is an HR Advisor, create the updated model and update the db
 			UserUpdateModel updatedModel = new UserUpdateModel(
 				id,
 				userUpdate.userTypeId(),
@@ -206,11 +204,9 @@ public class UsersController {
 				userUpdate.languageId()
 			);
 
-			// Update the user
-			final var updatedUser = userService.updateUserWithoutAuth(id, updatedModel);
+			final var updatedUser = userService.updateUser(id, updatedModel);
 			return ResponseEntity.ok(userModelMapper.toModel(updatedUser));
 		} catch (ResourceNotFoundException | UnauthorizedException e) {
-			// Convert both exceptions to 404 as per requirements
 			throw new ResourceNotFoundException(e.getMessage());
 		}
 	}
