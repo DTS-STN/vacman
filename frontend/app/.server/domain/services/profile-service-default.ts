@@ -136,6 +136,17 @@ export function getDefaultProfileService(): ProfileService {
 
       const result = await apiClient.put<Profile, Profile>(path, 'update profile', profile, accessToken);
 
+      if (result.isErr()) {
+        const originalError = result.unwrapErr();
+
+        return Err(
+          new AppError(`Failed to update profile. Reason: ${originalError.message}`, ErrorCodes.PROFILE_UPDATE_FAILED, {
+            httpStatusCode: originalError.httpStatusCode,
+            correlationId: originalError.correlationId,
+          }),
+        );
+      }
+
       return result;
     },
 
