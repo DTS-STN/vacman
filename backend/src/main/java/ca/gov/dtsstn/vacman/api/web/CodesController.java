@@ -2,12 +2,12 @@ package ca.gov.dtsstn.vacman.api.web;
 
 import org.mapstruct.factory.Mappers;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import ca.gov.dtsstn.vacman.api.constants.AppConstants;
-
 import ca.gov.dtsstn.vacman.api.service.CodeService;
 import ca.gov.dtsstn.vacman.api.web.model.CityReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.ClassificationReadModel;
@@ -47,6 +47,7 @@ public class CodesController {
 	}
 
 	@GetMapping({ "/cities" })
+	@PreAuthorize("permitAll()")
 	@Operation(summary = "Get all city codes")
 	public CollectionModel<CityReadModel> getCities() {
 		final var cities = codeService.getCities(Pageable.unpaged())
@@ -56,6 +57,7 @@ public class CodesController {
 		return new CollectionModel<>(cities);
 	}
 
+	@PreAuthorize("permitAll()")
 	@GetMapping({ "/classifications" })
 	@Operation(summary = "Get all classification codes")
 	public CollectionModel<ClassificationReadModel> getClassifications() {
@@ -66,6 +68,7 @@ public class CodesController {
 		return new CollectionModel<>(classifications);
 	}
 
+	@PreAuthorize("permitAll()")
 	@GetMapping({ "/employment-equities" })
 	@Operation(summary = "Get all employment equity codes")
 	public CollectionModel<EmploymentEquityReadModel> getEmploymentEquities() {
@@ -76,6 +79,7 @@ public class CodesController {
 		return new CollectionModel<>(employmentEquities);
 	}
 
+	@PreAuthorize("permitAll()")
 	@GetMapping({ "/employment-opportunities" })
 	@Operation(summary = "Get all employment opportunity codes")
 	public CollectionModel<EmploymentOpportunityReadModel> getEmploymentOpportunities() {
@@ -86,6 +90,7 @@ public class CodesController {
 		return new CollectionModel<>(employmentOpportunities);
 	}
 
+	@PreAuthorize("permitAll()")
 	@GetMapping({ "/employment-tenures" })
 	@Operation(summary = "Get all employment tenure codes")
 	public CollectionModel<EmploymentTenureReadModel> getEmploymentTenures() {
@@ -96,6 +101,7 @@ public class CodesController {
 		return new CollectionModel<>(employmentTenures);
 	}
 
+	@PreAuthorize("permitAll()")
 	@GetMapping({ "/languages" })
 	@Operation(summary = "Get all language codes")
 	public CollectionModel<LanguageReadModel> getLanguages() {
@@ -106,6 +112,7 @@ public class CodesController {
 		return new CollectionModel<>(languages);
 	}
 
+	@PreAuthorize("permitAll()")
 	@GetMapping({ "/language-referral-types" })
 	@Operation(summary = "Get all language referral type codes")
 	public CollectionModel<LanguageReferralTypeReadModel> getLanguageReferralTypes() {
@@ -116,6 +123,7 @@ public class CodesController {
 		return new CollectionModel<>(languageReferralTypes);
 	}
 
+	@PreAuthorize("permitAll()")
 	@GetMapping({ "/language-requirements" })
 	@Operation(summary = "Get all language requirement codes")
 	public CollectionModel<LanguageRequirementReadModel> getLanguageRequirements() {
@@ -126,6 +134,7 @@ public class CodesController {
 		return new CollectionModel<>(languageRequirements);
 	}
 
+	@PreAuthorize("permitAll()")
 	@GetMapping({ "/non-advertised-appointments" })
 	@Operation(summary = "Get all non-advertised appointment codes")
 	public CollectionModel<NonAdvertisedAppointmentReadModel> getNonAdvertisedAppointments() {
@@ -136,6 +145,7 @@ public class CodesController {
 		return new CollectionModel<>(nonAdvertisedAppointments);
 	}
 
+	@PreAuthorize("permitAll()")
 	@GetMapping({ "/priority-levels" })
 	@Operation(summary = "Get all priority level codes")
 	public CollectionModel<PriorityLevelReadModel> getPriorityLevels() {
@@ -146,6 +156,7 @@ public class CodesController {
 		return new CollectionModel<>(priorityLevels);
 	}
 
+	@PreAuthorize("permitAll()")
 	@GetMapping({ "/profile-statuses" })
 	@Operation(summary = "Get all profile status codes")
 	public CollectionModel<ProfileStatusReadModel> getProfileStatuses() {
@@ -156,6 +167,7 @@ public class CodesController {
 		return new CollectionModel<>(profileStatuses);
 	}
 
+	@PreAuthorize("permitAll()")
 	@GetMapping({ "/provinces" })
 	@Operation(summary = "Get all province codes")
 	public CollectionModel<ProvinceReadModel> getProvinces() {
@@ -166,6 +178,7 @@ public class CodesController {
 		return new CollectionModel<>(provinces);
 	}
 
+	@PreAuthorize("permitAll()")
 	@GetMapping({ "/request-statuses" })
 	@Operation(summary = "Get all request status codes")
 	public CollectionModel<RequestStatusReadModel> getRequestStatuses() {
@@ -176,6 +189,7 @@ public class CodesController {
 		return new CollectionModel<>(requestStatuses);
 	}
 
+	@PreAuthorize("permitAll()")
 	@GetMapping({ "/security-clearances" })
 	@Operation(summary = "Get all security clearance codes")
 	public CollectionModel<SecurityClearanceReadModel> getSecurityClearances() {
@@ -186,6 +200,7 @@ public class CodesController {
 		return new CollectionModel<>(securityClearances);
 	}
 
+	@PreAuthorize("permitAll()")
 	@GetMapping({ "/selection-process-types" })
 	@Operation(summary = "Get all selection process type codes")
 	public CollectionModel<SelectionProcessTypeReadModel> getSelectionProcessTypes() {
@@ -196,6 +211,7 @@ public class CodesController {
 		return new CollectionModel<>(selectionProcessTypes);
 	}
 
+	@PreAuthorize("permitAll()")
 	@GetMapping({ "/user-types" })
 	@Operation(summary = "Get all user type codes")
 	public CollectionModel<UserTypeReadModel> getUserTypes() {
@@ -206,6 +222,7 @@ public class CodesController {
 		return new CollectionModel<>(userTypes);
 	}
 
+	@PreAuthorize("permitAll()")
 	@GetMapping({ "/wfa-statuses" })
 	@Operation(summary = "Get all WFA status codes")
 	public CollectionModel<WfaStatusReadModel> getWfaStatuses() {
@@ -216,6 +233,7 @@ public class CodesController {
 		return new CollectionModel<>(wfaStatuses);
 	}
 
+	@PreAuthorize("permitAll()")
 	@GetMapping({ "/work-schedules" })
 	@Operation(summary = "Get all work schedule codes")
 	public CollectionModel<WorkScheduleReadModel> getWorkSchedules() {
@@ -226,6 +244,7 @@ public class CodesController {
 		return new CollectionModel<>(workSchedules);
 	}
 
+	@PreAuthorize("permitAll()")
 	@GetMapping({ "/work-units" })
 	@Operation(summary = "Get all work unit codes")
 	public CollectionModel<WorkUnitReadModel> getWorkUnits() {

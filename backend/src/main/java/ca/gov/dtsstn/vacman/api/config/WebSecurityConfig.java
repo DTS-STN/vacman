@@ -12,7 +12,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
@@ -28,7 +27,6 @@ import org.springframework.security.web.SecurityFilterChain;
 import ca.gov.dtsstn.vacman.api.web.AuthErrorHandler;
 
 @Configuration
-@EnableMethodSecurity
 public class WebSecurityConfig {
 
 	private static final Logger log = LoggerFactory.getLogger(WebSecurityConfig.class);
@@ -61,6 +59,7 @@ public class WebSecurityConfig {
 	}
 
 	@Configuration
+	@EnableMethodSecurity
 	@ConditionalOnProperty(name = "application.security.disabled", havingValue = "false", matchIfMissing = true)
 	static class DefaultWebSecurityConfig {
 
@@ -106,29 +105,9 @@ public class WebSecurityConfig {
 				.sessionManagement(sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
 			//
-			// unprotected requests (/codes, preflight checks, etc)
+			// Note: additional security checks for this filter chain
+			//       will be handled by controller @PreAuthorize annotations
 			//
-			http.authorizeHttpRequests(authorizeHttpRequests -> authorizeHttpRequests
-				.requestMatchers(HttpMethod.OPTIONS).permitAll()
-				.requestMatchers("/api/*/codes/**").permitAll());
-
-			//
-			// requests requiring an authenticated used, but no specific roles
-			//
-			http.authorizeHttpRequests(authorizeHttpRequests -> authorizeHttpRequests
-				.requestMatchers("/api/*/profiles/me").authenticated()
-				.requestMatchers("/api/*/users/me").authenticated());
-
-			//
-			// requests requiring specific roles
-			//
-			http.authorizeHttpRequests(authorizeHttpRequests -> authorizeHttpRequests
-				.requestMatchers("/api/*/profiles/**").hasAuthority("hr-advisor"));
-
-			//
-			// lock down everything else
-			//
-			http.authorizeHttpRequests(authorizeHttpRequests -> authorizeHttpRequests.anyRequest().denyAll());
 
 			return http.build();
 		}

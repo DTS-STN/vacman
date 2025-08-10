@@ -2,8 +2,6 @@ package ca.gov.dtsstn.vacman.api.web;
 
 import java.util.List;
 
-import ca.gov.dtsstn.vacman.api.constants.AppConstants;
-
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.validator.constraints.Range;
 import org.mapstruct.factory.Mappers;
@@ -14,6 +12,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedModel;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import ca.gov.dtsstn.vacman.api.config.SpringDocConfig;
+import ca.gov.dtsstn.vacman.api.constants.AppConstants;
 import ca.gov.dtsstn.vacman.api.security.SecurityUtils;
 import ca.gov.dtsstn.vacman.api.service.MSGraphService;
 import ca.gov.dtsstn.vacman.api.service.UserService;
@@ -59,6 +59,7 @@ public class UsersController {
 	}
 
 	@PostMapping({ "/me" })
+	@PreAuthorize("isAuthenticated()")
 	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
 	@Operation(summary = "Create a new user from the supplied auth token.")
 	public ResponseEntity<UserReadModel> createCurrentUser(@Valid @RequestBody UserCreateModel user) {
@@ -96,6 +97,7 @@ public class UsersController {
 	}
 
 	@GetMapping({ "/me" })
+	@PreAuthorize("isAuthenticated()")
 	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
 	@Operation(summary = "Get the current user.", description = "Returns the current user.")
 	public ResponseEntity<UserReadModel> getCurrentUser() {
@@ -116,6 +118,7 @@ public class UsersController {
 	}
 
 	@GetMapping
+	@PreAuthorize("hasAuthority('hr-advisor')")
 	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
 	@Operation(summary = "Get users with pagination.", description = "Returns a paginated list of users.")
 	public ResponseEntity<PagedModel<UserReadModel>> getUsers(
@@ -145,6 +148,7 @@ public class UsersController {
 	}
 
 	@GetMapping("/{id}")
+	@PreAuthorize("hasAuthority('hr-advisor')")
 	@Operation(summary = "Get a user by ID.")
 	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
 	public ResponseEntity<UserReadModel> getUserById(@PathVariable Long id) {
@@ -156,6 +160,7 @@ public class UsersController {
 	}
 
 	@PatchMapping("/{id}")
+	@PreAuthorize("hasAuthority('hr-advisor')")
 	@Operation(summary = "Update an existing user.")
 	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
 	public ResponseEntity<UserReadModel> updateUser(@PathVariable Long id, @RequestBody @Valid UserUpdateModel userUpdate) {

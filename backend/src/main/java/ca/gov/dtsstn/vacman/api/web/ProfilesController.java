@@ -22,7 +22,6 @@ import ca.gov.dtsstn.vacman.api.service.ProfileService;
 import ca.gov.dtsstn.vacman.api.service.UserService;
 import ca.gov.dtsstn.vacman.api.web.exception.ResourceConflictException;
 import ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException;
-import ca.gov.dtsstn.vacman.api.web.exception.UnauthorizedException;
 import ca.gov.dtsstn.vacman.api.web.model.CollectionModel;
 import ca.gov.dtsstn.vacman.api.web.model.ProfileReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.mapper.ProfileModelMapper;
@@ -50,6 +49,7 @@ public class ProfilesController {
 	}
 
 	@GetMapping
+	@PreAuthorize("hasAuthority('hr-advisor')")
 	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
 	@Operation(summary = "Retrieve a list of profiles with optional filters on active profiles, inactive profiles, and HR advisor assocation.")
 	public ResponseEntity<PagedModel<ProfileReadModel>> getProfiles(
@@ -73,10 +73,6 @@ public class ProfilesController {
 			@RequestParam(name = "user-data", defaultValue = "false")
 			@Parameter(name = "user-data", description = "Return user first name, last name, and email address with profile")
 			boolean wantUserData) {
-		if (!SecurityUtils.hasHrAdvisorId()) {
-			throw new UnauthorizedException("JWT token does not have hr-advisor claim.");
-		}
-
 		// Determine the advisor ID based on the advisor param (or lack thereof).
 		Long hrAdvisorId;
 
@@ -119,6 +115,7 @@ public class ProfilesController {
 	}
 
 	@GetMapping(path = "/{id}")
+	@PreAuthorize("hasAuthority('hr-advisor')")
 	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
 	@Operation(summary = "Retrieve the profile specified by ID that is associated with the authenticated user.")
 	public ResponseEntity<ProfileReadModel> getProfileById(@PathVariable Long id) {
@@ -134,6 +131,7 @@ public class ProfilesController {
 	}
 
 	@PostMapping(path = "/me")
+	@PreAuthorize("isAuthenticated()")
 	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
 	@Operation(summary = "Create a new profile associated with the authenticated user.")
 	public ResponseEntity<ProfileReadModel> createCurrentUserProfile() {
