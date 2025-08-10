@@ -7,6 +7,9 @@ import { getDefaultProfileService } from '~/.server/domain/services/profile-serv
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
+import queryClient from '~/query-client';
+
+vi.unmock('~/.server/infra/query-client');
 
 // Mock the entire apiClient module
 vi.mock('~/.server/domain/services/api-client', () => ({
@@ -69,8 +72,123 @@ describe('getDefaultProfileService', () => {
     },
   };
 
+  // A valid profile that we expect to be returned after sanitization
+  const mockCleanProfile: Profile = {
+    profileId: 1,
+    userId: 123,
+    userIdReviewedBy: 456,
+    userIdApprovedBy: 789,
+    priorityLevelId: 1,
+    profileStatusId: 1,
+    privacyConsentInd: true,
+    userCreated: 'test-user',
+    dateCreated: '2024-01-01T00:00:00Z',
+    userUpdated: 'test-user',
+    dateUpdated: '2024-01-01T00:00:00Z',
+    personalInformation: {
+      personalRecordIdentifier: '444555666',
+      preferredLanguageId: 2,
+      workEmail: 'firstname.lastname@example.ca',
+      personalEmail: 'john.doe@example.com',
+      workPhone: undefined,
+      personalPhone: '555-0123',
+      additionalInformation: 'Looking for opportunities in software development.',
+    },
+    employmentInformation: {
+      substantivePosition: 914190001,
+      branchOrServiceCanadaRegion: 100789008,
+      directorate: 294550040,
+      province: 1,
+      cityId: 411290002,
+      wfaStatus: 1,
+      wfaEffectiveDate: undefined,
+      wfaEndDate: undefined,
+      hrAdvisor: 5,
+    },
+    referralPreferences: {
+      languageReferralTypeIds: [864190000],
+      classificationIds: [905190000, 905190001],
+      workLocationProvince: 1,
+      workLocationCitiesIds: [411290001, 411290002],
+      availableForReferralInd: true,
+      interestedInAlternationInd: false,
+      employmentTenureIds: [664190000, 664190001, 664190003],
+    },
+  };
+
+  // An invalid item that should be filtered out by the service
+  const mockInvalidItem = null;
+
+  // The raw API response before sanitization
+  const mockDirtyApiResponse = {
+    content: [mockCleanProfile, mockInvalidItem],
+  };
+
   beforeEach(() => {
     vi.clearAllMocks();
+    queryClient.clear();
+  });
+
+  describe('listAllProfiles', () => {
+    it('should fetch, sanitize, and return profiles on success', async () => {
+      // Arrange:
+      vi.mocked(apiClient.get).mockResolvedValue(Ok(mockDirtyApiResponse));
+      const params = { accessToken: mockAccessToken, includeUserData: true };
+
+      // Act
+      const result = await profileService.listAllProfiles(params);
+
+      // Assert
+      expect(apiClient.get).toHaveBeenCalledWith('/profiles?user-data=true', 'list filtered profiles', mockAccessToken);
+      expect(apiClient.get).toHaveBeenCalledTimes(1);
+
+      // Verify the final output is sanitized
+      expect(result.length).toBe(1);
+      expect(result[0]).toEqual(mockCleanProfile);
+    });
+
+    it('should throw a specific AppError when the fetch fails', async () => {
+      // Arrange:
+      const mockApiError = new AppError('API is down', ErrorCodes.VACMAN_API_ERROR);
+      vi.mocked(apiClient.get).mockResolvedValue(Err(mockApiError));
+      const params = { accessToken: mockAccessToken, includeUserData: true };
+
+      // Act & Assert
+      await expect(profileService.listAllProfiles(params)).rejects.toSatisfy((error: AppError) => {
+        expect(error.errorCode).toBe(ErrorCodes.PROFILE_FETCH_FAILED);
+        expect(error.message).toContain(mockApiError.message);
+        return true;
+      });
+    });
+  });
+
+  describe('findAllProfiles', () => {
+    it('should return Some(sanitizedProfiles) on success', async () => {
+      // Arrange
+      vi.mocked(apiClient.get).mockResolvedValue(Ok(mockDirtyApiResponse));
+      const params = { accessToken: mockAccessToken, includeUserData: true };
+
+      // Act
+      const result = await profileService.findAllProfiles(params);
+
+      // Assert
+      expect(apiClient.get).toHaveBeenCalledTimes(1);
+      expect(result.isSome()).toBe(true);
+      expect(result.unwrap().length).toBe(1);
+    });
+
+    it('should return None() when the fetch fails', async () => {
+      // Arrange
+      const mockApiError = new AppError('API is down', ErrorCodes.VACMAN_API_ERROR);
+      vi.mocked(apiClient.get).mockResolvedValue(Err(mockApiError));
+      const params = { accessToken: mockAccessToken, includeUserData: true };
+
+      // Act
+      const result = await profileService.findAllProfiles(params);
+
+      // Assert
+      expect(result.isNone()).toBe(true);
+    });
   });
 
   describe('registerProfile', () => {
