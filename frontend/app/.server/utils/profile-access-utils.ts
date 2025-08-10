@@ -39,8 +39,7 @@ export async function requireProfileAccess(
   log.debug(`Profile access check: requester=${requesterId}, target=${targetUserId}`);
 
   // First, check if the profile exists
-  const profileService = getProfileService();
-  const profileOption = await profileService.getProfile(targetUserId);
+  const profileOption = await getProfileService().getCurrentUserProfile(session.authState.accessToken);
 
   if (profileOption.isNone()) {
     log.debug(`Profile not found: ${targetUserId}`);
@@ -121,8 +120,7 @@ export async function hasProfileAccess(
 export async function getProfileWithAccess(session: AuthenticatedSession, targetUserId: string, currentUrl?: URL) {
   await requireProfileAccess(session, targetUserId, currentUrl);
 
-  const profileService = getProfileService();
-  const profileOption = await profileService.getProfile(targetUserId);
+  const profileOption = await getProfileService().getCurrentUserProfile(session.authState.accessToken);
 
   // We already checked that the profile exists in requireProfileAccess,
   // so this should never be None, but we'll be defensive
