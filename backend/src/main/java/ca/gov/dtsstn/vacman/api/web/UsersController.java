@@ -66,7 +66,8 @@ public class UsersController {
 		log.info("Received request to create new user; request: [{}]", user);
 
 		final var microsoftEntraId = SecurityUtils.getCurrentUserEntraId()
-			.orElseThrow(() -> new UnauthorizedException("Could not extract 'oid' claim from JWT token"));
+			.orElseThrow(() -> new UnauthorizedException("Entra ID not found in security context"));
+
 
 		log.debug("Checking if user with microsoftEntraId=[{}] already exists", microsoftEntraId);
 
@@ -104,7 +105,7 @@ public class UsersController {
 		log.debug("Received request to get current user");
 
 		final var microsoftEntraId = SecurityUtils.getCurrentUserEntraId()
-			.orElseThrow(() -> new UnauthorizedException("Could not extract 'oid' claim from JWT token"));
+			.orElseThrow(() -> new UnauthorizedException("Entra ID not found in security context"));
 
 		log.debug("Fetching current user with microsoftEntraId=[{}]", microsoftEntraId);
 
@@ -148,9 +149,9 @@ public class UsersController {
 	}
 
 	@GetMapping("/{id}")
-	@PreAuthorize("hasAuthority('hr-advisor')")
 	@Operation(summary = "Get a user by ID.")
 	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
+	@PreAuthorize("hasAuthority('hr-advisor') || @securityManager.canAccessUser(#id)")
 	public ResponseEntity<UserReadModel> getUserById(@PathVariable Long id) {
 		final var result = userService.getUserById(id)
 			.map(userModelMapper::toModel)
@@ -160,9 +161,9 @@ public class UsersController {
 	}
 
 	@PatchMapping("/{id}")
-	@PreAuthorize("hasAuthority('hr-advisor')")
 	@Operation(summary = "Update an existing user.")
 	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
+	@PreAuthorize("hasAuthority('hr-advisor') || @securityManager.canAccessUser(#id)")
 	public ResponseEntity<UserReadModel> updateUser(@PathVariable Long id, @RequestBody @Valid UserUpdateModel userUpdate) {
 		userService.getUserById(id).orElseThrow(() -> new ResourceNotFoundException("User with id=[" + id + "] not found"));
 		final var updatedUser = userService.updateUser(userUpdate);

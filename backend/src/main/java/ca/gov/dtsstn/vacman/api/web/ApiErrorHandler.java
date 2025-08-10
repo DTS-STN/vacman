@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import ca.gov.dtsstn.vacman.api.web.exception.ForbiddenException;
 import ca.gov.dtsstn.vacman.api.web.exception.ResourceConflictException;
 import ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException;
 
@@ -24,6 +25,17 @@ import ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException;
 public class ApiErrorHandler extends ResponseEntityExceptionHandler {
 
 	private static final Logger log = LoggerFactory.getLogger(ApiErrorHandler.class);
+
+	@ExceptionHandler({ ForbiddenException.class })
+	public ResponseEntity<?> handleForbiddenException(ForbiddenException exception, WebRequest request) {
+		final var correlationId = generateCorrelationId();
+
+		final var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN, exception.getMessage());
+		problemDetail.setProperty("correlationId", correlationId);
+		problemDetail.setProperty("errorCode", "API-0403");
+
+		return super.handleExceptionInternal(exception, problemDetail, new HttpHeaders(), HttpStatus.FORBIDDEN, request);
+	}
 
 	@Override
 	protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
