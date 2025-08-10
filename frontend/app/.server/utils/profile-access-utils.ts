@@ -52,7 +52,7 @@ export async function requireProfileAccess(
   if (requesterId === targetUserId) {
     log.debug('Own profile access - checking privacy consent');
     if (currentUrl) {
-      await requirePrivacyConsentForOwnProfile(session, targetUserId, currentUrl);
+      await requirePrivacyConsentForOwnProfile(session, currentUrl);
     }
     log.debug('Own profile access granted');
     return;

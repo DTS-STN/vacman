@@ -44,7 +44,10 @@ export function action({ context, params, request }: Route.ActionArgs) {
 export async function loader({ context, request, params }: Route.LoaderArgs) {
   requireAuthentication(context.session, request);
 
-  const currentProfileOption = await getProfileService().getProfileById(context.session.authState.accessToken, params.id);
+  const currentProfileOption = await getProfileService().getProfileById(
+    context.session.authState.accessToken,
+    Number(params.id),
+  );
 
   if (currentProfileOption.isErr()) {
     throw new Response('Profile not found', { status: 404 });

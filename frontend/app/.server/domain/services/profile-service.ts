@@ -8,12 +8,12 @@ import type { AppError } from '~/errors/app-error';
 
 export type ProfileService = {
   registerProfile(accessToken: string): Promise<Result<Profile, AppError>>;
-  updateProfile(accessToken: string, profileId: string, userUpdated: string, data: Profile): Promise<Result<void, AppError>>;
+  updateProfile(accessToken: string, profileId: number, userUpdated: string, data: Profile): Promise<Result<void, AppError>>;
   submitProfileForReview(accessToken: string): Promise<Result<Profile, AppError>>;
   getAllProfiles(): Promise<Profile[]>;
   getCurrentUserProfile(accessToken: string): Promise<Option<Profile>>;
-  getProfileById(accessToken: string, profileId: string): Promise<Result<Profile, AppError>>;
-  findProfileById(accessToken: string, profileId: string): Promise<Option<Profile>>;
+  getProfileById(accessToken: string, profileId: number): Promise<Result<Profile, AppError>>;
+  findProfileById(accessToken: string, profileId: number): Promise<Option<Profile>>;
 };
 
 export function getProfileService(): ProfileService {
