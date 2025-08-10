@@ -9,10 +9,10 @@ import io.soabase.recordbuilder.core.RecordBuilder;
  * Event that is published when a profile is read (by Entra ID).
  */
 @RecordBuilder
-public record ProfileReadEvent(List<Long> profileIds, String entraId, Boolean isActive, Instant timestamp) {
+public record ProfileReadEvent(List<Long> profileIds, String entraId, Instant timestamp) {
 
-	public ProfileReadEvent(List<Long> profileIds, String entraId, Boolean isActive) {
-		this(profileIds, entraId, isActive, Instant.now());
+	public ProfileReadEvent(List<Long> profileIds, String entraId) {
+		this(profileIds, entraId, Instant.now());
 	}
 
 }

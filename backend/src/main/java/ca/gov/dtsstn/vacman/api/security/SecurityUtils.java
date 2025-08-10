@@ -1,31 +1,18 @@
 package ca.gov.dtsstn.vacman.api.security;
 
-import java.util.Arrays;
-import java.util.HashSet;
+import java.util.Collection;
 import java.util.Optional;
-import java.util.stream.Stream;
+import java.util.Set;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 
 /**
  * Utility class for Spring Security.
  * Provides a streamlined, static interface for common security operations.
  */
 public final class SecurityUtils {
-
-	/**
-	 * The name of the claim within the JWT that holds the user's unique identifier.
-	 * In Azure AD, this is typically the "oid" (Object ID) claim.
-	 */
-	public static final String USER_ID_CLAIM = "oid";
-
-	/**
-	 * The name of the claim within the JWT that holds the user's roles.
-	 */
-	public static final String ROLE_CLAIM = "roles";
 
 	private SecurityUtils() { }
 
@@ -41,29 +28,21 @@ public final class SecurityUtils {
 	/**
 	 * Get the Entra ID (Object ID) of the current user from the JWT claims.
 	 *
-	 * This method safely extracts the claim specified by {@link #USER_ID_CLAIM} ("oid").
-	 *
 	 * @return an {@link Optional} containing the user's Entra ID as a String if found, otherwise empty.
 	 */
 	public static Optional<String> getCurrentUserEntraId() {
-		return getCurrentAuthentication()
-			.filter(JwtAuthenticationToken.class::isInstance)
-			.map(JwtAuthenticationToken.class::cast)
-			.map(JwtAuthenticationToken::getToken)
-			.map(jwt -> jwt.getClaimAsString(USER_ID_CLAIM));
+		return getCurrentAuthentication().map(Authentication::getName);
 	}
 
 	/**
 	 * Checks the {@code roles} claim for the presence of the {@code hr-advisor} role.
 	 */
 	public static boolean hasHrAdvisorId() {
-		return getCurrentAuthentication()
-				.filter(JwtAuthenticationToken.class::isInstance)
-				.map(JwtAuthenticationToken.class::cast)
-				.map(JwtAuthenticationToken::getToken)
-				.map(jwt -> jwt.getClaimAsStringList(ROLE_CLAIM))
-				.filter(n -> n.stream().anyMatch(s -> s.equals("hr-advisor")))
-				.isPresent();
+		return getCurrentAuthentication().stream()
+			.map(Authentication::getAuthorities)
+			.flatMap(Collection::stream)
+			.map(GrantedAuthority::getAuthority)
+			.anyMatch(authority -> authority.equals("hr-advisor"));
 	}
 
 	/**
@@ -87,11 +66,11 @@ public final class SecurityUtils {
 	 * @return {@code true} if the current user has at least one of the given authorities, {@code false} otherwise.
 	 */
 	public static boolean hasCurrentUserAnyOfAuthorities(String... authorities) {
-		final var authoritiesToFind = new HashSet<>(Arrays.asList(authorities));
-		return getCurrentAuthentication()
-			.map(SecurityUtils::getAuthorities)
-			.map(authoritiesStream -> authoritiesStream.anyMatch(authoritiesToFind::contains))
-			.orElse(false);
+		return getCurrentAuthentication().stream()
+			.map(Authentication::getAuthorities)
+			.flatMap(Collection::stream)
+			.map(GrantedAuthority::getAuthority)
+			.anyMatch(Set.of(authorities)::contains);
 	}
 
 	/**
@@ -114,14 +93,4 @@ public final class SecurityUtils {
 		return hasCurrentUserAnyOfAuthorities(authority);
 	}
 
-	/**
-	 * Extracts the authority strings from an {@link Authentication} object.
-	 *
-	 * @param authentication the authentication object.
-	 * @return a {@link Stream} of authority strings.
-	 */
-	private static Stream<String> getAuthorities(Authentication authentication) {
-		return authentication.getAuthorities().stream()
-			.map(GrantedAuthority::getAuthority);
-	}
 }
