@@ -86,9 +86,14 @@ public class UsersController {
 			.microsoftEntraId(msGraphUser.id())
 			.build();
 
+		String userType = SecurityUtils.hasHrAdvisorId() 
+			? AppConstants.UserType.HR_ADVISOR 
+			: AppConstants.UserType.EMPLOYEE;
+
+		log.debug("Setting user type to: [{}]", userType);
 		log.debug("Creating user in database...");
 
-		final var createdUser = userModelMapper.toModel(userService.createUser(userEntity, user.languageId()));
+		final var createdUser = userModelMapper.toModel(userService.createUser(userEntity, user.languageId(), userType));
 
 		log.trace("Successfully created new user: [{}]", createdUser);
 
