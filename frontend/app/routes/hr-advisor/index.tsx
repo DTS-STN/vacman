@@ -1,7 +1,6 @@
 import type { JSX } from 'react';
 
 import type { RouteHandle, LoaderFunctionArgs, ActionFunctionArgs, MetaFunction } from 'react-router';
-import { Form } from 'react-router';
 
 import type { IconProp } from '@fortawesome/fontawesome-svg-core';
 import { faChevronRight, faUser } from '@fortawesome/free-solid-svg-icons';
@@ -10,9 +9,8 @@ import { useTranslation } from 'react-i18next';
 
 import { getUserService } from '~/.server/domain/services/user-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
-import { checkEmployeeRoutePrivacyConsent } from '~/.server/utils/privacy-consent-utils';
-import { i18nRedirect } from '~/.server/utils/route-utils';
 import { Card, CardHeader, CardIcon, CardTitle } from '~/components/card';
+import { AppLink } from '~/components/links';
 import { PageTitle } from '~/components/page-title';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
@@ -21,28 +19,6 @@ import { getLanguage } from '~/utils/i18n-utils';
 export const handle = {
   i18nNamespace: [...parentHandle.i18nNamespace],
 } as const satisfies RouteHandle;
-
-export async function action({ context, request }: ActionFunctionArgs) {
-  const currentUrl = new URL(request.url);
-  requireAuthentication(context.session, currentUrl);
-
-  // Check privacy consent for employee routes (excluding privacy consent pages)
-  await checkEmployeeRoutePrivacyConsent(context.session, currentUrl);
-
-  const formData = await request.formData();
-  const action = formData.get('action');
-
-  if (action === 'employees') {
-    // Get the current user's ID from the authenticated session
-    const authenticatedSession = context.session;
-    return i18nRedirect('routes/hr-advisor/employees.tsx', request, {
-      params: { id: authenticatedSession.authState.idTokenClaims.oid },
-    });
-  }
-
-  // Invalid action
-  return new Response('Invalid action', { status: 400 });
-}
 
 export async function loader({ context, request }: LoaderFunctionArgs) {
   requireAuthentication(context.session, request);
@@ -92,7 +68,7 @@ export default function EmployeeDashboard() {
       <div className="mb-8 w-full px-4 sm:w-3/5 sm:px-6">
         <PageTitle className="after:w-14">{t('app:hr-advisor-dashboard.page-title')}</PageTitle>
         <div className="grid gap-4">
-          <ActionCard action="employees" icon={faUser} title={t('app:hr-advisor-dashboard.all-employees')} />
+          <ActionCard icon={faUser} title={t('app:hr-advisor-dashboard.all-employees')} />
         </div>
       </div>
     </div>
@@ -100,15 +76,13 @@ export default function EmployeeDashboard() {
 }
 
 interface ActionCardProps {
-  action: string;
   icon: IconProp;
   title: string;
 }
 
-function ActionCard({ action, icon, title }: ActionCardProps): JSX.Element {
+function ActionCard({ icon, title }: ActionCardProps): JSX.Element {
   return (
-    <Form method="post">
-      <input type="hidden" name="action" value={action} />
+    <AppLink file="routes/hr-advisor/employees.tsx">
       <Card asChild className="flex cursor-pointer items-center gap-4 p-4 transition-colors hover:bg-gray-50 sm:p-6">
         <button type="submit" className="w-full text-left">
           <CardIcon icon={icon} />
@@ -124,6 +98,6 @@ function ActionCard({ action, icon, title }: ActionCardProps): JSX.Element {
           </CardHeader>
         </button>
       </Card>
-    </Form>
+    </AppLink>
   );
 }
