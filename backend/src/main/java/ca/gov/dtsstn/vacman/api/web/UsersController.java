@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -167,6 +168,51 @@ public class UsersController {
 		userService.getUserById(id).orElseThrow(() -> new ResourceNotFoundException("User with id=[" + id + "] not found"));
 		final var updatedUser = userService.updateUser(id, userModelMapper.toEntity(updates));
 		return ResponseEntity.ok(userModelMapper.toModel(updatedUser));
+	}
+
+	@PutMapping("/{id}")
+	@Operation(summary = "Update an existing user with authorization checks.", 
+		description = "The user can only be updated if either: " +
+			"1. The database user id linked to the UUID in the header token is the same as {id}, or " +
+			"2. The header token has a claim to the \"hr-advisor\" security group.")
+	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
+	public ResponseEntity<UserReadModel> putUser(@PathVariable Long id, @RequestBody @Valid UserUpdateModel userUpdate) {
+		try {
+			// Check if user exists
+			final var existingUser = userService.getUserById(id)
+				.orElseThrow(() -> new ResourceNotFoundException("User with id=[" + id + "] not found"));
+
+			// Check if current user is the same as the user being updated
+			final var currentUserEntraId = SecurityUtils.getCurrentUserEntraId()
+				.orElseThrow(() -> new UnauthorizedException("Could not extract 'oid' claim from JWT token"));
+
+			// Check authorization - user can update if they are the same user OR have hr-advisor role
+			if (!(existingUser.getMicrosoftEntraId().equals(currentUserEntraId) || SecurityUtils.hasHrAdvisorId())) {
+				throw new UnauthorizedException("Not authorized to update user with id=[" + id + "]");
+			}
+
+			// Create the updated model after authorization checks
+			UserUpdateModel updatedModel = new UserUpdateModel(
+				id,
+				userUpdate.userTypeId(),
+				userUpdate.microsoftEntraId(),
+				userUpdate.firstName(),
+				userUpdate.middleName(),
+				userUpdate.lastName(),
+				userUpdate.initials(),
+				userUpdate.personalRecordIdentifier(),
+				userUpdate.businessPhone(),
+				userUpdate.businessEmail(),
+				userUpdate.languageId()
+			);
+
+			// Update the user
+			final var updatedUser = userService.updateUserWithoutAuth(id, updatedModel);
+			return ResponseEntity.ok(userModelMapper.toModel(updatedUser));
+		} catch (ResourceNotFoundException | UnauthorizedException e) {
+			// Convert both exceptions to 404 as per requirements
+			throw new ResourceNotFoundException(e.getMessage());
+		}
 	}
 
 }

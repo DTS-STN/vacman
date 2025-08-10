@@ -23,7 +23,13 @@ import ca.gov.dtsstn.vacman.api.event.UserCreatedEvent;
 import ca.gov.dtsstn.vacman.api.event.UserDeletedEvent;
 import ca.gov.dtsstn.vacman.api.event.UserReadEvent;
 import ca.gov.dtsstn.vacman.api.event.UserUpdatedEvent;
+<<<<<<< Upstream, based on origin/main
 import ca.gov.dtsstn.vacman.api.service.mapper.UserEntityMapper;
+=======
+import ca.gov.dtsstn.vacman.api.web.model.UserUpdateModel;
+import ca.gov.dtsstn.vacman.api.web.model.mapper.UserModelMapper;
+import ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException;
+>>>>>>> 9b719ab allow PUT if user is updating themselves or done by hr-advisor
 
 @Service
 public class UserService {
@@ -93,16 +99,71 @@ public class UserService {
 		return userRepository.findAll(pageable);
 	}
 
+<<<<<<< Upstream, based on origin/main
 	public UserEntity updateUser(long id, UserEntity updates) {
 		final var existingUser = userRepository.findById(id).orElseThrow();
 		userEntityMapper.update(updates, existingUser);
 		final var updatedUser = userRepository.save(existingUser);
+=======
+	//
+	// TODO ::: GjB ::: this should not use a REST model; it should use an entity (or DTO)
+	//
+ public UserEntity updateUser(UserUpdateModel updateModel) {
+ 	final var existingUser = userRepository.findById(updateModel.id()).orElseThrow();
+ 	userModelMapper.updateEntityFromModel(updateModel, existingUser);
 
+ 	// Handle role update if provided (validation ensures it exists)
+ 	Optional.ofNullable(updateModel.userTypeId()).ifPresent(role -> {
+ 		existingUser.setUserType(codeService.getUserTypes(Pageable.unpaged()).stream()
+ 			.filter(byId(updateModel.userTypeId()))
+ 			.findFirst().orElseThrow());
+ 	});
+
+ 	// Handle language update if provided (validation ensures it exists)
+ 	Optional.ofNullable(updateModel.languageId()).ifPresent(languageCode -> {
+ 		existingUser.setLanguage(codeService.getLanguages(Pageable.unpaged()).stream()
+ 				.filter(byId(updateModel.languageId()))
+ 				.findFirst().orElseThrow());
+ 	});
+
+ 	final var updatedUser = userRepository.save(existingUser);
+>>>>>>> 9b719ab allow PUT if user is updating themselves or done by hr-advisor
+
+<<<<<<< Upstream, based on origin/main
 		eventPublisher.publishEvent(new UserUpdatedEvent(updatedUser));
 		log.info("User updated with ID: {}", updatedUser.getId());
+=======
+ 	// Publish updated event
+ 	eventPublisher.publishEvent(new UserUpdatedEvent(updatedUser));
+ 	log.info("User updated with ID: {}", updatedUser.getId());
+>>>>>>> 9b719ab allow PUT if user is updating themselves or done by hr-advisor
 
-		return updatedUser;
-	}
+ 	return updatedUser;
+ }
+
+ /**
+  * Gets a user by ID and updates it.
+  * This method does not perform authorization checks.
+  * The updateModel must have its ID set to match the userId parameter.
+  *
+  * @param userId the ID of the user to update
+  * @param updateModel the model containing the updated user data (with ID matching userId)
+  * @return the updated user entity
+  * @throws ResourceNotFoundException if the user does not exist
+  */
+ public UserEntity updateUserWithoutAuth(Long userId, UserUpdateModel updateModel) {
+ 	// Check if user exists
+ 	userRepository.findById(userId)
+ 		.orElseThrow(() -> new ResourceNotFoundException("User with id=[" + userId + "] not found"));
+
+ 	// Verify that the ID in the model matches the userId parameter
+ 	if (!userId.equals(updateModel.id())) {
+ 		throw new IllegalArgumentException("ID in update model must match the user ID parameter");
+ 	}
+
+ 	// Update the user directly with the provided model
+ 	return updateUser(updateModel);
+ }
 
 	public void deleteUser(long id) {
 		userRepository.findById(id).ifPresent(user -> {
