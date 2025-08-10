@@ -53,13 +53,13 @@ public class UserService {
 	public UserEntity createUser(UserEntity user, long languageId) {
 		// Set language based on languageCode (validation ensures it exists)
 		user.setLanguage(codeService.getLanguages(Pageable.unpaged()).stream()
-				.filter(byId(languageId))
-				.findFirst().orElseThrow());
+			.filter(byId(languageId))
+			.findFirst().orElseThrow());
 
 		// Set user type based on role (validation ensures it exists)
 		user.setUserType(codeService.getUserTypes(Pageable.unpaged()).stream()
-				.filter(byCode(AppConstants.UserType.EMPLOYEE))
-				.findFirst().orElseThrow());
+			.filter(byCode(AppConstants.UserType.EMPLOYEE))
+			.findFirst().orElseThrow());
 
 		// Save the user (profiles are created separately as needed)
 		final var createdUser = userRepository.save(user);
@@ -120,15 +120,15 @@ public class UserService {
 		// Handle role update if provided (validation ensures it exists)
 		Optional.ofNullable(updateModel.userTypeId()).ifPresent(role -> {
 			existingUser.setUserType(codeService.getUserTypes(Pageable.unpaged()).stream()
-					.filter(byId(updateModel.userTypeId()))
-					.findFirst().orElseThrow());
+				.filter(byId(updateModel.userTypeId()))
+				.findFirst().orElseThrow());
 		});
 
 		// Handle language update if provided (validation ensures it exists)
 		Optional.ofNullable(updateModel.languageId()).ifPresent(languageCode -> {
 			existingUser.setLanguage(codeService.getLanguages(Pageable.unpaged()).stream()
-					.filter(byId(updateModel.languageId()))
-					.findFirst().orElseThrow());
+				.filter(byId(updateModel.languageId()))
+				.findFirst().orElseThrow());
 		});
 
 <<<<<<< Upstream, based on origin/main
@@ -163,7 +163,7 @@ public class UserService {
 	public UserEntity updateUser(Long userId, UserUpdateModel updateModel) {
 		// Check if user exists
 		userRepository.findById(userId)
-				.orElseThrow(() -> new ResourceNotFoundException("User with id=[" + userId + "] not found"));
+			.orElseThrow(() -> new ResourceNotFoundException("User with id=[" + userId + "] not found"));
 
 		if (!userId.equals(updateModel.id())) {
 			throw new IllegalArgumentException("ID in update model must match the user ID parameter");
@@ -182,12 +182,20 @@ public class UserService {
 =======
 	public void deleteUser(Long id) {
 		userRepository.findById(id)
+<<<<<<< Upstream, based on origin/main
 				.ifPresent(user -> {
 					userRepository.deleteById(id);
 					eventPublisher.publishEvent(new UserDeletedEvent(user));
 					log.info("User deleted with ID: {}", id);
 				});
 >>>>>>> 09a334f make another updateUser method to be used by PUT and move auth logic to the controller
+=======
+			.ifPresent(user -> {
+				userRepository.deleteById(id);
+				eventPublisher.publishEvent(new UserDeletedEvent(user));
+				log.info("User deleted with ID: {}", id);
+			});
+>>>>>>> df7c780 fix indentation
 	}
 
 }
