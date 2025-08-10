@@ -7,6 +7,8 @@ import java.util.Set;
 import org.immutables.builder.Builder;
 import org.springframework.core.style.ToStringCreator;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.annotation.Nullable;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -21,10 +23,12 @@ import jakarta.persistence.Table;
 public class ProfileEntity extends AbstractBaseEntity {
 
 	@ManyToOne
+	@JsonBackReference
 	@JoinColumn(name = "[USER_ID]", nullable = false)
 	private UserEntity user;
 
 	@ManyToOne
+	@JsonBackReference
 	@JoinColumn(name = "[USER_ID_HR_ADVISOR]", nullable = true)
 	private UserEntity hrAdvisor;
 
@@ -274,20 +278,20 @@ public class ProfileEntity extends AbstractBaseEntity {
 	public String toString() {
 		return new ToStringCreator(this)
 			.append("super", super.toString())
-			.append("user", user)
-			.append("hrAdvisor", hrAdvisor)
-			.append("wfaStatus", wfaStatus)
-			.append("classification", classification)
+			.append("additionalComment", additionalComment)
 			.append("city", city)
-			.append("workUnit", workUnit)
-			.append("language", language)
-			.append("profileStatus", profileStatus)
-			.append("personalPhoneNumber", personalPhoneNumber)
-			.append("personalEmailAddress", personalEmailAddress)
+			.append("classification", classification)
 			.append("hasConsentedToPrivacyTerms", hasConsentedToPrivacyTerms)
+			.append("hrAdvisor.id", hrAdvisor == null ? null : hrAdvisor)
 			.append("isAvailableForReferral", isAvailableForReferral)
 			.append("isInterestedInAlternation", isInterestedInAlternation)
-			.append("additionalComment", additionalComment)
+			.append("language", language)
+			.append("personalEmailAddress", personalEmailAddress)
+			.append("personalPhoneNumber", personalPhoneNumber)
+			.append("profileStatus", profileStatus)
+			.append("user.id", user == null ? null : user.getId())
+			.append("wfaStatus", wfaStatus)
+			.append("workUnit", workUnit)
 			.toString();
 	}
 
