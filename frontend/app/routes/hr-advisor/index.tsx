@@ -1,6 +1,6 @@
 import type { JSX } from 'react';
 
-import type { RouteHandle, LoaderFunctionArgs, ActionFunctionArgs, MetaFunction } from 'react-router';
+import type { RouteHandle, LoaderFunctionArgs, MetaFunction } from 'react-router';
 
 import type { IconProp } from '@fortawesome/fontawesome-svg-core';
 import { faChevronRight, faUser } from '@fortawesome/free-solid-svg-icons';
