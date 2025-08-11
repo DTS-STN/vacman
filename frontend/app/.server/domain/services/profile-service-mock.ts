@@ -3,14 +3,18 @@ import type { Result, Option } from 'oxide.ts';
 
 import { getUserService } from './user-service';
 
-import type { Profile } from '~/.server/domain/models';
-import type { ProfileService } from '~/.server/domain/services/profile-service';
+import type { Profile, UserPersonalInformation } from '~/.server/domain/models';
+import type { ListProfilesParams, ProfileService } from '~/.server/domain/services/profile-service';
 import { PROFILE_STATUS_ID } from '~/domain/constants';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 
 export function getMockProfileService(): ProfileService {
+  // Define what statuses are considered "active" for the mock filter.
+  const activeStatuses: number[] = [PROFILE_STATUS_ID.pending, PROFILE_STATUS_ID.approved, PROFILE_STATUS_ID.incomplete];
+  const inactiveStatuses: number[] = [PROFILE_STATUS_ID.archived];
+
   return {
     /**
      * Mocks the registration of a new profile.
@@ -90,8 +94,38 @@ export function getMockProfileService(): ProfileService {
 
       return Promise.resolve(Ok(updatedProfile));
     },
-    getAllProfiles: () => {
-      return Promise.resolve(mockProfiles);
+    async findAllProfiles(params: ListProfilesParams): Promise<Option<readonly Profile[]>> {
+      // We can just call the other mock method to reuse the filtering logic.
+      const result = await this.listAllProfiles(params);
+      return Promise.resolve(Some(result));
+    },
+    async listAllProfiles(params: ListProfilesParams): Promise<readonly Profile[]> {
+      let filtered = [...mockProfiles];
+
+      // Simulate 'active' filter
+      if (params.active === true) {
+        filtered = filtered.filter((p) => activeStatuses.includes(p.profileStatusId));
+      } else if (params.active === false) {
+        filtered = filtered.filter((p) => inactiveStatuses.includes(p.profileStatusId));
+      }
+      // If params.active is null, we do nothing and return all profiles.
+
+      // Simulate 'hrAdvisorId' filter
+      if (params.hrAdvisorId) {
+        // The mock doesn't know about "me", so we just filter by the string ID.
+        filtered = filtered.filter((p) => p.employmentInformation.hrAdvisor === params.hrAdvisorId);
+      }
+
+      // Simulate 'includeUserData' transformation
+      if (params.includeUserData === false) {
+        // Return profiles without personal information.
+        filtered = filtered.map((p) => ({
+          ...p,
+          personalInformation: emptyPersonalInformation,
+        }));
+      }
+
+      return Promise.resolve(filtered);
     },
     getCurrentUserProfile: async (accessToken: string) => {
       const user = await getUserService().getCurrentUser(accessToken);
@@ -109,6 +143,12 @@ export function getMockProfileService(): ProfileService {
     },
   };
 }
+
+const emptyPersonalInformation: UserPersonalInformation = {
+  workEmail: '',
+  surname: '',
+  givenName: '',
+};
 
 /**
  * Mock profile data for testing and development.
@@ -208,8 +248,8 @@ let mockProfiles: Profile[] = [
     userIdReviewedBy: undefined,
     userIdApprovedBy: undefined,
     priorityLevelId: 1,
-    profileStatusId: PROFILE_STATUS_ID.incomplete,
-    privacyConsentInd: false,
+    profileStatusId: PROFILE_STATUS_ID.pending,
+    privacyConsentInd: true,
     userCreated: 'system',
     dateCreated: '2024-02-01T09:00:00Z',
     userUpdated: 'john.smith',
@@ -226,15 +266,15 @@ let mockProfiles: Profile[] = [
       additionalInformation: 'Interested in remote work.',
     },
     employmentInformation: {
-      substantivePosition: undefined,
-      branchOrServiceCanadaRegion: undefined,
-      directorate: undefined,
-      province: undefined,
-      cityId: undefined,
-      wfaStatus: undefined,
+      substantivePosition: 914190001,
+      branchOrServiceCanadaRegion: 100789008,
+      directorate: 294550040,
+      province: 1,
+      cityId: 411290002,
+      wfaStatus: 1,
       wfaEffectiveDate: undefined,
       wfaEndDate: undefined,
-      hrAdvisor: undefined,
+      hrAdvisor: 5,
     },
     referralPreferences: {
       languageReferralTypeIds: [864190001],
@@ -249,15 +289,15 @@ let mockProfiles: Profile[] = [
   {
     profileId: 4,
     userId: 4,
-    userIdReviewedBy: undefined,
-    userIdApprovedBy: undefined,
+    userIdReviewedBy: 5,
+    userIdApprovedBy: 5,
     priorityLevelId: 2,
-    profileStatusId: PROFILE_STATUS_ID.incomplete,
-    privacyConsentInd: false,
+    profileStatusId: PROFILE_STATUS_ID.approved,
+    privacyConsentInd: true,
     userCreated: 'system',
     dateCreated: '2024-03-15T08:30:00Z',
-    userUpdated: undefined,
-    dateUpdated: undefined,
+    userUpdated: 'john.smith',
+    dateUpdated: '2024-02-10T14:00:00Z',
     personalInformation: {
       surname: 'Curie',
       givenName: 'Marie',
@@ -265,20 +305,20 @@ let mockProfiles: Profile[] = [
       preferredLanguageId: 2,
       workEmail: 'marie.curie@email.ca',
       personalEmail: 'marie.curie@example.com',
-      workPhone: undefined,
+      workPhone: '613-555-5555',
       personalPhone: '613-555-5555',
       additionalInformation: 'Fluent in French and English.',
     },
     employmentInformation: {
-      substantivePosition: undefined,
-      branchOrServiceCanadaRegion: undefined,
-      directorate: undefined,
-      province: undefined,
-      cityId: undefined,
-      wfaStatus: undefined,
+      substantivePosition: 914190001,
+      branchOrServiceCanadaRegion: 100789008,
+      directorate: 294550040,
+      province: 1,
+      cityId: 411290002,
+      wfaStatus: 1,
       wfaEffectiveDate: undefined,
       wfaEndDate: undefined,
-      hrAdvisor: undefined,
+      hrAdvisor: 5,
     },
     referralPreferences: {
       languageReferralTypeIds: [864190002],
@@ -293,11 +333,11 @@ let mockProfiles: Profile[] = [
   {
     profileId: 5,
     userId: 5,
-    userIdReviewedBy: undefined,
-    userIdApprovedBy: undefined,
+    userIdReviewedBy: 5,
+    userIdApprovedBy: 5,
     priorityLevelId: 3,
-    profileStatusId: PROFILE_STATUS_ID.incomplete,
-    privacyConsentInd: false,
+    profileStatusId: PROFILE_STATUS_ID.approved,
+    privacyConsentInd: true,
     userCreated: 'system',
     dateCreated: '2024-04-20T11:45:00Z',
     userUpdated: 'alex.tan',
@@ -314,15 +354,15 @@ let mockProfiles: Profile[] = [
       additionalInformation: 'Open to contract roles.',
     },
     employmentInformation: {
-      substantivePosition: undefined,
-      branchOrServiceCanadaRegion: undefined,
-      directorate: undefined,
-      province: undefined,
-      cityId: undefined,
-      wfaStatus: undefined,
+      substantivePosition: 914190001,
+      branchOrServiceCanadaRegion: 100789008,
+      directorate: 294550040,
+      province: 1,
+      cityId: 411290002,
+      wfaStatus: 1,
       wfaEffectiveDate: undefined,
       wfaEndDate: undefined,
-      hrAdvisor: undefined,
+      hrAdvisor: 5,
     },
     referralPreferences: {
       languageReferralTypeIds: [864190003],
@@ -337,15 +377,15 @@ let mockProfiles: Profile[] = [
   {
     profileId: 6,
     userId: 6,
-    userIdReviewedBy: undefined,
-    userIdApprovedBy: undefined,
+    userIdReviewedBy: 5,
+    userIdApprovedBy: 5,
     priorityLevelId: 1,
-    profileStatusId: PROFILE_STATUS_ID.incomplete,
-    privacyConsentInd: false,
+    profileStatusId: PROFILE_STATUS_ID.approved,
+    privacyConsentInd: true,
     userCreated: 'system',
     dateCreated: '2024-06-01T08:00:00Z',
-    userUpdated: undefined,
-    dateUpdated: undefined,
+    userUpdated: 'alex.tan',
+    dateUpdated: '2024-05-01T10:00:00Z',
     personalInformation: {
       surname: 'Lee',
       givenName: 'Sam',
@@ -358,15 +398,15 @@ let mockProfiles: Profile[] = [
       additionalInformation: 'Interested in project management.',
     },
     employmentInformation: {
-      substantivePosition: undefined,
-      branchOrServiceCanadaRegion: undefined,
-      directorate: undefined,
-      province: undefined,
-      cityId: undefined,
-      wfaStatus: undefined,
+      substantivePosition: 914190001,
+      branchOrServiceCanadaRegion: 100789008,
+      directorate: 294550040,
+      province: 1,
+      cityId: 411290002,
+      wfaStatus: 1,
       wfaEffectiveDate: undefined,
       wfaEndDate: undefined,
-      hrAdvisor: undefined,
+      hrAdvisor: 5,
     },
     referralPreferences: {
       languageReferralTypeIds: [864190004],
@@ -384,11 +424,11 @@ let mockProfiles: Profile[] = [
     userIdReviewedBy: undefined,
     userIdApprovedBy: undefined,
     priorityLevelId: 2,
-    profileStatusId: PROFILE_STATUS_ID.incomplete,
-    privacyConsentInd: false,
+    profileStatusId: PROFILE_STATUS_ID.pending,
+    privacyConsentInd: true,
     userCreated: 'system',
     dateCreated: '2024-06-02T09:00:00Z',
-    userUpdated: 'sam.lee',
+    userUpdated: 'linda.park',
     dateUpdated: '2024-06-12T10:00:00Z',
     personalInformation: {
       surname: 'Park',
@@ -402,15 +442,15 @@ let mockProfiles: Profile[] = [
       additionalInformation: 'Fluent in French and English.',
     },
     employmentInformation: {
-      substantivePosition: undefined,
-      branchOrServiceCanadaRegion: undefined,
-      directorate: undefined,
-      province: undefined,
-      cityId: undefined,
-      wfaStatus: undefined,
+      substantivePosition: 914190001,
+      branchOrServiceCanadaRegion: 100789008,
+      directorate: 294550040,
+      province: 1,
+      cityId: 411290002,
+      wfaStatus: 1,
       wfaEffectiveDate: undefined,
       wfaEndDate: undefined,
-      hrAdvisor: undefined,
+      hrAdvisor: 5,
     },
     referralPreferences: {
       languageReferralTypeIds: [864190005],
@@ -428,12 +468,12 @@ let mockProfiles: Profile[] = [
     userIdReviewedBy: undefined,
     userIdApprovedBy: undefined,
     priorityLevelId: 3,
-    profileStatusId: PROFILE_STATUS_ID.incomplete,
-    privacyConsentInd: false,
+    profileStatusId: PROFILE_STATUS_ID.pending,
+    privacyConsentInd: true,
     userCreated: 'system',
     dateCreated: '2024-06-03T10:00:00Z',
-    userUpdated: undefined,
-    dateUpdated: undefined,
+    userUpdated: 'carlos.gomez',
+    dateUpdated: '2024-06-12T10:00:00Z',
     personalInformation: {
       surname: 'Gomez',
       givenName: 'Carlos',
@@ -446,15 +486,15 @@ let mockProfiles: Profile[] = [
       additionalInformation: 'Looking for remote opportunities.',
     },
     employmentInformation: {
-      substantivePosition: undefined,
-      branchOrServiceCanadaRegion: undefined,
-      directorate: undefined,
-      province: undefined,
-      cityId: undefined,
-      wfaStatus: undefined,
+      substantivePosition: 914190001,
+      branchOrServiceCanadaRegion: 100789008,
+      directorate: 294550040,
+      province: 1,
+      cityId: 411290002,
+      wfaStatus: 1,
       wfaEffectiveDate: undefined,
       wfaEndDate: undefined,
-      hrAdvisor: undefined,
+      hrAdvisor: 5,
     },
     referralPreferences: {
       languageReferralTypeIds: undefined,
@@ -472,8 +512,8 @@ let mockProfiles: Profile[] = [
     userIdReviewedBy: undefined,
     userIdApprovedBy: undefined,
     priorityLevelId: 1,
-    profileStatusId: PROFILE_STATUS_ID.incomplete,
-    privacyConsentInd: false,
+    profileStatusId: PROFILE_STATUS_ID.pending,
+    privacyConsentInd: true,
     userCreated: 'system',
     dateCreated: '2024-06-04T11:00:00Z',
     userUpdated: 'carlos.gomez',
@@ -490,15 +530,15 @@ let mockProfiles: Profile[] = [
       additionalInformation: 'Interested in leadership roles.',
     },
     employmentInformation: {
-      substantivePosition: undefined,
-      branchOrServiceCanadaRegion: undefined,
-      directorate: undefined,
-      province: undefined,
-      cityId: undefined,
-      wfaStatus: undefined,
+      substantivePosition: 914190001,
+      branchOrServiceCanadaRegion: 100789008,
+      directorate: 294550040,
+      province: 1,
+      cityId: 411290002,
+      wfaStatus: 1,
       wfaEffectiveDate: undefined,
       wfaEndDate: undefined,
-      hrAdvisor: undefined,
+      hrAdvisor: 5,
     },
     referralPreferences: {
       languageReferralTypeIds: [864190006],
@@ -513,17 +553,17 @@ let mockProfiles: Profile[] = [
   {
     profileId: 10,
     userId: 10,
-    userIdReviewedBy: undefined,
-    userIdApprovedBy: undefined,
+    userIdReviewedBy: 5,
+    userIdApprovedBy: 5,
     priorityLevelId: 2,
-    profileStatusId: PROFILE_STATUS_ID.incomplete,
-    privacyConsentInd: false,
+    profileStatusId: PROFILE_STATUS_ID.approved,
+    privacyConsentInd: true,
     userCreated: 'system',
     dateCreated: '2024-06-05T12:00:00Z',
-    userUpdated: undefined,
-    dateUpdated: undefined,
+    userUpdated: 'mohammed.ijaz',
+    dateUpdated: '2024-06-14T12:00:00Z',
     personalInformation: {
-      surname: undefined,
+      surname: 'Ijaz',
       givenName: 'Mohammed',
       personalRecordIdentifier: '141516171',
       preferredLanguageId: 1,
@@ -534,15 +574,15 @@ let mockProfiles: Profile[] = [
       additionalInformation: 'Open to relocation.',
     },
     employmentInformation: {
-      substantivePosition: undefined,
-      branchOrServiceCanadaRegion: undefined,
-      directorate: undefined,
-      province: undefined,
-      cityId: undefined,
-      wfaStatus: undefined,
+      substantivePosition: 914190001,
+      branchOrServiceCanadaRegion: 100789008,
+      directorate: 294550040,
+      province: 1,
+      cityId: 411290002,
+      wfaStatus: 1,
       wfaEffectiveDate: undefined,
       wfaEndDate: undefined,
-      hrAdvisor: undefined,
+      hrAdvisor: 5,
     },
     referralPreferences: {
       languageReferralTypeIds: [864190007],
@@ -557,17 +597,17 @@ let mockProfiles: Profile[] = [
   {
     profileId: 11,
     userId: 11,
-    userIdReviewedBy: undefined,
-    userIdApprovedBy: undefined,
+    userIdReviewedBy: 5,
+    userIdApprovedBy: 5,
     priorityLevelId: 3,
-    profileStatusId: PROFILE_STATUS_ID.incomplete,
-    privacyConsentInd: false,
+    profileStatusId: PROFILE_STATUS_ID.approved,
+    privacyConsentInd: true,
     userCreated: 'system',
     dateCreated: '2024-06-06T13:00:00Z',
     userUpdated: 'mohammed.alfarsi',
     dateUpdated: '2024-06-16T14:00:00Z',
     personalInformation: {
-      surname: undefined,
+      surname: 'Neil',
       givenName: 'Emily',
       personalRecordIdentifier: '181920212',
       preferredLanguageId: 2,
@@ -578,15 +618,15 @@ let mockProfiles: Profile[] = [
       additionalInformation: 'Enjoys team collaboration.',
     },
     employmentInformation: {
-      substantivePosition: undefined,
-      branchOrServiceCanadaRegion: undefined,
-      directorate: undefined,
-      province: undefined,
-      cityId: undefined,
-      wfaStatus: undefined,
+      substantivePosition: 914190001,
+      branchOrServiceCanadaRegion: 100789008,
+      directorate: 294550040,
+      province: 1,
+      cityId: 411290002,
+      wfaStatus: 1,
       wfaEffectiveDate: undefined,
       wfaEndDate: undefined,
-      hrAdvisor: undefined,
+      hrAdvisor: 5,
     },
     referralPreferences: {
       languageReferralTypeIds: [864190008],
@@ -604,12 +644,12 @@ let mockProfiles: Profile[] = [
     userIdReviewedBy: undefined,
     userIdApprovedBy: undefined,
     priorityLevelId: 1,
-    profileStatusId: PROFILE_STATUS_ID.incomplete,
-    privacyConsentInd: false,
+    profileStatusId: PROFILE_STATUS_ID.pending,
+    privacyConsentInd: true,
     userCreated: 'system',
     dateCreated: '2024-06-07T14:00:00Z',
-    userUpdated: undefined,
-    dateUpdated: undefined,
+    userUpdated: 'olivia.brown',
+    dateUpdated: '2024-10-14T12:00:00Z',
     personalInformation: {
       surname: 'Brown',
       givenName: 'Olivia',
@@ -622,15 +662,15 @@ let mockProfiles: Profile[] = [
       additionalInformation: 'Seeking growth opportunities.',
     },
     employmentInformation: {
-      substantivePosition: undefined,
-      branchOrServiceCanadaRegion: undefined,
-      directorate: undefined,
-      province: undefined,
-      cityId: undefined,
-      wfaStatus: undefined,
+      substantivePosition: 914190001,
+      branchOrServiceCanadaRegion: 100789008,
+      directorate: 294550040,
+      province: 1,
+      cityId: 411290002,
+      wfaStatus: 1,
       wfaEffectiveDate: undefined,
       wfaEndDate: undefined,
-      hrAdvisor: undefined,
+      hrAdvisor: 5,
     },
     referralPreferences: {
       languageReferralTypeIds: [864190009],
@@ -648,8 +688,8 @@ let mockProfiles: Profile[] = [
     userIdReviewedBy: undefined,
     userIdApprovedBy: undefined,
     priorityLevelId: 2,
-    profileStatusId: PROFILE_STATUS_ID.incomplete,
-    privacyConsentInd: false,
+    profileStatusId: PROFILE_STATUS_ID.pending,
+    privacyConsentInd: true,
     userCreated: 'system',
     dateCreated: '2024-06-08T15:00:00Z',
     userUpdated: 'olivia.brown',
@@ -666,15 +706,15 @@ let mockProfiles: Profile[] = [
       additionalInformation: 'Interested in analytics.',
     },
     employmentInformation: {
-      substantivePosition: undefined,
-      branchOrServiceCanadaRegion: undefined,
-      directorate: undefined,
-      province: undefined,
-      cityId: undefined,
-      wfaStatus: undefined,
+      substantivePosition: 914190001,
+      branchOrServiceCanadaRegion: 100789008,
+      directorate: 294550040,
+      province: 1,
+      cityId: 411290002,
+      wfaStatus: 1,
       wfaEffectiveDate: undefined,
       wfaEndDate: undefined,
-      hrAdvisor: undefined,
+      hrAdvisor: 5,
     },
     referralPreferences: {
       languageReferralTypeIds: [864190010],
@@ -692,12 +732,12 @@ let mockProfiles: Profile[] = [
     userIdReviewedBy: undefined,
     userIdApprovedBy: undefined,
     priorityLevelId: 3,
-    profileStatusId: PROFILE_STATUS_ID.incomplete,
-    privacyConsentInd: false,
+    profileStatusId: PROFILE_STATUS_ID.pending,
+    privacyConsentInd: true,
     userCreated: 'system',
     dateCreated: '2024-06-09T16:00:00Z',
-    userUpdated: undefined,
-    dateUpdated: undefined,
+    userUpdated: 'sofia.rossi',
+    dateUpdated: '2024-07-08T16:00:00Z',
     personalInformation: {
       surname: 'Rossi',
       givenName: 'Sofia',
@@ -710,34 +750,34 @@ let mockProfiles: Profile[] = [
       additionalInformation: 'Open to international assignments.',
     },
     employmentInformation: {
-      substantivePosition: undefined,
-      branchOrServiceCanadaRegion: undefined,
-      directorate: undefined,
-      province: undefined,
-      cityId: undefined,
-      wfaStatus: undefined,
+      substantivePosition: 914190001,
+      branchOrServiceCanadaRegion: 100789008,
+      directorate: 294550040,
+      province: 1,
+      cityId: 411290002,
+      wfaStatus: 1,
       wfaEffectiveDate: undefined,
       wfaEndDate: undefined,
-      hrAdvisor: undefined,
+      hrAdvisor: 5,
     },
     referralPreferences: {
-      languageReferralTypeIds: undefined,
-      classificationIds: undefined,
-      workLocationProvince: undefined,
-      workLocationCitiesIds: undefined,
-      availableForReferralInd: undefined,
-      interestedInAlternationInd: undefined,
-      employmentTenureIds: undefined,
+      languageReferralTypeIds: [864190000],
+      classificationIds: [905190000, 905190001],
+      workLocationProvince: 1,
+      workLocationCitiesIds: [411290001, 411290002],
+      availableForReferralInd: true,
+      interestedInAlternationInd: false,
+      employmentTenureIds: [664190000, 664190001, 664190003],
     },
   },
   {
     profileId: 15,
     userId: 15,
-    userIdReviewedBy: undefined,
-    userIdApprovedBy: undefined,
+    userIdReviewedBy: 5,
+    userIdApprovedBy: 5,
     priorityLevelId: 1,
-    profileStatusId: PROFILE_STATUS_ID.incomplete,
-    privacyConsentInd: false,
+    profileStatusId: PROFILE_STATUS_ID.approved,
+    privacyConsentInd: true,
     userCreated: 'system',
     dateCreated: '2024-06-10T17:00:00Z',
     userUpdated: 'sofia.rossi',
@@ -754,20 +794,20 @@ let mockProfiles: Profile[] = [
       additionalInformation: 'Interested in research.',
     },
     employmentInformation: {
-      substantivePosition: undefined,
-      branchOrServiceCanadaRegion: undefined,
-      directorate: undefined,
-      province: undefined,
-      cityId: undefined,
-      wfaStatus: undefined,
+      substantivePosition: 914190001,
+      branchOrServiceCanadaRegion: 100789008,
+      directorate: 294550040,
+      province: 1,
+      cityId: 411290002,
+      wfaStatus: 1,
       wfaEffectiveDate: undefined,
       wfaEndDate: undefined,
-      hrAdvisor: undefined,
+      hrAdvisor: 5,
     },
     referralPreferences: {
       languageReferralTypeIds: [864190011],
       classificationIds: [905190012],
-      workLocationProvince: undefined,
+      workLocationProvince: 1,
       workLocationCitiesIds: [411290013],
       availableForReferralInd: true,
       interestedInAlternationInd: false,
