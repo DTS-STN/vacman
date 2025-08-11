@@ -20,6 +20,8 @@ import { Button } from '~/components/button';
 import { ButtonLink } from '~/components/button-link';
 import { DatePickerField } from '~/components/date-picker-field';
 import { FormErrorSummary } from '~/components/error-summary';
+import type { InputRadiosProps } from '~/components/input-radios';
+import { InputRadios } from '~/components/input-radios';
 import { InputSelect } from '~/components/input-select';
 import { EMPLOYEE_WFA_STATUS } from '~/domain/constants';
 import type { I18nRouteFile } from '~/i18n-routes';
@@ -94,20 +96,23 @@ export function EmploymentInformationForm({
     children: id === 'select-option' ? t('form.select-option') : name,
   }));
 
-  const wfaStatusOptions = [{ id: 'select-option', name: '' }, ...wfaStatuses].map(({ id, name }) => ({
-    value: id === 'select-option' ? '' : id,
-    children: id === 'select-option' ? t('form.select-option') : name,
+  const handleWFAStatusChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedValue = event.target.value;
+    const selectedStatus = wfaStatuses.find((c) => c.id === Number(selectedValue))?.code;
+    setWfaStatusCode(selectedStatus);
+  };
+
+  const wfaStatusOptions: InputRadiosProps['options'] = wfaStatuses.map(({ id, name }) => ({
+    value: String(id),
+    children: name,
+    onChange: handleWFAStatusChange,
+    defaultChecked: formValues?.wfaStatus === id,
   }));
 
   const hrAdvisorOptions = [{ id: 'select-option', uuName: '' }, ...hrAdvisors].map(({ id, uuName }) => ({
     value: id === 'select-option' ? '' : String(id),
     children: id === 'select-option' ? t('form.select-option') : uuName,
   }));
-
-  const handleWFAStatusChange = (optionValue: string) => {
-    const selectedStatus = wfaStatuses.find((c) => c.id === Number(optionValue))?.code;
-    setWfaStatusCode(selectedStatus);
-  };
 
   return (
     <>
@@ -177,20 +182,21 @@ export function EmploymentInformationForm({
 
             <h2 className="font-lato text-2xl font-bold">{t('employment-information.wfa-detils-heading')}</h2>
             <p>{t('employment-information.wfa-detils')}</p>
-            <InputSelect
-              id="wfaStatus"
-              name="wfaStatus"
-              errorMessage={t(extractValidationKey(formErrors?.wfaStatus))}
-              required
-              options={wfaStatusOptions}
-              label={t('employment-information.wfa-status')}
-              defaultValue={formValues?.wfaStatus ? String(formValues.wfaStatus) : ''}
-              onChange={({ target }) => handleWFAStatusChange(target.value)}
-              className="w-full sm:w-1/2"
-            />
+            <div className="w-full sm:w-1/2">
+              <InputRadios
+                id="wfaStatus"
+                name="wfaStatus"
+                errorMessage={t(extractValidationKey(formErrors?.wfaStatus))}
+                required
+                options={wfaStatusOptions}
+                legend={t('employment-information.wfa-status')}
+              />
+            </div>
             {(wfaStatusCode === EMPLOYEE_WFA_STATUS.opting ||
               wfaStatusCode === EMPLOYEE_WFA_STATUS.surplusGRJO ||
-              wfaStatusCode === EMPLOYEE_WFA_STATUS.surplusOptingOptionA) && (
+              wfaStatusCode === EMPLOYEE_WFA_STATUS.surplusOptingOptionA ||
+              wfaStatusCode === EMPLOYEE_WFA_STATUS.exOpting ||
+              wfaStatusCode === EMPLOYEE_WFA_STATUS.exSurplusCPA) && (
               <>
                 <DatePickerField
                   defaultValue={formValues?.wfaEffectiveDate ?? ''}

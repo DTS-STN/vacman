@@ -1,8 +1,11 @@
 // Mapping of current WFA status
 export const EMPLOYEE_WFA_STATUS = {
   affected: 'AFFECTED',
+  exAffected: 'EXAFFECTED',
   opting: 'OPTING',
+  exOpting: 'EXOPTING',
   surplusGRJO: 'SURPLUS_GRJO',
+  exSurplusCPA: 'EXSURPLUSCPA',
   surplusOptingOptionA: 'SURPLUS_OPTION_A',
 } as const;
 

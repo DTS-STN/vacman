@@ -275,6 +275,8 @@ const validWFAStatusesForRequiredDate = [
   EMPLOYEE_WFA_STATUS.opting,
   EMPLOYEE_WFA_STATUS.surplusGRJO,
   EMPLOYEE_WFA_STATUS.surplusOptingOptionA,
+  EMPLOYEE_WFA_STATUS.exOpting,
+  EMPLOYEE_WFA_STATUS.exSurplusCPA,
 ] as const;
 
 const validWFAStatusesForOptionalDate = [EMPLOYEE_WFA_STATUS.affected] as const;
