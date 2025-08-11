@@ -1,5 +1,7 @@
 package ca.gov.dtsstn.vacman.api.security;
 
+import ca.gov.dtsstn.vacman.api.constants.AppConstants;
+import ca.gov.dtsstn.vacman.api.web.model.ProfileStatusUpdateModel;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Component;
 
@@ -42,6 +44,15 @@ public class SecurityManager {
 			.map(UserEntity::getMicrosoftEntraId)
 			.map(currentEntraId::equals)
 			.orElseThrow(() -> new AccessDeniedException("User with id=[" + id + "] not found"));
+	}
+
+	public boolean targetStatusIsApprovalOrArchived(ProfileStatusUpdateModel updatedProfileStatus) {
+		return updatedProfileStatus.getCode().equals(AppConstants.ProfileStatusCodes.APPROVED)
+				|| updatedProfileStatus.getCode().equals(AppConstants.ProfileStatusCodes.ARCHIVED);
+	}
+
+	public boolean targetStatusIsPending(ProfileStatusUpdateModel updatedProfileStatus) {
+		return updatedProfileStatus.getCode().equals(AppConstants.ProfileStatusCodes.PENDING);
 	}
 
 }
