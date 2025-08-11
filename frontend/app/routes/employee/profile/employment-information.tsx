@@ -20,7 +20,7 @@ import { requirePrivacyConsentForOwnProfile } from '~/.server/utils/privacy-cons
 import { hasEmploymentDataChanged, omitObjectProperties } from '~/.server/utils/profile-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { InlineLink } from '~/components/links';
-import { PROFILE_STATUS_ID } from '~/domain/constants';
+import { PROFILE_STATUS_CODE, PROFILE_STATUS_ID } from '~/domain/constants';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
@@ -69,7 +69,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     hasEmploymentDataChanged(currentProfile.employmentInformation, parseResult.output)
   ) {
     // profile needs to be re-approved if and only if the current profile status is 'approved'
-    await profileService.submitProfileForReview(context.session.authState.accessToken);
+    await profileService.updateProfileStatus(context.session.authState.accessToken, currentUserId, PROFILE_STATUS_CODE.pending);
     return i18nRedirect('routes/employee/profile/index.tsx', request, {
       params: { id: currentProfile.userId.toString() },
       search: new URLSearchParams({

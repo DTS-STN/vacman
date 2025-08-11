@@ -1,6 +1,6 @@
 import type { Option, Result } from 'oxide.ts';
 
-import type { Profile } from '~/.server/domain/models';
+import type { Profile, ProfileStatus } from '~/.server/domain/models';
 import { getDefaultProfileService } from '~/.server/domain/services/profile-service-default';
 import { getMockProfileService } from '~/.server/domain/services/profile-service-mock';
 import { serverEnvironment } from '~/.server/environment';
@@ -45,8 +45,11 @@ export type ProfileApiResponse = {
 export type ProfileService = {
   registerProfile(accessToken: string): Promise<Result<Profile, AppError>>;
   updateProfileById(accessToken: string, data: Profile): Promise<Result<Profile, AppError>>;
-  updateProfileStatus(accessToken: string, profileId: string, profileStatusCode: string): Promise<Result<void, AppError>>;
-  submitProfileForReview(accessToken: string): Promise<Result<Profile, AppError>>;
+  updateProfileStatus(
+    accessToken: string,
+    profileId: string,
+    profileStatusCode: string,
+  ): Promise<Result<ProfileStatus, AppError>>;
   findAllProfiles(params: ListProfilesParams): Promise<Option<readonly Profile[]>>;
   listAllProfiles(params: ListProfilesParams): Promise<readonly Profile[]>;
   getCurrentUserProfile(accessToken: string): Promise<Option<Profile>>;
