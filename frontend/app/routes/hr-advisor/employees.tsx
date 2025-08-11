@@ -132,12 +132,12 @@ export default function EmployeeDashboard({ params }: Route.ComponentProps) {
       header: t('app:employee-dashboard.action'),
       id: 'action',
       cell: (info) => {
-        const profileId = info.row.original.profileId;
+        const profileId = info.row.original.profileId.toString();
         return (
           <InlineLink
             className="text-sky-800 no-underline decoration-slate-400 decoration-2 hover:underline"
-            file="routes/employee/profile/personal-information.tsx"
-            params={{ id: String(profileId) }}
+            file="routes/hr-advisor/employee-profile/index.tsx"
+            params={{ profileId }}
           >
             {t('app:employee-dashboard.view')}
           </InlineLink>
