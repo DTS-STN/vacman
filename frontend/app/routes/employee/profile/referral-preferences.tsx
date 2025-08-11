@@ -36,8 +36,6 @@ export function meta({ loaderData }: Route.MetaArgs) {
 export async function action({ context, params, request }: Route.ActionArgs) {
   requireAuthentication(context.session, request);
 
-  // Get the current user's ID from the authenticated session
-  const currentUserId = context.session.authState.idTokenClaims.oid;
   const formData = await request.formData();
   const parseResult = v.safeParse(referralPreferencesSchema, {
     languageReferralTypeIds: formData.getAll('languageReferralTypes'),
@@ -73,7 +71,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   }
 
   return i18nRedirect('routes/employee/profile/index.tsx', request, {
-    params: { id: currentUserId },
+    params: { id: currentProfile.userId.toString() },
   });
 }
 

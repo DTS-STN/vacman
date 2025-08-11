@@ -13,7 +13,7 @@ import type { Route } from './+types';
 import { getProfileService } from '~/.server/domain/services/profile-service';
 import { getUserService } from '~/.server/domain/services/user-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
-import { checkEmployeeRoutePrivacyConsent } from '~/.server/utils/privacy-consent-utils';
+import { requirePrivacyConsentForOwnProfile } from '~/.server/utils/privacy-consent-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { Card, CardHeader, CardIcon, CardTitle } from '~/components/card';
 import { PageTitle } from '~/components/page-title';
@@ -31,19 +31,15 @@ export function meta({ loaderData }: Route.MetaArgs) {
 
 export async function action({ context, request }: ActionFunctionArgs) {
   requireAuthentication(context.session, request);
-
-  // Check privacy consent for employee routes (excluding privacy consent pages)
-  const currentUrl = new URL(request.url);
-  await checkEmployeeRoutePrivacyConsent(context.session, currentUrl);
+  await requirePrivacyConsentForOwnProfile(context.session, request);
 
   const formData = await request.formData();
   const action = formData.get('action');
 
   if (action === 'view-profile') {
-    // Get the current user's ID from the authenticated session
-    const currentUserId = context.session.authState.idTokenClaims.oid;
+    const currentUser = await getUserService().getCurrentUser(context.session.authState.accessToken);
     return i18nRedirect('routes/employee/profile/index.tsx', request, {
-      params: { id: currentUserId },
+      params: { id: currentUser.id.toString() },
     });
   }
 

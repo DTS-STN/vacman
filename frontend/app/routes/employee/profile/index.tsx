@@ -44,9 +44,6 @@ export function meta({ loaderData }: Route.MetaArgs) {
 export async function action({ context, request }: Route.ActionArgs) {
   requireAuthentication(context.session, request);
 
-  // Get the current user's ID from the authenticated session
-  const currentUserId = context.session.authState.idTokenClaims.oid;
-
   const profileResult = await getProfileService().getCurrentUserProfile(context.session.authState.accessToken);
   if (profileResult.isNone()) {
     return { status: 'profile-not-found' };
@@ -94,7 +91,7 @@ export async function action({ context, request }: Route.ActionArgs) {
   }
 
   // If all complete, submit for review
-  const submitResult = await getProfileService().submitProfileForReview(currentUserId);
+  const submitResult = await getProfileService().submitProfileForReview(context.session.authState.accessToken);
   if (submitResult.isErr()) {
     throw submitResult.unwrap();
   }
