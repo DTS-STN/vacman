@@ -200,8 +200,8 @@ public class ProfilesController {
     }
 
 	@PutMapping(path = "/{id}/status")
-	@PreAuthorize("(hasAuthority('hr-advisor') && @securityManager.targetStatusIsApprovalOrArchived(#updatedProfileStatus))"
-			+ " || (@securityManager.canAccessProfile(#profileId) && @securityManager.targetStatusIsPending(#updatedProfileStatus))")
+	@PreAuthorize("(hasAuthority('hr-advisor') && @securityManager.targetProfileStatusIsApprovalOrArchived(#updatedProfileStatus))"
+			+ " || (@securityManager.canAccessProfile(#profileId) && @securityManager.targetProfileStatusIsPending(#updatedProfileStatus))")
 	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
 	@Operation(summary = "Update an existing profile's status code specified by ID.")
 	public ResponseEntity<Void> updateProfileById(

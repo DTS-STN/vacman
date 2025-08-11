@@ -46,12 +46,12 @@ public class SecurityManager {
 			.orElseThrow(() -> new AccessDeniedException("User with id=[" + id + "] not found"));
 	}
 
-	public boolean targetStatusIsApprovalOrArchived(ProfileStatusUpdateModel updatedProfileStatus) {
+	public boolean targetProfileStatusIsApprovalOrArchived(ProfileStatusUpdateModel updatedProfileStatus) {
 		return updatedProfileStatus.getCode().equals(AppConstants.ProfileStatusCodes.APPROVED)
 				|| updatedProfileStatus.getCode().equals(AppConstants.ProfileStatusCodes.ARCHIVED);
 	}
 
-	public boolean targetStatusIsPending(ProfileStatusUpdateModel updatedProfileStatus) {
+	public boolean targetProfileStatusIsPending(ProfileStatusUpdateModel updatedProfileStatus) {
 		return updatedProfileStatus.getCode().equals(AppConstants.ProfileStatusCodes.PENDING);
 	}
 
