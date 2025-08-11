@@ -7,6 +7,7 @@ import org.hibernate.validator.constraints.Range;
 import org.mapstruct.factory.Mappers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -42,6 +43,7 @@ import jakarta.validation.Valid;
 
 @RestController
 @Tag(name = "Users")
+@DependsOn({ "securityManager" })
 @RequestMapping({ AppConstants.ApiPaths.USERS })
 public class UsersController {
 
@@ -65,19 +67,17 @@ public class UsersController {
 	public ResponseEntity<UserReadModel> createCurrentUser(@Valid @RequestBody UserCreateModel user) {
 		log.info("Received request to create new user; request: [{}]", user);
 
-		final var microsoftEntraId = SecurityUtils.getCurrentUserEntraId()
+		final var entraId = SecurityUtils.getCurrentUserEntraId()
 			.orElseThrow(() -> new UnauthorizedException("Entra ID not found in security context"));
 
+		log.debug("Checking if user with entraId=[{}] already exists", entraId);
 
-		log.debug("Checking if user with microsoftEntraId=[{}] already exists", microsoftEntraId);
+		userService.getUserByMicrosoftEntraId(entraId).ifPresent(xxx -> {
+			throw new ResourceConflictException("A user with microsoftEntraId=[" + entraId + "] already exists");
+		});
 
-		userService.getUserByMicrosoftEntraId(microsoftEntraId)
-			.ifPresent(existingUser -> { throw new ResourceConflictException("A user with microsoftEntraId=[" + microsoftEntraId + "] already exists"); });
-
-		log.debug("Fetching user with microsoftEntraId=[{}] from MSGraph", microsoftEntraId);
-
-		final var msGraphUser = msGraphService.getUser(microsoftEntraId)
-			.orElseThrow(() -> new ResourceNotFoundException("User with microsoftEntraId=[" + microsoftEntraId + "] not found in MSGraph"));
+		final var msGraphUser = msGraphService.getUser(entraId)
+			.orElseThrow(() -> new ResourceNotFoundException("User with entraId=[" + entraId + "] not found in MSGraph"));
 
 		log.debug("MSGraph user details: [{}]", msGraphUser);
 
@@ -89,9 +89,7 @@ public class UsersController {
 			.build();
 
 		log.debug("Creating user in database...");
-
 		final var createdUser = userModelMapper.toModel(userService.createUser(userEntity, user.languageId()));
-
 		log.trace("Successfully created new user: [{}]", createdUser);
 
 		return ResponseEntity.ok(createdUser);
@@ -104,14 +102,14 @@ public class UsersController {
 	public ResponseEntity<UserReadModel> getCurrentUser() {
 		log.debug("Received request to get current user");
 
-		final var microsoftEntraId = SecurityUtils.getCurrentUserEntraId()
+		final var entraId = SecurityUtils.getCurrentUserEntraId()
 			.orElseThrow(() -> new UnauthorizedException("Entra ID not found in security context"));
 
-		log.debug("Fetching current user with microsoftEntraId=[{}]", microsoftEntraId);
+		log.debug("Fetching current user with microsoftEntraId=[{}]", entraId);
 
-		final var user = userService.getCurrentUserByMicrosoftEntraId(microsoftEntraId)
+		final var user = userService.getUserByMicrosoftEntraId(entraId)
 			.map(userModelMapper::toModel)
-			.orElseThrow(() -> new ResourceNotFoundException("User with microsoftEntraId=[" + microsoftEntraId + "] not found"));
+			.orElseThrow(() -> new ResourceNotFoundException("User with microsoftEntraId=[" + entraId + "] not found"));
 
 		log.debug("Found current user: [{}]", user);
 
@@ -136,7 +134,7 @@ public class UsersController {
 			@Parameter(description = "Page size (between 1 and 100)")
 			int size) {
 		if (StringUtils.isNotBlank(microsoftEntraId)) {
-			final var users = userService.getUserByMicrosoftEntraId(microsoftEntraId.trim())
+			final var users = userService.getUserByMicrosoftEntraId(microsoftEntraId)
 				.map(userModelMapper::toModel)
 				.map(List::of)
 				.orElse(List.of());

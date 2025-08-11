@@ -5,6 +5,7 @@ import org.hibernate.validator.constraints.Range;
 import org.mapstruct.factory.Mappers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.web.PagedModel;
 import org.springframework.http.ResponseEntity;
@@ -33,6 +34,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @Tag(name = "Profiles")
+@DependsOn({ "securityManager" })
 @RequestMapping({ "/api/v1/profiles" })
 public class ProfilesController {
 
