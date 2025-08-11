@@ -16,13 +16,17 @@ import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntityBuilder;
 import ca.gov.dtsstn.vacman.api.data.entity.ProfileStatusEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
+import ca.gov.dtsstn.vacman.api.data.repository.*;
+import ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException;
+import ca.gov.dtsstn.vacman.api.web.model.ProfileReadModel;
+
 import ca.gov.dtsstn.vacman.api.data.repository.ProfileRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.ProfileStatusRepository;
 import ca.gov.dtsstn.vacman.api.event.ProfileCreateEvent;
 import ca.gov.dtsstn.vacman.api.event.ProfileReadEvent;
-import ca.gov.dtsstn.vacman.api.event.ProfileStatusChangeEvent;
 import ca.gov.dtsstn.vacman.api.event.ProfileUpdatedEvent;
-import ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException;
+
+import static ca.gov.dtsstn.vacman.api.exception.ExceptionUtils.generateIdDoesNotExistException;
 
 @Service
 public class ProfileService {
@@ -35,20 +39,37 @@ public class ProfileService {
 
 	private final ProfileRepository profileRepository;
 
-	private final ProfileStatusRepository profileStatusRepository;
+    private final ClassificationRepository classificationRepository;
 
-	private final ApplicationEventPublisher eventPublisher;
+    private final ProfileStatusRepository profileStatusRepository;
+
+    private final ApplicationEventPublisher eventPublisher;
+
+    private final UserService userService;
+
+    private final WfaStatusRepository wfaStatusRepository;
+
+    private final WorkUnitRepository workUnitRepository;
 
 	// Keys are tied to the potential values of getProfilesByStatusAndHrId parameter isActive.
 	private static final Map<Boolean, Set<String>> profileStatusSets = Map.of(
 		Boolean.TRUE, ACTIVE_PROFILE_STATUS,
 		Boolean.FALSE, INACTIVE_PROFILE_STATUS);
 
-	public ProfileService(ProfileRepository profileRepository, ProfileStatusRepository profileStatusRepository, ApplicationEventPublisher eventPublisher) {
-		this.profileRepository = profileRepository;
-		this.profileStatusRepository = profileStatusRepository;
-		this.eventPublisher = eventPublisher;
-	}
+    public ProfileService(ClassificationRepository classificationRepository,
+                          ProfileRepository profileRepository,
+                          ProfileStatusRepository profileStatusRepository,
+                          UserService userService, WfaStatusRepository wfaStatusRepository,
+                          WorkUnitRepository workUnitRepository,
+                          ApplicationEventPublisher eventPublisher) {
+        this.classificationRepository = classificationRepository;
+        this.profileRepository = profileRepository;
+        this.profileStatusRepository = profileStatusRepository;
+        this.userService = userService;
+        this.wfaStatusRepository = wfaStatusRepository;
+        this.workUnitRepository = workUnitRepository;
+        this.eventPublisher = eventPublisher;
+    }
 
 	/**
 	 * Returns all profiles that are either "active" or "inactive" depending on the argument value. Optionally,
@@ -120,17 +141,6 @@ public class ProfileService {
 	}
 
 	/**
-	 * Returns a profile by ID assuming the user's ID matches & the profile is active.
-	 *
-	 * @param profileId The target profile's ID.
-	 * @param userId The ID of the user associated with the target profile.
-	 * @return The profile matching the above requirements, if any.
-	 */
-	public Optional<ProfileEntity> getActiveProfileByIdAndUserId(Long profileId, Long userId) {
-		return profileRepository.findByIdAndUserIdIsAndProfileStatusCodeIn(profileId, userId, ACTIVE_PROFILE_STATUS);
-	}
-
-	/**
 	 * Creates a new profile associated with the {@code user} argument. Defaults the profile status to
 	 * {@code INCOMPLETE}.
 	 *
@@ -168,23 +178,66 @@ public class ProfileService {
 			.orElseThrow(() -> new ResourceNotFoundException("Profile status not found"));
 
 		profileEntity.setProfileStatus(newStatus);
-		profileRepository.save(profileEntity);
-
-		eventPublisher.publishEvent(new ProfileStatusChangeEvent(profileEntity, previousStatusId, newStatus.getId()));
-
-		return profileEntity;
-	}
+	    return profileRepository.save(profileEntity);
+    }
 
 	/**
-	 * Updates a profile and emits a ProfileUpdatedEvent.
-	 * TODO: This method should be called when the PUT /profiles/{id} endpoint is implemented.
-	 * @param profileEntity The profile entity to update
-	 * @return The updated profile entity
-	 */
-	public ProfileEntity updateProfile(ProfileEntity profileEntity) {
-		profileEntity = profileRepository.save(profileEntity);
-		eventPublisher.publishEvent(new ProfileUpdatedEvent(profileEntity));
-		return profileEntity;
+     * Update a profile based on the provided update model. This method validates that any IDs exist within the DB
+     * before saving the entity.
+     *
+     * @param updateModel The updated information for the profile.
+     * @param existingEntity The profile entity to be updated.
+     * @return The updated profile entity.
+     * @throws ResourceNotFoundException When any given ID does not exist within the DB.
+     */
+    public ProfileEntity updateProfile(ProfileReadModel updateModel, ProfileEntity existingEntity)
+            throws ResourceNotFoundException {
+
+        final var hrAdvisorId = updateModel.hrAdvisorId();
+        if (hrAdvisorId != null
+                && !hrAdvisorId.equals(existingEntity.getHrAdvisor().getId())) {
+            UserEntity hrAdvisor = userService.getUserById(hrAdvisorId)
+                    .orElseThrow(() -> generateIdDoesNotExistException("HR Advisor", hrAdvisorId));
+
+            if (!hrAdvisor.getUserType().getCode().equals("hr-advisor")) {
+                throw generateIdDoesNotExistException("HR Advisor", hrAdvisorId);
+            }
+
+            existingEntity.setHrAdvisor(hrAdvisor);
+        }
+
+        final var classificationId = updateModel.classification().getId();
+        if (classificationId != null && !classificationId.equals(existingEntity.getClassification().getId())) {
+            existingEntity.setClassification(
+                    classificationRepository.findById(classificationId)
+                            .orElseThrow(() -> generateIdDoesNotExistException("Classification", classificationId)));
+        }
+
+        final var workUnitId = updateModel.workUnit().getId();
+        if (workUnitId != null
+                && !workUnitId.equals(existingEntity.getWorkUnit().getId())) {
+            existingEntity.setWorkUnit(
+                    workUnitRepository.findById(workUnitId)
+                            .orElseThrow(() -> generateIdDoesNotExistException("Work Unit", workUnitId)));
+        }
+
+        final var wfaStatusId = updateModel.wfaStatus().getId();
+        if (wfaStatusId != null
+                && !wfaStatusId.equals(existingEntity.getWfaStatus().getId())) {
+            existingEntity.setWfaStatus(
+                    wfaStatusRepository.findById(wfaStatusId)
+                            .orElseThrow(() -> generateIdDoesNotExistException("WFA Status", wfaStatusId)));
+        }
+
+        existingEntity.setPersonalEmailAddress(updateModel.personalEmailAddress());
+        existingEntity.setIsAvailableForReferral(updateModel.isAvailableForReferral());
+        existingEntity.setIsInterestedInAlternation(updateModel.isInterestedInAlternation());
+        existingEntity.setAdditionalComment(updateModel.additionalComment());
+
+		var updatedEntity = profileRepository.save(existingEntity);
+		eventPublisher.publishEvent(new ProfileUpdatedEvent(updatedEntity));
+
+        return updatedEntity;
 	}
 
 }

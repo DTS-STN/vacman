@@ -31,6 +31,11 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.*;
+
+import static ca.gov.dtsstn.vacman.api.constants.AppConstants.UserFields.MS_ENTRA_ID;
+import static ca.gov.dtsstn.vacman.api.exception.ExceptionUtils.*;
 
 @RestController
 @Tag(name = "Profiles")
@@ -86,17 +91,18 @@ public class ProfilesController {
 			final var entraId = SecurityUtils.getCurrentUserEntraId()
 				.orElseThrow(() -> new UnauthorizedException("Entra ID not found in security context"));
 
-			hrAdvisorId = userService.getUserByMicrosoftEntraId(entraId)
-				.orElseThrow(() -> new ResourceNotFoundException("No user found for given entra ID."))
-				.getId();
-		}
-		else {
-			hrAdvisorId = Long.valueOf(hrAdvisor);
-		}
+            hrAdvisorId = userService.getUserByMicrosoftEntraId(entraId)
+                    .orElseThrow(() -> generateUserWithFieldDoesNotExistException(MS_ENTRA_ID, entraId))
+                    .getId();
+        } else {
+            hrAdvisorId = Long.valueOf(hrAdvisor);
+        }
 
 		// Determine the mapping function to use.
 		final var profiles = profileService.getProfilesByStatusAndHrId(PageRequest.of(page, size), isActive, hrAdvisorId)
-			.map((wantUserData) ? profileModelMapper::toModel : profileModelMapper::toModelNoUserData);
+			.map((wantUserData)
+					? profileModelMapper::toModel
+					: profileModelMapper::toModelNoUserData);
 
 		return ResponseEntity.ok(new PagedModel<>(profiles));
 	}
@@ -145,9 +151,9 @@ public class ProfilesController {
 			.orElseThrow(() -> new UnauthorizedException("Entra ID not found in security context"));
 
 
-		log.debug("Checking if user with microsoftEntraId=[{}] already exists", microsoftEntraId);
-		final var existingUser = userService.getUserByMicrosoftEntraId(microsoftEntraId)
-			.orElseThrow(() -> new ResourceNotFoundException("A user with microsoftEntraId=[" + microsoftEntraId + "] does not exist"));
+        log.debug("Checking if user with microsoftEntraId=[{}] already exists", microsoftEntraId);
+        final var existingUser = userService.getUserByMicrosoftEntraId(microsoftEntraId)
+                .orElseThrow(() -> generateUserWithFieldDoesNotExistException(MS_ENTRA_ID, microsoftEntraId));
 
 		log.debug("Checking if user with microsoftEntraId=[{}] has an active profile", microsoftEntraId);
 		if (!profileService.getProfilesByEntraId(microsoftEntraId, true).isEmpty()) {
@@ -162,4 +168,26 @@ public class ProfilesController {
 		return ResponseEntity.ok(createdProfile);
 	}
 
+    @PutMapping(path = "/{id}")
+	@PreAuthorize("hasAuthority('hr-advisor')")
+    @SecurityRequirement(name = SpringDocConfig.AZURE_AD)
+    public ResponseEntity<ProfileReadModel> updateProfileById(
+            @PathVariable(name = "id")
+            Long profileId,
+
+            @Valid
+            @RequestBody
+            ProfileReadModel updatedProfile
+    ) {
+        log.info("Received request to get profile; ID: [{}]", profileId);
+
+        var foundProfile = profileService.getProfile(profileId)
+                .orElseThrow(() -> generateIdDoesNotExistException("profile", profileId));
+
+        log.trace("Found profile: [{}]", foundProfile);
+
+        var updatedEntity = profileService.updateProfile(updatedProfile, foundProfile);
+
+        return ResponseEntity.ok(profileModelMapper.toModelNoUserData(updatedEntity));
+    }
 }

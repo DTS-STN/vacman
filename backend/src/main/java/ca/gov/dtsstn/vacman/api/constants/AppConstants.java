@@ -46,4 +46,10 @@ public final class AppConstants {
 
         private ApiPaths() {}
     }
+
+    public static final class UserFields {
+        public static final String MS_ENTRA_ID = "microsoftEntraId";
+
+        private UserFields() {}
+    }
 }
