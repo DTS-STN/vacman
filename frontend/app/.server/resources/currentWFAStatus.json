@@ -8,18 +8,36 @@
     },
     {
       "id": 2,
+      "code": "EXAFFECTED",
+      "nameEn": "Affected - EX",
+      "nameFr": "Touché - EX"
+    },
+    {
+      "id": 3,
       "code": "OPTING",
       "nameEn": "Opting",
       "nameFr": "Optant"
     },
     {
-      "id": 3,
+      "id": 4,
+      "code": "EXOPTING",
+      "nameEn": "Opting - EX",
+      "nameFr": "Optant - EX"
+    },
+    {
+      "id": 5,
       "code": "SURPLUS_GRJO",
       "nameEn": "Surplus (GRJO)",
       "nameFr": "Excédentaire (GOER)"
     },
     {
-      "id": 4,
+      "id": 6,
+      "code": "EXSURPLUSCPA",
+      "nameEn": "Surplus - EX (Stay CPA)",
+      "nameFr": "Excédentaire - EX (Reste APC)"
+    },
+    {
+      "id": 7,
       "code": "SURPLUS_OPTION_A",
       "nameEn": "Surplus (Opting Option A)",
       "nameFr": "Excédentaire (Optant Option A)"
