@@ -93,7 +93,7 @@ export async function action({ context, request }: Route.ActionArgs) {
   // If all complete, submit for review
   const submitResult = await getProfileService().updateProfileStatus(
     context.session.authState.accessToken,
-    currentUserId,
+    profileData.userId.toString(),
     PROFILE_STATUS_CODE.pending,
   );
   if (submitResult.isErr()) {
