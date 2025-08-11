@@ -106,8 +106,8 @@ export async function action({ context, request }: Route.ActionArgs) {
 }
 
 export async function loader({ context, request, params }: Route.LoaderArgs) {
-  const currentUrl = new URL(request.url);
-  requireAuthentication(context.session, currentUrl);
+  requireAuthentication(context.session, request);
+  await requirePrivacyConsentForOwnProfile(context.session, request);
 
   const profileResult = await getProfileService().getCurrentUserProfile(context.session.authState.accessToken);
 
@@ -116,8 +116,6 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   }
 
   const profileData: Profile = profileResult.unwrap();
-
-  await requirePrivacyConsentForOwnProfile(context.session, currentUrl);
 
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
 
