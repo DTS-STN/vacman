@@ -150,6 +150,7 @@ public class ProfilesController {
 	}
 
 	@PostMapping(path = "/me")
+	@PreAuthorize("isAuthenticated()")
 	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
 	@Operation(summary = "Create a new profile associated with the authenticated user.")
 	public ResponseEntity<ProfileReadModel> createCurrentUserProfile() {
