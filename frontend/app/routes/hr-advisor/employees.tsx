@@ -1,6 +1,5 @@
 import type { JSX } from 'react';
 
-import { useLoaderData } from 'react-router';
 import type { RouteHandle, LoaderFunctionArgs } from 'react-router';
 
 import type { ColumnDef } from '@tanstack/react-table';
@@ -68,9 +67,8 @@ export async function loader({ context, request }: LoaderFunctionArgs) {
   };
 }
 
-export default function EmployeeDashboard({ params }: Route.ComponentProps) {
+export default function EmployeeDashboard({ loaderData, params }: Route.ComponentProps) {
   const { t } = useTranslation(handle.i18nNamespace);
-  const loaderData = useLoaderData<typeof loader>();
 
   const statusMap = Object.fromEntries(loaderData.statuses.map((s) => [s.id, s.name]));
 
