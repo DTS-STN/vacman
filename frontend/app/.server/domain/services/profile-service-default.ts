@@ -120,40 +120,34 @@ export function getDefaultProfileService(): ProfileService {
       return result;
     },
 
-    async updateProfile(
-      accessToken: string,
-      profileId: number,
-      userUpdated: string,
-      data: Profile,
-    ): Promise<Result<void, AppError>> {
-      try {
-        const response = await fetch(`${serverEnvironment.VACMAN_API_BASE_URI}/profiles/${profileId}`, {
-          method: 'PUT',
-          headers: {
-            'Authorization': `Bearer ${accessToken}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(data),
-        });
+    /**
+     * Updates an existing profile by its ID.
+     *
+     * @param accessToken The access token used for API authentication.
+     * @param profile The profile object containing updated data.
+     * @returns A Result containing the updated Profile on success,
+     *          or an AppError on failure.
+     *
+     * The request sends the full Profile object in the body (PUT)
+     * and expects the updated Profile in the response.
+     */
+    async updateProfileById(accessToken: string, profile: Profile): Promise<Result<Profile, AppError>> {
+      const path = `/profiles/${profile.profileId}`;
 
-        if (!response.ok) {
-          return Err(
-            new AppError(
-              `Failed to update profile. Server responded with status ${response.status}`,
-              ErrorCodes.PROFILE_UPDATE_FAILED,
-              { httpStatusCode: response.status as HttpStatusCode },
-            ),
-          );
-        }
+      const result = await apiClient.put<Profile, Profile>(path, 'update profile', profile, accessToken);
 
-        return Ok(undefined);
-      } catch (error) {
+      if (result.isErr()) {
+        const originalError = result.unwrapErr();
+
         return Err(
-          new AppError(error instanceof Error ? error.message : 'Failed to update profile', ErrorCodes.PROFILE_NETWORK_ERROR, {
-            httpStatusCode: HttpStatusCodes.SERVICE_UNAVAILABLE,
+          new AppError(`Failed to update profile. Reason: ${originalError.message}`, ErrorCodes.PROFILE_UPDATE_FAILED, {
+            httpStatusCode: originalError.httpStatusCode,
+            correlationId: originalError.correlationId,
           }),
         );
       }
+
+      return result;
     },
 
     async submitProfileForReview(accessToken: string): Promise<Result<Profile, AppError>> {

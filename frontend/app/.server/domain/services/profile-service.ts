@@ -44,7 +44,7 @@ export type ProfileApiResponse = {
 
 export type ProfileService = {
   registerProfile(accessToken: string): Promise<Result<Profile, AppError>>;
-  updateProfile(accessToken: string, profileId: number, userUpdated: string, data: Profile): Promise<Result<void, AppError>>;
+  updateProfileById(accessToken: string, data: Profile): Promise<Result<Profile, AppError>>;
   submitProfileForReview(accessToken: string): Promise<Result<Profile, AppError>>;
   findAllProfiles(params: ListProfilesParams): Promise<Option<readonly Profile[]>>;
   listAllProfiles(params: ListProfilesParams): Promise<readonly Profile[]>;

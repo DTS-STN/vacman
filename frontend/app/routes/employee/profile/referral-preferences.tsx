@@ -63,15 +63,10 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   const profileService = getProfileService();
   const currentProfileOption = await profileService.getCurrentUserProfile(context.session.authState.accessToken);
   const currentProfile = currentProfileOption.unwrap();
-  const updateResult = await profileService.updateProfile(
-    context.session.authState.accessToken,
-    currentProfile.profileId,
-    currentUserId,
-    {
-      ...currentProfile,
-      referralPreferences: parseResult.output,
-    },
-  );
+  const updateResult = await profileService.updateProfileById(context.session.authState.accessToken, {
+    ...currentProfile,
+    referralPreferences: parseResult.output,
+  });
 
   if (updateResult.isErr()) {
     throw updateResult.unwrapErr();
