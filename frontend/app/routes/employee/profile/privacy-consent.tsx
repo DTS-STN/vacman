@@ -40,7 +40,7 @@ export async function action({ context, request }: ActionFunctionArgs) {
 
   await profileService.updateProfile(
     context.session.authState.accessToken,
-    profile.profileId.toString(),
+    profile.profileId,
     currentUserId,
     updatePrivacyConsent,
   );

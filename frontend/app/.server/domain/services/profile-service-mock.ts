@@ -29,8 +29,8 @@ export function getMockProfileService(): ProfileService {
       const newProfile = createMockProfile(accessToken);
       return Promise.resolve(Ok(newProfile));
     },
-    getProfileById: (accessToken: string, profileId: string): Promise<Result<Profile, AppError>> => {
-      const profile = mockProfiles.find((p) => p.profileId.toString() === profileId);
+    getProfileById: (accessToken: string, profileId: number): Promise<Result<Profile, AppError>> => {
+      const profile = mockProfiles.find((p) => p.profileId === profileId);
 
       if (profile) {
         return Promise.resolve(Ok(profile));
@@ -38,8 +38,8 @@ export function getMockProfileService(): ProfileService {
 
       return Promise.resolve(Err(new AppError(`Profile not found.`, ErrorCodes.PROFILE_NOT_FOUND)));
     },
-    findProfileById: async (accessToken: string, profileId: string): Promise<Option<Profile>> => {
-      const profile = mockProfiles.find((p) => p.profileId.toString() === profileId);
+    findProfileById: async (accessToken: string, profileId: number): Promise<Option<Profile>> => {
+      const profile = mockProfiles.find((p) => p.profileId === profileId);
 
       if (profile) {
         return Promise.resolve(Some(profile));
@@ -49,16 +49,16 @@ export function getMockProfileService(): ProfileService {
     },
     updateProfile: (
       accessToken: string,
-      profileId: string,
+      profileId: number,
       userUpdated: string,
       data: Profile,
     ): Promise<Result<void, AppError>> => {
-      if (!mockProfiles.find((p) => p.profileId.toString() === profileId)) {
+      if (!mockProfiles.find((p) => p.profileId === profileId)) {
         return Promise.resolve(Err(new AppError('Profile not found', ErrorCodes.PROFILE_NOT_FOUND)));
       }
 
       mockProfiles = mockProfiles.map((profile) =>
-        profile.profileId.toString() === profileId
+        profile.profileId === profileId
           ? {
               ...profile,
               ...data,

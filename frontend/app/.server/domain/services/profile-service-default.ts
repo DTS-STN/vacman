@@ -22,7 +22,7 @@ export function getDefaultProfileService(): ProfileService {
      *   - Ok(Profile) if the profile is found.
      *   - Err(AppError) if the profile is not found or if the request fails.
      */
-    async getProfileById(accessToken: string, profileId: string): Promise<Result<Profile, AppError>> {
+    async getProfileById(accessToken: string, profileId: number): Promise<Result<Profile, AppError>> {
       const result = await apiClient.get<Profile>(`/profiles/${profileId}`, 'fetch profile by ID', accessToken);
 
       return result.mapErr((error) => {
@@ -34,7 +34,7 @@ export function getDefaultProfileService(): ProfileService {
       });
     },
 
-    async findProfileById(accessToken: string, profileId: string): Promise<Option<Profile>> {
+    async findProfileById(accessToken: string, profileId: number): Promise<Option<Profile>> {
       const result = await this.getProfileById(accessToken, profileId);
       return result.ok();
     },
@@ -69,7 +69,7 @@ export function getDefaultProfileService(): ProfileService {
 
     async updateProfile(
       accessToken: string,
-      profileId: string,
+      profileId: number,
       userUpdated: string,
       data: Profile,
     ): Promise<Result<void, AppError>> {

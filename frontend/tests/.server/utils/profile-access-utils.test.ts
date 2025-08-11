@@ -162,7 +162,7 @@ describe('Profile Access Utils', () => {
 
         // Act & Assert - should not throw
         await expect(requireProfileAccess(session, targetUserId, currentUrl)).resolves.not.toThrow();
-        expect(mockRequirePrivacyConsentForOwnProfile).toHaveBeenCalledWith(session, targetUserId, currentUrl);
+        expect(mockRequirePrivacyConsentForOwnProfile).toHaveBeenCalledWith(session, currentUrl);
       });
 
       it('should grant access when user accesses their own profile without URL', async () => {
@@ -432,7 +432,7 @@ describe('Profile Access Utils', () => {
       // Assert
       expect(hasAccess).toBe(true);
       expect(profile).toEqual(mockProfile);
-      expect(mockRequirePrivacyConsentForOwnProfile).toHaveBeenCalledWith(session, targetUserId, currentUrl);
+      expect(mockRequirePrivacyConsentForOwnProfile).toHaveBeenCalledWith(session, currentUrl);
       // User service should not be called for own profile access
       expect(mockUserService.getCurrentUser).not.toHaveBeenCalled();
     });
@@ -448,7 +448,7 @@ describe('Profile Access Utils', () => {
       await expect(checkProfileRouteAccess(session, currentUrl)).resolves.not.toThrow();
       expect(mockIsProfileRoute).toHaveBeenCalledWith(currentUrl);
       expect(mockExtractUserIdFromProfileRoute).toHaveBeenCalledWith(currentUrl);
-      expect(mockRequirePrivacyConsentForOwnProfile).toHaveBeenCalledWith(session, 'test-user-123', currentUrl);
+      expect(mockRequirePrivacyConsentForOwnProfile).toHaveBeenCalledWith(session, currentUrl);
     });
   });
 });

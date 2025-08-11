@@ -61,7 +61,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     allLocalizedCities,
     allLocalizedEmploymentTenures,
   ] = await Promise.all([
-    getProfileService().getProfileById(context.session.authState.accessToken, profileUserId),
+    getProfileService().getProfileById(context.session.authState.accessToken, Number(profileUserId)),
     getLanguageReferralTypeService().listAllLocalized(lang),
     getClassificationService().listAllLocalized(lang),
     getCityService().listAllLocalized(lang),

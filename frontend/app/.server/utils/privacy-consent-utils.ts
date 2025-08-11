@@ -4,11 +4,15 @@
  * and redirects them appropriately if they haven't.
  */
 import { getProfileService } from '../domain/services/profile-service';
+import { getUserService } from '../domain/services/user-service';
 
 import { LogFactory } from '~/.server/logging';
 import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
 import { isEmployeeRoute, isPrivacyConsentPath, isProfileRoute } from '~/.server/utils/route-matching-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
+import { AppError } from '~/errors/app-error';
+import { ErrorCodes } from '~/errors/error-codes';
+import { HttpStatusCodes } from '~/errors/http-status-codes';
 
 const log = LogFactory.getLogger(import.meta.url);
 
@@ -20,7 +24,7 @@ const log = LogFactory.getLogger(import.meta.url);
  * @param currentUrl - The current request URL for redirect context
  * @throws {Response} Redirect to index page if user hasn't accepted privacy consent
  */
-async function checkPrivacyConsentForUser(accessToken: string, userId: string, currentUrl: URL): Promise<void> {
+async function checkPrivacyConsentForUser(accessToken: string, userId: number, currentUrl: URL): Promise<void> {
   const profileOption = await getProfileService().getCurrentUserProfile(accessToken);
 
   if (profileOption.isNone()) {
@@ -44,8 +48,8 @@ async function checkPrivacyConsentForUser(accessToken: string, userId: string, c
  * @throws {Response} Redirect to index page if user hasn't accepted privacy consent
  */
 export async function requirePrivacyConsent(session: AuthenticatedSession, currentUrl: URL): Promise<void> {
-  const activeDirectoryId = session.authState.idTokenClaims.oid;
-  await checkPrivacyConsentForUser(session.authState.accessToken, activeDirectoryId, currentUrl);
+  const currentUser = await getUserService().getCurrentUser(session.authState.accessToken);
+  await checkPrivacyConsentForUser(session.authState.accessToken, currentUser.id, currentUrl);
 }
 
 /**
@@ -54,24 +58,27 @@ export async function requirePrivacyConsent(session: AuthenticatedSession, curre
  * not when a hiring manager is accessing another employee's profile.
  *
  * @param session - The authenticated session
- * @param targetUserId - The ID of the profile being accessed
  * @param currentUrl - The current request URL for redirect context
  * @throws {Response} Redirect to index page if user hasn't accepted privacy consent
  */
-export async function requirePrivacyConsentForOwnProfile(
-  session: AuthenticatedSession,
-  targetUserId: string,
-  currentUrl: URL,
-): Promise<void> {
-  const requesterId = session.authState.idTokenClaims.oid;
+export async function requirePrivacyConsentForOwnProfile(session: AuthenticatedSession, currentUrl: URL): Promise<void> {
+  const currentUser = await getUserService().getCurrentUser(session.authState.accessToken);
+  const profileOpion = await getProfileService().getCurrentUserProfile(session.authState.accessToken);
+
+  if (profileOpion.isNone()) {
+    log.debug(`Profile not found for user: ${currentUser.id}`);
+    throw new AppError(`Profile not found for user ID: ${currentUser.id}`, ErrorCodes.PROFILE_NOT_FOUND, {
+      httpStatusCode: HttpStatusCodes.NOT_FOUND,
+    });
+  }
 
   // Only check privacy consent if the user is accessing their own profile
-  if (requesterId !== targetUserId) {
+  if (currentUser.id !== profileOpion.unwrap().userId) {
     return;
   }
 
-  log.debug(`Privacy consent check for own profile: ${requesterId}`);
-  await checkPrivacyConsentForUser(session.authState.accessToken, requesterId, currentUrl);
+  log.debug(`Privacy consent check for own profile: ${currentUser.id}`);
+  await checkPrivacyConsentForUser(session.authState.accessToken, currentUser.id, currentUrl);
 }
 
 /**

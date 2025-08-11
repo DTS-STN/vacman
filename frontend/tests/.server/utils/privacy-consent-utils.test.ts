@@ -160,6 +160,9 @@ describe('Privacy Consent Flow', () => {
           accessTokenClaims: { roles: ['employee'] },
           idTokenClaims: { sub: 'test-user-consent', oid: 'test-user-consent' },
         },
+        currentUser: {
+          id: 1,
+        },
       } as unknown as AuthenticatedSession;
 
       mockProfileService.getCurrentUserProfile.mockResolvedValue(
@@ -172,6 +175,10 @@ describe('Privacy Consent Flow', () => {
           dateCreated: '2024-01-01T00:00:00Z',
         }),
       );
+
+      mockUserService.getCurrentUser.mockResolvedValue({
+        id: 1,
+      });
 
       // Act & Assert - should not throw
       await expect(requirePrivacyConsent(mockSession, new URL('http://localhost:3000/en/employee'))).resolves.not.toThrow();

@@ -59,7 +59,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   const currentProfile = currentProfileOption.unwrap();
   const updateResult = await profileService.updateProfile(
     context.session.authState.accessToken,
-    currentProfile.profileId.toString(),
+    currentProfile.profileId,
     currentUserId,
     {
       ...currentProfile,

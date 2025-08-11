@@ -30,7 +30,7 @@ describe('getMockProfileService', () => {
       expect(createdProfile.referralPreferences.interestedInAlternationInd).toBe(false);
 
       // Verify the profile was actually added to the mock data
-      const retrievedProfile = await service.getProfileById('mock-token', createdProfile.profileId.toString());
+      const retrievedProfile = await service.getProfileById('mock-token', createdProfile.profileId);
       expect(retrievedProfile.isOk()).toBe(true);
       expect(retrievedProfile.unwrap().profileId).toBe(createdProfile.profileId);
     });

@@ -117,7 +117,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 
   const profileData: Profile = profileResult.unwrap();
 
-  await requirePrivacyConsentForOwnProfile(context.session, profileData.profileId.toString(), currentUrl);
+  await requirePrivacyConsentForOwnProfile(context.session, currentUrl);
 
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
 
