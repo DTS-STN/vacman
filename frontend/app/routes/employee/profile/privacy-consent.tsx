@@ -45,7 +45,7 @@ export async function action({ context, request }: ActionFunctionArgs) {
     updatePrivacyConsent,
   );
 
-  return i18nRedirect('routes/employee/index.tsx', request, { params: { id: profile.profileId.toString() } });
+  return i18nRedirect('routes/employee/index.tsx', request);
 }
 
 export async function loader({ context, request }: LoaderFunctionArgs) {
