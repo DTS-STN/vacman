@@ -28,28 +28,34 @@ export function meta({ loaderData }: Route.MetaArgs) {
   return [{ title: loaderData?.documentTitle }];
 }
 
-export function action({ context, params, request }: Route.ActionArgs) {
+export async function action({ context, params, request }: Route.ActionArgs) {
   requireAuthentication(context.session, request);
 
-  // Get the current user's ID from the authenticated session
-  const currentUserId = context.session.authState.idTokenClaims.oid;
+  const profileResult = await getProfileService().getProfileById(
+    context.session.authState.accessToken,
+    Number(params.profileId),
+  );
+
+  if (profileResult.isErr()) {
+    throw new Response('Profile not found', { status: 404 });
+  }
 
   //TODO: Implement approval logic
 
   return i18nRedirect('routes/hr-advisor/employee-profile/index.tsx', request, {
-    params: { id: currentUserId },
+    params: { id: profileResult.unwrap().profileId.toString() },
   });
 }
 
 export async function loader({ context, request, params }: Route.LoaderArgs) {
   requireAuthentication(context.session, request);
 
-  const currentProfileOption = await getProfileService().getProfileById(
+  const profileResult = await getProfileService().getProfileById(
     context.session.authState.accessToken,
     Number(params.profileId),
   );
 
-  if (currentProfileOption.isErr()) {
+  if (profileResult.isErr()) {
     throw new Response('Profile not found', { status: 404 });
   }
 
@@ -61,7 +67,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const cities = await getCityService().listAllLocalized(lang);
   const wfaStatuses = await getWFAStatuses().listAllLocalized(lang);
   const hrAdvisors = await getUserService().getUsersByRole('hr-advisor', context.session.authState.accessToken);
-  const profileData: Profile = currentProfileOption.unwrap();
+  const profileData: Profile = profileResult.unwrap();
 
   const workUnitResult =
     profileData.employmentInformation.directorate &&
