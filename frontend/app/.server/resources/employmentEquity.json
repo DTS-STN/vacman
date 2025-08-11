@@ -1,28 +1,52 @@
 {
   "content": [
     {
+      "id": 0,
+      "code": "VM-MV",
+      "nameEn": "Visible Minorities",
+      "nameFr": "Minorités visibles",
+      "effectiveDate": "1970-01-01T00:00:00Z",
+      "expiryDate": null,
+      "createdBy": "system",
+      "createdDate": "2025-08-10T16:35:17.5366667Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-08-10T16:35:17.5366667Z"
+    },
+    {
       "id": 1,
-      "code": "VISIBLE_MINORITY",
-      "nameEn": "Visible Minority",
-      "nameFr": "Minorité visible"
+      "code": "PD-PSH",
+      "nameEn": "Persons with Disabilities",
+      "nameFr": "Personnes en situation de handicap",
+      "effectiveDate": "1970-01-01T00:00:00Z",
+      "expiryDate": null,
+      "createdBy": "system",
+      "createdDate": "2025-08-10T16:35:17.5366667Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-08-10T16:35:17.5366667Z"
     },
     {
       "id": 2,
-      "code": "ABORIGINAL",
+      "code": "AP-A",
       "nameEn": "Aboriginal Peoples",
-      "nameFr": "Peuples autochtones"
+      "nameFr": "Autochtones",
+      "effectiveDate": "1970-01-01T00:00:00Z",
+      "expiryDate": null,
+      "createdBy": "system",
+      "createdDate": "2025-08-10T16:35:17.5366667Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-08-10T16:35:17.5366667Z"
     },
     {
       "id": 3,
-      "code": "PERSONS_WITH_DISABILITIES",
-      "nameEn": "Persons with Disabilities",
-      "nameFr": "Personnes handicapées"
-    },
-    {
-      "id": 4,
-      "code": "WOMEN",
+      "code": "W-F",
       "nameEn": "Women",
-      "nameFr": "Femmes"
+      "nameFr": "Femmes",
+      "effectiveDate": "1970-01-01T00:00:00Z",
+      "expiryDate": null,
+      "createdBy": "system",
+      "createdDate": "2025-08-10T16:35:17.5366667Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-08-10T16:35:17.5366667Z"
     }
   ]
 }
