@@ -9,8 +9,10 @@ import ca.gov.dtsstn.vacman.api.service.ProfileService;
 import ca.gov.dtsstn.vacman.api.service.UserService;
 import ca.gov.dtsstn.vacman.api.web.exception.UnauthorizedException;
 
-@Component
+@Component(SecurityManager.NAME)
 public class SecurityManager {
+
+	public static final String NAME = "securityManager";
 
 	private final ProfileService profileService;
 

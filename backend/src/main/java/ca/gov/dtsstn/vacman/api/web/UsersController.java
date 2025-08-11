@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import ca.gov.dtsstn.vacman.api.config.SpringDocConfig;
 import ca.gov.dtsstn.vacman.api.constants.AppConstants;
+import ca.gov.dtsstn.vacman.api.security.SecurityManager;
 import ca.gov.dtsstn.vacman.api.security.SecurityUtils;
 import ca.gov.dtsstn.vacman.api.service.MSGraphService;
 import ca.gov.dtsstn.vacman.api.service.UserService;
@@ -43,7 +44,7 @@ import jakarta.validation.Valid;
 
 @RestController
 @Tag(name = "Users")
-@DependsOn({ "securityManager" })
+@DependsOn({ SecurityManager.NAME })
 @RequestMapping({ AppConstants.ApiPaths.USERS })
 public class UsersController {
 

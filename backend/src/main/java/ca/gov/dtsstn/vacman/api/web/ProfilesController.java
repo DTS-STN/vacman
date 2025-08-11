@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import ca.gov.dtsstn.vacman.api.config.SpringDocConfig;
+import ca.gov.dtsstn.vacman.api.security.SecurityManager;
 import ca.gov.dtsstn.vacman.api.security.SecurityUtils;
 import ca.gov.dtsstn.vacman.api.service.ProfileService;
 import ca.gov.dtsstn.vacman.api.service.UserService;
@@ -39,7 +40,7 @@ import static ca.gov.dtsstn.vacman.api.exception.ExceptionUtils.*;
 
 @RestController
 @Tag(name = "Profiles")
-@DependsOn({ "securityManager" })
+@DependsOn({ SecurityManager.NAME })
 @RequestMapping({ "/api/v1/profiles" })
 public class ProfilesController {
 
