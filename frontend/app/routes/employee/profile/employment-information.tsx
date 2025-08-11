@@ -39,8 +39,6 @@ export function meta({ loaderData }: Route.MetaArgs) {
 export async function action({ context, params, request }: Route.ActionArgs) {
   requireAuthentication(context.session, request);
 
-  // Get the current user's ID from the authenticated session
-  const currentUserId = context.session.authState.idTokenClaims.oid;
   const formData = await request.formData();
   const { parseResult, formValues } = await parseEmploymentInformation(formData, context.session.authState.accessToken);
   if (!parseResult.success) {
@@ -71,16 +69,16 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     hasEmploymentDataChanged(currentProfile.employmentInformation, parseResult.output)
   ) {
     // profile needs to be re-approved if and only if the current profile status is 'approved'
-    await profileService.submitProfileForReview(currentUserId);
+    await profileService.submitProfileForReview(context.session.authState.accessToken);
     return i18nRedirect('routes/employee/profile/index.tsx', request, {
-      params: { id: currentUserId },
+      params: { id: currentProfile.userId.toString() },
       search: new URLSearchParams({
         edited: 'true',
       }),
     });
   }
   return i18nRedirect('routes/employee/profile/index.tsx', request, {
-    params: { id: currentUserId },
+    params: { id: currentProfile.userId.toString() },
   });
 }
 
