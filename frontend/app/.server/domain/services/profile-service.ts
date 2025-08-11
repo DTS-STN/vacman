@@ -4,6 +4,7 @@ import type { Profile, ProfileStatus } from '~/.server/domain/models';
 import { getDefaultProfileService } from '~/.server/domain/services/profile-service-default';
 import { getMockProfileService } from '~/.server/domain/services/profile-service-mock';
 import { serverEnvironment } from '~/.server/environment';
+import type { ProfileStatusCode } from '~/domain/constants';
 import type { AppError } from '~/errors/app-error';
 
 /**
@@ -48,7 +49,7 @@ export type ProfileService = {
   updateProfileStatus(
     accessToken: string,
     profileId: string,
-    profileStatusCode: string,
+    profileStatusCode: ProfileStatusCode,
   ): Promise<Result<ProfileStatus, AppError>>;
   findAllProfiles(params: ListProfilesParams): Promise<Option<readonly Profile[]>>;
   listAllProfiles(params: ListProfilesParams): Promise<readonly Profile[]>;

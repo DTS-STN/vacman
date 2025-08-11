@@ -6,6 +6,7 @@ import { getUserService } from './user-service';
 
 import type { Profile, ProfileStatus, UserPersonalInformation } from '~/.server/domain/models';
 import type { ListProfilesParams, ProfileService } from '~/.server/domain/services/profile-service';
+import type { ProfileStatusCode } from '~/domain/constants';
 import { PROFILE_STATUS_ID } from '~/domain/constants';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
@@ -73,7 +74,7 @@ export function getMockProfileService(): ProfileService {
     updateProfileStatus: async (
       accessToken: string,
       profileId: string,
-      profileStatusCode: string,
+      profileStatusCode: ProfileStatusCode,
     ): Promise<Result<ProfileStatus, AppError>> => {
       if (!mockProfiles.find((p) => p.profileId.toString() === profileId)) {
         return Promise.resolve(Err(new AppError('Profile not found', ErrorCodes.PROFILE_NOT_FOUND)));

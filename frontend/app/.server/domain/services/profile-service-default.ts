@@ -6,6 +6,7 @@ import { getProfileStatusService } from './profile-status-service';
 
 import type { Profile, ProfileStatus } from '~/.server/domain/models';
 import type { ListProfilesParams, ProfileApiResponse, ProfileService } from '~/.server/domain/services/profile-service';
+import type { ProfileStatusCode } from '~/domain/constants';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
@@ -152,7 +153,7 @@ export function getDefaultProfileService(): ProfileService {
     async updateProfileStatus(
       accessToken: string,
       profileId: string,
-      profileStatusCode: string,
+      profileStatusCode: ProfileStatusCode,
     ): Promise<Result<ProfileStatus, AppError>> {
       const status: ProfileStatus | undefined = (await getProfileStatusService().listAll()).find(
         (status) => status.code === profileStatusCode,
