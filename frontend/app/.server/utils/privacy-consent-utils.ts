@@ -58,10 +58,14 @@ export async function requirePrivacyConsent(session: AuthenticatedSession, curre
  * not when a hiring manager is accessing another employee's profile.
  *
  * @param session - The authenticated session
- * @param currentUrl - The current request URL for redirect context
+ * @param requestOrUrl - The current request or URL for redirect context
  * @throws {Response} Redirect to index page if user hasn't accepted privacy consent
  */
-export async function requirePrivacyConsentForOwnProfile(session: AuthenticatedSession, currentUrl: URL): Promise<void> {
+export async function requirePrivacyConsentForOwnProfile(
+  session: AuthenticatedSession,
+  requestOrUrl: Request | URL,
+): Promise<void> {
+  const currentUrl = requestOrUrl instanceof Request ? new URL(requestOrUrl.url) : requestOrUrl;
   const currentUser = await getUserService().getCurrentUser(session.authState.accessToken);
   const profileOpion = await getProfileService().getCurrentUserProfile(session.authState.accessToken);
 

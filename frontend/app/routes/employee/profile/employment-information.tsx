@@ -16,6 +16,7 @@ import { getProvinceService } from '~/.server/domain/services/province-service';
 import { getUserService } from '~/.server/domain/services/user-service';
 import { getWFAStatuses } from '~/.server/domain/services/wfa-status-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
+import { requirePrivacyConsentForOwnProfile } from '~/.server/utils/privacy-consent-utils';
 import { hasEmploymentDataChanged, omitObjectProperties } from '~/.server/utils/profile-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { InlineLink } from '~/components/links';
@@ -90,6 +91,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 
 export async function loader({ context, request, params }: Route.LoaderArgs) {
   requireAuthentication(context.session, request);
+  await requirePrivacyConsentForOwnProfile(context.session, request);
 
   const currentProfileOption = await getProfileService().getCurrentUserProfile(context.session.authState.accessToken);
 

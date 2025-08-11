@@ -11,6 +11,7 @@ import { getLanguageForCorrespondenceService } from '~/.server/domain/services/l
 import { getProfileService } from '~/.server/domain/services/profile-service';
 import { getUserService } from '~/.server/domain/services/user-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
+import { requirePrivacyConsentForOwnProfile } from '~/.server/utils/privacy-consent-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { InlineLink } from '~/components/links';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
@@ -78,6 +79,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 
 export async function loader({ context, request, params }: Route.LoaderArgs) {
   requireAuthentication(context.session, request);
+  await requirePrivacyConsentForOwnProfile(context.session, request);
 
   const accessToken = context.session.authState.accessToken;
   const currentUser = await getUserService().getCurrentUser(accessToken);

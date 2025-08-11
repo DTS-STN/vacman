@@ -14,6 +14,7 @@ import { getLanguageReferralTypeService } from '~/.server/domain/services/langua
 import { getProfileService } from '~/.server/domain/services/profile-service';
 import { getProvinceService } from '~/.server/domain/services/province-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
+import { requirePrivacyConsentForOwnProfile } from '~/.server/utils/privacy-consent-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { InlineLink } from '~/components/links';
 import { REQUIRE_OPTIONS } from '~/domain/constants';
@@ -83,6 +84,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 
 export async function loader({ context, request, params }: Route.LoaderArgs) {
   requireAuthentication(context.session, request);
+  await requirePrivacyConsentForOwnProfile(context.session, request);
 
   const currentProfileOption = await getProfileService().getCurrentUserProfile(context.session.authState.accessToken);
 
