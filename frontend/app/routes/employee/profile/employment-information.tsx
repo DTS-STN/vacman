@@ -16,7 +16,6 @@ import { getProvinceService } from '~/.server/domain/services/province-service';
 import { getUserService } from '~/.server/domain/services/user-service';
 import { getWFAStatuses } from '~/.server/domain/services/wfa-status-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
-import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
 import { hasEmploymentDataChanged, omitObjectProperties } from '~/.server/utils/profile-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { InlineLink } from '~/components/links';
@@ -25,28 +24,27 @@ import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
 import { EmploymentInformationForm } from '~/routes/page-components/employees/employment-information/form';
-import type { employmentInformationSchema } from '~/routes/page-components/employees/validation.server';
+import type { EmploymentInformationSchema } from '~/routes/page-components/employees/validation.server';
 import { parseEmploymentInformation } from '~/routes/page-components/employees/validation.server';
 
 export const handle = {
   i18nNamespace: [...parentHandle.i18nNamespace],
 } as const satisfies RouteHandle;
 
-export function meta({ data }: Route.MetaArgs) {
-  return [{ title: data?.documentTitle }];
+export function meta({ loaderData }: Route.MetaArgs) {
+  return [{ title: loaderData?.documentTitle }];
 }
 
 export async function action({ context, params, request }: Route.ActionArgs) {
   requireAuthentication(context.session, request);
 
   // Get the current user's ID from the authenticated session
-  const authenticatedSession = context.session;
-  const currentUserId = authenticatedSession.authState.idTokenClaims.oid;
+  const currentUserId = context.session.authState.idTokenClaims.oid;
   const formData = await request.formData();
-  const { parseResult, formValues } = parseEmploymentInformation(formData);
+  const { parseResult, formValues } = await parseEmploymentInformation(formData, context.session.authState.accessToken);
   if (!parseResult.success) {
     return data(
-      { formValues: formValues, errors: v.flatten<typeof employmentInformationSchema>(parseResult.issues).nested },
+      { formValues: formValues, errors: v.flatten<EmploymentInformationSchema>(parseResult.issues).nested },
       { status: HttpStatusCodes.BAD_REQUEST },
     );
   }
@@ -54,8 +52,8 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   const currentProfileOption = await profileService.getCurrentUserProfile(context.session.authState.accessToken);
   const currentProfile = currentProfileOption.unwrap();
   const updateResult = await profileService.updateProfile(
-    authenticatedSession.authState.accessToken,
-    currentProfile.profileId.toString(),
+    context.session.authState.accessToken,
+    currentProfile.profileId,
     currentUserId,
     {
       ...currentProfile,
@@ -106,8 +104,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const provinces = await getProvinceService().listAllLocalized(lang);
   const cities = await getCityService().listAllLocalized(lang);
   const wfaStatuses = await getWFAStatuses().listAllLocalized(lang);
-  const authenticatedSession = context.session as AuthenticatedSession;
-  const hrAdvisors = await getUserService().getUsersByRole('hr-advisor', authenticatedSession.authState.accessToken);
+  const hrAdvisors = await getUserService().getUsersByRole('hr-advisor', context.session.authState.accessToken);
   const profileData: Profile = currentProfileOption.unwrap();
 
   const workUnitResult =

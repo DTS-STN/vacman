@@ -1,17 +1,18 @@
 import type { JSX } from 'react';
 
 import { useLoaderData } from 'react-router';
-import type { RouteHandle, LoaderFunctionArgs, MetaFunction } from 'react-router';
+import type { RouteHandle, LoaderFunctionArgs } from 'react-router';
 
 import type { ColumnDef } from '@tanstack/react-table';
 import { format } from 'date-fns';
 import { useTranslation } from 'react-i18next';
 
-import type { Route } from '../+types/index';
+import type { Route } from './+types/employees';
 
 import type { Profile } from '~/.server/domain/models';
 import { getProfileService } from '~/.server/domain/services/profile-service';
 import { getProfileStatusService } from '~/.server/domain/services/profile-status-service';
+import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { Button } from '~/components/button';
 import { DataTable, DataTableColumnHeader, DataTableColumnHeaderWithOptions } from '~/components/data-table';
 import { InlineLink } from '~/components/links';
@@ -24,11 +25,29 @@ export const handle = {
   i18nNamespace: [...parentHandle.i18nNamespace],
 } as const satisfies RouteHandle;
 
+export function meta({ loaderData }: Route.MetaArgs) {
+  return [{ title: loaderData?.documentTitle }];
+}
+
 export async function loader({ context, request }: LoaderFunctionArgs) {
+  requireAuthentication(context.session, request);
+
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
 
-  const profiles = await getProfileService().getAllProfiles();
-  const statuses = await getProfileStatusService().listAllLocalized(lang);
+  const profileParams = {
+    accessToken: context.session.authState.accessToken,
+    active: true, // will return In Progress, Pending Approval and Approved
+    hrAdvisorId: null, // if null : will return everything, if a UserId : will return profiles linked to that hr-advisor, if "me" : will return profiles linked to the logged in hr-advisor -> to be used later in filtering
+    includeUserData: true, // will add user data (names and email)
+  };
+
+  const profileService = getProfileService();
+  const profileStatusService = getProfileStatusService();
+
+  const [profiles, statuses] = await Promise.all([
+    profileService.listAllProfiles(profileParams),
+    profileStatusService.listAllLocalized(lang),
+  ]);
 
   const hrRelevantEmployeeStatusCodes = [PROFILE_STATUS_CODE.approved, PROFILE_STATUS_CODE.pending];
   const statusIds = statuses
@@ -48,10 +67,6 @@ export async function loader({ context, request }: LoaderFunctionArgs) {
     statuses,
   };
 }
-
-export const meta: MetaFunction<typeof loader> = ({ data }) => {
-  return [{ title: data?.documentTitle }];
-};
 
 export default function EmployeeDashboard({ params }: Route.ComponentProps) {
   const { t } = useTranslation(handle.i18nNamespace);

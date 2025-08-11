@@ -2,18 +2,18 @@ package ca.gov.dtsstn.vacman.api.web;
 
 import java.util.List;
 
-import ca.gov.dtsstn.vacman.api.constants.AppConstants;
-
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.validator.constraints.Range;
 import org.mapstruct.factory.Mappers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedModel;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import ca.gov.dtsstn.vacman.api.config.SpringDocConfig;
+import ca.gov.dtsstn.vacman.api.constants.AppConstants;
 import ca.gov.dtsstn.vacman.api.security.SecurityUtils;
 import ca.gov.dtsstn.vacman.api.service.MSGraphService;
 import ca.gov.dtsstn.vacman.api.service.UserService;
@@ -40,12 +41,9 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
-import static ca.gov.dtsstn.vacman.api.constants.AppConstants.UserFields.MS_ENTRA_ID;
-import static ca.gov.dtsstn.vacman.api.exception.ExceptionUtils.generateIdDoesNotExistException;
-import static ca.gov.dtsstn.vacman.api.exception.ExceptionUtils.generateUserWithFieldDoesNotExistException;
-
 @RestController
 @Tag(name = "Users")
+@DependsOn({ "securityManager" })
 @RequestMapping({ AppConstants.ApiPaths.USERS })
 public class UsersController {
 
@@ -63,23 +61,23 @@ public class UsersController {
 	}
 
 	@PostMapping({ "/me" })
+	@PreAuthorize("isAuthenticated()")
 	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
 	@Operation(summary = "Create a new user from the supplied auth token.")
 	public ResponseEntity<UserReadModel> createCurrentUser(@Valid @RequestBody UserCreateModel user) {
 		log.info("Received request to create new user; request: [{}]", user);
 
-		final var microsoftEntraId = SecurityUtils.getCurrentUserEntraId()
-			.orElseThrow(() -> new UnauthorizedException("Could not extract 'oid' claim from JWT token"));
+		final var entraId = SecurityUtils.getCurrentUserEntraId()
+			.orElseThrow(() -> new UnauthorizedException("Entra ID not found in security context"));
 
-		log.debug("Checking if user with microsoftEntraId=[{}] already exists", microsoftEntraId);
+		log.debug("Checking if user with entraId=[{}] already exists", entraId);
 
-		userService.getUserByMicrosoftEntraId(microsoftEntraId)
-			.ifPresent(existingUser -> { throw new ResourceConflictException("A user with microsoftEntraId=[" + microsoftEntraId + "] already exists"); });
+		userService.getUserByMicrosoftEntraId(entraId).ifPresent(xxx -> {
+			throw new ResourceConflictException("A user with microsoftEntraId=[" + entraId + "] already exists");
+		});
 
-		log.debug("Fetching user with microsoftEntraId=[{}] from MSGraph", microsoftEntraId);
-
-		final var msGraphUser = msGraphService.getUser(microsoftEntraId)
-			.orElseThrow(() -> new ResourceNotFoundException("User with microsoftEntraId=[" + microsoftEntraId + "] not found in MSGraph"));
+		final var msGraphUser = msGraphService.getUser(entraId)
+			.orElseThrow(() -> new ResourceNotFoundException("User with entraId=[" + entraId + "] not found in MSGraph"));
 
 		log.debug("MSGraph user details: [{}]", msGraphUser);
 
@@ -91,35 +89,35 @@ public class UsersController {
 			.build();
 
 		log.debug("Creating user in database...");
-
 		final var createdUser = userModelMapper.toModel(userService.createUser(userEntity, user.languageId()));
-
 		log.trace("Successfully created new user: [{}]", createdUser);
 
 		return ResponseEntity.ok(createdUser);
 	}
 
 	@GetMapping({ "/me" })
+	@PreAuthorize("isAuthenticated()")
 	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
 	@Operation(summary = "Get the current user.", description = "Returns the current user.")
 	public ResponseEntity<UserReadModel> getCurrentUser() {
 		log.debug("Received request to get current user");
 
-		final var microsoftEntraId = SecurityUtils.getCurrentUserEntraId()
-			.orElseThrow(() -> new UnauthorizedException("Could not extract 'oid' claim from JWT token"));
+		final var entraId = SecurityUtils.getCurrentUserEntraId()
+			.orElseThrow(() -> new UnauthorizedException("Entra ID not found in security context"));
 
-		log.debug("Fetching user with microsoftEntraId=[{}]", microsoftEntraId);
+		log.debug("Fetching current user with microsoftEntraId=[{}]", entraId);
 
-		final var user = userService.getUserByMicrosoftEntraId(microsoftEntraId)
+		final var user = userService.getUserByMicrosoftEntraId(entraId)
 			.map(userModelMapper::toModel)
-			.orElseThrow(() -> generateUserWithFieldDoesNotExistException(MS_ENTRA_ID, microsoftEntraId));
+			.orElseThrow(() -> new ResourceNotFoundException("User with microsoftEntraId=[" + entraId + "] not found"));
 
-		log.debug("Found user:  [{}]", user);
+		log.debug("Found current user: [{}]", user);
 
 		return ResponseEntity.ok(user);
 	}
 
 	@GetMapping
+	@PreAuthorize("hasAuthority('hr-advisor')")
 	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
 	@Operation(summary = "Get users with pagination.", description = "Returns a paginated list of users.")
 	public ResponseEntity<PagedModel<UserReadModel>> getUsers(
@@ -136,7 +134,7 @@ public class UsersController {
 			@Parameter(description = "Page size (between 1 and 100)")
 			int size) {
 		if (StringUtils.isNotBlank(microsoftEntraId)) {
-			final var users = userService.getUserByMicrosoftEntraId(microsoftEntraId.trim())
+			final var users = userService.getUserByMicrosoftEntraId(microsoftEntraId)
 				.map(userModelMapper::toModel)
 				.map(List::of)
 				.orElse(List.of());
@@ -151,10 +149,11 @@ public class UsersController {
 	@GetMapping("/{id}")
 	@Operation(summary = "Get a user by ID.")
 	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
+	@PreAuthorize("hasAuthority('hr-advisor') || @securityManager.canAccessUser(#id)")
 	public ResponseEntity<UserReadModel> getUserById(@PathVariable Long id) {
 		final var result = userService.getUserById(id)
 			.map(userModelMapper::toModel)
-			.orElseThrow(() -> generateIdDoesNotExistException("user", id));
+			.orElseThrow(() -> new ResourceNotFoundException("User with id=[" + id + "] not found"));
 
 		return ResponseEntity.ok(result);
 	}
@@ -162,8 +161,9 @@ public class UsersController {
 	@PatchMapping("/{id}")
 	@Operation(summary = "Update an existing user.")
 	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
+	@PreAuthorize("hasAuthority('hr-advisor') || @securityManager.canAccessUser(#id)")
 	public ResponseEntity<UserReadModel> updateUser(@PathVariable Long id, @RequestBody @Valid UserUpdateModel userUpdate) {
-		userService.getUserById(id).orElseThrow(() -> generateIdDoesNotExistException("user", id));
+		userService.getUserById(id).orElseThrow(() -> new ResourceNotFoundException("User with id=[" + id + "] not found"));
 		final var updatedUser = userService.updateUser(userUpdate);
 		return ResponseEntity.ok(userModelMapper.toModel(updatedUser));
 	}

@@ -1,6 +1,9 @@
 package ca.gov.dtsstn.vacman.api.config;
 
-import static org.springframework.security.config.Customizer.withDefaults;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,18 +11,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.web.SecurityFilterChain;
 
 import ca.gov.dtsstn.vacman.api.web.AuthErrorHandler;
 
 @Configuration
-@EnableMethodSecurity
 public class WebSecurityConfig {
 
 	private static final Logger log = LoggerFactory.getLogger(WebSecurityConfig.class);
@@ -52,10 +59,36 @@ public class WebSecurityConfig {
 	}
 
 	@Configuration
+	@EnableMethodSecurity
 	@ConditionalOnProperty(name = "application.security.disabled", havingValue = "false", matchIfMissing = true)
 	static class DefaultWebSecurityConfig {
 
 		@Autowired AuthErrorHandler authErrorHandler;
+
+		/**
+		 * Converts an Entra ID access token to a Spring Security {@link Authentication} object.
+		 */
+		@Bean JwtAuthenticationConverter jwtAuthenticationConverter() {
+			log.info("Creating 'jwtAuthenticationConverter' bean");
+
+			final var jwtAuthenticationConverter = new JwtAuthenticationConverter();
+			jwtAuthenticationConverter.setPrincipalClaimName("oid"); // TODO ::: GjB ::: extract to config string
+			jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwtGrantedAuthoritiesConverter());
+
+			return jwtAuthenticationConverter;
+		}
+
+		/**
+		 * Converts an Entra ID access token to a collection of Spring Security {@link GrantedAuthority} objects.
+		 */
+		@Bean Converter<Jwt, Collection<GrantedAuthority>> jwtGrantedAuthoritiesConverter() {
+			log.info("Creating 'jwtGrantedAuthoritiesConverter' bean");
+
+			return jwt -> Optional.ofNullable(jwt.getClaimAsStringList("roles")) // TODO ::: GjB ::: extract to config string
+				.orElse(Collections.emptyList()).stream()
+				.map(SimpleGrantedAuthority::new)
+				.collect(Collectors.toUnmodifiableList());
+		}
 
 		/**
 		 * Security configuration for API endpoints.
@@ -68,23 +101,17 @@ public class WebSecurityConfig {
 				.exceptionHandling(exceptionHandling -> exceptionHandling.accessDeniedHandler(authErrorHandler))
 				.oauth2ResourceServer(oauth2ResourceServer -> oauth2ResourceServer
 					.authenticationEntryPoint(authErrorHandler)
-					.jwt(withDefaults()))
+					.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())))
 				.sessionManagement(sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
-			http.authorizeHttpRequests(authorizeHttpRequests -> authorizeHttpRequests
-				// allow all XHR preflight checks
-				.requestMatchers(HttpMethod.OPTIONS).permitAll()
-				// codes have no protected data, so they require no auth to fetch
-				.requestMatchers("/api/*/codes/**").permitAll()
-				// TODO ::: GjB ::: figure out specific roles and permissions
-				.requestMatchers("/api/*/users/me").authenticated()
-				.requestMatchers("/api/*/profiles").authenticated()
-				.requestMatchers("/api/*/profiles/*").authenticated()
-//				.requestMatchers("/api/**").hasAuthority("SCOPE_employee")
-				.anyRequest().denyAll());
+			//
+			// Note: additional security checks for this filter chain
+			//       will be handled by controller @PreAuthorize annotations
+			//
 
 			return http.build();
 		}
+
 	}
 
 	/**

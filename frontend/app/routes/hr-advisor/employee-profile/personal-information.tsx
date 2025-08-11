@@ -20,15 +20,14 @@ export const handle = {
   i18nNamespace: [...parentHandle.i18nNamespace],
 } as const satisfies RouteHandle;
 
-export function meta({ data }: Route.MetaArgs) {
-  return [{ title: data?.documentTitle }];
+export function meta({ loaderData }: Route.MetaArgs) {
+  return [{ title: loaderData?.documentTitle }];
 }
 
 export function action({ context, params, request }: Route.ActionArgs) {
   requireAuthentication(context.session, request);
 
-  const authenticatedSession = context.session;
-  const currentUserId = authenticatedSession.authState.idTokenClaims.oid;
+  const currentUserId = context.session.authState.idTokenClaims.oid;
 
   //TODO: Implement approval logic
 
@@ -42,7 +41,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 
   const accessToken = context.session.authState.accessToken;
   const currentUser = await getUserService().getCurrentUser(accessToken);
-  const currentProfileOption = await getProfileService().getProfileById(accessToken, params.id);
+  const currentProfileOption = await getProfileService().getProfileById(accessToken, Number(params.profileId));
 
   if (currentProfileOption.isErr()) {
     throw new Response('Profile not found', { status: 404 });

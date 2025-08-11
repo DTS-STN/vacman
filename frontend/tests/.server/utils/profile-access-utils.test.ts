@@ -34,7 +34,8 @@ const mockProfileService = {
   registerProfile: vi.fn(),
   updateProfile: vi.fn(),
   submitProfileForReview: vi.fn(),
-  getAllProfiles: vi.fn(),
+  findAllProfiles: vi.fn(),
+  listAllProfiles: vi.fn(),
   getCurrentUserProfile: vi.fn(),
 };
 const mockUserService = {
@@ -131,7 +132,7 @@ describe('Profile Access Utils', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     // Default: profile exists
-    mockProfileService.getProfile.mockResolvedValue(Some(mockProfile));
+    mockProfileService.getCurrentUserProfile.mockResolvedValue(Some(mockProfile));
     // Default: no privacy consent check required
     mockRequirePrivacyConsentForOwnProfile.mockResolvedValue(undefined);
   });
@@ -142,7 +143,7 @@ describe('Profile Access Utils', () => {
         // Arrange
         const session = createMockSession('test-user-123');
         const targetUserId = 'non-existent-user';
-        mockProfileService.getProfile.mockResolvedValue(None);
+        mockProfileService.getCurrentUserProfile.mockResolvedValue(None);
 
         // Act & Assert
         await expect(requireProfileAccess(session, targetUserId)).rejects.toThrow(AppError);
@@ -162,7 +163,7 @@ describe('Profile Access Utils', () => {
 
         // Act & Assert - should not throw
         await expect(requireProfileAccess(session, targetUserId, currentUrl)).resolves.not.toThrow();
-        expect(mockRequirePrivacyConsentForOwnProfile).toHaveBeenCalledWith(session, targetUserId, currentUrl);
+        expect(mockRequirePrivacyConsentForOwnProfile).toHaveBeenCalledWith(session, currentUrl);
       });
 
       it('should grant access when user accesses their own profile without URL', async () => {
@@ -269,7 +270,7 @@ describe('Profile Access Utils', () => {
       // Arrange
       const session = createMockSession('test-user-123');
       const targetUserId = 'non-existent-user';
-      mockProfileService.getProfile.mockResolvedValue(None);
+      mockProfileService.getCurrentUserProfile.mockResolvedValue(None);
 
       // Act
       const result = await hasProfileAccess(session, targetUserId);
@@ -283,7 +284,7 @@ describe('Profile Access Utils', () => {
       const session = createMockSession('test-user-123');
       const targetUserId = 'test-user-123';
       const unexpectedError = new Error('Unexpected error');
-      mockProfileService.getProfile.mockRejectedValue(unexpectedError);
+      mockProfileService.getCurrentUserProfile.mockRejectedValue(unexpectedError);
 
       // Act & Assert
       await expect(hasProfileAccess(session, targetUserId)).rejects.toThrow(unexpectedError);
@@ -323,7 +324,7 @@ describe('Profile Access Utils', () => {
 
       // Mock profile exists for access check but not for retrieval
       let callCount = 0;
-      mockProfileService.getProfile.mockImplementation(() => {
+      mockProfileService.getCurrentUserProfile.mockImplementation(() => {
         callCount++;
         if (callCount === 1) {
           return Promise.resolve(Some(mockProfile)); // First call in requireProfileAccess
@@ -432,7 +433,7 @@ describe('Profile Access Utils', () => {
       // Assert
       expect(hasAccess).toBe(true);
       expect(profile).toEqual(mockProfile);
-      expect(mockRequirePrivacyConsentForOwnProfile).toHaveBeenCalledWith(session, targetUserId, currentUrl);
+      expect(mockRequirePrivacyConsentForOwnProfile).toHaveBeenCalledWith(session, currentUrl);
       // User service should not be called for own profile access
       expect(mockUserService.getCurrentUser).not.toHaveBeenCalled();
     });
@@ -448,7 +449,7 @@ describe('Profile Access Utils', () => {
       await expect(checkProfileRouteAccess(session, currentUrl)).resolves.not.toThrow();
       expect(mockIsProfileRoute).toHaveBeenCalledWith(currentUrl);
       expect(mockExtractUserIdFromProfileRoute).toHaveBeenCalledWith(currentUrl);
-      expect(mockRequirePrivacyConsentForOwnProfile).toHaveBeenCalledWith(session, 'test-user-123', currentUrl);
+      expect(mockRequirePrivacyConsentForOwnProfile).toHaveBeenCalledWith(session, currentUrl);
     });
   });
 });

@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 
 import ca.gov.dtsstn.vacman.api.data.entity.EventEntityBuilder;
 import ca.gov.dtsstn.vacman.api.data.repository.EventRepository;
+import ca.gov.dtsstn.vacman.api.event.CurrentUserReadEvent;
 import ca.gov.dtsstn.vacman.api.event.UserCreateConflictEvent;
 import ca.gov.dtsstn.vacman.api.event.UserCreatedEvent;
 import ca.gov.dtsstn.vacman.api.event.UserDeletedEvent;
@@ -85,7 +86,18 @@ public class UserEventListener {
 			.details(objectMapper.writeValueAsString(event))
 			.build());
 
-		log.info("Event: user read - ID: {}", event.entity().getId());
+		log.info("Event: user read - ID: {}", event.userId());
+	}
+
+	@Async
+	@EventListener({ CurrentUserReadEvent.class })
+	public void handleCurrentUserRead(CurrentUserReadEvent event) throws JsonProcessingException {
+		eventRepository.save(new EventEntityBuilder()
+			.type("CURRENT_USER_READ")
+			.details(objectMapper.writeValueAsString(event))
+			.build());
+
+		log.info("Event: current user read - ID: {}, Entra ID: {}", event.userId(), event.microsoftEntraId());
 	}
 
 }

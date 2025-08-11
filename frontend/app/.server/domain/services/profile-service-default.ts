@@ -4,61 +4,68 @@ import type { Option, Result } from 'oxide.ts';
 import { apiClient } from './api-client';
 
 import type { Profile } from '~/.server/domain/models';
-import type { ProfileService } from '~/.server/domain/services/profile-service';
+import type { ListProfilesParams, ProfileApiResponse, ProfileService } from '~/.server/domain/services/profile-service';
 import { serverEnvironment } from '~/.server/environment';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
 import type { HttpStatusCode } from '~/errors/http-status-codes';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
+import queryClient from '~/query-client';
+
+/**
+ * Internal helper to fetch profiles based on filters.
+ * @private
+ */
+async function getAllProfiles(params: ListProfilesParams): Promise<Result<readonly (Profile | null | undefined)[], AppError>> {
+  const { accessToken, active, hrAdvisorId, includeUserData } = params;
+  // The query key MUST be unique for every combination of parameters
+  // to prevent cache collisions. An object ensures the key is stable.
+  const queryKey = ['profiles', 'list', { active, hrAdvisorId, includeUserData, accessToken }];
+
+  const queryFn = async (): Promise<readonly (Profile | null | undefined)[]> => {
+    const searchParams = new URLSearchParams();
+
+    if (active !== null && active !== undefined) {
+      searchParams.append('active', String(active));
+    }
+
+    if (hrAdvisorId) {
+      searchParams.append('hr-advisor', hrAdvisorId);
+    }
+
+    searchParams.append('user-data', String(includeUserData));
+
+    const queryString = searchParams.toString();
+    const endpoint = `/profiles${queryString ? `?${queryString}` : ''}`;
+    const context = 'list filtered profiles';
+
+    const response = await apiClient.get<ProfileApiResponse>(endpoint, context, accessToken);
+
+    if (response.isErr()) {
+      // Let fetchQuery handle the thrown error.
+      throw response.unwrapErr();
+    }
+    return response.unwrap().content;
+  };
+
+  try {
+    const data = await queryClient.fetchQuery<
+      readonly (Profile | null | undefined)[],
+      AppError,
+      readonly (Profile | null | undefined)[],
+      (string | object | undefined)[] // Updated query key type
+    >({
+      queryKey,
+      queryFn,
+    });
+    return Ok(data);
+  } catch (error) {
+    return Err(error as AppError);
+  }
+}
 
 export function getDefaultProfileService(): ProfileService {
   return {
-    /**
-     * Retrieves a profile by Active Directory ID.
-     * @param activeDirectoryId The Active Directory ID of the user whose profile to retrieve.
-     * @returns A promise that resolves to the profile object, or None if not found.
-     * @throws AppError if the request fails or if the server responds with an error status.
-     */
-    async getProfile(activeDirectoryId: string): Promise<Option<Profile>> {
-      let response: Response;
-
-      try {
-        response = await fetch(
-          `${serverEnvironment.VACMAN_API_BASE_URI}/profiles/by-active-directory-id/${encodeURIComponent(activeDirectoryId)}`,
-        );
-      } catch (error) {
-        throw new AppError(
-          error instanceof Error
-            ? error.message
-            : `Network error while fetching profile for Active Directory ID ${activeDirectoryId}`,
-          ErrorCodes.PROFILE_NETWORK_ERROR,
-          { httpStatusCode: HttpStatusCodes.SERVICE_UNAVAILABLE },
-        );
-      }
-
-      if (response.status === HttpStatusCodes.NOT_FOUND) {
-        return None;
-      }
-
-      if (!response.ok) {
-        const errorMessage = `Failed to retrieve profile for Active Directory ID ${activeDirectoryId}. Server responded with status ${response.status}.`;
-        throw new AppError(errorMessage, ErrorCodes.PROFILE_FETCH_FAILED, {
-          httpStatusCode: response.status as HttpStatusCode,
-        });
-      }
-
-      try {
-        const profile = await response.json();
-        return Some(profile);
-      } catch {
-        throw new AppError(
-          `Invalid JSON response while fetching profile for Active Directory ID ${activeDirectoryId}`,
-          ErrorCodes.PROFILE_INVALID_RESPONSE,
-          { httpStatusCode: HttpStatusCodes.BAD_GATEWAY },
-        );
-      }
-    },
-
     /**
      * Retrieves a profile by its ID from the profile service.
      *
@@ -68,7 +75,7 @@ export function getDefaultProfileService(): ProfileService {
      *   - Ok(Profile) if the profile is found.
      *   - Err(AppError) if the profile is not found or if the request fails.
      */
-    async getProfileById(accessToken: string, profileId: string): Promise<Result<Profile, AppError>> {
+    async getProfileById(accessToken: string, profileId: number): Promise<Result<Profile, AppError>> {
       const result = await apiClient.get<Profile>(`/profiles/${profileId}`, 'fetch profile by ID', accessToken);
 
       return result.mapErr((error) => {
@@ -80,7 +87,7 @@ export function getDefaultProfileService(): ProfileService {
       });
     },
 
-    async findProfileById(accessToken: string, profileId: string): Promise<Option<Profile>> {
+    async findProfileById(accessToken: string, profileId: number): Promise<Option<Profile>> {
       const result = await this.getProfileById(accessToken, profileId);
       return result.ok();
     },
@@ -115,7 +122,7 @@ export function getDefaultProfileService(): ProfileService {
 
     async updateProfile(
       accessToken: string,
-      profileId: string,
+      profileId: number,
       userUpdated: string,
       data: Profile,
     ): Promise<Result<void, AppError>> {
@@ -188,32 +195,38 @@ export function getDefaultProfileService(): ProfileService {
       }
     },
 
-    async getAllProfiles(): Promise<Profile[]> {
-      let response: Response;
-      try {
-        response = await fetch(`${serverEnvironment.VACMAN_API_BASE_URI}/profiles`);
-      } catch (error) {
-        throw new AppError(
-          error instanceof Error ? error.message : `Network error while fetching all profiles`,
-          ErrorCodes.PROFILE_NETWORK_ERROR,
-          { httpStatusCode: HttpStatusCodes.SERVICE_UNAVAILABLE },
-        );
+    /**
+     * Finds all profiles based on filters. Returns an Option.
+     */
+    async findAllProfiles(params: ListProfilesParams): Promise<Option<readonly Profile[]>> {
+      const result = await getAllProfiles(params);
+
+      return result
+        .map((dirtyList) =>
+          dirtyList.filter((item): item is Profile => {
+            return item !== null && typeof item === 'object' && 'profileId' in item;
+          }),
+        )
+        .ok();
+    },
+
+    /**
+     * Retrieves a sanitized list of profiles based on filters. Throws on error.
+     */
+    async listAllProfiles(params: ListProfilesParams): Promise<readonly Profile[]> {
+      const result = await getAllProfiles(params);
+
+      if (result.isErr()) {
+        const error = result.unwrapErr();
+        throw new AppError(error.message, ErrorCodes.PROFILE_FETCH_FAILED, error);
       }
 
-      if (!response.ok) {
-        const errorMessage = `Failed to retrieve all profiles. Server responded with status ${response.status}.`;
-        throw new AppError(errorMessage, ErrorCodes.PROFILE_FETCH_FAILED, {
-          httpStatusCode: response.status as HttpStatusCode,
-        });
-      }
+      const dirtyList = result.unwrap();
 
-      try {
-        return await response.json();
-      } catch {
-        throw new AppError(`Invalid JSON response while fetching all profiles`, ErrorCodes.PROFILE_INVALID_RESPONSE, {
-          httpStatusCode: HttpStatusCodes.BAD_GATEWAY,
-        });
-      }
+      // Sanitize the data before returning it.
+      return dirtyList.filter((item): item is Profile => {
+        return item !== null && typeof item === 'object' && 'profileId' in item;
+      });
     },
 
     /**

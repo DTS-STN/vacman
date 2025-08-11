@@ -33,20 +33,12 @@ export const handle = {
   i18nNamespace: [...parentHandle.i18nNamespace],
 } as const satisfies RouteHandle;
 
-export function meta({ data }: Route.MetaArgs) {
-  return [{ title: data?.documentTitle }];
+export function meta({ loaderData }: Route.MetaArgs) {
+  return [{ title: loaderData?.documentTitle }];
 }
 
-export async function action({ context, request }: Route.ActionArgs) {
+export function action({ context, request }: Route.ActionArgs) {
   requireAuthentication(context.session, request);
-
-  const authenticatedSession = context.session;
-  const currentUserId = authenticatedSession.authState.idTokenClaims.oid;
-
-  const profileResult = await getProfileService().getProfile(currentUserId);
-  if (profileResult.isNone()) {
-    return { status: 'profile-not-found' };
-  }
 
   //TODO: add logic to approve employee profile
 
@@ -55,9 +47,6 @@ export async function action({ context, request }: Route.ActionArgs) {
 
 export async function loader({ context, request, params }: Route.LoaderArgs) {
   requireAuthentication(context.session, request);
-
-  // Use the id parameter from the URL to fetch the profile
-  const profileUserId = params.id;
 
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
 
@@ -69,7 +58,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     allLocalizedCities,
     allLocalizedEmploymentTenures,
   ] = await Promise.all([
-    getProfileService().getProfileById(context.session.authState.accessToken, profileUserId),
+    getProfileService().getProfileById(context.session.authState.accessToken, Number(params.profileId)),
     getLanguageReferralTypeService().listAllLocalized(lang),
     getClassificationService().listAllLocalized(lang),
     getCityService().listAllLocalized(lang),
@@ -82,10 +71,9 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   }
 
   const profileData: Profile = profileResult.unwrap();
-  const authenticatedSession = context.session;
 
   const profileUpdatedByUser = profileData.userUpdated
-    ? await getUserService().getUserById(profileData.userId, authenticatedSession.authState.accessToken)
+    ? await getUserService().getUserById(profileData.userId, context.session.authState.accessToken)
     : undefined;
   const profileUpdatedByUserName = profileUpdatedByUser && `${profileUpdatedByUser.firstName} ${profileUpdatedByUser.lastName}`;
   const profileStatus = (await getProfileStatusService().findLocalizedById(profileData.profileStatusId, lang)).unwrap();
@@ -117,10 +105,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const wfaStatus = wfaStatusResult ? (wfaStatusResult.isSome() ? wfaStatusResult.unwrap() : undefined) : undefined;
   const hrAdvisor =
     profileData.employmentInformation.hrAdvisor &&
-    (await getUserService().getUserById(
-      profileData.employmentInformation.hrAdvisor,
-      authenticatedSession.authState.accessToken,
-    ));
+    (await getUserService().getUserById(profileData.employmentInformation.hrAdvisor, context.session.authState.accessToken));
   const languageReferralTypes = profileData.referralPreferences.languageReferralTypeIds
     ?.map((langId) => allLocalizedLanguageReferralTypes.find((l) => l.id === langId))
     .filter(Boolean);

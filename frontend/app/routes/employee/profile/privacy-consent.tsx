@@ -1,5 +1,7 @@
-import type { RouteHandle, LoaderFunctionArgs, ActionFunctionArgs, MetaFunction } from 'react-router';
+import type { RouteHandle, LoaderFunctionArgs, ActionFunctionArgs } from 'react-router';
 import { Form } from 'react-router';
+
+import type { Route } from './+types/privacy-consent';
 
 import type { Profile } from '~/.server/domain/models';
 import { getProfileService } from '~/.server/domain/services/profile-service';
@@ -14,18 +16,16 @@ export const handle = {
   i18nNamespace: [...parentHandle.i18nNamespace],
 } as const satisfies RouteHandle;
 
-export const meta: MetaFunction<typeof loader> = ({ data }) => {
-  return [{ title: data?.documentTitle }];
-};
+export function meta({ loaderData }: Route.MetaArgs) {
+  return [{ title: loaderData?.documentTitle }];
+}
 
 export async function action({ context, request }: ActionFunctionArgs) {
-  const currentUrl = new URL(request.url);
-  requireAuthentication(context.session, currentUrl);
-  const authenticatedSession = context.session;
-  const currentUserId = authenticatedSession.authState.idTokenClaims.oid;
+  requireAuthentication(context.session, request);
+  const currentUserId = context.session.authState.idTokenClaims.oid;
 
   const profileService = getProfileService();
-  const profileOption = await profileService.getCurrentUserProfile(authenticatedSession.authState.accessToken);
+  const profileOption = await profileService.getCurrentUserProfile(context.session.authState.accessToken);
 
   if (profileOption.isNone()) {
     return i18nRedirect('routes/index.tsx', request);
@@ -39,8 +39,8 @@ export async function action({ context, request }: ActionFunctionArgs) {
   };
 
   await profileService.updateProfile(
-    authenticatedSession.authState.accessToken,
-    profile.profileId.toString(),
+    context.session.authState.accessToken,
+    profile.profileId,
     currentUserId,
     updatePrivacyConsent,
   );
@@ -49,6 +49,7 @@ export async function action({ context, request }: ActionFunctionArgs) {
 }
 
 export async function loader({ context, request }: LoaderFunctionArgs) {
+  requireAuthentication(context.session, request);
   const { t } = await getTranslation(request, handle.i18nNamespace);
   return { documentTitle: t('app:index.register-as') };
 }

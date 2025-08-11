@@ -7,66 +7,9 @@ import { ErrorCodes } from '~/errors/error-codes';
 describe('getMockProfileService', () => {
   const service = getMockProfileService();
 
-  describe('getProfile', () => {
-    it('should return a profile when given a valid Active Directory ID', async () => {
-      const profile = await service.getProfile('00000000-0000-0000-0000-000000000001');
-
-      expect(profile.isSome()).toBe(true);
-      expect(profile.unwrap()).toEqual({
-        profileId: 1,
-        userId: 1,
-        userIdReviewedBy: undefined,
-        userIdApprovedBy: undefined,
-        priorityLevelId: 1,
-        profileStatusId: 3,
-        privacyConsentInd: false,
-        userCreated: 'system',
-        dateCreated: '2024-01-01T00:00:00Z',
-        userUpdated: undefined,
-        dateUpdated: undefined,
-        personalInformation: {
-          givenName: 'Jane',
-          surname: 'Doe',
-          personalRecordIdentifier: '123456789',
-          preferredLanguageId: undefined,
-          workEmail: 'firstname.lastname@email.ca',
-          personalEmail: 'jane.doe@example.com',
-          workPhone: undefined,
-          personalPhone: '613-555-0001',
-          additionalInformation: 'Looking for opportunities in software development.',
-        },
-        employmentInformation: {
-          substantivePosition: undefined,
-          branchOrServiceCanadaRegion: undefined,
-          directorate: undefined,
-          province: undefined,
-          cityId: undefined,
-          wfaStatus: undefined,
-          wfaEffectiveDate: undefined,
-          wfaEndDate: undefined,
-          hrAdvisor: undefined,
-        },
-        referralPreferences: {
-          languageReferralTypeIds: [864190000],
-          classificationIds: [905190000, 905190001],
-          workLocationProvince: 1,
-          workLocationCitiesIds: [411290001, 411290002],
-          availableForReferralInd: true,
-          interestedInAlternationInd: false,
-          employmentTenureIds: [664190000, 664190001, 664190003],
-        },
-      });
-    });
-
-    it('should return null when profile is not found', async () => {
-      const profile = await service.getProfile('nonexistent-id');
-      expect(profile.isNone()).toBe(true);
-    });
-  });
-
   describe('registerProfile', () => {
     it('should return an Ok result with a new profile on success', async () => {
-      const activeDirectoryId = 'test-user-new-profile';
+      const activeDirectoryId = '00000000-0000-0000-0000-000000000000';
 
       // The method now returns a Result object.
       const result = await service.registerProfile(activeDirectoryId);
@@ -87,8 +30,8 @@ describe('getMockProfileService', () => {
       expect(createdProfile.referralPreferences.interestedInAlternationInd).toBe(false);
 
       // Verify the profile was actually added to the mock data
-      const retrievedProfile = await service.getProfile(activeDirectoryId);
-      expect(retrievedProfile.isSome()).toBe(true);
+      const retrievedProfile = await service.getProfileById('mock-token', createdProfile.profileId);
+      expect(retrievedProfile.isOk()).toBe(true);
       expect(retrievedProfile.unwrap().profileId).toBe(createdProfile.profileId);
     });
 

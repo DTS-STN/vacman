@@ -28,16 +28,15 @@ export const handle = {
   i18nNamespace: [...parentHandle.i18nNamespace],
 } as const satisfies RouteHandle;
 
-export function meta({ data }: Route.MetaArgs) {
-  return [{ title: data?.documentTitle }];
+export function meta({ loaderData }: Route.MetaArgs) {
+  return [{ title: loaderData?.documentTitle }];
 }
 
 export async function action({ context, params, request }: Route.ActionArgs) {
   requireAuthentication(context.session, request);
 
   // Get the current user's ID from the authenticated session
-  const authenticatedSession = context.session;
-  const currentUserId = authenticatedSession.authState.idTokenClaims.oid;
+  const currentUserId = context.session.authState.idTokenClaims.oid;
   const formData = await request.formData();
   const parseResult = v.safeParse(referralPreferencesSchema, {
     languageReferralTypeIds: formData.getAll('languageReferralTypes'),
@@ -64,8 +63,8 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   const currentProfileOption = await profileService.getCurrentUserProfile(context.session.authState.accessToken);
   const currentProfile = currentProfileOption.unwrap();
   const updateResult = await profileService.updateProfile(
-    authenticatedSession.authState.accessToken,
-    currentProfile.profileId.toString(),
+    context.session.authState.accessToken,
+    currentProfile.profileId,
     currentUserId,
     {
       ...currentProfile,

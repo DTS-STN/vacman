@@ -16,7 +16,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import ca.gov.dtsstn.vacman.api.constants.AppConstants;
-
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntityBuilder;
 import ca.gov.dtsstn.vacman.api.data.repository.UserRepository;
@@ -40,13 +39,13 @@ public class UserService {
 
 	private final UserRepository userRepository;
 
-	public UserService(ApplicationEventPublisher eventPublisher, CodeService codeService, UserRepository userRepository) {
-		this.userRepository = userRepository;
-		this.eventPublisher = eventPublisher;
+	public UserService(CodeService codeService, ApplicationEventPublisher eventPublisher, UserRepository userRepository) {
 		this.codeService = codeService;
+		this.eventPublisher = eventPublisher;
+		this.userRepository = userRepository;
 	}
 
-	public UserEntity createUser(UserEntity user, Long languageId) {
+	public UserEntity createUser(UserEntity user, long languageId) {
 		// Set language based on languageCode (validation ensures it exists)
 		user.setLanguage(codeService.getLanguages(Pageable.unpaged()).stream()
 			.filter(byId(languageId))
@@ -67,29 +66,24 @@ public class UserService {
 		return createdUser;
 	}
 
-
-	public Optional<UserEntity> getUserById(Long id) {
-		final var userOptional = userRepository.findById(id);
-		// HACK(Max) - Commented out as this appears to be causing a SO.
-		/*
-		userOptional.ifPresent(user -> {
-			eventPublisher.publishEvent(new UserReadEvent(user));
-			log.info("User read with ID: {}", user.getId());
+	public Optional<UserEntity> getUserById(long id) {
+		return userRepository.findById(id).map(user -> {
+			eventPublisher.publishEvent(new UserReadEvent(user.getId()));
+			return user;
 		});
-		 */
-		return userOptional;
 	}
 
 	public Optional<UserEntity> getUserByMicrosoftEntraId(String microsoftEntraId) {
-		final var userOptional = userRepository.findOne(Example.of(new UserEntityBuilder().microsoftEntraId(microsoftEntraId).build()));
-		// HACK(Max) - Commented out as this appears to be causing a SO.
-		/*
-		userOptional.ifPresent(user -> {
-			eventPublisher.publishEvent(new UserReadEvent(user));
-			log.info("User read with Microsoft Entra ID: {}", user.getMicrosoftEntraId());
-		});
-		 */
-		return userOptional;
+		// No need to emit an event here because this is used
+		// in intermediary steps by other methods that emit events
+
+		// XXX ::: GjB ::: I think we should still consider emitting an event here
+
+		final var example = Example.of(new UserEntityBuilder()
+			.microsoftEntraId(microsoftEntraId)
+			.build());
+
+		return userRepository.findOne(example);
 	}
 
 	public List<UserEntity> getAllUsers() {

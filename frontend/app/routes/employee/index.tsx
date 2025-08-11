@@ -1,6 +1,6 @@
 import type { JSX } from 'react';
 
-import type { RouteHandle, LoaderFunctionArgs, ActionFunctionArgs, MetaFunction } from 'react-router';
+import type { RouteHandle, LoaderFunctionArgs, ActionFunctionArgs } from 'react-router';
 import { Form } from 'react-router';
 
 import type { IconProp } from '@fortawesome/fontawesome-svg-core';
@@ -8,11 +8,12 @@ import { faChevronRight, faUser } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useTranslation } from 'react-i18next';
 
+import type { Route } from './+types';
+
+import { getProfileService } from '~/.server/domain/services/profile-service';
 import { getUserService } from '~/.server/domain/services/user-service';
-import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { checkEmployeeRoutePrivacyConsent } from '~/.server/utils/privacy-consent-utils';
-import { createUserProfile } from '~/.server/utils/profile-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { Card, CardHeader, CardIcon, CardTitle } from '~/components/card';
 import { PageTitle } from '~/components/page-title';
@@ -24,19 +25,23 @@ export const handle = {
   i18nNamespace: [...parentHandle.i18nNamespace],
 } as const satisfies RouteHandle;
 
-export async function action({ context, request }: ActionFunctionArgs) {
-  const currentUrl = new URL(request.url);
-  // Check privacy consent for employee routes (excluding privacy consent pages)
+export function meta({ loaderData }: Route.MetaArgs) {
+  return [{ title: loaderData?.documentTitle }];
+}
 
-  await checkEmployeeRoutePrivacyConsent(context.session as AuthenticatedSession, currentUrl);
+export async function action({ context, request }: ActionFunctionArgs) {
+  requireAuthentication(context.session, request);
+
+  // Check privacy consent for employee routes (excluding privacy consent pages)
+  const currentUrl = new URL(request.url);
+  await checkEmployeeRoutePrivacyConsent(context.session, currentUrl);
 
   const formData = await request.formData();
   const action = formData.get('action');
 
   if (action === 'view-profile') {
     // Get the current user's ID from the authenticated session
-    const authenticatedSession = context.session as AuthenticatedSession;
-    const currentUserId = authenticatedSession.authState.idTokenClaims.oid;
+    const currentUserId = context.session.authState.idTokenClaims.oid;
     return i18nRedirect('routes/employee/profile/index.tsx', request, {
       params: { id: currentUserId },
     });
@@ -49,33 +54,25 @@ export async function action({ context, request }: ActionFunctionArgs) {
 export async function loader({ context, request }: LoaderFunctionArgs) {
   requireAuthentication(context.session, request);
 
-  const authenticatedSession = context.session as AuthenticatedSession;
-  if (!authenticatedSession.currentUser) {
+  if (!context.session.currentUser) {
     try {
-      const currentUser = await getUserService().getCurrentUser(authenticatedSession.authState.accessToken);
-      authenticatedSession.currentUser = currentUser;
+      const currentUser = await getUserService().getCurrentUser(context.session.authState.accessToken);
+      context.session.currentUser = currentUser;
     } catch {
       const lang = getLanguage(request);
       // TODO congifure the IDs or do a lookup with one of our services (provided our service returns the correct ID)
       // This assumes the IDs in the DB are autoincrementing starting at 1 (look at data.sql)
       const languageId = lang === 'en' ? 1 : 2;
-      const currentUser = await getUserService().registerCurrentUser(
-        { languageId },
-        authenticatedSession.authState.accessToken,
-      );
-      authenticatedSession.currentUser = currentUser;
+      const currentUser = await getUserService().registerCurrentUser({ languageId }, context.session.authState.accessToken);
+      context.session.currentUser = currentUser;
     } finally {
-      await createUserProfile(authenticatedSession.authState.idTokenClaims.oid);
+      await getProfileService().registerProfile(context.session.authState.accessToken);
     }
   }
 
   const { t } = await getTranslation(request, handle.i18nNamespace);
   return { documentTitle: t('app:index.employee-dashboard') };
 }
-
-export const meta: MetaFunction<typeof loader> = ({ data }) => {
-  return [{ title: data?.documentTitle }];
-};
 
 export default function EmployeeDashboard() {
   const { t } = useTranslation(handle.i18nNamespace);

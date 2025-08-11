@@ -7,8 +7,9 @@ import java.util.Set;
 import org.immutables.builder.Builder;
 import org.springframework.core.style.ToStringCreator;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.annotation.Nullable;
-import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -19,15 +20,16 @@ import jakarta.persistence.Table;
 
 @Entity(name = "Profile")
 @Table(name = "[PROFILE]")
-@AttributeOverride(name = "id", column = @Column(name = "[PROFILE_ID]"))
 public class ProfileEntity extends AbstractBaseEntity {
 
 	@ManyToOne
+	@JsonBackReference
 	@JoinColumn(name = "[USER_ID]", nullable = false)
 	private UserEntity user;
 
 	@ManyToOne
-	@JoinColumn(name = "[USER_ID_HR_ADVISOR]", nullable = false)
+	@JsonBackReference
+	@JoinColumn(name = "[USER_ID_HR_ADVISOR]", nullable = true)
 	private UserEntity hrAdvisor;
 
 	@ManyToOne
@@ -41,10 +43,6 @@ public class ProfileEntity extends AbstractBaseEntity {
 	@ManyToOne
 	@JoinColumn(name = "[CITY_ID]", nullable = true)
 	private CityEntity city;
-
-	@ManyToOne
-	@JoinColumn(name = "[PRIORITY_LEVEL_ID]", nullable = true)
-	private PriorityLevelEntity priorityLevel;
 
 	@ManyToOne
 	@JoinColumn(name = "[WORK_UNIT_ID]", nullable = true)
@@ -78,7 +76,7 @@ public class ProfileEntity extends AbstractBaseEntity {
 
 	// Collection relationships for many-to-many tables
 	@OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
-	private Set<CityProfileEntity> cityProfiles = new HashSet<>();
+	private Set<ProfileCityEntity> profileCities = new HashSet<>();
 
 	@OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
 	private Set<ClassificationProfileEntity> classificationProfiles = new HashSet<>();
@@ -121,7 +119,6 @@ public class ProfileEntity extends AbstractBaseEntity {
 		this.wfaStatus = wfaStatus;
 		this.classification = classification;
 		this.city = city;
-		this.priorityLevel = priorityLevel;
 		this.workUnit = workUnit;
 		this.language = language;
 		this.profileStatus = profileStatus;
@@ -171,14 +168,6 @@ public class ProfileEntity extends AbstractBaseEntity {
 
 	public void setCity(CityEntity city) {
 		this.city = city;
-	}
-
-	public PriorityLevelEntity getPriorityLevel() {
-		return priorityLevel;
-	}
-
-	public void setPriorityLevel(PriorityLevelEntity priorityLevel) {
-		this.priorityLevel = priorityLevel;
 	}
 
 	public WorkUnitEntity getWorkUnit() {
@@ -253,12 +242,12 @@ public class ProfileEntity extends AbstractBaseEntity {
 		this.additionalComment = additionalComment;
 	}
 
-	public Set<CityProfileEntity> getCityProfiles() {
-		return cityProfiles;
+	public Set<ProfileCityEntity> getProfileCities() {
+		return profileCities;
 	}
 
-	public void setCityProfiles(Set<CityProfileEntity> cityProfiles) {
-		this.cityProfiles = cityProfiles;
+	public void setProfileCities(Set<ProfileCityEntity> profileCities) {
+		this.profileCities = profileCities;
 	}
 
 	public Set<ClassificationProfileEntity> getClassificationProfiles() {
@@ -289,21 +278,20 @@ public class ProfileEntity extends AbstractBaseEntity {
 	public String toString() {
 		return new ToStringCreator(this)
 			.append("super", super.toString())
-			.append("user", user)
-			.append("hrAdvisor", hrAdvisor)
-			.append("wfaStatus", wfaStatus)
-			.append("classification", classification)
+			.append("additionalComment", additionalComment)
 			.append("city", city)
-			.append("priorityLevel", priorityLevel)
-			.append("workUnit", workUnit)
-			.append("language", language)
-			.append("profileStatus", profileStatus)
-			.append("personalPhoneNumber", personalPhoneNumber)
-			.append("personalEmailAddress", personalEmailAddress)
+			.append("classification", classification)
 			.append("hasConsentedToPrivacyTerms", hasConsentedToPrivacyTerms)
+			.append("hrAdvisor.id", hrAdvisor == null ? null : hrAdvisor)
 			.append("isAvailableForReferral", isAvailableForReferral)
 			.append("isInterestedInAlternation", isInterestedInAlternation)
-			.append("additionalComment", additionalComment)
+			.append("language", language)
+			.append("personalEmailAddress", personalEmailAddress)
+			.append("personalPhoneNumber", personalPhoneNumber)
+			.append("profileStatus", profileStatus)
+			.append("user.id", user == null ? null : user.getId())
+			.append("wfaStatus", wfaStatus)
+			.append("workUnit", workUnit)
 			.toString();
 	}
 

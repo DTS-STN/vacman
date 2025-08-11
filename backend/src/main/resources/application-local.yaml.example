@@ -45,13 +45,17 @@ spring:
     password: p@ssword1
   jpa:
     hibernate:
-      ddl-auto: validate
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
     properties:
       '[hibernate.default_schema]': dbo
       '[hibernate.format_sql]': true
     show-sql: true
+    defer-datasource-initialization: false
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+    contexts: mssql,dev
 
 ---
 

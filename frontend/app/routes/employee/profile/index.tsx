@@ -37,18 +37,17 @@ export const handle = {
   i18nNamespace: [...parentHandle.i18nNamespace],
 } as const satisfies RouteHandle;
 
-export function meta({ data }: Route.MetaArgs) {
-  return [{ title: data?.documentTitle }];
+export function meta({ loaderData }: Route.MetaArgs) {
+  return [{ title: loaderData?.documentTitle }];
 }
 
 export async function action({ context, request }: Route.ActionArgs) {
   requireAuthentication(context.session, request);
 
   // Get the current user's ID from the authenticated session
-  const authenticatedSession = context.session;
-  const currentUserId = authenticatedSession.authState.idTokenClaims.oid;
+  const currentUserId = context.session.authState.idTokenClaims.oid;
 
-  const profileResult = await getProfileService().getCurrentUserProfile(authenticatedSession.authState.accessToken);
+  const profileResult = await getProfileService().getCurrentUserProfile(context.session.authState.accessToken);
   if (profileResult.isNone()) {
     return { status: 'profile-not-found' };
   }
@@ -118,7 +117,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 
   const profileData: Profile = profileResult.unwrap();
 
-  await requirePrivacyConsentForOwnProfile(context.session, profileData.profileId.toString(), currentUrl);
+  await requirePrivacyConsentForOwnProfile(context.session, currentUrl);
 
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
 

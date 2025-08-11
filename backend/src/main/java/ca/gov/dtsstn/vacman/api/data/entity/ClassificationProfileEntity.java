@@ -6,8 +6,6 @@ import org.immutables.builder.Builder;
 import org.springframework.core.style.ToStringCreator;
 
 import jakarta.annotation.Nullable;
-import jakarta.persistence.AttributeOverride;
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -15,7 +13,6 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
 @Entity(name = "ClassificationProfile")
-@AttributeOverride(name = "id", column = @Column(name = "[CLASSIFICATION_PROFILE_ID]"))
 @Table(name = "[CLASSIFICATION_PROFILE]", uniqueConstraints = { @UniqueConstraint(name = "CLSPRFL_UK", columnNames = { "[CLASSIFICATION_ID]", "[PROFILE_ID]"}) })
 public class ClassificationProfileEntity extends AbstractBaseEntity {
 
