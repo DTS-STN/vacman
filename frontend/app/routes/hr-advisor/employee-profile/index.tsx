@@ -48,9 +48,6 @@ export function action({ context, request }: Route.ActionArgs) {
 export async function loader({ context, request, params }: Route.LoaderArgs) {
   requireAuthentication(context.session, request);
 
-  // Use the id parameter from the URL to fetch the profile
-  const profileUserId = params.id;
-
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
 
   // Fetch both the profile user and the profile data
@@ -61,7 +58,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     allLocalizedCities,
     allLocalizedEmploymentTenures,
   ] = await Promise.all([
-    getProfileService().getProfileById(context.session.authState.accessToken, Number(profileUserId)),
+    getProfileService().getProfileById(context.session.authState.accessToken, Number(params.profileId)),
     getLanguageReferralTypeService().listAllLocalized(lang),
     getClassificationService().listAllLocalized(lang),
     getCityService().listAllLocalized(lang),

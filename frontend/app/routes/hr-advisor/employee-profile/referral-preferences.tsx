@@ -43,7 +43,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 
   const currentProfileOption = await getProfileService().getProfileById(
     context.session.authState.accessToken,
-    Number(params.id),
+    Number(params.profileId),
   );
 
   if (currentProfileOption.isErr()) {
