@@ -223,7 +223,9 @@ public class ProfilesController {
 			case AppConstants.ProfileStatusCodes.PENDING -> Set.of(AppConstants.ProfileStatusCodes.INCOMPLETE, AppConstants.ProfileStatusCodes.APPROVED);
 			case AppConstants.ProfileStatusCodes.APPROVED -> Set.of(AppConstants.ProfileStatusCodes.PENDING);
 			case AppConstants.ProfileStatusCodes.ARCHIVED -> Set.of(AppConstants.ProfileStatusCodes.APPROVED);
-			default -> throw new ResourceNotFoundException("A(n) ProfileStatus with code=[" + updatedProfileStatus.getCode() + "] does not exist");
+			// This default case /shouldn't/ ever execute, since at this point we've confirmed that the target status
+			// is one of three options. But, we need to handle this case regardless.
+			default -> throw new ResourceConflictException("Cannot transition profile status to code=[" + updatedProfileStatus.getCode() + "]");
 		};
 
 		updateStatusToTarget(foundProfile, updatedProfileStatus.getCode(), validPretransitionStates);
