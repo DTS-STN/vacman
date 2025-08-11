@@ -8,7 +8,6 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuLabel, DropdownMenuTrigg
 import { cn } from '~/utils/tailwind-utils';
 
 type AppBarProps = {
-  children?: React.ReactNode;
   name?: string;
   profileItems?: React.ReactNode;
 };
@@ -86,7 +85,7 @@ type AppTitleProps = {
 
 function AppTitle({ title }: AppTitleProps): JSX.Element {
   return (
-    <span id="app-bar-title-label" className={'my-auto py-2 text-white sm:text-2xl'}>
+    <span id="app-bar-title-label" className="my-auto py-2 text-white sm:text-2xl">
       {title}
     </span>
   );
