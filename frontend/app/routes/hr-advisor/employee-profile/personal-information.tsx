@@ -24,15 +24,22 @@ export function meta({ loaderData }: Route.MetaArgs) {
   return [{ title: loaderData?.documentTitle }];
 }
 
-export function action({ context, params, request }: Route.ActionArgs) {
+export async function action({ context, params, request }: Route.ActionArgs) {
   requireAuthentication(context.session, request);
 
-  const currentUserId = context.session.authState.idTokenClaims.oid;
+  const profileResult = await getProfileService().getProfileById(
+    context.session.authState.accessToken,
+    Number(params.profileId),
+  );
+
+  if (profileResult.isErr()) {
+    throw new Response('Profile not found', { status: 404 });
+  }
 
   //TODO: Implement approval logic
 
   return i18nRedirect('routes/hr-advisor/employee-profile/index.tsx', request, {
-    params: { id: currentUserId },
+    params: { id: profileResult.unwrap().profileId.toString() },
   });
 }
 
@@ -41,15 +48,15 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 
   const accessToken = context.session.authState.accessToken;
   const currentUser = await getUserService().getCurrentUser(accessToken);
-  const currentProfileOption = await getProfileService().getProfileById(accessToken, Number(params.profileId));
+  const profileResult = await getProfileService().getProfileById(accessToken, Number(params.profileId));
 
-  if (currentProfileOption.isErr()) {
+  if (profileResult.isErr()) {
     throw new Response('Profile not found', { status: 404 });
   }
 
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
   const localizedLanguagesOfCorrespondenceResult = await getLanguageForCorrespondenceService().listAllLocalized(lang);
-  const profileData: Profile = currentProfileOption.unwrap();
+  const profileData: Profile = profileResult.unwrap();
 
   return {
     documentTitle: t('app:personal-information.page-title'),
