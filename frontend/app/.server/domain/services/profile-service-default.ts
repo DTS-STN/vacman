@@ -2,13 +2,13 @@ import { Err, None, Ok, Some } from 'oxide.ts';
 import type { Option, Result } from 'oxide.ts';
 
 import { apiClient } from './api-client';
+import { getProfileStatusService } from './profile-status-service';
 
-import type { Profile } from '~/.server/domain/models';
+import type { Profile, ProfileStatus } from '~/.server/domain/models';
 import type { ListProfilesParams, ProfileApiResponse, ProfileService } from '~/.server/domain/services/profile-service';
-import { serverEnvironment } from '~/.server/environment';
+import type { ProfileStatusCode } from '~/domain/constants';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
-import type { HttpStatusCode } from '~/errors/http-status-codes';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 import queryClient from '~/query-client';
 
@@ -150,43 +150,38 @@ export function getDefaultProfileService(): ProfileService {
       return result;
     },
 
-    async submitProfileForReview(accessToken: string): Promise<Result<Profile, AppError>> {
-      try {
-        const response = await fetch(`${serverEnvironment.VACMAN_API_BASE_URI}/profiles/submit`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${accessToken}`,
-            'Content-Type': 'application/json',
-          },
-        });
+    async updateProfileStatus(
+      accessToken: string,
+      profileId: string,
+      profileStatusCode: ProfileStatusCode,
+    ): Promise<Result<ProfileStatus, AppError>> {
+      const status: ProfileStatus | undefined = (await getProfileStatusService().listAll()).find(
+        (status) => status.code === profileStatusCode,
+      );
 
-        if (!response.ok) {
-          return Err(
-            new AppError(
-              `Failed to submit profile. Server responded with status ${response.status}`,
-              ErrorCodes.PROFILE_SUBMIT_FAILED,
-              { httpStatusCode: response.status as HttpStatusCode },
-            ),
-          );
-        }
+      const context = 'update a profile status';
+      const endpoint = `/profiles/${profileId}/status`;
 
-        try {
-          const profile = await response.json();
-          return Ok(profile);
-        } catch {
-          return Err(
-            new AppError('Invalid JSON response while submitting profile', ErrorCodes.PROFILE_INVALID_RESPONSE, {
-              httpStatusCode: HttpStatusCodes.BAD_GATEWAY,
-            }),
-          );
-        }
-      } catch (error) {
+      const requestBody = { status };
+
+      const result = await apiClient.put<typeof requestBody, ProfileStatus>(endpoint, context, requestBody, accessToken);
+
+      if (result.isErr()) {
+        const originalError = result.unwrapErr();
+
         return Err(
-          new AppError(error instanceof Error ? error.message : 'Failed to submit profile', ErrorCodes.PROFILE_NETWORK_ERROR, {
-            httpStatusCode: HttpStatusCodes.SERVICE_UNAVAILABLE,
-          }),
+          new AppError(
+            `Failed to update profile status. Reason: ${originalError.message}`,
+            ErrorCodes.PROFILE_STATUS_UPDATE_FAILED,
+            {
+              httpStatusCode: originalError.httpStatusCode,
+              correlationId: originalError.correlationId,
+            },
+          ),
         );
       }
+
+      return result;
     },
 
     /**

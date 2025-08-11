@@ -1,10 +1,12 @@
 import { None, Some, Err, Ok } from 'oxide.ts';
 import type { Result, Option } from 'oxide.ts';
 
+import { getProfileStatusService } from './profile-status-service';
 import { getUserService } from './user-service';
 
-import type { Profile, UserPersonalInformation } from '~/.server/domain/models';
+import type { Profile, ProfileStatus, UserPersonalInformation } from '~/.server/domain/models';
 import type { ListProfilesParams, ProfileService } from '~/.server/domain/services/profile-service';
+import type { ProfileStatusCode } from '~/domain/constants';
 import { PROFILE_STATUS_ID } from '~/domain/constants';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
@@ -69,25 +71,32 @@ export function getMockProfileService(): ProfileService {
 
       return Promise.resolve(Ok(updatedProfile));
     },
-    submitProfileForReview: async (accessToken: string): Promise<Result<Profile, AppError>> => {
-      const user = await getUserService().getCurrentUser(accessToken);
-      const profileOption = await getMockProfileService().getCurrentUserProfile(accessToken);
-
-      if (profileOption.isNone()) {
-        return Err(new AppError(`Failed to find profile.`, ErrorCodes.PROFILE_NOT_FOUND));
+    updateProfileStatus: async (
+      accessToken: string,
+      profileId: string,
+      profileStatusCode: ProfileStatusCode,
+    ): Promise<Result<ProfileStatus, AppError>> => {
+      if (!mockProfiles.find((p) => p.profileId.toString() === profileId)) {
+        return Promise.resolve(Err(new AppError('Profile not found', ErrorCodes.PROFILE_NOT_FOUND)));
       }
 
-      const profile = profileOption.unwrap();
-      const updatedProfile: Profile = {
-        ...profile,
-        profileStatusId: PROFILE_STATUS_ID.pending,
-        dateUpdated: new Date().toISOString(),
-        userUpdated: user.networkName,
-      };
+      const status = (await getProfileStatusService().listAll()).find((status) => status.code === profileStatusCode);
 
-      mockProfiles = mockProfiles.map((p) => (p.profileId === profile.profileId ? updatedProfile : p));
+      if (!status) {
+        return Err(new AppError(`Invalid status.`, ErrorCodes.PROFILE_STATUS_UPDATE_FAILED));
+      }
 
-      return Promise.resolve(Ok(updatedProfile));
+      mockProfiles = mockProfiles.map((profile) =>
+        profile.profileId.toString() === profileId
+          ? {
+              ...profile,
+              profileStatusId: status.id,
+              dateUpdated: new Date().toISOString(),
+            }
+          : profile,
+      );
+
+      return Promise.resolve(Ok(status));
     },
     async findAllProfiles(params: ListProfilesParams): Promise<Option<readonly Profile[]>> {
       // We can just call the other mock method to reuse the filtering logic.

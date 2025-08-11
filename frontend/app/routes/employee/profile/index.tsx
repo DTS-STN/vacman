@@ -91,14 +91,18 @@ export async function action({ context, request }: Route.ActionArgs) {
   }
 
   // If all complete, submit for review
-  const submitResult = await getProfileService().submitProfileForReview(context.session.authState.accessToken);
+  const submitResult = await getProfileService().updateProfileStatus(
+    context.session.authState.accessToken,
+    profileData.userId.toString(),
+    PROFILE_STATUS_CODE.pending,
+  );
   if (submitResult.isErr()) {
     throw submitResult.unwrap();
   }
 
   return {
     status: 'submitted',
-    profileStatus: submitResult.unwrap().profileStatusId,
+    profileStatus: submitResult.unwrap().id,
   };
 }
 

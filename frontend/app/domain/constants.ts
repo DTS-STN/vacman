@@ -16,6 +16,8 @@ export const PROFILE_STATUS_CODE = {
   archived: 'ARCHIVED',
 } as const;
 
+export type ProfileStatusCode = (typeof PROFILE_STATUS_CODE)[keyof typeof PROFILE_STATUS_CODE];
+
 export const PROFILE_STATUS_ID = {
   pending: 1,
   approved: 2,
