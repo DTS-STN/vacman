@@ -5,7 +5,6 @@
 import { describe, it, expect } from 'vitest';
 
 import {
-  extractUserIdFromProfileRoute,
   isEmployeeRoute,
   isHiringManagerPath,
   isPrivacyConsentPath,
@@ -78,101 +77,6 @@ describe('Route Matching Utils', () => {
       urls.forEach((urlString) => {
         const url = new URL(urlString);
         expect(isProfileRoute(url)).toBe(false);
-      });
-    });
-  });
-
-  describe('extractUserIdFromProfileRoute', () => {
-    it('should extract user ID from English profile routes', () => {
-      const testCases = [
-        {
-          url: 'http://localhost:3000/en/employee/test-user-123/profile',
-          expected: 'test-user-123',
-        },
-        {
-          url: 'http://localhost:3000/en/employee/user@example.com/profile',
-          expected: 'user@example.com',
-        },
-        {
-          url: 'http://localhost:3000/en/employee/12345/profile/personal-information',
-          expected: '12345',
-        },
-        {
-          url: 'http://localhost:3000/en/employee/test-user-456/profile/',
-          expected: 'test-user-456',
-        },
-        {
-          url: 'http://localhost:3000/en/employee/complex-uuid-123-456-789/profile/referral-preferences',
-          expected: 'complex-uuid-123-456-789',
-        },
-      ];
-
-      testCases.forEach(({ url, expected }) => {
-        const result = extractUserIdFromProfileRoute(new URL(url));
-        expect(result.isSome()).toBe(true);
-        expect(result.unwrap()).toBe(expected);
-      });
-    });
-
-    it('should extract user ID from French profile routes', () => {
-      const testCases = [
-        {
-          url: 'http://localhost:3000/fr/employe/test-user-123/profil',
-          expected: 'test-user-123',
-        },
-        {
-          url: 'http://localhost:3000/fr/employe/utilisateur@domaine.com/profil',
-          expected: 'utilisateur@domaine.com',
-        },
-        {
-          url: 'http://localhost:3000/fr/employe/12345/profil/information-personnelle',
-          expected: '12345',
-        },
-        {
-          url: 'http://localhost:3000/fr/employe/test-user-456/profil/',
-          expected: 'test-user-456',
-        },
-      ];
-
-      testCases.forEach(({ url, expected }) => {
-        const result = extractUserIdFromProfileRoute(new URL(url));
-        expect(result.isSome()).toBe(true);
-        expect(result.unwrap()).toBe(expected);
-      });
-    });
-
-    it('should return null for non-profile routes', () => {
-      const urls = [
-        'http://localhost:3000/en/employee',
-        'http://localhost:3000/en/employee/',
-        'http://localhost:3000/en/employee/test-user-123',
-        'http://localhost:3000/en/employee/test-user-123/privacy-consent',
-        'http://localhost:3000/en/employee/privacy-consent',
-        'http://localhost:3000/en/hiring-manager',
-        'http://localhost:3000/en/',
-        'http://localhost:3000/',
-        'http://localhost:3000/fr/employe',
-        'http://localhost:3000/fr/employe/test-user-123',
-      ];
-
-      urls.forEach((urlString) => {
-        const url = new URL(urlString);
-        expect(extractUserIdFromProfileRoute(url).isNone()).toBe(true);
-      });
-    });
-
-    it('should return null for invalid profile route patterns', () => {
-      const urls = [
-        'http://localhost:3000/en/employee/profile', // Missing user ID
-        'http://localhost:3000/en/employees/test-user-123/profile', // Wrong plural form
-        'http://localhost:3000/en/employee/test-user-123/profiles', // Wrong plural form
-        'http://localhost:3000/fr/employes/test-user-123/profil', // Wrong plural form
-        'http://localhost:3000/fr/employe/test-user-123/profils', // Wrong plural form
-      ];
-
-      urls.forEach((urlString) => {
-        const url = new URL(urlString);
-        expect(extractUserIdFromProfileRoute(url).isNone()).toBe(true);
       });
     });
   });
@@ -342,8 +246,6 @@ describe('Route Matching Utils', () => {
     it('should handle URLs with query parameters', () => {
       const profileUrl = new URL('http://localhost:3000/en/employee/test-user-123/profile?tab=personal');
       expect(isProfileRoute(profileUrl)).toBe(true);
-      expect(extractUserIdFromProfileRoute(profileUrl).isSome()).toBe(true);
-      expect(extractUserIdFromProfileRoute(profileUrl).unwrap()).toBe('test-user-123');
 
       const employeeUrl = new URL('http://localhost:3000/en/employee?redirect=true');
       expect(isEmployeeRoute(employeeUrl)).toBe(true);
@@ -353,8 +255,6 @@ describe('Route Matching Utils', () => {
     it('should handle URLs with fragments', () => {
       const profileUrl = new URL('http://localhost:3000/en/employee/test-user-123/profile#personal-info');
       expect(isProfileRoute(profileUrl)).toBe(true);
-      expect(extractUserIdFromProfileRoute(profileUrl).isSome()).toBe(true);
-      expect(extractUserIdFromProfileRoute(profileUrl).unwrap()).toBe('test-user-123');
 
       const employeeUrl = new URL('http://localhost:3000/en/employee#top');
       expect(isEmployeeRoute(employeeUrl)).toBe(true);
@@ -367,8 +267,6 @@ describe('Route Matching Utils', () => {
       userIds.forEach((userId) => {
         const url = new URL(`http://localhost:3000/en/employee/${userId}/profile`);
         expect(isProfileRoute(url)).toBe(true);
-        expect(extractUserIdFromProfileRoute(url).isSome()).toBe(true);
-        expect(extractUserIdFromProfileRoute(url).unwrap()).toBe(userId);
       });
     });
 
@@ -384,8 +282,6 @@ describe('Route Matching Utils', () => {
       domains.forEach((domain) => {
         const profileUrl = new URL(`${domain}/en/employee/test-user-123/profile`);
         expect(isProfileRoute(profileUrl)).toBe(true);
-        expect(extractUserIdFromProfileRoute(profileUrl).isSome()).toBe(true);
-        expect(extractUserIdFromProfileRoute(profileUrl).unwrap()).toBe('test-user-123');
 
         const employeeUrl = new URL(`${domain}/en/employee`);
         expect(isEmployeeRoute(employeeUrl)).toBe(true);

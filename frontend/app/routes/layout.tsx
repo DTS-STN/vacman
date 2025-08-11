@@ -8,7 +8,6 @@ import type { Route } from './+types/layout';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { checkHiringManagerRouteRegistration } from '~/.server/utils/hiring-manager-registration-utils';
 import { checkHrAdvisorRouteRegistration } from '~/.server/utils/hr-advisor-registration-utils';
-import { checkProfileRouteAccess } from '~/.server/utils/profile-access-utils';
 import { AppBar } from '~/components/app-bar';
 import { LanguageSwitcher } from '~/components/language-switcher';
 import { AppLink } from '~/components/links';
@@ -33,9 +32,6 @@ export async function loader({ context, request }: Route.LoaderArgs) {
 
   // Check hr-advisor registration for hr-advisor routes
   await checkHrAdvisorRouteRegistration(context.session, currentUrl);
-
-  // Check profile access for profile routes
-  await checkProfileRouteAccess(context.session, currentUrl);
 
   return { name: context.session.authState.idTokenClaims.name };
 }
