@@ -103,7 +103,13 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const provinces = await getProvinceService().listAllLocalized(lang);
   const cities = await getCityService().listAllLocalized(lang);
   const wfaStatuses = await getWFAStatuses().listAllLocalized(lang);
-  const hrAdvisors = await getUserService().getUsersByRole('hr-advisor', context.session.authState.accessToken);
+  const hrAdvisorsResult = await getUserService().getUsersByRole('hr-advisor', context.session.authState.accessToken);
+  
+  if (hrAdvisorsResult.isErr()) {
+    throw hrAdvisorsResult.unwrapErr();
+  }
+  
+  const hrAdvisors = hrAdvisorsResult.unwrap();
   const profileData: Profile = currentProfileOption.unwrap();
 
   const workUnitResult =

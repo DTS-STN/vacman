@@ -75,7 +75,8 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   await requirePrivacyConsentForOwnProfile(context.session, request);
 
   const accessToken = context.session.authState.accessToken;
-  const currentUser = await getUserService().getCurrentUser(accessToken);
+  const currentUserOption = await getUserService().getCurrentUser(accessToken);
+  const currentUser = currentUserOption.isSome() ? currentUserOption.unwrap() : undefined;
   const profileResult = await getProfileService().getCurrentUserProfile(accessToken);
 
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
@@ -89,7 +90,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       givenName: profileData.personalInformation.givenName,
       personalRecordIdentifier: profileData.personalInformation.personalRecordIdentifier,
       preferredLanguageId: profileData.personalInformation.preferredLanguageId,
-      workEmail: currentUser.businessEmail ?? profileData.personalInformation.workPhone,
+      workEmail: currentUser?.businessEmail ?? profileData.personalInformation.workPhone,
       personalEmail: profileData.personalInformation.personalEmail,
       workPhone: toE164(profileData.personalInformation.workPhone),
       personalPhone: toE164(profileData.personalInformation.personalPhone),

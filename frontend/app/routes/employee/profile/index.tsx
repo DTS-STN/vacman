@@ -125,7 +125,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 
   // Fetch both the profile user and the profile data
   const [
-    currentUser,
+    currentUserResult,
     allLocalizedLanguageReferralTypes,
     allClassifications,
     allLocalizedCities,
@@ -140,9 +140,13 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     getWFAStatuses().listAll(),
   ]);
 
-  const profileUpdatedByUser = profileData.userUpdated
+  // Extract the user from the result
+  const currentUser = currentUserResult.isOk() ? currentUserResult.unwrap() : undefined;
+
+  const profileUpdatedByUserResult = profileData.userUpdated
     ? await getUserService().getUserById(profileData.userId, context.session.authState.accessToken)
     : undefined;
+  const profileUpdatedByUser = profileUpdatedByUserResult?.isOk() ? profileUpdatedByUserResult.unwrap() : undefined;
   const profileUpdatedByUserName = profileUpdatedByUser && `${profileUpdatedByUser.firstName} ${profileUpdatedByUser.lastName}`;
   const profileStatus = (await getProfileStatusService().findLocalizedById(profileData.profileStatusId, lang)).unwrap();
 
@@ -172,9 +176,10 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const directorate = workUnitResult && workUnitResult.isSome() ? workUnitResult.unwrap().name : undefined;
   const city = cityResult && cityResult.isSome() ? cityResult.unwrap() : undefined;
   const wfaStatus = wfaStatusResult ? (wfaStatusResult.isSome() ? wfaStatusResult.unwrap() : undefined) : undefined;
-  const hrAdvisor =
-    profileData.employmentInformation.hrAdvisor &&
-    (await getUserService().getUserById(profileData.employmentInformation.hrAdvisor, context.session.authState.accessToken));
+  const hrAdvisorResult = profileData.employmentInformation.hrAdvisor
+    ? await getUserService().getUserById(profileData.employmentInformation.hrAdvisor, context.session.authState.accessToken)
+    : undefined;
+  const hrAdvisor = hrAdvisorResult?.isOk() ? hrAdvisorResult.unwrap() : undefined;
   const languageReferralTypes = profileData.referralPreferences.languageReferralTypeIds
     ?.map((langId) => allLocalizedLanguageReferralTypes.find((l) => l.id === langId))
     .filter(Boolean);
@@ -227,8 +232,8 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 
   return {
     documentTitle: t('app:profile.page-title'),
-    name: `${currentUser.firstName} ${currentUser.lastName}`, //for first time employee login, the name is not in profile data
-    email: currentUser.businessEmail ?? profileData.personalInformation.workEmail, //for first time employee login, the work email is not in profile data
+    name: currentUser ? `${currentUser.firstName} ${currentUser.lastName}` : '', //for first time employee login, the name is not in profile data
+    email: currentUser?.businessEmail ?? profileData.personalInformation.workEmail, //for first time employee login, the work email is not in profile data
     amountCompleted: amountCompleted,
     isProfileComplete: isCompletePersonalInformation && isCompleteEmploymentInformation && isCompleteReferralPreferences,
     profileStatus,
@@ -237,9 +242,9 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       isNew: countCompletedItems(profileData.personalInformation) === 1, // only work email is available
       personalRecordIdentifier: profileData.personalInformation.personalRecordIdentifier,
       preferredLanguage: preferredLanguage,
-      workEmail: currentUser.businessEmail ?? profileData.personalInformation.workEmail,
+      workEmail: currentUser?.businessEmail ?? profileData.personalInformation.workEmail,
       personalEmail: profileData.personalInformation.personalEmail,
-      workPhone: currentUser.businessPhone,
+      workPhone: currentUser?.businessPhone,
       personalPhone: profileData.personalInformation.personalPhone,
       additionalInformation: profileData.personalInformation.additionalInformation,
     },
