@@ -94,7 +94,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const profileData: Profile = currentProfileOption.unwrap();
 
   const cityResult =
-    profileData.referralPreferences.workLocationCitiesIds?.[0] &&
+    profileData.referralPreferences.workLocationCitiesIds?.[0] !== undefined &&
     (await getCityService().findLocalizedById(profileData.referralPreferences.workLocationCitiesIds[0], lang)); //get the province from first city only to avoid validation error on province
   const city = cityResult && cityResult.isSome() ? cityResult.unwrap() : undefined;
 

@@ -79,19 +79,19 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const profileUpdatedByUserName = profileUpdatedByUser && `${profileUpdatedByUser.firstName} ${profileUpdatedByUser.lastName}`;
   const profileStatus = (await getProfileStatusService().findLocalizedById(profileData.profileStatus.id, lang)).unwrap();
   const preferredLanguageResult =
-    profileData.personalInformation.preferredLanguageId &&
+    profileData.personalInformation.preferredLanguageId !== undefined &&
     (await getLanguageForCorrespondenceService().findLocalizedById(profileData.personalInformation.preferredLanguageId, lang));
   const workUnitResult =
-    profileData.employmentInformation.directorate &&
+    profileData.employmentInformation.directorate !== undefined &&
     (await getDirectorateService().findLocalizedById(profileData.employmentInformation.directorate, lang));
   const substantivePositionResult =
-    profileData.employmentInformation.substantivePosition &&
+    profileData.employmentInformation.substantivePosition !== undefined &&
     (await getClassificationService().findLocalizedById(profileData.employmentInformation.substantivePosition, lang));
   const cityResult =
-    profileData.employmentInformation.cityId &&
+    profileData.employmentInformation.cityId !== undefined &&
     (await getCityService().findLocalizedById(profileData.employmentInformation.cityId, lang));
   const wfaStatusResult =
-    profileData.employmentInformation.wfaStatus &&
+    profileData.employmentInformation.wfaStatus !== undefined &&
     (await getWFAStatuses().findLocalizedById(profileData.employmentInformation.wfaStatus, lang));
 
   // convert the IDs to display names

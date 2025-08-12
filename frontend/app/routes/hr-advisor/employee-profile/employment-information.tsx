@@ -104,11 +104,11 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const profileData: Profile = profileResult.unwrap();
 
   const workUnitResult =
-    profileData.employmentInformation.directorate &&
+    profileData.employmentInformation.directorate !== undefined &&
     (await getDirectorateService().findLocalizedById(profileData.employmentInformation.directorate, lang));
   const workUnit = workUnitResult && workUnitResult.isSome() ? workUnitResult.unwrap() : undefined;
   const cityResult =
-    profileData.employmentInformation.cityId &&
+    profileData.employmentInformation.cityId !== undefined &&
     (await getCityService().findLocalizedById(profileData.employmentInformation.cityId, lang));
   const city = cityResult && cityResult.isSome() ? cityResult.unwrap() : undefined;
 
