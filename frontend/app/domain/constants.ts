@@ -25,6 +25,11 @@ export const PROFILE_STATUS_ID = {
   archived: 4,
 } as const;
 
+export const LANGUAGE_ID = {
+  en: 0,
+  fr: 1,
+} as const;
+
 export const REQUIRE_OPTIONS = {
   yes: 'yes',
   no: 'no',

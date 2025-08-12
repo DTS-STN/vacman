@@ -10,6 +10,7 @@ import { useTranslation } from 'react-i18next';
 
 import type { Route } from './+types';
 
+import { getLanguageForCorrespondenceService } from '~/.server/domain/services/language-for-correspondence-service';
 import { getProfileService } from '~/.server/domain/services/profile-service';
 import { getUserService } from '~/.server/domain/services/user-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
@@ -17,6 +18,7 @@ import { requirePrivacyConsentForOwnProfile } from '~/.server/utils/privacy-cons
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { Card, CardHeader, CardIcon, CardTitle } from '~/components/card';
 import { PageTitle } from '~/components/page-title';
+import { LANGUAGE_ID } from '~/domain/constants';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
 import { getLanguage } from '~/utils/i18n-utils';
@@ -49,16 +51,13 @@ export async function action({ context, request }: ActionFunctionArgs) {
 
 export async function loader({ context, request }: LoaderFunctionArgs) {
   requireAuthentication(context.session, request);
-
   if (!context.session.currentUser) {
     try {
       const currentUser = await getUserService().getCurrentUser(context.session.authState.accessToken);
       context.session.currentUser = currentUser;
     } catch {
-      const lang = getLanguage(request);
-      // TODO congifure the IDs or do a lookup with one of our services (provided our service returns the correct ID)
-      // This assumes the IDs in the DB are autoincrementing starting at 1 (look at data.sql)
-      const languageId = lang === 'en' ? 1 : 2;
+      const language = await getLanguageForCorrespondenceService().findById(LANGUAGE_ID[getLanguage(request) ?? 'en']);
+      const languageId = language.unwrap().id;
       const currentUser = await getUserService().registerCurrentUser({ languageId }, context.session.authState.accessToken);
       context.session.currentUser = currentUser;
     } finally {
