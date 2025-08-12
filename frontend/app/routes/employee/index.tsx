@@ -64,7 +64,7 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
       <div className="mb-8 w-full px-4 sm:w-3/5 sm:px-6">
         <PageTitle className="after:w-14">{t('app:index.get-started')}</PageTitle>
         <div className="grid gap-4">
-          <DashboardCard file={'routes/employee/profile/index.tsx'} icon={faUser} title={t('app:profile.view')} />
+          <DashboardCard file="routes/employee/profile/index.tsx" icon={faUser} title={t('app:profile.view')} />
         </div>
       </div>
     </div>
