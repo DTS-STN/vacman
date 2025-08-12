@@ -16,7 +16,7 @@ export function getMockUserService(): UserService {
         return Promise.resolve(Err(error as AppError));
       }
     },
-    
+
     getUserById: (id: number, accessToken: string): Promise<Result<User, AppError>> => {
       try {
         const user = getUserById(id);
@@ -36,11 +36,11 @@ export function getMockUserService(): UserService {
         const user = mockUsers[0];
         if (!user) return Promise.resolve(None);
         return Promise.resolve(Some(user));
-      } catch (_error) {
+      } catch {
         return Promise.resolve(None);
       }
     },
-    
+
     registerCurrentUser: (user: UserCreate, accessToken: string): Promise<Result<User, AppError>> => {
       try {
         const newUser = registerCurrentUser(user, accessToken);
@@ -49,7 +49,7 @@ export function getMockUserService(): UserService {
         return Promise.resolve(Err(error as AppError));
       }
     },
-    
+
     updateUser: (user: UserUpdate, accessToken: string): Promise<Result<User, AppError>> => {
       try {
         const updatedUser = updateUser(user);
