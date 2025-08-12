@@ -223,4 +223,8 @@ export default {
     'action': '(FR) Action',
     'next-page': '(FR) Next',
   },
+  'hr-advisor-dashboard': {
+    'my-employees': 'My employees',
+    'all-employees': 'All employees',
+  },
 } satisfies typeof appEn;
