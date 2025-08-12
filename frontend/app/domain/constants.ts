@@ -73,3 +73,17 @@ export const PROFILE_STATUS_ARCHIVED = {
   nameEn: 'Archived',
   nameFr: 'Archivé',
 } as const;
+
+export const PREFERRED_LANGUAGE_ENGLISH = {
+  id: 874190000,
+  code: 'EN',
+  nameEn: 'English',
+  nameFr: 'Anglais',
+} as const;
+
+export const PREFERRED_LANGUAGE_FRENCH = {
+  id: 874190001,
+  code: 'FR',
+  nameEn: 'French',
+  nameFr: 'Français',
+};

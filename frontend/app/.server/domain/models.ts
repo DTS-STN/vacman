@@ -133,7 +133,7 @@ export type Profile = Readonly<{
   userId: number;
   userIdReviewedBy?: number;
   userIdApprovedBy?: number;
-  priorityLevelId?: number;
+  priorityLevel?: PriorityLevel;
   profileStatus: ProfileStatus;
   privacyConsentInd?: boolean;
   userCreated: string;
@@ -149,7 +149,7 @@ export type UserPersonalInformation = {
   surname?: string;
   givenName?: string;
   personalRecordIdentifier?: string;
-  preferredLanguageId?: number;
+  preferredLanguage?: LanguageOfCorrespondence;
   workEmail: string;
   personalEmail?: string;
   workPhone?: string;

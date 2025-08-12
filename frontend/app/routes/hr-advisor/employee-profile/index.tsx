@@ -80,8 +80,8 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const profileUpdatedByUserName = profileUpdatedByUser && `${profileUpdatedByUser.firstName} ${profileUpdatedByUser.lastName}`;
   const profileStatus = (await getProfileStatusService().findLocalizedById(profileData.profileStatus.id, lang)).unwrap();
   const preferredLanguageResult =
-    profileData.personalInformation.preferredLanguageId !== undefined &&
-    (await getLanguageForCorrespondenceService().findLocalizedById(profileData.personalInformation.preferredLanguageId, lang));
+    profileData.personalInformation.preferredLanguage?.id !== undefined &&
+    (await getLanguageForCorrespondenceService().findLocalizedById(profileData.personalInformation.preferredLanguage.id, lang));
   const workUnitResult =
     profileData.employmentInformation.directorate !== undefined &&
     (await getDirectorateService().findLocalizedById(profileData.employmentInformation.directorate, lang));
