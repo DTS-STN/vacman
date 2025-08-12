@@ -72,9 +72,10 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 
   const profileData: Profile = profileResult.unwrap();
 
-  const profileUpdatedByUser = profileData.userUpdated
+  const profileUpdatedByUserResult = profileData.userUpdated
     ? await getUserService().getUserById(profileData.userId, context.session.authState.accessToken)
     : undefined;
+  const profileUpdatedByUser = profileUpdatedByUserResult?.isOk() ? profileUpdatedByUserResult.unwrap() : undefined;
   const profileUpdatedByUserName = profileUpdatedByUser && `${profileUpdatedByUser.firstName} ${profileUpdatedByUser.lastName}`;
   const profileStatus = (await getProfileStatusService().findLocalizedById(profileData.profileStatus.id, lang)).unwrap();
   const preferredLanguageResult =
@@ -103,9 +104,10 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const directorate = workUnitResult && workUnitResult.isSome() ? workUnitResult.unwrap().name : undefined;
   const city = cityResult && cityResult.isSome() ? cityResult.unwrap() : undefined;
   const wfaStatus = wfaStatusResult ? (wfaStatusResult.isSome() ? wfaStatusResult.unwrap() : undefined) : undefined;
-  const hrAdvisor =
-    profileData.employmentInformation.hrAdvisor &&
-    (await getUserService().getUserById(profileData.employmentInformation.hrAdvisor, context.session.authState.accessToken));
+  const hrAdvisorResult = profileData.employmentInformation.hrAdvisor
+    ? await getUserService().getUserById(profileData.employmentInformation.hrAdvisor, context.session.authState.accessToken)
+    : undefined;
+  const hrAdvisor = hrAdvisorResult?.isOk() ? hrAdvisorResult.unwrap() : undefined;
   const languageReferralTypes = profileData.referralPreferences.languageReferralTypeIds
     ?.map((langId) => allLocalizedLanguageReferralTypes.find((l) => l.id === langId))
     .filter(Boolean);

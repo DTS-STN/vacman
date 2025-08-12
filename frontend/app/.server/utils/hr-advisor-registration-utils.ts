@@ -23,9 +23,15 @@ const log = LogFactory.getLogger(import.meta.url);
 export async function requireHrAdvisorRegistration(session: AuthenticatedSession, currentUrl: URL): Promise<void> {
   // Get user from the database to check hr-advisor registration
   const userService = getUserService();
-  const user = await userService.getCurrentUser(session.authState.accessToken);
+  const userOption = await userService.getCurrentUser(session.authState.accessToken);
 
-  // Check if user has hr-advisor role
+  // Check if user exists and has hr-advisor role
+  if (userOption.isNone()) {
+    log.debug('User is not registered, redirecting to index');
+    throw i18nRedirect('routes/employee/index.tsx', currentUrl);
+  }
+
+  const user = userOption.unwrap();
   if (user.role !== 'hr-advisor') {
     log.debug('User is not registered as a hr-advisor, redirecting to index');
     throw i18nRedirect('routes/employee/index.tsx', currentUrl);

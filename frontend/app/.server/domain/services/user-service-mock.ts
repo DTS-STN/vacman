@@ -1,48 +1,66 @@
+import { Err, None, Ok, Some } from 'oxide.ts';
+import type { Option, Result } from 'oxide.ts';
+
 import type { User, UserCreate, UserUpdate } from '~/.server/domain/models';
 import type { UserService } from '~/.server/domain/services/user-service';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
 
 export function getMockUserService(): UserService {
-  return {
-    getUsersByRole: (role: string, accessToken: string): Promise<User[]> => {
+  const service: UserService = {
+    getUsersByRole: (role: string, accessToken: string): Promise<Result<User[], AppError>> => {
       try {
-        return Promise.resolve(getUsersByRole(role));
+        const users = getUsersByRole(role);
+        return Promise.resolve(Ok(users));
       } catch (error) {
-        return Promise.reject(error);
+        return Promise.resolve(Err(error as AppError));
       }
     },
-    getUserById: (id: number, accessToken: string) => {
+
+    getUserById: (id: number, accessToken: string): Promise<Result<User, AppError>> => {
       try {
-        return Promise.resolve(getUserById(id));
+        const user = getUserById(id);
+        return Promise.resolve(Ok(user));
       } catch (error) {
-        return Promise.reject(error);
+        return Promise.resolve(Err(error as AppError));
       }
     },
-    getCurrentUser: (accessToken: string): Promise<User> => {
+
+    findUserById: async (id: number, accessToken: string): Promise<Option<User>> => {
+      const result = await service.getUserById(id, accessToken);
+      return result.ok();
+    },
+
+    getCurrentUser: (accessToken: string): Promise<Option<User>> => {
       try {
         const user = mockUsers[0];
-        if (!user) return Promise.reject(new Error('No mock users available'));
-        return Promise.resolve(user);
-      } catch (error) {
-        return Promise.reject(error);
+        if (!user) return Promise.resolve(None);
+        return Promise.resolve(Some(user));
+      } catch {
+        return Promise.resolve(None);
       }
     },
-    registerCurrentUser: (user: UserCreate, accessToken: string): Promise<User> => {
+
+    registerCurrentUser: (user: UserCreate, accessToken: string): Promise<Result<User, AppError>> => {
       try {
-        return Promise.resolve(registerCurrentUser(user, accessToken));
+        const newUser = registerCurrentUser(user, accessToken);
+        return Promise.resolve(Ok(newUser));
       } catch (error) {
-        return Promise.reject(error);
+        return Promise.resolve(Err(error as AppError));
       }
     },
-    updateUser: (user: UserUpdate, accessToken: string): Promise<User> => {
+
+    updateUser: (user: UserUpdate, accessToken: string): Promise<Result<User, AppError>> => {
       try {
-        return Promise.resolve(updateUser(user));
+        const updatedUser = updateUser(user);
+        return Promise.resolve(Ok(updatedUser));
       } catch (error) {
-        return Promise.reject(error);
+        return Promise.resolve(Err(error as AppError));
       }
     },
   };
+
+  return service;
 }
 
 /**

@@ -46,7 +46,10 @@ describe('User Service Integration', () => {
         },
       } as unknown as AuthenticatedSession;
 
-      const registeredUser = await userService.registerCurrentUser(newUserData, mockSession.authState.accessToken);
+      const registeredUserResult = await userService.registerCurrentUser(newUserData, mockSession.authState.accessToken);
+
+      expect(registeredUserResult.isOk()).toBe(true);
+      const registeredUser = registeredUserResult.unwrap();
 
       expect(registeredUser).toMatchObject({
         uuName: 'Test User',
@@ -90,7 +93,10 @@ describe('User Service Integration', () => {
         },
       } as unknown as AuthenticatedSession;
 
-      const registeredUser = await userService.registerCurrentUser(newUserData, mockSession.authState.accessToken);
+      const registeredUserResult = await userService.registerCurrentUser(newUserData, mockSession.authState.accessToken);
+
+      expect(registeredUserResult.isOk()).toBe(true);
+      const registeredUser = registeredUserResult.unwrap();
 
       expect(registeredUser).toMatchObject({
         uuName: 'Test User',
