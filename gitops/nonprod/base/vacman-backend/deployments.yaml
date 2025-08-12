@@ -29,7 +29,9 @@ spec:
             httpGet:
               path: /actuator/health/readiness
               port: http
-            initialDelaySeconds: 90
+            initialDelaySeconds: 30
+            periodSeconds: 5
+            failureThreshold: 120
           resources:
             requests:
               cpu: 200m
