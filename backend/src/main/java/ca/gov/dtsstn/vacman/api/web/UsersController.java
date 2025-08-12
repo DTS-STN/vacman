@@ -114,7 +114,7 @@ public class UsersController {
 	}
 
 	@GetMapping
-	@PreAuthorize("hasAuthority('hr-advisor') || #userType == 'hr-advisor'")
+	@PreAuthorize("hasAuthority('hr-advisor') || (isAuthenticated() && #userType == 'hr-advisor')")
 	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
 	@Operation(summary = "Get users with pagination.", description = "Returns a paginated list of users.")
 	public ResponseEntity<PagedModel<UserReadModel>> getUsers(
