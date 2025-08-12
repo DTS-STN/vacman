@@ -101,9 +101,6 @@ export function isI18nPageRoute(obj: unknown): obj is I18nPageRoute {
  * be imported into clientside code without triggering side effects.
  */
 export const i18nRoutes = [
-  //
-  // Protected routes (ie: authentication required)
-  //
   {
     file: 'routes/layout.tsx',
     children: [
@@ -218,18 +215,4 @@ export const i18nRoutes = [
       },
     ],
   },
-
-  //
-  // Publicly accessable routes (ie: no authentication required)
-  //
-  // {
-  //   file: 'routes/public/layout.tsx',
-  //   children: [
-  //     {
-  //       id: 'PUBL-0001',
-  //       file: 'routes/public/index.tsx',
-  //       paths: { en: '/en/public', fr: '/fr/public' },
-  //     },
-  //   ],
-  // },
 ] as const satisfies I18nRoute[];
