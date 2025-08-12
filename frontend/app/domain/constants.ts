@@ -34,3 +34,14 @@ export const REQUIRE_OPTIONS = {
   yes: 'yes',
   no: 'no',
 } as const;
+
+export const Acronym = {
+  ESDC: 'esdc',
+  HR: 'hr',
+  HRSB: 'hrsb',
+  PIB: 'pib',
+  TBS: 'tbs',
+  VMS: 'vms',
+} as const;
+
+export type AcronymEnum = (typeof Acronym)[keyof typeof Acronym];

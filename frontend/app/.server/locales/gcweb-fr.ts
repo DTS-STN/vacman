@@ -113,4 +113,30 @@ export default {
     'clear-all-sr-message': 'tous les {{item}} sélectionnés ont été supprimés.',
     'removed-choice-tag-sr-message': '{{item}} sélectionné retiré: {{choice}}',
   },
+  'acronym': {
+    esdc: {
+      abbreviation: 'EDSC',
+      text: 'Emploi et Développement social Canada',
+    },
+    hr: {
+      abbreviation: 'RH',
+      text: 'Ressources humaines',
+    },
+    hrsb: {
+      abbreviation: 'DGSRH',
+      text: 'Direction générale des services de ressources humaines',
+    },
+    pib: {
+      abbreviation: 'FRP',
+      text: 'Fichier de renseignements personnels',
+    },
+    tbs: {
+      abbreviation: 'SCT',
+      text: 'Secrétariat du Conseil du Trésor du Canada',
+    },
+    vms: {
+      abbreviation: 'SGPV',
+      text: 'Système de gestion des postes vacants',
+    },
+  },
 } satisfies typeof gcwebEn;

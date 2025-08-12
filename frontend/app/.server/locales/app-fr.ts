@@ -13,12 +13,10 @@ export default {
     'hiring-manager-dashboard': 'Tableau de bord du responsable du recrutement',
     'register-as': "S'inscrire comme...",
   },
-  'register': {
-    'employee': 'Tableau de bord des employés',
-    'hiring-manager': 'Tableau de bord du responsable du recrutement',
-    'employee-manage': 'Gérer votre profil',
-    'hiring-manager-manage': 'Gérez vos demandes',
-    'page-title': "S'inscrire comme...",
+  'privacy-consent': {
+    'privacy-notice-statement': 'Énoncé de confidentialité',
+    'accept': 'Accepter',
+    'decline': 'Refuser',
   },
   'profile': {
     'about-para-1':

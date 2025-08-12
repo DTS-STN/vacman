@@ -149,6 +149,7 @@ describe('Privacy Consent Flow', () => {
 
       expect(response).toEqual({
         documentTitle: expect.any(String),
+        lang: expect.any(String),
       });
     });
   });
