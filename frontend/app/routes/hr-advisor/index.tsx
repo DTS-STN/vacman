@@ -1,16 +1,11 @@
-import type { JSX } from 'react';
-
 import type { RouteHandle, LoaderFunctionArgs, MetaFunction } from 'react-router';
 
-import type { IconProp } from '@fortawesome/fontawesome-svg-core';
-import { faChevronRight, faUser } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faUser } from '@fortawesome/free-solid-svg-icons';
 import { useTranslation } from 'react-i18next';
 
 import { getUserService } from '~/.server/domain/services/user-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
-import { Card, CardHeader, CardIcon, CardTitle } from '~/components/card';
-import { AppLink } from '~/components/links';
+import { DashboardCard } from '~/components/dashboard-card';
 import { PageTitle } from '~/components/page-title';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
@@ -68,36 +63,13 @@ export default function EmployeeDashboard() {
       <div className="mb-8 w-full px-4 sm:w-3/5 sm:px-6">
         <PageTitle className="after:w-14">{t('app:hr-advisor-dashboard.page-title')}</PageTitle>
         <div className="grid gap-4">
-          <ActionCard icon={faUser} title={t('app:hr-advisor-dashboard.all-employees')} />
+          <DashboardCard
+            file="routes/hr-advisor/employees.tsx"
+            icon={faUser}
+            title={t('app:hr-advisor-dashboard.all-employees')}
+          />
         </div>
       </div>
     </div>
-  );
-}
-
-interface ActionCardProps {
-  icon: IconProp;
-  title: string;
-}
-
-function ActionCard({ icon, title }: ActionCardProps): JSX.Element {
-  return (
-    <AppLink file="routes/hr-advisor/employees.tsx">
-      <Card asChild className="flex cursor-pointer items-center gap-4 p-4 transition-colors hover:bg-gray-50 sm:p-6">
-        <button type="submit" className="w-full text-left">
-          <CardIcon icon={icon} />
-          <CardHeader asChild className="p-0">
-            <span>
-              <CardTitle asChild className="flex items-center gap-2">
-                <span role="heading" aria-level={2}>
-                  {title}
-                  <FontAwesomeIcon icon={faChevronRight} />
-                </span>
-              </CardTitle>
-            </span>
-          </CardHeader>
-        </button>
-      </Card>
-    </AppLink>
   );
 }
