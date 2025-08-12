@@ -24,7 +24,7 @@ describe('getMockProfileService', () => {
       expect(createdProfile.userId).toBeDefined();
       expect(createdProfile.userCreated).toBe(activeDirectoryId);
       expect(createdProfile.dateCreated).toBeDefined();
-      expect(createdProfile.profileStatusId).toBe(3);
+      expect(createdProfile.profileStatus.id).toBe(3);
       expect(createdProfile.privacyConsentInd).toBe(false);
       expect(createdProfile.referralPreferences.availableForReferralInd).toBe(true);
       expect(createdProfile.referralPreferences.interestedInAlternationInd).toBe(false);
