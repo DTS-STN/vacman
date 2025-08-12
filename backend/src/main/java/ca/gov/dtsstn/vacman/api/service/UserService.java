@@ -3,7 +3,6 @@ package ca.gov.dtsstn.vacman.api.service;
 import static ca.gov.dtsstn.vacman.api.data.entity.AbstractCodeEntity.byCode;
 import static ca.gov.dtsstn.vacman.api.data.entity.AbstractCodeEntity.byId;
 
-import java.util.List;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -89,12 +88,23 @@ public class UserService {
 		return userRepository.findOne(example);
 	}
 
-	public List<UserEntity> getAllUsers() {
-		return List.copyOf(userRepository.findAll());
+	public Page<UserEntity> getUsers(Pageable pageable) {
+		final var users = userRepository.findAll(pageable);
+		users.forEach(user -> eventPublisher.publishEvent(new UserReadEvent(user)));
+		return users;
 	}
 
-	public Page<UserEntity> getUsers(Pageable pageable) {
-		return userRepository.findAll(pageable);
+	public Page<UserEntity> getHrAdvisors(Pageable pageable) {
+		final var userType = codeService.getUserTypes(Pageable.unpaged())
+			.filter(byCode("HRA")).stream()
+			.findFirst().orElseThrow();
+
+		final var example = Example.of(new UserEntityBuilder().userType(userType).build());
+
+		final Page<UserEntity> users = userRepository.findAll(example, pageable);
+		users.forEach(user -> eventPublisher.publishEvent(new UserReadEvent(user)));
+
+		return users;
 	}
 
 	public UserEntity overwriteUser(long id, UserEntity updates) {

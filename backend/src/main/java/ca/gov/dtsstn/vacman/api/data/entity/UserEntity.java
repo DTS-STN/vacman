@@ -6,6 +6,8 @@ import java.util.Set;
 import org.immutables.builder.Builder;
 import org.springframework.core.style.ToStringCreator;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.annotation.Nullable;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -47,6 +49,7 @@ public class UserEntity extends AbstractBaseEntity {
 	@Column(name = "[PERSONAL_RECORD_IDENTIFIER]", length = 10, nullable = true)
 	private String personalRecordIdentifier;
 
+	@JsonIgnore // no need to emit this in the events
 	@OneToMany(mappedBy = "user")
 	private Set<ProfileEntity> profiles;
 

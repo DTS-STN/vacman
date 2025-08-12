@@ -1,15 +1,10 @@
 package ca.gov.dtsstn.vacman.api.web;
 
-import java.util.List;
-
-import org.apache.commons.lang3.StringUtils;
-import org.hibernate.validator.constraints.Range;
 import org.mapstruct.factory.Mappers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.context.annotation.DependsOn;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedModel;
 import org.springframework.http.ResponseEntity;
@@ -119,32 +114,19 @@ public class UsersController {
 	}
 
 	@GetMapping
-	@PreAuthorize("hasAuthority('hr-advisor')")
+	@PreAuthorize("hasAuthority('hr-advisor') || #userType == 'hr-advisor'")
 	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
 	@Operation(summary = "Get users with pagination.", description = "Returns a paginated list of users.")
 	public ResponseEntity<PagedModel<UserReadModel>> getUsers(
-			@RequestParam(required = false)
-			@Parameter(description = "Microsoft Entra ID to filter by.")
-			String microsoftEntraId,
+			@ParameterObject Pageable pageable,
 
-			@RequestParam(defaultValue = "0")
-			@Parameter(description = "Page number (0-based)")
-			int page,
+			@RequestParam(name = "user-type", required = false)
+			@Parameter(description = "Filter by user type.", example = "hr-advisor")
+			String userType) {
+		final var users = "hr-advisor".equals(userType)
+			? userService.getHrAdvisors(pageable).map(userModelMapper::toModel)
+			: userService.getUsers(pageable).map(userModelMapper::toModel);
 
-			@RequestParam(defaultValue = "20")
-			@Range(min = 1, max = 100)
-			@Parameter(description = "Page size (between 1 and 100)")
-			int size) {
-		if (StringUtils.isNotBlank(microsoftEntraId)) {
-			final var users = userService.getUserByMicrosoftEntraId(microsoftEntraId)
-				.map(userModelMapper::toModel)
-				.map(List::of)
-				.orElse(List.of());
-
-			return ResponseEntity.ok(new PagedModel<>(new PageImpl<>(users, Pageable.ofSize(size), users.size())));
-		}
-
-		final var users = userService.getUsers(PageRequest.of(page, size)).map(userModelMapper::toModel);
 		return ResponseEntity.ok(new PagedModel<>(users));
 	}
 
