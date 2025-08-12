@@ -132,7 +132,13 @@ export function getMockProfileService(): ProfileService {
       return Promise.resolve(filtered);
     },
     getCurrentUserProfile: async (accessToken: string) => {
-      const user = await getUserService().getCurrentUser(accessToken);
+      const userOption = await getUserService().getCurrentUser(accessToken);
+
+      if (userOption.isNone()) {
+        return None;
+      }
+
+      const user = userOption.unwrap();
 
       // Find the active profile for this specific user
       const activeProfile = mockProfiles.find(

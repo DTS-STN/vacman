@@ -23,9 +23,15 @@ const log = LogFactory.getLogger(import.meta.url);
 export async function requireHiringManagerRegistration(session: AuthenticatedSession, currentUrl: URL): Promise<void> {
   // Get user from the database to check hiring manager registration
   const userService = getUserService();
-  const user = await userService.getCurrentUser(session.authState.accessToken);
+  const userOption = await userService.getCurrentUser(session.authState.accessToken);
 
-  // Check if user has hiring-manager role
+  // Check if user exists and has hiring-manager role
+  if (userOption.isNone()) {
+    log.debug('User is not registered, redirecting to index');
+    throw i18nRedirect('routes/employee/index.tsx', currentUrl);
+  }
+
+  const user = userOption.unwrap();
   if (user.role !== 'hiring-manager') {
     log.debug('User is not registered as a hiring manager, redirecting to index');
     throw i18nRedirect('routes/employee/index.tsx', currentUrl);

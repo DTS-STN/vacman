@@ -48,7 +48,15 @@ async function checkPrivacyConsentForUser(accessToken: string, userId: number, c
  * @throws {Response} Redirect to index page if user hasn't accepted privacy consent
  */
 export async function requirePrivacyConsent(session: AuthenticatedSession, currentUrl: URL): Promise<void> {
-  const currentUser = await getUserService().getCurrentUser(session.authState.accessToken);
+  const currentUserOption = await getUserService().getCurrentUser(session.authState.accessToken);
+  
+  if (currentUserOption.isNone()) {
+    throw new AppError('User not found', ErrorCodes.ACCESS_FORBIDDEN, {
+      httpStatusCode: HttpStatusCodes.UNAUTHORIZED,
+    });
+  }
+  
+  const currentUser = currentUserOption.unwrap();
   await checkPrivacyConsentForUser(session.authState.accessToken, currentUser.id, currentUrl);
 }
 
@@ -66,7 +74,15 @@ export async function requirePrivacyConsentForOwnProfile(
   requestOrUrl: Request | URL,
 ): Promise<void> {
   const currentUrl = requestOrUrl instanceof Request ? new URL(requestOrUrl.url) : requestOrUrl;
-  const currentUser = await getUserService().getCurrentUser(session.authState.accessToken);
+  const currentUserOption = await getUserService().getCurrentUser(session.authState.accessToken);
+  
+  if (currentUserOption.isNone()) {
+    throw new AppError('User not found', ErrorCodes.ACCESS_FORBIDDEN, {
+      httpStatusCode: HttpStatusCodes.UNAUTHORIZED,
+    });
+  }
+  
+  const currentUser = currentUserOption.unwrap();
   const profileOpion = await getProfileService().getCurrentUserProfile(session.authState.accessToken);
 
   if (profileOpion.isNone()) {
