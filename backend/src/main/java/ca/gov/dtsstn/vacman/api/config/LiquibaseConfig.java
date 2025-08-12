@@ -35,9 +35,10 @@ public class LiquibaseConfig {
 
         try {
             String url = dataSource.getConnection().getMetaData().getURL();
+            
             if (url.contains("jdbc:sqlserver")) {
                 liquibase.setContexts("mssql");
-            } else if (url.contains("jdbc:h2")) {
+            } else {
                 liquibase.setContexts("h2");
             }
         } catch (Exception e) {
