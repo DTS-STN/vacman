@@ -11,12 +11,10 @@ export default {
     'hiring-manager-dashboard': 'Hiring manager dashboard',
     'register-as': 'Register as...',
   },
-  'register': {
-    'employee': 'Employee dashboard',
-    'employee-manage': 'Manage your profile',
-    'hiring-manager': 'Hiring manager dashboard',
-    'hiring-manager-manage': 'Manage your requests',
-    'page-title': 'Register as...',
+  'privacy-consent': {
+    'privacy-notice-statement': 'Pivacy notice statement',
+    'accept': 'Accept',
+    'decline': 'Decline',
   },
   'profile': {
     'about-para-1':
