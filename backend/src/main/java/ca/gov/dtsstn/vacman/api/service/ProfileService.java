@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import ca.gov.dtsstn.vacman.api.event.ProfileStatusChangeEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -14,7 +15,6 @@ import org.springframework.stereotype.Service;
 
 import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntityBuilder;
-import ca.gov.dtsstn.vacman.api.data.entity.ProfileStatusEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 import ca.gov.dtsstn.vacman.api.data.repository.*;
 import ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException;
@@ -159,27 +159,19 @@ public class ProfileService {
 	}
 
 	/**
-	 * Updates the status of a profile and emits a ProfileStatusChangeEvent.
-	 * TODO: This method should be called when the PUT /profiles/{id}/status endpoint is implemented.
-	 * @param profileId The ID of the profile to update
-	 * @param statusId The new status ID
-	 * @return The updated profile entity
-	 * @throws ResourceNotFoundException if the profile or status is not found
+	 * Updates an existing profile to the target status code.
+	 *
+	 * @param existingProfile The profile entity to be updated.
+	 * @param statusCode  The code the profile will be updated to use.
 	 */
-	public ProfileEntity updateProfileStatus(Long profileId, Long statusId) {
-		final var profileEntity = profileRepository.findById(profileId)
-			.orElseThrow(() -> new ResourceNotFoundException("Profile not found"));
+	public void updateProfileStatus(ProfileEntity existingProfile, String statusCode) {
+		final var previousStatusId = existingProfile.getProfileStatus().getId();
+		final var newStatus = profileStatusRepository.findByCode(statusCode) ;
 
-		final var previousStatusId = Optional.ofNullable(profileEntity.getProfileStatus())
-			.map(ProfileStatusEntity::getId)
-			.orElse(null);
-
-		final var newStatus = profileStatusRepository.findById(statusId)
-			.orElseThrow(() -> new ResourceNotFoundException("Profile status not found"));
-
-		profileEntity.setProfileStatus(newStatus);
-	    return profileRepository.save(profileEntity);
-    }
+		existingProfile.setProfileStatus(newStatus);
+	    final var updatedProfile = profileRepository.save(existingProfile);
+		eventPublisher.publishEvent(new ProfileStatusChangeEvent(updatedProfile, previousStatusId, newStatus.getId()));
+	}
 
 	/**
      * Update a profile based on the provided update model. This method validates that any IDs exist within the DB

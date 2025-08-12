@@ -1,5 +1,8 @@
 package ca.gov.dtsstn.vacman.api.web;
 
+import ca.gov.dtsstn.vacman.api.constants.AppConstants;
+import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
+import ca.gov.dtsstn.vacman.api.web.model.ProfileStatusUpdateModel;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.validator.constraints.Range;
 import org.mapstruct.factory.Mappers;
@@ -34,6 +37,9 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Collection;
+import java.util.Set;
 
 import static ca.gov.dtsstn.vacman.api.constants.AppConstants.UserFields.MS_ENTRA_ID;
 import static ca.gov.dtsstn.vacman.api.exception.ExceptionUtils.*;
@@ -172,6 +178,7 @@ public class ProfilesController {
     @PutMapping(path = "/{id}")
 	@PreAuthorize("hasAuthority('hr-advisor')")
     @SecurityRequirement(name = SpringDocConfig.AZURE_AD)
+	@Operation(summary = "Update an existing profile specified by ID.")
     public ResponseEntity<ProfileReadModel> updateProfileById(
             @PathVariable(name = "id")
             Long profileId,
@@ -182,13 +189,57 @@ public class ProfilesController {
     ) {
         log.info("Received request to get profile; ID: [{}]", profileId);
 
-        var foundProfile = profileService.getProfile(profileId)
+        final var foundProfile = profileService.getProfile(profileId)
                 .orElseThrow(() -> generateIdDoesNotExistException("profile", profileId));
 
         log.trace("Found profile: [{}]", foundProfile);
 
-        var updatedEntity = profileService.updateProfile(updatedProfile, foundProfile);
+        final var updatedEntity = profileService.updateProfile(updatedProfile, foundProfile);
 
         return ResponseEntity.ok(profileModelMapper.toModelNoUserData(updatedEntity));
     }
+
+	@PutMapping(path = "/{id}/status")
+	@PreAuthorize("(hasAuthority('hr-advisor') && @securityManager.targetProfileStatusIsApprovalOrArchived(#updatedProfileStatus))"
+			+ " || (@securityManager.canAccessProfile(#profileId) && @securityManager.targetProfileStatusIsPending(#updatedProfileStatus))")
+	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
+	@Operation(summary = "Update an existing profile's status code specified by ID.")
+	public ResponseEntity<Void> updateProfileById(
+			@PathVariable(name = "id")
+			Long profileId,
+
+			@Valid
+			@RequestBody
+			ProfileStatusUpdateModel updatedProfileStatus
+	) {
+		log.info("Received request to update profile status; ID: [{}]", profileId);
+
+		final var foundProfile = profileService.getProfile(profileId)
+				.orElseThrow(() -> generateIdDoesNotExistException("profile", profileId));
+
+		log.trace("Found profile: [{}]", foundProfile);
+
+		final var validPretransitionStates = switch (updatedProfileStatus.getCode()) {
+			case AppConstants.ProfileStatusCodes.PENDING -> Set.of(AppConstants.ProfileStatusCodes.INCOMPLETE, AppConstants.ProfileStatusCodes.APPROVED);
+			case AppConstants.ProfileStatusCodes.APPROVED -> Set.of(AppConstants.ProfileStatusCodes.PENDING);
+			case AppConstants.ProfileStatusCodes.ARCHIVED -> Set.of(AppConstants.ProfileStatusCodes.APPROVED);
+			// This default case /shouldn't/ ever execute, since at this point we've confirmed that the target status
+			// is one of three options. But, we need to handle this case regardless.
+			default -> throw new ResourceConflictException("Cannot transition profile status to code=[" + updatedProfileStatus.getCode() + "]");
+		};
+
+		updateStatusToTarget(foundProfile, updatedProfileStatus.getCode(), validPretransitionStates);
+
+		return ResponseEntity.noContent().build();
+	}
+
+	private void updateStatusToTarget(ProfileEntity profile, String targetStatus, Collection<String> validPreTransitionStates) {
+		var currentStatus = profile.getProfileStatus().getCode();
+		if(!validPreTransitionStates.contains(currentStatus)) {
+			throw new ResourceConflictException("Cannot transition state from code=[" + currentStatus + "] to code=[" + targetStatus + "]");
+		}
+
+		profileService.updateProfileStatus(profile, targetStatus);
+	}
+
 }
