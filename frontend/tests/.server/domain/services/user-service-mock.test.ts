@@ -75,8 +75,11 @@ describe('getMockUserService', () => {
         },
       } as unknown as AuthenticatedSession;
 
-      const createdUser = await service.registerCurrentUser(userData, mockSession.authState.accessToken);
+      const createdUserResult = await service.registerCurrentUser(userData, mockSession.authState.accessToken);
 
+      expect(createdUserResult.isOk()).toBe(true);
+      const createdUser = createdUserResult.unwrap();
+      
       expect(createdUser.id).toBeDefined();
       expect(createdUser.uuName).toBe('Test User');
       expect(createdUser.networkName).toBe('mock-active-directory-id');
