@@ -59,13 +59,12 @@ export async function loader({ context, request }: LoaderFunctionArgs) {
     .map((s) => s.id);
 
   // Filter profiles based on allowed status codes
-  const filteredAllProfiles = profiles.filter((profile) => statusIds.includes(profile.profileStatusId));
+  const filteredAllProfiles = profiles.filter((profile) => statusIds.includes(profile.profileStatus.id));
 
-  {
-    /* TODO:  filter profiles based on the hr-advisor Id */
-  }
   // Filter profiles based on hr-advisor id
-  const filteredMyProfiles = profiles.filter((profile) => profile.employmentInformation.hrAdvisor === 4);
+  const filteredMyProfiles = profiles.filter(
+    (profile) => profile.employmentInformation.hrAdvisor === context.session.currentUser.id,
+  );
 
   return {
     documentTitle: t('app:index.employees'),
