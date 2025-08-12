@@ -6,7 +6,7 @@ export const EMPLOYEE_WFA_STATUS = {
   exOpting: 'EXOPTING',
   surplusGRJO: 'SURPLUS_GRJO',
   exSurplusCPA: 'EXSURPLUSCPA',
-  surplusOptingOptionA: 'SURPLUS_OPTION_A',
+  surplusOptingOptionA: 'SURPLUS_NO_GRJO',
 } as const;
 
 export const PROFILE_STATUS_CODE = {
@@ -19,10 +19,10 @@ export const PROFILE_STATUS_CODE = {
 export type ProfileStatusCode = (typeof PROFILE_STATUS_CODE)[keyof typeof PROFILE_STATUS_CODE];
 
 export const PROFILE_STATUS_ID = {
-  pending: 1,
-  approved: 2,
-  incomplete: 3,
-  archived: 4,
+  pending: 0,
+  approved: 1,
+  incomplete: 2,
+  archived: 3,
 } as const;
 
 export const LANGUAGE_ID = {

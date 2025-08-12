@@ -7,9 +7,9 @@ import { ErrorCodes } from '~/errors/error-codes';
 // Transform the JSON data to match the expected format
 const transformedData: Classification[] = esdcClassificationData.content.map((classification) => ({
   id: classification.id,
-  code: classification.name,
-  nameEn: classification.name,
-  nameFr: classification.name,
+  code: classification.code,
+  nameEn: classification.nameEn,
+  nameFr: classification.nameFr,
 }));
 
 // Create a single instance of the service using shared implementation with standard localization
