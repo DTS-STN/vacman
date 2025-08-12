@@ -6,7 +6,6 @@ import org.slf4j.LoggerFactory;
 import javax.sql.DataSource;
 import liquibase.integration.spring.SpringLiquibase;
 
-// import org.hibernate.engine.jdbc.env.internal.LobCreationLogging_.logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.liquibase.LiquibaseProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
