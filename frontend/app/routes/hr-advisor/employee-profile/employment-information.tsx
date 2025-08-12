@@ -1,6 +1,8 @@
 import type { RouteHandle } from 'react-router';
+import { data } from 'react-router';
 
 import { useTranslation } from 'react-i18next';
+import * as v from 'valibot';
 
 import type { Route } from '../employee-profile/+types/employment-information';
 
@@ -14,11 +16,15 @@ import { getProvinceService } from '~/.server/domain/services/province-service';
 import { getUserService } from '~/.server/domain/services/user-service';
 import { getWFAStatuses } from '~/.server/domain/services/wfa-status-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
+import { omitObjectProperties } from '~/.server/utils/profile-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { InlineLink } from '~/components/links';
+import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
 import { EmploymentInformationForm } from '~/routes/page-components/employees/employment-information/form';
+import type { EmploymentInformationSchema } from '~/routes/page-components/employees/validation.server';
+import { parseEmploymentInformation } from '~/routes/page-components/employees/validation.server';
 
 export const handle = {
   i18nNamespace: [...parentHandle.i18nNamespace],
@@ -31,19 +37,41 @@ export function meta({ loaderData }: Route.MetaArgs) {
 export async function action({ context, params, request }: Route.ActionArgs) {
   requireAuthentication(context.session, request);
 
-  const profileResult = await getProfileService().getProfileById(
-    context.session.authState.accessToken,
-    Number(params.profileId),
-  );
+  const profileService = getProfileService();
+  const profileResult = await profileService.getProfileById(context.session.authState.accessToken, Number(params.profileId));
 
   if (profileResult.isErr()) {
     throw new Response('Profile not found', { status: 404 });
   }
 
-  //TODO: Implement approval logic
+  const profile = profileResult.unwrap();
+
+  const formData = await request.formData();
+  const { parseResult, formValues } = await parseEmploymentInformation(formData, context.session.authState.accessToken);
+  if (!parseResult.success) {
+    return data(
+      { formValues: formValues, errors: v.flatten<EmploymentInformationSchema>(parseResult.issues).nested },
+      { status: HttpStatusCodes.BAD_REQUEST },
+    );
+  }
+  const updateResult = await profileService.updateProfileById(context.session.authState.accessToken, {
+    ...profile,
+    employmentInformation: omitObjectProperties(parseResult.output, [
+      'wfaEffectiveDateYear',
+      'wfaEffectiveDateMonth',
+      'wfaEffectiveDateDay',
+      'wfaEndDateYear',
+      'wfaEndDateMonth',
+      'wfaEndDateDay',
+    ]),
+  });
+
+  if (updateResult.isErr()) {
+    throw updateResult.unwrapErr();
+  }
 
   return i18nRedirect('routes/hr-advisor/employee-profile/index.tsx', request, {
-    params: { id: profileResult.unwrap().profileId.toString() },
+    params: { profileId: profileResult.unwrap().profileId.toString() },
   });
 }
 
