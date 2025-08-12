@@ -151,19 +151,19 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const profileStatus = (await getProfileStatusService().findLocalizedById(profileData.profileStatus.id, lang)).unwrap();
 
   const preferredLanguageResult =
-    profileData.personalInformation.preferredLanguageId &&
+    profileData.personalInformation.preferredLanguageId !== undefined &&
     (await getLanguageForCorrespondenceService().findLocalizedById(profileData.personalInformation.preferredLanguageId, lang));
   const workUnitResult =
-    profileData.employmentInformation.directorate &&
+    profileData.employmentInformation.directorate !== undefined &&
     (await getDirectorateService().findLocalizedById(profileData.employmentInformation.directorate, lang));
   const substantivePositionResult =
-    profileData.employmentInformation.substantivePosition &&
+    profileData.employmentInformation.substantivePosition !== undefined &&
     (await getClassificationService().findLocalizedById(profileData.employmentInformation.substantivePosition, lang));
   const cityResult =
-    profileData.employmentInformation.cityId &&
+    profileData.employmentInformation.cityId !== undefined &&
     (await getCityService().findLocalizedById(profileData.employmentInformation.cityId, lang));
   const wfaStatusResult =
-    profileData.employmentInformation.wfaStatus &&
+    profileData.employmentInformation.wfaStatus !== undefined &&
     (await getWFAStatuses().findLocalizedById(profileData.employmentInformation.wfaStatus, lang));
 
   // convert the IDs to display names
@@ -201,7 +201,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const personalInformationCompleted = countCompletedItems(requiredPersonalInformation);
   const personalInformationTotalFeilds = Object.keys(requiredPersonalInformation).length;
 
-  const validWFAStatusesForOptionalDate = [EMPLOYEE_WFA_STATUS.affected] as const;
+  const validWFAStatusesForOptionalDate = [EMPLOYEE_WFA_STATUS.affected, EMPLOYEE_WFA_STATUS.exAffected] as const;
   const selectedValidWfaStatusesForOptionalDate = allWfaStatus
     .filter((c) => validWFAStatusesForOptionalDate.toString().includes(c.code))
     .map((status) => ({
@@ -214,7 +214,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     (status) => status.id === profileData.employmentInformation.wfaStatus,
   );
   const requiredEmploymentInformation = isWfaDateOptional
-    ? omitObjectProperties(profileData.employmentInformation, ['wfaEndDate', 'wfaEffectiveDate']) // If status is "Affected", omit the effective date
+    ? omitObjectProperties(profileData.employmentInformation, ['wfaEndDate', 'wfaEffectiveDate']) // If status is "Affected" or "Affected -EX", omit the effective date
     : omitObjectProperties(profileData.employmentInformation, ['wfaEndDate']);
   const employmentInformationCompleted = countCompletedItems(requiredEmploymentInformation);
   const employmentInformationTotalFields = Object.keys(requiredEmploymentInformation).length;
