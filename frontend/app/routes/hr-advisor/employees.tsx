@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import type { JSX } from 'react';
 
 import type { RouteHandle, LoaderFunctionArgs } from 'react-router';
@@ -12,8 +13,8 @@ import type { Profile } from '~/.server/domain/models';
 import { getProfileService } from '~/.server/domain/services/profile-service';
 import { getProfileStatusService } from '~/.server/domain/services/profile-status-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
-import { Button } from '~/components/button';
 import { DataTable, DataTableColumnHeader, DataTableColumnHeaderWithOptions } from '~/components/data-table';
+import { InputSelect } from '~/components/input-select';
 import { InlineLink } from '~/components/links';
 import { PageTitle } from '~/components/page-title';
 import { PROFILE_STATUS_CODE } from '~/domain/constants';
@@ -58,19 +59,38 @@ export async function loader({ context, request }: LoaderFunctionArgs) {
     .map((s) => s.id);
 
   // Filter profiles based on allowed status codes
-  const filteredProfiles = profiles.filter((profile) => statusIds.includes(profile.profileStatusId));
+  const filteredAllProfiles = profiles.filter((profile) => statusIds.includes(profile.profileStatusId));
+
+  {
+    /* TODO:  filter profiles based on the hr-advisor Id */
+  }
+  // Filter profiles based on hr-advisor id
+  const filteredMyProfiles = profiles.filter((profile) => profile.employmentInformation?.hrAdvisor === 4);
 
   return {
     documentTitle: t('app:index.employees'),
-    profiles: filteredProfiles,
+    allProfiles: filteredAllProfiles,
+    myProfiles: filteredMyProfiles,
     statuses,
   };
 }
 
 export default function EmployeeDashboard({ loaderData, params }: Route.ComponentProps) {
   const { t } = useTranslation(handle.i18nNamespace);
+  const [selectedProfiles, setSelectedProfiles] = useState('all');
 
   const statusMap = Object.fromEntries(loaderData.statuses.map((s) => [s.id, s.name]));
+
+  const employeesOptions = [
+    {
+      value: 'all',
+      children: t('app:hr-advisor-dashboard.all-employees'),
+    },
+    {
+      value: 'mine',
+      children: t('app:hr-advisor-dashboard.my-employees'),
+    },
+  ];
 
   const columns: ColumnDef<Profile>[] = [
     {
@@ -147,11 +167,20 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
   return (
     <div className="mb-8">
       <PageTitle className="after:w-14">{t('app:index.employees')}</PageTitle>
-      {/* TODO:  This button should select between "My employees" and "All employees" in case an HR advisor needs to pick up an employee assigned to the wrong advisor*/}
-      <Button variant="alternative" className="float-right my-4">
-        {t('app:employee-dashboard.all-employees')}
-      </Button>
-      <DataTable columns={columns} data={loaderData.profiles} />
+
+      <InputSelect
+        id="selectEmployees"
+        name="selectEmployees"
+        errorMessage=""
+        required={false}
+        options={employeesOptions}
+        label=""
+        defaultValue="all"
+        onChange={({ target }) => setSelectedProfiles(target.value)}
+        className="wx-1/12 float-right my-4 sm:w-1/5"
+      />
+
+      <DataTable columns={columns} data={selectedProfiles === 'all' ? loaderData.allProfiles : loaderData.myProfiles} />
     </div>
   );
 }

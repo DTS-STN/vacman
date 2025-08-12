@@ -224,5 +224,6 @@ export default {
   'hr-advisor-dashboard': {
     'page-title': '(FR) HR Advisor Dashboard',
     'all-employees': '(FR) All employees',
+    'my-employees': '(FR) My employees',
   },
 } satisfies typeof appEn;
