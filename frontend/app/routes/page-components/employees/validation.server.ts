@@ -285,7 +285,7 @@ const validWFAStatusesForRequiredDate = [
   EMPLOYEE_WFA_STATUS.exSurplusCPA,
 ] as const;
 
-const validWFAStatusesForOptionalDate = [EMPLOYEE_WFA_STATUS.affected] as const;
+const validWFAStatusesForOptionalDate = [EMPLOYEE_WFA_STATUS.affected, EMPLOYEE_WFA_STATUS.exAffected] as const;
 
 const selectedValidWfaStatusesForRequiredDate = allWfaStatus
   .filter((c) => validWFAStatusesForRequiredDate.toString().includes(c.code))

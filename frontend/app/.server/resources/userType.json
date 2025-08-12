@@ -1,28 +1,52 @@
 {
   "content": [
     {
-      "id": 1,
+      "id": 0,
       "code": "employee",
       "nameEn": "Employee",
-      "nameFr": "Employé"
+      "nameFr": "Employé",
+      "effectiveDate": "1970-01-01T00:00:00Z",
+      "expiryDate": null,
+      "createdBy": "system",
+      "createdDate": "2025-08-10T16:35:18Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-08-10T16:35:18Z"
+    },
+    {
+      "id": 1,
+      "code": "admin",
+      "nameEn": "Administrator",
+      "nameFr": "Administrateur",
+      "effectiveDate": "1970-01-01T00:00:00Z",
+      "expiryDate": null,
+      "createdBy": "system",
+      "createdDate": "2025-08-10T16:35:18Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-08-10T16:35:18Z"
     },
     {
       "id": 2,
-      "code": "admin",
-      "nameEn": "Administrator",
-      "nameFr": "Administrateur"
+      "code": "hiring-manager",
+      "nameEn": "Hiring Manager",
+      "nameFr": "Gestionnaire de recrutement",
+      "effectiveDate": "1970-01-01T00:00:00Z",
+      "expiryDate": null,
+      "createdBy": "system",
+      "createdDate": "2025-08-10T16:35:18Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-08-10T16:35:18Z"
     },
     {
       "id": 3,
-      "code": "hiring-manager",
-      "nameEn": "Hiring Manager",
-      "nameFr": "Gestionnaire de recrutement"
-    },
-    {
-      "id": 4,
-      "code": "hr-advisor",
+      "code": "HRA",
       "nameEn": "HR Advisor",
-      "nameFr": "Conseiller RH"
+      "nameFr": "Conseiller en R.H.",
+      "effectiveDate": "1970-01-01T00:00:00Z",
+      "expiryDate": null,
+      "createdBy": "system",
+      "createdDate": "2025-08-10T16:35:18Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-08-10T16:35:18Z"
     }
   ]
 }

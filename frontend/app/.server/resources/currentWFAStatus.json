@@ -1,71 +1,69 @@
 {
   "content": [
     {
-      "id": 1,
+      "id": 0,
       "code": "AFFECTED",
       "nameEn": "Affected",
-      "nameFr": "Touché"
+      "nameFr": "Touché",
+      "effectiveDate": "1970-01-01T00:00:00Z",
+      "expiryDate": null,
+      "createdBy": "system",
+      "createdDate": "2025-08-10T16:35:17.01Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-08-10T16:35:17.01Z",
+      "sortOrder": 3
+    },
+    {
+      "id": 1,
+      "code": "SURPLUS_GRJO",
+      "nameEn": "Surplus (GRJO)",
+      "nameFr": "Excédentaire (GOER)",
+      "effectiveDate": "1970-01-01T00:00:00Z",
+      "expiryDate": null,
+      "createdBy": "system",
+      "createdDate": "2025-08-10T16:35:17.01Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-08-10T16:35:17.01Z",
+      "sortOrder": 1
     },
     {
       "id": 2,
-      "code": "EXAFFECTED",
-      "nameEn": "Affected - EX",
-      "nameFr": "Touché - EX"
+      "code": "SURPLUS_NO_GRJO",
+      "nameEn": "Surplus (Opting Option A)",
+      "nameFr": "Excédentaire (Optant Option A)",
+      "effectiveDate": "1970-01-01T00:00:00Z",
+      "expiryDate": null,
+      "createdBy": "system",
+      "createdDate": "2025-08-10T16:35:17.01Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-08-10T16:35:17.01Z",
+      "sortOrder": 2
     },
     {
       "id": 3,
-      "code": "OPTING",
-      "nameEn": "Opting",
-      "nameFr": "Optant"
+      "code": "EXAFFECTED",
+      "nameEn": "Affected - EX",
+      "nameFr": "Touché - EX",
+      "effectiveDate": "1970-01-01T00:00:00Z",
+      "expiryDate": null,
+      "createdBy": "system",
+      "createdDate": "2025-08-10T16:35:17.01Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-08-10T16:35:17.01Z",
+      "sortOrder": 5
     },
     {
       "id": 4,
-      "code": "EXOPTING",
-      "nameEn": "Opting - EX",
-      "nameFr": "Optant - EX"
-    },
-    {
-      "id": 5,
-      "code": "SURPLUS_GRJO",
-      "nameEn": "Surplus (GRJO)",
-      "nameFr": "Excédentaire (GOER)"
-    },
-    {
-      "id": 6,
       "code": "EXSURPLUSCPA",
       "nameEn": "Surplus - EX (Stay CPA)",
-      "nameFr": "Excédentaire - EX (Reste APC)"
-    },
-    {
-      "id": 7,
-      "code": "SURPLUS_OPTION_A",
-      "nameEn": "Surplus (Opting Option A)",
-      "nameFr": "Excédentaire (Optant Option A)"
+      "nameFr": "Excédentaire - EX (Reste APC)",
+      "effectiveDate": "1970-01-01T00:00:00Z",
+      "expiryDate": null,
+      "createdBy": "system",
+      "createdDate": "2025-08-10T16:35:17.01Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-08-10T16:35:17.01Z",
+      "sortOrder": 4
     }
-  ],
-  "pageable": {
-    "sort": {
-      "empty": true,
-      "sorted": false,
-      "unsorted": true
-    },
-    "offset": 0,
-    "pageSize": 2,
-    "pageNumber": 0,
-    "paged": true,
-    "unpaged": false
-  },
-  "last": false,
-  "totalPages": 2,
-  "totalElements": 4,
-  "size": 2,
-  "number": 0,
-  "sort": {
-    "empty": true,
-    "sorted": false,
-    "unsorted": true
-  },
-  "first": true,
-  "numberOfElements": 4,
-  "empty": false
+  ]
 }

@@ -60,7 +60,7 @@ export function EmploymentInformationForm({
   const [branch, setBranch] = useState(
     formValues?.branchOrServiceCanadaRegion ? String(formValues.branchOrServiceCanadaRegion) : undefined,
   );
-  const [province, setProvince] = useState(formValues?.province ? String(formValues.province) : undefined);
+  const [province, setProvince] = useState(formValues?.province !== undefined ? String(formValues.province) : undefined);
   const [wfaStatusCode, setWfaStatusCode] = useState(wfaStatuses.find((c) => c.id === formValues?.wfaStatus)?.code);
 
   const substantivePositionOptions = [{ id: 'select-option', name: '' }, ...substantivePositions].map(({ id, name }) => ({
@@ -128,7 +128,7 @@ export function EmploymentInformationForm({
               required
               options={substantivePositionOptions}
               label={t('employment-information.substantive-position-group-and-level')}
-              defaultValue={formValues?.substantivePosition ? String(formValues.substantivePosition) : ''}
+              defaultValue={formValues?.substantivePosition !== undefined ? String(formValues.substantivePosition) : ''}
               className="w-full sm:w-1/2"
             />
             <InputSelect
@@ -139,7 +139,9 @@ export function EmploymentInformationForm({
               onChange={({ target }) => setBranch(target.value || undefined)}
               options={branchOrServiceCanadaRegionOptions}
               label={t('employment-information.branch-or-service-canada-region')}
-              defaultValue={formValues?.branchOrServiceCanadaRegion ? String(formValues.branchOrServiceCanadaRegion) : ''}
+              defaultValue={
+                formValues?.branchOrServiceCanadaRegion !== undefined ? String(formValues.branchOrServiceCanadaRegion) : ''
+              }
               className="w-full sm:w-1/2"
             />
             {branch && (
@@ -150,7 +152,7 @@ export function EmploymentInformationForm({
                 required
                 options={directorateOptions}
                 label={t('employment-information.directorate')}
-                defaultValue={formValues?.directorate ? String(formValues.directorate) : ''}
+                defaultValue={formValues?.directorate !== undefined ? String(formValues.directorate) : ''}
                 className="w-full sm:w-1/2"
               />
             )}
@@ -174,7 +176,7 @@ export function EmploymentInformationForm({
                   required
                   options={cityOptions}
                   label={t('employment-information.city')}
-                  defaultValue={formValues?.cityId ? String(formValues.cityId) : ''}
+                  defaultValue={formValues?.cityId !== undefined ? String(formValues.cityId) : ''}
                   className="w-full sm:w-1/2"
                 />
               </>

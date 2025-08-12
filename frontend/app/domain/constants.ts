@@ -6,7 +6,7 @@ export const EMPLOYEE_WFA_STATUS = {
   exOpting: 'EXOPTING',
   surplusGRJO: 'SURPLUS_GRJO',
   exSurplusCPA: 'EXSURPLUSCPA',
-  surplusOptingOptionA: 'SURPLUS_OPTION_A',
+  surplusOptingOptionA: 'SURPLUS_NO_GRJO',
 } as const;
 
 export const PROFILE_STATUS_CODE = {
@@ -19,10 +19,10 @@ export const PROFILE_STATUS_CODE = {
 export type ProfileStatusCode = (typeof PROFILE_STATUS_CODE)[keyof typeof PROFILE_STATUS_CODE];
 
 export const PROFILE_STATUS_ID = {
-  pending: 1,
-  approved: 2,
-  incomplete: 3,
-  archived: 4,
+  pending: 0,
+  approved: 1,
+  incomplete: 2,
+  archived: 3,
 } as const;
 
 export const LANGUAGE_ID = {
@@ -47,22 +47,29 @@ export const Acronym = {
 export type AcronymEnum = (typeof Acronym)[keyof typeof Acronym];
 
 export const PROFILE_STATUS_PENDING = {
-  id: 1,
+  id: 0,
   code: 'PENDING',
   nameEn: 'Pending approval',
   nameFr: "En attente d'approbation",
 } as const;
 
 export const PROFILE_STATUS_APPROVED = {
-  id: 2,
+  id: 1,
   code: 'APPROVED',
   nameEn: 'Approved',
   nameFr: 'Approuvé',
 } as const;
 
 export const PROFILE_STATUS_INCOMPLETE = {
-  id: 3,
+  id: 2,
   code: 'INCOMPLETE',
   nameEn: 'In progress',
   nameFr: 'En cours',
+} as const;
+
+export const PROFILE_STATUS_ARCHIVED = {
+  id: 3,
+  code: 'ARCHIVED',
+  nameEn: 'Archived',
+  nameFr: 'Archivé',
 } as const;
