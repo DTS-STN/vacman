@@ -35,11 +35,11 @@ const allEmploymentTenures = await getEmploymentTenureService().listAll();
 // Function to get HR advisors that requires authentication
 async function getHrAdvisors(accessToken: string): Promise<User[]> {
   const result = await getUserService().getUsersByRole('hr-advisor', accessToken);
-  
+
   if (result.isErr()) {
     throw result.unwrapErr();
   }
-  
+
   return result.unwrap();
 }
 

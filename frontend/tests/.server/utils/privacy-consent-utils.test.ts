@@ -179,9 +179,11 @@ describe('Privacy Consent Flow', () => {
         }),
       );
 
-      mockUserService.getCurrentUser.mockResolvedValue(Some({
-        id: 1,
-      }));
+      mockUserService.getCurrentUser.mockResolvedValue(
+        Some({
+          id: 1,
+        }),
+      );
 
       // Act & Assert - should not throw
       await expect(requirePrivacyConsent(mockSession, new URL('http://localhost:3000/en/employee'))).resolves.not.toThrow();

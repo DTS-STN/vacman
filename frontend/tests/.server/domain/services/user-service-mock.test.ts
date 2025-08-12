@@ -14,7 +14,7 @@ describe('getMockUserService', () => {
 
       expect(userResult.isOk()).toBe(true);
       const user = userResult.unwrap();
-      
+
       expect(user).toEqual({
         id: 1,
         uuName: 'Jane Doe',
@@ -36,10 +36,10 @@ describe('getMockUserService', () => {
 
     it('should return an error when user is not found', async () => {
       const userResult = await service.getUserById(999, 'mock-access-token');
-      
+
       expect(userResult.isErr()).toBe(true);
       const error = userResult.unwrapErr();
-      
+
       expect(error).toMatchObject({
         msg: "User with ID '999' not found.",
         errorCode: ErrorCodes.VACMAN_API_ERROR,
@@ -87,7 +87,7 @@ describe('getMockUserService', () => {
 
       expect(createdUserResult.isOk()).toBe(true);
       const createdUser = createdUserResult.unwrap();
-      
+
       expect(createdUser.id).toBeDefined();
       expect(createdUser.uuName).toBe('Test User');
       expect(createdUser.networkName).toBe('mock-active-directory-id');

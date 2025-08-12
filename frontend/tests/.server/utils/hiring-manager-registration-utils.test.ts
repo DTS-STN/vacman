@@ -1,5 +1,5 @@
-import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { Some, None } from 'oxide.ts';
+import { describe, expect, it, vi, beforeEach } from 'vitest';
 
 import { getUserService } from '~/.server/domain/services/user-service';
 import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
@@ -73,16 +73,18 @@ describe('Hiring Manager Registration Utils', () => {
       const mockSession = createMockSession('test-hiring-manager-123');
       const currentUrl = new URL('http://localhost:3000/en/hiring-manager');
 
-      mockUserService.getCurrentUser.mockResolvedValue(Some({
-        id: 1,
-        name: 'Test Hiring Manager',
-        activeDirectoryId: 'test-hiring-manager-123',
-        role: 'hiring-manager',
-        userCreated: 'system',
-        dateCreated: '2024-01-01T00:00:00Z',
-        userUpdated: 'system',
-        dateUpdated: '2024-01-01T00:00:00Z',
-      }));
+      mockUserService.getCurrentUser.mockResolvedValue(
+        Some({
+          id: 1,
+          name: 'Test Hiring Manager',
+          activeDirectoryId: 'test-hiring-manager-123',
+          role: 'hiring-manager',
+          userCreated: 'system',
+          dateCreated: '2024-01-01T00:00:00Z',
+          userUpdated: 'system',
+          dateUpdated: '2024-01-01T00:00:00Z',
+        }),
+      );
 
       // Act & Assert - should not throw
       await expect(requireHiringManagerRegistration(mockSession, currentUrl)).resolves.not.toThrow();
@@ -108,17 +110,19 @@ describe('Hiring Manager Registration Utils', () => {
       const mockSession = createMockSession('test-employee-123');
       const currentUrl = new URL('http://localhost:3000/en/hiring-manager');
 
-      mockUserService.getCurrentUser.mockResolvedValue(Some({
-        id: 1,
-        name: 'Test Employee',
-        activeDirectoryId: 'test-employee-123',
-        role: 'employee',
-        privacyConsentAccepted: true,
-        userCreated: 'system',
-        dateCreated: '2024-01-01T00:00:00Z',
-        userUpdated: 'system',
-        dateUpdated: '2024-01-01T00:00:00Z',
-      }));
+      mockUserService.getCurrentUser.mockResolvedValue(
+        Some({
+          id: 1,
+          name: 'Test Employee',
+          activeDirectoryId: 'test-employee-123',
+          role: 'employee',
+          privacyConsentAccepted: true,
+          userCreated: 'system',
+          dateCreated: '2024-01-01T00:00:00Z',
+          userUpdated: 'system',
+          dateUpdated: '2024-01-01T00:00:00Z',
+        }),
+      );
 
       // Act & Assert - should throw redirect
       await expect(requireHiringManagerRegistration(mockSession, currentUrl)).rejects.toThrow();
@@ -131,16 +135,18 @@ describe('Hiring Manager Registration Utils', () => {
       const mockSession = createMockSession('test-hr-advisor-123');
       const currentUrl = new URL('http://localhost:3000/en/hiring-manager');
 
-      mockUserService.getCurrentUser.mockResolvedValue(Some({
-        id: 1,
-        name: 'Test HR Advisor',
-        activeDirectoryId: 'test-hr-advisor-123',
-        role: 'hr-advisor',
-        userCreated: 'system',
-        dateCreated: '2024-01-01T00:00:00Z',
-        userUpdated: 'system',
-        dateUpdated: '2024-01-01T00:00:00Z',
-      }));
+      mockUserService.getCurrentUser.mockResolvedValue(
+        Some({
+          id: 1,
+          name: 'Test HR Advisor',
+          activeDirectoryId: 'test-hr-advisor-123',
+          role: 'hr-advisor',
+          userCreated: 'system',
+          dateCreated: '2024-01-01T00:00:00Z',
+          userUpdated: 'system',
+          dateUpdated: '2024-01-01T00:00:00Z',
+        }),
+      );
 
       // Act & Assert - should throw redirect
       await expect(requireHiringManagerRegistration(mockSession, currentUrl)).rejects.toThrow();
@@ -153,16 +159,18 @@ describe('Hiring Manager Registration Utils', () => {
       const mockSession = createMockSession('test-hiring-manager-fr');
       const currentUrl = new URL('http://localhost:3000/fr/gestionnaire-embauche');
 
-      mockUserService.getCurrentUser.mockResolvedValue(Some({
-        id: 1,
-        name: 'Gestionnaire Test',
-        activeDirectoryId: 'test-hiring-manager-fr',
-        role: 'hiring-manager',
-        userCreated: 'system',
-        dateCreated: '2024-01-01T00:00:00Z',
-        userUpdated: 'system',
-        dateUpdated: '2024-01-01T00:00:00Z',
-      }));
+      mockUserService.getCurrentUser.mockResolvedValue(
+        Some({
+          id: 1,
+          name: 'Gestionnaire Test',
+          activeDirectoryId: 'test-hiring-manager-fr',
+          role: 'hiring-manager',
+          userCreated: 'system',
+          dateCreated: '2024-01-01T00:00:00Z',
+          userUpdated: 'system',
+          dateUpdated: '2024-01-01T00:00:00Z',
+        }),
+      );
 
       // Act & Assert - should not throw
       await expect(requireHiringManagerRegistration(mockSession, currentUrl)).resolves.not.toThrow();

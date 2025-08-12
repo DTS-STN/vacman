@@ -50,7 +50,7 @@ describe('User Service Integration', () => {
 
       expect(registeredUserResult.isOk()).toBe(true);
       const registeredUser = registeredUserResult.unwrap();
-      
+
       expect(registeredUser).toMatchObject({
         uuName: 'Test User',
         networkName: 'mock-active-directory-id',
@@ -97,7 +97,7 @@ describe('User Service Integration', () => {
 
       expect(registeredUserResult.isOk()).toBe(true);
       const registeredUser = registeredUserResult.unwrap();
-      
+
       expect(registeredUser).toMatchObject({
         uuName: 'Test User',
         networkName: 'mock-active-directory-id',

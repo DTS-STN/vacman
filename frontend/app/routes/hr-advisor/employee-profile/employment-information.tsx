@@ -67,11 +67,11 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const cities = await getCityService().listAllLocalized(lang);
   const wfaStatuses = await getWFAStatuses().listAllLocalized(lang);
   const hrAdvisorsResult = await getUserService().getUsersByRole('hr-advisor', context.session.authState.accessToken);
-  
+
   if (hrAdvisorsResult.isErr()) {
     throw hrAdvisorsResult.unwrapErr();
   }
-  
+
   const hrAdvisors = hrAdvisorsResult.unwrap();
   const profileData: Profile = profileResult.unwrap();
 
