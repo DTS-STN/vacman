@@ -105,7 +105,7 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
     },
     {
       accessorKey: 'status',
-      accessorFn: (row) => statusMap[row.profileStatusId] ?? '',
+      accessorFn: (row) => statusMap[row.profileStatus] ?? '',
       header: ({ column }) => (
         <DataTableColumnHeaderWithOptions
           column={column}

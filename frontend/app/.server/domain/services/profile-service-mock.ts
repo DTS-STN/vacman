@@ -108,9 +108,9 @@ export function getMockProfileService(): ProfileService {
 
       // Simulate 'active' filter
       if (params.active === true) {
-        filtered = filtered.filter((p) => activeStatuses.includes(p.profileStatusId));
+        filtered = filtered.filter((p) => activeStatuses.includes(p.profileStatus.id));
       } else if (params.active === false) {
-        filtered = filtered.filter((p) => inactiveStatuses.includes(p.profileStatusId));
+        filtered = filtered.filter((p) => inactiveStatuses.includes(p.profileStatus.id));
       }
       // If params.active is null, we do nothing and return all profiles.
 
@@ -138,9 +138,9 @@ export function getMockProfileService(): ProfileService {
       const activeProfile = mockProfiles.find(
         (profile) =>
           profile.userId === user.id &&
-          (profile.profileStatusId === PROFILE_STATUS_ID.incomplete ||
-            profile.profileStatusId === PROFILE_STATUS_ID.pending ||
-            profile.profileStatusId === PROFILE_STATUS_ID.approved),
+          (profile.profileStatus.id === PROFILE_STATUS_ID.incomplete ||
+            profile.profileStatus.id === PROFILE_STATUS_ID.pending ||
+            profile.profileStatus.id === PROFILE_STATUS_ID.approved),
       );
 
       return Promise.resolve(activeProfile ? Some(activeProfile) : None);
@@ -164,7 +164,12 @@ let mockProfiles: Profile[] = [
     userIdReviewedBy: undefined,
     userIdApprovedBy: undefined,
     priorityLevelId: 1,
-    profileStatusId: PROFILE_STATUS_ID.incomplete,
+    profileStatus: {
+      id: 3,
+      code: 'INCOMPLETE',
+      nameEn: 'In progress',
+      nameFr: 'En cours',
+    },
     privacyConsentInd: false,
     userCreated: 'system',
     dateCreated: '2024-01-01T00:00:00Z',
@@ -208,7 +213,12 @@ let mockProfiles: Profile[] = [
     userIdReviewedBy: undefined,
     userIdApprovedBy: undefined,
     priorityLevelId: 2,
-    profileStatusId: PROFILE_STATUS_ID.incomplete,
+    profileStatus: {
+      id: 3,
+      code: 'INCOMPLETE',
+      nameEn: 'In progress',
+      nameFr: 'En cours',
+    },
     privacyConsentInd: false,
     userCreated: 'system',
     dateCreated: '2024-01-01T00:00:00Z',
@@ -252,7 +262,12 @@ let mockProfiles: Profile[] = [
     userIdReviewedBy: undefined,
     userIdApprovedBy: undefined,
     priorityLevelId: 1,
-    profileStatusId: PROFILE_STATUS_ID.pending,
+    profileStatus: {
+      id: 1,
+      code: 'PENDING',
+      nameEn: 'Pending approval',
+      nameFr: "En attente d'approbation",
+    },
     privacyConsentInd: true,
     userCreated: 'system',
     dateCreated: '2024-02-01T09:00:00Z',
@@ -296,7 +311,12 @@ let mockProfiles: Profile[] = [
     userIdReviewedBy: 5,
     userIdApprovedBy: 5,
     priorityLevelId: 2,
-    profileStatusId: PROFILE_STATUS_ID.approved,
+    profileStatus: {
+      id: 2,
+      code: 'APPROVED',
+      nameEn: 'Approved',
+      nameFr: 'Approuvé',
+    },
     privacyConsentInd: true,
     userCreated: 'system',
     dateCreated: '2024-03-15T08:30:00Z',
@@ -340,7 +360,12 @@ let mockProfiles: Profile[] = [
     userIdReviewedBy: 5,
     userIdApprovedBy: 5,
     priorityLevelId: 3,
-    profileStatusId: PROFILE_STATUS_ID.approved,
+    profileStatus: {
+      id: 2,
+      code: 'APPROVED',
+      nameEn: 'Approved',
+      nameFr: 'Approuvé',
+    },
     privacyConsentInd: true,
     userCreated: 'system',
     dateCreated: '2024-04-20T11:45:00Z',
@@ -384,7 +409,12 @@ let mockProfiles: Profile[] = [
     userIdReviewedBy: 5,
     userIdApprovedBy: 5,
     priorityLevelId: 1,
-    profileStatusId: PROFILE_STATUS_ID.approved,
+    profileStatus: {
+      id: 2,
+      code: 'APPROVED',
+      nameEn: 'Approved',
+      nameFr: 'Approuvé',
+    },
     privacyConsentInd: true,
     userCreated: 'system',
     dateCreated: '2024-06-01T08:00:00Z',
@@ -428,7 +458,12 @@ let mockProfiles: Profile[] = [
     userIdReviewedBy: undefined,
     userIdApprovedBy: undefined,
     priorityLevelId: 2,
-    profileStatusId: PROFILE_STATUS_ID.pending,
+    profileStatus: {
+      id: 1,
+      code: 'PENDING',
+      nameEn: 'Pending approval',
+      nameFr: "En attente d'approbation",
+    },
     privacyConsentInd: true,
     userCreated: 'system',
     dateCreated: '2024-06-02T09:00:00Z',
@@ -472,7 +507,12 @@ let mockProfiles: Profile[] = [
     userIdReviewedBy: undefined,
     userIdApprovedBy: undefined,
     priorityLevelId: 3,
-    profileStatusId: PROFILE_STATUS_ID.pending,
+    profileStatus: {
+      id: 1,
+      code: 'PENDING',
+      nameEn: 'Pending approval',
+      nameFr: "En attente d'approbation",
+    },
     privacyConsentInd: true,
     userCreated: 'system',
     dateCreated: '2024-06-03T10:00:00Z',
@@ -516,7 +556,12 @@ let mockProfiles: Profile[] = [
     userIdReviewedBy: undefined,
     userIdApprovedBy: undefined,
     priorityLevelId: 1,
-    profileStatusId: PROFILE_STATUS_ID.pending,
+    profileStatus: {
+      id: 1,
+      code: 'PENDING',
+      nameEn: 'Pending approval',
+      nameFr: "En attente d'approbation",
+    },
     privacyConsentInd: true,
     userCreated: 'system',
     dateCreated: '2024-06-04T11:00:00Z',
@@ -560,7 +605,12 @@ let mockProfiles: Profile[] = [
     userIdReviewedBy: 5,
     userIdApprovedBy: 5,
     priorityLevelId: 2,
-    profileStatusId: PROFILE_STATUS_ID.approved,
+    profileStatus: {
+      id: 2,
+      code: 'APPROVED',
+      nameEn: 'Approved',
+      nameFr: 'Approuvé',
+    },
     privacyConsentInd: true,
     userCreated: 'system',
     dateCreated: '2024-06-05T12:00:00Z',
@@ -604,7 +654,12 @@ let mockProfiles: Profile[] = [
     userIdReviewedBy: 5,
     userIdApprovedBy: 5,
     priorityLevelId: 3,
-    profileStatusId: PROFILE_STATUS_ID.approved,
+    profileStatus: {
+      id: 2,
+      code: 'APPROVED',
+      nameEn: 'Approved',
+      nameFr: 'Approuvé',
+    },
     privacyConsentInd: true,
     userCreated: 'system',
     dateCreated: '2024-06-06T13:00:00Z',
@@ -648,7 +703,12 @@ let mockProfiles: Profile[] = [
     userIdReviewedBy: undefined,
     userIdApprovedBy: undefined,
     priorityLevelId: 1,
-    profileStatusId: PROFILE_STATUS_ID.pending,
+    profileStatus: {
+      id: 1,
+      code: 'PENDING',
+      nameEn: 'Pending approval',
+      nameFr: "En attente d'approbation",
+    },
     privacyConsentInd: true,
     userCreated: 'system',
     dateCreated: '2024-06-07T14:00:00Z',
@@ -692,7 +752,12 @@ let mockProfiles: Profile[] = [
     userIdReviewedBy: undefined,
     userIdApprovedBy: undefined,
     priorityLevelId: 2,
-    profileStatusId: PROFILE_STATUS_ID.pending,
+    profileStatus: {
+      id: 1,
+      code: 'PENDING',
+      nameEn: 'Pending approval',
+      nameFr: "En attente d'approbation",
+    },
     privacyConsentInd: true,
     userCreated: 'system',
     dateCreated: '2024-06-08T15:00:00Z',
@@ -736,7 +801,12 @@ let mockProfiles: Profile[] = [
     userIdReviewedBy: undefined,
     userIdApprovedBy: undefined,
     priorityLevelId: 3,
-    profileStatusId: PROFILE_STATUS_ID.pending,
+    profileStatus: {
+      id: 1,
+      code: 'PENDING',
+      nameEn: 'Pending approval',
+      nameFr: "En attente d'approbation",
+    },
     privacyConsentInd: true,
     userCreated: 'system',
     dateCreated: '2024-06-09T16:00:00Z',
@@ -780,7 +850,12 @@ let mockProfiles: Profile[] = [
     userIdReviewedBy: 5,
     userIdApprovedBy: 5,
     priorityLevelId: 1,
-    profileStatusId: PROFILE_STATUS_ID.approved,
+    profileStatus: {
+      id: 2,
+      code: 'APPROVED',
+      nameEn: 'Approved',
+      nameFr: 'Approuvé',
+    },
     privacyConsentInd: true,
     userCreated: 'system',
     dateCreated: '2024-06-10T17:00:00Z',
@@ -848,7 +923,12 @@ function createMockProfile(accessToken: string): Profile {
     userIdReviewedBy: undefined,
     userIdApprovedBy: undefined,
     priorityLevelId: 2,
-    profileStatusId: PROFILE_STATUS_ID.incomplete,
+    profileStatus: {
+      id: 3,
+      code: 'INCOMPLETE',
+      nameEn: 'In progress',
+      nameFr: 'En cours',
+    },
     privacyConsentInd: false,
     userCreated: accessToken,
     dateCreated: new Date().toISOString(),
