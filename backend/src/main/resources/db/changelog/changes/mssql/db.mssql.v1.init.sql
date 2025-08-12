@@ -498,6 +498,14 @@ ALTER TABLE REQUEST ADD CONSTRAINT REQUEST_PK PRIMARY KEY CLUSTERED (ID)
      ALLOW_PAGE_LOCKS = ON , 
      ALLOW_ROW_LOCKS = ON );
 
+EXEC sp_addextendedproperty 'MS_Description' , 'Approval received from the Workforce Management Committee (Non-EX positions) or the People Management Leadership Committee (EX positions).' , 'USER' , 'dbo' , 'TABLE' , 'REQUEST' , 'COLUMN' , 'APPR_RCV_WMC_PMLC_IND';
+
+EXEC sp_addextendedproperty 'MS_Description' , 'Would the appointment of a priority person result in a priority entitlement for another indeterminate employee? (Yes / No)' , 'USER' , 'dbo' , 'TABLE' , 'REQUEST' , 'COLUMN' , 'APPT_RSLT_PRRT_ENTTLMNT_IND';
+
+EXEC sp_addextendedproperty 'MS_Description' , 'If yes, please provide the rationale. (text box)' , 'USER' , 'dbo' , 'TABLE' , 'REQUEST' , 'COLUMN' , 'APPT_RSLT_PRRT_ENTTLMNT_RTNL';
+
+EXEC sp_addextendedproperty 'MS_Description' , 'Has the person proposed previously performed the same duties in the last twelve months or is this person still currently performing them in any capacity (casual, Interchange Canada, agency, contractor, acting more than four months, etc.)?
+(Yes / No)' , 'USER' , 'dbo' , 'TABLE' , 'REQUEST' , 'COLUMN' , 'HAS_PRVS_PRFRMD_DTS_IND';
 
 EXEC sp_addextendedproperty 'MS_Description' , 'The REQUEST_CITY table is an association table between CD_CITY and REQUEST.' , 'USER' , 'dbo' , 'TABLE' , 'REQUEST_CITY' ;
 
