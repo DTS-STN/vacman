@@ -34,8 +34,8 @@ import ca.gov.dtsstn.vacman.api.web.exception.ResourceConflictException;
 import ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException;
 import ca.gov.dtsstn.vacman.api.web.exception.UnauthorizedException;
 import ca.gov.dtsstn.vacman.api.web.model.UserCreateModel;
+import ca.gov.dtsstn.vacman.api.web.model.UserPatchModel;
 import ca.gov.dtsstn.vacman.api.web.model.UserReadModel;
-import ca.gov.dtsstn.vacman.api.web.model.UserUpdateModel;
 import ca.gov.dtsstn.vacman.api.web.model.mapper.UserModelMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -163,52 +163,21 @@ public class UsersController {
 	@PatchMapping("/{id}")
 	@Operation(summary = "Update an existing user.")
 	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
-<<<<<<< Upstream, based on origin/main
 	@PreAuthorize("hasAuthority('hr-advisor') || @securityManager.canAccessUser(#id)")
-	public ResponseEntity<UserReadModel> updateUser(@PathVariable long id, @RequestBody @Valid UserUpdateModel updates) {
-=======
-	public ResponseEntity<UserReadModel> patchUser(@PathVariable Long id, @RequestBody @Valid UserUpdateModel userUpdate) {
->>>>>>> 09a334f make another updateUser method to be used by PUT and move auth logic to the controller
+	public ResponseEntity<UserReadModel> updateUser(@PathVariable long id, @RequestBody @Valid UserPatchModel updates) {
 		userService.getUserById(id).orElseThrow(() -> new ResourceNotFoundException("User with id=[" + id + "] not found"));
 		final var updatedUser = userService.updateUser(id, userModelMapper.toEntity(updates));
 		return ResponseEntity.ok(userModelMapper.toModel(updatedUser));
 	}
 
 	@PutMapping("/{id}")
-	@Operation(summary = "Update an existing user.")
+	@Operation(summary = "Overwrite an existing user.")
 	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
-	public ResponseEntity<UserReadModel> updateUser(@PathVariable Long id, @RequestBody @Valid UserUpdateModel userUpdate) {
-		try {
-			final var existingUser = userService.getUserById(id)
-				.orElseThrow(() -> new ResourceNotFoundException("User with id=[" + id + "] not found"));
-
-			final var currentUserEntraId = SecurityUtils.getCurrentUserEntraId()
-				.orElseThrow(() -> new UnauthorizedException("Could not extract 'oid' claim from JWT token"));
-
-			if (!(existingUser.getMicrosoftEntraId().equals(currentUserEntraId) || SecurityUtils.hasHrAdvisorId())) {
-				throw new UnauthorizedException("Not authorized to update user with id=[" + id + "]");
-			}
-
-			// If user is updating their own data OR user is an HR Advisor, create the updated model and update the db
-			UserUpdateModel updatedModel = new UserUpdateModel(
-				id,
-				userUpdate.userTypeId(),
-				userUpdate.microsoftEntraId(),
-				userUpdate.firstName(),
-				userUpdate.middleName(),
-				userUpdate.lastName(),
-				userUpdate.initials(),
-				userUpdate.personalRecordIdentifier(),
-				userUpdate.businessPhone(),
-				userUpdate.businessEmail(),
-				userUpdate.languageId()
-			);
-
-			final var updatedUser = userService.updateUser(id, updatedModel);
-			return ResponseEntity.ok(userModelMapper.toModel(updatedUser));
-		} catch (ResourceNotFoundException | UnauthorizedException e) {
-			throw new ResourceNotFoundException(e.getMessage());
-		}
+	@PreAuthorize("hasAuthority('hr-advisor') || @securityManager.canAccessUser(#id)")
+	public ResponseEntity<UserReadModel> updateUser(@PathVariable Long id, @RequestBody @Valid UserPatchModel userUpdate) {
+		userService.getUserById(id).orElseThrow(() -> new ResourceNotFoundException("User with id=[" + id + "] not found"));
+		final var updatedUser = userService.overwriteUser(id, userModelMapper.toEntity(userUpdate));
+		return ResponseEntity.ok(userModelMapper.toModel(updatedUser));
 	}
 
 }
