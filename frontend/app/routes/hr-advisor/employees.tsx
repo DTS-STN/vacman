@@ -65,7 +65,7 @@ export async function loader({ context, request }: LoaderFunctionArgs) {
     /* TODO:  filter profiles based on the hr-advisor Id */
   }
   // Filter profiles based on hr-advisor id
-  const filteredMyProfiles = profiles.filter((profile) => profile.employmentInformation?.hrAdvisor === 4);
+  const filteredMyProfiles = profiles.filter((profile) => profile.employmentInformation.hrAdvisor === 4);
 
   return {
     documentTitle: t('app:index.employees'),
