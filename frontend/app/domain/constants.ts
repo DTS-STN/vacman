@@ -45,3 +45,24 @@ export const Acronym = {
 } as const;
 
 export type AcronymEnum = (typeof Acronym)[keyof typeof Acronym];
+
+export const PROFILE_STATUS_PENDING = {
+  id: 1,
+  code: 'PENDING',
+  nameEn: 'Pending approval',
+  nameFr: "En attente d'approbation",
+} as const;
+
+export const PROFILE_STATUS_APPROVED = {
+  id: 2,
+  code: 'APPROVED',
+  nameEn: 'Approved',
+  nameFr: 'Approuvé',
+} as const;
+
+export const PROFILE_STATUS_INCOMPLETE = {
+  id: 3,
+  code: 'INCOMPLETE',
+  nameEn: 'In progress',
+  nameFr: 'En cours',
+} as const;

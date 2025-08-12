@@ -58,7 +58,7 @@ export async function loader({ context, request }: LoaderFunctionArgs) {
     .map((s) => s.id);
 
   // Filter profiles based on allowed status codes
-  const filteredProfiles = profiles.filter((profile) => statusIds.includes(profile.profileStatusId));
+  const filteredProfiles = profiles.filter((profile) => statusIds.includes(profile.profileStatus.id));
 
   return {
     documentTitle: t('app:index.employees'),
@@ -105,7 +105,7 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
     },
     {
       accessorKey: 'status',
-      accessorFn: (row) => statusMap[row.profileStatus] ?? '',
+      accessorFn: (row) => statusMap[row.profileStatus.id] ?? '',
       header: ({ column }) => (
         <DataTableColumnHeaderWithOptions
           column={column}
@@ -117,7 +117,7 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
       ),
       cell: (info) => {
         const profile = info.row.original;
-        const status = loaderData.statuses.find((s) => s.id === profile.profileStatusId);
+        const status = loaderData.statuses.find((s) => s.id === profile.profileStatus.id);
         return status && statusTag(status.code, status.name);
       },
       filterFn: (row, columnId, filterValue: string[]) => {
