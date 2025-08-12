@@ -125,7 +125,7 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
     },
     {
       accessorKey: 'status',
-      accessorFn: (row) => statusMap[row.profileStatusId] ?? '',
+      accessorFn: (row) => statusMap[row.profileStatus.id] ?? '',
       header: ({ column }) => (
         <DataTableColumnHeaderWithOptions
           column={column}
@@ -137,7 +137,7 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
       ),
       cell: (info) => {
         const profile = info.row.original;
-        const status = loaderData.statuses.find((s) => s.id === profile.profileStatusId);
+        const status = loaderData.statuses.find((s) => s.id === profile.profileStatus.id);
         return status && statusTag(status.code, status.name);
       },
       filterFn: (row, columnId, filterValue: string[]) => {

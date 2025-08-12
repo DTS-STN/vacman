@@ -134,7 +134,7 @@ export type Profile = Readonly<{
   userIdReviewedBy?: number;
   userIdApprovedBy?: number;
   priorityLevelId?: number;
-  profileStatusId: number;
+  profileStatus: ProfileStatus;
   privacyConsentInd?: boolean;
   userCreated: string;
   dateCreated: string;
