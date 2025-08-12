@@ -6,7 +6,6 @@ import static ca.gov.dtsstn.vacman.api.data.entity.AbstractCodeEntity.byId;
 import java.util.List;
 import java.util.Optional;
 
-import org.mapstruct.factory.Mappers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
@@ -16,7 +15,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import ca.gov.dtsstn.vacman.api.constants.AppConstants;
-import ca.gov.dtsstn.vacman.api.data.entity.LanguageEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntityBuilder;
 import ca.gov.dtsstn.vacman.api.data.repository.UserRepository;
@@ -35,13 +33,18 @@ public class UserService {
 
 	private final CodeService codeService;
 
-	private final UserEntityMapper userEntityMapper = Mappers.getMapper(UserEntityMapper.class);
+	private final UserEntityMapper userEntityMapper;
 
 	private final UserRepository userRepository;
 
-	public UserService(CodeService codeService, ApplicationEventPublisher eventPublisher, UserRepository userRepository) {
+	public UserService(
+			CodeService codeService,
+			ApplicationEventPublisher eventPublisher,
+			UserEntityMapper userEntityMapper,
+			UserRepository userRepository) {
 		this.codeService = codeService;
 		this.eventPublisher = eventPublisher;
+		this.userEntityMapper = userEntityMapper;
 		this.userRepository = userRepository;
 	}
 
@@ -97,15 +100,6 @@ public class UserService {
 	public UserEntity overwriteUser(long id, UserEntity updates) {
 		final var existingUser = userRepository.findById(id).orElseThrow();
 		userEntityMapper.overwrite(updates, existingUser);
-
-		// XXX ::: GjB ::: this is a bit hacky, but 🤷
-		Optional.ofNullable(updates.getLanguage()).map(LanguageEntity::getId).ifPresent(languageId -> {
-			final var language = codeService.getLanguages(Pageable.unpaged())
-				.filter(byId(languageId)).stream()
-				.findFirst().orElseThrow();
-			existingUser.setLanguage(language);
-		});
-
 		final var updatedUser = userRepository.save(existingUser);
 		eventPublisher.publishEvent(new UserUpdatedEvent(updatedUser));
 		log.info("User updated with ID: {}", updatedUser.getId());
@@ -115,15 +109,6 @@ public class UserService {
 	public UserEntity updateUser(long id, UserEntity updates) {
 		final var existingUser = userRepository.findById(id).orElseThrow();
 		userEntityMapper.update(updates, existingUser);
-
-		// XXX ::: GjB ::: this is a bit hacky, but 🤷
-		Optional.ofNullable(updates.getLanguage()).map(LanguageEntity::getId).ifPresent(languageId -> {
-			final var language = codeService.getLanguages(Pageable.unpaged())
-				.filter(byId(languageId)).stream()
-				.findFirst().orElseThrow();
-			existingUser.setLanguage(language);
-		});
-
 		final var updatedUser = userRepository.save(existingUser);
 		eventPublisher.publishEvent(new UserUpdatedEvent(updatedUser));
 		log.info("User updated with ID: {}", updatedUser.getId());
