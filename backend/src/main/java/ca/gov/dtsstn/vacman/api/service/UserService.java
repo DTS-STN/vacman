@@ -23,8 +23,7 @@ import ca.gov.dtsstn.vacman.api.event.UserCreatedEvent;
 import ca.gov.dtsstn.vacman.api.event.UserDeletedEvent;
 import ca.gov.dtsstn.vacman.api.event.UserReadEvent;
 import ca.gov.dtsstn.vacman.api.event.UserUpdatedEvent;
-import ca.gov.dtsstn.vacman.api.web.model.UserUpdateModel;
-import ca.gov.dtsstn.vacman.api.web.model.mapper.UserModelMapper;
+import ca.gov.dtsstn.vacman.api.service.mapper.UserEntityMapper;
 
 @Service
 public class UserService {
@@ -35,7 +34,7 @@ public class UserService {
 
 	private final CodeService codeService;
 
-	private final UserModelMapper userModelMapper = Mappers.getMapper(UserModelMapper.class);
+	private final UserEntityMapper userEntityMapper = Mappers.getMapper(UserEntityMapper.class);
 
 	private final UserRepository userRepository;
 
@@ -68,19 +67,19 @@ public class UserService {
 
 	public Optional<UserEntity> getUserById(long id) {
 		return userRepository.findById(id).map(user -> {
-			eventPublisher.publishEvent(new UserReadEvent(user.getId()));
+			eventPublisher.publishEvent(new UserReadEvent(user));
 			return user;
 		});
 	}
 
-	public Optional<UserEntity> getUserByMicrosoftEntraId(String microsoftEntraId) {
+	public Optional<UserEntity> getUserByMicrosoftEntraId(String entraId) {
 		// No need to emit an event here because this is used
 		// in intermediary steps by other methods that emit events
 
 		// XXX ::: GjB ::: I think we should still consider emitting an event here
 
 		final var example = Example.of(new UserEntityBuilder()
-			.microsoftEntraId(microsoftEntraId)
+			.microsoftEntraId(entraId)
 			.build());
 
 		return userRepository.findOne(example);
@@ -94,43 +93,23 @@ public class UserService {
 		return userRepository.findAll(pageable);
 	}
 
-	//
-	// TODO ::: GjB ::: this should not use a REST model; it should use an entity (or DTO)
-	//
-	public UserEntity updateUser(UserUpdateModel updateModel) {
-		final var existingUser = userRepository.findById(updateModel.id()).orElseThrow();
-		userModelMapper.updateEntityFromModel(updateModel, existingUser);
-
-		// Handle role update if provided (validation ensures it exists)
-		Optional.ofNullable(updateModel.userTypeId()).ifPresent(role -> {
-			existingUser.setUserType(codeService.getUserTypes(Pageable.unpaged()).stream()
-				.filter(byId(updateModel.userTypeId()))
-				.findFirst().orElseThrow());
-		});
-
-		// Handle language update if provided (validation ensures it exists)
-		Optional.ofNullable(updateModel.languageId()).ifPresent(languageCode -> {
-			existingUser.setLanguage(codeService.getLanguages(Pageable.unpaged()).stream()
-					.filter(byId(updateModel.languageId()))
-					.findFirst().orElseThrow());
-		});
-
+	public UserEntity updateUser(long id, UserEntity updates) {
+		final var existingUser = userRepository.findById(id).orElseThrow();
+		userEntityMapper.update(updates, existingUser);
 		final var updatedUser = userRepository.save(existingUser);
 
-		// Publish updated event
 		eventPublisher.publishEvent(new UserUpdatedEvent(updatedUser));
 		log.info("User updated with ID: {}", updatedUser.getId());
 
 		return updatedUser;
 	}
 
-	public void deleteUser(Long id) {
-		userRepository.findById(id)
-			.ifPresent(user -> {
-				userRepository.deleteById(id);
-				eventPublisher.publishEvent(new UserDeletedEvent(user));
-				log.info("User deleted with ID: {}", id);
-			});
+	public void deleteUser(long id) {
+		userRepository.findById(id).ifPresent(user -> {
+			userRepository.deleteById(id);
+			eventPublisher.publishEvent(new UserDeletedEvent(user));
+			log.info("User deleted with ID: {}", id);
+		});
 	}
 
 }

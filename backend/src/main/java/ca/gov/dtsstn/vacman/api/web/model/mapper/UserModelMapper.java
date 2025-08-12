@@ -1,11 +1,16 @@
 package ca.gov.dtsstn.vacman.api.web.model.mapper;
 
+import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
+import org.mapstruct.NullValuePropertyMappingStrategy;
 
+import ca.gov.dtsstn.vacman.api.data.entity.LanguageEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.LanguageEntityBuilder;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntityBuilder;
+import ca.gov.dtsstn.vacman.api.data.entity.UserTypeEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.UserTypeEntityBuilder;
 import ca.gov.dtsstn.vacman.api.web.model.UserCreateModel;
 import ca.gov.dtsstn.vacman.api.web.model.UserReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.UserUpdateModel;
@@ -62,17 +67,22 @@ public interface UserModelMapper {
 	@Mapping(target = "createdDate", ignore = true)
 	@Mapping(target = "lastModifiedBy", ignore = true)
 	@Mapping(target = "lastModifiedDate", ignore = true)
-	@Mapping(target = "userType", ignore = true)
-	@Mapping(target = "language", ignore = true)
+	@Mapping(target = "microsoftEntraId", ignore = true)
 	@Mapping(target = "profiles", ignore = true)
 	@Mapping(source = "businessEmail", target = "businessEmailAddress")
 	@Mapping(source = "businessPhone", target = "businessPhoneNumber")
-	@Mapping(source = "firstName", target = "firstName")
 	@Mapping(source = "initials", target = "initial")
-	@Mapping(source = "lastName", target = "lastName")
-	@Mapping(source = "middleName", target = "middleName")
-	@Mapping(source = "personalRecordIdentifier", target = "personalRecordIdentifier")
-	@Mapping(source = "microsoftEntraId", target = "microsoftEntraId")
-	void updateEntityFromModel(UserUpdateModel model, @MappingTarget UserEntity entity);
+	@Mapping(source = "languageId", target = "language")
+	@Mapping(source = "userTypeId", target = "userType")
+	@BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+	UserEntity toEntity(UserUpdateModel model);
+
+	default LanguageEntity toLanguageEntity(Long id) {
+		return id == null ? null : new LanguageEntityBuilder().id(id).build();
+	}
+
+	default UserTypeEntity toUserTypeEntity(Long id) {
+		return id == null ? null : new UserTypeEntityBuilder().id(id).build();
+	}
 
 }

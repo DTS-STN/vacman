@@ -1,7 +1,6 @@
 package ca.gov.dtsstn.vacman.api.data.entity;
 
 import java.time.Instant;
-import java.util.HashSet;
 import java.util.Set;
 
 import org.immutables.builder.Builder;
@@ -48,12 +47,8 @@ public class UserEntity extends AbstractBaseEntity {
 	@Column(name = "[PERSONAL_RECORD_IDENTIFIER]", length = 10, nullable = true)
 	private String personalRecordIdentifier;
 
-	// Profile relationship - One user can have many profiles
-	// User does not own the FK, Profile does
-	// This creates a bidirectional one-to-many relationship where Profile owns the FK
-	// No cascade on User side to avoid deletion conflicts
 	@OneToMany(mappedBy = "user")
-	private final Set<ProfileEntity> profiles = new HashSet<>();
+	private Set<ProfileEntity> profiles;
 
 	@ManyToOne
 	@JoinColumn(name = "[USER_TYPE_ID]", nullable = false)
@@ -91,11 +86,8 @@ public class UserEntity extends AbstractBaseEntity {
 		this.microsoftEntraId = microsoftEntraId;
 		this.middleName = middleName;
 		this.personalRecordIdentifier = personalRecordIdentifier;
+		this.profiles = profiles;
 		this.userType = userType;
-
-		if (profiles != null) {
-			this.profiles.addAll(profiles);
-		}
 	}
 
 	public String getBusinessEmailAddress() {
@@ -175,10 +167,7 @@ public class UserEntity extends AbstractBaseEntity {
 	}
 
 	public void setProfiles(Set<ProfileEntity> profiles) {
-		this.profiles.clear();
-		if (profiles != null) {
-			this.profiles.addAll(profiles);
-		}
+		this.profiles = profiles;
 	}
 
 	public UserTypeEntity getUserType() {

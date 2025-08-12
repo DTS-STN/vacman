@@ -163,9 +163,9 @@ public class UsersController {
 	@Operation(summary = "Update an existing user.")
 	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
 	@PreAuthorize("hasAuthority('hr-advisor') || @securityManager.canAccessUser(#id)")
-	public ResponseEntity<UserReadModel> updateUser(@PathVariable Long id, @RequestBody @Valid UserUpdateModel userUpdate) {
+	public ResponseEntity<UserReadModel> updateUser(@PathVariable long id, @RequestBody @Valid UserUpdateModel updates) {
 		userService.getUserById(id).orElseThrow(() -> new ResourceNotFoundException("User with id=[" + id + "] not found"));
-		final var updatedUser = userService.updateUser(userUpdate);
+		final var updatedUser = userService.updateUser(id, userModelMapper.toEntity(updates));
 		return ResponseEntity.ok(userModelMapper.toModel(updatedUser));
 	}
 

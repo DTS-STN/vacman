@@ -2,16 +2,17 @@ package ca.gov.dtsstn.vacman.api.event;
 
 import java.time.Instant;
 
+import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 import io.soabase.recordbuilder.core.RecordBuilder;
 
 /**
  * Event that is published when a user is read.
  */
 @RecordBuilder
-public record UserReadEvent(Long userId, Instant timestamp) {
+public record UserReadEvent(UserEntity entity, Instant timestamp) {
 
-	public UserReadEvent(Long userId) {
-		this(userId, Instant.now());
+	public UserReadEvent(UserEntity entity) {
+		this(entity, Instant.now());
 	}
 
 }
