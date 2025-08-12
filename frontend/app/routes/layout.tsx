@@ -63,10 +63,8 @@ export default function Layout({ loaderData }: Route.ComponentProps) {
         </div>
         <AppBar
           name={loaderData.name?.toString()}
-          profileItems={<MenuItem file="routes/index.tsx">{t('app:index.dashboard')}</MenuItem>}
-        >
-          <MenuItem file="routes/index.tsx">{t('app:index.navigate')}</MenuItem>
-        </AppBar>
+          profileItems={<MenuItem file="routes/employee/index.tsx">{t('app:index.dashboard')}</MenuItem>}
+        ></AppBar>
       </header>
 
       <main className="flex-grow">

@@ -11,11 +11,7 @@ describe('AppBar', () => {
     const RoutesStub = createRoutesStub([
       {
         path: '/fr/',
-        Component: () => (
-          <AppBar>
-            <MenuItem file="routes/index.tsx">This is a test</MenuItem>
-          </AppBar>
-        ),
+        Component: () => <AppBar profileItems={<MenuItem file="routes/index.tsx">This is a test</MenuItem>} />,
       },
     ]);
 
@@ -28,11 +24,7 @@ describe('AppBar', () => {
     const RoutesStub = createRoutesStub([
       {
         path: '/fr/',
-        Component: () => (
-          <AppBar>
-            <MenuItem to="https://example.com/">This is a test</MenuItem>
-          </AppBar>
-        ),
+        Component: () => <AppBar profileItems={<MenuItem to="https://example.com/">This is a test</MenuItem>} />,
       },
     ]);
 
@@ -45,11 +37,7 @@ describe('AppBar', () => {
     const RoutesStub = createRoutesStub([
       {
         path: '/fr/',
-        Component: () => (
-          <AppBar name="Test User">
-            <MenuItem file="routes/index.tsx">This is a test</MenuItem>
-          </AppBar>
-        ),
+        Component: () => <AppBar name="Test User" profileItems={<MenuItem file="routes/index.tsx">This is a test</MenuItem>} />,
       },
     ]);
 
@@ -63,9 +51,15 @@ describe('AppBar', () => {
       {
         path: '/fr/',
         Component: () => (
-          <AppBar name="Test User" profileItems={<MenuItem file="routes/index.tsx">This is a test</MenuItem>}>
-            <MenuItem file="routes/index.tsx">This is a test</MenuItem>
-          </AppBar>
+          <AppBar
+            name="Test User"
+            profileItems={
+              <>
+                <MenuItem file="routes/index.tsx">This is a test</MenuItem>
+                <MenuItem file="routes/index.tsx">This is a test</MenuItem>
+              </>
+            }
+          />
         ),
       },
     ]);
