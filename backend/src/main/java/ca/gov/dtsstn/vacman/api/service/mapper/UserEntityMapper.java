@@ -24,7 +24,8 @@ public interface UserEntityMapper {
 	UserTypeEntity cloneId(UserTypeEntity source);
 
 	/**
-	 * Updates the given target {@link UserEntity} with values from the provided source entity.
+	 * Overwrites the given target {@link UserEntity} with values from the provided source entity.
+	 * Null values in the source will result in null values in the target.
 	 *
 	 * @param source the {@link UserEntity} containing updated field values (source of data)
 	 * @param target the existing {@link UserEntity} instance to update (target of mapping)
@@ -35,6 +36,28 @@ public interface UserEntityMapper {
 	@Mapping(target = "createdDate", ignore = true)
 	@Mapping(target = "lastModifiedBy", ignore = true)
 	@Mapping(target = "lastModifiedDate", ignore = true)
+	@Mapping(target = "microsoftEntraId", ignore = true) // microsoftEntraId is set at creation time
+	@Mapping(target = "profiles", ignore = true) // profiles should be handled separately
+	@Mapping(target = "userType", ignore = true) // user types are set at creation time
+	@BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
+	UserEntity overwrite(UserEntity source, @MappingTarget UserEntity target);
+
+	/**
+	 * Updates the given target {@link UserEntity} with values from the provided source entity.
+	 * Null values in the source are ignored, retaining the existing values from the mapping target.
+	 *
+	 * @param source the {@link UserEntity} containing updated field values (source of data)
+	 * @param target the existing {@link UserEntity} instance to update (target of mapping)
+	 * @return the updated {@link UserEntity} instance (same object as {@code target})
+	 */
+	@Mapping(target = "id", ignore = true)
+	@Mapping(target = "createdBy", ignore = true)
+	@Mapping(target = "createdDate", ignore = true)
+	@Mapping(target = "lastModifiedBy", ignore = true)
+	@Mapping(target = "lastModifiedDate", ignore = true)
+	@Mapping(target = "microsoftEntraId", ignore = true) // microsoftEntraId is set at creation time
+	@Mapping(target = "profiles", ignore = true) // profiles should be handled separately
+	@Mapping(target = "userType", ignore = true) // user types are set at creation time
 	@BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 	UserEntity update(UserEntity source, @MappingTarget UserEntity target);
 

@@ -16,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import ca.gov.dtsstn.vacman.api.constants.AppConstants;
+import ca.gov.dtsstn.vacman.api.data.entity.LanguageEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntityBuilder;
 import ca.gov.dtsstn.vacman.api.data.repository.UserRepository;
@@ -93,14 +94,39 @@ public class UserService {
 		return userRepository.findAll(pageable);
 	}
 
+	public UserEntity overwriteUser(long id, UserEntity updates) {
+		final var existingUser = userRepository.findById(id).orElseThrow();
+		userEntityMapper.overwrite(updates, existingUser);
+
+		// XXX ::: GjB ::: this is a bit hacky, but 🤷
+		Optional.ofNullable(updates.getLanguage()).map(LanguageEntity::getId).ifPresent(languageId -> {
+			final var language = codeService.getLanguages(Pageable.unpaged())
+				.filter(byId(languageId)).stream()
+				.findFirst().orElseThrow();
+			existingUser.setLanguage(language);
+		});
+
+		final var updatedUser = userRepository.save(existingUser);
+		eventPublisher.publishEvent(new UserUpdatedEvent(updatedUser));
+		log.info("User updated with ID: {}", updatedUser.getId());
+		return updatedUser;
+	}
+
 	public UserEntity updateUser(long id, UserEntity updates) {
 		final var existingUser = userRepository.findById(id).orElseThrow();
 		userEntityMapper.update(updates, existingUser);
-		final var updatedUser = userRepository.save(existingUser);
 
+		// XXX ::: GjB ::: this is a bit hacky, but 🤷
+		Optional.ofNullable(updates.getLanguage()).map(LanguageEntity::getId).ifPresent(languageId -> {
+			final var language = codeService.getLanguages(Pageable.unpaged())
+				.filter(byId(languageId)).stream()
+				.findFirst().orElseThrow();
+			existingUser.setLanguage(language);
+		});
+
+		final var updatedUser = userRepository.save(existingUser);
 		eventPublisher.publishEvent(new UserUpdatedEvent(updatedUser));
 		log.info("User updated with ID: {}", updatedUser.getId());
-
 		return updatedUser;
 	}
 
