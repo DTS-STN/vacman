@@ -65,7 +65,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     throw updateResult.unwrapErr();
   }
   if (
-    currentProfile.profileStatusId === PROFILE_STATUS_ID.approved &&
+    currentProfile.profileStatus.id === PROFILE_STATUS_ID.approved &&
     hasEmploymentDataChanged(currentProfile.employmentInformation, parseResult.output)
   ) {
     // profile needs to be re-approved if and only if the current profile status is 'approved'
