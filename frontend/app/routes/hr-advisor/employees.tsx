@@ -38,8 +38,6 @@ export async function loader({ context, request }: LoaderFunctionArgs) {
   const url = new URL(request.url);
   const selectedProfiles = url.searchParams.get('selectedData');
 
-  console.log('Selected hr-advisor - selected  = ', selectedProfiles, '  currentUser ', context.session.currentUser.id);
-
   const profileParams = {
     accessToken: context.session.authState.accessToken,
     active: true, // will return In Progress, Pending Approval and Approved
