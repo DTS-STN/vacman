@@ -38,7 +38,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
   }
 
   const { t } = await getTranslation(request, handle.i18nNamespace);
-  return { documentTitle: t('app:index.employee-dashboard') };
+  return { documentTitle: t('app:hr-advisor-dashboard.page-title') };
 }
 
 export default function EmployeeDashboard() {
