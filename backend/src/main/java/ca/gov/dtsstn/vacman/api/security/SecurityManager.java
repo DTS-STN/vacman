@@ -1,15 +1,15 @@
 package ca.gov.dtsstn.vacman.api.security;
 
-import ca.gov.dtsstn.vacman.api.constants.AppConstants;
-import ca.gov.dtsstn.vacman.api.web.model.ProfileStatusUpdateModel;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Component;
 
+import ca.gov.dtsstn.vacman.api.constants.AppConstants;
 import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 import ca.gov.dtsstn.vacman.api.service.ProfileService;
 import ca.gov.dtsstn.vacman.api.service.UserService;
 import ca.gov.dtsstn.vacman.api.web.exception.UnauthorizedException;
+import ca.gov.dtsstn.vacman.api.web.model.ProfileStatusUpdateModel;
 
 @Component(SecurityManager.NAME)
 public class SecurityManager {
@@ -47,12 +47,12 @@ public class SecurityManager {
 	}
 
 	public boolean targetProfileStatusIsApprovalOrArchived(ProfileStatusUpdateModel updatedProfileStatus) {
-		return updatedProfileStatus.getCode().equals(AppConstants.ProfileStatusCodes.APPROVED)
-				|| updatedProfileStatus.getCode().equals(AppConstants.ProfileStatusCodes.ARCHIVED);
+		return AppConstants.ProfileStatusCodes.APPROVED.equals(updatedProfileStatus.getCode())
+			|| updatedProfileStatus.getCode().equals(AppConstants.ProfileStatusCodes.ARCHIVED);
 	}
 
 	public boolean targetProfileStatusIsPending(ProfileStatusUpdateModel updatedProfileStatus) {
-		return updatedProfileStatus.getCode().equals(AppConstants.ProfileStatusCodes.PENDING);
+		return AppConstants.ProfileStatusCodes.PENDING.equals(updatedProfileStatus.getCode());
 	}
 
 }
