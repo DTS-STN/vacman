@@ -71,9 +71,6 @@ export type LocalizedLanguageOfCorrespondence = LocalizedLookupModel;
 export type ProfileStatus = LookupModel;
 export type LocalizedProfileStatus = LocalizedLookupModel;
 
-export type PriorityLevel = LookupModel;
-export type LocalizedPriorityLevel = LocalizedLookupModel;
-
 export type RequestStatus = LookupModel;
 export type LocalizedRequestStatus = LocalizedLookupModel;
 
@@ -133,7 +130,6 @@ export type Profile = Readonly<{
   userId: number;
   userIdReviewedBy?: number;
   userIdApprovedBy?: number;
-  priorityLevelId?: number;
   profileStatus: ProfileStatus;
   privacyConsentInd?: boolean;
   userCreated: string;
@@ -149,7 +145,7 @@ export type UserPersonalInformation = {
   surname?: string;
   givenName?: string;
   personalRecordIdentifier?: string;
-  preferredLanguageId?: number;
+  preferredLanguage?: LanguageOfCorrespondence;
   workEmail: string;
   personalEmail?: string;
   workPhone?: string;

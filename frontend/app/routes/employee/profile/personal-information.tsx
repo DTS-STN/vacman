@@ -56,6 +56,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   const profileService = getProfileService();
   const currentProfileOption = await profileService.getCurrentUserProfile(context.session.authState.accessToken);
   const currentProfile = currentProfileOption.unwrap();
+
   const updateResult = await profileService.updateProfileById(context.session.authState.accessToken, {
     ...currentProfile,
     personalInformation: parseResult.output,
@@ -89,7 +90,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       surname: profileData.personalInformation.surname,
       givenName: profileData.personalInformation.givenName,
       personalRecordIdentifier: profileData.personalInformation.personalRecordIdentifier,
-      preferredLanguageId: profileData.personalInformation.preferredLanguageId,
+      preferredLanguage: profileData.personalInformation.preferredLanguage,
       workEmail: currentUser?.businessEmail ?? profileData.personalInformation.workPhone,
       personalEmail: profileData.personalInformation.personalEmail,
       workPhone: toE164(profileData.personalInformation.workPhone),
