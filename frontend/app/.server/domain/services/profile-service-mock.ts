@@ -286,7 +286,7 @@ let mockProfiles: Profile[] = [
       directorate: 2,
       province: 1,
       cityId: 2,
-      wfaStatus: 1,
+      wfaStatus: 0,
       wfaEffectiveDate: undefined,
       wfaEndDate: undefined,
       hrAdvisor: 5,
@@ -294,7 +294,7 @@ let mockProfiles: Profile[] = [
     referralPreferences: {
       languageReferralTypeIds: [1],
       classificationIds: [2],
-      workLocationProvince: undefined,
+      workLocationProvince: 1,
       workLocationCitiesIds: [3],
       availableForReferralInd: false,
       interestedInAlternationInd: true,
