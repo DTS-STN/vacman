@@ -172,7 +172,6 @@ describe('Privacy Consent Flow', () => {
         Some({
           profileId: 1,
           userId: 1,
-          profileStatusId: 1,
           privacyConsentInd: true,
           userCreated: 'test-user-consent',
           dateCreated: '2024-01-01T00:00:00Z',
@@ -203,7 +202,6 @@ describe('Privacy Consent Flow', () => {
         Some({
           profileId: 2,
           userId: 2,
-          profileStatusId: 1,
           privacyConsentInd: false,
           userCreated: 'test-user-no-consent',
           dateCreated: '2024-01-01T00:00:00Z',
