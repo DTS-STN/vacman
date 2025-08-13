@@ -103,15 +103,21 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const provinces = await getProvinceService().listAllLocalized(lang);
   const cities = await getCityService().listAllLocalized(lang);
   const wfaStatuses = await getWFAStatuses().listAllLocalized(lang);
-  const hrAdvisors = await getUserService().getUsersByRole('hr-advisor', context.session.authState.accessToken);
+  const hrAdvisorsResult = await getUserService().getUsersByRole('hr-advisor', context.session.authState.accessToken);
+
+  if (hrAdvisorsResult.isErr()) {
+    throw hrAdvisorsResult.unwrapErr();
+  }
+
+  const hrAdvisors = hrAdvisorsResult.unwrap();
   const profileData: Profile = currentProfileOption.unwrap();
 
   const workUnitResult =
-    profileData.employmentInformation.directorate &&
+    profileData.employmentInformation.directorate !== undefined &&
     (await getDirectorateService().findLocalizedById(profileData.employmentInformation.directorate, lang));
   const workUnit = workUnitResult && workUnitResult.isSome() ? workUnitResult.unwrap() : undefined;
   const cityResult =
-    profileData.employmentInformation.cityId &&
+    profileData.employmentInformation.cityId !== undefined &&
     (await getCityService().findLocalizedById(profileData.employmentInformation.cityId, lang));
   const city = cityResult && cityResult.isSome() ? cityResult.unwrap() : undefined;
 
@@ -119,7 +125,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     documentTitle: t('app:employment-information.page-title'),
     defaultValues: {
       substantivePosition: profileData.employmentInformation.substantivePosition,
-      branchOrServiceCanadaRegion: workUnit?.parent?.id,
+      branchOrServiceCanadaRegion: workUnit?.parent?.id ?? profileData.employmentInformation.branchOrServiceCanadaRegion,
       directorate: workUnit?.id,
       province: city?.provinceTerritory.id,
       cityId: profileData.employmentInformation.cityId,

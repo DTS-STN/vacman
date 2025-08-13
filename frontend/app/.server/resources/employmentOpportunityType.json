@@ -1,58 +1,112 @@
 {
   "content": [
     {
-      "id": 1001,
+      "id": 0,
       "code": "INTERNAL",
       "nameEn": "Internal Opportunities",
-      "nameFr": "Opportunités internes"
+      "nameFr": "Opportunités internes",
+      "effectiveDate": "1970-01-01T00:00:00Z",
+      "expiryDate": null,
+      "createdBy": "system",
+      "createdDate": "2025-08-10T16:35:17.5766667Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-08-10T16:35:17.5766667Z"
     },
     {
-      "id": 1002,
+      "id": 1,
       "code": "EXTERNAL",
       "nameEn": "External Opportunities",
-      "nameFr": "Opportunités externes"
+      "nameFr": "Opportunités externes",
+      "effectiveDate": "1970-01-01T00:00:00Z",
+      "expiryDate": null,
+      "createdBy": "system",
+      "createdDate": "2025-08-10T16:35:17.5766667Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-08-10T16:35:17.5766667Z"
     },
     {
-      "id": 1003,
+      "id": 2,
       "code": "ADVERTISED",
       "nameEn": "Advertised Processes",
-      "nameFr": "Processus annoncés"
+      "nameFr": "Processus annoncés",
+      "effectiveDate": "1970-01-01T00:00:00Z",
+      "expiryDate": null,
+      "createdBy": "system",
+      "createdDate": "2025-08-10T16:35:17.5766667Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-08-10T16:35:17.5766667Z"
     },
     {
-      "id": 1004,
+      "id": 3,
       "code": "NON_ADVERTISED",
       "nameEn": "Non-Advertised Processes",
-      "nameFr": "Processus non annoncés"
+      "nameFr": "Processus non annoncés",
+      "effectiveDate": "1970-01-01T00:00:00Z",
+      "expiryDate": null,
+      "createdBy": "system",
+      "createdDate": "2025-08-10T16:35:17.5766667Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-08-10T16:35:17.5766667Z"
     },
     {
-      "id": 1005,
+      "id": 4,
       "code": "DEPLOYMENT",
       "nameEn": "Deployment",
-      "nameFr": "Mutation"
+      "nameFr": "Mutation",
+      "effectiveDate": "1970-01-01T00:00:00Z",
+      "expiryDate": null,
+      "createdBy": "system",
+      "createdDate": "2025-08-10T16:35:17.5766667Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-08-10T16:35:17.5766667Z"
     },
     {
-      "id": 1006,
+      "id": 5,
       "code": "PROMOTION",
       "nameEn": "Promotion",
-      "nameFr": "Promotion"
+      "nameFr": "Promotion",
+      "effectiveDate": "1970-01-01T00:00:00Z",
+      "expiryDate": null,
+      "createdBy": "system",
+      "createdDate": "2025-08-10T16:35:17.5766667Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-08-10T16:35:17.5766667Z"
     },
     {
-      "id": 1007,
+      "id": 6,
       "code": "APPOINTMENT",
       "nameEn": "Appointment",
-      "nameFr": "Nomination"
+      "nameFr": "Nomination",
+      "effectiveDate": "1970-01-01T00:00:00Z",
+      "expiryDate": null,
+      "createdBy": "system",
+      "createdDate": "2025-08-10T16:35:17.5766667Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-08-10T16:35:17.5766667Z"
     },
     {
-      "id": 1008,
+      "id": 7,
       "code": "ACTING",
       "nameEn": "Acting Assignment",
-      "nameFr": "Intérim"
+      "nameFr": "Intérim",
+      "effectiveDate": "1970-01-01T00:00:00Z",
+      "expiryDate": null,
+      "createdBy": "system",
+      "createdDate": "2025-08-10T16:35:17.5766667Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-08-10T16:35:17.5766667Z"
     },
     {
-      "id": 1009,
+      "id": 8,
       "code": "SECONDMENT",
       "nameEn": "Secondment",
-      "nameFr": "Détachement"
+      "nameFr": "Détachement",
+      "effectiveDate": "1970-01-01T00:00:00Z",
+      "expiryDate": null,
+      "createdBy": "system",
+      "createdDate": "2025-08-10T16:35:17.5766667Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-08-10T16:35:17.5766667Z"
     }
   ]
 }

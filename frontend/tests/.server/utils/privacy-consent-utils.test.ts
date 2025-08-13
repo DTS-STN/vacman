@@ -75,6 +75,7 @@ vi.mock('~/.server/utils/route-utils', () => ({
 const mockUserService = {
   getUsersByRole: vi.fn(),
   getUserById: vi.fn(),
+  findUserById: vi.fn(),
   updateUserRole: vi.fn(),
   getCurrentUser: vi.fn(),
   registerCurrentUser: vi.fn(),
@@ -135,7 +136,7 @@ describe('Privacy Consent Flow', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     // Default: user is not registered
-    mockUserService.getCurrentUser.mockResolvedValue(null);
+    mockUserService.getCurrentUser.mockResolvedValue(None);
     // Default: no profile exists
     mockProfileService.getProfile.mockResolvedValue(null);
   });
@@ -171,16 +172,17 @@ describe('Privacy Consent Flow', () => {
         Some({
           profileId: 1,
           userId: 1,
-          profileStatusId: 1,
           privacyConsentInd: true,
           userCreated: 'test-user-consent',
           dateCreated: '2024-01-01T00:00:00Z',
         }),
       );
 
-      mockUserService.getCurrentUser.mockResolvedValue({
-        id: 1,
-      });
+      mockUserService.getCurrentUser.mockResolvedValue(
+        Some({
+          id: 1,
+        }),
+      );
 
       // Act & Assert - should not throw
       await expect(requirePrivacyConsent(mockSession, new URL('http://localhost:3000/en/employee'))).resolves.not.toThrow();
@@ -200,7 +202,6 @@ describe('Privacy Consent Flow', () => {
         Some({
           profileId: 2,
           userId: 2,
-          profileStatusId: 1,
           privacyConsentInd: false,
           userCreated: 'test-user-no-consent',
           dateCreated: '2024-01-01T00:00:00Z',

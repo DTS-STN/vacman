@@ -25,7 +25,3 @@ application:
     profile-approved-template-id: 00000000-0000-0000-0000-000000000000
     profile-created-template-id: 00000000-0000-0000-0000-000000000000
     profile-updated-template-id: 00000000-0000-0000-0000-000000000000
-  security:
-    # Disables custom application security.
-    # ⚠️ MAKE SURE THIS IS NEVER SET TO TRUE IN PRODUCTION ⚠️
-    disabled: true

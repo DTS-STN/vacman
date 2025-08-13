@@ -1,3 +1,6 @@
+import { Err, None, Ok, Some } from 'oxide.ts';
+import type { Option, Result } from 'oxide.ts';
+
 import type { User, UserCreate, UserUpdate } from '~/.server/domain/models';
 import { apiClient } from '~/.server/domain/services/api-client';
 import type { UserService } from '~/.server/domain/services/user-service';
@@ -11,68 +14,101 @@ export function getDefaultUserService(): UserService {
      * Retrieves a list of users by their ROLE.
      * @param role The ROLE of the user to retrieve.
      * @param accessToken The access token for authorization.
-     * @returns A promise that resolves to the list of user objects.
+     * @returns A Result containing the list of user objects or an error.
      */
-    async getUsersByRole(role: string, accessToken: string): Promise<User[]> {
+    async getUsersByRole(role: string, accessToken: string): Promise<Result<User[], AppError>> {
       const result = await apiClient.get<User[]>(`/users?type=${role}`, `retrieve users with role ${role}`, accessToken);
 
       if (result.isErr()) {
-        throw result.unwrapErr();
+        return Err(result.unwrapErr());
       }
 
-      return result.unwrap();
+      return Ok(result.unwrap());
     },
 
     /**
      * Retrieves a user by their ID.
      * @param id The ID of the user to retrieve.
      * @param accessToken The access token for authorization.
-     * @returns A promise that resolves to the user object, or throws an error if not found.
-     * @throws AppError if the request fails, if the user is not found, or if the server responds with an error status.
+     * @returns A Result containing the user object or an error.
      */
-    async getUserById(id: number, accessToken: string): Promise<User> {
+    async getUserById(id: number, accessToken: string): Promise<Result<User, AppError>> {
       const result = await apiClient.get<User>(`/users/${id}`, `retrieve user with ID ${id}`, accessToken);
 
       if (result.isErr()) {
         const error = result.unwrapErr();
         // Check if it's a 404 error and provide a more specific message
         if (error.httpStatusCode === HttpStatusCodes.NOT_FOUND) {
-          throw new AppError(`User with ID ${id} not found.`, ErrorCodes.VACMAN_API_ERROR);
+          return Err(new AppError(`User with ID ${id} not found.`, ErrorCodes.VACMAN_API_ERROR));
         }
-        throw error;
+        return Err(error);
       }
 
-      return result.unwrap();
+      return Ok(result.unwrap());
     },
 
-    async getCurrentUser(accessToken: string): Promise<User> {
+    /**
+     * Finds a user by their ID.
+     * @param id The ID of the user to retrieve.
+     * @param accessToken The access token for authorization.
+     * @returns An Option containing the user object if found, or None.
+     */
+    async findUserById(id: number, accessToken: string): Promise<Option<User>> {
+      const result = await this.getUserById(id, accessToken);
+      return result.ok();
+    },
+
+    /**
+     * Retrieves the current user.
+     * @param accessToken The access token for authorization.
+     * @returns An Option containing the user object if found, or None.
+     */
+    async getCurrentUser(accessToken: string): Promise<Option<User>> {
       const result = await apiClient.get<User>('/users/me', 'get current user', accessToken);
 
       if (result.isErr()) {
-        throw result.unwrapErr();
+        const err = result.unwrapErr();
+
+        if (err.httpStatusCode === HttpStatusCodes.NOT_FOUND) {
+          return None;
+        }
+
+        throw err;
       }
 
-      return result.unwrap();
+      return Some(result.unwrap());
     },
 
-    async registerCurrentUser(user: UserCreate, accessToken: string): Promise<User> {
+    /**
+     * Registers a new user.
+     * @param user The user data to create.
+     * @param accessToken The access token for authorization.
+     * @returns A Result containing the created user object or an error.
+     */
+    async registerCurrentUser(user: UserCreate, accessToken: string): Promise<Result<User, AppError>> {
       const result = await apiClient.post<UserCreate, User>('/users/me', 'register current user', user, accessToken);
 
       if (result.isErr()) {
-        throw result.unwrapErr();
+        const originalError = result.unwrapErr();
+
+        return Err(
+          new AppError(`Failed to register user. Reason: ${originalError.message}`, ErrorCodes.VACMAN_API_ERROR, {
+            httpStatusCode: originalError.httpStatusCode,
+            correlationId: originalError.correlationId,
+          }),
+        );
       }
 
-      return result.unwrap();
+      return result;
     },
 
     /**
      * Updates a user by their ID.
      * @param user The user data to update, containing the ID and fields to update.
      * @param accessToken The access token for authorization.
-     * @returns A promise that resolves to the updated user object.
-     * @throws AppError if the request fails, if the user is not found, or if the server responds with an error status.
+     * @returns A Result containing the updated user object or an error.
      */
-    async updateUser(user: UserUpdate, accessToken: string): Promise<User> {
+    async updateUser(user: UserUpdate, accessToken: string): Promise<Result<User, AppError>> {
       const result = await apiClient.put<UserUpdate, User>(
         `/users/${user.id}`,
         `update user with ID ${user.id}`,
@@ -84,12 +120,12 @@ export function getDefaultUserService(): UserService {
         const error = result.unwrapErr();
         // Check if it's a 404 error and provide a more specific message
         if (error.httpStatusCode === HttpStatusCodes.NOT_FOUND) {
-          throw new AppError(`User with ID ${user.id} not found.`, ErrorCodes.VACMAN_API_ERROR);
+          return Err(new AppError(`User with ID ${user.id} not found.`, ErrorCodes.VACMAN_API_ERROR));
         }
-        throw error;
+        return Err(error);
       }
 
-      return result.unwrap();
+      return result;
     },
   };
 }

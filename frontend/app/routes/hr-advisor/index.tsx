@@ -1,12 +1,16 @@
-import type { RouteHandle, LoaderFunctionArgs, MetaFunction } from 'react-router';
+import type { RouteHandle } from 'react-router';
 
 import { faUser } from '@fortawesome/free-solid-svg-icons';
 import { useTranslation } from 'react-i18next';
 
+import type { Route } from './+types/index';
+
+import { getLanguageForCorrespondenceService } from '~/.server/domain/services/language-for-correspondence-service';
 import { getUserService } from '~/.server/domain/services/user-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { DashboardCard } from '~/components/dashboard-card';
 import { PageTitle } from '~/components/page-title';
+import { LANGUAGE_ID } from '~/domain/constants';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
 import { getLanguage } from '~/utils/i18n-utils';
@@ -15,35 +19,27 @@ export const handle = {
   i18nNamespace: [...parentHandle.i18nNamespace],
 } as const satisfies RouteHandle;
 
-export async function loader({ context, request }: LoaderFunctionArgs) {
+export function meta({ loaderData }: Route.MetaArgs) {
+  return [{ title: loaderData?.documentTitle }];
+}
+
+export async function loader({ context, request }: Route.LoaderArgs) {
   requireAuthentication(context.session, request);
-
-  const authenticatedSession = context.session;
-
-  if (!authenticatedSession.currentUser) {
+  if (!context.session.currentUser) {
     try {
-      const currentUser = await getUserService().getCurrentUser(authenticatedSession.authState.accessToken);
-      authenticatedSession.currentUser = currentUser;
+      const currentUser = await getUserService().getCurrentUser(context.session.authState.accessToken);
+      context.session.currentUser = currentUser.unwrap();
     } catch {
-      const lang = getLanguage(request);
-      // TODO configure the IDs or do a lookup with one of our services (provided our service returns the correct ID)
-      // This assumes the IDs in the DB are autoincrementing starting at 1 (look at data.sql)
-      const languageId = lang === 'en' ? 1 : 2;
-      const currentUser = await getUserService().registerCurrentUser(
-        { languageId },
-        authenticatedSession.authState.accessToken,
-      );
-      authenticatedSession.currentUser = currentUser;
+      const language = await getLanguageForCorrespondenceService().findById(LANGUAGE_ID[getLanguage(request) ?? 'en']);
+      const languageId = language.unwrap().id;
+      const currentUser = await getUserService().registerCurrentUser({ languageId }, context.session.authState.accessToken);
+      context.session.currentUser = currentUser.unwrap();
     }
   }
 
   const { t } = await getTranslation(request, handle.i18nNamespace);
-  return { documentTitle: t('app:index.employee-dashboard') };
+  return { documentTitle: t('app:hr-advisor-dashboard.page-title') };
 }
-
-export const meta: MetaFunction<typeof loader> = ({ data }) => {
-  return [{ title: data?.documentTitle }];
-};
 
 export default function EmployeeDashboard() {
   const { t } = useTranslation(handle.i18nNamespace);

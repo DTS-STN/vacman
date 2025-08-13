@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next';
 import type { Route } from '../employee-profile/+types/index';
 
 import type { Profile } from '~/.server/domain/models';
+import { getBranchService } from '~/.server/domain/services/branch-service';
 import { getCityService } from '~/.server/domain/services/city-service';
 import { getClassificationService } from '~/.server/domain/services/classification-service';
 import { getDirectorateService } from '~/.server/domain/services/directorate-service';
@@ -72,25 +73,30 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 
   const profileData: Profile = profileResult.unwrap();
 
-  const profileUpdatedByUser = profileData.userUpdated
+  const profileUpdatedByUserResult = profileData.userUpdated
     ? await getUserService().getUserById(profileData.userId, context.session.authState.accessToken)
     : undefined;
+  const profileUpdatedByUser = profileUpdatedByUserResult?.isOk() ? profileUpdatedByUserResult.unwrap() : undefined;
   const profileUpdatedByUserName = profileUpdatedByUser && `${profileUpdatedByUser.firstName} ${profileUpdatedByUser.lastName}`;
   const profileStatus = (await getProfileStatusService().findLocalizedById(profileData.profileStatus.id, lang)).unwrap();
   const preferredLanguageResult =
-    profileData.personalInformation.preferredLanguageId &&
+    profileData.personalInformation.preferredLanguageId !== undefined &&
     (await getLanguageForCorrespondenceService().findLocalizedById(profileData.personalInformation.preferredLanguageId, lang));
   const workUnitResult =
-    profileData.employmentInformation.directorate &&
+    profileData.employmentInformation.directorate !== undefined &&
     (await getDirectorateService().findLocalizedById(profileData.employmentInformation.directorate, lang));
+  const branchResult =
+    profileData.employmentInformation.branchOrServiceCanadaRegion !== undefined &&
+    !profileData.employmentInformation.directorate && // Only look up branch directly if there's no directorate
+    (await getBranchService().findLocalizedById(profileData.employmentInformation.branchOrServiceCanadaRegion, lang));
   const substantivePositionResult =
-    profileData.employmentInformation.substantivePosition &&
+    profileData.employmentInformation.substantivePosition !== undefined &&
     (await getClassificationService().findLocalizedById(profileData.employmentInformation.substantivePosition, lang));
   const cityResult =
-    profileData.employmentInformation.cityId &&
+    profileData.employmentInformation.cityId !== undefined &&
     (await getCityService().findLocalizedById(profileData.employmentInformation.cityId, lang));
   const wfaStatusResult =
-    profileData.employmentInformation.wfaStatus &&
+    profileData.employmentInformation.wfaStatus !== undefined &&
     (await getWFAStatuses().findLocalizedById(profileData.employmentInformation.wfaStatus, lang));
 
   // convert the IDs to display names
@@ -99,13 +105,15 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const substantivePosition =
     substantivePositionResult && substantivePositionResult.isSome() ? substantivePositionResult.unwrap().name : undefined;
   const branchOrServiceCanadaRegion =
-    workUnitResult && workUnitResult.isSome() ? workUnitResult.unwrap().parent?.name : undefined;
+    (workUnitResult && workUnitResult.isSome() ? workUnitResult.unwrap().parent?.name : undefined) ??
+    (branchResult && branchResult.isSome() ? branchResult.unwrap().name : undefined);
   const directorate = workUnitResult && workUnitResult.isSome() ? workUnitResult.unwrap().name : undefined;
   const city = cityResult && cityResult.isSome() ? cityResult.unwrap() : undefined;
   const wfaStatus = wfaStatusResult ? (wfaStatusResult.isSome() ? wfaStatusResult.unwrap() : undefined) : undefined;
-  const hrAdvisor =
-    profileData.employmentInformation.hrAdvisor &&
-    (await getUserService().getUserById(profileData.employmentInformation.hrAdvisor, context.session.authState.accessToken));
+  const hrAdvisorResult = profileData.employmentInformation.hrAdvisor
+    ? await getUserService().getUserById(profileData.employmentInformation.hrAdvisor, context.session.authState.accessToken)
+    : undefined;
+  const hrAdvisor = hrAdvisorResult?.isOk() ? hrAdvisorResult.unwrap() : undefined;
   const languageReferralTypes = profileData.referralPreferences.languageReferralTypeIds
     ?.map((langId) => allLocalizedLanguageReferralTypes.find((l) => l.id === langId))
     .filter(Boolean);

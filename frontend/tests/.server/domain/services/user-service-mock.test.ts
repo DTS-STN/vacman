@@ -10,7 +10,10 @@ describe('getMockUserService', () => {
 
   describe('getUserById', () => {
     it('should return a user when given a valid ID', async () => {
-      const user = await service.getUserById(1, 'mock-access-token');
+      const userResult = await service.getUserById(1, 'mock-access-token');
+
+      expect(userResult.isOk()).toBe(true);
+      const user = userResult.unwrap();
 
       expect(user).toEqual({
         id: 1,
@@ -31,8 +34,13 @@ describe('getMockUserService', () => {
       });
     });
 
-    it('should throw an error when user is not found', async () => {
-      await expect(service.getUserById(999, 'mock-access-token')).rejects.toMatchObject({
+    it('should return an error when user is not found', async () => {
+      const userResult = await service.getUserById(999, 'mock-access-token');
+
+      expect(userResult.isErr()).toBe(true);
+      const error = userResult.unwrapErr();
+
+      expect(error).toMatchObject({
         msg: "User with ID '999' not found.",
         errorCode: ErrorCodes.VACMAN_API_ERROR,
         httpStatusCode: 500,
@@ -75,7 +83,10 @@ describe('getMockUserService', () => {
         },
       } as unknown as AuthenticatedSession;
 
-      const createdUser = await service.registerCurrentUser(userData, mockSession.authState.accessToken);
+      const createdUserResult = await service.registerCurrentUser(userData, mockSession.authState.accessToken);
+
+      expect(createdUserResult.isOk()).toBe(true);
+      const createdUser = createdUserResult.unwrap();
 
       expect(createdUser.id).toBeDefined();
       expect(createdUser.uuName).toBe('Test User');

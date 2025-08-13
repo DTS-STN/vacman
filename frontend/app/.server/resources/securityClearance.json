@@ -1,28 +1,88 @@
 {
   "content": [
     {
-      "id": 5001,
-      "code": "NONE",
-      "nameEn": "No Clearance Required",
-      "nameFr": "Aucune autorisation requise"
-    },
-    {
-      "id": 5002,
-      "code": "RELIABILITY",
+      "id": 0,
+      "code": "R-F",
       "nameEn": "Reliability",
-      "nameFr": "Fiabilité"
+      "nameFr": "Fiabilité",
+      "effectiveDate": "1970-01-01T00:00:00Z",
+      "expiryDate": null,
+      "createdBy": "system",
+      "createdDate": "2025-08-10T16:35:17.8933333Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-08-10T16:35:17.8933333Z"
     },
     {
-      "id": 5003,
-      "code": "SECRET",
+      "id": 1,
+      "code": "ER-FA",
+      "nameEn": "Enhanced Reliability",
+      "nameFr": "Fiabilité approfondie",
+      "effectiveDate": "1970-01-01T00:00:00Z",
+      "expiryDate": null,
+      "createdBy": "system",
+      "createdDate": "2025-08-10T16:35:17.8933333Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-08-10T16:35:17.8933333Z"
+    },
+    {
+      "id": 2,
+      "code": "SEC",
       "nameEn": "Secret",
-      "nameFr": "Secret"
+      "nameFr": "Secret",
+      "effectiveDate": "1970-01-01T00:00:00Z",
+      "expiryDate": null,
+      "createdBy": "system",
+      "createdDate": "2025-08-10T16:35:17.8933333Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-08-10T16:35:17.8933333Z"
     },
     {
-      "id": 5004,
-      "code": "TOP_SECRET",
+      "id": 3,
+      "code": "ES-SA",
+      "nameEn": "Enhanced Secret",
+      "nameFr": "Secret approfondie",
+      "effectiveDate": "1970-01-01T00:00:00Z",
+      "expiryDate": null,
+      "createdBy": "system",
+      "createdDate": "2025-08-10T16:35:17.8933333Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-08-10T16:35:17.8933333Z"
+    },
+    {
+      "id": 4,
+      "code": "TS",
       "nameEn": "Top Secret",
-      "nameFr": "Très secret"
+      "nameFr": "Très secret",
+      "effectiveDate": "1970-01-01T00:00:00Z",
+      "expiryDate": null,
+      "createdBy": "system",
+      "createdDate": "2025-08-10T16:35:17.8933333Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-08-10T16:35:17.8933333Z"
+    },
+    {
+      "id": 5,
+      "code": "ETS-TSA",
+      "nameEn": "Enhanced Top Secret",
+      "nameFr": "Très secret approfondie",
+      "effectiveDate": "1970-01-01T00:00:00Z",
+      "expiryDate": null,
+      "createdBy": "system",
+      "createdDate": "2025-08-10T16:35:17.8933333Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-08-10T16:35:17.8933333Z"
+    },
+    {
+      "id": 6,
+      "code": "VAR",
+      "nameEn": "Various",
+      "nameFr": "Variés",
+      "effectiveDate": "1970-01-01T00:00:00Z",
+      "expiryDate": null,
+      "createdBy": "system",
+      "createdDate": "2025-08-10T16:35:17.8933333Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-08-10T16:35:17.8933333Z"
     }
   ]
 }

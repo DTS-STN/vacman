@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -25,6 +26,17 @@ import ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException;
 public class ApiErrorHandler extends ResponseEntityExceptionHandler {
 
 	private static final Logger log = LoggerFactory.getLogger(ApiErrorHandler.class);
+
+	@ExceptionHandler({ AccessDeniedException.class })
+	public ResponseEntity<?> handleAccessDeniedException(AccessDeniedException exception, WebRequest request) {
+		final var correlationId = generateCorrelationId();
+
+		final var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN, "The server understands the request but refuses to authorize it.");
+		problemDetail.setProperty("correlationId", correlationId);
+		problemDetail.setProperty("errorCode", "API-0403");
+
+		return super.handleExceptionInternal(exception, problemDetail, new HttpHeaders(), HttpStatus.FORBIDDEN, request);
+	}
 
 	@ExceptionHandler({ ForbiddenException.class })
 	public ResponseEntity<?> handleForbiddenException(ForbiddenException exception, WebRequest request) {

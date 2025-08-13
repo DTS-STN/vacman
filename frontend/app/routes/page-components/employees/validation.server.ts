@@ -34,12 +34,25 @@ const allEmploymentTenures = await getEmploymentTenureService().listAll();
 
 // Function to get HR advisors that requires authentication
 async function getHrAdvisors(accessToken: string): Promise<User[]> {
-  return await getUserService().getUsersByRole('hr-advisor', accessToken);
+  const result = await getUserService().getUsersByRole('hr-advisor', accessToken);
+
+  if (result.isErr()) {
+    throw result.unwrapErr();
+  }
+
+  return result.unwrap();
 }
 
 // Function to create employment information schema with HR advisors
-export async function createEmploymentInformationSchema(accessToken: string) {
+export async function createEmploymentInformationSchema(accessToken: string, formData?: FormData) {
   const hrAdvisors = await getHrAdvisors(accessToken);
+
+  // Check if the selected branch has any child directorates
+  const branchValue = formData?.get('branchOrServiceCanadaRegion');
+  const selectedBranchId = branchValue ? Number(branchValue) : null;
+  const hasChildDirectorates = selectedBranchId
+    ? allDirectorates.some((directorate) => directorate.parent?.id === selectedBranchId)
+    : false;
 
   return v.pipe(
     v.intersect([
@@ -62,15 +75,28 @@ export async function createEmploymentInformationSchema(accessToken: string) {
             ),
           ),
         ),
-        directorate: v.lazy(() =>
-          v.pipe(
-            stringToIntegerSchema('app:employment-information.errors.directorate-required'),
-            v.picklist(
-              allDirectorates.map(({ id }) => id),
-              'app:employment-information.errors.directorate-required',
-            ),
-          ),
-        ),
+        directorate: v.lazy(() => {
+          if (hasChildDirectorates) {
+            return v.pipe(
+              stringToIntegerSchema('app:employment-information.errors.directorate-required'),
+              v.picklist(
+                allDirectorates.map(({ id }) => id),
+                'app:employment-information.errors.directorate-required',
+              ),
+            );
+          } else {
+            // Make directorate optional if the branch has no children
+            return v.optional(
+              v.pipe(
+                v.union([
+                  v.literal(''), // Allow empty string
+                  v.pipe(stringToIntegerSchema(), v.picklist(allDirectorates.map(({ id }) => id))),
+                ]),
+                v.transform((input) => (input === '' ? undefined : input)), // Transform empty string to undefined
+              ),
+            );
+          }
+        }),
         province: v.lazy(() =>
           v.pipe(
             stringToIntegerSchema('app:employment-information.errors.provinces-required'),
@@ -279,7 +305,7 @@ const validWFAStatusesForRequiredDate = [
   EMPLOYEE_WFA_STATUS.exSurplusCPA,
 ] as const;
 
-const validWFAStatusesForOptionalDate = [EMPLOYEE_WFA_STATUS.affected] as const;
+const validWFAStatusesForOptionalDate = [EMPLOYEE_WFA_STATUS.affected, EMPLOYEE_WFA_STATUS.exAffected] as const;
 
 const selectedValidWfaStatusesForRequiredDate = allWfaStatus
   .filter((c) => validWFAStatusesForRequiredDate.toString().includes(c.code))
@@ -412,7 +438,7 @@ export async function parseEmploymentInformation(formData: FormData, accessToken
     hrAdvisor: formString(formData.get('hrAdvisor')),
   };
 
-  const employmentInformationSchema = await createEmploymentInformationSchema(accessToken);
+  const employmentInformationSchema = await createEmploymentInformationSchema(accessToken, formData);
 
   return {
     parseResult: v.safeParse(employmentInformationSchema, formValues),
