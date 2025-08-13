@@ -1,8 +1,12 @@
 package ca.gov.dtsstn.vacman.api.web;
 
-import ca.gov.dtsstn.vacman.api.constants.AppConstants;
-import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
-import ca.gov.dtsstn.vacman.api.web.model.ProfileStatusUpdateModel;
+import static ca.gov.dtsstn.vacman.api.constants.AppConstants.UserFields.MS_ENTRA_ID;
+import static ca.gov.dtsstn.vacman.api.exception.ExceptionUtils.generateIdDoesNotExistException;
+import static ca.gov.dtsstn.vacman.api.exception.ExceptionUtils.generateUserWithFieldDoesNotExistException;
+
+import java.util.Collection;
+import java.util.Set;
+
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.validator.constraints.Range;
 import org.mapstruct.factory.Mappers;
@@ -16,11 +20,16 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import ca.gov.dtsstn.vacman.api.config.SpringDocConfig;
+import ca.gov.dtsstn.vacman.api.constants.AppConstants;
+import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 import ca.gov.dtsstn.vacman.api.security.SecurityManager;
 import ca.gov.dtsstn.vacman.api.security.SecurityUtils;
 import ca.gov.dtsstn.vacman.api.service.ProfileService;
@@ -30,19 +39,13 @@ import ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException;
 import ca.gov.dtsstn.vacman.api.web.exception.UnauthorizedException;
 import ca.gov.dtsstn.vacman.api.web.model.CollectionModel;
 import ca.gov.dtsstn.vacman.api.web.model.ProfileReadModel;
+import ca.gov.dtsstn.vacman.api.web.model.ProfileStatusUpdateModel;
 import ca.gov.dtsstn.vacman.api.web.model.mapper.ProfileModelMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.Collection;
-import java.util.Set;
-
-import static ca.gov.dtsstn.vacman.api.constants.AppConstants.UserFields.MS_ENTRA_ID;
-import static ca.gov.dtsstn.vacman.api.exception.ExceptionUtils.*;
 
 @RestController
 @Tag(name = "Profiles")
@@ -98,18 +101,17 @@ public class ProfilesController {
 			final var entraId = SecurityUtils.getCurrentUserEntraId()
 				.orElseThrow(() -> new UnauthorizedException("Entra ID not found in security context"));
 
-            hrAdvisorId = userService.getUserByMicrosoftEntraId(entraId)
-                    .orElseThrow(() -> generateUserWithFieldDoesNotExistException(MS_ENTRA_ID, entraId))
-                    .getId();
-        } else {
-            hrAdvisorId = Long.valueOf(hrAdvisor);
-        }
+			hrAdvisorId = userService.getUserByMicrosoftEntraId(entraId)
+				.map(UserEntity::getId)
+				.orElseThrow(() -> generateUserWithFieldDoesNotExistException(MS_ENTRA_ID, entraId));
+		}
+		else {
+			hrAdvisorId = Long.valueOf(hrAdvisor);
+		}
 
 		// Determine the mapping function to use.
 		final var profiles = profileService.getProfilesByStatusAndHrId(PageRequest.of(page, size), isActive, hrAdvisorId)
-			.map((wantUserData)
-					? profileModelMapper::toModel
-					: profileModelMapper::toModelNoUserData);
+			.map((wantUserData) ? profileModelMapper::toModel : profileModelMapper::toModelNoUserData);
 
 		return ResponseEntity.ok(new PagedModel<>(profiles));
 	}
@@ -158,9 +160,9 @@ public class ProfilesController {
 			.orElseThrow(() -> new UnauthorizedException("Entra ID not found in security context"));
 
 
-        log.debug("Checking if user with microsoftEntraId=[{}] already exists", microsoftEntraId);
-        final var existingUser = userService.getUserByMicrosoftEntraId(microsoftEntraId)
-                .orElseThrow(() -> generateUserWithFieldDoesNotExistException(MS_ENTRA_ID, microsoftEntraId));
+		log.debug("Checking if user with microsoftEntraId=[{}] already exists", microsoftEntraId);
+		final var existingUser = userService.getUserByMicrosoftEntraId(microsoftEntraId)
+			.orElseThrow(() -> generateUserWithFieldDoesNotExistException(MS_ENTRA_ID, microsoftEntraId));
 
 		log.debug("Checking if user with microsoftEntraId=[{}] has an active profile", microsoftEntraId);
 		if (!profileService.getProfilesByEntraId(microsoftEntraId, true).isEmpty()) {
@@ -175,47 +177,35 @@ public class ProfilesController {
 		return ResponseEntity.ok(createdProfile);
 	}
 
-    @PutMapping(path = "/{id}")
+	@PutMapping(path = "/{id}")
 	@PreAuthorize("hasAuthority('hr-advisor')")
-    @SecurityRequirement(name = SpringDocConfig.AZURE_AD)
+	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
 	@Operation(summary = "Update an existing profile specified by ID.")
-    public ResponseEntity<ProfileReadModel> updateProfileById(
-            @PathVariable(name = "id")
-            Long profileId,
+	public ResponseEntity<ProfileReadModel> updateProfileById(@PathVariable(name = "id") Long profileId, @Valid @RequestBody ProfileReadModel updatedProfile) {
+		log.info("Received request to get profile; ID: [{}]", profileId);
 
-            @Valid
-            @RequestBody
-            ProfileReadModel updatedProfile
-    ) {
-        log.info("Received request to get profile; ID: [{}]", profileId);
+		final var foundProfile = profileService.getProfile(profileId)
+			.orElseThrow(() -> generateIdDoesNotExistException("profile", profileId));
 
-        final var foundProfile = profileService.getProfile(profileId)
-                .orElseThrow(() -> generateIdDoesNotExistException("profile", profileId));
+		log.trace("Found profile: [{}]", foundProfile);
 
-        log.trace("Found profile: [{}]", foundProfile);
+		final var updatedEntity = profileService.updateProfile(updatedProfile, foundProfile);
 
-        final var updatedEntity = profileService.updateProfile(updatedProfile, foundProfile);
-
-        return ResponseEntity.ok(profileModelMapper.toModelNoUserData(updatedEntity));
-    }
+		return ResponseEntity.ok(profileModelMapper.toModelNoUserData(updatedEntity));
+	}
 
 	@PutMapping(path = "/{id}/status")
-	@PreAuthorize("(hasAuthority('hr-advisor') && @securityManager.targetProfileStatusIsApprovalOrArchived(#updatedProfileStatus))"
-			+ " || (@securityManager.canAccessProfile(#profileId) && @securityManager.targetProfileStatusIsPending(#updatedProfileStatus))")
+	@PreAuthorize("""
+		(hasAuthority('xhr-advisor') && @securityManager.targetProfileStatusIsApprovalOrArchived(#updatedProfileStatus)) ||
+		(@securityManager.canAccessProfile(#profileId) && @securityManager.targetProfileStatusIsPending(#updatedProfileStatus))
+	""")
 	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
 	@Operation(summary = "Update an existing profile's status code specified by ID.")
-	public ResponseEntity<Void> updateProfileById(
-			@PathVariable(name = "id")
-			Long profileId,
-
-			@Valid
-			@RequestBody
-			ProfileStatusUpdateModel updatedProfileStatus
-	) {
+	public ResponseEntity<Void> updateProfileById(@PathVariable(name = "id") Long profileId, @Valid @RequestBody ProfileStatusUpdateModel updatedProfileStatus) {
 		log.info("Received request to update profile status; ID: [{}]", profileId);
 
 		final var foundProfile = profileService.getProfile(profileId)
-				.orElseThrow(() -> generateIdDoesNotExistException("profile", profileId));
+			.orElseThrow(() -> generateIdDoesNotExistException("profile", profileId));
 
 		log.trace("Found profile: [{}]", foundProfile);
 
@@ -234,7 +224,7 @@ public class ProfilesController {
 	}
 
 	private void updateStatusToTarget(ProfileEntity profile, String targetStatus, Collection<String> validPreTransitionStates) {
-		var currentStatus = profile.getProfileStatus().getCode();
+		final var currentStatus = profile.getProfileStatus().getCode();
 		if(!validPreTransitionStates.contains(currentStatus)) {
 			throw new ResourceConflictException("Cannot transition state from code=[" + currentStatus + "] to code=[" + targetStatus + "]");
 		}

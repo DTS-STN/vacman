@@ -12,8 +12,8 @@ import io.soabase.recordbuilder.core.RecordBuilder;
 @RecordBuilder
 public record ProfileStatusChangeEvent(ProfileEntity entity, Long previousStatusId, Long newStatusId, Instant timestamp) {
 
-    public ProfileStatusChangeEvent(ProfileEntity entity, Long previousStatusId, Long newStatusId) {
-        this(entity, previousStatusId, newStatusId, Instant.now());
-    }
+	public ProfileStatusChangeEvent(ProfileEntity entity, Long previousStatusId, Long newStatusId) {
+		this(entity, previousStatusId, newStatusId, Instant.now());
+	}
 
 }
