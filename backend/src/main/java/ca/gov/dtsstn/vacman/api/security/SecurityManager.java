@@ -10,9 +10,20 @@ import ca.gov.dtsstn.vacman.api.service.ProfileService;
 import ca.gov.dtsstn.vacman.api.service.UserService;
 import ca.gov.dtsstn.vacman.api.web.exception.UnauthorizedException;
 
+/**
+ * Provides server-side security checks for access to various resources.
+ * <p>
+ * NOTE: all security check failures throw exceptions rather than returning
+ * {@code false}, ensuring that server-side logging is performed by Spring
+ * Security and that unauthorized access attempts are explicitly recorded.
+ */
 @Component(SecurityManager.NAME)
 public class SecurityManager {
 
+	/**
+	 * The Spring bean name for this component, so it can
+	 * be easily referenced in {@code @DependsOn} annotations.
+	 */
 	public static final String NAME = "securityManager";
 
 	private final ProfileService profileService;
@@ -24,6 +35,18 @@ public class SecurityManager {
 		this.userService = userService;
 	}
 
+	/**
+	 * Checks whether the currently authenticated user can access the specified profile resource.
+	 * <p>
+	 * This method compares the Microsoft Entra ID of the authenticated user with
+	 * the Entra ID associated with the profile. If they do not match, an
+	 * {@link AccessDeniedException} is thrown.
+	 *
+	 * @param id the ID of the profile to check
+	 * @return {@code true} if the authenticated user can access the profile
+	 * @throws UnauthorizedException if no Entra ID is found in the current security context
+	 * @throws AccessDeniedException  if the profile does not exist or the IDs do not match
+	 */
 	public boolean canAccessProfile(long id) {
 		final var currentEntraId = SecurityUtils.getCurrentUserEntraId()
 			.orElseThrow(() -> new UnauthorizedException("Entra ID not found in security context"));
@@ -40,6 +63,18 @@ public class SecurityManager {
 		return true;
 	}
 
+	/**
+	 * Checks whether the currently authenticated user can access the specified user resource.
+	 * <p>
+	 * This method compares the Microsoft Entra ID of the authenticated user with
+	 * the Entra ID of the target user. If they do not match, an
+	 * {@link AccessDeniedException} is thrown.
+	 *
+	 * @param id the ID of the user to check
+	 * @return {@code true} if the authenticated user can access the user
+	 * @throws UnauthorizedException if no Entra ID is found in the current security context
+	 * @throws AccessDeniedException  if the user does not exist or the IDs do not match
+	 */
 	public boolean canAccessUser(long id) {
 		final var currentEntraId = SecurityUtils.getCurrentUserEntraId()
 			.orElseThrow(() -> new UnauthorizedException("Entra ID not found in security context"));
@@ -55,6 +90,17 @@ public class SecurityManager {
 		return true;
 }
 
+	/**
+	 * Validates that the provided profile status code is either
+	 * {@code approved} or {@code archived}.
+	 * <p>
+	 * This is used to enforce server-side restrictions on allowed profile status
+	 * transitions. If the code is invalid, an {@link AccessDeniedException} is thrown.
+	 *
+	 * @param code the profile status code to validate
+	 * @return {@code true} if the code is approved or archived
+	 * @throws AccessDeniedException if the code is not approved or archived
+	 */
 	public boolean targetProfileStatusIsApprovalOrArchived(String code) {
 		if (!AppConstants.ProfileStatusCodes.APPROVED.equals(code) && !AppConstants.ProfileStatusCodes.ARCHIVED.equals(code)) {
 			throw new AccessDeniedException("Profile status can only be set to 'approved' or 'archived");
@@ -63,6 +109,16 @@ public class SecurityManager {
 		return true;
 	}
 
+	/**
+	 * Validates that the provided profile status code is {@code pending}.
+	 * <p>
+	 * This is used to enforce server-side restrictions on allowed profile status
+	 * transitions. If the code is invalid, an {@link AccessDeniedException} is thrown.
+	 *
+	 * @param code the profile status code to validate
+	 * @return {@code true} if the code is pending
+	 * @throws AccessDeniedException if the code is not pending
+	 */
 	public boolean targetProfileStatusIsPending(String code) {
 		if (!AppConstants.ProfileStatusCodes.PENDING.equals(code)) {
 			throw new AccessDeniedException("Profile status can only be set to 'pending'");
