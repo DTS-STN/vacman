@@ -80,6 +80,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     const userUpdateResult = await userService.updateUser(
       {
         ...currentUser,
+        languageId: parseResult.output.preferredLanguageId,
         businessPhone: workPhone,
       },
       context.session.authState.accessToken,
