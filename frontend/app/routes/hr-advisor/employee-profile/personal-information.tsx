@@ -61,25 +61,9 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     );
   }
 
-  const preferredLanguageResult = await getLanguageForCorrespondenceService().findById(parseResult.output.preferredLanguageId);
-
-  const preferredLanguage = preferredLanguageResult.isSome() ? preferredLanguageResult.unwrap() : undefined;
-
-  const updatedPersonalInformaion = {
-    surname: parseResult.output.surname,
-    givenName: parseResult.output.givenName,
-    personalRecordIdentifier: parseResult.output.personalRecordIdentifier,
-    preferredLanguage: preferredLanguage,
-    workEmail: parseResult.output.workEmail,
-    personalEmail: parseResult.output.personalEmail,
-    workPhone: parseResult.output.workPhone,
-    personalPhone: parseResult.output.personalPhone,
-    additionalInformation: parseResult.output.additionalInformation,
-  };
-
   const updateProfileResult = await profileService.updateProfileById(context.session.authState.accessToken, {
     ...profile,
-    personalInformation: updatedPersonalInformaion,
+    personalInformation: parseResult.output,
   });
 
   if (updateProfileResult.isErr()) {

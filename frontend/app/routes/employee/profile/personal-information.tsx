@@ -57,25 +57,9 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   const currentProfileOption = await profileService.getCurrentUserProfile(context.session.authState.accessToken);
   const currentProfile = currentProfileOption.unwrap();
 
-  const preferredLanguageResult = await getLanguageForCorrespondenceService().findById(parseResult.output.preferredLanguageId);
-
-  const preferredLanguage = preferredLanguageResult.isSome() ? preferredLanguageResult.unwrap() : undefined;
-
-  const updatedPersonalInformaion = {
-    surname: parseResult.output.surname,
-    givenName: parseResult.output.givenName,
-    personalRecordIdentifier: parseResult.output.personalRecordIdentifier,
-    preferredLanguage: preferredLanguage,
-    workEmail: parseResult.output.workEmail,
-    personalEmail: parseResult.output.personalEmail,
-    workPhone: parseResult.output.workPhone,
-    personalPhone: parseResult.output.personalPhone,
-    additionalInformation: parseResult.output.additionalInformation,
-  };
-
   const updateResult = await profileService.updateProfileById(context.session.authState.accessToken, {
     ...currentProfile,
-    personalInformation: updatedPersonalInformaion,
+    personalInformation: parseResult.output,
   });
 
   if (updateResult.isErr()) {

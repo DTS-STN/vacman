@@ -1,6 +1,7 @@
 import { None, Some, Err, Ok } from 'oxide.ts';
 import type { Result, Option } from 'oxide.ts';
 
+import { getMockLanguageForCorrespondenceService } from './language-for-correspondence-service-mock';
 import { getProfileStatusService } from './profile-status-service';
 import { getUserService } from './user-service';
 
@@ -60,22 +61,35 @@ export function getMockProfileService(): ProfileService {
 
       return Promise.resolve(None);
     },
-    updateProfileById: (accessToken: string, profile: SaveProfile): Promise<Result<Profile, AppError>> => {
+    updateProfileById: async (accessToken: string, profile: SaveProfile): Promise<Result<Profile, AppError>> => {
       const existingProfile = mockProfiles.find((p) => p.profileId === profile.profileId);
-
       if (!existingProfile) {
         return Promise.resolve(Err(new AppError('Profile not found', ErrorCodes.PROFILE_NOT_FOUND)));
       }
-
-      const updatedProfile = {
+      const preferredLanguageResult =
+        profile.personalInformation.preferredLanguageId !== undefined &&
+        (await getMockLanguageForCorrespondenceService().findById(profile.personalInformation.preferredLanguageId));
+      const preferredLanguage =
+        preferredLanguageResult && preferredLanguageResult.isSome() ? preferredLanguageResult.unwrap() : undefined;
+      const updatedProfile: Profile = {
         ...existingProfile,
         ...profile,
+        personalInformation: {
+          ...profile.personalInformation,
+          preferredLanguage,
+        },
+        employmentInformation: {
+          ...existingProfile.employmentInformation,
+          ...profile.employmentInformation,
+        },
+        referralPreferences: {
+          ...existingProfile.referralPreferences,
+          ...profile.referralPreferences,
+        },
         dateUpdated: new Date().toISOString(),
         userUpdated: profile.userUpdated ?? existingProfile.userUpdated,
       };
-
       mockProfiles = mockProfiles.map((p) => (p.profileId === profile.profileId ? updatedProfile : p));
-
       return Promise.resolve(Ok(updatedProfile));
     },
     updateProfileStatus: async (
