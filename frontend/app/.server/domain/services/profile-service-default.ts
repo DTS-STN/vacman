@@ -4,7 +4,7 @@ import type { Option, Result } from 'oxide.ts';
 import { apiClient } from './api-client';
 import { getProfileStatusService } from './profile-status-service';
 
-import type { Profile, ProfileStatus } from '~/.server/domain/models';
+import type { Profile, ProfileStatus, SaveProfile } from '~/.server/domain/models';
 import type { ListProfilesParams, ProfileApiResponse, ProfileService } from '~/.server/domain/services/profile-service';
 import type { ProfileStatusCode } from '~/domain/constants';
 import { AppError } from '~/errors/app-error';
@@ -131,10 +131,10 @@ export function getDefaultProfileService(): ProfileService {
      * The request sends the full Profile object in the body (PUT)
      * and expects the updated Profile in the response.
      */
-    async updateProfileById(accessToken: string, profile: Profile): Promise<Result<Profile, AppError>> {
+    async updateProfileById(accessToken: string, profile: SaveProfile): Promise<Result<Profile, AppError>> {
       const path = `/profiles/${profile.profileId}`;
 
-      const result = await apiClient.put<Profile, Profile>(path, 'update profile', profile, accessToken);
+      const result = await apiClient.put<SaveProfile, Profile>(path, 'update profile', profile, accessToken);
 
       if (result.isErr()) {
         const originalError = result.unwrapErr();
