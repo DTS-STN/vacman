@@ -1,6 +1,6 @@
 import type { JSX } from 'react';
 
-import type { RouteHandle, LoaderFunctionArgs } from 'react-router';
+import type { RouteHandle } from 'react-router';
 
 import type { ColumnDef } from '@tanstack/react-table';
 import { format } from 'date-fns';
@@ -28,7 +28,7 @@ export function meta({ loaderData }: Route.MetaArgs) {
   return [{ title: loaderData?.documentTitle }];
 }
 
-export async function loader({ context, request }: LoaderFunctionArgs) {
+export async function loader({ context, request }: Route.LoaderArgs) {
   requireAuthentication(context.session, request);
 
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);

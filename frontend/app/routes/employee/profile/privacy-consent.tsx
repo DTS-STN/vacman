@@ -1,6 +1,6 @@
 import type { JSX } from 'react';
 
-import type { RouteHandle, ActionFunctionArgs } from 'react-router';
+import type { RouteHandle } from 'react-router';
 import { Form } from 'react-router';
 
 import { useTranslation } from 'react-i18next';
@@ -27,11 +27,11 @@ export function meta({ loaderData }: Route.MetaArgs) {
   return [{ title: loaderData?.documentTitle }];
 }
 
-export async function action({ context, request }: ActionFunctionArgs) {
+export async function action({ context, request }: Route.ActionArgs) {
   requireAuthentication(context.session, request);
 
   const profileService = getProfileService();
-  const profileOption = await profileService.getCurrentUserProfile(context.session.authState.accessToken);
+  const profileOption = await getProfileService().getCurrentUserProfile(context.session.authState.accessToken);
 
   if (profileOption.isNone()) {
     return i18nRedirect('routes/index.tsx', request);

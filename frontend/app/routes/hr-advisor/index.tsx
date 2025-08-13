@@ -1,7 +1,9 @@
-import type { RouteHandle, LoaderFunctionArgs, MetaFunction } from 'react-router';
+import type { RouteHandle } from 'react-router';
 
 import { faUser } from '@fortawesome/free-solid-svg-icons';
 import { useTranslation } from 'react-i18next';
+
+import type { Route } from './+types/index';
 
 import { getLanguageForCorrespondenceService } from '~/.server/domain/services/language-for-correspondence-service';
 import { getUserService } from '~/.server/domain/services/user-service';
@@ -17,27 +19,27 @@ export const handle = {
   i18nNamespace: [...parentHandle.i18nNamespace],
 } as const satisfies RouteHandle;
 
-export async function loader({ context, request }: LoaderFunctionArgs) {
+export function meta({ loaderData }: Route.MetaArgs) {
+  return [{ title: loaderData?.documentTitle }];
+}
+
+export async function loader({ context, request }: Route.LoaderArgs) {
   requireAuthentication(context.session, request);
   if (!context.session.currentUser) {
     try {
       const currentUser = await getUserService().getCurrentUser(context.session.authState.accessToken);
-      context.session.currentUser = currentUser;
+      context.session.currentUser = currentUser.unwrap();
     } catch {
       const language = await getLanguageForCorrespondenceService().findById(LANGUAGE_ID[getLanguage(request) ?? 'en']);
       const languageId = language.unwrap().id;
       const currentUser = await getUserService().registerCurrentUser({ languageId }, context.session.authState.accessToken);
-      context.session.currentUser = currentUser;
+      context.session.currentUser = currentUser.unwrap();
     }
   }
 
   const { t } = await getTranslation(request, handle.i18nNamespace);
   return { documentTitle: t('app:index.employee-dashboard') };
 }
-
-export const meta: MetaFunction<typeof loader> = ({ data }) => {
-  return [{ title: data?.documentTitle }];
-};
 
 export default function EmployeeDashboard() {
   const { t } = useTranslation(handle.i18nNamespace);

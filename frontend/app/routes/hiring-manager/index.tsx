@@ -1,8 +1,8 @@
-import type { RouteHandle, LoaderFunctionArgs } from 'react-router';
+import type { RouteHandle } from 'react-router';
 
 import { useTranslation } from 'react-i18next';
 
-import type { Route } from './+types';
+import type { Route } from './+types/index';
 
 import { PageTitle } from '~/components/page-title';
 import { getTranslation } from '~/i18n-config.server';
@@ -16,7 +16,7 @@ export function meta({ loaderData }: Route.MetaArgs) {
   return [{ title: loaderData?.documentTitle }];
 }
 
-export async function loader({ context, request }: LoaderFunctionArgs) {
+export async function loader({ context, request }: Route.LoaderArgs) {
   const { t } = await getTranslation(request, handle.i18nNamespace);
   return { documentTitle: t('app:index.hiring-manager-dashboard') };
 }
