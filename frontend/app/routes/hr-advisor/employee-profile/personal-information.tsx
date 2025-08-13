@@ -61,9 +61,12 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     );
   }
 
+  // Extract workPhone for user update, remove it from profile data
+  const { workPhone, ...personalInformationForProfile } = parseResult.output;
+
   const updateProfileResult = await profileService.updateProfileById(context.session.authState.accessToken, {
     ...profile,
-    personalInformation: parseResult.output,
+    personalInformation: personalInformationForProfile,
   });
 
   if (updateProfileResult.isErr()) {
@@ -80,8 +83,12 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   const user = userResult.unwrap();
 
   const userUpdateResult = await userService.updateUser(
-    // only the preferredLanguage is able to be edited, everything else is readonly
-    { id: user.id, languageId: parseResult.output.preferredLanguageId },
+    // Send complete user object with updates
+    {
+      ...user,
+      languageId: parseResult.output.preferredLanguageId,
+      businessPhone: workPhone,
+    },
     context.session.authState.accessToken,
   );
 
@@ -117,9 +124,9 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       givenName: profileData.personalInformation.givenName,
       personalRecordIdentifier: profileData.personalInformation.personalRecordIdentifier,
       preferredLanguageId: profileData.personalInformation.preferredLanguageId,
-      workEmail: currentUser?.businessEmail ?? profileData.personalInformation.workPhone,
+      workEmail: currentUser?.businessEmail ?? profileData.personalInformation.workEmail,
       personalEmail: profileData.personalInformation.personalEmail,
-      workPhone: toE164(profileData.personalInformation.workPhone),
+      workPhone: toE164(currentUser?.businessPhone ?? profileData.personalInformation.workPhone),
       personalPhone: toE164(profileData.personalInformation.personalPhone),
       additionalInformation: profileData.personalInformation.additionalInformation,
     },
