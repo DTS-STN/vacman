@@ -31,13 +31,19 @@ export function meta({ loaderData }: Route.MetaArgs) {
 
 export async function loader({ context, request }: LoaderFunctionArgs) {
   requireAuthentication(context.session, request);
-
+  
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
+
+  // Filter profiles based on hr-advisor selection. Options 'My Employees' or 'All employees'
+  const url = new URL(request.url);
+  const selectedProfiles = url.searchParams.get('selectedData');
+
+  console.log('Selected hr-advisor - selected  = ', selectedProfiles, '  currentUser ', context.session.currentUser.id);
 
   const profileParams = {
     accessToken: context.session.authState.accessToken,
     active: true, // will return In Progress, Pending Approval and Approved
-    hrAdvisorId: null, // if null : will return everything, if a UserId : will return profiles linked to that hr-advisor, if "me" : will return profiles linked to the logged in hr-advisor -> to be used later in filtering
+    hrAdvisorId: selectedProfiles === '1' || selectedProfiles === null ? context.session.currentUser.id : null, // if null : will return everything, if a UserId : will return profiles linked to that hr-advisor, if "me" : will return profiles linked to the logged in hr-advisor -> to be used later in filtering
     includeUserData: true, // will add user data (names and email)
   };
 
@@ -58,15 +64,7 @@ export async function loader({ context, request }: LoaderFunctionArgs) {
     )
     .map((s) => s.id);
 
-  // Filter profiles based on hr-advisor selection. Options 'My Employees' or 'All employees'
-  const url = new URL(request.url);
-  const selectedProfiles = url.searchParams.get('selectedData');
-
-  // NOTE: 1 = My employees or 2 = All employees
-  const filteredAllProfiles =
-    selectedProfiles === '1'
-      ? profiles.filter((profile) => profile.employmentInformation.hrAdvisor === context.session.currentUser.id)
-      : profiles.filter((profile) => statusIds.includes(profile.profileStatus.id));
+   const filteredAllProfiles = profiles.filter((profile) => statusIds.includes(profile.profileStatus.id));
 
   return {
     documentTitle: t('app:index.employees'),
