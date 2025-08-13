@@ -1,3 +1,23 @@
+/**
+ * @fileoverview Employee Profile Management Route
+ * 
+ * This file implements the main profile management page for employees.
+ * It provides a comprehensive view of the employee's profile information
+ * across three main sections: Personal Information, Employment Information,
+ * and Referral Preferences.
+ * 
+ * Key features:
+ * - Profile completion tracking and progress display
+ * - Profile status management (incomplete, pending, approved)
+ * - Form submission handling with validation
+ * - Profile status updates and approval workflows
+ * - Real-time completion percentage calculation
+ * - Alert messaging for various profile states
+ * 
+ * The page serves as the central hub for employees to manage their profiles
+ * and submit them for review once all required sections are completed.
+ */
+
 import { useEffect, useRef, useState } from 'react';
 
 import type { RouteHandle } from 'react-router';
@@ -34,17 +54,45 @@ import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
 import { formatDateTime } from '~/utils/date-utils';
 
+/**
+ * Route configuration for internationalization
+ * Inherits translation namespaces from parent layout
+ */
 export const handle = {
   i18nNamespace: [...parentHandle.i18nNamespace],
 } as const satisfies RouteHandle;
 
+/**
+ * Meta function to set the page title
+ * @param loaderData - Data from the loader function containing document title
+ * @returns Array of meta tags for the page
+ */
 export function meta({ loaderData }: Route.MetaArgs) {
   return [{ title: loaderData?.documentTitle }];
 }
 
+/**
+ * Action function for profile submission and status updates
+ * 
+ * Handles profile submission when all required sections are completed.
+ * Validates completeness of each section and either:
+ * 1. Returns completion status if any section is incomplete
+ * 2. Updates profile status to 'pending' if all sections are complete
+ * 
+ * Profile completion logic:
+ * - Personal Info: All required fields must be filled (excludes optional workPhone, additionalInformation)
+ * - Employment Info: All required fields including WFA status considerations
+ * - Referral Preferences: All fields must be completed
+ * 
+ * @param context - Route context containing session and authentication info
+ * @param request - The incoming HTTP request with form data
+ * @returns Object containing completion status or submission result
+ * @throws Will throw if profile service operations fail
+ */
 export async function action({ context, request }: Route.ActionArgs) {
   requireAuthentication(context.session, request);
 
+  // Get current user's profile
   const profileResult = await getProfileService().getCurrentUserProfile(context.session.authState.accessToken);
   if (profileResult.isNone()) {
     return { status: 'profile-not-found' };
@@ -53,10 +101,13 @@ export async function action({ context, request }: Route.ActionArgs) {
   const profileData: Profile = profileResult.unwrap();
   const allWfaStatus = await getWFAStatuses().listAll();
 
+  // Define required fields for each section (excluding optional fields)
   const requiredPersonalInformation = omitObjectProperties(profileData.personalInformation, [
-    'workPhone',
-    'additionalInformation',
+    'workPhone',           // Optional field
+    'additionalInformation', // Optional field
   ]);
+  
+  // Handle WFA status logic - some statuses make dates optional
   const validWFAStatusesForOptionalDate = [EMPLOYEE_WFA_STATUS.affected] as const;
   const selectedValidWfaStatusesForOptionalDate = allWfaStatus
     .filter((c) => validWFAStatusesForOptionalDate.toString().includes(c.code))
@@ -66,14 +117,17 @@ export async function action({ context, request }: Route.ActionArgs) {
       nameEn: status.nameEn,
       nameFr: status.nameFr,
     }));
+    
   const isWfaDateOptional = selectedValidWfaStatusesForOptionalDate.some(
     (status) => status.id === profileData.employmentInformation.wfaStatus,
   );
+  
+  // Define required employment fields based on WFA status
   const requiredEmploymentInformation = isWfaDateOptional
     ? omitObjectProperties(profileData.employmentInformation, ['wfaEndDate', 'wfaEffectiveDate']) // If status is "Affected", omit the effective date
     : omitObjectProperties(profileData.employmentInformation, ['wfaEndDate']);
 
-  // Check if all sections are complete
+  // Check completion status for each section
   const personalInfoComplete =
     countCompletedItems(requiredPersonalInformation) === Object.keys(requiredPersonalInformation).length;
   const employmentInfoComplete =
@@ -81,17 +135,17 @@ export async function action({ context, request }: Route.ActionArgs) {
   const referralComplete =
     countCompletedItems(profileData.referralPreferences) === Object.keys(profileData.referralPreferences).length;
 
-  // If any section is incomplete, return incomplete state
+  // Return incomplete status if any section is not complete
   if (!personalInfoComplete || !employmentInfoComplete || !referralComplete) {
     return {
       personalInfoComplete,
       employmentInfoComplete,
       referralComplete,
-      profileStatusId: 3, // Incomplete status
+      profileStatusId: 3, // Incomplete status ID
     };
   }
 
-  // If all complete, submit for review
+  // All sections complete - submit profile for review
   const submitResult = await getProfileService().updateProfileStatus(
     context.session.authState.accessToken,
     profileData.userId.toString(),
@@ -107,10 +161,33 @@ export async function action({ context, request }: Route.ActionArgs) {
   };
 }
 
+/**
+ * Loader function for the profile management page
+ * 
+ * Fetches and processes all data needed for the profile display:
+ * 1. Validates authentication and privacy consent
+ * 2. Retrieves current user profile and related data
+ * 3. Processes profile completion status for each section
+ * 4. Calculates overall completion percentage
+ * 5. Prepares localized display data
+ * 
+ * The loader handles complex business logic including:
+ * - WFA status-based field requirements
+ * - Profile completion calculations
+ * - Data normalization for display
+ * - Relationship mapping (cities, languages, etc.)
+ * 
+ * @param context - Route context containing session and authentication info
+ * @param request - The incoming HTTP request
+ * @param params - Route parameters
+ * @returns Comprehensive profile data for display
+ * @throws Will throw if profile not found or authentication fails
+ */
 export async function loader({ context, request, params }: Route.LoaderArgs) {
   requireAuthentication(context.session, request);
   await requirePrivacyConsentForOwnProfile(context.session, request);
 
+  // Fetch current user's profile
   const profileResult = await getProfileService().getCurrentUserProfile(context.session.authState.accessToken);
 
   if (profileResult.isNone()) {
@@ -121,10 +198,11 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
 
+  // Check for employment change parameter in URL
   const url = new URL(request.url);
   const hasEmploymentChanged = url.searchParams.get('edited') === 'true';
 
-  // Fetch both the profile user and the profile data
+  // Fetch all reference data in parallel for better performance
   const [
     currentUserResult,
     allLocalizedLanguageReferralTypes,
@@ -284,13 +362,37 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   };
 }
 
+/**
+ * Employee Profile Component
+ * 
+ * Main profile management interface that displays all profile sections
+ * and handles profile submission workflow. The component:
+ * 
+ * Features:
+ * - Displays profile status and completion progress
+ * - Shows three main profile sections (personal, employment, referral)
+ * - Handles form submission and status updates
+ * - Manages alert messages and navigation
+ * - Provides responsive design with decorative elements
+ * 
+ * State Management:
+ * - Tracks employment change notifications
+ * - Manages form submission state
+ * - Handles alert display and scrolling
+ * 
+ * @param loaderData - Complete profile data from loader
+ * @param params - Route parameters for navigation
+ * @returns JSX element representing the profile management interface
+ */
 export default function EditProfile({ loaderData, params }: Route.ComponentProps) {
   const { t } = useTranslation(handle.i18nNamespace);
   const navigation = useNavigation();
   const actionData = useActionData();
 
+  // Reference for alert scrolling behavior
   const alertRef = useRef<HTMLDivElement>(null);
 
+  // Auto-scroll to alert when action completes
   if (actionData && alertRef.current) {
     alertRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
@@ -299,9 +401,10 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
   const location = useLocation();
   const navigate = useNavigate();
 
+  // Track employment change notifications
   const [hasEmploymentChanged, setHasEmploymentChanged] = useState(loaderData.hasEmploymentChanged);
 
-  // Clean the URL after reading the param
+  // Clean URL parameters after processing employment change notification
   useEffect(() => {
     if (searchParams.get('edited') === 'true') {
       setHasEmploymentChanged(true);

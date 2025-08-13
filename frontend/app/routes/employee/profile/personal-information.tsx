@@ -1,3 +1,22 @@
+/**
+ * @fileoverview Personal Information Form Route
+ * 
+ * This file implements the personal information management form for employees.
+ * It handles the collection and validation of personal data including:
+ * - Name information (surname, given name)
+ * - Personal Record Identifier (PRI)
+ * - Language preferences
+ * - Contact information (work/personal email and phone)
+ * - Additional information
+ * 
+ * Key features:
+ * - Dual user/profile data handling (work phone stored in user, other data in profile)
+ * - Form validation with comprehensive error handling
+ * - Phone number formatting and validation
+ * - Language preference management
+ * - Automatic redirect after successful updates
+ */
+
 import type { RouteHandle } from 'react-router';
 import { data } from 'react-router';
 
@@ -22,17 +41,49 @@ import { personalInformationSchema } from '~/routes/page-components/employees/va
 import { toE164 } from '~/utils/phone-utils';
 import { formString } from '~/utils/string-utils';
 
+/**
+ * Route configuration for internationalization
+ * Inherits translation namespaces from parent layout
+ */
 export const handle = {
   i18nNamespace: [...parentHandle.i18nNamespace],
 } as const satisfies RouteHandle;
 
+/**
+ * Meta function to set the page title
+ * @param loaderData - Data from the loader function containing document title
+ * @returns Array of meta tags for the page
+ */
 export function meta({ loaderData }: Route.MetaArgs) {
   return [{ title: loaderData?.documentTitle }];
 }
 
+/**
+ * Action function for personal information form submission
+ * 
+ * Handles the complex dual-update pattern for personal information:
+ * 1. Validates form data against personal information schema
+ * 2. Separates work phone (goes to user record) from other data (goes to profile)
+ * 3. Updates profile with personal information
+ * 4. Updates user record with work phone and language preference
+ * 
+ * Data separation logic:
+ * - Work phone and language preference → User record
+ * - All other personal information → Profile record
+ * 
+ * This pattern ensures data consistency across the user and profile entities
+ * while maintaining proper data relationships.
+ * 
+ * @param context - Route context containing session and authentication info
+ * @param params - Route parameters for navigation
+ * @param request - The incoming HTTP request with form data
+ * @returns Validation errors or redirect response
+ * @throws Will throw if profile or user update operations fail
+ */
 export async function action({ context, params, request }: Route.ActionArgs) {
   requireAuthentication(context.session, request);
 
+  // Parse and validate form data
   const formData = await request.formData();
   const parseResult = v.safeParse(personalInformationSchema, {
     surname: formString(formData.get('surname')),
@@ -53,19 +104,19 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     );
   }
 
+  // Get current profile and user data
   const profileService = getProfileService();
   const currentProfileOption = await profileService.getCurrentUserProfile(context.session.authState.accessToken);
   const currentProfile = currentProfileOption.unwrap();
 
-  // Get current user for complete user update
   const userService = getUserService();
   const currentUserOption = await userService.getCurrentUser(context.session.authState.accessToken);
   const currentUser = currentUserOption.isSome() ? currentUserOption.unwrap() : undefined;
 
-  // Extract workPhone for user update, remove it from profile data
+  // Separate work phone from profile data (work phone goes to user record)
   const { workPhone, ...personalInformationForProfile } = parseResult.output;
 
-  // Update the profile (without workPhone)
+  // Update profile with personal information (excluding work phone)
   const updateResult = await profileService.updateProfileById(context.session.authState.accessToken, {
     ...currentProfile,
     personalInformation: personalInformationForProfile,
@@ -75,7 +126,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     throw updateResult.unwrapErr();
   }
 
-  // Update the user's businessPhone if workPhone was provided
+  // Update user record with work phone and language preference
   if (workPhone && currentUser) {
     const userUpdateResult = await userService.updateUser(
       {
@@ -91,11 +142,33 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     }
   }
 
+  // Redirect back to profile overview
   return i18nRedirect('routes/employee/profile/index.tsx', request, {
     params: { id: currentProfile.userId.toString() },
   });
 }
 
+/**
+ * Loader function for personal information form
+ * 
+ * Prepares form data by merging information from both user and profile records:
+ * 1. Validates authentication and privacy consent
+ * 2. Fetches current user and profile data
+ * 3. Loads language options for the form
+ * 4. Merges data with proper precedence (user data overrides profile where applicable)
+ * 5. Formats phone numbers for display
+ * 
+ * Data merging strategy:
+ * - Work email: User business email takes precedence over profile work email
+ * - Work phone: Always from user record (businessPhone field)
+ * - Other fields: From profile record
+ * 
+ * @param context - Route context containing session and authentication info
+ * @param request - The incoming HTTP request
+ * @param params - Route parameters
+ * @returns Form default values and language options
+ * @throws Will throw if profile not found or data fetching fails
+ */
 export async function loader({ context, request, params }: Route.LoaderArgs) {
   requireAuthentication(context.session, request);
   await requirePrivacyConsentForOwnProfile(context.session, request);
@@ -126,15 +199,40 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   };
 }
 
+/**
+ * Personal Information Form Component
+ * 
+ * Renders the personal information form with comprehensive validation
+ * and user experience features:
+ * 
+ * Features:
+ * - Back navigation to profile overview
+ * - Form validation with real-time error display
+ * - Language selection with localized options
+ * - Phone number formatting
+ * - Cancel functionality returning to profile
+ * - Read-only mode support (currently disabled)
+ * 
+ * The form handles the complex user/profile data relationship,
+ * ensuring data is properly separated and stored in the correct entities.
+ * 
+ * @param loaderData - Form configuration and default values from loader
+ * @param actionData - Form errors and validation results from action
+ * @param params - Route parameters for navigation
+ * @returns JSX element representing the personal information form
+ */
 export default function PersonalInformation({ loaderData, actionData, params }: Route.ComponentProps) {
   const { t } = useTranslation(handle.i18nNamespace);
   const errors = actionData?.errors;
 
   return (
     <>
+      {/* Back navigation link */}
       <InlineLink className="mt-6 block" file="routes/employee/profile/index.tsx" params={params} id="back-button">
         {`< ${t('app:profile.back')}`}
       </InlineLink>
+      
+      {/* Form container with responsive width */}
       <div className="max-w-prose">
         <PersonalInformationForm
           cancelLink={'routes/employee/profile/index.tsx'}
