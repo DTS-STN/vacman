@@ -1,7 +1,7 @@
-import { useState } from 'react';
 import type { JSX } from 'react';
 
 import type { RouteHandle, LoaderFunctionArgs } from 'react-router';
+import { useSearchParams } from 'react-router';
 
 import type { ColumnDef } from '@tanstack/react-table';
 import { format } from 'date-fns';
@@ -58,36 +58,39 @@ export async function loader({ context, request }: LoaderFunctionArgs) {
     )
     .map((s) => s.id);
 
-  // Filter profiles based on allowed status codes
-  const filteredAllProfiles = profiles.filter((profile) => statusIds.includes(profile.profileStatus.id));
+  // Filter profiles based on hr-advisor selection. Options 'My Employees' or 'All employees'
+  const url = new URL(request.url);
+  const selectedProfiles = url.searchParams.get('selectedData');
 
-  // Filter profiles based on hr-advisor id
-  const filteredMyProfiles = profiles.filter(
-    (profile) => profile.employmentInformation.hrAdvisor === context.session.currentUser.id,
-  );
+  // NOTE: 1 = My employees or 2 = All employees
+  const filteredAllProfiles =
+    selectedProfiles === '1'
+      ? profiles.filter((profile) => profile.employmentInformation.hrAdvisor === context.session.currentUser.id)
+      : profiles.filter((profile) => statusIds.includes(profile.profileStatus.id));
 
   return {
     documentTitle: t('app:index.employees'),
-    allProfiles: filteredAllProfiles,
-    myProfiles: filteredMyProfiles,
+    profiles: filteredAllProfiles,
     statuses,
   };
 }
 
 export default function EmployeeDashboard({ loaderData, params }: Route.ComponentProps) {
   const { t } = useTranslation(handle.i18nNamespace);
-  const [selectedProfiles, setSelectedProfiles] = useState('all');
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [searchParams, setSearchParams] = useSearchParams({ selectedData: '1' });
 
   const statusMap = Object.fromEntries(loaderData.statuses.map((s) => [s.id, s.name]));
 
   const employeesOptions = [
     {
-      value: 'all',
-      children: t('app:hr-advisor-dashboard.all-employees'),
+      value: '1',
+      children: t('app:hr-advisor-dashboard.my-employees'),
     },
     {
-      value: 'mine',
-      children: t('app:hr-advisor-dashboard.my-employees'),
+      value: '2',
+      children: t('app:hr-advisor-dashboard.all-employees'),
     },
   ];
 
@@ -175,11 +178,11 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
         options={employeesOptions}
         label=""
         defaultValue="all"
-        onChange={({ target }) => setSelectedProfiles(target.value)}
+        onChange={({ target }) => setSearchParams({ selectedData: `${target.value}` })}
         className="wx-1/12 float-right my-4 sm:w-1/5"
       />
 
-      <DataTable columns={columns} data={selectedProfiles === 'all' ? loaderData.allProfiles : loaderData.myProfiles} />
+      <DataTable columns={columns} data={loaderData.profiles} />
     </div>
   );
 }
