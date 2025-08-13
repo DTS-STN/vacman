@@ -1,6 +1,6 @@
 import type { JSX } from 'react';
 
-import type { RouteHandle, LoaderFunctionArgs } from 'react-router';
+import type { RouteHandle } from 'react-router';
 import { useSearchParams } from 'react-router';
 
 import type { ColumnDef } from '@tanstack/react-table';
@@ -29,19 +29,18 @@ export function meta({ loaderData }: Route.MetaArgs) {
   return [{ title: loaderData?.documentTitle }];
 }
 
-export async function loader({ context, request }: LoaderFunctionArgs) {
+export async function loader({ context, request }: Route.LoaderArgs) {
   requireAuthentication(context.session, request);
-  
+
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
 
   // Filter profiles based on hr-advisor selection. Options 'My Employees' or 'All employees'
   const url = new URL(request.url);
-  const selectedProfiles = url.searchParams.get('selectedData');
-
+  const filter = url.searchParams.get('filter');
   const profileParams = {
     accessToken: context.session.authState.accessToken,
     active: true, // will return In Progress, Pending Approval and Approved
-    hrAdvisorId: selectedProfiles === '1' || selectedProfiles === null ? context.session.currentUser.id : null, // if null : will return everything, if a UserId : will return profiles linked to that hr-advisor, if "me" : will return profiles linked to the logged in hr-advisor -> to be used later in filtering
+    hrAdvisorId: filter === 'me' ? filter : null, // 'me' is used in the API to filter for the current HR advisor
     includeUserData: true, // will add user data (names and email)
   };
 
@@ -53,20 +52,9 @@ export async function loader({ context, request }: LoaderFunctionArgs) {
     profileStatusService.listAllLocalized(lang),
   ]);
 
-  const hrRelevantEmployeeStatusCodes = [PROFILE_STATUS_CODE.approved, PROFILE_STATUS_CODE.pending];
-  const statusIds = statuses
-    .filter((s) =>
-      hrRelevantEmployeeStatusCodes.includes(
-        s.code as typeof PROFILE_STATUS_CODE.approved | typeof PROFILE_STATUS_CODE.pending,
-      ),
-    )
-    .map((s) => s.id);
-
-   const filteredAllProfiles = profiles.filter((profile) => statusIds.includes(profile.profileStatus.id));
-
   return {
     documentTitle: t('app:index.employees'),
-    profiles: filteredAllProfiles,
+    profiles: [...profiles],
     statuses,
   };
 }
@@ -74,18 +62,17 @@ export async function loader({ context, request }: LoaderFunctionArgs) {
 export default function EmployeeDashboard({ loaderData, params }: Route.ComponentProps) {
   const { t } = useTranslation(handle.i18nNamespace);
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [searchParams, setSearchParams] = useSearchParams({ selectedData: '1' });
+  const [, setSearchParams] = useSearchParams({ filter: 'all' });
 
   const statusMap = Object.fromEntries(loaderData.statuses.map((s) => [s.id, s.name]));
 
   const employeesOptions = [
     {
-      value: '1',
+      value: 'me',
       children: t('app:hr-advisor-dashboard.my-employees'),
     },
     {
-      value: '2',
+      value: 'all',
       children: t('app:hr-advisor-dashboard.all-employees'),
     },
   ];
@@ -174,7 +161,7 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
         options={employeesOptions}
         label=""
         defaultValue="all"
-        onChange={({ target }) => setSearchParams({ selectedData: `${target.value}` })}
+        onChange={({ target }) => setSearchParams({ filter: target.value })}
         className="wx-1/12 float-right my-4 sm:w-1/5"
       />
 
