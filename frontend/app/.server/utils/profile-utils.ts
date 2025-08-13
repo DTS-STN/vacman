@@ -21,7 +21,6 @@ export function countCompletedItems<T extends object>(data: T): number {
     if (item === undefined) continue; // Skip undefined
     if (typeof item === 'string' && item.length === 0) continue; // Skip empty strings
     if (Array.isArray(item) && item.length === 0) continue; // Skip empty arrays
-    if (typeof item === 'number' && item === 0) continue; // Skip the number 0
 
     // If it passed all the checks, it's completed!
     completedCount++;
