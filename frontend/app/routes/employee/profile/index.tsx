@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next';
 import type { Route } from '../profile/+types/index';
 
 import type { Profile } from '~/.server/domain/models';
+import { getBranchService } from '~/.server/domain/services/branch-service';
 import { getCityService } from '~/.server/domain/services/city-service';
 import { getClassificationService } from '~/.server/domain/services/classification-service';
 import { getDirectorateService } from '~/.server/domain/services/directorate-service';
@@ -156,6 +157,10 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const workUnitResult =
     profileData.employmentInformation.directorate !== undefined &&
     (await getDirectorateService().findLocalizedById(profileData.employmentInformation.directorate, lang));
+  const branchResult =
+    profileData.employmentInformation.branchOrServiceCanadaRegion !== undefined &&
+    !profileData.employmentInformation.directorate && // Only look up branch directly if there's no directorate
+    (await getBranchService().findLocalizedById(profileData.employmentInformation.branchOrServiceCanadaRegion, lang));
   const substantivePositionResult =
     profileData.employmentInformation.substantivePosition !== undefined &&
     (await getClassificationService().findLocalizedById(profileData.employmentInformation.substantivePosition, lang));
@@ -172,7 +177,8 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const substantivePosition =
     substantivePositionResult && substantivePositionResult.isSome() ? substantivePositionResult.unwrap().name : undefined;
   const branchOrServiceCanadaRegion =
-    workUnitResult && workUnitResult.isSome() ? workUnitResult.unwrap().parent?.name : undefined;
+    (workUnitResult && workUnitResult.isSome() ? workUnitResult.unwrap().parent?.name : undefined) ??
+    (branchResult && branchResult.isSome() ? branchResult.unwrap().name : undefined);
   const directorate = workUnitResult && workUnitResult.isSome() ? workUnitResult.unwrap().name : undefined;
   const city = cityResult && cityResult.isSome() ? cityResult.unwrap() : undefined;
   const wfaStatus = wfaStatusResult ? (wfaStatusResult.isSome() ? wfaStatusResult.unwrap() : undefined) : undefined;
