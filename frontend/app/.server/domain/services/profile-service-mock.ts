@@ -277,7 +277,7 @@ let mockProfiles: Profile[] = [
       workEmail: 'john.smith@email.ca',
       personalEmail: 'john.smith@example.com',
       workPhone: '613-555-1234',
-      personalPhone: undefined,
+      personalPhone: '613-555-0001',
       additionalInformation: 'Interested in remote work.',
     },
     employmentInformation: {
