@@ -1,9 +1,9 @@
-import type { RouteHandle, LoaderFunctionArgs } from 'react-router';
+import type { RouteHandle } from 'react-router';
 
 import { faUser } from '@fortawesome/free-solid-svg-icons';
 import { useTranslation } from 'react-i18next';
 
-import type { Route } from './+types';
+import type { Route } from './+types/index';
 
 import { getLanguageForCorrespondenceService } from '~/.server/domain/services/language-for-correspondence-service';
 import { getProfileService } from '~/.server/domain/services/profile-service';
@@ -24,17 +24,17 @@ export function meta({ loaderData }: Route.MetaArgs) {
   return [{ title: loaderData?.documentTitle }];
 }
 
-export async function loader({ context, request }: LoaderFunctionArgs) {
+export async function loader({ context, request }: Route.LoaderArgs) {
   requireAuthentication(context.session, request);
   if (!context.session.currentUser) {
     try {
       const currentUser = await getUserService().getCurrentUser(context.session.authState.accessToken);
-      context.session.currentUser = currentUser;
+      context.session.currentUser = currentUser.unwrap();
     } catch {
       const language = await getLanguageForCorrespondenceService().findById(LANGUAGE_ID[getLanguage(request) ?? 'en']);
       const languageId = language.unwrap().id;
       const currentUser = await getUserService().registerCurrentUser({ languageId }, context.session.authState.accessToken);
-      context.session.currentUser = currentUser;
+      context.session.currentUser = currentUser.unwrap();
     } finally {
       await getProfileService().registerProfile(context.session.authState.accessToken);
     }
