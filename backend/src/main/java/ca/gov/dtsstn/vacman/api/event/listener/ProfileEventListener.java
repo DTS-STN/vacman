@@ -1,5 +1,7 @@
 package ca.gov.dtsstn.vacman.api.event.listener;
 
+import java.util.Optional;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
@@ -14,6 +16,7 @@ import ca.gov.dtsstn.vacman.api.constants.AppConstants;
 import ca.gov.dtsstn.vacman.api.data.entity.EventEntityBuilder;
 import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.ProfileStatusEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 import ca.gov.dtsstn.vacman.api.data.repository.EventRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.ProfileStatusRepository;
 import ca.gov.dtsstn.vacman.api.event.ProfileCreateEvent;
@@ -92,9 +95,8 @@ public class ProfileEventListener {
 		log.info("Event: profile status changed - ID: {}, from status ID: {}, to status ID: {}", 
 			event.entity().getId(), event.previousStatusId(), event.newStatusId());
 
-		// Check if the profile status was changed to APPROVED
-		ProfileEntity profile = event.entity();
-		ProfileStatusEntity newStatus = profile.getProfileStatus();
+		final var profile = event.entity();
+		final var newStatus = profile.getProfileStatus();
 
 		if (newStatus != null && AppConstants.ProfileStatusCodes.APPROVED.equals(newStatus.getCode())) {
 			sendApprovalNotification(profile);
@@ -102,27 +104,14 @@ public class ProfileEventListener {
 	}
 
 	private void sendApprovalNotification(ProfileEntity profile) {
-		try {
-			String email = profile.getUser().getBusinessEmailAddress();
+		Optional.ofNullable(profile.getUser())
+			.map(UserEntity::getBusinessEmailAddress)
+			.ifPresentOrElse(email -> {
+				final var profileId = profile.getId().toString();
+				final var user = profile.getUser();
+				final var name = String.format("%s %s", user.getFirstName(), user.getLastName());
 
-			if (email != null && !email.isEmpty()) {
-				String profileId = profile.getId().toString();
-				String username = profile.getUser().getFirstName() + " " + profile.getUser().getLastName();
-
-				// Send the notification
-				notificationService.sendEmailNotification(
-					email, 
-					profileId, 
-					username, 
-					ProfileStatus.APPROVED
-				);
-
-				log.info("Approval notification sent to user with email: {}, profile ID: {}", email, profileId);
-			} else {
-				log.warn("Could not send approval notification - no email address found for profile ID: {}", profile.getId());
-			}
-		} catch (Exception e) {
-			log.error("Error sending approval notification for profile ID: {}", profile.getId(), e);
-		}
+				notificationService.sendEmailNotification(email, profileId, name, ProfileStatus.APPROVED);
+			}, () -> log.warn("Could not send approval notification - no email address found for profile ID: {}", profile.getId()));
 	}
 }
