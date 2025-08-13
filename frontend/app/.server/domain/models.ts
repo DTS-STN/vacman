@@ -182,13 +182,45 @@ export type SaveProfile = Readonly<{
   userId: number;
   userIdReviewedBy?: number;
   userIdApprovedBy?: number;
-  priorityLevelId?: number;
   privacyConsentInd?: boolean;
   userCreated: string;
   dateCreated: string;
   userUpdated?: string;
   dateUpdated?: string;
-  personalInformation: UserPersonalInformation;
-  employmentInformation: UserEmploymentInformation;
-  referralPreferences: UserReferralPreferences;
+  personalInformation: SaveUserPersonalInformation;
+  employmentInformation: SaveUserEmploymentInformation;
+  referralPreferences: SaveUserReferralPreferences;
 }>;
+
+export type SaveUserPersonalInformation = {
+  surname?: string;
+  givenName?: string;
+  personalRecordIdentifier?: string;
+  preferredLanguageId?: number;
+  workEmail: string;
+  personalEmail?: string;
+  workPhone?: string;
+  personalPhone?: string;
+  additionalInformation?: string;
+};
+
+export type SaveUserEmploymentInformation = {
+  substantivePosition?: number;
+  branchOrServiceCanadaRegion?: number;
+  directorate?: number;
+  province?: number;
+  cityId?: number;
+  wfaStatus?: number;
+  wfaEffectiveDate?: string;
+  wfaEndDate?: string;
+  hrAdvisor?: number;
+};
+export type SaveUserReferralPreferences = {
+  languageReferralTypeIds?: number[];
+  classificationIds?: number[];
+  workLocationProvince?: number;
+  workLocationCitiesIds?: number[];
+  availableForReferralInd?: boolean;
+  interestedInAlternationInd?: boolean;
+  employmentTenureIds?: number[];
+};
