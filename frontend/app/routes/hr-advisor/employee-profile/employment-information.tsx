@@ -116,7 +116,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     documentTitle: t('app:employment-information.page-title'),
     defaultValues: {
       substantivePosition: profileData.employmentInformation.substantivePosition,
-      branchOrServiceCanadaRegion: workUnit?.parent?.id,
+      branchOrServiceCanadaRegion: workUnit?.parent?.id ?? profileData.employmentInformation.branchOrServiceCanadaRegion,
       directorate: workUnit?.id,
       province: city?.provinceTerritory.id,
       cityId: profileData.employmentInformation.cityId,

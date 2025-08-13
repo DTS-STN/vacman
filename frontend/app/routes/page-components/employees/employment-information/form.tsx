@@ -60,6 +60,9 @@ export function EmploymentInformationForm({
   const [branch, setBranch] = useState(
     formValues?.branchOrServiceCanadaRegion ? String(formValues.branchOrServiceCanadaRegion) : undefined,
   );
+  const [directorate, setDirectorate] = useState(
+    formValues?.directorate !== undefined ? String(formValues.directorate) : undefined,
+  );
   const [province, setProvince] = useState(formValues?.province !== undefined ? String(formValues.province) : undefined);
   const [wfaStatusCode, setWfaStatusCode] = useState(wfaStatuses.find((c) => c.id === formValues?.wfaStatus)?.code);
 
@@ -83,6 +86,9 @@ export function EmploymentInformationForm({
     children: id === 'select-option' ? t('form.select-option') : name,
   }));
 
+  // Check if the selected branch has any child directorates
+  const hasChildDirectorates = branch ? directorates.some((directorate) => directorate.parent?.id === Number(branch)) : false;
+
   const provinceOptions = [{ id: 'select-option', name: '' }, ...provinces].map(({ id, name }) => ({
     value: id === 'select-option' ? '' : String(id),
     children: id === 'select-option' ? t('form.select-option') : name,
@@ -100,6 +106,21 @@ export function EmploymentInformationForm({
     const selectedValue = event.target.value;
     const selectedStatus = wfaStatuses.find((c) => c.id === Number(selectedValue))?.code;
     setWfaStatusCode(selectedStatus);
+  };
+
+  const handleBranchChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const newBranch = event.target.value || undefined;
+    setBranch(newBranch);
+
+    // Clear directorate if the new branch has no child directorates
+    if (newBranch) {
+      const hasChildren = directorates.some((directorate) => directorate.parent?.id === Number(newBranch));
+      if (!hasChildren) {
+        setDirectorate(undefined);
+      }
+    } else {
+      setDirectorate(undefined);
+    }
   };
 
   const wfaStatusOptions: InputRadiosProps['options'] = wfaStatuses.map(({ id, name }) => ({
@@ -136,7 +157,7 @@ export function EmploymentInformationForm({
               name="branchOrServiceCanadaRegion"
               errorMessage={t(extractValidationKey(formErrors?.branchOrServiceCanadaRegion))}
               required
-              onChange={({ target }) => setBranch(target.value || undefined)}
+              onChange={handleBranchChange}
               options={branchOrServiceCanadaRegionOptions}
               label={t('employment-information.branch-or-service-canada-region')}
               defaultValue={
@@ -144,7 +165,7 @@ export function EmploymentInformationForm({
               }
               className="w-full sm:w-1/2"
             />
-            {branch && (
+            {branch && hasChildDirectorates && (
               <InputSelect
                 id="directorate"
                 name="directorate"
@@ -152,10 +173,12 @@ export function EmploymentInformationForm({
                 required
                 options={directorateOptions}
                 label={t('employment-information.directorate')}
-                defaultValue={formValues?.directorate !== undefined ? String(formValues.directorate) : ''}
+                value={directorate ?? ''}
+                onChange={({ target }) => setDirectorate(target.value || undefined)}
                 className="w-full sm:w-1/2"
               />
             )}
+            {branch && !hasChildDirectorates && <input type="hidden" name="directorate" value="" />}
             <InputSelect
               className="w-full sm:w-1/2"
               id="province"
