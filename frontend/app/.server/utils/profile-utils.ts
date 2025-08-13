@@ -1,4 +1,4 @@
-import type { UserEmploymentInformation } from '../domain/models';
+import type { UserEmploymentInformation, UserReferralPreferences } from '../domain/models';
 
 /**
  * Counts the number of "completed" items in a given data object.
@@ -58,6 +58,14 @@ export function hasEmploymentDataChanged(oldData: UserEmploymentInformation, new
     'wfaEndDate',
     'hrAdvisor',
   ];
+  for (const key of keysToCheck) {
+    if (newData[key] !== oldData[key]) return true;
+  }
+  return false;
+}
+
+export function hasReferralDataChanged(oldData: UserReferralPreferences, newData: UserReferralPreferences) {
+  const keysToCheck: (keyof UserReferralPreferences)[] = ['classificationIds', 'workLocationCitiesIds', 'workLocationProvince'];
   for (const key of keysToCheck) {
     if (newData[key] !== oldData[key]) return true;
   }
