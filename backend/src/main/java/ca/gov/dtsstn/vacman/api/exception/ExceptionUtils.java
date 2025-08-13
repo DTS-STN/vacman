@@ -48,11 +48,11 @@ public class ExceptionUtils {
 	}
 
 	/**
-	 * Returns a {@link UnauthorizedException} with a message explaining that the caller does not have an OID claim.
+	 * Returns a {@link UnauthorizedException} with a message explaining that the security context's Entra ID is missing.
 	 * @return An exception with the appropriate message.
 	 */
-	public static UnauthorizedException generateCouldNotExtractOidException() {
-		return new UnauthorizedException("Could not extract 'oid' claim from JWT token");
+	public static UnauthorizedException generateEntraIdNotFoundException() {
+		return new UnauthorizedException("Entra ID not found in security context");
 	}
 
 	/**

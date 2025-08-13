@@ -65,7 +65,7 @@ public class UsersController {
 		log.info("Received request to create new user; request: [{}]", user);
 
 		final var entraId = SecurityUtils.getCurrentUserEntraId()
-			.orElseThrow(ExceptionUtils::generateCouldNotExtractOidException);
+			.orElseThrow(ExceptionUtils::generateEntraIdNotFoundException);
 
 		log.debug("Checking if user with entraId=[{}] already exists", entraId);
 
@@ -100,7 +100,7 @@ public class UsersController {
 		log.debug("Received request to get current user");
 
 		final var entraId = SecurityUtils.getCurrentUserEntraId()
-			.orElseThrow(ExceptionUtils::generateCouldNotExtractOidException);
+			.orElseThrow(ExceptionUtils::generateEntraIdNotFoundException);
 
 		log.debug("Fetching current user with microsoftEntraId=[{}]", entraId);
 

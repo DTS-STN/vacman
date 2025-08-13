@@ -98,7 +98,7 @@ public class ProfilesController {
 		}
 		else if (hrAdvisor.equalsIgnoreCase("me")) {
 			final var entraId = SecurityUtils.getCurrentUserEntraId()
-				.orElseThrow(ExceptionUtils::generateCouldNotExtractOidException);
+				.orElseThrow(ExceptionUtils::generateEntraIdNotFoundException);
 
 			hrAdvisorId = userService.getUserByMicrosoftEntraId(entraId)
 				.map(UserEntity::getId)
@@ -124,7 +124,7 @@ public class ProfilesController {
 			@Parameter(name = "active", description = "Return only active or inactive profiles")
 			Boolean isActive) {
 		final var entraId = SecurityUtils.getCurrentUserEntraId()
-			.orElseThrow(ExceptionUtils::generateCouldNotExtractOidException);
+			.orElseThrow(ExceptionUtils::generateEntraIdNotFoundException);
 
 		final var profiles = profileService.getProfilesByEntraId(entraId, isActive).stream()
 			.map(profileModelMapper::toModelNoUserData)
@@ -156,7 +156,7 @@ public class ProfilesController {
 	public ResponseEntity<ProfileReadModel> createCurrentUserProfile() {
 		log.info("Received request to create new profile");
 		final var microsoftEntraId = SecurityUtils.getCurrentUserEntraId()
-			.orElseThrow(ExceptionUtils::generateCouldNotExtractOidException);
+			.orElseThrow(ExceptionUtils::generateEntraIdNotFoundException);
 
 		log.debug("Checking if user with microsoftEntraId=[{}] already exists", microsoftEntraId);
 		final var existingUser = userService.getUserByMicrosoftEntraId(microsoftEntraId)
