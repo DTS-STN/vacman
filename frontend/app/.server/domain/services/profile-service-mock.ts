@@ -95,7 +95,7 @@ export function getMockProfileService(): ProfileService {
         profile.profileId.toString() === profileId
           ? {
               ...profile,
-              profileStatusId: status.id,
+              profileStatus: status,
               dateUpdated: new Date().toISOString(),
             }
           : profile,
