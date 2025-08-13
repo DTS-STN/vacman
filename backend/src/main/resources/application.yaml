@@ -76,7 +76,6 @@ spring:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
   liquibase:
     enabled: true
-    # contexts: dev # If you want to add test data
     change-log: classpath:db/changelog/db.changelog-master.yaml
 ---
 
