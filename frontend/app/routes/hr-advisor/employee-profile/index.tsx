@@ -13,7 +13,6 @@ import { getCityService } from '~/.server/domain/services/city-service';
 import { getClassificationService } from '~/.server/domain/services/classification-service';
 import { getDirectorateService } from '~/.server/domain/services/directorate-service';
 import { getEmploymentTenureService } from '~/.server/domain/services/employment-tenure-service';
-import { getLanguageForCorrespondenceService } from '~/.server/domain/services/language-for-correspondence-service';
 import { getLanguageReferralTypeService } from '~/.server/domain/services/language-referral-type-service';
 import { getProfileService } from '~/.server/domain/services/profile-service';
 import { getProfileStatusService } from '~/.server/domain/services/profile-status-service';
@@ -79,9 +78,6 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const profileUpdatedByUser = profileUpdatedByUserResult?.isOk() ? profileUpdatedByUserResult.unwrap() : undefined;
   const profileUpdatedByUserName = profileUpdatedByUser && `${profileUpdatedByUser.firstName} ${profileUpdatedByUser.lastName}`;
   const profileStatus = (await getProfileStatusService().findLocalizedById(profileData.profileStatus.id, lang)).unwrap();
-  const preferredLanguageResult =
-    profileData.personalInformation.preferredLanguageId !== undefined &&
-    (await getLanguageForCorrespondenceService().findLocalizedById(profileData.personalInformation.preferredLanguageId, lang));
   const workUnitResult =
     profileData.employmentInformation.directorate !== undefined &&
     (await getDirectorateService().findLocalizedById(profileData.employmentInformation.directorate, lang));
@@ -100,8 +96,6 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     (await getWFAStatuses().findLocalizedById(profileData.employmentInformation.wfaStatus, lang));
 
   // convert the IDs to display names
-  const preferredLanguage =
-    preferredLanguageResult && preferredLanguageResult.isSome() ? preferredLanguageResult.unwrap().name : undefined;
   const substantivePosition =
     substantivePositionResult && substantivePositionResult.isSome() ? substantivePositionResult.unwrap().name : undefined;
   const branchOrServiceCanadaRegion =
@@ -134,7 +128,10 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     profileStatus,
     personalInformation: {
       personalRecordIdentifier: profileData.personalInformation.personalRecordIdentifier,
-      preferredLanguage: preferredLanguage,
+      preferredLanguage:
+        lang === 'en'
+          ? profileData.personalInformation.preferredLanguage?.nameEn
+          : profileData.personalInformation.preferredLanguage?.nameFr,
       workEmail: profileData.personalInformation.workEmail,
       personalEmail: profileData.personalInformation.personalEmail,
       workPhone: profileData.personalInformation.workPhone,

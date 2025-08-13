@@ -4,6 +4,7 @@ import { vi, describe, it, expect, beforeEach } from 'vitest';
 import type { Profile } from '~/.server/domain/models';
 import { apiClient } from '~/.server/domain/services/api-client';
 import { getDefaultProfileService } from '~/.server/domain/services/profile-service-default';
+import { PREFERRED_LANGUAGE_FRENCH } from '~/domain/constants';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
@@ -34,7 +35,6 @@ describe('getDefaultProfileService', () => {
     userId: 123,
     userIdReviewedBy: 456,
     userIdApprovedBy: 789,
-    priorityLevelId: 1,
     profileStatus: {
       id: 1,
       code: 'PENDING',
@@ -48,7 +48,7 @@ describe('getDefaultProfileService', () => {
     dateUpdated: '2024-01-01T00:00:00Z',
     personalInformation: {
       personalRecordIdentifier: '123456789',
-      preferredLanguageId: undefined,
+      preferredLanguage: undefined,
       workEmail: 'firstname.lastname@email.ca',
       personalEmail: 'john.doe@example.com',
       workPhone: undefined,
@@ -83,7 +83,6 @@ describe('getDefaultProfileService', () => {
     userId: 123,
     userIdReviewedBy: 456,
     userIdApprovedBy: 789,
-    priorityLevelId: 1,
     profileStatus: {
       id: 1,
       code: 'PENDING',
@@ -97,7 +96,7 @@ describe('getDefaultProfileService', () => {
     dateUpdated: '2024-01-01T00:00:00Z',
     personalInformation: {
       personalRecordIdentifier: '444555666',
-      preferredLanguageId: 2,
+      preferredLanguage: PREFERRED_LANGUAGE_FRENCH,
       workEmail: 'firstname.lastname@example.ca',
       personalEmail: 'john.doe@example.com',
       workPhone: undefined,

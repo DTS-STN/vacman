@@ -39,7 +39,7 @@ export function PersonalInformationForm({
   const languageOptions = languagesOfCorrespondence.map(({ id, name }) => ({
     value: String(id),
     children: name,
-    defaultChecked: id === formValues?.preferredLanguageId,
+    defaultChecked: id === formValues?.preferredLanguage?.id,
   }));
 
   return (

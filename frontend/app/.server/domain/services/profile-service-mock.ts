@@ -1,6 +1,7 @@
 import { None, Some, Err, Ok } from 'oxide.ts';
 import type { Result, Option } from 'oxide.ts';
 
+import { getMockLanguageForCorrespondenceService } from './language-for-correspondence-service-mock';
 import { getProfileStatusService } from './profile-status-service';
 import { getUserService } from './user-service';
 
@@ -12,6 +13,8 @@ import {
   PROFILE_STATUS_APPROVED,
   PROFILE_STATUS_INCOMPLETE,
   PROFILE_STATUS_PENDING,
+  PREFERRED_LANGUAGE_ENGLISH,
+  PREFERRED_LANGUAGE_FRENCH,
 } from '~/domain/constants';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
@@ -58,22 +61,35 @@ export function getMockProfileService(): ProfileService {
 
       return Promise.resolve(None);
     },
-    updateProfileById: (accessToken: string, profile: SaveProfile): Promise<Result<Profile, AppError>> => {
+    updateProfileById: async (accessToken: string, profile: SaveProfile): Promise<Result<Profile, AppError>> => {
       const existingProfile = mockProfiles.find((p) => p.profileId === profile.profileId);
-
       if (!existingProfile) {
         return Promise.resolve(Err(new AppError('Profile not found', ErrorCodes.PROFILE_NOT_FOUND)));
       }
-
-      const updatedProfile = {
+      const preferredLanguageResult =
+        profile.personalInformation.preferredLanguageId !== undefined &&
+        (await getMockLanguageForCorrespondenceService().findById(profile.personalInformation.preferredLanguageId));
+      const preferredLanguage =
+        preferredLanguageResult && preferredLanguageResult.isSome() ? preferredLanguageResult.unwrap() : undefined;
+      const updatedProfile: Profile = {
         ...existingProfile,
         ...profile,
+        personalInformation: {
+          ...profile.personalInformation,
+          preferredLanguage,
+        },
+        employmentInformation: {
+          ...existingProfile.employmentInformation,
+          ...profile.employmentInformation,
+        },
+        referralPreferences: {
+          ...existingProfile.referralPreferences,
+          ...profile.referralPreferences,
+        },
         dateUpdated: new Date().toISOString(),
         userUpdated: profile.userUpdated ?? existingProfile.userUpdated,
       };
-
       mockProfiles = mockProfiles.map((p) => (p.profileId === profile.profileId ? updatedProfile : p));
-
       return Promise.resolve(Ok(updatedProfile));
     },
     updateProfileStatus: async (
@@ -174,7 +190,6 @@ let mockProfiles: Profile[] = [
     userId: 1,
     userIdReviewedBy: undefined,
     userIdApprovedBy: undefined,
-    priorityLevelId: 1,
     profileStatus: PROFILE_STATUS_INCOMPLETE,
     privacyConsentInd: false,
     userCreated: 'system',
@@ -185,7 +200,7 @@ let mockProfiles: Profile[] = [
       surname: 'Doe',
       givenName: 'Jane',
       personalRecordIdentifier: '123456789',
-      preferredLanguageId: undefined,
+      preferredLanguage: undefined,
       workEmail: 'firstname.lastname@email.ca',
       personalEmail: 'jane.doe@example.com',
       workPhone: undefined,
@@ -218,7 +233,6 @@ let mockProfiles: Profile[] = [
     userId: 2,
     userIdReviewedBy: undefined,
     userIdApprovedBy: undefined,
-    priorityLevelId: 2,
     profileStatus: PROFILE_STATUS_INCOMPLETE,
     privacyConsentInd: false,
     userCreated: 'system',
@@ -229,7 +243,7 @@ let mockProfiles: Profile[] = [
       surname: 'Smith',
       givenName: 'John',
       personalRecordIdentifier: undefined,
-      preferredLanguageId: undefined,
+      preferredLanguage: undefined,
       workEmail: 'example@email.ca',
       personalEmail: undefined,
       workPhone: undefined,
@@ -262,7 +276,6 @@ let mockProfiles: Profile[] = [
     userId: 3,
     userIdReviewedBy: undefined,
     userIdApprovedBy: undefined,
-    priorityLevelId: 1,
     profileStatus: PROFILE_STATUS_PENDING,
     privacyConsentInd: true,
     userCreated: 'system',
@@ -273,7 +286,7 @@ let mockProfiles: Profile[] = [
       surname: 'fname',
       givenName: 'lname',
       personalRecordIdentifier: '987654321',
-      preferredLanguageId: 0,
+      preferredLanguage: PREFERRED_LANGUAGE_ENGLISH,
       workEmail: 'john.smith@email.ca',
       personalEmail: 'john.smith@example.com',
       workPhone: '613-555-1234',
@@ -306,7 +319,6 @@ let mockProfiles: Profile[] = [
     userId: 4,
     userIdReviewedBy: 5,
     userIdApprovedBy: 5,
-    priorityLevelId: 2,
     profileStatus: PROFILE_STATUS_APPROVED,
     privacyConsentInd: true,
     userCreated: 'system',
@@ -317,7 +329,7 @@ let mockProfiles: Profile[] = [
       surname: 'Curie',
       givenName: 'Marie',
       personalRecordIdentifier: '555555555',
-      preferredLanguageId: 1,
+      preferredLanguage: PREFERRED_LANGUAGE_FRENCH,
       workEmail: 'marie.curie@email.ca',
       personalEmail: 'marie.curie@example.com',
       workPhone: '613-555-5555',
@@ -350,7 +362,6 @@ let mockProfiles: Profile[] = [
     userId: 5,
     userIdReviewedBy: 5,
     userIdApprovedBy: 5,
-    priorityLevelId: 3,
     profileStatus: PROFILE_STATUS_APPROVED,
     privacyConsentInd: true,
     userCreated: 'system',
@@ -361,7 +372,7 @@ let mockProfiles: Profile[] = [
       surname: 'Tan',
       givenName: 'Alex',
       personalRecordIdentifier: '222333444',
-      preferredLanguageId: 0,
+      preferredLanguage: PREFERRED_LANGUAGE_ENGLISH,
       workEmail: 'alex.tan@email.ca',
       personalEmail: 'alex.tan@example.com',
       workPhone: '613-555-2222',
@@ -394,7 +405,6 @@ let mockProfiles: Profile[] = [
     userId: 6,
     userIdReviewedBy: 5,
     userIdApprovedBy: 5,
-    priorityLevelId: 1,
     profileStatus: PROFILE_STATUS_APPROVED,
     privacyConsentInd: true,
     userCreated: 'system',
@@ -405,7 +415,7 @@ let mockProfiles: Profile[] = [
       surname: 'Lee',
       givenName: 'Sam',
       personalRecordIdentifier: '111222333',
-      preferredLanguageId: 0,
+      preferredLanguage: PREFERRED_LANGUAGE_ENGLISH,
       workEmail: 'sam.lee@example.com',
       personalEmail: 'sam.lee.personal@example.com',
       workPhone: '613-555-1001',
@@ -438,7 +448,6 @@ let mockProfiles: Profile[] = [
     userId: 7,
     userIdReviewedBy: undefined,
     userIdApprovedBy: undefined,
-    priorityLevelId: 2,
     profileStatus: PROFILE_STATUS_PENDING,
     privacyConsentInd: true,
     userCreated: 'system',
@@ -449,7 +458,7 @@ let mockProfiles: Profile[] = [
       surname: 'Park',
       givenName: 'Linda',
       personalRecordIdentifier: '444555666',
-      preferredLanguageId: 1,
+      preferredLanguage: PREFERRED_LANGUAGE_FRENCH,
       workEmail: 'linda.park@example.com',
       personalEmail: 'linda.park.personal@example.com',
       workPhone: '613-555-2001',
@@ -482,7 +491,6 @@ let mockProfiles: Profile[] = [
     userId: 8,
     userIdReviewedBy: undefined,
     userIdApprovedBy: undefined,
-    priorityLevelId: 3,
     profileStatus: PROFILE_STATUS_PENDING,
     privacyConsentInd: true,
     userCreated: 'system',
@@ -493,7 +501,7 @@ let mockProfiles: Profile[] = [
       surname: 'Gomez',
       givenName: 'Carlos',
       personalRecordIdentifier: '777888999',
-      preferredLanguageId: 0,
+      preferredLanguage: PREFERRED_LANGUAGE_ENGLISH,
       workEmail: 'carlos.gomez@example.com',
       personalEmail: 'carlos.gomez.personal@example.com',
       workPhone: '613-555-3001',
@@ -526,7 +534,6 @@ let mockProfiles: Profile[] = [
     userId: 9,
     userIdReviewedBy: undefined,
     userIdApprovedBy: undefined,
-    priorityLevelId: 1,
     profileStatus: PROFILE_STATUS_PENDING,
     privacyConsentInd: true,
     userCreated: 'system',
@@ -537,7 +544,7 @@ let mockProfiles: Profile[] = [
       surname: 'Singh',
       givenName: 'Priya',
       personalRecordIdentifier: '101112131',
-      preferredLanguageId: 1,
+      preferredLanguage: PREFERRED_LANGUAGE_FRENCH,
       workEmail: 'priya.singh@example.com',
       personalEmail: 'priya.singh.personal@example.com',
       workPhone: '613-555-4001',
@@ -570,7 +577,6 @@ let mockProfiles: Profile[] = [
     userId: 10,
     userIdReviewedBy: 5,
     userIdApprovedBy: 5,
-    priorityLevelId: 2,
     profileStatus: PROFILE_STATUS_APPROVED,
     privacyConsentInd: true,
     userCreated: 'system',
@@ -581,7 +587,7 @@ let mockProfiles: Profile[] = [
       surname: 'Ijaz',
       givenName: 'Mohammed',
       personalRecordIdentifier: '141516171',
-      preferredLanguageId: 0,
+      preferredLanguage: PREFERRED_LANGUAGE_ENGLISH,
       workEmail: 'mohammedi@example.com',
       personalEmail: 'mohammed.personal@example.com',
       workPhone: '613-555-5001',
@@ -614,7 +620,6 @@ let mockProfiles: Profile[] = [
     userId: 11,
     userIdReviewedBy: 5,
     userIdApprovedBy: 5,
-    priorityLevelId: 3,
     profileStatus: PROFILE_STATUS_APPROVED,
     privacyConsentInd: true,
     userCreated: 'system',
@@ -625,7 +630,7 @@ let mockProfiles: Profile[] = [
       surname: 'Neil',
       givenName: 'Emily',
       personalRecordIdentifier: '181920212',
-      preferredLanguageId: 1,
+      preferredLanguage: PREFERRED_LANGUAGE_FRENCH,
       workEmail: 'emily.chen@example.com',
       personalEmail: 'emily.chen.personal@example.com',
       workPhone: '613-555-6001',
@@ -658,7 +663,6 @@ let mockProfiles: Profile[] = [
     userId: 12,
     userIdReviewedBy: undefined,
     userIdApprovedBy: undefined,
-    priorityLevelId: 1,
     profileStatus: PROFILE_STATUS_PENDING,
     privacyConsentInd: true,
     userCreated: 'system',
@@ -669,7 +673,7 @@ let mockProfiles: Profile[] = [
       surname: 'Brown',
       givenName: 'Olivia',
       personalRecordIdentifier: '222324252',
-      preferredLanguageId: 0,
+      preferredLanguage: PREFERRED_LANGUAGE_ENGLISH,
       workEmail: 'olivia.brown@example.com',
       personalEmail: 'olivia.brown.personal@example.com',
       workPhone: '613-555-7001',
@@ -702,7 +706,6 @@ let mockProfiles: Profile[] = [
     userId: 13,
     userIdReviewedBy: undefined,
     userIdApprovedBy: undefined,
-    priorityLevelId: 2,
     profileStatus: PROFILE_STATUS_PENDING,
     privacyConsentInd: true,
     userCreated: 'system',
@@ -713,7 +716,7 @@ let mockProfiles: Profile[] = [
       surname: 'Kim',
       givenName: 'David',
       personalRecordIdentifier: '262728292',
-      preferredLanguageId: 1,
+      preferredLanguage: PREFERRED_LANGUAGE_FRENCH,
       workEmail: 'david.kim@example.com',
       personalEmail: 'david.kim.personal@example.com',
       workPhone: '613-555-8001',
@@ -746,7 +749,6 @@ let mockProfiles: Profile[] = [
     userId: 14,
     userIdReviewedBy: undefined,
     userIdApprovedBy: undefined,
-    priorityLevelId: 3,
     profileStatus: PROFILE_STATUS_PENDING,
     privacyConsentInd: true,
     userCreated: 'system',
@@ -757,7 +759,7 @@ let mockProfiles: Profile[] = [
       surname: 'Rossi',
       givenName: 'Sofia',
       personalRecordIdentifier: '303132333',
-      preferredLanguageId: 0,
+      preferredLanguage: PREFERRED_LANGUAGE_ENGLISH,
       workEmail: 'sofia.rossi@example.com',
       personalEmail: 'sofia.rossi.personal@example.com',
       workPhone: '613-555-9001',
@@ -790,7 +792,6 @@ let mockProfiles: Profile[] = [
     userId: 15,
     userIdReviewedBy: 5,
     userIdApprovedBy: 5,
-    priorityLevelId: 1,
     profileStatus: PROFILE_STATUS_PENDING,
     privacyConsentInd: true,
     userCreated: 'system',
@@ -801,7 +802,7 @@ let mockProfiles: Profile[] = [
       surname: 'Muller',
       givenName: 'Tom',
       personalRecordIdentifier: '343536373',
-      preferredLanguageId: 1,
+      preferredLanguage: PREFERRED_LANGUAGE_FRENCH,
       workEmail: 'tom.muller@example.com',
       personalEmail: 'tom.muller.personal@example.com',
       workPhone: '613-555-9101',
@@ -858,7 +859,6 @@ function createMockProfile(accessToken: string): Profile {
     userId: userId,
     userIdReviewedBy: undefined,
     userIdApprovedBy: undefined,
-    priorityLevelId: 2,
     profileStatus: PROFILE_STATUS_INCOMPLETE,
     privacyConsentInd: false,
     userCreated: accessToken,
@@ -869,7 +869,7 @@ function createMockProfile(accessToken: string): Profile {
       surname: 'Doe',
       givenName: 'John',
       personalRecordIdentifier: '123456789',
-      preferredLanguageId: undefined,
+      preferredLanguage: undefined,
       workEmail: 'work.email@example.ca',
       personalEmail: 'personal.email@example.com',
       workPhone: undefined,
