@@ -117,7 +117,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       preferredLanguageId: profileData.personalInformation.preferredLanguage,
       workEmail: currentUser?.businessEmail ?? profileData.personalInformation.workEmail,
       personalEmail: profileData.personalInformation.personalEmail,
-      workPhone: toE164(currentUser?.businessPhone ?? profileData.personalInformation.workPhone),
+      workPhone: toE164(currentUser?.businessPhone),
       personalPhone: toE164(profileData.personalInformation.personalPhone),
       additionalInformation: profileData.personalInformation.additionalInformation,
     },
