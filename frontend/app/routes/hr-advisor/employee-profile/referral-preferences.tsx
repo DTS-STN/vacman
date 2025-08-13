@@ -1,6 +1,8 @@
 import type { RouteHandle } from 'react-router';
+import { data } from 'react-router';
 
 import { useTranslation } from 'react-i18next';
+import * as v from 'valibot';
 
 import type { Route } from './+types/referral-preferences';
 
@@ -14,9 +16,13 @@ import { getProvinceService } from '~/.server/domain/services/province-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { InlineLink } from '~/components/links';
+import { REQUIRE_OPTIONS } from '~/domain/constants';
+import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
 import { ReferralPreferencesForm } from '~/routes/page-components/employees/referral-preferences/form';
+import { referralPreferencesSchema } from '~/routes/page-components/employees/validation.server';
+import { formString } from '~/utils/string-utils';
 
 export const handle = {
   i18nNamespace: [...parentHandle.i18nNamespace],
@@ -29,19 +35,48 @@ export function meta({ loaderData }: Route.MetaArgs) {
 export async function action({ context, params, request }: Route.ActionArgs) {
   requireAuthentication(context.session, request);
 
-  const profileResult = await getProfileService().getProfileById(
-    context.session.authState.accessToken,
-    Number(params.profileId),
-  );
+  const profileService = getProfileService();
+  const profileResult = await profileService.getProfileById(context.session.authState.accessToken, Number(params.profileId));
 
   if (profileResult.isErr()) {
     throw new Response('Profile not found', { status: 404 });
   }
 
-  //TODO: Implement approval logic
+  const profile = profileResult.unwrap();
+
+  const formData = await request.formData();
+  const parseResult = v.safeParse(referralPreferencesSchema, {
+    languageReferralTypeIds: formData.getAll('languageReferralTypes'),
+    classificationIds: formData.getAll('classifications'),
+    workLocationProvince: formString(formData.get('workLocationProvince')),
+    workLocationCitiesIds: formData.getAll('workLocationCities'),
+    availableForReferralInd: formData.get('referralAvailibility')
+      ? formData.get('referralAvailibility') === REQUIRE_OPTIONS.yes
+      : undefined,
+    interestedInAlternationInd: formData.get('alternateOpportunity')
+      ? formData.get('alternateOpportunity') === REQUIRE_OPTIONS.yes
+      : undefined,
+    employmentTenureIds: formData.getAll('employmentTenures'),
+  });
+
+  if (!parseResult.success) {
+    return data(
+      { errors: v.flatten<typeof referralPreferencesSchema>(parseResult.issues).nested },
+      { status: HttpStatusCodes.BAD_REQUEST },
+    );
+  }
+
+  const updateResult = await profileService.updateProfileById(context.session.authState.accessToken, {
+    ...profile,
+    referralPreferences: parseResult.output,
+  });
+
+  if (updateResult.isErr()) {
+    throw updateResult.unwrapErr();
+  }
 
   return i18nRedirect('routes/hr-advisor/employee-profile/index.tsx', request, {
-    params: { id: profileResult.unwrap().profileId.toString() },
+    params: { profileId: profileResult.unwrap().profileId.toString() },
   });
 }
 
@@ -91,6 +126,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 
 export default function PersonalDetails({ loaderData, actionData, params }: Route.ComponentProps) {
   const { t } = useTranslation(handle.i18nNamespace);
+  const errors = actionData?.errors;
 
   return (
     <>
@@ -101,6 +137,7 @@ export default function PersonalDetails({ loaderData, actionData, params }: Rout
         <ReferralPreferencesForm
           cancelLink={'routes/hr-advisor/employee-profile/index.tsx'}
           formValues={loaderData.defaultValues}
+          formErrors={errors}
           languageReferralTypes={loaderData.languageReferralTypes}
           classifications={loaderData.classifications}
           employmentTenures={loaderData.employmentTenures}
