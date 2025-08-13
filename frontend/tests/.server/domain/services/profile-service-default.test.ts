@@ -35,7 +35,6 @@ describe('getDefaultProfileService', () => {
     userId: 123,
     userIdReviewedBy: 456,
     userIdApprovedBy: 789,
-    priorityLevel: undefined,
     profileStatus: {
       id: 1,
       code: 'PENDING',
@@ -84,7 +83,6 @@ describe('getDefaultProfileService', () => {
     userId: 123,
     userIdReviewedBy: 456,
     userIdApprovedBy: 789,
-    priorityLevel: undefined,
     profileStatus: {
       id: 1,
       code: 'PENDING',
