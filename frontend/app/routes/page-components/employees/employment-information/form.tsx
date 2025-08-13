@@ -109,7 +109,7 @@ export function EmploymentInformationForm({
   };
 
   const handleBranchChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const newBranch = event.target.value || undefined;
+    const newBranch = event.target.value;
     setBranch(newBranch);
 
     // Clear directorate if the new branch has no child directorates
