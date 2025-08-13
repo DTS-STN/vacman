@@ -4,7 +4,7 @@ import type { Result, Option } from 'oxide.ts';
 import { getProfileStatusService } from './profile-status-service';
 import { getUserService } from './user-service';
 
-import type { Profile, ProfileStatus, UserPersonalInformation } from '~/.server/domain/models';
+import type { Profile, ProfileStatus, SaveProfile, UserPersonalInformation } from '~/.server/domain/models';
 import type { ListProfilesParams, ProfileService } from '~/.server/domain/services/profile-service';
 import type { ProfileStatusCode } from '~/domain/constants';
 import {
@@ -58,7 +58,7 @@ export function getMockProfileService(): ProfileService {
 
       return Promise.resolve(None);
     },
-    updateProfileById: (accessToken: string, profile: Profile): Promise<Result<Profile, AppError>> => {
+    updateProfileById: (accessToken: string, profile: SaveProfile): Promise<Result<Profile, AppError>> => {
       const existingProfile = mockProfiles.find((p) => p.profileId === profile.profileId);
 
       if (!existingProfile) {

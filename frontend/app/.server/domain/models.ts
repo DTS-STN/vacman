@@ -176,3 +176,19 @@ export type UserReferralPreferences = {
   interestedInAlternationInd?: boolean;
   employmentTenureIds?: number[];
 };
+
+export type SaveProfile = Readonly<{
+  profileId: number;
+  userId: number;
+  userIdReviewedBy?: number;
+  userIdApprovedBy?: number;
+  priorityLevelId?: number;
+  privacyConsentInd?: boolean;
+  userCreated: string;
+  dateCreated: string;
+  userUpdated?: string;
+  dateUpdated?: string;
+  personalInformation: UserPersonalInformation;
+  employmentInformation: UserEmploymentInformation;
+  referralPreferences: UserReferralPreferences;
+}>;
