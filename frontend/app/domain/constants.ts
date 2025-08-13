@@ -75,14 +75,14 @@ export const PROFILE_STATUS_ARCHIVED = {
 } as const;
 
 export const PREFERRED_LANGUAGE_ENGLISH = {
-  id: 874190000,
+  id: 0,
   code: 'EN',
   nameEn: 'English',
   nameFr: 'Anglais',
 } as const;
 
 export const PREFERRED_LANGUAGE_FRENCH = {
-  id: 874190001,
+  id: 1,
   code: 'FR',
   nameEn: 'French',
   nameFr: 'Français',
