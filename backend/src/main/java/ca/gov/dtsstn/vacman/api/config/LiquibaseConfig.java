@@ -3,6 +3,7 @@ package ca.gov.dtsstn.vacman.api.config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,8 +29,7 @@ public class LiquibaseConfig {
 
 	private List<String> sortOutContexts(List<String> liquibaseContexts, String contextCheck)  {
 		if (liquibaseContexts == null) {
-			List<String> tempList = List.of(contextCheck);
-			return tempList;
+			return List.of(contextCheck);
 		} else {
 			List<String> javaTempList = new ArrayList<>(liquibaseContexts);
 			//if we find the context, return the array
@@ -49,8 +49,8 @@ public class LiquibaseConfig {
 	}
 
 	@Bean
-	public SpringLiquibase liquibase(LiquibaseProperties liquibaseProperties, DataSourceProperties dataSourceProperties) {
-		SpringLiquibase liquibase = new SpringLiquibase();
+	SpringLiquibase liquibase(LiquibaseProperties liquibaseProperties, DataSourceProperties dataSourceProperties) throws SQLException {
+		final SpringLiquibase liquibase = new SpringLiquibase();
 
 		liquibase.setDataSource(dataSource);
 		
@@ -60,7 +60,7 @@ public class LiquibaseConfig {
 		liquibase.setContexts("nil");
 
 		try {
-			String databaseUrl = dataSourceProperties.getUrl();
+			final String databaseUrl = dataSourceProperties.getUrl();
 
 			liquibase.setShouldRun(liquibaseProperties.isEnabled());
 
@@ -90,9 +90,7 @@ public class LiquibaseConfig {
 			return liquibase;
 		} catch (Exception e) {
 			// Handle exceptions
-			log.error("LiquibaseConfiguration Error: ", e);
+			throw new SQLException();
 		}
-
-		return liquibase;
 	}
 }
