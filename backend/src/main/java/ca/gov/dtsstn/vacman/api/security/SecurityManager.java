@@ -28,22 +28,32 @@ public class SecurityManager {
 		final var currentEntraId = SecurityUtils.getCurrentUserEntraId()
 			.orElseThrow(() -> new UnauthorizedException("Entra ID not found in security context"));
 
-		return profileService.getProfile(id)
+		final var profileEntraId = profileService.getProfile(id)
 			.map(ProfileEntity::getUser)
 			.map(UserEntity::getMicrosoftEntraId)
-			.map(currentEntraId::equals)
 			.orElseThrow(() -> new AccessDeniedException("Profile with id=[" + id + "] not found"));
+
+		if (!currentEntraId.equals(profileEntraId)) {
+			throw new AccessDeniedException("Current user's entraId [" + currentEntraId + "] does not match target profile's entraId [" + profileEntraId + "]");
+		}
+
+		return true;
 	}
 
 	public boolean canAccessUser(long id) {
 		final var currentEntraId = SecurityUtils.getCurrentUserEntraId()
 			.orElseThrow(() -> new UnauthorizedException("Entra ID not found in security context"));
 
-		return userService.getUserById(id)
+		final var userEntraId = userService.getUserById(id)
 			.map(UserEntity::getMicrosoftEntraId)
-			.map(currentEntraId::equals)
 			.orElseThrow(() -> new AccessDeniedException("User with id=[" + id + "] not found"));
-	}
+
+		if (!currentEntraId.equals(userEntraId)) {
+			throw new AccessDeniedException("Current user's entraId [" + currentEntraId + "] does not match target user's entraId [" + userEntraId + "]");
+		}
+
+		return true;
+}
 
 	public boolean targetProfileStatusIsApprovalOrArchived(String code) {
 		if (!AppConstants.ProfileStatusCodes.APPROVED.equals(code) && !AppConstants.ProfileStatusCodes.ARCHIVED.equals(code)) {
