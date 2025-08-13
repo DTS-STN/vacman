@@ -9,7 +9,6 @@ import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 import ca.gov.dtsstn.vacman.api.service.ProfileService;
 import ca.gov.dtsstn.vacman.api.service.UserService;
 import ca.gov.dtsstn.vacman.api.web.exception.UnauthorizedException;
-import ca.gov.dtsstn.vacman.api.web.model.ProfileStatusUpdateModel;
 
 @Component(SecurityManager.NAME)
 public class SecurityManager {
@@ -46,13 +45,20 @@ public class SecurityManager {
 			.orElseThrow(() -> new AccessDeniedException("User with id=[" + id + "] not found"));
 	}
 
-	public boolean targetProfileStatusIsApprovalOrArchived(ProfileStatusUpdateModel updatedProfileStatus) {
-		return AppConstants.ProfileStatusCodes.APPROVED.equals(updatedProfileStatus.getCode())
-			|| updatedProfileStatus.getCode().equals(AppConstants.ProfileStatusCodes.ARCHIVED);
+	public boolean targetProfileStatusIsApprovalOrArchived(String code) {
+		if (!AppConstants.ProfileStatusCodes.APPROVED.equals(code) && !AppConstants.ProfileStatusCodes.ARCHIVED.equals(code)) {
+			throw new AccessDeniedException("Profile status can only be set to 'approved' or 'archived");
+		}
+
+		return true;
 	}
 
-	public boolean targetProfileStatusIsPending(ProfileStatusUpdateModel updatedProfileStatus) {
-		return AppConstants.ProfileStatusCodes.PENDING.equals(updatedProfileStatus.getCode());
+	public boolean targetProfileStatusIsPending(String code) {
+		if (!AppConstants.ProfileStatusCodes.PENDING.equals(code)) {
+			throw new AccessDeniedException("Profile status can only be set to 'pending'");
+		}
+
+		return true;
 	}
 
 }
