@@ -59,7 +59,7 @@ export async function action({ context, request, params }: Route.ActionArgs) {
     PROFILE_STATUS_CODE.approved,
   );
   if (submitResult.isErr()) {
-    throw submitResult.unwrap();
+    throw submitResult.unwrapErr();
   }
 
   return {
