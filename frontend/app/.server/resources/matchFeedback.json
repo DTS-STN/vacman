@@ -1,0 +1,100 @@
+{
+  "content": [
+    {
+      "id": 0,
+      "code": "QA-QOA",
+      "nameEn": "Qualified - Accepted offer (indeterminate)",
+      "nameFr": "Qualifié - Offre accepté (indéterminé)",
+      "effectiveDate": "1970-01-01T00:00:00Z",
+      "expiryDate": null,
+      "createdBy": "system",
+      "createdDate": "2025-08-15T00:00:00Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-08-15T00:00:00Z"
+    },
+    {
+      "id": 1,
+      "code": "QNS",
+      "nameEn": "Qualififed - Not selected",
+      "nameFr": "Qualifié - Non-selectionné",
+      "effectiveDate": "1970-01-01T00:00:00Z",
+      "expiryDate": null,
+      "createdBy": "system",
+      "createdDate": "2025-08-15T00:00:00Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-08-15T00:00:00Z"
+    },
+    {
+      "id": 2,
+      "code": "QRO-QOR",
+      "nameEn": " - Refused offer",
+      "nameFr": "Qualifié - Offre refusée",
+      "effectiveDate": "1970-01-01T00:00:00Z",
+      "expiryDate": null,
+      "createdBy": "system",
+      "createdDate": "2025-08-15T00:00:00Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-08-15T00:00:00Z"
+    },
+    {
+      "id": 3,
+      "code": "NQC",
+      "nameEn": "Not  - Competency",
+      "nameFr": "Non-qualifié - Compétences",
+      "effectiveDate": "1970-01-01T00:00:00Z",
+      "expiryDate": null,
+      "createdBy": "system",
+      "createdDate": "2025-08-15T00:00:00Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-08-15T00:00:00Z"
+    },
+    {
+      "id": 4,
+      "code": "NQE",
+      "nameEn": "Not  - Education",
+      "nameFr": "Non-qualifié - Études",
+      "effectiveDate": "1970-01-01T00:00:00Z",
+      "expiryDate": null,
+      "createdBy": "system",
+      "createdDate": "2025-08-15T00:00:00Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-08-15T00:00:00Z"
+    },
+    {
+      "id": 5,
+      "code": "NQO-NQA",
+      "nameEn": "Not  - Other",
+      "nameFr": "Non-qualifié - Autre",
+      "effectiveDate": "1970-01-01T00:00:00Z",
+      "expiryDate": null,
+      "createdBy": "system",
+      "createdDate": "2025-08-15T00:00:00Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-08-15T00:00:00Z"
+    },
+    {
+      "id": 6,
+      "code": "NR-PR",
+      "nameEn": "No response",
+      "nameFr": "Pas de réponse",
+      "effectiveDate": "1970-01-01T00:00:00Z",
+      "expiryDate": null,
+      "createdBy": "system",
+      "createdDate": "2025-08-15T00:00:00Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-08-15T00:00:00Z"
+    },
+    {
+      "id": 7,
+      "code": "NI-PI",
+      "nameEn": "Not interested",
+      "nameFr": "Pas d'intérêt",
+      "effectiveDate": "1970-01-01T00:00:00Z",
+      "expiryDate": null,
+      "createdBy": "system",
+      "createdDate": "2025-08-15T00:00:00Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-08-15T00:00:00Z"
+    }
+  ]
+}
