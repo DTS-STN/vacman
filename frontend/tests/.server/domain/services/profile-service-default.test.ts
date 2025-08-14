@@ -138,7 +138,7 @@ describe('getDefaultProfileService', () => {
     it('should fetch, sanitize, and return profiles on success', async () => {
       // Arrange:
       vi.mocked(apiClient.get).mockResolvedValue(Ok(mockDirtyApiResponse));
-      const params = { accessToken: mockAccessToken, includeUserData: true };
+      const params = { accessToken: mockAccessToken };
 
       // Act
       const result = await profileService.listAllProfiles('mock-token', params);
@@ -156,7 +156,7 @@ describe('getDefaultProfileService', () => {
       // Arrange:
       const mockApiError = new AppError('API is down', ErrorCodes.VACMAN_API_ERROR);
       vi.mocked(apiClient.get).mockResolvedValue(Err(mockApiError));
-      const params = { accessToken: mockAccessToken, includeUserData: true };
+      const params = { accessToken: mockAccessToken };
 
       // Act & Assert
       await expect(profileService.listAllProfiles('mock-token', params)).rejects.toSatisfy((error: AppError) => {
@@ -171,7 +171,7 @@ describe('getDefaultProfileService', () => {
     it('should return Some(sanitizedProfiles) on success', async () => {
       // Arrange
       vi.mocked(apiClient.get).mockResolvedValue(Ok(mockDirtyApiResponse));
-      const params = { accessToken: mockAccessToken, includeUserData: true };
+      const params = { accessToken: mockAccessToken };
 
       // Act
       const result = await profileService.findAllProfiles('mock-token', params);
@@ -186,7 +186,7 @@ describe('getDefaultProfileService', () => {
       // Arrange
       const mockApiError = new AppError('API is down', ErrorCodes.VACMAN_API_ERROR);
       vi.mocked(apiClient.get).mockResolvedValue(Err(mockApiError));
-      const params = { accessToken: mockAccessToken, includeUserData: true };
+      const params = { accessToken: mockAccessToken };
 
       // Act
       const result = await profileService.findAllProfiles('mock-token', params);
