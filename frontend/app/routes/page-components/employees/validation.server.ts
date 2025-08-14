@@ -3,7 +3,6 @@ import * as v from 'valibot';
 import type { BaseSchema, BaseIssue } from 'valibot';
 
 import type { User } from '~/.server/domain/models';
-import { getBranchService } from '~/.server/domain/services/branch-service';
 import { getCityService } from '~/.server/domain/services/city-service';
 import { getClassificationService } from '~/.server/domain/services/classification-service';
 import { getDirectorateService } from '~/.server/domain/services/directorate-service';
@@ -14,6 +13,7 @@ import { getProvinceService } from '~/.server/domain/services/province-service';
 import { getUserService } from '~/.server/domain/services/user-service';
 import { getWFAStatuses } from '~/.server/domain/services/wfa-status-service';
 import { serverEnvironment } from '~/.server/environment';
+import { extractUniqueBranchesFromDirectoratesNonLocalized } from '~/.server/utils/directorate-utils';
 import { stringToIntegerSchema } from '~/.server/validation/string-to-integer-schema';
 import { EMPLOYEE_WFA_STATUS } from '~/domain/constants';
 import { getStartOfDayInTimezone, isDateInPastOrTodayInTimeZone, isValidDateString, toISODateString } from '~/utils/date-utils';
@@ -25,8 +25,8 @@ import { formString } from '~/utils/string-utils';
 const allLanguagesOfCorrespondence = await getLanguageForCorrespondenceService().listAll();
 const allSubstantivePositions = await getClassificationService().listAll();
 const allWfaStatus = await getWFAStatuses().listAll();
-const allBranchOrServiceCanadaRegions = await getBranchService().listAll();
 const allDirectorates = await getDirectorateService().listAll();
+const allBranchOrServiceCanadaRegions = extractUniqueBranchesFromDirectoratesNonLocalized(allDirectorates);
 const allProvinces = await getProvinceService().listAll();
 const allCities = await getCityService().listAll();
 const allLanguageReferralTypes = await getLanguageReferralTypeService().listAll();
@@ -46,13 +46,6 @@ async function getHrAdvisors(accessToken: string): Promise<User[]> {
 // Function to create employment information schema with HR advisors
 export async function createEmploymentInformationSchema(accessToken: string, formData?: FormData) {
   const hrAdvisors = await getHrAdvisors(accessToken);
-
-  // Check if the selected branch has any child directorates
-  const branchValue = formData?.get('branchOrServiceCanadaRegion');
-  const selectedBranchId = branchValue ? Number(branchValue) : null;
-  const hasChildDirectorates = selectedBranchId
-    ? allDirectorates.some((directorate) => directorate.parent?.id === selectedBranchId)
-    : false;
 
   return v.pipe(
     v.intersect([
@@ -75,28 +68,15 @@ export async function createEmploymentInformationSchema(accessToken: string, for
             ),
           ),
         ),
-        directorate: v.lazy(() => {
-          if (hasChildDirectorates) {
-            return v.pipe(
-              stringToIntegerSchema('app:employment-information.errors.directorate-required'),
-              v.picklist(
-                allDirectorates.map(({ id }) => id),
-                'app:employment-information.errors.directorate-required',
-              ),
-            );
-          } else {
-            // Make directorate optional if the branch has no children
-            return v.optional(
-              v.pipe(
-                v.union([
-                  v.literal(''), // Allow empty string
-                  v.pipe(stringToIntegerSchema(), v.picklist(allDirectorates.map(({ id }) => id))),
-                ]),
-                v.transform((input) => (input === '' ? undefined : input)), // Transform empty string to undefined
-              ),
-            );
-          }
-        }),
+        directorate: v.lazy(() =>
+          v.pipe(
+            stringToIntegerSchema('app:employment-information.errors.directorate-required'),
+            v.picklist(
+              allDirectorates.map(({ id }) => id),
+              'app:employment-information.errors.directorate-required',
+            ),
+          ),
+        ),
         provinceId: v.lazy(() =>
           v.pipe(
             stringToIntegerSchema('app:employment-information.errors.provinces-required'),

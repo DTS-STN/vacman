@@ -86,9 +86,6 @@ export function EmploymentInformationForm({
     children: id === 'select-option' ? t('form.select-option') : name,
   }));
 
-  // Check if the selected branch has any child directorates
-  const hasChildDirectorates = branch ? directorates.some((directorate) => directorate.parent?.id === Number(branch)) : false;
-
   const provinceOptions = [{ id: 'select-option', name: '' }, ...provinces].map(({ id, name }) => ({
     value: id === 'select-option' ? '' : String(id),
     children: id === 'select-option' ? t('form.select-option') : name,
@@ -165,7 +162,7 @@ export function EmploymentInformationForm({
               }
               className="w-full sm:w-1/2"
             />
-            {branch && hasChildDirectorates && (
+            {branch && (
               <InputSelect
                 id="directorate"
                 name="directorate"
@@ -178,14 +175,13 @@ export function EmploymentInformationForm({
                 className="w-full sm:w-1/2"
               />
             )}
-            {branch && !hasChildDirectorates && <input type="hidden" name="directorate" value="" />}
             <InputSelect
               className="w-full sm:w-1/2"
               id="province"
               name="province"
               label={t('employment-information.provinces')}
               options={provinceOptions}
-              errorMessage={t(extractValidationKey(formErrors?.province))}
+              errorMessage={t(extractValidationKey(formErrors?.provinceId))}
               value={province ?? ''}
               onChange={({ target }) => setProvince(target.value || undefined)}
               required
