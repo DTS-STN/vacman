@@ -86,9 +86,6 @@ export function EmploymentInformationForm({
     children: id === 'select-option' ? t('form.select-option') : name,
   }));
 
-  // Check if the selected branch has any child directorates
-  const hasChildDirectorates = branch ? directorates.some((directorate) => directorate.parent?.id === Number(branch)) : false;
-
   const provinceOptions = [{ id: 'select-option', name: '' }, ...provinces].map(({ id, name }) => ({
     value: id === 'select-option' ? '' : String(id),
     children: id === 'select-option' ? t('form.select-option') : name,
@@ -165,7 +162,7 @@ export function EmploymentInformationForm({
               }
               className="w-full sm:w-1/2"
             />
-            {branch && hasChildDirectorates && (
+            {branch && (
               <InputSelect
                 id="directorate"
                 name="directorate"
