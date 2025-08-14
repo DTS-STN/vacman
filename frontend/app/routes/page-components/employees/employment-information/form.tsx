@@ -178,14 +178,13 @@ export function EmploymentInformationForm({
                 className="w-full sm:w-1/2"
               />
             )}
-            {branch && !hasChildDirectorates && <input type="hidden" name="directorate" value="" />}
             <InputSelect
               className="w-full sm:w-1/2"
               id="province"
               name="province"
               label={t('employment-information.provinces')}
               options={provinceOptions}
-              errorMessage={t(extractValidationKey(formErrors?.province))}
+              errorMessage={t(extractValidationKey(formErrors?.provinceId))}
               value={province ?? ''}
               onChange={({ target }) => setProvince(target.value || undefined)}
               required

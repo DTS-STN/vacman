@@ -77,7 +77,7 @@ export async function createEmploymentInformationSchema(accessToken: string, for
             ),
           ),
         ),
-        province: v.lazy(() =>
+        provinceId: v.lazy(() =>
           v.pipe(
             stringToIntegerSchema('app:employment-information.errors.provinces-required'),
             v.picklist(
