@@ -98,8 +98,16 @@ public class ProfileEventListener {
 		final var profile = event.entity();
 		final var newStatus = profile.getProfileStatus();
 
+		// Get previous status entity from repository
+		final var previousStatus = profileStatusRepository.findById(event.previousStatusId()).orElse(null);
+
 		if (newStatus != null && AppConstants.ProfileStatusCodes.APPROVED.equals(newStatus.getCode())) {
 			sendApprovalNotification(profile);
+		} else if (previousStatus != null && 
+				  AppConstants.ProfileStatusCodes.INCOMPLETE.equals(previousStatus.getCode()) &&
+				  newStatus != null && 
+				  AppConstants.ProfileStatusCodes.PENDING.equals(newStatus.getCode())) {
+			sendPendingNotificationToHrAdvisor(profile);
 		}
 	}
 
@@ -113,5 +121,17 @@ public class ProfileEventListener {
 
 				notificationService.sendEmailNotification(email, profileId, name, ProfileStatus.APPROVED);
 			}, () -> log.warn("Could not send approval notification - no email address found for profile ID: {}", profile.getId()));
+	}
+
+	private void sendPendingNotificationToHrAdvisor(ProfileEntity profile) {
+		Optional.ofNullable(profile.getHrAdvisor())
+			.map(UserEntity::getBusinessEmailAddress)
+			.ifPresentOrElse(email -> {
+				final var profileId = profile.getId().toString();
+				final var user = profile.getUser();
+				final var name = String.format("%s %s", user.getFirstName(), user.getLastName());
+
+				notificationService.sendEmailNotification(email, profileId, name, ProfileStatus.PENDING);
+			}, () -> log.warn("Could not send pending notification - no HR advisor found for profile ID: {}", profile.getId()));
 	}
 }
