@@ -9,7 +9,7 @@ import type { Route } from './+types/referral-preferences';
 import type { Profile } from '~/.server/domain/models';
 import { getCityService } from '~/.server/domain/services/city-service';
 import { getClassificationService } from '~/.server/domain/services/classification-service';
-import { getEmploymentTenureService } from '~/.server/domain/services/employment-tenure-service';
+import { getEmploymentOpportunityTypeService } from '~/.server/domain/services/employment-opportunity-type-service';
 import { getLanguageReferralTypeService } from '~/.server/domain/services/language-referral-type-service';
 import { getProfileService } from '~/.server/domain/services/profile-service';
 import { getProvinceService } from '~/.server/domain/services/province-service';
@@ -49,7 +49,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     interestedInAlternationInd: formData.get('alternateOpportunity')
       ? formData.get('alternateOpportunity') === REQUIRE_OPTIONS.yes
       : undefined,
-    employmentTenureIds: formData.getAll('employmentTenures'),
+    employmentOpportunityIds: formData.getAll('employmentOpportunityIds'),
   });
 
   if (!parseResult.success) {
@@ -105,7 +105,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
   const localizedLanguageReferralTypesResult = await getLanguageReferralTypeService().listAllLocalized(lang);
   const localizedClassifications = await getClassificationService().listAllLocalized(lang);
-  const localizedEmploymentTenures = await getEmploymentTenureService().listAllLocalized(lang);
+  const localizedEmploymentOpportunities = await getEmploymentOpportunityTypeService().listAllLocalized(lang);
   const localizedProvinces = await getProvinceService().listAllLocalized(lang);
   const localizedCities = await getCityService().listAllLocalized(lang);
   const profileData: Profile = currentProfileOption.unwrap();
@@ -124,11 +124,11 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       workLocationCitiesIds: profileData.referralPreferences.workLocationCitiesIds,
       availableForReferralInd: profileData.referralPreferences.availableForReferralInd,
       interestedInAlternationInd: profileData.referralPreferences.interestedInAlternationInd,
-      employmentTenureIds: profileData.referralPreferences.employmentTenureIds,
+      employmentOpportunityIds: profileData.referralPreferences.employmentOpportunityIds,
     },
     languageReferralTypes: localizedLanguageReferralTypesResult,
     classifications: localizedClassifications,
-    employmentTenures: localizedEmploymentTenures,
+    employmentOpportunities: localizedEmploymentOpportunities,
     provinces: localizedProvinces,
     cities: localizedCities,
   };
@@ -150,7 +150,7 @@ export default function PersonalDetails({ loaderData, actionData, params }: Rout
           formErrors={errors}
           languageReferralTypes={loaderData.languageReferralTypes}
           classifications={loaderData.classifications}
-          employmentTenures={loaderData.employmentTenures}
+          employmentOpportunities={loaderData.employmentOpportunities}
           provinces={loaderData.provinces}
           cities={loaderData.cities}
           params={params}

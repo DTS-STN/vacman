@@ -226,7 +226,7 @@ let mockProfiles: Profile[] = [
       workLocationCitiesIds: [1, 2],
       availableForReferralInd: true,
       interestedInAlternationInd: false,
-      employmentTenureIds: [0, 1, 3],
+      employmentOpportunityIds: [0, 1, 3],
     },
   },
   {
@@ -269,7 +269,7 @@ let mockProfiles: Profile[] = [
       workLocationCitiesIds: undefined,
       availableForReferralInd: undefined,
       interestedInAlternationInd: undefined,
-      employmentTenureIds: undefined,
+      employmentOpportunityIds: undefined,
     },
   },
   {
@@ -312,7 +312,7 @@ let mockProfiles: Profile[] = [
       workLocationCitiesIds: [3],
       availableForReferralInd: false,
       interestedInAlternationInd: true,
-      employmentTenureIds: [2],
+      employmentOpportunityIds: [2],
     },
   },
   {
@@ -355,7 +355,7 @@ let mockProfiles: Profile[] = [
       workLocationCitiesIds: [4],
       availableForReferralInd: true,
       interestedInAlternationInd: false,
-      employmentTenureIds: [3],
+      employmentOpportunityIds: [3],
     },
   },
   {
@@ -398,7 +398,7 @@ let mockProfiles: Profile[] = [
       workLocationCitiesIds: [5],
       availableForReferralInd: true,
       interestedInAlternationInd: true,
-      employmentTenureIds: [1],
+      employmentOpportunityIds: [1],
     },
   },
   {
@@ -441,7 +441,7 @@ let mockProfiles: Profile[] = [
       workLocationCitiesIds: [6],
       availableForReferralInd: true,
       interestedInAlternationInd: false,
-      employmentTenureIds: [2],
+      employmentOpportunityIds: [2],
     },
   },
   {
@@ -484,7 +484,7 @@ let mockProfiles: Profile[] = [
       workLocationCitiesIds: [7],
       availableForReferralInd: false,
       interestedInAlternationInd: true,
-      employmentTenureIds: [3],
+      employmentOpportunityIds: [3],
     },
   },
   {
@@ -527,7 +527,7 @@ let mockProfiles: Profile[] = [
       workLocationCitiesIds: undefined,
       availableForReferralInd: undefined,
       interestedInAlternationInd: undefined,
-      employmentTenureIds: undefined,
+      employmentOpportunityIds: undefined,
     },
   },
   {
@@ -570,7 +570,7 @@ let mockProfiles: Profile[] = [
       workLocationCitiesIds: [8],
       availableForReferralInd: true,
       interestedInAlternationInd: false,
-      employmentTenureIds: [0],
+      employmentOpportunityIds: [0],
     },
   },
   {
@@ -613,7 +613,7 @@ let mockProfiles: Profile[] = [
       workLocationCitiesIds: [9],
       availableForReferralInd: false,
       interestedInAlternationInd: true,
-      employmentTenureIds: [1],
+      employmentOpportunityIds: [1],
     },
   },
   {
@@ -656,7 +656,7 @@ let mockProfiles: Profile[] = [
       workLocationCitiesIds: [10],
       availableForReferralInd: true,
       interestedInAlternationInd: false,
-      employmentTenureIds: [2],
+      employmentOpportunityIds: [2],
     },
   },
   {
@@ -699,7 +699,7 @@ let mockProfiles: Profile[] = [
       workLocationCitiesIds: [11],
       availableForReferralInd: true,
       interestedInAlternationInd: true,
-      employmentTenureIds: [3],
+      employmentOpportunityIds: [3],
     },
   },
   {
@@ -742,7 +742,7 @@ let mockProfiles: Profile[] = [
       workLocationCitiesIds: [12],
       availableForReferralInd: false,
       interestedInAlternationInd: false,
-      employmentTenureIds: [0],
+      employmentOpportunityIds: [0],
     },
   },
   {
@@ -785,7 +785,7 @@ let mockProfiles: Profile[] = [
       workLocationCitiesIds: [1, 2],
       availableForReferralInd: true,
       interestedInAlternationInd: false,
-      employmentTenureIds: [0, 1, 3],
+      employmentOpportunityIds: [0, 1, 3],
     },
   },
   {
@@ -828,7 +828,7 @@ let mockProfiles: Profile[] = [
       workLocationCitiesIds: [13],
       availableForReferralInd: true,
       interestedInAlternationInd: false,
-      employmentTenureIds: [1],
+      employmentOpportunityIds: [1],
     },
   },
 ];
@@ -895,7 +895,7 @@ function createMockProfile(accessToken: string): Profile {
       workLocationCitiesIds: [1, 2],
       availableForReferralInd: true,
       interestedInAlternationInd: false,
-      employmentTenureIds: [0, 1, 3],
+      employmentOpportunityIds: [0, 1, 3],
     },
   };
 
