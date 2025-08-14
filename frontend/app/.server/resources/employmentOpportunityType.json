@@ -2,111 +2,63 @@
   "content": [
     {
       "id": 0,
-      "code": "INTERNAL",
-      "nameEn": "Internal Opportunities",
-      "nameFr": "Opportunités internes",
+      "code": "ASSIGNMENT",
+      "nameEn": "Assignment",
+      "nameFr": "Affectation",
       "effectiveDate": "1970-01-01T00:00:00Z",
       "expiryDate": null,
       "createdBy": "system",
-      "createdDate": "2025-08-10T16:35:17.5766667Z",
+      "createdDate": "2025-08-14T17:26:29.2866667Z",
       "lastModifiedBy": "system",
-      "lastModifiedDate": "2025-08-10T16:35:17.5766667Z"
+      "lastModifiedDate": "2025-08-14T17:26:29.2866667Z"
     },
     {
       "id": 1,
-      "code": "EXTERNAL",
-      "nameEn": "External Opportunities",
-      "nameFr": "Opportunités externes",
+      "code": "TERM",
+      "nameEn": "Term employment",
+      "nameFr": "Emploi à durée déterminée",
       "effectiveDate": "1970-01-01T00:00:00Z",
       "expiryDate": null,
       "createdBy": "system",
-      "createdDate": "2025-08-10T16:35:17.5766667Z",
+      "createdDate": "2025-08-14T17:26:29.2866667Z",
       "lastModifiedBy": "system",
-      "lastModifiedDate": "2025-08-10T16:35:17.5766667Z"
+      "lastModifiedDate": "2025-08-14T17:26:29.2866667Z"
     },
     {
       "id": 2,
-      "code": "ADVERTISED",
-      "nameEn": "Advertised Processes",
-      "nameFr": "Processus annoncés",
+      "code": "LOWERLEVEL",
+      "nameEn": "Lower-level opportunities",
+      "nameFr": "Opportunités de niveau inférieur",
       "effectiveDate": "1970-01-01T00:00:00Z",
       "expiryDate": null,
       "createdBy": "system",
-      "createdDate": "2025-08-10T16:35:17.5766667Z",
+      "createdDate": "2025-08-14T17:26:29.2866667Z",
       "lastModifiedBy": "system",
-      "lastModifiedDate": "2025-08-10T16:35:17.5766667Z"
+      "lastModifiedDate": "2025-08-14T17:26:29.2866667Z"
     },
     {
       "id": 3,
-      "code": "NON_ADVERTISED",
-      "nameEn": "Non-Advertised Processes",
-      "nameFr": "Processus non annoncés",
+      "code": "PARTTIME",
+      "nameEn": "Part-time hours",
+      "nameFr": "Heures à temps-partiel",
       "effectiveDate": "1970-01-01T00:00:00Z",
       "expiryDate": null,
       "createdBy": "system",
-      "createdDate": "2025-08-10T16:35:17.5766667Z",
+      "createdDate": "2025-08-14T17:26:29.2866667Z",
       "lastModifiedBy": "system",
-      "lastModifiedDate": "2025-08-10T16:35:17.5766667Z"
+      "lastModifiedDate": "2025-08-14T17:26:29.2866667Z"
     },
     {
       "id": 4,
-      "code": "DEPLOYMENT",
-      "nameEn": "Deployment",
-      "nameFr": "Mutation",
+      "code": "NOTINTERESTED",
+      "nameEn": "Not interested",
+      "nameFr": "Pas intéressé",
       "effectiveDate": "1970-01-01T00:00:00Z",
       "expiryDate": null,
       "createdBy": "system",
-      "createdDate": "2025-08-10T16:35:17.5766667Z",
+      "createdDate": "2025-08-14T17:26:29.2866667Z",
       "lastModifiedBy": "system",
-      "lastModifiedDate": "2025-08-10T16:35:17.5766667Z"
-    },
-    {
-      "id": 5,
-      "code": "PROMOTION",
-      "nameEn": "Promotion",
-      "nameFr": "Promotion",
-      "effectiveDate": "1970-01-01T00:00:00Z",
-      "expiryDate": null,
-      "createdBy": "system",
-      "createdDate": "2025-08-10T16:35:17.5766667Z",
-      "lastModifiedBy": "system",
-      "lastModifiedDate": "2025-08-10T16:35:17.5766667Z"
-    },
-    {
-      "id": 6,
-      "code": "APPOINTMENT",
-      "nameEn": "Appointment",
-      "nameFr": "Nomination",
-      "effectiveDate": "1970-01-01T00:00:00Z",
-      "expiryDate": null,
-      "createdBy": "system",
-      "createdDate": "2025-08-10T16:35:17.5766667Z",
-      "lastModifiedBy": "system",
-      "lastModifiedDate": "2025-08-10T16:35:17.5766667Z"
-    },
-    {
-      "id": 7,
-      "code": "ACTING",
-      "nameEn": "Acting Assignment",
-      "nameFr": "Intérim",
-      "effectiveDate": "1970-01-01T00:00:00Z",
-      "expiryDate": null,
-      "createdBy": "system",
-      "createdDate": "2025-08-10T16:35:17.5766667Z",
-      "lastModifiedBy": "system",
-      "lastModifiedDate": "2025-08-10T16:35:17.5766667Z"
-    },
-    {
-      "id": 8,
-      "code": "SECONDMENT",
-      "nameEn": "Secondment",
-      "nameFr": "Détachement",
-      "effectiveDate": "1970-01-01T00:00:00Z",
-      "expiryDate": null,
-      "createdBy": "system",
-      "createdDate": "2025-08-10T16:35:17.5766667Z",
-      "lastModifiedBy": "system",
-      "lastModifiedDate": "2025-08-10T16:35:17.5766667Z"
+      "lastModifiedDate": "2025-08-14T17:26:29.2866667Z"
     }
   ]
 }
