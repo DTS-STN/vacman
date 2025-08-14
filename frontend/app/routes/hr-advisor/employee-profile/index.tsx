@@ -12,7 +12,7 @@ import { getBranchService } from '~/.server/domain/services/branch-service';
 import { getCityService } from '~/.server/domain/services/city-service';
 import { getClassificationService } from '~/.server/domain/services/classification-service';
 import { getDirectorateService } from '~/.server/domain/services/directorate-service';
-import { getEmploymentTenureService } from '~/.server/domain/services/employment-tenure-service';
+import { getEmploymentOpportunityTypeService } from '~/.server/domain/services/employment-opportunity-type-service';
 import { getLanguageReferralTypeService } from '~/.server/domain/services/language-referral-type-service';
 import { getProfileService } from '~/.server/domain/services/profile-service';
 import { getProfileStatusService } from '~/.server/domain/services/profile-status-service';
@@ -79,13 +79,13 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     allLocalizedLanguageReferralTypes,
     allClassifications,
     allLocalizedCities,
-    allLocalizedEmploymentTenures,
+    allLocalizedEmploymentOpportunities,
   ] = await Promise.all([
     getProfileService().getProfileById(context.session.authState.accessToken, Number(params.profileId)),
     getLanguageReferralTypeService().listAllLocalized(lang),
     getClassificationService().listAllLocalized(lang),
     getCityService().listAllLocalized(lang),
-    getEmploymentTenureService().listAllLocalized(lang),
+    getEmploymentOpportunityTypeService().listAllLocalized(lang),
     getWFAStatuses().listAll(),
   ]);
 
@@ -146,8 +146,8 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const cities = profileData.referralPreferences.workLocationCitiesIds
     ?.map((cityId) => allLocalizedCities.find((c) => c.id === cityId))
     .filter(Boolean);
-  const employmentTenures = profileData.referralPreferences.employmentTenureIds
-    ?.map((employmentTenureId) => allLocalizedEmploymentTenures.find((c) => c.id === employmentTenureId))
+  const employmentOpportunities = profileData.referralPreferences.employmentOpportunityIds
+    ?.map((employmentOpportunityId) => allLocalizedEmploymentOpportunities.find((c) => c.id === employmentOpportunityId))
     .filter(Boolean);
 
   return {
@@ -185,7 +185,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       workLocationCities: cities?.map((city) => city?.provinceTerritory.name + ' - ' + city?.name),
       referralAvailibility: profileData.referralPreferences.availableForReferralInd,
       alternateOpportunity: profileData.referralPreferences.interestedInAlternationInd,
-      employmentTenures: employmentTenures?.map((e) => e?.name),
+      employmentOpportunities: employmentOpportunities?.map((e) => e?.name),
     },
     lastUpdated: profileData.dateUpdated ? formatDateTime(profileData.dateUpdated) : '0000-00-00 00:00',
     lastUpdatedBy: profileUpdatedByUserName ?? 'Unknown User',
@@ -363,10 +363,10 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
                   : t('gcweb:input-option.no')}
             </DescriptionListItem>
             <DescriptionListItem term={t('app:referral-preferences.employment-tenure')}>
-              {loaderData.referralPreferences.employmentTenures === undefined
+              {loaderData.referralPreferences.employmentOpportunities === undefined
                 ? t('app:employee-profile.not-provided')
-                : loaderData.referralPreferences.employmentTenures.length > 0 &&
-                  loaderData.referralPreferences.employmentTenures.join(', ')}
+                : loaderData.referralPreferences.employmentOpportunities.length > 0 &&
+                  loaderData.referralPreferences.employmentOpportunities.join(', ')}
             </DescriptionListItem>
           </DescriptionList>
         </ProfileCard>

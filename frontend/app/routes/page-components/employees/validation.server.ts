@@ -7,7 +7,7 @@ import { getBranchService } from '~/.server/domain/services/branch-service';
 import { getCityService } from '~/.server/domain/services/city-service';
 import { getClassificationService } from '~/.server/domain/services/classification-service';
 import { getDirectorateService } from '~/.server/domain/services/directorate-service';
-import { getEmploymentTenureService } from '~/.server/domain/services/employment-tenure-service';
+import { getEmploymentOpportunityTypeService } from '~/.server/domain/services/employment-opportunity-type-service';
 import { getLanguageForCorrespondenceService } from '~/.server/domain/services/language-for-correspondence-service';
 import { getLanguageReferralTypeService } from '~/.server/domain/services/language-referral-type-service';
 import { getProvinceService } from '~/.server/domain/services/province-service';
@@ -30,7 +30,7 @@ const allDirectorates = await getDirectorateService().listAll();
 const allProvinces = await getProvinceService().listAll();
 const allCities = await getCityService().listAll();
 const allLanguageReferralTypes = await getLanguageReferralTypeService().listAll();
-const allEmploymentTenures = await getEmploymentTenureService().listAll();
+const allEmploymentOpportunities = await getEmploymentOpportunityTypeService().listAll();
 
 // Function to get HR advisors that requires authentication
 async function getHrAdvisors(accessToken: string): Promise<User[]> {
@@ -391,13 +391,13 @@ export const referralPreferencesSchema = v.object({
   ),
   availableForReferralInd: v.boolean('app:referral-preferences.errors.referral-availibility-required'),
   interestedInAlternationInd: v.boolean('app:referral-preferences.errors.alternate-opportunity-required'),
-  employmentTenureIds: v.pipe(
+  employmentOpportunityIds: v.pipe(
     v.array(
       v.lazy(() =>
         v.pipe(
           stringToIntegerSchema('app:referral-preferences.errors.employment-tenure-invalid'),
           v.picklist(
-            allEmploymentTenures.map((e) => e.id),
+            allEmploymentOpportunities.map((e) => e.id),
             'app:referral-preferences.errors.employment-tenure-invalid',
           ),
         ),

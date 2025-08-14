@@ -170,7 +170,7 @@ export type UserReferralPreferences = {
   workLocationCitiesIds?: number[];
   availableForReferralInd?: boolean;
   interestedInAlternationInd?: boolean;
-  employmentTenureIds?: number[];
+  employmentOpportunityIds?: number[];
 };
 
 export type SaveProfile = Readonly<{
