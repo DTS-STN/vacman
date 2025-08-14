@@ -20,10 +20,6 @@ public interface ProfileModelMapper {
 	@Mapping(source = "languageReferralTypes", target = "preferredLanguages")
 	ProfileReadModel toModel(ProfileEntity entity);
 
-	@Mapping(source = "user.id", target = "profileUser.id")
-	@Mapping(source = "hrAdvisor.id", target = "hrAdvisorId")
-	ProfileReadModel toModelNoUserData(ProfileEntity entity);
-
 	@Mapping(source = "city", target = ".")
 	CityReadModel toCityReadModel(ProfileCityEntity entity);
 
