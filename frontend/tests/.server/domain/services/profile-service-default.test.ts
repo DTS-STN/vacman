@@ -73,7 +73,7 @@ describe('getDefaultProfileService', () => {
       workLocationCitiesIds: [411290001, 411290002],
       availableForReferralInd: true,
       interestedInAlternationInd: false,
-      employmentTenureIds: [664190000, 664190001, 664190003],
+      employmentOpportunityIds: [664190000, 664190001, 664190003],
     },
   };
 
@@ -121,7 +121,7 @@ describe('getDefaultProfileService', () => {
       workLocationCitiesIds: [411290001, 411290002],
       availableForReferralInd: true,
       interestedInAlternationInd: false,
-      employmentTenureIds: [664190000, 664190001, 664190003],
+      employmentOpportunityIds: [664190000, 664190001, 664190003],
     },
   };
 
