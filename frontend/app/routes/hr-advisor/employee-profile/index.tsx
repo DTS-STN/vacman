@@ -119,12 +119,8 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       ? await getClassificationService().findLocalizedById(profileData.employmentInformation.substantivePosition, lang)
       : undefined;
   const cityResult =
-    profileData.employmentInformation.cityId !== undefined
-      ? await getCityService().findLocalizedById(profileData.employmentInformation.cityId, lang)
-      : undefined;
-  const wfaStatusResult =
-    profileData.employmentInformation.wfaStatus !== undefined
-      ? await getWFAStatuses().findLocalizedById(profileData.employmentInformation.wfaStatus, lang)
+    profileData.employmentInformation.city !== undefined
+      ? await getCityService().findLocalizedById(profileData.employmentInformation.city.id, lang)
       : undefined;
 
   // convert the IDs to display names
@@ -132,7 +128,6 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const branchOrServiceCanadaRegion = workUnitResult?.into()?.parent?.name ?? branchResult?.into()?.name;
   const directorate = workUnitResult?.into()?.name;
   const city = cityResult?.into();
-  const wfaStatus = wfaStatusResult?.into();
   const hrAdvisorResult = profileData.employmentInformation.hrAdvisor
     ? await getUserService().getUserById(profileData.employmentInformation.hrAdvisor, context.session.authState.accessToken)
     : undefined;
@@ -173,8 +168,11 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       directorate: directorate,
       province: city?.provinceTerritory.name,
       city: city?.name,
-      wfaStatus: wfaStatus?.name,
-      wfaStatusCode: wfaStatus?.code,
+      wfaStatus:
+        lang === 'en'
+          ? profileData.employmentInformation.wfaStatus?.nameEn
+          : profileData.employmentInformation.wfaStatus?.nameFr,
+      wfaStatusCode: profileData.employmentInformation.wfaStatus?.code,
       wfaEffectiveDate: profileData.employmentInformation.wfaEffectiveDate,
       wfaEndDate: profileData.employmentInformation.wfaEndDate,
       hrAdvisor: hrAdvisor && hrAdvisor.firstName + ' ' + hrAdvisor.lastName,

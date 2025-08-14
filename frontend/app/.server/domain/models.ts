@@ -156,9 +156,9 @@ export type UserEmploymentInformation = {
   substantivePosition?: number;
   branchOrServiceCanadaRegion?: number;
   directorate?: number;
-  province?: number;
-  cityId?: number;
-  wfaStatus?: number;
+  province?: Province;
+  city?: City;
+  wfaStatus?: WFAStatus;
   wfaEffectiveDate?: string;
   wfaEndDate?: string;
   hrAdvisor?: number;
@@ -204,9 +204,9 @@ export type SaveUserEmploymentInformation = {
   substantivePosition?: number;
   branchOrServiceCanadaRegion?: number;
   directorate?: number;
-  province?: number;
+  provinceId?: number;
   cityId?: number;
-  wfaStatus?: number;
+  wfaStatusId?: number;
   wfaEffectiveDate?: string;
   wfaEndDate?: string;
   hrAdvisor?: number;

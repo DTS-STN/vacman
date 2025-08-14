@@ -63,8 +63,8 @@ export function EmploymentInformationForm({
   const [directorate, setDirectorate] = useState(
     formValues?.directorate !== undefined ? String(formValues.directorate) : undefined,
   );
-  const [province, setProvince] = useState(formValues?.province !== undefined ? String(formValues.province) : undefined);
-  const [wfaStatusCode, setWfaStatusCode] = useState(wfaStatuses.find((c) => c.id === formValues?.wfaStatus)?.code);
+  const [province, setProvince] = useState(formValues?.province !== undefined ? String(formValues.province.id) : undefined);
+  const [wfaStatusCode, setWfaStatusCode] = useState(wfaStatuses.find((c) => c.id === formValues?.wfaStatus?.id)?.code);
 
   const substantivePositionOptions = [{ id: 'select-option', name: '' }, ...substantivePositions].map(({ id, name }) => ({
     value: id === 'select-option' ? '' : String(id),
@@ -127,7 +127,7 @@ export function EmploymentInformationForm({
     value: String(id),
     children: name,
     onChange: handleWFAStatusChange,
-    defaultChecked: formValues?.wfaStatus === id,
+    defaultChecked: formValues?.wfaStatus?.id === id,
   }));
 
   const hrAdvisorOptions = [{ id: 'select-option', uuName: '' }, ...hrAdvisors].map(({ id, uuName }) => ({
@@ -199,7 +199,7 @@ export function EmploymentInformationForm({
                   required
                   options={cityOptions}
                   label={t('employment-information.city')}
-                  defaultValue={formValues?.cityId !== undefined ? String(formValues.cityId) : ''}
+                  defaultValue={formValues?.city !== undefined ? String(formValues.city.id) : ''}
                   className="w-full sm:w-1/2"
                 />
               </>
