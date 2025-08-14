@@ -55,11 +55,6 @@ public class LiquibaseConfig {
 
 		liquibase.setShouldRun(liquibaseProperties.isEnabled());
 
-		if (databaseUrl == null ) {
-			// The context is currently nil, so return the liquibase object
-			throw new IllegalArgumentException("Empty database url: " + databaseUrl);
-		}
-
 		List<String> contexts = liquibaseProperties.getContexts();
 
 		// Ensure that the contexts are added if h2 or mssql is the database
