@@ -50,6 +50,33 @@ export function omitObjectProperties<T extends object, K extends keyof T>(obj: T
   return result;
 }
 
+/**
+ * Creates a new object by picking only the specified keys from a source object.
+ * Always returns an object. If the source is null, it returns an empty object.
+ * @param obj The source object to pick properties from.
+ * @param keysToKeep The array of property keys to include in the new object.
+ * @returns A new object with only the specified properties.
+ */
+export function pickObjectProperties<T extends object, K extends keyof T>(
+  obj: T | null | undefined,
+  keysToKeep: K[],
+): Pick<T, K> {
+  // If the source object is null or undefined, return an empty object.
+  if (!obj) {
+    return {} as Pick<T, K>; //
+  }
+
+  const result = {} as Pick<T, K>;
+
+  for (const key of keysToKeep) {
+    if (Object.prototype.hasOwnProperty.call(obj, key)) {
+      result[key] = obj[key];
+    }
+  }
+
+  return result;
+}
+
 export function hasEmploymentDataChanged(oldData: UserEmploymentInformation, newData: UserEmploymentInformation) {
   const keysToCheck: (keyof UserEmploymentInformation)[] = [
     'substantivePosition',

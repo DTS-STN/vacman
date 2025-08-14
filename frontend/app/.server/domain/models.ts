@@ -138,7 +138,13 @@ export type Profile = Readonly<{
   dateUpdated?: string;
   personalInformation: UserPersonalInformation;
   employmentInformation: UserEmploymentInformation;
-  referralPreferences: UserReferralPreferences;
+  languageReferralTypeIds?: number[];
+  classificationIds?: number[];
+  workLocationProvince?: number;
+  workLocationCitiesIds?: number[];
+  availableForReferralInd?: boolean;
+  interestedInAlternationInd?: boolean;
+  employmentOpportunityIds?: number[];
 }>;
 
 export type UserPersonalInformation = {
@@ -185,7 +191,13 @@ export type SaveProfile = Readonly<{
   dateUpdated?: string;
   personalInformation: SaveUserPersonalInformation;
   employmentInformation: SaveUserEmploymentInformation;
-  referralPreferences: SaveUserReferralPreferences;
+  languageReferralTypeIds?: number[];
+  classificationIds?: number[];
+  workLocationProvince?: number;
+  workLocationCitiesIds?: number[];
+  availableForReferralInd?: boolean;
+  interestedInAlternationInd?: boolean;
+  employmentOpportunityIds?: number[];
 }>;
 
 export type SaveUserPersonalInformation = {

@@ -68,7 +68,13 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 
   const updateResult = await profileService.updateProfileById(context.session.authState.accessToken, {
     ...profile,
-    referralPreferences: parseResult.output,
+    languageReferralTypeIds: parseResult.output.languageReferralTypeIds,
+    classificationIds: parseResult.output.classificationIds,
+    workLocationProvince: parseResult.output.workLocationProvince,
+    workLocationCitiesIds: parseResult.output.workLocationCitiesIds,
+    availableForReferralInd: parseResult.output.availableForReferralInd,
+    interestedInAlternationInd: parseResult.output.interestedInAlternationInd,
+    employmentOpportunityIds: parseResult.output.employmentOpportunityIds,
   });
 
   if (updateResult.isErr()) {
@@ -101,20 +107,20 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const profileData: Profile = profileResult.unwrap();
 
   const cityResult =
-    profileData.referralPreferences.workLocationCitiesIds?.[0] !== undefined &&
-    (await getCityService().findLocalizedById(profileData.referralPreferences.workLocationCitiesIds[0], lang)); //get the province from first city only to avoid validation error on province
+    profileData.workLocationCitiesIds?.[0] !== undefined &&
+    (await getCityService().findLocalizedById(profileData.workLocationCitiesIds[0], lang)); //get the province from first city only to avoid validation error on province
   const city = cityResult && cityResult.isSome() ? cityResult.unwrap() : undefined;
 
   return {
     documentTitle: t('app:referral-preferences.page-title'),
     defaultValues: {
-      languageReferralTypeIds: profileData.referralPreferences.languageReferralTypeIds,
-      classificationIds: profileData.referralPreferences.classificationIds,
+      languageReferralTypeIds: profileData.languageReferralTypeIds,
+      classificationIds: profileData.classificationIds,
       workLocationProvince: city?.provinceTerritory.id,
-      workLocationCitiesIds: profileData.referralPreferences.workLocationCitiesIds,
-      availableForReferralInd: profileData.referralPreferences.availableForReferralInd,
-      interestedInAlternationInd: profileData.referralPreferences.interestedInAlternationInd,
-      employmentOpportunityIds: profileData.referralPreferences.employmentOpportunityIds,
+      workLocationCitiesIds: profileData.workLocationCitiesIds,
+      availableForReferralInd: profileData.availableForReferralInd,
+      interestedInAlternationInd: profileData.interestedInAlternationInd,
+      employmentOpportunityIds: profileData.employmentOpportunityIds,
     },
     languageReferralTypes: localizedLanguageReferralTypesResult,
     classifications: localizedClassifications,

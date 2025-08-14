@@ -20,7 +20,7 @@ import { getUserService } from '~/.server/domain/services/user-service';
 import { getWFAStatuses } from '~/.server/domain/services/wfa-status-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { requirePrivacyConsentForOwnProfile } from '~/.server/utils/privacy-consent-utils';
-import { countCompletedItems, omitObjectProperties } from '~/.server/utils/profile-utils';
+import { countCompletedItems, omitObjectProperties, pickObjectProperties } from '~/.server/utils/profile-utils';
 import { AlertMessage } from '~/components/alert-message';
 import { Button } from '~/components/button';
 import { ButtonLink } from '~/components/button-link';
@@ -83,14 +83,22 @@ export async function action({ context, request }: Route.ActionArgs) {
           : []),
       ]);
 
+  const referralPreferencesFields = pickObjectProperties(profileData, [
+    'languageReferralTypeIds',
+    'classificationIds',
+    'workLocationProvince',
+    'workLocationCitiesIds',
+    'availableForReferralInd',
+    'interestedInAlternationInd',
+    'employmentOpportunityIds',
+  ]);
+
   // Check if all sections are complete
   const personalInfoComplete =
     countCompletedItems(requiredPersonalInformation) === Object.keys(requiredPersonalInformation).length;
   const employmentInfoComplete =
     countCompletedItems(requiredEmploymentInformation) === Object.keys(requiredEmploymentInformation).length;
-  const referralComplete =
-    countCompletedItems(profileData.referralPreferences) === Object.keys(profileData.referralPreferences).length;
-
+  const referralComplete = countCompletedItems(referralPreferencesFields) === Object.keys(referralPreferencesFields).length;
   // If any section is incomplete, return incomplete state
   if (!personalInfoComplete || !employmentInfoComplete || !referralComplete) {
     return {
@@ -191,16 +199,16 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     ? await getUserService().getUserById(profileData.employmentInformation.hrAdvisor, context.session.authState.accessToken)
     : undefined;
   const hrAdvisor = hrAdvisorResult?.into();
-  const languageReferralTypes = profileData.referralPreferences.languageReferralTypeIds
+  const languageReferralTypes = profileData.languageReferralTypeIds
     ?.map((langId) => allLocalizedLanguageReferralTypes.find((l) => l.id === langId))
     .filter(Boolean);
-  const classifications = profileData.referralPreferences.classificationIds
+  const classifications = profileData.classificationIds
     ?.map((classificationId) => allClassifications.find((c) => c.id === classificationId))
     .filter(Boolean);
-  const cities = profileData.referralPreferences.workLocationCitiesIds
+  const cities = profileData.workLocationCitiesIds
     ?.map((cityId) => allLocalizedCities.find((c) => c.id === cityId))
     .filter(Boolean);
-  const employmentOpportunities = profileData.referralPreferences.employmentOpportunityIds
+  const employmentOpportunities = profileData.employmentOpportunityIds
     ?.map((employmentOpportunityId) => allLocalizedEmploymentOpportunities.find((c) => c.id === employmentOpportunityId))
     .filter(Boolean);
 
@@ -240,8 +248,18 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const employmentInformationCompleted = countCompletedItems(requiredEmploymentInformation);
   const employmentInformationTotalFields = Object.keys(requiredEmploymentInformation).length;
 
-  const referralPreferencesCompleted = countCompletedItems(profileData.referralPreferences);
-  const referralPreferencesTotalFields = Object.keys(profileData.referralPreferences).length;
+  const referralPreferencesFields = pickObjectProperties(profileData, [
+    'languageReferralTypeIds',
+    'classificationIds',
+    'workLocationProvince',
+    'workLocationCitiesIds',
+    'availableForReferralInd',
+    'interestedInAlternationInd',
+    'employmentOpportunityIds',
+  ]);
+
+  const referralPreferencesCompleted = countCompletedItems(referralPreferencesFields);
+  const referralPreferencesTotalFields = Object.keys(referralPreferencesFields).length;
 
   const isCompletePersonalInformation = personalInformationCompleted === personalInformationTotalFeilds;
   const isCompleteEmploymentInformation = employmentInformationCompleted === employmentInformationTotalFields;
@@ -288,12 +306,12 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     },
     referralPreferences: {
       isComplete: isCompleteReferralPreferences,
-      isNew: countCompletedItems(profileData.referralPreferences) === 0,
+      isNew: countCompletedItems(referralPreferencesFields) === 0,
       languageReferralTypes: languageReferralTypes?.map((l) => l?.name),
       classifications: classifications?.map((c) => c?.name),
       workLocationCities: cities?.map((city) => city?.provinceTerritory.name + ' - ' + city?.name),
-      referralAvailibility: profileData.referralPreferences.availableForReferralInd,
-      alternateOpportunity: profileData.referralPreferences.interestedInAlternationInd,
+      referralAvailibility: profileData.availableForReferralInd,
+      alternateOpportunity: profileData.interestedInAlternationInd,
       employmentOpportunities: employmentOpportunities?.map((e) => e?.name),
     },
     lastUpdated: profileData.dateUpdated ? formatDateTime(profileData.dateUpdated) : '0000-00-00 00:00',
