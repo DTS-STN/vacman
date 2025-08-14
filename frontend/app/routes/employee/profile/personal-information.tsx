@@ -60,7 +60,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   // Get current user for complete user update
   const userService = getUserService();
   const currentUserOption = await userService.getCurrentUser(context.session.authState.accessToken);
-  const currentUser = currentUserOption.isSome() ? currentUserOption.unwrap() : undefined;
+  const currentUser = currentUserOption.into();
 
   // Extract workPhone for user update, remove it from profile data
   const { workPhone, ...personalInformationForProfile } = parseResult.output;
