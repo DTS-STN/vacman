@@ -37,6 +37,9 @@ export function extractUniqueBranchesFromDirectoratesNonLocalized(directorates: 
         directorate.parent !== null,
     )
     .map((directorate) => directorate.parent)
-    .filter((branch, index, array) => array.findIndex((b) => b.id === branch.id) === index)
+    .filter((() => {
+      const seen = new Set<string>();
+      return (branch: Branch) => !seen.has(branch.id) && !!seen.add(branch.id);
+    })())
     .sort((a, b) => a.nameEn.localeCompare(b.nameEn));
 }
