@@ -1,5 +1,6 @@
 package ca.gov.dtsstn.vacman.api.service;
 
+import static ca.gov.dtsstn.vacman.api.constants.AppConstants.ProfileStatusCodes.*;
 import static ca.gov.dtsstn.vacman.api.exception.ExceptionUtils.generateIdDoesNotExistException;
 import static ca.gov.dtsstn.vacman.api.security.SecurityUtils.getCurrentUserEntraId;
 
@@ -32,10 +33,10 @@ import ca.gov.dtsstn.vacman.api.web.model.ProfileReadModel;
 public class ProfileService {
 
 	/** A collection of active profile status codes. */
-	public static final Set<String> ACTIVE_PROFILE_STATUS = Set.of("APPROVED", "PENDING", "INCOMPLETE");
+	public static final Set<String> ACTIVE_PROFILE_STATUS = Set.of(APPROVED, PENDING);
 
 	/** A collection of inactive profile status codes. */
-	public static final Set<String> INACTIVE_PROFILE_STATUS = Set.of("ARCHIVED");
+	public static final Set<String> INACTIVE_PROFILE_STATUS = Set.of(INCOMPLETE, ARCHIVED);
 
 	private final ProfileRepository profileRepository;
 
