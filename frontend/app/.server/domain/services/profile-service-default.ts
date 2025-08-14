@@ -232,7 +232,11 @@ export function getDefaultProfileService(): ProfileService {
      * @returns A Promise resolving to Some(Profile) if found, or None if not found.
      */
     async getCurrentUserProfile(accessToken: string): Promise<Option<Profile>> {
-      const result = await apiClient.get<Profile>('/profiles/me?active=true', 'fetch current user profile', accessToken);
+      const result = await apiClient.get<ProfileApiResponse>(
+        '/profiles/me?active=true',
+        'fetch current user profile',
+        accessToken,
+      );
 
       if (result.isErr()) {
         const err = result.unwrapErr();
@@ -244,7 +248,18 @@ export function getDefaultProfileService(): ProfileService {
         throw err;
       }
 
-      const profile = result.unwrap();
+      const response = result.unwrap();
+
+      // The API returns { content: [profile] }, extract the first profile
+      if (response.content.length === 0) {
+        return None;
+      }
+
+      const profile = response.content[0];
+      if (!profile) {
+        return None;
+      }
+
       return Some(profile);
     },
   };
