@@ -134,6 +134,10 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 
   const profileData: Profile = profileResult.unwrap();
 
+  // Fetch the profile user data to get current businessEmail and other user info
+  const profileUserResult = await getUserService().getUserById(profileData.userId, context.session.authState.accessToken);
+  const profileUser = profileUserResult.into();
+
   const profileUpdatedByUserResult = profileData.userUpdated
     ? await getUserService().getUserById(profileData.userId, context.session.authState.accessToken)
     : undefined;
@@ -188,7 +192,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   return {
     documentTitle: t('app:employee-profile.page-title'),
     name: `${profileData.personalInformation.givenName} ${profileData.personalInformation.surname}`,
-    email: profileData.personalInformation.workEmail,
+    email: profileUser?.businessEmail ?? profileData.personalInformation.workEmail,
     profileStatus,
     personalInformation: {
       personalRecordIdentifier: profileData.personalInformation.personalRecordIdentifier,
@@ -196,9 +200,9 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
         lang === 'en'
           ? profileData.personalInformation.preferredLanguage?.nameEn
           : profileData.personalInformation.preferredLanguage?.nameFr,
-      workEmail: profileData.personalInformation.workEmail,
+      workEmail: profileUser?.businessEmail ?? profileData.personalInformation.workEmail,
       personalEmail: profileData.personalInformation.personalEmail,
-      workPhone: profileData.personalInformation.workPhone,
+      workPhone: profileUser?.businessPhone ?? profileData.personalInformation.workPhone,
       personalPhone: profileData.personalInformation.personalPhone,
       additionalInformation: profileData.personalInformation.additionalInformation,
     },
