@@ -138,7 +138,8 @@ export function getMockProfileService(): ProfileService {
       // Simulate 'hrAdvisorId' filter
       if (params.hrAdvisorId) {
         // The mock doesn't know about "me", so we just filter by the string ID.
-        filtered = filtered.filter((p) => p.employmentInformation.hrAdvisor === params.hrAdvisorId);
+        const currentUser = await getUserService().getCurrentUser('mock-token');
+        filtered = filtered.filter((p) => p.employmentInformation.hrAdvisor === currentUser.unwrap().id);
       }
 
       // Simulate 'includeUserData' transformation
@@ -646,7 +647,7 @@ let mockProfiles: Profile[] = [
       wfaStatus: 1,
       wfaEffectiveDate: undefined,
       wfaEndDate: undefined,
-      hrAdvisor: 5,
+      hrAdvisor: 1,
     },
     referralPreferences: {
       languageReferralTypeIds: [2],

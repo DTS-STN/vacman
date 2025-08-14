@@ -221,5 +221,6 @@ export default {
   'hr-advisor-dashboard': {
     'page-title': 'HR Advisor Dashboard',
     'all-employees': 'All employees',
+    'my-employees': 'My employees',
   },
 };
