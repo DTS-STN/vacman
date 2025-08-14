@@ -17,10 +17,10 @@ import queryClient from '~/query-client';
  * @private
  */
 async function getAllProfiles(params: ListProfilesParams): Promise<Result<readonly (Profile | null | undefined)[], AppError>> {
-  const { accessToken, active, hrAdvisorId, includeUserData } = params;
+  const { accessToken, active, hrAdvisorId } = params;
   // The query key MUST be unique for every combination of parameters
   // to prevent cache collisions. An object ensures the key is stable.
-  const queryKey = ['profiles', 'list', { active, hrAdvisorId, includeUserData, accessToken }];
+  const queryKey = ['profiles', 'list', { active, hrAdvisorId, accessToken }];
 
   const queryFn = async (): Promise<readonly (Profile | null | undefined)[]> => {
     const searchParams = new URLSearchParams();
@@ -32,8 +32,6 @@ async function getAllProfiles(params: ListProfilesParams): Promise<Result<readon
     if (hrAdvisorId) {
       searchParams.append('hr-advisor', hrAdvisorId);
     }
-
-    searchParams.append('user-data', String(includeUserData));
 
     const queryString = searchParams.toString();
     const endpoint = `/profiles${queryString ? `?${queryString}` : ''}`;
