@@ -1,6 +1,7 @@
 import type { JSX } from 'react';
 
 import type { RouteHandle } from 'react-router';
+import { useSearchParams } from 'react-router';
 
 import type { ColumnDef } from '@tanstack/react-table';
 import { format } from 'date-fns';
@@ -12,8 +13,8 @@ import type { Profile } from '~/.server/domain/models';
 import { getProfileService } from '~/.server/domain/services/profile-service';
 import { getProfileStatusService } from '~/.server/domain/services/profile-status-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
-import { Button } from '~/components/button';
 import { DataTable, DataTableColumnHeader, DataTableColumnHeaderWithOptions } from '~/components/data-table';
+import { InputSelect } from '~/components/input-select';
 import { InlineLink } from '~/components/links';
 import { PageTitle } from '~/components/page-title';
 import { PROFILE_STATUS_CODE } from '~/domain/constants';
@@ -33,10 +34,13 @@ export async function loader({ context, request }: Route.LoaderArgs) {
 
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
 
+  // Filter profiles based on hr-advisor selection. Options 'My Employees' or 'All employees'
+  const url = new URL(request.url);
+  const filter = url.searchParams.get('filter');
   const profileParams = {
     accessToken: context.session.authState.accessToken,
     active: true, // will return In Progress, Pending Approval and Approved
-    hrAdvisorId: null, // if null : will return everything, if a UserId : will return profiles linked to that hr-advisor, if "me" : will return profiles linked to the logged in hr-advisor -> to be used later in filtering
+    hrAdvisorId: filter === 'me' ? filter : null, // 'me' is used in the API to filter for the current HR advisor
     includeUserData: true, // will add user data (names and email)
   };
 
@@ -48,21 +52,9 @@ export async function loader({ context, request }: Route.LoaderArgs) {
     profileStatusService.listAllLocalized(lang),
   ]);
 
-  const hrRelevantEmployeeStatusCodes = [PROFILE_STATUS_CODE.approved, PROFILE_STATUS_CODE.pending];
-  const statusIds = statuses
-    .filter((s) =>
-      hrRelevantEmployeeStatusCodes.includes(
-        s.code as typeof PROFILE_STATUS_CODE.approved | typeof PROFILE_STATUS_CODE.pending,
-      ),
-    )
-    .map((s) => s.id);
-
-  // Filter profiles based on allowed status codes
-  const filteredProfiles = profiles.filter((profile) => statusIds.includes(profile.profileStatus.id));
-
   return {
     documentTitle: t('app:index.employees'),
-    profiles: filteredProfiles,
+    profiles: [...profiles],
     statuses,
   };
 }
@@ -70,7 +62,20 @@ export async function loader({ context, request }: Route.LoaderArgs) {
 export default function EmployeeDashboard({ loaderData, params }: Route.ComponentProps) {
   const { t } = useTranslation(handle.i18nNamespace);
 
+  const [, setSearchParams] = useSearchParams({ filter: 'all' });
+
   const statusMap = Object.fromEntries(loaderData.statuses.map((s) => [s.id, s.name]));
+
+  const employeesOptions = [
+    {
+      value: 'me',
+      children: t('app:hr-advisor-dashboard.my-employees'),
+    },
+    {
+      value: 'all',
+      children: t('app:hr-advisor-dashboard.all-employees'),
+    },
+  ];
 
   const columns: ColumnDef<Profile>[] = [
     {
@@ -147,10 +152,19 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
   return (
     <div className="mb-8">
       <PageTitle className="after:w-14">{t('app:index.employees')}</PageTitle>
-      {/* TODO:  This button should select between "My employees" and "All employees" in case an HR advisor needs to pick up an employee assigned to the wrong advisor*/}
-      <Button variant="alternative" className="float-right my-4">
-        {t('app:employee-dashboard.all-employees')}
-      </Button>
+
+      <InputSelect
+        id="selectEmployees"
+        name="selectEmployees"
+        errorMessage=""
+        required={false}
+        options={employeesOptions}
+        label=""
+        defaultValue="all"
+        onChange={({ target }) => setSearchParams({ filter: target.value })}
+        className="wx-1/12 float-right my-4 sm:w-1/5"
+      />
+
       <DataTable columns={columns} data={loaderData.profiles} />
     </div>
   );
