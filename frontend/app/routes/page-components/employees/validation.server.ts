@@ -68,13 +68,13 @@ export async function createEmploymentInformationSchema(accessToken: string, for
             ),
           ),
         ),
-        directorate: v.optional(
+        directorate: v.lazy(() =>
           v.pipe(
-            v.union([
-              v.literal(''), // Allow empty string
-              v.pipe(stringToIntegerSchema(), v.picklist(allDirectorates.map(({ id }) => id))),
-            ]),
-            v.transform((input) => (input === '' ? undefined : input)), // Transform empty string to undefined
+            stringToIntegerSchema('app:employment-information.errors.directorate-required'),
+            v.picklist(
+              allDirectorates.map(({ id }) => id),
+              'app:employment-information.errors.directorate-required',
+            ),
           ),
         ),
         province: v.lazy(() =>
