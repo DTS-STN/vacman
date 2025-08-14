@@ -104,7 +104,8 @@ public class ProfileEventListener {
 		if (newStatus != null && AppConstants.ProfileStatusCodes.APPROVED.equals(newStatus.getCode())) {
 			sendApprovalNotification(profile);
 		} else if (previousStatus != null && 
-				  AppConstants.ProfileStatusCodes.INCOMPLETE.equals(previousStatus.getCode()) &&
+				  (AppConstants.ProfileStatusCodes.INCOMPLETE.equals(previousStatus.getCode()) ||
+				   AppConstants.ProfileStatusCodes.APPROVED.equals(previousStatus.getCode())) &&
 				  newStatus != null && 
 				  AppConstants.ProfileStatusCodes.PENDING.equals(newStatus.getCode())) {
 			sendPendingNotificationToHrAdvisor(profile);
