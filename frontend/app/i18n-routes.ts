@@ -158,14 +158,6 @@ export const i18nRoutes = [
         },
       },
       {
-        id: 'HIRE-0001',
-        file: 'routes/hiring-manager/index.tsx', //TODO: use employee-dashboard.tsx
-        paths: {
-          en: '/en/hiring-manager',
-          fr: '/fr/gestionnaire-embauche',
-        },
-      },
-      {
         id: 'HRAD-0001',
         file: 'routes/hr-advisor/index.tsx',
         paths: {
@@ -211,6 +203,86 @@ export const i18nRoutes = [
         paths: {
           en: '/en/hr-advisor/employee-profile/referral-preferences/:profileId',
           fr: '/fr/hr-advisor/employe-profil/préférences-de-référence/:profileId',
+        },
+      },
+      {
+        id: 'HIRE-0001',
+        file: 'routes/hiring-manager/index.tsx',
+        paths: {
+          en: '/en/hiring-manager',
+          fr: '/fr/gestionnaire-embauche',
+        },
+      },
+      {
+        id: 'HIRE-0002',
+        file: 'routes/hiring-manager/requests.tsx',
+        paths: {
+          en: '/en/hiring-manager/requests',
+          fr: '/fr/gestionnaire-embauche/demandes',
+        },
+      },
+      {
+        id: 'HIRE-0003',
+        file: 'routes/hiring-manager/request/index.tsx',
+        paths: {
+          en: '/en/hiring-manager/request/:requestId',
+          fr: '/fr/gestionnaire-embauche/demande/:requestId',
+        },
+      },
+      {
+        id: 'HIRE-0004',
+        file: 'routes/hiring-manager/request/process-information.tsx',
+        paths: {
+          en: '/en/hiring-manager/request/:requestId/process-information',
+          fr: '/fr/gestionnaire-embauche/demande/:requestId/informations-processus',
+        },
+      },
+      {
+        id: 'HIRE-0005',
+        file: 'routes/hiring-manager/request/position-information.tsx',
+        paths: {
+          en: '/en/hiring-manager/request/:requestId/position-information',
+          fr: '/fr/gestionnaire-embauche/demande/:requestId/informations-poste',
+        },
+      },
+      {
+        id: 'HIRE-0006',
+        file: 'routes/hiring-manager/request/somc-conditions.tsx',
+        paths: {
+          en: '/en/hiring-manager/request/:requestId/somc-conditions',
+          fr: '/fr/gestionnaire-embauche/demande/:requestId/cmc-conditions',
+        },
+      },
+      {
+        id: 'HIRE-0007',
+        file: 'routes/hiring-manager/request/submission-details.tsx',
+        paths: {
+          en: '/en/hiring-manager/request/:requestId/submission-details',
+          fr: '/fr/gestionnaire-embauche/demande/:requestId/details-soumission',
+        },
+      },
+      {
+        id: 'HIRE-0008',
+        file: 'routes/hiring-manager/request/matches.tsx',
+        paths: {
+          en: '/en/hiring-manager/request/:requestId/matches',
+          fr: '/fr/gestionnaire-embauche/demande/:requestId/correspondances',
+        },
+      },
+      {
+        id: 'HIRE-0009',
+        file: 'routes/hiring-manager/request/profile.tsx',
+        paths: {
+          en: '/en/hiring-manager/request/:requestId/profile/:profileId',
+          fr: '/fr/gestionnaire-embauche/demande/:requestId/profil/:profileId',
+        },
+      },
+      {
+        id: 'HIRE-0010',
+        file: 'routes/hiring-manager/request/match.tsx',
+        paths: {
+          en: '/en/hiring-manager/request/:requestId/match/:profileId',
+          fr: '/fr/gestionnaire-embauche/demande/:requestId/correspondance/:profileId',
         },
       },
     ],
