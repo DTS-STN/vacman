@@ -19,12 +19,14 @@ import { getProfileStatusService } from '~/.server/domain/services/profile-statu
 import { getUserService } from '~/.server/domain/services/user-service';
 import { getWFAStatuses } from '~/.server/domain/services/wfa-status-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
+import { countCompletedItems, omitObjectProperties } from '~/.server/utils/profile-utils';
+import { AlertMessage } from '~/components/alert-message';
 import { Button } from '~/components/button';
 import { DescriptionList, DescriptionListItem } from '~/components/description-list';
 import { InlineLink } from '~/components/links';
 import { ProfileCard } from '~/components/profile-card';
 import { StatusTag } from '~/components/status-tag';
-import { EMPLOYEE_WFA_STATUS } from '~/domain/constants';
+import { EMPLOYEE_WFA_STATUS, PROFILE_STATUS_CODE } from '~/domain/constants';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
 import { formatDateTime } from '~/utils/date-utils';
@@ -37,12 +39,72 @@ export function meta({ loaderData }: Route.MetaArgs) {
   return [{ title: loaderData?.documentTitle }];
 }
 
-export function action({ context, request }: Route.ActionArgs) {
+export async function action({ context, request, params }: Route.ActionArgs) {
   requireAuthentication(context.session, request);
 
-  //TODO: add logic to approve employee profile
+  const profileResult = await getProfileService().getProfileById(
+    context.session.authState.accessToken,
+    Number(params.profileId),
+  );
 
-  return {};
+  if (profileResult.isErr()) {
+    throw new Response('Profile not found', { status: 404 });
+  }
+
+  const profileData: Profile = profileResult.unwrap();
+  const allWfaStatus = await getWFAStatuses().listAll();
+
+  const requiredPersonalInformation = omitObjectProperties(profileData.personalInformation, [
+    'workPhone',
+    'additionalInformation',
+  ]);
+  const validWFAStatusesForOptionalDate = [EMPLOYEE_WFA_STATUS.affected] as const;
+  const selectedValidWfaStatusesForOptionalDate = allWfaStatus
+    .filter((c) => validWFAStatusesForOptionalDate.toString().includes(c.code))
+    .map((status) => ({
+      id: status.id,
+      code: status.code,
+      nameEn: status.nameEn,
+      nameFr: status.nameFr,
+    }));
+  const isWfaDateOptional = selectedValidWfaStatusesForOptionalDate.some(
+    (status) => status.id === profileData.employmentInformation.wfaStatus,
+  );
+  const requiredEmploymentInformation = isWfaDateOptional
+    ? omitObjectProperties(profileData.employmentInformation, ['wfaEndDate', 'wfaEffectiveDate']) // If status is "Affected", omit the effective date
+    : omitObjectProperties(profileData.employmentInformation, ['wfaEndDate']);
+
+  // Check if all sections are complete
+  const personalInfoComplete =
+    countCompletedItems(requiredPersonalInformation) === Object.keys(requiredPersonalInformation).length;
+  const employmentInfoComplete =
+    countCompletedItems(requiredEmploymentInformation) === Object.keys(requiredEmploymentInformation).length;
+  const referralComplete =
+    countCompletedItems(profileData.referralPreferences) === Object.keys(profileData.referralPreferences).length;
+
+  // If any section is incomplete, return incomplete state
+  if (!personalInfoComplete || !employmentInfoComplete || !referralComplete) {
+    return {
+      personalInfoComplete,
+      employmentInfoComplete,
+      referralComplete,
+    };
+  }
+
+  // If all complete, submit for review
+  const submitResult = await getProfileService().updateProfileStatus(
+    context.session.authState.accessToken,
+    profileData.userId.toString(),
+    PROFILE_STATUS_CODE.approved,
+  );
+  if (submitResult.isErr()) {
+    throw submitResult.unwrap();
+  }
+
+  return {
+    status: 'submitted',
+    profileStatus: submitResult.unwrap().id,
+  };
 }
 
 export async function loader({ context, request, params }: Route.LoaderArgs) {
@@ -196,6 +258,18 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
           <p className="mt-12">{t('app:employee-profile.about-para-1')}</p>
         </div>
       </div>
+
+      {actionData && (
+        <AlertMessage
+          ref={alertRef}
+          type={loaderData.profileStatus.code === PROFILE_STATUS_CODE.approved ? 'success' : 'error'}
+          message={
+            loaderData.profileStatus.code === PROFILE_STATUS_CODE.approved
+              ? t('app:profile.hr-approved')
+              : t('app:profile.profile-incomplete')
+          }
+        />
+      )}
 
       <div className="mt-8 max-w-prose space-y-10">
         <ProfileCard
