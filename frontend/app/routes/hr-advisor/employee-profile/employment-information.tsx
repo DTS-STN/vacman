@@ -105,9 +105,10 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const profileData: Profile = profileResult.unwrap();
 
   const workUnitResult =
-    profileData.employmentInformation.directorate !== undefined &&
-    (await getDirectorateService().findLocalizedById(profileData.employmentInformation.directorate, lang));
-  const workUnit = workUnitResult ? workUnitResult.into() : undefined;
+    profileData.employmentInformation.directorate !== undefined
+      ? await getDirectorateService().findLocalizedById(profileData.employmentInformation.directorate, lang)
+      : undefined;
+  const workUnit = workUnitResult?.into();
 
   return {
     documentTitle: t('app:employment-information.page-title'),

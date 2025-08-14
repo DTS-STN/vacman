@@ -70,15 +70,16 @@ export function getMockProfileService(): ProfileService {
         return Promise.resolve(Err(new AppError('Profile not found', ErrorCodes.PROFILE_NOT_FOUND)));
       }
       const preferredLanguageResult =
-        profile.personalInformation.preferredLanguageId !== undefined &&
-        (await getMockLanguageForCorrespondenceService().findById(profile.personalInformation.preferredLanguageId));
-      const preferredLanguage =
-        preferredLanguageResult && preferredLanguageResult.isSome() ? preferredLanguageResult.unwrap() : undefined;
+        profile.personalInformation.preferredLanguageId !== undefined
+          ? await getMockLanguageForCorrespondenceService().findById(profile.personalInformation.preferredLanguageId)
+          : undefined;
+      const preferredLanguage = preferredLanguageResult?.into();
 
       const wfaStatusResult =
-        profile.employmentInformation.wfaStatusId !== undefined &&
-        (await getMockWFAStatusService().findById(profile.employmentInformation.wfaStatusId));
-      const wfaStatus = wfaStatusResult && wfaStatusResult.isSome() ? wfaStatusResult.unwrap() : undefined;
+        profile.employmentInformation.wfaStatusId !== undefined
+          ? await getMockWFAStatusService().findById(profile.employmentInformation.wfaStatusId)
+          : undefined;
+      const wfaStatus = wfaStatusResult?.into();
 
       const provinceResult =
         profile.employmentInformation.provinceId !== undefined && (await getMockProvinceService().listAll());
