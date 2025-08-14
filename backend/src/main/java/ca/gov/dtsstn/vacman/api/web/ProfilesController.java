@@ -86,11 +86,7 @@ public class ProfilesController {
 
 			@RequestParam(name = "hr-advisor", required = false)
 			@Parameter(name = "hr-advisor", description = "Return only the profiles that are associated with the HR advisor")
-			String hrAdvisor,
-
-			@RequestParam(name = "user-data", defaultValue = "false")
-			@Parameter(name = "user-data", description = "Return user first name, last name, and email address with profile")
-			boolean wantUserData) {
+			String hrAdvisor) {
 		// Determine the advisor ID based on the advisor param (or lack thereof).
 		Long hrAdvisorId;
 
@@ -111,7 +107,7 @@ public class ProfilesController {
 
 		// Determine the mapping function to use.
 		final var profiles = profileService.getProfilesByStatusAndHrId(PageRequest.of(page, size), isActive, hrAdvisorId)
-			.map((wantUserData) ? profileModelMapper::toModel : profileModelMapper::toModelNoUserData);
+			.map(profileModelMapper::toModel);
 
 		return ResponseEntity.ok(new PagedModel<>(profiles));
 	}
@@ -128,7 +124,7 @@ public class ProfilesController {
 			.orElseThrow(() -> new UnauthorizedException("Entra ID not found in security context"));
 
 		final var profiles = profileService.getProfilesByEntraId(entraId, isActive).stream()
-			.map(profileModelMapper::toModelNoUserData)
+			.map(profileModelMapper::toModel)
 			.toList();
 
 		return ResponseEntity.ok(new CollectionModel<>(profiles));
@@ -191,7 +187,7 @@ public class ProfilesController {
 
 		final var updatedEntity = profileService.updateProfile(updatedProfile, foundProfile);
 
-		return ResponseEntity.ok(profileModelMapper.toModelNoUserData(updatedEntity));
+		return ResponseEntity.ok(profileModelMapper.toModel(updatedEntity));
 	}
 
 	@PutMapping(path = "/{id}/status")

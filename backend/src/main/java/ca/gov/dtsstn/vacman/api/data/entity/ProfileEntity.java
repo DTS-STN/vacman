@@ -36,6 +36,12 @@ public class ProfileEntity extends AbstractBaseEntity {
 	@JoinColumn(name = "[WFA_STATUS_ID]", nullable = true)
 	private WfaStatusEntity wfaStatus;
 
+	@Column(name = "[WFA_START_DATE]")
+	private Instant wfaStartDate;
+
+	@Column(name = "[WFA_END_DATE]")
+	private Instant wfaEndDate;
+
 	@ManyToOne
 	@JoinColumn(name = "[CLASSIFICATION_ID]", nullable = true)
 	private ClassificationEntity classification;
@@ -101,6 +107,8 @@ public class ProfileEntity extends AbstractBaseEntity {
 			@Nullable CityEntity city,
 			@Nullable PriorityLevelEntity priorityLevel,
 			@Nullable WorkUnitEntity workUnit,
+			@Nullable Instant wfaStartDate,
+			@Nullable Instant wfaEndDate,
 			@Nullable LanguageEntity language,
 			@Nullable ProfileStatusEntity profileStatus,
 			@Nullable String personalPhoneNumber,
@@ -117,6 +125,8 @@ public class ProfileEntity extends AbstractBaseEntity {
 		this.user = user;
 		this.hrAdvisor = hrAdvisor;
 		this.wfaStatus = wfaStatus;
+		this.wfaStartDate = wfaStartDate;
+		this.wfaEndDate = wfaEndDate;
 		this.classification = classification;
 		this.city = city;
 		this.workUnit = workUnit;
@@ -152,6 +162,22 @@ public class ProfileEntity extends AbstractBaseEntity {
 
 	public void setWfaStatus(WfaStatusEntity wfaStatus) {
 		this.wfaStatus = wfaStatus;
+	}
+
+	public Instant getWfaStartDate() {
+		return wfaStartDate;
+	}
+
+	public void setWfaStartDate(Instant wfaStartDate) {
+		this.wfaStartDate = wfaStartDate;
+	}
+
+	public Instant getWfaEndDate() {
+		return wfaEndDate;
+	}
+
+	public void setWfaEndDate(Instant wfaEndDate) {
+		this.wfaEndDate = wfaEndDate;
 	}
 
 	public ClassificationEntity getClassification() {
