@@ -41,7 +41,6 @@ export async function loader({ context, request }: Route.LoaderArgs) {
     accessToken: context.session.authState.accessToken,
     active: true, // will return In Progress, Pending Approval and Approved
     hrAdvisorId: filter === 'me' ? filter : null, // 'me' is used in the API to filter for the current HR advisor
-    includeUserData: true, // will add user data (names and email)
   };
 
   const profileService = getProfileService();
