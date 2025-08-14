@@ -842,13 +842,15 @@ SET IDENTITY_INSERT CD_REQUEST_STATUS ON;
 --changeset system:cd_request_status
 INSERT INTO [CD_REQUEST_STATUS] ([ID], [CODE], [NAME_EN], [NAME_FR], [EFFECTIVE_DATE], [USER_CREATED], [DATE_CREATED], [USER_UPDATED], [DATE_UPDATED])
 VALUES
-(0, 'DR-EB', 'Draft', 'Ébauche', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
-(1, 'RS-DS', 'Request Submitted', 'Demande soumise', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
-(2, 'AHR-ARH', 'Assigned - HR review', 'Assignée - Revue RH', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
-(3, 'APP', 'Approved -  Assessment Feedback Pending', 'Approuvée - En attente de retroaction d''évaluation', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
-(4, 'P-EA', 'Pending - Feedback Pending Approval', 'En attente - retroaction d''évaluation en attente d''approbation', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
-(5, 'CG-AA', 'Clearance Granted', 'Autorisation accordée', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
-(6, 'C-A', 'Cancelled', 'Annulée', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
+(0, 'DRAFT', 'Draft', 'Ébauche', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+(1, 'SUBMIT', 'Request Submitted', 'Demande soumise', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+(2, 'HR_REVIEW', 'Assigned - HR review', 'Assignée - Revue RH', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+(3, 'FDBK_PENDING', 'Approved -  Assessment Feedback Pending', 'Approuvée - En attente de retroaction d''évaluation', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+(4, 'FDBK_PEND_APPR', 'Pending - Feedback Pending Approval', 'En attente - retroaction d''évaluation en attente d''approbation', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+(5, 'PENDING_PSC', 'VMS request on Hold - Pending PSC clearance', 'Demande VMS en suspens - En attente de l''autorisation de la CFP', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+(6, 'CLR_GRANTED', 'Clearance Granted', 'Autorisation accordée', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+(7, 'PSC_GRANTED', 'PSC Clearance Granted', 'Autorisation de la CFP accordée', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+(8, 'CANCELLED', 'Cancelled', 'Annulée', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
 
 --changeset system:cd_request_status_off context:mssql
 SET IDENTITY_INSERT CD_REQUEST_STATUS OFF;
@@ -930,3 +932,22 @@ VALUES
 
 --changeset system:cd_match_status_off context:mssql
 SET IDENTITY_INSERT CD_MATCH_STATUS OFF;
+
+
+--changeset system:cd_match_feedback_on context:mssql
+SET IDENTITY_INSERT CD_MATCH_FEEDBACK ON;
+
+--changeset system:cd_match_feedback
+INSERT INTO [CD_MATCH_FEEDBACK] ([ID], [CODE], [NAME_EN], [NAME_FR], [EFFECTIVE_DATE], [USER_CREATED], [DATE_CREATED], [USER_UPDATED], [DATE_UPDATED])
+VALUES
+(0, 'QA-QOA', 'Qualified - Accepted offer (indeterminate)', 'Qualifié - Offre accepté (indéterminé)', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+(1, 'QNS', 'Qualififed - Not selected', 'Qualifié - Non-selectionné', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+(2, 'QRO-QOR', 'Qualified - Refused offer', 'Qualifié - Offre refusée', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+(3, 'NQC', 'Not qualified - Competency', 'Non-qualifié - Compétences', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+(4, 'NQE', 'Not qualified - Education', 'Non-qualifié - Études', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+(5, 'NQO-NQA', 'Not qualified - Other', 'Non-qualifié - Autre', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+(6, 'NR-PR', 'No response', 'Pas de réponse', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+(7, 'NI-PI', 'Not interested', 'Pas d''intérêt', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
+
+--changeset system:cd_match_feedback_off context:mssql
+SET IDENTITY_INSERT CD_MATCH_FEEDBACK OFF;
