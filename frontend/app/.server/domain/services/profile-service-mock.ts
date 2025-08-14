@@ -5,7 +5,7 @@ import { getMockLanguageForCorrespondenceService } from './language-for-correspo
 import { getProfileStatusService } from './profile-status-service';
 import { getUserService } from './user-service';
 
-import type { Profile, ProfileStatus, SaveProfile, UserPersonalInformation } from '~/.server/domain/models';
+import type { Profile, ProfileStatus, SaveProfile } from '~/.server/domain/models';
 import type { ListProfilesParams, ProfileService } from '~/.server/domain/services/profile-service';
 import type { ProfileStatusCode } from '~/domain/constants';
 import {
@@ -142,15 +142,6 @@ export function getMockProfileService(): ProfileService {
         filtered = filtered.filter((p) => p.employmentInformation.hrAdvisor === currentUser.unwrap().id);
       }
 
-      // Simulate 'includeUserData' transformation
-      if (params.includeUserData === false) {
-        // Return profiles without personal information.
-        filtered = filtered.map((p) => ({
-          ...p,
-          personalInformation: emptyPersonalInformation,
-        }));
-      }
-
       return Promise.resolve(filtered);
     },
     getCurrentUserProfile: async (accessToken: string) => {
@@ -175,12 +166,6 @@ export function getMockProfileService(): ProfileService {
     },
   };
 }
-
-const emptyPersonalInformation: UserPersonalInformation = {
-  workEmail: '',
-  surname: '',
-  givenName: '',
-};
 
 /**
  * Mock profile data for testing and development.
