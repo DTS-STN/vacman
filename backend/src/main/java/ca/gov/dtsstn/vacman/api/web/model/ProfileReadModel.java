@@ -80,12 +80,4 @@ public record ProfileReadModel(
 
 		@Schema(accessMode = Schema.AccessMode.READ_ONLY, description = "The time this user was last modified.", example = "2000-01-01T00:00:00Z")
 		Instant lastModifiedDate
-		) {
-
-	public record UserModel(
-			Long id,
-			String firstName,
-			String lastName,
-			String emailAddress
-	) {}
-}
+		) {}
