@@ -15,7 +15,10 @@ export function extractUniqueBranchesFromDirectorates(directorates: readonly Loc
         directorate.parent !== null,
     )
     .map((directorate) => directorate.parent)
-    .filter((branch, index, array) => array.findIndex((b) => b.id === branch.id) === index)
+    .filter((() => {
+      const seen = new Set<string>();
+      return (branch: LocalizedBranch) => !seen.has(branch.id) && seen.add(branch.id);
+    })())
     .sort((a, b) => a.name.localeCompare(b.name));
 }
 
