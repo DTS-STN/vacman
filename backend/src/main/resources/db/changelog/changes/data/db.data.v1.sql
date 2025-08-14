@@ -779,15 +779,11 @@ SET IDENTITY_INSERT CD_EMPLOYMENT_OPPORTUNITY ON;
 --changeset system:cd_employment_opportunity
 INSERT INTO [CD_EMPLOYMENT_OPPORTUNITY] ([ID], [CODE], [NAME_EN], [NAME_FR], [EFFECTIVE_DATE], [USER_CREATED], [DATE_CREATED], [USER_UPDATED], [DATE_UPDATED])
 VALUES
-(0, 'INTERNAL', 'Internal Opportunities', 'Opportunités internes', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
-(1, 'EXTERNAL', 'External Opportunities', 'Opportunités externes', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
-(2, 'ADVERTISED', 'Advertised Processes', 'Processus annoncés', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
-(3, 'NON_ADVERTISED', 'Non-Advertised Processes', 'Processus non annoncés', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
-(4, 'DEPLOYMENT', 'Deployment', 'Mutation', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
-(5, 'PROMOTION', 'Promotion', 'Promotion', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
-(6, 'APPOINTMENT', 'Appointment', 'Nomination', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
-(7, 'ACTING', 'Acting Assignment', 'Intérim', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
-(8, 'SECONDMENT', 'Secondment', 'Détachement', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
+(0, 'ASSIGNMENT', 'Assignment', 'Affectation', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+(1, 'TERM', 'Term employment', 'Emploi à durée déterminée', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+(2, 'LOWERLEVEL', 'Lower-level opportunities', 'Opportunités de niveau inférieur', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+(3, 'PARTTIME', 'Part-time hours', 'Heures à temps-partiel', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+(4, 'NOTINTERESTED', 'Not interested', 'Pas intéressé', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
 
 --changeset system:cd_employment_opportunity_off context:mssql
 SET IDENTITY_INSERT CD_EMPLOYMENT_OPPORTUNITY OFF;
