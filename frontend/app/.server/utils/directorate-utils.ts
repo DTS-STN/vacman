@@ -16,7 +16,7 @@ export function extractUniqueBranchesFromDirectorates(directorates: readonly Loc
     )
     .map((directorate) => directorate.parent)
     .filter((() => {
-      const seen = new Set<string>();
+      const seen = new Set<number>();
       return (branch: LocalizedBranch) => !seen.has(branch.id) && seen.add(branch.id);
     })())
     .sort((a, b) => a.name.localeCompare(b.name));
@@ -38,8 +38,8 @@ export function extractUniqueBranchesFromDirectoratesNonLocalized(directorates: 
     )
     .map((directorate) => directorate.parent)
     .filter((() => {
-      const seen = new Set<string>();
-      return (branch: Branch) => !seen.has(branch.id) && !!seen.add(branch.id);
+      const seen = new Set<number>();
+      return (branch: Branch) => !seen.has(branch.id) && seen.add(branch.id);
     })())
     .sort((a, b) => a.nameEn.localeCompare(b.nameEn));
 }
