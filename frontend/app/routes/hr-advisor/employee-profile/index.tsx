@@ -132,16 +132,16 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     ? await getUserService().getUserById(profileData.employmentInformation.hrAdvisor, context.session.authState.accessToken)
     : undefined;
   const hrAdvisor = hrAdvisorResult?.into();
-  const languageReferralTypes = profileData.referralPreferences.languageReferralTypeIds
+  const languageReferralTypes = profileData.languageReferralTypeIds
     ?.map((langId) => allLocalizedLanguageReferralTypes.find((l) => l.id === langId))
     .filter(Boolean);
-  const classifications = profileData.referralPreferences.classificationIds
+  const classifications = profileData.classificationIds
     ?.map((classificationId) => allClassifications.find((c) => c.id === classificationId))
     .filter(Boolean);
-  const cities = profileData.referralPreferences.workLocationCitiesIds
+  const cities = profileData.workLocationCitiesIds
     ?.map((cityId) => allLocalizedCities.find((c) => c.id === cityId))
     .filter(Boolean);
-  const employmentOpportunities = profileData.referralPreferences.employmentOpportunityIds
+  const employmentOpportunities = profileData.employmentOpportunityIds
     ?.map((employmentOpportunityId) => allLocalizedEmploymentOpportunities.find((c) => c.id === employmentOpportunityId))
     .filter(Boolean);
 
@@ -181,8 +181,8 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       languageReferralTypes: languageReferralTypes?.map((l) => l?.name),
       classifications: classifications?.map((c) => c?.name),
       workLocationCities: cities?.map((city) => city?.provinceTerritory.name + ' - ' + city?.name),
-      referralAvailibility: profileData.referralPreferences.availableForReferralInd,
-      alternateOpportunity: profileData.referralPreferences.interestedInAlternationInd,
+      referralAvailibility: profileData.availableForReferralInd,
+      alternateOpportunity: profileData.interestedInAlternationInd,
       employmentOpportunities: employmentOpportunities?.map((e) => e?.name),
     },
     lastUpdated: profileData.dateUpdated ? formatDateTime(profileData.dateUpdated) : '0000-00-00 00:00',

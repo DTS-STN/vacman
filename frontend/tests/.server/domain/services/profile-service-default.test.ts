@@ -46,6 +46,13 @@ describe('getDefaultProfileService', () => {
     dateCreated: '2024-01-01T00:00:00Z',
     userUpdated: 'test-user',
     dateUpdated: '2024-01-01T00:00:00Z',
+    languageReferralTypeIds: [864190000],
+    classificationIds: [905190000, 905190001],
+    workLocationProvince: 1,
+    workLocationCitiesIds: [411290001, 411290002],
+    availableForReferralInd: true,
+    interestedInAlternationInd: false,
+    employmentOpportunityIds: [664190000, 664190001, 664190003],
     personalInformation: {
       personalRecordIdentifier: '123456789',
       preferredLanguage: undefined,
@@ -66,15 +73,6 @@ describe('getDefaultProfileService', () => {
       wfaEndDate: undefined,
       hrAdvisor: undefined,
     },
-    referralPreferences: {
-      languageReferralTypeIds: [864190000],
-      classificationIds: [905190000, 905190001],
-      workLocationProvince: 1,
-      workLocationCitiesIds: [411290001, 411290002],
-      availableForReferralInd: true,
-      interestedInAlternationInd: false,
-      employmentOpportunityIds: [664190000, 664190001, 664190003],
-    },
   };
 
   // A valid profile that we expect to be returned after sanitization
@@ -94,6 +92,13 @@ describe('getDefaultProfileService', () => {
     dateCreated: '2024-01-01T00:00:00Z',
     userUpdated: 'test-user',
     dateUpdated: '2024-01-01T00:00:00Z',
+    languageReferralTypeIds: [864190000],
+    classificationIds: [905190000, 905190001],
+    workLocationProvince: 1,
+    workLocationCitiesIds: [411290001, 411290002],
+    availableForReferralInd: true,
+    interestedInAlternationInd: false,
+    employmentOpportunityIds: [664190000, 664190001, 664190003],
     personalInformation: {
       personalRecordIdentifier: '444555666',
       preferredLanguage: PREFERRED_LANGUAGE_FRENCH,
@@ -113,15 +118,6 @@ describe('getDefaultProfileService', () => {
       wfaEffectiveDate: undefined,
       wfaEndDate: undefined,
       hrAdvisor: 5,
-    },
-    referralPreferences: {
-      languageReferralTypeIds: [864190000],
-      classificationIds: [905190000, 905190001],
-      workLocationProvince: 1,
-      workLocationCitiesIds: [411290001, 411290002],
-      availableForReferralInd: true,
-      interestedInAlternationInd: false,
-      employmentOpportunityIds: [664190000, 664190001, 664190003],
     },
   };
 

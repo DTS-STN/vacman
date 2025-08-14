@@ -26,8 +26,8 @@ describe('getMockProfileService', () => {
       expect(createdProfile.dateCreated).toBeDefined();
       expect(createdProfile.profileStatus.id).toBe(2);
       expect(createdProfile.privacyConsentInd).toBe(false);
-      expect(createdProfile.referralPreferences.availableForReferralInd).toBe(true);
-      expect(createdProfile.referralPreferences.interestedInAlternationInd).toBe(false);
+      expect(createdProfile.availableForReferralInd).toBe(true);
+      expect(createdProfile.interestedInAlternationInd).toBe(false);
 
       // Verify the profile was actually added to the mock data
       const retrievedProfile = await service.getProfileById('mock-token', createdProfile.profileId);
