@@ -28,12 +28,9 @@ public class LiquibaseConfig {
 		} else {
 			List<String> javaTempList = new ArrayList<>(liquibaseContexts);
 			//if we find the context, return the array
-			if (!liquibaseContexts
+			if (liquibaseContexts
 				.stream()
-				.filter(context -> context.equals(contextCheck))
-				.findFirst()
-				.isPresent()) {
-
+				.noneMatch(context -> context.equals(contextCheck)))	{
 				javaTempList.add(contextCheck);
 
 				return javaTempList.stream().distinct().toList();
