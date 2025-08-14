@@ -48,7 +48,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
   const profileStatusService = getProfileStatusService();
 
   const [profiles, statuses] = await Promise.all([
-    profileService.listAllProfiles(profileParams),
+    profileService.listAllProfiles(context.session.authState.accessToken, profileParams),
     profileStatusService.listAllLocalized(lang),
   ]);
 

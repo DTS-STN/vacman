@@ -51,8 +51,8 @@ export type ProfileService = {
     profileId: string,
     profileStatusCode: ProfileStatusCode,
   ): Promise<Result<ProfileStatus, AppError>>;
-  findAllProfiles(params: ListProfilesParams): Promise<Option<readonly Profile[]>>;
-  listAllProfiles(params: ListProfilesParams): Promise<readonly Profile[]>;
+  findAllProfiles(accessToken: string, params: ListProfilesParams): Promise<Option<readonly Profile[]>>;
+  listAllProfiles(accessToken: string, params: ListProfilesParams): Promise<readonly Profile[]>;
   getCurrentUserProfile(accessToken: string): Promise<Option<Profile>>;
   getProfileById(accessToken: string, profileId: number): Promise<Result<Profile, AppError>>;
   findProfileById(accessToken: string, profileId: number): Promise<Option<Profile>>;

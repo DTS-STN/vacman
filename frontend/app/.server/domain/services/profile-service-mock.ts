@@ -119,12 +119,12 @@ export function getMockProfileService(): ProfileService {
 
       return Promise.resolve(Ok(status));
     },
-    async findAllProfiles(params: ListProfilesParams): Promise<Option<readonly Profile[]>> {
+    async findAllProfiles(accessToken: string, params: ListProfilesParams): Promise<Option<readonly Profile[]>> {
       // We can just call the other mock method to reuse the filtering logic.
-      const result = await this.listAllProfiles(params);
+      const result = await this.listAllProfiles(accessToken, params);
       return Promise.resolve(Some(result));
     },
-    async listAllProfiles(params: ListProfilesParams): Promise<readonly Profile[]> {
+    async listAllProfiles(accessToken: string, params: ListProfilesParams): Promise<readonly Profile[]> {
       let filtered = [...mockProfiles];
 
       // Simulate 'active' filter
@@ -138,7 +138,7 @@ export function getMockProfileService(): ProfileService {
       // Simulate 'hrAdvisorId' filter
       if (params.hrAdvisorId) {
         // The mock doesn't know about "me", so we just filter by the string ID.
-        const currentUser = await getUserService().getCurrentUser('mock-token');
+        const currentUser = await getUserService().getCurrentUser(accessToken);
         filtered = filtered.filter((p) => p.employmentInformation.hrAdvisor === currentUser.unwrap().id);
       }
 
