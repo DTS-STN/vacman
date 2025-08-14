@@ -25,7 +25,7 @@ importers:
         version: 1.9.0
       '@opentelemetry/auto-instrumentations-node':
         specifier: ^0.62.0
-        version: 0.62.0(@opentelemetry/api@1.9.0)(@opentelemetry/core@2.0.1(@opentelemetry/api@1.9.0))
+        version: 0.62.1(@opentelemetry/api@1.9.0)(@opentelemetry/core@2.0.1(@opentelemetry/api@1.9.0))
       '@opentelemetry/exporter-metrics-otlp-proto':
         specifier: ^0.203.0
         version: 0.203.0(@opentelemetry/api@1.9.0)
@@ -51,11 +51,11 @@ importers:
         specifier: ^1.36.0
         version: 1.36.0
       '@radix-ui/react-dialog':
-        specifier: ^1.1.14
-        version: 1.1.14(@types/react-dom@19.1.7(@types/react@19.1.10))(@types/react@19.1.10)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+        specifier: ^1.1.15
+        version: 1.1.15(@types/react-dom@19.1.7(@types/react@19.1.10))(@types/react@19.1.10)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       '@radix-ui/react-dropdown-menu':
         specifier: ^2.1.15
-        version: 2.1.15(@types/react-dom@19.1.7(@types/react@19.1.10))(@types/react@19.1.10)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+        version: 2.1.16(@types/react-dom@19.1.7(@types/react@19.1.10))(@types/react@19.1.10)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       '@radix-ui/react-progress':
         specifier: ^1.1.7
         version: 1.1.7(@types/react-dom@19.1.7(@types/react@19.1.10))(@types/react@19.1.10)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
@@ -115,7 +115,7 @@ importers:
         version: 6.0.12
       libphonenumber-js:
         specifier: ^1.12.10
-        version: 1.12.10
+        version: 1.12.11
       minimatch:
         specifier: ^10.0.3
         version: 10.0.3
@@ -726,20 +726,20 @@ packages:
     resolution: {integrity: sha512-Z5kJ+wU3oA7MMIqVR9tyZRtjYPr4OC004Q4Rw7pgOKUOKkJfZ3O24nz3WYfGRpMDNmcOi3TwQOmgm7B7Tpii0w==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
-  '@floating-ui/core@1.7.0':
-    resolution: {integrity: sha512-FRdBLykrPPA6P76GGGqlex/e7fbe0F1ykgxHYNXQsH/iTEtjMj/f9bpY5oQqbjt5VgZvgz/uKXbGuROijh3VLA==}
+  '@floating-ui/core@1.7.3':
+    resolution: {integrity: sha512-sGnvb5dmrJaKEZ+LDIpguvdX3bDlEllmv4/ClQ9awcmCZrlx5jQyyMWFM5kBI+EyNOCDDiKk8il0zeuX3Zlg/w==}
 
-  '@floating-ui/dom@1.7.0':
-    resolution: {integrity: sha512-lGTor4VlXcesUMh1cupTUTDoCxMb0V6bm3CnxHzQcw8Eaf1jQbgQX4i02fYgT0vJ82tb5MZ4CZk1LRGkktJCzg==}
+  '@floating-ui/dom@1.7.3':
+    resolution: {integrity: sha512-uZA413QEpNuhtb3/iIKoYMSK07keHPYeXF02Zhd6e213j+d1NamLix/mCLxBUDW/Gx52sPH2m+chlUsyaBs/Ag==}
 
-  '@floating-ui/react-dom@2.1.2':
-    resolution: {integrity: sha512-06okr5cgPzMNBy+Ycse2A6udMi4bqwW/zgBF/rwjcNqWkyr82Mcg8b0vjX8OJpZFy/FKjJmw6wV7t44kK6kW7A==}
+  '@floating-ui/react-dom@2.1.5':
+    resolution: {integrity: sha512-HDO/1/1oH9fjj4eLgegrlH3dklZpHtUYYFiVwMUwfGvk9jWDRWqkklA2/NFScknrcNSspbV868WjXORvreDX+Q==}
     peerDependencies:
       react: '>=16.8.0'
       react-dom: '>=16.8.0'
 
-  '@floating-ui/utils@0.2.9':
-    resolution: {integrity: sha512-MDWhGtE+eHw5JW7lq4qhc5yRLS11ERl1c7Z6Xd0a58DozHES6EnNNwUWbMiG4J9Cgj053Bhk8zvlhFYKVhULwg==}
+  '@floating-ui/utils@0.2.10':
+    resolution: {integrity: sha512-aGTxbpbg8/b5JfU1HXSrbH3wXZuLPJcNEcZQFMxLs3oSzgtVu6nFPkbbGGUvBcUjKV2YyB9Wxxabo+HEH9tcRQ==}
 
   '@fortawesome/fontawesome-common-types@7.0.0':
     resolution: {integrity: sha512-PGMrIYXLGA5K8RWy8zwBkd4vFi4z7ubxtet6Yn13Plf6krRTwPbdlCwlcfmoX0R7B4Z643QvrtHmdQ5fNtfFCg==}
@@ -882,8 +882,8 @@ packages:
     resolution: {integrity: sha512-3giAOQvZiH5F9bMlMiv8+GSPMeqg0dbaeo58/0SlA9sxSqZhnUtxzX9/2FzyhS9sWQf5S0GJE0AKBrFqjpeYcg==}
     engines: {node: '>=8.0.0'}
 
-  '@opentelemetry/auto-instrumentations-node@0.62.0':
-    resolution: {integrity: sha512-h5g+VNJjiyX6u/IQpn36ZCHOENg1QW0GgBOHBcFGnHBBhmTww4R3brExdeuYbvLj3UQY09n+UHFEoMOqkhq07A==}
+  '@opentelemetry/auto-instrumentations-node@0.62.1':
+    resolution: {integrity: sha512-FmPlWS7Dg6E3kP0vv19Pyhq3sqSi8tyn8IZh2RV73UsrcEZeQ3gUTf2Ar8iPRgbsxTukQHRoMGcaCVBsFVRVPw==}
     engines: {node: ^18.19.0 || >=20.6.0}
     peerDependencies:
       '@opentelemetry/api': ^1.4.1
@@ -979,8 +979,8 @@ packages:
     peerDependencies:
       '@opentelemetry/api': ^1.3.0
 
-  '@opentelemetry/instrumentation-aws-sdk@0.56.0':
-    resolution: {integrity: sha512-Jl2B/FYEb6tBCk9G31CMomKPikGU2g+CEhrGddDI0o1YeNpg3kAO9dExF+w489/IJUGZX6/wudyNvV7z4k9NjQ==}
+  '@opentelemetry/instrumentation-aws-sdk@0.57.0':
+    resolution: {integrity: sha512-RfbyjaeZzX3mPhuaRHlSAQyfX3skfeWOl30jrqSXtE9k0DPdnIqpHhdYS0C/DEDuZbwTmruVJ4cUwMBw5Z6FAg==}
     engines: {node: ^18.19.0 || >=20.6.0}
     peerDependencies:
       '@opentelemetry/api': ^1.3.0
@@ -1003,14 +1003,14 @@ packages:
     peerDependencies:
       '@opentelemetry/api': ^1.3.0
 
-  '@opentelemetry/instrumentation-cucumber@0.18.0':
-    resolution: {integrity: sha512-i+cUbLHvRShuevtM0NwjQR9wnABhmYw8+dbgD57LNBde7xkuSDot0CTzX+pYn32djtQ1bPYZiLf+uwS0JsMUrw==}
+  '@opentelemetry/instrumentation-cucumber@0.18.1':
+    resolution: {integrity: sha512-gTfT7AuA0UH0TvqWOXnyr2KCv7mvZsOUmqCrtnU/RDcZ9J3nIX4OBfl7VVXE0fJlLqP7KIDggQ8O9g7rmaVLhA==}
     engines: {node: ^18.19.0 || >=20.6.0}
     peerDependencies:
       '@opentelemetry/api': ^1.0.0
 
-  '@opentelemetry/instrumentation-dataloader@0.21.0':
-    resolution: {integrity: sha512-Xu4CZ1bfhdkV3G6iVHFgKTgHx8GbKSqrTU01kcIJRGHpowVnyOPEv1CW5ow+9GU2X4Eki8zoNuVUenFc3RluxQ==}
+  '@opentelemetry/instrumentation-dataloader@0.21.1':
+    resolution: {integrity: sha512-hNAm/bwGawLM8VDjKR0ZUDJ/D/qKR3s6lA5NV+btNaPVm2acqhPcT47l2uCVi+70lng2mywfQncor9v8/ykuyw==}
     engines: {node: ^18.19.0 || >=20.6.0}
     peerDependencies:
       '@opentelemetry/api': ^1.3.0
@@ -1075,8 +1075,8 @@ packages:
     peerDependencies:
       '@opentelemetry/api': ^1.3.0
 
-  '@opentelemetry/instrumentation-kafkajs@0.12.0':
-    resolution: {integrity: sha512-bIe4aSAAxytp88nzBstgr6M7ZiEpW6/D1/SuKXdxxuprf18taVvFL2H5BDNGZ7A14K27haHqzYqtCTqFXHZOYg==}
+  '@opentelemetry/instrumentation-kafkajs@0.13.0':
+    resolution: {integrity: sha512-FPQyJsREOaGH64hcxlzTsIEQC4DYANgTwHjiB7z9lldmvua1LRMVn3/FfBlzXoqF179B0VGYviz6rn75E9wsDw==}
     engines: {node: ^18.19.0 || >=20.6.0}
     peerDependencies:
       '@opentelemetry/api': ^1.3.0
@@ -1117,8 +1117,8 @@ packages:
     peerDependencies:
       '@opentelemetry/api': ^1.3.0
 
-  '@opentelemetry/instrumentation-mysql2@0.49.0':
-    resolution: {integrity: sha512-dCub9wc02mkJWNyHdVEZ7dvRzy295SmNJa+LrAJY2a/+tIiVBQqEAajFzKwp9zegVVnel9L+WORu34rGLQDzxA==}
+  '@opentelemetry/instrumentation-mysql2@0.50.0':
+    resolution: {integrity: sha512-PoOMpmq73rOIE3nlTNLf3B1SyNYGsp7QXHYKmeTZZnJ2Ou7/fdURuOhWOI0e6QZ5gSem18IR1sJi6GOULBQJ9g==}
     engines: {node: ^18.19.0 || >=20.6.0}
     peerDependencies:
       '@opentelemetry/api': ^1.3.0
@@ -1147,8 +1147,8 @@ packages:
     peerDependencies:
       '@opentelemetry/api': ^1.3.0
 
-  '@opentelemetry/instrumentation-pg@0.55.0':
-    resolution: {integrity: sha512-yfJ5bYE7CnkW/uNsnrwouG/FR7nmg09zdk2MSs7k0ZOMkDDAE3WBGpVFFApGgNu2U+gtzLgEzOQG4I/X+60hXw==}
+  '@opentelemetry/instrumentation-pg@0.56.0':
+    resolution: {integrity: sha512-A/J4SlGX8Y0Wwp7Y66fsNCFT/1h9lmBzqwTnfWW/bULtcKFqkQfqhs3G8+4cRxX02UI2z7T1aW5bsyc6QSYc1Q==}
     engines: {node: ^18.19.0 || >=20.6.0}
     peerDependencies:
       '@opentelemetry/api': ^1.3.0
@@ -1177,8 +1177,8 @@ packages:
     peerDependencies:
       '@opentelemetry/api': ^1.3.0
 
-  '@opentelemetry/instrumentation-runtime-node@0.17.0':
-    resolution: {integrity: sha512-O+xc0woqrSjue5IgpCCMvlgsuDrq6DDEfiHW3S3vRMCjXE1ZoPjaDE/K6EURorN+tjnzZQN1gOMSrscSGAbjHg==}
+  '@opentelemetry/instrumentation-runtime-node@0.17.1':
+    resolution: {integrity: sha512-c1FlAk+bB2uF9a8YneGmNPTl7c/xVaan4mmWvbkWcOmH/ipKqR1LaKUlz/BMzLrJLjho1EJlG2NrS2w2Arg+nw==}
     engines: {node: ^18.19.0 || >=20.6.0}
     peerDependencies:
       '@opentelemetry/api': ^1.3.0
@@ -1201,8 +1201,8 @@ packages:
     peerDependencies:
       '@opentelemetry/api': ^1.7.0
 
-  '@opentelemetry/instrumentation-winston@0.48.0':
-    resolution: {integrity: sha512-QuKbswAaQfRULhtlYbeNC9gOAXPxOSCE4BjIzuY1oEsc84kIsHUjn3yvY9Q83s3eg3j0JycNcAMi8u0yTl5PIQ==}
+  '@opentelemetry/instrumentation-winston@0.48.1':
+    resolution: {integrity: sha512-XyOuVwdziirHHYlsw+BWrvdI/ymjwnexupKA787zQQ+D5upaE/tseZxjfQa7+t4+FdVLxHICaMTmkSD4yZHpzQ==}
     engines: {node: ^18.19.0 || >=20.6.0}
     peerDependencies:
       '@opentelemetry/api': ^1.3.0
@@ -1368,8 +1368,8 @@ packages:
   '@protobufjs/utf8@1.1.0':
     resolution: {integrity: sha512-Vvn3zZrhQZkkBE8LSuW3em98c0FwgO4nxzv6OdSxPKJIEKY2bGbHn+mhGIPerzI4twdxaP8/0+06HBpwf345Lw==}
 
-  '@radix-ui/primitive@1.1.2':
-    resolution: {integrity: sha512-XnbHrrprsNqZKQhStrSwgRUQzoCI1glLzdw79xiZPoofhGICeZRSQ3dIxAKH1gb3OHfNf4d6f+vAv3kil2eggA==}
+  '@radix-ui/primitive@1.1.3':
+    resolution: {integrity: sha512-JTF99U/6XIjCBo0wqkU5sK10glYe27MRRsfwoiq5zzOEZLHU3A3KCMa5X/azekYRCJ0HlwI0crAXS/5dEHTzDg==}
 
   '@radix-ui/react-arrow@1.1.7':
     resolution: {integrity: sha512-F+M1tLhO+mlQaOWspE8Wstg+z6PwxwRd8oQ8IXceWz92kfAmalTRf0EjrouQeo7QssEPfCn05B4Ihs1K9WQ/7w==}
@@ -1415,8 +1415,8 @@ packages:
       '@types/react':
         optional: true
 
-  '@radix-ui/react-dialog@1.1.14':
-    resolution: {integrity: sha512-+CpweKjqpzTmwRwcYECQcNYbI8V9VSQt0SNFKeEBLgfucbsLssU6Ppq7wUdNXEGb573bMjFhVjKVll8rmV6zMw==}
+  '@radix-ui/react-dialog@1.1.15':
+    resolution: {integrity: sha512-TCglVRtzlffRNxRMEyR36DGBLJpeusFcgMVD9PZEzAKnUs1lKCgX5u9BmC2Yg+LL9MgZDugFFs1Vl+Jp4t/PGw==}
     peerDependencies:
       '@types/react': '*'
       '@types/react-dom': '*'
@@ -1437,8 +1437,8 @@ packages:
       '@types/react':
         optional: true
 
-  '@radix-ui/react-dismissable-layer@1.1.10':
-    resolution: {integrity: sha512-IM1zzRV4W3HtVgftdQiiOmA0AdJlCtMLe00FXaHwgt3rAnNsIyDqshvkIW3hj/iu5hu8ERP7KIYki6NkqDxAwQ==}
+  '@radix-ui/react-dismissable-layer@1.1.11':
+    resolution: {integrity: sha512-Nqcp+t5cTB8BinFkZgXiMJniQH0PsUt2k51FUhbdfeKvc4ACcG2uQniY/8+h1Yv6Kza4Q7lD7PQV0z0oicE0Mg==}
     peerDependencies:
       '@types/react': '*'
       '@types/react-dom': '*'
@@ -1450,8 +1450,8 @@ packages:
       '@types/react-dom':
         optional: true
 
-  '@radix-ui/react-dropdown-menu@2.1.15':
-    resolution: {integrity: sha512-mIBnOjgwo9AH3FyKaSWoSu/dYj6VdhJ7frEPiGTeXCdUFHjl9h3mFh2wwhEtINOmYXWhdpf1rY2minFsmaNgVQ==}
+  '@radix-ui/react-dropdown-menu@2.1.16':
+    resolution: {integrity: sha512-1PLGQEynI/3OX/ftV54COn+3Sud/Mn8vALg2rWnBLnRaGtJDduNW/22XjlGgPdpcIbiQxjKtb7BkcjP00nqfJw==}
     peerDependencies:
       '@types/react': '*'
       '@types/react-dom': '*'
@@ -1463,8 +1463,8 @@ packages:
       '@types/react-dom':
         optional: true
 
-  '@radix-ui/react-focus-guards@1.1.2':
-    resolution: {integrity: sha512-fyjAACV62oPV925xFCrH8DR5xWhg9KYtJT4s3u54jxp+L/hbpTY2kIeEFFbFe+a/HCE94zGQMZLIpVTPVZDhaA==}
+  '@radix-ui/react-focus-guards@1.1.3':
+    resolution: {integrity: sha512-0rFg/Rj2Q62NCm62jZw0QX7a3sz6QCQU0LpZdNrJX8byRGaGVTqbrW9jAoIAHyMQqsNpeZ81YgSizOt5WXq0Pw==}
     peerDependencies:
       '@types/react': '*'
       react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
@@ -1494,8 +1494,8 @@ packages:
       '@types/react':
         optional: true
 
-  '@radix-ui/react-menu@2.1.15':
-    resolution: {integrity: sha512-tVlmA3Vb9n8SZSd+YSbuFR66l87Wiy4du+YE+0hzKQEANA+7cWKH1WgqcEX4pXqxUFQKrWQGHdvEfw00TjFiew==}
+  '@radix-ui/react-menu@2.1.16':
+    resolution: {integrity: sha512-72F2T+PLlphrqLcAotYPp0uJMr5SjP5SL01wfEspJbru5Zs5vQaSHb4VB3ZMJPimgHHCHG7gMOeOB9H3Hdmtxg==}
     peerDependencies:
       '@types/react': '*'
       '@types/react-dom': '*'
@@ -1507,8 +1507,8 @@ packages:
       '@types/react-dom':
         optional: true
 
-  '@radix-ui/react-popper@1.2.7':
-    resolution: {integrity: sha512-IUFAccz1JyKcf/RjB552PlWwxjeCJB8/4KxT7EhBHOJM+mN7LdW+B3kacJXILm32xawcMMjb2i0cIZpo+f9kiQ==}
+  '@radix-ui/react-popper@1.2.8':
+    resolution: {integrity: sha512-0NJQ4LFFUuWkE7Oxf0htBKS6zLkkjBH+hM1uk7Ng705ReR8m/uelduy1DBo0PyBXPKVnBA6YBlU94MBGXrSBCw==}
     peerDependencies:
       '@types/react': '*'
       '@types/react-dom': '*'
@@ -1533,8 +1533,8 @@ packages:
       '@types/react-dom':
         optional: true
 
-  '@radix-ui/react-presence@1.1.4':
-    resolution: {integrity: sha512-ueDqRbdc4/bkaQT3GIpLQssRlFgWaL/U2z/S31qRwwLWoxHLgry3SIfCwhxeQNbirEUXFa+lq3RL3oBYXtcmIA==}
+  '@radix-ui/react-presence@1.1.5':
+    resolution: {integrity: sha512-/jfEwNDdQVBCNvjkGit4h6pMOzq8bHkopq458dPt2lMjx+eBQUohZNG9A7DtO/O5ukSbxuaNGXMjHicgwy6rQQ==}
     peerDependencies:
       '@types/react': '*'
       '@types/react-dom': '*'
@@ -1572,8 +1572,8 @@ packages:
       '@types/react-dom':
         optional: true
 
-  '@radix-ui/react-roving-focus@1.1.10':
-    resolution: {integrity: sha512-dT9aOXUen9JSsxnMPv/0VqySQf5eDQ6LCk5Sw28kamz8wSOW2bJdlX2Bg5VUIIcV+6XlHpWTIuTPCf/UNIyq8Q==}
+  '@radix-ui/react-roving-focus@1.1.11':
+    resolution: {integrity: sha512-7A6S9jSgm/S+7MdtNDSb+IU859vQqJ/QAtcYQcfFC6W8RS4IxIZDldLR0xqCFZ6DCyrQLjLPsxtTNch5jVA4lA==}
     peerDependencies:
       '@types/react': '*'
       '@types/react-dom': '*'
@@ -3571,8 +3571,8 @@ packages:
     resolution: {integrity: sha512-+bT2uH4E5LGE7h/n3evcS/sQlJXCpIp6ym8OWJ5eV6+67Dsql/LaaT7qJBAt2rzfoa/5QBGBhxDix1dMt2kQKQ==}
     engines: {node: '>= 0.8.0'}
 
-  libphonenumber-js@1.12.10:
-    resolution: {integrity: sha512-E91vHJD61jekHHR/RF/E83T/CMoaLXT7cwYA75T4gim4FZjnM6hbJjVIGg7chqlSqRsSvQ3izGmOjHy1SQzcGQ==}
+  libphonenumber-js@1.12.11:
+    resolution: {integrity: sha512-D2O/Ff8a1US4/SjuZR91Zx7z4xqV5IuaPep92W6MKS2DNuJUp7yzh8s7DkbYl5oJrWdeg339yRCCi5gA4+Yr0Q==}
 
   lightningcss-darwin-arm64@1.30.1:
     resolution: {integrity: sha512-c8JK7hyE65X1MHMN+Viq9n11RRC7hgin3HhYKhrMyaXflk5GVplZ60IxyoVtzILeKr+xAJwg6zK6sjTBJ0FKYQ==}
@@ -4239,8 +4239,8 @@ packages:
       '@types/react':
         optional: true
 
-  react-remove-scroll@2.7.0:
-    resolution: {integrity: sha512-sGsQtcjMqdQyijAHytfGEELB8FufGbfXIsvUTe+NLx1GDRJCXtCFLBLUI1eyZCKXXvbEU2C6gai0PZKoIE9Vbg==}
+  react-remove-scroll@2.7.1:
+    resolution: {integrity: sha512-HpMh8+oahmIdOuS5aFKKY6Pyog+FNaZV/XyJOq7b4YFwsFHe5yYfdbIalI4k3vU2nSDql7YskmUseHsRrJqIPA==}
     engines: {node: '>=10'}
     peerDependencies:
       '@types/react': '*'
@@ -5512,22 +5512,22 @@ snapshots:
       '@eslint/core': 0.15.2
       levn: 0.4.1
 
-  '@floating-ui/core@1.7.0':
+  '@floating-ui/core@1.7.3':
     dependencies:
-      '@floating-ui/utils': 0.2.9
+      '@floating-ui/utils': 0.2.10
 
-  '@floating-ui/dom@1.7.0':
+  '@floating-ui/dom@1.7.3':
     dependencies:
-      '@floating-ui/core': 1.7.0
-      '@floating-ui/utils': 0.2.9
+      '@floating-ui/core': 1.7.3
+      '@floating-ui/utils': 0.2.10
 
-  '@floating-ui/react-dom@2.1.2(react-dom@19.1.1(react@19.1.1))(react@19.1.1)':
+  '@floating-ui/react-dom@2.1.5(react-dom@19.1.1(react@19.1.1))(react@19.1.1)':
     dependencies:
-      '@floating-ui/dom': 1.7.0
+      '@floating-ui/dom': 1.7.3
       react: 19.1.1
       react-dom: 19.1.1(react@19.1.1)
 
-  '@floating-ui/utils@0.2.9': {}
+  '@floating-ui/utils@0.2.10': {}
 
   '@fortawesome/fontawesome-common-types@7.0.0': {}
 
@@ -5682,19 +5682,19 @@ snapshots:
 
   '@opentelemetry/api@1.9.0': {}
 
-  '@opentelemetry/auto-instrumentations-node@0.62.0(@opentelemetry/api@1.9.0)(@opentelemetry/core@2.0.1(@opentelemetry/api@1.9.0))':
+  '@opentelemetry/auto-instrumentations-node@0.62.1(@opentelemetry/api@1.9.0)(@opentelemetry/core@2.0.1(@opentelemetry/api@1.9.0))':
     dependencies:
       '@opentelemetry/api': 1.9.0
       '@opentelemetry/core': 2.0.1(@opentelemetry/api@1.9.0)
       '@opentelemetry/instrumentation': 0.203.0(@opentelemetry/api@1.9.0)
       '@opentelemetry/instrumentation-amqplib': 0.50.0(@opentelemetry/api@1.9.0)
       '@opentelemetry/instrumentation-aws-lambda': 0.54.0(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation-aws-sdk': 0.56.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation-aws-sdk': 0.57.0(@opentelemetry/api@1.9.0)
       '@opentelemetry/instrumentation-bunyan': 0.49.0(@opentelemetry/api@1.9.0)
       '@opentelemetry/instrumentation-cassandra-driver': 0.49.0(@opentelemetry/api@1.9.0)
       '@opentelemetry/instrumentation-connect': 0.47.0(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation-cucumber': 0.18.0(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation-dataloader': 0.21.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation-cucumber': 0.18.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation-dataloader': 0.21.1(@opentelemetry/api@1.9.0)
       '@opentelemetry/instrumentation-dns': 0.47.0(@opentelemetry/api@1.9.0)
       '@opentelemetry/instrumentation-express': 0.52.0(@opentelemetry/api@1.9.0)
       '@opentelemetry/instrumentation-fastify': 0.48.0(@opentelemetry/api@1.9.0)
@@ -5705,7 +5705,7 @@ snapshots:
       '@opentelemetry/instrumentation-hapi': 0.50.0(@opentelemetry/api@1.9.0)
       '@opentelemetry/instrumentation-http': 0.203.0(@opentelemetry/api@1.9.0)
       '@opentelemetry/instrumentation-ioredis': 0.51.0(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation-kafkajs': 0.12.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation-kafkajs': 0.13.0(@opentelemetry/api@1.9.0)
       '@opentelemetry/instrumentation-knex': 0.48.0(@opentelemetry/api@1.9.0)
       '@opentelemetry/instrumentation-koa': 0.51.0(@opentelemetry/api@1.9.0)
       '@opentelemetry/instrumentation-lru-memoizer': 0.48.0(@opentelemetry/api@1.9.0)
@@ -5713,20 +5713,20 @@ snapshots:
       '@opentelemetry/instrumentation-mongodb': 0.56.0(@opentelemetry/api@1.9.0)
       '@opentelemetry/instrumentation-mongoose': 0.50.0(@opentelemetry/api@1.9.0)
       '@opentelemetry/instrumentation-mysql': 0.49.0(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation-mysql2': 0.49.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation-mysql2': 0.50.0(@opentelemetry/api@1.9.0)
       '@opentelemetry/instrumentation-nestjs-core': 0.49.0(@opentelemetry/api@1.9.0)
       '@opentelemetry/instrumentation-net': 0.47.0(@opentelemetry/api@1.9.0)
       '@opentelemetry/instrumentation-oracledb': 0.29.0(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation-pg': 0.55.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation-pg': 0.56.0(@opentelemetry/api@1.9.0)
       '@opentelemetry/instrumentation-pino': 0.50.0(@opentelemetry/api@1.9.0)
       '@opentelemetry/instrumentation-redis': 0.51.0(@opentelemetry/api@1.9.0)
       '@opentelemetry/instrumentation-restify': 0.49.0(@opentelemetry/api@1.9.0)
       '@opentelemetry/instrumentation-router': 0.48.0(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation-runtime-node': 0.17.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation-runtime-node': 0.17.1(@opentelemetry/api@1.9.0)
       '@opentelemetry/instrumentation-socket.io': 0.50.0(@opentelemetry/api@1.9.0)
       '@opentelemetry/instrumentation-tedious': 0.22.0(@opentelemetry/api@1.9.0)
       '@opentelemetry/instrumentation-undici': 0.14.0(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation-winston': 0.48.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation-winston': 0.48.1(@opentelemetry/api@1.9.0)
       '@opentelemetry/resource-detector-alibaba-cloud': 0.31.3(@opentelemetry/api@1.9.0)
       '@opentelemetry/resource-detector-aws': 2.3.0(@opentelemetry/api@1.9.0)
       '@opentelemetry/resource-detector-azure': 0.10.0(@opentelemetry/api@1.9.0)
@@ -5870,7 +5870,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@opentelemetry/instrumentation-aws-sdk@0.56.0(@opentelemetry/api@1.9.0)':
+  '@opentelemetry/instrumentation-aws-sdk@0.57.0(@opentelemetry/api@1.9.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
       '@opentelemetry/core': 2.0.1(@opentelemetry/api@1.9.0)
@@ -5907,7 +5907,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@opentelemetry/instrumentation-cucumber@0.18.0(@opentelemetry/api@1.9.0)':
+  '@opentelemetry/instrumentation-cucumber@0.18.1(@opentelemetry/api@1.9.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
       '@opentelemetry/instrumentation': 0.203.0(@opentelemetry/api@1.9.0)
@@ -5915,7 +5915,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@opentelemetry/instrumentation-dataloader@0.21.0(@opentelemetry/api@1.9.0)':
+  '@opentelemetry/instrumentation-dataloader@0.21.1(@opentelemetry/api@1.9.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
       '@opentelemetry/instrumentation': 0.203.0(@opentelemetry/api@1.9.0)
@@ -6005,7 +6005,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@opentelemetry/instrumentation-kafkajs@0.12.0(@opentelemetry/api@1.9.0)':
+  '@opentelemetry/instrumentation-kafkajs@0.13.0(@opentelemetry/api@1.9.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
       '@opentelemetry/instrumentation': 0.203.0(@opentelemetry/api@1.9.0)
@@ -6063,7 +6063,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@opentelemetry/instrumentation-mysql2@0.49.0(@opentelemetry/api@1.9.0)':
+  '@opentelemetry/instrumentation-mysql2@0.50.0(@opentelemetry/api@1.9.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
       '@opentelemetry/instrumentation': 0.203.0(@opentelemetry/api@1.9.0)
@@ -6106,7 +6106,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@opentelemetry/instrumentation-pg@0.55.0(@opentelemetry/api@1.9.0)':
+  '@opentelemetry/instrumentation-pg@0.56.0(@opentelemetry/api@1.9.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
       '@opentelemetry/core': 2.0.1(@opentelemetry/api@1.9.0)
@@ -6153,7 +6153,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@opentelemetry/instrumentation-runtime-node@0.17.0(@opentelemetry/api@1.9.0)':
+  '@opentelemetry/instrumentation-runtime-node@0.17.1(@opentelemetry/api@1.9.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
       '@opentelemetry/instrumentation': 0.203.0(@opentelemetry/api@1.9.0)
@@ -6185,7 +6185,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@opentelemetry/instrumentation-winston@0.48.0(@opentelemetry/api@1.9.0)':
+  '@opentelemetry/instrumentation-winston@0.48.1(@opentelemetry/api@1.9.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
       '@opentelemetry/api-logs': 0.203.0
@@ -6380,7 +6380,7 @@ snapshots:
 
   '@protobufjs/utf8@1.1.0': {}
 
-  '@radix-ui/primitive@1.1.2': {}
+  '@radix-ui/primitive@1.1.3': {}
 
   '@radix-ui/react-arrow@1.1.7(@types/react-dom@19.1.7(@types/react@19.1.10))(@types/react@19.1.10)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)':
     dependencies:
@@ -6415,24 +6415,24 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.1.10
 
-  '@radix-ui/react-dialog@1.1.14(@types/react-dom@19.1.7(@types/react@19.1.10))(@types/react@19.1.10)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)':
+  '@radix-ui/react-dialog@1.1.15(@types/react-dom@19.1.7(@types/react@19.1.10))(@types/react@19.1.10)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)':
     dependencies:
-      '@radix-ui/primitive': 1.1.2
+      '@radix-ui/primitive': 1.1.3
       '@radix-ui/react-compose-refs': 1.1.2(@types/react@19.1.10)(react@19.1.1)
       '@radix-ui/react-context': 1.1.2(@types/react@19.1.10)(react@19.1.1)
-      '@radix-ui/react-dismissable-layer': 1.1.10(@types/react-dom@19.1.7(@types/react@19.1.10))(@types/react@19.1.10)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
-      '@radix-ui/react-focus-guards': 1.1.2(@types/react@19.1.10)(react@19.1.1)
+      '@radix-ui/react-dismissable-layer': 1.1.11(@types/react-dom@19.1.7(@types/react@19.1.10))(@types/react@19.1.10)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+      '@radix-ui/react-focus-guards': 1.1.3(@types/react@19.1.10)(react@19.1.1)
       '@radix-ui/react-focus-scope': 1.1.7(@types/react-dom@19.1.7(@types/react@19.1.10))(@types/react@19.1.10)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       '@radix-ui/react-id': 1.1.1(@types/react@19.1.10)(react@19.1.1)
       '@radix-ui/react-portal': 1.1.9(@types/react-dom@19.1.7(@types/react@19.1.10))(@types/react@19.1.10)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
-      '@radix-ui/react-presence': 1.1.4(@types/react-dom@19.1.7(@types/react@19.1.10))(@types/react@19.1.10)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+      '@radix-ui/react-presence': 1.1.5(@types/react-dom@19.1.7(@types/react@19.1.10))(@types/react@19.1.10)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       '@radix-ui/react-primitive': 2.1.3(@types/react-dom@19.1.7(@types/react@19.1.10))(@types/react@19.1.10)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       '@radix-ui/react-slot': 1.2.3(@types/react@19.1.10)(react@19.1.1)
       '@radix-ui/react-use-controllable-state': 1.2.2(@types/react@19.1.10)(react@19.1.1)
       aria-hidden: 1.2.6
       react: 19.1.1
       react-dom: 19.1.1(react@19.1.1)
-      react-remove-scroll: 2.7.0(@types/react@19.1.10)(react@19.1.1)
+      react-remove-scroll: 2.7.1(@types/react@19.1.10)(react@19.1.1)
     optionalDependencies:
       '@types/react': 19.1.10
       '@types/react-dom': 19.1.7(@types/react@19.1.10)
@@ -6443,9 +6443,9 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.1.10
 
-  '@radix-ui/react-dismissable-layer@1.1.10(@types/react-dom@19.1.7(@types/react@19.1.10))(@types/react@19.1.10)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)':
+  '@radix-ui/react-dismissable-layer@1.1.11(@types/react-dom@19.1.7(@types/react@19.1.10))(@types/react@19.1.10)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)':
     dependencies:
-      '@radix-ui/primitive': 1.1.2
+      '@radix-ui/primitive': 1.1.3
       '@radix-ui/react-compose-refs': 1.1.2(@types/react@19.1.10)(react@19.1.1)
       '@radix-ui/react-primitive': 2.1.3(@types/react-dom@19.1.7(@types/react@19.1.10))(@types/react@19.1.10)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       '@radix-ui/react-use-callback-ref': 1.1.1(@types/react@19.1.10)(react@19.1.1)
@@ -6456,13 +6456,13 @@ snapshots:
       '@types/react': 19.1.10
       '@types/react-dom': 19.1.7(@types/react@19.1.10)
 
-  '@radix-ui/react-dropdown-menu@2.1.15(@types/react-dom@19.1.7(@types/react@19.1.10))(@types/react@19.1.10)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)':
+  '@radix-ui/react-dropdown-menu@2.1.16(@types/react-dom@19.1.7(@types/react@19.1.10))(@types/react@19.1.10)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)':
     dependencies:
-      '@radix-ui/primitive': 1.1.2
+      '@radix-ui/primitive': 1.1.3
       '@radix-ui/react-compose-refs': 1.1.2(@types/react@19.1.10)(react@19.1.1)
       '@radix-ui/react-context': 1.1.2(@types/react@19.1.10)(react@19.1.1)
       '@radix-ui/react-id': 1.1.1(@types/react@19.1.10)(react@19.1.1)
-      '@radix-ui/react-menu': 2.1.15(@types/react-dom@19.1.7(@types/react@19.1.10))(@types/react@19.1.10)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+      '@radix-ui/react-menu': 2.1.16(@types/react-dom@19.1.7(@types/react@19.1.10))(@types/react@19.1.10)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       '@radix-ui/react-primitive': 2.1.3(@types/react-dom@19.1.7(@types/react@19.1.10))(@types/react@19.1.10)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       '@radix-ui/react-use-controllable-state': 1.2.2(@types/react@19.1.10)(react@19.1.1)
       react: 19.1.1
@@ -6471,7 +6471,7 @@ snapshots:
       '@types/react': 19.1.10
       '@types/react-dom': 19.1.7(@types/react@19.1.10)
 
-  '@radix-ui/react-focus-guards@1.1.2(@types/react@19.1.10)(react@19.1.1)':
+  '@radix-ui/react-focus-guards@1.1.3(@types/react@19.1.10)(react@19.1.1)':
     dependencies:
       react: 19.1.1
     optionalDependencies:
@@ -6495,35 +6495,35 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.1.10
 
-  '@radix-ui/react-menu@2.1.15(@types/react-dom@19.1.7(@types/react@19.1.10))(@types/react@19.1.10)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)':
+  '@radix-ui/react-menu@2.1.16(@types/react-dom@19.1.7(@types/react@19.1.10))(@types/react@19.1.10)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)':
     dependencies:
-      '@radix-ui/primitive': 1.1.2
+      '@radix-ui/primitive': 1.1.3
       '@radix-ui/react-collection': 1.1.7(@types/react-dom@19.1.7(@types/react@19.1.10))(@types/react@19.1.10)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       '@radix-ui/react-compose-refs': 1.1.2(@types/react@19.1.10)(react@19.1.1)
       '@radix-ui/react-context': 1.1.2(@types/react@19.1.10)(react@19.1.1)
       '@radix-ui/react-direction': 1.1.1(@types/react@19.1.10)(react@19.1.1)
-      '@radix-ui/react-dismissable-layer': 1.1.10(@types/react-dom@19.1.7(@types/react@19.1.10))(@types/react@19.1.10)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
-      '@radix-ui/react-focus-guards': 1.1.2(@types/react@19.1.10)(react@19.1.1)
+      '@radix-ui/react-dismissable-layer': 1.1.11(@types/react-dom@19.1.7(@types/react@19.1.10))(@types/react@19.1.10)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+      '@radix-ui/react-focus-guards': 1.1.3(@types/react@19.1.10)(react@19.1.1)
       '@radix-ui/react-focus-scope': 1.1.7(@types/react-dom@19.1.7(@types/react@19.1.10))(@types/react@19.1.10)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       '@radix-ui/react-id': 1.1.1(@types/react@19.1.10)(react@19.1.1)
-      '@radix-ui/react-popper': 1.2.7(@types/react-dom@19.1.7(@types/react@19.1.10))(@types/react@19.1.10)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+      '@radix-ui/react-popper': 1.2.8(@types/react-dom@19.1.7(@types/react@19.1.10))(@types/react@19.1.10)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       '@radix-ui/react-portal': 1.1.9(@types/react-dom@19.1.7(@types/react@19.1.10))(@types/react@19.1.10)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
-      '@radix-ui/react-presence': 1.1.4(@types/react-dom@19.1.7(@types/react@19.1.10))(@types/react@19.1.10)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+      '@radix-ui/react-presence': 1.1.5(@types/react-dom@19.1.7(@types/react@19.1.10))(@types/react@19.1.10)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       '@radix-ui/react-primitive': 2.1.3(@types/react-dom@19.1.7(@types/react@19.1.10))(@types/react@19.1.10)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
-      '@radix-ui/react-roving-focus': 1.1.10(@types/react-dom@19.1.7(@types/react@19.1.10))(@types/react@19.1.10)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+      '@radix-ui/react-roving-focus': 1.1.11(@types/react-dom@19.1.7(@types/react@19.1.10))(@types/react@19.1.10)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       '@radix-ui/react-slot': 1.2.3(@types/react@19.1.10)(react@19.1.1)
       '@radix-ui/react-use-callback-ref': 1.1.1(@types/react@19.1.10)(react@19.1.1)
       aria-hidden: 1.2.6
       react: 19.1.1
       react-dom: 19.1.1(react@19.1.1)
-      react-remove-scroll: 2.7.0(@types/react@19.1.10)(react@19.1.1)
+      react-remove-scroll: 2.7.1(@types/react@19.1.10)(react@19.1.1)
     optionalDependencies:
       '@types/react': 19.1.10
       '@types/react-dom': 19.1.7(@types/react@19.1.10)
 
-  '@radix-ui/react-popper@1.2.7(@types/react-dom@19.1.7(@types/react@19.1.10))(@types/react@19.1.10)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)':
+  '@radix-ui/react-popper@1.2.8(@types/react-dom@19.1.7(@types/react@19.1.10))(@types/react@19.1.10)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)':
     dependencies:
-      '@floating-ui/react-dom': 2.1.2(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+      '@floating-ui/react-dom': 2.1.5(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       '@radix-ui/react-arrow': 1.1.7(@types/react-dom@19.1.7(@types/react@19.1.10))(@types/react@19.1.10)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       '@radix-ui/react-compose-refs': 1.1.2(@types/react@19.1.10)(react@19.1.1)
       '@radix-ui/react-context': 1.1.2(@types/react@19.1.10)(react@19.1.1)
@@ -6549,7 +6549,7 @@ snapshots:
       '@types/react': 19.1.10
       '@types/react-dom': 19.1.7(@types/react@19.1.10)
 
-  '@radix-ui/react-presence@1.1.4(@types/react-dom@19.1.7(@types/react@19.1.10))(@types/react@19.1.10)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)':
+  '@radix-ui/react-presence@1.1.5(@types/react-dom@19.1.7(@types/react@19.1.10))(@types/react@19.1.10)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)':
     dependencies:
       '@radix-ui/react-compose-refs': 1.1.2(@types/react@19.1.10)(react@19.1.1)
       '@radix-ui/react-use-layout-effect': 1.1.1(@types/react@19.1.10)(react@19.1.1)
@@ -6578,9 +6578,9 @@ snapshots:
       '@types/react': 19.1.10
       '@types/react-dom': 19.1.7(@types/react@19.1.10)
 
-  '@radix-ui/react-roving-focus@1.1.10(@types/react-dom@19.1.7(@types/react@19.1.10))(@types/react@19.1.10)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)':
+  '@radix-ui/react-roving-focus@1.1.11(@types/react-dom@19.1.7(@types/react@19.1.10))(@types/react@19.1.10)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)':
     dependencies:
-      '@radix-ui/primitive': 1.1.2
+      '@radix-ui/primitive': 1.1.3
       '@radix-ui/react-collection': 1.1.7(@types/react-dom@19.1.7(@types/react@19.1.10))(@types/react@19.1.10)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       '@radix-ui/react-compose-refs': 1.1.2(@types/react@19.1.10)(react@19.1.1)
       '@radix-ui/react-context': 1.1.2(@types/react@19.1.10)(react@19.1.1)
@@ -8929,7 +8929,7 @@ snapshots:
       prelude-ls: 1.2.1
       type-check: 0.4.0
 
-  libphonenumber-js@1.12.10: {}
+  libphonenumber-js@1.12.11: {}
 
   lightningcss-darwin-arm64@1.30.1:
     optional: true
@@ -9458,7 +9458,7 @@ snapshots:
       classnames: 2.5.1
       country-flag-icons: 1.5.19
       input-format: 0.3.14(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
-      libphonenumber-js: 1.12.10
+      libphonenumber-js: 1.12.11
       prop-types: 15.8.1
       react: 19.1.1
       react-dom: 19.1.1(react@19.1.1)
@@ -9475,7 +9475,7 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.1.10
 
-  react-remove-scroll@2.7.0(@types/react@19.1.10)(react@19.1.1):
+  react-remove-scroll@2.7.1(@types/react@19.1.10)(react@19.1.1):
     dependencies:
       react: 19.1.1
       react-remove-scroll-bar: 2.3.8(@types/react@19.1.10)(react@19.1.1)
