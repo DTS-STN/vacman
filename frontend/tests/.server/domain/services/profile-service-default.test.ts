@@ -148,7 +148,7 @@ describe('getDefaultProfileService', () => {
       const result = await profileService.listAllProfiles('mock-token', params);
 
       // Assert
-      expect(apiClient.get).toHaveBeenCalledWith('/profiles?user-data=true', 'list filtered profiles', mockAccessToken);
+      expect(apiClient.get).toHaveBeenCalledWith('/profiles', 'list filtered profiles', mockAccessToken);
       expect(apiClient.get).toHaveBeenCalledTimes(1);
 
       // Verify the final output is sanitized
