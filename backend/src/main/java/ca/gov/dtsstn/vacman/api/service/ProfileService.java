@@ -197,13 +197,13 @@ public class ProfileService {
 			existingEntity.setHrAdvisor(hrAdvisor);
 		}
 
-		final var classificationId = updateModel.classification().getId();
+		final var classificationId = updateModel.substantiveClassification().getId();
 		if (classificationId != null && !classificationId.equals(existingEntity.getClassification().getId())) {
 			existingEntity.setClassification(classificationRepository.findById(classificationId)
 				.orElseThrow(() -> generateIdDoesNotExistException("Classification", classificationId)));
 		}
 
-		final var workUnitId = updateModel.workUnit().getId();
+		final var workUnitId = updateModel.substantiveWorkUnit().getId();
 		if (workUnitId != null && !workUnitId.equals(existingEntity.getWorkUnit().getId())) {
 			existingEntity.setWorkUnit(workUnitRepository.findById(workUnitId)
 				.orElseThrow(() -> generateIdDoesNotExistException("Work Unit", workUnitId)));

@@ -1,9 +1,12 @@
 import { None, Some, Err, Ok } from 'oxide.ts';
 import type { Result, Option } from 'oxide.ts';
 
+import { getMockCityService } from './city-service-mock';
 import { getMockLanguageForCorrespondenceService } from './language-for-correspondence-service-mock';
 import { getProfileStatusService } from './profile-status-service';
+import { getMockProvinceService } from './province-service-mock';
 import { getUserService } from './user-service';
+import { getMockWFAStatusService } from './wfa-status-service-mock';
 
 import type { Profile, ProfileStatus, SaveProfile, UserPersonalInformation } from '~/.server/domain/models';
 import type { ListProfilesParams, ProfileService } from '~/.server/domain/services/profile-service';
@@ -71,6 +74,23 @@ export function getMockProfileService(): ProfileService {
         (await getMockLanguageForCorrespondenceService().findById(profile.personalInformation.preferredLanguageId));
       const preferredLanguage =
         preferredLanguageResult && preferredLanguageResult.isSome() ? preferredLanguageResult.unwrap() : undefined;
+
+      const wfaStatusResult =
+        profile.employmentInformation.wfaStatusId !== undefined &&
+        (await getMockWFAStatusService().findById(profile.employmentInformation.wfaStatusId));
+      const wfaStatus = wfaStatusResult && wfaStatusResult.isSome() ? wfaStatusResult.unwrap() : undefined;
+
+      const provinceResult =
+        profile.employmentInformation.provinceId !== undefined && (await getMockProvinceService().listAll());
+      const province = provinceResult
+        ? provinceResult.find((p) => p.id === profile.employmentInformation.provinceId)
+        : undefined;
+
+      const cityResult =
+        profile.employmentInformation.cityId !== undefined &&
+        (await getMockCityService().getById(profile.employmentInformation.cityId));
+      const city = cityResult ? cityResult.unwrap() : undefined;
+
       const updatedProfile: Profile = {
         ...existingProfile,
         ...profile,
@@ -81,6 +101,9 @@ export function getMockProfileService(): ProfileService {
         employmentInformation: {
           ...existingProfile.employmentInformation,
           ...profile.employmentInformation,
+          wfaStatus,
+          province,
+          city,
         },
         referralPreferences: {
           ...existingProfile.referralPreferences,
@@ -213,7 +236,7 @@ let mockProfiles: Profile[] = [
       branchOrServiceCanadaRegion: undefined,
       directorate: undefined,
       province: undefined,
-      cityId: undefined,
+      city: undefined,
       wfaStatus: undefined,
       wfaEffectiveDate: undefined,
       wfaEndDate: undefined,
@@ -256,7 +279,7 @@ let mockProfiles: Profile[] = [
       branchOrServiceCanadaRegion: undefined,
       directorate: undefined,
       province: undefined,
-      cityId: undefined,
+      city: undefined,
       wfaStatus: undefined,
       wfaEffectiveDate: undefined,
       wfaEndDate: undefined,
@@ -298,9 +321,9 @@ let mockProfiles: Profile[] = [
       substantivePosition: 1,
       branchOrServiceCanadaRegion: 0,
       directorate: 2,
-      province: 1,
-      cityId: 2,
-      wfaStatus: 0,
+      province: undefined,
+      city: undefined,
+      wfaStatus: undefined,
       wfaEffectiveDate: undefined,
       wfaEndDate: undefined,
       hrAdvisor: 5,
@@ -341,9 +364,9 @@ let mockProfiles: Profile[] = [
       substantivePosition: 1,
       branchOrServiceCanadaRegion: 0,
       directorate: 2,
-      province: 1,
-      cityId: 2,
-      wfaStatus: 1,
+      province: undefined,
+      city: undefined,
+      wfaStatus: undefined,
       wfaEffectiveDate: undefined,
       wfaEndDate: undefined,
       hrAdvisor: 5,
@@ -384,9 +407,9 @@ let mockProfiles: Profile[] = [
       substantivePosition: 1,
       branchOrServiceCanadaRegion: 0,
       directorate: 2,
-      province: 1,
-      cityId: 2,
-      wfaStatus: 1,
+      province: undefined,
+      city: undefined,
+      wfaStatus: undefined,
       wfaEffectiveDate: undefined,
       wfaEndDate: undefined,
       hrAdvisor: 5,
@@ -427,9 +450,9 @@ let mockProfiles: Profile[] = [
       substantivePosition: 1,
       branchOrServiceCanadaRegion: 0,
       directorate: 2,
-      province: 1,
-      cityId: 2,
-      wfaStatus: 1,
+      province: undefined,
+      city: undefined,
+      wfaStatus: undefined,
       wfaEffectiveDate: undefined,
       wfaEndDate: undefined,
       hrAdvisor: 5,
@@ -470,9 +493,9 @@ let mockProfiles: Profile[] = [
       substantivePosition: 1,
       branchOrServiceCanadaRegion: 0,
       directorate: 2,
-      province: 1,
-      cityId: 2,
-      wfaStatus: 1,
+      province: undefined,
+      city: undefined,
+      wfaStatus: undefined,
       wfaEffectiveDate: undefined,
       wfaEndDate: undefined,
       hrAdvisor: 5,
@@ -513,9 +536,9 @@ let mockProfiles: Profile[] = [
       substantivePosition: 1,
       branchOrServiceCanadaRegion: 0,
       directorate: 2,
-      province: 1,
-      cityId: 2,
-      wfaStatus: 1,
+      province: undefined,
+      city: undefined,
+      wfaStatus: undefined,
       wfaEffectiveDate: undefined,
       wfaEndDate: undefined,
       hrAdvisor: 5,
@@ -556,9 +579,9 @@ let mockProfiles: Profile[] = [
       substantivePosition: 1,
       branchOrServiceCanadaRegion: 0,
       directorate: 2,
-      province: 1,
-      cityId: 2,
-      wfaStatus: 1,
+      province: undefined,
+      city: undefined,
+      wfaStatus: undefined,
       wfaEffectiveDate: undefined,
       wfaEndDate: undefined,
       hrAdvisor: 5,
@@ -599,9 +622,9 @@ let mockProfiles: Profile[] = [
       substantivePosition: 1,
       branchOrServiceCanadaRegion: 0,
       directorate: 2,
-      province: 1,
-      cityId: 2,
-      wfaStatus: 1,
+      province: undefined,
+      city: undefined,
+      wfaStatus: undefined,
       wfaEffectiveDate: undefined,
       wfaEndDate: undefined,
       hrAdvisor: 5,
@@ -642,9 +665,9 @@ let mockProfiles: Profile[] = [
       substantivePosition: 1,
       branchOrServiceCanadaRegion: 0,
       directorate: 2,
-      province: 1,
-      cityId: 2,
-      wfaStatus: 1,
+      province: undefined,
+      city: undefined,
+      wfaStatus: undefined,
       wfaEffectiveDate: undefined,
       wfaEndDate: undefined,
       hrAdvisor: 1,
@@ -685,9 +708,9 @@ let mockProfiles: Profile[] = [
       substantivePosition: 1,
       branchOrServiceCanadaRegion: 0,
       directorate: 2,
-      province: 1,
-      cityId: 2,
-      wfaStatus: 1,
+      province: undefined,
+      city: undefined,
+      wfaStatus: undefined,
       wfaEffectiveDate: undefined,
       wfaEndDate: undefined,
       hrAdvisor: 5,
@@ -728,9 +751,9 @@ let mockProfiles: Profile[] = [
       substantivePosition: 1,
       branchOrServiceCanadaRegion: 0,
       directorate: 2,
-      province: 1,
-      cityId: 2,
-      wfaStatus: 1,
+      province: undefined,
+      city: undefined,
+      wfaStatus: undefined,
       wfaEffectiveDate: undefined,
       wfaEndDate: undefined,
       hrAdvisor: 5,
@@ -771,9 +794,9 @@ let mockProfiles: Profile[] = [
       substantivePosition: 1,
       branchOrServiceCanadaRegion: 0,
       directorate: 2,
-      province: 1,
-      cityId: 2,
-      wfaStatus: 1,
+      province: undefined,
+      city: undefined,
+      wfaStatus: undefined,
       wfaEffectiveDate: undefined,
       wfaEndDate: undefined,
       hrAdvisor: 5,
@@ -814,9 +837,9 @@ let mockProfiles: Profile[] = [
       substantivePosition: 1,
       branchOrServiceCanadaRegion: 0,
       directorate: 2,
-      province: 1,
-      cityId: 2,
-      wfaStatus: 1,
+      province: undefined,
+      city: undefined,
+      wfaStatus: undefined,
       wfaEffectiveDate: undefined,
       wfaEndDate: undefined,
       hrAdvisor: 5,
@@ -882,7 +905,7 @@ function createMockProfile(accessToken: string): Profile {
       branchOrServiceCanadaRegion: undefined,
       directorate: undefined,
       province: undefined,
-      cityId: undefined,
+      city: undefined,
       wfaStatus: undefined,
       wfaEffectiveDate: undefined,
       wfaEndDate: undefined,

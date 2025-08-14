@@ -97,7 +97,7 @@ export async function createEmploymentInformationSchema(accessToken: string, for
             );
           }
         }),
-        province: v.lazy(() =>
+        provinceId: v.lazy(() =>
           v.pipe(
             stringToIntegerSchema('app:employment-information.errors.provinces-required'),
             v.picklist(
@@ -126,10 +126,13 @@ export async function createEmploymentInformationSchema(accessToken: string, for
         ),
       }),
       v.variant(
-        'wfaStatus',
+        'wfaStatusId',
         [
           v.object({
-            wfaStatus: v.pipe(stringToIntegerSchema(), v.picklist(selectedValidWfaStatusesForOptionalDate.map(({ id }) => id))),
+            wfaStatusId: v.pipe(
+              stringToIntegerSchema(),
+              v.picklist(selectedValidWfaStatusesForOptionalDate.map(({ id }) => id)),
+            ),
             wfaEffectiveDateYear: v.optional(v.string()),
             wfaEffectiveDateMonth: v.optional(v.string()),
             wfaEffectiveDateDay: v.optional(v.string()),
@@ -140,7 +143,10 @@ export async function createEmploymentInformationSchema(accessToken: string, for
             wfaEndDate: v.optional(v.string()),
           }),
           v.object({
-            wfaStatus: v.pipe(stringToIntegerSchema(), v.picklist(selectedValidWfaStatusesForRequiredDate.map(({ id }) => id))),
+            wfaStatusId: v.pipe(
+              stringToIntegerSchema(),
+              v.picklist(selectedValidWfaStatusesForRequiredDate.map(({ id }) => id)),
+            ),
             wfaEffectiveDateYear: v.pipe(
               stringToIntegerSchema('app:employment-information.errors.wfa-effective-date.required-year'),
               v.minValue(1, 'app:employment-information.errors.wfa-effective-date.invalid-year'),
@@ -424,9 +430,9 @@ export async function parseEmploymentInformation(formData: FormData, accessToken
     substantivePosition: formString(formData.get('substantivePosition')),
     branchOrServiceCanadaRegion: formString(formData.get('branchOrServiceCanadaRegion')),
     directorate: formString(formData.get('directorate')),
-    province: formString(formData.get('province')),
+    provinceId: formString(formData.get('province')),
     cityId: formString(formData.get('cityId')),
-    wfaStatus: formString(formData.get('wfaStatus')),
+    wfaStatusId: formString(formData.get('wfaStatus')),
     wfaEffectiveDate: toDateString(wfaEffectiveDateYear, wfaEffectiveDateMonth, wfaEffectiveDateDay),
     wfaEffectiveDateYear: wfaEffectiveDateYear,
     wfaEffectiveDateMonth: wfaEffectiveDateMonth,
@@ -446,9 +452,9 @@ export async function parseEmploymentInformation(formData: FormData, accessToken
       substantivePosition: formValues.substantivePosition,
       branchOrServiceCanadaRegion: formValues.branchOrServiceCanadaRegion,
       directorate: formValues.directorate,
-      province: formValues.province,
+      provinceId: formValues.provinceId,
       cityId: formValues.cityId,
-      wfaStatus: formValues.wfaStatus,
+      wfaStatusId: formValues.wfaStatusId,
       wfaEffectiveDateYear: formValues.wfaEffectiveDateYear,
       wfaEffectiveDateMonth: formValues.wfaEffectiveDateMonth,
       wfaEffectiveDateDay: formValues.wfaEffectiveDateDay,
