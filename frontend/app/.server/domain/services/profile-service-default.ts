@@ -187,7 +187,7 @@ export function getDefaultProfileService(): ProfileService {
     /**
      * Finds all profiles based on filters. Returns an Option.
      */
-    async findAllProfiles(params: ListProfilesParams): Promise<Option<readonly Profile[]>> {
+    async findAllProfiles(accessToken: string, params: ListProfilesParams): Promise<Option<readonly Profile[]>> {
       const result = await getAllProfiles(params);
 
       return result
@@ -202,7 +202,7 @@ export function getDefaultProfileService(): ProfileService {
     /**
      * Retrieves a sanitized list of profiles based on filters. Throws on error.
      */
-    async listAllProfiles(params: ListProfilesParams): Promise<readonly Profile[]> {
+    async listAllProfiles(accessToken: string, params: ListProfilesParams): Promise<readonly Profile[]> {
       const result = await getAllProfiles(params);
 
       if (result.isErr()) {
