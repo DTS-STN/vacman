@@ -75,8 +75,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     throw updateResult.unwrapErr();
   }
 
-  // Update the user's businessPhone if workPhone was provided
-  if (workPhone && currentUser) {
+  if (currentUser) {
     const userUpdateResult = await userService.updateUser(
       {
         ...currentUser,
