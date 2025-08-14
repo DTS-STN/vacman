@@ -74,7 +74,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 
   // Fetch the profile user data to get current businessEmail and other user info
   const profileUserResult = await getUserService().getUserById(profileData.userId, context.session.authState.accessToken);
-  const profileUser = profileUserResult.isOk() ? profileUserResult.unwrap() : undefined;
+  const profileUser = profileUserResult.into();
 
   const profileUpdatedByUserResult = profileData.userUpdated
     ? await getUserService().getUserById(profileData.userId, context.session.authState.accessToken)
