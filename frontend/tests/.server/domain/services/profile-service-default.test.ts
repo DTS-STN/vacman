@@ -145,7 +145,7 @@ describe('getDefaultProfileService', () => {
       const params = { accessToken: mockAccessToken, includeUserData: true };
 
       // Act
-      const result = await profileService.listAllProfiles(params);
+      const result = await profileService.listAllProfiles('mock-token', params);
 
       // Assert
       expect(apiClient.get).toHaveBeenCalledWith('/profiles?user-data=true', 'list filtered profiles', mockAccessToken);
@@ -163,7 +163,7 @@ describe('getDefaultProfileService', () => {
       const params = { accessToken: mockAccessToken, includeUserData: true };
 
       // Act & Assert
-      await expect(profileService.listAllProfiles(params)).rejects.toSatisfy((error: AppError) => {
+      await expect(profileService.listAllProfiles('mock-token', params)).rejects.toSatisfy((error: AppError) => {
         expect(error.errorCode).toBe(ErrorCodes.PROFILE_FETCH_FAILED);
         expect(error.message).toContain(mockApiError.message);
         return true;
@@ -178,7 +178,7 @@ describe('getDefaultProfileService', () => {
       const params = { accessToken: mockAccessToken, includeUserData: true };
 
       // Act
-      const result = await profileService.findAllProfiles(params);
+      const result = await profileService.findAllProfiles('mock-token', params);
 
       // Assert
       expect(apiClient.get).toHaveBeenCalledTimes(1);
@@ -193,7 +193,7 @@ describe('getDefaultProfileService', () => {
       const params = { accessToken: mockAccessToken, includeUserData: true };
 
       // Act
-      const result = await profileService.findAllProfiles(params);
+      const result = await profileService.findAllProfiles('mock-token', params);
 
       // Assert
       expect(result.isNone()).toBe(true);
