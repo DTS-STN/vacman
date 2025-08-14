@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 
 import type { Route } from '../profile/+types/index';
 
-import type { Profile } from '~/.server/domain/models';
+import type { Profile, UserEmploymentInformation } from '~/.server/domain/models';
 import { getBranchService } from '~/.server/domain/services/branch-service';
 import { getCityService } from '~/.server/domain/services/city-service';
 import { getClassificationService } from '~/.server/domain/services/classification-service';
@@ -69,8 +69,19 @@ export async function action({ context, request }: Route.ActionArgs) {
     (status) => status.id === profileData.employmentInformation.wfaStatus,
   );
   const requiredEmploymentInformation = isWfaDateOptional
-    ? omitObjectProperties(profileData.employmentInformation, ['wfaEndDate', 'wfaEffectiveDate']) // If status is "Affected", omit the effective date
-    : omitObjectProperties(profileData.employmentInformation, ['wfaEndDate']);
+    ? omitObjectProperties(profileData.employmentInformation, [
+        'wfaEndDate',
+        'wfaEffectiveDate',
+        ...(profileData.employmentInformation.branchOrServiceCanadaRegion && !profileData.employmentInformation.directorate
+          ? ['directorate' as keyof UserEmploymentInformation]
+          : []),
+      ]) // If status is "Affected" or "Affected -EX", omit the effective date
+    : omitObjectProperties(profileData.employmentInformation, [
+        'wfaEndDate',
+        ...(profileData.employmentInformation.branchOrServiceCanadaRegion && !profileData.employmentInformation.directorate
+          ? ['directorate' as keyof UserEmploymentInformation]
+          : []),
+      ]);
 
   // Check if all sections are complete
   const personalInfoComplete =
@@ -140,45 +151,46 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   ]);
 
   // Extract the user from the result
-  const currentUser = currentUserResult.isOk() ? currentUserResult.unwrap() : undefined;
+  const currentUser = currentUserResult.into();
 
   const profileUpdatedByUserResult = profileData.userUpdated
     ? await getUserService().getUserById(profileData.userId, context.session.authState.accessToken)
     : undefined;
-  const profileUpdatedByUser = profileUpdatedByUserResult?.isOk() ? profileUpdatedByUserResult.unwrap() : undefined;
+  const profileUpdatedByUser = profileUpdatedByUserResult?.into();
   const profileUpdatedByUserName = profileUpdatedByUser && `${profileUpdatedByUser.firstName} ${profileUpdatedByUser.lastName}`;
   const profileStatus = (await getProfileStatusService().findLocalizedById(profileData.profileStatus.id, lang)).unwrap();
-
   const workUnitResult =
-    profileData.employmentInformation.directorate !== undefined &&
-    (await getDirectorateService().findLocalizedById(profileData.employmentInformation.directorate, lang));
+    profileData.employmentInformation.directorate !== undefined
+      ? await getDirectorateService().findLocalizedById(profileData.employmentInformation.directorate, lang)
+      : undefined;
   const branchResult =
     profileData.employmentInformation.branchOrServiceCanadaRegion !== undefined &&
-    !profileData.employmentInformation.directorate && // Only look up branch directly if there's no directorate
-    (await getBranchService().findLocalizedById(profileData.employmentInformation.branchOrServiceCanadaRegion, lang));
+    profileData.employmentInformation.directorate === undefined // Only look up branch directly if there's no directorate
+      ? await getBranchService().findLocalizedById(profileData.employmentInformation.branchOrServiceCanadaRegion, lang)
+      : undefined;
   const substantivePositionResult =
-    profileData.employmentInformation.substantivePosition !== undefined &&
-    (await getClassificationService().findLocalizedById(profileData.employmentInformation.substantivePosition, lang));
+    profileData.employmentInformation.substantivePosition !== undefined
+      ? await getClassificationService().findLocalizedById(profileData.employmentInformation.substantivePosition, lang)
+      : undefined;
   const cityResult =
-    profileData.employmentInformation.cityId !== undefined &&
-    (await getCityService().findLocalizedById(profileData.employmentInformation.cityId, lang));
+    profileData.employmentInformation.cityId !== undefined
+      ? await getCityService().findLocalizedById(profileData.employmentInformation.cityId, lang)
+      : undefined;
   const wfaStatusResult =
-    profileData.employmentInformation.wfaStatus !== undefined &&
-    (await getWFAStatuses().findLocalizedById(profileData.employmentInformation.wfaStatus, lang));
+    profileData.employmentInformation.wfaStatus !== undefined
+      ? await getWFAStatuses().findLocalizedById(profileData.employmentInformation.wfaStatus, lang)
+      : undefined;
 
   // convert the IDs to display names
-  const substantivePosition =
-    substantivePositionResult && substantivePositionResult.isSome() ? substantivePositionResult.unwrap().name : undefined;
-  const branchOrServiceCanadaRegion =
-    (workUnitResult && workUnitResult.isSome() ? workUnitResult.unwrap().parent?.name : undefined) ??
-    (branchResult && branchResult.isSome() ? branchResult.unwrap().name : undefined);
-  const directorate = workUnitResult && workUnitResult.isSome() ? workUnitResult.unwrap().name : undefined;
-  const city = cityResult && cityResult.isSome() ? cityResult.unwrap() : undefined;
-  const wfaStatus = wfaStatusResult ? (wfaStatusResult.isSome() ? wfaStatusResult.unwrap() : undefined) : undefined;
+  const substantivePosition = substantivePositionResult?.into()?.name;
+  const branchOrServiceCanadaRegion = workUnitResult?.into()?.parent?.name ?? branchResult?.into()?.name;
+  const directorate = workUnitResult?.into()?.name;
+  const city = cityResult?.into();
+  const wfaStatus = wfaStatusResult?.into();
   const hrAdvisorResult = profileData.employmentInformation.hrAdvisor
     ? await getUserService().getUserById(profileData.employmentInformation.hrAdvisor, context.session.authState.accessToken)
     : undefined;
-  const hrAdvisor = hrAdvisorResult?.isOk() ? hrAdvisorResult.unwrap() : undefined;
+  const hrAdvisor = hrAdvisorResult?.into();
   const languageReferralTypes = profileData.referralPreferences.languageReferralTypeIds
     ?.map((langId) => allLocalizedLanguageReferralTypes.find((l) => l.id === langId))
     .filter(Boolean);
@@ -209,12 +221,22 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       nameEn: status.nameEn,
       nameFr: status.nameFr,
     }));
+
   const isWfaDateOptional = selectedValidWfaStatusesForOptionalDate.some(
     (status) => status.id === profileData.employmentInformation.wfaStatus,
   );
+
   const requiredEmploymentInformation = isWfaDateOptional
-    ? omitObjectProperties(profileData.employmentInformation, ['wfaEndDate', 'wfaEffectiveDate']) // If status is "Affected" or "Affected -EX", omit the effective date
-    : omitObjectProperties(profileData.employmentInformation, ['wfaEndDate']);
+    ? omitObjectProperties(profileData.employmentInformation, [
+        'wfaEndDate',
+        'wfaEffectiveDate',
+        ...(branchOrServiceCanadaRegion && !directorate ? ['directorate' as keyof UserEmploymentInformation] : []),
+      ]) // If status is "Affected" or "Affected -EX", omit the effective date
+    : omitObjectProperties(profileData.employmentInformation, [
+        'wfaEndDate',
+        ...(branchOrServiceCanadaRegion && !directorate ? ['directorate' as keyof UserEmploymentInformation] : []),
+      ]);
+
   const employmentInformationCompleted = countCompletedItems(requiredEmploymentInformation);
   const employmentInformationTotalFields = Object.keys(requiredEmploymentInformation).length;
 
