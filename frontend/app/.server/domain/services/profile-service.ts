@@ -29,13 +29,6 @@ export interface ListProfilesParams {
    * - `null` or `undefined`: Do not filter by advisor.
    */
   hrAdvisorId?: string | null;
-
-  /**
-   * Determines whether to include extended user data (names, email) in the response.
-   * - `true`: Include user data.
-   * - `false`: Do not include user data.
-   */
-  includeUserData: boolean;
 }
 
 // The expected API response structure
