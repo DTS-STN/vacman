@@ -25,7 +25,8 @@ const log = LogFactory.getLogger(import.meta.url);
  * @throws {Response} Redirect to index page if user hasn't accepted privacy consent
  */
 async function checkPrivacyConsentForUser(accessToken: string, userId: number, currentUrl: URL): Promise<void> {
-  const profileOption = await getProfileService().getCurrentUserProfile(accessToken);
+  const profileParams = { active: true };
+  const profileOption = await getProfileService().getCurrentUserProfiles(profileParams, accessToken);
 
   if (profileOption.isNone()) {
     log.debug(`Profile not found for user ${userId}`);
@@ -83,7 +84,8 @@ export async function requirePrivacyConsentForOwnProfile(
   }
 
   const currentUser = currentUserOption.unwrap();
-  const profileOpion = await getProfileService().getCurrentUserProfile(session.authState.accessToken);
+  const profileParams = { active: true };
+  const profileOpion = await getProfileService().getCurrentUserProfiles(profileParams, session.authState.accessToken);
 
   if (profileOpion.isNone()) {
     log.debug(`Profile not found for user: ${currentUser.id}`);

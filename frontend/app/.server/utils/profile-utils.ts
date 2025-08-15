@@ -1,4 +1,5 @@
-import type { UserEmploymentInformation, UserReferralPreferences } from '~/.server/domain/models';
+import type { User, UserEmploymentInformation, UserQueryParams, UserReferralPreferences } from '~/.server/domain/models';
+import { getUserService } from '~/.server/domain/services/user-service';
 
 /**
  * Counts the number of "completed" items in a given data object.
@@ -91,4 +92,18 @@ export function hasEmploymentDataChanged(oldData: UserEmploymentInformation, new
 export function hasReferralDataChanged(oldData: UserReferralPreferences, newData: UserReferralPreferences) {
   const keysToCheck: (keyof UserReferralPreferences)[] = ['classificationIds', 'workLocationCitiesIds', 'workLocationProvince'];
   return keysToCheck.some((key) => newData[key] !== oldData[key]);
+}
+
+const userParams: UserQueryParams = {
+  'user-type': 'hr-advisor',
+};
+
+// Function to get HR advisors that requires authentication
+export async function getHrAdvisors(accessToken: string): Promise<User[]> {
+  const result = await getUserService().getUsers(userParams, accessToken);
+
+  if (result.isErr()) {
+    throw result.unwrapErr();
+  }
+  return result.unwrap().content;
 }

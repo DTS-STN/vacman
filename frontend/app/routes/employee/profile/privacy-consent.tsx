@@ -31,7 +31,8 @@ export async function action({ context, request }: Route.ActionArgs) {
   requireAuthentication(context.session, request);
 
   const profileService = getProfileService();
-  const profileOption = await getProfileService().getCurrentUserProfile(context.session.authState.accessToken);
+  const profileParams = { active: true };
+  const profileOption = await getProfileService().getCurrentUserProfiles(profileParams, context.session.authState.accessToken);
 
   if (profileOption.isNone()) {
     return i18nRedirect('routes/index.tsx', request);
