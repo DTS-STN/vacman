@@ -28,12 +28,20 @@ async function checkPrivacyConsentForUser(accessToken: string, userId: number, c
   const profileParams = { active: true };
   const profileOption = await getProfileService().getCurrentUserProfiles(profileParams, accessToken);
 
-  if (profileOption.isNone()) {
+  if (profileResult.isErr()) {
     log.debug(`Profile not found for user ${userId}`);
     throw i18nRedirect('routes/index.tsx', currentUrl);
   }
 
-  if (!profileOption.unwrap().hasConsentedToPrivacyTerms) {
+  const profiles = profileResult.unwrap().content;
+  if (profiles.length === 0) {
+    log.debug(`No profiles found for user ${userId}`);
+    throw i18nRedirect('routes/index.tsx', currentUrl);
+  }
+
+  // Check the first (active) profile for privacy consent
+  const profile = profiles[0];
+  if (profile && !profile.hasConsentedToPrivacyTerms) {
     log.debug(`Privacy consent required for user ${userId}`);
     throw i18nRedirect('routes/employee/profile/privacy-consent.tsx', currentUrl);
   }
@@ -87,15 +95,24 @@ export async function requirePrivacyConsentForOwnProfile(
   const profileParams = { active: true };
   const profileOpion = await getProfileService().getCurrentUserProfiles(profileParams, session.authState.accessToken);
 
-  if (profileOpion.isNone()) {
+  if (profileResult.isErr()) {
     log.debug(`Profile not found for user: ${currentUser.id}`);
     throw new AppError(`Profile not found for user ID: ${currentUser.id}`, ErrorCodes.PROFILE_NOT_FOUND, {
       httpStatusCode: HttpStatusCodes.NOT_FOUND,
     });
   }
 
+  const profiles = profileResult.unwrap().content;
+  if (profiles.length === 0) {
+    log.debug(`No profiles found for user: ${currentUser.id}`);
+    throw new AppError(`Profile not found for user ID: ${currentUser.id}`, ErrorCodes.PROFILE_NOT_FOUND, {
+      httpStatusCode: HttpStatusCodes.NOT_FOUND,
+    });
+  }
+
   // Only check privacy consent if the user is accessing their own profile
-  if (currentUser.id !== profileOpion.unwrap().profileUser.id) {
+  const userProfile = profiles.find((profile) => profile.profileUser?.id === currentUser.id);
+  if (!userProfile) {
     return;
   }
 
