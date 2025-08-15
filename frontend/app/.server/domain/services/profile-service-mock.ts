@@ -14,6 +14,11 @@ import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 
+// Debug logging utility for Profile Service Mock
+const debugLog = (method: string, message: string, data?: unknown) => {
+  console.log(`[ProfileService Mock] ${method}: ${message}`, data ? JSON.stringify(data, null, 2) : '');
+};
+
 export function getMockProfileService(): ProfileService {
   return {
     /**
@@ -23,6 +28,7 @@ export function getMockProfileService(): ProfileService {
      * @returns A Result containing the paginated profile response or an error.
      */
     async getProfiles(params: ProfileQueryParams, accessToken: string): Promise<Result<PagedProfileResponse, AppError>> {
+      debugLog('getProfiles', 'Attempting to retrieve profiles', { params, accessTokenLength: accessToken.length });
       // Simulate async operation
       await new Promise((resolve) => setTimeout(resolve, 10));
 
@@ -31,10 +37,12 @@ export function getMockProfileService(): ProfileService {
         const error = new AppError('Mock Error: Failed to retrieve profiles as requested.', ErrorCodes.VACMAN_API_ERROR, {
           httpStatusCode: HttpStatusCodes.BAD_REQUEST,
         });
+        debugLog('getProfiles', 'Simulated failure for FAIL_TOKEN');
         return Err(error);
       }
 
       let filteredProfiles = [...mockProfiles];
+      debugLog('getProfiles', `Starting with ${filteredProfiles.length} total profiles`);
 
       // Apply active filter
       if (params.active !== undefined) {
@@ -43,8 +51,10 @@ export function getMockProfileService(): ProfileService {
 
         if (params.active === true) {
           filteredProfiles = filteredProfiles.filter((p) => p.profileStatus && activeStatuses.includes(p.profileStatus.id));
+          debugLog('getProfiles', `Applied active filter (true): ${filteredProfiles.length} profiles remaining`);
         } else {
           filteredProfiles = filteredProfiles.filter((p) => p.profileStatus && inactiveStatuses.includes(p.profileStatus.id));
+          debugLog('getProfiles', `Applied active filter (false): ${filteredProfiles.length} profiles remaining`);
         }
       }
 
@@ -53,10 +63,15 @@ export function getMockProfileService(): ProfileService {
         if (params['hr-advisor'] === 'me') {
           // For mock purposes, filter by hrAdvisorId = 1 when hr-advisor=me
           filteredProfiles = filteredProfiles.filter((p) => p.hrAdvisorId === 1);
+          debugLog('getProfiles', `Applied HR advisor filter (me): ${filteredProfiles.length} profiles remaining`);
         } else {
           const hrAdvisorId = parseInt(params['hr-advisor'], 10);
           if (!isNaN(hrAdvisorId)) {
             filteredProfiles = filteredProfiles.filter((p) => p.hrAdvisorId === hrAdvisorId);
+            debugLog(
+              'getProfiles',
+              `Applied HR advisor filter (${hrAdvisorId}): ${filteredProfiles.length} profiles remaining`,
+            );
           }
         }
       }
@@ -67,6 +82,10 @@ export function getMockProfileService(): ProfileService {
       const startIndex = page * size;
       const endIndex = startIndex + size;
       const paginatedProfiles = filteredProfiles.slice(startIndex, endIndex);
+      debugLog(
+        'getProfiles',
+        `Applied pagination (page: ${page}, size: ${size}): ${paginatedProfiles.length} profiles in current page`,
+      );
 
       const response: PagedProfileResponse = {
         content: paginatedProfiles,
@@ -78,6 +97,11 @@ export function getMockProfileService(): ProfileService {
         },
       };
 
+      debugLog('getProfiles', 'Successfully retrieved profiles', {
+        totalFiltered: filteredProfiles.length,
+        pageSize: paginatedProfiles.length,
+        currentPage: page,
+      });
       return Ok(response);
     },
 
@@ -91,6 +115,10 @@ export function getMockProfileService(): ProfileService {
       params: Pick<ProfileQueryParams, 'active'>,
       accessToken: string,
     ): Promise<Result<CollectionProfileResponse, AppError>> {
+      debugLog('getCurrentUserProfiles', 'Attempting to retrieve current user profiles', {
+        params,
+        accessTokenLength: accessToken.length,
+      });
       // Simulate async operation
       await new Promise((resolve) => setTimeout(resolve, 10));
 
@@ -103,11 +131,13 @@ export function getMockProfileService(): ProfileService {
             httpStatusCode: HttpStatusCodes.BAD_REQUEST,
           },
         );
+        debugLog('getCurrentUserProfiles', 'Simulated failure for FAIL_TOKEN');
         return Err(error);
       }
 
       // For mock purposes, return profiles for user ID 1
       let userProfiles = mockProfiles.filter((p) => p.profileUser?.id === 1);
+      debugLog('getCurrentUserProfiles', `Found ${userProfiles.length} profiles for user ID 1`);
 
       // Apply active filter
       if (params.active !== undefined) {
@@ -116,8 +146,10 @@ export function getMockProfileService(): ProfileService {
 
         if (params.active === true) {
           userProfiles = userProfiles.filter((p) => p.profileStatus && activeStatuses.includes(p.profileStatus.id));
+          debugLog('getCurrentUserProfiles', `Applied active filter (true): ${userProfiles.length} profiles remaining`);
         } else {
           userProfiles = userProfiles.filter((p) => p.profileStatus && inactiveStatuses.includes(p.profileStatus.id));
+          debugLog('getCurrentUserProfiles', `Applied active filter (false): ${userProfiles.length} profiles remaining`);
         }
       }
 
@@ -125,6 +157,7 @@ export function getMockProfileService(): ProfileService {
         content: userProfiles,
       };
 
+      debugLog('getCurrentUserProfiles', 'Successfully retrieved current user profiles', { profileCount: userProfiles.length });
       return Ok(response);
     },
 
@@ -134,6 +167,7 @@ export function getMockProfileService(): ProfileService {
      * @returns A Result containing the created profile or an error.
      */
     async registerProfile(accessToken: string): Promise<Result<Profile, AppError>> {
+      debugLog('registerProfile', 'Attempting to register new profile', { accessTokenLength: accessToken.length });
       // Simulate async operation
       await new Promise((resolve) => setTimeout(resolve, 10));
 
@@ -142,10 +176,15 @@ export function getMockProfileService(): ProfileService {
         const error = new AppError('Mock Error: Profile creation failed as requested.', ErrorCodes.PROFILE_CREATE_FAILED, {
           httpStatusCode: HttpStatusCodes.BAD_REQUEST,
         });
+        debugLog('registerProfile', 'Simulated failure for FAIL_TOKEN');
         return Err(error);
       }
 
       const newProfile = createMockProfile(accessToken);
+      debugLog('registerProfile', 'Successfully registered new profile', {
+        profileId: newProfile.id,
+        profileStatus: newProfile.profileStatus?.code,
+      });
       return Ok(newProfile);
     },
 
@@ -156,15 +195,23 @@ export function getMockProfileService(): ProfileService {
      * @returns A Result containing the profile or an error.
      */
     async getProfileById(profileId: number, accessToken: string): Promise<Result<Profile, AppError>> {
+      debugLog('getProfileById', `Attempting to retrieve profile with ID: ${profileId}`, {
+        accessTokenLength: accessToken.length,
+      });
       // Simulate async operation
       await new Promise((resolve) => setTimeout(resolve, 10));
 
       const profile = mockProfiles.find((p) => p.id === profileId);
 
       if (profile) {
+        debugLog('getProfileById', `Successfully retrieved profile with ID: ${profileId}`, {
+          profileStatus: profile.profileStatus?.code,
+          userId: profile.profileUser?.id,
+        });
         return Ok(profile);
       }
 
+      debugLog('getProfileById', `Profile with ID ${profileId} not found`);
       return Err(new AppError(`Profile with ID ${profileId} not found.`, ErrorCodes.PROFILE_NOT_FOUND));
     },
 
@@ -553,11 +600,15 @@ const activeDirectoryToUserIdMap: Record<string, number> = {
  * @throws {AppError} If the profile cannot be created (e.g., user not found).
  */
 function createMockProfile(accessToken: string): Profile {
+  debugLog('createMockProfile', 'Creating new mock profile', { accessTokenLength: accessToken.length });
   let userId = activeDirectoryToUserIdMap[accessToken];
   if (!userId) {
     // Create new entry in activeDirectoryToUserIdMap if it doesn't exist
     userId = mockProfiles.length + 1;
     activeDirectoryToUserIdMap['00000000-0000-0000-0000-000000000000'] = userId;
+    debugLog('createMockProfile', `Created new user mapping: userId ${userId}`);
+  } else {
+    debugLog('createMockProfile', `Using existing user mapping: userId ${userId}`);
   }
 
   // Create new profile
@@ -618,5 +669,10 @@ function createMockProfile(accessToken: string): Profile {
   // Add the new profile to the mock profiles array
   mockProfiles.push(newProfile);
 
+  debugLog('createMockProfile', 'Successfully created mock profile', {
+    profileId: newProfile.id,
+    userId,
+    totalProfiles: mockProfiles.length,
+  });
   return newProfile;
 }
