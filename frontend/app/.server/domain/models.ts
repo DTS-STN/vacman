@@ -133,7 +133,7 @@ export type Profile = Readonly<{
   userIdReviewedBy?: number;
   userIdApprovedBy?: number;
   profileStatus: ProfileStatus;
-  privacyConsentInd?: boolean;
+  hasConsentedToPrivacyTerms?: boolean;
   userCreated: string;
   dateCreated: string;
   userUpdated?: string;
@@ -199,7 +199,7 @@ export type SaveProfile = Readonly<{
   profileId: number;
   userIdReviewedBy?: number;
   userIdApprovedBy?: number;
-  privacyConsentInd?: boolean;
+  hasConsentedToPrivacyTerms?: boolean;
   userCreated: string;
   dateCreated: string;
   userUpdated?: string;
