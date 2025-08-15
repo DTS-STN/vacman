@@ -162,6 +162,48 @@ export function getMockProfileService(): ProfileService {
     },
 
     /**
+     * Retrieves the current user's active profile (singular).
+     * @param params Query parameters for filtering.
+     * @param accessToken The access token for authorization.
+     * @returns A single Profile object.
+     * @throws AppError if no profile is found or if the request fails.
+     */
+    async getCurrentUserProfile(params: Pick<ProfileQueryParams, 'active'>, accessToken: string): Promise<Profile> {
+      debugLog('getCurrentUserProfile', 'Attempting to retrieve current user profile', {
+        params,
+        accessTokenLength: accessToken.length,
+      });
+
+      const result = await this.getCurrentUserProfiles(params, accessToken);
+
+      if (result.isErr()) {
+        debugLog('getCurrentUserProfile', 'Failed to retrieve current user profiles');
+        throw result.unwrapErr();
+      }
+
+      const profiles = result.unwrap().content;
+      if (profiles.length === 0) {
+        const error = new AppError('No active profile found for current user', ErrorCodes.PROFILE_NOT_FOUND, {
+          httpStatusCode: HttpStatusCodes.NOT_FOUND,
+        });
+        debugLog('getCurrentUserProfile', 'No profiles found for current user');
+        throw error;
+      }
+
+      const profile = profiles[0];
+      if (!profile) {
+        const error = new AppError('Profile data is invalid', ErrorCodes.PROFILE_NOT_FOUND, {
+          httpStatusCode: HttpStatusCodes.NOT_FOUND,
+        });
+        debugLog('getCurrentUserProfile', 'Profile data is invalid');
+        throw error;
+      }
+
+      debugLog('getCurrentUserProfile', 'Successfully retrieved current user profile', { profileId: profile.id });
+      return profile;
+    },
+
+    /**
      * Registers a new profile for the current user.
      * @param accessToken The access token for authorization.
      * @returns A Result containing the created profile or an error.
