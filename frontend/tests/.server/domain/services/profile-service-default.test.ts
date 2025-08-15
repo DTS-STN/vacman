@@ -1,7 +1,7 @@
 import { Ok, Err } from 'oxide.ts';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import type { Profile, ProfileStatusUpdate } from '~/.server/domain/models';
+import type { ProfilePutModel, ProfileStatusUpdate } from '~/.server/domain/models';
 import { apiClient } from '~/.server/domain/services/api-client';
 import { getDefaultProfileService } from '~/.server/domain/services/profile-service-default';
 import { AppError } from '~/errors/app-error';
@@ -261,8 +261,7 @@ describe('ProfileServiceDefault', () => {
       mockPut.mockResolvedValue(Ok(mockUpdatedProfile));
 
       const profileId = 42;
-      const updatedProfile: Profile = {
-        id: profileId,
+      const updatedProfile: ProfilePutModel = {
         additionalComment: 'Updated comment',
         hasConsentedToPrivacyTerms: true,
         personalEmailAddress: 'updated@example.com',
@@ -292,7 +291,7 @@ describe('ProfileServiceDefault', () => {
       mockPut.mockResolvedValue(updateError);
 
       const profileId = 42;
-      const updatedProfile: Profile = { id: profileId };
+      const updatedProfile: ProfilePutModel = { additionalComment: 'Updated comment' };
       const accessToken = 'valid-token';
 
       const result = await defaultProfileService.updateProfileById(profileId, updatedProfile, accessToken);
@@ -414,7 +413,7 @@ describe('ProfileServiceDefault', () => {
       await defaultProfileService.getCurrentUserProfiles({}, accessToken);
       await defaultProfileService.registerProfile(accessToken);
       await defaultProfileService.getProfileById(1, accessToken);
-      await defaultProfileService.updateProfileById(1, { id: 1 }, accessToken);
+      await defaultProfileService.updateProfileById(1, { additionalComment: 'test' }, accessToken);
       await defaultProfileService.updateProfileStatus(1, {}, accessToken);
       await defaultProfileService.findProfileById(1, accessToken);
 
@@ -423,7 +422,12 @@ describe('ProfileServiceDefault', () => {
       expect(mockGet).toHaveBeenCalledWith('/profiles/me', 'retrieve current user profiles', accessToken);
       expect(mockPost).toHaveBeenCalledWith('/profiles/me', 'register new profile', {}, accessToken);
       expect(mockGet).toHaveBeenCalledWith('/profiles/1', 'retrieve profile with ID 1', accessToken);
-      expect(mockPut).toHaveBeenCalledWith('/profiles/1', 'update profile with ID 1', { id: 1 }, accessToken);
+      expect(mockPut).toHaveBeenCalledWith(
+        '/profiles/1',
+        'update profile with ID 1',
+        { additionalComment: 'test' },
+        accessToken,
+      );
       expect(mockPut).toHaveBeenCalledWith('/profiles/1/status', 'update profile status for ID 1', {}, accessToken);
       expect(mockGet).toHaveBeenCalledWith('/profiles/1', 'retrieve profile with ID 1', accessToken);
     });

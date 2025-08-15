@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import type { Profile, ProfileStatusUpdate } from '~/.server/domain/models';
+import type { ProfilePutModel, ProfileStatusUpdate } from '~/.server/domain/models';
 import { getMockProfileService } from '~/.server/domain/services/profile-service-mock';
 import { ErrorCodes } from '~/errors/error-codes';
 
@@ -252,8 +252,7 @@ describe('ProfileServiceMock', () => {
   describe('updateProfileById', () => {
     it('should update profile successfully', async () => {
       const profileId = 1;
-      const updatedProfile: Profile = {
-        id: profileId,
+      const updatedProfile: ProfilePutModel = {
         additionalComment: 'Updated comment',
         hasConsentedToPrivacyTerms: true,
         isAvailableForReferral: false,
@@ -280,8 +279,7 @@ describe('ProfileServiceMock', () => {
 
     it('should return error when profile not found', async () => {
       const profileId = 999;
-      const updatedProfile: Profile = {
-        id: profileId,
+      const updatedProfile: ProfilePutModel = {
         additionalComment: 'Updated comment',
       };
       const accessToken = 'valid-token';
@@ -298,8 +296,7 @@ describe('ProfileServiceMock', () => {
 
     it('should preserve existing fields when not provided', async () => {
       const profileId = 1;
-      const partialUpdate: Profile = {
-        id: profileId,
+      const partialUpdate: ProfilePutModel = {
         additionalComment: 'Only updating comment',
       };
       const accessToken = 'valid-token';
