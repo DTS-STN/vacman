@@ -4,7 +4,7 @@
 import type { AppLoadContext } from 'react-router';
 import { redirect } from 'react-router';
 
-import { None, Some } from 'oxide.ts';
+import { None, Some, Ok } from 'oxide.ts';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 import { getProfileService } from '~/.server/domain/services/profile-service';
@@ -80,6 +80,8 @@ const mockUserService = {
   getCurrentUser: vi.fn(),
   registerCurrentUser: vi.fn(),
   updateUser: vi.fn(),
+  getUsers: vi.fn(),
+  updateUserById: vi.fn(),
 };
 
 vi.mocked(getUserService).mockReturnValue(mockUserService);
@@ -93,7 +95,8 @@ const mockProfileService = {
   updateProfileStatus: vi.fn(),
   findAllProfiles: vi.fn(),
   listAllProfiles: vi.fn(),
-  getCurrentUserProfile: vi.fn(),
+  getCurrentUserProfiles: vi.fn(),
+  getProfiles: vi.fn(),
 };
 
 vi.mocked(getProfileService).mockReturnValue(mockProfileService);
@@ -138,7 +141,7 @@ describe('Privacy Consent Flow', () => {
     // Default: user is not registered
     mockUserService.getCurrentUser.mockResolvedValue(None);
     // Default: no profile exists
-    mockProfileService.getProfile.mockResolvedValue(null);
+    mockProfileService.getCurrentUserProfiles.mockResolvedValue(Ok({ content: [] }));
   });
 
   describe('Employee Privacy Consent Flow', () => {
@@ -162,19 +165,24 @@ describe('Privacy Consent Flow', () => {
         authState: {
           accessTokenClaims: { roles: ['employee'] },
           idTokenClaims: { sub: 'test-user-consent', oid: 'test-user-consent' },
+          accessToken: 'mock-access-token',
         },
         currentUser: {
           id: 1,
         },
       } as unknown as AuthenticatedSession;
 
-      mockProfileService.getCurrentUserProfile.mockResolvedValue(
-        Some({
-          profileId: 1,
-          userId: 1,
-          hasConsentedToPrivacyTerms: true,
-          userCreated: 'test-user-consent',
-          dateCreated: '2024-01-01T00:00:00Z',
+      mockProfileService.getCurrentUserProfiles.mockResolvedValue(
+        Ok({
+          content: [
+            {
+              id: 1,
+              profileUser: { id: 1 },
+              hasConsentedToPrivacyTerms: true,
+              createdBy: 'test-user-consent',
+              createdDate: '2024-01-01T00:00:00Z',
+            }
+          ]
         }),
       );
 
@@ -194,17 +202,28 @@ describe('Privacy Consent Flow', () => {
         authState: {
           accessTokenClaims: { roles: ['employee'] },
           idTokenClaims: { sub: 'test-user-no-consent', oid: 'test-user-no-consent' },
+          accessToken: 'mock-access-token',
         },
       } as unknown as AuthenticatedSession;
 
       // Mock that profile exists but privacy consent is not accepted
-      mockProfileService.getCurrentUserProfile.mockResolvedValue(
+      mockProfileService.getCurrentUserProfiles.mockResolvedValue(
+        Ok({
+          content: [
+            {
+              id: 2,
+              profileUser: { id: 2 },
+              hasConsentedToPrivacyTerms: false,
+              createdBy: 'test-user-no-consent',
+              createdDate: '2024-01-01T00:00:00Z',
+            }
+          ]
+        }),
+      );
+
+      mockUserService.getCurrentUser.mockResolvedValue(
         Some({
-          profileId: 2,
-          userId: 2,
-          hasConsentedToPrivacyTerms: false,
-          userCreated: 'test-user-no-consent',
-          dateCreated: '2024-01-01T00:00:00Z',
+          id: 2,
         }),
       );
 
@@ -218,11 +237,22 @@ describe('Privacy Consent Flow', () => {
         authState: {
           accessTokenClaims: { roles: ['employee'] },
           idTokenClaims: { sub: 'test-user-no-profile', oid: 'test-user-no-profile' },
+          accessToken: 'mock-access-token',
         },
       } as unknown as AuthenticatedSession;
 
       // Mock that no profile exists
-      mockProfileService.getCurrentUserProfile.mockResolvedValue(None);
+      mockProfileService.getCurrentUserProfiles.mockResolvedValue(
+        Ok({
+          content: []
+        }),
+      );
+
+      mockUserService.getCurrentUser.mockResolvedValue(
+        Some({
+          id: 3,
+        }),
+      );
 
       // Act & Assert - should throw redirect
       await expect(requirePrivacyConsent(mockSession, new URL('http://localhost:3000/en/employee'))).rejects.toThrow();
