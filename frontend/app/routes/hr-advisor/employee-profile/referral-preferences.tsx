@@ -107,9 +107,10 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const profileData: Profile = profileResult.unwrap();
 
   const cityResult =
-    profileData.workLocationCitiesIds?.[0] !== undefined &&
-    (await getCityService().findLocalizedById(profileData.workLocationCitiesIds[0], lang)); //get the province from first city only to avoid validation error on province
-  const city = cityResult && cityResult.isSome() ? cityResult.unwrap() : undefined;
+    profileData.workLocationCitiesIds?.[0] !== undefined
+      ? await getCityService().findLocalizedById(profileData.workLocationCitiesIds[0], lang)
+      : undefined; //get the province from first city only to avoid validation error on province
+  const city = cityResult?.into();
 
   return {
     documentTitle: t('app:referral-preferences.page-title'),

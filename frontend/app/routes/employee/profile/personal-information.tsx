@@ -101,7 +101,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 
   const accessToken = context.session.authState.accessToken;
   const currentUserOption = await getUserService().getCurrentUser(accessToken);
-  const currentUser = currentUserOption.isSome() ? currentUserOption.unwrap() : undefined;
+  const currentUser = currentUserOption.unwrap();
   const profileResult = await getProfileService().getCurrentUserProfile(accessToken);
 
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
@@ -115,9 +115,9 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       givenName: profileData.personalInformation.givenName,
       personalRecordIdentifier: profileData.personalInformation.personalRecordIdentifier,
       preferredLanguage: profileData.personalInformation.preferredLanguage,
-      workEmail: currentUser?.businessEmail ?? profileData.personalInformation.workEmail,
+      workEmail: currentUser.businessEmail ?? profileData.personalInformation.workEmail,
       personalEmail: profileData.personalInformation.personalEmail,
-      workPhone: toE164(currentUser?.businessPhone),
+      workPhone: toE164(currentUser.businessPhone),
       personalPhone: toE164(profileData.personalInformation.personalPhone),
       additionalInformation: profileData.personalInformation.additionalInformation,
     },
