@@ -331,9 +331,11 @@ SET IDENTITY_INSERT CD_WFA_STATUS ON;
 INSERT INTO [CD_WFA_STATUS] ([ID], [CODE], [NAME_EN], [NAME_FR], [SORT_ORDER], [EFFECTIVE_DATE], [USER_CREATED], [DATE_CREATED], [USER_UPDATED], [DATE_UPDATED])
 VALUES (0, 'AFFECTED', 'Affected', 'Touché',3, '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
 (1, 'SURPLUS_GRJO', 'Surplus (GRJO)', 'Excédentaire (GOER)', 1, '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
-(2, 'SURPLUS_NO_GRJO', 'Surplus (Opting Option A)', 'Excédentaire (Optant Option A)', 2, '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
-(3, 'EXAFFECTED', 'Affected - EX', 'Touché - EX', 5, '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
-(4, 'EXSURPLUSCPA', 'Surplus - EX (Stay CPA)', 'Excédentaire - EX (Reste APC)', 4, '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
+(2, 'SURPLUS_NO_GRJO', 'Surplus (Opting Option A)', 'Excédentaire (Optant Option A)', 1, '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+(3, 'EXAFFECTED', 'Affected - EX', 'Touché - EX', 3, '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+(4, 'EXSURPLUSCPA', 'Surplus - EX (Stay CPA)', 'Excédentaire - EX (Reste APC)', 1, '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+(5, 'OPTING', 'Opting', 'Optant', 2, '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+(6, 'OPTING_EX', 'Opting - EX', 'Optant - EX', 2, '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
 
 --changeset system:cd_wfa_status_off context:mssql
 SET IDENTITY_INSERT CD_WFA_STATUS OFF;
@@ -841,12 +843,14 @@ VALUES
 (0, 'DRAFT', 'Draft', 'Ébauche', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
 (1, 'SUBMIT', 'Request Submitted', 'Demande soumise', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
 (2, 'HR_REVIEW', 'Assigned - HR review', 'Assignée - Revue RH', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
-(3, 'FDBK_PENDING', 'Approved -  Assessment Feedback Pending', 'Approuvée - En attente de retroaction d''évaluation', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
-(4, 'FDBK_PEND_APPR', 'Pending - Feedback Pending Approval', 'En attente - retroaction d''évaluation en attente d''approbation', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
-(5, 'PENDING_PSC', 'VMS request on Hold - Pending PSC clearance', 'Demande VMS en suspens - En attente de l''autorisation de la CFP', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
-(6, 'CLR_GRANTED', 'Clearance Granted', 'Autorisation accordée', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
-(7, 'PSC_GRANTED', 'PSC Clearance Granted', 'Autorisation de la CFP accordée', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
-(8, 'CANCELLED', 'Cancelled', 'Annulée', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
+(3, 'NO_MATCH_HR_REVIEW', 'No match - HR Review', 'Aucune candidature repérée - Revue RH', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+(4, 'FDBK_PENDING', 'Approved -  Assessment Feedback Pending', 'Approuvée - En attente de retroaction d''évaluation', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+(5, 'FDBK_PEND_APPR', 'Pending - Feedback Pending Approval', 'En attente - retroaction d''évaluation en attente d''approbation', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+(6, 'PENDING_PSC', 'VMS request on Hold - Pending PSC clearance', 'Demande VMS en suspens - En attente de l''autorisation de la CFP', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+(7, 'PENDING_PSC_NO_VMS', 'VMS not required - Pending PSC clearance', 'Demande VMS non-requise - En attente de l''autorisation de la CFP', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+(8, 'CLR_GRANTED', 'Clearance Granted', 'Autorisation accordée', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+(9, 'PSC_GRANTED', 'PSC Clearance Granted', 'Autorisation de la CFP accordée', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+(10, 'CANCELLED', 'Cancelled', 'Annulée', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
 
 --changeset system:cd_request_status_off context:mssql
 SET IDENTITY_INSERT CD_REQUEST_STATUS OFF;
