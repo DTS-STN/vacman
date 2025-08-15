@@ -177,6 +177,7 @@ export type PagedProfileResponse = Readonly<{
   page: PageMetadata;
 }>;
 
+// For collection endpoints (small, finite datasets i.e. getCurrentUserProfiles)
 export type CollectionProfileResponse = Readonly<{
   content: Profile[];
 }>;
