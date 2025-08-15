@@ -3,6 +3,7 @@ import type { Result, Option } from 'oxide.ts';
 
 import type {
   Profile,
+  ProfilePutModel,
   ProfileStatusUpdate,
   PagedProfileResponse,
   CollectionProfileResponse,
@@ -174,7 +175,11 @@ export function getMockProfileService(): ProfileService {
      * @param accessToken The access token for authorization.
      * @returns A Result containing the updated profile or an error.
      */
-    async updateProfileById(profileId: number, profile: Profile, accessToken: string): Promise<Result<Profile, AppError>> {
+    async updateProfileById(
+      profileId: number,
+      profile: ProfilePutModel,
+      accessToken: string,
+    ): Promise<Result<Profile, AppError>> {
       // Simulate async operation
       await new Promise((resolve) => setTimeout(resolve, 10));
 
@@ -184,9 +189,23 @@ export function getMockProfileService(): ProfileService {
       }
 
       const existingProfile = mockProfiles[existingProfileIndex];
+      if (!existingProfile) {
+        return Err(new AppError(`Profile with ID ${profileId} not found.`, ErrorCodes.PROFILE_NOT_FOUND));
+      }
+
+      // Convert ProfilePutModel to Profile by mapping ID fields to objects and merging with existing data
       const updatedProfile: Profile = {
         ...existingProfile,
-        ...profile,
+        // Map ProfilePutModel properties to Profile properties
+        additionalComment: profile.additionalComment ?? existingProfile.additionalComment,
+        hasConsentedToPrivacyTerms: profile.hasConsentedToPrivacyTerms ?? existingProfile.hasConsentedToPrivacyTerms,
+        hrAdvisorId: profile.hrAdvisorId ?? existingProfile.hrAdvisorId,
+        isAvailableForReferral: profile.isAvailableForReferral ?? existingProfile.isAvailableForReferral,
+        isInterestedInAlternation: profile.isInterestedInAlternation ?? existingProfile.isInterestedInAlternation,
+        personalEmailAddress: profile.personalEmailAddress ?? existingProfile.personalEmailAddress,
+        personalPhoneNumber: profile.personalPhoneNumber ?? existingProfile.personalPhoneNumber,
+        // For ID-based fields, we would need to look up the full objects, but for mock purposes we'll preserve existing objects
+        // In a real implementation, you would fetch the referenced entities by their IDs
         id: profileId, // Ensure ID doesn't change
         lastModifiedDate: new Date().toISOString(),
         lastModifiedBy: 'mock-user',
