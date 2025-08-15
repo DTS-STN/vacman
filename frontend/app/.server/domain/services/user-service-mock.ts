@@ -6,6 +6,11 @@ import type { UserService } from '~/.server/domain/services/user-service';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
 
+// Debug logging utility for User Service Mock
+const debugLog = (method: string, message: string, data?: unknown) => {
+  console.log(`[UserService Mock] ${method}: ${message}`, data ? JSON.stringify(data, null, 2) : '');
+};
+
 /**
  * Mock user data for testing and development - Updated to match new User model.
  */
@@ -383,12 +388,18 @@ export function getMockUserService(): UserService {
      * Retrieves a specific user by their ID.
      */
     getUserById: (id: number, _accessToken: string): Promise<Result<User, AppError>> => {
+      debugLog('getUserById', `Attempting to retrieve user with ID: ${id}`);
       const user = getUserById(id);
 
       if (!user) {
+        debugLog('getUserById', `User with ID ${id} not found`);
         return Promise.resolve(Err(new AppError('User not found', ErrorCodes.PROFILE_NOT_FOUND)));
       }
 
+      debugLog('getUserById', `Successfully retrieved user with ID: ${id}`, {
+        userId: user.id,
+        email: user.businessEmailAddress,
+      });
       return Promise.resolve(Ok(user));
     },
 
@@ -396,16 +407,31 @@ export function getMockUserService(): UserService {
      * Finds a user by their ID - optional method.
      */
     findUserById: (id: number, _accessToken: string): Promise<Option<User>> => {
+      debugLog('findUserById', `Attempting to find user with ID: ${id}`);
       const user = getUserById(id);
-      return Promise.resolve(user ? Some(user) : None);
+      const result = user ? Some(user) : None;
+      debugLog(
+        'findUserById',
+        `Find user result: ${user ? 'found' : 'not found'}`,
+        user ? { userId: user.id, email: user.businessEmailAddress } : undefined,
+      );
+      return Promise.resolve(result);
     },
 
     /**
      * Gets the current user - mock implementation returns first HR advisor.
      */
     getCurrentUser: (_accessToken: string): Promise<Option<User>> => {
+      debugLog('getCurrentUser', 'Attempting to retrieve current user (first HR advisor)');
       // For mock, return the first HR advisor
       const currentUser = mockUsers.find((u) => u.userType?.code === 'HR_ADVISOR');
+      debugLog(
+        'getCurrentUser',
+        `Current user result: ${currentUser ? 'found' : 'not found'}`,
+        currentUser
+          ? { userId: currentUser.id, email: currentUser.businessEmailAddress, userType: currentUser.userType?.code }
+          : undefined,
+      );
       return Promise.resolve(currentUser ? Some(currentUser) : None);
     },
 
@@ -413,12 +439,18 @@ export function getMockUserService(): UserService {
      * Updates a user by their ID.
      */
     updateUserById: (id: number, user: UserUpdate, _accessToken: string): Promise<Result<User, AppError>> => {
+      debugLog('updateUserById', `Attempting to update user with ID: ${id}`, { updateData: user });
       const updatedUser = updateUserById(id, user);
 
       if (!updatedUser) {
+        debugLog('updateUserById', `User with ID ${id} not found for update`);
         return Promise.resolve(Err(new AppError('User not found', ErrorCodes.PROFILE_NOT_FOUND)));
       }
 
+      debugLog('updateUserById', `Successfully updated user with ID: ${id}`, {
+        userId: updatedUser.id,
+        email: updatedUser.businessEmailAddress,
+      });
       return Promise.resolve(Ok(updatedUser));
     },
 
@@ -426,6 +458,7 @@ export function getMockUserService(): UserService {
      * Registers the current user in the system.
      */
     registerCurrentUser: (user: UserCreate, _accessToken: string): Promise<Result<User, AppError>> => {
+      debugLog('registerCurrentUser', 'Attempting to register new user', { userData: user });
       try {
         // Create a new user from UserCreate data
         const newUser: User = {
@@ -457,8 +490,15 @@ export function getMockUserService(): UserService {
         };
 
         (mockUsers as User[]).push(newUser);
+        debugLog('registerCurrentUser', 'Successfully registered new user', {
+          userId: newUser.id,
+          email: newUser.businessEmailAddress,
+        });
         return Promise.resolve(Ok(newUser));
-      } catch {
+      } catch (error) {
+        debugLog('registerCurrentUser', 'Failed to register current user', {
+          error: error instanceof Error ? error.message : 'Unknown error',
+        });
         return Promise.resolve(Err(new AppError('Failed to register current user', ErrorCodes.PROFILE_CREATE_FAILED)));
       }
     },
