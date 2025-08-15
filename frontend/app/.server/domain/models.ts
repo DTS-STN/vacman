@@ -175,6 +175,27 @@ export type Profile = Readonly<{
   lastModifiedDate?: string;
 }>;
 
+// Profile PUT Model - Based on OpenAPI ProfilePutModel schema
+// Used for updating profiles via PUT /api/v1/profiles/{id}
+export type ProfilePutModel = Readonly<{
+  additionalComment?: string;
+  cityId?: number;
+  classificationId?: number;
+  hasConsentedToPrivacyTerms?: boolean;
+  hrAdvisorId?: number;
+  isAvailableForReferral?: boolean;
+  isInterestedInAlternation?: boolean;
+  languageOfCorrespondenceId?: number;
+  languageReferralTypes?: number[];
+  personalEmailAddress?: string;
+  personalPhoneNumber?: string;
+  preferredCities?: number[];
+  preferredClassification?: number[];
+  preferredEmploymentOpportunities?: number[];
+  wfaStatusId?: number;
+  workUnitId?: number;
+}>;
+
 // Profile Response Models
 export type PagedProfileResponse = Readonly<{
   content: Profile[];
