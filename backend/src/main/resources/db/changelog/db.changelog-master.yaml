@@ -2,6 +2,7 @@
 
 databaseChangeLog:
 - include:
+    contextFilter: structure
     file: db/changelog/changes/db.init.changelog.sql
 - includeAll:
     contextFilter: h2 #Applies context to all changesets within
@@ -10,4 +11,5 @@ databaseChangeLog:
     contextFilter: mssql #Applies context to all changesets within
     path: db/changelog/changes/mssql
 - includeAll:
+    contextFilter: data
     path: db/changelog/changes/data
