@@ -177,7 +177,7 @@ export function getMockProfileService(): ProfileService {
       const result = await this.getCurrentUserProfiles(params, accessToken);
 
       if (result.isErr()) {
-        debugLog('findCurrentUserProfile', 'Failed to retrieve current user profiles');
+        debugLog('findCurrentUserProfile', 'Failed to retrieve current user profile');
         throw result.unwrapErr();
       }
 
@@ -186,7 +186,7 @@ export function getMockProfileService(): ProfileService {
         const error = new AppError('No active profile found for current user', ErrorCodes.PROFILE_NOT_FOUND, {
           httpStatusCode: HttpStatusCodes.NOT_FOUND,
         });
-        debugLog('findCurrentUserProfile', 'No profiles found for current user');
+        debugLog('findCurrentUserProfile', 'No active profile found for current user');
         throw error;
       }
 
@@ -199,7 +199,7 @@ export function getMockProfileService(): ProfileService {
         throw error;
       }
 
-      debugLog('findCurrentUserProfile', 'Successfully retrieved current user profile', { profileId: profile.id });
+      debugLog('findCurrentUserProfile', "Successfully retrieved current user's active profile", { profileId: profile.id });
       return profile;
     },
 
