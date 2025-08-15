@@ -37,6 +37,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
   // Filter profiles based on hr-advisor selection. Options 'My Employees' or 'All employees'
   const url = new URL(request.url);
   const filter = url.searchParams.get('filter');
+
   const profileParams = {
     accessToken: context.session.authState.accessToken,
     active: true, // will return In Progress, Pending Approval and Approved
@@ -51,9 +52,20 @@ export async function loader({ context, request }: Route.LoaderArgs) {
     profileStatusService.listAllLocalized(lang),
   ]);
 
+  const hrRelevantEmployeeStatusCodes = [PROFILE_STATUS_CODE.approved, PROFILE_STATUS_CODE.pending];
+  const statusIds = statuses
+    .filter((s) =>
+      hrRelevantEmployeeStatusCodes.includes(
+        s.code as typeof PROFILE_STATUS_CODE.approved | typeof PROFILE_STATUS_CODE.pending,
+      ),
+    )
+    .map((s) => s.id);
+
+  const filteredAllProfiles = profiles.filter((profile) => statusIds.includes(profile.profileStatus.id));
+
   return {
     documentTitle: t('app:index.employees'),
-    profiles: [...profiles],
+    profiles: filteredAllProfiles,
     statuses,
   };
 }
