@@ -43,17 +43,10 @@ export async function action({ context, request }: Route.ActionArgs) {
   requireAuthentication(context.session, request);
 
   const profileParams = { active: true };
-  const profileResult = await getProfileService().getCurrentUserProfiles(profileParams, context.session.authState.accessToken);
-  if (profileResult.isErr() || profileResult.unwrap().content.length === 0) {
-    return { status: 'profile-not-found' };
-  }
-
-  const profiles = profileResult.unwrap().content;
-  if (profiles.length === 0) {
-    return { status: 'profile-not-found' };
-  }
-  const profileData = profiles[0];
-  if (!profileData) {
+  let profileData;
+  try {
+    profileData = await getProfileService().getCurrentUserProfile(profileParams, context.session.authState.accessToken);
+  } catch {
     return { status: 'profile-not-found' };
   }
   const allWfaStatus = await getWFAStatuses().listAll();
@@ -131,18 +124,10 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   await requirePrivacyConsentForOwnProfile(context.session, request);
 
   const profileParams = { active: true };
-  const profileResult = await getProfileService().getCurrentUserProfiles(profileParams, context.session.authState.accessToken);
-
-  if (profileResult.isErr()) {
-    throw new Response('Profile not found', { status: 404 });
-  }
-
-  const profiles = profileResult.unwrap().content;
-  if (profiles.length === 0) {
-    throw new Response('Profile not found', { status: 404 });
-  }
-  const profileData = profiles[0];
-  if (!profileData) {
+  let profileData;
+  try {
+    profileData = await getProfileService().getCurrentUserProfile(profileParams, context.session.authState.accessToken);
+  } catch {
     throw new Response('Profile not found', { status: 404 });
   }
 
