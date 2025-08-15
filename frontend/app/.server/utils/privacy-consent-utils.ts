@@ -26,7 +26,7 @@ const log = LogFactory.getLogger(import.meta.url);
  */
 async function checkPrivacyConsentForUser(accessToken: string, userId: number, currentUrl: URL): Promise<void> {
   const profileParams = { active: true };
-  const profileOption = await getProfileService().getCurrentUserProfiles(profileParams, accessToken);
+  const profileResult = await getProfileService().getCurrentUserProfiles(profileParams, accessToken);
 
   if (profileResult.isErr()) {
     log.debug(`Profile not found for user ${userId}`);
@@ -93,7 +93,7 @@ export async function requirePrivacyConsentForOwnProfile(
 
   const currentUser = currentUserOption.unwrap();
   const profileParams = { active: true };
-  const profileOpion = await getProfileService().getCurrentUserProfiles(profileParams, session.authState.accessToken);
+  const profileResult = await getProfileService().getCurrentUserProfiles(profileParams, session.authState.accessToken);
 
   if (profileResult.isErr()) {
     log.debug(`Profile not found for user: ${currentUser.id}`);
