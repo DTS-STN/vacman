@@ -34,6 +34,7 @@ public final class AppConstants {
 		public static final String WFA_STATUSES = "wfa-statuses";
 		public static final String WORK_SCHEDULES = "work-schedules";
 		public static final String WORK_UNITS = "work-units";
+		public static final String MATCH_FEEDBACK = "match-feedback";
 
 		private CacheNames() {}
 	}

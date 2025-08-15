@@ -41,6 +41,7 @@ import ca.gov.dtsstn.vacman.api.data.entity.UserTypeEntityBuilder;
 import ca.gov.dtsstn.vacman.api.data.entity.WfaStatusEntityBuilder;
 import ca.gov.dtsstn.vacman.api.data.entity.WorkScheduleEntityBuilder;
 import ca.gov.dtsstn.vacman.api.data.entity.WorkUnitEntityBuilder;
+import ca.gov.dtsstn.vacman.api.data.entity.MatchFeedbackEntityBuilder;
 import ca.gov.dtsstn.vacman.api.service.CodeService;
 
 @ActiveProfiles({ "test" })
@@ -643,4 +644,33 @@ class CodesControllerTest {
 			.andExpect(jsonPath("$.content[0].lastModifiedDate").value(workUnit.getLastModifiedDate().toString()));
 	}
 
+	@Test
+	@WithAnonymousUser
+	@DisplayName("GET /codes/match-feeback - Should return 200 OK with a page of match feedback")
+	void getMatchFeedback_shouldReturnOk() throws Exception {
+		final var matchFeedback = new MatchFeedbackEntityBuilder()
+			.id(0L)
+			.code("TEST")
+			.nameEn("Test Match Feedback")
+			.nameFr("Commentaires de test")
+			.createdBy("TestUser")
+			.createdDate(Instant.EPOCH)
+			.lastModifiedBy("TestUser")
+			.lastModifiedDate(Instant.EPOCH)
+			.build();
+
+		when(codeService.getMatchFeedback(Pageable.unpaged())).thenReturn(new PageImpl<>(List.of(matchFeedback)));
+
+		mockMvc.perform(get("/api/v1/codes/match-feedback"))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.content", hasSize(1)))
+			.andExpect(jsonPath("$.content[0].id").value(matchFeedback.getId()))
+			.andExpect(jsonPath("$.content[0].code").value(matchFeedback.getCode()))
+			.andExpect(jsonPath("$.content[0].nameEn").value(matchFeedback.getNameEn()))
+			.andExpect(jsonPath("$.content[0].nameFr").value(matchFeedback.getNameFr()))
+			.andExpect(jsonPath("$.content[0].createdBy").value(matchFeedback.getCreatedBy()))
+			.andExpect(jsonPath("$.content[0].createdDate").value(matchFeedback.getCreatedDate().toString()))
+			.andExpect(jsonPath("$.content[0].lastModifiedBy").value(matchFeedback.getLastModifiedBy()))
+			.andExpect(jsonPath("$.content[0].lastModifiedDate").value(matchFeedback.getLastModifiedDate().toString()));
+	}
 }
