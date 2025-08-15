@@ -32,7 +32,7 @@ async function checkPrivacyConsentForUser(accessToken: string, userId: number, c
     throw i18nRedirect('routes/index.tsx', currentUrl);
   }
 
-  if (!profileOption.unwrap().privacyConsentInd) {
+  if (!profileOption.unwrap().hasConsentedToPrivacyTerms) {
     log.debug(`Privacy consent required for user ${userId}`);
     throw i18nRedirect('routes/employee/profile/privacy-consent.tsx', currentUrl);
   }
