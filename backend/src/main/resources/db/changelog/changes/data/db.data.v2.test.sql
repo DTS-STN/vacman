@@ -12,6 +12,8 @@ VALUES
 --changeset system:max_dummy_user_off context:mssql AND dev
 SET IDENTITY_INSERT [USER] OFF;
 
+--changeset system:max_dummy_profile_on context:mssql AND dev
+SET IDENTITY_INSERT [PROFILE] ON;
 
 --changeset system:max_dummy_profile context:dev
 INSERT INTO [PROFILE] ([ID], [USER_ID], [USER_ID_HR_ADVISOR], [WFA_STATUS_ID], [CLASSIFICATION_ID], [CITY_ID], [WORK_UNIT_ID], [LANGUAGE_ID], [PROFILE_STATUS_ID], [PERSONAL_PHONE_NUMBER], [PERSONAL_EMAIL_ADDRESS], [PRIVACY_CONSENT_IND], [AVAILABLE_FOR_REFERRAL_IND], [INTERESTED_IN_ALTERNATION_IND], [ADDITIONAL_COMMENT], [USER_CREATED], [DATE_CREATED], [WFA_START_DATE], [WFA_END_DATE])
@@ -19,6 +21,9 @@ VALUES
 (1, '400000000', '840', 1, 1, 1, 1, 1, 1, '5551113333', 'noah-arkwright@example.com', 'true', 'true', 'true', 'A giant worm God.', 'system', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 (2, '840', '840', 1, 1, 1, 1, 1, 1, '5551113333', 'maxwell.r.haley@gmail.com', 'false', 'false', 'false', 'A normal sized human.', 'system', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 (3, '840', '840', 1, 1, 1, 1, 1, 2, '5551113333', 'maxwell.r.haley@gmail.com', 'false', 'false', 'false', 'A normaler sized human.', 'system', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+--changeset system:max_dummy_profile_off context:mssql AND dev
+SET IDENTITY_INSERT [PROFILE] OFF;
 
 INSERT INTO [PROFILE_CITY] ([PROFILE_ID], [CITY_ID], [USER_CREATED], [DATE_CREATED], [USER_UPDATED], [DATE_UPDATED])
 VALUES
