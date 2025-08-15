@@ -67,13 +67,13 @@ export function getDefaultProfileService(): ProfileService {
     },
 
     /**
-     * Retrieves the current user's active profile (singular).
+     * Finds the current user's active profile (singular).
      * @param params Query parameters for filtering.
      * @param accessToken The access token for authorization.
      * @returns A single Profile object.
      * @throws AppError if no profile is found or if the request fails.
      */
-    async getCurrentUserProfile(params: Pick<ProfileQueryParams, 'active'>, accessToken: string): Promise<Profile> {
+    async findCurrentUserProfile(params: Pick<ProfileQueryParams, 'active'>, accessToken: string): Promise<Profile> {
       const result = await this.getCurrentUserProfiles(params, accessToken);
 
       if (result.isErr()) {

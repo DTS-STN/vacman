@@ -162,14 +162,14 @@ export function getMockProfileService(): ProfileService {
     },
 
     /**
-     * Retrieves the current user's active profile (singular).
+     * Finds the current user's active profile (singular).
      * @param params Query parameters for filtering.
      * @param accessToken The access token for authorization.
      * @returns A single Profile object.
      * @throws AppError if no profile is found or if the request fails.
      */
-    async getCurrentUserProfile(params: Pick<ProfileQueryParams, 'active'>, accessToken: string): Promise<Profile> {
-      debugLog('getCurrentUserProfile', 'Attempting to retrieve current user profile', {
+    async findCurrentUserProfile(params: Pick<ProfileQueryParams, 'active'>, accessToken: string): Promise<Profile> {
+      debugLog('findCurrentUserProfile', 'Attempting to retrieve current user profile', {
         params,
         accessTokenLength: accessToken.length,
       });
@@ -177,7 +177,7 @@ export function getMockProfileService(): ProfileService {
       const result = await this.getCurrentUserProfiles(params, accessToken);
 
       if (result.isErr()) {
-        debugLog('getCurrentUserProfile', 'Failed to retrieve current user profiles');
+        debugLog('findCurrentUserProfile', 'Failed to retrieve current user profiles');
         throw result.unwrapErr();
       }
 
@@ -186,7 +186,7 @@ export function getMockProfileService(): ProfileService {
         const error = new AppError('No active profile found for current user', ErrorCodes.PROFILE_NOT_FOUND, {
           httpStatusCode: HttpStatusCodes.NOT_FOUND,
         });
-        debugLog('getCurrentUserProfile', 'No profiles found for current user');
+        debugLog('findCurrentUserProfile', 'No profiles found for current user');
         throw error;
       }
 
@@ -195,11 +195,11 @@ export function getMockProfileService(): ProfileService {
         const error = new AppError('Profile data is invalid', ErrorCodes.PROFILE_NOT_FOUND, {
           httpStatusCode: HttpStatusCodes.NOT_FOUND,
         });
-        debugLog('getCurrentUserProfile', 'Profile data is invalid');
+        debugLog('findCurrentUserProfile', 'Profile data is invalid');
         throw error;
       }
 
-      debugLog('getCurrentUserProfile', 'Successfully retrieved current user profile', { profileId: profile.id });
+      debugLog('findCurrentUserProfile', 'Successfully retrieved current user profile', { profileId: profile.id });
       return profile;
     },
 
