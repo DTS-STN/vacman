@@ -92,22 +92,26 @@ export type LocalizedEmploymentEquity = LocalizedLookupModel;
 export type MatchFeedback = LookupModel;
 export type LocalizedMatchFeedback = LocalizedLookupModel;
 
+export type WorkUnit = HierarchicalLookupModel;
+export type LocalizedWorkUnit = LocalizedHierarchicalLookupModel;
+
+// User Models - Based on OpenAPI User schema
 export type User = Readonly<{
   id: number;
-  role: string;
-  networkName: string;
-  uuName: string;
-  firstName: string;
+  businessEmailAddress?: string;
+  businessPhoneNumber?: string;
+  firstName?: string;
+  initial?: string;
+  lastName?: string;
   middleName?: string;
-  lastName: string;
-  initials?: string;
+  microsoftEntraId?: string;
   personalRecordIdentifier?: string;
-  businessPhone?: string;
-  businessEmail?: string;
-  userCreated?: string;
-  dateCreated?: string;
-  userUpdated?: string;
-  dateUpdated?: string;
+  language?: LanguageOfCorrespondence;
+  userType?: UserType;
+  createdBy?: string;
+  createdDate?: string;
+  lastModifiedBy?: string;
+  lastModifiedDate?: string;
 }>;
 
 export type UserCreate = Readonly<{
@@ -115,126 +119,91 @@ export type UserCreate = Readonly<{
 }>;
 
 export type UserUpdate = Readonly<{
-  id: number;
-  userTypeId?: number;
-  microsoftEntraId?: string;
-  firstName?: string;
-  middleName?: string;
-  lastName?: string;
-  initials?: string;
-  personalRecordIdentifier?: string;
-  businessPhone?: string;
   businessEmail?: string;
-  languageId?: number;
-}>;
-
-export type Profile = Readonly<{
-  profileId: number;
-  userIdReviewedBy?: number;
-  userIdApprovedBy?: number;
-  profileStatus: ProfileStatus;
-  hasConsentedToPrivacyTerms?: boolean;
-  userCreated: string;
-  dateCreated: string;
-  userUpdated?: string;
-  dateUpdated?: string;
-  personalInformation: UserPersonalInformation;
-  employmentInformation: UserEmploymentInformation;
-  languageReferralTypeIds?: number[]; //TODO: change to preferredLanguages?: LanguageReferralType[]
-  classificationIds?: number[]; //TODO: change to preferredClassifications?: Classification[]
-  workLocationProvince?: number; //TODO: remove
-  workLocationCitiesIds?: number[]; //TODO: change to preferredCityIds?: City[]
-  isAvailableForReferral?: boolean;
-  isInterestedInAlternation?: boolean;
-  employmentOpportunityIds?: number[]; //TODO: change to preferredEmploymentOpportunityIds?: EmploymentOpportunityType[]
-  profileUser: ProfileUser;
-}>;
-
-export type ProfileUser = Readonly<{
-  businessEmailAddress: string;
-  businessPhoneNumber?: string;
+  businessPhone?: string;
   firstName?: string;
-  id: number;
-  initial?: string;
-  language?: LanguageOfCorrespondence;
+  initials?: string;
+  languageId?: number;
   lastName?: string;
   middleName?: string;
   personalRecordIdentifier?: string;
-  userType?: UserType;
 }>;
 
-export type UserPersonalInformation = {
-  //surname?: string; //TODO: for ADO task #6703 either uncomment it, or remove whole UserPersonalInformation
-  //givenName?: string; //TODO: for ADO task #6703 either uncomment it, or remove whole UserPersonalInformation
-  //personalRecordIdentifier?: string;
-  preferredLanguage?: LanguageOfCorrespondence;
-  //workEmail: string; //TODO: for ADO task #6703 either uncomment it, or remove whole UserPersonalInformation
-  personalEmail?: string;
-  //workPhone?: string;  //TODO: for ADO task #6703 either uncomment it, or remove whole UserPersonalInformation
-  personalPhone?: string;
-  additionalInformation?: string;
-};
-export type UserEmploymentInformation = {
-  substantivePosition?: number;
-  branchOrServiceCanadaRegion?: number;
-  directorate?: number;
-  province?: Province;
-  city?: City;
-  wfaStatus?: WFAStatus;
-  wfaEffectiveDate?: string;
-  wfaEndDate?: string;
-  hrAdvisor?: number;
-};
-export type UserReferralPreferences = {
-  languageReferralTypeIds?: number[];
-  classificationIds?: number[];
-  workLocationProvince?: number;
-  workLocationCitiesIds?: number[];
-  isAvailableForReferral?: boolean;
-  isInterestedInAlternation?: boolean;
-  employmentOpportunityIds?: number[];
-};
+// User Response Models
+export type PagedUserResponse = Readonly<{
+  content: User[];
+  page: PageMetadata;
+}>;
 
-export type SaveProfile = Readonly<{
-  profileId: number;
-  userIdReviewedBy?: number;
-  userIdApprovedBy?: number;
+export type PageMetadata = Readonly<{
+  number: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+}>;
+
+// Profile Models - Based on OpenAPI ProfileReadModel schema
+export type Profile = Readonly<{
+  id: number;
+  additionalComment?: string;
   hasConsentedToPrivacyTerms?: boolean;
-  userCreated: string;
-  dateCreated: string;
-  userUpdated?: string;
-  dateUpdated?: string;
-  personalInformation: SaveUserPersonalInformation;
-  employmentInformation: SaveUserEmploymentInformation;
-  languageReferralTypeIds?: number[];
-  classificationIds?: number[];
-  workLocationProvince?: number;
-  workLocationCitiesIds?: number[];
+  hrAdvisorId?: number;
   isAvailableForReferral?: boolean;
   isInterestedInAlternation?: boolean;
-  employmentOpportunityIds?: number[];
+  personalEmailAddress?: string;
+  personalPhoneNumber?: string;
+  languageOfCorrespondence?: LanguageOfCorrespondence;
+  profileStatus?: ProfileStatus;
+  profileUser?: User;
+  substantiveCity?: City;
+  substantiveClassification?: Classification;
+  substantiveWorkUnit?: WorkUnit;
+  wfaStatus?: WFAStatus;
+  wfaStartDate?: string;
+  wfaEndDate?: string;
+  preferredCities?: City[];
+  preferredClassifications?: Classification[];
+  preferredEmploymentOpportunities?: EmploymentOpportunityType[];
+  preferredLanguages?: LanguageReferralType[];
+  createdBy?: string;
+  createdDate?: string;
+  lastModifiedBy?: string;
+  lastModifiedDate?: string;
 }>;
 
-export type SaveUserPersonalInformation = {
-  //surname?: string;
-  //givenName?: string;
-  //personalRecordIdentifier?: string;
-  preferredLanguageId?: number;
-  //  workEmail: string;
-  personalEmail?: string;
-  //workPhone?: string;
-  personalPhone?: string;
-  additionalInformation?: string;
+// Profile Response Models
+export type PagedProfileResponse = Readonly<{
+  content: Profile[];
+  page: PageMetadata;
+}>;
+
+export type CollectionProfileResponse = Readonly<{
+  content: Profile[];
+}>;
+
+// Profile Status Update Model
+export type ProfileStatusUpdate = Readonly<{
+  id?: number;
+  code?: string;
+  nameEn?: string;
+  nameFr?: string;
+  createdBy?: string;
+  createdDate?: string;
+  lastModifiedBy?: string;
+  lastModifiedDate?: string;
+}>;
+
+// API Query Parameters
+export type UserQueryParams = {
+  'page'?: number;
+  'size'?: number;
+  'sort'?: string[];
+  'user-type'?: string;
 };
 
-export type SaveUserEmploymentInformation = {
-  substantivePosition?: number;
-  branchOrServiceCanadaRegion?: number;
-  directorate?: number;
-  provinceId?: number;
-  cityId?: number;
-  wfaStatusId?: number;
-  wfaEffectiveDate?: string;
-  wfaEndDate?: string;
-  hrAdvisor?: number;
+export type ProfileQueryParams = {
+  'page'?: number;
+  'size'?: number;
+  'active'?: boolean;
+  'hr-advisor'?: string;
 };
