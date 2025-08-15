@@ -25,6 +25,7 @@ VALUES
 --changeset system:max_dummy_profile_off context:mssql AND dev
 SET IDENTITY_INSERT [PROFILE] OFF;
 
+--changeset system:max_dummy_profile_connections context:dev
 INSERT INTO [PROFILE_CITY] ([PROFILE_ID], [CITY_ID], [USER_CREATED], [DATE_CREATED], [USER_UPDATED], [DATE_UPDATED])
 VALUES
 (1, 1, 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
