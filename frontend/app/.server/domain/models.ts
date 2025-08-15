@@ -89,6 +89,9 @@ export type LocalizedWorkSchedule = LocalizedLookupModel;
 export type EmploymentEquity = LookupModel;
 export type LocalizedEmploymentEquity = LocalizedLookupModel;
 
+export type MatchFeedback = LookupModel;
+export type LocalizedMatchFeedback = LocalizedLookupModel;
+
 export type User = Readonly<{
   id: number;
   role: string;
