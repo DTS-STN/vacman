@@ -50,8 +50,8 @@ describe('getDefaultProfileService', () => {
     classificationIds: [905190000, 905190001],
     workLocationProvince: 1,
     workLocationCitiesIds: [411290001, 411290002],
-    availableForReferralInd: true,
-    interestedInAlternationInd: false,
+    isAvailableForReferral: true,
+    isInterestedInAlternation: false,
     employmentOpportunityIds: [664190000, 664190001, 664190003],
     personalInformation: {
       personalRecordIdentifier: '123456789',
@@ -96,8 +96,8 @@ describe('getDefaultProfileService', () => {
     classificationIds: [905190000, 905190001],
     workLocationProvince: 1,
     workLocationCitiesIds: [411290001, 411290002],
-    availableForReferralInd: true,
-    interestedInAlternationInd: false,
+    isAvailableForReferral: true,
+    isInterestedInAlternation: false,
     employmentOpportunityIds: [664190000, 664190001, 664190003],
     personalInformation: {
       personalRecordIdentifier: '444555666',

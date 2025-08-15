@@ -138,13 +138,13 @@ export type Profile = Readonly<{
   dateUpdated?: string;
   personalInformation: UserPersonalInformation;
   employmentInformation: UserEmploymentInformation;
-  languageReferralTypeIds?: number[];
-  classificationIds?: number[];
-  workLocationProvince?: number;
-  workLocationCitiesIds?: number[];
-  availableForReferralInd?: boolean;
-  interestedInAlternationInd?: boolean;
-  employmentOpportunityIds?: number[];
+  languageReferralTypeIds?: number[]; //TODO: change to preferredLanguages?: LanguageReferralType[]
+  classificationIds?: number[]; //TODO: change to preferredClassifications?: Classification[]
+  workLocationProvince?: number; //TODO: remove
+  workLocationCitiesIds?: number[]; //TODO: change to preferredCityIds?: City[]
+  isAvailableForReferral?: boolean;
+  isInterestedInAlternation?: boolean;
+  employmentOpportunityIds?: number[]; //TODO: change to preferredEmploymentOpportunityIds?: EmploymentOpportunityType[]
 }>;
 
 export type UserPersonalInformation = {
@@ -174,8 +174,8 @@ export type UserReferralPreferences = {
   classificationIds?: number[];
   workLocationProvince?: number;
   workLocationCitiesIds?: number[];
-  availableForReferralInd?: boolean;
-  interestedInAlternationInd?: boolean;
+  isAvailableForReferral?: boolean;
+  isInterestedInAlternation?: boolean;
   employmentOpportunityIds?: number[];
 };
 
@@ -195,8 +195,8 @@ export type SaveProfile = Readonly<{
   classificationIds?: number[];
   workLocationProvince?: number;
   workLocationCitiesIds?: number[];
-  availableForReferralInd?: boolean;
-  interestedInAlternationInd?: boolean;
+  isAvailableForReferral?: boolean;
+  isInterestedInAlternation?: boolean;
   employmentOpportunityIds?: number[];
 }>;
 
@@ -222,13 +222,4 @@ export type SaveUserEmploymentInformation = {
   wfaEffectiveDate?: string;
   wfaEndDate?: string;
   hrAdvisor?: number;
-};
-export type SaveUserReferralPreferences = {
-  languageReferralTypeIds?: number[];
-  classificationIds?: number[];
-  workLocationProvince?: number;
-  workLocationCitiesIds?: number[];
-  availableForReferralInd?: boolean;
-  interestedInAlternationInd?: boolean;
-  employmentTenureIds?: number[];
 };

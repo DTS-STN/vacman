@@ -43,10 +43,10 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     classificationIds: formData.getAll('classifications'),
     workLocationProvince: formString(formData.get('workLocationProvince')),
     workLocationCitiesIds: formData.getAll('workLocationCities'),
-    availableForReferralInd: formData.get('referralAvailibility')
+    isAvailableForReferral: formData.get('referralAvailibility')
       ? formData.get('referralAvailibility') === REQUIRE_OPTIONS.yes
       : undefined,
-    interestedInAlternationInd: formData.get('alternateOpportunity')
+    isInterestedInAlternation: formData.get('alternateOpportunity')
       ? formData.get('alternateOpportunity') === REQUIRE_OPTIONS.yes
       : undefined,
     employmentOpportunityIds: formData.getAll('employmentOpportunityIds'),
@@ -64,8 +64,8 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     'classificationIds',
     'workLocationProvince',
     'workLocationCitiesIds',
-    'availableForReferralInd',
-    'interestedInAlternationInd',
+    'isAvailableForReferral',
+    'isInterestedInAlternation',
     'employmentOpportunityIds',
   ];
 
@@ -135,8 +135,8 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       classificationIds: profileData.classificationIds,
       workLocationProvince: city?.provinceTerritory.id,
       workLocationCitiesIds: profileData.workLocationCitiesIds,
-      availableForReferralInd: profileData.availableForReferralInd,
-      interestedInAlternationInd: profileData.interestedInAlternationInd,
+      isAvailableForReferral: profileData.isAvailableForReferral,
+      isInterestedInAlternation: profileData.isInterestedInAlternation,
       employmentOpportunityIds: profileData.employmentOpportunityIds,
     },
     languageReferralTypes: localizedLanguageReferralTypesResult,
