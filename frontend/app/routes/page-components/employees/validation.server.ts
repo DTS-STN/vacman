@@ -2,7 +2,6 @@ import { parsePhoneNumberWithError } from 'libphonenumber-js';
 import * as v from 'valibot';
 import type { BaseSchema, BaseIssue } from 'valibot';
 
-import type { User } from '~/.server/domain/models';
 import { getCityService } from '~/.server/domain/services/city-service';
 import { getClassificationService } from '~/.server/domain/services/classification-service';
 import { getDirectorateService } from '~/.server/domain/services/directorate-service';
@@ -10,10 +9,10 @@ import { getEmploymentOpportunityTypeService } from '~/.server/domain/services/e
 import { getLanguageForCorrespondenceService } from '~/.server/domain/services/language-for-correspondence-service';
 import { getLanguageReferralTypeService } from '~/.server/domain/services/language-referral-type-service';
 import { getProvinceService } from '~/.server/domain/services/province-service';
-import { getUserService } from '~/.server/domain/services/user-service';
 import { getWFAStatuses } from '~/.server/domain/services/wfa-status-service';
 import { serverEnvironment } from '~/.server/environment';
 import { extractUniqueBranchesFromDirectoratesNonLocalized } from '~/.server/utils/directorate-utils';
+import { getHrAdvisors } from '~/.server/utils/profile-utils';
 import { stringToIntegerSchema } from '~/.server/validation/string-to-integer-schema';
 import { EMPLOYEE_WFA_STATUS } from '~/domain/constants';
 import { getStartOfDayInTimezone, isDateInPastOrTodayInTimeZone, isValidDateString, toISODateString } from '~/utils/date-utils';
@@ -31,17 +30,6 @@ const allProvinces = await getProvinceService().listAll();
 const allCities = await getCityService().listAll();
 const allLanguageReferralTypes = await getLanguageReferralTypeService().listAll();
 const allEmploymentOpportunities = await getEmploymentOpportunityTypeService().listAll();
-
-// Function to get HR advisors that requires authentication
-async function getHrAdvisors(accessToken: string): Promise<User[]> {
-  const result = await getUserService().getUsersByRole('hr-advisor', accessToken);
-
-  if (result.isErr()) {
-    throw result.unwrapErr();
-  }
-
-  return result.unwrap();
-}
 
 // Function to create employment information schema with HR advisors
 export async function createEmploymentInformationSchema(accessToken: string, formData?: FormData) {

@@ -44,7 +44,8 @@ export function meta({ loaderData }: Route.MetaArgs) {
 export async function action({ context, request }: Route.ActionArgs) {
   requireAuthentication(context.session, request);
 
-  const profileResult = await getProfileService().getCurrentUserProfile(context.session.authState.accessToken);
+  const profileParams = { active: true };
+  const profileResult = await getProfileService().getCurrentUserProfiles(profileParams, context.session.authState.accessToken);
   if (profileResult.isNone()) {
     return { status: 'profile-not-found' };
   }
@@ -128,7 +129,8 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   requireAuthentication(context.session, request);
   await requirePrivacyConsentForOwnProfile(context.session, request);
 
-  const profileResult = await getProfileService().getCurrentUserProfile(context.session.authState.accessToken);
+  const profileParams = { active: true };
+  const profileResult = await getProfileService().getCurrentUserProfiles(profileParams, context.session.authState.accessToken);
 
   if (profileResult.isNone()) {
     throw new Response('Profile not found', { status: 404 });
