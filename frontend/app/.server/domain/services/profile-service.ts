@@ -2,6 +2,7 @@ import type { Option, Result } from 'oxide.ts';
 
 import type {
   Profile,
+  ProfilePutModel,
   ProfileStatusUpdate,
   PagedProfileResponse,
   CollectionProfileResponse,
@@ -25,7 +26,7 @@ export type ProfileService = {
   // GET /api/v1/profiles/{id} - Get a profile by ID
   getProfileById(profileId: number, accessToken: string): Promise<Result<Profile, AppError>>;
   // PUT /api/v1/profiles/{id} - Update an existing profile
-  updateProfileById(profileId: number, profile: Profile, accessToken: string): Promise<Result<Profile, AppError>>;
+  updateProfileById(profileId: number, profile: ProfilePutModel, accessToken: string): Promise<Result<Profile, AppError>>;
   // PUT /api/v1/profiles/{id}/status - Update profile status
   updateProfileStatus(
     profileId: number,

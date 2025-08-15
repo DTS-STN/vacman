@@ -5,6 +5,7 @@ import { apiClient } from './api-client';
 
 import type {
   Profile,
+  ProfilePutModel,
   ProfileStatusUpdate,
   PagedProfileResponse,
   CollectionProfileResponse,
@@ -122,8 +123,12 @@ export function getDefaultProfileService(): ProfileService {
      * @param accessToken The access token for authorization.
      * @returns A Result containing the updated profile or an error.
      */
-    async updateProfileById(profileId: number, profile: Profile, accessToken: string): Promise<Result<Profile, AppError>> {
-      const result = await apiClient.put<Profile, Profile>(
+    async updateProfileById(
+      profileId: number,
+      profile: ProfilePutModel,
+      accessToken: string,
+    ): Promise<Result<Profile, AppError>> {
+      const result = await apiClient.put<ProfilePutModel, Profile>(
         `/profiles/${profileId}`,
         `update profile with ID ${profileId}`,
         profile,
