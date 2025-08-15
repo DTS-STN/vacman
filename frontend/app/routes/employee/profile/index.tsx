@@ -18,7 +18,7 @@ import { getUserService } from '~/.server/domain/services/user-service';
 import { getWFAStatuses } from '~/.server/domain/services/wfa-status-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { requirePrivacyConsentForOwnProfile } from '~/.server/utils/privacy-consent-utils';
-import { countCompletedItems, omitObjectProperties, pickObjectProperties } from '~/.server/utils/profile-utils';
+import { countCompletedItems, countReferralPreferencesCompleted, omitObjectProperties } from '~/.server/utils/profile-utils';
 import { AlertMessage } from '~/components/alert-message';
 import { Button } from '~/components/button';
 import { ButtonLink } from '~/components/button-link';
@@ -96,7 +96,30 @@ export async function action({ context, request }: Route.ActionArgs) {
   // Check if all sections are complete
   const personalInfoComplete = countCompletedItems(requiredPersonalFields) === Object.keys(requiredPersonalFields).length;
   const employmentInfoComplete = countCompletedItems(requiredEmploymentFields) === Object.keys(requiredEmploymentFields).length;
-  const referralComplete = countCompletedItems(referralPreferencesFields) === Object.keys(referralPreferencesFields).length;
+  const referralComplete =
+    countReferralPreferencesCompleted(referralPreferencesFields) === Object.keys(referralPreferencesFields).length;
+
+  console.log(
+    'Action - Personal info complete:',
+    personalInfoComplete,
+    countCompletedItems(requiredPersonalFields),
+    '/',
+    Object.keys(requiredPersonalFields).length,
+  );
+  console.log(
+    'Action - Employment info complete:',
+    employmentInfoComplete,
+    countCompletedItems(requiredEmploymentFields),
+    '/',
+    Object.keys(requiredEmploymentFields).length,
+  );
+  console.log(
+    'Action - Referral complete:',
+    referralComplete,
+    countReferralPreferencesCompleted(referralPreferencesFields),
+    '/',
+    Object.keys(referralPreferencesFields).length,
+  );
   // If any section is incomplete, return incomplete state
   if (!personalInfoComplete || !employmentInfoComplete || !referralComplete) {
     return {
@@ -143,6 +166,8 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   if (!profileData) {
     throw new Response('Profile not found', { status: 404 });
   }
+
+  console.log('Profile data:', profileData);
 
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
 
@@ -253,17 +278,21 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const employmentInformationTotalFields = Object.keys(requiredEmploymentInformation).length;
 
   // Referral preferences from Profile type
-  const referralPreferencesFields = pickObjectProperties(profileData, [
-    'preferredLanguages',
-    'preferredClassifications',
-    'preferredCities',
-    'isAvailableForReferral',
-    'isInterestedInAlternation',
-    'preferredEmploymentOpportunities',
-  ]);
+  // Create an object with all required fields, ensuring they exist even if undefined
+  const referralPreferencesFields = {
+    preferredLanguages: profileData.preferredLanguages,
+    preferredClassifications: profileData.preferredClassifications,
+    preferredCities: profileData.preferredCities,
+    isAvailableForReferral: profileData.isAvailableForReferral,
+    isInterestedInAlternation: profileData.isInterestedInAlternation,
+    preferredEmploymentOpportunities: profileData.preferredEmploymentOpportunities,
+  };
 
-  const referralPreferencesCompleted = countCompletedItems(referralPreferencesFields);
+  console.log('Referral preferences fields:', referralPreferencesFields);
+  const referralPreferencesCompleted = countReferralPreferencesCompleted(referralPreferencesFields);
+  console.log('Referral preferences completed count:', referralPreferencesCompleted);
   const referralPreferencesTotalFields = Object.keys(referralPreferencesFields).length;
+  console.log('Referral preferences total fields:', referralPreferencesTotalFields);
 
   const isCompletePersonalInformation = personalInformationCompleted === personalInformationTotalFeilds;
   const isCompleteEmploymentInformation = employmentInformationCompleted === employmentInformationTotalFields;
@@ -308,7 +337,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     },
     referralPreferences: {
       isComplete: isCompleteReferralPreferences,
-      isNew: countCompletedItems(referralPreferencesFields) === 0,
+      isNew: countReferralPreferencesCompleted(referralPreferencesFields) === 0,
       languageReferralTypes: languageReferralTypes?.map((l) => l?.name),
       classifications: classifications?.map((c) => c?.name),
       workLocationCities: cities?.map((city) => city?.provinceTerritory.name + ' - ' + city?.name),
