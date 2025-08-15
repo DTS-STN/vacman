@@ -52,16 +52,9 @@ export async function loader({ context, request }: Route.LoaderArgs) {
     profileStatusService.listAllLocalized(lang),
   ]);
 
-  const hrRelevantEmployeeStatusCodes = [PROFILE_STATUS_CODE.approved, PROFILE_STATUS_CODE.pending];
-  const statusIds = statuses
-    .filter((s) =>
-      hrRelevantEmployeeStatusCodes.includes(
-        s.code as typeof PROFILE_STATUS_CODE.approved | typeof PROFILE_STATUS_CODE.pending,
-      ),
-    )
-    .map((s) => s.id);
-
-  const filteredAllProfiles = profiles.filter((profile) => statusIds.includes(profile.profileStatus.id));
+  const filteredAllProfiles = profiles.filter((profile) =>
+    [PROFILE_STATUS_CODE.approved, PROFILE_STATUS_CODE.pending].some((id) => id === profile.profileStatus.code),
+  );
 
   return {
     documentTitle: t('app:index.employees'),
