@@ -159,6 +159,79 @@ describe('ProfileServiceDefault', () => {
     });
   });
 
+  describe('getCurrentUserProfile', () => {
+    const mockResponse = {
+      content: [
+        {
+          id: 1,
+          profileUser: { id: 1, firstName: 'Current', lastName: 'User' },
+          profileStatus: { id: 2, code: 'APPROVED', nameEn: 'Approved', nameFr: 'Approuvé' },
+          personalEmailAddress: 'current.user@example.com',
+          personalPhoneNumber: '555-1234',
+          isAvailableForReferral: true,
+        },
+      ],
+    };
+
+    it('should fetch current user profile successfully', async () => {
+      mockGet.mockResolvedValue(Ok(mockResponse));
+
+      const params = { active: true };
+      const accessToken = 'user-token';
+
+      const result = await defaultProfileService.getCurrentUserProfile(params, accessToken);
+
+      expect(mockGet).toHaveBeenCalledWith('/profiles/me?active=true', 'retrieve current user profiles', accessToken);
+      expect(result).toEqual(mockResponse.content[0]);
+    });
+
+    it('should throw AppError when no profiles are found', async () => {
+      const emptyResponse = { content: [] };
+      mockGet.mockResolvedValue(Ok(emptyResponse));
+
+      const params = { active: true };
+      const accessToken = 'user-token';
+
+      await expect(defaultProfileService.getCurrentUserProfile(params, accessToken)).rejects.toThrow(AppError);
+      await expect(defaultProfileService.getCurrentUserProfile(params, accessToken)).rejects.toThrow(
+        'No active profile found for current user',
+      );
+    });
+
+    it('should throw AppError when profile data is null/undefined', async () => {
+      const invalidResponse = { content: [null] };
+      mockGet.mockResolvedValue(Ok(invalidResponse));
+
+      const params = { active: true };
+      const accessToken = 'user-token';
+
+      await expect(defaultProfileService.getCurrentUserProfile(params, accessToken)).rejects.toThrow(AppError);
+      await expect(defaultProfileService.getCurrentUserProfile(params, accessToken)).rejects.toThrow('Profile data is invalid');
+    });
+
+    it('should throw the underlying error when getCurrentUserProfiles fails', async () => {
+      const httpError = Err(new AppError('Unauthorized access', ErrorCodes.ACCESS_FORBIDDEN));
+      mockGet.mockResolvedValue(httpError);
+
+      const params = { active: true };
+      const accessToken = 'invalid-token';
+
+      await expect(defaultProfileService.getCurrentUserProfile(params, accessToken)).rejects.toThrow(AppError);
+      await expect(defaultProfileService.getCurrentUserProfile(params, accessToken)).rejects.toThrow('Unauthorized access');
+    });
+
+    it('should handle undefined active parameter', async () => {
+      mockGet.mockResolvedValue(Ok(mockResponse));
+
+      const params = {};
+      const accessToken = 'user-token';
+
+      await defaultProfileService.getCurrentUserProfile(params, accessToken);
+
+      expect(mockGet).toHaveBeenCalledWith('/profiles/me', 'retrieve current user profiles', accessToken);
+    });
+  });
+
   describe('registerProfile', () => {
     const mockProfile = {
       id: 123,

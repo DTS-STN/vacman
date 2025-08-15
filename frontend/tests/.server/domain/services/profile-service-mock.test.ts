@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { ProfilePutModel, ProfileStatusUpdate } from '~/.server/domain/models';
 import { getMockProfileService } from '~/.server/domain/services/profile-service-mock';
+import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
 
 const mockProfileService = getMockProfileService();
@@ -151,6 +152,50 @@ describe('ProfileServiceMock', () => {
         expect(error.errorCode).toBe(ErrorCodes.VACMAN_API_ERROR);
         expect(error.message).toContain('Mock Error: Failed to retrieve current user profiles as requested.');
       }
+    });
+  });
+
+  describe('getCurrentUserProfile', () => {
+    it('should return current user profile successfully', async () => {
+      const params = { active: true };
+      const accessToken = 'valid-token';
+
+      const result = await mockProfileService.getCurrentUserProfile(params, accessToken);
+
+      expect(result).toHaveProperty('id');
+      expect(result).toHaveProperty('profileUser');
+      expect(result).toHaveProperty('profileStatus');
+      expect(result.profileUser?.id).toBe(1); // Mock data uses user ID 1
+    });
+
+    it('should throw AppError when no profiles are found', async () => {
+      const params = { active: false }; // This should return no active profiles
+      const accessToken = 'valid-token';
+
+      await expect(mockProfileService.getCurrentUserProfile(params, accessToken)).rejects.toThrow(AppError);
+      await expect(mockProfileService.getCurrentUserProfile(params, accessToken)).rejects.toThrow(
+        'No active profile found for current user',
+      );
+    });
+
+    it('should throw the underlying error when getCurrentUserProfiles fails', async () => {
+      const params = { active: true };
+      const accessToken = 'FAIL_TOKEN';
+
+      await expect(mockProfileService.getCurrentUserProfile(params, accessToken)).rejects.toThrow(AppError);
+      await expect(mockProfileService.getCurrentUserProfile(params, accessToken)).rejects.toThrow(
+        'Mock Error: Failed to retrieve current user profiles as requested.',
+      );
+    });
+
+    it('should handle undefined active parameter', async () => {
+      const params = {};
+      const accessToken = 'valid-token';
+
+      const result = await mockProfileService.getCurrentUserProfile(params, accessToken);
+
+      expect(result).toHaveProperty('id');
+      expect(result).toHaveProperty('profileUser');
     });
   });
 
