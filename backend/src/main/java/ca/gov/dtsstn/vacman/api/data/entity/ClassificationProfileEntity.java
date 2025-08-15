@@ -1,6 +1,7 @@
 package ca.gov.dtsstn.vacman.api.data.entity;
 
 import java.time.Instant;
+import java.util.Objects;
 
 import org.immutables.builder.Builder;
 import org.springframework.core.style.ToStringCreator;
@@ -65,6 +66,25 @@ public class ClassificationProfileEntity extends AbstractBaseEntity {
 			.append("classification", classification)
 			.append("profile", profile)
 			.toString();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+
+		if (!(obj instanceof ClassificationProfileEntity that)) {
+			return false;
+		}
+
+		return Objects.equals(this.profile, that.profile) && Objects.equals(this.classification, that.classification);
+
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(profile, classification);
 	}
 
 }

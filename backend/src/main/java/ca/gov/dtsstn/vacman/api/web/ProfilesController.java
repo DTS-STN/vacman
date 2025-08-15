@@ -7,6 +7,7 @@ import static ca.gov.dtsstn.vacman.api.exception.ExceptionUtils.generateUserWith
 import java.util.Collection;
 import java.util.Set;
 
+import ca.gov.dtsstn.vacman.api.web.model.ProfilePutModel;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.validator.constraints.Range;
 import org.mapstruct.factory.Mappers;
@@ -177,7 +178,7 @@ public class ProfilesController {
 	@PreAuthorize("hasAuthority('hr-advisor')")
 	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
 	@Operation(summary = "Update an existing profile specified by ID.")
-	public ResponseEntity<ProfileReadModel> updateProfileById(@PathVariable(name = "id") Long profileId, @Valid @RequestBody ProfileReadModel updatedProfile) {
+	public ResponseEntity<ProfileReadModel> updateProfileById(@PathVariable(name = "id") Long profileId, @Valid @RequestBody ProfilePutModel updatedProfile) {
 		log.info("Received request to get profile; ID: [{}]", profileId);
 
 		final var foundProfile = profileService.getProfile(profileId)
