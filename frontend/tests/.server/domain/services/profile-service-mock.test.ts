@@ -155,12 +155,12 @@ describe('ProfileServiceMock', () => {
     });
   });
 
-  describe('getCurrentUserProfile', () => {
+  describe('findCurrentUserProfile', () => {
     it('should return current user profile successfully', async () => {
       const params = { active: true };
       const accessToken = 'valid-token';
 
-      const result = await mockProfileService.getCurrentUserProfile(params, accessToken);
+      const result = await mockProfileService.findCurrentUserProfile(params, accessToken);
 
       expect(result).toHaveProperty('id');
       expect(result).toHaveProperty('profileUser');
@@ -172,8 +172,8 @@ describe('ProfileServiceMock', () => {
       const params = { active: false }; // This should return no active profiles
       const accessToken = 'valid-token';
 
-      await expect(mockProfileService.getCurrentUserProfile(params, accessToken)).rejects.toThrow(AppError);
-      await expect(mockProfileService.getCurrentUserProfile(params, accessToken)).rejects.toThrow(
+      await expect(mockProfileService.findCurrentUserProfile(params, accessToken)).rejects.toThrow(AppError);
+      await expect(mockProfileService.findCurrentUserProfile(params, accessToken)).rejects.toThrow(
         'No active profile found for current user',
       );
     });
@@ -182,8 +182,8 @@ describe('ProfileServiceMock', () => {
       const params = { active: true };
       const accessToken = 'FAIL_TOKEN';
 
-      await expect(mockProfileService.getCurrentUserProfile(params, accessToken)).rejects.toThrow(AppError);
-      await expect(mockProfileService.getCurrentUserProfile(params, accessToken)).rejects.toThrow(
+      await expect(mockProfileService.findCurrentUserProfile(params, accessToken)).rejects.toThrow(AppError);
+      await expect(mockProfileService.findCurrentUserProfile(params, accessToken)).rejects.toThrow(
         'Mock Error: Failed to retrieve current user profiles as requested.',
       );
     });
@@ -192,7 +192,7 @@ describe('ProfileServiceMock', () => {
       const params = {};
       const accessToken = 'valid-token';
 
-      const result = await mockProfileService.getCurrentUserProfile(params, accessToken);
+      const result = await mockProfileService.findCurrentUserProfile(params, accessToken);
 
       expect(result).toHaveProperty('id');
       expect(result).toHaveProperty('profileUser');

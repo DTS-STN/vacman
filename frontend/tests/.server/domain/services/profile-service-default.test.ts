@@ -159,7 +159,7 @@ describe('ProfileServiceDefault', () => {
     });
   });
 
-  describe('getCurrentUserProfile', () => {
+  describe('findCurrentUserProfile', () => {
     const mockResponse = {
       content: [
         {
@@ -179,7 +179,7 @@ describe('ProfileServiceDefault', () => {
       const params = { active: true };
       const accessToken = 'user-token';
 
-      const result = await defaultProfileService.getCurrentUserProfile(params, accessToken);
+      const result = await defaultProfileService.findCurrentUserProfile(params, accessToken);
 
       expect(mockGet).toHaveBeenCalledWith('/profiles/me?active=true', 'retrieve current user profiles', accessToken);
       expect(result).toEqual(mockResponse.content[0]);
@@ -192,8 +192,8 @@ describe('ProfileServiceDefault', () => {
       const params = { active: true };
       const accessToken = 'user-token';
 
-      await expect(defaultProfileService.getCurrentUserProfile(params, accessToken)).rejects.toThrow(AppError);
-      await expect(defaultProfileService.getCurrentUserProfile(params, accessToken)).rejects.toThrow(
+      await expect(defaultProfileService.findCurrentUserProfile(params, accessToken)).rejects.toThrow(AppError);
+      await expect(defaultProfileService.findCurrentUserProfile(params, accessToken)).rejects.toThrow(
         'No active profile found for current user',
       );
     });
@@ -205,8 +205,10 @@ describe('ProfileServiceDefault', () => {
       const params = { active: true };
       const accessToken = 'user-token';
 
-      await expect(defaultProfileService.getCurrentUserProfile(params, accessToken)).rejects.toThrow(AppError);
-      await expect(defaultProfileService.getCurrentUserProfile(params, accessToken)).rejects.toThrow('Profile data is invalid');
+      await expect(defaultProfileService.findCurrentUserProfile(params, accessToken)).rejects.toThrow(AppError);
+      await expect(defaultProfileService.findCurrentUserProfile(params, accessToken)).rejects.toThrow(
+        'Profile data is invalid',
+      );
     });
 
     it('should throw the underlying error when getCurrentUserProfiles fails', async () => {
@@ -216,8 +218,8 @@ describe('ProfileServiceDefault', () => {
       const params = { active: true };
       const accessToken = 'invalid-token';
 
-      await expect(defaultProfileService.getCurrentUserProfile(params, accessToken)).rejects.toThrow(AppError);
-      await expect(defaultProfileService.getCurrentUserProfile(params, accessToken)).rejects.toThrow('Unauthorized access');
+      await expect(defaultProfileService.findCurrentUserProfile(params, accessToken)).rejects.toThrow(AppError);
+      await expect(defaultProfileService.findCurrentUserProfile(params, accessToken)).rejects.toThrow('Unauthorized access');
     });
 
     it('should handle undefined active parameter', async () => {
@@ -226,7 +228,7 @@ describe('ProfileServiceDefault', () => {
       const params = {};
       const accessToken = 'user-token';
 
-      await defaultProfileService.getCurrentUserProfile(params, accessToken);
+      await defaultProfileService.findCurrentUserProfile(params, accessToken);
 
       expect(mockGet).toHaveBeenCalledWith('/profiles/me', 'retrieve current user profiles', accessToken);
     });
