@@ -31,13 +31,12 @@ import ca.gov.dtsstn.vacman.api.config.SpringDocConfig;
 import ca.gov.dtsstn.vacman.api.constants.AppConstants;
 import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
+import ca.gov.dtsstn.vacman.api.exception.ExceptionUtils;
 import ca.gov.dtsstn.vacman.api.security.SecurityManager;
 import ca.gov.dtsstn.vacman.api.security.SecurityUtils;
 import ca.gov.dtsstn.vacman.api.service.ProfileService;
 import ca.gov.dtsstn.vacman.api.service.UserService;
 import ca.gov.dtsstn.vacman.api.web.exception.ResourceConflictException;
-import ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException;
-import ca.gov.dtsstn.vacman.api.web.exception.UnauthorizedException;
 import ca.gov.dtsstn.vacman.api.web.model.CollectionModel;
 import ca.gov.dtsstn.vacman.api.web.model.ProfileReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.ProfileStatusUpdateModel;
@@ -96,7 +95,7 @@ public class ProfilesController {
 		}
 		else if (hrAdvisor.equalsIgnoreCase("me")) {
 			final var entraId = SecurityUtils.getCurrentUserEntraId()
-				.orElseThrow(() -> new UnauthorizedException("Entra ID not found in security context"));
+				.orElseThrow(ExceptionUtils::generateEntraIdNotFoundException);
 
 			hrAdvisorId = userService.getUserByMicrosoftEntraId(entraId)
 				.map(UserEntity::getId)
@@ -122,7 +121,7 @@ public class ProfilesController {
 			@Parameter(name = "active", description = "Return only active or inactive profiles")
 			Boolean isActive) {
 		final var entraId = SecurityUtils.getCurrentUserEntraId()
-			.orElseThrow(() -> new UnauthorizedException("Entra ID not found in security context"));
+			.orElseThrow(ExceptionUtils::generateEntraIdNotFoundException);
 
 		final var profiles = profileService.getProfilesByEntraId(entraId, isActive).stream()
 			.map(profileModelMapper::toModel)
@@ -140,7 +139,7 @@ public class ProfilesController {
 
 		final var profile = profileService.getProfile(id)
 			.map(profileModelMapper::toModel)
-			.orElseThrow(() -> new ResourceNotFoundException("Could not find profile with id=[" + id + "]"));
+			.orElseThrow(() -> generateIdDoesNotExistException("profile", id));
 
 		log.trace("Found profile: [{}]", profile);
 
@@ -154,8 +153,7 @@ public class ProfilesController {
 	public ResponseEntity<ProfileReadModel> createCurrentUserProfile() {
 		log.info("Received request to create new profile");
 		final var microsoftEntraId = SecurityUtils.getCurrentUserEntraId()
-			.orElseThrow(() -> new UnauthorizedException("Entra ID not found in security context"));
-
+			.orElseThrow(ExceptionUtils::generateEntraIdNotFoundException);
 
 		log.debug("Checking if user with microsoftEntraId=[{}] already exists", microsoftEntraId);
 		final var existingUser = userService.getUserByMicrosoftEntraId(microsoftEntraId)
