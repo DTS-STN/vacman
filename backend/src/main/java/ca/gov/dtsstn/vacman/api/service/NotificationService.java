@@ -16,7 +16,7 @@ import ca.gov.dtsstn.vacman.api.service.notify.NotificationReceipt;
 @Service
 public class NotificationService {
 
-	public enum ProfileStatus { CREATED, UPDATED, APPROVED }
+	public enum ProfileStatus { CREATED, UPDATED, APPROVED, PENDING }
 
 	private static final Logger log = LoggerFactory.getLogger(NotificationService.class);
 
@@ -43,6 +43,7 @@ public class NotificationService {
 			case CREATED -> applicationProperties.gcnotify().profileCreatedTemplateId();
 			case UPDATED -> applicationProperties.gcnotify().profileUpdatedTemplateId();
 			case APPROVED -> applicationProperties.gcnotify().profileApprovedTemplateId();
+			case PENDING -> applicationProperties.gcnotify().profilePendingTemplateId();
 			default -> throw new IllegalArgumentException("Unknown profile status value " + profileStatus);
 		};
 

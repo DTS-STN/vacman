@@ -109,4 +109,22 @@ class NotificationServiceTest {
 		assertThat(result).isNotNull(); // TODO ::: GjB ::: improve assertion
 	}
 
+	@Test
+	@DisplayName("Test send Profile pending email")
+	void getemailProfilePendingSuccess() {
+		when(applicationProperties.gcnotify().profilePendingTemplateId())
+			.thenReturn("00000000-0000-0000-0000-000000000000");
+
+		when(restTemplate.postForObject(eq("/email"), any(Map.class), eq(NotificationReceipt.class)))
+			.thenReturn(ImmutableNotificationReceipt.builder().build());
+
+		final var result = notificationService.sendEmailNotification(
+			"hradvisor@example.com",
+			"00000000-0000-0000-0000-000000000000",
+			"Ana de Armas",
+			ProfileStatus.PENDING);
+
+		assertThat(result).isNotNull(); // TODO ::: GjB ::: improve assertion
+	}
+
 }
