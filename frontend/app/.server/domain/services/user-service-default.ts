@@ -1,7 +1,7 @@
 import { Err, None, Ok, Some } from 'oxide.ts';
 import type { Option, Result } from 'oxide.ts';
 
-import type { User, UserCreate, UserUpdate } from '~/.server/domain/models';
+import type { User, UserCreate, UserUpdate, PagedUserResponse, UserQueryParams } from '~/.server/domain/models';
 import { apiClient } from '~/.server/domain/services/api-client';
 import type { UserService } from '~/.server/domain/services/user-service';
 import { AppError } from '~/errors/app-error';
@@ -11,13 +11,23 @@ import { HttpStatusCodes } from '~/errors/http-status-codes';
 export function getDefaultUserService(): UserService {
   return {
     /**
-     * Retrieves a list of users by their ROLE.
-     * @param role The ROLE of the user to retrieve.
+     * Retrieves a paginated list of users with optional filtering.
+     * @param params Query parameters for pagination and filtering.
      * @param accessToken The access token for authorization.
-     * @returns A Result containing the list of user objects or an error.
+     * @returns A Result containing the paginated user response or an error.
      */
-    async getUsersByRole(role: string, accessToken: string): Promise<Result<User[], AppError>> {
-      const result = await apiClient.get<User[]>(`/users?type=${role}`, `retrieve users with role ${role}`, accessToken);
+    async getUsers(params: UserQueryParams, accessToken: string): Promise<Result<PagedUserResponse, AppError>> {
+      const searchParams = new URLSearchParams();
+
+      if (params.page !== undefined) searchParams.append('page', params.page.toString());
+      if (params.size !== undefined) searchParams.append('size', params.size.toString());
+      if (params['user-type']) searchParams.append('user-type', params['user-type']);
+      if (params.sort) {
+        params.sort.forEach((sortParam) => searchParams.append('sort', sortParam));
+      }
+
+      const url = `/users${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
+      const result = await apiClient.get<PagedUserResponse>(url, 'retrieve paginated users', accessToken);
 
       if (result.isErr()) {
         return Err(result.unwrapErr());
@@ -80,7 +90,7 @@ export function getDefaultUserService(): UserService {
     },
 
     /**
-     * Registers a new user.
+     * Registers a new user from the auth token.
      * @param user The user data to create.
      * @param accessToken The access token for authorization.
      * @returns A Result containing the created user object or an error.
@@ -103,24 +113,20 @@ export function getDefaultUserService(): UserService {
     },
 
     /**
-     * Updates a user by their ID.
-     * @param user The user data to update, containing the ID and fields to update.
+     * Updates a user by their ID using PUT endpoint.
+     * @param id The ID of the user to update.
+     * @param user The user data to update.
      * @param accessToken The access token for authorization.
      * @returns A Result containing the updated user object or an error.
      */
-    async updateUser(user: UserUpdate, accessToken: string): Promise<Result<User, AppError>> {
-      const result = await apiClient.put<UserUpdate, User>(
-        `/users/${user.id}`,
-        `update user with ID ${user.id}`,
-        user,
-        accessToken,
-      );
+    async updateUserById(id: number, user: UserUpdate, accessToken: string): Promise<Result<User, AppError>> {
+      const result = await apiClient.put<UserUpdate, User>(`/users/${id}`, `update user with ID ${id}`, user, accessToken);
 
       if (result.isErr()) {
         const error = result.unwrapErr();
         // Check if it's a 404 error and provide a more specific message
         if (error.httpStatusCode === HttpStatusCodes.NOT_FOUND) {
-          return Err(new AppError(`User with ID ${user.id} not found.`, ErrorCodes.VACMAN_API_ERROR));
+          return Err(new AppError(`User with ID ${id} not found.`, ErrorCodes.VACMAN_API_ERROR));
         }
         return Err(error);
       }
