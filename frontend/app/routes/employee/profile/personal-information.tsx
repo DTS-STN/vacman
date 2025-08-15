@@ -91,7 +91,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   }
 
   return i18nRedirect('routes/employee/profile/index.tsx', request, {
-    params: { id: currentProfile.userId.toString() },
+    params: { id: currentProfile.profileUser.id.toString() },
   });
 }
 
@@ -111,11 +111,11 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   return {
     documentTitle: t('app:personal-information.page-title'),
     defaultValues: {
-      surname: profileData.personalInformation.surname,
-      givenName: profileData.personalInformation.givenName,
-      personalRecordIdentifier: profileData.personalInformation.personalRecordIdentifier,
+      surname: profileData.profileUser.lastName,
+      givenName: profileData.profileUser.firstName,
+      personalRecordIdentifier: profileData.profileUser.personalRecordIdentifier,
       preferredLanguage: profileData.personalInformation.preferredLanguage,
-      workEmail: currentUser.businessEmail ?? profileData.personalInformation.workEmail,
+      workEmail: currentUser.businessEmail ?? profileData.profileUser.businessEmailAddress,
       personalEmail: profileData.personalInformation.personalEmail,
       workPhone: toE164(currentUser.businessPhone),
       personalPhone: toE164(profileData.personalInformation.personalPhone),

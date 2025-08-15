@@ -21,7 +21,7 @@ describe('getMockProfileService', () => {
       const createdProfile = result.unwrap();
 
       expect(createdProfile.profileId).toBeDefined();
-      expect(createdProfile.userId).toBeDefined();
+      expect(createdProfile.profileUser.id).toBeDefined();
       expect(createdProfile.userCreated).toBe(activeDirectoryId);
       expect(createdProfile.dateCreated).toBeDefined();
       expect(createdProfile.profileStatus.id).toBe(2);
@@ -44,7 +44,7 @@ describe('getMockProfileService', () => {
       const createdProfile = result.unwrap();
 
       expect(createdProfile.profileId).toBeDefined();
-      expect(createdProfile.userId).toBe(2); // Should map to existing user ID from mock data
+      expect(createdProfile.profileUser.id).toBe(2); // Should map to existing user ID from mock data
       expect(createdProfile.userCreated).toBe(activeDirectoryId);
     });
 

@@ -74,7 +74,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   }
 
   const userService = getUserService();
-  const userResult = await userService.getUserById(profile.userId, context.session.authState.accessToken);
+  const userResult = await userService.getUserById(profile.profileUser.id, context.session.authState.accessToken);
 
   if (userResult.isErr()) {
     throw new Response('User not found', { status: 404 });
@@ -120,13 +120,13 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   return {
     documentTitle: t('app:personal-information.page-title'),
     defaultValues: {
-      surname: profileData.personalInformation.surname,
-      givenName: profileData.personalInformation.givenName,
-      personalRecordIdentifier: profileData.personalInformation.personalRecordIdentifier,
+      surname: profileData.profileUser.firstName,
+      givenName: profileData.profileUser.lastName,
+      personalRecordIdentifier: profileData.profileUser.personalRecordIdentifier,
       preferredLanguageId: profileData.personalInformation.preferredLanguage,
-      workEmail: currentUser.businessEmail ?? profileData.personalInformation.workEmail,
+      workEmail: currentUser.businessEmail ?? profileData.profileUser.businessEmailAddress,
       personalEmail: profileData.personalInformation.personalEmail,
-      workPhone: toE164(currentUser.businessPhone ?? profileData.personalInformation.workPhone),
+      workPhone: toE164(currentUser.businessPhone ?? profileData.profileUser.businessPhoneNumber),
       personalPhone: toE164(profileData.personalInformation.personalPhone),
       additionalInformation: profileData.personalInformation.additionalInformation,
     },

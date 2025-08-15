@@ -53,7 +53,7 @@ export async function action({ context, request }: Route.ActionArgs) {
   const allWfaStatus = await getWFAStatuses().listAll();
 
   const requiredPersonalInformation = omitObjectProperties(profileData.personalInformation, [
-    'workPhone',
+    //    'workPhone', //TODO use pickObjectProperties instead of omitObjectProperties
     'additionalInformation',
   ]);
   const validWFAStatusesForOptionalDate = [EMPLOYEE_WFA_STATUS.affected] as const;
@@ -111,7 +111,7 @@ export async function action({ context, request }: Route.ActionArgs) {
   // If all complete, submit for review
   const submitResult = await getProfileService().updateProfileStatus(
     context.session.authState.accessToken,
-    profileData.userId.toString(),
+    profileData.profileUser.id.toString(),
     PROFILE_STATUS_CODE.pending,
   );
   if (submitResult.isErr()) {
@@ -150,7 +150,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     allLocalizedEmploymentOpportunities,
     allWfaStatus,
   ] = await Promise.all([
-    getUserService().getUserById(profileData.userId, context.session.authState.accessToken),
+    getUserService().getUserById(profileData.profileUser.id, context.session.authState.accessToken),
     getLanguageReferralTypeService().listAllLocalized(lang),
     getClassificationService().listAllLocalized(lang),
     getCityService().listAllLocalized(lang),
@@ -162,7 +162,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const currentUser = currentUserResult.into();
 
   const profileUpdatedByUserResult = profileData.userUpdated
-    ? await getUserService().getUserById(profileData.userId, context.session.authState.accessToken)
+    ? await getUserService().getUserById(profileData.profileUser.id, context.session.authState.accessToken)
     : undefined;
   const profileUpdatedByUser = profileUpdatedByUserResult?.into();
   const profileUpdatedByUserName = profileUpdatedByUser && `${profileUpdatedByUser.firstName} ${profileUpdatedByUser.lastName}`;
@@ -209,7 +209,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 
   // Check each section if the required feilds are complete
   const requiredPersonalInformation = omitObjectProperties(profileData.personalInformation, [
-    'workPhone',
+    //    'workPhone', //TODO use pickObjectProperties instead of omitObjectProperties
     'additionalInformation',
   ]);
   const personalInformationCompleted = countCompletedItems(requiredPersonalInformation);
@@ -267,19 +267,19 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   return {
     documentTitle: t('app:profile.page-title'),
     name: currentUser ? `${currentUser.firstName} ${currentUser.lastName}` : '', //for first time employee login, the name is not in profile data
-    email: currentUser?.businessEmail ?? profileData.personalInformation.workEmail, //for first time employee login, the work email is not in profile data
+    email: currentUser?.businessEmail ?? profileData.profileUser.businessEmailAddress, //for first time employee login, the work email is not in profile data
     amountCompleted: amountCompleted,
     isProfileComplete: isCompletePersonalInformation && isCompleteEmploymentInformation && isCompleteReferralPreferences,
     profileStatus,
     personalInformation: {
       isComplete: isCompletePersonalInformation,
       isNew: countCompletedItems(profileData.personalInformation) === 1, // only work email is available
-      personalRecordIdentifier: profileData.personalInformation.personalRecordIdentifier,
+      personalRecordIdentifier: profileData.profileUser.personalRecordIdentifier,
       preferredLanguage:
         lang === 'en'
           ? profileData.personalInformation.preferredLanguage?.nameEn
           : profileData.personalInformation.preferredLanguage?.nameFr,
-      workEmail: currentUser?.businessEmail ?? profileData.personalInformation.workEmail,
+      workEmail: currentUser?.businessEmail ?? profileData.profileUser.businessEmailAddress,
       personalEmail: profileData.personalInformation.personalEmail,
       workPhone: currentUser?.businessPhone,
       personalPhone: profileData.personalInformation.personalPhone,

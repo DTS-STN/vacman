@@ -78,16 +78,16 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
 
   const columns: ColumnDef<Profile>[] = [
     {
-      accessorKey: 'personalInformation.givenName',
-      accessorFn: (row) => `${row.personalInformation.givenName ?? ''} ${row.personalInformation.surname ?? ''}`.trim(),
+      accessorKey: 'profileUser.firstName',
+      accessorFn: (row) => `${row.profileUser.firstName ?? ''} ${row.profileUser.lastName ?? ''}`.trim(),
       header: ({ column }) => <DataTableColumnHeader column={column} title={t('app:employee-dashboard.employee')} />,
       cell: (info) => <p>{info.getValue() as string}</p>,
     },
     {
-      accessorKey: 'personalInformation.workEmail',
+      accessorKey: 'profileUser.businessEmailAddress',
       header: ({ column }) => <DataTableColumnHeader column={column} title={t('app:employee-dashboard.email')} />,
       cell: (info) => {
-        const email = info.row.original.personalInformation.workEmail;
+        const email = info.row.original.profileUser.businessEmailAddress;
         return (
           <a href={`mailto:${email}`} className="text-sky-800 decoration-slate-400 decoration-2 hover:underline">
             {email}

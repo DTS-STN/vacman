@@ -176,7 +176,7 @@ export function getMockProfileService(): ProfileService {
       // Find the active profile for this specific user
       const activeProfile = mockProfiles.find(
         (profile) =>
-          profile.userId === user.id &&
+          profile.profileUser.id === user.id &&
           (profile.profileStatus.id === PROFILE_STATUS_ID.incomplete ||
             profile.profileStatus.id === PROFILE_STATUS_ID.pending ||
             profile.profileStatus.id === PROFILE_STATUS_ID.approved),
@@ -193,7 +193,6 @@ export function getMockProfileService(): ProfileService {
 let mockProfiles: Profile[] = [
   {
     profileId: 1,
-    userId: 1,
     userIdReviewedBy: undefined,
     userIdApprovedBy: undefined,
     profileStatus: PROFILE_STATUS_INCOMPLETE,
@@ -209,14 +208,17 @@ let mockProfiles: Profile[] = [
     isAvailableForReferral: true,
     isInterestedInAlternation: false,
     employmentOpportunityIds: [0, 1, 3],
-    personalInformation: {
-      surname: 'Doe',
-      givenName: 'Jane',
+    profileUser: {
+      id: 1,
+      businessEmailAddress: 'firstname.lastname@email.ca',
+      businessPhoneNumber: undefined,
+      firstName: 'Jane',
+      lastName: 'Doe',
       personalRecordIdentifier: '123456789',
+    },
+    personalInformation: {
       preferredLanguage: undefined,
-      workEmail: 'firstname.lastname@email.ca',
       personalEmail: 'jane.doe@example.com',
-      workPhone: undefined,
       personalPhone: '613-555-0001',
       additionalInformation: 'Looking for opportunities in software development.',
     },
@@ -234,7 +236,6 @@ let mockProfiles: Profile[] = [
   },
   {
     profileId: 2,
-    userId: 2,
     userIdReviewedBy: undefined,
     userIdApprovedBy: undefined,
     profileStatus: PROFILE_STATUS_INCOMPLETE,
@@ -250,14 +251,17 @@ let mockProfiles: Profile[] = [
     isAvailableForReferral: undefined,
     isInterestedInAlternation: undefined,
     employmentOpportunityIds: undefined,
-    personalInformation: {
-      surname: 'Smith',
-      givenName: 'John',
+    profileUser: {
+      id: 2,
+      businessEmailAddress: 'example@email.ca',
+      businessPhoneNumber: undefined,
+      firstName: 'John',
+      lastName: 'Smith',
       personalRecordIdentifier: undefined,
+    },
+    personalInformation: {
       preferredLanguage: undefined,
-      workEmail: 'example@email.ca',
       personalEmail: undefined,
-      workPhone: undefined,
       personalPhone: undefined,
       additionalInformation: undefined,
     },
@@ -275,7 +279,6 @@ let mockProfiles: Profile[] = [
   },
   {
     profileId: 3,
-    userId: 3,
     userIdReviewedBy: undefined,
     userIdApprovedBy: undefined,
     profileStatus: PROFILE_STATUS_PENDING,
@@ -291,14 +294,17 @@ let mockProfiles: Profile[] = [
     isAvailableForReferral: false,
     isInterestedInAlternation: true,
     employmentOpportunityIds: [2],
-    personalInformation: {
-      surname: 'fname',
-      givenName: 'lname',
+    profileUser: {
+      id: 3,
+      businessEmailAddress: 'john.smith@email.ca',
+      businessPhoneNumber: undefined,
+      firstName: 'fname',
+      lastName: 'lname',
       personalRecordIdentifier: '987654321',
+    },
+    personalInformation: {
       preferredLanguage: PREFERRED_LANGUAGE_ENGLISH,
-      workEmail: 'john.smith@email.ca',
       personalEmail: 'john.smith@example.com',
-      workPhone: '613-555-1234',
       personalPhone: '613-555-0001',
       additionalInformation: 'Interested in remote work.',
     },
@@ -316,7 +322,6 @@ let mockProfiles: Profile[] = [
   },
   {
     profileId: 4,
-    userId: 4,
     userIdReviewedBy: 5,
     userIdApprovedBy: 5,
     profileStatus: PROFILE_STATUS_APPROVED,
@@ -332,14 +337,17 @@ let mockProfiles: Profile[] = [
     isAvailableForReferral: true,
     isInterestedInAlternation: false,
     employmentOpportunityIds: [3],
-    personalInformation: {
-      surname: 'Curie',
-      givenName: 'Marie',
+    profileUser: {
+      id: 4,
+      businessEmailAddress: 'marie.curie@email.ca',
+      businessPhoneNumber: undefined,
+      firstName: 'Marie',
+      lastName: 'Curie',
       personalRecordIdentifier: '555555555',
+    },
+    personalInformation: {
       preferredLanguage: PREFERRED_LANGUAGE_FRENCH,
-      workEmail: 'marie.curie@email.ca',
       personalEmail: 'marie.curie@example.com',
-      workPhone: '613-555-5555',
       personalPhone: '613-555-5555',
       additionalInformation: 'Fluent in French and English.',
     },
@@ -357,7 +365,6 @@ let mockProfiles: Profile[] = [
   },
   {
     profileId: 5,
-    userId: 5,
     userIdReviewedBy: 5,
     userIdApprovedBy: 5,
     profileStatus: PROFILE_STATUS_APPROVED,
@@ -373,14 +380,17 @@ let mockProfiles: Profile[] = [
     isAvailableForReferral: true,
     isInterestedInAlternation: true,
     employmentOpportunityIds: [1],
-    personalInformation: {
-      surname: 'Tan',
-      givenName: 'Alex',
+    profileUser: {
+      id: 5,
+      businessEmailAddress: 'alex.tan@email.ca',
+      businessPhoneNumber: undefined,
+      firstName: 'Alex',
+      lastName: 'Tan',
       personalRecordIdentifier: '222333444',
+    },
+    personalInformation: {
       preferredLanguage: PREFERRED_LANGUAGE_ENGLISH,
-      workEmail: 'alex.tan@email.ca',
       personalEmail: 'alex.tan@example.com',
-      workPhone: '613-555-2222',
       personalPhone: '613-555-3333',
       additionalInformation: 'Open to contract roles.',
     },
@@ -398,7 +408,6 @@ let mockProfiles: Profile[] = [
   },
   {
     profileId: 6,
-    userId: 6,
     userIdReviewedBy: 5,
     userIdApprovedBy: 5,
     profileStatus: PROFILE_STATUS_APPROVED,
@@ -414,14 +423,17 @@ let mockProfiles: Profile[] = [
     isAvailableForReferral: true,
     isInterestedInAlternation: false,
     employmentOpportunityIds: [2],
-    personalInformation: {
-      surname: 'Lee',
-      givenName: 'Sam',
+    profileUser: {
+      id: 6,
+      businessEmailAddress: 'sam.lee@example.com',
+      businessPhoneNumber: undefined,
+      firstName: 'Sam',
+      lastName: 'Lee',
       personalRecordIdentifier: '111222333',
+    },
+    personalInformation: {
       preferredLanguage: PREFERRED_LANGUAGE_ENGLISH,
-      workEmail: 'sam.lee@example.com',
       personalEmail: 'sam.lee.personal@example.com',
-      workPhone: '613-555-1001',
       personalPhone: '613-555-1002',
       additionalInformation: 'Interested in project management.',
     },
@@ -439,7 +451,6 @@ let mockProfiles: Profile[] = [
   },
   {
     profileId: 7,
-    userId: 7,
     userIdReviewedBy: undefined,
     userIdApprovedBy: undefined,
     profileStatus: PROFILE_STATUS_PENDING,
@@ -455,14 +466,17 @@ let mockProfiles: Profile[] = [
     isAvailableForReferral: false,
     isInterestedInAlternation: true,
     employmentOpportunityIds: [3],
-    personalInformation: {
-      surname: 'Park',
-      givenName: 'Linda',
+    profileUser: {
+      id: 7,
+      businessEmailAddress: 'linda.park@example.com',
+      businessPhoneNumber: undefined,
+      firstName: 'Linda',
+      lastName: 'Park',
       personalRecordIdentifier: '444555666',
+    },
+    personalInformation: {
       preferredLanguage: PREFERRED_LANGUAGE_FRENCH,
-      workEmail: 'linda.park@example.com',
       personalEmail: 'linda.park.personal@example.com',
-      workPhone: '613-555-2001',
       personalPhone: '613-555-2002',
       additionalInformation: 'Fluent in French and English.',
     },
@@ -480,7 +494,6 @@ let mockProfiles: Profile[] = [
   },
   {
     profileId: 8,
-    userId: 8,
     userIdReviewedBy: undefined,
     userIdApprovedBy: undefined,
     profileStatus: PROFILE_STATUS_PENDING,
@@ -496,14 +509,17 @@ let mockProfiles: Profile[] = [
     isAvailableForReferral: undefined,
     isInterestedInAlternation: undefined,
     employmentOpportunityIds: undefined,
-    personalInformation: {
-      surname: 'Gomez',
-      givenName: 'Carlos',
+    profileUser: {
+      id: 8,
+      businessEmailAddress: 'carlos.gomez@example.com',
+      businessPhoneNumber: undefined,
+      firstName: 'Carlos',
+      lastName: 'Gomez',
       personalRecordIdentifier: '777888999',
+    },
+    personalInformation: {
       preferredLanguage: PREFERRED_LANGUAGE_ENGLISH,
-      workEmail: 'carlos.gomez@example.com',
       personalEmail: 'carlos.gomez.personal@example.com',
-      workPhone: '613-555-3001',
       personalPhone: '613-555-3002',
       additionalInformation: 'Looking for remote opportunities.',
     },
@@ -521,7 +537,6 @@ let mockProfiles: Profile[] = [
   },
   {
     profileId: 9,
-    userId: 9,
     userIdReviewedBy: undefined,
     userIdApprovedBy: undefined,
     profileStatus: PROFILE_STATUS_PENDING,
@@ -537,14 +552,17 @@ let mockProfiles: Profile[] = [
     isAvailableForReferral: true,
     isInterestedInAlternation: false,
     employmentOpportunityIds: [0],
-    personalInformation: {
-      surname: 'Singh',
-      givenName: 'Priya',
+    profileUser: {
+      id: 9,
+      businessEmailAddress: 'priya.singh@example.com',
+      businessPhoneNumber: undefined,
+      firstName: 'Priya',
+      lastName: 'Singh',
       personalRecordIdentifier: '101112131',
+    },
+    personalInformation: {
       preferredLanguage: PREFERRED_LANGUAGE_FRENCH,
-      workEmail: 'priya.singh@example.com',
       personalEmail: 'priya.singh.personal@example.com',
-      workPhone: '613-555-4001',
       personalPhone: '613-555-4002',
       additionalInformation: 'Interested in leadership roles.',
     },
@@ -562,7 +580,6 @@ let mockProfiles: Profile[] = [
   },
   {
     profileId: 10,
-    userId: 10,
     userIdReviewedBy: 5,
     userIdApprovedBy: 5,
     profileStatus: PROFILE_STATUS_APPROVED,
@@ -578,14 +595,17 @@ let mockProfiles: Profile[] = [
     isAvailableForReferral: false,
     isInterestedInAlternation: true,
     employmentOpportunityIds: [1],
-    personalInformation: {
-      surname: 'Ijaz',
-      givenName: 'Mohammed',
+    profileUser: {
+      id: 10,
+      businessEmailAddress: 'mohammedi@example.com',
+      businessPhoneNumber: undefined,
+      firstName: 'Mohammed',
+      lastName: 'Ijaz',
       personalRecordIdentifier: '141516171',
+    },
+    personalInformation: {
       preferredLanguage: PREFERRED_LANGUAGE_ENGLISH,
-      workEmail: 'mohammedi@example.com',
       personalEmail: 'mohammed.personal@example.com',
-      workPhone: '613-555-5001',
       personalPhone: '613-555-5002',
       additionalInformation: 'Open to relocation.',
     },
@@ -603,7 +623,6 @@ let mockProfiles: Profile[] = [
   },
   {
     profileId: 11,
-    userId: 11,
     userIdReviewedBy: 5,
     userIdApprovedBy: 5,
     profileStatus: PROFILE_STATUS_APPROVED,
@@ -619,14 +638,17 @@ let mockProfiles: Profile[] = [
     isAvailableForReferral: true,
     isInterestedInAlternation: false,
     employmentOpportunityIds: [2],
-    personalInformation: {
-      surname: 'Neil',
-      givenName: 'Emily',
+    profileUser: {
+      id: 11,
+      businessEmailAddress: 'emily.chen@example.com',
+      businessPhoneNumber: undefined,
+      firstName: 'Emily',
+      lastName: 'Neil',
       personalRecordIdentifier: '181920212',
+    },
+    personalInformation: {
       preferredLanguage: PREFERRED_LANGUAGE_FRENCH,
-      workEmail: 'emily.chen@example.com',
       personalEmail: 'emily.chen.personal@example.com',
-      workPhone: '613-555-6001',
       personalPhone: '613-555-6002',
       additionalInformation: 'Enjoys team collaboration.',
     },
@@ -644,7 +666,6 @@ let mockProfiles: Profile[] = [
   },
   {
     profileId: 12,
-    userId: 12,
     userIdReviewedBy: undefined,
     userIdApprovedBy: undefined,
     profileStatus: PROFILE_STATUS_PENDING,
@@ -660,14 +681,17 @@ let mockProfiles: Profile[] = [
     isAvailableForReferral: true,
     isInterestedInAlternation: true,
     employmentOpportunityIds: [3],
-    personalInformation: {
-      surname: 'Brown',
-      givenName: 'Olivia',
+    profileUser: {
+      id: 12,
+      businessEmailAddress: 'olivia.brown@example.com',
+      businessPhoneNumber: undefined,
+      firstName: 'Olivia',
+      lastName: 'Brown',
       personalRecordIdentifier: '222324252',
+    },
+    personalInformation: {
       preferredLanguage: PREFERRED_LANGUAGE_ENGLISH,
-      workEmail: 'olivia.brown@example.com',
       personalEmail: 'olivia.brown.personal@example.com',
-      workPhone: '613-555-7001',
       personalPhone: '613-555-7002',
       additionalInformation: 'Seeking growth opportunities.',
     },
@@ -685,7 +709,6 @@ let mockProfiles: Profile[] = [
   },
   {
     profileId: 13,
-    userId: 13,
     userIdReviewedBy: undefined,
     userIdApprovedBy: undefined,
     profileStatus: PROFILE_STATUS_PENDING,
@@ -701,14 +724,17 @@ let mockProfiles: Profile[] = [
     isAvailableForReferral: false,
     isInterestedInAlternation: false,
     employmentOpportunityIds: [0],
-    personalInformation: {
-      surname: 'Kim',
-      givenName: 'David',
+    profileUser: {
+      id: 13,
+      businessEmailAddress: 'david.kim@example.com',
+      businessPhoneNumber: undefined,
+      firstName: 'David',
+      lastName: 'Kim',
       personalRecordIdentifier: '262728292',
+    },
+    personalInformation: {
       preferredLanguage: PREFERRED_LANGUAGE_FRENCH,
-      workEmail: 'david.kim@example.com',
       personalEmail: 'david.kim.personal@example.com',
-      workPhone: '613-555-8001',
       personalPhone: '613-555-8002',
       additionalInformation: 'Interested in analytics.',
     },
@@ -726,7 +752,6 @@ let mockProfiles: Profile[] = [
   },
   {
     profileId: 14,
-    userId: 14,
     userIdReviewedBy: undefined,
     userIdApprovedBy: undefined,
     profileStatus: PROFILE_STATUS_PENDING,
@@ -742,14 +767,17 @@ let mockProfiles: Profile[] = [
     isAvailableForReferral: true,
     isInterestedInAlternation: false,
     employmentOpportunityIds: [0, 1, 3],
-    personalInformation: {
-      surname: 'Rossi',
-      givenName: 'Sofia',
+    profileUser: {
+      id: 14,
+      businessEmailAddress: 'sofia.rossi@example.com',
+      businessPhoneNumber: undefined,
+      firstName: 'Sofia',
+      lastName: 'Rossi',
       personalRecordIdentifier: '303132333',
+    },
+    personalInformation: {
       preferredLanguage: PREFERRED_LANGUAGE_ENGLISH,
-      workEmail: 'sofia.rossi@example.com',
       personalEmail: 'sofia.rossi.personal@example.com',
-      workPhone: '613-555-9001',
       personalPhone: '613-555-9002',
       additionalInformation: 'Open to international assignments.',
     },
@@ -767,7 +795,6 @@ let mockProfiles: Profile[] = [
   },
   {
     profileId: 15,
-    userId: 15,
     userIdReviewedBy: 5,
     userIdApprovedBy: 5,
     profileStatus: PROFILE_STATUS_PENDING,
@@ -783,14 +810,17 @@ let mockProfiles: Profile[] = [
     isAvailableForReferral: true,
     isInterestedInAlternation: false,
     employmentOpportunityIds: [1],
-    personalInformation: {
-      surname: 'Muller',
-      givenName: 'Tom',
+    profileUser: {
+      id: 15,
+      businessEmailAddress: 'tom.muller@example.com',
+      businessPhoneNumber: undefined,
+      firstName: 'Tom',
+      lastName: 'Muller',
       personalRecordIdentifier: '343536373',
+    },
+    personalInformation: {
       preferredLanguage: PREFERRED_LANGUAGE_FRENCH,
-      workEmail: 'tom.muller@example.com',
       personalEmail: 'tom.muller.personal@example.com',
-      workPhone: '613-555-9101',
       personalPhone: '613-555-9102',
       additionalInformation: 'Interested in research.',
     },
@@ -832,7 +862,6 @@ function createMockProfile(accessToken: string): Profile {
   // Create new profile
   const newProfile: Profile = {
     profileId: mockProfiles.length + 1,
-    userId: userId,
     userIdReviewedBy: undefined,
     userIdApprovedBy: undefined,
     profileStatus: PROFILE_STATUS_INCOMPLETE,
@@ -848,14 +877,17 @@ function createMockProfile(accessToken: string): Profile {
     isAvailableForReferral: true,
     isInterestedInAlternation: false,
     employmentOpportunityIds: [0, 1, 3],
-    personalInformation: {
-      surname: 'Doe',
-      givenName: 'John',
+    profileUser: {
+      id: userId,
+      businessEmailAddress: 'work.email@example.ca',
+      businessPhoneNumber: undefined,
+      firstName: 'John',
+      lastName: 'Doe',
       personalRecordIdentifier: '123456789',
+    },
+    personalInformation: {
       preferredLanguage: undefined,
-      workEmail: 'work.email@example.ca',
       personalEmail: 'personal.email@example.com',
-      workPhone: undefined,
       personalPhone: '613-938-0001',
       additionalInformation: 'Looking for opportunities in software development.',
     },
