@@ -22,6 +22,7 @@ import ca.gov.dtsstn.vacman.api.data.entity.UserTypeEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.WfaStatusEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.WorkScheduleEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.WorkUnitEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.MatchFeedbackEntity;
 import ca.gov.dtsstn.vacman.api.web.model.CityReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.ClassificationReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.EmploymentEquityReadModel;
@@ -41,6 +42,7 @@ import ca.gov.dtsstn.vacman.api.web.model.UserTypeReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.WfaStatusReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.WorkScheduleReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.WorkUnitReadModel;
+import ca.gov.dtsstn.vacman.api.web.model.MatchFeedbackReadModel;
 
 @Mapper(nullValueMappingStrategy = NullValueMappingStrategy.RETURN_NULL)
 public interface CodeModelMapper {
@@ -83,4 +85,5 @@ public interface CodeModelMapper {
 
 	WorkUnitReadModel map(WorkUnitEntity entity);
 
+	MatchFeedbackReadModel map(MatchFeedbackEntity entity);
 }

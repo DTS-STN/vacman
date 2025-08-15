@@ -26,6 +26,7 @@ import ca.gov.dtsstn.vacman.api.data.entity.UserTypeEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.WfaStatusEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.WorkScheduleEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.WorkUnitEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.MatchFeedbackEntity;
 import ca.gov.dtsstn.vacman.api.data.repository.CityRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.ClassificationRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.EmploymentEquityRepository;
@@ -45,6 +46,7 @@ import ca.gov.dtsstn.vacman.api.data.repository.UserTypeRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.WfaStatusRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.WorkScheduleRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.WorkUnitRepository;
+import ca.gov.dtsstn.vacman.api.data.repository.MatchFeedbackRepository;
 
 /**
  * Service class for retrieving code table values.
@@ -93,6 +95,8 @@ public class CodeService {
 
 	private final WorkUnitRepository workUnitRepository;
 
+	private final MatchFeedbackRepository matchFeedbackRepository;
+
 	public CodeService(
 			CityRepository cityRepository,
 			ClassificationRepository classificationRepository,
@@ -112,7 +116,8 @@ public class CodeService {
 			UserTypeRepository userTypeRepository,
 			WfaStatusRepository wfaStatusRepository,
 			WorkScheduleRepository workScheduleRepository,
-			WorkUnitRepository workUnitRepository) {
+			WorkUnitRepository workUnitRepository,
+			MatchFeedbackRepository matchFeedbackRepository) {
 		this.cityRepository = cityRepository;
 		this.classificationRepository = classificationRepository;
 		this.employmentEquityRepository = employmentEquityRepository;
@@ -132,6 +137,7 @@ public class CodeService {
 		this.wfaStatusRepository = wfaStatusRepository;
 		this.workScheduleRepository = workScheduleRepository;
 		this.workUnitRepository = workUnitRepository;
+		this.matchFeedbackRepository = matchFeedbackRepository;
 	}
 
 	/**
@@ -341,6 +347,18 @@ public class CodeService {
  @Cacheable(cacheNames = { AppConstants.CacheNames.WORK_UNITS })
 	public Page<WorkUnitEntity> getWorkUnits(Pageable pageable) {
 		return workUnitRepository.findAll(pageable);
+
+	}
+	
+	/**
+	 * Retrieves a paginated list of match feedback.
+	 *
+	 * @param pageable pagination information
+	 * @return a page of {@link MatchFeedbackEntity} objects
+	 */
+ @Cacheable(cacheNames = { AppConstants.CacheNames.MATCH_FEEDBACK })
+	public Page<MatchFeedbackEntity> getMatchFeedback(Pageable pageable) {
+		return matchFeedbackRepository.findAll(pageable);
 	}
 
 }

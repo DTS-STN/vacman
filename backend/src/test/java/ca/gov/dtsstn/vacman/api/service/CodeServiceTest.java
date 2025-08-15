@@ -34,6 +34,7 @@ import ca.gov.dtsstn.vacman.api.data.entity.UserTypeEntityBuilder;
 import ca.gov.dtsstn.vacman.api.data.entity.WfaStatusEntityBuilder;
 import ca.gov.dtsstn.vacman.api.data.entity.WorkScheduleEntityBuilder;
 import ca.gov.dtsstn.vacman.api.data.entity.WorkUnitEntityBuilder;
+import ca.gov.dtsstn.vacman.api.data.entity.MatchFeedbackEntityBuilder;
 import ca.gov.dtsstn.vacman.api.data.repository.CityRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.ClassificationRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.EmploymentEquityRepository;
@@ -53,6 +54,7 @@ import ca.gov.dtsstn.vacman.api.data.repository.UserTypeRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.WfaStatusRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.WorkScheduleRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.WorkUnitRepository;
+import ca.gov.dtsstn.vacman.api.data.repository.MatchFeedbackRepository;
 
 @DisplayName("CodeService tests")
 @ExtendWith({ MockitoExtension.class })
@@ -114,6 +116,9 @@ class CodeServiceTest {
 
 	@Mock
 	WorkUnitRepository workUnitRepository;
+	
+	@Mock
+	MatchFeedbackRepository matchFeedbackRepository;
 
 	@InjectMocks
 	CodeService codeService;
@@ -363,6 +368,19 @@ class CodeServiceTest {
 		assertNotNull(result);
 		assertEquals(1, result.getTotalElements());
 		assertEquals(new WorkUnitEntityBuilder().code("TEST_WU").build(), result.getContent().getFirst());
+	}
+	
+	@Test
+	@DisplayName("getMatchFeedback() returns a page of match feedback")
+	void getMatchFeedbackReturnsPageOfMatchFeedback() {
+		when(matchFeedbackRepository.findAll(Pageable.unpaged()))
+			.thenReturn(new PageImpl<>(List.of(new MatchFeedbackEntityBuilder().code("TEST_MF").build())));
+
+		final var result = codeService.getMatchFeedback(Pageable.unpaged());
+
+		assertNotNull(result);
+		assertEquals(1, result.getTotalElements());
+		assertEquals(new MatchFeedbackEntityBuilder().code("TEST_MF").build(), result.getContent().getFirst());
 	}
 
 }

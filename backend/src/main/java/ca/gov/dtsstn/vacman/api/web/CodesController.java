@@ -29,6 +29,7 @@ import ca.gov.dtsstn.vacman.api.web.model.UserTypeReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.WfaStatusReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.WorkScheduleReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.WorkUnitReadModel;
+import ca.gov.dtsstn.vacman.api.web.model.MatchFeedbackReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.mapper.CodeModelMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -255,4 +256,14 @@ public class CodesController {
 		return new CollectionModel<>(workUnits);
 	}
 
+	@PreAuthorize("permitAll()")
+	@GetMapping({ "/match-feedback" })
+	@Operation(summary = "Get all match feedback codes")
+	public CollectionModel<MatchFeedbackReadModel> getMatchFeedback() {
+		final var matchFeedback = codeService.getMatchFeedback(Pageable.unpaged())
+			.map(codeMapper::map)
+			.toList();
+
+		return new CollectionModel<>(matchFeedback);
+	}
 }

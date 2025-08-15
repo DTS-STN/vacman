@@ -15,6 +15,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
 @Entity(name = "Request")
@@ -144,6 +145,11 @@ public class RequestEntity extends AbstractBaseEntity {
 	@JoinColumn(name = "[WORK_UNIT_ID]", nullable = false)
 	private WorkUnitEntity workUnit;
 
+	// TODO this actually belongs in the MatchEntity (not yet created)
+	@OneToOne
+	@JoinColumn(name = "[MATCH_FEEDBACK_ID]", nullable = false)
+	private MatchFeedbackEntity matchFeedback;
+
 	public RequestEntity() {
 		super();
 	}
@@ -185,6 +191,7 @@ public class RequestEntity extends AbstractBaseEntity {
 			@Nullable Boolean workforceMgmtApprovalRecvd,
 			@Nullable WorkScheduleEntity workSchedule,
 			@Nullable WorkUnitEntity workUnit,
+			@Nullable MatchFeedbackEntity matchFeedback,
 			@Nullable String createdBy,
 			@Nullable Instant createdDate,
 			@Nullable String lastModifiedBy,
@@ -224,6 +231,7 @@ public class RequestEntity extends AbstractBaseEntity {
 		this.workforceMgmtApprovalRecvd = workforceMgmtApprovalRecvd;
 		this.workSchedule = workSchedule;
 		this.workUnit = workUnit;
+		this.matchFeedback = matchFeedback;
 	}
 
 	public String getAdditionalComment() {
@@ -510,6 +518,14 @@ public class RequestEntity extends AbstractBaseEntity {
 		this.workUnit = workUnit;
 	}
 
+	public MatchFeedbackEntity getMatchFeedback() {
+		return matchFeedback;
+	}
+
+	public void setMatchFeedback(MatchFeedbackEntity matchFeedback) {
+		this.matchFeedback = matchFeedback;
+	}
+
 	@Override
 	public String toString() {
 		return new ToStringCreator(this)
@@ -550,6 +566,7 @@ public class RequestEntity extends AbstractBaseEntity {
 			.append("workforceMgmtApprovalRecvd", workforceMgmtApprovalRecvd)
 			.append("workSchedule", workSchedule)
 			.append("workUnit", workUnit)
+			.append("matchFeedback", matchFeedback)
 			.toString();
 	}
 }
