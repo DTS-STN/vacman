@@ -42,8 +42,8 @@ export async function action({ context, request, params }: Route.ActionArgs) {
   requireAuthentication(context.session, request);
 
   const profileResult = await getProfileService().getProfileById(
-    context.session.authState.accessToken,
     Number(params.profileId),
+    context.session.authState.accessToken,
   );
 
   if (profileResult.isErr()) {
@@ -81,7 +81,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     allLocalizedCities,
     allLocalizedEmploymentOpportunities,
   ] = await Promise.all([
-    getProfileService().getProfileById(context.session.authState.accessToken, Number(params.profileId)),
+    getProfileService().getProfileById(Number(params.profileId), context.session.authState.accessToken),
     getLanguageReferralTypeService().listAllLocalized(lang),
     getClassificationService().listAllLocalized(lang),
     getCityService().listAllLocalized(lang),

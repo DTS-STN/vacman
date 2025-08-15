@@ -70,7 +70,11 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   ];
 
   const profileService = getProfileService();
-  const currentProfileOption = await profileService.getCurrentUserProfile(context.session.authState.accessToken);
+  const profileParams = { active: true };
+  const currentProfileOption = await profileService.getCurrentUserProfiles(
+    profileParams,
+    context.session.authState.accessToken,
+  );
   const currentProfile = currentProfileOption.unwrap();
   const oldReferralData = pickObjectProperties(currentProfile, allReferralKeys);
   const newReferralData = pickObjectProperties(parseResult.output, allReferralKeys);
@@ -109,7 +113,11 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   requireAuthentication(context.session, request);
   await requirePrivacyConsentForOwnProfile(context.session, request);
 
-  const currentProfileOption = await getProfileService().getCurrentUserProfile(context.session.authState.accessToken);
+  const profileParams = { active: true };
+  const currentProfileOption = await getProfileService().getCurrentUserProfiles(
+    profileParams,
+    context.session.authState.accessToken,
+  );
 
   if (currentProfileOption.isNone()) {
     throw new Response('Profile not found', { status: 404 });

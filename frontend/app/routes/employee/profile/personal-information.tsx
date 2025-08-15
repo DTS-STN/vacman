@@ -54,7 +54,11 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   }
 
   const profileService = getProfileService();
-  const currentProfileOption = await profileService.getCurrentUserProfile(context.session.authState.accessToken);
+  const profileParams = { active: true };
+  const currentProfileOption = await profileService.getCurrentUserProfiles(
+    profileParams,
+    context.session.authState.accessToken,
+  );
   const currentProfile = currentProfileOption.unwrap();
 
   // Get current user for complete user update
@@ -102,7 +106,8 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const accessToken = context.session.authState.accessToken;
   const currentUserOption = await getUserService().getCurrentUser(accessToken);
   const currentUser = currentUserOption.unwrap();
-  const profileResult = await getProfileService().getCurrentUserProfile(accessToken);
+  const profileParams = { active: true };
+  const profileResult = await getProfileService().getCurrentUserProfiles(profileParams, accessToken);
 
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
   const localizedLanguagesOfCorrespondenceResult = await getLanguageForCorrespondenceService().listAllLocalized(lang);
