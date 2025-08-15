@@ -375,8 +375,8 @@ export const referralPreferencesSchema = v.object({
       'app:referral-preferences.errors.work-location-city-duplicate',
     ),
   ),
-  availableForReferralInd: v.boolean('app:referral-preferences.errors.referral-availibility-required'),
-  interestedInAlternationInd: v.boolean('app:referral-preferences.errors.alternate-opportunity-required'),
+  isAvailableForReferral: v.boolean('app:referral-preferences.errors.referral-availibility-required'),
+  isInterestedInAlternation: v.boolean('app:referral-preferences.errors.alternate-opportunity-required'),
   employmentOpportunityIds: v.pipe(
     v.array(
       v.lazy(() =>

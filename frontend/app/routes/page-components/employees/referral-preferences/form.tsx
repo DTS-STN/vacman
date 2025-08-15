@@ -62,8 +62,8 @@ export function ReferralPreferencesForm({
   const { t: tApp } = useTranslation('app');
   const { t: tGcweb } = useTranslation('gcweb');
 
-  const [referralAvailibility, setReferralAvailibility] = useState(formValues?.availableForReferralInd);
-  const [alternateOpportunity, setAlternateOpportunity] = useState(formValues?.interestedInAlternationInd);
+  const [referralAvailibility, setReferralAvailibility] = useState(formValues?.isAvailableForReferral);
+  const [alternateOpportunity, setAlternateOpportunity] = useState(formValues?.isInterestedInAlternation);
   const [selectedClassifications, setSelectedClassifications] = useState(formValues?.classificationIds?.map(String) ?? []);
   const [selectedCities, setSelectedCities] = useState(formValues?.workLocationCitiesIds?.map(String) ?? []);
   const [province, setProvince] = useState(
@@ -264,7 +264,7 @@ export function ReferralPreferencesForm({
               name="referralAvailibility"
               options={referralAvailibilityOptions}
               required
-              errorMessage={tApp(extractValidationKey(formErrors?.availableForReferralInd))}
+              errorMessage={tApp(extractValidationKey(formErrors?.isAvailableForReferral))}
               helpMessagePrimary={tApp('referral-preferences.referral-availibility-help-message-primary')}
             />
             <InputRadios
@@ -273,7 +273,7 @@ export function ReferralPreferencesForm({
               name="alternateOpportunity"
               options={alternateOpportunityOptions}
               required
-              errorMessage={tApp(extractValidationKey(formErrors?.interestedInAlternationInd))}
+              errorMessage={tApp(extractValidationKey(formErrors?.isInterestedInAlternation))}
               helpMessagePrimary={
                 <Collapsible summary={tApp('referral-preferences.what-is-alternation')}>
                   {tApp('referral-preferences.alternation-description-text')}

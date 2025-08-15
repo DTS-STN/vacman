@@ -88,8 +88,8 @@ export async function action({ context, request }: Route.ActionArgs) {
     'classificationIds',
     'workLocationProvince',
     'workLocationCitiesIds',
-    'availableForReferralInd',
-    'interestedInAlternationInd',
+    'isAvailableForReferral',
+    'isInterestedInAlternation',
     'employmentOpportunityIds',
   ]);
 
@@ -248,8 +248,8 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     'classificationIds',
     'workLocationProvince',
     'workLocationCitiesIds',
-    'availableForReferralInd',
-    'interestedInAlternationInd',
+    'isAvailableForReferral',
+    'isInterestedInAlternation',
     'employmentOpportunityIds',
   ]);
 
@@ -308,8 +308,8 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       languageReferralTypes: languageReferralTypes?.map((l) => l?.name),
       classifications: classifications?.map((c) => c?.name),
       workLocationCities: cities?.map((city) => city?.provinceTerritory.name + ' - ' + city?.name),
-      referralAvailibility: profileData.availableForReferralInd,
-      alternateOpportunity: profileData.interestedInAlternationInd,
+      referralAvailibility: profileData.isAvailableForReferral,
+      alternateOpportunity: profileData.isInterestedInAlternation,
       employmentOpportunities: employmentOpportunities?.map((e) => e?.name),
     },
     lastUpdated: profileData.dateUpdated ? formatDateTime(profileData.dateUpdated) : '0000-00-00 00:00',
