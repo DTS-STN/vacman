@@ -93,7 +93,7 @@ export async function requirePrivacyConsentForOwnProfile(
   }
 
   // Only check privacy consent if the user is accessing their own profile
-  if (currentUser.id !== profileOpion.unwrap().userId) {
+  if (currentUser.id !== profileOpion.unwrap().profileUser.id) {
     return;
   }
 

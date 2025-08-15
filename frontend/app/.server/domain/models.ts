@@ -127,7 +127,6 @@ export type UserUpdate = Readonly<{
 
 export type Profile = Readonly<{
   profileId: number;
-  userId: number;
   userIdReviewedBy?: number;
   userIdApprovedBy?: number;
   profileStatus: ProfileStatus;
@@ -145,16 +144,30 @@ export type Profile = Readonly<{
   isAvailableForReferral?: boolean;
   isInterestedInAlternation?: boolean;
   employmentOpportunityIds?: number[]; //TODO: change to preferredEmploymentOpportunityIds?: EmploymentOpportunityType[]
+  profileUser: ProfileUser;
+}>;
+
+export type ProfileUser = Readonly<{
+  businessEmailAddress: string;
+  businessPhoneNumber?: string;
+  firstName?: string;
+  id: number;
+  initial?: string;
+  language?: LanguageOfCorrespondence;
+  lastName?: string;
+  middleName?: string;
+  personalRecordIdentifier?: string;
+  userType?: UserType;
 }>;
 
 export type UserPersonalInformation = {
-  surname?: string;
-  givenName?: string;
-  personalRecordIdentifier?: string;
+  //surname?: string; //TODO: for ADO task #6703 either uncomment it, or remove whole UserPersonalInformation
+  //givenName?: string; //TODO: for ADO task #6703 either uncomment it, or remove whole UserPersonalInformation
+  //personalRecordIdentifier?: string;
   preferredLanguage?: LanguageOfCorrespondence;
-  workEmail: string;
+  //workEmail: string; //TODO: for ADO task #6703 either uncomment it, or remove whole UserPersonalInformation
   personalEmail?: string;
-  workPhone?: string;
+  //workPhone?: string;  //TODO: for ADO task #6703 either uncomment it, or remove whole UserPersonalInformation
   personalPhone?: string;
   additionalInformation?: string;
 };
@@ -181,7 +194,6 @@ export type UserReferralPreferences = {
 
 export type SaveProfile = Readonly<{
   profileId: number;
-  userId: number;
   userIdReviewedBy?: number;
   userIdApprovedBy?: number;
   privacyConsentInd?: boolean;
@@ -201,13 +213,13 @@ export type SaveProfile = Readonly<{
 }>;
 
 export type SaveUserPersonalInformation = {
-  surname?: string;
-  givenName?: string;
-  personalRecordIdentifier?: string;
+  //surname?: string;
+  //givenName?: string;
+  //personalRecordIdentifier?: string;
   preferredLanguageId?: number;
-  workEmail: string;
+  //  workEmail: string;
   personalEmail?: string;
-  workPhone?: string;
+  //workPhone?: string;
   personalPhone?: string;
   additionalInformation?: string;
 };

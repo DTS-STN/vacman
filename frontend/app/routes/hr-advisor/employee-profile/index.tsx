@@ -55,7 +55,7 @@ export async function action({ context, request, params }: Route.ActionArgs) {
   // approve the profile
   const submitResult = await getProfileService().updateProfileStatus(
     context.session.authState.accessToken,
-    profileData.userId.toString(),
+    profileData.profileUser.id.toString(),
     PROFILE_STATUS_CODE.approved,
   );
   if (submitResult.isErr()) {
@@ -96,11 +96,14 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const profileData: Profile = profileResult.unwrap();
 
   // Fetch the profile user data to get current businessEmail and other user info
-  const profileUserResult = await getUserService().getUserById(profileData.userId, context.session.authState.accessToken);
+  const profileUserResult = await getUserService().getUserById(
+    profileData.profileUser.id,
+    context.session.authState.accessToken,
+  );
   const profileUser = profileUserResult.into();
 
   const profileUpdatedByUserResult = profileData.userUpdated
-    ? await getUserService().getUserById(profileData.userId, context.session.authState.accessToken)
+    ? await getUserService().getUserById(profileData.profileUser.id, context.session.authState.accessToken)
     : undefined;
   const profileUpdatedByUser = profileUpdatedByUserResult?.into();
   const profileUpdatedByUserName = profileUpdatedByUser && `${profileUpdatedByUser.firstName} ${profileUpdatedByUser.lastName}`;
@@ -147,18 +150,18 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 
   return {
     documentTitle: t('app:employee-profile.page-title'),
-    name: `${profileData.personalInformation.givenName} ${profileData.personalInformation.surname}`,
-    email: profileUser?.businessEmail ?? profileData.personalInformation.workEmail,
+    name: `${profileData.profileUser.firstName} ${profileData.profileUser.lastName}`,
+    email: profileUser?.businessEmail ?? profileData.profileUser.businessEmailAddress,
     profileStatus,
     personalInformation: {
-      personalRecordIdentifier: profileData.personalInformation.personalRecordIdentifier,
+      personalRecordIdentifier: profileData.profileUser.personalRecordIdentifier,
       preferredLanguage:
         lang === 'en'
           ? profileData.personalInformation.preferredLanguage?.nameEn
           : profileData.personalInformation.preferredLanguage?.nameFr,
-      workEmail: profileUser?.businessEmail ?? profileData.personalInformation.workEmail,
+      workEmail: profileUser?.businessEmail ?? profileData.profileUser.businessEmailAddress,
       personalEmail: profileData.personalInformation.personalEmail,
-      workPhone: profileUser?.businessPhone ?? profileData.personalInformation.workPhone,
+      workPhone: profileUser?.businessPhone ?? profileData.profileUser.businessPhoneNumber,
       personalPhone: profileData.personalInformation.personalPhone,
       additionalInformation: profileData.personalInformation.additionalInformation,
     },

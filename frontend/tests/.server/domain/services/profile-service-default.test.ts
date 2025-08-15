@@ -32,7 +32,6 @@ describe('getDefaultProfileService', () => {
 
   const mockProfile: Profile = {
     profileId: 1,
-    userId: 123,
     userIdReviewedBy: 456,
     userIdApprovedBy: 789,
     profileStatus: {
@@ -53,12 +52,15 @@ describe('getDefaultProfileService', () => {
     isAvailableForReferral: true,
     isInterestedInAlternation: false,
     employmentOpportunityIds: [664190000, 664190001, 664190003],
-    personalInformation: {
+    profileUser: {
+      id: 123,
+      businessEmailAddress: 'firstname.lastname@email.ca',
+      businessPhoneNumber: undefined,
       personalRecordIdentifier: '123456789',
+    },
+    personalInformation: {
       preferredLanguage: undefined,
-      workEmail: 'firstname.lastname@email.ca',
       personalEmail: 'john.doe@example.com',
-      workPhone: undefined,
       personalPhone: '555-0123',
       additionalInformation: 'Looking for opportunities in software development.',
     },
@@ -78,7 +80,6 @@ describe('getDefaultProfileService', () => {
   // A valid profile that we expect to be returned after sanitization
   const mockCleanProfile: Profile = {
     profileId: 1,
-    userId: 123,
     userIdReviewedBy: 456,
     userIdApprovedBy: 789,
     profileStatus: {
@@ -99,12 +100,15 @@ describe('getDefaultProfileService', () => {
     isAvailableForReferral: true,
     isInterestedInAlternation: false,
     employmentOpportunityIds: [664190000, 664190001, 664190003],
-    personalInformation: {
+    profileUser: {
+      id: 123,
+      businessEmailAddress: 'firstname.lastname@email.ca',
+      businessPhoneNumber: undefined,
       personalRecordIdentifier: '444555666',
+    },
+    personalInformation: {
       preferredLanguage: PREFERRED_LANGUAGE_FRENCH,
-      workEmail: 'firstname.lastname@example.ca',
       personalEmail: 'john.doe@example.com',
-      workPhone: undefined,
       personalPhone: '555-0123',
       additionalInformation: 'Looking for opportunities in software development.',
     },
