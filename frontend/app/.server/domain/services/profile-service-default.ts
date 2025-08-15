@@ -1,4 +1,4 @@
-import { Err, None, Ok, Some } from 'oxide.ts';
+import { Err, Ok } from 'oxide.ts';
 import type { Option, Result } from 'oxide.ts';
 
 import { apiClient } from './api-client';
@@ -190,37 +190,6 @@ export function getDefaultProfileService(): ProfileService {
     async findProfileById(profileId: number, accessToken: string): Promise<Option<Profile>> {
       const result = await this.getProfileById(profileId, accessToken);
       return result.ok();
-    },
-
-    /**
-     * Legacy method - Gets the current user's active profile.
-     * @param accessToken The access token for authorization.
-     * @returns An Option containing the profile if found, or None.
-     */
-    async getCurrentUserProfile(accessToken: string): Promise<Option<Profile>> {
-      const result = await this.getCurrentUserProfiles({ active: true }, accessToken);
-
-      if (result.isErr()) {
-        const err = result.unwrapErr();
-        if (err.httpStatusCode === HttpStatusCodes.NOT_FOUND) {
-          return None;
-        }
-        throw err;
-      }
-
-      const response = result.unwrap();
-
-      // Return the first profile if available
-      if (response.content.length === 0) {
-        return None;
-      }
-
-      const profile = response.content[0];
-      if (!profile) {
-        return None;
-      }
-
-      return Some(profile);
     },
   };
 }
