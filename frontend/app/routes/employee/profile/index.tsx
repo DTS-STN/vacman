@@ -135,9 +135,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     allLocalizedEmploymentOpportunities,
     allWfaStatus,
   ] = await Promise.all([
-    profileData.profileUser?.id
-      ? getUserService().getUserById(profileData.profileUser.id, context.session.authState.accessToken)
-      : undefined,
+    getUserService().getUserById(profileData.profileUser.id, context.session.authState.accessToken),
     getLanguageReferralTypeService().listAllLocalized(lang),
     getClassificationService().listAllLocalized(lang),
     getCityService().listAllLocalized(lang),
@@ -146,12 +144,13 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   ]);
 
   // Extract the user from the result
-  const currentUser = currentUserResult?.into();
+  const currentUser = currentUserResult.into();
 
-  const profileUpdatedByUserResult = profileData.profileUser?.id
-    ? await getUserService().getUserById(profileData.profileUser.id, context.session.authState.accessToken)
-    : undefined;
-  const profileUpdatedByUser = profileUpdatedByUserResult?.into();
+  const profileUpdatedByUserResult = await getUserService().getUserById(
+    profileData.profileUser.id,
+    context.session.authState.accessToken,
+  );
+  const profileUpdatedByUser = profileUpdatedByUserResult.into();
   const profileUpdatedByUserName = profileUpdatedByUser && `${profileUpdatedByUser.firstName} ${profileUpdatedByUser.lastName}`;
   const profileStatus = profileData.profileStatus
     ? (await getProfileStatusService().findLocalizedById(profileData.profileStatus.id, lang)).unwrap()
@@ -254,17 +253,17 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   return {
     documentTitle: t('app:profile.page-title'),
     name: currentUser ? `${currentUser.firstName} ${currentUser.lastName}` : '', //for first time employee login, the name is not in profile data
-    email: currentUser?.businessEmailAddress ?? profileData.profileUser?.businessEmailAddress, //for first time employee login, the work email is not in profile data
+    email: currentUser?.businessEmailAddress ?? profileData.profileUser.businessEmailAddress, //for first time employee login, the work email is not in profile data
     amountCompleted: amountCompleted,
     isProfileComplete: isCompletePersonalInformation && isCompleteEmploymentInformation && isCompleteReferralPreferences,
     profileStatus,
     personalInformation: {
       isComplete: isCompletePersonalInformation,
       isNew: countCompletedItems(personalInformationData) === 1, // only work email is available
-      personalRecordIdentifier: profileData.profileUser?.personalRecordIdentifier,
+      personalRecordIdentifier: profileData.profileUser.personalRecordIdentifier,
       preferredLanguage:
         lang === 'en' ? profileData.languageOfCorrespondence?.nameEn : profileData.languageOfCorrespondence?.nameFr,
-      workEmail: currentUser?.businessEmailAddress ?? profileData.profileUser?.businessEmailAddress,
+      workEmail: currentUser?.businessEmailAddress ?? profileData.profileUser.businessEmailAddress,
       personalEmail: profileData.personalEmailAddress,
       workPhone: currentUser?.businessPhoneNumber,
       personalPhone: profileData.personalPhoneNumber,
