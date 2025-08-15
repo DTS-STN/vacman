@@ -1,188 +1,274 @@
-import { None, Some, Err, Ok } from 'oxide.ts';
+import { Err, Ok } from 'oxide.ts';
 import type { Result, Option } from 'oxide.ts';
 
-import { getMockCityService } from './city-service-mock';
-import { getMockLanguageForCorrespondenceService } from './language-for-correspondence-service-mock';
-import { getProfileStatusService } from './profile-status-service';
-import { getMockProvinceService } from './province-service-mock';
-import { getUserService } from './user-service';
-import { getMockWFAStatusService } from './wfa-status-service-mock';
-
-import type { Profile, ProfileStatus, SaveProfile } from '~/.server/domain/models';
-import type { ListProfilesParams, ProfileService } from '~/.server/domain/services/profile-service';
-import type { ProfileStatusCode } from '~/domain/constants';
-import {
-  PROFILE_STATUS_ID,
-  PROFILE_STATUS_APPROVED,
-  PROFILE_STATUS_INCOMPLETE,
-  PROFILE_STATUS_PENDING,
-  PREFERRED_LANGUAGE_ENGLISH,
-  PREFERRED_LANGUAGE_FRENCH,
-} from '~/domain/constants';
+import type {
+  Profile,
+  ProfilePutModel,
+  ProfileStatusUpdate,
+  PagedProfileResponse,
+  CollectionProfileResponse,
+  ProfileQueryParams,
+} from '~/.server/domain/models';
+import type { ProfileService } from '~/.server/domain/services/profile-service';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 
 export function getMockProfileService(): ProfileService {
-  // Define what statuses are considered "active" for the mock filter.
-  const activeStatuses: number[] = [PROFILE_STATUS_ID.pending, PROFILE_STATUS_ID.approved, PROFILE_STATUS_ID.incomplete];
-  const inactiveStatuses: number[] = [PROFILE_STATUS_ID.archived];
-
   return {
     /**
-     * Mocks the registration of a new profile.
-     * - If the accessToken is 'FAIL_TOKEN', it returns an AppError.
-     * - Otherwise, it returns a successfully created mock Profile.
+     * Retrieves a paginated list of profiles with optional filtering.
+     * @param params Query parameters for pagination and filtering.
+     * @param accessToken The access token for authorization.
+     * @returns A Result containing the paginated profile response or an error.
      */
-    registerProfile(accessToken: string): Promise<Result<Profile, AppError>> {
-      // Simulate a failure case for testing error handling in the UI.
+    async getProfiles(params: ProfileQueryParams, accessToken: string): Promise<Result<PagedProfileResponse, AppError>> {
+      // Simulate async operation
+      await new Promise((resolve) => setTimeout(resolve, 10));
+
+      // Simulate a failure case for testing error handling
+      if (accessToken === 'FAIL_TOKEN') {
+        const error = new AppError('Mock Error: Failed to retrieve profiles as requested.', ErrorCodes.VACMAN_API_ERROR, {
+          httpStatusCode: HttpStatusCodes.BAD_REQUEST,
+        });
+        return Err(error);
+      }
+
+      let filteredProfiles = [...mockProfiles];
+
+      // Apply active filter
+      if (params.active !== undefined) {
+        const activeStatuses = [1, 2, 3]; // pending, approved, incomplete status IDs
+        const inactiveStatuses = [4]; // archived status ID
+
+        if (params.active === true) {
+          filteredProfiles = filteredProfiles.filter((p) => p.profileStatus && activeStatuses.includes(p.profileStatus.id));
+        } else {
+          filteredProfiles = filteredProfiles.filter((p) => p.profileStatus && inactiveStatuses.includes(p.profileStatus.id));
+        }
+      }
+
+      // Apply HR advisor filter
+      if (params['hr-advisor']) {
+        if (params['hr-advisor'] === 'me') {
+          // For mock purposes, filter by hrAdvisorId = 1 when hr-advisor=me
+          filteredProfiles = filteredProfiles.filter((p) => p.hrAdvisorId === 1);
+        } else {
+          const hrAdvisorId = parseInt(params['hr-advisor'], 10);
+          if (!isNaN(hrAdvisorId)) {
+            filteredProfiles = filteredProfiles.filter((p) => p.hrAdvisorId === hrAdvisorId);
+          }
+        }
+      }
+
+      // Apply pagination
+      const page = params.page ?? 0;
+      const size = params.size ?? 10;
+      const startIndex = page * size;
+      const endIndex = startIndex + size;
+      const paginatedProfiles = filteredProfiles.slice(startIndex, endIndex);
+
+      const response: PagedProfileResponse = {
+        content: paginatedProfiles,
+        page: {
+          number: page,
+          size: size,
+          totalElements: filteredProfiles.length,
+          totalPages: Math.ceil(filteredProfiles.length / size),
+        },
+      };
+
+      return Ok(response);
+    },
+
+    /**
+     * Retrieves profiles for the current user.
+     * @param params Query parameters for filtering.
+     * @param accessToken The access token for authorization.
+     * @returns A Result containing the collection profile response or an error.
+     */
+    async getCurrentUserProfiles(
+      params: Pick<ProfileQueryParams, 'active'>,
+      accessToken: string,
+    ): Promise<Result<CollectionProfileResponse, AppError>> {
+      // Simulate async operation
+      await new Promise((resolve) => setTimeout(resolve, 10));
+
+      // Simulate a failure case for testing error handling
+      if (accessToken === 'FAIL_TOKEN') {
+        const error = new AppError(
+          'Mock Error: Failed to retrieve current user profiles as requested.',
+          ErrorCodes.VACMAN_API_ERROR,
+          {
+            httpStatusCode: HttpStatusCodes.BAD_REQUEST,
+          },
+        );
+        return Err(error);
+      }
+
+      // For mock purposes, return profiles for user ID 1
+      let userProfiles = mockProfiles.filter((p) => p.profileUser?.id === 1);
+
+      // Apply active filter
+      if (params.active !== undefined) {
+        const activeStatuses = [1, 2, 3]; // pending, approved, incomplete status IDs
+        const inactiveStatuses = [4]; // archived status ID
+
+        if (params.active === true) {
+          userProfiles = userProfiles.filter((p) => p.profileStatus && activeStatuses.includes(p.profileStatus.id));
+        } else {
+          userProfiles = userProfiles.filter((p) => p.profileStatus && inactiveStatuses.includes(p.profileStatus.id));
+        }
+      }
+
+      const response: CollectionProfileResponse = {
+        content: userProfiles,
+      };
+
+      return Ok(response);
+    },
+
+    /**
+     * Registers a new profile for the current user.
+     * @param accessToken The access token for authorization.
+     * @returns A Result containing the created profile or an error.
+     */
+    async registerProfile(accessToken: string): Promise<Result<Profile, AppError>> {
+      // Simulate async operation
+      await new Promise((resolve) => setTimeout(resolve, 10));
+
+      // Simulate a failure case for testing error handling
       if (accessToken === 'FAIL_TOKEN') {
         const error = new AppError('Mock Error: Profile creation failed as requested.', ErrorCodes.PROFILE_CREATE_FAILED, {
           httpStatusCode: HttpStatusCodes.BAD_REQUEST,
         });
-        return Promise.resolve(Err(error));
+        return Err(error);
       }
 
       const newProfile = createMockProfile(accessToken);
-      return Promise.resolve(Ok(newProfile));
+      return Ok(newProfile);
     },
-    getProfileById: (accessToken: string, profileId: number): Promise<Result<Profile, AppError>> => {
-      const profile = mockProfiles.find((p) => p.profileId === profileId);
+
+    /**
+     * Retrieves a profile by its ID.
+     * @param profileId The ID of the profile to retrieve.
+     * @param accessToken The access token for authorization.
+     * @returns A Result containing the profile or an error.
+     */
+    async getProfileById(profileId: number, accessToken: string): Promise<Result<Profile, AppError>> {
+      // Simulate async operation
+      await new Promise((resolve) => setTimeout(resolve, 10));
+
+      const profile = mockProfiles.find((p) => p.id === profileId);
 
       if (profile) {
-        return Promise.resolve(Ok(profile));
+        return Ok(profile);
       }
 
-      return Promise.resolve(Err(new AppError(`Profile not found.`, ErrorCodes.PROFILE_NOT_FOUND)));
+      return Err(new AppError(`Profile with ID ${profileId} not found.`, ErrorCodes.PROFILE_NOT_FOUND));
     },
-    findProfileById: async (accessToken: string, profileId: number): Promise<Option<Profile>> => {
-      const profile = mockProfiles.find((p) => p.profileId === profileId);
 
-      if (profile) {
-        return Promise.resolve(Some(profile));
+    /**
+     * Updates a profile by its ID.
+     * @param profileId The ID of the profile to update.
+     * @param profile The profile data to update.
+     * @param accessToken The access token for authorization.
+     * @returns A Result containing the updated profile or an error.
+     */
+    async updateProfileById(
+      profileId: number,
+      profile: ProfilePutModel,
+      accessToken: string,
+    ): Promise<Result<Profile, AppError>> {
+      // Simulate async operation
+      await new Promise((resolve) => setTimeout(resolve, 10));
+
+      const existingProfileIndex = mockProfiles.findIndex((p) => p.id === profileId);
+      if (existingProfileIndex === -1) {
+        return Err(new AppError(`Profile with ID ${profileId} not found.`, ErrorCodes.PROFILE_NOT_FOUND));
       }
 
-      return Promise.resolve(None);
-    },
-    updateProfileById: async (accessToken: string, profile: SaveProfile): Promise<Result<Profile, AppError>> => {
-      const existingProfile = mockProfiles.find((p) => p.profileId === profile.profileId);
+      const existingProfile = mockProfiles[existingProfileIndex];
       if (!existingProfile) {
-        return Promise.resolve(Err(new AppError('Profile not found', ErrorCodes.PROFILE_NOT_FOUND)));
+        return Err(new AppError(`Profile with ID ${profileId} not found.`, ErrorCodes.PROFILE_NOT_FOUND));
       }
-      const preferredLanguageResult =
-        profile.personalInformation.preferredLanguageId !== undefined
-          ? await getMockLanguageForCorrespondenceService().findById(profile.personalInformation.preferredLanguageId)
-          : undefined;
-      const preferredLanguage = preferredLanguageResult?.into();
 
-      const wfaStatusResult =
-        profile.employmentInformation.wfaStatusId !== undefined
-          ? await getMockWFAStatusService().findById(profile.employmentInformation.wfaStatusId)
-          : undefined;
-      const wfaStatus = wfaStatusResult?.into();
+      // Convert ProfilePutModel to Profile by mapping ID fields to objects and merging with existing data
+      const updatedProfile: Profile = {
+        ...existingProfile,
+        // Map ProfilePutModel properties to Profile properties
+        additionalComment: profile.additionalComment ?? existingProfile.additionalComment,
+        hasConsentedToPrivacyTerms: profile.hasConsentedToPrivacyTerms ?? existingProfile.hasConsentedToPrivacyTerms,
+        hrAdvisorId: profile.hrAdvisorId ?? existingProfile.hrAdvisorId,
+        isAvailableForReferral: profile.isAvailableForReferral ?? existingProfile.isAvailableForReferral,
+        isInterestedInAlternation: profile.isInterestedInAlternation ?? existingProfile.isInterestedInAlternation,
+        personalEmailAddress: profile.personalEmailAddress ?? existingProfile.personalEmailAddress,
+        personalPhoneNumber: profile.personalPhoneNumber ?? existingProfile.personalPhoneNumber,
+        // For ID-based fields, we would need to look up the full objects, but for mock purposes we'll preserve existing objects
+        // In a real implementation, you would fetch the referenced entities by their IDs
+        id: profileId, // Ensure ID doesn't change
+        lastModifiedDate: new Date().toISOString(),
+        lastModifiedBy: 'mock-user',
+      };
 
-      const provinceResult =
-        profile.employmentInformation.provinceId !== undefined && (await getMockProvinceService().listAll());
-      const province = provinceResult
-        ? provinceResult.find((p) => p.id === profile.employmentInformation.provinceId)
-        : undefined;
+      mockProfiles[existingProfileIndex] = updatedProfile;
+      return Ok(updatedProfile);
+    },
 
-      const cityResult =
-        profile.employmentInformation.cityId !== undefined &&
-        (await getMockCityService().getById(profile.employmentInformation.cityId));
-      const city = cityResult ? cityResult.unwrap() : undefined;
+    /**
+     * Updates a profile's status.
+     * @param profileId The ID of the profile to update.
+     * @param statusUpdate The status update data.
+     * @param accessToken The access token for authorization.
+     * @returns A Result indicating success or an error.
+     */
+    async updateProfileStatus(
+      profileId: number,
+      statusUpdate: ProfileStatusUpdate,
+      accessToken: string,
+    ): Promise<Result<void, AppError>> {
+      // Simulate async operation
+      await new Promise((resolve) => setTimeout(resolve, 10));
+
+      const existingProfileIndex = mockProfiles.findIndex((p) => p.id === profileId);
+      if (existingProfileIndex === -1) {
+        return Err(new AppError(`Profile with ID ${profileId} not found.`, ErrorCodes.PROFILE_NOT_FOUND));
+      }
+
+      // Create a mock status based on the update
+      const newStatus = {
+        id: statusUpdate.id ?? 1,
+        code: statusUpdate.code ?? 'PENDING',
+        nameEn: statusUpdate.nameEn ?? 'Pending',
+        nameFr: statusUpdate.nameFr ?? 'En attente',
+      };
+
+      const existingProfile = mockProfiles[existingProfileIndex];
+      if (!existingProfile) {
+        return Err(new AppError(`Profile with ID ${profileId} not found.`, ErrorCodes.PROFILE_NOT_FOUND));
+      }
 
       const updatedProfile: Profile = {
         ...existingProfile,
-        ...profile,
-        personalInformation: {
-          ...profile.personalInformation,
-          preferredLanguage,
-        },
-        employmentInformation: {
-          ...existingProfile.employmentInformation,
-          ...profile.employmentInformation,
-          wfaStatus,
-          province,
-          city,
-        },
-        dateUpdated: new Date().toISOString(),
-        userUpdated: profile.userUpdated ?? existingProfile.userUpdated,
+        id: existingProfile.id, // Ensure id is preserved
+        profileStatus: newStatus,
+        lastModifiedDate: new Date().toISOString(),
+        lastModifiedBy: 'system',
       };
-      mockProfiles = mockProfiles.map((p) => (p.profileId === profile.profileId ? updatedProfile : p));
-      return Promise.resolve(Ok(updatedProfile));
+
+      mockProfiles[existingProfileIndex] = updatedProfile;
+      return Ok(undefined);
     },
-    updateProfileStatus: async (
-      accessToken: string,
-      profileId: string,
-      profileStatusCode: ProfileStatusCode,
-    ): Promise<Result<ProfileStatus, AppError>> => {
-      if (!mockProfiles.find((p) => p.profileId.toString() === profileId)) {
-        return Promise.resolve(Err(new AppError('Profile not found', ErrorCodes.PROFILE_NOT_FOUND)));
-      }
 
-      const status = (await getProfileStatusService().listAll()).find((status) => status.code === profileStatusCode);
-
-      if (!status) {
-        return Err(new AppError(`Invalid status.`, ErrorCodes.PROFILE_STATUS_UPDATE_FAILED));
-      }
-
-      mockProfiles = mockProfiles.map((profile) =>
-        profile.profileId.toString() === profileId
-          ? {
-              ...profile,
-              profileStatus: status,
-              dateUpdated: new Date().toISOString(),
-            }
-          : profile,
-      );
-
-      return Promise.resolve(Ok(status));
-    },
-    async findAllProfiles(accessToken: string, params: ListProfilesParams): Promise<Option<readonly Profile[]>> {
-      // We can just call the other mock method to reuse the filtering logic.
-      const result = await this.listAllProfiles(accessToken, params);
-      return Promise.resolve(Some(result));
-    },
-    async listAllProfiles(accessToken: string, params: ListProfilesParams): Promise<readonly Profile[]> {
-      let filtered = [...mockProfiles];
-
-      // Simulate 'active' filter
-      if (params.active === true) {
-        filtered = filtered.filter((p) => activeStatuses.includes(p.profileStatus.id));
-      } else if (params.active === false) {
-        filtered = filtered.filter((p) => inactiveStatuses.includes(p.profileStatus.id));
-      }
-      // If params.active is null, we do nothing and return all profiles.
-
-      // Simulate 'hrAdvisorId' filter
-      if (params.hrAdvisorId) {
-        // The mock doesn't know about "me", so we just filter by the string ID.
-        const currentUser = await getUserService().getCurrentUser(accessToken);
-        filtered = filtered.filter((p) => p.employmentInformation.hrAdvisor === currentUser.unwrap().id);
-      }
-
-      return Promise.resolve(filtered);
-    },
-    getCurrentUserProfile: async (accessToken: string) => {
-      const userOption = await getUserService().getCurrentUser(accessToken);
-
-      if (userOption.isNone()) {
-        return None;
-      }
-
-      const user = userOption.unwrap();
-
-      // Find the active profile for this specific user
-      const activeProfile = mockProfiles.find(
-        (profile) =>
-          profile.profileUser.id === user.id &&
-          (profile.profileStatus.id === PROFILE_STATUS_ID.incomplete ||
-            profile.profileStatus.id === PROFILE_STATUS_ID.pending ||
-            profile.profileStatus.id === PROFILE_STATUS_ID.approved),
-      );
-
-      return Promise.resolve(activeProfile ? Some(activeProfile) : None);
+    /**
+     * Finds a profile by its ID.
+     * @param profileId The ID of the profile to find.
+     * @param accessToken The access token for authorization.
+     * @returns An Option containing the profile if found, or None.
+     */
+    async findProfileById(profileId: number, accessToken: string): Promise<Option<Profile>> {
+      const result = await this.getProfileById(profileId, accessToken);
+      return result.ok();
     },
   };
 }
@@ -190,651 +276,266 @@ export function getMockProfileService(): ProfileService {
 /**
  * Mock profile data for testing and development.
  */
-let mockProfiles: Profile[] = [
+const mockProfiles: Profile[] = [
   {
-    profileId: 1,
-    userIdReviewedBy: undefined,
-    userIdApprovedBy: undefined,
-    profileStatus: PROFILE_STATUS_INCOMPLETE,
+    id: 1,
+    additionalComment: 'Looking for opportunities in software development.',
     hasConsentedToPrivacyTerms: false,
-    userCreated: 'system',
-    dateCreated: '2024-01-01T00:00:00Z',
-    userUpdated: undefined,
-    dateUpdated: undefined,
-    languageReferralTypeIds: [0],
-    classificationIds: [0, 1],
-    workLocationProvince: 1,
-    workLocationCitiesIds: [1, 2],
+    hrAdvisorId: undefined,
     isAvailableForReferral: true,
     isInterestedInAlternation: false,
-    employmentOpportunityIds: [0, 1, 3],
+    personalEmailAddress: 'jane.doe@example.com',
+    personalPhoneNumber: '613-555-0001',
+    languageOfCorrespondence: {
+      id: 1,
+      code: 'EN',
+      nameEn: 'English',
+      nameFr: 'Anglais',
+    },
+    profileStatus: {
+      id: 2,
+      code: 'INCOMPLETE',
+      nameEn: 'Incomplete',
+      nameFr: 'Incomplet',
+    },
     profileUser: {
       id: 1,
-      businessEmailAddress: 'firstname.lastname@email.ca',
-      businessPhoneNumber: undefined,
+      businessEmailAddress: 'jane.doe@canada.ca',
+      businessPhoneNumber: '+1-613-555-0101',
       firstName: 'Jane',
+      initial: 'D',
       lastName: 'Doe',
+      middleName: undefined,
+      microsoftEntraId: '00000000-0000-0000-0000-000000000001',
       personalRecordIdentifier: '123456789',
+      language: {
+        id: 1,
+        code: 'EN',
+        nameEn: 'English',
+        nameFr: 'Anglais',
+      },
+      userType: {
+        id: 3,
+        code: 'HR_ADVISOR',
+        nameEn: 'HR Advisor',
+        nameFr: 'Conseiller RH',
+      },
+      createdBy: 'system',
+      createdDate: '2024-01-01T00:00:00Z',
+      lastModifiedBy: 'system',
+      lastModifiedDate: '2024-01-01T00:00:00Z',
     },
-    personalInformation: {
-      preferredLanguage: undefined,
-      personalEmail: 'jane.doe@example.com',
-      personalPhone: '613-555-0001',
-      additionalInformation: 'Looking for opportunities in software development.',
-    },
-    employmentInformation: {
-      substantivePosition: undefined,
-      branchOrServiceCanadaRegion: undefined,
-      directorate: undefined,
-      province: undefined,
-      city: undefined,
-      wfaStatus: undefined,
-      wfaEffectiveDate: undefined,
-      wfaEndDate: undefined,
-      hrAdvisor: undefined,
-    },
+    createdBy: 'system',
+    createdDate: '2024-01-01T00:00:00Z',
+    lastModifiedBy: undefined,
+    lastModifiedDate: undefined,
   },
   {
-    profileId: 2,
-    userIdReviewedBy: undefined,
-    userIdApprovedBy: undefined,
-    profileStatus: PROFILE_STATUS_INCOMPLETE,
+    id: 2,
+    additionalComment: undefined,
     hasConsentedToPrivacyTerms: false,
-    userCreated: 'system',
-    dateCreated: '2024-01-01T00:00:00Z',
-    userUpdated: 'jane.doe',
-    dateUpdated: '2024-01-15T10:30:00Z',
-    languageReferralTypeIds: undefined,
-    classificationIds: undefined,
-    workLocationProvince: undefined,
-    workLocationCitiesIds: undefined,
+    hrAdvisorId: undefined,
     isAvailableForReferral: undefined,
     isInterestedInAlternation: undefined,
-    employmentOpportunityIds: undefined,
+    personalEmailAddress: undefined,
+    personalPhoneNumber: undefined,
+    languageOfCorrespondence: undefined,
+    profileStatus: {
+      id: 2,
+      code: 'INCOMPLETE',
+      nameEn: 'Incomplete',
+      nameFr: 'Incomplet',
+    },
     profileUser: {
       id: 2,
-      businessEmailAddress: 'example@email.ca',
-      businessPhoneNumber: undefined,
+      businessEmailAddress: 'john.smith@canada.ca',
+      businessPhoneNumber: '+1-613-555-0102',
       firstName: 'John',
+      initial: 'S',
       lastName: 'Smith',
-      personalRecordIdentifier: undefined,
+      middleName: undefined,
+      microsoftEntraId: '00000000-0000-0000-0000-000000000002',
+      personalRecordIdentifier: '987654321',
+      language: {
+        id: 1,
+        code: 'EN',
+        nameEn: 'English',
+        nameFr: 'Anglais',
+      },
+      userType: {
+        id: 1,
+        code: 'EMPLOYEE',
+        nameEn: 'Employee',
+        nameFr: 'Employé',
+      },
+      createdBy: 'system',
+      createdDate: '2024-01-01T00:00:00Z',
+      lastModifiedBy: 'jane.doe',
+      lastModifiedDate: '2024-01-15T10:30:00Z',
     },
-    personalInformation: {
-      preferredLanguage: undefined,
-      personalEmail: undefined,
-      personalPhone: undefined,
-      additionalInformation: undefined,
-    },
-    employmentInformation: {
-      substantivePosition: undefined,
-      branchOrServiceCanadaRegion: undefined,
-      directorate: undefined,
-      province: undefined,
-      city: undefined,
-      wfaStatus: undefined,
-      wfaEffectiveDate: undefined,
-      wfaEndDate: undefined,
-      hrAdvisor: undefined,
-    },
+    createdBy: 'system',
+    createdDate: '2024-01-01T00:00:00Z',
+    lastModifiedBy: 'jane.doe',
+    lastModifiedDate: '2024-01-15T10:30:00Z',
   },
   {
-    profileId: 3,
-    userIdReviewedBy: undefined,
-    userIdApprovedBy: undefined,
-    profileStatus: PROFILE_STATUS_PENDING,
+    id: 3,
+    additionalComment: 'Interested in remote work.',
     hasConsentedToPrivacyTerms: true,
-    userCreated: 'system',
-    dateCreated: '2024-02-01T09:00:00Z',
-    userUpdated: 'john.smith',
-    dateUpdated: '2024-02-10T14:00:00Z',
-    languageReferralTypeIds: [1],
-    classificationIds: [2],
-    workLocationProvince: 1,
-    workLocationCitiesIds: [3],
+    hrAdvisorId: 5,
     isAvailableForReferral: false,
     isInterestedInAlternation: true,
-    employmentOpportunityIds: [2],
+    personalEmailAddress: 'john.smith@example.com',
+    personalPhoneNumber: '613-555-0001',
+    languageOfCorrespondence: {
+      id: 1,
+      code: 'EN',
+      nameEn: 'English',
+      nameFr: 'Anglais',
+    },
+    profileStatus: {
+      id: 1,
+      code: 'PENDING',
+      nameEn: 'Pending',
+      nameFr: 'En attente',
+    },
     profileUser: {
       id: 3,
-      businessEmailAddress: 'john.smith@email.ca',
-      businessPhoneNumber: undefined,
-      firstName: 'fname',
-      lastName: 'lname',
+      businessEmailAddress: 'john.smith@canada.ca',
+      businessPhoneNumber: '+1-613-555-0103',
+      firstName: 'John',
+      initial: 'S',
+      lastName: 'Smith',
+      middleName: undefined,
+      microsoftEntraId: '00000000-0000-0000-0000-000000000003',
       personalRecordIdentifier: '987654321',
+      language: {
+        id: 1,
+        code: 'EN',
+        nameEn: 'English',
+        nameFr: 'Anglais',
+      },
+      userType: {
+        id: 1,
+        code: 'EMPLOYEE',
+        nameEn: 'Employee',
+        nameFr: 'Employé',
+      },
+      createdBy: 'system',
+      createdDate: '2024-02-01T09:00:00Z',
+      lastModifiedBy: 'john.smith',
+      lastModifiedDate: '2024-02-10T14:00:00Z',
     },
-    personalInformation: {
-      preferredLanguage: PREFERRED_LANGUAGE_ENGLISH,
-      personalEmail: 'john.smith@example.com',
-      personalPhone: '613-555-0001',
-      additionalInformation: 'Interested in remote work.',
-    },
-    employmentInformation: {
-      substantivePosition: 1,
-      branchOrServiceCanadaRegion: 0,
-      directorate: 2,
-      province: undefined,
-      city: undefined,
-      wfaStatus: undefined,
-      wfaEffectiveDate: undefined,
-      wfaEndDate: undefined,
-      hrAdvisor: 5,
-    },
+    createdBy: 'system',
+    createdDate: '2024-02-01T09:00:00Z',
+    lastModifiedBy: 'john.smith',
+    lastModifiedDate: '2024-02-10T14:00:00Z',
   },
   {
-    profileId: 4,
-    userIdReviewedBy: 5,
-    userIdApprovedBy: 5,
-    profileStatus: PROFILE_STATUS_APPROVED,
+    id: 4,
+    additionalComment: 'Fluent in French and English.',
     hasConsentedToPrivacyTerms: true,
-    userCreated: 'system',
-    dateCreated: '2024-03-15T08:30:00Z',
-    userUpdated: 'john.smith',
-    dateUpdated: '2024-02-10T14:00:00Z',
-    languageReferralTypeIds: [2],
-    classificationIds: [3],
-    workLocationProvince: undefined,
-    workLocationCitiesIds: [4],
+    hrAdvisorId: 5,
     isAvailableForReferral: true,
     isInterestedInAlternation: false,
-    employmentOpportunityIds: [3],
+    personalEmailAddress: 'marie.curie@example.com',
+    personalPhoneNumber: '613-555-5555',
+    languageOfCorrespondence: {
+      id: 2,
+      code: 'FR',
+      nameEn: 'French',
+      nameFr: 'Français',
+    },
+    profileStatus: {
+      id: 3,
+      code: 'APPROVED',
+      nameEn: 'Approved',
+      nameFr: 'Approuvé',
+    },
     profileUser: {
       id: 4,
-      businessEmailAddress: 'marie.curie@email.ca',
-      businessPhoneNumber: undefined,
+      businessEmailAddress: 'marie.curie@canada.ca',
+      businessPhoneNumber: '+1-613-555-0104',
       firstName: 'Marie',
+      initial: 'C',
       lastName: 'Curie',
+      middleName: undefined,
+      microsoftEntraId: '00000000-0000-0000-0000-000000000004',
       personalRecordIdentifier: '555555555',
+      language: {
+        id: 2,
+        code: 'FR',
+        nameEn: 'French',
+        nameFr: 'Français',
+      },
+      userType: {
+        id: 1,
+        code: 'EMPLOYEE',
+        nameEn: 'Employee',
+        nameFr: 'Employé',
+      },
+      createdBy: 'system',
+      createdDate: '2024-03-15T08:30:00Z',
+      lastModifiedBy: 'john.smith',
+      lastModifiedDate: '2024-02-10T14:00:00Z',
     },
-    personalInformation: {
-      preferredLanguage: PREFERRED_LANGUAGE_FRENCH,
-      personalEmail: 'marie.curie@example.com',
-      personalPhone: '613-555-5555',
-      additionalInformation: 'Fluent in French and English.',
-    },
-    employmentInformation: {
-      substantivePosition: 1,
-      branchOrServiceCanadaRegion: 0,
-      directorate: 2,
-      province: undefined,
-      city: undefined,
-      wfaStatus: undefined,
-      wfaEffectiveDate: undefined,
-      wfaEndDate: undefined,
-      hrAdvisor: 5,
-    },
+    createdBy: 'system',
+    createdDate: '2024-03-15T08:30:00Z',
+    lastModifiedBy: 'john.smith',
+    lastModifiedDate: '2024-02-10T14:00:00Z',
   },
   {
-    profileId: 5,
-    userIdReviewedBy: 5,
-    userIdApprovedBy: 5,
-    profileStatus: PROFILE_STATUS_APPROVED,
+    id: 5,
+    additionalComment: 'Open to contract roles.',
     hasConsentedToPrivacyTerms: true,
-    userCreated: 'system',
-    dateCreated: '2024-04-20T11:45:00Z',
-    userUpdated: 'alex.tan',
-    dateUpdated: '2024-05-01T10:00:00Z',
-    languageReferralTypeIds: [0],
-    classificationIds: [4],
-    workLocationProvince: undefined,
-    workLocationCitiesIds: [5],
+    hrAdvisorId: 5,
     isAvailableForReferral: true,
     isInterestedInAlternation: true,
-    employmentOpportunityIds: [1],
+    personalEmailAddress: 'alex.tan@example.com',
+    personalPhoneNumber: '613-555-3333',
+    languageOfCorrespondence: {
+      id: 1,
+      code: 'EN',
+      nameEn: 'English',
+      nameFr: 'Anglais',
+    },
+    profileStatus: {
+      id: 3,
+      code: 'APPROVED',
+      nameEn: 'Approved',
+      nameFr: 'Approuvé',
+    },
     profileUser: {
       id: 5,
-      businessEmailAddress: 'alex.tan@email.ca',
-      businessPhoneNumber: undefined,
+      businessEmailAddress: 'alex.tan@canada.ca',
+      businessPhoneNumber: '+1-613-555-0105',
       firstName: 'Alex',
+      initial: 'T',
       lastName: 'Tan',
+      middleName: undefined,
+      microsoftEntraId: '00000000-0000-0000-0000-000000000005',
       personalRecordIdentifier: '222333444',
+      language: {
+        id: 1,
+        code: 'EN',
+        nameEn: 'English',
+        nameFr: 'Anglais',
+      },
+      userType: {
+        id: 1,
+        code: 'EMPLOYEE',
+        nameEn: 'Employee',
+        nameFr: 'Employé',
+      },
+      createdBy: 'system',
+      createdDate: '2024-04-20T11:45:00Z',
+      lastModifiedBy: 'alex.tan',
+      lastModifiedDate: '2024-05-01T10:00:00Z',
     },
-    personalInformation: {
-      preferredLanguage: PREFERRED_LANGUAGE_ENGLISH,
-      personalEmail: 'alex.tan@example.com',
-      personalPhone: '613-555-3333',
-      additionalInformation: 'Open to contract roles.',
-    },
-    employmentInformation: {
-      substantivePosition: 1,
-      branchOrServiceCanadaRegion: 0,
-      directorate: 2,
-      province: undefined,
-      city: undefined,
-      wfaStatus: undefined,
-      wfaEffectiveDate: undefined,
-      wfaEndDate: undefined,
-      hrAdvisor: 5,
-    },
-  },
-  {
-    profileId: 6,
-    userIdReviewedBy: 5,
-    userIdApprovedBy: 5,
-    profileStatus: PROFILE_STATUS_APPROVED,
-    hasConsentedToPrivacyTerms: true,
-    userCreated: 'system',
-    dateCreated: '2024-06-01T08:00:00Z',
-    userUpdated: 'alex.tan',
-    dateUpdated: '2024-05-01T10:00:00Z',
-    languageReferralTypeIds: [1],
-    classificationIds: [5],
-    workLocationProvince: undefined,
-    workLocationCitiesIds: [6],
-    isAvailableForReferral: true,
-    isInterestedInAlternation: false,
-    employmentOpportunityIds: [2],
-    profileUser: {
-      id: 6,
-      businessEmailAddress: 'sam.lee@example.com',
-      businessPhoneNumber: undefined,
-      firstName: 'Sam',
-      lastName: 'Lee',
-      personalRecordIdentifier: '111222333',
-    },
-    personalInformation: {
-      preferredLanguage: PREFERRED_LANGUAGE_ENGLISH,
-      personalEmail: 'sam.lee.personal@example.com',
-      personalPhone: '613-555-1002',
-      additionalInformation: 'Interested in project management.',
-    },
-    employmentInformation: {
-      substantivePosition: 1,
-      branchOrServiceCanadaRegion: 0,
-      directorate: 2,
-      province: undefined,
-      city: undefined,
-      wfaStatus: undefined,
-      wfaEffectiveDate: undefined,
-      wfaEndDate: undefined,
-      hrAdvisor: 5,
-    },
-  },
-  {
-    profileId: 7,
-    userIdReviewedBy: undefined,
-    userIdApprovedBy: undefined,
-    profileStatus: PROFILE_STATUS_PENDING,
-    hasConsentedToPrivacyTerms: true,
-    userCreated: 'system',
-    dateCreated: '2024-06-02T09:00:00Z',
-    userUpdated: 'linda.park',
-    dateUpdated: '2024-06-12T10:00:00Z',
-    languageReferralTypeIds: [2],
-    classificationIds: [6],
-    workLocationProvince: undefined,
-    workLocationCitiesIds: [7],
-    isAvailableForReferral: false,
-    isInterestedInAlternation: true,
-    employmentOpportunityIds: [3],
-    profileUser: {
-      id: 7,
-      businessEmailAddress: 'linda.park@example.com',
-      businessPhoneNumber: undefined,
-      firstName: 'Linda',
-      lastName: 'Park',
-      personalRecordIdentifier: '444555666',
-    },
-    personalInformation: {
-      preferredLanguage: PREFERRED_LANGUAGE_FRENCH,
-      personalEmail: 'linda.park.personal@example.com',
-      personalPhone: '613-555-2002',
-      additionalInformation: 'Fluent in French and English.',
-    },
-    employmentInformation: {
-      substantivePosition: 1,
-      branchOrServiceCanadaRegion: 0,
-      directorate: 2,
-      province: undefined,
-      city: undefined,
-      wfaStatus: undefined,
-      wfaEffectiveDate: undefined,
-      wfaEndDate: undefined,
-      hrAdvisor: 5,
-    },
-  },
-  {
-    profileId: 8,
-    userIdReviewedBy: undefined,
-    userIdApprovedBy: undefined,
-    profileStatus: PROFILE_STATUS_PENDING,
-    hasConsentedToPrivacyTerms: true,
-    userCreated: 'system',
-    dateCreated: '2024-06-03T10:00:00Z',
-    userUpdated: 'carlos.gomez',
-    dateUpdated: '2024-06-12T10:00:00Z',
-    languageReferralTypeIds: undefined,
-    classificationIds: undefined,
-    workLocationProvince: undefined,
-    workLocationCitiesIds: undefined,
-    isAvailableForReferral: undefined,
-    isInterestedInAlternation: undefined,
-    employmentOpportunityIds: undefined,
-    profileUser: {
-      id: 8,
-      businessEmailAddress: 'carlos.gomez@example.com',
-      businessPhoneNumber: undefined,
-      firstName: 'Carlos',
-      lastName: 'Gomez',
-      personalRecordIdentifier: '777888999',
-    },
-    personalInformation: {
-      preferredLanguage: PREFERRED_LANGUAGE_ENGLISH,
-      personalEmail: 'carlos.gomez.personal@example.com',
-      personalPhone: '613-555-3002',
-      additionalInformation: 'Looking for remote opportunities.',
-    },
-    employmentInformation: {
-      substantivePosition: 1,
-      branchOrServiceCanadaRegion: 0,
-      directorate: 2,
-      province: undefined,
-      city: undefined,
-      wfaStatus: undefined,
-      wfaEffectiveDate: undefined,
-      wfaEndDate: undefined,
-      hrAdvisor: 5,
-    },
-  },
-  {
-    profileId: 9,
-    userIdReviewedBy: undefined,
-    userIdApprovedBy: undefined,
-    profileStatus: PROFILE_STATUS_PENDING,
-    hasConsentedToPrivacyTerms: true,
-    userCreated: 'system',
-    dateCreated: '2024-06-04T11:00:00Z',
-    userUpdated: 'carlos.gomez',
-    dateUpdated: '2024-06-14T12:00:00Z',
-    languageReferralTypeIds: [0],
-    classificationIds: [7],
-    workLocationProvince: undefined,
-    workLocationCitiesIds: [8],
-    isAvailableForReferral: true,
-    isInterestedInAlternation: false,
-    employmentOpportunityIds: [0],
-    profileUser: {
-      id: 9,
-      businessEmailAddress: 'priya.singh@example.com',
-      businessPhoneNumber: undefined,
-      firstName: 'Priya',
-      lastName: 'Singh',
-      personalRecordIdentifier: '101112131',
-    },
-    personalInformation: {
-      preferredLanguage: PREFERRED_LANGUAGE_FRENCH,
-      personalEmail: 'priya.singh.personal@example.com',
-      personalPhone: '613-555-4002',
-      additionalInformation: 'Interested in leadership roles.',
-    },
-    employmentInformation: {
-      substantivePosition: 1,
-      branchOrServiceCanadaRegion: 0,
-      directorate: 2,
-      province: undefined,
-      city: undefined,
-      wfaStatus: undefined,
-      wfaEffectiveDate: undefined,
-      wfaEndDate: undefined,
-      hrAdvisor: 5,
-    },
-  },
-  {
-    profileId: 10,
-    userIdReviewedBy: 5,
-    userIdApprovedBy: 5,
-    profileStatus: PROFILE_STATUS_APPROVED,
-    hasConsentedToPrivacyTerms: true,
-    userCreated: 'system',
-    dateCreated: '2024-06-05T12:00:00Z',
-    userUpdated: 'mohammed.ijaz',
-    dateUpdated: '2024-06-14T12:00:00Z',
-    languageReferralTypeIds: [1],
-    classificationIds: [8],
-    workLocationProvince: undefined,
-    workLocationCitiesIds: [9],
-    isAvailableForReferral: false,
-    isInterestedInAlternation: true,
-    employmentOpportunityIds: [1],
-    profileUser: {
-      id: 10,
-      businessEmailAddress: 'mohammedi@example.com',
-      businessPhoneNumber: undefined,
-      firstName: 'Mohammed',
-      lastName: 'Ijaz',
-      personalRecordIdentifier: '141516171',
-    },
-    personalInformation: {
-      preferredLanguage: PREFERRED_LANGUAGE_ENGLISH,
-      personalEmail: 'mohammed.personal@example.com',
-      personalPhone: '613-555-5002',
-      additionalInformation: 'Open to relocation.',
-    },
-    employmentInformation: {
-      substantivePosition: 1,
-      branchOrServiceCanadaRegion: 0,
-      directorate: 2,
-      province: undefined,
-      city: undefined,
-      wfaStatus: undefined,
-      wfaEffectiveDate: undefined,
-      wfaEndDate: undefined,
-      hrAdvisor: 5,
-    },
-  },
-  {
-    profileId: 11,
-    userIdReviewedBy: 5,
-    userIdApprovedBy: 5,
-    profileStatus: PROFILE_STATUS_APPROVED,
-    hasConsentedToPrivacyTerms: true,
-    userCreated: 'system',
-    dateCreated: '2024-06-06T13:00:00Z',
-    userUpdated: 'mohammed.alfarsi',
-    dateUpdated: '2024-06-16T14:00:00Z',
-    languageReferralTypeIds: [2],
-    classificationIds: [9],
-    workLocationProvince: undefined,
-    workLocationCitiesIds: [10],
-    isAvailableForReferral: true,
-    isInterestedInAlternation: false,
-    employmentOpportunityIds: [2],
-    profileUser: {
-      id: 11,
-      businessEmailAddress: 'emily.chen@example.com',
-      businessPhoneNumber: undefined,
-      firstName: 'Emily',
-      lastName: 'Neil',
-      personalRecordIdentifier: '181920212',
-    },
-    personalInformation: {
-      preferredLanguage: PREFERRED_LANGUAGE_FRENCH,
-      personalEmail: 'emily.chen.personal@example.com',
-      personalPhone: '613-555-6002',
-      additionalInformation: 'Enjoys team collaboration.',
-    },
-    employmentInformation: {
-      substantivePosition: 1,
-      branchOrServiceCanadaRegion: 0,
-      directorate: 2,
-      province: undefined,
-      city: undefined,
-      wfaStatus: undefined,
-      wfaEffectiveDate: undefined,
-      wfaEndDate: undefined,
-      hrAdvisor: 1,
-    },
-  },
-  {
-    profileId: 12,
-    userIdReviewedBy: undefined,
-    userIdApprovedBy: undefined,
-    profileStatus: PROFILE_STATUS_PENDING,
-    hasConsentedToPrivacyTerms: true,
-    userCreated: 'system',
-    dateCreated: '2024-06-07T14:00:00Z',
-    userUpdated: 'olivia.brown',
-    dateUpdated: '2024-10-14T12:00:00Z',
-    languageReferralTypeIds: [0],
-    classificationIds: [10],
-    workLocationProvince: undefined,
-    workLocationCitiesIds: [11],
-    isAvailableForReferral: true,
-    isInterestedInAlternation: true,
-    employmentOpportunityIds: [3],
-    profileUser: {
-      id: 12,
-      businessEmailAddress: 'olivia.brown@example.com',
-      businessPhoneNumber: undefined,
-      firstName: 'Olivia',
-      lastName: 'Brown',
-      personalRecordIdentifier: '222324252',
-    },
-    personalInformation: {
-      preferredLanguage: PREFERRED_LANGUAGE_ENGLISH,
-      personalEmail: 'olivia.brown.personal@example.com',
-      personalPhone: '613-555-7002',
-      additionalInformation: 'Seeking growth opportunities.',
-    },
-    employmentInformation: {
-      substantivePosition: 1,
-      branchOrServiceCanadaRegion: 0,
-      directorate: 2,
-      province: undefined,
-      city: undefined,
-      wfaStatus: undefined,
-      wfaEffectiveDate: undefined,
-      wfaEndDate: undefined,
-      hrAdvisor: 5,
-    },
-  },
-  {
-    profileId: 13,
-    userIdReviewedBy: undefined,
-    userIdApprovedBy: undefined,
-    profileStatus: PROFILE_STATUS_PENDING,
-    hasConsentedToPrivacyTerms: true,
-    userCreated: 'system',
-    dateCreated: '2024-06-08T15:00:00Z',
-    userUpdated: 'olivia.brown',
-    dateUpdated: '2024-07-08T16:00:00Z',
-    languageReferralTypeIds: [1],
-    classificationIds: [11],
-    workLocationProvince: undefined,
-    workLocationCitiesIds: [12],
-    isAvailableForReferral: false,
-    isInterestedInAlternation: false,
-    employmentOpportunityIds: [0],
-    profileUser: {
-      id: 13,
-      businessEmailAddress: 'david.kim@example.com',
-      businessPhoneNumber: undefined,
-      firstName: 'David',
-      lastName: 'Kim',
-      personalRecordIdentifier: '262728292',
-    },
-    personalInformation: {
-      preferredLanguage: PREFERRED_LANGUAGE_FRENCH,
-      personalEmail: 'david.kim.personal@example.com',
-      personalPhone: '613-555-8002',
-      additionalInformation: 'Interested in analytics.',
-    },
-    employmentInformation: {
-      substantivePosition: 1,
-      branchOrServiceCanadaRegion: 0,
-      directorate: 2,
-      province: undefined,
-      city: undefined,
-      wfaStatus: undefined,
-      wfaEffectiveDate: undefined,
-      wfaEndDate: undefined,
-      hrAdvisor: 5,
-    },
-  },
-  {
-    profileId: 14,
-    userIdReviewedBy: undefined,
-    userIdApprovedBy: undefined,
-    profileStatus: PROFILE_STATUS_PENDING,
-    hasConsentedToPrivacyTerms: true,
-    userCreated: 'system',
-    dateCreated: '2024-06-09T16:00:00Z',
-    userUpdated: 'sofia.rossi',
-    dateUpdated: '2024-07-08T16:00:00Z',
-    languageReferralTypeIds: [0],
-    classificationIds: [0, 1],
-    workLocationProvince: 1,
-    workLocationCitiesIds: [1, 2],
-    isAvailableForReferral: true,
-    isInterestedInAlternation: false,
-    employmentOpportunityIds: [0, 1, 3],
-    profileUser: {
-      id: 14,
-      businessEmailAddress: 'sofia.rossi@example.com',
-      businessPhoneNumber: undefined,
-      firstName: 'Sofia',
-      lastName: 'Rossi',
-      personalRecordIdentifier: '303132333',
-    },
-    personalInformation: {
-      preferredLanguage: PREFERRED_LANGUAGE_ENGLISH,
-      personalEmail: 'sofia.rossi.personal@example.com',
-      personalPhone: '613-555-9002',
-      additionalInformation: 'Open to international assignments.',
-    },
-    employmentInformation: {
-      substantivePosition: 1,
-      branchOrServiceCanadaRegion: 0,
-      directorate: 2,
-      province: undefined,
-      city: undefined,
-      wfaStatus: undefined,
-      wfaEffectiveDate: undefined,
-      wfaEndDate: undefined,
-      hrAdvisor: 5,
-    },
-  },
-  {
-    profileId: 15,
-    userIdReviewedBy: 5,
-    userIdApprovedBy: 5,
-    profileStatus: PROFILE_STATUS_PENDING,
-    hasConsentedToPrivacyTerms: true,
-    userCreated: 'system',
-    dateCreated: '2024-06-10T17:00:00Z',
-    userUpdated: 'sofia.rossi',
-    dateUpdated: '2024-07-12T18:00:00Z',
-    languageReferralTypeIds: [2],
-    classificationIds: [12],
-    workLocationProvince: 1,
-    workLocationCitiesIds: [13],
-    isAvailableForReferral: true,
-    isInterestedInAlternation: false,
-    employmentOpportunityIds: [1],
-    profileUser: {
-      id: 15,
-      businessEmailAddress: 'tom.muller@example.com',
-      businessPhoneNumber: undefined,
-      firstName: 'Tom',
-      lastName: 'Muller',
-      personalRecordIdentifier: '343536373',
-    },
-    personalInformation: {
-      preferredLanguage: PREFERRED_LANGUAGE_FRENCH,
-      personalEmail: 'tom.muller.personal@example.com',
-      personalPhone: '613-555-9102',
-      additionalInformation: 'Interested in research.',
-    },
-    employmentInformation: {
-      substantivePosition: 1,
-      branchOrServiceCanadaRegion: 0,
-      directorate: 2,
-      province: undefined,
-      city: undefined,
-      wfaStatus: undefined,
-      wfaEffectiveDate: undefined,
-      wfaEndDate: undefined,
-      hrAdvisor: 5,
-    },
+    createdBy: 'system',
+    createdDate: '2024-04-20T11:45:00Z',
+    lastModifiedBy: 'alex.tan',
+    lastModifiedDate: '2024-05-01T10:00:00Z',
   },
 ];
 
@@ -861,47 +562,57 @@ function createMockProfile(accessToken: string): Profile {
 
   // Create new profile
   const newProfile: Profile = {
-    profileId: mockProfiles.length + 1,
-    userIdReviewedBy: undefined,
-    userIdApprovedBy: undefined,
-    profileStatus: PROFILE_STATUS_INCOMPLETE,
+    id: mockProfiles.length + 1,
+    additionalComment: 'Looking for opportunities in software development.',
     hasConsentedToPrivacyTerms: false,
-    userCreated: accessToken,
-    dateCreated: new Date().toISOString(),
-    userUpdated: accessToken,
-    dateUpdated: new Date().toISOString(),
-    languageReferralTypeIds: [0],
-    classificationIds: [0, 1],
-    workLocationProvince: 1,
-    workLocationCitiesIds: [1, 2],
+    hrAdvisorId: undefined,
     isAvailableForReferral: true,
     isInterestedInAlternation: false,
-    employmentOpportunityIds: [0, 1, 3],
+    personalEmailAddress: 'personal.email@example.com',
+    personalPhoneNumber: '613-938-0001',
+    languageOfCorrespondence: {
+      id: 1,
+      code: 'EN',
+      nameEn: 'English',
+      nameFr: 'Anglais',
+    },
+    profileStatus: {
+      id: 2,
+      code: 'INCOMPLETE',
+      nameEn: 'Incomplete',
+      nameFr: 'Incomplet',
+    },
     profileUser: {
       id: userId,
       businessEmailAddress: 'work.email@example.ca',
       businessPhoneNumber: undefined,
       firstName: 'John',
+      initial: 'D',
       lastName: 'Doe',
+      middleName: undefined,
+      microsoftEntraId: '00000000-0000-0000-0000-000000000000',
       personalRecordIdentifier: '123456789',
+      language: {
+        id: 1,
+        code: 'EN',
+        nameEn: 'English',
+        nameFr: 'Anglais',
+      },
+      userType: {
+        id: 1,
+        code: 'EMPLOYEE',
+        nameEn: 'Employee',
+        nameFr: 'Employé',
+      },
+      createdBy: accessToken,
+      createdDate: new Date().toISOString(),
+      lastModifiedBy: accessToken,
+      lastModifiedDate: new Date().toISOString(),
     },
-    personalInformation: {
-      preferredLanguage: undefined,
-      personalEmail: 'personal.email@example.com',
-      personalPhone: '613-938-0001',
-      additionalInformation: 'Looking for opportunities in software development.',
-    },
-    employmentInformation: {
-      substantivePosition: undefined,
-      branchOrServiceCanadaRegion: undefined,
-      directorate: undefined,
-      province: undefined,
-      city: undefined,
-      wfaStatus: undefined,
-      wfaEffectiveDate: undefined,
-      wfaEndDate: undefined,
-      hrAdvisor: undefined,
-    },
+    createdBy: accessToken,
+    createdDate: new Date().toISOString(),
+    lastModifiedBy: accessToken,
+    lastModifiedDate: new Date().toISOString(),
   };
 
   // Add the new profile to the mock profiles array
