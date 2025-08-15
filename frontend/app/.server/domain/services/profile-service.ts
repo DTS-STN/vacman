@@ -34,8 +34,6 @@ export type ProfileService = {
   ): Promise<Result<void, AppError>>;
   // Optional method for finding profile by ID
   findProfileById(profileId: number, accessToken: string): Promise<Option<Profile>>;
-  // Legacy method - Get current user profile (single active profile)
-  getCurrentUserProfile(accessToken: string): Promise<Option<Profile>>;
 };
 
 export function getProfileService(): ProfileService {
