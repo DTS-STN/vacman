@@ -43,12 +43,7 @@ export async function action({ context, request }: Route.ActionArgs) {
   requireAuthentication(context.session, request);
 
   const profileParams = { active: true };
-  let profileData;
-  try {
-    profileData = await getProfileService().getCurrentUserProfile(profileParams, context.session.authState.accessToken);
-  } catch {
-    return { status: 'profile-not-found' };
-  }
+  const profileData = await getProfileService().getCurrentUserProfile(profileParams, context.session.authState.accessToken);
   const allWfaStatus = await getWFAStatuses().listAll();
 
   // For personal information, check required fields directly on profile
@@ -124,12 +119,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   await requirePrivacyConsentForOwnProfile(context.session, request);
 
   const profileParams = { active: true };
-  let profileData;
-  try {
-    profileData = await getProfileService().getCurrentUserProfile(profileParams, context.session.authState.accessToken);
-  } catch {
-    throw new Response('Profile not found', { status: 404 });
-  }
+  const profileData = await getProfileService().getCurrentUserProfile(profileParams, context.session.authState.accessToken);
 
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
 
