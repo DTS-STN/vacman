@@ -127,7 +127,7 @@ describe('ProfileServiceDefault', () => {
       if (result.isOk()) {
         const response = result.unwrap();
         expect(response.content).toHaveLength(1);
-        expect(response.content[0]?.profileUser?.firstName).toBe('Current');
+        expect(response.content[0]?.profileUser.firstName).toBe('Current');
       }
     });
 

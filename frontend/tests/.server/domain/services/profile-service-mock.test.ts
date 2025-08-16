@@ -165,7 +165,7 @@ describe('ProfileServiceMock', () => {
       expect(result).toHaveProperty('id');
       expect(result).toHaveProperty('profileUser');
       expect(result).toHaveProperty('profileStatus');
-      expect(result.profileUser?.id).toBe(1); // Mock data uses user ID 1
+      expect(result.profileUser.id).toBe(1); // Mock data uses user ID 1
     });
 
     it('should throw AppError when no profiles are found', async () => {
@@ -519,12 +519,10 @@ describe('ProfileServiceMock', () => {
           }
 
           // Nested objects should have correct structure
-          if (profile.profileUser) {
-            expect(profile.profileUser.id).toBeDefined();
-            expect(typeof profile.profileUser.id).toBe('number');
-            expect(profile.profileUser.firstName).toBeDefined();
-            expect(typeof profile.profileUser.firstName).toBe('string');
-          }
+          expect(profile.profileUser.id).toBeDefined();
+          expect(typeof profile.profileUser.id).toBe('number');
+          expect(profile.profileUser.firstName).toBeDefined();
+          expect(typeof profile.profileUser.firstName).toBe('string');
 
           if (profile.profileStatus) {
             expect(profile.profileStatus.id).toBeDefined();

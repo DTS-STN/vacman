@@ -136,7 +136,7 @@ export function getMockProfileService(): ProfileService {
       }
 
       // For mock purposes, return profiles for user ID 1
-      let userProfiles = mockProfiles.filter((p) => p.profileUser?.id === 1);
+      let userProfiles = mockProfiles.filter((p) => p.profileUser.id === 1);
       debugLog('getCurrentUserProfiles', `Found ${userProfiles.length} profiles for user ID 1`);
 
       // Apply active filter
@@ -248,7 +248,7 @@ export function getMockProfileService(): ProfileService {
       if (profile) {
         debugLog('getProfileById', `Successfully retrieved profile with ID: ${profileId}`, {
           profileStatus: profile.profileStatus?.code,
-          userId: profile.profileUser?.id,
+          userId: profile.profileUser.id,
         });
         return Ok(profile);
       }
