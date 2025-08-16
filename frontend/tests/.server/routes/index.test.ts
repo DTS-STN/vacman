@@ -55,27 +55,25 @@ vi.mock('~/.server/utils/route-utils', () => ({
 }));
 
 const mockUserService = {
-  getUsersByRole: vi.fn(),
+  getUsers: vi.fn(),
   getUserById: vi.fn(),
   findUserById: vi.fn(),
-  updateUserRole: vi.fn(),
   getCurrentUser: vi.fn(),
   registerCurrentUser: vi.fn(),
-  updateUser: vi.fn(),
+  updateUserById: vi.fn(),
 };
 
 vi.mocked(getUserService).mockReturnValue(mockUserService);
 
 const mockProfileService = {
-  getProfile: vi.fn(),
-  getProfileById: vi.fn(),
-  findProfileById: vi.fn(),
+  getProfiles: vi.fn(),
+  getCurrentUserProfiles: vi.fn(),
+  findCurrentUserProfile: vi.fn(),
   registerProfile: vi.fn(),
+  getProfileById: vi.fn(),
   updateProfileById: vi.fn(),
   updateProfileStatus: vi.fn(),
-  findAllProfiles: vi.fn(),
-  listAllProfiles: vi.fn(),
-  getCurrentUserProfile: vi.fn(),
+  findProfileById: vi.fn(),
 };
 
 vi.mocked(getProfileService).mockReturnValue(mockProfileService);
@@ -120,7 +118,7 @@ describe('Index Dashboard Selection Flow', () => {
     // Default: user is not registered
     mockUserService.getCurrentUser.mockResolvedValue(None);
     // Default: no profile exists
-    mockProfileService.getProfile.mockResolvedValue(None);
+    mockProfileService.findCurrentUserProfile.mockRejectedValue(new Error('No profile found'));
   });
 
   describe('Index Loader', () => {

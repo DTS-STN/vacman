@@ -158,7 +158,7 @@ export type Profile = Readonly<{
   personalPhoneNumber?: string;
   languageOfCorrespondence?: LanguageOfCorrespondence;
   profileStatus?: ProfileStatus;
-  profileUser?: User;
+  profileUser: User;
   substantiveCity?: City;
   substantiveClassification?: Classification;
   substantiveWorkUnit?: WorkUnit;
