@@ -35,15 +35,15 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 
   const formData = await request.formData();
   const parseResult = v.safeParse(personalInformationSchema, {
-    surname: formString(formData.get('surname')),
-    givenName: formString(formData.get('givenName')),
+    firstName: formString(formData.get('firstName')),
+    lastName: formString(formData.get('lastName')),
     personalRecordIdentifier: formString(formData.get('personalRecordIdentifier')),
     preferredLanguageId: formString(formData.get('preferredLanguageId')),
-    workEmail: formString(formData.get('workEmail')),
+    businessEmailAddress: formString(formData.get('businessEmailAddres')),
     personalEmailAddress: formString(formData.get('personalEmailAddress')),
-    workPhone: formString(formData.get('workPhone')),
+    businessPhoneNumber: formString(formData.get('businessPhoneNumber')),
     personalPhoneNumber: formString(formData.get('personalPhoneNumber')),
-    additionalInformation: formString(formData.get('additionalInformation')),
+    additionalComment: formString(formData.get('additionalComment')),
   });
 
   if (!parseResult.success) {
@@ -67,7 +67,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   const currentUser = currentUserOption.into();
 
   // Extract workPhone for user update, remove it from profile data
-  const { workPhone, ...personalInformationForProfile } = parseResult.output;
+  const { businessPhoneNumber, ...personalInformationForProfile } = parseResult.output;
 
   // Update the profile (without workPhone)
   const updateResult = await profileService.updateProfileById(context.session.authState.accessToken, {
@@ -84,7 +84,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
       {
         ...currentUser,
         languageId: parseResult.output.preferredLanguageId,
-        businessPhone: workPhone,
+        businessPhoneNumber: businessPhoneNumber,
       },
       context.session.authState.accessToken,
     );
@@ -116,15 +116,15 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   return {
     documentTitle: t('app:personal-information.page-title'),
     defaultValues: {
-      surname: profileData.profileUser.lastName,
-      givenName: profileData.profileUser.firstName,
+      firstName: profileData.profileUser.lastName,
+      lastName: profileData.profileUser.firstName,
       personalRecordIdentifier: profileData.profileUser.personalRecordIdentifier,
-      preferredLanguage: profileData.personalInformation.preferredLanguage,
-      workEmail: currentUser.businessEmail ?? profileData.profileUser.businessEmailAddress,
-      personalEmail: profileData.personalEmailAddress,
-      workPhone: toE164(currentUser.businessPhone),
-      personalPhone: toE164(profileData.personalPhoneNumber),
-      additionalInformation: profileData.personalInformation.additionalInformation,
+      preferredLanguage: profileData.preferredLanguage,
+      businessEmailAddress: currentUser.businessEmailAddress ?? profileData.profileUser.businessEmailAddress,
+      personalEmailAddress: profileData.personalEmailAddress,
+      businessPhoneNumber: toE164(currentUser.businessPhoneNumber),
+      personalPhoneNumber: toE164(profileData.personalPhoneNumber),
+      additionalInformation: profileData.additionalComment,
     },
     languagesOfCorrespondence: localizedLanguagesOfCorrespondenceResult,
   };

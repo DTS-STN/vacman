@@ -18,15 +18,15 @@ import type { Errors } from '~/routes/page-components/employees/validation.serve
 import { extractValidationKey } from '~/utils/validation-utils';
 
 export type UserPersonalInformation = {
-  surname?: string;
-  givenName?: string;
+  firstName?: string;
+  lastName?: string;
   personalRecordIdentifier?: string;
   preferredLanguage?: LanguageOfCorrespondence;
-  workEmail: string;
+  businessEmailAddress: string;
   personalEmailAddress?: string;
-  workPhone?: string;
+  businessPhoneNumber?: string;
   personalPhoneNumber?: string;
-  additionalInformation?: string;
+  additionalComment?: string;
 };
 
 interface PersonalInformationFormProps {
@@ -60,8 +60,8 @@ export function PersonalInformationForm({
       <FormErrorSummary>
         <Form method="post" noValidate>
           <div className="space-y-6">
-            <input type="hidden" name="surname" value={formValues?.surname} />
-            <input type="hidden" name="givenName" value={formValues?.givenName} />
+            <input type="hidden" name="firstName" value={formValues?.firstName} />
+            <input type="hidden" name="lastName" value={formValues?.lastName} />
             <InputField
               readOnly={isReadOnly}
               className="w-full"
@@ -84,16 +84,16 @@ export function PersonalInformationForm({
             <InputField
               readOnly
               className="w-full"
-              id="work-email"
-              name="workEmail"
+              id="business-email-address"
+              name="businessEmailAddress"
               label={t('personal-information.work-email')}
-              defaultValue={formValues?.workEmail}
+              defaultValue={formValues?.businessEmailAddress}
               required
             />
             <InputField
               readOnly={isReadOnly}
               className="w-full"
-              id="personal-email"
+              id="personal-email-address"
               name="personalEmailAddress"
               label={t('personal-information.personal-email')}
               defaultValue={formValues?.personalEmailAddress}
@@ -103,14 +103,14 @@ export function PersonalInformationForm({
 
             <InputPhoneField
               readOnly={isReadOnly}
-              id="work-phone"
-              name="workPhone"
+              id="business-phone-number"
+              name="businessPhoneNumber"
               type="tel"
               inputMode="tel"
               autoComplete="tel"
               label={t('personal-information.work-phone')}
-              defaultValue={formValues?.workPhone}
-              errorMessage={t(extractValidationKey(formErrors?.workPhone))}
+              defaultValue={formValues?.businessPhoneNumber}
+              errorMessage={t(extractValidationKey(formErrors?.businessPhoneNumber))}
               helpMessagePrimary={
                 <Trans
                   i18nKey="app:personal-information.work-phone-help-message-primary"
@@ -121,7 +121,7 @@ export function PersonalInformationForm({
 
             <InputPhoneField
               readOnly={isReadOnly}
-              id="personal-phone"
+              id="personal-phone-number"
               name="personalPhoneNumber"
               type="tel"
               inputMode="tel"
@@ -137,11 +137,11 @@ export function PersonalInformationForm({
               required
             />
             <InputTextarea
-              id="additional-information"
+              id="additional-comment"
               className="w-full"
               label={t('personal-information.additional-information')}
-              name="additionalInformation"
-              defaultValue={formValues?.additionalInformation}
+              name="additionalComment"
+              defaultValue={formValues?.additionalComment}
               helpMessage={t('personal-information.additional-info-help-message')}
               maxLength={100}
             />
