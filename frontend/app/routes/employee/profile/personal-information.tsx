@@ -39,7 +39,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     lastName: formString(formData.get('lastName')),
     personalRecordIdentifier: formString(formData.get('personalRecordIdentifier')),
     preferredLanguageId: formString(formData.get('preferredLanguageId')),
-    businessEmailAddress: formString(formData.get('businessEmailAddres')),
+    businessEmailAddress: formString(formData.get('businessEmailAddress')),
     personalEmailAddress: formString(formData.get('personalEmailAddress')),
     businessPhoneNumber: formString(formData.get('businessPhoneNumber')),
     personalPhoneNumber: formString(formData.get('personalPhoneNumber')),
@@ -55,11 +55,11 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 
   const profileService = getProfileService();
   const profileParams = { active: true };
-  const currentProfileOption = await profileService.getCurrentUserProfiles(
+
+  const currentProfile: Profile = await profileService.findCurrentUserProfile(
     profileParams,
     context.session.authState.accessToken,
   );
-  const currentProfile = currentProfileOption.unwrap();
 
   // Get current user for complete user update
   const userService = getUserService();
@@ -70,17 +70,19 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   const { businessPhoneNumber, ...personalInformationForProfile } = parseResult.output;
 
   // Update the profile (without workPhone)
-  const updateResult = await profileService.updateProfileById(context.session.authState.accessToken, {
-    ...currentProfile,
-    personalInformation: personalInformationForProfile,
-  });
+  const updateResult = await profileService.updateProfileById(
+    currentProfile.id,
+    personalInformationForProfile,
+    context.session.authState.accessToken,
+  );
 
   if (updateResult.isErr()) {
     throw updateResult.unwrapErr();
   }
 
   if (currentUser) {
-    const userUpdateResult = await userService.updateUser(
+    const userUpdateResult = await userService.updateUserById(
+      currentUser.id,
       {
         ...currentUser,
         languageId: parseResult.output.preferredLanguageId,
@@ -107,11 +109,10 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const currentUserOption = await getUserService().getCurrentUser(accessToken);
   const currentUser = currentUserOption.unwrap();
   const profileParams = { active: true };
-  const profileResult = await getProfileService().getCurrentUserProfiles(profileParams, accessToken);
+  const profileData: Profile = await getProfileService().findCurrentUserProfile(profileParams, accessToken);
 
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
   const localizedLanguagesOfCorrespondenceResult = await getLanguageForCorrespondenceService().listAllLocalized(lang);
-  const profileData: Profile = profileResult.unwrap();
 
   return {
     documentTitle: t('app:personal-information.page-title'),
@@ -119,7 +120,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       firstName: profileData.profileUser.lastName,
       lastName: profileData.profileUser.firstName,
       personalRecordIdentifier: profileData.profileUser.personalRecordIdentifier,
-      preferredLanguage: profileData.preferredLanguage,
+      preferredLanguage: profileData.languageOfCorrespondence,
       businessEmailAddress: currentUser.businessEmailAddress ?? profileData.profileUser.businessEmailAddress,
       personalEmailAddress: profileData.personalEmailAddress,
       businessPhoneNumber: toE164(currentUser.businessPhoneNumber),

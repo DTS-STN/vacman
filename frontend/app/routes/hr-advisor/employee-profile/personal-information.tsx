@@ -64,10 +64,11 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   // Extract workPhone for user update, remove it from profile data
   const { businessPhoneNumber, ...personalInformationForProfile } = parseResult.output;
 
-  const updateProfileResult = await profileService.updateProfileById(context.session.authState.accessToken, {
-    ...profile,
-    personalInformation: personalInformationForProfile,
-  });
+  const updateProfileResult = await profileService.updateProfileById(
+    profile.id,
+    personalInformationForProfile,
+    context.session.authState.accessToken,
+  );
 
   if (updateProfileResult.isErr()) {
     throw updateProfileResult.unwrapErr();
@@ -82,8 +83,9 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 
   const user = userResult.unwrap();
 
-  const userUpdateResult = await userService.updateUser(
+  const userUpdateResult = await userService.updateUserById(
     // Send complete user object with updates
+    user.id,
     {
       ...user,
       languageId: parseResult.output.preferredLanguageId,
@@ -97,7 +99,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   }
 
   return i18nRedirect('routes/hr-advisor/employee-profile/index.tsx', request, {
-    params: { profileId: profileResult.unwrap().profileId.toString() },
+    params: { profileId: profileResult.unwrap().id.toString() },
   });
 }
 
@@ -123,7 +125,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       firstName: profileData.profileUser.firstName,
       lastName: profileData.profileUser.lastName,
       personalRecordIdentifier: profileData.profileUser.personalRecordIdentifier,
-      preferredLanguageId: profileData.preferredLanguage,
+      preferredLanguageId: profileData.languageOfCorrespondence,
       businessEmailAddress: currentUser.businessEmailAddress ?? profileData.profileUser.businessEmailAddress,
       personalEmailAddress: profileData.personalEmailAddress,
       businessPhoneNumber: toE164(currentUser.businessPhoneNumber ?? profileData.profileUser.businessPhoneNumber),
