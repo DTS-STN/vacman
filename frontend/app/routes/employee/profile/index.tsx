@@ -126,16 +126,17 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const url = new URL(request.url);
   const hasEmploymentChanged = url.searchParams.get('edited') === 'true';
 
-  // Fetch both the profile user and the profile data
+  // Use the profile user data directly instead of fetching it separately
+  const currentUser = profileData.profileUser;
+
+  // Fetch reference data
   const [
-    currentUserResult,
     allLocalizedLanguageReferralTypes,
     allClassifications,
     allLocalizedCities,
     allLocalizedEmploymentOpportunities,
     allWfaStatus,
   ] = await Promise.all([
-    getUserService().getUserById(profileData.profileUser.id, context.session.authState.accessToken),
     getLanguageReferralTypeService().listAllLocalized(lang),
     getClassificationService().listAllLocalized(lang),
     getCityService().listAllLocalized(lang),
@@ -143,15 +144,8 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     getWFAStatuses().listAll(),
   ]);
 
-  // Extract the user from the result
-  const currentUser = currentUserResult.into();
-
-  const profileUpdatedByUserResult = await getUserService().getUserById(
-    profileData.profileUser.id,
-    context.session.authState.accessToken,
-  );
-  const profileUpdatedByUser = profileUpdatedByUserResult.into();
-  const profileUpdatedByUserName = profileUpdatedByUser && `${profileUpdatedByUser.firstName} ${profileUpdatedByUser.lastName}`;
+  // Use profileUser for updated by information as well
+  const profileUpdatedByUserName = `${currentUser.firstName ?? 'Unknown'} ${currentUser.lastName ?? 'User'}`;
   const profileStatus = profileData.profileStatus
     ? (await getProfileStatusService().findLocalizedById(profileData.profileStatus.id, lang)).unwrap()
     : { code: PROFILE_STATUS_CODE.incomplete, name: 'Incomplete' };
@@ -193,7 +187,6 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const personalInformationData = {
     personalEmailAddress: profileData.personalEmailAddress,
     personalPhoneNumber: profileData.personalPhoneNumber,
-    // Note: User information is stored in profileData.profileUser
   };
   const requiredPersonalInformation = personalInformationData;
   const personalInformationCompleted = countCompletedItems(requiredPersonalInformation);
@@ -252,20 +245,20 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 
   return {
     documentTitle: t('app:profile.page-title'),
-    name: currentUser ? `${currentUser.firstName} ${currentUser.lastName}` : '', //for first time employee login, the name is not in profile data
-    email: currentUser?.businessEmailAddress ?? profileData.profileUser.businessEmailAddress, //for first time employee login, the work email is not in profile data
+    name: `${currentUser.firstName ?? ''} ${currentUser.lastName ?? ''}`.trim() || 'Unknown User',
+    email: currentUser.businessEmailAddress,
     amountCompleted: amountCompleted,
     isProfileComplete: isCompletePersonalInformation && isCompleteEmploymentInformation && isCompleteReferralPreferences,
     profileStatus,
     personalInformation: {
       isComplete: isCompletePersonalInformation,
       isNew: countCompletedItems(personalInformationData) === 1, // only work email is available
-      personalRecordIdentifier: profileData.profileUser.personalRecordIdentifier,
+      personalRecordIdentifier: currentUser.personalRecordIdentifier,
       preferredLanguage:
         lang === 'en' ? profileData.languageOfCorrespondence?.nameEn : profileData.languageOfCorrespondence?.nameFr,
-      workEmail: currentUser?.businessEmailAddress ?? profileData.profileUser.businessEmailAddress,
+      workEmail: currentUser.businessEmailAddress,
       personalEmail: profileData.personalEmailAddress,
-      workPhone: currentUser?.businessPhoneNumber,
+      workPhone: currentUser.businessPhoneNumber,
       personalPhone: profileData.personalPhoneNumber,
       additionalInformation: profileData.additionalComment,
     },
@@ -294,7 +287,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       employmentOpportunities: employmentOpportunities?.map((e) => e?.name),
     },
     lastUpdated: profileData.lastModifiedDate ? formatDateTime(profileData.lastModifiedDate) : '0000-00-00 00:00',
-    lastUpdatedBy: profileUpdatedByUserName ?? 'Unknown User',
+    lastUpdatedBy: profileUpdatedByUserName,
     hasEmploymentChanged,
   };
 }
