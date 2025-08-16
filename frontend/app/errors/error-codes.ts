@@ -53,6 +53,7 @@ export const ErrorCodes = {
   NO_USER_TYPE_FOUND: 'SVC-0020',
   NO_WORK_SCHEDULE_FOUND: 'SVC-0021',
   NO_MATCH_FEEDBACK_FOUND: 'SVC-0022',
+  NO_MATCH_STATUS_FOUND: 'SVC-0023',
 
   // vacman api error codes
   VACMAN_API_ERROR: 'API-0001',
