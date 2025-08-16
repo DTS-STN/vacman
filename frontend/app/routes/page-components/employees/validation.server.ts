@@ -209,12 +209,12 @@ export type EmploymentInformationSchema = Awaited<ReturnType<typeof createEmploy
 export type Errors = Readonly<Record<string, [string, ...string[]] | undefined>>;
 
 export const personalInformationSchema = v.object({
-  surname: v.pipe(
+  firstName: v.pipe(
     v.string('app:personal-information.errors.surname-required'),
     v.trim(),
     v.nonEmpty('app:personal-information.errors.surname-required'),
   ),
-  givenName: v.pipe(
+  lastName: v.pipe(
     v.string('app:personal-information.errors.givenName-required'),
     v.trim(),
     v.nonEmpty('app:personal-information.errors.givenName-required'),
@@ -235,19 +235,19 @@ export const personalInformationSchema = v.object({
       ),
     ),
   ),
-  workEmail: v.pipe(
+  businessEmailAddress: v.pipe(
     v.string('app:personal-information.errors.work-email-required'),
     v.trim(),
     v.nonEmpty('app:personal-information.errors.work-email-required'),
     v.email('app:personal-information.errors.work-email-invalid'),
   ),
-  personalEmail: v.pipe(
+  personalEmailAddress: v.pipe(
     v.string('app:personal-information.errors.personal-email-required'),
     v.trim(),
     v.nonEmpty('app:personal-information.errors.personal-email-required'),
     v.email('app:personal-information.errors.personal-email-invalid'),
   ),
-  workPhone: v.optional(
+  businessPhoneNumber: v.optional(
     v.pipe(
       v.string('app:personal-information.errors.work-phone-required'),
       v.trim(),
@@ -255,14 +255,14 @@ export const personalInformationSchema = v.object({
       v.transform((val) => parsePhoneNumberWithError(val, 'CA').formatInternational().replace(/ /g, '')),
     ),
   ),
-  personalPhone: v.pipe(
+  personalPhoneNumber: v.pipe(
     v.string('app:personal-information.errors.personal-phone-required'),
     v.trim(),
     v.nonEmpty('app:personal-information.errors.personal-phone-required'),
     v.custom((val) => isValidPhone(val as string), 'app:personal-information.errors.personal-phone-invalid'),
     v.transform((val) => parsePhoneNumberWithError(val, 'CA').formatInternational().replace(/ /g, '')),
   ),
-  additionalInformation: v.optional(
+  additionalComment: v.optional(
     v.pipe(
       v.string('app:personal-information.errors.additional-information-required'),
       v.trim(),
