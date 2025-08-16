@@ -316,8 +316,8 @@ function updateUserById(id: number, updateUserRequest: UserUpdate): User | undef
       ...existingUser,
       id: existingUser.id, // Preserve the ID
       // Map old property names to new property names
-      ...(updateUserRequest.businessEmail && { businessEmailAddress: updateUserRequest.businessEmail }),
-      ...(updateUserRequest.businessPhone && { businessPhoneNumber: updateUserRequest.businessPhone }),
+      ...(updateUserRequest.businessEmailAddress && { businessEmailAddress: updateUserRequest.businessEmailAddress }),
+      ...(updateUserRequest.businessPhoneNumber && { businessPhoneNumber: updateUserRequest.businessPhoneNumber }),
       ...(updateUserRequest.firstName && { firstName: updateUserRequest.firstName }),
       ...(updateUserRequest.lastName && { lastName: updateUserRequest.lastName }),
       ...(updateUserRequest.middleName !== undefined && { middleName: updateUserRequest.middleName }),

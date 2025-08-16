@@ -181,8 +181,8 @@ describe('Privacy Consent Flow', () => {
               hasConsentedToPrivacyTerms: true,
               createdBy: 'test-user-consent',
               createdDate: '2024-01-01T00:00:00Z',
-            }
-          ]
+            },
+          ],
         }),
       );
 
@@ -216,8 +216,8 @@ describe('Privacy Consent Flow', () => {
               hasConsentedToPrivacyTerms: false,
               createdBy: 'test-user-no-consent',
               createdDate: '2024-01-01T00:00:00Z',
-            }
-          ]
+            },
+          ],
         }),
       );
 
@@ -244,7 +244,7 @@ describe('Privacy Consent Flow', () => {
       // Mock that no profile exists
       mockProfileService.getCurrentUserProfiles.mockResolvedValue(
         Ok({
-          content: []
+          content: [],
         }),
       );
 
