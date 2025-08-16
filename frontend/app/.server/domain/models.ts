@@ -123,8 +123,8 @@ export type UserCreate = Readonly<{
 }>;
 
 export type UserUpdate = Readonly<{
-  businessEmail?: string;
-  businessPhone?: string;
+  businessEmailAddress?: string;
+  businessPhoneNumber?: string;
   firstName?: string;
   initials?: string;
   languageId?: number;
