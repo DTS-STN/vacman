@@ -241,7 +241,7 @@ export const personalInformationSchema = v.object({
     v.nonEmpty('app:personal-information.errors.work-email-required'),
     v.email('app:personal-information.errors.work-email-invalid'),
   ),
-  personalEmail: v.pipe(
+  personalEmailAddress: v.pipe(
     v.string('app:personal-information.errors.personal-email-required'),
     v.trim(),
     v.nonEmpty('app:personal-information.errors.personal-email-required'),
@@ -255,7 +255,7 @@ export const personalInformationSchema = v.object({
       v.transform((val) => parsePhoneNumberWithError(val, 'CA').formatInternational().replace(/ /g, '')),
     ),
   ),
-  personalPhone: v.pipe(
+  personalPhoneNumber: v.pipe(
     v.string('app:personal-information.errors.personal-phone-required'),
     v.trim(),
     v.nonEmpty('app:personal-information.errors.personal-phone-required'),

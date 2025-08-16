@@ -40,9 +40,9 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     personalRecordIdentifier: formString(formData.get('personalRecordIdentifier')),
     preferredLanguageId: formString(formData.get('preferredLanguageId')),
     workEmail: formString(formData.get('workEmail')),
-    personalEmail: formString(formData.get('personalEmail')),
+    personalEmailAddress: formString(formData.get('personalEmailAddress')),
     workPhone: formString(formData.get('workPhone')),
-    personalPhone: formString(formData.get('personalPhone')),
+    personalPhoneNumber: formString(formData.get('personalPhoneNumber')),
     additionalInformation: formString(formData.get('additionalInformation')),
   });
 
@@ -121,9 +121,9 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       personalRecordIdentifier: profileData.profileUser.personalRecordIdentifier,
       preferredLanguage: profileData.personalInformation.preferredLanguage,
       workEmail: currentUser.businessEmail ?? profileData.profileUser.businessEmailAddress,
-      personalEmail: profileData.personalInformation.personalEmail,
+      personalEmail: profileData.personalEmailAddress,
       workPhone: toE164(currentUser.businessPhone),
-      personalPhone: toE164(profileData.personalInformation.personalPhone),
+      personalPhone: toE164(profileData.personalPhoneNumber),
       additionalInformation: profileData.personalInformation.additionalInformation,
     },
     languagesOfCorrespondence: localizedLanguagesOfCorrespondenceResult,

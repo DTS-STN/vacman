@@ -23,9 +23,9 @@ export type UserPersonalInformation = {
   personalRecordIdentifier?: string;
   preferredLanguage?: LanguageOfCorrespondence;
   workEmail: string;
-  personalEmail?: string;
+  personalEmailAddress?: string;
   workPhone?: string;
-  personalPhone?: string;
+  personalPhoneNumber?: string;
   additionalInformation?: string;
 };
 
@@ -94,10 +94,10 @@ export function PersonalInformationForm({
               readOnly={isReadOnly}
               className="w-full"
               id="personal-email"
-              name="personalEmail"
+              name="personalEmailAddress"
               label={t('personal-information.personal-email')}
-              defaultValue={formValues?.personalEmail}
-              errorMessage={t(extractValidationKey(formErrors?.personalEmail))}
+              defaultValue={formValues?.personalEmailAddress}
+              errorMessage={t(extractValidationKey(formErrors?.personalEmailAddress))}
               required
             />
 
@@ -122,12 +122,12 @@ export function PersonalInformationForm({
             <InputPhoneField
               readOnly={isReadOnly}
               id="personal-phone"
-              name="personalPhone"
+              name="personalPhoneNumber"
               type="tel"
               inputMode="tel"
               label={t('personal-information.personal-phone')}
-              defaultValue={formValues?.personalPhone}
-              errorMessage={t(extractValidationKey(formErrors?.personalPhone))}
+              defaultValue={formValues?.personalPhoneNumber}
+              errorMessage={t(extractValidationKey(formErrors?.personalPhoneNumber))}
               helpMessagePrimary={
                 <Trans
                   i18nKey="app:personal-information.personal-phone-help-message-primary"
