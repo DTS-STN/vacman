@@ -24,20 +24,30 @@ const mockGetCurrentUser = vi.fn<(accessToken: string) => Promise<Option<User>>>
 
 const mockUser = {
   id: 1,
-  uuName: 'Jane Doe',
-  networkName: '00000000-0000-0000-0000-000000000000',
-  role: 'hr-advisor',
-  userCreated: 'system',
-  dateCreated: '2024-01-01T00:00:00Z',
-  userUpdated: 'system',
-  dateUpdated: '2024-01-01T00:00:00Z',
+  businessEmailAddress: 'jane.doe@canada.ca',
+  businessPhoneNumber: '+1-613-555-0101',
   firstName: 'Jane',
-  middleName: undefined,
+  initial: 'D',
   lastName: 'Doe',
-  initials: 'J.D.',
+  middleName: undefined,
+  microsoftEntraId: '00000000-0000-0000-0000-000000000000',
   personalRecordIdentifier: '123456789',
-  businessPhone: '+1-613-555-0101',
-  businessEmail: 'jane.doe@canada.ca',
+  language: {
+    id: 1,
+    code: 'EN',
+    nameEn: 'English',
+    nameFr: 'Anglais',
+  },
+  userType: {
+    id: 3,
+    code: 'HRA',
+    nameEn: 'HR Advisor',
+    nameFr: 'Conseiller RH',
+  },
+  createdBy: 'system',
+  createdDate: '2024-01-01T00:00:00Z',
+  lastModifiedBy: 'system',
+  lastModifiedDate: '2024-01-01T00:00:00Z',
 };
 
 vi.mock('~/.server/domain/services/user-service', () => ({

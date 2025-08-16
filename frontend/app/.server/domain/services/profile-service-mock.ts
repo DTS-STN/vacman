@@ -453,7 +453,7 @@ const mockProfiles: Profile[] = [
       },
       userType: {
         id: 1,
-        code: 'EMPLOYEE',
+        code: 'employee',
         nameEn: 'Employee',
         nameFr: 'Employé',
       },
@@ -506,7 +506,7 @@ const mockProfiles: Profile[] = [
       },
       userType: {
         id: 1,
-        code: 'EMPLOYEE',
+        code: 'employee',
         nameEn: 'Employee',
         nameFr: 'Employé',
       },
@@ -559,7 +559,7 @@ const mockProfiles: Profile[] = [
       },
       userType: {
         id: 1,
-        code: 'EMPLOYEE',
+        code: 'employee',
         nameEn: 'Employee',
         nameFr: 'Employé',
       },
@@ -612,7 +612,7 @@ const mockProfiles: Profile[] = [
       },
       userType: {
         id: 1,
-        code: 'EMPLOYEE',
+        code: 'employee',
         nameEn: 'Employee',
         nameFr: 'Employé',
       },
@@ -693,7 +693,7 @@ function createMockProfile(accessToken: string): Profile {
       },
       userType: {
         id: 1,
-        code: 'EMPLOYEE',
+        code: 'employee',
         nameEn: 'Employee',
         nameFr: 'Employé',
       },
