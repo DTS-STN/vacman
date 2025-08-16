@@ -136,7 +136,7 @@ export function getMockProfileService(): ProfileService {
       }
 
       // For mock purposes, return profiles for user ID 1
-      let userProfiles = mockProfiles.filter((p) => p.profileUser?.id === 1);
+      let userProfiles = mockProfiles.filter((p) => p.profileUser.id === 1);
       debugLog('getCurrentUserProfiles', `Found ${userProfiles.length} profiles for user ID 1`);
 
       // Apply active filter
@@ -159,6 +159,48 @@ export function getMockProfileService(): ProfileService {
 
       debugLog('getCurrentUserProfiles', 'Successfully retrieved current user profiles', { profileCount: userProfiles.length });
       return Ok(response);
+    },
+
+    /**
+     * Finds the current user's active profile (singular).
+     * @param params Query parameters for filtering.
+     * @param accessToken The access token for authorization.
+     * @returns A single Profile object.
+     * @throws AppError if no profile is found or if the request fails.
+     */
+    async findCurrentUserProfile(params: Pick<ProfileQueryParams, 'active'>, accessToken: string): Promise<Profile> {
+      debugLog('findCurrentUserProfile', 'Attempting to retrieve current user profile', {
+        params,
+        accessTokenLength: accessToken.length,
+      });
+
+      const result = await this.getCurrentUserProfiles(params, accessToken);
+
+      if (result.isErr()) {
+        debugLog('findCurrentUserProfile', 'Failed to retrieve current user profile');
+        throw result.unwrapErr();
+      }
+
+      const profiles = result.unwrap().content;
+      if (profiles.length === 0) {
+        const error = new AppError('No active profile found for current user', ErrorCodes.PROFILE_NOT_FOUND, {
+          httpStatusCode: HttpStatusCodes.NOT_FOUND,
+        });
+        debugLog('findCurrentUserProfile', 'No active profile found for current user');
+        throw error;
+      }
+
+      const profile = profiles[0];
+      if (!profile) {
+        const error = new AppError('Profile data is invalid', ErrorCodes.PROFILE_NOT_FOUND, {
+          httpStatusCode: HttpStatusCodes.NOT_FOUND,
+        });
+        debugLog('findCurrentUserProfile', 'Profile data is invalid');
+        throw error;
+      }
+
+      debugLog('findCurrentUserProfile', "Successfully retrieved current user's active profile", { profileId: profile.id });
+      return profile;
     },
 
     /**
@@ -206,7 +248,7 @@ export function getMockProfileService(): ProfileService {
       if (profile) {
         debugLog('getProfileById', `Successfully retrieved profile with ID: ${profileId}`, {
           profileStatus: profile.profileStatus?.code,
-          userId: profile.profileUser?.id,
+          userId: profile.profileUser.id,
         });
         return Ok(profile);
       }

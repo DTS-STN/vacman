@@ -21,6 +21,8 @@ export type ProfileService = {
     params: Pick<ProfileQueryParams, 'active'>,
     accessToken: string,
   ): Promise<Result<CollectionProfileResponse, AppError>>;
+  // GET /api/v1/profiles/me - Find current user's active profile (singular)
+  findCurrentUserProfile(params: Pick<ProfileQueryParams, 'active'>, accessToken: string): Promise<Profile>;
   // POST /api/v1/profiles/me - Create a new profile for current user
   registerProfile(accessToken: string): Promise<Result<Profile, AppError>>;
   // GET /api/v1/profiles/{id} - Get a profile by ID
