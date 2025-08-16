@@ -1,4 +1,4 @@
-import type { User, UserEmploymentInformation, UserQueryParams, UserReferralPreferences } from '~/.server/domain/models';
+import type { User, UserQueryParams } from '~/.server/domain/models';
 import { getUserService } from '~/.server/domain/services/user-service';
 
 /**
@@ -28,6 +28,52 @@ export function countCompletedItems<T extends object>(data: T): number {
   }
 
   return completedCount;
+}
+
+/**
+ * Counts the number of "completed" referral preference fields.
+ * For referral preferences, completion rules are:
+ * - Array fields (preferredLanguages, preferredClassifications, preferredCities, preferredEmploymentOpportunities):
+ *   Must have at least one item to be considered complete
+ * - Boolean fields (isAvailableForReferral, isInterestedInAlternation):
+ *   Must be defined as true or false (not undefined)
+ *
+ * @param data The referral preferences object containing the fields to check.
+ * @returns The number of completed referral preference fields.
+ */
+export function countReferralPreferencesCompleted(data: {
+  preferredLanguages?: unknown[] | null;
+  preferredClassifications?: unknown[] | null;
+  preferredCities?: unknown[] | null;
+  preferredEmploymentOpportunities?: unknown[] | null;
+  isAvailableForReferral?: boolean | null;
+  isInterestedInAlternation?: boolean | null;
+}): number {
+  let completed = 0;
+
+  // Array fields - must have at least one item
+  const arrayFields = [
+    'preferredLanguages',
+    'preferredClassifications',
+    'preferredCities',
+    'preferredEmploymentOpportunities',
+  ] as const;
+  for (const field of arrayFields) {
+    const fieldValue = data[field];
+    if (Array.isArray(fieldValue) && fieldValue.length > 0) {
+      completed++;
+    }
+  }
+
+  // Boolean fields - must be defined (true or false)
+  const booleanFields = ['isAvailableForReferral', 'isInterestedInAlternation'] as const;
+  for (const field of booleanFields) {
+    if (typeof data[field] === 'boolean') {
+      completed++;
+    }
+  }
+
+  return completed;
 }
 
 /**
@@ -76,22 +122,6 @@ export function pickObjectProperties<T extends object, K extends keyof T>(
   }
 
   return result;
-}
-
-export function hasEmploymentDataChanged(oldData: UserEmploymentInformation, newData: UserEmploymentInformation) {
-  const keysToCheck: (keyof UserEmploymentInformation)[] = [
-    'substantivePosition',
-    'wfaStatus',
-    'wfaEffectiveDate',
-    'wfaEndDate',
-    'hrAdvisor',
-  ];
-  return keysToCheck.some((key) => newData[key] !== oldData[key]);
-}
-
-export function hasReferralDataChanged(oldData: UserReferralPreferences, newData: UserReferralPreferences) {
-  const keysToCheck: (keyof UserReferralPreferences)[] = ['classificationIds', 'workLocationCitiesIds', 'workLocationProvince'];
-  return keysToCheck.some((key) => newData[key] !== oldData[key]);
 }
 
 const userParams: UserQueryParams = {
