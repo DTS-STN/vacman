@@ -92,6 +92,9 @@ export type LocalizedEmploymentEquity = LocalizedLookupModel;
 export type MatchFeedback = LookupModel;
 export type LocalizedMatchFeedback = LocalizedLookupModel;
 
+export type MatchStatus = LookupModel;
+export type LocalizedMatchStatus = LocalizedLookupModel;
+
 export type User = Readonly<{
   id: number;
   role: string;
