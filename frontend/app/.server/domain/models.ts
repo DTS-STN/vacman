@@ -183,11 +183,11 @@ export type ProfilePutModel = Readonly<{
   isAvailableForReferral?: boolean;
   isInterestedInAlternation?: boolean;
   languageOfCorrespondenceId?: number;
-  languageReferralTypes?: number[];
+  preferredLanguages?: number[];
   personalEmailAddress?: string;
   personalPhoneNumber?: string;
   preferredCities?: number[];
-  preferredClassification?: number[];
+  preferredClassifications?: number[];
   preferredEmploymentOpportunities?: number[];
   wfaStatusId?: number;
   workUnitId?: number;

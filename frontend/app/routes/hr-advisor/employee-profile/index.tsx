@@ -135,35 +135,31 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     ? await getUserService().getUserById(profileData.employmentInformation.hrAdvisor, context.session.authState.accessToken)
     : undefined;
   const hrAdvisor = hrAdvisorResult?.into();
-  const languageReferralTypes = profileData.languageReferralTypeIds
-    ?.map((langId) => allLocalizedLanguageReferralTypes.find((l) => l.id === langId))
+  const languageReferralTypes = profileData.preferredLanguages
+    ?.map((lang) => allLocalizedLanguageReferralTypes.find((l) => l.id === lang.id))
     .filter(Boolean);
-  const classifications = profileData.classificationIds
-    ?.map((classificationId) => allClassifications.find((c) => c.id === classificationId))
+  const classifications = profileData.preferredClassifications
+    ?.map((classification) => allClassifications.find((c) => c.id === classification.id))
     .filter(Boolean);
-  const cities = profileData.workLocationCitiesIds
-    ?.map((cityId) => allLocalizedCities.find((c) => c.id === cityId))
-    .filter(Boolean);
-  const employmentOpportunities = profileData.employmentOpportunityIds
-    ?.map((employmentOpportunityId) => allLocalizedEmploymentOpportunities.find((c) => c.id === employmentOpportunityId))
+  const cities = profileData.preferredCities?.map((city) => allLocalizedCities.find((c) => c.id === city.id)).filter(Boolean);
+  const employmentOpportunities = profileData.preferredEmploymentOpportunities
+    ?.map((employmentOpportunity) => allLocalizedEmploymentOpportunities.find((c) => c.id === employmentOpportunity.id))
     .filter(Boolean);
 
   return {
     documentTitle: t('app:employee-profile.page-title'),
     name: `${profileData.profileUser.firstName} ${profileData.profileUser.lastName}`,
-    email: profileUser?.businessEmail ?? profileData.profileUser.businessEmailAddress,
+    email: profileUser?.businessEmailAddress ?? profileData.profileUser.businessEmailAddress,
     profileStatus,
     personalInformation: {
       personalRecordIdentifier: profileData.profileUser.personalRecordIdentifier,
       preferredLanguage:
-        lang === 'en'
-          ? profileData.personalInformation.preferredLanguage?.nameEn
-          : profileData.personalInformation.preferredLanguage?.nameFr,
-      workEmail: profileUser?.businessEmail ?? profileData.profileUser.businessEmailAddress,
-      personalEmail: profileData.personalInformation.personalEmail,
-      workPhone: profileUser?.businessPhone ?? profileData.profileUser.businessPhoneNumber,
-      personalPhone: profileData.personalInformation.personalPhone,
-      additionalInformation: profileData.personalInformation.additionalInformation,
+        lang === 'en' ? profileData.languageOfCorrespondence?.nameEn : profileData.languageOfCorrespondence?.nameFr,
+      workEmail: profileUser?.businessEmailAddress ?? profileData.profileUser.businessEmailAddress,
+      personalEmail: profileData.personalEmailAddress,
+      workPhone: profileUser?.businessPhoneNumber ?? profileData.profileUser.businessPhoneNumber,
+      personalPhone: profileData.personalPhoneNumber,
+      additionalInformation: profileData.additionalComment,
     },
     employmentInformation: {
       substantivePosition: substantivePosition,
@@ -181,12 +177,12 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       hrAdvisor: hrAdvisor && hrAdvisor.firstName + ' ' + hrAdvisor.lastName,
     },
     referralPreferences: {
-      languageReferralTypes: languageReferralTypes?.map((l) => l?.name),
-      classifications: classifications?.map((c) => c?.name),
-      workLocationCities: cities?.map((city) => city?.provinceTerritory.name + ' - ' + city?.name),
-      referralAvailibility: profileData.isAvailableForReferral,
-      alternateOpportunity: profileData.isInterestedInAlternation,
-      employmentOpportunities: employmentOpportunities?.map((e) => e?.name),
+      preferredLanguages: languageReferralTypes?.map((l) => l?.name),
+      preferredClassifications: classifications?.map((c) => c?.name),
+      preferredCities: cities?.map((city) => city?.provinceTerritory.name + ' - ' + city?.name),
+      isAvailableForReferral: profileData.isAvailableForReferral,
+      isInterestedInAlternation: profileData.isInterestedInAlternation,
+      preferredEmploymentOpportunities: employmentOpportunities?.map((e) => e?.name),
     },
     lastUpdated: profileData.dateUpdated ? formatDateTime(profileData.dateUpdated) : '0000-00-00 00:00',
     lastUpdatedBy: profileUpdatedByUserName ?? 'Unknown User',
@@ -332,42 +328,42 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
         >
           <DescriptionList>
             <DescriptionListItem term={t('app:referral-preferences.language-referral-type')}>
-              {loaderData.referralPreferences.languageReferralTypes === undefined
+              {loaderData.referralPreferences.preferredLanguages === undefined
                 ? t('app:employee-profile.not-provided')
-                : loaderData.referralPreferences.languageReferralTypes.length > 0 &&
-                  loaderData.referralPreferences.languageReferralTypes.join(', ')}
+                : loaderData.referralPreferences.preferredLanguages.length > 0 &&
+                  loaderData.referralPreferences.preferredLanguages.join(', ')}
             </DescriptionListItem>
             <DescriptionListItem term={t('app:referral-preferences.classification')}>
-              {loaderData.referralPreferences.classifications === undefined
+              {loaderData.referralPreferences.preferredClassifications === undefined
                 ? t('app:employee-profile.not-provided')
-                : loaderData.referralPreferences.classifications.length > 0 &&
-                  loaderData.referralPreferences.classifications.join(', ')}
+                : loaderData.referralPreferences.preferredClassifications.length > 0 &&
+                  loaderData.referralPreferences.preferredClassifications.join(', ')}
             </DescriptionListItem>
             <DescriptionListItem term={t('app:referral-preferences.work-location')}>
-              {loaderData.referralPreferences.workLocationCities === undefined
+              {loaderData.referralPreferences.preferredCities === undefined
                 ? t('app:employee-profile.not-provided')
-                : loaderData.referralPreferences.workLocationCities.length > 0 &&
-                  loaderData.referralPreferences.workLocationCities.join(', ')}
+                : loaderData.referralPreferences.preferredCities.length > 0 &&
+                  loaderData.referralPreferences.preferredCities.join(', ')}
             </DescriptionListItem>
             <DescriptionListItem term={t('app:referral-preferences.referral-availibility')}>
-              {loaderData.referralPreferences.referralAvailibility === undefined
+              {loaderData.referralPreferences.isAvailableForReferral === undefined
                 ? t('app:employee-profile.not-provided')
-                : loaderData.referralPreferences.referralAvailibility
+                : loaderData.referralPreferences.isAvailableForReferral
                   ? t('gcweb:input-option.yes')
                   : t('gcweb:input-option.no')}
             </DescriptionListItem>
             <DescriptionListItem term={t('app:referral-preferences.alternate-opportunity')}>
-              {loaderData.referralPreferences.alternateOpportunity === undefined
+              {loaderData.referralPreferences.isInterestedInAlternation === undefined
                 ? t('app:employee-profile.not-provided')
-                : loaderData.referralPreferences.alternateOpportunity
+                : loaderData.referralPreferences.isInterestedInAlternation
                   ? t('gcweb:input-option.yes')
                   : t('gcweb:input-option.no')}
             </DescriptionListItem>
             <DescriptionListItem term={t('app:referral-preferences.employment-tenure')}>
-              {loaderData.referralPreferences.employmentOpportunities === undefined
+              {loaderData.referralPreferences.preferredEmploymentOpportunities === undefined
                 ? t('app:employee-profile.not-provided')
-                : loaderData.referralPreferences.employmentOpportunities.length > 0 &&
-                  loaderData.referralPreferences.employmentOpportunities.join(', ')}
+                : loaderData.referralPreferences.preferredEmploymentOpportunities.length > 0 &&
+                  loaderData.referralPreferences.preferredEmploymentOpportunities.join(', ')}
             </DescriptionListItem>
           </DescriptionList>
         </ProfileCard>
