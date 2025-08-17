@@ -279,12 +279,12 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     referralPreferences: {
       isComplete: isCompleteReferralPreferences,
       isNew: countReferralPreferencesCompleted(referralPreferencesFields) === 0,
-      languageReferralTypes: languageReferralTypes?.map((l) => l?.name),
-      classifications: classifications?.map((c) => c?.name),
-      workLocationCities: cities?.map((city) => city?.provinceTerritory.name + ' - ' + city?.name),
-      referralAvailibility: profileData.isAvailableForReferral,
-      alternateOpportunity: profileData.isInterestedInAlternation,
-      employmentOpportunities: employmentOpportunities?.map((e) => e?.name),
+      preferredLanguages: languageReferralTypes?.map((l) => l?.name),
+      preferredClassifications: classifications?.map((c) => c?.name),
+      preferredCities: cities?.map((city) => city?.provinceTerritory.name + ' - ' + city?.name),
+      isAvailableForReferral: profileData.isAvailableForReferral,
+      isInterestedInAlternation: profileData.isInterestedInAlternation,
+      preferredEmploymentOpportunities: employmentOpportunities?.map((e) => e?.name),
     },
     lastUpdated: profileData.lastModifiedDate ? formatDateTime(profileData.lastModifiedDate) : '0000-00-00 00:00',
     lastUpdatedBy: profileUpdatedByUserName,
@@ -492,42 +492,42 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
           ) : (
             <DescriptionList>
               <DescriptionListItem term={t('app:referral-preferences.language-referral-type')}>
-                {loaderData.referralPreferences.languageReferralTypes === undefined
+                {loaderData.referralPreferences.preferredLanguages === undefined
                   ? t('app:profile.not-provided')
-                  : loaderData.referralPreferences.languageReferralTypes.length > 0 &&
-                    loaderData.referralPreferences.languageReferralTypes.join(', ')}
+                  : loaderData.referralPreferences.preferredLanguages.length > 0 &&
+                    loaderData.referralPreferences.preferredLanguages.join(', ')}
               </DescriptionListItem>
               <DescriptionListItem term={t('app:referral-preferences.classification')}>
-                {loaderData.referralPreferences.classifications === undefined
+                {loaderData.referralPreferences.preferredClassifications === undefined
                   ? t('app:profile.not-provided')
-                  : loaderData.referralPreferences.classifications.length > 0 &&
-                    loaderData.referralPreferences.classifications.join(', ')}
+                  : loaderData.referralPreferences.preferredClassifications.length > 0 &&
+                    loaderData.referralPreferences.preferredClassifications.join(', ')}
               </DescriptionListItem>
               <DescriptionListItem term={t('app:referral-preferences.work-location')}>
-                {loaderData.referralPreferences.workLocationCities === undefined
+                {loaderData.referralPreferences.preferredCities === undefined
                   ? t('app:profile.not-provided')
-                  : loaderData.referralPreferences.workLocationCities.length > 0 &&
-                    loaderData.referralPreferences.workLocationCities.join(', ')}
+                  : loaderData.referralPreferences.preferredCities.length > 0 &&
+                    loaderData.referralPreferences.preferredCities.join(', ')}
               </DescriptionListItem>
               <DescriptionListItem term={t('app:referral-preferences.referral-availibility')}>
-                {loaderData.referralPreferences.referralAvailibility === undefined
+                {loaderData.referralPreferences.isAvailableForReferral === undefined
                   ? t('app:profile.not-provided')
-                  : loaderData.referralPreferences.referralAvailibility
+                  : loaderData.referralPreferences.isAvailableForReferral
                     ? t('gcweb:input-option.yes')
                     : t('gcweb:input-option.no')}
               </DescriptionListItem>
               <DescriptionListItem term={t('app:referral-preferences.alternate-opportunity')}>
-                {loaderData.referralPreferences.alternateOpportunity === undefined
+                {loaderData.referralPreferences.isInterestedInAlternation === undefined
                   ? t('app:profile.not-provided')
-                  : loaderData.referralPreferences.alternateOpportunity
+                  : loaderData.referralPreferences.isInterestedInAlternation
                     ? t('gcweb:input-option.yes')
                     : t('gcweb:input-option.no')}
               </DescriptionListItem>
               <DescriptionListItem term={t('app:referral-preferences.employment-tenure')}>
-                {loaderData.referralPreferences.employmentOpportunities === undefined
+                {loaderData.referralPreferences.preferredEmploymentOpportunities === undefined
                   ? t('app:profile.not-provided')
-                  : loaderData.referralPreferences.employmentOpportunities.length > 0 &&
-                    loaderData.referralPreferences.employmentOpportunities.join(', ')}
+                  : loaderData.referralPreferences.preferredEmploymentOpportunities.length > 0 &&
+                    loaderData.referralPreferences.preferredEmploymentOpportunities.join(', ')}
               </DescriptionListItem>
             </DescriptionList>
           )}
