@@ -10,6 +10,7 @@ import type {
   ProfileQueryParams,
 } from '~/.server/domain/models';
 import type { ProfileService } from '~/.server/domain/services/profile-service';
+import { PROFILE_STATUS_ID } from '~/domain/constants';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
@@ -29,8 +30,6 @@ export function getMockProfileService(): ProfileService {
      */
     async getProfiles(params: ProfileQueryParams, accessToken: string): Promise<Result<PagedProfileResponse, AppError>> {
       debugLog('getProfiles', 'Attempting to retrieve profiles', { params, accessTokenLength: accessToken.length });
-      // Simulate async operation
-      await new Promise((resolve) => setTimeout(resolve, 10));
 
       // Simulate a failure case for testing error handling
       if (accessToken === 'FAIL_TOKEN') {
@@ -46,14 +45,18 @@ export function getMockProfileService(): ProfileService {
 
       // Apply active filter
       if (params.active !== undefined) {
-        const activeStatuses = [1, 2, 3]; // pending, approved, incomplete status IDs
-        const inactiveStatuses = [4]; // archived status ID
+        const activeStatuses = [PROFILE_STATUS_ID.pending, PROFILE_STATUS_ID.approved, PROFILE_STATUS_ID.incomplete];
+        const inactiveStatuses = [PROFILE_STATUS_ID.archived];
 
         if (params.active === true) {
-          filteredProfiles = filteredProfiles.filter((p) => p.profileStatus && activeStatuses.includes(p.profileStatus.id));
+          filteredProfiles = filteredProfiles.filter(
+            (p) => p.profileStatus && activeStatuses.some((id) => id === p.profileStatus?.id),
+          );
           debugLog('getProfiles', `Applied active filter (true): ${filteredProfiles.length} profiles remaining`);
         } else {
-          filteredProfiles = filteredProfiles.filter((p) => p.profileStatus && inactiveStatuses.includes(p.profileStatus.id));
+          filteredProfiles = filteredProfiles.filter(
+            (p) => p.profileStatus && inactiveStatuses.some((id) => id === p.profileStatus?.id),
+          );
           debugLog('getProfiles', `Applied active filter (false): ${filteredProfiles.length} profiles remaining`);
         }
       }
@@ -65,7 +68,7 @@ export function getMockProfileService(): ProfileService {
           filteredProfiles = filteredProfiles.filter((p) => p.hrAdvisorId === 1);
           debugLog('getProfiles', `Applied HR advisor filter (me): ${filteredProfiles.length} profiles remaining`);
         } else {
-          const hrAdvisorId = parseInt(params['hr-advisor'], 10);
+          const hrAdvisorId = parseInt(params['hr-advisor']);
           if (!isNaN(hrAdvisorId)) {
             filteredProfiles = filteredProfiles.filter((p) => p.hrAdvisorId === hrAdvisorId);
             debugLog(
@@ -471,7 +474,7 @@ const mockProfiles: Profile[] = [
     id: 3,
     additionalComment: 'Interested in remote work.',
     hasConsentedToPrivacyTerms: true,
-    hrAdvisorId: 5,
+    hrAdvisorId: 1,
     isAvailableForReferral: false,
     isInterestedInAlternation: true,
     personalEmailAddress: 'john.smith@example.com',
@@ -483,7 +486,7 @@ const mockProfiles: Profile[] = [
       nameFr: 'Anglais',
     },
     profileStatus: {
-      id: 1,
+      id: 0,
       code: 'PENDING',
       nameEn: 'Pending',
       nameFr: 'En attente',
@@ -524,7 +527,7 @@ const mockProfiles: Profile[] = [
     id: 4,
     additionalComment: 'Fluent in French and English.',
     hasConsentedToPrivacyTerms: true,
-    hrAdvisorId: 5,
+    hrAdvisorId: 1,
     isAvailableForReferral: true,
     isInterestedInAlternation: false,
     personalEmailAddress: 'marie.curie@example.com',
@@ -536,7 +539,7 @@ const mockProfiles: Profile[] = [
       nameFr: 'Français',
     },
     profileStatus: {
-      id: 3,
+      id: 1,
       code: 'APPROVED',
       nameEn: 'Approved',
       nameFr: 'Approuvé',
@@ -589,7 +592,7 @@ const mockProfiles: Profile[] = [
       nameFr: 'Anglais',
     },
     profileStatus: {
-      id: 3,
+      id: 1,
       code: 'APPROVED',
       nameEn: 'Approved',
       nameFr: 'Approuvé',
@@ -697,14 +700,14 @@ function createMockProfile(accessToken: string): Profile {
         nameEn: 'Employee',
         nameFr: 'Employé',
       },
-      createdBy: accessToken,
+      createdBy: 'system',
       createdDate: new Date().toISOString(),
-      lastModifiedBy: accessToken,
+      lastModifiedBy: 'jane.doe',
       lastModifiedDate: new Date().toISOString(),
     },
-    createdBy: accessToken,
+    createdBy: 'system',
     createdDate: new Date().toISOString(),
-    lastModifiedBy: accessToken,
+    lastModifiedBy: 'jane.doe',
     lastModifiedDate: new Date().toISOString(),
   };
 
