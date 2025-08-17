@@ -1,4 +1,4 @@
-import type { Profile, User, UserQueryParams } from '~/.server/domain/models';
+import type { Profile, ProfilePutModel, User, UserQueryParams } from '~/.server/domain/models';
 import { getUserService } from '~/.server/domain/services/user-service';
 
 /**
@@ -138,18 +138,30 @@ export async function getHrAdvisors(accessToken: string): Promise<User[]> {
   return result.unwrap().content;
 }
 
-export function hasEmploymentDataChanged(oldData: Profile, newData: Profile) {
-  const keysToCheck: (keyof Profile)[] = [
-    'substantiveClassification',
-    'wfaStatus',
-    'wfaStartDate',
-    'wfaEndDate',
-    'hrAdvisorId',
-  ];
-  return keysToCheck.some((key) => newData[key] !== oldData[key]);
+export function hasReferralDataChanged(oldData: Profile, newData: ProfilePutModel): boolean {
+  const normalizedOld = {
+    preferredClassifications: oldData.preferredClassifications?.map((c) => c.id) ?? [],
+    preferredCities: oldData.preferredCities?.map((c) => c.id) ?? [],
+  };
+
+  const normalizedNew = {
+    preferredClassifications: newData.preferredClassifications ?? [],
+    preferredCities: newData.preferredCities ?? [],
+  };
+
+  return !deepEqual(normalizedOld, normalizedNew);
 }
 
-export function hasReferralDataChanged(oldData: Profile, newData: Profile) {
-  const keysToCheck: (keyof Profile)[] = ['preferredClassifications', 'preferredCities'];
-  return keysToCheck.some((key) => newData[key] !== oldData[key]);
+// TODO consider lodash instead
+function deepEqual(x: any, y: any): boolean {
+  if (x === y) return true;
+  if (typeof x !== 'object' || x === null || typeof y !== 'object' || y === null) return false;
+  const keysX = Object.keys(x);
+  const keysY = Object.keys(y);
+  if (keysX.length !== keysY.length) return false;
+  for (const key of keysX) {
+    if (!keysY.includes(key)) return false;
+    if (!deepEqual(x[key], y[key])) return false;
+  }
+  return true;
 }
