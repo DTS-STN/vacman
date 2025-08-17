@@ -300,7 +300,7 @@ const selectedValidWfaStatusesForOptionalDate = allWfaStatus
   }));
 
 export const referralPreferencesSchema = v.object({
-  languageReferralTypeIds: v.pipe(
+  preferredLanguages: v.pipe(
     v.array(
       v.lazy(() =>
         v.pipe(
@@ -318,7 +318,7 @@ export const referralPreferencesSchema = v.object({
       'app:referral-preferences.errors.language-referral-type-duplicate',
     ),
   ),
-  classificationIds: v.pipe(
+  preferredClassifications: v.pipe(
     v.array(
       v.lazy(() =>
         v.pipe(
@@ -336,7 +336,7 @@ export const referralPreferencesSchema = v.object({
       'app:referral-preferences.errors.classification-duplicate',
     ),
   ),
-  workLocationProvince: v.lazy(() =>
+  preferredProvince: v.lazy(() =>
     v.pipe(
       stringToIntegerSchema('app:referral-preferences.errors.work-location-province-required'),
       v.picklist(
@@ -345,7 +345,7 @@ export const referralPreferencesSchema = v.object({
       ),
     ),
   ),
-  workLocationCitiesIds: v.pipe(
+  preferredCities: v.pipe(
     v.array(
       v.lazy(() =>
         v.pipe(
@@ -365,7 +365,7 @@ export const referralPreferencesSchema = v.object({
   ),
   isAvailableForReferral: v.boolean('app:referral-preferences.errors.referral-availibility-required'),
   isInterestedInAlternation: v.boolean('app:referral-preferences.errors.alternate-opportunity-required'),
-  employmentOpportunityIds: v.pipe(
+  preferredEmploymentOpportunities: v.pipe(
     v.array(
       v.lazy(() =>
         v.pipe(
