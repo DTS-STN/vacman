@@ -6,7 +6,7 @@ import * as v from 'valibot';
 
 import type { Route } from './+types/referral-preferences';
 
-import type { Profile, UserReferralPreferences } from '~/.server/domain/models';
+import type { Profile } from '~/.server/domain/models';
 import { getCityService } from '~/.server/domain/services/city-service';
 import { getClassificationService } from '~/.server/domain/services/classification-service';
 import { getEmploymentOpportunityTypeService } from '~/.server/domain/services/employment-opportunity-type-service';
@@ -15,10 +15,10 @@ import { getProfileService } from '~/.server/domain/services/profile-service';
 import { getProvinceService } from '~/.server/domain/services/province-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { requirePrivacyConsentForOwnProfile } from '~/.server/utils/privacy-consent-utils';
-import { hasReferralDataChanged, pickObjectProperties } from '~/.server/utils/profile-utils';
+import { pickObjectProperties } from '~/.server/utils/profile-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { InlineLink } from '~/components/links';
-import { PROFILE_STATUS_CODE, PROFILE_STATUS_ID, REQUIRE_OPTIONS } from '~/domain/constants';
+import { PROFILE_STATUS_ID, PROFILE_STATUS_PENDING, REQUIRE_OPTIONS } from '~/domain/constants';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
@@ -39,17 +39,17 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 
   const formData = await request.formData();
   const parseResult = v.safeParse(referralPreferencesSchema, {
-    languageReferralTypeIds: formData.getAll('languageReferralTypes'),
-    classificationIds: formData.getAll('classifications'),
-    workLocationProvince: formString(formData.get('workLocationProvince')),
-    workLocationCitiesIds: formData.getAll('workLocationCities'),
-    isAvailableForReferral: formData.get('referralAvailibility')
-      ? formData.get('referralAvailibility') === REQUIRE_OPTIONS.yes
+    preferredLanguages: formData.getAll('preferredLanguages'),
+    preferredClassifications: formData.getAll('preferredClassifications'),
+    preferredProvince: formString(formData.get('preferredProvince')),
+    preferredCities: formData.getAll('preferredCities'),
+    isAvailableForReferral: formData.get('isAvailableForReferral')
+      ? formData.get('isAvailableForReferral') === REQUIRE_OPTIONS.yes
       : undefined,
-    isInterestedInAlternation: formData.get('alternateOpportunity')
-      ? formData.get('alternateOpportunity') === REQUIRE_OPTIONS.yes
+    isInterestedInAlternation: formData.get('isInterestedInAlternation')
+      ? formData.get('isInterestedInAlternation') === REQUIRE_OPTIONS.yes
       : undefined,
-    employmentOpportunityIds: formData.getAll('employmentOpportunityIds'),
+    preferredEmploymentOpportunities: formData.getAll('preferredEmploymentOpportunities'),
   });
 
   if (!parseResult.success) {
@@ -59,43 +59,52 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     );
   }
 
-  const allReferralKeys: (keyof UserReferralPreferences)[] = [
-    'languageReferralTypeIds',
-    'classificationIds',
-    'workLocationProvince',
-    'workLocationCitiesIds',
+  const allReferralKeys: (keyof Profile)[] = [
+    'preferredLanguages',
+    'preferredClassifications',
+    'preferredCities',
     'isAvailableForReferral',
     'isInterestedInAlternation',
-    'employmentOpportunityIds',
+    'preferredEmploymentOpportunities',
   ];
 
   const profileService = getProfileService();
   const profileParams = { active: true };
-  const currentProfileOption = await profileService.getCurrentUserProfiles(
-    profileParams,
+  const currentProfile = await profileService.findCurrentUserProfile(profileParams, context.session.authState.accessToken);
+
+  const oldReferralData = pickObjectProperties(currentProfile, allReferralKeys);
+  const newReferralData = pickObjectProperties(
+    {
+      ...currentProfile,
+      preferredLanguages: parseResult.output.preferredLanguages,
+      preferredClassifications: parseResult.output.preferredClassifications,
+      preferredCities: parseResult.output.preferredCities,
+      isAvailableForReferral: parseResult.output.isAvailableForReferral,
+      isInterestedInAlternation: parseResult.output.isInterestedInAlternation,
+      preferredEmploymentOpportunities: parseResult.output.preferredEmploymentOpportunities,
+    },
+    allReferralKeys,
+  );
+
+  const updateResult = await profileService.updateProfileById(
+    currentProfile.id,
+    newReferralData,
     context.session.authState.accessToken,
   );
-  const currentProfile = currentProfileOption.unwrap();
-  const oldReferralData = pickObjectProperties(currentProfile, allReferralKeys);
-  const newReferralData = pickObjectProperties(parseResult.output, allReferralKeys);
-
-  const updateResult = await profileService.updateProfileById(context.session.authState.accessToken, {
-    ...currentProfile,
-    ...newReferralData,
-  });
 
   if (updateResult.isErr()) {
     throw updateResult.unwrapErr();
   }
+
   if (
-    currentProfile.profileStatus.id === PROFILE_STATUS_ID.approved &&
+    currentProfile.profileStatus?.id === PROFILE_STATUS_ID.approved &&
     hasReferralDataChanged(oldReferralData, newReferralData)
   ) {
     // profile needs to be re-approved if and only if the current profile status is 'approved'
     await profileService.updateProfileStatus(
+      currentProfile.profileUser.id,
+      PROFILE_STATUS_PENDING,
       context.session.authState.accessToken,
-      currentProfile.profileUser.id.toString(),
-      PROFILE_STATUS_CODE.pending,
     );
     return i18nRedirect('routes/employee/profile/index.tsx', request, {
       params: { id: currentProfile.profileUser.id.toString() },
@@ -114,14 +123,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   await requirePrivacyConsentForOwnProfile(context.session, request);
 
   const profileParams = { active: true };
-  const currentProfileOption = await getProfileService().getCurrentUserProfiles(
-    profileParams,
-    context.session.authState.accessToken,
-  );
-
-  if (currentProfileOption.isNone()) {
-    throw new Response('Profile not found', { status: 404 });
-  }
+  const profileData = await getProfileService().findCurrentUserProfile(profileParams, context.session.authState.accessToken);
 
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
   const localizedLanguageReferralTypesResult = await getLanguageReferralTypeService().listAllLocalized(lang);
@@ -129,24 +131,23 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const localizedEmploymentOpportunities = await getEmploymentOpportunityTypeService().listAllLocalized(lang);
   const localizedProvinces = await getProvinceService().listAllLocalized(lang);
   const localizedCities = await getCityService().listAllLocalized(lang);
-  const profileData: Profile = currentProfileOption.unwrap();
 
   const cityResult =
-    profileData.workLocationCitiesIds?.[0] !== undefined
-      ? await getCityService().findLocalizedById(profileData.workLocationCitiesIds[0], lang)
+    profileData.preferredCities?.[0] !== undefined
+      ? await getCityService().findLocalizedById(profileData.preferredCities[0].id, lang)
       : undefined; //get the province from first city only to avoid validation error on province
   const city = cityResult?.into();
 
   return {
     documentTitle: t('app:referral-preferences.page-title'),
     defaultValues: {
-      languageReferralTypeIds: profileData.languageReferralTypeIds,
-      classificationIds: profileData.classificationIds,
-      workLocationProvince: city?.provinceTerritory.id,
-      workLocationCitiesIds: profileData.workLocationCitiesIds,
+      preferredLanguages: profileData.preferredLanguages,
+      preferredClassifications: profileData.preferredClassifications,
+      preferredProvince: city?.provinceTerritory.id,
+      preferredCities: profileData.preferredCities,
       isAvailableForReferral: profileData.isAvailableForReferral,
       isInterestedInAlternation: profileData.isInterestedInAlternation,
-      employmentOpportunityIds: profileData.employmentOpportunityIds,
+      preferredEmploymentOpportunities: profileData.preferredEmploymentOpportunities,
     },
     languageReferralTypes: localizedLanguageReferralTypesResult,
     classifications: localizedClassifications,
@@ -169,6 +170,7 @@ export default function PersonalDetails({ loaderData, actionData, params }: Rout
         <ReferralPreferencesForm
           cancelLink={'routes/employee/profile/index.tsx'}
           formValues={loaderData.defaultValues}
+          preferredProvince={loaderData.defaultValues.preferredProvince}
           formErrors={errors}
           languageReferralTypes={loaderData.languageReferralTypes}
           classifications={loaderData.classifications}
