@@ -1,4 +1,4 @@
-import type { User, UserQueryParams } from '~/.server/domain/models';
+import type { Profile, User, UserQueryParams } from '~/.server/domain/models';
 import { getUserService } from '~/.server/domain/services/user-service';
 
 /**
@@ -136,4 +136,20 @@ export async function getHrAdvisors(accessToken: string): Promise<User[]> {
     throw result.unwrapErr();
   }
   return result.unwrap().content;
+}
+
+export function hasEmploymentDataChanged(oldData: Profile, newData: Profile) {
+  const keysToCheck: (keyof Profile)[] = [
+    'substantiveClassification',
+    'wfaStatus',
+    'wfaStartDate',
+    'wfaEndDate',
+    'hrAdvisorId',
+  ];
+  return keysToCheck.some((key) => newData[key] !== oldData[key]);
+}
+
+export function hasReferralDataChanged(oldData: Profile, newData: Profile) {
+  const keysToCheck: (keyof Profile)[] = ['preferredClassifications', 'preferredCities'];
+  return keysToCheck.some((key) => newData[key] !== oldData[key]);
 }
