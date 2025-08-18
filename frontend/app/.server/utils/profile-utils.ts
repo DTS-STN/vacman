@@ -143,6 +143,75 @@ export function hasEmploymentDataChanged(oldData: Profile, newData: ProfilePutMo
   return false;
 }
 
+/**
+ * Maps a Profile read model to a ProfilePutModel for updating via PUT endpoint.
+ * This function extracts IDs from nested objects and ensures all fields are properly mapped
+ * to prevent null value errors when calling the PUT /api/v1/profiles/{id} endpoint.
+ *
+ * @param profile The profile read model to convert
+ * @returns A complete ProfilePutModel with all fields mapped from the source profile
+ *
+ * @example
+ * ```typescript
+ * // Basic usage - convert profile to put model format
+ * const profile = await profileService.getProfileById(profileId, accessToken);
+ * const putModel = mapProfileToPutModel(profile);
+ * await profileService.updateProfileById(profileId, putModel, accessToken);
+ * ```
+ */
+export function mapProfileToPutModel(profile: Profile): ProfilePutModel {
+  return {
+    additionalComment: profile.additionalComment,
+    cityId: profile.substantiveCity?.id,
+    classificationId: profile.substantiveClassification?.id,
+    hasConsentedToPrivacyTerms: profile.hasConsentedToPrivacyTerms,
+    hrAdvisorId: profile.hrAdvisorId,
+    isAvailableForReferral: profile.isAvailableForReferral,
+    isInterestedInAlternation: profile.isInterestedInAlternation,
+    languageOfCorrespondenceId: profile.languageOfCorrespondence?.id,
+    personalEmailAddress: profile.personalEmailAddress,
+    personalPhoneNumber: profile.personalPhoneNumber,
+    preferredCities: profile.preferredCities?.map((city) => city.id),
+    preferredClassification: profile.preferredClassifications?.map((classification) => classification.id),
+    preferredEmploymentOpportunities: profile.preferredEmploymentOpportunities?.map((opportunity) => opportunity.id),
+    preferredLanguages: profile.preferredLanguages?.map((language) => language.id),
+    wfaEndDate: profile.wfaEndDate,
+    wfaStartDate: profile.wfaStartDate,
+    wfaStatusId: profile.wfaStatus?.id,
+    workUnitId: profile.substantiveWorkUnit?.id,
+  };
+}
+
+/**
+ * Maps a Profile read model to a ProfilePutModel with specific field overrides.
+ * This is useful when you want to update only certain fields while preserving all others.
+ *
+ * @param profile The profile read model to convert
+ * @param overrides Partial ProfilePutModel with fields to override
+ * @returns A complete ProfilePutModel with overridden fields applied
+ *
+ * @example
+ * ```typescript
+ * // Update only privacy consent while preserving all other fields
+ * const profile = await profileService.getProfileById(profileId, accessToken);
+ * const putModel = mapProfileToPutModelWithOverrides(profile, {
+ *   hasConsentedToPrivacyTerms: true,
+ * });
+ * await profileService.updateProfileById(profileId, putModel, accessToken);
+ *
+ * // Update multiple fields
+ * const putModel = mapProfileToPutModelWithOverrides(profile, {
+ *   personalEmailAddress: 'new@example.com',
+ *   isAvailableForReferral: false,
+ *   preferredCities: [1, 2, 3], // Array of city IDs
+ * });
+ * ```
+ */
+export function mapProfileToPutModelWithOverrides(profile: Profile, overrides: Partial<ProfilePutModel>): ProfilePutModel {
+  const basePutModel = mapProfileToPutModel(profile);
+  return { ...basePutModel, ...overrides };
+}
+
 export function hasReferralDataChanged(oldData: Profile, newData: ProfilePutModel): boolean {
   const normalizedOld = {
     preferredClassifications: oldData.preferredClassifications?.map((c) => c.id) ?? [],
@@ -158,7 +227,7 @@ export function hasReferralDataChanged(oldData: Profile, newData: ProfilePutMode
 }
 
 // TODO consider lodash instead
-function deepEqual(x: any, y: any): boolean {
+function deepEqual(x: unknown, y: unknown): boolean {
   if (x === y) return true;
   if (typeof x !== 'object' || x === null || typeof y !== 'object' || y === null) return false;
   const keysX = Object.keys(x);
@@ -166,7 +235,7 @@ function deepEqual(x: any, y: any): boolean {
   if (keysX.length !== keysY.length) return false;
   for (const key of keysX) {
     if (!keysY.includes(key)) return false;
-    if (!deepEqual(x[key], y[key])) return false;
+    if (!deepEqual((x as Record<string, unknown>)[key], (y as Record<string, unknown>)[key])) return false;
   }
   return true;
 }
