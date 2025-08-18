@@ -21,7 +21,7 @@ export type UserPersonalInformation = {
   firstName?: string;
   lastName?: string;
   personalRecordIdentifier?: string;
-  preferredLanguage?: LanguageOfCorrespondence;
+  languageOfCorrespondence?: LanguageOfCorrespondence;
   businessEmailAddress: string;
   personalEmailAddress?: string;
   businessPhoneNumber?: string;
@@ -51,7 +51,7 @@ export function PersonalInformationForm({
   const languageOptions = languagesOfCorrespondence.map(({ id, name }) => ({
     value: String(id),
     children: name,
-    defaultChecked: id === formValues?.preferredLanguage?.id,
+    defaultChecked: id === formValues?.languageOfCorrespondence?.id,
   }));
 
   return (
@@ -74,11 +74,11 @@ export function PersonalInformationForm({
               required
             />
             <InputRadios
-              id="preferred-language"
-              name="preferredLanguageId"
-              legend={t('personal-information.preferred-language')}
+              id="language-of-correspondence"
+              name="languageOfCorrespondence"
+              legend={t('personal-information.language-of-correspondence')}
               options={languageOptions}
-              errorMessage={t(extractValidationKey(formErrors?.preferredLanguageId))}
+              errorMessage={t(extractValidationKey(formErrors?.languageOfCorrespondence))}
               required
             />
             <InputField

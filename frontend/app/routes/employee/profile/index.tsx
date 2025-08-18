@@ -403,7 +403,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
               <DescriptionListItem term={t('app:personal-information.personal-record-identifier')}>
                 {loaderData.personalInformation.personalRecordIdentifier ?? t('app:profile.not-provided')}
               </DescriptionListItem>
-              <DescriptionListItem term={t('app:personal-information.preferred-language')}>
+              <DescriptionListItem term={t('app:personal-information.language-of-correspondence')}>
                 {loaderData.personalInformation.preferredLanguage ?? t('app:profile.not-provided')}
               </DescriptionListItem>
               <DescriptionListItem term={t('app:personal-information.work-email')}>
