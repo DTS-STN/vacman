@@ -13,6 +13,7 @@ import type {
   CollectionProfileResponse,
   ProfileQueryParams,
 } from '~/.server/domain/models';
+import { getLanguageForCorrespondenceService } from '~/.server/domain/services/language-for-correspondence-service';
 import { getLanguageReferralTypeService } from '~/.server/domain/services/language-referral-type-service';
 import type { ProfileService } from '~/.server/domain/services/profile-service';
 import { PROFILE_STATUS_ID } from '~/domain/constants';
@@ -290,11 +291,19 @@ export function getMockProfileService(): ProfileService {
         return Err(new AppError(`Profile with ID ${profileId} not found.`, ErrorCodes.PROFILE_NOT_FOUND));
       }
 
+      const languageOfCorrespondenceService = getLanguageForCorrespondenceService();
       const languageReferralTypeService = getLanguageReferralTypeService();
       const classificationService = getClassificationService();
       const cityService = getCityService();
       const employmentOppourtunityService = getEmploymentOpportunityTypeService();
 
+      let languageOfCorrespondence = existingProfile.languageOfCorrespondence;
+      if (profile.languageOfCorrespondenceId) {
+        const langResult = await languageOfCorrespondenceService.getById(profile.languageOfCorrespondenceId);
+        if (langResult.isOk()) {
+          languageOfCorrespondence = langResult.unwrap();
+        }
+      }
       const preferredLanguages = profile.preferredLanguages
         ? (await Promise.all(profile.preferredLanguages.map((id) => languageReferralTypeService.getById(id))))
             .filter((result) => result.isOk())
@@ -332,6 +341,7 @@ export function getMockProfileService(): ProfileService {
         personalPhoneNumber: profile.personalPhoneNumber ?? existingProfile.personalPhoneNumber,
         // For ID-based fields, we would need to look up the full objects, but for mock purposes we'll preserve existing objects
         // In a real implementation, you would fetch the referenced entities by their IDs
+        languageOfCorrespondence,
         preferredLanguages,
         preferredClassifications,
         preferredCities,

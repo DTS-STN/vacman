@@ -38,7 +38,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     firstName: formString(formData.get('firstName')),
     lastName: formString(formData.get('lastName')),
     personalRecordIdentifier: formString(formData.get('personalRecordIdentifier')),
-    languageOfCorrespondence: formString(formData.get('languageOfCorrespondence')),
+    languageOfCorrespondenceId: formString(formData.get('languageOfCorrespondenceId')),
     businessEmailAddress: formString(formData.get('businessEmailAddress')),
     personalEmailAddress: formString(formData.get('personalEmailAddress')),
     businessPhoneNumber: formString(formData.get('businessPhoneNumber')),
@@ -97,7 +97,6 @@ export async function action({ context, params, request }: Route.ActionArgs) {
         firstName: firstName,
         lastName: lastName,
         personalRecordIdentifier: personalRecordIdentifier,
-        languageId: parseResult.output.languageOfCorrespondence,
       },
       context.session.authState.accessToken,
     );

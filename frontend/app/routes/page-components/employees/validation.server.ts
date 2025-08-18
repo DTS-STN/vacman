@@ -226,7 +226,7 @@ export const personalInformationSchema = v.object({
     v.length(9, 'app:personal-information.errors.personal-record-identifier-invalid'),
     v.regex(REGEX_PATTERNS.DIGIT_ONLY, 'app:personal-information.errors.personal-record-identifier-invalid'),
   ),
-  languageOfCorrespondence: v.lazy(() =>
+  languageOfCorrespondenceId: v.lazy(() =>
     v.pipe(
       stringToIntegerSchema('app:personal-information.errors.language-of-correspondence-required'),
       v.picklist(
