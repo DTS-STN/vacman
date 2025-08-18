@@ -87,16 +87,15 @@ const mockUserService = {
 vi.mocked(getUserService).mockReturnValue(mockUserService);
 
 const mockProfileService = {
-  getProfile: vi.fn(),
-  getProfileById: vi.fn(),
-  findProfileById: vi.fn(),
-  registerProfile: vi.fn(),
-  updateProfileById: vi.fn(),
-  updateProfileStatus: vi.fn(),
-  findAllProfiles: vi.fn(),
-  listAllProfiles: vi.fn(),
-  getCurrentUserProfiles: vi.fn(),
   getProfiles: vi.fn(),
+  getCurrentUserProfiles: vi.fn(),
+  findCurrentUserProfile: vi.fn(),
+  registerProfile: vi.fn(),
+  getProfileById: vi.fn(),
+  updateProfileById: vi.fn(),
+  getProfile: vi.fn(),
+  findProfileById: vi.fn(),
+  updateProfileStatus: vi.fn(),
 };
 
 vi.mocked(getProfileService).mockReturnValue(mockProfileService);

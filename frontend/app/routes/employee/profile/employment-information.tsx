@@ -111,7 +111,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 
   const workUnitResult =
     profileData.substantiveWorkUnit !== undefined
-      ? await getDirectorateService().findLocalizedById(profileData.substantiveWorkUnit?.id, lang)
+      ? await getDirectorateService().findLocalizedById(profileData.substantiveWorkUnit.id, lang)
       : undefined;
   const workUnit = workUnitResult?.into();
 
