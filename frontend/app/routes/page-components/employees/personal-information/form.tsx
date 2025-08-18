@@ -75,10 +75,10 @@ export function PersonalInformationForm({
             />
             <InputRadios
               id="language-of-correspondence"
-              name="languageOfCorrespondence"
+              name="languageOfCorrespondenceId"
               legend={t('personal-information.language-of-correspondence')}
               options={languageOptions}
-              errorMessage={t(extractValidationKey(formErrors?.languageOfCorrespondence))}
+              errorMessage={t(extractValidationKey(formErrors?.languageOfCorrespondenceId))}
               required
             />
             <InputField
