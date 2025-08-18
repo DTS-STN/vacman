@@ -4,6 +4,7 @@ import { vi, describe, it, expect, beforeEach } from 'vitest';
 import type { Profile } from '~/.server/domain/models';
 import { apiClient } from '~/.server/domain/services/api-client';
 import { getDefaultProfileService } from '~/.server/domain/services/profile-service-default';
+import { PREFERRED_LANGUAGE_FRENCH } from '~/domain/constants';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
@@ -31,27 +32,35 @@ describe('getDefaultProfileService', () => {
 
   const mockProfile: Profile = {
     profileId: 1,
-    userId: 123,
     userIdReviewedBy: 456,
     userIdApprovedBy: 789,
-    priorityLevelId: 1,
     profileStatus: {
       id: 1,
       code: 'PENDING',
       nameEn: 'Pending approval',
       nameFr: "En attente d'approbation",
     },
-    privacyConsentInd: true,
+    hasConsentedToPrivacyTerms: true,
     userCreated: 'test-user',
     dateCreated: '2024-01-01T00:00:00Z',
     userUpdated: 'test-user',
     dateUpdated: '2024-01-01T00:00:00Z',
-    personalInformation: {
+    languageReferralTypeIds: [864190000],
+    classificationIds: [905190000, 905190001],
+    workLocationProvince: 1,
+    workLocationCitiesIds: [411290001, 411290002],
+    isAvailableForReferral: true,
+    isInterestedInAlternation: false,
+    employmentOpportunityIds: [664190000, 664190001, 664190003],
+    profileUser: {
+      id: 123,
+      businessEmailAddress: 'firstname.lastname@email.ca',
+      businessPhoneNumber: undefined,
       personalRecordIdentifier: '123456789',
-      preferredLanguageId: undefined,
-      workEmail: 'firstname.lastname@email.ca',
+    },
+    personalInformation: {
+      preferredLanguage: undefined,
       personalEmail: 'john.doe@example.com',
-      workPhone: undefined,
       personalPhone: '555-0123',
       additionalInformation: 'Looking for opportunities in software development.',
     },
@@ -60,47 +69,46 @@ describe('getDefaultProfileService', () => {
       branchOrServiceCanadaRegion: undefined,
       directorate: undefined,
       province: undefined,
-      cityId: undefined,
+      city: undefined,
       wfaStatus: undefined,
       wfaEffectiveDate: undefined,
       wfaEndDate: undefined,
       hrAdvisor: undefined,
-    },
-    referralPreferences: {
-      languageReferralTypeIds: [864190000],
-      classificationIds: [905190000, 905190001],
-      workLocationProvince: 1,
-      workLocationCitiesIds: [411290001, 411290002],
-      availableForReferralInd: true,
-      interestedInAlternationInd: false,
-      employmentTenureIds: [664190000, 664190001, 664190003],
     },
   };
 
   // A valid profile that we expect to be returned after sanitization
   const mockCleanProfile: Profile = {
     profileId: 1,
-    userId: 123,
     userIdReviewedBy: 456,
     userIdApprovedBy: 789,
-    priorityLevelId: 1,
     profileStatus: {
       id: 1,
       code: 'PENDING',
       nameEn: 'Pending approval',
       nameFr: "En attente d'approbation",
     },
-    privacyConsentInd: true,
+    hasConsentedToPrivacyTerms: true,
     userCreated: 'test-user',
     dateCreated: '2024-01-01T00:00:00Z',
     userUpdated: 'test-user',
     dateUpdated: '2024-01-01T00:00:00Z',
-    personalInformation: {
+    languageReferralTypeIds: [864190000],
+    classificationIds: [905190000, 905190001],
+    workLocationProvince: 1,
+    workLocationCitiesIds: [411290001, 411290002],
+    isAvailableForReferral: true,
+    isInterestedInAlternation: false,
+    employmentOpportunityIds: [664190000, 664190001, 664190003],
+    profileUser: {
+      id: 123,
+      businessEmailAddress: 'firstname.lastname@email.ca',
+      businessPhoneNumber: undefined,
       personalRecordIdentifier: '444555666',
-      preferredLanguageId: 2,
-      workEmail: 'firstname.lastname@example.ca',
+    },
+    personalInformation: {
+      preferredLanguage: PREFERRED_LANGUAGE_FRENCH,
       personalEmail: 'john.doe@example.com',
-      workPhone: undefined,
       personalPhone: '555-0123',
       additionalInformation: 'Looking for opportunities in software development.',
     },
@@ -108,21 +116,12 @@ describe('getDefaultProfileService', () => {
       substantivePosition: 914190001,
       branchOrServiceCanadaRegion: 100789008,
       directorate: 294550040,
-      province: 1,
-      cityId: 411290002,
-      wfaStatus: 1,
+      province: undefined,
+      city: undefined,
+      wfaStatus: undefined,
       wfaEffectiveDate: undefined,
       wfaEndDate: undefined,
       hrAdvisor: 5,
-    },
-    referralPreferences: {
-      languageReferralTypeIds: [864190000],
-      classificationIds: [905190000, 905190001],
-      workLocationProvince: 1,
-      workLocationCitiesIds: [411290001, 411290002],
-      availableForReferralInd: true,
-      interestedInAlternationInd: false,
-      employmentTenureIds: [664190000, 664190001, 664190003],
     },
   };
 
@@ -143,13 +142,13 @@ describe('getDefaultProfileService', () => {
     it('should fetch, sanitize, and return profiles on success', async () => {
       // Arrange:
       vi.mocked(apiClient.get).mockResolvedValue(Ok(mockDirtyApiResponse));
-      const params = { accessToken: mockAccessToken, includeUserData: true };
+      const params = { accessToken: mockAccessToken };
 
       // Act
-      const result = await profileService.listAllProfiles(params);
+      const result = await profileService.listAllProfiles('mock-token', params);
 
       // Assert
-      expect(apiClient.get).toHaveBeenCalledWith('/profiles?user-data=true', 'list filtered profiles', mockAccessToken);
+      expect(apiClient.get).toHaveBeenCalledWith('/profiles', 'list filtered profiles', mockAccessToken);
       expect(apiClient.get).toHaveBeenCalledTimes(1);
 
       // Verify the final output is sanitized
@@ -161,10 +160,10 @@ describe('getDefaultProfileService', () => {
       // Arrange:
       const mockApiError = new AppError('API is down', ErrorCodes.VACMAN_API_ERROR);
       vi.mocked(apiClient.get).mockResolvedValue(Err(mockApiError));
-      const params = { accessToken: mockAccessToken, includeUserData: true };
+      const params = { accessToken: mockAccessToken };
 
       // Act & Assert
-      await expect(profileService.listAllProfiles(params)).rejects.toSatisfy((error: AppError) => {
+      await expect(profileService.listAllProfiles('mock-token', params)).rejects.toSatisfy((error: AppError) => {
         expect(error.errorCode).toBe(ErrorCodes.PROFILE_FETCH_FAILED);
         expect(error.message).toContain(mockApiError.message);
         return true;
@@ -176,10 +175,10 @@ describe('getDefaultProfileService', () => {
     it('should return Some(sanitizedProfiles) on success', async () => {
       // Arrange
       vi.mocked(apiClient.get).mockResolvedValue(Ok(mockDirtyApiResponse));
-      const params = { accessToken: mockAccessToken, includeUserData: true };
+      const params = { accessToken: mockAccessToken };
 
       // Act
-      const result = await profileService.findAllProfiles(params);
+      const result = await profileService.findAllProfiles('mock-token', params);
 
       // Assert
       expect(apiClient.get).toHaveBeenCalledTimes(1);
@@ -191,10 +190,10 @@ describe('getDefaultProfileService', () => {
       // Arrange
       const mockApiError = new AppError('API is down', ErrorCodes.VACMAN_API_ERROR);
       vi.mocked(apiClient.get).mockResolvedValue(Err(mockApiError));
-      const params = { accessToken: mockAccessToken, includeUserData: true };
+      const params = { accessToken: mockAccessToken };
 
       // Act
-      const result = await profileService.findAllProfiles(params);
+      const result = await profileService.findAllProfiles('mock-token', params);
 
       // Assert
       expect(result.isNone()).toBe(true);

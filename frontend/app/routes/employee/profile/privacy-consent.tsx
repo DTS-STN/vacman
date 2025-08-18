@@ -41,7 +41,7 @@ export async function action({ context, request }: Route.ActionArgs) {
 
   const updatePrivacyConsent: Profile = {
     ...profile,
-    privacyConsentInd: true,
+    hasConsentedToPrivacyTerms: true,
   };
 
   await profileService.updateProfileById(context.session.authState.accessToken, updatePrivacyConsent);

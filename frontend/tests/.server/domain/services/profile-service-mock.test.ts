@@ -21,13 +21,13 @@ describe('getMockProfileService', () => {
       const createdProfile = result.unwrap();
 
       expect(createdProfile.profileId).toBeDefined();
-      expect(createdProfile.userId).toBeDefined();
+      expect(createdProfile.profileUser.id).toBeDefined();
       expect(createdProfile.userCreated).toBe(activeDirectoryId);
       expect(createdProfile.dateCreated).toBeDefined();
       expect(createdProfile.profileStatus.id).toBe(2);
-      expect(createdProfile.privacyConsentInd).toBe(false);
-      expect(createdProfile.referralPreferences.availableForReferralInd).toBe(true);
-      expect(createdProfile.referralPreferences.interestedInAlternationInd).toBe(false);
+      expect(createdProfile.hasConsentedToPrivacyTerms).toBe(false);
+      expect(createdProfile.isAvailableForReferral).toBe(true);
+      expect(createdProfile.isInterestedInAlternation).toBe(false);
 
       // Verify the profile was actually added to the mock data
       const retrievedProfile = await service.getProfileById('mock-token', createdProfile.profileId);
@@ -44,7 +44,7 @@ describe('getMockProfileService', () => {
       const createdProfile = result.unwrap();
 
       expect(createdProfile.profileId).toBeDefined();
-      expect(createdProfile.userId).toBe(2); // Should map to existing user ID from mock data
+      expect(createdProfile.profileUser.id).toBe(2); // Should map to existing user ID from mock data
       expect(createdProfile.userCreated).toBe(activeDirectoryId);
     });
 

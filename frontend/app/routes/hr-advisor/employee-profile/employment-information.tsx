@@ -7,7 +7,6 @@ import * as v from 'valibot';
 import type { Route } from '../employee-profile/+types/employment-information';
 
 import type { Profile } from '~/.server/domain/models';
-import { getBranchService } from '~/.server/domain/services/branch-service';
 import { getCityService } from '~/.server/domain/services/city-service';
 import { getClassificationService } from '~/.server/domain/services/classification-service';
 import { getDirectorateService } from '~/.server/domain/services/directorate-service';
@@ -16,6 +15,7 @@ import { getProvinceService } from '~/.server/domain/services/province-service';
 import { getUserService } from '~/.server/domain/services/user-service';
 import { getWFAStatuses } from '~/.server/domain/services/wfa-status-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
+import { extractUniqueBranchesFromDirectorates } from '~/.server/utils/directorate-utils';
 import { omitObjectProperties } from '~/.server/utils/profile-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { InlineLink } from '~/components/links';
@@ -89,8 +89,9 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
   const substantivePositions = await getClassificationService().listAllLocalized(lang);
-  const branchOrServiceCanadaRegions = await getBranchService().listAllLocalized(lang);
   const directorates = await getDirectorateService().listAllLocalized(lang);
+  // Extract unique branches from directorates that have parents
+  const branchOrServiceCanadaRegions = extractUniqueBranchesFromDirectorates(directorates);
   const provinces = await getProvinceService().listAllLocalized(lang);
   const cities = await getCityService().listAllLocalized(lang);
   const wfaStatuses = await getWFAStatuses().listAllLocalized(lang);
@@ -104,13 +105,10 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const profileData: Profile = profileResult.unwrap();
 
   const workUnitResult =
-    profileData.employmentInformation.directorate !== undefined &&
-    (await getDirectorateService().findLocalizedById(profileData.employmentInformation.directorate, lang));
-  const workUnit = workUnitResult && workUnitResult.isSome() ? workUnitResult.unwrap() : undefined;
-  const cityResult =
-    profileData.employmentInformation.cityId !== undefined &&
-    (await getCityService().findLocalizedById(profileData.employmentInformation.cityId, lang));
-  const city = cityResult && cityResult.isSome() ? cityResult.unwrap() : undefined;
+    profileData.employmentInformation.directorate !== undefined
+      ? await getDirectorateService().findLocalizedById(profileData.employmentInformation.directorate, lang)
+      : undefined;
+  const workUnit = workUnitResult?.into();
 
   return {
     documentTitle: t('app:employment-information.page-title'),
@@ -118,8 +116,8 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       substantivePosition: profileData.employmentInformation.substantivePosition,
       branchOrServiceCanadaRegion: workUnit?.parent?.id ?? profileData.employmentInformation.branchOrServiceCanadaRegion,
       directorate: workUnit?.id,
-      province: city?.provinceTerritory.id,
-      cityId: profileData.employmentInformation.cityId,
+      province: profileData.employmentInformation.province,
+      cityId: profileData.employmentInformation.city,
       wfaStatus: profileData.employmentInformation.wfaStatus,
       wfaEffectiveDate: profileData.employmentInformation.wfaEffectiveDate,
       wfaEndDate: profileData.employmentInformation.wfaEndDate,

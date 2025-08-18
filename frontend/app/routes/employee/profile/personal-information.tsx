@@ -56,17 +56,42 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   const profileService = getProfileService();
   const currentProfileOption = await profileService.getCurrentUserProfile(context.session.authState.accessToken);
   const currentProfile = currentProfileOption.unwrap();
+
+  // Get current user for complete user update
+  const userService = getUserService();
+  const currentUserOption = await userService.getCurrentUser(context.session.authState.accessToken);
+  const currentUser = currentUserOption.into();
+
+  // Extract workPhone for user update, remove it from profile data
+  const { workPhone, ...personalInformationForProfile } = parseResult.output;
+
+  // Update the profile (without workPhone)
   const updateResult = await profileService.updateProfileById(context.session.authState.accessToken, {
     ...currentProfile,
-    personalInformation: parseResult.output,
+    personalInformation: personalInformationForProfile,
   });
 
   if (updateResult.isErr()) {
     throw updateResult.unwrapErr();
   }
 
+  if (currentUser) {
+    const userUpdateResult = await userService.updateUser(
+      {
+        ...currentUser,
+        languageId: parseResult.output.preferredLanguageId,
+        businessPhone: workPhone,
+      },
+      context.session.authState.accessToken,
+    );
+
+    if (userUpdateResult.isErr()) {
+      throw userUpdateResult.unwrapErr();
+    }
+  }
+
   return i18nRedirect('routes/employee/profile/index.tsx', request, {
-    params: { id: currentProfile.userId.toString() },
+    params: { id: currentProfile.profileUser.id.toString() },
   });
 }
 
@@ -76,7 +101,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 
   const accessToken = context.session.authState.accessToken;
   const currentUserOption = await getUserService().getCurrentUser(accessToken);
-  const currentUser = currentUserOption.isSome() ? currentUserOption.unwrap() : undefined;
+  const currentUser = currentUserOption.unwrap();
   const profileResult = await getProfileService().getCurrentUserProfile(accessToken);
 
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
@@ -86,13 +111,13 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   return {
     documentTitle: t('app:personal-information.page-title'),
     defaultValues: {
-      surname: profileData.personalInformation.surname,
-      givenName: profileData.personalInformation.givenName,
-      personalRecordIdentifier: profileData.personalInformation.personalRecordIdentifier,
-      preferredLanguageId: profileData.personalInformation.preferredLanguageId,
-      workEmail: currentUser?.businessEmail ?? profileData.personalInformation.workPhone,
+      surname: profileData.profileUser.lastName,
+      givenName: profileData.profileUser.firstName,
+      personalRecordIdentifier: profileData.profileUser.personalRecordIdentifier,
+      preferredLanguage: profileData.personalInformation.preferredLanguage,
+      workEmail: currentUser.businessEmail ?? profileData.profileUser.businessEmailAddress,
       personalEmail: profileData.personalInformation.personalEmail,
-      workPhone: toE164(profileData.personalInformation.workPhone),
+      workPhone: toE164(currentUser.businessPhone),
       personalPhone: toE164(profileData.personalInformation.personalPhone),
       additionalInformation: profileData.personalInformation.additionalInformation,
     },

@@ -5,7 +5,7 @@ import { Form } from 'react-router';
 
 import { Trans, useTranslation } from 'react-i18next';
 
-import type { LocalizedLanguageOfCorrespondence, UserPersonalInformation } from '~/.server/domain/models';
+import type { LanguageOfCorrespondence, LocalizedLanguageOfCorrespondence } from '~/.server/domain/models';
 import { Button } from '~/components/button';
 import { ButtonLink } from '~/components/button-link';
 import { FormErrorSummary } from '~/components/error-summary';
@@ -16,6 +16,18 @@ import { InputTextarea } from '~/components/input-textarea';
 import type { I18nRouteFile } from '~/i18n-routes';
 import type { Errors } from '~/routes/page-components/employees/validation.server';
 import { extractValidationKey } from '~/utils/validation-utils';
+
+export type UserPersonalInformation = {
+  surname?: string;
+  givenName?: string;
+  personalRecordIdentifier?: string;
+  preferredLanguage?: LanguageOfCorrespondence;
+  workEmail: string;
+  personalEmail?: string;
+  workPhone?: string;
+  personalPhone?: string;
+  additionalInformation?: string;
+};
 
 interface PersonalInformationFormProps {
   cancelLink: I18nRouteFile;
@@ -39,7 +51,7 @@ export function PersonalInformationForm({
   const languageOptions = languagesOfCorrespondence.map(({ id, name }) => ({
     value: String(id),
     children: name,
-    defaultChecked: id === formValues?.preferredLanguageId,
+    defaultChecked: id === formValues?.preferredLanguage?.id,
   }));
 
   return (

@@ -32,7 +32,7 @@ async function checkPrivacyConsentForUser(accessToken: string, userId: number, c
     throw i18nRedirect('routes/index.tsx', currentUrl);
   }
 
-  if (!profileOption.unwrap().privacyConsentInd) {
+  if (!profileOption.unwrap().hasConsentedToPrivacyTerms) {
     log.debug(`Privacy consent required for user ${userId}`);
     throw i18nRedirect('routes/employee/profile/privacy-consent.tsx', currentUrl);
   }
@@ -93,7 +93,7 @@ export async function requirePrivacyConsentForOwnProfile(
   }
 
   // Only check privacy consent if the user is accessing their own profile
-  if (currentUser.id !== profileOpion.unwrap().userId) {
+  if (currentUser.id !== profileOpion.unwrap().profileUser.id) {
     return;
   }
 

@@ -8,6 +8,7 @@ import static ca.gov.dtsstn.vacman.api.web.exception.UnauthorizedException.asEnt
 import java.util.Collection;
 import java.util.Set;
 
+import ca.gov.dtsstn.vacman.api.web.model.ProfilePutModel;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.validator.constraints.Range;
 import org.mapstruct.factory.Mappers;
@@ -89,11 +90,7 @@ public class ProfilesController {
 
 			@RequestParam(name = "hr-advisor", required = false)
 			@Parameter(name = "hr-advisor", description = "Return only the profiles that are associated with the HR advisor")
-			String hrAdvisor,
-
-			@RequestParam(name = "user-data", defaultValue = "false")
-			@Parameter(name = "user-data", description = "Return user first name, last name, and email address with profile")
-			boolean wantUserData) {
+			String hrAdvisor) {
 		// Determine the advisor ID based on the advisor param (or lack thereof).
 		Long hrAdvisorId;
 
@@ -114,7 +111,7 @@ public class ProfilesController {
 
 		// Determine the mapping function to use.
 		final var profiles = profileService.getProfilesByStatusAndHrId(PageRequest.of(page, size), isActive, hrAdvisorId)
-			.map((wantUserData) ? profileModelMapper::toModel : profileModelMapper::toModelNoUserData);
+			.map(profileModelMapper::toModel);
 
 		return ResponseEntity.ok(new PagedModel<>(profiles));
 	}
@@ -131,7 +128,7 @@ public class ProfilesController {
 			.orElseThrow(asEntraIdUnauthorizedException());
 
 		final var profiles = profileService.getProfilesByEntraId(entraId, isActive).stream()
-			.map(profileModelMapper::toModelNoUserData)
+			.map(profileModelMapper::toModel)
 			.toList();
 
 		return ResponseEntity.ok(new CollectionModel<>(profiles));
@@ -183,7 +180,7 @@ public class ProfilesController {
 	@PreAuthorize("hasAuthority('hr-advisor')")
 	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
 	@Operation(summary = "Update an existing profile specified by ID.")
-	public ResponseEntity<ProfileReadModel> updateProfileById(@PathVariable(name = "id") Long profileId, @Valid @RequestBody ProfileReadModel updatedProfile) {
+	public ResponseEntity<ProfileReadModel> updateProfileById(@PathVariable(name = "id") Long profileId, @Valid @RequestBody ProfilePutModel updatedProfile) {
 		log.info("Received request to get profile; ID: [{}]", profileId);
 
 		final var foundProfile = profileService.getProfile(profileId)
@@ -193,7 +190,7 @@ public class ProfilesController {
 
 		final var updatedEntity = profileService.updateProfile(updatedProfile, foundProfile);
 
-		return ResponseEntity.ok(profileModelMapper.toModelNoUserData(updatedEntity));
+		return ResponseEntity.ok(profileModelMapper.toModel(updatedEntity));
 	}
 
 	@PutMapping(path = "/{id}/status")

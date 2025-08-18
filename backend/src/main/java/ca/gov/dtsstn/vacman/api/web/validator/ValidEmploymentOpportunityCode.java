@@ -11,7 +11,7 @@ import jakarta.validation.Payload;
 
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.FIELD, ElementType.PARAMETER})
+@Target({ ElementType.FIELD, ElementType.PARAMETER, ElementType.TYPE_USE })
 @Constraint(validatedBy = EmploymentOpportunityCodeValidator.class)
 public @interface ValidEmploymentOpportunityCode {
 

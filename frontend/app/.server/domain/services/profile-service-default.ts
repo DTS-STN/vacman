@@ -4,7 +4,7 @@ import type { Option, Result } from 'oxide.ts';
 import { apiClient } from './api-client';
 import { getProfileStatusService } from './profile-status-service';
 
-import type { Profile, ProfileStatus } from '~/.server/domain/models';
+import type { Profile, ProfileStatus, SaveProfile } from '~/.server/domain/models';
 import type { ListProfilesParams, ProfileApiResponse, ProfileService } from '~/.server/domain/services/profile-service';
 import type { ProfileStatusCode } from '~/domain/constants';
 import { AppError } from '~/errors/app-error';
@@ -17,10 +17,10 @@ import queryClient from '~/query-client';
  * @private
  */
 async function getAllProfiles(params: ListProfilesParams): Promise<Result<readonly (Profile | null | undefined)[], AppError>> {
-  const { accessToken, active, hrAdvisorId, includeUserData } = params;
+  const { accessToken, active, hrAdvisorId } = params;
   // The query key MUST be unique for every combination of parameters
   // to prevent cache collisions. An object ensures the key is stable.
-  const queryKey = ['profiles', 'list', { active, hrAdvisorId, includeUserData, accessToken }];
+  const queryKey = ['profiles', 'list', { active, hrAdvisorId, accessToken }];
 
   const queryFn = async (): Promise<readonly (Profile | null | undefined)[]> => {
     const searchParams = new URLSearchParams();
@@ -32,8 +32,6 @@ async function getAllProfiles(params: ListProfilesParams): Promise<Result<readon
     if (hrAdvisorId) {
       searchParams.append('hr-advisor', hrAdvisorId);
     }
-
-    searchParams.append('user-data', String(includeUserData));
 
     const queryString = searchParams.toString();
     const endpoint = `/profiles${queryString ? `?${queryString}` : ''}`;
@@ -131,10 +129,10 @@ export function getDefaultProfileService(): ProfileService {
      * The request sends the full Profile object in the body (PUT)
      * and expects the updated Profile in the response.
      */
-    async updateProfileById(accessToken: string, profile: Profile): Promise<Result<Profile, AppError>> {
+    async updateProfileById(accessToken: string, profile: SaveProfile): Promise<Result<Profile, AppError>> {
       const path = `/profiles/${profile.profileId}`;
 
-      const result = await apiClient.put<Profile, Profile>(path, 'update profile', profile, accessToken);
+      const result = await apiClient.put<SaveProfile, Profile>(path, 'update profile', profile, accessToken);
 
       if (result.isErr()) {
         const originalError = result.unwrapErr();
@@ -187,7 +185,7 @@ export function getDefaultProfileService(): ProfileService {
     /**
      * Finds all profiles based on filters. Returns an Option.
      */
-    async findAllProfiles(params: ListProfilesParams): Promise<Option<readonly Profile[]>> {
+    async findAllProfiles(accessToken: string, params: ListProfilesParams): Promise<Option<readonly Profile[]>> {
       const result = await getAllProfiles(params);
 
       return result
@@ -202,7 +200,7 @@ export function getDefaultProfileService(): ProfileService {
     /**
      * Retrieves a sanitized list of profiles based on filters. Throws on error.
      */
-    async listAllProfiles(params: ListProfilesParams): Promise<readonly Profile[]> {
+    async listAllProfiles(accessToken: string, params: ListProfilesParams): Promise<readonly Profile[]> {
       const result = await getAllProfiles(params);
 
       if (result.isErr()) {
@@ -232,7 +230,11 @@ export function getDefaultProfileService(): ProfileService {
      * @returns A Promise resolving to Some(Profile) if found, or None if not found.
      */
     async getCurrentUserProfile(accessToken: string): Promise<Option<Profile>> {
-      const result = await apiClient.get<Profile>('/profiles/me?active=true', 'fetch current user profile', accessToken);
+      const result = await apiClient.get<ProfileApiResponse>(
+        '/profiles/me?active=true',
+        'fetch current user profile',
+        accessToken,
+      );
 
       if (result.isErr()) {
         const err = result.unwrapErr();
@@ -244,7 +246,18 @@ export function getDefaultProfileService(): ProfileService {
         throw err;
       }
 
-      const profile = result.unwrap();
+      const response = result.unwrap();
+
+      // The API returns { content: [profile] }, extract the first profile
+      if (response.content.length === 0) {
+        return None;
+      }
+
+      const profile = response.content[0];
+      if (!profile) {
+        return None;
+      }
+
       return Some(profile);
     },
   };

@@ -61,9 +61,12 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     );
   }
 
+  // Extract workPhone for user update, remove it from profile data
+  const { workPhone, ...personalInformationForProfile } = parseResult.output;
+
   const updateProfileResult = await profileService.updateProfileById(context.session.authState.accessToken, {
     ...profile,
-    personalInformation: parseResult.output,
+    personalInformation: personalInformationForProfile,
   });
 
   if (updateProfileResult.isErr()) {
@@ -71,7 +74,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   }
 
   const userService = getUserService();
-  const userResult = await userService.getUserById(profile.userId, context.session.authState.accessToken);
+  const userResult = await userService.getUserById(profile.profileUser.id, context.session.authState.accessToken);
 
   if (userResult.isErr()) {
     throw new Response('User not found', { status: 404 });
@@ -80,8 +83,12 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   const user = userResult.unwrap();
 
   const userUpdateResult = await userService.updateUser(
-    // only the preferredLanguage is able to be edited, everything else is readonly
-    { id: user.id, languageId: parseResult.output.preferredLanguageId },
+    // Send complete user object with updates
+    {
+      ...user,
+      languageId: parseResult.output.preferredLanguageId,
+      businessPhone: workPhone,
+    },
     context.session.authState.accessToken,
   );
 
@@ -99,7 +106,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 
   const accessToken = context.session.authState.accessToken;
   const currentUserOption = await getUserService().getCurrentUser(accessToken);
-  const currentUser = currentUserOption.isSome() ? currentUserOption.unwrap() : undefined;
+  const currentUser = currentUserOption.unwrap();
   const profileResult = await getProfileService().getProfileById(accessToken, Number(params.profileId));
 
   if (profileResult.isErr()) {
@@ -113,13 +120,13 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   return {
     documentTitle: t('app:personal-information.page-title'),
     defaultValues: {
-      surname: profileData.personalInformation.surname,
-      givenName: profileData.personalInformation.givenName,
-      personalRecordIdentifier: profileData.personalInformation.personalRecordIdentifier,
-      preferredLanguageId: profileData.personalInformation.preferredLanguageId,
-      workEmail: currentUser?.businessEmail ?? profileData.personalInformation.workPhone,
+      surname: profileData.profileUser.firstName,
+      givenName: profileData.profileUser.lastName,
+      personalRecordIdentifier: profileData.profileUser.personalRecordIdentifier,
+      preferredLanguageId: profileData.personalInformation.preferredLanguage,
+      workEmail: currentUser.businessEmail ?? profileData.profileUser.businessEmailAddress,
       personalEmail: profileData.personalInformation.personalEmail,
-      workPhone: toE164(profileData.personalInformation.workPhone),
+      workPhone: toE164(currentUser.businessPhone ?? profileData.profileUser.businessPhoneNumber),
       personalPhone: toE164(profileData.personalInformation.personalPhone),
       additionalInformation: profileData.personalInformation.additionalInformation,
     },

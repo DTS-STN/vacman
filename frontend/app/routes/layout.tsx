@@ -6,8 +6,7 @@ import { useTranslation } from 'react-i18next';
 import type { Route } from './+types/layout';
 
 import { requireAuthentication } from '~/.server/utils/auth-utils';
-import { checkHiringManagerRouteRegistration } from '~/.server/utils/hiring-manager-registration-utils';
-import { checkHrAdvisorRouteRegistration } from '~/.server/utils/hr-advisor-registration-utils';
+import { checkHiringManagerRouteRegistration, checkHrAdvisorRouteRegistration } from '~/.server/utils/registration-utils';
 import { AppBar } from '~/components/app-bar';
 import { LanguageSwitcher } from '~/components/language-switcher';
 import { AppLink } from '~/components/links';
@@ -22,16 +21,14 @@ export const handle = {
 } as const satisfies RouteHandle;
 
 export async function loader({ context, request }: Route.LoaderArgs) {
-  const currentUrl = new URL(request.url);
-
   // First ensure the user is authenticated (no specific roles required)
-  requireAuthentication(context.session, currentUrl);
+  requireAuthentication(context.session, request);
 
   // Check hiring manager registration for hiring manager routes
-  await checkHiringManagerRouteRegistration(context.session, currentUrl);
+  await checkHiringManagerRouteRegistration(context.session, request);
 
   // Check hr-advisor registration for hr-advisor routes
-  await checkHrAdvisorRouteRegistration(context.session, currentUrl);
+  await checkHrAdvisorRouteRegistration(context.session, request);
 
   return { name: context.session.authState.idTokenClaims.name };
 }

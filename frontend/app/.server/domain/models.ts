@@ -71,9 +71,6 @@ export type LocalizedLanguageOfCorrespondence = LocalizedLookupModel;
 export type ProfileStatus = LookupModel;
 export type LocalizedProfileStatus = LocalizedLookupModel;
 
-export type PriorityLevel = LookupModel;
-export type LocalizedPriorityLevel = LocalizedLookupModel;
-
 export type RequestStatus = LookupModel;
 export type LocalizedRequestStatus = LocalizedLookupModel;
 
@@ -91,6 +88,12 @@ export type LocalizedWorkSchedule = LocalizedLookupModel;
 
 export type EmploymentEquity = LookupModel;
 export type LocalizedEmploymentEquity = LocalizedLookupModel;
+
+export type MatchFeedback = LookupModel;
+export type LocalizedMatchFeedback = LocalizedLookupModel;
+
+export type MatchStatus = LookupModel;
+export type LocalizedMatchStatus = LocalizedLookupModel;
 
 export type User = Readonly<{
   id: number;
@@ -130,29 +133,47 @@ export type UserUpdate = Readonly<{
 
 export type Profile = Readonly<{
   profileId: number;
-  userId: number;
   userIdReviewedBy?: number;
   userIdApprovedBy?: number;
-  priorityLevelId?: number;
   profileStatus: ProfileStatus;
-  privacyConsentInd?: boolean;
+  hasConsentedToPrivacyTerms?: boolean;
   userCreated: string;
   dateCreated: string;
   userUpdated?: string;
   dateUpdated?: string;
   personalInformation: UserPersonalInformation;
   employmentInformation: UserEmploymentInformation;
-  referralPreferences: UserReferralPreferences;
+  languageReferralTypeIds?: number[]; //TODO: change to preferredLanguages?: LanguageReferralType[]
+  classificationIds?: number[]; //TODO: change to preferredClassifications?: Classification[]
+  workLocationProvince?: number; //TODO: remove
+  workLocationCitiesIds?: number[]; //TODO: change to preferredCityIds?: City[]
+  isAvailableForReferral?: boolean;
+  isInterestedInAlternation?: boolean;
+  employmentOpportunityIds?: number[]; //TODO: change to preferredEmploymentOpportunityIds?: EmploymentOpportunityType[]
+  profileUser: ProfileUser;
+}>;
+
+export type ProfileUser = Readonly<{
+  businessEmailAddress: string;
+  businessPhoneNumber?: string;
+  firstName?: string;
+  id: number;
+  initial?: string;
+  language?: LanguageOfCorrespondence;
+  lastName?: string;
+  middleName?: string;
+  personalRecordIdentifier?: string;
+  userType?: UserType;
 }>;
 
 export type UserPersonalInformation = {
-  surname?: string;
-  givenName?: string;
-  personalRecordIdentifier?: string;
-  preferredLanguageId?: number;
-  workEmail: string;
+  //surname?: string; //TODO: for ADO task #6703 either uncomment it, or remove whole UserPersonalInformation
+  //givenName?: string; //TODO: for ADO task #6703 either uncomment it, or remove whole UserPersonalInformation
+  //personalRecordIdentifier?: string;
+  preferredLanguage?: LanguageOfCorrespondence;
+  //workEmail: string; //TODO: for ADO task #6703 either uncomment it, or remove whole UserPersonalInformation
   personalEmail?: string;
-  workPhone?: string;
+  //workPhone?: string;  //TODO: for ADO task #6703 either uncomment it, or remove whole UserPersonalInformation
   personalPhone?: string;
   additionalInformation?: string;
 };
@@ -160,9 +181,9 @@ export type UserEmploymentInformation = {
   substantivePosition?: number;
   branchOrServiceCanadaRegion?: number;
   directorate?: number;
-  province?: number;
-  cityId?: number;
-  wfaStatus?: number;
+  province?: Province;
+  city?: City;
+  wfaStatus?: WFAStatus;
   wfaEffectiveDate?: string;
   wfaEndDate?: string;
   hrAdvisor?: number;
@@ -172,7 +193,51 @@ export type UserReferralPreferences = {
   classificationIds?: number[];
   workLocationProvince?: number;
   workLocationCitiesIds?: number[];
-  availableForReferralInd?: boolean;
-  interestedInAlternationInd?: boolean;
-  employmentTenureIds?: number[];
+  isAvailableForReferral?: boolean;
+  isInterestedInAlternation?: boolean;
+  employmentOpportunityIds?: number[];
+};
+
+export type SaveProfile = Readonly<{
+  profileId: number;
+  userIdReviewedBy?: number;
+  userIdApprovedBy?: number;
+  hasConsentedToPrivacyTerms?: boolean;
+  userCreated: string;
+  dateCreated: string;
+  userUpdated?: string;
+  dateUpdated?: string;
+  personalInformation: SaveUserPersonalInformation;
+  employmentInformation: SaveUserEmploymentInformation;
+  languageReferralTypeIds?: number[];
+  classificationIds?: number[];
+  workLocationProvince?: number;
+  workLocationCitiesIds?: number[];
+  isAvailableForReferral?: boolean;
+  isInterestedInAlternation?: boolean;
+  employmentOpportunityIds?: number[];
+}>;
+
+export type SaveUserPersonalInformation = {
+  //surname?: string;
+  //givenName?: string;
+  //personalRecordIdentifier?: string;
+  preferredLanguageId?: number;
+  //  workEmail: string;
+  personalEmail?: string;
+  //workPhone?: string;
+  personalPhone?: string;
+  additionalInformation?: string;
+};
+
+export type SaveUserEmploymentInformation = {
+  substantivePosition?: number;
+  branchOrServiceCanadaRegion?: number;
+  directorate?: number;
+  provinceId?: number;
+  cityId?: number;
+  wfaStatusId?: number;
+  wfaEffectiveDate?: string;
+  wfaEndDate?: string;
+  hrAdvisor?: number;
 };

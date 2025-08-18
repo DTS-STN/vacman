@@ -1,6 +1,6 @@
 import type { Option, Result } from 'oxide.ts';
 
-import type { Profile, ProfileStatus } from '~/.server/domain/models';
+import type { Profile, ProfileStatus, SaveProfile } from '~/.server/domain/models';
 import { getDefaultProfileService } from '~/.server/domain/services/profile-service-default';
 import { getMockProfileService } from '~/.server/domain/services/profile-service-mock';
 import { serverEnvironment } from '~/.server/environment';
@@ -29,13 +29,6 @@ export interface ListProfilesParams {
    * - `null` or `undefined`: Do not filter by advisor.
    */
   hrAdvisorId?: string | null;
-
-  /**
-   * Determines whether to include extended user data (names, email) in the response.
-   * - `true`: Include user data.
-   * - `false`: Do not include user data.
-   */
-  includeUserData: boolean;
 }
 
 // The expected API response structure
@@ -45,14 +38,14 @@ export type ProfileApiResponse = {
 
 export type ProfileService = {
   registerProfile(accessToken: string): Promise<Result<Profile, AppError>>;
-  updateProfileById(accessToken: string, data: Profile): Promise<Result<Profile, AppError>>;
+  updateProfileById(accessToken: string, data: SaveProfile): Promise<Result<Profile, AppError>>;
   updateProfileStatus(
     accessToken: string,
     profileId: string,
     profileStatusCode: ProfileStatusCode,
   ): Promise<Result<ProfileStatus, AppError>>;
-  findAllProfiles(params: ListProfilesParams): Promise<Option<readonly Profile[]>>;
-  listAllProfiles(params: ListProfilesParams): Promise<readonly Profile[]>;
+  findAllProfiles(accessToken: string, params: ListProfilesParams): Promise<Option<readonly Profile[]>>;
+  listAllProfiles(accessToken: string, params: ListProfilesParams): Promise<readonly Profile[]>;
   getCurrentUserProfile(accessToken: string): Promise<Option<Profile>>;
   getProfileById(accessToken: string, profileId: number): Promise<Result<Profile, AppError>>;
   findProfileById(accessToken: string, profileId: number): Promise<Option<Profile>>;

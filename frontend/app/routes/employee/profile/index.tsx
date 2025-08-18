@@ -7,13 +7,12 @@ import { useTranslation } from 'react-i18next';
 
 import type { Route } from '../profile/+types/index';
 
-import type { Profile } from '~/.server/domain/models';
+import type { Profile, UserEmploymentInformation } from '~/.server/domain/models';
 import { getBranchService } from '~/.server/domain/services/branch-service';
 import { getCityService } from '~/.server/domain/services/city-service';
 import { getClassificationService } from '~/.server/domain/services/classification-service';
 import { getDirectorateService } from '~/.server/domain/services/directorate-service';
-import { getEmploymentTenureService } from '~/.server/domain/services/employment-tenure-service';
-import { getLanguageForCorrespondenceService } from '~/.server/domain/services/language-for-correspondence-service';
+import { getEmploymentOpportunityTypeService } from '~/.server/domain/services/employment-opportunity-type-service';
 import { getLanguageReferralTypeService } from '~/.server/domain/services/language-referral-type-service';
 import { getProfileService } from '~/.server/domain/services/profile-service';
 import { getProfileStatusService } from '~/.server/domain/services/profile-status-service';
@@ -21,7 +20,7 @@ import { getUserService } from '~/.server/domain/services/user-service';
 import { getWFAStatuses } from '~/.server/domain/services/wfa-status-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { requirePrivacyConsentForOwnProfile } from '~/.server/utils/privacy-consent-utils';
-import { countCompletedItems, omitObjectProperties } from '~/.server/utils/profile-utils';
+import { countCompletedItems, omitObjectProperties, pickObjectProperties } from '~/.server/utils/profile-utils';
 import { AlertMessage } from '~/components/alert-message';
 import { Button } from '~/components/button';
 import { ButtonLink } from '~/components/button-link';
@@ -54,7 +53,7 @@ export async function action({ context, request }: Route.ActionArgs) {
   const allWfaStatus = await getWFAStatuses().listAll();
 
   const requiredPersonalInformation = omitObjectProperties(profileData.personalInformation, [
-    'workPhone',
+    //    'workPhone', //TODO use pickObjectProperties instead of omitObjectProperties
     'additionalInformation',
   ]);
   const validWFAStatusesForOptionalDate = [EMPLOYEE_WFA_STATUS.affected] as const;
@@ -67,34 +66,52 @@ export async function action({ context, request }: Route.ActionArgs) {
       nameFr: status.nameFr,
     }));
   const isWfaDateOptional = selectedValidWfaStatusesForOptionalDate.some(
-    (status) => status.id === profileData.employmentInformation.wfaStatus,
+    (status) => status.id === profileData.employmentInformation.wfaStatus?.id,
   );
   const requiredEmploymentInformation = isWfaDateOptional
-    ? omitObjectProperties(profileData.employmentInformation, ['wfaEndDate', 'wfaEffectiveDate']) // If status is "Affected", omit the effective date
-    : omitObjectProperties(profileData.employmentInformation, ['wfaEndDate']);
+    ? omitObjectProperties(profileData.employmentInformation, [
+        'wfaEndDate',
+        'wfaEffectiveDate',
+        ...(profileData.employmentInformation.branchOrServiceCanadaRegion && !profileData.employmentInformation.directorate
+          ? ['directorate' as keyof UserEmploymentInformation]
+          : []),
+      ]) // If status is "Affected" or "Affected -EX", omit the effective date
+    : omitObjectProperties(profileData.employmentInformation, [
+        'wfaEndDate',
+        ...(profileData.employmentInformation.branchOrServiceCanadaRegion && !profileData.employmentInformation.directorate
+          ? ['directorate' as keyof UserEmploymentInformation]
+          : []),
+      ]);
+
+  const referralPreferencesFields = pickObjectProperties(profileData, [
+    'languageReferralTypeIds',
+    'classificationIds',
+    'workLocationProvince',
+    'workLocationCitiesIds',
+    'isAvailableForReferral',
+    'isInterestedInAlternation',
+    'employmentOpportunityIds',
+  ]);
 
   // Check if all sections are complete
   const personalInfoComplete =
     countCompletedItems(requiredPersonalInformation) === Object.keys(requiredPersonalInformation).length;
   const employmentInfoComplete =
     countCompletedItems(requiredEmploymentInformation) === Object.keys(requiredEmploymentInformation).length;
-  const referralComplete =
-    countCompletedItems(profileData.referralPreferences) === Object.keys(profileData.referralPreferences).length;
-
+  const referralComplete = countCompletedItems(referralPreferencesFields) === Object.keys(referralPreferencesFields).length;
   // If any section is incomplete, return incomplete state
   if (!personalInfoComplete || !employmentInfoComplete || !referralComplete) {
     return {
       personalInfoComplete,
       employmentInfoComplete,
       referralComplete,
-      profileStatusId: 3, // Incomplete status
     };
   }
 
   // If all complete, submit for review
   const submitResult = await getProfileService().updateProfileStatus(
     context.session.authState.accessToken,
-    profileData.userId.toString(),
+    profileData.profileUser.id.toString(),
     PROFILE_STATUS_CODE.pending,
   );
   if (submitResult.isErr()) {
@@ -130,78 +147,69 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     allLocalizedLanguageReferralTypes,
     allClassifications,
     allLocalizedCities,
-    allLocalizedEmploymentTenures,
+    allLocalizedEmploymentOpportunities,
     allWfaStatus,
   ] = await Promise.all([
-    getUserService().getUserById(profileData.userId, context.session.authState.accessToken),
+    getUserService().getUserById(profileData.profileUser.id, context.session.authState.accessToken),
     getLanguageReferralTypeService().listAllLocalized(lang),
     getClassificationService().listAllLocalized(lang),
     getCityService().listAllLocalized(lang),
-    getEmploymentTenureService().listAllLocalized(lang),
+    getEmploymentOpportunityTypeService().listAllLocalized(lang),
     getWFAStatuses().listAll(),
   ]);
 
   // Extract the user from the result
-  const currentUser = currentUserResult.isOk() ? currentUserResult.unwrap() : undefined;
+  const currentUser = currentUserResult.into();
 
   const profileUpdatedByUserResult = profileData.userUpdated
-    ? await getUserService().getUserById(profileData.userId, context.session.authState.accessToken)
+    ? await getUserService().getUserById(profileData.profileUser.id, context.session.authState.accessToken)
     : undefined;
-  const profileUpdatedByUser = profileUpdatedByUserResult?.isOk() ? profileUpdatedByUserResult.unwrap() : undefined;
+  const profileUpdatedByUser = profileUpdatedByUserResult?.into();
   const profileUpdatedByUserName = profileUpdatedByUser && `${profileUpdatedByUser.firstName} ${profileUpdatedByUser.lastName}`;
   const profileStatus = (await getProfileStatusService().findLocalizedById(profileData.profileStatus.id, lang)).unwrap();
-
-  const preferredLanguageResult =
-    profileData.personalInformation.preferredLanguageId !== undefined &&
-    (await getLanguageForCorrespondenceService().findLocalizedById(profileData.personalInformation.preferredLanguageId, lang));
   const workUnitResult =
-    profileData.employmentInformation.directorate !== undefined &&
-    (await getDirectorateService().findLocalizedById(profileData.employmentInformation.directorate, lang));
+    profileData.employmentInformation.directorate !== undefined
+      ? await getDirectorateService().findLocalizedById(profileData.employmentInformation.directorate, lang)
+      : undefined;
   const branchResult =
     profileData.employmentInformation.branchOrServiceCanadaRegion !== undefined &&
-    !profileData.employmentInformation.directorate && // Only look up branch directly if there's no directorate
-    (await getBranchService().findLocalizedById(profileData.employmentInformation.branchOrServiceCanadaRegion, lang));
+    profileData.employmentInformation.directorate === undefined // Only look up branch directly if there's no directorate
+      ? await getBranchService().findLocalizedById(profileData.employmentInformation.branchOrServiceCanadaRegion, lang)
+      : undefined;
   const substantivePositionResult =
-    profileData.employmentInformation.substantivePosition !== undefined &&
-    (await getClassificationService().findLocalizedById(profileData.employmentInformation.substantivePosition, lang));
+    profileData.employmentInformation.substantivePosition !== undefined
+      ? await getClassificationService().findLocalizedById(profileData.employmentInformation.substantivePosition, lang)
+      : undefined;
   const cityResult =
-    profileData.employmentInformation.cityId !== undefined &&
-    (await getCityService().findLocalizedById(profileData.employmentInformation.cityId, lang));
-  const wfaStatusResult =
-    profileData.employmentInformation.wfaStatus !== undefined &&
-    (await getWFAStatuses().findLocalizedById(profileData.employmentInformation.wfaStatus, lang));
+    profileData.employmentInformation.city !== undefined
+      ? await getCityService().findLocalizedById(profileData.employmentInformation.city.id, lang)
+      : undefined;
 
   // convert the IDs to display names
-  const preferredLanguage =
-    preferredLanguageResult && preferredLanguageResult.isSome() ? preferredLanguageResult.unwrap().name : undefined;
-  const substantivePosition =
-    substantivePositionResult && substantivePositionResult.isSome() ? substantivePositionResult.unwrap().name : undefined;
-  const branchOrServiceCanadaRegion =
-    (workUnitResult && workUnitResult.isSome() ? workUnitResult.unwrap().parent?.name : undefined) ??
-    (branchResult && branchResult.isSome() ? branchResult.unwrap().name : undefined);
-  const directorate = workUnitResult && workUnitResult.isSome() ? workUnitResult.unwrap().name : undefined;
-  const city = cityResult && cityResult.isSome() ? cityResult.unwrap() : undefined;
-  const wfaStatus = wfaStatusResult ? (wfaStatusResult.isSome() ? wfaStatusResult.unwrap() : undefined) : undefined;
+  const substantivePosition = substantivePositionResult?.into()?.name;
+  const branchOrServiceCanadaRegion = workUnitResult?.into()?.parent?.name ?? branchResult?.into()?.name;
+  const directorate = workUnitResult?.into()?.name;
+  const city = cityResult?.into();
   const hrAdvisorResult = profileData.employmentInformation.hrAdvisor
     ? await getUserService().getUserById(profileData.employmentInformation.hrAdvisor, context.session.authState.accessToken)
     : undefined;
-  const hrAdvisor = hrAdvisorResult?.isOk() ? hrAdvisorResult.unwrap() : undefined;
-  const languageReferralTypes = profileData.referralPreferences.languageReferralTypeIds
+  const hrAdvisor = hrAdvisorResult?.into();
+  const languageReferralTypes = profileData.languageReferralTypeIds
     ?.map((langId) => allLocalizedLanguageReferralTypes.find((l) => l.id === langId))
     .filter(Boolean);
-  const classifications = profileData.referralPreferences.classificationIds
+  const classifications = profileData.classificationIds
     ?.map((classificationId) => allClassifications.find((c) => c.id === classificationId))
     .filter(Boolean);
-  const cities = profileData.referralPreferences.workLocationCitiesIds
+  const cities = profileData.workLocationCitiesIds
     ?.map((cityId) => allLocalizedCities.find((c) => c.id === cityId))
     .filter(Boolean);
-  const employmentTenures = profileData.referralPreferences.employmentTenureIds
-    ?.map((employmentTenureId) => allLocalizedEmploymentTenures.find((c) => c.id === employmentTenureId))
+  const employmentOpportunities = profileData.employmentOpportunityIds
+    ?.map((employmentOpportunityId) => allLocalizedEmploymentOpportunities.find((c) => c.id === employmentOpportunityId))
     .filter(Boolean);
 
   // Check each section if the required feilds are complete
   const requiredPersonalInformation = omitObjectProperties(profileData.personalInformation, [
-    'workPhone',
+    //    'workPhone', //TODO use pickObjectProperties instead of omitObjectProperties
     'additionalInformation',
   ]);
   const personalInformationCompleted = countCompletedItems(requiredPersonalInformation);
@@ -216,17 +224,37 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       nameEn: status.nameEn,
       nameFr: status.nameFr,
     }));
+
   const isWfaDateOptional = selectedValidWfaStatusesForOptionalDate.some(
-    (status) => status.id === profileData.employmentInformation.wfaStatus,
+    (status) => status.id === profileData.employmentInformation.wfaStatus?.id,
   );
+
   const requiredEmploymentInformation = isWfaDateOptional
-    ? omitObjectProperties(profileData.employmentInformation, ['wfaEndDate', 'wfaEffectiveDate']) // If status is "Affected" or "Affected -EX", omit the effective date
-    : omitObjectProperties(profileData.employmentInformation, ['wfaEndDate']);
+    ? omitObjectProperties(profileData.employmentInformation, [
+        'wfaEndDate',
+        'wfaEffectiveDate',
+        ...(branchOrServiceCanadaRegion && !directorate ? ['directorate' as keyof UserEmploymentInformation] : []),
+      ]) // If status is "Affected" or "Affected -EX", omit the effective date
+    : omitObjectProperties(profileData.employmentInformation, [
+        'wfaEndDate',
+        ...(branchOrServiceCanadaRegion && !directorate ? ['directorate' as keyof UserEmploymentInformation] : []),
+      ]);
+
   const employmentInformationCompleted = countCompletedItems(requiredEmploymentInformation);
   const employmentInformationTotalFields = Object.keys(requiredEmploymentInformation).length;
 
-  const referralPreferencesCompleted = countCompletedItems(profileData.referralPreferences);
-  const referralPreferencesTotalFields = Object.keys(profileData.referralPreferences).length;
+  const referralPreferencesFields = pickObjectProperties(profileData, [
+    'languageReferralTypeIds',
+    'classificationIds',
+    'workLocationProvince',
+    'workLocationCitiesIds',
+    'isAvailableForReferral',
+    'isInterestedInAlternation',
+    'employmentOpportunityIds',
+  ]);
+
+  const referralPreferencesCompleted = countCompletedItems(referralPreferencesFields);
+  const referralPreferencesTotalFields = Object.keys(referralPreferencesFields).length;
 
   const isCompletePersonalInformation = personalInformationCompleted === personalInformationTotalFeilds;
   const isCompleteEmploymentInformation = employmentInformationCompleted === employmentInformationTotalFields;
@@ -239,16 +267,19 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   return {
     documentTitle: t('app:profile.page-title'),
     name: currentUser ? `${currentUser.firstName} ${currentUser.lastName}` : '', //for first time employee login, the name is not in profile data
-    email: currentUser?.businessEmail ?? profileData.personalInformation.workEmail, //for first time employee login, the work email is not in profile data
+    email: currentUser?.businessEmail ?? profileData.profileUser.businessEmailAddress, //for first time employee login, the work email is not in profile data
     amountCompleted: amountCompleted,
     isProfileComplete: isCompletePersonalInformation && isCompleteEmploymentInformation && isCompleteReferralPreferences,
     profileStatus,
     personalInformation: {
       isComplete: isCompletePersonalInformation,
       isNew: countCompletedItems(profileData.personalInformation) === 1, // only work email is available
-      personalRecordIdentifier: profileData.personalInformation.personalRecordIdentifier,
-      preferredLanguage: preferredLanguage,
-      workEmail: currentUser?.businessEmail ?? profileData.personalInformation.workEmail,
+      personalRecordIdentifier: profileData.profileUser.personalRecordIdentifier,
+      preferredLanguage:
+        lang === 'en'
+          ? profileData.personalInformation.preferredLanguage?.nameEn
+          : profileData.personalInformation.preferredLanguage?.nameFr,
+      workEmail: currentUser?.businessEmail ?? profileData.profileUser.businessEmailAddress,
       personalEmail: profileData.personalInformation.personalEmail,
       workPhone: currentUser?.businessPhone,
       personalPhone: profileData.personalInformation.personalPhone,
@@ -262,21 +293,24 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       directorate: directorate,
       province: city?.provinceTerritory.name,
       city: city?.name,
-      wfaStatus: wfaStatus?.name,
-      wfaStatusCode: wfaStatus?.code,
+      wfaStatus:
+        lang === 'en'
+          ? profileData.employmentInformation.wfaStatus?.nameEn
+          : profileData.employmentInformation.wfaStatus?.nameFr,
+      wfaStatusCode: profileData.employmentInformation.wfaStatus?.code,
       wfaEffectiveDate: profileData.employmentInformation.wfaEffectiveDate,
       wfaEndDate: profileData.employmentInformation.wfaEndDate,
       hrAdvisor: hrAdvisor && hrAdvisor.firstName + ' ' + hrAdvisor.lastName,
     },
     referralPreferences: {
       isComplete: isCompleteReferralPreferences,
-      isNew: countCompletedItems(profileData.referralPreferences) === 0,
+      isNew: countCompletedItems(referralPreferencesFields) === 0,
       languageReferralTypes: languageReferralTypes?.map((l) => l?.name),
       classifications: classifications?.map((c) => c?.name),
       workLocationCities: cities?.map((city) => city?.provinceTerritory.name + ' - ' + city?.name),
-      referralAvailibility: profileData.referralPreferences.availableForReferralInd,
-      alternateOpportunity: profileData.referralPreferences.interestedInAlternationInd,
-      employmentTenures: employmentTenures?.map((e) => e?.name),
+      referralAvailibility: profileData.isAvailableForReferral,
+      alternateOpportunity: profileData.isInterestedInAlternation,
+      employmentOpportunities: employmentOpportunities?.map((e) => e?.name),
     },
     lastUpdated: profileData.dateUpdated ? formatDateTime(profileData.dateUpdated) : '0000-00-00 00:00',
     lastUpdatedBy: profileUpdatedByUserName ?? 'Unknown User',
@@ -516,10 +550,10 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
                     : t('gcweb:input-option.no')}
               </DescriptionListItem>
               <DescriptionListItem term={t('app:referral-preferences.employment-tenure')}>
-                {loaderData.referralPreferences.employmentTenures === undefined
+                {loaderData.referralPreferences.employmentOpportunities === undefined
                   ? t('app:profile.not-provided')
-                  : loaderData.referralPreferences.employmentTenures.length > 0 &&
-                    loaderData.referralPreferences.employmentTenures.join(', ')}
+                  : loaderData.referralPreferences.employmentOpportunities.length > 0 &&
+                    loaderData.referralPreferences.employmentOpportunities.join(', ')}
               </DescriptionListItem>
             </DescriptionList>
           )}

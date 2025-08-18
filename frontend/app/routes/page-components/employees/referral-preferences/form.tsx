@@ -9,7 +9,7 @@ import { useTranslation } from 'react-i18next';
 import type {
   LocalizedCity,
   LocalizedClassification,
-  LocalizedEmploymentTenure,
+  LocalizedEmploymentOpportunityType,
   LocalizedLanguageReferralType,
   LocalizedProvince,
   UserReferralPreferences,
@@ -42,7 +42,7 @@ interface ReferralPreferencesFormProps {
   formErrors?: Errors;
   languageReferralTypes: readonly LocalizedLanguageReferralType[];
   classifications: readonly LocalizedClassification[];
-  employmentTenures: readonly LocalizedEmploymentTenure[];
+  employmentOpportunities: readonly LocalizedEmploymentOpportunityType[];
   provinces: readonly LocalizedProvince[];
   cities: readonly LocalizedCity[];
   params: Params;
@@ -54,7 +54,7 @@ export function ReferralPreferencesForm({
   formErrors,
   languageReferralTypes,
   classifications,
-  employmentTenures,
+  employmentOpportunities,
   provinces,
   cities,
   params,
@@ -62,8 +62,8 @@ export function ReferralPreferencesForm({
   const { t: tApp } = useTranslation('app');
   const { t: tGcweb } = useTranslation('gcweb');
 
-  const [referralAvailibility, setReferralAvailibility] = useState(formValues?.availableForReferralInd);
-  const [alternateOpportunity, setAlternateOpportunity] = useState(formValues?.interestedInAlternationInd);
+  const [referralAvailibility, setReferralAvailibility] = useState(formValues?.isAvailableForReferral);
+  const [alternateOpportunity, setAlternateOpportunity] = useState(formValues?.isInterestedInAlternation);
   const [selectedClassifications, setSelectedClassifications] = useState(formValues?.classificationIds?.map(String) ?? []);
   const [selectedCities, setSelectedCities] = useState(formValues?.workLocationCitiesIds?.map(String) ?? []);
   const [province, setProvince] = useState(
@@ -119,10 +119,10 @@ export function ReferralPreferencesForm({
       onChange: ({ target }) => setAlternateOpportunity(target.value === REQUIRE_OPTIONS.yes),
     },
   ];
-  const employmentTenureOptions = employmentTenures.map((employmentTenures) => ({
-    value: String(employmentTenures.id),
-    children: employmentTenures.name,
-    defaultChecked: formValues?.employmentTenureIds?.includes(employmentTenures.id) ?? false,
+  const employmentOpportunityOptions = employmentOpportunities.map((employmentOpportunity) => ({
+    value: String(employmentOpportunity.id),
+    children: employmentOpportunity.name,
+    defaultChecked: formValues?.employmentOpportunityIds?.includes(employmentOpportunity.id) ?? false,
   }));
 
   // Choice tags for classification
@@ -264,7 +264,7 @@ export function ReferralPreferencesForm({
               name="referralAvailibility"
               options={referralAvailibilityOptions}
               required
-              errorMessage={tApp(extractValidationKey(formErrors?.availableForReferralInd))}
+              errorMessage={tApp(extractValidationKey(formErrors?.isAvailableForReferral))}
               helpMessagePrimary={tApp('referral-preferences.referral-availibility-help-message-primary')}
             />
             <InputRadios
@@ -273,7 +273,7 @@ export function ReferralPreferencesForm({
               name="alternateOpportunity"
               options={alternateOpportunityOptions}
               required
-              errorMessage={tApp(extractValidationKey(formErrors?.interestedInAlternationInd))}
+              errorMessage={tApp(extractValidationKey(formErrors?.isInterestedInAlternation))}
               helpMessagePrimary={
                 <Collapsible summary={tApp('referral-preferences.what-is-alternation')}>
                   {tApp('referral-preferences.alternation-description-text')}
@@ -281,11 +281,11 @@ export function ReferralPreferencesForm({
               }
             />
             <InputCheckboxes
-              id="employmentTenuresId"
-              errorMessage={tApp(extractValidationKey(formErrors?.employmentTenureIds))}
+              id="employmentOpportunityIds"
+              errorMessage={tApp(extractValidationKey(formErrors?.employmentOpportunityIds))}
               legend={tApp('referral-preferences.employment-tenure')}
-              name="employmentTenures"
-              options={employmentTenureOptions}
+              name="employmentOpportunityIds"
+              options={employmentOpportunityOptions}
               helpMessagePrimary={tApp('form.select-all-that-apply')}
               required
             />

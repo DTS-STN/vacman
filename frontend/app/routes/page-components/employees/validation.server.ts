@@ -3,17 +3,17 @@ import * as v from 'valibot';
 import type { BaseSchema, BaseIssue } from 'valibot';
 
 import type { User } from '~/.server/domain/models';
-import { getBranchService } from '~/.server/domain/services/branch-service';
 import { getCityService } from '~/.server/domain/services/city-service';
 import { getClassificationService } from '~/.server/domain/services/classification-service';
 import { getDirectorateService } from '~/.server/domain/services/directorate-service';
-import { getEmploymentTenureService } from '~/.server/domain/services/employment-tenure-service';
+import { getEmploymentOpportunityTypeService } from '~/.server/domain/services/employment-opportunity-type-service';
 import { getLanguageForCorrespondenceService } from '~/.server/domain/services/language-for-correspondence-service';
 import { getLanguageReferralTypeService } from '~/.server/domain/services/language-referral-type-service';
 import { getProvinceService } from '~/.server/domain/services/province-service';
 import { getUserService } from '~/.server/domain/services/user-service';
 import { getWFAStatuses } from '~/.server/domain/services/wfa-status-service';
 import { serverEnvironment } from '~/.server/environment';
+import { extractUniqueBranchesFromDirectoratesNonLocalized } from '~/.server/utils/directorate-utils';
 import { stringToIntegerSchema } from '~/.server/validation/string-to-integer-schema';
 import { EMPLOYEE_WFA_STATUS } from '~/domain/constants';
 import { getStartOfDayInTimezone, isDateInPastOrTodayInTimeZone, isValidDateString, toISODateString } from '~/utils/date-utils';
@@ -25,12 +25,12 @@ import { formString } from '~/utils/string-utils';
 const allLanguagesOfCorrespondence = await getLanguageForCorrespondenceService().listAll();
 const allSubstantivePositions = await getClassificationService().listAll();
 const allWfaStatus = await getWFAStatuses().listAll();
-const allBranchOrServiceCanadaRegions = await getBranchService().listAll();
 const allDirectorates = await getDirectorateService().listAll();
+const allBranchOrServiceCanadaRegions = extractUniqueBranchesFromDirectoratesNonLocalized(allDirectorates);
 const allProvinces = await getProvinceService().listAll();
 const allCities = await getCityService().listAll();
 const allLanguageReferralTypes = await getLanguageReferralTypeService().listAll();
-const allEmploymentTenures = await getEmploymentTenureService().listAll();
+const allEmploymentOpportunities = await getEmploymentOpportunityTypeService().listAll();
 
 // Function to get HR advisors that requires authentication
 async function getHrAdvisors(accessToken: string): Promise<User[]> {
@@ -46,13 +46,6 @@ async function getHrAdvisors(accessToken: string): Promise<User[]> {
 // Function to create employment information schema with HR advisors
 export async function createEmploymentInformationSchema(accessToken: string, formData?: FormData) {
   const hrAdvisors = await getHrAdvisors(accessToken);
-
-  // Check if the selected branch has any child directorates
-  const branchValue = formData?.get('branchOrServiceCanadaRegion');
-  const selectedBranchId = branchValue ? Number(branchValue) : null;
-  const hasChildDirectorates = selectedBranchId
-    ? allDirectorates.some((directorate) => directorate.parent?.id === selectedBranchId)
-    : false;
 
   return v.pipe(
     v.intersect([
@@ -75,29 +68,16 @@ export async function createEmploymentInformationSchema(accessToken: string, for
             ),
           ),
         ),
-        directorate: v.lazy(() => {
-          if (hasChildDirectorates) {
-            return v.pipe(
-              stringToIntegerSchema('app:employment-information.errors.directorate-required'),
-              v.picklist(
-                allDirectorates.map(({ id }) => id),
-                'app:employment-information.errors.directorate-required',
-              ),
-            );
-          } else {
-            // Make directorate optional if the branch has no children
-            return v.optional(
-              v.pipe(
-                v.union([
-                  v.literal(''), // Allow empty string
-                  v.pipe(stringToIntegerSchema(), v.picklist(allDirectorates.map(({ id }) => id))),
-                ]),
-                v.transform((input) => (input === '' ? undefined : input)), // Transform empty string to undefined
-              ),
-            );
-          }
-        }),
-        province: v.lazy(() =>
+        directorate: v.lazy(() =>
+          v.pipe(
+            stringToIntegerSchema('app:employment-information.errors.directorate-required'),
+            v.picklist(
+              allDirectorates.map(({ id }) => id),
+              'app:employment-information.errors.directorate-required',
+            ),
+          ),
+        ),
+        provinceId: v.lazy(() =>
           v.pipe(
             stringToIntegerSchema('app:employment-information.errors.provinces-required'),
             v.picklist(
@@ -126,10 +106,13 @@ export async function createEmploymentInformationSchema(accessToken: string, for
         ),
       }),
       v.variant(
-        'wfaStatus',
+        'wfaStatusId',
         [
           v.object({
-            wfaStatus: v.pipe(stringToIntegerSchema(), v.picklist(selectedValidWfaStatusesForOptionalDate.map(({ id }) => id))),
+            wfaStatusId: v.pipe(
+              stringToIntegerSchema(),
+              v.picklist(selectedValidWfaStatusesForOptionalDate.map(({ id }) => id)),
+            ),
             wfaEffectiveDateYear: v.optional(v.string()),
             wfaEffectiveDateMonth: v.optional(v.string()),
             wfaEffectiveDateDay: v.optional(v.string()),
@@ -140,7 +123,10 @@ export async function createEmploymentInformationSchema(accessToken: string, for
             wfaEndDate: v.optional(v.string()),
           }),
           v.object({
-            wfaStatus: v.pipe(stringToIntegerSchema(), v.picklist(selectedValidWfaStatusesForRequiredDate.map(({ id }) => id))),
+            wfaStatusId: v.pipe(
+              stringToIntegerSchema(),
+              v.picklist(selectedValidWfaStatusesForRequiredDate.map(({ id }) => id)),
+            ),
             wfaEffectiveDateYear: v.pipe(
               stringToIntegerSchema('app:employment-information.errors.wfa-effective-date.required-year'),
               v.minValue(1, 'app:employment-information.errors.wfa-effective-date.invalid-year'),
@@ -389,15 +375,15 @@ export const referralPreferencesSchema = v.object({
       'app:referral-preferences.errors.work-location-city-duplicate',
     ),
   ),
-  availableForReferralInd: v.boolean('app:referral-preferences.errors.referral-availibility-required'),
-  interestedInAlternationInd: v.boolean('app:referral-preferences.errors.alternate-opportunity-required'),
-  employmentTenureIds: v.pipe(
+  isAvailableForReferral: v.boolean('app:referral-preferences.errors.referral-availibility-required'),
+  isInterestedInAlternation: v.boolean('app:referral-preferences.errors.alternate-opportunity-required'),
+  employmentOpportunityIds: v.pipe(
     v.array(
       v.lazy(() =>
         v.pipe(
           stringToIntegerSchema('app:referral-preferences.errors.employment-tenure-invalid'),
           v.picklist(
-            allEmploymentTenures.map((e) => e.id),
+            allEmploymentOpportunities.map((e) => e.id),
             'app:referral-preferences.errors.employment-tenure-invalid',
           ),
         ),
@@ -424,9 +410,9 @@ export async function parseEmploymentInformation(formData: FormData, accessToken
     substantivePosition: formString(formData.get('substantivePosition')),
     branchOrServiceCanadaRegion: formString(formData.get('branchOrServiceCanadaRegion')),
     directorate: formString(formData.get('directorate')),
-    province: formString(formData.get('province')),
+    provinceId: formString(formData.get('province')),
     cityId: formString(formData.get('cityId')),
-    wfaStatus: formString(formData.get('wfaStatus')),
+    wfaStatusId: formString(formData.get('wfaStatus')),
     wfaEffectiveDate: toDateString(wfaEffectiveDateYear, wfaEffectiveDateMonth, wfaEffectiveDateDay),
     wfaEffectiveDateYear: wfaEffectiveDateYear,
     wfaEffectiveDateMonth: wfaEffectiveDateMonth,
@@ -446,9 +432,9 @@ export async function parseEmploymentInformation(formData: FormData, accessToken
       substantivePosition: formValues.substantivePosition,
       branchOrServiceCanadaRegion: formValues.branchOrServiceCanadaRegion,
       directorate: formValues.directorate,
-      province: formValues.province,
+      provinceId: formValues.provinceId,
       cityId: formValues.cityId,
-      wfaStatus: formValues.wfaStatus,
+      wfaStatusId: formValues.wfaStatusId,
       wfaEffectiveDateYear: formValues.wfaEffectiveDateYear,
       wfaEffectiveDateMonth: formValues.wfaEffectiveDateMonth,
       wfaEffectiveDateDay: formValues.wfaEffectiveDateDay,

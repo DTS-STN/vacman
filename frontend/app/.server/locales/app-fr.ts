@@ -53,6 +53,7 @@ export default {
     'field-incomplete': 'Champs obligatoires incomplets', // TODO: French translation needs to be verified
     'profile-incomplete': 'Veuillez remplir tous les champs obligatoires avant de soumettre votre profil',
     'profile-submitted': "Profil soumis avec succès! Votre conseiller(ère) RH va maintenant l'examiner pour approbation",
+    'hr-approved': "Profil de l'employé-e approuvé",
     'profile-pending-approval':
       'Les modifications de votre profil nécessiteront une nouvelle approbation de votre conseiller(ère) RH',
     'page-title': 'Profil',
@@ -224,5 +225,6 @@ export default {
   'hr-advisor-dashboard': {
     'page-title': '(FR) HR Advisor Dashboard',
     'all-employees': '(FR) All employees',
+    'my-employees': '(FR) My employees',
   },
 } satisfies typeof appEn;
