@@ -111,7 +111,7 @@ export async function requirePrivacyConsentForOwnProfile(
   }
 
   // Only check privacy consent if the user is accessing their own profile
-  const userProfile = profiles.find((profile) => profile.profileUser?.id === currentUser.id);
+  const userProfile = profiles.find((profile) => profile.profileUser.id === currentUser.id);
   if (!userProfile) {
     return;
   }
