@@ -33,7 +33,7 @@ const mockUsers: readonly User[] = [
     },
     userType: {
       id: 3,
-      code: 'HR_ADVISOR',
+      code: 'HRA',
       nameEn: 'HR Advisor',
       nameFr: 'Conseiller RH',
     },
@@ -141,7 +141,7 @@ const mockUsers: readonly User[] = [
     },
     userType: {
       id: 3,
-      code: 'HR_ADVISOR',
+      code: 'HRA',
       nameEn: 'HR Advisor',
       nameFr: 'Conseiller RH',
     },
@@ -351,7 +351,7 @@ export function getMockUserService(): UserService {
         // Apply user type filter if provided
         if (params['user-type']) {
           filteredUsers = filteredUsers.filter(
-            (u) => u.userType?.code === (params['user-type'] === 'hr-advisor' ? 'HR_ADVISOR' : params['user-type']),
+            (u) => u.userType?.code === (params['user-type'] === 'hr-advisor' ? 'HRA' : params['user-type']),
           );
         }
 
@@ -426,7 +426,7 @@ export function getMockUserService(): UserService {
     getCurrentUser: (_accessToken: string): Promise<Option<User>> => {
       debugLog('getCurrentUser', 'Attempting to retrieve current user (first HR advisor)');
       // For mock, return the first HR advisor
-      const currentUser = mockUsers.find((u) => u.userType?.code === 'HR_ADVISOR');
+      const currentUser = mockUsers.find((u) => u.userType?.code === 'HRA');
       debugLog(
         'getCurrentUser',
         `Current user result: ${currentUser ? 'found' : 'not found'}`,
