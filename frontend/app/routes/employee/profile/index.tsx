@@ -48,7 +48,7 @@ export async function action({ context, request }: Route.ActionArgs) {
 
   const currentUser = profileData.profileUser;
 
-  // For personal information, check required fields directly on profile
+  // For personal information, check required fields directly on profile and profile user
   const requiredPersonalFields = {
     businessEmailAddress: currentUser.businessEmailAddress,
     language: currentUser.language,
