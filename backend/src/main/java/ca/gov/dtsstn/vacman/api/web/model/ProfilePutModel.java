@@ -2,6 +2,7 @@ package ca.gov.dtsstn.vacman.api.web.model;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
+import java.time.Instant;
 import java.util.Set;
 
 @Schema(name = "ProfilePutModel")
@@ -29,6 +30,12 @@ public record ProfilePutModel (
 
         @Schema(accessMode = Schema.AccessMode.WRITE_ONLY, description = "The WFA status of this profile.", example = "1")
         Long wfaStatusId,
+
+        @Schema(accessMode = Schema.AccessMode.WRITE_ONLY, description = "The WFA start date of this profile.")
+        Instant wfaStartDate,
+
+        @Schema(accessMode = Schema.AccessMode.WRITE_ONLY, description = "The WFA end date of this profile.")
+        Instant wfaEndDate,
 
         @Schema(accessMode = Schema.AccessMode.WRITE_ONLY, description = "Is this profile available for referral?")
         Boolean isAvailableForReferral,
