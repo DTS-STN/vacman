@@ -19,7 +19,7 @@ import { requirePrivacyConsentForOwnProfile } from '~/.server/utils/privacy-cons
 import { getHrAdvisors, hasEmploymentDataChanged, omitObjectProperties } from '~/.server/utils/profile-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { InlineLink } from '~/components/links';
-import { PROFILE_STATUS_CODE, PROFILE_STATUS_ID } from '~/domain/constants';
+import { PROFILE_STATUS_ID, PROFILE_STATUS_PENDING } from '~/domain/constants';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
@@ -48,14 +48,14 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   }
   const profileService = getProfileService();
   const profileParams = { active: true };
-  const currentProfileOption = await profileService.getCurrentUserProfiles(
+  const currentProfile: Profile = await profileService.findCurrentUserProfile(
     profileParams,
     context.session.authState.accessToken,
   );
-  const currentProfile = currentProfileOption.unwrap();
-  const updateResult = await profileService.updateProfileById(context.session.authState.accessToken, {
-    ...currentProfile,
-    employmentInformation: omitObjectProperties(parseResult.output, [
+
+  const updateResult = await profileService.updateProfileById(
+    currentProfile.id,
+    omitObjectProperties(parseResult.output, [
       'wfaEffectiveDateYear',
       'wfaEffectiveDateMonth',
       'wfaEffectiveDateDay',
@@ -63,19 +63,22 @@ export async function action({ context, params, request }: Route.ActionArgs) {
       'wfaEndDateMonth',
       'wfaEndDateDay',
     ]),
-  });
+    context.session.authState.accessToken,
+  );
+
   if (updateResult.isErr()) {
     throw updateResult.unwrapErr();
   }
+
   if (
-    currentProfile.profileStatus.id === PROFILE_STATUS_ID.approved &&
-    hasEmploymentDataChanged(currentProfile.employmentInformation, parseResult.output)
+    currentProfile.profileStatus?.id === PROFILE_STATUS_ID.approved &&
+    hasEmploymentDataChanged(currentProfile, parseResult.output)
   ) {
     // profile needs to be re-approved if and only if the current profile status is 'approved'
     await profileService.updateProfileStatus(
+      currentProfile.profileUser.id,
+      PROFILE_STATUS_PENDING,
       context.session.authState.accessToken,
-      currentProfile.profileUser.id.toString(),
-      PROFILE_STATUS_CODE.pending,
     );
     return i18nRedirect('routes/employee/profile/index.tsx', request, {
       params: { id: currentProfile.profileUser.id.toString() },
@@ -94,14 +97,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   await requirePrivacyConsentForOwnProfile(context.session, request);
 
   const profileParams = { active: true };
-  const currentProfileOption = await getProfileService().getCurrentUserProfiles(
-    profileParams,
-    context.session.authState.accessToken,
-  );
-
-  if (currentProfileOption.isNone()) {
-    throw new Response('Profile not found', { status: 404 });
-  }
+  const profileData = await getProfileService().findCurrentUserProfile(profileParams, context.session.authState.accessToken);
 
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
   const substantivePositions = await getClassificationService().listAllLocalized(lang);
@@ -113,26 +109,24 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const wfaStatuses = await getWFAStatuses().listAllLocalized(lang);
   const hrAdvisors = await getHrAdvisors(context.session.authState.accessToken);
 
-  const profileData: Profile = currentProfileOption.unwrap();
-
   const workUnitResult =
-    profileData.employmentInformation.directorate !== undefined
-      ? await getDirectorateService().findLocalizedById(profileData.employmentInformation.directorate, lang)
+    profileData.substantiveWorkUnit !== undefined
+      ? await getDirectorateService().findLocalizedById(profileData.substantiveWorkUnit?.id, lang)
       : undefined;
   const workUnit = workUnitResult?.into();
 
   return {
     documentTitle: t('app:employment-information.page-title'),
     defaultValues: {
-      substantivePosition: profileData.employmentInformation.substantivePosition,
-      branchOrServiceCanadaRegion: workUnit?.parent?.id ?? profileData.employmentInformation.branchOrServiceCanadaRegion,
+      substantivePosition: profileData.substantiveClassification,
+      branchOrServiceCanadaRegion: workUnit?.parent?.id,
       directorate: workUnit?.id,
-      province: profileData.employmentInformation.province,
-      city: profileData.employmentInformation.city,
-      wfaStatus: profileData.employmentInformation.wfaStatus,
-      wfaEffectiveDate: profileData.employmentInformation.wfaEffectiveDate,
-      wfaEndDate: profileData.employmentInformation.wfaEndDate,
-      hrAdvisor: profileData.employmentInformation.hrAdvisor,
+      province: profileData.substantiveCity?.provinceTerritory,
+      city: profileData.substantiveCity,
+      wfaStatus: profileData.wfaStatus,
+      wfaEffectiveDate: profileData.wfaStartDate,
+      wfaEndDate: profileData.wfaEndDate,
+      hrAdvisor: profileData.hrAdvisorId,
     },
     substantivePositions: substantivePositions,
     branchOrServiceCanadaRegions: branchOrServiceCanadaRegions,
