@@ -44,7 +44,7 @@ describe('getMockUserService', () => {
         },
         userType: {
           id: 3,
-          code: 'HR_ADVISOR',
+          code: 'HRA',
           nameEn: 'HR Advisor',
           nameFr: 'Conseiller RH',
         },
@@ -77,7 +77,7 @@ describe('getMockUserService', () => {
     });
 
     it('should filter by user type', async () => {
-      const params = { 'user-type': 'HR_ADVISOR' };
+      const params = { 'user-type': 'HRA' };
       const result = await service.getUsers(params, mockAccessToken);
 
       expect(result.isOk()).toBe(true);
@@ -85,7 +85,7 @@ describe('getMockUserService', () => {
 
       // Should find 2 HR advisors (Jane and Alex)
       expect(response.content).toHaveLength(2);
-      expect(response.content.every((user) => user.userType?.code === 'HR_ADVISOR')).toBe(true);
+      expect(response.content.every((user) => user.userType?.code === 'HRA')).toBe(true);
       expect(response.page.totalElements).toBe(2);
     });
 
@@ -110,7 +110,7 @@ describe('getMockUserService', () => {
 
       expect(user.id).toBe(1);
       expect(user.businessEmailAddress).toBe('jane.doe@canada.ca');
-      expect(user.userType?.code).toBe('HR_ADVISOR');
+      expect(user.userType?.code).toBe('HRA');
     });
 
     it('should return an error when user is not found', async () => {
@@ -149,7 +149,7 @@ describe('getMockUserService', () => {
       expect(result.isSome()).toBe(true);
       const user = result.unwrap();
 
-      expect(user.userType?.code).toBe('HR_ADVISOR');
+      expect(user.userType?.code).toBe('HRA');
       expect(user.firstName).toBe('Jane');
     });
   });

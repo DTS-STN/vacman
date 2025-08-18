@@ -40,7 +40,7 @@ const mockUser = {
   },
   userType: {
     id: 3,
-    code: 'HR_ADVISOR',
+    code: 'HRA',
     nameEn: 'HR Advisor',
     nameFr: 'Conseiller RH',
   },

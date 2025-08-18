@@ -55,7 +55,7 @@ describe('getDefaultUserService', () => {
           },
           userType: {
             id: 3,
-            code: 'HR_ADVISOR',
+            code: 'HRA',
             nameEn: 'HR Advisor',
             nameFr: 'Conseiller RH',
           },
@@ -89,12 +89,12 @@ describe('getDefaultUserService', () => {
     it('should include user-type filter in query', async () => {
       mockApiClient.get.mockResolvedValueOnce(Ok(mockUserResponse));
 
-      const params: UserQueryParams = { 'user-type': 'HR_ADVISOR', 'page': 0, 'size': 10 };
+      const params: UserQueryParams = { 'user-type': 'HRA', 'page': 0, 'size': 10 };
       const result = await service.getUsers(params, mockAccessToken);
 
       expect(result.isOk()).toBe(true);
       expect(mockApiClient.get).toHaveBeenCalledWith(
-        '/users?page=0&size=10&user-type=HR_ADVISOR',
+        '/users?page=0&size=10&user-type=HRA',
         'retrieve paginated users',
         mockAccessToken,
       );
@@ -147,7 +147,7 @@ describe('getDefaultUserService', () => {
       },
       userType: {
         id: 3,
-        code: 'HR_ADVISOR',
+        code: 'HRA',
         nameEn: 'HR Advisor',
         nameFr: 'Conseiller RH',
       },
@@ -201,7 +201,7 @@ describe('getDefaultUserService', () => {
       },
       userType: {
         id: 3,
-        code: 'HR_ADVISOR',
+        code: 'HRA',
         nameEn: 'HR Advisor',
         nameFr: 'Conseiller RH',
       },
@@ -309,7 +309,7 @@ describe('getDefaultUserService', () => {
       },
       userType: {
         id: 3,
-        code: 'HR_ADVISOR',
+        code: 'HRA',
         nameEn: 'HR Advisor',
         nameFr: 'Conseiller RH',
       },

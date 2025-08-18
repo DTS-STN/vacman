@@ -81,13 +81,13 @@ describe('User Service Integration', () => {
         const allUsersResponse = allUsersResult.unwrap();
         const totalUsers = allUsersResponse.content.length;
 
-        // Filter by HR_ADVISOR user type
-        const hrAdvisorResult = await userService.getUsers({ 'user-type': 'HR_ADVISOR' }, mockAccessToken);
+        // Filter by HRA user type
+        const hrAdvisorResult = await userService.getUsers({ 'user-type': 'HRA' }, mockAccessToken);
         expect(hrAdvisorResult.isOk()).toBe(true);
         const hrAdvisorResponse = hrAdvisorResult.unwrap();
 
         expect(hrAdvisorResponse.content.length).toBeLessThan(totalUsers);
-        expect(hrAdvisorResponse.content.every((user) => user.userType?.code === 'HR_ADVISOR')).toBe(true);
+        expect(hrAdvisorResponse.content.every((user) => user.userType?.code === 'HRA')).toBe(true);
 
         // Filter by EMPLOYEE user type
         const employeeResult = await userService.getUsers({ 'user-type': 'EMPLOYEE' }, mockAccessToken);

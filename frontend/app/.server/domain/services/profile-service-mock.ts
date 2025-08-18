@@ -35,7 +35,7 @@ export function getMockProfileService(): ProfileService {
      */
     async getProfiles(params: ProfileQueryParams, accessToken: string): Promise<Result<PagedProfileResponse, AppError>> {
       debugLog('getProfiles', 'Attempting to retrieve profiles', { params, accessTokenLength: accessToken.length });
-      
+
       // Simulate async operation
       await new Promise((resolve) => setTimeout(resolve, 1));
 
@@ -446,7 +446,7 @@ const mockProfiles: Profile[] = [
       },
       userType: {
         id: 3,
-        code: 'HR_ADVISOR',
+        code: 'HRA',
         nameEn: 'HR Advisor',
         nameFr: 'Conseiller RH',
       },
