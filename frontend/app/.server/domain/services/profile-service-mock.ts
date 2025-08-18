@@ -1,6 +1,11 @@
 import { Err, Ok } from 'oxide.ts';
 import type { Result, Option } from 'oxide.ts';
 
+import { getCityService } from './city-service';
+import { getClassificationService } from './classification-service';
+import { getEmploymentOpportunityTypeService } from './employment-opportunity-type-service';
+import { getLanguageForCorrespondenceService } from './language-for-correspondence-service';
+
 import type {
   Profile,
   ProfilePutModel,
@@ -272,9 +277,6 @@ export function getMockProfileService(): ProfileService {
       profile: ProfilePutModel,
       accessToken: string,
     ): Promise<Result<Profile, AppError>> {
-      // Simulate async operation
-      await new Promise((resolve) => setTimeout(resolve, 10));
-
       const existingProfileIndex = mockProfiles.findIndex((p) => p.id === profileId);
       if (existingProfileIndex === -1) {
         return Err(new AppError(`Profile with ID ${profileId} not found.`, ErrorCodes.PROFILE_NOT_FOUND));
@@ -284,6 +286,35 @@ export function getMockProfileService(): ProfileService {
       if (!existingProfile) {
         return Err(new AppError(`Profile with ID ${profileId} not found.`, ErrorCodes.PROFILE_NOT_FOUND));
       }
+
+      const languageService = getLanguageForCorrespondenceService();
+      const classificationService = getClassificationService();
+      const cityService = getCityService();
+      const employmentOppourtunityService = getEmploymentOpportunityTypeService();
+
+      const preferredLanguages = profile.preferredLanguages
+        ? (await Promise.all(profile.preferredLanguages.map((id) => languageService.getById(id))))
+            .filter((result) => result.isOk())
+            .map((result) => result.unwrap())
+        : existingProfile.preferredLanguages;
+
+      const preferredClassifications = profile.preferredClassifications
+        ? (await Promise.all(profile.preferredClassifications.map((id) => classificationService.getById(id))))
+            .filter((result) => result.isOk())
+            .map((result) => result.unwrap())
+        : existingProfile.preferredClassifications;
+
+      const preferredCities = profile.preferredCities
+        ? (await Promise.all(profile.preferredCities.map((id) => cityService.getById(id))))
+            .filter((result) => result.isOk())
+            .map((result) => result.unwrap())
+        : existingProfile.preferredCities;
+
+      const preferredEmploymentOpportunities = profile.preferredEmploymentOpportunities
+        ? (await Promise.all(profile.preferredEmploymentOpportunities.map((id) => employmentOppourtunityService.getById(id))))
+            .filter((result) => result.isOk())
+            .map((result) => result.unwrap())
+        : existingProfile.preferredEmploymentOpportunities;
 
       // Convert ProfilePutModel to Profile by mapping ID fields to objects and merging with existing data
       const updatedProfile: Profile = {
@@ -298,6 +329,10 @@ export function getMockProfileService(): ProfileService {
         personalPhoneNumber: profile.personalPhoneNumber ?? existingProfile.personalPhoneNumber,
         // For ID-based fields, we would need to look up the full objects, but for mock purposes we'll preserve existing objects
         // In a real implementation, you would fetch the referenced entities by their IDs
+        preferredLanguages,
+        preferredClassifications,
+        preferredCities,
+        preferredEmploymentOpportunities,
         id: profileId, // Ensure ID doesn't change
         lastModifiedDate: new Date().toISOString(),
         lastModifiedBy: 'mock-user',

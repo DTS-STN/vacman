@@ -67,9 +67,9 @@ export function ReferralPreferencesForm({
   const [referralAvailibility, setReferralAvailibility] = useState(formValues?.isAvailableForReferral);
   const [alternateOpportunity, setAlternateOpportunity] = useState(formValues?.isInterestedInAlternation);
   const [selectedClassifications, setSelectedClassifications] = useState(
-    formValues?.preferredClassifications?.map(String) ?? [],
+    formValues?.preferredClassifications?.map(({ id }) => id.toString()) ?? [],
   );
-  const [selectedCities, setSelectedCities] = useState(formValues?.preferredCities?.map(String) ?? []);
+  const [selectedCities, setSelectedCities] = useState(formValues?.preferredCities?.map(({ id }) => id.toString()) ?? []);
   const [province, setProvince] = useState(preferredProvince ? String(preferredProvince) : undefined);
   const [srAnnouncement, setSrAnnouncement] = useState(''); //screen reader announcement
 
