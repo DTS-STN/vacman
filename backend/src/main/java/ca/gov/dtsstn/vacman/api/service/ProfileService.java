@@ -238,6 +238,8 @@ public class ProfileService {
 		syncPreferredEmploymentOpportunities(updateModel, existingEntity);
 		syncPreferredLanguages(updateModel, existingEntity);
 
+		existingEntity.setWfaStartDate(updateModel.wfaStartDate());
+		existingEntity.setWfaEndDate(updateModel.wfaEndDate());
 		existingEntity.setPersonalPhoneNumber((updateModel.personalPhoneNumber()));
 		existingEntity.setPersonalEmailAddress(updateModel.personalEmailAddress());
 		existingEntity.setIsAvailableForReferral(updateModel.isAvailableForReferral());
