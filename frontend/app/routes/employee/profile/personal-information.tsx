@@ -66,10 +66,17 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   const currentUserOption = await userService.getCurrentUser(context.session.authState.accessToken);
   const currentUser = currentUserOption.into();
 
-  // Extract workPhone for user update, remove it from profile data
-  const { businessPhoneNumber, ...personalInformationForProfile } = parseResult.output;
+  // Extract fields for user update, remove it from profile data
+  const {
+    businessEmailAddress,
+    businessPhoneNumber,
+    firstName,
+    lastName,
+    personalRecordIdentifier,
+    ...personalInformationForProfile
+  } = parseResult.output;
 
-  // Update the profile (without workPhone)
+  // Update the profile (without fields for updating user)
   const updateResult = await profileService.updateProfileById(
     currentProfile.id,
     personalInformationForProfile,
@@ -85,8 +92,12 @@ export async function action({ context, params, request }: Route.ActionArgs) {
       currentUser.id,
       {
         ...currentUser,
+        businessEmail: businessEmailAddress,
+        businessPhone: businessPhoneNumber,
+        firstName: firstName,
+        lastName: lastName,
+        personalRecordIdentifier: personalRecordIdentifier,
         languageId: parseResult.output.preferredLanguageId,
-        businessPhoneNumber: businessPhoneNumber,
       },
       context.session.authState.accessToken,
     );
@@ -125,7 +136,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       personalEmailAddress: profileData.personalEmailAddress,
       businessPhoneNumber: toE164(currentUser.businessPhoneNumber),
       personalPhoneNumber: toE164(profileData.personalPhoneNumber),
-      additionalInformation: profileData.additionalComment,
+      additionalComment: profileData.additionalComment,
     },
     languagesOfCorrespondence: localizedLanguagesOfCorrespondenceResult,
   };

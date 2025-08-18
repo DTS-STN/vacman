@@ -62,7 +62,14 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   }
 
   // Extract workPhone for user update, remove it from profile data
-  const { businessPhoneNumber, ...personalInformationForProfile } = parseResult.output;
+  const {
+    businessEmailAddress,
+    businessPhoneNumber,
+    firstName,
+    lastName,
+    personalRecordIdentifier,
+    ...personalInformationForProfile
+  } = parseResult.output;
 
   const updateProfileResult = await profileService.updateProfileById(
     profile.id,
@@ -88,8 +95,12 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     user.id,
     {
       ...user,
+      businessEmail: businessEmailAddress,
+      businessPhone: businessPhoneNumber,
+      firstName: firstName,
+      lastName: lastName,
+      personalRecordIdentifier: personalRecordIdentifier,
       languageId: parseResult.output.preferredLanguageId,
-      businessPhoneNumber: businessPhoneNumber,
     },
     context.session.authState.accessToken,
   );
