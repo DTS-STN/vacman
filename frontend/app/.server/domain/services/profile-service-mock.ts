@@ -298,8 +298,8 @@ export function getMockProfileService(): ProfileService {
             .map((result) => result.unwrap())
         : existingProfile.preferredLanguages;
 
-      const preferredClassifications = profile.preferredClassifications
-        ? (await Promise.all(profile.preferredClassifications.map((id) => classificationService.getById(id))))
+      const preferredClassifications = profile.preferredClassification
+        ? (await Promise.all(profile.preferredClassification.map((id) => classificationService.getById(id))))
             .filter((result) => result.isOk())
             .map((result) => result.unwrap())
         : existingProfile.preferredClassifications;
