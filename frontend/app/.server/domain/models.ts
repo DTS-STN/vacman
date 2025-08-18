@@ -187,7 +187,7 @@ export type ProfilePutModel = Readonly<{
   personalEmailAddress?: string;
   personalPhoneNumber?: string;
   preferredCities?: number[];
-  preferredClassifications?: number[];
+  preferredClassification?: number[];
   preferredEmploymentOpportunities?: number[];
   wfaStatusId?: number;
   workUnitId?: number;
