@@ -417,7 +417,7 @@ const mockProfiles: Profile[] = [
     personalEmailAddress: 'jane.doe@example.com',
     personalPhoneNumber: '613-555-0001',
     languageOfCorrespondence: {
-      id: 1,
+      id: 0,
       code: 'EN',
       nameEn: 'English',
       nameFr: 'Anglais',

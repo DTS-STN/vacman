@@ -142,6 +142,7 @@ export function PersonalInformationForm({
               label={t('personal-information.additional-information')}
               name="additionalComment"
               defaultValue={formValues?.additionalComment}
+              errorMessage={t(extractValidationKey(formErrors?.additionalComment))}
               helpMessage={t('personal-information.additional-info-help-message')}
               maxLength={100}
             />
