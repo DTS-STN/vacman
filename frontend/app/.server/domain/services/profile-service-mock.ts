@@ -35,6 +35,9 @@ export function getMockProfileService(): ProfileService {
      */
     async getProfiles(params: ProfileQueryParams, accessToken: string): Promise<Result<PagedProfileResponse, AppError>> {
       debugLog('getProfiles', 'Attempting to retrieve profiles', { params, accessTokenLength: accessToken.length });
+      
+      // Simulate async operation
+      await new Promise((resolve) => setTimeout(resolve, 1));
 
       // Simulate a failure case for testing error handling
       if (accessToken === 'FAIL_TOKEN') {
@@ -740,9 +743,9 @@ function createMockProfile(accessToken: string): Profile {
       lastModifiedBy: 'jane.doe',
       lastModifiedDate: new Date().toISOString(),
     },
-    createdBy: 'system',
+    createdBy: accessToken,
     createdDate: new Date().toISOString(),
-    lastModifiedBy: 'jane.doe',
+    lastModifiedBy: accessToken,
     lastModifiedDate: new Date().toISOString(),
   };
 
