@@ -71,7 +71,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     {
       ...profile,
       preferredLanguages: parseResult.output.preferredLanguages,
-      preferredClassifications: parseResult.output.preferredClassifications,
+      preferredClassification: parseResult.output.preferredClassifications,
       preferredCities: parseResult.output.preferredCities,
       isAvailableForReferral: parseResult.output.isAvailableForReferral,
       isInterestedInAlternation: parseResult.output.isInterestedInAlternation,

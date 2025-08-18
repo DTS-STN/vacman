@@ -67,7 +67,15 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 
   const updateResult = await profileService.updateProfileById(
     currentProfile.id,
-    parseResult.output,
+    {
+      ...currentProfile,
+      preferredLanguages: parseResult.output.preferredLanguages,
+      preferredClassification: parseResult.output.preferredClassifications,
+      preferredCities: parseResult.output.preferredCities,
+      isAvailableForReferral: parseResult.output.isAvailableForReferral,
+      isInterestedInAlternation: parseResult.output.isInterestedInAlternation,
+      preferredEmploymentOpportunities: parseResult.output.preferredEmploymentOpportunities,
+    },
     context.session.authState.accessToken,
   );
 
