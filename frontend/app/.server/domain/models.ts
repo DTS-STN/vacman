@@ -193,6 +193,8 @@ export type ProfilePutModel = Readonly<{
   preferredClassification?: number[];
   preferredEmploymentOpportunities?: number[];
   wfaStatusId?: number;
+  wfaStartDate?: string;
+  wfaEndDate?: string;
   workUnitId?: number;
 }>;
 
