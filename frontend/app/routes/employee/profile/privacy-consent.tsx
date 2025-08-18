@@ -10,6 +10,7 @@ import type { Route } from './+types/privacy-consent';
 import type { ProfilePutModel } from '~/.server/domain/models';
 import { getProfileService } from '~/.server/domain/services/profile-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
+import { mapProfileToPutModelWithOverrides } from '~/.server/utils/profile-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { Button } from '~/components/button';
 import { ButtonLink } from '~/components/button-link';
@@ -49,9 +50,11 @@ export async function action({ context, request }: Route.ActionArgs) {
     return i18nRedirect('routes/index.tsx', request);
   }
 
-  const updatePrivacyConsent: ProfilePutModel = {
+  // Create a complete ProfilePutModel with all existing values preserved
+  // and only update the privacy consent field
+  const updatePrivacyConsent: ProfilePutModel = mapProfileToPutModelWithOverrides(profile, {
     hasConsentedToPrivacyTerms: true,
-  };
+  });
 
   await profileService.updateProfileById(profile.id, updatePrivacyConsent, context.session.authState.accessToken);
 
