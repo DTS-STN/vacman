@@ -226,12 +226,12 @@ export const personalInformationSchema = v.object({
     v.length(9, 'app:personal-information.errors.personal-record-identifier-invalid'),
     v.regex(REGEX_PATTERNS.DIGIT_ONLY, 'app:personal-information.errors.personal-record-identifier-invalid'),
   ),
-  preferredLanguageId: v.lazy(() =>
+  languageOfCorrespondence: v.lazy(() =>
     v.pipe(
-      stringToIntegerSchema('app:personal-information.errors.preferred-language-required'),
+      stringToIntegerSchema('app:personal-information.errors.language-of-correspondence-required'),
       v.picklist(
         allLanguagesOfCorrespondence.map(({ id }) => id),
-        'app:personal-information.errors.preferred-language-required',
+        'app:personal-information.errors.language-of-correspondence-required',
       ),
     ),
   ),
