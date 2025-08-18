@@ -25,7 +25,7 @@ import { DescriptionList, DescriptionListItem } from '~/components/description-l
 import { InlineLink } from '~/components/links';
 import { ProfileCard } from '~/components/profile-card';
 import { StatusTag } from '~/components/status-tag';
-import { EMPLOYEE_WFA_STATUS, PROFILE_STATUS_CODE } from '~/domain/constants';
+import { EMPLOYEE_WFA_STATUS, PROFILE_STATUS_APPROVED, PROFILE_STATUS_CODE } from '~/domain/constants';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
 import { formatDateTime } from '~/utils/date-utils';
@@ -54,9 +54,9 @@ export async function action({ context, request, params }: Route.ActionArgs) {
 
   // approve the profile
   const submitResult = await getProfileService().updateProfileStatus(
+    profileData.profileUser.id,
+    PROFILE_STATUS_APPROVED,
     context.session.authState.accessToken,
-    profileData.profileUser.id.toString(),
-    PROFILE_STATUS_CODE.approved,
   );
   if (submitResult.isErr()) {
     throw submitResult.unwrapErr();
@@ -64,7 +64,7 @@ export async function action({ context, request, params }: Route.ActionArgs) {
 
   return {
     status: 'submitted',
-    profileStatus: submitResult.unwrap().id,
+    profileStatus: submitResult.unwrap(),
   };
 }
 
@@ -102,28 +102,29 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   );
   const profileUser = profileUserResult.into();
 
-  const profileUpdatedByUserResult = profileData.userUpdated
+  const profileUpdatedByUserResult = profileData.profileUser.lastModifiedBy
     ? await getUserService().getUserById(profileData.profileUser.id, context.session.authState.accessToken)
     : undefined;
   const profileUpdatedByUser = profileUpdatedByUserResult?.into();
   const profileUpdatedByUserName = profileUpdatedByUser && `${profileUpdatedByUser.firstName} ${profileUpdatedByUser.lastName}`;
-  const profileStatus = (await getProfileStatusService().findLocalizedById(profileData.profileStatus.id, lang)).unwrap();
+  const profileStatus = profileData.profileStatus
+    ? (await getProfileStatusService().findLocalizedById(profileData.profileStatus.id, lang)).unwrap()
+    : undefined;
   const workUnitResult =
-    profileData.employmentInformation.directorate !== undefined
-      ? await getDirectorateService().findLocalizedById(profileData.employmentInformation.directorate, lang)
+    profileData.substantiveWorkUnit !== undefined
+      ? await getDirectorateService().findLocalizedById(profileData.substantiveWorkUnit.id, lang)
       : undefined;
   const branchResult =
-    profileData.employmentInformation.branchOrServiceCanadaRegion !== undefined &&
-    profileData.employmentInformation.directorate === undefined // Only look up branch directly if there's no directorate
-      ? await getBranchService().findLocalizedById(profileData.employmentInformation.branchOrServiceCanadaRegion, lang)
+    profileData.substantiveWorkUnit !== undefined
+      ? await getBranchService().findLocalizedById(profileData.substantiveWorkUnit.id, lang)
       : undefined;
   const substantivePositionResult =
-    profileData.employmentInformation.substantivePosition !== undefined
-      ? await getClassificationService().findLocalizedById(profileData.employmentInformation.substantivePosition, lang)
+    profileData.substantiveClassification !== undefined
+      ? await getClassificationService().findLocalizedById(profileData.substantiveClassification.id, lang)
       : undefined;
   const cityResult =
-    profileData.employmentInformation.city !== undefined
-      ? await getCityService().findLocalizedById(profileData.employmentInformation.city.id, lang)
+    profileData.substantiveCity !== undefined
+      ? await getCityService().findLocalizedById(profileData.substantiveCity.id, lang)
       : undefined;
 
   // convert the IDs to display names
@@ -131,8 +132,8 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const branchOrServiceCanadaRegion = workUnitResult?.into()?.parent?.name ?? branchResult?.into()?.name;
   const directorate = workUnitResult?.into()?.name;
   const city = cityResult?.into();
-  const hrAdvisorResult = profileData.employmentInformation.hrAdvisor
-    ? await getUserService().getUserById(profileData.employmentInformation.hrAdvisor, context.session.authState.accessToken)
+  const hrAdvisorResult = profileData.hrAdvisorId
+    ? await getUserService().getUserById(profileData.hrAdvisorId, context.session.authState.accessToken)
     : undefined;
   const hrAdvisor = hrAdvisorResult?.into();
   const languageReferralTypes = profileData.preferredLanguages
@@ -167,13 +168,10 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       directorate: directorate,
       province: city?.provinceTerritory.name,
       city: city?.name,
-      wfaStatus:
-        lang === 'en'
-          ? profileData.employmentInformation.wfaStatus?.nameEn
-          : profileData.employmentInformation.wfaStatus?.nameFr,
-      wfaStatusCode: profileData.employmentInformation.wfaStatus?.code,
-      wfaEffectiveDate: profileData.employmentInformation.wfaEffectiveDate,
-      wfaEndDate: profileData.employmentInformation.wfaEndDate,
+      wfaStatus: lang === 'en' ? profileData.wfaStatus?.nameEn : profileData.wfaStatus?.nameFr,
+      wfaStatusCode: profileData.wfaStatus?.code,
+      wfaEffectiveDate: profileData.wfaStartDate,
+      wfaEndDate: profileData.wfaEndDate,
       hrAdvisor: hrAdvisor && hrAdvisor.firstName + ' ' + hrAdvisor.lastName,
     },
     referralPreferences: {
@@ -184,7 +182,9 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       isInterestedInAlternation: profileData.isInterestedInAlternation,
       preferredEmploymentOpportunities: employmentOpportunities?.map((e) => e?.name),
     },
-    lastUpdated: profileData.dateUpdated ? formatDateTime(profileData.dateUpdated) : '0000-00-00 00:00',
+    lastUpdated: profileData.profileUser.lastModifiedDate
+      ? formatDateTime(profileData.profileUser.lastModifiedDate)
+      : '0000-00-00 00:00',
     lastUpdatedBy: profileUpdatedByUserName ?? 'Unknown User',
   };
 }
@@ -203,7 +203,9 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
   return (
     <div className="space-y-8">
       <div className="space-y-4 py-8 text-white">
-        <StatusTag status={{ code: loaderData.profileStatus.code, name: loaderData.profileStatus.name }} />
+        {loaderData.profileStatus && (
+          <StatusTag status={{ code: loaderData.profileStatus.code, name: loaderData.profileStatus.name }} />
+        )}
         <h1 className="mt-6 text-3xl font-semibold">{loaderData.name}</h1>
         {loaderData.email && <p className="mt-1">{loaderData.email}</p>}
         <p className="font-normal text-[#9FA3AD]">
@@ -226,9 +228,9 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
       {actionData && (
         <AlertMessage
           ref={alertRef}
-          type={loaderData.profileStatus.code === PROFILE_STATUS_CODE.approved ? 'success' : 'error'}
+          type={loaderData.profileStatus?.code === PROFILE_STATUS_CODE.approved ? 'success' : 'error'}
           message={
-            loaderData.profileStatus.code === PROFILE_STATUS_CODE.approved
+            loaderData.profileStatus?.code === PROFILE_STATUS_CODE.approved
               ? t('app:profile.hr-approved')
               : t('app:profile.profile-incomplete')
           }
