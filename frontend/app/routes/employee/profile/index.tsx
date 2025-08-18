@@ -46,8 +46,13 @@ export async function action({ context, request }: Route.ActionArgs) {
   const profileData = await getProfileService().findCurrentUserProfile(profileParams, context.session.authState.accessToken);
   const allWfaStatus = await getWFAStatuses().listAll();
 
+  const currentUser = profileData.profileUser;
+
   // For personal information, check required fields directly on profile
   const requiredPersonalFields = {
+    businessEmailAddress: currentUser.businessEmailAddress,
+    language: currentUser.language,
+    personalRecordIdentifier: currentUser.personalRecordIdentifier,
     personalEmailAddress: profileData.personalEmailAddress,
     personalPhoneNumber: profileData.personalPhoneNumber,
   };
@@ -185,12 +190,15 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   // Check each section if the required fields are complete
   // Personal information from Profile type
   const personalInformationData = {
+    businessEmailAddress: currentUser.businessEmailAddress,
+    language: currentUser.language,
+    personalRecordIdentifier: currentUser.personalRecordIdentifier,
     personalEmailAddress: profileData.personalEmailAddress,
     personalPhoneNumber: profileData.personalPhoneNumber,
   };
   const requiredPersonalInformation = personalInformationData;
   const personalInformationCompleted = countCompletedItems(requiredPersonalInformation);
-  const personalInformationTotalFeilds = Object.keys(requiredPersonalInformation).length;
+  const personalInformationTotalFields = Object.keys(requiredPersonalInformation).length;
 
   const validWFAStatusesForOptionalDate = [EMPLOYEE_WFA_STATUS.affected, EMPLOYEE_WFA_STATUS.exAffected] as const;
   const selectedValidWfaStatusesForOptionalDate = allWfaStatus
@@ -235,12 +243,12 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const referralPreferencesCompleted = countReferralPreferencesCompleted(referralPreferencesFields);
   const referralPreferencesTotalFields = Object.keys(referralPreferencesFields).length;
 
-  const isCompletePersonalInformation = personalInformationCompleted === personalInformationTotalFeilds;
+  const isCompletePersonalInformation = personalInformationCompleted === personalInformationTotalFields;
   const isCompleteEmploymentInformation = employmentInformationCompleted === employmentInformationTotalFields;
   const isCompleteReferralPreferences = referralPreferencesCompleted === referralPreferencesTotalFields;
 
   const profileCompleted = personalInformationCompleted + employmentInformationCompleted + referralPreferencesCompleted;
-  const profileTotalFields = personalInformationTotalFeilds + employmentInformationTotalFields + referralPreferencesTotalFields;
+  const profileTotalFields = personalInformationTotalFields + employmentInformationTotalFields + referralPreferencesTotalFields;
   const amountCompleted = (profileCompleted / profileTotalFields) * 100;
 
   return {
