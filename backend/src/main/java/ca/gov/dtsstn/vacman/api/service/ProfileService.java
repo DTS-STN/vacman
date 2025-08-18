@@ -1,7 +1,7 @@
 package ca.gov.dtsstn.vacman.api.service;
 
-import static ca.gov.dtsstn.vacman.api.exception.ExceptionUtils.generateIdDoesNotExistException;
 import static ca.gov.dtsstn.vacman.api.security.SecurityUtils.getCurrentUserEntraId;
+import static ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException.asResourceNotFoundException;
 
 import java.util.List;
 import java.util.Map;
@@ -188,10 +188,10 @@ public class ProfileService {
 
 		if (hrAdvisorId != null && !hrAdvisorId.equals(existingEntity.getHrAdvisor().getId())) {
 			final var hrAdvisor = userService.getUserById(hrAdvisorId)
-				.orElseThrow(() -> generateIdDoesNotExistException("HR Advisor", hrAdvisorId));
+					.orElseThrow(asResourceNotFoundException("HR Advisor", hrAdvisorId));
 
 			if (!hrAdvisor.getUserType().getCode().equals("hr-advisor")) {
-				throw generateIdDoesNotExistException("HR Advisor", hrAdvisorId);
+				throw asResourceNotFoundException("HR Advisor", hrAdvisorId).get();
 			}
 
 			existingEntity.setHrAdvisor(hrAdvisor);
@@ -200,19 +200,19 @@ public class ProfileService {
 		final var classificationId = updateModel.classification().getId();
 		if (classificationId != null && !classificationId.equals(existingEntity.getClassification().getId())) {
 			existingEntity.setClassification(classificationRepository.findById(classificationId)
-				.orElseThrow(() -> generateIdDoesNotExistException("Classification", classificationId)));
+				.orElseThrow(asResourceNotFoundException("Classification", classificationId)));
 		}
 
 		final var workUnitId = updateModel.workUnit().getId();
 		if (workUnitId != null && !workUnitId.equals(existingEntity.getWorkUnit().getId())) {
 			existingEntity.setWorkUnit(workUnitRepository.findById(workUnitId)
-				.orElseThrow(() -> generateIdDoesNotExistException("Work Unit", workUnitId)));
+				.orElseThrow(asResourceNotFoundException("Work Unit", workUnitId)));
 		}
 
 		final var wfaStatusId = updateModel.wfaStatus().getId();
 		if (wfaStatusId != null && !wfaStatusId.equals(existingEntity.getWfaStatus().getId())) {
 			existingEntity.setWfaStatus(wfaStatusRepository.findById(wfaStatusId)
-				.orElseThrow(() -> generateIdDoesNotExistException("WFA Status", wfaStatusId)));
+				.orElseThrow(asResourceNotFoundException("WFA Status", wfaStatusId)));
 		}
 
 		existingEntity.setPersonalEmailAddress(updateModel.personalEmailAddress());

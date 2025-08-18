@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import ca.gov.dtsstn.vacman.api.config.SpringDocConfig;
 import ca.gov.dtsstn.vacman.api.constants.AppConstants;
-import ca.gov.dtsstn.vacman.api.exception.ExceptionUtils;
 import ca.gov.dtsstn.vacman.api.security.SecurityManager;
 import ca.gov.dtsstn.vacman.api.security.SecurityUtils;
 import ca.gov.dtsstn.vacman.api.service.MSGraphService;
@@ -37,6 +36,9 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+
+import static ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException.asResourceNotFoundException;
+import static ca.gov.dtsstn.vacman.api.web.exception.UnauthorizedException.asEntraIdUnauthorizedException;
 
 @RestController
 @Tag(name = "Users")
@@ -65,7 +67,7 @@ public class UsersController {
 		log.info("Received request to create new user; request: [{}]", user);
 
 		final var entraId = SecurityUtils.getCurrentUserEntraId()
-			.orElseThrow(ExceptionUtils::generateEntraIdNotFoundException);
+				.orElseThrow(asEntraIdUnauthorizedException());
 
 		log.debug("Checking if user with entraId=[{}] already exists", entraId);
 
@@ -74,7 +76,7 @@ public class UsersController {
 		});
 
 		final var msGraphUser = msGraphService.getUser(entraId)
-			.orElseThrow(() -> new ResourceNotFoundException("User with entraId=[" + entraId + "] not found in MSGraph"));
+				.orElseThrow(() -> new ResourceNotFoundException("User with entraId=[" + entraId + "] not found in MSGraph"));
 
 		log.debug("MSGraph user details: [{}]", msGraphUser);
 
@@ -100,13 +102,13 @@ public class UsersController {
 		log.debug("Received request to get current user");
 
 		final var entraId = SecurityUtils.getCurrentUserEntraId()
-			.orElseThrow(ExceptionUtils::generateEntraIdNotFoundException);
+				.orElseThrow(asEntraIdUnauthorizedException());
 
 		log.debug("Fetching current user with microsoftEntraId=[{}]", entraId);
 
 		final var user = userService.getUserByMicrosoftEntraId(entraId)
-			.map(userModelMapper::toModel)
-				.orElseThrow(() -> ExceptionUtils.generateUserWithFieldDoesNotExistException("microsoftEntraId", entraId));
+				.map(userModelMapper::toModel)
+				.orElseThrow(ResourceNotFoundException.asUserResourceNotFoundException("microsoftEntraId", entraId));
 
 		log.debug("Found current user: [{}]", user);
 
@@ -136,8 +138,8 @@ public class UsersController {
 	@PreAuthorize("hasAuthority('hr-advisor') || @securityManager.canAccessUser(#id)")
 	public ResponseEntity<UserReadModel> getUserById(@PathVariable Long id) {
 		final var result = userService.getUserById(id)
-			.map(userModelMapper::toModel)
-			.orElseThrow(() -> ExceptionUtils.generateIdDoesNotExistException("user", id));
+				.map(userModelMapper::toModel)
+				.orElseThrow(asResourceNotFoundException("user", id));
 
 		return ResponseEntity.ok(result);
 	}
@@ -147,7 +149,7 @@ public class UsersController {
 	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
 	@PreAuthorize("hasAuthority('hr-advisor') || @securityManager.canAccessUser(#id)")
 	public ResponseEntity<UserReadModel> updateUser(@PathVariable long id, @RequestBody @Valid UserPatchModel updates) {
-		userService.getUserById(id).orElseThrow(() -> ExceptionUtils.generateIdDoesNotExistException("user", id));
+		userService.getUserById(id).orElseThrow(asResourceNotFoundException("user", id));
 		final var updatedUser = userService.updateUser(id, userModelMapper.toEntity(updates));
 		return ResponseEntity.ok(userModelMapper.toModel(updatedUser));
 	}
@@ -157,7 +159,7 @@ public class UsersController {
 	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
 	@PreAuthorize("hasAuthority('hr-advisor') || @securityManager.canAccessUser(#id)")
 	public ResponseEntity<UserReadModel> updateUser(@PathVariable Long id, @RequestBody @Valid UserPatchModel userUpdate) {
-		userService.getUserById(id).orElseThrow(() -> ExceptionUtils.generateIdDoesNotExistException("user", id));
+		userService.getUserById(id).orElseThrow(asResourceNotFoundException("user", id));
 		final var updatedUser = userService.overwriteUser(id, userModelMapper.toEntity(userUpdate));
 		return ResponseEntity.ok(userModelMapper.toModel(updatedUser));
 	}
