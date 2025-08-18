@@ -350,7 +350,9 @@ export function getMockUserService(): UserService {
 
         // Apply user type filter if provided
         if (params['user-type']) {
-          filteredUsers = filteredUsers.filter((u) => u.userType?.code === params['user-type']);
+          filteredUsers = filteredUsers.filter(
+            (u) => u.userType?.code === (params['user-type'] === 'hr-advisor' ? 'HRA' : params['user-type']),
+          );
         }
 
         // Handle pagination - default values

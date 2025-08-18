@@ -138,6 +138,11 @@ export async function getHrAdvisors(accessToken: string): Promise<User[]> {
   return result.unwrap().content;
 }
 
+// TODO complete the function body
+export function hasEmploymentDataChanged(oldData: Profile, newData: ProfilePutModel) {
+  return false;
+}
+
 export function hasReferralDataChanged(oldData: Profile, newData: ProfilePutModel): boolean {
   const normalizedOld = {
     preferredClassifications: oldData.preferredClassifications?.map((c) => c.id) ?? [],
@@ -145,7 +150,7 @@ export function hasReferralDataChanged(oldData: Profile, newData: ProfilePutMode
   };
 
   const normalizedNew = {
-    preferredClassifications: newData.preferredClassifications ?? [],
+    preferredClassifications: newData.preferredClassification ?? [],
     preferredCities: newData.preferredCities ?? [],
   };
 

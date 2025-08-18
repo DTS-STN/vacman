@@ -13,8 +13,8 @@ import type {
   LocalizedDirectorate,
   LocalizedProvince,
   LocalizedWFAStatus,
+  Profile,
   User,
-  UserEmploymentInformation,
 } from '~/.server/domain/models';
 import { Button } from '~/components/button';
 import { ButtonLink } from '~/components/button-link';
@@ -30,7 +30,7 @@ import { extractValidationKey } from '~/utils/validation-utils';
 
 interface EmploymentProps {
   cancelLink: I18nRouteFile;
-  formValues: Partial<UserEmploymentInformation> | undefined;
+  formValues: Partial<Profile> | undefined;
   formErrors?: Errors;
   substantivePositions: readonly LocalizedClassification[];
   branchOrServiceCanadaRegions: readonly LocalizedBranch[];
@@ -57,13 +57,15 @@ export function EmploymentInformationForm({
 }: EmploymentProps): JSX.Element {
   const { t } = useTranslation('app');
 
-  const [branch, setBranch] = useState(
-    formValues?.branchOrServiceCanadaRegion ? String(formValues.branchOrServiceCanadaRegion) : undefined,
-  );
+  const [branch, setBranch] = useState(formValues?.substantiveWorkUnit ? String(formValues.substantiveWorkUnit.id) : undefined);
   const [directorate, setDirectorate] = useState(
-    formValues?.directorate !== undefined ? String(formValues.directorate) : undefined,
+    formValues?.substantiveWorkUnit?.parent?.id !== undefined ? String(formValues.substantiveWorkUnit.parent.id) : undefined,
   );
-  const [province, setProvince] = useState(formValues?.province !== undefined ? String(formValues.province.id) : undefined);
+  const [province, setProvince] = useState(
+    formValues?.substantiveCity?.provinceTerritory !== undefined
+      ? String(formValues.substantiveCity.provinceTerritory.id)
+      : undefined,
+  );
   const [wfaStatusCode, setWfaStatusCode] = useState(wfaStatuses.find((c) => c.id === formValues?.wfaStatus?.id)?.code);
 
   const substantivePositionOptions = [{ id: 'select-option', name: '' }, ...substantivePositions].map(({ id, name }) => ({
@@ -127,10 +129,12 @@ export function EmploymentInformationForm({
     defaultChecked: formValues?.wfaStatus?.id === id,
   }));
 
-  const hrAdvisorOptions = [{ id: 'select-option', uuName: '' }, ...hrAdvisors].map(({ id, uuName }) => ({
-    value: id === 'select-option' ? '' : String(id),
-    children: id === 'select-option' ? t('form.select-option') : uuName,
-  }));
+  const hrAdvisorOptions = [{ id: 'select-option', firstName: '', lastName: '' }, ...hrAdvisors].map(
+    ({ id, firstName, lastName }) => ({
+      value: id === 'select-option' ? '' : String(id),
+      children: id === 'select-option' ? t('form.select-option') : `${firstName} ${lastName}`,
+    }),
+  );
 
   return (
     <>
@@ -146,7 +150,9 @@ export function EmploymentInformationForm({
               required
               options={substantivePositionOptions}
               label={t('employment-information.substantive-position-group-and-level')}
-              defaultValue={formValues?.substantivePosition !== undefined ? String(formValues.substantivePosition) : ''}
+              defaultValue={
+                formValues?.substantiveClassification !== undefined ? String(formValues.substantiveClassification.id) : ''
+              }
               className="w-full sm:w-1/2"
             />
             <InputSelect
@@ -158,7 +164,7 @@ export function EmploymentInformationForm({
               options={branchOrServiceCanadaRegionOptions}
               label={t('employment-information.branch-or-service-canada-region')}
               defaultValue={
-                formValues?.branchOrServiceCanadaRegion !== undefined ? String(formValues.branchOrServiceCanadaRegion) : ''
+                formValues?.substantiveWorkUnit !== undefined ? String(formValues.substantiveClassification?.id) : ''
               }
               className="w-full sm:w-1/2"
             />
@@ -195,7 +201,7 @@ export function EmploymentInformationForm({
                   required
                   options={cityOptions}
                   label={t('employment-information.city')}
-                  defaultValue={formValues?.city !== undefined ? String(formValues.city.id) : ''}
+                  defaultValue={formValues?.substantiveCity !== undefined ? String(formValues.substantiveCity.id) : ''}
                   className="w-full sm:w-1/2"
                 />
               </>
@@ -220,7 +226,7 @@ export function EmploymentInformationForm({
               wfaStatusCode === EMPLOYEE_WFA_STATUS.exSurplusCPA) && (
               <>
                 <DatePickerField
-                  defaultValue={formValues?.wfaEffectiveDate ?? ''}
+                  defaultValue={formValues?.wfaStartDate ?? ''}
                   id="wfaEffectiveDate"
                   legend={t('employment-information.wfa-effective-date')}
                   names={{
@@ -261,7 +267,7 @@ export function EmploymentInformationForm({
               required
               options={hrAdvisorOptions}
               label={t('employment-information.hr-advisor')}
-              defaultValue={formValues?.hrAdvisor ? String(formValues.hrAdvisor) : ''}
+              defaultValue={formValues?.hrAdvisorId ? String(formValues.hrAdvisorId) : ''}
               className="w-full sm:w-1/2"
             />
             <div className="mt-8 flex flex-row-reverse flex-wrap items-center justify-end gap-3">
