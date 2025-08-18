@@ -4,7 +4,6 @@ import type { Result, Option } from 'oxide.ts';
 import { getCityService } from './city-service';
 import { getClassificationService } from './classification-service';
 import { getEmploymentOpportunityTypeService } from './employment-opportunity-type-service';
-import { getLanguageForCorrespondenceService } from './language-for-correspondence-service';
 
 import type {
   Profile,
@@ -14,6 +13,7 @@ import type {
   CollectionProfileResponse,
   ProfileQueryParams,
 } from '~/.server/domain/models';
+import { getLanguageReferralTypeService } from '~/.server/domain/services/language-referral-type-service';
 import type { ProfileService } from '~/.server/domain/services/profile-service';
 import { PROFILE_STATUS_ID } from '~/domain/constants';
 import { AppError } from '~/errors/app-error';
@@ -287,13 +287,13 @@ export function getMockProfileService(): ProfileService {
         return Err(new AppError(`Profile with ID ${profileId} not found.`, ErrorCodes.PROFILE_NOT_FOUND));
       }
 
-      const languageService = getLanguageForCorrespondenceService();
+      const languageReferralTypeService = getLanguageReferralTypeService();
       const classificationService = getClassificationService();
       const cityService = getCityService();
       const employmentOppourtunityService = getEmploymentOpportunityTypeService();
 
       const preferredLanguages = profile.preferredLanguages
-        ? (await Promise.all(profile.preferredLanguages.map((id) => languageService.getById(id))))
+        ? (await Promise.all(profile.preferredLanguages.map((id) => languageReferralTypeService.getById(id))))
             .filter((result) => result.isOk())
             .map((result) => result.unwrap())
         : existingProfile.preferredLanguages;
@@ -409,8 +409,8 @@ const mockProfiles: Profile[] = [
     additionalComment: 'Looking for opportunities in software development.',
     hasConsentedToPrivacyTerms: false,
     hrAdvisorId: undefined,
-    isAvailableForReferral: true,
-    isInterestedInAlternation: false,
+    isAvailableForReferral: undefined,
+    isInterestedInAlternation: undefined,
     personalEmailAddress: 'jane.doe@example.com',
     personalPhoneNumber: '613-555-0001',
     languageOfCorrespondence: {
