@@ -52,5 +52,5 @@ public record ProfilePutModel (
         Set<Long> preferredEmploymentOpportunities,
 
         @Schema(accessMode = Schema.AccessMode.WRITE_ONLY, description = "Collection of cities designated as work locations")
-        Set<Long> languageReferralTypes
+        Set<Long> preferredLanguages
 ) {}
