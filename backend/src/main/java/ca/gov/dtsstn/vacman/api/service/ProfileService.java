@@ -206,7 +206,7 @@ public class ProfileService {
 		final var languageId = updateModel.languageOfCorrespondenceId();
 		if (languageId != null && !languageId.equals(existingEntity.getClassification().getId())) {
 			existingEntity.setLanguage(languageRepository.findById(languageId)
-					.orElseThrow(() -> generateIdDoesNotExistException("Language", languageId)));
+					.orElseThrow(asResourceNotFoundException("Language", languageId)));
 		}
 
 		final var classificationId = updateModel.classificationId();
@@ -218,7 +218,7 @@ public class ProfileService {
 		final var cityId = updateModel.cityId();
 		if (cityId != null && !cityId.equals(existingEntity.getClassification().getId())) {
 			existingEntity.setCity(cityRepository.findById(cityId)
-					.orElseThrow(() -> generateIdDoesNotExistException("City", cityId)));
+					.orElseThrow(asResourceNotFoundException("City", cityId)));
 		}
 
         final var workUnitId = updateModel.workUnitId();
