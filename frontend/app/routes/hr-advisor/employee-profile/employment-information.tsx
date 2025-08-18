@@ -53,9 +53,9 @@ export async function action({ context, params, request }: Route.ActionArgs) {
       { status: HttpStatusCodes.BAD_REQUEST },
     );
   }
-  const updateResult = await profileService.updateProfileById(context.session.authState.accessToken, {
-    ...profile,
-    employmentInformation: omitObjectProperties(parseResult.output, [
+  const updateResult = await profileService.updateProfileById(
+    profile.id,
+    omitObjectProperties(parseResult.output, [
       'wfaEffectiveDateYear',
       'wfaEffectiveDateMonth',
       'wfaEffectiveDateDay',
@@ -63,14 +63,15 @@ export async function action({ context, params, request }: Route.ActionArgs) {
       'wfaEndDateMonth',
       'wfaEndDateDay',
     ]),
-  });
+    context.session.authState.accessToken,
+  );
 
   if (updateResult.isErr()) {
     throw updateResult.unwrapErr();
   }
 
   return i18nRedirect('routes/hr-advisor/employee-profile/index.tsx', request, {
-    params: { profileId: profileResult.unwrap().profileId.toString() },
+    params: { profileId: profileResult.unwrap().id.toString() },
   });
 }
 
@@ -99,23 +100,23 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const profileData: Profile = profileResult.unwrap();
 
   const workUnitResult =
-    profileData.employmentInformation.directorate !== undefined
-      ? await getDirectorateService().findLocalizedById(profileData.employmentInformation.directorate, lang)
+    profileData.substantiveWorkUnit !== undefined
+      ? await getDirectorateService().findLocalizedById(profileData.substantiveWorkUnit?.id, lang)
       : undefined;
   const workUnit = workUnitResult?.into();
 
   return {
     documentTitle: t('app:employment-information.page-title'),
     defaultValues: {
-      substantivePosition: profileData.employmentInformation.substantivePosition,
-      branchOrServiceCanadaRegion: workUnit?.parent?.id ?? profileData.employmentInformation.branchOrServiceCanadaRegion,
+      substantivePosition: profileData.substantiveClassification,
+      branchOrServiceCanadaRegion: workUnit?.parent?.id,
       directorate: workUnit?.id,
-      province: profileData.employmentInformation.province,
-      cityId: profileData.employmentInformation.city,
-      wfaStatus: profileData.employmentInformation.wfaStatus,
-      wfaEffectiveDate: profileData.employmentInformation.wfaEffectiveDate,
-      wfaEndDate: profileData.employmentInformation.wfaEndDate,
-      hrAdvisor: profileData.employmentInformation.hrAdvisor,
+      province: profileData.substantiveCity?.provinceTerritory,
+      city: profileData.substantiveCity,
+      wfaStatus: profileData.wfaStatus,
+      wfaEffectiveDate: profileData.wfaStartDate,
+      wfaEndDate: profileData.wfaEndDate,
+      hrAdvisor: profileData.hrAdvisorId,
     },
     substantivePositions: substantivePositions,
     branchOrServiceCanadaRegions: branchOrServiceCanadaRegions,
