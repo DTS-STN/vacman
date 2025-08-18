@@ -1,8 +1,9 @@
 package ca.gov.dtsstn.vacman.api.web;
 
 import static ca.gov.dtsstn.vacman.api.constants.AppConstants.UserFields.MS_ENTRA_ID;
-import static ca.gov.dtsstn.vacman.api.exception.ExceptionUtils.generateIdDoesNotExistException;
-import static ca.gov.dtsstn.vacman.api.exception.ExceptionUtils.generateUserWithFieldDoesNotExistException;
+import static ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException.asResourceNotFoundException;
+import static ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException.asUserResourceNotFoundException;
+import static ca.gov.dtsstn.vacman.api.web.exception.UnauthorizedException.asEntraIdUnauthorizedException;
 
 import java.util.Collection;
 import java.util.Set;
@@ -36,8 +37,6 @@ import ca.gov.dtsstn.vacman.api.security.SecurityUtils;
 import ca.gov.dtsstn.vacman.api.service.ProfileService;
 import ca.gov.dtsstn.vacman.api.service.UserService;
 import ca.gov.dtsstn.vacman.api.web.exception.ResourceConflictException;
-import ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException;
-import ca.gov.dtsstn.vacman.api.web.exception.UnauthorizedException;
 import ca.gov.dtsstn.vacman.api.web.model.CollectionModel;
 import ca.gov.dtsstn.vacman.api.web.model.ProfileReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.ProfileStatusUpdateModel;
@@ -55,6 +54,10 @@ import jakarta.validation.Valid;
 public class ProfilesController {
 
 	private static final Logger log = LoggerFactory.getLogger(ProfilesController.class);
+
+	private static final String PROFILE = "profile";
+
+	private static final String FOUND_PROFILE_LOG_MSG = "Found profile: [{}]";
 
 	private final ProfileService profileService;
 
@@ -96,11 +99,11 @@ public class ProfilesController {
 		}
 		else if (hrAdvisor.equalsIgnoreCase("me")) {
 			final var entraId = SecurityUtils.getCurrentUserEntraId()
-				.orElseThrow(() -> new UnauthorizedException("Entra ID not found in security context"));
+				.orElseThrow(asEntraIdUnauthorizedException());
 
 			hrAdvisorId = userService.getUserByMicrosoftEntraId(entraId)
 				.map(UserEntity::getId)
-				.orElseThrow(() -> generateUserWithFieldDoesNotExistException(MS_ENTRA_ID, entraId));
+				.orElseThrow(asUserResourceNotFoundException(MS_ENTRA_ID, entraId));
 		}
 		else {
 			hrAdvisorId = Long.valueOf(hrAdvisor);
@@ -122,7 +125,7 @@ public class ProfilesController {
 			@Parameter(name = "active", description = "Return only active or inactive profiles")
 			Boolean isActive) {
 		final var entraId = SecurityUtils.getCurrentUserEntraId()
-			.orElseThrow(() -> new UnauthorizedException("Entra ID not found in security context"));
+			.orElseThrow(asEntraIdUnauthorizedException());
 
 		final var profiles = profileService.getProfilesByEntraId(entraId, isActive).stream()
 			.map(profileModelMapper::toModel)
@@ -139,10 +142,10 @@ public class ProfilesController {
 		log.info("Received request to get profile; ID: [{}]", id);
 
 		final var profile = profileService.getProfile(id)
-			.map(profileModelMapper::toModel)
-			.orElseThrow(() -> new ResourceNotFoundException("Could not find profile with id=[" + id + "]"));
+				.map(profileModelMapper::toModel)
+				.orElseThrow(asResourceNotFoundException(PROFILE, id));
 
-		log.trace("Found profile: [{}]", profile);
+		log.trace(FOUND_PROFILE_LOG_MSG, profile);
 
 		return ResponseEntity.ok(profile);
 	}
@@ -154,12 +157,11 @@ public class ProfilesController {
 	public ResponseEntity<ProfileReadModel> createCurrentUserProfile() {
 		log.info("Received request to create new profile");
 		final var microsoftEntraId = SecurityUtils.getCurrentUserEntraId()
-			.orElseThrow(() -> new UnauthorizedException("Entra ID not found in security context"));
-
+			.orElseThrow(asEntraIdUnauthorizedException());
 
 		log.debug("Checking if user with microsoftEntraId=[{}] already exists", microsoftEntraId);
 		final var existingUser = userService.getUserByMicrosoftEntraId(microsoftEntraId)
-			.orElseThrow(() -> generateUserWithFieldDoesNotExistException(MS_ENTRA_ID, microsoftEntraId));
+				.orElseThrow(asUserResourceNotFoundException(MS_ENTRA_ID, microsoftEntraId));
 
 		log.debug("Checking if user with microsoftEntraId=[{}] has an active profile", microsoftEntraId);
 		if (!profileService.getProfilesByEntraId(microsoftEntraId, true).isEmpty()) {
@@ -182,9 +184,9 @@ public class ProfilesController {
 		log.info("Received request to get profile; ID: [{}]", profileId);
 
 		final var foundProfile = profileService.getProfile(profileId)
-			.orElseThrow(() -> generateIdDoesNotExistException("profile", profileId));
+				.orElseThrow(asResourceNotFoundException(PROFILE, profileId));
 
-		log.trace("Found profile: [{}]", foundProfile);
+		log.trace(FOUND_PROFILE_LOG_MSG, foundProfile);
 
 		final var updatedEntity = profileService.updateProfile(updatedProfile, foundProfile);
 
@@ -194,17 +196,16 @@ public class ProfilesController {
 	@PutMapping(path = "/{id}/status")
 	@PreAuthorize("""
 		(hasAuthority('xhr-advisor') && @securityManager.targetProfileStatusIsApprovalOrArchived(#updatedProfileStatus.code)) ||
-		(@securityManager.canAccessProfile(#profileId) && @securityManager.targetProfileStatusIsPending(#updatedProfileStatus.code))
-	""")
+		(@securityManager.canAccessProfile(#profileId) && @securityManager.targetProfileStatusIsPending(#updatedProfileStatus.code))""")
 	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
 	@Operation(summary = "Update an existing profile's status code specified by ID.")
 	public ResponseEntity<Void> updateProfileById(@PathVariable(name = "id") Long profileId, @Valid @RequestBody ProfileStatusUpdateModel updatedProfileStatus) {
 		log.info("Received request to update profile status; ID: [{}]", profileId);
 
 		final var foundProfile = profileService.getProfile(profileId)
-			.orElseThrow(() -> generateIdDoesNotExistException("profile", profileId));
+				.orElseThrow(asResourceNotFoundException(PROFILE, profileId));
 
-		log.trace("Found profile: [{}]", foundProfile);
+		log.trace(FOUND_PROFILE_LOG_MSG, foundProfile);
 
 		final var validPretransitionStates = switch (updatedProfileStatus.getCode()) {
 			case AppConstants.ProfileStatusCodes.PENDING -> Set.of(AppConstants.ProfileStatusCodes.INCOMPLETE, AppConstants.ProfileStatusCodes.APPROVED);

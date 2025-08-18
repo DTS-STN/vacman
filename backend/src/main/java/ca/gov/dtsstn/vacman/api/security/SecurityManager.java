@@ -10,6 +10,8 @@ import ca.gov.dtsstn.vacman.api.service.ProfileService;
 import ca.gov.dtsstn.vacman.api.service.UserService;
 import ca.gov.dtsstn.vacman.api.web.exception.UnauthorizedException;
 
+import static ca.gov.dtsstn.vacman.api.web.exception.UnauthorizedException.asEntraIdUnauthorizedException;
+
 /**
  * Provides server-side security checks for access to various resources.
  * <p>
@@ -49,7 +51,7 @@ public class SecurityManager {
 	 */
 	public boolean canAccessProfile(long id) {
 		final var currentEntraId = SecurityUtils.getCurrentUserEntraId()
-			.orElseThrow(() -> new UnauthorizedException("Entra ID not found in security context"));
+			.orElseThrow(asEntraIdUnauthorizedException());
 
 		final var profileEntraId = profileService.getProfile(id)
 			.map(ProfileEntity::getUser)
@@ -77,7 +79,7 @@ public class SecurityManager {
 	 */
 	public boolean canAccessUser(long id) {
 		final var currentEntraId = SecurityUtils.getCurrentUserEntraId()
-			.orElseThrow(() -> new UnauthorizedException("Entra ID not found in security context"));
+			.orElseThrow(asEntraIdUnauthorizedException());
 
 		final var userEntraId = userService.getUserById(id)
 			.map(UserEntity::getMicrosoftEntraId)
