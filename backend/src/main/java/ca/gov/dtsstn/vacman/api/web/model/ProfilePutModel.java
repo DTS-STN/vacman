@@ -42,15 +42,15 @@ public record ProfilePutModel (
         @Schema(accessMode = Schema.AccessMode.WRITE_ONLY, description = "Additional comments on this profile.", example = "One cool individual.")
         String additionalComment,
 
-        @Schema(accessMode = Schema.AccessMode.WRITE_ONLY, description = "Collection of cities designated as work locations")
+        @Schema(accessMode = Schema.AccessMode.WRITE_ONLY, description = "Collection of city IDs designated as preferred work locations")
         Set<Long> preferredCities,
 
-        @Schema(accessMode = Schema.AccessMode.WRITE_ONLY, description = "Collection of cities designated as work locations")
+        @Schema(accessMode = Schema.AccessMode.WRITE_ONLY, description = "Collection of classification IDs designated as preferred.")
         Set<Long> preferredClassification,
 
-        @Schema(accessMode = Schema.AccessMode.WRITE_ONLY, description = "Collection of cities designated as work locations")
+        @Schema(accessMode = Schema.AccessMode.WRITE_ONLY, description = "Collection of employment opportunities designated as preferred.")
         Set<Long> preferredEmploymentOpportunities,
 
-        @Schema(accessMode = Schema.AccessMode.WRITE_ONLY, description = "Collection of cities designated as work locations")
-        Set<Long> languageReferralTypes
+        @Schema(accessMode = Schema.AccessMode.WRITE_ONLY, description = "Collection of language IDs designated as preferred.")
+        Set<Long> preferredLanguages
 ) {}

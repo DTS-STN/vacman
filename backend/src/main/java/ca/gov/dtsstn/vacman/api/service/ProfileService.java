@@ -375,7 +375,7 @@ public class ProfileService {
 
 	private void syncPreferredLanguages(final ProfilePutModel updateModel, final ProfileEntity existingEntity) {
 		syncAssociations(
-				updateModel.languageReferralTypes(),
+				updateModel.preferredLanguages(),
 				existingEntity.getLanguageReferralTypes(),
 				lrt -> lrt.getLanguageReferralType().getId(),
 				lrte -> {
