@@ -6,7 +6,6 @@ import * as v from 'valibot';
 
 import type { Route } from './+types/referral-preferences';
 
-import type { Profile } from '~/.server/domain/models';
 import { getCityService } from '~/.server/domain/services/city-service';
 import { getClassificationService } from '~/.server/domain/services/classification-service';
 import { getEmploymentOpportunityTypeService } from '~/.server/domain/services/employment-opportunity-type-service';
@@ -15,7 +14,7 @@ import { getProfileService } from '~/.server/domain/services/profile-service';
 import { getProvinceService } from '~/.server/domain/services/province-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { requirePrivacyConsentForOwnProfile } from '~/.server/utils/privacy-consent-utils';
-import { pickObjectProperties } from '~/.server/utils/profile-utils';
+import { hasReferralDataChanged } from '~/.server/utils/profile-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { InlineLink } from '~/components/links';
 import { PROFILE_STATUS_ID, PROFILE_STATUS_PENDING, REQUIRE_OPTIONS } from '~/domain/constants';
@@ -59,36 +58,16 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     );
   }
 
-  const allReferralKeys: (keyof Profile)[] = [
-    'preferredLanguages',
-    'preferredClassifications',
-    'preferredCities',
-    'isAvailableForReferral',
-    'isInterestedInAlternation',
-    'preferredEmploymentOpportunities',
-  ];
-
   const profileService = getProfileService();
   const profileParams = { active: true };
   const currentProfile = await profileService.findCurrentUserProfile(profileParams, context.session.authState.accessToken);
 
-  const oldReferralData = pickObjectProperties(currentProfile, allReferralKeys);
-  const newReferralData = pickObjectProperties(
-    {
-      ...currentProfile,
-      preferredLanguages: parseResult.output.preferredLanguages,
-      preferredClassifications: parseResult.output.preferredClassifications,
-      preferredCities: parseResult.output.preferredCities,
-      isAvailableForReferral: parseResult.output.isAvailableForReferral,
-      isInterestedInAlternation: parseResult.output.isInterestedInAlternation,
-      preferredEmploymentOpportunities: parseResult.output.preferredEmploymentOpportunities,
-    },
-    allReferralKeys,
-  );
+  const oldReferralData = currentProfile;
+  const newReferralData = parseResult.output;
 
   const updateResult = await profileService.updateProfileById(
     currentProfile.id,
-    newReferralData,
+    parseResult.output,
     context.session.authState.accessToken,
   );
 
