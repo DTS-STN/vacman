@@ -188,7 +188,6 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     .filter(Boolean);
 
   // Check each section if the required fields are complete
-  // Personal information from Profile type
   const personalInformationData = {
     businessEmailAddress: currentUser.businessEmailAddress,
     language: currentUser.language,
