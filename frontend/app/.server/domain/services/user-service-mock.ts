@@ -33,7 +33,7 @@ const mockUsers: readonly User[] = [
     },
     userType: {
       id: 3,
-      code: 'HRA',
+      code: 'HR_ADVISOR',
       nameEn: 'HR Advisor',
       nameFr: 'Conseiller RH',
     },
@@ -141,7 +141,7 @@ const mockUsers: readonly User[] = [
     },
     userType: {
       id: 3,
-      code: 'HRA',
+      code: 'HR_ADVISOR',
       nameEn: 'HR Advisor',
       nameFr: 'Conseiller RH',
     },
@@ -315,9 +315,9 @@ function updateUserById(id: number, updateUserRequest: UserUpdate): User | undef
     const updatedUser: User = {
       ...existingUser,
       id: existingUser.id, // Preserve the ID
-      // Map old property names to new property names
-      ...(updateUserRequest.businessEmailAddress && { businessEmailAddress: updateUserRequest.businessEmailAddress }),
-      ...(updateUserRequest.businessPhoneNumber && { businessPhoneNumber: updateUserRequest.businessPhoneNumber }),
+      // Map UserUpdate property names to User property names
+      ...(updateUserRequest.businessEmail && { businessEmailAddress: updateUserRequest.businessEmail }),
+      ...(updateUserRequest.businessPhone && { businessPhoneNumber: updateUserRequest.businessPhone }),
       ...(updateUserRequest.firstName && { firstName: updateUserRequest.firstName }),
       ...(updateUserRequest.lastName && { lastName: updateUserRequest.lastName }),
       ...(updateUserRequest.middleName !== undefined && { middleName: updateUserRequest.middleName }),
@@ -351,7 +351,7 @@ export function getMockUserService(): UserService {
         // Apply user type filter if provided
         if (params['user-type']) {
           filteredUsers = filteredUsers.filter(
-            (u) => u.userType?.code === (params['user-type'] === 'hr-advisor' ? 'HRA' : params['user-type']),
+            (u) => u.userType?.code === (params['user-type'] === 'hr-advisor' ? 'HR_ADVISOR' : params['user-type']),
           );
         }
 
@@ -426,7 +426,7 @@ export function getMockUserService(): UserService {
     getCurrentUser: (_accessToken: string): Promise<Option<User>> => {
       debugLog('getCurrentUser', 'Attempting to retrieve current user (first HR advisor)');
       // For mock, return the first HR advisor
-      const currentUser = mockUsers.find((u) => u.userType?.code === 'HRA');
+      const currentUser = mockUsers.find((u) => u.userType?.code === 'HR_ADVISOR');
       debugLog(
         'getCurrentUser',
         `Current user result: ${currentUser ? 'found' : 'not found'}`,

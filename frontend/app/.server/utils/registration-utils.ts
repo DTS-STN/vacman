@@ -39,5 +39,5 @@ export async function checkHiringManagerRouteRegistration(session: Authenticated
 }
 
 export async function checkHrAdvisorRouteRegistration(session: AuthenticatedSession, request: Request): Promise<void> {
-  await requireRoleRegistration(session, request, 'HRA', isHrAdvisorPath);
+  await requireRoleRegistration(session, request, 'HR_ADVISOR', isHrAdvisorPath);
 }
