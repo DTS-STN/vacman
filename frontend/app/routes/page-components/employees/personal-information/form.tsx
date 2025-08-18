@@ -27,6 +27,7 @@ export type UserPersonalInformation = {
   workPhone?: string;
   personalPhone?: string;
   additionalInformation?: string;
+  languagesOfCorrespondence: readonly LocalizedLanguageOfCorrespondence[];
 };
 
 interface PersonalInformationFormProps {
@@ -34,7 +35,6 @@ interface PersonalInformationFormProps {
   formValues: Partial<UserPersonalInformation> | undefined;
   formErrors?: Errors;
   isReadOnly: boolean;
-  languagesOfCorrespondence: readonly LocalizedLanguageOfCorrespondence[];
   params: Params;
 }
 
@@ -43,16 +43,16 @@ export function PersonalInformationForm({
   isReadOnly,
   formValues,
   formErrors,
-  languagesOfCorrespondence,
   params,
 }: PersonalInformationFormProps): JSX.Element {
   const { t } = useTranslation('app');
 
-  const languageOptions = languagesOfCorrespondence.map(({ id, name }) => ({
-    value: String(id),
-    children: name,
-    defaultChecked: id === formValues?.preferredLanguage?.id,
-  }));
+  const languageOptions =
+    formValues?.languagesOfCorrespondence?.map(({ id, name }) => ({
+      value: String(id),
+      children: name,
+      defaultChecked: id === formValues.preferredLanguage?.id,
+    })) ?? [];
 
   return (
     <>

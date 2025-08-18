@@ -120,8 +120,8 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       workPhone: toE164(currentUser.businessPhone),
       personalPhone: toE164(profileData.personalInformation.personalPhone),
       additionalInformation: profileData.personalInformation.additionalInformation,
+      languageOfCorrespondence: localizedLanguagesOfCorrespondenceResult,
     },
-    languagesOfCorrespondence: localizedLanguagesOfCorrespondenceResult,
   };
 }
 
@@ -140,7 +140,6 @@ export default function PersonalInformation({ loaderData, actionData, params }: 
           formErrors={errors}
           formValues={loaderData.defaultValues}
           isReadOnly={false}
-          languagesOfCorrespondence={loaderData.languagesOfCorrespondence}
           params={params}
         />
       </div>

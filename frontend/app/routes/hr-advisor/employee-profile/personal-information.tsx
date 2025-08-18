@@ -129,8 +129,8 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       workPhone: toE164(currentUser.businessPhone ?? profileData.profileUser.businessPhoneNumber),
       personalPhone: toE164(profileData.personalInformation.personalPhone),
       additionalInformation: profileData.personalInformation.additionalInformation,
+      languagesOfCorrespondence: localizedLanguagesOfCorrespondenceResult,
     },
-    languagesOfCorrespondence: localizedLanguagesOfCorrespondenceResult,
   };
 }
 
@@ -149,7 +149,6 @@ export default function PersonalInformation({ loaderData, actionData, params }: 
           formValues={loaderData.defaultValues}
           formErrors={errors}
           isReadOnly={true}
-          languagesOfCorrespondence={loaderData.languagesOfCorrespondence}
           params={params}
         />
       </div>
