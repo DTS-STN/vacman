@@ -40,7 +40,7 @@ const mockUser = {
   },
   userType: {
     id: 3,
-    code: 'HRA',
+    code: 'HR_ADVISOR',
     nameEn: 'HR Advisor',
     nameFr: 'Conseiller RH',
   },
@@ -51,9 +51,9 @@ const mockUser = {
 };
 
 vi.mock('~/.server/domain/services/user-service', () => ({
-  getUserService: () => ({
+  getUserService: vi.fn(() => ({
     getCurrentUser: mockGetCurrentUser,
-  }),
+  })),
 }));
 
 vi.mock('~/.server/logging', () => ({
@@ -76,7 +76,17 @@ describe('requireRoleRegistration', () => {
   });
 
   it('should allow access for correct role', async () => {
-    mockGetCurrentUser.mockResolvedValue(Some({ ...mockUser, role: 'hiring-manager' }));
+    mockGetCurrentUser.mockResolvedValue(
+      Some({
+        ...mockUser,
+        userType: {
+          id: 1,
+          code: 'hiring-manager',
+          nameEn: 'Hiring Manager',
+          nameFr: 'Gestionnaire Embauche',
+        },
+      }),
+    );
     await requireRoleRegistration(mockSession, mockRequest, 'hiring-manager', () => true);
 
     expect(mockGetCurrentUser).toHaveBeenCalledWith('test-token');
@@ -86,7 +96,17 @@ describe('requireRoleRegistration', () => {
 describe('checkHiringManagerRouteRegistration', () => {
   it('should delegate to requireRoleRegistration with correct parameters', async () => {
     const mockRequest = new Request('https://example.com/en/hiring-manager');
-    mockGetCurrentUser.mockResolvedValue(Some({ ...mockUser, role: 'hiring-manager' }));
+    mockGetCurrentUser.mockResolvedValue(
+      Some({
+        ...mockUser,
+        userType: {
+          id: 1,
+          code: 'hiring-manager',
+          nameEn: 'Hiring Manager',
+          nameFr: 'Gestionnaire Embauche',
+        },
+      }),
+    );
 
     await checkHiringManagerRouteRegistration(mockSession, mockRequest);
 
