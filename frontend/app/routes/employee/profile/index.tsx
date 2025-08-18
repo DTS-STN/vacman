@@ -51,7 +51,7 @@ export async function action({ context, request }: Route.ActionArgs) {
   // For personal information, check required fields directly on profile and profile user
   const requiredPersonalFields = {
     businessEmailAddress: currentUser.businessEmailAddress,
-    language: currentUser.language,
+    languageOfCorrespondence: profileData.languageOfCorrespondence,
     personalRecordIdentifier: currentUser.personalRecordIdentifier,
     personalEmailAddress: profileData.personalEmailAddress,
     personalPhoneNumber: profileData.personalPhoneNumber,
@@ -190,7 +190,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   // Check each section if the required fields are complete
   const personalInformationData = {
     businessEmailAddress: currentUser.businessEmailAddress,
-    language: currentUser.language,
+    languageOfCorrespondence: profileData.languageOfCorrespondence,
     personalRecordIdentifier: currentUser.personalRecordIdentifier,
     personalEmailAddress: profileData.personalEmailAddress,
     personalPhoneNumber: profileData.personalPhoneNumber,
