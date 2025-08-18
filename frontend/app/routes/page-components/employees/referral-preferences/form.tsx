@@ -70,7 +70,7 @@ export function ReferralPreferencesForm({
     formValues?.preferredClassifications?.map(({ id }) => id.toString()) ?? [],
   );
   const [selectedCities, setSelectedCities] = useState(formValues?.preferredCities?.map(({ id }) => id.toString()) ?? []);
-  const [province, setProvince] = useState(preferredProvince ? String(preferredProvince) : undefined);
+  const [province, setProvince] = useState(preferredProvince?.toString());
   const [srAnnouncement, setSrAnnouncement] = useState(''); //screen reader announcement
 
   const languageReferralTypeOptions = languageReferralTypes.map((langReferral) => ({
@@ -228,7 +228,10 @@ export function ReferralPreferencesForm({
                 options={provinceOptions}
                 errorMessage={tApp(extractValidationKey(formErrors?.preferredProvince))}
                 value={province ?? ''}
-                onChange={({ target }) => setProvince(target.value || undefined)}
+                onChange={({ target }) => {
+                  setProvince(target.value || undefined);
+                  setSelectedCities([]);
+                }}
               />
               {province && (
                 <>
