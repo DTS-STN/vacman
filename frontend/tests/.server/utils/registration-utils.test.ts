@@ -91,6 +91,40 @@ describe('requireRoleRegistration', () => {
 
     expect(mockGetCurrentUser).toHaveBeenCalledWith('test-token');
   });
+
+  it('should allow access for correct role in array', async () => {
+    mockGetCurrentUser.mockResolvedValue(
+      Some({
+        ...mockUser,
+        userType: {
+          id: 1,
+          code: 'hiring-manager',
+          nameEn: 'Hiring Manager',
+          nameFr: 'Gestionnaire Embauche',
+        },
+      }),
+    );
+    await requireRoleRegistration(mockSession, mockRequest, ['hr-advisor', 'hiring-manager'], () => true);
+
+    expect(mockGetCurrentUser).toHaveBeenCalledWith('test-token');
+  });
+
+  it('should allow access when user has any of multiple allowed roles', async () => {
+    mockGetCurrentUser.mockResolvedValue(
+      Some({
+        ...mockUser,
+        userType: {
+          id: 1,
+          code: 'HRA',
+          nameEn: 'HR Advisor',
+          nameFr: 'Conseiller RH',
+        },
+      }),
+    );
+    await requireRoleRegistration(mockSession, mockRequest, ['HRA', 'hiring-manager', 'admin'], () => true);
+
+    expect(mockGetCurrentUser).toHaveBeenCalledWith('test-token');
+  });
 });
 
 describe('checkHiringManagerRouteRegistration', () => {
