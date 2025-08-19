@@ -38,7 +38,7 @@ export async function createEmploymentInformationSchema(accessToken: string, for
   return v.pipe(
     v.intersect([
       v.object({
-        substantivePosition: v.lazy(() =>
+        substantiveClassification: v.lazy(() =>
           v.pipe(
             stringToIntegerSchema('app:employment-information.errors.substantive-group-and-level-required'),
             v.picklist(
@@ -83,7 +83,7 @@ export async function createEmploymentInformationSchema(accessToken: string, for
             ),
           ),
         ),
-        hrAdvisor: v.lazy(() =>
+        hrAdvisorId: v.lazy(() =>
           v.pipe(
             stringToIntegerSchema('app:employment-information.errors.hr-advisor-required'),
             v.picklist(
@@ -101,10 +101,10 @@ export async function createEmploymentInformationSchema(accessToken: string, for
               stringToIntegerSchema(),
               v.picklist(selectedValidWfaStatusesForOptionalDate.map(({ id }) => id)),
             ),
-            wfaEffectiveDateYear: v.optional(v.string()),
-            wfaEffectiveDateMonth: v.optional(v.string()),
-            wfaEffectiveDateDay: v.optional(v.string()),
-            wfaEffectiveDate: v.optional(v.string()),
+            wfaStartDateYear: v.optional(v.string()),
+            wfaStartDateMonth: v.optional(v.string()),
+            wfaStartDateDay: v.optional(v.string()),
+            wfaStartDate: v.optional(v.string()),
             wfaEndDateYear: v.optional(v.string()),
             wfaEndDateMonth: v.optional(v.string()),
             wfaEndDateDay: v.optional(v.string()),
@@ -115,7 +115,7 @@ export async function createEmploymentInformationSchema(accessToken: string, for
               stringToIntegerSchema(),
               v.picklist(selectedValidWfaStatusesForRequiredDate.map(({ id }) => id)),
             ),
-            wfaEffectiveDateYear: v.pipe(
+            wfaStartDateYear: v.pipe(
               stringToIntegerSchema('app:employment-information.errors.wfa-effective-date.required-year'),
               v.minValue(1, 'app:employment-information.errors.wfa-effective-date.invalid-year'),
               v.maxValue(
@@ -123,17 +123,17 @@ export async function createEmploymentInformationSchema(accessToken: string, for
                 'app:employment-information.errors.wfa-effective-date.invalid-year',
               ),
             ),
-            wfaEffectiveDateMonth: v.pipe(
+            wfaStartDateMonth: v.pipe(
               stringToIntegerSchema('app:employment-information.errors.wfa-effective-date.required-month'),
               v.minValue(1, 'app:employment-information.errors.wfa-effective-date.invalid-month'),
               v.maxValue(12, 'app:employment-information.errors.wfa-effective-date.invalid-month'),
             ),
-            wfaEffectiveDateDay: v.pipe(
+            wfaStartDateDay: v.pipe(
               stringToIntegerSchema('app:employment-information.errors.wfa-effective-date.required-day'),
               v.minValue(1, 'app:employment-information.errors.wfa-effective-date.invalid-day'),
               v.maxValue(31, 'app:employment-information.errors.wfa-effective-date.invalid-day'),
             ),
-            wfaEffectiveDate: v.pipe(
+            wfaStartDate: v.pipe(
               v.string(),
               v.trim(),
               v.transform((input) => (input === '' ? undefined : input)),
@@ -193,9 +193,9 @@ export async function createEmploymentInformationSchema(accessToken: string, for
     ]),
     v.forward(
       v.partialCheck(
-        [['wfaEffectiveDate'], ['wfaEndDate']],
-        //wfaEffectiveDate and wfaEndDate are optional, but if both are present, then check that wfaEffectiveDate < wfaEndDate
-        (input) => !input.wfaEffectiveDate || !input.wfaEndDate || input.wfaEffectiveDate < input.wfaEndDate,
+        [['wfaStartDate'], ['wfaEndDate']],
+        //wfaStartDate and wfaEndDate are optional, but if both are present, then check that wfaStartDate < wfaEndDate
+        (input) => !input.wfaStartDate || !input.wfaEndDate || input.wfaStartDate < input.wfaEndDate,
         'app:employment-information.errors.wfa-end-date.invalid-before-effective-date',
       ),
       ['wfaEndDate'],
@@ -386,30 +386,30 @@ export const referralPreferencesSchema = v.object({
 });
 
 export async function parseEmploymentInformation(formData: FormData, accessToken: string) {
-  const wfaEffectiveDateYear = formData.get('wfaEffectiveDateYear')?.toString();
-  const wfaEffectiveDateMonth = formData.get('wfaEffectiveDateMonth')?.toString();
-  const wfaEffectiveDateDay = formData.get('wfaEffectiveDateDay')?.toString();
+  const wfaStartDateYear = formData.get('wfaStartDateYear')?.toString();
+  const wfaStartDateMonth = formData.get('wfaStartDateMonth')?.toString();
+  const wfaStartDateDay = formData.get('wfaStartDateDay')?.toString();
 
   const wfaEndDateYear = formData.get('wfaEndDateYear')?.toString();
   const wfaEndDateMonth = formData.get('wfaEndDateMonth')?.toString();
   const wfaEndDateDay = formData.get('wfaEndDateDay')?.toString();
 
   const formValues = {
-    substantivePosition: formString(formData.get('substantivePosition')),
+    substantiveClassification: formString(formData.get('substantiveClassification')),
     branchOrServiceCanadaRegion: formString(formData.get('branchOrServiceCanadaRegion')),
     directorate: formString(formData.get('directorate')),
     provinceId: formString(formData.get('province')),
     cityId: formString(formData.get('cityId')),
     wfaStatusId: formString(formData.get('wfaStatus')),
-    wfaEffectiveDate: toDateString(wfaEffectiveDateYear, wfaEffectiveDateMonth, wfaEffectiveDateDay),
-    wfaEffectiveDateYear: wfaEffectiveDateYear,
-    wfaEffectiveDateMonth: wfaEffectiveDateMonth,
-    wfaEffectiveDateDay: wfaEffectiveDateDay,
+    wfaStartDate: toDateString(wfaStartDateYear, wfaStartDateMonth, wfaStartDateDay),
+    wfaStartDateYear: wfaStartDateYear,
+    wfaStartDateMonth: wfaStartDateMonth,
+    wfaStartDateDay: wfaStartDateDay,
     wfaEndDate: toDateString(wfaEndDateYear, wfaEndDateMonth, wfaEndDateDay),
     wfaEndDateYear: wfaEndDateYear,
     wfaEndDateMonth: wfaEndDateMonth,
     wfaEndDateDay: wfaEndDateDay,
-    hrAdvisor: formString(formData.get('hrAdvisor')),
+    hrAdvisorId: formString(formData.get('hrAdvisorId')),
   };
 
   const employmentInformationSchema = await createEmploymentInformationSchema(accessToken, formData);
@@ -417,21 +417,21 @@ export async function parseEmploymentInformation(formData: FormData, accessToken
   return {
     parseResult: v.safeParse(employmentInformationSchema, formValues),
     formValues: {
-      substantivePosition: formValues.substantivePosition,
+      substantiveClassification: formValues.substantiveClassification,
       branchOrServiceCanadaRegion: formValues.branchOrServiceCanadaRegion,
       directorate: formValues.directorate,
       provinceId: formValues.provinceId,
       cityId: formValues.cityId,
       wfaStatusId: formValues.wfaStatusId,
-      wfaEffectiveDateYear: formValues.wfaEffectiveDateYear,
-      wfaEffectiveDateMonth: formValues.wfaEffectiveDateMonth,
-      wfaEffectiveDateDay: formValues.wfaEffectiveDateDay,
-      wfaEffectiveDate: formValues.wfaEffectiveDate,
+      wfaStartDateYear: formValues.wfaStartDateYear,
+      wfaStartDateMonth: formValues.wfaStartDateMonth,
+      wfaStartDateDay: formValues.wfaStartDateDay,
+      wfaStartDate: formValues.wfaStartDate,
       wfaEndDate: formValues.wfaEndDate,
       wfaEndDateYear: formValues.wfaEndDateYear,
       wfaEndDateMonth: formValues.wfaEndDateMonth,
       wfaEndDateDay: formValues.wfaEndDateDay,
-      hrAdvisor: formValues.hrAdvisor,
+      hrAdvisorId: formValues.hrAdvisorId,
     },
   };
 }

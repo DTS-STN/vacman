@@ -57,9 +57,11 @@ export function EmploymentInformationForm({
 }: EmploymentProps): JSX.Element {
   const { t } = useTranslation('app');
 
-  const [branch, setBranch] = useState(formValues?.substantiveWorkUnit ? String(formValues.substantiveWorkUnit.id) : undefined);
+  const [branch, setBranch] = useState(
+    formValues?.substantiveWorkUnit ? String(formValues.substantiveWorkUnit.parent?.id) : undefined,
+  );
   const [directorate, setDirectorate] = useState(
-    formValues?.substantiveWorkUnit?.parent?.id !== undefined ? String(formValues.substantiveWorkUnit.parent.id) : undefined,
+    formValues?.substantiveWorkUnit !== undefined ? String(formValues.substantiveWorkUnit.id) : undefined,
   );
   const [province, setProvince] = useState(
     formValues?.substantiveCity?.provinceTerritory !== undefined
@@ -144,9 +146,9 @@ export function EmploymentInformationForm({
           <div className="space-y-6">
             <h2 className="font-lato text-2xl font-bold">{t('employment-information.substantive-position-heading')}</h2>
             <InputSelect
-              id="substantivePosition"
-              name="substantivePosition"
-              errorMessage={t(extractValidationKey(formErrors?.substantivePosition))}
+              id="substantiveClassification"
+              name="substantiveClassification"
+              errorMessage={t(extractValidationKey(formErrors?.substantiveClassification))}
               required
               options={substantivePositionOptions}
               label={t('employment-information.substantive-position-group-and-level')}
@@ -164,7 +166,7 @@ export function EmploymentInformationForm({
               options={branchOrServiceCanadaRegionOptions}
               label={t('employment-information.branch-or-service-canada-region')}
               defaultValue={
-                formValues?.substantiveWorkUnit !== undefined ? String(formValues.substantiveClassification?.id) : ''
+                formValues?.substantiveWorkUnit !== undefined ? String(formValues.substantiveWorkUnit.parent?.id) : ''
               }
               className="w-full sm:w-1/2"
             />
@@ -227,18 +229,18 @@ export function EmploymentInformationForm({
               <>
                 <DatePickerField
                   defaultValue={formValues?.wfaStartDate ?? ''}
-                  id="wfaEffectiveDate"
+                  id="wfaStartDate"
                   legend={t('employment-information.wfa-effective-date')}
                   names={{
-                    day: 'wfaEffectiveDateDay',
-                    month: 'wfaEffectiveDateMonth',
-                    year: 'wfaEffectiveDateYear',
+                    day: 'wfaStartDateDay',
+                    month: 'wfaStartDateMonth',
+                    year: 'wfaStartDateYear',
                   }}
                   errorMessages={{
-                    all: t(extractValidationKey(formErrors?.wfaEffectiveDate)),
-                    year: t(extractValidationKey(formErrors?.wfaEffectiveDateYear)),
-                    month: t(extractValidationKey(formErrors?.wfaEffectiveDateMonth)),
-                    day: t(extractValidationKey(formErrors?.wfaEffectiveDateDay)),
+                    all: t(extractValidationKey(formErrors?.wfaStartDate)),
+                    year: t(extractValidationKey(formErrors?.wfaStartDateYear)),
+                    month: t(extractValidationKey(formErrors?.wfaStartDateMonth)),
+                    day: t(extractValidationKey(formErrors?.wfaStartDateDay)),
                   }}
                   required
                 />
@@ -261,9 +263,9 @@ export function EmploymentInformationForm({
               </>
             )}
             <InputSelect
-              id="hrAdvisor"
-              name="hrAdvisor"
-              errorMessage={t(extractValidationKey(formErrors?.hrAdvisor))}
+              id="hrAdvisorId"
+              name="hrAdvisorId"
+              errorMessage={t(extractValidationKey(formErrors?.hrAdvisorId))}
               required
               options={hrAdvisorOptions}
               label={t('employment-information.hr-advisor')}

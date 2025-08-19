@@ -55,14 +55,18 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 
   const updateResult = await profileService.updateProfileById(
     currentProfile.id,
-    omitObjectProperties(parseResult.output, [
-      'wfaEffectiveDateYear',
-      'wfaEffectiveDateMonth',
-      'wfaEffectiveDateDay',
-      'wfaEndDateYear',
-      'wfaEndDateMonth',
-      'wfaEndDateDay',
-    ]),
+    {
+      ...omitObjectProperties(parseResult.output, [
+        'wfaStartDateYear',
+        'wfaStartDateMonth',
+        'wfaStartDateDay',
+        'wfaEndDateYear',
+        'wfaEndDateMonth',
+        'wfaEndDateDay',
+      ]),
+      classificationId: parseResult.output.substantiveClassification,
+      workUnitId: parseResult.output.directorate,
+    },
     context.session.authState.accessToken,
   );
 
@@ -109,24 +113,16 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const wfaStatuses = await getWFAStatuses().listAllLocalized(lang);
   const hrAdvisors = await getHrAdvisors(context.session.authState.accessToken);
 
-  const workUnitResult =
-    profileData.substantiveWorkUnit !== undefined
-      ? await getDirectorateService().findLocalizedById(profileData.substantiveWorkUnit.id, lang)
-      : undefined;
-  const workUnit = workUnitResult?.into();
-
   return {
     documentTitle: t('app:employment-information.page-title'),
     defaultValues: {
-      substantivePosition: profileData.substantiveClassification,
-      branchOrServiceCanadaRegion: workUnit?.parent?.id,
-      directorate: workUnit?.id,
-      province: profileData.substantiveCity?.provinceTerritory,
-      city: profileData.substantiveCity,
+      substantiveClassification: profileData.substantiveClassification,
+      substantiveWorkUnit: profileData.substantiveWorkUnit,
+      substantiveCity: profileData.substantiveCity,
       wfaStatus: profileData.wfaStatus,
-      wfaEffectiveDate: profileData.wfaStartDate,
+      wfaStartDate: profileData.wfaStartDate,
       wfaEndDate: profileData.wfaEndDate,
-      hrAdvisor: profileData.hrAdvisorId,
+      hrAdvisorId: profileData.hrAdvisorId,
     },
     substantivePositions: substantivePositions,
     branchOrServiceCanadaRegions: branchOrServiceCanadaRegions,
