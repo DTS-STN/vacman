@@ -214,48 +214,36 @@ public class ProfileService {
 	 * @throws ResourceNotFoundException When any given ID does not exist within the DB.
 	 */
 	public ProfileEntity updateProfile(ProfilePutModel updateModel, ProfileEntity existingEntity) {
-		final var hrAdvisorId = updateModel.hrAdvisorId();
+		Optional.ofNullable(updateModel.hrAdvisorId()).ifPresent(id -> {
+			existingEntity.setHrAdvisor(userService.getUserById(id)
+				.filter(user -> user.getUserType().getCode().equals("hr-advisor"))
+				.orElseThrow(asResourceNotFoundException("HR Advisor", updateModel.hrAdvisorId())));
+		});
 
-		if (hrAdvisorId != null && !hrAdvisorId.equals(existingEntity.getHrAdvisor().getId())) {
-			final var hrAdvisor = userService.getUserById(hrAdvisorId)
-				.orElseThrow(asResourceNotFoundException("HR Advisor", hrAdvisorId));
+		Optional.ofNullable(updateModel.languageOfCorrespondenceId()).ifPresent(id -> {
+			existingEntity.setLanguage(languageRepository.findById(id)
+				.orElseThrow(asResourceNotFoundException("Language", updateModel.languageOfCorrespondenceId())));
+		});
 
-			if (!hrAdvisor.getUserType().getCode().equals("hr-advisor")) {
-				throw asResourceNotFoundException("HR Advisor", hrAdvisorId).get();
-			}
+		Optional.ofNullable(updateModel.classificationId()).ifPresent(id -> {
+			existingEntity.setClassification(classificationRepository.findById(id)
+				.orElseThrow(asResourceNotFoundException("Classification", updateModel.classificationId())));
+		});
 
-			existingEntity.setHrAdvisor(hrAdvisor);
-		}
+		Optional.ofNullable(updateModel.cityId()).ifPresent(id -> {
+			existingEntity.setCity(cityRepository.findById(id)
+				.orElseThrow(asResourceNotFoundException("City", updateModel.cityId())));
+		});
 
-		final var languageId = updateModel.languageOfCorrespondenceId();
-		if (languageId != null && !languageId.equals(existingEntity.getClassification().getId())) {
-			existingEntity.setLanguage(languageRepository.findById(languageId)
-				.orElseThrow(asResourceNotFoundException("Language", languageId)));
-		}
+		Optional.ofNullable(updateModel.workUnitId()).ifPresent(id -> {
+			existingEntity.setWorkUnit(workUnitRepository.findById(id)
+				.orElseThrow(asResourceNotFoundException("Work Unit", updateModel.workUnitId())));
+		});
 
-		final var classificationId = updateModel.classificationId();
-		if (classificationId != null && !classificationId.equals(existingEntity.getClassification().getId())) {
-			existingEntity.setClassification(classificationRepository.findById(classificationId)
-				.orElseThrow(asResourceNotFoundException("Classification", classificationId)));
-		}
-
-		final var cityId = updateModel.cityId();
-		if (cityId != null && !cityId.equals(existingEntity.getClassification().getId())) {
-			existingEntity.setCity(cityRepository.findById(cityId)
-				.orElseThrow(asResourceNotFoundException("City", cityId)));
-		}
-
-		final var workUnitId = updateModel.workUnitId();
-		if (workUnitId != null && !workUnitId.equals(existingEntity.getWorkUnit().getId())) {
-			existingEntity.setWorkUnit(workUnitRepository.findById(workUnitId)
-				.orElseThrow(asResourceNotFoundException("Work Unit", workUnitId)));
-		}
-
-		final var wfaStatusId = updateModel.wfaStatusId();
-		if (wfaStatusId != null && !wfaStatusId.equals(existingEntity.getWfaStatus().getId())) {
-			existingEntity.setWfaStatus(wfaStatusRepository.findById(wfaStatusId)
-				.orElseThrow(asResourceNotFoundException("WFA Status", wfaStatusId)));
-		}
+		Optional.ofNullable(updateModel.wfaStatusId()).ifPresent(id -> {
+			existingEntity.setWfaStatus(wfaStatusRepository.findById(id)
+				.orElseThrow(asResourceNotFoundException("WFA Status", updateModel.wfaStatusId())));
+		});
 
 		syncPreferredCities(updateModel, existingEntity);
 		syncPreferredClassifications(updateModel, existingEntity);
