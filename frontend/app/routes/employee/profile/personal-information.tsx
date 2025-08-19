@@ -6,7 +6,7 @@ import * as v from 'valibot';
 
 import type { Route } from '../profile/+types/personal-information';
 
-import type { Profile } from '~/.server/domain/models';
+import type { Profile, ProfilePutModel } from '~/.server/domain/models';
 import { getLanguageForCorrespondenceService } from '~/.server/domain/services/language-for-correspondence-service';
 import { getProfileService } from '~/.server/domain/services/profile-service';
 import { getUserService } from '~/.server/domain/services/user-service';
@@ -98,9 +98,19 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   }
 
   // Update the profile (without fields for updating user)
+
+  const profilePayload: ProfilePutModel = {
+    ...currentProfile,
+    ...personalInformationForProfile,
+    preferredLanguages: [],
+    preferredCities: [],
+    preferredClassification: [],
+    preferredEmploymentOpportunities: [],
+  };
+
   const updateResult = await profileService.updateProfileById(
     currentProfile.id,
-    personalInformationForProfile,
+    profilePayload,
     context.session.authState.accessToken,
   );
 
@@ -129,8 +139,8 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   return {
     documentTitle: t('app:personal-information.page-title'),
     defaultValues: {
-      firstName: profileData.profileUser.lastName,
-      lastName: profileData.profileUser.firstName,
+      firstName: profileData.profileUser.firstName,
+      lastName: profileData.profileUser.lastName,
       personalRecordIdentifier: profileData.profileUser.personalRecordIdentifier,
       languageOfCorrespondence: profileData.languageOfCorrespondence,
       businessEmailAddress: currentUser.businessEmailAddress ?? profileData.profileUser.businessEmailAddress,
