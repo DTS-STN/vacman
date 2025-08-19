@@ -1,7 +1,6 @@
 package ca.gov.dtsstn.vacman.api.data.entity;
 
 import java.time.Instant;
-import java.util.Objects;
 import java.util.function.Predicate;
 
 import org.springframework.core.style.ToStringCreator;
@@ -117,12 +116,12 @@ public abstract class AbstractBaseEntity {
 		if (getClass() != obj.getClass()) { return false; }
 
 		final var other = (AbstractBaseEntity) obj;
-		return Objects.equals(id, other.id);
+		return id != null && id.equals(other.id);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id);
+		return id != null ? id.hashCode() : System.identityHashCode(this);
 	}
 
 	@Override
