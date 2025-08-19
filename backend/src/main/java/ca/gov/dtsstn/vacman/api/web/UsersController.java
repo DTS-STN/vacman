@@ -169,13 +169,13 @@ public class UsersController {
 	@Operation(summary = "Using an email, search for an existing user or create a new user. The email must be associated with an existing Microsoft Entra user.")
 	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
 	public ResponseEntity<UserReadModel> findOrCreateUser(@Valid @RequestBody FindOrCreateModel findOrCreateRequest) {
-		final var graphUser = msGraphService.getUserByEmail(findOrCreateRequest.getBusinessEmail())
-				.orElseThrow(asUserResourceNotFoundException("businessEmail", findOrCreateRequest.getBusinessEmail()));
-
-		return ResponseEntity.ok(userService.getUserByMicrosoftEntraId(graphUser.id())
-				.or(() -> Optional.ofNullable(userService.createUser(userModelMapper.toEntity(graphUser), 0)))
+		return ResponseEntity.ok(userService.getUserByBusinessEmail(findOrCreateRequest.getBusinessEmail())
+				.or(() -> msGraphService.getUserByEmail(findOrCreateRequest.getBusinessEmail())
+						.map(user ->
+								Optional.ofNullable(userService.createUser(userModelMapper.toEntity(user), 0)))
+						.orElseThrow(asUserResourceNotFoundException("businessEmailAddress", findOrCreateRequest.getBusinessEmail())))
 				.map(userModelMapper::toModel)
-				.orElseThrow(() -> new ResourceConflictException("Could not find or create user with email=[" + findOrCreateRequest.getBusinessEmail() + "]")));
+				.orElseThrow(() -> new ResourceNotFoundException("Could not find or create user with businessEmailAddress=[" + findOrCreateRequest.getBusinessEmail() + "]")));
 	}
 
 }

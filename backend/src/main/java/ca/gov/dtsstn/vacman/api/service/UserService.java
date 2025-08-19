@@ -5,6 +5,7 @@ import static ca.gov.dtsstn.vacman.api.data.entity.AbstractCodeEntity.byId;
 
 import java.util.Optional;
 
+import ca.gov.dtsstn.vacman.api.web.exception.ResourceConflictException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
@@ -133,4 +134,15 @@ public class UserService {
 		});
 	}
 
+	/**
+	 * @param businessEmail The email to search on.
+	 * @return The user entity, if any.
+	 */
+	public Optional<UserEntity> getUserByBusinessEmail(String businessEmail) {
+		if (businessEmail == null) {
+			throw new ResourceConflictException("BusinessEmailAddress cannot be null.");
+		}
+
+		return userRepository.findByBusinessEmailAddress(businessEmail);
+	}
 }
