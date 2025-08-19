@@ -138,11 +138,6 @@ export async function getHrAdvisors(accessToken: string): Promise<User[]> {
   return result.unwrap().content;
 }
 
-// TODO complete the function body
-export function hasEmploymentDataChanged(oldData: Profile, newData: ProfilePutModel) {
-  return false;
-}
-
 /**
  * Maps a Profile read model to a ProfilePutModel for updating via PUT endpoint.
  * This function extracts IDs from nested objects and ensures all fields are properly mapped
@@ -210,6 +205,26 @@ export function mapProfileToPutModel(profile: Profile): ProfilePutModel {
 export function mapProfileToPutModelWithOverrides(profile: Profile, overrides: Partial<ProfilePutModel>): ProfilePutModel {
   const basePutModel = mapProfileToPutModel(profile);
   return { ...basePutModel, ...overrides };
+}
+
+export function hasEmploymentDataChanged(oldData: Profile, newData: ProfilePutModel) {
+  const normalizedOld = {
+    substantiveClassification: oldData.substantiveClassification?.id,
+    wfaStatus: oldData.wfaStatus?.id,
+    wfaEffectiveDate: oldData.wfaStartDate,
+    wfaEndDate: oldData.wfaEndDate,
+    hrAdvisor: oldData.hrAdvisorId,
+  };
+
+  const normalizedNew = {
+    substantiveClassification: newData.classificationId,
+    wfaStatus: newData.wfaStatusId,
+    wfaEffectiveDate: newData.wfaStartDate,
+    wfaEndDate: newData.wfaEndDate,
+    hrAdvisor: newData.hrAdvisorId,
+  };
+
+  return !deepEqual(normalizedOld, normalizedNew);
 }
 
 export function hasReferralDataChanged(oldData: Profile, newData: ProfilePutModel): boolean {
