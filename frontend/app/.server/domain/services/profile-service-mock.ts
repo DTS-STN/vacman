@@ -3,7 +3,9 @@ import type { Result, Option } from 'oxide.ts';
 
 import { getCityService } from './city-service';
 import { getClassificationService } from './classification-service';
+import { getDirectorateService } from './directorate-service';
 import { getEmploymentOpportunityTypeService } from './employment-opportunity-type-service';
+import { getWFAStatuses } from './wfa-status-service';
 
 import type {
   Profile,
@@ -296,6 +298,8 @@ export function getMockProfileService(): ProfileService {
       const classificationService = getClassificationService();
       const cityService = getCityService();
       const employmentOppourtunityService = getEmploymentOpportunityTypeService();
+      const directorateService = getDirectorateService();
+      const wfaStatusService = getWFAStatuses();
 
       let languageOfCorrespondence = existingProfile.languageOfCorrespondence;
       if (profile.languageOfCorrespondenceId) {
@@ -304,29 +308,61 @@ export function getMockProfileService(): ProfileService {
           languageOfCorrespondence = langResult.unwrap();
         }
       }
-      const preferredLanguages = profile.preferredLanguages
-        ? (await Promise.all(profile.preferredLanguages.map((id) => languageReferralTypeService.getById(id))))
-            .filter((result) => result.isOk())
-            .map((result) => result.unwrap())
-        : existingProfile.preferredLanguages;
+      const preferredLanguages =
+        profile.preferredLanguages !== undefined
+          ? (await Promise.all(profile.preferredLanguages.map((id) => languageReferralTypeService.getById(id))))
+              .filter((result) => result.isOk())
+              .map((result) => result.unwrap())
+          : existingProfile.preferredLanguages;
 
-      const preferredClassifications = profile.preferredClassification
-        ? (await Promise.all(profile.preferredClassification.map((id) => classificationService.getById(id))))
-            .filter((result) => result.isOk())
-            .map((result) => result.unwrap())
-        : existingProfile.preferredClassifications;
+      const preferredClassifications =
+        profile.preferredClassification !== undefined
+          ? (await Promise.all(profile.preferredClassification.map((id) => classificationService.getById(id))))
+              .filter((result) => result.isOk())
+              .map((result) => result.unwrap())
+          : existingProfile.preferredClassifications;
 
-      const preferredCities = profile.preferredCities
-        ? (await Promise.all(profile.preferredCities.map((id) => cityService.getById(id))))
-            .filter((result) => result.isOk())
-            .map((result) => result.unwrap())
-        : existingProfile.preferredCities;
+      const preferredCities =
+        profile.preferredCities !== undefined
+          ? (await Promise.all(profile.preferredCities.map((id) => cityService.getById(id))))
+              .filter((result) => result.isOk())
+              .map((result) => result.unwrap())
+          : existingProfile.preferredCities;
 
-      const preferredEmploymentOpportunities = profile.preferredEmploymentOpportunities
-        ? (await Promise.all(profile.preferredEmploymentOpportunities.map((id) => employmentOppourtunityService.getById(id))))
-            .filter((result) => result.isOk())
-            .map((result) => result.unwrap())
-        : existingProfile.preferredEmploymentOpportunities;
+      const preferredEmploymentOpportunities =
+        profile.preferredEmploymentOpportunities !== undefined
+          ? (await Promise.all(profile.preferredEmploymentOpportunities.map((id) => employmentOppourtunityService.getById(id))))
+              .filter((result) => result.isOk())
+              .map((result) => result.unwrap())
+          : existingProfile.preferredEmploymentOpportunities;
+
+      const substantiveClassification =
+        profile.classificationId !== undefined
+          ? (await Promise.all([classificationService.getById(profile.classificationId)]))
+              .filter((result) => result.isOk())
+              .map((result) => result.unwrap())[0]
+          : existingProfile.substantiveClassification;
+
+      const substantiveWorkUnit =
+        profile.workUnitId !== undefined
+          ? (await Promise.all([directorateService.getById(profile.workUnitId)]))
+              .filter((result) => result.isOk())
+              .map((result) => result.unwrap())[0]
+          : existingProfile.substantiveWorkUnit;
+
+      const substantiveCity =
+        profile.cityId !== undefined
+          ? (await Promise.all([cityService.getById(profile.cityId)]))
+              .filter((result) => result.isOk())
+              .map((result) => result.unwrap())[0]
+          : existingProfile.substantiveCity;
+
+      const wfaStatus =
+        profile.wfaStatusId !== undefined
+          ? (await Promise.all([wfaStatusService.getById(profile.wfaStatusId)]))
+              .filter((result) => result.isOk())
+              .map((result) => result.unwrap())[0]
+          : existingProfile.wfaStatus;
 
       // Convert ProfilePutModel to Profile by mapping ID fields to objects and merging with existing data
       const updatedProfile: Profile = {
@@ -334,7 +370,6 @@ export function getMockProfileService(): ProfileService {
         // Map ProfilePutModel properties to Profile properties
         additionalComment: profile.additionalComment ?? existingProfile.additionalComment,
         hasConsentedToPrivacyTerms: profile.hasConsentedToPrivacyTerms ?? existingProfile.hasConsentedToPrivacyTerms,
-        hrAdvisorId: profile.hrAdvisorId ?? existingProfile.hrAdvisorId,
         isAvailableForReferral: profile.isAvailableForReferral ?? existingProfile.isAvailableForReferral,
         isInterestedInAlternation: profile.isInterestedInAlternation ?? existingProfile.isInterestedInAlternation,
         personalEmailAddress: profile.personalEmailAddress ?? existingProfile.personalEmailAddress,
@@ -346,6 +381,15 @@ export function getMockProfileService(): ProfileService {
         preferredClassifications,
         preferredCities,
         preferredEmploymentOpportunities,
+
+        hrAdvisorId: profile.hrAdvisorId,
+        substantiveClassification,
+        substantiveWorkUnit,
+        substantiveCity,
+        wfaStatus,
+        wfaStartDate: profile.wfaStartDate ?? existingProfile.wfaStartDate,
+        wfaEndDate: profile.wfaEndDate ?? existingProfile.wfaEndDate,
+
         id: profileId, // Ensure ID doesn't change
         lastModifiedDate: new Date().toISOString(),
         lastModifiedBy: 'mock-user',
