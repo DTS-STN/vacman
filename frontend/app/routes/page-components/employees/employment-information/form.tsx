@@ -215,7 +215,7 @@ export function EmploymentInformationForm({
               <InputRadios
                 id="wfaStatus"
                 name="wfaStatus"
-                errorMessage={t(extractValidationKey(formErrors?.wfaStatus))}
+                errorMessage={t(extractValidationKey(formErrors?.wfaStatusId))}
                 required
                 options={wfaStatusOptions}
                 legend={t('employment-information.wfa-status')}
