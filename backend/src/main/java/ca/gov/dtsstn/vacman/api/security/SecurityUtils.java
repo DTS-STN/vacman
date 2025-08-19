@@ -1,6 +1,7 @@
 package ca.gov.dtsstn.vacman.api.security;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -16,7 +17,7 @@ import ca.gov.dtsstn.vacman.api.constants.AppConstants;
  */
 public final class SecurityUtils {
 
-	private static final Set<String> ROLE_HIERARCHY = Set.of(
+	private static final List<String> ROLE_HIERARCHY = List.of(
 		AppConstants.Role.ADMIN,
 		AppConstants.Role.HR_ADVISOR,
 		AppConstants.Role.HIRING_MANAGER,
@@ -109,13 +110,6 @@ public final class SecurityUtils {
 	 * @return the highest privilege role authority, or "employee" as fallback if no roles found
 	 */
 	public static String getHighestPrivilegeRole() {
-		final var roleHierarchy = new String[]{
-			AppConstants.Role.ADMIN,
-			AppConstants.Role.HR_ADVISOR,
-			AppConstants.Role.HIRING_MANAGER,
-			AppConstants.Role.EMPLOYEE
-		};
-
 		final var userRoles = getCurrentAuthentication().stream()
 			.map(Authentication::getAuthorities)
 			.flatMap(Collection::stream)
@@ -124,7 +118,7 @@ public final class SecurityUtils {
 			.toList();
 
 		// Find the highest privilege role according to hierarchy
-		for (String role : roleHierarchy) {
+		for (String role : ROLE_HIERARCHY) {
 			if (userRoles.contains(role)) {
 				return role;
 			}
