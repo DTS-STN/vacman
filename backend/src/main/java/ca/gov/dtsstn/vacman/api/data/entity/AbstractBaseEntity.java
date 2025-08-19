@@ -2,6 +2,7 @@ package ca.gov.dtsstn.vacman.api.data.entity;
 
 import java.time.Instant;
 import java.util.Objects;
+import java.util.function.Predicate;
 
 import org.springframework.core.style.ToStringCreator;
 import org.springframework.data.annotation.CreatedBy;
@@ -22,6 +23,13 @@ import jakarta.persistence.Version;
 @MappedSuperclass
 @EntityListeners({ AuditingEntityListener.class })
 public abstract class AbstractBaseEntity {
+
+	/**
+	 * Returns a predicate that can be used to filter collections by id.
+	 */
+	public static <T extends AbstractBaseEntity> Predicate<T> byId(Long id) {
+		return entity -> entity.getId().equals(id);
+	}
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -22,13 +22,6 @@ public abstract class AbstractCodeEntity extends AbstractBaseEntity {
 		return entity -> entity.getCode().equals(code);
 	}
 
-	/**
-	 * Returns a predicate that can be used to filter collections by id.
-	 */
-	public static <T extends AbstractCodeEntity> Predicate<T> byId(Long id) {
-		return entity -> entity.getId().equals(id);
-	}
-
 	@Column(name = "[CODE]", length = 20, nullable = false)
 	protected String code;
 
