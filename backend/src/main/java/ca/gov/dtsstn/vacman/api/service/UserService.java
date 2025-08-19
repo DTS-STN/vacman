@@ -55,7 +55,14 @@ public class UserService {
 			.findFirst().orElseThrow());
 
 		// Set user type based on highest privilege role from JWT claims
-		final var userTypeCode = mapRoleToUserTypeCode(SecurityUtils.getHighestPrivilegeRole());
+		final var role = SecurityUtils.getHighestPrivilegeRole();
+		final var userTypeCode = AppConstants.UserType.fromRole(role);
+
+		// Log warning if unknown role was encountered
+		if (!AppConstants.UserType.isKnownRole(role)) {
+			log.warn("Unknown role '{}', defaulting to employee", role);
+		}
+
 		user.setUserType(codeService.getUserTypes(Pageable.unpaged()).stream()
 			.filter(byCode(userTypeCode))
 			.findFirst().orElseThrow());
@@ -68,25 +75,6 @@ public class UserService {
 		log.info("User created with ID: {}", createdUser.getId());
 
 		return createdUser;
-	}
-
-	/**
-	 * Maps JWT role authorities to user type codes.
-	 *
-	 * @param role the role authority from JWT claims
-	 * @return the corresponding user type code
-	 */
-	private String mapRoleToUserTypeCode(String role) {
-		return switch (role) {
-			case AppConstants.Role.ADMIN -> AppConstants.UserType.ADMIN;
-			case AppConstants.Role.HR_ADVISOR -> AppConstants.UserType.HR_ADVISOR;
-			case AppConstants.Role.HIRING_MANAGER -> AppConstants.UserType.HIRING_MANAGER;
-			case AppConstants.Role.EMPLOYEE -> AppConstants.UserType.EMPLOYEE;
-			default -> {
-				log.warn("Unknown role '{}', defaulting to employee", role);
-				yield AppConstants.UserType.EMPLOYEE;
-			}
-		};
 	}
 
 	public Optional<UserEntity> getUserById(long id) {
