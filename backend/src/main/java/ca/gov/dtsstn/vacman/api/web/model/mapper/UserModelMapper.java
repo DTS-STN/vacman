@@ -1,5 +1,6 @@
 package ca.gov.dtsstn.vacman.api.web.model.mapper;
 
+import ca.gov.dtsstn.vacman.api.service.dto.MSGraphUser;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -74,6 +75,13 @@ public interface UserModelMapper {
 	@Mapping(source = "initials", target = "initial")
 	@Mapping(source = "languageId", target = "language")
 	UserEntity toEntity(UserPatchModel model);
+
+	@Mapping(target = "id", ignore = true)
+	@Mapping(source = "id", target = "microsoftEntraId")
+	@Mapping(source = "givenName", target = "firstName")
+	@Mapping(source = "surname", target = "lastName")
+	@Mapping(source = "mail", target = "businessEmailAddress")
+	UserEntity toEntity(MSGraphUser graphUser);
 
 	/**
 	 * Maps a language id to a {@link LanguageEntity}.

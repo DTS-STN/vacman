@@ -1,5 +1,6 @@
 package ca.gov.dtsstn.vacman.api.web;
 
+import ca.gov.dtsstn.vacman.api.web.model.*;
 import org.mapstruct.factory.Mappers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,9 +28,6 @@ import ca.gov.dtsstn.vacman.api.service.MSGraphService;
 import ca.gov.dtsstn.vacman.api.service.UserService;
 import ca.gov.dtsstn.vacman.api.web.exception.ResourceConflictException;
 import ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException;
-import ca.gov.dtsstn.vacman.api.web.model.UserCreateModel;
-import ca.gov.dtsstn.vacman.api.web.model.UserPatchModel;
-import ca.gov.dtsstn.vacman.api.web.model.UserReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.mapper.UserModelMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -37,7 +35,10 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
+import java.util.Optional;
+
 import static ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException.asResourceNotFoundException;
+import static ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException.asUserResourceNotFoundException;
 import static ca.gov.dtsstn.vacman.api.web.exception.UnauthorizedException.asEntraIdUnauthorizedException;
 
 @RestController
@@ -162,6 +163,19 @@ public class UsersController {
 		userService.getUserById(id).orElseThrow(asResourceNotFoundException("user", id));
 		final var updatedUser = userService.overwriteUser(id, userModelMapper.toEntity(userUpdate));
 		return ResponseEntity.ok(userModelMapper.toModel(updatedUser));
+	}
+
+	@PostMapping("/find-or-create")
+	@Operation(summary = "Using an email, search for an existing user or create a new user. The email must be associated with an existing Microsoft Entra user.")
+	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
+	public ResponseEntity<UserReadModel> findOrCreateUser(@Valid @RequestBody FindOrCreateModel findOrCreateRequest) {
+		final var graphUser = msGraphService.getUserByEmail(findOrCreateRequest.getBusinessEmail())
+				.orElseThrow(asUserResourceNotFoundException("businessEmail", findOrCreateRequest.getBusinessEmail()));
+
+		return ResponseEntity.ok(userService.getUserByMicrosoftEntraId(graphUser.id())
+				.or(() -> Optional.ofNullable(userService.createUser(userModelMapper.toEntity(graphUser), 0)))
+				.map(userModelMapper::toModel)
+				.orElseThrow(() -> new ResourceConflictException("Could not find or create user with email=[" + findOrCreateRequest.getBusinessEmail() + "]")));
 	}
 
 }
