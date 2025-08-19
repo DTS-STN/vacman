@@ -9,6 +9,9 @@ public final class AppConstants {
 	private AppConstants() {}
 
 	public static final class UserType {
+		public static final String ADMIN = "admin";
+		public static final String HR_ADVISOR = "HRA";
+		public static final String HIRING_MANAGER = "hiring-manager";
 		public static final String EMPLOYEE = "employee";
 
 		private UserType() {}
