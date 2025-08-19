@@ -93,4 +93,31 @@ public final class SecurityUtils {
 		return hasCurrentUserAnyOfAuthorities(authority);
 	}
 
+	/**
+	 * Get the highest privilege role from the current user's authorities.
+	 * Role hierarchy (highest to lowest): admin > hr-advisor > hiring-manager > employee
+	 *
+	 * @return the highest privilege role authority, or "employee" as fallback if no roles found
+	 */
+	public static String getHighestPrivilegeRole() {
+		final var roleHierarchy = new String[]{"admin", "hr-advisor", "hiring-manager", "employee"};
+
+		final var userRoles = getCurrentAuthentication().stream()
+			.map(Authentication::getAuthorities)
+			.flatMap(Collection::stream)
+			.map(GrantedAuthority::getAuthority)
+			.filter(authority -> Set.of(roleHierarchy).contains(authority))
+			.toList();
+
+		// Find the highest privilege role according to hierarchy
+		for (String role : roleHierarchy) {
+			if (userRoles.contains(role)) {
+				return role;
+			}
+		}
+
+		// Fallback to employee if no recognized roles found
+		return "employee";
+	}
+
 }
