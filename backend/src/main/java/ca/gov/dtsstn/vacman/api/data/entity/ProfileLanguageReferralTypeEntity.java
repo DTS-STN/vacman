@@ -6,6 +6,8 @@ import java.util.Objects;
 import org.immutables.builder.Builder;
 import org.springframework.core.style.ToStringCreator;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.annotation.Nullable;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
@@ -18,6 +20,7 @@ import jakarta.persistence.UniqueConstraint;
 public class ProfileLanguageReferralTypeEntity extends AbstractBaseEntity {
 
 	@ManyToOne
+	@JsonBackReference
 	@JoinColumn(name = "[PROFILE_ID]", nullable = false)
 	private ProfileEntity profile;
 
@@ -74,7 +77,7 @@ public class ProfileLanguageReferralTypeEntity extends AbstractBaseEntity {
 			return true;
 		}
 
-		if (!(obj instanceof ProfileLanguageReferralTypeEntity that)) {
+		if (!(obj instanceof final ProfileLanguageReferralTypeEntity that)) {
 			return false;
 		}
 

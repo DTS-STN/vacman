@@ -6,6 +6,8 @@ import java.util.Objects;
 import org.immutables.builder.Builder;
 import org.springframework.core.style.ToStringCreator;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.annotation.Nullable;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
@@ -22,6 +24,7 @@ public class ProfileEmploymentOpportunityEntity extends AbstractBaseEntity {
 	private EmploymentOpportunityEntity employmentOpportunity;
 
 	@ManyToOne
+	@JsonBackReference
 	@JoinColumn(name = "[PROFILE_ID]", nullable = false)
 	private ProfileEntity profile;
 
@@ -74,7 +77,7 @@ public class ProfileEmploymentOpportunityEntity extends AbstractBaseEntity {
 			return true;
 		}
 
-		if (!(obj instanceof ProfileEmploymentOpportunityEntity that)) {
+		if (!(obj instanceof final ProfileEmploymentOpportunityEntity that)) {
 			return false;
 		}
 
