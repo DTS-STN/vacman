@@ -74,11 +74,11 @@ public class ProfileCityEntity extends AbstractBaseEntity {
 			return true;
 		}
 
-		if (!(obj instanceof ProfileCityEntity that)) {
+		if (!(obj instanceof final ProfileCityEntity that)) {
 			return false;
 		}
 
-        return Objects.equals(this.profile, that.profile) && Objects.equals(this.city, that.city);
+		return Objects.equals(this.profile, that.profile) && Objects.equals(this.city, that.city);
 
 	}
 
@@ -86,4 +86,5 @@ public class ProfileCityEntity extends AbstractBaseEntity {
 	public int hashCode() {
 		return Objects.hash(profile, city);
 	}
+
 }

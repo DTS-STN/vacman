@@ -1,10 +1,10 @@
 package ca.gov.dtsstn.vacman.api.web.exception;
 
+import java.util.function.Supplier;
+
 import org.springframework.core.NestedRuntimeException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
-
-import java.util.function.Supplier;
 
 @SuppressWarnings({ "serial" })
 @ResponseStatus(HttpStatus.NOT_FOUND)
@@ -32,9 +32,7 @@ public class ResourceNotFoundException extends NestedRuntimeException {
 	 * @return A {@link Supplier} for a {@code ResourceNotFoundException} with a predetermined "entity with field value
 	 * not found" message.
 	 */
-	public static Supplier<ResourceNotFoundException> asResourceNotFoundException(String entityName,
-																				  String fieldName,
-																				  String fieldValue) {
+	public static Supplier<ResourceNotFoundException> asResourceNotFoundException(String entityName, String fieldName, String fieldValue) {
 		return () -> new ResourceNotFoundException(entityName, fieldName, fieldValue);
 	}
 
@@ -54,8 +52,8 @@ public class ResourceNotFoundException extends NestedRuntimeException {
 	 * @return A {@link Supplier} for a {@code ResourceNotFoundException} with a predetermined "user with field value
 	 * not found" message.
 	 */
-	public static Supplier<ResourceNotFoundException> asUserResourceNotFoundException(String fieldName,
-																					  String fieldValue) {
+	public static Supplier<ResourceNotFoundException> asUserResourceNotFoundException(String fieldName, String fieldValue) {
 		return asResourceNotFoundException("user", fieldName, fieldValue);
 	}
+
 }

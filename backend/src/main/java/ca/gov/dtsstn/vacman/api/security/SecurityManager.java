@@ -1,5 +1,7 @@
 package ca.gov.dtsstn.vacman.api.security;
 
+import static ca.gov.dtsstn.vacman.api.web.exception.UnauthorizedException.asEntraIdUnauthorizedException;
+
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Component;
 
@@ -9,8 +11,6 @@ import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 import ca.gov.dtsstn.vacman.api.service.ProfileService;
 import ca.gov.dtsstn.vacman.api.service.UserService;
 import ca.gov.dtsstn.vacman.api.web.exception.UnauthorizedException;
-
-import static ca.gov.dtsstn.vacman.api.web.exception.UnauthorizedException.asEntraIdUnauthorizedException;
 
 /**
  * Provides server-side security checks for access to various resources.
@@ -47,7 +47,7 @@ public class SecurityManager {
 	 * @param id the ID of the profile to check
 	 * @return {@code true} if the authenticated user can access the profile
 	 * @throws UnauthorizedException if no Entra ID is found in the current security context
-	 * @throws AccessDeniedException  if the profile does not exist or the IDs do not match
+	 * @throws AccessDeniedException if the profile does not exist or the IDs do not match
 	 */
 	public boolean canAccessProfile(long id) {
 		final var currentEntraId = SecurityUtils.getCurrentUserEntraId()
@@ -75,7 +75,7 @@ public class SecurityManager {
 	 * @param id the ID of the user to check
 	 * @return {@code true} if the authenticated user can access the user
 	 * @throws UnauthorizedException if no Entra ID is found in the current security context
-	 * @throws AccessDeniedException  if the user does not exist or the IDs do not match
+	 * @throws AccessDeniedException if the user does not exist or the IDs do not match
 	 */
 	public boolean canAccessUser(long id) {
 		final var currentEntraId = SecurityUtils.getCurrentUserEntraId()

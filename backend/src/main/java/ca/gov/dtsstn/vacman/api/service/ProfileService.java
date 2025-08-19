@@ -3,24 +3,42 @@ package ca.gov.dtsstn.vacman.api.service;
 import static ca.gov.dtsstn.vacman.api.security.SecurityUtils.getCurrentUserEntraId;
 import static ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException.asResourceNotFoundException;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import ca.gov.dtsstn.vacman.api.data.entity.*;
-import ca.gov.dtsstn.vacman.api.data.repository.*;
-import ca.gov.dtsstn.vacman.api.web.exception.ResourceConflictException;
-import ca.gov.dtsstn.vacman.api.web.model.ProfilePutModel;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import ca.gov.dtsstn.vacman.api.data.entity.ClassificationProfileEntityBuilder;
+import ca.gov.dtsstn.vacman.api.data.entity.ProfileCityEntityBuilder;
+import ca.gov.dtsstn.vacman.api.data.entity.ProfileEmploymentOpportunityEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntityBuilder;
+import ca.gov.dtsstn.vacman.api.data.entity.ProfileLanguageReferralTypeEntityBuilder;
+import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
+import ca.gov.dtsstn.vacman.api.data.repository.CityRepository;
+import ca.gov.dtsstn.vacman.api.data.repository.ClassificationRepository;
+import ca.gov.dtsstn.vacman.api.data.repository.EmploymentOpportunityRepository;
+import ca.gov.dtsstn.vacman.api.data.repository.LanguageReferralTypeRepository;
+import ca.gov.dtsstn.vacman.api.data.repository.LanguageRepository;
+import ca.gov.dtsstn.vacman.api.data.repository.ProfileRepository;
+import ca.gov.dtsstn.vacman.api.data.repository.ProfileStatusRepository;
+import ca.gov.dtsstn.vacman.api.data.repository.WfaStatusRepository;
+import ca.gov.dtsstn.vacman.api.data.repository.WorkUnitRepository;
 import ca.gov.dtsstn.vacman.api.event.ProfileCreateEvent;
 import ca.gov.dtsstn.vacman.api.event.ProfileReadEvent;
 import ca.gov.dtsstn.vacman.api.event.ProfileStatusChangeEvent;
 import ca.gov.dtsstn.vacman.api.event.ProfileUpdatedEvent;
+import ca.gov.dtsstn.vacman.api.web.exception.ResourceConflictException;
 import ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException;
+import ca.gov.dtsstn.vacman.api.web.model.ProfilePutModel;
 
 @Service
 public class ProfileService {
@@ -59,24 +77,30 @@ public class ProfileService {
 		Boolean.FALSE, INACTIVE_PROFILE_STATUS
 	);
 
-	public ProfileService(ClassificationRepository classificationRepository,
-                          ProfileRepository profileRepository, LanguageRepository languageRepository, CityRepository cityRepository,
-                          ProfileStatusRepository profileStatusRepository, EmploymentOpportunityRepository employmentOpportunityRepository,
-                          UserService userService, WfaStatusRepository wfaStatusRepository,
-                          WorkUnitRepository workUnitRepository,
-                          ApplicationEventPublisher eventPublisher, LanguageReferralTypeRepository languageReferralTypeRepository) {
+	public ProfileService(
+			ClassificationRepository classificationRepository,
+			ProfileRepository profileRepository,
+			LanguageRepository languageRepository,
+			CityRepository cityRepository,
+			ProfileStatusRepository profileStatusRepository,
+			EmploymentOpportunityRepository employmentOpportunityRepository,
+			UserService userService,
+			WfaStatusRepository wfaStatusRepository,
+			WorkUnitRepository workUnitRepository,
+			ApplicationEventPublisher eventPublisher,
+			LanguageReferralTypeRepository languageReferralTypeRepository) {
 		this.classificationRepository = classificationRepository;
 		this.profileRepository = profileRepository;
-        this.languageRepository = languageRepository;
-        this.cityRepository = cityRepository;
-        this.profileStatusRepository = profileStatusRepository;
-        this.employmentOpportunityRepository = employmentOpportunityRepository;
-        this.userService = userService;
+		this.languageRepository = languageRepository;
+		this.cityRepository = cityRepository;
+		this.profileStatusRepository = profileStatusRepository;
+		this.employmentOpportunityRepository = employmentOpportunityRepository;
+		this.userService = userService;
 		this.wfaStatusRepository = wfaStatusRepository;
 		this.workUnitRepository = workUnitRepository;
 		this.eventPublisher = eventPublisher;
-        this.languageReferralTypeRepository = languageReferralTypeRepository;
-    }
+		this.languageReferralTypeRepository = languageReferralTypeRepository;
+	}
 
 	/**
 	 * Returns all profiles that are either "active" or "inactive" depending on the argument value. Optionally,
@@ -194,7 +218,7 @@ public class ProfileService {
 
 		if (hrAdvisorId != null && !hrAdvisorId.equals(existingEntity.getHrAdvisor().getId())) {
 			final var hrAdvisor = userService.getUserById(hrAdvisorId)
-					.orElseThrow(asResourceNotFoundException("HR Advisor", hrAdvisorId));
+				.orElseThrow(asResourceNotFoundException("HR Advisor", hrAdvisorId));
 
 			if (!hrAdvisor.getUserType().getCode().equals("hr-advisor")) {
 				throw asResourceNotFoundException("HR Advisor", hrAdvisorId).get();
@@ -206,7 +230,7 @@ public class ProfileService {
 		final var languageId = updateModel.languageOfCorrespondenceId();
 		if (languageId != null && !languageId.equals(existingEntity.getClassification().getId())) {
 			existingEntity.setLanguage(languageRepository.findById(languageId)
-					.orElseThrow(asResourceNotFoundException("Language", languageId)));
+				.orElseThrow(asResourceNotFoundException("Language", languageId)));
 		}
 
 		final var classificationId = updateModel.classificationId();
@@ -218,10 +242,10 @@ public class ProfileService {
 		final var cityId = updateModel.cityId();
 		if (cityId != null && !cityId.equals(existingEntity.getClassification().getId())) {
 			existingEntity.setCity(cityRepository.findById(cityId)
-					.orElseThrow(asResourceNotFoundException("City", cityId)));
+				.orElseThrow(asResourceNotFoundException("City", cityId)));
 		}
 
-        final var workUnitId = updateModel.workUnitId();
+		final var workUnitId = updateModel.workUnitId();
 		if (workUnitId != null && !workUnitId.equals(existingEntity.getWorkUnit().getId())) {
 			existingEntity.setWorkUnit(workUnitRepository.findById(workUnitId)
 				.orElseThrow(asResourceNotFoundException("Work Unit", workUnitId)));
@@ -250,7 +274,6 @@ public class ProfileService {
 		final var updatedEntity = profileRepository.save(existingEntity);
 		eventPublisher.publishEvent(new ProfileUpdatedEvent(updatedEntity));
 
-
 		return updatedEntity;
 	}
 
@@ -267,26 +290,25 @@ public class ProfileService {
 	 * @param incomingIds A list of IDs representing the state after the sync has completed.
 	 * @param currentAssociations The current associative entities related to the target profile.
 	 * @param getAssociatedId A function to retrieve the ID of the underlying entity from the associative entity.
-	 * @param createAssociation A function to create an associative entity between the target profile and the target
-	 *                          related entity.
+	 * @param createAssociation A function to create an associative entity between the target profile and the target related entity.
 	 * @param fetchEntitiesByIds A function to retrieve all target entities by ID.
 	 * @param <E> The underlying entity type that has a relationship with the profile.
 	 * @param <A> The target associative entity type.
 	 */
 	private <E, A> void syncAssociations(Set<Long> incomingIds,
-										 Set<A> currentAssociations,
-										 Function<A, Long> getAssociatedId,
-										 Function<E, A> createAssociation,
-										 Function<Set<Long>, List<E>> fetchEntitiesByIds,
-										 String associationName) {
+			Set<A> currentAssociations,
+			Function<A, Long> getAssociatedId,
+			Function<E, A> createAssociation,
+			Function<Set<Long>, List<E>> fetchEntitiesByIds,
+			String associationName) {
 		// We allow empty incoming IDs to move forward. This effectively is treated as a "remove all" option.
 		if (incomingIds == null || incomingIds.contains(null)) {
 			throw new ResourceConflictException("Cannot assign " + associationName + " with null value(s).");
 		}
 
 		final var currentIds = currentAssociations.stream()
-				.map(getAssociatedId)
-				.collect(Collectors.toSet());
+			.map(getAssociatedId)
+			.collect(Collectors.toSet());
 
 		// Return early if there are no changes to make.
 		if (incomingIds.equals(currentIds)) {
@@ -302,8 +324,8 @@ public class ProfileService {
 
 		final var entitiesToAdd = fetchEntitiesByIds.apply(idsToAdd);
 		final var foundIds = entitiesToAdd.stream()
-				.map(e -> getAssociatedId.apply(createAssociation.apply(e)))
-				.collect(Collectors.toSet());
+			.map(e -> getAssociatedId.apply(createAssociation.apply(e)))
+			.collect(Collectors.toSet());
 
 		// If any IDs did not exist, we will not get an exception from fetchAllById. Instead, we check for the
 		// absence of a returned ID from the asked-for IDs and throw our own exception.
@@ -311,9 +333,9 @@ public class ProfileService {
 		missingIds.removeAll(foundIds);
 
 		if (!missingIds.isEmpty()) {
-			StringBuilder sb = new StringBuilder();
+			final var sb = new StringBuilder();
 			sb.append("A(n) entity for association ").append(associationName).append(" where id(s)=[ ");
-			for (var missingId : missingIds) {
+			for (final var missingId : missingIds) {
 				sb.append(missingId).append(" ");
 			}
 			sb.append("] do(es) not exist");
@@ -324,70 +346,64 @@ public class ProfileService {
 		currentAssociations.removeIf(a -> idsToRemove.contains(getAssociatedId.apply(a)));
 
 		// Add all associations that are now required.
-		for (E entity : entitiesToAdd) {
+		for (final E entity : entitiesToAdd) {
 			currentAssociations.add(createAssociation.apply(entity));
 		}
 
 	}
 
-	private void syncPreferredCities(final ProfilePutModel updateModel, final ProfileEntity existingEntity) {
+	private void syncPreferredCities(ProfilePutModel updateModel, ProfileEntity existingEntity) {
 		syncAssociations(
-				updateModel.preferredCities(),
-				existingEntity.getProfileCities(),
-				pc -> pc.getCity().getId(),
-				city -> {
-					ProfileCityEntity pce = new ProfileCityEntity();
-					pce.setProfile(existingEntity);
-					pce.setCity(city);
-					return pce;
-				},
-				cityRepository::findAllById,
-				"ProfileCities");
+			updateModel.preferredCities(),
+			existingEntity.getProfileCities(),
+			pc -> pc.getCity().getId(),
+			city -> new ProfileCityEntityBuilder()
+				.profile(existingEntity)
+				.city(city)
+				.build(),
+			cityRepository::findAllById,
+			"ProfileCities");
 	}
 
-	private void syncPreferredClassifications(final ProfilePutModel updateModel, final ProfileEntity existingEntity) {
+	private void syncPreferredClassifications(ProfilePutModel updateModel, ProfileEntity existingEntity) {
 		syncAssociations(
-				updateModel.preferredClassification(),
-				existingEntity.getClassificationProfiles(),
-				cp -> cp.getClassification().getId(),
-				classification -> {
-					ClassificationProfileEntity cpe = new ClassificationProfileEntity();
-					cpe.setProfile(existingEntity);
-					cpe.setClassification(classification);
-					return cpe;
-				},
-				classificationRepository::findAllById,
-				"ClassificationProfiles");
+			updateModel.preferredClassification(),
+			existingEntity.getClassificationProfiles(),
+			cp -> cp.getClassification().getId(),
+			classification -> new ClassificationProfileEntityBuilder()
+				.profile(existingEntity)
+				.classification(classification)
+				.build(),
+			classificationRepository::findAllById,
+			"ClassificationProfiles");
 	}
 
-	private void syncPreferredEmploymentOpportunities(final ProfilePutModel updateModel, final ProfileEntity existingEntity) {
+	private void syncPreferredEmploymentOpportunities(ProfilePutModel updateModel, ProfileEntity existingEntity) {
 		syncAssociations(
-				updateModel.preferredEmploymentOpportunities(),
-				existingEntity.getEmploymentOpportunities(),
-				peoe -> peoe.getEmploymentOpportunity().getId(),
-				empOpp -> {
-					ProfileEmploymentOpportunityEntity peoe = new ProfileEmploymentOpportunityEntity();
-					peoe.setProfile(existingEntity);
-					peoe.setEmploymentOpportunity(empOpp);
-					return peoe;
-				},
-				employmentOpportunityRepository::findAllById,
-				"ProfileEmploymentOpportunities");
+			updateModel.preferredEmploymentOpportunities(),
+			existingEntity.getEmploymentOpportunities(),
+			peoe -> peoe.getEmploymentOpportunity().getId(),
+			empOpp -> {
+				final var peoe = new ProfileEmploymentOpportunityEntity();
+				peoe.setProfile(existingEntity);
+				peoe.setEmploymentOpportunity(empOpp);
+				return peoe;
+			},
+			employmentOpportunityRepository::findAllById,
+			"ProfileEmploymentOpportunities");
 	}
 
-	private void syncPreferredLanguages(final ProfilePutModel updateModel, final ProfileEntity existingEntity) {
+	private void syncPreferredLanguages(ProfilePutModel updateModel, ProfileEntity existingEntity) {
 		syncAssociations(
-				updateModel.preferredLanguages(),
-				existingEntity.getLanguageReferralTypes(),
-				lrt -> lrt.getLanguageReferralType().getId(),
-				lrte -> {
-					ProfileLanguageReferralTypeEntity plrte = new ProfileLanguageReferralTypeEntity();
-					plrte.setProfile(existingEntity);
-					plrte.setLanguageReferralType(lrte);
-					return plrte;
-				},
-				languageReferralTypeRepository::findAllById,
-				"ProfileLanguageReferralTypes");
+			updateModel.preferredLanguages(),
+			existingEntity.getLanguageReferralTypes(),
+			lrt -> lrt.getLanguageReferralType().getId(),
+			lrte -> new ProfileLanguageReferralTypeEntityBuilder()
+				.profile(existingEntity)
+				.languageReferralType(lrte)
+				.build(),
+			languageReferralTypeRepository::findAllById,
+			"ProfileLanguageReferralTypes");
 	}
 
 }
