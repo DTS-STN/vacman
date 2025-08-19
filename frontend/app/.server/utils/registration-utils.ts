@@ -9,7 +9,7 @@ const log = LogFactory.getLogger(import.meta.url);
 export async function requireRoleRegistration(
   session: AuthenticatedSession,
   request: Request,
-  role: string,
+  roles: string | string[],
   routeChecker: (url: URL) => boolean,
 ): Promise<void> {
   const currentUrl = new URL(request.url);
@@ -25,12 +25,15 @@ export async function requireRoleRegistration(
   }
 
   const user = userOption.unwrap();
-  if (user.userType?.code !== role) {
-    log.debug(`User is not registered as a ${role}, redirecting to index`);
+  const allowedRoles = Array.isArray(roles) ? roles : [roles];
+  const userRole = user.userType?.code;
+
+  if (!userRole || !allowedRoles.includes(userRole)) {
+    log.debug(`User role '${userRole}' is not in allowed roles [${allowedRoles.join(', ')}], redirecting to index`);
     throw i18nRedirect('routes/employee/index.tsx', currentUrl);
   }
 
-  log.debug(`User is registered as a ${role}, allowing access`);
+  log.debug(`User is registered with role '${userRole}' (allowed: [${allowedRoles.join(', ')}]), allowing access`);
 }
 
 // Specific implementations
@@ -39,5 +42,5 @@ export async function checkHiringManagerRouteRegistration(session: Authenticated
 }
 
 export async function checkHrAdvisorRouteRegistration(session: AuthenticatedSession, request: Request): Promise<void> {
-  await requireRoleRegistration(session, request, 'HRA', isHrAdvisorPath);
+  await requireRoleRegistration(session, request, ['admin', 'HRA'], isHrAdvisorPath);
 }

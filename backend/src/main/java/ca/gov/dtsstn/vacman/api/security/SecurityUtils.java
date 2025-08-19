@@ -1,6 +1,7 @@
 package ca.gov.dtsstn.vacman.api.security;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -8,11 +9,20 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import ca.gov.dtsstn.vacman.api.constants.AppConstants;
+
 /**
  * Utility class for Spring Security.
  * Provides a streamlined, static interface for common security operations.
  */
 public final class SecurityUtils {
+
+	private static final List<String> ROLE_HIERARCHY = List.of(
+		AppConstants.Role.ADMIN,
+		AppConstants.Role.HR_ADVISOR,
+		AppConstants.Role.HIRING_MANAGER,
+		AppConstants.Role.EMPLOYEE
+	);
 
 	private SecurityUtils() { }
 
@@ -42,7 +52,7 @@ public final class SecurityUtils {
 			.map(Authentication::getAuthorities)
 			.flatMap(Collection::stream)
 			.map(GrantedAuthority::getAuthority)
-			.anyMatch(authority -> authority.equals("hr-advisor"));
+			.anyMatch(authority -> authority.equals(AppConstants.Role.HR_ADVISOR));
 	}
 
 	/**
@@ -91,6 +101,31 @@ public final class SecurityUtils {
 	 */
 	public static boolean hasCurrentUserThisAuthority(String authority) {
 		return hasCurrentUserAnyOfAuthorities(authority);
+	}
+
+	/**
+	 * Get the highest privilege role from the current user's authorities.
+	 * Role hierarchy (highest to lowest): admin > hr-advisor > hiring-manager > employee
+	 *
+	 * @return the highest privilege role authority, or "employee" as fallback if no roles found
+	 */
+	public static String getHighestPrivilegeRole() {
+		final var userRoles = getCurrentAuthentication().stream()
+			.map(Authentication::getAuthorities)
+			.flatMap(Collection::stream)
+			.map(GrantedAuthority::getAuthority)
+			.filter(ROLE_HIERARCHY::contains)
+			.toList();
+
+		// Find the highest privilege role according to hierarchy
+		for (String role : ROLE_HIERARCHY) {
+			if (userRoles.contains(role)) {
+				return role;
+			}
+		}
+
+		// Fallback to employee if no recognized roles found
+		return AppConstants.Role.EMPLOYEE;
 	}
 
 }

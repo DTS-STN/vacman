@@ -8,8 +8,49 @@ public final class AppConstants {
 
 	private AppConstants() {}
 
-	public static final class UserType {
+	public static final class Role {
+		public static final String ADMIN = "admin";
+		public static final String HR_ADVISOR = "hr-advisor";
+		public static final String HIRING_MANAGER = "hiring-manager";
 		public static final String EMPLOYEE = "employee";
+
+		private Role() {}
+	}
+
+	public static final class UserType {
+		public static final String ADMIN = "admin";
+		public static final String HR_ADVISOR = "HRA";
+		public static final String HIRING_MANAGER = "hiring-manager";
+		public static final String EMPLOYEE = "employee";
+
+		/**
+		 * Maps JWT role authorities to user type codes.
+		 *
+		 * @param role the role authority from JWT claims
+		 * @return the corresponding user type code, defaults to EMPLOYEE for unknown roles
+		 */
+		public static String fromRole(String role) {
+			return switch (role) {
+				case Role.ADMIN -> ADMIN;
+				case Role.HR_ADVISOR -> HR_ADVISOR;
+				case Role.HIRING_MANAGER -> HIRING_MANAGER;
+				case Role.EMPLOYEE -> EMPLOYEE;
+				default -> EMPLOYEE; // Default to employee for unknown roles
+			};
+		}
+
+		/**
+		 * Checks if the given role is a known/valid role.
+		 *
+		 * @param role the role to check
+		 * @return true if the role is recognized, false otherwise
+		 */
+		public static boolean isKnownRole(String role) {
+			return switch (role) {
+				case Role.ADMIN, Role.HR_ADVISOR, Role.HIRING_MANAGER, Role.EMPLOYEE -> true;
+				default -> false;
+			};
+		}
 
 		private UserType() {}
 	}

@@ -1,7 +1,7 @@
 package ca.gov.dtsstn.vacman.api.service;
 
+import static ca.gov.dtsstn.vacman.api.data.entity.AbstractBaseEntity.byId;
 import static ca.gov.dtsstn.vacman.api.data.entity.AbstractCodeEntity.byCode;
-import static ca.gov.dtsstn.vacman.api.data.entity.AbstractCodeEntity.byId;
 
 import java.util.Optional;
 
@@ -21,6 +21,7 @@ import ca.gov.dtsstn.vacman.api.event.UserCreatedEvent;
 import ca.gov.dtsstn.vacman.api.event.UserDeletedEvent;
 import ca.gov.dtsstn.vacman.api.event.UserReadEvent;
 import ca.gov.dtsstn.vacman.api.event.UserUpdatedEvent;
+import ca.gov.dtsstn.vacman.api.security.SecurityUtils;
 import ca.gov.dtsstn.vacman.api.service.mapper.UserEntityMapper;
 
 @Service
@@ -53,9 +54,17 @@ public class UserService {
 			.filter(byId(languageId))
 			.findFirst().orElseThrow());
 
-		// Set user type based on role (validation ensures it exists)
+		// Set user type based on highest privilege role from JWT claims
+		final var role = SecurityUtils.getHighestPrivilegeRole();
+		final var userTypeCode = AppConstants.UserType.fromRole(role);
+
+		// Log warning if unknown role was encountered
+		if (!AppConstants.UserType.isKnownRole(role)) {
+			log.warn("Unknown role '{}', defaulting to employee", role);
+		}
+
 		user.setUserType(codeService.getUserTypes(Pageable.unpaged()).stream()
-			.filter(byCode(AppConstants.UserType.EMPLOYEE))
+			.filter(byCode(userTypeCode))
 			.findFirst().orElseThrow());
 
 		// Save the user (profiles are created separately as needed)
