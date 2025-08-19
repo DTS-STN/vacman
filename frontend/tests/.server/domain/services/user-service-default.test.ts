@@ -325,6 +325,7 @@ describe('getDefaultUserService', () => {
       const updateData: UserUpdate = {
         firstName: 'Updated Jane',
         businessPhone: '+1-613-555-9999',
+        languageId: 1,
       };
 
       const result = await service.updateUserById(1, updateData, mockAccessToken);
@@ -340,7 +341,7 @@ describe('getDefaultUserService', () => {
       const updateError = new AppError('Update failed', ErrorCodes.PROFILE_UPDATE_FAILED);
       mockApiClient.put.mockResolvedValueOnce(Err(updateError));
 
-      const updateData: UserUpdate = { firstName: 'Test' };
+      const updateData: UserUpdate = { firstName: 'Test', languageId: 1 };
       const result = await service.updateUserById(1, updateData, mockAccessToken);
 
       expect(result.isErr()).toBe(true);

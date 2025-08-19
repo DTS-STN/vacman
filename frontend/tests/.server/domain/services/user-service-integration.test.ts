@@ -48,7 +48,7 @@ describe('User Service Integration', () => {
 
         const newUser = registrationResult.unwrap();
         expect(newUser.id).toBeGreaterThan(10); // Should be a new ID
-        expect(newUser.language?.code).toBe('EN');
+        expect(newUser.language.code).toBe('EN');
         expect(newUser.userType?.code).toBe('EMPLOYEE');
 
         // 2. Retrieve the newly created user
@@ -63,6 +63,7 @@ describe('User Service Integration', () => {
         const updateData: UserUpdate = {
           firstName: 'Updated First Name',
           lastName: 'Updated Last Name',
+          languageId: 1,
         };
 
         const updateResult = await userService.updateUserById(newUser.id, updateData, mockAccessToken);
@@ -136,7 +137,11 @@ describe('User Service Integration', () => {
         expect(findUserResult.isNone()).toBe(true);
 
         // Test updateUserById with non-existent ID
-        const updateResult = await userService.updateUserById(nonExistentId, { firstName: 'Test' }, mockAccessToken);
+        const updateResult = await userService.updateUserById(
+          nonExistentId,
+          { firstName: 'Test', languageId: 1 },
+          mockAccessToken,
+        );
         expect(updateResult.isErr()).toBe(true);
         expect(updateResult.unwrapErr().errorCode).toBe(ErrorCodes.PROFILE_NOT_FOUND);
       });
@@ -200,7 +205,7 @@ describe('User Service Integration', () => {
         // Mock updateUserById
         const updatedUser = { ...mockUser, firstName: 'Updated' };
         mockApiClient.put.mockResolvedValueOnce(Ok(updatedUser));
-        const updateResult = await userService.updateUserById(1, { firstName: 'Updated' }, mockAccessToken);
+        const updateResult = await userService.updateUserById(1, { firstName: 'Updated', languageId: 1 }, mockAccessToken);
         expect(updateResult.isOk()).toBe(true);
 
         // Verify API calls were made correctly

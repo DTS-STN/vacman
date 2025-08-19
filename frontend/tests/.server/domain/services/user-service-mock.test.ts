@@ -159,6 +159,7 @@ describe('getMockUserService', () => {
       const updateData: UserUpdate = {
         firstName: 'Updated Jane',
         businessPhone: '+1-613-555-9999',
+        languageId: 1,
       };
 
       const result = await service.updateUserById(1, updateData, mockAccessToken);
@@ -179,7 +180,7 @@ describe('getMockUserService', () => {
     });
 
     it('should return an error when user is not found', async () => {
-      const updateData: UserUpdate = { firstName: 'Test' };
+      const updateData: UserUpdate = { firstName: 'Test', languageId: 1 };
       const result = await service.updateUserById(999, updateData, mockAccessToken);
 
       expect(result.isErr()).toBe(true);
@@ -202,8 +203,8 @@ describe('getMockUserService', () => {
       const newUser = result.unwrap();
 
       expect(newUser.id).toBeGreaterThan(10); // Should be a new ID
-      expect(newUser.language?.id).toBe(2);
-      expect(newUser.language?.code).toBe('FR');
+      expect(newUser.language.id).toBe(2);
+      expect(newUser.language.code).toBe('FR');
       expect(newUser.userType?.code).toBe('EMPLOYEE');
       expect(newUser.businessEmailAddress).toContain('@canada.ca');
 
@@ -226,8 +227,8 @@ describe('getMockUserService', () => {
       expect(result.isOk()).toBe(true);
       const newUser = result.unwrap();
 
-      expect(newUser.language?.code).toBe('EN');
-      expect(newUser.language?.nameEn).toBe('English');
+      expect(newUser.language.code).toBe('EN');
+      expect(newUser.language.nameEn).toBe('English');
     });
   });
 });
