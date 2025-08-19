@@ -61,7 +61,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     );
   }
 
-  // Extract workPhone for user update, remove it from profile data
+  // Extract fields for user update, remove it from profile data
   const {
     businessEmailAddress,
     businessPhoneNumber,
@@ -70,16 +70,6 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     personalRecordIdentifier,
     ...personalInformationForProfile
   } = parseResult.output;
-
-  const updateProfileResult = await profileService.updateProfileById(
-    profile.id,
-    personalInformationForProfile,
-    context.session.authState.accessToken,
-  );
-
-  if (updateProfileResult.isErr()) {
-    throw updateProfileResult.unwrapErr();
-  }
 
   const userService = getUserService();
   const userResult = await userService.getUserById(profile.profileUser.id, context.session.authState.accessToken);
@@ -100,12 +90,24 @@ export async function action({ context, params, request }: Route.ActionArgs) {
       firstName: firstName,
       lastName: lastName,
       personalRecordIdentifier: personalRecordIdentifier,
+      languageId: user.language.id,
     },
     context.session.authState.accessToken,
   );
 
   if (userUpdateResult.isErr()) {
     throw userUpdateResult.unwrapErr();
+  }
+
+  // Update the profile (without fields for updating user)
+  const updateProfileResult = await profileService.updateProfileById(
+    profile.id,
+    personalInformationForProfile,
+    context.session.authState.accessToken,
+  );
+
+  if (updateProfileResult.isErr()) {
+    throw updateProfileResult.unwrapErr();
   }
 
   return i18nRedirect('routes/hr-advisor/employee-profile/index.tsx', request, {

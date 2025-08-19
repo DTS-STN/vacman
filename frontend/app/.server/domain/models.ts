@@ -110,7 +110,7 @@ export type User = Readonly<{
   middleName?: string;
   microsoftEntraId?: string;
   personalRecordIdentifier?: string;
-  language?: LanguageOfCorrespondence;
+  language: LanguageOfCorrespondence;
   userType?: UserType;
   createdBy?: string;
   createdDate?: string;
@@ -127,7 +127,7 @@ export type UserUpdate = Readonly<{
   businessPhone?: string;
   firstName?: string;
   initials?: string;
-  languageId?: number;
+  languageId: number;
   lastName?: string;
   middleName?: string;
   personalRecordIdentifier?: string;

@@ -76,6 +76,27 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     ...personalInformationForProfile
   } = parseResult.output;
 
+  if (currentUser) {
+    const userUpdateResult = await userService.updateUserById(
+      // Send complete user object with updates
+      currentUser.id,
+      {
+        ...currentUser,
+        businessEmail: businessEmailAddress,
+        businessPhone: businessPhoneNumber,
+        firstName: firstName,
+        lastName: lastName,
+        personalRecordIdentifier: personalRecordIdentifier,
+        languageId: currentUser.language.id,
+      },
+      context.session.authState.accessToken,
+    );
+
+    if (userUpdateResult.isErr()) {
+      throw userUpdateResult.unwrapErr();
+    }
+  }
+
   // Update the profile (without fields for updating user)
   const updateResult = await profileService.updateProfileById(
     currentProfile.id,
@@ -85,25 +106,6 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 
   if (updateResult.isErr()) {
     throw updateResult.unwrapErr();
-  }
-
-  if (currentUser) {
-    const userUpdateResult = await userService.updateUserById(
-      currentUser.id,
-      {
-        ...currentUser,
-        businessEmail: businessEmailAddress,
-        businessPhone: businessPhoneNumber,
-        firstName: firstName,
-        lastName: lastName,
-        personalRecordIdentifier: personalRecordIdentifier,
-      },
-      context.session.authState.accessToken,
-    );
-
-    if (userUpdateResult.isErr()) {
-      throw userUpdateResult.unwrapErr();
-    }
   }
 
   return i18nRedirect('routes/employee/profile/index.tsx', request, {
