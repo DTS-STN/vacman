@@ -6,7 +6,7 @@ import * as v from 'valibot';
 
 import type { Route } from '../employee-profile/+types/personal-information';
 
-import type { Profile } from '~/.server/domain/models';
+import type { Profile, ProfilePutModel } from '~/.server/domain/models';
 import { getLanguageForCorrespondenceService } from '~/.server/domain/services/language-for-correspondence-service';
 import { getProfileService } from '~/.server/domain/services/profile-service';
 import { getUserService } from '~/.server/domain/services/user-service';
@@ -100,9 +100,19 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   }
 
   // Update the profile (without fields for updating user)
+
+  const profilePayload: ProfilePutModel = {
+    ...profile,
+    ...personalInformationForProfile,
+    preferredLanguages: [],
+    preferredCities: [],
+    preferredClassification: [],
+    preferredEmploymentOpportunities: [],
+  };
+
   const updateProfileResult = await profileService.updateProfileById(
     profile.id,
-    personalInformationForProfile,
+    profilePayload,
     context.session.authState.accessToken,
   );
 
