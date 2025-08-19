@@ -78,10 +78,10 @@ public class UserService {
 	 */
 	private String mapRoleToUserTypeCode(String role) {
 		return switch (role) {
-			case "admin" -> AppConstants.UserType.ADMIN;
-			case "hr-advisor" -> AppConstants.UserType.HR_ADVISOR;
-			case "hiring-manager" -> AppConstants.UserType.HIRING_MANAGER;
-			case "employee" -> AppConstants.UserType.EMPLOYEE;
+			case AppConstants.Role.ADMIN -> AppConstants.UserType.ADMIN;
+			case AppConstants.Role.HR_ADVISOR -> AppConstants.UserType.HR_ADVISOR;
+			case AppConstants.Role.HIRING_MANAGER -> AppConstants.UserType.HIRING_MANAGER;
+			case AppConstants.Role.EMPLOYEE -> AppConstants.UserType.EMPLOYEE;
 			default -> {
 				log.warn("Unknown role '{}', defaulting to employee", role);
 				yield AppConstants.UserType.EMPLOYEE;
