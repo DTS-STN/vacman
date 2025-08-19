@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import ca.gov.dtsstn.vacman.api.constants.AppConstants;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -216,7 +217,7 @@ public class ProfileService {
 	public ProfileEntity updateProfile(ProfilePutModel updateModel, ProfileEntity existingEntity) {
 		Optional.ofNullable(updateModel.hrAdvisorId()).ifPresent(id -> {
 			existingEntity.setHrAdvisor(userService.getUserById(id)
-				.filter(user -> user.getUserType().getCode().equals("hr-advisor"))
+				.filter(user -> user.getUserType().getCode().equals(AppConstants.UserType.HR_ADVISOR))
 				.orElseThrow(asResourceNotFoundException("HR Advisor", updateModel.hrAdvisorId())));
 		});
 
