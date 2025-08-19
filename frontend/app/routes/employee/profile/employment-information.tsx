@@ -6,7 +6,7 @@ import * as v from 'valibot';
 
 import type { Route } from '../profile/+types/employment-information';
 
-import type { Profile } from '~/.server/domain/models';
+import type { Profile, ProfilePutModel } from '~/.server/domain/models';
 import { getCityService } from '~/.server/domain/services/city-service';
 import { getClassificationService } from '~/.server/domain/services/classification-service';
 import { getDirectorateService } from '~/.server/domain/services/directorate-service';
@@ -53,20 +53,27 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     context.session.authState.accessToken,
   );
 
+  const profilePayload: ProfilePutModel = {
+    ...currentProfile,
+    ...omitObjectProperties(parseResult.output, [
+      'wfaStartDateYear',
+      'wfaStartDateMonth',
+      'wfaStartDateDay',
+      'wfaEndDateYear',
+      'wfaEndDateMonth',
+      'wfaEndDateDay',
+    ]),
+    classificationId: parseResult.output.substantiveClassification,
+    workUnitId: parseResult.output.directorate,
+    preferredLanguages: [],
+    preferredCities: [],
+    preferredClassification: [],
+    preferredEmploymentOpportunities: [],
+  };
+
   const updateResult = await profileService.updateProfileById(
     currentProfile.id,
-    {
-      ...omitObjectProperties(parseResult.output, [
-        'wfaStartDateYear',
-        'wfaStartDateMonth',
-        'wfaStartDateDay',
-        'wfaEndDateYear',
-        'wfaEndDateMonth',
-        'wfaEndDateDay',
-      ]),
-      classificationId: parseResult.output.substantiveClassification,
-      workUnitId: parseResult.output.directorate,
-    },
+    profilePayload,
     context.session.authState.accessToken,
   );
 
