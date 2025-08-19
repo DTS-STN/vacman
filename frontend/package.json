@@ -57,7 +57,7 @@
     "i18next": "^25.3.2",
     "i18next-fetch-backend": "^6.0.0",
     "ioredis": "^5.6.1",
-    "isbot": "^5.1.28",
+    "isbot": "^5.1.30",
     "jose": "^6.0.12",
     "libphonenumber-js": "^1.12.10",
     "minimatch": "^10.0.3",
