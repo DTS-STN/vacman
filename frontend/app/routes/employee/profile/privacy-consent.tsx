@@ -7,9 +7,10 @@ import { useTranslation } from 'react-i18next';
 
 import type { Route } from './+types/privacy-consent';
 
-import type { Profile } from '~/.server/domain/models';
+import type { ProfilePutModel } from '~/.server/domain/models';
 import { getProfileService } from '~/.server/domain/services/profile-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
+import { mapProfileToPutModelWithOverrides } from '~/.server/utils/profile-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { Button } from '~/components/button';
 import { ButtonLink } from '~/components/button-link';
@@ -31,20 +32,31 @@ export async function action({ context, request }: Route.ActionArgs) {
   requireAuthentication(context.session, request);
 
   const profileService = getProfileService();
-  const profileOption = await getProfileService().getCurrentUserProfile(context.session.authState.accessToken);
+  const profileParams = { active: true };
+  const profileResult = await getProfileService().getCurrentUserProfiles(profileParams, context.session.authState.accessToken);
 
-  if (profileOption.isNone()) {
+  if (profileResult.isErr()) {
     return i18nRedirect('routes/index.tsx', request);
   }
 
-  const profile = profileOption.unwrap();
+  const profiles = profileResult.unwrap().content;
+  if (profiles.length === 0) {
+    return i18nRedirect('routes/index.tsx', request);
+  }
 
-  const updatePrivacyConsent: Profile = {
-    ...profile,
+  // Get the first (most recent) profile
+  const profile = profiles[0];
+  if (!profile) {
+    return i18nRedirect('routes/index.tsx', request);
+  }
+
+  // Create a complete ProfilePutModel with all existing values preserved
+  // and only update the privacy consent field
+  const updatePrivacyConsent: ProfilePutModel = mapProfileToPutModelWithOverrides(profile, {
     hasConsentedToPrivacyTerms: true,
-  };
+  });
 
-  await profileService.updateProfileById(context.session.authState.accessToken, updatePrivacyConsent);
+  await profileService.updateProfileById(profile.id, updatePrivacyConsent, context.session.authState.accessToken);
 
   return i18nRedirect('routes/employee/index.tsx', request);
 }

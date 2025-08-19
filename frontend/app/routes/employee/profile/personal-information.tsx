@@ -35,15 +35,15 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 
   const formData = await request.formData();
   const parseResult = v.safeParse(personalInformationSchema, {
-    surname: formString(formData.get('surname')),
-    givenName: formString(formData.get('givenName')),
+    firstName: formString(formData.get('firstName')),
+    lastName: formString(formData.get('lastName')),
     personalRecordIdentifier: formString(formData.get('personalRecordIdentifier')),
-    preferredLanguageId: formString(formData.get('preferredLanguageId')),
-    workEmail: formString(formData.get('workEmail')),
-    personalEmail: formString(formData.get('personalEmail')),
-    workPhone: formString(formData.get('workPhone')),
-    personalPhone: formString(formData.get('personalPhone')),
-    additionalInformation: formString(formData.get('additionalInformation')),
+    languageOfCorrespondenceId: formString(formData.get('languageOfCorrespondenceId')),
+    businessEmailAddress: formString(formData.get('businessEmailAddress')),
+    personalEmailAddress: formString(formData.get('personalEmailAddress')),
+    businessPhoneNumber: formString(formData.get('businessPhoneNumber')),
+    personalPhoneNumber: formString(formData.get('personalPhoneNumber')),
+    additionalComment: formString(formData.get('additionalComment')),
   });
 
   if (!parseResult.success) {
@@ -54,33 +54,40 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   }
 
   const profileService = getProfileService();
-  const currentProfileOption = await profileService.getCurrentUserProfile(context.session.authState.accessToken);
-  const currentProfile = currentProfileOption.unwrap();
+  const profileParams = { active: true };
+
+  const currentProfile: Profile = await profileService.findCurrentUserProfile(
+    profileParams,
+    context.session.authState.accessToken,
+  );
 
   // Get current user for complete user update
   const userService = getUserService();
   const currentUserOption = await userService.getCurrentUser(context.session.authState.accessToken);
   const currentUser = currentUserOption.into();
 
-  // Extract workPhone for user update, remove it from profile data
-  const { workPhone, ...personalInformationForProfile } = parseResult.output;
-
-  // Update the profile (without workPhone)
-  const updateResult = await profileService.updateProfileById(context.session.authState.accessToken, {
-    ...currentProfile,
-    personalInformation: personalInformationForProfile,
-  });
-
-  if (updateResult.isErr()) {
-    throw updateResult.unwrapErr();
-  }
+  // Extract fields for user update, remove it from profile data
+  const {
+    businessEmailAddress,
+    businessPhoneNumber,
+    firstName,
+    lastName,
+    personalRecordIdentifier,
+    ...personalInformationForProfile
+  } = parseResult.output;
 
   if (currentUser) {
-    const userUpdateResult = await userService.updateUser(
+    const userUpdateResult = await userService.updateUserById(
+      // Send complete user object with updates
+      currentUser.id,
       {
         ...currentUser,
-        languageId: parseResult.output.preferredLanguageId,
-        businessPhone: workPhone,
+        businessEmail: businessEmailAddress,
+        businessPhone: businessPhoneNumber,
+        firstName: firstName,
+        lastName: lastName,
+        personalRecordIdentifier: personalRecordIdentifier,
+        languageId: currentUser.language.id,
       },
       context.session.authState.accessToken,
     );
@@ -88,6 +95,17 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     if (userUpdateResult.isErr()) {
       throw userUpdateResult.unwrapErr();
     }
+  }
+
+  // Update the profile (without fields for updating user)
+  const updateResult = await profileService.updateProfileById(
+    currentProfile.id,
+    personalInformationForProfile,
+    context.session.authState.accessToken,
+  );
+
+  if (updateResult.isErr()) {
+    throw updateResult.unwrapErr();
   }
 
   return i18nRedirect('routes/employee/profile/index.tsx', request, {
@@ -102,24 +120,24 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const accessToken = context.session.authState.accessToken;
   const currentUserOption = await getUserService().getCurrentUser(accessToken);
   const currentUser = currentUserOption.unwrap();
-  const profileResult = await getProfileService().getCurrentUserProfile(accessToken);
+  const profileParams = { active: true };
+  const profileData: Profile = await getProfileService().findCurrentUserProfile(profileParams, accessToken);
 
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
   const localizedLanguagesOfCorrespondenceResult = await getLanguageForCorrespondenceService().listAllLocalized(lang);
-  const profileData: Profile = profileResult.unwrap();
 
   return {
     documentTitle: t('app:personal-information.page-title'),
     defaultValues: {
-      surname: profileData.profileUser.lastName,
-      givenName: profileData.profileUser.firstName,
+      firstName: profileData.profileUser.lastName,
+      lastName: profileData.profileUser.firstName,
       personalRecordIdentifier: profileData.profileUser.personalRecordIdentifier,
-      preferredLanguage: profileData.personalInformation.preferredLanguage,
-      workEmail: currentUser.businessEmail ?? profileData.profileUser.businessEmailAddress,
-      personalEmail: profileData.personalInformation.personalEmail,
-      workPhone: toE164(currentUser.businessPhone),
-      personalPhone: toE164(profileData.personalInformation.personalPhone),
-      additionalInformation: profileData.personalInformation.additionalInformation,
+      languageOfCorrespondence: profileData.languageOfCorrespondence,
+      businessEmailAddress: currentUser.businessEmailAddress ?? profileData.profileUser.businessEmailAddress,
+      personalEmailAddress: profileData.personalEmailAddress,
+      businessPhoneNumber: toE164(currentUser.businessPhoneNumber),
+      personalPhoneNumber: toE164(profileData.personalPhoneNumber),
+      additionalComment: profileData.additionalComment,
     },
     languagesOfCorrespondence: localizedLanguagesOfCorrespondenceResult,
   };

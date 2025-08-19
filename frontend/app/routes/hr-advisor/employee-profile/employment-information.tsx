@@ -12,11 +12,10 @@ import { getClassificationService } from '~/.server/domain/services/classificati
 import { getDirectorateService } from '~/.server/domain/services/directorate-service';
 import { getProfileService } from '~/.server/domain/services/profile-service';
 import { getProvinceService } from '~/.server/domain/services/province-service';
-import { getUserService } from '~/.server/domain/services/user-service';
 import { getWFAStatuses } from '~/.server/domain/services/wfa-status-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { extractUniqueBranchesFromDirectorates } from '~/.server/utils/directorate-utils';
-import { omitObjectProperties } from '~/.server/utils/profile-utils';
+import { getHrAdvisors, omitObjectProperties } from '~/.server/utils/profile-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { InlineLink } from '~/components/links';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
@@ -38,7 +37,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   requireAuthentication(context.session, request);
 
   const profileService = getProfileService();
-  const profileResult = await profileService.getProfileById(context.session.authState.accessToken, Number(params.profileId));
+  const profileResult = await profileService.getProfileById(Number(params.profileId), context.session.authState.accessToken);
 
   if (profileResult.isErr()) {
     throw new Response('Profile not found', { status: 404 });
@@ -54,24 +53,29 @@ export async function action({ context, params, request }: Route.ActionArgs) {
       { status: HttpStatusCodes.BAD_REQUEST },
     );
   }
-  const updateResult = await profileService.updateProfileById(context.session.authState.accessToken, {
-    ...profile,
-    employmentInformation: omitObjectProperties(parseResult.output, [
-      'wfaEffectiveDateYear',
-      'wfaEffectiveDateMonth',
-      'wfaEffectiveDateDay',
-      'wfaEndDateYear',
-      'wfaEndDateMonth',
-      'wfaEndDateDay',
-    ]),
-  });
+  const updateResult = await profileService.updateProfileById(
+    profile.id,
+    {
+      ...omitObjectProperties(parseResult.output, [
+        'wfaStartDateYear',
+        'wfaStartDateMonth',
+        'wfaStartDateDay',
+        'wfaEndDateYear',
+        'wfaEndDateMonth',
+        'wfaEndDateDay',
+      ]),
+      classificationId: parseResult.output.substantiveClassification,
+      workUnitId: parseResult.output.directorate,
+    },
+    context.session.authState.accessToken,
+  );
 
   if (updateResult.isErr()) {
     throw updateResult.unwrapErr();
   }
 
   return i18nRedirect('routes/hr-advisor/employee-profile/index.tsx', request, {
-    params: { profileId: profileResult.unwrap().profileId.toString() },
+    params: { profileId: profileResult.unwrap().id.toString() },
   });
 }
 
@@ -79,8 +83,8 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   requireAuthentication(context.session, request);
 
   const profileResult = await getProfileService().getProfileById(
-    context.session.authState.accessToken,
     Number(params.profileId),
+    context.session.authState.accessToken,
   );
 
   if (profileResult.isErr()) {
@@ -95,33 +99,20 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const provinces = await getProvinceService().listAllLocalized(lang);
   const cities = await getCityService().listAllLocalized(lang);
   const wfaStatuses = await getWFAStatuses().listAllLocalized(lang);
-  const hrAdvisorsResult = await getUserService().getUsersByRole('hr-advisor', context.session.authState.accessToken);
 
-  if (hrAdvisorsResult.isErr()) {
-    throw hrAdvisorsResult.unwrapErr();
-  }
-
-  const hrAdvisors = hrAdvisorsResult.unwrap();
+  const hrAdvisors = await getHrAdvisors(context.session.authState.accessToken);
   const profileData: Profile = profileResult.unwrap();
-
-  const workUnitResult =
-    profileData.employmentInformation.directorate !== undefined
-      ? await getDirectorateService().findLocalizedById(profileData.employmentInformation.directorate, lang)
-      : undefined;
-  const workUnit = workUnitResult?.into();
 
   return {
     documentTitle: t('app:employment-information.page-title'),
     defaultValues: {
-      substantivePosition: profileData.employmentInformation.substantivePosition,
-      branchOrServiceCanadaRegion: workUnit?.parent?.id ?? profileData.employmentInformation.branchOrServiceCanadaRegion,
-      directorate: workUnit?.id,
-      province: profileData.employmentInformation.province,
-      cityId: profileData.employmentInformation.city,
-      wfaStatus: profileData.employmentInformation.wfaStatus,
-      wfaEffectiveDate: profileData.employmentInformation.wfaEffectiveDate,
-      wfaEndDate: profileData.employmentInformation.wfaEndDate,
-      hrAdvisor: profileData.employmentInformation.hrAdvisor,
+      substantiveClassification: profileData.substantiveClassification,
+      substantiveWorkUnit: profileData.substantiveWorkUnit,
+      substantiveCity: profileData.substantiveCity,
+      wfaStatus: profileData.wfaStatus,
+      wfaStartDate: profileData.wfaStartDate,
+      wfaEndDate: profileData.wfaEndDate,
+      hrAdvisorId: profileData.hrAdvisorId,
     },
     substantivePositions: substantivePositions,
     branchOrServiceCanadaRegions: branchOrServiceCanadaRegions,

@@ -12,7 +12,7 @@ import type {
   LocalizedEmploymentOpportunityType,
   LocalizedLanguageReferralType,
   LocalizedProvince,
-  UserReferralPreferences,
+  Profile,
 } from '~/.server/domain/models';
 import { Button } from '~/components/button';
 import { ButtonLink } from '~/components/button-link';
@@ -38,7 +38,8 @@ import { extractValidationKey } from '~/utils/validation-utils';
 
 interface ReferralPreferencesFormProps {
   cancelLink: I18nRouteFile;
-  formValues: Partial<UserReferralPreferences> | undefined;
+  formValues: Partial<Profile> | undefined;
+  preferredProvince?: number;
   formErrors?: Errors;
   languageReferralTypes: readonly LocalizedLanguageReferralType[];
   classifications: readonly LocalizedClassification[];
@@ -51,6 +52,7 @@ interface ReferralPreferencesFormProps {
 export function ReferralPreferencesForm({
   cancelLink,
   formValues,
+  preferredProvince,
   formErrors,
   languageReferralTypes,
   classifications,
@@ -64,17 +66,17 @@ export function ReferralPreferencesForm({
 
   const [referralAvailibility, setReferralAvailibility] = useState(formValues?.isAvailableForReferral);
   const [alternateOpportunity, setAlternateOpportunity] = useState(formValues?.isInterestedInAlternation);
-  const [selectedClassifications, setSelectedClassifications] = useState(formValues?.classificationIds?.map(String) ?? []);
-  const [selectedCities, setSelectedCities] = useState(formValues?.workLocationCitiesIds?.map(String) ?? []);
-  const [province, setProvince] = useState(
-    formValues?.workLocationProvince ? String(formValues.workLocationProvince) : undefined,
+  const [selectedClassifications, setSelectedClassifications] = useState(
+    formValues?.preferredClassifications?.map(({ id }) => id.toString()) ?? [],
   );
+  const [selectedCities, setSelectedCities] = useState(formValues?.preferredCities?.map(({ id }) => id.toString()) ?? []);
+  const [province, setProvince] = useState(preferredProvince?.toString());
   const [srAnnouncement, setSrAnnouncement] = useState(''); //screen reader announcement
 
   const languageReferralTypeOptions = languageReferralTypes.map((langReferral) => ({
     value: String(langReferral.id),
     children: langReferral.name,
-    defaultChecked: formValues?.languageReferralTypeIds?.includes(langReferral.id) ?? false,
+    defaultChecked: !!formValues?.preferredLanguages?.find((p) => p.id === langReferral.id),
   }));
   const classificationOptions = classifications.map((classification) => ({
     value: String(classification.id),
@@ -122,7 +124,7 @@ export function ReferralPreferencesForm({
   const employmentOpportunityOptions = employmentOpportunities.map((employmentOpportunity) => ({
     value: String(employmentOpportunity.id),
     children: employmentOpportunity.name,
-    defaultChecked: formValues?.employmentOpportunityIds?.includes(employmentOpportunity.id) ?? false,
+    defaultChecked: !!formValues?.preferredEmploymentOpportunities?.find((p) => p.id === employmentOpportunity.id),
   }));
 
   // Choice tags for classification
@@ -184,24 +186,24 @@ export function ReferralPreferencesForm({
         <Form method="post" noValidate>
           <div className="space-y-6">
             <InputCheckboxes
-              id="languageReferralTypesId"
-              errorMessage={tApp(extractValidationKey(formErrors?.languageReferralTypeIds))}
+              id="preferred-languages"
+              errorMessage={tApp(extractValidationKey(formErrors?.preferredLanguages))}
               legend={tApp('referral-preferences.language-referral-type')}
-              name="languageReferralTypes"
+              name="preferredLanguages"
               options={languageReferralTypeOptions}
               helpMessagePrimary={tApp('form.select-all-that-apply')}
               required
             />
             <InputMultiSelect
-              id="classificationsId"
-              name="classifications"
+              id="preferred-classifications"
+              name="preferredClassifications"
               label={tApp('referral-preferences.classification')}
               options={classificationOptions}
               value={selectedClassifications}
               onChange={(values) => setSelectedClassifications(values)}
               placeholder={tApp('form.select-all-that-apply')}
               helpMessage={tApp('referral-preferences.classification-group-help-message-primary')}
-              errorMessage={tApp(extractValidationKey(formErrors?.classificationIds))}
+              errorMessage={tApp(extractValidationKey(formErrors?.preferredClassifications))}
               required
             />
 
@@ -220,20 +222,23 @@ export function ReferralPreferencesForm({
               <InputHelp id="workLocationHelpMessage">{tApp('form.select-all-that-apply')}</InputHelp>
               <InputSelect
                 className="w-full sm:w-1/2"
-                id="workLocationProvinceId"
-                name="workLocationProvince"
+                id="preferred-province"
+                name="preferredProvince"
                 label={tApp('referral-preferences.province')}
                 options={provinceOptions}
-                errorMessage={tApp(extractValidationKey(formErrors?.workLocationProvince))}
+                errorMessage={tApp(extractValidationKey(formErrors?.preferredProvince))}
                 value={province ?? ''}
-                onChange={({ target }) => setProvince(target.value || undefined)}
+                onChange={({ target }) => {
+                  setProvince(target.value || undefined);
+                  setSelectedCities([]);
+                }}
               />
               {province && (
                 <>
                   <InputMultiSelect
-                    id="workLocationCitiesId"
-                    name="workLocationCities"
-                    errorMessage={tApp(extractValidationKey(formErrors?.workLocationCitiesIds))}
+                    id="preferred-cities"
+                    name="preferredCities"
+                    errorMessage={tApp(extractValidationKey(formErrors?.preferredCities))}
                     options={cityOptions}
                     value={selectedCities}
                     onChange={(values) => setSelectedCities(values)}
@@ -259,18 +264,18 @@ export function ReferralPreferencesForm({
             </span>
 
             <InputRadios
-              id="referralAvailibilityId"
+              id="is-available-for-referral"
               legend={tApp('referral-preferences.referral-availibility')}
-              name="referralAvailibility"
+              name="isAvailableForReferral"
               options={referralAvailibilityOptions}
               required
               errorMessage={tApp(extractValidationKey(formErrors?.isAvailableForReferral))}
               helpMessagePrimary={tApp('referral-preferences.referral-availibility-help-message-primary')}
             />
             <InputRadios
-              id="alternateOpportunityId"
+              id="is-interested-in-alternation"
               legend={tApp('referral-preferences.alternate-opportunity')}
-              name="alternateOpportunity"
+              name="isInterestedInAlternation"
               options={alternateOpportunityOptions}
               required
               errorMessage={tApp(extractValidationKey(formErrors?.isInterestedInAlternation))}
@@ -281,10 +286,10 @@ export function ReferralPreferencesForm({
               }
             />
             <InputCheckboxes
-              id="employmentOpportunityIds"
-              errorMessage={tApp(extractValidationKey(formErrors?.employmentOpportunityIds))}
+              id="preferred-employment-opportunities"
+              errorMessage={tApp(extractValidationKey(formErrors?.preferredEmploymentOpportunities))}
               legend={tApp('referral-preferences.employment-tenure')}
-              name="employmentOpportunityIds"
+              name="preferredEmploymentOpportunities"
               options={employmentOpportunityOptions}
               helpMessagePrimary={tApp('form.select-all-that-apply')}
               required

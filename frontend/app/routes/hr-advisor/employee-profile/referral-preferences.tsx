@@ -36,7 +36,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   requireAuthentication(context.session, request);
 
   const profileService = getProfileService();
-  const profileResult = await profileService.getProfileById(context.session.authState.accessToken, Number(params.profileId));
+  const profileResult = await profileService.getProfileById(Number(params.profileId), context.session.authState.accessToken);
 
   if (profileResult.isErr()) {
     throw new Response('Profile not found', { status: 404 });
@@ -46,17 +46,17 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 
   const formData = await request.formData();
   const parseResult = v.safeParse(referralPreferencesSchema, {
-    languageReferralTypeIds: formData.getAll('languageReferralTypes'),
-    classificationIds: formData.getAll('classifications'),
-    workLocationProvince: formString(formData.get('workLocationProvince')),
-    workLocationCitiesIds: formData.getAll('workLocationCities'),
-    isAvailableForReferral: formData.get('referralAvailibility')
-      ? formData.get('referralAvailibility') === REQUIRE_OPTIONS.yes
+    preferredLanguages: formData.getAll('preferredLanguages'),
+    preferredClassifications: formData.getAll('preferredClassifications'),
+    preferredProvince: formString(formData.get('preferredProvince')),
+    preferredCities: formData.getAll('preferredCities'),
+    isAvailableForReferral: formData.get('isAvailableForReferral')
+      ? formData.get('isAvailableForReferral') === REQUIRE_OPTIONS.yes
       : undefined,
-    isInterestedInAlternation: formData.get('alternateOpportunity')
-      ? formData.get('alternateOpportunity') === REQUIRE_OPTIONS.yes
+    isInterestedInAlternation: formData.get('isInterestedInAlternation')
+      ? formData.get('isInterestedInAlternation') === REQUIRE_OPTIONS.yes
       : undefined,
-    employmentOpportunityIds: formData.getAll('employmentOpportunityIds'),
+    preferredEmploymentOpportunities: formData.getAll('preferredEmploymentOpportunities'),
   });
 
   if (!parseResult.success) {
@@ -66,23 +66,26 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     );
   }
 
-  const updateResult = await profileService.updateProfileById(context.session.authState.accessToken, {
-    ...profile,
-    languageReferralTypeIds: parseResult.output.languageReferralTypeIds,
-    classificationIds: parseResult.output.classificationIds,
-    workLocationProvince: parseResult.output.workLocationProvince,
-    workLocationCitiesIds: parseResult.output.workLocationCitiesIds,
-    isAvailableForReferral: parseResult.output.isAvailableForReferral,
-    isInterestedInAlternation: parseResult.output.isInterestedInAlternation,
-    employmentOpportunityIds: parseResult.output.employmentOpportunityIds,
-  });
+  const updateResult = await profileService.updateProfileById(
+    profile.id,
+    {
+      ...profile,
+      preferredLanguages: parseResult.output.preferredLanguages,
+      preferredClassification: parseResult.output.preferredClassifications,
+      preferredCities: parseResult.output.preferredCities,
+      isAvailableForReferral: parseResult.output.isAvailableForReferral,
+      isInterestedInAlternation: parseResult.output.isInterestedInAlternation,
+      preferredEmploymentOpportunities: parseResult.output.preferredEmploymentOpportunities,
+    },
+    context.session.authState.accessToken,
+  );
 
   if (updateResult.isErr()) {
     throw updateResult.unwrapErr();
   }
 
   return i18nRedirect('routes/hr-advisor/employee-profile/index.tsx', request, {
-    params: { profileId: profileResult.unwrap().profileId.toString() },
+    params: { profileId: profileResult.unwrap().id.toString() },
   });
 }
 
@@ -90,8 +93,8 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   requireAuthentication(context.session, request);
 
   const profileResult = await getProfileService().getProfileById(
-    context.session.authState.accessToken,
     Number(params.profileId),
+    context.session.authState.accessToken,
   );
 
   if (profileResult.isErr()) {
@@ -107,21 +110,21 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const profileData: Profile = profileResult.unwrap();
 
   const cityResult =
-    profileData.workLocationCitiesIds?.[0] !== undefined
-      ? await getCityService().findLocalizedById(profileData.workLocationCitiesIds[0], lang)
+    profileData.preferredCities?.[0] !== undefined
+      ? await getCityService().findLocalizedById(profileData.preferredCities[0].id, lang)
       : undefined; //get the province from first city only to avoid validation error on province
   const city = cityResult?.into();
 
   return {
     documentTitle: t('app:referral-preferences.page-title'),
     defaultValues: {
-      languageReferralTypeIds: profileData.languageReferralTypeIds,
-      classificationIds: profileData.classificationIds,
-      workLocationProvince: city?.provinceTerritory.id,
-      workLocationCitiesIds: profileData.workLocationCitiesIds,
+      preferredLanguages: profileData.preferredLanguages,
+      preferredClassifications: profileData.preferredClassifications,
+      preferredProvince: city?.provinceTerritory.id,
+      preferredCities: profileData.preferredCities,
       isAvailableForReferral: profileData.isAvailableForReferral,
       isInterestedInAlternation: profileData.isInterestedInAlternation,
-      employmentOpportunityIds: profileData.employmentOpportunityIds,
+      preferredEmploymentOpportunities: profileData.preferredEmploymentOpportunities,
     },
     languageReferralTypes: localizedLanguageReferralTypesResult,
     classifications: localizedClassifications,
@@ -144,6 +147,7 @@ export default function PersonalDetails({ loaderData, actionData, params }: Rout
         <ReferralPreferencesForm
           cancelLink={'routes/hr-advisor/employee-profile/index.tsx'}
           formValues={loaderData.defaultValues}
+          preferredProvince={loaderData.defaultValues.preferredProvince}
           formErrors={errors}
           languageReferralTypes={loaderData.languageReferralTypes}
           classifications={loaderData.classifications}

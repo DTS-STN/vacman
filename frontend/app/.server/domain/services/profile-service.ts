@@ -1,54 +1,42 @@
 import type { Option, Result } from 'oxide.ts';
 
-import type { Profile, ProfileStatus, SaveProfile } from '~/.server/domain/models';
+import type {
+  Profile,
+  ProfilePutModel,
+  ProfileStatusUpdate,
+  PagedProfileResponse,
+  CollectionProfileResponse,
+  ProfileQueryParams,
+} from '~/.server/domain/models';
 import { getDefaultProfileService } from '~/.server/domain/services/profile-service-default';
 import { getMockProfileService } from '~/.server/domain/services/profile-service-mock';
 import { serverEnvironment } from '~/.server/environment';
-import type { ProfileStatusCode } from '~/domain/constants';
 import type { AppError } from '~/errors/app-error';
 
-/**
- * Parameters for fetching a list of profiles with filtering and data inclusion options.
- */
-export interface ListProfilesParams {
-  /** The access token for authorization. */
-  accessToken: string;
-
-  /**
-   * Filters profiles by their active status.
-   * - `true`: For "In Progress", "Pending Approval", "Approved".
-   * - `false`: For "Archived".
-   * - `null` or `undefined`: Do not filter by active status (return all).
-   */
-  active?: boolean | null;
-
-  /**
-   * Filters profiles by the assigned HR advisor.
-   * - A user ID string: For a specific advisor.
-   * - `"me"`: For the currently logged-in advisor.
-   * - `null` or `undefined`: Do not filter by advisor.
-   */
-  hrAdvisorId?: string | null;
-}
-
-// The expected API response structure
-export type ProfileApiResponse = {
-  content: readonly (Profile | null | undefined)[];
-};
-
 export type ProfileService = {
-  registerProfile(accessToken: string): Promise<Result<Profile, AppError>>;
-  updateProfileById(accessToken: string, data: SaveProfile): Promise<Result<Profile, AppError>>;
-  updateProfileStatus(
+  // GET /api/v1/profiles - Get profiles with pagination and filtering
+  getProfiles(params: ProfileQueryParams, accessToken: string): Promise<Result<PagedProfileResponse, AppError>>;
+  // GET /api/v1/profiles/me - Get profiles for current user
+  getCurrentUserProfiles(
+    params: Pick<ProfileQueryParams, 'active'>,
     accessToken: string,
-    profileId: string,
-    profileStatusCode: ProfileStatusCode,
-  ): Promise<Result<ProfileStatus, AppError>>;
-  findAllProfiles(accessToken: string, params: ListProfilesParams): Promise<Option<readonly Profile[]>>;
-  listAllProfiles(accessToken: string, params: ListProfilesParams): Promise<readonly Profile[]>;
-  getCurrentUserProfile(accessToken: string): Promise<Option<Profile>>;
-  getProfileById(accessToken: string, profileId: number): Promise<Result<Profile, AppError>>;
-  findProfileById(accessToken: string, profileId: number): Promise<Option<Profile>>;
+  ): Promise<Result<CollectionProfileResponse, AppError>>;
+  // GET /api/v1/profiles/me - Find current user's active profile (singular)
+  findCurrentUserProfile(params: Pick<ProfileQueryParams, 'active'>, accessToken: string): Promise<Profile>;
+  // POST /api/v1/profiles/me - Create a new profile for current user
+  registerProfile(accessToken: string): Promise<Result<Profile, AppError>>;
+  // GET /api/v1/profiles/{id} - Get a profile by ID
+  getProfileById(profileId: number, accessToken: string): Promise<Result<Profile, AppError>>;
+  // PUT /api/v1/profiles/{id} - Update an existing profile
+  updateProfileById(profileId: number, profile: ProfilePutModel, accessToken: string): Promise<Result<Profile, AppError>>;
+  // PUT /api/v1/profiles/{id}/status - Update profile status
+  updateProfileStatus(
+    profileId: number,
+    statusUpdate: ProfileStatusUpdate,
+    accessToken: string,
+  ): Promise<Result<void, AppError>>;
+  // Optional method for finding profile by ID
+  findProfileById(profileId: number, accessToken: string): Promise<Option<Profile>>;
 };
 
 export function getProfileService(): ProfileService {

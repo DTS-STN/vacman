@@ -25,7 +25,7 @@ export async function requireRoleRegistration(
   }
 
   const user = userOption.unwrap();
-  if (user.role !== role) {
+  if (user.userType?.code !== role) {
     log.debug(`User is not registered as a ${role}, redirecting to index`);
     throw i18nRedirect('routes/employee/index.tsx', currentUrl);
   }
@@ -39,5 +39,5 @@ export async function checkHiringManagerRouteRegistration(session: Authenticated
 }
 
 export async function checkHrAdvisorRouteRegistration(session: AuthenticatedSession, request: Request): Promise<void> {
-  await requireRoleRegistration(session, request, 'hr-advisor', isHrAdvisorPath);
+  await requireRoleRegistration(session, request, 'HRA', isHrAdvisorPath);
 }
