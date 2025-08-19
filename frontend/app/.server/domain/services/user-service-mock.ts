@@ -2,6 +2,7 @@ import { Err, None, Ok, Some } from 'oxide.ts';
 import type { Option, Result } from 'oxide.ts';
 
 import type { User, UserCreate, UserUpdate, PagedUserResponse, UserQueryParams, PageMetadata } from '~/.server/domain/models';
+import { mockUsers } from '~/.server/domain/services/mockData';
 import type { UserService } from '~/.server/domain/services/user-service';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
@@ -12,280 +13,9 @@ const debugLog = (method: string, message: string, data?: unknown) => {
 };
 
 /**
- * Mock user data for testing and development - Updated to match new User model.
+ * A utility type to make all properties of a Readonly type writable.
  */
-const mockUsers: readonly User[] = [
-  {
-    id: 1,
-    businessEmailAddress: 'jane.doe@canada.ca',
-    businessPhoneNumber: '+1-613-555-0101',
-    firstName: 'Jane',
-    initial: 'D',
-    lastName: 'Doe',
-    middleName: undefined,
-    microsoftEntraId: '00000000-0000-0000-0000-000000000000',
-    personalRecordIdentifier: '123456789',
-    language: {
-      id: 1,
-      code: 'EN',
-      nameEn: 'English',
-      nameFr: 'Anglais',
-    },
-    userType: {
-      id: 3,
-      code: 'HRA',
-      nameEn: 'HR Advisor',
-      nameFr: 'Conseiller RH',
-    },
-    createdBy: 'system',
-    createdDate: '2024-01-01T00:00:00Z',
-    lastModifiedBy: 'system',
-    lastModifiedDate: '2024-01-01T00:00:00Z',
-  },
-  {
-    id: 2,
-    businessEmailAddress: 'john.doe@canada.ca',
-    businessPhoneNumber: '+1-613-555-0102',
-    firstName: 'John',
-    initial: 'M',
-    lastName: 'Doe',
-    middleName: 'Michael',
-    microsoftEntraId: '11111111-1111-1111-1111-111111111111',
-    personalRecordIdentifier: '987654321',
-    language: {
-      id: 1,
-      code: 'EN',
-      nameEn: 'English',
-      nameFr: 'Anglais',
-    },
-    userType: {
-      id: 1,
-      code: 'EMPLOYEE',
-      nameEn: 'Employee',
-      nameFr: 'Employé',
-    },
-    createdBy: 'system',
-    createdDate: '2024-01-01T00:00:00Z',
-    lastModifiedBy: 'system',
-    lastModifiedDate: '2024-01-01T00:00:00Z',
-  },
-  {
-    id: 3,
-    businessEmailAddress: 'alice.smith@canada.ca',
-    businessPhoneNumber: '+1-613-555-0103',
-    firstName: 'Alice',
-    initial: 'M',
-    lastName: 'Smith',
-    middleName: 'Marie',
-    microsoftEntraId: '22222222-2222-2222-2222-222222222222',
-    personalRecordIdentifier: '456789123',
-    language: {
-      id: 2,
-      code: 'FR',
-      nameEn: 'French',
-      nameFr: 'Français',
-    },
-    userType: {
-      id: 1,
-      code: 'EMPLOYEE',
-      nameEn: 'Employee',
-      nameFr: 'Employé',
-    },
-    createdBy: 'system',
-    createdDate: '2024-02-15T00:00:00Z',
-    lastModifiedBy: 'alice.smith',
-    lastModifiedDate: '2024-03-20T00:00:00Z',
-  },
-  {
-    id: 4,
-    businessEmailAddress: 'bob.johnson@canada.ca',
-    businessPhoneNumber: '+1-613-555-0104',
-    firstName: 'Bob',
-    initial: 'R',
-    lastName: 'Johnson',
-    middleName: 'Robert',
-    microsoftEntraId: '33333333-3333-3333-3333-333333333333',
-    personalRecordIdentifier: '789123456',
-    language: {
-      id: 1,
-      code: 'EN',
-      nameEn: 'English',
-      nameFr: 'Anglais',
-    },
-    userType: {
-      id: 2,
-      code: 'MANAGER',
-      nameEn: 'Manager',
-      nameFr: 'Gestionnaire',
-    },
-    createdBy: 'system',
-    createdDate: '2024-03-10T00:00:00Z',
-    lastModifiedBy: 'bob.johnson',
-    lastModifiedDate: '2024-04-15T00:00:00Z',
-  },
-  {
-    id: 5,
-    businessEmailAddress: 'alex.tan@canada.ca',
-    businessPhoneNumber: '+1-613-555-0105',
-    firstName: 'Alex',
-    initial: 'T',
-    lastName: 'Tan',
-    middleName: undefined,
-    microsoftEntraId: '44444444-4444-4444-4444-444444444444',
-    personalRecordIdentifier: '321654987',
-    language: {
-      id: 1,
-      code: 'EN',
-      nameEn: 'English',
-      nameFr: 'Anglais',
-    },
-    userType: {
-      id: 3,
-      code: 'HRA',
-      nameEn: 'HR Advisor',
-      nameFr: 'Conseiller RH',
-    },
-    createdBy: 'system',
-    createdDate: '2024-04-20T11:45:00Z',
-    lastModifiedBy: 'alex.tan',
-    lastModifiedDate: '2024-05-01T10:00:00Z',
-  },
-  {
-    id: 6,
-    businessEmailAddress: 'sam.lee@canada.ca',
-    businessPhoneNumber: '+1-613-555-0106',
-    firstName: 'Sam',
-    initial: 'L',
-    lastName: 'Lee',
-    middleName: undefined,
-    microsoftEntraId: '55555555-5555-5555-5555-555555555555',
-    personalRecordIdentifier: '111222333',
-    language: {
-      id: 1,
-      code: 'EN',
-      nameEn: 'English',
-      nameFr: 'Anglais',
-    },
-    userType: {
-      id: 1,
-      code: 'EMPLOYEE',
-      nameEn: 'Employee',
-      nameFr: 'Employé',
-    },
-    createdBy: 'system',
-    createdDate: '2024-06-01T08:00:00Z',
-    lastModifiedBy: 'alex.tan',
-    lastModifiedDate: '2024-05-01T10:00:00Z',
-  },
-  {
-    id: 7,
-    businessEmailAddress: 'linda.park@canada.ca',
-    businessPhoneNumber: '+1-613-555-0107',
-    firstName: 'Linda',
-    initial: 'P',
-    lastName: 'Park',
-    middleName: undefined,
-    microsoftEntraId: '66666666-6666-6666-6666-666666666666',
-    personalRecordIdentifier: '444555666',
-    language: {
-      id: 1,
-      code: 'EN',
-      nameEn: 'English',
-      nameFr: 'Anglais',
-    },
-    userType: {
-      id: 1,
-      code: 'EMPLOYEE',
-      nameEn: 'Employee',
-      nameFr: 'Employé',
-    },
-    createdBy: 'system',
-    createdDate: '2024-06-02T09:00:00Z',
-    lastModifiedBy: 'linda.park',
-    lastModifiedDate: '2024-06-12T10:00:00Z',
-  },
-  {
-    id: 8,
-    businessEmailAddress: 'carlos.gomez@canada.ca',
-    businessPhoneNumber: '+1-613-555-0108',
-    firstName: 'Carlos',
-    initial: 'G',
-    lastName: 'Gomez',
-    middleName: undefined,
-    microsoftEntraId: '77777777-7777-7777-7777-777777777777',
-    personalRecordIdentifier: '777888999',
-    language: {
-      id: 1,
-      code: 'EN',
-      nameEn: 'English',
-      nameFr: 'Anglais',
-    },
-    userType: {
-      id: 1,
-      code: 'EMPLOYEE',
-      nameEn: 'Employee',
-      nameFr: 'Employé',
-    },
-    createdBy: 'system',
-    createdDate: '2024-06-03T10:00:00Z',
-    lastModifiedBy: 'carlos.gomez',
-    lastModifiedDate: '2024-06-12T10:00:00Z',
-  },
-  {
-    id: 9,
-    businessEmailAddress: 'priya.singh@canada.ca',
-    businessPhoneNumber: '+1-613-555-0109',
-    firstName: 'Priya',
-    initial: 'S',
-    lastName: 'Singh',
-    middleName: undefined,
-    microsoftEntraId: '88888888-8888-8888-8888-888888888888',
-    personalRecordIdentifier: '101112131',
-    language: {
-      id: 1,
-      code: 'EN',
-      nameEn: 'English',
-      nameFr: 'Anglais',
-    },
-    userType: {
-      id: 1,
-      code: 'EMPLOYEE',
-      nameEn: 'Employee',
-      nameFr: 'Employé',
-    },
-    createdBy: 'system',
-    createdDate: '2024-06-04T11:00:00Z',
-    lastModifiedBy: 'carlos.gomez',
-    lastModifiedDate: '2024-06-14T12:00:00Z',
-  },
-  {
-    id: 10,
-    businessEmailAddress: 'omar.ali@canada.ca',
-    businessPhoneNumber: '+1-613-555-0110',
-    firstName: 'Omar',
-    initial: 'A',
-    lastName: 'Ali',
-    middleName: undefined,
-    microsoftEntraId: '99999999-9999-9999-9999-999999999999',
-    personalRecordIdentifier: '141516171',
-    language: {
-      id: 1,
-      code: 'EN',
-      nameEn: 'English',
-      nameFr: 'Anglais',
-    },
-    userType: {
-      id: 1,
-      code: 'EMPLOYEE',
-      nameEn: 'Employee',
-      nameFr: 'Employé',
-    },
-    createdBy: 'system',
-    createdDate: '2024-06-05T12:00:00Z',
-    lastModifiedBy: 'omar.ali',
-    lastModifiedDate: '2024-06-15T16:00:00Z',
-  },
-];
+type Writable<T> = { -readonly [P in keyof T]: T[P] };
 
 /**
  * Retrieves a user by their ID from mock data.
@@ -298,38 +28,32 @@ function getUserById(id: number): User | undefined {
 }
 
 /**
- * Updates a user by their ID.
+ * Updates a user by their ID by MUTATING the object in place.
+ * We use the Writable utility type to bypass Readonly constraints within this mock.
  *
  * @param id The ID of the user to update.
  * @param updateUserRequest The update request containing the new user data.
  * @returns The updated user object if found.
  */
 function updateUserById(id: number, updateUserRequest: UserUpdate): User | undefined {
-  const userIndex = mockUsers.findIndex((u) => u.id === id);
+  const userToUpdate = mockUsers.find((u) => u.id === id);
 
-  if (userIndex >= 0) {
-    const existingUser = mockUsers[userIndex];
-    if (!existingUser) return undefined;
+  if (userToUpdate) {
+    // Cast the readonly user to our new Writable<User> type.
+    const mutableUser = userToUpdate as Writable<User>;
 
-    // Map UserUpdate properties to User properties
-    const updatedUser: User = {
-      ...existingUser,
-      id: existingUser.id, // Preserve the ID
-      // Map UserUpdate property names to User property names
-      ...(updateUserRequest.businessEmail && { businessEmailAddress: updateUserRequest.businessEmail }),
-      ...(updateUserRequest.businessPhone && { businessPhoneNumber: updateUserRequest.businessPhone }),
-      ...(updateUserRequest.firstName && { firstName: updateUserRequest.firstName }),
-      ...(updateUserRequest.lastName && { lastName: updateUserRequest.lastName }),
-      ...(updateUserRequest.middleName !== undefined && { middleName: updateUserRequest.middleName }),
-      ...(updateUserRequest.initials && { initial: updateUserRequest.initials }),
-      ...(updateUserRequest.personalRecordIdentifier && {
-        personalRecordIdentifier: updateUserRequest.personalRecordIdentifier,
-      }),
-      // Language ID would need to be mapped to full language object, but not implemented in this mock for now
-      lastModifiedDate: new Date().toISOString(),
-    };
-    (mockUsers as User[])[userIndex] = updatedUser;
-    return updatedUser;
+    mutableUser.businessEmailAddress = updateUserRequest.businessEmail ?? mutableUser.businessEmailAddress;
+    mutableUser.businessPhoneNumber = updateUserRequest.businessPhone ?? mutableUser.businessPhoneNumber;
+    mutableUser.firstName = updateUserRequest.firstName ?? mutableUser.firstName;
+    mutableUser.lastName = updateUserRequest.lastName ?? mutableUser.lastName;
+    mutableUser.middleName = updateUserRequest.middleName ?? mutableUser.middleName;
+    mutableUser.initial = updateUserRequest.initials ?? mutableUser.initial;
+    mutableUser.personalRecordIdentifier = updateUserRequest.personalRecordIdentifier ?? mutableUser.personalRecordIdentifier;
+
+    mutableUser.lastModifiedDate = new Date().toISOString();
+    mutableUser.lastModifiedBy = 'mock-user-updater';
+
+    return userToUpdate; // Return the original object, which has now been modified.
   }
 
   return undefined;
