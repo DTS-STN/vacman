@@ -87,7 +87,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
         firstName: firstName,
         lastName: lastName,
         personalRecordIdentifier: personalRecordIdentifier,
-        languageId: parseResult.output.languageOfCorrespondenceId,
+        languageId: currentUser.language.id,
       },
       context.session.authState.accessToken,
     );
