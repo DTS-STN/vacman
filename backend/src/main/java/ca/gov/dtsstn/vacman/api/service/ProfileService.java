@@ -1,7 +1,7 @@
 package ca.gov.dtsstn.vacman.api.service;
 
 import static ca.gov.dtsstn.vacman.api.security.SecurityUtils.getCurrentUserEntraId;
-import static ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException.asResourceNotFoundException;
+import static ca.gov.dtsstn.vacman.api.web.exception.ResourceConflictException.asResourceConflictException;
 
 import java.util.HashSet;
 import java.util.List;
@@ -217,27 +217,27 @@ public class ProfileService {
 		Optional.ofNullable(updateModel.hrAdvisorId()).ifPresent(id ->
 				existingEntity.setHrAdvisor(userService.getUserById(id)
 						.filter(user -> user.getUserType().getCode().equals("HRA"))
-						.orElseThrow(asResourceNotFoundException("HR Advisor", updateModel.hrAdvisorId()))));
+						.orElseThrow(asResourceConflictException("HR Advisor", updateModel.hrAdvisorId()))));
 
 		Optional.ofNullable(updateModel.languageOfCorrespondenceId()).ifPresent(id ->
 				existingEntity.setLanguage(languageRepository.findById(id)
-						.orElseThrow(asResourceNotFoundException("Language", updateModel.languageOfCorrespondenceId()))));
+						.orElseThrow(asResourceConflictException("Language", updateModel.languageOfCorrespondenceId()))));
 
 		Optional.ofNullable(updateModel.classificationId()).ifPresent(id ->
 				existingEntity.setClassification(classificationRepository.findById(id)
-						.orElseThrow(asResourceNotFoundException("Classification", updateModel.classificationId()))));
+						.orElseThrow(asResourceConflictException("Classification", updateModel.classificationId()))));
 
 		Optional.ofNullable(updateModel.cityId()).ifPresent(id ->
 				existingEntity.setCity(cityRepository.findById(id)
-						.orElseThrow(asResourceNotFoundException("City", updateModel.cityId()))));
+						.orElseThrow(asResourceConflictException("City", updateModel.cityId()))));
 
 		Optional.ofNullable(updateModel.workUnitId()).ifPresent(id ->
 				existingEntity.setWorkUnit(workUnitRepository.findById(id)
-						.orElseThrow(asResourceNotFoundException("Work Unit", updateModel.workUnitId()))));
+						.orElseThrow(asResourceConflictException("Work Unit", updateModel.workUnitId()))));
 
 		Optional.ofNullable(updateModel.wfaStatusId()).ifPresent(id ->
 				existingEntity.setWfaStatus(wfaStatusRepository.findById(id)
-						.orElseThrow(asResourceNotFoundException("WFA Status", updateModel.wfaStatusId()))));
+						.orElseThrow(asResourceConflictException("WFA Status", updateModel.wfaStatusId()))));
 
 		syncPreferredCities(updateModel, existingEntity);
 		syncPreferredClassifications(updateModel, existingEntity);
