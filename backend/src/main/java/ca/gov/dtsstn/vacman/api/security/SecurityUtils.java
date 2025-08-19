@@ -8,11 +8,20 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import ca.gov.dtsstn.vacman.api.constants.AppConstants;
+
 /**
  * Utility class for Spring Security.
  * Provides a streamlined, static interface for common security operations.
  */
 public final class SecurityUtils {
+
+	private static final Set<String> ROLE_HIERARCHY = Set.of(
+		AppConstants.Role.ADMIN,
+		AppConstants.Role.HR_ADVISOR,
+		AppConstants.Role.HIRING_MANAGER,
+		AppConstants.Role.EMPLOYEE
+	);
 
 	private SecurityUtils() { }
 
@@ -42,7 +51,7 @@ public final class SecurityUtils {
 			.map(Authentication::getAuthorities)
 			.flatMap(Collection::stream)
 			.map(GrantedAuthority::getAuthority)
-			.anyMatch(authority -> authority.equals("hr-advisor"));
+			.anyMatch(authority -> authority.equals(AppConstants.Role.HR_ADVISOR));
 	}
 
 	/**
@@ -100,13 +109,18 @@ public final class SecurityUtils {
 	 * @return the highest privilege role authority, or "employee" as fallback if no roles found
 	 */
 	public static String getHighestPrivilegeRole() {
-		final var roleHierarchy = new String[]{"admin", "hr-advisor", "hiring-manager", "employee"};
+		final var roleHierarchy = new String[]{
+			AppConstants.Role.ADMIN,
+			AppConstants.Role.HR_ADVISOR,
+			AppConstants.Role.HIRING_MANAGER,
+			AppConstants.Role.EMPLOYEE
+		};
 
 		final var userRoles = getCurrentAuthentication().stream()
 			.map(Authentication::getAuthorities)
 			.flatMap(Collection::stream)
 			.map(GrantedAuthority::getAuthority)
-			.filter(authority -> Set.of(roleHierarchy).contains(authority))
+			.filter(ROLE_HIERARCHY::contains)
 			.toList();
 
 		// Find the highest privilege role according to hierarchy
@@ -117,7 +131,7 @@ public final class SecurityUtils {
 		}
 
 		// Fallback to employee if no recognized roles found
-		return "employee";
+		return AppConstants.Role.EMPLOYEE;
 	}
 
 }
