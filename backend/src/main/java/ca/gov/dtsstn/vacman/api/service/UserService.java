@@ -1,7 +1,7 @@
 package ca.gov.dtsstn.vacman.api.service;
 
+import static ca.gov.dtsstn.vacman.api.data.entity.AbstractBaseEntity.byId;
 import static ca.gov.dtsstn.vacman.api.data.entity.AbstractCodeEntity.byCode;
-import static ca.gov.dtsstn.vacman.api.data.entity.AbstractCodeEntity.byId;
 
 import java.util.Optional;
 
@@ -21,6 +21,7 @@ import ca.gov.dtsstn.vacman.api.event.UserCreatedEvent;
 import ca.gov.dtsstn.vacman.api.event.UserDeletedEvent;
 import ca.gov.dtsstn.vacman.api.event.UserReadEvent;
 import ca.gov.dtsstn.vacman.api.event.UserUpdatedEvent;
+import ca.gov.dtsstn.vacman.api.security.SecurityUtils;
 import ca.gov.dtsstn.vacman.api.service.mapper.UserEntityMapper;
 
 @Service
@@ -53,9 +54,10 @@ public class UserService {
 			.filter(byId(languageId))
 			.findFirst().orElseThrow());
 
-		// Set user type based on role (validation ensures it exists)
+		// Set user type based on highest privilege role from JWT claims
+		final var userTypeCode = mapRoleToUserTypeCode(SecurityUtils.getHighestPrivilegeRole());
 		user.setUserType(codeService.getUserTypes(Pageable.unpaged()).stream()
-			.filter(byCode(AppConstants.UserType.EMPLOYEE))
+			.filter(byCode(userTypeCode))
 			.findFirst().orElseThrow());
 
 		// Save the user (profiles are created separately as needed)
@@ -66,6 +68,25 @@ public class UserService {
 		log.info("User created with ID: {}", createdUser.getId());
 
 		return createdUser;
+	}
+
+	/**
+	 * Maps JWT role authorities to user type codes.
+	 *
+	 * @param role the role authority from JWT claims
+	 * @return the corresponding user type code
+	 */
+	private String mapRoleToUserTypeCode(String role) {
+		return switch (role) {
+			case "admin" -> AppConstants.UserType.ADMIN;
+			case "hr-advisor" -> AppConstants.UserType.HR_ADVISOR;
+			case "hiring-manager" -> AppConstants.UserType.HIRING_MANAGER;
+			case "employee" -> AppConstants.UserType.EMPLOYEE;
+			default -> {
+				log.warn("Unknown role '{}', defaulting to employee", role);
+				yield AppConstants.UserType.EMPLOYEE;
+			}
+		};
 	}
 
 	public Optional<UserEntity> getUserById(long id) {
