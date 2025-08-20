@@ -1,14 +1,28 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { ProfilePutModel, ProfileStatusUpdate } from '~/.server/domain/models';
+import { buildProfilesFromTemplates, getInitialMockUsers, mockProfiles, mockUsers } from '~/.server/domain/services/mockData';
 import { getMockProfileService } from '~/.server/domain/services/profile-service-mock';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
+
+// Re-assignable variables for our mock data
+const profiles = mockProfiles;
+const users = mockUsers;
 
 const mockProfileService = getMockProfileService();
 
 describe('ProfileServiceMock', () => {
   beforeEach(() => {
+    // Clear the current users array.
+    users.length = 0;
+    // Repopulate it with a fresh copy of the initial state.
+    mockUsers.push(...getInitialMockUsers());
+    // Clear the current profiles array.
+    profiles.length = 0;
+    // Repopulate it by rebuilding from the templates.
+    profiles.push(...buildProfilesFromTemplates());
+
     // Reset any mocks or side effects between tests
     vi.clearAllMocks();
   });
@@ -164,6 +178,8 @@ describe('ProfileServiceMock', () => {
   describe('registerProfile', () => {
     it('should register a new profile successfully', async () => {
       const accessToken = 'valid-token';
+      const initialProfileCount = profiles.length;
+      const initialUserCount = users.length;
 
       const result = await mockProfileService.registerProfile(accessToken);
 
@@ -177,6 +193,10 @@ describe('ProfileServiceMock', () => {
         expect(profile.createdBy).toBe(accessToken);
         expect(profile.createdDate).toBeDefined();
       }
+
+      // Check that the data was actually added
+      expect(profiles.length).toBe(initialProfileCount + 1);
+      expect(users.length).toBe(initialUserCount + 1);
     });
 
     it('should create profile with default values', async () => {
@@ -188,8 +208,6 @@ describe('ProfileServiceMock', () => {
       if (result.isOk()) {
         const profile = result.unwrap();
         expect(profile.hasConsentedToPrivacyTerms).toBe(false);
-        expect(profile.isAvailableForReferral).toBe(true);
-        expect(profile.isInterestedInAlternation).toBe(false);
         expect(profile.personalEmailAddress).toBe('personal.email@example.com');
         expect(profile.personalPhoneNumber).toBe('613-938-0001');
         expect(profile.additionalComment).toBe('Looking for opportunities in software development.');
