@@ -228,10 +228,7 @@ export function ReferralPreferencesForm({
                 options={provinceOptions}
                 errorMessage={tApp(extractValidationKey(formErrors?.preferredProvince))}
                 value={province ?? ''}
-                onChange={({ target }) => {
-                  setProvince(target.value || undefined);
-                  setSelectedCities([]);
-                }}
+                onChange={({ target }) => setProvince(target.value)}
               />
               {province && (
                 <>
