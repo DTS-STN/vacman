@@ -39,18 +39,6 @@ export function getMockProfileService(): ProfileService {
     async getProfiles(params: ProfileQueryParams, accessToken: string): Promise<Result<PagedProfileResponse, AppError>> {
       debugLog('getProfiles', 'Attempting to retrieve profiles', { params, accessTokenLength: accessToken.length });
 
-      // Simulate async operation
-      await new Promise((resolve) => setTimeout(resolve, 1));
-
-      // Simulate a failure case for testing error handling
-      if (accessToken === 'FAIL_TOKEN') {
-        const error = new AppError('Mock Error: Failed to retrieve profiles as requested.', ErrorCodes.VACMAN_API_ERROR, {
-          httpStatusCode: HttpStatusCodes.BAD_REQUEST,
-        });
-        debugLog('getProfiles', 'Simulated failure for FAIL_TOKEN');
-        return Err(error);
-      }
-
       let filteredProfiles = [...mockProfiles];
       debugLog('getProfiles', `Starting with ${filteredProfiles.length} total profiles`);
 
@@ -116,7 +104,7 @@ export function getMockProfileService(): ProfileService {
         pageSize: paginatedProfiles.length,
         currentPage: page,
       });
-      return Ok(response);
+      return Promise.resolve(Ok(response));
     },
 
     /**
@@ -133,21 +121,6 @@ export function getMockProfileService(): ProfileService {
         params,
         accessTokenLength: accessToken.length,
       });
-      // Simulate async operation
-      await new Promise((resolve) => setTimeout(resolve, 10));
-
-      // Simulate a failure case for testing error handling
-      if (accessToken === 'FAIL_TOKEN') {
-        const error = new AppError(
-          'Mock Error: Failed to retrieve current user profiles as requested.',
-          ErrorCodes.VACMAN_API_ERROR,
-          {
-            httpStatusCode: HttpStatusCodes.BAD_REQUEST,
-          },
-        );
-        debugLog('getCurrentUserProfiles', 'Simulated failure for FAIL_TOKEN');
-        return Err(error);
-      }
 
       // For mock purposes, return profiles for user ID 1
       let userProfiles = mockProfiles.filter((p) => p.profileUser.id === 1);
@@ -172,7 +145,7 @@ export function getMockProfileService(): ProfileService {
       };
 
       debugLog('getCurrentUserProfiles', 'Successfully retrieved current user profiles', { profileCount: userProfiles.length });
-      return Ok(response);
+      return Promise.resolve(Ok(response));
     },
 
     /**
@@ -224,24 +197,13 @@ export function getMockProfileService(): ProfileService {
      */
     async registerProfile(accessToken: string): Promise<Result<Profile, AppError>> {
       debugLog('registerProfile', 'Attempting to register new profile', { accessTokenLength: accessToken.length });
-      // Simulate async operation
-      await new Promise((resolve) => setTimeout(resolve, 10));
-
-      // Simulate a failure case for testing error handling
-      if (accessToken === 'FAIL_TOKEN') {
-        const error = new AppError('Mock Error: Profile creation failed as requested.', ErrorCodes.PROFILE_CREATE_FAILED, {
-          httpStatusCode: HttpStatusCodes.BAD_REQUEST,
-        });
-        debugLog('registerProfile', 'Simulated failure for FAIL_TOKEN');
-        return Err(error);
-      }
 
       const newProfile = createMockProfile(accessToken);
       debugLog('registerProfile', 'Successfully registered new profile', {
         profileId: newProfile.id,
         profileStatus: newProfile.profileStatus?.code,
       });
-      return Ok(newProfile);
+      return Promise.resolve(Ok(newProfile));
     },
 
     /**
@@ -254,8 +216,6 @@ export function getMockProfileService(): ProfileService {
       debugLog('getProfileById', `Attempting to retrieve profile with ID: ${profileId}`, {
         accessTokenLength: accessToken.length,
       });
-      // Simulate async operation
-      await new Promise((resolve) => setTimeout(resolve, 10));
 
       const profile = mockProfiles.find((p) => p.id === profileId);
 
@@ -264,7 +224,7 @@ export function getMockProfileService(): ProfileService {
           profileStatus: profile.profileStatus?.code,
           userId: profile.profileUser.id,
         });
-        return Ok(profile);
+        return Promise.resolve(Ok(profile));
       }
 
       debugLog('getProfileById', `Profile with ID ${profileId} not found`);
@@ -411,9 +371,6 @@ export function getMockProfileService(): ProfileService {
       statusUpdate: ProfileStatusUpdate,
       accessToken: string,
     ): Promise<Result<void, AppError>> {
-      // Simulate async operation
-      await new Promise((resolve) => setTimeout(resolve, 10));
-
       const existingProfileIndex = mockProfiles.findIndex((p) => p.id === profileId);
       if (existingProfileIndex === -1) {
         return Err(new AppError(`Profile with ID ${profileId} not found.`, ErrorCodes.PROFILE_NOT_FOUND));
@@ -441,7 +398,7 @@ export function getMockProfileService(): ProfileService {
       };
 
       mockProfiles[existingProfileIndex] = updatedProfile;
-      return Ok(undefined);
+      return Promise.resolve(Ok(undefined));
     },
 
     /**
