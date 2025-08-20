@@ -25,7 +25,7 @@ import { DescriptionList, DescriptionListItem } from '~/components/description-l
 import { InlineLink } from '~/components/links';
 import { ProfileCard } from '~/components/profile-card';
 import { StatusTag } from '~/components/status-tag';
-import { EMPLOYEE_WFA_STATUS, PROFILE_STATUS_APPROVED, PROFILE_STATUS_CODE } from '~/domain/constants';
+import { EMPLOYEE_WFA_STATUS, PROFILE_STATUS_APPROVED } from '~/domain/constants';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
 import { formatDateTime } from '~/utils/date-utils';
@@ -58,14 +58,32 @@ export async function action({ context, request, params }: Route.ActionArgs) {
     PROFILE_STATUS_APPROVED,
     context.session.authState.accessToken,
   );
-  //TODO: display correct error on the scenario when hr advisor can see and approve his own profile
+
   if (submitResult.isErr()) {
     const error = submitResult.unwrapErr();
-    return {
-      status: 'error',
-      errorMessage: error.message,
-      errorCode: error.errorCode,
-    };
+    switch (error.httpStatusCode) {
+      case 403:
+        return {
+          status: 'error',
+          errorMessage: 'Permission Denied: You are not authorized to approve this profile.',
+          errorCode: error.errorCode,
+        };
+
+      case 404:
+        // This case is unlikely if getProfileById succeeded, but good practice.
+        return {
+          status: 'error',
+          errorMessage: 'The profile to be updated could not be found.',
+          errorCode: error.errorCode,
+        };
+
+      default:
+        return {
+          status: 'error',
+          errorMessage: 'An unexpected error occurred. Please try again later.',
+          errorCode: error.errorCode,
+        };
+    }
   }
 
   return {
@@ -231,16 +249,10 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
         </div>
       </div>
 
-      {actionData && (
-        <AlertMessage
-          ref={alertRef}
-          type={loaderData.profileStatus?.code === PROFILE_STATUS_CODE.approved ? 'success' : 'error'}
-          message={
-            loaderData.profileStatus?.code === PROFILE_STATUS_CODE.approved
-              ? t('app:profile.hr-approved')
-              : t('app:profile.profile-incomplete')
-          }
-        />
+      {actionData.status === 'error' && <AlertMessage ref={alertRef} type={'error'} message={actionData.errorMessage} />}
+
+      {actionData.status === 'submitted' && (
+        <AlertMessage ref={alertRef} type={'success'} message={t('app:profile.hr-approved')} />
       )}
 
       <div className="mt-8 max-w-prose space-y-10">
