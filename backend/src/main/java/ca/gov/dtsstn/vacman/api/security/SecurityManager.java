@@ -1,7 +1,7 @@
 package ca.gov.dtsstn.vacman.api.security;
 
-import static ca.gov.dtsstn.vacman.api.web.exception.UnauthorizedException.asEntraIdUnauthorizedException;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Component;
 
@@ -21,6 +21,8 @@ import ca.gov.dtsstn.vacman.api.web.exception.UnauthorizedException;
  */
 @Component(SecurityManager.NAME)
 public class SecurityManager {
+
+	private static final Logger log = LoggerFactory.getLogger(SecurityManager.class);
 
 	/**
 	 * The Spring bean name for this component, so it can
@@ -50,16 +52,25 @@ public class SecurityManager {
 	 * @throws AccessDeniedException if the profile does not exist or the IDs do not match
 	 */
 	public boolean canAccessProfile(long id) {
-		final var currentEntraId = SecurityUtils.getCurrentUserEntraId()
-			.orElseThrow(asEntraIdUnauthorizedException());
+		final var currentEntraId = SecurityUtils.getCurrentUserEntraId();
+
+		if (currentEntraId.isEmpty()) {
+			log.error("Access denied: Entra ID not found in security context");
+			return false;
+		}
 
 		final var profileEntraId = profileService.getProfile(id)
 			.map(ProfileEntity::getUser)
-			.map(UserEntity::getMicrosoftEntraId)
-			.orElseThrow(() -> new AccessDeniedException("Profile with id=[" + id + "] not found"));
+			.map(UserEntity::getMicrosoftEntraId);
 
-		if (!currentEntraId.equals(profileEntraId)) {
-			throw new AccessDeniedException("Current user's entraId [" + currentEntraId + "] does not match target profile's entraId [" + profileEntraId + "]");
+		if (profileEntraId.isEmpty()) {
+			log.error("Access denied: Profile with id=[" + id + "] not found");
+			return false;
+		}
+
+		if (!currentEntraId.get().equals(profileEntraId.get())) {
+			log.error("Access denied: Current user's entraId [" + currentEntraId.get() + "] does not match target profile's entraId [" + profileEntraId.get() + "]");
+			return false;
 		}
 
 		return true;
@@ -78,15 +89,24 @@ public class SecurityManager {
 	 * @throws AccessDeniedException if the user does not exist or the IDs do not match
 	 */
 	public boolean canAccessUser(long id) {
-		final var currentEntraId = SecurityUtils.getCurrentUserEntraId()
-			.orElseThrow(asEntraIdUnauthorizedException());
+		final var currentEntraId = SecurityUtils.getCurrentUserEntraId();
+
+		if (currentEntraId.isEmpty()) {
+			log.error("Access denied: Entra ID not found in security context");
+			return false;
+		}
 
 		final var userEntraId = userService.getUserById(id)
-			.map(UserEntity::getMicrosoftEntraId)
-			.orElseThrow(() -> new AccessDeniedException("User with id=[" + id + "] not found"));
+			.map(UserEntity::getMicrosoftEntraId);
 
-		if (!currentEntraId.equals(userEntraId)) {
-			throw new AccessDeniedException("Current user's entraId [" + currentEntraId + "] does not match target user's entraId [" + userEntraId + "]");
+		if (userEntraId.isEmpty()) {
+			log.error("Access denied: User with id=[" + id + "] not found");
+			return false;
+		}
+
+		if (!currentEntraId.get().equals(userEntraId.get())) {
+			log.error("Current user's entraId [" + currentEntraId.get() + "] does not match target user's entraId [" + userEntraId.get() + "]");
+			return false;
 		}
 
 		return true;
@@ -105,7 +125,8 @@ public class SecurityManager {
 	 */
 	public boolean targetProfileStatusIsApprovalOrArchived(String code) {
 		if (!AppConstants.ProfileStatusCodes.APPROVED.equals(code) && !AppConstants.ProfileStatusCodes.ARCHIVED.equals(code)) {
-			throw new AccessDeniedException("Profile status can only be set to 'approved' or 'archived");
+			log.error("Access denied: Profile status can only be set to 'approved' or 'archived'");
+			return false;
 		}
 
 		return true;
@@ -123,7 +144,8 @@ public class SecurityManager {
 	 */
 	public boolean targetProfileStatusIsPending(String code) {
 		if (!AppConstants.ProfileStatusCodes.PENDING.equals(code)) {
-			throw new AccessDeniedException("Profile status can only be set to 'pending'");
+			log.error("Access denied: Profile status can only be set to 'pending'");
+			return false;
 		}
 
 		return true;
