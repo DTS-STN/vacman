@@ -17,7 +17,8 @@ management:
 
 spring:
   jpa:
-    defer-datasource-initialization: false
+    hibernate:
+      ddl-auto: validate
     show-sql: true
   liquibase:
     enabled: true
