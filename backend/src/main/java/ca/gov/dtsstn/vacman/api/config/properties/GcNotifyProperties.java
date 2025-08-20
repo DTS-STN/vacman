@@ -13,7 +13,7 @@ import jakarta.validation.constraints.NotBlank;
 public record GcNotifyProperties(
 	@NotBlank String apiKey,
 	@NotBlank String baseUrl,
- 	@NotBlank String profileCreatedTemplateId,
+	@NotBlank String profileCreatedTemplateId,
 	@NotBlank String profileUpdatedTemplateId,
 	@NotBlank String profileApprovedTemplateId,
 	@NotBlank String profilePendingTemplateId,
