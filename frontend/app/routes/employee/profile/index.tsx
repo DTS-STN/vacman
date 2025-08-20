@@ -26,7 +26,7 @@ import { DescriptionList, DescriptionListItem } from '~/components/description-l
 import { ProfileCard } from '~/components/profile-card';
 import { Progress } from '~/components/progress';
 import { StatusTag } from '~/components/status-tag';
-import { PROFILE_STATUS_CODE, EMPLOYEE_WFA_STATUS } from '~/domain/constants';
+import { PROFILE_STATUS_CODE, EMPLOYEE_WFA_STATUS, PROFILE_STATUS_PENDING } from '~/domain/constants';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
 import { formatDateTime } from '~/utils/date-utils';
@@ -104,13 +104,16 @@ export async function action({ context, request }: Route.ActionArgs) {
   // If all complete, submit for review
   const submitResult = await getProfileService().updateProfileStatus(
     profileData.id,
-    {
-      code: PROFILE_STATUS_CODE.pending,
-    },
+    PROFILE_STATUS_PENDING,
     context.session.authState.accessToken,
   );
   if (submitResult.isErr()) {
-    throw submitResult.unwrap();
+    const error = submitResult.unwrapErr();
+    return {
+      status: 'error',
+      errorMessage: error.message,
+      errorCode: error.errorCode,
+    };
   }
 
   return {

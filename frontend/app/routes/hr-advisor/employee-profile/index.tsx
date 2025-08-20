@@ -58,8 +58,14 @@ export async function action({ context, request, params }: Route.ActionArgs) {
     PROFILE_STATUS_APPROVED,
     context.session.authState.accessToken,
   );
+  //TODO: display correct error on the scenario when hr advisor can see and approve his own profile
   if (submitResult.isErr()) {
-    throw submitResult.unwrapErr();
+    const error = submitResult.unwrapErr();
+    return {
+      status: 'error',
+      errorMessage: error.message,
+      errorCode: error.errorCode,
+    };
   }
 
   return {

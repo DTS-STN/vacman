@@ -51,6 +51,10 @@ export const PROFILE_STATUS_PENDING = {
   code: 'PENDING',
   nameEn: 'Pending approval',
   nameFr: "En attente d'approbation",
+  createdBy: 'system',
+  createdDate: '2025-08-14T17:26:29.38Z',
+  lastModifiedBy: 'system',
+  lastModifiedDate: '2025-08-14T17:26:29.38Z',
 } as const;
 
 export const PROFILE_STATUS_APPROVED = {
@@ -58,6 +62,10 @@ export const PROFILE_STATUS_APPROVED = {
   code: 'APPROVED',
   nameEn: 'Approved',
   nameFr: 'Approuvé',
+  createdBy: 'system',
+  createdDate: '2025-08-14T17:26:29.38Z',
+  lastModifiedBy: 'system',
+  lastModifiedDate: '2025-08-14T17:26:29.38Z',
 } as const;
 
 export const PROFILE_STATUS_INCOMPLETE = {
@@ -65,6 +73,10 @@ export const PROFILE_STATUS_INCOMPLETE = {
   code: 'INCOMPLETE',
   nameEn: 'In progress',
   nameFr: 'En cours',
+  createdBy: 'system',
+  createdDate: '2025-08-14T17:26:29.38Z',
+  lastModifiedBy: 'system',
+  lastModifiedDate: '2025-08-14T17:26:29.38Z',
 } as const;
 
 export const PROFILE_STATUS_ARCHIVED = {
@@ -72,6 +84,10 @@ export const PROFILE_STATUS_ARCHIVED = {
   code: 'ARCHIVED',
   nameEn: 'Archived',
   nameFr: 'Archivé',
+  createdBy: 'system',
+  createdDate: '2025-08-14T17:26:29.38Z',
+  lastModifiedBy: 'system',
+  lastModifiedDate: '2025-08-14T17:26:29.38Z',
 } as const;
 
 export const PREFERRED_LANGUAGE_ENGLISH = {
