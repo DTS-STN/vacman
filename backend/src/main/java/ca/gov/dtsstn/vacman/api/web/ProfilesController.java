@@ -8,7 +8,6 @@ import static ca.gov.dtsstn.vacman.api.web.exception.UnauthorizedException.asEnt
 import java.util.Collection;
 import java.util.Set;
 
-import ca.gov.dtsstn.vacman.api.web.model.ProfilePutModel;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.validator.constraints.Range;
 import org.mapstruct.factory.Mappers;
@@ -38,6 +37,7 @@ import ca.gov.dtsstn.vacman.api.service.ProfileService;
 import ca.gov.dtsstn.vacman.api.service.UserService;
 import ca.gov.dtsstn.vacman.api.web.exception.ResourceConflictException;
 import ca.gov.dtsstn.vacman.api.web.model.CollectionModel;
+import ca.gov.dtsstn.vacman.api.web.model.ProfilePutModel;
 import ca.gov.dtsstn.vacman.api.web.model.ProfileReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.ProfileStatusUpdateModel;
 import ca.gov.dtsstn.vacman.api.web.model.mapper.ProfileModelMapper;
@@ -195,8 +195,9 @@ public class ProfilesController {
 
 	@PutMapping(path = "/{id}/status")
 	@PreAuthorize("""
-		(hasAuthority('xhr-advisor') && @securityManager.targetProfileStatusIsApprovalOrArchived(#updatedProfileStatus.code)) ||
-		(@securityManager.canAccessProfile(#profileId) && @securityManager.targetProfileStatusIsPending(#updatedProfileStatus.code))""")
+		(hasAuthority('hr-advisor') && @securityManager.targetProfileStatusIsApprovalOrArchived(#updatedProfileStatus.code)) ||
+		(@securityManager.canAccessProfile(#profileId) && @securityManager.targetProfileStatusIsPending(#updatedProfileStatus.code))
+	""")
 	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
 	@Operation(summary = "Update an existing profile's status code specified by ID.")
 	public ResponseEntity<Void> updateProfileById(@PathVariable(name = "id") Long profileId, @Valid @RequestBody ProfileStatusUpdateModel updatedProfileStatus) {
