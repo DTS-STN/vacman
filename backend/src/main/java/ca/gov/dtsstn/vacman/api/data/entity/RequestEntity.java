@@ -89,11 +89,11 @@ public class RequestEntity extends AbstractBaseEntity {
 	@OneToMany(mappedBy = "request", cascade = CascadeType.ALL, orphanRemoval = true)
 	private Set<RequestEmploymentEquityEntity> requestEmploymentEquities = new HashSet<>();
 
-	@Column(name = "[REQUEST_NAME_EN]", length = 200, nullable = false)
-	private String requestNameEn;
+	@Column(name = "[NAME_EN]", length = 200, nullable = false)
+	private String nameEn;
 
-	@Column(name = "[REQUEST_NAME_FR]", length = 200, nullable = false)
-	private String requestNameFr;
+	@Column(name = "[NAME_FR]", length = 200, nullable = false)
+	private String nameFr;
 
 	@Column(name = "[REQUEST_NUMBER]", length = 10, nullable = true)
 	private String requestNumber;
@@ -208,8 +208,8 @@ public class RequestEntity extends AbstractBaseEntity {
 		this.priorityClearanceNumber = priorityClearanceNumber;
 		this.priorityEntitlement = priorityEntitlement;
 		this.priorityEntitlementRationale = priorityEntitlementRationale;
-		this.requestNameEn = requestNameEn;
-		this.requestNameFr = requestNameFr;
+		this.nameEn = requestNameEn;
+		this.nameFr = requestNameFr;
 		this.requestNumber = requestNumber;
 		this.requestStatus = requestStatus;
 		this.securityClearance = securityClearance;
@@ -382,20 +382,20 @@ public class RequestEntity extends AbstractBaseEntity {
 		this.requestEmploymentEquities = requestEmploymentEquities;
 	}
 
-	public String getRequestNameEn() {
-		return requestNameEn;
+	public String getNameEn() {
+		return nameEn;
 	}
 
-	public void setRequestNameEn(String requestNameEn) {
-		this.requestNameEn = requestNameEn;
+	public void setNameEn(String requestNameEn) {
+		this.nameEn = requestNameEn;
 	}
 
-	public String getRequestNameFr() {
-		return requestNameFr;
+	public String getNameFr() {
+		return nameFr;
 	}
 
-	public void setRequestNameFr(String requestNameFr) {
-		this.requestNameFr = requestNameFr;
+	public void setNameFr(String requestNameFr) {
+		this.nameFr = requestNameFr;
 	}
 
 	public String getRequestNumber() {
@@ -534,8 +534,8 @@ public class RequestEntity extends AbstractBaseEntity {
 			.append("priorityEntitlementRationale", priorityEntitlementRationale)
 			.append("requestCities", requestCities)
 			.append("requestEmploymentEquities", requestEmploymentEquities)
-			.append("requestNameEn", requestNameEn)
-			.append("requestNameFr", requestNameFr)
+			.append("nameEn", nameEn)
+			.append("nameFr", nameFr)
 			.append("requestNumber", requestNumber)
 			.append("requestStatus", requestStatus)
 			.append("securityClearance", securityClearance)
