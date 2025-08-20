@@ -221,6 +221,7 @@ export default {
     'status': '(FR) Status',
     'action': '(FR) Action',
     'next-page': '(FR) Next',
+    'filter-by': '(FR) Filter table by all employees or profile assigned to me',
   },
   'hr-advisor-dashboard': {
     'page-title': '(FR) HR Advisor Dashboard',
