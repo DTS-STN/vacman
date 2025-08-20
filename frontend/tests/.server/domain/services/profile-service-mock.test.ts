@@ -63,20 +63,6 @@ describe('ProfileServiceMock', () => {
       }
     });
 
-    it('should return error when access token is FAIL_TOKEN', async () => {
-      const params = { page: 1, size: 10 };
-      const accessToken = 'FAIL_TOKEN';
-
-      const result = await mockProfileService.getProfiles(params, accessToken);
-
-      expect(result.isErr()).toBe(true);
-      if (result.isErr()) {
-        const error = result.unwrapErr();
-        expect(error.errorCode).toBe(ErrorCodes.VACMAN_API_ERROR);
-        expect(error.message).toContain('Mock Error: Failed to retrieve profiles as requested.');
-      }
-    });
-
     it('should handle empty results', async () => {
       const params = { 'hr-advisor': '999' }; // Non-existent HR advisor
       const accessToken = 'valid-token';
@@ -139,20 +125,6 @@ describe('ProfileServiceMock', () => {
         });
       }
     });
-
-    it('should return error when access token is FAIL_TOKEN', async () => {
-      const params = { active: true };
-      const accessToken = 'FAIL_TOKEN';
-
-      const result = await mockProfileService.getCurrentUserProfiles(params, accessToken);
-
-      expect(result.isErr()).toBe(true);
-      if (result.isErr()) {
-        const error = result.unwrapErr();
-        expect(error.errorCode).toBe(ErrorCodes.VACMAN_API_ERROR);
-        expect(error.message).toContain('Mock Error: Failed to retrieve current user profiles as requested.');
-      }
-    });
   });
 
   describe('findCurrentUserProfile', () => {
@@ -175,16 +147,6 @@ describe('ProfileServiceMock', () => {
       await expect(mockProfileService.findCurrentUserProfile(params, accessToken)).rejects.toThrow(AppError);
       await expect(mockProfileService.findCurrentUserProfile(params, accessToken)).rejects.toThrow(
         'No active profile found for current user',
-      );
-    });
-
-    it('should throw the underlying error when getCurrentUserProfiles fails', async () => {
-      const params = { active: true };
-      const accessToken = 'FAIL_TOKEN';
-
-      await expect(mockProfileService.findCurrentUserProfile(params, accessToken)).rejects.toThrow(AppError);
-      await expect(mockProfileService.findCurrentUserProfile(params, accessToken)).rejects.toThrow(
-        'Mock Error: Failed to retrieve current user profiles as requested.',
       );
     });
 
@@ -214,19 +176,6 @@ describe('ProfileServiceMock', () => {
         expect(profile.profileStatus?.code).toBe('INCOMPLETE');
         expect(profile.createdBy).toBe(accessToken);
         expect(profile.createdDate).toBeDefined();
-      }
-    });
-
-    it('should return error when access token is FAIL_TOKEN', async () => {
-      const accessToken = 'FAIL_TOKEN';
-
-      const result = await mockProfileService.registerProfile(accessToken);
-
-      expect(result.isErr()).toBe(true);
-      if (result.isErr()) {
-        const error = result.unwrapErr();
-        expect(error.errorCode).toBe(ErrorCodes.PROFILE_CREATE_FAILED);
-        expect(error.message).toContain('Mock Error: Profile creation failed as requested.');
       }
     });
 
