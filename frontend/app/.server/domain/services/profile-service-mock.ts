@@ -18,15 +18,13 @@ import { getLanguageReferralTypeService } from '~/.server/domain/services/langua
 import { createAndLinkNewMockProfile, mockProfiles } from '~/.server/domain/services/mockData';
 import type { ProfileService } from '~/.server/domain/services/profile-service';
 import { getWFAStatuses } from '~/.server/domain/services/wfa-status-service';
+import { LogFactory } from '~/.server/logging';
 import { PROFILE_STATUS_ID } from '~/domain/constants';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 
-// Debug logging utility for Profile Service Mock
-const debugLog = (method: string, message: string, data?: unknown) => {
-  console.log(`[ProfileService Mock] ${method}: ${message}`, data ? JSON.stringify(data, null, 2) : '');
-};
+const log = LogFactory.getLogger(import.meta.url);
 
 export function getMockProfileService(): ProfileService {
   return {
@@ -37,10 +35,10 @@ export function getMockProfileService(): ProfileService {
      * @returns A Result containing the paginated profile response or an error.
      */
     async getProfiles(params: ProfileQueryParams, accessToken: string): Promise<Result<PagedProfileResponse, AppError>> {
-      debugLog('getProfiles', 'Attempting to retrieve profiles', { params, accessTokenLength: accessToken.length });
+      log.debug('Attempting to retrieve profiles', { params, accessTokenLength: accessToken.length });
 
       let filteredProfiles = [...mockProfiles];
-      debugLog('getProfiles', `Starting with ${filteredProfiles.length} total profiles`);
+      log.debug(`Starting with ${filteredProfiles.length} total profiles`);
 
       // Apply active filter
       if (params.active !== undefined) {
@@ -51,12 +49,12 @@ export function getMockProfileService(): ProfileService {
           filteredProfiles = filteredProfiles.filter(
             (p) => p.profileStatus && activeStatuses.some((id) => id === p.profileStatus?.id),
           );
-          debugLog('getProfiles', `Applied active filter (true): ${filteredProfiles.length} profiles remaining`);
+          log.debug(`Applied active filter (true): ${filteredProfiles.length} profiles remaining`);
         } else {
           filteredProfiles = filteredProfiles.filter(
             (p) => p.profileStatus && inactiveStatuses.some((id) => id === p.profileStatus?.id),
           );
-          debugLog('getProfiles', `Applied active filter (false): ${filteredProfiles.length} profiles remaining`);
+          log.debug(`Applied active filter (false): ${filteredProfiles.length} profiles remaining`);
         }
       }
 
@@ -65,15 +63,12 @@ export function getMockProfileService(): ProfileService {
         if (params['hr-advisor'] === 'me') {
           // For mock purposes, filter by hrAdvisorId = 1 when hr-advisor=me
           filteredProfiles = filteredProfiles.filter((p) => p.hrAdvisorId === 1);
-          debugLog('getProfiles', `Applied HR advisor filter (me): ${filteredProfiles.length} profiles remaining`);
+          log.debug(`Applied HR advisor filter (me): ${filteredProfiles.length} profiles remaining`);
         } else {
           const hrAdvisorId = parseInt(params['hr-advisor']);
           if (!isNaN(hrAdvisorId)) {
             filteredProfiles = filteredProfiles.filter((p) => p.hrAdvisorId === hrAdvisorId);
-            debugLog(
-              'getProfiles',
-              `Applied HR advisor filter (${hrAdvisorId}): ${filteredProfiles.length} profiles remaining`,
-            );
+            log.debug(`Applied HR advisor filter (${hrAdvisorId}): ${filteredProfiles.length} profiles remaining`);
           }
         }
       }
@@ -84,10 +79,7 @@ export function getMockProfileService(): ProfileService {
       const startIndex = page * size;
       const endIndex = startIndex + size;
       const paginatedProfiles = filteredProfiles.slice(startIndex, endIndex);
-      debugLog(
-        'getProfiles',
-        `Applied pagination (page: ${page}, size: ${size}): ${paginatedProfiles.length} profiles in current page`,
-      );
+      log.debug(`Applied pagination (page: ${page}, size: ${size}): ${paginatedProfiles.length} profiles in current page`);
 
       const response: PagedProfileResponse = {
         content: paginatedProfiles,
@@ -99,7 +91,7 @@ export function getMockProfileService(): ProfileService {
         },
       };
 
-      debugLog('getProfiles', 'Successfully retrieved profiles', {
+      log.debug('Successfully retrieved profiles', {
         totalFiltered: filteredProfiles.length,
         pageSize: paginatedProfiles.length,
         currentPage: page,
@@ -117,14 +109,14 @@ export function getMockProfileService(): ProfileService {
       params: Pick<ProfileQueryParams, 'active'>,
       accessToken: string,
     ): Promise<Result<CollectionProfileResponse, AppError>> {
-      debugLog('getCurrentUserProfiles', 'Attempting to retrieve current user profiles', {
+      log.debug('Attempting to retrieve current user profiles', {
         params,
         accessTokenLength: accessToken.length,
       });
 
       // For mock purposes, return profiles for user ID 1
       let userProfiles = mockProfiles.filter((p) => p.profileUser.id === 1);
-      debugLog('getCurrentUserProfiles', `Found ${userProfiles.length} profiles for user ID 1`);
+      log.debug(`Found ${userProfiles.length} profiles for user ID 1`);
 
       // Apply active filter
       if (params.active !== undefined) {
@@ -133,10 +125,10 @@ export function getMockProfileService(): ProfileService {
 
         if (params.active === true) {
           userProfiles = userProfiles.filter((p) => p.profileStatus && activeStatuses.includes(p.profileStatus.id));
-          debugLog('getCurrentUserProfiles', `Applied active filter (true): ${userProfiles.length} profiles remaining`);
+          log.debug(`Applied active filter (true): ${userProfiles.length} profiles remaining`);
         } else {
           userProfiles = userProfiles.filter((p) => p.profileStatus && inactiveStatuses.includes(p.profileStatus.id));
-          debugLog('getCurrentUserProfiles', `Applied active filter (false): ${userProfiles.length} profiles remaining`);
+          log.debug(`Applied active filter (false): ${userProfiles.length} profiles remaining`);
         }
       }
 
@@ -144,7 +136,7 @@ export function getMockProfileService(): ProfileService {
         content: userProfiles,
       };
 
-      debugLog('getCurrentUserProfiles', 'Successfully retrieved current user profiles', { profileCount: userProfiles.length });
+      log.debug('Successfully retrieved current user profiles', { profileCount: userProfiles.length });
       return Promise.resolve(Ok(response));
     },
 
@@ -156,7 +148,7 @@ export function getMockProfileService(): ProfileService {
      * @throws AppError if no profile is found or if the request fails.
      */
     async findCurrentUserProfile(params: Pick<ProfileQueryParams, 'active'>, accessToken: string): Promise<Profile> {
-      debugLog('findCurrentUserProfile', 'Attempting to retrieve current user profile', {
+      log.debug('Attempting to retrieve current user profile', {
         params,
         accessTokenLength: accessToken.length,
       });
@@ -164,7 +156,7 @@ export function getMockProfileService(): ProfileService {
       const result = await this.getCurrentUserProfiles(params, accessToken);
 
       if (result.isErr()) {
-        debugLog('findCurrentUserProfile', 'Failed to retrieve current user profile');
+        log.debug('Failed to retrieve current user profile');
         throw result.unwrapErr();
       }
 
@@ -173,7 +165,7 @@ export function getMockProfileService(): ProfileService {
         const error = new AppError('No active profile found for current user', ErrorCodes.PROFILE_NOT_FOUND, {
           httpStatusCode: HttpStatusCodes.NOT_FOUND,
         });
-        debugLog('findCurrentUserProfile', 'No active profile found for current user');
+        log.debug('No active profile found for current user');
         throw error;
       }
 
@@ -182,11 +174,11 @@ export function getMockProfileService(): ProfileService {
         const error = new AppError('Profile data is invalid', ErrorCodes.PROFILE_NOT_FOUND, {
           httpStatusCode: HttpStatusCodes.NOT_FOUND,
         });
-        debugLog('findCurrentUserProfile', 'Profile data is invalid');
+        log.debug('Profile data is invalid');
         throw error;
       }
 
-      debugLog('findCurrentUserProfile', "Successfully retrieved current user's active profile", { profileId: profile.id });
+      log.debug("Successfully retrieved current user's active profile", { profileId: profile.id });
       return profile;
     },
 
@@ -196,10 +188,10 @@ export function getMockProfileService(): ProfileService {
      * @returns A Result containing the created profile or an error.
      */
     async registerProfile(accessToken: string): Promise<Result<Profile, AppError>> {
-      debugLog('registerProfile', 'Attempting to register new profile', { accessTokenLength: accessToken.length });
+      log.debug('Attempting to register new profile', { accessTokenLength: accessToken.length });
 
       const newProfile = createAndLinkNewMockProfile(accessToken);
-      debugLog('registerProfile', 'Successfully registered new profile', {
+      log.debug('Successfully registered new profile', {
         profileId: newProfile.id,
         profileStatus: newProfile.profileStatus?.code,
       });
@@ -213,21 +205,21 @@ export function getMockProfileService(): ProfileService {
      * @returns A Result containing the profile or an error.
      */
     async getProfileById(profileId: number, accessToken: string): Promise<Result<Profile, AppError>> {
-      debugLog('getProfileById', `Attempting to retrieve profile with ID: ${profileId}`, {
+      log.debug(`Attempting to retrieve profile with ID: ${profileId}`, {
         accessTokenLength: accessToken.length,
       });
 
       const profile = mockProfiles.find((p) => p.id === profileId);
 
       if (profile) {
-        debugLog('getProfileById', `Successfully retrieved profile with ID: ${profileId}`, {
+        log.debug(`Successfully retrieved profile with ID: ${profileId}`, {
           profileStatus: profile.profileStatus?.code,
           userId: profile.profileUser.id,
         });
         return Promise.resolve(Ok(profile));
       }
 
-      debugLog('getProfileById', `Profile with ID ${profileId} not found`);
+      log.debug(`Profile with ID ${profileId} not found`);
       return Err(new AppError(`Profile with ID ${profileId} not found.`, ErrorCodes.PROFILE_NOT_FOUND));
     },
 
