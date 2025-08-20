@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vacman-backend
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: vacman-backend
+  template:
+    spec:
+      containers:
+        - name: vacman-backend
+          image: dtsrhpdevscedacr.azurecr.io/vacman/vacman-backend:0.0.0-ce49b891-0006f
+          envFrom:
+            - secretRef:
+                name: vacman-backend-uat
+      hostAliases:
+        # Override DNS so that esdcvacmansqlsrv.database.windows.net
+        # always resolves to 10.72.61.197 inside this pod.
+        #
+        # ⚠️ WARNING:
+        # - This hardcodes the IP, so if it ever changes, the pod config must be updated.
+        # - Storing IPs in YAML can reveal internal network details.
+        - ip: 10.72.61.197
+          hostnames:
+            - esdcvacmansqlsrv.database.windows.net
