@@ -19,7 +19,6 @@ import ca.gov.dtsstn.vacman.api.web.model.LanguageReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.LanguageReferralTypeReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.LanguageRequirementReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.NonAdvertisedAppointmentReadModel;
-import ca.gov.dtsstn.vacman.api.web.model.PriorityLevelReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.ProfileStatusReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.ProvinceReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.RequestStatusReadModel;
@@ -143,17 +142,6 @@ public class CodesController {
 			.toList();
 
 		return new CollectionModel<>(nonAdvertisedAppointments);
-	}
-
-	@PreAuthorize("permitAll()")
-	@GetMapping({ "/priority-levels" })
-	@Operation(summary = "Get all priority level codes")
-	public CollectionModel<PriorityLevelReadModel> getPriorityLevels() {
-		final var priorityLevels = codeService.getPriorityLevels(Pageable.unpaged())
-			.map(codeMapper::map)
-			.toList();
-
-		return new CollectionModel<>(priorityLevels);
 	}
 
 	@PreAuthorize("permitAll()")

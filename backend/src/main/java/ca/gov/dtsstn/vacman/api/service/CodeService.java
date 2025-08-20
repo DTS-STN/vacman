@@ -6,7 +6,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import ca.gov.dtsstn.vacman.api.constants.AppConstants;
-
 import ca.gov.dtsstn.vacman.api.data.entity.CityEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.ClassificationEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.EmploymentEquityEntity;
@@ -16,7 +15,6 @@ import ca.gov.dtsstn.vacman.api.data.entity.LanguageEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.LanguageReferralTypeEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.LanguageRequirementEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.NonAdvertisedAppointmentEntity;
-import ca.gov.dtsstn.vacman.api.data.entity.PriorityLevelEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.ProfileStatusEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.ProvinceEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.RequestStatusEntity;
@@ -35,7 +33,6 @@ import ca.gov.dtsstn.vacman.api.data.repository.LanguageReferralTypeRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.LanguageRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.LanguageRequirementRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.NonAdvertisedAppointmentRepository;
-import ca.gov.dtsstn.vacman.api.data.repository.PriorityLevelRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.ProfileStatusRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.ProvinceRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.RequestStatusRepository;
@@ -73,8 +70,6 @@ public class CodeService {
 
 	private final NonAdvertisedAppointmentRepository nonAdvertisedAppointmentRepository;
 
-	private final PriorityLevelRepository priorityLevelRepository;
-
 	private final ProfileStatusRepository profileStatusRepository;
 
 	private final ProvinceRepository provinceRepository;
@@ -103,7 +98,6 @@ public class CodeService {
 			LanguageReferralTypeRepository languageReferralTypeRepository,
 			LanguageRequirementRepository languageRequirementRepository,
 			NonAdvertisedAppointmentRepository nonAdvertisedAppointmentRepository,
-			PriorityLevelRepository priorityLevelRepository,
 			ProfileStatusRepository profileStatusRepository,
 			ProvinceRepository provinceRepository,
 			RequestStatusRepository requestStatusRepository,
@@ -122,7 +116,6 @@ public class CodeService {
 		this.languageReferralTypeRepository = languageReferralTypeRepository;
 		this.languageRequirementRepository = languageRequirementRepository;
 		this.nonAdvertisedAppointmentRepository = nonAdvertisedAppointmentRepository;
-		this.priorityLevelRepository = priorityLevelRepository;
 		this.profileStatusRepository = profileStatusRepository;
 		this.provinceRepository = provinceRepository;
 		this.requestStatusRepository = requestStatusRepository;
@@ -140,7 +133,7 @@ public class CodeService {
 	 * @param pageable pagination information
 	 * @return a page of {@link CityEntity} objects
 	 */
- @Cacheable(cacheNames = { AppConstants.CacheNames.CITIES })
+	@Cacheable(cacheNames = { AppConstants.CacheNames.CITIES })
 	public Page<CityEntity> getCities(Pageable pageable) {
 		return cityRepository.findAll(pageable);
 	}
@@ -151,7 +144,7 @@ public class CodeService {
 	 * @param pageable pagination information
 	 * @return a page of {@link ClassificationEntity} objects
 	 */
- @Cacheable(cacheNames = { AppConstants.CacheNames.CLASSIFICATIONS })
+	@Cacheable(cacheNames = { AppConstants.CacheNames.CLASSIFICATIONS })
 	public Page<ClassificationEntity> getClassifications(Pageable pageable) {
 		return classificationRepository.findAll(pageable);
 	}
@@ -162,7 +155,7 @@ public class CodeService {
 	 * @param pageable pagination information
 	 * @return a page of {@link EmploymentEquityEntity} objects
 	 */
- @Cacheable(cacheNames = { AppConstants.CacheNames.EMPLOYMENT_EQUITIES })
+	@Cacheable(cacheNames = { AppConstants.CacheNames.EMPLOYMENT_EQUITIES })
 	public Page<EmploymentEquityEntity> getEmploymentEquities(Pageable pageable) {
 		return employmentEquityRepository.findAll(pageable);
 	}
@@ -173,7 +166,7 @@ public class CodeService {
 	 * @param pageable pagination information
 	 * @return a page of {@link EmploymentOpportunityEntity} objects
 	 */
- @Cacheable(cacheNames = { AppConstants.CacheNames.EMPLOYMENT_OPPORTUNITIES })
+	@Cacheable(cacheNames = { AppConstants.CacheNames.EMPLOYMENT_OPPORTUNITIES })
 	public Page<EmploymentOpportunityEntity> getEmploymentOpportunities(Pageable pageable) {
 		return employmentOpportunityRepository.findAll(pageable);
 	}
@@ -184,7 +177,7 @@ public class CodeService {
 	 * @param pageable pagination information
 	 * @return a page of {@link EmploymentTenureEntity} objects
 	 */
- @Cacheable(cacheNames = { AppConstants.CacheNames.EMPLOYMENT_TENURES })
+	@Cacheable(cacheNames = { AppConstants.CacheNames.EMPLOYMENT_TENURES })
 	public Page<EmploymentTenureEntity> getEmploymentTenures(Pageable pageable) {
 		return employmentTenureRepository.findAll(pageable);
 	}
@@ -195,7 +188,7 @@ public class CodeService {
 	 * @param pageable pagination information
 	 * @return a page of {@link LanguageEntity} objects
 	 */
- @Cacheable(cacheNames = { AppConstants.CacheNames.LANGUAGES })
+	@Cacheable(cacheNames = { AppConstants.CacheNames.LANGUAGES })
 	public Page<LanguageEntity> getLanguages(Pageable pageable) {
 		return languageRepository.findAll(pageable);
 	}
@@ -206,7 +199,7 @@ public class CodeService {
 	 * @param pageable pagination information
 	 * @return a page of {@link LanguageReferralTypeEntity} objects
 	 */
- @Cacheable(cacheNames = { AppConstants.CacheNames.LANGUAGE_REFERRAL_TYPES })
+	@Cacheable(cacheNames = { AppConstants.CacheNames.LANGUAGE_REFERRAL_TYPES })
 	public Page<LanguageReferralTypeEntity> getLanguageReferralTypes(Pageable pageable) {
 		return languageReferralTypeRepository.findAll(pageable);
 	}
@@ -217,7 +210,7 @@ public class CodeService {
 	 * @param pageable pagination information
 	 * @return a page of {@link LanguageRequirementEntity} objects
 	 */
- @Cacheable(cacheNames = { AppConstants.CacheNames.LANGUAGE_REQUIREMENTS })
+	@Cacheable(cacheNames = { AppConstants.CacheNames.LANGUAGE_REQUIREMENTS })
 	public Page<LanguageRequirementEntity> getLanguageRequirements(Pageable pageable) {
 		return languageRequirementRepository.findAll(pageable);
 	}
@@ -228,20 +221,9 @@ public class CodeService {
 	 * @param pageable pagination information
 	 * @return a page of {@link NonAdvertisedAppointmentEntity} objects
 	 */
- @Cacheable(cacheNames = { AppConstants.CacheNames.NON_ADVERTISED_APPOINTMENTS })
+	@Cacheable(cacheNames = { AppConstants.CacheNames.NON_ADVERTISED_APPOINTMENTS })
 	public Page<NonAdvertisedAppointmentEntity> getNonAdvertisedAppointments(Pageable pageable) {
 		return nonAdvertisedAppointmentRepository.findAll(pageable);
-	}
-
-	/**
-	 * Retrieves a paginated list of priority levels.
-	 *
-	 * @param pageable pagination information
-	 * @return a page of {@link PriorityLevelEntity} objects
-	 */
- @Cacheable(cacheNames = { AppConstants.CacheNames.PRIORITY_LEVELS })
-	public Page<PriorityLevelEntity> getPriorityLevels(Pageable pageable) {
-		return priorityLevelRepository.findAll(pageable);
 	}
 
 	/**
@@ -250,7 +232,7 @@ public class CodeService {
 	 * @param pageable pagination information
 	 * @return a page of {@link ProfileStatusEntity} objects
 	 */
- @Cacheable(cacheNames = { AppConstants.CacheNames.PROFILE_STATUSES })
+	@Cacheable(cacheNames = { AppConstants.CacheNames.PROFILE_STATUSES })
 	public Page<ProfileStatusEntity> getProfileStatuses(Pageable pageable) {
 		return profileStatusRepository.findAll(pageable);
 	}
@@ -261,7 +243,7 @@ public class CodeService {
 	 * @param pageable pagination information
 	 * @return a page of {@link ProvinceEntity} objects
 	 */
- @Cacheable(cacheNames = { AppConstants.CacheNames.PROVINCES })
+	@Cacheable(cacheNames = { AppConstants.CacheNames.PROVINCES })
 	public Page<ProvinceEntity> getProvinces(Pageable pageable) {
 		return provinceRepository.findAll(pageable);
 	}
@@ -272,7 +254,7 @@ public class CodeService {
 	 * @param pageable pagination information
 	 * @return a page of {@link RequestStatusEntity} objects
 	 */
- @Cacheable(cacheNames = { AppConstants.CacheNames.REQUEST_STATUSES })
+	@Cacheable(cacheNames = { AppConstants.CacheNames.REQUEST_STATUSES })
 	public Page<RequestStatusEntity> getRequestStatuses(Pageable pageable) {
 		return requestStatusRepository.findAll(pageable);
 	}
@@ -283,7 +265,7 @@ public class CodeService {
 	 * @param pageable pagination information
 	 * @return a page of {@link SecurityClearanceEntity} objects
 	 */
- @Cacheable(cacheNames = { AppConstants.CacheNames.SECURITY_CLEARANCES })
+	@Cacheable(cacheNames = { AppConstants.CacheNames.SECURITY_CLEARANCES })
 	public Page<SecurityClearanceEntity> getSecurityClearances(Pageable pageable) {
 		return securityClearanceRepository.findAll(pageable);
 	}
@@ -294,7 +276,7 @@ public class CodeService {
 	 * @param pageable pagination information
 	 * @return a page of {@link SelectionProcessTypeEntity} objects
 	 */
- @Cacheable(cacheNames = { AppConstants.CacheNames.SELECTION_PROCESS_TYPES })
+	@Cacheable(cacheNames = { AppConstants.CacheNames.SELECTION_PROCESS_TYPES })
 	public Page<SelectionProcessTypeEntity> getSelectionProcessTypes(Pageable pageable) {
 		return selectionProcessTypeRepository.findAll(pageable);
 	}
@@ -305,7 +287,7 @@ public class CodeService {
 	 * @param pageable pagination information
 	 * @return a page of {@link UserTypeEntity} objects
 	 */
- @Cacheable(cacheNames = { AppConstants.CacheNames.USER_TYPES })
+	@Cacheable(cacheNames = { AppConstants.CacheNames.USER_TYPES })
 	public Page<UserTypeEntity> getUserTypes(Pageable pageable) {
 		return userTypeRepository.findAll(pageable);
 	}
@@ -316,7 +298,7 @@ public class CodeService {
 	 * @param pageable pagination information
 	 * @return a page of {@link WfaStatusEntity} objects
 	 */
- @Cacheable(cacheNames = { AppConstants.CacheNames.WFA_STATUSES })
+	@Cacheable(cacheNames = { AppConstants.CacheNames.WFA_STATUSES })
 	public Page<WfaStatusEntity> getWfaStatuses(Pageable pageable) {
 		return wfaStatusRepository.findAll(pageable);
 	}
@@ -327,7 +309,7 @@ public class CodeService {
 	 * @param pageable pagination information
 	 * @return a page of {@link WorkScheduleEntity} objects
 	 */
- @Cacheable(cacheNames = { AppConstants.CacheNames.WORK_SCHEDULES })
+	@Cacheable(cacheNames = { AppConstants.CacheNames.WORK_SCHEDULES })
 	public Page<WorkScheduleEntity> getWorkSchedules(Pageable pageable) {
 		return workScheduleRepository.findAll(pageable);
 	}
@@ -338,7 +320,7 @@ public class CodeService {
 	 * @param pageable pagination information
 	 * @return a page of {@link WorkUnitEntity} objects
 	 */
- @Cacheable(cacheNames = { AppConstants.CacheNames.WORK_UNITS })
+	@Cacheable(cacheNames = { AppConstants.CacheNames.WORK_UNITS })
 	public Page<WorkUnitEntity> getWorkUnits(Pageable pageable) {
 		return workUnitRepository.findAll(pageable);
 	}

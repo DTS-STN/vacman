@@ -31,7 +31,6 @@ import ca.gov.dtsstn.vacman.api.data.entity.LanguageEntityBuilder;
 import ca.gov.dtsstn.vacman.api.data.entity.LanguageReferralTypeEntityBuilder;
 import ca.gov.dtsstn.vacman.api.data.entity.LanguageRequirementEntityBuilder;
 import ca.gov.dtsstn.vacman.api.data.entity.NonAdvertisedAppointmentEntityBuilder;
-import ca.gov.dtsstn.vacman.api.data.entity.PriorityLevelEntityBuilder;
 import ca.gov.dtsstn.vacman.api.data.entity.ProfileStatusEntityBuilder;
 import ca.gov.dtsstn.vacman.api.data.entity.ProvinceEntityBuilder;
 import ca.gov.dtsstn.vacman.api.data.entity.RequestStatusEntityBuilder;
@@ -341,36 +340,6 @@ class CodesControllerTest {
 			.andExpect(jsonPath("$.content[0].createdDate").value(nonAdvertisedAppointment.getCreatedDate().toString()))
 			.andExpect(jsonPath("$.content[0].lastModifiedBy").value(nonAdvertisedAppointment.getLastModifiedBy()))
 			.andExpect(jsonPath("$.content[0].lastModifiedDate").value(nonAdvertisedAppointment.getLastModifiedDate().toString()));
-	}
-
-	@Test
-	@WithAnonymousUser
-	@DisplayName("GET /codes/priority-levels - Should return 200 OK with a page of priority levels")
-	void getPriorityLevels_shouldReturnOk() throws Exception {
-		final var priorityLevel = new PriorityLevelEntityBuilder()
-			.id(0L)
-			.code("TEST")
-			.nameEn("Test Priority Level")
-			.nameFr("Niveau de priorité de test")
-			.createdBy("TestUser")
-			.createdDate(Instant.EPOCH)
-			.lastModifiedBy("TestUser")
-			.lastModifiedDate(Instant.EPOCH)
-			.build();
-
-		when(codeService.getPriorityLevels(Pageable.unpaged())).thenReturn(new PageImpl<>(List.of(priorityLevel)));
-
-		mockMvc.perform(get("/api/v1/codes/priority-levels"))
-			.andExpect(status().isOk())
-			.andExpect(jsonPath("$.content", hasSize(1)))
-			.andExpect(jsonPath("$.content[0].id").value(priorityLevel.getId()))
-			.andExpect(jsonPath("$.content[0].code").value(priorityLevel.getCode()))
-			.andExpect(jsonPath("$.content[0].nameEn").value(priorityLevel.getNameEn()))
-			.andExpect(jsonPath("$.content[0].nameFr").value(priorityLevel.getNameFr()))
-			.andExpect(jsonPath("$.content[0].createdBy").value(priorityLevel.getCreatedBy()))
-			.andExpect(jsonPath("$.content[0].createdDate").value(priorityLevel.getCreatedDate().toString()))
-			.andExpect(jsonPath("$.content[0].lastModifiedBy").value(priorityLevel.getLastModifiedBy()))
-			.andExpect(jsonPath("$.content[0].lastModifiedDate").value(priorityLevel.getLastModifiedDate().toString()));
 	}
 
 	@Test

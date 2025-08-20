@@ -1,6 +1,7 @@
 package ca.gov.dtsstn.vacman.api.data.entity;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -37,10 +38,10 @@ public class ProfileEntity extends AbstractBaseEntity {
 	private WfaStatusEntity wfaStatus;
 
 	@Column(name = "[WFA_START_DATE]")
-	private Instant wfaStartDate;
+	private LocalDate wfaStartDate;
 
 	@Column(name = "[WFA_END_DATE]")
-	private Instant wfaEndDate;
+	private LocalDate wfaEndDate;
 
 	@ManyToOne
 	@JoinColumn(name = "[CLASSIFICATION_ID]", nullable = true)
@@ -105,10 +106,9 @@ public class ProfileEntity extends AbstractBaseEntity {
 			@Nullable WfaStatusEntity wfaStatus,
 			@Nullable ClassificationEntity classification,
 			@Nullable CityEntity city,
-			@Nullable PriorityLevelEntity priorityLevel,
 			@Nullable WorkUnitEntity workUnit,
-			@Nullable Instant wfaStartDate,
-			@Nullable Instant wfaEndDate,
+			@Nullable LocalDate wfaStartDate,
+			@Nullable LocalDate wfaEndDate,
 			@Nullable LanguageEntity language,
 			@Nullable ProfileStatusEntity profileStatus,
 			@Nullable String personalPhoneNumber,
@@ -164,19 +164,19 @@ public class ProfileEntity extends AbstractBaseEntity {
 		this.wfaStatus = wfaStatus;
 	}
 
-	public Instant getWfaStartDate() {
+	public LocalDate getWfaStartDate() {
 		return wfaStartDate;
 	}
 
-	public void setWfaStartDate(Instant wfaStartDate) {
+	public void setWfaStartDate(LocalDate wfaStartDate) {
 		this.wfaStartDate = wfaStartDate;
 	}
 
-	public Instant getWfaEndDate() {
+	public LocalDate getWfaEndDate() {
 		return wfaEndDate;
 	}
 
-	public void setWfaEndDate(Instant wfaEndDate) {
+	public void setWfaEndDate(LocalDate wfaEndDate) {
 		this.wfaEndDate = wfaEndDate;
 	}
 

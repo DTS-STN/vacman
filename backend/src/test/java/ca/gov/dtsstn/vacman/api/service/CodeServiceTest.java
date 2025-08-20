@@ -24,7 +24,6 @@ import ca.gov.dtsstn.vacman.api.data.entity.LanguageEntityBuilder;
 import ca.gov.dtsstn.vacman.api.data.entity.LanguageReferralTypeEntityBuilder;
 import ca.gov.dtsstn.vacman.api.data.entity.LanguageRequirementEntityBuilder;
 import ca.gov.dtsstn.vacman.api.data.entity.NonAdvertisedAppointmentEntityBuilder;
-import ca.gov.dtsstn.vacman.api.data.entity.PriorityLevelEntityBuilder;
 import ca.gov.dtsstn.vacman.api.data.entity.ProfileStatusEntityBuilder;
 import ca.gov.dtsstn.vacman.api.data.entity.ProvinceEntityBuilder;
 import ca.gov.dtsstn.vacman.api.data.entity.RequestStatusEntityBuilder;
@@ -43,7 +42,6 @@ import ca.gov.dtsstn.vacman.api.data.repository.LanguageReferralTypeRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.LanguageRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.LanguageRequirementRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.NonAdvertisedAppointmentRepository;
-import ca.gov.dtsstn.vacman.api.data.repository.PriorityLevelRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.ProfileStatusRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.ProvinceRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.RequestStatusRepository;
@@ -84,9 +82,6 @@ class CodeServiceTest {
 
 	@Mock
 	NonAdvertisedAppointmentRepository nonAdvertisedAppointmentRepository;
-
-	@Mock
-	PriorityLevelRepository priorityLevelRepository;
 
 	@Mock
 	ProfileStatusRepository profileStatusRepository;
@@ -251,21 +246,6 @@ class CodeServiceTest {
 		assertNotNull(result);
 		assertEquals(1, result.getTotalElements());
 		assertEquals(testNonAdvertisedAppointment, result.getContent().getFirst());
-	}
-
-	@Test
-	@DisplayName("getPriorityLevels() returns a page of priority levels")
-	void getPriorityLevelsReturnsPageOfPriorityLevels() {
-		final var testPriorityLevel = new PriorityLevelEntityBuilder().code("TEST_PL").build();
-
-		when(priorityLevelRepository.findAll(Pageable.unpaged()))
-			.thenReturn(new PageImpl<>(List.of(testPriorityLevel)));
-
-		final var result = codeService.getPriorityLevels(Pageable.unpaged());
-
-		assertNotNull(result);
-		assertEquals(1, result.getTotalElements());
-		assertEquals(testPriorityLevel, result.getContent().getFirst());
 	}
 
 	@Test
