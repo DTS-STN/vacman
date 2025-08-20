@@ -33,6 +33,7 @@ public class UserEntity extends AbstractBaseEntity {
 	@Column(name = "[INITIAL]", length = 4, nullable = true)
 	private String initial;
 
+	@JsonIgnore
 	@ManyToOne
 	@JoinColumn(name = "[LANGUAGE_ID]", nullable = false)
 	private LanguageEntity language;
@@ -53,6 +54,7 @@ public class UserEntity extends AbstractBaseEntity {
 	@OneToMany(mappedBy = "user")
 	private Set<ProfileEntity> profiles;
 
+	@JsonIgnore
 	@ManyToOne
 	@JoinColumn(name = "[USER_TYPE_ID]", nullable = false)
 	private UserTypeEntity userType;
