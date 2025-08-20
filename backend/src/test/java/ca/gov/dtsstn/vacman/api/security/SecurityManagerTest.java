@@ -1,7 +1,6 @@
 package ca.gov.dtsstn.vacman.api.security;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
@@ -15,14 +14,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.access.AccessDeniedException;
 
 import ca.gov.dtsstn.vacman.api.constants.AppConstants;
 import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntityBuilder;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntityBuilder;
 import ca.gov.dtsstn.vacman.api.service.ProfileService;
 import ca.gov.dtsstn.vacman.api.service.UserService;
-import ca.gov.dtsstn.vacman.api.web.exception.UnauthorizedException;
 
 @ExtendWith({ MockitoExtension.class })
 class SecurityManagerTest {
@@ -63,7 +60,7 @@ class SecurityManagerTest {
 				securityUtils.when(SecurityUtils::getCurrentUserEntraId)
 					.thenReturn(Optional.empty());
 
-				assertThrows(UnauthorizedException.class, () -> securityManager.canAccessProfile(1L));
+				assertFalse(securityManager.canAccessProfile(1L));
 			}
 		}
 
@@ -76,7 +73,7 @@ class SecurityManagerTest {
 				when(profileService.getProfile(1L))
 					.thenReturn(Optional.empty());
 
-				assertThrows(AccessDeniedException.class, () -> securityManager.canAccessProfile(1L));
+				assertFalse(securityManager.canAccessProfile(1L));
 			}
 		}
 
@@ -93,8 +90,7 @@ class SecurityManagerTest {
 							.build())
 						.build()));
 
-				final var exception = assertThrows(AccessDeniedException.class, () -> securityManager.canAccessProfile(1L));
-				assertEquals("Current user's entraId [00000000-0000-0000-0000-000000000000] does not match target profile's entraId [11111111-2222-3333-4444-555555555555]", exception.getMessage());
+				assertFalse(securityManager.canAccessProfile(1L));
 			}
 		}
 
@@ -125,7 +121,7 @@ class SecurityManagerTest {
 				securityUtils.when(SecurityUtils::getCurrentUserEntraId)
 					.thenReturn(Optional.empty());
 
-				assertThrows(UnauthorizedException.class, () -> securityManager.canAccessUser(1L));
+				assertFalse(securityManager.canAccessUser(1L));
 			}
 		}
 
@@ -138,7 +134,7 @@ class SecurityManagerTest {
 				when(userService.getUserById(1L))
 					.thenReturn(Optional.empty());
 
-				assertThrows(AccessDeniedException.class, () -> securityManager.canAccessUser(1L));
+				assertFalse(securityManager.canAccessUser(1L));
 			}
 		}
 
@@ -153,8 +149,7 @@ class SecurityManagerTest {
 						.microsoftEntraId("11111111-2222-3333-4444-555555555555")
 						.build()));
 
-				final var exception = assertThrows(AccessDeniedException.class, () -> securityManager.canAccessUser(1L));
-				assertEquals("Current user's entraId [00000000-0000-0000-0000-000000000000] does not match target user's entraId [11111111-2222-3333-4444-555555555555]", exception.getMessage());
+				assertFalse(securityManager.canAccessUser(1L));
 			}
 		}
 
@@ -176,8 +171,7 @@ class SecurityManagerTest {
 
 		@Test
 		void testInvalidStatus() {
-			final var exception = assertThrows(AccessDeniedException.class, () -> securityManager.targetProfileStatusIsApprovalOrArchived("INVALID_STATUS"));
-			assertEquals("Profile status can only be set to 'approved' or 'archived", exception.getMessage());
+			assertFalse(securityManager.targetProfileStatusIsApprovalOrArchived("INVALID_STATUS"));
 		}
 
 	}
@@ -193,8 +187,7 @@ class SecurityManagerTest {
 
 		@Test
 		void testInvalidStatus() {
-			final var exception = assertThrows(AccessDeniedException.class, () -> securityManager.targetProfileStatusIsPending("INVALID_STATUS"));
-			assertEquals("Profile status can only be set to 'pending'", exception.getMessage());
+			assertFalse(securityManager.targetProfileStatusIsPending("INVALID_STATUS"));
 		}
 
 	}
