@@ -6,6 +6,7 @@ import * as v from 'valibot';
 
 import type { Route } from './+types/referral-preferences';
 
+import type { ProfilePutModel } from '~/.server/domain/models';
 import { getCityService } from '~/.server/domain/services/city-service';
 import { getClassificationService } from '~/.server/domain/services/classification-service';
 import { getEmploymentOpportunityTypeService } from '~/.server/domain/services/employment-opportunity-type-service';
@@ -65,17 +66,19 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   const oldReferralData = currentProfile;
   const newReferralData = parseResult.output;
 
+  const profilePayload: ProfilePutModel = {
+    ...currentProfile,
+    preferredLanguages: parseResult.output.preferredLanguages,
+    preferredClassification: parseResult.output.preferredClassifications,
+    preferredCities: parseResult.output.preferredCities,
+    isAvailableForReferral: parseResult.output.isAvailableForReferral,
+    isInterestedInAlternation: parseResult.output.isInterestedInAlternation,
+    preferredEmploymentOpportunities: parseResult.output.preferredEmploymentOpportunities,
+  };
+
   const updateResult = await profileService.updateProfileById(
     currentProfile.id,
-    {
-      ...currentProfile,
-      preferredLanguages: parseResult.output.preferredLanguages,
-      preferredClassification: parseResult.output.preferredClassifications,
-      preferredCities: parseResult.output.preferredCities,
-      isAvailableForReferral: parseResult.output.isAvailableForReferral,
-      isInterestedInAlternation: parseResult.output.isInterestedInAlternation,
-      preferredEmploymentOpportunities: parseResult.output.preferredEmploymentOpportunities,
-    },
+    profilePayload,
     context.session.authState.accessToken,
   );
 
