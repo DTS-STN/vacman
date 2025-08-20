@@ -162,10 +162,9 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
       <InputSelect
         id="selectEmployees"
         name="selectEmployees"
-        errorMessage=""
         required={false}
         options={employeesOptions}
-        label=""
+        label={t('app:employee-dashboard.filter-by')}
         defaultValue="all"
         onChange={({ target }) => setSearchParams({ filter: target.value })}
         className="wx-1/12 float-right my-4 sm:w-1/5"
@@ -179,7 +178,7 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
 function statusTag(status: ProfileStatus, lang: Language): JSX.Element {
   const styleMap: Record<string, string> = {
     APPROVED: 'bg-sky-100 text-sky-700',
-    PENDING: 'bg-amber-100 text-yellow-700',
+    PENDING: 'bg-amber-100 text-yellow-900',
   };
 
   const style = styleMap[status.code] ?? styleMap.DEFAULT;

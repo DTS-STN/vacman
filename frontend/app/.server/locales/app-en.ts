@@ -217,6 +217,7 @@ export default {
     'status': 'Status',
     'action': 'Action',
     'next-page': 'Next',
+    'filter-by': 'Filter table by all employees or profile assigned to me',
   },
   'hr-advisor-dashboard': {
     'page-title': 'HR Advisor Dashboard',
