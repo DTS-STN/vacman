@@ -19,7 +19,7 @@ import { createAndLinkNewMockProfile, mockProfiles } from '~/.server/domain/serv
 import type { ProfileService } from '~/.server/domain/services/profile-service';
 import { getWFAStatuses } from '~/.server/domain/services/wfa-status-service';
 import { LogFactory } from '~/.server/logging';
-import { PROFILE_STATUS_ID } from '~/domain/constants';
+import { PROFILE_STATUS_CODE, PROFILE_STATUS_ID } from '~/domain/constants';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
@@ -120,14 +120,18 @@ export function getMockProfileService(): ProfileService {
 
       // Apply active filter
       if (params.active !== undefined) {
-        const activeStatuses = [1, 2, 3]; // pending, approved, incomplete status IDs
-        const inactiveStatuses = [4]; // archived status ID
+        const activeStatuses = [
+          PROFILE_STATUS_CODE.incomplete,
+          PROFILE_STATUS_CODE.approved,
+          PROFILE_STATUS_CODE.pending,
+        ] as string[];
+        const inactiveStatuses = [PROFILE_STATUS_CODE.archived] as string[];
 
         if (params.active === true) {
-          userProfiles = userProfiles.filter((p) => p.profileStatus && activeStatuses.includes(p.profileStatus.id));
+          userProfiles = userProfiles.filter((p) => p.profileStatus && activeStatuses.includes(p.profileStatus.code));
           log.debug(`Applied active filter (true): ${userProfiles.length} profiles remaining`);
         } else {
-          userProfiles = userProfiles.filter((p) => p.profileStatus && inactiveStatuses.includes(p.profileStatus.id));
+          userProfiles = userProfiles.filter((p) => p.profileStatus && inactiveStatuses.includes(p.profileStatus.code));
           log.debug(`Applied active filter (false): ${userProfiles.length} profiles remaining`);
         }
       }
@@ -368,7 +372,11 @@ export function getMockProfileService(): ProfileService {
         return Err(new AppError(`Profile with ID ${profileId} not found.`, ErrorCodes.PROFILE_NOT_FOUND));
       }
 
-      // Create a mock status based on the update
+      const existingProfile = mockProfiles[existingProfileIndex];
+      if (!existingProfile) {
+        return Err(new AppError(`Existing Profile with ID ${profileId} not found.`, ErrorCodes.PROFILE_NOT_FOUND));
+      }
+
       const newStatus = {
         id: statusUpdate.id ?? 1,
         code: statusUpdate.code ?? 'PENDING',
@@ -376,14 +384,8 @@ export function getMockProfileService(): ProfileService {
         nameFr: statusUpdate.nameFr ?? 'En attente',
       };
 
-      const existingProfile = mockProfiles[existingProfileIndex];
-      if (!existingProfile) {
-        return Err(new AppError(`Profile with ID ${profileId} not found.`, ErrorCodes.PROFILE_NOT_FOUND));
-      }
-
       const updatedProfile: Profile = {
         ...existingProfile,
-        id: existingProfile.id, // Ensure id is preserved
         profileStatus: newStatus,
         lastModifiedDate: new Date().toISOString(),
         lastModifiedBy: 'system',

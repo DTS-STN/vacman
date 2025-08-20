@@ -105,7 +105,7 @@ export async function requirePrivacyConsentForOwnProfile(
   const profiles = profileResult.unwrap().content;
   if (profiles.length === 0) {
     log.debug(`No profiles found for user: ${currentUser.id}`);
-    throw new AppError(`Profile not found for user ID: ${currentUser.id}`, ErrorCodes.PROFILE_NOT_FOUND, {
+    throw new AppError(`No Active profile found for user ID: ${currentUser.id}`, ErrorCodes.PROFILE_NOT_FOUND, {
       httpStatusCode: HttpStatusCodes.NOT_FOUND,
     });
   }
