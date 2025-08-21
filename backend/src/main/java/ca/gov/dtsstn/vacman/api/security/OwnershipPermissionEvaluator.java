@@ -14,6 +14,7 @@ import ca.gov.dtsstn.vacman.api.data.entity.AbstractBaseEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.Ownable;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 import ca.gov.dtsstn.vacman.api.service.ProfileService;
+import ca.gov.dtsstn.vacman.api.service.RequestService;
 import ca.gov.dtsstn.vacman.api.service.UserService;
 
 /**
@@ -29,10 +30,13 @@ public class OwnershipPermissionEvaluator implements PermissionEvaluator {
 
 	private final ProfileService profileService;
 
+	private final RequestService requestService;
+
 	private final UserService userService;
 
-	public OwnershipPermissionEvaluator(ProfileService profileService, UserService userService) {
+	public OwnershipPermissionEvaluator(ProfileService profileService, RequestService requestService, UserService userService) {
 		this.profileService = profileService;
+		this.requestService = requestService;
 		this.userService = userService;
 	}
 
@@ -94,6 +98,7 @@ public class OwnershipPermissionEvaluator implements PermissionEvaluator {
 	private Optional<? extends AbstractBaseEntity> getTargetResource(Long id, String type) {
 		return switch (type.toUpperCase()) {
 			case "PROFILE" -> profileService.getProfileById(id);
+			case "REQUEST" -> requestService.getRequestById(id);
 			case "USER" -> userService.getUserById(id);
 			default -> throw new IllegalArgumentException("Unsupported targetType: " + type);
 		};

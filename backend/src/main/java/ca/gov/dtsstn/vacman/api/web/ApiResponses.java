@@ -35,6 +35,11 @@ public class ApiResponses {
 
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target({ ElementType.METHOD, ElementType.TYPE, ElementType.ANNOTATION_TYPE })
+	@ApiResponse(responseCode = "204", description = "Returned if the request has succeeded.")
+	public @interface NoContent {}
+
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target({ ElementType.METHOD, ElementType.TYPE, ElementType.ANNOTATION_TYPE })
 	@ApiResponse(responseCode = "400", description = "Returned if any of the request parameters are not valid.", content = { @Content(examples = { @ExampleObject(name = "Default", ref = ExampleRefs.BAD_REQUEST_ERROR) }, schema = @Schema(implementation = ProblemDetail.class)) })
 	public @interface BadRequestError {}
 
@@ -56,7 +61,17 @@ public class ApiResponses {
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target({ ElementType.METHOD, ElementType.TYPE, ElementType.ANNOTATION_TYPE })
 	@ApiResponse(responseCode = "409", description = "Returned if there is a request conflict with the current state of the target resource", content = { @Content(examples = { @ExampleObject(name = "Default", ref = ExampleRefs.CONFLICT_ERROR) }, schema = @Schema(implementation = ProblemDetail.class)) })
+	public @interface ConflictError {}
+
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target({ ElementType.METHOD, ElementType.TYPE, ElementType.ANNOTATION_TYPE })
+	@ApiResponse(responseCode = "422", description = "Returned if the server understands the content type of the request entity, and the syntax of the request entity is correct, but it was unable to process the contained instructions.", content = { @Content(examples = { @ExampleObject(name = "Default", ref = ExampleRefs.UNPROCESSABLE_ENTITY_ERROR) }, schema = @Schema(implementation = ProblemDetail.class)) })
 	public @interface UnprocessableEntityError {}
+
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target({ ElementType.METHOD, ElementType.TYPE, ElementType.ANNOTATION_TYPE })
+	@ApiResponse(responseCode = "429", description = "Returned if the user has sent too many requests in a given amount of time.", content = { @Content(examples = { @ExampleObject(name = "Default", ref = ExampleRefs.TOO_MANY_REQUESTS_ERROR) }, schema = @Schema(implementation = ProblemDetail.class)) })
+	public @interface TooManyRequestsError {}
 
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target({ ElementType.METHOD, ElementType.TYPE, ElementType.ANNOTATION_TYPE })
