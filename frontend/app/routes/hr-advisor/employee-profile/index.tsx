@@ -61,29 +61,11 @@ export async function action({ context, request, params }: Route.ActionArgs) {
 
   if (submitResult.isErr()) {
     const error = submitResult.unwrapErr();
-    switch (error.httpStatusCode) {
-      case 403:
-        return {
-          status: 'error',
-          errorMessage: 'Permission Denied: You are not authorized to approve this profile.',
-          errorCode: error.errorCode,
-        };
-
-      case 404:
-        // This case is unlikely if getProfileById succeeded, but good practice.
-        return {
-          status: 'error',
-          errorMessage: 'The profile to be updated could not be found.',
-          errorCode: error.errorCode,
-        };
-
-      default:
-        return {
-          status: 'error',
-          errorMessage: 'An unexpected error occurred. Please try again later.',
-          errorCode: error.errorCode,
-        };
-    }
+    return {
+      status: 'error',
+      errorMessage: error.message,
+      errorCode: error.errorCode,
+    };
   }
 
   return {
