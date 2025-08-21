@@ -29,12 +29,14 @@ export function requireAuthentication(
   session: AppSession,
   requestOrUrl: Request | URL,
 ): asserts session is AuthenticatedSession {
+  // Parse URL once for potential reuse
+  const url = requestOrUrl instanceof Request ? new URL(requestOrUrl.url) : requestOrUrl;
+  const { pathname, search } = url;
+  const returnToUrl = `/auth/login?returnto=${encodeURIComponent(pathname + search)}`;
+
   if (!session.authState) {
     log.debug('User is not authenticated; redirecting to login page');
-
-    const url = requestOrUrl instanceof Request ? new URL(requestOrUrl.url) : requestOrUrl;
-    const { pathname, search } = url;
-    throw redirect(`/auth/login?returnto=${encodeURIComponent(pathname + search)}`);
+    throw redirect(returnToUrl);
   }
 
   // Check if the JWT access token has expired
@@ -44,13 +46,10 @@ export function requireAuthentication(
   if (exp && currentTime >= exp) {
     log.debug('JWT access token has expired; redirecting to login page');
 
-    const url = requestOrUrl instanceof Request ? new URL(requestOrUrl.url) : requestOrUrl;
-    const { pathname, search } = url;
-
     // Clear the expired auth state
     delete session.authState;
 
-    throw redirect(`/auth/login?returnto=${encodeURIComponent(pathname + search)}`);
+    throw redirect(returnToUrl);
   }
 }
 
