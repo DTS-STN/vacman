@@ -126,13 +126,13 @@ exports[`InputFile > should render input file with help message > expected html 
       </span>
       input-file.no-file
     </label>
-    <span
+    <div
       class="block max-w-prose text-gray-500"
       data-testid="input-help"
       id="input-file-test-id-help-secondary"
     >
       help message
-    </span>
+    </div>
   </div>
 </div>
 `;

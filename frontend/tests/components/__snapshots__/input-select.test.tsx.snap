@@ -145,13 +145,13 @@ exports[`InputSelect > should render input select component with help message > 
         second option
       </option>
     </select>
-    <span
+    <div
       class="block max-w-prose text-gray-500 mt-2"
       data-testid="input-some-id-select-help"
       id="input-some-id-help"
     >
       help message
-    </span>
+    </div>
   </div>
 </div>
 `;
