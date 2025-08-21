@@ -9,6 +9,7 @@ import type { Route } from './+types/privacy-consent';
 
 import type { ProfilePutModel } from '~/.server/domain/models';
 import { getProfileService } from '~/.server/domain/services/profile-service';
+import { LogFactory } from '~/.server/logging';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { mapProfileToPutModelWithOverrides } from '~/.server/utils/profile-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
@@ -19,6 +20,8 @@ import { InlineLink } from '~/components/links';
 import { Acronym } from '~/domain/constants';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
+
+const log = LogFactory.getLogger(import.meta.url);
 
 export const handle = {
   i18nNamespace: [...parentHandle.i18nNamespace],
@@ -36,17 +39,20 @@ export async function action({ context, request }: Route.ActionArgs) {
   const profileResult = await getProfileService().getCurrentUserProfiles(profileParams, context.session.authState.accessToken);
 
   if (profileResult.isErr()) {
+    log.debug(`Profile not found for user ${context.session.currentUser?.id}`);
     return i18nRedirect('routes/index.tsx', request);
   }
 
   const profiles = profileResult.unwrap().content;
   if (profiles.length === 0) {
+    log.debug(`No profiles found for user ${context.session.currentUser?.id}`);
     return i18nRedirect('routes/index.tsx', request);
   }
 
   // Get the first (most recent) profile
   const profile = profiles[0];
   if (!profile) {
+    log.debug(`No active profile found for user ${context.session.currentUser?.id}`);
     return i18nRedirect('routes/index.tsx', request);
   }
 
@@ -58,6 +64,7 @@ export async function action({ context, request }: Route.ActionArgs) {
 
   await profileService.updateProfileById(profile.id, updatePrivacyConsent, context.session.authState.accessToken);
 
+  log.debug(`User ${context.session.currentUser?.id} has accepted privacy consent.`);
   return i18nRedirect('routes/employee/index.tsx', request);
 }
 
