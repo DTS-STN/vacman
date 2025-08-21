@@ -9,6 +9,7 @@ import org.immutables.builder.Builder;
 import org.springframework.core.style.ToStringCreator;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.annotation.Nullable;
 import jakarta.persistence.CascadeType;
@@ -33,6 +34,7 @@ public class ProfileEntity extends AbstractBaseEntity {
 	@JoinColumn(name = "[USER_ID_HR_ADVISOR]", nullable = true)
 	private UserEntity hrAdvisor;
 
+	@JsonIgnore
 	@ManyToOne
 	@JoinColumn(name = "[WFA_STATUS_ID]", nullable = true)
 	private WfaStatusEntity wfaStatus;
@@ -43,22 +45,27 @@ public class ProfileEntity extends AbstractBaseEntity {
 	@Column(name = "[WFA_END_DATE]")
 	private LocalDate wfaEndDate;
 
+	@JsonIgnore
 	@ManyToOne
 	@JoinColumn(name = "[CLASSIFICATION_ID]", nullable = true)
 	private ClassificationEntity classification;
 
+	@JsonIgnore
 	@ManyToOne
 	@JoinColumn(name = "[CITY_ID]", nullable = true)
 	private CityEntity city;
 
+	@JsonIgnore
 	@ManyToOne
 	@JoinColumn(name = "[WORK_UNIT_ID]", nullable = true)
 	private WorkUnitEntity workUnit;
 
+	@JsonIgnore
 	@ManyToOne
 	@JoinColumn(name = "[LANGUAGE_ID]", nullable = true)
 	private LanguageEntity language;
 
+	@JsonIgnore
 	@ManyToOne
 	@JoinColumn(name = "[PROFILE_STATUS_ID]", nullable = false)
 	private ProfileStatusEntity profileStatus;
@@ -82,15 +89,19 @@ public class ProfileEntity extends AbstractBaseEntity {
 	private String additionalComment;
 
 	// Collection relationships for many-to-many tables
+	@JsonIgnore
 	@OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
 	private Set<ProfileCityEntity> profileCities = new HashSet<>();
 
+	@JsonIgnore
 	@OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
 	private Set<ClassificationProfileEntity> classificationProfiles = new HashSet<>();
 
+	@JsonIgnore
 	@OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
 	private Set<ProfileEmploymentOpportunityEntity> employmentOpportunities = new HashSet<>();
 
+	@JsonIgnore
 	@OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
 	private Set<ProfileLanguageReferralTypeEntity> languageReferralTypes = new HashSet<>();
 

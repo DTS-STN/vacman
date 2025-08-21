@@ -10,6 +10,8 @@ import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.annotation.Nullable;
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
@@ -35,18 +37,22 @@ public abstract class AbstractBaseEntity {
 	@Column(name = "[ID]", nullable = false, updatable = false)
 	protected Long id;
 
+	@JsonIgnore
 	@CreatedBy
 	@Column(name = "[USER_CREATED]", length = 50, nullable = false, updatable = false)
 	protected String createdBy;
 
+	@JsonIgnore
 	@CreatedDate
 	@Column(name = "[DATE_CREATED]", nullable = false, updatable = false)
 	protected Instant createdDate;
 
+	@JsonIgnore
 	@LastModifiedBy
 	@Column(name = "[USER_UPDATED]", length = 50)
 	protected String lastModifiedBy;
 
+	@JsonIgnore
 	@Version
 	@LastModifiedDate
 	@Column(name = "[DATE_UPDATED]")
