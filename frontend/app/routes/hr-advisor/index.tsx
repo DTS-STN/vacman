@@ -57,13 +57,9 @@ export default function EmployeeDashboard() {
         />
       </aside>
       <div className="mb-8 w-full px-4 sm:w-3/5 sm:px-6">
-        <PageTitle className="after:w-14">{t('app:hr-advisor-dashboard.page-title')}</PageTitle>
+        <PageTitle className="after:w-14">{t('app:hr-advisor-dashboard.page-heading')}</PageTitle>
         <div className="grid gap-4">
-          <DashboardCard
-            file="routes/hr-advisor/employees.tsx"
-            icon={faUser}
-            title={t('app:hr-advisor-dashboard.all-employees')}
-          />
+          <DashboardCard file="routes/hr-advisor/employees.tsx" icon={faUser} title={t('app:hr-advisor-dashboard.employees')} />
         </div>
       </div>
     </div>

@@ -206,8 +206,14 @@ export default {
       'employment-tenure-duplicate': 'Duplicate items for the selection of employment opportunities are not allowed.',
     },
   },
-  'employee-dashboard': {
+  'hr-advisor-dashboard': {
+    'page-title': 'HR advisor dashboard',
+    'page-heading': 'Get started',
+    'employees': 'Employees',
+  },
+  'hr-advisor-employees-table': {
     'page-title': 'Employees',
+    'back-to-dashboard': 'Back to dashboard',
     'view': 'View',
     'my-employees': 'My employees',
     'all-employees': 'All employees',
@@ -219,10 +225,5 @@ export default {
     'next-page': 'Next',
     'filter-by': 'Filter table by all employees or profile assigned to me',
     'view-link': 'View profile information for {{profileUserName}}',
-  },
-  'hr-advisor-dashboard': {
-    'page-title': 'HR Advisor Dashboard',
-    'all-employees': 'All employees',
-    'my-employees': 'My employees',
   },
 };
