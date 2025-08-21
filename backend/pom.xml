@@ -47,7 +47,7 @@
 
 		<!-- dependency/plugin versions -->
 
-		<immutables.version>2.11.1</immutables.version>
+		<immutables.version>2.11.3</immutables.version>
 		<mapstruct.version>1.6.3</mapstruct.version>
 		<record-builder.version>47</record-builder.version>
 		<spring-boot-configuration-processor.version>3.5.4</spring-boot-configuration-processor.version>
