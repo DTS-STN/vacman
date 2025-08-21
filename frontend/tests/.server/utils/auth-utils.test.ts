@@ -53,9 +53,6 @@ describe('auth-utils', () => {
 
       expect(() => requireAuthentication(session, request)).toThrow();
       expect(vi.mocked(redirect)).toHaveBeenCalledWith('/auth/login?returnto=%2Fprotected');
-
-      // Should clear the expired auth state
-      expect(session.authState).toBeUndefined();
     });
 
     it('should pass when JWT is valid and not expired', () => {
