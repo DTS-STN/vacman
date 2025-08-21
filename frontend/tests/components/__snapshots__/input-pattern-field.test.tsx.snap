@@ -266,13 +266,13 @@ exports[`InputPatternField > should render with help message > expected html 1`]
       type="text"
       value="800 000 002"
     />
-    <span
+    <div
       class="block max-w-prose text-gray-500 mt-2"
       data-testid="input-pattern-field-help-secondary"
       id="input-pattern-field-test-id-help-secondary"
     >
       help message
-    </span>
+    </div>
   </div>
 </div>
 `;

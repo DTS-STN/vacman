@@ -835,13 +835,13 @@ exports[`DatePickerField > should render date picker field component with help m
           legend date picker field test
         </span>
       </legend>
-      <span
+      <div
         class="block max-w-prose text-gray-500"
         data-testid="input-help"
         id="date-picker-id-help-primary"
       >
         help message primary
-      </span>
+      </div>
       <div
         class="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2"
       >
@@ -1011,13 +1011,13 @@ exports[`DatePickerField > should render date picker field component with help m
           />
         </div>
       </div>
-      <span
+      <div
         class="block max-w-prose text-gray-500"
         data-testid="input-help"
         id="date-picker-id-help-secondary"
       >
         help message secondary
-      </span>
+      </div>
     </fieldset>
   </div>
 </div>
