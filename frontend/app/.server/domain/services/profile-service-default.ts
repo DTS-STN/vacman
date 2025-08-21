@@ -1,8 +1,6 @@
 import { Err, Ok } from 'oxide.ts';
 import type { Option, Result } from 'oxide.ts';
 
-import { apiClient } from './api-client';
-
 import type {
   Profile,
   ProfilePutModel,
@@ -11,6 +9,7 @@ import type {
   CollectionProfileResponse,
   ProfileQueryParams,
 } from '~/.server/domain/models';
+import { apiClient } from '~/.server/domain/services/api-client';
 import type { ProfileService } from '~/.server/domain/services/profile-service';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
