@@ -4,6 +4,11 @@
 # This file provides environment-specific overrides to the default configuration.
 #######################################################################################################################
 
+logging:
+  level:
+    '[ca.gov.dts_stn.vacman.api]': trace
+    '[org.springframework]': debug
+
 management:
   otlp:
     metrics:
