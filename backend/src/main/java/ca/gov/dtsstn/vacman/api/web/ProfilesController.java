@@ -177,14 +177,14 @@ public class ProfilesController {
 	}
 
 	@PutMapping(path = "/{id}")
-	@PreAuthorize("hasAuthority('hr-advisor')")
 	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
 	@Operation(summary = "Update an existing profile specified by ID.")
+	@PreAuthorize("hasAuthority('hr-advisor') || @securityManager.canAccessProfile(#profileId)")
 	public ResponseEntity<ProfileReadModel> updateProfileById(@PathVariable(name = "id") Long profileId, @Valid @RequestBody ProfilePutModel updatedProfile) {
 		log.info("Received request to get profile; ID: [{}]", profileId);
 
 		final var foundProfile = profileService.getProfile(profileId)
-				.orElseThrow(asResourceNotFoundException(PROFILE, profileId));
+			.orElseThrow(asResourceNotFoundException(PROFILE, profileId));
 
 		log.trace(FOUND_PROFILE_LOG_MSG, foundProfile);
 
