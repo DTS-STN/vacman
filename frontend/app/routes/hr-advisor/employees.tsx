@@ -13,6 +13,7 @@ import type { Profile, ProfileStatus } from '~/.server/domain/models';
 import { getProfileService } from '~/.server/domain/services/profile-service';
 import { getProfileStatusService } from '~/.server/domain/services/profile-status-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
+import { BackLink } from '~/components/back-link';
 import { DataTable, DataTableColumnHeader, DataTableColumnHeaderWithOptions } from '~/components/data-table';
 import { InputSelect } from '~/components/input-select';
 import { InlineLink } from '~/components/links';
@@ -78,11 +79,11 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
   const employeesOptions = [
     {
       value: 'me',
-      children: t('app:hr-advisor-dashboard.my-employees'),
+      children: t('app:hr-advisor-employees-table.my-employees'),
     },
     {
       value: 'all',
-      children: t('app:hr-advisor-dashboard.all-employees'),
+      children: t('app:hr-advisor-employees-table.all-employees'),
     },
   ];
 
@@ -90,12 +91,12 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
     {
       accessorKey: 'profileUser.firstName',
       accessorFn: (row) => `${row.profileUser.firstName} ${row.profileUser.lastName}`,
-      header: ({ column }) => <DataTableColumnHeader column={column} title={t('app:employee-dashboard.employee')} />,
+      header: ({ column }) => <DataTableColumnHeader column={column} title={t('app:hr-advisor-employees-table.employee')} />,
       cell: (info) => <p>{info.getValue() as string}</p>,
     },
     {
       accessorKey: 'profileUser.businessEmailAddress',
-      header: ({ column }) => <DataTableColumnHeader column={column} title={t('app:employee-dashboard.email')} />,
+      header: ({ column }) => <DataTableColumnHeader column={column} title={t('app:hr-advisor-employees-table.email')} />,
       cell: (info) => {
         const email = info.row.original.profileUser.businessEmailAddress;
         return (
@@ -107,7 +108,7 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
     },
     {
       accessorKey: 'dateUpdated',
-      header: ({ column }) => <DataTableColumnHeader column={column} title={t('app:employee-dashboard.updated')} />,
+      header: ({ column }) => <DataTableColumnHeader column={column} title={t('app:hr-advisor-employees-table.updated')} />,
       cell: (info) => {
         const date = info.row.original.lastModifiedDate;
         const userUpdated = info.row.original.lastModifiedBy ?? 'Unknown User';
@@ -121,7 +122,7 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
       header: ({ column }) => (
         <DataTableColumnHeaderWithOptions
           column={column}
-          title={t('app:employee-dashboard.status')}
+          title={t('app:hr-advisor-employees-table.status')}
           options={Object.values(PROFILE_STATUS_CODE)}
         />
       ),
@@ -136,7 +137,7 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
       enableColumnFilter: true,
     },
     {
-      header: t('app:employee-dashboard.action'),
+      header: t('app:hr-advisor-employees-table.action'),
       id: 'action',
       cell: (info) => {
         const profileId = info.row.original.id.toString();
@@ -146,11 +147,11 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
             className="text-sky-800 no-underline decoration-slate-400 decoration-2 hover:underline"
             file="routes/hr-advisor/employee-profile/index.tsx"
             params={{ profileId }}
-            aria-label={t('app:employee-dashboard.view-link', {
+            aria-label={t('app:hr-advisor-employees-table.view-link', {
               profileUserName,
             })}
           >
-            {t('app:employee-dashboard.view')}
+            {t('app:hr-advisor-employees-table.view')}
           </InlineLink>
         );
       },
@@ -160,13 +161,19 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
   return (
     <div className="mb-8">
       <PageTitle className="after:w-14">{t('app:index.employees')}</PageTitle>
+      <BackLink
+        file="routes/hr-advisor/index.tsx"
+        params={params}
+        translationKey="app:hr-advisor-employees-table.back-to-dashboard"
+      />
 
       <InputSelect
         id="selectEmployees"
         name="selectEmployees"
         required={false}
         options={employeesOptions}
-        label={t('app:employee-dashboard.filter-by')}
+        label=""
+        aria-label={t('app:hr-advisor-employees-table.filter-by')}
         defaultValue="all"
         onChange={({ target }) => setSearchParams({ filter: target.value })}
         className="wx-1/12 float-right my-4 sm:w-1/5"
