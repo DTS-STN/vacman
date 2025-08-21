@@ -86,9 +86,8 @@ export async function requirePrivacyConsentForOwnProfile(
   const currentUserOption = await getUserService().getCurrentUser(session.authState.accessToken);
 
   if (currentUserOption.isNone()) {
-    throw new AppError('User not found', ErrorCodes.ACCESS_FORBIDDEN, {
-      httpStatusCode: HttpStatusCodes.UNAUTHORIZED,
-    });
+    log.debug('User not found; redirecting to index page');
+    throw i18nRedirect('routes/employee/index.tsx', currentUrl);
   }
 
   const currentUser = currentUserOption.unwrap();
