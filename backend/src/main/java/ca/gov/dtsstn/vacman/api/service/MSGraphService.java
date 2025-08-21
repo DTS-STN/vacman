@@ -3,9 +3,13 @@ package ca.gov.dtsstn.vacman.api.service;
 import java.util.Optional;
 import java.util.StringJoiner;
 
+import ca.gov.dtsstn.vacman.api.service.dto.MSGraphUserCollection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.security.oauth2.client.OAuth2AuthorizeRequest;
@@ -47,6 +51,48 @@ public class MSGraphService {
 			.readTimeout(applicationProperties.msGraph().readTimeout())
 			.interceptors(oauthInterceptor(oauth2AuthorizedClientManager))
 			.build();
+	}
+
+	/**
+	 * Search for a Microsoft Entra user account by email. Assumes emails are unique.
+	 * @param email The email to search by.
+	 * @return The Entra user, if any.
+	 */
+	public Optional<MSGraphUser> getUserByEmail(String email) {
+		// Search is considered an "advanced" capability and requires this header value to be set.
+		// See: https://learn.microsoft.com/en-us/graph/aad-advanced-queries
+		HttpHeaders headers = new HttpHeaders();
+		headers.set("ConsistencyLevel", "eventual");
+
+		final var request = new HttpEntity<>(headers);
+		final var response = restTemplate.exchange("/users?$search=\"mail:{email}\"&$select={properties}",
+				HttpMethod.GET,
+				request,
+				MSGraphUserCollection.class,
+				email,
+				SELECTED_USER_PROPERTIES);
+
+		if (response.getStatusCode().isSameCodeAs(HttpStatus.NOT_FOUND)) {
+			log.warn("Could not find user with email=[{}] in MSGraph", email);
+			return Optional.empty();
+		}
+
+		if (response.getStatusCode().isError()) {
+			log.error("Unexpected response from MSGraph: status={}, body={}", response.getStatusCode(), response.getBody());
+			throw new RestClientException("Unexpected response from MSGraph: " + response.getStatusCode());
+		}
+
+		var foundUsers = response.getBody();
+		log.debug("Successfully retrieved users with email=[{}] from MSGraph: [{}]", email, foundUsers);
+
+		if (foundUsers == null) {
+			return Optional.empty();
+		}
+
+		// The G-Man assures me emails are unique.
+		return (foundUsers.value() == null)
+				? Optional.empty()
+				: foundUsers.value().stream().findFirst();
 	}
 
 	public Optional<MSGraphUser> getUser(String microsoftEntraId) {
