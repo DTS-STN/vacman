@@ -19,7 +19,7 @@ spring:
   jpa:
     show-sql: true
   liquibase:
-    contexts: mssql
+    contexts: mssql, dev
     change-log: classpath:db/changelog/db.changelog-master.yaml
 
 application:

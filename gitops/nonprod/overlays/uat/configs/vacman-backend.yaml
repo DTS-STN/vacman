@@ -14,7 +14,7 @@ spring:
   datasource:
     url: jdbc:sqlserver://esdcvacmansqlsrv.database.windows.net;databaseName=EsDVacManDB_UAT;encrypt=true;trustServerCertificate=true;
   liquibase:
-    contexts: mssql
+    contexts: mssql, dev
     change-log: classpath:db/changelog/db.changelog-master.yaml
 
 application:
