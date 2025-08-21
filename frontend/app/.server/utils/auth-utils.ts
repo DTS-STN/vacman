@@ -39,7 +39,7 @@ export function requireAuthentication(
 
   // Check if the JWT access token has expired
   const { exp } = session.authState.accessTokenClaims;
-  const currentTime = Math.floor(Date.now() / 1000); // Current time in seconds since epoch
+  const currentTime = Math.floor(Date.now() / 1000);
 
   if (exp && currentTime >= exp) {
     log.debug('JWT access token has expired; redirecting to login page');
