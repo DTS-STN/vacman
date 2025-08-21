@@ -39,12 +39,13 @@ export function requireAuthentication(
     throw redirect(returnToUrl);
   }
 
-  // Check if the JWT access token has expired
+  // Check if the JWT access token has expired, allowing for clock skew
   const { exp } = session.authState.accessTokenClaims;
   const currentTime = Math.floor(Date.now() / 1000);
+  const clockSkew = 10; // seconds
 
-  if (exp && currentTime >= exp) {
-    log.debug('JWT access token has expired; redirecting to login page');
+  if (exp && (currentTime - clockSkew) >= exp) {
+    log.debug('JWT access token has expired (with clock skew); redirecting to login page');
     throw redirect(returnToUrl);
   }
 }
