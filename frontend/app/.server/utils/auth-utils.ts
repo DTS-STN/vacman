@@ -45,10 +45,6 @@ export function requireAuthentication(
 
   if (exp && currentTime >= exp) {
     log.debug('JWT access token has expired; redirecting to login page');
-
-    // Clear the expired auth state
-    delete session.authState;
-
     throw redirect(returnToUrl);
   }
 }
