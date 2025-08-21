@@ -222,6 +222,7 @@ export default {
     'action': '(FR) Action',
     'next-page': '(FR) Next',
     'filter-by': '(FR) Filter table by all employees or profile assigned to me',
+    'view-link': '(FR) View profile information for {{profileUserName}}',
   },
   'hr-advisor-dashboard': {
     'page-title': '(FR) HR Advisor Dashboard',
