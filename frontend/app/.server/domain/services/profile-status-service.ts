@@ -1,9 +1,8 @@
 import type { Result, Option } from 'oxide.ts';
 
-import { getDefaultProfileStatusService } from './profile-status-service-default';
-import { getMockProfileStatusService } from './profile-status-service-mock';
-
 import type { LocalizedProfileStatus, ProfileStatus } from '~/.server/domain/models';
+import { getDefaultProfileStatusService } from '~/.server/domain/services/profile-status-service-default';
+import { getMockProfileStatusService } from '~/.server/domain/services/profile-status-service-mock';
 import { serverEnvironment } from '~/.server/environment';
 import type { AppError } from '~/errors/app-error';
 
