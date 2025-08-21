@@ -42,9 +42,9 @@ export function requireAuthentication(
   // Check if the JWT access token has expired, allowing for clock skew
   const { exp } = session.authState.accessTokenClaims;
   const currentTime = Math.floor(Date.now() / 1000);
-  const clockSkew = 10; // seconds
+  const clockSkewSeconds = 10;
 
-  if (exp && currentTime - clockSkew >= exp) {
+  if (exp && currentTime - clockSkewSeconds >= exp) {
     log.debug('JWT access token has expired (with clock skew); redirecting to login page');
     throw redirect(returnToUrl);
   }
