@@ -44,7 +44,7 @@ export function requireAuthentication(
   const currentTime = Math.floor(Date.now() / 1000);
   const clockSkew = 10; // seconds
 
-  if (exp && (currentTime - clockSkew) >= exp) {
+  if (exp && currentTime - clockSkew >= exp) {
     log.debug('JWT access token has expired (with clock skew); redirecting to login page');
     throw redirect(returnToUrl);
   }
