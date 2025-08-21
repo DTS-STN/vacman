@@ -1,7 +1,6 @@
 import type { RouteHandle } from 'react-router';
 import { data } from 'react-router';
 
-import { useTranslation } from 'react-i18next';
 import * as v from 'valibot';
 
 import type { Route } from '../profile/+types/employment-information';
@@ -18,7 +17,7 @@ import { extractUniqueBranchesFromDirectorates } from '~/.server/utils/directora
 import { requirePrivacyConsentForOwnProfile } from '~/.server/utils/privacy-consent-utils';
 import { getHrAdvisors, hasEmploymentDataChanged, omitObjectProperties } from '~/.server/utils/profile-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
-import { InlineLink } from '~/components/links';
+import { BackLink } from '~/components/back-link';
 import { PROFILE_STATUS_ID, PROFILE_STATUS_PENDING } from '~/domain/constants';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { getTranslation } from '~/i18n-config.server';
@@ -142,14 +141,11 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 }
 
 export default function EmploymentInformation({ loaderData, actionData, params }: Route.ComponentProps) {
-  const { t } = useTranslation(handle.i18nNamespace);
   const errors = actionData?.errors;
 
   return (
     <>
-      <InlineLink className="mt-6 block" file="routes/employee/profile/index.tsx" params={params} id="back-button">
-        {`< ${t('app:profile.back')}`}
-      </InlineLink>
+      <BackLink className="mt-6" file="routes/employee/profile/index.tsx" params={params} />
       <div className="max-w-prose">
         <EmploymentInformationForm
           cancelLink={'routes/employee/profile/index.tsx'}
