@@ -21,81 +21,80 @@ import jakarta.persistence.Table;
 @Table(name = "[REQUEST]")
 public class RequestEntity extends AbstractBaseEntity {
 
-	@Column(name = "[ADDITIONAL_COMMENT]", length = 100, nullable = true)
+	@Column(name = "[ADDITIONAL_COMMENT]", length = 100)
 	private String additionalComment;
 
-	@Column(name = "[ALTERNATE_CONTACT_EMAIL_ADDRESS]", length = 320, nullable = true)
+	@Column(name = "[ALTERNATE_CONTACT_EMAIL_ADDRESS]", length = 320)
 	private String alternateContactEmailAddress;
 
 	@ManyToOne
-	@JoinColumn(name = "[APPOINTMENT_NON_ADVERTISED_ID]", nullable = false)
+	@JoinColumn(name = "[APPOINTMENT_NON_ADVERTISED_ID]")
 	private NonAdvertisedAppointmentEntity appointmentNonAdvertised;
 
 	@ManyToOne
-	@JoinColumn(name = "[CLASSIFICATION_ID]", nullable = false)
+	@JoinColumn(name = "[CLASSIFICATION_ID]")
 	private ClassificationEntity classification;
 
-	@Column(name = "[EMPLOYMENT_EQUITY_NEED_IDENTIFIED_IND]", nullable = true)
+	@Column(name = "[EMPLOYMENT_EQUITY_NEED_IDENTIFIED_IND]")
 	private Boolean employmentEquityNeedIdentifiedIndicator;
 
 	@ManyToOne
-	@JoinColumn(name = "[EMPLOYMENT_TENURE_ID]", nullable = false)
+	@JoinColumn(name = "[EMPLOYMENT_TENURE_ID]")
 	private EmploymentTenureEntity employmentTenure;
 
-	@Column(name = "[END_DATE]", nullable = true)
+	@Column(name = "[END_DATE]")
 	private LocalDate endDate;
 
-	@Column(name = "[HAS_PRVS_PRFRMD_DTS_IND]", nullable = false)
+	@Column(name = "[HAS_PRVS_PRFRMD_DTS_IND]")
 	private Boolean hasPerformedSameDuties;
 
 	@ManyToOne
-	@JoinColumn(name = "[USER_ID_HIRING_MANAGER]", nullable = false)
+	@JoinColumn(name = "[USER_ID_HIRING_MANAGER]")
 	private UserEntity hiringManager;
 
 	@ManyToOne
-	@JoinColumn(name = "[USER_ID_HR_ADVISOR]", nullable = false)
+	@JoinColumn(name = "[USER_ID_HR_ADVISOR]")
 	private UserEntity hrAdvisor;
 
 	@ManyToOne
-	@JoinColumn(name = "[LANGUAGE_ID]", nullable = false)
+	@JoinColumn(name = "[LANGUAGE_ID]")
 	private LanguageEntity language;
 
-	@Column(name = "[LANGUAGE_PROFILE_EN]", length = 3, nullable = true)
+	@Column(name = "[LANGUAGE_PROFILE_EN]", length = 3)
 	private String languageProfileEn;
 
-	@Column(name = "[LANGUAGE_PROFILE_FR]", length = 3, nullable = true)
+	@Column(name = "[LANGUAGE_PROFILE_FR]", length = 3)
 	private String languageProfileFr;
 
 	@ManyToOne
-	@JoinColumn(name = "[LANGUAGE_REQUIREMENT_ID]", nullable = false)
+	@JoinColumn(name = "[LANGUAGE_REQUIREMENT_ID]")
 	private LanguageRequirementEntity languageRequirement;
 
-	@Column(name = "[POSITION_NUMBER]", length = 100, nullable = true)
+	@Column(name = "[POSITION_NUMBER]", length = 100)
 	private String positionNumber;
 
-	@Column(name = "[PRIORITY_CLEARANCE_NUMBER]", length = 20, nullable = true)
+	@Column(name = "[PRIORITY_CLEARANCE_NUMBER]", length = 20)
 	private String priorityClearanceNumber;
 
-	@Column(name = "[APPT_RSLT_PRRT_ENTTLMNT_IND]", nullable = true)
+	@Column(name = "[APPT_RSLT_PRRT_ENTTLMNT_IND]")
 	private Boolean priorityEntitlement;
 
-	@Column(name = "[APPT_RSLT_PRRT_ENTTLMNT_RTNL]", length = 200, nullable = true)
+	@Column(name = "[APPT_RSLT_PRRT_ENTTLMNT_RTNL]", length = 200)
 	private String priorityEntitlementRationale;
 
-	// Collection relationships for many-to-many tables
-	@OneToMany(mappedBy = "request", cascade = CascadeType.ALL, orphanRemoval = true)
+	@OneToMany(mappedBy = "request", cascade = { CascadeType.ALL }, orphanRemoval = true)
 	private Set<RequestCityEntity> requestCities = new HashSet<>();
 
-	@OneToMany(mappedBy = "request", cascade = CascadeType.ALL, orphanRemoval = true)
+	@OneToMany(mappedBy = "request", cascade = { CascadeType.ALL }, orphanRemoval = true)
 	private Set<RequestEmploymentEquityEntity> requestEmploymentEquities = new HashSet<>();
 
-	@Column(name = "[NAME_EN]", length = 200, nullable = false)
+	@Column(name = "[NAME_EN]", length = 200)
 	private String nameEn;
 
-	@Column(name = "[NAME_FR]", length = 200, nullable = false)
+	@Column(name = "[NAME_FR]", length = 200)
 	private String nameFr;
 
-	@Column(name = "[REQUEST_NUMBER]", length = 10, nullable = true)
+	@Column(name = "[REQUEST_NUMBER]", length = 10)
 	private String requestNumber;
 
 	@ManyToOne
@@ -103,45 +102,45 @@ public class RequestEntity extends AbstractBaseEntity {
 	private RequestStatusEntity requestStatus;
 
 	@ManyToOne
-	@JoinColumn(name = "[SECURITY_CLEARANCE_ID]", nullable = false)
+	@JoinColumn(name = "[SECURITY_CLEARANCE_ID]")
 	private SecurityClearanceEntity securityClearance;
 
-	@Column(name = "[SELECTION_PROCESS_NUMBER]", length = 30, nullable = true)
+	@Column(name = "[SELECTION_PROCESS_NUMBER]", length = 30)
 	private String selectionProcessNumber;
 
 	@ManyToOne
-	@JoinColumn(name = "[SELECTION_PROCESS_TYPE_ID]", nullable = false)
+	@JoinColumn(name = "[SELECTION_PROCESS_TYPE_ID]")
 	private SelectionProcessTypeEntity selectionProcessType;
 
-	@Column(name = "[SOMC_AND_CONDITION_EMPLOYMENT_EN]", nullable = true)
+	@Column(name = "[SOMC_AND_CONDITION_EMPLOYMENT_EN]")
 	private String somcAndConditionEmploymentEn;
 
-	@Column(name = "[SOMC_AND_CONDITION_EMPLOYMENT_FR]", nullable = true)
+	@Column(name = "[SOMC_AND_CONDITION_EMPLOYMENT_FR]")
 	private String somcAndConditionEmploymentFr;
 
-	@Column(name = "[START_DATE]", nullable = false)
+	@Column(name = "[START_DATE]")
 	private LocalDate startDate;
 
 	@ManyToOne
-	@JoinColumn(name = "[USER_ID_SUB_DELEGATED_MANAGER]", nullable = false)
+	@JoinColumn(name = "[USER_ID_SUB_DELEGATED_MANAGER]")
 	private UserEntity subDelegatedManager;
 
 	@ManyToOne
 	@JoinColumn(name = "[USER_ID_SUBMITTER]", nullable = false)
 	private UserEntity submitter;
 
-	@Column(name = "[ALLOW_TELEWORK_IND]", nullable = true)
+	@Column(name = "[ALLOW_TELEWORK_IND]")
 	private Boolean teleworkAllowed;
 
-	@Column(name = "[APPR_RCV_WMC_PMLC_IND]", nullable = true)
+	@Column(name = "[APPR_RCV_WMC_PMLC_IND]")
 	private Boolean workforceMgmtApprovalRecvd;
 
 	@ManyToOne
-	@JoinColumn(name = "[WORK_SCHEDULE_ID]", nullable = false)
+	@JoinColumn(name = "[WORK_SCHEDULE_ID]")
 	private WorkScheduleEntity workSchedule;
 
 	@ManyToOne
-	@JoinColumn(name = "[WORK_UNIT_ID]", nullable = false)
+	@JoinColumn(name = "[WORK_UNIT_ID]")
 	private WorkUnitEntity workUnit;
 
 	public RequestEntity() {
@@ -150,17 +149,17 @@ public class RequestEntity extends AbstractBaseEntity {
 
 	@Builder.Constructor
 	public RequestEntity(
+			@Nullable Long id,
 			@Nullable String additionalComment,
 			@Nullable String alternateContactEmailAddress,
 			@Nullable NonAdvertisedAppointmentEntity appointmentNonAdvertised,
 			@Nullable ClassificationEntity classification,
-			@Nullable EmploymentTenureEntity employmentTenure,
 			@Nullable Boolean employmentEquityNeedIdentifiedIndicator,
+			@Nullable EmploymentTenureEntity employmentTenure,
 			@Nullable LocalDate endDate,
 			@Nullable Boolean hasPerformedSameDuties,
-			@Nullable UserEntity hrAdvisor,
 			@Nullable UserEntity hiringManager,
-			@Nullable Long id,
+			@Nullable UserEntity hrAdvisor,
 			@Nullable LanguageEntity language,
 			@Nullable String languageProfileEn,
 			@Nullable String languageProfileFr,
@@ -169,8 +168,10 @@ public class RequestEntity extends AbstractBaseEntity {
 			@Nullable String priorityClearanceNumber,
 			@Nullable Boolean priorityEntitlement,
 			@Nullable String priorityEntitlementRationale,
-			@Nullable String requestNameEn,
-			@Nullable String requestNameFr,
+			@Nullable Set<RequestCityEntity> requestCities,
+			@Nullable Set<RequestEmploymentEquityEntity> requestEmploymentEquities,
+			@Nullable String nameEn,
+			@Nullable String nameFr,
 			@Nullable String requestNumber,
 			@Nullable RequestStatusEntity requestStatus,
 			@Nullable SecurityClearanceEntity securityClearance,
@@ -194,12 +195,12 @@ public class RequestEntity extends AbstractBaseEntity {
 		this.alternateContactEmailAddress = alternateContactEmailAddress;
 		this.appointmentNonAdvertised = appointmentNonAdvertised;
 		this.classification = classification;
-		this.employmentTenure = employmentTenure;
 		this.employmentEquityNeedIdentifiedIndicator = employmentEquityNeedIdentifiedIndicator;
+		this.employmentTenure = employmentTenure;
 		this.endDate = endDate;
 		this.hasPerformedSameDuties = hasPerformedSameDuties;
-		this.hrAdvisor = hrAdvisor;
 		this.hiringManager = hiringManager;
+		this.hrAdvisor = hrAdvisor;
 		this.language = language;
 		this.languageProfileEn = languageProfileEn;
 		this.languageProfileFr = languageProfileFr;
@@ -208,8 +209,10 @@ public class RequestEntity extends AbstractBaseEntity {
 		this.priorityClearanceNumber = priorityClearanceNumber;
 		this.priorityEntitlement = priorityEntitlement;
 		this.priorityEntitlementRationale = priorityEntitlementRationale;
-		this.nameEn = requestNameEn;
-		this.nameFr = requestNameFr;
+		this.requestCities = requestCities;
+		this.requestEmploymentEquities = requestEmploymentEquities;
+		this.nameEn = nameEn;
+		this.nameFr = nameFr;
 		this.requestNumber = requestNumber;
 		this.requestStatus = requestStatus;
 		this.securityClearance = securityClearance;
@@ -521,7 +524,7 @@ public class RequestEntity extends AbstractBaseEntity {
 			.append("employmentEquityNeedIdentifiedIndicator", employmentEquityNeedIdentifiedIndicator)
 			.append("employmentTenure", employmentTenure)
 			.append("endDate", endDate)
-			.append("hasPerformedSameDuties", hasPerformedSameDuties) // <-- MISSING
+			.append("hasPerformedSameDuties", hasPerformedSameDuties)
 			.append("hrAdvisor", hrAdvisor)
 			.append("hiringManager", hiringManager)
 			.append("language", language)
@@ -552,4 +555,5 @@ public class RequestEntity extends AbstractBaseEntity {
 			.append("workUnit", workUnit)
 			.toString();
 	}
+
 }
