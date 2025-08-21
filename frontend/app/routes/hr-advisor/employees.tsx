@@ -89,7 +89,7 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
   const columns: ColumnDef<Profile>[] = [
     {
       accessorKey: 'profileUser.firstName',
-      accessorFn: (row) => `${row.profileUser.firstName ?? ''} ${row.profileUser.lastName ?? ''}`.trim(),
+      accessorFn: (row) => `${row.profileUser.firstName} ${row.profileUser.lastName}`,
       header: ({ column }) => <DataTableColumnHeader column={column} title={t('app:employee-dashboard.employee')} />,
       cell: (info) => <p>{info.getValue() as string}</p>,
     },
@@ -111,9 +111,7 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
       cell: (info) => {
         const date = info.row.original.lastModifiedDate;
         const userUpdated = info.row.original.lastModifiedBy ?? 'Unknown User';
-
         const dateUpdated = date !== undefined ? format(new Date(date), 'yyyy-MM-dd') : '0000-00-00';
-
         return <p className="text-neutral-600">{`${dateUpdated}: ${userUpdated}`}</p>;
       },
     },
@@ -142,11 +140,15 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
       id: 'action',
       cell: (info) => {
         const profileId = info.row.original.id.toString();
+        const profileUserName = `${info.row.original.profileUser.firstName} ${info.row.original.profileUser.lastName}`;
         return (
           <InlineLink
             className="text-sky-800 no-underline decoration-slate-400 decoration-2 hover:underline"
             file="routes/hr-advisor/employee-profile/index.tsx"
             params={{ profileId }}
+            aria-label={t('app:employee-dashboard.view-link', {
+              profileUserName,
+            })}
           >
             {t('app:employee-dashboard.view')}
           </InlineLink>
@@ -179,10 +181,9 @@ function statusTag(status: ProfileStatus, lang: Language): JSX.Element {
   const styleMap: Record<string, string> = {
     APPROVED: 'bg-sky-100 text-sky-700',
     PENDING: 'bg-amber-100 text-yellow-900',
+    DEFAULT: 'bg-transparent',
   };
-
   const style = styleMap[status.code] ?? styleMap.DEFAULT;
-
   return (
     <div className={`${style} flex w-fit items-center gap-2 rounded-md px-3 py-1 text-sm font-semibold`}>
       <p>{lang === 'en' ? status.nameEn : status.nameFr}</p>

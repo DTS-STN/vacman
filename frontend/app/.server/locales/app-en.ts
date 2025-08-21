@@ -218,6 +218,7 @@ export default {
     'action': 'Action',
     'next-page': 'Next',
     'filter-by': 'Filter table by all employees or profile assigned to me',
+    'view-link': 'View profile information for {{profileUserName}}',
   },
   'hr-advisor-dashboard': {
     'page-title': 'HR Advisor Dashboard',
