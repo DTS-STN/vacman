@@ -86,7 +86,7 @@ export async function requirePrivacyConsentForOwnProfile(
   const currentUserOption = await getUserService().getCurrentUser(session.authState.accessToken);
 
   if (currentUserOption.isNone()) {
-    log.debug('User not found; redirecting to index page');
+    log.debug('User not found; redirecting to index page for registration');
     throw i18nRedirect('routes/employee/index.tsx', currentUrl);
   }
 
