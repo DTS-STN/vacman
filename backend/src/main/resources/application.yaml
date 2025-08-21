@@ -182,6 +182,10 @@ management:
         include:
           - health
           - metrics
+  otlp:
+    metrics:
+      export:
+        enabled: false # set to true and add `spring.otlp.metrics.export.url` to enable metrics export
 
 ---
 
