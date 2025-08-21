@@ -132,4 +132,10 @@ class CacheConfig {
 		return new CaffeineCacheFactory("work-units");
 	}
 
+	@ConfigurationProperties("application.caching.caches.match-feedback")
+	@Bean CaffeineCacheFactory matchFeedbackCache() {
+		log.info("Creating 'matchFeedbackCache' bean");
+		return new CaffeineCacheFactory("match-feedback");
+	}
+
 }
