@@ -39,7 +39,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   const profileResult = await profileService.getProfileById(Number(params.profileId), context.session.authState.accessToken);
 
   if (profileResult.isErr()) {
-    throw new Response('Profile not found', { status: 404 });
+    throw new Response('Profile not found', { status: HttpStatusCodes.NOT_FOUND });
   }
 
   const profile = profileResult.unwrap();
@@ -95,7 +95,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   );
 
   if (profileResult.isErr()) {
-    throw new Response('Profile not found', { status: 404 });
+    throw new Response('Profile not found', { status: HttpStatusCodes.NOT_FOUND });
   }
 
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);

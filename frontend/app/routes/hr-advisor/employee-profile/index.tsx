@@ -26,6 +26,7 @@ import { InlineLink } from '~/components/links';
 import { ProfileCard } from '~/components/profile-card';
 import { StatusTag } from '~/components/status-tag';
 import { EMPLOYEE_WFA_STATUS, PROFILE_STATUS_APPROVED, PROFILE_STATUS_CODE } from '~/domain/constants';
+import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
 import { formatDateTime } from '~/utils/date-utils';
@@ -47,7 +48,7 @@ export async function action({ context, request, params }: Route.ActionArgs) {
   );
 
   if (profileResult.isErr()) {
-    throw new Response('Profile not found', { status: 404 });
+    throw new Response('Profile not found', { status: HttpStatusCodes.NOT_FOUND });
   }
 
   const profileData: Profile = profileResult.unwrap();
@@ -96,7 +97,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   ]);
 
   if (profileResult.isErr()) {
-    throw new Response('Profile not found', { status: 404 });
+    throw new Response('Profile not found', { status: HttpStatusCodes.NOT_FOUND });
   }
 
   const profileData: Profile = profileResult.unwrap();
