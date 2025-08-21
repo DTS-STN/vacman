@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.immutables.builder.Builder;
 import org.springframework.core.style.ToStringCreator;
 
@@ -535,8 +536,8 @@ public class RequestEntity extends AbstractBaseEntity {
 			.append("priorityClearanceNumber", priorityClearanceNumber)
 			.append("priorityEntitlement", priorityEntitlement)
 			.append("priorityEntitlementRationale", priorityEntitlementRationale)
-			.append("requestCities", requestCities)
-			.append("requestEmploymentEquities", requestEmploymentEquities)
+			.append("requestCities.size", CollectionUtils.size(requestCities)) // anti-recursion protection
+			.append("requestEmploymentEquities.size", CollectionUtils.size(requestEmploymentEquities)) // anti-recursion protection
 			.append("nameEn", nameEn)
 			.append("nameFr", nameFr)
 			.append("requestNumber", requestNumber)

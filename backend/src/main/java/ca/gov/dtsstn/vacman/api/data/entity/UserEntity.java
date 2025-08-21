@@ -3,6 +3,7 @@ package ca.gov.dtsstn.vacman.api.data.entity;
 import java.time.Instant;
 import java.util.Set;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.immutables.builder.Builder;
 import org.springframework.core.style.ToStringCreator;
 
@@ -196,7 +197,7 @@ public class UserEntity extends AbstractBaseEntity {
 			.append("microsoftEntraId", microsoftEntraId)
 			.append("middleName", middleName)
 			.append("personalRecordIdentifier", personalRecordIdentifier)
-			.append("profiles", profiles)
+			.append("profiles.size", CollectionUtils.size(profiles)) // anti-recursion protection
 			.append("userType", userType)
 			.toString();
 	}

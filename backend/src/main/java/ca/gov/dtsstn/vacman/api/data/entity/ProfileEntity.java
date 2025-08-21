@@ -3,6 +3,7 @@ package ca.gov.dtsstn.vacman.api.data.entity;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 import org.immutables.builder.Builder;
@@ -319,14 +320,14 @@ public class ProfileEntity extends AbstractBaseEntity {
 			.append("city", city)
 			.append("classification", classification)
 			.append("hasConsentedToPrivacyTerms", hasConsentedToPrivacyTerms)
-			.append("hrAdvisor.id", hrAdvisor == null ? null : hrAdvisor)
+			.append("hrAdvisor.id", Optional.ofNullable(hrAdvisor).map(UserEntity::getId).orElse(null)) // anti-recursion protection
 			.append("isAvailableForReferral", isAvailableForReferral)
 			.append("isInterestedInAlternation", isInterestedInAlternation)
 			.append("language", language)
 			.append("personalEmailAddress", personalEmailAddress)
 			.append("personalPhoneNumber", personalPhoneNumber)
 			.append("profileStatus", profileStatus)
-			.append("user.id", user == null ? null : user.getId())
+			.append("user.id", Optional.ofNullable(user).map(UserEntity::getId).orElse(null)) // anti-recursion protection
 			.append("wfaStatus", wfaStatus)
 			.append("workUnit", workUnit)
 			.toString();

@@ -1,6 +1,7 @@
 package ca.gov.dtsstn.vacman.api.data.entity;
 
 import java.time.Instant;
+import java.util.Optional;
 
 import org.immutables.builder.Builder;
 import org.springframework.core.style.ToStringCreator;
@@ -53,7 +54,7 @@ public class WorkUnitEntity extends AbstractCodeEntity {
 	public String toString() {
 		return new ToStringCreator(this)
 			.append("super", super.toString())
-			.append("parent", parent)
+			.append("parent.id", Optional.ofNullable(parent).map(WorkUnitEntity::getId).orElse(null)) // anti-recursion protection
 			.toString();
 	}
 
