@@ -18,13 +18,13 @@
 type I18nPaths = Record<Language, string>;
 
 /**
- * A utility typpe that extracts the file path from an I18nPageRoute type.
+ * A utility type that extracts the file path from an I18nPageRoute type.
  * @template T - The type to extract the file from.
  */
 type ExtractI18nRouteFile<T> = T extends I18nPageRoute ? T['file'] : never;
 
 /**
- * A utility typpe that extracts the id from an I18nPageRoute type.
+ * A utility type that extracts the id from an I18nPageRoute type.
  * @template T - The type to extract the id from.
  */
 type ExtractI18nRouteId<T> = T extends I18nPageRoute ? T['id'] : never;
@@ -146,7 +146,7 @@ export const i18nRoutes = [
         file: 'routes/employee/profile/employment-information.tsx',
         paths: {
           en: '/en/employee/profile/employment-information',
-          fr: `/fr/employe/profil/informations-sur-lemploi`,
+          fr: '/fr/employe/profil/informations-sur-lemploi',
         },
       },
       {
@@ -154,7 +154,7 @@ export const i18nRoutes = [
         file: 'routes/employee/profile/referral-preferences.tsx',
         paths: {
           en: '/en/employee/profile/referral-preferences',
-          fr: '/fr/employe/profil/préférences-de-référence',
+          fr: '/fr/employe/profil/preferences-de-reference',
         },
       },
       {
@@ -194,7 +194,7 @@ export const i18nRoutes = [
         file: 'routes/hr-advisor/employee-profile/employment-information.tsx',
         paths: {
           en: '/en/hr-advisor/employee-profile/employment-information/:profileId',
-          fr: `/fr/hr-advisor/employe-profil/informations-sur-lemploi/:profileId`,
+          fr: '/fr/hr-advisor/employe-profil/informations-sur-lemploi/:profileId',
         },
       },
       {
@@ -202,7 +202,7 @@ export const i18nRoutes = [
         file: 'routes/hr-advisor/employee-profile/referral-preferences.tsx',
         paths: {
           en: '/en/hr-advisor/employee-profile/referral-preferences/:profileId',
-          fr: '/fr/hr-advisor/employe-profil/préférences-de-référence/:profileId',
+          fr: '/fr/hr-advisor/employe-profil/preferences-de-reference/:profileId',
         },
       },
       {
