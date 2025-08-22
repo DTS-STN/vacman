@@ -20,7 +20,7 @@ import jakarta.persistence.UniqueConstraint;
 
 @Entity(name = "User")
 @Table(name = "[USER]", uniqueConstraints = { @UniqueConstraint(name = "USER_NAME_UK", columnNames = { "[MS_ENTRA_ID]" }) })
-public class UserEntity extends AbstractBaseEntity {
+public class UserEntity extends AbstractBaseEntity implements Ownable {
 
 	@Column(name = "[BUSINESS_EMAIL_ADDRESS]", length = 320, nullable = false)
 	private String businessEmailAddress;
@@ -182,6 +182,12 @@ public class UserEntity extends AbstractBaseEntity {
 
 	public void setUserType(UserTypeEntity userType) {
 		this.userType = userType;
+	}
+
+	@Override
+	public Long getOwnerId() {
+		// users own themselves, obviously
+		return this.id;
 	}
 
 	@Override

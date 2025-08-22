@@ -148,7 +148,7 @@ public class UsersController {
 	@ApiResponses.AuthenticationError
 	@ApiResponses.ResourceNotFoundError
 	@Operation(summary = "Get a user by ID.")
-	@PreAuthorize("hasAuthority('hr-advisor') || @securityManager.canAccessUser(#id)")
+	@PreAuthorize("hasAuthority('hr-advisor') || hasPermission(#id, 'USER', 'READ')")
 	public ResponseEntity<UserReadModel> getUserById(@PathVariable Long id) {
 		final var result = userService.getUserById(id)
 			.map(userModelMapper::toModel)
@@ -164,7 +164,7 @@ public class UsersController {
 	@ApiResponses.AuthenticationError
 	@ApiResponses.ResourceNotFoundError
 	@Operation(summary = "Update an existing user.")
-	@PreAuthorize("hasAuthority('hr-advisor') || @securityManager.canAccessUser(#id)")
+	@PreAuthorize("hasAuthority('hr-advisor') || hasPermission(#id, 'USER', 'UPDATE')")
 	public ResponseEntity<UserReadModel> updateUser(@PathVariable long id, @RequestBody @Valid UserPatchModel updates) {
 		userService.getUserById(id).orElseThrow(asResourceNotFoundException("user", id));
 		final var updatedUser = userService.updateUser(id, userModelMapper.toEntity(updates));
@@ -178,7 +178,7 @@ public class UsersController {
 	@ApiResponses.AuthenticationError
 	@ApiResponses.ResourceNotFoundError
 	@Operation(summary = "Overwrite an existing user.")
-	@PreAuthorize("hasAuthority('hr-advisor') || @securityManager.canAccessUser(#id)")
+	@PreAuthorize("hasAuthority('hr-advisor') || hasPermission(#id, 'USER', 'UPDATE')")
 	public ResponseEntity<UserReadModel> updateUser(@PathVariable Long id, @RequestBody @Valid UserPatchModel userUpdate) {
 		userService.getUserById(id).orElseThrow(asResourceNotFoundException("user", id));
 		final var updatedUser = userService.overwriteUser(id, userModelMapper.toEntity(userUpdate));

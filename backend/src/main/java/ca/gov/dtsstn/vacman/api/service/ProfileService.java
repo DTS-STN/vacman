@@ -163,7 +163,7 @@ public class ProfileService {
 		return profiles;
 	}
 
-	public Optional<ProfileEntity> getProfile(long id) {
+	public Optional<ProfileEntity> getProfileById(long id) {
 		return profileRepository.findById(id).map(profile -> {
 			final var entraId = getCurrentUserEntraId().orElse("N/A");
 			final var profileReadEvent = new ProfileReadEvent(List.of(profile.getId()), entraId);

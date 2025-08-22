@@ -3,6 +3,7 @@ package ca.gov.dtsstn.vacman.api.data.entity;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -20,7 +21,7 @@ import jakarta.persistence.Table;
 
 @Entity(name = "Request")
 @Table(name = "[REQUEST]")
-public class RequestEntity extends AbstractBaseEntity {
+public class RequestEntity extends AbstractBaseEntity implements Ownable {
 
 	@Column(name = "[ADDITIONAL_COMMENT]", length = 100)
 	private String additionalComment;
@@ -512,6 +513,13 @@ public class RequestEntity extends AbstractBaseEntity {
 
 	public void setWorkUnit(WorkUnitEntity workUnit) {
 		this.workUnit = workUnit;
+	}
+
+	@Override
+	public Long getOwnerId() {
+		return Optional.ofNullable(submitter)
+			.map(UserEntity::getId)
+			.orElse(null);
 	}
 
 	@Override

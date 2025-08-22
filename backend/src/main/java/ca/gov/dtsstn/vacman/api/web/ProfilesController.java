@@ -140,12 +140,12 @@ public class ProfilesController {
 	@ApiResponses.AccessDeniedError
 	@ApiResponses.AuthenticationError
 	@ApiResponses.ResourceNotFoundError
-	@PreAuthorize("hasAuthority('hr-advisor') || @securityManager.canAccessProfile(#id)")
+	@PreAuthorize("hasAuthority('hr-advisor') || hasPermission(#id, 'PROFILE', 'READ')")
 	@Operation(summary = "Retrieve the profile specified by ID that is associated with the authenticated user.")
 	public ResponseEntity<ProfileReadModel> getProfileById(@PathVariable Long id) {
 		log.info("Received request to get profile; ID: [{}]", id);
 
-		final var profile = profileService.getProfile(id)
+		final var profile = profileService.getProfileById(id)
 				.map(profileModelMapper::toModel)
 				.orElseThrow(asResourceNotFoundException(PROFILE, id));
 
@@ -188,12 +188,12 @@ public class ProfilesController {
 	@ApiResponses.AuthenticationError
 	@ApiResponses.ResourceNotFoundError
 	@Operation(summary = "Update an existing profile specified by ID.")
-	@PreAuthorize("hasAuthority('hr-advisor') || @securityManager.canAccessProfile(#profileId)")
-	public ResponseEntity<ProfileReadModel> updateProfileById(@PathVariable(name = "id") Long profileId, @Valid @RequestBody ProfilePutModel updatedProfile) {
-		log.info("Received request to get profile; ID: [{}]", profileId);
+	@PreAuthorize("hasAuthority('hr-advisor') || hasPermission(#id, 'PROFILE', 'READ')")
+	public ResponseEntity<ProfileReadModel> updateProfileById(@PathVariable Long id, @Valid @RequestBody ProfilePutModel updatedProfile) {
+		log.info("Received request to get profile; ID: [{}]", id);
 
-		final var foundProfile = profileService.getProfile(profileId)
-			.orElseThrow(asResourceNotFoundException(PROFILE, profileId));
+		final var foundProfile = profileService.getProfileById(id)
+			.orElseThrow(asResourceNotFoundException(PROFILE, id));
 
 		log.trace(FOUND_PROFILE_LOG_MSG, foundProfile);
 
@@ -210,13 +210,13 @@ public class ProfilesController {
 	@Operation(summary = "Update an existing profile's status code specified by ID.")
 	@PreAuthorize("""
 		(hasAuthority('hr-advisor') && @securityManager.targetProfileStatusIsApprovalOrArchived(#updatedProfileStatus.code)) ||
-		(@securityManager.canAccessProfile(#profileId) && @securityManager.targetProfileStatusIsPending(#updatedProfileStatus.code))
+		(hasPermission(#id, 'PROFILE', 'UPDATE') && @securityManager.targetProfileStatusIsPending(#updatedProfileStatus.code))
 	""")
-	public ResponseEntity<Void> updateProfileById(@PathVariable(name = "id") Long profileId, @Valid @RequestBody ProfileStatusUpdateModel updatedProfileStatus) {
-		log.info("Received request to update profile status; ID: [{}]", profileId);
+	public ResponseEntity<Void> updateProfileById(@PathVariable Long id, @Valid @RequestBody ProfileStatusUpdateModel updatedProfileStatus) {
+		log.info("Received request to update profile status; ID: [{}]", id);
 
-		final var foundProfile = profileService.getProfile(profileId)
-				.orElseThrow(asResourceNotFoundException(PROFILE, profileId));
+		final var foundProfile = profileService.getProfileById(id)
+				.orElseThrow(asResourceNotFoundException(PROFILE, id));
 
 		log.trace(FOUND_PROFILE_LOG_MSG, foundProfile);
 

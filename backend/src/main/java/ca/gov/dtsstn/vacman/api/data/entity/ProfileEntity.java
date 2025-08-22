@@ -23,7 +23,7 @@ import jakarta.persistence.Table;
 
 @Entity(name = "Profile")
 @Table(name = "[PROFILE]")
-public class ProfileEntity extends AbstractBaseEntity {
+public class ProfileEntity extends AbstractBaseEntity implements Ownable {
 
 	@ManyToOne
 	@JsonBackReference
@@ -310,6 +310,13 @@ public class ProfileEntity extends AbstractBaseEntity {
 
 	public void setLanguageReferralTypes(Set<ProfileLanguageReferralTypeEntity> languageReferralTypes) {
 		this.languageReferralTypes = languageReferralTypes;
+	}
+
+	@Override
+	public Long getOwnerId() {
+		return Optional.ofNullable(user)
+			.map(UserEntity::getId)
+			.orElse(null);
 	}
 
 	@Override

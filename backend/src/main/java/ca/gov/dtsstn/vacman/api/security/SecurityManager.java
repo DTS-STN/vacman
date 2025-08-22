@@ -6,11 +6,6 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Component;
 
 import ca.gov.dtsstn.vacman.api.constants.AppConstants;
-import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
-import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
-import ca.gov.dtsstn.vacman.api.service.ProfileService;
-import ca.gov.dtsstn.vacman.api.service.UserService;
-import ca.gov.dtsstn.vacman.api.web.exception.UnauthorizedException;
 
 /**
  * Provides server-side security checks for access to various resources.
@@ -29,88 +24,6 @@ public class SecurityManager {
 	 * be easily referenced in {@code @DependsOn} annotations.
 	 */
 	public static final String NAME = "securityManager";
-
-	private final ProfileService profileService;
-
-	private final UserService userService;
-
-	public SecurityManager(ProfileService profileService, UserService userService) {
-		this.profileService = profileService;
-		this.userService = userService;
-	}
-
-	/**
-	 * Checks whether the currently authenticated user can access the specified profile resource.
-	 * <p>
-	 * This method compares the Microsoft Entra ID of the authenticated user with
-	 * the Entra ID associated with the profile. If they do not match, an
-	 * {@link AccessDeniedException} is thrown.
-	 *
-	 * @param id the ID of the profile to check
-	 * @return {@code true} if the authenticated user can access the profile
-	 * @throws UnauthorizedException if no Entra ID is found in the current security context
-	 * @throws AccessDeniedException if the profile does not exist or the IDs do not match
-	 */
-	public boolean canAccessProfile(long id) {
-		final var currentEntraId = SecurityUtils.getCurrentUserEntraId();
-
-		if (currentEntraId.isEmpty()) {
-			log.error("Access denied: Entra ID not found in security context");
-			return false;
-		}
-
-		final var profileEntraId = profileService.getProfile(id)
-			.map(ProfileEntity::getUser)
-			.map(UserEntity::getMicrosoftEntraId);
-
-		if (profileEntraId.isEmpty()) {
-			log.error("Access denied: Profile with id=[" + id + "] not found");
-			return false;
-		}
-
-		if (!currentEntraId.get().equals(profileEntraId.get())) {
-			log.error("Access denied: Current user's entraId [" + currentEntraId.get() + "] does not match target profile's entraId [" + profileEntraId.get() + "]");
-			return false;
-		}
-
-		return true;
-	}
-
-	/**
-	 * Checks whether the currently authenticated user can access the specified user resource.
-	 * <p>
-	 * This method compares the Microsoft Entra ID of the authenticated user with
-	 * the Entra ID of the target user. If they do not match, an
-	 * {@link AccessDeniedException} is thrown.
-	 *
-	 * @param id the ID of the user to check
-	 * @return {@code true} if the authenticated user can access the user
-	 * @throws UnauthorizedException if no Entra ID is found in the current security context
-	 * @throws AccessDeniedException if the user does not exist or the IDs do not match
-	 */
-	public boolean canAccessUser(long id) {
-		final var currentEntraId = SecurityUtils.getCurrentUserEntraId();
-
-		if (currentEntraId.isEmpty()) {
-			log.error("Access denied: Entra ID not found in security context");
-			return false;
-		}
-
-		final var userEntraId = userService.getUserById(id)
-			.map(UserEntity::getMicrosoftEntraId);
-
-		if (userEntraId.isEmpty()) {
-			log.error("Access denied: User with id=[" + id + "] not found");
-			return false;
-		}
-
-		if (!currentEntraId.get().equals(userEntraId.get())) {
-			log.error("Current user's entraId [" + currentEntraId.get() + "] does not match target user's entraId [" + userEntraId.get() + "]");
-			return false;
-		}
-
-		return true;
-}
 
 	/**
 	 * Validates that the provided profile status code is either
