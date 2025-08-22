@@ -32,18 +32,18 @@ export default {
     'personal-information': {
       'title': 'Informations personnelles',
       'link-label': 'informations personnelles',
-      'detail': 'Provide your personal and contact details, language preferences, education, and other relevant information.',
+      'detail': 'Fournir vos coordonnées, votre langue de préférence et autres informations.',
     },
     'employment': {
       'title': "Informations sur l'emploi",
       'link-label': "informations sur l'emploi",
-      'detail': 'Share information about your current job and your Work Force Adjustment (WFA) status.',
+      'detail': "Fournir l'information sur votre emploi actuel et votre statut de réaménagement des effectifs.",
     },
     'referral': {
-      'title': 'Préférences de recommandation',
-      'link-label': 'préférences de recommandation',
+      'title': 'Préférences de présentation',
+      'link-label': 'préférences de présentation',
       'detail':
-        'Indicate your preferences for job referrals including job type, classification, language requirements, preferred locations, and availability.',
+        'Indiquer vos préférences de présentation à des emplois, incluant les classifications, les exigences linguistiques et les lieux de travail.',
     },
     'back': 'Retour au profil',
     'view': 'Voir mon profil',
