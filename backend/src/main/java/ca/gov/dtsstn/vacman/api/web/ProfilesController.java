@@ -14,10 +14,10 @@ import org.mapstruct.factory.Mappers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springdoc.core.annotations.ParameterObject;
-import org.springframework.context.annotation.DependsOn;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedModel;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -32,7 +32,6 @@ import ca.gov.dtsstn.vacman.api.config.SpringDocConfig;
 import ca.gov.dtsstn.vacman.api.constants.AppConstants;
 import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
-import ca.gov.dtsstn.vacman.api.security.SecurityManager;
 import ca.gov.dtsstn.vacman.api.security.SecurityUtils;
 import ca.gov.dtsstn.vacman.api.service.ProfileService;
 import ca.gov.dtsstn.vacman.api.service.UserService;
@@ -51,7 +50,6 @@ import jakarta.validation.Valid;
 @RestController
 @Tag(name = "Profiles")
 @ApiResponses.InternalServerError
-@DependsOn({ SecurityManager.NAME })
 @RequestMapping({ "/api/v1/profiles" })
 @SecurityRequirement(name = SpringDocConfig.AZURE_AD)
 public class ProfilesController {
@@ -146,8 +144,8 @@ public class ProfilesController {
 		log.info("Received request to get profile; ID: [{}]", id);
 
 		final var profile = profileService.getProfileById(id)
-				.map(profileModelMapper::toModel)
-				.orElseThrow(asResourceNotFoundException(PROFILE, id));
+			.map(profileModelMapper::toModel)
+			.orElseThrow(asResourceNotFoundException(PROFILE, id));
 
 		log.trace(FOUND_PROFILE_LOG_MSG, profile);
 
@@ -167,7 +165,7 @@ public class ProfilesController {
 
 		log.debug("Checking if user with microsoftEntraId=[{}] already exists", microsoftEntraId);
 		final var existingUser = userService.getUserByMicrosoftEntraId(microsoftEntraId)
-				.orElseThrow(asUserResourceNotFoundException(MS_ENTRA_ID, microsoftEntraId));
+			.orElseThrow(asUserResourceNotFoundException(MS_ENTRA_ID, microsoftEntraId));
 
 		log.debug("Checking if user with microsoftEntraId=[{}] has an active profile", microsoftEntraId);
 		if (!profileService.getProfilesByEntraId(microsoftEntraId, true).isEmpty()) {
@@ -208,15 +206,21 @@ public class ProfilesController {
 	@ApiResponses.AuthenticationError
 	@ApiResponses.ResourceNotFoundError
 	@Operation(summary = "Update an existing profile's status code specified by ID.")
-	@PreAuthorize("""
-		(hasAuthority('hr-advisor') && @securityManager.targetProfileStatusIsApprovalOrArchived(#updatedProfileStatus.code)) ||
-		(hasPermission(#id, 'PROFILE', 'UPDATE') && @securityManager.targetProfileStatusIsPending(#updatedProfileStatus.code))
-	""")
+	@PreAuthorize("hasAuthority('hr-advisor') || hasPermission(#id, 'PROFILE', 'UPDATE')")
 	public ResponseEntity<Void> updateProfileById(@PathVariable Long id, @Valid @RequestBody ProfileStatusUpdateModel updatedProfileStatus) {
 		log.info("Received request to update profile status; ID: [{}]", id);
 
+		if (SecurityUtils.isHrAdvisor()) {
+			final var validStatus = AppConstants.ProfileStatusCodes.APPROVED.equals(updatedProfileStatus.getCode()) || AppConstants.ProfileStatusCodes.ARCHIVED.equals(updatedProfileStatus.getCode());
+			if (!validStatus) { throw new AccessDeniedException("Profile status can only be set to 'approved' or 'archived'"); }
+		}
+		else {
+			final var validStatus = AppConstants.ProfileStatusCodes.PENDING.equals(updatedProfileStatus.getCode());
+			if (!validStatus) { throw new AccessDeniedException("Profile status can only be set to 'pending'"); }
+		}
+
 		final var foundProfile = profileService.getProfileById(id)
-				.orElseThrow(asResourceNotFoundException(PROFILE, id));
+			.orElseThrow(asResourceNotFoundException(PROFILE, id));
 
 		log.trace(FOUND_PROFILE_LOG_MSG, foundProfile);
 
