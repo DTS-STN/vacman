@@ -40,6 +40,7 @@ import ca.gov.dtsstn.vacman.api.data.entity.UserTypeEntityBuilder;
 import ca.gov.dtsstn.vacman.api.data.entity.WfaStatusEntityBuilder;
 import ca.gov.dtsstn.vacman.api.data.entity.WorkScheduleEntityBuilder;
 import ca.gov.dtsstn.vacman.api.data.entity.WorkUnitEntityBuilder;
+import ca.gov.dtsstn.vacman.api.security.OwnershipPermissionEvaluator;
 import ca.gov.dtsstn.vacman.api.service.CodeService;
 
 @ActiveProfiles({ "test" })
@@ -53,6 +54,9 @@ class CodesControllerTest {
 
 	@MockitoBean
 	CodeService codeService;
+
+	@MockitoBean
+	OwnershipPermissionEvaluator ownershipPermissionEvaluator;
 
 	@Test
 	@WithAnonymousUser
