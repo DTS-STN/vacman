@@ -205,6 +205,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
 
   if (actionData && alertRef.current) {
     alertRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    alertRef.current.focus();
   }
 
   return (
@@ -241,6 +242,8 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
               ? t('app:profile.hr-approved')
               : t('app:profile.profile-incomplete')
           }
+          role="alert"
+          ariaLive="assertive"
         />
       )}
 
