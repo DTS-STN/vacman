@@ -30,7 +30,13 @@ export async function loader({ context, request }: Route.LoaderArgs) {
   if (currentUser.isNone()) {
     const language = await getLanguageForCorrespondenceService().findById(LANGUAGE_ID[getLanguage(request) ?? 'en']);
     await getUserService().registerCurrentUser({ languageId: language.unwrap().id }, context.session.authState.accessToken);
-    await getProfileService().registerProfile(context.session.authState.accessToken);
+
+    // create a profile if and only if there are no active profiles found for the current user
+    const profileService = getProfileService();
+    const profileResult = await profileService.getCurrentUserProfiles({ active: true }, context.session.authState.accessToken);
+    if (profileResult.into()?.content.length === 0) {
+      await profileService.registerProfile(context.session.authState.accessToken);
+    }
   }
   const { t } = await getTranslation(request, handle.i18nNamespace);
   return {
