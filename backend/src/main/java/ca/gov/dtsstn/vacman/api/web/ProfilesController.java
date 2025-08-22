@@ -4,6 +4,7 @@ import static ca.gov.dtsstn.vacman.api.constants.AppConstants.UserFields.MS_ENTR
 import static ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException.asResourceNotFoundException;
 import static ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException.asUserResourceNotFoundException;
 import static ca.gov.dtsstn.vacman.api.web.exception.UnauthorizedException.asEntraIdUnauthorizedException;
+import static ca.gov.dtsstn.vacman.api.web.model.CollectionModel.toCollectionModel;
 
 import java.util.Collection;
 import java.util.Set;
@@ -129,9 +130,9 @@ public class ProfilesController {
 
 		final var profiles = profileService.getProfilesByEntraId(entraId, isActive).stream()
 			.map(profileModelMapper::toModel)
-			.toList();
+			.collect(toCollectionModel());
 
-		return ResponseEntity.ok(new CollectionModel<>(profiles));
+		return ResponseEntity.ok(profiles);
 	}
 
 	@GetMapping(path = "/{id}")
