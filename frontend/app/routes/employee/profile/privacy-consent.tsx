@@ -39,20 +39,20 @@ export async function action({ context, request }: Route.ActionArgs) {
   const profileResult = await getProfileService().getCurrentUserProfiles(profileParams, context.session.authState.accessToken);
 
   if (profileResult.isErr()) {
-    log.debug(`Profile not found for user ${context.session.currentUser?.id}`);
+    log.debug(`Profile not found for the current user`);
     return i18nRedirect('routes/index.tsx', request);
   }
 
   const profiles = profileResult.unwrap().content;
   if (profiles.length === 0) {
-    log.debug(`No profiles found for user ${context.session.currentUser?.id}`);
+    log.debug(`No profiles found for the current user`);
     return i18nRedirect('routes/index.tsx', request);
   }
 
   // Get the first (most recent) profile
   const profile = profiles[0];
   if (!profile) {
-    log.debug(`No active profile found for user ${context.session.currentUser?.id}`);
+    log.debug(`No active profile found for the current user`);
     return i18nRedirect('routes/index.tsx', request);
   }
 
@@ -64,7 +64,7 @@ export async function action({ context, request }: Route.ActionArgs) {
 
   await profileService.updateProfileById(profile.id, updatePrivacyConsent, context.session.authState.accessToken);
 
-  log.debug(`User ${context.session.currentUser?.id} has accepted privacy consent.`);
+  log.debug(`User ${profile.profileUser.id} has accepted privacy consent.`);
   return i18nRedirect('routes/employee/index.tsx', request);
 }
 
