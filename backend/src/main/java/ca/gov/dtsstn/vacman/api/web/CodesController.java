@@ -32,14 +32,13 @@ import ca.gov.dtsstn.vacman.api.web.model.WorkScheduleReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.WorkUnitReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.mapper.CodeModelMapper;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
+@ApiResponses.Ok
 @Tag(name = "Codes")
 @ApiResponses.InternalServerError
 @RequestMapping({ AppConstants.ApiPaths.CODES })
-@ApiResponse(responseCode = "200", description = "Returned if the request has succeeded.")
 public class CodesController {
 
 	private final CodeModelMapper codeMapper = Mappers.getMapper(CodeModelMapper.class);

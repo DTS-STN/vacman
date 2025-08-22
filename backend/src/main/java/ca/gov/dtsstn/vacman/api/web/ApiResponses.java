@@ -20,6 +20,21 @@ public class ApiResponses {
 
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target({ ElementType.METHOD, ElementType.TYPE, ElementType.ANNOTATION_TYPE })
+	@ApiResponse(responseCode = "200", description = "Returned if the request has succeeded.")
+	public @interface Ok {}
+
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target({ ElementType.METHOD, ElementType.TYPE, ElementType.ANNOTATION_TYPE })
+	@ApiResponse(responseCode = "202", description = "Returned if the request has succeeded.")
+	public @interface Created {}
+
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target({ ElementType.METHOD, ElementType.TYPE, ElementType.ANNOTATION_TYPE })
+	@ApiResponse(responseCode = "202", description = "Returned if the request has succeeded.")
+	public @interface Accepted {}
+
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target({ ElementType.METHOD, ElementType.TYPE, ElementType.ANNOTATION_TYPE })
 	@ApiResponse(responseCode = "400", description = "Returned if any of the request parameters are not valid.", content = { @Content(examples = { @ExampleObject(name = "Default", ref = ExampleRefs.BAD_REQUEST_ERROR) }, schema = @Schema(implementation = ProblemDetail.class)) })
 	public @interface BadRequestError {}
 

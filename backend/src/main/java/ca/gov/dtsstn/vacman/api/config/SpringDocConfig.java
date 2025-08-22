@@ -38,6 +38,16 @@ public class SpringDocConfig {
 		.enable(SerializationFeature.INDENT_OUTPUT)
 		.findAndRegisterModules();
 
+	/**
+	 * Centralized constants for referencing example objects in the OpenAPI specification.
+	 * <p>
+	 * These constants are used as keys when registering reusable error examples (see
+	 * {@link SpringDocConfig#openApiCustomizer()}). By defining them here, references remain consistent across the codebase and
+	 * can be easily updated in a single place if naming conventions change.
+	 * <p>
+	 * Typical usage is to associate each constant with an {@link io.swagger.v3.oas.models.examples.Example} so that API
+	 * responses in the generated documentation can reference a pre-defined example payload.
+	 */
 	public final class ExampleRefs {
 
 		public static final String ACCESS_DENIED_ERROR = "AccessDeniedError";
@@ -86,7 +96,6 @@ public class SpringDocConfig {
 			final var problemDetail = ProblemDetail.forStatusAndDetail(httpStatusCode, detail);
 			problemDetail.setProperty("correlationId", "00000000-0000-0000-0000-000000000000");
 			problemDetail.setProperty("errorCode", errorCode);
-
 			return new Example().value(objectMapper.writeValueAsString(problemDetail));
 		}
 		catch (final JsonProcessingException jsonProcessingException) {

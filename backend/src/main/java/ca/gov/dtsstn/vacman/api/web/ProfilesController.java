@@ -50,6 +50,7 @@ import jakarta.validation.Valid;
 
 @RestController
 @Tag(name = "Profiles")
+@ApiResponses.InternalServerError
 @DependsOn({ SecurityManager.NAME })
 @RequestMapping({ "/api/v1/profiles" })
 public class ProfilesController {
@@ -72,6 +73,9 @@ public class ProfilesController {
 	}
 
 	@GetMapping
+	@ApiResponses.Ok
+	@ApiResponses.AccessDeniedError
+	@ApiResponses.AuthenticationError
 	@PreAuthorize("hasAuthority('hr-advisor')")
 	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
 	@Operation(summary = "Retrieve a list of profiles with optional filters on active profiles, inactive profiles, and HR advisor assocation.")
@@ -117,7 +121,10 @@ public class ProfilesController {
 		return ResponseEntity.ok(new PagedModel<>(profiles));
 	}
 
-	@GetMapping(path = "/me")
+	@ApiResponses.Ok
+	@GetMapping({ "/me" })
+	@ApiResponses.AccessDeniedError
+	@ApiResponses.AuthenticationError
 	@PreAuthorize("isAuthenticated()")
 	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
 	@Operation(summary = "Retrieve the profiles associated with the authenticated user with optional filters on active profiles, inactive profiles, and HR advisor association.")
@@ -135,7 +142,11 @@ public class ProfilesController {
 		return ResponseEntity.ok(profiles);
 	}
 
-	@GetMapping(path = "/{id}")
+	@ApiResponses.Ok
+	@GetMapping({ "/{id}" })
+	@ApiResponses.AccessDeniedError
+	@ApiResponses.AuthenticationError
+	@ApiResponses.ResourceNotFoundError
 	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
 	@PreAuthorize("hasAuthority('hr-advisor') || @securityManager.canAccessProfile(#id)")
 	@Operation(summary = "Retrieve the profile specified by ID that is associated with the authenticated user.")
@@ -151,7 +162,10 @@ public class ProfilesController {
 		return ResponseEntity.ok(profile);
 	}
 
-	@PostMapping(path = "/me")
+	@ApiResponses.Ok
+	@PostMapping({ "/me" })
+	@ApiResponses.AccessDeniedError
+	@ApiResponses.AuthenticationError
 	@PreAuthorize("isAuthenticated()")
 	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
 	@Operation(summary = "Create a new profile associated with the authenticated user.")
@@ -177,7 +191,11 @@ public class ProfilesController {
 		return ResponseEntity.ok(createdProfile);
 	}
 
-	@PutMapping(path = "/{id}")
+	@ApiResponses.Ok
+	@PutMapping({ "/{id}" })
+	@ApiResponses.AccessDeniedError
+	@ApiResponses.AuthenticationError
+	@ApiResponses.ResourceNotFoundError
 	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
 	@Operation(summary = "Update an existing profile specified by ID.")
 	@PreAuthorize("hasAuthority('hr-advisor') || @securityManager.canAccessProfile(#profileId)")
@@ -194,13 +212,17 @@ public class ProfilesController {
 		return ResponseEntity.ok(profileModelMapper.toModel(updatedEntity));
 	}
 
-	@PutMapping(path = "/{id}/status")
+	@ApiResponses.Accepted
+	@PutMapping({ "/{id}/status" })
+	@ApiResponses.AccessDeniedError
+	@ApiResponses.AuthenticationError
+	@ApiResponses.ResourceNotFoundError
+	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
+	@Operation(summary = "Update an existing profile's status code specified by ID.")
 	@PreAuthorize("""
 		(hasAuthority('hr-advisor') && @securityManager.targetProfileStatusIsApprovalOrArchived(#updatedProfileStatus.code)) ||
 		(@securityManager.canAccessProfile(#profileId) && @securityManager.targetProfileStatusIsPending(#updatedProfileStatus.code))
 	""")
-	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
-	@Operation(summary = "Update an existing profile's status code specified by ID.")
 	public ResponseEntity<Void> updateProfileById(@PathVariable(name = "id") Long profileId, @Valid @RequestBody ProfileStatusUpdateModel updatedProfileStatus) {
 		log.info("Received request to update profile status; ID: [{}]", profileId);
 
@@ -220,7 +242,7 @@ public class ProfilesController {
 
 		updateStatusToTarget(foundProfile, updatedProfileStatus.getCode(), validPretransitionStates);
 
-		return ResponseEntity.noContent().build();
+		return ResponseEntity.accepted().build();
 	}
 
 	private void updateStatusToTarget(ProfileEntity profile, String targetStatus, Collection<String> validPreTransitionStates) {
