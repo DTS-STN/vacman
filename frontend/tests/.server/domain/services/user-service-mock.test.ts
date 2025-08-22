@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 
 import type { UserCreate, UserUpdate } from '~/.server/domain/models';
 import { getMockUserService } from '~/.server/domain/services/user-service-mock';
+import { PREFERRED_LANGUAGE_ENGLISH, USER_TYPE_HR_ADVISOR } from '~/domain/constants';
 import { ErrorCodes } from '~/errors/error-codes';
 
 describe('getMockUserService', () => {
@@ -36,18 +37,8 @@ describe('getMockUserService', () => {
         middleName: undefined,
         microsoftEntraId: '00000000-0000-0000-0000-000000000000',
         personalRecordIdentifier: '123456789',
-        language: {
-          id: 1,
-          code: 'EN',
-          nameEn: 'English',
-          nameFr: 'Anglais',
-        },
-        userType: {
-          id: 3,
-          code: 'HRA',
-          nameEn: 'HR Advisor',
-          nameFr: 'Conseiller RH',
-        },
+        language: PREFERRED_LANGUAGE_ENGLISH,
+        userType: USER_TYPE_HR_ADVISOR,
         createdBy: 'system',
         createdDate: '2024-01-01T00:00:00Z',
         lastModifiedBy: 'system',
@@ -85,7 +76,7 @@ describe('getMockUserService', () => {
 
       // Should find 2 HR advisors (Jane and Alex)
       expect(response.content).toHaveLength(2);
-      expect(response.content.every((user) => user.userType?.code === 'HRA')).toBe(true);
+      expect(response.content.every((user) => user.userType?.code === USER_TYPE_HR_ADVISOR.code)).toBe(true);
       expect(response.page.totalElements).toBe(2);
     });
 
@@ -110,7 +101,7 @@ describe('getMockUserService', () => {
 
       expect(user.id).toBe(1);
       expect(user.businessEmailAddress).toBe('jane.doe@canada.ca');
-      expect(user.userType?.code).toBe('HRA');
+      expect(user.userType?.code).toBe(USER_TYPE_HR_ADVISOR.code);
     });
 
     it('should return an error when user is not found', async () => {
@@ -149,7 +140,7 @@ describe('getMockUserService', () => {
       expect(result.isSome()).toBe(true);
       const user = result.unwrap();
 
-      expect(user.userType?.code).toBe('HRA');
+      expect(user.userType?.code).toBe(USER_TYPE_HR_ADVISOR.code);
       expect(user.firstName).toBe('Jane');
     });
   });
@@ -159,7 +150,7 @@ describe('getMockUserService', () => {
       const updateData: UserUpdate = {
         firstName: 'Updated Jane',
         businessPhone: '+1-613-555-9999',
-        languageId: 1,
+        languageId: PREFERRED_LANGUAGE_ENGLISH.id,
       };
 
       const result = await service.updateUserById(1, updateData, mockAccessToken);
@@ -180,7 +171,7 @@ describe('getMockUserService', () => {
     });
 
     it('should return an error when user is not found', async () => {
-      const updateData: UserUpdate = { firstName: 'Test', languageId: 1 };
+      const updateData: UserUpdate = { firstName: 'Test', languageId: PREFERRED_LANGUAGE_ENGLISH.id };
       const result = await service.updateUserById(999, updateData, mockAccessToken);
 
       expect(result.isErr()).toBe(true);

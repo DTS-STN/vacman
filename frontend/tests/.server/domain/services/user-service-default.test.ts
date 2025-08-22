@@ -5,6 +5,7 @@ import type { User, UserCreate, UserUpdate, PagedUserResponse, UserQueryParams }
 import { apiClient } from '~/.server/domain/services/api-client';
 // Import after mocking
 import { getDefaultUserService } from '~/.server/domain/services/user-service-default';
+import { PREFERRED_LANGUAGE_ENGLISH, USER_TYPE_EMPLOYEE, USER_TYPE_HR_ADVISOR } from '~/domain/constants';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
 
@@ -47,18 +48,8 @@ describe('getDefaultUserService', () => {
           middleName: undefined,
           microsoftEntraId: '00000000-0000-0000-0000-000000000000',
           personalRecordIdentifier: '123456789',
-          language: {
-            id: 1,
-            code: 'EN',
-            nameEn: 'English',
-            nameFr: 'Anglais',
-          },
-          userType: {
-            id: 3,
-            code: 'HRA',
-            nameEn: 'HR Advisor',
-            nameFr: 'Conseiller RH',
-          },
+          language: PREFERRED_LANGUAGE_ENGLISH,
+          userType: USER_TYPE_HR_ADVISOR,
           createdBy: 'system',
           createdDate: '2024-01-01T00:00:00Z',
           lastModifiedBy: 'system',
@@ -139,18 +130,8 @@ describe('getDefaultUserService', () => {
       middleName: undefined,
       microsoftEntraId: '00000000-0000-0000-0000-000000000000',
       personalRecordIdentifier: '123456789',
-      language: {
-        id: 1,
-        code: 'EN',
-        nameEn: 'English',
-        nameFr: 'Anglais',
-      },
-      userType: {
-        id: 3,
-        code: 'HRA',
-        nameEn: 'HR Advisor',
-        nameFr: 'Conseiller RH',
-      },
+      language: PREFERRED_LANGUAGE_ENGLISH,
+      userType: USER_TYPE_HR_ADVISOR,
       createdBy: 'system',
       createdDate: '2024-01-01T00:00:00Z',
       lastModifiedBy: 'system',
@@ -193,18 +174,8 @@ describe('getDefaultUserService', () => {
       middleName: undefined,
       microsoftEntraId: '00000000-0000-0000-0000-000000000000',
       personalRecordIdentifier: '123456789',
-      language: {
-        id: 1,
-        code: 'EN',
-        nameEn: 'English',
-        nameFr: 'Anglais',
-      },
-      userType: {
-        id: 3,
-        code: 'HRA',
-        nameEn: 'HR Advisor',
-        nameFr: 'Conseiller RH',
-      },
+      language: PREFERRED_LANGUAGE_ENGLISH,
+      userType: USER_TYPE_HR_ADVISOR,
       createdBy: 'system',
       createdDate: '2024-01-01T00:00:00Z',
       lastModifiedBy: 'system',
@@ -251,18 +222,8 @@ describe('getDefaultUserService', () => {
       middleName: undefined,
       microsoftEntraId: '00000000-0000-0000-0000-000000000000',
       personalRecordIdentifier: '123456789',
-      language: {
-        id: 1,
-        code: 'EN',
-        nameEn: 'English',
-        nameFr: 'Anglais',
-      },
-      userType: {
-        id: 1,
-        code: 'EMPLOYEE',
-        nameEn: 'Employee',
-        nameFr: 'Employé',
-      },
+      language: PREFERRED_LANGUAGE_ENGLISH,
+      userType: USER_TYPE_EMPLOYEE,
       createdBy: 'system',
       createdDate: '2024-01-01T00:00:00Z',
       lastModifiedBy: 'system',
@@ -301,18 +262,8 @@ describe('getDefaultUserService', () => {
       middleName: undefined,
       microsoftEntraId: '00000000-0000-0000-0000-000000000000',
       personalRecordIdentifier: '123456789',
-      language: {
-        id: 1,
-        code: 'EN',
-        nameEn: 'English',
-        nameFr: 'Anglais',
-      },
-      userType: {
-        id: 3,
-        code: 'HRA',
-        nameEn: 'HR Advisor',
-        nameFr: 'Conseiller RH',
-      },
+      language: PREFERRED_LANGUAGE_ENGLISH,
+      userType: USER_TYPE_HR_ADVISOR,
       createdBy: 'system',
       createdDate: '2024-01-01T00:00:00Z',
       lastModifiedBy: 'system',
@@ -325,7 +276,7 @@ describe('getDefaultUserService', () => {
       const updateData: UserUpdate = {
         firstName: 'Updated Jane',
         businessPhone: '+1-613-555-9999',
-        languageId: 1,
+        languageId: PREFERRED_LANGUAGE_ENGLISH.id,
       };
 
       const result = await service.updateUserById(1, updateData, mockAccessToken);
@@ -341,7 +292,7 @@ describe('getDefaultUserService', () => {
       const updateError = new AppError('Update failed', ErrorCodes.PROFILE_UPDATE_FAILED);
       mockApiClient.put.mockResolvedValueOnce(Err(updateError));
 
-      const updateData: UserUpdate = { firstName: 'Test', languageId: 1 };
+      const updateData: UserUpdate = { firstName: 'Test', languageId: PREFERRED_LANGUAGE_ENGLISH.id };
       const result = await service.updateUserById(1, updateData, mockAccessToken);
 
       expect(result.isErr()).toBe(true);
@@ -362,18 +313,8 @@ describe('getDefaultUserService', () => {
       middleName: undefined,
       microsoftEntraId: '12345678-1234-1234-1234-123456789012',
       personalRecordIdentifier: '987654321',
-      language: {
-        id: 1,
-        code: 'EN',
-        nameEn: 'English',
-        nameFr: 'Anglais',
-      },
-      userType: {
-        id: 1,
-        code: 'EMPLOYEE',
-        nameEn: 'Employee',
-        nameFr: 'Employé',
-      },
+      language: PREFERRED_LANGUAGE_ENGLISH,
+      userType: USER_TYPE_EMPLOYEE,
       createdBy: 'system',
       createdDate: '2024-08-15T10:00:00Z',
       lastModifiedBy: 'system',
@@ -384,7 +325,7 @@ describe('getDefaultUserService', () => {
       mockApiClient.post.mockResolvedValueOnce(Ok(mockCreatedUser));
 
       const userData: UserCreate = {
-        languageId: 1,
+        languageId: PREFERRED_LANGUAGE_ENGLISH.id,
       };
 
       const result = await service.registerCurrentUser(userData, mockAccessToken);
@@ -400,7 +341,7 @@ describe('getDefaultUserService', () => {
       const registrationError = new AppError('Registration failed', ErrorCodes.PROFILE_CREATE_FAILED);
       mockApiClient.post.mockResolvedValueOnce(Err(registrationError));
 
-      const userData: UserCreate = { languageId: 1 };
+      const userData: UserCreate = { languageId: PREFERRED_LANGUAGE_ENGLISH.id };
       const result = await service.registerCurrentUser(userData, mockAccessToken);
 
       expect(result.isErr()).toBe(true);
@@ -414,7 +355,7 @@ describe('getDefaultUserService', () => {
       const networkError = new AppError('Network error occurred', ErrorCodes.VACMAN_API_ERROR);
       mockApiClient.post.mockResolvedValueOnce(Err(networkError));
 
-      const userData: UserCreate = { languageId: 1 };
+      const userData: UserCreate = { languageId: PREFERRED_LANGUAGE_ENGLISH.id };
       const result = await service.registerCurrentUser(userData, mockAccessToken);
 
       expect(result.isErr()).toBe(true);

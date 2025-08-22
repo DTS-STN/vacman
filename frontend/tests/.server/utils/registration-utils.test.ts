@@ -10,6 +10,7 @@ import {
   checkHiringManagerRouteRegistration,
   checkHrAdvisorRouteRegistration,
 } from '~/.server/utils/registration-utils';
+import { PREFERRED_LANGUAGE_ENGLISH, USER_TYPE_HIRING_MANAGER, USER_TYPE_HR_ADVISOR } from '~/domain/constants';
 
 vi.mock('~/.server/domain/services/user-service');
 vi.mock('~/.server/utils/route-utils');
@@ -32,18 +33,8 @@ const mockUser = {
   middleName: undefined,
   microsoftEntraId: '00000000-0000-0000-0000-000000000000',
   personalRecordIdentifier: '123456789',
-  language: {
-    id: 1,
-    code: 'EN',
-    nameEn: 'English',
-    nameFr: 'Anglais',
-  },
-  userType: {
-    id: 3,
-    code: 'HRA',
-    nameEn: 'HR Advisor',
-    nameFr: 'Conseiller RH',
-  },
+  language: PREFERRED_LANGUAGE_ENGLISH,
+  userType: USER_TYPE_HR_ADVISOR,
   createdBy: 'system',
   createdDate: '2024-01-01T00:00:00Z',
   lastModifiedBy: 'system',
@@ -79,12 +70,7 @@ describe('requireRoleRegistration', () => {
     mockGetCurrentUser.mockResolvedValue(
       Some({
         ...mockUser,
-        userType: {
-          id: 1,
-          code: 'hiring-manager',
-          nameEn: 'Hiring Manager',
-          nameFr: 'Gestionnaire Embauche',
-        },
+        userType: USER_TYPE_HIRING_MANAGER,
       }),
     );
     await requireRoleRegistration(mockSession, mockRequest, 'hiring-manager', () => true);
@@ -96,12 +82,7 @@ describe('requireRoleRegistration', () => {
     mockGetCurrentUser.mockResolvedValue(
       Some({
         ...mockUser,
-        userType: {
-          id: 1,
-          code: 'hiring-manager',
-          nameEn: 'Hiring Manager',
-          nameFr: 'Gestionnaire Embauche',
-        },
+        userType: USER_TYPE_HIRING_MANAGER,
       }),
     );
     await requireRoleRegistration(mockSession, mockRequest, ['hr-advisor', 'hiring-manager'], () => true);
@@ -113,12 +94,7 @@ describe('requireRoleRegistration', () => {
     mockGetCurrentUser.mockResolvedValue(
       Some({
         ...mockUser,
-        userType: {
-          id: 1,
-          code: 'HRA',
-          nameEn: 'HR Advisor',
-          nameFr: 'Conseiller RH',
-        },
+        userType: USER_TYPE_HR_ADVISOR,
       }),
     );
     await requireRoleRegistration(mockSession, mockRequest, ['HRA', 'hiring-manager', 'admin'], () => true);
@@ -133,12 +109,7 @@ describe('checkHiringManagerRouteRegistration', () => {
     mockGetCurrentUser.mockResolvedValue(
       Some({
         ...mockUser,
-        userType: {
-          id: 1,
-          code: 'hiring-manager',
-          nameEn: 'Hiring Manager',
-          nameFr: 'Gestionnaire Embauche',
-        },
+        userType: USER_TYPE_HIRING_MANAGER,
       }),
     );
 

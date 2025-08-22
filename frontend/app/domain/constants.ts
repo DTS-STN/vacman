@@ -102,4 +102,53 @@ export const PREFERRED_LANGUAGE_FRENCH = {
   code: 'FR',
   nameEn: 'French',
   nameFr: 'Français',
-};
+} as const;
+
+export const LANGUAGE_REFERRAL_TYPE_BILLINGUAL = {
+  id: 0,
+  code: 'BILINGUAL',
+  nameEn: 'Bilingual',
+  nameFr: 'Bilingue',
+} as const;
+
+export const LANGUAGE_REFERRAL_TYPE_ENGLISH = {
+  id: 1,
+  code: 'ENGLISH',
+  nameEn: 'English only',
+  nameFr: 'Anglais seulement',
+} as const;
+
+export const LANGUAGE_REFERRAL_TYPE_FRENCH = {
+  id: 2,
+  code: 'FRENCH',
+  nameEn: 'French only',
+  nameFr: 'Français seulement',
+} as const;
+
+export const USER_TYPE_EMPLOYEE = {
+  id: 0,
+  code: 'employee',
+  nameEn: 'Employee',
+  nameFr: 'Employé',
+} as const;
+
+export const USER_TYPE_ADMIN = {
+  id: 1,
+  code: 'admin',
+  nameEn: 'Administrator',
+  nameFr: 'Administrateur',
+} as const;
+
+export const USER_TYPE_HIRING_MANAGER = {
+  id: 2,
+  code: 'hiring-manager',
+  nameEn: 'Hiring Manager',
+  nameFr: 'Gestionnaire de recrutement',
+} as const;
+
+export const USER_TYPE_HR_ADVISOR = {
+  id: 3,
+  code: 'HRA',
+  nameEn: 'HR Advisor',
+  nameFr: 'Conseiller en R.H.',
+} as const;
