@@ -311,6 +311,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
 
   if (actionData && alertRef.current) {
     alertRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    alertRef.current.focus();
   }
 
   const [searchParams] = useSearchParams();
@@ -368,10 +369,20 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
           ref={alertRef}
           type={loaderData.isProfileComplete ? 'success' : 'error'}
           message={loaderData.isProfileComplete ? t('app:profile.profile-submitted') : t('app:profile.profile-incomplete')}
+          role="alert"
+          ariaLive="assertive"
         />
       )}
 
-      {hasEmploymentChanged && <AlertMessage ref={alertRef} type="info" message={t('app:profile.profile-pending-approval')} />}
+      {hasEmploymentChanged && (
+        <AlertMessage
+          ref={alertRef}
+          type="info"
+          message={t('app:profile.profile-pending-approval')}
+          role="status"
+          ariaLive="polite"
+        />
+      )}
 
       {loaderData.profileStatus.code === PROFILE_STATUS_CODE.incomplete && (
         <Progress
