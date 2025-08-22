@@ -45,6 +45,7 @@ import jakarta.validation.Valid;
 @ApiResponses.InternalServerError
 @DependsOn({ SecurityManager.NAME })
 @RequestMapping({ AppConstants.ApiPaths.USERS })
+@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
 public class UsersController {
 
 	private static final Logger log = LoggerFactory.getLogger(UsersController.class);
@@ -66,7 +67,6 @@ public class UsersController {
 	@ApiResponses.AccessDeniedError
 	@ApiResponses.AuthenticationError
 	@PreAuthorize("isAuthenticated()")
-	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
 	@Operation(summary = "Create a new user from the supplied auth token.")
 	public ResponseEntity<UserReadModel> createCurrentUser(@Valid @RequestBody UserCreateModel user) {
 		log.info("Received request to create new user; request: [{}]", user);
@@ -101,11 +101,10 @@ public class UsersController {
 
 	@ApiResponses.Ok
 	@GetMapping({ "/me" })
-	@PreAuthorize("isAuthenticated()")
 	@ApiResponses.AccessDeniedError
 	@ApiResponses.AuthenticationError
-	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
-	@Operation(summary = "Get the current user.", description = "Returns the current user.")
+	@PreAuthorize("isAuthenticated()")
+	@Operation(summary = "Get the current user.")
 	public ResponseEntity<UserReadModel> getCurrentUser() {
 		log.debug("Received request to get current user");
 
@@ -127,15 +126,14 @@ public class UsersController {
 	@ApiResponses.Ok
 	@ApiResponses.AccessDeniedError
 	@ApiResponses.AuthenticationError
-	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
+	@Operation(summary = "Get users with pagination.")
 	@PreAuthorize("hasAuthority('hr-advisor') || (isAuthenticated() && #userType == 'hr-advisor')")
-	@Operation(summary = "Get users with pagination.", description = "Returns a paginated list of users.")
 	public ResponseEntity<PagedModel<UserReadModel>> getUsers(
 			@ParameterObject
 			Pageable pageable,
 
+			@Parameter(description = "Filter by user type.")
 			@RequestParam(name = "user-type", required = false)
-			@Parameter(description = "Filter by user type.", example = "hr-advisor")
 			String userType) {
 		final var users = "hr-advisor".equals(userType)
 			? userService.getHrAdvisors(pageable).map(userModelMapper::toModel)
@@ -150,7 +148,6 @@ public class UsersController {
 	@ApiResponses.AuthenticationError
 	@ApiResponses.ResourceNotFoundError
 	@Operation(summary = "Get a user by ID.")
-	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
 	@PreAuthorize("hasAuthority('hr-advisor') || @securityManager.canAccessUser(#id)")
 	public ResponseEntity<UserReadModel> getUserById(@PathVariable Long id) {
 		final var result = userService.getUserById(id)
@@ -167,7 +164,6 @@ public class UsersController {
 	@ApiResponses.AuthenticationError
 	@ApiResponses.ResourceNotFoundError
 	@Operation(summary = "Update an existing user.")
-	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
 	@PreAuthorize("hasAuthority('hr-advisor') || @securityManager.canAccessUser(#id)")
 	public ResponseEntity<UserReadModel> updateUser(@PathVariable long id, @RequestBody @Valid UserPatchModel updates) {
 		userService.getUserById(id).orElseThrow(asResourceNotFoundException("user", id));
@@ -182,7 +178,6 @@ public class UsersController {
 	@ApiResponses.AuthenticationError
 	@ApiResponses.ResourceNotFoundError
 	@Operation(summary = "Overwrite an existing user.")
-	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
 	@PreAuthorize("hasAuthority('hr-advisor') || @securityManager.canAccessUser(#id)")
 	public ResponseEntity<UserReadModel> updateUser(@PathVariable Long id, @RequestBody @Valid UserPatchModel userUpdate) {
 		userService.getUserById(id).orElseThrow(asResourceNotFoundException("user", id));

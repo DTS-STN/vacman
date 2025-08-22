@@ -10,12 +10,12 @@ import java.util.Collection;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
-import org.hibernate.validator.constraints.Range;
 import org.mapstruct.factory.Mappers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.context.annotation.DependsOn;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -53,6 +53,7 @@ import jakarta.validation.Valid;
 @ApiResponses.InternalServerError
 @DependsOn({ SecurityManager.NAME })
 @RequestMapping({ "/api/v1/profiles" })
+@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
 public class ProfilesController {
 
 	private static final Logger log = LoggerFactory.getLogger(ProfilesController.class);
@@ -77,17 +78,10 @@ public class ProfilesController {
 	@ApiResponses.AccessDeniedError
 	@ApiResponses.AuthenticationError
 	@PreAuthorize("hasAuthority('hr-advisor')")
-	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
 	@Operation(summary = "Retrieve a list of profiles with optional filters on active profiles, inactive profiles, and HR advisor assocation.")
 	public ResponseEntity<PagedModel<ProfileReadModel>> getProfiles(
-			@RequestParam(defaultValue = "0")
-			@Parameter(description = "Page number (0-based")
-			int page,
-
-			@RequestParam(defaultValue = "20")
-			@Range(min = 1, max = 100)
-			@Parameter(description = "Page size (between 1 and 100)")
-			int size,
+			@ParameterObject
+			Pageable pageable,
 
 			@RequestParam(name = "active", required = false)
 			@Parameter(name = "active", description = "Return only active or inactive profiles")
@@ -115,7 +109,7 @@ public class ProfilesController {
 		}
 
 		// Determine the mapping function to use.
-		final var profiles = profileService.getProfilesByStatusAndHrId(PageRequest.of(page, size), isActive, hrAdvisorId)
+		final var profiles = profileService.getProfilesByStatusAndHrId(pageable, isActive, hrAdvisorId)
 			.map(profileModelMapper::toModel);
 
 		return ResponseEntity.ok(new PagedModel<>(profiles));
@@ -126,7 +120,6 @@ public class ProfilesController {
 	@ApiResponses.AccessDeniedError
 	@ApiResponses.AuthenticationError
 	@PreAuthorize("isAuthenticated()")
-	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
 	@Operation(summary = "Retrieve the profiles associated with the authenticated user with optional filters on active profiles, inactive profiles, and HR advisor association.")
 	public ResponseEntity<CollectionModel<ProfileReadModel>> getProfileMe(
 			@RequestParam(name = "active", required = false)
@@ -147,7 +140,6 @@ public class ProfilesController {
 	@ApiResponses.AccessDeniedError
 	@ApiResponses.AuthenticationError
 	@ApiResponses.ResourceNotFoundError
-	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
 	@PreAuthorize("hasAuthority('hr-advisor') || @securityManager.canAccessProfile(#id)")
 	@Operation(summary = "Retrieve the profile specified by ID that is associated with the authenticated user.")
 	public ResponseEntity<ProfileReadModel> getProfileById(@PathVariable Long id) {
@@ -167,7 +159,6 @@ public class ProfilesController {
 	@ApiResponses.AccessDeniedError
 	@ApiResponses.AuthenticationError
 	@PreAuthorize("isAuthenticated()")
-	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
 	@Operation(summary = "Create a new profile associated with the authenticated user.")
 	public ResponseEntity<ProfileReadModel> createCurrentUserProfile() {
 		log.info("Received request to create new profile");
@@ -196,7 +187,6 @@ public class ProfilesController {
 	@ApiResponses.AccessDeniedError
 	@ApiResponses.AuthenticationError
 	@ApiResponses.ResourceNotFoundError
-	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
 	@Operation(summary = "Update an existing profile specified by ID.")
 	@PreAuthorize("hasAuthority('hr-advisor') || @securityManager.canAccessProfile(#profileId)")
 	public ResponseEntity<ProfileReadModel> updateProfileById(@PathVariable(name = "id") Long profileId, @Valid @RequestBody ProfilePutModel updatedProfile) {
@@ -217,7 +207,6 @@ public class ProfilesController {
 	@ApiResponses.AccessDeniedError
 	@ApiResponses.AuthenticationError
 	@ApiResponses.ResourceNotFoundError
-	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
 	@Operation(summary = "Update an existing profile's status code specified by ID.")
 	@PreAuthorize("""
 		(hasAuthority('hr-advisor') && @securityManager.targetProfileStatusIsApprovalOrArchived(#updatedProfileStatus.code)) ||

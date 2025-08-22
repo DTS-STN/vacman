@@ -11,12 +11,12 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import ca.gov.dtsstn.vacman.api.constants.AppConstants;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import ca.gov.dtsstn.vacman.api.constants.AppConstants;
 import ca.gov.dtsstn.vacman.api.data.entity.ClassificationProfileEntityBuilder;
 import ca.gov.dtsstn.vacman.api.data.entity.ProfileCityEntityBuilder;
 import ca.gov.dtsstn.vacman.api.data.entity.ProfileEmploymentOpportunityEntity;
@@ -107,12 +107,12 @@ public class ProfileService {
 	 * Returns all profiles that are either "active" or "inactive" depending on the argument value. Optionally,
 	 * allows for the HR Advisor's ID to be used as an additional filter.
 	 *
-	 * @param pageRequest Pagination information.
+	 * @param pageable Pagination information.
 	 * @param isActive Filter return based on active status.
 	 * @param hrAdvisorId Optional ID for additional filtering. Can be set to {@code null}.
 	 * @return A paginated collection of profile entities.
 	 */
-	public Page<ProfileEntity> getProfilesByStatusAndHrId(PageRequest pageRequest, Boolean isActive, Long hrAdvisorId) {
+	public Page<ProfileEntity> getProfilesByStatusAndHrId(Pageable pageable, Boolean isActive, Long hrAdvisorId) {
 		// Dispatch DB call based on presence of isActive & advisor ID
 		Page<ProfileEntity> profilesPage;
 
@@ -120,13 +120,13 @@ public class ProfileService {
 			final var statusCodes = profileStatusSets.get(isActive);
 
 			profilesPage = (hrAdvisorId == null)
-				? profileRepository.findByProfileStatusCodeIn(statusCodes, pageRequest)
-				: profileRepository.findByProfileStatusCodeInAndHrAdvisorIdIs(statusCodes, hrAdvisorId, pageRequest);
+				? profileRepository.findByProfileStatusCodeIn(statusCodes, pageable)
+				: profileRepository.findByProfileStatusCodeInAndHrAdvisorIdIs(statusCodes, hrAdvisorId, pageable);
 		}
 		else {
 			profilesPage = (hrAdvisorId == null)
-				? profileRepository.findAll(pageRequest)
-				: profileRepository.findAllByHrAdvisorId(hrAdvisorId, pageRequest);
+				? profileRepository.findAll(pageable)
+				: profileRepository.findAllByHrAdvisorId(hrAdvisorId, pageable);
 		}
 
 		if (profilesPage != null && !profilesPage.isEmpty()) {
