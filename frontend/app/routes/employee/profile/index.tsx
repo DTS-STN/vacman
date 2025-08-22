@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { RouteHandle } from 'react-router';
 import { Form, useActionData, useLocation, useNavigate, useNavigation, useSearchParams } from 'react-router';
 
+import { format } from 'date-fns';
 import { useTranslation } from 'react-i18next';
 
 import type { Route } from '../profile/+types/index';
@@ -26,10 +27,10 @@ import { DescriptionList, DescriptionListItem } from '~/components/description-l
 import { ProfileCard } from '~/components/profile-card';
 import { Progress } from '~/components/progress';
 import { StatusTag } from '~/components/status-tag';
-import { PROFILE_STATUS_CODE, EMPLOYEE_WFA_STATUS, PROFILE_STATUS_PENDING } from '~/domain/constants';
+import { PROFILE_STATUS_CODE, EMPLOYEE_WFA_STATUS, PROFILE_STATUS_PENDING, DEFAULT_TIME_ZONE } from '~/domain/constants';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
-import { formatDateTime } from '~/utils/date-utils';
+import { formatDateTimeInZone } from '~/utils/date-utils';
 
 export const handle = {
   i18nNamespace: [...parentHandle.i18nNamespace],
@@ -296,7 +297,10 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       isInterestedInAlternation: profileData.isInterestedInAlternation,
       preferredEmploymentOpportunities: employmentOpportunities?.map((e) => e?.name),
     },
-    lastUpdated: profileData.lastModifiedDate ? formatDateTime(profileData.lastModifiedDate) : '0000-00-00 00:00',
+    lastModifiedDate: profileData.lastModifiedDate ?? undefined,
+    lastUpdated: profileData.lastModifiedDate
+      ? formatDateTimeInZone(profileData.lastModifiedDate, DEFAULT_TIME_ZONE)
+      : '0000-00-00 00:00',
     lastUpdatedBy: profileUpdatedByUserName,
     hasEmploymentChanged,
   };
@@ -319,6 +323,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
   const navigate = useNavigate();
 
   const [hasEmploymentChanged, setHasEmploymentChanged] = useState(loaderData.hasEmploymentChanged);
+  const [lastUpdatedDate, setLastUpdatedDate] = useState(loaderData.lastUpdated);
 
   // Clean the URL after reading the param
   useEffect(() => {
@@ -329,6 +334,17 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
     }
   }, [searchParams, location.pathname, navigate]);
 
+  useEffect(() => {
+    if (!loaderData.lastModifiedDate) return;
+
+    const browserTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    if (browserTimeZone && browserTimeZone !== DEFAULT_TIME_ZONE) {
+      setLastUpdatedDate(formatDateTimeInZone(loaderData.lastModifiedDate, browserTimeZone));
+    } else {
+      setLastUpdatedDate(format(new Date(loaderData.lastModifiedDate), 'yyyy-MM-dd HH:mm'));
+    }
+  }, [loaderData.lastModifiedDate]);
+
   return (
     <div className="space-y-8">
       <div className="space-y-4 py-8 text-white">
@@ -336,7 +352,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
         <h1 className="mt-6 text-3xl font-semibold">{loaderData.name}</h1>
         {loaderData.email && <p className="mt-1">{loaderData.email}</p>}
         <p className="font-normal text-[#9FA3AD]">
-          {t('app:profile.last-updated', { date: loaderData.lastUpdated, name: loaderData.lastUpdatedBy })}
+          {t('app:profile.last-updated', { date: lastUpdatedDate, name: loaderData.lastUpdatedBy })}
         </p>
         <div
           role="presentation"

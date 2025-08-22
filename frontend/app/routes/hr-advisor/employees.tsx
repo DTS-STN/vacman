@@ -4,7 +4,6 @@ import type { RouteHandle } from 'react-router';
 import { useSearchParams } from 'react-router';
 
 import type { ColumnDef } from '@tanstack/react-table';
-import { format } from 'date-fns';
 import { useTranslation } from 'react-i18next';
 
 import type { Route } from './+types/employees';
@@ -18,9 +17,10 @@ import { DataTable, DataTableColumnHeader, DataTableColumnHeaderWithOptions } fr
 import { InputSelect } from '~/components/input-select';
 import { InlineLink } from '~/components/links';
 import { PageTitle } from '~/components/page-title';
-import { PROFILE_STATUS_CODE } from '~/domain/constants';
+import { DEFAULT_TIME_ZONE, PROFILE_STATUS_CODE } from '~/domain/constants';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
+import { formatDateTimeInZone } from '~/utils/date-utils';
 
 export const handle = {
   i18nNamespace: [...parentHandle.i18nNamespace],
@@ -110,9 +110,18 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
       accessorKey: 'dateUpdated',
       header: ({ column }) => <DataTableColumnHeader column={column} title={t('app:hr-advisor-employees-table.updated')} />,
       cell: (info) => {
-        const date = info.row.original.lastModifiedDate;
+        const lastModifiedDate = info.row.original.lastModifiedDate;
         const userUpdated = info.row.original.lastModifiedBy ?? 'Unknown User';
-        const dateUpdated = date !== undefined ? format(new Date(date), 'yyyy-MM-dd') : '0000-00-00';
+
+        let dateUpdated = '0000-00-00';
+        if (lastModifiedDate) {
+          const browserTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+          if (browserTimeZone && browserTimeZone !== DEFAULT_TIME_ZONE) {
+            dateUpdated = formatDateTimeInZone(lastModifiedDate, browserTimeZone, 'yyyy-MM-dd');
+          } else {
+            dateUpdated = formatDateTimeInZone(lastModifiedDate, DEFAULT_TIME_ZONE, 'yyyy-MM-dd');
+          }
+        }
         return <p className="text-neutral-600">{`${dateUpdated}: ${userUpdated}`}</p>;
       },
     },
