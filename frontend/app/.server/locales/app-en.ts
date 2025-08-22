@@ -30,7 +30,7 @@ export default {
     'personal-information': {
       'title': 'Personal information',
       'link-label': 'personal information',
-      'detail': 'Provide your personal and contact details, language preferences, education, and other relevant information.',
+      'detail': 'Provide your contact details, preferred language and other information.',
     },
     'employment': {
       'title': 'Employment information',
@@ -41,7 +41,7 @@ export default {
       'title': 'Referral preferences',
       'link-label': 'referral preferences',
       'detail':
-        'Indicate your preferences for job referrals including job type, classification, language requirements, preferred locations, and availability.',
+        'Indicate your preference for job referrals, including classifications, language requirements and work locations.',
     },
     'back': 'Back to profile',
     'view': 'View my profile',
