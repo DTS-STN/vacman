@@ -26,20 +26,12 @@ export function meta({ loaderData }: Route.MetaArgs) {
 
 export async function loader({ context, request }: Route.LoaderArgs) {
   requireAuthentication(context.session, request);
-  if (!context.session.currentUser) {
-    try {
-      const currentUser = await getUserService().getCurrentUser(context.session.authState.accessToken);
-      context.session.currentUser = currentUser.unwrap();
-    } catch {
-      const language = await getLanguageForCorrespondenceService().findById(LANGUAGE_ID[getLanguage(request) ?? 'en']);
-      const languageId = language.unwrap().id;
-      const currentUser = await getUserService().registerCurrentUser({ languageId }, context.session.authState.accessToken);
-      context.session.currentUser = currentUser.unwrap();
-    } finally {
-      await getProfileService().registerProfile(context.session.authState.accessToken);
-    }
+  const currentUser = await getUserService().getCurrentUser(context.session.authState.accessToken);
+  if (currentUser.isNone()) {
+    const language = await getLanguageForCorrespondenceService().findById(LANGUAGE_ID[getLanguage(request) ?? 'en']);
+    await getUserService().registerCurrentUser({ languageId: language.unwrap().id }, context.session.authState.accessToken);
+    await getProfileService().registerProfile(context.session.authState.accessToken);
   }
-
   const { t } = await getTranslation(request, handle.i18nNamespace);
   return {
     documentTitle: t('app:index.employee-dashboard'),
