@@ -14,7 +14,7 @@ import { getProvinceService } from '~/.server/domain/services/province-service';
 import { getWFAStatuses } from '~/.server/domain/services/wfa-status-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { extractUniqueBranchesFromDirectorates } from '~/.server/utils/directorate-utils';
-import { getHrAdvisors, omitObjectProperties } from '~/.server/utils/profile-utils';
+import { getHrAdvisors, mapProfileToPutModelWithOverrides } from '~/.server/utils/profile-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { BackLink } from '~/components/back-link';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
@@ -53,23 +53,15 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     );
   }
 
-  const profilePayload: ProfilePutModel = {
-    ...profile,
-    ...omitObjectProperties(parseResult.output, [
-      'wfaStartDateYear',
-      'wfaStartDateMonth',
-      'wfaStartDateDay',
-      'wfaEndDateYear',
-      'wfaEndDateMonth',
-      'wfaEndDateDay',
-    ]),
+  const profilePayload: ProfilePutModel = mapProfileToPutModelWithOverrides(profile, {
     classificationId: parseResult.output.substantiveClassification,
     workUnitId: parseResult.output.directorate,
-    preferredLanguages: [],
-    preferredCities: [],
-    preferredClassification: [],
-    preferredEmploymentOpportunities: [],
-  };
+    cityId: parseResult.output.cityId,
+    wfaStatusId: parseResult.output.wfaStatusId,
+    wfaStartDate: parseResult.output.wfaStartDate,
+    wfaEndDate: parseResult.output.wfaEndDate,
+    hrAdvisorId: parseResult.output.hrAdvisorId,
+  });
 
   const updateResult = await profileService.updateProfileById(
     profile.id,

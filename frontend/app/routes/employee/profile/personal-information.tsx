@@ -11,6 +11,7 @@ import { getProfileService } from '~/.server/domain/services/profile-service';
 import { getUserService } from '~/.server/domain/services/user-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { requirePrivacyConsentForOwnProfile } from '~/.server/utils/privacy-consent-utils';
+import { mapProfileToPutModelWithOverrides } from '~/.server/utils/profile-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { BackLink } from '~/components/back-link';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
@@ -98,14 +99,12 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 
   // Update the profile (without fields for updating user)
 
-  const profilePayload: ProfilePutModel = {
-    ...currentProfile,
-    ...personalInformationForProfile,
-    preferredLanguages: [],
-    preferredCities: [],
-    preferredClassification: [],
-    preferredEmploymentOpportunities: [],
-  };
+  const profilePayload: ProfilePutModel = mapProfileToPutModelWithOverrides(currentProfile, {
+    languageOfCorrespondenceId: personalInformationForProfile.languageOfCorrespondenceId,
+    personalEmailAddress: personalInformationForProfile.personalEmailAddress,
+    personalPhoneNumber: personalInformationForProfile.personalPhoneNumber,
+    additionalComment: personalInformationForProfile.additionalComment,
+  });
 
   const updateResult = await profileService.updateProfileById(
     currentProfile.id,

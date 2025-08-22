@@ -14,7 +14,7 @@ import { getProfileService } from '~/.server/domain/services/profile-service';
 import { getProvinceService } from '~/.server/domain/services/province-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { requirePrivacyConsentForOwnProfile } from '~/.server/utils/privacy-consent-utils';
-import { hasReferralDataChanged } from '~/.server/utils/profile-utils';
+import { hasReferralDataChanged, mapProfileToPutModelWithOverrides } from '~/.server/utils/profile-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { BackLink } from '~/components/back-link';
 import { PROFILE_STATUS_ID, PROFILE_STATUS_PENDING, REQUIRE_OPTIONS } from '~/domain/constants';
@@ -65,15 +65,14 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   const oldReferralData = currentProfile;
   const newReferralData = parseResult.output;
 
-  const profilePayload: ProfilePutModel = {
-    ...currentProfile,
+  const profilePayload: ProfilePutModel = mapProfileToPutModelWithOverrides(currentProfile, {
     preferredLanguages: parseResult.output.preferredLanguages,
     preferredClassification: parseResult.output.preferredClassifications,
     preferredCities: parseResult.output.preferredCities,
     isAvailableForReferral: parseResult.output.isAvailableForReferral,
     isInterestedInAlternation: parseResult.output.isInterestedInAlternation,
     preferredEmploymentOpportunities: parseResult.output.preferredEmploymentOpportunities,
-  };
+  });
 
   const updateResult = await profileService.updateProfileById(
     currentProfile.id,
