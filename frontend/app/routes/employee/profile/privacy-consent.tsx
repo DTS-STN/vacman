@@ -129,12 +129,20 @@ function PrivacyEn(): JSX.Element {
         In accordance with the provisions of the Privacy Act, the personal information collected in the{' '}
         <HtmlAbbreviation acronymEnum={Acronym.VMS} /> is described in the Personal Information Bank (
         <HtmlAbbreviation acronymEnum={Acronym.PIB} />){' '}
-        <InlineLink to="https://www.canada.ca/en/treasury-board-secretariat/services/access-information-privacy/access-information/info-source/standard-personal-information-banks.html#pse902">
+        <InlineLink
+          newTabIndicator
+          className="external-link"
+          to="https://www.canada.ca/en/treasury-board-secretariat/services/access-information-privacy/access-information/info-source/standard-personal-information-banks.html#pse902"
+        >
           Staffing - PSE 902
         </InlineLink>
         . The full text of this <HtmlAbbreviation acronymEnum={Acronym.PIB} /> is published in the{' '}
         <HtmlAbbreviation acronymEnum={Acronym.TBS} />{' '}
-        <InlineLink to="https://www.canada.ca/en/treasury-board-secretariat/services/access-information-privacy/access-information/info-source/standard-personal-information-banks.html">
+        <InlineLink
+          newTabIndicator
+          className="external-link"
+          to="https://www.canada.ca/en/treasury-board-secretariat/services/access-information-privacy/access-information/info-source/standard-personal-information-banks.html"
+        >
           Info Source
         </InlineLink>{' '}
         publication.
@@ -194,11 +202,19 @@ function PrivacyFr(): JSX.Element {
         Conformément aux dispositions de la Loi sur la protection des renseignements personnels, les renseignements personnels
         recueillis dans le <HtmlAbbreviation acronymEnum={Acronym.VMS} /> sont décrits dans le fichier de renseignements
         personnels (<HtmlAbbreviation acronymEnum={Acronym.PIB} />){' '}
-        <InlineLink to="https://www.canada.ca/fr/secretariat-conseil-tresor/services/acces-information-protection-reseignements-personnels/acces-information/info-source/fichiers-renseignements-personnels-ordinaires.html#poe9021">
+        <InlineLink
+          newTabIndicator
+          className="external-link"
+          to="https://www.canada.ca/fr/secretariat-conseil-tresor/services/acces-information-protection-reseignements-personnels/acces-information/info-source/fichiers-renseignements-personnels-ordinaires.html#poe9021"
+        >
           Dotation - POE 902
         </InlineLink>
         . Le texte intégral de ce <HtmlAbbreviation acronymEnum={Acronym.PIB} /> est publié dans la publication{' '}
-        <InlineLink to="https://www.canada.ca/fr/secretariat-conseil-tresor/services/acces-information-protection-reseignements-personnels/acces-information/info-source/fichiers-renseignements-personnels-ordinaires.html">
+        <InlineLink
+          newTabIndicator
+          className="external-link"
+          to="https://www.canada.ca/fr/secretariat-conseil-tresor/services/acces-information-protection-reseignements-personnels/acces-information/info-source/fichiers-renseignements-personnels-ordinaires.html"
+        >
           Info Source
         </InlineLink>{' '}
         du <HtmlAbbreviation acronymEnum={Acronym.TBS} /> . Conformément à la Loi sur la protection des renseignements
