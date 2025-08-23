@@ -229,7 +229,7 @@ public class ProfileService {
 				.orElseThrow(asResourceConflictException("Classification", updateModel.classificationId()))));
 
 		Optional.ofNullable(updateModel.cityId()).ifPresent(id ->
-			existingEntity.setCity(cityRepository.findById(id)
+			existingEntity.setSubstantiveCity(cityRepository.findById(id)
 				.orElseThrow(asResourceConflictException("City", updateModel.cityId()))));
 
 		Optional.ofNullable(updateModel.workUnitId()).ifPresent(id ->

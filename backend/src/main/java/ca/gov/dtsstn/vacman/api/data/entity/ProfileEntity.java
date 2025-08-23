@@ -29,11 +29,6 @@ public class ProfileEntity extends AbstractBaseEntity implements Ownable {
 	private String additionalComment;
 
 	@JsonIgnore
-	@ManyToOne
-	@JoinColumn(name = "[CITY_ID]", nullable = true)
-	private CityEntity city;
-
-	@JsonIgnore
 	@OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
 	private Set<ClassificationProfileEntity> classificationProfiles = new HashSet<>();
 
@@ -82,6 +77,11 @@ public class ProfileEntity extends AbstractBaseEntity implements Ownable {
 
 	@ManyToOne
 	@JsonIgnore
+	@JoinColumn(name = "[CITY_ID]", nullable = true)
+	private CityEntity substantiveCity;
+
+	@ManyToOne
+	@JsonIgnore
 	@JoinColumn(name = "[CLASSIFICATION_ID]", nullable = true)
 	private ClassificationEntity substantiveClassification;
 
@@ -114,7 +114,6 @@ public class ProfileEntity extends AbstractBaseEntity implements Ownable {
 	public ProfileEntity(
 			@Nullable Long id,
 			@Nullable String additionalComment,
-			@Nullable CityEntity city,
 			@Nullable Boolean hasConsentedToPrivacyTerms,
 			@Nullable UserEntity hrAdvisor,
 			@Nullable Boolean isAvailableForReferral,
@@ -123,6 +122,7 @@ public class ProfileEntity extends AbstractBaseEntity implements Ownable {
 			@Nullable String personalEmailAddress,
 			@Nullable String personalPhoneNumber,
 			@Nullable ProfileStatusEntity profileStatus,
+			@Nullable CityEntity substantiveCity,
 			@Nullable ClassificationEntity substantiveClassification,
 			@Nullable LocalDate wfaEndDate,
 			@Nullable LocalDate wfaStartDate,
@@ -135,7 +135,6 @@ public class ProfileEntity extends AbstractBaseEntity implements Ownable {
 			@Nullable Instant lastModifiedDate) {
 		super(id, createdBy, createdDate, lastModifiedBy, lastModifiedDate);
 		this.additionalComment = additionalComment;
-		this.city = city;
 		this.hasConsentedToPrivacyTerms = hasConsentedToPrivacyTerms;
 		this.hrAdvisor = hrAdvisor;
 		this.isAvailableForReferral = isAvailableForReferral;
@@ -145,6 +144,7 @@ public class ProfileEntity extends AbstractBaseEntity implements Ownable {
 		this.personalPhoneNumber = personalPhoneNumber;
 		this.profileStatus = profileStatus;
 		this.user = user;
+		this.substantiveCity = substantiveCity;
 		this.substantiveClassification = substantiveClassification;
 		this.wfaEndDate = wfaEndDate;
 		this.wfaStartDate = wfaStartDate;
@@ -158,14 +158,6 @@ public class ProfileEntity extends AbstractBaseEntity implements Ownable {
 
 	public void setAdditionalComment(String additionalComment) {
 		this.additionalComment = additionalComment;
-	}
-
-	public CityEntity getCity() {
-		return city;
-	}
-
-	public void setCity(CityEntity city) {
-		this.city = city;
 	}
 
 	public Set<ClassificationProfileEntity> getClassificationProfiles() {
@@ -264,6 +256,14 @@ public class ProfileEntity extends AbstractBaseEntity implements Ownable {
 		this.profileStatus = profileStatus;
 	}
 
+	public CityEntity getSubstantiveCity() {
+		return substantiveCity;
+	}
+
+	public void setSubstantiveCity(CityEntity substantiveCity) {
+		this.substantiveCity = substantiveCity;
+	}
+
 	public ClassificationEntity getSubstantiveClassification() {
 		return substantiveClassification;
 	}
@@ -324,7 +324,6 @@ public class ProfileEntity extends AbstractBaseEntity implements Ownable {
 		return new ToStringCreator(this)
 			.append("super", super.toString())
 			.append("additionalComment", additionalComment)
-			.append("city", city)
 			.append("hasConsentedToPrivacyTerms", hasConsentedToPrivacyTerms)
 			.append("hrAdvisor.id", Optional.ofNullable(hrAdvisor).map(UserEntity::getId).orElse(null)) // anti-recursion protection
 			.append("isAvailableForReferral", isAvailableForReferral)
@@ -333,6 +332,7 @@ public class ProfileEntity extends AbstractBaseEntity implements Ownable {
 			.append("personalEmailAddress", personalEmailAddress)
 			.append("personalPhoneNumber", personalPhoneNumber)
 			.append("profileStatus", profileStatus)
+			.append("substantiveCity", substantiveCity)
 			.append("substantiveClassification", substantiveClassification)
 			.append("user.id", Optional.ofNullable(user).map(UserEntity::getId).orElse(null)) // anti-recursion protection
 			.append("wfaStatus", wfaStatus)
