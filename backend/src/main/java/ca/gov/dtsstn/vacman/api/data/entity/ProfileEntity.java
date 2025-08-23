@@ -25,31 +25,8 @@ import jakarta.persistence.Table;
 @Table(name = "[PROFILE]")
 public class ProfileEntity extends AbstractBaseEntity implements Ownable {
 
-	@ManyToOne
-	@JsonBackReference
-	@JoinColumn(name = "[USER_ID]", nullable = false)
-	private UserEntity user;
-
-	@ManyToOne
-	@JsonBackReference
-	@JoinColumn(name = "[USER_ID_HR_ADVISOR]", nullable = true)
-	private UserEntity hrAdvisor;
-
-	@JsonIgnore
-	@ManyToOne
-	@JoinColumn(name = "[WFA_STATUS_ID]", nullable = true)
-	private WfaStatusEntity wfaStatus;
-
-	@Column(name = "[WFA_START_DATE]")
-	private LocalDate wfaStartDate;
-
-	@Column(name = "[WFA_END_DATE]")
-	private LocalDate wfaEndDate;
-
-	@JsonIgnore
-	@ManyToOne
-	@JoinColumn(name = "[CLASSIFICATION_ID]", nullable = true)
-	private ClassificationEntity classification;
+	@Column(name = "[ADDITIONAL_COMMENT]", length = 200, nullable = true)
+	private String additionalComment;
 
 	@JsonIgnore
 	@ManyToOne
@@ -58,41 +35,8 @@ public class ProfileEntity extends AbstractBaseEntity implements Ownable {
 
 	@JsonIgnore
 	@ManyToOne
-	@JoinColumn(name = "[WORK_UNIT_ID]", nullable = true)
-	private WorkUnitEntity workUnit;
-
-	@JsonIgnore
-	@ManyToOne
-	@JoinColumn(name = "[LANGUAGE_ID]", nullable = true)
-	private LanguageEntity language;
-
-	@JsonIgnore
-	@ManyToOne
-	@JoinColumn(name = "[PROFILE_STATUS_ID]", nullable = false)
-	private ProfileStatusEntity profileStatus;
-
-	@Column(name = "[PERSONAL_PHONE_NUMBER]", length = 15, nullable = true)
-	private String personalPhoneNumber;
-
-	@Column(name = "[PERSONAL_EMAIL_ADDRESS]", length = 320, nullable = true)
-	private String personalEmailAddress;
-
-	@Column(name = "[PRIVACY_CONSENT_IND]", nullable = true)
-	private Boolean hasConsentedToPrivacyTerms;
-
-	@Column(name = "[AVAILABLE_FOR_REFERRAL_IND]", nullable = true)
-	private Boolean isAvailableForReferral;
-
-	@Column(name = "[INTERESTED_IN_ALTERNATION_IND]", nullable = true)
-	private Boolean isInterestedInAlternation;
-
-	@Column(name = "[ADDITIONAL_COMMENT]", length = 200, nullable = true)
-	private String additionalComment;
-
-	// Collection relationships for many-to-many tables
-	@JsonIgnore
-	@OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
-	private Set<ProfileCityEntity> profileCities = new HashSet<>();
+	@JoinColumn(name = "[CLASSIFICATION_ID]", nullable = true)
+	private ClassificationEntity classification;
 
 	@JsonIgnore
 	@OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -102,9 +46,65 @@ public class ProfileEntity extends AbstractBaseEntity implements Ownable {
 	@OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
 	private Set<ProfileEmploymentOpportunityEntity> employmentOpportunities = new HashSet<>();
 
+	@Column(name = "[PRIVACY_CONSENT_IND]", nullable = true)
+	private Boolean hasConsentedToPrivacyTerms;
+
+	@ManyToOne
+	@JsonBackReference
+	@JoinColumn(name = "[USER_ID_HR_ADVISOR]", nullable = true)
+	private UserEntity hrAdvisor;
+
+	@Column(name = "[AVAILABLE_FOR_REFERRAL_IND]", nullable = true)
+	private Boolean isAvailableForReferral;
+
+	@Column(name = "[INTERESTED_IN_ALTERNATION_IND]", nullable = true)
+	private Boolean isInterestedInAlternation;
+
+	@JsonIgnore
+	@ManyToOne
+	@JoinColumn(name = "[LANGUAGE_ID]", nullable = true)
+	private LanguageEntity language;
+
 	@JsonIgnore
 	@OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
 	private Set<ProfileLanguageReferralTypeEntity> languageReferralTypes = new HashSet<>();
+
+	@Column(name = "[PERSONAL_EMAIL_ADDRESS]", length = 320, nullable = true)
+	private String personalEmailAddress;
+
+	@Column(name = "[PERSONAL_PHONE_NUMBER]", length = 15, nullable = true)
+	private String personalPhoneNumber;
+
+	// Collection relationships for many-to-many tables
+	@JsonIgnore
+	@OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
+	private Set<ProfileCityEntity> profileCities = new HashSet<>();
+
+	@JsonIgnore
+	@ManyToOne
+	@JoinColumn(name = "[PROFILE_STATUS_ID]", nullable = false)
+	private ProfileStatusEntity profileStatus;
+
+	@ManyToOne
+	@JsonBackReference
+	@JoinColumn(name = "[USER_ID]", nullable = false)
+	private UserEntity user;
+
+	@Column(name = "[WFA_END_DATE]")
+	private LocalDate wfaEndDate;
+
+	@Column(name = "[WFA_START_DATE]")
+	private LocalDate wfaStartDate;
+
+	@JsonIgnore
+	@ManyToOne
+	@JoinColumn(name = "[WFA_STATUS_ID]", nullable = true)
+	private WfaStatusEntity wfaStatus;
+
+	@JsonIgnore
+	@ManyToOne
+	@JoinColumn(name = "[WORK_UNIT_ID]", nullable = true)
+	private WorkUnitEntity workUnit;
 
 	public ProfileEntity() {
 		super();
@@ -113,22 +113,22 @@ public class ProfileEntity extends AbstractBaseEntity implements Ownable {
 	@Builder.Constructor
 	public ProfileEntity(
 			@Nullable Long id,
-			@Nullable UserEntity user,
-			@Nullable UserEntity hrAdvisor,
-			@Nullable WfaStatusEntity wfaStatus,
-			@Nullable ClassificationEntity classification,
+			@Nullable String additionalComment,
 			@Nullable CityEntity city,
-			@Nullable WorkUnitEntity workUnit,
-			@Nullable LocalDate wfaStartDate,
-			@Nullable LocalDate wfaEndDate,
-			@Nullable LanguageEntity language,
-			@Nullable ProfileStatusEntity profileStatus,
-			@Nullable String personalPhoneNumber,
-			@Nullable String personalEmailAddress,
+			@Nullable ClassificationEntity classification,
 			@Nullable Boolean hasConsentedToPrivacyTerms,
+			@Nullable UserEntity hrAdvisor,
 			@Nullable Boolean isAvailableForReferral,
 			@Nullable Boolean isInterestedInAlternation,
-			@Nullable String additionalComment,
+			@Nullable LanguageEntity language,
+			@Nullable String personalEmailAddress,
+			@Nullable String personalPhoneNumber,
+			@Nullable ProfileStatusEntity profileStatus,
+			@Nullable LocalDate wfaEndDate,
+			@Nullable LocalDate wfaStartDate,
+			@Nullable WfaStatusEntity wfaStatus,
+			@Nullable WorkUnitEntity workUnit,
+			@Nullable UserEntity user,
 			@Nullable String createdBy,
 			@Nullable Instant createdDate,
 			@Nullable String lastModifiedBy,
@@ -152,52 +152,12 @@ public class ProfileEntity extends AbstractBaseEntity implements Ownable {
 		this.additionalComment = additionalComment;
 	}
 
-	public UserEntity getUser() {
-		return user;
+	public String getAdditionalComment() {
+		return additionalComment;
 	}
 
-	public void setUser(UserEntity user) {
-		this.user = user;
-	}
-
-	public UserEntity getHrAdvisor() {
-		return hrAdvisor;
-	}
-
-	public void setHrAdvisor(UserEntity hrAdvisor) {
-		this.hrAdvisor = hrAdvisor;
-	}
-
-	public WfaStatusEntity getWfaStatus() {
-		return wfaStatus;
-	}
-
-	public void setWfaStatus(WfaStatusEntity wfaStatus) {
-		this.wfaStatus = wfaStatus;
-	}
-
-	public LocalDate getWfaStartDate() {
-		return wfaStartDate;
-	}
-
-	public void setWfaStartDate(LocalDate wfaStartDate) {
-		this.wfaStartDate = wfaStartDate;
-	}
-
-	public LocalDate getWfaEndDate() {
-		return wfaEndDate;
-	}
-
-	public void setWfaEndDate(LocalDate wfaEndDate) {
-		this.wfaEndDate = wfaEndDate;
-	}
-
-	public ClassificationEntity getClassification() {
-		return classification;
-	}
-
-	public void setClassification(ClassificationEntity classification) {
-		this.classification = classification;
+	public void setAdditionalComment(String additionalComment) {
+		this.additionalComment = additionalComment;
 	}
 
 	public CityEntity getCity() {
@@ -208,84 +168,12 @@ public class ProfileEntity extends AbstractBaseEntity implements Ownable {
 		this.city = city;
 	}
 
-	public WorkUnitEntity getWorkUnit() {
-		return workUnit;
+	public ClassificationEntity getClassification() {
+		return classification;
 	}
 
-	public void setWorkUnit(WorkUnitEntity workUnit) {
-		this.workUnit = workUnit;
-	}
-
-	public LanguageEntity getLanguage() {
-		return language;
-	}
-
-	public void setLanguage(LanguageEntity language) {
-		this.language = language;
-	}
-
-	public ProfileStatusEntity getProfileStatus() {
-		return profileStatus;
-	}
-
-	public void setProfileStatus(ProfileStatusEntity profileStatus) {
-		this.profileStatus = profileStatus;
-	}
-
-	public String getPersonalPhoneNumber() {
-		return personalPhoneNumber;
-	}
-
-	public void setPersonalPhoneNumber(String personalPhoneNumber) {
-		this.personalPhoneNumber = personalPhoneNumber;
-	}
-
-	public String getPersonalEmailAddress() {
-		return personalEmailAddress;
-	}
-
-	public void setPersonalEmailAddress(String personalEmailAddress) {
-		this.personalEmailAddress = personalEmailAddress;
-	}
-
-	public Boolean getHasConsentedToPrivacyTerms() {
-		return hasConsentedToPrivacyTerms;
-	}
-
-	public void setHasConsentedToPrivacyTerms(Boolean hasConsentedToPrivacyTerms) {
-		this.hasConsentedToPrivacyTerms = hasConsentedToPrivacyTerms;
-	}
-
-	public Boolean getIsAvailableForReferral() {
-		return isAvailableForReferral;
-	}
-
-	public void setIsAvailableForReferral(Boolean isAvailableForReferral) {
-		this.isAvailableForReferral = isAvailableForReferral;
-	}
-
-	public Boolean getIsInterestedInAlternation() {
-		return isInterestedInAlternation;
-	}
-
-	public void setIsInterestedInAlternation(Boolean isInterestedInAlternation) {
-		this.isInterestedInAlternation = isInterestedInAlternation;
-	}
-
-	public String getAdditionalComment() {
-		return additionalComment;
-	}
-
-	public void setAdditionalComment(String additionalComment) {
-		this.additionalComment = additionalComment;
-	}
-
-	public Set<ProfileCityEntity> getProfileCities() {
-		return profileCities;
-	}
-
-	public void setProfileCities(Set<ProfileCityEntity> profileCities) {
-		this.profileCities = profileCities;
+	public void setClassification(ClassificationEntity classification) {
+		this.classification = classification;
 	}
 
 	public Set<ClassificationProfileEntity> getClassificationProfiles() {
@@ -304,12 +192,124 @@ public class ProfileEntity extends AbstractBaseEntity implements Ownable {
 		this.employmentOpportunities = employmentOpportunities;
 	}
 
+	public Boolean getHasConsentedToPrivacyTerms() {
+		return hasConsentedToPrivacyTerms;
+	}
+
+	public void setHasConsentedToPrivacyTerms(Boolean hasConsentedToPrivacyTerms) {
+		this.hasConsentedToPrivacyTerms = hasConsentedToPrivacyTerms;
+	}
+
+	public UserEntity getHrAdvisor() {
+		return hrAdvisor;
+	}
+
+	public void setHrAdvisor(UserEntity hrAdvisor) {
+		this.hrAdvisor = hrAdvisor;
+	}
+
+	public Boolean getIsAvailableForReferral() {
+		return isAvailableForReferral;
+	}
+
+	public void setIsAvailableForReferral(Boolean isAvailableForReferral) {
+		this.isAvailableForReferral = isAvailableForReferral;
+	}
+
+	public Boolean getIsInterestedInAlternation() {
+		return isInterestedInAlternation;
+	}
+
+	public void setIsInterestedInAlternation(Boolean isInterestedInAlternation) {
+		this.isInterestedInAlternation = isInterestedInAlternation;
+	}
+
+	public LanguageEntity getLanguage() {
+		return language;
+	}
+
+	public void setLanguage(LanguageEntity language) {
+		this.language = language;
+	}
+
 	public Set<ProfileLanguageReferralTypeEntity> getLanguageReferralTypes() {
 		return languageReferralTypes;
 	}
 
 	public void setLanguageReferralTypes(Set<ProfileLanguageReferralTypeEntity> languageReferralTypes) {
 		this.languageReferralTypes = languageReferralTypes;
+	}
+
+	public String getPersonalEmailAddress() {
+		return personalEmailAddress;
+	}
+
+	public void setPersonalEmailAddress(String personalEmailAddress) {
+		this.personalEmailAddress = personalEmailAddress;
+	}
+
+	public String getPersonalPhoneNumber() {
+		return personalPhoneNumber;
+	}
+
+	public void setPersonalPhoneNumber(String personalPhoneNumber) {
+		this.personalPhoneNumber = personalPhoneNumber;
+	}
+
+	public Set<ProfileCityEntity> getProfileCities() {
+		return profileCities;
+	}
+
+	public void setProfileCities(Set<ProfileCityEntity> profileCities) {
+		this.profileCities = profileCities;
+	}
+
+	public ProfileStatusEntity getProfileStatus() {
+		return profileStatus;
+	}
+
+	public void setProfileStatus(ProfileStatusEntity profileStatus) {
+		this.profileStatus = profileStatus;
+	}
+
+	public UserEntity getUser() {
+		return user;
+	}
+
+	public void setUser(UserEntity user) {
+		this.user = user;
+	}
+
+	public LocalDate getWfaEndDate() {
+		return wfaEndDate;
+	}
+
+	public void setWfaEndDate(LocalDate wfaEndDate) {
+		this.wfaEndDate = wfaEndDate;
+	}
+
+	public LocalDate getWfaStartDate() {
+		return wfaStartDate;
+	}
+
+	public void setWfaStartDate(LocalDate wfaStartDate) {
+		this.wfaStartDate = wfaStartDate;
+	}
+
+	public WfaStatusEntity getWfaStatus() {
+		return wfaStatus;
+	}
+
+	public void setWfaStatus(WfaStatusEntity wfaStatus) {
+		this.wfaStatus = wfaStatus;
+	}
+
+	public WorkUnitEntity getWorkUnit() {
+		return workUnit;
+	}
+
+	public void setWorkUnit(WorkUnitEntity workUnit) {
+		this.workUnit = workUnit;
 	}
 
 	@Override
