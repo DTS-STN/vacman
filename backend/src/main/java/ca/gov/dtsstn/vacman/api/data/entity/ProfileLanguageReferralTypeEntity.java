@@ -1,7 +1,6 @@
 package ca.gov.dtsstn.vacman.api.data.entity;
 
 import java.time.Instant;
-import java.util.Objects;
 
 import org.immutables.builder.Builder;
 import org.springframework.core.style.ToStringCreator;
@@ -13,10 +12,9 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
 
 @Entity(name = "ProfileLanguageReferralType")
-@Table(name = "[PROFILE_LANGUAGE_REFERRAL_TYPE]", uniqueConstraints = { @UniqueConstraint(name = "PLNGRLTYP_UK", columnNames = { "[PROFILE_ID]", "[LANGUAGE_REFERRAL_TYPE_ID]" }) })
+@Table(name = "[PROFILE_LANGUAGE_REFERRAL_TYPE]")
 public class ProfileLanguageReferralTypeEntity extends AbstractBaseEntity {
 
 	@ManyToOne
@@ -69,25 +67,6 @@ public class ProfileLanguageReferralTypeEntity extends AbstractBaseEntity {
 			.append("languageReferralType", languageReferralType)
 			.append("profile", profile)
 			.toString();
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
-
-		if (!(obj instanceof final ProfileLanguageReferralTypeEntity that)) {
-			return false;
-		}
-
-		return Objects.equals(this.profile, that.profile) && Objects.equals(this.languageReferralType, that.languageReferralType);
-
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(profile, languageReferralType);
 	}
 
 }

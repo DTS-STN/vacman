@@ -10,10 +10,9 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
 
 @Entity(name = "RequestEmploymentEquity")
-@Table(name = "[REQUEST_EMPLOYMENT_EQUITY]", uniqueConstraints = { @UniqueConstraint(name = "RQSTEMPLYMNTEQT_UK", columnNames = { "[EMPLOYMENT_EQUITY_ID]", "[REQUEST_ID]" }) })
+@Table(name = "[REQUEST_EMPLOYMENT_EQUITY]")
 public class RequestEmploymentEquityEntity extends AbstractBaseEntity {
 
 	@ManyToOne

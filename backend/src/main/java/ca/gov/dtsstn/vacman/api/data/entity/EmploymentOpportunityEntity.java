@@ -8,10 +8,9 @@ import org.springframework.core.style.ToStringCreator;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
 
 @Entity(name = "EmploymentOpportunity")
-@Table(name = "[CD_EMPLOYMENT_OPPORTUNITY]", uniqueConstraints = { @UniqueConstraint(name = "EMPOPPR_UK", columnNames = "[EMPLOYMENT_OPPORTUNITY_NAME_EN]") })
+@Table(name = "[CD_EMPLOYMENT_OPPORTUNITY]")
 public class EmploymentOpportunityEntity extends AbstractCodeEntity {
 
 	public EmploymentOpportunityEntity() {

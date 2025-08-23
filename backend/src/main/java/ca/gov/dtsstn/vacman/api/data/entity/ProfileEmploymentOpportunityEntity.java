@@ -1,7 +1,6 @@
 package ca.gov.dtsstn.vacman.api.data.entity;
 
 import java.time.Instant;
-import java.util.Objects;
 
 import org.immutables.builder.Builder;
 import org.springframework.core.style.ToStringCreator;
@@ -13,10 +12,9 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
 
 @Entity(name = "ProfileEmploymentOpportunity")
-@Table(name = "[PROFILE_EMPLOYMENT_OPPORTUNITY]", uniqueConstraints = { @UniqueConstraint(name = "PEMPOPPR_UK", columnNames = { "[EMPLOYMENT_OPPORTUNITY_ID]", "[PROFILE_ID]" }) })
+@Table(name = "[PROFILE_EMPLOYMENT_OPPORTUNITY]")
 public class ProfileEmploymentOpportunityEntity extends AbstractBaseEntity {
 
 	@ManyToOne
@@ -65,29 +63,10 @@ public class ProfileEmploymentOpportunityEntity extends AbstractBaseEntity {
 	@Override
 	public String toString() {
 		return new ToStringCreator(this)
-				.append("super", super.toString())
-				.append("employmentOpportunity", employmentOpportunity)
-				.append("profile", profile)
-				.toString();
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
-
-		if (!(obj instanceof final ProfileEmploymentOpportunityEntity that)) {
-			return false;
-		}
-
-		return Objects.equals(this.profile, that.profile) && Objects.equals(this.employmentOpportunity, that.employmentOpportunity);
-
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(profile, employmentOpportunity);
+			.append("super", super.toString())
+			.append("employmentOpportunity", employmentOpportunity)
+			.append("profile", profile)
+			.toString();
 	}
 
 }

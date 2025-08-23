@@ -8,10 +8,9 @@ import org.springframework.core.style.ToStringCreator;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
 
 @Entity(name = "LanguageReferralType")
-@Table(name = "[CD_LANGUAGE_REFERRAL_TYPE]", uniqueConstraints = { @UniqueConstraint(name = "LNGRFRTYP_UK", columnNames = "[LANGUAGE_REFERRAL_TYPE_NAME_EN]") })
+@Table(name = "[CD_LANGUAGE_REFERRAL_TYPE]")
 public class LanguageReferralTypeEntity extends AbstractCodeEntity {
 
 	public LanguageReferralTypeEntity() {

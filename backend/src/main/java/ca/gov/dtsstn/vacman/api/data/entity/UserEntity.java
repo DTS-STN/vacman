@@ -16,10 +16,9 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
 
 @Entity(name = "User")
-@Table(name = "[USER]", uniqueConstraints = { @UniqueConstraint(name = "USER_NAME_UK", columnNames = { "[MS_ENTRA_ID]" }) })
+@Table(name = "[USER]")
 public class UserEntity extends AbstractBaseEntity implements Ownable {
 
 	@Column(name = "[BUSINESS_EMAIL_ADDRESS]", length = 320, nullable = false)
@@ -34,8 +33,8 @@ public class UserEntity extends AbstractBaseEntity implements Ownable {
 	@Column(name = "[INITIAL]", length = 4, nullable = true)
 	private String initial;
 
-	@JsonIgnore
 	@ManyToOne
+	@JsonIgnore
 	@JoinColumn(name = "[LANGUAGE_ID]", nullable = false)
 	private LanguageEntity language;
 
@@ -51,12 +50,12 @@ public class UserEntity extends AbstractBaseEntity implements Ownable {
 	@Column(name = "[PERSONAL_RECORD_IDENTIFIER]", length = 10, nullable = true)
 	private String personalRecordIdentifier;
 
-	@JsonIgnore // no need to emit this in the events
+	@JsonIgnore
 	@OneToMany(mappedBy = "user")
 	private Set<ProfileEntity> profiles;
 
-	@JsonIgnore
 	@ManyToOne
+	@JsonIgnore
 	@JoinColumn(name = "[USER_TYPE_ID]", nullable = false)
 	private UserTypeEntity userType;
 

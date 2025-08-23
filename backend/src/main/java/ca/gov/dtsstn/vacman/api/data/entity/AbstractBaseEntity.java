@@ -34,7 +34,7 @@ public abstract class AbstractBaseEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "[ID]", nullable = false, updatable = false)
+	@Column(name = "[ID]", nullable = false, unique = true, updatable = false)
 	protected Long id;
 
 	@JsonIgnore

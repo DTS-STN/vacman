@@ -8,10 +8,9 @@ import org.springframework.core.style.ToStringCreator;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
 
 @Entity(name = "Province")
-@Table(name = "[CD_PROVINCE_TERRITORY]", uniqueConstraints = { @UniqueConstraint(name = "PRVNCTRY_UK", columnNames = "[PROVINCE_TERRITORY_NAME_EN]") })
+@Table(name = "[CD_PROVINCE_TERRITORY]")
 public class ProvinceEntity extends AbstractCodeEntity {
 
 	public ProvinceEntity() {

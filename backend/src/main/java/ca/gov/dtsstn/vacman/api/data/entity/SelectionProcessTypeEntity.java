@@ -8,10 +8,9 @@ import org.springframework.core.style.ToStringCreator;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
 
 @Entity(name = "SelectionProcessType")
-@Table(name = "[CD_SELECTION_PROCESS_TYPE]", uniqueConstraints = { @UniqueConstraint(name = "SLCTNPRCSSTYP_UK", columnNames = "[SELECTION_PROCESS_TYPE_NAME_EN]") })
+@Table(name = "[CD_SELECTION_PROCESS_TYPE]")
 public class SelectionProcessTypeEntity extends AbstractCodeEntity {
 
 	public SelectionProcessTypeEntity() {

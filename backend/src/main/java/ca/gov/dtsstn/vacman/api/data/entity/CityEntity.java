@@ -10,10 +10,9 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
 
 @Entity(name = "City")
-@Table(name = "[CD_CITY]", uniqueConstraints = { @UniqueConstraint(name = "CITY_UK", columnNames = { "[CITY_NAME_EN]", "[PROVINCE_TERRITORY_ID]" }) })
+@Table(name = "[CD_CITY]")
 public class CityEntity extends AbstractCodeEntity {
 
 	@ManyToOne

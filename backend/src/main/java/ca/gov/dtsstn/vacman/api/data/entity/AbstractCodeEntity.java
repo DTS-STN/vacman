@@ -9,7 +9,6 @@ import org.springframework.core.style.ToStringCreator;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
-import jakarta.validation.constraints.NotNull;
 
 @Immutable
 @MappedSuperclass
@@ -26,7 +25,6 @@ public abstract class AbstractCodeEntity extends AbstractBaseEntity {
 	protected String code;
 
 	@Column(name = "[EFFECTIVE_DATE]", nullable = false)
-	@NotNull(message = "Effective date is required")
 	protected Instant effectiveDate;
 
 	@Column(name = "[EXPIRY_DATE]")
@@ -37,7 +35,6 @@ public abstract class AbstractCodeEntity extends AbstractBaseEntity {
 
 	@Column(name = "[NAME_FR]", length = 100, nullable = false)
 	protected String nameFr;
-
 
 	public AbstractCodeEntity() {
 		super();

@@ -8,10 +8,9 @@ import org.springframework.core.style.ToStringCreator;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
 
 @Entity(name = "RequestStatus")
-@Table(name = "[CD_REQUEST_STATUS]", uniqueConstraints = { @UniqueConstraint(name = "CDRSTS_UK", columnNames = "[REQUEST_STATUS_NAME_EN]") })
+@Table(name = "[CD_REQUEST_STATUS]")
 public class RequestStatusEntity extends AbstractCodeEntity {
 
 	public RequestStatusEntity() {

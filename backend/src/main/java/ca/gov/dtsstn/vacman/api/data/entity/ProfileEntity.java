@@ -134,22 +134,22 @@ public class ProfileEntity extends AbstractBaseEntity implements Ownable {
 			@Nullable String lastModifiedBy,
 			@Nullable Instant lastModifiedDate) {
 		super(id, createdBy, createdDate, lastModifiedBy, lastModifiedDate);
-		this.user = user;
-		this.hrAdvisor = hrAdvisor;
-		this.wfaStatus = wfaStatus;
-		this.wfaStartDate = wfaStartDate;
-		this.wfaEndDate = wfaEndDate;
-		this.classification = classification;
+		this.additionalComment = additionalComment;
 		this.city = city;
-		this.workUnit = workUnit;
-		this.language = language;
-		this.profileStatus = profileStatus;
-		this.personalPhoneNumber = personalPhoneNumber;
-		this.personalEmailAddress = personalEmailAddress;
+		this.classification = classification;
 		this.hasConsentedToPrivacyTerms = hasConsentedToPrivacyTerms;
+		this.hrAdvisor = hrAdvisor;
 		this.isAvailableForReferral = isAvailableForReferral;
 		this.isInterestedInAlternation = isInterestedInAlternation;
-		this.additionalComment = additionalComment;
+		this.language = language;
+		this.personalEmailAddress = personalEmailAddress;
+		this.personalPhoneNumber = personalPhoneNumber;
+		this.profileStatus = profileStatus;
+		this.user = user;
+		this.wfaEndDate = wfaEndDate;
+		this.wfaStartDate = wfaStartDate;
+		this.wfaStatus = wfaStatus;
+		this.workUnit = workUnit;
 	}
 
 	public String getAdditionalComment() {

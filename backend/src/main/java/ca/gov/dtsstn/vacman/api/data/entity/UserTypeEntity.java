@@ -8,10 +8,9 @@ import org.springframework.core.style.ToStringCreator;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
 
 @Entity(name = "UserType")
-@Table(name = "[CD_USER_TYPE]", uniqueConstraints = { @UniqueConstraint(name = "USERTYP_UK", columnNames = "[USER_TYPE_NAME_EN]") })
+@Table(name = "[CD_USER_TYPE]")
 public class UserTypeEntity extends AbstractCodeEntity {
 
 	public UserTypeEntity() {

@@ -1,7 +1,6 @@
 package ca.gov.dtsstn.vacman.api.data.entity;
 
 import java.time.Instant;
-import java.util.Objects;
 
 import org.immutables.builder.Builder;
 import org.springframework.core.style.ToStringCreator;
@@ -13,10 +12,9 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
 
 @Entity(name = "ProfileCity")
-@Table(name = "[PROFILE_CITY]", uniqueConstraints = { @UniqueConstraint(name = "PRFLCTY_UK", columnNames = { "[PROFILE_ID]", "[CITY_ID]" }) })
+@Table(name = "[PROFILE_CITY]")
 public class ProfileCityEntity extends AbstractBaseEntity {
 
 	@ManyToOne
@@ -69,25 +67,6 @@ public class ProfileCityEntity extends AbstractBaseEntity {
 			.append("city", city)
 			.append("profile", profile)
 			.toString();
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
-
-		if (!(obj instanceof final ProfileCityEntity that)) {
-			return false;
-		}
-
-		return Objects.equals(this.profile, that.profile) && Objects.equals(this.city, that.city);
-
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(profile, city);
 	}
 
 }

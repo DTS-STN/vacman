@@ -8,10 +8,9 @@ import org.springframework.core.style.ToStringCreator;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
 
 @Entity(name = "WfaStatus")
-@Table(name = "[CD_WFA_STATUS]", uniqueConstraints = { @UniqueConstraint(name = "WFASTS_UK", columnNames = "[WFA_STATUS_NAME_EN]") })
+@Table(name = "[CD_WFA_STATUS]")
 public class WfaStatusEntity extends AbstractCodeEntity {
 
 	public WfaStatusEntity() {

@@ -11,10 +11,9 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
 
 @Entity(name = "WorkUnit")
-@Table(name = "[CD_WORK_UNIT]", uniqueConstraints = { @UniqueConstraint(name = "WRKUNT_UK", columnNames = "[WORK_UNIT_NAME_EN]") })
+@Table(name = "[CD_WORK_UNIT]")
 public class WorkUnitEntity extends AbstractCodeEntity {
 
 	@ManyToOne
