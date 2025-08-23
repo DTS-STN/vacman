@@ -46,10 +46,10 @@ public class ProfileEntity extends AbstractBaseEntity implements Ownable {
 	@Column(name = "[INTERESTED_IN_ALTERNATION_IND]", nullable = true)
 	private Boolean isInterestedInAlternation;
 
-	@JsonIgnore
 	@ManyToOne
+	@JsonIgnore
 	@JoinColumn(name = "[LANGUAGE_ID]", nullable = true)
-	private LanguageEntity language;
+	private LanguageEntity languageOfCorrespondence;
 
 	@JsonIgnore
 	@OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -84,6 +84,11 @@ public class ProfileEntity extends AbstractBaseEntity implements Ownable {
 	@JoinColumn(name = "[CLASSIFICATION_ID]", nullable = true)
 	private ClassificationEntity substantiveClassification;
 
+	@JsonIgnore
+	@ManyToOne
+	@JoinColumn(name = "[WORK_UNIT_ID]", nullable = true)
+	private WorkUnitEntity substantiveWorkUnit;
+
 	@ManyToOne
 	@JsonBackReference
 	@JoinColumn(name = "[USER_ID]", nullable = false)
@@ -100,11 +105,6 @@ public class ProfileEntity extends AbstractBaseEntity implements Ownable {
 	@JoinColumn(name = "[WFA_STATUS_ID]", nullable = true)
 	private WfaStatusEntity wfaStatus;
 
-	@JsonIgnore
-	@ManyToOne
-	@JoinColumn(name = "[WORK_UNIT_ID]", nullable = true)
-	private WorkUnitEntity workUnit;
-
 	public ProfileEntity() {
 		super();
 	}
@@ -117,17 +117,17 @@ public class ProfileEntity extends AbstractBaseEntity implements Ownable {
 			@Nullable UserEntity hrAdvisor,
 			@Nullable Boolean isAvailableForReferral,
 			@Nullable Boolean isInterestedInAlternation,
-			@Nullable LanguageEntity language,
+			@Nullable LanguageEntity languageOfCorrespondence,
 			@Nullable String personalEmailAddress,
 			@Nullable String personalPhoneNumber,
 			@Nullable Set<ClassificationProfileEntity> preferredClassifications,
 			@Nullable ProfileStatusEntity profileStatus,
 			@Nullable CityEntity substantiveCity,
 			@Nullable ClassificationEntity substantiveClassification,
+			@Nullable WorkUnitEntity substantiveWorkUnit,
 			@Nullable LocalDate wfaEndDate,
 			@Nullable LocalDate wfaStartDate,
 			@Nullable WfaStatusEntity wfaStatus,
-			@Nullable WorkUnitEntity workUnit,
 			@Nullable UserEntity user,
 			@Nullable String createdBy,
 			@Nullable Instant createdDate,
@@ -139,7 +139,7 @@ public class ProfileEntity extends AbstractBaseEntity implements Ownable {
 		this.hrAdvisor = hrAdvisor;
 		this.isAvailableForReferral = isAvailableForReferral;
 		this.isInterestedInAlternation = isInterestedInAlternation;
-		this.language = language;
+		this.languageOfCorrespondence = languageOfCorrespondence;
 		this.preferredClassifications = preferredClassifications;
 		this.personalEmailAddress = personalEmailAddress;
 		this.personalPhoneNumber = personalPhoneNumber;
@@ -147,10 +147,10 @@ public class ProfileEntity extends AbstractBaseEntity implements Ownable {
 		this.user = user;
 		this.substantiveCity = substantiveCity;
 		this.substantiveClassification = substantiveClassification;
+		this.substantiveWorkUnit = substantiveWorkUnit;
 		this.wfaEndDate = wfaEndDate;
 		this.wfaStartDate = wfaStartDate;
 		this.wfaStatus = wfaStatus;
-		this.workUnit = workUnit;
 	}
 
 	public String getAdditionalComment() {
@@ -201,12 +201,12 @@ public class ProfileEntity extends AbstractBaseEntity implements Ownable {
 		this.isInterestedInAlternation = isInterestedInAlternation;
 	}
 
-	public LanguageEntity getLanguage() {
-		return language;
+	public LanguageEntity getLanguageOfCorrespondence() {
+		return languageOfCorrespondence;
 	}
 
-	public void setLanguage(LanguageEntity language) {
-		this.language = language;
+	public void setLanguageOfCorrespondence(LanguageEntity language) {
+		this.languageOfCorrespondence = language;
 	}
 
 	public Set<ProfileLanguageReferralTypeEntity> getLanguageReferralTypes() {
@@ -273,6 +273,14 @@ public class ProfileEntity extends AbstractBaseEntity implements Ownable {
 		this.substantiveClassification = classification;
 	}
 
+	public WorkUnitEntity getSubstantiveWorkUnit() {
+		return substantiveWorkUnit;
+	}
+
+	public void setSubstantiveWorkUnit(WorkUnitEntity substantiveWorkUnit) {
+		this.substantiveWorkUnit = substantiveWorkUnit;
+	}
+
 	public UserEntity getUser() {
 		return user;
 	}
@@ -305,14 +313,6 @@ public class ProfileEntity extends AbstractBaseEntity implements Ownable {
 		this.wfaStatus = wfaStatus;
 	}
 
-	public WorkUnitEntity getWorkUnit() {
-		return workUnit;
-	}
-
-	public void setWorkUnit(WorkUnitEntity workUnit) {
-		this.workUnit = workUnit;
-	}
-
 	@Override
 	public Long getOwnerId() {
 		return Optional.ofNullable(user)
@@ -329,16 +329,16 @@ public class ProfileEntity extends AbstractBaseEntity implements Ownable {
 			.append("hrAdvisor.id", Optional.ofNullable(hrAdvisor).map(UserEntity::getId).orElse(null)) // anti-recursion protection
 			.append("isAvailableForReferral", isAvailableForReferral)
 			.append("isInterestedInAlternation", isInterestedInAlternation)
-			.append("language", language)
+			.append("languageOfCorrespondence", languageOfCorrespondence)
 			.append("personalEmailAddress", personalEmailAddress)
 			.append("personalPhoneNumber", personalPhoneNumber)
 			.append("preferredClassifications", preferredClassifications)
 			.append("profileStatus", profileStatus)
 			.append("substantiveCity", substantiveCity)
 			.append("substantiveClassification", substantiveClassification)
+			.append("substantiveWorkUnit", substantiveWorkUnit)
 			.append("user.id", Optional.ofNullable(user).map(UserEntity::getId).orElse(null)) // anti-recursion protection
 			.append("wfaStatus", wfaStatus)
-			.append("workUnit", workUnit)
 			.toString();
 	}
 

@@ -221,7 +221,7 @@ public class ProfileService {
 				.orElseThrow(asResourceConflictException("HR Advisor", updateModel.hrAdvisorId()))));
 
 		Optional.ofNullable(updateModel.languageOfCorrespondenceId()).ifPresent(id ->
-			existingEntity.setLanguage(languageRepository.findById(id)
+			existingEntity.setLanguageOfCorrespondence(languageRepository.findById(id)
 				.orElseThrow(asResourceConflictException("Language", updateModel.languageOfCorrespondenceId()))));
 
 		Optional.ofNullable(updateModel.classificationId()).ifPresent(id ->
@@ -233,7 +233,7 @@ public class ProfileService {
 				.orElseThrow(asResourceConflictException("City", updateModel.cityId()))));
 
 		Optional.ofNullable(updateModel.workUnitId()).ifPresent(id ->
-			existingEntity.setWorkUnit(workUnitRepository.findById(id)
+			existingEntity.setSubstantiveWorkUnit(workUnitRepository.findById(id)
 				.orElseThrow(asResourceConflictException("Work Unit", updateModel.workUnitId()))));
 
 		Optional.ofNullable(updateModel.wfaStatusId()).ifPresent(id ->

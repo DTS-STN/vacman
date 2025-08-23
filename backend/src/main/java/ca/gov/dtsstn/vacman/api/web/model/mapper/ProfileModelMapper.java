@@ -19,8 +19,6 @@ public interface ProfileModelMapper {
 
 	@Mapping(source = "user", target = "profileUser")
 	@Mapping(source = "hrAdvisor.id", target = "hrAdvisorId")
-	@Mapping(source = "language", target = "languageOfCorrespondence")
-	@Mapping(source = "workUnit", target = "substantiveWorkUnit")
 	@Mapping(source = "profileCities", target = "preferredCities")
 	@Mapping(source = "employmentOpportunities", target = "preferredEmploymentOpportunities")
 	@Mapping(source = "languageReferralTypes", target = "preferredLanguages")
