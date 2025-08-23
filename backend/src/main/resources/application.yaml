@@ -48,6 +48,8 @@ spring:
       enabled: false
   jackson:
     default-property-inclusion: non-null
+    mapper:
+      sort-properties-alphabetically: true
     serialization:
       indent-output: true
 
