@@ -19,9 +19,6 @@ public interface ProfileModelMapper {
 
 	@Mapping(source = "user", target = "profileUser")
 	@Mapping(source = "hrAdvisor.id", target = "hrAdvisorId")
-	@Mapping(source = "profileCities", target = "preferredCities")
-	@Mapping(source = "employmentOpportunities", target = "preferredEmploymentOpportunities")
-	@Mapping(source = "languageReferralTypes", target = "preferredLanguages")
 	ProfileReadModel toModel(ProfileEntity entity);
 
 	@Mapping(source = "city", target = ".")

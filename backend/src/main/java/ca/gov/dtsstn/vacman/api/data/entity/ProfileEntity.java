@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.immutables.builder.Builder;
 import org.springframework.core.style.ToStringCreator;
 
@@ -28,10 +29,6 @@ public class ProfileEntity extends AbstractBaseEntity implements Ownable {
 	@Column(name = "[ADDITIONAL_COMMENT]", length = 200, nullable = true)
 	private String additionalComment;
 
-	@JsonIgnore
-	@OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
-	private Set<ProfileEmploymentOpportunityEntity> employmentOpportunities = new HashSet<>();
-
 	@Column(name = "[PRIVACY_CONSENT_IND]", nullable = true)
 	private Boolean hasConsentedToPrivacyTerms;
 
@@ -51,10 +48,6 @@ public class ProfileEntity extends AbstractBaseEntity implements Ownable {
 	@JoinColumn(name = "[LANGUAGE_ID]", nullable = true)
 	private LanguageEntity languageOfCorrespondence;
 
-	@JsonIgnore
-	@OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
-	private Set<ProfileLanguageReferralTypeEntity> languageReferralTypes = new HashSet<>();
-
 	@Column(name = "[PERSONAL_EMAIL_ADDRESS]", length = 320, nullable = true)
 	private String personalEmailAddress;
 
@@ -67,7 +60,15 @@ public class ProfileEntity extends AbstractBaseEntity implements Ownable {
 
 	@JsonIgnore
 	@OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
-	private Set<ProfileCityEntity> profileCities = new HashSet<>();
+	private Set<ProfileCityEntity> preferredCities = new HashSet<>();
+
+	@JsonIgnore
+	@OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
+	private Set<ProfileEmploymentOpportunityEntity> preferredEmploymentOpportunities = new HashSet<>();
+
+	@JsonIgnore
+	@OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
+	private Set<ProfileLanguageReferralTypeEntity> preferredLanguages = new HashSet<>();
 
 	@JsonIgnore
 	@ManyToOne
@@ -121,6 +122,9 @@ public class ProfileEntity extends AbstractBaseEntity implements Ownable {
 			@Nullable String personalEmailAddress,
 			@Nullable String personalPhoneNumber,
 			@Nullable Set<ClassificationProfileEntity> preferredClassifications,
+			@Nullable Set<ProfileCityEntity> preferredCities,
+			@Nullable Set<ProfileEmploymentOpportunityEntity> preferredEmploymentOpportunities,
+			@Nullable Set<ProfileLanguageReferralTypeEntity> preferredLanguages,
 			@Nullable ProfileStatusEntity profileStatus,
 			@Nullable CityEntity substantiveCity,
 			@Nullable ClassificationEntity substantiveClassification,
@@ -141,8 +145,11 @@ public class ProfileEntity extends AbstractBaseEntity implements Ownable {
 		this.isInterestedInAlternation = isInterestedInAlternation;
 		this.languageOfCorrespondence = languageOfCorrespondence;
 		this.preferredClassifications = preferredClassifications;
+		this.preferredEmploymentOpportunities = preferredEmploymentOpportunities;
+		this.preferredLanguages = preferredLanguages;
 		this.personalEmailAddress = personalEmailAddress;
 		this.personalPhoneNumber = personalPhoneNumber;
+		this.preferredCities = preferredCities;
 		this.profileStatus = profileStatus;
 		this.user = user;
 		this.substantiveCity = substantiveCity;
@@ -159,14 +166,6 @@ public class ProfileEntity extends AbstractBaseEntity implements Ownable {
 
 	public void setAdditionalComment(String additionalComment) {
 		this.additionalComment = additionalComment;
-	}
-
-	public Set<ProfileEmploymentOpportunityEntity> getEmploymentOpportunities() {
-		return employmentOpportunities;
-	}
-
-	public void setEmploymentOpportunities(Set<ProfileEmploymentOpportunityEntity> employmentOpportunities) {
-		this.employmentOpportunities = employmentOpportunities;
 	}
 
 	public Boolean getHasConsentedToPrivacyTerms() {
@@ -209,14 +208,6 @@ public class ProfileEntity extends AbstractBaseEntity implements Ownable {
 		this.languageOfCorrespondence = language;
 	}
 
-	public Set<ProfileLanguageReferralTypeEntity> getLanguageReferralTypes() {
-		return languageReferralTypes;
-	}
-
-	public void setLanguageReferralTypes(Set<ProfileLanguageReferralTypeEntity> languageReferralTypes) {
-		this.languageReferralTypes = languageReferralTypes;
-	}
-
 	public String getPersonalEmailAddress() {
 		return personalEmailAddress;
 	}
@@ -241,12 +232,28 @@ public class ProfileEntity extends AbstractBaseEntity implements Ownable {
 		this.preferredClassifications = classificationProfiles;
 	}
 
-	public Set<ProfileCityEntity> getProfileCities() {
-		return profileCities;
+	public Set<ProfileCityEntity> getPreferredCities() {
+		return preferredCities;
 	}
 
-	public void setProfileCities(Set<ProfileCityEntity> profileCities) {
-		this.profileCities = profileCities;
+	public void setPreferredCities(Set<ProfileCityEntity> preferredCities) {
+		this.preferredCities = preferredCities;
+	}
+
+	public Set<ProfileEmploymentOpportunityEntity> getPreferredEmploymentOpportunities() {
+		return preferredEmploymentOpportunities;
+	}
+
+	public void setPreferredEmploymentOpportunities(Set<ProfileEmploymentOpportunityEntity> employmentOpportunities) {
+		this.preferredEmploymentOpportunities = employmentOpportunities;
+	}
+
+	public Set<ProfileLanguageReferralTypeEntity> getPreferredLanguages() {
+		return preferredLanguages;
+	}
+
+	public void setPreferredLanguages(Set<ProfileLanguageReferralTypeEntity> languageReferralTypes) {
+		this.preferredLanguages = languageReferralTypes;
 	}
 
 	public ProfileStatusEntity getProfileStatus() {
@@ -332,7 +339,10 @@ public class ProfileEntity extends AbstractBaseEntity implements Ownable {
 			.append("languageOfCorrespondence", languageOfCorrespondence)
 			.append("personalEmailAddress", personalEmailAddress)
 			.append("personalPhoneNumber", personalPhoneNumber)
-			.append("preferredClassifications", preferredClassifications)
+			.append("preferredClassifications.size", CollectionUtils.size(preferredClassifications)) // anti-recursion protection
+			.append("preferredCities.size", CollectionUtils.size(preferredCities)) // anti-recursion protection
+			.append("preferredEmploymentOpportunities.size", CollectionUtils.size(preferredEmploymentOpportunities)) // anti-recursion protection
+			.append("preferredLanguages.size", CollectionUtils.size(preferredLanguages)) // anti-recursion protection
 			.append("profileStatus", profileStatus)
 			.append("substantiveCity", substantiveCity)
 			.append("substantiveClassification", substantiveClassification)

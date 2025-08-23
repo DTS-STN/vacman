@@ -338,7 +338,7 @@ public class ProfileService {
 	private void syncPreferredCities(ProfilePutModel updateModel, ProfileEntity existingEntity) {
 		syncAssociations(
 			updateModel.preferredCities(),
-			existingEntity.getProfileCities(),
+			existingEntity.getPreferredCities(),
 			pc -> pc.getCity().getId(),
 			city -> new ProfileCityEntityBuilder()
 				.profile(existingEntity)
@@ -364,7 +364,7 @@ public class ProfileService {
 	private void syncPreferredEmploymentOpportunities(ProfilePutModel updateModel, ProfileEntity existingEntity) {
 		syncAssociations(
 			updateModel.preferredEmploymentOpportunities(),
-			existingEntity.getEmploymentOpportunities(),
+			existingEntity.getPreferredEmploymentOpportunities(),
 			peoe -> peoe.getEmploymentOpportunity().getId(),
 			empOpp -> {
 				final var peoe = new ProfileEmploymentOpportunityEntity();
@@ -379,7 +379,7 @@ public class ProfileService {
 	private void syncPreferredLanguages(ProfilePutModel updateModel, ProfileEntity existingEntity) {
 		syncAssociations(
 			updateModel.preferredLanguages(),
-			existingEntity.getLanguageReferralTypes(),
+			existingEntity.getPreferredLanguages(),
 			lrt -> lrt.getLanguageReferralType().getId(),
 			lrte -> new ProfileLanguageReferralTypeEntityBuilder()
 				.profile(existingEntity)
