@@ -351,7 +351,7 @@ public class ProfileService {
 	private void syncPreferredClassifications(ProfilePutModel updateModel, ProfileEntity existingEntity) {
 		syncAssociations(
 			updateModel.preferredClassification(),
-			existingEntity.getClassificationProfiles(),
+			existingEntity.getPreferredClassifications(),
 			cp -> cp.getClassification().getId(),
 			classification -> new ClassificationProfileEntityBuilder()
 				.profile(existingEntity)

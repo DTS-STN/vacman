@@ -22,7 +22,6 @@ public interface ProfileModelMapper {
 	@Mapping(source = "language", target = "languageOfCorrespondence")
 	@Mapping(source = "workUnit", target = "substantiveWorkUnit")
 	@Mapping(source = "profileCities", target = "preferredCities")
-	@Mapping(source = "classificationProfiles", target = "preferredClassifications")
 	@Mapping(source = "employmentOpportunities", target = "preferredEmploymentOpportunities")
 	@Mapping(source = "languageReferralTypes", target = "preferredLanguages")
 	ProfileReadModel toModel(ProfileEntity entity);

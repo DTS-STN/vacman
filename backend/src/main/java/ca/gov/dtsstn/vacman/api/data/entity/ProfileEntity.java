@@ -30,10 +30,6 @@ public class ProfileEntity extends AbstractBaseEntity implements Ownable {
 
 	@JsonIgnore
 	@OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
-	private Set<ClassificationProfileEntity> classificationProfiles = new HashSet<>();
-
-	@JsonIgnore
-	@OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
 	private Set<ProfileEmploymentOpportunityEntity> employmentOpportunities = new HashSet<>();
 
 	@Column(name = "[PRIVACY_CONSENT_IND]", nullable = true)
@@ -65,7 +61,10 @@ public class ProfileEntity extends AbstractBaseEntity implements Ownable {
 	@Column(name = "[PERSONAL_PHONE_NUMBER]", length = 15, nullable = true)
 	private String personalPhoneNumber;
 
-	// Collection relationships for many-to-many tables
+	@JsonIgnore
+	@OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
+	private Set<ClassificationProfileEntity> preferredClassifications = new HashSet<>();
+
 	@JsonIgnore
 	@OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
 	private Set<ProfileCityEntity> profileCities = new HashSet<>();
@@ -121,6 +120,7 @@ public class ProfileEntity extends AbstractBaseEntity implements Ownable {
 			@Nullable LanguageEntity language,
 			@Nullable String personalEmailAddress,
 			@Nullable String personalPhoneNumber,
+			@Nullable Set<ClassificationProfileEntity> preferredClassifications,
 			@Nullable ProfileStatusEntity profileStatus,
 			@Nullable CityEntity substantiveCity,
 			@Nullable ClassificationEntity substantiveClassification,
@@ -140,6 +140,7 @@ public class ProfileEntity extends AbstractBaseEntity implements Ownable {
 		this.isAvailableForReferral = isAvailableForReferral;
 		this.isInterestedInAlternation = isInterestedInAlternation;
 		this.language = language;
+		this.preferredClassifications = preferredClassifications;
 		this.personalEmailAddress = personalEmailAddress;
 		this.personalPhoneNumber = personalPhoneNumber;
 		this.profileStatus = profileStatus;
@@ -158,14 +159,6 @@ public class ProfileEntity extends AbstractBaseEntity implements Ownable {
 
 	public void setAdditionalComment(String additionalComment) {
 		this.additionalComment = additionalComment;
-	}
-
-	public Set<ClassificationProfileEntity> getClassificationProfiles() {
-		return classificationProfiles;
-	}
-
-	public void setClassificationProfiles(Set<ClassificationProfileEntity> classificationProfiles) {
-		this.classificationProfiles = classificationProfiles;
 	}
 
 	public Set<ProfileEmploymentOpportunityEntity> getEmploymentOpportunities() {
@@ -238,6 +231,14 @@ public class ProfileEntity extends AbstractBaseEntity implements Ownable {
 
 	public void setPersonalPhoneNumber(String personalPhoneNumber) {
 		this.personalPhoneNumber = personalPhoneNumber;
+	}
+
+	public Set<ClassificationProfileEntity> getPreferredClassifications() {
+		return preferredClassifications;
+	}
+
+	public void setPreferredClassifications(Set<ClassificationProfileEntity> classificationProfiles) {
+		this.preferredClassifications = classificationProfiles;
 	}
 
 	public Set<ProfileCityEntity> getProfileCities() {
@@ -331,6 +332,7 @@ public class ProfileEntity extends AbstractBaseEntity implements Ownable {
 			.append("language", language)
 			.append("personalEmailAddress", personalEmailAddress)
 			.append("personalPhoneNumber", personalPhoneNumber)
+			.append("preferredClassifications", preferredClassifications)
 			.append("profileStatus", profileStatus)
 			.append("substantiveCity", substantiveCity)
 			.append("substantiveClassification", substantiveClassification)
