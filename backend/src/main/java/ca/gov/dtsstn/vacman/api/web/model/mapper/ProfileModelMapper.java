@@ -1,9 +1,18 @@
 package ca.gov.dtsstn.vacman.api.web.model.mapper;
 
-import ca.gov.dtsstn.vacman.api.data.entity.*;
-import ca.gov.dtsstn.vacman.api.web.model.*;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+
+import ca.gov.dtsstn.vacman.api.data.entity.ClassificationProfileEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.ProfileCityEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.ProfileEmploymentOpportunityEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.ProfileLanguageReferralTypeEntity;
+import ca.gov.dtsstn.vacman.api.web.model.CityReadModel;
+import ca.gov.dtsstn.vacman.api.web.model.ClassificationReadModel;
+import ca.gov.dtsstn.vacman.api.web.model.EmploymentOpportunityReadModel;
+import ca.gov.dtsstn.vacman.api.web.model.LanguageReferralTypeReadModel;
+import ca.gov.dtsstn.vacman.api.web.model.ProfileReadModel;
 
 @Mapper(uses = { CodeModelMapper.class })
 public interface ProfileModelMapper {
@@ -12,7 +21,6 @@ public interface ProfileModelMapper {
 	@Mapping(source = "hrAdvisor.id", target = "hrAdvisorId")
 	@Mapping(source = "city", target = "substantiveCity")
 	@Mapping(source = "language", target = "languageOfCorrespondence")
-	@Mapping(source = "classification", target = "substantiveClassification")
 	@Mapping(source = "workUnit", target = "substantiveWorkUnit")
 	@Mapping(source = "profileCities", target = "preferredCities")
 	@Mapping(source = "classificationProfiles", target = "preferredClassifications")
@@ -31,4 +39,5 @@ public interface ProfileModelMapper {
 
 	@Mapping(source = "languageReferralType", target = ".")
 	LanguageReferralTypeReadModel toLanguageReferralTypeReadModel(ProfileLanguageReferralTypeEntity entity);
+
 }

@@ -34,11 +34,6 @@ public class ProfileEntity extends AbstractBaseEntity implements Ownable {
 	private CityEntity city;
 
 	@JsonIgnore
-	@ManyToOne
-	@JoinColumn(name = "[CLASSIFICATION_ID]", nullable = true)
-	private ClassificationEntity classification;
-
-	@JsonIgnore
 	@OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
 	private Set<ClassificationProfileEntity> classificationProfiles = new HashSet<>();
 
@@ -86,6 +81,11 @@ public class ProfileEntity extends AbstractBaseEntity implements Ownable {
 	private ProfileStatusEntity profileStatus;
 
 	@ManyToOne
+	@JsonIgnore
+	@JoinColumn(name = "[CLASSIFICATION_ID]", nullable = true)
+	private ClassificationEntity substantiveClassification;
+
+	@ManyToOne
 	@JsonBackReference
 	@JoinColumn(name = "[USER_ID]", nullable = false)
 	private UserEntity user;
@@ -115,7 +115,6 @@ public class ProfileEntity extends AbstractBaseEntity implements Ownable {
 			@Nullable Long id,
 			@Nullable String additionalComment,
 			@Nullable CityEntity city,
-			@Nullable ClassificationEntity classification,
 			@Nullable Boolean hasConsentedToPrivacyTerms,
 			@Nullable UserEntity hrAdvisor,
 			@Nullable Boolean isAvailableForReferral,
@@ -124,6 +123,7 @@ public class ProfileEntity extends AbstractBaseEntity implements Ownable {
 			@Nullable String personalEmailAddress,
 			@Nullable String personalPhoneNumber,
 			@Nullable ProfileStatusEntity profileStatus,
+			@Nullable ClassificationEntity substantiveClassification,
 			@Nullable LocalDate wfaEndDate,
 			@Nullable LocalDate wfaStartDate,
 			@Nullable WfaStatusEntity wfaStatus,
@@ -136,7 +136,6 @@ public class ProfileEntity extends AbstractBaseEntity implements Ownable {
 		super(id, createdBy, createdDate, lastModifiedBy, lastModifiedDate);
 		this.additionalComment = additionalComment;
 		this.city = city;
-		this.classification = classification;
 		this.hasConsentedToPrivacyTerms = hasConsentedToPrivacyTerms;
 		this.hrAdvisor = hrAdvisor;
 		this.isAvailableForReferral = isAvailableForReferral;
@@ -146,6 +145,7 @@ public class ProfileEntity extends AbstractBaseEntity implements Ownable {
 		this.personalPhoneNumber = personalPhoneNumber;
 		this.profileStatus = profileStatus;
 		this.user = user;
+		this.substantiveClassification = substantiveClassification;
 		this.wfaEndDate = wfaEndDate;
 		this.wfaStartDate = wfaStartDate;
 		this.wfaStatus = wfaStatus;
@@ -166,14 +166,6 @@ public class ProfileEntity extends AbstractBaseEntity implements Ownable {
 
 	public void setCity(CityEntity city) {
 		this.city = city;
-	}
-
-	public ClassificationEntity getClassification() {
-		return classification;
-	}
-
-	public void setClassification(ClassificationEntity classification) {
-		this.classification = classification;
 	}
 
 	public Set<ClassificationProfileEntity> getClassificationProfiles() {
@@ -272,6 +264,14 @@ public class ProfileEntity extends AbstractBaseEntity implements Ownable {
 		this.profileStatus = profileStatus;
 	}
 
+	public ClassificationEntity getSubstantiveClassification() {
+		return substantiveClassification;
+	}
+
+	public void setSubstantiveClassification(ClassificationEntity classification) {
+		this.substantiveClassification = classification;
+	}
+
 	public UserEntity getUser() {
 		return user;
 	}
@@ -325,7 +325,6 @@ public class ProfileEntity extends AbstractBaseEntity implements Ownable {
 			.append("super", super.toString())
 			.append("additionalComment", additionalComment)
 			.append("city", city)
-			.append("classification", classification)
 			.append("hasConsentedToPrivacyTerms", hasConsentedToPrivacyTerms)
 			.append("hrAdvisor.id", Optional.ofNullable(hrAdvisor).map(UserEntity::getId).orElse(null)) // anti-recursion protection
 			.append("isAvailableForReferral", isAvailableForReferral)
@@ -334,6 +333,7 @@ public class ProfileEntity extends AbstractBaseEntity implements Ownable {
 			.append("personalEmailAddress", personalEmailAddress)
 			.append("personalPhoneNumber", personalPhoneNumber)
 			.append("profileStatus", profileStatus)
+			.append("substantiveClassification", substantiveClassification)
 			.append("user.id", Optional.ofNullable(user).map(UserEntity::getId).orElse(null)) // anti-recursion protection
 			.append("wfaStatus", wfaStatus)
 			.append("workUnit", workUnit)
