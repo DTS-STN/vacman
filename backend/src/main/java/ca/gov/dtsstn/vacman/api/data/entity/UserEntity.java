@@ -1,6 +1,7 @@
 package ca.gov.dtsstn.vacman.api.data.entity;
 
 import java.time.Instant;
+import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -52,7 +53,7 @@ public class UserEntity extends AbstractBaseEntity implements Ownable {
 
 	@JsonIgnore
 	@OneToMany(mappedBy = "user")
-	private Set<ProfileEntity> profiles;
+	private Set<ProfileEntity> profiles = new HashSet<>();
 
 	@ManyToOne
 	@JsonIgnore
