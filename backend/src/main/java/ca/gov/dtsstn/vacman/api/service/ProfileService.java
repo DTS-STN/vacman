@@ -3,13 +3,10 @@ package ca.gov.dtsstn.vacman.api.service;
 import static ca.gov.dtsstn.vacman.api.security.SecurityUtils.getCurrentUserEntraId;
 import static ca.gov.dtsstn.vacman.api.web.exception.ResourceConflictException.asResourceConflictException;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
@@ -19,7 +16,7 @@ import org.springframework.stereotype.Service;
 import ca.gov.dtsstn.vacman.api.constants.AppConstants;
 import ca.gov.dtsstn.vacman.api.data.entity.ClassificationProfileEntityBuilder;
 import ca.gov.dtsstn.vacman.api.data.entity.ProfileCityEntityBuilder;
-import ca.gov.dtsstn.vacman.api.data.entity.ProfileEmploymentOpportunityEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.ProfileEmploymentOpportunityEntityBuilder;
 import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntityBuilder;
 import ca.gov.dtsstn.vacman.api.data.entity.ProfileLanguageReferralTypeEntityBuilder;
@@ -37,7 +34,6 @@ import ca.gov.dtsstn.vacman.api.event.ProfileCreateEvent;
 import ca.gov.dtsstn.vacman.api.event.ProfileReadEvent;
 import ca.gov.dtsstn.vacman.api.event.ProfileStatusChangeEvent;
 import ca.gov.dtsstn.vacman.api.event.ProfileUpdatedEvent;
-import ca.gov.dtsstn.vacman.api.web.exception.ResourceConflictException;
 import ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException;
 import ca.gov.dtsstn.vacman.api.web.model.ProfilePutModel;
 
@@ -210,183 +206,81 @@ public class ProfileService {
 	 * before saving the entity.
 	 *
 	 * @param updateModel The updated information for the profile.
-	 * @param existingEntity The profile entity to be updated.
+	 * @param profile The profile entity to be updated.
 	 * @return The updated profile entity.
 	 * @throws ResourceNotFoundException When any given ID does not exist within the DB.
 	 */
-	public ProfileEntity updateProfile(ProfilePutModel updateModel, ProfileEntity existingEntity) {
-		Optional.ofNullable(updateModel.hrAdvisorId()).ifPresent(id ->
-			existingEntity.setHrAdvisor(userService.getUserById(id)
-				.filter(user -> user.getUserType().getCode().equals(AppConstants.UserType.HR_ADVISOR))
-				.orElseThrow(asResourceConflictException("HR Advisor", updateModel.hrAdvisorId()))));
+	public ProfileEntity updateProfile(ProfilePutModel updateModel, ProfileEntity profile) {
+		profile.setWfaStartDate(updateModel.wfaStartDate());
+		profile.setWfaEndDate(updateModel.wfaEndDate());
+		profile.setPersonalPhoneNumber((updateModel.personalPhoneNumber()));
+		profile.setPersonalEmailAddress(updateModel.personalEmailAddress());
+		profile.setIsAvailableForReferral(updateModel.isAvailableForReferral());
+		profile.setIsInterestedInAlternation(updateModel.isInterestedInAlternation());
+		profile.setHasConsentedToPrivacyTerms(updateModel.hasConsentedToPrivacyTerms());
+		profile.setAdditionalComment(updateModel.additionalComment());
 
-		Optional.ofNullable(updateModel.languageOfCorrespondenceId()).ifPresent(id ->
-			existingEntity.setLanguageOfCorrespondence(languageRepository.findById(id)
-				.orElseThrow(asResourceConflictException("Language", updateModel.languageOfCorrespondenceId()))));
+		Optional.ofNullable(updateModel.hrAdvisorId())
+			.map(id -> userService.getUserById(id)
+				.filter(user -> AppConstants.UserType.HR_ADVISOR.equals(user.getUserType().getCode()))
+				.orElseThrow(asResourceConflictException("HR Advisor", id)))
+			.ifPresent(profile::setHrAdvisor);
 
-		Optional.ofNullable(updateModel.classificationId()).ifPresent(id ->
-			existingEntity.setSubstantiveClassification(classificationRepository.findById(id)
-				.orElseThrow(asResourceConflictException("Classification", updateModel.classificationId()))));
+		Optional.ofNullable(updateModel.languageOfCorrespondenceId())
+			.map(id -> languageRepository.findById(id).orElseThrow(asResourceConflictException("Language", id)))
+			.ifPresent(profile::setLanguageOfCorrespondence);
 
-		Optional.ofNullable(updateModel.cityId()).ifPresent(id ->
-			existingEntity.setSubstantiveCity(cityRepository.findById(id)
-				.orElseThrow(asResourceConflictException("City", updateModel.cityId()))));
+		Optional.ofNullable(updateModel.classificationId())
+			.map(id -> classificationRepository.findById(id).orElseThrow(asResourceConflictException("Classification", id)))
+			.ifPresent(profile::setSubstantiveClassification);
 
-		Optional.ofNullable(updateModel.workUnitId()).ifPresent(id ->
-			existingEntity.setSubstantiveWorkUnit(workUnitRepository.findById(id)
-				.orElseThrow(asResourceConflictException("Work Unit", updateModel.workUnitId()))));
+		Optional.ofNullable(updateModel.cityId())
+			.map(id -> cityRepository.findById(id).orElseThrow(asResourceConflictException("City", id)))
+			.ifPresent(profile::setSubstantiveCity);
 
-		Optional.ofNullable(updateModel.wfaStatusId()).ifPresent(id ->
-			existingEntity.setWfaStatus(wfaStatusRepository.findById(id)
-				.orElseThrow(asResourceConflictException("WFA Status", updateModel.wfaStatusId()))));
+		Optional.ofNullable(updateModel.workUnitId())
+			.map(id -> workUnitRepository.findById(id).orElseThrow(asResourceConflictException("Work Unit", id)))
+			.ifPresent(profile::setSubstantiveWorkUnit);
 
-		syncPreferredCities(updateModel, existingEntity);
-		syncPreferredClassifications(updateModel, existingEntity);
-		syncPreferredEmploymentOpportunities(updateModel, existingEntity);
-		syncPreferredLanguages(updateModel, existingEntity);
+		Optional.ofNullable(updateModel.wfaStatusId())
+			.map(id -> wfaStatusRepository.findById(id).orElseThrow(asResourceConflictException("WFA Status", id)))
+			.ifPresent(profile::setWfaStatus);
 
-		existingEntity.setWfaStartDate(updateModel.wfaStartDate());
-		existingEntity.setWfaEndDate(updateModel.wfaEndDate());
-		existingEntity.setPersonalPhoneNumber((updateModel.personalPhoneNumber()));
-		existingEntity.setPersonalEmailAddress(updateModel.personalEmailAddress());
-		existingEntity.setIsAvailableForReferral(updateModel.isAvailableForReferral());
-		existingEntity.setIsInterestedInAlternation(updateModel.isInterestedInAlternation());
-		existingEntity.setHasConsentedToPrivacyTerms(updateModel.hasConsentedToPrivacyTerms());
-		existingEntity.setAdditionalComment(updateModel.additionalComment());
+		// remove existing joins
+		profile.getPreferredCities().clear();
+		profile.getPreferredClassifications().clear();
+		profile.getPreferredEmploymentOpportunities().clear();
+		profile.getPreferredLanguages().clear();
+		profileRepository.flush();
 
-		final var updatedEntity = profileRepository.save(existingEntity);
+		updateModel.preferredCities().forEach(id -> profile.getPreferredCities()
+			.add(new ProfileCityEntityBuilder()
+				.city(cityRepository.getReferenceById(id))
+				.profile(profile)
+				.build()));
+
+		updateModel.preferredClassification().forEach(id -> profile.getPreferredClassifications()
+			.add(new ClassificationProfileEntityBuilder()
+				.classification(classificationRepository.getReferenceById(id))
+				.profile(profile)
+				.build()));
+
+		updateModel.preferredEmploymentOpportunities().forEach(id -> profile.getPreferredEmploymentOpportunities()
+			.add(new ProfileEmploymentOpportunityEntityBuilder()
+				.employmentOpportunity(employmentOpportunityRepository.getReferenceById(id))
+				.profile(profile)
+				.build()));
+
+		updateModel.preferredLanguages().forEach(id -> profile.getPreferredLanguages()
+			.add(new ProfileLanguageReferralTypeEntityBuilder()
+				.languageReferralType(languageReferralTypeRepository.getReferenceById(id))
+				.profile(profile)
+				.build()));
+
+		final var updatedEntity = profileRepository.save(profile);
 		eventPublisher.publishEvent(new ProfileUpdatedEvent(updatedEntity));
 
 		return updatedEntity;
-	}
-
-	/**
-	 * Updates a {@link ProfileEntity}'s associative entity based on the given parameters.
-	 * <p/>
-	 * This method computes the delta between the current state and expected state off the associative entity,
-	 * adds that which is missing, and removes that which needs to be removed. While this <em>is</em> complex for
-	 * associations that should be relatively small per profile, the simpler solution of clearing and adding to the
-	 * association's {@link Set} does not work due to how Hibernate orders it's operations. Hibernate will
-	 * execute it's inserts before deletions, which can lead to violations of the unique key constraint in these
-	 * associative entities. <a href="https://hibernate.atlassian.net/browse/HHH-2801">See HHH-2801 for other details</a>.
-	 *
-	 * @param incomingIds A list of IDs representing the state after the sync has completed.
-	 * @param currentAssociations The current associative entities related to the target profile.
-	 * @param getAssociatedId A function to retrieve the ID of the underlying entity from the associative entity.
-	 * @param createAssociation A function to create an associative entity between the target profile and the target related entity.
-	 * @param fetchEntitiesByIds A function to retrieve all target entities by ID.
-	 * @param <E> The underlying entity type that has a relationship with the profile.
-	 * @param <A> The target associative entity type.
-	 */
-	private <E, A> void syncAssociations(Set<Long> incomingIds,
-			Set<A> currentAssociations,
-			Function<A, Long> getAssociatedId,
-			Function<E, A> createAssociation,
-			Function<Set<Long>, List<E>> fetchEntitiesByIds,
-			String associationName) {
-		// We allow empty incoming IDs to move forward. This effectively is treated as a "remove all" option.
-		if (incomingIds == null || incomingIds.contains(null)) {
-			throw new ResourceConflictException("Cannot assign " + associationName + " with null value(s).");
-		}
-
-		final var currentIds = currentAssociations.stream()
-			.map(getAssociatedId)
-			.collect(Collectors.toSet());
-
-		// Return early if there are no changes to make.
-		if (incomingIds.equals(currentIds)) {
-			return;
-		}
-
-		// Compute the delta between the incoming IDs and current IDs.
-		final var idsToAdd = new HashSet<>(incomingIds);
-		idsToAdd.removeAll(currentIds);
-
-		final var idsToRemove = new HashSet<>(currentIds);
-		idsToRemove.removeAll(incomingIds);
-
-		final var entitiesToAdd = fetchEntitiesByIds.apply(idsToAdd);
-		final var foundIds = entitiesToAdd.stream()
-			.map(e -> getAssociatedId.apply(createAssociation.apply(e)))
-			.collect(Collectors.toSet());
-
-		// If any IDs did not exist, we will not get an exception from fetchAllById. Instead, we check for the
-		// absence of a returned ID from the asked-for IDs and throw our own exception.
-		final var missingIds = new HashSet<>(idsToAdd);
-		missingIds.removeAll(foundIds);
-
-		if (!missingIds.isEmpty()) {
-			final var sb = new StringBuilder();
-			sb.append("A(n) entity for association ").append(associationName).append(" where id(s)=[ ");
-			for (final var missingId : missingIds) {
-				sb.append(missingId).append(" ");
-			}
-			sb.append("] do(es) not exist");
-			throw new ResourceConflictException(sb.toString());
-		}
-
-		// Remove all associations that are no longer required.
-		currentAssociations.removeIf(a -> idsToRemove.contains(getAssociatedId.apply(a)));
-
-		// Add all associations that are now required.
-		for (final E entity : entitiesToAdd) {
-			currentAssociations.add(createAssociation.apply(entity));
-		}
-
-	}
-
-	private void syncPreferredCities(ProfilePutModel updateModel, ProfileEntity existingEntity) {
-		syncAssociations(
-			updateModel.preferredCities(),
-			existingEntity.getPreferredCities(),
-			pc -> pc.getCity().getId(),
-			city -> new ProfileCityEntityBuilder()
-				.profile(existingEntity)
-				.city(city)
-				.build(),
-			cityRepository::findAllById,
-			"ProfileCities");
-	}
-
-	private void syncPreferredClassifications(ProfilePutModel updateModel, ProfileEntity existingEntity) {
-		syncAssociations(
-			updateModel.preferredClassification(),
-			existingEntity.getPreferredClassifications(),
-			cp -> cp.getClassification().getId(),
-			classification -> new ClassificationProfileEntityBuilder()
-				.profile(existingEntity)
-				.classification(classification)
-				.build(),
-			classificationRepository::findAllById,
-			"ClassificationProfiles");
-	}
-
-	private void syncPreferredEmploymentOpportunities(ProfilePutModel updateModel, ProfileEntity existingEntity) {
-		syncAssociations(
-			updateModel.preferredEmploymentOpportunities(),
-			existingEntity.getPreferredEmploymentOpportunities(),
-			peoe -> peoe.getEmploymentOpportunity().getId(),
-			empOpp -> {
-				final var peoe = new ProfileEmploymentOpportunityEntity();
-				peoe.setProfile(existingEntity);
-				peoe.setEmploymentOpportunity(empOpp);
-				return peoe;
-			},
-			employmentOpportunityRepository::findAllById,
-			"ProfileEmploymentOpportunities");
-	}
-
-	private void syncPreferredLanguages(ProfilePutModel updateModel, ProfileEntity existingEntity) {
-		syncAssociations(
-			updateModel.preferredLanguages(),
-			existingEntity.getPreferredLanguages(),
-			lrt -> lrt.getLanguageReferralType().getId(),
-			lrte -> new ProfileLanguageReferralTypeEntityBuilder()
-				.profile(existingEntity)
-				.languageReferralType(lrte)
-				.build(),
-			languageReferralTypeRepository::findAllById,
-			"ProfileLanguageReferralTypes");
 	}
 
 }
