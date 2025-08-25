@@ -8,7 +8,6 @@ import type { Route } from './+types/referral-preferences';
 import type { ProfilePutModel } from '~/.server/domain/models';
 import { getCityService } from '~/.server/domain/services/city-service';
 import { getClassificationService } from '~/.server/domain/services/classification-service';
-import { getEmploymentOpportunityTypeService } from '~/.server/domain/services/employment-opportunity-type-service';
 import { getLanguageReferralTypeService } from '~/.server/domain/services/language-referral-type-service';
 import { getProfileService } from '~/.server/domain/services/profile-service';
 import { getProvinceService } from '~/.server/domain/services/province-service';
@@ -48,7 +47,6 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     isInterestedInAlternation: formData.get('isInterestedInAlternation')
       ? formData.get('isInterestedInAlternation') === REQUIRE_OPTIONS.yes
       : undefined,
-    preferredEmploymentOpportunities: formData.getAll('preferredEmploymentOpportunities'),
   });
 
   if (!parseResult.success) {
@@ -71,7 +69,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     preferredCities: parseResult.output.preferredCities,
     isAvailableForReferral: parseResult.output.isAvailableForReferral,
     isInterestedInAlternation: parseResult.output.isInterestedInAlternation,
-    preferredEmploymentOpportunities: parseResult.output.preferredEmploymentOpportunities,
+    preferredEmploymentOpportunities: [], //TODO: remove when the ProfileUpdateModel is updated in backend
   });
 
   const updateResult = await profileService.updateProfileById(
@@ -116,7 +114,6 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
   const localizedLanguageReferralTypesResult = await getLanguageReferralTypeService().listAllLocalized(lang);
   const localizedClassifications = await getClassificationService().listAllLocalized(lang);
-  const localizedEmploymentOpportunities = await getEmploymentOpportunityTypeService().listAllLocalized(lang);
   const localizedProvinces = await getProvinceService().listAllLocalized(lang);
   const localizedCities = await getCityService().listAllLocalized(lang);
 
@@ -135,11 +132,9 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       preferredCities: profileData.preferredCities,
       isAvailableForReferral: profileData.isAvailableForReferral,
       isInterestedInAlternation: profileData.isInterestedInAlternation,
-      preferredEmploymentOpportunities: profileData.preferredEmploymentOpportunities,
     },
     languageReferralTypes: localizedLanguageReferralTypesResult,
     classifications: localizedClassifications,
-    employmentOpportunities: localizedEmploymentOpportunities,
     provinces: localizedProvinces,
     cities: localizedCities,
   };
@@ -159,7 +154,6 @@ export default function PersonalDetails({ loaderData, actionData, params }: Rout
           formErrors={errors}
           languageReferralTypes={loaderData.languageReferralTypes}
           classifications={loaderData.classifications}
-          employmentOpportunities={loaderData.employmentOpportunities}
           provinces={loaderData.provinces}
           cities={loaderData.cities}
           params={params}

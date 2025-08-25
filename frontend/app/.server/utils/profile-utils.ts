@@ -45,19 +45,13 @@ export function countReferralPreferencesCompleted(data: {
   preferredLanguages?: unknown[] | null;
   preferredClassifications?: unknown[] | null;
   preferredCities?: unknown[] | null;
-  preferredEmploymentOpportunities?: unknown[] | null;
   isAvailableForReferral?: boolean | null;
   isInterestedInAlternation?: boolean | null;
 }): number {
   let completed = 0;
 
   // Array fields - must have at least one item
-  const arrayFields = [
-    'preferredLanguages',
-    'preferredClassifications',
-    'preferredCities',
-    'preferredEmploymentOpportunities',
-  ] as const;
+  const arrayFields = ['preferredLanguages', 'preferredClassifications', 'preferredCities'] as const;
   for (const field of arrayFields) {
     const fieldValue = data[field];
     if (Array.isArray(fieldValue) && fieldValue.length > 0) {
@@ -168,7 +162,7 @@ export function mapProfileToPutModel(profile: Profile): ProfilePutModel {
     personalPhoneNumber: profile.personalPhoneNumber,
     preferredCities: profile.preferredCities?.map((city) => city.id),
     preferredClassification: profile.preferredClassifications?.map((classification) => classification.id),
-    preferredEmploymentOpportunities: profile.preferredEmploymentOpportunities?.map((opportunity) => opportunity.id),
+    preferredEmploymentOpportunities: profile.preferredEmploymentOpportunities?.map((opportunity) => opportunity.id), //TODO: remove it when the ProfilePutModel is updated
     preferredLanguages: profile.preferredLanguages?.map((language) => language.id),
     wfaEndDate: profile.wfaEndDate,
     wfaStartDate: profile.wfaStartDate,

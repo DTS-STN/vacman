@@ -10,7 +10,6 @@ import type { Route } from '../profile/+types/index';
 import { getCityService } from '~/.server/domain/services/city-service';
 import { getClassificationService } from '~/.server/domain/services/classification-service';
 import { getDirectorateService } from '~/.server/domain/services/directorate-service';
-import { getEmploymentOpportunityTypeService } from '~/.server/domain/services/employment-opportunity-type-service';
 import { getLanguageReferralTypeService } from '~/.server/domain/services/language-referral-type-service';
 import { getProfileService } from '~/.server/domain/services/profile-service';
 import { getProfileStatusService } from '~/.server/domain/services/profile-status-service';
@@ -87,7 +86,6 @@ export async function action({ context, request }: Route.ActionArgs) {
     preferredCities: profileData.preferredCities,
     isAvailableForReferral: profileData.isAvailableForReferral,
     isInterestedInAlternation: profileData.isInterestedInAlternation,
-    preferredEmploymentOpportunities: profileData.preferredEmploymentOpportunities,
   };
 
   // Check if all sections are complete
@@ -142,17 +140,10 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const currentUser = profileData.profileUser;
 
   // Fetch reference data
-  const [
-    allLocalizedLanguageReferralTypes,
-    allClassifications,
-    allLocalizedCities,
-    allLocalizedEmploymentOpportunities,
-    allWfaStatus,
-  ] = await Promise.all([
+  const [allLocalizedLanguageReferralTypes, allClassifications, allLocalizedCities, allWfaStatus] = await Promise.all([
     getLanguageReferralTypeService().listAllLocalized(lang),
     getClassificationService().listAllLocalized(lang),
     getCityService().listAllLocalized(lang),
-    getEmploymentOpportunityTypeService().listAllLocalized(lang),
     getWFAStatuses().listAll(),
   ]);
 
@@ -188,9 +179,6 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     ?.map((classification) => allClassifications.find((c) => c.id === classification.id))
     .filter(Boolean);
   const cities = profileData.preferredCities?.map((city) => allLocalizedCities.find((c) => c.id === city.id)).filter(Boolean);
-  const employmentOpportunities = profileData.preferredEmploymentOpportunities
-    ?.map((employmentOpportunity) => allLocalizedEmploymentOpportunities.find((c) => c.id === employmentOpportunity.id))
-    .filter(Boolean);
 
   // Check each section if the required fields are complete
   const personalInformationData = {
@@ -241,7 +229,6 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     preferredCities: profileData.preferredCities,
     isAvailableForReferral: profileData.isAvailableForReferral,
     isInterestedInAlternation: profileData.isInterestedInAlternation,
-    preferredEmploymentOpportunities: profileData.preferredEmploymentOpportunities,
   };
 
   const referralPreferencesCompleted = countReferralPreferencesCompleted(referralPreferencesFields);
@@ -298,7 +285,6 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       preferredCities: cities?.map((city) => city?.provinceTerritory.name + ' - ' + city?.name),
       isAvailableForReferral: profileData.isAvailableForReferral,
       isInterestedInAlternation: profileData.isInterestedInAlternation,
-      preferredEmploymentOpportunities: employmentOpportunities?.map((e) => e?.name),
     },
     lastModifiedDate: profileData.lastModifiedDate ?? undefined,
     lastUpdatedBy: profileUpdatedByUserName,
@@ -557,12 +543,6 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
                   : loaderData.referralPreferences.isInterestedInAlternation
                     ? t('gcweb:input-option.yes')
                     : t('gcweb:input-option.no')}
-              </DescriptionListItem>
-              <DescriptionListItem term={t('app:referral-preferences.employment-tenure')}>
-                {loaderData.referralPreferences.preferredEmploymentOpportunities === undefined
-                  ? t('app:profile.not-provided')
-                  : loaderData.referralPreferences.preferredEmploymentOpportunities.length > 0 &&
-                    loaderData.referralPreferences.preferredEmploymentOpportunities.join(', ')}
               </DescriptionListItem>
             </DescriptionList>
           )}

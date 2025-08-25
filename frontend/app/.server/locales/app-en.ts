@@ -187,7 +187,6 @@ export default {
     'what-is-alternation': 'What is alternation?',
     'alternation-description-text':
       "Alternation occurs when an employee who has not been given a gaurentee of a reasonable job offer (GRJO) who wishes to continue employment in the core public service exchanges positions with an alternate (non-affected employee) willing to leave the Core Public Administration with a Transition Support Measure (TSM - cash payment based on the employee's years of service) or with an Education Allowance.",
-    'employment-tenure': 'Are you interested in any of the following employment opportunities?',
     'errors': {
       'language-referral-type-required': 'Language profile is required.',
       'language-referral-type-invalid': 'Language profile is invalid.',
@@ -201,9 +200,6 @@ export default {
       'work-location-city-duplicate': 'Duplicate items for work location city are not allowed.',
       'referral-availibility-required': 'Availablility confirmation for referrals is required.',
       'alternate-opportunity-required': 'Alternation opportunities (confirmation of interest) is required.',
-      'employment-tenure-required': 'Employment opportunities (confirmation of interest) is required.',
-      'employment-tenure-invalid': 'Employment opportunities (confirmation of interest) is invalid.',
-      'employment-tenure-duplicate': 'Duplicate items for the selection of employment opportunities are not allowed.',
     },
   },
   'hr-advisor-dashboard': {
