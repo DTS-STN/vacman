@@ -229,4 +229,9 @@ export default {
     'filter-by': "Tableau de filtrage par tous les employés ou profil qui m'est attribué",
     'view-link': 'Afficher les informations de profil pour {{profileUserName}} ',
   },
+  'hiring-manager-dashboard': {
+    'page-title': 'Tableau de bord du responsable du recrutement',
+    'page-heading': 'Débuter',
+    'requests': 'Demandes',
+  },
 } satisfies typeof appEn;

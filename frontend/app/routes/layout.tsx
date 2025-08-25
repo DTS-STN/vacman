@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import type { Route } from './+types/layout';
 
 import { requireAuthentication } from '~/.server/utils/auth-utils';
-import { checkHiringManagerRouteRegistration, checkHrAdvisorRouteRegistration } from '~/.server/utils/registration-utils';
+import { checkHrAdvisorRouteRegistration } from '~/.server/utils/registration-utils';
 import { AppBar } from '~/components/app-bar';
 import { LanguageSwitcher } from '~/components/language-switcher';
 import { AppLink } from '~/components/links';
@@ -25,7 +25,8 @@ export async function loader({ context, request }: Route.LoaderArgs) {
   requireAuthentication(context.session, request);
 
   // Check hiring manager registration for hiring manager routes
-  await checkHiringManagerRouteRegistration(context.session, request);
+  // TODO uncomment when registration-utils.ts is updated; commented only for development
+  // await checkHiringManagerRouteRegistration(context.session, request);
 
   // Check hr-advisor registration for hr-advisor routes
   await checkHrAdvisorRouteRegistration(context.session, request);
