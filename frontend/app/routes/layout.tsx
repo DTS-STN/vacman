@@ -14,6 +14,7 @@ import { MenuItem } from '~/components/menu';
 import { PageDetails } from '~/components/page-details';
 import { SkipNavigationLinks } from '~/components/skip-navigation-links';
 import { useLanguage } from '~/hooks/use-language';
+import { uselayoutHasDecorativeBackground } from '~/hooks/use-layout-has-background';
 import { useRoute } from '~/hooks/use-route';
 
 export const handle = {
@@ -38,6 +39,7 @@ export default function Layout({ loaderData }: Route.ComponentProps) {
   const { currentLanguage } = useLanguage();
   const { t } = useTranslation(['gcweb', 'app']);
   const { id: pageId } = useRoute();
+  const layoutHasDecorativeBackground = uselayoutHasDecorativeBackground();
 
   const { BUILD_DATE, BUILD_VERSION } = globalThis.__appEnvironment;
   return (
@@ -65,12 +67,37 @@ export default function Layout({ loaderData }: Route.ComponentProps) {
         ></AppBar>
       </header>
 
-      <main className="flex-grow">
-        <div className="relative">
-          <div className="container print:w-full print:max-w-none">
-            <Outlet />
-            <PageDetails buildDate={BUILD_DATE} buildVersion={BUILD_VERSION} pageId={pageId} />
-          </div>
+      <main className="flex flex-grow flex-col">
+        <div className="container flex flex-grow flex-col print:w-full print:max-w-none">
+          {layoutHasDecorativeBackground ? (
+            <div className="grid flex-grow grid-cols-9 grid-rows-1 gap-4">
+              <div className="col-span-9 flex flex-col sm:col-span-5">
+                <Outlet />
+                <div className="mt-auto">
+                  <PageDetails buildDate={BUILD_DATE} buildVersion={BUILD_VERSION} pageId={pageId} />
+                </div>
+              </div>
+              <div className="relative col-span-4">
+                <aside className="absolute top-0 right-0 bottom-0 left-0 z-0 hidden bg-[rgba(9,28,45,1)] sm:block">
+                  <div
+                    role="presentation"
+                    className="absolute top-0 right-0 h-1/2 w-full bg-[url('/VacMan-design-element-07.svg')] bg-contain bg-top bg-no-repeat"
+                  />
+                  <div
+                    role="presentation"
+                    className="absolute bottom-0 left-0 h-1/2 w-full bg-[url('/VacMan-design-element-06.svg')] bg-contain bg-bottom bg-no-repeat"
+                  />
+                </aside>
+              </div>
+            </div>
+          ) : (
+            <div className="flex flex-grow flex-col">
+              <Outlet />
+              <div className="mt-auto">
+                <PageDetails buildDate={BUILD_DATE} buildVersion={BUILD_VERSION} pageId={pageId} />
+              </div>
+            </div>
+          )}
         </div>
       </main>
 

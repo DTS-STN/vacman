@@ -13,6 +13,10 @@ declare module 'react-router' {
    */
   interface RouteHandle {
     i18nNamespace?: Namespace;
+    /**
+     * Whether the root layout should render its decorative background
+     */
+    layoutHasDecorativeBackground?: boolean;
   }
 
   /**

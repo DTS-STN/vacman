@@ -17,6 +17,7 @@ import { getLanguage } from '~/utils/i18n-utils';
 
 export const handle = {
   i18nNamespace: [...parentHandle.i18nNamespace],
+  layoutHasDecorativeBackground: true,
 } as const satisfies RouteHandle;
 
 export function meta({ loaderData }: Route.MetaArgs) {
@@ -39,23 +40,9 @@ export default function EmployeeDashboard() {
   const { t } = useTranslation(handle.i18nNamespace);
 
   return (
-    <div className="flex h-screen">
-      <aside className="absolute inset-y-0 right-0 z-0 hidden w-2/5 bg-[rgba(9,28,45,1)] sm:block">
-        <div
-          role="presentation"
-          className="absolute top-0 right-0 size-1/2 w-full bg-[url('/VacMan-design-element-07.svg')] bg-contain bg-top bg-no-repeat"
-        />
-        <div
-          role="presentation"
-          className="absolute inset-x-0 bottom-0 h-1/2 bg-[url('/VacMan-design-element-06.svg')] bg-contain bg-bottom bg-no-repeat"
-        />
-      </aside>
-      <div className="mb-8 w-full px-4 sm:w-3/5 sm:px-6">
-        <PageTitle className="after:w-14">{t('app:hr-advisor-dashboard.page-heading')}</PageTitle>
-        <div className="grid gap-4">
-          <DashboardCard file="routes/hr-advisor/employees.tsx" icon={faUser} title={t('app:hr-advisor-dashboard.employees')} />
-        </div>
-      </div>
-    </div>
+    <>
+      <PageTitle>{t('app:hr-advisor-dashboard.page-heading')}</PageTitle>
+      <DashboardCard file="routes/hr-advisor/employees.tsx" icon={faUser} title={t('app:hr-advisor-dashboard.employees')} />
+    </>
   );
 }
