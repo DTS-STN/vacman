@@ -1,6 +1,7 @@
 package ca.gov.dtsstn.vacman.api.data.entity;
 
 import java.time.Instant;
+import java.util.Objects;
 
 import org.immutables.builder.Builder;
 import org.springframework.core.style.ToStringCreator;
@@ -58,11 +59,28 @@ public class RequestCityEntity extends AbstractBaseEntity {
 	}
 
 	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) { return true; }
+		if (obj == null) { return false; }
+		if (getClass() != obj.getClass()) { return false; }
+
+		final var other = (RequestCityEntity) obj;
+
+		return Objects.equals(city, other.city)
+			&& Objects.equals(request, other.request);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(city, request);
+	}
+
+	@Override
 	public String toString() {
 		return new ToStringCreator(this)
 			.append("super", super.toString())
 			.append("city", city)
-			.append("request", request)
+			.append("request.id", request.id)
 			.toString();
 	}
 
