@@ -19,7 +19,10 @@ import ca.gov.dtsstn.vacman.api.constants.AppConstants;
 public final class SecurityUtils {
 
 	private static final List<String> ROLE_HIERARCHY = List.of(
-		AppConstants.Role.ADMIN,
+		// XXX ::: GjB ::: although an admin role does exist, it should not be used
+		//                 to determine the user's highest privilege role; leaving
+		//                 it here for future considerations and documentation
+		// AppConstants.Role.ADMIN,
 		AppConstants.Role.HR_ADVISOR,
 		AppConstants.Role.HIRING_MANAGER,
 		AppConstants.Role.EMPLOYEE
