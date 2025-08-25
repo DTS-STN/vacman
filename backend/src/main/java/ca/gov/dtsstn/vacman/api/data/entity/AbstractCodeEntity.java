@@ -1,6 +1,7 @@
 package ca.gov.dtsstn.vacman.api.data.entity;
 
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.function.Predicate;
 
 import org.hibernate.annotations.Immutable;
@@ -17,8 +18,8 @@ public abstract class AbstractCodeEntity extends AbstractBaseEntity {
 	/**
 	 * Returns a predicate that can be used to filter collections by code.
 	 */
-	public static <T extends AbstractCodeEntity> Predicate<T> byCode(String code) {
-		return entity -> entity.getCode().equals(code);
+	public static <T extends AbstractCodeEntity> Predicate<T> byCode(String... codes) {
+		return entity -> Arrays.asList(codes).contains(entity.getCode());
 	}
 
 	@Column(name = "[CODE]", length = 20, nullable = false)

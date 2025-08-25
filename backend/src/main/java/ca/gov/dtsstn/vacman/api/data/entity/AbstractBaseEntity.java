@@ -1,6 +1,7 @@
 package ca.gov.dtsstn.vacman.api.data.entity;
 
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.function.Predicate;
 
 import org.springframework.core.style.ToStringCreator;
@@ -28,8 +29,8 @@ public abstract class AbstractBaseEntity {
 	/**
 	 * Returns a predicate that can be used to filter collections by id.
 	 */
-	public static <T extends AbstractBaseEntity> Predicate<T> byId(Long id) {
-		return entity -> entity.getId().equals(id);
+	public static <T extends AbstractBaseEntity> Predicate<T> byId(Long... ids) {
+		return entity -> Arrays.asList(ids).contains(entity.getId());
 	}
 
 	@Id
