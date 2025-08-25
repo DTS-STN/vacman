@@ -13,8 +13,8 @@ import type {
   LocalizedDirectorate,
   LocalizedProvince,
   LocalizedWFAStatus,
+  Profile,
   User,
-  UserEmploymentInformation,
 } from '~/.server/domain/models';
 import { Button } from '~/components/button';
 import { ButtonLink } from '~/components/button-link';
@@ -30,7 +30,7 @@ import { extractValidationKey } from '~/utils/validation-utils';
 
 interface EmploymentProps {
   cancelLink: I18nRouteFile;
-  formValues: Partial<UserEmploymentInformation> | undefined;
+  formValues: Partial<Profile> | undefined;
   formErrors?: Errors;
   substantivePositions: readonly LocalizedClassification[];
   branchOrServiceCanadaRegions: readonly LocalizedBranch[];
@@ -58,10 +58,17 @@ export function EmploymentInformationForm({
   const { t } = useTranslation('app');
 
   const [branch, setBranch] = useState(
-    formValues?.branchOrServiceCanadaRegion ? String(formValues.branchOrServiceCanadaRegion) : undefined,
+    formValues?.substantiveWorkUnit ? String(formValues.substantiveWorkUnit.parent?.id) : undefined,
   );
-  const [province, setProvince] = useState(formValues?.province ? String(formValues.province) : undefined);
-  const [wfaStatusCode, setWfaStatusCode] = useState(wfaStatuses.find((c) => c.id === formValues?.wfaStatus)?.code);
+  const [directorate, setDirectorate] = useState(
+    formValues?.substantiveWorkUnit !== undefined ? String(formValues.substantiveWorkUnit.id) : undefined,
+  );
+  const [province, setProvince] = useState(
+    formValues?.substantiveCity?.provinceTerritory !== undefined
+      ? String(formValues.substantiveCity.provinceTerritory.id)
+      : undefined,
+  );
+  const [wfaStatusCode, setWfaStatusCode] = useState(wfaStatuses.find((c) => c.id === formValues?.wfaStatus?.id)?.code);
 
   const substantivePositionOptions = [{ id: 'select-option', name: '' }, ...substantivePositions].map(({ id, name }) => ({
     value: id === 'select-option' ? '' : String(id),
@@ -102,17 +109,34 @@ export function EmploymentInformationForm({
     setWfaStatusCode(selectedStatus);
   };
 
+  const handleBranchChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const newBranch = event.target.value;
+    setBranch(newBranch);
+
+    // Clear directorate if the new branch has no child directorates
+    if (newBranch) {
+      const hasChildren = directorates.some((directorate) => directorate.parent?.id === Number(newBranch));
+      if (!hasChildren) {
+        setDirectorate(undefined);
+      }
+    } else {
+      setDirectorate(undefined);
+    }
+  };
+
   const wfaStatusOptions: InputRadiosProps['options'] = wfaStatuses.map(({ id, name }) => ({
     value: String(id),
     children: name,
     onChange: handleWFAStatusChange,
-    defaultChecked: formValues?.wfaStatus === id,
+    defaultChecked: formValues?.wfaStatus?.id === id,
   }));
 
-  const hrAdvisorOptions = [{ id: 'select-option', uuName: '' }, ...hrAdvisors].map(({ id, uuName }) => ({
-    value: id === 'select-option' ? '' : String(id),
-    children: id === 'select-option' ? t('form.select-option') : uuName,
-  }));
+  const hrAdvisorOptions = [{ id: 'select-option', firstName: '', lastName: '' }, ...hrAdvisors].map(
+    ({ id, firstName, lastName }) => ({
+      value: id === 'select-option' ? '' : String(id),
+      children: id === 'select-option' ? t('form.select-option') : `${firstName} ${lastName}`,
+    }),
+  );
 
   return (
     <>
@@ -122,13 +146,15 @@ export function EmploymentInformationForm({
           <div className="space-y-6">
             <h2 className="font-lato text-2xl font-bold">{t('employment-information.substantive-position-heading')}</h2>
             <InputSelect
-              id="substantivePosition"
-              name="substantivePosition"
-              errorMessage={t(extractValidationKey(formErrors?.substantivePosition))}
+              id="substantiveClassification"
+              name="substantiveClassification"
+              errorMessage={t(extractValidationKey(formErrors?.substantiveClassification))}
               required
               options={substantivePositionOptions}
               label={t('employment-information.substantive-position-group-and-level')}
-              defaultValue={formValues?.substantivePosition ? String(formValues.substantivePosition) : ''}
+              defaultValue={
+                formValues?.substantiveClassification !== undefined ? String(formValues.substantiveClassification.id) : ''
+              }
               className="w-full sm:w-1/2"
             />
             <InputSelect
@@ -136,10 +162,12 @@ export function EmploymentInformationForm({
               name="branchOrServiceCanadaRegion"
               errorMessage={t(extractValidationKey(formErrors?.branchOrServiceCanadaRegion))}
               required
-              onChange={({ target }) => setBranch(target.value || undefined)}
+              onChange={handleBranchChange}
               options={branchOrServiceCanadaRegionOptions}
               label={t('employment-information.branch-or-service-canada-region')}
-              defaultValue={formValues?.branchOrServiceCanadaRegion ? String(formValues.branchOrServiceCanadaRegion) : ''}
+              defaultValue={
+                formValues?.substantiveWorkUnit !== undefined ? String(formValues.substantiveWorkUnit.parent?.id) : ''
+              }
               className="w-full sm:w-1/2"
             />
             {branch && (
@@ -150,7 +178,8 @@ export function EmploymentInformationForm({
                 required
                 options={directorateOptions}
                 label={t('employment-information.directorate')}
-                defaultValue={formValues?.directorate ? String(formValues.directorate) : ''}
+                value={directorate ?? ''}
+                onChange={({ target }) => setDirectorate(target.value || undefined)}
                 className="w-full sm:w-1/2"
               />
             )}
@@ -160,7 +189,7 @@ export function EmploymentInformationForm({
               name="province"
               label={t('employment-information.provinces')}
               options={provinceOptions}
-              errorMessage={t(extractValidationKey(formErrors?.province))}
+              errorMessage={t(extractValidationKey(formErrors?.provinceId))}
               value={province ?? ''}
               onChange={({ target }) => setProvince(target.value || undefined)}
               required
@@ -174,7 +203,7 @@ export function EmploymentInformationForm({
                   required
                   options={cityOptions}
                   label={t('employment-information.city')}
-                  defaultValue={formValues?.cityId ? String(formValues.cityId) : ''}
+                  defaultValue={formValues?.substantiveCity !== undefined ? String(formValues.substantiveCity.id) : ''}
                   className="w-full sm:w-1/2"
                 />
               </>
@@ -186,7 +215,7 @@ export function EmploymentInformationForm({
               <InputRadios
                 id="wfaStatus"
                 name="wfaStatus"
-                errorMessage={t(extractValidationKey(formErrors?.wfaStatus))}
+                errorMessage={t(extractValidationKey(formErrors?.wfaStatusId))}
                 required
                 options={wfaStatusOptions}
                 legend={t('employment-information.wfa-status')}
@@ -199,19 +228,19 @@ export function EmploymentInformationForm({
               wfaStatusCode === EMPLOYEE_WFA_STATUS.exSurplusCPA) && (
               <>
                 <DatePickerField
-                  defaultValue={formValues?.wfaEffectiveDate ?? ''}
-                  id="wfaEffectiveDate"
+                  defaultValue={formValues?.wfaStartDate ?? ''}
+                  id="wfaStartDate"
                   legend={t('employment-information.wfa-effective-date')}
                   names={{
-                    day: 'wfaEffectiveDateDay',
-                    month: 'wfaEffectiveDateMonth',
-                    year: 'wfaEffectiveDateYear',
+                    day: 'wfaStartDateDay',
+                    month: 'wfaStartDateMonth',
+                    year: 'wfaStartDateYear',
                   }}
                   errorMessages={{
-                    all: t(extractValidationKey(formErrors?.wfaEffectiveDate)),
-                    year: t(extractValidationKey(formErrors?.wfaEffectiveDateYear)),
-                    month: t(extractValidationKey(formErrors?.wfaEffectiveDateMonth)),
-                    day: t(extractValidationKey(formErrors?.wfaEffectiveDateDay)),
+                    all: t(extractValidationKey(formErrors?.wfaStartDate)),
+                    year: t(extractValidationKey(formErrors?.wfaStartDateYear)),
+                    month: t(extractValidationKey(formErrors?.wfaStartDateMonth)),
+                    day: t(extractValidationKey(formErrors?.wfaStartDateDay)),
                   }}
                   required
                 />
@@ -234,13 +263,13 @@ export function EmploymentInformationForm({
               </>
             )}
             <InputSelect
-              id="hrAdvisor"
-              name="hrAdvisor"
-              errorMessage={t(extractValidationKey(formErrors?.hrAdvisor))}
+              id="hrAdvisorId"
+              name="hrAdvisorId"
+              errorMessage={t(extractValidationKey(formErrors?.hrAdvisorId))}
               required
               options={hrAdvisorOptions}
               label={t('employment-information.hr-advisor')}
-              defaultValue={formValues?.hrAdvisor ? String(formValues.hrAdvisor) : ''}
+              defaultValue={formValues?.hrAdvisorId ? String(formValues.hrAdvisorId) : ''}
               className="w-full sm:w-1/2"
             />
             <div className="mt-8 flex flex-row-reverse flex-wrap items-center justify-end gap-3">

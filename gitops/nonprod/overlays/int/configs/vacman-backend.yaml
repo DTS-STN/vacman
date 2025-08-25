@@ -13,16 +13,18 @@ management:
   otlp:
     metrics:
       export:
+        enabled: true
         url: https://dynatrace.dev-dp.admin.dts-stn.com/e/21a07aef-852b-4d9b-aa87-ee5f8b79f8c9/api/v2/otlp/v1/metrics
 
 spring:
+  datasource:
+    url: jdbc:sqlserver://esdcvacmansqlsrv.database.windows.net;databaseName=EsDVacManDB;encrypt=true;trustServerCertificate=true;sendStringParametersAsUnicode=false;
   jpa:
-    defer-datasource-initialization: false
     show-sql: true
   liquibase:
-    enabled: true
-    contexts: mssql
+    contexts: mssql, dev
     change-log: classpath:db/changelog/db.changelog-master.yaml
+    drop-first: true # ⚠️ ‼‼‼ NEVER SET THIS IN PROD ‼‼‼ ⚠️
 
 application:
   gcnotify:

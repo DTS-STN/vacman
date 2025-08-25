@@ -16,7 +16,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
-import ca.gov.dtsstn.vacman.api.data.entity.ClassificationEntityBuilder;
+import ca.gov.dtsstn.vacman.api.data.entity.ClassificationEntity;
 import ca.gov.dtsstn.vacman.api.service.CodeService;
 
 @ExtendWith({ MockitoExtension.class })
@@ -39,7 +39,7 @@ class ClassificationCodeValidatorTest {
 	@DisplayName("isValid() returns true when classification code is valid")
 	void isValidReturnsTrueWhenClassificationCodeIsValid() {
 		when(codeService.getClassifications(Pageable.unpaged()))
-			.thenReturn(new PageImpl<>(List.of(new ClassificationEntityBuilder().id(0L).build())));
+			.thenReturn(new PageImpl<>(List.of(ClassificationEntity.builder().id(0L).build())));
 
 		assertTrue(classificationCodeValidator.isValid(0L, null));
 	}

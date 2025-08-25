@@ -16,7 +16,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
-import ca.gov.dtsstn.vacman.api.data.entity.SelectionProcessTypeEntityBuilder;
+import ca.gov.dtsstn.vacman.api.data.entity.SelectionProcessTypeEntity;
 import ca.gov.dtsstn.vacman.api.service.CodeService;
 
 @ExtendWith({ MockitoExtension.class })
@@ -39,7 +39,7 @@ class SelectionProcessTypeCodeValidatorTest {
 	@DisplayName("isValid() returns true when selection process type code is valid")
 	void isValidReturnsTrueWhenSelectionProcessTypeCodeIsValid() {
 		when(codeService.getSelectionProcessTypes(Pageable.unpaged()))
-			.thenReturn(new PageImpl<>(List.of(new SelectionProcessTypeEntityBuilder().id(0L).build())));
+			.thenReturn(new PageImpl<>(List.of(SelectionProcessTypeEntity.builder().id(0L).build())));
 
 		assertTrue(selectionProcessTypeCodeValidator.isValid(0L, null));
 	}

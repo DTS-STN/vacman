@@ -1,47 +1,92 @@
 import type { RouteHandle } from 'react-router';
+import { data } from 'react-router';
 
-import { useTranslation } from 'react-i18next';
+import * as v from 'valibot';
 
 import type { Route } from './+types/referral-preferences';
 
-import type { Profile } from '~/.server/domain/models';
+import type { Profile, ProfilePutModel } from '~/.server/domain/models';
 import { getCityService } from '~/.server/domain/services/city-service';
 import { getClassificationService } from '~/.server/domain/services/classification-service';
-import { getEmploymentTenureService } from '~/.server/domain/services/employment-tenure-service';
+import { getEmploymentOpportunityTypeService } from '~/.server/domain/services/employment-opportunity-type-service';
 import { getLanguageReferralTypeService } from '~/.server/domain/services/language-referral-type-service';
 import { getProfileService } from '~/.server/domain/services/profile-service';
 import { getProvinceService } from '~/.server/domain/services/province-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
+import { mapProfileToPutModelWithOverrides } from '~/.server/utils/profile-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
-import { InlineLink } from '~/components/links';
+import { BackLink } from '~/components/back-link';
+import { REQUIRE_OPTIONS } from '~/domain/constants';
+import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
 import { ReferralPreferencesForm } from '~/routes/page-components/employees/referral-preferences/form';
+import { referralPreferencesSchema } from '~/routes/page-components/employees/validation.server';
+import { formString } from '~/utils/string-utils';
 
 export const handle = {
   i18nNamespace: [...parentHandle.i18nNamespace],
 } as const satisfies RouteHandle;
 
 export function meta({ loaderData }: Route.MetaArgs) {
-  return [{ title: loaderData?.documentTitle }];
+  return [{ title: loaderData.documentTitle }];
 }
 
 export async function action({ context, params, request }: Route.ActionArgs) {
   requireAuthentication(context.session, request);
 
-  const profileResult = await getProfileService().getProfileById(
-    context.session.authState.accessToken,
-    Number(params.profileId),
-  );
+  const profileService = getProfileService();
+  const profileResult = await profileService.getProfileById(Number(params.profileId), context.session.authState.accessToken);
 
   if (profileResult.isErr()) {
-    throw new Response('Profile not found', { status: 404 });
+    throw new Response('Profile not found', { status: HttpStatusCodes.NOT_FOUND });
   }
 
-  //TODO: Implement approval logic
+  const profile = profileResult.unwrap();
+
+  const formData = await request.formData();
+  const parseResult = v.safeParse(referralPreferencesSchema, {
+    preferredLanguages: formData.getAll('preferredLanguages'),
+    preferredClassifications: formData.getAll('preferredClassifications'),
+    preferredProvince: formString(formData.get('preferredProvince')),
+    preferredCities: formData.getAll('preferredCities'),
+    isAvailableForReferral: formData.get('isAvailableForReferral')
+      ? formData.get('isAvailableForReferral') === REQUIRE_OPTIONS.yes
+      : undefined,
+    isInterestedInAlternation: formData.get('isInterestedInAlternation')
+      ? formData.get('isInterestedInAlternation') === REQUIRE_OPTIONS.yes
+      : undefined,
+    preferredEmploymentOpportunities: formData.getAll('preferredEmploymentOpportunities'),
+  });
+
+  if (!parseResult.success) {
+    return data(
+      { errors: v.flatten<typeof referralPreferencesSchema>(parseResult.issues).nested },
+      { status: HttpStatusCodes.BAD_REQUEST },
+    );
+  }
+
+  const profilePayload: ProfilePutModel = mapProfileToPutModelWithOverrides(profile, {
+    preferredLanguages: parseResult.output.preferredLanguages,
+    preferredClassification: parseResult.output.preferredClassifications,
+    preferredCities: parseResult.output.preferredCities,
+    isAvailableForReferral: parseResult.output.isAvailableForReferral,
+    isInterestedInAlternation: parseResult.output.isInterestedInAlternation,
+    preferredEmploymentOpportunities: parseResult.output.preferredEmploymentOpportunities,
+  });
+
+  const updateResult = await profileService.updateProfileById(
+    profile.id,
+    profilePayload,
+    context.session.authState.accessToken,
+  );
+
+  if (updateResult.isErr()) {
+    throw updateResult.unwrapErr();
+  }
 
   return i18nRedirect('routes/hr-advisor/employee-profile/index.tsx', request, {
-    params: { id: profileResult.unwrap().profileId.toString() },
+    params: { profileId: profileResult.unwrap().id.toString() },
   });
 }
 
@@ -49,61 +94,62 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   requireAuthentication(context.session, request);
 
   const profileResult = await getProfileService().getProfileById(
-    context.session.authState.accessToken,
     Number(params.profileId),
+    context.session.authState.accessToken,
   );
 
   if (profileResult.isErr()) {
-    throw new Response('Profile not found', { status: 404 });
+    throw new Response('Profile not found', { status: HttpStatusCodes.NOT_FOUND });
   }
 
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
   const localizedLanguageReferralTypesResult = await getLanguageReferralTypeService().listAllLocalized(lang);
   const localizedClassifications = await getClassificationService().listAllLocalized(lang);
-  const localizedEmploymentTenures = await getEmploymentTenureService().listAllLocalized(lang);
+  const localizedEmploymentOpportunities = await getEmploymentOpportunityTypeService().listAllLocalized(lang);
   const localizedProvinces = await getProvinceService().listAllLocalized(lang);
   const localizedCities = await getCityService().listAllLocalized(lang);
   const profileData: Profile = profileResult.unwrap();
 
   const cityResult =
-    profileData.referralPreferences.workLocationCitiesIds?.[0] &&
-    (await getCityService().findLocalizedById(profileData.referralPreferences.workLocationCitiesIds[0], lang)); //get the province from first city only to avoid validation error on province
-  const city = cityResult && cityResult.isSome() ? cityResult.unwrap() : undefined;
+    profileData.preferredCities?.[0] !== undefined
+      ? await getCityService().findLocalizedById(profileData.preferredCities[0].id, lang)
+      : undefined; //get the province from first city only to avoid validation error on province
+  const city = cityResult?.into();
 
   return {
     documentTitle: t('app:referral-preferences.page-title'),
     defaultValues: {
-      languageReferralTypeIds: profileData.referralPreferences.languageReferralTypeIds,
-      classificationIds: profileData.referralPreferences.classificationIds,
-      workLocationProvince: city?.provinceTerritory.id,
-      workLocationCitiesIds: profileData.referralPreferences.workLocationCitiesIds,
-      availableForReferralInd: profileData.referralPreferences.availableForReferralInd,
-      interestedInAlternationInd: profileData.referralPreferences.interestedInAlternationInd,
-      employmentTenureIds: profileData.referralPreferences.employmentTenureIds,
+      preferredLanguages: profileData.preferredLanguages,
+      preferredClassifications: profileData.preferredClassifications,
+      preferredProvince: city?.provinceTerritory.id,
+      preferredCities: profileData.preferredCities,
+      isAvailableForReferral: profileData.isAvailableForReferral,
+      isInterestedInAlternation: profileData.isInterestedInAlternation,
+      preferredEmploymentOpportunities: profileData.preferredEmploymentOpportunities,
     },
     languageReferralTypes: localizedLanguageReferralTypesResult,
     classifications: localizedClassifications,
-    employmentTenures: localizedEmploymentTenures,
+    employmentOpportunities: localizedEmploymentOpportunities,
     provinces: localizedProvinces,
     cities: localizedCities,
   };
 }
 
 export default function PersonalDetails({ loaderData, actionData, params }: Route.ComponentProps) {
-  const { t } = useTranslation(handle.i18nNamespace);
+  const errors = actionData?.errors;
 
   return (
     <>
-      <InlineLink className="mt-6 block" file="routes/hr-advisor/employee-profile/index.tsx" params={params} id="back-button">
-        {`< ${t('app:profile.back')}`}
-      </InlineLink>
+      <BackLink className="mt-6" file="routes/hr-advisor/employee-profile/index.tsx" params={params} />
       <div className="max-w-prose">
         <ReferralPreferencesForm
           cancelLink={'routes/hr-advisor/employee-profile/index.tsx'}
           formValues={loaderData.defaultValues}
+          preferredProvince={loaderData.defaultValues.preferredProvince}
+          formErrors={errors}
           languageReferralTypes={loaderData.languageReferralTypes}
           classifications={loaderData.classifications}
-          employmentTenures={loaderData.employmentTenures}
+          employmentOpportunities={loaderData.employmentOpportunities}
           provinces={loaderData.provinces}
           cities={loaderData.cities}
           params={params}

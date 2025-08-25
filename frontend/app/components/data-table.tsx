@@ -130,7 +130,7 @@ export function DataTablePagination<TData>({ table }: DataTablePaginationProps<T
             className={cn('h-8 border-hidden px-2 text-sm font-medium underline transition-colors duration-200')}
           >
             <span className="sr-only">{t('gcweb:data-table.pagination.next-page')}</span>
-            {t('app:employee-dashboard.next-page')}
+            {t('app:hr-advisor-employees-table.next-page')}
           </Button>
         </div>
       </div>

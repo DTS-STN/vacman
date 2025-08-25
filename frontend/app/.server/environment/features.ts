@@ -11,6 +11,7 @@ export const defaults = {
   ENABLE_LOOKUP_FIELD_SERVICES_MOCK: isProduction ? 'false' : 'true',
   ENABLE_USER_SERVICES_MOCK: isProduction ? 'false' : 'true',
   ENABLE_PROFILE_SERVICES_MOCK: isProduction ? 'false' : 'true',
+  ENABLE_REQUEST_SERVICES_MOCK: isProduction ? 'false' : 'true',
 } as const;
 
 export const features = v.object({
@@ -18,4 +19,5 @@ export const features = v.object({
   ENABLE_LOOKUP_FIELD_SERVICES_MOCK: v.optional(stringToBooleanSchema(), defaults.ENABLE_LOOKUP_FIELD_SERVICES_MOCK),
   ENABLE_USER_SERVICES_MOCK: v.optional(stringToBooleanSchema(), defaults.ENABLE_USER_SERVICES_MOCK),
   ENABLE_PROFILE_SERVICES_MOCK: v.optional(stringToBooleanSchema(), defaults.ENABLE_PROFILE_SERVICES_MOCK),
+  ENABLE_REQUEST_SERVICES_MOCK: v.optional(stringToBooleanSchema(), defaults.ENABLE_REQUEST_SERVICES_MOCK),
 });

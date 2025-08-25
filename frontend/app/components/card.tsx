@@ -61,7 +61,7 @@ export function CardTitle({ asChild, className, ...props }: CardTitleProps) {
   return (
     <Component
       className={cn(
-        'leading-none font-semibold group-[&:is(a)]:text-slate-700 group-[&:is(a)]:underline group-[&:is(a):focus]:text-blue-700 group-[&:is(a):hover]:text-blue-700 hover:underline hover:underline-offset-4',
+        'leading-none font-semibold group-[&:is(a)]:text-slate-700 group-[&:is(a)]:underline group-[&:is(a):focus]:text-blue-700 group-[&:is(a):hover]:text-blue-700 hover:underline-offset-4',
         className,
       )}
       {...props}

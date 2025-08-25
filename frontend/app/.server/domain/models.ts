@@ -44,6 +44,7 @@ export type LocalizedClassification = LocalizedLookupModel;
 export type WFAStatus = LookupModel;
 export type LocalizedWFAStatus = LocalizedLookupModel;
 
+//TODO: Remove this if we can leverage the workunit model
 export type Directorate = HierarchicalLookupModel<Branch>;
 export type LocalizedDirectorate = LocalizedHierarchicalLookupModel<LocalizedBranch>;
 
@@ -71,9 +72,6 @@ export type LocalizedLanguageOfCorrespondence = LocalizedLookupModel;
 export type ProfileStatus = LookupModel;
 export type LocalizedProfileStatus = LocalizedLookupModel;
 
-export type PriorityLevel = LookupModel;
-export type LocalizedPriorityLevel = LocalizedLookupModel;
-
 export type RequestStatus = LookupModel;
 export type LocalizedRequestStatus = LocalizedLookupModel;
 
@@ -92,22 +90,32 @@ export type LocalizedWorkSchedule = LocalizedLookupModel;
 export type EmploymentEquity = LookupModel;
 export type LocalizedEmploymentEquity = LocalizedLookupModel;
 
+export type MatchFeedback = LookupModel;
+export type LocalizedMatchFeedback = LocalizedLookupModel;
+
+export type MatchStatus = LookupModel;
+export type LocalizedMatchStatus = LocalizedLookupModel;
+
+export type WorkUnit = HierarchicalLookupModel;
+export type LocalizedWorkUnit = LocalizedHierarchicalLookupModel;
+
+// User Models - Based on OpenAPI User schema
 export type User = Readonly<{
   id: number;
-  role: string;
-  networkName: string;
-  uuName: string;
-  firstName: string;
+  businessEmailAddress?: string;
+  businessPhoneNumber?: string;
+  firstName?: string;
+  initial?: string;
+  lastName?: string;
   middleName?: string;
-  lastName: string;
-  initials?: string;
+  microsoftEntraId?: string;
   personalRecordIdentifier?: string;
-  businessPhone?: string;
-  businessEmail?: string;
-  userCreated?: string;
-  dateCreated?: string;
-  userUpdated?: string;
-  dateUpdated?: string;
+  language: LanguageOfCorrespondence;
+  userType?: UserType;
+  createdBy?: string;
+  createdDate?: string;
+  lastModifiedBy?: string;
+  lastModifiedDate?: string;
 }>;
 
 export type UserCreate = Readonly<{
@@ -115,64 +123,115 @@ export type UserCreate = Readonly<{
 }>;
 
 export type UserUpdate = Readonly<{
-  id: number;
-  userTypeId?: number;
-  microsoftEntraId?: string;
-  firstName?: string;
-  middleName?: string;
-  lastName?: string;
-  initials?: string;
-  personalRecordIdentifier?: string;
-  businessPhone?: string;
   businessEmail?: string;
-  languageId?: number;
-}>;
-
-export type Profile = Readonly<{
-  profileId: number;
-  userId: number;
-  userIdReviewedBy?: number;
-  userIdApprovedBy?: number;
-  priorityLevelId?: number;
-  profileStatusId: number;
-  privacyConsentInd?: boolean;
-  userCreated: string;
-  dateCreated: string;
-  userUpdated?: string;
-  dateUpdated?: string;
-  personalInformation: UserPersonalInformation;
-  employmentInformation: UserEmploymentInformation;
-  referralPreferences: UserReferralPreferences;
-}>;
-
-export type UserPersonalInformation = {
-  surname?: string;
-  givenName?: string;
+  businessPhone?: string;
+  firstName?: string;
+  initials?: string;
+  languageId: number;
+  lastName?: string;
+  middleName?: string;
   personalRecordIdentifier?: string;
-  preferredLanguageId?: number;
-  workEmail: string;
-  personalEmail?: string;
-  workPhone?: string;
-  personalPhone?: string;
-  additionalInformation?: string;
-};
-export type UserEmploymentInformation = {
-  substantivePosition?: number;
-  branchOrServiceCanadaRegion?: number;
-  directorate?: number;
-  province?: number;
-  cityId?: number;
-  wfaStatus?: number;
-  wfaEffectiveDate?: string;
+}>;
+
+// User Response Models
+export type PagedUserResponse = Readonly<{
+  content: User[];
+  page: PageMetadata;
+}>;
+
+export type PageMetadata = Readonly<{
+  number: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+}>;
+
+// Profile Models - Based on OpenAPI ProfileReadModel schema
+export type Profile = Readonly<{
+  id: number;
+  additionalComment?: string;
+  hasConsentedToPrivacyTerms?: boolean;
+  hrAdvisorId?: number;
+  isAvailableForReferral?: boolean;
+  isInterestedInAlternation?: boolean;
+  personalEmailAddress?: string;
+  personalPhoneNumber?: string;
+  languageOfCorrespondence?: LanguageOfCorrespondence;
+  profileStatus?: ProfileStatus;
+  profileUser: User;
+  substantiveCity?: City;
+  substantiveClassification?: Classification;
+  substantiveWorkUnit?: WorkUnit;
+  wfaStatus?: WFAStatus;
+  wfaStartDate?: string;
   wfaEndDate?: string;
-  hrAdvisor?: number;
+  preferredCities?: City[];
+  preferredClassifications?: Classification[];
+  preferredEmploymentOpportunities?: EmploymentOpportunityType[];
+  preferredLanguages?: LanguageReferralType[];
+  createdBy?: string;
+  createdDate?: string;
+  lastModifiedBy?: string;
+  lastModifiedDate?: string;
+}>;
+
+// Profile PUT Model - Based on OpenAPI ProfilePutModel schema
+// Used for updating profiles via PUT /api/v1/profiles/{id}
+export type ProfilePutModel = Readonly<{
+  additionalComment?: string;
+  cityId?: number;
+  classificationId?: number;
+  hasConsentedToPrivacyTerms?: boolean;
+  hrAdvisorId?: number;
+  isAvailableForReferral?: boolean;
+  isInterestedInAlternation?: boolean;
+  languageOfCorrespondenceId?: number;
+  preferredLanguages?: number[];
+  personalEmailAddress?: string;
+  personalPhoneNumber?: string;
+  preferredCities?: number[];
+  preferredClassification?: number[];
+  preferredEmploymentOpportunities?: number[];
+  wfaStatusId?: number;
+  wfaStartDate?: string;
+  wfaEndDate?: string;
+  workUnitId?: number;
+}>;
+
+// Profile Response Models
+export type PagedProfileResponse = Readonly<{
+  content: Profile[];
+  page: PageMetadata;
+}>;
+
+// For collection endpoints (small, finite datasets i.e. getCurrentUserProfiles)
+export type CollectionProfileResponse = Readonly<{
+  content: Profile[];
+}>;
+
+// Profile Status Update Model
+export type ProfileStatusUpdate = Readonly<{
+  id?: number;
+  code?: string;
+  nameEn?: string;
+  nameFr?: string;
+  createdBy?: string;
+  createdDate?: string;
+  lastModifiedBy?: string;
+  lastModifiedDate?: string;
+}>;
+
+// API Query Parameters
+export type UserQueryParams = {
+  'page'?: number;
+  'size'?: number;
+  'sort'?: string[];
+  'user-type'?: string;
 };
-export type UserReferralPreferences = {
-  languageReferralTypeIds?: number[];
-  classificationIds?: number[];
-  workLocationProvince?: number;
-  workLocationCitiesIds?: number[];
-  availableForReferralInd?: boolean;
-  interestedInAlternationInd?: boolean;
-  employmentTenureIds?: number[];
+
+export type ProfileQueryParams = {
+  'page'?: number;
+  'size'?: number;
+  'active'?: boolean;
+  'hr-advisor'?: string;
 };

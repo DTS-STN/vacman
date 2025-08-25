@@ -1,28 +1,52 @@
 {
   "content": [
     {
-      "id": 1,
+      "id": 0,
       "code": "FULL_TIME",
       "nameEn": "Full-time",
-      "nameFr": "Temps plein"
+      "nameFr": "Temps plein",
+      "effectiveDate": "1970-01-01T00:00:00Z",
+      "expiryDate": null,
+      "createdBy": "system",
+      "createdDate": "2025-08-14T17:26:29.52Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-08-14T17:26:29.52Z"
+    },
+    {
+      "id": 1,
+      "code": "PART_TIME",
+      "nameEn": "Part-time",
+      "nameFr": "Temps partiel",
+      "effectiveDate": "1970-01-01T00:00:00Z",
+      "expiryDate": null,
+      "createdBy": "system",
+      "createdDate": "2025-08-14T17:26:29.52Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-08-14T17:26:29.52Z"
     },
     {
       "id": 2,
-      "code": "PART_TIME",
-      "nameEn": "Part-time",
-      "nameFr": "Temps partiel"
+      "code": "CASUAL",
+      "nameEn": "Casual",
+      "nameFr": "Occasionnel",
+      "effectiveDate": "1970-01-01T00:00:00Z",
+      "expiryDate": null,
+      "createdBy": "system",
+      "createdDate": "2025-08-14T17:26:29.52Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-08-14T17:26:29.52Z"
     },
     {
       "id": 3,
-      "code": "CASUAL",
-      "nameEn": "Casual",
-      "nameFr": "Occasionnel"
-    },
-    {
-      "id": 4,
       "code": "TERM",
       "nameEn": "Term",
-      "nameFr": "Durée déterminée"
+      "nameFr": "Durée déterminée",
+      "effectiveDate": "1970-01-01T00:00:00Z",
+      "expiryDate": null,
+      "createdBy": "system",
+      "createdDate": "2025-08-14T17:26:29.52Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-08-14T17:26:29.52Z"
     }
   ]
 }

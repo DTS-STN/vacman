@@ -1,59 +1,52 @@
 {
   "content": [
     {
-      "id": 664190000,
-      "code": "ASSIGNMENT",
-      "nameEn": "Assignment",
-      "nameFr": "Affectation"
+      "id": 0,
+      "code": "INDETERMINATE",
+      "nameEn": "Indeterminate",
+      "nameFr": "Indéterminée",
+      "effectiveDate": "1970-01-01T00:00:00Z",
+      "expiryDate": null,
+      "createdBy": "system",
+      "createdDate": "2025-08-14T17:26:29.32Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-08-14T17:26:29.32Z"
     },
     {
-      "id": 664190001,
+      "id": 1,
       "code": "TERM",
-      "nameEn": "Term employment",
-      "nameFr": "Emploi à durée déterminée"
+      "nameEn": "Term",
+      "nameFr": "Durée déterminée",
+      "effectiveDate": "1970-01-01T00:00:00Z",
+      "expiryDate": null,
+      "createdBy": "system",
+      "createdDate": "2025-08-14T17:26:29.32Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-08-14T17:26:29.32Z"
     },
     {
-      "id": 664190002,
-      "code": "LOWER_LEVEL",
-      "nameEn": "Lower-level opportunities",
-      "nameFr": "Opportunités de niveau inférieur"
+      "id": 2,
+      "code": "CASUAL",
+      "nameEn": "Casual",
+      "nameFr": "Occasionnel",
+      "effectiveDate": "1970-01-01T00:00:00Z",
+      "expiryDate": null,
+      "createdBy": "system",
+      "createdDate": "2025-08-14T17:26:29.32Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-08-14T17:26:29.32Z"
     },
     {
-      "id": 664190003,
-      "code": "PART_TIME",
-      "nameEn": "Part-time hours",
-      "nameFr": "Heures à temps-partiel"
-    },
-    {
-      "id": 664190004,
-      "code": "NOT_INTERESTED",
-      "nameEn": "Not interested",
-      "nameFr": "Pas intéressé"
+      "id": 3,
+      "code": "STUDENT",
+      "nameEn": "Student",
+      "nameFr": "Étudiant",
+      "effectiveDate": "1970-01-01T00:00:00Z",
+      "expiryDate": null,
+      "createdBy": "system",
+      "createdDate": "2025-08-14T17:26:29.32Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-08-14T17:26:29.32Z"
     }
-  ],
-  "pageable": {
-    "sort": {
-      "empty": true,
-      "sorted": false,
-      "unsorted": true
-    },
-    "offset": 0,
-    "pageSize": 2,
-    "pageNumber": 0,
-    "paged": true,
-    "unpaged": false
-  },
-  "last": false,
-  "totalPages": 3,
-  "totalElements": 5,
-  "size": 2,
-  "number": 0,
-  "sort": {
-    "empty": true,
-    "sorted": false,
-    "unsorted": true
-  },
-  "first": true,
-  "numberOfElements": 5,
-  "empty": false
+  ]
 }

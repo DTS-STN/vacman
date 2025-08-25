@@ -1,6 +1,7 @@
 package ca.gov.dtsstn.vacman.api.data.entity;
 
 import java.time.Instant;
+import java.util.Optional;
 
 import org.immutables.builder.Builder;
 import org.springframework.core.style.ToStringCreator;
@@ -10,11 +11,14 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
 
 @Entity(name = "WorkUnit")
-@Table(name = "[CD_WORK_UNIT]", uniqueConstraints = { @UniqueConstraint(name = "WRKUNT_UK", columnNames = "[WORK_UNIT_NAME_EN]") })
+@Table(name = "[CD_WORK_UNIT]")
 public class WorkUnitEntity extends AbstractCodeEntity {
+
+	public static WorkUnitEntityBuilder builder() {
+		return new WorkUnitEntityBuilder();
+	}
 
 	@ManyToOne
 	@JoinColumn(name = "[PARENT_WORK_UNIT_ID]", nullable = true)
@@ -53,7 +57,7 @@ public class WorkUnitEntity extends AbstractCodeEntity {
 	public String toString() {
 		return new ToStringCreator(this)
 			.append("super", super.toString())
-			.append("parent", parent)
+			.append("parent.id", Optional.ofNullable(parent).map(WorkUnitEntity::getId).orElse(null)) // anti-recursion protection
 			.toString();
 	}
 

@@ -3,16 +3,18 @@ package ca.gov.dtsstn.vacman.api.data.entity;
 import java.time.Instant;
 
 import org.immutables.builder.Builder;
-import org.springframework.core.style.ToStringCreator;
 
 import jakarta.annotation.Nullable;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
 
 @Entity(name = "LanguageReferralType")
-@Table(name = "[CD_LANGUAGE_REFERRAL_TYPE]", uniqueConstraints = { @UniqueConstraint(name = "LNGRFRTYP_UK", columnNames = "[LANGUAGE_REFERRAL_TYPE_NAME_EN]") })
+@Table(name = "[CD_LANGUAGE_REFERRAL_TYPE]")
 public class LanguageReferralTypeEntity extends AbstractCodeEntity {
+
+	public static LanguageReferralTypeEntityBuilder builder() {
+		return new LanguageReferralTypeEntityBuilder();
+	}
 
 	public LanguageReferralTypeEntity() {
 		super();
@@ -31,13 +33,6 @@ public class LanguageReferralTypeEntity extends AbstractCodeEntity {
 			@Nullable String lastModifiedBy,
 			@Nullable Instant lastModifiedDate) {
 		super(id, code, nameEn, nameFr, effectiveDate, expiryDate, createdBy, createdDate, lastModifiedBy, lastModifiedDate);
-	}
-
-	@Override
-	public String toString() {
-		return new ToStringCreator(this)
-			.append("super", super.toString())
-			.toString();
 	}
 
 }

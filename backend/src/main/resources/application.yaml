@@ -18,6 +18,19 @@
 
 #
 # ------------------------------------------------------------------------------------
+# server properties
+# ------------------------------------------------------------------------------------
+#
+
+server:
+  compression:
+    enabled: true
+  shutdown: graceful
+
+---
+
+#
+# ------------------------------------------------------------------------------------
 # Basic Spring Boot properties
 # ------------------------------------------------------------------------------------
 #
@@ -35,6 +48,8 @@ spring:
       enabled: false
   jackson:
     default-property-inclusion: non-null
+    mapper:
+      sort-properties-alphabetically: true
     serialization:
       indent-output: true
 
@@ -68,15 +83,15 @@ spring:
       # to the same value as maximumPoolSize, creating a fixed-size connection pool.
       minimum-idle: 10
   jpa:
-    # defer execution of data.sql until hibernate creates the schema 
-    defer-datasource-initialization: false
     hibernate:
+      ddl-auto: validate
       naming:
         # Use the exact names for tables and columns as specified in the entity classes
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
   liquibase:
     enabled: true
     change-log: classpath:db/changelog/db.changelog-master.yaml
+
 ---
 
 #
@@ -168,6 +183,10 @@ management:
         include:
           - health
           - metrics
+  otlp:
+    metrics:
+      export:
+        enabled: false # set to true and add `spring.otlp.metrics.export.url` to enable metrics export
 
 ---
 
@@ -200,6 +219,8 @@ springdoc:
 #######################################################################################################################
 
 application:
+  async:
+    enabled: true
   caching:
     enabled: true
     caches:
@@ -271,10 +292,13 @@ application:
     profile-approved-template-id: 00000000-0000-0000-0000-000000000000 # must be set externally (ex: 00000000-0000-0000-0000-000000000000)
     profile-created-template-id: 00000000-0000-0000-0000-000000000000 # must be set externally (ex: 00000000-0000-0000-0000-000000000000)
     profile-updated-template-id: 00000000-0000-0000-0000-000000000000 # must be set externally (ex: 00000000-0000-0000-0000-000000000000)
+    profile-pending-template-id: 00000000-0000-0000-0000-000000000000 # must be set externally (ex: 00000000-0000-0000-0000-000000000000)
   ms-graph:
     base-url: https://graph.microsoft.com/v1.0
     connect-timeout: 10s
     read-timeout: 30s
+  requests:
+    enabled: false
   swagger-ui:
     application-name: Vacancy Manager API -- OpenAPI 3.0
     authentication:

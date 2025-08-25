@@ -1,13 +1,20 @@
 package ca.gov.dtsstn.vacman.api.data.entity;
 
+import static java.util.Collections.emptySet;
+import static java.util.stream.Collectors.toUnmodifiableSet;
+
 import java.time.Instant;
+import java.time.LocalDate;
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 import org.immutables.builder.Builder;
 import org.springframework.core.style.ToStringCreator;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.annotation.Nullable;
 import jakarta.persistence.CascadeType;
@@ -20,50 +27,22 @@ import jakarta.persistence.Table;
 
 @Entity(name = "Profile")
 @Table(name = "[PROFILE]")
-public class ProfileEntity extends AbstractBaseEntity {
+public class ProfileEntity extends AbstractBaseEntity implements Ownable {
 
-	@ManyToOne
-	@JsonBackReference
-	@JoinColumn(name = "[USER_ID]", nullable = false)
-	private UserEntity user;
+	public static ProfileEntityBuilder builder() {
+		return new ProfileEntityBuilder();
+	}
+
+	@Column(name = "[ADDITIONAL_COMMENT]", length = 200, nullable = true)
+	private String additionalComment;
+
+	@Column(name = "[PRIVACY_CONSENT_IND]", nullable = true)
+	private Boolean hasConsentedToPrivacyTerms;
 
 	@ManyToOne
 	@JsonBackReference
 	@JoinColumn(name = "[USER_ID_HR_ADVISOR]", nullable = true)
 	private UserEntity hrAdvisor;
-
-	@ManyToOne
-	@JoinColumn(name = "[WFA_STATUS_ID]", nullable = true)
-	private WfaStatusEntity wfaStatus;
-
-	@ManyToOne
-	@JoinColumn(name = "[CLASSIFICATION_ID]", nullable = true)
-	private ClassificationEntity classification;
-
-	@ManyToOne
-	@JoinColumn(name = "[CITY_ID]", nullable = true)
-	private CityEntity city;
-
-	@ManyToOne
-	@JoinColumn(name = "[WORK_UNIT_ID]", nullable = true)
-	private WorkUnitEntity workUnit;
-
-	@ManyToOne
-	@JoinColumn(name = "[LANGUAGE_ID]", nullable = true)
-	private LanguageEntity language;
-
-	@ManyToOne
-	@JoinColumn(name = "[PROFILE_STATUS_ID]", nullable = false)
-	private ProfileStatusEntity profileStatus;
-
-	@Column(name = "[PERSONAL_PHONE_NUMBER]", length = 15, nullable = true)
-	private String personalPhoneNumber;
-
-	@Column(name = "[PERSONAL_EMAIL_ADDRESS]", length = 320, nullable = true)
-	private String personalEmailAddress;
-
-	@Column(name = "[PRIVACY_CONSENT_IND]", nullable = true)
-	private Boolean hasConsentedToPrivacyTerms;
 
 	@Column(name = "[AVAILABLE_FOR_REFERRAL_IND]", nullable = true)
 	private Boolean isAvailableForReferral;
@@ -71,21 +50,68 @@ public class ProfileEntity extends AbstractBaseEntity {
 	@Column(name = "[INTERESTED_IN_ALTERNATION_IND]", nullable = true)
 	private Boolean isInterestedInAlternation;
 
-	@Column(name = "[ADDITIONAL_COMMENT]", length = 200, nullable = true)
-	private String additionalComment;
+	@ManyToOne
+	@JsonIgnore
+	@JoinColumn(name = "[LANGUAGE_ID]", nullable = true)
+	private LanguageEntity languageOfCorrespondence;
 
-	// Collection relationships for many-to-many tables
-	@OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
-	private Set<ProfileCityEntity> profileCities = new HashSet<>();
+	@Column(name = "[PERSONAL_EMAIL_ADDRESS]", length = 320, nullable = true)
+	private String personalEmailAddress;
 
-	@OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
-	private Set<ClassificationProfileEntity> classificationProfiles = new HashSet<>();
+	@Column(name = "[PERSONAL_PHONE_NUMBER]", length = 15, nullable = true)
+	private String personalPhoneNumber;
 
+	@JsonIgnore
 	@OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
-	private Set<ProfileEmploymentOpportunityEntity> employmentOpportunities = new HashSet<>();
+	private final Set<ClassificationProfileEntity> preferredClassifications = new HashSet<>();
 
+	@JsonIgnore
 	@OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
-	private Set<ProfileLanguageReferralTypeEntity> languageReferralTypes = new HashSet<>();
+	private final Set<ProfileCityEntity> preferredCities = new HashSet<>();
+
+	@JsonIgnore
+	@OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
+	private final Set<ProfileEmploymentOpportunityEntity> preferredEmploymentOpportunities = new HashSet<>();
+
+	@JsonIgnore
+	@OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
+	private final Set<ProfileLanguageReferralTypeEntity> preferredLanguages = new HashSet<>();
+
+	@JsonIgnore
+	@ManyToOne
+	@JoinColumn(name = "[PROFILE_STATUS_ID]", nullable = false)
+	private ProfileStatusEntity profileStatus;
+
+	@ManyToOne
+	@JsonIgnore
+	@JoinColumn(name = "[CITY_ID]", nullable = true)
+	private CityEntity substantiveCity;
+
+	@ManyToOne
+	@JsonIgnore
+	@JoinColumn(name = "[CLASSIFICATION_ID]", nullable = true)
+	private ClassificationEntity substantiveClassification;
+
+	@JsonIgnore
+	@ManyToOne
+	@JoinColumn(name = "[WORK_UNIT_ID]", nullable = true)
+	private WorkUnitEntity substantiveWorkUnit;
+
+	@ManyToOne
+	@JsonBackReference
+	@JoinColumn(name = "[USER_ID]", nullable = false)
+	private UserEntity user;
+
+	@Column(name = "[WFA_END_DATE]")
+	private LocalDate wfaEndDate;
+
+	@Column(name = "[WFA_START_DATE]")
+	private LocalDate wfaStartDate;
+
+	@JsonIgnore
+	@ManyToOne
+	@JoinColumn(name = "[WFA_STATUS_ID]", nullable = true)
+	private WfaStatusEntity wfaStatus;
 
 	public ProfileEntity() {
 		super();
@@ -94,120 +120,60 @@ public class ProfileEntity extends AbstractBaseEntity {
 	@Builder.Constructor
 	public ProfileEntity(
 			@Nullable Long id,
-			@Nullable UserEntity user,
-			@Nullable UserEntity hrAdvisor,
-			@Nullable WfaStatusEntity wfaStatus,
-			@Nullable ClassificationEntity classification,
-			@Nullable CityEntity city,
-			@Nullable PriorityLevelEntity priorityLevel,
-			@Nullable WorkUnitEntity workUnit,
-			@Nullable LanguageEntity language,
-			@Nullable ProfileStatusEntity profileStatus,
-			@Nullable String personalPhoneNumber,
-			@Nullable String personalEmailAddress,
+			@Nullable String additionalComment,
 			@Nullable Boolean hasConsentedToPrivacyTerms,
+			@Nullable UserEntity hrAdvisor,
 			@Nullable Boolean isAvailableForReferral,
 			@Nullable Boolean isInterestedInAlternation,
-			@Nullable String additionalComment,
+			@Nullable LanguageEntity languageOfCorrespondence,
+			@Nullable String personalEmailAddress,
+			@Nullable String personalPhoneNumber,
+			@Nullable Collection<ClassificationEntity> preferredClassifications,
+			@Nullable Collection<CityEntity> preferredCities,
+			@Nullable Collection<EmploymentOpportunityEntity> preferredEmploymentOpportunities,
+			@Nullable Collection<LanguageReferralTypeEntity> preferredLanguages,
+			@Nullable ProfileStatusEntity profileStatus,
+			@Nullable CityEntity substantiveCity,
+			@Nullable ClassificationEntity substantiveClassification,
+			@Nullable WorkUnitEntity substantiveWorkUnit,
+			@Nullable LocalDate wfaEndDate,
+			@Nullable LocalDate wfaStartDate,
+			@Nullable WfaStatusEntity wfaStatus,
+			@Nullable UserEntity user,
 			@Nullable String createdBy,
 			@Nullable Instant createdDate,
 			@Nullable String lastModifiedBy,
 			@Nullable Instant lastModifiedDate) {
 		super(id, createdBy, createdDate, lastModifiedBy, lastModifiedDate);
-		this.user = user;
-		this.hrAdvisor = hrAdvisor;
-		this.wfaStatus = wfaStatus;
-		this.classification = classification;
-		this.city = city;
-		this.workUnit = workUnit;
-		this.language = language;
-		this.profileStatus = profileStatus;
-		this.personalPhoneNumber = personalPhoneNumber;
-		this.personalEmailAddress = personalEmailAddress;
+		this.additionalComment = additionalComment;
 		this.hasConsentedToPrivacyTerms = hasConsentedToPrivacyTerms;
+		this.hrAdvisor = hrAdvisor;
 		this.isAvailableForReferral = isAvailableForReferral;
 		this.isInterestedInAlternation = isInterestedInAlternation;
-		this.additionalComment = additionalComment;
-	}
-
-	public UserEntity getUser() {
-		return user;
-	}
-
-	public void setUser(UserEntity user) {
-		this.user = user;
-	}
-
-	public UserEntity getHrAdvisor() {
-		return hrAdvisor;
-	}
-
-	public void setHrAdvisor(UserEntity hrAdvisor) {
-		this.hrAdvisor = hrAdvisor;
-	}
-
-	public WfaStatusEntity getWfaStatus() {
-		return wfaStatus;
-	}
-
-	public void setWfaStatus(WfaStatusEntity wfaStatus) {
-		this.wfaStatus = wfaStatus;
-	}
-
-	public ClassificationEntity getClassification() {
-		return classification;
-	}
-
-	public void setClassification(ClassificationEntity classification) {
-		this.classification = classification;
-	}
-
-	public CityEntity getCity() {
-		return city;
-	}
-
-	public void setCity(CityEntity city) {
-		this.city = city;
-	}
-
-	public WorkUnitEntity getWorkUnit() {
-		return workUnit;
-	}
-
-	public void setWorkUnit(WorkUnitEntity workUnit) {
-		this.workUnit = workUnit;
-	}
-
-	public LanguageEntity getLanguage() {
-		return language;
-	}
-
-	public void setLanguage(LanguageEntity language) {
-		this.language = language;
-	}
-
-	public ProfileStatusEntity getProfileStatus() {
-		return profileStatus;
-	}
-
-	public void setProfileStatus(ProfileStatusEntity profileStatus) {
-		this.profileStatus = profileStatus;
-	}
-
-	public String getPersonalPhoneNumber() {
-		return personalPhoneNumber;
-	}
-
-	public void setPersonalPhoneNumber(String personalPhoneNumber) {
-		this.personalPhoneNumber = personalPhoneNumber;
-	}
-
-	public String getPersonalEmailAddress() {
-		return personalEmailAddress;
-	}
-
-	public void setPersonalEmailAddress(String personalEmailAddress) {
+		this.languageOfCorrespondence = languageOfCorrespondence;
 		this.personalEmailAddress = personalEmailAddress;
+		this.personalPhoneNumber = personalPhoneNumber;
+		this.profileStatus = profileStatus;
+		this.user = user;
+		this.substantiveCity = substantiveCity;
+		this.substantiveClassification = substantiveClassification;
+		this.substantiveWorkUnit = substantiveWorkUnit;
+		this.wfaEndDate = wfaEndDate;
+		this.wfaStartDate = wfaStartDate;
+		this.wfaStatus = wfaStatus;
+
+		this.setPreferredClassifications(preferredClassifications);
+		this.setPreferredCities(preferredCities);
+		this.setPreferredEmploymentOpportunities(preferredEmploymentOpportunities);
+		this.setPreferredLanguages(preferredLanguages);
+	}
+
+	public String getAdditionalComment() {
+		return additionalComment;
+	}
+
+	public void setAdditionalComment(String additionalComment) {
+		this.additionalComment = additionalComment;
 	}
 
 	public Boolean getHasConsentedToPrivacyTerms() {
@@ -216,6 +182,14 @@ public class ProfileEntity extends AbstractBaseEntity {
 
 	public void setHasConsentedToPrivacyTerms(Boolean hasConsentedToPrivacyTerms) {
 		this.hasConsentedToPrivacyTerms = hasConsentedToPrivacyTerms;
+	}
+
+	public UserEntity getHrAdvisor() {
+		return hrAdvisor;
+	}
+
+	public void setHrAdvisor(UserEntity hrAdvisor) {
+		this.hrAdvisor = hrAdvisor;
 	}
 
 	public Boolean getIsAvailableForReferral() {
@@ -234,44 +208,175 @@ public class ProfileEntity extends AbstractBaseEntity {
 		this.isInterestedInAlternation = isInterestedInAlternation;
 	}
 
-	public String getAdditionalComment() {
-		return additionalComment;
+	public LanguageEntity getLanguageOfCorrespondence() {
+		return languageOfCorrespondence;
 	}
 
-	public void setAdditionalComment(String additionalComment) {
-		this.additionalComment = additionalComment;
+	public void setLanguageOfCorrespondence(LanguageEntity language) {
+		this.languageOfCorrespondence = language;
 	}
 
-	public Set<ProfileCityEntity> getProfileCities() {
-		return profileCities;
+	public String getPersonalEmailAddress() {
+		return personalEmailAddress;
 	}
 
-	public void setProfileCities(Set<ProfileCityEntity> profileCities) {
-		this.profileCities = profileCities;
+	public void setPersonalEmailAddress(String personalEmailAddress) {
+		this.personalEmailAddress = personalEmailAddress;
 	}
 
-	public Set<ClassificationProfileEntity> getClassificationProfiles() {
-		return classificationProfiles;
+	public String getPersonalPhoneNumber() {
+		return personalPhoneNumber;
 	}
 
-	public void setClassificationProfiles(Set<ClassificationProfileEntity> classificationProfiles) {
-		this.classificationProfiles = classificationProfiles;
+	public void setPersonalPhoneNumber(String personalPhoneNumber) {
+		this.personalPhoneNumber = personalPhoneNumber;
 	}
 
-	public Set<ProfileEmploymentOpportunityEntity> getEmploymentOpportunities() {
-		return employmentOpportunities;
+	public Set<ClassificationEntity> getPreferredClassifications() {
+		return preferredClassifications.stream()
+			.map(ClassificationProfileEntity::getClassification)
+			.collect(toUnmodifiableSet());
 	}
 
-	public void setEmploymentOpportunities(Set<ProfileEmploymentOpportunityEntity> employmentOpportunities) {
-		this.employmentOpportunities = employmentOpportunities;
+	public boolean addPreferredClassification(ClassificationEntity preferredClassification) {
+		return this.preferredClassifications.add(ClassificationProfileEntity.builder()
+			.classification(preferredClassification)
+			.profile(this)
+			.build());
 	}
 
-	public Set<ProfileLanguageReferralTypeEntity> getLanguageReferralTypes() {
-		return languageReferralTypes;
+	public void setPreferredClassifications(Collection<ClassificationEntity> preferredClassifications) {
+		this.preferredClassifications.clear();
+		Optional.ofNullable(preferredClassifications).orElse(emptySet())
+			.forEach(this::addPreferredClassification);
 	}
 
-	public void setLanguageReferralTypes(Set<ProfileLanguageReferralTypeEntity> languageReferralTypes) {
-		this.languageReferralTypes = languageReferralTypes;
+	public Set<CityEntity> getPreferredCities() {
+		return preferredCities.stream()
+			.map(ProfileCityEntity::getCity)
+			.collect(toUnmodifiableSet());
+	}
+
+	public boolean addPreferredCity(CityEntity city) {
+		return this.preferredCities.add(ProfileCityEntity.builder()
+			.city(city)
+			.profile(this)
+			.build());
+	}
+
+	public void setPreferredCities(Collection<CityEntity> preferredCities) {
+		this.preferredCities.clear();
+		Optional.ofNullable(preferredCities).orElse(emptySet())
+			.forEach(this::addPreferredCity);
+	}
+
+	public Set<EmploymentOpportunityEntity> getPreferredEmploymentOpportunities() {
+		return preferredEmploymentOpportunities.stream()
+			.map(ProfileEmploymentOpportunityEntity::getEmploymentOpportunity)
+			.collect(toUnmodifiableSet());
+	}
+
+	public boolean addPreferredEmploymentOpportunity(EmploymentOpportunityEntity employmentopportunityentity) {
+		return this.preferredEmploymentOpportunities.add(ProfileEmploymentOpportunityEntity.builder()
+			.employmentOpportunity(employmentopportunityentity)
+			.profile(this)
+			.build());
+	}
+
+	public void setPreferredEmploymentOpportunities(Collection<EmploymentOpportunityEntity> preferredEmploymentOpportunities) {
+		this.preferredEmploymentOpportunities.clear();
+		Optional.ofNullable(preferredEmploymentOpportunities).orElse(emptySet())
+			.forEach(this::addPreferredEmploymentOpportunity);
+	}
+
+	public Set<LanguageReferralTypeEntity> getPreferredLanguages() {
+		return preferredLanguages.stream()
+			.map(ProfileLanguageReferralTypeEntity::getLanguageReferralType)
+			.collect(toUnmodifiableSet());
+	}
+
+	public boolean addPreferredLanguage(LanguageReferralTypeEntity preferredLanguage) {
+		return this.preferredLanguages.add(ProfileLanguageReferralTypeEntity.builder()
+			.languageReferralType(preferredLanguage)
+			.profile(this)
+			.build());
+	}
+
+	public void setPreferredLanguages(Collection<LanguageReferralTypeEntity> preferredLanguage) {
+		this.preferredLanguages.clear();
+		Optional.ofNullable(preferredLanguage).orElse(emptySet())
+			.forEach(this::addPreferredLanguage);
+	}
+
+	public ProfileStatusEntity getProfileStatus() {
+		return profileStatus;
+	}
+
+	public void setProfileStatus(ProfileStatusEntity profileStatus) {
+		this.profileStatus = profileStatus;
+	}
+
+	public CityEntity getSubstantiveCity() {
+		return substantiveCity;
+	}
+
+	public void setSubstantiveCity(CityEntity substantiveCity) {
+		this.substantiveCity = substantiveCity;
+	}
+
+	public ClassificationEntity getSubstantiveClassification() {
+		return substantiveClassification;
+	}
+
+	public void setSubstantiveClassification(ClassificationEntity classification) {
+		this.substantiveClassification = classification;
+	}
+
+	public WorkUnitEntity getSubstantiveWorkUnit() {
+		return substantiveWorkUnit;
+	}
+
+	public void setSubstantiveWorkUnit(WorkUnitEntity substantiveWorkUnit) {
+		this.substantiveWorkUnit = substantiveWorkUnit;
+	}
+
+	public UserEntity getUser() {
+		return user;
+	}
+
+	public void setUser(UserEntity user) {
+		this.user = user;
+	}
+
+	public LocalDate getWfaEndDate() {
+		return wfaEndDate;
+	}
+
+	public void setWfaEndDate(LocalDate wfaEndDate) {
+		this.wfaEndDate = wfaEndDate;
+	}
+
+	public LocalDate getWfaStartDate() {
+		return wfaStartDate;
+	}
+
+	public void setWfaStartDate(LocalDate wfaStartDate) {
+		this.wfaStartDate = wfaStartDate;
+	}
+
+	public WfaStatusEntity getWfaStatus() {
+		return wfaStatus;
+	}
+
+	public void setWfaStatus(WfaStatusEntity wfaStatus) {
+		this.wfaStatus = wfaStatus;
+	}
+
+	@Override
+	public Long getOwnerId() {
+		return Optional.ofNullable(user)
+			.map(UserEntity::getId)
+			.orElse(null);
 	}
 
 	@Override
@@ -279,19 +384,23 @@ public class ProfileEntity extends AbstractBaseEntity {
 		return new ToStringCreator(this)
 			.append("super", super.toString())
 			.append("additionalComment", additionalComment)
-			.append("city", city)
-			.append("classification", classification)
 			.append("hasConsentedToPrivacyTerms", hasConsentedToPrivacyTerms)
-			.append("hrAdvisor.id", hrAdvisor == null ? null : hrAdvisor)
+			.append("hrAdvisor.id", Optional.ofNullable(hrAdvisor).map(UserEntity::getId).orElse(null)) // anti-recursion protection
 			.append("isAvailableForReferral", isAvailableForReferral)
 			.append("isInterestedInAlternation", isInterestedInAlternation)
-			.append("language", language)
+			.append("languageOfCorrespondence", languageOfCorrespondence)
 			.append("personalEmailAddress", personalEmailAddress)
 			.append("personalPhoneNumber", personalPhoneNumber)
+			.append("preferredClassifications", preferredClassifications)
+			.append("preferredCities", preferredCities)
+			.append("preferredEmploymentOpportunities", preferredEmploymentOpportunities)
+			.append("preferredLanguages", preferredLanguages)
 			.append("profileStatus", profileStatus)
-			.append("user.id", user == null ? null : user.getId())
+			.append("substantiveCity", substantiveCity)
+			.append("substantiveClassification", substantiveClassification)
+			.append("substantiveWorkUnit", substantiveWorkUnit)
+			.append("user.id", Optional.ofNullable(user).map(UserEntity::getId).orElse(null)) // anti-recursion protection
 			.append("wfaStatus", wfaStatus)
-			.append("workUnit", workUnit)
 			.toString();
 	}
 

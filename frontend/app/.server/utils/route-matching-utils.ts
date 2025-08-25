@@ -3,65 +3,17 @@
  * This module provides route matching and parsing functions for various URL patterns
  * including profile routes, employee routes, and privacy consent routes.
  */
-import { LogFactory } from '~/.server/logging';
 
-const log = LogFactory.getLogger(import.meta.url);
-
-/**
- * Checks if the current request is for a profile route that requires access control.
- * Profile routes are those that match the pattern /en/employee/[id]/profile/* or /fr/employe/[id]/profil/*
- */
-export function isProfileRoute(url: URL): boolean {
-  // Pattern for English: /en/employee/{id}/profile (and any subpaths)
-  const englishPattern = /^\/en\/employee\/[^/]+\/profile(?:\/|$)/;
-  // Pattern for French: /fr/employe/{id}/profil (and any subpaths)
-  const frenchPattern = /^\/fr\/employe\/[^/]+\/profil(?:\/|$)/;
-
-  const result = englishPattern.test(url.pathname) || frenchPattern.test(url.pathname);
-  log.debug(`isProfileRoute(${url.pathname}): ${result}`);
-  return result;
+function createBilingualRouteMatcher(englishPath: string, frenchPath: string) {
+  const patterns = [new RegExp(`^/en/${englishPath}(?:/|$)`), new RegExp(`^/fr/${frenchPath}(?:/|$)`)];
+  return (url: URL) => patterns.some((pattern) => pattern.test(url.pathname));
 }
 
-/**
- * Checks if the current request is for an employee route.
- * Employee routes are those that start with /en/employee or /fr/employe.
- * Ensures that the path is exactly the prefix or has a / immediately after the prefix.
- */
-export function isEmployeeRoute(url: URL): boolean {
-  const employeePathPrefixes = ['/en/employee', '/fr/employe'];
-  return employeePathPrefixes.some((prefix) => {
-    return url.pathname === prefix || url.pathname.startsWith(prefix + '/');
-  });
-}
-
-/**
- * Checks if the current request is for the privacy consent page.
- * This prevents checking privacy consent on the consent page itself.
- */
-export function isPrivacyConsentPath(url: URL): boolean {
-  const privacyConsentPaths = ['/en/employee/profile/privacy-consent', '/fr/employe/profil/consentement-a-la-confidentialite'];
-  return privacyConsentPaths.some((path) => url.pathname.startsWith(path));
-}
-
-/**
- * Checks if the current request is for a hiring manager route.
- * This helps identify routes that need hiring manager registration check.
- */
-export function isHiringManagerPath(url: URL): boolean {
-  const hiringManagerPaths = ['/en/hiring-manager', '/fr/gestionnaire-embauche'];
-  return hiringManagerPaths.some((path) => {
-    return url.pathname === path || url.pathname.startsWith(path + '/');
-  });
-}
-
-/**
- * Checks if the current request is for a hr advisor route.
- * This helps identify routes that need hr advisor registration check.
- */
-export function isHrAdvisorPath(url: URL): boolean {
-  // TODO update french route once translated
-  const hrAdvisorPaths = ['/en/hr-advisor', '/fr/hr-advisor'];
-  return hrAdvisorPaths.some((path) => {
-    return url.pathname === path || url.pathname.startsWith(path + '/');
-  });
-}
+export const isProfileRoute = createBilingualRouteMatcher('employee/[^/]+/profile', 'employe/[^/]+/profil');
+export const isEmployeeRoute = createBilingualRouteMatcher('employee', 'employe');
+export const isHiringManagerPath = createBilingualRouteMatcher('hiring-manager', 'gestionnaire-embauche');
+export const isHrAdvisorPath = createBilingualRouteMatcher('hr-advisor', 'hr-advisor');
+export const isPrivacyConsentPath = createBilingualRouteMatcher(
+  'employee/profile/privacy-consent',
+  'employe/profil/consentement-a-la-confidentialite',
+);

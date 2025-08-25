@@ -1,47 +1,40 @@
 {
   "content": [
     {
-      "id": 864190000,
+      "id": 0,
       "code": "BILINGUAL",
       "nameEn": "Bilingual",
-      "nameFr": "Bilingue"
+      "nameFr": "Bilingue",
+      "effectiveDate": "1970-01-01T00:00:00Z",
+      "expiryDate": null,
+      "createdBy": "system",
+      "createdDate": "2025-08-14T17:26:28.8533333Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-08-14T17:26:28.8533333Z"
     },
     {
-      "id": 864190001,
+      "id": 1,
       "code": "ENGLISH",
       "nameEn": "English only",
-      "nameFr": "Anglais seulement"
+      "nameFr": "Anglais seulement",
+      "effectiveDate": "1970-01-01T00:00:00Z",
+      "expiryDate": null,
+      "createdBy": "system",
+      "createdDate": "2025-08-14T17:26:28.8533333Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-08-14T17:26:28.8533333Z"
     },
     {
-      "id": 864190002,
+      "id": 2,
       "code": "FRENCH",
       "nameEn": "French only",
-      "nameFr": "Français seulement"
+      "nameFr": "Français seulement",
+      "effectiveDate": "1970-01-01T00:00:00Z",
+      "expiryDate": null,
+      "createdBy": "system",
+      "createdDate": "2025-08-14T17:26:28.8533333Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-08-14T17:26:28.8533333Z"
     }
-  ],
-  "pageable": {
-    "sort": {
-      "empty": true,
-      "sorted": false,
-      "unsorted": true
-    },
-    "offset": 0,
-    "pageSize": 2,
-    "pageNumber": 0,
-    "paged": true,
-    "unpaged": false
-  },
-  "last": false,
-  "totalPages": 2,
-  "totalElements": 3,
-  "size": 2,
-  "number": 0,
-  "sort": {
-    "empty": true,
-    "sorted": false,
-    "unsorted": true
-  },
-  "first": true,
-  "numberOfElements": 3,
-  "empty": false
+  ]
 }

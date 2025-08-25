@@ -16,7 +16,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
-import ca.gov.dtsstn.vacman.api.data.entity.LanguageReferralTypeEntityBuilder;
+import ca.gov.dtsstn.vacman.api.data.entity.LanguageReferralTypeEntity;
 import ca.gov.dtsstn.vacman.api.service.CodeService;
 
 @DisplayName("LanguageReferralTypeCodeValidator tests")
@@ -39,7 +39,7 @@ class LanguageReferralTypeCodeValidatorTest {
 	@DisplayName("isValid() returns true when language referral type code is valid")
 	void isValidReturnsTrueWhenLanguageReferralTypeCodeIsValid() {
 		when(codeService.getLanguageReferralTypes(Pageable.unpaged()))
-			.thenReturn(new PageImpl<>(List.of(new LanguageReferralTypeEntityBuilder().id(0L).build())));
+			.thenReturn(new PageImpl<>(List.of(LanguageReferralTypeEntity.builder().id(0L).build())));
 
 		assertTrue(languageReferralTypeCodeValidator.isValid(0L, null));
 	}

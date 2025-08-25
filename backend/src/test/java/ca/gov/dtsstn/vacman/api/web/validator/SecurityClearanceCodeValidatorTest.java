@@ -16,7 +16,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
-import ca.gov.dtsstn.vacman.api.data.entity.SecurityClearanceEntityBuilder;
+import ca.gov.dtsstn.vacman.api.data.entity.SecurityClearanceEntity;
 import ca.gov.dtsstn.vacman.api.service.CodeService;
 
 @ExtendWith({ MockitoExtension.class })
@@ -39,7 +39,7 @@ class SecurityClearanceCodeValidatorTest {
 	@DisplayName("isValid() returns true when security clearance code is valid")
 	void isValidReturnsTrueWhenSecurityClearanceCodeIsValid() {
 		when(codeService.getSecurityClearances(Pageable.unpaged()))
-			.thenReturn(new PageImpl<>(List.of(new SecurityClearanceEntityBuilder().id(0L).build())));
+			.thenReturn(new PageImpl<>(List.of(SecurityClearanceEntity.builder().id(0L).build())));
 
 		assertTrue(securityClearanceCodeValidator.isValid(0L, null));
 	}

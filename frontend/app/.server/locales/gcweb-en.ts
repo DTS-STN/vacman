@@ -4,7 +4,7 @@ export default {
     form: 'Form',
     logout: 'Logout',
     profile: 'Profile',
-    title: 'VacMan',
+    title: 'Vacancy Management',
   },
   'nav': {
     'skip-to-content': 'Skip to main content',
@@ -110,5 +110,31 @@ export default {
     'choice-tag-added-aria-label': 'Selected {{item}} added: {{choice}}, Activate to remove selected {{item}}.',
     'clear-all-sr-message': 'All selected {{item}} removed.',
     'removed-choice-tag-sr-message': 'Selected {{item}} removed: {{choice}}',
+  },
+  'acronym': {
+    esdc: {
+      abbreviation: 'ESDC',
+      text: 'Employment and Social Development Canada',
+    },
+    hr: {
+      abbreviation: 'HR',
+      text: 'Human Resources',
+    },
+    hrsb: {
+      abbreviation: 'HRSB',
+      text: 'Human Resources Services Branch',
+    },
+    pib: {
+      abbreviation: 'PIB',
+      text: 'Personal Information Bank',
+    },
+    tbs: {
+      abbreviation: 'TBS',
+      text: 'Treasury Board of Canada Secretariat',
+    },
+    vms: {
+      abbreviation: 'VMS',
+      text: 'Vacancy Management System',
+    },
   },
 };

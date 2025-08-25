@@ -1,56 +1,64 @@
 package ca.gov.dtsstn.vacman.api.web;
 
-import ca.gov.dtsstn.vacman.api.constants.AppConstants;
-import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
-import ca.gov.dtsstn.vacman.api.web.model.ProfileStatusUpdateModel;
+import static ca.gov.dtsstn.vacman.api.constants.AppConstants.UserFields.MS_ENTRA_ID;
+import static ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException.asResourceNotFoundException;
+import static ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException.asUserResourceNotFoundException;
+import static ca.gov.dtsstn.vacman.api.web.exception.UnauthorizedException.asEntraIdUnauthorizedException;
+import static ca.gov.dtsstn.vacman.api.web.model.CollectionModel.toCollectionModel;
+
+import java.util.Collection;
+import java.util.Set;
+
 import org.apache.commons.lang3.StringUtils;
-import org.hibernate.validator.constraints.Range;
 import org.mapstruct.factory.Mappers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.annotation.DependsOn;
-import org.springframework.data.domain.PageRequest;
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedModel;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import ca.gov.dtsstn.vacman.api.config.SpringDocConfig;
-import ca.gov.dtsstn.vacman.api.security.SecurityManager;
+import ca.gov.dtsstn.vacman.api.constants.AppConstants;
+import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 import ca.gov.dtsstn.vacman.api.security.SecurityUtils;
 import ca.gov.dtsstn.vacman.api.service.ProfileService;
 import ca.gov.dtsstn.vacman.api.service.UserService;
 import ca.gov.dtsstn.vacman.api.web.exception.ResourceConflictException;
-import ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException;
-import ca.gov.dtsstn.vacman.api.web.exception.UnauthorizedException;
 import ca.gov.dtsstn.vacman.api.web.model.CollectionModel;
+import ca.gov.dtsstn.vacman.api.web.model.ProfilePutModel;
 import ca.gov.dtsstn.vacman.api.web.model.ProfileReadModel;
+import ca.gov.dtsstn.vacman.api.web.model.ProfileStatusUpdateModel;
 import ca.gov.dtsstn.vacman.api.web.model.mapper.ProfileModelMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.Collection;
-import java.util.Set;
-
-import static ca.gov.dtsstn.vacman.api.constants.AppConstants.UserFields.MS_ENTRA_ID;
-import static ca.gov.dtsstn.vacman.api.exception.ExceptionUtils.*;
 
 @RestController
 @Tag(name = "Profiles")
-@DependsOn({ SecurityManager.NAME })
+@ApiResponses.InternalServerError
 @RequestMapping({ "/api/v1/profiles" })
+@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
 public class ProfilesController {
 
 	private static final Logger log = LoggerFactory.getLogger(ProfilesController.class);
+
+	private static final String PROFILE = "profile";
+
+	private static final String FOUND_PROFILE_LOG_MSG = "Found profile: [{}]";
 
 	private final ProfileService profileService;
 
@@ -64,18 +72,14 @@ public class ProfilesController {
 	}
 
 	@GetMapping
+	@ApiResponses.Ok
+	@ApiResponses.AccessDeniedError
+	@ApiResponses.AuthenticationError
 	@PreAuthorize("hasAuthority('hr-advisor')")
-	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
 	@Operation(summary = "Retrieve a list of profiles with optional filters on active profiles, inactive profiles, and HR advisor assocation.")
 	public ResponseEntity<PagedModel<ProfileReadModel>> getProfiles(
-			@RequestParam(defaultValue = "0")
-			@Parameter(description = "Page number (0-based")
-			int page,
-
-			@RequestParam(defaultValue = "20")
-			@Range(min = 1, max = 100)
-			@Parameter(description = "Page size (between 1 and 100)")
-			int size,
+			@ParameterObject
+			Pageable pageable,
 
 			@RequestParam(name = "active", required = false)
 			@Parameter(name = "active", description = "Return only active or inactive profiles")
@@ -83,11 +87,7 @@ public class ProfilesController {
 
 			@RequestParam(name = "hr-advisor", required = false)
 			@Parameter(name = "hr-advisor", description = "Return only the profiles that are associated with the HR advisor")
-			String hrAdvisor,
-
-			@RequestParam(name = "user-data", defaultValue = "false")
-			@Parameter(name = "user-data", description = "Return user first name, last name, and email address with profile")
-			boolean wantUserData) {
+			String hrAdvisor) {
 		// Determine the advisor ID based on the advisor param (or lack thereof).
 		Long hrAdvisorId;
 
@@ -96,71 +96,76 @@ public class ProfilesController {
 		}
 		else if (hrAdvisor.equalsIgnoreCase("me")) {
 			final var entraId = SecurityUtils.getCurrentUserEntraId()
-				.orElseThrow(() -> new UnauthorizedException("Entra ID not found in security context"));
+				.orElseThrow(asEntraIdUnauthorizedException());
 
-            hrAdvisorId = userService.getUserByMicrosoftEntraId(entraId)
-                    .orElseThrow(() -> generateUserWithFieldDoesNotExistException(MS_ENTRA_ID, entraId))
-                    .getId();
-        } else {
-            hrAdvisorId = Long.valueOf(hrAdvisor);
-        }
+			hrAdvisorId = userService.getUserByMicrosoftEntraId(entraId)
+				.map(UserEntity::getId)
+				.orElseThrow(asUserResourceNotFoundException(MS_ENTRA_ID, entraId));
+		}
+		else {
+			hrAdvisorId = Long.valueOf(hrAdvisor);
+		}
 
 		// Determine the mapping function to use.
-		final var profiles = profileService.getProfilesByStatusAndHrId(PageRequest.of(page, size), isActive, hrAdvisorId)
-			.map((wantUserData)
-					? profileModelMapper::toModel
-					: profileModelMapper::toModelNoUserData);
+		final var profiles = profileService.getProfilesByStatusAndHrId(pageable, isActive, hrAdvisorId)
+			.map(profileModelMapper::toModel);
 
 		return ResponseEntity.ok(new PagedModel<>(profiles));
 	}
 
-	@GetMapping(path = "/me")
+	@ApiResponses.Ok
+	@GetMapping({ "/me" })
+	@ApiResponses.AccessDeniedError
+	@ApiResponses.AuthenticationError
 	@PreAuthorize("isAuthenticated()")
-	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
 	@Operation(summary = "Retrieve the profiles associated with the authenticated user with optional filters on active profiles, inactive profiles, and HR advisor association.")
 	public ResponseEntity<CollectionModel<ProfileReadModel>> getProfileMe(
 			@RequestParam(name = "active", required = false)
 			@Parameter(name = "active", description = "Return only active or inactive profiles")
 			Boolean isActive) {
 		final var entraId = SecurityUtils.getCurrentUserEntraId()
-			.orElseThrow(() -> new UnauthorizedException("Entra ID not found in security context"));
+			.orElseThrow(asEntraIdUnauthorizedException());
 
 		final var profiles = profileService.getProfilesByEntraId(entraId, isActive).stream()
-			.map(profileModelMapper::toModelNoUserData)
-			.toList();
+			.map(profileModelMapper::toModel)
+			.collect(toCollectionModel());
 
-		return ResponseEntity.ok(new CollectionModel<>(profiles));
+		return ResponseEntity.ok(profiles);
 	}
 
-	@GetMapping(path = "/{id}")
-	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
-	@PreAuthorize("hasAuthority('hr-advisor') || @securityManager.canAccessProfile(#id)")
+	@ApiResponses.Ok
+	@GetMapping({ "/{id}" })
+	@ApiResponses.AccessDeniedError
+	@ApiResponses.AuthenticationError
+	@ApiResponses.ResourceNotFoundError
+	@PreAuthorize("hasAuthority('hr-advisor') || hasPermission(#id, 'PROFILE', 'READ')")
 	@Operation(summary = "Retrieve the profile specified by ID that is associated with the authenticated user.")
 	public ResponseEntity<ProfileReadModel> getProfileById(@PathVariable Long id) {
 		log.info("Received request to get profile; ID: [{}]", id);
 
-		final var profile = profileService.getProfile(id)
+		final var profile = profileService.getProfileById(id)
 			.map(profileModelMapper::toModel)
-			.orElseThrow(() -> new ResourceNotFoundException("Could not find profile with id=[" + id + "]"));
+			.orElseThrow(asResourceNotFoundException(PROFILE, id));
 
-		log.trace("Found profile: [{}]", profile);
+		log.trace(FOUND_PROFILE_LOG_MSG, profile);
 
 		return ResponseEntity.ok(profile);
 	}
 
-	@PostMapping(path = "/me")
+	@ApiResponses.Ok
+	@PostMapping({ "/me" })
+	@ApiResponses.AccessDeniedError
+	@ApiResponses.AuthenticationError
 	@PreAuthorize("isAuthenticated()")
-	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
 	@Operation(summary = "Create a new profile associated with the authenticated user.")
 	public ResponseEntity<ProfileReadModel> createCurrentUserProfile() {
 		log.info("Received request to create new profile");
 		final var microsoftEntraId = SecurityUtils.getCurrentUserEntraId()
-			.orElseThrow(() -> new UnauthorizedException("Entra ID not found in security context"));
+			.orElseThrow(asEntraIdUnauthorizedException());
 
-
-        log.debug("Checking if user with microsoftEntraId=[{}] already exists", microsoftEntraId);
-        final var existingUser = userService.getUserByMicrosoftEntraId(microsoftEntraId)
-                .orElseThrow(() -> generateUserWithFieldDoesNotExistException(MS_ENTRA_ID, microsoftEntraId));
+		log.debug("Checking if user with microsoftEntraId=[{}] already exists", microsoftEntraId);
+		final var existingUser = userService.getUserByMicrosoftEntraId(microsoftEntraId)
+			.orElseThrow(asUserResourceNotFoundException(MS_ENTRA_ID, microsoftEntraId));
 
 		log.debug("Checking if user with microsoftEntraId=[{}] has an active profile", microsoftEntraId);
 		if (!profileService.getProfilesByEntraId(microsoftEntraId, true).isEmpty()) {
@@ -175,49 +180,49 @@ public class ProfilesController {
 		return ResponseEntity.ok(createdProfile);
 	}
 
-    @PutMapping(path = "/{id}")
-	@PreAuthorize("hasAuthority('hr-advisor')")
-    @SecurityRequirement(name = SpringDocConfig.AZURE_AD)
+	@ApiResponses.Ok
+	@PutMapping({ "/{id}" })
+	@ApiResponses.AccessDeniedError
+	@ApiResponses.AuthenticationError
+	@ApiResponses.ResourceNotFoundError
 	@Operation(summary = "Update an existing profile specified by ID.")
-    public ResponseEntity<ProfileReadModel> updateProfileById(
-            @PathVariable(name = "id")
-            Long profileId,
+	@PreAuthorize("hasAuthority('hr-advisor') || hasPermission(#id, 'PROFILE', 'READ')")
+	public ResponseEntity<ProfileReadModel> updateProfileById(@PathVariable Long id, @Valid @RequestBody ProfilePutModel updatedProfile) {
+		log.info("Received request to get profile; ID: [{}]", id);
 
-            @Valid
-            @RequestBody
-            ProfileReadModel updatedProfile
-    ) {
-        log.info("Received request to get profile; ID: [{}]", profileId);
+		final var foundProfile = profileService.getProfileById(id)
+			.orElseThrow(asResourceNotFoundException(PROFILE, id));
 
-        final var foundProfile = profileService.getProfile(profileId)
-                .orElseThrow(() -> generateIdDoesNotExistException("profile", profileId));
+		log.trace(FOUND_PROFILE_LOG_MSG, foundProfile);
 
-        log.trace("Found profile: [{}]", foundProfile);
+		final var updatedEntity = profileService.updateProfile(updatedProfile, foundProfile);
 
-        final var updatedEntity = profileService.updateProfile(updatedProfile, foundProfile);
+		return ResponseEntity.ok(profileModelMapper.toModel(updatedEntity));
+	}
 
-        return ResponseEntity.ok(profileModelMapper.toModelNoUserData(updatedEntity));
-    }
-
-	@PutMapping(path = "/{id}/status")
-	@PreAuthorize("(hasAuthority('hr-advisor') && @securityManager.targetProfileStatusIsApprovalOrArchived(#updatedProfileStatus))"
-			+ " || (@securityManager.canAccessProfile(#profileId) && @securityManager.targetProfileStatusIsPending(#updatedProfileStatus))")
-	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
+	@ApiResponses.Accepted
+	@PutMapping({ "/{id}/status" })
+	@ApiResponses.AccessDeniedError
+	@ApiResponses.AuthenticationError
+	@ApiResponses.ResourceNotFoundError
 	@Operation(summary = "Update an existing profile's status code specified by ID.")
-	public ResponseEntity<Void> updateProfileById(
-			@PathVariable(name = "id")
-			Long profileId,
+	@PreAuthorize("hasAuthority('hr-advisor') || hasPermission(#id, 'PROFILE', 'UPDATE')")
+	public ResponseEntity<Void> updateProfileById(@PathVariable Long id, @Valid @RequestBody ProfileStatusUpdateModel updatedProfileStatus) {
+		log.info("Received request to update profile status; ID: [{}]", id);
 
-			@Valid
-			@RequestBody
-			ProfileStatusUpdateModel updatedProfileStatus
-	) {
-		log.info("Received request to update profile status; ID: [{}]", profileId);
+		if (SecurityUtils.isHrAdvisor()) {
+			final var validStatus = AppConstants.ProfileStatusCodes.APPROVED.equals(updatedProfileStatus.getCode()) || AppConstants.ProfileStatusCodes.ARCHIVED.equals(updatedProfileStatus.getCode());
+			if (!validStatus) { throw new AccessDeniedException("Profile status can only be set to 'approved' or 'archived'"); }
+		}
+		else {
+			final var validStatus = AppConstants.ProfileStatusCodes.PENDING.equals(updatedProfileStatus.getCode());
+			if (!validStatus) { throw new AccessDeniedException("Profile status can only be set to 'pending'"); }
+		}
 
-		final var foundProfile = profileService.getProfile(profileId)
-				.orElseThrow(() -> generateIdDoesNotExistException("profile", profileId));
+		final var foundProfile = profileService.getProfileById(id)
+			.orElseThrow(asResourceNotFoundException(PROFILE, id));
 
-		log.trace("Found profile: [{}]", foundProfile);
+		log.trace(FOUND_PROFILE_LOG_MSG, foundProfile);
 
 		final var validPretransitionStates = switch (updatedProfileStatus.getCode()) {
 			case AppConstants.ProfileStatusCodes.PENDING -> Set.of(AppConstants.ProfileStatusCodes.INCOMPLETE, AppConstants.ProfileStatusCodes.APPROVED);
@@ -230,11 +235,11 @@ public class ProfilesController {
 
 		updateStatusToTarget(foundProfile, updatedProfileStatus.getCode(), validPretransitionStates);
 
-		return ResponseEntity.noContent().build();
+		return ResponseEntity.accepted().build();
 	}
 
 	private void updateStatusToTarget(ProfileEntity profile, String targetStatus, Collection<String> validPreTransitionStates) {
-		var currentStatus = profile.getProfileStatus().getCode();
+		final var currentStatus = profile.getProfileStatus().getCode();
 		if(!validPreTransitionStates.contains(currentStatus)) {
 			throw new ResourceConflictException("Cannot transition state from code=[" + currentStatus + "] to code=[" + targetStatus + "]");
 		}

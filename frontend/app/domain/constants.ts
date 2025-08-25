@@ -6,7 +6,7 @@ export const EMPLOYEE_WFA_STATUS = {
   exOpting: 'EXOPTING',
   surplusGRJO: 'SURPLUS_GRJO',
   exSurplusCPA: 'EXSURPLUSCPA',
-  surplusOptingOptionA: 'SURPLUS_OPTION_A',
+  surplusOptingOptionA: 'SURPLUS_NO_GRJO',
 } as const;
 
 export const PROFILE_STATUS_CODE = {
@@ -19,10 +19,10 @@ export const PROFILE_STATUS_CODE = {
 export type ProfileStatusCode = (typeof PROFILE_STATUS_CODE)[keyof typeof PROFILE_STATUS_CODE];
 
 export const PROFILE_STATUS_ID = {
-  pending: 1,
-  approved: 2,
-  incomplete: 3,
-  archived: 4,
+  pending: 0,
+  approved: 1,
+  incomplete: 2,
+  archived: 3,
 } as const;
 
 export const LANGUAGE_ID = {
@@ -34,3 +34,123 @@ export const REQUIRE_OPTIONS = {
   yes: 'yes',
   no: 'no',
 } as const;
+
+export const Acronym = {
+  ESDC: 'esdc',
+  HR: 'hr',
+  HRSB: 'hrsb',
+  PIB: 'pib',
+  TBS: 'tbs',
+  VMS: 'vms',
+} as const;
+
+export type AcronymEnum = (typeof Acronym)[keyof typeof Acronym];
+
+export const PROFILE_STATUS_PENDING = {
+  id: 0,
+  code: 'PENDING',
+  nameEn: 'Pending approval',
+  nameFr: "En attente d'approbation",
+  createdBy: 'system',
+  createdDate: '2025-08-14T17:26:29.38Z',
+  lastModifiedBy: 'system',
+  lastModifiedDate: '2025-08-14T17:26:29.38Z',
+} as const;
+
+export const PROFILE_STATUS_APPROVED = {
+  id: 1,
+  code: 'APPROVED',
+  nameEn: 'Approved',
+  nameFr: 'Approuvé',
+  createdBy: 'system',
+  createdDate: '2025-08-14T17:26:29.38Z',
+  lastModifiedBy: 'system',
+  lastModifiedDate: '2025-08-14T17:26:29.38Z',
+} as const;
+
+export const PROFILE_STATUS_INCOMPLETE = {
+  id: 2,
+  code: 'INCOMPLETE',
+  nameEn: 'In progress',
+  nameFr: 'En cours',
+  createdBy: 'system',
+  createdDate: '2025-08-14T17:26:29.38Z',
+  lastModifiedBy: 'system',
+  lastModifiedDate: '2025-08-14T17:26:29.38Z',
+} as const;
+
+export const PROFILE_STATUS_ARCHIVED = {
+  id: 3,
+  code: 'ARCHIVED',
+  nameEn: 'Archived',
+  nameFr: 'Archivé',
+  createdBy: 'system',
+  createdDate: '2025-08-14T17:26:29.38Z',
+  lastModifiedBy: 'system',
+  lastModifiedDate: '2025-08-14T17:26:29.38Z',
+} as const;
+
+export const PREFERRED_LANGUAGE_ENGLISH = {
+  id: 0,
+  code: 'EN',
+  nameEn: 'English',
+  nameFr: 'Anglais',
+} as const;
+
+export const PREFERRED_LANGUAGE_FRENCH = {
+  id: 1,
+  code: 'FR',
+  nameEn: 'French',
+  nameFr: 'Français',
+} as const;
+
+export const LANGUAGE_REFERRAL_TYPE_BILLINGUAL = {
+  id: 0,
+  code: 'BILINGUAL',
+  nameEn: 'Bilingual',
+  nameFr: 'Bilingue',
+} as const;
+
+export const LANGUAGE_REFERRAL_TYPE_ENGLISH = {
+  id: 1,
+  code: 'ENGLISH',
+  nameEn: 'English only',
+  nameFr: 'Anglais seulement',
+} as const;
+
+export const LANGUAGE_REFERRAL_TYPE_FRENCH = {
+  id: 2,
+  code: 'FRENCH',
+  nameEn: 'French only',
+  nameFr: 'Français seulement',
+} as const;
+
+export const USER_TYPE_EMPLOYEE = {
+  id: 0,
+  code: 'employee',
+  nameEn: 'Employee',
+  nameFr: 'Employé',
+} as const;
+
+export const USER_TYPE_ADMIN = {
+  id: 1,
+  code: 'admin',
+  nameEn: 'Administrator',
+  nameFr: 'Administrateur',
+} as const;
+
+export const USER_TYPE_HIRING_MANAGER = {
+  id: 2,
+  code: 'hiring-manager',
+  nameEn: 'Hiring Manager',
+  nameFr: 'Gestionnaire de recrutement',
+} as const;
+
+export const USER_TYPE_HR_ADVISOR = {
+  id: 3,
+  code: 'HRA',
+  nameEn: 'HR Advisor',
+  nameFr: 'Conseiller en R.H.',
+} as const;
+
+export const NOT_INTERESTED_EMPLOYMENT_OPPOURTUNITY_ID = 4;

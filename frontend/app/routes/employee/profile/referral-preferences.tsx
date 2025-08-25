@@ -1,23 +1,23 @@
 import type { RouteHandle } from 'react-router';
 import { data } from 'react-router';
 
-import { useTranslation } from 'react-i18next';
 import * as v from 'valibot';
 
 import type { Route } from './+types/referral-preferences';
 
-import type { Profile } from '~/.server/domain/models';
+import type { ProfilePutModel } from '~/.server/domain/models';
 import { getCityService } from '~/.server/domain/services/city-service';
 import { getClassificationService } from '~/.server/domain/services/classification-service';
-import { getEmploymentTenureService } from '~/.server/domain/services/employment-tenure-service';
+import { getEmploymentOpportunityTypeService } from '~/.server/domain/services/employment-opportunity-type-service';
 import { getLanguageReferralTypeService } from '~/.server/domain/services/language-referral-type-service';
 import { getProfileService } from '~/.server/domain/services/profile-service';
 import { getProvinceService } from '~/.server/domain/services/province-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { requirePrivacyConsentForOwnProfile } from '~/.server/utils/privacy-consent-utils';
+import { hasReferralDataChanged, mapProfileToPutModelWithOverrides } from '~/.server/utils/profile-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
-import { InlineLink } from '~/components/links';
-import { REQUIRE_OPTIONS } from '~/domain/constants';
+import { BackLink } from '~/components/back-link';
+import { PROFILE_STATUS_ID, PROFILE_STATUS_PENDING, REQUIRE_OPTIONS } from '~/domain/constants';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
@@ -30,7 +30,7 @@ export const handle = {
 } as const satisfies RouteHandle;
 
 export function meta({ loaderData }: Route.MetaArgs) {
-  return [{ title: loaderData?.documentTitle }];
+  return [{ title: loaderData.documentTitle }];
 }
 
 export async function action({ context, params, request }: Route.ActionArgs) {
@@ -38,17 +38,17 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 
   const formData = await request.formData();
   const parseResult = v.safeParse(referralPreferencesSchema, {
-    languageReferralTypeIds: formData.getAll('languageReferralTypes'),
-    classificationIds: formData.getAll('classifications'),
-    workLocationProvince: formString(formData.get('workLocationProvince')),
-    workLocationCitiesIds: formData.getAll('workLocationCities'),
-    availableForReferralInd: formData.get('referralAvailibility')
-      ? formData.get('referralAvailibility') === REQUIRE_OPTIONS.yes
+    preferredLanguages: formData.getAll('preferredLanguages'),
+    preferredClassifications: formData.getAll('preferredClassifications'),
+    preferredProvince: formString(formData.get('preferredProvince')),
+    preferredCities: formData.getAll('preferredCities'),
+    isAvailableForReferral: formData.get('isAvailableForReferral')
+      ? formData.get('isAvailableForReferral') === REQUIRE_OPTIONS.yes
       : undefined,
-    interestedInAlternationInd: formData.get('alternateOpportunity')
-      ? formData.get('alternateOpportunity') === REQUIRE_OPTIONS.yes
+    isInterestedInAlternation: formData.get('isInterestedInAlternation')
+      ? formData.get('isInterestedInAlternation') === REQUIRE_OPTIONS.yes
       : undefined,
-    employmentTenureIds: formData.getAll('employmentTenures'),
+    preferredEmploymentOpportunities: formData.getAll('preferredEmploymentOpportunities'),
   });
 
   if (!parseResult.success) {
@@ -59,19 +59,50 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   }
 
   const profileService = getProfileService();
-  const currentProfileOption = await profileService.getCurrentUserProfile(context.session.authState.accessToken);
-  const currentProfile = currentProfileOption.unwrap();
-  const updateResult = await profileService.updateProfileById(context.session.authState.accessToken, {
-    ...currentProfile,
-    referralPreferences: parseResult.output,
+  const profileParams = { active: true };
+  const currentProfile = await profileService.findCurrentUserProfile(profileParams, context.session.authState.accessToken);
+
+  const oldReferralData = currentProfile;
+  const newReferralData = parseResult.output;
+
+  const profilePayload: ProfilePutModel = mapProfileToPutModelWithOverrides(currentProfile, {
+    preferredLanguages: parseResult.output.preferredLanguages,
+    preferredClassification: parseResult.output.preferredClassifications,
+    preferredCities: parseResult.output.preferredCities,
+    isAvailableForReferral: parseResult.output.isAvailableForReferral,
+    isInterestedInAlternation: parseResult.output.isInterestedInAlternation,
+    preferredEmploymentOpportunities: parseResult.output.preferredEmploymentOpportunities,
   });
+
+  const updateResult = await profileService.updateProfileById(
+    currentProfile.id,
+    profilePayload,
+    context.session.authState.accessToken,
+  );
 
   if (updateResult.isErr()) {
     throw updateResult.unwrapErr();
   }
 
+  if (
+    currentProfile.profileStatus?.id === PROFILE_STATUS_ID.approved &&
+    hasReferralDataChanged(oldReferralData, newReferralData)
+  ) {
+    // profile needs to be re-approved if and only if the current profile status is 'approved'
+    await profileService.updateProfileStatus(
+      currentProfile.profileUser.id,
+      PROFILE_STATUS_PENDING,
+      context.session.authState.accessToken,
+    );
+    return i18nRedirect('routes/employee/profile/index.tsx', request, {
+      params: { id: currentProfile.profileUser.id.toString() },
+      search: new URLSearchParams({
+        edited: 'true',
+      }),
+    });
+  }
   return i18nRedirect('routes/employee/profile/index.tsx', request, {
-    params: { id: currentProfile.userId.toString() },
+    params: { id: currentProfile.profileUser.id.toString() },
   });
 }
 
@@ -79,61 +110,56 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   requireAuthentication(context.session, request);
   await requirePrivacyConsentForOwnProfile(context.session, request);
 
-  const currentProfileOption = await getProfileService().getCurrentUserProfile(context.session.authState.accessToken);
-
-  if (currentProfileOption.isNone()) {
-    throw new Response('Profile not found', { status: 404 });
-  }
+  const profileParams = { active: true };
+  const profileData = await getProfileService().findCurrentUserProfile(profileParams, context.session.authState.accessToken);
 
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
   const localizedLanguageReferralTypesResult = await getLanguageReferralTypeService().listAllLocalized(lang);
   const localizedClassifications = await getClassificationService().listAllLocalized(lang);
-  const localizedEmploymentTenures = await getEmploymentTenureService().listAllLocalized(lang);
+  const localizedEmploymentOpportunities = await getEmploymentOpportunityTypeService().listAllLocalized(lang);
   const localizedProvinces = await getProvinceService().listAllLocalized(lang);
   const localizedCities = await getCityService().listAllLocalized(lang);
-  const profileData: Profile = currentProfileOption.unwrap();
 
   const cityResult =
-    profileData.referralPreferences.workLocationCitiesIds?.[0] &&
-    (await getCityService().findLocalizedById(profileData.referralPreferences.workLocationCitiesIds[0], lang)); //get the province from first city only to avoid validation error on province
-  const city = cityResult && cityResult.isSome() ? cityResult.unwrap() : undefined;
+    profileData.preferredCities?.[0] !== undefined
+      ? await getCityService().findLocalizedById(profileData.preferredCities[0].id, lang)
+      : undefined; //get the province from first city only to avoid validation error on province
+  const city = cityResult?.into();
 
   return {
     documentTitle: t('app:referral-preferences.page-title'),
     defaultValues: {
-      languageReferralTypeIds: profileData.referralPreferences.languageReferralTypeIds,
-      classificationIds: profileData.referralPreferences.classificationIds,
-      workLocationProvince: city?.provinceTerritory.id,
-      workLocationCitiesIds: profileData.referralPreferences.workLocationCitiesIds,
-      availableForReferralInd: profileData.referralPreferences.availableForReferralInd,
-      interestedInAlternationInd: profileData.referralPreferences.interestedInAlternationInd,
-      employmentTenureIds: profileData.referralPreferences.employmentTenureIds,
+      preferredLanguages: profileData.preferredLanguages,
+      preferredClassifications: profileData.preferredClassifications,
+      preferredProvince: city?.provinceTerritory.id,
+      preferredCities: profileData.preferredCities,
+      isAvailableForReferral: profileData.isAvailableForReferral,
+      isInterestedInAlternation: profileData.isInterestedInAlternation,
+      preferredEmploymentOpportunities: profileData.preferredEmploymentOpportunities,
     },
     languageReferralTypes: localizedLanguageReferralTypesResult,
     classifications: localizedClassifications,
-    employmentTenures: localizedEmploymentTenures,
+    employmentOpportunities: localizedEmploymentOpportunities,
     provinces: localizedProvinces,
     cities: localizedCities,
   };
 }
 
 export default function PersonalDetails({ loaderData, actionData, params }: Route.ComponentProps) {
-  const { t } = useTranslation(handle.i18nNamespace);
   const errors = actionData?.errors;
 
   return (
     <>
-      <InlineLink className="mt-6 block" file="routes/employee/profile/index.tsx" params={params} id="back-button">
-        {`< ${t('app:profile.back')}`}
-      </InlineLink>
+      <BackLink className="mt-6" file="routes/employee/profile/index.tsx" params={params} />
       <div className="max-w-prose">
         <ReferralPreferencesForm
           cancelLink={'routes/employee/profile/index.tsx'}
           formValues={loaderData.defaultValues}
+          preferredProvince={loaderData.defaultValues.preferredProvince}
           formErrors={errors}
           languageReferralTypes={loaderData.languageReferralTypes}
           classifications={loaderData.classifications}
-          employmentTenures={loaderData.employmentTenures}
+          employmentOpportunities={loaderData.employmentOpportunities}
           provinces={loaderData.provinces}
           cities={loaderData.cities}
           params={params}

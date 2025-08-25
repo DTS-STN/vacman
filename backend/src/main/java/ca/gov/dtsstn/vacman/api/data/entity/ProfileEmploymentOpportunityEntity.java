@@ -1,26 +1,33 @@
 package ca.gov.dtsstn.vacman.api.data.entity;
 
 import java.time.Instant;
+import java.util.Objects;
 
 import org.immutables.builder.Builder;
 import org.springframework.core.style.ToStringCreator;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import jakarta.annotation.Nullable;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
 
 @Entity(name = "ProfileEmploymentOpportunity")
-@Table(name = "[PROFILE_EMPLOYMENT_OPPORTUNITY]", uniqueConstraints = { @UniqueConstraint(name = "PEMPOPPR_UK", columnNames = { "[EMPLOYMENT_OPPORTUNITY_ID]", "[PROFILE_ID]" }) })
+@Table(name = "[PROFILE_EMPLOYMENT_OPPORTUNITY]")
 public class ProfileEmploymentOpportunityEntity extends AbstractBaseEntity {
+
+	public static ProfileEmploymentOpportunityEntityBuilder builder() {
+		return new ProfileEmploymentOpportunityEntityBuilder();
+	}
 
 	@ManyToOne
 	@JoinColumn(name = "[EMPLOYMENT_OPPORTUNITY_ID]", nullable = false)
 	private EmploymentOpportunityEntity employmentOpportunity;
 
 	@ManyToOne
+	@JsonBackReference
 	@JoinColumn(name = "[PROFILE_ID]", nullable = false)
 	private ProfileEntity profile;
 
@@ -59,12 +66,29 @@ public class ProfileEmploymentOpportunityEntity extends AbstractBaseEntity {
 	}
 
 	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) { return true; }
+		if (obj == null) { return false; }
+		if (getClass() != obj.getClass()) { return false; }
+
+		final var other = (ProfileEmploymentOpportunityEntity) obj;
+
+		return Objects.equals(employmentOpportunity, other.employmentOpportunity)
+			&& Objects.equals(profile, other.profile);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(employmentOpportunity, profile);
+	}
+
+	@Override
 	public String toString() {
 		return new ToStringCreator(this)
-				.append("super", super.toString())
-				.append("employmentOpportunity", employmentOpportunity)
-				.append("profile", profile)
-				.toString();
+			.append("super", super.toString())
+			.append("employmentOpportunity", employmentOpportunity)
+			.append("profile.id", profile.id)
+			.toString();
 	}
 
 }

@@ -12,8 +12,4 @@ public class ForbiddenException extends NestedRuntimeException {
 		super(message);
 	}
 
-	public ForbiddenException(String message, Throwable cause) {
-		super(message, cause);
-	}
-
 }

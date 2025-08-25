@@ -1,6 +1,7 @@
 import type { JSX } from 'react';
 
-import type { RouteHandle, LoaderFunctionArgs } from 'react-router';
+import type { RouteHandle } from 'react-router';
+import { useSearchParams } from 'react-router';
 
 import type { ColumnDef } from '@tanstack/react-table';
 import { format } from 'date-fns';
@@ -8,12 +9,13 @@ import { useTranslation } from 'react-i18next';
 
 import type { Route } from './+types/employees';
 
-import type { Profile } from '~/.server/domain/models';
+import type { Profile, ProfileStatus } from '~/.server/domain/models';
 import { getProfileService } from '~/.server/domain/services/profile-service';
 import { getProfileStatusService } from '~/.server/domain/services/profile-status-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
-import { Button } from '~/components/button';
+import { BackLink } from '~/components/back-link';
 import { DataTable, DataTableColumnHeader, DataTableColumnHeaderWithOptions } from '~/components/data-table';
+import { InputSelect } from '~/components/input-select';
 import { InlineLink } from '~/components/links';
 import { PageTitle } from '~/components/page-title';
 import { PROFILE_STATUS_CODE } from '~/domain/constants';
@@ -25,65 +27,78 @@ export const handle = {
 } as const satisfies RouteHandle;
 
 export function meta({ loaderData }: Route.MetaArgs) {
-  return [{ title: loaderData?.documentTitle }];
+  return [{ title: loaderData.documentTitle }];
 }
 
-export async function loader({ context, request }: LoaderFunctionArgs) {
+export async function loader({ context, request }: Route.LoaderArgs) {
   requireAuthentication(context.session, request);
 
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
 
+  // Filter profiles based on hr-advisor selection. Options 'My Employees' or 'All employees'
+  const url = new URL(request.url);
+  const filter = url.searchParams.get('filter');
+
   const profileParams = {
-    accessToken: context.session.authState.accessToken,
-    active: true, // will return In Progress, Pending Approval and Approved
-    hrAdvisorId: null, // if null : will return everything, if a UserId : will return profiles linked to that hr-advisor, if "me" : will return profiles linked to the logged in hr-advisor -> to be used later in filtering
-    includeUserData: true, // will add user data (names and email)
+    'active': true, // will return In Progress, Pending Approval and Approved
+    'hr-advisor': filter === 'me' ? filter : undefined, // 'me' is used in the API to filter for the current HR advisor
   };
 
   const profileService = getProfileService();
   const profileStatusService = getProfileStatusService();
 
-  const [profiles, statuses] = await Promise.all([
-    profileService.listAllProfiles(profileParams),
+  const [profilesResult, statuses] = await Promise.all([
+    profileService.getProfiles(profileParams, context.session.authState.accessToken),
     profileStatusService.listAllLocalized(lang),
   ]);
 
-  const hrRelevantEmployeeStatusCodes = [PROFILE_STATUS_CODE.approved, PROFILE_STATUS_CODE.pending];
-  const statusIds = statuses
-    .filter((s) =>
-      hrRelevantEmployeeStatusCodes.includes(
-        s.code as typeof PROFILE_STATUS_CODE.approved | typeof PROFILE_STATUS_CODE.pending,
-      ),
-    )
-    .map((s) => s.id);
+  if (profilesResult.isErr()) {
+    throw profilesResult.unwrapErr();
+  }
 
-  // Filter profiles based on allowed status codes
-  const filteredProfiles = profiles.filter((profile) => statusIds.includes(profile.profileStatusId));
+  const profiles = profilesResult.unwrap();
+  const filteredAllProfiles = profiles.content.filter(
+    (profile) =>
+      profile.profileStatus &&
+      [PROFILE_STATUS_CODE.approved, PROFILE_STATUS_CODE.pending].some((id) => id === profile.profileStatus?.code),
+  );
 
   return {
     documentTitle: t('app:index.employees'),
-    profiles: filteredProfiles,
+    profiles: filteredAllProfiles,
     statuses,
+    lang,
   };
 }
 
 export default function EmployeeDashboard({ loaderData, params }: Route.ComponentProps) {
   const { t } = useTranslation(handle.i18nNamespace);
 
-  const statusMap = Object.fromEntries(loaderData.statuses.map((s) => [s.id, s.name]));
+  const [, setSearchParams] = useSearchParams({ filter: 'all' });
+
+  const employeesOptions = [
+    {
+      value: 'me',
+      children: t('app:hr-advisor-employees-table.my-employees'),
+    },
+    {
+      value: 'all',
+      children: t('app:hr-advisor-employees-table.all-employees'),
+    },
+  ];
 
   const columns: ColumnDef<Profile>[] = [
     {
-      accessorKey: 'personalInformation.givenName',
-      accessorFn: (row) => `${row.personalInformation.givenName ?? ''} ${row.personalInformation.surname ?? ''}`.trim(),
-      header: ({ column }) => <DataTableColumnHeader column={column} title={t('app:employee-dashboard.employee')} />,
+      accessorKey: 'profileUser.firstName',
+      accessorFn: (row) => `${row.profileUser.firstName} ${row.profileUser.lastName}`,
+      header: ({ column }) => <DataTableColumnHeader column={column} title={t('app:hr-advisor-employees-table.employee')} />,
       cell: (info) => <p>{info.getValue() as string}</p>,
     },
     {
-      accessorKey: 'personalInformation.workEmail',
-      header: ({ column }) => <DataTableColumnHeader column={column} title={t('app:employee-dashboard.email')} />,
+      accessorKey: 'profileUser.businessEmailAddress',
+      header: ({ column }) => <DataTableColumnHeader column={column} title={t('app:hr-advisor-employees-table.email')} />,
       cell: (info) => {
-        const email = info.row.original.personalInformation.workEmail;
+        const email = info.row.original.profileUser.businessEmailAddress;
         return (
           <a href={`mailto:${email}`} className="text-sky-800 decoration-slate-400 decoration-2 hover:underline">
             {email}
@@ -93,32 +108,27 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
     },
     {
       accessorKey: 'dateUpdated',
-      header: ({ column }) => <DataTableColumnHeader column={column} title={t('app:employee-dashboard.updated')} />,
+      header: ({ column }) => <DataTableColumnHeader column={column} title={t('app:hr-advisor-employees-table.updated')} />,
       cell: (info) => {
-        const date = info.row.original.dateUpdated;
-        const userUpdated = info.row.original.userUpdated ?? 'Unknown User';
-
+        const date = info.row.original.lastModifiedDate;
+        const userUpdated = info.row.original.lastModifiedBy ?? 'Unknown User';
         const dateUpdated = date !== undefined ? format(new Date(date), 'yyyy-MM-dd') : '0000-00-00';
-
         return <p className="text-neutral-600">{`${dateUpdated}: ${userUpdated}`}</p>;
       },
     },
     {
       accessorKey: 'status',
-      accessorFn: (row) => statusMap[row.profileStatusId] ?? '',
+      accessorFn: (row) => row.profileStatus?.code,
       header: ({ column }) => (
         <DataTableColumnHeaderWithOptions
           column={column}
-          title={t('app:employee-dashboard.status')}
-          options={loaderData.statuses
-            .filter((status) => status.code === PROFILE_STATUS_CODE.approved || status.code === PROFILE_STATUS_CODE.pending)
-            .map((status) => status.name)}
+          title={t('app:hr-advisor-employees-table.status')}
+          options={Object.values(PROFILE_STATUS_CODE)}
         />
       ),
       cell: (info) => {
-        const profile = info.row.original;
-        const status = loaderData.statuses.find((s) => s.id === profile.profileStatusId);
-        return status && statusTag(status.code, status.name);
+        const status = info.row.original.profileStatus;
+        return status && statusTag(status, loaderData.lang);
       },
       filterFn: (row, columnId, filterValue: string[]) => {
         const status = row.getValue(columnId) as string;
@@ -127,17 +137,21 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
       enableColumnFilter: true,
     },
     {
-      header: t('app:employee-dashboard.action'),
+      header: t('app:hr-advisor-employees-table.action'),
       id: 'action',
       cell: (info) => {
-        const profileId = info.row.original.profileId.toString();
+        const profileId = info.row.original.id.toString();
+        const profileUserName = `${info.row.original.profileUser.firstName} ${info.row.original.profileUser.lastName}`;
         return (
           <InlineLink
             className="text-sky-800 no-underline decoration-slate-400 decoration-2 hover:underline"
             file="routes/hr-advisor/employee-profile/index.tsx"
             params={{ profileId }}
+            aria-label={t('app:hr-advisor-employees-table.view-link', {
+              profileUserName,
+            })}
           >
-            {t('app:employee-dashboard.view')}
+            {t('app:hr-advisor-employees-table.view')}
           </InlineLink>
         );
       },
@@ -147,26 +161,39 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
   return (
     <div className="mb-8">
       <PageTitle className="after:w-14">{t('app:index.employees')}</PageTitle>
-      {/* TODO:  This button should select between "My employees" and "All employees" in case an HR advisor needs to pick up an employee assigned to the wrong advisor*/}
-      <Button variant="alternative" className="float-right my-4">
-        {t('app:employee-dashboard.all-employees')}
-      </Button>
+      <BackLink
+        file="routes/hr-advisor/index.tsx"
+        params={params}
+        translationKey="app:hr-advisor-employees-table.back-to-dashboard"
+      />
+
+      <InputSelect
+        id="selectEmployees"
+        name="selectEmployees"
+        required={false}
+        options={employeesOptions}
+        label=""
+        aria-label={t('app:hr-advisor-employees-table.filter-by')}
+        defaultValue="all"
+        onChange={({ target }) => setSearchParams({ filter: target.value })}
+        className="wx-1/12 float-right my-4 sm:w-1/5"
+      />
+
       <DataTable columns={columns} data={loaderData.profiles} />
     </div>
   );
 }
 
-function statusTag(statusCode: string, label: string): JSX.Element {
+function statusTag(status: ProfileStatus, lang: Language): JSX.Element {
   const styleMap: Record<string, string> = {
     APPROVED: 'bg-sky-100 text-sky-700',
-    PENDING: 'bg-amber-100 text-yellow-700',
+    PENDING: 'bg-amber-100 text-yellow-900',
+    DEFAULT: 'bg-transparent',
   };
-
-  const style = styleMap[statusCode] ?? styleMap.DEFAULT;
-
+  const style = styleMap[status.code] ?? styleMap.DEFAULT;
   return (
     <div className={`${style} flex w-fit items-center gap-2 rounded-md px-3 py-1 text-sm font-semibold`}>
-      <p>{label}</p>
+      <p>{lang === 'en' ? status.nameEn : status.nameFr}</p>
     </div>
   );
 }

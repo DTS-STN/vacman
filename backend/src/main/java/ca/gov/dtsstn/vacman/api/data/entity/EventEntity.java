@@ -6,15 +6,17 @@ import org.immutables.builder.Builder;
 import org.springframework.core.style.ToStringCreator;
 
 import jakarta.annotation.Nullable;
-import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 
 @Entity(name = "Event")
 @Table(name = "[EVENT]")
-@AttributeOverride(name = "id", column = @Column(name = "[ID]"))
 public class EventEntity extends AbstractBaseEntity {
+
+	public static EventEntityBuilder builder() {
+		return new EventEntityBuilder();
+	}
 
 	@Column(name = "[TYPE]", nullable = false, length = 255)
 	private String type;

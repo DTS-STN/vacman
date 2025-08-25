@@ -29,12 +29,24 @@ export function requireAuthentication(
   session: AppSession,
   requestOrUrl: Request | URL,
 ): asserts session is AuthenticatedSession {
+  // Parse URL once for potential reuse
+  const url = requestOrUrl instanceof Request ? new URL(requestOrUrl.url) : requestOrUrl;
+  const { pathname, search } = url;
+  const returnToUrl = `/auth/login?returnto=${encodeURIComponent(pathname + search)}`;
+
   if (!session.authState) {
     log.debug('User is not authenticated; redirecting to login page');
+    throw redirect(returnToUrl);
+  }
 
-    const url = requestOrUrl instanceof Request ? new URL(requestOrUrl.url) : requestOrUrl;
-    const { pathname, search } = url;
-    throw redirect(`/auth/login?returnto=${encodeURIComponent(pathname + search)}`);
+  // Check if the JWT access token has expired, allowing for clock skew
+  const { exp } = session.authState.accessTokenClaims;
+  const currentTime = Math.floor(Date.now() / 1000);
+  const clockSkewSeconds = 10;
+
+  if (exp && currentTime - clockSkewSeconds >= exp) {
+    log.debug('JWT access token has expired (with clock skew); redirecting to login page');
+    throw redirect(returnToUrl);
   }
 }
 
@@ -55,12 +67,8 @@ export function requireAllRoles(
   currentUrl: URL,
   roles: Role[] = [],
 ): asserts session is AuthenticatedSession {
-  if (!session.authState) {
-    log.debug('User is not authenticated; redirecting to login page');
-
-    const { pathname, search } = currentUrl;
-    throw redirect(`/auth/login?returnto=${pathname}${search}`);
-  }
+  // First ensure the user is authenticated and JWT is not expired
+  requireAuthentication(session, currentUrl);
 
   const missingRoles = roles.filter((role) => !hasRole(session, role));
 
@@ -83,12 +91,8 @@ export function requireAnyRole(
   currentUrl: URL,
   roles: Role[] = [],
 ): asserts session is AuthenticatedSession {
-  if (!session.authState) {
-    log.debug('User is not authenticated; redirecting to login page');
-
-    const { pathname, search } = currentUrl;
-    throw redirect(`/auth/login?returnto=${pathname}${search}`);
-  }
+  // First ensure the user is authenticated and JWT is not expired
+  requireAuthentication(session, currentUrl);
 
   const hasAnyRole = roles.some((role) => hasRole(session, role));
 

@@ -1,28 +1,124 @@
 {
   "content": [
     {
+      "id": 0,
+      "code": "AEP",
+      "nameEn": "Appointment - ESDC Priority",
+      "nameFr": "Nomination - Priorité d'EDSC",
+      "effectiveDate": "1970-01-01T00:00:00Z",
+      "expiryDate": null,
+      "createdBy": "system",
+      "createdDate": "2025-08-14T17:26:29.4666667Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-08-14T17:26:29.4666667Z"
+    },
+    {
       "id": 1,
-      "code": "COMPETITIVE",
-      "nameEn": "Competitive Process",
-      "nameFr": "Processus concurrentiel"
+      "code": "AODP",
+      "nameEn": "Appointment - Other Department Priority",
+      "nameFr": "Nomination - Priorité autre ministère",
+      "effectiveDate": "1970-01-01T00:00:00Z",
+      "expiryDate": null,
+      "createdBy": "system",
+      "createdDate": "2025-08-14T17:26:29.4666667Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-08-14T17:26:29.4666667Z"
     },
     {
       "id": 2,
-      "code": "NON_COMPETITIVE",
-      "nameEn": "Non-Competitive Process",
-      "nameFr": "Processus non concurrentiel"
+      "code": "AEA",
+      "nameEn": "Appointment - External Advertised (from outside the public service)",
+      "nameFr": "Nomination - Externe annoncé (de l'extérieur de la fonction publique)",
+      "effectiveDate": "1970-01-01T00:00:00Z",
+      "expiryDate": null,
+      "createdBy": "system",
+      "createdDate": "2025-08-14T17:26:29.4666667Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-08-14T17:26:29.4666667Z"
     },
     {
       "id": 3,
-      "code": "INVENTORY",
-      "nameEn": "Inventory Process",
-      "nameFr": "Processus d'inventaire"
+      "code": "AENA",
+      "nameEn": "Appointment - External Non-Advertised (from outside the public service)",
+      "nameFr": "Nomination - Externe non-annoncé (de l'extérieur de la fonction publique)",
+      "effectiveDate": "1970-01-01T00:00:00Z",
+      "expiryDate": null,
+      "createdBy": "system",
+      "createdDate": "2025-08-14T17:26:29.4666667Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-08-14T17:26:29.4666667Z"
     },
     {
       "id": 4,
-      "code": "POOL",
-      "nameEn": "Pool Process",
-      "nameFr": "Processus de bassin"
+      "code": "AIA",
+      "nameEn": "Appointment - Internal Advertised (from inside the public service)",
+      "nameFr": "Nomination - Interne annoncé (au sein de la fonction publique)",
+      "effectiveDate": "1970-01-01T00:00:00Z",
+      "expiryDate": null,
+      "createdBy": "system",
+      "createdDate": "2025-08-14T17:26:29.4666667Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-08-14T17:26:29.4666667Z"
+    },
+    {
+      "id": 5,
+      "code": "AINA",
+      "nameEn": "Appointment - Internal Non-Advertised (from inside the public service)",
+      "nameFr": "Nomination - Interne non-annoncé (au sein de la fonction publique)",
+      "effectiveDate": "1970-01-01T00:00:00Z",
+      "expiryDate": null,
+      "createdBy": "system",
+      "createdDate": "2025-08-14T17:26:29.4666667Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-08-14T17:26:29.4666667Z"
+    },
+    {
+      "id": 6,
+      "code": "IAP",
+      "nameEn": "Initiate an Avertised Process (Internal or External)",
+      "nameFr": "Initiation d'un processus annoncé (Interne ou externe)",
+      "effectiveDate": "1970-01-01T00:00:00Z",
+      "expiryDate": null,
+      "createdBy": "system",
+      "createdDate": "2025-08-14T17:26:29.4666667Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-08-14T17:26:29.4666667Z"
+    },
+    {
+      "id": 7,
+      "code": "DEP",
+      "nameEn": "Deployment - ESDC Priority",
+      "nameFr": "Mutation - Priorité d'EDSC",
+      "effectiveDate": "1970-01-01T00:00:00Z",
+      "expiryDate": null,
+      "createdBy": "system",
+      "createdDate": "2025-08-14T17:26:29.4666667Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-08-14T17:26:29.4666667Z"
+    },
+    {
+      "id": 8,
+      "code": "DWE",
+      "nameEn": "Deployment - From within ESDC",
+      "nameFr": "Mutation - Au sein de EDSC",
+      "effectiveDate": "1970-01-01T00:00:00Z",
+      "expiryDate": null,
+      "createdBy": "system",
+      "createdDate": "2025-08-14T17:26:29.4666667Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-08-14T17:26:29.4666667Z"
+    },
+    {
+      "id": 9,
+      "code": "DAD",
+      "nameEn": "Deployment - From another department/agency",
+      "nameFr": "Mutation - D'un autre ministère",
+      "effectiveDate": "1970-01-01T00:00:00Z",
+      "expiryDate": null,
+      "createdBy": "system",
+      "createdDate": "2025-08-14T17:26:29.4666667Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-08-14T17:26:29.4666667Z"
     }
   ]
 }

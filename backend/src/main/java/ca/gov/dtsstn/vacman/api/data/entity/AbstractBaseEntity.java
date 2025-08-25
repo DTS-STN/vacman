@@ -1,7 +1,8 @@
 package ca.gov.dtsstn.vacman.api.data.entity;
 
 import java.time.Instant;
-import java.util.Objects;
+import java.util.Arrays;
+import java.util.function.Predicate;
 
 import org.springframework.core.style.ToStringCreator;
 import org.springframework.data.annotation.CreatedBy;
@@ -9,6 +10,8 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.annotation.Nullable;
 import jakarta.persistence.Column;
@@ -23,23 +26,34 @@ import jakarta.persistence.Version;
 @EntityListeners({ AuditingEntityListener.class })
 public abstract class AbstractBaseEntity {
 
+	/**
+	 * Returns a predicate that can be used to filter collections by id.
+	 */
+	public static <T extends AbstractBaseEntity> Predicate<T> byId(Long... ids) {
+		return entity -> Arrays.asList(ids).contains(entity.getId());
+	}
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "[ID]", nullable = false, updatable = false)
+	@Column(name = "[ID]", nullable = false, unique = true, updatable = false)
 	protected Long id;
 
+	@JsonIgnore
 	@CreatedBy
 	@Column(name = "[USER_CREATED]", length = 50, nullable = false, updatable = false)
 	protected String createdBy;
 
+	@JsonIgnore
 	@CreatedDate
 	@Column(name = "[DATE_CREATED]", nullable = false, updatable = false)
 	protected Instant createdDate;
 
+	@JsonIgnore
 	@LastModifiedBy
 	@Column(name = "[USER_UPDATED]", length = 50)
 	protected String lastModifiedBy;
 
+	@JsonIgnore
 	@Version
 	@LastModifiedDate
 	@Column(name = "[DATE_UPDATED]")
@@ -109,12 +123,12 @@ public abstract class AbstractBaseEntity {
 		if (getClass() != obj.getClass()) { return false; }
 
 		final var other = (AbstractBaseEntity) obj;
-		return Objects.equals(id, other.id);
+		return id != null && id.equals(other.id);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id);
+		return id != null ? id.hashCode() : getClass().hashCode();
 	}
 
 	@Override

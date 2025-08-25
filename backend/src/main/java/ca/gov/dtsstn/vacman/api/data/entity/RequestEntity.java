@@ -1,8 +1,13 @@
 package ca.gov.dtsstn.vacman.api.data.entity;
 
+import static java.util.Collections.emptySet;
+import static java.util.stream.Collectors.toUnmodifiableSet;
+
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 import org.immutables.builder.Builder;
@@ -19,118 +24,133 @@ import jakarta.persistence.Table;
 
 @Entity(name = "Request")
 @Table(name = "[REQUEST]")
-public class RequestEntity extends AbstractBaseEntity {
+public class RequestEntity extends AbstractBaseEntity implements Ownable {
+
+	public static RequestEntityBuilder builder() {
+		return new RequestEntityBuilder();
+	}
+
+	@Column(name = "[ADDITIONAL_COMMENT]", length = 100)
+	private String additionalComment;
+
+	@Column(name = "[ALTERNATE_CONTACT_EMAIL_ADDRESS]", length = 320)
+	private String alternateContactEmailAddress;
 
 	@ManyToOne
-	@JoinColumn(name = "[SECURITY_CLEARANCE_ID]", nullable = false)
-	private SecurityClearanceEntity securityClearance;
+	@JoinColumn(name = "[APPOINTMENT_NON_ADVERTISED_ID]")
+	private NonAdvertisedAppointmentEntity appointmentNonAdvertised;
+
+	@OneToMany(mappedBy = "request", cascade = { CascadeType.ALL }, orphanRemoval = true)
+	private final Set<RequestCityEntity> cities = new HashSet<>();
 
 	@ManyToOne
-	@JoinColumn(name = "[WORK_UNIT_ID]", nullable = false)
-	private WorkUnitEntity workUnit;
-
-	@ManyToOne
-	@JoinColumn(name = "[CLASSIFICATION_ID]", nullable = false)
+	@JoinColumn(name = "[CLASSIFICATION_ID]")
 	private ClassificationEntity classification;
+
+	@Column(name = "[EMPLOYMENT_EQUITY_NEED_IDENTIFIED_IND]")
+	private Boolean employmentEquityNeedIdentifiedIndicator;
+
+	@OneToMany(mappedBy = "request", cascade = { CascadeType.ALL }, orphanRemoval = true)
+	private final Set<RequestEmploymentEquityEntity> employmentEquities = new HashSet<>();
+
+	@ManyToOne
+	@JoinColumn(name = "[EMPLOYMENT_TENURE_ID]")
+	private EmploymentTenureEntity employmentTenure;
+
+	@Column(name = "[END_DATE]")
+	private LocalDate endDate;
+
+	@Column(name = "[HAS_PRVS_PRFRMD_DTS_IND]")
+	private Boolean hasPerformedSameDuties;
+
+	@ManyToOne
+	@JoinColumn(name = "[USER_ID_HIRING_MANAGER]")
+	private UserEntity hiringManager;
+
+	@ManyToOne
+	@JoinColumn(name = "[USER_ID_HR_ADVISOR]")
+	private UserEntity hrAdvisor;
+
+	@ManyToOne
+	@JoinColumn(name = "[LANGUAGE_ID]")
+	private LanguageEntity language;
+
+	@Column(name = "[LANGUAGE_PROFILE_EN]", length = 3)
+	private String languageProfileEn;
+
+	@Column(name = "[LANGUAGE_PROFILE_FR]", length = 3)
+	private String languageProfileFr;
+
+	@ManyToOne
+	@JoinColumn(name = "[LANGUAGE_REQUIREMENT_ID]")
+	private LanguageRequirementEntity languageRequirement;
+
+	@Column(name = "[POSITION_NUMBER]", length = 100)
+	private String positionNumber;
+
+	@Column(name = "[PRIORITY_CLEARANCE_NUMBER]", length = 20)
+	private String priorityClearanceNumber;
+
+	@Column(name = "[APPT_RSLT_PRRT_ENTTLMNT_IND]")
+	private Boolean priorityEntitlement;
+
+	@Column(name = "[APPT_RSLT_PRRT_ENTTLMNT_RTNL]", length = 200)
+	private String priorityEntitlementRationale;
+
+	@Column(name = "[NAME_EN]", length = 200)
+	private String nameEn;
+
+	@Column(name = "[NAME_FR]", length = 200)
+	private String nameFr;
+
+	@Column(name = "[REQUEST_NUMBER]", length = 10)
+	private String requestNumber;
 
 	@ManyToOne
 	@JoinColumn(name = "[REQUEST_STATUS_ID]", nullable = false)
 	private RequestStatusEntity requestStatus;
 
 	@ManyToOne
-	@JoinColumn(name = "[USER_ID_SUBMITTER]", nullable = false)
-	private UserEntity submitter;
+	@JoinColumn(name = "[SECURITY_CLEARANCE_ID]")
+	private SecurityClearanceEntity securityClearance;
+
+	@Column(name = "[SELECTION_PROCESS_NUMBER]", length = 30)
+	private String selectionProcessNumber;
 
 	@ManyToOne
-	@JoinColumn(name = "[USER_ID_HR_ADVISOR]", nullable = false)
-	private UserEntity hrAdvisor;
+	@JoinColumn(name = "[SELECTION_PROCESS_TYPE_ID]")
+	private SelectionProcessTypeEntity selectionProcessType;
+
+	@Column(name = "[SOMC_AND_CONDITION_EMPLOYMENT_EN]")
+	private String somcAndConditionEmploymentEn;
+
+	@Column(name = "[SOMC_AND_CONDITION_EMPLOYMENT_FR]")
+	private String somcAndConditionEmploymentFr;
+
+	@Column(name = "[START_DATE]")
+	private LocalDate startDate;
 
 	@ManyToOne
-	@JoinColumn(name = "[USER_ID_HIRING_MANAGER]", nullable = false)
-	private UserEntity hiringManager;
-
-	@ManyToOne
-	@JoinColumn(name = "[USER_ID_SUB_DELEGATED_MANAGER]", nullable = false)
+	@JoinColumn(name = "[USER_ID_SUB_DELEGATED_MANAGER]")
 	private UserEntity subDelegatedManager;
 
 	@ManyToOne
-	@JoinColumn(name = "[LANGUAGE_ID]", nullable = false)
-	private LanguageEntity language;
+	@JoinColumn(name = "[USER_ID_SUBMITTER]", nullable = false)
+	private UserEntity submitter;
 
-	@ManyToOne
-	@JoinColumn(name = "[LANGUAGE_REQUIREMENT_ID]", nullable = false)
-	private LanguageRequirementEntity languageRequirement;
-
-	@ManyToOne
-	@JoinColumn(name = "[EMPLOYMENT_TENURE_ID]", nullable = false)
-	private EmploymentTenureEntity employmentTenure;
-
-	@ManyToOne
-	@JoinColumn(name = "[SELECTION_PROCESS_TYPE_ID]", nullable = false)
-	private SelectionProcessTypeEntity selectionProcessType;
-
-	@ManyToOne
-	@JoinColumn(name = "[APPOINTMENT_NON_ADVERTISED_ID]", nullable = false)
-	private NonAdvertisedAppointmentEntity appointmentNonAdvertised;
-
-	@ManyToOne
-	@JoinColumn(name = "[WORK_SCHEDULE_ID]", nullable = false)
-	private WorkScheduleEntity workSchedule;
-
-	@Column(name = "[REQUEST_NAME_EN]", length = 200, nullable = false)
-	private String requestNameEn;
-
-	@Column(name = "[REQUEST_NAME_FR]", length = 200, nullable = false)
-	private String requestNameFr;
-
-	@Column(name = "[PRIORITY_CLEARANCE_NUMBER]", length = 20, nullable = true)
-	private String priorityClearanceNumber;
-
-	@Column(name = "[ALLOW_TELEWORK_IND]", nullable = true)
+	@Column(name = "[ALLOW_TELEWORK_IND]")
 	private Boolean teleworkAllowed;
 
-	@Column(name = "[START_DATE]", nullable = false)
-	private LocalDate startDate;
+	@Column(name = "[APPR_RCV_WMC_PMLC_IND]")
+	private Boolean workforceMgmtApprovalRecvd;
 
-	@Column(name = "[END_DATE]", nullable = true)
-	private LocalDate endDate;
+	@ManyToOne
+	@JoinColumn(name = "[WORK_SCHEDULE_ID]")
+	private WorkScheduleEntity workSchedule;
 
-	@Column(name = "[ALTERNATE_CONTACT_EMAIL_ADDRESS]", length = 320, nullable = true)
-	private String alternateContactEmailAddress;
-
-	@Column(name = "[REQUEST_NUMBER]", length = 10, nullable = true)
-	private String requestNumber;
-
-	@Column(name = "[EMPLOYMENT_EQUITY_NEED_IDENTIFIED_IND]", nullable = true)
-	private Boolean employmentEquityNeedIdentifiedIndicator;
-
-	@Column(name = "[SELECTION_PROCESS_NUMBER]", length = 30, nullable = true)
-	private String selectionProcessNumber;
-
-	@Column(name = "[POSITION_NUMBER]", length = 100, nullable = true)
-	private String positionNumber;
-
-	@Column(name = "[LANGUAGE_PROFILE_EN]", length = 3, nullable = true)
-	private String languageProfileEn;
-
-	@Column(name = "[LANGUAGE_PROFILE_FR]", length = 3, nullable = true)
-	private String languageProfileFr;
-
-	@Column(name = "[SOMC_AND_CONDITION_EMPLOYMENT_EN]", nullable = true)
-	private String somcAndConditionEmploymentEn;
-
-	@Column(name = "[SOMC_AND_CONDITION_EMPLOYMENT_FR]", nullable = true)
-	private String somcAndConditionEmploymentFr;
-
-	@Column(name = "[ADDITIONAL_COMMENT]", length = 100, nullable = true)
-	private String additionalComment;
-
-	// Collection relationships for many-to-many tables
-	@OneToMany(mappedBy = "request", cascade = CascadeType.ALL, orphanRemoval = true)
-	private Set<RequestCityEntity> requestCities = new HashSet<>();
-
-	@OneToMany(mappedBy = "request", cascade = CascadeType.ALL, orphanRemoval = true)
-	private Set<RequestEmploymentEquityEntity> requestEmploymentEquities = new HashSet<>();
+	@ManyToOne
+	@JoinColumn(name = "[WORK_UNIT_ID]")
+	private WorkUnitEntity workUnit;
 
 	public RequestEntity() {
 		super();
@@ -138,24 +158,29 @@ public class RequestEntity extends AbstractBaseEntity {
 
 	@Builder.Constructor
 	public RequestEntity(
+			@Nullable Long id,
 			@Nullable String additionalComment,
 			@Nullable String alternateContactEmailAddress,
 			@Nullable NonAdvertisedAppointmentEntity appointmentNonAdvertised,
+			@Nullable Collection<CityEntity> cities,
 			@Nullable ClassificationEntity classification,
-			@Nullable EmploymentTenureEntity employmentTenure,
 			@Nullable Boolean employmentEquityNeedIdentifiedIndicator,
+			@Nullable Collection<EmploymentEquityEntity> employmentEquities,
+			@Nullable EmploymentTenureEntity employmentTenure,
 			@Nullable LocalDate endDate,
-			@Nullable UserEntity hrAdvisor,
+			@Nullable Boolean hasPerformedSameDuties,
 			@Nullable UserEntity hiringManager,
-			@Nullable Long id,
+			@Nullable UserEntity hrAdvisor,
 			@Nullable LanguageEntity language,
 			@Nullable String languageProfileEn,
 			@Nullable String languageProfileFr,
 			@Nullable LanguageRequirementEntity languageRequirement,
 			@Nullable String positionNumber,
 			@Nullable String priorityClearanceNumber,
-			@Nullable String requestNameEn,
-			@Nullable String requestNameFr,
+			@Nullable Boolean priorityEntitlement,
+			@Nullable String priorityEntitlementRationale,
+			@Nullable String nameEn,
+			@Nullable String nameFr,
 			@Nullable String requestNumber,
 			@Nullable RequestStatusEntity requestStatus,
 			@Nullable SecurityClearanceEntity securityClearance,
@@ -167,6 +192,7 @@ public class RequestEntity extends AbstractBaseEntity {
 			@Nullable UserEntity subDelegatedManager,
 			@Nullable UserEntity submitter,
 			@Nullable Boolean teleworkAllowed,
+			@Nullable Boolean workforceMgmtApprovalRecvd,
 			@Nullable WorkScheduleEntity workSchedule,
 			@Nullable WorkUnitEntity workUnit,
 			@Nullable String createdBy,
@@ -178,19 +204,22 @@ public class RequestEntity extends AbstractBaseEntity {
 		this.alternateContactEmailAddress = alternateContactEmailAddress;
 		this.appointmentNonAdvertised = appointmentNonAdvertised;
 		this.classification = classification;
-		this.employmentTenure = employmentTenure;
 		this.employmentEquityNeedIdentifiedIndicator = employmentEquityNeedIdentifiedIndicator;
+		this.employmentTenure = employmentTenure;
 		this.endDate = endDate;
-		this.hrAdvisor = hrAdvisor;
+		this.hasPerformedSameDuties = hasPerformedSameDuties;
 		this.hiringManager = hiringManager;
+		this.hrAdvisor = hrAdvisor;
 		this.language = language;
 		this.languageProfileEn = languageProfileEn;
 		this.languageProfileFr = languageProfileFr;
 		this.languageRequirement = languageRequirement;
 		this.positionNumber = positionNumber;
 		this.priorityClearanceNumber = priorityClearanceNumber;
-		this.requestNameEn = requestNameEn;
-		this.requestNameFr = requestNameFr;
+		this.priorityEntitlement = priorityEntitlement;
+		this.priorityEntitlementRationale = priorityEntitlementRationale;
+		this.nameEn = nameEn;
+		this.nameFr = nameFr;
 		this.requestNumber = requestNumber;
 		this.requestStatus = requestStatus;
 		this.securityClearance = securityClearance;
@@ -202,168 +231,20 @@ public class RequestEntity extends AbstractBaseEntity {
 		this.subDelegatedManager = subDelegatedManager;
 		this.submitter = submitter;
 		this.teleworkAllowed = teleworkAllowed;
+		this.workforceMgmtApprovalRecvd = workforceMgmtApprovalRecvd;
 		this.workSchedule = workSchedule;
 		this.workUnit = workUnit;
+
+		this.setCities(cities);
+		this.setEmploymentEquities(employmentEquities);
 	}
 
-	public SecurityClearanceEntity getSecurityClearance() {
-		return securityClearance;
+	public String getAdditionalComment() {
+		return additionalComment;
 	}
 
-	public void setSecurityClearance(SecurityClearanceEntity securityClearance) {
-		this.securityClearance = securityClearance;
-	}
-
-	public WorkUnitEntity getWorkUnit() {
-		return workUnit;
-	}
-
-	public void setWorkUnit(WorkUnitEntity workUnit) {
-		this.workUnit = workUnit;
-	}
-
-	public ClassificationEntity getClassification() {
-		return classification;
-	}
-
-	public void setClassification(ClassificationEntity classification) {
-		this.classification = classification;
-	}
-
-	public RequestStatusEntity getRequestStatus() {
-		return requestStatus;
-	}
-
-	public void setRequestStatus(RequestStatusEntity requestStatus) {
-		this.requestStatus = requestStatus;
-	}
-
-	public UserEntity getSubmitter() {
-		return submitter;
-	}
-
-	public void setSubmitter(UserEntity submitter) {
-		this.submitter = submitter;
-	}
-
-	public UserEntity getHrAdvisor() {
-		return hrAdvisor;
-	}
-
-	public void setHrAdvisor(UserEntity hrAdvisor) {
-		this.hrAdvisor = hrAdvisor;
-	}
-
-	public UserEntity getHiringManager() {
-		return hiringManager;
-	}
-
-	public void setHiringManager(UserEntity hiringManager) {
-		this.hiringManager = hiringManager;
-	}
-
-	public UserEntity getSubDelegatedManager() {
-		return subDelegatedManager;
-	}
-
-	public void setSubDelegatedManager(UserEntity subDelegatedManager) {
-		this.subDelegatedManager = subDelegatedManager;
-	}
-
-	public LanguageEntity getLanguage() {
-		return language;
-	}
-
-	public void setLanguage(LanguageEntity language) {
-		this.language = language;
-	}
-
-	public LanguageRequirementEntity getLanguageRequirement() {
-		return languageRequirement;
-	}
-
-	public void setLanguageRequirement(LanguageRequirementEntity languageRequirement) {
-		this.languageRequirement = languageRequirement;
-	}
-
-	public EmploymentTenureEntity getEmploymentTenure() {
-		return employmentTenure;
-	}
-
-	public void setEmploymentTenure(EmploymentTenureEntity employmentTenure) {
-		this.employmentTenure = employmentTenure;
-	}
-
-	public SelectionProcessTypeEntity getSelectionProcessType() {
-		return selectionProcessType;
-	}
-
-	public void setSelectionProcessType(SelectionProcessTypeEntity selectionProcessType) {
-		this.selectionProcessType = selectionProcessType;
-	}
-
-	public NonAdvertisedAppointmentEntity getAppointmentNonAdvertised() {
-		return appointmentNonAdvertised;
-	}
-
-	public void setAppointmentNonAdvertised(NonAdvertisedAppointmentEntity appointmentNonAdvertised) {
-		this.appointmentNonAdvertised = appointmentNonAdvertised;
-	}
-
-	public WorkScheduleEntity getWorkSchedule() {
-		return workSchedule;
-	}
-
-	public void setWorkSchedule(WorkScheduleEntity workSchedule) {
-		this.workSchedule = workSchedule;
-	}
-
-	public String getRequestNameEn() {
-		return requestNameEn;
-	}
-
-	public void setRequestNameEn(String requestNameEn) {
-		this.requestNameEn = requestNameEn;
-	}
-
-	public String getRequestNameFr() {
-		return requestNameFr;
-	}
-
-	public void setRequestNameFr(String requestNameFr) {
-		this.requestNameFr = requestNameFr;
-	}
-
-	public String getPriorityClearanceNumber() {
-		return priorityClearanceNumber;
-	}
-
-	public void setPriorityClearanceNumber(String priorityClearanceNumber) {
-		this.priorityClearanceNumber = priorityClearanceNumber;
-	}
-
-	public Boolean getTeleworkAllowed() {
-		return teleworkAllowed;
-	}
-
-	public void setTeleworkAllowed(Boolean teleworkAllowed) {
-		this.teleworkAllowed = teleworkAllowed;
-	}
-
-	public LocalDate getStartDate() {
-		return startDate;
-	}
-
-	public void setStartDate(LocalDate startDate) {
-		this.startDate = startDate;
-	}
-
-	public LocalDate getEndDate() {
-		return endDate;
-	}
-
-	public void setEndDate(LocalDate endDate) {
-		this.endDate = endDate;
+	public void setAdditionalComment(String additionalComment) {
+		this.additionalComment = additionalComment;
 	}
 
 	public String getAlternateContactEmailAddress() {
@@ -374,12 +255,20 @@ public class RequestEntity extends AbstractBaseEntity {
 		this.alternateContactEmailAddress = alternateContactEmailAddress;
 	}
 
-	public String getRequestNumber() {
-		return requestNumber;
+	public NonAdvertisedAppointmentEntity getAppointmentNonAdvertised() {
+		return appointmentNonAdvertised;
 	}
 
-	public void setRequestNumber(String requestNumber) {
-		this.requestNumber = requestNumber;
+	public void setAppointmentNonAdvertised(NonAdvertisedAppointmentEntity appointmentNonAdvertised) {
+		this.appointmentNonAdvertised = appointmentNonAdvertised;
+	}
+
+	public ClassificationEntity getClassification() {
+		return classification;
+	}
+
+	public void setClassification(ClassificationEntity classification) {
+		this.classification = classification;
 	}
 
 	public Boolean getEmploymentEquityNeedIdentifiedIndicator() {
@@ -390,20 +279,52 @@ public class RequestEntity extends AbstractBaseEntity {
 		this.employmentEquityNeedIdentifiedIndicator = employmentEquityNeedIdentifiedIndicator;
 	}
 
-	public String getSelectionProcessNumber() {
-		return selectionProcessNumber;
+	public EmploymentTenureEntity getEmploymentTenure() {
+		return employmentTenure;
 	}
 
-	public void setSelectionProcessNumber(String selectionProcessNumber) {
-		this.selectionProcessNumber = selectionProcessNumber;
+	public void setEmploymentTenure(EmploymentTenureEntity employmentTenure) {
+		this.employmentTenure = employmentTenure;
 	}
 
-	public String getPositionNumber() {
-		return positionNumber;
+	public LocalDate getEndDate() {
+		return endDate;
 	}
 
-	public void setPositionNumber(String positionNumber) {
-		this.positionNumber = positionNumber;
+	public void setEndDate(LocalDate endDate) {
+		this.endDate = endDate;
+	}
+
+	public Boolean getHasPerformedSameDuties() {
+		return hasPerformedSameDuties;
+	}
+
+	public void setHasPerformedSameDuties(Boolean hasPerformedSameDuties) {
+		this.hasPerformedSameDuties = hasPerformedSameDuties;
+	}
+
+	public UserEntity getHiringManager() {
+		return hiringManager;
+	}
+
+	public void setHiringManager(UserEntity hiringManager) {
+		this.hiringManager = hiringManager;
+	}
+
+	public UserEntity getHrAdvisor() {
+		return hrAdvisor;
+	}
+
+	public void setHrAdvisor(UserEntity hrAdvisor) {
+		this.hrAdvisor = hrAdvisor;
+	}
+
+	public LanguageEntity getLanguage() {
+		return language;
+	}
+
+	public void setLanguage(LanguageEntity language) {
+		this.language = language;
 	}
 
 	public String getLanguageProfileEn() {
@@ -418,8 +339,138 @@ public class RequestEntity extends AbstractBaseEntity {
 		return languageProfileFr;
 	}
 
-	public void setLanguageProfileFr(String languageProfileFr) {
-		this.languageProfileFr = languageProfileFr;
+	public LanguageRequirementEntity getLanguageRequirement() {
+		return languageRequirement;
+	}
+
+	public void setLanguageRequirement(LanguageRequirementEntity languageRequirement) {
+		this.languageRequirement = languageRequirement;
+	}
+
+	public String getPositionNumber() {
+		return positionNumber;
+	}
+
+	public void setPositionNumber(String positionNumber) {
+		this.positionNumber = positionNumber;
+	}
+
+	public String getPriorityClearanceNumber() {
+		return priorityClearanceNumber;
+	}
+
+	public void setPriorityClearanceNumber(String priorityClearanceNumber) {
+		this.priorityClearanceNumber = priorityClearanceNumber;
+	}
+
+	public Boolean getPriorityEntitlement() {
+		return priorityEntitlement;
+	}
+
+	public void setPriorityEntitlement(Boolean priorityEntitlement) {
+		this.priorityEntitlement = priorityEntitlement;
+	}
+
+	public String getPriorityEntitlementRationale() {
+		return priorityEntitlementRationale;
+	}
+
+	public void setPriorityEntitlementRationale(String priorityEntitlementRationale) {
+		this.priorityEntitlementRationale = priorityEntitlementRationale;
+	}
+
+	public Set<CityEntity> getCities() {
+		return cities.stream()
+			.map(RequestCityEntity::getCity)
+			.collect(toUnmodifiableSet());
+	}
+
+	public boolean addCity(CityEntity city) {
+		return this.cities.add(RequestCityEntity.builder()
+			.city(city)
+			.request(this)
+			.build());
+	}
+
+	public void setCities(Collection<CityEntity> cities) {
+		this.cities.clear();
+		Optional.ofNullable(cities).orElse(emptySet())
+			.forEach(this::addCity);
+	}
+
+	public Set<EmploymentEquityEntity> getEmploymentEquities() {
+		return employmentEquities.stream()
+			.map(RequestEmploymentEquityEntity::getEmploymentEquity)
+			.collect(toUnmodifiableSet());
+	}
+
+	public boolean addEmploymentEquity(EmploymentEquityEntity employmentEquity) {
+		return this.employmentEquities.add(RequestEmploymentEquityEntity.builder()
+			.employmentEquity(employmentEquity)
+			.request(this)
+			.build());
+	}
+
+	public void setEmploymentEquities(Collection<EmploymentEquityEntity> employmentEquities) {
+		this.employmentEquities.clear();
+		Optional.ofNullable(employmentEquities).orElse(emptySet())
+			.forEach(this::addEmploymentEquity);
+	}
+
+	public String getNameEn() {
+		return nameEn;
+	}
+
+	public void setNameEn(String requestNameEn) {
+		this.nameEn = requestNameEn;
+	}
+
+	public String getNameFr() {
+		return nameFr;
+	}
+
+	public void setNameFr(String requestNameFr) {
+		this.nameFr = requestNameFr;
+	}
+
+	public String getRequestNumber() {
+		return requestNumber;
+	}
+
+	public void setRequestNumber(String requestNumber) {
+		this.requestNumber = requestNumber;
+	}
+
+	public RequestStatusEntity getRequestStatus() {
+		return requestStatus;
+	}
+
+	public void setRequestStatus(RequestStatusEntity requestStatus) {
+		this.requestStatus = requestStatus;
+	}
+
+	public SecurityClearanceEntity getSecurityClearance() {
+		return securityClearance;
+	}
+
+	public void setSecurityClearance(SecurityClearanceEntity securityClearance) {
+		this.securityClearance = securityClearance;
+	}
+
+	public String getSelectionProcessNumber() {
+		return selectionProcessNumber;
+	}
+
+	public void setSelectionProcessNumber(String selectionProcessNumber) {
+		this.selectionProcessNumber = selectionProcessNumber;
+	}
+
+	public SelectionProcessTypeEntity getSelectionProcessType() {
+		return selectionProcessType;
+	}
+
+	public void setSelectionProcessType(SelectionProcessTypeEntity selectionProcessType) {
+		this.selectionProcessType = selectionProcessType;
 	}
 
 	public String getSomcAndConditionEmploymentEn() {
@@ -438,28 +489,67 @@ public class RequestEntity extends AbstractBaseEntity {
 		this.somcAndConditionEmploymentFr = somcAndConditionEmploymentFr;
 	}
 
-	public String getAdditionalComment() {
-		return additionalComment;
+	public LocalDate getStartDate() {
+		return startDate;
 	}
 
-	public void setAdditionalComment(String additionalComment) {
-		this.additionalComment = additionalComment;
+	public void setStartDate(LocalDate startDate) {
+		this.startDate = startDate;
 	}
 
-	public Set<RequestCityEntity> getRequestCities() {
-		return requestCities;
+	public UserEntity getSubDelegatedManager() {
+		return subDelegatedManager;
 	}
 
-	public void setRequestCities(Set<RequestCityEntity> requestCities) {
-		this.requestCities = requestCities;
+	public void setSubDelegatedManager(UserEntity subDelegatedManager) {
+		this.subDelegatedManager = subDelegatedManager;
 	}
 
-	public Set<RequestEmploymentEquityEntity> getRequestEmploymentEquities() {
-		return requestEmploymentEquities;
+	public UserEntity getSubmitter() {
+		return submitter;
 	}
 
-	public void setRequestEmploymentEquities(Set<RequestEmploymentEquityEntity> requestEmploymentEquities) {
-		this.requestEmploymentEquities = requestEmploymentEquities;
+	public void setSubmitter(UserEntity submitter) {
+		this.submitter = submitter;
+	}
+
+	public Boolean getTeleworkAllowed() {
+		return teleworkAllowed;
+	}
+
+	public void setTeleworkAllowed(Boolean teleworkAllowed) {
+		this.teleworkAllowed = teleworkAllowed;
+	}
+
+	public Boolean getWorkforceMgmtApprovalRecvd() {
+		return workforceMgmtApprovalRecvd;
+	}
+
+	public void setWorkforceMgmtApprovalRecvd(Boolean workforceMgmtApprovalRecvd) {
+		this.workforceMgmtApprovalRecvd = workforceMgmtApprovalRecvd;
+	}
+
+	public WorkScheduleEntity getWorkSchedule() {
+		return workSchedule;
+	}
+
+	public void setWorkSchedule(WorkScheduleEntity workSchedule) {
+		this.workSchedule = workSchedule;
+	}
+
+	public WorkUnitEntity getWorkUnit() {
+		return workUnit;
+	}
+
+	public void setWorkUnit(WorkUnitEntity workUnit) {
+		this.workUnit = workUnit;
+	}
+
+	@Override
+	public Long getOwnerId() {
+		return Optional.ofNullable(submitter)
+			.map(UserEntity::getId)
+			.orElse(null);
 	}
 
 	@Override
@@ -473,6 +563,7 @@ public class RequestEntity extends AbstractBaseEntity {
 			.append("employmentEquityNeedIdentifiedIndicator", employmentEquityNeedIdentifiedIndicator)
 			.append("employmentTenure", employmentTenure)
 			.append("endDate", endDate)
+			.append("hasPerformedSameDuties", hasPerformedSameDuties)
 			.append("hrAdvisor", hrAdvisor)
 			.append("hiringManager", hiringManager)
 			.append("language", language)
@@ -481,8 +572,12 @@ public class RequestEntity extends AbstractBaseEntity {
 			.append("languageRequirement", languageRequirement)
 			.append("positionNumber", positionNumber)
 			.append("priorityClearanceNumber", priorityClearanceNumber)
-			.append("requestNameEn", requestNameEn)
-			.append("requestNameFr", requestNameFr)
+			.append("priorityEntitlement", priorityEntitlement)
+			.append("priorityEntitlementRationale", priorityEntitlementRationale)
+			.append("requestCities", cities)
+			.append("requestEmploymentEquities", employmentEquities)
+			.append("nameEn", nameEn)
+			.append("nameFr", nameFr)
 			.append("requestNumber", requestNumber)
 			.append("requestStatus", requestStatus)
 			.append("securityClearance", securityClearance)
@@ -494,6 +589,7 @@ public class RequestEntity extends AbstractBaseEntity {
 			.append("subDelegatedManager", subDelegatedManager)
 			.append("submitter", submitter)
 			.append("teleworkAllowed", teleworkAllowed)
+			.append("workforceMgmtApprovalRecvd", workforceMgmtApprovalRecvd)
 			.append("workSchedule", workSchedule)
 			.append("workUnit", workUnit)
 			.toString();

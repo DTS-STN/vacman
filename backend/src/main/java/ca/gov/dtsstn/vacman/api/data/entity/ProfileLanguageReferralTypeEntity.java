@@ -1,22 +1,29 @@
 package ca.gov.dtsstn.vacman.api.data.entity;
 
 import java.time.Instant;
+import java.util.Objects;
 
 import org.immutables.builder.Builder;
 import org.springframework.core.style.ToStringCreator;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import jakarta.annotation.Nullable;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
 
 @Entity(name = "ProfileLanguageReferralType")
-@Table(name = "[PROFILE_LANGUAGE_REFERRAL_TYPE]", uniqueConstraints = { @UniqueConstraint(name = "PLNGRLTYP_UK", columnNames = { "[PROFILE_ID]", "[LANGUAGE_REFERRAL_TYPE_ID]" }) })
+@Table(name = "[PROFILE_LANGUAGE_REFERRAL_TYPE]")
 public class ProfileLanguageReferralTypeEntity extends AbstractBaseEntity {
 
+	public static ProfileLanguageReferralTypeEntityBuilder builder() {
+		return new ProfileLanguageReferralTypeEntityBuilder();
+	}
+
 	@ManyToOne
+	@JsonBackReference
 	@JoinColumn(name = "[PROFILE_ID]", nullable = false)
 	private ProfileEntity profile;
 
@@ -59,11 +66,28 @@ public class ProfileLanguageReferralTypeEntity extends AbstractBaseEntity {
 	}
 
 	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) { return true; }
+		if (obj == null) { return false; }
+		if (getClass() != obj.getClass()) { return false; }
+
+		final var other = (ProfileLanguageReferralTypeEntity) obj;
+
+		return Objects.equals(languageReferralType, other.languageReferralType)
+			&& Objects.equals(profile, other.profile);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(languageReferralType, profile);
+	}
+
+	@Override
 	public String toString() {
 		return new ToStringCreator(this)
 			.append("super", super.toString())
 			.append("languageReferralType", languageReferralType)
-			.append("profile", profile)
+			.append("profile.id", profile.id)
 			.toString();
 	}
 

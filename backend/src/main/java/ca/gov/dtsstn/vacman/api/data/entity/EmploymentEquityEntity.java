@@ -3,16 +3,18 @@ package ca.gov.dtsstn.vacman.api.data.entity;
 import java.time.Instant;
 
 import org.immutables.builder.Builder;
-import org.springframework.core.style.ToStringCreator;
 
 import jakarta.annotation.Nullable;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
 
 @Entity(name = "EmploymentEquity")
-@Table(name = "[CD_EMPLOYMENT_EQUITY]", uniqueConstraints = { @UniqueConstraint(name = "EMPLYMNTEQT_UK", columnNames = "[EMPLOYMENT_EQUITY_NAME_EN]") })
+@Table(name = "[CD_EMPLOYMENT_EQUITY]")
 public class EmploymentEquityEntity extends AbstractCodeEntity {
+
+	public static EmploymentEquityEntityBuilder builder() {
+		return new EmploymentEquityEntityBuilder();
+	}
 
 	public EmploymentEquityEntity() {
 		super();
@@ -31,13 +33,6 @@ public class EmploymentEquityEntity extends AbstractCodeEntity {
 			@Nullable String lastModifiedBy,
 			@Nullable Instant lastModifiedDate) {
 		super(id, code, nameEn, nameFr, effectiveDate, expiryDate, createdBy, createdDate, lastModifiedBy, lastModifiedDate);
-	}
-
-	@Override
-	public String toString() {
-		return new ToStringCreator(this)
-			.append("super", super.toString())
-			.toString();
 	}
 
 }

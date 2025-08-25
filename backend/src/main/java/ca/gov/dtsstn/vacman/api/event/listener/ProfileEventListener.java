@@ -1,5 +1,7 @@
 package ca.gov.dtsstn.vacman.api.event.listener;
 
+import java.util.Optional;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
@@ -10,12 +12,18 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
-import ca.gov.dtsstn.vacman.api.data.entity.EventEntityBuilder;
+import ca.gov.dtsstn.vacman.api.constants.AppConstants;
+import ca.gov.dtsstn.vacman.api.data.entity.EventEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 import ca.gov.dtsstn.vacman.api.data.repository.EventRepository;
+import ca.gov.dtsstn.vacman.api.data.repository.ProfileStatusRepository;
 import ca.gov.dtsstn.vacman.api.event.ProfileCreateEvent;
 import ca.gov.dtsstn.vacman.api.event.ProfileReadEvent;
 import ca.gov.dtsstn.vacman.api.event.ProfileStatusChangeEvent;
 import ca.gov.dtsstn.vacman.api.event.ProfileUpdatedEvent;
+import ca.gov.dtsstn.vacman.api.service.NotificationService;
+import ca.gov.dtsstn.vacman.api.service.NotificationService.ProfileStatus;
 
 /**
  * Listener for profile-related events.
@@ -26,19 +34,26 @@ public class ProfileEventListener {
 	private static final Logger log = LoggerFactory.getLogger(ProfileEventListener.class);
 
 	private final EventRepository eventRepository;
+	private final ProfileStatusRepository profileStatusRepository;
+	private final NotificationService notificationService;
 
 	private final ObjectMapper objectMapper = new ObjectMapper()
 		.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
 		.findAndRegisterModules();
 
-	public ProfileEventListener(EventRepository eventRepository) {
+	public ProfileEventListener(
+			EventRepository eventRepository,
+			ProfileStatusRepository profileStatusRepository,
+			NotificationService notificationService) {
 		this.eventRepository = eventRepository;
+		this.profileStatusRepository = profileStatusRepository;
+		this.notificationService = notificationService;
 	}
 
 	@Async
 	@EventListener({ ProfileCreateEvent.class })
 	public void handleProfileCreated(ProfileCreateEvent event) throws JsonProcessingException {
-		eventRepository.save(new EventEntityBuilder()
+		eventRepository.save(EventEntity.builder()
 			.type("PROFILE_CREATED")
 			.details(objectMapper.writeValueAsString(event))
 			.build());
@@ -49,7 +64,7 @@ public class ProfileEventListener {
 	@Async
 	@EventListener({ ProfileReadEvent.class })
 	public void handleProfileRead(ProfileReadEvent event) throws JsonProcessingException {
-		eventRepository.save(new EventEntityBuilder()
+		eventRepository.save(EventEntity.builder()
 			.type("PROFILE_READ")
 			.details(objectMapper.writeValueAsString(event))
 			.build());
@@ -60,7 +75,7 @@ public class ProfileEventListener {
 	@Async
 	@EventListener({ ProfileUpdatedEvent.class })
 	public void handleProfileUpdated(ProfileUpdatedEvent event) throws JsonProcessingException {
-		eventRepository.save(new EventEntityBuilder()
+		eventRepository.save(EventEntity.builder()
 			.type("PROFILE_UPDATED")
 			.details(objectMapper.writeValueAsString(event))
 			.build());
@@ -71,12 +86,52 @@ public class ProfileEventListener {
 	@Async
 	@EventListener({ ProfileStatusChangeEvent.class })
 	public void handleProfileStatusChange(ProfileStatusChangeEvent event) throws JsonProcessingException {
-		eventRepository.save(new EventEntityBuilder()
+		eventRepository.save(EventEntity.builder()
 			.type("PROFILE_STATUS_CHANGE")
 			.details(objectMapper.writeValueAsString(event))
 			.build());
 
-		log.info("Event: profile status changed - ID: {}, from status ID: {}, to status ID: {}", 
+		log.info("Event: profile status changed - ID: {}, from status ID: {}, to status ID: {}",
 			event.entity().getId(), event.previousStatusId(), event.newStatusId());
+
+		final var profile = event.entity();
+		final var newStatus = profile.getProfileStatus();
+
+		// Get previous status entity from repository
+		final var previousStatus = profileStatusRepository.findById(event.previousStatusId()).orElse(null);
+
+		if (newStatus != null && AppConstants.ProfileStatusCodes.APPROVED.equals(newStatus.getCode())) {
+			sendApprovalNotification(profile);
+		} else if (previousStatus != null &&
+				  (AppConstants.ProfileStatusCodes.INCOMPLETE.equals(previousStatus.getCode()) ||
+				   AppConstants.ProfileStatusCodes.APPROVED.equals(previousStatus.getCode())) &&
+				  newStatus != null &&
+				  AppConstants.ProfileStatusCodes.PENDING.equals(newStatus.getCode())) {
+			sendPendingNotificationToHrAdvisor(profile);
+		}
+	}
+
+	private void sendApprovalNotification(ProfileEntity profile) {
+		Optional.ofNullable(profile.getUser())
+			.map(UserEntity::getBusinessEmailAddress)
+			.ifPresentOrElse(email -> {
+				final var profileId = profile.getId().toString();
+				final var user = profile.getUser();
+				final var name = String.format("%s %s", user.getFirstName(), user.getLastName());
+
+				notificationService.sendEmailNotification(email, profileId, name, ProfileStatus.APPROVED);
+			}, () -> log.warn("Could not send approval notification - no email address found for profile ID: {}", profile.getId()));
+	}
+
+	private void sendPendingNotificationToHrAdvisor(ProfileEntity profile) {
+		Optional.ofNullable(profile.getHrAdvisor())
+			.map(UserEntity::getBusinessEmailAddress)
+			.ifPresentOrElse(email -> {
+				final var profileId = profile.getId().toString();
+				final var user = profile.getUser();
+				final var name = String.format("%s %s", user.getFirstName(), user.getLastName());
+
+				notificationService.sendEmailNotification(email, profileId, name, ProfileStatus.PENDING);
+			}, () -> log.warn("Could not send pending notification - no HR advisor found for profile ID: {}", profile.getId()));
 	}
 }

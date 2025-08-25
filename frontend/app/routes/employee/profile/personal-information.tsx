@@ -1,19 +1,19 @@
 import type { RouteHandle } from 'react-router';
 import { data } from 'react-router';
 
-import { useTranslation } from 'react-i18next';
 import * as v from 'valibot';
 
 import type { Route } from '../profile/+types/personal-information';
 
-import type { Profile } from '~/.server/domain/models';
+import type { Profile, ProfilePutModel } from '~/.server/domain/models';
 import { getLanguageForCorrespondenceService } from '~/.server/domain/services/language-for-correspondence-service';
 import { getProfileService } from '~/.server/domain/services/profile-service';
 import { getUserService } from '~/.server/domain/services/user-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { requirePrivacyConsentForOwnProfile } from '~/.server/utils/privacy-consent-utils';
+import { mapProfileToPutModelWithOverrides } from '~/.server/utils/profile-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
-import { InlineLink } from '~/components/links';
+import { BackLink } from '~/components/back-link';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
@@ -27,7 +27,7 @@ export const handle = {
 } as const satisfies RouteHandle;
 
 export function meta({ loaderData }: Route.MetaArgs) {
-  return [{ title: loaderData?.documentTitle }];
+  return [{ title: loaderData.documentTitle }];
 }
 
 export async function action({ context, params, request }: Route.ActionArgs) {
@@ -35,15 +35,15 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 
   const formData = await request.formData();
   const parseResult = v.safeParse(personalInformationSchema, {
-    surname: formString(formData.get('surname')),
-    givenName: formString(formData.get('givenName')),
+    firstName: formString(formData.get('firstName')),
+    lastName: formString(formData.get('lastName')),
     personalRecordIdentifier: formString(formData.get('personalRecordIdentifier')),
-    preferredLanguageId: formString(formData.get('preferredLanguageId')),
-    workEmail: formString(formData.get('workEmail')),
-    personalEmail: formString(formData.get('personalEmail')),
-    workPhone: formString(formData.get('workPhone')),
-    personalPhone: formString(formData.get('personalPhone')),
-    additionalInformation: formString(formData.get('additionalInformation')),
+    languageOfCorrespondenceId: formString(formData.get('languageOfCorrespondenceId')),
+    businessEmailAddress: formString(formData.get('businessEmailAddress')),
+    personalEmailAddress: formString(formData.get('personalEmailAddress')),
+    businessPhoneNumber: formString(formData.get('businessPhoneNumber')),
+    personalPhoneNumber: formString(formData.get('personalPhoneNumber')),
+    additionalComment: formString(formData.get('additionalComment')),
   });
 
   if (!parseResult.success) {
@@ -54,19 +54,70 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   }
 
   const profileService = getProfileService();
-  const currentProfileOption = await profileService.getCurrentUserProfile(context.session.authState.accessToken);
-  const currentProfile = currentProfileOption.unwrap();
-  const updateResult = await profileService.updateProfileById(context.session.authState.accessToken, {
-    ...currentProfile,
-    personalInformation: parseResult.output,
+  const profileParams = { active: true };
+
+  const currentProfile: Profile = await profileService.findCurrentUserProfile(
+    profileParams,
+    context.session.authState.accessToken,
+  );
+
+  // Get current user for complete user update
+  const userService = getUserService();
+  const currentUserOption = await userService.getCurrentUser(context.session.authState.accessToken);
+  const currentUser = currentUserOption.into();
+
+  // Extract fields for user update, remove it from profile data
+  const {
+    businessEmailAddress,
+    businessPhoneNumber,
+    firstName,
+    lastName,
+    personalRecordIdentifier,
+    ...personalInformationForProfile
+  } = parseResult.output;
+
+  if (currentUser) {
+    const userUpdateResult = await userService.updateUserById(
+      // Send complete user object with updates
+      currentUser.id,
+      {
+        ...currentUser,
+        businessEmail: businessEmailAddress,
+        businessPhone: businessPhoneNumber,
+        firstName: firstName,
+        lastName: lastName,
+        personalRecordIdentifier: personalRecordIdentifier,
+        languageId: currentUser.language.id,
+      },
+      context.session.authState.accessToken,
+    );
+
+    if (userUpdateResult.isErr()) {
+      throw userUpdateResult.unwrapErr();
+    }
+  }
+
+  // Update the profile (without fields for updating user)
+
+  const profilePayload: ProfilePutModel = mapProfileToPutModelWithOverrides(currentProfile, {
+    languageOfCorrespondenceId: personalInformationForProfile.languageOfCorrespondenceId,
+    personalEmailAddress: personalInformationForProfile.personalEmailAddress,
+    personalPhoneNumber: personalInformationForProfile.personalPhoneNumber,
+    additionalComment: personalInformationForProfile.additionalComment,
   });
+
+  const updateResult = await profileService.updateProfileById(
+    currentProfile.id,
+    profilePayload,
+    context.session.authState.accessToken,
+  );
 
   if (updateResult.isErr()) {
     throw updateResult.unwrapErr();
   }
 
   return i18nRedirect('routes/employee/profile/index.tsx', request, {
-    params: { id: currentProfile.userId.toString() },
+    params: { id: currentProfile.profileUser.id.toString() },
   });
 }
 
@@ -75,39 +126,37 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   await requirePrivacyConsentForOwnProfile(context.session, request);
 
   const accessToken = context.session.authState.accessToken;
-  const currentUser = await getUserService().getCurrentUser(accessToken);
-  const profileResult = await getProfileService().getCurrentUserProfile(accessToken);
+  const currentUserOption = await getUserService().getCurrentUser(accessToken);
+  const currentUser = currentUserOption.unwrap();
+  const profileParams = { active: true };
+  const profileData: Profile = await getProfileService().findCurrentUserProfile(profileParams, accessToken);
 
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
   const localizedLanguagesOfCorrespondenceResult = await getLanguageForCorrespondenceService().listAllLocalized(lang);
-  const profileData: Profile = profileResult.unwrap();
 
   return {
     documentTitle: t('app:personal-information.page-title'),
     defaultValues: {
-      surname: profileData.personalInformation.surname,
-      givenName: profileData.personalInformation.givenName,
-      personalRecordIdentifier: profileData.personalInformation.personalRecordIdentifier,
-      preferredLanguageId: profileData.personalInformation.preferredLanguageId,
-      workEmail: currentUser.businessEmail ?? profileData.personalInformation.workPhone,
-      personalEmail: profileData.personalInformation.personalEmail,
-      workPhone: toE164(profileData.personalInformation.workPhone),
-      personalPhone: toE164(profileData.personalInformation.personalPhone),
-      additionalInformation: profileData.personalInformation.additionalInformation,
+      firstName: profileData.profileUser.firstName,
+      lastName: profileData.profileUser.lastName,
+      personalRecordIdentifier: profileData.profileUser.personalRecordIdentifier,
+      languageOfCorrespondence: profileData.languageOfCorrespondence,
+      businessEmailAddress: currentUser.businessEmailAddress ?? profileData.profileUser.businessEmailAddress,
+      personalEmailAddress: profileData.personalEmailAddress,
+      businessPhoneNumber: toE164(currentUser.businessPhoneNumber),
+      personalPhoneNumber: toE164(profileData.personalPhoneNumber),
+      additionalComment: profileData.additionalComment,
     },
     languagesOfCorrespondence: localizedLanguagesOfCorrespondenceResult,
   };
 }
 
 export default function PersonalInformation({ loaderData, actionData, params }: Route.ComponentProps) {
-  const { t } = useTranslation(handle.i18nNamespace);
   const errors = actionData?.errors;
 
   return (
     <>
-      <InlineLink className="mt-6 block" file="routes/employee/profile/index.tsx" params={params} id="back-button">
-        {`< ${t('app:profile.back')}`}
-      </InlineLink>
+      <BackLink className="mt-6" file="routes/employee/profile/index.tsx" params={params} />
       <div className="max-w-prose">
         <PersonalInformationForm
           cancelLink={'routes/employee/profile/index.tsx'}

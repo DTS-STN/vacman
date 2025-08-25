@@ -3,16 +3,18 @@ package ca.gov.dtsstn.vacman.api.data.entity;
 import java.time.Instant;
 
 import org.immutables.builder.Builder;
-import org.springframework.core.style.ToStringCreator;
 
 import jakarta.annotation.Nullable;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
 
 @Entity(name = "WfaStatus")
-@Table(name = "[CD_WFA_STATUS]", uniqueConstraints = { @UniqueConstraint(name = "WFASTS_UK", columnNames = "[WFA_STATUS_NAME_EN]") })
+@Table(name = "[CD_WFA_STATUS]")
 public class WfaStatusEntity extends AbstractCodeEntity {
+
+	public static WfaStatusEntityBuilder builder() {
+		return new WfaStatusEntityBuilder();
+	}
 
 	public WfaStatusEntity() {
 		super();
@@ -31,13 +33,6 @@ public class WfaStatusEntity extends AbstractCodeEntity {
 			@Nullable String lastModifiedBy,
 			@Nullable Instant lastModifiedDate) {
 		super(id, code, nameEn, nameFr, effectiveDate, expiryDate, createdBy, createdDate, lastModifiedBy, lastModifiedDate);
-	}
-
-	@Override
-	public String toString() {
-		return new ToStringCreator(this)
-			.append("super", super.toString())
-			.toString();
 	}
 
 }

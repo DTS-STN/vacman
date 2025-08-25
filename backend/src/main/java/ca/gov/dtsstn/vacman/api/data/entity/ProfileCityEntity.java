@@ -1,22 +1,29 @@
 package ca.gov.dtsstn.vacman.api.data.entity;
 
 import java.time.Instant;
+import java.util.Objects;
 
 import org.immutables.builder.Builder;
 import org.springframework.core.style.ToStringCreator;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import jakarta.annotation.Nullable;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
 
 @Entity(name = "ProfileCity")
-@Table(name = "[PROFILE_CITY]", uniqueConstraints = { @UniqueConstraint(name = "PRFLCTY_UK", columnNames = { "[PROFILE_ID]", "[CITY_ID]" }) })
+@Table(name = "[PROFILE_CITY]")
 public class ProfileCityEntity extends AbstractBaseEntity {
 
+	public static ProfileCityEntityBuilder builder() {
+		return new ProfileCityEntityBuilder();
+	}
+
 	@ManyToOne
+	@JsonBackReference
 	@JoinColumn(name = "[PROFILE_ID]", nullable = false)
 	private ProfileEntity profile;
 
@@ -59,11 +66,28 @@ public class ProfileCityEntity extends AbstractBaseEntity {
 	}
 
 	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) { return true; }
+		if (obj == null) { return false; }
+		if (getClass() != obj.getClass()) { return false; }
+
+		final var other = (ProfileCityEntity) obj;
+
+		return Objects.equals(city, other.city)
+			&& Objects.equals(profile, other.profile);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(city, profile);
+	}
+
+	@Override
 	public String toString() {
 		return new ToStringCreator(this)
 			.append("super", super.toString())
 			.append("city", city)
-			.append("profile", profile)
+			.append("profile.id", profile.id)
 			.toString();
 	}
 

@@ -1,0 +1,40 @@
+{
+  "content": [
+    {
+      "id": 0,
+      "code": "IP-EC",
+      "nameEn": "In Progress",
+      "nameFr": "En cours",
+      "effectiveDate": "1970-01-01T00:00:00Z",
+      "expiryDate": null,
+      "createdBy": "system",
+      "createdDate": "2025-08-14T17:26:29.5433333Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-08-14T17:26:29.5433333Z"
+    },
+    {
+      "id": 1,
+      "code": "PA-EAA",
+      "nameEn": "Pending Approval",
+      "nameFr": "En attente d'approbation",
+      "effectiveDate": "1970-01-01T00:00:00Z",
+      "expiryDate": null,
+      "createdBy": "system",
+      "createdDate": "2025-08-14T17:26:29.5433333Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-08-14T17:26:29.5433333Z"
+    },
+    {
+      "id": 2,
+      "code": "A-A",
+      "nameEn": "Approved",
+      "nameFr": "Approuvé",
+      "effectiveDate": "1970-01-01T00:00:00Z",
+      "expiryDate": null,
+      "createdBy": "system",
+      "createdDate": "2025-08-14T17:26:29.5433333Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-08-14T17:26:29.5433333Z"
+    }
+  ]
+}

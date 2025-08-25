@@ -3,6 +3,7 @@
  * This module provides functions to verify if users have accepted privacy consent
  * and redirects them appropriately if they haven't.
  */
+import { getLanguageForCorrespondenceService } from '../domain/services/language-for-correspondence-service';
 import { getProfileService } from '../domain/services/profile-service';
 import { getUserService } from '../domain/services/user-service';
 
@@ -10,9 +11,11 @@ import { LogFactory } from '~/.server/logging';
 import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
 import { isEmployeeRoute, isPrivacyConsentPath, isProfileRoute } from '~/.server/utils/route-matching-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
+import { LANGUAGE_ID } from '~/domain/constants';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
+import { getLanguage } from '~/utils/i18n-utils';
 
 const log = LogFactory.getLogger(import.meta.url);
 
@@ -25,14 +28,23 @@ const log = LogFactory.getLogger(import.meta.url);
  * @throws {Response} Redirect to index page if user hasn't accepted privacy consent
  */
 async function checkPrivacyConsentForUser(accessToken: string, userId: number, currentUrl: URL): Promise<void> {
-  const profileOption = await getProfileService().getCurrentUserProfile(accessToken);
+  const profileParams = { active: true };
+  const profileResult = await getProfileService().getCurrentUserProfiles(profileParams, accessToken);
 
-  if (profileOption.isNone()) {
+  if (profileResult.isErr()) {
     log.debug(`Profile not found for user ${userId}`);
     throw i18nRedirect('routes/index.tsx', currentUrl);
   }
 
-  if (!profileOption.unwrap().privacyConsentInd) {
+  const profiles = profileResult.unwrap().content;
+  if (profiles.length === 0) {
+    log.debug(`No profiles found for user ${userId}`);
+    throw i18nRedirect('routes/index.tsx', currentUrl);
+  }
+
+  // Check the first (active) profile for privacy consent
+  const profile = profiles[0];
+  if (profile && !profile.hasConsentedToPrivacyTerms) {
     log.debug(`Privacy consent required for user ${userId}`);
     throw i18nRedirect('routes/employee/profile/privacy-consent.tsx', currentUrl);
   }
@@ -48,7 +60,15 @@ async function checkPrivacyConsentForUser(accessToken: string, userId: number, c
  * @throws {Response} Redirect to index page if user hasn't accepted privacy consent
  */
 export async function requirePrivacyConsent(session: AuthenticatedSession, currentUrl: URL): Promise<void> {
-  const currentUser = await getUserService().getCurrentUser(session.authState.accessToken);
+  const currentUserOption = await getUserService().getCurrentUser(session.authState.accessToken);
+
+  if (currentUserOption.isNone()) {
+    throw new AppError('User not found', ErrorCodes.ACCESS_FORBIDDEN, {
+      httpStatusCode: HttpStatusCodes.UNAUTHORIZED,
+    });
+  }
+
+  const currentUser = currentUserOption.unwrap();
   await checkPrivacyConsentForUser(session.authState.accessToken, currentUser.id, currentUrl);
 }
 
@@ -61,27 +81,46 @@ export async function requirePrivacyConsent(session: AuthenticatedSession, curre
  * @param requestOrUrl - The current request or URL for redirect context
  * @throws {Response} Redirect to index page if user hasn't accepted privacy consent
  */
-export async function requirePrivacyConsentForOwnProfile(
-  session: AuthenticatedSession,
-  requestOrUrl: Request | URL,
-): Promise<void> {
-  const currentUrl = requestOrUrl instanceof Request ? new URL(requestOrUrl.url) : requestOrUrl;
-  const currentUser = await getUserService().getCurrentUser(session.authState.accessToken);
-  const profileOpion = await getProfileService().getCurrentUserProfile(session.authState.accessToken);
+export async function requirePrivacyConsentForOwnProfile(session: AuthenticatedSession, request: Request): Promise<void> {
+  const currentUrl = new URL(request.url);
+  const userService = getUserService();
+  const profileService = getProfileService();
 
-  if (profileOpion.isNone()) {
-    log.debug(`Profile not found for user: ${currentUser.id}`);
-    throw new AppError(`Profile not found for user ID: ${currentUser.id}`, ErrorCodes.PROFILE_NOT_FOUND, {
-      httpStatusCode: HttpStatusCodes.NOT_FOUND,
-    });
+  const currentUserOption = await userService.getCurrentUser(session.authState.accessToken);
+
+  if (currentUserOption.isNone()) {
+    // User doesn't exist, register them first
+    log.debug('User not found, registering new user with profile');
+
+    try {
+      // Get the correct language from the request
+      const language = getLanguage(request) ?? 'en';
+      const languageForCorrespondence = await getLanguageForCorrespondenceService().findById(LANGUAGE_ID[language]);
+      const languageId = languageForCorrespondence.unwrap().id;
+
+      // Register the user
+      const newUser = await userService.registerCurrentUser({ languageId }, session.authState.accessToken);
+      log.debug('User registered successfully with ID: %s', newUser.unwrap().id);
+
+      // Register the user's profile
+      await profileService.registerProfile(session.authState.accessToken);
+      log.debug('Profile registered successfully for user: %s', newUser.unwrap().id);
+
+      // Redirect to privacy consent page
+      throw i18nRedirect('routes/employee/profile/privacy-consent.tsx', currentUrl);
+    } catch (error) {
+      if (error instanceof Response) {
+        throw error; // Re-throw redirect responses
+      }
+      log.error('Failed to register user or profile: %s', error);
+      throw new AppError('Failed to register user', ErrorCodes.ACCESS_FORBIDDEN, {
+        httpStatusCode: HttpStatusCodes.INTERNAL_SERVER_ERROR,
+      });
+    }
   }
 
-  // Only check privacy consent if the user is accessing their own profile
-  if (currentUser.id !== profileOpion.unwrap().userId) {
-    return;
-  }
-
-  log.debug(`Privacy consent check for own profile: ${currentUser.id}`);
+  // Use the existing pattern for checking privacy consent
+  const currentUser = currentUserOption.unwrap();
   await checkPrivacyConsentForUser(session.authState.accessToken, currentUser.id, currentUrl);
 }
 

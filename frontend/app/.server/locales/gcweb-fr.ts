@@ -6,7 +6,7 @@ export default {
     form: 'Forme',
     logout: 'Déconnexion',
     profile: 'Profil',
-    title: 'VacMan',
+    title: 'Gestion des postes vacants',
   },
   'nav': {
     'skip-to-content': 'Passer au contenu principal',
@@ -112,5 +112,31 @@ export default {
     'choice-tag-added-aria-label': '{{item}} sélectionné ajouté!: {{choice}}, Activez pour supprimer l{{item}} sélectionné.',
     'clear-all-sr-message': 'tous les {{item}} sélectionnés ont été supprimés.',
     'removed-choice-tag-sr-message': '{{item}} sélectionné retiré: {{choice}}',
+  },
+  'acronym': {
+    esdc: {
+      abbreviation: 'EDSC',
+      text: 'Emploi et Développement social Canada',
+    },
+    hr: {
+      abbreviation: 'RH',
+      text: 'Ressources humaines',
+    },
+    hrsb: {
+      abbreviation: 'DGSRH',
+      text: 'Direction générale des services de ressources humaines',
+    },
+    pib: {
+      abbreviation: 'FRP',
+      text: 'Fichier de renseignements personnels',
+    },
+    tbs: {
+      abbreviation: 'SCT',
+      text: 'Secrétariat du Conseil du Trésor du Canada',
+    },
+    vms: {
+      abbreviation: 'SGPV',
+      text: 'Système de gestion des postes vacants',
+    },
   },
 } satisfies typeof gcwebEn;

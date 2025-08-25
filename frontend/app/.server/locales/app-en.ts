@@ -11,12 +11,10 @@ export default {
     'hiring-manager-dashboard': 'Hiring manager dashboard',
     'register-as': 'Register as...',
   },
-  'register': {
-    'employee': 'Employee dashboard',
-    'employee-manage': 'Manage your profile',
-    'hiring-manager': 'Hiring manager dashboard',
-    'hiring-manager-manage': 'Manage your requests',
-    'page-title': 'Register as...',
+  'privacy-consent': {
+    'privacy-notice-statement': 'Pivacy notice statement',
+    'accept': 'Accept',
+    'decline': 'Decline',
   },
   'profile': {
     'about-para-1':
@@ -32,7 +30,7 @@ export default {
     'personal-information': {
       'title': 'Personal information',
       'link-label': 'personal information',
-      'detail': 'Provide your personal and contact details, language preferences, education, and other relevant information.',
+      'detail': 'Provide your contact details, preferred language and other information.',
     },
     'employment': {
       'title': 'Employment information',
@@ -43,7 +41,7 @@ export default {
       'title': 'Referral preferences',
       'link-label': 'referral preferences',
       'detail':
-        'Indicate your preferences for job referrals including job type, classification, language requirements, preferred locations, and availability.',
+        'Indicate your preference for job referrals, including classifications, language requirements and work locations.',
     },
     'back': 'Back to profile',
     'view': 'View my profile',
@@ -53,6 +51,7 @@ export default {
     'field-incomplete': 'Required fields incomplete',
     'profile-incomplete': 'Please complete all required fields before submitting your profile',
     'profile-submitted': 'Profile submitted successfully! Your HR advisor will now review it for approval',
+    'hr-approved': 'Employee profile successfully approved',
     'profile-pending-approval': 'Your profile edits will require re-approval by your HR advisor',
     'page-title': 'Profile',
   },
@@ -100,7 +99,7 @@ export default {
     'page-title': 'Personal information',
     'personal-record-identifier': 'Personal record identifier (PRI)',
     'personal-record-identifier-help-message-primary': '9-digit number. For example: 012345678',
-    'preferred-language': 'Preferred language of correspondence',
+    'language-of-correspondence': 'Preferred language of correspondence',
     'work-email': 'Work email address',
     'personal-email': 'Personal email address',
     'work-phone': 'Work phone number',
@@ -114,7 +113,7 @@ export default {
       'givenName-required': 'Given name is required',
       'personal-record-identifier-required': 'Personal record identifier is required.',
       'personal-record-identifier-invalid': 'Invalid personal record identifier.',
-      'preferred-language-required': 'Preferred language of correspondence is required.',
+      'language-of-correspondence-required': 'Preferred language of correspondence is required.',
       'work-email-required': 'Work email address is required.',
       'work-email-invalid': 'Invalid work email address.',
       'personal-email-required': 'Personal email address is required.',
@@ -207,8 +206,14 @@ export default {
       'employment-tenure-duplicate': 'Duplicate items for the selection of employment opportunities are not allowed.',
     },
   },
-  'employee-dashboard': {
+  'hr-advisor-dashboard': {
+    'page-title': 'HR advisor dashboard',
+    'page-heading': 'Get started',
+    'employees': 'Employees',
+  },
+  'hr-advisor-employees-table': {
     'page-title': 'Employees',
+    'back-to-dashboard': 'Back to dashboard',
     'view': 'View',
     'my-employees': 'My employees',
     'all-employees': 'All employees',
@@ -218,5 +223,7 @@ export default {
     'status': 'Status',
     'action': 'Action',
     'next-page': 'Next',
+    'filter-by': 'Filter table by all employees or profile assigned to me',
+    'view-link': 'View profile information for {{profileUserName}}',
   },
 };

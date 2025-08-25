@@ -1,6 +1,7 @@
 package ca.gov.dtsstn.vacman.api.data.entity;
 
 import java.time.Instant;
+import java.util.Objects;
 
 import org.immutables.builder.Builder;
 import org.springframework.core.style.ToStringCreator;
@@ -10,11 +11,14 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
 
 @Entity(name = "RequestEmploymentEquity")
-@Table(name = "[REQUEST_EMPLOYMENT_EQUITY]", uniqueConstraints = { @UniqueConstraint(name = "RQSTEMPLYMNTEQT_UK", columnNames = { "[EMPLOYMENT_EQUITY_ID]", "[REQUEST_ID]" }) })
+@Table(name = "[REQUEST_EMPLOYMENT_EQUITY]")
 public class RequestEmploymentEquityEntity extends AbstractBaseEntity {
+
+	public static RequestEmploymentEquityEntityBuilder builder() {
+		return new RequestEmploymentEquityEntityBuilder();
+	}
 
 	@ManyToOne
 	@JoinColumn(name = "[EMPLOYMENT_EQUITY_ID]", nullable = false)
@@ -59,11 +63,28 @@ public class RequestEmploymentEquityEntity extends AbstractBaseEntity {
 	}
 
 	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) { return true; }
+		if (obj == null) { return false; }
+		if (getClass() != obj.getClass()) { return false; }
+
+		final var other = (RequestEmploymentEquityEntity) obj;
+
+		return Objects.equals(employmentEquity, other.employmentEquity)
+			&& Objects.equals(request, other.request);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(employmentEquity, request);
+	}
+
+	@Override
 	public String toString() {
 		return new ToStringCreator(this)
 			.append("super", super.toString())
 			.append("employmentEquity", employmentEquity)
-			.append("request", request)
+			.append("request.id", request.id)
 			.toString();
 	}
 

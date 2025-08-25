@@ -1,40 +1,112 @@
 {
   "content": [
     {
-      "id": 4001,
+      "id": 0,
       "code": "DRAFT",
       "nameEn": "Draft",
-      "nameFr": "Brouillon"
+      "nameFr": "Ébauche",
+      "effectiveDate": "1970-01-01T00:00:00Z",
+      "expiryDate": null,
+      "createdBy": "system",
+      "createdDate": "2025-08-14T17:26:29.41Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-08-14T17:26:29.41Z"
     },
     {
-      "id": 4002,
-      "code": "SUBMITTED",
-      "nameEn": "Submitted",
-      "nameFr": "Soumis"
+      "id": 1,
+      "code": "SUBMIT",
+      "nameEn": "Request Submitted",
+      "nameFr": "Demande soumise",
+      "effectiveDate": "1970-01-01T00:00:00Z",
+      "expiryDate": null,
+      "createdBy": "system",
+      "createdDate": "2025-08-14T17:26:29.41Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-08-14T17:26:29.41Z"
     },
     {
-      "id": 4003,
-      "code": "UNDER_REVIEW",
-      "nameEn": "Under Review",
-      "nameFr": "En cours d'examen"
+      "id": 2,
+      "code": "HR_REVIEW",
+      "nameEn": "Assigned - HR review",
+      "nameFr": "Assignée - Revue RH",
+      "effectiveDate": "1970-01-01T00:00:00Z",
+      "expiryDate": null,
+      "createdBy": "system",
+      "createdDate": "2025-08-14T17:26:29.41Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-08-14T17:26:29.41Z"
     },
     {
-      "id": 4004,
-      "code": "APPROVED",
-      "nameEn": "Approved",
-      "nameFr": "Approuvé"
+      "id": 3,
+      "code": "FDBK_PENDING",
+      "nameEn": "Approved -  Assessment Feedback Pending",
+      "nameFr": "Approuvée - En attente de retroaction d'évaluation",
+      "effectiveDate": "1970-01-01T00:00:00Z",
+      "expiryDate": null,
+      "createdBy": "system",
+      "createdDate": "2025-08-14T17:26:29.41Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-08-14T17:26:29.41Z"
     },
     {
-      "id": 4005,
-      "code": "REJECTED",
-      "nameEn": "Rejected",
-      "nameFr": "Rejeté"
+      "id": 4,
+      "code": "FDBK_PEND_APPR",
+      "nameEn": "Pending - Feedback Pending Approval",
+      "nameFr": "En attente - retroaction d'évaluation en attente d'approbation",
+      "effectiveDate": "1970-01-01T00:00:00Z",
+      "expiryDate": null,
+      "createdBy": "system",
+      "createdDate": "2025-08-14T17:26:29.41Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-08-14T17:26:29.41Z"
     },
     {
-      "id": 4006,
+      "id": 5,
+      "code": "PENDING_PSC",
+      "nameEn": "VMS request on Hold - Pending PSC clearance",
+      "nameFr": "Demande VMS en suspens - En attente de l'autorisation de la CFP",
+      "effectiveDate": "1970-01-01T00:00:00Z",
+      "expiryDate": null,
+      "createdBy": "system",
+      "createdDate": "2025-08-14T17:26:29.41Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-08-14T17:26:29.41Z"
+    },
+    {
+      "id": 6,
+      "code": "CLR_GRANTED",
+      "nameEn": "Clearance Granted",
+      "nameFr": "Autorisation accordée",
+      "effectiveDate": "1970-01-01T00:00:00Z",
+      "expiryDate": null,
+      "createdBy": "system",
+      "createdDate": "2025-08-14T17:26:29.41Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-08-14T17:26:29.41Z"
+    },
+    {
+      "id": 7,
+      "code": "PSC_GRANTED",
+      "nameEn": "PSC Clearance Granted",
+      "nameFr": "Autorisation de la CFP accordée",
+      "effectiveDate": "1970-01-01T00:00:00Z",
+      "expiryDate": null,
+      "createdBy": "system",
+      "createdDate": "2025-08-14T17:26:29.41Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-08-14T17:26:29.41Z"
+    },
+    {
+      "id": 8,
       "code": "CANCELLED",
       "nameEn": "Cancelled",
-      "nameFr": "Annulé"
+      "nameFr": "Annulée",
+      "effectiveDate": "1970-01-01T00:00:00Z",
+      "expiryDate": null,
+      "createdBy": "system",
+      "createdDate": "2025-08-14T17:26:29.41Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-08-14T17:26:29.41Z"
     }
   ]
 }

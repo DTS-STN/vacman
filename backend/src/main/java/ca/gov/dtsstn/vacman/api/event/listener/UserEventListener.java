@@ -10,7 +10,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
-import ca.gov.dtsstn.vacman.api.data.entity.EventEntityBuilder;
+import ca.gov.dtsstn.vacman.api.data.entity.EventEntity;
 import ca.gov.dtsstn.vacman.api.data.repository.EventRepository;
 import ca.gov.dtsstn.vacman.api.event.CurrentUserReadEvent;
 import ca.gov.dtsstn.vacman.api.event.UserCreateConflictEvent;
@@ -37,7 +37,7 @@ public class UserEventListener {
 	@Async
 	@EventListener({ UserCreatedEvent.class })
 	public void handleUserCreated(UserCreatedEvent event) throws JsonProcessingException {
-		eventRepository.save(new EventEntityBuilder()
+		eventRepository.save(EventEntity.builder()
 			.type("USER_CREATED")
 			.details(objectMapper.writeValueAsString(event))
 			.build());
@@ -48,7 +48,7 @@ public class UserEventListener {
 	@Async
 	@EventListener({ UserCreateConflictEvent.class })
 	public void handleUserCreateConflict(UserCreateConflictEvent event) throws JsonProcessingException {
-		eventRepository.save(new EventEntityBuilder()
+		eventRepository.save(EventEntity.builder()
 			.type("USER_CREATE_CONFLICT")
 			.details(objectMapper.writeValueAsString(event))
 			.build());
@@ -59,7 +59,7 @@ public class UserEventListener {
 	@Async
 	@EventListener({ UserUpdatedEvent.class })
 	public void handleUserUpdated(UserUpdatedEvent event) throws JsonProcessingException {
-		eventRepository.save(new EventEntityBuilder()
+		eventRepository.save(EventEntity.builder()
 			.type("USER_UPDATED")
 			.details(objectMapper.writeValueAsString(event))
 			.build());
@@ -70,7 +70,7 @@ public class UserEventListener {
 	@Async
 	@EventListener({ UserDeletedEvent.class })
 	public void handleUserDeleted(UserDeletedEvent event) throws JsonProcessingException {
-		eventRepository.save(new EventEntityBuilder()
+		eventRepository.save(EventEntity.builder()
 			.type("USER_DELETED")
 			.details(objectMapper.writeValueAsString(event))
 			.build());
@@ -81,7 +81,7 @@ public class UserEventListener {
 	@Async
 	@EventListener({ UserReadEvent.class })
 	public void handleUserRead(UserReadEvent event) throws JsonProcessingException {
-		eventRepository.save(new EventEntityBuilder()
+		eventRepository.save(EventEntity.builder()
 			.type("USER_READ")
 			.details(objectMapper.writeValueAsString(event))
 			.build());
@@ -92,7 +92,7 @@ public class UserEventListener {
 	@Async
 	@EventListener({ CurrentUserReadEvent.class })
 	public void handleCurrentUserRead(CurrentUserReadEvent event) throws JsonProcessingException {
-		eventRepository.save(new EventEntityBuilder()
+		eventRepository.save(EventEntity.builder()
 			.type("CURRENT_USER_READ")
 			.details(objectMapper.writeValueAsString(event))
 			.build());

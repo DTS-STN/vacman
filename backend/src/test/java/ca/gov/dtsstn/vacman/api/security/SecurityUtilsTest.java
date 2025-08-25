@@ -93,7 +93,7 @@ class SecurityUtilsTest {
 	@Test
 	void hasCurrentUserAnyOfAuthoritiesReturnsFalseWhenNoAuthentication() {
 		when(securityContextMock.getAuthentication()).thenReturn(null);
-		assertFalse(SecurityUtils.hasCurrentUserAnyOfAuthorities("ROLE_USER"));
+		assertFalse(SecurityUtils.hasAnyAuthorities("ROLE_USER"));
 	}
 
 	@Test
@@ -105,9 +105,9 @@ class SecurityUtilsTest {
 		doReturn(authorities).when(authentication).getAuthorities();
 		when(securityContextMock.getAuthentication()).thenReturn(authentication);
 
-		assertTrue(SecurityUtils.hasCurrentUserAnyOfAuthorities("ROLE_USER", "ROLE_OTHER"));
-		assertTrue(SecurityUtils.hasCurrentUserAnyOfAuthorities("ROLE_ADMIN"));
-		assertFalse(SecurityUtils.hasCurrentUserAnyOfAuthorities("ROLE_OTHER"));
+		assertTrue(SecurityUtils.hasAnyAuthorities("ROLE_USER", "ROLE_OTHER"));
+		assertTrue(SecurityUtils.hasAnyAuthorities("ROLE_ADMIN"));
+		assertFalse(SecurityUtils.hasAnyAuthorities("ROLE_OTHER"));
 	}
 
 	@Test
@@ -118,8 +118,8 @@ class SecurityUtilsTest {
 		doReturn(authorities).when(authentication).getAuthorities();
 		when(securityContextMock.getAuthentication()).thenReturn(authentication);
 
-		assertTrue(SecurityUtils.hasCurrentUserNoneOfAuthorities("ROLE_ADMIN"));
-		assertFalse(SecurityUtils.hasCurrentUserNoneOfAuthorities("ROLE_USER"));
+		assertTrue(SecurityUtils.hasNoAuthorities("ROLE_ADMIN"));
+		assertFalse(SecurityUtils.hasNoAuthorities("ROLE_USER"));
 	}
 
 	@Test
@@ -130,8 +130,38 @@ class SecurityUtilsTest {
 		doReturn(authorities).when(authentication).getAuthorities();
 		when(securityContextMock.getAuthentication()).thenReturn(authentication);
 
-		assertTrue(SecurityUtils.hasCurrentUserThisAuthority("ROLE_USER"));
-		assertFalse(SecurityUtils.hasCurrentUserThisAuthority("ROLE_ADMIN"));
+		assertTrue(SecurityUtils.hasAuthority("ROLE_USER"));
+		assertFalse(SecurityUtils.hasAuthority("ROLE_ADMIN"));
+	}
+
+	@Test
+	void getHighestPrivilegeRoleReturnsHrAdvisorWhenAdminNotPresent() {
+		final var authentication = mock(Authentication.class);
+		final GrantedAuthority authority1 = () -> "hr-advisor";
+		final GrantedAuthority authority2 = () -> "employee";
+		final Collection<GrantedAuthority> authorities = List.of(authority1, authority2);
+		doReturn(authorities).when(authentication).getAuthorities();
+		when(securityContextMock.getAuthentication()).thenReturn(authentication);
+
+		assertEquals("hr-advisor", SecurityUtils.getHighestPrivilegeRole());
+	}
+
+	@Test
+	void getHighestPrivilegeRoleReturnsEmployeeWhenNoRolesFound() {
+		final var authentication = mock(Authentication.class);
+		final GrantedAuthority authority = () -> "some-other-role";
+		final Collection<GrantedAuthority> authorities = List.of(authority);
+		doReturn(authorities).when(authentication).getAuthorities();
+		when(securityContextMock.getAuthentication()).thenReturn(authentication);
+
+		assertEquals("employee", SecurityUtils.getHighestPrivilegeRole());
+	}
+
+	@Test
+	void getHighestPrivilegeRoleReturnsEmployeeWhenNoAuthentication() {
+		when(securityContextMock.getAuthentication()).thenReturn(null);
+
+		assertEquals("employee", SecurityUtils.getHighestPrivilegeRole());
 	}
 
 }

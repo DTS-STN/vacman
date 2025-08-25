@@ -15,7 +15,7 @@ import jakarta.validation.Payload;
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.FIELD, ElementType.PARAMETER})
+@Target({ ElementType.FIELD, ElementType.PARAMETER, ElementType.TYPE_USE })
 @Constraint(validatedBy = UniqueMicrosoftEntraIdValidator.class)
 public @interface UniqueMicrosoftEntraId {
 

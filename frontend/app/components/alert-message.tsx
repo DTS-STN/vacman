@@ -8,6 +8,9 @@ interface AlertMessageProps {
   message: string;
   type: 'success' | 'info' | 'error';
   ref?: Ref<HTMLDivElement>;
+  role?: 'alert' | 'status' | 'log';
+  ariaLive?: 'assertive' | 'polite';
+  ariaAtomic?: boolean;
 }
 
 const styles: Record<NonNullable<AlertMessageProps['type']>, string> = {
@@ -22,9 +25,22 @@ const icons: Record<NonNullable<AlertMessageProps['type']>, IconDefinition> = {
   info: faCircleExclamation,
 };
 
-export function AlertMessage({ ref, message, type = 'info' }: AlertMessageProps) {
+export function AlertMessage({
+  ref,
+  message,
+  type = 'info',
+  role = 'alert',
+  ariaLive = 'assertive',
+  ariaAtomic = true,
+}: AlertMessageProps) {
   return (
-    <div ref={ref} className={`${styles[type]} flex w-full items-center border-l-4 p-2`}>
+    <div
+      ref={ref}
+      className={`${styles[type]} flex w-full items-center border-l-4 p-2`}
+      role={role}
+      aria-live={ariaLive}
+      aria-atomic={ariaAtomic}
+    >
       <FontAwesomeIcon
         icon={icons[type]}
         className={`${type === 'success' ? 'text-green-600' : type === 'error' ? 'text-red-800' : 'text-sky-700'} mr-2`}

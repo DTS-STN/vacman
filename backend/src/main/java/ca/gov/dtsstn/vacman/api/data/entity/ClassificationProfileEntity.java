@@ -1,26 +1,33 @@
 package ca.gov.dtsstn.vacman.api.data.entity;
 
 import java.time.Instant;
+import java.util.Objects;
 
 import org.immutables.builder.Builder;
 import org.springframework.core.style.ToStringCreator;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import jakarta.annotation.Nullable;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
 
 @Entity(name = "ClassificationProfile")
-@Table(name = "[CLASSIFICATION_PROFILE]", uniqueConstraints = { @UniqueConstraint(name = "CLSPRFL_UK", columnNames = { "[CLASSIFICATION_ID]", "[PROFILE_ID]"}) })
+@Table(name = "[CLASSIFICATION_PROFILE]")
 public class ClassificationProfileEntity extends AbstractBaseEntity {
+
+	public static ClassificationProfileEntityBuilder builder() {
+		return new ClassificationProfileEntityBuilder();
+	}
 
 	@ManyToOne
 	@JoinColumn(name = "[CLASSIFICATION_ID]", nullable = false)
 	private ClassificationEntity classification;
 
 	@ManyToOne
+	@JsonBackReference
 	@JoinColumn(name = "[PROFILE_ID]", nullable = false)
 	private ProfileEntity profile;
 
@@ -59,11 +66,28 @@ public class ClassificationProfileEntity extends AbstractBaseEntity {
 	}
 
 	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) { return true; }
+		if (obj == null) { return false; }
+		if (getClass() != obj.getClass()) { return false; }
+
+		final var other = (ClassificationProfileEntity) obj;
+
+		return Objects.equals(classification, other.classification)
+			&& Objects.equals(profile, other.profile);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(classification, profile);
+	}
+
+	@Override
 	public String toString() {
 		return new ToStringCreator(this)
 			.append("super", super.toString())
 			.append("classification", classification)
-			.append("profile", profile)
+			.append("profile.id", profile.id)
 			.toString();
 	}
 

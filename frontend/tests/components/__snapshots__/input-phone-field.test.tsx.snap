@@ -138,13 +138,13 @@ exports[`InputPhoneField > should render with help message > expected html 1`] =
       type="tel"
       value="(514) 666-7777"
     />
-    <span
+    <div
       class="block max-w-prose text-gray-500 mt-2"
       data-testid="input-phone-field-help-secondary"
       id="input-phone-field-test-id-help-secondary"
     >
       help message
-    </span>
+    </div>
   </div>
 </div>
 `;

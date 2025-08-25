@@ -1,0 +1,48 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+nameSuffix: -uat
+commonLabels:
+labels:
+  # It is essential for this label (or at least one unique label per environment)
+  # to be part of selectors to ensure they are applied correctly.
+  - includeSelectors: true
+    pairs:
+      app.kubernetes.io/instance: uat
+  # these labels do not need to be included in selectors,
+  # but are useful for identifying the environment details
+  - pairs:
+      app.kubernetes.io/part-of: vacancy-management
+      app.kubernetes.io/managed-by: teamcity
+      app.kubernetes.io/cluster: dts-dev-sced-rhp-spoke-aks
+      app.kubernetes.io/environment: uat
+      app.kubernetes.io/tier: nonprod
+resources:
+  - ../../base/vacman-backend/
+  - ../../base/vacman-frontend/
+  - ./external-secrets.yaml
+  - ./ingresses.yaml
+patches:
+  - path: ./patches/deployments-backend.yaml
+  - path: ./patches/deployments-frontend.yaml
+configMapGenerator:
+  - name: vacman-backend
+    behavior: create
+    files:
+      - application.yaml=./configs/vacman-backend.yaml
+  - name: vacman-frontend
+    behavior: create
+    envs:
+      - ./configs/vacman-frontend.conf
+secretGenerator:
+  - name: vacman-backend
+    behavior: create
+    options:
+      # disable suffix hash so it can effectively
+      # be managed by external secrets operator
+      disableNameSuffixHash: true
+  - name: vacman-frontend
+    behavior: create
+    options:
+      # disable suffix hash so it can effectively
+      # be managed by external secrets operator
+      disableNameSuffixHash: true

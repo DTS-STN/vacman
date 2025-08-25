@@ -12,6 +12,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
+import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
@@ -24,6 +26,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.web.SecurityFilterChain;
 
+import ca.gov.dtsstn.vacman.api.security.OwnershipPermissionEvaluator;
 import ca.gov.dtsstn.vacman.api.web.AuthErrorHandler;
 
 @Configuration
@@ -64,6 +67,8 @@ public class WebSecurityConfig {
 	static class DefaultWebSecurityConfig {
 
 		@Autowired AuthErrorHandler authErrorHandler;
+
+		@Autowired OwnershipPermissionEvaluator ownershipPermissionEvaluator;
 
 		/**
 		 * Converts an Entra ID access token to a Spring Security {@link Authentication} object.
@@ -110,6 +115,12 @@ public class WebSecurityConfig {
 			//
 
 			return http.build();
+		}
+
+		@Bean MethodSecurityExpressionHandler methodSecurityExpressionHandler() {
+			final var methodSecurityExpressionHandler = new DefaultMethodSecurityExpressionHandler();
+			methodSecurityExpressionHandler.setPermissionEvaluator(ownershipPermissionEvaluator);
+			return methodSecurityExpressionHandler;
 		}
 
 	}

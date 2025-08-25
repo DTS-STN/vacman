@@ -1,10 +1,10 @@
 package ca.gov.dtsstn.vacman.api.web.model.mapper;
 
+import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 import ca.gov.dtsstn.vacman.api.data.entity.LanguageEntity;
-import ca.gov.dtsstn.vacman.api.data.entity.LanguageEntityBuilder;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntityBuilder;
 import ca.gov.dtsstn.vacman.api.web.model.UserCreateModel;
@@ -24,38 +24,12 @@ public interface UserModelMapper {
 	@Mapping(source = "lastModifiedDate", target = "lastModifiedDate")
 	UserReadModel toModel(UserEntity entity);
 
-	@Mapping(target = "id", ignore = true)
-	@Mapping(target = "createdBy", ignore = true)
-	@Mapping(target = "createdDate", ignore = true)
-	@Mapping(target = "lastModifiedBy", ignore = true)
-	@Mapping(target = "lastModifiedDate", ignore = true)
-	@Mapping(target = "userType", ignore = true)
-	@Mapping(target = "language", ignore = true)
-	@Mapping(target = "profiles", ignore = true)
-	@Mapping(target = "businessEmailAddress", constant = "user@example.com")
-	@Mapping(target = "businessPhoneNumber", constant = "555-123-4567")
-	@Mapping(target = "firstName", constant = "John")
-	@Mapping(target = "lastName", constant = "Doe")
-	@Mapping(target = "middleName", constant = "A")
-	@Mapping(target = "initial", constant = "JAD")
-	@Mapping(target = "personalRecordIdentifier", constant = "12345")
+	@BeanMapping(ignoreByDefault = true)
+	@Mapping(target = "language.id", source = "languageId")
 	UserEntity toEntity(UserCreateModel model);
 
-	@Mapping(target = "id", ignore = true)
-	@Mapping(target = "createdBy", ignore = true)
-	@Mapping(target = "createdDate", ignore = true)
-	@Mapping(target = "lastModifiedBy", ignore = true)
-	@Mapping(target = "lastModifiedDate", ignore = true)
-	@Mapping(target = "userType", ignore = true)
-	@Mapping(target = "language", ignore = true)
-	@Mapping(target = "profiles", ignore = true)
-	@Mapping(target = "businessEmailAddress", constant = "user@example.com")
-	@Mapping(target = "businessPhoneNumber", constant = "555-123-4567")
-	@Mapping(target = "firstName", constant = "John")
-	@Mapping(target = "lastName", constant = "Doe")
-	@Mapping(target = "middleName", constant = "A")
-	@Mapping(target = "initial", constant = "JAD")
-	@Mapping(target = "personalRecordIdentifier", constant = "12345")
+	@BeanMapping(ignoreByDefault = true)
+	@Mapping(target = "language.id", source = "languageId")
 	UserEntityBuilder toEntityBuilder(UserCreateModel model);
 
 	/**
@@ -80,7 +54,7 @@ public interface UserModelMapper {
 	 */
 	default LanguageEntity mapLanguageId(Long id) {
 		if (id == null) { return null; }
-		return new LanguageEntityBuilder().id(id).build();
+		return LanguageEntity.builder().id(id).build();
 	}
 
 }

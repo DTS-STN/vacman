@@ -12,7 +12,6 @@ import ca.gov.dtsstn.vacman.api.data.entity.LanguageEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.LanguageReferralTypeEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.LanguageRequirementEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.NonAdvertisedAppointmentEntity;
-import ca.gov.dtsstn.vacman.api.data.entity.PriorityLevelEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.ProfileStatusEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.ProvinceEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.RequestStatusEntity;
@@ -31,7 +30,6 @@ import ca.gov.dtsstn.vacman.api.web.model.LanguageReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.LanguageReferralTypeReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.LanguageRequirementReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.NonAdvertisedAppointmentReadModel;
-import ca.gov.dtsstn.vacman.api.web.model.PriorityLevelReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.ProfileStatusReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.ProvinceReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.RequestStatusReadModel;
@@ -62,8 +60,6 @@ public interface CodeModelMapper {
 	LanguageRequirementReadModel map(LanguageRequirementEntity entity);
 
 	NonAdvertisedAppointmentReadModel map(NonAdvertisedAppointmentEntity entity);
-
-	PriorityLevelReadModel map(PriorityLevelEntity entity);
 
 	ProfileStatusReadModel map(ProfileStatusEntity entity);
 

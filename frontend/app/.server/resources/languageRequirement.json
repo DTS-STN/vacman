@@ -1,40 +1,76 @@
 {
   "content": [
     {
-      "id": 2001,
-      "code": "BBB",
-      "nameEn": "BBB/BBB",
-      "nameFr": "BBB/BBB"
+      "id": 0,
+      "code": "BI",
+      "nameEn": "Bilingual Imperative",
+      "nameFr": "Bilingue impératif",
+      "effectiveDate": "1970-01-01T00:00:00Z",
+      "expiryDate": null,
+      "createdBy": "system",
+      "createdDate": "2025-08-14T17:26:29.3533333Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-08-14T17:26:29.3533333Z"
     },
     {
-      "id": 2002,
-      "code": "CBC",
-      "nameEn": "CBC/CBC",
-      "nameFr": "CBC/CBC"
+      "id": 1,
+      "code": "BNI",
+      "nameEn": "Bilingual Non-imperative",
+      "nameFr": "Bilingue non-impérative",
+      "effectiveDate": "1970-01-01T00:00:00Z",
+      "expiryDate": null,
+      "createdBy": "system",
+      "createdDate": "2025-08-14T17:26:29.3533333Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-08-14T17:26:29.3533333Z"
     },
     {
-      "id": 2003,
-      "code": "CCC",
-      "nameEn": "CCC/CCC",
-      "nameFr": "CCC/CCC"
-    },
-    {
-      "id": 2004,
-      "code": "ENG_ESSENTIAL",
+      "id": 2,
+      "code": "EE-AE",
       "nameEn": "English Essential",
-      "nameFr": "Anglais essentiel"
+      "nameFr": "Anglais essentiel",
+      "effectiveDate": "1970-01-01T00:00:00Z",
+      "expiryDate": null,
+      "createdBy": "system",
+      "createdDate": "2025-08-14T17:26:29.3533333Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-08-14T17:26:29.3533333Z"
     },
     {
-      "id": 2005,
-      "code": "FRE_ESSENTIAL",
+      "id": 3,
+      "code": "FE",
       "nameEn": "French Essential",
-      "nameFr": "Français essentiel"
+      "nameFr": "Français essentiel",
+      "effectiveDate": "1970-01-01T00:00:00Z",
+      "expiryDate": null,
+      "createdBy": "system",
+      "createdDate": "2025-08-14T17:26:29.3533333Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-08-14T17:26:29.3533333Z"
     },
     {
-      "id": 2006,
-      "code": "BILINGUAL_ESSENTIAL",
-      "nameEn": "Bilingual Essential",
-      "nameFr": "Bilingue essentiel"
+      "id": 4,
+      "code": "EF-AF",
+      "nameEn": "Either/or: English or French",
+      "nameFr": "Réversible: Anglais ou français",
+      "effectiveDate": "1970-01-01T00:00:00Z",
+      "expiryDate": null,
+      "createdBy": "system",
+      "createdDate": "2025-08-14T17:26:29.3533333Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-08-14T17:26:29.3533333Z"
+    },
+    {
+      "id": 5,
+      "code": "VAR",
+      "nameEn": "Various",
+      "nameFr": "Variés",
+      "effectiveDate": "1970-01-01T00:00:00Z",
+      "expiryDate": null,
+      "createdBy": "system",
+      "createdDate": "2025-08-14T17:26:29.3533333Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-08-14T17:26:29.3533333Z"
     }
   ]
 }

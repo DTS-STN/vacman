@@ -200,6 +200,28 @@ ALTER TABLE CD_MATCH_STATUS ADD CONSTRAINT MTCHSTS_PK PRIMARY KEY CLUSTERED (ID)
 
 ALTER TABLE CD_MATCH_STATUS ADD CONSTRAINT MTCHSTS_UK UNIQUE NONCLUSTERED (CODE, EXPIRY_DATE);
 
+
+
+EXEC sp_addextendedproperty 'MS_Description' , 'This code table contains information related to Match Feedback' , 'USER' , 'dbo' , 'TABLE' , 'CD_MATCH_FEEDBACK';
+
+ALTER TABLE CD_MATCH_FEEDBACK ALTER COLUMN ID ADD NOT FOR REPLICATION;
+
+ALTER TABLE CD_MATCH_FEEDBACK ADD EFFECTIVE_DATE DATETIMEOFFSET NOT NULL;
+
+ALTER TABLE CD_MATCH_FEEDBACK ADD EXPIRY_DATE DATETIMEOFFSET;
+
+ALTER TABLE CD_MATCH_FEEDBACK ADD DATE_CREATED DATETIMEOFFSET NOT NULL DEFAULT GETDATE();
+
+ALTER TABLE CD_MATCH_FEEDBACK ADD DATE_UPDATED DATETIMEOFFSET;
+
+ALTER TABLE CD_MATCH_FEEDBACK ADD CONSTRAINT MTCHFDBCK_PK PRIMARY KEY CLUSTERED (ID)
+     WITH (
+     ALLOW_PAGE_LOCKS = ON , 
+     ALLOW_ROW_LOCKS = ON );
+
+ALTER TABLE CD_MATCH_FEEDBACK ADD CONSTRAINT MTCHFDBCK_UK UNIQUE NONCLUSTERED (CODE, EXPIRY_DATE);
+
+
 EXEC sp_addextendedproperty 'MS_Description' , 'This code table contains information regarding the various statuses that a user profile can hold within the application.' , 'USER' , 'dbo' , 'TABLE' , 'CD_PROFILE_STATUS' ;
 
 ALTER TABLE CD_PROFILE_STATUS ALTER COLUMN ID ADD NOT FOR REPLICATION;
@@ -498,6 +520,14 @@ ALTER TABLE REQUEST ADD CONSTRAINT REQUEST_PK PRIMARY KEY CLUSTERED (ID)
      ALLOW_PAGE_LOCKS = ON , 
      ALLOW_ROW_LOCKS = ON );
 
+EXEC sp_addextendedproperty 'MS_Description' , 'Approval received from the Workforce Management Committee (Non-EX positions) or the People Management Leadership Committee (EX positions).' , 'USER' , 'dbo' , 'TABLE' , 'REQUEST' , 'COLUMN' , 'APPR_RCV_WMC_PMLC_IND';
+
+EXEC sp_addextendedproperty 'MS_Description' , 'Would the appointment of a priority person result in a priority entitlement for another indeterminate employee? (Yes / No)' , 'USER' , 'dbo' , 'TABLE' , 'REQUEST' , 'COLUMN' , 'APPT_RSLT_PRRT_ENTTLMNT_IND';
+
+EXEC sp_addextendedproperty 'MS_Description' , 'If yes, please provide the rationale. (text box)' , 'USER' , 'dbo' , 'TABLE' , 'REQUEST' , 'COLUMN' , 'APPT_RSLT_PRRT_ENTTLMNT_RTNL';
+
+EXEC sp_addextendedproperty 'MS_Description' , 'Has the person proposed previously performed the same duties in the last twelve months or is this person still currently performing them in any capacity (casual, Interchange Canada, agency, contractor, acting more than four months, etc.)?
+(Yes / No)' , 'USER' , 'dbo' , 'TABLE' , 'REQUEST' , 'COLUMN' , 'HAS_PRVS_PRFRMD_DTS_IND';
 
 EXEC sp_addextendedproperty 'MS_Description' , 'The REQUEST_CITY table is an association table between CD_CITY and REQUEST.' , 'USER' , 'dbo' , 'TABLE' , 'REQUEST_CITY' ;
 
@@ -611,6 +641,17 @@ ALTER TABLE PROFILE_CITY
     ON DELETE NO ACTION 
     ON UPDATE NO ACTION ;
 
+ALTER TABLE MATCH 
+    ADD CONSTRAINT MATCH_MTCHFDBCK_FK FOREIGN KEY 
+    ( 
+     MATCH_FEEDBACK_ID
+    ) 
+    REFERENCES CD_MATCH_FEEDBACK 
+    ( 
+     ID 
+    ) 
+    ON DELETE NO ACTION 
+    ON UPDATE NO ACTION;
 
 ALTER TABLE MATCH 
     ADD CONSTRAINT MATCH_MTCHSTS_FK FOREIGN KEY 

@@ -92,7 +92,7 @@ function CompleteTag(): JSX.Element {
   const { t } = useTranslation('app');
 
   return (
-    <span className="flex w-fit items-center gap-2 rounded-2xl border border-green-600 bg-green-600 px-3 py-0.5 text-sm font-semibold text-white">
+    <span className="flex w-fit items-center gap-2 rounded-2xl border border-green-700 bg-green-700 px-3 py-0.5 text-sm font-semibold text-white">
       <FontAwesomeIcon icon={faCheck} />
       {t('profile.complete')}
     </span>

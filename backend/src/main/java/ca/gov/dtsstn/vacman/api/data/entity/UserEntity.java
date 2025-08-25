@@ -1,10 +1,14 @@
 package ca.gov.dtsstn.vacman.api.data.entity;
 
 import java.time.Instant;
+import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.immutables.builder.Builder;
 import org.springframework.core.style.ToStringCreator;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.annotation.Nullable;
 import jakarta.persistence.Column;
@@ -13,11 +17,14 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
 
 @Entity(name = "User")
-@Table(name = "[USER]", uniqueConstraints = { @UniqueConstraint(name = "USER_NAME_UK", columnNames = { "[MS_ENTRA_ID]" }) })
-public class UserEntity extends AbstractBaseEntity {
+@Table(name = "[USER]")
+public class UserEntity extends AbstractBaseEntity implements Ownable {
+
+	public static UserEntityBuilder builder() {
+		return new UserEntityBuilder();
+	}
 
 	@Column(name = "[BUSINESS_EMAIL_ADDRESS]", length = 320, nullable = false)
 	private String businessEmailAddress;
@@ -32,6 +39,7 @@ public class UserEntity extends AbstractBaseEntity {
 	private String initial;
 
 	@ManyToOne
+	@JsonIgnore
 	@JoinColumn(name = "[LANGUAGE_ID]", nullable = false)
 	private LanguageEntity language;
 
@@ -47,10 +55,12 @@ public class UserEntity extends AbstractBaseEntity {
 	@Column(name = "[PERSONAL_RECORD_IDENTIFIER]", length = 10, nullable = true)
 	private String personalRecordIdentifier;
 
+	@JsonIgnore
 	@OneToMany(mappedBy = "user")
-	private Set<ProfileEntity> profiles;
+	private Set<ProfileEntity> profiles = new HashSet<>();
 
 	@ManyToOne
+	@JsonIgnore
 	@JoinColumn(name = "[USER_TYPE_ID]", nullable = false)
 	private UserTypeEntity userType;
 
@@ -179,6 +189,12 @@ public class UserEntity extends AbstractBaseEntity {
 	}
 
 	@Override
+	public Long getOwnerId() {
+		// users own themselves, obviously
+		return this.id;
+	}
+
+	@Override
 	public String toString() {
 		return new ToStringCreator(this)
 			.append("super", super.toString())
@@ -191,7 +207,7 @@ public class UserEntity extends AbstractBaseEntity {
 			.append("microsoftEntraId", microsoftEntraId)
 			.append("middleName", middleName)
 			.append("personalRecordIdentifier", personalRecordIdentifier)
-			.append("profiles", profiles)
+			.append("profiles.size", CollectionUtils.size(profiles)) // anti-recursion protection
 			.append("userType", userType)
 			.toString();
 	}

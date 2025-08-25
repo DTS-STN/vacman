@@ -1,15 +1,12 @@
 package ca.gov.dtsstn.vacman.api.web;
 
-import java.util.List;
+import static ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException.asResourceNotFoundException;
+import static ca.gov.dtsstn.vacman.api.web.exception.UnauthorizedException.asEntraIdUnauthorizedException;
 
-import org.apache.commons.lang3.StringUtils;
-import org.hibernate.validator.constraints.Range;
 import org.mapstruct.factory.Mappers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.annotation.DependsOn;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedModel;
 import org.springframework.http.ResponseEntity;
@@ -26,13 +23,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import ca.gov.dtsstn.vacman.api.config.SpringDocConfig;
 import ca.gov.dtsstn.vacman.api.constants.AppConstants;
-import ca.gov.dtsstn.vacman.api.security.SecurityManager;
 import ca.gov.dtsstn.vacman.api.security.SecurityUtils;
 import ca.gov.dtsstn.vacman.api.service.MSGraphService;
 import ca.gov.dtsstn.vacman.api.service.UserService;
 import ca.gov.dtsstn.vacman.api.web.exception.ResourceConflictException;
 import ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException;
-import ca.gov.dtsstn.vacman.api.web.exception.UnauthorizedException;
 import ca.gov.dtsstn.vacman.api.web.model.UserCreateModel;
 import ca.gov.dtsstn.vacman.api.web.model.UserPatchModel;
 import ca.gov.dtsstn.vacman.api.web.model.UserReadModel;
@@ -45,8 +40,9 @@ import jakarta.validation.Valid;
 
 @RestController
 @Tag(name = "Users")
-@DependsOn({ SecurityManager.NAME })
+@ApiResponses.InternalServerError
 @RequestMapping({ AppConstants.ApiPaths.USERS })
+@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
 public class UsersController {
 
 	private static final Logger log = LoggerFactory.getLogger(UsersController.class);
@@ -62,15 +58,18 @@ public class UsersController {
 		this.userService = userService;
 	}
 
+	@ApiResponses.Ok
 	@PostMapping({ "/me" })
+	@ApiResponses.BadRequestError
+	@ApiResponses.AccessDeniedError
+	@ApiResponses.AuthenticationError
 	@PreAuthorize("isAuthenticated()")
-	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
 	@Operation(summary = "Create a new user from the supplied auth token.")
 	public ResponseEntity<UserReadModel> createCurrentUser(@Valid @RequestBody UserCreateModel user) {
 		log.info("Received request to create new user; request: [{}]", user);
 
 		final var entraId = SecurityUtils.getCurrentUserEntraId()
-			.orElseThrow(() -> new UnauthorizedException("Entra ID not found in security context"));
+			.orElseThrow(asEntraIdUnauthorizedException());
 
 		log.debug("Checking if user with entraId=[{}] already exists", entraId);
 
@@ -97,21 +96,23 @@ public class UsersController {
 		return ResponseEntity.ok(createdUser);
 	}
 
+	@ApiResponses.Ok
 	@GetMapping({ "/me" })
+	@ApiResponses.AccessDeniedError
+	@ApiResponses.AuthenticationError
 	@PreAuthorize("isAuthenticated()")
-	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
-	@Operation(summary = "Get the current user.", description = "Returns the current user.")
+	@Operation(summary = "Get the current user.")
 	public ResponseEntity<UserReadModel> getCurrentUser() {
 		log.debug("Received request to get current user");
 
 		final var entraId = SecurityUtils.getCurrentUserEntraId()
-			.orElseThrow(() -> new UnauthorizedException("Entra ID not found in security context"));
+				.orElseThrow(asEntraIdUnauthorizedException());
 
 		log.debug("Fetching current user with microsoftEntraId=[{}]", entraId);
 
 		final var user = userService.getUserByMicrosoftEntraId(entraId)
 			.map(userModelMapper::toModel)
-			.orElseThrow(() -> new ResourceNotFoundException("User with microsoftEntraId=[" + entraId + "] not found"));
+			.orElseThrow(ResourceNotFoundException.asUserResourceNotFoundException("microsoftEntraId", entraId));
 
 		log.debug("Found current user: [{}]", user);
 
@@ -119,63 +120,64 @@ public class UsersController {
 	}
 
 	@GetMapping
-	@PreAuthorize("hasAuthority('hr-advisor')")
-	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
-	@Operation(summary = "Get users with pagination.", description = "Returns a paginated list of users.")
+	@ApiResponses.Ok
+	@ApiResponses.AccessDeniedError
+	@ApiResponses.AuthenticationError
+	@Operation(summary = "Get users with pagination.")
+	@PreAuthorize("hasAuthority('hr-advisor') || (isAuthenticated() && #userType == 'hr-advisor')")
 	public ResponseEntity<PagedModel<UserReadModel>> getUsers(
-			@RequestParam(required = false)
-			@Parameter(description = "Microsoft Entra ID to filter by.")
-			String microsoftEntraId,
+			@ParameterObject
+			Pageable pageable,
 
-			@RequestParam(defaultValue = "0")
-			@Parameter(description = "Page number (0-based)")
-			int page,
+			@Parameter(description = "Filter by user type.")
+			@RequestParam(name = "user-type", required = false)
+			String userType) {
+		final var users = "hr-advisor".equals(userType)
+			? userService.getHrAdvisors(pageable).map(userModelMapper::toModel)
+			: userService.getUsers(pageable).map(userModelMapper::toModel);
 
-			@RequestParam(defaultValue = "20")
-			@Range(min = 1, max = 100)
-			@Parameter(description = "Page size (between 1 and 100)")
-			int size) {
-		if (StringUtils.isNotBlank(microsoftEntraId)) {
-			final var users = userService.getUserByMicrosoftEntraId(microsoftEntraId)
-				.map(userModelMapper::toModel)
-				.map(List::of)
-				.orElse(List.of());
-
-			return ResponseEntity.ok(new PagedModel<>(new PageImpl<>(users, Pageable.ofSize(size), users.size())));
-		}
-
-		final var users = userService.getUsers(PageRequest.of(page, size)).map(userModelMapper::toModel);
 		return ResponseEntity.ok(new PagedModel<>(users));
 	}
 
-	@GetMapping("/{id}")
+	@ApiResponses.Ok
+	@GetMapping({ "/{id}" })
+	@ApiResponses.AccessDeniedError
+	@ApiResponses.AuthenticationError
+	@ApiResponses.ResourceNotFoundError
 	@Operation(summary = "Get a user by ID.")
-	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
-	@PreAuthorize("hasAuthority('hr-advisor') || @securityManager.canAccessUser(#id)")
+	@PreAuthorize("hasAuthority('hr-advisor') || hasPermission(#id, 'USER', 'READ')")
 	public ResponseEntity<UserReadModel> getUserById(@PathVariable Long id) {
 		final var result = userService.getUserById(id)
 			.map(userModelMapper::toModel)
-			.orElseThrow(() -> new ResourceNotFoundException("User with id=[" + id + "] not found"));
+			.orElseThrow(asResourceNotFoundException("user", id));
 
 		return ResponseEntity.ok(result);
 	}
 
-	@PatchMapping("/{id}")
+	@ApiResponses.Ok
+	@PatchMapping({ "/{id}" })
+	@ApiResponses.BadRequestError
+	@ApiResponses.AccessDeniedError
+	@ApiResponses.AuthenticationError
+	@ApiResponses.ResourceNotFoundError
 	@Operation(summary = "Update an existing user.")
-	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
-	@PreAuthorize("hasAuthority('hr-advisor') || @securityManager.canAccessUser(#id)")
+	@PreAuthorize("hasAuthority('hr-advisor') || hasPermission(#id, 'USER', 'UPDATE')")
 	public ResponseEntity<UserReadModel> updateUser(@PathVariable long id, @RequestBody @Valid UserPatchModel updates) {
-		userService.getUserById(id).orElseThrow(() -> new ResourceNotFoundException("User with id=[" + id + "] not found"));
+		userService.getUserById(id).orElseThrow(asResourceNotFoundException("user", id));
 		final var updatedUser = userService.updateUser(id, userModelMapper.toEntity(updates));
 		return ResponseEntity.ok(userModelMapper.toModel(updatedUser));
 	}
 
-	@PutMapping("/{id}")
+	@ApiResponses.Ok
+	@PutMapping({ "/{id}" })
+	@ApiResponses.BadRequestError
+	@ApiResponses.AccessDeniedError
+	@ApiResponses.AuthenticationError
+	@ApiResponses.ResourceNotFoundError
 	@Operation(summary = "Overwrite an existing user.")
-	@SecurityRequirement(name = SpringDocConfig.AZURE_AD)
-	@PreAuthorize("hasAuthority('hr-advisor') || @securityManager.canAccessUser(#id)")
+	@PreAuthorize("hasAuthority('hr-advisor') || hasPermission(#id, 'USER', 'UPDATE')")
 	public ResponseEntity<UserReadModel> updateUser(@PathVariable Long id, @RequestBody @Valid UserPatchModel userUpdate) {
-		userService.getUserById(id).orElseThrow(() -> new ResourceNotFoundException("User with id=[" + id + "] not found"));
+		userService.getUserById(id).orElseThrow(asResourceNotFoundException("user", id));
 		final var updatedUser = userService.overwriteUser(id, userModelMapper.toEntity(userUpdate));
 		return ResponseEntity.ok(userModelMapper.toModel(updatedUser));
 	}

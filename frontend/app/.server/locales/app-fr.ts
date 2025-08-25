@@ -13,12 +13,10 @@ export default {
     'hiring-manager-dashboard': 'Tableau de bord du responsable du recrutement',
     'register-as': "S'inscrire comme...",
   },
-  'register': {
-    'employee': 'Tableau de bord des employés',
-    'hiring-manager': 'Tableau de bord du responsable du recrutement',
-    'employee-manage': 'Gérer votre profil',
-    'hiring-manager-manage': 'Gérez vos demandes',
-    'page-title': "S'inscrire comme...",
+  'privacy-consent': {
+    'privacy-notice-statement': 'Énoncé de confidentialité',
+    'accept': 'Accepter',
+    'decline': 'Refuser',
   },
   'profile': {
     'about-para-1':
@@ -34,18 +32,18 @@ export default {
     'personal-information': {
       'title': 'Informations personnelles',
       'link-label': 'informations personnelles',
-      'detail': 'Provide your personal and contact details, language preferences, education, and other relevant information.',
+      'detail': 'Fournir vos coordonnées, votre langue de préférence et autres informations.',
     },
     'employment': {
       'title': "Informations sur l'emploi",
       'link-label': "informations sur l'emploi",
-      'detail': 'Share information about your current job and your Work Force Adjustment (WFA) status.',
+      'detail': "Fournir l'information sur votre emploi actuel et votre statut de réaménagement des effectifs.",
     },
     'referral': {
-      'title': 'Préférences de recommandation',
-      'link-label': 'préférences de recommandation',
+      'title': 'Préférences de présentation',
+      'link-label': 'préférences de présentation',
       'detail':
-        'Indicate your preferences for job referrals including job type, classification, language requirements, preferred locations, and availability.',
+        'Indiquer vos préférences de présentation à des emplois, incluant les classifications, les exigences linguistiques et les lieux de travail.',
     },
     'back': 'Retour au profil',
     'view': 'Voir mon profil',
@@ -55,6 +53,7 @@ export default {
     'field-incomplete': 'Champs obligatoires incomplets', // TODO: French translation needs to be verified
     'profile-incomplete': 'Veuillez remplir tous les champs obligatoires avant de soumettre votre profil',
     'profile-submitted': "Profil soumis avec succès! Votre conseiller(ère) RH va maintenant l'examiner pour approbation",
+    'hr-approved': "Profil de l'employé-e approuvé",
     'profile-pending-approval':
       'Les modifications de votre profil nécessiteront une nouvelle approbation de votre conseiller(ère) RH',
     'page-title': 'Profil',
@@ -103,7 +102,7 @@ export default {
     'page-title': 'Informations personnelles',
     'personal-record-identifier': "Code d'identification du dossier personnel (CIDP)",
     'personal-record-identifier-help-message-primary': 'No. à 9 chiffres. Par exemple\u00A0: 012345678',
-    'preferred-language': 'Langue de préférence pour la correspondance',
+    'language-of-correspondence': 'Langue de préférence pour la correspondance',
     'work-email': 'Adresse du courriel au travail',
     'personal-email': 'Adresse du courriel personnel',
     'work-phone': 'Numéro du téléphone au travail',
@@ -117,7 +116,7 @@ export default {
       'givenName-required': 'Le prénom est requis',
       'personal-record-identifier-required': "Le code d'identification du dossier personnel (CIDP) est requis.",
       'personal-record-identifier-invalid': "Le code d'identification du dossier personnel (CIDP) est invalide.",
-      'preferred-language-required': 'La langue de préférence pour la correspondance est requise.',
+      'language-of-correspondence-required': 'La langue de préférence pour la correspondance est requise.',
       'work-email-required': "L'adresse du courriel au travail est requise.",
       'work-email-invalid': "L'adresse du courriel au travail n'est pas valide.",
       'personal-email-required': "L'adresse du courriel personnel est requise.",
@@ -210,17 +209,24 @@ export default {
       'employment-tenure-duplicate': "Les éléments dupliqués pour la sélection d'occasion d'emploi ne sont pas permis.",
     },
   },
-  // TODO: Update French translations
-  'employee-dashboard': {
-    'page-title': '(FR) Employees',
-    'view': '(FR) View',
-    'my-employees': '(FR) My employees',
-    'all-employees': '(FR) All employees',
-    'employee': '(FR) Employee',
-    'email': '(FR) Work email address',
-    'updated': '(FR) Updated',
-    'status': '(FR) Status',
-    'action': '(FR) Action',
-    'next-page': '(FR) Next',
+  'hr-advisor-dashboard': {
+    'page-title': 'Tableau de bord du conseiller RH',
+    'page-heading': 'Débuter',
+    'employees': 'Employé-e-s',
+  },
+  'hr-advisor-employees-table': {
+    'page-title': 'Employé-e-s',
+    'back-to-dashboard': 'Retour au tableau de bord',
+    'view': 'Affiché',
+    'my-employees': 'Mes employé-e-s',
+    'all-employees': 'Liste complète des employé-e-s',
+    'employee': 'Employé-e',
+    'email': 'Adresse courriel professionnelle',
+    'updated': 'Mis à jour',
+    'status': 'Statut',
+    'action': 'Actions',
+    'next-page': 'Suivant',
+    'filter-by': "Tableau de filtrage par tous les employés ou profil qui m'est attribué",
+    'view-link': 'Afficher les informations de profil pour {{profileUserName}} ',
   },
 } satisfies typeof appEn;

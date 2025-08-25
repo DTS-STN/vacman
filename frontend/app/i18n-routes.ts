@@ -18,13 +18,13 @@
 type I18nPaths = Record<Language, string>;
 
 /**
- * A utility typpe that extracts the file path from an I18nPageRoute type.
+ * A utility type that extracts the file path from an I18nPageRoute type.
  * @template T - The type to extract the file from.
  */
 type ExtractI18nRouteFile<T> = T extends I18nPageRoute ? T['file'] : never;
 
 /**
- * A utility typpe that extracts the id from an I18nPageRoute type.
+ * A utility type that extracts the id from an I18nPageRoute type.
  * @template T - The type to extract the id from.
  */
 type ExtractI18nRouteId<T> = T extends I18nPageRoute ? T['id'] : never;
@@ -101,9 +101,6 @@ export function isI18nPageRoute(obj: unknown): obj is I18nPageRoute {
  * be imported into clientside code without triggering side effects.
  */
 export const i18nRoutes = [
-  //
-  // Protected routes (ie: authentication required)
-  //
   {
     file: 'routes/layout.tsx',
     children: [
@@ -149,7 +146,7 @@ export const i18nRoutes = [
         file: 'routes/employee/profile/employment-information.tsx',
         paths: {
           en: '/en/employee/profile/employment-information',
-          fr: `/fr/employe/profil/informations-sur-lemploi`,
+          fr: '/fr/employe/profil/informations-sur-lemploi',
         },
       },
       {
@@ -157,19 +154,19 @@ export const i18nRoutes = [
         file: 'routes/employee/profile/referral-preferences.tsx',
         paths: {
           en: '/en/employee/profile/referral-preferences',
-          fr: '/fr/employe/profil/préférences-de-référence',
-        },
-      },
-      {
-        id: 'HIRE-0001',
-        file: 'routes/hiring-manager/index.tsx', //TODO: use employee-dashboard.tsx
-        paths: {
-          en: '/en/hiring-manager',
-          fr: '/fr/gestionnaire-embauche',
+          fr: '/fr/employe/profil/preferences-de-reference',
         },
       },
       {
         id: 'HRAD-0001',
+        file: 'routes/hr-advisor/index.tsx',
+        paths: {
+          en: '/en/hr-advisor',
+          fr: '/fr/hr-advisor',
+        },
+      },
+      {
+        id: 'HRAD-0002',
         file: 'routes/hr-advisor/employees.tsx',
         paths: {
           en: '/en/hr-advisor/employees',
@@ -177,7 +174,7 @@ export const i18nRoutes = [
         },
       },
       {
-        id: 'HRAD-0002',
+        id: 'HRAD-0003',
         file: 'routes/hr-advisor/employee-profile/index.tsx',
         paths: {
           en: '/en/hr-advisor/employee-profile/:profileId',
@@ -185,7 +182,7 @@ export const i18nRoutes = [
         },
       },
       {
-        id: 'HRAD-0003',
+        id: 'HRAD-0004',
         file: 'routes/hr-advisor/employee-profile/personal-information.tsx',
         paths: {
           en: '/en/hr-advisor/employee-profile/personal-information/:profileId',
@@ -193,35 +190,101 @@ export const i18nRoutes = [
         },
       },
       {
-        id: 'HRAD-0004',
+        id: 'HRAD-0005',
         file: 'routes/hr-advisor/employee-profile/employment-information.tsx',
         paths: {
           en: '/en/hr-advisor/employee-profile/employment-information/:profileId',
-          fr: `/fr/hr-advisor/employe-profil/informations-sur-lemploi/:profileId`,
+          fr: '/fr/hr-advisor/employe-profil/informations-sur-lemploi/:profileId',
         },
       },
       {
-        id: 'HRAD-0005',
+        id: 'HRAD-0006',
         file: 'routes/hr-advisor/employee-profile/referral-preferences.tsx',
         paths: {
           en: '/en/hr-advisor/employee-profile/referral-preferences/:profileId',
-          fr: '/fr/hr-advisor/employe-profil/préférences-de-référence/:profileId',
+          fr: '/fr/hr-advisor/employe-profil/preferences-de-reference/:profileId',
+        },
+      },
+      {
+        id: 'HIRE-0001',
+        file: 'routes/hiring-manager/index.tsx',
+        paths: {
+          en: '/en/hiring-manager',
+          fr: '/fr/gestionnaire-embauche',
+        },
+      },
+      {
+        id: 'HIRE-0002',
+        file: 'routes/hiring-manager/requests.tsx',
+        paths: {
+          en: '/en/hiring-manager/requests',
+          fr: '/fr/gestionnaire-embauche/demandes',
+        },
+      },
+      {
+        id: 'HIRE-0003',
+        file: 'routes/hiring-manager/request/index.tsx',
+        paths: {
+          en: '/en/hiring-manager/request/:requestId',
+          fr: '/fr/gestionnaire-embauche/demande/:requestId',
+        },
+      },
+      {
+        id: 'HIRE-0004',
+        file: 'routes/hiring-manager/request/process-information.tsx',
+        paths: {
+          en: '/en/hiring-manager/request/:requestId/process-information',
+          fr: '/fr/gestionnaire-embauche/demande/:requestId/informations-processus',
+        },
+      },
+      {
+        id: 'HIRE-0005',
+        file: 'routes/hiring-manager/request/position-information.tsx',
+        paths: {
+          en: '/en/hiring-manager/request/:requestId/position-information',
+          fr: '/fr/gestionnaire-embauche/demande/:requestId/informations-poste',
+        },
+      },
+      {
+        id: 'HIRE-0006',
+        file: 'routes/hiring-manager/request/somc-conditions.tsx',
+        paths: {
+          en: '/en/hiring-manager/request/:requestId/somc-conditions',
+          fr: '/fr/gestionnaire-embauche/demande/:requestId/cmc-conditions',
+        },
+      },
+      {
+        id: 'HIRE-0007',
+        file: 'routes/hiring-manager/request/submission-details.tsx',
+        paths: {
+          en: '/en/hiring-manager/request/:requestId/submission-details',
+          fr: '/fr/gestionnaire-embauche/demande/:requestId/details-soumission',
+        },
+      },
+      {
+        id: 'HIRE-0008',
+        file: 'routes/hiring-manager/request/matches.tsx',
+        paths: {
+          en: '/en/hiring-manager/request/:requestId/matches',
+          fr: '/fr/gestionnaire-embauche/demande/:requestId/correspondances',
+        },
+      },
+      {
+        id: 'HIRE-0009',
+        file: 'routes/hiring-manager/request/profile.tsx',
+        paths: {
+          en: '/en/hiring-manager/request/:requestId/profile/:profileId',
+          fr: '/fr/gestionnaire-embauche/demande/:requestId/profil/:profileId',
+        },
+      },
+      {
+        id: 'HIRE-0010',
+        file: 'routes/hiring-manager/request/match.tsx',
+        paths: {
+          en: '/en/hiring-manager/request/:requestId/match/:profileId',
+          fr: '/fr/gestionnaire-embauche/demande/:requestId/correspondance/:profileId',
         },
       },
     ],
   },
-
-  //
-  // Publicly accessable routes (ie: no authentication required)
-  //
-  // {
-  //   file: 'routes/public/layout.tsx',
-  //   children: [
-  //     {
-  //       id: 'PUBL-0001',
-  //       file: 'routes/public/index.tsx',
-  //       paths: { en: '/en/public', fr: '/fr/public' },
-  //     },
-  //   ],
-  // },
 ] as const satisfies I18nRoute[];

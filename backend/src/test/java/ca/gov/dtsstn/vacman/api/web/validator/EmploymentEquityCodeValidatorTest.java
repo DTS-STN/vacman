@@ -16,7 +16,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
-import ca.gov.dtsstn.vacman.api.data.entity.EmploymentEquityEntityBuilder;
+import ca.gov.dtsstn.vacman.api.data.entity.EmploymentEquityEntity;
 import ca.gov.dtsstn.vacman.api.service.CodeService;
 
 @DisplayName("EmploymentEquityCodeValidator tests")
@@ -39,7 +39,7 @@ class EmploymentEquityCodeValidatorTest {
 	@DisplayName("isValid() returns true when employment equity code is valid")
 	void isValidReturnsTrueWhenEmploymentEquityCodeIsValid() {
 		when(codeService.getEmploymentEquities(Pageable.unpaged()))
-			.thenReturn(new PageImpl<>(List.of(new EmploymentEquityEntityBuilder().id(0L).build())));
+			.thenReturn(new PageImpl<>(List.of(EmploymentEquityEntity.builder().id(0L).build())));
 
 		assertTrue(employmentEquityCodeValidator.isValid(0L, null));
 	}

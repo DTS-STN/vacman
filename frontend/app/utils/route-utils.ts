@@ -36,7 +36,9 @@ export function findRouteByFile(file: string, routes: I18nRoute[]): I18nPageRout
  * @returns The I18nPageRoute that matches the given pathname, or undefined if no route is found.
  */
 export function findRouteByPath(pathname: string, routes: I18nRoute[]): I18nPageRoute | undefined {
-  const normalizedPathname = normalizePath(pathname);
+  // Decode URL-encoded characters (e.g., %C3%A9 -> é) before normalizing
+  const decodedPathname = decodeURIComponent(pathname);
+  const normalizedPathname = normalizePath(decodedPathname);
 
   for (const route of routes) {
     if (isI18nLayoutRoute(route)) {
