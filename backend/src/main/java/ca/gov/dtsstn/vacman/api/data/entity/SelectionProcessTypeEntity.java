@@ -13,6 +13,10 @@ import jakarta.persistence.Table;
 @Table(name = "[CD_SELECTION_PROCESS_TYPE]")
 public class SelectionProcessTypeEntity extends AbstractCodeEntity {
 
+	public static SelectionProcessTypeEntityBuilder builder() {
+		return new SelectionProcessTypeEntityBuilder();
+	}
+
 	public SelectionProcessTypeEntity() {
 		super();
 	}

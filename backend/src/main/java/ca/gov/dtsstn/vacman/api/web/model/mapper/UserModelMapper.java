@@ -5,7 +5,6 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 import ca.gov.dtsstn.vacman.api.data.entity.LanguageEntity;
-import ca.gov.dtsstn.vacman.api.data.entity.LanguageEntityBuilder;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntityBuilder;
 import ca.gov.dtsstn.vacman.api.web.model.UserCreateModel;
@@ -55,7 +54,7 @@ public interface UserModelMapper {
 	 */
 	default LanguageEntity mapLanguageId(Long id) {
 		if (id == null) { return null; }
-		return new LanguageEntityBuilder().id(id).build();
+		return LanguageEntity.builder().id(id).build();
 	}
 
 }

@@ -22,24 +22,24 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import ca.gov.dtsstn.vacman.api.config.WebSecurityConfig;
-import ca.gov.dtsstn.vacman.api.data.entity.CityEntityBuilder;
-import ca.gov.dtsstn.vacman.api.data.entity.ClassificationEntityBuilder;
-import ca.gov.dtsstn.vacman.api.data.entity.EmploymentEquityEntityBuilder;
-import ca.gov.dtsstn.vacman.api.data.entity.EmploymentOpportunityEntityBuilder;
-import ca.gov.dtsstn.vacman.api.data.entity.EmploymentTenureEntityBuilder;
-import ca.gov.dtsstn.vacman.api.data.entity.LanguageEntityBuilder;
-import ca.gov.dtsstn.vacman.api.data.entity.LanguageReferralTypeEntityBuilder;
-import ca.gov.dtsstn.vacman.api.data.entity.LanguageRequirementEntityBuilder;
-import ca.gov.dtsstn.vacman.api.data.entity.NonAdvertisedAppointmentEntityBuilder;
-import ca.gov.dtsstn.vacman.api.data.entity.ProfileStatusEntityBuilder;
-import ca.gov.dtsstn.vacman.api.data.entity.ProvinceEntityBuilder;
-import ca.gov.dtsstn.vacman.api.data.entity.RequestStatusEntityBuilder;
-import ca.gov.dtsstn.vacman.api.data.entity.SecurityClearanceEntityBuilder;
-import ca.gov.dtsstn.vacman.api.data.entity.SelectionProcessTypeEntityBuilder;
-import ca.gov.dtsstn.vacman.api.data.entity.UserTypeEntityBuilder;
-import ca.gov.dtsstn.vacman.api.data.entity.WfaStatusEntityBuilder;
-import ca.gov.dtsstn.vacman.api.data.entity.WorkScheduleEntityBuilder;
-import ca.gov.dtsstn.vacman.api.data.entity.WorkUnitEntityBuilder;
+import ca.gov.dtsstn.vacman.api.data.entity.CityEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.ClassificationEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.EmploymentEquityEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.EmploymentOpportunityEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.EmploymentTenureEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.LanguageEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.LanguageReferralTypeEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.LanguageRequirementEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.NonAdvertisedAppointmentEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.ProfileStatusEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.ProvinceEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.RequestStatusEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.SecurityClearanceEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.SelectionProcessTypeEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.UserTypeEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.WfaStatusEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.WorkScheduleEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.WorkUnitEntity;
 import ca.gov.dtsstn.vacman.api.security.OwnershipPermissionEvaluator;
 import ca.gov.dtsstn.vacman.api.service.CodeService;
 
@@ -62,12 +62,12 @@ class CodesControllerTest {
 	@WithAnonymousUser
 	@DisplayName("GET /codes/cities - Should return 200 OK with a page of cities")
 	void getCities_shouldReturnOk() throws Exception {
-		final var city = new CityEntityBuilder()
+		final var city = CityEntity.builder()
 			.id(0L)
 			.code("TEST")
 			.nameEn("Test City")
 			.nameFr("Ville de test")
-			.provinceTerritory(new ProvinceEntityBuilder()
+			.provinceTerritory(ProvinceEntity.builder()
 				.id(0L)
 				.code("TEST")
 				.nameEn("Test Province")
@@ -110,7 +110,7 @@ class CodesControllerTest {
 	@WithAnonymousUser
 	@DisplayName("GET /codes/classifications - Should return 200 OK with a page of classifications")
 	void getClassifications_shouldReturnOk() throws Exception {
-		final var classification = new ClassificationEntityBuilder()
+		final var classification = ClassificationEntity.builder()
 			.id(0L)
 			.code("TEST")
 			.nameEn("Test Classification")
@@ -140,7 +140,7 @@ class CodesControllerTest {
 	@WithAnonymousUser
 	@DisplayName("GET /codes/employment-equities - Should return 200 OK with a page of employment equities")
 	void getEmploymentEquities_shouldReturnOk() throws Exception {
-		final var employmentEquity = new EmploymentEquityEntityBuilder()
+		final var employmentEquity = EmploymentEquityEntity.builder()
 			.id(0L)
 			.code("TEST")
 			.nameEn("Test Employment Equity")
@@ -170,7 +170,7 @@ class CodesControllerTest {
 	@WithAnonymousUser
 	@DisplayName("GET /codes/employment-opportunities - Should return 200 OK with a page of employment opportunities")
 	void getEmploymentOpportunities_shouldReturnOk() throws Exception {
-		final var employmentOpportunity = new EmploymentOpportunityEntityBuilder()
+		final var employmentOpportunity = EmploymentOpportunityEntity.builder()
 			.id(0L)
 			.code("TEST")
 			.nameEn("Test Employment Opportunity")
@@ -200,7 +200,7 @@ class CodesControllerTest {
 	@WithAnonymousUser
 	@DisplayName("GET /codes/employment-tenures - Should return 200 OK with a page of employment tenures")
 	void getEmploymentTenures_shouldReturnOk() throws Exception {
-		final var employmentTenure = new EmploymentTenureEntityBuilder()
+		final var employmentTenure = EmploymentTenureEntity.builder()
 			.id(0L)
 			.code("TEST")
 			.nameEn("Test Employment Tenure")
@@ -230,7 +230,7 @@ class CodesControllerTest {
 	@WithAnonymousUser
 	@DisplayName("GET /codes/languages - Should return 200 OK with a page of languages")
 	void getLanguages_shouldReturnOk() throws Exception {
-		final var language = new LanguageEntityBuilder()
+		final var language = LanguageEntity.builder()
 			.id(0L)
 			.code("TEST")
 			.nameEn("Test Language")
@@ -260,7 +260,7 @@ class CodesControllerTest {
 	@WithAnonymousUser
 	@DisplayName("GET /codes/language-referral-types - Should return 200 OK with a page of language referral types")
 	void getLanguageReferralTypes_shouldReturnOk() throws Exception {
-		final var languageReferralType = new LanguageReferralTypeEntityBuilder()
+		final var languageReferralType = LanguageReferralTypeEntity.builder()
 			.id(0L)
 			.code("TEST")
 			.nameEn("Test Language Referral Type")
@@ -290,7 +290,7 @@ class CodesControllerTest {
 	@WithAnonymousUser
 	@DisplayName("GET /codes/language-requirements - Should return 200 OK with a page of language requirements")
 	void getLanguageRequirements_shouldReturnOk() throws Exception {
-		final var languageRequirement = new LanguageRequirementEntityBuilder()
+		final var languageRequirement = LanguageRequirementEntity.builder()
 			.id(0L)
 			.code("TEST")
 			.nameEn("Test Language Requirement")
@@ -320,7 +320,7 @@ class CodesControllerTest {
 	@WithAnonymousUser
 	@DisplayName("GET /codes/non-advertised-appointments - Should return 200 OK with a page of non-advertised appointments")
 	void getNonAdvertisedAppointments_shouldReturnOk() throws Exception {
-		final var nonAdvertisedAppointment = new NonAdvertisedAppointmentEntityBuilder()
+		final var nonAdvertisedAppointment = NonAdvertisedAppointmentEntity.builder()
 			.id(0L)
 			.code("TEST")
 			.nameEn("Test Non-Advertised Appointment")
@@ -350,7 +350,7 @@ class CodesControllerTest {
 	@WithAnonymousUser
 	@DisplayName("GET /codes/profile-statuses - Should return 200 OK with a page of profile statuses")
 	void getProfileStatuses_shouldReturnOk() throws Exception {
-		final var profileStatus = new ProfileStatusEntityBuilder()
+		final var profileStatus = ProfileStatusEntity.builder()
 			.id(0L)
 			.code("TEST")
 			.nameEn("Test Profile Status")
@@ -380,7 +380,7 @@ class CodesControllerTest {
 	@WithAnonymousUser
 	@DisplayName("GET /codes/provinces - Should return 200 OK with a page of provinces")
 	void getProvinces_shouldReturnOk() throws Exception {
-		final var province = new ProvinceEntityBuilder()
+		final var province = ProvinceEntity.builder()
 			.id(0L)
 			.code("TEST")
 			.nameEn("Test Province")
@@ -410,7 +410,7 @@ class CodesControllerTest {
 	@WithAnonymousUser
 	@DisplayName("GET /codes/request-statuses - Should return 200 OK with a page of request statuses")
 	void getRequestStatuses_shouldReturnOk() throws Exception {
-		final var requestStatus = new RequestStatusEntityBuilder()
+		final var requestStatus = RequestStatusEntity.builder()
 			.id(0L)
 			.code("TEST")
 			.nameEn("Test Request Status")
@@ -440,7 +440,7 @@ class CodesControllerTest {
 	@WithAnonymousUser
 	@DisplayName("GET /codes/security-clearances - Should return 200 OK with a page of security clearances")
 	void getSecurityClearances_shouldReturnOk() throws Exception {
-		final var securityClearance = new SecurityClearanceEntityBuilder()
+		final var securityClearance = SecurityClearanceEntity.builder()
 			.id(0L)
 			.code("TEST")
 			.nameEn("Test Security Clearance")
@@ -470,7 +470,7 @@ class CodesControllerTest {
 	@WithAnonymousUser
 	@DisplayName("GET /codes/selection-process-types - Should return 200 OK with a page of selection process types")
 	void getSelectionProcessTypes_shouldReturnOk() throws Exception {
-		final var selectionProcessType = new SelectionProcessTypeEntityBuilder()
+		final var selectionProcessType = SelectionProcessTypeEntity.builder()
 			.id(0L)
 			.code("TEST")
 			.nameEn("Test Selection Process Type")
@@ -500,7 +500,7 @@ class CodesControllerTest {
 	@WithAnonymousUser
 	@DisplayName("GET /codes/user-types - Should return 200 OK with a page of user types")
 	void getUserTypes_shouldReturnOk() throws Exception {
-		final var userType = new UserTypeEntityBuilder()
+		final var userType = UserTypeEntity.builder()
 			.id(0L)
 			.code("TEST")
 			.nameEn("Test User Type")
@@ -530,7 +530,7 @@ class CodesControllerTest {
 	@WithAnonymousUser
 	@DisplayName("GET /codes/wfa-statuses - Should return 200 OK with a page of WFA statuses")
 	void getWfaStatuses_shouldReturnOk() throws Exception {
-		final var wfaStatus = new WfaStatusEntityBuilder()
+		final var wfaStatus = WfaStatusEntity.builder()
 			.id(0L)
 			.code("TEST")
 			.nameEn("Test WFA Status")
@@ -560,7 +560,7 @@ class CodesControllerTest {
 	@WithAnonymousUser
 	@DisplayName("GET /codes/work-schedules - Should return 200 OK with a page of work schedules")
 	void getWorkSchedules_shouldReturnOk() throws Exception {
-		final var workSchedule = new WorkScheduleEntityBuilder()
+		final var workSchedule = WorkScheduleEntity.builder()
 			.id(0L)
 			.code("TEST")
 			.nameEn("Test Work Schedule")
@@ -590,7 +590,7 @@ class CodesControllerTest {
 	@WithAnonymousUser
 	@DisplayName("GET /codes/work-units - Should return 200 OK with a page of work units")
 	void getWorkUnits_shouldReturnOk() throws Exception {
-		final var workUnit = new WorkUnitEntityBuilder()
+		final var workUnit = WorkUnitEntity.builder()
 			.id(0L)
 			.code("TEST")
 			.nameEn("Test Work Unit")

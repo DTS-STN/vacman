@@ -13,6 +13,10 @@ import jakarta.persistence.Table;
 @Table(name = "[CD_CLASSIFICATION]")
 public class ClassificationEntity extends AbstractCodeEntity {
 
+	public static ClassificationEntityBuilder builder() {
+		return new ClassificationEntityBuilder();
+	}
+
 	public ClassificationEntity() {
 		super();
 	}

@@ -13,6 +13,10 @@ import jakarta.persistence.Table;
 @Table(name = "[CD_WFA_STATUS]")
 public class WfaStatusEntity extends AbstractCodeEntity {
 
+	public static WfaStatusEntityBuilder builder() {
+		return new WfaStatusEntityBuilder();
+	}
+
 	public WfaStatusEntity() {
 		super();
 	}

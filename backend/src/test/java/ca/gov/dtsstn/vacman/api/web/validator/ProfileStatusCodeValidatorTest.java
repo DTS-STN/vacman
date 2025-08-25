@@ -16,7 +16,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
-import ca.gov.dtsstn.vacman.api.data.entity.ProfileStatusEntityBuilder;
+import ca.gov.dtsstn.vacman.api.data.entity.ProfileStatusEntity;
 import ca.gov.dtsstn.vacman.api.service.CodeService;
 
 @DisplayName("ProfileStatusCodeValidator tests")
@@ -39,7 +39,7 @@ class ProfileStatusCodeValidatorTest {
 	@DisplayName("isValid() returns true when profile status code is valid")
 	void isValidReturnsTrueWhenProfileStatusCodeIsValid() {
 		when(codeService.getProfileStatuses(Pageable.unpaged()))
-			.thenReturn(new PageImpl<>(List.of(new ProfileStatusEntityBuilder().id(0L).build())));
+			.thenReturn(new PageImpl<>(List.of(ProfileStatusEntity.builder().id(0L).build())));
 
 		assertTrue(profileStatusCodeValidator.isValid(0L, null));
 	}

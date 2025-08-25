@@ -13,6 +13,10 @@ import jakarta.persistence.Table;
 @Table(name = "[CD_PROVINCE_TERRITORY]")
 public class ProvinceEntity extends AbstractCodeEntity {
 
+	public static ProvinceEntityBuilder builder() {
+		return new ProvinceEntityBuilder();
+	}
+
 	public ProvinceEntity() {
 		super();
 	}

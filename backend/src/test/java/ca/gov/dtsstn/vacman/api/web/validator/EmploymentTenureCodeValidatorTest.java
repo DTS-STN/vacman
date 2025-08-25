@@ -16,7 +16,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
-import ca.gov.dtsstn.vacman.api.data.entity.EmploymentTenureEntityBuilder;
+import ca.gov.dtsstn.vacman.api.data.entity.EmploymentTenureEntity;
 import ca.gov.dtsstn.vacman.api.service.CodeService;
 
 @ExtendWith({ MockitoExtension.class })
@@ -39,7 +39,7 @@ class EmploymentTenureCodeValidatorTest {
 	@DisplayName("isValid() returns true when employment tenure code is valid")
 	void isValidReturnsTrueWhenEmploymentTenureCodeIsValid() {
 		when(codeService.getEmploymentTenures(Pageable.unpaged()))
-			.thenReturn(new PageImpl<>(List.of(new EmploymentTenureEntityBuilder().id(0L).build())));
+			.thenReturn(new PageImpl<>(List.of(EmploymentTenureEntity.builder().id(0L).build())));
 
 		assertTrue(employmentTenureCodeValidator.isValid(0L, null));
 	}

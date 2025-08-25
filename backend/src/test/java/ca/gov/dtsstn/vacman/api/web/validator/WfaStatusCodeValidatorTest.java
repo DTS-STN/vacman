@@ -16,7 +16,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
-import ca.gov.dtsstn.vacman.api.data.entity.WfaStatusEntityBuilder;
+import ca.gov.dtsstn.vacman.api.data.entity.WfaStatusEntity;
 import ca.gov.dtsstn.vacman.api.service.CodeService;
 
 @ExtendWith({ MockitoExtension.class })
@@ -39,7 +39,7 @@ class WfaStatusCodeValidatorTest {
 	@DisplayName("isValid() returns true when WFA status code is valid")
 	void isValidReturnsTrueWhenWfaStatusCodeIsValid() {
 		when(codeService.getWfaStatuses(Pageable.unpaged()))
-			.thenReturn(new PageImpl<>(List.of(new WfaStatusEntityBuilder().id(0L).build())));
+			.thenReturn(new PageImpl<>(List.of(WfaStatusEntity.builder().id(0L).build())));
 
 		assertTrue(wfaStatusCodeValidator.isValid(0L, null));
 	}

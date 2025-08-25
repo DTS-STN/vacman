@@ -13,6 +13,10 @@ import jakarta.persistence.Table;
 @Table(name = "[CD_REQUEST_STATUS]")
 public class RequestStatusEntity extends AbstractCodeEntity {
 
+	public static RequestStatusEntityBuilder builder() {
+		return new RequestStatusEntityBuilder();
+	}
+
 	public RequestStatusEntity() {
 		super();
 	}

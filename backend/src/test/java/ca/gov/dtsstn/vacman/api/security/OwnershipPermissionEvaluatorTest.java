@@ -15,9 +15,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.Authentication;
 
-import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntityBuilder;
+import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
-import ca.gov.dtsstn.vacman.api.data.entity.UserEntityBuilder;
 import ca.gov.dtsstn.vacman.api.service.ProfileService;
 import ca.gov.dtsstn.vacman.api.service.UserService;
 
@@ -46,12 +45,12 @@ class OwnershipPermissionEvaluatorTest {
 	@InjectMocks
 	OwnershipPermissionEvaluator permissionEvaluator;
 
-	final UserEntity ownerUser = new UserEntityBuilder()
+	final UserEntity ownerUser = UserEntity.builder()
 		.id(OWNER_USER_ID)
 		.microsoftEntraId(OWNER_PRINCIPAL_ID)
 		.build();
 
-	final UserEntity otherUser = new UserEntityBuilder()
+	final UserEntity otherUser = UserEntity.builder()
 		.id(OTHER_USER_ID)
 		.microsoftEntraId(NON_OWNER_PRINCIPAL_ID)
 		.build();
@@ -73,7 +72,7 @@ class OwnershipPermissionEvaluatorTest {
 		@Test
 		@DisplayName("Should return TRUE when user is the owner of a PROFILE resource")
 		void hasPermission_UserIsOwnerOfProfileResource_ShouldReturnTrue() {
-			final var profile = new ProfileEntityBuilder()
+			final var profile = ProfileEntity.builder()
 				.id(RESOURCE_ID)
 				.user(ownerUser)
 				.build();
@@ -127,7 +126,7 @@ class OwnershipPermissionEvaluatorTest {
 		@Test
 		@DisplayName("Should return FALSE when the target resource has no owner")
 		void hasPermission_ResourceHasNoOwner_ShouldReturnFalse() {
-			final var profileWithoutOwner = new ProfileEntityBuilder()
+			final var profileWithoutOwner = ProfileEntity.builder()
 				.id(RESOURCE_ID)
 				.user(null) // explicitly no owner
 				.build();

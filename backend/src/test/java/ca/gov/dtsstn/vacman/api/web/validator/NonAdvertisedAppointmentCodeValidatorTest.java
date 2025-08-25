@@ -16,7 +16,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
-import ca.gov.dtsstn.vacman.api.data.entity.NonAdvertisedAppointmentEntityBuilder;
+import ca.gov.dtsstn.vacman.api.data.entity.NonAdvertisedAppointmentEntity;
 import ca.gov.dtsstn.vacman.api.service.CodeService;
 
 @ExtendWith({ MockitoExtension.class })
@@ -39,7 +39,7 @@ class NonAdvertisedAppointmentCodeValidatorTest {
 	@DisplayName("isValid() returns true when non-advertised appointment code is valid")
 	void isValidReturnsTrueWhenNonAdvertisedAppointmentCodeIsValid() {
 		when(codeService.getNonAdvertisedAppointments(Pageable.unpaged()))
-			.thenReturn(new PageImpl<>(List.of(new NonAdvertisedAppointmentEntityBuilder().id(0L).build())));
+			.thenReturn(new PageImpl<>(List.of(NonAdvertisedAppointmentEntity.builder().id(0L).build())));
 
 		assertTrue(nonAdvertisedAppointmentCodeValidator.isValid(0L, null));
 	}

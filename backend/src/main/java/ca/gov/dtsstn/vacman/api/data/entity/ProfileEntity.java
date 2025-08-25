@@ -29,6 +29,10 @@ import jakarta.persistence.Table;
 @Table(name = "[PROFILE]")
 public class ProfileEntity extends AbstractBaseEntity implements Ownable {
 
+	public static ProfileEntityBuilder builder() {
+		return new ProfileEntityBuilder();
+	}
+
 	@Column(name = "[ADDITIONAL_COMMENT]", length = 200, nullable = true)
 	private String additionalComment;
 

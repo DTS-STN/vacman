@@ -22,6 +22,10 @@ import jakarta.persistence.Table;
 @Table(name = "[USER]")
 public class UserEntity extends AbstractBaseEntity implements Ownable {
 
+	public static UserEntityBuilder builder() {
+		return new UserEntityBuilder();
+	}
+
 	@Column(name = "[BUSINESS_EMAIL_ADDRESS]", length = 320, nullable = false)
 	private String businessEmailAddress;
 

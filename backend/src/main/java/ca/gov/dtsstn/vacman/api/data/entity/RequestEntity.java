@@ -26,6 +26,10 @@ import jakarta.persistence.Table;
 @Table(name = "[REQUEST]")
 public class RequestEntity extends AbstractBaseEntity implements Ownable {
 
+	public static RequestEntityBuilder builder() {
+		return new RequestEntityBuilder();
+	}
+
 	@Column(name = "[ADDITIONAL_COMMENT]", length = 100)
 	private String additionalComment;
 

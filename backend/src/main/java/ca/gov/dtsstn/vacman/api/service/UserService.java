@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 
 import ca.gov.dtsstn.vacman.api.constants.AppConstants;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
-import ca.gov.dtsstn.vacman.api.data.entity.UserEntityBuilder;
 import ca.gov.dtsstn.vacman.api.data.repository.UserRepository;
 import ca.gov.dtsstn.vacman.api.event.UserCreatedEvent;
 import ca.gov.dtsstn.vacman.api.event.UserDeletedEvent;
@@ -90,7 +89,7 @@ public class UserService {
 
 		// XXX ::: GjB ::: I think we should still consider emitting an event here
 
-		final var example = Example.of(new UserEntityBuilder()
+		final var example = Example.of(UserEntity.builder()
 			.microsoftEntraId(entraId)
 			.build());
 
@@ -108,7 +107,7 @@ public class UserService {
 			.filter(byCode("HRA")).stream()
 			.findFirst().orElseThrow();
 
-		final var example = Example.of(new UserEntityBuilder().userType(userType).build());
+		final var example = Example.of(UserEntity.builder().userType(userType).build());
 
 		final Page<UserEntity> users = userRepository.findAll(example, pageable);
 		users.forEach(user -> eventPublisher.publishEvent(new UserReadEvent(user)));

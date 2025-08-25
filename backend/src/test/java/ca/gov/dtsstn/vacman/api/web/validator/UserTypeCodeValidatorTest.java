@@ -16,7 +16,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
-import ca.gov.dtsstn.vacman.api.data.entity.UserTypeEntityBuilder;
+import ca.gov.dtsstn.vacman.api.data.entity.UserTypeEntity;
 import ca.gov.dtsstn.vacman.api.service.CodeService;
 
 @ExtendWith({ MockitoExtension.class })
@@ -39,7 +39,7 @@ class UserTypeCodeValidatorTest {
 	@DisplayName("isValid() returns true when user type code is valid")
 	void isValidReturnsTrueWhenUserTypeCodeIsValid() {
 		when(codeService.getUserTypes(Pageable.unpaged()))
-			.thenReturn(new PageImpl<>(List.of(new UserTypeEntityBuilder().id(0L).build())));
+			.thenReturn(new PageImpl<>(List.of(UserTypeEntity.builder().id(0L).build())));
 
 		assertTrue(userTypeCodeValidator.isValid(0L, null));
 	}

@@ -16,7 +16,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
-import ca.gov.dtsstn.vacman.api.data.entity.LanguageRequirementEntityBuilder;
+import ca.gov.dtsstn.vacman.api.data.entity.LanguageRequirementEntity;
 import ca.gov.dtsstn.vacman.api.service.CodeService;
 
 @ExtendWith({ MockitoExtension.class })
@@ -39,7 +39,7 @@ class LanguageRequirementCodeValidatorTest {
 	@DisplayName("isValid() returns true when language requirement code is valid")
 	void isValidReturnsTrueWhenLanguageRequirementCodeIsValid() {
 		when(codeService.getLanguageRequirements(Pageable.unpaged()))
-			.thenReturn(new PageImpl<>(List.of(new LanguageRequirementEntityBuilder().id(0L).build())));
+			.thenReturn(new PageImpl<>(List.of(LanguageRequirementEntity.builder().id(0L).build())));
 
 		assertTrue(languageRequirementCodeValidator.isValid(0L, null));
 	}

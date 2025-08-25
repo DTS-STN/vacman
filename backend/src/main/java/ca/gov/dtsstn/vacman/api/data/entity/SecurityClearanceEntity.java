@@ -13,6 +13,10 @@ import jakarta.persistence.Table;
 @Table(name = "[CD_SECURITY_CLEARANCE]")
 public class SecurityClearanceEntity extends AbstractCodeEntity {
 
+	public static SecurityClearanceEntityBuilder builder() {
+		return new SecurityClearanceEntityBuilder();
+	}
+
 	public SecurityClearanceEntity() {
 		super();
 	}

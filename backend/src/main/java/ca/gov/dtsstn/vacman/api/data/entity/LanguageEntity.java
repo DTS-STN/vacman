@@ -13,6 +13,10 @@ import jakarta.persistence.Table;
 @Table(name = "[CD_LANGUAGE]")
 public class LanguageEntity extends AbstractCodeEntity {
 
+	public static LanguageEntityBuilder builder() {
+		return new LanguageEntityBuilder();
+	}
+
 	public LanguageEntity() {
 		super();
 	}

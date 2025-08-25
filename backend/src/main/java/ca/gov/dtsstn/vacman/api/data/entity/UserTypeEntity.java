@@ -13,6 +13,10 @@ import jakarta.persistence.Table;
 @Table(name = "[CD_USER_TYPE]")
 public class UserTypeEntity extends AbstractCodeEntity {
 
+	public static UserTypeEntityBuilder builder() {
+		return new UserTypeEntityBuilder();
+	}
+
 	public UserTypeEntity() {
 		super();
 	}

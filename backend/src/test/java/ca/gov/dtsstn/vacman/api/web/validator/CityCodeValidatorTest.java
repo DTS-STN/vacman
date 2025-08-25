@@ -16,7 +16,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
-import ca.gov.dtsstn.vacman.api.data.entity.CityEntityBuilder;
+import ca.gov.dtsstn.vacman.api.data.entity.CityEntity;
 import ca.gov.dtsstn.vacman.api.service.CodeService;
 
 @DisplayName("CityCodeValidator tests")
@@ -39,7 +39,7 @@ class CityCodeValidatorTest {
 	@DisplayName("isValid() returns true when city code is valid")
 	void isValidReturnsTrueWhenCityCodeIsValid() {
 		when(codeService.getCities(Pageable.unpaged()))
-			.thenReturn(new PageImpl<>(List.of(new CityEntityBuilder().id(0L).build())));
+			.thenReturn(new PageImpl<>(List.of(CityEntity.builder().id(0L).build())));
 
 		assertTrue(cityCodeValidator.isValid(0L, null));
 	}

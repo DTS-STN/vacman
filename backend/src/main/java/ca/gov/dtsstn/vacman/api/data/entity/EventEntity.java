@@ -14,6 +14,10 @@ import jakarta.persistence.Table;
 @Table(name = "[EVENT]")
 public class EventEntity extends AbstractBaseEntity {
 
+	public static EventEntityBuilder builder() {
+		return new EventEntityBuilder();
+	}
+
 	@Column(name = "[TYPE]", nullable = false, length = 255)
 	private String type;
 

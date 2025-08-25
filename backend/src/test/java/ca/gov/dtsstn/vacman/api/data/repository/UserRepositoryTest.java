@@ -18,7 +18,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import ca.gov.dtsstn.vacman.api.SecurityAuditor;
 import ca.gov.dtsstn.vacman.api.config.DataSourceConfig;
-import ca.gov.dtsstn.vacman.api.data.entity.UserEntityBuilder;
+import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 
 @DataJpaTest
 @ActiveProfiles("test")
@@ -47,7 +47,7 @@ class UserRepositoryTest {
 
 	@Test
 	void testSaveWithPartialDataDoesNotThrow() {
-		final var user = new UserEntityBuilder()
+		final var user = UserEntity.builder()
 			.language(languageRepository.findById(1L).orElseThrow())
 			.userType(userTypeRepository.findById(1L).orElseThrow())
 			.microsoftEntraId("00000000-0000-0000-0000-000000000000")

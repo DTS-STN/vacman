@@ -11,10 +11,8 @@ import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
 
 import ca.gov.dtsstn.vacman.api.data.entity.RequestEntity;
-import ca.gov.dtsstn.vacman.api.data.entity.RequestEntityBuilder;
-import ca.gov.dtsstn.vacman.api.data.entity.RequestStatusEntityBuilder;
+import ca.gov.dtsstn.vacman.api.data.entity.RequestStatusEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
-import ca.gov.dtsstn.vacman.api.data.entity.UserEntityBuilder;
 import ca.gov.dtsstn.vacman.api.data.repository.RequestRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.RequestStatusRepository;
 
@@ -35,13 +33,13 @@ public class RequestService {
 	public RequestEntity createRequest(UserEntity submitter) {
 		log.debug("Fetching DRAFT request status");
 
-		final var requestStatusExample = Example.of(new RequestStatusEntityBuilder().code("DRAFT").build());
+		final var requestStatusExample = Example.of(RequestStatusEntity.builder().code("DRAFT").build());
 
 		final var draftStatus = requestStatusRepository.findOne(requestStatusExample)
 			.orElseThrow(asResourceNotFoundException("requestStatus", "code", "DRAFT"));
 
 		return requestRepository
-				.save(new RequestEntityBuilder().submitter(submitter).requestStatus(draftStatus).build());
+				.save(RequestEntity.builder().submitter(submitter).requestStatus(draftStatus).build());
 	}
 
 	public Optional<RequestEntity> getRequestById(long requestId) {
@@ -50,7 +48,7 @@ public class RequestService {
 
 	public List<RequestEntity> getRequestsByUserId(long userId) {
 		final var example = Example
-				.of(new RequestEntityBuilder().submitter(new UserEntityBuilder().id(userId).build()).build());
+				.of(RequestEntity.builder().submitter(UserEntity.builder().id(userId).build()).build());
 
 		return requestRepository.findAll(example);
 	}

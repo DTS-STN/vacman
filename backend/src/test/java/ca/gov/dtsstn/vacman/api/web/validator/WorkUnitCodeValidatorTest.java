@@ -16,7 +16,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
-import ca.gov.dtsstn.vacman.api.data.entity.WorkUnitEntityBuilder;
+import ca.gov.dtsstn.vacman.api.data.entity.WorkUnitEntity;
 import ca.gov.dtsstn.vacman.api.service.CodeService;
 
 @ExtendWith({ MockitoExtension.class })
@@ -39,7 +39,7 @@ class WorkUnitCodeValidatorTest {
 	@DisplayName("isValid() returns true when work unit code is valid")
 	void isValidReturnsTrueWhenWorkUnitCodeIsValid() {
 		when(codeService.getWorkUnits(Pageable.unpaged()))
-			.thenReturn(new PageImpl<>(List.of(new WorkUnitEntityBuilder().id(0L).build())));
+			.thenReturn(new PageImpl<>(List.of(WorkUnitEntity.builder().id(0L).build())));
 
 		assertTrue(workUnitCodeValidator.isValid(0L, null));
 	}

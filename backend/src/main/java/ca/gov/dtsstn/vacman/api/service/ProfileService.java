@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 
 import ca.gov.dtsstn.vacman.api.constants.AppConstants;
 import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
-import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntityBuilder;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 import ca.gov.dtsstn.vacman.api.data.repository.CityRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.ClassificationRepository;
@@ -172,7 +171,7 @@ public class ProfileService {
 	 * @return The new profile entity.
 	 */
 	public ProfileEntity createProfile(UserEntity user) {
-		final var profile = profileRepository.save(new ProfileEntityBuilder()
+		final var profile = profileRepository.save(ProfileEntity.builder()
 			.user(user)
 			.profileStatus(profileStatusRepository.findByCode("INCOMPLETE"))
 			.build());

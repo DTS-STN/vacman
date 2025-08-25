@@ -16,7 +16,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
-import ca.gov.dtsstn.vacman.api.data.entity.ProvinceEntityBuilder;
+import ca.gov.dtsstn.vacman.api.data.entity.ProvinceEntity;
 import ca.gov.dtsstn.vacman.api.service.CodeService;
 
 @DisplayName("ProvinceCodeValidator tests")
@@ -39,7 +39,7 @@ class ProvinceCodeValidatorTest {
 	@DisplayName("isValid() returns true when province code is valid")
 	void isValidReturnsTrueWhenProvinceCodeIsValid() {
 		when(codeService.getProvinces(Pageable.unpaged()))
-			.thenReturn(new PageImpl<>(List.of(new ProvinceEntityBuilder().id(0L).build())));
+			.thenReturn(new PageImpl<>(List.of(ProvinceEntity.builder().id(0L).build())));
 
 		assertTrue(provinceCodeValidator.isValid(0L, null));
 	}

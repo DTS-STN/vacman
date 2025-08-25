@@ -15,6 +15,10 @@ import jakarta.persistence.Table;
 @Table(name = "[CD_CITY]")
 public class CityEntity extends AbstractCodeEntity {
 
+	public static CityEntityBuilder builder() {
+		return new CityEntityBuilder();
+	}
+
 	@ManyToOne
 	@JoinColumn(name = "[PROVINCE_TERRITORY_ID]", nullable = false)
 	protected ProvinceEntity provinceTerritory;

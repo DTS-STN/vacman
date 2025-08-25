@@ -13,9 +13,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
 import ca.gov.dtsstn.vacman.api.constants.AppConstants;
-import ca.gov.dtsstn.vacman.api.data.entity.EventEntityBuilder;
+import ca.gov.dtsstn.vacman.api.data.entity.EventEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
-import ca.gov.dtsstn.vacman.api.data.entity.ProfileStatusEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 import ca.gov.dtsstn.vacman.api.data.repository.EventRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.ProfileStatusRepository;
@@ -54,7 +53,7 @@ public class ProfileEventListener {
 	@Async
 	@EventListener({ ProfileCreateEvent.class })
 	public void handleProfileCreated(ProfileCreateEvent event) throws JsonProcessingException {
-		eventRepository.save(new EventEntityBuilder()
+		eventRepository.save(EventEntity.builder()
 			.type("PROFILE_CREATED")
 			.details(objectMapper.writeValueAsString(event))
 			.build());
@@ -65,7 +64,7 @@ public class ProfileEventListener {
 	@Async
 	@EventListener({ ProfileReadEvent.class })
 	public void handleProfileRead(ProfileReadEvent event) throws JsonProcessingException {
-		eventRepository.save(new EventEntityBuilder()
+		eventRepository.save(EventEntity.builder()
 			.type("PROFILE_READ")
 			.details(objectMapper.writeValueAsString(event))
 			.build());
@@ -76,7 +75,7 @@ public class ProfileEventListener {
 	@Async
 	@EventListener({ ProfileUpdatedEvent.class })
 	public void handleProfileUpdated(ProfileUpdatedEvent event) throws JsonProcessingException {
-		eventRepository.save(new EventEntityBuilder()
+		eventRepository.save(EventEntity.builder()
 			.type("PROFILE_UPDATED")
 			.details(objectMapper.writeValueAsString(event))
 			.build());
@@ -87,12 +86,12 @@ public class ProfileEventListener {
 	@Async
 	@EventListener({ ProfileStatusChangeEvent.class })
 	public void handleProfileStatusChange(ProfileStatusChangeEvent event) throws JsonProcessingException {
-		eventRepository.save(new EventEntityBuilder()
+		eventRepository.save(EventEntity.builder()
 			.type("PROFILE_STATUS_CHANGE")
 			.details(objectMapper.writeValueAsString(event))
 			.build());
 
-		log.info("Event: profile status changed - ID: {}, from status ID: {}, to status ID: {}", 
+		log.info("Event: profile status changed - ID: {}, from status ID: {}, to status ID: {}",
 			event.entity().getId(), event.previousStatusId(), event.newStatusId());
 
 		final var profile = event.entity();
@@ -103,10 +102,10 @@ public class ProfileEventListener {
 
 		if (newStatus != null && AppConstants.ProfileStatusCodes.APPROVED.equals(newStatus.getCode())) {
 			sendApprovalNotification(profile);
-		} else if (previousStatus != null && 
+		} else if (previousStatus != null &&
 				  (AppConstants.ProfileStatusCodes.INCOMPLETE.equals(previousStatus.getCode()) ||
 				   AppConstants.ProfileStatusCodes.APPROVED.equals(previousStatus.getCode())) &&
-				  newStatus != null && 
+				  newStatus != null &&
 				  AppConstants.ProfileStatusCodes.PENDING.equals(newStatus.getCode())) {
 			sendPendingNotificationToHrAdvisor(profile);
 		}

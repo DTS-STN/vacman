@@ -13,6 +13,10 @@ import jakarta.persistence.Table;
 @Table(name = "[CD_WORK_SCHEDULE]")
 public class WorkScheduleEntity extends AbstractCodeEntity {
 
+	public static WorkScheduleEntityBuilder builder() {
+		return new WorkScheduleEntityBuilder();
+	}
+
 	public WorkScheduleEntity() {
 		super();
 	}

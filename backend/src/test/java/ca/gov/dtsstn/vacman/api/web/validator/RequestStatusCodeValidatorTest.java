@@ -16,7 +16,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
-import ca.gov.dtsstn.vacman.api.data.entity.RequestStatusEntityBuilder;
+import ca.gov.dtsstn.vacman.api.data.entity.RequestStatusEntity;
 import ca.gov.dtsstn.vacman.api.service.CodeService;
 
 @ExtendWith({ MockitoExtension.class })
@@ -39,7 +39,7 @@ class RequestStatusCodeValidatorTest {
 	@DisplayName("isValid() returns true when request status code is valid")
 	void isValidReturnsTrueWhenRequestStatusCodeIsValid() {
 		when(codeService.getRequestStatuses(Pageable.unpaged()))
-			.thenReturn(new PageImpl<>(List.of(new RequestStatusEntityBuilder().id(0L).build())));
+			.thenReturn(new PageImpl<>(List.of(RequestStatusEntity.builder().id(0L).build())));
 
 		assertTrue(requestStatusCodeValidator.isValid(0L, null));
 	}

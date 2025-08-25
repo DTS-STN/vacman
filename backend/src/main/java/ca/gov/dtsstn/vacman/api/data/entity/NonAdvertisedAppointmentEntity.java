@@ -13,6 +13,10 @@ import jakarta.persistence.Table;
 @Table(name = "[CD_APPOINTMENT_NON_ADVERTISED]")
 public class NonAdvertisedAppointmentEntity extends AbstractCodeEntity {
 
+	public static NonAdvertisedAppointmentEntityBuilder builder() {
+		return new NonAdvertisedAppointmentEntityBuilder();
+	}
+
 	public NonAdvertisedAppointmentEntity() {
 		super();
 	}

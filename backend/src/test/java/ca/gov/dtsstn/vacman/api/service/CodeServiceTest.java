@@ -15,24 +15,24 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
-import ca.gov.dtsstn.vacman.api.data.entity.CityEntityBuilder;
-import ca.gov.dtsstn.vacman.api.data.entity.ClassificationEntityBuilder;
-import ca.gov.dtsstn.vacman.api.data.entity.EmploymentEquityEntityBuilder;
-import ca.gov.dtsstn.vacman.api.data.entity.EmploymentOpportunityEntityBuilder;
-import ca.gov.dtsstn.vacman.api.data.entity.EmploymentTenureEntityBuilder;
-import ca.gov.dtsstn.vacman.api.data.entity.LanguageEntityBuilder;
-import ca.gov.dtsstn.vacman.api.data.entity.LanguageReferralTypeEntityBuilder;
-import ca.gov.dtsstn.vacman.api.data.entity.LanguageRequirementEntityBuilder;
-import ca.gov.dtsstn.vacman.api.data.entity.NonAdvertisedAppointmentEntityBuilder;
-import ca.gov.dtsstn.vacman.api.data.entity.ProfileStatusEntityBuilder;
-import ca.gov.dtsstn.vacman.api.data.entity.ProvinceEntityBuilder;
-import ca.gov.dtsstn.vacman.api.data.entity.RequestStatusEntityBuilder;
-import ca.gov.dtsstn.vacman.api.data.entity.SecurityClearanceEntityBuilder;
-import ca.gov.dtsstn.vacman.api.data.entity.SelectionProcessTypeEntityBuilder;
-import ca.gov.dtsstn.vacman.api.data.entity.UserTypeEntityBuilder;
-import ca.gov.dtsstn.vacman.api.data.entity.WfaStatusEntityBuilder;
-import ca.gov.dtsstn.vacman.api.data.entity.WorkScheduleEntityBuilder;
-import ca.gov.dtsstn.vacman.api.data.entity.WorkUnitEntityBuilder;
+import ca.gov.dtsstn.vacman.api.data.entity.CityEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.ClassificationEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.EmploymentEquityEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.EmploymentOpportunityEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.EmploymentTenureEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.LanguageEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.LanguageReferralTypeEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.LanguageRequirementEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.NonAdvertisedAppointmentEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.ProfileStatusEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.ProvinceEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.RequestStatusEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.SecurityClearanceEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.SelectionProcessTypeEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.UserTypeEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.WfaStatusEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.WorkScheduleEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.WorkUnitEntity;
 import ca.gov.dtsstn.vacman.api.data.repository.CityRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.ClassificationRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.EmploymentEquityRepository;
@@ -116,7 +116,7 @@ class CodeServiceTest {
 	@Test
 	@DisplayName("getCities() returns a page of cities")
 	void getCitiesReturnsPageOfCities() {
-		final var testCity = new CityEntityBuilder().code("TEST_CITY").build();
+		final var testCity = CityEntity.builder().code("TEST_CITY").build();
 
 		when(cityRepository.findAll(Pageable.unpaged()))
 			.thenReturn(new PageImpl<>(List.of(testCity)));
@@ -131,7 +131,7 @@ class CodeServiceTest {
 	@Test
 	@DisplayName("getClassifications() returns a page of classifications")
 	void getClassificationsReturnsPageOfClassifications() {
-		final var testClassification = new ClassificationEntityBuilder().code("TEST_CLASSIFICATION").build();
+		final var testClassification = ClassificationEntity.builder().code("TEST_CLASSIFICATION").build();
 
 		when(classificationRepository.findAll(Pageable.unpaged()))
 			.thenReturn(new PageImpl<>(List.of(testClassification)));
@@ -146,7 +146,7 @@ class CodeServiceTest {
 	@Test
 	@DisplayName("getEmploymentEquities() returns a page of employment equities")
 	void getEmploymentEquitiesReturnsPageOfEmploymentEquities() {
-		final var testEmploymentEquity = new EmploymentEquityEntityBuilder().code("TEST_EE").build();
+		final var testEmploymentEquity = EmploymentEquityEntity.builder().code("TEST_EE").build();
 
 		when(employmentEquityRepository.findAll(Pageable.unpaged()))
 			.thenReturn(new PageImpl<>(List.of(testEmploymentEquity)));
@@ -161,7 +161,7 @@ class CodeServiceTest {
 	@Test
 	@DisplayName("getEmploymentOpportunities() returns a page of employment opportunities")
 	void getEmploymentOpportunitiesReturnsPageOfEmploymentOpportunities() {
-		final var testEmploymentOpportunity = new EmploymentOpportunityEntityBuilder().code("TEST_EO").build();
+		final var testEmploymentOpportunity = EmploymentOpportunityEntity.builder().code("TEST_EO").build();
 
 		when(employmentOpportunityRepository.findAll(Pageable.unpaged()))
 			.thenReturn(new PageImpl<>(List.of(testEmploymentOpportunity)));
@@ -176,7 +176,7 @@ class CodeServiceTest {
 	@Test
 	@DisplayName("getEmploymentTenures() returns a page of employment tenures")
 	void getEmploymentTenuresReturnsPageOfEmploymentTenures() {
-		final var testEmploymentTenure = new EmploymentTenureEntityBuilder().code("TEST_ET").build();
+		final var testEmploymentTenure = EmploymentTenureEntity.builder().code("TEST_ET").build();
 
 		when(employmentTenureRepository.findAll(Pageable.unpaged()))
 			.thenReturn(new PageImpl<>(List.of(testEmploymentTenure)));
@@ -191,7 +191,7 @@ class CodeServiceTest {
 	@Test
 	@DisplayName("getLanguages() returns a page of languages")
 	void getLanguagesReturnsPageOfLanguages() {
-		final var testLanguage = new LanguageEntityBuilder().code("TEST_LANG").build();
+		final var testLanguage = LanguageEntity.builder().code("TEST_LANG").build();
 
 		when(languageRepository.findAll(Pageable.unpaged()))
 			.thenReturn(new PageImpl<>(List.of(testLanguage)));
@@ -206,7 +206,7 @@ class CodeServiceTest {
 	@Test
 	@DisplayName("getLanguageReferralTypes() returns a page of language referral types")
 	void getLanguageReferralTypesReturnsPageOfLanguageReferralTypes() {
-		final var testLanguageReferralType = new LanguageReferralTypeEntityBuilder().code("TEST_LRT").build();
+		final var testLanguageReferralType = LanguageReferralTypeEntity.builder().code("TEST_LRT").build();
 
 		when(languageReferralTypeRepository.findAll(Pageable.unpaged()))
 			.thenReturn(new PageImpl<>(List.of(testLanguageReferralType)));
@@ -221,7 +221,7 @@ class CodeServiceTest {
 	@Test
 	@DisplayName("getLanguageRequirements() returns a page of language requirements")
 	void getLanguageRequirementsReturnsPageOfLanguageRequirements() {
-		final var testLanguageRequirement = new LanguageRequirementEntityBuilder().code("TEST_LR").build();
+		final var testLanguageRequirement = LanguageRequirementEntity.builder().code("TEST_LR").build();
 
 		when(languageRequirementRepository.findAll(Pageable.unpaged()))
 			.thenReturn(new PageImpl<>(List.of(testLanguageRequirement)));
@@ -236,7 +236,7 @@ class CodeServiceTest {
 	@Test
 	@DisplayName("getNonAdvertisedAppointments() returns a page of non-advertised appointments")
 	void getNonAdvertisedAppointmentsReturnsPageOfNonAdvertisedAppointments() {
-		final var testNonAdvertisedAppointment = new NonAdvertisedAppointmentEntityBuilder().code("TEST_NAA").build();
+		final var testNonAdvertisedAppointment = NonAdvertisedAppointmentEntity.builder().code("TEST_NAA").build();
 
 		when(nonAdvertisedAppointmentRepository.findAll(Pageable.unpaged()))
 			.thenReturn(new PageImpl<>(List.of(testNonAdvertisedAppointment)));
@@ -251,7 +251,7 @@ class CodeServiceTest {
 	@Test
 	@DisplayName("getProfileStatuses() returns a page of profile statuses")
 	void getProfileStatusesReturnsPageOfProfileStatuses() {
-		final var testProfileStatus = new ProfileStatusEntityBuilder().code("TEST_PS").build();
+		final var testProfileStatus = ProfileStatusEntity.builder().code("TEST_PS").build();
 
 		when(profileStatusRepository.findAll(Pageable.unpaged()))
 			.thenReturn(new PageImpl<>(List.of(testProfileStatus)));
@@ -266,7 +266,7 @@ class CodeServiceTest {
 	@Test
 	@DisplayName("getProvinces() returns a page of provinces")
 	void getProvincesReturnsPageOfProvinces() {
-		final var testProvince = new ProvinceEntityBuilder().code("TEST_PROV").build();
+		final var testProvince = ProvinceEntity.builder().code("TEST_PROV").build();
 
 		when(provinceRepository.findAll(Pageable.unpaged()))
 			.thenReturn(new PageImpl<>(List.of(testProvince)));
@@ -281,7 +281,7 @@ class CodeServiceTest {
 	@Test
 	@DisplayName("getRequestStatuses() returns a page of request statuses")
 	void getRequestStatusesReturnsPageOfRequestStatuses() {
-		final var testRequestStatus = new RequestStatusEntityBuilder().code("TEST_RS").build();
+		final var testRequestStatus = RequestStatusEntity.builder().code("TEST_RS").build();
 
 		when(requestStatusRepository.findAll(Pageable.unpaged()))
 			.thenReturn(new PageImpl<>(List.of(testRequestStatus)));
@@ -296,7 +296,7 @@ class CodeServiceTest {
 	@Test
 	@DisplayName("getSecurityClearances() returns a page of security clearances")
 	void getSecurityClearancesReturnsPageOfSecurityClearances() {
-		final var testSecurityClearance = new SecurityClearanceEntityBuilder().code("TEST_SC").build();
+		final var testSecurityClearance = SecurityClearanceEntity.builder().code("TEST_SC").build();
 
 		when(securityClearanceRepository.findAll(Pageable.unpaged()))
 			.thenReturn(new PageImpl<>(List.of(testSecurityClearance)));
@@ -311,7 +311,7 @@ class CodeServiceTest {
 	@Test
 	@DisplayName("getSelectionProcessTypes() returns a page of selection process types")
 	void getSelectionProcessTypesReturnsPageOfSelectionProcessTypes() {
-		final var testSelectionProcessType = new SelectionProcessTypeEntityBuilder().code("TEST_SPT").build();
+		final var testSelectionProcessType = SelectionProcessTypeEntity.builder().code("TEST_SPT").build();
 
 		when(selectionProcessTypeRepository.findAll(Pageable.unpaged()))
 			.thenReturn(new PageImpl<>(List.of(testSelectionProcessType)));
@@ -326,7 +326,7 @@ class CodeServiceTest {
 	@Test
 	@DisplayName("getUserTypes() returns a page of user types")
 	void getUserTypesReturnsPageOfUserTypes() {
-		final var testUserType = new UserTypeEntityBuilder().code("TEST_UT").build();
+		final var testUserType = UserTypeEntity.builder().code("TEST_UT").build();
 
 		when(userTypeRepository.findAll(Pageable.unpaged()))
 			.thenReturn(new PageImpl<>(List.of(testUserType)));
@@ -341,7 +341,7 @@ class CodeServiceTest {
 	@Test
 	@DisplayName("getWfaStatuses() returns a page of WFA statuses")
 	void getWfaStatusesReturnsPageOfWfaStatuses() {
-		final var testWfaStatus = new WfaStatusEntityBuilder().code("TEST_WFA").build();
+		final var testWfaStatus = WfaStatusEntity.builder().code("TEST_WFA").build();
 
 		when(wfaStatusRepository.findAll(Pageable.unpaged()))
 			.thenReturn(new PageImpl<>(List.of(testWfaStatus)));
@@ -356,7 +356,7 @@ class CodeServiceTest {
 	@Test
 	@DisplayName("getWorkSchedules() returns a page of work schedules")
 	void getWorkSchedulesReturnsPageOfWorkSchedules() {
-		final var testWorkSchedule = new WorkScheduleEntityBuilder().code("TEST_WS").build();
+		final var testWorkSchedule = WorkScheduleEntity.builder().code("TEST_WS").build();
 
 		when(workScheduleRepository.findAll(Pageable.unpaged()))
 			.thenReturn(new PageImpl<>(List.of(testWorkSchedule)));
@@ -371,7 +371,7 @@ class CodeServiceTest {
 	@Test
 	@DisplayName("getWorkUnits() returns a page of work units")
 	void getWorkUnitsReturnsPageOfWorkUnits() {
-		final var testWorkEntity = new WorkUnitEntityBuilder().code("TEST_WU").build();
+		final var testWorkEntity = WorkUnitEntity.builder().code("TEST_WU").build();
 
 		when(workUnitRepository.findAll(Pageable.unpaged()))
 			.thenReturn(new PageImpl<>(List.of(testWorkEntity)));

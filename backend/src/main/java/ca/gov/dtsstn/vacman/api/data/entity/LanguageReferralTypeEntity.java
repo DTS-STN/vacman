@@ -13,6 +13,10 @@ import jakarta.persistence.Table;
 @Table(name = "[CD_LANGUAGE_REFERRAL_TYPE]")
 public class LanguageReferralTypeEntity extends AbstractCodeEntity {
 
+	public static LanguageReferralTypeEntityBuilder builder() {
+		return new LanguageReferralTypeEntityBuilder();
+	}
+
 	public LanguageReferralTypeEntity() {
 		super();
 	}

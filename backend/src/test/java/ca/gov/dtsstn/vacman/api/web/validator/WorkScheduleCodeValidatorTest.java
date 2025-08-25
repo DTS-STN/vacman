@@ -16,7 +16,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
-import ca.gov.dtsstn.vacman.api.data.entity.WorkScheduleEntityBuilder;
+import ca.gov.dtsstn.vacman.api.data.entity.WorkScheduleEntity;
 import ca.gov.dtsstn.vacman.api.service.CodeService;
 
 @ExtendWith({ MockitoExtension.class })
@@ -39,7 +39,7 @@ class WorkScheduleCodeValidatorTest {
 	@DisplayName("isValid() returns true when work schedule code is valid")
 	void isValidReturnsTrueWhenWorkScheduleCodeIsValid() {
 		when(codeService.getWorkSchedules(Pageable.unpaged()))
-			.thenReturn(new PageImpl<>(List.of(new WorkScheduleEntityBuilder().id(0L).build())));
+			.thenReturn(new PageImpl<>(List.of(WorkScheduleEntity.builder().id(0L).build())));
 
 		assertTrue(workScheduleCodeValidator.isValid(0L, null));
 	}

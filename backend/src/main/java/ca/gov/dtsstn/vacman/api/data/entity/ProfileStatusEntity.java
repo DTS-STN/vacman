@@ -13,6 +13,10 @@ import jakarta.persistence.Table;
 @Table(name = "[CD_PROFILE_STATUS]")
 public class ProfileStatusEntity extends AbstractCodeEntity {
 
+	public static ProfileStatusEntityBuilder builder() {
+		return new ProfileStatusEntityBuilder();
+	}
+
 	public ProfileStatusEntity() {
 		super();
 	}

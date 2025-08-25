@@ -16,6 +16,10 @@ import jakarta.persistence.Table;
 @Table(name = "[CD_WORK_UNIT]")
 public class WorkUnitEntity extends AbstractCodeEntity {
 
+	public static WorkUnitEntityBuilder builder() {
+		return new WorkUnitEntityBuilder();
+	}
+
 	@ManyToOne
 	@JoinColumn(name = "[PARENT_WORK_UNIT_ID]", nullable = true)
 	protected WorkUnitEntity parent;

@@ -16,7 +16,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
-import ca.gov.dtsstn.vacman.api.data.entity.EmploymentOpportunityEntityBuilder;
+import ca.gov.dtsstn.vacman.api.data.entity.EmploymentOpportunityEntity;
 import ca.gov.dtsstn.vacman.api.service.CodeService;
 
 @ExtendWith({ MockitoExtension.class })
@@ -39,7 +39,7 @@ class EmploymentOpportunityCodeValidatorTest {
 	@DisplayName("isValid() returns true when employment opportunity code is valid")
 	void isValidReturnsTrueWhenEmploymentOpportunityCodeIsValid() {
 		when(codeService.getEmploymentOpportunities(Pageable.unpaged()))
-			.thenReturn(new PageImpl<>(List.of(new EmploymentOpportunityEntityBuilder().id(0L).build())));
+			.thenReturn(new PageImpl<>(List.of(EmploymentOpportunityEntity.builder().id(0L).build())));
 
 		assertTrue(employmentOpportunityCodeValidator.isValid(0L, null));
 	}
