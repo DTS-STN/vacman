@@ -33,7 +33,7 @@ import { StatusTag } from '~/components/status-tag';
 import { PROFILE_STATUS_CODE, EMPLOYEE_WFA_STATUS, PROFILE_STATUS_PENDING } from '~/domain/constants';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
-import { formatDateTime } from '~/utils/date-utils';
+import { formatDateTimeInZone } from '~/utils/date-utils';
 
 export const handle = {
   i18nNamespace: [...parentHandle.i18nNamespace],
@@ -255,6 +255,8 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const profileTotalFields = personalInformationTotalFields + employmentInformationTotalFields + referralPreferencesTotalFields;
   const amountCompleted = (profileCompleted / profileTotalFields) * 100;
 
+  const { serverEnvironment } = await import('~/.server/environment');
+
   return {
     documentTitle: t('app:profile.page-title'),
     name: `${currentUser.firstName ?? ''} ${currentUser.lastName ?? ''}`.trim() || 'Unknown User',
@@ -298,9 +300,10 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       isInterestedInAlternation: profileData.isInterestedInAlternation,
       preferredEmploymentOpportunities: employmentOpportunities?.map((e) => e?.name),
     },
-    lastUpdated: profileData.lastModifiedDate ? formatDateTime(profileData.lastModifiedDate) : '0000-00-00 00:00',
+    lastModifiedDate: profileData.lastModifiedDate ?? undefined,
     lastUpdatedBy: profileUpdatedByUserName,
     hasEmploymentChanged,
+    baseTimeZone: serverEnvironment.BASE_TIMEZONE,
   };
 }
 
@@ -321,6 +324,11 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
   const navigate = useNavigate();
 
   const [hasEmploymentChanged, setHasEmploymentChanged] = useState(loaderData.hasEmploymentChanged);
+  const [browserTZ, setBrowserTZ] = useState(() =>
+    loaderData.lastModifiedDate
+      ? formatDateTimeInZone(loaderData.lastModifiedDate, loaderData.baseTimeZone, 'yyyy-MM-dd HH:mm')
+      : '0000-00-00 00:00',
+  );
 
   // Clean the URL after reading the param
   useEffect(() => {
@@ -331,6 +339,10 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
     }
   }, [searchParams, location.pathname, navigate]);
 
+  useEffect(() => {
+    setBrowserTZ(Intl.DateTimeFormat().resolvedOptions().timeZone);
+  }, [loaderData.lastModifiedDate]);
+
   return (
     <div className="space-y-8">
       <div className="space-y-4 py-8 text-white">
@@ -338,7 +350,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
         <h1 className="mt-6 text-3xl font-semibold">{loaderData.name}</h1>
         {loaderData.email && <p className="mt-1">{loaderData.email}</p>}
         <p className="font-normal text-[#9FA3AD]">
-          {t('app:profile.last-updated', { date: loaderData.lastUpdated, name: loaderData.lastUpdatedBy })}
+          {t('app:profile.last-updated', { date: browserTZ, name: loaderData.lastUpdatedBy })}
         </p>
         <div
           role="presentation"
