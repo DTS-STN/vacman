@@ -215,10 +215,11 @@ public class ProfileService {
 		profile.setHasConsentedToPrivacyTerms(updateModel.hasConsentedToPrivacyTerms());
 		profile.setAdditionalComment(updateModel.additionalComment());
 
-		profile.setHrAdvisor(Optional.ofNullable(updateModel.hrAdvisorId())
-			.flatMap(userService::getUserById)
-			.filter(user -> AppConstants.UserType.HR_ADVISOR.equals(user.getUserType().getCode()))
-			.orElseThrow(asResourceConflictException("HR Advisor", updateModel.hrAdvisorId())));
+		Optional.ofNullable(updateModel.hrAdvisorId()).ifPresent(id -> {
+			profile.setHrAdvisor(userService.getUserById(id)
+				.filter(user -> AppConstants.UserType.HR_ADVISOR.equals(user.getUserType().getCode()))
+				.orElseThrow(asResourceConflictException("HR Advisor", id)));
+		});
 
 		profile.setPreferredCities(updateModel.preferredCities().stream()
 			.map(cityRepository::getReferenceById)
