@@ -322,7 +322,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
   const navigate = useNavigate();
 
   const [hasEmploymentChanged, setHasEmploymentChanged] = useState(loaderData.hasEmploymentChanged);
-  const [lastUpdatedDate, setLastUpdatedDate] = useState(() =>
+  const [browserTZ, setBrowserTZ] = useState(() =>
     loaderData.lastModifiedDate
       ? formatDateTimeInZone(loaderData.lastModifiedDate, loaderData.baseTimeZone, 'yyyy-MM-dd HH:mm')
       : '0000-00-00 00:00',
@@ -338,12 +338,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
   }, [searchParams, location.pathname, navigate]);
 
   useEffect(() => {
-    if (!loaderData.lastModifiedDate) return;
-
-    const browserTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    if (browserTimeZone) {
-      setLastUpdatedDate(formatDateTimeInZone(loaderData.lastModifiedDate, browserTimeZone));
-    }
+    setBrowserTZ(Intl.DateTimeFormat().resolvedOptions().timeZone);
   }, [loaderData.lastModifiedDate]);
 
   return (
@@ -353,7 +348,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
         <h1 className="mt-6 text-3xl font-semibold">{loaderData.name}</h1>
         {loaderData.email && <p className="mt-1">{loaderData.email}</p>}
         <p className="font-normal text-[#9FA3AD]">
-          {t('app:profile.last-updated', { date: lastUpdatedDate, name: loaderData.lastUpdatedBy })}
+          {t('app:profile.last-updated', { date: browserTZ, name: loaderData.lastUpdatedBy })}
         </p>
         <div
           role="presentation"

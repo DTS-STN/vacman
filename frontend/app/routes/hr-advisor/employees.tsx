@@ -82,8 +82,7 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
   const [browserTZ, setBrowserTZ] = useState<string | null>(null);
 
   useEffect(() => {
-    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    if (tz) setBrowserTZ(tz);
+    setBrowserTZ(Intl.DateTimeFormat().resolvedOptions().timeZone);
   }, []);
 
   const formatDateYMD = useMemo(
