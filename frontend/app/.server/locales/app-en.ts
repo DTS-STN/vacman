@@ -226,4 +226,9 @@ export default {
     'filter-by': 'Filter table by all employees or profile assigned to me',
     'view-link': 'View profile information for {{profileUserName}}',
   },
+  'hiring-manager-dashboard': {
+    'page-title': 'Hiring manager dashboard',
+    'page-heading': 'Get started',
+    'requests': 'Requests',
+  },
 };
