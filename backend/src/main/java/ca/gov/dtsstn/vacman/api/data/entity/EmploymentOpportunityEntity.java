@@ -13,6 +13,10 @@ import jakarta.persistence.Table;
 @Table(name = "[CD_EMPLOYMENT_OPPORTUNITY]")
 public class EmploymentOpportunityEntity extends AbstractCodeEntity {
 
+	public static EmploymentOpportunityEntityBuilder builder() {
+		return new EmploymentOpportunityEntityBuilder();
+	}
+
 	public EmploymentOpportunityEntity() {
 		super();
 	}

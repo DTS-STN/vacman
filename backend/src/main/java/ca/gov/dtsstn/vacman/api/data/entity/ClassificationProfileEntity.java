@@ -18,6 +18,10 @@ import jakarta.persistence.Table;
 @Table(name = "[CLASSIFICATION_PROFILE]")
 public class ClassificationProfileEntity extends AbstractBaseEntity {
 
+	public static ClassificationProfileEntityBuilder builder() {
+		return new ClassificationProfileEntityBuilder();
+	}
+
 	@ManyToOne
 	@JoinColumn(name = "[CLASSIFICATION_ID]", nullable = false)
 	private ClassificationEntity classification;

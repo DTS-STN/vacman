@@ -18,6 +18,10 @@ import jakarta.persistence.Table;
 @Table(name = "[PROFILE_LANGUAGE_REFERRAL_TYPE]")
 public class ProfileLanguageReferralTypeEntity extends AbstractBaseEntity {
 
+	public static ProfileLanguageReferralTypeEntityBuilder builder() {
+		return new ProfileLanguageReferralTypeEntityBuilder();
+	}
+
 	@ManyToOne
 	@JsonBackReference
 	@JoinColumn(name = "[PROFILE_ID]", nullable = false)

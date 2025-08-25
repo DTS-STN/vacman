@@ -1,7 +1,11 @@
 package ca.gov.dtsstn.vacman.api.data.entity;
 
+import static java.util.Collections.emptySet;
+import static java.util.stream.Collectors.toUnmodifiableSet;
+
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -55,19 +59,19 @@ public class ProfileEntity extends AbstractBaseEntity implements Ownable {
 
 	@JsonIgnore
 	@OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
-	private Set<ClassificationProfileEntity> preferredClassifications = new HashSet<>();
+	private final Set<ClassificationProfileEntity> preferredClassifications = new HashSet<>();
 
 	@JsonIgnore
 	@OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
-	private Set<ProfileCityEntity> preferredCities = new HashSet<>();
+	private final Set<ProfileCityEntity> preferredCities = new HashSet<>();
 
 	@JsonIgnore
 	@OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
-	private Set<ProfileEmploymentOpportunityEntity> preferredEmploymentOpportunities = new HashSet<>();
+	private final Set<ProfileEmploymentOpportunityEntity> preferredEmploymentOpportunities = new HashSet<>();
 
 	@JsonIgnore
 	@OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
-	private Set<ProfileLanguageReferralTypeEntity> preferredLanguages = new HashSet<>();
+	private final Set<ProfileLanguageReferralTypeEntity> preferredLanguages = new HashSet<>();
 
 	@JsonIgnore
 	@ManyToOne
@@ -120,10 +124,10 @@ public class ProfileEntity extends AbstractBaseEntity implements Ownable {
 			@Nullable LanguageEntity languageOfCorrespondence,
 			@Nullable String personalEmailAddress,
 			@Nullable String personalPhoneNumber,
-			@Nullable Set<ClassificationProfileEntity> preferredClassifications,
-			@Nullable Set<ProfileCityEntity> preferredCities,
-			@Nullable Set<ProfileEmploymentOpportunityEntity> preferredEmploymentOpportunities,
-			@Nullable Set<ProfileLanguageReferralTypeEntity> preferredLanguages,
+			@Nullable Collection<ClassificationEntity> preferredClassifications,
+			@Nullable Collection<CityEntity> preferredCities,
+			@Nullable Collection<EmploymentOpportunityEntity> preferredEmploymentOpportunities,
+			@Nullable Collection<LanguageReferralTypeEntity> preferredLanguages,
 			@Nullable ProfileStatusEntity profileStatus,
 			@Nullable CityEntity substantiveCity,
 			@Nullable ClassificationEntity substantiveClassification,
@@ -143,12 +147,8 @@ public class ProfileEntity extends AbstractBaseEntity implements Ownable {
 		this.isAvailableForReferral = isAvailableForReferral;
 		this.isInterestedInAlternation = isInterestedInAlternation;
 		this.languageOfCorrespondence = languageOfCorrespondence;
-		this.preferredClassifications = preferredClassifications;
-		this.preferredEmploymentOpportunities = preferredEmploymentOpportunities;
-		this.preferredLanguages = preferredLanguages;
 		this.personalEmailAddress = personalEmailAddress;
 		this.personalPhoneNumber = personalPhoneNumber;
-		this.preferredCities = preferredCities;
 		this.profileStatus = profileStatus;
 		this.user = user;
 		this.substantiveCity = substantiveCity;
@@ -157,6 +157,11 @@ public class ProfileEntity extends AbstractBaseEntity implements Ownable {
 		this.wfaEndDate = wfaEndDate;
 		this.wfaStartDate = wfaStartDate;
 		this.wfaStatus = wfaStatus;
+
+		this.setPreferredClassifications(preferredClassifications);
+		this.setPreferredCities(preferredCities);
+		this.setPreferredEmploymentOpportunities(preferredEmploymentOpportunities);
+		this.setPreferredLanguages(preferredLanguages);
 	}
 
 	public String getAdditionalComment() {
@@ -223,36 +228,80 @@ public class ProfileEntity extends AbstractBaseEntity implements Ownable {
 		this.personalPhoneNumber = personalPhoneNumber;
 	}
 
-	public Set<ClassificationProfileEntity> getPreferredClassifications() {
-		return preferredClassifications;
+	public Set<ClassificationEntity> getPreferredClassifications() {
+		return preferredClassifications.stream()
+			.map(ClassificationProfileEntity::getClassification)
+			.collect(toUnmodifiableSet());
 	}
 
-	public void setPreferredClassifications(Set<ClassificationProfileEntity> classificationProfiles) {
-		this.preferredClassifications = classificationProfiles;
+	public boolean addPreferredClassification(ClassificationEntity preferredClassification) {
+		return this.preferredClassifications.add(ClassificationProfileEntity.builder()
+			.classification(preferredClassification)
+			.profile(this)
+			.build());
 	}
 
-	public Set<ProfileCityEntity> getPreferredCities() {
-		return preferredCities;
+	public void setPreferredClassifications(Collection<ClassificationEntity> preferredClassifications) {
+		this.preferredClassifications.clear();
+		Optional.ofNullable(preferredClassifications).orElse(emptySet())
+			.forEach(this::addPreferredClassification);
 	}
 
-	public void setPreferredCities(Set<ProfileCityEntity> preferredCities) {
-		this.preferredCities = preferredCities;
+	public Set<CityEntity> getPreferredCities() {
+		return preferredCities.stream()
+			.map(ProfileCityEntity::getCity)
+			.collect(toUnmodifiableSet());
 	}
 
-	public Set<ProfileEmploymentOpportunityEntity> getPreferredEmploymentOpportunities() {
-		return preferredEmploymentOpportunities;
+	public boolean addPreferredCity(CityEntity city) {
+		return this.preferredCities.add(ProfileCityEntity.builder()
+			.city(city)
+			.profile(this)
+			.build());
 	}
 
-	public void setPreferredEmploymentOpportunities(Set<ProfileEmploymentOpportunityEntity> employmentOpportunities) {
-		this.preferredEmploymentOpportunities = employmentOpportunities;
+	public void setPreferredCities(Collection<CityEntity> preferredCities) {
+		this.preferredCities.clear();
+		Optional.ofNullable(preferredCities).orElse(emptySet())
+			.forEach(this::addPreferredCity);
 	}
 
-	public Set<ProfileLanguageReferralTypeEntity> getPreferredLanguages() {
-		return preferredLanguages;
+	public Set<EmploymentOpportunityEntity> getPreferredEmploymentOpportunities() {
+		return preferredEmploymentOpportunities.stream()
+			.map(ProfileEmploymentOpportunityEntity::getEmploymentOpportunity)
+			.collect(toUnmodifiableSet());
 	}
 
-	public void setPreferredLanguages(Set<ProfileLanguageReferralTypeEntity> languageReferralTypes) {
-		this.preferredLanguages = languageReferralTypes;
+	public boolean addPreferredEmploymentOpportunity(EmploymentOpportunityEntity employmentopportunityentity) {
+		return this.preferredEmploymentOpportunities.add(ProfileEmploymentOpportunityEntity.builder()
+			.employmentOpportunity(employmentopportunityentity)
+			.profile(this)
+			.build());
+	}
+
+	public void setPreferredEmploymentOpportunities(Collection<EmploymentOpportunityEntity> preferredEmploymentOpportunities) {
+		this.preferredEmploymentOpportunities.clear();
+		Optional.ofNullable(preferredEmploymentOpportunities).orElse(emptySet())
+			.forEach(this::addPreferredEmploymentOpportunity);
+	}
+
+	public Set<LanguageReferralTypeEntity> getPreferredLanguages() {
+		return preferredLanguages.stream()
+			.map(ProfileLanguageReferralTypeEntity::getLanguageReferralType)
+			.collect(toUnmodifiableSet());
+	}
+
+	public boolean addPreferredLanguage(LanguageReferralTypeEntity preferredLanguage) {
+		return this.preferredLanguages.add(ProfileLanguageReferralTypeEntity.builder()
+			.languageReferralType(preferredLanguage)
+			.profile(this)
+			.build());
+	}
+
+	public void setPreferredLanguages(Collection<LanguageReferralTypeEntity> preferredLanguage) {
+		this.preferredLanguages.clear();
+		Optional.ofNullable(preferredLanguage).orElse(emptySet())
+			.forEach(this::addPreferredLanguage);
 	}
 
 	public ProfileStatusEntity getProfileStatus() {

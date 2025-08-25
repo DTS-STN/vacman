@@ -14,12 +14,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import ca.gov.dtsstn.vacman.api.constants.AppConstants;
-import ca.gov.dtsstn.vacman.api.data.entity.ClassificationProfileEntityBuilder;
-import ca.gov.dtsstn.vacman.api.data.entity.ProfileCityEntityBuilder;
-import ca.gov.dtsstn.vacman.api.data.entity.ProfileEmploymentOpportunityEntityBuilder;
 import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntityBuilder;
-import ca.gov.dtsstn.vacman.api.data.entity.ProfileLanguageReferralTypeEntityBuilder;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 import ca.gov.dtsstn.vacman.api.data.repository.CityRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.ClassificationRepository;
@@ -220,62 +216,46 @@ public class ProfileService {
 		profile.setHasConsentedToPrivacyTerms(updateModel.hasConsentedToPrivacyTerms());
 		profile.setAdditionalComment(updateModel.additionalComment());
 
-		Optional.ofNullable(updateModel.hrAdvisorId())
-			.map(id -> userService.getUserById(id)
-				.filter(user -> AppConstants.UserType.HR_ADVISOR.equals(user.getUserType().getCode()))
-				.orElseThrow(asResourceConflictException("HR Advisor", id)))
-			.ifPresent(profile::setHrAdvisor);
+		profile.setHrAdvisor(Optional.ofNullable(updateModel.hrAdvisorId())
+			.flatMap(userService::getUserById)
+			.filter(user -> AppConstants.UserType.HR_ADVISOR.equals(user.getUserType().getCode()))
+			.orElseThrow(asResourceConflictException("HR Advisor", updateModel.hrAdvisorId())));
+
+		profile.setPreferredCities(updateModel.preferredCities().stream()
+			.map(cityRepository::getReferenceById)
+			.toList());
+
+		profile.setPreferredClassifications(updateModel.preferredClassification().stream()
+			.map(classificationRepository::getReferenceById)
+			.toList());
+
+		profile.setPreferredEmploymentOpportunities(updateModel.preferredEmploymentOpportunities().stream()
+			.map(employmentOpportunityRepository::getReferenceById)
+			.toList());
+
+		profile.setPreferredLanguages(updateModel.preferredLanguages().stream()
+			.map(languageReferralTypeRepository::getReferenceById)
+			.toList());
 
 		Optional.ofNullable(updateModel.languageOfCorrespondenceId())
-			.map(id -> languageRepository.findById(id).orElseThrow(asResourceConflictException("Language", id)))
+			.map(languageRepository::getReferenceById)
 			.ifPresent(profile::setLanguageOfCorrespondence);
 
 		Optional.ofNullable(updateModel.classificationId())
-			.map(id -> classificationRepository.findById(id).orElseThrow(asResourceConflictException("Classification", id)))
+			.map(classificationRepository::getReferenceById)
 			.ifPresent(profile::setSubstantiveClassification);
 
 		Optional.ofNullable(updateModel.cityId())
-			.map(id -> cityRepository.findById(id).orElseThrow(asResourceConflictException("City", id)))
+			.map(cityRepository::getReferenceById)
 			.ifPresent(profile::setSubstantiveCity);
 
 		Optional.ofNullable(updateModel.workUnitId())
-			.map(id -> workUnitRepository.findById(id).orElseThrow(asResourceConflictException("Work Unit", id)))
+			.map(workUnitRepository::getReferenceById)
 			.ifPresent(profile::setSubstantiveWorkUnit);
 
 		Optional.ofNullable(updateModel.wfaStatusId())
-			.map(id -> wfaStatusRepository.findById(id).orElseThrow(asResourceConflictException("WFA Status", id)))
+			.map(wfaStatusRepository::getReferenceById)
 			.ifPresent(profile::setWfaStatus);
-
-		// remove existing joins
-		profile.getPreferredCities().clear();
-		profile.getPreferredClassifications().clear();
-		profile.getPreferredEmploymentOpportunities().clear();
-		profile.getPreferredLanguages().clear();
-		profileRepository.flush();
-
-		updateModel.preferredCities().forEach(id -> profile.getPreferredCities()
-			.add(new ProfileCityEntityBuilder()
-				.city(cityRepository.getReferenceById(id))
-				.profile(profile)
-				.build()));
-
-		updateModel.preferredClassification().forEach(id -> profile.getPreferredClassifications()
-			.add(new ClassificationProfileEntityBuilder()
-				.classification(classificationRepository.getReferenceById(id))
-				.profile(profile)
-				.build()));
-
-		updateModel.preferredEmploymentOpportunities().forEach(id -> profile.getPreferredEmploymentOpportunities()
-			.add(new ProfileEmploymentOpportunityEntityBuilder()
-				.employmentOpportunity(employmentOpportunityRepository.getReferenceById(id))
-				.profile(profile)
-				.build()));
-
-		updateModel.preferredLanguages().forEach(id -> profile.getPreferredLanguages()
-			.add(new ProfileLanguageReferralTypeEntityBuilder()
-				.languageReferralType(languageReferralTypeRepository.getReferenceById(id))
-				.profile(profile)
-				.build()));
 
 		final var updatedEntity = profileRepository.save(profile);
 		eventPublisher.publishEvent(new ProfileUpdatedEvent(updatedEntity));

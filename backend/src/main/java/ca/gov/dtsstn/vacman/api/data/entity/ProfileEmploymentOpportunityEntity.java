@@ -18,6 +18,10 @@ import jakarta.persistence.Table;
 @Table(name = "[PROFILE_EMPLOYMENT_OPPORTUNITY]")
 public class ProfileEmploymentOpportunityEntity extends AbstractBaseEntity {
 
+	public static ProfileEmploymentOpportunityEntityBuilder builder() {
+		return new ProfileEmploymentOpportunityEntityBuilder();
+	}
+
 	@ManyToOne
 	@JoinColumn(name = "[EMPLOYMENT_OPPORTUNITY_ID]", nullable = false)
 	private EmploymentOpportunityEntity employmentOpportunity;

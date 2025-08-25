@@ -18,6 +18,10 @@ import jakarta.persistence.Table;
 @Table(name = "[PROFILE_CITY]")
 public class ProfileCityEntity extends AbstractBaseEntity {
 
+	public static ProfileCityEntityBuilder builder() {
+		return new ProfileCityEntityBuilder();
+	}
+
 	@ManyToOne
 	@JsonBackReference
 	@JoinColumn(name = "[PROFILE_ID]", nullable = false)
