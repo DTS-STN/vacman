@@ -1,3 +1,4 @@
+import { useEffect, useMemo, useState } from 'react';
 import type { JSX } from 'react';
 
 import type { RouteHandle } from 'react-router';
@@ -11,13 +12,14 @@ import type { Route } from './+types/employees';
 import type { Profile, ProfileStatus } from '~/.server/domain/models';
 import { getProfileService } from '~/.server/domain/services/profile-service';
 import { getProfileStatusService } from '~/.server/domain/services/profile-status-service';
+import { clientEnvironment } from '~/.server/environment';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { BackLink } from '~/components/back-link';
 import { DataTable, DataTableColumnHeader, DataTableColumnHeaderWithOptions } from '~/components/data-table';
 import { InputSelect } from '~/components/input-select';
 import { InlineLink } from '~/components/links';
 import { PageTitle } from '~/components/page-title';
-import { DEFAULT_TIME_ZONE, PROFILE_STATUS_CODE } from '~/domain/constants';
+import { PROFILE_STATUS_CODE } from '~/domain/constants';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
 import { formatDateTimeInZone } from '~/utils/date-utils';
@@ -75,6 +77,18 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
   const { t } = useTranslation(handle.i18nNamespace);
 
   const [, setSearchParams] = useSearchParams({ filter: 'all' });
+  const [browserTZ, setBrowserTZ] = useState<string | null>(null);
+
+  useEffect(() => {
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    if (tz) setBrowserTZ(tz);
+  }, []);
+
+  const formatDateYMD = useMemo(
+    () => (iso?: string) =>
+      iso ? formatDateTimeInZone(iso, browserTZ ?? clientEnvironment.BASE_TIMEZONE, 'yyyy-MM-dd') : '0000-00-00',
+    [browserTZ],
+  );
 
   const employeesOptions = [
     {
@@ -112,16 +126,7 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
       cell: (info) => {
         const lastModifiedDate = info.row.original.lastModifiedDate;
         const userUpdated = info.row.original.lastModifiedBy ?? 'Unknown User';
-
-        let dateUpdated = '0000-00-00';
-        if (lastModifiedDate) {
-          const browserTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-          if (browserTimeZone && browserTimeZone !== DEFAULT_TIME_ZONE) {
-            dateUpdated = formatDateTimeInZone(lastModifiedDate, browserTimeZone, 'yyyy-MM-dd');
-          } else {
-            dateUpdated = formatDateTimeInZone(lastModifiedDate, DEFAULT_TIME_ZONE, 'yyyy-MM-dd');
-          }
-        }
+        const dateUpdated = formatDateYMD(lastModifiedDate);
         return <p className="text-neutral-600">{`${dateUpdated}: ${userUpdated}`}</p>;
       },
     },

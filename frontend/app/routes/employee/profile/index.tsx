@@ -3,7 +3,6 @@ import { useEffect, useRef, useState } from 'react';
 import type { RouteHandle } from 'react-router';
 import { Form, useActionData, useLocation, useNavigate, useNavigation, useSearchParams } from 'react-router';
 
-import { format } from 'date-fns';
 import { useTranslation } from 'react-i18next';
 
 import type { Route } from '../profile/+types/index';
@@ -17,6 +16,7 @@ import { getProfileService } from '~/.server/domain/services/profile-service';
 import { getProfileStatusService } from '~/.server/domain/services/profile-status-service';
 import { getUserService } from '~/.server/domain/services/user-service';
 import { getWFAStatuses } from '~/.server/domain/services/wfa-status-service';
+import { clientEnvironment } from '~/.server/environment';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { requirePrivacyConsentForOwnProfile } from '~/.server/utils/privacy-consent-utils';
 import { countCompletedItems, countReferralPreferencesCompleted, omitObjectProperties } from '~/.server/utils/profile-utils';
@@ -27,7 +27,7 @@ import { DescriptionList, DescriptionListItem } from '~/components/description-l
 import { ProfileCard } from '~/components/profile-card';
 import { Progress } from '~/components/progress';
 import { StatusTag } from '~/components/status-tag';
-import { PROFILE_STATUS_CODE, EMPLOYEE_WFA_STATUS, PROFILE_STATUS_PENDING, DEFAULT_TIME_ZONE } from '~/domain/constants';
+import { PROFILE_STATUS_CODE, EMPLOYEE_WFA_STATUS, PROFILE_STATUS_PENDING } from '~/domain/constants';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
 import { formatDateTimeInZone } from '~/utils/date-utils';
@@ -298,9 +298,6 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       preferredEmploymentOpportunities: employmentOpportunities?.map((e) => e?.name),
     },
     lastModifiedDate: profileData.lastModifiedDate ?? undefined,
-    lastUpdated: profileData.lastModifiedDate
-      ? formatDateTimeInZone(profileData.lastModifiedDate, DEFAULT_TIME_ZONE)
-      : '0000-00-00 00:00',
     lastUpdatedBy: profileUpdatedByUserName,
     hasEmploymentChanged,
   };
@@ -323,7 +320,11 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
   const navigate = useNavigate();
 
   const [hasEmploymentChanged, setHasEmploymentChanged] = useState(loaderData.hasEmploymentChanged);
-  const [lastUpdatedDate, setLastUpdatedDate] = useState(loaderData.lastUpdated);
+  const [lastUpdatedDate, setLastUpdatedDate] = useState(() =>
+    loaderData.lastModifiedDate
+      ? formatDateTimeInZone(loaderData.lastModifiedDate, clientEnvironment.BASE_TIMEZONE)
+      : '0000-00-00 00:00',
+  );
 
   // Clean the URL after reading the param
   useEffect(() => {
@@ -338,10 +339,8 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
     if (!loaderData.lastModifiedDate) return;
 
     const browserTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    if (browserTimeZone && browserTimeZone !== DEFAULT_TIME_ZONE) {
+    if (browserTimeZone) {
       setLastUpdatedDate(formatDateTimeInZone(loaderData.lastModifiedDate, browserTimeZone));
-    } else {
-      setLastUpdatedDate(format(new Date(loaderData.lastModifiedDate), 'yyyy-MM-dd HH:mm'));
     }
   }, [loaderData.lastModifiedDate]);
 
