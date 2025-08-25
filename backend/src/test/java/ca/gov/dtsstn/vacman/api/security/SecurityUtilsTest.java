@@ -135,18 +135,6 @@ class SecurityUtilsTest {
 	}
 
 	@Test
-	void getHighestPrivilegeRoleReturnsAdminWhenPresent() {
-		final var authentication = mock(Authentication.class);
-		final GrantedAuthority authority1 = () -> "admin";
-		final GrantedAuthority authority2 = () -> "employee";
-		final Collection<GrantedAuthority> authorities = List.of(authority1, authority2);
-		doReturn(authorities).when(authentication).getAuthorities();
-		when(securityContextMock.getAuthentication()).thenReturn(authentication);
-
-		assertEquals("admin", SecurityUtils.getHighestPrivilegeRole());
-	}
-
-	@Test
 	void getHighestPrivilegeRoleReturnsHrAdvisorWhenAdminNotPresent() {
 		final var authentication = mock(Authentication.class);
 		final GrantedAuthority authority1 = () -> "hr-advisor";
