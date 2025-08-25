@@ -6,7 +6,6 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
-import org.apache.commons.collections4.CollectionUtils;
 import org.immutables.builder.Builder;
 import org.springframework.core.style.ToStringCreator;
 
@@ -339,10 +338,10 @@ public class ProfileEntity extends AbstractBaseEntity implements Ownable {
 			.append("languageOfCorrespondence", languageOfCorrespondence)
 			.append("personalEmailAddress", personalEmailAddress)
 			.append("personalPhoneNumber", personalPhoneNumber)
-			.append("preferredClassifications.size", CollectionUtils.size(preferredClassifications)) // anti-recursion protection
-			.append("preferredCities.size", CollectionUtils.size(preferredCities)) // anti-recursion protection
-			.append("preferredEmploymentOpportunities.size", CollectionUtils.size(preferredEmploymentOpportunities)) // anti-recursion protection
-			.append("preferredLanguages.size", CollectionUtils.size(preferredLanguages)) // anti-recursion protection
+			.append("preferredClassifications", preferredClassifications)
+			.append("preferredCities", preferredCities)
+			.append("preferredEmploymentOpportunities", preferredEmploymentOpportunities)
+			.append("preferredLanguages", preferredLanguages)
 			.append("profileStatus", profileStatus)
 			.append("substantiveCity", substantiveCity)
 			.append("substantiveClassification", substantiveClassification)
