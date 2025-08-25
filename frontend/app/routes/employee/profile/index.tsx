@@ -13,7 +13,6 @@ import { getDirectorateService } from '~/.server/domain/services/directorate-ser
 import { getLanguageReferralTypeService } from '~/.server/domain/services/language-referral-type-service';
 import { getProfileService } from '~/.server/domain/services/profile-service';
 import { getProfileStatusService } from '~/.server/domain/services/profile-status-service';
-import { getWFAStatuses } from '~/.server/domain/services/wfa-status-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { requirePrivacyConsentForOwnProfile } from '~/.server/utils/privacy-consent-utils';
 import {
@@ -47,7 +46,6 @@ export async function action({ context, request }: Route.ActionArgs) {
 
   const profileParams = { active: true };
   const profileData = await getProfileService().findCurrentUserProfile(profileParams, context.session.authState.accessToken);
-  const allWfaStatus = await getWFAStatuses().listAll();
 
   const currentUser = profileData.profileUser;
 
@@ -59,24 +57,15 @@ export async function action({ context, request }: Route.ActionArgs) {
     personalEmailAddress: profileData.personalEmailAddress,
     personalPhoneNumber: profileData.personalPhoneNumber,
   };
-  const validWFAStatusesForOptionalDate = [EMPLOYEE_WFA_STATUS.affected, EMPLOYEE_WFA_STATUS.exAffected] as const;
-  const selectedValidWfaStatusesForOptionalDate = allWfaStatus
-    .filter((c) => validWFAStatusesForOptionalDate.toString().includes(c.code))
-    .map((status) => ({
-      id: status.id,
-      code: status.code,
-      nameEn: status.nameEn,
-      nameFr: status.nameFr,
-    }));
-  const isWfaDateOptional = selectedValidWfaStatusesForOptionalDate.some((status) => status.id === profileData.wfaStatus?.id);
+
   // For employment information, check required fields directly on profile
   const requiredEmploymentFields = {
     substantiveClassification: profileData.substantiveClassification,
     substantiveWorkUnit: profileData.substantiveWorkUnit,
     substantiveCity: profileData.substantiveCity,
     wfaStatus: profileData.wfaStatus,
+    wfaStartDate: profileData.wfaStartDate,
     hrAdvisorId: profileData.hrAdvisorId,
-    ...(isWfaDateOptional ? {} : { wfaStartDate: profileData.wfaStartDate }),
   };
 
   // For referral preferences, use the correct property names from Profile type
@@ -140,11 +129,10 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const currentUser = profileData.profileUser;
 
   // Fetch reference data
-  const [allLocalizedLanguageReferralTypes, allClassifications, allLocalizedCities, allWfaStatus] = await Promise.all([
+  const [allLocalizedLanguageReferralTypes, allClassifications, allLocalizedCities] = await Promise.all([
     getLanguageReferralTypeService().listAllLocalized(lang),
     getClassificationService().listAllLocalized(lang),
     getCityService().listAllLocalized(lang),
-    getWFAStatuses().listAll(),
   ]);
 
   // Use profileUser for updated by information as well
@@ -192,18 +180,6 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const personalInformationCompleted = countCompletedItems(requiredPersonalInformation);
   const personalInformationTotalFields = Object.keys(requiredPersonalInformation).length;
 
-  const validWFAStatusesForOptionalDate = [EMPLOYEE_WFA_STATUS.affected, EMPLOYEE_WFA_STATUS.exAffected] as const;
-  const selectedValidWfaStatusesForOptionalDate = allWfaStatus
-    .filter((c) => validWFAStatusesForOptionalDate.toString().includes(c.code))
-    .map((status) => ({
-      id: status.id,
-      code: status.code,
-      nameEn: status.nameEn,
-      nameFr: status.nameFr,
-    }));
-
-  const isWfaDateOptional = selectedValidWfaStatusesForOptionalDate.some((status) => status.id === profileData.wfaStatus?.id);
-
   // Employment information from Profile type
   const employmentInformationData = {
     substantiveClassification: profileData.substantiveClassification,
@@ -214,9 +190,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     wfaEndDate: profileData.wfaEndDate,
   };
 
-  const requiredEmploymentInformation = isWfaDateOptional
-    ? omitObjectProperties(employmentInformationData, ['wfaEndDate', 'wfaStartDate']) // If status is "Affected" or "Affected -EX", omit the effective date
-    : omitObjectProperties(employmentInformationData, ['wfaEndDate']);
+  const requiredEmploymentInformation = omitObjectProperties(employmentInformationData, ['wfaEndDate']);
 
   const employmentInformationCompleted = countCompletedItems(requiredEmploymentInformation);
   const employmentInformationTotalFields = Object.keys(requiredEmploymentInformation).length;
@@ -477,9 +451,8 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
                   {loaderData.employmentInformation.wfaStatus ?? t('app:profile.not-provided')}
                 </DescriptionListItem>
                 {(loaderData.employmentInformation.wfaStatusCode === EMPLOYEE_WFA_STATUS.opting ||
-                  loaderData.employmentInformation.wfaStatusCode === EMPLOYEE_WFA_STATUS.surplusGRJO ||
-                  loaderData.employmentInformation.wfaStatusCode === EMPLOYEE_WFA_STATUS.surplusOptingOptionA ||
                   loaderData.employmentInformation.wfaStatusCode === EMPLOYEE_WFA_STATUS.exOpting ||
+                  loaderData.employmentInformation.wfaStatusCode === EMPLOYEE_WFA_STATUS.surplusOptingOptionA ||
                   loaderData.employmentInformation.wfaStatusCode === EMPLOYEE_WFA_STATUS.exSurplusCPA) && (
                   <>
                     <DescriptionListItem term={t('app:employment-information.wfa-effective-date')}>

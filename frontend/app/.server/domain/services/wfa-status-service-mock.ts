@@ -30,7 +30,7 @@ export function getMockWFAStatusService(): WFAStatusService {
     },
 
     listAllLocalized(language: Language) {
-      return Promise.resolve(sharedService.listAllLocalized(language));
+      return Promise.resolve(sharedService.listAllLocalized(language).sort((a, b) => a.name.localeCompare(b.name)));
     },
 
     getLocalizedById(id: number, language: Language) {
