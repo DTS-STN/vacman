@@ -48,12 +48,13 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
   const { t } = useTranslation(handle.i18nNamespace);
 
   return (
-    <div className="flex h-screen">
+    <div className="flex flex-col">
       <aside className="absolute inset-y-0 right-0 z-0 hidden w-2/5 bg-[rgba(9,28,45,1)] sm:block">
         <div
           role="presentation"
           className="absolute top-0 right-0 size-1/2 w-full bg-[url('/VacMan-design-element-07.svg')] bg-contain bg-top bg-no-repeat"
         />
+        <div role="presentation" className="grow" />
         <div
           role="presentation"
           className="absolute inset-x-0 bottom-0 h-1/2 bg-[url('/VacMan-design-element-06.svg')] bg-contain bg-bottom bg-no-repeat"
