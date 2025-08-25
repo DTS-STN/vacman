@@ -16,7 +16,6 @@ import { getProfileService } from '~/.server/domain/services/profile-service';
 import { getProfileStatusService } from '~/.server/domain/services/profile-status-service';
 import { getUserService } from '~/.server/domain/services/user-service';
 import { getWFAStatuses } from '~/.server/domain/services/wfa-status-service';
-import { clientEnvironment } from '~/.server/environment';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { requirePrivacyConsentForOwnProfile } from '~/.server/utils/privacy-consent-utils';
 import { countCompletedItems, countReferralPreferencesCompleted, omitObjectProperties } from '~/.server/utils/profile-utils';
@@ -254,6 +253,8 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const profileTotalFields = personalInformationTotalFields + employmentInformationTotalFields + referralPreferencesTotalFields;
   const amountCompleted = (profileCompleted / profileTotalFields) * 100;
 
+  const { serverEnvironment } = await import('~/.server/environment');
+
   return {
     documentTitle: t('app:profile.page-title'),
     name: `${currentUser.firstName ?? ''} ${currentUser.lastName ?? ''}`.trim() || 'Unknown User',
@@ -300,6 +301,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     lastModifiedDate: profileData.lastModifiedDate ?? undefined,
     lastUpdatedBy: profileUpdatedByUserName,
     hasEmploymentChanged,
+    baseTimeZone: serverEnvironment.BASE_TIMEZONE,
   };
 }
 
@@ -322,7 +324,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
   const [hasEmploymentChanged, setHasEmploymentChanged] = useState(loaderData.hasEmploymentChanged);
   const [lastUpdatedDate, setLastUpdatedDate] = useState(() =>
     loaderData.lastModifiedDate
-      ? formatDateTimeInZone(loaderData.lastModifiedDate, clientEnvironment.BASE_TIMEZONE)
+      ? formatDateTimeInZone(loaderData.lastModifiedDate, loaderData.baseTimeZone, 'yyyy-MM-dd HH:mm')
       : '0000-00-00 00:00',
   );
 

@@ -12,7 +12,6 @@ import type { Route } from './+types/employees';
 import type { Profile, ProfileStatus } from '~/.server/domain/models';
 import { getProfileService } from '~/.server/domain/services/profile-service';
 import { getProfileStatusService } from '~/.server/domain/services/profile-status-service';
-import { clientEnvironment } from '~/.server/environment';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { BackLink } from '~/components/back-link';
 import { DataTable, DataTableColumnHeader, DataTableColumnHeaderWithOptions } from '~/components/data-table';
@@ -65,10 +64,13 @@ export async function loader({ context, request }: Route.LoaderArgs) {
       [PROFILE_STATUS_CODE.approved, PROFILE_STATUS_CODE.pending].some((id) => id === profile.profileStatus?.code),
   );
 
+  const { serverEnvironment } = await import('~/.server/environment');
+
   return {
     documentTitle: t('app:index.employees'),
     profiles: filteredAllProfiles,
     statuses,
+    baseTimeZone: serverEnvironment.BASE_TIMEZONE,
     lang,
   };
 }
@@ -86,8 +88,8 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
 
   const formatDateYMD = useMemo(
     () => (iso?: string) =>
-      iso ? formatDateTimeInZone(iso, browserTZ ?? clientEnvironment.BASE_TIMEZONE, 'yyyy-MM-dd') : '0000-00-00',
-    [browserTZ],
+      iso ? formatDateTimeInZone(iso, browserTZ ?? loaderData.baseTimeZone, 'yyyy-MM-dd') : '0000-00-00',
+    [browserTZ, loaderData.baseTimeZone],
   );
 
   const employeesOptions = [
