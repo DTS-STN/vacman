@@ -14,11 +14,15 @@ import { getEmploymentOpportunityTypeService } from '~/.server/domain/services/e
 import { getLanguageReferralTypeService } from '~/.server/domain/services/language-referral-type-service';
 import { getProfileService } from '~/.server/domain/services/profile-service';
 import { getProfileStatusService } from '~/.server/domain/services/profile-status-service';
-import { getUserService } from '~/.server/domain/services/user-service';
 import { getWFAStatuses } from '~/.server/domain/services/wfa-status-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { requirePrivacyConsentForOwnProfile } from '~/.server/utils/privacy-consent-utils';
-import { countCompletedItems, countReferralPreferencesCompleted, omitObjectProperties } from '~/.server/utils/profile-utils';
+import {
+  countCompletedItems,
+  countReferralPreferencesCompleted,
+  getHrAdvisors,
+  omitObjectProperties,
+} from '~/.server/utils/profile-utils';
 import { AlertMessage } from '~/components/alert-message';
 import { Button } from '~/components/button';
 import { ButtonLink } from '~/components/button-link';
@@ -175,10 +179,8 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const branchOrServiceCanadaRegion = workUnitResult?.into()?.parent?.name;
   const directorate = workUnitResult?.into()?.name;
   const city = cityResult?.into();
-  const hrAdvisorResult = profileData.hrAdvisorId
-    ? await getUserService().getUserById(profileData.hrAdvisorId, context.session.authState.accessToken)
-    : undefined;
-  const hrAdvisor = hrAdvisorResult?.into();
+  const hrAdvisors = await getHrAdvisors(context.session.authState.accessToken);
+  const hrAdvisor = hrAdvisors.find((u) => u.id === profileData.hrAdvisorId);
   const languageReferralTypes = profileData.preferredLanguages
     ?.map((lang) => allLocalizedLanguageReferralTypes.find((l) => l.id === lang.id))
     .filter(Boolean);
