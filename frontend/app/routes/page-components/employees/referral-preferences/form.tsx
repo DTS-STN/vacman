@@ -61,8 +61,6 @@ export function ReferralPreferencesForm({
   const { t: tApp } = useTranslation('app');
   const { t: tGcweb } = useTranslation('gcweb');
 
-  const [referralAvailibility, setReferralAvailibility] = useState(formValues?.isAvailableForReferral);
-  const [alternateOpportunity, setAlternateOpportunity] = useState(formValues?.isInterestedInAlternation);
   const [selectedClassifications, setSelectedClassifications] = useState(
     formValues?.preferredClassifications?.map(({ id }) => id.toString()) ?? [],
   );
@@ -94,28 +92,24 @@ export function ReferralPreferencesForm({
     {
       children: tGcweb('input-option.yes'),
       value: REQUIRE_OPTIONS.yes,
-      defaultChecked: referralAvailibility === true,
-      onChange: ({ target }) => setReferralAvailibility(target.value === REQUIRE_OPTIONS.yes),
+      defaultChecked: formValues?.isAvailableForReferral === true,
     },
     {
       children: tGcweb('input-option.no'),
       value: REQUIRE_OPTIONS.no,
-      defaultChecked: referralAvailibility === false,
-      onChange: ({ target }) => setReferralAvailibility(target.value === REQUIRE_OPTIONS.yes),
+      defaultChecked: formValues?.isAvailableForReferral === false,
     },
   ];
   const alternateOpportunityOptions: InputRadiosProps['options'] = [
     {
       children: tGcweb('input-option.yes'),
       value: REQUIRE_OPTIONS.yes,
-      defaultChecked: alternateOpportunity === true,
-      onChange: ({ target }) => setAlternateOpportunity(target.value === REQUIRE_OPTIONS.yes),
+      defaultChecked: formValues?.isInterestedInAlternation === true,
     },
     {
       children: tGcweb('input-option.no'),
       value: REQUIRE_OPTIONS.no,
-      defaultChecked: alternateOpportunity === false,
-      onChange: ({ target }) => setAlternateOpportunity(target.value === REQUIRE_OPTIONS.yes),
+      defaultChecked: formValues?.isInterestedInAlternation === false,
     },
   ];
 
