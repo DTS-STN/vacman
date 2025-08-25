@@ -405,7 +405,7 @@ public class RequestEntity extends AbstractBaseEntity implements Ownable {
 	}
 
 	public boolean addEmploymentEquity(EmploymentEquityEntity employmentEquity) {
-		return this.employmentEquities.add(RequestEmploymentEquityEntity.bulder()
+		return this.employmentEquities.add(RequestEmploymentEquityEntity.builder()
 			.employmentEquity(employmentEquity)
 			.request(this)
 			.build());

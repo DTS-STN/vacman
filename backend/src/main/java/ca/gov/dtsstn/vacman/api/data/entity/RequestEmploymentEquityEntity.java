@@ -16,7 +16,7 @@ import jakarta.persistence.Table;
 @Table(name = "[REQUEST_EMPLOYMENT_EQUITY]")
 public class RequestEmploymentEquityEntity extends AbstractBaseEntity {
 
-	public static RequestEmploymentEquityEntityBuilder bulder() {
+	public static RequestEmploymentEquityEntityBuilder builder() {
 		return new RequestEmploymentEquityEntityBuilder();
 	}
 
