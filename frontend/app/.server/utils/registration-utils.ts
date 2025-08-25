@@ -24,23 +24,22 @@ export async function requireRoleRegistration(
     throw i18nRedirect('routes/employee/index.tsx', currentUrl);
   }
 
-  const user = userOption.unwrap();
   const allowedRoles = Array.isArray(roles) ? roles : [roles];
-  const userRole = user.userType?.code;
+  const userRoles = session.authState.idTokenClaims.roles;
 
-  if (!userRole || !allowedRoles.includes(userRole)) {
-    log.debug(`User role '${userRole}' is not in allowed roles [${allowedRoles.join(', ')}], redirecting to index`);
+  if (!userRoles?.some((role) => allowedRoles.includes(role))) {
+    log.debug(`User role '${userRoles}' is not in allowed roles [${allowedRoles.join(', ')}], redirecting to index`);
     throw i18nRedirect('routes/employee/index.tsx', currentUrl);
   }
 
-  log.debug(`User is registered with role '${userRole}' (allowed: [${allowedRoles.join(', ')}]), allowing access`);
+  log.debug(`User is registered with role '${userRoles}' (allowed: [${allowedRoles.join(', ')}]), allowing access`);
 }
 
 // Specific implementations
 export async function checkHiringManagerRouteRegistration(session: AuthenticatedSession, request: Request): Promise<void> {
-  await requireRoleRegistration(session, request, 'hiring-manager', isHiringManagerPath);
+  await requireRoleRegistration(session, request, ['admin', 'hiring-manager'], isHiringManagerPath);
 }
 
 export async function checkHrAdvisorRouteRegistration(session: AuthenticatedSession, request: Request): Promise<void> {
-  await requireRoleRegistration(session, request, ['admin', 'HRA'], isHrAdvisorPath);
+  await requireRoleRegistration(session, request, ['admin', 'hr-advisor'], isHrAdvisorPath);
 }
