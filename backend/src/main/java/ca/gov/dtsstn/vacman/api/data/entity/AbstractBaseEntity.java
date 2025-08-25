@@ -128,7 +128,7 @@ public abstract class AbstractBaseEntity {
 
 	@Override
 	public int hashCode() {
-		return id != null ? id.hashCode() : System.identityHashCode(this);
+		return id != null ? id.hashCode() : getClass().hashCode();
 	}
 
 	@Override
