@@ -190,7 +190,6 @@ export default {
     'what-is-alternation': "Qu'est-ce qu'un échange de poste?",
     'alternation-description-text':
       "L'échange de poste a lieu lorsqu'un-e employé-e n'ayant pas reçu de garantie d'offre d'emploi raisonnable (GOER), et souhaitant continuer à travailler dans la fonction publique centrale, échange son poste avec un-e remplaçant-e (employé-e non touché-e) disposé-e à quitter l'administration publique centrale avec une mesure de soutien à la transition (MST - paiement forfaitaire basé sur les années de service de l'employé-e) ou avec une indemnité d'études.",
-    'employment-tenure': "Êtes-vous intéressé-e par les occasions d'emploi suivantes?",
     'errors': {
       'language-referral-type-required': 'Le profil linguistique est requis.',
       'language-referral-type-invalid': "Le profil linguistique n'est pas valide.",
@@ -204,9 +203,6 @@ export default {
       'work-location-city-duplicate': 'Les éléments dupliqués pour la ville du lieu de travail ne sont pas permis.',
       'referral-availibility-required': 'La confirmation de disponibilité pour les références est requise.',
       'alternate-opportunity-required': "La confirmation d'intérêt pour l'échange de poste est requise.",
-      'employment-tenure-required': "La confirmation d'intérêt pour les occasions d'emploi est requise.",
-      'employment-tenure-invalid': "La confirmation d'intérêt pour les occasions d'emploi n'est pas valide.",
-      'employment-tenure-duplicate': "Les éléments dupliqués pour la sélection d'occasion d'emploi ne sont pas permis.",
     },
   },
   'hr-advisor-dashboard': {

@@ -152,5 +152,3 @@ export const USER_TYPE_HR_ADVISOR = {
   nameEn: 'HR Advisor',
   nameFr: 'Conseiller en R.H.',
 } as const;
-
-export const NOT_INTERESTED_EMPLOYMENT_OPPOURTUNITY_ID = 4;

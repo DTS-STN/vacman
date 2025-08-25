@@ -5,7 +5,6 @@ import type { BaseSchema, BaseIssue } from 'valibot';
 import { getCityService } from '~/.server/domain/services/city-service';
 import { getClassificationService } from '~/.server/domain/services/classification-service';
 import { getDirectorateService } from '~/.server/domain/services/directorate-service';
-import { getEmploymentOpportunityTypeService } from '~/.server/domain/services/employment-opportunity-type-service';
 import { getLanguageForCorrespondenceService } from '~/.server/domain/services/language-for-correspondence-service';
 import { getLanguageReferralTypeService } from '~/.server/domain/services/language-referral-type-service';
 import { getProvinceService } from '~/.server/domain/services/province-service';
@@ -29,7 +28,6 @@ const allBranchOrServiceCanadaRegions = extractUniqueBranchesFromDirectoratesNon
 const allProvinces = await getProvinceService().listAll();
 const allCities = await getCityService().listAll();
 const allLanguageReferralTypes = await getLanguageReferralTypeService().listAll();
-const allEmploymentOpportunities = await getEmploymentOpportunityTypeService().listAll();
 
 // Function to create employment information schema with HR advisors
 export async function createEmploymentInformationSchema(accessToken: string, formData?: FormData) {
@@ -365,24 +363,6 @@ export const referralPreferencesSchema = v.object({
   ),
   isAvailableForReferral: v.boolean('app:referral-preferences.errors.referral-availibility-required'),
   isInterestedInAlternation: v.boolean('app:referral-preferences.errors.alternate-opportunity-required'),
-  preferredEmploymentOpportunities: v.pipe(
-    v.array(
-      v.lazy(() =>
-        v.pipe(
-          stringToIntegerSchema('app:referral-preferences.errors.employment-tenure-invalid'),
-          v.picklist(
-            allEmploymentOpportunities.map((e) => e.id),
-            'app:referral-preferences.errors.employment-tenure-invalid',
-          ),
-        ),
-      ),
-    ),
-    v.nonEmpty('app:referral-preferences.errors.employment-tenure-required'),
-    v.checkItems(
-      (item, index, array) => array.indexOf(item) === index,
-      'app:referral-preferences.errors.employment-tenure-duplicate',
-    ),
-  ),
 });
 
 export async function parseEmploymentInformation(formData: FormData, accessToken: string) {

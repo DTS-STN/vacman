@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { ChangeEvent, JSX } from 'react';
+import type { JSX } from 'react';
 
 import { Form } from 'react-router';
 import type { Params } from 'react-router';
@@ -9,7 +9,6 @@ import { useTranslation } from 'react-i18next';
 import type {
   LocalizedCity,
   LocalizedClassification,
-  LocalizedEmploymentOpportunityType,
   LocalizedLanguageReferralType,
   LocalizedProvince,
   Profile,
@@ -31,7 +30,7 @@ import { InputMultiSelect } from '~/components/input-multiselect';
 import { InputRadios } from '~/components/input-radios';
 import type { InputRadiosProps } from '~/components/input-radios';
 import { InputSelect } from '~/components/input-select';
-import { NOT_INTERESTED_EMPLOYMENT_OPPOURTUNITY_ID, REQUIRE_OPTIONS } from '~/domain/constants';
+import { REQUIRE_OPTIONS } from '~/domain/constants';
 import type { I18nRouteFile } from '~/i18n-routes';
 import type { Errors } from '~/routes/page-components/employees/validation.server';
 import { extractValidationKey } from '~/utils/validation-utils';
@@ -43,7 +42,6 @@ interface ReferralPreferencesFormProps {
   formErrors?: Errors;
   languageReferralTypes: readonly LocalizedLanguageReferralType[];
   classifications: readonly LocalizedClassification[];
-  employmentOpportunities: readonly LocalizedEmploymentOpportunityType[];
   provinces: readonly LocalizedProvince[];
   cities: readonly LocalizedCity[];
   params: Params;
@@ -56,7 +54,6 @@ export function ReferralPreferencesForm({
   formErrors,
   languageReferralTypes,
   classifications,
-  employmentOpportunities,
   provinces,
   cities,
   params,
@@ -72,10 +69,6 @@ export function ReferralPreferencesForm({
   const [selectedCities, setSelectedCities] = useState(formValues?.preferredCities?.map(({ id }) => id.toString()) ?? []);
   const [province, setProvince] = useState(preferredProvince?.toString());
   const [srAnnouncement, setSrAnnouncement] = useState(''); //screen reader announcement
-
-  const [checkedEmploymentTypes, setCheckedEmploymentTypes] = useState<number[]>(
-    formValues?.preferredEmploymentOpportunities?.map(({ id }) => id) ?? [],
-  );
 
   const languageReferralTypeOptions = languageReferralTypes.map((langReferral) => ({
     value: String(langReferral.id),
@@ -125,26 +118,6 @@ export function ReferralPreferencesForm({
       onChange: ({ target }) => setAlternateOpportunity(target.value === REQUIRE_OPTIONS.yes),
     },
   ];
-
-  const handlecheckedEmploymentTypesChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const value = Number(e.target.value);
-    const isChecked = e.target.checked;
-    if (value === NOT_INTERESTED_EMPLOYMENT_OPPOURTUNITY_ID) {
-      setCheckedEmploymentTypes(isChecked ? [NOT_INTERESTED_EMPLOYMENT_OPPOURTUNITY_ID] : []);
-    } else {
-      setCheckedEmploymentTypes((prev) =>
-        isChecked
-          ? [...prev.filter((id) => id !== NOT_INTERESTED_EMPLOYMENT_OPPOURTUNITY_ID), value]
-          : prev.filter((id) => id !== value),
-      );
-    }
-  };
-  const employmentOpportunityOptions = employmentOpportunities.map((employmentOpportunity) => ({
-    value: String(employmentOpportunity.id),
-    children: employmentOpportunity.name,
-    checked: checkedEmploymentTypes.includes(employmentOpportunity.id),
-    onChange: handlecheckedEmploymentTypesChange,
-  }));
 
   // Choice tags for classification
   const classificationChoiceTags: ChoiceTag[] = selectedClassifications
@@ -300,15 +273,6 @@ export function ReferralPreferencesForm({
                   {tApp('referral-preferences.alternation-description-text')}
                 </Collapsible>
               }
-            />
-            <InputCheckboxes
-              id="preferred-employment-opportunities"
-              errorMessage={tApp(extractValidationKey(formErrors?.preferredEmploymentOpportunities))}
-              legend={tApp('referral-preferences.employment-tenure')}
-              name="preferredEmploymentOpportunities"
-              options={employmentOpportunityOptions}
-              helpMessagePrimary={tApp('form.select-all-that-apply')}
-              required
             />
 
             <div className="mt-8 flex flex-row-reverse flex-wrap items-center justify-end gap-3">
