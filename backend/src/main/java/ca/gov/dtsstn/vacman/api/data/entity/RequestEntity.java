@@ -393,9 +393,15 @@ public class RequestEntity extends AbstractBaseEntity implements Ownable {
 	}
 
 	public void setCities(Collection<CityEntity> cities) {
-		this.cities.clear();
-		Optional.ofNullable(cities).orElse(emptySet())
-			.forEach(this::addCity);
+		final var joins = Optional.ofNullable(cities).orElse(emptySet()).stream()
+			.map(city -> RequestCityEntity.builder()
+				.city(city)
+				.request(this)
+				.build())
+			.collect(toUnmodifiableSet());
+
+		this.cities.retainAll(joins);
+		this.cities.addAll(joins);
 	}
 
 	public Set<EmploymentEquityEntity> getEmploymentEquities() {
@@ -412,9 +418,15 @@ public class RequestEntity extends AbstractBaseEntity implements Ownable {
 	}
 
 	public void setEmploymentEquities(Collection<EmploymentEquityEntity> employmentEquities) {
-		this.employmentEquities.clear();
-		Optional.ofNullable(employmentEquities).orElse(emptySet())
-			.forEach(this::addEmploymentEquity);
+		final var joins = Optional.ofNullable(employmentEquities).orElse(emptySet()).stream()
+			.map(employmentEquity -> RequestEmploymentEquityEntity.builder()
+				.employmentEquity(employmentEquity)
+				.request(this)
+				.build())
+			.collect(toUnmodifiableSet());
+
+		this.employmentEquities.retainAll(joins);
+		this.employmentEquities.addAll(joins);
 	}
 
 	public String getNameEn() {

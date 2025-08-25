@@ -238,17 +238,23 @@ public class ProfileEntity extends AbstractBaseEntity implements Ownable {
 			.collect(toUnmodifiableSet());
 	}
 
-	public boolean addPreferredClassification(ClassificationEntity preferredClassification) {
+	public boolean addPreferredClassification(ClassificationEntity classification) {
 		return this.preferredClassifications.add(ClassificationProfileEntity.builder()
-			.classification(preferredClassification)
+			.classification(classification)
 			.profile(this)
 			.build());
 	}
 
-	public void setPreferredClassifications(Collection<ClassificationEntity> preferredClassifications) {
-		this.preferredClassifications.clear();
-		Optional.ofNullable(preferredClassifications).orElse(emptySet())
-			.forEach(this::addPreferredClassification);
+	public void setPreferredClassifications(Collection<ClassificationEntity> classifications) {
+		final var joins = Optional.ofNullable(classifications).orElse(emptySet()).stream()
+			.map(classification -> ClassificationProfileEntity.builder()
+				.classification(classification)
+				.profile(this)
+				.build())
+			.collect(toUnmodifiableSet());
+
+		this.preferredClassifications.retainAll(joins);
+		this.preferredClassifications.addAll(joins);
 	}
 
 	public Set<CityEntity> getPreferredCities() {
@@ -264,10 +270,16 @@ public class ProfileEntity extends AbstractBaseEntity implements Ownable {
 			.build());
 	}
 
-	public void setPreferredCities(Collection<CityEntity> preferredCities) {
-		this.preferredCities.clear();
-		Optional.ofNullable(preferredCities).orElse(emptySet())
-			.forEach(this::addPreferredCity);
+	public void setPreferredCities(Collection<CityEntity> cities) {
+		final var joins = Optional.ofNullable(cities).orElse(emptySet()).stream()
+			.map(city -> ProfileCityEntity.builder()
+				.city(city)
+				.profile(this)
+				.build())
+			.collect(toUnmodifiableSet());
+
+		this.preferredCities.retainAll(joins);
+		this.preferredCities.addAll(joins);
 	}
 
 	public Set<EmploymentOpportunityEntity> getPreferredEmploymentOpportunities() {
@@ -276,17 +288,23 @@ public class ProfileEntity extends AbstractBaseEntity implements Ownable {
 			.collect(toUnmodifiableSet());
 	}
 
-	public boolean addPreferredEmploymentOpportunity(EmploymentOpportunityEntity employmentopportunityentity) {
+	public boolean addPreferredEmploymentOpportunity(EmploymentOpportunityEntity employmentOpportunity) {
 		return this.preferredEmploymentOpportunities.add(ProfileEmploymentOpportunityEntity.builder()
-			.employmentOpportunity(employmentopportunityentity)
+			.employmentOpportunity(employmentOpportunity)
 			.profile(this)
 			.build());
 	}
 
-	public void setPreferredEmploymentOpportunities(Collection<EmploymentOpportunityEntity> preferredEmploymentOpportunities) {
-		this.preferredEmploymentOpportunities.clear();
-		Optional.ofNullable(preferredEmploymentOpportunities).orElse(emptySet())
-			.forEach(this::addPreferredEmploymentOpportunity);
+	public void setPreferredEmploymentOpportunities(Collection<EmploymentOpportunityEntity> employmentOpportunities) {
+		final var joins = Optional.ofNullable(employmentOpportunities).orElse(emptySet()).stream()
+			.map(employmentOpportunity -> ProfileEmploymentOpportunityEntity.builder()
+				.employmentOpportunity(employmentOpportunity)
+				.profile(this)
+				.build())
+			.collect(toUnmodifiableSet());
+
+		this.preferredEmploymentOpportunities.retainAll(joins);
+		this.preferredEmploymentOpportunities.addAll(joins);
 	}
 
 	public Set<LanguageReferralTypeEntity> getPreferredLanguages() {
@@ -295,17 +313,23 @@ public class ProfileEntity extends AbstractBaseEntity implements Ownable {
 			.collect(toUnmodifiableSet());
 	}
 
-	public boolean addPreferredLanguage(LanguageReferralTypeEntity preferredLanguage) {
+	public boolean addPreferredLanguage(LanguageReferralTypeEntity language) {
 		return this.preferredLanguages.add(ProfileLanguageReferralTypeEntity.builder()
-			.languageReferralType(preferredLanguage)
+			.languageReferralType(language)
 			.profile(this)
 			.build());
 	}
 
-	public void setPreferredLanguages(Collection<LanguageReferralTypeEntity> preferredLanguage) {
-		this.preferredLanguages.clear();
-		Optional.ofNullable(preferredLanguage).orElse(emptySet())
-			.forEach(this::addPreferredLanguage);
+	public void setPreferredLanguages(Collection<LanguageReferralTypeEntity> languages) {
+		final var joins = Optional.ofNullable(languages).orElse(emptySet()).stream()
+			.map(language -> ProfileLanguageReferralTypeEntity.builder()
+				.languageReferralType(language)
+				.profile(this)
+				.build())
+			.collect(toUnmodifiableSet());
+
+		this.preferredLanguages.retainAll(joins);
+		this.preferredLanguages.addAll(joins);
 	}
 
 	public ProfileStatusEntity getProfileStatus() {
