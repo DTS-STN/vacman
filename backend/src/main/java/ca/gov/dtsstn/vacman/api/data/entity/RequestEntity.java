@@ -1,7 +1,11 @@
 package ca.gov.dtsstn.vacman.api.data.entity;
 
+import static java.util.Collections.emptySet;
+import static java.util.stream.Collectors.toUnmodifiableSet;
+
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -32,12 +36,18 @@ public class RequestEntity extends AbstractBaseEntity implements Ownable {
 	@JoinColumn(name = "[APPOINTMENT_NON_ADVERTISED_ID]")
 	private NonAdvertisedAppointmentEntity appointmentNonAdvertised;
 
+	@OneToMany(mappedBy = "request", cascade = { CascadeType.ALL }, orphanRemoval = true)
+	private final Set<RequestCityEntity> cities = new HashSet<>();
+
 	@ManyToOne
 	@JoinColumn(name = "[CLASSIFICATION_ID]")
 	private ClassificationEntity classification;
 
 	@Column(name = "[EMPLOYMENT_EQUITY_NEED_IDENTIFIED_IND]")
 	private Boolean employmentEquityNeedIdentifiedIndicator;
+
+	@OneToMany(mappedBy = "request", cascade = { CascadeType.ALL }, orphanRemoval = true)
+	private final Set<RequestEmploymentEquityEntity> employmentEquities = new HashSet<>();
 
 	@ManyToOne
 	@JoinColumn(name = "[EMPLOYMENT_TENURE_ID]")
@@ -82,12 +92,6 @@ public class RequestEntity extends AbstractBaseEntity implements Ownable {
 
 	@Column(name = "[APPT_RSLT_PRRT_ENTTLMNT_RTNL]", length = 200)
 	private String priorityEntitlementRationale;
-
-	@OneToMany(mappedBy = "request", cascade = { CascadeType.ALL }, orphanRemoval = true)
-	private Set<RequestCityEntity> requestCities = new HashSet<>();
-
-	@OneToMany(mappedBy = "request", cascade = { CascadeType.ALL }, orphanRemoval = true)
-	private Set<RequestEmploymentEquityEntity> requestEmploymentEquities = new HashSet<>();
 
 	@Column(name = "[NAME_EN]", length = 200)
 	private String nameEn;
@@ -154,8 +158,10 @@ public class RequestEntity extends AbstractBaseEntity implements Ownable {
 			@Nullable String additionalComment,
 			@Nullable String alternateContactEmailAddress,
 			@Nullable NonAdvertisedAppointmentEntity appointmentNonAdvertised,
+			@Nullable Collection<CityEntity> cities,
 			@Nullable ClassificationEntity classification,
 			@Nullable Boolean employmentEquityNeedIdentifiedIndicator,
+			@Nullable Collection<EmploymentEquityEntity> employmentEquities,
 			@Nullable EmploymentTenureEntity employmentTenure,
 			@Nullable LocalDate endDate,
 			@Nullable Boolean hasPerformedSameDuties,
@@ -169,8 +175,6 @@ public class RequestEntity extends AbstractBaseEntity implements Ownable {
 			@Nullable String priorityClearanceNumber,
 			@Nullable Boolean priorityEntitlement,
 			@Nullable String priorityEntitlementRationale,
-			@Nullable Set<RequestCityEntity> requestCities,
-			@Nullable Set<RequestEmploymentEquityEntity> requestEmploymentEquities,
 			@Nullable String nameEn,
 			@Nullable String nameFr,
 			@Nullable String requestNumber,
@@ -210,8 +214,6 @@ public class RequestEntity extends AbstractBaseEntity implements Ownable {
 		this.priorityClearanceNumber = priorityClearanceNumber;
 		this.priorityEntitlement = priorityEntitlement;
 		this.priorityEntitlementRationale = priorityEntitlementRationale;
-		this.requestCities = requestCities;
-		this.requestEmploymentEquities = requestEmploymentEquities;
 		this.nameEn = nameEn;
 		this.nameFr = nameFr;
 		this.requestNumber = requestNumber;
@@ -228,6 +230,9 @@ public class RequestEntity extends AbstractBaseEntity implements Ownable {
 		this.workforceMgmtApprovalRecvd = workforceMgmtApprovalRecvd;
 		this.workSchedule = workSchedule;
 		this.workUnit = workUnit;
+
+		this.setCities(cities);
+		this.setEmploymentEquities(employmentEquities);
 	}
 
 	public String getAdditionalComment() {
@@ -370,20 +375,42 @@ public class RequestEntity extends AbstractBaseEntity implements Ownable {
 		this.priorityEntitlementRationale = priorityEntitlementRationale;
 	}
 
-	public Set<RequestCityEntity> getRequestCities() {
-		return requestCities;
+	public Set<CityEntity> getCities() {
+		return cities.stream()
+			.map(RequestCityEntity::getCity)
+			.collect(toUnmodifiableSet());
 	}
 
-	public void setRequestCities(Set<RequestCityEntity> requestCities) {
-		this.requestCities = requestCities;
+	public boolean addCity(CityEntity city) {
+		return this.cities.add(RequestCityEntity.builder()
+			.city(city)
+			.request(this)
+			.build());
 	}
 
-	public Set<RequestEmploymentEquityEntity> getRequestEmploymentEquities() {
-		return requestEmploymentEquities;
+	public void setCities(Collection<CityEntity> cities) {
+		this.cities.clear();
+		Optional.ofNullable(cities).orElse(emptySet())
+			.forEach(this::addCity);
 	}
 
-	public void setRequestEmploymentEquities(Set<RequestEmploymentEquityEntity> requestEmploymentEquities) {
-		this.requestEmploymentEquities = requestEmploymentEquities;
+	public Set<EmploymentEquityEntity> getEmploymentEquities() {
+		return employmentEquities.stream()
+			.map(RequestEmploymentEquityEntity::getEmploymentEquity)
+			.collect(toUnmodifiableSet());
+	}
+
+	public boolean addEmploymentEquity(EmploymentEquityEntity employmentEquity) {
+		return this.employmentEquities.add(RequestEmploymentEquityEntity.bulder()
+			.employmentEquity(employmentEquity)
+			.request(this)
+			.build());
+	}
+
+	public void setEmploymentEquities(Collection<EmploymentEquityEntity> employmentEquities) {
+		this.employmentEquities.clear();
+		Optional.ofNullable(employmentEquities).orElse(emptySet())
+			.forEach(this::addEmploymentEquity);
 	}
 
 	public String getNameEn() {
@@ -543,8 +570,8 @@ public class RequestEntity extends AbstractBaseEntity implements Ownable {
 			.append("priorityClearanceNumber", priorityClearanceNumber)
 			.append("priorityEntitlement", priorityEntitlement)
 			.append("priorityEntitlementRationale", priorityEntitlementRationale)
-			.append("requestCities", requestCities)
-			.append("requestEmploymentEquities", requestEmploymentEquities)
+			.append("requestCities", cities)
+			.append("requestEmploymentEquities", employmentEquities)
 			.append("nameEn", nameEn)
 			.append("nameFr", nameFr)
 			.append("requestNumber", requestNumber)

@@ -16,6 +16,10 @@ import jakarta.persistence.Table;
 @Table(name = "[REQUEST_CITY]")
 public class RequestCityEntity extends AbstractBaseEntity {
 
+	public static RequestCityEntityBuilder builder() {
+		return new RequestCityEntityBuilder();
+	}
+
 	@ManyToOne
 	@JoinColumn(name = "[CITY_ID]", nullable = false)
 	private CityEntity city;
