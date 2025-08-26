@@ -210,19 +210,29 @@ public class ProfilesController {
 	public ResponseEntity<Void> updateProfileById(@PathVariable Long id, @Valid @RequestBody ProfileStatusUpdateModel updatedProfileStatus) {
 		log.info("Received request to update profile status; ID: [{}]", id);
 
-		if (SecurityUtils.isHrAdvisor()) {
-			final var validStatus = AppConstants.ProfileStatusCodes.APPROVED.equals(updatedProfileStatus.getCode()) || AppConstants.ProfileStatusCodes.ARCHIVED.equals(updatedProfileStatus.getCode());
-			if (!validStatus) { throw new AccessDeniedException("Profile status can only be set to 'approved' or 'archived'"); }
+		//
+		// APPROVED and ARCHIVED statuses require that the submitter be an HR advisor
+		//
+
+		final var requiresHrAdvisor = AppConstants.ProfileStatusCodes.APPROVED.equals(updatedProfileStatus.getCode())
+			|| AppConstants.ProfileStatusCodes.ARCHIVED.equals(updatedProfileStatus.getCode());
+
+		if (requiresHrAdvisor && !SecurityUtils.isHrAdvisor()) {
+			throw new AccessDeniedException("Only HR advisors can set status to APPROVED or ARCHIVED");
 		}
-		else {
-			final var validStatus = AppConstants.ProfileStatusCodes.PENDING.equals(updatedProfileStatus.getCode());
-			if (!validStatus) { throw new AccessDeniedException("Profile status can only be set to 'pending'"); }
+
+		//
+		// PENDING is the only valid status for normal (non HR advisor) employees
+		//
+
+		final var isPendingStatus = AppConstants.ProfileStatusCodes.PENDING.equals(updatedProfileStatus.getCode());
+
+		if (!requiresHrAdvisor && !isPendingStatus) {
+			throw new AccessDeniedException("Profile status can only be set to APPROVED");
 		}
 
 		final var foundProfile = profileService.getProfileById(id)
 			.orElseThrow(asResourceNotFoundException(PROFILE, id));
-
-		log.trace(FOUND_PROFILE_LOG_MSG, foundProfile);
 
 		final var validPretransitionStates = switch (updatedProfileStatus.getCode()) {
 			case AppConstants.ProfileStatusCodes.PENDING -> Set.of(AppConstants.ProfileStatusCodes.INCOMPLETE, AppConstants.ProfileStatusCodes.APPROVED);
