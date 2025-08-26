@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import type { RouteHandle } from 'react-router';
 import { Form, useActionData, useNavigation } from 'react-router';
@@ -28,7 +28,7 @@ import { EMPLOYEE_WFA_STATUS, PROFILE_STATUS_APPROVED, PROFILE_STATUS_CODE } fro
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
-import { formatDateTime } from '~/utils/date-utils';
+import { formatDateTimeInZone } from '~/utils/date-utils';
 
 export const handle = {
   i18nNamespace: [...parentHandle.i18nNamespace],
@@ -140,6 +140,8 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     .filter(Boolean);
   const cities = profileData.preferredCities?.map((city) => allLocalizedCities.find((c) => c.id === city.id)).filter(Boolean);
 
+  const { serverEnvironment } = await import('~/.server/environment');
+
   return {
     documentTitle: t('app:employee-profile.page-title'),
     name: `${profileData.profileUser.firstName} ${profileData.profileUser.lastName}`,
@@ -174,10 +176,9 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       isAvailableForReferral: profileData.isAvailableForReferral,
       isInterestedInAlternation: profileData.isInterestedInAlternation,
     },
-    lastUpdated: profileData.profileUser.lastModifiedDate
-      ? formatDateTime(profileData.profileUser.lastModifiedDate)
-      : '0000-00-00 00:00',
     lastUpdatedBy: profileUpdatedByUserName ?? 'Unknown User',
+    lastModifiedDate: profileData.lastModifiedDate ?? undefined,
+    baseTimeZone: serverEnvironment.BASE_TIMEZONE,
   };
 }
 
@@ -193,6 +194,21 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
     alertRef.current.focus();
   }
 
+  const [browserTZ, setBrowserTZ] = useState(() =>
+    loaderData.lastModifiedDate
+      ? formatDateTimeInZone(loaderData.lastModifiedDate, loaderData.baseTimeZone, 'yyyy-MM-dd HH:mm')
+      : '0000-00-00 00:00',
+  );
+
+  useEffect(() => {
+    if (!loaderData.lastModifiedDate) return;
+
+    const browserTZ = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    if (browserTZ) {
+      setBrowserTZ(formatDateTimeInZone(loaderData.lastModifiedDate, browserTZ, 'yyyy-MM-dd HH:mm'));
+    }
+  }, [loaderData.lastModifiedDate]);
+
   return (
     <div className="space-y-8">
       <div className="space-y-4 py-8 text-white">
@@ -202,7 +218,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
         <h1 className="mt-6 text-3xl font-semibold">{loaderData.name}</h1>
         {loaderData.email && <p className="mt-1">{loaderData.email}</p>}
         <p className="font-normal text-[#9FA3AD]">
-          {t('app:employee-profile.last-updated', { date: loaderData.lastUpdated, name: loaderData.lastUpdatedBy })}
+          {t('app:employee-profile.last-updated', { date: browserTZ, name: loaderData.lastUpdatedBy })}
         </p>
         <div
           role="presentation"
