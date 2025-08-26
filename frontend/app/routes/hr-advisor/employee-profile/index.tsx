@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 
 import type { RouteHandle } from 'react-router';
-import { Form, useActionData, useNavigation } from 'react-router';
+import { useActionData, useFetcher } from 'react-router';
 
 import { useTranslation } from 'react-i18next';
 
@@ -19,13 +19,14 @@ import { getUserService } from '~/.server/domain/services/user-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { getHrAdvisors } from '~/.server/utils/profile-utils';
 import { AlertMessage } from '~/components/alert-message';
-import { Button } from '~/components/button';
 import { DescriptionList, DescriptionListItem } from '~/components/description-list';
 import { InlineLink } from '~/components/links';
+import { LoadingButton } from '~/components/loading-button';
 import { ProfileCard } from '~/components/profile-card';
 import { StatusTag } from '~/components/status-tag';
 import { EMPLOYEE_WFA_STATUS, PROFILE_STATUS_APPROVED, PROFILE_STATUS_CODE } from '~/domain/constants';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
+import { useFetcherState } from '~/hooks/use-fetcher-state';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
 import { formatDateTimeInZone } from '~/utils/date-utils';
@@ -184,8 +185,10 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 
 export default function EditProfile({ loaderData, params }: Route.ComponentProps) {
   const { t } = useTranslation(handle.i18nNamespace);
-  const navigation = useNavigation();
   const actionData = useActionData();
+  const fetcher = useFetcher();
+  const fetcherState = useFetcherState(fetcher);
+  const isSubmitting = fetcherState.submitting;
 
   const alertRef = useRef<HTMLDivElement>(null);
 
@@ -374,11 +377,11 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
           </DescriptionList>
         </ProfileCard>
       </div>
-      <Form className="mt-6 flex place-content-start space-x-5 md:mt-auto" method="post" noValidate>
-        <Button name="action" variant="primary" id="submit" disabled={navigation.state !== 'idle'}>
+      <fetcher.Form className="mt-6 flex place-content-start space-x-5 md:mt-auto" method="post" noValidate>
+        <LoadingButton name="action" variant="primary" id="submit" disabled={isSubmitting} loading={isSubmitting}>
           {t('app:form.approve')}
-        </Button>
-      </Form>
+        </LoadingButton>
+      </fetcher.Form>
     </div>
   );
 }

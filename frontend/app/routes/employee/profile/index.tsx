@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 
 import type { RouteHandle } from 'react-router';
-import { Form, useActionData, useLocation, useNavigate, useNavigation, useSearchParams } from 'react-router';
+import { useActionData, useFetcher, useLocation, useNavigate, useSearchParams } from 'react-router';
 
 import { useTranslation } from 'react-i18next';
 
@@ -22,13 +22,14 @@ import {
   omitObjectProperties,
 } from '~/.server/utils/profile-utils';
 import { AlertMessage } from '~/components/alert-message';
-import { Button } from '~/components/button';
 import { ButtonLink } from '~/components/button-link';
 import { DescriptionList, DescriptionListItem } from '~/components/description-list';
+import { LoadingButton } from '~/components/loading-button';
 import { ProfileCard } from '~/components/profile-card';
 import { Progress } from '~/components/progress';
 import { StatusTag } from '~/components/status-tag';
 import { PROFILE_STATUS_CODE, EMPLOYEE_WFA_STATUS, PROFILE_STATUS_PENDING } from '~/domain/constants';
+import { useFetcherState } from '~/hooks/use-fetcher-state';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
 import { formatDateTimeInZone } from '~/utils/date-utils';
@@ -269,8 +270,10 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 
 export default function EditProfile({ loaderData, params }: Route.ComponentProps) {
   const { t } = useTranslation(handle.i18nNamespace);
-  const navigation = useNavigation();
   const actionData = useActionData();
+  const fetcher = useFetcher();
+  const fetcherState = useFetcherState(fetcher);
+  const isSubmitting = fetcherState.submitting;
 
   const alertRef = useRef<HTMLDivElement>(null);
 
@@ -331,16 +334,16 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
           </p>
           <p className="mt-4">{t('app:profile.about-para-2')}</p>
         </div>
-        <Form className="mt-6 flex place-content-end space-x-5 md:mt-auto" method="post" noValidate>
-          <ButtonLink variant="alternative" file="routes/employee/index.tsx" id="save" disabled={navigation.state !== 'idle'}>
+        <fetcher.Form className="mt-6 flex place-content-end space-x-5 md:mt-auto" method="post" noValidate>
+          <ButtonLink variant="alternative" file="routes/employee/index.tsx" id="save" disabled={isSubmitting}>
             {t('app:form.save-and-exit')}
           </ButtonLink>
           {loaderData.profileStatus.code === PROFILE_STATUS_CODE.incomplete && (
-            <Button name="action" variant="primary" id="submit" disabled={navigation.state !== 'idle'}>
+            <LoadingButton name="action" variant="primary" id="submit" disabled={isSubmitting} loading={isSubmitting}>
               {t('app:form.submit')}
-            </Button>
+            </LoadingButton>
           )}
-        </Form>
+        </fetcher.Form>
       </div>
 
       {actionData && (
