@@ -10,14 +10,12 @@ export default {
   },
   'nav': {
     'skip-to-content': 'Passer au contenu principal',
-    'skip-to-about': 'Passer à «\u00a0À propos de ce site\u00a0»',
   },
   'header': {
     'language-selection': 'Sélection de la langue',
     'govt-of-canada.text': 'Gouvernement du Canada',
   },
   'footer': {
-    'about-site': 'À propos de ce site',
     'terms-conditions': {
       text: 'Avis',
       href: 'https://www.canada.ca/fr/transparence/avis.html',
