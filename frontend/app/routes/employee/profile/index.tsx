@@ -326,7 +326,12 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
   }, [searchParams, location.pathname, navigate]);
 
   useEffect(() => {
-    setBrowserTZ(Intl.DateTimeFormat().resolvedOptions().timeZone);
+    if (!loaderData.lastModifiedDate) return;
+
+    const browserTZ = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    if (browserTZ) {
+      setBrowserTZ(formatDateTimeInZone(loaderData.lastModifiedDate, browserTZ, 'yyyy-MM-dd HH:mm'));
+    }
   }, [loaderData.lastModifiedDate]);
 
   return (
