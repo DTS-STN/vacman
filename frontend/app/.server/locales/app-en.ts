@@ -227,4 +227,12 @@ export default {
     'page-heading': 'Get started',
     'requests': 'Requests',
   },
+  'hiring-manager-requests': {
+    'page-title': 'Requests',
+    'create-request': 'Create request',
+    'active-requests': 'Active requests',
+    'no-active-requests': "You don't have any active requests at the moment.",
+    'archived-requests': 'Archived requests',
+    'no-archived-requests': "You don't have any archived requests at the moment.",
+  },
 };

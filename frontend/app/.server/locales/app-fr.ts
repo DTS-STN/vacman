@@ -230,4 +230,12 @@ export default {
     'page-heading': 'Débuter',
     'requests': 'Demandes',
   },
+  'hiring-manager-requests': {
+    'page-title': 'Demandes',
+    'create-request': 'Créer une demande',
+    'active-requests': 'Demandes actives',
+    'no-active-requests': "Vous n'avez aucune demande active pour le moment.",
+    'archived-requests': 'Demandes archivées',
+    'no-archived-requests': "Vous n'avez aucune demande archivée pour le moment.",
+  },
 } satisfies typeof appEn;
