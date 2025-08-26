@@ -1,4 +1,4 @@
-import type { Profile, User } from '~/.server/domain/models';
+import type { Profile, RequestReadModel, User } from '~/.server/domain/models';
 import {
   PREFERRED_LANGUAGE_ENGLISH,
   PREFERRED_LANGUAGE_FRENCH,
@@ -360,4 +360,84 @@ export function createAndLinkNewMockProfile(accessToken: string): Profile {
   mockProfiles.push(newProfile);
 
   return newProfile;
+}
+
+export const mockRequests: RequestReadModel[] = [
+  {
+    id: 1,
+    selectionProcessNumber: '2024-001',
+    workforceManagementApproved: true,
+    priorityEntitlement: false,
+    priorityEntitlementRationale: '',
+    selectionProcessTypeId: 1,
+    performedSameDuties: true,
+    nonAdvertisedAppointmentId: 1,
+    projectedStartDate: '2024-01-15',
+    projectedEndDate: '2024-12-31',
+    workScheduleId: 1,
+    equityNeeded: true,
+    employmentEquityIds: [1, 2],
+    positionNumbers: ['123456'],
+    classificationId: 1,
+    englishTitle: 'Software Developer',
+    frenchTitle: 'Développeur de logiciels',
+    provinceId: 1,
+    languageRequirementId: 1,
+    englishLanguageProfile: 'CBC',
+    frenchLanguageProfile: 'CBC',
+    securityClearanceId: 1,
+    englishStatementOfMerit: 'English statement of merit criteria',
+    frenchStatementOfMerit: 'Critères de mérite en français',
+    status: {
+      id: 1,
+      code: 'DRAFT',
+      nameEn: 'Draft',
+      nameFr: 'Brouillon',
+    },
+    createdBy: 'mock-user',
+    createdDate: new Date().toISOString(),
+    lastModifiedBy: 'mock-user',
+    lastModifiedDate: new Date().toISOString(),
+  },
+];
+
+export function createMockRequest(accessToken: string): RequestReadModel {
+  const newId = Math.max(...mockRequests.map((r) => r.id), 0) + 1;
+
+  return {
+    id: newId,
+    selectionProcessNumber: `2024-${newId.toString().padStart(3, '0')}`,
+    workforceManagementApproved: false,
+    priorityEntitlement: false,
+    priorityEntitlementRationale: '',
+    selectionProcessTypeId: 1,
+    performedSameDuties: false,
+    nonAdvertisedAppointmentId: 1,
+    projectedStartDate: '2024-01-01',
+    projectedEndDate: '2024-12-31',
+    workScheduleId: 1,
+    equityNeeded: false,
+    employmentEquityIds: [],
+    positionNumbers: ['TBD'],
+    classificationId: 1,
+    englishTitle: 'New Position',
+    frenchTitle: 'Nouveau poste',
+    provinceId: 1,
+    languageRequirementId: 1,
+    englishLanguageProfile: 'BBB',
+    frenchLanguageProfile: 'BBB',
+    securityClearanceId: 1,
+    englishStatementOfMerit: 'To be determined',
+    frenchStatementOfMerit: 'À déterminer',
+    status: {
+      id: 1,
+      code: 'DRAFT',
+      nameEn: 'Draft',
+      nameFr: 'Brouillon',
+    },
+    createdBy: 'mock-user',
+    createdDate: new Date().toISOString(),
+    lastModifiedBy: 'mock-user',
+    lastModifiedDate: new Date().toISOString(),
+  };
 }
