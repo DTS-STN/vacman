@@ -65,7 +65,7 @@ export async function action({ context, request }: Route.ActionArgs) {
   await profileService.updateProfileById(profile.id, updatePrivacyConsent, context.session.authState.accessToken);
 
   log.debug(`User ${profile.profileUser.id} has accepted privacy consent.`);
-  return i18nRedirect('routes/employee/index.tsx', request);
+  return i18nRedirect('routes/employee/profile/index.tsx', request);
 }
 
 export async function loader({ context, request }: Route.LoaderArgs) {
