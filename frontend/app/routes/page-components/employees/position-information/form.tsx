@@ -1,0 +1,246 @@
+import { useState } from 'react';
+import type { JSX } from 'react';
+
+import type { Params } from 'react-router';
+import { Form } from 'react-router';
+
+import { useTranslation } from 'react-i18next';
+
+import type {
+  City,
+  Classification,
+  LanguageRequirement,
+  LocalizedCity,
+  LocalizedClassification,
+  LocalizedLanguageRequirement,
+  LocalizedProvince,
+  LocalizedSecurityClearance,
+  SecurityClearance,
+} from '~/.server/domain/models';
+import { Button } from '~/components/button';
+import { ButtonLink } from '~/components/button-link';
+import { FormErrorSummary } from '~/components/error-summary';
+import { InputField } from '~/components/input-field';
+import { InputLegend } from '~/components/input-legend';
+import type { InputRadiosProps } from '~/components/input-radios';
+import { InputRadios } from '~/components/input-radios';
+import { InputSelect } from '~/components/input-select';
+import { LANGUAGE_PROFICIENCY_LEVELS, LANGUAGE_REQUIREMENT_CODES } from '~/domain/constants';
+import type { I18nRouteFile } from '~/i18n-routes';
+import type { Errors } from '~/routes/page-components/employees/validation.server';
+import { extractValidationKey } from '~/utils/validation-utils';
+
+export type PositionInformation = {
+  positionNumber: string;
+  groupAndLevel: Classification;
+  titleEn: string;
+  titleFr: string;
+  locationCity: City;
+  languageRequirement: LanguageRequirement;
+  securityRequirement: SecurityClearance;
+};
+
+interface PositionInformationFormProps {
+  cancelLink: I18nRouteFile;
+  formValues: Partial<PositionInformation> | undefined;
+  languageRequirements: readonly LocalizedLanguageRequirement[];
+  classifications: readonly LocalizedClassification[];
+  provinces: readonly LocalizedProvince[];
+  cities: readonly LocalizedCity[];
+  securityClearances: readonly LocalizedSecurityClearance[];
+  formErrors?: Errors;
+  params: Params;
+}
+
+export function PositionInformationForm({
+  cancelLink,
+  formValues,
+  languageRequirements,
+  classifications,
+  provinces,
+  cities,
+  securityClearances,
+  formErrors,
+  params,
+}: PositionInformationFormProps): JSX.Element {
+  const { t } = useTranslation('app');
+
+  const [province, setProvince] = useState(
+    formValues?.locationCity?.provinceTerritory !== undefined
+      ? String(formValues.locationCity.provinceTerritory.id)
+      : undefined,
+  );
+
+  const [languageRequirementCode, setLanguageRequirementCode] = useState(
+    languageRequirements.find((c) => c.id === formValues?.languageRequirement?.id)?.code,
+  );
+
+  const handleLanguageRequirementChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedValue = event.target.value;
+    const selectedStatus = languageRequirements.find((c) => c.id === Number(selectedValue))?.code;
+    setLanguageRequirementCode(selectedStatus);
+  };
+
+  const groupAndLevelOptions = [{ id: 'select-option', name: '' }, ...classifications].map(({ id, name }) => ({
+    value: id === 'select-option' ? '' : String(id),
+    children: id === 'select-option' ? t('form.select-option') : name,
+  }));
+
+  const provinceOptions = [{ id: 'select-option', name: '' }, ...provinces].map(({ id, name }) => ({
+    value: id === 'select-option' ? '' : String(id),
+    children: id === 'select-option' ? t('form.select-option') : name,
+  }));
+
+  const cityOptions = [
+    { id: 'select-option', name: '' },
+    ...cities.filter((c) => c.provinceTerritory.id === Number(province)),
+  ].map(({ id, name }) => ({
+    value: id === 'select-option' ? '' : String(id),
+    children: id === 'select-option' ? t('form.select-option') : name,
+  }));
+
+  const securityClearanceOptions = securityClearances.map(({ id, name }) => ({
+    value: String(id),
+    children: name,
+    defaultChecked: id === formValues?.securityRequirement?.id,
+  }));
+
+  const languageRequirementOptions: InputRadiosProps['options'] = languageRequirements.map(({ id, name }) => ({
+    value: String(id),
+    children: name,
+    onChange: handleLanguageRequirementChange,
+    defaultChecked: formValues?.languageRequirement?.id === id,
+  }));
+
+  return (
+    <>
+      <h1 className="my-5 text-3xl font-semibold">{t('position-information.page-title')}</h1>
+      <FormErrorSummary>
+        <Form method="post" noValidate>
+          <div className="space-y-6">
+            <InputField
+              className="w-full"
+              id="position-number"
+              name="positionNumber"
+              label={t('position-information.position-number')}
+              defaultValue={formValues?.positionNumber}
+              errorMessage={t(extractValidationKey(formErrors?.positionNumber))}
+              helpMessagePrimary={t('position-information.position-number-instruction')}
+              required
+            />
+            <InputSelect
+              id="group-and-level"
+              name="groupAndLevel"
+              errorMessage={t(extractValidationKey(formErrors?.groupAndLevel))}
+              required
+              options={groupAndLevelOptions}
+              label={t('employment-information.substantive-position-group-and-level')}
+              defaultValue={formValues?.groupAndLevel !== undefined ? String(formValues.groupAndLevel.id) : ''}
+              className="w-full sm:w-1/2"
+            />
+            <InputField
+              className="w-full"
+              id="title-en"
+              name="titleEn"
+              label={t('position-information.title-en')}
+              defaultValue={formValues?.titleEn}
+              errorMessage={t(extractValidationKey(formErrors?.titleEn))}
+              required
+            />
+            <InputField
+              className="w-full"
+              id="title-fr"
+              name="titleFr"
+              label={t('position-information.title-fr')}
+              defaultValue={formValues?.titleFr}
+              errorMessage={t(extractValidationKey(formErrors?.titleFr))}
+              required
+            />
+            <InputSelect
+              id="province"
+              name="province"
+              label={t('position-information.location-province')}
+              options={provinceOptions}
+              value={province ?? ''}
+              onChange={({ target }) => setProvince(target.value || undefined)}
+              errorMessage={t(extractValidationKey(formErrors?.province))}
+              className="w-full sm:w-1/2"
+              required
+            />
+            {province && (
+              <InputSelect
+                id="city"
+                name="city"
+                errorMessage={t(extractValidationKey(formErrors?.city))}
+                required
+                options={cityOptions}
+                label={t('position-information.location-city')}
+                defaultValue={formValues?.locationCity !== undefined ? String(formValues.locationCity.id) : ''}
+                className="w-full sm:w-1/2"
+              />
+            )}
+            <InputRadios
+              id="language-requirement"
+              name="languageRequirement"
+              legend={t('position-information.language-requirement')}
+              options={languageRequirementOptions}
+              errorMessage={t(extractValidationKey(formErrors?.languageRequirement))}
+              required
+            />
+            {(languageRequirementCode === LANGUAGE_REQUIREMENT_CODES.bilingualImperative ||
+              languageRequirementCode === LANGUAGE_REQUIREMENT_CODES.bilingualNonImperative) && (
+              <>
+                <InputLegend required>{t('position-information.language-profile')}</InputLegend>
+                <h3>{t('position-information.reading-comprehension')}</h3>
+                <div className="flex">
+                  <InputSelect
+                    id="reading-comprehension-en"
+                    name="readingComprehensionEn"
+                    label={t('position-information.english')}
+                    options={[
+                      { value: 1, children: 'A' },
+                      { value: 2, children: 'B' },
+                      { value: 3, children: 'C' },
+                      { value: 4, children: 'P' },
+                    ]}
+                    errorMessage={t(extractValidationKey(formErrors?.readingComprehension))}
+                  />
+                  <InputSelect
+                    id="reading-comprehension-fr"
+                    name="readingComprehensionFr"
+                    label={t('position-information.french')}
+                    options={[
+                      { value: 1, children: 'A' },
+                      { value: 2, children: 'B' },
+                      { value: 3, children: 'C' },
+                      { value: 4, children: 'P' },
+                    ]}
+                    errorMessage={t(extractValidationKey(formErrors?.readingComprehension))}
+                  />
+                </div>
+                <h3>{t('position-information.written-expression')}</h3>
+                <h3>{t('position-information.oral-proficiency')}</h3>
+              </>
+            )}
+            <InputRadios
+              id="security-requirement"
+              name="securityRequirement"
+              legend={t('position-information.security-requirement')}
+              options={securityClearanceOptions}
+              errorMessage={t(extractValidationKey(formErrors?.securityRequirement))}
+              required
+            />
+            <div className="mt-8 flex flex-row-reverse flex-wrap items-center justify-end gap-3">
+              <Button name="action" variant="primary" id="save-button">
+                {t('form.save')}
+              </Button>
+              <ButtonLink file={cancelLink} params={params} id="cancel-button" variant="alternative">
+                {t('form.cancel')}
+              </ButtonLink>
+            </div>
+          </div>
+        </Form>
+      </FormErrorSummary>
+    </>
+  );
+}

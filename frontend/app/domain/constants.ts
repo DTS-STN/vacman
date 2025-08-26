@@ -152,3 +152,12 @@ export const USER_TYPE_HR_ADVISOR = {
   nameEn: 'HR Advisor',
   nameFr: 'Conseiller en R.H.',
 } as const;
+
+export const LANGUAGE_REQUIREMENT_CODES = {
+  bilingualImperative: 'BI',
+  bilingualNonImperative: 'BNI',
+  englishEssential: 'EE-AE',
+  frenchEssential: 'FE',
+  either: 'EF-AF',
+  various: 'VAR',
+} as const;
