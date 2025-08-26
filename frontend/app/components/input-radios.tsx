@@ -7,6 +7,7 @@ import { InputRadio } from '~/components/input-radio';
 import { cn } from '~/utils/tailwind-utils';
 
 export interface InputRadiosProps {
+  ariaDescribedbyId?: string;
   errorMessage?: string;
   helpMessagePrimary?: React.ReactNode;
   helpMessagePrimaryClassName?: string;
@@ -24,6 +25,7 @@ export interface InputRadiosProps {
 }
 
 export function InputRadios({
+  ariaDescribedbyId,
   errorMessage,
   helpMessagePrimary,
   helpMessagePrimaryClassName,
@@ -50,7 +52,7 @@ export function InputRadios({
   }
 
   return (
-    <fieldset id={inputWrapperId} data-testid={inputWrapperId}>
+    <fieldset id={inputWrapperId} data-testid={inputWrapperId} aria-describedby={ariaDescribedbyId}>
       <InputLegend id={inputLegendId} className={cn('mb-2', legendClassName)} required={required}>
         {legend}
       </InputLegend>
