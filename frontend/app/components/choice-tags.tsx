@@ -57,7 +57,7 @@ export function ChoiceTags({ choiceTags, onClearAll, onDelete, onClearGroup }: C
             tags.length > 0 && (
               <div key={groupName} className="flex flex-col gap-2 bg-gray-100 p-2">
                 <div className="xs:flex-row xs:items-center flex flex-col justify-between gap-2">
-                  <h3 className="text-lg font-semibold">{groupName}</h3>
+                  <h2 className="text-lg font-semibold">{groupName}</h2>
                   {tags.length > 1 && (
                     <Button
                       variant="primary"
