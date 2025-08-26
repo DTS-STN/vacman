@@ -12,7 +12,7 @@ export default {
     'register-as': 'Register as...',
   },
   'privacy-consent': {
-    'privacy-notice-statement': 'Pivacy notice statement',
+    'privacy-notice-statement': 'Privacy notice statement',
     'accept': 'Accept',
     'decline': 'Decline',
   },

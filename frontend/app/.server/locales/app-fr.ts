@@ -132,7 +132,7 @@ export default {
   'employment-information': {
     'page-title': "Informations sur l'emploi",
     'substantive-position-heading': 'Poste substantif',
-    'substantive-position-group-and-level': 'Substantif',
+    'substantive-position-group-and-level': 'Groupe et niveau de votre poste substantif',
     'branch-or-service-canada-region': 'Direction générale ou Région de Service Canada',
     'directorate': 'Direction',
     'provinces': 'Province du lieu de travail désigné de votre poste substantif',
