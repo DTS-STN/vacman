@@ -125,21 +125,16 @@ export function BilingualErrorBoundary({ actionData, error, loaderData, params }
             </div>
           </div>
         </main>
-        <footer id="wb-info" tabIndex={-1} className="mt-8 bg-stone-50 print:hidden">
+        <footer className="mt-8 bg-stone-50 print:hidden">
           <div className="container flex items-center justify-end gap-6 py-2.5 sm:py-3.5">
             <div>
-              <h2 className="sr-only">
-                <span lang="en">{en('gcweb:footer.about-site')}</span> / <span lang="fr">{fr('gcweb:footer.about-site')}</span>
-              </h2>
-              <div>
-                <img
-                  src="https://www.canada.ca/etc/designs/canada/wet-boew/assets/wmms-blk.svg"
-                  alt={`${en('gcweb:footer.gc-symbol')} / ${fr('gcweb:footer.gc-symbol')}`}
-                  width={300}
-                  height={71}
-                  className="h-10 w-auto"
-                />
-              </div>
+              <img
+                src="https://www.canada.ca/etc/designs/canada/wet-boew/assets/wmms-blk.svg"
+                alt={`${en('gcweb:footer.gc-symbol')} / ${fr('gcweb:footer.gc-symbol')}`}
+                width={300}
+                height={71}
+                className="h-10 w-auto"
+              />
             </div>
           </div>
         </footer>
@@ -208,21 +203,16 @@ export function BilingualNotFound({ actionData, error, loaderData, params }: Rou
             </div>
           </div>
         </main>
-        <footer id="wb-info" tabIndex={-1} className="bg-stone-50 print:hidden">
+        <footer className="bg-stone-50 print:hidden">
           <div className="container flex items-center justify-end gap-6 py-2.5 sm:py-3.5">
             <div>
-              <h2 className="sr-only">
-                <span lang="en">{en('gcweb:footer.about-site')}</span> / <span lang="fr">{fr('gcweb:footer.about-site')}</span>
-              </h2>
-              <div>
-                <img
-                  src="https://www.canada.ca/etc/designs/canada/wet-boew/assets/wmms-blk.svg"
-                  alt={`${en('gcweb:footer.gc-symbol')} / ${fr('gcweb:footer.gc-symbol')}`}
-                  width={300}
-                  height={71}
-                  className="h-10 w-auto"
-                />
-              </div>
+              <img
+                src="https://www.canada.ca/etc/designs/canada/wet-boew/assets/wmms-blk.svg"
+                alt={`${en('gcweb:footer.gc-symbol')} / ${fr('gcweb:footer.gc-symbol')}`}
+                width={300}
+                height={71}
+                className="h-10 w-auto"
+              />
             </div>
           </div>
         </footer>
@@ -306,19 +296,16 @@ export function UnilingualErrorBoundary({ actionData, error, loaderData, params 
             </UnorderedList>
           )}
         </main>
-        <footer id="wb-info" tabIndex={-1} className="mt-8 bg-stone-50 print:hidden">
+        <footer className="mt-8 bg-stone-50 print:hidden">
           <div className="container flex items-center justify-end gap-6 py-2.5 sm:py-3.5">
             <div>
-              <h2 className="sr-only">{t('gcweb:footer.about-site')}</h2>
-              <div>
-                <img
-                  src="https://www.canada.ca/etc/designs/canada/wet-boew/assets/wmms-blk.svg"
-                  alt={t('gcweb:footer.gc-symbol')}
-                  width={300}
-                  height={71}
-                  className="h-10 w-auto"
-                />
-              </div>
+              <img
+                src="https://www.canada.ca/etc/designs/canada/wet-boew/assets/wmms-blk.svg"
+                alt={t('gcweb:footer.gc-symbol')}
+                width={300}
+                height={71}
+                className="h-10 w-auto"
+              />
             </div>
           </div>
         </footer>
@@ -372,19 +359,16 @@ export function UnilingualNotFound({ actionData, error, loaderData, params }: Ro
           </PageTitle>
           <p className="mb-8 text-lg text-gray-500">{t('gcweb:not-found.page-message')}</p>
         </main>
-        <footer id="wb-info" tabIndex={-1} className="bg-stone-50 print:hidden">
+        <footer className="bg-stone-50 print:hidden">
           <div className="container flex items-center justify-end gap-6 py-2.5 sm:py-3.5">
             <div>
-              <h2 className="sr-only">{t('gcweb:footer.about-site')}</h2>
-              <div>
-                <img
-                  src="https://www.canada.ca/etc/designs/canada/wet-boew/assets/wmms-blk.svg"
-                  alt={t('gcweb:footer.gc-symbol')}
-                  width={300}
-                  height={71}
-                  className="h-10 w-auto"
-                />
-              </div>
+              <img
+                src="https://www.canada.ca/etc/designs/canada/wet-boew/assets/wmms-blk.svg"
+                alt={t('gcweb:footer.gc-symbol')}
+                width={300}
+                height={71}
+                className="h-10 w-auto"
+              />
             </div>
           </div>
         </footer>

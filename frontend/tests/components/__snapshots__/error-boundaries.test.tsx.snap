@@ -112,37 +112,18 @@ exports[`error-boundaries > BilingualErrorBoundary > should correctly render the
       </main>
       <footer
         class="mt-8 bg-stone-50 print:hidden"
-        id="wb-info"
-        tabindex="-1"
       >
         <div
           class="container flex items-center justify-end gap-6 py-2.5 sm:py-3.5"
         >
           <div>
-            <h2
-              class="sr-only"
-            >
-              <span
-                lang="en"
-              >
-                gcweb:footer.about-site
-              </span>
-               / 
-              <span
-                lang="fr"
-              >
-                gcweb:footer.about-site
-              </span>
-            </h2>
-            <div>
-              <img
-                alt="gcweb:footer.gc-symbol / gcweb:footer.gc-symbol"
-                class="h-10 w-auto"
-                height="71"
-                src="https://www.canada.ca/etc/designs/canada/wet-boew/assets/wmms-blk.svg"
-                width="300"
-              />
-            </div>
+            <img
+              alt="gcweb:footer.gc-symbol / gcweb:footer.gc-symbol"
+              class="h-10 w-auto"
+              height="71"
+              src="https://www.canada.ca/etc/designs/canada/wet-boew/assets/wmms-blk.svg"
+              width="300"
+            />
           </div>
         </div>
       </footer>
@@ -294,37 +275,18 @@ exports[`error-boundaries > BilingualErrorBoundary > should correctly render the
       </main>
       <footer
         class="mt-8 bg-stone-50 print:hidden"
-        id="wb-info"
-        tabindex="-1"
       >
         <div
           class="container flex items-center justify-end gap-6 py-2.5 sm:py-3.5"
         >
           <div>
-            <h2
-              class="sr-only"
-            >
-              <span
-                lang="en"
-              >
-                gcweb:footer.about-site
-              </span>
-               / 
-              <span
-                lang="fr"
-              >
-                gcweb:footer.about-site
-              </span>
-            </h2>
-            <div>
-              <img
-                alt="gcweb:footer.gc-symbol / gcweb:footer.gc-symbol"
-                class="h-10 w-auto"
-                height="71"
-                src="https://www.canada.ca/etc/designs/canada/wet-boew/assets/wmms-blk.svg"
-                width="300"
-              />
-            </div>
+            <img
+              alt="gcweb:footer.gc-symbol / gcweb:footer.gc-symbol"
+              class="h-10 w-auto"
+              height="71"
+              src="https://www.canada.ca/etc/designs/canada/wet-boew/assets/wmms-blk.svg"
+              width="300"
+            />
           </div>
         </div>
       </footer>
@@ -451,37 +413,18 @@ exports[`error-boundaries > BilingualNotFound > should correctly render the bili
       </main>
       <footer
         class="bg-stone-50 print:hidden"
-        id="wb-info"
-        tabindex="-1"
       >
         <div
           class="container flex items-center justify-end gap-6 py-2.5 sm:py-3.5"
         >
           <div>
-            <h2
-              class="sr-only"
-            >
-              <span
-                lang="en"
-              >
-                gcweb:footer.about-site
-              </span>
-               / 
-              <span
-                lang="fr"
-              >
-                gcweb:footer.about-site
-              </span>
-            </h2>
-            <div>
-              <img
-                alt="gcweb:footer.gc-symbol / gcweb:footer.gc-symbol"
-                class="h-10 w-auto"
-                height="71"
-                src="https://www.canada.ca/etc/designs/canada/wet-boew/assets/wmms-blk.svg"
-                width="300"
-              />
-            </div>
+            <img
+              alt="gcweb:footer.gc-symbol / gcweb:footer.gc-symbol"
+              class="h-10 w-auto"
+              height="71"
+              src="https://www.canada.ca/etc/designs/canada/wet-boew/assets/wmms-blk.svg"
+              width="300"
+            />
           </div>
         </div>
       </footer>
@@ -561,27 +504,18 @@ exports[`error-boundaries > UnilingualErrorBoundary > should correctly render th
       </main>
       <footer
         class="mt-8 bg-stone-50 print:hidden"
-        id="wb-info"
-        tabindex="-1"
       >
         <div
           class="container flex items-center justify-end gap-6 py-2.5 sm:py-3.5"
         >
           <div>
-            <h2
-              class="sr-only"
-            >
-              gcweb:footer.about-site
-            </h2>
-            <div>
-              <img
-                alt="gcweb:footer.gc-symbol"
-                class="h-10 w-auto"
-                height="71"
-                src="https://www.canada.ca/etc/designs/canada/wet-boew/assets/wmms-blk.svg"
-                width="300"
-              />
-            </div>
+            <img
+              alt="gcweb:footer.gc-symbol"
+              class="h-10 w-auto"
+              height="71"
+              src="https://www.canada.ca/etc/designs/canada/wet-boew/assets/wmms-blk.svg"
+              width="300"
+            />
           </div>
         </div>
       </footer>
@@ -671,27 +605,18 @@ exports[`error-boundaries > UnilingualErrorBoundary > should correctly render th
       </main>
       <footer
         class="mt-8 bg-stone-50 print:hidden"
-        id="wb-info"
-        tabindex="-1"
       >
         <div
           class="container flex items-center justify-end gap-6 py-2.5 sm:py-3.5"
         >
           <div>
-            <h2
-              class="sr-only"
-            >
-              gcweb:footer.about-site
-            </h2>
-            <div>
-              <img
-                alt="gcweb:footer.gc-symbol"
-                class="h-10 w-auto"
-                height="71"
-                src="https://www.canada.ca/etc/designs/canada/wet-boew/assets/wmms-blk.svg"
-                width="300"
-              />
-            </div>
+            <img
+              alt="gcweb:footer.gc-symbol"
+              class="h-10 w-auto"
+              height="71"
+              src="https://www.canada.ca/etc/designs/canada/wet-boew/assets/wmms-blk.svg"
+              width="300"
+            />
           </div>
         </div>
       </footer>
@@ -769,27 +694,18 @@ exports[`error-boundaries > UnilingualNotFound > should correctly render the uni
       </main>
       <footer
         class="bg-stone-50 print:hidden"
-        id="wb-info"
-        tabindex="-1"
       >
         <div
           class="container flex items-center justify-end gap-6 py-2.5 sm:py-3.5"
         >
           <div>
-            <h2
-              class="sr-only"
-            >
-              gcweb:footer.about-site
-            </h2>
-            <div>
-              <img
-                alt="gcweb:footer.gc-symbol"
-                class="h-10 w-auto"
-                height="71"
-                src="https://www.canada.ca/etc/designs/canada/wet-boew/assets/wmms-blk.svg"
-                width="300"
-              />
-            </div>
+            <img
+              alt="gcweb:footer.gc-symbol"
+              class="h-10 w-auto"
+              height="71"
+              src="https://www.canada.ca/etc/designs/canada/wet-boew/assets/wmms-blk.svg"
+              width="300"
+            />
           </div>
         </div>
       </footer>

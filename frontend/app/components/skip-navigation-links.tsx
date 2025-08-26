@@ -10,7 +10,6 @@ export function SkipNavigationLinks() {
   return (
     <div id="skip-to-content">
       <SkipNavigationLink anchorElementId="wb-cont">{t('gcweb:nav.skip-to-content')}</SkipNavigationLink>
-      <SkipNavigationLink anchorElementId="wb-info">{t('gcweb:nav.skip-to-about')}</SkipNavigationLink>
     </div>
   );
 }
