@@ -221,29 +221,28 @@ export function EmploymentInformationForm({
                 legend={t('employment-information.wfa-status')}
               />
             </div>
+            <DatePickerField
+              defaultValue={formValues?.wfaStartDate ?? ''}
+              id="wfaStartDate"
+              legend={t('employment-information.wfa-effective-date')}
+              names={{
+                day: 'wfaStartDateDay',
+                month: 'wfaStartDateMonth',
+                year: 'wfaStartDateYear',
+              }}
+              errorMessages={{
+                all: t(extractValidationKey(formErrors?.wfaStartDate)),
+                year: t(extractValidationKey(formErrors?.wfaStartDateYear)),
+                month: t(extractValidationKey(formErrors?.wfaStartDateMonth)),
+                day: t(extractValidationKey(formErrors?.wfaStartDateDay)),
+              }}
+              required
+            />
             {(wfaStatusCode === EMPLOYEE_WFA_STATUS.opting ||
-              wfaStatusCode === EMPLOYEE_WFA_STATUS.surplusGRJO ||
-              wfaStatusCode === EMPLOYEE_WFA_STATUS.surplusOptingOptionA ||
               wfaStatusCode === EMPLOYEE_WFA_STATUS.exOpting ||
+              wfaStatusCode === EMPLOYEE_WFA_STATUS.surplusOptingOptionA ||
               wfaStatusCode === EMPLOYEE_WFA_STATUS.exSurplusCPA) && (
               <>
-                <DatePickerField
-                  defaultValue={formValues?.wfaStartDate ?? ''}
-                  id="wfaStartDate"
-                  legend={t('employment-information.wfa-effective-date')}
-                  names={{
-                    day: 'wfaStartDateDay',
-                    month: 'wfaStartDateMonth',
-                    year: 'wfaStartDateYear',
-                  }}
-                  errorMessages={{
-                    all: t(extractValidationKey(formErrors?.wfaStartDate)),
-                    year: t(extractValidationKey(formErrors?.wfaStartDateYear)),
-                    month: t(extractValidationKey(formErrors?.wfaStartDateMonth)),
-                    day: t(extractValidationKey(formErrors?.wfaStartDateDay)),
-                  }}
-                  required
-                />
                 <DatePickerField
                   defaultValue={formValues?.wfaEndDate ?? ''}
                   id="wfaEndDate"

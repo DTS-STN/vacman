@@ -3,7 +3,7 @@ export const EMPLOYEE_WFA_STATUS = {
   affected: 'AFFECTED',
   exAffected: 'EXAFFECTED',
   opting: 'OPTING',
-  exOpting: 'EXOPTING',
+  exOpting: 'OPTING_EX',
   surplusGRJO: 'SURPLUS_GRJO',
   exSurplusCPA: 'EXSURPLUSCPA',
   surplusOptingOptionA: 'SURPLUS_NO_GRJO',

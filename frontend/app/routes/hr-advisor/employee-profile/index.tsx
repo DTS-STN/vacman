@@ -312,9 +312,8 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
                 {loaderData.employmentInformation.wfaStatus ?? t('app:employee-profile.not-provided')}
               </DescriptionListItem>
               {(loaderData.employmentInformation.wfaStatusCode === EMPLOYEE_WFA_STATUS.opting ||
-                loaderData.employmentInformation.wfaStatusCode === EMPLOYEE_WFA_STATUS.surplusGRJO ||
-                loaderData.employmentInformation.wfaStatusCode === EMPLOYEE_WFA_STATUS.surplusOptingOptionA ||
                 loaderData.employmentInformation.wfaStatusCode === EMPLOYEE_WFA_STATUS.exOpting ||
+                loaderData.employmentInformation.wfaStatusCode === EMPLOYEE_WFA_STATUS.surplusOptingOptionA ||
                 loaderData.employmentInformation.wfaStatusCode === EMPLOYEE_WFA_STATUS.exSurplusCPA) && (
                 <>
                   <DescriptionListItem term={t('app:employment-information.wfa-effective-date')}>
