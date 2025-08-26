@@ -235,3 +235,89 @@ export type ProfileQueryParams = {
   'active'?: boolean;
   'hr-advisor'?: string;
 };
+
+// Request Status Model
+export type RequestStatusReadModel = LookupModel;
+
+// Request Create Model
+export type RequestCreateModel = Readonly<{
+  selectionProcessNumber?: string;
+  workforceManagementApproved?: boolean;
+  priorityEntitlement: boolean;
+  priorityEntitlementRationale?: string;
+  selectionProcessTypeId: number;
+  performedSameDuties: boolean;
+  nonAdvertisedAppointmentId: number;
+  projectedStartDate: string; // ISO date string
+  projectedEndDate: string; // ISO date string
+  workScheduleId: number;
+  equityNeeded: boolean;
+  employmentEquityIds?: number[];
+  positionNumbers: string[];
+  classificationId: number;
+  englishTitle: string;
+  frenchTitle: string;
+  provinceId: number;
+  languageRequirementId: number;
+  englishLanguageProfile: string;
+  frenchLanguageProfile: string;
+  securityClearanceId: number;
+  englishStatementOfMerit: string;
+  frenchStatementOfMerit: string;
+}>;
+
+// Request Read Model
+export type RequestReadModel = Readonly<{
+  id: number;
+  selectionProcessNumber?: string;
+  workforceManagementApproved?: boolean;
+  priorityEntitlement: boolean;
+  priorityEntitlementRationale?: string;
+  selectionProcessTypeId: number;
+  performedSameDuties: boolean;
+  nonAdvertisedAppointmentId: number;
+  projectedStartDate: string; // ISO date string
+  projectedEndDate: string; // ISO date string
+  workScheduleId: number;
+  equityNeeded: boolean;
+  employmentEquityIds?: number[];
+  positionNumbers: string[];
+  classificationId: number;
+  englishTitle: string;
+  frenchTitle: string;
+  provinceId: number;
+  languageRequirementId: number;
+  englishLanguageProfile: string;
+  frenchLanguageProfile: string;
+  securityClearanceId: number;
+  englishStatementOfMerit: string;
+  frenchStatementOfMerit: string;
+  status: RequestStatusReadModel;
+  createdBy?: string;
+  createdDate?: string; // ISO date string
+  lastModifiedBy?: string;
+  lastModifiedDate?: string; // ISO date string
+}>;
+
+// Request Update Model (same structure as Create but all fields optional for PATCH)
+export type RequestUpdateModel = Partial<RequestCreateModel>;
+
+// Request Response Models
+export type PagedRequestResponse = Readonly<{
+  content: RequestReadModel[];
+  page: PageMetadata;
+}>;
+
+export type CollectionRequestResponse = Readonly<{
+  content: RequestReadModel[];
+}>;
+
+// API Query Parameters for Requests
+export type RequestQueryParams = {
+  page?: number;
+  size?: number;
+  sort?: string[];
+  status?: string;
+  classification?: string;
+  province?: string;
+};
