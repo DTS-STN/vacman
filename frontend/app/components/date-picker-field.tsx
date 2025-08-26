@@ -36,6 +36,7 @@ type DatePickerDefaultValue = string | { year?: string; month?: string; day?: st
  * Props for the DatePickerField component
  */
 export interface DatePickerFieldProps {
+  ariaDescribedbyId?: string;
   defaultValue?: DatePickerDefaultValue;
   disabled?: boolean;
   errorMessages?: {
@@ -65,6 +66,7 @@ export interface DatePickerFieldProps {
  * @returns JSX.Element
  */
 export const DatePickerField = ({
+  ariaDescribedbyId,
   defaultValue,
   disabled,
   errorMessages,
@@ -175,7 +177,7 @@ export const DatePickerField = ({
 
   return (
     <div id={ids.wrapper}>
-      <fieldset className="space-y-2">
+      <fieldset className="space-y-2" aria-describedby={ariaDescribedbyId}>
         <InputLegend id={ids.legend} required={required}>
           {legend}
         </InputLegend>
