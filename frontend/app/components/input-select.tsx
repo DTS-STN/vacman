@@ -37,9 +37,11 @@ export function InputSelect(props: InputSelectProps) {
 
   return (
     <fieldset id={inputWrapperId} data-testid={inputWrapperId} aria-describedby={ariaDescribedbyId}>
-      <InputLabel id={inputLabelId} htmlFor={id} className="mb-2" required={required}>
-        {label}
-      </InputLabel>
+      {label && (
+        <InputLabel id={inputLabelId} htmlFor={id} className="mb-2" required={required}>
+          {label}
+        </InputLabel>
+      )}
       {errorMessage && (
         <p className="mb-2">
           <InputError id={inputErrorId}>{errorMessage}</InputError>
@@ -50,7 +52,7 @@ export function InputSelect(props: InputSelectProps) {
         aria-describedby={helpMessage ? inputHelpMessageId : undefined}
         aria-errormessage={errorMessage && inputErrorId}
         aria-invalid={!!errorMessage}
-        aria-labelledby={inputLabelId}
+        aria-labelledby={label ? inputLabelId : undefined}
         aria-required={required}
         className={cn(inputBaseClassName, inputDisabledClassName, errorMessage && inputErrorClassName, className)}
         data-testid={inputTestId}
