@@ -232,7 +232,7 @@ export default {
   },
   'hiring-manager-dashboard': {
     'page-title': 'Tableau de bord du responsable du recrutement',
-    'page-heading': 'Débuter',
+    'page-heading': 'Tableau de bord du responsable du recrutement',
     'requests': 'Demandes',
   },
   'hiring-manager-requests': {

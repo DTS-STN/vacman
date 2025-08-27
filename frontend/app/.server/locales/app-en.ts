@@ -229,7 +229,7 @@ export default {
   },
   'hiring-manager-dashboard': {
     'page-title': 'Hiring manager dashboard',
-    'page-heading': 'Get started',
+    'page-heading': 'Hiring manager dashboard',
     'requests': 'Requests',
   },
   'hiring-manager-requests': {
