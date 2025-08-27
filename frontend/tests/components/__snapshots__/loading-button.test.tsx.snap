@@ -23,7 +23,7 @@ exports[`LoadingButton > renders the custom loading icon > expected html 1`] = `
     </span>
     <svg
       aria-hidden="true"
-      class="svg-inline--fa fa-check ms-1 fa-spin fa-fw"
+      class="svg-inline--fa fa-check fa-spin fa-fw ms-1"
       data-icon="check"
       data-prefix="fas"
       role="img"
@@ -49,7 +49,7 @@ exports[`LoadingButton > renders the loading spinner at the end position > expec
     </span>
     <svg
       aria-hidden="true"
-      class="svg-inline--fa fa-spinner ms-1 animate-spin fa-spin fa-fw"
+      class="svg-inline--fa fa-spinner fa-spin fa-fw ms-1 animate-spin"
       data-icon="spinner"
       data-prefix="fas"
       role="img"
@@ -72,7 +72,7 @@ exports[`LoadingButton > renders the loading spinner at the start position > exp
   >
     <svg
       aria-hidden="true"
-      class="svg-inline--fa fa-spinner me-1 animate-spin fa-spin fa-fw"
+      class="svg-inline--fa fa-spinner fa-spin fa-fw me-1 animate-spin"
       data-icon="spinner"
       data-prefix="fas"
       role="img"
