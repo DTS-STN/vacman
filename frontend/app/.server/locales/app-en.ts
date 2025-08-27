@@ -179,9 +179,13 @@ export default {
       'alternate-opportunity-required': 'Alternation opportunities (confirmation of interest) is required.',
     },
   },
+  'employee-dashboard': {
+    'page-title': 'Employee dashboard',
+    'page-heading': 'Employee dashboard',
+  },
   'hr-advisor-dashboard': {
     'page-title': 'HR advisor dashboard',
-    'page-heading': 'Get started',
+    'page-heading': 'HR advisor dashboard',
     'employees': 'Employees',
   },
   'hr-advisor-employees-table': {
@@ -203,7 +207,7 @@ export default {
   },
   'hiring-manager-dashboard': {
     'page-title': 'Hiring manager dashboard',
-    'page-heading': 'Get started',
+    'page-heading': 'Hiring manager dashboard',
     'requests': 'Requests',
   },
   'hiring-manager-requests': {
