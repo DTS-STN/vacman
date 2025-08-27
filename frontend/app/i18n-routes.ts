@@ -202,7 +202,7 @@ export const i18nRoutes = [
         file: 'routes/hr-advisor/employee-profile/referral-preferences.tsx',
         paths: {
           en: '/en/hr-advisor/employee-profile/referral-preferences/:profileId',
-          fr: '/fr/hr-advisor/employe-profil/preferences-de-reference/:profileId',
+          fr: '/fr/hr-advisor/employe-profil/preferences-de-presentation-de-canditure/:profileId',
         },
       },
       {
