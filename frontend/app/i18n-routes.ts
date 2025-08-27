@@ -154,7 +154,7 @@ export const i18nRoutes = [
         file: 'routes/employee/profile/referral-preferences.tsx',
         paths: {
           en: '/en/employee/profile/referral-preferences',
-          fr: '/fr/employe/profil/preferences-de-reference',
+          fr: '/fr/employe/profil/preferences-de-presentation-de-canditure',
         },
       },
       {
