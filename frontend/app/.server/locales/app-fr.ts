@@ -223,6 +223,8 @@ export default {
     'next-page': 'Suivant',
     'filter-by': "Tableau de filtrage par tous les employés ou profil qui m'est attribué",
     'view-link': 'Afficher les informations de profil pour {{profileUserName}} ',
+    'table-updated-my-employees': 'Tableau mis à jour : affichage de Mes employé-e-s',
+    'table-updated-all-employees': 'Tableau mis à jour : affichage de Liste complète des employé-e-s',
   },
   'hiring-manager-dashboard': {
     'page-title': 'Tableau de bord du responsable du recrutement',
