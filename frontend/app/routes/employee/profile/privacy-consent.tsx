@@ -71,7 +71,7 @@ export async function action({ context, request }: Route.ActionArgs) {
 export async function loader({ context, request }: Route.LoaderArgs) {
   requireAuthentication(context.session, request);
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
-  return { documentTitle: t('app:index.register-as'), lang: lang };
+  return { documentTitle: t('app:privacy-consent.privacy-notice-statement'), lang: lang };
 }
 
 export default function PrivacyConsent({ loaderData }: Route.ComponentProps) {
