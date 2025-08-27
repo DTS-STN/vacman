@@ -8,7 +8,7 @@ exports[`InputField > should render input field component > expected html 1`] = 
   >
     <label
       class="block"
-      for="test-id"
+      for="input-text-field-test-id-input"
       id="input-text-field-test-id-label"
     >
       <span
@@ -37,7 +37,7 @@ exports[`InputField > should render input field with error message > expected ht
   >
     <label
       class="block"
-      for="test-id"
+      for="input-text-field-test-id-input"
       id="input-text-field-test-id-label"
     >
       <span
@@ -78,7 +78,7 @@ exports[`InputField > should render input field with help message > expected htm
   >
     <label
       class="block"
-      for="test-id"
+      for="input-text-field-test-id-input"
       id="input-text-field-test-id-label"
     >
       <span
@@ -115,7 +115,7 @@ exports[`InputField > should render input field with required > expected html 1`
   >
     <label
       class="block"
-      for="test-id"
+      for="input-text-field-test-id-input"
       id="input-text-field-test-id-label"
     >
       <span
