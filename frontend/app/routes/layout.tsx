@@ -29,7 +29,6 @@ export async function loader({ context, request }: Route.LoaderArgs) {
   // TODO uncomment when registration-utils.ts is updated; commented only for development
   // await checkHiringManagerRouteRegistration(context.session, request);
 
-  // Check hr-advisor registration for hr-advisor routes
   await checkHrAdvisorRouteRegistration(context.session, request);
 
   return { name: context.session.authState.idTokenClaims.name };
@@ -38,8 +37,11 @@ export async function loader({ context, request }: Route.LoaderArgs) {
 export default function Layout({ loaderData }: Route.ComponentProps) {
   const { currentLanguage } = useLanguage();
   const { t } = useTranslation(['gcweb', 'app']);
-  const { id: pageId } = useRoute();
+  const { id: pageId, file: currentFile } = useRoute();
   const layoutHasDecorativeBackground = uselayoutHasDecorativeBackground();
+
+  // Check if current route is the employee dashboard for aria-current
+  const isEmployeeDashboard = currentFile === 'routes/employee/index.tsx';
 
   const { BUILD_DATE, BUILD_VERSION } = globalThis.__appEnvironment;
   return (
@@ -63,7 +65,11 @@ export default function Layout({ loaderData }: Route.ComponentProps) {
         </div>
         <AppBar
           name={loaderData.name?.toString()}
-          profileItems={<MenuItem file="routes/employee/index.tsx">{t('app:index.dashboard')}</MenuItem>}
+          profileItems={
+            <MenuItem file="routes/employee/index.tsx" aria-current={isEmployeeDashboard ? 'page' : undefined}>
+              {t('app:index.dashboard')}
+            </MenuItem>
+          }
         ></AppBar>
       </header>
 
