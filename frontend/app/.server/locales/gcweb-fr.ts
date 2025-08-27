@@ -99,6 +99,11 @@ export default {
       'next-page': 'Aller à la page suivante',
       'last-page': 'Aller à la dernière page',
     },
+    'sorting': {
+      'sorted-ascending': '{{column}}, trié en ordre croissant. Cliquez pour trier en ordre décroissant.',
+      'sorted-descending': '{{column}}, trié en ordre décroissant. Cliquez pour supprimer le tri.',
+      'not-sorted': '{{column}}, non trié. Cliquez pour trier en ordre croissant.',
+    },
   },
   'search-bar': {
     search: 'Rechercher',
