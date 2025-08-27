@@ -220,6 +220,8 @@ export default {
     'next-page': 'Next',
     'filter-by': 'Filter table by all employees or profile assigned to me',
     'view-link': 'View profile information for {{profileUserName}}',
+    'table-updated-my-employees': 'Table updated: showing My Employees',
+    'table-updated-all-employees': 'Table updated: showing All Employees',
   },
   'hiring-manager-dashboard': {
     'page-title': 'Hiring manager dashboard',
