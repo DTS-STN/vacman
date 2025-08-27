@@ -25,13 +25,13 @@ import { InputLegend } from '~/components/input-legend';
 import type { InputRadiosProps } from '~/components/input-radios';
 import { InputRadios } from '~/components/input-radios';
 import { InputSelect } from '~/components/input-select';
-import { LANGUAGE_PROFICIENCY_LEVELS, LANGUAGE_REQUIREMENT_CODES } from '~/domain/constants';
+import { LANGUAGE_LEVEL, LANGUAGE_REQUIREMENT_CODES } from '~/domain/constants';
 import type { I18nRouteFile } from '~/i18n-routes';
 import type { Errors } from '~/routes/page-components/employees/validation.server';
 import { extractValidationKey } from '~/utils/validation-utils';
 
 export type PositionInformation = {
-  positionNumber: string;
+  positionNumber: string[];
   groupAndLevel: Classification;
   titleEn: string;
   titleFr: string;
@@ -84,6 +84,11 @@ export function PositionInformationForm({
   const groupAndLevelOptions = [{ id: 'select-option', name: '' }, ...classifications].map(({ id, name }) => ({
     value: id === 'select-option' ? '' : String(id),
     children: id === 'select-option' ? t('form.select-option') : name,
+  }));
+
+  const languageLevelOptions = [{ id: 'select-option', value: '' }, ...LANGUAGE_LEVEL].map(({ id, value }) => ({
+    value: id === 'select-option' ? '' : String(id),
+    children: id === 'select-option' ? t('form.select') : value,
   }));
 
   const provinceOptions = [{ id: 'select-option', name: '' }, ...provinces].map(({ id, name }) => ({
@@ -191,35 +196,63 @@ export function PositionInformationForm({
               languageRequirementCode === LANGUAGE_REQUIREMENT_CODES.bilingualNonImperative) && (
               <>
                 <InputLegend required>{t('position-information.language-profile')}</InputLegend>
-                <h3>{t('position-information.reading-comprehension')}</h3>
-                <div className="flex">
+                <h3 className="font-semibold">{t('position-information.reading-comprehension')}</h3>
+                <div className="flex space-x-2">
                   <InputSelect
-                    id="reading-comprehension-en"
-                    name="readingComprehensionEn"
+                    id="reading-en"
+                    name="readingEn"
                     label={t('position-information.english')}
-                    options={[
-                      { value: 1, children: 'A' },
-                      { value: 2, children: 'B' },
-                      { value: 3, children: 'C' },
-                      { value: 4, children: 'P' },
-                    ]}
-                    errorMessage={t(extractValidationKey(formErrors?.readingComprehension))}
+                    className="w-32"
+                    options={languageLevelOptions}
+                    errorMessage={t(extractValidationKey(formErrors?.readingComprehensionEn))}
                   />
                   <InputSelect
-                    id="reading-comprehension-fr"
-                    name="readingComprehensionFr"
+                    id="reading-fr"
+                    name="readingFr"
                     label={t('position-information.french')}
-                    options={[
-                      { value: 1, children: 'A' },
-                      { value: 2, children: 'B' },
-                      { value: 3, children: 'C' },
-                      { value: 4, children: 'P' },
-                    ]}
-                    errorMessage={t(extractValidationKey(formErrors?.readingComprehension))}
+                    className="w-32"
+                    options={languageLevelOptions}
+                    errorMessage={t(extractValidationKey(formErrors?.readingComprehensionFr))}
                   />
                 </div>
-                <h3>{t('position-information.written-expression')}</h3>
-                <h3>{t('position-information.oral-proficiency')}</h3>
+                <h3 className="font-semibold">{t('position-information.written-expression')}</h3>
+                <div className="flex space-x-2">
+                  <InputSelect
+                    id="writing-en"
+                    name="writingEn"
+                    label={t('position-information.english')}
+                    className="w-32"
+                    options={languageLevelOptions}
+                    errorMessage={t(extractValidationKey(formErrors?.writtenExpressionEn))}
+                  />
+                  <InputSelect
+                    id="writing-fr"
+                    name="writingFr"
+                    label={t('position-information.french')}
+                    className="w-32"
+                    options={languageLevelOptions}
+                    errorMessage={t(extractValidationKey(formErrors?.writtenExpressionFr))}
+                  />
+                </div>
+                <h3 className="font-semibold">{t('position-information.oral-proficiency')}</h3>
+                <div className="flex space-x-2">
+                  <InputSelect
+                    id="oral-en"
+                    name="oralEn"
+                    label={t('position-information.english')}
+                    className="w-32"
+                    options={languageLevelOptions}
+                    errorMessage={t(extractValidationKey(formErrors?.oralProficiencyEn))}
+                  />
+                  <InputSelect
+                    id="oral-fr"
+                    name="oralFr"
+                    label={t('position-information.french')}
+                    className="w-32"
+                    options={languageLevelOptions}
+                    errorMessage={t(extractValidationKey(formErrors?.oralProficiencyFr))}
+                  />
+                </div>
               </>
             )}
             <InputRadios

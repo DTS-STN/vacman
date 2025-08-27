@@ -161,3 +161,10 @@ export const LANGUAGE_REQUIREMENT_CODES = {
   either: 'EF-AF',
   various: 'VAR',
 } as const;
+
+export const LANGUAGE_LEVEL = [
+  { id: 1, value: 'A' },
+  { id: 2, value: 'B' },
+  { id: 3, value: 'C' },
+  { id: 4, value: 'P' },
+] as const;

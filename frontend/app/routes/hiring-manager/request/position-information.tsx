@@ -1,4 +1,7 @@
+import { data } from 'react-router';
 import type { RouteHandle } from 'react-router';
+
+import * as v from 'valibot';
 
 import type { Route } from './+types/position-information';
 
@@ -9,10 +12,14 @@ import { getProvinceService } from '~/.server/domain/services/province-service';
 import { getSecurityClearanceService } from '~/.server/domain/services/security-clearance-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { requirePrivacyConsentForOwnProfile } from '~/.server/utils/privacy-consent-utils';
+import { i18nRedirect } from '~/.server/utils/route-utils';
 import { BackLink } from '~/components/back-link';
+import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
 import { PositionInformationForm } from '~/routes/page-components/employees/position-information/form';
+import { positionInformationSchema } from '~/routes/page-components/employees/validation.server';
+import { formString } from '~/utils/string-utils';
 
 export const handle = {
   i18nNamespace: [...parentHandle.i18nNamespace],
@@ -26,6 +33,33 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   requireAuthentication(context.session, request);
 
   const formData = await request.formData();
+  const parseResult = v.safeParse(positionInformationSchema, {
+    positionNumber: formString(formData.get('positionNumber')),
+    groupAndLevel: formString(formData.get('groupAndLevel')),
+    titleEn: formString(formData.get('titleEn')),
+    titleFr: formString(formData.get('titleFr')),
+    province: formString(formData.get('province')),
+    city: formString(formData.get('city')),
+    languageRequirement: formString(formData.get('languageRequirement')),
+    readingComprehensionEn: formString(formData.get('readingEn')),
+    readingComprehensionFr: formString(formData.get('readingFr')),
+    writtenExpressionEn: formString(formData.get('writingEn')),
+    writtenExpressionFr: formString(formData.get('writingFr')),
+    oralProficiencyEn: formString(formData.get('speakingEn')),
+    oralProficiencyFr: formString(formData.get('speakingFr')),
+    securityRequirement: formString(formData.get('securityRequirement')),
+  });
+
+  if (!parseResult.success) {
+    return data(
+      { errors: v.flatten<typeof positionInformationSchema>(parseResult.issues).nested },
+      { status: HttpStatusCodes.BAD_REQUEST },
+    );
+  }
+
+  //TODO: call request service to update data
+
+  return i18nRedirect('routes/hiring-manager/request/index.tsx', request);
 }
 
 export async function loader({ context, request, params }: Route.LoaderArgs) {
@@ -40,10 +74,12 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const localizedCities = await getCityService().listAllLocalized(lang);
   const localizedSecurityClearances = await getSecurityClearanceService().listAllLocalized(lang);
 
+  //TODO: Call service method to fetch request data and populate form fields
+
   return {
     documentTitle: t('app:position-information.page-title'),
     defaultValues: {
-      positionNumber: '',
+      positionNumber: [],
       groupAndLevel: undefined,
       titleEn: '',
       titleFr: '',
@@ -64,7 +100,12 @@ export default function HiringManagerRequestPositionInformation({ loaderData, ac
 
   return (
     <>
-      <BackLink className="mt-6" file="routes/hiring-manager/request/index.tsx" params={params} />
+      <BackLink
+        className="mt-6"
+        translationKey="app:hiring-manager-requests.back"
+        file="routes/hiring-manager/request/index.tsx"
+        params={params}
+      />
       <div className="max-w-prose">
         <PositionInformationForm
           cancelLink={'routes/hiring-manager/request/index.tsx'}

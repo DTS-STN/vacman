@@ -91,6 +91,7 @@ export default {
     'save': 'Save',
     'save-and-exit': 'Save and exit',
     'submit': 'Submit',
+    'select': 'Select',
     'select-option': 'Select option',
     'select-all-that-apply': 'Select all that apply',
     'maximum-characters': 'maximum characters',
@@ -234,6 +235,7 @@ export default {
     'no-active-requests': "You don't have any active requests at the moment.",
     'archived-requests': 'Archived requests',
     'no-archived-requests': "You don't have any archived requests at the moment.",
+    'back': 'Back to request details',
   },
   'position-information': {
     'page-title': 'Position information',
@@ -252,5 +254,22 @@ export default {
     'french': 'French',
     'language-requirement': 'Language requirement',
     'security-requirement': 'Security requirement',
+    'errors': {
+      // TODO: error messages need to be updated when available
+      'position-number-required': 'Position number is required.',
+      'group-and-level-required': 'Group and level is required.',
+      'title-en-required': 'Title in English is required.',
+      'title-fr-required': 'Title in French is required.',
+      'directorate-required': 'Directorate is required.',
+      'provinces-required': 'Province is required.',
+      'city-required': 'City is required.',
+      'language-requirement-required': 'Language requirement is required.',
+      'language-profile': {
+        'reading-comprehension-required': 'Reading comprehension is required.',
+        'written-expression-required': 'Written expression is required.',
+        'oral-proficiency-required': 'Oral proficiency is required.',
+      },
+      'security-requirement-required': 'Security requirement is required.',
+    },
   },
 };
