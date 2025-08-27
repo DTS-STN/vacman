@@ -59,7 +59,7 @@
     "ioredis": "^5.7.0",
     "isbot": "^5.1.30",
     "jose": "^6.0.13",
-    "libphonenumber-js": "^1.12.13",
+    "libphonenumber-js": "^1.12.14",
     "minimatch": "^10.0.3",
     "morgan": "^1.10.1",
     "oauth4webapi": "^3.7.0",
