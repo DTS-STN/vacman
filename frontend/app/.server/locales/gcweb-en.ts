@@ -97,6 +97,11 @@ export default {
       'next-page': 'Go to next page',
       'last-page': 'Go to last page',
     },
+    'sorting': {
+      'sorted-ascending': '{{column}}, sorted ascending. Click to sort descending.',
+      'sorted-descending': '{{column}}, sorted descending. Click to remove sorting.',
+      'not-sorted': '{{column}}, not sorted. Click to sort ascending.',
+    },
   },
   'search-bar': {
     search: 'Search',
