@@ -207,6 +207,7 @@ export function ReferralPreferencesForm({
               </InputLegend>
               <InputHelp id="workLocationHelpMessage">{tApp('form.select-all-that-apply')}</InputHelp>
               <InputSelect
+                ariaDescribedbyId="workLocationHelpMessage"
                 className="w-full sm:w-1/2"
                 id="preferred-province"
                 name="preferredProvince"

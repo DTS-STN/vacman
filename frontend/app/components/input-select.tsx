@@ -16,6 +16,7 @@ export interface InputSelectProps
     ComponentProps<'select'>,
     'aria-describedby' | 'aria-errormessage' | 'aria-invalid' | 'aria-labelledby' | 'aria-required'
   > {
+  ariaDescribedbyId?: string;
   errorMessage?: string;
   helpMessage?: ReactNode;
   id: string;
@@ -25,7 +26,8 @@ export interface InputSelectProps
 }
 
 export function InputSelect(props: InputSelectProps) {
-  const { errorMessage, helpMessage, id, label, options, className, ref, required, ...restInputProps } = props;
+  const { ariaDescribedbyId, errorMessage, helpMessage, id, label, options, className, ref, required, ...restInputProps } =
+    props;
 
   const inputErrorId = `input-${id}-error`;
   const inputHelpMessageId = `input-${id}-help`;
@@ -34,7 +36,7 @@ export function InputSelect(props: InputSelectProps) {
   const inputWrapperId = `input-${id}`;
 
   return (
-    <div id={inputWrapperId} data-testid={inputWrapperId}>
+    <fieldset id={inputWrapperId} data-testid={inputWrapperId} aria-describedby={ariaDescribedbyId}>
       <InputLabel id={inputLabelId} htmlFor={id} className="mb-2" required={required}>
         {label}
       </InputLabel>
@@ -66,6 +68,6 @@ export function InputSelect(props: InputSelectProps) {
           {helpMessage}
         </InputHelp>
       )}
-    </div>
+    </fieldset>
   );
 }

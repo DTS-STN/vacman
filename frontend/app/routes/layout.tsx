@@ -101,19 +101,16 @@ export default function Layout({ loaderData }: Route.ComponentProps) {
         </div>
       </main>
 
-      <footer id="wb-info" tabIndex={-1} className="mt-auto bg-stone-50 print:hidden">
+      <footer className="mt-auto bg-stone-50 print:hidden">
         <div className="container flex items-center justify-end gap-6 py-2.5 sm:py-3.5">
           <div>
-            <h2 className="sr-only">{t('gcweb:footer.about-site')}</h2>
-            <div>
-              <img
-                src="https://www.canada.ca/etc/designs/canada/wet-boew/assets/wmms-blk.svg"
-                alt={t('gcweb:footer.gc-symbol')}
-                width={300}
-                height={71}
-                className="h-10 w-auto"
-              />
-            </div>
+            <img
+              src="https://www.canada.ca/etc/designs/canada/wet-boew/assets/wmms-blk.svg"
+              alt={t('gcweb:footer.gc-symbol')}
+              width={300}
+              height={71}
+              className="h-10 w-auto"
+            />
           </div>
         </div>
       </footer>

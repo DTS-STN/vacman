@@ -20,6 +20,7 @@ import { Button } from '~/components/button';
 import { ButtonLink } from '~/components/button-link';
 import { DatePickerField } from '~/components/date-picker-field';
 import { FormErrorSummary } from '~/components/error-summary';
+import { InputLegend } from '~/components/input-legend';
 import type { InputRadiosProps } from '~/components/input-radios';
 import { InputRadios } from '~/components/input-radios';
 import { InputSelect } from '~/components/input-select';
@@ -210,67 +211,76 @@ export function EmploymentInformationForm({
             )}
 
             <h2 className="font-lato text-2xl font-bold">{t('employment-information.wfa-detils-heading')}</h2>
-            <p>{t('employment-information.wfa-detils')}</p>
-            <div className="w-full sm:w-1/2">
-              <InputRadios
-                id="wfaStatus"
-                name="wfaStatus"
-                errorMessage={t(extractValidationKey(formErrors?.wfaStatusId))}
-                required
-                options={wfaStatusOptions}
-                legend={t('employment-information.wfa-status')}
-              />
-            </div>
-            <DatePickerField
-              defaultValue={formValues?.wfaStartDate ?? ''}
-              id="wfaStartDate"
-              legend={t('employment-information.wfa-effective-date')}
-              names={{
-                day: 'wfaStartDateDay',
-                month: 'wfaStartDateMonth',
-                year: 'wfaStartDateYear',
-              }}
-              errorMessages={{
-                all: t(extractValidationKey(formErrors?.wfaStartDate)),
-                year: t(extractValidationKey(formErrors?.wfaStartDateYear)),
-                month: t(extractValidationKey(formErrors?.wfaStartDateMonth)),
-                day: t(extractValidationKey(formErrors?.wfaStartDateDay)),
-              }}
-              required
-            />
-            {(wfaStatusCode === EMPLOYEE_WFA_STATUS.opting ||
-              wfaStatusCode === EMPLOYEE_WFA_STATUS.exOpting ||
-              wfaStatusCode === EMPLOYEE_WFA_STATUS.surplusOptingOptionA ||
-              wfaStatusCode === EMPLOYEE_WFA_STATUS.exSurplusCPA) && (
-              <>
-                <DatePickerField
-                  defaultValue={formValues?.wfaEndDate ?? ''}
-                  id="wfaEndDate"
-                  legend={t('employment-information.wfa-end-date')}
-                  names={{
-                    day: 'wfaEndDateDay',
-                    month: 'wfaEndDateMonth',
-                    year: 'wfaEndDateYear',
-                  }}
-                  errorMessages={{
-                    all: t(extractValidationKey(formErrors?.wfaEndDate)),
-                    year: t(extractValidationKey(formErrors?.wfaEndDateYear)),
-                    month: t(extractValidationKey(formErrors?.wfaEndDateMonth)),
-                    day: t(extractValidationKey(formErrors?.wfaEndDateDay)),
-                  }}
+            <fieldset id="wfaDetilsFieldset" className="space-y-6">
+              <InputLegend id="wfaDetilsLegend" childrenClassName="font-normal">
+                {t('employment-information.wfa-detils')}
+              </InputLegend>
+              <div className="w-full sm:w-1/2">
+                <InputRadios
+                  ariaDescribedbyId="wfaDetilsLegend"
+                  id="wfaStatus"
+                  name="wfaStatus"
+                  errorMessage={t(extractValidationKey(formErrors?.wfaStatusId))}
+                  required
+                  options={wfaStatusOptions}
+                  legend={t('employment-information.wfa-status')}
                 />
-              </>
-            )}
-            <InputSelect
-              id="hrAdvisorId"
-              name="hrAdvisorId"
-              errorMessage={t(extractValidationKey(formErrors?.hrAdvisorId))}
-              required
-              options={hrAdvisorOptions}
-              label={t('employment-information.hr-advisor')}
-              defaultValue={formValues?.hrAdvisorId ? String(formValues.hrAdvisorId) : ''}
-              className="w-full sm:w-1/2"
-            />
+              </div>
+              <DatePickerField
+                ariaDescribedbyId="wfaDetilsLegend"
+                defaultValue={formValues?.wfaStartDate ?? ''}
+                id="wfaStartDate"
+                legend={t('employment-information.wfa-effective-date')}
+                names={{
+                  day: 'wfaStartDateDay',
+                  month: 'wfaStartDateMonth',
+                  year: 'wfaStartDateYear',
+                }}
+                errorMessages={{
+                  all: t(extractValidationKey(formErrors?.wfaStartDate)),
+                  year: t(extractValidationKey(formErrors?.wfaStartDateYear)),
+                  month: t(extractValidationKey(formErrors?.wfaStartDateMonth)),
+                  day: t(extractValidationKey(formErrors?.wfaStartDateDay)),
+                }}
+                required
+              />
+              {(wfaStatusCode === EMPLOYEE_WFA_STATUS.opting ||
+                wfaStatusCode === EMPLOYEE_WFA_STATUS.exOpting ||
+                wfaStatusCode === EMPLOYEE_WFA_STATUS.surplusOptingOptionA ||
+                wfaStatusCode === EMPLOYEE_WFA_STATUS.exSurplusCPA) && (
+                <>
+                  <DatePickerField
+                    ariaDescribedbyId="wfaDetilsLegend"
+                    defaultValue={formValues?.wfaEndDate ?? ''}
+                    id="wfaEndDate"
+                    legend={t('employment-information.wfa-end-date')}
+                    names={{
+                      day: 'wfaEndDateDay',
+                      month: 'wfaEndDateMonth',
+                      year: 'wfaEndDateYear',
+                    }}
+                    errorMessages={{
+                      all: t(extractValidationKey(formErrors?.wfaEndDate)),
+                      year: t(extractValidationKey(formErrors?.wfaEndDateYear)),
+                      month: t(extractValidationKey(formErrors?.wfaEndDateMonth)),
+                      day: t(extractValidationKey(formErrors?.wfaEndDateDay)),
+                    }}
+                  />
+                </>
+              )}
+              <InputSelect
+                ariaDescribedbyId="wfaDetilsLegend"
+                id="hrAdvisorId"
+                name="hrAdvisorId"
+                errorMessage={t(extractValidationKey(formErrors?.hrAdvisorId))}
+                required
+                options={hrAdvisorOptions}
+                label={t('employment-information.hr-advisor')}
+                defaultValue={formValues?.hrAdvisorId ? String(formValues.hrAdvisorId) : ''}
+                className="w-full sm:w-1/2"
+              />
+            </fieldset>
+
             <div className="mt-8 flex flex-row-reverse flex-wrap items-center justify-end gap-3">
               <Button name="action" variant="primary" id="save-button">
                 {t('form.save')}

@@ -2,7 +2,7 @@
 
 exports[`InputSelect > should render input select component > expected html 1`] = `
 <div>
-  <div
+  <fieldset
     data-testid="input-some-id"
     id="input-some-id"
   >
@@ -41,13 +41,13 @@ exports[`InputSelect > should render input select component > expected html 1`] 
         second option
       </option>
     </select>
-  </div>
+  </fieldset>
 </div>
 `;
 
 exports[`InputSelect > should render input select component with error message > expected html 1`] = `
 <div>
-  <div
+  <fieldset
     data-testid="input-some-id"
     id="input-some-id"
   >
@@ -99,13 +99,13 @@ exports[`InputSelect > should render input select component with error message >
         second option
       </option>
     </select>
-  </div>
+  </fieldset>
 </div>
 `;
 
 exports[`InputSelect > should render input select component with help message > expected html 1`] = `
 <div>
-  <div
+  <fieldset
     data-testid="input-some-id"
     id="input-some-id"
   >
@@ -152,13 +152,13 @@ exports[`InputSelect > should render input select component with help message > 
     >
       help message
     </div>
-  </div>
+  </fieldset>
 </div>
 `;
 
 exports[`InputSelect > should render input select component with required > expected html 1`] = `
 <div>
-  <div
+  <fieldset
     data-testid="input-some-id"
     id="input-some-id"
   >
@@ -207,6 +207,6 @@ exports[`InputSelect > should render input select component with required > expe
         second option
       </option>
     </select>
-  </div>
+  </fieldset>
 </div>
 `;

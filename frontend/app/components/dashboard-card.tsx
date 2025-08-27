@@ -27,7 +27,7 @@ export function DashboardCard({ file, params, icon, title, body, ...props }: Das
           <CardHeader asChild className="p-0">
             <span>
               <CardTitle asChild className="flex items-center gap-2">
-                <span role="heading" aria-level={2}>
+                <span>
                   {title}
                   <FontAwesomeIcon icon={faChevronRight} />
                 </span>

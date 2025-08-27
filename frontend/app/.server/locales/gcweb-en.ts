@@ -8,14 +8,12 @@ export default {
   },
   'nav': {
     'skip-to-content': 'Skip to main content',
-    'skip-to-about': 'Skip to About this site',
   },
   'header': {
     'language-selection': 'Language selection',
     'govt-of-canada.text': 'Government of Canada',
   },
   'footer': {
-    'about-site': 'About this site',
     'terms-conditions': {
       text: 'Terms and conditions',
       href: 'https://www.canada.ca/en/transparency/terms.html',
