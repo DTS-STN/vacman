@@ -115,7 +115,10 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
       cell: (info) => {
         const email = info.row.original.profileUser.businessEmailAddress;
         return (
-          <a href={`mailto:${email}`} className="text-sky-800 decoration-slate-400 decoration-2 hover:underline">
+          <a
+            href={`mailto:${email}`}
+            className="text-sky-800 underline decoration-slate-400 decoration-2 hover:text-blue-700 focus:text-blue-700"
+          >
             {email}
           </a>
         );
@@ -159,7 +162,7 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
         const profileUserName = `${info.row.original.profileUser.firstName} ${info.row.original.profileUser.lastName}`;
         return (
           <InlineLink
-            className="text-sky-800 no-underline decoration-slate-400 decoration-2 hover:underline"
+            className="text-sky-800 underline decoration-slate-400 decoration-2 hover:text-blue-700 focus:text-blue-700"
             file="routes/hr-advisor/employee-profile/index.tsx"
             params={{ profileId }}
             aria-label={t('app:hr-advisor-employees-table.view-link', {
