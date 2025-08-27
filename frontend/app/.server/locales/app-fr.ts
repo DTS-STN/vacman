@@ -19,10 +19,9 @@ export default {
   },
   'profile': {
     'about-para-1':
-      'Ce profil décrit votre position actuelle, vos préférences de référence et vos qualifications. Complétez toutes les sections et soumettez pour approbation.',
+      "Ce profil décrit vos informations personnelles et d'emploi ainsi que vos préférences en matière de présentation de candidature. Complétez toutes les sections et soumettez pour approbation.",
     'about-para-1-pending':
-      'Ce profil décrit votre poste actuel, vos préférences en matière de présentation de candidature et vos qualifications. Remplissez toutes les sections et soumettez-les pour approbation.',
-    'about-para-2': 'Vos progrès sont enregistrés automatiquement.',
+      "Ce profil décrit vos informations personnelles et d'emploi ainsi que vos préférences en matière de présentation de candidature. Remplissez toutes les sections et soumettez-les pour approbation.",
     'edit': 'Modifier les',
     'add': 'Ajouter des',
     'in-progress': 'En cours',
@@ -36,13 +35,14 @@ export default {
     'employment': {
       'title': "Informations sur l'emploi",
       'link-label': "informations sur l'emploi",
-      'detail': "Fournir l'information sur votre emploi actuel et votre statut de réaménagement des effectifs.",
+      'detail':
+        "Fournir l'information sur votre emploi actuel et votre statut de réaménagement des effectifs (RE) ou de la Transition de carrière des exécutifs (TC).",
     },
     'referral': {
-      'title': 'Préférences de présentation',
-      'link-label': 'préférences de présentation',
+      'title': 'Préférences de présentation de candidature',
+      'link-label': 'Préférences de présentation de candidature',
       'detail':
-        'Indiquer vos préférences de présentation à des emplois, incluant les classifications, les exigences linguistiques et les lieux de travail.',
+        'Indiquer vos préférences de présentation de candidature à des emplois, incluant les classifications, les exigences linguistiques et les lieux de travail.',
     },
     'back': 'Retour au profil',
     'view': 'Voir mon profil',
@@ -59,32 +59,8 @@ export default {
   },
   'employee-profile': {
     'about-para-1':
-      'Review profile details below for approval. If changes are needed, contact the employee directly to discuss and update before approving.',
-    'edit': 'Modifier les',
-    'add': 'Ajouter des',
-    'pending': 'Pending Approval',
-    'approved': 'Approved',
-    'personal-information': {
-      'title': 'Informations personnelles',
-      'link-label': 'informations personnelles',
-      'detail': 'Provide your personal and contact details, language preferences, education, and other relevant information.',
-    },
-    'employment': {
-      'title': "Informations sur l'emploi",
-      'link-label': "informations sur l'emploi",
-      'detail': 'Share information about your current job and your Work Force Adjustment (WFA) status.',
-    },
-    'referral': {
-      'title': 'Préférences de recommandation',
-      'link-label': 'préférences de recommandation',
-      'detail':
-        'Indicate your preferences for job referrals including job type, classification, language requirements, preferred locations, and availability.',
-    },
+      "Vérifiez les informations de profil ci-dessous pour approbation. Si des modifications sont nécessaires, contactez directement l'employé-e pour en discuter et mettre à jour avant approbation.",
     'back': "Retour au l'employes",
-    'view': 'Voir mon profil',
-    'not-provided': 'Non communiqué',
-    'last-updated': 'Dernière mise à jour\u00A0: {{date}} par {{name}}', // TODO: French translation needs to be verified
-    'field-incomplete': 'Champs obligatoires incomplets', // TODO: French translation needs to be verified
     'page-title': 'Employe Profile',
   },
   'form': {
@@ -95,6 +71,8 @@ export default {
     'submit': 'Soumettre',
     'select-option': 'Sélectionner une option',
     'select-all-that-apply': "Sélectionnez tout ce qui s'applique",
+    'select-work-locations':
+      'Sélectionnez une province pour voir les villes disponibles. Vous pouvez choisir autant de villes que vous le souhaitez dans chaque province.',
     'maximum-characters': 'caractères maximum',
   },
   'personal-information': {
@@ -174,8 +152,8 @@ export default {
     },
   },
   'referral-preferences': {
-    'page-title': 'Préférences de référence',
-    'language-referral-type': 'Pour quel-s profil-s linguistique-s désirez-vous être référé-e?',
+    'page-title': 'Préférences de présentation de candidature',
+    'language-referral-type': 'Pour quel-s profil-s linguistique-s de postes désirez-vous être référé-e?',
     'classification': 'Pour quel-s groupe-s et niveau-x de classification souhaiteriez-vous être référé-e?',
     'classification-group-help-message-primary':
       "Les groupes et niveaux sélectionnés doivent être identiques ou équivalents à votre poste d'attache.",

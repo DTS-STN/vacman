@@ -221,7 +221,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
         <h1 className="mt-6 text-3xl font-semibold">{loaderData.name}</h1>
         {loaderData.email && <p className="mt-1">{loaderData.email}</p>}
         <p className="font-normal text-[#9FA3AD]">
-          {t('app:employee-profile.last-updated', { date: browserTZ, name: loaderData.lastUpdatedBy })}
+          {t('app:profile.last-updated', { date: browserTZ, name: loaderData.lastUpdatedBy })}
         </p>
         <div
           role="presentation"
@@ -253,39 +253,39 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
 
       <div className="mt-8 max-w-prose space-y-10">
         <ProfileCard
-          title={t('app:employee-profile.personal-information.title')}
-          linkLabel={t('app:employee-profile.personal-information.link-label')}
+          title={t('app:profile.personal-information.title')}
+          linkLabel={t('app:profile.personal-information.link-label')}
           file="routes/hr-advisor/employee-profile/personal-information.tsx"
           params={params}
           errorState={actionData?.personalInfoComplete === false}
         >
           <DescriptionList>
             <DescriptionListItem term={t('app:personal-information.personal-record-identifier')}>
-              {loaderData.personalInformation.personalRecordIdentifier ?? t('app:employee-profile.not-provided')}
+              {loaderData.personalInformation.personalRecordIdentifier ?? t('app:profile.not-provided')}
             </DescriptionListItem>
             <DescriptionListItem term={t('app:personal-information.language-of-correspondence')}>
-              {loaderData.personalInformation.preferredLanguage ?? t('app:employee-profile.not-provided')}
+              {loaderData.personalInformation.preferredLanguage ?? t('app:profile.not-provided')}
             </DescriptionListItem>
             <DescriptionListItem term={t('app:personal-information.work-email')}>
               {loaderData.personalInformation.workEmail}
             </DescriptionListItem>
             <DescriptionListItem term={t('app:personal-information.personal-email')}>
-              {loaderData.personalInformation.personalEmail ?? t('app:employee-profile.not-provided')}
+              {loaderData.personalInformation.personalEmail ?? t('app:profile.not-provided')}
             </DescriptionListItem>
             <DescriptionListItem term={t('app:personal-information.work-phone')}>
-              {loaderData.personalInformation.workPhone ?? t('app:employee-profile.not-provided')}
+              {loaderData.personalInformation.workPhone ?? t('app:profile.not-provided')}
             </DescriptionListItem>
             <DescriptionListItem term={t('app:personal-information.personal-phone')}>
-              {loaderData.personalInformation.personalPhone ?? t('app:employee-profile.not-provided')}
+              {loaderData.personalInformation.personalPhone ?? t('app:profile.not-provided')}
             </DescriptionListItem>
             <DescriptionListItem term={t('app:personal-information.additional-information')}>
-              {loaderData.personalInformation.additionalInformation ?? t('app:employee-profile.not-provided')}
+              {loaderData.personalInformation.additionalInformation ?? t('app:profile.not-provided')}
             </DescriptionListItem>
           </DescriptionList>
         </ProfileCard>
         <ProfileCard
-          title={t('app:employee-profile.employment.title')}
-          linkLabel={t('app:employee-profile.employment.link-label')}
+          title={t('app:profile.employment.title')}
+          linkLabel={t('app:profile.employment.link-label')}
           file="routes/hr-advisor/employee-profile/employment-information.tsx"
           params={params}
           errorState={actionData?.employmentInfoComplete === false}
@@ -294,25 +294,25 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
             <h3 className="font-lato text-xl font-bold">{t('app:employment-information.substantive-position-heading')}</h3>
             <DescriptionList>
               <DescriptionListItem term={t('app:employment-information.substantive-position-group-and-level')}>
-                {loaderData.employmentInformation.substantivePosition ?? t('app:employee-profile.not-provided')}
+                {loaderData.employmentInformation.substantivePosition ?? t('app:profile.not-provided')}
               </DescriptionListItem>
               <DescriptionListItem term={t('app:employment-information.branch-or-service-canada-region')}>
-                {loaderData.employmentInformation.branchOrServiceCanadaRegion ?? t('app:employee-profile.not-provided')}
+                {loaderData.employmentInformation.branchOrServiceCanadaRegion ?? t('app:profile.not-provided')}
               </DescriptionListItem>
               <DescriptionListItem term={t('app:employment-information.directorate')}>
-                {loaderData.employmentInformation.directorate ?? t('app:employee-profile.not-provided')}
+                {loaderData.employmentInformation.directorate ?? t('app:profile.not-provided')}
               </DescriptionListItem>
               <DescriptionListItem term={t('app:employment-information.provinces')}>
-                {loaderData.employmentInformation.province ?? t('app:employee-profile.not-provided')}
+                {loaderData.employmentInformation.province ?? t('app:profile.not-provided')}
               </DescriptionListItem>
               <DescriptionListItem term={t('app:employment-information.city')}>
-                {loaderData.employmentInformation.city ?? t('app:employee-profile.not-provided')}
+                {loaderData.employmentInformation.city ?? t('app:profile.not-provided')}
               </DescriptionListItem>
             </DescriptionList>
             <h3 className="font-lato text-xl font-bold">{t('app:employment-information.wfa-detils-heading')}</h3>
             <DescriptionList>
               <DescriptionListItem term={t('app:employment-information.wfa-status')}>
-                {loaderData.employmentInformation.wfaStatus ?? t('app:employee-profile.not-provided')}
+                {loaderData.employmentInformation.wfaStatus ?? t('app:profile.not-provided')}
               </DescriptionListItem>
               {(loaderData.employmentInformation.wfaStatusCode === EMPLOYEE_WFA_STATUS.opting ||
                 loaderData.employmentInformation.wfaStatusCode === EMPLOYEE_WFA_STATUS.exOpting ||
@@ -320,22 +320,22 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
                 loaderData.employmentInformation.wfaStatusCode === EMPLOYEE_WFA_STATUS.exSurplusCPA) && (
                 <>
                   <DescriptionListItem term={t('app:employment-information.wfa-effective-date')}>
-                    {loaderData.employmentInformation.wfaEffectiveDate ?? t('app:employee-profile.not-provided')}
+                    {loaderData.employmentInformation.wfaEffectiveDate ?? t('app:profile.not-provided')}
                   </DescriptionListItem>
                   <DescriptionListItem term={t('app:employment-information.wfa-end-date')}>
-                    {loaderData.employmentInformation.wfaEndDate ?? t('app:employee-profile.not-provided')}
+                    {loaderData.employmentInformation.wfaEndDate ?? t('app:profile.not-provided')}
                   </DescriptionListItem>
                 </>
               )}
               <DescriptionListItem term={t('app:employment-information.hr-advisor')}>
-                {loaderData.employmentInformation.hrAdvisor ?? t('app:employee-profile.not-provided')}
+                {loaderData.employmentInformation.hrAdvisor ?? t('app:profile.not-provided')}
               </DescriptionListItem>
             </DescriptionList>
           </>
         </ProfileCard>
         <ProfileCard
-          title={t('app:employee-profile.referral.title')}
-          linkLabel={t('app:employee-profile.referral.link-label')}
+          title={t('app:profile.referral.title')}
+          linkLabel={t('app:profile.referral.link-label')}
           file="routes/hr-advisor/employee-profile/referral-preferences.tsx"
           params={params}
           required
@@ -344,32 +344,32 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
           <DescriptionList>
             <DescriptionListItem term={t('app:referral-preferences.language-referral-type')}>
               {loaderData.referralPreferences.preferredLanguages === undefined
-                ? t('app:employee-profile.not-provided')
+                ? t('app:profile.not-provided')
                 : loaderData.referralPreferences.preferredLanguages.length > 0 &&
                   loaderData.referralPreferences.preferredLanguages.join(', ')}
             </DescriptionListItem>
             <DescriptionListItem term={t('app:referral-preferences.classification')}>
               {loaderData.referralPreferences.preferredClassifications === undefined
-                ? t('app:employee-profile.not-provided')
+                ? t('app:profile.not-provided')
                 : loaderData.referralPreferences.preferredClassifications.length > 0 &&
                   loaderData.referralPreferences.preferredClassifications.join(', ')}
             </DescriptionListItem>
             <DescriptionListItem term={t('app:referral-preferences.work-location')}>
               {loaderData.referralPreferences.preferredCities === undefined
-                ? t('app:employee-profile.not-provided')
+                ? t('app:profile.not-provided')
                 : loaderData.referralPreferences.preferredCities.length > 0 &&
                   loaderData.referralPreferences.preferredCities.join(', ')}
             </DescriptionListItem>
             <DescriptionListItem term={t('app:referral-preferences.referral-availibility')}>
               {loaderData.referralPreferences.isAvailableForReferral === undefined
-                ? t('app:employee-profile.not-provided')
+                ? t('app:profile.not-provided')
                 : loaderData.referralPreferences.isAvailableForReferral
                   ? t('gcweb:input-option.yes')
                   : t('gcweb:input-option.no')}
             </DescriptionListItem>
             <DescriptionListItem term={t('app:referral-preferences.alternate-opportunity')}>
               {loaderData.referralPreferences.isInterestedInAlternation === undefined
-                ? t('app:employee-profile.not-provided')
+                ? t('app:profile.not-provided')
                 : loaderData.referralPreferences.isInterestedInAlternation
                   ? t('gcweb:input-option.yes')
                   : t('gcweb:input-option.no')}
