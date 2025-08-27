@@ -13,10 +13,10 @@ type MenuItemProps = ComponentProps<typeof AppLink>;
 
 export function MenuItem({ children, className, ...props }: MenuItemProps) {
   const { file: currentFile } = useRoute();
-  
+
   // Check if this menu item represents the current page
   const isCurrentPage = props.file === currentFile;
-  
+
   // If aria-current is not explicitly set and this is the current page, set it to 'page'
   const ariaCurrent = props['aria-current'] ?? (isCurrentPage ? 'page' : undefined);
 

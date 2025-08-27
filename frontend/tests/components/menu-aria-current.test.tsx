@@ -72,7 +72,9 @@ describe('MenuItem aria-current functionality', () => {
         path: '/en/employee',
         Component: () => (
           <Menu>
-            <MenuItem file="routes/employee/index.tsx" aria-current="step">Dashboard</MenuItem>
+            <MenuItem file="routes/employee/index.tsx" aria-current="step">
+              Dashboard
+            </MenuItem>
           </Menu>
         ),
       },
