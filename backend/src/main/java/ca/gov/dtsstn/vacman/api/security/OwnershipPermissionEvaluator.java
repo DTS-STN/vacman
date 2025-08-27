@@ -62,6 +62,20 @@ public class OwnershipPermissionEvaluator implements PermissionEvaluator {
 			return false;
 		}
 
+		// Special case for 'READ' permission on 'REQUEST' type since "owner" in this case is one of:
+		// - submitter
+		// - hiring manager
+		// - sub-delegated manager
+		if ("READ".equals(permission.toString()) && "REQUEST".equalsIgnoreCase(targetType)) {
+			boolean isAssociated = requestService.isUserAssociatedWithRequest((Long) targetId, currentUserId.get());
+
+			if (!isAssociated) {
+				log.warn("Access denied: user is not associated with request; targetId=[{}], currentUserId=[{}]", targetId, currentUserId.get());
+			}
+
+			return isAssociated;
+		}
+
 		final var targetResource = getTargetResource((Long) targetId, targetType);
 
 		if (targetResource.isEmpty()) {

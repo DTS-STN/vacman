@@ -84,7 +84,7 @@ public class RequestsController {
 		final var user = userService.getUserByMicrosoftEntraId(entraId)
 			.orElseThrow(asUserResourceNotFoundException(MS_ENTRA_ID, entraId));
 
-		final var requests = requestService.getRequestsByUserId(user.getId()).stream()
+		final var requests = requestService.getAllRequestsAssociatedWithUser(user.getId()).stream()
 			.map(requestModelMapper::toModel)
 			.collect(toCollectionModel());
 
