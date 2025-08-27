@@ -44,7 +44,7 @@ variable "app_required_resource_accesses" {
   description = "API Permissions (ie: required_resource_accesses) are used to control access to Azure resources via APIs. They define what actions a user or application can perform on a specific resource."
   type = set(object({
     resource_app_id = string
-    resource_accesses = list(object({
+    resource_accesses = set(object({
       id   = string
       type = string
     }))

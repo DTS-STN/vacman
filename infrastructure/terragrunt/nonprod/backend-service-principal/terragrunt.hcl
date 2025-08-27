@@ -85,12 +85,14 @@ inputs = {
     "http://localhost:8080/swagger-ui/oauth2-redirect.html",
     "https://vacman-dev-api.dev-dp-internal.dts-stn.com/swagger-ui/oauth2-redirect.html",
     "https://vacman-int-api.dev-dp-internal.dts-stn.com/swagger-ui/oauth2-redirect.html",
+    "https://vacman-uat-api.dev-dp-internal.dts-stn.com/swagger-ui/oauth2-redirect.html",
   ]
 
   app_web_redirect_uris = [
     "http://localhost:3000/auth/callback/azuread",
     "https://vacman-dev.dev-dp-internal.dts-stn.com/auth/callback/azuread",
     "https://vacman-int.dev-dp-internal.dts-stn.com/auth/callback/azuread",
+    "https://vacman-uat.dev-dp-internal.dts-stn.com/auth/callback/azuread",
   ]
 
   role_assignments = {
