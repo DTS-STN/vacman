@@ -204,9 +204,13 @@ export default {
       'alternate-opportunity-required': "La confirmation d'intérêt pour l'échange de poste est requise.",
     },
   },
+  'employee-dashboard': {
+    'page-title': 'Tableau de bord des employés',
+    'page-heading': 'Tableau de bord des employés',
+  },
   'hr-advisor-dashboard': {
     'page-title': 'Tableau de bord du conseiller RH',
-    'page-heading': 'Débuter',
+    'page-heading': 'Tableau de bord du conseiller RH',
     'employees': 'Employé-e-s',
   },
   'hr-advisor-employees-table': {
