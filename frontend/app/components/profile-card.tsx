@@ -74,7 +74,7 @@ export function ProfileCard({
           'rounded-b-xs', // Re-apply bottom roundings
         )}
       >
-        {errorState && <p className="pb-4 text-lg font-bold text-[#333333]">{t('profile.field-incomplete')}</p>}
+        {errorState && <h3 className="pb-4 text-lg font-bold text-[#333333]">{t('profile.field-incomplete')}</h3>}
         <span className="flex items-center gap-x-2">
           {errorState && <FontAwesomeIcon icon={faTriangleExclamation} className="text-red-800" />}
           {!errorState && (isNew ? <FontAwesomeIcon icon={faPlus} /> : <FontAwesomeIcon icon={faPenToSquare} />)}
