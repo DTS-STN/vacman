@@ -270,7 +270,7 @@ export function ReferralPreferencesForm({
               }
             />
 
-            <div className="mt-8 flex flex-wrap items-center justify-end gap-3">
+            <div className="mt-8 flex flex-wrap items-center justify-start gap-3">
               <ButtonLink file={cancelLink} params={params} id="cancel-button" variant="alternative">
                 {tApp('form.cancel')}
               </ButtonLink>
