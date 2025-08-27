@@ -184,6 +184,29 @@ export default {
     'page-title': 'Employee dashboard',
     'page-heading': 'Employee dashboard',
   },
+  'process-information': {
+    'page-title': 'Process information',
+    'selection-process-number': 'Selection process number (if applicable)',
+    'selection-process-number-help-message-primary': 'test',
+    'approval-received':
+      'Approval received from the Workforce Management Committee (Non-EX positions) or the People Management Leadership Committee (EX positions)',
+    'priority-entitlement':
+      'Would the appointment of a priority person result in a priority entitlement for another indeterminate employee?',
+    'priority-entitlement-rationale': 'Please provide the rationale',
+    'priority-entitlement-rationale-help-message': 'test',
+    'selection-process-type': 'Selection process type',
+    'performed-duties':
+      'Has the person proposed previously performed the same duties in the last twelve months or is this person still currently performing them in any capacity (casual, Interchange Canada, agency, contractor, acting more than four months, etc.)?',
+    'non-advertised-appointment': 'Reason for the appointment from a non-advertised process',
+    'employment-tenure': 'Tenure',
+    'work-schedule': 'Work Schedule',
+    'employment-equity-identified':
+      'Has an organizational need for employment equity been identified for this process, deployment, or appointment?',
+    'preferred-employment-equities': 'Which organization need for employment equity has been identified?',
+    'preferred-employment-equities-help-message': 'Select all that apply',
+    'projected-start-date': 'Projected start date',
+    'projected-end-date': 'Projected end date',
+  },
   'hr-advisor-dashboard': {
     'page-title': 'HR advisor dashboard',
     'page-heading': 'HR advisor dashboard',

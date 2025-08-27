@@ -1,0 +1,295 @@
+import { useState } from 'react';
+import type { JSX } from 'react';
+
+import type { Params } from 'react-router';
+import { Form } from 'react-router';
+
+import { useTranslation } from 'react-i18next';
+
+import { Errors } from '../validation.server';
+
+import {
+  NonAdvertisedAppointment,
+  LocalizedSelectionProcessType,
+  LocalizedNonAdvertisedAppointment,
+  LocalizedEmploymentTenure,
+  LocalizedWorkSchedule,
+  EmploymentTenure,
+  WorkSchedule,
+  LocalizedEmploymentEquity,
+  EmploymentEquity,
+} from '~/.server/domain/models';
+import { Button } from '~/components/button';
+import { ButtonLink } from '~/components/button-link';
+import { DatePickerField } from '~/components/date-picker-field';
+import { FormErrorSummary } from '~/components/error-summary';
+import { InputCheckbox } from '~/components/input-checkbox';
+import { InputCheckboxes } from '~/components/input-checkboxes';
+import { InputField } from '~/components/input-field';
+import { InputRadios } from '~/components/input-radios';
+import type { InputRadiosProps } from '~/components/input-radios';
+import { InputSelect } from '~/components/input-select';
+import { InputTextarea } from '~/components/input-textarea';
+import { EMPLOYMENT_TENURE, REQUIRE_OPTIONS } from '~/domain/constants';
+import type { I18nRouteFile } from '~/i18n-routes';
+import { extractValidationKey } from '~/utils/validation-utils';
+
+export type ProcessInformation = {
+  selectionProcessNumber?: string;
+  approvalReceived?: boolean;
+  priorityEntitlement?: boolean;
+  priorityEntitlementRationale?: string;
+  preferredSelectionProcessType?: string;
+  performedDuties?: boolean;
+  nonAdvertisedAppointment?: NonAdvertisedAppointment;
+  employmentTenure?: EmploymentTenure;
+  projectedStartDate?: string;
+  projectedEndDate?: string;
+  workSchedule?: WorkSchedule;
+  employmentEquityIdentified?: boolean;
+  preferredEmploymentEquities?: EmploymentEquity[];
+};
+
+interface ProcessInformationFormProps {
+  selectionProcessTypes: readonly LocalizedSelectionProcessType[];
+  nonAdvertisedAppointments: readonly LocalizedNonAdvertisedAppointment[];
+  employmentTenures: readonly LocalizedEmploymentTenure[];
+  workSchedules: readonly LocalizedWorkSchedule[];
+  employmentEquities: readonly LocalizedEmploymentEquity[];
+  cancelLink: I18nRouteFile;
+  formValues: Partial<ProcessInformation> | undefined;
+  formErrors?: Errors;
+  isReadOnly: boolean;
+  params: Params;
+}
+
+export function ProcessInformationForm({
+  selectionProcessTypes,
+  nonAdvertisedAppointments,
+  employmentTenures,
+  workSchedules,
+  employmentEquities,
+  cancelLink,
+  isReadOnly,
+  formValues,
+  formErrors,
+  params,
+}: ProcessInformationFormProps): JSX.Element {
+  const { t: tApp } = useTranslation('app');
+  const { t: tGcweb } = useTranslation('gcweb');
+
+  const [selectionProcessType, setSelectionProcessType] = useState(formValues?.preferredSelectionProcessType?.toString());
+
+  const selectionProcessTypeOptions = [{ id: 'select-option', name: '' }, ...selectionProcessTypes].map(({ id, name }) => ({
+    value: id === 'select-option' ? '' : String(id),
+    children: id === 'select-option' ? tApp('form.select-option') : name,
+  }));
+  const nonAdvertisedAppointmentOptions = nonAdvertisedAppointments.map(({ id, name }) => ({
+    value: String(id),
+    children: name,
+    defaultChecked: id === formValues?.nonAdvertisedAppointment?.id,
+  }));
+  const employmentTenureOptions = employmentTenures.map(({ id, name }) => ({
+    value: String(id),
+    children: name,
+    defaultChecked: id === formValues?.employmentTenure?.id,
+  }));
+  const workScheduleOptions = workSchedules.map(({ id, name }) => ({
+    value: String(id),
+    children: name,
+    defaultChecked: id === formValues?.workSchedule?.id,
+  }));
+  const employmentEquityOptions = employmentEquities.map((employmentEquityOption) => ({
+    value: String(employmentEquityOption.id),
+    children: employmentEquityOption.name,
+    defaultChecked: !!formValues?.preferredEmploymentEquities?.find((p) => p.id === employmentEquityOption.id),
+  }));
+  const priorityEntitlementOptions: InputRadiosProps['options'] = [
+    {
+      children: tGcweb('input-option.yes'),
+      value: REQUIRE_OPTIONS.yes,
+      defaultChecked: formValues?.priorityEntitlement === true,
+    },
+    {
+      children: tGcweb('input-option.no'),
+      value: REQUIRE_OPTIONS.no,
+      defaultChecked: formValues?.priorityEntitlement === false,
+    },
+  ];
+  const performedDutiesOptions: InputRadiosProps['options'] = [
+    {
+      children: tGcweb('input-option.yes'),
+      value: REQUIRE_OPTIONS.yes,
+      defaultChecked: formValues?.performedDuties === true,
+    },
+    {
+      children: tGcweb('input-option.no'),
+      value: REQUIRE_OPTIONS.no,
+      defaultChecked: formValues?.performedDuties === false,
+    },
+  ];
+  const employmentEquityIdentifiedOptions: InputRadiosProps['options'] = [
+    {
+      children: tGcweb('input-option.yes'),
+      value: REQUIRE_OPTIONS.yes,
+      defaultChecked: formValues?.employmentEquityIdentified === true,
+    },
+    {
+      children: tGcweb('input-option.no'),
+      value: REQUIRE_OPTIONS.no,
+      defaultChecked: formValues?.employmentEquityIdentified === false,
+    },
+  ];
+
+  return (
+    <>
+      <h1 className="my-5 text-3xl font-semibold">{tApp('process-information.page-title')}</h1>
+      <FormErrorSummary>
+        <Form method="post" noValidate>
+          <div className="space-y-6">
+            <InputField
+              readOnly={isReadOnly}
+              className="w-full"
+              id="selection-process-number"
+              name="selectionProcessNumber"
+              label={tApp('process-information.selection-process-number')}
+              defaultValue={formValues?.selectionProcessNumber}
+              errorMessage={tApp(extractValidationKey(formErrors?.selectionProcessNumber))}
+              helpMessagePrimary={tApp('process-information.selection-process-number-help-message-primary')}
+            />
+            <InputCheckbox
+              id="approval-received"
+              name="approvalReceived"
+              defaultChecked={formValues?.approvalReceived}
+              errorMessage={tApp(extractValidationKey(formErrors?.approvalReceived))}
+            >
+              {tApp('process-information.approval-received')}
+            </InputCheckbox>
+            <InputRadios
+              id="priority-entitlement"
+              name="priorityEntitlement"
+              legend={tApp('process-information.priority-entitlement')}
+              options={priorityEntitlementOptions}
+              errorMessage={tApp(extractValidationKey(formErrors?.priorityEntitlement))}
+              required
+            />
+            <InputTextarea
+              id="priority-entitlement-rationale"
+              className="w-full"
+              label={tApp('process-information.priority-entitlement-rationale')}
+              name="priorityEntitlementRationale"
+              defaultValue={formValues?.priorityEntitlementRationale}
+              errorMessage={tApp(extractValidationKey(formErrors?.priorityEntitlementRationale))}
+              helpMessage={tApp('process-information.priority-entitlement-rationale-help-message')}
+              maxLength={100}
+            />
+            <InputSelect
+              className="w-full sm:w-1/2"
+              id="selection-process-type"
+              name="selectionProcessType"
+              label={tApp('process-information.selection-process-type')}
+              options={selectionProcessTypeOptions}
+              errorMessage={tApp(extractValidationKey(formErrors?.preferredSelectionProcessType))}
+              value={selectionProcessType ?? ''}
+              onChange={({ target }) => setSelectionProcessType(target.value)}
+            />
+            <InputRadios
+              id="performed-duties"
+              name="performedDuties"
+              legend={tApp('process-information.performed-duties')}
+              options={performedDutiesOptions}
+              errorMessage={tApp(extractValidationKey(formErrors?.performedDuties))}
+              required
+            />
+            <InputRadios
+              id="non-advertised-appointment"
+              name="nonAdvertisedAppointment"
+              legend={tApp('process-information.non-advertised-appointment')}
+              options={nonAdvertisedAppointmentOptions}
+              errorMessage={tApp(extractValidationKey(formErrors?.nonAdvertisedAppointment))}
+              required
+            />
+            <InputRadios
+              id="employment-tenure"
+              name="employmentTenure"
+              legend={tApp('process-information.employment-tenure')}
+              options={employmentTenureOptions}
+              errorMessage={tApp(extractValidationKey(formErrors?.employmentTenure))}
+              required
+            />
+            {formValues?.employmentTenure?.code === EMPLOYMENT_TENURE.term && (
+              <>
+                <DatePickerField
+                  defaultValue={formValues?.projectedStartDate ?? ''}
+                  id="projectedStartDate"
+                  legend={tApp('process-information.projected-start-date')}
+                  names={{
+                    day: 'projectedStartDateDay',
+                    month: 'projectedStartDateMonth',
+                    year: 'projectedStartDateYear',
+                  }}
+                  errorMessages={{
+                    all: tApp(extractValidationKey(formErrors?.projectedStartDate)),
+                    year: tApp(extractValidationKey(formErrors?.projectedStartDateYear)),
+                    month: tApp(extractValidationKey(formErrors?.projectedStartDateMonth)),
+                    day: tApp(extractValidationKey(formErrors?.projectedStartDateDay)),
+                  }}
+                  required
+                />
+                <DatePickerField
+                  defaultValue={formValues?.projectedEndDate ?? ''}
+                  id="projectedEndDate"
+                  legend={tApp('process-information.projected-end-date')}
+                  names={{
+                    day: 'projectedEndDateDay',
+                    month: 'projectedEndDateMonth',
+                    year: 'projectedEndDateYear',
+                  }}
+                  errorMessages={{
+                    all: tApp(extractValidationKey(formErrors?.projectedEndDate)),
+                    year: tApp(extractValidationKey(formErrors?.projectedEndDateYear)),
+                    month: tApp(extractValidationKey(formErrors?.projectedEndDateMonth)),
+                    day: tApp(extractValidationKey(formErrors?.projectedEndDateDay)),
+                  }}
+                />
+              </>
+            )}
+            <InputRadios
+              id="work-schedule"
+              name="workSchedule"
+              legend={tApp('process-information.work-schedule')}
+              options={workScheduleOptions}
+              errorMessage={tApp(extractValidationKey(formErrors?.workSchedule))}
+              required
+            />
+            <InputRadios
+              id="employment-equity-identified"
+              name="employmentEquityIdentified"
+              legend={tApp('process-information.employment-equity-identified')}
+              options={employmentEquityIdentifiedOptions}
+              errorMessage={tApp(extractValidationKey(formErrors?.employmentEquityIdentified))}
+              required
+            />
+            <InputCheckboxes
+              id="preferred-employment-equities"
+              errorMessage={tApp(extractValidationKey(formErrors?.preferredEmploymentEquities))}
+              legend={tApp('process-information.preferred-employment-equities')}
+              name="preferredEmploymentEquities"
+              options={employmentEquityOptions}
+              helpMessagePrimary={tApp('process-information.preferred-employment-equities-help-message')}
+              required
+            />
+            <div className="mt-8 flex flex-row-reverse flex-wrap items-center justify-end gap-3">
+              <Button name="action" variant="primary" id="save-button">
+                {tApp('form.save')}
+              </Button>
+              <ButtonLink file={cancelLink} params={params} id="cancel-button" variant="alternative">
+                {tApp('form.cancel')}
+              </ButtonLink>
+            </div>
+          </div>
+        </Form>
+      </FormErrorSummary>
+    </>
+  );
+}
