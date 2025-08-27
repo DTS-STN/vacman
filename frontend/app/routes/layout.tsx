@@ -29,7 +29,6 @@ export async function loader({ context, request }: Route.LoaderArgs) {
   // TODO uncomment when registration-utils.ts is updated; commented only for development
   // await checkHiringManagerRouteRegistration(context.session, request);
 
-  // Check hr-advisor registration for hr-advisor routes
   await checkHrAdvisorRouteRegistration(context.session, request);
 
   return { name: context.session.authState.idTokenClaims.name };

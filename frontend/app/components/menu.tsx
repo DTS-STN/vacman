@@ -6,11 +6,20 @@ import { useTranslation } from 'react-i18next';
 
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '~/components/dropdown-menu';
 import { AppLink } from '~/components/links';
+import { useRoute } from '~/hooks/use-route';
 import { cn } from '~/utils/tailwind-utils';
 
 type MenuItemProps = ComponentProps<typeof AppLink>;
 
 export function MenuItem({ children, className, ...props }: MenuItemProps) {
+  const { file: currentFile } = useRoute();
+
+  // Check if this menu item represents the current page
+  const isCurrentPage = props.file === currentFile;
+
+  // If aria-current is not explicitly set and this is the current page, set it to 'page'
+  const ariaCurrent = props['aria-current'] ?? (isCurrentPage ? 'page' : undefined);
+
   return (
     <DropdownMenuItem
       asChild
@@ -19,7 +28,7 @@ export function MenuItem({ children, className, ...props }: MenuItemProps) {
         className,
       )}
     >
-      <AppLink data-testid="menu-item" {...props}>
+      <AppLink data-testid="menu-item" {...props} aria-current={ariaCurrent}>
         {children}
       </AppLink>
     </DropdownMenuItem>
