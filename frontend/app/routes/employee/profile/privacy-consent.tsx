@@ -82,13 +82,13 @@ export default function PrivacyConsent({ loaderData }: Route.ComponentProps) {
         <h1 className="my-5 text-3xl font-semibold">{t('app:privacy-consent.privacy-notice-statement')}</h1>
         <Form method="post" noValidate>
           {loaderData.lang === 'fr' ? <PrivacyFr /> : <PrivacyEn />}
-          <div className="mt-8 flex flex-row-reverse flex-wrap items-center justify-end gap-3">
-            <Button variant="primary" id="continue-button">
-              {t('app:privacy-consent.accept')}
-            </Button>
+          <div className="mt-8 flex flex-wrap items-center justify-start gap-3">
             <ButtonLink file="routes/index.tsx" id="back-button">
               {t('app:privacy-consent.decline')}
             </ButtonLink>
+            <Button variant="primary" id="continue-button">
+              {t('app:privacy-consent.accept')}
+            </Button>
           </div>
         </Form>
       </div>
