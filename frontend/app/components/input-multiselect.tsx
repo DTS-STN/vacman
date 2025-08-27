@@ -191,13 +191,14 @@ export function InputMultiSelect(props: InputMultiSelectProps) {
                 className="relative cursor-pointer p-2 text-gray-900 select-none hover:bg-gray-100 focus:bg-gray-100 focus:outline-none"
               >
                 <InputCheckbox
-                  aria-required={required ? true : undefined}
                   id={`${optionId}-checkbox`}
                   name={`${name}-${optionProps.value}`}
                   checked={isSelected}
                   readOnly={true}
                   required={required}
                   hasError={!!errorMessage}
+                  tabIndex={-1}
+                  className="pointer-events-none"
                   {...optionProps}
                 >
                   {optionProps.label}

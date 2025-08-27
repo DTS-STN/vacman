@@ -9,7 +9,6 @@ export default {
     'employees': 'Employees',
     'employee-dashboard': 'Employee dashboard',
     'hiring-manager-dashboard': 'Hiring manager dashboard',
-    'register-as': 'Register as...',
   },
   'privacy-consent': {
     'privacy-notice-statement': 'Privacy notice statement',

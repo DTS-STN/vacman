@@ -11,7 +11,6 @@ export default {
     'employees': 'Employés',
     'employee-dashboard': 'Tableau de bord des employés',
     'hiring-manager-dashboard': 'Tableau de bord du responsable du recrutement',
-    'register-as': "S'inscrire comme...",
   },
   'privacy-consent': {
     'privacy-notice-statement': 'Énoncé de confidentialité',

@@ -146,13 +146,13 @@ export function PersonalInformationForm({
               helpMessage={t('personal-information.additional-info-help-message')}
               maxLength={100}
             />
-            <div className="mt-8 flex flex-row-reverse flex-wrap items-center justify-end gap-3">
-              <Button name="action" variant="primary" id="save-button">
-                {t('form.save')}
-              </Button>
+            <div className="mt-8 flex flex-wrap items-center justify-start gap-3">
               <ButtonLink file={cancelLink} params={params} id="cancel-button" variant="alternative">
                 {t('form.cancel')}
               </ButtonLink>
+              <Button name="action" variant="primary" id="save-button">
+                {t('form.save')}
+              </Button>
             </div>
           </div>
         </Form>

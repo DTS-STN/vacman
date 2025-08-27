@@ -275,9 +275,12 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
   const fetcherState = useFetcherState(fetcher);
   const isSubmitting = fetcherState.submitting;
 
+  // Use fetcher.data instead of actionData since we're using fetcher.Form
+  const formActionData = fetcher.data ?? actionData;
+
   const alertRef = useRef<HTMLDivElement>(null);
 
-  if (actionData && alertRef.current) {
+  if (formActionData && alertRef.current) {
     alertRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
     alertRef.current.focus();
   }
@@ -346,7 +349,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
         </fetcher.Form>
       </div>
 
-      {actionData && (
+      {formActionData && (
         <AlertMessage
           ref={alertRef}
           type={loaderData.isProfileComplete ? 'success' : 'error'}
@@ -381,7 +384,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
           isComplete={loaderData.personalInformation.isComplete}
           isNew={loaderData.personalInformation.isNew}
           params={params}
-          errorState={actionData?.personalInfoComplete === false}
+          errorState={formActionData?.personalInfoComplete === false}
           required
           showStatus
         >
@@ -428,7 +431,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
           isNew={loaderData.employmentInformation.isNew}
           params={params}
           required
-          errorState={actionData?.employmentInfoComplete === false}
+          errorState={formActionData?.employmentInfoComplete === false}
           showStatus
         >
           {loaderData.employmentInformation.isNew ? (
@@ -486,7 +489,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
           isNew={loaderData.referralPreferences.isNew}
           params={params}
           required
-          errorState={actionData?.referralComplete === false}
+          errorState={formActionData?.referralComplete === false}
           showStatus
         >
           {loaderData.referralPreferences.isNew ? (

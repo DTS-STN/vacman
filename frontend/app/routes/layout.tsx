@@ -67,7 +67,7 @@ export default function Layout({ loaderData }: Route.ComponentProps) {
         ></AppBar>
       </header>
 
-      <main className="flex flex-grow flex-col">
+      <main id="wb-cont" className="flex flex-grow flex-col">
         <div className="container flex flex-grow flex-col print:w-full print:max-w-none">
           {layoutHasDecorativeBackground ? (
             <div className="grid flex-grow grid-cols-9 grid-rows-1 gap-4">
