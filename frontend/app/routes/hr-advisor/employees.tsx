@@ -12,6 +12,7 @@ import type { Route } from './+types/employees';
 import type { Profile, ProfileStatus } from '~/.server/domain/models';
 import { getProfileService } from '~/.server/domain/services/profile-service';
 import { getProfileStatusService } from '~/.server/domain/services/profile-status-service';
+import { serverEnvironment } from '~/.server/environment';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { BackLink } from '~/components/back-link';
 import { DataTable, DataTableColumnHeader, DataTableColumnHeaderWithOptions } from '~/components/data-table';
@@ -63,8 +64,6 @@ export async function loader({ context, request }: Route.LoaderArgs) {
       profile.profileStatus &&
       [PROFILE_STATUS_CODE.approved, PROFILE_STATUS_CODE.pending].some((id) => id === profile.profileStatus?.code),
   );
-
-  const { serverEnvironment } = await import('~/.server/environment');
 
   return {
     documentTitle: t('app:index.employees'),
