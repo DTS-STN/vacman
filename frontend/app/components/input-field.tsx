@@ -60,7 +60,7 @@ export function InputField({
 
   return (
     <div id={ids.wrapper} className="space-y-2">
-      <InputLabel id={ids.label} htmlFor={id} required={required}>
+      <InputLabel id={ids.label} htmlFor={ids.input} required={required}>
         {label}
       </InputLabel>
       {errorMessage && (

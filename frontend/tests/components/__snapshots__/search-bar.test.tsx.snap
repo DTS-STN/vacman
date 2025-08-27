@@ -11,7 +11,7 @@ exports[`SearchBar > should render search bar component > expected html 1`] = `
     >
       <label
         class="block"
-        for="test-id"
+        for="input-search-field-test-id-input"
         id="input-search-field-test-id-label"
       >
         <span
@@ -28,7 +28,7 @@ exports[`SearchBar > should render search bar component > expected html 1`] = `
         >
           <svg
             aria-hidden="true"
-            class="svg-inline--fa fa-magnifying-glass "
+            class="svg-inline--fa fa-magnifying-glass"
             data-icon="magnifying-glass"
             data-prefix="fas"
             role="img"
@@ -65,7 +65,7 @@ exports[`SearchBar > should render search bar suggestions > expected html 1`] = 
     >
       <label
         class="block"
-        for="test-id"
+        for="input-search-field-test-id-input"
         id="input-search-field-test-id-label"
       >
         <span
@@ -82,7 +82,7 @@ exports[`SearchBar > should render search bar suggestions > expected html 1`] = 
         >
           <svg
             aria-hidden="true"
-            class="svg-inline--fa fa-magnifying-glass "
+            class="svg-inline--fa fa-magnifying-glass"
             data-icon="magnifying-glass"
             data-prefix="fas"
             role="img"
@@ -111,7 +111,7 @@ exports[`SearchBar > should render search bar suggestions > expected html 1`] = 
         <li>
           <button
             class="inline-flex w-full border-none px-4 py-2 hover:bg-neutral-500 hover:text-white focus:bg-gray-600 focus:text-white focus:outline-none"
-            id="«r2»0"
+            id="«r4»0"
             tabindex="-1"
             type="button"
           >
@@ -121,7 +121,7 @@ exports[`SearchBar > should render search bar suggestions > expected html 1`] = 
         <li>
           <button
             class="inline-flex w-full border-none px-4 py-2 hover:bg-neutral-500 hover:text-white focus:bg-gray-600 focus:text-white focus:outline-none"
-            id="«r2»1"
+            id="«r4»1"
             tabindex="-1"
             type="button"
           >
