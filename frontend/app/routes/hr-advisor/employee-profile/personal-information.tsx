@@ -1,6 +1,7 @@
-import { data } from 'react-router';
 import type { RouteHandle } from 'react-router';
+import { data } from 'react-router';
 
+import { useTranslation } from 'react-i18next';
 import * as v from 'valibot';
 
 import type { Route } from '../employee-profile/+types/personal-information';
@@ -157,11 +158,14 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 }
 
 export default function PersonalInformation({ loaderData, actionData, params }: Route.ComponentProps) {
+  const { t } = useTranslation(handle.i18nNamespace);
   const errors = actionData?.errors;
 
   return (
     <>
-      <BackLink className="mt-6" file="routes/hr-advisor/employee-profile/index.tsx" params={params} />
+      <BackLink aria-label={t('app:profile.back')} className="mt-6" file="routes/employee/profile/index.tsx" params={params}>
+        {t('app:profile.back')}
+      </BackLink>
       <div className="max-w-prose">
         <PersonalInformationForm
           cancelLink={'routes/hr-advisor/employee-profile/index.tsx'}
