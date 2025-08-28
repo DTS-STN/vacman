@@ -17,6 +17,7 @@ import { Button } from '~/components/button';
 import { ButtonLink } from '~/components/button-link';
 import { HtmlAbbreviation } from '~/components/html-abbreviation';
 import { InlineLink } from '~/components/links';
+import { PageTitle } from '~/components/page-title';
 import { Acronym } from '~/domain/constants';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
@@ -79,7 +80,7 @@ export default function PrivacyConsent({ loaderData }: Route.ComponentProps) {
   return (
     <>
       <div className="max-w-prose">
-        <h1 className="my-5 text-3xl font-semibold">{t('app:privacy-consent.privacy-notice-statement')}</h1>
+        <PageTitle>{t('app:privacy-consent.privacy-notice-statement')}</PageTitle>
         <Form method="post" noValidate>
           {loaderData.lang === 'fr' ? <PrivacyFr /> : <PrivacyEn />}
           <div className="mt-8 flex flex-wrap items-center justify-start gap-3">
