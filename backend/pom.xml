@@ -48,6 +48,7 @@
 		<!-- dependency/plugin versions -->
 
 		<immutables.version>2.11.3</immutables.version>
+		<johnzon.version>1.2.21</johnzon.version>
 		<mapstruct.version>1.6.3</mapstruct.version>
 		<record-builder.version>48</record-builder.version>
 		<spring-boot-configuration-processor.version>3.5.5</spring-boot-configuration-processor.version>
@@ -56,6 +57,10 @@
 
 
 	<dependencies>
+		<dependency>
+			<groupId>com.fasterxml.jackson.datatype</groupId>
+			<artifactId>jackson-datatype-jsr353</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>com.github.ben-manes.caffeine</groupId>
 			<artifactId>caffeine</artifactId>
@@ -67,15 +72,23 @@
 		<dependency>
 			<groupId>com.microsoft.sqlserver</groupId>
 			<artifactId>mssql-jdbc</artifactId>
-			<scope>runtime</scope>
 		</dependency>
 		<dependency>
 			<groupId>io.micrometer</groupId>
 			<artifactId>micrometer-registry-otlp</artifactId>
 		</dependency>
 		<dependency>
-        	<groupId>org.liquibase</groupId>
-        	<artifactId>liquibase-core</artifactId>
+			<groupId>jakarta.json</groupId>
+			<artifactId>jakarta.json-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.johnzon</groupId>
+			<artifactId>johnzon-core</artifactId>
+			<version>${johnzon.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.liquibase</groupId>
+			<artifactId>liquibase-core</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.immutables</groupId>
