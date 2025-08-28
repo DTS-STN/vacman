@@ -97,6 +97,9 @@ public class RequestEntity extends AbstractBaseEntity implements Ownable {
 	@Column(name = "[APPT_RSLT_PRRT_ENTTLMNT_RTNL]", length = 200)
 	private String priorityEntitlementRationale;
 
+	@Column(name = "[PSC_CLEARANCE_NUMBER]", length = 20)
+	private String pscClearanceNumber;
+
 	@Column(name = "[NAME_EN]", length = 200)
 	private String nameEn;
 
@@ -179,6 +182,7 @@ public class RequestEntity extends AbstractBaseEntity implements Ownable {
 			@Nullable String priorityClearanceNumber,
 			@Nullable Boolean priorityEntitlement,
 			@Nullable String priorityEntitlementRationale,
+			@Nullable String pscClearanceNumber,
 			@Nullable String nameEn,
 			@Nullable String nameFr,
 			@Nullable String requestNumber,
@@ -218,6 +222,7 @@ public class RequestEntity extends AbstractBaseEntity implements Ownable {
 		this.priorityClearanceNumber = priorityClearanceNumber;
 		this.priorityEntitlement = priorityEntitlement;
 		this.priorityEntitlementRationale = priorityEntitlementRationale;
+		this.pscClearanceNumber = pscClearanceNumber;
 		this.nameEn = nameEn;
 		this.nameFr = nameFr;
 		this.requestNumber = requestNumber;
@@ -263,12 +268,62 @@ public class RequestEntity extends AbstractBaseEntity implements Ownable {
 		this.appointmentNonAdvertised = appointmentNonAdvertised;
 	}
 
+	public Set<CityEntity> getCities() {
+		return cities.stream()
+			.map(RequestCityEntity::getCity)
+			.collect(toUnmodifiableSet());
+	}
+
+	public boolean addCity(CityEntity city) {
+		return this.cities.add(RequestCityEntity.builder()
+			.city(city)
+			.request(this)
+			.build());
+	}
+
+	public void setCities(Collection<CityEntity> cities) {
+		final var joins = Optional.ofNullable(cities).orElse(emptySet()).stream()
+			.map(city -> RequestCityEntity.builder()
+				.city(city)
+				.request(this)
+				.build())
+			.collect(toUnmodifiableSet());
+
+		this.cities.retainAll(joins);
+		this.cities.addAll(joins);
+	}
+
 	public ClassificationEntity getClassification() {
 		return classification;
 	}
 
 	public void setClassification(ClassificationEntity classification) {
 		this.classification = classification;
+	}
+
+	public Set<EmploymentEquityEntity> getEmploymentEquities() {
+		return employmentEquities.stream()
+			.map(RequestEmploymentEquityEntity::getEmploymentEquity)
+			.collect(toUnmodifiableSet());
+	}
+
+	public boolean addEmploymentEquity(EmploymentEquityEntity employmentEquity) {
+		return this.employmentEquities.add(RequestEmploymentEquityEntity.builder()
+			.employmentEquity(employmentEquity)
+			.request(this)
+			.build());
+	}
+
+	public void setEmploymentEquities(Collection<EmploymentEquityEntity> employmentEquities) {
+		final var joins = Optional.ofNullable(employmentEquities).orElse(emptySet()).stream()
+			.map(employmentEquity -> RequestEmploymentEquityEntity.builder()
+				.employmentEquity(employmentEquity)
+				.request(this)
+				.build())
+			.collect(toUnmodifiableSet());
+
+		this.employmentEquities.retainAll(joins);
+		this.employmentEquities.addAll(joins);
 	}
 
 	public Boolean getEmploymentEquityNeedIdentifiedIndicator() {
@@ -379,54 +434,12 @@ public class RequestEntity extends AbstractBaseEntity implements Ownable {
 		this.priorityEntitlementRationale = priorityEntitlementRationale;
 	}
 
-	public Set<CityEntity> getCities() {
-		return cities.stream()
-			.map(RequestCityEntity::getCity)
-			.collect(toUnmodifiableSet());
+	public String getPscClearanceNumber() {
+		return pscClearanceNumber;
 	}
 
-	public boolean addCity(CityEntity city) {
-		return this.cities.add(RequestCityEntity.builder()
-			.city(city)
-			.request(this)
-			.build());
-	}
-
-	public void setCities(Collection<CityEntity> cities) {
-		final var joins = Optional.ofNullable(cities).orElse(emptySet()).stream()
-			.map(city -> RequestCityEntity.builder()
-				.city(city)
-				.request(this)
-				.build())
-			.collect(toUnmodifiableSet());
-
-		this.cities.retainAll(joins);
-		this.cities.addAll(joins);
-	}
-
-	public Set<EmploymentEquityEntity> getEmploymentEquities() {
-		return employmentEquities.stream()
-			.map(RequestEmploymentEquityEntity::getEmploymentEquity)
-			.collect(toUnmodifiableSet());
-	}
-
-	public boolean addEmploymentEquity(EmploymentEquityEntity employmentEquity) {
-		return this.employmentEquities.add(RequestEmploymentEquityEntity.builder()
-			.employmentEquity(employmentEquity)
-			.request(this)
-			.build());
-	}
-
-	public void setEmploymentEquities(Collection<EmploymentEquityEntity> employmentEquities) {
-		final var joins = Optional.ofNullable(employmentEquities).orElse(emptySet()).stream()
-			.map(employmentEquity -> RequestEmploymentEquityEntity.builder()
-				.employmentEquity(employmentEquity)
-				.request(this)
-				.build())
-			.collect(toUnmodifiableSet());
-
-		this.employmentEquities.retainAll(joins);
-		this.employmentEquities.addAll(joins);
+	public void setPscClearanceNumber(String pscClearanceNumber) {
+		this.pscClearanceNumber = pscClearanceNumber;
 	}
 
 	public String getNameEn() {
@@ -571,7 +584,9 @@ public class RequestEntity extends AbstractBaseEntity implements Ownable {
 			.append("additionalComment", additionalComment)
 			.append("alternateContactEmailAddress", alternateContactEmailAddress)
 			.append("appointmentNonAdvertised", appointmentNonAdvertised)
+			.append("cities", cities)
 			.append("classification", classification)
+			.append("employmentEquities", employmentEquities)
 			.append("employmentEquityNeedIdentifiedIndicator", employmentEquityNeedIdentifiedIndicator)
 			.append("employmentTenure", employmentTenure)
 			.append("endDate", endDate)
@@ -586,8 +601,7 @@ public class RequestEntity extends AbstractBaseEntity implements Ownable {
 			.append("priorityClearanceNumber", priorityClearanceNumber)
 			.append("priorityEntitlement", priorityEntitlement)
 			.append("priorityEntitlementRationale", priorityEntitlementRationale)
-			.append("requestCities", cities)
-			.append("requestEmploymentEquities", employmentEquities)
+			.append("pscClearanceNumber", pscClearanceNumber)
 			.append("nameEn", nameEn)
 			.append("nameFr", nameFr)
 			.append("requestNumber", requestNumber)
