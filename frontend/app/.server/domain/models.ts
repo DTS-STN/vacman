@@ -236,9 +236,6 @@ export type ProfileQueryParams = {
   'hr-advisor'?: string;
 };
 
-// Request Status Model
-export type RequestStatusReadModel = LookupModel;
-
 // Request Create Model
 export type RequestCreateModel = Readonly<{
   selectionProcessNumber?: string;
@@ -268,35 +265,49 @@ export type RequestCreateModel = Readonly<{
 
 // Request Read Model
 export type RequestReadModel = Readonly<{
-  id: number;
+  // Main fields
   selectionProcessNumber?: string;
-  workforceManagementApproved?: boolean;
-  priorityEntitlement: boolean;
+  workforceMgmtApprovalRecvd?: boolean;
+  priorityEntitlement?: boolean;
   priorityEntitlementRationale?: string;
-  selectionProcessTypeId: number;
-  performedSameDuties: boolean;
-  nonAdvertisedAppointmentId: number;
-  projectedStartDate: string; // ISO date string
-  projectedEndDate: string; // ISO date string
-  workScheduleId: number;
-  equityNeeded: boolean;
-  employmentEquityIds?: number[];
-  positionNumbers: string[];
-  classificationId: number;
-  englishTitle: string;
-  frenchTitle: string;
-  provinceId: number;
-  languageRequirementId: number;
-  englishLanguageProfile: string;
-  frenchLanguageProfile: string;
-  securityClearanceId: number;
-  englishStatementOfMerit: string;
-  frenchStatementOfMerit: string;
-  status: RequestStatusReadModel;
+  selectionProcessType?: SelectionProcessType;
+  hasPerformedSameDuties?: boolean;
+  appointmentNonAdvertised?: NonAdvertisedAppointment;
+  projectedStartDate?: string; // ISO date string (LocalDate)
+  projectedEndDate?: string; // ISO date string (LocalDate)
+  workSchedule?: WorkSchedule;
+  equityNeeded?: boolean;
+  employmentEquities?: EmploymentEquity[];
+  positionNumber?: string; // Comma separated list
+  classification?: Classification;
+  englishTitle?: string;
+  frenchTitle?: string;
+  cities?: City[];
+  languageRequirement?: LanguageRequirement;
+  englishLanguageProfile?: string;
+  frenchLanguageProfile?: string;
+  securityClearance?: SecurityClearance;
+  englishStatementOfMerit?: string;
+  frenchStatementOfMerit?: string;
+  status?: RequestStatus;
+  workUnit?: WorkUnit;
+  submitter?: User;
+  hiringManager?: User;
+  subDelegatedManager?: User;
+  hrAdvisor?: User;
+  languageOfCorrespondence?: LanguageOfCorrespondence;
+  employmentTenure?: EmploymentTenure;
+  priorityClearanceNumber?: string;
+  pscClearanceNumber?: string;
+  requestNumber?: string;
+  additionalComment?: string;
+
+  // Tombstone fields
+  id: number;
   createdBy?: string;
-  createdDate?: string; // ISO date string
+  createdDate?: string; // ISO date string (Instant)
   lastModifiedBy?: string;
-  lastModifiedDate?: string; // ISO date string
+  lastModifiedDate?: string; // ISO date string (Instant)
 }>;
 
 // Request Update Model (same structure as Create but all fields optional for PATCH)
