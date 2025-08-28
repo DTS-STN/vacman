@@ -168,7 +168,7 @@ export default function PersonalInformation({ loaderData, actionData, params }: 
       </BackLink>
       <div className="max-w-prose">
         <PersonalInformationForm
-          cancelLink={'routes/hr-advisor/employee-profile/index.tsx'}
+          cancelLink="routes/hr-advisor/employee-profile/index.tsx"
           formValues={loaderData.defaultValues}
           formErrors={errors}
           isReadOnly={true}

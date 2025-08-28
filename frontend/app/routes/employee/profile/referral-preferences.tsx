@@ -152,7 +152,7 @@ export default function PersonalDetails({ loaderData, actionData, params }: Rout
       </BackLink>
       <div className="max-w-prose">
         <ReferralPreferencesForm
-          cancelLink={'routes/employee/profile/index.tsx'}
+          cancelLink="routes/employee/profile/index.tsx"
           formValues={loaderData.defaultValues}
           preferredProvince={loaderData.defaultValues.preferredProvince}
           formErrors={errors}

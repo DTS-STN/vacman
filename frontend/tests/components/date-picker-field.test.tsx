@@ -84,7 +84,7 @@ describe('DatePickerField', () => {
         path: '/',
         Component: () => (
           <DatePickerField
-            defaultValue={'2025-01-01'}
+            defaultValue="2025-01-01"
             id="id"
             legend="legend date picker field test"
             names={{
