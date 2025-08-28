@@ -110,8 +110,8 @@ export function PositionInformationForm({
           <div className="space-y-6">
             <InputField
               className="w-full"
-              id="position-numbers"
-              name="positionNumbers"
+              id="position-number"
+              name="positionNumber"
               label={t('position-information.position-number')}
               defaultValue={formValues?.positionNumber}
               errorMessage={t(extractValidationKey(formErrors?.positionNumbers))}
