@@ -7,15 +7,12 @@ import { Form } from 'react-router';
 import { useTranslation } from 'react-i18next';
 
 import type {
-  City,
-  Classification,
-  LanguageRequirement,
   LocalizedCity,
   LocalizedClassification,
   LocalizedLanguageRequirement,
   LocalizedProvince,
   LocalizedSecurityClearance,
-  SecurityClearance,
+  RequestReadModel,
 } from '~/.server/domain/models';
 import { Button } from '~/components/button';
 import { ButtonLink } from '~/components/button-link';
@@ -30,19 +27,9 @@ import type { I18nRouteFile } from '~/i18n-routes';
 import type { Errors } from '~/routes/page-components/requests/validation.server';
 import { extractValidationKey } from '~/utils/validation-utils';
 
-export type PositionInformation = {
-  positionNumber: string[];
-  groupAndLevel: Classification;
-  titleEn: string;
-  titleFr: string;
-  locationCity: City;
-  languageRequirement: LanguageRequirement;
-  securityRequirement: SecurityClearance;
-};
-
 interface PositionInformationFormProps {
   cancelLink: I18nRouteFile;
-  formValues: Partial<PositionInformation> | undefined;
+  formValues: Partial<RequestReadModel> | undefined;
   languageRequirements: readonly LocalizedLanguageRequirement[];
   classifications: readonly LocalizedClassification[];
   provinces: readonly LocalizedProvince[];
@@ -65,14 +52,10 @@ export function PositionInformationForm({
 }: PositionInformationFormProps): JSX.Element {
   const { t } = useTranslation('app');
 
-  const [province, setProvince] = useState(
-    formValues?.locationCity?.provinceTerritory !== undefined
-      ? String(formValues.locationCity.provinceTerritory.id)
-      : undefined,
-  );
+  const [province, setProvince] = useState(formValues?.provinceId !== undefined ? String(formValues.provinceId) : undefined);
 
   const [languageRequirementCode, setLanguageRequirementCode] = useState(
-    languageRequirements.find((c) => c.id === formValues?.languageRequirement?.id)?.code,
+    languageRequirements.find((c) => c.id === formValues?.languageRequirementId)?.code,
   );
 
   const handleLanguageRequirementChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -87,7 +70,7 @@ export function PositionInformationForm({
   }));
 
   const languageLevelOptions = [{ id: 'select-option', value: '' }, ...LANGUAGE_LEVEL].map(({ id, value }) => ({
-    value: id === 'select-option' ? '' : String(id),
+    value: id === 'select-option' ? '' : value,
     children: id === 'select-option' ? t('form.select') : value,
   }));
 
@@ -107,14 +90,14 @@ export function PositionInformationForm({
   const securityClearanceOptions = securityClearances.map(({ id, name }) => ({
     value: String(id),
     children: name,
-    defaultChecked: id === formValues?.securityRequirement?.id,
+    defaultChecked: id === formValues?.securityClearanceId,
   }));
 
   const languageRequirementOptions: InputRadiosProps['options'] = languageRequirements.map(({ id, name }) => ({
     value: String(id),
     children: name,
     onChange: handleLanguageRequirementChange,
-    defaultChecked: formValues?.languageRequirement?.id === id,
+    defaultChecked: formValues?.languageRequirementId === id,
   }));
 
   return (
@@ -125,11 +108,11 @@ export function PositionInformationForm({
           <div className="space-y-6">
             <InputField
               className="w-full"
-              id="position-number"
-              name="positionNumber"
+              id="position-numbers"
+              name="positionNumbers"
               label={t('position-information.position-number')}
-              defaultValue={formValues?.positionNumber}
-              errorMessage={t(extractValidationKey(formErrors?.positionNumber))}
+              defaultValue={formValues?.positionNumbers?.join(', ')}
+              errorMessage={t(extractValidationKey(formErrors?.positionNumbers))}
               helpMessagePrimary={t('position-information.position-number-instruction')}
               required
             />
@@ -140,7 +123,7 @@ export function PositionInformationForm({
               required
               options={groupAndLevelOptions}
               label={t('employment-information.substantive-position-group-and-level')}
-              defaultValue={formValues?.groupAndLevel !== undefined ? String(formValues.groupAndLevel.id) : ''}
+              defaultValue={formValues?.classificationId !== undefined ? String(formValues.classificationId) : ''}
               className="w-full sm:w-1/2"
             />
             <InputField
@@ -148,7 +131,7 @@ export function PositionInformationForm({
               id="title-en"
               name="titleEn"
               label={t('position-information.title-en')}
-              defaultValue={formValues?.titleEn}
+              defaultValue={formValues?.englishTitle}
               errorMessage={t(extractValidationKey(formErrors?.titleEn))}
               required
             />
@@ -157,7 +140,7 @@ export function PositionInformationForm({
               id="title-fr"
               name="titleFr"
               label={t('position-information.title-fr')}
-              defaultValue={formValues?.titleFr}
+              defaultValue={formValues?.frenchTitle}
               errorMessage={t(extractValidationKey(formErrors?.titleFr))}
               required
             />
@@ -180,7 +163,7 @@ export function PositionInformationForm({
                 required
                 options={cityOptions}
                 label={t('position-information.location-city')}
-                defaultValue={formValues?.locationCity !== undefined ? String(formValues.locationCity.id) : ''}
+                defaultValue={formValues?.provinceId !== undefined ? String(formValues.provinceId) : ''}
                 className="w-full sm:w-1/2"
               />
             )}
@@ -204,7 +187,8 @@ export function PositionInformationForm({
                     label={t('position-information.english')}
                     className="w-32"
                     options={languageLevelOptions}
-                    errorMessage={t(extractValidationKey(formErrors?.readingComprehensionEn))}
+                    defaultValue={formValues?.englishLanguageProfile?.charAt(0) ?? ''}
+                    errorMessage={t(extractValidationKey(formErrors?.readingEn))}
                   />
                   <InputSelect
                     id="reading-fr"
@@ -212,7 +196,8 @@ export function PositionInformationForm({
                     label={t('position-information.french')}
                     className="w-32"
                     options={languageLevelOptions}
-                    errorMessage={t(extractValidationKey(formErrors?.readingComprehensionFr))}
+                    defaultValue={formValues?.frenchLanguageProfile?.charAt(0) ?? ''}
+                    errorMessage={t(extractValidationKey(formErrors?.readingFr))}
                   />
                 </div>
                 <h3 className="font-semibold">{t('position-information.written-expression')}</h3>
@@ -223,7 +208,8 @@ export function PositionInformationForm({
                     label={t('position-information.english')}
                     className="w-32"
                     options={languageLevelOptions}
-                    errorMessage={t(extractValidationKey(formErrors?.writtenExpressionEn))}
+                    defaultValue={formValues?.englishLanguageProfile?.charAt(1) ?? ''}
+                    errorMessage={t(extractValidationKey(formErrors?.writingEn))}
                   />
                   <InputSelect
                     id="writing-fr"
@@ -231,7 +217,8 @@ export function PositionInformationForm({
                     label={t('position-information.french')}
                     className="w-32"
                     options={languageLevelOptions}
-                    errorMessage={t(extractValidationKey(formErrors?.writtenExpressionFr))}
+                    defaultValue={formValues?.frenchLanguageProfile?.charAt(1) ?? ''}
+                    errorMessage={t(extractValidationKey(formErrors?.writingFr))}
                   />
                 </div>
                 <h3 className="font-semibold">{t('position-information.oral-proficiency')}</h3>
@@ -242,7 +229,8 @@ export function PositionInformationForm({
                     label={t('position-information.english')}
                     className="w-32"
                     options={languageLevelOptions}
-                    errorMessage={t(extractValidationKey(formErrors?.oralProficiencyEn))}
+                    defaultValue={formValues?.englishLanguageProfile?.charAt(2) ?? ''}
+                    errorMessage={t(extractValidationKey(formErrors?.oralEn))}
                   />
                   <InputSelect
                     id="oral-fr"
@@ -250,7 +238,8 @@ export function PositionInformationForm({
                     label={t('position-information.french')}
                     className="w-32"
                     options={languageLevelOptions}
-                    errorMessage={t(extractValidationKey(formErrors?.oralProficiencyFr))}
+                    defaultValue={formValues?.frenchLanguageProfile?.charAt(2) ?? ''}
+                    errorMessage={t(extractValidationKey(formErrors?.oralFr))}
                   />
                 </div>
               </>
