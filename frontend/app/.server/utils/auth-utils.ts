@@ -7,6 +7,7 @@
 import { redirect } from 'react-router';
 
 import { LogFactory } from '~/.server/logging';
+import { getRolesFromJWT } from '~/.server/utils/jwt-utils';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
@@ -54,7 +55,10 @@ export function requireAuthentication(
  * Checks if the user session contains the specified role.
  */
 export function hasRole(session: AppSession, role: Role): boolean {
-  return session.authState?.accessTokenClaims.roles?.includes(role) ?? false;
+  if (!session.authState) return false;
+
+  const userRoles = getRolesFromJWT(session.authState.accessToken);
+  return userRoles.includes(role);
 }
 
 /**
