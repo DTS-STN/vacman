@@ -30,6 +30,7 @@ import { InputMultiSelect } from '~/components/input-multiselect';
 import { InputRadios } from '~/components/input-radios';
 import type { InputRadiosProps } from '~/components/input-radios';
 import { InputSelect } from '~/components/input-select';
+import { PageTitle } from '~/components/page-title';
 import { REQUIRE_OPTIONS } from '~/domain/constants';
 import type { I18nRouteFile } from '~/i18n-routes';
 import type { Errors } from '~/routes/page-components/employees/validation.server';
@@ -167,7 +168,7 @@ export function ReferralPreferencesForm({
 
   return (
     <>
-      <h1 className="my-5 text-3xl">{tApp('referral-preferences.page-title')}</h1>
+      <PageTitle className="after:w-14">{tApp('referral-preferences.page-title')}</PageTitle>
       <FormErrorSummary>
         <Form method="post" noValidate>
           <div className="space-y-6">
