@@ -27,7 +27,7 @@ import { InputRadios } from '~/components/input-radios';
 import { InputSelect } from '~/components/input-select';
 import { LANGUAGE_LEVEL, LANGUAGE_REQUIREMENT_CODES } from '~/domain/constants';
 import type { I18nRouteFile } from '~/i18n-routes';
-import type { Errors } from '~/routes/page-components/employees/validation.server';
+import type { Errors } from '~/routes/page-components/requests/validation.server';
 import { extractValidationKey } from '~/utils/validation-utils';
 
 export type PositionInformation = {

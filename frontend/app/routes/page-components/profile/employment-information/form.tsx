@@ -26,7 +26,7 @@ import { InputRadios } from '~/components/input-radios';
 import { InputSelect } from '~/components/input-select';
 import { EMPLOYEE_WFA_STATUS } from '~/domain/constants';
 import type { I18nRouteFile } from '~/i18n-routes';
-import type { Errors } from '~/routes/page-components/employees/validation.server';
+import type { Errors } from '~/routes/page-components/profile/validation.server';
 import { extractValidationKey } from '~/utils/validation-utils';
 
 interface EmploymentProps {

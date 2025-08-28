@@ -20,8 +20,8 @@ import { REQUIRE_OPTIONS } from '~/domain/constants';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
-import { ReferralPreferencesForm } from '~/routes/page-components/employees/referral-preferences/form';
-import { referralPreferencesSchema } from '~/routes/page-components/employees/validation.server';
+import { ReferralPreferencesForm } from '~/routes/page-components/profile/referral-preferences/form';
+import { referralPreferencesSchema } from '~/routes/page-components/profile/validation.server';
 import { formString } from '~/utils/string-utils';
 
 export const handle = {
