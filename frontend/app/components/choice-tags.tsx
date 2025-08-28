@@ -81,9 +81,10 @@ export function ChoiceTags({ choiceTags, onClearAll, onDelete, onClearGroup }: C
                     >
                       <span>{choiceTag.label}</span>
                       <button
-                        aria-label={t('gcweb:choice-tag.choice-tag-added-aria-label', {
+                        aria-label={t('gcweb:choice-tag.choice-tag-with-group-added-aria-label', {
                           item: choiceTag.name,
                           choice: choiceTag.label,
+                          groupName: choiceTag.group,
                         })}
                         onClick={(e) => handleOnDelete(e, choiceTag)}
                         type="button"

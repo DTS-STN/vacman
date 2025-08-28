@@ -183,7 +183,7 @@ export function ReferralPreferencesForm({
             <InputMultiSelect
               id="preferred-classifications"
               name="preferredClassifications"
-              label={tApp('referral-preferences.classification')}
+              legend={tApp('referral-preferences.classification')}
               options={classificationOptions}
               value={selectedClassifications}
               onChange={(values) => setSelectedClassifications(values)}
@@ -216,10 +216,12 @@ export function ReferralPreferencesForm({
                 errorMessage={tApp(extractValidationKey(formErrors?.preferredProvince))}
                 value={province ?? ''}
                 onChange={({ target }) => setProvince(target.value)}
+                required
               />
               {province && (
                 <>
                   <InputMultiSelect
+                    ariaDescribedbyId="workLocationHelpMessage"
                     id="preferred-cities"
                     name="preferredCities"
                     errorMessage={tApp(extractValidationKey(formErrors?.preferredCities))}
@@ -227,8 +229,9 @@ export function ReferralPreferencesForm({
                     value={selectedCities}
                     onChange={(values) => setSelectedCities(values)}
                     placeholder={tApp('form.select-all-that-apply')}
-                    label={tApp('referral-preferences.city')}
+                    legend={tApp('referral-preferences.city')}
                     className="w-full sm:w-1/2"
+                    required
                   />
                 </>
               )}

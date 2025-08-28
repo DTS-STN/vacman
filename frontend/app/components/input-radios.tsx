@@ -46,6 +46,7 @@ export function InputRadios({
 
   function getAriaDescribedby() {
     const ariaDescribedby = [];
+    if (ariaDescribedbyId) ariaDescribedby.push(ariaDescribedbyId);
     if (helpMessagePrimary) ariaDescribedby.push(inputHelpMessagePrimaryId);
     if (helpMessageSecondary) ariaDescribedby.push(inputHelpMessageSecondaryId);
     return ariaDescribedby.length > 0 ? ariaDescribedby.join(' ') : undefined;
