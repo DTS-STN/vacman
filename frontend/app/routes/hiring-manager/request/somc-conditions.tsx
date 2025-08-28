@@ -1,5 +1,5 @@
-import { Form } from 'react-router';
 import type { RouteHandle } from 'react-router';
+import { Form } from 'react-router';
 
 import { useTranslation } from 'react-i18next';
 
@@ -45,11 +45,13 @@ export default function HiringManagerRequestSomcConditions({ loaderData, params 
   return (
     <>
       <BackLink
+        aria-label={t('app:hiring-manager-requests.back')}
         className="mt-6"
-        translationKey="app:hiring-manager-requests.back"
         file="routes/hiring-manager/request/index.tsx"
         params={params}
-      />
+      >
+        {t('app:hiring-manager-requests.back')}
+      </BackLink>
       <div className="max-w-prose">
         {/* TODO: componentize the form */}
         <h1 className="my-5 text-3xl font-semibold">{t('app:somc-conditions.page-title')}</h1>
