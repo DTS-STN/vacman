@@ -112,9 +112,9 @@ export default {
     'clear-all': 'Tout effacer',
     'clear-group': 'Effacer le groupe',
     'clear-group-label': "Effacer le groupe {{groupName}} d'éléments {{items}}",
-    'choice-tag-added-aria-label': '{{item}} sélectionné ajouté!: {{choice}}, Activez pour supprimer l{{item}} sélectionné.',
+    'choice-tag-added-aria-label': "{{item}} sélectionné ajouté!: {{choice}}, Activez pour supprimer l'{{item}} sélectionné.",
     'choice-tag-with-group-added-aria-label':
-      '{{item}} sélectionné ajouté!: {{choice}} {{groupName}}, Activez pour supprimer l{{item}} sélectionné.',
+      "{{item}} sélectionné ajouté!: {{choice}} {{groupName}}, Activez pour supprimer l'{{item}} sélectionné.",
     'clear-all-sr-message': 'tous les {{item}} sélectionnés ont été supprimés.',
     'removed-choice-tag-sr-message': '{{item}} sélectionné retiré: {{choice}}',
   },
