@@ -2,7 +2,6 @@ import { getUserService } from '~/.server/domain/services/user-service';
 import { LogFactory } from '~/.server/logging';
 import { requireAnyRole } from '~/.server/utils/auth-utils';
 import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
-import { getRolesFromJWT } from '~/.server/utils/jwt-utils';
 import { isHiringManagerPath, isHrAdvisorPath } from '~/.server/utils/route-matching-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 
@@ -44,9 +43,9 @@ export async function requireRoleRegistration(
 
   if (userOption.isNone()) {
     // Get roles from the access token to determine redirect destination
-    const userRoles = getRolesFromJWT(session.authState.accessToken);
+    const userRoles = session.authState.accessTokenClaims.roles;
 
-    if (userRoles.includes('hr-advisor')) {
+    if (userRoles?.includes('hr-advisor')) {
       log.debug(`Unregistered user with hr-advisor role, redirecting to hr-advisor index`);
       throw i18nRedirect('routes/hr-advisor/index.tsx', currentUrl);
     } else {
@@ -58,7 +57,7 @@ export async function requireRoleRegistration(
   const rolesArray = Array.isArray(roles) ? roles : [roles];
   requireAnyRole(session, currentUrl, rolesArray as Role[]);
 
-  const userRoles = getRolesFromJWT(session.authState.accessToken);
+  const userRoles = session.authState.accessTokenClaims.roles;
   log.debug(`User is registered with role '${userRoles}' (allowed: [${rolesArray.join(', ')}]), allowing access`);
 }
 
