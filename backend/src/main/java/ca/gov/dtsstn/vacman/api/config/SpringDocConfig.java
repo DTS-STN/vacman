@@ -1,8 +1,11 @@
 package ca.gov.dtsstn.vacman.api.config;
 
+import javax.json.JsonPatch;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springdoc.core.customizers.OpenApiCustomizer;
+import org.springdoc.core.utils.SpringDocUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.info.GitProperties;
 import org.springframework.context.annotation.Bean;
@@ -16,8 +19,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
 import ca.gov.dtsstn.vacman.api.config.properties.SwaggerUiProperties;
+import ca.gov.dtsstn.vacman.api.json.JsonPatchOperation;
+import io.swagger.v3.core.converter.AnnotatedType;
+import io.swagger.v3.core.converter.ModelConverters;
 import io.swagger.v3.oas.models.examples.Example;
 import io.swagger.v3.oas.models.info.Contact;
+import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.security.OAuthFlow;
 import io.swagger.v3.oas.models.security.OAuthFlows;
 import io.swagger.v3.oas.models.security.SecurityScheme;
@@ -62,6 +69,12 @@ public class SpringDocConfig {
 	}
 
 	@Bean OpenApiCustomizer openApiCustomizer() {
+		log.info("Registering JsonPatch OpenAPI schema");
+
+		final var jsonPatchOperationSchema = ModelConverters.getInstance().resolveAsResolvedSchema(new AnnotatedType(JsonPatchOperation.class));
+		final var jsonPatchSchema = new ArraySchema().items(jsonPatchOperationSchema.schema);
+		SpringDocUtils.getConfig().replaceWithSchema(JsonPatch.class, jsonPatchSchema);
+
 		log.info("Creating 'openApiCustomizer' bean");
 
 		return openApi -> {
