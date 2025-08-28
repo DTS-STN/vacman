@@ -9,12 +9,11 @@ import { getLanguageForCorrespondenceService } from '~/.server/domain/services/l
 import { getLanguageReferralTypeService } from '~/.server/domain/services/language-referral-type-service';
 import { getProvinceService } from '~/.server/domain/services/province-service';
 import { getWFAStatuses } from '~/.server/domain/services/wfa-status-service';
-import { serverEnvironment } from '~/.server/environment';
 import { extractUniqueBranchesFromDirectoratesNonLocalized } from '~/.server/utils/directorate-utils';
 import { getHrAdvisors } from '~/.server/utils/profile-utils';
 import { stringToIntegerSchema } from '~/.server/validation/string-to-integer-schema';
 import { EMPLOYEE_WFA_STATUS } from '~/domain/constants';
-import { getStartOfDayInTimezone, isDateInPastOrTodayInTimeZone, isValidDateString, toISODateString } from '~/utils/date-utils';
+import { isValidDateString, toISODateString } from '~/utils/date-utils';
 import { isValidPhone } from '~/utils/phone-utils';
 import { REGEX_PATTERNS } from '~/utils/regex-utils';
 import { formString } from '~/utils/string-utils';
@@ -84,10 +83,6 @@ export async function createEmploymentInformationSchema(accessToken: string, for
         wfaStartDateYear: v.pipe(
           stringToIntegerSchema('app:employment-information.errors.wfa-effective-date.required-year'),
           v.minValue(1, 'app:employment-information.errors.wfa-effective-date.invalid-year'),
-          v.maxValue(
-            getStartOfDayInTimezone(serverEnvironment.BASE_TIMEZONE).getFullYear(),
-            'app:employment-information.errors.wfa-effective-date.invalid-year',
-          ),
         ),
         wfaStartDateMonth: v.pipe(
           stringToIntegerSchema('app:employment-information.errors.wfa-effective-date.required-month'),
@@ -109,10 +104,6 @@ export async function createEmploymentInformationSchema(accessToken: string, for
               v.custom(
                 (input) => isValidDateString(input as string),
                 'app:employment-information.errors.wfa-effective-date.invalid',
-              ),
-              v.custom(
-                (input) => isDateInPastOrTodayInTimeZone(serverEnvironment.BASE_TIMEZONE, input as string),
-                'app:employment-information.errors.wfa-effective-date.invalid-future-date',
               ),
             ),
           ),
