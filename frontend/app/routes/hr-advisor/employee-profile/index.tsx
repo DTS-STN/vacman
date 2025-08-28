@@ -16,6 +16,7 @@ import { getLanguageReferralTypeService } from '~/.server/domain/services/langua
 import { getProfileService } from '~/.server/domain/services/profile-service';
 import { getProfileStatusService } from '~/.server/domain/services/profile-status-service';
 import { getUserService } from '~/.server/domain/services/user-service';
+import { serverEnvironment } from '~/.server/environment';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { getHrAdvisors } from '~/.server/utils/profile-utils';
 import { AlertMessage } from '~/components/alert-message';
@@ -140,8 +141,6 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     ?.map((classification) => allClassifications.find((c) => c.id === classification.id))
     .filter(Boolean);
   const cities = profileData.preferredCities?.map((city) => allLocalizedCities.find((c) => c.id === city.id)).filter(Boolean);
-
-  const { serverEnvironment } = await import('~/.server/environment');
 
   return {
     documentTitle: t('app:employee-profile.page-title'),

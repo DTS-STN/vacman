@@ -13,6 +13,7 @@ import { getDirectorateService } from '~/.server/domain/services/directorate-ser
 import { getLanguageReferralTypeService } from '~/.server/domain/services/language-referral-type-service';
 import { getProfileService } from '~/.server/domain/services/profile-service';
 import { getProfileStatusService } from '~/.server/domain/services/profile-status-service';
+import { serverEnvironment } from '~/.server/environment';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { requirePrivacyConsentForOwnProfile } from '~/.server/utils/privacy-consent-utils';
 import {
@@ -216,8 +217,6 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const profileCompleted = personalInformationCompleted + employmentInformationCompleted + referralPreferencesCompleted;
   const profileTotalFields = personalInformationTotalFields + employmentInformationTotalFields + referralPreferencesTotalFields;
   const amountCompleted = (profileCompleted / profileTotalFields) * 100;
-
-  const { serverEnvironment } = await import('~/.server/environment');
 
   return {
     documentTitle: t('app:profile.page-title'),
