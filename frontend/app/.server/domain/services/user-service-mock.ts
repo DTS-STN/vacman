@@ -2,7 +2,7 @@ import { Err, None, Ok, Some } from 'oxide.ts';
 import type { Option, Result } from 'oxide.ts';
 
 import type { User, UserCreate, UserUpdate, PagedUserResponse, UserQueryParams, PageMetadata } from '~/.server/domain/models';
-import { mockUsers } from '~/.server/domain/services/mockData';
+import { createUserFromEmail, mockUsers } from '~/.server/domain/services/mockData';
 import type { UserService } from '~/.server/domain/services/user-service';
 import { LogFactory } from '~/.server/logging';
 import { AppError } from '~/errors/app-error';
@@ -223,6 +223,54 @@ export function getMockUserService(): UserService {
         });
         return Promise.resolve(Err(new AppError('Failed to register current user', ErrorCodes.PROFILE_CREATE_FAILED)));
       }
+    },
+
+    /**
+     * Retrieves a user by their business email address.
+     * In mock, we simulate the find-or-create behavior:
+     * - If user exists with email, return it
+     * - If not, create a new mock user (simulating Entra ID association)
+     */
+    getUserByEmail: (email: string, _accessToken: string): Promise<Result<User, AppError>> => {
+      log.debug(`Attempting to find or create user with email: ${email}`);
+
+      // First, try to find existing user by email
+      const existingUser = mockUsers.find((u) => u.businessEmailAddress?.toLowerCase() === email.toLowerCase());
+
+      if (existingUser) {
+        log.debug(`Found existing user with email: ${email}`, {
+          userId: existingUser.id,
+          email: existingUser.businessEmailAddress,
+        });
+        return Promise.resolve(Ok(existingUser));
+      }
+
+      // If not found, create a new user (simulating Entra ID association)
+      log.debug(`User with email ${email} not found, creating new user`);
+
+      // In a real scenario, we'd check if the email is associated with an Entra ID user
+      // For mock purposes, we'll assume all @canada.ca emails are valid Entra ID users
+      if (!email.toLowerCase().endsWith('@canada.ca')) {
+        log.debug(`Email ${email} is not associated with a valid Entra ID user`);
+        return Promise.resolve(
+          Err(
+            new AppError(
+              `Email ${email} is not associated with an existing Microsoft Entra user`,
+              ErrorCodes.PROFILE_NOT_FOUND,
+            ),
+          ),
+        );
+      }
+
+      const newUser = createUserFromEmail(email);
+      mockUsers.push(newUser);
+
+      log.debug(`Successfully created new user with email: ${email}`, {
+        userId: newUser.id,
+        email: newUser.businessEmailAddress,
+      });
+
+      return Promise.resolve(Ok(newUser));
     },
   };
 

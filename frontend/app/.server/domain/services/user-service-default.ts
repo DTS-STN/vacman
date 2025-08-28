@@ -133,5 +133,37 @@ export function getDefaultUserService(): UserService {
 
       return result;
     },
+
+    /**
+     * Retrieves a user by their business email address using POST /users/find-or-create.
+     * This endpoint will find an existing user or create a new one if the email is associated
+     * with an existing Microsoft Entra user.
+     * @param email The email address of the user to retrieve.
+     * @param accessToken The access token for authorization.
+     * @returns A Result containing the user object or an error.
+     */
+    async getUserByEmail(email: string, accessToken: string): Promise<Result<User, AppError>> {
+      try {
+        const result = await apiClient.post<{ businessEmail: string }, User>(
+          '/users/find-or-create',
+          `find or create user with email ${email}`,
+          { businessEmail: email },
+          accessToken,
+        );
+
+        if (result.isErr()) {
+          const error = result.unwrapErr();
+          // Check if it's a 404 error and provide a more specific message
+          if (error.httpStatusCode === HttpStatusCodes.NOT_FOUND) {
+            return Err(new AppError(`User with email ${email} not found.`, ErrorCodes.VACMAN_API_ERROR));
+          }
+          return Err(error);
+        }
+
+        return Ok(result.unwrap());
+      } catch {
+        return Err(new AppError(`Failed to retrieve user with email ${email}`, ErrorCodes.VACMAN_API_ERROR));
+      }
+    },
   };
 }
