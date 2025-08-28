@@ -19,6 +19,8 @@ export type UserService = {
   registerCurrentUser(user: UserCreate, accessToken: string): Promise<Result<User, AppError>>;
   // PUT /api/v1/users/{id} - Update an existing user (full update)
   updateUserById(id: number, user: UserUpdate, accessToken: string): Promise<Result<User, AppError>>;
+  // POST /api/v1/users/find-or-create - Find user by email or create if associated with Entra ID
+  getUserByEmail(email: string, accessToken: string): Promise<Result<User, AppError>>;
 };
 
 export function getUserService(): UserService {

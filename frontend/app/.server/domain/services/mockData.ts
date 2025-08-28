@@ -362,6 +362,37 @@ export function createAndLinkNewMockProfile(accessToken: string): Profile {
   return newProfile;
 }
 
+export function createUserFromEmail(email: string): User {
+  const timestamp = Date.now();
+  return {
+    id: Math.max(0, ...mockUsers.map((u) => u.id)) + 1,
+    businessEmailAddress: email,
+    businessPhoneNumber: '+1-613-555-' + String(timestamp).slice(-4),
+    firstName: 'New',
+    initial: 'U',
+    lastName: 'User',
+    middleName: undefined,
+    microsoftEntraId: `mock-entra-${timestamp}`,
+    personalRecordIdentifier: String(timestamp),
+    language: {
+      id: 1,
+      code: 'EN',
+      nameEn: 'English',
+      nameFr: 'Anglais',
+    },
+    userType: {
+      id: 2,
+      code: 'EMPLOYEE',
+      nameEn: 'Employee',
+      nameFr: 'Employé',
+    },
+    createdBy: 'mock-system',
+    createdDate: new Date().toISOString(),
+    lastModifiedBy: 'mock-system',
+    lastModifiedDate: new Date().toISOString(),
+  };
+}
+
 export const mockRequests: RequestReadModel[] = [
   {
     id: 1,
