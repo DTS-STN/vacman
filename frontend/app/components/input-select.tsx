@@ -1,4 +1,3 @@
-import { forwardRef } from 'react';
 import type { ComponentProps, ReactNode } from 'react';
 
 import { InputError } from '~/components/input-error';
@@ -16,7 +15,7 @@ const inputErrorClassName = 'border-red-500 focus:border-red-500 focus:ring-red-
 export interface InputSelectProps
   extends OmitStrict<
     ComponentProps<'select'>,
-    'aria-describedby' | 'aria-errormessage' | 'aria-invalid' | 'aria-labelledby' | 'aria-required' | 'ref'
+    'aria-describedby' | 'aria-errormessage' | 'aria-invalid' | 'aria-labelledby' | 'aria-required'
   > {
   ariaDescribedbyId?: string;
   errorMessage?: string;
@@ -26,9 +25,10 @@ export interface InputSelectProps
   legendClassName?: string;
   name: string;
   options: OmitStrict<ComponentProps<'option'>, 'id'>[];
+  ref?: React.Ref<HTMLSelectElement>;
 }
 
-export const InputSelect = forwardRef<HTMLSelectElement, InputSelectProps>(function InputSelect(props, ref) {
+export function InputSelect(props: InputSelectProps) {
   const {
     ariaDescribedbyId,
     errorMessage,
@@ -39,6 +39,7 @@ export const InputSelect = forwardRef<HTMLSelectElement, InputSelectProps>(funct
     options,
     className,
     required,
+    ref,
     ...restInputProps
   } = props;
 
@@ -109,4 +110,4 @@ export const InputSelect = forwardRef<HTMLSelectElement, InputSelectProps>(funct
       )}
     </Container>
   );
-});
+}
