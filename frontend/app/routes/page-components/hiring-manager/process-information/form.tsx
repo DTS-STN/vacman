@@ -30,7 +30,7 @@ import { InputRadios } from '~/components/input-radios';
 import type { InputRadiosProps } from '~/components/input-radios';
 import { InputSelect } from '~/components/input-select';
 import { InputTextarea } from '~/components/input-textarea';
-import { EMPLOYMENT_TENURE, REQUIRE_OPTIONS } from '~/domain/constants';
+import { EMPLOYMENT_TENURE, REQUIRE_OPTIONS, SELECTION_PROCESS_TYPE } from '~/domain/constants';
 import type { I18nRouteFile } from '~/i18n-routes';
 import { extractValidationKey } from '~/utils/validation-utils';
 
@@ -78,13 +78,39 @@ export function ProcessInformationForm({
   const { t: tApp } = useTranslation('app');
   const { t: tGcweb } = useTranslation('gcweb');
 
+  const [priorityEntitlement, setPriorityEntitlement] = useState(formValues?.priorityEntitlement);
   const [selectionProcessType, setSelectionProcessType] = useState(formValues?.preferredSelectionProcessType?.toString());
+  const [employmentTenure, setEmploymentTenure] = useState(
+    employmentTenures.find((c) => c.id === formValues?.employmentTenure?.id)?.code,
+  );
+  const [employmentEquityIdentified, setEmploymentEquityIdentified] = useState(formValues?.employmentEquityIdentified);
+
+  const handlePriorityEntitlementChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedValue = event.target.value;
+    setPriorityEntitlement(selectedValue === REQUIRE_OPTIONS.yes);
+  };
+
+  const handleEmploymentTenureChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedValue = event.target.value;
+    const selectedTenure = employmentTenures.find((c) => c.id === Number(selectedValue))?.code;
+    setEmploymentTenure(selectedTenure);
+  };
+
+  const handleEmploymentEquityIdentifiedChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedValue = event.target.value;
+    setEmploymentEquityIdentified(selectedValue === REQUIRE_OPTIONS.yes);
+  };
 
   const selectionProcessTypeOptions = [{ id: 'select-option', name: '' }, ...selectionProcessTypes].map(({ id, name }) => ({
     value: id === 'select-option' ? '' : String(id),
     children: id === 'select-option' ? tApp('form.select-option') : name,
   }));
-  const nonAdvertisedAppointmentOptions = nonAdvertisedAppointments.map(({ id, name }) => ({
+  const internalNonAdvertisedAppointmentOptions = nonAdvertisedAppointments.slice(0, 7).map(({ id, name }) => ({
+    value: String(id),
+    children: name,
+    defaultChecked: id === formValues?.nonAdvertisedAppointment?.id,
+  }));
+  const externalNonAdvertisedAppointmentOptions = nonAdvertisedAppointments.slice(7).map(({ id, name }) => ({
     value: String(id),
     children: name,
     defaultChecked: id === formValues?.nonAdvertisedAppointment?.id,
@@ -92,6 +118,7 @@ export function ProcessInformationForm({
   const employmentTenureOptions = employmentTenures.map(({ id, name }) => ({
     value: String(id),
     children: name,
+    onChange: handleEmploymentTenureChange,
     defaultChecked: id === formValues?.employmentTenure?.id,
   }));
   const workScheduleOptions = workSchedules.map(({ id, name }) => ({
@@ -108,11 +135,13 @@ export function ProcessInformationForm({
     {
       children: tGcweb('input-option.yes'),
       value: REQUIRE_OPTIONS.yes,
+      onChange: handlePriorityEntitlementChange,
       defaultChecked: formValues?.priorityEntitlement === true,
     },
     {
       children: tGcweb('input-option.no'),
       value: REQUIRE_OPTIONS.no,
+      onChange: handlePriorityEntitlementChange,
       defaultChecked: formValues?.priorityEntitlement === false,
     },
   ];
@@ -132,11 +161,13 @@ export function ProcessInformationForm({
     {
       children: tGcweb('input-option.yes'),
       value: REQUIRE_OPTIONS.yes,
+      onChange: handleEmploymentEquityIdentifiedChange,
       defaultChecked: formValues?.employmentEquityIdentified === true,
     },
     {
       children: tGcweb('input-option.no'),
       value: REQUIRE_OPTIONS.no,
+      onChange: handleEmploymentEquityIdentifiedChange,
       defaultChecked: formValues?.employmentEquityIdentified === false,
     },
   ];
@@ -173,16 +204,18 @@ export function ProcessInformationForm({
               errorMessage={tApp(extractValidationKey(formErrors?.priorityEntitlement))}
               required
             />
-            <InputTextarea
-              id="priority-entitlement-rationale"
-              className="w-full"
-              label={tApp('process-information.priority-entitlement-rationale')}
-              name="priorityEntitlementRationale"
-              defaultValue={formValues?.priorityEntitlementRationale}
-              errorMessage={tApp(extractValidationKey(formErrors?.priorityEntitlementRationale))}
-              helpMessage={tApp('process-information.priority-entitlement-rationale-help-message')}
-              maxLength={100}
-            />
+            {priorityEntitlement === true && (
+              <InputTextarea
+                id="priority-entitlement-rationale"
+                className="w-full"
+                label={tApp('process-information.priority-entitlement-rationale')}
+                name="priorityEntitlementRationale"
+                defaultValue={formValues?.priorityEntitlementRationale}
+                errorMessage={tApp(extractValidationKey(formErrors?.priorityEntitlementRationale))}
+                helpMessage={tApp('process-information.priority-entitlement-rationale-help-message')}
+                maxLength={100}
+              />
+            )}
             <InputSelect
               className="w-full sm:w-1/2"
               id="selection-process-type"
@@ -193,22 +226,31 @@ export function ProcessInformationForm({
               value={selectionProcessType ?? ''}
               onChange={({ target }) => setSelectionProcessType(target.value)}
             />
-            <InputRadios
-              id="performed-duties"
-              name="performedDuties"
-              legend={tApp('process-information.performed-duties')}
-              options={performedDutiesOptions}
-              errorMessage={tApp(extractValidationKey(formErrors?.performedDuties))}
-              required
-            />
-            <InputRadios
-              id="non-advertised-appointment"
-              name="nonAdvertisedAppointment"
-              legend={tApp('process-information.non-advertised-appointment')}
-              options={nonAdvertisedAppointmentOptions}
-              errorMessage={tApp(extractValidationKey(formErrors?.nonAdvertisedAppointment))}
-              required
-            />
+            {(selectionProcessType === SELECTION_PROCESS_TYPE.externalNonAdvertised ||
+              selectionProcessType === SELECTION_PROCESS_TYPE.internalNonAdvertised) && (
+              <>
+                <InputRadios
+                  id="performed-duties"
+                  name="performedDuties"
+                  legend={tApp('process-information.performed-duties')}
+                  options={performedDutiesOptions}
+                  errorMessage={tApp(extractValidationKey(formErrors?.performedDuties))}
+                  required
+                />
+                <InputRadios
+                  id="non-advertised-appointment"
+                  name="nonAdvertisedAppointment"
+                  legend={tApp('process-information.non-advertised-appointment')}
+                  options={
+                    selectionProcessType === SELECTION_PROCESS_TYPE.externalNonAdvertised
+                      ? externalNonAdvertisedAppointmentOptions
+                      : internalNonAdvertisedAppointmentOptions
+                  }
+                  errorMessage={tApp(extractValidationKey(formErrors?.nonAdvertisedAppointment))}
+                  required
+                />
+              </>
+            )}
             <InputRadios
               id="employment-tenure"
               name="employmentTenure"
@@ -217,7 +259,7 @@ export function ProcessInformationForm({
               errorMessage={tApp(extractValidationKey(formErrors?.employmentTenure))}
               required
             />
-            {formValues?.employmentTenure?.code === EMPLOYMENT_TENURE.term && (
+            {employmentTenure === EMPLOYMENT_TENURE.term && (
               <>
                 <DatePickerField
                   defaultValue={formValues?.projectedStartDate ?? ''}
@@ -270,15 +312,17 @@ export function ProcessInformationForm({
               errorMessage={tApp(extractValidationKey(formErrors?.employmentEquityIdentified))}
               required
             />
-            <InputCheckboxes
-              id="preferred-employment-equities"
-              errorMessage={tApp(extractValidationKey(formErrors?.preferredEmploymentEquities))}
-              legend={tApp('process-information.preferred-employment-equities')}
-              name="preferredEmploymentEquities"
-              options={employmentEquityOptions}
-              helpMessagePrimary={tApp('process-information.preferred-employment-equities-help-message')}
-              required
-            />
+            {employmentEquityIdentified === true && (
+              <InputCheckboxes
+                id="preferred-employment-equities"
+                errorMessage={tApp(extractValidationKey(formErrors?.preferredEmploymentEquities))}
+                legend={tApp('process-information.preferred-employment-equities')}
+                name="preferredEmploymentEquities"
+                options={employmentEquityOptions}
+                helpMessagePrimary={tApp('process-information.preferred-employment-equities-help-message')}
+                required
+              />
+            )}
             <div className="mt-8 flex flex-row-reverse flex-wrap items-center justify-end gap-3">
               <Button name="action" variant="primary" id="save-button">
                 {tApp('form.save')}

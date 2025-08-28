@@ -177,3 +177,8 @@ export const EMPLOYMENT_TENURE = {
   term: 'TERM',
   indeterminate: 'INDETERMINATE',
 } as const;
+
+export const SELECTION_PROCESS_TYPE = {
+  externalNonAdvertised: '3',
+  internalNonAdvertised: '5',
+} as const;
