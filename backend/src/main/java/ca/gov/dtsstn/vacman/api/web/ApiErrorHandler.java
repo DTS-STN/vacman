@@ -3,6 +3,8 @@ package ca.gov.dtsstn.vacman.api.web;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import javax.json.JsonException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -21,6 +23,8 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 import ca.gov.dtsstn.vacman.api.web.exception.ForbiddenException;
 import ca.gov.dtsstn.vacman.api.web.exception.ResourceConflictException;
 import ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 
 @RestControllerAdvice
 public class ApiErrorHandler extends ResponseEntityExceptionHandler {
@@ -28,7 +32,7 @@ public class ApiErrorHandler extends ResponseEntityExceptionHandler {
 	private static final Logger log = LoggerFactory.getLogger(ApiErrorHandler.class);
 
 	@ExceptionHandler({ AccessDeniedException.class })
-	public ResponseEntity<?> handleAccessDeniedException(AccessDeniedException exception, WebRequest request) {
+	public ResponseEntity<Object> handleAccessDeniedException(AccessDeniedException exception, WebRequest request) {
 		final var correlationId = generateCorrelationId();
 
 		final var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN, "The server understands the request but refuses to authorize it.");
@@ -38,8 +42,23 @@ public class ApiErrorHandler extends ResponseEntityExceptionHandler {
 		return super.handleExceptionInternal(exception, problemDetail, new HttpHeaders(), HttpStatus.FORBIDDEN, request);
 	}
 
+	@ExceptionHandler({ ConstraintViolationException.class })
+	public ResponseEntity<Object> handleConstraintViolationException(ConstraintViolationException exception, WebRequest request) {
+		final var correlationId = generateCorrelationId();
+
+		final var errors = exception.getConstraintViolations().stream()
+			.collect(Collectors.toMap(ConstraintViolation::getPropertyPath, ConstraintViolation::getMessage));
+
+		final var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "Validation failed for the patched resource.");
+		problemDetail.setProperty("correlationId", correlationId);
+		problemDetail.setProperty("errors", errors);
+		problemDetail.setProperty("errorCode", "API-0400");
+
+		return super.handleExceptionInternal(exception, problemDetail, new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
+	}
+
 	@ExceptionHandler({ ForbiddenException.class })
-	public ResponseEntity<?> handleForbiddenException(ForbiddenException exception, WebRequest request) {
+	public ResponseEntity<Object> handleForbiddenException(ForbiddenException exception, WebRequest request) {
 		final var correlationId = generateCorrelationId();
 
 		final var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN, exception.getMessage());
@@ -47,6 +66,17 @@ public class ApiErrorHandler extends ResponseEntityExceptionHandler {
 		problemDetail.setProperty("errorCode", "API-0403");
 
 		return super.handleExceptionInternal(exception, problemDetail, new HttpHeaders(), HttpStatus.FORBIDDEN, request);
+	}
+
+	@ExceptionHandler({ JsonException.class })
+	public ResponseEntity<Object> handleJsonException(JsonException exception, WebRequest request) {
+		final var correlationId = generateCorrelationId();
+
+		final var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "The JSON Patch request is malformed or contains an invalid path. Please check the patch document syntax and ensure all paths are correct.");
+		problemDetail.setProperty("correlationId", correlationId);
+		problemDetail.setProperty("errorCode", "API-0400");
+
+		return super.handleExceptionInternal(exception, problemDetail, new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
 	}
 
 	@Override
@@ -59,13 +89,13 @@ public class ApiErrorHandler extends ResponseEntityExceptionHandler {
 		final var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "One or more fields have invalid values");
 		problemDetail.setProperty("correlationId", correlationId);
 		problemDetail.setProperty("errors", errors);
-		problemDetail.setProperty("errorCode", "API-0409");
+		problemDetail.setProperty("errorCode", "API-0400"); // Changed to 400 from 409 for consistency
 
 		return handleExceptionInternal(ex, problemDetail, headers, status, request);
 	}
 
 	@ExceptionHandler({ ResourceConflictException.class })
-	public ResponseEntity<?> handleResourceConflictException(ResourceConflictException exception, WebRequest request) {
+	public ResponseEntity<Object> handleResourceConflictException(ResourceConflictException exception, WebRequest request) {
 		final var correlationId = generateCorrelationId();
 		log.error("[correlationId: {}] Request processing failed; nested exception is {}: {}", correlationId, exception.getClass().getName(), exception.getMessage(), exception);
 
@@ -77,7 +107,7 @@ public class ApiErrorHandler extends ResponseEntityExceptionHandler {
 	}
 
 	@ExceptionHandler({ ResourceNotFoundException.class })
-	public ResponseEntity<?> handleResourceNotFoundException(ResourceNotFoundException exception, WebRequest request) {
+	public ResponseEntity<Object> handleResourceNotFoundException(ResourceNotFoundException exception, WebRequest request) {
 		final var correlationId = generateCorrelationId();
 
 		final var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, exception.getMessage());
