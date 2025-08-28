@@ -14,7 +14,7 @@ import { InputPhoneField } from '~/components/input-phone-field';
 import { InputRadios } from '~/components/input-radios';
 import { InputTextarea } from '~/components/input-textarea';
 import type { I18nRouteFile } from '~/i18n-routes';
-import type { Errors } from '~/routes/page-components/employees/validation.server';
+import type { Errors } from '~/routes/page-components/profile/validation.server';
 import { extractValidationKey } from '~/utils/validation-utils';
 
 export type UserPersonalInformation = {

@@ -18,8 +18,8 @@ import { BackLink } from '~/components/back-link';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
-import { PositionInformationForm } from '~/routes/page-components/employees/position-information/form';
-import { positionInformationSchema } from '~/routes/page-components/employees/validation.server';
+import { PositionInformationForm } from '~/routes/page-components/requests/position-information/form';
+import { positionInformationSchema } from '~/routes/page-components/requests/validation.server';
 import { formString } from '~/utils/string-utils';
 
 export const handle = {
