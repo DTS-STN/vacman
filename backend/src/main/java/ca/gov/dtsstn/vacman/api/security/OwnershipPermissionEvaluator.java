@@ -62,20 +62,6 @@ public class OwnershipPermissionEvaluator implements PermissionEvaluator {
 			return false;
 		}
 
-		// Special case for 'READ' permission on 'REQUEST' type since "owner" in this case is one of:
-		// - submitter
-		// - hiring manager
-		// - sub-delegated manager
-		if ("READ".equals(permission.toString()) && "REQUEST".equalsIgnoreCase(targetType)) {
-			boolean isAssociated = requestService.isUserAssociatedWithRequest((Long) targetId, currentUserId.get());
-
-			if (!isAssociated) {
-				log.warn("Access denied: user is not associated with request; targetId=[{}], currentUserId=[{}]", targetId, currentUserId.get());
-			}
-
-			return isAssociated;
-		}
-
 		final var targetResource = getTargetResource((Long) targetId, targetType);
 
 		if (targetResource.isEmpty()) {
@@ -94,14 +80,16 @@ public class OwnershipPermissionEvaluator implements PermissionEvaluator {
 
 			final var isOwner = currentUserId.map(owner::equals).orElse(false);
 
-			if (isOwner) {
-				//
-				// currently, ownership grants all permissions
-				// (this switch is a placeholder for future checks)
-				//
-				return switch (permission) {
-					default -> true;
-				};
+			final var isDelegate = "READ".equals(permission.toString()) &&
+			                      ownable.getDelegateIds().contains(currentUserId.get());
+
+			if (isOwner || isDelegate) {
+				if (isDelegate && !"READ".equals(permission.toString())) {
+					log.warn("Access denied: user is a delegate but requested non-READ permission; permission=[{}], targetType=[{}], targetId=[{}], currentUserId=[{}]", permission, targetType, targetId, currentUserId.get());
+					return false;
+				}
+
+				return true;
 			}
 		}
 

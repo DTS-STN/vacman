@@ -5,8 +5,10 @@ import static java.util.stream.Collectors.toUnmodifiableSet;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -575,6 +577,21 @@ public class RequestEntity extends AbstractBaseEntity implements Ownable {
 		return Optional.ofNullable(submitter)
 			.map(UserEntity::getId)
 			.orElse(null);
+	}
+
+	@Override
+	public List<Long> getDelegateIds() {
+		List<Long> delegates = new ArrayList<>();
+
+		Optional.ofNullable(hiringManager)
+			.map(UserEntity::getId)
+			.ifPresent(delegates::add);
+
+		Optional.ofNullable(subDelegatedManager)
+			.map(UserEntity::getId)
+			.ifPresent(delegates::add);
+
+		return delegates;
 	}
 
 	@Override
