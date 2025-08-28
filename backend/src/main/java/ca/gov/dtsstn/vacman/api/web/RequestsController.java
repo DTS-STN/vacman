@@ -101,16 +101,16 @@ public class RequestsController {
 		log.info("Received request to create new request");
 
 		final var entraId = SecurityUtils.getCurrentUserEntraId()
-				.orElseThrow(asEntraIdUnauthorizedException());
+			.orElseThrow(asEntraIdUnauthorizedException());
 
 		final var currentUser = userService.getUserByMicrosoftEntraId(entraId)
-				.orElseThrow(asUserResourceNotFoundException(MS_ENTRA_ID, entraId));
+			.orElseThrow(asUserResourceNotFoundException(MS_ENTRA_ID, entraId));
 
 		final var request = requestService.createRequest(currentUser);
 
 		final var location = ServletUriComponentsBuilder.fromCurrentContextPath()
-				.path(AppConstants.ApiPaths.REQUESTS + "/{id}")
-				.buildAndExpand(request.getId()).toUri();
+			.path(AppConstants.ApiPaths.REQUESTS + "/{id}")
+			.buildAndExpand(request.getId()).toUri();
 
 		return ResponseEntity.created(location).body(requestModelMapper.toModel(request));
 	}
