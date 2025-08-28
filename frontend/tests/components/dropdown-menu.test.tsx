@@ -96,7 +96,7 @@ describe('DropdownMenu', () => {
           <DropdownMenuCheckboxItem disabled>Activity Bar</DropdownMenuCheckboxItem>
           <DropdownMenuCheckboxItem>Panel</DropdownMenuCheckboxItem>
           <DropdownMenuSeparator />
-          <DropdownMenuRadioGroup value={'top'}>
+          <DropdownMenuRadioGroup value="top">
             <DropdownMenuRadioItem value="top">Top</DropdownMenuRadioItem>
             <DropdownMenuRadioItem value="bottom">Bottom</DropdownMenuRadioItem>
             <DropdownMenuRadioItem value="right">Right</DropdownMenuRadioItem>

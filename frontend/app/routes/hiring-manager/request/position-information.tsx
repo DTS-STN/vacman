@@ -108,7 +108,7 @@ export default function HiringManagerRequestPositionInformation({ loaderData, ac
       />
       <div className="max-w-prose">
         <PositionInformationForm
-          cancelLink={'routes/hiring-manager/request/index.tsx'}
+          cancelLink="routes/hiring-manager/request/index.tsx"
           formErrors={errors}
           formValues={loaderData.defaultValues}
           languageRequirements={loaderData.languageRequirements}

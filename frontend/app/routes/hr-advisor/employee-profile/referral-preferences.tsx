@@ -138,7 +138,7 @@ export default function PersonalDetails({ loaderData, actionData, params }: Rout
       <BackLink className="mt-6" file="routes/hr-advisor/employee-profile/index.tsx" params={params} />
       <div className="max-w-prose">
         <ReferralPreferencesForm
-          cancelLink={'routes/hr-advisor/employee-profile/index.tsx'}
+          cancelLink="routes/hr-advisor/employee-profile/index.tsx"
           formValues={loaderData.defaultValues}
           preferredProvince={loaderData.defaultValues.preferredProvince}
           formErrors={errors}

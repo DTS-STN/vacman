@@ -131,7 +131,7 @@ export default function EmploymentInformation({ loaderData, actionData, params }
       <BackLink className="mt-6" file="routes/hr-advisor/employee-profile/index.tsx" params={params} />
       <div className="max-w-prose">
         <EmploymentInformationForm
-          cancelLink={'routes/hr-advisor/employee-profile/index.tsx'}
+          cancelLink="routes/hr-advisor/employee-profile/index.tsx"
           formValues={loaderData.defaultValues}
           formErrors={errors}
           substantivePositions={loaderData.substantivePositions}
