@@ -165,7 +165,7 @@ export function PositionInformationForm({
                 required
                 options={cityOptions}
                 label={t('position-information.location-city')}
-                // defaultValue={formValues?.cities[0]?.provinceTerritory.id !== undefined ? String(formValues.provinceId) : ''}
+                defaultValue={formValues?.cities !== undefined ? String(formValues.cities[0]?.provinceTerritory.id) : ''}
                 className="w-full sm:w-1/2"
               />
             )}
