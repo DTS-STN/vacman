@@ -37,7 +37,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 
   const formData = await request.formData();
   const parseResult = v.safeParse(positionInformationSchema, {
-    positionNumbers: formString(formData.get('positionNumbers')),
+    positionNumber: formString(formData.get('positionNumber')),
     groupAndLevel: formString(formData.get('groupAndLevel')),
     titleEn: formString(formData.get('titleEn')),
     titleFr: formString(formData.get('titleFr')),
@@ -71,7 +71,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 
   const requestPayload: RequestUpdateModel = {
     ...requestData,
-    positionNumbers: parseResult.output.positionNumbers.split(',').map((num) => num.trim()),
+    positionNumbers: parseResult.output.positionNumber.split(',').map((num) => num.trim()),
     classificationId: Number(parseResult.output.groupAndLevel),
     englishTitle: parseResult.output.titleEn,
     frenchTitle: parseResult.output.titleFr,
@@ -127,15 +127,14 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   return {
     documentTitle: t('app:position-information.page-title'),
     defaultValues: {
-      positionNumbers: requestData.positionNumbers,
-      classificationId: requestData.classificationId,
+      positionNumber: requestData.positionNumber,
+      classification: requestData.classification,
       englishTitle: requestData.englishTitle,
       frenchTitle: requestData.frenchTitle,
-      provinceId: requestData.provinceId,
       englishLanguageProfile: requestData.englishLanguageProfile,
       frenchLanguageProfile: requestData.frenchLanguageProfile,
-      languageRequirementId: requestData.languageRequirementId,
-      securityClearanceId: requestData.securityClearanceId,
+      languageRequirementId: requestData.languageRequirement,
+      securityClearanceId: requestData.securityClearance,
     },
     languageRequirements: localizedLanguageRequirements,
     classifications: localizedClassifications,

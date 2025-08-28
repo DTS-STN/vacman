@@ -52,10 +52,12 @@ export function PositionInformationForm({
 }: PositionInformationFormProps): JSX.Element {
   const { t } = useTranslation('app');
 
-  const [province, setProvince] = useState(formValues?.provinceId !== undefined ? String(formValues.provinceId) : undefined);
+  const [province, setProvince] = useState(
+    formValues?.cities !== undefined ? String(formValues.cities[0]?.provinceTerritory.id) : undefined,
+  );
 
   const [languageRequirementCode, setLanguageRequirementCode] = useState(
-    languageRequirements.find((c) => c.id === formValues?.languageRequirementId)?.code,
+    languageRequirements.find((c) => c.id === formValues?.languageRequirement?.id)?.code,
   );
 
   const handleLanguageRequirementChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -90,14 +92,14 @@ export function PositionInformationForm({
   const securityClearanceOptions = securityClearances.map(({ id, name }) => ({
     value: String(id),
     children: name,
-    defaultChecked: id === formValues?.securityClearanceId,
+    defaultChecked: id === formValues?.securityClearance?.id,
   }));
 
   const languageRequirementOptions: InputRadiosProps['options'] = languageRequirements.map(({ id, name }) => ({
     value: String(id),
     children: name,
     onChange: handleLanguageRequirementChange,
-    defaultChecked: formValues?.languageRequirementId === id,
+    defaultChecked: formValues?.languageRequirement?.id === id,
   }));
 
   return (
@@ -111,7 +113,7 @@ export function PositionInformationForm({
               id="position-numbers"
               name="positionNumbers"
               label={t('position-information.position-number')}
-              defaultValue={formValues?.positionNumbers?.join(', ')}
+              defaultValue={formValues?.positionNumber}
               errorMessage={t(extractValidationKey(formErrors?.positionNumbers))}
               helpMessagePrimary={t('position-information.position-number-instruction')}
               required
@@ -123,7 +125,7 @@ export function PositionInformationForm({
               required
               options={groupAndLevelOptions}
               label={t('employment-information.substantive-position-group-and-level')}
-              defaultValue={formValues?.classificationId !== undefined ? String(formValues.classificationId) : ''}
+              defaultValue={formValues?.classification !== undefined ? String(formValues.classification.id) : ''}
               className="w-full sm:w-1/2"
             />
             <InputField
@@ -163,7 +165,7 @@ export function PositionInformationForm({
                 required
                 options={cityOptions}
                 label={t('position-information.location-city')}
-                defaultValue={formValues?.provinceId !== undefined ? String(formValues.provinceId) : ''}
+                // defaultValue={formValues?.cities[0]?.provinceTerritory.id !== undefined ? String(formValues.provinceId) : ''}
                 className="w-full sm:w-1/2"
               />
             )}
