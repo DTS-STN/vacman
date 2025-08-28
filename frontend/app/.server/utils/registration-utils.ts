@@ -66,6 +66,26 @@ export async function checkHiringManagerRouteRegistration(session: Authenticated
   await requireRoleRegistration(session, request, ['admin', 'hiring-manager'], isHiringManagerPath);
 }
 
+/**
+ * Checks if the authenticated user has proper HR advisor route registration and permissions.
+ *
+ * This function validates HR advisor route access by:
+ * 1. Checking if the current URL is an HR advisor path
+ * 2. Verifying the user is registered in the system
+ * 3. Ensuring the user has either 'admin' or 'hr-advisor' roles
+ *
+ * For unregistered users, redirects are performed based on their JWT roles:
+ * - Users with 'hr-advisor' role are redirected to HR advisor registration
+ * - Other users are redirected to employee registration
+ *
+ * @param session - The authenticated session containing user authentication state
+ * @param request - The incoming HTTP request object
+ *
+ * @throws {Response} Redirects unregistered users to appropriate registration routes
+ * @throws {AppError} Throws an AppError if the registered user lacks 'admin' or 'hr-advisor' roles
+ *
+ * @returns A promise that resolves if validation passes, or throws on redirect/validation failure
+ */
 export async function checkHrAdvisorRouteRegistration(session: AuthenticatedSession, request: Request): Promise<void> {
   await requireRoleRegistration(session, request, ['admin', 'hr-advisor'], isHrAdvisorPath);
 }
