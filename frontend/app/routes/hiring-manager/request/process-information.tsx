@@ -2,6 +2,7 @@ import type { RouteHandle } from 'react-router';
 
 import type { Route } from './+types/process-information';
 
+import { getEmploymentEquityService } from '~/.server/domain/services/employment-equity-service';
 import { getEmploymentTenureService } from '~/.server/domain/services/employment-tenure-service';
 import { getNonAdvertisedAppointmentService } from '~/.server/domain/services/non-advertised-appointment-service';
 import { getSelectionProcessTypeService } from '~/.server/domain/services/selection-process-type-service';
@@ -28,7 +29,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const localizedNonAdvertisedAppointmentsResult = await getNonAdvertisedAppointmentService().listAllLocalized(lang);
   const localizedEmploymentTenures = await getEmploymentTenureService().listAllLocalized(lang);
   const localizedWorkSchedules = await getWorkScheduleService().listAllLocalized(lang);
-  const localizedEmploymentEquities = await getEmploymentTenureService().listAllLocalized(lang);
+  const localizedEmploymentEquities = await getEmploymentEquityService().listAllLocalized(lang);
 
   return {
     documentTitle: t('app:process-information.page-title'),
