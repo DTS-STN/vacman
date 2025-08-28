@@ -334,7 +334,6 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
               ? t('app:profile.about-para-1-pending')
               : t('app:profile.about-para-1')}
           </p>
-          <p className="mt-4">{t('app:profile.about-para-2')}</p>
         </div>
         <fetcher.Form className="mt-6 flex place-content-end space-x-5 md:mt-auto" method="post" noValidate>
           <ButtonLink variant="alternative" file="routes/employee/index.tsx" id="save" disabled={isSubmitting}>
@@ -460,18 +459,16 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
                 <DescriptionListItem term={t('app:employment-information.wfa-status')}>
                   {loaderData.employmentInformation.wfaStatus ?? t('app:profile.not-provided')}
                 </DescriptionListItem>
+                <DescriptionListItem term={t('app:employment-information.wfa-effective-date')}>
+                  {loaderData.employmentInformation.wfaEffectiveDate ?? t('app:profile.not-provided')}
+                </DescriptionListItem>
                 {(loaderData.employmentInformation.wfaStatusCode === EMPLOYEE_WFA_STATUS.opting ||
                   loaderData.employmentInformation.wfaStatusCode === EMPLOYEE_WFA_STATUS.exOpting ||
                   loaderData.employmentInformation.wfaStatusCode === EMPLOYEE_WFA_STATUS.surplusOptingOptionA ||
                   loaderData.employmentInformation.wfaStatusCode === EMPLOYEE_WFA_STATUS.exSurplusCPA) && (
-                  <>
-                    <DescriptionListItem term={t('app:employment-information.wfa-effective-date')}>
-                      {loaderData.employmentInformation.wfaEffectiveDate ?? t('app:profile.not-provided')}
-                    </DescriptionListItem>
-                    <DescriptionListItem term={t('app:employment-information.wfa-end-date')}>
-                      {loaderData.employmentInformation.wfaEndDate ?? t('app:profile.not-provided')}
-                    </DescriptionListItem>
-                  </>
+                  <DescriptionListItem term={t('app:employment-information.wfa-end-date')}>
+                    {loaderData.employmentInformation.wfaEndDate ?? t('app:profile.not-provided')}
+                  </DescriptionListItem>
                 )}
                 <DescriptionListItem term={t('app:employment-information.hr-advisor')}>
                   {loaderData.employmentInformation.hrAdvisor ?? t('app:profile.not-provided')}

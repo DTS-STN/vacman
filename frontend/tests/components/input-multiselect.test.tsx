@@ -66,7 +66,7 @@ describe('InputMultiSelect', () => {
     defaultProps = {
       id: 'framework',
       name: 'frameworks',
-      label: 'Favorite Frameworks',
+      legend: 'Favorite Frameworks',
       options: MOCK_OPTIONS,
       value: [],
       onChange,

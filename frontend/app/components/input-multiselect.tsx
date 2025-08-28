@@ -8,7 +8,7 @@ import { useTranslation } from 'react-i18next';
 import { InputCheckbox } from '~/components/input-checkbox';
 import { InputError } from '~/components/input-error';
 import { InputHelp } from '~/components/input-help';
-import { InputLabel } from '~/components/input-label';
+import { InputLegend } from '~/components/input-legend';
 import { cn } from '~/utils/tailwind-utils';
 
 const triggerBaseClassName =
@@ -29,11 +29,12 @@ export interface MultiSelectOption
 }
 
 export interface InputMultiSelectProps extends OmitStrict<ComponentProps<'div'>, 'id' | 'onChange'> {
+  ariaDescribedbyId?: string;
   value: string[];
   onChange: (selectedValues: string[]) => void;
   options: MultiSelectOption[];
   id: string;
-  label: string;
+  legend: string;
   name: string;
   errorMessage?: string;
   helpMessage?: ReactNode;
@@ -44,10 +45,11 @@ export interface InputMultiSelectProps extends OmitStrict<ComponentProps<'div'>,
 
 export function InputMultiSelect(props: InputMultiSelectProps) {
   const {
+    ariaDescribedbyId,
     errorMessage,
     helpMessage,
     id,
-    label,
+    legend,
     options,
     className,
     required,
@@ -65,7 +67,7 @@ export function InputMultiSelect(props: InputMultiSelectProps) {
 
   const inputErrorId = `input-${id}-error`;
   const inputHelpMessageId = `input-${id}-help`;
-  const inputLabelId = `input-${id}-label`;
+  const inputLegendId = `input-${id}-legend`;
   const inputWrapperId = `input-${id}`;
   const dropdownId = `${id}-dropdown`;
 
@@ -111,103 +113,110 @@ export function InputMultiSelect(props: InputMultiSelectProps) {
     return t('gcweb:input.input-items-selected', { count: value.length });
   };
 
+  const ariaDescribedbyIds =
+    [
+      !!helpMessage && inputHelpMessageId, //
+      !!ariaDescribedbyId && ariaDescribedbyId,
+    ]
+      .filter(Boolean)
+      .join(' ') || undefined;
+
   return (
-    <div id={inputWrapperId} className="relative" ref={wrapperRef} {...restDivProps}>
-      <InputLabel id={inputLabelId} htmlFor={id} className="mb-2" required={required}>
-        {label}
-      </InputLabel>
-
-      {errorMessage && (
-        <p className="mb-2">
-          <InputError id={inputErrorId}>{errorMessage}</InputError>
-        </p>
-      )}
-
-      {value.map((val) => (
-        <input type="hidden" name={name} key={val} value={val} />
-      ))}
-
-      {helpMessage && (
-        <InputHelp id={inputHelpMessageId} className="mt-2 mb-2">
-          {helpMessage}
-        </InputHelp>
-      )}
-
-      <div
-        id={id}
-        role="combobox"
-        tabIndex={disabled ? -1 : 0}
-        aria-disabled={disabled}
-        aria-haspopup="listbox"
-        aria-expanded={isOpen}
-        aria-controls={dropdownId}
-        aria-invalid={!!errorMessage}
-        aria-errormessage={errorMessage ? inputErrorId : undefined}
-        aria-labelledby={inputLabelId}
-        aria-describedby={[helpMessage && inputHelpMessageId].filter(Boolean).join(' ') || undefined}
-        onClick={disabled ? undefined : () => setIsOpen(!isOpen)}
-        onKeyDown={
-          disabled
-            ? undefined
-            : (e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault(); // Prevent space from scrolling
-                  setIsOpen(!isOpen);
-                }
-              }
-        }
-        className={cn(
-          triggerBaseClassName,
-          disabled && triggerDisabledClassName,
-          errorMessage && triggerErrorClassName,
-          className,
+    <div className="relative" ref={wrapperRef} {...restDivProps}>
+      <fieldset id={inputWrapperId} aria-describedby={ariaDescribedbyId}>
+        <InputLegend id={inputLegendId} required={required}>
+          {legend}
+        </InputLegend>
+        {errorMessage && (
+          <p className="mb-2">
+            <InputError id={inputErrorId}>{errorMessage}</InputError>
+          </p>
         )}
-      >
-        <span className="block truncate">{getDisplayValue()}</span>
-        <span className="pointer-events-none inset-y-0 right-0 flex items-center pr-2">
-          {isOpen ? (
-            <FontAwesomeIcon icon={faChevronUp} className="my-auto size-3 text-gray-400" />
-          ) : (
-            <FontAwesomeIcon icon={faChevronDown} className="my-auto size-3 text-gray-400" />
+        {value.map((val) => (
+          <input type="hidden" name={name} key={val} value={val} />
+        ))}
+        {helpMessage && (
+          <InputHelp id={inputHelpMessageId} className="mt-2 mb-2">
+            {helpMessage}
+          </InputHelp>
+        )}
+
+        <div
+          id={id}
+          role="combobox"
+          tabIndex={disabled ? -1 : 0}
+          aria-required={required ? true : undefined}
+          aria-disabled={disabled}
+          aria-haspopup="listbox"
+          aria-expanded={isOpen}
+          aria-controls={dropdownId}
+          aria-invalid={!!errorMessage}
+          aria-errormessage={errorMessage ? inputErrorId : undefined}
+          aria-labelledby={inputLegendId}
+          aria-describedby={ariaDescribedbyIds}
+          onClick={disabled ? undefined : () => setIsOpen(!isOpen)}
+          onKeyDown={
+            disabled
+              ? undefined
+              : (e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault(); // Prevent space from scrolling
+                    setIsOpen(!isOpen);
+                  }
+                }
+          }
+          className={cn(
+            triggerBaseClassName,
+            disabled && triggerDisabledClassName,
+            errorMessage && triggerErrorClassName,
+            className,
           )}
-        </span>
-      </div>
-
-      {isOpen && (
-        <div id={dropdownId} role="listbox" aria-multiselectable="true" className={dropdownClassName}>
-          {options.map((optionProps, index) => {
-            const isSelected = value.includes(optionProps.value);
-            const optionId = `${id}-multiselect-option-${index}`;
-
-            return (
-              <div
-                key={optionProps.value}
-                id={optionId}
-                role="option"
-                aria-selected={isSelected}
-                onClick={() => handleOptionClick(optionProps.value)}
-                tabIndex={0}
-                onKeyDown={(e) => handleOptionKeyDown(e, optionProps.value)}
-                className="relative cursor-pointer p-2 text-gray-900 select-none hover:bg-gray-100 focus:bg-gray-100 focus:outline-none"
-              >
-                <InputCheckbox
-                  id={`${optionId}-checkbox`}
-                  name={`${name}-${optionProps.value}`}
-                  checked={isSelected}
-                  readOnly={true}
-                  required={required}
-                  hasError={!!errorMessage}
-                  tabIndex={-1}
-                  className="pointer-events-none"
-                  {...optionProps}
-                >
-                  {optionProps.label}
-                </InputCheckbox>
-              </div>
-            );
-          })}
+        >
+          <span className="block truncate">{getDisplayValue()}</span>
+          <span className="pointer-events-none inset-y-0 right-0 flex items-center pr-2">
+            {isOpen ? (
+              <FontAwesomeIcon icon={faChevronUp} className="my-auto size-3 text-gray-400" />
+            ) : (
+              <FontAwesomeIcon icon={faChevronDown} className="my-auto size-3 text-gray-400" />
+            )}
+          </span>
         </div>
-      )}
+        {isOpen && (
+          <div id={dropdownId} role="listbox" aria-multiselectable="true" className={dropdownClassName}>
+            {options.map((optionProps, index) => {
+              const isSelected = value.includes(optionProps.value);
+              const optionId = `${id}-multiselect-option-${index}`;
+
+              return (
+                <div
+                  key={optionProps.value}
+                  id={optionId}
+                  role="option"
+                  aria-selected={isSelected}
+                  onClick={() => handleOptionClick(optionProps.value)}
+                  tabIndex={0}
+                  onKeyDown={(e) => handleOptionKeyDown(e, optionProps.value)}
+                  className="relative cursor-pointer p-2 text-gray-900 select-none hover:bg-gray-100 focus:bg-gray-100 focus:outline-none"
+                >
+                  <InputCheckbox
+                    id={`${optionId}-checkbox`}
+                    name={`${name}-${optionProps.value}`}
+                    checked={isSelected}
+                    readOnly={true}
+                    required={required}
+                    hasError={!!errorMessage}
+                    tabIndex={-1}
+                    className="pointer-events-none"
+                    {...optionProps}
+                  >
+                    {optionProps.label}
+                  </InputCheckbox>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </fieldset>
     </div>
   );
 }

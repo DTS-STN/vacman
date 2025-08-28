@@ -32,7 +32,7 @@ export default defineConfig({
   },
 
   //
-  // Vitest config. For more test configuration, see vitest.workspace.ts
+  // Vitest config.
   // see: https://vitest.dev/config/
   //
   test: {
@@ -49,6 +49,29 @@ export default defineConfig({
       // disable logging so we don't pollute the output
       LOG_LEVEL: 'none',
     },
+    projects: [
+      {
+        extends: true,
+        test: {
+          name: 'jsdom',
+          environment: 'jsdom',
+          include: [
+            '**/tests/components/**/*.test.(ts|tsx)',
+            '**/tests/hooks/**/*.test.(ts|tsx)',
+            '**/tests/routes/**/*.test.(ts|tsx)',
+          ],
+        },
+      },
+      {
+        extends: true,
+        test: {
+          name: 'node',
+          environment: 'node',
+          include: ['**/tests/**/*.test.(ts|tsx)'],
+          exclude: ['**/tests/components/**', '**/tests/hooks/**', '**/tests/routes/**'],
+        },
+      },
+    ],
     setupFiles: ['./tests/setup.ts'],
   },
 });

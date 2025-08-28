@@ -97,6 +97,11 @@ export default {
       'next-page': 'Go to next page',
       'last-page': 'Go to last page',
     },
+    'sorting': {
+      'sorted-ascending': '{{column}}, sorted ascending. Click to sort descending.',
+      'sorted-descending': '{{column}}, sorted descending. Click to remove sorting.',
+      'not-sorted': '{{column}}, not sorted. Click to sort ascending.',
+    },
   },
   'search-bar': {
     search: 'Search',
@@ -106,6 +111,8 @@ export default {
     'clear-group': 'Clear group',
     'clear-group-label': 'Clear group {{groupName}} of items {{items}}',
     'choice-tag-added-aria-label': 'Selected {{item}} added: {{choice}}, Activate to remove selected {{item}}.',
+    'choice-tag-with-group-added-aria-label':
+      'Selected {{item}} added: {{choice}} {{groupName}}, Activate to remove selected {{item}}.',
     'clear-all-sr-message': 'All selected {{item}} removed.',
     'removed-choice-tag-sr-message': 'Selected {{item}} removed: {{choice}}',
   },

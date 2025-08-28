@@ -17,10 +17,9 @@ export default {
   },
   'profile': {
     'about-para-1':
-      'This profile outlines your current position, referral preferences, and qualifications. Complete all sections and submit for approval.',
+      'This profile outlines your personal and employment information and referral preferences. Complete all sections and submit for approval.',
     'about-para-1-pending':
-      'This profile outlines your current position, referral preferences, and qualifications. You can make edits at any time. Changes to certain fields will require re-approval.',
-    'about-para-2': 'Your progress is saved automatically.',
+      'This profile outlines your personal and employment information and referral preferences. You can make edits at any time. Changes to certain fields will require re-approval.',
     'edit': 'Edit',
     'add': 'Add',
     'in-progress': 'In progress',
@@ -34,7 +33,8 @@ export default {
     'employment': {
       'title': 'Employment information',
       'link-label': 'employment information',
-      'detail': 'Share information about your current job and your Work Force Adjustment (WFA) status.',
+      'detail':
+        'Share information about your current job and your Work Force Adjustment (WFA) or Career Transition (CT) status',
     },
     'referral': {
       'title': 'Referral preferences',
@@ -57,31 +57,7 @@ export default {
   'employee-profile': {
     'about-para-1':
       'Review profile details below for approval. If changes are needed, contact the employee directly to discuss and update before approving.',
-    'edit': 'Edit',
-    'add': 'Add',
-    'pending': 'Pending Approval',
-    'approved': 'Approved',
-    'personal-information': {
-      'title': 'Personal information',
-      'link-label': 'personal information',
-      'detail': 'Provide your personal and contact details, language preferences, education, and other relevant information.',
-    },
-    'employment': {
-      'title': 'Employment information',
-      'link-label': 'employment information',
-      'detail': 'Share information about your current job and your Work Force Adjustment (WFA) status.',
-    },
-    'referral': {
-      'title': 'Referral preferences',
-      'link-label': 'referral preferences',
-      'detail':
-        'Indicate your preferences for job referrals including job type, classification, language requirements, preferred locations, and availability.',
-    },
     'back': 'Back to employees',
-    'view': 'View my profile',
-    'not-provided': 'Not provided',
-    'last-updated': 'Last updated: {{date}} by {{name}}',
-    'field-incomplete': 'Required fields incomplete',
     'page-title': 'Employee Profile',
   },
   'form': {
@@ -93,6 +69,8 @@ export default {
     'select': 'Select',
     'select-option': 'Select option',
     'select-all-that-apply': 'Select all that apply',
+    'select-work-locations':
+      "Select a province to see available cities. You can choose as many cities as you'd like from any province.",
     'maximum-characters': 'maximum characters',
   },
   'personal-information': {
@@ -173,7 +151,7 @@ export default {
   },
   'referral-preferences': {
     'page-title': 'Referral preferences',
-    'language-referral-type': 'Which language profiles would you like to be referred for?',
+    'language-referral-type': 'Which position language profiles would you like to be referred for?',
     'classification': 'Which classification group(s) and level(s) would you like to be referred for?',
     'classification-group-help-message-primary':
       'The group and levels selected must be the same or equivalent to your substantive position.',
@@ -202,9 +180,13 @@ export default {
       'alternate-opportunity-required': 'Alternation opportunities (confirmation of interest) is required.',
     },
   },
+  'employee-dashboard': {
+    'page-title': 'Employee dashboard',
+    'page-heading': 'Employee dashboard',
+  },
   'hr-advisor-dashboard': {
     'page-title': 'HR advisor dashboard',
-    'page-heading': 'Get started',
+    'page-heading': 'HR advisor dashboard',
     'employees': 'Employees',
   },
   'hr-advisor-employees-table': {
@@ -221,10 +203,12 @@ export default {
     'next-page': 'Next',
     'filter-by': 'Filter table by all employees or profile assigned to me',
     'view-link': 'View profile information for {{profileUserName}}',
+    'table-updated-my-employees': 'Table updated: showing My Employees',
+    'table-updated-all-employees': 'Table updated: showing All Employees',
   },
   'hiring-manager-dashboard': {
     'page-title': 'Hiring manager dashboard',
-    'page-heading': 'Get started',
+    'page-heading': 'Hiring manager dashboard',
     'requests': 'Requests',
   },
   'position-information': {

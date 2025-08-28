@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
 import type { JSX } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import type { RouteHandle } from 'react-router';
 import { useSearchParams } from 'react-router';
@@ -79,6 +79,7 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
 
   const [, setSearchParams] = useSearchParams({ filter: 'all' });
   const [browserTZ, setBrowserTZ] = useState<string | null>(null);
+  const [srAnnouncement, setSrAnnouncement] = useState('');
 
   useEffect(() => {
     setBrowserTZ(Intl.DateTimeFormat().resolvedOptions().timeZone);
@@ -179,11 +180,12 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
     <div className="mb-8">
       <PageTitle className="after:w-14">{t('app:index.employees')}</PageTitle>
       <BackLink
+        aria-label={t('app:hr-advisor-employees-table.back-to-dashboard')}
         file="routes/hr-advisor/index.tsx"
         params={params}
-        translationKey="app:hr-advisor-employees-table.back-to-dashboard"
-      />
-
+      >
+        {t('app:hr-advisor-employees-table.back-to-dashboard')}
+      </BackLink>
       <InputSelect
         id="selectEmployees"
         name="selectEmployees"
@@ -192,9 +194,22 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
         label=""
         aria-label={t('app:hr-advisor-employees-table.filter-by')}
         defaultValue="all"
-        onChange={({ target }) => setSearchParams({ filter: target.value })}
+        onChange={({ target }) => {
+          setSearchParams({ filter: target.value });
+          // Announce table filtering change to screen readers
+          const message =
+            target.value === 'me'
+              ? t('app:hr-advisor-employees-table.table-updated-my-employees')
+              : t('app:hr-advisor-employees-table.table-updated-all-employees');
+          setSrAnnouncement(message);
+        }}
         className="wx-1/12 float-right my-4 sm:w-1/5"
       />
+
+      {/* ARIA live region for screen reader announcements */}
+      <div aria-live="polite" role="status" className="sr-only">
+        {srAnnouncement}
+      </div>
 
       <DataTable columns={columns} data={loaderData.profiles} />
     </div>

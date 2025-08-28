@@ -41,7 +41,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
   }
   const { t } = await getTranslation(request, handle.i18nNamespace);
   return {
-    documentTitle: t('app:index.employee-dashboard'),
+    documentTitle: t('app:employee-dashboard.page-title'),
   };
 }
 
@@ -50,7 +50,7 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
 
   return (
     <>
-      <PageTitle>{t('app:index.get-started')}</PageTitle>
+      <PageTitle>{t('app:employee-dashboard.page-heading')}</PageTitle>
       <DashboardCard file="routes/employee/profile/index.tsx" icon={faUser} title={t('app:profile.view')} />
     </>
   );

@@ -50,10 +50,20 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
               {headerGroup.headers.map((header) => {
+                const sortDirection = header.column.getIsSorted();
+                const ariaSortValue = header.column.getCanSort()
+                  ? sortDirection === 'asc'
+                    ? 'ascending'
+                    : sortDirection === 'desc'
+                      ? 'descending'
+                      : 'none'
+                  : undefined;
+
                 return (
                   <TableHead
                     key={header.id}
                     className={cn('text-left text-sm font-semibold', header.column.columnDef.meta?.headerClassName)}
+                    aria-sort={ariaSortValue}
                   >
                     {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
                   </TableHead>
@@ -207,19 +217,32 @@ export function DataTableColumnHeaderWithOptions<TData, TValue>({
 }
 
 export function DataTableColumnHeader<TData, TValue>({ column, title, className }: DataTableColumnHeaderProps<TData, TValue>) {
+  const { t } = useTranslation(['gcweb']);
+
   if (!column.getCanSort()) {
     return <div className={cn('flex items-center', className)}>{title}</div>;
   }
 
   const sortDirection = column.getIsSorted();
 
+  // Create accessible label that describes the current state and action
+  const getAriaLabel = () => {
+    if (sortDirection === 'asc') {
+      return t('gcweb:data-table.sorting.sorted-ascending', { column: title });
+    } else if (sortDirection === 'desc') {
+      return t('gcweb:data-table.sorting.sorted-descending', { column: title });
+    }
+    return t('gcweb:data-table.sorting.not-sorted', { column: title });
+  };
+
   return (
     <button
       onClick={() => column.toggleSorting()}
       className={cn('flex items-center gap-1 text-left text-sm font-semibold hover:underline', className)}
+      aria-label={getAriaLabel()}
     >
       {title}
-      <span className="rounded-sm p-1 text-neutral-500 hover:bg-slate-300">
+      <span className="rounded-sm p-1 text-neutral-500 hover:bg-slate-300" aria-hidden="true">
         <FontAwesomeIcon icon={sortDirection === 'desc' ? faSortDown : faSortUp} />
       </span>
     </button>
