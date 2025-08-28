@@ -6,7 +6,7 @@ import { Form } from 'react-router';
 
 import { useTranslation } from 'react-i18next';
 
-import {
+import type {
   NonAdvertisedAppointment,
   LocalizedSelectionProcessType,
   LocalizedNonAdvertisedAppointment,
