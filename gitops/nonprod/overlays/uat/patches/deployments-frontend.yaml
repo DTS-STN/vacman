@@ -12,7 +12,7 @@ spec:
     spec:
       containers:
         - name: vacman-frontend
-          image: dtsrhpdevscedacr.azurecr.io/vacman/vacman-frontend:1.0.0-RC021
+          image: dtsrhpdevscedacr.azurecr.io/vacman/vacman-frontend:1.0.0-RC033
           envFrom:
             - configMapRef:
                 name: vacman-frontend-uat
