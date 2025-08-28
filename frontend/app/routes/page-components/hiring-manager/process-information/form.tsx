@@ -185,7 +185,6 @@ export function ProcessInformationForm({
               label={tApp('process-information.selection-process-number')}
               defaultValue={formValues?.selectionProcessNumber}
               errorMessage={tApp(extractValidationKey(formErrors?.selectionProcessNumber))}
-              helpMessagePrimary={tApp('process-information.selection-process-number-help-message-primary')}
             />
             <InputCheckbox
               id="approval-received"
@@ -211,7 +210,6 @@ export function ProcessInformationForm({
                 name="priorityEntitlementRationale"
                 defaultValue={formValues?.priorityEntitlementRationale}
                 errorMessage={tApp(extractValidationKey(formErrors?.priorityEntitlementRationale))}
-                helpMessage={tApp('process-information.priority-entitlement-rationale-help-message')}
                 maxLength={100}
               />
             )}
@@ -224,6 +222,7 @@ export function ProcessInformationForm({
               errorMessage={tApp(extractValidationKey(formErrors?.preferredSelectionProcessType))}
               value={selectionProcessType ?? ''}
               onChange={({ target }) => setSelectionProcessType(target.value)}
+              required
             />
             {(selectionProcessType === SELECTION_PROCESS_TYPE.externalNonAdvertised ||
               selectionProcessType === SELECTION_PROCESS_TYPE.internalNonAdvertised) && (
@@ -309,6 +308,7 @@ export function ProcessInformationForm({
               legend={tApp('process-information.employment-equity-identified')}
               options={employmentEquityIdentifiedOptions}
               errorMessage={tApp(extractValidationKey(formErrors?.employmentEquityIdentified))}
+              helpMessagePrimary={tApp('process-information.work-schedule-help-message')}
               required
             />
             {employmentEquityIdentified === true && (
