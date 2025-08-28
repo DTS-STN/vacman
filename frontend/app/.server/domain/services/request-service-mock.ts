@@ -9,7 +9,7 @@ import type {
   RequestQueryParams,
   Profile,
   PagedProfileResponse,
-  RequestStatusReadModel,
+  RequestStatus,
 } from '~/.server/domain/models';
 import { createMockRequest, mockRequests } from '~/.server/domain/services/mockData';
 import type { RequestService } from '~/.server/domain/services/request-service';
@@ -32,7 +32,7 @@ export function getMockRequestService(): RequestService {
 
       // Apply status filter
       if (params.status) {
-        filteredRequests = filteredRequests.filter((r) => r.status.code.toLowerCase() === params.status?.toLowerCase());
+        filteredRequests = filteredRequests.filter((r) => r.status?.code.toLowerCase() === params.status?.toLowerCase());
         log.debug(`Applied status filter (${params.status}): ${filteredRequests.length} requests remaining`);
       }
 
@@ -88,7 +88,7 @@ export function getMockRequestService(): RequestService {
       const newRequest = createMockRequest(accessToken);
       log.debug('Successfully created new request', {
         requestId: newRequest.id,
-        status: newRequest.status.code,
+        status: newRequest.status?.code,
       });
       return Promise.resolve(Ok(newRequest));
     },
@@ -105,7 +105,7 @@ export function getMockRequestService(): RequestService {
 
       if (request) {
         log.debug(`Successfully retrieved request with ID: ${requestId}`, {
-          status: request.status.code,
+          status: request.status?.code,
         });
         return Promise.resolve(Ok(request));
       }
@@ -160,7 +160,7 @@ export function getMockRequestService(): RequestService {
       }
 
       // Mock status update - in real implementation, you'd validate and apply the status update
-      const newStatus: RequestStatusReadModel = {
+      const newStatus: RequestStatus = {
         id: 1,
         code: 'PENDING',
         nameEn: 'Pending',

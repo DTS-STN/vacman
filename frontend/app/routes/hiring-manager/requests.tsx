@@ -9,8 +9,7 @@ import { useTranslation } from 'react-i18next';
 
 import type { Route } from './+types/requests';
 
-import type { LocalizedLookupModel, LookupModel, RequestReadModel } from '~/.server/domain/models';
-import { getClassificationService } from '~/.server/domain/services/classification-service';
+import type { LocalizedLookupModel, LookupModel, RequestReadModel, RequestStatus } from '~/.server/domain/models';
 import { getRequestService } from '~/.server/domain/services/request-service';
 import { getRequestStatusService } from '~/.server/domain/services/request-status-service';
 import { serverEnvironment } from '~/.server/environment';
@@ -49,18 +48,12 @@ export async function loader({ context, request }: Route.LoaderArgs) {
   const { t, lang } = await getTranslation(request, handle.i18nNamespace);
 
   const requestStatuses = await getRequestStatusService().listAllLocalized(lang);
-  const classifications = await getClassificationService().listAll();
 
   const requestsResult = await getRequestService().getCurrentUserRequests(context.session.authState.accessToken);
-  // TODO we should consider creating a mapper to map from RequestReadModel to our own frontend domain specific model
-  const requests = (requestsResult.into()?.content ?? []).map((req) => ({
-    ...req,
-    requestStatus: requestStatuses.find((status) => status.id === req.id),
-    classification: classifications.find((classification) => classification.id === req.classificationId),
-  }));
+  const requests = requestsResult.into()?.content ?? [];
 
-  const activeRequests = requests.filter((req) => ACTIVE_REQUEST_STATUS_IDS.includes(req.status.id));
-  const archivedRequests = requests.filter((req) => ARCHIVED_REQUEST_STATUS_IDS.includes(req.status.id));
+  const activeRequests = requests.filter((req) => req.status && ACTIVE_REQUEST_STATUS_IDS.includes(req.status.id));
+  const archivedRequests = requests.filter((req) => req.status && ARCHIVED_REQUEST_STATUS_IDS.includes(req.status.id));
 
   return {
     documentTitle: t('app:hiring-manager-requests.page-title'),
@@ -68,6 +61,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
     archivedRequests,
     requestStatusNames: requestStatuses.map(({ name }) => name),
     baseTimeZone: serverEnvironment.BASE_TIMEZONE,
+    lang,
   };
 }
 
@@ -121,8 +115,8 @@ export default function HiringManagerRequests({ loaderData, params }: Route.Comp
         />
       ),
       cell: (info) => {
-        const status = info.row.original.requestStatus;
-        return status && statusTag(status);
+        const status = info.row.original.status;
+        return status && statusTag(status, loaderData.lang);
       },
       filterFn: (row, columnId, filterValue: string[]) => {
         const status = row.getValue(columnId) as string;
@@ -182,7 +176,7 @@ export default function HiringManagerRequests({ loaderData, params }: Route.Comp
   );
 }
 
-function statusTag(status: LocalizedLookupModel): JSX.Element {
+function statusTag(status: RequestStatus, lang: Language): JSX.Element {
   const styleMap: Record<string, string> = {
     SUBMIT: 'bg-sky-100 text-sky-700',
     HR_REVIEW: 'bg-sky-100 text-sky-700',
@@ -195,7 +189,7 @@ function statusTag(status: LocalizedLookupModel): JSX.Element {
   const style = styleMap[status.code] ?? styleMap.DEFAULT;
   return (
     <div className={`${style} flex w-fit items-center gap-2 rounded-md px-3 py-1 text-sm font-semibold`}>
-      <p>{status.name}</p>
+      <p>{lang === 'en' ? status.nameEn : status.nameFr}</p>
     </div>
   );
 }
