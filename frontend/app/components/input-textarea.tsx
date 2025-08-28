@@ -57,7 +57,7 @@ export function InputTextarea({
           {helpMessage}
         </InputHelp>
       )}
-      <div className="relative">
+      <div>
         <textarea
           aria-describedby={helpMessage ? inputHelpMessageId : undefined}
           aria-errormessage={errorMessage && inputErrorId}
@@ -79,9 +79,11 @@ export function InputTextarea({
           onChange={(e) => setCharacterCount(e.target.value.length)}
           {...restInputProps}
         />
-        <span className="absolute right-0 text-sm text-gray-500" aria-live="polite" aria-atomic="true">
-          {`${characterCount}/${maxLength} ${t('form.maximum-characters')}`}
-        </span>
+        {maxLength && (
+          <p className="text-right text-sm text-gray-500" aria-live="polite" aria-atomic="true">
+            {`${characterCount}/${maxLength} ${t('form.maximum-characters')}`}
+          </p>
+        )}
       </div>
     </div>
   );
