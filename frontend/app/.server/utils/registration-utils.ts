@@ -1,5 +1,6 @@
 import { getUserService } from '~/.server/domain/services/user-service';
 import { LogFactory } from '~/.server/logging';
+import { requireAnyRole } from '~/.server/utils/auth-utils';
 import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
 import { getRolesFromJWT } from '~/.server/utils/jwt-utils';
 import { isHiringManagerPath, isHrAdvisorPath } from '~/.server/utils/route-matching-utils';
@@ -7,6 +8,27 @@ import { i18nRedirect } from '~/.server/utils/route-utils';
 
 const log = LogFactory.getLogger(import.meta.url);
 
+/**
+ * Requires role-based registration for authenticated users accessing specific routes.
+ *
+ * This function checks if a user is registered and has the appropriate roles to access
+ * a route. If the user is not registered, they are redirected to the appropriate
+ * registration page based on their role. If registered but lacking required roles,
+ * role validation is performed.
+ *
+ * @param session - The authenticated session containing user authentication state
+ * @param request - The incoming HTTP request object
+ * @param roles - A single role string or array of role strings required for access
+ * @param routeChecker - A function that determines if the current URL requires role checking
+ *
+ * @throws {Response} Redirects unregistered users to appropriate registration routes:
+ *   - HR advisors are redirected to 'routes/hr-advisor/index.tsx'
+ *   - Other users are redirected to 'routes/employee/index.tsx'
+ *
+ * @throws {AppError} Throws an AppError if the registered user does not have the necessary roles
+ *
+ * @returns Promise that resolves when validation passes or throws on redirect/validation failure
+ */
 export async function requireRoleRegistration(
   session: AuthenticatedSession,
   request: Request,
@@ -33,15 +55,11 @@ export async function requireRoleRegistration(
     }
   }
 
-  const allowedRoles = Array.isArray(roles) ? roles : [roles];
+  const rolesArray = Array.isArray(roles) ? roles : [roles];
+  requireAnyRole(session, currentUrl, rolesArray as Role[]);
+
   const userRoles = getRolesFromJWT(session.authState.accessToken);
-
-  if (!userRoles.some((role) => allowedRoles.includes(role))) {
-    log.debug(`User role '${userRoles}' is not in allowed roles [${allowedRoles.join(', ')}], redirecting to index`);
-    throw i18nRedirect('routes/employee/index.tsx', currentUrl);
-  }
-
-  log.debug(`User is registered with role '${userRoles}' (allowed: [${allowedRoles.join(', ')}]), allowing access`);
+  log.debug(`User is registered with role '${userRoles}' (allowed: [${rolesArray.join(', ')}]), allowing access`);
 }
 
 // Specific implementations
