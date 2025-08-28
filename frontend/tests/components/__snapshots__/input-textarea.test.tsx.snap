@@ -18,9 +18,7 @@ exports[`InputTextarea > should render > expected html 1`] = `
         label test
       </span>
     </label>
-    <div
-      class="relative"
-    >
+    <div>
       <textarea
         aria-invalid="false"
         aria-labelledby="input-test-id-label"
@@ -31,13 +29,6 @@ exports[`InputTextarea > should render > expected html 1`] = `
       >
         default value
       </textarea>
-      <span
-        aria-atomic="true"
-        aria-live="polite"
-        class="absolute right-0 text-sm text-gray-500"
-      >
-        0/undefined form.maximum-characters
-      </span>
     </div>
   </div>
 </div>
@@ -69,9 +60,7 @@ exports[`InputTextarea > should render with error message > expected html 1`] = 
     >
       error message
     </span>
-    <div
-      class="relative"
-    >
+    <div>
       <textarea
         aria-errormessage="input-test-id-error"
         aria-invalid="true"
@@ -83,13 +72,6 @@ exports[`InputTextarea > should render with error message > expected html 1`] = 
       >
         default value
       </textarea>
-      <span
-        aria-atomic="true"
-        aria-live="polite"
-        class="absolute right-0 text-sm text-gray-500"
-      >
-        0/undefined form.maximum-characters
-      </span>
     </div>
   </div>
 </div>
@@ -120,9 +102,7 @@ exports[`InputTextarea > should render with help message > expected html 1`] = `
     >
       help message
     </div>
-    <div
-      class="relative"
-    >
+    <div>
       <textarea
         aria-describedby="input-test-id-help"
         aria-invalid="false"
@@ -134,13 +114,6 @@ exports[`InputTextarea > should render with help message > expected html 1`] = `
       >
         default value
       </textarea>
-      <span
-        aria-atomic="true"
-        aria-live="polite"
-        class="absolute right-0 text-sm text-gray-500"
-      >
-        0/undefined form.maximum-characters
-      </span>
     </div>
   </div>
 </div>
@@ -172,9 +145,7 @@ exports[`InputTextarea > should render with required > expected html 1`] = `
         )
       </span>
     </label>
-    <div
-      class="relative"
-    >
+    <div>
       <textarea
         aria-invalid="false"
         aria-labelledby="input-test-id-label"
@@ -187,13 +158,6 @@ exports[`InputTextarea > should render with required > expected html 1`] = `
       >
         default value
       </textarea>
-      <span
-        aria-atomic="true"
-        aria-live="polite"
-        class="absolute right-0 text-sm text-gray-500"
-      >
-        0/undefined form.maximum-characters
-      </span>
     </div>
   </div>
 </div>

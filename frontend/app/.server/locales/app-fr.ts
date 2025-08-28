@@ -266,4 +266,11 @@ export default {
     'view-link': "Afficher la demande avec l'identifiant {{requestId}}",
     'next-page': 'Suivant',
   },
+  'somc-conditions': {
+    'page-title': "Énoncé de critères de mérite et conditions d'emploi",
+    'english-somc-label': "Énoncé de critères de mérite et conditions d'emploi - Anglais",
+    'english-somc-help-message': "Veuillez saisir l'intégralité des critères en anglais",
+    'french-somc-label': "Énoncé de critères de mérite et conditions d'emploi - Français",
+    'french-somc-help-message': "Veuillez saisir l'intégralité des critères en français",
+  },
 } satisfies typeof appEn;

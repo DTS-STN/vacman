@@ -263,4 +263,11 @@ export default {
     'view-link': 'View request with ID {{requestId}}',
     'next-page': 'Next',
   },
+  'somc-conditions': {
+    'page-title': 'Statement of merit criteria and conditions of employment',
+    'english-somc-label': 'English statement of merit criteria of employment',
+    'english-somc-help-message': 'Please enter the full English criteria here',
+    'french-somc-label': 'French statement of merit criteria of employment',
+    'french-somc-help-message': 'Please enter the full French criteria here',
+  },
 };
