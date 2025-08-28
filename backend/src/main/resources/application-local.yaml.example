@@ -83,8 +83,9 @@ spring:
       '[hibernate.format_sql]': true
     show-sql: true
   liquibase:
-    contexts: mssql, dev
-    drop-first: true
+    enabled: true
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+    #contexts: dev # If you want to add test data
 
 ---
 
