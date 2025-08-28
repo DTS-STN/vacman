@@ -1,6 +1,7 @@
-import { data } from 'react-router';
 import type { RouteHandle } from 'react-router';
+import { data } from 'react-router';
 
+import { useTranslation } from 'react-i18next';
 import * as v from 'valibot';
 
 import type { Route } from './+types/position-information';
@@ -96,16 +97,19 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 }
 
 export default function HiringManagerRequestPositionInformation({ loaderData, actionData, params }: Route.ComponentProps) {
+  const { t } = useTranslation(handle.i18nNamespace);
   const errors = actionData?.errors;
 
   return (
     <>
       <BackLink
+        aria-label={t('app:hiring-manager-requests.back')}
         className="mt-6"
-        translationKey="app:hiring-manager-requests.back"
         file="routes/hiring-manager/request/index.tsx"
         params={params}
-      />
+      >
+        {t('app:hiring-manager-requests.back')}
+      </BackLink>
       <div className="max-w-prose">
         <PositionInformationForm
           cancelLink="routes/hiring-manager/request/index.tsx"
