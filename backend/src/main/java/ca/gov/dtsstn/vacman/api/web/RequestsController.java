@@ -31,12 +31,10 @@ import ca.gov.dtsstn.vacman.api.security.SecurityUtils;
 import ca.gov.dtsstn.vacman.api.service.ProfileService;
 import ca.gov.dtsstn.vacman.api.service.RequestService;
 import ca.gov.dtsstn.vacman.api.service.UserService;
-import ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException;
 import ca.gov.dtsstn.vacman.api.web.model.CollectionModel;
 import ca.gov.dtsstn.vacman.api.web.model.ProfileReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.RequestReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.RequestUpdateModel;
-import ca.gov.dtsstn.vacman.api.web.model.mapper.ProfileModelMapper;
 import ca.gov.dtsstn.vacman.api.web.model.mapper.RequestModelMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -57,18 +55,13 @@ public class RequestsController {
 
 	private final RequestModelMapper requestModelMapper = Mappers.getMapper(RequestModelMapper.class);
 
-	private final ProfileModelMapper profileModelMapper = Mappers.getMapper(ProfileModelMapper.class);
-
 	private final RequestService requestService;
 
 	private final UserService userService;
 
-	private final ProfileService profileService;
-
 	public RequestsController(RequestService requestService, UserService userService, ProfileService profileService) {
 		this.requestService = requestService;
 		this.userService = userService;
-		this.profileService = profileService;
 	}
 
 	@GetMapping
@@ -104,30 +97,22 @@ public class RequestsController {
 	@PreAuthorize("isAuthenticated()")
 	@ApiResponses.ResourceNotFoundError
 	@Operation(summary = "Create a new hiring request for the current user and return their profile.")
-	public ResponseEntity<ProfileReadModel> createCurrentUserRequest() {
-		log.info("Received request to create new request and return profile");
+	public ResponseEntity<RequestReadModel> createCurrentUserRequest() {
+		log.info("Received request to create new request");
 
 		final var entraId = SecurityUtils.getCurrentUserEntraId()
-			.orElseThrow(asEntraIdUnauthorizedException());
+				.orElseThrow(asEntraIdUnauthorizedException());
 
 		final var currentUser = userService.getUserByMicrosoftEntraId(entraId)
-			.orElseThrow(asUserResourceNotFoundException(MS_ENTRA_ID, entraId));
+				.orElseThrow(asUserResourceNotFoundException(MS_ENTRA_ID, entraId));
 
 		final var request = requestService.createRequest(currentUser);
 
-		final var profiles = profileService.getProfilesByEntraId(entraId, true);
-
-		if (profiles.isEmpty()) {
-			throw new ResourceNotFoundException("No active profile found for user with Entra ID: " + entraId);
-		}
-
-		final var profileReadModel = profileModelMapper.toModel(profiles.get(0));
-
 		final var location = ServletUriComponentsBuilder.fromCurrentContextPath()
-			.path(AppConstants.ApiPaths.REQUESTS + "/{id}")
-			.buildAndExpand(request.getId()).toUri();
+				.path(AppConstants.ApiPaths.REQUESTS + "/{id}")
+				.buildAndExpand(request.getId()).toUri();
 
-		return ResponseEntity.created(location).body(profileReadModel);
+		return ResponseEntity.created(location).body(requestModelMapper.toModel(request));
 	}
 
 	@ApiResponses.NoContent
