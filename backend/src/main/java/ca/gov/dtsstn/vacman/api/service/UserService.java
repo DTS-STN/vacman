@@ -13,7 +13,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import ca.gov.dtsstn.vacman.api.constants.AppConstants;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 import ca.gov.dtsstn.vacman.api.data.repository.UserRepository;
 import ca.gov.dtsstn.vacman.api.event.UserCreatedEvent;
@@ -55,10 +54,10 @@ public class UserService {
 
 		// Set user type based on highest privilege role from JWT claims
 		final var role = SecurityUtils.getHighestPrivilegeRole();
-		final var userTypeCode = AppConstants.UserType.fromRole(role);
+		final var userTypeCode = SecurityUtils.userTypeFromRole(role);
 
 		// Log warning if unknown role was encountered
-		if (!AppConstants.UserType.isKnownRole(role)) {
+		if (!SecurityUtils.isKnownRole(role)) {
 			log.warn("Unknown role '{}', defaulting to employee", role);
 		}
 

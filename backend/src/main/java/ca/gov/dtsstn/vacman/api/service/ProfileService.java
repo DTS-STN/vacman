@@ -10,15 +10,13 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import ca.gov.dtsstn.vacman.api.constants.AppConstants;
 import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
-import ca.gov.dtsstn.vacman.api.data.entity.ProfileStatusEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.UserTypeEntity.UserTypeCodes;
 import ca.gov.dtsstn.vacman.api.data.repository.CityRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.ClassificationRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.EmploymentOpportunityRepository;
@@ -223,7 +221,7 @@ public class ProfileService {
 
 		Optional.ofNullable(updateModel.hrAdvisorId()).ifPresent(id -> {
 			profile.setHrAdvisor(userService.getUserById(id)
-				.filter(user -> AppConstants.UserType.HR_ADVISOR.equals(user.getUserType().getCode()))
+				.filter(user -> UserTypeCodes.HR_ADVISOR.equals(user.getUserType().getCode()))
 				.orElseThrow(asResourceConflictException("HR Advisor", id)));
 		});
 

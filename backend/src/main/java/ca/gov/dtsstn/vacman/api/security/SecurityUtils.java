@@ -10,6 +10,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import ca.gov.dtsstn.vacman.api.data.entity.UserTypeEntity.UserTypeCodes;
+
 /**
  * Utility class for Spring Security.
  * Provides a streamlined, static interface for common security operations.
@@ -23,13 +25,7 @@ public final class SecurityUtils {
 		public static final String EMPLOYEE = "employee";
 	}
 
-
-
 	private static final List<String> ROLE_HIERARCHY = List.of(
-		// XXX ::: GjB ::: although an admin role does exist, it should not be used
-		//                 to determine the user's highest privilege role; leaving
-		//                 it here for future considerations and documentation
-		// AppConstants.Role.ADMIN,
 		Role.HR_ADVISOR,
 		Role.HIRING_MANAGER,
 		Role.EMPLOYEE
@@ -82,6 +78,19 @@ public final class SecurityUtils {
 	}
 
 	/**
+	 * Checks if the given role is a known/valid role.
+	 *
+	 * @param role the role to check
+	 * @return true if the role is recognized, false otherwise
+	 */
+	public static boolean isKnownRole(String role) {
+		return switch (role) {
+			case Role.ADMIN, Role.HR_ADVISOR, Role.HIRING_MANAGER, Role.EMPLOYEE -> true;
+			default -> false;
+		};
+	}
+
+	/**
 	 * Checks if the current user has any of the specified authorities.
 	 *
 	 * @param authorities the authorities to check.
@@ -131,6 +140,21 @@ public final class SecurityUtils {
 		return ROLE_HIERARCHY.stream()
 			.filter(userAuthorities::contains).findFirst()
 			.orElse(Role.EMPLOYEE);
+	}
+
+	/**
+	 * Maps JWT role authorities to user type codes.
+	 *
+	 * @param role the role authority from JWT claims
+	 * @return the corresponding user type code, defaults to EMPLOYEE for unknown roles
+	 */
+	public static String userTypeFromRole(String role) {
+		return switch (role) {
+			case Role.HR_ADVISOR -> UserTypeCodes.HR_ADVISOR;
+			case Role.HIRING_MANAGER -> UserTypeCodes.HIRING_MANAGER;
+			case Role.EMPLOYEE -> UserTypeCodes.EMPLOYEE;
+			default -> UserTypeCodes.EMPLOYEE; // Default to employee for unknown roles
+		};
 	}
 
 }
