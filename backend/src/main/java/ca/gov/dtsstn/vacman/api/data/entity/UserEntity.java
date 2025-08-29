@@ -2,6 +2,7 @@ package ca.gov.dtsstn.vacman.api.data.entity;
 
 import java.time.Instant;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -189,9 +190,9 @@ public class UserEntity extends AbstractBaseEntity implements Ownable {
 	}
 
 	@Override
-	public Long getOwnerId() {
+	public Optional<Long> getOwnerId() {
 		// users own themselves, obviously
-		return this.id;
+		return Optional.ofNullable(this.id);
 	}
 
 	@Override

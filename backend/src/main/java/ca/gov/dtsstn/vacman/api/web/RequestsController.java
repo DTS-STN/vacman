@@ -28,6 +28,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import ca.gov.dtsstn.vacman.api.config.SpringDocConfig;
 import ca.gov.dtsstn.vacman.api.constants.AppConstants;
 import ca.gov.dtsstn.vacman.api.security.SecurityUtils;
+import ca.gov.dtsstn.vacman.api.service.ProfileService;
 import ca.gov.dtsstn.vacman.api.service.RequestService;
 import ca.gov.dtsstn.vacman.api.service.UserService;
 import ca.gov.dtsstn.vacman.api.web.model.CollectionModel;
@@ -58,7 +59,7 @@ public class RequestsController {
 
 	private final UserService userService;
 
-	public RequestsController(RequestService requestService, UserService userService) {
+	public RequestsController(RequestService requestService, UserService userService, ProfileService profileService) {
 		this.requestService = requestService;
 		this.userService = userService;
 	}
@@ -84,7 +85,7 @@ public class RequestsController {
 		final var user = userService.getUserByMicrosoftEntraId(entraId)
 			.orElseThrow(asUserResourceNotFoundException(MS_ENTRA_ID, entraId));
 
-		final var requests = requestService.getRequestsByUserId(user.getId()).stream()
+		final var requests = requestService.getAllRequestsAssociatedWithUser(user.getId()).stream()
 			.map(requestModelMapper::toModel)
 			.collect(toCollectionModel());
 
@@ -95,7 +96,7 @@ public class RequestsController {
 	@PostMapping({ "/me" })
 	@PreAuthorize("isAuthenticated()")
 	@ApiResponses.ResourceNotFoundError
-	@Operation(summary = "Create a new hiring request for the current user.")
+	@Operation(summary = "Create a new hiring request for the current user and return their profile.")
 	public ResponseEntity<RequestReadModel> createCurrentUserRequest() {
 		log.info("Received request to create new request");
 

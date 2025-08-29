@@ -4,6 +4,7 @@ import static ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException.a
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,11 +47,11 @@ public class RequestService {
 		return requestRepository.findById(requestId);
 	}
 
-	public List<RequestEntity> getRequestsByUserId(long userId) {
-		final var example = Example
-				.of(RequestEntity.builder().submitter(UserEntity.builder().id(userId).build()).build());
-
-		return requestRepository.findAll(example);
+	public List<RequestEntity> getAllRequestsAssociatedWithUser(Long userId) {
+		return requestRepository.findAll().stream()
+			.filter(request -> request.getOwnerId().map(id -> id.equals(userId)).orElse(false) 
+				|| request.getDelegateIds().contains(userId))
+			.collect(Collectors.toList());
 	}
 
 }

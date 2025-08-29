@@ -5,10 +5,15 @@ import static java.util.stream.Collectors.toUnmodifiableSet;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.immutables.builder.Builder;
 import org.springframework.core.style.ToStringCreator;
@@ -571,10 +576,17 @@ public class RequestEntity extends AbstractBaseEntity implements Ownable {
 	}
 
 	@Override
-	public Long getOwnerId() {
+	public Optional<Long> getOwnerId() {
 		return Optional.ofNullable(submitter)
+			.map(UserEntity::getId);
+	}
+
+	@Override
+	public Set<Long> getDelegateIds() {
+		return Stream.of(hiringManager, subDelegatedManager)
+			.filter(Objects::nonNull)
 			.map(UserEntity::getId)
-			.orElse(null);
+			.collect(Collectors.toSet());
 	}
 
 	@Override

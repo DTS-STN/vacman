@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
-import org.springframework.util.ClassUtils;
 
 import ca.gov.dtsstn.vacman.api.data.entity.AbstractBaseEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.Ownable;
@@ -58,40 +57,66 @@ public class OwnershipPermissionEvaluator implements PermissionEvaluator {
 		final var currentUserId = userService.getUserByMicrosoftEntraId(authentication.getName()).map(UserEntity::getId);
 
 		if (currentUserId.isEmpty()) {
-			log.warn("Access denied: user not found; permission=[{}], targetType=[{}], targetId=[{}]", permission, targetType, targetId);
+			log.warn("Access denied: user not found; "
+				+ "permission=[{}], targetType=[{}], targetId=[{}]",
+				permission, targetType, targetId);
 			return false;
 		}
 
 		final var targetResource = getTargetResource((Long) targetId, targetType);
 
 		if (targetResource.isEmpty()) {
-			log.warn("Access denied: resource does not exist; permission=[{}], targetType=[{}], targetId=[{}], currentUserId=[{}]", permission, targetType, targetId, currentUserId.get());
+			log.warn("Access denied: resource does not exist; "
+				+ "permission=[{}], targetType=[{}], targetId=[{}], currentUserId=[{}]",
+				permission, targetType, targetId, currentUserId.get());
 			return false;
 		}
 
-		if (ClassUtils.isAssignableValue(Ownable.class, targetResource.get())) {
-			final var ownable = (Ownable) targetResource.get();
-			final var owner = ownable.getOwnerId();
+		if (targetResource.get() instanceof final Ownable ownable) {
+			final var ownerId = ownable.getOwnerId();
 
-			if (owner == null) {
-				log.warn("Access denied: resource does not have an owner; permission=[{}], targetType=[{}], targetId=[{}], currentUserId=[{}]", permission, targetType, targetId, currentUserId.get());
+			if (ownerId.isEmpty()) {
+				log.warn("Access denied: resource does not have an owner; "
+					+ "permission=[{}], targetType=[{}], targetId=[{}], currentUserId=[{}]",
+					permission, targetType, targetId, currentUserId.get());
 				return false;
 			}
 
-			final var isOwner = currentUserId.map(owner::equals).orElse(false);
+			final var isOwner = ownerId.equals(currentUserId);
 
 			if (isOwner) {
 				//
 				// currently, ownership grants all permissions
 				// (this switch is a placeholder for future checks)
 				//
-				return switch (permission) {
-					default -> true;
-				};
+				switch ((String) permission) {
+					default: {
+						return true;
+					}
+				}
+			}
+
+			final var isDelegate = ownable.getDelegateIds().contains(currentUserId.get());
+
+			if (isDelegate) {
+				switch ((String) permission) {
+					case "READ": {
+						return true;
+					}
+
+					default: {
+						log.warn("Access denied: user is a delegate but requested non-READ permission; "
+							+ "permission=[{}], targetType=[{}], targetId=[{}], currentUserId=[{}]",
+							permission, targetType, targetId, currentUserId.get());
+						return false;
+					}
+				}
 			}
 		}
 
-		log.warn("Access denied: permission=[{}], targetType=[{}], targetId=[{}], currentUserId=[{}]", permission, targetType, targetId, currentUserId.get());
+		log.warn("Access denied: "
+			+ "permission=[{}], targetType=[{}], targetId=[{}], currentUserId=[{}]",
+			permission, targetType, targetId, currentUserId.get());
 		return false;
 	}
 

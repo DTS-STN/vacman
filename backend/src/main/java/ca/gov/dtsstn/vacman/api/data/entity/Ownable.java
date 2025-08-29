@@ -1,7 +1,11 @@
 package ca.gov.dtsstn.vacman.api.data.entity;
 
+import java.util.Collections;
+import java.util.Optional;
+import java.util.Set;
+
 /**
- * Represents an entity that has a single owner.
+ * Represents an entity that has a single owner and potentially multiple delegates.
  * <p>
  * Implement this interface on any entity or resource that should be subject to
  * ownership-based security checks. Security frameworks (such as a custom
@@ -11,6 +15,16 @@ package ca.gov.dtsstn.vacman.api.data.entity;
  */
 public interface Ownable {
 
-	Long getOwnerId();
+	/**
+	 * Returns the ID of the primary owner of this entity.
+	 */
+	Optional<Long> getOwnerId();
+
+	/**
+	 * Returns a set of user IDs that are effectively owners for certain operations.
+	 */
+	default Set<Long> getDelegateIds() {
+		return Collections.emptySet();
+	}
 
 }
