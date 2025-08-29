@@ -7,7 +7,6 @@ import type {
   PagedRequestResponse,
   CollectionRequestResponse,
   RequestQueryParams,
-  Profile,
   PagedProfileResponse,
 } from '~/.server/domain/models';
 import { apiClient } from '~/.server/domain/services/api-client';
@@ -271,27 +270,6 @@ export function getDefaultRequestService(): RequestService {
         const error = result.unwrapErr();
         if (error.httpStatusCode === HttpStatusCodes.NOT_FOUND) {
           return Err(new AppError(`Request with ID ${requestId} not found.`, ErrorCodes.REQUEST_NOT_FOUND));
-        }
-        return Err(error);
-      }
-
-      return Ok(result.unwrap());
-    },
-
-    /**
-     * Gets a specific candidate profile for a request.
-     */
-    async getRequestProfileById(requestId: number, profileId: number, accessToken: string): Promise<Result<Profile, AppError>> {
-      const result = await apiClient.get<Profile>(
-        `/requests/${requestId}/profiles/${profileId}`,
-        `retrieve profile ${profileId} for request ID ${requestId}`,
-        accessToken,
-      );
-
-      if (result.isErr()) {
-        const error = result.unwrapErr();
-        if (error.httpStatusCode === HttpStatusCodes.NOT_FOUND) {
-          return Err(new AppError(`Profile ${profileId} for request ID ${requestId} not found.`, ErrorCodes.PROFILE_NOT_FOUND));
         }
         return Err(error);
       }

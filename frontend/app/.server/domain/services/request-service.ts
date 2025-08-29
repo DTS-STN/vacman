@@ -6,7 +6,6 @@ import type {
   PagedRequestResponse,
   CollectionRequestResponse,
   RequestQueryParams,
-  Profile,
   PagedProfileResponse,
 } from '~/.server/domain/models';
 import { getDefaultRequestService } from '~/.server/domain/services/request-service-default';
@@ -60,9 +59,6 @@ export type RequestService = {
 
   // GET /api/v1/requests/{id}/profiles - Get candidate profiles for a request
   getRequestProfiles(requestId: number, accessToken: string): Promise<Result<PagedProfileResponse, AppError>>;
-
-  // GET /api/v1/requests/{id}/profiles/{profileId} - Get specific candidate profile for a request
-  getRequestProfileById(requestId: number, profileId: number, accessToken: string): Promise<Result<Profile, AppError>>;
 
   // Optional method for finding request by ID
   findRequestById(requestId: number, accessToken: string): Promise<Option<RequestReadModel>>;
