@@ -5,4 +5,4 @@ import org.springframework.stereotype.Repository;
 import ca.gov.dtsstn.vacman.api.data.entity.LanguageReferralTypeEntity;
 
 @Repository
-public interface LanguageReferralTypeRepository extends AbstractBaseRepository<LanguageReferralTypeEntity> {}
+public interface LanguageReferralTypeRepository extends AbstractCodeRepository<LanguageReferralTypeEntity> {}

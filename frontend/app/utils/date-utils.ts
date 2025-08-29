@@ -312,17 +312,7 @@ export function formatDateTime(date: string | number | Date): string {
 
 /** Convert any date to a Date object pinned to a specific IANA time zone */
 export function toZonedDate(date: string | number | Date, timeZone: string): Date {
-  const d = typeof date === 'string' ? new Date(date) : new Date(date);
-  return TZDate.tz(
-    timeZone,
-    d.getUTCFullYear(),
-    d.getUTCMonth(),
-    d.getUTCDate(),
-    d.getUTCHours(),
-    d.getUTCMinutes(),
-    d.getUTCSeconds(),
-    d.getUTCMilliseconds(),
-  );
+  return new TZDate(new Date(date)).withTimeZone(timeZone);
 }
 
 /** Format a date in a specific IANA time zone, default pattern: 'yyyy-MM-dd HH:mm' */

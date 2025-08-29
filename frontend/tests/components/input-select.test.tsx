@@ -3,79 +3,97 @@ import { describe, expect, it } from 'vitest';
 
 import { InputSelect } from '~/components/input-select';
 
-describe('InputSelect', () => {
-  it('should render input select component', () => {
-    const { container } = render(
-      <InputSelect
-        id="some-id"
-        name="test"
-        label="label test"
-        defaultValue="first"
-        options={[
-          { children: 'first option', value: 'first' },
-          { children: 'second option', value: 'second' },
-        ]}
-      />,
-    );
+describe('InputSelect - Snapshot Only', () => {
+  const defaultOptions = [
+    { children: 'First option', value: 'first' },
+    { children: 'Second option', value: 'second' },
+  ];
 
-    expect(container).toMatchSnapshot('expected html');
+  // Helper to get common props
+  const getCommonProps = (overrides = {}) => ({
+    id: 'test-select',
+    name: 'test',
+    label: 'Test Label',
+    defaultValue: 'first',
+    options: defaultOptions,
+    ...overrides,
   });
 
-  it('should render input select component with help message', () => {
-    const { container } = render(
-      <InputSelect
-        id="some-id"
-        name="test"
-        label="label test"
-        defaultValue="first"
-        options={[
-          { children: 'first option', value: 'first' },
-          { children: 'second option', value: 'second' },
-        ]}
-        helpMessage="help message"
-      />,
-    );
-
-    expect(container).toMatchSnapshot('expected html');
+  it('should render the select component within a div by default', () => {
+    const { container } = render(<InputSelect {...getCommonProps()} />);
+    expect(container).toMatchSnapshot('default_div_render');
   });
 
-  it('should render input select component with required', () => {
-    const { container } = render(
-      <InputSelect
-        id="some-id"
-        name="test"
-        label="label test"
-        defaultValue="first"
-        options={[
-          { children: 'first option', value: 'first' },
-          { children: 'second option', value: 'second' },
-        ]}
-        required
-      />,
-    );
-
-    expect(container).toMatchSnapshot('expected html');
+  it('should render the select component within a fieldset with a legend when ariaDescribedbyId is provided', () => {
+    const { container } = render(<InputSelect {...getCommonProps({ ariaDescribedbyId: 'external-desc' })} />);
+    expect(container).toMatchSnapshot('fieldset_with_legend_render');
   });
 
-  it('should render input select component with error message', () => {
-    const { container } = render(
-      <InputSelect
-        id="some-id"
-        name="test"
-        label="label test"
-        defaultValue="first"
-        options={[
-          { children: 'first option', value: 'first' },
-          { children: 'second option', value: 'second' },
-        ]}
-        errorMessage="error message"
-      />,
-    );
-
-    expect(container).toMatchSnapshot('expected html');
+  it('should render input select component with help message (div container)', () => {
+    const { container } = render(<InputSelect {...getCommonProps({ helpMessage: 'This is a helpful message.' })} />);
+    expect(container).toMatchSnapshot('div_with_help_message');
   });
 
-  it('should not render label or aria-labelledby when label is empty', () => {
+  it('should render input select component with help message (fieldset container)', () => {
+    const { container } = render(
+      <InputSelect
+        {...getCommonProps({
+          ariaDescribedbyId: 'external-desc',
+          helpMessage: 'This is a helpful message.',
+        })}
+      />,
+    );
+    expect(container).toMatchSnapshot('fieldset_with_help_message');
+  });
+
+  it('should render input select component as required (div container)', () => {
+    const { container } = render(<InputSelect {...getCommonProps({ required: true })} />);
+    expect(container).toMatchSnapshot('div_required');
+  });
+
+  it('should render input select component as required (fieldset container)', () => {
+    const { container } = render(<InputSelect {...getCommonProps({ required: true, ariaDescribedbyId: 'external-desc' })} />);
+    expect(container).toMatchSnapshot('fieldset_required');
+  });
+
+  it('should render input select component with error message (div container)', () => {
+    const { container } = render(<InputSelect {...getCommonProps({ errorMessage: 'This is an error.' })} />);
+    expect(container).toMatchSnapshot('div_with_error_message');
+  });
+
+  it('should render input select component with error message (fieldset container)', () => {
+    const { container } = render(
+      <InputSelect {...getCommonProps({ ariaDescribedbyId: 'external-desc', errorMessage: 'This is an error.' })} />,
+    );
+    expect(container).toMatchSnapshot('fieldset_with_error_message');
+  });
+
+  it('should render input select with both help and error messages (div container)', () => {
+    const { container } = render(
+      <InputSelect
+        {...getCommonProps({
+          errorMessage: 'An error occurred.',
+          helpMessage: 'More info here.',
+        })}
+      />,
+    );
+    expect(container).toMatchSnapshot('div_with_help_and_error');
+  });
+
+  it('should render input select with both help and error messages (fieldset container)', () => {
+    const { container } = render(
+      <InputSelect
+        {...getCommonProps({
+          ariaDescribedbyId: 'external-desc',
+          errorMessage: 'An error occurred.',
+          helpMessage: 'More info here.',
+        })}
+      />,
+    );
+    expect(container).toMatchSnapshot('fieldset_with_help_and_error');
+  });
+
+  it('should render correctly when label is empty and no ariaDescribedbyId (div container)', () => {
     const { container } = render(
       <InputSelect
         id="empty-label-id"
@@ -83,22 +101,24 @@ describe('InputSelect', () => {
         label=""
         aria-label="Test aria label"
         defaultValue="first"
-        options={[
-          { children: 'first option', value: 'first' },
-          { children: 'second option', value: 'second' },
-        ]}
+        options={defaultOptions}
       />,
     );
+    expect(container).toMatchSnapshot('empty_label_div');
+  });
 
-    // Should not render a label element
-    expect(container.querySelector('label')).toBeNull();
-
-    // Should not have aria-labelledby attribute
-    const selectElement = container.querySelector('select');
-    expect(selectElement).toBeDefined();
-    expect(selectElement?.getAttribute('aria-labelledby')).toBeNull();
-
-    // Should still have aria-label attribute
-    expect(selectElement?.getAttribute('aria-label')).toBe('Test aria label');
+  it('should render correctly when label is empty but ariaDescribedbyId is present (fieldset container)', () => {
+    const { container } = render(
+      <InputSelect
+        id="empty-label-fieldset-id"
+        name="test"
+        label=""
+        aria-label="Test aria label"
+        ariaDescribedbyId="external-desc"
+        defaultValue="first"
+        options={defaultOptions}
+      />,
+    );
+    expect(container).toMatchSnapshot('empty_label_fieldset');
   });
 });
