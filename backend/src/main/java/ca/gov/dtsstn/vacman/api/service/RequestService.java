@@ -47,41 +47,10 @@ public class RequestService {
 		return requestRepository.findById(requestId);
 	}
 
-	public List<RequestEntity> getRequestsByUserId(long userId) {
-		final var example = Example
-				.of(RequestEntity.builder().submitter(UserEntity.builder().id(userId).build()).build());
-
-		return requestRepository.findAll(example);
-	}
-
-	private boolean isUserAssociatedWithRequest(RequestEntity request, Long userId) {
-		boolean isSubmitter = Optional.ofNullable(request.getSubmitter())
-			.map(UserEntity::getId)
-			.map(id -> id.equals(userId))
-			.orElse(false);
-
-		boolean isHiringManager = Optional.ofNullable(request.getHiringManager())
-			.map(UserEntity::getId)
-			.map(id -> id.equals(userId))
-			.orElse(false);
-
-		boolean isSubDelegatedManager = Optional.ofNullable(request.getSubDelegatedManager())
-			.map(UserEntity::getId)
-			.map(id -> id.equals(userId))
-			.orElse(false);
-
-		return isSubmitter || isHiringManager || isSubDelegatedManager;
-	}
-
-	public boolean isUserAssociatedWithRequest(Long requestId, Long userId) {
-		return getRequestById(requestId)
-			.map(request -> isUserAssociatedWithRequest(request, userId))
-			.orElse(false);
-	}
-
 	public List<RequestEntity> getAllRequestsAssociatedWithUser(Long userId) {
 		return requestRepository.findAll().stream()
-			.filter(request -> isUserAssociatedWithRequest(request, userId))
+			.filter(request -> request.getOwnerId().map(id -> id.equals(userId)).orElse(false) 
+				|| request.getDelegateIds().contains(userId))
 			.collect(Collectors.toList());
 	}
 
