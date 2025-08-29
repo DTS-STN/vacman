@@ -57,7 +57,7 @@ public class UserService {
 		final var userTypeCode = SecurityUtils.userTypeFromRole(role);
 
 		// Log warning if unknown role was encountered
-		if (!SecurityUtils.isKnownRole(role)) {
+		if (!isKnownRole(role)) {
 			log.warn("Unknown role '{}', defaulting to employee", role);
 		}
 
@@ -138,6 +138,20 @@ public class UserService {
 			eventPublisher.publishEvent(new UserDeletedEvent(user));
 			log.info("User deleted with ID: {}", id);
 		});
+	}
+
+
+	/**
+	 * Checks if the given role is a known/valid role.
+	 *
+	 * @param role the role to check
+	 * @return true if the role is recognized, false otherwise
+	 */
+	private boolean isKnownRole(String role) {
+		return switch (role) {
+			case "hr-advisor", "hiring-manager", "employee" -> true;
+			default -> false;
+		};
 	}
 
 }

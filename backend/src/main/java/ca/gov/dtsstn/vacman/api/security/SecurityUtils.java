@@ -65,19 +65,6 @@ public final class SecurityUtils {
 	}
 
 	/**
-	 * Checks if the given role is a known/valid role.
-	 *
-	 * @param role the role to check
-	 * @return true if the role is recognized, false otherwise
-	 */
-	public static boolean isKnownRole(String role) {
-		return switch (role) {
-			case Role.HR_ADVISOR, Role.HIRING_MANAGER, Role.EMPLOYEE -> true;
-			default -> false;
-		};
-	}
-
-	/**
 	 * Checks if the current user has any of the specified authorities.
 	 *
 	 * @param authorities the authorities to check.
