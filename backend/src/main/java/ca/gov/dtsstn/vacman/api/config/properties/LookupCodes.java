@@ -9,7 +9,8 @@ import jakarta.validation.constraints.NotBlank;
 @Validated
 @ConfigurationProperties("codes")
 public record LookupCodes(
-	@NestedConfigurationProperty ProfileStatuses profileStatuses
+	@NestedConfigurationProperty ProfileStatuses profileStatuses,
+	@NestedConfigurationProperty UserTypes userTypes
 ) {
 
 	@Validated
@@ -18,6 +19,13 @@ public record LookupCodes(
 		@NotBlank String archived,
 		@NotBlank String incomplete,
 		@NotBlank String pending
+	) {}
+
+	@Validated
+	public record UserTypes(
+		@NotBlank String employee,
+		@NotBlank String hiringManager,
+		@NotBlank String hrAdvisor
 	) {}
 
 }

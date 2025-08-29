@@ -12,12 +12,6 @@ import jakarta.persistence.Table;
 @Table(name = "[CD_USER_TYPE]")
 public class UserTypeEntity extends AbstractCodeEntity {
 
-	public static class UserTypeCodes {
-		public static final String HR_ADVISOR = "HRA";
-		public static final String HIRING_MANAGER = "hiring-manager";
-		public static final String EMPLOYEE = "employee";
-	}
-
 	public static UserTypeEntityBuilder builder() {
 		return new UserTypeEntityBuilder();
 	}

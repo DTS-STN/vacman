@@ -2,7 +2,6 @@ package ca.gov.dtsstn.vacman.api.service;
 
 import static ca.gov.dtsstn.vacman.api.data.entity.AbstractBaseEntity.byId;
 import static ca.gov.dtsstn.vacman.api.data.entity.AbstractCodeEntity.byCode;
-import static java.util.Collections.emptySet;
 
 import java.util.Optional;
 
@@ -12,12 +11,12 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.stereotype.Service;
 
 import ca.gov.dtsstn.vacman.api.config.properties.ApplicationProperties;
 import ca.gov.dtsstn.vacman.api.config.properties.EntraIdProperties.RolesProperties;
+import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes;
+import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes.UserTypes;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 import ca.gov.dtsstn.vacman.api.data.repository.UserRepository;
 import ca.gov.dtsstn.vacman.api.event.UserCreatedEvent;
@@ -42,18 +41,21 @@ public class UserService {
 
 	private final UserRepository userRepository;
 
+	private final UserTypes userTypes;
 
 	public UserService(
 			ApplicationProperties applicationProperties,
 			CodeService codeService,
 			ApplicationEventPublisher eventPublisher,
 			UserEntityMapper userEntityMapper,
-			UserRepository userRepository) {
+			UserRepository userRepository,
+			LookupCodes lookupCodes) {
 		this.roles = applicationProperties.entraId().roles();
 		this.codeService = codeService;
 		this.eventPublisher = eventPublisher;
 		this.userEntityMapper = userEntityMapper;
 		this.userRepository = userRepository;
+		this.userTypes = lookupCodes.userTypes();
 	}
 
 	public UserEntity createUser(UserEntity user, long languageId) {
@@ -62,8 +64,9 @@ public class UserService {
 			.filter(byId(languageId))
 			.findFirst().orElseThrow());
 
-		// Set user type based on highest privilege role from JWT claims
-		final var userTypeCode = getUserType();
+		final var userTypeCode = SecurityUtils.hasAuthority(roles.hrAdvisor())
+			? userTypes.hrAdvisor()
+			: userTypes.employee();
 
 		user.setUserType(codeService.getUserTypes(Pageable.unpaged()).stream()
 			.filter(byCode(userTypeCode))
@@ -142,19 +145,6 @@ public class UserService {
 			eventPublisher.publishEvent(new UserDeletedEvent(user));
 			log.info("User deleted with ID: {}", id);
 		});
-	}
-
-	private String getUserType() {
-		final var userAuthorities = SecurityUtils.getCurrentAuthentication()
-			.map(Authentication::getAuthorities)
-			.map(AuthorityUtils::authorityListToSet)
-			.orElse(emptySet());
-
-		//
-		// TODO ::: GjB ::: use config user types here
-		//
-
-		return userAuthorities.contains(roles.hrAdvisor()) ? "HRA" : "employee";
 	}
 
 }

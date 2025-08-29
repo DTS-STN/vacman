@@ -17,9 +17,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes;
+import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes.UserTypes;
 import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
-import ca.gov.dtsstn.vacman.api.data.entity.UserTypeEntity.UserTypeCodes;
 import ca.gov.dtsstn.vacman.api.data.repository.CityRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.ClassificationRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.EmploymentOpportunityRepository;
@@ -67,6 +68,8 @@ public class ProfileService {
 
 	private final LanguageReferralTypeRepository languageReferralTypeRepository;
 
+	private UserTypes userTypes;
+
 	// Keys are tied to the potential values of getProfilesByStatusAndHrId parameter isActive.
 	private static final Map<Boolean, Set<String>> profileStatusSets = Map.of(
 		Boolean.TRUE, ACTIVE_PROFILE_STATUS,
@@ -84,7 +87,8 @@ public class ProfileService {
 			WfaStatusRepository wfaStatusRepository,
 			WorkUnitRepository workUnitRepository,
 			ApplicationEventPublisher eventPublisher,
-			LanguageReferralTypeRepository languageReferralTypeRepository) {
+			LanguageReferralTypeRepository languageReferralTypeRepository,
+			LookupCodes lookupCodes) {
 		this.classificationRepository = classificationRepository;
 		this.profileRepository = profileRepository;
 		this.languageRepository = languageRepository;
@@ -96,6 +100,7 @@ public class ProfileService {
 		this.workUnitRepository = workUnitRepository;
 		this.eventPublisher = eventPublisher;
 		this.languageReferralTypeRepository = languageReferralTypeRepository;
+		userTypes = lookupCodes.userTypes();
 	}
 
 	/**
@@ -224,7 +229,7 @@ public class ProfileService {
 
 		Optional.ofNullable(updateModel.hrAdvisorId()).ifPresent(id -> {
 			profile.setHrAdvisor(userService.getUserById(id)
-				.filter(user -> UserTypeCodes.HR_ADVISOR.equals(user.getUserType().getCode()))
+				.filter(user -> userTypes.hrAdvisor().equals(user.getUserType().getCode()))
 				.orElseThrow(asResourceConflictException("HR Advisor", id)));
 		});
 
