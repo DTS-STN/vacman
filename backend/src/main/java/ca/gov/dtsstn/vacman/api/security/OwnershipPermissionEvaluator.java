@@ -69,8 +69,7 @@ public class OwnershipPermissionEvaluator implements PermissionEvaluator {
 			return false;
 		}
 
-		if (ClassUtils.isAssignableValue(Ownable.class, targetResource.get())) {
-			final var ownable = (Ownable) targetResource.get();
+		if (targetResource.get() instanceof final Ownable ownable) {
 			final var owner = ownable.getOwnerId();
 
 			if (owner == null) {
@@ -80,16 +79,34 @@ public class OwnershipPermissionEvaluator implements PermissionEvaluator {
 
 			final var isOwner = currentUserId.map(owner::equals).orElse(false);
 
-			final var isDelegate = "READ".equals(permission.toString()) &&
-			                      ownable.getDelegateIds().contains(currentUserId.get());
-
-			if (isOwner || isDelegate) {
-				if (isDelegate && !"READ".equals(permission.toString())) {
-					log.warn("Access denied: user is a delegate but requested non-READ permission; permission=[{}], targetType=[{}], targetId=[{}], currentUserId=[{}]", permission, targetType, targetId, currentUserId.get());
-					return false;
+			if (isOwner) {
+				//
+				// currently, ownership grants all permissions
+				// (this switch is a placeholder for future checks)
+				//
+				switch ((String) permission) {
+					default: {
+						return true;
+					}
 				}
+			}
 
-				return true;
+			final var isDelegate = ownable.getDelegateIds().contains(currentUserId.get());
+
+			if (isDelegate) {
+				switch ((String) permission) {
+					case "READ": {
+						return true;
+					}
+
+					default: {
+						log.warn("Access denied: "
+										+ "user is a delegate but requested non-READ permission; "
+										+ "permission=[{}], targetType=[{}], targetId=[{}], currentUserId=[{}]",
+								permission, targetType, targetId, currentUserId.get());
+						return false;
+					}
+				}
 			}
 		}
 

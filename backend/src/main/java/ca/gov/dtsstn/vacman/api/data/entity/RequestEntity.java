@@ -9,8 +9,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.immutables.builder.Builder;
 import org.springframework.core.style.ToStringCreator;
@@ -580,17 +583,10 @@ public class RequestEntity extends AbstractBaseEntity implements Ownable {
 
 	@Override
 	public Set<Long> getDelegateIds() {
-		Set<Long> delegates = new HashSet<>();
-
-		Optional.ofNullable(hiringManager)
+		return Stream.of(hiringManager, subDelegatedManager)
+			.filter(Objects::nonNull)
 			.map(UserEntity::getId)
-			.ifPresent(delegates::add);
-
-		Optional.ofNullable(subDelegatedManager)
-			.map(UserEntity::getId)
-			.ifPresent(delegates::add);
-
-		return delegates;
+			.collect(Collectors.toSet());
 	}
 
 	@Override
