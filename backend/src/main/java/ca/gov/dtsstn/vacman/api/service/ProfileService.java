@@ -1,5 +1,8 @@
 package ca.gov.dtsstn.vacman.api.service;
 
+import static ca.gov.dtsstn.vacman.api.data.repository.ProfileRepository.hasHrAdvisorId;
+import static ca.gov.dtsstn.vacman.api.data.repository.ProfileRepository.hasProfileStatusCodeIn;
+import static ca.gov.dtsstn.vacman.api.data.repository.ProfileRepository.hasUserMicrosoftEntraId;
 import static ca.gov.dtsstn.vacman.api.security.SecurityUtils.getCurrentUserEntraId;
 import static ca.gov.dtsstn.vacman.api.web.exception.ResourceConflictException.asResourceConflictException;
 import static ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException.asResourceNotFoundException;
@@ -112,13 +115,13 @@ public class ProfileService {
 			final var statusCodes = profileStatusSets.get(isActive);
 
 			profilesPage = (hrAdvisorId == null)
-				? profileRepository.findByProfileStatusCodeIn(statusCodes, pageable)
-				: profileRepository.findByProfileStatusCodeInAndHrAdvisorIdIs(statusCodes, hrAdvisorId, pageable);
+				? profileRepository.findAll(hasProfileStatusCodeIn(statusCodes), pageable)
+				: profileRepository.findAll(hasHrAdvisorId(hrAdvisorId).and(hasProfileStatusCodeIn(statusCodes)), pageable);
 		}
 		else {
 			profilesPage = (hrAdvisorId == null)
 				? profileRepository.findAll(pageable)
-				: profileRepository.findAllByHrAdvisorId(hrAdvisorId, pageable);
+				: profileRepository.findAll(hasHrAdvisorId(hrAdvisorId), pageable);
 		}
 
 		if (profilesPage != null && !profilesPage.isEmpty()) {
@@ -141,8 +144,8 @@ public class ProfileService {
 	 */
 	public List<ProfileEntity> getProfilesByEntraId(String entraId, Boolean isActive) {
 		final var profiles = (isActive != null)
-			? profileRepository.findByUserMicrosoftEntraIdIsAndProfileStatusCodeIn(entraId, profileStatusSets.get(isActive))
-			: profileRepository.findAllByUserMicrosoftEntraId(entraId);
+			? profileRepository.findAll(hasUserMicrosoftEntraId(entraId).and(hasProfileStatusCodeIn(profileStatusSets.get(isActive))))
+			: profileRepository.findAll(hasUserMicrosoftEntraId(entraId));
 
 		if (profiles != null && !profiles.isEmpty()) {
 			final var profileIds = profiles.stream()
