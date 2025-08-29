@@ -7,7 +7,6 @@ import type {
   PagedRequestResponse,
   CollectionRequestResponse,
   RequestQueryParams,
-  Profile,
   PagedProfileResponse,
   RequestStatus,
 } from '~/.server/domain/models';
@@ -242,15 +241,6 @@ export function getMockRequestService(): RequestService {
         },
       };
       return Promise.resolve(Ok(response));
-    },
-
-    /**
-     * Gets a specific candidate profile for a request.
-     */
-    async getRequestProfileById(requestId: number, profileId: number, accessToken: string): Promise<Result<Profile, AppError>> {
-      return Promise.resolve(
-        Err(new AppError(`Profile ${profileId} for request ID ${requestId} not found.`, ErrorCodes.PROFILE_NOT_FOUND)),
-      );
     },
 
     /**
