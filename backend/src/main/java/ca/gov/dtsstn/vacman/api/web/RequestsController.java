@@ -1,6 +1,5 @@
 package ca.gov.dtsstn.vacman.api.web;
 
-import static ca.gov.dtsstn.vacman.api.constants.AppConstants.UserFields.MS_ENTRA_ID;
 import static ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException.asResourceNotFoundException;
 import static ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException.asUserResourceNotFoundException;
 import static ca.gov.dtsstn.vacman.api.web.exception.UnauthorizedException.asEntraIdUnauthorizedException;
@@ -81,7 +80,7 @@ public class RequestsController {
 			.orElseThrow(asEntraIdUnauthorizedException());
 
 		final var user = userService.getUserByMicrosoftEntraId(entraId)
-			.orElseThrow(asUserResourceNotFoundException(MS_ENTRA_ID, entraId));
+			.orElseThrow(asUserResourceNotFoundException("microsoftEntraId", entraId));
 
 		final var requests = requestService.getRequestsByUserId(user.getId()).stream()
 			.map(requestModelMapper::toModel)
@@ -102,7 +101,7 @@ public class RequestsController {
 			.orElseThrow(asEntraIdUnauthorizedException());
 
 		final var currentUser = userService.getUserByMicrosoftEntraId(entraId)
-			.orElseThrow(asUserResourceNotFoundException(MS_ENTRA_ID, entraId));
+			.orElseThrow(asUserResourceNotFoundException("microsoftEntraId", entraId));
 
 		final var request = requestService.createRequest(currentUser);
 

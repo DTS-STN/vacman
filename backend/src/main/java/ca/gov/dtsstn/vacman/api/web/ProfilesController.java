@@ -1,6 +1,5 @@
 package ca.gov.dtsstn.vacman.api.web;
 
-import static ca.gov.dtsstn.vacman.api.constants.AppConstants.UserFields.MS_ENTRA_ID;
 import static ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException.asResourceNotFoundException;
 import static ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException.asUserResourceNotFoundException;
 import static ca.gov.dtsstn.vacman.api.web.exception.UnauthorizedException.asEntraIdUnauthorizedException;
@@ -100,7 +99,7 @@ public class ProfilesController {
 
 			hrAdvisorId = userService.getUserByMicrosoftEntraId(entraId)
 				.map(UserEntity::getId)
-				.orElseThrow(asUserResourceNotFoundException(MS_ENTRA_ID, entraId));
+				.orElseThrow(asUserResourceNotFoundException("microsoftEntraId", entraId));
 		}
 		else {
 			hrAdvisorId = Long.valueOf(hrAdvisor);
@@ -165,7 +164,7 @@ public class ProfilesController {
 
 		log.debug("Checking if user with microsoftEntraId=[{}] already exists", microsoftEntraId);
 		final var existingUser = userService.getUserByMicrosoftEntraId(microsoftEntraId)
-			.orElseThrow(asUserResourceNotFoundException(MS_ENTRA_ID, microsoftEntraId));
+			.orElseThrow(asUserResourceNotFoundException("microsoftEntraId", microsoftEntraId));
 
 		log.debug("Checking if user with microsoftEntraId=[{}] has an active profile", microsoftEntraId);
 		if (!profileService.getProfilesByEntraId(microsoftEntraId, true).isEmpty()) {
