@@ -2,6 +2,7 @@ package ca.gov.dtsstn.vacman.api.service;
 
 import static ca.gov.dtsstn.vacman.api.security.SecurityUtils.getCurrentUserEntraId;
 import static ca.gov.dtsstn.vacman.api.web.exception.ResourceConflictException.asResourceConflictException;
+import static ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException.asResourceNotFoundException;
 
 import java.util.List;
 import java.util.Map;
@@ -9,12 +10,14 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import ca.gov.dtsstn.vacman.api.constants.AppConstants;
 import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.ProfileStatusEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 import ca.gov.dtsstn.vacman.api.data.repository.CityRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.ClassificationRepository;
@@ -171,9 +174,12 @@ public class ProfileService {
 	 * @return The new profile entity.
 	 */
 	public ProfileEntity createProfile(UserEntity user) {
+		final var incompleteStatusExample = Example.of(ProfileStatusEntity.builder().code("INCOMPLETE").build());
+		final var incompleteStatus = profileStatusRepository.findOne(incompleteStatusExample).orElseThrow();
+
 		final var profile = profileRepository.save(ProfileEntity.builder()
 			.user(user)
-			.profileStatus(profileStatusRepository.findByCode("INCOMPLETE"))
+			.profileStatus(incompleteStatus)
 			.build());
 
 		eventPublisher.publishEvent(new ProfileCreateEvent(profile));
@@ -189,7 +195,10 @@ public class ProfileService {
 	 */
 	public void updateProfileStatus(ProfileEntity existingProfile, String statusCode) {
 		final var previousStatusId = existingProfile.getProfileStatus().getId();
-		final var newStatus = profileStatusRepository.findByCode(statusCode) ;
+
+		final var statusExample = Example.of(ProfileStatusEntity.builder().code(statusCode).build());
+		final var newStatus = profileStatusRepository.findOne(statusExample)
+			.orElseThrow(asResourceNotFoundException("profileStatus", "code", statusCode));
 
 		existingProfile.setProfileStatus(newStatus);
 		final var updatedProfile = profileRepository.save(existingProfile);
