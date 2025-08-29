@@ -26,7 +26,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import ca.gov.dtsstn.vacman.api.config.SpringDocConfig;
-import ca.gov.dtsstn.vacman.api.constants.AppConstants;
 import ca.gov.dtsstn.vacman.api.security.SecurityUtils;
 import ca.gov.dtsstn.vacman.api.service.RequestService;
 import ca.gov.dtsstn.vacman.api.service.UserService;
@@ -44,7 +43,7 @@ import jakarta.validation.Valid;
 @ApiResponses.AccessDeniedError
 @ApiResponses.AuthenticationError
 @ApiResponses.InternalServerError
-@RequestMapping({ AppConstants.ApiPaths.REQUESTS })
+@RequestMapping({ "/api/v1/requests" })
 @SecurityRequirement(name = SpringDocConfig.AZURE_AD)
 @ConditionalOnProperty(name = { "application.requests.enabled" }) // TODO ::: GjB ::: remove once live in prod
 @Tag(name = "Requests", description = "Hiring manager requests for departmental clearance.")
@@ -108,7 +107,7 @@ public class RequestsController {
 		final var request = requestService.createRequest(currentUser);
 
 		final var location = ServletUriComponentsBuilder.fromCurrentContextPath()
-			.path(AppConstants.ApiPaths.REQUESTS + "/{id}")
+			.path("/api/v1/requests/{id}")
 			.buildAndExpand(request.getId()).toUri();
 
 		return ResponseEntity.created(location).body(requestModelMapper.toModel(request));

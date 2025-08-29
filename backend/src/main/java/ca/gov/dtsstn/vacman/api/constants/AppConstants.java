@@ -48,16 +48,6 @@ public final class AppConstants {
 		private UserType() {}
 	}
 
-	public static final class ApiPaths {
-		public static final String API_BASE = "/api";
-		public static final String API_V1 = API_BASE + "/v1";
-		public static final String CODES = API_V1 + "/codes";
-		public static final String REQUESTS = API_V1 + "/requests";
-		public static final String USERS = API_V1 + "/users";
-
-		private ApiPaths() {}
-	}
-
 	public static final class UserFields {
 		public static final String MS_ENTRA_ID = "microsoftEntraId";
 
