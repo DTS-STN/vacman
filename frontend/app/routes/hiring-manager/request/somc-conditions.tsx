@@ -1,18 +1,21 @@
 import type { RouteHandle } from 'react-router';
-import { Form } from 'react-router';
+import { data } from 'react-router';
 
 import { useTranslation } from 'react-i18next';
+import * as v from 'valibot';
 
 import type { Route } from './+types/somc-conditions';
 
+import { getRequestService } from '~/.server/domain/services/request-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
+import { i18nRedirect } from '~/.server/utils/route-utils';
 import { BackLink } from '~/components/back-link';
-import { Button } from '~/components/button';
-import { ButtonLink } from '~/components/button-link';
-import { FormErrorSummary } from '~/components/error-summary';
-import { InputTextarea } from '~/components/input-textarea';
+import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
+import { SomcConditionsForm } from '~/routes/page-components/requests/somc-conditions/form';
+import { somcConditionsSchema } from '~/routes/page-components/requests/validation.server';
+import { formString } from '~/utils/string-utils';
 
 export const handle = {
   i18nNamespace: [...parentHandle.i18nNamespace],
@@ -22,26 +25,59 @@ export function meta({ loaderData }: Route.MetaArgs) {
   return [{ title: loaderData.documentTitle }];
 }
 
-export function action({ context, params, request }: Route.ActionArgs) {
+export async function action({ context, params, request }: Route.ActionArgs) {
   requireAuthentication(context.session, request);
 
-  // TODO update the current request
+  const formData = await request.formData();
+  const parseResult = v.safeParse(somcConditionsSchema, {
+    englishStatementOfMerit: formString(formData.get('englishStatementOfMerit')),
+    frenchStatementOfMerit: formString(formData.get('frenchStatementOfMerit')),
+  });
+
+  if (!parseResult.success) {
+    return data(
+      { errors: v.flatten<typeof somcConditionsSchema>(parseResult.issues).nested },
+      { status: HttpStatusCodes.BAD_REQUEST },
+    );
+  }
+
+  const updateResult = await getRequestService().updateRequestById(
+    Number(params.requestId),
+    parseResult.output,
+    context.session.authState.accessToken,
+  );
+
+  if (updateResult.isErr()) {
+    throw updateResult.unwrapErr();
+  }
+
+  return i18nRedirect('routes/hiring-manager/request/index.tsx', request, { params });
 }
 
-export async function loader({ context, request }: Route.LoaderArgs) {
+export async function loader({ context, params, request }: Route.LoaderArgs) {
   requireAuthentication(context.session, request);
 
   const { t } = await getTranslation(request, handle.i18nNamespace);
 
-  // TODO fetch the current request
+  const requestResult = await getRequestService().getRequestById(
+    Number(params.requestId),
+    context.session.authState.accessToken,
+  );
+  const currentRequest = requestResult.into();
 
   return {
     documentTitle: t('app:somc-conditions.page-title'),
+    defaultValues: {
+      englishStatementOfMerit: currentRequest?.englishStatementOfMerit,
+      frenchStatementOfMerit: currentRequest?.frenchStatementOfMerit,
+    },
   };
 }
 
-export default function HiringManagerRequestSomcConditions({ loaderData, params }: Route.ComponentProps) {
+export default function HiringManagerRequestSomcConditions({ loaderData, actionData, params }: Route.ComponentProps) {
   const { t } = useTranslation(handle.i18nNamespace);
+  const errors = actionData?.errors;
+
   return (
     <>
       <BackLink
@@ -53,44 +89,12 @@ export default function HiringManagerRequestSomcConditions({ loaderData, params 
         {t('app:hiring-manager-requests.back')}
       </BackLink>
       <div className="max-w-prose">
-        {/* TODO: componentize the form */}
-        <h1 className="my-5 text-3xl font-semibold">{t('app:somc-conditions.page-title')}</h1>
-        <FormErrorSummary>
-          <Form method="post" noValidate>
-            <div className="space-y-6">
-              <InputTextarea
-                id="english-somc"
-                className="w-full"
-                label={t('app:somc-conditions.english-somc-label')}
-                name="englishSomc"
-                helpMessage={t('app:somc-conditions.english-somc-help-message')}
-                required
-              />
-
-              <InputTextarea
-                id="french-somc"
-                className="w-full"
-                label={t('app:somc-conditions.french-somc-label')}
-                name="frenchSomc"
-                helpMessage={t('app:somc-conditions.french-somc-help-message')}
-                required
-              />
-              <div className="mt-8 flex flex-row-reverse flex-wrap items-center justify-end gap-3">
-                <Button name="action" variant="primary" id="save-button">
-                  {t('app:form.save')}
-                </Button>
-                <ButtonLink
-                  file="routes/hiring-manager/request/index.tsx"
-                  params={params}
-                  id="cancel-button"
-                  variant="alternative"
-                >
-                  {t('app:form.cancel')}
-                </ButtonLink>
-              </div>
-            </div>
-          </Form>
-        </FormErrorSummary>
+        <SomcConditionsForm
+          cancelLink="routes/hiring-manager/request/index.tsx"
+          formErrors={errors}
+          formValues={loaderData.defaultValues}
+          params={params}
+        />
       </div>
     </>
   );

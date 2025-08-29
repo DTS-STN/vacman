@@ -269,5 +269,9 @@ export default {
     'english-somc-help-message': 'Please enter the full English criteria here',
     'french-somc-label': 'French statement of merit criteria of employment',
     'french-somc-help-message': 'Please enter the full French criteria here',
+    'errors': {
+      'english-somc-required': 'English statement of merit criteria is required',
+      'french-somc-required': 'French statement of merit criteria is required',
+    },
   },
 };
