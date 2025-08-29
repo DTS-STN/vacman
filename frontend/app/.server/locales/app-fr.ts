@@ -187,6 +187,28 @@ export default {
     'page-title': 'Tableau de bord des employés',
     'page-heading': 'Tableau de bord des employés',
   },
+  'process-information': {
+    'page-title': '(FR) Process information',
+    'selection-process-number': '(FR) Selection process number (if applicable)',
+    'approval-received':
+      '(FR) Approval received from the Workforce Management Committee (Non-EX positions) or the People Management Leadership Committee (EX positions)',
+    'priority-entitlement':
+      '(FR) Would the appointment of a priority person result in a priority entitlement for another indeterminate employee?',
+    'priority-entitlement-rationale': '(FR) Please provide the rationale',
+    'selection-process-type': '(FR) Selection process type',
+    'performed-duties':
+      '(FR) Has the person proposed previously performed the same duties in the last twelve months or is this person still currently performing them in any capacity (casual, Interchange Canada, agency, contractor, acting more than four months, etc.)?',
+    'non-advertised-appointment': '(FR) Reason for the appointment from a non-advertised process',
+    'employment-tenure': '(FR) Tenure',
+    'work-schedule': '(FR) Work Schedule',
+    'work-schedule-help-message': '(FR) Supporting evidence required',
+    'employment-equity-identified':
+      '(FR) Has an organizational need for employment equity been identified for this process, deployment, or appointment?',
+    'preferred-employment-equities': '(FR) Which organization need for employment equity has been identified?',
+    'preferred-employment-equities-help-message': '(FR) Select all that apply',
+    'projected-start-date': '(FR) Projected start date',
+    'projected-end-date': '(FR) Projected end date',
+  },
   'hr-advisor-dashboard': {
     'page-title': 'Tableau de bord du conseiller RH',
     'page-heading': 'Tableau de bord du conseiller RH',

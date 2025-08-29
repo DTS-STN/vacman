@@ -172,3 +172,13 @@ export const LANGUAGE_LEVEL = [
 // TODO configure these in a more friendly way for DX
 export const ACTIVE_REQUEST_STATUS_IDS = [0, 1, 2, 3, 4, 5, 6, 7];
 export const ARCHIVED_REQUEST_STATUS_IDS = [8, 9, 10];
+
+export const EMPLOYMENT_TENURE = {
+  term: 'TERM',
+  indeterminate: 'INDETERMINATE',
+} as const;
+
+export const SELECTION_PROCESS_TYPE = {
+  externalNonAdvertised: '3',
+  internalNonAdvertised: '5',
+} as const;
