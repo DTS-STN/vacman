@@ -81,3 +81,18 @@ export const positionInformationSchema = v.pipe(
     ),
   }),
 );
+
+export const somcConditionsSchema = v.pipe(
+  v.object({
+    englishStatementOfMerit: v.pipe(
+      v.string('app:somc-conditions.errors.english-somc-required'),
+      v.trim(),
+      v.nonEmpty('app:somc-conditions.errors.english-somc-required'),
+    ),
+    frenchStatementOfMerit: v.pipe(
+      v.string('app:somc-conditions.errors.french-somc-required'),
+      v.trim(),
+      v.nonEmpty('app:somc-conditions.errors.french-somc-required'),
+    ),
+  }),
+);
