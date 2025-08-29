@@ -174,8 +174,7 @@ public class ProfileService {
 	 * @return The new profile entity.
 	 */
 	public ProfileEntity createProfile(UserEntity user) {
-		final var incompleteStatusExample = Example.of(ProfileStatusEntity.builder().code("INCOMPLETE").build());
-		final var incompleteStatus = profileStatusRepository.findOne(incompleteStatusExample).orElseThrow();
+		final var incompleteStatus = profileStatusRepository.findByCode("INCOMPLETE").orElseThrow();
 
 		final var profile = profileRepository.save(ProfileEntity.builder()
 			.user(user)
@@ -195,9 +194,7 @@ public class ProfileService {
 	 */
 	public void updateProfileStatus(ProfileEntity existingProfile, String statusCode) {
 		final var previousStatusId = existingProfile.getProfileStatus().getId();
-
-		final var statusExample = Example.of(ProfileStatusEntity.builder().code(statusCode).build());
-		final var newStatus = profileStatusRepository.findOne(statusExample)
+		final var newStatus = profileStatusRepository.findByCode(statusCode)
 			.orElseThrow(asResourceNotFoundException("profileStatus", "code", statusCode));
 
 		existingProfile.setProfileStatus(newStatus);
