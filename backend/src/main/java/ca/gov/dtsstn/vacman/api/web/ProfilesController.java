@@ -31,6 +31,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import ca.gov.dtsstn.vacman.api.config.SpringDocConfig;
+import ca.gov.dtsstn.vacman.api.config.properties.ApplicationProperties;
+import ca.gov.dtsstn.vacman.api.config.properties.EntraIdProperties.RolesProperties;
 import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes;
 import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes.ProfileStatuses;
 import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
@@ -67,11 +69,18 @@ public class ProfilesController {
 
 	private final ProfileStatuses profileStatuses;
 
+	private final RolesProperties roles;
+
 	private final UserService userService;
 
 	private final ProfileModelMapper profileModelMapper = Mappers.getMapper(ProfileModelMapper.class);
 
-	public ProfilesController(LookupCodes lookupCodes, ProfileService profileService, UserService userService) {
+	public ProfilesController(
+			ApplicationProperties applicationProperties,
+			LookupCodes lookupCodes,
+			ProfileService profileService,
+			UserService userService) {
+		this.roles = applicationProperties.entraId().roles();
 		this.profileService = profileService;
 		this.profileStatuses = lookupCodes.profileStatuses();
 		this.userService = userService;
@@ -263,8 +272,6 @@ public class ProfilesController {
 
 	/**
 	 * Checks the {@code roles} claim for the presence of the {@code hr-advisor} role.
-	 *
-	 * TODO ::: GjB ::: does this belong here?
 	 */
 	private boolean isHrAdvisor() {
 		final var userAuthorities = SecurityUtils.getCurrentAuthentication()
@@ -272,7 +279,7 @@ public class ProfilesController {
 			.map(AuthorityUtils::authorityListToSet)
 			.orElse(emptySet());
 
-		return userAuthorities.contains("hr-advisor");
+		return userAuthorities.contains(roles.hrAdvisor());
 	}
 
 	private void updateStatusToTarget(ProfileEntity profile, String targetStatus, Collection<String> validPreTransitionStates) {

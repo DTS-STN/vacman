@@ -4,7 +4,6 @@ import static ca.gov.dtsstn.vacman.api.data.entity.AbstractBaseEntity.byId;
 import static ca.gov.dtsstn.vacman.api.data.entity.AbstractCodeEntity.byCode;
 import static java.util.Collections.emptySet;
 
-import java.util.List;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -17,6 +16,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.stereotype.Service;
 
+import ca.gov.dtsstn.vacman.api.config.properties.ApplicationProperties;
+import ca.gov.dtsstn.vacman.api.config.properties.EntraIdProperties.RolesProperties;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 import ca.gov.dtsstn.vacman.api.data.repository.UserRepository;
 import ca.gov.dtsstn.vacman.api.event.UserCreatedEvent;
@@ -35,15 +36,20 @@ public class UserService {
 
 	private final CodeService codeService;
 
+	private final RolesProperties roles;
+
 	private final UserEntityMapper userEntityMapper;
 
 	private final UserRepository userRepository;
 
+
 	public UserService(
+			ApplicationProperties applicationProperties,
 			CodeService codeService,
 			ApplicationEventPublisher eventPublisher,
 			UserEntityMapper userEntityMapper,
 			UserRepository userRepository) {
+		this.roles = applicationProperties.entraId().roles();
 		this.codeService = codeService;
 		this.eventPublisher = eventPublisher;
 		this.userEntityMapper = userEntityMapper;
@@ -57,13 +63,7 @@ public class UserService {
 			.findFirst().orElseThrow());
 
 		// Set user type based on highest privilege role from JWT claims
-		final var role = getHighestPrivilegeRole();
-		final var userTypeCode = userTypeFromRole(role);
-
-		// Log warning if unknown role was encountered
-		if (!isKnownRole(role)) {
-			log.warn("Unknown role '{}', defaulting to employee", role);
-		}
+		final var userTypeCode = getUserType();
 
 		user.setUserType(codeService.getUserTypes(Pageable.unpaged()).stream()
 			.filter(byCode(userTypeCode))
@@ -144,55 +144,17 @@ public class UserService {
 		});
 	}
 
-	/**
-	 * Get the highest privilege role from the current user's authorities.
-	 * Role hierarchy (highest to lowest): admin > hr-advisor > hiring-manager > employee
-	 *
-	 * @return the highest privilege role authority, or "employee" as fallback if no roles found
-	 */
-	private String getHighestPrivilegeRole() {
+	private String getUserType() {
 		final var userAuthorities = SecurityUtils.getCurrentAuthentication()
 			.map(Authentication::getAuthorities)
 			.map(AuthorityUtils::authorityListToSet)
 			.orElse(emptySet());
 
-		final List<String> ROLE_HIERARCHY = List.of(
-			"hr-advisor",
-			"hiring-manager",
-			"employee"
-		);
+		//
+		// TODO ::: GjB ::: use config user types here
+		//
 
-		return ROLE_HIERARCHY.stream()
-			.filter(userAuthorities::contains).findFirst()
-			.orElse("employee");
-	}
-
-	/**
-	 * Checks if the given role is a known/valid role.
-	 *
-	 * @param role the role to check
-	 * @return true if the role is recognized, false otherwise
-	 */
-	private boolean isKnownRole(String role) {
-		return switch (role) {
-			case "hr-advisor", "hiring-manager", "employee" -> true;
-			default -> false;
-		};
-	}
-
-	/**
-	 * Maps JWT role authorities to user type codes.
-	 *
-	 * @param role the role authority from JWT claims
-	 * @return the corresponding user type code, defaults to EMPLOYEE for unknown roles
-	 */
-	private String userTypeFromRole(String role) {
-		return switch (role) {
-			case "hr-advisor" -> "HRA";
-			case "hiring-manager" -> "hiring-manager";
-			case "employee" -> "employee";
-			default -> "employee"; // Default to employee for unknown roles
-		};
+		return userAuthorities.contains(roles.hrAdvisor()) ? "HRA" : "employee";
 	}
 
 }
