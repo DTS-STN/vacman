@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
-import org.springframework.util.ClassUtils;
 
 import ca.gov.dtsstn.vacman.api.data.entity.AbstractBaseEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.Ownable;
@@ -70,14 +69,14 @@ public class OwnershipPermissionEvaluator implements PermissionEvaluator {
 		}
 
 		if (targetResource.get() instanceof final Ownable ownable) {
-			final var owner = ownable.getOwnerId();
+			final var ownerIdOpt = ownable.getOwnerId();
 
-			if (owner == null) {
+			if (ownerIdOpt.isEmpty()) {
 				log.warn("Access denied: resource does not have an owner; permission=[{}], targetType=[{}], targetId=[{}], currentUserId=[{}]", permission, targetType, targetId, currentUserId.get());
 				return false;
 			}
 
-			final var isOwner = currentUserId.map(owner::equals).orElse(false);
+			final var isOwner = ownerIdOpt.map(ownerId -> ownerId.equals(currentUserId.get())).orElse(false);
 
 			if (isOwner) {
 				//
