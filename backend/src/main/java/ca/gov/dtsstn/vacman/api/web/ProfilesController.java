@@ -29,8 +29,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import ca.gov.dtsstn.vacman.api.config.SpringDocConfig;
-import ca.gov.dtsstn.vacman.api.constants.AppConstants;
 import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.ProfileStatusEntity.ProfileStatusCodes;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 import ca.gov.dtsstn.vacman.api.security.SecurityUtils;
 import ca.gov.dtsstn.vacman.api.service.ProfileService;
@@ -214,8 +214,8 @@ public class ProfilesController {
 		// APPROVED and ARCHIVED statuses require that the submitter be an HR advisor
 		//
 
-		final var requiresHrAdvisor = AppConstants.ProfileStatusCodes.APPROVED.equals(updatedProfileStatus.getCode())
-			|| AppConstants.ProfileStatusCodes.ARCHIVED.equals(updatedProfileStatus.getCode());
+		final var requiresHrAdvisor = ProfileStatusCodes.APPROVED.equals(updatedProfileStatus.getCode())
+			|| ProfileStatusCodes.ARCHIVED.equals(updatedProfileStatus.getCode());
 
 		if (requiresHrAdvisor && !SecurityUtils.isHrAdvisor()) {
 			throw new AccessDeniedException("Only HR advisors can set status to APPROVED or ARCHIVED");
@@ -225,7 +225,7 @@ public class ProfilesController {
 		// PENDING is the only valid status for normal (non HR advisor) employees
 		//
 
-		final var isPendingStatus = AppConstants.ProfileStatusCodes.PENDING.equals(updatedProfileStatus.getCode());
+		final var isPendingStatus = ProfileStatusCodes.PENDING.equals(updatedProfileStatus.getCode());
 
 		if (!requiresHrAdvisor && !isPendingStatus) {
 			throw new AccessDeniedException("Profile status can only be set to APPROVED");
@@ -235,9 +235,9 @@ public class ProfilesController {
 			.orElseThrow(asResourceNotFoundException(PROFILE, id));
 
 		final var validPretransitionStates = switch (updatedProfileStatus.getCode()) {
-			case AppConstants.ProfileStatusCodes.PENDING -> Set.of(AppConstants.ProfileStatusCodes.INCOMPLETE, AppConstants.ProfileStatusCodes.APPROVED);
-			case AppConstants.ProfileStatusCodes.APPROVED -> Set.of(AppConstants.ProfileStatusCodes.PENDING);
-			case AppConstants.ProfileStatusCodes.ARCHIVED -> Set.of(AppConstants.ProfileStatusCodes.APPROVED);
+			case ProfileStatusCodes.PENDING -> Set.of(ProfileStatusCodes.INCOMPLETE, ProfileStatusCodes.APPROVED);
+			case ProfileStatusCodes.APPROVED -> Set.of(ProfileStatusCodes.PENDING);
+			case ProfileStatusCodes.ARCHIVED -> Set.of(ProfileStatusCodes.APPROVED);
 			// This default case /shouldn't/ ever execute, since at this point we've confirmed that the target status
 			// is one of three options. But, we need to handle this case regardless.
 			default -> throw new ResourceConflictException("Cannot transition profile status to code=[" + updatedProfileStatus.getCode() + "]");

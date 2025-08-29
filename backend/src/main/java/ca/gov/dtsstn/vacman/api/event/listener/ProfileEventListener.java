@@ -12,9 +12,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
-import ca.gov.dtsstn.vacman.api.constants.AppConstants;
 import ca.gov.dtsstn.vacman.api.data.entity.EventEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.ProfileStatusEntity.ProfileStatusCodes;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 import ca.gov.dtsstn.vacman.api.data.repository.EventRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.ProfileStatusRepository;
@@ -100,13 +100,13 @@ public class ProfileEventListener {
 		// Get previous status entity from repository
 		final var previousStatus = profileStatusRepository.findById(event.previousStatusId()).orElse(null);
 
-		if (newStatus != null && AppConstants.ProfileStatusCodes.APPROVED.equals(newStatus.getCode())) {
+		if (newStatus != null && ProfileStatusCodes.APPROVED.equals(newStatus.getCode())) {
 			sendApprovalNotification(profile);
 		} else if (previousStatus != null &&
-				  (AppConstants.ProfileStatusCodes.INCOMPLETE.equals(previousStatus.getCode()) ||
-				   AppConstants.ProfileStatusCodes.APPROVED.equals(previousStatus.getCode())) &&
+				  (ProfileStatusCodes.INCOMPLETE.equals(previousStatus.getCode()) ||
+				   ProfileStatusCodes.APPROVED.equals(previousStatus.getCode())) &&
 				  newStatus != null &&
-				  AppConstants.ProfileStatusCodes.PENDING.equals(newStatus.getCode())) {
+				  ProfileStatusCodes.PENDING.equals(newStatus.getCode())) {
 			sendPendingNotificationToHrAdvisor(profile);
 		}
 	}

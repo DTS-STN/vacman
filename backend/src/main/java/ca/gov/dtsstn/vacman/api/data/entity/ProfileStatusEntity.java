@@ -12,6 +12,13 @@ import jakarta.persistence.Table;
 @Table(name = "[CD_PROFILE_STATUS]")
 public class ProfileStatusEntity extends AbstractCodeEntity {
 
+	public static class ProfileStatusCodes {
+		public static final String APPROVED = "APPROVED";
+		public static final String ARCHIVED = "ARCHIVED";
+		public static final String PENDING = "PENDING";
+		public static final String INCOMPLETE = "INCOMPLETE";
+	}
+
 	public static ProfileStatusEntityBuilder builder() {
 		return new ProfileStatusEntityBuilder();
 	}

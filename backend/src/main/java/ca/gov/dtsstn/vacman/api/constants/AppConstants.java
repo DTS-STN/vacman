@@ -71,13 +71,4 @@ public final class AppConstants {
 		private UserFields() {}
 	}
 
-	public static final class ProfileStatusCodes {
-		public static final String APPROVED = "APPROVED";
-		public static final String ARCHIVED = "ARCHIVED";
-		public static final String PENDING = "PENDING";
-		public static final String INCOMPLETE = "INCOMPLETE";
-
-		private ProfileStatusCodes() {}
-	}
-
 }
