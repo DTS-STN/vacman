@@ -397,10 +397,9 @@ public class ProfileEntity extends AbstractBaseEntity implements Ownable {
 	}
 
 	@Override
-	public Long getOwnerId() {
+	public Optional<Long> getOwnerId() {
 		return Optional.ofNullable(user)
-			.map(UserEntity::getId)
-			.orElse(null);
+			.map(UserEntity::getId);
 	}
 
 	@Override

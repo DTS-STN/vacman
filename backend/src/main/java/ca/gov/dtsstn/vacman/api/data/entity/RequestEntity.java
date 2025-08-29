@@ -573,15 +573,14 @@ public class RequestEntity extends AbstractBaseEntity implements Ownable {
 	}
 
 	@Override
-	public Long getOwnerId() {
+	public Optional<Long> getOwnerId() {
 		return Optional.ofNullable(submitter)
-			.map(UserEntity::getId)
-			.orElse(null);
+			.map(UserEntity::getId);
 	}
 
 	@Override
-	public List<Long> getDelegateIds() {
-		List<Long> delegates = new ArrayList<>();
+	public Set<Long> getDelegateIds() {
+		Set<Long> delegates = new HashSet<>();
 
 		Optional.ofNullable(hiringManager)
 			.map(UserEntity::getId)
