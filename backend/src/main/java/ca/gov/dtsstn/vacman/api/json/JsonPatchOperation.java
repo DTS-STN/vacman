@@ -54,10 +54,9 @@ public class JsonPatchOperation {
 	@Schema(
 		description = """
 			The value to apply within the operation. Required for `add`, `replace`, and `test` operations.
-
 			The value can be any valid JSON type (string, number, object, array, boolean, or null).
 		""",
 		requiredMode = RequiredMode.NOT_REQUIRED)
-	public String value;
+	public Object value;
 
 }
