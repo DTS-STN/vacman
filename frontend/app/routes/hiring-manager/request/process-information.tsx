@@ -10,7 +10,7 @@ import { getWorkScheduleService } from '~/.server/domain/services/work-schedule-
 import { BackLink } from '~/components/back-link';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
-import { ProcessInformationForm } from '~/routes/page-components/hiring-manager/process-information/form';
+import { ProcessInformationForm } from '~/routes/page-components/requests/process-information/form';
 
 export const handle = {
   i18nNamespace: [...parentHandle.i18nNamespace],

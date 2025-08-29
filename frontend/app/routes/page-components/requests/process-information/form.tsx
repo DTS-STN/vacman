@@ -30,7 +30,7 @@ import { InputSelect } from '~/components/input-select';
 import { InputTextarea } from '~/components/input-textarea';
 import { EMPLOYMENT_TENURE, REQUIRE_OPTIONS, SELECTION_PROCESS_TYPE } from '~/domain/constants';
 import type { I18nRouteFile } from '~/i18n-routes';
-import type { Errors } from '~/routes/page-components/hiring-manager/validation.server';
+import type { Errors } from '~/routes/page-components/requests/validation.server';
 import { extractValidationKey } from '~/utils/validation-utils';
 
 export type ProcessInformation = {
