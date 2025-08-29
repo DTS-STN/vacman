@@ -12,9 +12,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
+import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes;
+import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes.ProfileStatuses;
 import ca.gov.dtsstn.vacman.api.data.entity.EventEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
-import ca.gov.dtsstn.vacman.api.data.entity.ProfileStatusEntity.ProfileStatusCodes;
+import ca.gov.dtsstn.vacman.api.data.entity.ProfileStatusEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 import ca.gov.dtsstn.vacman.api.data.repository.EventRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.ProfileStatusRepository;
@@ -35,19 +37,24 @@ public class ProfileEventListener {
 
 	private final EventRepository eventRepository;
 	private final ProfileStatusRepository profileStatusRepository;
+	private final ProfileStatuses profileStatuses;
 	private final NotificationService notificationService;
 
 	private final ObjectMapper objectMapper = new ObjectMapper()
 		.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
 		.findAndRegisterModules();
 
+
 	public ProfileEventListener(
 			EventRepository eventRepository,
+			LookupCodes lookupCodes,
 			ProfileStatusRepository profileStatusRepository,
 			NotificationService notificationService) {
 		this.eventRepository = eventRepository;
 		this.profileStatusRepository = profileStatusRepository;
+		this.profileStatuses = lookupCodes.profileStatuses();
 		this.notificationService = notificationService;
+
 	}
 
 	@Async
@@ -96,19 +103,33 @@ public class ProfileEventListener {
 
 		final var profile = event.entity();
 		final var newStatus = profile.getProfileStatus();
-
-		// Get previous status entity from repository
 		final var previousStatus = profileStatusRepository.findById(event.previousStatusId()).orElse(null);
 
-		if (newStatus != null && ProfileStatusCodes.APPROVED.equals(newStatus.getCode())) {
+		final var hasNewStatus = newStatus != null;
+		final var hasPreviousStatus = previousStatus != null;
+
+		final var newStatusIsApproved = hasNewStatus && isApproved(newStatus);
+		final var newStatusIsPending = hasNewStatus && isPending(newStatus);
+		final var previousStatusWasIncompleteOrApproved = hasPreviousStatus && (isIncomplete(previousStatus) || isApproved(previousStatus));
+
+		if (newStatusIsApproved) {
 			sendApprovalNotification(profile);
-		} else if (previousStatus != null &&
-				  (ProfileStatusCodes.INCOMPLETE.equals(previousStatus.getCode()) ||
-				   ProfileStatusCodes.APPROVED.equals(previousStatus.getCode())) &&
-				  newStatus != null &&
-				  ProfileStatusCodes.PENDING.equals(newStatus.getCode())) {
+		}
+		else if (previousStatusWasIncompleteOrApproved && newStatusIsPending) {
 			sendPendingNotificationToHrAdvisor(profile);
 		}
+	}
+
+	private boolean isApproved(ProfileStatusEntity newStatus) {
+		return profileStatuses.approved().equals(newStatus.getCode());
+	}
+
+	private boolean isIncomplete(ProfileStatusEntity previousStatus) {
+		return profileStatuses.incomplete().equals(previousStatus.getCode());
+	}
+
+	private boolean isPending(ProfileStatusEntity previousStatus) {
+		return profileStatuses.pending().equals(previousStatus.getCode());
 	}
 
 	private void sendApprovalNotification(ProfileEntity profile) {
