@@ -57,26 +57,32 @@ public class OwnershipPermissionEvaluator implements PermissionEvaluator {
 		final var currentUserId = userService.getUserByMicrosoftEntraId(authentication.getName()).map(UserEntity::getId);
 
 		if (currentUserId.isEmpty()) {
-			log.warn("Access denied: user not found; permission=[{}], targetType=[{}], targetId=[{}]", permission, targetType, targetId);
+			log.warn("Access denied: user not found; "
+				+ "permission=[{}], targetType=[{}], targetId=[{}]",
+				permission, targetType, targetId);
 			return false;
 		}
 
 		final var targetResource = getTargetResource((Long) targetId, targetType);
 
 		if (targetResource.isEmpty()) {
-			log.warn("Access denied: resource does not exist; permission=[{}], targetType=[{}], targetId=[{}], currentUserId=[{}]", permission, targetType, targetId, currentUserId.get());
+			log.warn("Access denied: resource does not exist; "
+				+ "permission=[{}], targetType=[{}], targetId=[{}], currentUserId=[{}]",
+				permission, targetType, targetId, currentUserId.get());
 			return false;
 		}
 
 		if (targetResource.get() instanceof final Ownable ownable) {
-			final var ownerIdOpt = ownable.getOwnerId();
+			final var ownerId = ownable.getOwnerId();
 
-			if (ownerIdOpt.isEmpty()) {
-				log.warn("Access denied: resource does not have an owner; permission=[{}], targetType=[{}], targetId=[{}], currentUserId=[{}]", permission, targetType, targetId, currentUserId.get());
+			if (ownerId.isEmpty()) {
+				log.warn("Access denied: resource does not have an owner; "
+					+ "permission=[{}], targetType=[{}], targetId=[{}], currentUserId=[{}]",
+					permission, targetType, targetId, currentUserId.get());
 				return false;
 			}
 
-			final var isOwner = ownerIdOpt.map(ownerId -> ownerId.equals(currentUserId.get())).orElse(false);
+			final var isOwner = ownerId.equals(currentUserId);
 
 			if (isOwner) {
 				//
@@ -99,17 +105,18 @@ public class OwnershipPermissionEvaluator implements PermissionEvaluator {
 					}
 
 					default: {
-						log.warn("Access denied: "
-										+ "user is a delegate but requested non-READ permission; "
-										+ "permission=[{}], targetType=[{}], targetId=[{}], currentUserId=[{}]",
-								permission, targetType, targetId, currentUserId.get());
+						log.warn("Access denied: user is a delegate but requested non-READ permission; "
+							+ "permission=[{}], targetType=[{}], targetId=[{}], currentUserId=[{}]",
+							permission, targetType, targetId, currentUserId.get());
 						return false;
 					}
 				}
 			}
 		}
 
-		log.warn("Access denied: permission=[{}], targetType=[{}], targetId=[{}], currentUserId=[{}]", permission, targetType, targetId, currentUserId.get());
+		log.warn("Access denied: "
+			+ "permission=[{}], targetType=[{}], targetId=[{}], currentUserId=[{}]",
+			permission, targetType, targetId, currentUserId.get());
 		return false;
 	}
 
