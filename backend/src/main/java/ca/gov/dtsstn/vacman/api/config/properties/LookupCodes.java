@@ -24,7 +24,6 @@ public record LookupCodes(
 	@Validated
 	public record UserTypes(
 		@NotBlank String employee,
-		@NotBlank String hiringManager,
 		@NotBlank String hrAdvisor
 	) {}
 

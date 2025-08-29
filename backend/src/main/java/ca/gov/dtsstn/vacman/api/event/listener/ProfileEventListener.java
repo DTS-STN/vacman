@@ -37,7 +37,7 @@ public class ProfileEventListener {
 
 	private final EventRepository eventRepository;
 	private final ProfileStatusRepository profileStatusRepository;
-	private final ProfileStatuses profileStatuses;
+	private final ProfileStatuses profileStatusCodes;
 	private final NotificationService notificationService;
 
 	private final ObjectMapper objectMapper = new ObjectMapper()
@@ -52,9 +52,8 @@ public class ProfileEventListener {
 			NotificationService notificationService) {
 		this.eventRepository = eventRepository;
 		this.profileStatusRepository = profileStatusRepository;
-		this.profileStatuses = lookupCodes.profileStatuses();
+		this.profileStatusCodes = lookupCodes.profileStatuses();
 		this.notificationService = notificationService;
-
 	}
 
 	@Async
@@ -121,15 +120,15 @@ public class ProfileEventListener {
 	}
 
 	private boolean isApproved(ProfileStatusEntity newStatus) {
-		return profileStatuses.approved().equals(newStatus.getCode());
+		return profileStatusCodes.approved().equals(newStatus.getCode());
 	}
 
 	private boolean isIncomplete(ProfileStatusEntity previousStatus) {
-		return profileStatuses.incomplete().equals(previousStatus.getCode());
+		return profileStatusCodes.incomplete().equals(previousStatus.getCode());
 	}
 
 	private boolean isPending(ProfileStatusEntity previousStatus) {
-		return profileStatuses.pending().equals(previousStatus.getCode());
+		return profileStatusCodes.pending().equals(previousStatus.getCode());
 	}
 
 	private void sendApprovalNotification(ProfileEntity profile) {

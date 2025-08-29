@@ -68,7 +68,7 @@ public class ProfileService {
 
 	private final LanguageReferralTypeRepository languageReferralTypeRepository;
 
-	private UserTypes userTypes;
+	private final UserTypes userTypeCodes;
 
 	// Keys are tied to the potential values of getProfilesByStatusAndHrId parameter isActive.
 	private static final Map<Boolean, Set<String>> profileStatusSets = Map.of(
@@ -100,7 +100,7 @@ public class ProfileService {
 		this.workUnitRepository = workUnitRepository;
 		this.eventPublisher = eventPublisher;
 		this.languageReferralTypeRepository = languageReferralTypeRepository;
-		userTypes = lookupCodes.userTypes();
+		this.userTypeCodes = lookupCodes.userTypes();
 	}
 
 	/**
@@ -229,7 +229,7 @@ public class ProfileService {
 
 		Optional.ofNullable(updateModel.hrAdvisorId()).ifPresent(id -> {
 			profile.setHrAdvisor(userService.getUserById(id)
-				.filter(user -> userTypes.hrAdvisor().equals(user.getUserType().getCode()))
+				.filter(user -> userTypeCodes.hrAdvisor().equals(user.getUserType().getCode()))
 				.orElseThrow(asResourceConflictException("HR Advisor", id)));
 		});
 

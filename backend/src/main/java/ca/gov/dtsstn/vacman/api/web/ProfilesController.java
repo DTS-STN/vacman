@@ -67,7 +67,7 @@ public class ProfilesController {
 
 	private final ProfileService profileService;
 
-	private final ProfileStatuses profileStatuses;
+	private final ProfileStatuses profileStatusCodes;
 
 	private final RolesProperties roles;
 
@@ -82,7 +82,7 @@ public class ProfilesController {
 			UserService userService) {
 		this.roles = applicationProperties.entraId().roles();
 		this.profileService = profileService;
-		this.profileStatuses = lookupCodes.profileStatuses();
+		this.profileStatusCodes = lookupCodes.profileStatuses();
 		this.userService = userService;
 	}
 
@@ -229,8 +229,8 @@ public class ProfilesController {
 		// APPROVED and ARCHIVED statuses require that the submitter be an HR advisor
 		//
 
-		final var requiresHrAdvisor = profileStatuses.approved().equals(updatedProfileStatus.getCode())
-			|| profileStatuses.archived().equals(updatedProfileStatus.getCode());
+		final var requiresHrAdvisor = profileStatusCodes.approved().equals(updatedProfileStatus.getCode())
+			|| profileStatusCodes.archived().equals(updatedProfileStatus.getCode());
 
 		if (requiresHrAdvisor && !isHrAdvisor()) {
 			throw new AccessDeniedException("Only HR advisors can set status to APPROVED or ARCHIVED");
@@ -240,7 +240,7 @@ public class ProfilesController {
 		// PENDING is the only valid status for normal (non HR advisor) employees
 		//
 
-		final var isPendingStatus = profileStatuses.pending().equals(updatedProfileStatus.getCode());
+		final var isPendingStatus = profileStatusCodes.pending().equals(updatedProfileStatus.getCode());
 
 		if (!requiresHrAdvisor && !isPendingStatus) {
 			throw new AccessDeniedException("Profile status can only be set to APPROVED");
@@ -252,14 +252,14 @@ public class ProfilesController {
 		final Set<String> validPretransitionStates;
 		final var code = updatedProfileStatus.getCode();
 
-		if (code.equals(profileStatuses.pending())) {
-			validPretransitionStates = Set.of(profileStatuses.incomplete(), profileStatuses.approved());
+		if (code.equals(profileStatusCodes.pending())) {
+			validPretransitionStates = Set.of(profileStatusCodes.incomplete(), profileStatusCodes.approved());
 		}
-		else if (code.equals(profileStatuses.approved())) {
-			validPretransitionStates = Set.of(profileStatuses.pending());
+		else if (code.equals(profileStatusCodes.approved())) {
+			validPretransitionStates = Set.of(profileStatusCodes.pending());
 		}
-		else if (code.equals(profileStatuses.archived())) {
-			validPretransitionStates = Set.of(profileStatuses.approved());
+		else if (code.equals(profileStatusCodes.archived())) {
+			validPretransitionStates = Set.of(profileStatusCodes.approved());
 		}
 		else {
 			throw new ResourceConflictException("Cannot transition profile status to code=[" + code + "]");

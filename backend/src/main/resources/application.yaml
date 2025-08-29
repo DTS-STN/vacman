@@ -323,7 +323,6 @@ codes:
     pending: PENDING
   user-types:
     employee: employee
-    hiring-manager: hiring-manager
     hr-advisor: HRA
 
 ---

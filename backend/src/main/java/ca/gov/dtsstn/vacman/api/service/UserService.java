@@ -35,13 +35,13 @@ public class UserService {
 
 	private final CodeService codeService;
 
-	private final RolesProperties roles;
+	private final RolesProperties entraRoles;
 
 	private final UserEntityMapper userEntityMapper;
 
 	private final UserRepository userRepository;
 
-	private final UserTypes userTypes;
+	private final UserTypes userTypeCodes;
 
 	public UserService(
 			ApplicationProperties applicationProperties,
@@ -50,12 +50,12 @@ public class UserService {
 			UserEntityMapper userEntityMapper,
 			UserRepository userRepository,
 			LookupCodes lookupCodes) {
-		this.roles = applicationProperties.entraId().roles();
+		this.entraRoles = applicationProperties.entraId().roles();
 		this.codeService = codeService;
 		this.eventPublisher = eventPublisher;
 		this.userEntityMapper = userEntityMapper;
 		this.userRepository = userRepository;
-		this.userTypes = lookupCodes.userTypes();
+		this.userTypeCodes = lookupCodes.userTypes();
 	}
 
 	public UserEntity createUser(UserEntity user, long languageId) {
@@ -64,9 +64,9 @@ public class UserService {
 			.filter(byId(languageId))
 			.findFirst().orElseThrow());
 
-		final var userTypeCode = SecurityUtils.hasAuthority(roles.hrAdvisor())
-			? userTypes.hrAdvisor()
-			: userTypes.employee();
+		final var userTypeCode = SecurityUtils.hasAuthority(entraRoles.hrAdvisor())
+			? userTypeCodes.hrAdvisor()
+			: userTypeCodes.employee();
 
 		user.setUserType(codeService.getUserTypes(Pageable.unpaged()).stream()
 			.filter(byCode(userTypeCode))
