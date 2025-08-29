@@ -27,6 +27,7 @@ export default {
     'in-progress': 'En cours',
     'complete': 'Complet',
     'required': 'Obligatoire',
+    'pending-status-employee': "En attente d'examen et d'approbation des RH",
     'personal-information': {
       'title': 'Informations personnelles',
       'link-label': 'informations personnelles',
@@ -165,8 +166,10 @@ export default {
       'Sélectionnez "non" si vous serez en congé ou si vous n\'êtes pas actuellement intéressé-e à être référé-e.',
     'alternate-opportunity': "Êtes-vous intéressé-e par des occasions d'échange de poste?",
     'what-is-alternation': "Qu'est-ce qu'un échange de poste?",
-    'alternation-description-text':
-      "L'échange de poste a lieu lorsqu'un-e employé-e n'ayant pas reçu de garantie d'offre d'emploi raisonnable (GOER), et souhaitant continuer à travailler dans la fonction publique centrale, échange son poste avec un-e remplaçant-e (employé-e non touché-e) disposé-e à quitter l'administration publique centrale avec une mesure de soutien à la transition (MST - paiement forfaitaire basé sur les années de service de l'employé-e) ou avec une indemnité d'études.",
+    'alternation-description-text-para-1':
+      "Un échange de poste a lieu lorsqu'un employé optant ou un employé excédentaire, ayant choisi un droit de priorité de fonctionnaire excédentaire d'une durée de 12 mois (option A) qui préfère rester dans l'administration publique centrale, échange son poste avec un employé non touché (le remplaçant) qui est disposé à quitter l'administration publique centrale avec une mesure de soutien à la transition (MST) (Option B) ou avec une MST et une indemnité scolaire (Option C(i)).",
+    'alternation-description-text-para-2':
+      "Pour les cadres, l'échange de poste dans le cadre de la transition de carrière permet à un cadre excédentaire ayant choisi l'option 2 (de demeurer au sein de l'administration publique centrale (APC)) en échangeant son poste avec un EX non touché qui accepte de quitter en vertu de la Directive sur les conditions d'emploi pour les cadres supérieurs. L'échange doit se faire au même groupe et niveau, à une date convenue mutuellement, et doit entraîner l'élimination permanente d'une fonction ou d'un poste. Le cadre excédentaire doit satisfaire aux exigences du poste non touché. L'échange de poste est uniquement permise au sein de l'administration publique centrale et n'est pas offerte aux employés des organismes distincts.",
     'errors': {
       'language-referral-type-required': 'Le profil linguistique est requis.',
       'language-referral-type-invalid': "Le profil linguistique n'est pas valide.",

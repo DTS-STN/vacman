@@ -269,7 +269,8 @@ export function ReferralPreferencesForm({
               errorMessage={tApp(extractValidationKey(formErrors?.isInterestedInAlternation))}
               helpMessagePrimary={
                 <Collapsible summary={tApp('referral-preferences.what-is-alternation')}>
-                  {tApp('referral-preferences.alternation-description-text')}
+                  <p>{tApp('referral-preferences.alternation-description-text-para-1')}</p>
+                  <p>{tApp('referral-preferences.alternation-description-text-para-2')}</p>
                 </Collapsible>
               }
             />

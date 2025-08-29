@@ -25,7 +25,10 @@ export function Collapsible({ children, contentClassName, id, summary, ...props 
   return (
     <details id={id ?? uniqueId} {...props}>
       <CollapsibleSummary id={summaryId}>{summary}</CollapsibleSummary>
-      <div id={contentId} className={cn('mt-2 border-l-[6px] border-l-sky-800 bg-sky-50 px-6 py-4', contentClassName)}>
+      <div
+        id={contentId}
+        className={cn('mt-2 space-y-4 border-l-[6px] border-l-sky-800 bg-sky-50 px-6 py-4', contentClassName)}
+      >
         {children}
       </div>
     </details>
