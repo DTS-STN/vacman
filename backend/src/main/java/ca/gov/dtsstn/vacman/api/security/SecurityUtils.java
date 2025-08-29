@@ -10,22 +10,29 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import ca.gov.dtsstn.vacman.api.constants.AppConstants;
-
 /**
  * Utility class for Spring Security.
  * Provides a streamlined, static interface for common security operations.
  */
 public final class SecurityUtils {
 
+	public static class Role {
+		public static final String ADMIN = "admin";
+		public static final String HR_ADVISOR = "hr-advisor";
+		public static final String HIRING_MANAGER = "hiring-manager";
+		public static final String EMPLOYEE = "employee";
+	}
+
+
+
 	private static final List<String> ROLE_HIERARCHY = List.of(
 		// XXX ::: GjB ::: although an admin role does exist, it should not be used
 		//                 to determine the user's highest privilege role; leaving
 		//                 it here for future considerations and documentation
 		// AppConstants.Role.ADMIN,
-		AppConstants.Role.HR_ADVISOR,
-		AppConstants.Role.HIRING_MANAGER,
-		AppConstants.Role.EMPLOYEE
+		Role.HR_ADVISOR,
+		Role.HIRING_MANAGER,
+		Role.EMPLOYEE
 	);
 
 	private SecurityUtils() { }
@@ -57,7 +64,7 @@ public final class SecurityUtils {
 			.map(AuthorityUtils::authorityListToSet)
 			.orElse(emptySet());
 
-		return userAuthorities.contains(AppConstants.Role.HR_ADVISOR);
+		return userAuthorities.contains(Role.HR_ADVISOR);
 	}
 
 	/**
@@ -123,7 +130,7 @@ public final class SecurityUtils {
 
 		return ROLE_HIERARCHY.stream()
 			.filter(userAuthorities::contains).findFirst()
-			.orElse(AppConstants.Role.EMPLOYEE);
+			.orElse(Role.EMPLOYEE);
 	}
 
 }

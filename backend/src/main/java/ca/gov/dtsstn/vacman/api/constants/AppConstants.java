@@ -1,5 +1,7 @@
 package ca.gov.dtsstn.vacman.api.constants;
 
+import ca.gov.dtsstn.vacman.api.security.SecurityUtils.Role;
+
 /**
  * Constants used throughout the backend codebase.
  * Organized into nested classes by domain/category.
@@ -7,15 +9,6 @@ package ca.gov.dtsstn.vacman.api.constants;
 public final class AppConstants {
 
 	private AppConstants() {}
-
-	public static final class Role {
-		public static final String ADMIN = "admin";
-		public static final String HR_ADVISOR = "hr-advisor";
-		public static final String HIRING_MANAGER = "hiring-manager";
-		public static final String EMPLOYEE = "employee";
-
-		private Role() {}
-	}
 
 	public static final class UserType {
 		public static final String ADMIN = "admin";
