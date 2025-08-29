@@ -39,7 +39,7 @@ export async function action({ context, request }: Route.ActionArgs) {
   const newRequestResult = await getRequestService().createRequest(context.session.authState.accessToken);
   const requestId = newRequestResult.into()?.id.toString();
 
-  throw i18nRedirect('routes/hiring-manager/request/index.tsx', request, { params: { requestId } });
+  return i18nRedirect('routes/hiring-manager/request/index.tsx', request, { params: { requestId } });
 }
 
 export async function loader({ context, request }: Route.LoaderArgs) {
