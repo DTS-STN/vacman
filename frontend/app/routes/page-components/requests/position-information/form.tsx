@@ -114,7 +114,7 @@ export function PositionInformationForm({
               name="positionNumber"
               label={t('position-information.position-number')}
               defaultValue={formValues?.positionNumber}
-              errorMessage={t(extractValidationKey(formErrors?.positionNumbers))}
+              errorMessage={t(extractValidationKey(formErrors?.positionNumber))}
               helpMessagePrimary={t('position-information.position-number-instruction')}
               required
             />

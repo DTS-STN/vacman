@@ -231,7 +231,7 @@ export default {
     'errors': {
       // TODO: error messages need to be updated when available
       'position-number-required': 'Position number is required.',
-      'position-number-max-length': 'position number must be less than 100 characters.',
+      'position-number-max-length': 'Each position number must be 6 characters.',
       'group-and-level-required': 'Group and level is required.',
       'title-en-required': 'Title in English is required.',
       'title-fr-required': 'Title in French is required.',
