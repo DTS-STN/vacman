@@ -7,6 +7,7 @@ import {
   isTodayInTimezone,
   isValidDateString,
   isValidTimeZone,
+  toZonedDate,
 } from '~/utils/date-utils';
 
 describe('date-utils', () => {
@@ -106,6 +107,26 @@ describe('date-utils', () => {
 
     it.each(validTimeZones)('should return [true] for valid time zone [%s]', (timeZone) => {
       expect(isValidTimeZone(timeZone)).toEqual(true);
+    });
+  });
+
+  describe('toZonedDate', () => {
+    it('should convert a UTC date string to a zoned date', () => {
+      const date = '2024-03-15T10:00:00Z'; // UTC time
+      const timeZone = 'America/New_York'; // UTC-4 at this time of year
+      const zonedDate = toZonedDate(date, timeZone);
+
+      expect(zonedDate.toISOString()).toEqual('2024-03-15T06:00:00.000-04:00');
+    });
+
+    it('should convert a Date object to a zoned date', () => {
+      const date = new Date('2024-03-15T10:00:00Z'); // UTC time
+      const timeZone = 'Europe/London'; // UTC+0 at this time of year (GMT)
+      const zonedDate = toZonedDate(date, timeZone);
+
+      // Expect the date object to represent 10:00:00 in London time
+      // When converted to UTC, it should still be 10:00:00Z
+      expect(zonedDate.toISOString()).toEqual('2024-03-15T10:00:00.000+00:00');
     });
   });
 });
