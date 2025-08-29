@@ -8,9 +8,9 @@
       "effectiveDate": "1970-01-01T00:00:00Z",
       "expiryDate": null,
       "createdBy": "system",
-      "createdDate": "2025-08-14T17:26:29.41Z",
+      "createdDate": "2025-08-29T12:36:04.29Z",
       "lastModifiedBy": "system",
-      "lastModifiedDate": "2025-08-14T17:26:29.41Z"
+      "lastModifiedDate": "2025-08-29T12:36:04.29Z"
     },
     {
       "id": 1,
@@ -20,9 +20,9 @@
       "effectiveDate": "1970-01-01T00:00:00Z",
       "expiryDate": null,
       "createdBy": "system",
-      "createdDate": "2025-08-14T17:26:29.41Z",
+      "createdDate": "2025-08-29T12:36:04.29Z",
       "lastModifiedBy": "system",
-      "lastModifiedDate": "2025-08-14T17:26:29.41Z"
+      "lastModifiedDate": "2025-08-29T12:36:04.29Z"
     },
     {
       "id": 2,
@@ -32,81 +32,105 @@
       "effectiveDate": "1970-01-01T00:00:00Z",
       "expiryDate": null,
       "createdBy": "system",
-      "createdDate": "2025-08-14T17:26:29.41Z",
+      "createdDate": "2025-08-29T12:36:04.29Z",
       "lastModifiedBy": "system",
-      "lastModifiedDate": "2025-08-14T17:26:29.41Z"
+      "lastModifiedDate": "2025-08-29T12:36:04.29Z"
     },
     {
       "id": 3,
+      "code": "NO_MATCH_HR_REVIEW",
+      "nameEn": "No match - HR Review",
+      "nameFr": "Aucune candidature repérée - Revue RH",
+      "effectiveDate": "1970-01-01T00:00:00Z",
+      "expiryDate": null,
+      "createdBy": "system",
+      "createdDate": "2025-08-29T12:36:04.29Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-08-29T12:36:04.29Z"
+    },
+    {
+      "id": 4,
       "code": "FDBK_PENDING",
-      "nameEn": "Approved -  Assessment Feedback Pending",
+      "nameEn": "Approved - Assessment Feedback Pending",
       "nameFr": "Approuvée - En attente de retroaction d'évaluation",
       "effectiveDate": "1970-01-01T00:00:00Z",
       "expiryDate": null,
       "createdBy": "system",
-      "createdDate": "2025-08-14T17:26:29.41Z",
+      "createdDate": "2025-08-29T12:36:04.29Z",
       "lastModifiedBy": "system",
-      "lastModifiedDate": "2025-08-14T17:26:29.41Z"
+      "lastModifiedDate": "2025-08-29T12:36:04.29Z"
     },
     {
-      "id": 4,
+      "id": 5,
       "code": "FDBK_PEND_APPR",
       "nameEn": "Pending - Feedback Pending Approval",
       "nameFr": "En attente - retroaction d'évaluation en attente d'approbation",
       "effectiveDate": "1970-01-01T00:00:00Z",
       "expiryDate": null,
       "createdBy": "system",
-      "createdDate": "2025-08-14T17:26:29.41Z",
+      "createdDate": "2025-08-29T12:36:04.29Z",
       "lastModifiedBy": "system",
-      "lastModifiedDate": "2025-08-14T17:26:29.41Z"
+      "lastModifiedDate": "2025-08-29T12:36:04.29Z"
     },
     {
-      "id": 5,
+      "id": 6,
       "code": "PENDING_PSC",
       "nameEn": "VMS request on Hold - Pending PSC clearance",
       "nameFr": "Demande VMS en suspens - En attente de l'autorisation de la CFP",
       "effectiveDate": "1970-01-01T00:00:00Z",
       "expiryDate": null,
       "createdBy": "system",
-      "createdDate": "2025-08-14T17:26:29.41Z",
+      "createdDate": "2025-08-29T12:36:04.29Z",
       "lastModifiedBy": "system",
-      "lastModifiedDate": "2025-08-14T17:26:29.41Z"
+      "lastModifiedDate": "2025-08-29T12:36:04.29Z"
     },
     {
-      "id": 6,
+      "id": 7,
+      "code": "PENDING_PSC_NO_VMS",
+      "nameEn": "VMS not required - Pending PSC clearance",
+      "nameFr": "Demande VMS non-requise - En attente de l'autorisation de la CFP",
+      "effectiveDate": "1970-01-01T00:00:00Z",
+      "expiryDate": null,
+      "createdBy": "system",
+      "createdDate": "2025-08-29T12:36:04.29Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-08-29T12:36:04.29Z"
+    },
+    {
+      "id": 8,
       "code": "CLR_GRANTED",
       "nameEn": "Clearance Granted",
       "nameFr": "Autorisation accordée",
       "effectiveDate": "1970-01-01T00:00:00Z",
       "expiryDate": null,
       "createdBy": "system",
-      "createdDate": "2025-08-14T17:26:29.41Z",
+      "createdDate": "2025-08-29T12:36:04.29Z",
       "lastModifiedBy": "system",
-      "lastModifiedDate": "2025-08-14T17:26:29.41Z"
+      "lastModifiedDate": "2025-08-29T12:36:04.29Z"
     },
     {
-      "id": 7,
+      "id": 9,
       "code": "PSC_GRANTED",
       "nameEn": "PSC Clearance Granted",
       "nameFr": "Autorisation de la CFP accordée",
       "effectiveDate": "1970-01-01T00:00:00Z",
       "expiryDate": null,
       "createdBy": "system",
-      "createdDate": "2025-08-14T17:26:29.41Z",
+      "createdDate": "2025-08-29T12:36:04.29Z",
       "lastModifiedBy": "system",
-      "lastModifiedDate": "2025-08-14T17:26:29.41Z"
+      "lastModifiedDate": "2025-08-29T12:36:04.29Z"
     },
     {
-      "id": 8,
+      "id": 10,
       "code": "CANCELLED",
       "nameEn": "Cancelled",
       "nameFr": "Annulée",
       "effectiveDate": "1970-01-01T00:00:00Z",
       "expiryDate": null,
       "createdBy": "system",
-      "createdDate": "2025-08-14T17:26:29.41Z",
+      "createdDate": "2025-08-29T12:36:04.29Z",
       "lastModifiedBy": "system",
-      "lastModifiedDate": "2025-08-14T17:26:29.41Z"
+      "lastModifiedDate": "2025-08-29T12:36:04.29Z"
     }
   ]
 }
