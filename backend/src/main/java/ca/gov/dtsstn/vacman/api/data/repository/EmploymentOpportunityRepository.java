@@ -5,4 +5,4 @@ import org.springframework.stereotype.Repository;
 import ca.gov.dtsstn.vacman.api.data.entity.EmploymentOpportunityEntity;
 
 @Repository
-public interface EmploymentOpportunityRepository extends AbstractCodeRepository<EmploymentOpportunityEntity> {}
+public interface EmploymentOpportunityRepository extends AbstractBaseRepository<EmploymentOpportunityEntity> {}

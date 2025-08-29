@@ -13,10 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import ca.gov.dtsstn.vacman.api.config.properties.ApplicationProperties;
-import ca.gov.dtsstn.vacman.api.config.properties.EntraIdProperties.RolesProperties;
-import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes;
-import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes.UserTypes;
+import ca.gov.dtsstn.vacman.api.constants.AppConstants;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 import ca.gov.dtsstn.vacman.api.data.repository.UserRepository;
 import ca.gov.dtsstn.vacman.api.event.UserCreatedEvent;
@@ -35,27 +32,19 @@ public class UserService {
 
 	private final CodeService codeService;
 
-	private final RolesProperties entraRoles;
-
 	private final UserEntityMapper userEntityMapper;
 
 	private final UserRepository userRepository;
 
-	private final UserTypes userTypeCodes;
-
 	public UserService(
-			ApplicationProperties applicationProperties,
 			CodeService codeService,
 			ApplicationEventPublisher eventPublisher,
 			UserEntityMapper userEntityMapper,
-			UserRepository userRepository,
-			LookupCodes lookupCodes) {
-		this.entraRoles = applicationProperties.entraId().roles();
+			UserRepository userRepository) {
 		this.codeService = codeService;
 		this.eventPublisher = eventPublisher;
 		this.userEntityMapper = userEntityMapper;
 		this.userRepository = userRepository;
-		this.userTypeCodes = lookupCodes.userTypes();
 	}
 
 	public UserEntity createUser(UserEntity user, long languageId) {
@@ -64,9 +53,14 @@ public class UserService {
 			.filter(byId(languageId))
 			.findFirst().orElseThrow());
 
-		final var userTypeCode = SecurityUtils.hasAuthority(entraRoles.hrAdvisor())
-			? userTypeCodes.hrAdvisor()
-			: userTypeCodes.employee();
+		// Set user type based on highest privilege role from JWT claims
+		final var role = SecurityUtils.getHighestPrivilegeRole();
+		final var userTypeCode = AppConstants.UserType.fromRole(role);
+
+		// Log warning if unknown role was encountered
+		if (!AppConstants.UserType.isKnownRole(role)) {
+			log.warn("Unknown role '{}', defaulting to employee", role);
+		}
 
 		user.setUserType(codeService.getUserTypes(Pageable.unpaged()).stream()
 			.filter(byCode(userTypeCode))

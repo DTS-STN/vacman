@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import ca.gov.dtsstn.vacman.api.config.SpringDocConfig;
+import ca.gov.dtsstn.vacman.api.constants.AppConstants;
 import ca.gov.dtsstn.vacman.api.security.SecurityUtils;
 import ca.gov.dtsstn.vacman.api.service.MSGraphService;
 import ca.gov.dtsstn.vacman.api.service.UserService;
@@ -40,7 +41,7 @@ import jakarta.validation.Valid;
 @RestController
 @Tag(name = "Users")
 @ApiResponses.InternalServerError
-@RequestMapping({ "/api/v1/users" })
+@RequestMapping({ AppConstants.ApiPaths.USERS })
 @SecurityRequirement(name = SpringDocConfig.AZURE_AD)
 public class UsersController {
 

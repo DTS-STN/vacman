@@ -64,20 +64,40 @@ public abstract class AbstractCodeEntity extends AbstractBaseEntity {
 		return code;
 	}
 
+	public void setCode(String code) {
+		this.code = code;
+	}
+
 	public Instant getEffectiveDate() {
 		return effectiveDate;
+	}
+
+	public void setEffectiveDate(Instant effectiveDate) {
+		this.effectiveDate = effectiveDate;
 	}
 
 	public Instant getExpiryDate() {
 		return expiryDate;
 	}
 
+	public void setExpiryDate(Instant expiryDate) {
+		this.expiryDate = expiryDate;
+	}
+
 	public String getNameEn() {
 		return nameEn;
 	}
 
+	public void setNameEn(String nameEn) {
+		this.nameEn = nameEn;
+	}
+
 	public String getNameFr() {
 		return nameFr;
+	}
+
+	public void setNameFr(String nameFr) {
+		this.nameFr = nameFr;
 	}
 
 	@Override

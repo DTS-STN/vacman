@@ -12,6 +12,7 @@ import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
 
 import ca.gov.dtsstn.vacman.api.data.entity.RequestEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.RequestStatusEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 import ca.gov.dtsstn.vacman.api.data.repository.RequestRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.RequestStatusRepository;
@@ -33,8 +34,9 @@ public class RequestService {
 	public RequestEntity createRequest(UserEntity submitter) {
 		log.debug("Fetching DRAFT request status");
 
+		final var requestStatusExample = Example.of(RequestStatusEntity.builder().code("DRAFT").build());
 
-		final var draftStatus = requestStatusRepository.findByCode("DRAFT")
+		final var draftStatus = requestStatusRepository.findOne(requestStatusExample)
 			.orElseThrow(asResourceNotFoundException("requestStatus", "code", "DRAFT"));
 
 		return requestRepository

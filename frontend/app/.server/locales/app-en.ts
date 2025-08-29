@@ -25,7 +25,6 @@ export default {
     'in-progress': 'In progress',
     'required': 'Required',
     'complete': 'Complete',
-    'pending-status-employee': 'Pending HR review and approval',
     'personal-information': {
       'title': 'Personal information',
       'link-label': 'personal information',
@@ -164,10 +163,8 @@ export default {
       "Select no if you'll be on leave or are currently not interested in referrals.",
     'alternate-opportunity': 'Are you interested in alternation opportunities?',
     'what-is-alternation': 'What is alternation?',
-    'alternation-description-text-para-1':
-      'An alternation occurs when an opting employee or a surplus employee, having chosen a 12-month surplus priority entitlement (Option A), wishes to remain in the core public administration and exchanges positions with a non-affected employee (the alternate) willing to leave the core public administration with a transition support measure (TSM) (option B) or with a TSM and an Education Allowance (Option C(i)).',
-    'alternation-description-text-para-2':
-      'For executives (EXs), alternation under Career Transition allows a surplus EX who has chosen Option 2 (to remain in the core public administration (CPA)) by exchanging positions with a non-affected EX willing to leave under the Directive on Terms and Conditions of Employment for Executives. The alternation must occur at the same group and level, on a mutually agreed date, and must result in the permanent elimination of a function or position. The surplus EX must meet the requirements of the unaffected role. Alternation is only permitted within the core public administration and is not available to employees of separate agencies.',
+    'alternation-description-text':
+      "Alternation occurs when an employee who has not been given a gaurentee of a reasonable job offer (GRJO) who wishes to continue employment in the core public service exchanges positions with an alternate (non-affected employee) willing to leave the Core Public Administration with a Transition Support Measure (TSM - cash payment based on the employee's years of service) or with an Education Allowance.",
     'errors': {
       'language-referral-type-required': 'Language profile is required.',
       'language-referral-type-invalid': 'Language profile is invalid.',

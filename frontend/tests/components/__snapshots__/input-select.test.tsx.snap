@@ -1,90 +1,176 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`InputSelect - Snapshot Only > should render correctly when label is empty and no ariaDescribedbyId (div container) > empty_label_div 1`] = `
-<div>
-  <div
-    data-testid="input-empty-label-id-wrapper"
-    id="input-empty-label-id-wrapper"
-  >
-    <select
-      aria-invalid="false"
-      aria-label="Test aria label"
-      class="block rounded-lg border-gray-500 focus:border-blue-500 focus:outline-none focus:ring focus:ring-blue-500 disabled:bg-gray-100 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-70"
-      data-testid="input-empty-label-id-test"
-      id="empty-label-id"
-      name="test"
-    >
-      <option
-        selected=""
-        value="first"
-      >
-        First option
-      </option>
-      <option
-        value="second"
-      >
-        Second option
-      </option>
-    </select>
-  </div>
-</div>
-`;
-
-exports[`InputSelect - Snapshot Only > should render correctly when label is empty but ariaDescribedbyId is present (fieldset container) > empty_label_fieldset 1`] = `
+exports[`InputSelect > should render input select component > expected html 1`] = `
 <div>
   <fieldset
-    aria-describedby="external-desc"
-    data-testid="input-empty-label-fieldset-id-wrapper"
-    id="input-empty-label-fieldset-id-wrapper"
+    data-testid="input-some-id"
+    id="input-some-id"
   >
-    <legend
+    <label
       class="block mb-2"
-      id="input-empty-label-fieldset-id-legend"
+      for="some-id"
+      id="input-some-id-label"
     >
       <span
         class="font-semibold"
-      />
-    </legend>
+      >
+        label test
+      </span>
+    </label>
     <select
       aria-invalid="false"
-      aria-label="Test aria label"
-      aria-labelledby="input-empty-label-fieldset-id-legend"
+      aria-labelledby="input-some-id-label"
       class="block rounded-lg border-gray-500 focus:border-blue-500 focus:outline-none focus:ring focus:ring-blue-500 disabled:bg-gray-100 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-70"
-      data-testid="input-empty-label-fieldset-id-test"
-      id="empty-label-fieldset-id"
+      data-testid="input-some-id-test"
+      id="some-id"
       name="test"
     >
       <option
+        data-testid="some-id-select-option-0"
+        id="some-id-select-option-0"
         selected=""
         value="first"
       >
-        First option
+        first option
       </option>
       <option
+        data-testid="some-id-select-option-1"
+        id="some-id-select-option-1"
         value="second"
       >
-        Second option
+        second option
       </option>
     </select>
   </fieldset>
 </div>
 `;
 
-exports[`InputSelect - Snapshot Only > should render input select component as required (div container) > div_required 1`] = `
+exports[`InputSelect > should render input select component with error message > expected html 1`] = `
 <div>
-  <div
-    data-testid="input-test-select-wrapper"
-    id="input-test-select-wrapper"
+  <fieldset
+    data-testid="input-some-id"
+    id="input-some-id"
   >
     <label
       class="block mb-2"
-      for="test-select"
-      id="input-test-select-label"
+      for="some-id"
+      id="input-some-id-label"
     >
       <span
         class="font-semibold"
       >
-        Test Label
+        label test
+      </span>
+    </label>
+    <p
+      class="mb-2"
+    >
+      <span
+        class="inline-block max-w-prose border-l-2 border-red-600 bg-red-50 px-3 py-1"
+        data-testid="input-error-test-id"
+        id="input-some-id-error"
+        role="alert"
+      >
+        error message
+      </span>
+    </p>
+    <select
+      aria-errormessage="input-some-id-error"
+      aria-invalid="true"
+      aria-labelledby="input-some-id-label"
+      class="block rounded-lg focus:outline-none focus:ring disabled:bg-gray-100 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-70 border-red-500 focus:border-red-500 focus:ring-red-500"
+      data-testid="input-some-id-test"
+      id="some-id"
+      name="test"
+    >
+      <option
+        data-testid="some-id-select-option-0"
+        id="some-id-select-option-0"
+        selected=""
+        value="first"
+      >
+        first option
+      </option>
+      <option
+        data-testid="some-id-select-option-1"
+        id="some-id-select-option-1"
+        value="second"
+      >
+        second option
+      </option>
+    </select>
+  </fieldset>
+</div>
+`;
+
+exports[`InputSelect > should render input select component with help message > expected html 1`] = `
+<div>
+  <fieldset
+    data-testid="input-some-id"
+    id="input-some-id"
+  >
+    <label
+      class="block mb-2"
+      for="some-id"
+      id="input-some-id-label"
+    >
+      <span
+        class="font-semibold"
+      >
+        label test
+      </span>
+    </label>
+    <select
+      aria-describedby="input-some-id-help"
+      aria-invalid="false"
+      aria-labelledby="input-some-id-label"
+      class="block rounded-lg border-gray-500 focus:border-blue-500 focus:outline-none focus:ring focus:ring-blue-500 disabled:bg-gray-100 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-70"
+      data-testid="input-some-id-test"
+      id="some-id"
+      name="test"
+    >
+      <option
+        data-testid="some-id-select-option-0"
+        id="some-id-select-option-0"
+        selected=""
+        value="first"
+      >
+        first option
+      </option>
+      <option
+        data-testid="some-id-select-option-1"
+        id="some-id-select-option-1"
+        value="second"
+      >
+        second option
+      </option>
+    </select>
+    <div
+      class="block max-w-prose text-gray-500 mt-2"
+      data-testid="input-some-id-select-help"
+      id="input-some-id-help"
+    >
+      help message
+    </div>
+  </fieldset>
+</div>
+`;
+
+exports[`InputSelect > should render input select component with required > expected html 1`] = `
+<div>
+  <fieldset
+    data-testid="input-some-id"
+    id="input-some-id"
+  >
+    <label
+      class="block mb-2"
+      for="some-id"
+      id="input-some-id-label"
+    >
+      <span
+        class="font-semibold"
+      >
+        label test
       </span>
        
       <span
@@ -97,489 +183,28 @@ exports[`InputSelect - Snapshot Only > should render input select component as r
     </label>
     <select
       aria-invalid="false"
-      aria-labelledby="input-test-select-label"
+      aria-labelledby="input-some-id-label"
       aria-required="true"
       class="block rounded-lg border-gray-500 focus:border-blue-500 focus:outline-none focus:ring focus:ring-blue-500 disabled:bg-gray-100 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-70"
-      data-testid="input-test-select-test"
-      id="test-select"
+      data-testid="input-some-id-test"
+      id="some-id"
       name="test"
       required=""
     >
       <option
+        data-testid="some-id-select-option-0"
+        id="some-id-select-option-0"
         selected=""
         value="first"
       >
-        First option
+        first option
       </option>
       <option
+        data-testid="some-id-select-option-1"
+        id="some-id-select-option-1"
         value="second"
       >
-        Second option
-      </option>
-    </select>
-  </div>
-</div>
-`;
-
-exports[`InputSelect - Snapshot Only > should render input select component as required (fieldset container) > fieldset_required 1`] = `
-<div>
-  <fieldset
-    aria-describedby="external-desc"
-    data-testid="input-test-select-wrapper"
-    id="input-test-select-wrapper"
-  >
-    <legend
-      class="block mb-2"
-      id="input-test-select-legend"
-    >
-      <span
-        class="font-semibold"
-      >
-        Test Label
-      </span>
-       
-      <span
-        aria-hidden="true"
-      >
-        (
-        input.required
-        )
-      </span>
-    </legend>
-    <select
-      aria-invalid="false"
-      aria-labelledby="input-test-select-legend"
-      aria-required="true"
-      class="block rounded-lg border-gray-500 focus:border-blue-500 focus:outline-none focus:ring focus:ring-blue-500 disabled:bg-gray-100 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-70"
-      data-testid="input-test-select-test"
-      id="test-select"
-      name="test"
-      required=""
-    >
-      <option
-        selected=""
-        value="first"
-      >
-        First option
-      </option>
-      <option
-        value="second"
-      >
-        Second option
-      </option>
-    </select>
-  </fieldset>
-</div>
-`;
-
-exports[`InputSelect - Snapshot Only > should render input select component with error message (div container) > div_with_error_message 1`] = `
-<div>
-  <div
-    data-testid="input-test-select-wrapper"
-    id="input-test-select-wrapper"
-  >
-    <label
-      class="block mb-2"
-      for="test-select"
-      id="input-test-select-label"
-    >
-      <span
-        class="font-semibold"
-      >
-        Test Label
-      </span>
-    </label>
-    <p
-      class="mb-2"
-    >
-      <span
-        class="inline-block max-w-prose border-l-2 border-red-600 bg-red-50 px-3 py-1"
-        data-testid="input-error-test-id"
-        id="input-test-select-error"
-        role="alert"
-      >
-        This is an error.
-      </span>
-    </p>
-    <select
-      aria-describedby="input-test-select-error"
-      aria-errormessage="input-test-select-error"
-      aria-invalid="true"
-      aria-labelledby="input-test-select-label"
-      class="block rounded-lg focus:outline-none focus:ring disabled:bg-gray-100 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-70 border-red-500 focus:border-red-500 focus:ring-red-500"
-      data-testid="input-test-select-test"
-      id="test-select"
-      name="test"
-    >
-      <option
-        selected=""
-        value="first"
-      >
-        First option
-      </option>
-      <option
-        value="second"
-      >
-        Second option
-      </option>
-    </select>
-  </div>
-</div>
-`;
-
-exports[`InputSelect - Snapshot Only > should render input select component with error message (fieldset container) > fieldset_with_error_message 1`] = `
-<div>
-  <fieldset
-    aria-describedby="external-desc"
-    data-testid="input-test-select-wrapper"
-    id="input-test-select-wrapper"
-  >
-    <legend
-      class="block mb-2"
-      id="input-test-select-legend"
-    >
-      <span
-        class="font-semibold"
-      >
-        Test Label
-      </span>
-    </legend>
-    <p
-      class="mb-2"
-    >
-      <span
-        class="inline-block max-w-prose border-l-2 border-red-600 bg-red-50 px-3 py-1"
-        data-testid="input-error-test-id"
-        id="input-test-select-error"
-        role="alert"
-      >
-        This is an error.
-      </span>
-    </p>
-    <select
-      aria-describedby="input-test-select-error"
-      aria-errormessage="input-test-select-error"
-      aria-invalid="true"
-      aria-labelledby="input-test-select-legend"
-      class="block rounded-lg focus:outline-none focus:ring disabled:bg-gray-100 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-70 border-red-500 focus:border-red-500 focus:ring-red-500"
-      data-testid="input-test-select-test"
-      id="test-select"
-      name="test"
-    >
-      <option
-        selected=""
-        value="first"
-      >
-        First option
-      </option>
-      <option
-        value="second"
-      >
-        Second option
-      </option>
-    </select>
-  </fieldset>
-</div>
-`;
-
-exports[`InputSelect - Snapshot Only > should render input select component with help message (div container) > div_with_help_message 1`] = `
-<div>
-  <div
-    data-testid="input-test-select-wrapper"
-    id="input-test-select-wrapper"
-  >
-    <label
-      class="block mb-2"
-      for="test-select"
-      id="input-test-select-label"
-    >
-      <span
-        class="font-semibold"
-      >
-        Test Label
-      </span>
-    </label>
-    <select
-      aria-describedby="input-test-select-help"
-      aria-invalid="false"
-      aria-labelledby="input-test-select-label"
-      class="block rounded-lg border-gray-500 focus:border-blue-500 focus:outline-none focus:ring focus:ring-blue-500 disabled:bg-gray-100 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-70"
-      data-testid="input-test-select-test"
-      id="test-select"
-      name="test"
-    >
-      <option
-        selected=""
-        value="first"
-      >
-        First option
-      </option>
-      <option
-        value="second"
-      >
-        Second option
-      </option>
-    </select>
-    <div
-      class="block max-w-prose text-gray-500 mt-2"
-      data-testid="input-test-select-select-help"
-      id="input-test-select-help"
-    >
-      This is a helpful message.
-    </div>
-  </div>
-</div>
-`;
-
-exports[`InputSelect - Snapshot Only > should render input select component with help message (fieldset container) > fieldset_with_help_message 1`] = `
-<div>
-  <fieldset
-    aria-describedby="external-desc"
-    data-testid="input-test-select-wrapper"
-    id="input-test-select-wrapper"
-  >
-    <legend
-      class="block mb-2"
-      id="input-test-select-legend"
-    >
-      <span
-        class="font-semibold"
-      >
-        Test Label
-      </span>
-    </legend>
-    <select
-      aria-describedby="input-test-select-help"
-      aria-invalid="false"
-      aria-labelledby="input-test-select-legend"
-      class="block rounded-lg border-gray-500 focus:border-blue-500 focus:outline-none focus:ring focus:ring-blue-500 disabled:bg-gray-100 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-70"
-      data-testid="input-test-select-test"
-      id="test-select"
-      name="test"
-    >
-      <option
-        selected=""
-        value="first"
-      >
-        First option
-      </option>
-      <option
-        value="second"
-      >
-        Second option
-      </option>
-    </select>
-    <div
-      class="block max-w-prose text-gray-500 mt-2"
-      data-testid="input-test-select-select-help"
-      id="input-test-select-help"
-    >
-      This is a helpful message.
-    </div>
-  </fieldset>
-</div>
-`;
-
-exports[`InputSelect - Snapshot Only > should render input select with both help and error messages (div container) > div_with_help_and_error 1`] = `
-<div>
-  <div
-    data-testid="input-test-select-wrapper"
-    id="input-test-select-wrapper"
-  >
-    <label
-      class="block mb-2"
-      for="test-select"
-      id="input-test-select-label"
-    >
-      <span
-        class="font-semibold"
-      >
-        Test Label
-      </span>
-    </label>
-    <p
-      class="mb-2"
-    >
-      <span
-        class="inline-block max-w-prose border-l-2 border-red-600 bg-red-50 px-3 py-1"
-        data-testid="input-error-test-id"
-        id="input-test-select-error"
-        role="alert"
-      >
-        An error occurred.
-      </span>
-    </p>
-    <select
-      aria-describedby="input-test-select-error input-test-select-help"
-      aria-errormessage="input-test-select-error"
-      aria-invalid="true"
-      aria-labelledby="input-test-select-label"
-      class="block rounded-lg focus:outline-none focus:ring disabled:bg-gray-100 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-70 border-red-500 focus:border-red-500 focus:ring-red-500"
-      data-testid="input-test-select-test"
-      id="test-select"
-      name="test"
-    >
-      <option
-        selected=""
-        value="first"
-      >
-        First option
-      </option>
-      <option
-        value="second"
-      >
-        Second option
-      </option>
-    </select>
-    <div
-      class="block max-w-prose text-gray-500 mt-2"
-      data-testid="input-test-select-select-help"
-      id="input-test-select-help"
-    >
-      More info here.
-    </div>
-  </div>
-</div>
-`;
-
-exports[`InputSelect - Snapshot Only > should render input select with both help and error messages (fieldset container) > fieldset_with_help_and_error 1`] = `
-<div>
-  <fieldset
-    aria-describedby="external-desc"
-    data-testid="input-test-select-wrapper"
-    id="input-test-select-wrapper"
-  >
-    <legend
-      class="block mb-2"
-      id="input-test-select-legend"
-    >
-      <span
-        class="font-semibold"
-      >
-        Test Label
-      </span>
-    </legend>
-    <p
-      class="mb-2"
-    >
-      <span
-        class="inline-block max-w-prose border-l-2 border-red-600 bg-red-50 px-3 py-1"
-        data-testid="input-error-test-id"
-        id="input-test-select-error"
-        role="alert"
-      >
-        An error occurred.
-      </span>
-    </p>
-    <select
-      aria-describedby="input-test-select-error input-test-select-help"
-      aria-errormessage="input-test-select-error"
-      aria-invalid="true"
-      aria-labelledby="input-test-select-legend"
-      class="block rounded-lg focus:outline-none focus:ring disabled:bg-gray-100 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-70 border-red-500 focus:border-red-500 focus:ring-red-500"
-      data-testid="input-test-select-test"
-      id="test-select"
-      name="test"
-    >
-      <option
-        selected=""
-        value="first"
-      >
-        First option
-      </option>
-      <option
-        value="second"
-      >
-        Second option
-      </option>
-    </select>
-    <div
-      class="block max-w-prose text-gray-500 mt-2"
-      data-testid="input-test-select-select-help"
-      id="input-test-select-help"
-    >
-      More info here.
-    </div>
-  </fieldset>
-</div>
-`;
-
-exports[`InputSelect - Snapshot Only > should render the select component within a div by default > default_div_render 1`] = `
-<div>
-  <div
-    data-testid="input-test-select-wrapper"
-    id="input-test-select-wrapper"
-  >
-    <label
-      class="block mb-2"
-      for="test-select"
-      id="input-test-select-label"
-    >
-      <span
-        class="font-semibold"
-      >
-        Test Label
-      </span>
-    </label>
-    <select
-      aria-invalid="false"
-      aria-labelledby="input-test-select-label"
-      class="block rounded-lg border-gray-500 focus:border-blue-500 focus:outline-none focus:ring focus:ring-blue-500 disabled:bg-gray-100 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-70"
-      data-testid="input-test-select-test"
-      id="test-select"
-      name="test"
-    >
-      <option
-        selected=""
-        value="first"
-      >
-        First option
-      </option>
-      <option
-        value="second"
-      >
-        Second option
-      </option>
-    </select>
-  </div>
-</div>
-`;
-
-exports[`InputSelect - Snapshot Only > should render the select component within a fieldset with a legend when ariaDescribedbyId is provided > fieldset_with_legend_render 1`] = `
-<div>
-  <fieldset
-    aria-describedby="external-desc"
-    data-testid="input-test-select-wrapper"
-    id="input-test-select-wrapper"
-  >
-    <legend
-      class="block mb-2"
-      id="input-test-select-legend"
-    >
-      <span
-        class="font-semibold"
-      >
-        Test Label
-      </span>
-    </legend>
-    <select
-      aria-invalid="false"
-      aria-labelledby="input-test-select-legend"
-      class="block rounded-lg border-gray-500 focus:border-blue-500 focus:outline-none focus:ring focus:ring-blue-500 disabled:bg-gray-100 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-70"
-      data-testid="input-test-select-test"
-      id="test-select"
-      name="test"
-    >
-      <option
-        selected=""
-        value="first"
-      >
-        First option
-      </option>
-      <option
-        value="second"
-      >
-        Second option
+        second option
       </option>
     </select>
   </fieldset>

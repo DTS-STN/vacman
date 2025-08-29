@@ -1,13 +1,12 @@
 package ca.gov.dtsstn.vacman.api.service.mapper;
 
-import static ca.gov.dtsstn.vacman.api.data.entity.AbstractBaseEntity.byId;
+import static ca.gov.dtsstn.vacman.api.data.entity.AbstractCodeEntity.byId;
 
 import java.util.Optional;
 
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.MappingConstants;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.Named;
 import org.mapstruct.NullValuePropertyMappingStrategy;
@@ -18,7 +17,7 @@ import ca.gov.dtsstn.vacman.api.data.entity.LanguageEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 import ca.gov.dtsstn.vacman.api.service.CodeService;
 
-@Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
+@Mapper(componentModel = "spring")
 public abstract class UserEntityMapper {
 
 	@Autowired

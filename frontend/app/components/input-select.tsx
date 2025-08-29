@@ -3,7 +3,6 @@ import type { ComponentProps, ReactNode } from 'react';
 import { InputError } from '~/components/input-error';
 import { InputHelp } from '~/components/input-help';
 import { InputLabel } from '~/components/input-label';
-import { InputLegend } from '~/components/input-legend';
 import { cn } from '~/utils/tailwind-utils';
 
 const inputBaseClassName =
@@ -22,92 +21,55 @@ export interface InputSelectProps
   helpMessage?: ReactNode;
   id: string;
   label: string;
-  legendClassName?: string;
   name: string;
   options: OmitStrict<ComponentProps<'option'>, 'id'>[];
-  ref?: React.Ref<HTMLSelectElement>;
 }
 
 export function InputSelect(props: InputSelectProps) {
-  const {
-    ariaDescribedbyId,
-    errorMessage,
-    helpMessage,
-    id,
-    label,
-    legendClassName,
-    options,
-    className,
-    required,
-    ref,
-    ...restInputProps
-  } = props;
+  const { ariaDescribedbyId, errorMessage, helpMessage, id, label, options, className, ref, required, ...restInputProps } =
+    props;
 
-  const getSubId = (suffix: string) => `input-${id}-${suffix}`;
-
-  const inputIds = {
-    error: getSubId('error'),
-    help: getSubId('help'),
-    test: getSubId('test'),
-    wrapper: getSubId('wrapper'),
-    legend: getSubId('legend'),
-    label: getSubId('label'),
-  };
-
-  const Container = ariaDescribedbyId ? 'fieldset' : 'div';
-  const containerProps = {
-    'id': inputIds.wrapper,
-    'data-testid': inputIds.wrapper,
-    ...(ariaDescribedbyId && { 'aria-describedby': ariaDescribedbyId }),
-  };
-
-  const describedBy = [errorMessage ? inputIds.error : '', helpMessage ? inputIds.help : ''].filter(Boolean).join(' ');
-
-  const ariaLabelledBy = ariaDescribedbyId ? inputIds.legend : label ? inputIds.label : undefined; // Fallback if no visible label but you want to provide an accessible name
+  const inputErrorId = `input-${id}-error`;
+  const inputHelpMessageId = `input-${id}-help`;
+  const inputLabelId = `input-${id}-label`;
+  const inputTestId = `input-${id}-test`;
+  const inputWrapperId = `input-${id}`;
 
   return (
-    <Container {...containerProps}>
-      {ariaDescribedbyId ? (
-        <InputLegend id={inputIds.legend} className={cn('mb-2', legendClassName)} required={required}>
+    <fieldset id={inputWrapperId} data-testid={inputWrapperId} aria-describedby={ariaDescribedbyId}>
+      {label && (
+        <InputLabel id={inputLabelId} htmlFor={id} className="mb-2" required={required}>
           {label}
-        </InputLegend>
-      ) : (
-        label && (
-          <InputLabel id={inputIds.label} htmlFor={id} className="mb-2" required={required}>
-            {label}
-          </InputLabel>
-        )
+        </InputLabel>
       )}
-
       {errorMessage && (
         <p className="mb-2">
-          <InputError id={inputIds.error}>{errorMessage}</InputError>
+          <InputError id={inputErrorId}>{errorMessage}</InputError>
         </p>
       )}
-
       <select
         ref={ref}
-        aria-describedby={describedBy || undefined}
-        aria-errormessage={errorMessage ? inputIds.error : undefined}
+        aria-describedby={helpMessage ? inputHelpMessageId : undefined}
+        aria-errormessage={errorMessage && inputErrorId}
         aria-invalid={!!errorMessage}
-        aria-labelledby={ariaLabelledBy}
+        aria-labelledby={label ? inputLabelId : undefined}
         aria-required={required}
         className={cn(inputBaseClassName, inputDisabledClassName, errorMessage && inputErrorClassName, className)}
-        data-testid={inputIds.test}
+        data-testid={inputTestId}
         id={id}
         required={required}
         {...restInputProps}
       >
-        {options.map((optionProps) => (
-          <option key={String(optionProps.value)} {...optionProps} />
-        ))}
+        {options.map((optionProps, index) => {
+          const inputOptionId = `${id}-select-option-${index}`;
+          return <option id={inputOptionId} data-testid={inputOptionId} key={String(optionProps.value)} {...optionProps} />;
+        })}
       </select>
-
       {helpMessage && (
-        <InputHelp id={inputIds.help} className="mt-2" data-testid={getSubId('select-help')}>
+        <InputHelp id={inputHelpMessageId} className="mt-2" data-testid={`input-${id}-select-help`}>
           {helpMessage}
         </InputHelp>
       )}
-    </Container>
+    </fieldset>
   );
 }

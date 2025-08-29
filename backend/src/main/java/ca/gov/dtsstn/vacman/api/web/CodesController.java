@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import ca.gov.dtsstn.vacman.api.constants.AppConstants;
 import ca.gov.dtsstn.vacman.api.service.CodeService;
 import ca.gov.dtsstn.vacman.api.web.model.CityReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.ClassificationReadModel;
@@ -37,7 +38,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @ApiResponses.Ok
 @Tag(name = "Codes")
 @ApiResponses.InternalServerError
-@RequestMapping({ "/api/v1/codes" })
+@RequestMapping({ AppConstants.ApiPaths.CODES })
 public class CodesController {
 
 	private final CodeModelMapper codeMapper = Mappers.getMapper(CodeModelMapper.class);

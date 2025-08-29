@@ -1,5 +1,6 @@
 package ca.gov.dtsstn.vacman.api.web;
 
+import static ca.gov.dtsstn.vacman.api.constants.AppConstants.UserFields.MS_ENTRA_ID;
 import static ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException.asResourceNotFoundException;
 import static ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException.asUserResourceNotFoundException;
 import static ca.gov.dtsstn.vacman.api.web.exception.UnauthorizedException.asEntraIdUnauthorizedException;
@@ -25,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import ca.gov.dtsstn.vacman.api.config.SpringDocConfig;
+import ca.gov.dtsstn.vacman.api.constants.AppConstants;
 import ca.gov.dtsstn.vacman.api.security.SecurityUtils;
 import ca.gov.dtsstn.vacman.api.service.ProfileService;
 import ca.gov.dtsstn.vacman.api.service.RequestService;
@@ -43,7 +45,7 @@ import jakarta.validation.Valid;
 @ApiResponses.AccessDeniedError
 @ApiResponses.AuthenticationError
 @ApiResponses.InternalServerError
-@RequestMapping({ "/api/v1/requests" })
+@RequestMapping({ AppConstants.ApiPaths.REQUESTS })
 @SecurityRequirement(name = SpringDocConfig.AZURE_AD)
 @ConditionalOnProperty(name = { "application.requests.enabled" }) // TODO ::: GjB ::: remove once live in prod
 @Tag(name = "Requests", description = "Hiring manager requests for departmental clearance.")
@@ -81,7 +83,7 @@ public class RequestsController {
 			.orElseThrow(asEntraIdUnauthorizedException());
 
 		final var user = userService.getUserByMicrosoftEntraId(entraId)
-			.orElseThrow(asUserResourceNotFoundException("microsoftEntraId", entraId));
+			.orElseThrow(asUserResourceNotFoundException(MS_ENTRA_ID, entraId));
 
 		final var requests = requestService.getAllRequestsAssociatedWithUser(user.getId()).stream()
 			.map(requestModelMapper::toModel)
@@ -102,12 +104,12 @@ public class RequestsController {
 			.orElseThrow(asEntraIdUnauthorizedException());
 
 		final var currentUser = userService.getUserByMicrosoftEntraId(entraId)
-			.orElseThrow(asUserResourceNotFoundException("microsoftEntraId", entraId));
+			.orElseThrow(asUserResourceNotFoundException(MS_ENTRA_ID, entraId));
 
 		final var request = requestService.createRequest(currentUser);
 
 		final var location = ServletUriComponentsBuilder.fromCurrentContextPath()
-			.path("/api/v1/requests/{id}")
+			.path(AppConstants.ApiPaths.REQUESTS + "/{id}")
 			.buildAndExpand(request.getId()).toUri();
 
 		return ResponseEntity.created(location).body(requestModelMapper.toModel(request));
