@@ -19,16 +19,15 @@ import ca.gov.dtsstn.vacman.api.data.entity.UserTypeEntity.UserTypeCodes;
 public final class SecurityUtils {
 
 	public static class Role {
-		public static final String ADMIN = "admin";
 		public static final String HR_ADVISOR = "hr-advisor";
 		public static final String HIRING_MANAGER = "hiring-manager";
 		public static final String EMPLOYEE = "employee";
 	}
 
 	private static final List<String> ROLE_HIERARCHY = List.of(
-		Role.HR_ADVISOR,
-		Role.HIRING_MANAGER,
-		Role.EMPLOYEE
+		"hr-advisor",
+		"hiring-manager",
+		"employee"
 	);
 
 	private SecurityUtils() { }
@@ -49,18 +48,6 @@ public final class SecurityUtils {
 	 */
 	public static Optional<String> getCurrentUserEntraId() {
 		return getCurrentAuthentication().map(Authentication::getName);
-	}
-
-	/**
-	 * Checks the {@code roles} claim for the presence of the {@code hr-advisor} role.
-	 */
-	public static boolean isHrAdvisor() {
-		final var userAuthorities = getCurrentAuthentication()
-			.map(Authentication::getAuthorities)
-			.map(AuthorityUtils::authorityListToSet)
-			.orElse(emptySet());
-
-		return userAuthorities.contains(Role.HR_ADVISOR);
 	}
 
 	/**
@@ -85,7 +72,7 @@ public final class SecurityUtils {
 	 */
 	public static boolean isKnownRole(String role) {
 		return switch (role) {
-			case Role.ADMIN, Role.HR_ADVISOR, Role.HIRING_MANAGER, Role.EMPLOYEE -> true;
+			case Role.HR_ADVISOR, Role.HIRING_MANAGER, Role.EMPLOYEE -> true;
 			default -> false;
 		};
 	}

@@ -4,6 +4,7 @@ import static ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException.a
 import static ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException.asUserResourceNotFoundException;
 import static ca.gov.dtsstn.vacman.api.web.exception.UnauthorizedException.asEntraIdUnauthorizedException;
 import static ca.gov.dtsstn.vacman.api.web.model.CollectionModel.toCollectionModel;
+import static java.util.Collections.emptySet;
 
 import java.util.Collection;
 import java.util.Set;
@@ -18,6 +19,8 @@ import org.springframework.data.web.PagedModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -220,7 +223,7 @@ public class ProfilesController {
 		final var requiresHrAdvisor = profileStatuses.approved().equals(updatedProfileStatus.getCode())
 			|| profileStatuses.archived().equals(updatedProfileStatus.getCode());
 
-		if (requiresHrAdvisor && !SecurityUtils.isHrAdvisor()) {
+		if (requiresHrAdvisor && !isHrAdvisor()) {
 			throw new AccessDeniedException("Only HR advisors can set status to APPROVED or ARCHIVED");
 		}
 
@@ -256,6 +259,20 @@ public class ProfilesController {
 		updateStatusToTarget(foundProfile, updatedProfileStatus.getCode(), validPretransitionStates);
 
 		return ResponseEntity.accepted().build();
+	}
+
+	/**
+	 * Checks the {@code roles} claim for the presence of the {@code hr-advisor} role.
+	 *
+	 * TODO ::: GjB ::: does this belong here?
+	 */
+	private boolean isHrAdvisor() {
+		final var userAuthorities = SecurityUtils.getCurrentAuthentication()
+			.map(Authentication::getAuthorities)
+			.map(AuthorityUtils::authorityListToSet)
+			.orElse(emptySet());
+
+		return userAuthorities.contains("hr-advisor");
 	}
 
 	private void updateStatusToTarget(ProfileEntity profile, String targetStatus, Collection<String> validPreTransitionStates) {
