@@ -313,6 +313,13 @@ application:
       This OpenAPI document describes the key areas where developers typically engage with the Vacancy Manager API.
     tos-url: https://www.canada.ca/en/transparency/terms.html
 
+codes:
+  profile-statuses:
+    approved: APPROVED
+    archived: ARCHIVED
+    incomplete: INCOMPLETE
+    pending: PENDING
+
 ---
 
 #

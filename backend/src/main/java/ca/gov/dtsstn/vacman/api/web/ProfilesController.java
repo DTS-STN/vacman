@@ -28,8 +28,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import ca.gov.dtsstn.vacman.api.config.SpringDocConfig;
+import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes;
+import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes.ProfileStatuses;
 import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
-import ca.gov.dtsstn.vacman.api.data.entity.ProfileStatusEntity.ProfileStatusCodes;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 import ca.gov.dtsstn.vacman.api.security.SecurityUtils;
 import ca.gov.dtsstn.vacman.api.service.ProfileService;
@@ -61,12 +62,15 @@ public class ProfilesController {
 
 	private final ProfileService profileService;
 
+	private final ProfileStatuses profileStatuses;
+
 	private final UserService userService;
 
 	private final ProfileModelMapper profileModelMapper = Mappers.getMapper(ProfileModelMapper.class);
 
-	public ProfilesController(ProfileService profileService, UserService userService) {
+	public ProfilesController(LookupCodes lookupCodes, ProfileService profileService, UserService userService) {
 		this.profileService = profileService;
+		this.profileStatuses = lookupCodes.profileStatuses();
 		this.userService = userService;
 	}
 
@@ -213,8 +217,8 @@ public class ProfilesController {
 		// APPROVED and ARCHIVED statuses require that the submitter be an HR advisor
 		//
 
-		final var requiresHrAdvisor = ProfileStatusCodes.APPROVED.equals(updatedProfileStatus.getCode())
-			|| ProfileStatusCodes.ARCHIVED.equals(updatedProfileStatus.getCode());
+		final var requiresHrAdvisor = profileStatuses.approved().equals(updatedProfileStatus.getCode())
+			|| profileStatuses.archived().equals(updatedProfileStatus.getCode());
 
 		if (requiresHrAdvisor && !SecurityUtils.isHrAdvisor()) {
 			throw new AccessDeniedException("Only HR advisors can set status to APPROVED or ARCHIVED");
@@ -224,7 +228,7 @@ public class ProfilesController {
 		// PENDING is the only valid status for normal (non HR advisor) employees
 		//
 
-		final var isPendingStatus = ProfileStatusCodes.PENDING.equals(updatedProfileStatus.getCode());
+		final var isPendingStatus = profileStatuses.pending().equals(updatedProfileStatus.getCode());
 
 		if (!requiresHrAdvisor && !isPendingStatus) {
 			throw new AccessDeniedException("Profile status can only be set to APPROVED");
@@ -233,14 +237,21 @@ public class ProfilesController {
 		final var foundProfile = profileService.getProfileById(id)
 			.orElseThrow(asResourceNotFoundException(PROFILE, id));
 
-		final var validPretransitionStates = switch (updatedProfileStatus.getCode()) {
-			case ProfileStatusCodes.PENDING -> Set.of(ProfileStatusCodes.INCOMPLETE, ProfileStatusCodes.APPROVED);
-			case ProfileStatusCodes.APPROVED -> Set.of(ProfileStatusCodes.PENDING);
-			case ProfileStatusCodes.ARCHIVED -> Set.of(ProfileStatusCodes.APPROVED);
-			// This default case /shouldn't/ ever execute, since at this point we've confirmed that the target status
-			// is one of three options. But, we need to handle this case regardless.
-			default -> throw new ResourceConflictException("Cannot transition profile status to code=[" + updatedProfileStatus.getCode() + "]");
-		};
+		final Set<String> validPretransitionStates;
+		final var code = updatedProfileStatus.getCode();
+
+		if (code.equals(profileStatuses.pending())) {
+			validPretransitionStates = Set.of(profileStatuses.incomplete(), profileStatuses.approved());
+		}
+		else if (code.equals(profileStatuses.approved())) {
+			validPretransitionStates = Set.of(profileStatuses.pending());
+		}
+		else if (code.equals(profileStatuses.archived())) {
+			validPretransitionStates = Set.of(profileStatuses.approved());
+		}
+		else {
+			throw new ResourceConflictException("Cannot transition profile status to code=[" + code + "]");
+		}
 
 		updateStatusToTarget(foundProfile, updatedProfileStatus.getCode(), validPretransitionStates);
 
