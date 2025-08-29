@@ -170,5 +170,5 @@ export const LANGUAGE_LEVEL = [
 ] as const;
 
 // TODO configure these in a more friendly way for DX
-export const ACTIVE_REQUEST_STATUS_IDS = [0, 1, 2, 3, 4, 5];
-export const ARCHIVED_REQUEST_STATUS_IDS = [6, 7, 8];
+export const ACTIVE_REQUEST_STATUS_IDS = [0, 1, 2, 3, 4, 5, 6, 7];
+export const ARCHIVED_REQUEST_STATUS_IDS = [8, 9, 10];
