@@ -10,6 +10,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
 
+import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes;
+import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes.RequestStatuses;
 import ca.gov.dtsstn.vacman.api.data.entity.RequestEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 import ca.gov.dtsstn.vacman.api.data.repository.RequestRepository;
@@ -22,9 +24,15 @@ public class RequestService {
 
 	private final RequestRepository requestRepository;
 
+	private final RequestStatuses requestStatuses;
+
 	private final RequestStatusRepository requestStatusRepository;
 
-	public RequestService(RequestRepository requestRepository, RequestStatusRepository requestStatusRepository) {
+	public RequestService(
+			LookupCodes lookupCodes,
+			RequestRepository requestRepository,
+			RequestStatusRepository requestStatusRepository) {
+		this.requestStatuses = lookupCodes.requestStatuses();
 		this.requestRepository = requestRepository;
 		this.requestStatusRepository = requestStatusRepository;
 	}
@@ -33,8 +41,8 @@ public class RequestService {
 		log.debug("Fetching DRAFT request status");
 
 
-		final var draftStatus = requestStatusRepository.findByCode("DRAFT")
-			.orElseThrow(asResourceNotFoundException("requestStatus", "code", "DRAFT"));
+		final var draftStatus = requestStatusRepository.findByCode(requestStatuses.draft())
+			.orElseThrow(asResourceNotFoundException("requestStatus", "code", requestStatuses.draft()));
 
 		return requestRepository
 				.save(RequestEntity.builder().submitter(submitter).requestStatus(draftStatus).build());
