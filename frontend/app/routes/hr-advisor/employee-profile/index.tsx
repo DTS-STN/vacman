@@ -30,7 +30,7 @@ import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { useFetcherState } from '~/hooks/use-fetcher-state';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
-import { formatDateTimeInZone } from '~/utils/date-utils';
+import { formatDateTimeForTimezone } from '~/utils/date-utils';
 
 export const handle = {
   i18nNamespace: [...parentHandle.i18nNamespace],
@@ -179,6 +179,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     lastUpdatedBy: profileUpdatedByUserName ?? 'Unknown User',
     lastModifiedDate: profileData.lastModifiedDate ?? undefined,
     baseTimeZone: serverEnvironment.BASE_TIMEZONE,
+    lang,
   };
 }
 
@@ -198,7 +199,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
 
   const [browserTZ, setBrowserTZ] = useState(() =>
     loaderData.lastModifiedDate
-      ? formatDateTimeInZone(loaderData.lastModifiedDate, loaderData.baseTimeZone, 'yyyy-MM-dd HH:mm')
+      ? formatDateTimeForTimezone(loaderData.lastModifiedDate, loaderData.baseTimeZone, loaderData.lang)
       : '0000-00-00 00:00',
   );
 
@@ -207,9 +208,9 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
 
     const browserTZ = Intl.DateTimeFormat().resolvedOptions().timeZone;
     if (browserTZ) {
-      setBrowserTZ(formatDateTimeInZone(loaderData.lastModifiedDate, browserTZ, 'yyyy-MM-dd HH:mm'));
+      setBrowserTZ(formatDateTimeForTimezone(loaderData.lastModifiedDate, browserTZ, loaderData.lang));
     }
-  }, [loaderData.lastModifiedDate]);
+  }, [loaderData.lastModifiedDate, loaderData.lang]);
 
   return (
     <div className="space-y-8">
