@@ -319,3 +319,30 @@ export function toZonedDate(date: string | number | Date, timeZone: string): Dat
 export function formatDateTimeInZone(date: string | number | Date, timeZone: string, pattern = 'yyyy-MM-dd HH:mm'): string {
   return format(toZonedDate(date, timeZone), pattern);
 }
+
+/**
+ * Formats a UTC date/time string or Date object to a localized string for a specific timezone.
+ *
+ * @param date - The UTC date to format. Can be an ISO string, date string or Date.
+ * @param targetTimeZone - The IANA timezone name (e.g., 'America/Toronto', 'Europe/London')
+ * @param locale - The language locale for formatting. Defaults to 'en'
+ *
+ * @returns Formatted date string in the pattern "MM/DD/YYYY, HH:MM AM/PM TZ" (locale-specific) or original string if formatting fails.
+ */
+export function formatDateTimeForTimezone(date: string | Date, targetTimeZone: string, locale: Language = 'en'): string {
+  try {
+    const dateObj = typeof date === 'string' ? new Date(date) : date;
+    const formatter = new Intl.DateTimeFormat(`${locale}-CA`, {
+      timeZone: isValidTimeZone(targetTimeZone) ? targetTimeZone : 'America/Toronto',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      timeZoneName: 'short', // Displays the short timezone name (e.g., EST, EDT)
+    });
+    return formatter.format(dateObj);
+  } catch {
+    return String(date);
+  }
+}

@@ -28,11 +28,11 @@ import { LoadingButton } from '~/components/loading-button';
 import { ProfileCard } from '~/components/profile-card';
 import { Progress } from '~/components/progress';
 import { StatusTag } from '~/components/status-tag';
-import { PROFILE_STATUS_CODE, EMPLOYEE_WFA_STATUS, PROFILE_STATUS_PENDING } from '~/domain/constants';
+import { EMPLOYEE_WFA_STATUS, PROFILE_STATUS_CODE, PROFILE_STATUS_PENDING } from '~/domain/constants';
 import { useFetcherState } from '~/hooks/use-fetcher-state';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
-import { formatDateTimeInZone } from '~/utils/date-utils';
+import { formatDateTimeForTimezone } from '~/utils/date-utils';
 
 export const handle = {
   i18nNamespace: [...parentHandle.i18nNamespace],
@@ -267,6 +267,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     hasEmploymentChanged,
     hasReferralPreferenceChanged,
     baseTimeZone: serverEnvironment.BASE_TIMEZONE,
+    lang,
   };
 }
 
@@ -295,9 +296,18 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
   const [hasReferralPreferenceChanged, setHasReferralPreferenceChanged] = useState(loaderData.hasReferralPreferenceChanged);
   const [browserTZ, setBrowserTZ] = useState(() =>
     loaderData.lastModifiedDate
-      ? formatDateTimeInZone(loaderData.lastModifiedDate, loaderData.baseTimeZone, 'yyyy-MM-dd HH:mm')
+      ? formatDateTimeForTimezone(loaderData.lastModifiedDate, loaderData.baseTimeZone, loaderData.lang)
       : '0000-00-00 00:00',
   );
+
+  useEffect(() => {
+    if (!loaderData.lastModifiedDate) return;
+
+    const browserTZ = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    if (browserTZ) {
+      setBrowserTZ(formatDateTimeForTimezone(loaderData.lastModifiedDate, browserTZ, loaderData.lang));
+    }
+  }, [loaderData.lastModifiedDate, loaderData.lang]);
 
   // Clean the URL after reading the param
   useEffect(() => {
@@ -315,15 +325,6 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
       void navigate(newUrl, { replace: true });
     }
   }, [searchParams, location.pathname, navigate]);
-
-  useEffect(() => {
-    if (!loaderData.lastModifiedDate) return;
-
-    const browserTZ = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    if (browserTZ) {
-      setBrowserTZ(formatDateTimeInZone(loaderData.lastModifiedDate, browserTZ, 'yyyy-MM-dd HH:mm'));
-    }
-  }, [loaderData.lastModifiedDate]);
 
   return (
     <div className="space-y-8">
