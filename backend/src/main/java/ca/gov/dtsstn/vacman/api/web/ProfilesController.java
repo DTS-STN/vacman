@@ -1,10 +1,10 @@
 package ca.gov.dtsstn.vacman.api.web;
 
-import static ca.gov.dtsstn.vacman.api.constants.AppConstants.UserFields.MS_ENTRA_ID;
 import static ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException.asResourceNotFoundException;
 import static ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException.asUserResourceNotFoundException;
 import static ca.gov.dtsstn.vacman.api.web.exception.UnauthorizedException.asEntraIdUnauthorizedException;
 import static ca.gov.dtsstn.vacman.api.web.model.CollectionModel.toCollectionModel;
+import static java.util.Collections.emptySet;
 
 import java.util.Collection;
 import java.util.Set;
@@ -19,6 +19,8 @@ import org.springframework.data.web.PagedModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,7 +31,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import ca.gov.dtsstn.vacman.api.config.SpringDocConfig;
-import ca.gov.dtsstn.vacman.api.constants.AppConstants;
+import ca.gov.dtsstn.vacman.api.config.properties.ApplicationProperties;
+import ca.gov.dtsstn.vacman.api.config.properties.EntraIdProperties.RolesProperties;
+import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes;
+import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes.ProfileStatuses;
 import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 import ca.gov.dtsstn.vacman.api.security.SecurityUtils;
@@ -62,12 +67,22 @@ public class ProfilesController {
 
 	private final ProfileService profileService;
 
+	private final ProfileStatuses profileStatusCodes;
+
+	private final RolesProperties roles;
+
 	private final UserService userService;
 
 	private final ProfileModelMapper profileModelMapper = Mappers.getMapper(ProfileModelMapper.class);
 
-	public ProfilesController(ProfileService profileService, UserService userService) {
+	public ProfilesController(
+			ApplicationProperties applicationProperties,
+			LookupCodes lookupCodes,
+			ProfileService profileService,
+			UserService userService) {
+		this.roles = applicationProperties.entraId().roles();
 		this.profileService = profileService;
+		this.profileStatusCodes = lookupCodes.profileStatuses();
 		this.userService = userService;
 	}
 
@@ -100,7 +115,7 @@ public class ProfilesController {
 
 			hrAdvisorId = userService.getUserByMicrosoftEntraId(entraId)
 				.map(UserEntity::getId)
-				.orElseThrow(asUserResourceNotFoundException(MS_ENTRA_ID, entraId));
+				.orElseThrow(asUserResourceNotFoundException("microsoftEntraId", entraId));
 		}
 		else {
 			hrAdvisorId = Long.valueOf(hrAdvisor);
@@ -165,7 +180,7 @@ public class ProfilesController {
 
 		log.debug("Checking if user with microsoftEntraId=[{}] already exists", microsoftEntraId);
 		final var existingUser = userService.getUserByMicrosoftEntraId(microsoftEntraId)
-			.orElseThrow(asUserResourceNotFoundException(MS_ENTRA_ID, microsoftEntraId));
+			.orElseThrow(asUserResourceNotFoundException("microsoftEntraId", microsoftEntraId));
 
 		log.debug("Checking if user with microsoftEntraId=[{}] has an active profile", microsoftEntraId);
 		if (!profileService.getProfilesByEntraId(microsoftEntraId, true).isEmpty()) {
@@ -214,10 +229,10 @@ public class ProfilesController {
 		// APPROVED and ARCHIVED statuses require that the submitter be an HR advisor
 		//
 
-		final var requiresHrAdvisor = AppConstants.ProfileStatusCodes.APPROVED.equals(updatedProfileStatus.getCode())
-			|| AppConstants.ProfileStatusCodes.ARCHIVED.equals(updatedProfileStatus.getCode());
+		final var requiresHrAdvisor = profileStatusCodes.approved().equals(updatedProfileStatus.getCode())
+			|| profileStatusCodes.archived().equals(updatedProfileStatus.getCode());
 
-		if (requiresHrAdvisor && !SecurityUtils.isHrAdvisor()) {
+		if (requiresHrAdvisor && !isHrAdvisor()) {
 			throw new AccessDeniedException("Only HR advisors can set status to APPROVED or ARCHIVED");
 		}
 
@@ -225,7 +240,7 @@ public class ProfilesController {
 		// PENDING is the only valid status for normal (non HR advisor) employees
 		//
 
-		final var isPendingStatus = AppConstants.ProfileStatusCodes.PENDING.equals(updatedProfileStatus.getCode());
+		final var isPendingStatus = profileStatusCodes.pending().equals(updatedProfileStatus.getCode());
 
 		if (!requiresHrAdvisor && !isPendingStatus) {
 			throw new AccessDeniedException("Profile status can only be set to APPROVED");
@@ -234,18 +249,37 @@ public class ProfilesController {
 		final var foundProfile = profileService.getProfileById(id)
 			.orElseThrow(asResourceNotFoundException(PROFILE, id));
 
-		final var validPretransitionStates = switch (updatedProfileStatus.getCode()) {
-			case AppConstants.ProfileStatusCodes.PENDING -> Set.of(AppConstants.ProfileStatusCodes.INCOMPLETE, AppConstants.ProfileStatusCodes.APPROVED);
-			case AppConstants.ProfileStatusCodes.APPROVED -> Set.of(AppConstants.ProfileStatusCodes.PENDING);
-			case AppConstants.ProfileStatusCodes.ARCHIVED -> Set.of(AppConstants.ProfileStatusCodes.APPROVED);
-			// This default case /shouldn't/ ever execute, since at this point we've confirmed that the target status
-			// is one of three options. But, we need to handle this case regardless.
-			default -> throw new ResourceConflictException("Cannot transition profile status to code=[" + updatedProfileStatus.getCode() + "]");
-		};
+		final Set<String> validPretransitionStates;
+		final var code = updatedProfileStatus.getCode();
+
+		if (code.equals(profileStatusCodes.pending())) {
+			validPretransitionStates = Set.of(profileStatusCodes.incomplete(), profileStatusCodes.approved());
+		}
+		else if (code.equals(profileStatusCodes.approved())) {
+			validPretransitionStates = Set.of(profileStatusCodes.pending());
+		}
+		else if (code.equals(profileStatusCodes.archived())) {
+			validPretransitionStates = Set.of(profileStatusCodes.approved());
+		}
+		else {
+			throw new ResourceConflictException("Cannot transition profile status to code=[" + code + "]");
+		}
 
 		updateStatusToTarget(foundProfile, updatedProfileStatus.getCode(), validPretransitionStates);
 
 		return ResponseEntity.accepted().build();
+	}
+
+	/**
+	 * Checks the {@code roles} claim for the presence of the {@code hr-advisor} role.
+	 */
+	private boolean isHrAdvisor() {
+		final var userAuthorities = SecurityUtils.getCurrentAuthentication()
+			.map(Authentication::getAuthorities)
+			.map(AuthorityUtils::authorityListToSet)
+			.orElse(emptySet());
+
+		return userAuthorities.contains(roles.hrAdvisor());
 	}
 
 	private void updateStatusToTarget(ProfileEntity profile, String targetStatus, Collection<String> validPreTransitionStates) {

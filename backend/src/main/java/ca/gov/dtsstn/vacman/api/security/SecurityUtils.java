@@ -3,14 +3,11 @@ package ca.gov.dtsstn.vacman.api.security;
 import static java.util.Collections.emptySet;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
-
-import ca.gov.dtsstn.vacman.api.constants.AppConstants;
 
 /**
  * Utility class for Spring Security.
@@ -18,17 +15,7 @@ import ca.gov.dtsstn.vacman.api.constants.AppConstants;
  */
 public final class SecurityUtils {
 
-	private static final List<String> ROLE_HIERARCHY = List.of(
-		// XXX ::: GjB ::: although an admin role does exist, it should not be used
-		//                 to determine the user's highest privilege role; leaving
-		//                 it here for future considerations and documentation
-		// AppConstants.Role.ADMIN,
-		AppConstants.Role.HR_ADVISOR,
-		AppConstants.Role.HIRING_MANAGER,
-		AppConstants.Role.EMPLOYEE
-	);
-
-	private SecurityUtils() { }
+	private SecurityUtils() {}
 
 	/**
 	 * Get the current {@link Authentication} object from the security context.
@@ -46,18 +33,6 @@ public final class SecurityUtils {
 	 */
 	public static Optional<String> getCurrentUserEntraId() {
 		return getCurrentAuthentication().map(Authentication::getName);
-	}
-
-	/**
-	 * Checks the {@code roles} claim for the presence of the {@code hr-advisor} role.
-	 */
-	public static boolean isHrAdvisor() {
-		final var userAuthorities = getCurrentAuthentication()
-			.map(Authentication::getAuthorities)
-			.map(AuthorityUtils::authorityListToSet)
-			.orElse(emptySet());
-
-		return userAuthorities.contains(AppConstants.Role.HR_ADVISOR);
 	}
 
 	/**
@@ -107,23 +82,6 @@ public final class SecurityUtils {
 	 */
 	public static boolean hasAuthority(String authority) {
 		return hasAnyAuthorities(authority);
-	}
-
-	/**
-	 * Get the highest privilege role from the current user's authorities.
-	 * Role hierarchy (highest to lowest): admin > hr-advisor > hiring-manager > employee
-	 *
-	 * @return the highest privilege role authority, or "employee" as fallback if no roles found
-	 */
-	public static String getHighestPrivilegeRole() {
-		final var userAuthorities = getCurrentAuthentication()
-			.map(Authentication::getAuthorities)
-			.map(AuthorityUtils::authorityListToSet)
-			.orElse(emptySet());
-
-		return ROLE_HIERARCHY.stream()
-			.filter(userAuthorities::contains).findFirst()
-			.orElse(AppConstants.Role.EMPLOYEE);
 	}
 
 }

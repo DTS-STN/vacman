@@ -1,7 +1,11 @@
 package ca.gov.dtsstn.vacman.api.service;
 
+import static ca.gov.dtsstn.vacman.api.data.repository.ProfileRepository.hasHrAdvisorId;
+import static ca.gov.dtsstn.vacman.api.data.repository.ProfileRepository.hasProfileStatusCodeIn;
+import static ca.gov.dtsstn.vacman.api.data.repository.ProfileRepository.hasUserMicrosoftEntraId;
 import static ca.gov.dtsstn.vacman.api.security.SecurityUtils.getCurrentUserEntraId;
 import static ca.gov.dtsstn.vacman.api.web.exception.ResourceConflictException.asResourceConflictException;
+import static ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException.asResourceNotFoundException;
 
 import java.util.List;
 import java.util.Map;
@@ -13,7 +17,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import ca.gov.dtsstn.vacman.api.constants.AppConstants;
+import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes;
+import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes.UserTypes;
 import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 import ca.gov.dtsstn.vacman.api.data.repository.CityRepository;
@@ -63,6 +68,8 @@ public class ProfileService {
 
 	private final LanguageReferralTypeRepository languageReferralTypeRepository;
 
+	private final UserTypes userTypeCodes;
+
 	// Keys are tied to the potential values of getProfilesByStatusAndHrId parameter isActive.
 	private static final Map<Boolean, Set<String>> profileStatusSets = Map.of(
 		Boolean.TRUE, ACTIVE_PROFILE_STATUS,
@@ -80,7 +87,8 @@ public class ProfileService {
 			WfaStatusRepository wfaStatusRepository,
 			WorkUnitRepository workUnitRepository,
 			ApplicationEventPublisher eventPublisher,
-			LanguageReferralTypeRepository languageReferralTypeRepository) {
+			LanguageReferralTypeRepository languageReferralTypeRepository,
+			LookupCodes lookupCodes) {
 		this.classificationRepository = classificationRepository;
 		this.profileRepository = profileRepository;
 		this.languageRepository = languageRepository;
@@ -92,6 +100,7 @@ public class ProfileService {
 		this.workUnitRepository = workUnitRepository;
 		this.eventPublisher = eventPublisher;
 		this.languageReferralTypeRepository = languageReferralTypeRepository;
+		this.userTypeCodes = lookupCodes.userTypes();
 	}
 
 	/**
@@ -111,13 +120,13 @@ public class ProfileService {
 			final var statusCodes = profileStatusSets.get(isActive);
 
 			profilesPage = (hrAdvisorId == null)
-				? profileRepository.findByProfileStatusCodeIn(statusCodes, pageable)
-				: profileRepository.findByProfileStatusCodeInAndHrAdvisorIdIs(statusCodes, hrAdvisorId, pageable);
+				? profileRepository.findAll(hasProfileStatusCodeIn(statusCodes), pageable)
+				: profileRepository.findAll(hasHrAdvisorId(hrAdvisorId).and(hasProfileStatusCodeIn(statusCodes)), pageable);
 		}
 		else {
 			profilesPage = (hrAdvisorId == null)
 				? profileRepository.findAll(pageable)
-				: profileRepository.findAllByHrAdvisorId(hrAdvisorId, pageable);
+				: profileRepository.findAll(hasHrAdvisorId(hrAdvisorId), pageable);
 		}
 
 		if (profilesPage != null && !profilesPage.isEmpty()) {
@@ -140,8 +149,8 @@ public class ProfileService {
 	 */
 	public List<ProfileEntity> getProfilesByEntraId(String entraId, Boolean isActive) {
 		final var profiles = (isActive != null)
-			? profileRepository.findByUserMicrosoftEntraIdIsAndProfileStatusCodeIn(entraId, profileStatusSets.get(isActive))
-			: profileRepository.findAllByUserMicrosoftEntraId(entraId);
+			? profileRepository.findAll(hasUserMicrosoftEntraId(entraId).and(hasProfileStatusCodeIn(profileStatusSets.get(isActive))))
+			: profileRepository.findAll(hasUserMicrosoftEntraId(entraId));
 
 		if (profiles != null && !profiles.isEmpty()) {
 			final var profileIds = profiles.stream()
@@ -171,9 +180,11 @@ public class ProfileService {
 	 * @return The new profile entity.
 	 */
 	public ProfileEntity createProfile(UserEntity user) {
+		final var incompleteStatus = profileStatusRepository.findByCode("INCOMPLETE").orElseThrow();
+
 		final var profile = profileRepository.save(ProfileEntity.builder()
 			.user(user)
-			.profileStatus(profileStatusRepository.findByCode("INCOMPLETE"))
+			.profileStatus(incompleteStatus)
 			.build());
 
 		eventPublisher.publishEvent(new ProfileCreateEvent(profile));
@@ -189,7 +200,8 @@ public class ProfileService {
 	 */
 	public void updateProfileStatus(ProfileEntity existingProfile, String statusCode) {
 		final var previousStatusId = existingProfile.getProfileStatus().getId();
-		final var newStatus = profileStatusRepository.findByCode(statusCode) ;
+		final var newStatus = profileStatusRepository.findByCode(statusCode)
+			.orElseThrow(asResourceNotFoundException("profileStatus", "code", statusCode));
 
 		existingProfile.setProfileStatus(newStatus);
 		final var updatedProfile = profileRepository.save(existingProfile);
@@ -217,7 +229,7 @@ public class ProfileService {
 
 		Optional.ofNullable(updateModel.hrAdvisorId()).ifPresent(id -> {
 			profile.setHrAdvisor(userService.getUserById(id)
-				.filter(user -> AppConstants.UserType.HR_ADVISOR.equals(user.getUserType().getCode()))
+				.filter(user -> userTypeCodes.hrAdvisor().equals(user.getUserType().getCode()))
 				.orElseThrow(asResourceConflictException("HR Advisor", id)));
 		});
 

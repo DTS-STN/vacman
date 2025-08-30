@@ -4,7 +4,7 @@ export default {
     form: 'Form',
     logout: 'Logout',
     profile: 'Profile',
-    title: 'Vacancy Management',
+    title: 'Vacancy Management System',
   },
   'nav': {
     'skip-to-content': 'Skip to main content',

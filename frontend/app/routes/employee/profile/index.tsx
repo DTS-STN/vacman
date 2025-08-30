@@ -317,8 +317,18 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
   return (
     <div className="space-y-8">
       <div className="space-y-4 py-8 text-white">
-        <StatusTag status={{ code: loaderData.profileStatus.code, name: loaderData.profileStatus.name }} />
-        <h1 className="mt-6 text-3xl font-semibold">{loaderData.name}</h1>
+        <StatusTag
+          status={{
+            code: loaderData.profileStatus.code,
+            name:
+              loaderData.profileStatus.code === PROFILE_STATUS_CODE.pending
+                ? t('app:profile.pending-status-employee')
+                : loaderData.profileStatus.name,
+          }}
+        />
+        <h1 id="wb-cont" tabIndex={-1} className="mt-6 text-3xl font-semibold">
+          {loaderData.name}
+        </h1>
         {loaderData.email && <p className="mt-1">{loaderData.email}</p>}
         <p className="font-normal text-[#9FA3AD]">
           {t('app:profile.last-updated', { date: browserTZ, name: loaderData.lastUpdatedBy })}

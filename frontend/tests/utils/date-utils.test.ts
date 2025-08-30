@@ -117,7 +117,7 @@ describe('date-utils', () => {
       const timeZone = 'America/New_York'; // UTC-4 at this time of year
       const zonedDate = toZonedDate(date, timeZone);
 
-      expect(zonedDate.toISOString()).toEqual('2024-03-15T10:00:00.000-04:00');
+      expect(zonedDate.toISOString()).toEqual('2024-03-15T06:00:00.000-04:00');
     });
 
     it('should convert a Date object to a zoned date', () => {

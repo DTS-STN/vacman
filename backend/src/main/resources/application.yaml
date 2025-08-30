@@ -285,6 +285,8 @@ application:
   entra-id:
     client-id: ea3a6648-7e77-445b-b777-486d26367ee8
     tenant-id: 9ed55846-8a81-4246-acd8-b1a01abfc0d1
+    roles:
+      hr-advisor: hr-advisor
   gcnotify:
     base-url: https://api.notification.canada.ca/v2/notifications
     connect-timeout: 30s
@@ -312,6 +314,16 @@ application:
     description: |
       This OpenAPI document describes the key areas where developers typically engage with the Vacancy Manager API.
     tos-url: https://www.canada.ca/en/transparency/terms.html
+
+codes:
+  profile-statuses:
+    approved: APPROVED
+    archived: ARCHIVED
+    incomplete: INCOMPLETE
+    pending: PENDING
+  user-types:
+    employee: employee
+    hr-advisor: HRA
 
 ---
 
