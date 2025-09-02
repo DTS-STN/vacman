@@ -14,7 +14,6 @@ import { getProvinceService } from '~/.server/domain/services/province-service';
 import { getRequestService } from '~/.server/domain/services/request-service';
 import { getSecurityClearanceService } from '~/.server/domain/services/security-clearance-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
-import { requirePrivacyConsentForOwnProfile } from '~/.server/utils/privacy-consent-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { BackLink } from '~/components/back-link';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
@@ -103,7 +102,6 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 
 export async function loader({ context, request, params }: Route.LoaderArgs) {
   requireAuthentication(context.session, request);
-  await requirePrivacyConsentForOwnProfile(context.session, request);
 
   const requestResult = await getRequestService().getRequestById(
     Number(params.requestId),
