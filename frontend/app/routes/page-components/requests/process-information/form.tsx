@@ -28,6 +28,7 @@ import { InputRadios } from '~/components/input-radios';
 import type { InputRadiosProps } from '~/components/input-radios';
 import { InputSelect } from '~/components/input-select';
 import { InputTextarea } from '~/components/input-textarea';
+import { PageTitle } from '~/components/page-title';
 import { EMPLOYMENT_TENURE, REQUIRE_OPTIONS, SELECTION_PROCESS_TYPE } from '~/domain/constants';
 import type { I18nRouteFile } from '~/i18n-routes';
 import type { Errors } from '~/routes/page-components/requests/validation.server';
@@ -173,7 +174,7 @@ export function ProcessInformationForm({
 
   return (
     <>
-      <h1 className="my-5 text-3xl font-semibold">{tApp('process-information.page-title')}</h1>
+      <PageTitle className="after:w-14">{tApp('process-information.page-title')}</PageTitle>
       <FormErrorSummary>
         <Form method="post" noValidate>
           <div className="space-y-6">

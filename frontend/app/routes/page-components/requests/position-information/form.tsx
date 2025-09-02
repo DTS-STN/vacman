@@ -25,6 +25,7 @@ import { InputLegend } from '~/components/input-legend';
 import type { InputRadiosProps } from '~/components/input-radios';
 import { InputRadios } from '~/components/input-radios';
 import { InputSelect } from '~/components/input-select';
+import { PageTitle } from '~/components/page-title';
 import { LANGUAGE_LEVEL, LANGUAGE_REQUIREMENT_CODES } from '~/domain/constants';
 import type { I18nRouteFile } from '~/i18n-routes';
 import type { Errors } from '~/routes/page-components/requests/validation.server';
@@ -119,7 +120,7 @@ export function PositionInformationForm({
 
   return (
     <>
-      <h1 className="my-5 text-3xl font-semibold">{t('position-information.page-title')}</h1>
+      <PageTitle className="after:w-14">{t('position-information.page-title')}</PageTitle>
       <FormErrorSummary>
         <Form method="post" noValidate>
           <div className="space-y-6">
