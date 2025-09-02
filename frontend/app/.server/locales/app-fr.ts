@@ -216,6 +216,7 @@ export default {
     'page-title': 'Tableau de bord du conseiller RH',
     'page-heading': 'Tableau de bord du conseiller RH',
     'employees': 'Employé-e-s',
+    'requests': 'Demandes',
   },
   'hr-advisor-employees-table': {
     'page-title': 'Employé-e-s',
