@@ -1,6 +1,7 @@
 import type { RouteHandle } from 'react-router';
 
-import { faUser } from '@fortawesome/free-solid-svg-icons';
+import { faUser } from '@fortawesome/free-regular-svg-icons';
+import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 import { useTranslation } from 'react-i18next';
 
 import type { Route } from './+types/index';
@@ -44,7 +45,12 @@ export default function EmployeeDashboard() {
       <PageTitle>{t('app:hr-advisor-dashboard.page-heading')}</PageTitle>
       <div className="grid gap-4">
         <DashboardCard file="routes/hr-advisor/employees.tsx" icon={faUser} title={t('app:hr-advisor-dashboard.employees')} />
-        <DashboardCard file="routes/hr-advisor/requests.tsx" icon={faUser} title={t('app:hr-advisor-dashboard.requests')} />
+        <DashboardCard
+          file="routes/hr-advisor/requests.tsx"
+          icon={faMagnifyingGlass}
+          iconFlip="horizontal"
+          title={t('app:hr-advisor-dashboard.requests')}
+        />
       </div>
     </>
   );
