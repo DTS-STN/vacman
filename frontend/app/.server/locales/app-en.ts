@@ -213,6 +213,7 @@ export default {
     'page-title': 'HR advisor dashboard',
     'page-heading': 'HR advisor dashboard',
     'employees': 'Employees',
+    'requests': 'Requests',
   },
   'hr-advisor-employees-table': {
     'page-title': 'Employees',
