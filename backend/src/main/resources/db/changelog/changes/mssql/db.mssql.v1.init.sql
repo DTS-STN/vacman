@@ -1,6 +1,6 @@
 --liquibase formatted sql
 
---changeset system:mssql-modify
+--changeset system:mssql-modify dbms:mssql
 EXEC sp_addextendedproperty 'MS_Description' , 'This code table contains information related to the reasons for appointments that are made through a Non-Advertised Process. It specifically applies to appointments categorized as either External or Internal Non-Advertised.' , 'USER' , 'dbo' , 'TABLE' , 'CD_APPOINTMENT_NON_ADVERTISED' ;
 
 ALTER TABLE CD_APPOINTMENT_NON_ADVERTISED ALTER COLUMN ID ADD NOT FOR REPLICATION;
