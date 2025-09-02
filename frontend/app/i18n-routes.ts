@@ -206,6 +206,78 @@ export const i18nRoutes = [
         },
       },
       {
+        id: 'HRAD-0007',
+        file: 'routes/hr-advisor/requests.tsx',
+        paths: {
+          en: '/en/hr-advisor/requests',
+          fr: '/fr/hr-advisor/demandes',
+        },
+      },
+      {
+        id: 'HRAD-0008',
+        file: 'routes/hr-advisor/request/index.tsx',
+        paths: {
+          en: '/en/hr-advisor/request/:requestId',
+          fr: '/fr/hr-advisor/demande/:requestId',
+        },
+      },
+      {
+        id: 'HRAD-0009',
+        file: 'routes/hr-advisor/request/process-information.tsx',
+        paths: {
+          en: '/en/hr-advisor/request/:requestId/process-information',
+          fr: '/fr/hr-advisor/demande/:requestId/informations-processus',
+        },
+      },
+      {
+        id: 'HRAD-0010',
+        file: 'routes/hr-advisor/request/position-information.tsx',
+        paths: {
+          en: '/en/hr-advisor/request/:requestId/position-information',
+          fr: '/fr/hr-advisor/demande/:requestId/informations-poste',
+        },
+      },
+      {
+        id: 'HRAD-0011',
+        file: 'routes/hr-advisor/request/somc-conditions.tsx',
+        paths: {
+          en: '/en/hr-advisor/request/:requestId/somc-conditions',
+          fr: '/fr/hr-advisor/demande/:requestId/cmc-conditions',
+        },
+      },
+      {
+        id: 'HRAD-0012',
+        file: 'routes/hr-advisor/request/submission-details.tsx',
+        paths: {
+          en: '/en/hr-advisor/request/:requestId/submission-details',
+          fr: '/fr/hr-advisor/demande/:requestId/details-soumission',
+        },
+      },
+      {
+        id: 'HRAD-0013',
+        file: 'routes/hr-advisor/request/matches.tsx',
+        paths: {
+          en: '/en/hr-advisor/request/:requestId/matches',
+          fr: '/fr/hr-advisor/demande/:requestId/correspondances',
+        },
+      },
+      {
+        id: 'HRAD-0014',
+        file: 'routes/hr-advisor/request/profile.tsx',
+        paths: {
+          en: '/en/hr-advisor/request/:requestId/profile/:profileId',
+          fr: '/fr/hr-advisor/demande/:requestId/profil/:profileId',
+        },
+      },
+      {
+        id: 'HRAD-0015',
+        file: 'routes/hr-advisor/request/match.tsx',
+        paths: {
+          en: '/en/hr-advisor/request/:requestId/match/:profileId',
+          fr: '/fr/hr-advisor/demande/:requestId/correspondance/:profileId',
+        },
+      },
+      {
         id: 'HIRE-0001',
         file: 'routes/hiring-manager/index.tsx',
         paths: {
