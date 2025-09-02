@@ -147,8 +147,8 @@ type CardIconProps = OmitStrict<ComponentProps<'div'>, 'children'> & {
  */
 export function CardIcon({ className, icon, iconClassName, iconFlip, ...props }: CardIconProps) {
   return (
-    <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-slate-700 sm:size-12" {...props}>
-      <FontAwesomeIcon icon={icon} flip={iconFlip} className={cn('size-4 text-white sm:size-5', iconClassName)} />
+    <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-blue-100 sm:size-12" {...props}>
+      <FontAwesomeIcon icon={icon} flip={iconFlip} className={cn('size-4 text-blue-600 sm:size-5', iconClassName)} />
     </span>
   );
 }

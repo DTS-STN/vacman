@@ -1,6 +1,6 @@
 import type { RouteHandle } from 'react-router';
 
-import { faUser } from '@fortawesome/free-solid-svg-icons';
+import { faUser } from '@fortawesome/free-regular-svg-icons';
 import { useTranslation } from 'react-i18next';
 
 import type { Route } from './+types/index';
