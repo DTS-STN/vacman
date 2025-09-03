@@ -240,6 +240,7 @@ export default {
     'page-heading': 'Tableau de bord du responsable du recrutement',
     'requests': 'Demandes',
   },
+  'referral-request': 'Demande de présentation de candidatures',
   'position-information': {
     'page-title': 'Informations sur le poste',
     'position-number': 'Numéro du poste',

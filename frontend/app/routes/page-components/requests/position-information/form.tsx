@@ -105,7 +105,9 @@ export function PositionInformationForm({
 
   return (
     <>
-      <PageTitle className="after:w-14">{t('position-information.page-title')}</PageTitle>
+      <PageTitle className="after:w-14" subTitle={t('referral-request')}>
+        {t('position-information.page-title')}
+      </PageTitle>
       <FormErrorSummary>
         <Form method="post" noValidate>
           <div className="space-y-6">

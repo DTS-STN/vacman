@@ -237,6 +237,7 @@ export default {
     'page-heading': 'Hiring manager dashboard',
     'requests': 'Requests',
   },
+  'referral-request': 'Referral request',
   'position-information': {
     'page-title': 'Position information',
     'position-number': 'Position number',
