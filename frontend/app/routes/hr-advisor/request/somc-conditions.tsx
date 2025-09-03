@@ -1,3 +1,101 @@
+import type { RouteHandle } from 'react-router';
+import { data } from 'react-router';
+
+import { useTranslation } from 'react-i18next';
+import * as v from 'valibot';
+
 import type { Route } from './+types/somc-conditions';
 
-export default function HiringManagerRequestSomcConditions({ loaderData, actionData, params }: Route.ComponentProps) {}
+import { getRequestService } from '~/.server/domain/services/request-service';
+import { requireAuthentication } from '~/.server/utils/auth-utils';
+import { i18nRedirect } from '~/.server/utils/route-utils';
+import { BackLink } from '~/components/back-link';
+import { HttpStatusCodes } from '~/errors/http-status-codes';
+import { getTranslation } from '~/i18n-config.server';
+import { handle as parentHandle } from '~/routes/layout';
+import { SomcConditionsForm } from '~/routes/page-components/requests/somc-conditions/form';
+import { somcConditionsSchema } from '~/routes/page-components/requests/validation.server';
+import { formString } from '~/utils/string-utils';
+
+export const handle = {
+  i18nNamespace: [...parentHandle.i18nNamespace],
+} as const satisfies RouteHandle;
+
+export function meta({ loaderData }: Route.MetaArgs) {
+  return [{ title: loaderData.documentTitle }];
+}
+
+export async function action({ context, params, request }: Route.ActionArgs) {
+  requireAuthentication(context.session, request);
+
+  const formData = await request.formData();
+  const parseResult = v.safeParse(somcConditionsSchema, {
+    englishStatementOfMerit: formString(formData.get('englishStatementOfMerit')),
+    frenchStatementOfMerit: formString(formData.get('frenchStatementOfMerit')),
+  });
+
+  if (!parseResult.success) {
+    return data(
+      { errors: v.flatten<typeof somcConditionsSchema>(parseResult.issues).nested },
+      { status: HttpStatusCodes.BAD_REQUEST },
+    );
+  }
+
+  const updateResult = await getRequestService().updateRequestById(
+    Number(params.requestId),
+    parseResult.output,
+    context.session.authState.accessToken,
+  );
+
+  if (updateResult.isErr()) {
+    throw updateResult.unwrapErr();
+  }
+
+  return i18nRedirect('routes/hr-advisor/request/index.tsx', request, { params });
+}
+
+export async function loader({ context, params, request }: Route.LoaderArgs) {
+  requireAuthentication(context.session, request);
+
+  const { t } = await getTranslation(request, handle.i18nNamespace);
+
+  const requestResult = await getRequestService().getRequestById(
+    Number(params.requestId),
+    context.session.authState.accessToken,
+  );
+  const currentRequest = requestResult.into();
+
+  return {
+    documentTitle: t('app:somc-conditions.page-title'),
+    defaultValues: {
+      englishStatementOfMerit: currentRequest?.englishStatementOfMerit,
+      frenchStatementOfMerit: currentRequest?.frenchStatementOfMerit,
+    },
+  };
+}
+
+export default function HiringManagerRequestSomcConditions({ loaderData, actionData, params }: Route.ComponentProps) {
+  const { t } = useTranslation(handle.i18nNamespace);
+  const errors = actionData?.errors;
+
+  return (
+    <>
+      <BackLink
+        aria-label={t('app:hiring-manager-requests.back')}
+        className="mt-6"
+        file="routes/hr-advisor/request/index.tsx"
+        params={params}
+      >
+        {t('app:hiring-manager-requests.back')}
+      </BackLink>
+      <div className="max-w-prose">
+        <SomcConditionsForm
+          cancelLink="routes/hr-advisor/request/index.tsx"
+          formErrors={errors}
+          formValues={loaderData.defaultValues}
+          params={params}
+        />
+      </div>
+    </>
+  );
+}
