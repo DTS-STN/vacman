@@ -235,6 +235,10 @@ export default {
     'table-updated-my-employees': 'Tableau mis à jour : affichage de Mes employé-e-s',
     'table-updated-all-employees': 'Tableau mis à jour : affichage de Liste complète des employé-e-s',
   },
+  'hr-advisor-requests': {
+    'page-title': 'Demandes',
+    'back': "Retour à l'information sur la demande",
+  },
   'hiring-manager-dashboard': {
     'page-title': 'Tableau de bord du responsable du recrutement',
     'page-heading': 'Tableau de bord du responsable du recrutement',
