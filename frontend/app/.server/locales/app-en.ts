@@ -276,6 +276,20 @@ export default {
   },
   'hiring-manager-requests': {
     'page-title': 'Requests',
+    'back': 'Back to request details',
+  },
+  'somc-conditions': {
+    'page-title': 'Statement of merit criteria and conditions of employment',
+    'english-somc-label': 'English statement of merit criteria of employment',
+    'english-somc-help-message': 'Please enter the full English criteria here',
+    'french-somc-label': 'French statement of merit criteria of employment',
+    'french-somc-help-message': 'Please enter the full French criteria here',
+    'errors': {
+      'english-somc-required': 'English statement of merit criteria is required',
+      'french-somc-required': 'French statement of merit criteria is required',
+    },
+  },
+  'requests-tables': {
     'create-request': 'Create request',
     'active-requests': 'Active requests',
     'no-active-requests': "You don't have any active requests at the moment.",
@@ -290,16 +304,5 @@ export default {
     'view': 'View',
     'view-link': 'View request with ID {{requestId}}',
     'next-page': 'Next',
-  },
-  'somc-conditions': {
-    'page-title': 'Statement of merit criteria and conditions of employment',
-    'english-somc-label': 'English statement of merit criteria of employment',
-    'english-somc-help-message': 'Please enter the full English criteria here',
-    'french-somc-label': 'French statement of merit criteria of employment',
-    'french-somc-help-message': 'Please enter the full French criteria here',
-    'errors': {
-      'english-somc-required': 'English statement of merit criteria is required',
-      'french-somc-required': 'French statement of merit criteria is required',
-    },
   },
 };
