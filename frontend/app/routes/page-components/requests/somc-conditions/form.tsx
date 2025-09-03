@@ -31,7 +31,9 @@ export function SomcConditionsForm({ cancelLink, formValues, formErrors, params 
 
   return (
     <>
-      <PageTitle className="after:w-14">{t('somc-conditions.page-title')}</PageTitle>
+      <PageTitle className="after:w-14" subTitle={t('referral-request')}>
+        {t('somc-conditions.page-title')}
+      </PageTitle>
       <FormErrorSummary>
         <Form method="post" noValidate>
           <div className="space-y-6">
