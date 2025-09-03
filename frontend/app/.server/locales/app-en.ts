@@ -232,6 +232,10 @@ export default {
     'table-updated-my-employees': 'Table updated: showing My Employees',
     'table-updated-all-employees': 'Table updated: showing All Employees',
   },
+  'hr-advisor-requests': {
+    'page-title': 'Requests',
+    'back': 'Back to request details',
+  },
   'hiring-manager-dashboard': {
     'page-title': 'Hiring manager dashboard',
     'page-heading': 'Hiring manager dashboard',
