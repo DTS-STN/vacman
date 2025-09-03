@@ -1,10 +1,9 @@
 package ca.gov.dtsstn.vacman.api.json;
 
-import static com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES;
-
 import java.util.Set;
 import java.util.function.Function;
 
+import javax.json.JsonException;
 import javax.json.JsonMergePatch;
 import javax.json.JsonPatch;
 import javax.json.JsonStructure;
@@ -15,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.validation.ConstraintViolation;
@@ -35,7 +35,6 @@ public class JsonPatchProcessor {
 	private static final Logger log = LoggerFactory.getLogger(JsonPatchProcessor.class);
 
 	private final ObjectMapper objectMapper = new ObjectMapper()
-		.disable(FAIL_ON_UNKNOWN_PROPERTIES)
 		.findAndRegisterModules();
 
 	private final Validator validator;
@@ -86,18 +85,24 @@ public class JsonPatchProcessor {
 		Assert.notNull(object, "object is required; it must not be null");
 		Assert.notNull(patchFn, "patchFn is required; it must not be null");
 
-		log.debug("Patching object of type {}", object.getClass().getSimpleName());
+		try {
+			log.debug("Patching object of type {}", object.getClass().getSimpleName());
+			final var copy = objectMapper.convertValue(object, object.getClass());
+			final var json = objectMapper.writeValueAsString(patchFn.apply(copy));
+			final var patched = objectMapper.readValue(json, object.getClass());
 
-		// copy the existing data into a new object that will be patched and validated..
-		final Object objectCopy = objectMapper.convertValue(object, object.getClass());
-		final Object patchedObjectCopy = objectMapper.convertValue(patchFn.apply(objectCopy), object.getClass());
+			log.debug("Performing JSON patch validation");
+			final Set<ConstraintViolation<Object>> constraintViolations = validator.validate(patched);
+			if (constraintViolations.isEmpty() == false) { throw new ConstraintViolationException(constraintViolations); }
+			log.debug("No validation errors for {}", object.getClass().getSimpleName());
 
-		log.debug("Performing JSON patch validation");
-		final Set<ConstraintViolation<Object>> constraintViolations = validator.validate(patchedObjectCopy);
-		if (constraintViolations.isEmpty() == false) { throw new ConstraintViolationException(constraintViolations); }
-		log.debug("No validation errors for {}", object.getClass().getSimpleName());
-
-		return (T) patchedObjectCopy;
+			return (T) patched;
+		}
+		// JsonException can be thrown by Johnzon
+		// JsonProcessingException can be thrown by Jackson
+		catch (final JsonException | JsonProcessingException exception) {
+			throw new JsonPatchException("An error occurred while JSON-Patching", exception);
+		}
 	}
 
 }
