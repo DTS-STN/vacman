@@ -120,7 +120,16 @@ public class RequestsController {
 	@Operation(summary = "Delete a request by ID.")
 	@PreAuthorize("hasAuthority('hr-advisor') || hasPermission(#id, 'REQUEST', 'DELETE')")
 	public ResponseEntity<Void> deleteRequestById(@PathVariable Long id) {
-		throw new UnsupportedOperationException("not yet implemented");
+		log.info("Received request to delete request; ID: [{}]", id);
+
+		final var request = requestService.getRequestById(id)
+			.orElseThrow(asResourceNotFoundException("request", id));
+
+		log.trace("Found request: [{}]", request);
+
+		requestService.deleteRequest(request);
+
+		return ResponseEntity.noContent().build();
 	}
 
 	@ApiResponses.Ok

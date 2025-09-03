@@ -2,6 +2,7 @@ package ca.gov.dtsstn.vacman.api.service;
 
 import static ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException.asResourceNotFoundException;
 
+import ca.gov.dtsstn.vacman.api.web.exception.ResourceConflictException;
 import ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException;
 
 import java.util.List;
@@ -178,6 +179,20 @@ public class RequestService {
 		final var updatedEntity = requestRepository.save(request);
 
 		return updatedEntity;
+	}
+
+	/**
+	 * Delete a request by ID. The request can only be deleted if its status is "DRAFT".
+	 *
+	 * @param request The request entity to be deleted.
+	 * @throws ResourceConflictException When the request status is not "DRAFT".
+	 */
+	public void deleteRequest(RequestEntity request) {
+		if (!"DRAFT".equals(request.getRequestStatus().getCode())) {
+			throw new ResourceConflictException("Request with ID=[" + request.getId() + "] cannot be deleted because its status is not DRAFT");
+		}
+
+		requestRepository.delete(request);
 	}
 
 }
