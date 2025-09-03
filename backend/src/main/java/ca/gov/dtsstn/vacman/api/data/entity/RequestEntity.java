@@ -399,6 +399,10 @@ public class RequestEntity extends AbstractBaseEntity implements Ownable {
 		return languageProfileFr;
 	}
 
+	public void setLanguageProfileFr(String languageProfileFr) {
+		this.languageProfileFr = languageProfileFr;
+	}
+
 	public LanguageRequirementEntity getLanguageRequirement() {
 		return languageRequirement;
 	}
