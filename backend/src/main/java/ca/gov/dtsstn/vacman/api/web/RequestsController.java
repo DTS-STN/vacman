@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -67,8 +68,35 @@ public class RequestsController {
 	@ApiResponses.BadRequestError
 	@PreAuthorize("hasAuthority('hr-advisor')")
 	@Operation(summary = "Get hiring requests with pagination.")
-	public ResponseEntity<PagedModel<RequestReadModel>> getAllRequests(@ParameterObject Pageable pageable) {
-		throw new UnsupportedOperationException("not yet implemented");
+	public ResponseEntity<PagedModel<RequestReadModel>> getAllRequests(
+			@ParameterObject Pageable pageable,
+			@RequestParam(name = "hr-advisor", required = false) String hrAdvisorParam) {
+
+		Long hrAdvisorId = null;
+
+		if (hrAdvisorParam != null) {
+			if ("me".equalsIgnoreCase(hrAdvisorParam)) {
+				final var entraId = SecurityUtils.getCurrentUserEntraId()
+					.orElseThrow(asEntraIdUnauthorizedException());
+
+				final var currentUser = userService.getUserByMicrosoftEntraId(entraId)
+					.orElseThrow(asUserResourceNotFoundException("microsoftEntraId", entraId));
+
+				hrAdvisorId = currentUser.getId();
+			} else {
+				try {
+					hrAdvisorId = Long.parseLong(hrAdvisorParam);
+				} catch (NumberFormatException e) {
+					throw new IllegalArgumentException("Invalid hr-advisor parameter. Must be 'me' or a valid user ID.");
+				}
+			}
+		}
+
+		final var requests = requestService.getAllRequests(pageable, hrAdvisorId);
+
+		final var requestModels = requests.map(requestModelMapper::toModel);
+
+		return ResponseEntity.ok(new PagedModel<>(requestModels));
 	}
 
 	@ApiResponses.Ok
