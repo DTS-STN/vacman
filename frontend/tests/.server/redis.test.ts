@@ -1,11 +1,18 @@
-import Redis from 'ioredis';
+import { createClient, createSentinel } from 'redis';
 import { describe, expect, it, vi } from 'vitest';
 
 import { serverEnvironment } from '~/.server/environment';
 import { getRedisClient } from '~/.server/redis';
 
-vi.mock('ioredis', () => ({
-  default: vi.fn().mockImplementation(() => ({
+vi.mock('redis', () => ({
+  createClient: vi.fn(() => ({
+    isOpen: false,
+    connect: vi.fn().mockReturnThis(),
+    on: vi.fn().mockReturnThis(),
+  })),
+  createSentinel: vi.fn(() => ({
+    isOpen: false,
+    connect: vi.fn(() => Promise.resolve()),
     on: vi.fn().mockReturnThis(),
   })),
 }));
@@ -26,42 +33,55 @@ vi.mock('~/.server/utils/instance-registry', () => ({
   singleton: vi.fn((_, factory) => factory()),
 }));
 
-describe('Redis Client Initialization', () => {
-  describe('getRedisClient', () => {
-    it('should create a Redis client in standalone mode', () => {
-      vi.mocked(serverEnvironment).REDIS_CONNECTION_TYPE = 'standalone';
+describe('getRedisClient', () => {
+  it('should create a Redis client in standalone mode', async () => {
+    vi.mocked(serverEnvironment).REDIS_CONNECTION_TYPE = 'standalone';
 
-      const redisClient = getRedisClient();
+    const redisClient = await getRedisClient();
 
-      expect(Redis).toHaveBeenCalledWith({
-        host: 'localhost',
-        port: 6379,
-        username: 'user',
-        password: 'password',
-        commandTimeout: 10000,
-        retryStrategy: expect.any(Function),
-      });
-
-      expect(redisClient.on).toHaveBeenCalledWith('connect', expect.any(Function));
-      expect(redisClient.on).toHaveBeenCalledWith('error', expect.any(Function));
+    expect(createClient).toHaveBeenCalledWith({
+      url: 'redis://localhost:6379',
+      username: 'user',
+      password: 'password',
+      commandOptions: {
+        timeout: 10000,
+      },
+      socket: {
+        reconnectStrategy: expect.any(Function),
+      },
     });
 
-    it('should create a Redis client in sentinel mode', () => {
-      vi.mocked(serverEnvironment).REDIS_CONNECTION_TYPE = 'sentinel';
+    expect(redisClient.connect).toHaveBeenCalled();
+    expect(redisClient.on).toHaveBeenCalledWith('connect', expect.any(Function));
+    expect(redisClient.on).toHaveBeenCalledWith('ready', expect.any(Function));
+    expect(redisClient.on).toHaveBeenCalledWith('reconnecting', expect.any(Function));
+    expect(redisClient.on).toHaveBeenCalledWith('error', expect.any(Function));
+  });
 
-      const redisClient = getRedisClient();
+  it('should create a Redis client in sentinel mode', async () => {
+    vi.mocked(serverEnvironment).REDIS_CONNECTION_TYPE = 'sentinel';
 
-      expect(Redis).toHaveBeenCalledWith({
-        name: 'mymaster',
-        sentinels: [{ host: 'localhost', port: 6379 }],
+    const redisClient = await getRedisClient();
+
+    expect(createSentinel).toHaveBeenCalledWith({
+      name: 'mymaster',
+      sentinelRootNodes: [{ host: 'localhost', port: 6379 }],
+      nodeClientOptions: {
         username: 'user',
         password: 'password',
-        commandTimeout: 10000,
-        retryStrategy: expect.any(Function),
-      });
-
-      expect(redisClient.on).toHaveBeenCalledWith('connect', expect.any(Function));
-      expect(redisClient.on).toHaveBeenCalledWith('error', expect.any(Function));
+        commandOptions: {
+          timeout: 10000,
+        },
+        socket: {
+          reconnectStrategy: expect.any(Function),
+        },
+      },
     });
+
+    expect(redisClient.connect).toHaveBeenCalled();
+    expect(redisClient.on).toHaveBeenCalledWith('connect', expect.any(Function));
+    expect(redisClient.on).toHaveBeenCalledWith('ready', expect.any(Function));
+    expect(redisClient.on).toHaveBeenCalledWith('reconnecting', expect.any(Function));
+    expect(redisClient.on).toHaveBeenCalledWith('error', expect.any(Function));
   });
 });
