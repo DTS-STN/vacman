@@ -19,7 +19,7 @@ import { DataTable, DataTableColumnHeader, DataTableColumnHeaderWithOptions } fr
 import { InlineLink } from '~/components/links';
 import { LoadingButton } from '~/components/loading-button';
 import { PageTitle } from '~/components/page-title';
-import { ACTIVE_REQUEST_STATUS_IDS, ARCHIVED_REQUEST_STATUS_IDS } from '~/domain/constants';
+import { REQUEST_CATEGORY, REQUEST_STATUSES } from '~/domain/constants';
 import { useFetcherState } from '~/hooks/use-fetcher-state';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
@@ -47,19 +47,33 @@ export async function loader({ context, request }: Route.LoaderArgs) {
 
   const { t, lang } = await getTranslation(request, handle.i18nNamespace);
 
-  const requestStatuses = await getRequestStatusService().listAllLocalized(lang);
-
   const requestsResult = await getRequestService().getCurrentUserRequests(context.session.authState.accessToken);
   const requests = requestsResult.into()?.content ?? [];
 
-  const activeRequests = requests.filter((req) => req.status && ACTIVE_REQUEST_STATUS_IDS.includes(req.status.id));
-  const archivedRequests = requests.filter((req) => req.status && ARCHIVED_REQUEST_STATUS_IDS.includes(req.status.id));
+  const activeRequests = requests.filter((req) =>
+    REQUEST_STATUSES.some((s) => s.code === req.status?.code && s.category === REQUEST_CATEGORY.active),
+  );
+
+  const archivedRequests = requests.filter((req) =>
+    REQUEST_STATUSES.some((s) => s.code === req.status?.code && s.category === REQUEST_CATEGORY.inactive),
+  );
+
+  const requestStatuses = await getRequestStatusService().listAllLocalized(lang);
+
+  const activeRequestNames = requestStatuses
+    .filter((req) => REQUEST_STATUSES.some((s) => s.code === req.code && s.category === REQUEST_CATEGORY.active))
+    .map(({ name }) => name);
+
+  const inactiveRequestNames = requestStatuses
+    .filter((req) => REQUEST_STATUSES.some((s) => s.code === req.code && s.category === REQUEST_CATEGORY.active))
+    .map(({ name }) => name);
 
   return {
     documentTitle: t('app:hiring-manager-requests.page-title'),
     activeRequests,
     archivedRequests,
-    requestStatusNames: requestStatuses.map(({ name }) => name),
+    activeRequestNames,
+    inactiveRequestNames,
     baseTimeZone: serverEnvironment.BASE_TIMEZONE,
     lang,
   };
@@ -83,67 +97,73 @@ export default function HiringManagerRequests({ loaderData, params }: Route.Comp
     [browserTZ, loaderData.baseTimeZone],
   );
 
-  const columns: ColumnDef<RequestReadModel & { classification?: LookupModel; requestStatus?: LocalizedLookupModel }>[] = [
-    {
-      accessorKey: 'id',
-      header: ({ column }) => <DataTableColumnHeader column={column} title={t('app:hiring-manager-requests.requestId')} />,
-      cell: (info) => <p>{info.getValue() as string}</p>,
-    },
-    {
-      accessorKey: 'classification.id',
-      header: ({ column }) => <DataTableColumnHeader column={column} title={t('app:hiring-manager-requests.classification')} />,
-      cell: (info) => <p>{info.row.original.classification?.code}</p>,
-    },
-    {
-      accessorKey: 'dateUpdated',
-      header: ({ column }) => <DataTableColumnHeader column={column} title={t('app:hiring-manager-requests.updated')} />,
-      cell: (info) => {
-        const lastModifiedDate = info.row.original.lastModifiedDate;
-        const userUpdated = info.row.original.lastModifiedBy ?? 'Unknown User';
-        const dateUpdated = formatDateYMD(lastModifiedDate);
-        return <p className="text-neutral-600">{`${dateUpdated}: ${userUpdated}`}</p>;
+  function createColumns(
+    isActive: boolean,
+  ): ColumnDef<RequestReadModel & { classification?: LookupModel; requestStatus?: LocalizedLookupModel }>[] {
+    return [
+      {
+        accessorKey: 'id',
+        header: ({ column }) => <DataTableColumnHeader column={column} title={t('app:hiring-manager-requests.requestId')} />,
+        cell: (info) => <p>{info.getValue() as string}</p>,
       },
-    },
-    {
-      accessorKey: 'requestStatus.id',
-      accessorFn: (row) => row.requestStatus?.name,
-      header: ({ column }) => (
-        <DataTableColumnHeaderWithOptions
-          column={column}
-          title={t('app:hiring-manager-requests.status')}
-          options={loaderData.requestStatusNames}
-        />
-      ),
-      cell: (info) => {
-        const status = info.row.original.status;
-        return status && statusTag(status, loaderData.lang);
+      {
+        accessorKey: 'classification.id',
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title={t('app:hiring-manager-requests.classification')} />
+        ),
+        cell: (info) => <p>{info.row.original.classification?.code}</p>,
       },
-      filterFn: (row, columnId, filterValue: string[]) => {
-        const status = row.getValue(columnId) as string;
-        return filterValue.length === 0 || filterValue.includes(status);
+      {
+        accessorKey: 'dateUpdated',
+        header: ({ column }) => <DataTableColumnHeader column={column} title={t('app:hiring-manager-requests.updated')} />,
+        cell: (info) => {
+          const lastModifiedDate = info.row.original.lastModifiedDate;
+          const userUpdated = info.row.original.lastModifiedBy ?? 'Unknown User';
+          const dateUpdated = formatDateYMD(lastModifiedDate);
+          return <p className="text-neutral-600">{`${dateUpdated}: ${userUpdated}`}</p>;
+        },
       },
-      enableColumnFilter: true,
-    },
-    {
-      header: t('app:hiring-manager-requests.action'),
-      id: 'action',
-      cell: (info) => {
-        const requestId = info.row.original.id.toString();
-        return (
-          <InlineLink
-            className="text-sky-800 no-underline decoration-slate-400 decoration-2 hover:underline"
-            file="routes/hiring-manager/request/index.tsx"
-            params={{ requestId }}
-            aria-label={t('app:hiring-manager-requests.view-link', {
-              requestId,
-            })}
-          >
-            {t('app:hiring-manager-requests.view')}
-          </InlineLink>
-        );
+      {
+        accessorKey: 'requestStatus.id',
+        accessorFn: (row) => row.requestStatus?.name,
+        header: ({ column }) => (
+          <DataTableColumnHeaderWithOptions
+            column={column}
+            title={t('app:hiring-manager-requests.status')}
+            options={isActive ? loaderData.activeRequestNames : loaderData.inactiveRequestNames}
+          />
+        ),
+        cell: (info) => {
+          const status = info.row.original.status;
+          return status && statusTag(status, loaderData.lang);
+        },
+        filterFn: (row, columnId, filterValue: string[]) => {
+          const status = row.getValue(columnId) as string;
+          return filterValue.length === 0 || filterValue.includes(status);
+        },
+        enableColumnFilter: true,
       },
-    },
-  ];
+      {
+        header: t('app:hiring-manager-requests.action'),
+        id: 'action',
+        cell: (info) => {
+          const requestId = info.row.original.id.toString();
+          return (
+            <InlineLink
+              className="text-sky-800 no-underline decoration-slate-400 decoration-2 hover:underline"
+              file="routes/hiring-manager/request/index.tsx"
+              params={{ requestId }}
+              aria-label={t('app:hiring-manager-requests.view-link', {
+                requestId,
+              })}
+            >
+              {t('app:hiring-manager-requests.view')}
+            </InlineLink>
+          );
+        },
+      },
+    ];
+  }
 
   return (
     <div className="mb-8 space-y-4">
@@ -160,7 +180,7 @@ export default function HiringManagerRequests({ loaderData, params }: Route.Comp
         {loaderData.activeRequests.length === 0 ? (
           <div>{t('app:hiring-manager-requests.no-active-requests')}</div>
         ) : (
-          <DataTable columns={columns} data={loaderData.activeRequests} />
+          <DataTable columns={createColumns(true)} data={loaderData.activeRequests} />
         )}
       </section>
 
@@ -169,7 +189,7 @@ export default function HiringManagerRequests({ loaderData, params }: Route.Comp
         {loaderData.archivedRequests.length === 0 ? (
           <div>{t('app:hiring-manager-requests.no-archived-requests')}</div>
         ) : (
-          <DataTable columns={columns} data={loaderData.archivedRequests} />
+          <DataTable columns={createColumns(false)} data={loaderData.archivedRequests} />
         )}
       </section>
     </div>
