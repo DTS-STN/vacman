@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -67,8 +68,35 @@ public class RequestsController {
 	@ApiResponses.BadRequestError
 	@PreAuthorize("hasAuthority('hr-advisor')")
 	@Operation(summary = "Get hiring requests with pagination.")
-	public ResponseEntity<PagedModel<RequestReadModel>> getAllRequests(@ParameterObject Pageable pageable) {
-		throw new UnsupportedOperationException("not yet implemented");
+	public ResponseEntity<PagedModel<RequestReadModel>> getAllRequests(
+			@ParameterObject Pageable pageable,
+			@RequestParam(name = "hr-advisor", required = false) String hrAdvisorParam) {
+
+		Long hrAdvisorId = null;
+
+		if (hrAdvisorParam != null) {
+			if ("me".equalsIgnoreCase(hrAdvisorParam)) {
+				final var entraId = SecurityUtils.getCurrentUserEntraId()
+					.orElseThrow(asEntraIdUnauthorizedException());
+
+				final var currentUser = userService.getUserByMicrosoftEntraId(entraId)
+					.orElseThrow(asUserResourceNotFoundException("microsoftEntraId", entraId));
+
+				hrAdvisorId = currentUser.getId();
+			} else {
+				try {
+					hrAdvisorId = Long.parseLong(hrAdvisorParam);
+				} catch (NumberFormatException e) {
+					throw new IllegalArgumentException("Invalid hr-advisor parameter. Must be 'me' or a valid user ID.");
+				}
+			}
+		}
+
+		final var requests = requestService.getAllRequests(pageable, hrAdvisorId);
+
+		final var requestModels = requests.map(requestModelMapper::toModel);
+
+		return ResponseEntity.ok(new PagedModel<>(requestModels));
 	}
 
 	@ApiResponses.Ok
@@ -120,7 +148,16 @@ public class RequestsController {
 	@Operation(summary = "Delete a request by ID.")
 	@PreAuthorize("hasAuthority('hr-advisor') || hasPermission(#id, 'REQUEST', 'DELETE')")
 	public ResponseEntity<Void> deleteRequestById(@PathVariable Long id) {
-		throw new UnsupportedOperationException("not yet implemented");
+		log.info("Received request to delete request; ID: [{}]", id);
+
+		final var request = requestService.getRequestById(id)
+			.orElseThrow(asResourceNotFoundException("request", id));
+
+		log.trace("Found request: [{}]", request);
+
+		requestService.deleteRequest(request);
+
+		return ResponseEntity.noContent().build();
 	}
 
 	@ApiResponses.Ok
@@ -145,8 +182,17 @@ public class RequestsController {
 	@ApiResponses.UnprocessableEntityError
 	@Operation(summary = "Update a request by ID.")
 	@PreAuthorize("hasAuthority('hr-advisor') || hasPermission(#id, 'REQUEST', 'UPDATE')")
-	public ResponseEntity<RequestReadModel> updateRequest(@PathVariable Long id, @Valid @RequestBody RequestUpdateModel request) {
-		throw new UnsupportedOperationException("not yet implemented");
+	public ResponseEntity<RequestReadModel> updateRequest(@PathVariable Long id, @Valid @RequestBody RequestUpdateModel updateModel) {
+		log.info("Received request to update request; ID: [{}]", id);
+
+		final var request = requestService.getRequestById(id)
+			.orElseThrow(asResourceNotFoundException("request", id));
+
+		log.trace("Found request: [{}]", request);
+
+		final var updatedEntity = requestService.updateRequest(updateModel, request);
+
+		return ResponseEntity.ok(requestModelMapper.toModel(updatedEntity));
 	}
 
 	@ApiResponses.Ok
