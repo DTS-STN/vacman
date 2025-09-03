@@ -9,6 +9,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import static ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException.asResourceNotFoundException;
@@ -119,6 +123,23 @@ public class RequestService {
 			.filter(request -> request.getOwnerId().map(id -> id.equals(userId)).orElse(false)
 				|| request.getDelegateIds().contains(userId))
 			.collect(Collectors.toList());
+	}
+
+	/**
+	 * Get all requests, optionally filtered by HR advisor ID.
+	 *
+	 * @param pageable Pagination information
+	 * @param hrAdvisorId Optional HR advisor ID to filter by (null for no filtering)
+	 * @return Page of request entities
+	 */
+	public Page<RequestEntity> getAllRequests(Pageable pageable, Long hrAdvisorId) {
+		if (hrAdvisorId == null) {
+			return requestRepository.findAll(pageable);
+		} else {
+			return requestRepository.findAll((root, query, criteriaBuilder) -> {
+				return criteriaBuilder.equal(root.get("hrAdvisor").get("id"), hrAdvisorId);
+			}, pageable);
+		}
 	}
 
 	/**
