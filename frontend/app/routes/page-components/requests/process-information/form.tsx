@@ -16,6 +16,7 @@ import type {
   WorkSchedule,
   LocalizedEmploymentEquity,
   EmploymentEquity,
+  SelectionProcessType,
 } from '~/.server/domain/models';
 import { Button } from '~/components/button';
 import { ButtonLink } from '~/components/button-link';
@@ -39,7 +40,7 @@ export type ProcessInformation = {
   approvalReceived?: boolean;
   priorityEntitlement?: boolean;
   priorityEntitlementRationale?: string;
-  preferredSelectionProcessType?: string;
+  preferredSelectionProcessType?: SelectionProcessType;
   performedDuties?: boolean;
   nonAdvertisedAppointment?: NonAdvertisedAppointment;
   employmentTenure?: EmploymentTenure;
@@ -79,7 +80,9 @@ export function ProcessInformationForm({
   const { t: tGcweb } = useTranslation('gcweb');
 
   const [priorityEntitlement, setPriorityEntitlement] = useState(formValues?.priorityEntitlement);
-  const [selectionProcessType, setSelectionProcessType] = useState(formValues?.preferredSelectionProcessType?.toString());
+  const [selectionProcessType, setSelectionProcessType] = useState(
+    selectionProcessTypes.find((c) => c.id === formValues?.preferredSelectionProcessType?.id)?.code,
+  );
   const [employmentTenure, setEmploymentTenure] = useState(
     employmentTenures.find((c) => c.id === formValues?.employmentTenure?.id)?.code,
   );
