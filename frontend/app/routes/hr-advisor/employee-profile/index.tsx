@@ -24,7 +24,7 @@ import { InlineLink } from '~/components/links';
 import { LoadingButton } from '~/components/loading-button';
 import { ProfileCard } from '~/components/profile-card';
 import { StatusTag } from '~/components/status-tag';
-import { EMPLOYEE_WFA_STATUS, PROFILE_STATUS_APPROVED, PROFILE_STATUS_CODE } from '~/domain/constants';
+import { EMPLOYEE_WFA_STATUS, PROFILE_STATUS_APPROVED } from '~/domain/constants';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { useFetcherState } from '~/hooks/use-fetcher-state';
 import { getTranslation } from '~/i18n-config.server';
@@ -59,14 +59,8 @@ export async function action({ context, request, params }: Route.ActionArgs) {
     PROFILE_STATUS_APPROVED,
     context.session.authState.accessToken,
   );
-  //TODO: display correct error on the scenario when hr advisor can see and approve his own profile
   if (submitResult.isErr()) {
-    const error = submitResult.unwrapErr();
-    return {
-      status: 'error',
-      errorMessage: error.message,
-      errorCode: error.errorCode,
-    };
+    throw submitResult.unwrapErr();
   }
 
   return {
@@ -190,9 +184,12 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
   const fetcherState = useFetcherState(fetcher);
   const isSubmitting = fetcherState.submitting;
 
+  // Use fetcher.data instead of actionData since we're using fetcher.Form
+  const formActionData = fetcher.data ?? actionData;
+
   const alertRef = useRef<HTMLDivElement>(null);
 
-  if (actionData && alertRef.current) {
+  if (formActionData && alertRef.current) {
     alertRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
     alertRef.current.focus();
   }
@@ -239,15 +236,11 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
         </div>
       </div>
 
-      {actionData && (
+      {formActionData && (
         <AlertMessage
           ref={alertRef}
-          type={loaderData.profileStatus?.code === PROFILE_STATUS_CODE.approved ? 'success' : 'error'}
-          message={
-            loaderData.profileStatus?.code === PROFILE_STATUS_CODE.approved
-              ? t('app:profile.hr-approved')
-              : t('app:profile.profile-incomplete')
-          }
+          type={'success'}
+          message={t('app:profile.hr-approved')}
           role="alert"
           ariaLive="assertive"
         />
@@ -259,7 +252,6 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
           linkLabel={t('app:profile.personal-information.link-label')}
           file="routes/hr-advisor/employee-profile/personal-information.tsx"
           params={params}
-          errorState={actionData?.personalInfoComplete === false}
         >
           <DescriptionList>
             <DescriptionListItem term={t('app:personal-information.personal-record-identifier')}>
@@ -290,7 +282,6 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
           linkLabel={t('app:profile.employment.link-label')}
           file="routes/hr-advisor/employee-profile/employment-information.tsx"
           params={params}
-          errorState={actionData?.employmentInfoComplete === false}
         >
           <>
             <h3 className="font-lato text-xl font-bold">{t('app:employment-information.substantive-position-heading')}</h3>
@@ -339,7 +330,6 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
           file="routes/hr-advisor/employee-profile/referral-preferences.tsx"
           params={params}
           required
-          errorState={actionData?.referralComplete === false}
         >
           <DescriptionList>
             <DescriptionListItem term={t('app:referral-preferences.language-referral-type')}>
