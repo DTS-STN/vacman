@@ -136,7 +136,7 @@ async function handleAuthorizeRequest({ request }: Route.LoaderArgs): Promise<Re
     jti: randomUUID(),
     name: 'John Doe',
     nonce: nonce,
-    roles: [],
+    roles: ['hr-advisor', 'hiring-manager'],
     scopes: scope.split(' '),
     sub: '00000000-0000-0000-0000-000000000000',
     oid: '00000000-0000-0000-0000-000000000000',

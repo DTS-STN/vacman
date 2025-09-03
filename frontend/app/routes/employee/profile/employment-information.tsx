@@ -86,7 +86,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     return i18nRedirect('routes/employee/profile/index.tsx', request, {
       params: { id: currentProfile.profileUser.id.toString() },
       search: new URLSearchParams({
-        edited: 'true',
+        editedEmp: 'true',
       }),
     });
   }

@@ -25,6 +25,7 @@ export default {
     'in-progress': 'In progress',
     'required': 'Required',
     'complete': 'Complete',
+    'updated': 'Updated',
     'pending-status-employee': 'Pending HR review and approval',
     'personal-information': {
       'title': 'Personal information',

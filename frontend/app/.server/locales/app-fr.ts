@@ -27,6 +27,7 @@ export default {
     'in-progress': 'En cours',
     'complete': 'Complet',
     'required': 'Obligatoire',
+    'updated': 'Mis à jour',
     'pending-status-employee': "En attente d'examen et d'approbation des RH",
     'personal-information': {
       'title': 'Informations personnelles',
