@@ -145,8 +145,17 @@ public class RequestsController {
 	@ApiResponses.UnprocessableEntityError
 	@Operation(summary = "Update a request by ID.")
 	@PreAuthorize("hasAuthority('hr-advisor') || hasPermission(#id, 'REQUEST', 'UPDATE')")
-	public ResponseEntity<RequestReadModel> updateRequest(@PathVariable Long id, @Valid @RequestBody RequestUpdateModel request) {
-		throw new UnsupportedOperationException("not yet implemented");
+	public ResponseEntity<RequestReadModel> updateRequest(@PathVariable Long id, @Valid @RequestBody RequestUpdateModel updateModel) {
+		log.info("Received request to update request; ID: [{}]", id);
+
+		final var request = requestService.getRequestById(id)
+			.orElseThrow(asResourceNotFoundException("request", id));
+
+		log.trace("Found request: [{}]", request);
+
+		final var updatedEntity = requestService.updateRequest(updateModel, request);
+
+		return ResponseEntity.ok(requestModelMapper.toModel(updatedEntity));
 	}
 
 	@ApiResponses.Ok
