@@ -279,6 +279,20 @@ export default {
   },
   'hiring-manager-requests': {
     'page-title': 'Demandes',
+    'back': "Retour à l'information sur la demande",
+  },
+  'somc-conditions': {
+    'page-title': "Énoncé de critères de mérite et conditions d'emploi",
+    'english-somc-label': "Énoncé de critères de mérite et conditions d'emploi - Anglais",
+    'english-somc-help-message': "Veuillez saisir l'intégralité des critères en anglais",
+    'french-somc-label': "Énoncé de critères de mérite et conditions d'emploi - Français",
+    'french-somc-help-message': "Veuillez saisir l'intégralité des critères en français",
+    'errors': {
+      'english-somc-required': '(FR) English statement of merit criteria is required',
+      'french-somc-required': '(FR) French statement of merit criteria is required',
+    },
+  },
+  'requests-tables': {
     'create-request': 'Créer une demande',
     'active-requests': 'Demandes actives',
     'no-active-requests': "Vous n'avez aucune demande active pour le moment.",
@@ -293,16 +307,5 @@ export default {
     'view': 'Affiché',
     'view-link': "Afficher la demande avec l'identifiant {{requestId}}",
     'next-page': 'Suivant',
-  },
-  'somc-conditions': {
-    'page-title': "Énoncé de critères de mérite et conditions d'emploi",
-    'english-somc-label': "Énoncé de critères de mérite et conditions d'emploi - Anglais",
-    'english-somc-help-message': "Veuillez saisir l'intégralité des critères en anglais",
-    'french-somc-label': "Énoncé de critères de mérite et conditions d'emploi - Français",
-    'french-somc-help-message': "Veuillez saisir l'intégralité des critères en français",
-    'errors': {
-      'english-somc-required': '(FR) English statement of merit criteria is required',
-      'french-somc-required': '(FR) French statement of merit criteria is required',
-    },
   },
 } satisfies typeof appEn;
