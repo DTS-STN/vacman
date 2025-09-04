@@ -29,14 +29,14 @@ describe('getMockUserService', () => {
       const firstUser = response.content[0];
       expect(firstUser).toEqual({
         id: 1,
-        businessEmailAddress: 'jane.doe@canada.ca',
-        businessPhoneNumber: '+1-613-555-0101',
-        firstName: 'Jane',
-        initial: 'D',
+        businessEmailAddress: 'john.doe@canada.ca',
+        businessPhoneNumber: '+1-613-555-0102',
+        firstName: 'John',
+        initial: 'M',
         lastName: 'Doe',
-        middleName: undefined,
-        microsoftEntraId: '00000000-0000-0000-0000-000000000000',
-        personalRecordIdentifier: '123456789',
+        middleName: 'Michael',
+        microsoftEntraId: '11111111-1111-1111-1111-111111111111',
+        personalRecordIdentifier: '987654321',
         language: PREFERRED_LANGUAGE_ENGLISH,
         userType: USER_TYPE_HR_ADVISOR,
         createdBy: 'system',
@@ -74,7 +74,7 @@ describe('getMockUserService', () => {
       expect(result.isOk()).toBe(true);
       const response = result.unwrap();
 
-      // Should find 2 HR advisors (Jane and Alex)
+      // Should find 2 HR advisors (John and Alex)
       expect(response.content).toHaveLength(2);
       expect(response.content.every((user) => user.userType?.code === USER_TYPE_HR_ADVISOR.code)).toBe(true);
       expect(response.page.totalElements).toBe(2);
@@ -100,7 +100,7 @@ describe('getMockUserService', () => {
       const user = result.unwrap();
 
       expect(user.id).toBe(1);
-      expect(user.businessEmailAddress).toBe('jane.doe@canada.ca');
+      expect(user.businessEmailAddress).toBe('john.doe@canada.ca');
       expect(user.userType?.code).toBe(USER_TYPE_HR_ADVISOR.code);
     });
 
@@ -123,7 +123,7 @@ describe('getMockUserService', () => {
       const user = result.unwrap();
 
       expect(user.id).toBe(2);
-      expect(user.firstName).toBe('John');
+      expect(user.firstName).toBe('Jane');
     });
 
     it('should return None when user does not exist', async () => {
@@ -141,7 +141,7 @@ describe('getMockUserService', () => {
       const user = result.unwrap();
 
       expect(user.userType?.code).toBe(USER_TYPE_HR_ADVISOR.code);
-      expect(user.firstName).toBe('Jane');
+      expect(user.firstName).toBe('John');
     });
   });
 
