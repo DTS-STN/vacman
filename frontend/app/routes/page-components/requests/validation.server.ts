@@ -2,17 +2,26 @@ import * as v from 'valibot';
 
 import { getCityService } from '~/.server/domain/services/city-service';
 import { getDirectorateService } from '~/.server/domain/services/directorate-service';
+import { getEmploymentEquityService } from '~/.server/domain/services/employment-equity-service';
+import { getEmploymentTenureService } from '~/.server/domain/services/employment-tenure-service';
 import { getLanguageForCorrespondenceService } from '~/.server/domain/services/language-for-correspondence-service';
 import { getLanguageRequirementService } from '~/.server/domain/services/language-requirement-service';
+import { getNonAdvertisedAppointmentService } from '~/.server/domain/services/non-advertised-appointment-service';
 import { getProvinceService } from '~/.server/domain/services/province-service';
+import { getSelectionProcessTypeService } from '~/.server/domain/services/selection-process-type-service';
 import { extractUniqueBranchesFromDirectoratesNonLocalized } from '~/.server/utils/directorate-utils';
 import { stringToIntegerSchema } from '~/.server/validation/string-to-integer-schema';
-import { LANGUAGE_REQUIREMENT_CODES } from '~/domain/constants';
+import { EMPLOYMENT_TENURE, LANGUAGE_REQUIREMENT_CODES, SELECTION_PROCESS_TYPE } from '~/domain/constants';
+import { isValidDateString } from '~/utils/date-utils';
 
 // Services that don't require authentication can be called at module level
 const allProvinces = await getProvinceService().listAll();
 const allCities = await getCityService().listAll();
 const allLanguageRequirements = await getLanguageRequirementService().listAll();
+const allSelectionProcessTypes = await getSelectionProcessTypeService().listAll();
+const allNonAdvertisedAppointments = await getNonAdvertisedAppointmentService().listAll();
+const allEmploymentTenures = await getEmploymentTenureService().listAll();
+const allEmploymentEquities = await getEmploymentEquityService().listAll();
 
 export type Errors = Readonly<Record<string, [string, ...string[]] | undefined>>;
 
@@ -45,6 +54,56 @@ const selectedLanguageRequirementForOptionalLanguageLevel = allLanguageRequireme
     nameEn: languageRequirement.nameEn,
     nameFr: languageRequirement.nameFr,
   }));
+
+const selectedSelectionProcessTypeForExternalNonAdvertised = allSelectionProcessTypes
+  .filter((c) => c.code === SELECTION_PROCESS_TYPE.externalNonAdvertised)
+  .map((employmentTenure) => ({
+    id: employmentTenure.id,
+    code: employmentTenure.code,
+    nameEn: employmentTenure.nameEn,
+    nameFr: employmentTenure.nameFr,
+  }));
+
+const selectedSelectionProcessTypeForInternalNonAdvertised = allSelectionProcessTypes
+  .filter((c) => c.code === SELECTION_PROCESS_TYPE.internalNonAdvertised)
+  .map((employmentTenure) => ({
+    id: employmentTenure.id,
+    code: employmentTenure.code,
+    nameEn: employmentTenure.nameEn,
+    nameFr: employmentTenure.nameFr,
+  }));
+
+const selectedEmploymentTenureForIndeterminate = allEmploymentTenures
+  .filter((c) => c.code === EMPLOYMENT_TENURE.indeterminate)
+  .map((employmentTenure) => ({
+    id: employmentTenure.id,
+    code: employmentTenure.code,
+    nameEn: employmentTenure.nameEn,
+    nameFr: employmentTenure.nameFr,
+  }));
+
+const selectedEmploymentTenureForTerm = allEmploymentTenures
+  .filter((c) => c.code === EMPLOYMENT_TENURE.term)
+  .map((employmentTenure) => ({
+    id: employmentTenure.id,
+    code: employmentTenure.code,
+    nameEn: employmentTenure.nameEn,
+    nameFr: employmentTenure.nameFr,
+  }));
+
+const selectedNonAdvertisedAppointmentsForInternal = allNonAdvertisedAppointments.slice(0, 7).map((employmentTenure) => ({
+  id: employmentTenure.id,
+  code: employmentTenure.code,
+  nameEn: employmentTenure.nameEn,
+  nameFr: employmentTenure.nameFr,
+}));
+
+const selectedNonAdvertisedAppointmentsForExternal = allNonAdvertisedAppointments.slice(7).map((employmentTenure) => ({
+  id: employmentTenure.id,
+  code: employmentTenure.code,
+  nameEn: employmentTenure.nameEn,
+  nameFr: employmentTenure.nameFr,
+}));
 
 export const positionInformationSchema = v.pipe(
   v.intersect([
@@ -199,4 +258,175 @@ export const submissionDetailSchema = v.pipe(
       ),
     ),
   }),
+);
+
+export const processInformationSchema = v.pipe(
+  v.intersect([
+    v.object({
+      selectionProcessNumber: v.pipe(
+        v.string('app:process-information.errors.selection-process-number-required'),
+        v.trim(),
+        v.nonEmpty('app:process-information.errors.selection-process-number-required'),
+      ),
+      approvalReceived: v.pipe(v.boolean('app:process-information.errors.approval-received-required')),
+      workSchedule: v.pipe(
+        v.string('app:process-information.errors.performed-duties-required'),
+        v.trim(),
+        v.nonEmpty('app:process-information.errors.performed-duties-required'),
+      ),
+    }),
+    v.variant(
+      'priorityEntitlement',
+      [
+        v.object({
+          priorityEntitlement: v.literal(true),
+          priorityEntitlementRationale: v.pipe(
+            v.string('app:process-information.errors.priority-entitlement-rationale-required'),
+            v.trim(),
+            v.nonEmpty('app:process-information.errors.priority-entitlement-rationale-required'),
+          ),
+        }),
+        v.object({
+          priorityEntitlement: v.literal(false),
+          priorityEntitlementRationale: v.optional(v.string()),
+        }),
+      ],
+      'app:process-information.errors.priority-entitlement-required',
+    ),
+    v.variant(
+      'preferredSelectionProcessType',
+      [
+        v.object({
+          preferredSelectionProcessType: v.pipe(
+            stringToIntegerSchema(),
+            v.picklist(selectedSelectionProcessTypeForExternalNonAdvertised.map(({ id }) => id)),
+          ),
+          performedDuties: v.pipe(v.boolean('app:process-information.errors.performed-duties-required')),
+          nonAdvertisedAppointment: v.lazy(() =>
+            v.pipe(
+              stringToIntegerSchema('app:process-information.errors.non-advertised-appointment-required'),
+              v.picklist(
+                selectedNonAdvertisedAppointmentsForExternal.map(({ id }) => id),
+                'app:process-information.errors.non-advertised-appointment-required',
+              ),
+            ),
+          ),
+        }),
+        v.object({
+          preferredSelectionProcessType: v.pipe(
+            stringToIntegerSchema(),
+            v.picklist(selectedSelectionProcessTypeForInternalNonAdvertised.map(({ id }) => id)),
+          ),
+          performedDuties: v.pipe(v.boolean('app:process-information.errors.performed-duties-required')),
+          nonAdvertisedAppointment: v.lazy(() =>
+            v.pipe(
+              stringToIntegerSchema('app:process-information.errors.non-advertised-appointment-required'),
+              v.picklist(
+                selectedNonAdvertisedAppointmentsForInternal.map(({ id }) => id),
+                'app:process-information.errors.non-advertised-appointment-required',
+              ),
+            ),
+          ),
+        }),
+      ],
+      'app:process-information.errors.selection-process-type-required',
+    ),
+    v.variant(
+      'employmentTenure',
+      [
+        v.object({
+          employmentTenure: v.pipe(
+            stringToIntegerSchema(),
+            v.picklist(selectedEmploymentTenureForIndeterminate.map(({ id }) => id)),
+          ),
+          projectedStartDateYear: v.optional(v.string()),
+          projectedStartDateMonth: v.optional(v.string()),
+          projectedStartDateDay: v.optional(v.string()),
+          projectedStartDate: v.optional(v.string()),
+          projectedEndDateYear: v.optional(v.string()),
+          projectedEndDateMonth: v.optional(v.string()),
+          projectedEndDateDay: v.optional(v.string()),
+          projectedEndDate: v.optional(v.string()),
+        }),
+        v.object({
+          employmentTenure: v.pipe(stringToIntegerSchema(), v.picklist(selectedEmploymentTenureForTerm.map(({ id }) => id))),
+          projectedStartDateYear: v.pipe(
+            stringToIntegerSchema('app:process-information.errors.projected-start-date.invalid-year'),
+            v.minValue(1, 'app:process-information.errors.projected-start-date.invalid-year'),
+          ),
+          projectedStartDateMonth: v.pipe(
+            stringToIntegerSchema('app:process-information.errors.projected-start-date.required-month'),
+            v.minValue(1, 'app:process-information.errors.projected-start-date.invalid-month'),
+            v.maxValue(12, 'app:process-information.errors.projected-start-date.invalid-month'),
+          ),
+          projectedStartDateDay: v.pipe(
+            stringToIntegerSchema('app:process-information.errors.projected-start-date.required-day'),
+            v.minValue(1, 'app:process-information.errors.projected-start-date.invalid-day'),
+            v.maxValue(31, 'app:process-information.errors.projected-start-date.invalid-day'),
+          ),
+          projectedStartDate: v.pipe(
+            v.string(),
+            v.custom(
+              (input) => isValidDateString(input as string),
+              'app:process-information.errors.projected-start-date.invalid',
+            ),
+          ),
+          projectedEndDateYear: v.pipe(
+            stringToIntegerSchema('app:process-information.errors.projected-end-date.invalid-year'),
+            v.minValue(1, 'app:process-information.errors.projected-end-date.invalid-year'),
+          ),
+          projectedEndDateMonth: v.pipe(
+            stringToIntegerSchema('app:process-information.errors.projected-end-date.required-month'),
+            v.minValue(1, 'app:process-information.errors.projected-end-date.invalid-month'),
+            v.maxValue(12, 'app:process-information.errors.projected-end-date.invalid-month'),
+          ),
+          projectedEndDateDay: v.pipe(
+            stringToIntegerSchema('app:process-information.errors.projected-end-date.required-day'),
+            v.minValue(1, 'app:process-information.errors.projected-end-date.invalid-day'),
+            v.maxValue(31, 'app:process-information.errors.projected-end-date.invalid-day'),
+          ),
+          projectedEndDate: v.pipe(
+            v.string(),
+            v.custom(
+              (input) => isValidDateString(input as string),
+              'app:process-information.errors.projected-end-date.invalid',
+            ),
+          ),
+        }),
+      ],
+      'app:process-information.errors.employment-tenure-required',
+    ),
+    v.variant(
+      'employmentEquityIdentified',
+      [
+        v.object({
+          employmentEquityIdentified: v.literal(true),
+          preferredEmploymentEquities: v.array(
+            v.lazy(() =>
+              v.pipe(
+                stringToIntegerSchema('app:process-information.errors.employment-equities-required'),
+                v.picklist(
+                  allEmploymentEquities.map(({ id }) => id),
+                  'app:process-information.errors.employment-equities-required',
+                ),
+              ),
+            ),
+          ),
+        }),
+        v.object({
+          employmentEquityIdentified: v.literal(false),
+          preferredEmploymentEquities: v.optional(v.array(v.number())),
+        }),
+      ],
+      'app:process-information.errors.employment-equity-identified-required',
+    ),
+  ]),
+  v.forward(
+    v.check(
+      //projectedStartDate and projectedEndDate are optional, but if both are present, then check that projectedStartDate < projectedEndDate
+      (input) => !input.projectedStartDate || !input.projectedEndDate || input.projectedStartDate < input.projectedEndDate,
+      'app:process-information.errors.projected-end-date.invalid-before-effective-date',
+    ),
+    ['projectedEndDate'],
+  ),
 );

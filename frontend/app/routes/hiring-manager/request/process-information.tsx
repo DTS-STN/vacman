@@ -1,10 +1,12 @@
 import type { RouteHandle } from 'react-router';
+import { data } from 'react-router';
 
 import { useTranslation } from 'react-i18next';
+import * as v from 'valibot';
 
 import type { Route } from './+types/process-information';
 
-import type { RequestReadModel } from '~/.server/domain/models';
+import type { RequestReadModel, RequestUpdateModel } from '~/.server/domain/models';
 import { getEmploymentEquityService } from '~/.server/domain/services/employment-equity-service';
 import { getEmploymentTenureService } from '~/.server/domain/services/employment-tenure-service';
 import { getNonAdvertisedAppointmentService } from '~/.server/domain/services/non-advertised-appointment-service';
@@ -12,11 +14,14 @@ import { getRequestService } from '~/.server/domain/services/request-service';
 import { getSelectionProcessTypeService } from '~/.server/domain/services/selection-process-type-service';
 import { getWorkScheduleService } from '~/.server/domain/services/work-schedule-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
+import { i18nRedirect } from '~/.server/utils/route-utils';
 import { BackLink } from '~/components/back-link';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
 import { ProcessInformationForm } from '~/routes/page-components/requests/process-information/form';
+import { processInformationSchema } from '~/routes/page-components/requests/validation.server';
+import { formString } from '~/utils/string-utils';
 
 export const handle = {
   i18nNamespace: [...parentHandle.i18nNamespace],
@@ -27,7 +32,71 @@ export function meta({ loaderData }: Route.MetaArgs) {
 }
 
 export async function action({ context, params, request }: Route.ActionArgs) {
-  //TODO: add action and validation logic
+  requireAuthentication(context.session, request);
+
+  const formData = await request.formData();
+  const parseResult = v.safeParse(processInformationSchema, {
+    selectionProcessNumber: formString(formData.get('selectionProcessNumber')),
+    approvalReceived: formString(formData.get('approvalReceived')),
+    priorityEntitlement: formString(formData.get('priorityEntitlement')),
+    priorityEntitlementRationale: formString(formData.get('priorityEntitlementRationale')),
+    preferredSelectionProcessType: formString(formData.get('preferredSelectionProcessType')),
+    performedDuties: formString(formData.get('performedDuties')),
+    nonAdvertisedAppointment: formString(formData.get('nonAdvertisedAppointment')),
+    employmentTenure: formString(formData.get('employmentTenure')),
+    projectedStartDate: formString(formData.get('projectedStartDate')),
+    projectedEndDate: formString(formData.get('projectedEndDate')),
+    workSchedule: formString(formData.get('workSchedule')),
+    employmentEquityIdentified: formString(formData.get('employmentEquityIdentified')),
+    preferredEmploymentEquities: formString(formData.get('preferredEmploymentEquities')),
+  });
+
+  if (!parseResult.success) {
+    return data(
+      { errors: v.flatten<typeof processInformationSchema>(parseResult.issues).nested },
+      { status: HttpStatusCodes.BAD_REQUEST },
+    );
+  }
+
+  const requestService = getRequestService();
+  const requestResult = await requestService.getRequestById(Number(params.requestId), context.session.authState.accessToken);
+
+  if (requestResult.isErr()) {
+    throw new Response('Request not found', { status: HttpStatusCodes.NOT_FOUND });
+  }
+
+  const requestData: RequestReadModel = requestResult.unwrap();
+
+  const requestPayload: RequestUpdateModel = {
+    ...requestData,
+    selectionProcessNumber: parseResult.output.selectionProcessNumber,
+    workforceManagementApproved: parseResult.output.approvalReceived,
+    priorityEntitlement: parseResult.output.priorityEntitlement,
+    priorityEntitlementRationale: parseResult.output.priorityEntitlementRationale,
+    selectionProcessTypeId: parseResult.output.preferredSelectionProcessType,
+    performedSameDuties: parseResult.output.performedDuties,
+    nonAdvertisedAppointmentId: parseResult.output.nonAdvertisedAppointment,
+    //employmentTenure: parseResult.output.employmentTenure,      //Missing from model
+    projectedStartDate: parseResult.output.projectedStartDate,
+    projectedEndDate: parseResult.output.projectedEndDate,
+    workScheduleId: Number(parseResult.output.workSchedule),
+    equityNeeded: parseResult.output.employmentEquityIdentified,
+    employmentEquityIds: parseResult.output.preferredEmploymentEquities,
+  };
+
+  const updateResult = await requestService.updateRequestById(
+    requestData.id,
+    requestPayload,
+    context.session.authState.accessToken,
+  );
+
+  if (updateResult.isErr()) {
+    throw updateResult.unwrapErr();
+  }
+
+  return i18nRedirect('routes/hiring-manager/request/index.tsx', request, {
+    params: { requestId: requestData.id.toString() },
+  });
 }
 
 export async function loader({ context, request, params }: Route.LoaderArgs) {
