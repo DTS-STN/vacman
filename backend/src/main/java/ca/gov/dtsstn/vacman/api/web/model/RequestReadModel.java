@@ -14,6 +14,9 @@ public record RequestReadModel(
 	@Schema(description = "Additional comments on this request.", example = "One cool request.")
 	String additionalComment,
 
+	@Schema(description = "Alternate contact email address.", example = "user@example.com")
+	String alternateContactEmailAddress,
+
 	@Schema(description = "Reason for the appointment from a non-advertised process of this request.")
 	NonAdvertisedAppointmentReadModel appointmentNonAdvertised,
 
@@ -107,12 +110,14 @@ public record RequestReadModel(
 	@Schema(description = "User that submitted of this request.")
 	UserReadModel submitter,
 
+	@Schema(description = "Is telework allowed for this request.")
+	Boolean teleworkAllowed,
+
 	@Schema(description = "Workforce Management Approved of this request.")
 	Boolean workforceMgmtApprovalRecvd,
 
 	@Schema(description = "Work Schedule of this request.")
 	WorkScheduleReadModel workSchedule,
-
 
 	@Schema(description = "Work Unit of this request.")
 	WorkUnitReadModel workUnit,

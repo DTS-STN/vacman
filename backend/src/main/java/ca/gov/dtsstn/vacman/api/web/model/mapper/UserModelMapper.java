@@ -48,4 +48,8 @@ public interface UserModelMapper {
 	@Mapping(source = "languageId", target = "language")
 	UserEntity toEntity(UserPatchModel model);
 
+	@BeanMapping(ignoreByDefault = true)
+	@Mapping(target = "id", source = "id")
+	UserEntity idToUserEntity(Long id);
+
 }
