@@ -177,7 +177,9 @@ export function ProcessInformationForm({
 
   return (
     <>
-      <PageTitle className="after:w-14">{tApp('process-information.page-title')}</PageTitle>
+      <PageTitle className="after:w-14" subTitle={tApp('referral-request')}>
+        {tApp('process-information.page-title')}
+      </PageTitle>
       <FormErrorSummary>
         <Form method="post" noValidate>
           <div className="space-y-6">

@@ -1,5 +1,7 @@
 import type { RouteHandle } from 'react-router';
 
+import { useTranslation } from 'react-i18next';
+
 import type { Route } from './+types/process-information';
 
 import type { RequestReadModel } from '~/.server/domain/models';
@@ -76,11 +78,19 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 }
 
 export default function HiringManagerRequestProcessInformation({ loaderData, actionData, params }: Route.ComponentProps) {
+  const { t } = useTranslation(handle.i18nNamespace);
   const errors = undefined; //actionData?.errors;
 
   return (
     <>
-      <BackLink className="mt-6" file="routes/hiring-manager/request/index.tsx" params={params} />
+      <BackLink
+        className="mt-6"
+        file="routes/hiring-manager/request/index.tsx"
+        params={params}
+        aria-label={t('app:hiring-manager-requests.back')}
+      >
+        {t('app:hiring-manager-requests.back')}
+      </BackLink>
       <div className="max-w-prose">
         <ProcessInformationForm
           selectionProcessTypes={loaderData.localizedSelectionProcessTypesResult}
