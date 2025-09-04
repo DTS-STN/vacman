@@ -7,6 +7,7 @@ import type { Route } from './+types/layout';
 
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { checkHiringManagerRouteRegistration, checkHrAdvisorRouteRegistration } from '~/.server/utils/registration-utils';
+import { getDashboardFile } from '~/.server/utils/route-utils';
 import { AppBar } from '~/components/app-bar';
 import { LanguageSwitcher } from '~/components/language-switcher';
 import { AppLink } from '~/components/links';
@@ -29,7 +30,10 @@ export async function loader({ context, request }: Route.LoaderArgs) {
 
   await checkHrAdvisorRouteRegistration(context.session, request);
 
-  return { name: context.session.authState.idTokenClaims.name };
+  return {
+    name: context.session.authState.idTokenClaims.name,
+    dashboardFile: getDashboardFile(request),
+  };
 }
 
 export default function Layout({ loaderData }: Route.ComponentProps) {
@@ -60,7 +64,7 @@ export default function Layout({ loaderData }: Route.ComponentProps) {
         </div>
         <AppBar
           name={loaderData.name?.toString()}
-          profileItems={<MenuItem file="routes/employee/index.tsx">{t('app:index.dashboard')}</MenuItem>}
+          profileItems={<MenuItem file={loaderData.dashboardFile}>{t('app:index.dashboard')}</MenuItem>}
         ></AppBar>
       </header>
 

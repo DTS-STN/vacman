@@ -8,6 +8,7 @@ import type { Params } from 'react-router';
 import { generatePath, redirect } from 'react-router';
 
 import { LogFactory } from '~/.server/logging';
+import { isHiringManagerPath, isHrAdvisorPath } from '~/.server/utils/route-matching-utils';
 import type { I18nRouteFile } from '~/i18n-routes';
 import { i18nRoutes } from '~/i18n-routes';
 import { getLanguage } from '~/utils/i18n-utils';
@@ -55,4 +56,11 @@ export function i18nRedirect(
 
   log.debug('Generating redirect response; url=[%s], init=[%s]', url, init);
   return redirect(url, init);
+}
+
+export function getDashboardFile(request: Request): I18nRouteFile {
+  const url = new URL(request.url);
+  if (isHrAdvisorPath(url)) return 'routes/hr-advisor/index.tsx';
+  if (isHiringManagerPath(url)) return 'routes/hiring-manager/index.tsx';
+  return 'routes/employee/index.tsx';
 }
