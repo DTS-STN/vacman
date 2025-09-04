@@ -77,7 +77,7 @@ export default function HrAdvisorRequests({ loaderData }: Route.ComponentProps) 
   return (
     <div className="mb-8 space-y-4">
       <PageTitle className="after:w-14">{t('app:hr-advisor-requests.page-title')}</PageTitle>
-      <RequestsTables {...loaderData} />
+      <RequestsTables {...loaderData} view="hr-advisor" />
     </div>
   );
 }

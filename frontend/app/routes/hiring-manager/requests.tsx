@@ -75,7 +75,7 @@ export default function HiringManagerRequests({ loaderData, params }: Route.Comp
   return (
     <div className="mb-8 space-y-4">
       <PageTitle className="after:w-14">{t('app:hiring-manager-requests.page-title')}</PageTitle>
-      <RequestsTables {...loaderData} />
+      <RequestsTables {...loaderData} view="hiring-manager" />
     </div>
   );
 }
