@@ -1,8 +1,11 @@
 import * as v from 'valibot';
 
 import { getCityService } from '~/.server/domain/services/city-service';
+import { getDirectorateService } from '~/.server/domain/services/directorate-service';
+import { getLanguageForCorrespondenceService } from '~/.server/domain/services/language-for-correspondence-service';
 import { getLanguageRequirementService } from '~/.server/domain/services/language-requirement-service';
 import { getProvinceService } from '~/.server/domain/services/province-service';
+import { extractUniqueBranchesFromDirectoratesNonLocalized } from '~/.server/utils/directorate-utils';
 import { stringToIntegerSchema } from '~/.server/validation/string-to-integer-schema';
 import { LANGUAGE_REQUIREMENT_CODES } from '~/domain/constants';
 
@@ -151,6 +154,49 @@ export const somcConditionsSchema = v.pipe(
       v.string('app:somc-conditions.errors.french-somc-required'),
       v.trim(),
       v.nonEmpty('app:somc-conditions.errors.french-somc-required'),
+    ),
+  }),
+);
+
+const allDirectorates = await getDirectorateService().listAll();
+const allBranchOrServiceCanadaRegions = extractUniqueBranchesFromDirectoratesNonLocalized(allDirectorates);
+const allLanguagesOfCorrespondence = await getLanguageForCorrespondenceService().listAll();
+
+export const submissionDetailSchema = v.pipe(
+  v.object({
+    branchOrServiceCanadaRegion: v.lazy(() =>
+      v.pipe(
+        stringToIntegerSchema('app:submission-details.errors.branch-or-service-canada-region-required'),
+        v.picklist(
+          allBranchOrServiceCanadaRegions.map(({ id }) => id),
+          'app:submission-details.errors.branch-or-service-canada-region-required',
+        ),
+      ),
+    ),
+    directorate: v.lazy(() =>
+      v.pipe(
+        stringToIntegerSchema('app:submission-details.errors.directorate-required'),
+        v.picklist(
+          allDirectorates.map(({ id }) => id),
+          'app:submission-details.errors.directorate-required',
+        ),
+      ),
+    ),
+    languageOfCorrespondenceId: v.lazy(() =>
+      v.pipe(
+        stringToIntegerSchema('app:submission-details.errors.preferred-language-of-correspondence-required'),
+        v.picklist(
+          allLanguagesOfCorrespondence.map(({ id }) => id),
+          'app:submission-details.errors.preferred-language-of-correspondence-required',
+        ),
+      ),
+    ),
+    additionalComment: v.optional(
+      v.pipe(
+        v.string('app:submission-details.errors.additional-information-required'),
+        v.trim(),
+        v.maxLength(100, 'app:submission-details.errors.additional-information-max-length'),
+      ),
     ),
   }),
 );
