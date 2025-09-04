@@ -23,6 +23,7 @@ import { AlertMessage } from '~/components/alert-message';
 import { DescriptionList, DescriptionListItem } from '~/components/description-list';
 import { InlineLink } from '~/components/links';
 import { LoadingButton } from '~/components/loading-button';
+import { PageTitle } from '~/components/page-title';
 import { ProfileCard } from '~/components/profile-card';
 import { StatusTag } from '~/components/status-tag';
 import { EMPLOYEE_WFA_STATUS, PROFILE_STATUS_APPROVED } from '~/domain/constants';
@@ -215,16 +216,16 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
         {loaderData.profileStatus && (
           <StatusTag status={{ code: loaderData.profileStatus.code, name: loaderData.profileStatus.name }} />
         )}
-        <h1 id="wb-cont" tabIndex={-1} className="mt-6 text-3xl font-semibold">
+        <PageTitle className="after:w-14" containerClassName="my-6">
           {loaderData.name}
-        </h1>
+        </PageTitle>
         {loaderData.email && <p className="mt-1">{loaderData.email}</p>}
         <p className="font-normal text-[#9FA3AD]">
           {t('app:profile.last-updated', { date: browserTZ, name: loaderData.lastUpdatedBy })}
         </p>
         <div
           role="presentation"
-          className="absolute top-25 left-0 -z-10 h-60 w-full scale-x-[-1] bg-[rgba(9,28,45,1)] bg-[url('/VacMan-design-element-06.svg')] bg-size-[450px] bg-left-bottom bg-no-repeat"
+          className="absolute top-25 left-0 -z-10 h-70 w-full scale-x-[-1] bg-[rgba(9,28,45,1)] bg-[url('/VacMan-design-element-06.svg')] bg-size-[450px] bg-left-bottom bg-no-repeat sm:h-60"
         />
       </div>
       <div className="justify-between md:grid md:grid-cols-2">
