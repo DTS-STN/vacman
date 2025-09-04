@@ -29,7 +29,7 @@ import { LoadingButton } from '~/components/loading-button';
 import { ProfileCard } from '~/components/profile-card';
 import { Progress } from '~/components/progress';
 import { StatusTag } from '~/components/status-tag';
-import { PROFILE_STATUS_CODE, EMPLOYEE_WFA_STATUS, PROFILE_STATUS_PENDING } from '~/domain/constants';
+import { EMPLOYEE_WFA_STATUS, PROFILE_STATUS_CODE, PROFILE_STATUS_PENDING } from '~/domain/constants';
 import { useFetcherState } from '~/hooks/use-fetcher-state';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
@@ -125,7 +125,8 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
 
   const url = new URL(request.url);
-  const hasEmploymentChanged = url.searchParams.get('edited') === 'true';
+  const hasEmploymentChanged = url.searchParams.get('editedEmp') === 'true';
+  const hasReferralPreferenceChanged = url.searchParams.get('editedRef') === 'true';
 
   // Use the profile user data directly instead of fetching it separately
   const currentUser = profileData.profileUser;
@@ -263,6 +264,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     lastModifiedDate: profileData.lastModifiedDate ?? undefined,
     lastUpdatedBy: profileUpdatedByUserName,
     hasEmploymentChanged,
+    hasReferralPreferenceChanged,
     baseTimeZone: serverEnvironment.BASE_TIMEZONE,
     lang,
   };
@@ -290,6 +292,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
   const navigate = useNavigate();
 
   const [hasEmploymentChanged, setHasEmploymentChanged] = useState(loaderData.hasEmploymentChanged);
+  const [hasReferralPreferenceChanged, setHasReferralPreferenceChanged] = useState(loaderData.hasReferralPreferenceChanged);
   const [browserTZ, setBrowserTZ] = useState(() =>
     loaderData.lastModifiedDate
       ? formatDateTimeForTimezone(loaderData.lastModifiedDate, loaderData.baseTimeZone, loaderData.lang)
@@ -307,8 +310,16 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
 
   // Clean the URL after reading the param
   useEffect(() => {
-    if (searchParams.get('edited') === 'true') {
+    if (searchParams.get('editedEmp') === 'true') {
       setHasEmploymentChanged(true);
+      const newUrl = location.pathname;
+      void navigate(newUrl, { replace: true });
+    }
+  }, [searchParams, location.pathname, navigate]);
+
+  useEffect(() => {
+    if (searchParams.get('editedRef') === 'true') {
+      setHasReferralPreferenceChanged(true);
       const newUrl = location.pathname;
       void navigate(newUrl, { replace: true });
     }
@@ -368,7 +379,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
         />
       )}
 
-      {hasEmploymentChanged && (
+      {(hasEmploymentChanged || hasReferralPreferenceChanged) && (
         <AlertMessage
           ref={alertRef}
           type="info"
@@ -395,7 +406,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
           params={params}
           errorState={formActionData?.personalInfoComplete === false}
           required
-          showStatus
+          showStatus={loaderData.profileStatus.code === PROFILE_STATUS_CODE.incomplete}
         >
           {loaderData.personalInformation.isNew ? (
             <>
@@ -441,7 +452,8 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
           params={params}
           required
           errorState={formActionData?.employmentInfoComplete === false}
-          showStatus
+          showStatus={loaderData.profileStatus.code === PROFILE_STATUS_CODE.incomplete}
+          updated={hasEmploymentChanged}
         >
           {loaderData.employmentInformation.isNew ? (
             <>{t('app:profile.employment.detail')}</>
@@ -497,7 +509,8 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
           params={params}
           required
           errorState={formActionData?.referralComplete === false}
-          showStatus
+          showStatus={loaderData.profileStatus.code === PROFILE_STATUS_CODE.incomplete}
+          updated={hasReferralPreferenceChanged}
         >
           {loaderData.referralPreferences.isNew ? (
             <>{t('app:profile.referral.detail')}</>
