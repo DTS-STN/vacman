@@ -110,7 +110,7 @@ public class UserService {
 
 	public Page<UserEntity> getHrAdvisors(Pageable pageable) {
 		final var userType = codeService.getUserTypes(Pageable.unpaged())
-			.filter(byCode("HRA")).stream()
+			.filter(byCode(userTypeCodes.hrAdvisor())).stream()
 			.findFirst().orElseThrow();
 
 		final var example = Example.of(UserEntity.builder().userType(userType).build());

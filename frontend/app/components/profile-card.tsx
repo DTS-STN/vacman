@@ -23,6 +23,7 @@ interface ProfileCardProps {
   errorState?: boolean;
   ref?: Ref<HTMLDivElement>;
   showStatus?: boolean;
+  updated?: boolean;
 }
 
 export function ProfileCard({
@@ -37,6 +38,7 @@ export function ProfileCard({
   params,
   ref,
   showStatus,
+  updated,
 }: ProfileCardProps): JSX.Element {
   const { t } = useTranslation('app');
 
@@ -58,6 +60,7 @@ export function ProfileCard({
                   {required && <RequiredTag />}
                 </>
               ))}
+            {updated && <UpdatedTag />}
           </div>
         </div>
       </CardHeader>
@@ -115,6 +118,16 @@ function RequiredTag(): JSX.Element {
   return (
     <span className="rounded-2xl border border-gray-400 bg-gray-100 px-3 py-0.5 text-sm font-semibold text-black">
       {t('profile.required')}
+    </span>
+  );
+}
+
+function UpdatedTag(): JSX.Element {
+  const { t } = useTranslation('app');
+
+  return (
+    <span className="w-fit rounded-2xl border border-blue-400 bg-blue-100 px-3 py-0.5 text-sm font-semibold text-blue-800">
+      {t('profile.updated')}
     </span>
   );
 }
