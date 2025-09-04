@@ -20,6 +20,7 @@ interface RequestTablesProps {
   inactiveRequestNames: string[];
   baseTimeZone: string;
   lang: Language;
+  view: 'hr-advisor' | 'hiring-manager';
 }
 
 export default function RequestsTables({
@@ -29,6 +30,7 @@ export default function RequestsTables({
   inactiveRequestNames,
   baseTimeZone,
   lang,
+  view,
 }: RequestTablesProps): JSX.Element {
   const fetcher = useFetcher();
   const fetcherState = useFetcherState(fetcher);
@@ -82,7 +84,7 @@ export default function RequestsTables({
         ),
         cell: (info) => {
           const status = info.row.original.status;
-          return status && statusTag(status, lang);
+          return status && statusTag(status, lang, view);
         },
         filterFn: (row, columnId, filterValue: string[]) => {
           const status = row.getValue(columnId) as string;
@@ -141,15 +143,18 @@ export default function RequestsTables({
   );
 }
 
-function statusTag(status: RequestStatus, lang: Language): JSX.Element {
+function statusTag(status: RequestStatus, lang: Language, view: string): JSX.Element {
   const styleMap: Record<string, string> = {
-    SUBMIT: 'bg-sky-100 text-sky-700',
-    HR_REVIEW: 'bg-sky-100 text-sky-700',
-    FDBK_PEND_APPR: 'bg-sky-100 text-sky-700',
-    PENDING_PSC: 'bg-sky-100 text-sky-700',
-    DRAFT: 'bg-amber-100 text-yellow-900',
-    FDBK_PENDING: 'bg-amber-100 text-yellow-900',
-    DEFAULT: 'bg-transparent',
+    CLR_GRANTED: 'bg-gray-100 text-slate-700',
+    PSC_GRANTED: 'bg-gray-100 text-slate-700',
+    CANCELLED: 'bg-gray-100 text-slate-700',
+    ...(view === 'hr-advisor'
+      ? { FDBK_PENDING: 'bg-sky-100 text-sky-700', DEFAULT: 'bg-amber-100 text-yellow-900' }
+      : {
+          DRAFT: 'bg-amber-100 text-yellow-900',
+          FDBK_PENDING: 'bg-amber-100 text-yellow-900',
+          DEFAULT: 'bg-sky-100 text-sky-700',
+        }),
   };
   const style = styleMap[status.code] ?? styleMap.DEFAULT;
   return (
