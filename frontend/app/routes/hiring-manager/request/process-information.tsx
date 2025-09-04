@@ -2,12 +2,16 @@ import type { RouteHandle } from 'react-router';
 
 import type { Route } from './+types/process-information';
 
+import type { RequestReadModel } from '~/.server/domain/models';
 import { getEmploymentEquityService } from '~/.server/domain/services/employment-equity-service';
 import { getEmploymentTenureService } from '~/.server/domain/services/employment-tenure-service';
 import { getNonAdvertisedAppointmentService } from '~/.server/domain/services/non-advertised-appointment-service';
+import { getRequestService } from '~/.server/domain/services/request-service';
 import { getSelectionProcessTypeService } from '~/.server/domain/services/selection-process-type-service';
 import { getWorkScheduleService } from '~/.server/domain/services/work-schedule-service';
+import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { BackLink } from '~/components/back-link';
+import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
 import { ProcessInformationForm } from '~/routes/page-components/requests/process-information/form';
@@ -20,9 +24,24 @@ export function meta({ loaderData }: Route.MetaArgs) {
   return [{ title: loaderData.documentTitle }];
 }
 
-export async function action({ context, params, request }: Route.ActionArgs) {}
+export async function action({ context, params, request }: Route.ActionArgs) {
+  //TODO: add action and validation logic
+}
 
 export async function loader({ context, request, params }: Route.LoaderArgs) {
+  requireAuthentication(context.session, request);
+
+  const requestResult = await getRequestService().getRequestById(
+    Number(params.requestId),
+    context.session.authState.accessToken,
+  );
+
+  if (requestResult.isErr()) {
+    throw new Response('Request not found', { status: HttpStatusCodes.NOT_FOUND });
+  }
+
+  const requestData: RequestReadModel = requestResult.unwrap();
+
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
 
   const localizedSelectionProcessTypesResult = await getSelectionProcessTypeService().listAllLocalized(lang);
@@ -34,19 +53,19 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   return {
     documentTitle: t('app:process-information.page-title'),
     defaultValues: {
-      selectionProcessNumber: undefined,
-      approvalReceived: undefined,
-      priorityEntitlement: undefined,
-      priorityEntitlementRationale: undefined,
-      preferredSelectionProcessType: undefined,
-      performedDuties: undefined,
-      nonAdvertisedAppointment: undefined,
-      employmentTenure: undefined,
-      projectedStartDate: undefined,
-      projectedEndDate: undefined,
-      workSchedule: undefined,
-      employmentEquityIdentified: undefined,
-      preferredEmploymentEquities: undefined,
+      selectionProcessNumber: requestData.selectionProcessNumber,
+      approvalReceived: requestData.workforceMgmtApprovalRecvd,
+      priorityEntitlement: requestData.priorityEntitlement,
+      priorityEntitlementRationale: requestData.priorityEntitlementRationale,
+      preferredSelectionProcessType: requestData.selectionProcessType,
+      performedDuties: requestData.hasPerformedSameDuties,
+      nonAdvertisedAppointment: requestData.appointmentNonAdvertised,
+      employmentTenure: requestData.employmentTenure,
+      projectedStartDate: requestData.projectedStartDate,
+      projectedEndDate: requestData.projectedEndDate,
+      workSchedule: requestData.workSchedule,
+      employmentEquityIdentified: requestData.equityNeeded,
+      preferredEmploymentEquities: requestData.employmentEquities,
     },
     localizedSelectionProcessTypesResult,
     localizedNonAdvertisedAppointmentsResult,
