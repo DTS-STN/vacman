@@ -1,5 +1,6 @@
 package ca.gov.dtsstn.vacman.api.service;
 
+import static ca.gov.dtsstn.vacman.api.data.repository.ProfileRepository.hasHrAdvisorId;
 import static ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException.asResourceNotFoundException;
 
 import ca.gov.dtsstn.vacman.api.web.exception.ResourceConflictException;
@@ -62,6 +63,8 @@ import ca.gov.dtsstn.vacman.api.data.repository.SecurityClearanceRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.SelectionProcessTypeRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.WorkScheduleRepository;
 import ca.gov.dtsstn.vacman.api.web.model.RequestUpdateModel;
+import ca.gov.dtsstn.vacman.api.web.model.mapper.RequestModelMapper;
+import org.mapstruct.factory.Mappers;
 
 @Service
 public class RequestService {
@@ -78,6 +81,7 @@ public class RequestService {
 	private final SecurityClearanceRepository securityClearanceRepository;
 	private final SelectionProcessTypeRepository selectionProcessTypeRepository;
 	private final WorkScheduleRepository workScheduleRepository;
+	private final RequestModelMapper requestModelMapper;
 
 	public RequestService(
 			LookupCodes lookupCodes,RequestRepository requestRepository,
@@ -102,6 +106,7 @@ public class RequestService {
 		this.securityClearanceRepository = securityClearanceRepository;
 		this.selectionProcessTypeRepository = selectionProcessTypeRepository;
 		this.workScheduleRepository = workScheduleRepository;
+		this.requestModelMapper = Mappers.getMapper(RequestModelMapper.class);
 	}
 
 	public RequestEntity createRequest(UserEntity submitter) {
@@ -136,36 +141,28 @@ public class RequestService {
 		if (hrAdvisorId == null) {
 			return requestRepository.findAll(pageable);
 		} else {
-			return requestRepository.findAll((root, query, criteriaBuilder) -> {
-				return criteriaBuilder.equal(root.get("hrAdvisor").get("id"), hrAdvisorId);
-			}, pageable);
+			return requestRepository.findAll(
+				(root, query, criteriaBuilder) ->
+						criteriaBuilder.equal(root.get("hrAdvisor").get("id"), hrAdvisorId),
+				pageable
+			);
 		}
 	}
 
 	/**
-	 * Update a request based on the provided update model. This method validates that any IDs exist within the DB
-	 * before saving the entity.
+	 * Update a request based on the provided entity. This method saves the entity to the database.
 	 *
-	 * @param updateModel The updated information for the request.
 	 * @param request The request entity to be updated.
 	 * @return The updated request entity.
-	 * @throws ResourceNotFoundException When any given ID does not exist within the DB.
 	 */
-	public RequestEntity updateRequest(RequestUpdateModel updateModel, RequestEntity request) {
-		request.setSelectionProcessNumber(updateModel.selectionProcessNumber());
-		request.setWorkforceMgmtApprovalRecvd(updateModel.workforceManagementApproved());
-		request.setPriorityEntitlement(updateModel.priorityEntitlement());
-		request.setPriorityEntitlementRationale(updateModel.priorityEntitlementRationale());
-		request.setHasPerformedSameDuties(updateModel.performedSameDuties());
-		request.setStartDate(updateModel.projectedStartDate());
-		request.setEndDate(updateModel.projectedEndDate());
-		request.setEmploymentEquityNeedIdentifiedIndicator(updateModel.equityNeeded());
-		request.setNameEn(updateModel.englishTitle());
-		request.setNameFr(updateModel.frenchTitle());
-		request.setLanguageProfileEn(updateModel.englishLanguageProfile());
-		request.setLanguageProfileFr(updateModel.frenchLanguageProfile());
-		request.setSomcAndConditionEmploymentEn(updateModel.englishStatementOfMerit());
-		request.setSomcAndConditionEmploymentFr(updateModel.frenchStatementOfMerit());
+	public RequestEntity updateRequest(RequestEntity request) {
+		final var updatedEntity = requestRepository.save(request);
+
+		return updatedEntity;
+	}
+
+	public RequestEntity prepareRequestForUpdate(RequestUpdateModel updateModel, RequestEntity request) {
+		requestModelMapper.updateEntityFromModel(updateModel, request);
 
 		request.setPositionNumber(String.join(",", updateModel.positionNumbers()));
 
@@ -197,20 +194,16 @@ public class RequestService {
 			.map(employmentEquityRepository::getReferenceById)
 			.collect(Collectors.toList()));
 
-		final var updatedEntity = requestRepository.save(request);
-
-		return updatedEntity;
+		return request;
 	}
 
-	/**
-	 * Delete a request by ID. The request can only be deleted if its status is "DRAFT".
-	 *
-	 * @param request The request entity to be deleted.
-	 * @throws ResourceConflictException When the request status is not "DRAFT".
-	 */
-	public void deleteRequest(RequestEntity request) {
+
+	public void deleteRequest(Long requestId) {
+		RequestEntity request = getRequestById(requestId)
+			.orElseThrow(asResourceNotFoundException("request", requestId));
+
 		if (!"DRAFT".equals(request.getRequestStatus().getCode())) {
-			throw new ResourceConflictException("Request with ID=[" + request.getId() + "] cannot be deleted because its status is not DRAFT");
+			throw new ResourceConflictException("Request with ID=[" + requestId + "] cannot be deleted because its status is not DRAFT");
 		}
 
 		requestRepository.delete(request);

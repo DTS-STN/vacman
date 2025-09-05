@@ -35,6 +35,7 @@ import ca.gov.dtsstn.vacman.api.web.model.ProfileReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.RequestReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.RequestUpdateModel;
 import ca.gov.dtsstn.vacman.api.web.model.mapper.RequestModelMapper;
+import ca.gov.dtsstn.vacman.api.web.validator.ValidHrAdvisorParam;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -70,7 +71,7 @@ public class RequestsController {
 	@Operation(summary = "Get hiring requests with pagination.")
 	public ResponseEntity<PagedModel<RequestReadModel>> getAllRequests(
 			@ParameterObject Pageable pageable,
-			@RequestParam(name = "hr-advisor", required = false) String hrAdvisorParam) {
+			@RequestParam(name = "hr-advisor", required = false) @ValidHrAdvisorParam String hrAdvisorParam) {
 
 		Long hrAdvisorId = null;
 
@@ -84,11 +85,7 @@ public class RequestsController {
 
 				hrAdvisorId = currentUser.getId();
 			} else {
-				try {
-					hrAdvisorId = Long.parseLong(hrAdvisorParam);
-				} catch (NumberFormatException e) {
-					throw new IllegalArgumentException("Invalid hr-advisor parameter. Must be 'me' or a valid user ID.");
-				}
+				hrAdvisorId = Long.parseLong(hrAdvisorParam);
 			}
 		}
 
@@ -150,12 +147,7 @@ public class RequestsController {
 	public ResponseEntity<Void> deleteRequestById(@PathVariable Long id) {
 		log.info("Received request to delete request; ID: [{}]", id);
 
-		final var request = requestService.getRequestById(id)
-			.orElseThrow(asResourceNotFoundException("request", id));
-
-		log.trace("Found request: [{}]", request);
-
-		requestService.deleteRequest(request);
+		requestService.deleteRequest(id);
 
 		return ResponseEntity.noContent().build();
 	}
@@ -190,7 +182,9 @@ public class RequestsController {
 
 		log.trace("Found request: [{}]", request);
 
-		final var updatedEntity = requestService.updateRequest(updateModel, request);
+		final var preparedEntity = requestService.prepareRequestForUpdate(updateModel, request);
+
+		final var updatedEntity = requestService.updateRequest(preparedEntity);
 
 		return ResponseEntity.ok(requestModelMapper.toModel(updatedEntity));
 	}
