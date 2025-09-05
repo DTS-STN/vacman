@@ -29,6 +29,7 @@ import { LoadingButton } from '~/components/loading-button';
 import { ProfileCard } from '~/components/profile-card';
 import { Progress } from '~/components/progress';
 import { StatusTag } from '~/components/status-tag';
+import { PageTitle } from '~/components/page-title';
 import { PROFILE_STATUS_CODE, EMPLOYEE_WFA_STATUS, PROFILE_STATUS_PENDING } from '~/domain/constants';
 import { useFetcherState } from '~/hooks/use-fetcher-state';
 import { getTranslation } from '~/i18n-config.server';
@@ -326,9 +327,9 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
                 : loaderData.profileStatus.name,
           }}
         />
-        <h1 id="wb-cont" tabIndex={-1} className="mt-6 text-3xl font-semibold">
-          {loaderData.name}
-        </h1>
+
+        <PageTitle>{loaderData.name}</PageTitle>
+
         {loaderData.email && <p className="mt-1">{loaderData.email}</p>}
         <p className="font-normal text-[#9FA3AD]">
           {t('app:profile.last-updated', { date: browserTZ, name: loaderData.lastUpdatedBy })}

@@ -25,6 +25,7 @@ import { StatusTag } from '~/components/status-tag';
 import { useFetcherState } from '~/hooks/use-fetcher-state';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
+import { PageTitle } from '~/components/page-title';
 
 export const handle = {
   i18nNamespace: [...parentHandle.i18nNamespace],
@@ -34,6 +35,7 @@ export function meta({ loaderData }: Route.MetaArgs) {
   return [{ title: loaderData.documentTitle }];
 }
 
+// TODO review
 //export default function HiringManagerRequestIndex({ loaderData, params }: Route.ComponentProps) {}
 
 export async function action({ context, params, request }: Route.ActionArgs) {
@@ -154,6 +156,9 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const url = new URL(request.url);
   const hasRequestChanged = url.searchParams.get('edited') === 'true';
 
+  //
+  // TODO review next section remove what is not needed
+
   // Fetch reference data
   //   const [allClassifications, allLocalizedCities] = await Promise.all([
   //      getClassificationService().listAllLocalized(lang),
@@ -183,7 +188,10 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   //   const branchOrServiceCanadaRegion = workUnitResult?.into()?.parent?.name;
   //   const directorate = workUnitResult?.into()?.name;
   //   const city = cityResult?.into();
-  //   const hrAdvisors = await getHrAdvisors(context.session.authState.accessToken);
+  //   const hrAdvisors = await getHrAdvisors(context.session.authState.accessToken);  // needed?
+  //   const submitter = hrAdvisors.find((u) => u.id === profileData.submitterId);
+  //   const hiringManager = hrAdvisors.find((u) => u.id === profileData.hiringManagerId);
+  //   const subDelegatedManager = hrAdvisors.find((u) => u.id === profileData.subDelegatedManagerId);
   //   const hrAdvisor = hrAdvisors.find((u) => u.id === profileData.hrAdvisorId);
   //   const languageReferralTypes = profileData.preferredLanguages
   //     ?.map((lang) => allLocalizedLanguageReferralTypes.find((l) => l.id === lang.id))
@@ -250,7 +258,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const amountCompleted = (profileCompleted / profileTotalFields) * 100;
 
   return {
-    documentTitle: t('app:profile.page-title'),
+    documentTitle: t('app:hiring-manager-referral-requests.page-title'),
     amountCompleted: amountCompleted,
     isProfileComplete:
       isCompleteProcessInformation &&
@@ -360,9 +368,8 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
             //     : loaderData.status.name,
           }}
         />
-        <h1 id="wb-cont" tabIndex={-1} className="mt-6 text-3xl font-semibold">
-          {t('app:hiring-manager-referral-requests.page-title')}
-        </h1>
+
+        <PageTitle>{t('app:hiring-manager-referral-requests.page-title')}</PageTitle>
 
         {/* TODO review */}
         <p className="font-normal text-[#9FA3AD]">
@@ -396,6 +403,19 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
         />
       )}
 
+      <AlertMessage
+        type={'info'}
+        message={
+          t('app:hiring-manager-referral-requests.page-info-1') +
+          t('app:hiring-manager-referral-requests.page-info-2') +
+          t('app:hiring-manager-referral-requests.page-info-3') +
+          t('app:hiring-manager-referral-requests.page-info-4')
+        }
+        role="status"
+        ariaLive="polite"
+      />
+
+
       <div className="mt-20 w-full">
         <div className="flex w-full items-start space-x-4 border-l-6 border-[#2572B4] bg-blue-100 p-4">
           <div
@@ -403,7 +423,7 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
             className="bg-[rgba(37, 114, 180,1)] h-28 w-1/24 bg-[url('/info-icon.svg')] bg-size-[28px] bg-left-top bg-no-repeat"
           />
 
-          <div className="text-black-800 pl-2 text-xs">
+          <div className="text-black-800 pl-1 text-xs">
             <p>{t('app:hiring-manager-referral-requests.page-info-1')}</p>
             <p className="mt-2">{t('app:hiring-manager-referral-requests.page-info-2')}</p>
             <p className="mt-2">{t('app:hiring-manager-referral-requests.page-info-3')}</p>
@@ -488,7 +508,6 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
               ) : (
                 <DescriptionList>
                   <DescriptionListItem term={t('app:position-information.position-number')}>
-                    {' '}
                     {/* // TODO Review */}
                     {loaderData.positionNumber ?? t('app:hiring-manager-referral-requests.not-provided')}
                   </DescriptionListItem>
@@ -513,7 +532,6 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
               ) : (
                 <DescriptionList>
                   <DescriptionListItem term={t('app:position-information.position-number')}>
-                    {' '}
                     {/* // TODO Review */}
                     {loaderData.positionNumber ?? t('app:hiring-manager-referral-requests.not-provided')}
                   </DescriptionListItem>
