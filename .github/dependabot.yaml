@@ -40,7 +40,11 @@ updates:
           - '@react-router/*'
 
   # Enable version updates for Docker
-  - package-ecosystem: 'docker'
+  - package-ecosystem: docker
     directory: /frontend
     schedule:
       interval: daily
+    # Ignore major updates
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
