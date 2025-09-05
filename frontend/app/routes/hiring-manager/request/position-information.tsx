@@ -6,13 +6,14 @@ import * as v from 'valibot';
 
 import type { Route } from './+types/position-information';
 
+import type { RequestReadModel, RequestUpdateModel } from '~/.server/domain/models';
 import { getCityService } from '~/.server/domain/services/city-service';
 import { getClassificationService } from '~/.server/domain/services/classification-service';
 import { getLanguageRequirementService } from '~/.server/domain/services/language-requirement-service';
 import { getProvinceService } from '~/.server/domain/services/province-service';
+import { getRequestService } from '~/.server/domain/services/request-service';
 import { getSecurityClearanceService } from '~/.server/domain/services/security-clearance-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
-import { requirePrivacyConsentForOwnProfile } from '~/.server/utils/privacy-consent-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { BackLink } from '~/components/back-link';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
@@ -42,12 +43,12 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     province: formString(formData.get('province')),
     city: formString(formData.get('city')),
     languageRequirement: formString(formData.get('languageRequirement')),
-    readingComprehensionEn: formString(formData.get('readingEn')),
-    readingComprehensionFr: formString(formData.get('readingFr')),
-    writtenExpressionEn: formString(formData.get('writingEn')),
-    writtenExpressionFr: formString(formData.get('writingFr')),
-    oralProficiencyEn: formString(formData.get('speakingEn')),
-    oralProficiencyFr: formString(formData.get('speakingFr')),
+    readingEn: formString(formData.get('readingEn')),
+    readingFr: formString(formData.get('readingFr')),
+    writingEn: formString(formData.get('writingEn')),
+    writingFr: formString(formData.get('writingFr')),
+    oralEn: formString(formData.get('oralEn')),
+    oralFr: formString(formData.get('oralFr')),
     securityRequirement: formString(formData.get('securityRequirement')),
   });
 
@@ -58,14 +59,60 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     );
   }
 
-  //TODO: call request service to update data
+  const requestService = getRequestService();
+  const requestResult = await requestService.getRequestById(Number(params.requestId), context.session.authState.accessToken);
 
-  return i18nRedirect('routes/hiring-manager/request/index.tsx', request);
+  if (requestResult.isErr()) {
+    throw new Response('Request not found', { status: HttpStatusCodes.NOT_FOUND });
+  }
+
+  const requestData: RequestReadModel = requestResult.unwrap();
+
+  const requestPayload: RequestUpdateModel = {
+    ...requestData,
+    positionNumbers: parseResult.output.positionNumber.split(',').map((num) => num.trim()),
+    classificationId: Number(parseResult.output.groupAndLevel),
+    englishTitle: parseResult.output.titleEn,
+    frenchTitle: parseResult.output.titleFr,
+    provinceId: Number(parseResult.output.province),
+    languageRequirementId: Number(parseResult.output.languageRequirement),
+    englishLanguageProfile: [parseResult.output.readingEn, parseResult.output.writingEn, parseResult.output.oralEn]
+      .filter(Boolean)
+      .join(''),
+    frenchLanguageProfile: [parseResult.output.readingFr, parseResult.output.writingFr, parseResult.output.oralFr]
+      .filter(Boolean)
+      .join(''),
+    securityClearanceId: Number(parseResult.output.securityRequirement),
+  };
+
+  const updateResult = await requestService.updateRequestById(
+    requestData.id,
+    requestPayload,
+    context.session.authState.accessToken,
+  );
+
+  if (updateResult.isErr()) {
+    throw updateResult.unwrapErr();
+  }
+
+  return i18nRedirect('routes/hiring-manager/request/index.tsx', request, {
+    params: { requestId: requestData.id.toString() },
+  });
 }
 
 export async function loader({ context, request, params }: Route.LoaderArgs) {
   requireAuthentication(context.session, request);
-  await requirePrivacyConsentForOwnProfile(context.session, request);
+
+  const requestResult = await getRequestService().getRequestById(
+    Number(params.requestId),
+    context.session.authState.accessToken,
+  );
+
+  if (requestResult.isErr()) {
+    throw new Response('Request not found', { status: HttpStatusCodes.NOT_FOUND });
+  }
+
+  const requestData: RequestReadModel = requestResult.unwrap();
 
   const { t, lang } = await getTranslation(request, handle.i18nNamespace);
 
@@ -75,18 +122,17 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const localizedCities = await getCityService().listAllLocalized(lang);
   const localizedSecurityClearances = await getSecurityClearanceService().listAllLocalized(lang);
 
-  //TODO: Call service method to fetch request data and populate form fields
-
   return {
     documentTitle: t('app:position-information.page-title'),
     defaultValues: {
-      positionNumber: [],
-      groupAndLevel: undefined,
-      titleEn: '',
-      titleFr: '',
-      locationCity: undefined,
-      languageRequirement: undefined,
-      securityRequirement: undefined,
+      positionNumber: requestData.positionNumber,
+      classification: requestData.classification,
+      englishTitle: requestData.englishTitle,
+      frenchTitle: requestData.frenchTitle,
+      englishLanguageProfile: requestData.englishLanguageProfile,
+      frenchLanguageProfile: requestData.frenchLanguageProfile,
+      languageRequirementId: requestData.languageRequirement,
+      securityClearanceId: requestData.securityClearance,
     },
     languageRequirements: localizedLanguageRequirements,
     classifications: localizedClassifications,

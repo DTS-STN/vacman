@@ -196,7 +196,7 @@ export function DataTableColumnHeaderWithOptions<TData, TValue>({
             </span>
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="start" className="w-48 p-2">
+        <DropdownMenuContent align="start" className="max-h-60 w-48 overflow-y-auto p-2">
           {options.map((option) => (
             <DropdownMenuItem key={option} asChild>
               <label className="flex w-full cursor-pointer items-center gap-2 px-2 py-1.5">

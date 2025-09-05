@@ -16,6 +16,7 @@ import type {
   WorkSchedule,
   LocalizedEmploymentEquity,
   EmploymentEquity,
+  SelectionProcessType,
 } from '~/.server/domain/models';
 import { Button } from '~/components/button';
 import { ButtonLink } from '~/components/button-link';
@@ -28,6 +29,7 @@ import { InputRadios } from '~/components/input-radios';
 import type { InputRadiosProps } from '~/components/input-radios';
 import { InputSelect } from '~/components/input-select';
 import { InputTextarea } from '~/components/input-textarea';
+import { PageTitle } from '~/components/page-title';
 import { EMPLOYMENT_TENURE, REQUIRE_OPTIONS, SELECTION_PROCESS_TYPE } from '~/domain/constants';
 import type { I18nRouteFile } from '~/i18n-routes';
 import type { Errors } from '~/routes/page-components/requests/validation.server';
@@ -38,7 +40,7 @@ export type ProcessInformation = {
   approvalReceived?: boolean;
   priorityEntitlement?: boolean;
   priorityEntitlementRationale?: string;
-  preferredSelectionProcessType?: string;
+  preferredSelectionProcessType?: SelectionProcessType;
   performedDuties?: boolean;
   nonAdvertisedAppointment?: NonAdvertisedAppointment;
   employmentTenure?: EmploymentTenure;
@@ -78,7 +80,9 @@ export function ProcessInformationForm({
   const { t: tGcweb } = useTranslation('gcweb');
 
   const [priorityEntitlement, setPriorityEntitlement] = useState(formValues?.priorityEntitlement);
-  const [selectionProcessType, setSelectionProcessType] = useState(formValues?.preferredSelectionProcessType?.toString());
+  const [selectionProcessType, setSelectionProcessType] = useState(
+    selectionProcessTypes.find((c) => c.id === formValues?.preferredSelectionProcessType?.id)?.code,
+  );
   const [employmentTenure, setEmploymentTenure] = useState(
     employmentTenures.find((c) => c.id === formValues?.employmentTenure?.id)?.code,
   );
@@ -173,7 +177,9 @@ export function ProcessInformationForm({
 
   return (
     <>
-      <h1 className="my-5 text-3xl font-semibold">{tApp('process-information.page-title')}</h1>
+      <PageTitle className="after:w-14" subTitle={tApp('referral-request')}>
+        {tApp('process-information.page-title')}
+      </PageTitle>
       <FormErrorSummary>
         <Form method="post" noValidate>
           <div className="space-y-6">

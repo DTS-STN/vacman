@@ -169,9 +169,68 @@ export const LANGUAGE_LEVEL = [
   { id: 4, value: 'P' },
 ] as const;
 
-// TODO configure these in a more friendly way for DX
-export const ACTIVE_REQUEST_STATUS_IDS = [0, 1, 2, 3, 4, 5, 6, 7];
-export const ARCHIVED_REQUEST_STATUS_IDS = [8, 9, 10];
+export const REQUEST_CATEGORY = {
+  active: 'active',
+  inactive: 'inactive',
+} as const;
+
+export const REQUEST_STATUSES = [
+  {
+    id: 0,
+    code: 'DRAFT',
+    category: REQUEST_CATEGORY.active,
+  },
+  {
+    id: 1,
+    code: 'SUBMIT',
+    category: REQUEST_CATEGORY.active,
+  },
+  {
+    id: 2,
+    code: 'HR_REVIEW',
+    category: REQUEST_CATEGORY.active,
+  },
+  {
+    id: 3,
+    code: 'NO_MATCH_HR_REVIEW',
+    category: REQUEST_CATEGORY.active,
+  },
+  {
+    id: 4,
+    code: 'FDBK_PENDING',
+    category: REQUEST_CATEGORY.active,
+  },
+  {
+    id: 5,
+    code: 'FDBK_PEND_APPR',
+    category: REQUEST_CATEGORY.active,
+  },
+  {
+    id: 6,
+    code: 'PENDING_PSC',
+    category: REQUEST_CATEGORY.active,
+  },
+  {
+    id: 7,
+    code: 'PENDING_PSC_NO_VMS',
+    category: REQUEST_CATEGORY.active,
+  },
+  {
+    id: 8,
+    code: 'CLR_GRANTED',
+    category: REQUEST_CATEGORY.inactive,
+  },
+  {
+    id: 9,
+    code: 'PSC_GRANTED',
+    category: REQUEST_CATEGORY.inactive,
+  },
+  {
+    id: 10,
+    code: 'CANCELLED',
+    category: REQUEST_CATEGORY.inactive,
+  },
+];
 
 export const EMPLOYMENT_TENURE = {
   term: 'TERM',

@@ -27,6 +27,7 @@ export default {
     'in-progress': 'En cours',
     'complete': 'Complet',
     'required': 'Obligatoire',
+    'updated': 'Mis à jour',
     'pending-status-employee': "En attente d'examen et d'approbation des RH",
     'personal-information': {
       'title': 'Informations personnelles',
@@ -235,6 +236,10 @@ export default {
     'table-updated-my-employees': 'Tableau mis à jour : affichage de Mes employé-e-s',
     'table-updated-all-employees': 'Tableau mis à jour : affichage de Liste complète des employé-e-s',
   },
+  'hr-advisor-requests': {
+    'page-title': 'Demandes',
+    'back': "Retour à l'information sur la demande",
+  },
   'hiring-manager-dashboard': {
     'page-title': 'Tableau de bord du responsable du recrutement',
     'page-heading': 'Tableau de bord du responsable du recrutement',
@@ -276,6 +281,7 @@ export default {
     'page-info-4': "Consult the Manager's Guide on Priority Clearances for more information. FR",
     //'view-link': 'View request with ID {{requestId}}',
   },
+  'referral-request': 'Demande de présentation de candidatures',
   'position-information': {
     'page-title': 'Informations sur le poste',
     'position-number': 'Numéro du poste',
@@ -296,10 +302,10 @@ export default {
     'errors': {
       // TODO: error messages need to be updated when available
       'position-number-required': 'Position number is required.',
+      'position-number-max-length': 'Each position number must be 6 characters.',
       'group-and-level-required': 'Group and level is required.',
       'title-en-required': 'Title in English is required.',
       'title-fr-required': 'Title in French is required.',
-      'directorate-required': 'Directorate is required.',
       'provinces-required': 'Province is required.',
       'city-required': 'City is required.',
       'language-requirement-required': 'Language requirement is required.',
@@ -313,6 +319,57 @@ export default {
   },
   'hiring-manager-requests': {
     'page-title': 'Demandes',
+    'back': "Retour à l'information sur la demande",
+  },
+  'somc-conditions': {
+    'page-title': "Énoncé de critères de mérite et conditions d'emploi",
+    'english-somc-label': "Énoncé de critères de mérite et conditions d'emploi - Anglais",
+    'english-somc-help-message': "Veuillez saisir l'intégralité des critères en anglais",
+    'french-somc-label': "Énoncé de critères de mérite et conditions d'emploi - Français",
+    'french-somc-help-message': "Veuillez saisir l'intégralité des critères en français",
+    'errors': {
+      'english-somc-required': '(FR) English statement of merit criteria is required',
+      'french-somc-required': '(FR) French statement of merit criteria is required',
+    },
+  },
+  'submission-details': {
+    'page-title': 'Détails de la soumission',
+    'hr-advisor': {
+      'request-submitted-by': 'Demande soumise par\u00A0:{{name}}',
+      'is-submitter-hiring-manager': "Est-ce que {{name}} est le-la gestionnaire d'embauche de cette demande?",
+      'is-submitter-a-sub-delegate': 'Est-ce que {{name}} est sub-délégué-e?',
+    },
+    'hiring-manager': {
+      'submitter': 'Personne ayant soumis la demande\u00A0:{{name}}',
+      'are-you-hiring-manager-for-request': "Êtes-vous le gestionnaire d'embauche pour cette demande?",
+      'are-you-a-subdelegate': 'Êtes-vous sub-délégué-e\u00A0?',
+    },
+    'hiring-manager-email': "Adresse courriel du (de la) gestionnaire d'embauche",
+    'hiring-manager-name': "Gestionnaire d'embauche\u00A0:{{name}}",
+    'is-hiring-manager-sub-delegate': "Est-ce que le-la gestionnaire d'embauche est subdélégué-e?",
+    'sub-delegate-email': 'Adresse courriel du (de la) subdélégué-e',
+    'sub-delegate-name': 'Subdélégué-e\u00A0:{{name}}',
+    'branch-or-service-canada-region': 'Direction générale ou Région de Service Canada',
+    'directorate': 'Direction',
+    'preferred-language-of-correspondence': 'Langue de préférene pour la correspondance',
+    'additional-comments': 'Commentaires additionnels',
+    // TODO: error messages need to be updated when available
+    'errors': {
+      'is-submitter-hiring-manager-required': 'Is submitter the hiring manager for this request field is required.',
+      'is-submitter-a-sub-delegate-required': 'Is submitter a sub-delegate field is required.',
+      'are-you-hiring-manager-for-request-required': 'Are you the hiring manager for this request field is required.',
+      'are-you-a-subdelegate-required': 'Are you a sub-delegate field is required.',
+      'hiring-manager-email-required': 'Hiring manager email address is required.',
+      'is-hiring-manager-sub-delegate-required': 'Is the hiring manager a sub-delegate field is required.',
+      'sub-delegate-email-required': 'Sub-delegate email address is required.',
+      'branch-or-service-canada-region-required': 'La direction générale ou la région de Service Canada est requise.',
+      'directorate-required': 'La direction est requise.',
+      'preferred-language-of-correspondence-required': 'La langue de préférence pour la correspondance est requise.',
+      'additional-comments-required': 'Commentaires additionnels est requise.',
+      'additional-comments-max-length': 'Les commentaires supplémentaires doivent comporter moins de 100 caractères.',
+    },
+  },
+  'requests-tables': {
     'create-request': 'Créer une demande',
     'active-requests': 'Demandes actives',
     'no-active-requests': "Vous n'avez aucune demande active pour le moment.",
@@ -327,16 +384,5 @@ export default {
     'view': 'Affiché',
     'view-link': "Afficher la demande avec l'identifiant {{requestId}}",
     'next-page': 'Suivant',
-  },
-  'somc-conditions': {
-    'page-title': "Énoncé de critères de mérite et conditions d'emploi",
-    'english-somc-label': "Énoncé de critères de mérite et conditions d'emploi - Anglais",
-    'english-somc-help-message': "Veuillez saisir l'intégralité des critères en anglais",
-    'french-somc-label': "Énoncé de critères de mérite et conditions d'emploi - Français",
-    'french-somc-help-message': "Veuillez saisir l'intégralité des critères en français",
-    'errors': {
-      'english-somc-required': '(FR) English statement of merit criteria is required',
-      'french-somc-required': '(FR) French statement of merit criteria is required',
-    },
   },
 } satisfies typeof appEn;

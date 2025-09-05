@@ -9,6 +9,7 @@ import { Button } from '~/components/button';
 import { ButtonLink } from '~/components/button-link';
 import { FormErrorSummary } from '~/components/error-summary';
 import { InputTextarea } from '~/components/input-textarea';
+import { PageTitle } from '~/components/page-title';
 import type { I18nRouteFile } from '~/i18n-routes';
 import type { Errors } from '~/routes/page-components/requests/validation.server';
 import { extractValidationKey } from '~/utils/validation-utils';
@@ -30,7 +31,9 @@ export function SomcConditionsForm({ cancelLink, formValues, formErrors, params 
 
   return (
     <>
-      <h1 className="my-5 text-3xl font-semibold">{t('somc-conditions.page-title')}</h1>
+      <PageTitle className="after:w-14" subTitle={t('referral-request')}>
+        {t('somc-conditions.page-title')}
+      </PageTitle>
       <FormErrorSummary>
         <Form method="post" noValidate>
           <div className="space-y-6">

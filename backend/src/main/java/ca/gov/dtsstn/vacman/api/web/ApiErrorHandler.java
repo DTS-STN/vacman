@@ -1,9 +1,8 @@
 package ca.gov.dtsstn.vacman.api.web;
 
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
-
-import javax.json.JsonException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +19,9 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
+
+import ca.gov.dtsstn.vacman.api.json.JsonPatchException;
 import ca.gov.dtsstn.vacman.api.web.exception.ForbiddenException;
 import ca.gov.dtsstn.vacman.api.web.exception.ResourceConflictException;
 import ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException;
@@ -68,13 +70,17 @@ public class ApiErrorHandler extends ResponseEntityExceptionHandler {
 		return super.handleExceptionInternal(exception, problemDetail, new HttpHeaders(), HttpStatus.FORBIDDEN, request);
 	}
 
-	@ExceptionHandler({ JsonException.class })
-	public ResponseEntity<Object> handleJsonException(JsonException exception, WebRequest request) {
+	@ExceptionHandler({ JsonPatchException.class })
+	public ResponseEntity<Object> handleJsonPatchException(JsonPatchException exception, WebRequest request) {
 		final var correlationId = generateCorrelationId();
 
-		final var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "The JSON Patch request is malformed or contains an invalid path. Please check the patch document syntax and ensure all paths are correct.");
+		final var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "Validation failed for the patched resource.");
 		problemDetail.setProperty("correlationId", correlationId);
 		problemDetail.setProperty("errorCode", "API-0400");
+
+		if (exception.getCause() instanceof final UnrecognizedPropertyException unrecognizedPropertyException) {
+			problemDetail.setProperty("errors", Map.of(unrecognizedPropertyException.getPropertyName(), "Unrecognized field name"));
+		}
 
 		return super.handleExceptionInternal(exception, problemDetail, new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
 	}

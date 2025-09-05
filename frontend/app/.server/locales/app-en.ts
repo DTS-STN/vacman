@@ -25,6 +25,7 @@ export default {
     'in-progress': 'In progress',
     'required': 'Required',
     'complete': 'Complete',
+    'updated': 'Updated',
     'pending-status-employee': 'Pending HR review and approval',
     'personal-information': {
       'title': 'Personal information',
@@ -232,6 +233,10 @@ export default {
     'table-updated-my-employees': 'Table updated: showing My Employees',
     'table-updated-all-employees': 'Table updated: showing All Employees',
   },
+  'hr-advisor-requests': {
+    'page-title': 'Requests',
+    'back': 'Back to request details',
+  },
   'hiring-manager-dashboard': {
     'page-title': 'Hiring manager dashboard',
     'page-heading': 'Hiring manager dashboard',
@@ -273,6 +278,7 @@ export default {
     'page-info-4': "Consult the Manager's Guide on Priority Clearances for more information.",
     //'view-link': 'View request with ID {{requestId}}',
   },
+  'referral-request': 'Referral request',
   'position-information': {
     'page-title': 'Position information',
     'position-number': 'Position number',
@@ -293,10 +299,10 @@ export default {
     'errors': {
       // TODO: error messages need to be updated when available
       'position-number-required': 'Position number is required.',
+      'position-number-max-length': 'Each position number must be 6 characters.',
       'group-and-level-required': 'Group and level is required.',
       'title-en-required': 'Title in English is required.',
       'title-fr-required': 'Title in French is required.',
-      'directorate-required': 'Directorate is required.',
       'provinces-required': 'Province is required.',
       'city-required': 'City is required.',
       'language-requirement-required': 'Language requirement is required.',
@@ -310,6 +316,57 @@ export default {
   },
   'hiring-manager-requests': {
     'page-title': 'Requests',
+    'back': 'Back to request details',
+  },
+  'somc-conditions': {
+    'page-title': 'Statement of merit criteria and conditions of employment',
+    'english-somc-label': 'English statement of merit criteria of employment',
+    'english-somc-help-message': 'Please enter the full English criteria here',
+    'french-somc-label': 'French statement of merit criteria of employment',
+    'french-somc-help-message': 'Please enter the full French criteria here',
+    'errors': {
+      'english-somc-required': 'English statement of merit criteria is required',
+      'french-somc-required': 'French statement of merit criteria is required',
+    },
+  },
+  'submission-details': {
+    'page-title': 'Submission details',
+    'hr-advisor': {
+      'request-submitted-by': 'Request submitted by {{name}}',
+      'is-submitter-hiring-manager': 'Is {{name}} the hiring manager for this request?',
+      'is-submitter-a-sub-delegate': 'Is {{name}} a sub-delegate?',
+    },
+    'hiring-manager': {
+      'submitter': 'Submitter {{name}}',
+      'are-you-hiring-manager-for-request': 'Are you the hiring manager for this request?',
+      'are-you-a-subdelegate': 'Are you a sub-delegate?',
+    },
+    'hiring-manager-email': 'Hiring manager email address',
+    'hiring-manager-name': 'Hiring manager: {{name}}',
+    'is-hiring-manager-sub-delegate': 'Is the hiring manager a sub-delegate?',
+    'sub-delegate-email': 'Sub-delegate email address',
+    'sub-delegate-name': 'Sub-delegate: {{name}}',
+    'branch-or-service-canada-region': 'Branch or Service Canada Region',
+    'directorate': 'Directorate',
+    'preferred-language-of-correspondence': 'Preferred language for correspondence',
+    'additional-comments': 'Additional comments',
+    // TODO: error messages need to be updated when available
+    'errors': {
+      'is-submitter-hiring-manager-required': 'Is submitter the hiring manager for this request field is required.',
+      'is-submitter-a-sub-delegate-required': 'Is submitter a sub-delegate field is required.',
+      'are-you-hiring-manager-for-request-required': 'Are you the hiring manager for this request field is required.',
+      'are-you-a-subdelegate-required': 'Are you a sub-delegate field is required.',
+      'hiring-manager-email-required': 'Hiring manager email address is required.',
+      'is-hiring-manager-sub-delegate-required': 'Is the hiring manager a sub-delegate field is required.',
+      'sub-delegate-email-required': 'Sub-delegate email address is required.',
+      'branch-or-service-canada-region-required': 'Branch or Service Canada Region is required.',
+      'directorate-required': 'Directorate is required.',
+      'preferred-language-of-correspondence-required': 'Preferred language for correspondence is required.',
+      'additional-comments-required': 'Additional comments are required.',
+      'additional-comments-max-length': 'Additional comments must be less than 100 characters.',
+    },
+  },
+  'requests-tables': {
     'create-request': 'Create request',
     'active-requests': 'Active requests',
     'no-active-requests': "You don't have any active requests at the moment.",
@@ -324,16 +381,5 @@ export default {
     'view': 'View',
     'view-link': 'View request with ID {{requestId}}',
     'next-page': 'Next',
-  },
-  'somc-conditions': {
-    'page-title': 'Statement of merit criteria and conditions of employment',
-    'english-somc-label': 'English statement of merit criteria of employment',
-    'english-somc-help-message': 'Please enter the full English criteria here',
-    'french-somc-label': 'French statement of merit criteria of employment',
-    'french-somc-help-message': 'Please enter the full French criteria here',
-    'errors': {
-      'english-somc-required': 'English statement of merit criteria is required',
-      'french-somc-required': 'French statement of merit criteria is required',
-    },
   },
 };
