@@ -296,12 +296,12 @@ export default {
   'submission-details': {
     'page-title': 'Submission details',
     'hr-advisor': {
-      'request-submitted-by': 'Request submitted by {{name}}',
+      'request-submitted-by': 'Request submitted by: {{name}}',
       'is-submitter-hiring-manager': 'Is {{name}} the hiring manager for this request?',
       'is-submitter-a-sub-delegate': 'Is {{name}} a sub-delegate?',
     },
     'hiring-manager': {
-      'submitter': 'Submitter {{name}}',
+      'submitter': 'Submitter: {{name}}',
       'are-you-hiring-manager-for-request': 'Are you the hiring manager for this request?',
       'are-you-a-subdelegate': 'Are you a sub-delegate?',
     },

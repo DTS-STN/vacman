@@ -221,8 +221,19 @@ const allDirectorates = await getDirectorateService().listAll();
 const allBranchOrServiceCanadaRegions = extractUniqueBranchesFromDirectoratesNonLocalized(allDirectorates);
 const allLanguagesOfCorrespondence = await getLanguageForCorrespondenceService().listAll();
 
-export const submissionDetailSchema = v.pipe(
-  v.object({
+const getIsSubmiterHiringManagerErrorMessage = (view: 'hr-advisor' | 'hiring-manager' | undefined) => {
+  if (view === 'hiring-manager') {
+    return 'app:submission-details.errors.are-you-hiring-manager-for-request-required';
+  }
+  // Default for 'hr-advisor' or if view is not provided/unexpected
+  return 'app:submission-details.errors.is-submitter-hiring-manager-required';
+};
+export const submissionDetailSchema = (view: 'hr-advisor' | 'hiring-manager' | undefined) => {
+  return v.object({
+    view: v.optional(v.string()),
+    isSubmiterHiringManager: v.boolean(
+      getIsSubmiterHiringManagerErrorMessage(view), // Pass the view to get the correct error message
+    ),
     branchOrServiceCanadaRegion: v.lazy(() =>
       v.pipe(
         stringToIntegerSchema('app:submission-details.errors.branch-or-service-canada-region-required'),
@@ -257,8 +268,8 @@ export const submissionDetailSchema = v.pipe(
         v.maxLength(100, 'app:submission-details.errors.additional-information-max-length'),
       ),
     ),
-  }),
-);
+  });
+};
 
 export const processInformationSchema = v.pipe(
   v.intersect([
