@@ -15,10 +15,12 @@ import type {
 import { Button } from '~/components/button';
 import { ButtonLink } from '~/components/button-link';
 import { FormErrorSummary } from '~/components/error-summary';
+import type { InputRadiosProps } from '~/components/input-radios';
 import { InputRadios } from '~/components/input-radios';
 import { InputSelect } from '~/components/input-select';
 import { InputTextarea } from '~/components/input-textarea';
 import { PageTitle } from '~/components/page-title';
+import { REQUIRE_OPTIONS } from '~/domain/constants';
 import type { I18nRouteFile } from '~/i18n-routes';
 import type { Errors } from '~/routes/page-components/requests/validation.server';
 import { extractValidationKey } from '~/utils/validation-utils';
@@ -31,6 +33,7 @@ interface SubmissionDetailsFormProps {
   languagesOfCorrespondence: readonly LocalizedLanguageOfCorrespondence[];
   formErrors?: Errors;
   params: Params;
+  view: 'hr-advisor' | 'hiring-manager';
 }
 
 export function SubmissionDetailsForm({
@@ -41,8 +44,25 @@ export function SubmissionDetailsForm({
   languagesOfCorrespondence,
   formErrors,
   params,
+  view,
 }: SubmissionDetailsFormProps): JSX.Element {
-  const { t } = useTranslation('app');
+  const { t: tApp } = useTranslation('app');
+  const { t: tGcweb } = useTranslation('gcweb');
+
+  const isSubmiterHiringManagerOptions: InputRadiosProps['options'] = [
+    {
+      children: tGcweb('input-option.yes'),
+      value: REQUIRE_OPTIONS.yes,
+      defaultChecked:
+        formValues?.submitter && formValues.hiringManager ? formValues.submitter.id === formValues.hiringManager.id : undefined, // For new Request, the default should be undefined
+    },
+    {
+      children: tGcweb('input-option.no'),
+      value: REQUIRE_OPTIONS.no,
+      defaultChecked:
+        formValues?.submitter && formValues.hiringManager ? formValues.submitter.id !== formValues.hiringManager.id : undefined, // For new Request, the default should be undefined
+    },
+  ];
 
   const [branch, setBranch] = useState(formValues?.workUnit ? String(formValues.workUnit.parent?.id) : undefined);
   const [directorate, setDirectorate] = useState(
@@ -52,7 +72,7 @@ export function SubmissionDetailsForm({
   const branchOrServiceCanadaRegionOptions = [{ id: 'select-option', name: '' }, ...branchOrServiceCanadaRegions].map(
     ({ id, name }) => ({
       value: id === 'select-option' ? '' : String(id),
-      children: id === 'select-option' ? t('form.select-option') : name,
+      children: id === 'select-option' ? tApp('form.select-option') : name,
     }),
   );
 
@@ -61,7 +81,7 @@ export function SubmissionDetailsForm({
     ...directorates.filter((c) => c.parent?.id === Number(branch)),
   ].map(({ id, name }) => ({
     value: id === 'select-option' ? '' : String(id),
-    children: id === 'select-option' ? t('form.select-option') : name,
+    children: id === 'select-option' ? tApp('form.select-option') : name,
   }));
 
   const languageOptions = languagesOfCorrespondence.map(({ id, name }) => ({
@@ -84,23 +104,47 @@ export function SubmissionDetailsForm({
       setDirectorate(undefined);
     }
   };
+  const submitterName = `${formValues?.submitter?.firstName ?? ''} ${formValues?.submitter?.lastName ?? ''}`.trim();
 
   return (
     <>
-      <PageTitle className="after:w-14" subTitle={t('referral-request')}>
-        {t('submission-details.page-title')}
+      <PageTitle className="after:w-14" subTitle={tApp('referral-request')}>
+        {tApp('submission-details.page-title')}
       </PageTitle>
       <FormErrorSummary>
         <Form method="post" noValidate>
           <div className="space-y-6">
+            <div className="rounded-2xl border bg-gray-100 px-3 py-0.5 text-sm font-semibold text-black">
+              {view === 'hiring-manager'
+                ? tApp('submission-details.hiring-manager.submitter', {
+                    name: submitterName,
+                  })
+                : tApp('submission-details.hr-advisor.request-submitted-by', {
+                    name: submitterName,
+                  })}
+            </div>
+            <InputRadios
+              id="is-submitter-hiring-manager"
+              legend={
+                view === 'hiring-manager'
+                  ? tApp('submission-details.hiring-manager.are-you-hiring-manager-for-request')
+                  : tApp('submission-details.hr-advisor.is-submitter-hiring-manager', {
+                      name: submitterName,
+                    })
+              }
+              name="isSubmiterHiringManager"
+              options={isSubmiterHiringManagerOptions}
+              required
+              errorMessage={tApp(extractValidationKey(formErrors?.isSubmiterHiringManager))}
+            />
             <InputSelect
               id="branchOrServiceCanadaRegion"
               name="branchOrServiceCanadaRegion"
-              errorMessage={t(extractValidationKey(formErrors?.branchOrServiceCanadaRegion))}
+              errorMessage={tApp(extractValidationKey(formErrors?.branchOrServiceCanadaRegion))}
               required
               onChange={handleBranchChange}
               options={branchOrServiceCanadaRegionOptions}
-              label={t('submission-details.branch-or-service-canada-region')}
+              label={tApp('submission-details.branch-or-service-canada-region')}
               defaultValue={formValues?.workUnit !== undefined ? String(formValues.workUnit.parent?.id) : ''}
               className="w-full sm:w-1/2"
             />
@@ -108,10 +152,10 @@ export function SubmissionDetailsForm({
               <InputSelect
                 id="directorate"
                 name="directorate"
-                errorMessage={t(extractValidationKey(formErrors?.directorate))}
+                errorMessage={tApp(extractValidationKey(formErrors?.directorate))}
                 required
                 options={directorateOptions}
-                label={t('submission-details.directorate')}
+                label={tApp('submission-details.directorate')}
                 value={directorate ?? ''}
                 onChange={({ target }) => setDirectorate(target.value || undefined)}
                 className="w-full sm:w-1/2"
@@ -120,26 +164,26 @@ export function SubmissionDetailsForm({
             <InputRadios
               id="language-of-correspondence"
               name="languageOfCorrespondenceId"
-              legend={t('submission-details.preferred-language-of-correspondence')}
+              legend={tApp('submission-details.preferred-language-of-correspondence')}
               options={languageOptions}
-              errorMessage={t(extractValidationKey(formErrors?.languageOfCorrespondenceId))}
+              errorMessage={tApp(extractValidationKey(formErrors?.languageOfCorrespondenceId))}
               required
             />
             <InputTextarea
               id="additional-comment"
               className="w-full"
-              label={t('submission-details.additional-comments')}
+              label={tApp('submission-details.additional-comments')}
               name="additionalComment"
               defaultValue={formValues?.additionalComment}
-              errorMessage={t(extractValidationKey(formErrors?.additionalComment))}
+              errorMessage={tApp(extractValidationKey(formErrors?.additionalComment))}
               maxLength={100}
             />
             <div className="mt-8 flex flex-row-reverse flex-wrap items-center justify-end gap-3">
               <Button name="action" variant="primary" id="save-button">
-                {t('form.save')}
+                {tApp('form.save')}
               </Button>
               <ButtonLink file={cancelLink} params={params} id="cancel-button" variant="alternative">
-                {t('form.cancel')}
+                {tApp('form.cancel')}
               </ButtonLink>
             </div>
           </div>

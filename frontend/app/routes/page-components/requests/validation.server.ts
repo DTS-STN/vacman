@@ -221,44 +221,43 @@ const allDirectorates = await getDirectorateService().listAll();
 const allBranchOrServiceCanadaRegions = extractUniqueBranchesFromDirectoratesNonLocalized(allDirectorates);
 const allLanguagesOfCorrespondence = await getLanguageForCorrespondenceService().listAll();
 
-export const submissionDetailSchema = v.pipe(
-  v.object({
-    branchOrServiceCanadaRegion: v.lazy(() =>
-      v.pipe(
-        stringToIntegerSchema('app:submission-details.errors.branch-or-service-canada-region-required'),
-        v.picklist(
-          allBranchOrServiceCanadaRegions.map(({ id }) => id),
-          'app:submission-details.errors.branch-or-service-canada-region-required',
-        ),
+export const submissionDetailSchema = v.object({
+  isSubmiterHiringManager: v.boolean('app:submission-details.errors.is-submitter-hiring-manager-required'),
+  branchOrServiceCanadaRegion: v.lazy(() =>
+    v.pipe(
+      stringToIntegerSchema('app:submission-details.errors.branch-or-service-canada-region-required'),
+      v.picklist(
+        allBranchOrServiceCanadaRegions.map(({ id }) => id),
+        'app:submission-details.errors.branch-or-service-canada-region-required',
       ),
     ),
-    directorate: v.lazy(() =>
-      v.pipe(
-        stringToIntegerSchema('app:submission-details.errors.directorate-required'),
-        v.picklist(
-          allDirectorates.map(({ id }) => id),
-          'app:submission-details.errors.directorate-required',
-        ),
+  ),
+  directorate: v.lazy(() =>
+    v.pipe(
+      stringToIntegerSchema('app:submission-details.errors.directorate-required'),
+      v.picklist(
+        allDirectorates.map(({ id }) => id),
+        'app:submission-details.errors.directorate-required',
       ),
     ),
-    languageOfCorrespondenceId: v.lazy(() =>
-      v.pipe(
-        stringToIntegerSchema('app:submission-details.errors.preferred-language-of-correspondence-required'),
-        v.picklist(
-          allLanguagesOfCorrespondence.map(({ id }) => id),
-          'app:submission-details.errors.preferred-language-of-correspondence-required',
-        ),
+  ),
+  languageOfCorrespondenceId: v.lazy(() =>
+    v.pipe(
+      stringToIntegerSchema('app:submission-details.errors.preferred-language-of-correspondence-required'),
+      v.picklist(
+        allLanguagesOfCorrespondence.map(({ id }) => id),
+        'app:submission-details.errors.preferred-language-of-correspondence-required',
       ),
     ),
-    additionalComment: v.optional(
-      v.pipe(
-        v.string('app:submission-details.errors.additional-information-required'),
-        v.trim(),
-        v.maxLength(100, 'app:submission-details.errors.additional-information-max-length'),
-      ),
+  ),
+  additionalComment: v.optional(
+    v.pipe(
+      v.string('app:submission-details.errors.additional-information-required'),
+      v.trim(),
+      v.maxLength(100, 'app:submission-details.errors.additional-information-max-length'),
     ),
-  }),
-);
+  ),
+});
 
 export const processInformationSchema = v.pipe(
   v.intersect([
