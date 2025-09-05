@@ -18,6 +18,7 @@ import { AlertMessage } from '~/components/alert-message';
 import { ButtonLink } from '~/components/button-link';
 import { DescriptionList, DescriptionListItem } from '~/components/description-list';
 import { LoadingButton } from '~/components/loading-button';
+import { PageTitle } from '~/components/page-title';
 import { ProfileCard } from '~/components/profile-card';
 import { Progress } from '~/components/progress';
 import { StatusTag } from '~/components/status-tag';
@@ -25,7 +26,6 @@ import { StatusTag } from '~/components/status-tag';
 import { useFetcherState } from '~/hooks/use-fetcher-state';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
-import { PageTitle } from '~/components/page-title';
 
 export const handle = {
   i18nNamespace: [...parentHandle.i18nNamespace],
@@ -403,7 +403,8 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
         />
       )}
 
-      <AlertMessage
+      {/*  */}
+      {/* <AlertMessage
         type={'info'}
         message={
           t('app:hiring-manager-referral-requests.page-info-1') +
@@ -413,14 +414,13 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
         }
         role="status"
         ariaLive="polite"
-      />
-
+      /> */}
 
       <div className="mt-20 w-full">
         <div className="flex w-full items-start space-x-4 border-l-6 border-[#2572B4] bg-blue-100 p-4">
           <div
             role="presentation"
-            className="bg-[rgba(37, 114, 180,1)] h-28 w-1/24 bg-[url('/info-icon.svg')] bg-size-[28px] bg-left-top bg-no-repeat"
+            className="bg-[rgba(37, 114, 180,1)] h-28 min-w-fit bg-[url('/info-icon.svg')] bg-size-[28px] bg-left-top bg-no-repeat"
           />
 
           <div className="text-black-800 pl-1 text-xs">
