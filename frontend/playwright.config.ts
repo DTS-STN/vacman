@@ -21,5 +21,13 @@ export default defineConfig({
     command: 'tsx --import ./app/.server/telemetry.ts ./app/.server/express/server.ts',
     reuseExistingServer: !process.env.CI,
     url: `http://localhost:3000/`,
+    env: {
+      AUTH_DEFAULT_PROVIDER: 'local',
+      NODE_ENV: 'development',
+      ENABLE_DEVMODE_OIDC: 'true',
+      AZUREAD_ISSUER_URL: '',
+      AZUREAD_CLIENT_ID: '',
+      AZUREAD_CLIENT_SECRET: '',
+    },
   },
 });
