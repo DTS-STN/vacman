@@ -221,43 +221,55 @@ const allDirectorates = await getDirectorateService().listAll();
 const allBranchOrServiceCanadaRegions = extractUniqueBranchesFromDirectoratesNonLocalized(allDirectorates);
 const allLanguagesOfCorrespondence = await getLanguageForCorrespondenceService().listAll();
 
-export const submissionDetailSchema = v.object({
-  isSubmiterHiringManager: v.boolean('app:submission-details.errors.is-submitter-hiring-manager-required'),
-  branchOrServiceCanadaRegion: v.lazy(() =>
-    v.pipe(
-      stringToIntegerSchema('app:submission-details.errors.branch-or-service-canada-region-required'),
-      v.picklist(
-        allBranchOrServiceCanadaRegions.map(({ id }) => id),
-        'app:submission-details.errors.branch-or-service-canada-region-required',
+const getIsSubmiterHiringManagerErrorMessage = (view: 'hr-advisor' | 'hiring-manager' | undefined) => {
+  if (view === 'hiring-manager') {
+    return 'app:submission-details.errors.are-you-hiring-manager-for-request-required';
+  }
+  // Default for 'hr-advisor' or if view is not provided/unexpected
+  return 'app:submission-details.errors.is-submitter-hiring-manager-required';
+};
+export const submissionDetailSchema = (view: 'hr-advisor' | 'hiring-manager' | undefined) => {
+  return v.object({
+    view: v.optional(v.string()),
+    isSubmiterHiringManager: v.boolean(
+      getIsSubmiterHiringManagerErrorMessage(view), // Pass the view to get the correct error message
+    ),
+    branchOrServiceCanadaRegion: v.lazy(() =>
+      v.pipe(
+        stringToIntegerSchema('app:submission-details.errors.branch-or-service-canada-region-required'),
+        v.picklist(
+          allBranchOrServiceCanadaRegions.map(({ id }) => id),
+          'app:submission-details.errors.branch-or-service-canada-region-required',
+        ),
       ),
     ),
-  ),
-  directorate: v.lazy(() =>
-    v.pipe(
-      stringToIntegerSchema('app:submission-details.errors.directorate-required'),
-      v.picklist(
-        allDirectorates.map(({ id }) => id),
-        'app:submission-details.errors.directorate-required',
+    directorate: v.lazy(() =>
+      v.pipe(
+        stringToIntegerSchema('app:submission-details.errors.directorate-required'),
+        v.picklist(
+          allDirectorates.map(({ id }) => id),
+          'app:submission-details.errors.directorate-required',
+        ),
       ),
     ),
-  ),
-  languageOfCorrespondenceId: v.lazy(() =>
-    v.pipe(
-      stringToIntegerSchema('app:submission-details.errors.preferred-language-of-correspondence-required'),
-      v.picklist(
-        allLanguagesOfCorrespondence.map(({ id }) => id),
-        'app:submission-details.errors.preferred-language-of-correspondence-required',
+    languageOfCorrespondenceId: v.lazy(() =>
+      v.pipe(
+        stringToIntegerSchema('app:submission-details.errors.preferred-language-of-correspondence-required'),
+        v.picklist(
+          allLanguagesOfCorrespondence.map(({ id }) => id),
+          'app:submission-details.errors.preferred-language-of-correspondence-required',
+        ),
       ),
     ),
-  ),
-  additionalComment: v.optional(
-    v.pipe(
-      v.string('app:submission-details.errors.additional-information-required'),
-      v.trim(),
-      v.maxLength(100, 'app:submission-details.errors.additional-information-max-length'),
+    additionalComment: v.optional(
+      v.pipe(
+        v.string('app:submission-details.errors.additional-information-required'),
+        v.trim(),
+        v.maxLength(100, 'app:submission-details.errors.additional-information-max-length'),
+      ),
     ),
-  ),
-});
+  });
+};
 
 export const processInformationSchema = v.pipe(
   v.intersect([

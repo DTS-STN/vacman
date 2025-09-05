@@ -35,7 +35,12 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   requireAuthentication(context.session, request);
 
   const formData = await request.formData();
-  const parseResult = v.safeParse(submissionDetailSchema, {
+  const view = formString(formData.get('view')) as 'hr-advisor' | 'hiring-manager' | undefined;
+
+  const dynamicSubmissionDetailSchema = submissionDetailSchema(view);
+
+  const parseResult = v.safeParse(dynamicSubmissionDetailSchema, {
+    view: view,
     isSubmiterHiringManager: formData.get('isSubmiterHiringManager')
       ? formData.get('isSubmiterHiringManager') === REQUIRE_OPTIONS.yes
       : undefined,
@@ -47,7 +52,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 
   if (!parseResult.success) {
     return data(
-      { errors: v.flatten<typeof submissionDetailSchema>(parseResult.issues).nested },
+      { errors: v.flatten<typeof dynamicSubmissionDetailSchema>(parseResult.issues).nested },
       { status: HttpStatusCodes.BAD_REQUEST },
     );
   }

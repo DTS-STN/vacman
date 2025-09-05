@@ -115,6 +115,7 @@ export function SubmissionDetailsForm({
         <Form method="post" noValidate>
           <div className="space-y-6">
             <div className="rounded-2xl border bg-gray-100 px-3 py-0.5 text-sm font-semibold text-black">
+              <input type="hidden" name="view" value={view} />
               {view === 'hiring-manager'
                 ? tApp('submission-details.hiring-manager.submitter', {
                     name: submitterName,
