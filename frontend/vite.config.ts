@@ -17,6 +17,7 @@ export default defineConfig({
   build: {
     target: 'es2022',
   },
+  envDir: false,
   optimizeDeps: {
     entries: ['./app/entry.client.tsx', './app/root.tsx', './app/routes/**/*.tsx'],
   },
