@@ -420,10 +420,10 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
         <div className="flex w-full items-start space-x-4 border-l-6 border-[#2572B4] bg-blue-100 p-4">
           <div
             role="presentation"
-            className="bg-[rgba(37, 114, 180,1)] h-28 min-w-fit bg-[url('/info-icon.svg')] bg-size-[28px] bg-left-top bg-no-repeat"
+            className="bg-[rgba(37, 114, 180,1)] h-28 min-w-[30px] bg-[url('/info-icon.svg')] bg-size-[28px] bg-left-top bg-no-repeat"
           />
 
-          <div className="text-black-800 pl-1 text-xs">
+          <div className="text-black-800 pl-1 text-base">
             <p>{t('app:hiring-manager-referral-requests.page-info-1')}</p>
             <p className="mt-2">{t('app:hiring-manager-referral-requests.page-info-2')}</p>
             <p className="mt-2">{t('app:hiring-manager-referral-requests.page-info-3')}</p>
