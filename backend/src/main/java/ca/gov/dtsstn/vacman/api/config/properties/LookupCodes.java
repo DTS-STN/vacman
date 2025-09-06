@@ -25,16 +25,16 @@ public record LookupCodes(
 	@Validated
 	public record RequestStatuses(
 		@NotBlank String cancelled,
-		@NotBlank String clrGranted,
+		@NotBlank String clearanceGranted,
 		@NotBlank String draft,
-		@NotBlank String fdbkPending,
-		@NotBlank String fdbkPendAppr,
+		@NotBlank String feedbackPending,
+		@NotBlank String feedbackPendingApproval,
 		@NotBlank String hrReview,
 		@NotBlank String noMatchHrReview,
-		@NotBlank String pendingPsc,
-		@NotBlank String pendingPscNoVms,
-		@NotBlank String pscGranted,
-		@NotBlank String submit
+		@NotBlank String pendingPscClearance,
+		@NotBlank String pendingPscClearanceNoVms,
+		@NotBlank String pscClearanceGranted,
+		@NotBlank String submitted
 	) {}
 
 	@Validated
