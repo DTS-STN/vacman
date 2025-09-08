@@ -63,7 +63,12 @@ export async function requireRoleRegistration(
 
 // Specific implementations
 export async function checkHiringManagerRouteRegistration(session: AuthenticatedSession, request: Request): Promise<void> {
-  await requireRoleRegistration(session, request, ['admin', 'hiring-manager'], isHiringManagerPath);
+  // TODO: Apply a fix to route to hiring manager dashboard on login
+  // There is no security group in Azure AD for hiring managers, hiring managers are also regular users
+  // To route to the hiring manager dashboard on login, we could check if the user has submitted any hiring requests
+  // Also need to consider that the employee shouldn't be able to navigate to the hiring managers route by typing in the url,
+  // that's why the roles are kept for now even if they are not present in the Azure AD.
+  await requireRoleRegistration(session, request, ['admin', 'hr-advisor', 'hiring-manager'], isHiringManagerPath);
 }
 
 /**

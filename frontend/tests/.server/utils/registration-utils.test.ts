@@ -252,7 +252,7 @@ describe('registration-utils', () => {
       await checkHiringManagerRouteRegistration(session, request);
 
       expect(mockUserService.getCurrentUser).toHaveBeenCalled();
-      expect(mockRequireAnyRole).toHaveBeenCalledWith(session, new URL(request.url), ['admin', 'hiring-manager']);
+      expect(mockRequireAnyRole).toHaveBeenCalledWith(session, new URL(request.url), ['admin', 'hr-advisor', 'hiring-manager']);
     });
 
     it('should return early when not on hiring manager path', async () => {
