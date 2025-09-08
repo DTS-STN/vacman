@@ -55,26 +55,16 @@ const selectedLanguageRequirementForOptionalLanguageLevel = allLanguageRequireme
     nameFr: languageRequirement.nameFr,
   }));
 
-const selectedSelectionProcessTypeForExternalNonAdvertised = allSelectionProcessTypes
-  .filter((c) => c.code === SELECTION_PROCESS_TYPE.externalNonAdvertised)
-  .map((employmentTenure) => ({
-    id: employmentTenure.id,
-    code: employmentTenure.code,
-    nameEn: employmentTenure.nameEn,
-    nameFr: employmentTenure.nameFr,
-  }));
+const selectedSelectionProcessTypeForExternalNonAdvertised = allSelectionProcessTypes.filter(
+  (c) => c.id === SELECTION_PROCESS_TYPE.externalNonAdvertised,
+);
 
-const selectedSelectionProcessTypeForInternalNonAdvertised = allSelectionProcessTypes
-  .filter((c) => c.code === SELECTION_PROCESS_TYPE.internalNonAdvertised)
-  .map((employmentTenure) => ({
-    id: employmentTenure.id,
-    code: employmentTenure.code,
-    nameEn: employmentTenure.nameEn,
-    nameFr: employmentTenure.nameFr,
-  }));
+const selectedSelectionProcessTypeForInternalNonAdvertised = allSelectionProcessTypes.filter(
+  (c) => c.id === SELECTION_PROCESS_TYPE.internalNonAdvertised,
+);
 
 const selectedSelectionProcessTypesExcludingNonAdvertised = allSelectionProcessTypes.filter(
-  (c) => c.code !== SELECTION_PROCESS_TYPE.internalNonAdvertised && c.code !== SELECTION_PROCESS_TYPE.externalNonAdvertised,
+  (c) => c.id !== SELECTION_PROCESS_TYPE.internalNonAdvertised && c.id !== SELECTION_PROCESS_TYPE.externalNonAdvertised,
 );
 
 const selectedEmploymentTenureForIndeterminate = allEmploymentTenures
@@ -309,7 +299,6 @@ export const processInformationSchema = v.pipe(
       'app:process-information.errors.priority-entitlement-required',
     ),
     v.variant(
-      // TODO this needs to be looked into.  Validation is skipped
       'selectionProcessType',
       [
         v.object({
@@ -345,8 +334,8 @@ export const processInformationSchema = v.pipe(
             stringToIntegerSchema(),
             v.picklist(selectedSelectionProcessTypesExcludingNonAdvertised.map(({ id }) => id)),
           ),
-          performedDuties: v.optional(v.boolean()),
-          nonAdvertisedAppointment: v.optional(v.number()),
+          performedDuties: v.undefined(),
+          nonAdvertisedAppointment: v.undefined(),
         }),
       ],
       'app:process-information.errors.selection-process-type-required',
