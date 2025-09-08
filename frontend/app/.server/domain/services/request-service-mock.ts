@@ -1,6 +1,9 @@
 import { Err, Ok } from 'oxide.ts';
 import type { Result, Option } from 'oxide.ts';
 
+import { getLanguageRequirementService } from './language-requirement-service';
+import { getSecurityClearanceService } from './security-clearance-service';
+
 import type {
   RequestReadModel,
   RequestUpdateModel,
@@ -131,10 +134,43 @@ export function getMockRequestService(): RequestService {
         return Err(new AppError(`Request with ID ${requestId} not found.`, ErrorCodes.REQUEST_NOT_FOUND));
       }
 
+      const languageRequirementService = getLanguageRequirementService();
+      const classificationService = getLanguageRequirementService();
+      const securityClearanceService = getSecurityClearanceService();
+
+      const languageRequirement =
+        requestUpdate.languageRequirementId !== undefined
+          ? (await Promise.all([languageRequirementService.getById(requestUpdate.languageRequirementId)]))
+              .filter((result) => result.isOk())
+              .map((result) => result.unwrap())[0]
+          : existingRequest.languageRequirement;
+
+      const classification =
+        requestUpdate.classificationId !== undefined
+          ? (await Promise.all([classificationService.getById(requestUpdate.classificationId)]))
+              .filter((result) => result.isOk())
+              .map((result) => result.unwrap())[0]
+          : existingRequest.classification;
+
+      const securityClearance =
+        requestUpdate.securityClearanceId !== undefined
+          ? (await Promise.all([securityClearanceService.getById(requestUpdate.securityClearanceId)]))
+              .filter((result) => result.isOk())
+              .map((result) => result.unwrap())[0]
+          : existingRequest.securityClearance;
+
       // Merge updates with existing request
       const updatedRequest: RequestReadModel = {
         ...existingRequest,
         ...requestUpdate,
+        positionNumber: requestUpdate.positionNumbers?.join(',') ?? existingRequest.positionNumber,
+        englishTitle: requestUpdate.englishTitle ?? existingRequest.englishTitle,
+        frenchTitle: requestUpdate.frenchTitle ?? existingRequest.frenchTitle,
+        languageRequirement,
+        classification,
+        englishLanguageProfile: requestUpdate.englishLanguageProfile ?? existingRequest.englishLanguageProfile,
+        frenchLanguageProfile: requestUpdate.frenchLanguageProfile ?? existingRequest.frenchLanguageProfile,
+        securityClearance,
         id: requestId, // Ensure ID doesn't change
         lastModifiedDate: new Date().toISOString(),
         lastModifiedBy: 'mock-user',
