@@ -100,7 +100,7 @@ export default function RequestsTables({
           return (
             <InlineLink
               className="text-sky-800 no-underline decoration-slate-400 decoration-2 hover:underline"
-              file="routes/hiring-manager/request/index.tsx"
+              file={`routes/${view}/request/index.tsx`}
               params={{ requestId }}
               aria-label={t('requests-tables.view-link', {
                 requestId,
