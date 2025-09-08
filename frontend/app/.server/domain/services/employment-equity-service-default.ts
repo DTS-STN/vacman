@@ -5,7 +5,7 @@ import { ErrorCodes } from '~/errors/error-codes';
 
 // Create a single instance of the service using shared implementation with standard localization
 const sharedService = createLookupService<EmploymentEquity>(
-  '/codes/employment-equity',
+  '/codes/employment-equities',
   'employment equity',
   ErrorCodes.NO_EMPLOYMENT_EQUITY_FOUND,
 );
