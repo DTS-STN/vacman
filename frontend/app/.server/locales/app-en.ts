@@ -210,6 +210,12 @@ export default {
     'view-link': 'View profile information for {{profileUserName}}',
     'table-updated-my-employees': 'Table updated: showing My Employees',
     'table-updated-all-employees': 'Table updated: showing All Employees',
+    'create-profile': 'Create profile',
+    'employee-work-email': 'Employee work email address',
+    'errors': {
+      'email-required': 'Email address is required.',
+      'email-invalid': 'Invalid email address.',
+    },
   },
   'hiring-manager-dashboard': {
     'page-title': 'Hiring manager dashboard',

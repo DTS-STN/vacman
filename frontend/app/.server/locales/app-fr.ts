@@ -213,6 +213,12 @@ export default {
     'view-link': 'Afficher les informations de profil pour {{profileUserName}} ',
     'table-updated-my-employees': 'Tableau mis à jour : affichage de Mes employé-e-s',
     'table-updated-all-employees': 'Tableau mis à jour : affichage de Liste complète des employé-e-s',
+    'create-profile': 'Créer un profil',
+    'employee-work-email': "Adresse e-mail professionnelle de l'employé-e",
+    'errors': {
+      'email-required': "L'adresse du courriel est requise.",
+      'email-invalid': "L'adresse du courriel n'est pas valide.",
+    },
   },
   'hiring-manager-dashboard': {
     'page-title': 'Tableau de bord du responsable du recrutement',
