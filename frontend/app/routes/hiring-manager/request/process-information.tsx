@@ -16,11 +16,12 @@ import { getWorkScheduleService } from '~/.server/domain/services/work-schedule-
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { BackLink } from '~/components/back-link';
+import { REQUIRE_OPTIONS } from '~/domain/constants';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
 import { ProcessInformationForm } from '~/routes/page-components/requests/process-information/form';
-import { processInformationSchema } from '~/routes/page-components/requests/validation.server';
+import { processInformationSchema, toDateString } from '~/routes/page-components/requests/validation.server';
 import { formString } from '~/utils/string-utils';
 
 export const handle = {
@@ -34,21 +35,42 @@ export function meta({ loaderData }: Route.MetaArgs) {
 export async function action({ context, params, request }: Route.ActionArgs) {
   requireAuthentication(context.session, request);
 
+  // TODO: consider extracting this out into a function similar to profile/employment-information
   const formData = await request.formData();
+  const projectedStartDateYear = formData.get('projectedStartDateYear')?.toString();
+  const projectedStartDateMonth = formData.get('projectedStartDateMonth')?.toString();
+  const projectedStartDateDay = formData.get('projectedStartDateDay')?.toString();
+  const projectedEndDateYear = formData.get('projectedEndDateYear')?.toString();
+  const projectedEndDateMonth = formData.get('projectedEndDateMonth')?.toString();
+  const projectedEndDateDay = formData.get('projectedEndDateDay')?.toString();
   const parseResult = v.safeParse(processInformationSchema, {
     selectionProcessNumber: formString(formData.get('selectionProcessNumber')),
-    approvalReceived: formString(formData.get('approvalReceived')),
-    priorityEntitlement: formString(formData.get('priorityEntitlement')),
+    approvalReceived: formString(formData.get('approvalReceived'))
+      ? formString(formData.get('approvalReceived')) === 'on'
+      : undefined,
+    priorityEntitlement: formString(formData.get('priorityEntitlement'))
+      ? formString(formData.get('priorityEntitlement')) === REQUIRE_OPTIONS.yes
+      : undefined,
     priorityEntitlementRationale: formString(formData.get('priorityEntitlementRationale')),
-    preferredSelectionProcessType: formString(formData.get('preferredSelectionProcessType')),
-    performedDuties: formString(formData.get('performedDuties')),
+    selectionProcessType: formString(formData.get('selectionProcessType')),
+    performedDuties: formString(formData.get('performedDuties'))
+      ? formString(formData.get('performedDuties')) === REQUIRE_OPTIONS.yes
+      : undefined,
     nonAdvertisedAppointment: formString(formData.get('nonAdvertisedAppointment')),
     employmentTenure: formString(formData.get('employmentTenure')),
-    projectedStartDate: formString(formData.get('projectedStartDate')),
-    projectedEndDate: formString(formData.get('projectedEndDate')),
+    projectedStartDate: toDateString(projectedStartDateYear, projectedStartDateMonth, projectedStartDateDay),
+    projectedStartDateYear,
+    projectedStartDateMonth,
+    projectedStartDateDay,
+    projectedEndDate: toDateString(projectedEndDateYear, projectedEndDateMonth, projectedEndDateDay),
+    projectedEndDateYear,
+    projectedEndDateMonth,
+    projectedEndDateDay,
     workSchedule: formString(formData.get('workSchedule')),
-    employmentEquityIdentified: formString(formData.get('employmentEquityIdentified')),
-    preferredEmploymentEquities: formString(formData.get('preferredEmploymentEquities')),
+    employmentEquityIdentified: formString(formData.get('employmentEquityIdentified'))
+      ? formString(formData.get('employmentEquityIdentified')) === REQUIRE_OPTIONS.yes
+      : undefined,
+    preferredEmploymentEquities: formData.getAll('preferredEmploymentEquities'),
   });
 
   if (!parseResult.success) {
@@ -73,10 +95,10 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     workforceManagementApproved: parseResult.output.approvalReceived,
     priorityEntitlement: parseResult.output.priorityEntitlement,
     priorityEntitlementRationale: parseResult.output.priorityEntitlementRationale,
-    selectionProcessTypeId: parseResult.output.preferredSelectionProcessType,
+    selectionProcessTypeId: parseResult.output.selectionProcessType,
     performedSameDuties: parseResult.output.performedDuties,
     nonAdvertisedAppointmentId: parseResult.output.nonAdvertisedAppointment,
-    //employmentTenure: parseResult.output.employmentTenure,      //Missing from model
+    employmentTenureId: parseResult.output.employmentTenure,
     projectedStartDate: parseResult.output.projectedStartDate,
     projectedEndDate: parseResult.output.projectedEndDate,
     workScheduleId: Number(parseResult.output.workSchedule),
@@ -128,7 +150,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       approvalReceived: requestData.workforceMgmtApprovalRecvd,
       priorityEntitlement: requestData.priorityEntitlement,
       priorityEntitlementRationale: requestData.priorityEntitlementRationale,
-      preferredSelectionProcessType: requestData.selectionProcessType,
+      selectionProcessType: requestData.selectionProcessType,
       performedDuties: requestData.hasPerformedSameDuties,
       nonAdvertisedAppointment: requestData.appointmentNonAdvertised,
       employmentTenure: requestData.employmentTenure,
@@ -148,7 +170,6 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 
 export default function HiringManagerRequestProcessInformation({ loaderData, actionData, params }: Route.ComponentProps) {
   const { t } = useTranslation(handle.i18nNamespace);
-  const errors = undefined; //actionData?.errors;
 
   return (
     <>
@@ -168,7 +189,7 @@ export default function HiringManagerRequestProcessInformation({ loaderData, act
           workSchedules={loaderData.localizedWorkSchedules}
           employmentEquities={loaderData.localizedEmploymentEquities}
           cancelLink={'routes/hiring-manager/request/index.tsx'}
-          formErrors={errors}
+          formErrors={actionData?.errors}
           formValues={loaderData.defaultValues}
           isReadOnly={false}
           params={params}
