@@ -133,6 +133,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       frenchLanguageProfile: requestData.frenchLanguageProfile,
       languageRequirement: requestData.languageRequirement,
       securityClearance: requestData.securityClearance,
+      cities: requestData.cities,
     },
     languageRequirements: localizedLanguageRequirements,
     classifications: localizedClassifications,
