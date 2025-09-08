@@ -1,9 +1,6 @@
 import { Err, Ok } from 'oxide.ts';
 import type { Result, Option } from 'oxide.ts';
 
-import { getLanguageRequirementService } from './language-requirement-service';
-import { getSecurityClearanceService } from './security-clearance-service';
-
 import type {
   RequestReadModel,
   RequestUpdateModel,
@@ -13,8 +10,14 @@ import type {
   PagedProfileResponse,
   RequestStatus,
 } from '~/.server/domain/models';
+import { getEmploymentEquityService } from '~/.server/domain/services/employment-equity-service';
+import { getEmploymentTenureService } from '~/.server/domain/services/employment-tenure-service';
+import { getLanguageRequirementService } from '~/.server/domain/services/language-requirement-service';
 import { createMockRequest, mockRequests } from '~/.server/domain/services/mockData';
 import type { RequestService } from '~/.server/domain/services/request-service';
+import { getSecurityClearanceService } from '~/.server/domain/services/security-clearance-service';
+import { getSelectionProcessTypeService } from '~/.server/domain/services/selection-process-type-service';
+import { getWorkScheduleService } from '~/.server/domain/services/work-schedule-service';
 import { LogFactory } from '~/.server/logging';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
@@ -137,24 +140,54 @@ export function getMockRequestService(): RequestService {
       const languageRequirementService = getLanguageRequirementService();
       const classificationService = getLanguageRequirementService();
       const securityClearanceService = getSecurityClearanceService();
+      const selectionProcessTypeService = getSelectionProcessTypeService();
+      const employmentTenureService = getEmploymentTenureService();
+      const workScheduleService = getWorkScheduleService();
+      const employmentEquityService = getEmploymentEquityService();
+
+      const selectionProcessType =
+        requestUpdate.selectionProcessTypeId !== undefined
+          ? [await selectionProcessTypeService.getById(requestUpdate.selectionProcessTypeId)]
+              .filter((result) => result.isOk())
+              .map((result) => result.unwrap())[0]
+          : existingRequest.selectionProcessType;
+
+      const employmentTenure =
+        requestUpdate.employmentTenureId !== undefined
+          ? [await employmentTenureService.getById(requestUpdate.employmentTenureId)]
+              .filter((result) => result.isOk())
+              .map((result) => result.unwrap())[0]
+          : existingRequest.employmentTenure;
+
+      const employmentEquities =
+        requestUpdate.employmentEquityIds !== undefined
+          ? (await employmentEquityService.listAll()).filter(({ id }) => requestUpdate.employmentEquityIds?.includes(id))
+          : existingRequest.employmentEquities;
+
+      const workSchedule =
+        requestUpdate.workScheduleId !== undefined
+          ? [await workScheduleService.getById(requestUpdate.workScheduleId)]
+              .filter((result) => result.isOk())
+              .map((result) => result.unwrap())[0]
+          : existingRequest.workSchedule;
 
       const languageRequirement =
         requestUpdate.languageRequirementId !== undefined
-          ? (await Promise.all([languageRequirementService.getById(requestUpdate.languageRequirementId)]))
+          ? [await languageRequirementService.getById(requestUpdate.languageRequirementId)]
               .filter((result) => result.isOk())
               .map((result) => result.unwrap())[0]
           : existingRequest.languageRequirement;
 
       const classification =
         requestUpdate.classificationId !== undefined
-          ? (await Promise.all([classificationService.getById(requestUpdate.classificationId)]))
+          ? [await classificationService.getById(requestUpdate.classificationId)]
               .filter((result) => result.isOk())
               .map((result) => result.unwrap())[0]
           : existingRequest.classification;
 
       const securityClearance =
         requestUpdate.securityClearanceId !== undefined
-          ? (await Promise.all([securityClearanceService.getById(requestUpdate.securityClearanceId)]))
+          ? [await securityClearanceService.getById(requestUpdate.securityClearanceId)]
               .filter((result) => result.isOk())
               .map((result) => result.unwrap())[0]
           : existingRequest.securityClearance;
@@ -171,6 +204,10 @@ export function getMockRequestService(): RequestService {
         englishLanguageProfile: requestUpdate.englishLanguageProfile ?? existingRequest.englishLanguageProfile,
         frenchLanguageProfile: requestUpdate.frenchLanguageProfile ?? existingRequest.frenchLanguageProfile,
         securityClearance,
+        selectionProcessType,
+        employmentTenure,
+        workSchedule,
+        employmentEquities,
         id: requestId, // Ensure ID doesn't change
         lastModifiedDate: new Date().toISOString(),
         lastModifiedBy: 'mock-user',
