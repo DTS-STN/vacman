@@ -152,13 +152,12 @@ export function getMockRequestService(): RequestService {
               .map((result) => result.unwrap())[0]
           : existingRequest.classification;
 
-      let securityClearance = existingRequest.securityClearance;
-      if (requestUpdate.securityClearanceId) {
-        const securityClearanceResult = await securityClearanceService.getById(requestUpdate.securityClearanceId);
-        if (securityClearanceResult.isOk()) {
-          securityClearance = securityClearanceResult.unwrap();
-        }
-      }
+      const securityClearance =
+        requestUpdate.securityClearanceId !== undefined
+          ? (await Promise.all([securityClearanceService.getById(requestUpdate.securityClearanceId)]))
+              .filter((result) => result.isOk())
+              .map((result) => result.unwrap())[0]
+          : existingRequest.securityClearance;
 
       // Merge updates with existing request
       const updatedRequest: RequestReadModel = {
