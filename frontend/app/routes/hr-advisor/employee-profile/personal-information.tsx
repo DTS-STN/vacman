@@ -128,8 +128,6 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   requireAuthentication(context.session, request);
 
   const accessToken = context.session.authState.accessToken;
-  const currentUserOption = await getUserService().getCurrentUser(accessToken);
-  const currentUser = currentUserOption.unwrap();
   const profileResult = await getProfileService().getProfileById(Number(params.profileId), accessToken);
 
   if (profileResult.isErr()) {
@@ -147,9 +145,9 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       lastName: profileData.profileUser.lastName,
       personalRecordIdentifier: profileData.profileUser.personalRecordIdentifier,
       languageOfCorrespondence: profileData.languageOfCorrespondence,
-      businessEmailAddress: currentUser.businessEmailAddress ?? profileData.profileUser.businessEmailAddress,
+      businessEmailAddress: profileData.profileUser.businessEmailAddress,
       personalEmailAddress: profileData.personalEmailAddress,
-      businessPhoneNumber: toE164(currentUser.businessPhoneNumber ?? profileData.profileUser.businessPhoneNumber),
+      businessPhoneNumber: toE164(profileData.profileUser.businessPhoneNumber),
       personalPhoneNumber: toE164(profileData.personalPhoneNumber),
       additionalComment: profileData.additionalComment,
     },
