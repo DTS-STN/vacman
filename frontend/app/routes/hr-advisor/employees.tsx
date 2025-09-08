@@ -2,27 +2,36 @@ import type { JSX } from 'react';
 import { useEffect, useMemo, useState } from 'react';
 
 import type { RouteHandle } from 'react-router';
-import { useSearchParams } from 'react-router';
+import { data, Form, useSearchParams } from 'react-router';
 
 import type { ColumnDef } from '@tanstack/react-table';
 import { useTranslation } from 'react-i18next';
+import * as v from 'valibot';
 
 import type { Route } from './+types/employees';
 
 import type { Profile, ProfileStatus } from '~/.server/domain/models';
 import { getProfileService } from '~/.server/domain/services/profile-service';
 import { getProfileStatusService } from '~/.server/domain/services/profile-status-service';
+import { getUserService } from '~/.server/domain/services/user-service';
 import { serverEnvironment } from '~/.server/environment';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
+import { i18nRedirect } from '~/.server/utils/route-utils';
 import { BackLink } from '~/components/back-link';
+import { Button } from '~/components/button';
 import { DataTable, DataTableColumnHeader, DataTableColumnHeaderWithOptions } from '~/components/data-table';
+import { FormErrorSummary } from '~/components/error-summary';
+import { InputField } from '~/components/input-field';
 import { InputSelect } from '~/components/input-select';
 import { InlineLink } from '~/components/links';
 import { PageTitle } from '~/components/page-title';
 import { PROFILE_STATUS_CODE } from '~/domain/constants';
+import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
 import { formatDateTimeInZone } from '~/utils/date-utils';
+import { formString } from '~/utils/string-utils';
+import { extractValidationKey } from '~/utils/validation-utils';
 
 export const handle = {
   i18nNamespace: [...parentHandle.i18nNamespace],
@@ -30,6 +39,35 @@ export const handle = {
 
 export function meta({ loaderData }: Route.MetaArgs) {
   return [{ title: loaderData.documentTitle }];
+}
+
+export async function action({ context, request }: Route.ActionArgs) {
+  requireAuthentication(context.session, request);
+  const formData = await request.formData();
+  const parseResult = v.safeParse(
+    v.object({
+      email: v.pipe(
+        v.string('app:hr-advisor-employees-table.errors.email-required'),
+        v.trim(),
+        v.nonEmpty('app:hr-advisor-employees-table.errors.email-required'),
+        v.email('app:hr-advisor-employees-table.errors.email-invalid'),
+      ),
+    }),
+    {
+      email: formString(formData.get('email')),
+    },
+  );
+
+  if (!parseResult.success) {
+    return data({ errors: v.flatten(parseResult.issues).nested }, { status: HttpStatusCodes.BAD_REQUEST });
+  }
+
+  const userResult = await getUserService().getUserByEmail(parseResult.output.email, context.session.authState.accessToken);
+  const user = userResult.into();
+  // TODO: create profile for the user and update with correct profileId
+  return i18nRedirect('routes/hr-advisor/employee-profile/index.tsx', request, {
+    params: { profileId: user?.id.toString() },
+  });
 }
 
 export async function loader({ context, request }: Route.LoaderArgs) {
@@ -74,7 +112,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
   };
 }
 
-export default function EmployeeDashboard({ loaderData, params }: Route.ComponentProps) {
+export default function EmployeeDashboard({ loaderData, actionData, params }: Route.ComponentProps) {
   const { t } = useTranslation(handle.i18nNamespace);
 
   const [, setSearchParams] = useSearchParams({ filter: 'all' });
@@ -186,25 +224,44 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
       >
         {t('app:hr-advisor-employees-table.back-to-dashboard')}
       </BackLink>
-      <InputSelect
-        id="selectEmployees"
-        name="selectEmployees"
-        required={false}
-        options={employeesOptions}
-        label=""
-        aria-label={t('app:hr-advisor-employees-table.filter-by')}
-        defaultValue="all"
-        onChange={({ target }) => {
-          setSearchParams({ filter: target.value });
-          // Announce table filtering change to screen readers
-          const message =
-            target.value === 'me'
-              ? t('app:hr-advisor-employees-table.table-updated-my-employees')
-              : t('app:hr-advisor-employees-table.table-updated-all-employees');
-          setSrAnnouncement(message);
-        }}
-        className="wx-1/12 float-right my-4 sm:w-1/5"
-      />
+
+      <FormErrorSummary>
+        <h2 className="font-lato mt-8 text-lg font-semibold">{t('app:hr-advisor-employees-table.create-profile')}</h2>
+        <section className="mb-8 flex flex-col justify-between gap-8 sm:flex-row">
+          <Form method="post" noValidate className="grid place-content-between items-end gap-2 sm:grid-cols-2">
+            <InputField
+              label={t('app:hr-advisor-employees-table.employee-work-email')}
+              name="email"
+              errorMessage={t(extractValidationKey(actionData?.errors?.email))}
+              required
+              className="w-full"
+            />
+            <Button variant="primary" className="w-1/2">
+              {t('app:hr-advisor-employees-table.create-profile')}
+            </Button>
+          </Form>
+
+          <InputSelect
+            id="selectEmployees"
+            name="selectEmployees"
+            required={false}
+            options={employeesOptions}
+            label=""
+            aria-label={t('app:hr-advisor-employees-table.filter-by')}
+            defaultValue="all"
+            onChange={({ target }) => {
+              setSearchParams({ filter: target.value });
+              // Announce table filtering change to screen readers
+              const message =
+                target.value === 'me'
+                  ? t('app:hr-advisor-employees-table.table-updated-my-employees')
+                  : t('app:hr-advisor-employees-table.table-updated-all-employees');
+              setSrAnnouncement(message);
+            }}
+            className="w-full"
+          />
+        </section>
+      </FormErrorSummary>
 
       {/* ARIA live region for screen reader announcements */}
       <div aria-live="polite" role="status" className="sr-only">
