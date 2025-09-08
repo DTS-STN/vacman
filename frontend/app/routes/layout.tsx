@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import type { Route } from './+types/layout';
 
 import { requireAuthentication } from '~/.server/utils/auth-utils';
-import { checkHiringManagerRouteRegistration, checkHrAdvisorRouteRegistration } from '~/.server/utils/registration-utils';
+import { checkHrAdvisorRouteRegistration } from '~/.server/utils/registration-utils';
 import { getDashboardFile } from '~/.server/utils/route-utils';
 import { AppBar } from '~/components/app-bar';
 import { LanguageSwitcher } from '~/components/language-switcher';
@@ -26,7 +26,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
   // First ensure the user is authenticated (no specific roles required)
   requireAuthentication(context.session, request);
 
-  await checkHiringManagerRouteRegistration(context.session, request);
+  // There is no security group in Azure AD for hiring managers, hiring managers are also regular users
 
   await checkHrAdvisorRouteRegistration(context.session, request);
 
