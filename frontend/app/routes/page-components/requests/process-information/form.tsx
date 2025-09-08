@@ -40,7 +40,7 @@ export type ProcessInformation = {
   approvalReceived?: boolean;
   priorityEntitlement?: boolean;
   priorityEntitlementRationale?: string;
-  preferredSelectionProcessType?: SelectionProcessType;
+  selectionProcessType?: SelectionProcessType;
   performedDuties?: boolean;
   nonAdvertisedAppointment?: NonAdvertisedAppointment;
   employmentTenure?: EmploymentTenure;
@@ -81,7 +81,7 @@ export function ProcessInformationForm({
 
   const [priorityEntitlement, setPriorityEntitlement] = useState(formValues?.priorityEntitlement);
   const [selectionProcessType, setSelectionProcessType] = useState(
-    selectionProcessTypes.find((c) => c.id === formValues?.preferredSelectionProcessType?.id)?.code,
+    selectionProcessTypes.find((c) => c.id === formValues?.selectionProcessType?.id)?.code,
   );
   const [employmentTenure, setEmploymentTenure] = useState(
     employmentTenures.find((c) => c.id === formValues?.employmentTenure?.id)?.code,
@@ -225,7 +225,7 @@ export function ProcessInformationForm({
               name="selectionProcessType"
               label={tApp('process-information.selection-process-type')}
               options={selectionProcessTypeOptions}
-              errorMessage={tApp(extractValidationKey(formErrors?.preferredSelectionProcessType))}
+              errorMessage={tApp(extractValidationKey(formErrors?.selectionProcessType))}
               value={selectionProcessType ?? ''}
               onChange={({ target }) => setSelectionProcessType(target.value)}
               required

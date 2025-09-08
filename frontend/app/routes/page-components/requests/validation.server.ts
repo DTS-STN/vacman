@@ -12,7 +12,7 @@ import { getSelectionProcessTypeService } from '~/.server/domain/services/select
 import { extractUniqueBranchesFromDirectoratesNonLocalized } from '~/.server/utils/directorate-utils';
 import { stringToIntegerSchema } from '~/.server/validation/string-to-integer-schema';
 import { EMPLOYMENT_TENURE, LANGUAGE_REQUIREMENT_CODES, SELECTION_PROCESS_TYPE } from '~/domain/constants';
-import { isValidDateString } from '~/utils/date-utils';
+import { isValidDateString, toISODateString } from '~/utils/date-utils';
 
 // Services that don't require authentication can be called at module level
 const allProvinces = await getProvinceService().listAll();
@@ -72,6 +72,10 @@ const selectedSelectionProcessTypeForInternalNonAdvertised = allSelectionProcess
     nameEn: employmentTenure.nameEn,
     nameFr: employmentTenure.nameFr,
   }));
+
+const selectedSelectionProcessTypesExcludingNonAdvertised = allSelectionProcessTypes.filter(
+  (c) => c.code !== SELECTION_PROCESS_TYPE.internalNonAdvertised && c.code !== SELECTION_PROCESS_TYPE.externalNonAdvertised,
+);
 
 const selectedEmploymentTenureForIndeterminate = allEmploymentTenures
   .filter((c) => c.code === EMPLOYMENT_TENURE.indeterminate)
@@ -294,39 +298,44 @@ export const processInformationSchema = v.pipe(
       'app:process-information.errors.priority-entitlement-required',
     ),
     v.variant(
-      'preferredSelectionProcessType',
+      // TODO this needs to be looked into.  Validation is skipped
+      'selectionProcessType',
       [
         v.object({
-          preferredSelectionProcessType: v.pipe(
+          selectionProcessType: v.pipe(
             stringToIntegerSchema(),
             v.picklist(selectedSelectionProcessTypeForExternalNonAdvertised.map(({ id }) => id)),
           ),
           performedDuties: v.pipe(v.boolean('app:process-information.errors.performed-duties-required')),
-          nonAdvertisedAppointment: v.lazy(() =>
-            v.pipe(
-              stringToIntegerSchema('app:process-information.errors.non-advertised-appointment-required'),
-              v.picklist(
-                selectedNonAdvertisedAppointmentsForExternal.map(({ id }) => id),
-                'app:process-information.errors.non-advertised-appointment-required',
-              ),
+          nonAdvertisedAppointment: v.pipe(
+            stringToIntegerSchema('app:process-information.errors.non-advertised-appointment-required'),
+            v.picklist(
+              selectedNonAdvertisedAppointmentsForExternal.map(({ id }) => id),
+              'app:process-information.errors.non-advertised-appointment-required',
             ),
           ),
         }),
         v.object({
-          preferredSelectionProcessType: v.pipe(
+          selectionProcessType: v.pipe(
             stringToIntegerSchema(),
             v.picklist(selectedSelectionProcessTypeForInternalNonAdvertised.map(({ id }) => id)),
           ),
           performedDuties: v.pipe(v.boolean('app:process-information.errors.performed-duties-required')),
-          nonAdvertisedAppointment: v.lazy(() =>
-            v.pipe(
-              stringToIntegerSchema('app:process-information.errors.non-advertised-appointment-required'),
-              v.picklist(
-                selectedNonAdvertisedAppointmentsForInternal.map(({ id }) => id),
-                'app:process-information.errors.non-advertised-appointment-required',
-              ),
+          nonAdvertisedAppointment: v.pipe(
+            stringToIntegerSchema('app:process-information.errors.non-advertised-appointment-required'),
+            v.picklist(
+              selectedNonAdvertisedAppointmentsForInternal.map(({ id }) => id),
+              'app:process-information.errors.non-advertised-appointment-required',
             ),
           ),
+        }),
+        v.object({
+          selectionProcessType: v.pipe(
+            stringToIntegerSchema(),
+            v.picklist(selectedSelectionProcessTypesExcludingNonAdvertised.map(({ id }) => id)),
+          ),
+          performedDuties: v.optional(v.boolean()),
+          nonAdvertisedAppointment: v.optional(v.number()),
         }),
       ],
       'app:process-information.errors.selection-process-type-required',
@@ -401,16 +410,19 @@ export const processInformationSchema = v.pipe(
       [
         v.object({
           employmentEquityIdentified: v.literal(true),
-          preferredEmploymentEquities: v.array(
-            v.lazy(() =>
-              v.pipe(
-                stringToIntegerSchema('app:process-information.errors.employment-equities-required'),
-                v.picklist(
-                  allEmploymentEquities.map(({ id }) => id),
-                  'app:process-information.errors.employment-equities-required',
+          preferredEmploymentEquities: v.pipe(
+            v.array(
+              v.lazy(() =>
+                v.pipe(
+                  stringToIntegerSchema('app:process-information.errors.employment-equities-required'),
+                  v.picklist(
+                    allEmploymentEquities.map(({ id }) => id),
+                    'app:process-information.errors.employment-equities-required',
+                  ),
                 ),
               ),
             ),
+            v.nonEmpty('app:process-information.errors.employment-equities-required'),
           ),
         }),
         v.object({
@@ -425,8 +437,16 @@ export const processInformationSchema = v.pipe(
     v.check(
       //projectedStartDate and projectedEndDate are optional, but if both are present, then check that projectedStartDate < projectedEndDate
       (input) => !input.projectedStartDate || !input.projectedEndDate || input.projectedStartDate < input.projectedEndDate,
-      'app:process-information.errors.projected-end-date.invalid-before-effective-date',
+      'app:process-information.errors.projected-end-date.invalid-before-start-date',
     ),
     ['projectedEndDate'],
   ),
 );
+
+export function toDateString(year?: string, month?: string, day?: string): string {
+  try {
+    return toISODateString(Number(year), Number(month), Number(day));
+  } catch {
+    return '';
+  }
+}

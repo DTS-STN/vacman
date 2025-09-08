@@ -401,7 +401,7 @@ export const mockRequests: RequestReadModel[] = [
     priorityEntitlement: false,
     priorityEntitlementRationale: undefined,
     selectionProcessType: undefined,
-    hasPerformedSameDuties: true,
+    hasPerformedSameDuties: undefined,
     appointmentNonAdvertised: undefined,
     projectedStartDate: '2024-01-15',
     projectedEndDate: '2024-12-31',
