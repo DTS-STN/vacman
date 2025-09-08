@@ -2,7 +2,7 @@ import { getUserService } from '~/.server/domain/services/user-service';
 import { LogFactory } from '~/.server/logging';
 import { requireAnyRole } from '~/.server/utils/auth-utils';
 import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
-import { isHiringManagerPath, isHrAdvisorPath } from '~/.server/utils/route-matching-utils';
+import { isHrAdvisorPath } from '~/.server/utils/route-matching-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 
 const log = LogFactory.getLogger(import.meta.url);
@@ -61,16 +61,6 @@ export async function requireRoleRegistration(
   log.debug(`User is registered with role '${userRoles}' (allowed: [${rolesArray.join(', ')}]), allowing access`);
 }
 
-// Specific implementations
-export async function checkHiringManagerRouteRegistration(session: AuthenticatedSession, request: Request): Promise<void> {
-  // TODO: Apply a fix to route to hiring manager dashboard on login
-  // There is no security group in Azure AD for hiring managers, hiring managers are also regular users
-  // To route to the hiring manager dashboard on login, we could check if the user has submitted any hiring requests
-  // Also need to consider that the employee shouldn't be able to navigate to the hiring managers route by typing in the url,
-  // that's why the roles are kept for now even if they are not present in the Azure AD.
-  await requireRoleRegistration(session, request, ['admin', 'hr-advisor', 'hiring-manager'], isHiringManagerPath);
-}
-
 /**
  * Checks if the authenticated user has proper HR advisor route registration and permissions.
  *
@@ -92,5 +82,5 @@ export async function checkHiringManagerRouteRegistration(session: Authenticated
  * @returns A promise that resolves if validation passes, or throws on redirect/validation failure
  */
 export async function checkHrAdvisorRouteRegistration(session: AuthenticatedSession, request: Request): Promise<void> {
-  await requireRoleRegistration(session, request, ['admin', 'hr-advisor'], isHrAdvisorPath);
+  await requireRoleRegistration(session, request, ['hr-advisor'], isHrAdvisorPath);
 }
