@@ -1,0 +1,29 @@
+#######################################################################################################################
+# Configuration intended to be mounted as `application-local.yaml` for the vacman-backend Spring Boot application.
+#
+# This file provides environment-specific overrides to the default configuration.
+#######################################################################################################################
+
+# logging:
+#   level:
+#     '[ca.gov.dts_stn.vacman.api]': trace
+#     '[org.springframework]': debug
+
+management:
+  otlp:
+    metrics:
+      export:
+        enabled: true
+        url: https://dynatrace.prod-dp.admin.dts-stn.com/e/676a0299-9802-4933-99d4-481318a557db/api/v2/otlp/v1/metrics
+
+spring:
+  datasource:
+    url: jdbc:sqlserver://esdcvacmansqlsrv.database.windows.net;databaseName=EsDVacManDB_PRD;encrypt=true;trustServerCertificate=true;sendStringParametersAsUnicode=false;
+
+application:
+  entra-id:
+    client-id: 61e40073-c461-4ec8-8397-99f2976d4982
+  gcnotify:
+    profile-approved-template-id: ba6ff621-5b4b-4f5b-8509-387b63d3ddf4
+    profile-created-template-id: 9a62f432-c590-44e2-89c5-6d4d697a2524
+    profile-updated-template-id: ac981e25-2bb1-4d60-9d78-d4efaad754ff

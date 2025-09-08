@@ -1,0 +1,120 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vacman-backend
+  annotations:
+    secret.reloader.stakater.com/auto: 'true'
+  labels:
+    app.kubernetes.io/name: vacman-backend
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: vacman-backend
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: vacman-backend
+    spec:
+      containers:
+        - name: vacman-backend
+          image: dtsrhpprodscedspokeacr.azurecr.io/vacman/vacman-backend:0.0.0-9ae58fa2
+          envFrom:
+            - secretRef:
+                name: vacman-backend
+          ports:
+            - name: http
+              containerPort: 8080
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: http
+            initialDelaySeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 5
+            failureThreshold: 120
+          resources:
+            requests:
+              cpu: 200m
+              memory: 256Mi
+            limits:
+              memory: 1024Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+          volumeMounts:
+            - name: config
+              mountPath: /workspace/BOOT-INF/classes/application-local.yaml
+              subPath: application.yaml
+      hostAliases:
+        # Override DNS so that esdcvacmansqlsrv.database.windows.net
+        # always resolves to 10.72.61.197 inside this pod.
+        #
+        # ⚠️ WARNING:
+        # - This hardcodes the IP, so if it ever changes, the pod config must be updated.
+        # - Storing IPs in YAML can reveal internal network details.
+        - hostnames: [esdcvacmansqlsrv.database.windows.net]
+          ip: 10.72.61.197
+      volumes:
+        - name: config
+          configMap:
+            name: vacman-backend
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vacman-frontend
+  annotations:
+    secret.reloader.stakater.com/auto: 'true'
+  labels:
+    app.kubernetes.io/name: vacman-frontend
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: vacman-frontend
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: vacman-frontend
+    spec:
+      containers:
+        - name: vacman-frontend
+          image: dtsrhpprodscedspokeacr.azurecr.io/vacman/vacman-frontend:0.0.0-9ae58fa2
+          envFrom:
+            - configMapRef:
+                name: vacman-frontend
+            - secretRef:
+                name: vacman-frontend
+          env:
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: redis
+                  key: REDIS_PASSWORD
+          ports:
+            - name: http
+              containerPort: 3000
+          livenessProbe:
+            tcpSocket:
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /api/readyz
+              port: http
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 200m
+              memory: 256Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+  strategy:
+    rollingUpdate:
+      maxSurge: 100%
+      maxUnavailable: 0%
