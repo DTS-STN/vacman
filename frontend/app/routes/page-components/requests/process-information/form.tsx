@@ -81,7 +81,7 @@ export function ProcessInformationForm({
 
   const [priorityEntitlement, setPriorityEntitlement] = useState(formValues?.priorityEntitlement);
   const [selectionProcessType, setSelectionProcessType] = useState(
-    selectionProcessTypes.find((c) => c.id === formValues?.selectionProcessType?.id)?.code,
+    selectionProcessTypes.find((c) => c.id === formValues?.selectionProcessType?.id)?.id,
   );
   const [employmentTenure, setEmploymentTenure] = useState(
     employmentTenures.find((c) => c.id === formValues?.employmentTenure?.id)?.code,
@@ -227,7 +227,7 @@ export function ProcessInformationForm({
               options={selectionProcessTypeOptions}
               errorMessage={tApp(extractValidationKey(formErrors?.selectionProcessType))}
               value={selectionProcessType ?? ''}
-              onChange={({ target }) => setSelectionProcessType(target.value)}
+              onChange={({ target }) => setSelectionProcessType(Number(target.value))}
               required
             />
             {(selectionProcessType === SELECTION_PROCESS_TYPE.externalNonAdvertised ||
