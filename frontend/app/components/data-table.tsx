@@ -78,7 +78,7 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
               <TableRow
                 key={row.id}
                 data-state={row.getIsSelected() && 'selected'}
-                className="border-neutral-300 even:bg-neutral-50 hover:bg-neutral-100"
+                className="border-neutral-300 even:bg-neutral-50 hover:bg-slate-100"
               >
                 {row.getVisibleCells().map((cell) => (
                   <TableCell
