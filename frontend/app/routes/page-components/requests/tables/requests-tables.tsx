@@ -55,8 +55,23 @@ export default function RequestsTables({
       {
         accessorKey: 'id',
         header: ({ column }) => <DataTableColumnHeader column={column} title={t('requests-tables.requestId')} />,
-        cell: (info) => <p>{info.getValue() as string}</p>,
+        cell: (info) => {
+          const requestId = info.row.original.id.toString();
+          return (
+            <InlineLink
+              className="text-sky-800 no-underline decoration-slate-400 decoration-2 hover:underline"
+              file={`routes/${view}/request/index.tsx`}
+              params={{ requestId }}
+              aria-label={t('requests-tables.view-link', {
+                requestId,
+              })}
+            >
+              {info.getValue() as string}
+            </InlineLink>
+          );
+        },
       },
+
       {
         accessorKey: 'classification.id',
         header: ({ column }) => <DataTableColumnHeader column={column} title={t('requests-tables.classification')} />,
