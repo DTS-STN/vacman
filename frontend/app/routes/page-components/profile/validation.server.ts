@@ -2,6 +2,7 @@ import { parsePhoneNumberWithError } from 'libphonenumber-js';
 import * as v from 'valibot';
 import type { BaseSchema, BaseIssue } from 'valibot';
 
+import type { User } from '~/.server/domain/models';
 import { getCityService } from '~/.server/domain/services/city-service';
 import { getClassificationService } from '~/.server/domain/services/classification-service';
 import { getDirectorateService } from '~/.server/domain/services/directorate-service';
@@ -10,7 +11,6 @@ import { getLanguageReferralTypeService } from '~/.server/domain/services/langua
 import { getProvinceService } from '~/.server/domain/services/province-service';
 import { getWFAStatuses } from '~/.server/domain/services/wfa-status-service';
 import { extractUniqueBranchesFromDirectoratesNonLocalized } from '~/.server/utils/directorate-utils';
-import { getHrAdvisors } from '~/.server/utils/profile-utils';
 import { stringToIntegerSchema } from '~/.server/validation/string-to-integer-schema';
 import { EMPLOYEE_WFA_STATUS } from '~/domain/constants';
 import { isValidDateString, toISODateString } from '~/utils/date-utils';
@@ -29,9 +29,7 @@ const allCities = await getCityService().listAll();
 const allLanguageReferralTypes = await getLanguageReferralTypeService().listAll();
 
 // Function to create employment information schema with HR advisors
-export async function createEmploymentInformationSchema(accessToken: string, formData?: FormData) {
-  const hrAdvisors = await getHrAdvisors(accessToken);
-
+export function createEmploymentInformationSchema(hrAdvisors: User[]) {
   return v.pipe(
     v.intersect([
       v.object({
@@ -355,7 +353,7 @@ export const referralPreferencesSchema = v.object({
   isInterestedInAlternation: v.boolean('app:referral-preferences.errors.alternate-opportunity-required'),
 });
 
-export async function parseEmploymentInformation(formData: FormData, accessToken: string) {
+export function parseEmploymentInformation(formData: FormData, hrAdvisors: User[]) {
   const wfaStartDateYear = formData.get('wfaStartDateYear')?.toString();
   const wfaStartDateMonth = formData.get('wfaStartDateMonth')?.toString();
   const wfaStartDateDay = formData.get('wfaStartDateDay')?.toString();
@@ -382,10 +380,8 @@ export async function parseEmploymentInformation(formData: FormData, accessToken
     hrAdvisorId: formString(formData.get('hrAdvisorId')),
   };
 
-  const employmentInformationSchema = await createEmploymentInformationSchema(accessToken, formData);
-
   return {
-    parseResult: v.safeParse(employmentInformationSchema, formValues),
+    parseResult: v.safeParse(createEmploymentInformationSchema(hrAdvisors), formValues),
     formValues: {
       substantiveClassification: formValues.substantiveClassification,
       branchOrServiceCanadaRegion: formValues.branchOrServiceCanadaRegion,

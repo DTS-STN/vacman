@@ -38,8 +38,9 @@ export function meta({ loaderData }: Route.MetaArgs) {
 export async function action({ context, params, request }: Route.ActionArgs) {
   requireAuthentication(context.session, request);
 
+  const hrAdvisors = await getHrAdvisors(context.session.authState.accessToken);
   const formData = await request.formData();
-  const { parseResult, formValues } = await parseEmploymentInformation(formData, context.session.authState.accessToken);
+  const { parseResult, formValues } = parseEmploymentInformation(formData, hrAdvisors);
   if (!parseResult.success) {
     return data(
       { formValues: formValues, errors: v.flatten<EmploymentInformationSchema>(parseResult.issues).nested },
