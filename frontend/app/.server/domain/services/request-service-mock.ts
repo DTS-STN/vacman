@@ -15,6 +15,7 @@ import { getEmploymentEquityService } from '~/.server/domain/services/employment
 import { getEmploymentTenureService } from '~/.server/domain/services/employment-tenure-service';
 import { getLanguageRequirementService } from '~/.server/domain/services/language-requirement-service';
 import { createMockRequest, mockRequests } from '~/.server/domain/services/mockData';
+import { getNonAdvertisedAppointmentService } from '~/.server/domain/services/non-advertised-appointment-service';
 import type { RequestService } from '~/.server/domain/services/request-service';
 import { getSecurityClearanceService } from '~/.server/domain/services/security-clearance-service';
 import { getSelectionProcessTypeService } from '~/.server/domain/services/selection-process-type-service';
@@ -145,6 +146,7 @@ export function getMockRequestService(): RequestService {
       const employmentTenureService = getEmploymentTenureService();
       const workScheduleService = getWorkScheduleService();
       const employmentEquityService = getEmploymentEquityService();
+      const nonAdvertisedAppointmentService = getNonAdvertisedAppointmentService();
 
       const selectionProcessType =
         requestUpdate.selectionProcessTypeId !== undefined
@@ -201,6 +203,13 @@ export function getMockRequestService(): RequestService {
           ? [await getCityService().getById(cityId)].filter((result) => result.isOk()).map((result) => result.unwrap())[0]
           : existingRequest.cities?.[0];
 
+      const appointmentNonAdvertised =
+        requestUpdate.nonAdvertisedAppointmentId !== undefined
+          ? [await nonAdvertisedAppointmentService.getById(requestUpdate.nonAdvertisedAppointmentId)]
+              .filter((result) => result.isOk())
+              .map((result) => result.unwrap())[0]
+          : existingRequest.appointmentNonAdvertised;
+
       // Merge updates with existing request
       const updatedRequest: RequestReadModel = {
         ...existingRequest,
@@ -218,6 +227,8 @@ export function getMockRequestService(): RequestService {
         employmentTenure,
         workSchedule,
         employmentEquities,
+        appointmentNonAdvertised,
+        hasPerformedSameDuties: requestUpdate.performedSameDuties,
         id: requestId, // Ensure ID doesn't change
         lastModifiedDate: new Date().toISOString(),
         lastModifiedBy: 'mock-user',
