@@ -90,7 +90,6 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   const requestData: RequestReadModel = requestResult.unwrap();
 
   const requestPayload: RequestUpdateModel = {
-    ...requestData,
     selectionProcessNumber: parseResult.output.selectionProcessNumber,
     workforceManagementApproved: parseResult.output.approvalReceived,
     priorityEntitlement: parseResult.output.priorityEntitlement,
