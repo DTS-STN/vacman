@@ -9,7 +9,6 @@ import { getRequestService } from '~/.server/domain/services/request-service';
 import { getRequestStatusService } from '~/.server/domain/services/request-status-service';
 import { serverEnvironment } from '~/.server/environment';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
-import { i18nRedirect } from '~/.server/utils/route-utils';
 import { PageTitle } from '~/components/page-title';
 import { REQUEST_CATEGORY, REQUEST_STATUSES } from '~/domain/constants';
 import { getTranslation } from '~/i18n-config.server';
@@ -21,15 +20,6 @@ export const handle = {
 
 export function meta({ loaderData }: Route.MetaArgs) {
   return [{ title: loaderData.documentTitle }];
-}
-
-export async function action({ context, request }: Route.ActionArgs) {
-  requireAuthentication(context.session, request);
-
-  const newRequestResult = await getRequestService().createRequest(context.session.authState.accessToken);
-  const requestId = newRequestResult.into()?.id.toString();
-
-  return i18nRedirect('routes/hr-advisor/request/index.tsx', request, { params: { requestId } });
 }
 
 export async function loader({ context, request }: Route.LoaderArgs) {

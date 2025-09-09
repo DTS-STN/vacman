@@ -1,6 +1,6 @@
 --liquibase formatted sql
 
---changeset system:1
+--changeset system:1 dbms:mssql,h2
 CREATE TABLE CD_APPOINTMENT_NON_ADVERTISED 
 (
 	ID BIGINT NOT NULL IDENTITY, 

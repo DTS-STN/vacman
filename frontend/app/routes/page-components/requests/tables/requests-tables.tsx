@@ -100,7 +100,7 @@ export default function RequestsTables({
           return (
             <InlineLink
               className="text-sky-800 no-underline decoration-slate-400 decoration-2 hover:underline"
-              file="routes/hiring-manager/request/index.tsx"
+              file={`routes/${view}/request/index.tsx`}
               params={{ requestId }}
               aria-label={t('requests-tables.view-link', {
                 requestId,
@@ -116,11 +116,13 @@ export default function RequestsTables({
 
   return (
     <div className="mb-8 space-y-4">
-      <fetcher.Form method="post" noValidate className="mb-8">
-        <LoadingButton name="action" variant="primary" size="sm" disabled={isSubmitting} loading={isSubmitting}>
-          {t('requests-tables.create-request')}
-        </LoadingButton>
-      </fetcher.Form>
+      {view === 'hiring-manager' && (
+        <fetcher.Form method="post" noValidate className="mb-8">
+          <LoadingButton name="action" variant="primary" size="sm" disabled={isSubmitting} loading={isSubmitting}>
+            {t('requests-tables.create-request')}
+          </LoadingButton>
+        </fetcher.Form>
+      )}
 
       <section className="mb-8">
         <h2 className="font-lato text-xl font-bold">{t('requests-tables.active-requests')}</h2>

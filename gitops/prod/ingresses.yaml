@@ -1,0 +1,32 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: vacman-frontend
+  labels:
+    app.kubernetes.io/name: vacman-frontend
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: vacman.prod-dp-internal.dts-stn.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: vacman-frontend
+                port:
+                  name: http
+#
+# TODO ::: GjB ::: uncomment during golive
+#
+#     - host: vacman.service.canada.ca
+#       http:
+#         paths:
+#           - path: /
+#             pathType: Prefix
+#             backend:
+#               service:
+#                 name: vacman-frontend
+#                 port:
+#                   name: http

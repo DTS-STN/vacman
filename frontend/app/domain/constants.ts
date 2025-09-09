@@ -238,6 +238,6 @@ export const EMPLOYMENT_TENURE = {
 } as const;
 
 export const SELECTION_PROCESS_TYPE = {
-  externalNonAdvertised: '3',
-  internalNonAdvertised: '5',
+  externalNonAdvertised: 3,
+  internalNonAdvertised: 5,
 } as const;

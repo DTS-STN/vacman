@@ -261,6 +261,7 @@ export type RequestCreateModel = Readonly<{
   securityClearanceId: number;
   englishStatementOfMerit: string;
   frenchStatementOfMerit: string;
+  employmentTenureId: number;
 }>;
 
 // Request Read Model

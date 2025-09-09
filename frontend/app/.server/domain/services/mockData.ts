@@ -401,7 +401,7 @@ export const mockRequests: RequestReadModel[] = [
     priorityEntitlement: false,
     priorityEntitlementRationale: undefined,
     selectionProcessType: undefined,
-    hasPerformedSameDuties: true,
+    hasPerformedSameDuties: undefined,
     appointmentNonAdvertised: undefined,
     projectedStartDate: '2024-01-15',
     projectedEndDate: '2024-12-31',
@@ -431,10 +431,10 @@ export const mockRequests: RequestReadModel[] = [
       nameFr: 'Demande soumise',
     },
     workUnit: undefined,
-    submitter: mockUsers[0], // Jane Doe
-    hiringManager: mockUsers[3], // Bob Johnson
+    submitter: mockUsers[0], // John Doe
+    hiringManager: mockUsers[0], // John Doe
     subDelegatedManager: undefined,
-    hrAdvisor: mockUsers[0], // Jane Doe
+    hrAdvisor: mockUsers[3], // Bob Johnson
     languageOfCorrespondence: undefined,
     employmentTenure: undefined,
     priorityClearanceNumber: undefined,
@@ -479,9 +479,9 @@ export function createMockRequest(accessToken: string): RequestReadModel {
     status: undefined,
     workUnit: undefined,
     submitter: mockUsers[0],
-    hiringManager: mockUsers[3],
+    hiringManager: mockUsers[0],
     subDelegatedManager: undefined,
-    hrAdvisor: undefined,
+    hrAdvisor: mockUsers[3],
     languageOfCorrespondence: undefined,
     employmentTenure: undefined,
     priorityClearanceNumber: undefined,

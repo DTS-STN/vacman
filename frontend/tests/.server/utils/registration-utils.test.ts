@@ -7,12 +7,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { getUserService } from '~/.server/domain/services/user-service';
 import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
 import { requireAnyRole } from '~/.server/utils/auth-utils';
-import {
-  checkHiringManagerRouteRegistration,
-  checkHrAdvisorRouteRegistration,
-  requireRoleRegistration,
-} from '~/.server/utils/registration-utils';
-import { isHiringManagerPath, isHrAdvisorPath } from '~/.server/utils/route-matching-utils';
+import { checkHrAdvisorRouteRegistration, requireRoleRegistration } from '~/.server/utils/registration-utils';
+import { isHrAdvisorPath } from '~/.server/utils/route-matching-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
@@ -26,7 +22,6 @@ vi.mock('~/.server/utils/route-utils');
 describe('registration-utils', () => {
   const mockGetUserService = vi.mocked(getUserService);
   const mockRequireAnyRole = vi.mocked(requireAnyRole);
-  const mockIsHiringManagerPath = vi.mocked(isHiringManagerPath);
   const mockIsHrAdvisorPath = vi.mocked(isHrAdvisorPath);
   const mockI18nRedirect = vi.mocked(i18nRedirect);
 
@@ -235,67 +230,6 @@ describe('registration-utils', () => {
     });
   });
 
-  describe('checkHiringManagerRouteRegistration', () => {
-    it('should call requireRoleRegistration with correct parameters', async () => {
-      const session = createMockSession(['hiring-manager']);
-      const request = createMockRequest();
-
-      // Mock a registered user
-      const mockUser = { id: 'user-123', email: 'test@example.com' };
-      mockUserService.getCurrentUser.mockResolvedValue(Some(mockUser));
-      mockIsHiringManagerPath.mockReturnValue(true);
-      // Ensure requireAnyRole doesn't throw for this test
-      mockRequireAnyRole.mockImplementation(() => {
-        // Success - do nothing
-      });
-
-      await checkHiringManagerRouteRegistration(session, request);
-
-      expect(mockUserService.getCurrentUser).toHaveBeenCalled();
-      expect(mockRequireAnyRole).toHaveBeenCalledWith(session, new URL(request.url), ['admin', 'hiring-manager']);
-    });
-
-    it('should return early when not on hiring manager path', async () => {
-      const session = createMockSession(['hiring-manager']);
-      const request = createMockRequest();
-      mockIsHiringManagerPath.mockReturnValue(false);
-
-      await checkHiringManagerRouteRegistration(session, request);
-
-      expect(mockUserService.getCurrentUser).not.toHaveBeenCalled();
-      expect(mockRequireAnyRole).not.toHaveBeenCalled();
-    });
-
-    it('should handle unregistered users', async () => {
-      const session = createMockSession(['hiring-manager']);
-      const request = createMockRequest();
-      mockUserService.getCurrentUser.mockResolvedValue(None);
-      mockIsHiringManagerPath.mockReturnValue(true);
-
-      const redirectError = new Error('Redirect');
-      mockI18nRedirect.mockImplementation(() => {
-        throw redirectError;
-      });
-
-      await expect(checkHiringManagerRouteRegistration(session, request)).rejects.toThrow(redirectError);
-    });
-
-    it('should handle role validation errors', async () => {
-      const session = createMockSession(['employee']); // Wrong role
-      const request = createMockRequest();
-      const mockUser = { id: 'user-123', email: 'test@example.com' };
-      mockUserService.getCurrentUser.mockResolvedValue(Some(mockUser));
-      mockIsHiringManagerPath.mockReturnValue(true);
-
-      const appError = new AppError('Access denied', ErrorCodes.ACCESS_FORBIDDEN);
-      mockRequireAnyRole.mockImplementation(() => {
-        throw appError;
-      });
-
-      await expect(checkHiringManagerRouteRegistration(session, request)).rejects.toThrowError('Access denied');
-    });
-  });
-
   describe('checkHrAdvisorRouteRegistration', () => {
     it('should call requireRoleRegistration with correct parameters', async () => {
       const session = createMockSession(['hr-advisor']);
@@ -313,7 +247,7 @@ describe('registration-utils', () => {
       await checkHrAdvisorRouteRegistration(session, request);
 
       expect(mockUserService.getCurrentUser).toHaveBeenCalled();
-      expect(mockRequireAnyRole).toHaveBeenCalledWith(session, new URL(request.url), ['admin', 'hr-advisor']);
+      expect(mockRequireAnyRole).toHaveBeenCalledWith(session, new URL(request.url), ['hr-advisor']);
     });
 
     it('should return early when not on HR advisor path', async () => {
@@ -374,8 +308,8 @@ describe('registration-utils', () => {
       await expect(checkHrAdvisorRouteRegistration(session, request)).rejects.toThrowError('Access denied');
     });
 
-    it('should allow admin users', async () => {
-      const session = createMockSession(['admin']);
+    it('should allow hr-advisor users', async () => {
+      const session = createMockSession(['hr-advisor']);
       const request = createMockRequest();
       const mockUser = { id: 'user-123', email: 'test@example.com' };
       mockUserService.getCurrentUser.mockResolvedValue(Some(mockUser));
@@ -387,7 +321,7 @@ describe('registration-utils', () => {
 
       await expect(checkHrAdvisorRouteRegistration(session, request)).resolves.toBeUndefined();
 
-      expect(mockRequireAnyRole).toHaveBeenCalledWith(session, new URL(request.url), ['admin', 'hr-advisor']);
+      expect(mockRequireAnyRole).toHaveBeenCalledWith(session, new URL(request.url), ['hr-advisor']);
     });
   });
 

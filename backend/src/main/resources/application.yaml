@@ -323,16 +323,16 @@ codes:
     pending: PENDING
   request-statuses:
     cancelled: CANCELLED
-    clr-granted: CLR_GRANTED
+    clearance-granted: CLR_GRANTED
     draft: DRAFT
-    fdbk-pend-appr: FDBK_PEND_APPR
-    fdbk-pending: FDBK_PENDING
+    feedback-pending-approval: FDBK_PEND_APPR
+    feedback-pending: FDBK_PENDING
     hr-review: HR_REVIEW
     no-match-hr-review: NO_MATCH_HR_REVIEW
-    pending-psc-no-vms: PENDING_PSC_NO_VMS
-    pending-psc: PENDING_PSC
-    psc-granted: PSC_GRANTED
-    submit: SUBMIT
+    pending-psc-clearance-no-vms: PENDING_PSC_NO_VMS
+    pending-psc-clearance: PENDING_PSC
+    psc-clearance-granted: PSC_GRANTED
+    submitted: SUBMIT
   user-types:
     employee: employee
     hr-advisor: HRA

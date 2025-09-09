@@ -6,7 +6,8 @@ import { useTranslation } from 'react-i18next';
 import type { Route } from './+types/layout';
 
 import { requireAuthentication } from '~/.server/utils/auth-utils';
-import { checkHiringManagerRouteRegistration, checkHrAdvisorRouteRegistration } from '~/.server/utils/registration-utils';
+import { checkHrAdvisorRouteRegistration } from '~/.server/utils/registration-utils';
+import { getDashboardFile } from '~/.server/utils/route-utils';
 import { AppBar } from '~/components/app-bar';
 import { LanguageSwitcher } from '~/components/language-switcher';
 import { AppLink } from '~/components/links';
@@ -25,11 +26,14 @@ export async function loader({ context, request }: Route.LoaderArgs) {
   // First ensure the user is authenticated (no specific roles required)
   requireAuthentication(context.session, request);
 
-  await checkHiringManagerRouteRegistration(context.session, request);
+  // There is no security group in Azure AD for hiring managers, hiring managers are also regular users
 
   await checkHrAdvisorRouteRegistration(context.session, request);
 
-  return { name: context.session.authState.idTokenClaims.name };
+  return {
+    name: context.session.authState.idTokenClaims.name,
+    dashboardFile: getDashboardFile(request),
+  };
 }
 
 export default function Layout({ loaderData }: Route.ComponentProps) {
@@ -60,7 +64,7 @@ export default function Layout({ loaderData }: Route.ComponentProps) {
         </div>
         <AppBar
           name={loaderData.name?.toString()}
-          profileItems={<MenuItem file="routes/employee/index.tsx">{t('app:index.dashboard')}</MenuItem>}
+          profileItems={<MenuItem file={loaderData.dashboardFile}>{t('app:index.dashboard')}</MenuItem>}
         ></AppBar>
       </header>
 
@@ -74,17 +78,15 @@ export default function Layout({ loaderData }: Route.ComponentProps) {
                   <PageDetails buildDate={BUILD_DATE} buildVersion={BUILD_VERSION} pageId={pageId} />
                 </div>
               </div>
-              <div className="relative col-span-4">
-                <aside className="absolute top-0 right-0 bottom-0 left-0 z-0 hidden bg-[rgba(9,28,45,1)] sm:block">
-                  <div
-                    role="presentation"
-                    className="absolute top-0 right-0 h-1/2 w-full bg-[url('/VacMan-design-element-07.svg')] bg-contain bg-top bg-no-repeat"
-                  />
-                  <div
-                    role="presentation"
-                    className="absolute bottom-0 left-0 h-1/2 w-full bg-[url('/VacMan-design-element-06.svg')] bg-contain bg-bottom bg-no-repeat"
-                  />
-                </aside>
+              <div className="col-span-4 grid grid-rows-2 bg-[rgba(9,28,45,1)]">
+                <div
+                  role="presentation"
+                  className="row-start-1 h-full w-full place-self-start bg-[url('/VacMan-design-element-07.svg')] bg-right-top bg-no-repeat"
+                />
+                <div
+                  role="presentation"
+                  className="row-start-2 h-full w-full place-self-end bg-[url('/VacMan-design-element-06.svg')] bg-left-bottom bg-no-repeat"
+                />
               </div>
             </div>
           ) : (

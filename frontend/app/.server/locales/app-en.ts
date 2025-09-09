@@ -209,6 +209,39 @@ export default {
     'preferred-employment-equities-help-message': 'Select all that apply',
     'projected-start-date': 'Projected start date',
     'projected-end-date': 'Projected end date',
+    'errors': {
+      // TODO these need to be updated when they're finalized
+      'selection-process-number-required': 'Selection process number is required',
+      'approval-received-required': 'Approval received is required',
+      'performed-duties-required': 'Performed duties is required',
+      'priority-entitlement-rationale-required': 'Priority entitlement rationale is required',
+      'priority-entitlement-required': 'Priority entitlement is required',
+      'non-advertised-appointment-required': 'Nonadvertised appointment is required',
+      'selection-process-type-required': 'Selection process type is required',
+      'projected-start-date': {
+        'invalid': 'Projected start date is invalid',
+        'invalid-future-date': 'Projected start date must be in past or today',
+        'required-year': 'Year of projected start date is required',
+        'invalid-year': 'Year of projected start date is invalid',
+        'required-month': 'Month of projected start date is required',
+        'invalid-month': 'Month of projected start date is invalid',
+        'required-day': 'Day of projected start date is required',
+        'invalid-day': 'Day of projected start date is invalid',
+      },
+      'projected-end-date': {
+        'invalid': 'Projected end date is invalid',
+        'invalid-before-start-date': 'Projected end date must be after the start date',
+        'required-year': 'Year of Projected end date is required',
+        'invalid-year': 'Year of Projected end date is invalid',
+        'required-month': 'Month of Projected end date is required',
+        'invalid-month': 'Month of Projected end date is invalid',
+        'required-day': 'Day of Projected end date is required',
+        'invalid-day': 'Day of Projected end date is invalid',
+      },
+      'employment-tenure-required': 'Employment tenure required',
+      'employment-equities-required': 'Employment equities required',
+      'employment-equity-identified-required': 'Employment equity identified required',
+    },
   },
   'hr-advisor-dashboard': {
     'page-title': 'HR advisor dashboard',
@@ -232,6 +265,12 @@ export default {
     'view-link': 'View profile information for {{profileUserName}}',
     'table-updated-my-employees': 'Table updated: showing My Employees',
     'table-updated-all-employees': 'Table updated: showing All Employees',
+    'create-profile': 'Create profile',
+    'employee-work-email': 'Employee work email address',
+    'errors': {
+      'email-required': 'Email address is required.',
+      'email-invalid': 'Invalid email address.',
+    },
   },
   'hr-advisor-requests': {
     'page-title': 'Requests',
@@ -331,12 +370,12 @@ export default {
   'submission-details': {
     'page-title': 'Submission details',
     'hr-advisor': {
-      'request-submitted-by': 'Request submitted by {{name}}',
+      'request-submitted-by': 'Request submitted by: {{name}}',
       'is-submitter-hiring-manager': 'Is {{name}} the hiring manager for this request?',
       'is-submitter-a-sub-delegate': 'Is {{name}} a sub-delegate?',
     },
     'hiring-manager': {
-      'submitter': 'Submitter {{name}}',
+      'submitter': 'Submitter: {{name}}',
       'are-you-hiring-manager-for-request': 'Are you the hiring manager for this request?',
       'are-you-a-subdelegate': 'Are you a sub-delegate?',
     },
