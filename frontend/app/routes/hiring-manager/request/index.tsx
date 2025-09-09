@@ -453,9 +453,9 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
           textSmall={false}
         />
         
-        <h3 className="font-lato mt-4 text-xl font-bold">{t('app:hiring-manager-referral-requests.request-details')}</h3>
+        <h2 className="font-lato mt-4 text-xl font-bold">{t('app:hiring-manager-referral-requests.request-details')}</h2>
 
-        <div className="text-black-800 mt-4 max-w-prose text-xs">
+        <div className="text-black-800 mt-4 max-w-prose text-base">
           {t('app:hiring-manager-referral-requests.page-description')}
         </div>
 
