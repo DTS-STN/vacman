@@ -15,8 +15,8 @@ import { getRequestService } from '~/.server/domain/services/request-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { countCompletedItems } from '~/.server/utils/profile-utils';
 import { AlertMessage } from '~/components/alert-message';
-import { ContextualAlert } from '~/components/contextual-alert';
 import { ButtonLink } from '~/components/button-link';
+import { ContextualAlert } from '~/components/contextual-alert';
 import { DescriptionList, DescriptionListItem } from '~/components/description-list';
 import { LoadingButton } from '~/components/loading-button';
 import { PageTitle } from '~/components/page-title';
@@ -295,7 +295,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       isCompletePositionInformation &&
       isCompleteSOMCInformaion &&
       isCompleteSubmissionInformation,
-    //  
+    //
     // process
     isCompleteProcessInformation,
     isProcessNew: processInformationCompleted === 0,
@@ -443,7 +443,6 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
       )}
 
       <div className="mt-20 w-full">
-
         <ContextualAlert
           type={'info'}
           message={t('app:hiring-manager-referral-requests.page-info')}
@@ -452,7 +451,7 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
           htmlMessage={true}
           textSmall={false}
         />
-        
+
         <h2 className="font-lato mt-4 text-xl font-bold">{t('app:hiring-manager-referral-requests.request-details')}</h2>
 
         <div className="text-black-800 mt-4 max-w-prose text-base">
@@ -494,19 +493,19 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
                   </DescriptionListItem> */}
 
                   <DescriptionListItem term={t('app:process-information.priority-entitlement')}>
-                      {loaderData.priorityEntitlement ?? t('app:hiring-manager-referral-requests.not-provided')}
-                  </DescriptionListItem>    
-
-                  <DescriptionListItem term={t('app:process-information.priority-entitlement-rationale')}>    
-                      {loaderData.priorityEntitlementRationale ?? t('app:hiring-manager-referral-requests.not-provided')}
+                    {loaderData.priorityEntitlement ?? t('app:hiring-manager-referral-requests.not-provided')}
                   </DescriptionListItem>
 
-                  <DescriptionListItem term={t('app:process-information.selection-process-type')}>    
-                      {loaderData.selectionProcessType?.code ?? t('app:hiring-manager-referral-requests.not-provided')}
+                  <DescriptionListItem term={t('app:process-information.priority-entitlement-rationale')}>
+                    {loaderData.priorityEntitlementRationale ?? t('app:hiring-manager-referral-requests.not-provided')}
                   </DescriptionListItem>
 
-                  <DescriptionListItem term={t('app:process-information.performed-duties')}>    
-                      {loaderData.hasPerformedSameDuties ?? t('app:hiring-manager-referral-requests.not-provided')}
+                  <DescriptionListItem term={t('app:process-information.selection-process-type')}>
+                    {loaderData.selectionProcessType?.code ?? t('app:hiring-manager-referral-requests.not-provided')}
+                  </DescriptionListItem>
+
+                  <DescriptionListItem term={t('app:process-information.performed-duties')}>
+                    {loaderData.hasPerformedSameDuties ?? t('app:hiring-manager-referral-requests.not-provided')}
                   </DescriptionListItem>
 
                   {/* TODO review  */}
@@ -514,20 +513,20 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
                       {loaderData.appointmentNonAdvertised?.code ?? t('app:hiring-manager-referral-requests.not-provided')}
                   </DescriptionListItem> */}
 
-                  <DescriptionListItem term={t('app:process-information.employment-tenure')}>    
-                      {loaderData.employmentTenure?.code ?? t('app:hiring-manager-referral-requests.not-provided')}
+                  <DescriptionListItem term={t('app:process-information.employment-tenure')}>
+                    {loaderData.employmentTenure?.code ?? t('app:hiring-manager-referral-requests.not-provided')}
                   </DescriptionListItem>
 
-                  <DescriptionListItem term={t('app:process-information.projected-start-date')}>    
-                      {loaderData.projectedStartDate ?? t('app:hiring-manager-referral-requests.not-provided')}
+                  <DescriptionListItem term={t('app:process-information.projected-start-date')}>
+                    {loaderData.projectedStartDate ?? t('app:hiring-manager-referral-requests.not-provided')}
                   </DescriptionListItem>
 
-                  <DescriptionListItem term={t('app:process-information.projected-end-date')}>    
-                      {loaderData.projectedEndDate ?? t('app:hiring-manager-referral-requests.not-provided')}
+                  <DescriptionListItem term={t('app:process-information.projected-end-date')}>
+                    {loaderData.projectedEndDate ?? t('app:hiring-manager-referral-requests.not-provided')}
                   </DescriptionListItem>
 
-                  <DescriptionListItem term={t('app:process-information.work-schedule')}>    
-                      {loaderData.workSchedule?.code ?? t('app:hiring-manager-referral-requests.not-provided')}
+                  <DescriptionListItem term={t('app:process-information.work-schedule')}>
+                    {loaderData.workSchedule?.code ?? t('app:hiring-manager-referral-requests.not-provided')}
                   </DescriptionListItem>
 
                   {/* TODO review  */}
@@ -563,39 +562,38 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
                     {loaderData.positionNumber ?? t('app:hiring-manager-referral-requests.not-provided')}
                   </DescriptionListItem>
 
-                  <DescriptionListItem term={t('app:position-information.group-and-level')}>        
-                      {loaderData.classification?.code ?? t('app:hiring-manager-referral-requests.not-provided')}
+                  <DescriptionListItem term={t('app:position-information.group-and-level')}>
+                    {loaderData.classification?.code ?? t('app:hiring-manager-referral-requests.not-provided')}
                   </DescriptionListItem>
 
-                  <DescriptionListItem term={t('app:position-information.title-en')}>        
-                      {loaderData.englishTitle ?? t('app:hiring-manager-referral-requests.not-provided')}
+                  <DescriptionListItem term={t('app:position-information.title-en')}>
+                    {loaderData.englishTitle ?? t('app:hiring-manager-referral-requests.not-provided')}
                   </DescriptionListItem>
 
-                  <DescriptionListItem term={t('app:position-information.title-fr')}>        
-                      {loaderData.frenchTitle ?? t('app:hiring-manager-referral-requests.not-provided')}
+                  <DescriptionListItem term={t('app:position-information.title-fr')}>
+                    {loaderData.frenchTitle ?? t('app:hiring-manager-referral-requests.not-provided')}
                   </DescriptionListItem>
 
-                  <DescriptionListItem term={t('app:position-information.location-city')}>    
-                      {/* TODO review  */}    
-                      {/* {loaderData.cities ?? t('app:hiring-manager-referral-requests.not-provided')} */}
+                  <DescriptionListItem term={t('app:position-information.location-city')}>
+                    {/* TODO review  */}
+                    {/* {loaderData.cities ?? t('app:hiring-manager-referral-requests.not-provided')} */}
                   </DescriptionListItem>
 
-                  <DescriptionListItem term={t('app:position-information.language-profile')}>        
-                      {loaderData.languageRequirement?.code ?? t('app:hiring-manager-referral-requests.not-provided')}
+                  <DescriptionListItem term={t('app:position-information.language-profile')}>
+                    {loaderData.languageRequirement?.code ?? t('app:hiring-manager-referral-requests.not-provided')}
                   </DescriptionListItem>
 
-                  <DescriptionListItem term={t('app:position-information.english')}>        
-                      {loaderData.englishLanguageProfile ?? t('app:hiring-manager-referral-requests.not-provided')}
+                  <DescriptionListItem term={t('app:position-information.english')}>
+                    {loaderData.englishLanguageProfile ?? t('app:hiring-manager-referral-requests.not-provided')}
                   </DescriptionListItem>
 
-                  <DescriptionListItem term={t('app:position-information.french')}>        
-                      {loaderData.frenchLanguageProfile ?? t('app:hiring-manager-referral-requests.not-provided')}
+                  <DescriptionListItem term={t('app:position-information.french')}>
+                    {loaderData.frenchLanguageProfile ?? t('app:hiring-manager-referral-requests.not-provided')}
                   </DescriptionListItem>
 
-                  <DescriptionListItem term={t('app:position-information.security-requirement')}>        
-                      {loaderData.securityClearance?.code ?? t('app:hiring-manager-referral-requests.not-provided')}
+                  <DescriptionListItem term={t('app:position-information.security-requirement')}>
+                    {loaderData.securityClearance?.code ?? t('app:hiring-manager-referral-requests.not-provided')}
                   </DescriptionListItem>
-
                 </DescriptionList>
               )}
             </ProfileCard>
@@ -642,33 +640,36 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
               ) : (
                 <DescriptionList>
                   {/* TODO review All fields */}
-                  {/* TODO replace name*/} 
-                  <DescriptionListItem term={t('app:submission-details.hiring-manager.submitter')}>    
-                      {(loaderData.submitter?.firstName, loaderData.submitter?.lastName) ?? t('app:hiring-manager-referral-requests.not-provided')}
-                  </DescriptionListItem> 
+                  {/* TODO replace name*/}
+                  <DescriptionListItem term={t('app:submission-details.hiring-manager.submitter')}>
+                    {(loaderData.submitter?.firstName, loaderData.submitter?.lastName) ??
+                      t('app:hiring-manager-referral-requests.not-provided')}
+                  </DescriptionListItem>
 
-                  {/* TODO replace name*/} 
-                  <DescriptionListItem term={t('app:submission-details.hiring-manager-name')}>    
-                      {(loaderData.hiringManager?.firstName, loaderData.hiringManager?.lastName) ?? t('app:hiring-manager-referral-requests.not-provided')}
-                  </DescriptionListItem>    
+                  {/* TODO replace name*/}
+                  <DescriptionListItem term={t('app:submission-details.hiring-manager-name')}>
+                    {(loaderData.hiringManager?.firstName, loaderData.hiringManager?.lastName) ??
+                      t('app:hiring-manager-referral-requests.not-provided')}
+                  </DescriptionListItem>
 
-                  {/* TODO replace name*/} 
-                  <DescriptionListItem term={t('app:submission-details.sub-delegate-name')}>    
-                      {(loaderData.subDelegatedManager?.firstName, loaderData.subDelegatedManager?.lastName) ?? t('app:hiring-manager-referral-requests.not-provided')}
-                  </DescriptionListItem>    
+                  {/* TODO replace name*/}
+                  <DescriptionListItem term={t('app:submission-details.sub-delegate-name')}>
+                    {(loaderData.subDelegatedManager?.firstName, loaderData.subDelegatedManager?.lastName) ??
+                      t('app:hiring-manager-referral-requests.not-provided')}
+                  </DescriptionListItem>
 
-                  <DescriptionListItem term={t('app:submission-details.directorate')}>   
-                      {/* TODO review  */} 
-                      {/* {loaderData.workUnit ?? t('app:hiring-manager-referral-requests.not-provided')} */}
-                  </DescriptionListItem>    
+                  <DescriptionListItem term={t('app:submission-details.directorate')}>
+                    {/* TODO review  */}
+                    {/* {loaderData.workUnit ?? t('app:hiring-manager-referral-requests.not-provided')} */}
+                  </DescriptionListItem>
 
-                  <DescriptionListItem term={t('app:submission-details.preferred-language-of-correspondence')}>    
-                      {loaderData.languageOfCorrespondence?.code ?? t('app:hiring-manager-referral-requests.not-provided')}
-                  </DescriptionListItem>    
+                  <DescriptionListItem term={t('app:submission-details.preferred-language-of-correspondence')}>
+                    {loaderData.languageOfCorrespondence?.code ?? t('app:hiring-manager-referral-requests.not-provided')}
+                  </DescriptionListItem>
 
-                  <DescriptionListItem term={t('app:submission-details.additional-comments')}>    
-                      {loaderData.additionalComment ?? t('app:hiring-manager-referral-requests.not-provided')}
-                  </DescriptionListItem>    
+                  <DescriptionListItem term={t('app:submission-details.additional-comments')}>
+                    {loaderData.additionalComment ?? t('app:hiring-manager-referral-requests.not-provided')}
+                  </DescriptionListItem>
                 </DescriptionList>
               )}
             </ProfileCard>
