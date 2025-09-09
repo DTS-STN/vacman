@@ -54,7 +54,7 @@ export function PositionInformationForm({
   const { t } = useTranslation('app');
 
   const [province, setProvince] = useState(
-    formValues?.cities !== undefined ? String(formValues.cities[0]?.provinceTerritory.id) : undefined,
+    formValues?.cities?.[0]?.provinceTerritory.id !== undefined ? String(formValues.cities[0].provinceTerritory.id) : undefined,
   );
 
   const [languageRequirementCode, setLanguageRequirementCode] = useState(
@@ -168,7 +168,7 @@ export function PositionInformationForm({
                 required
                 options={cityOptions}
                 label={t('position-information.location-city')}
-                defaultValue={formValues?.cities !== undefined ? String(formValues.cities[0]?.provinceTerritory.id) : ''}
+                defaultValue={formValues?.cities !== undefined ? String(formValues.cities[0]?.id) : ''}
                 className="w-full sm:w-1/2"
               />
             )}

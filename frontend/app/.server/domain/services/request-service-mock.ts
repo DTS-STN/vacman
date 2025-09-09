@@ -10,6 +10,7 @@ import type {
   PagedProfileResponse,
   RequestStatus,
 } from '~/.server/domain/models';
+import { getCityService } from '~/.server/domain/services/city-service';
 import { getEmploymentEquityService } from '~/.server/domain/services/employment-equity-service';
 import { getEmploymentTenureService } from '~/.server/domain/services/employment-tenure-service';
 import { getLanguageRequirementService } from '~/.server/domain/services/language-requirement-service';
@@ -192,6 +193,14 @@ export function getMockRequestService(): RequestService {
               .map((result) => result.unwrap())[0]
           : existingRequest.securityClearance;
 
+      const cities = await getCityService().listAll();
+      const cityId = cities.find((c) => c.provinceTerritory.id === requestUpdate.provinceId)?.id;
+
+      const city =
+        cityId !== undefined
+          ? [await getCityService().getById(cityId)].filter((result) => result.isOk()).map((result) => result.unwrap())[0]
+          : existingRequest.cities?.[0];
+
       // Merge updates with existing request
       const updatedRequest: RequestReadModel = {
         ...existingRequest,
@@ -200,6 +209,7 @@ export function getMockRequestService(): RequestService {
         englishTitle: requestUpdate.englishTitle ?? existingRequest.englishTitle,
         frenchTitle: requestUpdate.frenchTitle ?? existingRequest.frenchTitle,
         languageRequirement,
+        cities: city ? [city] : [],
         classification,
         englishLanguageProfile: requestUpdate.englishLanguageProfile ?? existingRequest.englishLanguageProfile,
         frenchLanguageProfile: requestUpdate.frenchLanguageProfile ?? existingRequest.frenchLanguageProfile,
