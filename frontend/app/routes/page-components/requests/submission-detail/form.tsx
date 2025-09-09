@@ -15,6 +15,7 @@ import type {
 import { Button } from '~/components/button';
 import { ButtonLink } from '~/components/button-link';
 import { FormErrorSummary } from '~/components/error-summary';
+import { InputField } from '~/components/input-field';
 import type { InputRadiosProps } from '~/components/input-radios';
 import { InputRadios } from '~/components/input-radios';
 import { InputSelect } from '~/components/input-select';
@@ -28,6 +29,9 @@ import { extractValidationKey } from '~/utils/validation-utils';
 interface SubmissionDetailsFormProps {
   cancelLink: I18nRouteFile;
   formValues: Partial<RequestReadModel> | undefined;
+  isSubmitterHiringManager?: boolean;
+  isSubmitterSubDelegate?: boolean;
+  isHiringManagerASubDelegate?: boolean;
   branchOrServiceCanadaRegions: readonly LocalizedBranch[];
   directorates: readonly LocalizedDirectorate[];
   languagesOfCorrespondence: readonly LocalizedLanguageOfCorrespondence[];
@@ -39,6 +43,9 @@ interface SubmissionDetailsFormProps {
 export function SubmissionDetailsForm({
   cancelLink,
   formValues,
+  isSubmitterHiringManager,
+  isSubmitterSubDelegate,
+  isHiringManagerASubDelegate,
   branchOrServiceCanadaRegions,
   directorates,
   languagesOfCorrespondence,
@@ -48,26 +55,76 @@ export function SubmissionDetailsForm({
 }: SubmissionDetailsFormProps): JSX.Element {
   const { t: tApp } = useTranslation('app');
   const { t: tGcweb } = useTranslation('gcweb');
+  console.log('isSubmitterSubDelegate');
+  console.log(isSubmitterSubDelegate);
+
+  const [isSubmitterHiringManagerState, setIsSubmiterHiringManagerState] = useState(isSubmitterHiringManager);
+  const [isSubmitterSubDelegateState, setIsSubmiterSubDelegateState] = useState(isSubmitterSubDelegate);
+  const [isHiringManagerASubDelegateState, setIsHiringManagerASubDelegateState] = useState(isHiringManagerASubDelegate);
+  const [branch, setBranch] = useState(formValues?.workUnit ? String(formValues.workUnit.parent?.id) : undefined);
+  const [directorate, setDirectorate] = useState(
+    formValues?.workUnit !== undefined ? String(formValues.workUnit.id) : undefined,
+  );
+
+  const handleIsSubmiterHiringManagerChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedValue = event.target.value;
+    setIsSubmiterHiringManagerState(selectedValue === REQUIRE_OPTIONS.yes);
+  };
+
+  const handleIsSubmiterSubdelegateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedValue = event.target.value;
+    setIsSubmiterSubDelegateState(selectedValue === REQUIRE_OPTIONS.yes);
+  };
+
+  const handleIsHiringManagerASubDelegateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedValue = event.target.value;
+    setIsHiringManagerASubDelegateState(selectedValue === REQUIRE_OPTIONS.yes);
+  };
 
   const isSubmiterHiringManagerOptions: InputRadiosProps['options'] = [
     {
       children: tGcweb('input-option.yes'),
       value: REQUIRE_OPTIONS.yes,
-      defaultChecked:
-        formValues?.submitter && formValues.hiringManager ? formValues.submitter.id === formValues.hiringManager.id : undefined, // For new Request, the default should be undefined
+      defaultChecked: isSubmitterHiringManager,
+      onChange: handleIsSubmiterHiringManagerChange,
     },
     {
       children: tGcweb('input-option.no'),
       value: REQUIRE_OPTIONS.no,
-      defaultChecked:
-        formValues?.submitter && formValues.hiringManager ? formValues.submitter.id !== formValues.hiringManager.id : undefined, // For new Request, the default should be undefined
+      defaultChecked: isSubmitterHiringManager,
+      onChange: handleIsSubmiterHiringManagerChange,
     },
   ];
 
-  const [branch, setBranch] = useState(formValues?.workUnit ? String(formValues.workUnit.parent?.id) : undefined);
-  const [directorate, setDirectorate] = useState(
-    formValues?.workUnit !== undefined ? String(formValues.workUnit.id) : undefined,
-  );
+  const isSubmiterSubdelegateOptions: InputRadiosProps['options'] = [
+    {
+      children: tGcweb('input-option.yes'),
+      value: REQUIRE_OPTIONS.yes,
+      defaultChecked: isSubmitterSubDelegate,
+      onChange: handleIsSubmiterSubdelegateChange,
+    },
+    {
+      children: tGcweb('input-option.no'),
+      value: REQUIRE_OPTIONS.no,
+      defaultChecked: isSubmitterSubDelegate,
+      onChange: handleIsSubmiterSubdelegateChange,
+    },
+  ];
+
+  const isHiringManagerASubDelegateOptions: InputRadiosProps['options'] = [
+    {
+      children: tGcweb('input-option.yes'),
+      value: REQUIRE_OPTIONS.yes,
+      defaultChecked: isHiringManagerASubDelegate,
+      onChange: handleIsHiringManagerASubDelegateChange,
+    },
+    {
+      children: tGcweb('input-option.no'),
+      value: REQUIRE_OPTIONS.no,
+      defaultChecked: isHiringManagerASubDelegate,
+      onChange: handleIsHiringManagerASubDelegateChange,
+    },
+  ];
 
   const branchOrServiceCanadaRegionOptions = [{ id: 'select-option', name: '' }, ...branchOrServiceCanadaRegions].map(
     ({ id, name }) => ({
@@ -138,6 +195,57 @@ export function SubmissionDetailsForm({
               required
               errorMessage={tApp(extractValidationKey(formErrors?.isSubmiterHiringManager))}
             />
+            {isSubmitterHiringManagerState === true && (
+              <>
+                <InputRadios
+                  id="is-submitter-sub-delegate"
+                  legend={
+                    view === 'hiring-manager'
+                      ? tApp('submission-details.hiring-manager.are-you-a-subdelegate')
+                      : tApp('submission-details.hr-advisor.is-submitter-a-sub-delegate', {
+                          name: submitterName,
+                        })
+                  }
+                  name="isSubmiterSubdelegate"
+                  options={isSubmiterSubdelegateOptions}
+                  required
+                  errorMessage={tApp(extractValidationKey(formErrors?.isSubmiterSubdelegate))}
+                />
+              </>
+            )}
+            {isSubmitterHiringManagerState === false && (
+              <>
+                <InputField
+                  className="w-full"
+                  id="hiring-manager-email-address"
+                  name="hiringManagerEmailAddress"
+                  label={tApp('submission-details.hiring-manager-email')}
+                  defaultValue={formValues?.hiringManager?.businessEmailAddress}
+                  errorMessage={tApp(extractValidationKey(formErrors?.hiringManagerEmailAddress))}
+                  required
+                />
+                <InputRadios
+                  id="is-hiring-manager-a-sub-delegate"
+                  legend={tApp('submission-details.is-hiring-manager-sub-delegate')}
+                  name="isHiringManagerASubDelegate"
+                  options={isHiringManagerASubDelegateOptions}
+                  required
+                  errorMessage={tApp(extractValidationKey(formErrors?.isHiringManagerASubDelegate))}
+                />
+              </>
+            )}
+            {((isSubmitterHiringManagerState === true && isSubmitterSubDelegateState === false) ||
+              isHiringManagerASubDelegateState === false) && (
+              <InputField
+                className="w-full"
+                id="sub-delegate-email-address"
+                name="subDelegatedManagerEmailAddress"
+                label={tApp('submission-details.sub-delegate-email')}
+                defaultValue={formValues?.subDelegatedManager?.businessEmailAddress}
+                errorMessage={tApp(extractValidationKey(formErrors?.subDelegatedManagerEmailAddress))}
+                required
+              />
+            )}
             <InputSelect
               id="branchOrServiceCanadaRegion"
               name="branchOrServiceCanadaRegion"
