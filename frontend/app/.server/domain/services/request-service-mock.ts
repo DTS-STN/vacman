@@ -11,6 +11,7 @@ import type {
   RequestStatus,
 } from '~/.server/domain/models';
 import { getCityService } from '~/.server/domain/services/city-service';
+import { getClassificationService } from '~/.server/domain/services/classification-service';
 import { getEmploymentEquityService } from '~/.server/domain/services/employment-equity-service';
 import { getEmploymentTenureService } from '~/.server/domain/services/employment-tenure-service';
 import { getLanguageRequirementService } from '~/.server/domain/services/language-requirement-service';
@@ -139,75 +140,47 @@ export function getMockRequestService(): RequestService {
         return Err(new AppError(`Request with ID ${requestId} not found.`, ErrorCodes.REQUEST_NOT_FOUND));
       }
 
-      const languageRequirementService = getLanguageRequirementService();
-      const classificationService = getLanguageRequirementService();
-      const securityClearanceService = getSecurityClearanceService();
-      const selectionProcessTypeService = getSelectionProcessTypeService();
-      const employmentTenureService = getEmploymentTenureService();
-      const workScheduleService = getWorkScheduleService();
-      const employmentEquityService = getEmploymentEquityService();
-      const nonAdvertisedAppointmentService = getNonAdvertisedAppointmentService();
-
       const selectionProcessType =
         requestUpdate.selectionProcessTypeId !== undefined
-          ? [await selectionProcessTypeService.getById(requestUpdate.selectionProcessTypeId)]
-              .filter((result) => result.isOk())
-              .map((result) => result.unwrap())[0]
+          ? (await getSelectionProcessTypeService().getById(requestUpdate.selectionProcessTypeId)).into()
           : existingRequest.selectionProcessType;
 
       const employmentTenure =
         requestUpdate.employmentTenureId !== undefined
-          ? [await employmentTenureService.getById(requestUpdate.employmentTenureId)]
-              .filter((result) => result.isOk())
-              .map((result) => result.unwrap())[0]
+          ? (await getEmploymentTenureService().getById(requestUpdate.employmentTenureId)).into()
           : existingRequest.employmentTenure;
 
       const employmentEquities =
         requestUpdate.employmentEquityIds !== undefined
-          ? (await employmentEquityService.listAll()).filter(({ id }) => requestUpdate.employmentEquityIds?.includes(id))
+          ? (await getEmploymentEquityService().listAll()).filter(({ id }) => requestUpdate.employmentEquityIds?.includes(id))
           : existingRequest.employmentEquities;
 
       const workSchedule =
         requestUpdate.workScheduleId !== undefined
-          ? [await workScheduleService.getById(requestUpdate.workScheduleId)]
-              .filter((result) => result.isOk())
-              .map((result) => result.unwrap())[0]
+          ? (await getWorkScheduleService().getById(requestUpdate.workScheduleId)).into()
           : existingRequest.workSchedule;
 
       const languageRequirement =
         requestUpdate.languageRequirementId !== undefined
-          ? [await languageRequirementService.getById(requestUpdate.languageRequirementId)]
-              .filter((result) => result.isOk())
-              .map((result) => result.unwrap())[0]
+          ? (await getLanguageRequirementService().getById(requestUpdate.languageRequirementId)).into()
           : existingRequest.languageRequirement;
 
       const classification =
         requestUpdate.classificationId !== undefined
-          ? [await classificationService.getById(requestUpdate.classificationId)]
-              .filter((result) => result.isOk())
-              .map((result) => result.unwrap())[0]
+          ? (await getClassificationService().getById(requestUpdate.classificationId)).into()
           : existingRequest.classification;
 
       const securityClearance =
         requestUpdate.securityClearanceId !== undefined
-          ? [await securityClearanceService.getById(requestUpdate.securityClearanceId)]
-              .filter((result) => result.isOk())
-              .map((result) => result.unwrap())[0]
+          ? (await getSecurityClearanceService().getById(requestUpdate.securityClearanceId)).into()
           : existingRequest.securityClearance;
 
-      const cities = await getCityService().listAll();
-      const cityId = cities.find((c) => c.provinceTerritory.id === requestUpdate.provinceId)?.id;
-
-      const city =
-        cityId !== undefined
-          ? [await getCityService().getById(cityId)].filter((result) => result.isOk()).map((result) => result.unwrap())[0]
-          : existingRequest.cities?.[0];
+      const cityId = (await getCityService().listAll()).find((c) => c.provinceTerritory.id === requestUpdate.provinceId)?.id;
+      const city = cityId !== undefined ? (await getCityService().getById(cityId)).into() : existingRequest.cities?.[0];
 
       const appointmentNonAdvertised =
         requestUpdate.nonAdvertisedAppointmentId !== undefined
-          ? [await nonAdvertisedAppointmentService.getById(requestUpdate.nonAdvertisedAppointmentId)]
-              .filter((result) => result.isOk())
-              .map((result) => result.unwrap())[0]
+          ? (await getNonAdvertisedAppointmentService().getById(requestUpdate.nonAdvertisedAppointmentId)).into()
           : existingRequest.appointmentNonAdvertised;
 
       // Merge updates with existing request
