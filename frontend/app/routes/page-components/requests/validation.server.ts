@@ -246,11 +246,6 @@ const submissionDetail = {
   ),
 };
 
-// TODO: only scenario that doesn't work in submissionDetailSchema is
-// the subDelegatedManagerEmailAddress error doesn't appear on form if the subDelegatedManagerEmailAddress field is empty
-// in other words the error key is not returned by v.check when subDelegatedManagerEmailAddress is empty
-// if subDelegatedManagerEmailAddress is given correctly, the form submits successfully
-
 export const submissionDetailSchema = (view: 'hr-advisor' | 'hiring-manager' | undefined) => {
   const baseCombinedSchema = v.intersect([
     v.object({
@@ -286,35 +281,42 @@ export const submissionDetailSchema = (view: 'hr-advisor' | 'hiring-manager' | u
 
   return v.pipe(
     baseCombinedSchema,
-    v.check((input) => {
-      const data = input as {
-        isSubmiterHiringManager?: boolean;
-        isSubmiterSubdelegate?: boolean;
-        isHiringManagerASubDelegate?: boolean;
-        subDelegatedManagerEmailAddress?: string | null;
-      };
+    v.forward(
+      v.check((input) => {
+        const data = input as {
+          isSubmiterHiringManager?: boolean;
+          isSubmiterSubdelegate?: boolean;
+          isHiringManagerASubDelegate?: boolean;
+          subDelegatedManagerEmailAddress?: string | null;
+        };
 
-      // If isSubmiterHiringManager is true
-      if (data.isSubmiterHiringManager === true) {
-        // And isSubmiterSubdelegate is false, then subDelegatedManagerEmailAddress is required
-        if (data.isSubmiterSubdelegate === false) {
-          return typeof data.subDelegatedManagerEmailAddress === 'string' && data.subDelegatedManagerEmailAddress.trim() !== '';
+        // If isSubmiterHiringManager is true
+        if (data.isSubmiterHiringManager === true) {
+          // And isSubmiterSubdelegate is false, then subDelegatedManagerEmailAddress is required
+          if (data.isSubmiterSubdelegate === false) {
+            return (
+              typeof data.subDelegatedManagerEmailAddress === 'string' && data.subDelegatedManagerEmailAddress.trim() !== ''
+            );
+          }
+          // If isSubmiterSubdelegate is true, it's optional
+          return true;
         }
-        // If isSubmiterSubdelegate is true, it's optional
-        return true;
-      }
-      // If isSubmiterHiringManager is false
-      else if (data.isSubmiterHiringManager === false) {
-        // And isHiringManagerASubDelegate is false, then subDelegatedManagerEmailAddress is required
-        if (data.isHiringManagerASubDelegate === false) {
-          return typeof data.subDelegatedManagerEmailAddress === 'string' && data.subDelegatedManagerEmailAddress.trim() !== '';
+        // If isSubmiterHiringManager is false
+        else if (data.isSubmiterHiringManager === false) {
+          // And isHiringManagerASubDelegate is false, then subDelegatedManagerEmailAddress is required
+          if (data.isHiringManagerASubDelegate === false) {
+            return (
+              typeof data.subDelegatedManagerEmailAddress === 'string' && data.subDelegatedManagerEmailAddress.trim() !== ''
+            );
+          }
+          // If isHiringManagerASubDelegate is true, it's optional
+          return true;
         }
-        // If isHiringManagerASubDelegate is true, it's optional
+        // If isSubmiterHiringManager is undefined or anything else, no strict requirement here
         return true;
-      }
-      // If isSubmiterHiringManager is undefined or anything else, no strict requirement here
-      return true;
-    }, 'app:submission-details.errors.sub-delegate-email-required'),
+      }, 'app:submission-details.errors.sub-delegate-email-required'),
+      ['subDelegatedManagerEmailAddress'],
+    ),
   );
 };
 
