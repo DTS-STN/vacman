@@ -1,9 +1,13 @@
-# VacMan infrastructure-as-code
+# Vacancy Manager - Infrastructure
 
-This project provides a basic infrastructure-as-code setup for managing Azure resources using Terragrunt and Terraform.
-It currently creates the following resources:
+This repository contains the infrastructure-as-code (IaC) for the Vacancy Manager application, using Terraform and Terragrunt to manage Microsoft Entra ID resources.
 
-- Vacancy Manager Entra ID service principal (aka *app registration*)
+## Overview
+
+The project is structured to provide a reusable Terraform module for creating Entra ID application registrations and to use Terragrunt for managing different deployment environments (e.g., non-production and production).
+
+- **Terraform:** Used to define the Entra ID application resources in a modular and reusable way.
+- **Terragrunt:** Used as a wrapper for Terraform to manage remote state, and environment-specific configurations, promoting a DRY (Don't Repeat Yourself) approach.
 
 ## Requirements
 
@@ -15,49 +19,80 @@ This project has been tested with the following toolchain:
 | [Terraform](https://www.terraform.io/downloads.html)                        | ≥ 1.10.x, < 2.0.x |
 | [Terragrunt](https://terragrunt.gruntwork.io/docs/getting-started/install/) | ≥ 0.65.x          |
 
-## Running
+## Directory Structure
 
-**Important:** to run this project, you must be assigned the *Application Administrator* role in Azure Active Directory,
-either directly or through a PIM request.
-
-**Important:** to run this project, you must be connected to the DTS-STN Azure VPN (nonprod).
-
-Before you begin, make sure that you have logged in to Azure CLI by running the az login command.
-
-1. Clone this repository to your local development environment.
-1. Run the following command to initialize Terraform and download the required modules:
-
-    ``` shell
-    terragrunt init --terragrunt-working-dir terragrunt/{target-environment}/{target-module}
-    ```
-
-1. Run the following command to view the change plan:
-
-    ``` shell
-    terragrunt plan --terragrunt-working-dir terragrunt/{target-environment}/{target-module}
-    ```
-
-1. If the plan looks good, apply the changes by running the following command:
-
-    ``` shell
-    terragrunt apply --terragrunt-working-dir terragrunt/{target-environment}/{target-module}
-    ```
-
-## Getting the App Registration ID (also known as OAuth Client ID)
-
-The App Registration ID is configured a Terraform an output variable, so it will always be printed whenever you perform
-a `terragrunt apply`. However, if you need to get the client id **without running** `terragrunt apply`, you can use
-the following command:
-
-``` shell
-terragrunt output --terragrunt-working-dir terragrunt/{target-environment}/{target-module}
+```
+.
+├── terraform/
+│   └── entra-app/      # Reusable Terraform module for creating an Entra ID app
+│       ├── main.tf
+│       ├── variables.tf
+│       └── outputs.tf
+└── terragrunt/
+    ├── common-vars.hcl # Variables common to all environments
+    ├── terragrunt-root.hcl # Root Terragrunt configuration for remote state
+    ├── nonprod/
+    │   ├── env-vars.hcl
+    │   └── ...
+    └── prod/
+        ├── env-vars.hcl
+        └── ...
 ```
 
-## Getting App Registration secrets (also known as OAuth Client Secrets)
+### Terraform Module: `entra-app`
 
-For security reasons, the OAuth client secrets are configured as a sensitive output variables. If you need the OAuth
-client secrets, you can get them by using the following command:
+This module (`terraform/entra-app`) is responsible for creating and configuring a Microsoft Entra ID application. Its key features include:
 
-``` shell
-terragrunt output app_secrets --terragrunt-working-dir terragrunt/{target-environment}/{target-module}
+- **App Registration:** Creates the main Entra ID application registration.
+- **Service Principal:** Creates a service principal for the application.
+- **App Roles & Security Groups:** Dynamically creates app roles and corresponding security groups for role-based access control (RBAC).
+- **Group Assignments:** Assigns users and the service principal to the appropriate security groups based on role definitions.
+- **OAuth2 & API Permissions:** Configures OAuth2 permission scopes and required API permissions (e.g., for Microsoft Graph).
+
+### Terragrunt Configuration
+
+Terragrunt is used to orchestrate the deployment of the `entra-app` module across different environments.
+
+- **`terragrunt-root.hcl`:** Sets up the Azure backend for storing Terraform's remote state.
+- **`common-vars.hcl`:** Defines variables and configurations that are shared across all environments (e.g., common tags, external API definitions).
+- **`nonprod/` and `prod/` directories:** Contain the environment-specific configurations. Each environment has its own `env-vars.hcl` for environment-specific variables and a `terragrunt.hcl` file that defines the inputs for the `entra-app` module for that particular environment.
+
+## Usage
+
+To apply the infrastructure for a specific environment, navigate to the environment's directory and run the Terragrunt commands.
+
+### Prerequisites
+
+- Azure CLI with an active login (`az login`)
+- Appropriate permissions in the target Azure subscription to create and manage Entra ID applications.
+
+### Applying Changes
+
+1.  **Navigate to the environment directory:**
+    ```bash
+    cd terragrunt/nonprod/backend-service-principal
+    ```
+
+2.  **Initialize Terragrunt (and Terraform):**
+    ```bash
+    terragrunt init
+    ```
+
+3.  **Plan the changes:**
+    ```bash
+    terragrunt plan
+    ```
+
+4.  **Apply the changes:**
+    ```bash
+    terragrunt apply
+    ```
+
+### Retrieving Outputs
+
+After applying the infrastructure, you can retrieve the outputs, such as application secrets or client IDs, using the `terragrunt output` command.
+
+```bash
+# Example: Retrieve application secrets
+terragrunt output app_secrets
 ```
