@@ -44,6 +44,14 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     isSubmiterHiringManager: formData.get('isSubmiterHiringManager')
       ? formData.get('isSubmiterHiringManager') === REQUIRE_OPTIONS.yes
       : undefined,
+    isSubmiterSubdelegate: formData.get('isSubmiterSubdelegate')
+      ? formData.get('isSubmiterSubdelegate') === REQUIRE_OPTIONS.yes
+      : undefined,
+    isHiringManagerASubDelegate: formData.get('isHiringManagerASubDelegate')
+      ? formData.get('isHiringManagerASubDelegate') === REQUIRE_OPTIONS.yes
+      : undefined,
+    hiringManagerEmailAddress: formString(formData.get('hiringManagerEmailAddress')),
+    subDelegatedManagerEmailAddress: formString(formData.get('subDelegatedManagerEmailAddress')),
     branchOrServiceCanadaRegion: formString(formData.get('branchOrServiceCanadaRegion')),
     directorate: formString(formData.get('directorate')),
     languageOfCorrespondenceId: formString(formData.get('languageOfCorrespondenceId')),
@@ -97,6 +105,18 @@ export async function loader({ context, params, request }: Route.LoaderArgs) {
       languageOfCorrespondence: requestData.languageOfCorrespondence,
       additionalComment: requestData.additionalComment,
     },
+    isSubmitterHiringManager:
+      requestData.submitter && requestData.hiringManager
+        ? requestData.submitter.id === requestData.hiringManager.id
+        : undefined, // For new Request, the default should be undefined
+    isSubmitterSubDelegate:
+      requestData.submitter && requestData.subDelegatedManager
+        ? requestData.submitter.id === requestData.subDelegatedManager.id
+        : undefined, // For new Request, the default should be undefined
+    isHiringManagerASubDelegate:
+      requestData.hiringManager && requestData.subDelegatedManager
+        ? requestData.hiringManager.id === requestData.subDelegatedManager.id
+        : undefined, // For new Request, the default should be undefined
     branchOrServiceCanadaRegions,
     directorates,
     languagesOfCorrespondence,
@@ -122,6 +142,9 @@ export default function HiringManagerRequestSubmissionDetails({ loaderData, acti
           cancelLink="routes/hiring-manager/request/index.tsx"
           formErrors={errors}
           formValues={loaderData.defaultValues}
+          isSubmitterHiringManager={loaderData.isSubmitterHiringManager}
+          isSubmitterSubDelegate={loaderData.isSubmitterSubDelegate}
+          isHiringManagerASubDelegate={loaderData.isHiringManagerASubDelegate}
           branchOrServiceCanadaRegions={loaderData.branchOrServiceCanadaRegions}
           directorates={loaderData.directorates}
           languagesOfCorrespondence={loaderData.languagesOfCorrespondence}

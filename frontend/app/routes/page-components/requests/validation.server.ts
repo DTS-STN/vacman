@@ -188,47 +188,134 @@ const getIsSubmiterHiringManagerErrorMessage = (view: 'hr-advisor' | 'hiring-man
   // Default for 'hr-advisor' or if view is not provided/unexpected
   return 'app:submission-details.errors.is-submitter-hiring-manager-required';
 };
+const getIsSubmiterSubdelegateErrorMessage = (view: 'hr-advisor' | 'hiring-manager' | undefined) => {
+  if (view === 'hiring-manager') {
+    return 'app:submission-details.errors.are-you-a-subdelegate-required';
+  }
+  // Default for 'hr-advisor' or if view is not provided/unexpected
+  return 'app:submission-details.errors.is-submitter-a-sub-delegate-required';
+};
+
+const submissionDetail = {
+  viewSchema: v.optional(v.string()),
+  hiringManagerEmailAddressSchema: v.pipe(
+    v.string('app:submission-details.errors.hiring-manager-email-required'),
+    v.trim(),
+    v.nonEmpty('app:submission-details.errors.hiring-manager-email-required'),
+    v.email('app:submission-details.errors.hiring-manager-email-invalid'),
+  ),
+  subDelegatedManagerEmailAddressSchema: v.pipe(
+    v.string('app:submission-details.errors.sub-delegate-email-required'),
+    v.trim(),
+    v.nonEmpty('app:submission-details.errors.sub-delegate-email-required'),
+    v.email('app:submission-details.errors.sub-delegate-email-invalid'),
+  ),
+  branchOrServiceCanadaRegionSchema: v.lazy(() =>
+    v.pipe(
+      stringToIntegerSchema('app:submission-details.errors.branch-or-service-canada-region-required'),
+      v.picklist(
+        allBranchOrServiceCanadaRegions.map(({ id }) => id),
+        'app:submission-details.errors.branch-or-service-canada-region-required',
+      ),
+    ),
+  ),
+  directorateSchema: v.lazy(() =>
+    v.pipe(
+      stringToIntegerSchema('app:submission-details.errors.directorate-required'),
+      v.picklist(
+        allDirectorates.map(({ id }) => id),
+        'app:submission-details.errors.directorate-required',
+      ),
+    ),
+  ),
+  languageOfCorrespondenceIdSchema: v.lazy(() =>
+    v.pipe(
+      stringToIntegerSchema('app:submission-details.errors.preferred-language-of-correspondence-required'),
+      v.picklist(
+        allLanguagesOfCorrespondence.map(({ id }) => id),
+        'app:submission-details.errors.preferred-language-of-correspondence-required',
+      ),
+    ),
+  ),
+  additionalCommentSchema: v.optional(
+    v.pipe(
+      v.string('app:submission-details.errors.additional-information-required'),
+      v.trim(),
+      v.maxLength(100, 'app:submission-details.errors.additional-information-max-length'),
+    ),
+  ),
+};
+
+// TODO: only scenario that doesn't work in submissionDetailSchema is
+// the subDelegatedManagerEmailAddress error doesn't appear on form if the subDelegatedManagerEmailAddress field is empty
+// in other words the error key is not returned by v.check when subDelegatedManagerEmailAddress is empty
+// if subDelegatedManagerEmailAddress is given correctly, the form submits successfully
+
 export const submissionDetailSchema = (view: 'hr-advisor' | 'hiring-manager' | undefined) => {
-  return v.object({
-    view: v.optional(v.string()),
-    isSubmiterHiringManager: v.boolean(
-      getIsSubmiterHiringManagerErrorMessage(view), // Pass the view to get the correct error message
+  const baseCombinedSchema = v.intersect([
+    v.object({
+      view: submissionDetail.viewSchema,
+      branchOrServiceCanadaRegion: submissionDetail.branchOrServiceCanadaRegionSchema,
+      directorate: submissionDetail.directorateSchema,
+      languageOfCorrespondenceId: submissionDetail.languageOfCorrespondenceIdSchema,
+      additionalComment: submissionDetail.additionalCommentSchema,
+    }),
+    v.variant(
+      'isSubmiterHiringManager',
+      [
+        v.object({
+          isSubmiterHiringManager: v.literal(true),
+          hiringManagerEmailAddress: v.optional(submissionDetail.hiringManagerEmailAddressSchema),
+          isHiringManagerASubDelegate: v.optional(
+            v.boolean('app:submission-details.errors.is-hiring-manager-sub-delegate-required'),
+          ),
+          isSubmiterSubdelegate: v.boolean(getIsSubmiterSubdelegateErrorMessage(view)),
+          subDelegatedManagerEmailAddress: v.optional(submissionDetail.subDelegatedManagerEmailAddressSchema),
+        }),
+        v.object({
+          isSubmiterHiringManager: v.literal(false),
+          isSubmiterSubdelegate: v.optional(v.boolean(getIsSubmiterSubdelegateErrorMessage(view))),
+          hiringManagerEmailAddress: submissionDetail.hiringManagerEmailAddressSchema,
+          isHiringManagerASubDelegate: v.boolean('app:submission-details.errors.is-hiring-manager-sub-delegate-required'),
+          subDelegatedManagerEmailAddress: v.optional(submissionDetail.subDelegatedManagerEmailAddressSchema),
+        }),
+      ],
+      getIsSubmiterHiringManagerErrorMessage(view),
     ),
-    branchOrServiceCanadaRegion: v.lazy(() =>
-      v.pipe(
-        stringToIntegerSchema('app:submission-details.errors.branch-or-service-canada-region-required'),
-        v.picklist(
-          allBranchOrServiceCanadaRegions.map(({ id }) => id),
-          'app:submission-details.errors.branch-or-service-canada-region-required',
-        ),
-      ),
-    ),
-    directorate: v.lazy(() =>
-      v.pipe(
-        stringToIntegerSchema('app:submission-details.errors.directorate-required'),
-        v.picklist(
-          allDirectorates.map(({ id }) => id),
-          'app:submission-details.errors.directorate-required',
-        ),
-      ),
-    ),
-    languageOfCorrespondenceId: v.lazy(() =>
-      v.pipe(
-        stringToIntegerSchema('app:submission-details.errors.preferred-language-of-correspondence-required'),
-        v.picklist(
-          allLanguagesOfCorrespondence.map(({ id }) => id),
-          'app:submission-details.errors.preferred-language-of-correspondence-required',
-        ),
-      ),
-    ),
-    additionalComment: v.optional(
-      v.pipe(
-        v.string('app:submission-details.errors.additional-information-required'),
-        v.trim(),
-        v.maxLength(100, 'app:submission-details.errors.additional-information-max-length'),
-      ),
-    ),
-  });
+  ]);
+
+  return v.pipe(
+    baseCombinedSchema,
+    v.check((input) => {
+      const data = input as {
+        isSubmiterHiringManager?: boolean;
+        isSubmiterSubdelegate?: boolean;
+        isHiringManagerASubDelegate?: boolean;
+        subDelegatedManagerEmailAddress?: string | null;
+      };
+
+      // If isSubmiterHiringManager is true
+      if (data.isSubmiterHiringManager === true) {
+        // And isSubmiterSubdelegate is false, then subDelegatedManagerEmailAddress is required
+        if (data.isSubmiterSubdelegate === false) {
+          return typeof data.subDelegatedManagerEmailAddress === 'string' && data.subDelegatedManagerEmailAddress.trim() !== '';
+        }
+        // If isSubmiterSubdelegate is true, it's optional
+        return true;
+      }
+      // If isSubmiterHiringManager is false
+      else if (data.isSubmiterHiringManager === false) {
+        // And isHiringManagerASubDelegate is false, then subDelegatedManagerEmailAddress is required
+        if (data.isHiringManagerASubDelegate === false) {
+          return typeof data.subDelegatedManagerEmailAddress === 'string' && data.subDelegatedManagerEmailAddress.trim() !== '';
+        }
+        // If isHiringManagerASubDelegate is true, it's optional
+        return true;
+      }
+      // If isSubmiterHiringManager is undefined or anything else, no strict requirement here
+      return true;
+    }, 'app:submission-details.errors.sub-delegate-email-required'),
+  );
 };
 
 export const processInformationSchema = v.pipe(
