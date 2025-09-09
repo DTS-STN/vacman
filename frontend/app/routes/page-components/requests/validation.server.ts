@@ -37,23 +37,13 @@ const validLanguageRequirementForOptionalLanguageLevel = [
   LANGUAGE_REQUIREMENT_CODES.various,
 ] as const;
 
-const selectedLanguageRequirementForRequiredLanguageLevel = allLanguageRequirements
-  .filter((c) => validLanguageRequirementForRequiredLanguageLevel.toString().includes(c.code))
-  .map((languageRequirement) => ({
-    id: languageRequirement.id,
-    code: languageRequirement.code,
-    nameEn: languageRequirement.nameEn,
-    nameFr: languageRequirement.nameFr,
-  }));
+const selectedLanguageRequirementForRequiredLanguageLevel = allLanguageRequirements.filter((c) =>
+  validLanguageRequirementForRequiredLanguageLevel.toString().includes(c.code),
+);
 
-const selectedLanguageRequirementForOptionalLanguageLevel = allLanguageRequirements
-  .filter((c) => validLanguageRequirementForOptionalLanguageLevel.toString().includes(c.code))
-  .map((languageRequirement) => ({
-    id: languageRequirement.id,
-    code: languageRequirement.code,
-    nameEn: languageRequirement.nameEn,
-    nameFr: languageRequirement.nameFr,
-  }));
+const selectedLanguageRequirementForOptionalLanguageLevel = allLanguageRequirements.filter((c) =>
+  validLanguageRequirementForOptionalLanguageLevel.toString().includes(c.code),
+);
 
 const selectedSelectionProcessTypeForExternalNonAdvertised = allSelectionProcessTypes.filter(
   (c) => c.id === SELECTION_PROCESS_TYPE.externalNonAdvertised,
@@ -67,37 +57,13 @@ const selectedSelectionProcessTypesExcludingNonAdvertised = allSelectionProcessT
   (c) => c.id !== SELECTION_PROCESS_TYPE.internalNonAdvertised && c.id !== SELECTION_PROCESS_TYPE.externalNonAdvertised,
 );
 
-const selectedEmploymentTenureForIndeterminate = allEmploymentTenures
-  .filter((c) => c.code === EMPLOYMENT_TENURE.indeterminate)
-  .map((employmentTenure) => ({
-    id: employmentTenure.id,
-    code: employmentTenure.code,
-    nameEn: employmentTenure.nameEn,
-    nameFr: employmentTenure.nameFr,
-  }));
+const selectedEmploymentTenureForIndeterminate = allEmploymentTenures.filter((c) => c.code === EMPLOYMENT_TENURE.indeterminate);
 
-const selectedEmploymentTenureForTerm = allEmploymentTenures
-  .filter((c) => c.code === EMPLOYMENT_TENURE.term)
-  .map((employmentTenure) => ({
-    id: employmentTenure.id,
-    code: employmentTenure.code,
-    nameEn: employmentTenure.nameEn,
-    nameFr: employmentTenure.nameFr,
-  }));
+const selectedEmploymentTenureForTerm = allEmploymentTenures.filter((c) => c.code === EMPLOYMENT_TENURE.term);
 
-const selectedNonAdvertisedAppointmentsForInternal = allNonAdvertisedAppointments.slice(0, 7).map((employmentTenure) => ({
-  id: employmentTenure.id,
-  code: employmentTenure.code,
-  nameEn: employmentTenure.nameEn,
-  nameFr: employmentTenure.nameFr,
-}));
+const selectedNonAdvertisedAppointmentsForInternal = allNonAdvertisedAppointments.slice(0, 7);
 
-const selectedNonAdvertisedAppointmentsForExternal = allNonAdvertisedAppointments.slice(7).map((employmentTenure) => ({
-  id: employmentTenure.id,
-  code: employmentTenure.code,
-  nameEn: employmentTenure.nameEn,
-  nameFr: employmentTenure.nameFr,
-}));
+const selectedNonAdvertisedAppointmentsForExternal = allNonAdvertisedAppointments.slice(7);
 
 export const positionInformationSchema = v.pipe(
   v.intersect([
