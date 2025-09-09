@@ -18,7 +18,8 @@ import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
 import { PersonalInformationForm } from '~/routes/page-components/profile/personal-information/form';
-import { personalInformationSchema } from '~/routes/page-components/profile/validation.server';
+import type { PersonalInformationSchema } from '~/routes/page-components/profile/validation.server';
+import { createPersonalInformationSchema } from '~/routes/page-components/profile/validation.server';
 import { toE164 } from '~/utils/phone-utils';
 import { formString } from '~/utils/string-utils';
 
@@ -43,7 +44,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   const profile = profileResult.unwrap();
 
   const formData = await request.formData();
-  const parseResult = v.safeParse(personalInformationSchema, {
+  const parseResult = v.safeParse(await createPersonalInformationSchema(), {
     firstName: formString(formData.get('firstName')),
     lastName: formString(formData.get('lastName')),
     personalRecordIdentifier: formString(formData.get('personalRecordIdentifier')),
@@ -57,7 +58,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 
   if (!parseResult.success) {
     return data(
-      { errors: v.flatten<typeof personalInformationSchema>(parseResult.issues).nested },
+      { errors: v.flatten<PersonalInformationSchema>(parseResult.issues).nested },
       { status: HttpStatusCodes.BAD_REQUEST },
     );
   }
