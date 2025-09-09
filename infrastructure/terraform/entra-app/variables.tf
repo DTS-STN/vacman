@@ -96,6 +96,12 @@ variable "role_assignments" {
   default     = {}
 }
 
+variable "service_principal_assignment_required" {
+  description = "Whether this service principal requires an app role assignment to a user or group before Azure AD will issue a user or access token to the application."
+  type        = bool
+  default     = false
+}
+
 variable "service_principal_group_memberships" {
   description = "List of group values (roles) that the service principal should be added to"
   type        = list(string)

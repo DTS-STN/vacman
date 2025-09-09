@@ -61,7 +61,7 @@ inputs = {
   ]
 
   app_spa_redirect_uris = [
-    # TODO ::: GjB ::: add prod redirect URIs here when available
+    # TODO ::: GjB ::: add prod redirect URIs here when (if?) available
   ]
 
   app_web_redirect_uris = [
@@ -69,4 +69,7 @@ inputs = {
     # TODO ::: GjB ::: remove prod-dp-internal URL after go-live
     "https://vacman.prod-dp-internal.dts-stn.com/auth/callback/azuread",
   ]
+
+  # TODO ::: GjB ::: remove this after go-live
+  service_principal_assignment_required = true
 }

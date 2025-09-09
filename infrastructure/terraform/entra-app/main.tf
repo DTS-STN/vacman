@@ -155,6 +155,9 @@ resource "azuread_service_principal" "main" {
   # link this service principal to the app
   client_id = azuread_application.main.client_id
 
+  # whether or not assignment to the service principal is required for auth
+  app_role_assignment_required = var.service_principal_assignment_required
+
   # inherit the same owners as the app
   owners = azuread_application.main.owners
 }
