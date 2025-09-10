@@ -312,11 +312,12 @@ export default {
     'cancel': 'Cancel FR',
     'save-and-exit': 'Save and exit FR',
     'submit': 'Submit FR',
-    'page-info':
-      '<div class="mt-1">ESDC Priority Clearance via the Vacancy Management System (VMS) is required for all indeterminate deployments and appointments (with the exception of the reclassification of a position, indeterminate deployments within the same branch or region, and alternations). FR </div>' +
-      '<div class="mt-2">Public Service Commission (PSC) Priority Clearance is required for all term and indeterminate appointments. FR </div>' +
-      '<div class="mt-2">PSC and ESDC Clearances are required prior to advertising all advertised appointment processes. FR </div>' +
-      `<div class="mt-2">Consult the Manager's Guide on Priority Clearances for more information. FR </div>`,
+    'page-info-1':
+      'ESDC Priority Clearance via the Vacancy Management System (VMS) is required for all indeterminate deployments and appointments (with the exception of the reclassification of a position, indeterminate deployments within the same branch or region, and alternations). FR',
+    'page-info-2':
+      'Public Service Commission (PSC) Priority Clearance is required for all term and indeterminate appointments. FR',
+    'page-info-3': 'PSC and ESDC Clearances are required prior to advertising all advertised appointment processes. FR',
+    'page-info-4': "Consult the Manager's Guide on Priority Clearances for more information. FR",
     //'view-link': 'View request with ID {{requestId}}',
   },
   'referral-request': 'Demande de présentation de candidatures',

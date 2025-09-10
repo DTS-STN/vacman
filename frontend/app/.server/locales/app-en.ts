@@ -309,11 +309,12 @@ export default {
     'cancel': 'Cancel',
     'save-and-exit': 'Save and exit',
     'submit': 'Submit',
-    'page-info':
-      '<div class="mt-1">ESDC Priority Clearance via the Vacancy Management System (VMS) is required for all indeterminate deployments and appointments (with the exception of the reclassification of a position, indeterminate deployments within the same branch or region, and alternations). </div>' +
-      '<div class="mt-2">Public Service Commission (PSC) Priority Clearance is required for all term and indeterminate appointments.</div>' +
-      '<div class="mt-2">PSC and ESDC Clearances are required prior to advertising all advertised appointment processes.</div>' +
-      `<div class="mt-2">Consult the Manager's Guide on Priority Clearances for more information.</div>`,
+    'page-info-1':
+      'ESDC Priority Clearance via the Vacancy Management System (VMS) is required for all indeterminate deployments and appointments (with the exception of the reclassification of a position, indeterminate deployments within the same branch or region, and alternations).',
+    'page-info-2':
+      'Public Service Commission (PSC) Priority Clearance is required for all term and indeterminate appointments.',
+    'page-info-3': 'PSC and ESDC Clearances are required prior to advertising all advertised appointment processes.',
+    'page-info-4': "Consult the Manager's Guide on Priority Clearances for more information.",
     //'view-link': 'View request with ID {{requestId}}',
   },
   'referral-request': 'Referral request',

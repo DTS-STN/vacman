@@ -36,13 +36,13 @@ export function meta({ loaderData }: Route.MetaArgs) {
   return [{ title: loaderData.documentTitle }];
 }
 
-// TODO review below
+// TODO review below and delete what is not needed
 //export default function HiringManagerRequestIndex({ loaderData, params }: Route.ComponentProps) {}
 
 export async function action({ context, params, request }: Route.ActionArgs) {
   requireAuthentication(context.session, request);
 
-  // TODO review
+  // TODO review data and formatting
   const requestData = await getRequestService().getRequestById(Number(params.requestId), context.session.authState.accessToken);
   const currentRequest = requestData.into();
 
@@ -78,7 +78,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   };
 
   // For Statement of Merit Criteria and Conditions of Employment from Request Model
-  const requiredSOMCFields = {
+  const requiredStatementOfMeritCriteriaFields = {
     englishStatementOfMerit: currentRequest?.englishStatementOfMerit,
     frenchStatementOfMerit: currentRequest?.frenchStatementOfMerit,
   };
@@ -105,15 +105,15 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   // Check if all sections are complete
   const processInfoComplete = countCompletedItems(requiredProcessFields) === Object.keys(requiredProcessFields).length;
   const positionInfoComplete = countCompletedItems(requiredPositionFields) === Object.keys(requiredPositionFields).length;
-  const SOMCInfoComplete = countCompletedItems(requiredSOMCFields) === Object.keys(requiredSOMCFields).length;
+  const statementOfMeritCriteriaInfoComplete = countCompletedItems(requiredStatementOfMeritCriteriaFields) === Object.keys(requiredStatementOfMeritCriteriaFields).length;
   const submissionInfoComplete = countCompletedItems(submissionFields) === Object.keys(submissionFields).length;
 
   // If any section is incomplete, return incomplete state
-  if (!processInfoComplete || !positionInfoComplete || !SOMCInfoComplete || !submissionInfoComplete) {
+  if (!processInfoComplete || !positionInfoComplete || !statementOfMeritCriteriaInfoComplete || !submissionInfoComplete) {
     return {
       processInfoComplete,
       positionInfoComplete,
-      SOMCInfoComplete,
+      statementOfMeritCriteriaInfoComplete,
       submissionInfoComplete,
     };
   }
@@ -121,7 +121,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   // If all complete, submit for review  TODO review
   const submitResult = await getRequestService().updateRequestStatus(
     Number(params.requestId),
-    currentRequest, //TODO review
+    currentRequest, //TODO review that currentRequest contains all the data required and as expected 
     context.session.authState.accessToken,
   );
 
@@ -199,6 +199,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   //     .filter(Boolean);
   //   const cities = profileData.preferredCities?.map((city) => allLocalizedCities.find((c) => c.id === city.id)).filter(Boolean);
 
+  
   // Check each section if the required fields are complete
   // Process information from Request type
   const processInformationData = {
@@ -211,15 +212,15 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     hasPerformedSameDuties: currentRequest?.hasPerformedSameDuties,
     appointmentNonAdvertised: currentRequest?.appointmentNonAdvertised,
     employmentTenure: currentRequest?.employmentTenure,
-    projectedStartDate: currentRequest?.projectedStartDate, // ISO date string (LocalDate)
-    projectedEndDate: currentRequest?.projectedEndDate, // ISO date string (LocalDate)
+    projectedStartDate: currentRequest?.projectedStartDate, // formatted as ISO date string (LocalDate)
+    projectedEndDate: currentRequest?.projectedEndDate, // formatted as ISO date string (LocalDate)
     workSchedule: currentRequest?.workSchedule,
     equityNeeded: currentRequest?.equityNeeded,
     employmentEquities: currentRequest?.employmentEquities,
   };
   const requiredProcessInformation = processInformationData;
   const processInformationCompleted = countCompletedItems(requiredProcessInformation);
-  const processInformationTotalFields = Object.keys(requiredProcessInformation).length; //TODO required?
+  const processInformationTotalFields = Object.keys(requiredProcessInformation).length;
 
   // Position information from Request type
   const positionInformationData = {
@@ -239,14 +240,14 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const positionInformationTotalFields = Object.keys(requiredPositionInformation).length;
 
   // Statement of Merit and Conditions Information from Request type
-  const SOMCInformationData = {
+  const statementOfMeritCriteriaInformationData = {
     englishStatementOfMerit: currentRequest?.englishStatementOfMerit,
     frenchStatementOfMerit: currentRequest?.frenchStatementOfMerit,
   };
 
-  const requiredSOMCInformation = SOMCInformationData;
-  const SOMCInformationCompleted = countCompletedItems(requiredSOMCInformation);
-  const SOMCInformationTotalFields = Object.keys(requiredSOMCInformation).length;
+  const requiredStatementOfMeritCriteriaInformation = statementOfMeritCriteriaInformationData;
+  const statementOfMeritCriteriaInformationCompleted = countCompletedItems(requiredStatementOfMeritCriteriaInformation);
+  const statementOfMeritCriteriaInformationTotalFields = Object.keys(requiredStatementOfMeritCriteriaInformation).length;
 
   // Submission Information from Request type
   const submissionInformationData = {
@@ -275,15 +276,15 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 
   const isCompleteProcessInformation = processInformationCompleted === processInformationTotalFields;
   const isCompletePositionInformation = positionInformationCompleted === positionInformationTotalFields;
-  const isCompleteSOMCInformaion = SOMCInformationCompleted === SOMCInformationTotalFields;
+  const isCompleteStatementOfMeritCriteriaInformaion = statementOfMeritCriteriaInformationCompleted === statementOfMeritCriteriaInformationTotalFields;  // Statement Of Merit Criteria
   const isCompleteSubmissionInformation = submissionInformationCompleted === submissionInformationTotalFields;
 
   const profileCompleted =
-    processInformationCompleted + positionInformationCompleted + SOMCInformationCompleted + submissionInformationCompleted;
+    processInformationCompleted + positionInformationCompleted + statementOfMeritCriteriaInformationCompleted + submissionInformationCompleted;
   const profileTotalFields =
     processInformationTotalFields +
     positionInformationTotalFields +
-    SOMCInformationTotalFields +
+    statementOfMeritCriteriaInformationTotalFields +
     submissionInformationTotalFields;
   const amountCompleted = (profileCompleted / profileTotalFields) * 100;
 
@@ -293,7 +294,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     isProfileComplete:
       isCompleteProcessInformation &&
       isCompletePositionInformation &&
-      isCompleteSOMCInformaion &&
+      isCompleteStatementOfMeritCriteriaInformaion &&
       isCompleteSubmissionInformation,
     //
     // process
@@ -308,8 +309,8 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     hasPerformedSameDuties: currentRequest?.hasPerformedSameDuties,
     appointmentNonAdvertised: currentRequest?.appointmentNonAdvertised,
     employmentTenure: currentRequest?.employmentTenure,
-    projectedStartDate: currentRequest?.projectedStartDate, // ISO date string (LocalDate)
-    projectedEndDate: currentRequest?.projectedEndDate, // ISO date string (LocalDate)
+    projectedStartDate: currentRequest?.projectedStartDate, // formatted as ISO date string (LocalDate)
+    projectedEndDate: currentRequest?.projectedEndDate, // formatted as ISO date string (LocalDate)
     workSchedule: currentRequest?.workSchedule,
     equityNeeded: currentRequest?.equityNeeded,
     employmentEquities: currentRequest?.employmentEquities,
@@ -318,7 +319,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     isCompletePositionInformation,
     isPositionNew: positionInformationCompleted === 0,
 
-    positionNumber: currentRequest?.positionNumber, // Comma separated list
+    positionNumber: currentRequest?.positionNumber,
     classification: currentRequest?.classification,
     englishTitle: currentRequest?.englishTitle,
     frenchTitle: currentRequest?.frenchTitle,
@@ -328,9 +329,9 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     frenchLanguageProfile: currentRequest?.frenchLanguageProfile,
     securityClearance: currentRequest?.securityClearance,
     //
-    // somc
-    isCompleteSOMCInformaion,
-    isSOMCNew: SOMCInformationCompleted === 0,
+    // Statement Of Merit Criteria
+    isCompleteStatementOfMeritCriteriaInformaion,
+    isStatementOfMeritCriteriaNew: statementOfMeritCriteriaInformationCompleted === 0,
 
     englishStatementOfMerit: currentRequest?.englishStatementOfMerit,
     frenchStatementOfMerit: currentRequest?.frenchStatementOfMerit,
@@ -445,12 +446,17 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
       <div className="mt-20 w-full">
         <ContextualAlert
           type={'info'}
-          message={t('app:hiring-manager-referral-requests.page-info')}
           role="status"
           ariaLive="polite"
-          htmlMessage={true}
           textSmall={false}
-        />
+        >
+          <div className="text-black-800 pl-1 text-base">
+            <p>{t('app:hiring-manager-referral-requests.page-info-1')}</p>
+            <p className="mt-2">{t('app:hiring-manager-referral-requests.page-info-2')}</p>
+            <p className="mt-2">{t('app:hiring-manager-referral-requests.page-info-3')}</p>
+            <p className="mt-2">{t('app:hiring-manager-referral-requests.page-info-4')}</p>
+          </div>
+        </ContextualAlert>
 
         <h2 className="font-lato mt-4 text-xl font-bold">{t('app:hiring-manager-referral-requests.request-details')}</h2>
 
@@ -602,14 +608,14 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
               title={t('app:hiring-manager-referral-requests.somc-conditions')}
               linkLabel={t('app:hiring-manager-referral-requests.edit-somc-conditions')}
               file="routes/hiring-manager/request/somc-conditions.tsx"
-              isComplete={loaderData.isCompleteSOMCInformaion}
-              isNew={loaderData.isSOMCNew}
+              isComplete={loaderData.isCompleteStatementOfMeritCriteriaInformaion}
+              isNew={loaderData.isStatementOfMeritCriteriaNew}
               params={params}
               required
-              errorState={formActionData?.somcComplete === false} //TODO review
+              errorState={formActionData?.statementOfMeritCriteriaComplete === false} //TODO review
               showStatus
             >
-              {loaderData.isSOMCNew ? (
+              {loaderData.isStatementOfMeritCriteriaNew ? (
                 <>{t('app:hiring-manager-referral-requests.somc-intro')}</>
               ) : (
                 <DescriptionList>
