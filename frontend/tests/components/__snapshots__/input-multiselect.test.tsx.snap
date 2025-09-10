@@ -9,7 +9,7 @@ exports[`InputMultiSelect > should match the initial snapshot 1`] = `
       id="input-framework"
     >
       <legend
-        class="block"
+        class="block mb-2"
         id="input-framework-legend"
       >
         <span
