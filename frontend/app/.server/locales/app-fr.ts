@@ -328,8 +328,11 @@ export default {
     'group-and-level': 'Groupe et niveau',
     'title-en': 'Titre en anglais',
     'title-fr': 'Titre  en français',
-    'location-province': 'Lieu - province',
-    'location-city': 'Lieu - ville',
+    'locations': 'Lieu(x)',
+    'select-locations':
+      'Sélectionnez une province pour voir les villes disponibles. Vous pouvez choisir autant de villes que nécessaire dans chaque province',
+    'province': 'Province',
+    'city': 'ville',
     'language-profile': 'Profil linguistique',
     'reading-comprehension': "Compréhension de l'écrit",
     'written-expression': 'Expression écrite',
@@ -347,6 +350,8 @@ export default {
       'title-fr-required': 'Title in French is required.',
       'provinces-required': 'Province is required.',
       'city-required': 'City is required.',
+      'city-invalid': 'City is invalid.',
+      'city-duplicate': 'Duplicate items for city are not allowed.',
       'language-requirement-required': 'Language requirement is required.',
       'language-profile': {
         'reading-comprehension-required': 'Reading comprehension is required.',

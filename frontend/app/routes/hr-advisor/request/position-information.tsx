@@ -42,7 +42,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     titleEn: formString(formData.get('titleEn')),
     titleFr: formString(formData.get('titleFr')),
     province: formString(formData.get('province')),
-    city: formString(formData.get('city')),
+    cities: formData.getAll('cities'),
     languageRequirement: formString(formData.get('languageRequirement')),
     readingEn: formString(formData.get('readingEn')),
     readingFr: formString(formData.get('readingFr')),
@@ -75,7 +75,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     classificationId: Number(parseResult.output.groupAndLevel),
     englishTitle: parseResult.output.titleEn,
     frenchTitle: parseResult.output.titleFr,
-    provinceId: Number(parseResult.output.province),
+    cityIds: parseResult.output.cities,
     languageRequirementId: Number(parseResult.output.languageRequirement),
     englishLanguageProfile: [parseResult.output.readingEn, parseResult.output.writingEn, parseResult.output.oralEn]
       .filter(Boolean)
@@ -123,6 +123,12 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const localizedCities = await getCityService().listAllLocalized(lang);
   const localizedSecurityClearances = await getSecurityClearanceService().listAllLocalized(lang);
 
+  const cityResult =
+    requestData.cities?.[0] !== undefined
+      ? await getCityService().findLocalizedById(requestData.cities[0].id, lang)
+      : undefined;
+  const city = cityResult?.into();
+
   return {
     documentTitle: t('app:position-information.page-title'),
     defaultValues: {
@@ -135,6 +141,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       languageRequirement: requestData.languageRequirement,
       securityClearance: requestData.securityClearance,
       cities: requestData.cities,
+      province: city?.provinceTerritory.id,
     },
     languageRequirements: localizedLanguageRequirements,
     classifications: localizedClassifications,

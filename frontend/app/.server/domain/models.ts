@@ -254,7 +254,6 @@ export type RequestCreateModel = Readonly<{
   classificationId: number;
   englishTitle: string;
   frenchTitle: string;
-  provinceId: number;
   languageRequirementId: number;
   englishLanguageProfile: string;
   frenchLanguageProfile: string;
@@ -262,6 +261,7 @@ export type RequestCreateModel = Readonly<{
   englishStatementOfMerit: string;
   frenchStatementOfMerit: string;
   employmentTenureId: number;
+  cityIds: number[];
 }>;
 
 // Request Read Model
@@ -274,12 +274,12 @@ export type RequestReadModel = Readonly<{
   selectionProcessType?: SelectionProcessType;
   hasPerformedSameDuties?: boolean;
   appointmentNonAdvertised?: NonAdvertisedAppointment;
-  projectedStartDate?: string; // ISO date string (LocalDate)
-  projectedEndDate?: string; // ISO date string (LocalDate)
+  projectedStartDate?: string;
+  projectedEndDate?: string;
   workSchedule?: WorkSchedule;
   equityNeeded?: boolean;
   employmentEquities?: EmploymentEquity[];
-  positionNumber?: string; // Comma separated list
+  positionNumber?: string;
   classification?: Classification;
   englishTitle?: string;
   frenchTitle?: string;
@@ -306,9 +306,9 @@ export type RequestReadModel = Readonly<{
   // Tombstone fields
   id: number;
   createdBy?: string;
-  createdDate?: string; // ISO date string (Instant)
+  createdDate?: string;
   lastModifiedBy?: string;
-  lastModifiedDate?: string; // ISO date string (Instant)
+  lastModifiedDate?: string;
 }>;
 
 // Request Update Model (same structure as Create but all fields optional for PATCH)

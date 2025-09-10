@@ -175,8 +175,12 @@ export function getMockRequestService(): RequestService {
           ? (await getSecurityClearanceService().getById(requestUpdate.securityClearanceId)).into()
           : existingRequest.securityClearance;
 
-      const cityId = (await getCityService().listAll()).find((c) => c.provinceTerritory.id === requestUpdate.provinceId)?.id;
-      const city = cityId !== undefined ? (await getCityService().getById(cityId)).into() : existingRequest.cities?.[0];
+      const cities =
+        requestUpdate.cityIds !== undefined
+          ? (await Promise.all(requestUpdate.cityIds.map((id) => getCityService().getById(id))))
+              .filter((result) => result.isOk())
+              .map((result) => result.unwrap())
+          : existingRequest.cities;
 
       const appointmentNonAdvertised =
         requestUpdate.nonAdvertisedAppointmentId !== undefined
@@ -191,7 +195,7 @@ export function getMockRequestService(): RequestService {
         englishTitle: requestUpdate.englishTitle ?? existingRequest.englishTitle,
         frenchTitle: requestUpdate.frenchTitle ?? existingRequest.frenchTitle,
         languageRequirement,
-        cities: city ? [city] : [],
+        cities,
         classification,
         englishLanguageProfile: requestUpdate.englishLanguageProfile ?? existingRequest.englishLanguageProfile,
         frenchLanguageProfile: requestUpdate.frenchLanguageProfile ?? existingRequest.frenchLanguageProfile,
