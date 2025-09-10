@@ -19,7 +19,8 @@ import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
 import { SubmissionDetailsForm } from '~/routes/page-components/requests/submission-detail/form';
-import { submissionDetailSchema } from '~/routes/page-components/requests/validation.server';
+import { createSubmissionDetailSchema } from '~/routes/page-components/requests/validation.server';
+import type { SubmissionDetailSchema } from '~/routes/page-components/requests/validation.server';
 import { formString } from '~/utils/string-utils';
 
 export const handle = {
@@ -36,9 +37,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   const formData = await request.formData();
   const view = formString(formData.get('view')) as 'hr-advisor' | 'hiring-manager' | undefined;
 
-  const dynamicSubmissionDetailSchema = submissionDetailSchema(view);
-
-  const parseResult = v.safeParse(dynamicSubmissionDetailSchema, {
+  const parseResult = v.safeParse(await createSubmissionDetailSchema(view), {
     view: view,
     isSubmiterHiringManager: formData.get('isSubmiterHiringManager')
       ? formData.get('isSubmiterHiringManager') === REQUIRE_OPTIONS.yes
@@ -59,7 +58,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 
   if (!parseResult.success) {
     return data(
-      { errors: v.flatten<typeof dynamicSubmissionDetailSchema>(parseResult.issues).nested },
+      { errors: v.flatten<SubmissionDetailSchema>(parseResult.issues).nested },
       { status: HttpStatusCodes.BAD_REQUEST },
     );
   }

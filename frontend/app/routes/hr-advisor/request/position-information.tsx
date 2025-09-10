@@ -20,7 +20,8 @@ import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
 import { PositionInformationForm } from '~/routes/page-components/requests/position-information/form';
-import { positionInformationSchema } from '~/routes/page-components/requests/validation.server';
+import { createPositionInformationSchema } from '~/routes/page-components/requests/validation.server';
+import type { PositionInformationSchema } from '~/routes/page-components/requests/validation.server';
 import { formString } from '~/utils/string-utils';
 
 export const handle = {
@@ -35,7 +36,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   requireAuthentication(context.session, request);
 
   const formData = await request.formData();
-  const parseResult = v.safeParse(positionInformationSchema, {
+  const parseResult = v.safeParse(await createPositionInformationSchema(), {
     positionNumber: formString(formData.get('positionNumber')),
     groupAndLevel: formString(formData.get('groupAndLevel')),
     titleEn: formString(formData.get('titleEn')),
@@ -54,7 +55,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 
   if (!parseResult.success) {
     return data(
-      { errors: v.flatten<typeof positionInformationSchema>(parseResult.issues).nested },
+      { errors: v.flatten<PositionInformationSchema>(parseResult.issues).nested },
       { status: HttpStatusCodes.BAD_REQUEST },
     );
   }
