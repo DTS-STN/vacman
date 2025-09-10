@@ -579,7 +579,7 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
                     {loaderData.frenchTitle ?? t('app:hiring-manager-referral-requests.not-provided')}
                   </DescriptionListItem>
 
-                    {/* TODO review  formatting and contents */}
+                  {/* TODO review  formatting and contents */}
                   {/* <DescriptionListItem term={t('app:position-information.location-city')}>
                     {loaderData.cities ?? t('app:hiring-manager-referral-requests.not-provided')}
                   </DescriptionListItem> */}
