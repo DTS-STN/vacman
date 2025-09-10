@@ -47,7 +47,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 
   const hrAdvisors = await getHrAdvisors(context.session.authState.accessToken);
   const formData = await request.formData();
-  const { parseResult, formValues } = parseEmploymentInformation(formData, hrAdvisors);
+  const { parseResult, formValues } = await parseEmploymentInformation(formData, hrAdvisors);
   if (!parseResult.success) {
     return data(
       { formValues: formValues, errors: v.flatten<EmploymentInformationSchema>(parseResult.issues).nested },
