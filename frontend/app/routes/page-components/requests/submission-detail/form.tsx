@@ -29,9 +29,6 @@ import { extractValidationKey } from '~/utils/validation-utils';
 interface SubmissionDetailsFormProps {
   cancelLink: I18nRouteFile;
   formValues: Partial<RequestReadModel> | undefined;
-  isSubmitterHiringManager?: boolean;
-  isSubmitterSubDelegate?: boolean;
-  isHiringManagerASubDelegate?: boolean;
   branchOrServiceCanadaRegions: readonly LocalizedBranch[];
   directorates: readonly LocalizedDirectorate[];
   languagesOfCorrespondence: readonly LocalizedLanguageOfCorrespondence[];
@@ -43,9 +40,6 @@ interface SubmissionDetailsFormProps {
 export function SubmissionDetailsForm({
   cancelLink,
   formValues,
-  isSubmitterHiringManager,
-  isSubmitterSubDelegate,
-  isHiringManagerASubDelegate,
   branchOrServiceCanadaRegions,
   directorates,
   languagesOfCorrespondence,
@@ -55,12 +49,20 @@ export function SubmissionDetailsForm({
 }: SubmissionDetailsFormProps): JSX.Element {
   const { t: tApp } = useTranslation('app');
   const { t: tGcweb } = useTranslation('gcweb');
-  console.log('isSubmitterSubDelegate');
-  console.log(isSubmitterSubDelegate);
 
-  const [isSubmitterHiringManagerState, setIsSubmiterHiringManagerState] = useState(isSubmitterHiringManager);
-  const [isSubmitterSubDelegateState, setIsSubmiterSubDelegateState] = useState(isSubmitterSubDelegate);
-  const [isHiringManagerASubDelegateState, setIsHiringManagerASubDelegateState] = useState(isHiringManagerASubDelegate);
+  const [isSubmitterHiringManager, setIsSubmiterHiringManager] = useState(
+    formValues?.submitter && formValues.hiringManager ? formValues.submitter.id === formValues.hiringManager.id : undefined,
+  );
+  const [isSubmitterSubDelegate, setIsSubmiterSubDelegate] = useState(
+    formValues?.submitter && formValues.subDelegatedManager
+      ? formValues.submitter.id === formValues.subDelegatedManager.id
+      : undefined,
+  );
+  const [isHiringManagerASubDelegate, setIsHiringManagerASubDelegate] = useState(
+    formValues?.hiringManager && formValues.subDelegatedManager
+      ? formValues.hiringManager.id === formValues.subDelegatedManager.id
+      : undefined,
+  );
   const [branch, setBranch] = useState(formValues?.workUnit ? String(formValues.workUnit.parent?.id) : undefined);
   const [directorate, setDirectorate] = useState(
     formValues?.workUnit !== undefined ? String(formValues.workUnit.id) : undefined,
@@ -68,30 +70,30 @@ export function SubmissionDetailsForm({
 
   const handleIsSubmiterHiringManagerChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedValue = event.target.value;
-    setIsSubmiterHiringManagerState(selectedValue === REQUIRE_OPTIONS.yes);
+    setIsSubmiterHiringManager(selectedValue === REQUIRE_OPTIONS.yes);
   };
 
   const handleIsSubmiterSubdelegateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedValue = event.target.value;
-    setIsSubmiterSubDelegateState(selectedValue === REQUIRE_OPTIONS.yes);
+    setIsSubmiterSubDelegate(selectedValue === REQUIRE_OPTIONS.yes);
   };
 
   const handleIsHiringManagerASubDelegateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedValue = event.target.value;
-    setIsHiringManagerASubDelegateState(selectedValue === REQUIRE_OPTIONS.yes);
+    setIsHiringManagerASubDelegate(selectedValue === REQUIRE_OPTIONS.yes);
   };
 
   const isSubmiterHiringManagerOptions: InputRadiosProps['options'] = [
     {
       children: tGcweb('input-option.yes'),
       value: REQUIRE_OPTIONS.yes,
-      defaultChecked: isSubmitterHiringManager,
+      defaultChecked: isSubmitterHiringManager === true,
       onChange: handleIsSubmiterHiringManagerChange,
     },
     {
       children: tGcweb('input-option.no'),
       value: REQUIRE_OPTIONS.no,
-      defaultChecked: isSubmitterHiringManager,
+      defaultChecked: isSubmitterHiringManager === false,
       onChange: handleIsSubmiterHiringManagerChange,
     },
   ];
@@ -100,13 +102,13 @@ export function SubmissionDetailsForm({
     {
       children: tGcweb('input-option.yes'),
       value: REQUIRE_OPTIONS.yes,
-      defaultChecked: isSubmitterSubDelegate,
+      defaultChecked: isSubmitterSubDelegate === true,
       onChange: handleIsSubmiterSubdelegateChange,
     },
     {
       children: tGcweb('input-option.no'),
       value: REQUIRE_OPTIONS.no,
-      defaultChecked: isSubmitterSubDelegate,
+      defaultChecked: isSubmitterSubDelegate === false,
       onChange: handleIsSubmiterSubdelegateChange,
     },
   ];
@@ -115,13 +117,13 @@ export function SubmissionDetailsForm({
     {
       children: tGcweb('input-option.yes'),
       value: REQUIRE_OPTIONS.yes,
-      defaultChecked: isHiringManagerASubDelegate,
+      defaultChecked: isHiringManagerASubDelegate === true,
       onChange: handleIsHiringManagerASubDelegateChange,
     },
     {
       children: tGcweb('input-option.no'),
       value: REQUIRE_OPTIONS.no,
-      defaultChecked: isHiringManagerASubDelegate,
+      defaultChecked: isHiringManagerASubDelegate === false,
       onChange: handleIsHiringManagerASubDelegateChange,
     },
   ];
@@ -195,7 +197,7 @@ export function SubmissionDetailsForm({
               required
               errorMessage={tApp(extractValidationKey(formErrors?.isSubmiterHiringManager))}
             />
-            {isSubmitterHiringManagerState === true && (
+            {isSubmitterHiringManager === true && (
               <>
                 <InputRadios
                   id="is-submitter-sub-delegate"
@@ -213,7 +215,7 @@ export function SubmissionDetailsForm({
                 />
               </>
             )}
-            {isSubmitterHiringManagerState === false && (
+            {isSubmitterHiringManager === false && (
               <>
                 <InputField
                   className="w-full"
@@ -234,8 +236,8 @@ export function SubmissionDetailsForm({
                 />
               </>
             )}
-            {((isSubmitterHiringManagerState === true && isSubmitterSubDelegateState === false) ||
-              isHiringManagerASubDelegateState === false) && (
+            {((isSubmitterHiringManager === true && isSubmitterSubDelegate === false) ||
+              isHiringManagerASubDelegate === false) && (
               <InputField
                 className="w-full"
                 id="sub-delegate-email-address"
