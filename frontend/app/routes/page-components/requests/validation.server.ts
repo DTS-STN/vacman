@@ -14,153 +14,133 @@ import { stringToIntegerSchema } from '~/.server/validation/string-to-integer-sc
 import { EMPLOYMENT_TENURE, LANGUAGE_REQUIREMENT_CODES, SELECTION_PROCESS_TYPE } from '~/domain/constants';
 import { isValidDateString, toISODateString } from '~/utils/date-utils';
 
-// Services that don't require authentication can be called at module level
-const allProvinces = await getProvinceService().listAll();
-const allCities = await getCityService().listAll();
-const allLanguageRequirements = await getLanguageRequirementService().listAll();
-const allSelectionProcessTypes = await getSelectionProcessTypeService().listAll();
-const allNonAdvertisedAppointments = await getNonAdvertisedAppointmentService().listAll();
-const allEmploymentTenures = await getEmploymentTenureService().listAll();
-const allEmploymentEquities = await getEmploymentEquityService().listAll();
-
+export type PositionInformationSchema = Awaited<ReturnType<typeof createPositionInformationSchema>>;
+export type ProcessInformationSchema = Awaited<ReturnType<typeof createProcessInformationSchema>>;
+export type SubmissionDetailSchema = Awaited<ReturnType<typeof createSubmissionDetailSchema>>;
 export type Errors = Readonly<Record<string, [string, ...string[]] | undefined>>;
 
-const validLanguageRequirementForRequiredLanguageLevel = [
-  LANGUAGE_REQUIREMENT_CODES.bilingualImperative,
-  LANGUAGE_REQUIREMENT_CODES.bilingualNonImperative,
-] as const;
+export async function createPositionInformationSchema() {
+  const allProvinces = await getProvinceService().listAll();
+  const allCities = await getCityService().listAll();
+  const allLanguageRequirements = await getLanguageRequirementService().listAll();
 
-const validLanguageRequirementForOptionalLanguageLevel = [
-  LANGUAGE_REQUIREMENT_CODES.englishEssential,
-  LANGUAGE_REQUIREMENT_CODES.frenchEssential,
-  LANGUAGE_REQUIREMENT_CODES.either,
-  LANGUAGE_REQUIREMENT_CODES.various,
-] as const;
+  const validLanguageRequirementForRequiredLanguageLevel = [
+    LANGUAGE_REQUIREMENT_CODES.bilingualImperative,
+    LANGUAGE_REQUIREMENT_CODES.bilingualNonImperative,
+  ] as const;
 
-const selectedLanguageRequirementForRequiredLanguageLevel = allLanguageRequirements.filter((c) =>
-  validLanguageRequirementForRequiredLanguageLevel.toString().includes(c.code),
-);
+  const validLanguageRequirementForOptionalLanguageLevel = [
+    LANGUAGE_REQUIREMENT_CODES.englishEssential,
+    LANGUAGE_REQUIREMENT_CODES.frenchEssential,
+    LANGUAGE_REQUIREMENT_CODES.either,
+    LANGUAGE_REQUIREMENT_CODES.various,
+  ] as const;
 
-const selectedLanguageRequirementForOptionalLanguageLevel = allLanguageRequirements.filter((c) =>
-  validLanguageRequirementForOptionalLanguageLevel.toString().includes(c.code),
-);
+  const selectedLanguageRequirementForRequiredLanguageLevel = allLanguageRequirements.filter((c) =>
+    validLanguageRequirementForRequiredLanguageLevel.toString().includes(c.code),
+  );
 
-const selectedSelectionProcessTypeForExternalNonAdvertised = allSelectionProcessTypes.filter(
-  (c) => c.id === SELECTION_PROCESS_TYPE.externalNonAdvertised,
-);
+  const selectedLanguageRequirementForOptionalLanguageLevel = allLanguageRequirements.filter((c) =>
+    validLanguageRequirementForOptionalLanguageLevel.toString().includes(c.code),
+  );
 
-const selectedSelectionProcessTypeForInternalNonAdvertised = allSelectionProcessTypes.filter(
-  (c) => c.id === SELECTION_PROCESS_TYPE.internalNonAdvertised,
-);
-
-const selectedSelectionProcessTypesExcludingNonAdvertised = allSelectionProcessTypes.filter(
-  (c) => c.id !== SELECTION_PROCESS_TYPE.internalNonAdvertised && c.id !== SELECTION_PROCESS_TYPE.externalNonAdvertised,
-);
-
-const selectedEmploymentTenureForIndeterminate = allEmploymentTenures.filter((c) => c.code === EMPLOYMENT_TENURE.indeterminate);
-
-const selectedEmploymentTenureForTerm = allEmploymentTenures.filter((c) => c.code === EMPLOYMENT_TENURE.term);
-
-const selectedNonAdvertisedAppointmentsForInternal = allNonAdvertisedAppointments.slice(0, 7);
-
-const selectedNonAdvertisedAppointmentsForExternal = allNonAdvertisedAppointments.slice(7);
-
-export const positionInformationSchema = v.pipe(
-  v.intersect([
-    v.object({
-      positionNumber: v.pipe(
-        v.string('app:position-information.errors.position-number-required'),
-        v.trim(),
-        v.nonEmpty('app:position-information.errors.position-number-required'),
-        v.custom((input) => {
-          const value = input as string;
-          const numbers = value.split(',').map((n) => n.trim());
-          return numbers.every((n) => n.length === 6); // TODO: Need to confirm validation
-        }, 'app:position-information.errors.position-number-max-length'),
-      ),
-      groupAndLevel: v.pipe(
-        v.string('app:position-information.errors.group-and-level-required'),
-        v.trim(),
-        v.nonEmpty('app:position-information.errors.group-and-level-required'),
-      ),
-      titleEn: v.pipe(
-        v.string('app:position-information.errors.title-en-required'),
-        v.trim(),
-        v.nonEmpty('app:position-information.errors.title-en-required'),
-      ),
-      titleFr: v.pipe(
-        v.string('app:position-information.errors.title-fr-required'),
-        v.trim(),
-        v.nonEmpty('app:position-information.errors.title-fr-required'),
-      ),
-      province: v.lazy(() =>
-        v.pipe(
-          stringToIntegerSchema('app:position-information.errors.provinces-required'),
-          v.picklist(
-            allProvinces.map(({ id }) => id),
-            'app:position-information.errors.provinces-required',
+  return v.pipe(
+    v.intersect([
+      v.object({
+        positionNumber: v.pipe(
+          v.string('app:position-information.errors.position-number-required'),
+          v.trim(),
+          v.nonEmpty('app:position-information.errors.position-number-required'),
+          v.custom((input) => {
+            const value = input as string;
+            const numbers = value.split(',').map((n) => n.trim());
+            return numbers.every((n) => n.length === 6); // TODO: Need to confirm validation
+          }, 'app:position-information.errors.position-number-max-length'),
+        ),
+        groupAndLevel: v.pipe(
+          v.string('app:position-information.errors.group-and-level-required'),
+          v.trim(),
+          v.nonEmpty('app:position-information.errors.group-and-level-required'),
+        ),
+        titleEn: v.pipe(
+          v.string('app:position-information.errors.title-en-required'),
+          v.trim(),
+          v.nonEmpty('app:position-information.errors.title-en-required'),
+        ),
+        titleFr: v.pipe(
+          v.string('app:position-information.errors.title-fr-required'),
+          v.trim(),
+          v.nonEmpty('app:position-information.errors.title-fr-required'),
+        ),
+        province: v.lazy(() =>
+          v.pipe(
+            stringToIntegerSchema('app:position-information.errors.provinces-required'),
+            v.picklist(
+              allProvinces.map(({ id }) => id),
+              'app:position-information.errors.provinces-required',
+            ),
           ),
         ),
-      ),
-      city: v.lazy(() =>
-        v.pipe(
-          stringToIntegerSchema('app:position-information.errors.city-required'),
-          v.picklist(
-            allCities.map(({ id }) => id),
-            'app:position-information.errors.city-required',
+        city: v.lazy(() =>
+          v.pipe(
+            stringToIntegerSchema('app:position-information.errors.city-required'),
+            v.picklist(
+              allCities.map(({ id }) => id),
+              'app:position-information.errors.city-required',
+            ),
           ),
         ),
+        securityRequirement: v.pipe(
+          v.string('app:position-information.errors.security-requirement-required'),
+          v.trim(),
+          v.nonEmpty('app:position-information.errors.security-requirement-required'),
+        ),
+      }),
+      v.variant(
+        'languageRequirement',
+        [
+          v.object({
+            languageRequirement: v.pipe(
+              stringToIntegerSchema(),
+              v.picklist(selectedLanguageRequirementForOptionalLanguageLevel.map(({ id }) => id)),
+            ),
+            readingEn: v.optional(v.string()),
+            readingFr: v.optional(v.string()),
+            writingEn: v.optional(v.string()),
+            writingFr: v.optional(v.string()),
+            oralEn: v.optional(v.string()),
+            oralFr: v.optional(v.string()),
+          }),
+          v.object({
+            languageRequirement: v.pipe(
+              stringToIntegerSchema(),
+              v.picklist(selectedLanguageRequirementForRequiredLanguageLevel.map(({ id }) => id)),
+            ),
+            readingEn: v.pipe(
+              v.pipe(v.string('app:position-information.errors.language-profile.reading-comprehension-required'), v.trim()),
+            ),
+            readingFr: v.pipe(
+              v.pipe(v.string('app:position-information.errors.language-profile.reading-comprehension-required'), v.trim()),
+            ),
+            writingEn: v.pipe(
+              v.pipe(v.string('app:position-information.errors.language-profile.written-expression-required'), v.trim()),
+            ),
+            writingFr: v.pipe(
+              v.pipe(v.string('app:position-information.errors.language-profile.written-expression-required'), v.trim()),
+            ),
+            oralEn: v.pipe(
+              v.pipe(v.string('app:position-information.errors.language-profile.oral-proficiency-required'), v.trim()),
+            ),
+            oralFr: v.pipe(
+              v.pipe(v.string('app:position-information.errors.language-profile.oral-proficiency-required'), v.trim()),
+            ),
+          }),
+        ],
+        'app:position-information.errors.language-requirement-required',
       ),
-      securityRequirement: v.pipe(
-        v.string('app:position-information.errors.security-requirement-required'),
-        v.trim(),
-        v.nonEmpty('app:position-information.errors.security-requirement-required'),
-      ),
-    }),
-    v.variant(
-      'languageRequirement',
-      [
-        v.object({
-          languageRequirement: v.pipe(
-            stringToIntegerSchema(),
-            v.picklist(selectedLanguageRequirementForOptionalLanguageLevel.map(({ id }) => id)),
-          ),
-          readingEn: v.optional(v.string()),
-          readingFr: v.optional(v.string()),
-          writingEn: v.optional(v.string()),
-          writingFr: v.optional(v.string()),
-          oralEn: v.optional(v.string()),
-          oralFr: v.optional(v.string()),
-        }),
-        v.object({
-          languageRequirement: v.pipe(
-            stringToIntegerSchema(),
-            v.picklist(selectedLanguageRequirementForRequiredLanguageLevel.map(({ id }) => id)),
-          ),
-          readingEn: v.pipe(
-            v.pipe(v.string('app:position-information.errors.language-profile.reading-comprehension-required'), v.trim()),
-          ),
-          readingFr: v.pipe(
-            v.pipe(v.string('app:position-information.errors.language-profile.reading-comprehension-required'), v.trim()),
-          ),
-          writingEn: v.pipe(
-            v.pipe(v.string('app:position-information.errors.language-profile.written-expression-required'), v.trim()),
-          ),
-          writingFr: v.pipe(
-            v.pipe(v.string('app:position-information.errors.language-profile.written-expression-required'), v.trim()),
-          ),
-          oralEn: v.pipe(
-            v.pipe(v.string('app:position-information.errors.language-profile.oral-proficiency-required'), v.trim()),
-          ),
-          oralFr: v.pipe(
-            v.pipe(v.string('app:position-information.errors.language-profile.oral-proficiency-required'), v.trim()),
-          ),
-        }),
-      ],
-      'app:position-information.errors.language-requirement-required',
-    ),
-  ]),
-);
+    ]),
+  );
+}
 
 export const somcConditionsSchema = v.pipe(
   v.object({
@@ -177,76 +157,76 @@ export const somcConditionsSchema = v.pipe(
   }),
 );
 
-const allDirectorates = await getDirectorateService().listAll();
-const allBranchOrServiceCanadaRegions = extractUniqueBranchesFromDirectoratesNonLocalized(allDirectorates);
-const allLanguagesOfCorrespondence = await getLanguageForCorrespondenceService().listAll();
+export async function createSubmissionDetailSchema(view: 'hr-advisor' | 'hiring-manager' | undefined) {
+  const allDirectorates = await getDirectorateService().listAll();
+  const allBranchOrServiceCanadaRegions = extractUniqueBranchesFromDirectoratesNonLocalized(allDirectorates);
+  const allLanguagesOfCorrespondence = await getLanguageForCorrespondenceService().listAll();
 
-const getIsSubmiterHiringManagerErrorMessage = (view: 'hr-advisor' | 'hiring-manager' | undefined) => {
-  if (view === 'hiring-manager') {
-    return 'app:submission-details.errors.are-you-hiring-manager-for-request-required';
-  }
-  // Default for 'hr-advisor' or if view is not provided/unexpected
-  return 'app:submission-details.errors.is-submitter-hiring-manager-required';
-};
-const getIsSubmiterSubdelegateErrorMessage = (view: 'hr-advisor' | 'hiring-manager' | undefined) => {
-  if (view === 'hiring-manager') {
-    return 'app:submission-details.errors.are-you-a-subdelegate-required';
-  }
-  // Default for 'hr-advisor' or if view is not provided/unexpected
-  return 'app:submission-details.errors.is-submitter-a-sub-delegate-required';
-};
+  const getIsSubmiterHiringManagerErrorMessage = (view: 'hr-advisor' | 'hiring-manager' | undefined) => {
+    if (view === 'hiring-manager') {
+      return 'app:submission-details.errors.are-you-hiring-manager-for-request-required';
+    }
+    // Default for 'hr-advisor' or if view is not provided/unexpected
+    return 'app:submission-details.errors.is-submitter-hiring-manager-required';
+  };
+  const getIsSubmiterSubdelegateErrorMessage = (view: 'hr-advisor' | 'hiring-manager' | undefined) => {
+    if (view === 'hiring-manager') {
+      return 'app:submission-details.errors.are-you-a-subdelegate-required';
+    }
+    // Default for 'hr-advisor' or if view is not provided/unexpected
+    return 'app:submission-details.errors.is-submitter-a-sub-delegate-required';
+  };
 
-const submissionDetail = {
-  viewSchema: v.optional(v.string()),
-  hiringManagerEmailAddressSchema: v.pipe(
-    v.string('app:submission-details.errors.hiring-manager-email-required'),
-    v.trim(),
-    v.nonEmpty('app:submission-details.errors.hiring-manager-email-required'),
-    v.email('app:submission-details.errors.hiring-manager-email-invalid'),
-  ),
-  subDelegatedManagerEmailAddressSchema: v.pipe(
-    v.string('app:submission-details.errors.sub-delegate-email-required'),
-    v.trim(),
-    v.nonEmpty('app:submission-details.errors.sub-delegate-email-required'),
-    v.email('app:submission-details.errors.sub-delegate-email-invalid'),
-  ),
-  branchOrServiceCanadaRegionSchema: v.lazy(() =>
-    v.pipe(
-      stringToIntegerSchema('app:submission-details.errors.branch-or-service-canada-region-required'),
-      v.picklist(
-        allBranchOrServiceCanadaRegions.map(({ id }) => id),
-        'app:submission-details.errors.branch-or-service-canada-region-required',
-      ),
-    ),
-  ),
-  directorateSchema: v.lazy(() =>
-    v.pipe(
-      stringToIntegerSchema('app:submission-details.errors.directorate-required'),
-      v.picklist(
-        allDirectorates.map(({ id }) => id),
-        'app:submission-details.errors.directorate-required',
-      ),
-    ),
-  ),
-  languageOfCorrespondenceIdSchema: v.lazy(() =>
-    v.pipe(
-      stringToIntegerSchema('app:submission-details.errors.preferred-language-of-correspondence-required'),
-      v.picklist(
-        allLanguagesOfCorrespondence.map(({ id }) => id),
-        'app:submission-details.errors.preferred-language-of-correspondence-required',
-      ),
-    ),
-  ),
-  additionalCommentSchema: v.optional(
-    v.pipe(
-      v.string('app:submission-details.errors.additional-information-required'),
+  const submissionDetail = {
+    viewSchema: v.optional(v.string()),
+    hiringManagerEmailAddressSchema: v.pipe(
+      v.string('app:submission-details.errors.hiring-manager-email-required'),
       v.trim(),
-      v.maxLength(100, 'app:submission-details.errors.additional-information-max-length'),
+      v.nonEmpty('app:submission-details.errors.hiring-manager-email-required'),
+      v.email('app:submission-details.errors.hiring-manager-email-invalid'),
     ),
-  ),
-};
+    subDelegatedManagerEmailAddressSchema: v.pipe(
+      v.string('app:submission-details.errors.sub-delegate-email-required'),
+      v.trim(),
+      v.nonEmpty('app:submission-details.errors.sub-delegate-email-required'),
+      v.email('app:submission-details.errors.sub-delegate-email-invalid'),
+    ),
+    branchOrServiceCanadaRegionSchema: v.lazy(() =>
+      v.pipe(
+        stringToIntegerSchema('app:submission-details.errors.branch-or-service-canada-region-required'),
+        v.picklist(
+          allBranchOrServiceCanadaRegions.map(({ id }) => id),
+          'app:submission-details.errors.branch-or-service-canada-region-required',
+        ),
+      ),
+    ),
+    directorateSchema: v.lazy(() =>
+      v.pipe(
+        stringToIntegerSchema('app:submission-details.errors.directorate-required'),
+        v.picklist(
+          allDirectorates.map(({ id }) => id),
+          'app:submission-details.errors.directorate-required',
+        ),
+      ),
+    ),
+    languageOfCorrespondenceIdSchema: v.lazy(() =>
+      v.pipe(
+        stringToIntegerSchema('app:submission-details.errors.preferred-language-of-correspondence-required'),
+        v.picklist(
+          allLanguagesOfCorrespondence.map(({ id }) => id),
+          'app:submission-details.errors.preferred-language-of-correspondence-required',
+        ),
+      ),
+    ),
+    additionalCommentSchema: v.optional(
+      v.pipe(
+        v.string('app:submission-details.errors.additional-information-required'),
+        v.trim(),
+        v.maxLength(100, 'app:submission-details.errors.additional-information-max-length'),
+      ),
+    ),
+  };
 
-export const submissionDetailSchema = (view: 'hr-advisor' | 'hiring-manager' | undefined) => {
   const baseCombinedSchema = v.intersect([
     v.object({
       view: submissionDetail.viewSchema,
@@ -318,185 +298,212 @@ export const submissionDetailSchema = (view: 'hr-advisor' | 'hiring-manager' | u
       ['subDelegatedManagerEmailAddress'],
     ),
   );
-};
+}
 
-export const processInformationSchema = v.pipe(
-  v.intersect([
-    v.object({
-      selectionProcessNumber: v.pipe(
-        v.string('app:process-information.errors.selection-process-number-required'),
-        v.trim(),
-        v.nonEmpty('app:process-information.errors.selection-process-number-required'),
+export async function createProcessInformationSchema() {
+  const allSelectionProcessTypes = await getSelectionProcessTypeService().listAll();
+  const allNonAdvertisedAppointments = await getNonAdvertisedAppointmentService().listAll();
+  const allEmploymentTenures = await getEmploymentTenureService().listAll();
+  const allEmploymentEquities = await getEmploymentEquityService().listAll();
+
+  const selectedSelectionProcessTypeForExternalNonAdvertised = allSelectionProcessTypes.filter(
+    (c) => c.id === SELECTION_PROCESS_TYPE.externalNonAdvertised,
+  );
+
+  const selectedSelectionProcessTypeForInternalNonAdvertised = allSelectionProcessTypes.filter(
+    (c) => c.id === SELECTION_PROCESS_TYPE.internalNonAdvertised,
+  );
+
+  const selectedSelectionProcessTypesExcludingNonAdvertised = allSelectionProcessTypes.filter(
+    (c) => c.id !== SELECTION_PROCESS_TYPE.internalNonAdvertised && c.id !== SELECTION_PROCESS_TYPE.externalNonAdvertised,
+  );
+
+  const selectedEmploymentTenureForIndeterminate = allEmploymentTenures.filter(
+    (c) => c.code === EMPLOYMENT_TENURE.indeterminate,
+  );
+
+  const selectedEmploymentTenureForTerm = allEmploymentTenures.filter((c) => c.code === EMPLOYMENT_TENURE.term);
+  const selectedNonAdvertisedAppointmentsForInternal = allNonAdvertisedAppointments.slice(0, 7);
+  const selectedNonAdvertisedAppointmentsForExternal = allNonAdvertisedAppointments.slice(7);
+
+  return v.pipe(
+    v.intersect([
+      v.object({
+        selectionProcessNumber: v.pipe(
+          v.string('app:process-information.errors.selection-process-number-required'),
+          v.trim(),
+          v.nonEmpty('app:process-information.errors.selection-process-number-required'),
+        ),
+        approvalReceived: v.pipe(v.boolean('app:process-information.errors.approval-received-required')),
+        workSchedule: v.pipe(
+          v.string('app:process-information.errors.performed-duties-required'),
+          v.trim(),
+          v.nonEmpty('app:process-information.errors.performed-duties-required'),
+        ),
+      }),
+      v.variant(
+        'priorityEntitlement',
+        [
+          v.object({
+            priorityEntitlement: v.literal(true),
+            priorityEntitlementRationale: v.pipe(
+              v.string('app:process-information.errors.priority-entitlement-rationale-required'),
+              v.trim(),
+              v.nonEmpty('app:process-information.errors.priority-entitlement-rationale-required'),
+            ),
+          }),
+          v.object({
+            priorityEntitlement: v.literal(false),
+            priorityEntitlementRationale: v.optional(v.string()),
+          }),
+        ],
+        'app:process-information.errors.priority-entitlement-required',
       ),
-      approvalReceived: v.pipe(v.boolean('app:process-information.errors.approval-received-required')),
-      workSchedule: v.pipe(
-        v.string('app:process-information.errors.performed-duties-required'),
-        v.trim(),
-        v.nonEmpty('app:process-information.errors.performed-duties-required'),
+      v.variant(
+        'selectionProcessType',
+        [
+          v.object({
+            selectionProcessType: v.pipe(
+              stringToIntegerSchema(),
+              v.picklist(selectedSelectionProcessTypeForExternalNonAdvertised.map(({ id }) => id)),
+            ),
+            performedDuties: v.pipe(v.boolean('app:process-information.errors.performed-duties-required')),
+            nonAdvertisedAppointment: v.pipe(
+              stringToIntegerSchema('app:process-information.errors.non-advertised-appointment-required'),
+              v.picklist(
+                selectedNonAdvertisedAppointmentsForExternal.map(({ id }) => id),
+                'app:process-information.errors.non-advertised-appointment-required',
+              ),
+            ),
+          }),
+          v.object({
+            selectionProcessType: v.pipe(
+              stringToIntegerSchema(),
+              v.picklist(selectedSelectionProcessTypeForInternalNonAdvertised.map(({ id }) => id)),
+            ),
+            performedDuties: v.pipe(v.boolean('app:process-information.errors.performed-duties-required')),
+            nonAdvertisedAppointment: v.pipe(
+              stringToIntegerSchema('app:process-information.errors.non-advertised-appointment-required'),
+              v.picklist(
+                selectedNonAdvertisedAppointmentsForInternal.map(({ id }) => id),
+                'app:process-information.errors.non-advertised-appointment-required',
+              ),
+            ),
+          }),
+          v.object({
+            selectionProcessType: v.pipe(
+              stringToIntegerSchema(),
+              v.picklist(selectedSelectionProcessTypesExcludingNonAdvertised.map(({ id }) => id)),
+            ),
+            performedDuties: v.undefined(),
+            nonAdvertisedAppointment: v.undefined(),
+          }),
+        ],
+        'app:process-information.errors.selection-process-type-required',
       ),
-    }),
-    v.variant(
-      'priorityEntitlement',
-      [
-        v.object({
-          priorityEntitlement: v.literal(true),
-          priorityEntitlementRationale: v.pipe(
-            v.string('app:process-information.errors.priority-entitlement-rationale-required'),
-            v.trim(),
-            v.nonEmpty('app:process-information.errors.priority-entitlement-rationale-required'),
-          ),
-        }),
-        v.object({
-          priorityEntitlement: v.literal(false),
-          priorityEntitlementRationale: v.optional(v.string()),
-        }),
-      ],
-      'app:process-information.errors.priority-entitlement-required',
-    ),
-    v.variant(
-      'selectionProcessType',
-      [
-        v.object({
-          selectionProcessType: v.pipe(
-            stringToIntegerSchema(),
-            v.picklist(selectedSelectionProcessTypeForExternalNonAdvertised.map(({ id }) => id)),
-          ),
-          performedDuties: v.pipe(v.boolean('app:process-information.errors.performed-duties-required')),
-          nonAdvertisedAppointment: v.pipe(
-            stringToIntegerSchema('app:process-information.errors.non-advertised-appointment-required'),
-            v.picklist(
-              selectedNonAdvertisedAppointmentsForExternal.map(({ id }) => id),
-              'app:process-information.errors.non-advertised-appointment-required',
+      v.variant(
+        'employmentTenure',
+        [
+          v.object({
+            employmentTenure: v.pipe(
+              stringToIntegerSchema(),
+              v.picklist(selectedEmploymentTenureForIndeterminate.map(({ id }) => id)),
             ),
-          ),
-        }),
-        v.object({
-          selectionProcessType: v.pipe(
-            stringToIntegerSchema(),
-            v.picklist(selectedSelectionProcessTypeForInternalNonAdvertised.map(({ id }) => id)),
-          ),
-          performedDuties: v.pipe(v.boolean('app:process-information.errors.performed-duties-required')),
-          nonAdvertisedAppointment: v.pipe(
-            stringToIntegerSchema('app:process-information.errors.non-advertised-appointment-required'),
-            v.picklist(
-              selectedNonAdvertisedAppointmentsForInternal.map(({ id }) => id),
-              'app:process-information.errors.non-advertised-appointment-required',
+            projectedStartDateYear: v.optional(v.string()),
+            projectedStartDateMonth: v.optional(v.string()),
+            projectedStartDateDay: v.optional(v.string()),
+            projectedStartDate: v.optional(v.string()),
+            projectedEndDateYear: v.optional(v.string()),
+            projectedEndDateMonth: v.optional(v.string()),
+            projectedEndDateDay: v.optional(v.string()),
+            projectedEndDate: v.optional(v.string()),
+          }),
+          v.object({
+            employmentTenure: v.pipe(stringToIntegerSchema(), v.picklist(selectedEmploymentTenureForTerm.map(({ id }) => id))),
+            projectedStartDateYear: v.pipe(
+              stringToIntegerSchema('app:process-information.errors.projected-start-date.invalid-year'),
+              v.minValue(1, 'app:process-information.errors.projected-start-date.invalid-year'),
             ),
-          ),
-        }),
-        v.object({
-          selectionProcessType: v.pipe(
-            stringToIntegerSchema(),
-            v.picklist(selectedSelectionProcessTypesExcludingNonAdvertised.map(({ id }) => id)),
-          ),
-          performedDuties: v.undefined(),
-          nonAdvertisedAppointment: v.undefined(),
-        }),
-      ],
-      'app:process-information.errors.selection-process-type-required',
-    ),
-    v.variant(
-      'employmentTenure',
-      [
-        v.object({
-          employmentTenure: v.pipe(
-            stringToIntegerSchema(),
-            v.picklist(selectedEmploymentTenureForIndeterminate.map(({ id }) => id)),
-          ),
-          projectedStartDateYear: v.optional(v.string()),
-          projectedStartDateMonth: v.optional(v.string()),
-          projectedStartDateDay: v.optional(v.string()),
-          projectedStartDate: v.optional(v.string()),
-          projectedEndDateYear: v.optional(v.string()),
-          projectedEndDateMonth: v.optional(v.string()),
-          projectedEndDateDay: v.optional(v.string()),
-          projectedEndDate: v.optional(v.string()),
-        }),
-        v.object({
-          employmentTenure: v.pipe(stringToIntegerSchema(), v.picklist(selectedEmploymentTenureForTerm.map(({ id }) => id))),
-          projectedStartDateYear: v.pipe(
-            stringToIntegerSchema('app:process-information.errors.projected-start-date.invalid-year'),
-            v.minValue(1, 'app:process-information.errors.projected-start-date.invalid-year'),
-          ),
-          projectedStartDateMonth: v.pipe(
-            stringToIntegerSchema('app:process-information.errors.projected-start-date.required-month'),
-            v.minValue(1, 'app:process-information.errors.projected-start-date.invalid-month'),
-            v.maxValue(12, 'app:process-information.errors.projected-start-date.invalid-month'),
-          ),
-          projectedStartDateDay: v.pipe(
-            stringToIntegerSchema('app:process-information.errors.projected-start-date.required-day'),
-            v.minValue(1, 'app:process-information.errors.projected-start-date.invalid-day'),
-            v.maxValue(31, 'app:process-information.errors.projected-start-date.invalid-day'),
-          ),
-          projectedStartDate: v.pipe(
-            v.string(),
-            v.custom(
-              (input) => isValidDateString(input as string),
-              'app:process-information.errors.projected-start-date.invalid',
+            projectedStartDateMonth: v.pipe(
+              stringToIntegerSchema('app:process-information.errors.projected-start-date.required-month'),
+              v.minValue(1, 'app:process-information.errors.projected-start-date.invalid-month'),
+              v.maxValue(12, 'app:process-information.errors.projected-start-date.invalid-month'),
             ),
-          ),
-          projectedEndDateYear: v.pipe(
-            stringToIntegerSchema('app:process-information.errors.projected-end-date.invalid-year'),
-            v.minValue(1, 'app:process-information.errors.projected-end-date.invalid-year'),
-          ),
-          projectedEndDateMonth: v.pipe(
-            stringToIntegerSchema('app:process-information.errors.projected-end-date.required-month'),
-            v.minValue(1, 'app:process-information.errors.projected-end-date.invalid-month'),
-            v.maxValue(12, 'app:process-information.errors.projected-end-date.invalid-month'),
-          ),
-          projectedEndDateDay: v.pipe(
-            stringToIntegerSchema('app:process-information.errors.projected-end-date.required-day'),
-            v.minValue(1, 'app:process-information.errors.projected-end-date.invalid-day'),
-            v.maxValue(31, 'app:process-information.errors.projected-end-date.invalid-day'),
-          ),
-          projectedEndDate: v.pipe(
-            v.string(),
-            v.custom(
-              (input) => isValidDateString(input as string),
-              'app:process-information.errors.projected-end-date.invalid',
+            projectedStartDateDay: v.pipe(
+              stringToIntegerSchema('app:process-information.errors.projected-start-date.required-day'),
+              v.minValue(1, 'app:process-information.errors.projected-start-date.invalid-day'),
+              v.maxValue(31, 'app:process-information.errors.projected-start-date.invalid-day'),
             ),
-          ),
-        }),
-      ],
-      'app:process-information.errors.employment-tenure-required',
-    ),
-    v.variant(
-      'employmentEquityIdentified',
-      [
-        v.object({
-          employmentEquityIdentified: v.literal(true),
-          preferredEmploymentEquities: v.pipe(
-            v.array(
-              v.lazy(() =>
-                v.pipe(
-                  stringToIntegerSchema('app:process-information.errors.employment-equities-required'),
-                  v.picklist(
-                    allEmploymentEquities.map(({ id }) => id),
-                    'app:process-information.errors.employment-equities-required',
+            projectedStartDate: v.pipe(
+              v.string(),
+              v.custom(
+                (input) => isValidDateString(input as string),
+                'app:process-information.errors.projected-start-date.invalid',
+              ),
+            ),
+            projectedEndDateYear: v.pipe(
+              stringToIntegerSchema('app:process-information.errors.projected-end-date.invalid-year'),
+              v.minValue(1, 'app:process-information.errors.projected-end-date.invalid-year'),
+            ),
+            projectedEndDateMonth: v.pipe(
+              stringToIntegerSchema('app:process-information.errors.projected-end-date.required-month'),
+              v.minValue(1, 'app:process-information.errors.projected-end-date.invalid-month'),
+              v.maxValue(12, 'app:process-information.errors.projected-end-date.invalid-month'),
+            ),
+            projectedEndDateDay: v.pipe(
+              stringToIntegerSchema('app:process-information.errors.projected-end-date.required-day'),
+              v.minValue(1, 'app:process-information.errors.projected-end-date.invalid-day'),
+              v.maxValue(31, 'app:process-information.errors.projected-end-date.invalid-day'),
+            ),
+            projectedEndDate: v.pipe(
+              v.string(),
+              v.custom(
+                (input) => isValidDateString(input as string),
+                'app:process-information.errors.projected-end-date.invalid',
+              ),
+            ),
+          }),
+        ],
+        'app:process-information.errors.employment-tenure-required',
+      ),
+      v.variant(
+        'employmentEquityIdentified',
+        [
+          v.object({
+            employmentEquityIdentified: v.literal(true),
+            preferredEmploymentEquities: v.pipe(
+              v.array(
+                v.lazy(() =>
+                  v.pipe(
+                    stringToIntegerSchema('app:process-information.errors.employment-equities-required'),
+                    v.picklist(
+                      allEmploymentEquities.map(({ id }) => id),
+                      'app:process-information.errors.employment-equities-required',
+                    ),
                   ),
                 ),
               ),
+              v.nonEmpty('app:process-information.errors.employment-equities-required'),
             ),
-            v.nonEmpty('app:process-information.errors.employment-equities-required'),
-          ),
-        }),
-        v.object({
-          employmentEquityIdentified: v.literal(false),
-          preferredEmploymentEquities: v.optional(v.array(v.number())),
-        }),
-      ],
-      'app:process-information.errors.employment-equity-identified-required',
+          }),
+          v.object({
+            employmentEquityIdentified: v.literal(false),
+            preferredEmploymentEquities: v.optional(v.array(v.number())),
+          }),
+        ],
+        'app:process-information.errors.employment-equity-identified-required',
+      ),
+    ]),
+    v.forward(
+      v.check(
+        //projectedStartDate and projectedEndDate are optional, but if both are present, then check that projectedStartDate < projectedEndDate
+        (input) => !input.projectedStartDate || !input.projectedEndDate || input.projectedStartDate < input.projectedEndDate,
+        'app:process-information.errors.projected-end-date.invalid-before-start-date',
+      ),
+      ['projectedEndDate'],
     ),
-  ]),
-  v.forward(
-    v.check(
-      //projectedStartDate and projectedEndDate are optional, but if both are present, then check that projectedStartDate < projectedEndDate
-      (input) => !input.projectedStartDate || !input.projectedEndDate || input.projectedStartDate < input.projectedEndDate,
-      'app:process-information.errors.projected-end-date.invalid-before-start-date',
-    ),
-    ['projectedEndDate'],
-  ),
-);
+  );
+}
 
 export function toDateString(year?: string, month?: string, day?: string): string {
   try {

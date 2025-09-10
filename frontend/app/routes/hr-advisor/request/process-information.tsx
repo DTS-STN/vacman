@@ -21,7 +21,8 @@ import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
 import { ProcessInformationForm } from '~/routes/page-components/requests/process-information/form';
-import { processInformationSchema, toDateString } from '~/routes/page-components/requests/validation.server';
+import { createProcessInformationSchema, toDateString } from '~/routes/page-components/requests/validation.server';
+import type { ProcessInformationSchema } from '~/routes/page-components/requests/validation.server';
 import { formString } from '~/utils/string-utils';
 
 export const handle = {
@@ -35,7 +36,6 @@ export function meta({ loaderData }: Route.MetaArgs) {
 export async function action({ context, params, request }: Route.ActionArgs) {
   requireAuthentication(context.session, request);
 
-  // TODO: consider extracting this out into a function similar to profile/employment-information
   const formData = await request.formData();
   const projectedStartDateYear = formData.get('projectedStartDateYear')?.toString();
   const projectedStartDateMonth = formData.get('projectedStartDateMonth')?.toString();
@@ -43,7 +43,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   const projectedEndDateYear = formData.get('projectedEndDateYear')?.toString();
   const projectedEndDateMonth = formData.get('projectedEndDateMonth')?.toString();
   const projectedEndDateDay = formData.get('projectedEndDateDay')?.toString();
-  const parseResult = v.safeParse(processInformationSchema, {
+  const parseResult = v.safeParse(await createProcessInformationSchema(), {
     selectionProcessNumber: formString(formData.get('selectionProcessNumber')),
     approvalReceived: formString(formData.get('approvalReceived'))
       ? formString(formData.get('approvalReceived')) === 'on'
@@ -75,7 +75,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 
   if (!parseResult.success) {
     return data(
-      { errors: v.flatten<typeof processInformationSchema>(parseResult.issues).nested },
+      { errors: v.flatten<ProcessInformationSchema>(parseResult.issues).nested },
       { status: HttpStatusCodes.BAD_REQUEST },
     );
   }
