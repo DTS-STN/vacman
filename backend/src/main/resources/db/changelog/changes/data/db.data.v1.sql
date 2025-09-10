@@ -797,9 +797,7 @@ SET IDENTITY_INSERT CD_EMPLOYMENT_TENURE ON;
 INSERT INTO [CD_EMPLOYMENT_TENURE] ([ID], [CODE], [NAME_EN], [NAME_FR], [EFFECTIVE_DATE], [USER_CREATED], [DATE_CREATED], [USER_UPDATED], [DATE_UPDATED])
 VALUES
 (0, 'INDETERMINATE', 'Indeterminate', 'Indéterminée', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
-(1, 'TERM', 'Term', 'Durée déterminée', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
-(2, 'CASUAL', 'Casual', 'Occasionnel', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
-(3, 'STUDENT', 'Student', 'Étudiant', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
+(1, 'TERM', 'Term', 'Durée déterminée', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
 
 --changeset system:cd_employment_tenure_off dbms:mssql
 SET IDENTITY_INSERT CD_EMPLOYMENT_TENURE OFF;
@@ -913,9 +911,7 @@ SET IDENTITY_INSERT CD_WORK_SCHEDULE ON;
 INSERT INTO [CD_WORK_SCHEDULE] ([ID], [CODE], [NAME_EN], [NAME_FR], [EFFECTIVE_DATE], [USER_CREATED], [DATE_CREATED], [USER_UPDATED], [DATE_UPDATED])
 VALUES
 (0, 'FULL_TIME', 'Full-time', 'Temps plein', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
-(1, 'PART_TIME', 'Part-time', 'Temps partiel', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
-(2, 'CASUAL', 'Casual', 'Occasionnel', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
-(3, 'TERM', 'Term', 'Durée déterminée', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
+(1, 'PART_TIME', 'Part-time', 'Temps partiel', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
 
 --changeset system:cd_work_schedule_off dbms:mssql
 SET IDENTITY_INSERT CD_WORK_SCHEDULE OFF;
