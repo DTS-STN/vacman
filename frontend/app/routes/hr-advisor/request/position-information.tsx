@@ -123,12 +123,6 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const localizedCities = await getCityService().listAllLocalized(lang);
   const localizedSecurityClearances = await getSecurityClearanceService().listAllLocalized(lang);
 
-  const cityResult =
-    requestData.cities?.[0] !== undefined
-      ? await getCityService().findLocalizedById(requestData.cities[0].id, lang)
-      : undefined;
-  const city = cityResult?.into();
-
   return {
     documentTitle: t('app:position-information.page-title'),
     defaultValues: {
@@ -141,7 +135,6 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       languageRequirement: requestData.languageRequirement,
       securityClearance: requestData.securityClearance,
       cities: requestData.cities,
-      province: city?.provinceTerritory.id,
     },
     languageRequirements: localizedLanguageRequirements,
     classifications: localizedClassifications,
