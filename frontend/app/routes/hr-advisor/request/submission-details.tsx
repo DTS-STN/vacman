@@ -77,6 +77,8 @@ export async function loader({ context, params, request }: Route.LoaderArgs) {
     context.session.authState.accessToken,
   );
 
+  // Since the hr advisor can't create a new request, so this page can throw 404 when the request is not found
+
   if (requestResult.isErr()) {
     throw new Response('Request not found', { status: HttpStatusCodes.NOT_FOUND });
   }
@@ -101,9 +103,6 @@ export async function loader({ context, params, request }: Route.LoaderArgs) {
       languageOfCorrespondence: requestData.languageOfCorrespondence,
       additionalComment: requestData.additionalComment,
     },
-    isSubmitterHiringManager: requestData.submitter?.id === requestData.hiringManager?.id,
-    isSubmitterSubDelegate: requestData.submitter?.id === requestData.subDelegatedManager?.id,
-    isHiringManagerASubDelegate: requestData.hiringManager?.id === requestData.subDelegatedManager?.id,
     branchOrServiceCanadaRegions,
     directorates,
     languagesOfCorrespondence,
@@ -129,9 +128,6 @@ export default function HiringManagerRequestSubmissionDetails({ loaderData, acti
           cancelLink="routes/hr-advisor/request/index.tsx"
           formErrors={errors}
           formValues={loaderData.defaultValues}
-          isSubmitterHiringManager={loaderData.isSubmitterHiringManager}
-          isSubmitterSubDelegate={loaderData.isSubmitterSubDelegate}
-          isHiringManagerASubDelegate={loaderData.isHiringManagerASubDelegate}
           branchOrServiceCanadaRegions={loaderData.branchOrServiceCanadaRegions}
           directorates={loaderData.directorates}
           languagesOfCorrespondence={loaderData.languagesOfCorrespondence}

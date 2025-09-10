@@ -431,10 +431,10 @@ export const mockRequests: RequestReadModel[] = [
       nameFr: 'Demande soumise',
     },
     workUnit: undefined,
-    submitter: undefined, // TODO: apply this change to check various scenarios mockUsers[0], // John Doe
-    hiringManager: undefined, // TODO: apply this change to check various scenarios mockUsers[0], // John Doe
-    subDelegatedManager: undefined, // TODO: apply this change to check various scenarios mockUsers[0],
-    hrAdvisor: undefined, // TODO: apply this change to check various scenarios mockUsers[3], // Bob Johnson
+    submitter: mockUsers[0], // John Doe
+    hiringManager: mockUsers[0], // John Doe
+    subDelegatedManager: mockUsers[0], // John Doe
+    hrAdvisor: mockUsers[3], // Bob Johnson
     languageOfCorrespondence: undefined,
     employmentTenure: undefined,
     priorityClearanceNumber: undefined,
@@ -478,10 +478,10 @@ export function createMockRequest(accessToken: string): RequestReadModel {
     frenchStatementOfMerit: 'À déterminer',
     status: undefined,
     workUnit: undefined,
-    submitter: undefined, // TODO: apply this change to check various scenarios mockUsers[0], // John Doe
-    hiringManager: undefined, // TODO: apply this change to check various scenarios mockUsers[0],
-    subDelegatedManager: undefined, // TODO: apply this change to check various scenarios mockUsers[0],
-    hrAdvisor: undefined, // TODO: apply this change to check various scenarios mockUsers[3],
+    submitter: mockUsers[0],
+    hiringManager: mockUsers[0],
+    subDelegatedManager: mockUsers[0],
+    hrAdvisor: mockUsers[3],
     languageOfCorrespondence: undefined,
     employmentTenure: undefined,
     priorityClearanceNumber: undefined,

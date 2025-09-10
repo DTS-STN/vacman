@@ -6,7 +6,6 @@ import * as v from 'valibot';
 
 import type { Route } from './+types/submission-details';
 
-import type { RequestReadModel } from '~/.server/domain/models';
 import { getDirectorateService } from '~/.server/domain/services/directorate-service';
 import { getLanguageForCorrespondenceService } from '~/.server/domain/services/language-for-correspondence-service';
 import { getRequestService } from '~/.server/domain/services/request-service';
@@ -79,12 +78,7 @@ export async function loader({ context, params, request }: Route.LoaderArgs) {
     Number(params.requestId),
     context.session.authState.accessToken,
   );
-
-  if (requestResult.isErr()) {
-    throw new Response('Request not found', { status: HttpStatusCodes.NOT_FOUND });
-  }
-
-  const requestData: RequestReadModel = requestResult.unwrap();
+  const requestData = requestResult.into();
 
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
 
@@ -97,26 +91,14 @@ export async function loader({ context, params, request }: Route.LoaderArgs) {
     documentTitle: t('app:submission-details.page-title'),
     defaultValues: {
       // The submitter's information is coming from saved Request, but while creating a new request, the submitter is the logged in user,
-      submitter: requestData.submitter ?? currentUser,
-      hiringManager: requestData.hiringManager,
-      subDelegatedManager: requestData.subDelegatedManager,
-      hrAdvisor: requestData.hrAdvisor,
-      workUnit: requestData.workUnit,
-      languageOfCorrespondence: requestData.languageOfCorrespondence,
-      additionalComment: requestData.additionalComment,
+      submitter: requestData?.submitter ?? currentUser,
+      hiringManager: requestData?.hiringManager,
+      subDelegatedManager: requestData?.subDelegatedManager,
+      hrAdvisor: requestData?.hrAdvisor,
+      workUnit: requestData?.workUnit,
+      languageOfCorrespondence: requestData?.languageOfCorrespondence,
+      additionalComment: requestData?.additionalComment,
     },
-    isSubmitterHiringManager:
-      requestData.submitter && requestData.hiringManager
-        ? requestData.submitter.id === requestData.hiringManager.id
-        : undefined, // For new Request, the default should be undefined
-    isSubmitterSubDelegate:
-      requestData.submitter && requestData.subDelegatedManager
-        ? requestData.submitter.id === requestData.subDelegatedManager.id
-        : undefined, // For new Request, the default should be undefined
-    isHiringManagerASubDelegate:
-      requestData.hiringManager && requestData.subDelegatedManager
-        ? requestData.hiringManager.id === requestData.subDelegatedManager.id
-        : undefined, // For new Request, the default should be undefined
     branchOrServiceCanadaRegions,
     directorates,
     languagesOfCorrespondence,
@@ -142,9 +124,6 @@ export default function HiringManagerRequestSubmissionDetails({ loaderData, acti
           cancelLink="routes/hiring-manager/request/index.tsx"
           formErrors={errors}
           formValues={loaderData.defaultValues}
-          isSubmitterHiringManager={loaderData.isSubmitterHiringManager}
-          isSubmitterSubDelegate={loaderData.isSubmitterSubDelegate}
-          isHiringManagerASubDelegate={loaderData.isHiringManagerASubDelegate}
           branchOrServiceCanadaRegions={loaderData.branchOrServiceCanadaRegions}
           directorates={loaderData.directorates}
           languagesOfCorrespondence={loaderData.languagesOfCorrespondence}
