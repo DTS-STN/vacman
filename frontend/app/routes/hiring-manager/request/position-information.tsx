@@ -108,12 +108,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     Number(params.requestId),
     context.session.authState.accessToken,
   );
-
-  if (requestResult.isErr()) {
-    throw new Response('Request not found', { status: HttpStatusCodes.NOT_FOUND });
-  }
-
-  const requestData: RequestReadModel = requestResult.unwrap();
+  const requestData = requestResult.into();
 
   const { t, lang } = await getTranslation(request, handle.i18nNamespace);
 
@@ -126,15 +121,15 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   return {
     documentTitle: t('app:position-information.page-title'),
     defaultValues: {
-      positionNumber: requestData.positionNumber,
-      classification: requestData.classification,
-      englishTitle: requestData.englishTitle,
-      frenchTitle: requestData.frenchTitle,
-      englishLanguageProfile: requestData.englishLanguageProfile,
-      frenchLanguageProfile: requestData.frenchLanguageProfile,
-      languageRequirement: requestData.languageRequirement,
-      securityClearance: requestData.securityClearance,
-      cities: requestData.cities,
+      positionNumber: requestData?.positionNumber,
+      classification: requestData?.classification,
+      englishTitle: requestData?.englishTitle,
+      frenchTitle: requestData?.frenchTitle,
+      englishLanguageProfile: requestData?.englishLanguageProfile,
+      frenchLanguageProfile: requestData?.frenchLanguageProfile,
+      languageRequirement: requestData?.languageRequirement,
+      securityClearance: requestData?.securityClearance,
+      cities: requestData?.cities,
     },
     languageRequirements: localizedLanguageRequirements,
     classifications: localizedClassifications,
