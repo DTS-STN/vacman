@@ -35,10 +35,8 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   requireAuthentication(context.session, request);
 
   const formData = await request.formData();
-  const view = formString(formData.get('view')) as 'hr-advisor' | 'hiring-manager' | undefined;
 
-  const parseResult = v.safeParse(await createSubmissionDetailSchema(view), {
-    view: view,
+  const parseResult = v.safeParse(await createSubmissionDetailSchema('hiring-manager'), {
     isSubmiterHiringManager: formData.get('isSubmiterHiringManager')
       ? formData.get('isSubmiterHiringManager') === REQUIRE_OPTIONS.yes
       : undefined,

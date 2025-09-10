@@ -157,28 +157,25 @@ export const somcConditionsSchema = v.pipe(
   }),
 );
 
-export async function createSubmissionDetailSchema(view: 'hr-advisor' | 'hiring-manager' | undefined) {
+export async function createSubmissionDetailSchema(view: 'hr-advisor' | 'hiring-manager') {
   const allDirectorates = await getDirectorateService().listAll();
   const allBranchOrServiceCanadaRegions = extractUniqueBranchesFromDirectoratesNonLocalized(allDirectorates);
   const allLanguagesOfCorrespondence = await getLanguageForCorrespondenceService().listAll();
 
-  const getIsSubmiterHiringManagerErrorMessage = (view: 'hr-advisor' | 'hiring-manager' | undefined) => {
+  const getIsSubmiterHiringManagerErrorMessage = (view: 'hr-advisor' | 'hiring-manager') => {
     if (view === 'hiring-manager') {
       return 'app:submission-details.errors.are-you-hiring-manager-for-request-required';
     }
-    // Default for 'hr-advisor' or if view is not provided/unexpected
     return 'app:submission-details.errors.is-submitter-hiring-manager-required';
   };
-  const getIsSubmiterSubdelegateErrorMessage = (view: 'hr-advisor' | 'hiring-manager' | undefined) => {
+  const getIsSubmiterSubdelegateErrorMessage = (view: 'hr-advisor' | 'hiring-manager') => {
     if (view === 'hiring-manager') {
       return 'app:submission-details.errors.are-you-a-subdelegate-required';
     }
-    // Default for 'hr-advisor' or if view is not provided/unexpected
     return 'app:submission-details.errors.is-submitter-a-sub-delegate-required';
   };
 
   const submissionDetail = {
-    viewSchema: v.optional(v.string()),
     hiringManagerEmailAddressSchema: v.pipe(
       v.string('app:submission-details.errors.hiring-manager-email-required'),
       v.trim(),
@@ -229,7 +226,6 @@ export async function createSubmissionDetailSchema(view: 'hr-advisor' | 'hiring-
 
   const baseCombinedSchema = v.intersect([
     v.object({
-      view: submissionDetail.viewSchema,
       branchOrServiceCanadaRegion: submissionDetail.branchOrServiceCanadaRegionSchema,
       directorate: submissionDetail.directorateSchema,
       languageOfCorrespondenceId: submissionDetail.languageOfCorrespondenceIdSchema,
