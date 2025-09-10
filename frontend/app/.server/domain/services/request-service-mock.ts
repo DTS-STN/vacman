@@ -177,9 +177,7 @@ export function getMockRequestService(): RequestService {
 
       const cities =
         requestUpdate.cityIds !== undefined
-          ? (await Promise.all(requestUpdate.cityIds.map((id) => getCityService().getById(id))))
-              .filter((result) => result.isOk())
-              .map((result) => result.unwrap())
+          ? (await getCityService().listAll()).filter(({ id }) => requestUpdate.cityIds?.includes(id))
           : existingRequest.cities;
 
       const appointmentNonAdvertised =
