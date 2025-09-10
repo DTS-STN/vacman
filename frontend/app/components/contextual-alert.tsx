@@ -5,7 +5,7 @@ import { faTriangleExclamation, faCircleExclamation, faCircleCheck } from '@fort
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 interface ContextualAlertProps {
-  type: 'info' | 'success' | 'error'; 
+  type: 'info' | 'success' | 'error';
   ref?: Ref<HTMLDivElement>;
   role?: 'alert' | 'status' | 'log';
   ariaLive?: 'assertive' | 'polite';
@@ -26,7 +26,6 @@ const icons: Record<NonNullable<ContextualAlertProps['type']>, IconDefinition> =
   info: faCircleExclamation, //not used
 };
 
-
 export function ContextualAlert({
   ref,
   type = 'info',
@@ -34,7 +33,7 @@ export function ContextualAlert({
   ariaLive = 'polite',
   ariaAtomic = true,
   textSmall = false,
-  children
+  children,
 }: ContextualAlertProps) {
   return (
     <>
@@ -45,24 +44,21 @@ export function ContextualAlert({
         aria-live={ariaLive}
         aria-atomic={ariaAtomic}
       >
-        {type === 'info' ?
+        {type === 'info' ? (
           <div
             role="presentation"
             className="bg-[rgba(37, 114, 180,1)] h-28 min-w-[36px] bg-[url('/info-icon.svg')] bg-size-[28px] bg-left-top bg-no-repeat"
           />
-        :
+        ) : (
           <FontAwesomeIcon
             icon={icons[type]}
-            size='xl'
+            size="xl"
             color={`${type === 'success' ? 'green-600' : 'red-800'}`}
             className={`${type === 'success' ? 'text-green-600' : 'text-red-800'} min-w-[36px]`}
           />
-        }
+        )}
 
-
-        <div className={`pl-2 ${textSmall ? 'text-sm' : 'text-base'}`}>
-          {children}
-        </div>
+        <div className={`pl-2 ${textSmall ? 'text-sm' : 'text-base'}`}>{children}</div>
       </div>
     </>
   );

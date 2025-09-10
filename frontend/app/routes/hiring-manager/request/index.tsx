@@ -105,7 +105,8 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   // Check if all sections are complete
   const processInfoComplete = countCompletedItems(requiredProcessFields) === Object.keys(requiredProcessFields).length;
   const positionInfoComplete = countCompletedItems(requiredPositionFields) === Object.keys(requiredPositionFields).length;
-  const statementOfMeritCriteriaInfoComplete = countCompletedItems(requiredStatementOfMeritCriteriaFields) === Object.keys(requiredStatementOfMeritCriteriaFields).length;
+  const statementOfMeritCriteriaInfoComplete =
+    countCompletedItems(requiredStatementOfMeritCriteriaFields) === Object.keys(requiredStatementOfMeritCriteriaFields).length;
   const submissionInfoComplete = countCompletedItems(submissionFields) === Object.keys(submissionFields).length;
 
   // If any section is incomplete, return incomplete state
@@ -121,7 +122,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   // If all complete, submit for review  TODO review
   const submitResult = await getRequestService().updateRequestStatus(
     Number(params.requestId),
-    currentRequest, //TODO review that currentRequest contains all the data required and as expected 
+    currentRequest, //TODO review that currentRequest contains all the data required and as expected
     context.session.authState.accessToken,
   );
 
@@ -199,7 +200,6 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   //     .filter(Boolean);
   //   const cities = profileData.preferredCities?.map((city) => allLocalizedCities.find((c) => c.id === city.id)).filter(Boolean);
 
-  
   // Check each section if the required fields are complete
   // Process information from Request type
   const processInformationData = {
@@ -276,11 +276,15 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 
   const isCompleteProcessInformation = processInformationCompleted === processInformationTotalFields;
   const isCompletePositionInformation = positionInformationCompleted === positionInformationTotalFields;
-  const isCompleteStatementOfMeritCriteriaInformaion = statementOfMeritCriteriaInformationCompleted === statementOfMeritCriteriaInformationTotalFields;  // Statement Of Merit Criteria
+  const isCompleteStatementOfMeritCriteriaInformaion =
+    statementOfMeritCriteriaInformationCompleted === statementOfMeritCriteriaInformationTotalFields; // Statement Of Merit Criteria
   const isCompleteSubmissionInformation = submissionInformationCompleted === submissionInformationTotalFields;
 
   const profileCompleted =
-    processInformationCompleted + positionInformationCompleted + statementOfMeritCriteriaInformationCompleted + submissionInformationCompleted;
+    processInformationCompleted +
+    positionInformationCompleted +
+    statementOfMeritCriteriaInformationCompleted +
+    submissionInformationCompleted;
   const profileTotalFields =
     processInformationTotalFields +
     positionInformationTotalFields +
@@ -444,12 +448,7 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
       )}
 
       <div className="mt-20 w-full">
-        <ContextualAlert
-          type={'info'}
-          role="status"
-          ariaLive="polite"
-          textSmall={false}
-        >
+        <ContextualAlert type={'info'} role="status" ariaLive="polite" textSmall={false}>
           <div className="text-black-800 pl-1 text-base">
             <p>{t('app:hiring-manager-referral-requests.page-info-1')}</p>
             <p className="mt-2">{t('app:hiring-manager-referral-requests.page-info-2')}</p>
@@ -580,10 +579,10 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
                     {loaderData.frenchTitle ?? t('app:hiring-manager-referral-requests.not-provided')}
                   </DescriptionListItem>
 
-                  <DescriptionListItem term={t('app:position-information.location-city')}>
-                    {/* TODO review  */}
-                    {/* {loaderData.cities ?? t('app:hiring-manager-referral-requests.not-provided')} */}
-                  </DescriptionListItem>
+                    {/* TODO review  formatting and contents */}
+                  {/* <DescriptionListItem term={t('app:position-information.location-city')}>
+                    {loaderData.cities ?? t('app:hiring-manager-referral-requests.not-provided')}
+                  </DescriptionListItem> */}
 
                   <DescriptionListItem term={t('app:position-information.language-profile')}>
                     {loaderData.languageRequirement?.code ?? t('app:hiring-manager-referral-requests.not-provided')}
