@@ -124,7 +124,7 @@ export function InputMultiSelect(props: InputMultiSelectProps) {
   return (
     <div className="relative" ref={wrapperRef} {...restDivProps}>
       <fieldset id={inputWrapperId} aria-describedby={ariaDescribedbyId}>
-        <InputLegend id={inputLegendId} required={required}>
+        <InputLegend id={inputLegendId} required={required} className="mb-2">
           {legend}
         </InputLegend>
         {errorMessage && (
