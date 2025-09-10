@@ -16,9 +16,17 @@ import type {
 } from '~/.server/domain/models';
 import { Button } from '~/components/button';
 import { ButtonLink } from '~/components/button-link';
+import type {
+  ChoiceTag,
+  DeleteEventHandler as ChoiceTagDeleteEventHandler,
+  ClearAllEventHandler as ChoiceTagClearAllEventHandler,
+} from '~/components/choice-tags';
+import { ChoiceTags } from '~/components/choice-tags';
 import { FormErrorSummary } from '~/components/error-summary';
 import { InputField } from '~/components/input-field';
+import { InputHelp } from '~/components/input-help';
 import { InputLegend } from '~/components/input-legend';
+import { InputMultiSelect } from '~/components/input-multiselect';
 import type { InputRadiosProps } from '~/components/input-radios';
 import { InputRadios } from '~/components/input-radios';
 import { InputSelect } from '~/components/input-select';
@@ -51,15 +59,20 @@ export function PositionInformationForm({
   formErrors,
   params,
 }: PositionInformationFormProps): JSX.Element {
-  const { t } = useTranslation('app');
+  const { t: tApp } = useTranslation('app');
+  const { t: tGcweb } = useTranslation('gcweb');
 
   const [province, setProvince] = useState(
     formValues?.cities?.[0]?.provinceTerritory.id !== undefined ? String(formValues.cities[0].provinceTerritory.id) : undefined,
   );
 
+  const [selectedCities, setSelectedCities] = useState(formValues?.cities?.map(({ id }) => id.toString()) ?? []);
+
   const [languageRequirementCode, setLanguageRequirementCode] = useState(
     languageRequirements.find((c) => c.id === formValues?.languageRequirement?.id)?.code,
   );
+
+  const [srAnnouncement, setSrAnnouncement] = useState('');
 
   const handleLanguageRequirementChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedValue = event.target.value;
@@ -69,26 +82,26 @@ export function PositionInformationForm({
 
   const groupAndLevelOptions = [{ id: 'select-option', name: '' }, ...classifications].map(({ id, name }) => ({
     value: id === 'select-option' ? '' : String(id),
-    children: id === 'select-option' ? t('form.select-option') : name,
+    children: id === 'select-option' ? tApp('form.select-option') : name,
   }));
 
   const languageLevelOptions = [{ id: 'select-option', value: '' }, ...LANGUAGE_LEVEL].map(({ id, value }) => ({
     value: id === 'select-option' ? '' : value,
-    children: id === 'select-option' ? t('form.select') : value,
+    children: id === 'select-option' ? tApp('form.select') : value,
   }));
 
   const provinceOptions = [{ id: 'select-option', name: '' }, ...provinces].map(({ id, name }) => ({
     value: id === 'select-option' ? '' : String(id),
-    children: id === 'select-option' ? t('form.select-option') : name,
+    children: id === 'select-option' ? tApp('form.select-option') : name,
   }));
 
-  const cityOptions = [
-    { id: 'select-option', name: '' },
-    ...cities.filter((c) => c.provinceTerritory.id === Number(province)),
-  ].map(({ id, name }) => ({
-    value: id === 'select-option' ? '' : String(id),
-    children: id === 'select-option' ? t('form.select-option') : name,
-  }));
+  const cityOptions = cities
+    .filter((c) => c.provinceTerritory.id === Number(province))
+    .map((city) => ({
+      value: String(city.id),
+      label: city.name,
+      group: city.provinceTerritory.name,
+    }));
 
   const securityClearanceOptions = securityClearances.map(({ id, name }) => ({
     value: String(id),
@@ -103,10 +116,37 @@ export function PositionInformationForm({
     defaultChecked: formValues?.languageRequirement?.id === id,
   }));
 
+  const citiesChoiceTags: ChoiceTag[] = selectedCities.map((city) => {
+    const selectedC = cities.find((c) => c.id === Number(city));
+    return { label: selectedC?.name ?? city, name: 'city', value: city, group: selectedC?.provinceTerritory.name };
+  });
+
+  const handleOnDeleteCityTag: ChoiceTagDeleteEventHandler = (name, label, value, group) => {
+    setSrAnnouncement(
+      tGcweb('choice-tag.removed-choice-tag-sr-message', { item: name, choice: group ? group + ' - ' + label : label }),
+    );
+    setSelectedCities((prev) => prev.filter((cityId) => cityId !== value));
+  };
+
+  const handleOnClearAllCities: ChoiceTagClearAllEventHandler = () => {
+    setSrAnnouncement(tGcweb('choice-tag.clear-all-sr-message', { item: 'cities' }));
+    setSelectedCities([]);
+  };
+
+  const handleOnClearCityGroup = (groupName: string) => {
+    setSrAnnouncement(tGcweb('choice-tag.clear-group-label', { items: 'cities', groupName }));
+    setSelectedCities((prev) =>
+      prev.filter((cityId) => {
+        const city = cities.find((c) => c.id === Number(cityId));
+        return city?.provinceTerritory.name !== groupName;
+      }),
+    );
+  };
+
   return (
     <>
-      <PageTitle className="after:w-14" subTitle={t('referral-request')}>
-        {t('position-information.page-title')}
+      <PageTitle className="after:w-14" subTitle={tApp('referral-request')}>
+        {tApp('position-information.page-title')}
       </PageTitle>
       <FormErrorSummary>
         <Form method="post" noValidate>
@@ -115,19 +155,19 @@ export function PositionInformationForm({
               className="w-full"
               id="position-number"
               name="positionNumber"
-              label={t('position-information.position-number')}
+              label={tApp('position-information.position-number')}
               defaultValue={formValues?.positionNumber}
-              errorMessage={t(extractValidationKey(formErrors?.positionNumber))}
-              helpMessagePrimary={t('position-information.position-number-instruction')}
+              errorMessage={tApp(extractValidationKey(formErrors?.positionNumber))}
+              helpMessagePrimary={tApp('position-information.position-number-instruction')}
               required
             />
             <InputSelect
               id="group-and-level"
               name="groupAndLevel"
-              errorMessage={t(extractValidationKey(formErrors?.groupAndLevel))}
+              errorMessage={tApp(extractValidationKey(formErrors?.groupAndLevel))}
               required
               options={groupAndLevelOptions}
-              label={t('employment-information.substantive-position-group-and-level')}
+              label={tApp('employment-information.substantive-position-group-and-level')}
               defaultValue={formValues?.classification !== undefined ? String(formValues.classification.id) : ''}
               className="w-full sm:w-1/2"
             />
@@ -135,116 +175,137 @@ export function PositionInformationForm({
               className="w-full"
               id="title-en"
               name="titleEn"
-              label={t('position-information.title-en')}
+              label={tApp('position-information.title-en')}
               defaultValue={formValues?.englishTitle}
-              errorMessage={t(extractValidationKey(formErrors?.titleEn))}
+              errorMessage={tApp(extractValidationKey(formErrors?.titleEn))}
               required
             />
             <InputField
               className="w-full"
               id="title-fr"
               name="titleFr"
-              label={t('position-information.title-fr')}
+              label={tApp('position-information.title-fr')}
               defaultValue={formValues?.frenchTitle}
-              errorMessage={t(extractValidationKey(formErrors?.titleFr))}
+              errorMessage={tApp(extractValidationKey(formErrors?.titleFr))}
               required
             />
+            <InputLegend id="locationLegend" required>
+              {tApp('position-information.locations')}
+            </InputLegend>
+            <InputHelp id="locationHelpMessage">{tApp('position-information.select-locations')}</InputHelp>
             <InputSelect
+              ariaDescribedbyId="locationHelpMessage"
               id="province"
               name="province"
-              label={t('position-information.location-province')}
+              label={tApp('position-information.province')}
               options={provinceOptions}
               value={province ?? ''}
               onChange={({ target }) => setProvince(target.value || undefined)}
-              errorMessage={t(extractValidationKey(formErrors?.province))}
+              errorMessage={tApp(extractValidationKey(formErrors?.province))}
               className="w-full sm:w-1/2"
               required
             />
             {province && (
-              <InputSelect
-                id="city"
-                name="city"
-                errorMessage={t(extractValidationKey(formErrors?.city))}
-                required
+              <InputMultiSelect
+                id="cities"
+                name="cities"
+                errorMessage={tApp(extractValidationKey(formErrors?.cities))}
                 options={cityOptions}
-                label={t('position-information.location-city')}
-                defaultValue={formValues?.cities !== undefined ? String(formValues.cities[0]?.id) : ''}
+                value={selectedCities}
+                onChange={(values) => setSelectedCities(values)}
+                placeholder={tApp('form.select-all-that-apply')}
+                legend={tApp('position-information.city')}
                 className="w-full sm:w-1/2"
+                required
               />
             )}
+
+            {citiesChoiceTags.length > 0 && (
+              <ChoiceTags
+                choiceTags={citiesChoiceTags}
+                onClearAll={handleOnClearAllCities}
+                onDelete={handleOnDeleteCityTag}
+                onClearGroup={handleOnClearCityGroup}
+              />
+            )}
+
+            <span aria-live="polite" aria-atomic="true" className="sr-only">
+              {srAnnouncement}
+            </span>
+
             <InputRadios
               id="language-requirement"
               name="languageRequirement"
-              legend={t('position-information.language-requirement')}
+              legend={tApp('position-information.language-requirement')}
               options={languageRequirementOptions}
-              errorMessage={t(extractValidationKey(formErrors?.languageRequirement))}
+              errorMessage={tApp(extractValidationKey(formErrors?.languageRequirement))}
               required
             />
             {(languageRequirementCode === LANGUAGE_REQUIREMENT_CODES.bilingualImperative ||
               languageRequirementCode === LANGUAGE_REQUIREMENT_CODES.bilingualNonImperative) && (
               <>
-                <InputLegend required>{t('position-information.language-profile')}</InputLegend>
-                <h3 className="font-semibold">{t('position-information.reading-comprehension')}</h3>
+                <InputLegend required>{tApp('position-information.language-profile')}</InputLegend>
+                <h3 className="font-semibold">{tApp('position-information.reading-comprehension')}</h3>
                 <div className="flex space-x-2">
                   <InputSelect
                     id="reading-en"
                     name="readingEn"
-                    label={t('position-information.english')}
+                    label={tApp('position-information.english')}
                     className="w-32"
                     options={languageLevelOptions}
                     defaultValue={formValues?.englishLanguageProfile?.charAt(0) ?? ''}
-                    errorMessage={t(extractValidationKey(formErrors?.readingEn))}
+                    errorMessage={tApp(extractValidationKey(formErrors?.readingEn))}
                   />
                   <InputSelect
                     id="reading-fr"
                     name="readingFr"
-                    label={t('position-information.french')}
+                    label={tApp('position-information.french')}
                     className="w-32"
                     options={languageLevelOptions}
                     defaultValue={formValues?.frenchLanguageProfile?.charAt(0) ?? ''}
-                    errorMessage={t(extractValidationKey(formErrors?.readingFr))}
+                    errorMessage={tApp(extractValidationKey(formErrors?.readingFr))}
                   />
                 </div>
-                <h3 className="font-semibold">{t('position-information.written-expression')}</h3>
+                <h3 className="font-semibold">{tApp('position-information.written-expression')}</h3>
                 <div className="flex space-x-2">
                   <InputSelect
                     id="writing-en"
                     name="writingEn"
-                    label={t('position-information.english')}
+                    label={tApp('position-information.english')}
                     className="w-32"
                     options={languageLevelOptions}
                     defaultValue={formValues?.englishLanguageProfile?.charAt(1) ?? ''}
-                    errorMessage={t(extractValidationKey(formErrors?.writingEn))}
+                    errorMessage={tApp(extractValidationKey(formErrors?.writingEn))}
                   />
                   <InputSelect
                     id="writing-fr"
                     name="writingFr"
-                    label={t('position-information.french')}
+                    label={tApp('position-information.french')}
                     className="w-32"
                     options={languageLevelOptions}
                     defaultValue={formValues?.frenchLanguageProfile?.charAt(1) ?? ''}
-                    errorMessage={t(extractValidationKey(formErrors?.writingFr))}
+                    errorMessage={tApp(extractValidationKey(formErrors?.writingFr))}
                   />
                 </div>
-                <h3 className="font-semibold">{t('position-information.oral-proficiency')}</h3>
+                <h3 className="font-semibold">{tApp('position-information.oral-proficiency')}</h3>
                 <div className="flex space-x-2">
                   <InputSelect
                     id="oral-en"
                     name="oralEn"
-                    label={t('position-information.english')}
+                    label={tApp('position-information.english')}
                     className="w-32"
                     options={languageLevelOptions}
                     defaultValue={formValues?.englishLanguageProfile?.charAt(2) ?? ''}
-                    errorMessage={t(extractValidationKey(formErrors?.oralEn))}
+                    errorMessage={tApp(extractValidationKey(formErrors?.oralEn))}
                   />
                   <InputSelect
                     id="oral-fr"
                     name="oralFr"
-                    label={t('position-information.french')}
+                    label={tApp('position-information.french')}
                     className="w-32"
                     options={languageLevelOptions}
                     defaultValue={formValues?.frenchLanguageProfile?.charAt(2) ?? ''}
-                    errorMessage={t(extractValidationKey(formErrors?.oralFr))}
+                    errorMessage={tApp(extractValidationKey(formErrors?.oralFr))}
                   />
                 </div>
               </>
@@ -252,17 +313,17 @@ export function PositionInformationForm({
             <InputRadios
               id="security-requirement"
               name="securityRequirement"
-              legend={t('position-information.security-requirement')}
+              legend={tApp('position-information.security-requirement')}
               options={securityClearanceOptions}
-              errorMessage={t(extractValidationKey(formErrors?.securityRequirement))}
+              errorMessage={tApp(extractValidationKey(formErrors?.securityRequirement))}
               required
             />
             <div className="mt-8 flex flex-wrap items-center justify-start gap-3">
               <ButtonLink file={cancelLink} params={params} id="cancel-button" variant="alternative">
-                {t('form.cancel')}
+                {tApp('form.cancel')}
               </ButtonLink>
               <Button name="action" variant="primary" id="save-button">
-                {t('form.save')}
+                {tApp('form.save')}
               </Button>
             </div>
           </div>

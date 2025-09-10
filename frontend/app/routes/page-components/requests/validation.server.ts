@@ -81,14 +81,20 @@ export async function createPositionInformationSchema() {
             ),
           ),
         ),
-        city: v.lazy(() =>
-          v.pipe(
-            stringToIntegerSchema('app:position-information.errors.city-required'),
-            v.picklist(
-              allCities.map(({ id }) => id),
-              'app:position-information.errors.city-required',
+        cities: v.pipe(
+          v.array(
+            v.lazy(() =>
+              v.pipe(
+                stringToIntegerSchema('app:position-information.errors.city-invalid'),
+                v.picklist(
+                  allCities.map((c) => c.id),
+                  'app:position-information.errors.city-invalid',
+                ),
+              ),
             ),
           ),
+          v.nonEmpty('app:position-information.errors.city-required'),
+          v.checkItems((item, index, array) => array.indexOf(item) === index, 'app:position-information.errors.city-duplicate'),
         ),
         securityRequirement: v.pipe(
           v.string('app:position-information.errors.security-requirement-required'),

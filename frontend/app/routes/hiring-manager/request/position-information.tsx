@@ -42,7 +42,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     titleEn: formString(formData.get('titleEn')),
     titleFr: formString(formData.get('titleFr')),
     province: formString(formData.get('province')),
-    city: formString(formData.get('city')),
+    cities: formData.getAll('cities'),
     languageRequirement: formString(formData.get('languageRequirement')),
     readingEn: formString(formData.get('readingEn')),
     readingFr: formString(formData.get('readingFr')),
@@ -75,7 +75,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     classificationId: Number(parseResult.output.groupAndLevel),
     englishTitle: parseResult.output.titleEn,
     frenchTitle: parseResult.output.titleFr,
-    provinceId: Number(parseResult.output.province),
+    cityIds: parseResult.output.cities,
     languageRequirementId: Number(parseResult.output.languageRequirement),
     englishLanguageProfile: [parseResult.output.readingEn, parseResult.output.writingEn, parseResult.output.oralEn]
       .filter(Boolean)
