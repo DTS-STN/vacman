@@ -21,7 +21,8 @@ import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
 import { ReferralPreferencesForm } from '~/routes/page-components/employees/referral-preferences/form';
-import { referralPreferencesSchema } from '~/routes/page-components/employees/validation.server';
+import type { ReferralPreferencesSchema } from '~/routes/page-components/employees/validation.server';
+import { createReferralPreferencesSchema } from '~/routes/page-components/employees/validation.server';
 import { formString } from '~/utils/string-utils';
 
 export const handle = {
@@ -45,7 +46,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   const profile = profileResult.unwrap();
 
   const formData = await request.formData();
-  const parseResult = v.safeParse(referralPreferencesSchema, {
+  const parseResult = v.safeParse(await createReferralPreferencesSchema(), {
     preferredLanguages: formData.getAll('preferredLanguages'),
     preferredClassifications: formData.getAll('preferredClassifications'),
     preferredProvince: formString(formData.get('preferredProvince')),
@@ -60,7 +61,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 
   if (!parseResult.success) {
     return data(
-      { errors: v.flatten<typeof referralPreferencesSchema>(parseResult.issues).nested },
+      { errors: v.flatten<ReferralPreferencesSchema>(parseResult.issues).nested },
       { status: HttpStatusCodes.BAD_REQUEST },
     );
   }
