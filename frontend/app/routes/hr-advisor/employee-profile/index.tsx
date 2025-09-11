@@ -175,6 +175,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     lastModifiedDate: profileData.lastModifiedDate ?? undefined,
     baseTimeZone: serverEnvironment.BASE_TIMEZONE,
     lang,
+    backLinkFilter: new URL(request.url).searchParams.get('filter') ?? 'me',
   };
 }
 
@@ -230,7 +231,13 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
       </div>
       <div className="justify-between md:grid md:grid-cols-2">
         <div className="max-w-prose">
-          <InlineLink className="mt-6 block" file="routes/hr-advisor/employees.tsx" params={params} id="back-button">
+          <InlineLink
+            className="mt-6 block"
+            file="routes/hr-advisor/employees.tsx"
+            params={params}
+            search={`filter=${loaderData.backLinkFilter}`}
+            id="back-button"
+          >
             {`< ${t('app:employee-profile.back')}`}
           </InlineLink>
           <p className="mt-12">{t('app:employee-profile.about-para-1')}</p>
