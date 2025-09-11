@@ -73,7 +73,7 @@ class UsersControllerTest {
 		@DisplayName("Should create and return user")
 		@WithMockUser(username = "00000000-0000-0000-0000-000000000000", authorities = { "employee" })
 		void testCreateCurrentUser() throws Exception {
-			when(msGraphService.getUser(any()))
+			when(msGraphService.getUserById(any()))
 				.thenReturn(Optional.of(MSGraphUserBuilder.builder()
 					.id("00000000-0000-0000-0000-000000000000")
 					.givenName("Test")

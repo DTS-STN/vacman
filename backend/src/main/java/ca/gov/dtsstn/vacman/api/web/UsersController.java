@@ -93,7 +93,7 @@ public class UsersController {
 			throw new ResourceConflictException("A user with microsoftEntraId=[" + entraId + "] already exists");
 		});
 
-		final var msGraphUser = msGraphService.getUser(entraId)
+		final var msGraphUser = msGraphService.getUserById(entraId)
 			.orElseThrow(() -> new ResourceNotFoundException("User with entraId=[" + entraId + "] not found in MSGraph"));
 
 		log.debug("MSGraph user details: [{}]", msGraphUser);
@@ -161,10 +161,14 @@ public class UsersController {
 		final var users = userService.findUsers(exampleFilter, pageable)
 			.map(userModelMapper::toModel);
 
-		//
-		// TODO ::: GjB ::: if an email filter was provided but no users were found...
-		//                  create a user with that email address and return it
-		//
+
+		if (emailFilter != null && users.getSize() == 0) {
+			//
+			// TODO ::: GjB ::: if an email filter was provided but no users were found...
+			//                  create a user with that email address and return it
+			//
+
+		}
 
 		return ResponseEntity.ok(new PagedModel<>(users));
 	}

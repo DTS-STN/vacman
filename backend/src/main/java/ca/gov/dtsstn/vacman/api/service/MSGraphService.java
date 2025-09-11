@@ -49,7 +49,7 @@ public class MSGraphService {
 			.build();
 	}
 
-	public Optional<MSGraphUser> getUser(String microsoftEntraId) {
+	public Optional<MSGraphUser> getUserById(String microsoftEntraId) {
 		log.debug("Fetching user with id=[{}] from MSGraph", microsoftEntraId);
 		final var response = restTemplate.getForEntity("/users/{id}?$select={properties}", MSGraphUser.class, microsoftEntraId, SELECTED_USER_PROPERTIES);
 
