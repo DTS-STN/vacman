@@ -19,7 +19,7 @@ import { createAndLinkNewMockProfile, mockProfiles } from '~/.server/domain/serv
 import type { ProfileService } from '~/.server/domain/services/profile-service';
 import { getWFAStatuses } from '~/.server/domain/services/wfa-status-service';
 import { LogFactory } from '~/.server/logging';
-import { PROFILE_STATUS_CODE, PROFILE_STATUS_ID } from '~/domain/constants';
+import { PROFILE_STATUS_CODE } from '~/domain/constants';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
@@ -42,17 +42,17 @@ export function getMockProfileService(): ProfileService {
 
       // Apply active filter
       if (params.active !== undefined) {
-        const activeStatuses = [PROFILE_STATUS_ID.pending, PROFILE_STATUS_ID.approved, PROFILE_STATUS_ID.incomplete];
-        const inactiveStatuses = [PROFILE_STATUS_ID.archived];
+        const activeStatuses = [PROFILE_STATUS_CODE.pending, PROFILE_STATUS_CODE.approved, PROFILE_STATUS_CODE.incomplete];
+        const inactiveStatuses = [PROFILE_STATUS_CODE.archived];
 
         if (params.active === true) {
           filteredProfiles = filteredProfiles.filter(
-            (p) => p.profileStatus && activeStatuses.some((id) => id === p.profileStatus?.id),
+            (p) => p.profileStatus && activeStatuses.some((code) => code === p.profileStatus?.code),
           );
           log.debug(`Applied active filter (true): ${filteredProfiles.length} profiles remaining`);
         } else {
           filteredProfiles = filteredProfiles.filter(
-            (p) => p.profileStatus && inactiveStatuses.some((id) => id === p.profileStatus?.id),
+            (p) => p.profileStatus && inactiveStatuses.some((code) => code === p.profileStatus?.code),
           );
           log.debug(`Applied active filter (false): ${filteredProfiles.length} profiles remaining`);
         }

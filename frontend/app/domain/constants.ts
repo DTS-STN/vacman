@@ -16,15 +16,6 @@ export const PROFILE_STATUS_CODE = {
   archived: 'ARCHIVED',
 } as const;
 
-export type ProfileStatusCode = (typeof PROFILE_STATUS_CODE)[keyof typeof PROFILE_STATUS_CODE];
-
-export const PROFILE_STATUS_ID = {
-  pending: 0,
-  approved: 1,
-  incomplete: 2,
-  archived: 3,
-} as const;
-
 export const LANGUAGE_ID = {
   en: 0,
   fr: 1,
@@ -51,10 +42,6 @@ export const PROFILE_STATUS_PENDING = {
   code: 'PENDING',
   nameEn: 'Pending approval',
   nameFr: "En attente d'approbation",
-  createdBy: 'system',
-  createdDate: '2025-08-14T17:26:29.38Z',
-  lastModifiedBy: 'system',
-  lastModifiedDate: '2025-08-14T17:26:29.38Z',
 } as const;
 
 export const PROFILE_STATUS_APPROVED = {
@@ -62,10 +49,6 @@ export const PROFILE_STATUS_APPROVED = {
   code: 'APPROVED',
   nameEn: 'Approved',
   nameFr: 'Approuvé',
-  createdBy: 'system',
-  createdDate: '2025-08-14T17:26:29.38Z',
-  lastModifiedBy: 'system',
-  lastModifiedDate: '2025-08-14T17:26:29.38Z',
 } as const;
 
 export const PROFILE_STATUS_INCOMPLETE = {
@@ -73,10 +56,6 @@ export const PROFILE_STATUS_INCOMPLETE = {
   code: 'INCOMPLETE',
   nameEn: 'In progress',
   nameFr: 'En cours',
-  createdBy: 'system',
-  createdDate: '2025-08-14T17:26:29.38Z',
-  lastModifiedBy: 'system',
-  lastModifiedDate: '2025-08-14T17:26:29.38Z',
 } as const;
 
 export const PROFILE_STATUS_ARCHIVED = {
@@ -84,10 +63,6 @@ export const PROFILE_STATUS_ARCHIVED = {
   code: 'ARCHIVED',
   nameEn: 'Archived',
   nameFr: 'Archivé',
-  createdBy: 'system',
-  createdDate: '2025-08-14T17:26:29.38Z',
-  lastModifiedBy: 'system',
-  lastModifiedDate: '2025-08-14T17:26:29.38Z',
 } as const;
 
 export const PREFERRED_LANGUAGE_ENGLISH = {
@@ -130,13 +105,6 @@ export const USER_TYPE_EMPLOYEE = {
   code: 'employee',
   nameEn: 'Employee',
   nameFr: 'Employé',
-} as const;
-
-export const USER_TYPE_ADMIN = {
-  id: 1,
-  code: 'admin',
-  nameEn: 'Administrator',
-  nameFr: 'Administrateur',
 } as const;
 
 export const USER_TYPE_HIRING_MANAGER = {
