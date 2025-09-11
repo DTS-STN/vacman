@@ -360,6 +360,7 @@ export default {
   'hiring-manager-requests': {
     'page-title': 'Requests',
     'back': 'Back to request details',
+    'back-to-dashboard': 'Back to dashboard',
   },
   'somc-conditions': {
     'page-title': 'Statement of merit criteria and conditions of employment',

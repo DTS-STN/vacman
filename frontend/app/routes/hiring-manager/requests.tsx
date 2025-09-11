@@ -10,6 +10,7 @@ import { getRequestStatusService } from '~/.server/domain/services/request-statu
 import { serverEnvironment } from '~/.server/environment';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
+import { BackLink } from '~/components/back-link';
 import { PageTitle } from '~/components/page-title';
 import { REQUEST_CATEGORY, REQUEST_STATUSES } from '~/domain/constants';
 import { getTranslation } from '~/i18n-config.server';
@@ -75,6 +76,13 @@ export default function HiringManagerRequests({ loaderData, params }: Route.Comp
   return (
     <div className="mb-8 space-y-4">
       <PageTitle className="after:w-14">{t('app:hiring-manager-requests.page-title')}</PageTitle>
+      <BackLink
+        aria-label={t('app:hiring-manager-requests.back-to-dashboard')}
+        file="routes/hiring-manager/index.tsx"
+        params={params}
+      >
+        {t('app:hiring-manager-requests.back-to-dashboard')}
+      </BackLink>
       <RequestsTables {...loaderData} view="hiring-manager" />
     </div>
   );

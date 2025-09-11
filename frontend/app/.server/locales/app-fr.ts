@@ -364,6 +364,7 @@ export default {
   'hiring-manager-requests': {
     'page-title': 'Demandes',
     'back': "Retour à l'information sur la demande",
+    'back-to-dashboard': 'Retour au tableau de bord',
   },
   'somc-conditions': {
     'page-title': "Énoncé de critères de mérite et conditions d'emploi",
