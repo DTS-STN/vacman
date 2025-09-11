@@ -2,7 +2,7 @@ import type { JSX } from 'react';
 import { useEffect, useMemo, useState } from 'react';
 
 import type { RouteHandle } from 'react-router';
-import { data, Form, useSearchParams } from 'react-router';
+import { data, useFetcher, useSearchParams } from 'react-router';
 
 import type { ColumnDef } from '@tanstack/react-table';
 import { useTranslation } from 'react-i18next';
@@ -17,15 +17,16 @@ import { serverEnvironment } from '~/.server/environment';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { BackLink } from '~/components/back-link';
-import { Button } from '~/components/button';
 import { DataTable, DataTableColumnHeader, DataTableColumnHeaderWithOptions } from '~/components/data-table';
-import { FormErrorSummary } from '~/components/error-summary';
+import { ActionDataErrorSummary } from '~/components/error-summary';
 import { InputField } from '~/components/input-field';
 import { InputSelect } from '~/components/input-select';
 import { InlineLink } from '~/components/links';
+import { LoadingButton } from '~/components/loading-button';
 import { PageTitle } from '~/components/page-title';
 import { PROFILE_STATUS_CODE } from '~/domain/constants';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
+import { useFetcherState } from '~/hooks/use-fetcher-state';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
 import { formatDateTimeInZone } from '~/utils/date-utils';
@@ -104,6 +105,9 @@ export async function loader({ context, request }: Route.LoaderArgs) {
 
 export default function EmployeeDashboard({ loaderData, actionData, params }: Route.ComponentProps) {
   const { t } = useTranslation(handle.i18nNamespace);
+  const fetcher = useFetcher();
+  const fetcherState = useFetcherState(fetcher);
+  const isSubmitting = fetcherState.submitting;
 
   const [searchParams, setSearchParams] = useSearchParams({ filter: 'me' });
   const [browserTZ, setBrowserTZ] = useState<string | null>(null);
@@ -216,10 +220,10 @@ export default function EmployeeDashboard({ loaderData, actionData, params }: Ro
         {t('app:hr-advisor-employees-table.back-to-dashboard')}
       </BackLink>
 
-      <FormErrorSummary>
+      <ActionDataErrorSummary actionData={actionData}>
         <h2 className="font-lato mt-8 text-lg font-semibold">{t('app:hr-advisor-employees-table.create-profile')}</h2>
         <section className="mb-8 flex flex-col justify-between gap-8 sm:flex-row">
-          <Form method="post" noValidate className="grid place-content-between items-end gap-2 sm:grid-cols-2">
+          <fetcher.Form method="post" noValidate className="grid place-content-between items-end gap-2 sm:grid-cols-2">
             <InputField
               label={t('app:hr-advisor-employees-table.employee-work-email')}
               name="email"
@@ -227,10 +231,10 @@ export default function EmployeeDashboard({ loaderData, actionData, params }: Ro
               required
               className="w-full"
             />
-            <Button variant="primary" className="w-1/2">
+            <LoadingButton variant="primary" className="w-1/2" disabled={isSubmitting} loading={isSubmitting}>
               {t('app:hr-advisor-employees-table.create-profile')}
-            </Button>
-          </Form>
+            </LoadingButton>
+          </fetcher.Form>
 
           <InputSelect
             id="selectEmployees"
@@ -251,7 +255,7 @@ export default function EmployeeDashboard({ loaderData, actionData, params }: Ro
             className="w-full"
           />
         </section>
-      </FormErrorSummary>
+      </ActionDataErrorSummary>
 
       {/* ARIA live region for screen reader announcements */}
       <div aria-live="polite" role="status" className="sr-only">
