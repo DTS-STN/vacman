@@ -393,6 +393,7 @@ export default {
     'directorate': 'Directorate',
     'preferred-language-of-correspondence': 'Preferred language for correspondence',
     'additional-comments': 'Additional comments',
+    'search': 'Search',
     // TODO: error messages need to be updated when available
     'errors': {
       'is-submitter-hiring-manager-required': 'Is submitter the hiring manager for this request field is required.',
