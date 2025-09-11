@@ -1,19 +1,23 @@
 package ca.gov.dtsstn.vacman.api.web;
 
+import static ca.gov.dtsstn.vacman.api.data.entity.AbstractBaseEntity.byId;
 import static ca.gov.dtsstn.vacman.api.data.entity.AbstractCodeEntity.byCode;
 import static ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException.asResourceNotFoundException;
 import static ca.gov.dtsstn.vacman.api.web.exception.UnauthorizedException.asEntraIdUnauthorizedException;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.mapstruct.factory.Mappers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,7 +29,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import ca.gov.dtsstn.vacman.api.config.SpringDocConfig;
 import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes;
-import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes.UserTypes;
+import ca.gov.dtsstn.vacman.api.data.entity.AbstractBaseEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.LanguageEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.UserTypeEntity;
 import ca.gov.dtsstn.vacman.api.security.SecurityUtils;
@@ -55,13 +60,13 @@ public class UsersController {
 
 	private final CodeService codeService;
 
+	private final LookupCodes lookupCodes;
+
 	private final MSGraphService msGraphService;
 
 	private final UserModelMapper userModelMapper = Mappers.getMapper(UserModelMapper.class);
 
 	private final UserService userService;
-
-	private final UserTypes userTypes;
 
 	public UsersController(
 			CodeService codeService,
@@ -71,7 +76,7 @@ public class UsersController {
 		this.codeService = codeService;
 		this.msGraphService = msGraphService;
 		this.userService = userService;
-		this.userTypes = lookupCodes.userTypes();
+		this.lookupCodes = lookupCodes;
 	}
 
 	@ApiResponses.Ok
@@ -101,12 +106,15 @@ public class UsersController {
 		final var userEntity = userModelMapper.toEntityBuilder(user)
 			.businessEmailAddress(msGraphUser.mail())
 			.firstName(msGraphUser.givenName())
+			.language(codeService.getLanguages(Pageable.unpaged())
+				.filter(byId(user.languageId())).stream().findFirst()
+				.orElseThrow())
 			.lastName(msGraphUser.surname())
 			.microsoftEntraId(msGraphUser.id())
 			.build();
 
 		log.debug("Creating user in database...");
-		final var createdUser = userModelMapper.toModel(userService.createUser(userEntity, user.languageId()));
+		final var createdUser = userModelMapper.toModel(userService.createUser(userEntity));
 		log.trace("Successfully created new user: [{}]", createdUser);
 
 		return ResponseEntity.ok(createdUser);
@@ -142,34 +150,50 @@ public class UsersController {
 	@Operation(summary = "Get users with pagination.")
 	@PreAuthorize("hasAuthority('hr-advisor') || (isAuthenticated() && #userType == 'hr-advisor')")
 	public ResponseEntity<PagedModel<UserReadModel>> getUsers(@ParameterObject Pageable pageable, @ParameterObject UserReadFilterModel filter) {
-		final var byHrAdvisorFilter = Optional.ofNullable(filter)
-			.map(UserReadFilterModel::userType)
-			.filter("hr-advisor"::equals)
-			.isPresent();
+		log.debug("Received request to get users; filter={}", filter);
 
-		final var emailFilter = Optional.ofNullable(filter)
+		final var email = Optional.ofNullable(filter)
 			.map(UserReadFilterModel::email)
 			.orElse(null);
 
+		final var isHrAdvisorSearch = Optional.ofNullable(filter)
+			.map(UserReadFilterModel::userType)
+			.map("hr-advisor"::equals)
+			.orElse(false);
+
 		final var exampleFilter = UserEntity.builder()
-			.businessEmailAddress(emailFilter)
+			.businessEmailAddress(email)
 			.userType(UserTypeEntity.builder()
-				.id(byHrAdvisorFilter ? getHrAdvisorTypeId() : null)
+				.id(isHrAdvisorSearch ? getHrAdvisorTypeId() : null)
 				.build())
 			.build();
 
 		final var users = userService.findUsers(exampleFilter, pageable)
 			.map(userModelMapper::toModel);
 
+		///
+		/// if an email filter was provided but no user was found, create the user and return it
+		///
 
-		if (emailFilter != null && users.getSize() == 0) {
-			//
-			// TODO ::: GjB ::: if an email filter was provided but no users were found...
-			//                  create a user with that email address and return it
-			//
+		if (!users.hasContent() && !isHrAdvisorSearch && StringUtils.hasText(email)) {
+			final var user = msGraphService.getUserByEmail(filter.email())
+				.map(msGraphUser -> userService
+					.createUser(UserEntity.builder()
+						.businessEmailAddress(email)
+						.firstName(msGraphUser.givenName())
+						.language(getEnglishLanguage())
+						.lastName(msGraphUser.surname())
+						.microsoftEntraId(msGraphUser.id())
+						.build()))
+				.map(userModelMapper::toModel);
 
+			if (user.isPresent()) {
+				final var page = new PageImpl<>(List.of(user.get()), pageable, 1);
+				return ResponseEntity.ok(new PagedModel<>(page));
+			}
 		}
 
+		log.debug("{} users found for filter {}", users.getTotalElements(), filter);
 		return ResponseEntity.ok(new PagedModel<>(users));
 	}
 
@@ -218,9 +242,15 @@ public class UsersController {
 
 	private long getHrAdvisorTypeId() {
 		return codeService.getUserTypes(Pageable.unpaged())
-		.filter(byCode(userTypes.hrAdvisor())).stream().findFirst()
-		.map(UserTypeEntity::getId)
-		.orElseThrow();
+			.filter(byCode(lookupCodes.userTypes().hrAdvisor())).stream().findFirst()
+			.map(AbstractBaseEntity::getId)
+			.orElseThrow();
+	}
+
+	private LanguageEntity getEnglishLanguage() {
+		return codeService.getLanguages(Pageable.unpaged())
+			.filter(byCode(lookupCodes.languages().english())).stream().findFirst()
+			.orElseThrow();
 	}
 
 }

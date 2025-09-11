@@ -1,6 +1,5 @@
 package ca.gov.dtsstn.vacman.api.service;
 
-import static ca.gov.dtsstn.vacman.api.data.entity.AbstractBaseEntity.byId;
 import static ca.gov.dtsstn.vacman.api.data.entity.AbstractCodeEntity.byCode;
 
 import java.util.Optional;
@@ -58,12 +57,7 @@ public class UserService {
 		this.userTypeCodes = lookupCodes.userTypes();
 	}
 
-	public UserEntity createUser(UserEntity user, long languageId) {
-		// Set language based on languageCode (validation ensures it exists)
-		user.setLanguage(codeService.getLanguages(Pageable.unpaged()).stream()
-			.filter(byId(languageId))
-			.findFirst().orElseThrow());
-
+	public UserEntity createUser(UserEntity user) {
 		final var userTypeCode = SecurityUtils.hasAuthority(entraRoles.hrAdvisor())
 			? userTypeCodes.hrAdvisor()
 			: userTypeCodes.employee();
