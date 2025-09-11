@@ -170,7 +170,7 @@ public class RequestService {
 			.map(selectionProcessTypeRepository::getReferenceById)
 			.ifPresent(request::setSelectionProcessType);
 
-		Optional.ofNullable(updateModel.nonAdvertisedAppointmentId())
+		Optional.ofNullable(updateModel.appointmentNonAdvertisedId())
 			.map(nonAdvertisedAppointmentRepository::getReferenceById)
 			.ifPresent(request::setAppointmentNonAdvertised);
 
@@ -191,7 +191,7 @@ public class RequestService {
 			.ifPresent(request::setSecurityClearance);
 
 		request.setEmploymentEquities(updateModel.employmentEquityIds().stream()
-			.map(employmentEquityRepository::getReferenceById)
+			.map(id -> employmentEquityRepository.getReferenceById(id.value()))
 			.collect(Collectors.toList()));
 
 		return request;
