@@ -28,11 +28,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import ca.gov.dtsstn.vacman.api.config.SpringDocConfig;
+import ca.gov.dtsstn.vacman.api.config.properties.ApplicationProperties;
+import ca.gov.dtsstn.vacman.api.config.properties.EntraIdProperties.RolesProperties;
 import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes;
-import ca.gov.dtsstn.vacman.api.data.entity.AbstractBaseEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.LanguageEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
-import ca.gov.dtsstn.vacman.api.data.entity.UserTypeEntity;
 import ca.gov.dtsstn.vacman.api.security.SecurityUtils;
 import ca.gov.dtsstn.vacman.api.service.CodeService;
 import ca.gov.dtsstn.vacman.api.service.MSGraphService;
@@ -60,6 +60,8 @@ public class UsersController {
 
 	private final CodeService codeService;
 
+	private final RolesProperties entraRoles;
+
 	private final LookupCodes lookupCodes;
 
 	private final MSGraphService msGraphService;
@@ -69,11 +71,13 @@ public class UsersController {
 	private final UserService userService;
 
 	public UsersController(
+			ApplicationProperties applicationProperties,
 			CodeService codeService,
 			LookupCodes lookupCodes,
 			MSGraphService msGraphService,
 			UserService userService) {
 		this.codeService = codeService;
+		this.entraRoles = applicationProperties.entraId().roles();
 		this.msGraphService = msGraphService;
 		this.userService = userService;
 		this.lookupCodes = lookupCodes;
@@ -103,6 +107,14 @@ public class UsersController {
 
 		log.debug("MSGraph user details: [{}]", msGraphUser);
 
+		final var userTypeCode = SecurityUtils.hasAuthority(entraRoles.hrAdvisor())
+			? lookupCodes.userTypes().hrAdvisor()
+			: lookupCodes.userTypes().employee();
+
+		final var userType = codeService.getUserTypes(Pageable.unpaged())
+			.filter(byCode(userTypeCode)).stream().findFirst()
+			.orElseThrow();
+
 		final var userEntity = userModelMapper.toEntityBuilder(user)
 			.businessEmailAddress(msGraphUser.mail())
 			.firstName(msGraphUser.givenName())
@@ -111,6 +123,7 @@ public class UsersController {
 				.orElseThrow())
 			.lastName(msGraphUser.surname())
 			.microsoftEntraId(msGraphUser.id())
+			.userType(userType)
 			.build();
 
 		log.debug("Creating user in database...");
@@ -161,11 +174,13 @@ public class UsersController {
 			.map("hr-advisor"::equals)
 			.orElse(false);
 
+		final var hrAdvisorUserType = codeService.getUserTypes(Pageable.unpaged())
+			.filter(byCode(lookupCodes.userTypes().hrAdvisor())).stream().findFirst()
+			.orElseThrow();
+
 		final var exampleFilter = UserEntity.builder()
 			.businessEmailAddress(email)
-			.userType(UserTypeEntity.builder()
-				.id(isHrAdvisorSearch ? getHrAdvisorTypeId() : null)
-				.build())
+			.userType(isHrAdvisorSearch ? hrAdvisorUserType : null)
 			.build();
 
 		final var users = userService.findUsers(exampleFilter, pageable)
@@ -176,6 +191,10 @@ public class UsersController {
 		///
 
 		if (!users.hasContent() && !isHrAdvisorSearch && StringUtils.hasText(email)) {
+			final var employeeUserType = codeService.getUserTypes(Pageable.unpaged())
+				.filter(byCode(lookupCodes.userTypes().employee())).stream().findFirst()
+				.orElseThrow();
+
 			final var user = msGraphService.getUserByEmail(filter.email())
 				.map(msGraphUser -> userService
 					.createUser(UserEntity.builder()
@@ -184,6 +203,7 @@ public class UsersController {
 						.language(getEnglishLanguage())
 						.lastName(msGraphUser.surname())
 						.microsoftEntraId(msGraphUser.id())
+						.userType(employeeUserType)
 						.build()))
 				.map(userModelMapper::toModel);
 
@@ -238,13 +258,6 @@ public class UsersController {
 		userService.getUserById(id).orElseThrow(asResourceNotFoundException("user", id));
 		final var updatedUser = userService.overwriteUser(id, userModelMapper.toEntity(userUpdate));
 		return ResponseEntity.ok(userModelMapper.toModel(updatedUser));
-	}
-
-	private long getHrAdvisorTypeId() {
-		return codeService.getUserTypes(Pageable.unpaged())
-			.filter(byCode(lookupCodes.userTypes().hrAdvisor())).stream().findFirst()
-			.map(AbstractBaseEntity::getId)
-			.orElseThrow();
 	}
 
 	private LanguageEntity getEnglishLanguage() {
