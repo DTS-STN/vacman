@@ -59,11 +59,11 @@ export async function action({ context, params, request }: Route.ActionArgs) {
       };
     }
 
-    const userResult = await getUserService().getUserByEmail(
-      parseResult.output.hiringManagerEmailAddress,
+    const userResult = await getUserService().getUsers(
+      { email: parseResult.output.hiringManagerEmailAddress },
       context.session.authState.accessToken,
     );
-    const hiringManager = userResult.into();
+    const hiringManager = userResult.into()?.content[0];
     const hiringManagerName = `${hiringManager?.firstName ?? ''} ${hiringManager?.lastName ?? ''}`.trim();
     return { hiringManagerName };
   }
@@ -89,12 +89,12 @@ export async function action({ context, params, request }: Route.ActionArgs) {
       };
     }
 
-    const userResult = await getUserService().getUserByEmail(
-      parseResult.output.subDelegatedManagerEmailAddress,
+    const userResult = await getUserService().getUsers(
+      { email: parseResult.output.subDelegatedManagerEmailAddress },
       context.session.authState.accessToken,
     );
 
-    const subDelegatedManager = userResult.into();
+    const subDelegatedManager = userResult.into()?.content[0];
     const subDelegatedManagerName = `${subDelegatedManager?.firstName ?? ''} ${subDelegatedManager?.lastName ?? ''}`.trim();
     return { subDelegatedManagerName };
   }
