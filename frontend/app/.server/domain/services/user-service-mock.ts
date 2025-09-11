@@ -12,7 +12,7 @@ import type {
   PageMetadata,
   Profile,
 } from '~/.server/domain/models';
-import { mockUsers, mockProfiles } from '~/.server/domain/services/mockData';
+import { mockUsers, mockProfiles, createUserFromEmail } from '~/.server/domain/services/mockData';
 import type { UserService } from '~/.server/domain/services/user-service';
 import { LogFactory } from '~/.server/logging';
 import { AppError } from '~/errors/app-error';
