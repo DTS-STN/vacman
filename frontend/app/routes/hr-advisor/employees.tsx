@@ -12,7 +12,6 @@ import type { Route } from './+types/employees';
 
 import type { Profile, ProfileStatus } from '~/.server/domain/models';
 import { getProfileService } from '~/.server/domain/services/profile-service';
-import { getProfileStatusService } from '~/.server/domain/services/profile-status-service';
 import { getUserService } from '~/.server/domain/services/user-service';
 import { serverEnvironment } from '~/.server/environment';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
@@ -75,38 +74,29 @@ export async function loader({ context, request }: Route.LoaderArgs) {
 
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
 
-  // Filter profiles based on hr-advisor selection. Options 'My Employees' or 'All employees'
-  const url = new URL(request.url);
-  const filter = url.searchParams.get('filter');
-
   const profileParams = {
     'active': true, // will return In Progress, Pending Approval and Approved
-    'hr-advisor': filter === 'me' ? filter : undefined, // 'me' is used in the API to filter for the current HR advisor
+    'hr-advisor': new URL(request.url).searchParams.get('filter') === 'me' ? 'me' : undefined, // 'me' is used by the API to filter for the current HR advisor
   };
 
-  const profileService = getProfileService();
-  const profileStatusService = getProfileStatusService();
-
-  const [profilesResult, statuses] = await Promise.all([
-    profileService.getProfiles(profileParams, context.session.authState.accessToken),
-    profileStatusService.listAllLocalized(lang),
-  ]);
+  const profilesResult = await getProfileService().getProfiles(profileParams, context.session.authState.accessToken);
 
   if (profilesResult.isErr()) {
     throw profilesResult.unwrapErr();
   }
 
-  const profiles = profilesResult.unwrap();
-  const filteredAllProfiles = profiles.content.filter(
-    (profile) =>
-      profile.profileStatus &&
-      [PROFILE_STATUS_CODE.approved, PROFILE_STATUS_CODE.pending].some((id) => id === profile.profileStatus?.code),
-  );
+  const profiles = profilesResult
+    .unwrap()
+    .content.filter(({ profileStatus }) =>
+      [PROFILE_STATUS_CODE.approved, PROFILE_STATUS_CODE.pending].some((code) => code === profileStatus?.code),
+    );
 
   return {
     documentTitle: t('app:index.employees'),
-    profiles: filteredAllProfiles,
-    statuses,
+    profiles: profiles,
+    localizedStatuses: profiles
+      .map(({ profileStatus }) => profileStatus?.[lang === 'en' ? 'nameEn' : 'nameFr'])
+      .filter((name) => name !== undefined),
     baseTimeZone: serverEnvironment.BASE_TIMEZONE,
     lang,
   };
@@ -115,7 +105,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
 export default function EmployeeDashboard({ loaderData, actionData, params }: Route.ComponentProps) {
   const { t } = useTranslation(handle.i18nNamespace);
 
-  const [, setSearchParams] = useSearchParams({ filter: 'all' });
+  const [searchParams, setSearchParams] = useSearchParams({ filter: 'me' });
   const [browserTZ, setBrowserTZ] = useState<string | null>(null);
   const [srAnnouncement, setSrAnnouncement] = useState('');
 
@@ -179,7 +169,7 @@ export default function EmployeeDashboard({ loaderData, actionData, params }: Ro
         <DataTableColumnHeaderWithOptions
           column={column}
           title={t('app:hr-advisor-employees-table.status')}
-          options={Object.values(PROFILE_STATUS_CODE)}
+          options={loaderData.localizedStatuses}
         />
       ),
       cell: (info) => {
@@ -203,6 +193,7 @@ export default function EmployeeDashboard({ loaderData, actionData, params }: Ro
             className="text-sky-800 underline decoration-slate-400 decoration-2 hover:text-blue-700 focus:text-blue-700"
             file="routes/hr-advisor/employee-profile/index.tsx"
             params={{ profileId }}
+            search={`filter=${searchParams.get('filter')}`}
             aria-label={t('app:hr-advisor-employees-table.view-link', {
               profileUserName,
             })}
@@ -244,11 +235,10 @@ export default function EmployeeDashboard({ loaderData, actionData, params }: Ro
           <InputSelect
             id="selectEmployees"
             name="selectEmployees"
-            required={false}
             options={employeesOptions}
             label=""
             aria-label={t('app:hr-advisor-employees-table.filter-by')}
-            defaultValue="all"
+            defaultValue={searchParams.get('filter') ?? 'me'}
             onChange={({ target }) => {
               setSearchParams({ filter: target.value });
               // Announce table filtering change to screen readers

@@ -44,7 +44,12 @@ export default function EmployeeDashboard() {
     <>
       <PageTitle>{t('app:hr-advisor-dashboard.page-heading')}</PageTitle>
       <div className="grid gap-4">
-        <DashboardCard file="routes/hr-advisor/employees.tsx" icon={faUser} title={t('app:hr-advisor-dashboard.employees')} />
+        <DashboardCard
+          file="routes/hr-advisor/employees.tsx"
+          search="filter=me"
+          icon={faUser}
+          title={t('app:hr-advisor-dashboard.employees')}
+        />
         <DashboardCard
           file="routes/hr-advisor/requests.tsx"
           icon={faMagnifyingGlass}
