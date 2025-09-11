@@ -1,6 +1,6 @@
 import { parsePhoneNumberWithError } from 'libphonenumber-js';
+import type { BaseIssue, BaseSchema } from 'valibot';
 import * as v from 'valibot';
-import type { BaseSchema, BaseIssue } from 'valibot';
 
 import type { User } from '~/.server/domain/models';
 import { getCityService } from '~/.server/domain/services/city-service';

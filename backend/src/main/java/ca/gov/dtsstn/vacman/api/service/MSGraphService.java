@@ -6,12 +6,11 @@ import java.util.StringJoiner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.security.oauth2.client.OAuth2AuthorizeRequest;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import ca.gov.dtsstn.vacman.api.config.properties.ApplicationProperties;
@@ -49,22 +48,34 @@ public class MSGraphService {
 			.build();
 	}
 
-	public Optional<MSGraphUser> getUser(String microsoftEntraId) {
+	public Optional<MSGraphUser> getUserById(String microsoftEntraId) {
 		log.debug("Fetching user with id=[{}] from MSGraph", microsoftEntraId);
-		final var response = restTemplate.getForEntity("/users/{id}?$select={properties}", MSGraphUser.class, microsoftEntraId, SELECTED_USER_PROPERTIES);
 
-		if (response.getStatusCode().isSameCodeAs(HttpStatus.NOT_FOUND)) {
+		try {
+			final var response = restTemplate.getForEntity("/users/{id}?$select={properties}", MSGraphUser.class, microsoftEntraId, SELECTED_USER_PROPERTIES);
+			log.debug("Successfully retrieved user with id=[{}] from MSGraph: [{}]", microsoftEntraId, response.getBody());
+			return Optional.ofNullable(response.getBody());
+
+		}
+		catch (final HttpClientErrorException.NotFound exception) {
 			log.warn("Could not find user with id=[{}] in MSGraph", microsoftEntraId);
 			return Optional.empty();
 		}
+	}
 
-		if (response.getStatusCode().isError()) {
-			log.error("Unexpected response from MSGraph: status={}, body={}", response.getStatusCode(), response.getBody());
-			throw new RestClientException("Unexpected response from MSGraph: " + response.getStatusCode());
+	public Optional<MSGraphUser> getUserByEmail(String email) {
+		log.debug("Fetching user with id=[{}] from MSGraph", email);
+
+		try {
+			final var response = restTemplate.getForEntity("/users/{email}?$select={properties}", MSGraphUser.class, email, SELECTED_USER_PROPERTIES);
+			log.debug("Successfully retrieved user with email=[{}] from MSGraph: [{}]", email, response.getBody());
+			return Optional.ofNullable(response.getBody());
+
 		}
-
-		log.debug("Successfully retrieved user with id=[{}] from MSGraph: [{}]", microsoftEntraId, response.getBody());
-		return Optional.ofNullable(response.getBody());
+		catch (final HttpClientErrorException.NotFound exception) {
+			log.warn("Could not find user with email=[{}] in MSGraph", email);
+			return Optional.empty();
+		}
 	}
 
 	private ClientHttpRequestInterceptor oauthInterceptor(OAuth2AuthorizedClientManager oauth2AuthorizedClientManager) {

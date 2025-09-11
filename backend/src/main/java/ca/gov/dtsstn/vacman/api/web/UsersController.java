@@ -1,16 +1,23 @@
 package ca.gov.dtsstn.vacman.api.web;
 
+import static ca.gov.dtsstn.vacman.api.data.entity.AbstractBaseEntity.byId;
+import static ca.gov.dtsstn.vacman.api.data.entity.AbstractCodeEntity.byCode;
 import static ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException.asResourceNotFoundException;
 import static ca.gov.dtsstn.vacman.api.web.exception.UnauthorizedException.asEntraIdUnauthorizedException;
+
+import java.util.List;
+import java.util.Optional;
 
 import org.mapstruct.factory.Mappers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,21 +25,26 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import ca.gov.dtsstn.vacman.api.config.SpringDocConfig;
+import ca.gov.dtsstn.vacman.api.config.properties.ApplicationProperties;
+import ca.gov.dtsstn.vacman.api.config.properties.EntraIdProperties.RolesProperties;
+import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes;
+import ca.gov.dtsstn.vacman.api.data.entity.LanguageEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 import ca.gov.dtsstn.vacman.api.security.SecurityUtils;
+import ca.gov.dtsstn.vacman.api.service.CodeService;
 import ca.gov.dtsstn.vacman.api.service.MSGraphService;
 import ca.gov.dtsstn.vacman.api.service.UserService;
 import ca.gov.dtsstn.vacman.api.web.exception.ResourceConflictException;
 import ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException;
 import ca.gov.dtsstn.vacman.api.web.model.UserCreateModel;
 import ca.gov.dtsstn.vacman.api.web.model.UserPatchModel;
+import ca.gov.dtsstn.vacman.api.web.model.UserReadFilterModel;
 import ca.gov.dtsstn.vacman.api.web.model.UserReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.mapper.UserModelMapper;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -46,15 +58,29 @@ public class UsersController {
 
 	private static final Logger log = LoggerFactory.getLogger(UsersController.class);
 
+	private final CodeService codeService;
+
+	private final RolesProperties entraRoles;
+
+	private final LookupCodes lookupCodes;
+
 	private final MSGraphService msGraphService;
 
 	private final UserModelMapper userModelMapper = Mappers.getMapper(UserModelMapper.class);
 
 	private final UserService userService;
 
-	public UsersController(MSGraphService msGraphService, UserService userService) {
+	public UsersController(
+			ApplicationProperties applicationProperties,
+			CodeService codeService,
+			LookupCodes lookupCodes,
+			MSGraphService msGraphService,
+			UserService userService) {
+		this.codeService = codeService;
+		this.entraRoles = applicationProperties.entraId().roles();
 		this.msGraphService = msGraphService;
 		this.userService = userService;
+		this.lookupCodes = lookupCodes;
 	}
 
 	@ApiResponses.Ok
@@ -76,20 +102,32 @@ public class UsersController {
 			throw new ResourceConflictException("A user with microsoftEntraId=[" + entraId + "] already exists");
 		});
 
-		final var msGraphUser = msGraphService.getUser(entraId)
+		final var msGraphUser = msGraphService.getUserById(entraId)
 			.orElseThrow(() -> new ResourceNotFoundException("User with entraId=[" + entraId + "] not found in MSGraph"));
 
 		log.debug("MSGraph user details: [{}]", msGraphUser);
 
+		final var userTypeCode = SecurityUtils.hasAuthority(entraRoles.hrAdvisor())
+			? lookupCodes.userTypes().hrAdvisor()
+			: lookupCodes.userTypes().employee();
+
+		final var userType = codeService.getUserTypes(Pageable.unpaged())
+			.filter(byCode(userTypeCode)).stream().findFirst()
+			.orElseThrow();
+
 		final var userEntity = userModelMapper.toEntityBuilder(user)
 			.businessEmailAddress(msGraphUser.mail())
 			.firstName(msGraphUser.givenName())
+			.language(codeService.getLanguages(Pageable.unpaged())
+				.filter(byId(user.languageId())).stream().findFirst()
+				.orElseThrow())
 			.lastName(msGraphUser.surname())
 			.microsoftEntraId(msGraphUser.id())
+			.userType(userType)
 			.build();
 
 		log.debug("Creating user in database...");
-		final var createdUser = userModelMapper.toModel(userService.createUser(userEntity, user.languageId()));
+		final var createdUser = userModelMapper.toModel(userService.createUser(userEntity));
 		log.trace("Successfully created new user: [{}]", createdUser);
 
 		return ResponseEntity.ok(createdUser);
@@ -124,17 +162,58 @@ public class UsersController {
 	@ApiResponses.AuthenticationError
 	@Operation(summary = "Get users with pagination.")
 	@PreAuthorize("hasAuthority('hr-advisor') || (isAuthenticated() && #userType == 'hr-advisor')")
-	public ResponseEntity<PagedModel<UserReadModel>> getUsers(
-			@ParameterObject
-			Pageable pageable,
+	public ResponseEntity<PagedModel<UserReadModel>> getUsers(@ParameterObject Pageable pageable, @ParameterObject UserReadFilterModel filter) {
+		log.debug("Received request to get users; filter={}", filter);
 
-			@Parameter(description = "Filter by user type.")
-			@RequestParam(name = "user-type", required = false)
-			String userType) {
-		final var users = "hr-advisor".equals(userType)
-			? userService.getHrAdvisors(pageable).map(userModelMapper::toModel)
-			: userService.getUsers(pageable).map(userModelMapper::toModel);
+		final var email = Optional.ofNullable(filter)
+			.map(UserReadFilterModel::email)
+			.orElse(null);
 
+		final var isHrAdvisorSearch = Optional.ofNullable(filter)
+			.map(UserReadFilterModel::userType)
+			.map("hr-advisor"::equals)
+			.orElse(false);
+
+		final var hrAdvisorUserType = codeService.getUserTypes(Pageable.unpaged())
+			.filter(byCode(lookupCodes.userTypes().hrAdvisor())).stream().findFirst()
+			.orElseThrow();
+
+		final var exampleFilter = UserEntity.builder()
+			.businessEmailAddress(email)
+			.userType(isHrAdvisorSearch ? hrAdvisorUserType : null)
+			.build();
+
+		final var users = userService.findUsers(exampleFilter, pageable)
+			.map(userModelMapper::toModel);
+
+		///
+		/// if an email filter was provided but no user was found, create the user and return it
+		///
+
+		if (!users.hasContent() && !isHrAdvisorSearch && StringUtils.hasText(email)) {
+			final var employeeUserType = codeService.getUserTypes(Pageable.unpaged())
+				.filter(byCode(lookupCodes.userTypes().employee())).stream().findFirst()
+				.orElseThrow();
+
+			final var user = msGraphService.getUserByEmail(filter.email())
+				.map(msGraphUser -> userService
+					.createUser(UserEntity.builder()
+						.businessEmailAddress(email)
+						.firstName(msGraphUser.givenName())
+						.language(getEnglishLanguage())
+						.lastName(msGraphUser.surname())
+						.microsoftEntraId(msGraphUser.id())
+						.userType(employeeUserType)
+						.build()))
+				.map(userModelMapper::toModel);
+
+			if (user.isPresent()) {
+				final var page = new PageImpl<>(List.of(user.get()), pageable, 1);
+				return ResponseEntity.ok(new PagedModel<>(page));
+			}
+		}
+
+		log.debug("{} users found for filter {}", users.getTotalElements(), filter);
 		return ResponseEntity.ok(new PagedModel<>(users));
 	}
 
@@ -179,6 +258,12 @@ public class UsersController {
 		userService.getUserById(id).orElseThrow(asResourceNotFoundException("user", id));
 		final var updatedUser = userService.overwriteUser(id, userModelMapper.toEntity(userUpdate));
 		return ResponseEntity.ok(userModelMapper.toModel(updatedUser));
+	}
+
+	private LanguageEntity getEnglishLanguage() {
+		return codeService.getLanguages(Pageable.unpaged())
+			.filter(byCode(lookupCodes.languages().english())).stream().findFirst()
+			.orElseThrow();
 	}
 
 }

@@ -316,6 +316,9 @@ application:
     tos-url: https://www.canada.ca/en/transparency/terms.html
 
 codes:
+  languages:
+    english: EN
+    french: FR
   profile-statuses:
     approved: APPROVED
     archived: ARCHIVED

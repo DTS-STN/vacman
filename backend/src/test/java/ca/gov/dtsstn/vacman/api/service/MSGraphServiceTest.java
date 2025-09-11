@@ -1,7 +1,6 @@
 package ca.gov.dtsstn.vacman.api.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -20,7 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
-import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.HttpClientErrorException.NotFound;
 import org.springframework.web.client.RestTemplate;
 
 import ca.gov.dtsstn.vacman.api.config.properties.ApplicationProperties;
@@ -56,7 +55,7 @@ class MSGraphServiceTest {
 
 	@Test
 	@DisplayName("Test getUser() success")
-	void getUserSuccess() {
+	void getUserById_success() {
 		final var msGraphUser = MSGraphUserBuilder.builder()
 			.id("00000000-0000-0000-0000-000000000000")
 			.givenName("Test")
@@ -66,7 +65,7 @@ class MSGraphServiceTest {
 		final var response = new ResponseEntity<Object>(msGraphUser, HttpStatus.OK);
 		when(restTemplate.getForEntity(anyString(), any(), anyString(), anyString())).thenReturn(response);
 
-		final var result = msGraphService.getUser("00000000-0000-0000-0000-000000000000");
+		final var result = msGraphService.getUserById("00000000-0000-0000-0000-000000000000");
 
 		assertThat(result)
 			.isPresent()
@@ -75,24 +74,10 @@ class MSGraphServiceTest {
 
 	@Test
 	@DisplayName("Test getUser() not found")
-	void getUserNotFound() {
-		final var response = new ResponseEntity<Object>(HttpStatus.NOT_FOUND);
-		when(restTemplate.getForEntity(anyString(), any(), anyString(), anyString())).thenReturn(response);
-
-		final var result = msGraphService.getUser("00000000-0000-0000-0000-000000000000");
-
+	void getUserById_notFound() {
+		when(restTemplate.getForEntity(anyString(), any(), anyString(), anyString())).thenThrow(NotFound.class);
+		final var result = msGraphService.getUserById("00000000-0000-0000-0000-000000000000");
 		assertThat(result).isEmpty();
-	}
-
-	@Test
-	@DisplayName("Test getUser() error")
-	void getUserError() {
-		final var response = new ResponseEntity<Object>(HttpStatus.INTERNAL_SERVER_ERROR);
-		when(restTemplate.getForEntity(anyString(), any(), anyString(), anyString())).thenReturn(response);
-
-		assertThatThrownBy(() -> msGraphService.getUser("00000000-0000-0000-0000-000000000000"))
-			.isInstanceOf(RestClientException.class)
-			.hasMessage("Unexpected response from MSGraph: 500 INTERNAL_SERVER_ERROR");
 	}
 
 }
