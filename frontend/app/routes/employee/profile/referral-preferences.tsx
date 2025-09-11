@@ -17,7 +17,7 @@ import { requirePrivacyConsentForOwnProfile } from '~/.server/utils/privacy-cons
 import { hasReferralDataChanged, mapProfileToPutModelWithOverrides } from '~/.server/utils/profile-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { BackLink } from '~/components/back-link';
-import { PROFILE_STATUS_ID, PROFILE_STATUS_PENDING, REQUIRE_OPTIONS } from '~/domain/constants';
+import { PROFILE_STATUS_CODE, PROFILE_STATUS_PENDING, REQUIRE_OPTIONS } from '~/domain/constants';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
@@ -85,7 +85,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   }
 
   if (
-    currentProfile.profileStatus?.id === PROFILE_STATUS_ID.approved &&
+    currentProfile.profileStatus?.code === PROFILE_STATUS_CODE.approved &&
     hasReferralDataChanged(oldReferralData, newReferralData)
   ) {
     // profile needs to be re-approved if and only if the current profile status is 'approved'
