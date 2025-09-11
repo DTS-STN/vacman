@@ -1,7 +1,10 @@
 package ca.gov.dtsstn.vacman.api.web;
 
+import static ca.gov.dtsstn.vacman.api.data.entity.AbstractCodeEntity.byCode;
 import static ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException.asResourceNotFoundException;
 import static ca.gov.dtsstn.vacman.api.web.exception.UnauthorizedException.asEntraIdUnauthorizedException;
+
+import java.util.Optional;
 
 import org.mapstruct.factory.Mappers;
 import org.slf4j.Logger;
@@ -18,21 +21,25 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import ca.gov.dtsstn.vacman.api.config.SpringDocConfig;
+import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes;
+import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes.UserTypes;
+import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.UserTypeEntity;
 import ca.gov.dtsstn.vacman.api.security.SecurityUtils;
+import ca.gov.dtsstn.vacman.api.service.CodeService;
 import ca.gov.dtsstn.vacman.api.service.MSGraphService;
 import ca.gov.dtsstn.vacman.api.service.UserService;
 import ca.gov.dtsstn.vacman.api.web.exception.ResourceConflictException;
 import ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException;
 import ca.gov.dtsstn.vacman.api.web.model.UserCreateModel;
 import ca.gov.dtsstn.vacman.api.web.model.UserPatchModel;
+import ca.gov.dtsstn.vacman.api.web.model.UserReadFilterModel;
 import ca.gov.dtsstn.vacman.api.web.model.UserReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.mapper.UserModelMapper;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -46,15 +53,25 @@ public class UsersController {
 
 	private static final Logger log = LoggerFactory.getLogger(UsersController.class);
 
+	private final CodeService codeService;
+
 	private final MSGraphService msGraphService;
 
 	private final UserModelMapper userModelMapper = Mappers.getMapper(UserModelMapper.class);
 
 	private final UserService userService;
 
-	public UsersController(MSGraphService msGraphService, UserService userService) {
+	private final UserTypes userTypes;
+
+	public UsersController(
+			CodeService codeService,
+			LookupCodes lookupCodes,
+			MSGraphService msGraphService,
+			UserService userService) {
+		this.codeService = codeService;
 		this.msGraphService = msGraphService;
 		this.userService = userService;
+		this.userTypes = lookupCodes.userTypes();
 	}
 
 	@ApiResponses.Ok
@@ -124,16 +141,30 @@ public class UsersController {
 	@ApiResponses.AuthenticationError
 	@Operation(summary = "Get users with pagination.")
 	@PreAuthorize("hasAuthority('hr-advisor') || (isAuthenticated() && #userType == 'hr-advisor')")
-	public ResponseEntity<PagedModel<UserReadModel>> getUsers(
-			@ParameterObject
-			Pageable pageable,
+	public ResponseEntity<PagedModel<UserReadModel>> getUsers(@ParameterObject Pageable pageable, @ParameterObject UserReadFilterModel filter) {
+		final var byHrAdvisorFilter = Optional.ofNullable(filter)
+			.map(UserReadFilterModel::userType)
+			.filter("hr-advisor"::equals)
+			.isPresent();
 
-			@Parameter(description = "Filter by user type.")
-			@RequestParam(name = "user-type", required = false)
-			String userType) {
-		final var users = "hr-advisor".equals(userType)
-			? userService.getHrAdvisors(pageable).map(userModelMapper::toModel)
-			: userService.getUsers(pageable).map(userModelMapper::toModel);
+		final var emailFilter = Optional.ofNullable(filter)
+			.map(UserReadFilterModel::email)
+			.orElse(null);
+
+		final var exampleFilter = UserEntity.builder()
+			.businessEmailAddress(emailFilter)
+			.userType(UserTypeEntity.builder()
+				.id(byHrAdvisorFilter ? getHrAdvisorTypeId() : null)
+				.build())
+			.build();
+
+		final var users = userService.findUsers(exampleFilter, pageable)
+			.map(userModelMapper::toModel);
+
+		//
+		// TODO ::: GjB ::: if an email filter was provided but no users were found...
+		//                  create a user with that email address and return it
+		//
 
 		return ResponseEntity.ok(new PagedModel<>(users));
 	}
@@ -179,6 +210,13 @@ public class UsersController {
 		userService.getUserById(id).orElseThrow(asResourceNotFoundException("user", id));
 		final var updatedUser = userService.overwriteUser(id, userModelMapper.toEntity(userUpdate));
 		return ResponseEntity.ok(userModelMapper.toModel(updatedUser));
+	}
+
+	private long getHrAdvisorTypeId() {
+		return codeService.getUserTypes(Pageable.unpaged())
+		.filter(byCode(userTypes.hrAdvisor())).stream().findFirst()
+		.map(UserTypeEntity::getId)
+		.orElseThrow();
 	}
 
 }

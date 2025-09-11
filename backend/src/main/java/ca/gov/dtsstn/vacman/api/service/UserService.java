@@ -108,16 +108,19 @@ public class UserService {
 		return users;
 	}
 
-	public Page<UserEntity> getHrAdvisors(Pageable pageable) {
-		final var userType = codeService.getUserTypes(Pageable.unpaged())
-			.filter(byCode(userTypeCodes.hrAdvisor())).stream()
-			.findFirst().orElseThrow();
-
-		final var example = Example.of(UserEntity.builder().userType(userType).build());
-
-		final Page<UserEntity> users = userRepository.findAll(example, pageable);
+	/**
+	 * Finds users based on an example entity with pagination support.
+	 *
+	 * @param example  The {@link UserEntity} instance to use as a query example.
+	 *                 Fields with non-null values will be used as query criteria.
+	 * @param pageable The {@link Pageable} object that specifies the page number,
+	 *                 page size, and sorting order.
+	 * @return A {@link Page} of {@link UserEntity} objects that match the example.
+	 *         Will never be {@code null}.
+	 */
+	public Page<UserEntity> findUsers(UserEntity example, Pageable pageable) {
+		final var users = userRepository.findAll(Example.of(example), pageable);
 		users.forEach(user -> eventPublisher.publishEvent(new UserReadEvent(user)));
-
 		return users;
 	}
 
