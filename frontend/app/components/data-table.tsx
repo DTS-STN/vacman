@@ -132,16 +132,18 @@ export function DataTablePagination<TData>({ table }: DataTablePaginationProps<T
               {i + 1}
             </Button>
           ))}
-          <Button
-            type="button"
-            variant="ghost"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-            className={cn('h-8 border-hidden px-2 text-sm font-medium underline transition-colors duration-200')}
-          >
-            <span className="sr-only">{t('gcweb:data-table.pagination.next-page')}</span>
-            {t('app:hr-advisor-employees-table.next-page')}
-          </Button>
+          {table.getCanNextPage() && (
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => table.nextPage()}
+              disabled={!table.getCanNextPage()}
+              className={cn('h-8 border-hidden px-2 text-sm font-medium underline transition-colors duration-200')}
+            >
+              <span className="sr-only">{t('gcweb:data-table.pagination.next-page')}</span>
+              {t('app:hr-advisor-employees-table.next-page')}
+            </Button>
+          )}
         </div>
       </div>
     </div>
