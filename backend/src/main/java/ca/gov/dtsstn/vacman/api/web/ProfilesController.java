@@ -188,7 +188,11 @@ public class ProfilesController {
 		}
 
 		log.debug("Creating profile in database...");
-		final var createdProfile = profileModelMapper.toModel(profileService.createProfile(existingUser));
+
+		final var createdProfile = profileModelMapper.toModel(
+			profileService.createProfile(ProfileEntity.builder()
+				.user(existingUser)
+				.build()));
 
 		log.trace("Successfully created profile user: [{}]", createdProfile);
 
