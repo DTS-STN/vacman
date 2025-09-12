@@ -211,6 +211,26 @@ public class RequestsController {
 		return ResponseEntity.ok(requestModelMapper.toModel(updatedEntity));
 	}
 
+	@ApiResponses.Ok
+	@ApiResponses.BadRequestError
+	@PostMapping({ "/{id}/approve" })
+	@ApiResponses.ResourceNotFoundError
+	@ApiResponses.UnprocessableEntityError
+	@Operation(summary = "Approve a request and run the match creation algorithm.")
+	@PreAuthorize("hasAuthority('hr-advisor')")
+	public ResponseEntity<RequestReadModel> approveRequest(@PathVariable Long id) {
+		log.info("Received request to approve request; ID: [{}]", id);
+
+		final var request = requestService.getRequestById(id)
+			.orElseThrow(asResourceNotFoundException("request", id));
+
+		log.trace("Found request: [{}]", request);
+
+		final var updatedEntity = requestService.approveRequest(request);
+
+		return ResponseEntity.ok(requestModelMapper.toModel(updatedEntity));
+	}
+
 	//
 	//
 	// --- /requests/.../matches endpoints

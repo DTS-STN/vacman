@@ -298,12 +298,99 @@ public class RequestService {
 			notificationService.sendRequestNotification(
 				hrAdvisor.getBusinessEmailAddress(),
 				request.getId(),
-				request.getNameEn(), // Using English title as the request title
+				request.getNameEn(),
 				RequestEvent.CREATED
 			);
 		} else {
 			log.warn("No HR advisor or business email address found for request ID: [{}]", request.getId());
 		}
+	}
+
+	/**
+	 * Sends a notification when a request is approved and feedback is pending.
+	 */
+	private void sendRequestFeedbackPendingNotification(RequestEntity request) {
+		UserEntity owner = request.getSubmitter();
+
+		// If there's an owner associated with the request, send the notification to their business email address
+		if (owner != null && owner.getBusinessEmailAddress() != null) {
+			notificationService.sendRequestNotification(
+				owner.getBusinessEmailAddress(),
+				request.getId(),
+				request.getNameEn(),
+				RequestEvent.FEEDBACK_PENDING
+			);
+		} else {
+			log.warn("No owner or business email address found for request ID: [{}]", request.getId());
+		}
+	}
+
+	/**
+	 * Approves a request by running the match creation algorithm and updating the status.
+	 * 
+	 * @param request The request entity to approve
+	 * @return The updated request entity
+	 */
+	public RequestEntity approveRequest(RequestEntity request) {
+		// Get current user information
+		final var currentUser = SecurityUtils.getCurrentUserEntraId()
+			.flatMap(userService::getUserByMicrosoftEntraId)
+			.orElseThrow(() -> new UnauthorizedException("User not authenticated"));
+
+		final boolean isHrAdvisor = SecurityUtils.hasAuthority("hr-advisor");
+
+		// Get current status code
+		final String currentStatus = request.getRequestStatus().getCode();
+
+		// Handle the approval
+		RequestEntity updatedRequest = handleRunMatches(request, isHrAdvisor, currentStatus);
+
+		return updateRequest(updatedRequest);
+	}
+
+	/**
+	 * Handles the runMatches event.
+	 * 
+	 * @param request The request entity
+	 * @param isHrAdvisor Whether the current user is an HR advisor
+	 * @param currentStatus The current status code of the request
+	 * @return The updated request entity
+	 */
+	private RequestEntity handleRunMatches(RequestEntity request, boolean isHrAdvisor, String currentStatus) {
+		if (!isHrAdvisor) {
+			throw new UnauthorizedException("Only HR advisors can approve requests");
+		}
+
+		if (!requestStatuses.hrReview().equals(currentStatus)) {
+			throw new ResourceNotFoundException("Request must be in HR_REVIEW status to be approved");
+		}
+
+		boolean hasMatches = createMatches(request);
+
+		if (hasMatches) {
+			// Set status to FDBK_PENDING and send notification to the owner
+			request.setRequestStatus(getRequestStatusByCode(requestStatuses.feedbackPending()));
+			sendRequestFeedbackPendingNotification(request);
+		} else {
+			// Set status to NO_MATCH_HR_REVIEW
+			request.setRequestStatus(getRequestStatusByCode(requestStatuses.noMatchHrReview()));
+		}
+
+		return request;
+	}
+
+	/**
+	 * Creates matches for a request.
+	 * This is a dummy implementation that will be replaced with the actual match creation algorithm.
+	 * 
+	 * @param request The request entity
+	 * @return True if matches were created, false otherwise (for now always true)
+	 */
+	private boolean createMatches(RequestEntity request) {
+		// dummy (placeholder) implementation that returns true
+		log.info("Creating matches for request ID: [{}]", request.getId());
+
+		return true;
 	}
 
 }
