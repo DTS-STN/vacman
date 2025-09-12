@@ -204,6 +204,7 @@ management:
 springdoc:
   swagger-ui:
     display-request-duration: true
+    doc-expansion: none
     oauth:
       client-id: ${application.swagger-ui.authentication.oauth.client-id}
       scopes: ${application.swagger-ui.authentication.oauth.client-id}/.default
