@@ -18,6 +18,8 @@ public class NotificationService {
 
 	public enum ProfileStatus { CREATED, UPDATED, APPROVED, PENDING }
 
+	public enum RequestEvent { CREATED }
+
 	private static final Logger log = LoggerFactory.getLogger(NotificationService.class);
 
 	private final ApplicationProperties applicationProperties;
@@ -51,6 +53,35 @@ public class NotificationService {
 		log.trace("Request to send fileNumber notification email=[{}], parameters=[{}]", email, personalization);
 
 		final var request = Map.of("email_address", email, "template_id", templateId, "personalisation", personalization);
+		final var notificationReceipt = restTemplate.postForObject("/email", request, NotificationReceipt.class);
+		log.debug("Notification sent to email [{}] using template [{}]", email, templateId);
+
+		return notificationReceipt;
+	}
+
+	public NotificationReceipt sendRequestNotification(String email, Long requestId, String requestTitle, RequestEvent requestEvent) {
+		Assert.hasText(email, "email is required; it must not be blank or null");
+		Assert.notNull(requestId, "requestId is required; it must not be null");
+		Assert.hasText(requestTitle, "requestTitle is required; it must not be blank or null");
+
+		final var templateId = switch (requestEvent) {
+			case CREATED -> applicationProperties.gcnotify().requestCreatedTemplateId();
+			default -> throw new IllegalArgumentException("Unknown request event value " + requestEvent);
+		};
+
+		final var personalization = Map.of(
+			"requestId", requestId.toString(), 
+			"requestTitle", requestTitle
+		);
+
+		log.trace("Request to send request notification email=[{}], parameters=[{}]", email, personalization);
+
+		final var request = Map.of(
+			"email_address", email, 
+			"template_id", templateId, 
+			"personalisation", personalization
+		);
+
 		final var notificationReceipt = restTemplate.postForObject("/email", request, NotificationReceipt.class);
 		log.debug("Notification sent to email [{}] using template [{}]", email, templateId);
 

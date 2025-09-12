@@ -3,35 +3,23 @@ package ca.gov.dtsstn.vacman.api.service;
 import static ca.gov.dtsstn.vacman.api.data.repository.ProfileRepository.hasHrAdvisorId;
 import static ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException.asResourceNotFoundException;
 
-import ca.gov.dtsstn.vacman.api.web.exception.ResourceConflictException;
-import ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import static ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException.asResourceNotFoundException;
-
-import ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
+import org.mapstruct.factory.Mappers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes;
 import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes.RequestStatuses;
 import ca.gov.dtsstn.vacman.api.data.entity.RequestEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.RequestStatusEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 import ca.gov.dtsstn.vacman.api.data.repository.ClassificationRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.EmploymentEquityRepository;
@@ -44,27 +32,13 @@ import ca.gov.dtsstn.vacman.api.data.repository.RequestStatusRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.SecurityClearanceRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.SelectionProcessTypeRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.WorkScheduleRepository;
-import ca.gov.dtsstn.vacman.api.web.model.RequestUpdateModel;
-import org.springframework.stereotype.Service;
-
-import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes;
-import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes.RequestStatuses;
-import ca.gov.dtsstn.vacman.api.data.entity.RequestEntity;
-import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
-import ca.gov.dtsstn.vacman.api.data.repository.ClassificationRepository;
-import ca.gov.dtsstn.vacman.api.data.repository.EmploymentEquityRepository;
-import ca.gov.dtsstn.vacman.api.data.repository.LanguageRepository;
-import ca.gov.dtsstn.vacman.api.data.repository.LanguageRequirementRepository;
-import ca.gov.dtsstn.vacman.api.data.repository.NonAdvertisedAppointmentRepository;
-import ca.gov.dtsstn.vacman.api.data.repository.ProvinceRepository;
-import ca.gov.dtsstn.vacman.api.data.repository.RequestRepository;
-import ca.gov.dtsstn.vacman.api.data.repository.RequestStatusRepository;
-import ca.gov.dtsstn.vacman.api.data.repository.SecurityClearanceRepository;
-import ca.gov.dtsstn.vacman.api.data.repository.SelectionProcessTypeRepository;
-import ca.gov.dtsstn.vacman.api.data.repository.WorkScheduleRepository;
+import ca.gov.dtsstn.vacman.api.security.SecurityUtils;
+import ca.gov.dtsstn.vacman.api.service.NotificationService.RequestEvent;
+import ca.gov.dtsstn.vacman.api.web.exception.ResourceConflictException;
+import ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException;
+import ca.gov.dtsstn.vacman.api.web.exception.UnauthorizedException;
 import ca.gov.dtsstn.vacman.api.web.model.RequestUpdateModel;
 import ca.gov.dtsstn.vacman.api.web.model.mapper.RequestModelMapper;
-import org.mapstruct.factory.Mappers;
 
 @Service
 public class RequestService {
@@ -82,6 +56,8 @@ public class RequestService {
 	private final SelectionProcessTypeRepository selectionProcessTypeRepository;
 	private final WorkScheduleRepository workScheduleRepository;
 	private final RequestModelMapper requestModelMapper;
+	private final UserService userService;
+	private final NotificationService notificationService;
 
 	public RequestService(
 			LookupCodes lookupCodes,RequestRepository requestRepository,
@@ -95,6 +71,8 @@ public class RequestService {
 			SecurityClearanceRepository securityClearanceRepository,
 			SelectionProcessTypeRepository selectionProcessTypeRepository,
 			WorkScheduleRepository workScheduleRepository,
+			UserService userService,
+			NotificationService notificationService,
 			ApplicationEventPublisher eventPublisher) {
 		this.requestStatuses = lookupCodes.requestStatuses();
 		this.requestRepository = requestRepository;
@@ -106,6 +84,8 @@ public class RequestService {
 		this.securityClearanceRepository = securityClearanceRepository;
 		this.selectionProcessTypeRepository = selectionProcessTypeRepository;
 		this.workScheduleRepository = workScheduleRepository;
+		this.userService = userService;
+		this.notificationService = notificationService;
 		this.requestModelMapper = Mappers.getMapper(RequestModelMapper.class);
 	}
 
@@ -207,6 +187,123 @@ public class RequestService {
 		}
 
 		requestRepository.delete(request);
+	}
+
+	/**
+	 * Updates the request status based on the event type.
+	 * 
+	 * @param request The request entity to update
+	 * @param eventType The event type that triggered the status change
+	 * @return The updated request entity
+	 */
+	public RequestEntity updateRequestStatus(RequestEntity request, String eventType) {
+		// Get current user information
+		final var currentUser = SecurityUtils.getCurrentUserEntraId()
+			.flatMap(userService::getUserByMicrosoftEntraId)
+			.orElseThrow(() -> new UnauthorizedException("User not authenticated"));
+
+		final boolean isHrAdvisor = SecurityUtils.hasAuthority("hr-advisor");
+		final boolean isOwner = request.getSubmitter() != null && 
+							   request.getSubmitter().getId().equals(currentUser.getId());
+
+		// Get current status code
+		final String currentStatus = request.getRequestStatus().getCode();
+
+		RequestEntity updatedRequest;
+
+		switch (eventType) {
+			case "requestSubmitted" -> 
+				updatedRequest = handleRequestSubmitted(request, isOwner, currentStatus);
+			case "requestPickedUp" -> 
+				updatedRequest = handleRequestPickedUp(request, isHrAdvisor, currentStatus, currentUser);
+			default -> 
+				throw new IllegalArgumentException("Unknown event type: " + eventType);
+		}
+
+		return updateRequest(updatedRequest);
+	}
+
+	/**
+	 * Handles the requestSubmitted event.
+	 * 
+	 * @param request The request entity
+	 * @param isOwner Whether the current user is the owner of the request
+	 * @param currentStatus The current status code of the request
+	 * @return The updated request entity
+	 */
+	private RequestEntity handleRequestSubmitted(RequestEntity request, boolean isOwner, String currentStatus) {
+		if (!isOwner) {
+			throw new UnauthorizedException("Only the request owner can submit a request");
+		}
+
+		if (!requestStatuses.draft().equals(currentStatus)) {
+			throw new ResourceNotFoundException("Request must be in DRAFT status to be submitted");
+		}
+
+		// Set status to SUBMIT
+		request.setRequestStatus(getRequestStatusByCode(requestStatuses.submitted()));
+
+		// Send notification
+		sendRequestCreatedNotification(request);
+
+		return request;
+	}
+
+	/**
+	 * Handles the requestPickedUp event.
+	 * 
+	 * @param request The request entity
+	 * @param isHrAdvisor Whether the current user is an HR advisor
+	 * @param currentStatus The current status code of the request
+	 * @param currentUser The current user entity
+	 * @return The updated request entity
+	 */
+	private RequestEntity handleRequestPickedUp(RequestEntity request, boolean isHrAdvisor, 
+											   String currentStatus, UserEntity currentUser) {
+		if (!isHrAdvisor) {
+			throw new UnauthorizedException("Only HR advisors can pick up requests");
+		}
+
+		if (!requestStatuses.submitted().equals(currentStatus) && 
+			!requestStatuses.hrReview().equals(currentStatus)) {
+			throw new ResourceNotFoundException("Request must be in SUBMIT or HR_REVIEW status to be picked up");
+		}
+
+		// Set HR advisor
+		request.setHrAdvisor(currentUser);
+
+		// Set status to HR_REVIEW
+		request.setRequestStatus(getRequestStatusByCode(requestStatuses.hrReview()));
+
+		return request;
+	}
+
+	/**
+	 * Gets a RequestStatusEntity by its code.
+	 */
+	private RequestStatusEntity getRequestStatusByCode(String code) {
+		return requestStatusRepository.findByCode(code)
+			.orElseThrow(() -> new IllegalStateException("Request status not found: " + code));
+	}
+
+	/**
+	 * Sends a notification when a request is created.
+	 */
+	private void sendRequestCreatedNotification(RequestEntity request) {
+		UserEntity hrAdvisor = request.getHrAdvisor();
+
+		// If there's an HR advisor associated with the request, send the notification to their business email address (assumed to be the GD inbox)
+		// TODO: The requirements say to use HR groups GD inbox - should we create a field on the user entity for this?
+		if (hrAdvisor != null && hrAdvisor.getBusinessEmailAddress() != null) {
+			notificationService.sendRequestNotification(
+				hrAdvisor.getBusinessEmailAddress(),
+				request.getId(),
+				request.getNameEn(), // Using English title as the request title
+				RequestEvent.CREATED
+			);
+		} else {
+			log.warn("No HR advisor or business email address found for request ID: [{}]", request.getId());
+		}
 	}
 
 }

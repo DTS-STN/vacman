@@ -17,6 +17,7 @@ public record GcNotifyProperties(
 	@NotBlank String profileUpdatedTemplateId,
 	@NotBlank String profileApprovedTemplateId,
 	@NotBlank String profilePendingTemplateId,
+	@NotBlank String requestCreatedTemplateId,
 	@Nullable Duration connectTimeout,
 	@Nullable Duration readTimeout
 ) {}
