@@ -76,6 +76,22 @@ export function ErrorSummary({ className, errors, ...rest }: ErrorSummaryProps):
   );
 }
 
+export type Errors = Readonly<Record<string, [string, ...string[]] | undefined>>;
+
+function mapClientErrorsToSummaryItems(errors: Errors): ErrorSummaryItem[] {
+  const items: ErrorSummaryItem[] = [];
+
+  for (const [fieldId, messages] of Object.entries(errors)) {
+    if (messages && messages.length > 0) {
+      for (const message of messages) {
+        items.push({ fieldId, errorMessage: message });
+      }
+    }
+  }
+
+  return items;
+}
+
 /**
  * Props for the `ActionDataErrorSummary` component.
  */
@@ -85,6 +101,7 @@ type ActionDataErrorSummaryProps = ComponentPropsWithoutRef<'div'> & {
    * This triggers error collection when form or Fetcher data changes.
    */
   actionData: unknown | undefined;
+  clientErrors?: Readonly<Record<string, [string, ...string[]] | undefined>>;
 };
 
 /**
@@ -112,18 +129,26 @@ type ActionDataErrorSummaryProps = ComponentPropsWithoutRef<'div'> & {
  * }
  * ```
  */
-export function ActionDataErrorSummary({ actionData, children, ...rest }: ActionDataErrorSummaryProps): JSX.Element {
-  const [errors, setErrors] = useState<readonly ErrorSummaryItem[]>([]);
+export function ActionDataErrorSummary({
+  actionData,
+  clientErrors,
+  children,
+  ...rest
+}: ActionDataErrorSummaryProps): JSX.Element {
+  const [serverErrors, setServerErrors] = useState<readonly ErrorSummaryItem[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!containerRef.current) return;
-    setErrors(collectFormValidationErrors(containerRef.current));
+    setServerErrors(collectFormValidationErrors(containerRef.current));
   }, [actionData]);
+
+  const clientErrorItems: ErrorSummaryItem[] = clientErrors ? mapClientErrorsToSummaryItems(clientErrors) : [];
+  const allErrors = [...clientErrorItems, ...serverErrors];
 
   return (
     <div ref={containerRef} {...rest}>
-      {errors.length > 0 && <ErrorSummary errors={errors} />}
+      {allErrors.length > 0 && <ErrorSummary errors={allErrors} />}
       {children}
     </div>
   );
@@ -248,7 +273,9 @@ export function FetcherErrorSummary({ children, fetcherKey, ...rest }: FetcherEr
 /**
  * Props for the `FormErrorSummary` component.
  */
-type FormDataErrorSummaryProps = OmitStrict<ActionDataErrorSummaryProps, 'actionData'>;
+type FormDataErrorSummaryProps = OmitStrict<ActionDataErrorSummaryProps, 'actionData'> & {
+  clientErrors?: Readonly<Record<string, [string, ...string[]] | undefined>>;
+};
 
 /**
  * `FormErrorSummary` component collects and displays validation errors from a form.
@@ -273,10 +300,10 @@ type FormDataErrorSummaryProps = OmitStrict<ActionDataErrorSummaryProps, 'action
  * }
  * ```
  */
-export function FormErrorSummary({ children, ...rest }: FormDataErrorSummaryProps): JSX.Element {
+export function FormErrorSummary({ children, clientErrors, ...rest }: FormDataErrorSummaryProps): JSX.Element {
   const actionData = useActionData();
   return (
-    <ActionDataErrorSummary actionData={actionData} {...rest}>
+    <ActionDataErrorSummary actionData={actionData} clientErrors={clientErrors} {...rest}>
       {children}
     </ActionDataErrorSummary>
   );

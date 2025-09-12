@@ -432,7 +432,7 @@ export const mockRequests: RequestReadModel[] = [
     },
     workUnit: undefined,
     submitter: mockUsers[0], // John Doe
-    hiringManager: mockUsers[0], // John Doe
+    hiringManager: mockUsers[3], // John Doe
     subDelegatedManager: mockUsers[0], // John Doe
     hrAdvisor: mockUsers[3], // Bob Johnson
     languageOfCorrespondence: undefined,
