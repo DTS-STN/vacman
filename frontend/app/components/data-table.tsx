@@ -2,7 +2,15 @@ import { useState } from 'react';
 
 import { faSortUp, faSortDown } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import type { ColumnDef, SortingState, Column, Table as ReactTable, ColumnFiltersState } from '@tanstack/react-table';
+import type {
+  ColumnDef,
+  SortingState,
+  Column,
+  Table as ReactTable,
+  ColumnFiltersState,
+  PaginationState,
+  Updater,
+} from '@tanstack/react-table';
 import {
   flexRender,
   getCoreRowModel,
@@ -18,29 +26,61 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '~/components/table';
 import { cn } from '~/utils/tailwind-utils';
 
+interface DataTableServerPagination {
+  pageIndex: number;
+  pageCount: number;
+  onPageChange: (nextIndex: number) => void;
+}
+
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  // Optional: when provided, pagination is controlled by the parent (e.g., server-side pagination)
+  serverPagination?: DataTableServerPagination;
 }
 
-export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData, TValue>) {
+export function DataTable<TData, TValue>({ columns, data, serverPagination }: DataTableProps<TData, TValue>) {
   const { t } = useTranslation(['gcweb']);
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+
+  const manualPagination = Boolean(serverPagination);
+  const paginationState: PaginationState | undefined = manualPagination
+    ? { pageIndex: serverPagination?.pageIndex ?? 0, pageSize: data.length || 10 }
+    : undefined;
+  const handlePaginationChange: ((updater: Updater<PaginationState>) => void) | undefined = manualPagination
+    ? (updater: Updater<PaginationState>) => {
+        const prev: PaginationState = { pageIndex: serverPagination?.pageIndex ?? 0, pageSize: data.length || 10 };
+        const nextState =
+          typeof updater === 'function'
+            ? (updater as (old: PaginationState) => PaginationState)(prev)
+            : (updater as PaginationState);
+        if (typeof nextState.pageIndex === 'number' && serverPagination?.onPageChange) {
+          serverPagination.onPageChange(nextState.pageIndex);
+        }
+      }
+    : undefined;
 
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
+    // In manual/server-controlled pagination mode, don't slice rows locally to avoid flicker
+    ...(manualPagination ? {} : { getPaginationRowModel: getPaginationRowModel() }),
+    // Prevent bouncing back to page 0 when data changes under server-controlled pagination
+    autoResetPageIndex: !manualPagination,
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
     onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
+    manualPagination,
+    pageCount: manualPagination ? serverPagination?.pageCount : undefined,
     state: {
       sorting,
       columnFilters,
+      ...(manualPagination && paginationState ? { pagination: paginationState } : {}),
     },
+    onPaginationChange: handlePaginationChange,
   });
 
   return (
