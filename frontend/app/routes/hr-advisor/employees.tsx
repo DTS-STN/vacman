@@ -1,5 +1,5 @@
 import type { JSX } from 'react';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useId, useMemo, useState } from 'react';
 
 import type { RouteHandle } from 'react-router';
 import { data, useFetcher, useSearchParams } from 'react-router';
@@ -18,7 +18,7 @@ import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { BackLink } from '~/components/back-link';
 import { DataTable, DataTableColumnHeader, DataTableColumnHeaderWithOptions } from '~/components/data-table';
-import { ActionDataErrorSummary } from '~/components/error-summary';
+import { FetcherErrorSummary } from '~/components/error-summary';
 import { InputField } from '~/components/input-field';
 import { InputSelect } from '~/components/input-select';
 import { InlineLink } from '~/components/links';
@@ -62,8 +62,11 @@ export async function action({ context, request }: Route.ActionArgs) {
     return data({ errors: v.flatten(parseResult.issues).nested }, { status: HttpStatusCodes.BAD_REQUEST });
   }
 
-  const userResult = await getUserService().getUserByEmail(parseResult.output.email, context.session.authState.accessToken);
-  const user = userResult.into();
+  const userResult = await getUserService().getUsers(
+    { email: parseResult.output.email },
+    context.session.authState.accessToken,
+  );
+  const user = userResult.into()?.content[0];
   // TODO: create profile for the user and update with correct profileId
   return i18nRedirect('routes/hr-advisor/employee-profile/index.tsx', request, {
     params: { profileId: user?.id.toString() },
@@ -220,7 +223,7 @@ export default function EmployeeDashboard({ loaderData, actionData, params }: Ro
         {t('app:hr-advisor-employees-table.back-to-dashboard')}
       </BackLink>
 
-      <ActionDataErrorSummary actionData={actionData}>
+      <FetcherErrorSummary fetcherKey={useId()}>
         <h2 className="font-lato mt-8 text-lg font-semibold">{t('app:hr-advisor-employees-table.create-profile')}</h2>
         <section className="mb-8 flex flex-col justify-between gap-8 sm:flex-row">
           <fetcher.Form method="post" noValidate className="grid place-content-between items-end gap-2 sm:grid-cols-2">
@@ -255,7 +258,7 @@ export default function EmployeeDashboard({ loaderData, actionData, params }: Ro
             className="w-full"
           />
         </section>
-      </ActionDataErrorSummary>
+      </FetcherErrorSummary>
 
       {/* ARIA live region for screen reader announcements */}
       <div aria-live="polite" role="status" className="sr-only">
