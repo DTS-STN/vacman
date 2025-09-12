@@ -295,6 +295,7 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
         data={loaderData.profiles}
         serverPagination={{
           // Derive 0-based index from URL 'page' (1-based in URL/backend) and clamp to range
+          // React Table requires pageIndex to be 0-based
           pageIndex: Math.min(
             Math.max(0, loaderData.page.totalPages - 1),
             Math.max(0, (Number.parseInt(searchParams.get('page') ?? '1', 10) || 1) - 1),
