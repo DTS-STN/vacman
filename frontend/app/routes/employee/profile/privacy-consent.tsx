@@ -121,11 +121,11 @@ function PrivacyEn(): JSX.Element {
         in accordance with paragraph 8(2) (a) of the Privacy Act for the following activities: reporting and statistical
         analysis.
       </p>
-      <p className="font-semibold">
+      <strong className="block font-semibold">
         Registration in the <HtmlAbbreviation acronymEnum={Acronym.VMS} /> is voluntary, and you may, without prejudice, refuse.
         If you do not consent to the sharing of your personal information, <HtmlAbbreviation acronymEnum={Acronym.ESDC} /> will
         not be able to use the <HtmlAbbreviation acronymEnum={Acronym.VMS} /> to identify possible job opportunities for you.
-      </p>
+      </strong>
       <p>
         In accordance with the provisions of the Privacy Act, the personal information collected in the{' '}
         <HtmlAbbreviation acronymEnum={Acronym.VMS} /> is described in the Personal Information Bank (
@@ -193,12 +193,12 @@ function PrivacyFr(): JSX.Element {
         fins non administratives conformément à l&apos;alinéa 8(2)a) de la Loi sur la protection des renseignements personnels
         pour les activités suivantes : rapports et analyses statistiques.
       </p>
-      <p className="font-semibold">
+      <strong className="block font-semibold">
         L&apos;inscription au <HtmlAbbreviation acronymEnum={Acronym.VMS} /> est volontaire, et vous pouvez, sans préjudice,
         refuser. Si vous ne consentez pas à la communication de vos renseignements personnels,{' '}
         <HtmlAbbreviation acronymEnum={Acronym.ESDC} /> ne sera pas en mesure d&apos;utiliser le{' '}
         <HtmlAbbreviation acronymEnum={Acronym.VMS} /> pour vous identifier des possibilités d&apos;emploi.
-      </p>
+      </strong>
       <p>
         Conformément aux dispositions de la Loi sur la protection des renseignements personnels, les renseignements personnels
         recueillis dans le <HtmlAbbreviation acronymEnum={Acronym.VMS} /> sont décrits dans le fichier de renseignements
