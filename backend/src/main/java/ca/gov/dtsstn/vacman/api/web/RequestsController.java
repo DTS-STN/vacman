@@ -33,6 +33,7 @@ import ca.gov.dtsstn.vacman.api.service.UserService;
 import ca.gov.dtsstn.vacman.api.web.model.CollectionModel;
 import ca.gov.dtsstn.vacman.api.web.model.ProfileReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.RequestReadModel;
+import ca.gov.dtsstn.vacman.api.web.model.RequestStatusUpdateModel;
 import ca.gov.dtsstn.vacman.api.web.model.RequestUpdateModel;
 import ca.gov.dtsstn.vacman.api.web.model.mapper.RequestModelMapper;
 import ca.gov.dtsstn.vacman.api.web.validator.ValidHrAdvisorParam;
@@ -196,8 +197,18 @@ public class RequestsController {
 	@ApiResponses.UnprocessableEntityError
 	@Operation(summary = "Update the status of a request.")
 	@PreAuthorize("hasAuthority('hr-advisor') || hasPermission(#id, 'REQUEST', 'UPDATE')")
-	public ResponseEntity<RequestReadModel> updateRequestStatus(@PathVariable Long id, @Valid @RequestBody Object statusUpdate) {
-		throw new UnsupportedOperationException("not yet implemented");
+	public ResponseEntity<RequestReadModel> updateRequestStatus(@PathVariable Long id, @Valid @RequestBody RequestStatusUpdateModel statusUpdate) {
+		log.info("Received request to update request status; ID: [{}], Event: [{}]", 
+				id, statusUpdate.eventType());
+
+		final var request = requestService.getRequestById(id)
+			.orElseThrow(asResourceNotFoundException("request", id));
+
+		log.trace("Found request: [{}]", request);
+
+		final var updatedEntity = requestService.updateRequestStatus(request, statusUpdate.eventType());
+
+		return ResponseEntity.ok(requestModelMapper.toModel(updatedEntity));
 	}
 
 	//
