@@ -24,6 +24,7 @@ import { InputSelect } from '~/components/input-select';
 import { InlineLink } from '~/components/links';
 import { LoadingButton } from '~/components/loading-button';
 import { PageTitle } from '~/components/page-title';
+import { Pagination } from '~/components/pagination';
 import { PROFILE_STATUS_CODE } from '~/domain/constants';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { useFetcherState } from '~/hooks/use-fetcher-state';
@@ -290,25 +291,21 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
         {srAnnouncement}
       </div>
 
-      <DataTable
-        columns={columns}
-        data={loaderData.profiles}
-        serverPagination={{
-          // Derive 0-based index from URL 'page' (1-based in URL/backend) and clamp to range
-          // React Table requires pageIndex to be 0-based
-          pageIndex: Math.min(
-            Math.max(0, loaderData.page.totalPages - 1),
-            Math.max(0, (Number.parseInt(searchParams.get('page') ?? '1', 10) || 1) - 1),
-          ),
-          pageCount: loaderData.page.totalPages,
-          onPageChange: (nextIndex) => {
-            const filter = searchParams.get('filter') ?? 'all';
-            const size = searchParams.get('size') ?? '10';
-            const clamped = Math.min(Math.max(0, nextIndex), Math.max(0, loaderData.page.totalPages - 1));
-            // Write 1-based page to URL
-            setSearchParams({ filter, page: String(clamped + 1), size });
-          },
+      <DataTable columns={columns} data={loaderData.profiles} showPagination={false} />
+
+      <Pagination
+        pageIndex={Math.min(
+          Math.max(0, loaderData.page.totalPages - 1),
+          Math.max(0, (Number.parseInt(searchParams.get('page') ?? '1', 10) || 1) - 1),
+        )}
+        pageCount={loaderData.page.totalPages}
+        onPageChange={(nextIndex) => {
+          const filter = searchParams.get('filter') ?? 'all';
+          const size = searchParams.get('size') ?? '10';
+          const clamped = Math.min(Math.max(0, nextIndex), Math.max(0, loaderData.page.totalPages - 1));
+          setSearchParams({ filter, page: String(clamped + 1), size });
         }}
+        className="my-4"
       />
     </div>
   );
