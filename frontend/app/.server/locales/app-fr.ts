@@ -3,7 +3,7 @@ import type appEn from '~/.server/locales/app-en';
 export default {
   'index': {
     'about': "L'initiative VacMan!",
-    'dashboard': 'Interface',
+    'dashboard': 'Tableau de bord',
     'page-title': 'Sélectionnez votre tableau de bord',
     'get-started': 'Débuter',
     'navigate': 'Accédez au portail des employés',
