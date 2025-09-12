@@ -18,6 +18,7 @@ import { DataTable, DataTableColumnHeader, DataTableColumnHeaderWithOptions } fr
 import { InputSelect } from '~/components/input-select';
 import { InlineLink } from '~/components/links';
 import { PageTitle } from '~/components/page-title';
+import { Pagination } from '~/components/pagination';
 import { PROFILE_STATUS_CODE } from '~/domain/constants';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
@@ -39,10 +40,20 @@ export async function loader({ context, request }: Route.LoaderArgs) {
   // Filter profiles based on hr-advisor selection. Options 'My Employees' or 'All employees'
   const url = new URL(request.url);
   const filter = url.searchParams.get('filter');
+  // Server-side pagination params with sensible defaults
+  const pageParam = url.searchParams.get('page');
+  const sizeParam = url.searchParams.get('size');
+  // URL 'page' is treated as 1-based for the backend; default to 1 if missing/invalid
+  const pageOneBased = Math.max(1, Number.parseInt(pageParam ?? '1', 10) || 1);
+  // Keep page size modest for wire efficiency, cap to prevent abuse
+  const size = Math.min(50, Math.max(1, Number.parseInt(sizeParam ?? '10', 10) || 10));
 
   const profileParams = {
     'active': true, // will return In Progress, Pending Approval and Approved
     'hr-advisor': filter === 'me' ? filter : undefined, // 'me' is used in the API to filter for the current HR advisor
+    // Backend expects 1-based page index
+    'page': pageOneBased,
+    'size': size,
   };
 
   const profileService = getProfileService();
@@ -69,6 +80,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
   return {
     documentTitle: t('app:index.employees'),
     profiles: filteredAllProfiles,
+    page: profiles.page,
     statuses,
     baseTimeZone: serverEnvironment.BASE_TIMEZONE,
     lang,
@@ -78,7 +90,8 @@ export async function loader({ context, request }: Route.LoaderArgs) {
 export default function EmployeeDashboard({ loaderData, params }: Route.ComponentProps) {
   const { t } = useTranslation(handle.i18nNamespace);
 
-  const [, setSearchParams] = useSearchParams({ filter: 'all' });
+  // Keep URL 'page' 1-based; DataTable remains 0-based internally
+  const [searchParams, setSearchParams] = useSearchParams({ filter: 'all', page: '1', size: '10' });
   const [browserTZ, setBrowserTZ] = useState<string | null>(null);
   const [srAnnouncement, setSrAnnouncement] = useState('');
 
@@ -194,9 +207,11 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
         options={employeesOptions}
         label=""
         aria-label={t('app:hr-advisor-employees-table.filter-by')}
-        defaultValue="all"
+        defaultValue={searchParams.get('filter') ?? 'all'}
         onChange={({ target }) => {
-          setSearchParams({ filter: target.value });
+          const size = searchParams.get('size') ?? '10';
+          // Reset to page 1 (1-based) on filter change
+          setSearchParams({ filter: target.value, page: '1', size });
           // Announce table filtering change to screen readers
           const message =
             target.value === 'me'
@@ -212,7 +227,22 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
         {srAnnouncement}
       </div>
 
-      <DataTable columns={columns} data={loaderData.profiles} />
+      <DataTable columns={columns} data={loaderData.profiles} showPagination={false} />
+
+      <Pagination
+        pageIndex={Math.min(
+          Math.max(0, loaderData.page.totalPages - 1),
+          Math.max(0, (Number.parseInt(searchParams.get('page') ?? '1', 10) || 1) - 1),
+        )}
+        pageCount={loaderData.page.totalPages}
+        onPageChange={(nextIndex) => {
+          const filter = searchParams.get('filter') ?? 'all';
+          const size = searchParams.get('size') ?? '10';
+          const clamped = Math.min(Math.max(0, nextIndex), Math.max(0, loaderData.page.totalPages - 1));
+          setSearchParams({ filter, page: String(clamped + 1), size });
+        }}
+        className="my-4"
+      />
     </div>
   );
 }

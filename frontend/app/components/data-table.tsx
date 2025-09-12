@@ -21,9 +21,11 @@ import { cn } from '~/utils/tailwind-utils';
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  // Whether to render the built-in pagination UI. If false, caller should render their own.
+  showPagination?: boolean;
 }
 
-export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData, TValue>) {
+export function DataTable<TData, TValue>({ columns, data, showPagination = true }: DataTableProps<TData, TValue>) {
   const { t } = useTranslation(['gcweb']);
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -32,7 +34,9 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
+    // Only enable local pagination when the pagination UI is shown.
+    ...(showPagination ? { getPaginationRowModel: getPaginationRowModel() } : {}),
+    autoResetPageIndex: true,
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
     onColumnFiltersChange: setColumnFilters,
@@ -99,9 +103,11 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
           )}
         </TableBody>
       </Table>
-      <div className="my-4">
-        <DataTablePagination table={table} />
-      </div>
+      {showPagination && (
+        <div className="my-4">
+          <DataTablePagination table={table} />
+        </div>
+      )}
     </>
   );
 }
