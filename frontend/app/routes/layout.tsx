@@ -16,12 +16,17 @@ import { SkipNavigationLinks } from '~/components/skip-navigation-links';
 import { useLanguage } from '~/hooks/use-language';
 import { uselayoutHasDecorativeBackground } from '~/hooks/use-layout-has-background';
 import { useRoute } from '~/hooks/use-route';
+import { getFixedT } from '~/i18n-config.server';
+import { getAltLanguage, getLanguage } from '~/utils/i18n-utils';
 
 export const handle = {
   i18nNamespace: ['gcweb', 'app'],
 } as const satisfies RouteHandle;
 
 export async function loader({ context, request }: Route.LoaderArgs) {
+  const altLang = getAltLanguage(getLanguage(request) ?? 'en');
+  const altT = await getFixedT(altLang, 'gcweb');
+
   // First ensure the user is authenticated (no specific roles required)
   requireAuthentication(context.session, request);
 
@@ -31,7 +36,11 @@ export async function loader({ context, request }: Route.LoaderArgs) {
 
   await checkHrAdvisorRouteRegistration(context.session, request);
 
-  return { name: context.session.authState.idTokenClaims.name };
+  return {
+    name: context.session.authState.idTokenClaims.name,
+    altLang,
+    altLogoText: altT('header.govt-of-canada.text'),
+  };
 }
 
 export default function Layout({ loaderData }: Route.ComponentProps) {
@@ -56,6 +65,9 @@ export default function Layout({ loaderData }: Route.ComponentProps) {
                 height="28"
                 decoding="async"
               />
+              <span className="sr-only">
+                / <span lang={loaderData.altLang}>{loaderData.altLogoText}</span>
+              </span>
             </AppLink>
             <LanguageSwitcher>{t('gcweb:language-switcher.alt-lang')}</LanguageSwitcher>
           </div>
