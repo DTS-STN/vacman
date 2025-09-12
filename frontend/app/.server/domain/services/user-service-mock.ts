@@ -80,6 +80,14 @@ export function getMockUserService(): UserService {
         // Filter users based on query parameters
         let filteredUsers = [...mockUsers];
 
+        // Apply email filter if provided
+        if (params.email) {
+          filteredUsers = filteredUsers.filter((u) => u.businessEmailAddress === params.email);
+          if (filteredUsers.length === 0) {
+            filteredUsers = [createUserFromEmail(params.email)];
+          }
+        }
+
         // Apply user type filter if provided
         if (params['user-type']) {
           filteredUsers = filteredUsers.filter(

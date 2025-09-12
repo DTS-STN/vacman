@@ -227,6 +227,7 @@ export type UserQueryParams = {
   'size'?: number;
   'sort'?: string[];
   'user-type'?: string;
+  'email'?: string;
 };
 
 export type ProfileQueryParams = {

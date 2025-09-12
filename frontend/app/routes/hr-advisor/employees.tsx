@@ -1,5 +1,5 @@
 import type { JSX } from 'react';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useId, useMemo, useState } from 'react';
 
 import type { RouteHandle } from 'react-router';
 import { data, Form, useSearchParams } from 'react-router';
@@ -14,13 +14,13 @@ import type { Profile, ProfileStatus } from '~/.server/domain/models';
 import { getProfileService } from '~/.server/domain/services/profile-service';
 import { getProfileStatusService } from '~/.server/domain/services/profile-status-service';
 import { getUserService } from '~/.server/domain/services/user-service';
-import { serverEnvironment } from '~/.server/environment';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { BackLink } from '~/components/back-link';
 import { Button } from '~/components/button';
 import { DataTable, DataTableColumnHeader, DataTableColumnHeaderWithOptions } from '~/components/data-table';
 import { FormErrorSummary } from '~/components/error-summary';
+import { FetcherErrorSummary } from '~/components/error-summary';
 import { InputField } from '~/components/input-field';
 import { InputSelect } from '~/components/input-select';
 import { InlineLink } from '~/components/links';
@@ -62,8 +62,11 @@ export async function action({ context, request }: Route.ActionArgs) {
     return data({ errors: v.flatten(parseResult.issues).nested }, { status: HttpStatusCodes.BAD_REQUEST });
   }
 
-  const userResult = await getUserService().getUserById(0, context.session.authState.accessToken);
-  const user = userResult.into();
+  const userResult = await getUserService().getUsers(
+    { email: parseResult.output.email },
+    context.session.authState.accessToken,
+  );
+  const user = userResult.into()?.content[0];
   // TODO: create profile for the user and update with correct profileId
   return i18nRedirect('routes/hr-advisor/employee-profile/index.tsx', request, {
     params: { profileId: user?.id.toString() },

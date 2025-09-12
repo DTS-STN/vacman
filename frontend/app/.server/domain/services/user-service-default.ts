@@ -22,6 +22,7 @@ export function getDefaultUserService(): UserService {
       if (params.page !== undefined) searchParams.append('page', params.page.toString());
       if (params.size !== undefined) searchParams.append('size', params.size.toString());
       if (params['user-type']) searchParams.append('user-type', params['user-type']);
+      if (params.email) searchParams.append('email', params.email);
       if (params.sort) {
         params.sort.forEach((sortParam) => searchParams.append('sort', sortParam));
       }
