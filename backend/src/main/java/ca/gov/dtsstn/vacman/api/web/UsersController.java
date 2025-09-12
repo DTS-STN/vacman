@@ -36,9 +36,11 @@ import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 import ca.gov.dtsstn.vacman.api.security.SecurityUtils;
 import ca.gov.dtsstn.vacman.api.service.CodeService;
 import ca.gov.dtsstn.vacman.api.service.MSGraphService;
+import ca.gov.dtsstn.vacman.api.service.ProfileService;
 import ca.gov.dtsstn.vacman.api.service.UserService;
 import ca.gov.dtsstn.vacman.api.web.exception.ResourceConflictException;
 import ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException;
+import ca.gov.dtsstn.vacman.api.web.model.ProfileReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.UserCreateModel;
 import ca.gov.dtsstn.vacman.api.web.model.UserPatchModel;
 import ca.gov.dtsstn.vacman.api.web.model.UserReadFilterModel;
@@ -66,6 +68,8 @@ public class UsersController {
 
 	private final MSGraphService msGraphService;
 
+	private final ProfileService profileService;
+
 	private final UserModelMapper userModelMapper = Mappers.getMapper(UserModelMapper.class);
 
 	private final UserService userService;
@@ -75,12 +79,14 @@ public class UsersController {
 			CodeService codeService,
 			LookupCodes lookupCodes,
 			MSGraphService msGraphService,
+			ProfileService profileService,
 			UserService userService) {
 		this.codeService = codeService;
 		this.entraRoles = applicationProperties.entraId().roles();
-		this.msGraphService = msGraphService;
-		this.userService = userService;
 		this.lookupCodes = lookupCodes;
+		this.msGraphService = msGraphService;
+		this.profileService = profileService;
+		this.userService = userService;
 	}
 
 	@ApiResponses.Ok
@@ -258,6 +264,32 @@ public class UsersController {
 		userService.getUserById(id).orElseThrow(asResourceNotFoundException("user", id));
 		final var updatedUser = userService.overwriteUser(id, userModelMapper.toEntity(userUpdate));
 		return ResponseEntity.ok(userModelMapper.toModel(updatedUser));
+	}
+
+	@ApiResponses.Ok
+	@ApiResponses.BadRequestError
+	@ApiResponses.AccessDeniedError
+	@ApiResponses.AuthenticationError
+	@PostMapping({ "/{id}/profiles" })
+	@ApiResponses.ResourceNotFoundError
+	@Operation(summary = "Create a new profile for a user.")
+	@PreAuthorize("hasAuthority('hr-advisor') || hasPermission(#id, 'USER', 'UPDATE')")
+	public ResponseEntity<ProfileReadModel> createProfileForUser(@PathVariable long id) {
+		log.debug("Request to create new profile for userId={}", id);
+
+		final var hasExistingProfile = profileService.getActiveProfilesByUserId(id).size() > 0;
+
+		if (hasExistingProfile) {
+			throw new ResourceConflictException("User with id=[" + id + "] already has an active profile");
+		}
+
+		/// 2. Create profile w/ current user's id set to hr advisor field
+
+		profileService.createProfile(null);
+
+		/// 3. Return profile
+
+		throw new UnsupportedOperationException("not yet implemented");
 	}
 
 	private LanguageEntity getEnglishLanguage() {
