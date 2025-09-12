@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import type { JSX } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import type { JSX, MouseEvent } from 'react';
 
 import { Form, useActionData, useFetcher } from 'react-router';
 import type { Params } from 'react-router';
@@ -12,6 +12,7 @@ import type {
   LocalizedLanguageOfCorrespondence,
   RequestReadModel,
 } from '~/.server/domain/models';
+import { AlertMessage } from '~/components/alert-message';
 import { Button } from '~/components/button';
 import { ButtonLink } from '~/components/button-link';
 import { FormErrorSummary } from '~/components/error-summary';
@@ -81,15 +82,54 @@ export function SubmissionDetailsForm({
     `${formValues?.subDelegatedManager?.firstName ?? ''} ${formValues?.subDelegatedManager?.lastName ?? ''}`.trim(),
   );
 
+  const [isHiringManagerEmailVerified, setIsHiringManagerEmailVerified] = useState(!!formValues?.hiringManager);
+  const [isSubDelegatedManagerEmailVerified, setIsSubDelegatedManagerEmailVerified] = useState(
+    !!formValues?.subDelegatedManager,
+  );
+
+  const [showHiringManagerEmailChangeError, setShowHiringManagerEmailChangeError] = useState(false);
+  const [showSubDelegatedManagerEmailChangeError, setShowSubDelegatedManagerEmailChangeError] = useState(false);
+
+  function onHiringManagerEmailChange() {
+    setIsHiringManagerEmailVerified(false); // email changed, needs re-verification
+    setHiringManagerName('');
+  }
+
+  function onSubDelegatedManagerEmailChange() {
+    setIsSubDelegatedManagerEmailVerified(false); // email changed, needs re-verification
+    setSubDelegatedManagerName('');
+  }
+
+  //on submit check if isHiringManagerEmailVerified or isSubDelegatedManagerEmailVerified is false then show error
+  function handleEmailVerification(event: MouseEvent<HTMLButtonElement>) {
+    if (!isHiringManagerEmailVerified || !isSubDelegatedManagerEmailVerified) {
+      if (!isHiringManagerEmailVerified) setShowHiringManagerEmailChangeError(true);
+      if (!isSubDelegatedManagerEmailVerified) setShowSubDelegatedManagerEmailChangeError(true);
+      event.preventDefault();
+      return;
+    }
+  }
+
+  const alertRef = useRef<HTMLDivElement>(null);
+
+  if (showHiringManagerEmailChangeError && alertRef.current) {
+    alertRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    alertRef.current.focus();
+  }
+
   useEffect(() => {
     if (actionData?.hiringManagerName) {
       setHiringManagerName(actionData.hiringManagerName);
+      setIsHiringManagerEmailVerified(true);
+      setShowHiringManagerEmailChangeError(false);
     }
   }, [actionData?.hiringManagerName]);
 
   useEffect(() => {
     if (actionData?.subDelegatedManagerName) {
       setSubDelegatedManagerName(actionData.subDelegatedManagerName);
+      setIsSubDelegatedManagerEmailVerified(true);
+      setShowSubDelegatedManagerEmailChangeError(false);
     }
   }, [actionData?.subDelegatedManagerName]);
 
@@ -203,6 +243,24 @@ export function SubmissionDetailsForm({
       <FormErrorSummary>
         <Form method="post" noValidate>
           <div className="space-y-6">
+            {showHiringManagerEmailChangeError && (
+              <AlertMessage
+                ref={alertRef}
+                type={'error'}
+                message={tApp('submission-details.errors.hiring-manager-email-unverified')}
+                role="alert"
+                ariaLive="assertive"
+              />
+            )}
+            {showSubDelegatedManagerEmailChangeError && (
+              <AlertMessage
+                ref={alertRef}
+                type={'error'}
+                message={tApp('submission-details.errors.sub-delegate-email-unverified')}
+                role="alert"
+                ariaLive="assertive"
+              />
+            )}
             <NameTag
               name={
                 view === 'hiring-manager'
@@ -256,6 +314,7 @@ export function SubmissionDetailsForm({
                     label={tApp('submission-details.hiring-manager-email')}
                     defaultValue={formValues?.hiringManager?.businessEmailAddress}
                     errorMessage={tApp(extractValidationKey(errors?.hiringManagerEmailAddress))}
+                    onChange={onHiringManagerEmailChange}
                     required
                   />
                   <LoadingButton
@@ -297,6 +356,7 @@ export function SubmissionDetailsForm({
                     label={tApp('submission-details.sub-delegate-email')}
                     defaultValue={formValues?.subDelegatedManager?.businessEmailAddress}
                     errorMessage={tApp(extractValidationKey(errors?.subDelegatedManagerEmailAddress))}
+                    onChange={onSubDelegatedManagerEmailChange}
                     required
                   />
                   <LoadingButton
@@ -364,7 +424,7 @@ export function SubmissionDetailsForm({
               <ButtonLink file={cancelLink} params={params} id="cancel-button" variant="alternative">
                 {tApp('form.cancel')}
               </ButtonLink>
-              <Button name="action" variant="primary" value="submit" id="save-button">
+              <Button name="action" variant="primary" value="submit" id="save-button" onClick={handleEmailVerification}>
                 {tApp('form.save')}
               </Button>
             </div>
