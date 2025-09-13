@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import type { JSX } from 'react';
+import type { JSX, MouseEvent } from 'react';
 
 import { Form, useActionData, useFetcher } from 'react-router';
 import type { Params } from 'react-router';
@@ -81,15 +81,89 @@ export function SubmissionDetailsForm({
     `${formValues?.subDelegatedManager?.firstName ?? ''} ${formValues?.subDelegatedManager?.lastName ?? ''}`.trim(),
   );
 
+  const [isHiringManagerEmailVerified, setIsHiringManagerEmailVerified] = useState(!!formValues?.hiringManager);
+  const [isSubDelegatedManagerEmailVerified, setIsSubDelegatedManagerEmailVerified] = useState(
+    !!formValues?.subDelegatedManager,
+  );
+
+  const [clientErrors, setClientErrors] = useState<Errors>({});
+
+  function onHiringManagerEmailChange() {
+    setIsHiringManagerEmailVerified(false); // email changed, needs re-verification
+    setHiringManagerName('');
+  }
+
+  function onSubDelegatedManagerEmailChange() {
+    setIsSubDelegatedManagerEmailVerified(false); // email changed, needs re-verification
+    setSubDelegatedManagerName('');
+  }
+
+  function handleSearchHiringManagerEmailAddress() {
+    setClientErrors((prev) => {
+      // Remove error for hiringManagerEmailAddress only
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { hiringManagerEmailAddress, ...rest } = prev;
+      return rest;
+    });
+  }
+
+  function handleSearchSubDelegatedManagerEmailAddress() {
+    setClientErrors((prev) => {
+      // Remove error for subDelegatedManagerEmailAddress only
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { subDelegatedManagerEmailAddress, ...rest } = prev;
+      return rest;
+    });
+  }
+
+  //on submit check if hirirng manager email or sub delegated manager email is not verified then show error
+  function handleEmailVerification(event: MouseEvent<HTMLButtonElement>) {
+    let newErrors: Errors = {};
+    if (!isHiringManagerEmailVerified) {
+      newErrors = {
+        ...newErrors,
+        hiringManagerEmailAddress: [tApp('submission-details.errors.hiring-manager-email-unverified')],
+      };
+    }
+    if (!isSubDelegatedManagerEmailVerified) {
+      newErrors = {
+        ...newErrors,
+        subDelegatedManagerEmailAddress: [tApp('submission-details.errors.sub-delegate-email-unverified')],
+      };
+    }
+    if (Object.keys(newErrors).length > 0) {
+      event.preventDefault();
+      setClientErrors(newErrors);
+    } else {
+      setClientErrors({});
+    }
+  }
+
+  const mergedErrors = { ...(actionData?.errors ?? {}), ...clientErrors };
+
   useEffect(() => {
     if (actionData?.hiringManagerName) {
       setHiringManagerName(actionData.hiringManagerName);
+      setIsHiringManagerEmailVerified(true);
+      setClientErrors((prev) => {
+        // Remove error for hiringManagerEmailAddress only
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { hiringManagerEmailAddress, ...rest } = prev;
+        return rest;
+      });
     }
   }, [actionData?.hiringManagerName]);
 
   useEffect(() => {
     if (actionData?.subDelegatedManagerName) {
       setSubDelegatedManagerName(actionData.subDelegatedManagerName);
+      setIsSubDelegatedManagerEmailVerified(true);
+      setClientErrors((prev) => {
+        // Remove error for subDelegatedManagerEmailAddress only
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { subDelegatedManagerEmailAddress, ...rest } = prev;
+        return rest;
+      });
     }
   }, [actionData?.subDelegatedManagerName]);
 
@@ -200,7 +274,7 @@ export function SubmissionDetailsForm({
       <PageTitle className="after:w-14" subTitle={tApp('referral-request')}>
         {tApp('submission-details.page-title')}
       </PageTitle>
-      <FormErrorSummary>
+      <FormErrorSummary clientErrors={clientErrors}>
         <Form method="post" noValidate>
           <div className="space-y-6">
             <NameTag
@@ -255,7 +329,8 @@ export function SubmissionDetailsForm({
                     name="hiringManagerEmailAddress"
                     label={tApp('submission-details.hiring-manager-email')}
                     defaultValue={formValues?.hiringManager?.businessEmailAddress}
-                    errorMessage={tApp(extractValidationKey(errors?.hiringManagerEmailAddress))}
+                    errorMessage={tApp(extractValidationKey(mergedErrors.hiringManagerEmailAddress))}
+                    onChange={onHiringManagerEmailChange}
                     required
                   />
                   <LoadingButton
@@ -265,6 +340,7 @@ export function SubmissionDetailsForm({
                     id="search-hiring-manager-button"
                     disabled={fetcherState.submitting}
                     loading={fetcherState.submitting && fetcherState.action === 'searchHiringManagerEmailAddress'}
+                    onClick={handleSearchHiringManagerEmailAddress}
                   >
                     {tApp('submission-details.search')}
                   </LoadingButton>
@@ -296,7 +372,8 @@ export function SubmissionDetailsForm({
                     name="subDelegatedManagerEmailAddress"
                     label={tApp('submission-details.sub-delegate-email')}
                     defaultValue={formValues?.subDelegatedManager?.businessEmailAddress}
-                    errorMessage={tApp(extractValidationKey(errors?.subDelegatedManagerEmailAddress))}
+                    errorMessage={tApp(extractValidationKey(mergedErrors.subDelegatedManagerEmailAddress))}
+                    onChange={onSubDelegatedManagerEmailChange}
                     required
                   />
                   <LoadingButton
@@ -306,6 +383,7 @@ export function SubmissionDetailsForm({
                     id="search-sub-delegate-manager-button"
                     disabled={fetcherState.submitting}
                     loading={fetcherState.submitting && fetcherState.action === 'searchSubDelegatedManagerEmailAddress'}
+                    onClick={handleSearchSubDelegatedManagerEmailAddress}
                   >
                     {tApp('submission-details.search')}
                   </LoadingButton>
@@ -364,7 +442,7 @@ export function SubmissionDetailsForm({
               <ButtonLink file={cancelLink} params={params} id="cancel-button" variant="alternative">
                 {tApp('form.cancel')}
               </ButtonLink>
-              <Button name="action" variant="primary" value="submit" id="save-button">
+              <Button name="action" variant="primary" value="submit" id="save-button" onClick={handleEmailVerification}>
                 {tApp('form.save')}
               </Button>
             </div>
