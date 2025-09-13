@@ -2,10 +2,14 @@ package ca.gov.dtsstn.vacman.api.service;
 
 import static ca.gov.dtsstn.vacman.api.data.repository.ProfileRepository.hasHrAdvisorId;
 import static ca.gov.dtsstn.vacman.api.data.repository.ProfileRepository.hasProfileStatusCodeIn;
+import static ca.gov.dtsstn.vacman.api.data.repository.ProfileRepository.hasUserId;
 import static ca.gov.dtsstn.vacman.api.data.repository.ProfileRepository.hasUserMicrosoftEntraId;
 import static ca.gov.dtsstn.vacman.api.security.SecurityUtils.getCurrentUserEntraId;
 import static ca.gov.dtsstn.vacman.api.web.exception.ResourceConflictException.asResourceConflictException;
 import static ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException.asResourceNotFoundException;
+import static java.util.stream.Collectors.collectingAndThen;
+import static java.util.stream.Collectors.toList;
+import static org.springframework.data.jpa.domain.Specification.not;
 
 import java.util.List;
 import java.util.Map;
@@ -18,7 +22,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes;
+import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes.ProfileStatuses;
 import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes.UserTypes;
+import ca.gov.dtsstn.vacman.api.data.entity.AbstractBaseEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 import ca.gov.dtsstn.vacman.api.data.repository.CityRepository;
@@ -34,6 +40,7 @@ import ca.gov.dtsstn.vacman.api.event.ProfileCreateEvent;
 import ca.gov.dtsstn.vacman.api.event.ProfileReadEvent;
 import ca.gov.dtsstn.vacman.api.event.ProfileStatusChangeEvent;
 import ca.gov.dtsstn.vacman.api.event.ProfileUpdatedEvent;
+import ca.gov.dtsstn.vacman.api.security.SecurityUtils;
 import ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException;
 import ca.gov.dtsstn.vacman.api.web.model.ProfilePutModel;
 
@@ -70,6 +77,8 @@ public class ProfileService {
 
 	private final UserTypes userTypeCodes;
 
+	private final ProfileStatuses profileStatuses;
+
 	// Keys are tied to the potential values of getProfilesByStatusAndHrId parameter isActive.
 	private static final Map<Boolean, Set<String>> profileStatusSets = Map.of(
 		Boolean.TRUE, ACTIVE_PROFILE_STATUS,
@@ -89,18 +98,19 @@ public class ProfileService {
 			ApplicationEventPublisher eventPublisher,
 			LanguageReferralTypeRepository languageReferralTypeRepository,
 			LookupCodes lookupCodes) {
-		this.classificationRepository = classificationRepository;
-		this.profileRepository = profileRepository;
-		this.languageRepository = languageRepository;
 		this.cityRepository = cityRepository;
-		this.profileStatusRepository = profileStatusRepository;
+		this.classificationRepository = classificationRepository;
 		this.employmentOpportunityRepository = employmentOpportunityRepository;
-		this.userService = userService;
-		this.wfaStatusRepository = wfaStatusRepository;
-		this.workUnitRepository = workUnitRepository;
 		this.eventPublisher = eventPublisher;
 		this.languageReferralTypeRepository = languageReferralTypeRepository;
+		this.languageRepository = languageRepository;
+		this.profileRepository = profileRepository;
+		this.profileStatuses = lookupCodes.profileStatuses();
+		this.profileStatusRepository = profileStatusRepository;
+		this.userService = userService;
 		this.userTypeCodes = lookupCodes.userTypes();
+		this.wfaStatusRepository = wfaStatusRepository;
+		this.workUnitRepository = workUnitRepository;
 	}
 
 	/**
@@ -119,12 +129,12 @@ public class ProfileService {
 		if (isActive != null) {
 			final var statusCodes = profileStatusSets.get(isActive);
 
-			profilesPage = (hrAdvisorId == null)
+			profilesPage = hrAdvisorId == null
 				? profileRepository.findAll(hasProfileStatusCodeIn(statusCodes), pageable)
 				: profileRepository.findAll(hasHrAdvisorId(hrAdvisorId).and(hasProfileStatusCodeIn(statusCodes)), pageable);
 		}
 		else {
-			profilesPage = (hrAdvisorId == null)
+			profilesPage = hrAdvisorId == null
 				? profileRepository.findAll(pageable)
 				: profileRepository.findAll(hasHrAdvisorId(hrAdvisorId), pageable);
 		}
@@ -141,6 +151,24 @@ public class ProfileService {
 	}
 
 	/**
+	 * Returns all non-archived profiles owned by a user.
+	 */
+	public List<ProfileEntity> getActiveProfilesByUserId(long userId) {
+		final var currentUserEntraId = SecurityUtils.getCurrentUserEntraId().orElse("UNKNOWN");
+
+		final var isNotArchived = not(hasProfileStatusCodeIn(List.of(profileStatuses.archived())));
+		final var profiles = profileRepository.findAll(hasUserId(userId).and(isNotArchived));
+
+		final var profileReadEvent = profiles.stream()
+			.map(AbstractBaseEntity::getId)
+			.collect(collectingAndThen(toList(), ids -> new ProfileReadEvent(ids, currentUserEntraId)));
+
+		eventPublisher.publishEvent(profileReadEvent);
+
+		return profiles;
+	}
+
+	/**
 	 * Returns all profiles that are either "active" or "inactive" depending on the argument value & that
 	 * have a matching Microsoft Entra ID.
 	 * @param entraId The Microsoft Entra ID for filtering.
@@ -148,7 +176,7 @@ public class ProfileService {
 	 * @return A collection of profile entities.
 	 */
 	public List<ProfileEntity> getProfilesByEntraId(String entraId, Boolean isActive) {
-		final var profiles = (isActive != null)
+		final var profiles = isActive != null
 			? profileRepository.findAll(hasUserMicrosoftEntraId(entraId).and(hasProfileStatusCodeIn(profileStatusSets.get(isActive))))
 			: profileRepository.findAll(hasUserMicrosoftEntraId(entraId));
 
@@ -220,7 +248,7 @@ public class ProfileService {
 	public ProfileEntity updateProfile(ProfilePutModel updateModel, ProfileEntity profile) {
 		profile.setWfaStartDate(updateModel.wfaStartDate());
 		profile.setWfaEndDate(updateModel.wfaEndDate());
-		profile.setPersonalPhoneNumber((updateModel.personalPhoneNumber()));
+		profile.setPersonalPhoneNumber(updateModel.personalPhoneNumber());
 		profile.setPersonalEmailAddress(updateModel.personalEmailAddress());
 		profile.setIsAvailableForReferral(updateModel.isAvailableForReferral());
 		profile.setIsInterestedInAlternation(updateModel.isInterestedInAlternation());
