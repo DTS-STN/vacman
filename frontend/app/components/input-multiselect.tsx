@@ -202,6 +202,7 @@ export function InputMultiSelect(props: InputMultiSelectProps) {
                     id={`${optionId}-checkbox`}
                     name={`${name}-${optionProps.value}`}
                     checked={isSelected}
+                    disabled={true}
                     readOnly={true}
                     required={required}
                     hasError={!!errorMessage}
