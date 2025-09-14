@@ -41,6 +41,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.util.Optional;
+import ca.gov.dtsstn.vacman.api.data.entity.AbstractBaseEntity;
 
 @RestController
 @ApiResponses.AccessDeniedError
@@ -74,21 +76,18 @@ public class RequestsController {
 			@ParameterObject Pageable pageable,
 			@RequestParam(name = "hr-advisor", required = false) @ValidHrAdvisorParam String hrAdvisorParam) {
 
-		Long hrAdvisorId = null;
-
-		if (hrAdvisorParam != null) {
-			if ("me".equalsIgnoreCase(hrAdvisorParam)) {
+		final var hrAdvisorId = Optional.ofNullable(hrAdvisorParam).flatMap(id -> switch (id) {
+			case "me" -> {
 				final var entraId = SecurityUtils.getCurrentUserEntraId()
 					.orElseThrow(asEntraIdUnauthorizedException());
 
-				final var currentUser = userService.getUserByMicrosoftEntraId(entraId)
-					.orElseThrow(asUserResourceNotFoundException("microsoftEntraId", entraId));
-
-				hrAdvisorId = currentUser.getId();
-			} else {
-				hrAdvisorId = Long.parseLong(hrAdvisorParam);
+				yield userService.getUserByMicrosoftEntraId(entraId)
+					.map(AbstractBaseEntity::getId);
 			}
-		}
+			default -> {
+				yield Optional.of(Long.valueOf(id));
+			}
+		}).orElseThrow(asUserResourceNotFoundException("microsoftEntraId", hrAdvisorParam));
 
 		final var requests = requestService.getAllRequests(pageable, hrAdvisorId);
 

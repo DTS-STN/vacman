@@ -13,12 +13,11 @@ import jakarta.validation.Payload;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.FIELD, ElementType.PARAMETER, ElementType.TYPE_USE })
 @Constraint(validatedBy = HrAdvisorParamValidator.class)
-public @interface ValidHrAdvisorParam {
+public @interface ValidHrAdvisorParam { 
+	String message() default "Invalid hr-advisor parameter. Must be 'me' or a valid user ID.";
 
-    String message() default "Invalid hr-advisor parameter. Must be 'me' or a valid user ID.";
+	Class<?>[] groups() default {};
 
-    Class<?>[] groups() default {};
-
-    Class<? extends Payload>[] payload() default {};
+	Class<? extends Payload>[] payload() default {};
 
 }

@@ -27,4 +27,14 @@ public interface Ownable {
 		return Collections.emptySet();
 	}
 
+	/**
+	 * Checks if the given user ID is the owner of this entity.
+	 * 
+	 * @param userId The user ID to check
+	 * @return true if the user is the owner, false otherwise
+	 */
+	default boolean isOwnedBy(Long userId) {
+		return getOwnerId().map(ownerId -> ownerId.equals(userId)).orElse(false);
+	}
+
 }

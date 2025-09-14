@@ -1,6 +1,5 @@
 package ca.gov.dtsstn.vacman.api.service;
 
-import static ca.gov.dtsstn.vacman.api.data.repository.ProfileRepository.hasHrAdvisorId;
 import static ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException.asResourceNotFoundException;
 
 import java.util.List;
@@ -13,7 +12,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes;
@@ -122,8 +120,7 @@ public class RequestService {
 			return requestRepository.findAll(pageable);
 		} else {
 			return requestRepository.findAll(
-				(root, query, criteriaBuilder) ->
-						criteriaBuilder.equal(root.get("hrAdvisor").get("id"), hrAdvisorId),
+				RequestRepository.hasHrAdvisorId(hrAdvisorId),
 				pageable
 			);
 		}
@@ -179,10 +176,10 @@ public class RequestService {
 
 
 	public void deleteRequest(Long requestId) {
-		RequestEntity request = getRequestById(requestId)
+		final var request = getRequestById(requestId)
 			.orElseThrow(asResourceNotFoundException("request", requestId));
 
-		if (!"DRAFT".equals(request.getRequestStatus().getCode())) {
+		if (!requestStatuses.draft().equals(request.getRequestStatus().getCode())) {
 			throw new ResourceConflictException("Request with ID=[" + requestId + "] cannot be deleted because its status is not DRAFT");
 		}
 
@@ -203,22 +200,20 @@ public class RequestService {
 			.orElseThrow(() -> new UnauthorizedException("User not authenticated"));
 
 		final boolean isHrAdvisor = SecurityUtils.hasAuthority("hr-advisor");
-		final boolean isOwner = request.getSubmitter() != null && 
-							   request.getSubmitter().getId().equals(currentUser.getId());
+		final boolean isOwner = request.isOwnedBy(currentUser.getId());
 
 		// Get current status code
 		final String currentStatus = request.getRequestStatus().getCode();
 
-		RequestEntity updatedRequest;
 
-		switch (eventType) {
-			case "requestSubmitted" -> 
-				updatedRequest = handleRequestSubmitted(request, isOwner, currentStatus);
-			case "requestPickedUp" -> 
-				updatedRequest = handleRequestPickedUp(request, isHrAdvisor, currentStatus, currentUser);
-			default -> 
+		final var updatedRequest = switch (eventType) {
+			case "requestSubmitted" ->
+				handleRequestSubmitted(request, isOwner, currentStatus);
+			case "requestPickedUp" ->
+				handleRequestPickedUp(request, isHrAdvisor, currentStatus, currentUser);
+			default ->
 				throw new IllegalArgumentException("Unknown event type: " + eventType);
-		}
+		};
 
 		return updateRequest(updatedRequest);
 	}
@@ -266,7 +261,7 @@ public class RequestService {
 
 		if (!requestStatuses.submitted().equals(currentStatus) && 
 			!requestStatuses.hrReview().equals(currentStatus)) {
-			throw new ResourceNotFoundException("Request must be in SUBMIT or HR_REVIEW status to be picked up");
+			throw new ResourceConflictException("Request must be in SUBMIT or HR_REVIEW status to be picked up");
 		}
 
 		// Set HR advisor
@@ -290,7 +285,7 @@ public class RequestService {
 	 * Sends a notification when a request is created.
 	 */
 	private void sendRequestCreatedNotification(RequestEntity request) {
-		UserEntity hrAdvisor = request.getHrAdvisor();
+		final var hrAdvisor = request.getHrAdvisor();
 
 		// If there's an HR advisor associated with the request, send the notification to their business email address (assumed to be the GD inbox)
 		// TODO: The requirements say to use HR groups GD inbox - should we create a field on the user entity for this?
@@ -310,7 +305,7 @@ public class RequestService {
 	 * Sends a notification when a request is approved and feedback is pending.
 	 */
 	private void sendRequestFeedbackPendingNotification(RequestEntity request) {
-		UserEntity owner = request.getSubmitter();
+		final var owner = request.getSubmitter();
 
 		// If there's an owner associated with the request, send the notification to their business email address
 		if (owner != null && owner.getBusinessEmailAddress() != null) {
@@ -332,11 +327,6 @@ public class RequestService {
 	 * @return The updated request entity
 	 */
 	public RequestEntity approveRequest(RequestEntity request) {
-		// Get current user information
-		final var currentUser = SecurityUtils.getCurrentUserEntraId()
-			.flatMap(userService::getUserByMicrosoftEntraId)
-			.orElseThrow(() -> new UnauthorizedException("User not authenticated"));
-
 		final boolean isHrAdvisor = SecurityUtils.hasAuthority("hr-advisor");
 
 		// Get current status code
@@ -362,7 +352,7 @@ public class RequestService {
 		}
 
 		if (!requestStatuses.hrReview().equals(currentStatus)) {
-			throw new ResourceNotFoundException("Request must be in HR_REVIEW status to be approved");
+			throw new ResourceConflictException("Request must be in HR_REVIEW status to be approved");
 		}
 
 		boolean hasMatches = createMatches(request);
