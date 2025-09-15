@@ -35,7 +35,6 @@ export function Pagination({ pageIndex, pageCount, onPageChange, className }: Pa
               onClick={() => onPageChange(i)}
               aria-current={pageIndex === i ? 'page' : undefined}
             >
-              <span className="sr-only">{t('gcweb:data-table.pagination.first-page')}</span>
               {i + 1}
             </Button>
           ))}
