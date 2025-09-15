@@ -89,11 +89,15 @@ export default {
   'data-table': {
     'zero-records': 'Aucune entrée correspondante trouvée',
     'pagination': {
+      'label': 'Pagination',
       'info_zero': 'Affichage de 0 à 0 sur 0 entrées',
       'info_one': 'Affichage de {{start}} à {{end}} sur {{count}} entré',
       'info_other': 'Affichage de {{start}} à {{end}} sur {{count}} entrées',
       'page-size': 'Entrées par page',
       'page-info': 'Page {{index}} de {{count}}',
+      'page-status': 'Page {{index}} sur {{count}}',
+      'page-button-current': 'Page actuelle, page {{index}}',
+      'page-button-go-to': 'Aller à la page {{index}}',
       'first-page': 'Aller à la première page',
       'previous-page': 'Aller à la page précédente',
       'next-page': 'Aller à la page suivante',
