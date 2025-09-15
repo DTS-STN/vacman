@@ -2,7 +2,7 @@ import { Err, None, Ok, Some } from 'oxide.ts';
 import type { Option, Result } from 'oxide.ts';
 
 import type { User, UserCreate, UserUpdate, PagedUserResponse, UserQueryParams, PageMetadata } from '~/.server/domain/models';
-import { createUserFromEmail, mockUsers } from '~/.server/domain/services/mockData';
+import { createUserFromEmail, mockUsers } from '~/.server/domain/services/mock-data';
 import type { UserService } from '~/.server/domain/services/user-service';
 import { LogFactory } from '~/.server/logging';
 import { AppError } from '~/errors/app-error';

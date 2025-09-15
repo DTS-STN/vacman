@@ -15,7 +15,7 @@ import { getDirectorateService } from '~/.server/domain/services/directorate-ser
 import { getEmploymentOpportunityTypeService } from '~/.server/domain/services/employment-opportunity-type-service';
 import { getLanguageForCorrespondenceService } from '~/.server/domain/services/language-for-correspondence-service';
 import { getLanguageReferralTypeService } from '~/.server/domain/services/language-referral-type-service';
-import { createAndLinkNewMockProfile, mockProfiles } from '~/.server/domain/services/mockData';
+import { createAndLinkNewMockProfile, mockProfiles } from '~/.server/domain/services/mock-data';
 import type { ProfileService } from '~/.server/domain/services/profile-service';
 import { getWFAStatuses } from '~/.server/domain/services/wfa-status-service';
 import { LogFactory } from '~/.server/logging';

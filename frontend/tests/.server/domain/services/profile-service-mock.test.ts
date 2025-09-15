@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { ProfilePutModel, ProfileStatusUpdate } from '~/.server/domain/models';
-import { buildProfilesFromTemplates, getInitialMockUsers, mockProfiles, mockUsers } from '~/.server/domain/services/mockData';
+import { buildProfilesFromTemplates, getInitialMockUsers, mockProfiles, mockUsers } from '~/.server/domain/services/mock-data';
 import { getMockProfileService } from '~/.server/domain/services/profile-service-mock';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
