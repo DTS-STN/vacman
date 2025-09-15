@@ -59,7 +59,7 @@ export default function RequestsTables({
           const requestId = info.row.original.id.toString();
           return (
             <InlineLink
-              className="text-sky-800 no-underline decoration-slate-400 decoration-2 hover:underline"
+              className="text-sky-800 decoration-slate-400 decoration-2"
               file={`routes/${view}/request/index.tsx`}
               params={{ requestId }}
               aria-label={t('requests-tables.view-link', {
@@ -114,7 +114,7 @@ export default function RequestsTables({
           const requestId = info.row.original.id.toString();
           return (
             <InlineLink
-              className="text-sky-800 no-underline decoration-slate-400 decoration-2 hover:underline"
+              className="text-sky-800 decoration-slate-400 decoration-2"
               file={`routes/${view}/request/index.tsx`}
               params={{ requestId }}
               aria-label={t('requests-tables.view-link', {

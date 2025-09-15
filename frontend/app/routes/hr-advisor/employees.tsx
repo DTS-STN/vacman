@@ -1,5 +1,5 @@
 import type { JSX } from 'react';
-import { useEffect, useId, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import type { RouteHandle } from 'react-router';
 import { data, useFetcher, useSearchParams } from 'react-router';
@@ -18,7 +18,7 @@ import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { BackLink } from '~/components/back-link';
 import { DataTable, DataTableColumnHeader, DataTableColumnHeaderWithOptions } from '~/components/data-table';
-import { FetcherErrorSummary } from '~/components/error-summary';
+import { ActionDataErrorSummary } from '~/components/error-summary';
 import { InputField } from '~/components/input-field';
 import { InputSelect } from '~/components/input-select';
 import { InlineLink } from '~/components/links';
@@ -223,14 +223,14 @@ export default function EmployeeDashboard({ loaderData, actionData, params }: Ro
         {t('app:hr-advisor-employees-table.back-to-dashboard')}
       </BackLink>
 
-      <FetcherErrorSummary fetcherKey={useId()}>
+      <ActionDataErrorSummary actionData={fetcher.data}>
         <h2 className="font-lato mt-8 text-lg font-semibold">{t('app:hr-advisor-employees-table.create-profile')}</h2>
         <section className="mb-8 flex flex-col justify-between gap-8 sm:flex-row">
           <fetcher.Form method="post" noValidate className="grid place-content-between items-end gap-2 sm:grid-cols-2">
             <InputField
               label={t('app:hr-advisor-employees-table.employee-work-email')}
               name="email"
-              errorMessage={t(extractValidationKey(actionData?.errors?.email))}
+              errorMessage={t(extractValidationKey(fetcher.data?.errors?.email))}
               required
               className="w-full"
             />
@@ -258,7 +258,7 @@ export default function EmployeeDashboard({ loaderData, actionData, params }: Ro
             className="w-full"
           />
         </section>
-      </FetcherErrorSummary>
+      </ActionDataErrorSummary>
 
       {/* ARIA live region for screen reader announcements */}
       <div aria-live="polite" role="status" className="sr-only">
