@@ -31,6 +31,7 @@ import { useFetcherState } from '~/hooks/use-fetcher-state';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
 import { formatDateTimeInZone } from '~/utils/date-utils';
+import { clampPageIndex } from '~/utils/math-utils';
 import { formString } from '~/utils/string-utils';
 import { extractValidationKey } from '~/utils/validation-utils';
 
@@ -294,16 +295,13 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
       <DataTable columns={columns} data={loaderData.profiles} showPagination={false} />
 
       <Pagination
-        pageIndex={Math.min(
-          Math.max(0, loaderData.page.totalPages - 1),
-          Math.max(0, (Number.parseInt(searchParams.get('page') ?? '1', 10) || 1) - 1),
-        )}
+        pageIndex={clampPageIndex((Number.parseInt(searchParams.get('page') ?? '1', 10) || 1) - 1, loaderData.page.totalPages)}
         pageCount={loaderData.page.totalPages}
         onPageChange={(nextIndex) => {
           const filter = searchParams.get('filter') ?? 'all';
           const size = searchParams.get('size') ?? '10';
-          const clamped = Math.min(Math.max(0, nextIndex), Math.max(0, loaderData.page.totalPages - 1));
-          setSearchParams({ filter, page: String(clamped + 1), size });
+          const clampedIndex = clampPageIndex(nextIndex, loaderData.page.totalPages);
+          setSearchParams({ filter, page: String(clampedIndex + 1), size });
         }}
         className="my-4"
       />
