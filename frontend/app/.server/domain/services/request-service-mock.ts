@@ -15,7 +15,7 @@ import { getClassificationService } from '~/.server/domain/services/classificati
 import { getEmploymentEquityService } from '~/.server/domain/services/employment-equity-service';
 import { getEmploymentTenureService } from '~/.server/domain/services/employment-tenure-service';
 import { getLanguageRequirementService } from '~/.server/domain/services/language-requirement-service';
-import { createMockRequest, mockRequests } from '~/.server/domain/services/mockData';
+import { createMockRequest, mockRequests } from '~/.server/domain/services/mock-data';
 import { getNonAdvertisedAppointmentService } from '~/.server/domain/services/non-advertised-appointment-service';
 import type { RequestService } from '~/.server/domain/services/request-service';
 import { getSecurityClearanceService } from '~/.server/domain/services/security-clearance-service';
