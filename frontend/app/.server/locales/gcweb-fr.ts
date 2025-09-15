@@ -95,7 +95,6 @@ export default {
       'info_other': 'Affichage de {{start}} à {{end}} sur {{count}} entrées',
       'page-size': 'Entrées par page',
       'page-info': 'Page {{index}} de {{count}}',
-      'page-status': 'Page {{index}} sur {{count}}',
       'page-button-current': 'Page actuelle, page {{index}}',
       'page-button-go-to': 'Aller à la page {{index}}',
       'first-page': 'Aller à la première page',

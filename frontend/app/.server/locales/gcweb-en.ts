@@ -93,7 +93,6 @@ export default {
       'info_other': 'Showing {{start}} to {{end}} of {{count}} entries',
       'page-size': 'Entries per page',
       'page-info': 'Page {{index}} of {{count}}',
-      'page-status': 'Page {{index}} of {{count}}',
       'page-button-current': 'Current page, page {{index}}',
       'page-button-go-to': 'Go to page {{index}}',
       'first-page': 'Go to first page',

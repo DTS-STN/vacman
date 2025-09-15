@@ -25,7 +25,7 @@ export function Pagination({ pageIndex, pageCount, onPageChange, className }: Pa
   return (
     <nav aria-label={t('gcweb:data-table.pagination.label', { defaultValue: 'Pagination' })} className={cn('px-2', className)}>
       {/* Current page and total for screen readers */}
-      <p className="sr-only">{t('gcweb:data-table.pagination.page-status', { index: pageIndex + 1, count: pageCount })}</p>
+      <p className="sr-only">{t('gcweb:data-table.pagination.page-info', { index: pageIndex + 1, count: pageCount })}</p>
       <ul className="flex items-center gap-2">
         {Array.from({ length: pageCount }, (_, i) => {
           const isCurrent = pageIndex === i;
