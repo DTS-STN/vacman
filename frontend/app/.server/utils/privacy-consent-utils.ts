@@ -27,12 +27,7 @@ const log = LogFactory.getLogger(import.meta.url);
  * @param currentUrl - The current request URL for redirect context
  * @throws {Response} Redirect to index page if user hasn't accepted privacy consent
  */
-async function checkPrivacyConsentForUser(
-  accessToken: string,
-  userId: number,
-  currentUrl: URL,
-  userRoles?: string[],
-): Promise<void> {
+async function checkPrivacyConsentForUser(accessToken: string, userId: number, currentUrl: URL): Promise<void> {
   const profileParams = { active: true };
   const profileResult = await getProfileService().getCurrentUserProfiles(profileParams, accessToken);
 
@@ -44,13 +39,7 @@ async function checkPrivacyConsentForUser(
   const profiles = profileResult.unwrap().content;
   if (profiles.length === 0) {
     log.debug(`No profiles found for user ${userId}`);
-
-    // Redirect based on roles
-    if (userRoles?.includes('hr-advisor')) {
-      throw i18nRedirect('routes/hr-advisor/index.tsx', currentUrl);
-    } else {
-      throw i18nRedirect('routes/employee/index.tsx', currentUrl);
-    }
+    throw i18nRedirect('routes/index.tsx', currentUrl);
   }
 
   // Check the first (active) profile for privacy consent
@@ -80,8 +69,7 @@ export async function requirePrivacyConsent(session: AuthenticatedSession, curre
   }
 
   const currentUser = currentUserOption.unwrap();
-  const userRoles = session.authState.accessTokenClaims.roles;
-  await checkPrivacyConsentForUser(session.authState.accessToken, currentUser.id, currentUrl, userRoles);
+  await checkPrivacyConsentForUser(session.authState.accessToken, currentUser.id, currentUrl);
 }
 
 /**
@@ -133,8 +121,7 @@ export async function requirePrivacyConsentForOwnProfile(session: AuthenticatedS
 
   // Use the existing pattern for checking privacy consent
   const currentUser = currentUserOption.unwrap();
-  const userRoles = session.authState.accessTokenClaims.roles;
-  await checkPrivacyConsentForUser(session.authState.accessToken, currentUser.id, currentUrl, userRoles);
+  await checkPrivacyConsentForUser(session.authState.accessToken, currentUser.id, currentUrl);
 }
 
 /**
