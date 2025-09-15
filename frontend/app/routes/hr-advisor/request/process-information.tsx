@@ -91,12 +91,12 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 
   const requestPayload: RequestUpdateModel = {
     selectionProcessNumber: parseResult.output.selectionProcessNumber,
-    workforceManagementApproved: parseResult.output.approvalReceived,
+    workforceMgmtApprovalRecvd: parseResult.output.approvalReceived,
     priorityEntitlement: parseResult.output.priorityEntitlement,
     priorityEntitlementRationale: parseResult.output.priorityEntitlementRationale,
     selectionProcessTypeId: parseResult.output.selectionProcessType,
-    performedSameDuties: parseResult.output.performedDuties,
-    nonAdvertisedAppointmentId: parseResult.output.nonAdvertisedAppointment,
+    hasPerformedSameDuties: parseResult.output.performedDuties,
+    appointmentNonAdvertisedId: parseResult.output.nonAdvertisedAppointment,
     employmentTenureId: parseResult.output.employmentTenure,
     projectedStartDate: parseResult.output.projectedStartDate,
     projectedEndDate: parseResult.output.projectedEndDate,

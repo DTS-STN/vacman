@@ -237,34 +237,6 @@ export type ProfileQueryParams = {
   'hr-advisor'?: string;
 };
 
-// Request Create Model
-export type RequestCreateModel = Readonly<{
-  selectionProcessNumber?: string;
-  workforceManagementApproved?: boolean;
-  priorityEntitlement: boolean;
-  priorityEntitlementRationale?: string;
-  selectionProcessTypeId: number;
-  performedSameDuties: boolean;
-  nonAdvertisedAppointmentId: number;
-  projectedStartDate: string; // ISO date string
-  projectedEndDate: string; // ISO date string
-  workScheduleId: number;
-  equityNeeded: boolean;
-  employmentEquityIds?: number[];
-  positionNumbers: string[];
-  classificationId: number;
-  englishTitle: string;
-  frenchTitle: string;
-  languageRequirementId: number;
-  englishLanguageProfile: string;
-  frenchLanguageProfile: string;
-  securityClearanceId: number;
-  englishStatementOfMerit: string;
-  frenchStatementOfMerit: string;
-  employmentTenureId: number;
-  cityIds: number[];
-}>;
-
 // Request Read Model
 export type RequestReadModel = Readonly<{
   // Main fields
@@ -312,8 +284,46 @@ export type RequestReadModel = Readonly<{
   lastModifiedDate?: string;
 }>;
 
-// Request Update Model (same structure as Create but all fields optional for PATCH)
-export type RequestUpdateModel = Partial<RequestCreateModel>;
+// Request Update Model (PATCH)
+export type RequestUpdateModel = Partial<{
+  additionalComment: string;
+  alternateContactEmailAddress: string;
+  appointmentNonAdvertisedId: number;
+  classificationId: number;
+  employmentTenureId: number;
+  englishLanguageProfile: string;
+  englishStatementOfMerit: string;
+  englishTitle: string;
+  equityNeeded: boolean;
+  frenchLanguageProfile: string;
+  frenchStatementOfMerit: string;
+  frenchTitle: string;
+  hasPerformedSameDuties: boolean;
+  hiringManagerId: number;
+  hrAdvisorId: number;
+  languageOfCorrespondenceId: number;
+  languageRequirementId: number;
+  positionNumbers: string[];
+  priorityClearanceNumber: string;
+  priorityEntitlement: boolean;
+  priorityEntitlementRationale: string;
+  projectedEndDate: string;
+  projectedStartDate: string;
+  pscClearanceNumber: string;
+  requestNumber: string;
+  securityClearanceId: number;
+  selectionProcessNumber: string;
+  selectionProcessTypeId: number;
+  statusId: number;
+  subDelegatedManagerId: number;
+  submitterId: number;
+  teleworkAllowed: boolean;
+  workforceMgmtApprovalRecvd: boolean;
+  workScheduleId: number;
+  workUnitId: number;
+  cityIds: number[];
+  employmentEquityIds: number[];
+}>;
 
 // Request Response Models
 export type PagedRequestResponse = Readonly<{

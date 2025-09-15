@@ -109,11 +109,11 @@ public record RequestCreateModel(
 	Long languageRequirementId,
 
 	@NotBlank(message = "English language profile is required")
-	@Schema(description = "The English langauge profile", example = "???")
+	@Schema(description = "The English language profile", example = "???")
 	String englishLanguageProfile,
 
 	@NotBlank(message = "French language profile is required")
-	@Schema(description = "The French langauge profile", example = "???")
+	@Schema(description = "The French language profile", example = "???")
 	String frenchLanguageProfile,
 
 	@NotNull(message = "Security clearance ID is required")
