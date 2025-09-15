@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { JSX } from 'react';
+import type { JSX, SyntheticEvent } from 'react';
 
 import { Form } from 'react-router';
 import type { Params } from 'react-router';
@@ -166,6 +166,13 @@ export function ReferralPreferencesForm({
     );
   };
 
+  const handleSelectAllCities = (e: SyntheticEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    setSrAnnouncement(tApp('referral-preferences.select-all-sr'));
+    setSelectedCities(cities.map(({ id }) => id.toString()));
+    setProvince((provinces.at(0)?.id ?? 0).toString());
+  };
+
   return (
     <>
       <PageTitle className="after:w-14">{tApp('referral-preferences.page-title')}</PageTitle>
@@ -207,6 +214,9 @@ export function ReferralPreferencesForm({
                 {tApp('referral-preferences.work-location')}
               </InputLegend>
               <InputHelp id="workLocationHelpMessage">{tApp('form.select-work-locations')}</InputHelp>
+              <Button variant="primary" onClick={handleSelectAllCities}>
+                {tApp('referral-preferences.select-all')}
+              </Button>
               <InputSelect
                 ariaDescribedbyId="workLocationHelpMessage"
                 className="w-full sm:w-1/2"
