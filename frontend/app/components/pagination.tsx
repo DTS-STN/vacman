@@ -23,34 +23,44 @@ export function Pagination({ pageIndex, pageCount, onPageChange, className }: Pa
   if (pageCount <= 1) return null;
 
   return (
-    <div className={cn('flex items-center justify-between px-2', className)}>
-      <div className="flex items-center space-x-6 lg:space-x-8">
-        <div className="flex items-center space-x-2">
-          {Array.from({ length: pageCount }, (_, i) => (
-            <Button
-              key={i}
-              type="button"
-              variant="outline"
-              className={cn('h-8 w-8 p-0 text-sm', pageIndex === i ? 'bg-slate-700 text-white' : 'border-hidden underline')}
-              onClick={() => onPageChange(i)}
-              aria-current={pageIndex === i ? 'page' : undefined}
-            >
-              {i + 1}
-            </Button>
-          ))}
+    <nav aria-label={t('gcweb:data-table.pagination.label', { defaultValue: 'Pagination' })} className={cn('px-2', className)}>
+      {/* Current page and total for screen readers */}
+      <p className="sr-only">{t('gcweb:data-table.pagination.page-status', { index: pageIndex + 1, count: pageCount })}</p>
+      <ul className="flex items-center gap-2">
+        {Array.from({ length: pageCount }, (_, i) => {
+          const isCurrent = pageIndex === i;
+          const label = isCurrent
+            ? t('gcweb:data-table.pagination.page-button-current', { index: i + 1 })
+            : t('gcweb:data-table.pagination.page-button-go-to', { index: i + 1 });
+          return (
+            <li key={i}>
+              <Button
+                type="button"
+                variant="outline"
+                className={cn('h-8 w-8 p-0 text-sm', isCurrent ? 'bg-slate-700 text-white' : 'border-hidden underline')}
+                onClick={() => onPageChange(i)}
+                aria-current={isCurrent ? 'page' : undefined}
+                aria-label={label}
+              >
+                {i + 1}
+              </Button>
+            </li>
+          );
+        })}
+        <li>
           <Button
             type="button"
             variant="ghost"
             onClick={() => onPageChange(Math.min(pageIndex + 1, pageCount - 1))}
             disabled={pageIndex >= pageCount - 1}
+            aria-label={t('gcweb:data-table.pagination.next-page', { defaultValue: 'Next page' })}
             className={cn('h-8 border-hidden px-2 text-sm font-medium underline transition-colors duration-200')}
           >
-            <span className="sr-only">{t('gcweb:data-table.pagination.next-page')}</span>
             {t('app:hr-advisor-employees-table.next-page')}
           </Button>
-        </div>
-      </div>
-    </div>
+        </li>
+      </ul>
+    </nav>
   );
 }
 
