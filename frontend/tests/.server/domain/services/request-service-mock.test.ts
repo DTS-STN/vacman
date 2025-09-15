@@ -1,17 +1,33 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, beforeEach, vi } from 'vitest';
 
-import { mockRequests, createMockRequest } from '~/.server/domain/services/mockData';
-import { getMockRequestService } from '~/.server/domain/services/request-service-mock';
+import type { RequestService } from '~/.server/domain/services/request-service';
 import { ErrorCodes } from '~/errors/error-codes';
 
-const requests = mockRequests;
-const mockRequestService = getMockRequestService();
-
 describe('RequestServiceMock', () => {
-  beforeEach(() => {
-    requests.length = 0;
-    requests.push(...Array.from({ length: 5 }, (_, i) => createMockRequest(`user-${i}`)));
-    vi.clearAllMocks();
+  let requestService: RequestService;
+
+  beforeEach(async () => {
+    vi.resetModules();
+    const { getMockRequestService } = await import('~/.server/domain/services/request-service-mock');
+    requestService = getMockRequestService();
+
+    const requestResult = await getMockRequestService().createRequest('mock-user');
+    if (requestResult.isOk()) {
+      const request = requestResult.unwrap();
+      await requestService.updateRequestById(
+        request.id,
+        {
+          englishTitle: 'Software Developer',
+          frenchTitle: 'Développeur de logiciels',
+          classificationId: 0,
+          languageRequirementId: 0,
+          securityClearanceId: 0,
+          englishLanguageProfile: 'CBC',
+          frenchLanguageProfile: 'CBC',
+        },
+        'mock-user',
+      );
+    }
   });
 
   describe('getRequests', () => {
@@ -19,7 +35,7 @@ describe('RequestServiceMock', () => {
       const params = { page: 1, size: 2 };
       const accessToken = 'valid-token';
 
-      const result = await mockRequestService.getRequests(params, accessToken);
+      const result = await requestService.getRequests(params, accessToken);
 
       expect(result.isOk()).toBe(true);
       if (result.isOk()) {
@@ -34,16 +50,16 @@ describe('RequestServiceMock', () => {
     });
 
     it('should filter by status when specified', async () => {
-      const params = { status: 'PENDING' };
+      const params = { status: 'SUBMIT' };
       const accessToken = 'valid-token';
 
-      const result = await mockRequestService.getRequests(params, accessToken);
+      const result = await requestService.getRequests(params, accessToken);
 
       expect(result.isOk()).toBe(true);
       if (result.isOk()) {
         const response = result.unwrap();
         response.content.forEach((request) => {
-          expect(request.status?.code.toLowerCase()).toBe('pending');
+          expect(request.status?.code.toLowerCase()).toBe('submit');
         });
       }
     });
@@ -52,7 +68,7 @@ describe('RequestServiceMock', () => {
       const params = { status: 'NON_EXISTENT_STATUS' };
       const accessToken = 'valid-token';
 
-      const result = await mockRequestService.getRequests(params, accessToken);
+      const result = await requestService.getRequests(params, accessToken);
 
       expect(result.isOk()).toBe(true);
       if (result.isOk()) {
@@ -66,7 +82,7 @@ describe('RequestServiceMock', () => {
       const params = { page: 0, size: 1 };
       const accessToken = 'valid-token';
 
-      const result = await mockRequestService.getRequests(params, accessToken);
+      const result = await requestService.getRequests(params, accessToken);
 
       expect(result.isOk()).toBe(true);
       if (result.isOk()) {
@@ -82,7 +98,7 @@ describe('RequestServiceMock', () => {
     it('should create a new request successfully', async () => {
       const accessToken = 'new-user';
 
-      const result = await mockRequestService.createRequest(accessToken);
+      const result = await requestService.createRequest(accessToken);
 
       expect(result.isOk()).toBe(true);
       if (result.isOk()) {
@@ -97,7 +113,7 @@ describe('RequestServiceMock', () => {
       const requestId = 1;
       const accessToken = 'valid-token';
 
-      const result = await mockRequestService.getRequestById(requestId, accessToken);
+      const result = await requestService.getRequestById(requestId, accessToken);
 
       expect(result.isOk()).toBe(true);
       if (result.isOk()) {
@@ -110,7 +126,7 @@ describe('RequestServiceMock', () => {
       const requestId = 99999;
       const accessToken = 'valid-token';
 
-      const result = await mockRequestService.getRequestById(requestId, accessToken);
+      const result = await requestService.getRequestById(requestId, accessToken);
 
       expect(result.isErr()).toBe(true);
       if (result.isErr()) {
@@ -128,10 +144,13 @@ describe('RequestServiceMock', () => {
         frenchTitle: 'Titre Mis à Jour',
         englishLanguageProfile: 'BBB',
         frenchLanguageProfile: 'BBB',
+        classificationId: requestId,
+        languageRequirementId: requestId,
+        securityClearanceId: requestId,
       };
       const accessToken = 'valid-token';
 
-      const result = await mockRequestService.updateRequestById(requestId, update, accessToken);
+      const result = await requestService.updateRequestById(requestId, update, accessToken);
 
       expect(result.isOk()).toBe(true);
       if (result.isOk()) {
@@ -141,6 +160,19 @@ describe('RequestServiceMock', () => {
         expect(updatedRequest.frenchTitle).toBe('Titre Mis à Jour');
         expect(updatedRequest.englishLanguageProfile).toBe('BBB');
         expect(updatedRequest.frenchLanguageProfile).toBe('BBB');
+        expect(updatedRequest.classification).toEqual({ id: 1, code: 'AS-02', nameEn: 'AS-02', nameFr: 'AS-02' });
+        expect(updatedRequest.languageRequirement).toEqual({
+          id: 1,
+          code: 'BNI',
+          nameEn: 'Bilingual Non-imperative',
+          nameFr: 'Bilingue non-impérative',
+        });
+        expect(updatedRequest.securityClearance).toEqual({
+          id: 1,
+          code: 'ER-FA',
+          nameEn: 'Enhanced Reliability',
+          nameFr: 'Fiabilité approfondie',
+        });
       }
     });
 
@@ -155,7 +187,7 @@ describe('RequestServiceMock', () => {
       };
       const accessToken = 'valid-token';
 
-      const result = await mockRequestService.updateRequestById(requestId, update, accessToken);
+      const result = await requestService.updateRequestById(requestId, update, accessToken);
 
       expect(result.isErr()).toBe(true);
       if (result.isErr()) {
@@ -170,7 +202,7 @@ describe('RequestServiceMock', () => {
       const requestId = 1;
       const accessToken = 'valid-token';
 
-      const result = await mockRequestService.findRequestById(requestId, accessToken);
+      const result = await requestService.findRequestById(requestId, accessToken);
 
       expect(result.isSome()).toBe(true);
       if (result.isSome()) {
@@ -183,7 +215,7 @@ describe('RequestServiceMock', () => {
       const requestId = 99999;
       const accessToken = 'valid-token';
 
-      const result = await mockRequestService.findRequestById(requestId, accessToken);
+      const result = await requestService.findRequestById(requestId, accessToken);
 
       expect(result.isNone()).toBe(true);
     });
