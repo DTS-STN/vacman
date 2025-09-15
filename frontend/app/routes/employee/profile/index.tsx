@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 
 import type { RouteHandle } from 'react-router';
-import { useActionData, useFetcher, useLocation, useNavigate, useSearchParams } from 'react-router';
+import { useFetcher, useLocation, useNavigate, useSearchParams } from 'react-router';
 
 import { useTranslation } from 'react-i18next';
 
@@ -273,17 +273,12 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 
 export default function EditProfile({ loaderData, params }: Route.ComponentProps) {
   const { t } = useTranslation(handle.i18nNamespace);
-  const actionData = useActionData();
-  const fetcher = useFetcher();
+  const fetcher = useFetcher<typeof action>();
   const fetcherState = useFetcherState(fetcher);
   const isSubmitting = fetcherState.submitting;
 
-  // Use fetcher.data instead of actionData since we're using fetcher.Form
-  const formActionData = fetcher.data ?? actionData;
-
   const alertRef = useRef<HTMLDivElement>(null);
-
-  if (formActionData && alertRef.current) {
+  if (fetcher.data && alertRef.current) {
     alertRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
     alertRef.current.focus();
   }
@@ -363,7 +358,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
         </fetcher.Form>
       </div>
 
-      {formActionData && (
+      {fetcher.data && (
         <AlertMessage
           ref={alertRef}
           type={loaderData.isProfileComplete ? 'success' : 'error'}
@@ -398,7 +393,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
           isComplete={loaderData.personalInformation.isComplete}
           isNew={loaderData.personalInformation.isNew}
           params={params}
-          errorState={formActionData?.personalInfoComplete === false}
+          errorState={fetcher.data?.personalInfoComplete === false}
           required
           showStatus={loaderData.profileStatus.code === PROFILE_STATUS_CODE.incomplete}
         >
@@ -445,7 +440,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
           isNew={loaderData.employmentInformation.isNew}
           params={params}
           required
-          errorState={formActionData?.employmentInfoComplete === false}
+          errorState={fetcher.data?.employmentInfoComplete === false}
           showStatus={loaderData.profileStatus.code === PROFILE_STATUS_CODE.incomplete}
           updated={hasEmploymentChanged}
         >
@@ -502,7 +497,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
           isNew={loaderData.referralPreferences.isNew}
           params={params}
           required
-          errorState={formActionData?.referralComplete === false}
+          errorState={fetcher.data?.referralComplete === false}
           showStatus={loaderData.profileStatus.code === PROFILE_STATUS_CODE.incomplete}
           updated={hasReferralPreferenceChanged}
         >

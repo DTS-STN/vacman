@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 
 import type { RouteHandle } from 'react-router';
-import { useActionData, useFetcher } from 'react-router';
+import { useFetcher } from 'react-router';
 
 import { useTranslation } from 'react-i18next';
 
@@ -181,17 +181,12 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 
 export default function EditProfile({ loaderData, params }: Route.ComponentProps) {
   const { t } = useTranslation(handle.i18nNamespace);
-  const actionData = useActionData();
-  const fetcher = useFetcher();
+  const fetcher = useFetcher<typeof action>();
   const fetcherState = useFetcherState(fetcher);
   const isSubmitting = fetcherState.submitting;
 
-  // Use fetcher.data instead of actionData since we're using fetcher.Form
-  const formActionData = fetcher.data ?? actionData;
-
   const alertRef = useRef<HTMLDivElement>(null);
-
-  if (formActionData && alertRef.current) {
+  if (fetcher.data && alertRef.current) {
     alertRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
     alertRef.current.focus();
   }
@@ -244,7 +239,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
         </div>
       </div>
 
-      {formActionData && (
+      {fetcher.data && (
         <AlertMessage
           ref={alertRef}
           type={'success'}
