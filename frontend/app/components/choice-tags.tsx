@@ -120,7 +120,7 @@ export function ChoiceTags({ choiceTags, onClearAll, onDelete, onClearGroup }: C
           ))}
         </div>
       )}
-      {choiceTags.length > 1 && (
+      {choiceTags.length > 2 && (
         <div className="self-start">
           <Button variant="primary" id="clear-all-button" onClick={handleOnClearAll}>
             {t('gcweb:choice-tag.clear-all')}
