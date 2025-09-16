@@ -8,7 +8,6 @@ import { useTranslation } from 'react-i18next';
 import type { Route } from './+types/index';
 
 import { getCityService } from '~/.server/domain/services/city-service';
-// import { getClassificationService } from '~/.server/domain/services/classification-service';
 import { getRequestService } from '~/.server/domain/services/request-service';
 // TODO review
 
@@ -611,18 +610,18 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
                     {loaderData.languageRequirement?.code ?? t('app:hiring-manager-referral-requests.not-provided')}
                   </DescriptionListItem>
 
-                  {loaderData.languageRequirement?.code === LANGUAGE_REQUIREMENT_CODES.bilingualImperative ||
-                    (loaderData.languageRequirement?.code === LANGUAGE_REQUIREMENT_CODES.bilingualNonImperative && (
-                      <>
-                        <DescriptionListItem term={t('app:position-information.english')}>
-                          {loaderData.englishLanguageProfile ?? t('app:hiring-manager-referral-requests.not-provided')}
-                        </DescriptionListItem>
+                  {(loaderData.languageRequirement?.code === LANGUAGE_REQUIREMENT_CODES.bilingualImperative ||
+                    loaderData.languageRequirement?.code === LANGUAGE_REQUIREMENT_CODES.bilingualNonImperative) && (
+                    <>
+                      <DescriptionListItem term={t('app:position-information.english')}>
+                        {loaderData.englishLanguageProfile ?? t('app:hiring-manager-referral-requests.not-provided')}
+                      </DescriptionListItem>
 
-                        <DescriptionListItem term={t('app:position-information.french')}>
-                          {loaderData.frenchLanguageProfile ?? t('app:hiring-manager-referral-requests.not-provided')}
-                        </DescriptionListItem>
-                      </>
-                    ))}
+                      <DescriptionListItem term={t('app:position-information.french')}>
+                        {loaderData.frenchLanguageProfile ?? t('app:hiring-manager-referral-requests.not-provided')}
+                      </DescriptionListItem>
+                    </>
+                  )}
 
                   <DescriptionListItem term={t('app:position-information.security-requirement')}>
                     {loaderData.securityClearance?.code ?? t('app:hiring-manager-referral-requests.not-provided')}
