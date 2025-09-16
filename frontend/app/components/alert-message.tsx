@@ -1,11 +1,12 @@
-import type { Ref } from 'react';
+import type { ReactNode, Ref } from 'react';
 
 import type { IconDefinition } from '@fortawesome/free-solid-svg-icons';
 import { faTriangleExclamation, faCircleExclamation, faCircleCheck } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 interface AlertMessageProps {
-  message: string;
+  message?: string;
+  children?: ReactNode;
   type: 'success' | 'info' | 'error';
   ref?: Ref<HTMLDivElement>;
   role?: 'alert' | 'status' | 'log';
@@ -28,6 +29,7 @@ const icons: Record<NonNullable<AlertMessageProps['type']>, IconDefinition> = {
 export function AlertMessage({
   ref,
   message,
+  children,
   type = 'info',
   role = 'alert',
   ariaLive = 'assertive',
@@ -46,6 +48,7 @@ export function AlertMessage({
         className={`${type === 'success' ? 'text-green-600' : type === 'error' ? 'text-red-800' : 'text-sky-700'} mr-2`}
       />
       {message}
+      {children && <span>{children}</span>}
     </div>
   );
 }
