@@ -7,8 +7,7 @@ import { useTranslation } from 'react-i18next';
 
 import type { Route } from './+types/index';
 
-//import { getCityService } from '~/.server/domain/services/city-service';
-//import { getClassificationService } from '~/.server/domain/services/classification-service';
+import { getCityService } from '~/.server/domain/services/city-service';
 import { getRequestService } from '~/.server/domain/services/request-service';
 // TODO review
 
@@ -23,6 +22,7 @@ import { PageTitle } from '~/components/page-title';
 import { ProfileCard } from '~/components/profile-card';
 import { Progress } from '~/components/progress';
 import { StatusTag } from '~/components/status-tag';
+import { LANGUAGE_REQUIREMENT_CODES } from '~/domain/constants';
 //import { PROFILE_STATUS_CODE, EMPLOYEE_WFA_STATUS } from '~/domain/constants';
 import { useFetcherState } from '~/hooks/use-fetcher-state';
 import { getTranslation } from '~/i18n-config.server';
@@ -155,6 +155,8 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const url = new URL(request.url);
   const hasRequestChanged = url.searchParams.get('edited') === 'true';
 
+  const allLocalizedCities = await getCityService().listAllLocalized(lang);
+
   //
   // TODO review next section remove what is not needed
 
@@ -235,7 +237,25 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     securityClearance: currentRequest?.securityClearance,
   };
 
-  const requiredPositionInformation = positionInformationData;
+  const languageProficiencyRequired =
+    currentRequest?.languageRequirement?.code === LANGUAGE_REQUIREMENT_CODES.bilingualImperative ||
+    currentRequest?.languageRequirement?.code === LANGUAGE_REQUIREMENT_CODES.bilingualNonImperative;
+
+  const requiredPositionInformation = {
+    positionNumber: positionInformationData.positionNumber,
+    classification: positionInformationData.classification,
+    englishTitle: positionInformationData.englishTitle,
+    frenchTitle: positionInformationData.frenchTitle,
+    cities: positionInformationData.cities,
+    languageRequirement: positionInformationData.languageRequirement,
+    securityClearance: positionInformationData.securityClearance,
+    ...(languageProficiencyRequired
+      ? {
+          englishLanguageProfile: positionInformationData.englishLanguageProfile,
+          frenchLanguageProfile: positionInformationData.frenchLanguageProfile,
+        }
+      : {}),
+  };
   const positionInformationCompleted = countCompletedItems(requiredPositionInformation);
   const positionInformationTotalFields = Object.keys(requiredPositionInformation).length;
 
@@ -291,6 +311,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     statementOfMeritCriteriaInformationTotalFields +
     submissionInformationTotalFields;
   const amountCompleted = (profileCompleted / profileTotalFields) * 100;
+  const cities = currentRequest?.cities?.map((city) => allLocalizedCities.find((c) => c.id === city.id)).filter(Boolean);
 
   return {
     documentTitle: t('app:hiring-manager-referral-requests.page-title'),
@@ -327,7 +348,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     classification: currentRequest?.classification,
     englishTitle: currentRequest?.englishTitle,
     frenchTitle: currentRequest?.frenchTitle,
-    cities: currentRequest?.cities,
+    cities: cities?.map((city) => city?.provinceTerritory.name + ' - ' + city?.name),
     languageRequirement: currentRequest?.languageRequirement,
     englishLanguageProfile: currentRequest?.englishLanguageProfile,
     frenchLanguageProfile: currentRequest?.frenchLanguageProfile,
@@ -579,22 +600,28 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
                     {loaderData.frenchTitle ?? t('app:hiring-manager-referral-requests.not-provided')}
                   </DescriptionListItem>
 
-                  {/* TODO review  formatting and contents */}
-                  {/* <DescriptionListItem term={t('app:position-information.location-city')}>
-                    {loaderData.cities ?? t('app:hiring-manager-referral-requests.not-provided')}
-                  </DescriptionListItem> */}
+                  <DescriptionListItem term={t('app:position-information.locations')}>
+                    {loaderData.cities === undefined
+                      ? t('app:hiring-manager-referral-requests.not-provided')
+                      : loaderData.cities.length > 0 && loaderData.cities.join(', ')}
+                  </DescriptionListItem>
 
                   <DescriptionListItem term={t('app:position-information.language-profile')}>
                     {loaderData.languageRequirement?.code ?? t('app:hiring-manager-referral-requests.not-provided')}
                   </DescriptionListItem>
 
-                  <DescriptionListItem term={t('app:position-information.english')}>
-                    {loaderData.englishLanguageProfile ?? t('app:hiring-manager-referral-requests.not-provided')}
-                  </DescriptionListItem>
+                  {(loaderData.languageRequirement?.code === LANGUAGE_REQUIREMENT_CODES.bilingualImperative ||
+                    loaderData.languageRequirement?.code === LANGUAGE_REQUIREMENT_CODES.bilingualNonImperative) && (
+                    <>
+                      <DescriptionListItem term={t('app:position-information.english')}>
+                        {loaderData.englishLanguageProfile ?? t('app:hiring-manager-referral-requests.not-provided')}
+                      </DescriptionListItem>
 
-                  <DescriptionListItem term={t('app:position-information.french')}>
-                    {loaderData.frenchLanguageProfile ?? t('app:hiring-manager-referral-requests.not-provided')}
-                  </DescriptionListItem>
+                      <DescriptionListItem term={t('app:position-information.french')}>
+                        {loaderData.frenchLanguageProfile ?? t('app:hiring-manager-referral-requests.not-provided')}
+                      </DescriptionListItem>
+                    </>
+                  )}
 
                   <DescriptionListItem term={t('app:position-information.security-requirement')}>
                     {loaderData.securityClearance?.code ?? t('app:hiring-manager-referral-requests.not-provided')}
