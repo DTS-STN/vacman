@@ -108,7 +108,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
 
 export default function EmployeeDashboard({ loaderData, actionData, params }: Route.ComponentProps) {
   const { t } = useTranslation(handle.i18nNamespace);
-  const fetcher = useFetcher();
+  const fetcher = useFetcher<typeof action>();
   const fetcherState = useFetcherState(fetcher);
   const isSubmitting = fetcherState.submitting;
 
