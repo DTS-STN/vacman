@@ -126,8 +126,8 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
 
   const url = new URL(request.url);
-  const hasEmploymentChanged = url.searchParams.get('editedEmp') === 'true';
-  const hasReferralPreferenceChanged = url.searchParams.get('editedRef') === 'true';
+  const hasEmploymentChanged: boolean = url.searchParams.get('editedEmp') === 'true';
+  const hasReferralPreferenceChanged: boolean = url.searchParams.get('editedRef') === 'true';
 
   // Use the profile user data directly instead of fetching it separately
   const currentUser = profileData.profileUser;
@@ -292,8 +292,10 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
   const location = useLocation();
   const navigate = useNavigate();
 
-  const [hasEmploymentChanged, setHasEmploymentChanged] = useState(loaderData.hasEmploymentChanged);
-  const [hasReferralPreferenceChanged, setHasReferralPreferenceChanged] = useState(loaderData.hasReferralPreferenceChanged);
+  const [hasEmploymentChanged, setHasEmploymentChanged] = useState<boolean>(loaderData.hasEmploymentChanged);
+  const [hasReferralPreferenceChanged, setHasReferralPreferenceChanged] = useState<boolean>(
+    loaderData.hasReferralPreferenceChanged,
+  );
   const [browserTZ, setBrowserTZ] = useState(() =>
     loaderData.lastModifiedDate
       ? formatDateTimeForTimezone(loaderData.lastModifiedDate, loaderData.baseTimeZone, loaderData.lang)
