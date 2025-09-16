@@ -89,11 +89,9 @@ public class RequestsController {
 			}
 		}).orElseThrow(asUserResourceNotFoundException("microsoftEntraId", hrAdvisorParam));
 
-		final var requests = requestService.getAllRequests(pageable, hrAdvisorId);
+		final var requests = requestService.getAllRequests(pageable, hrAdvisorId).map(requestModelMapper::toModel);
 
-		final var requestModels = requests.map(requestModelMapper::toModel);
-
-		return ResponseEntity.ok(new PagedModel<>(requestModels));
+		return ResponseEntity.ok(new PagedModel<>(requests));
 	}
 
 	@ApiResponses.Ok
