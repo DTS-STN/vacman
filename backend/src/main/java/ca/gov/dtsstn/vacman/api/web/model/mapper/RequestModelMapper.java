@@ -2,23 +2,8 @@ package ca.gov.dtsstn.vacman.api.web.model.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-package ca.gov.dtsstn.vacman.api.web.model.mapper;
-
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.ReportingPolicy;
-
-import ca.gov.dtsstn.vacman.api.data.entity.CityEntity;
-import ca.gov.dtsstn.vacman.api.data.entity.EmploymentEquityEntity;
-import ca.gov.dtsstn.vacman.api.data.entity.RequestEntity;
-import ca.gov.dtsstn.vacman.api.web.model.RequestReadModel;
-import ca.gov.dtsstn.vacman.api.web.model.RequestUpdateModel;
-import ca.gov.dtsstn.vacman.api.web.model.RequestUpdateModel.CityId;
-import ca.gov.dtsstn.vacman.api.web.model.RequestUpdateModel.EmploymentEquityId;
-
-@Mapper(uses = { CodeModelMapper.class, UserModelMapper.class }, unmappedTargetPolicy = ReportingPolicy.ERROR)
-public interface RequestModelMapper {
 
 import ca.gov.dtsstn.vacman.api.data.entity.CityEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.EmploymentEquityEntity;
@@ -45,10 +30,10 @@ public interface RequestModelMapper {
 	RequestReadModel toModel(RequestEntity entity);
 
 	@Mapping(target = "selectionProcessNumber", source = "selectionProcessNumber")
-	@Mapping(target = "workforceMgmtApprovalRecvd", source = "workforceManagementApproved")
+	@Mapping(target = "workforceMgmtApprovalRecvd", source = "workforceMgmtApprovalRecvd")
 	@Mapping(target = "priorityEntitlement", source = "priorityEntitlement")
 	@Mapping(target = "priorityEntitlementRationale", source = "priorityEntitlementRationale")
-	@Mapping(target = "hasPerformedSameDuties", source = "performedSameDuties")
+	@Mapping(target = "hasPerformedSameDuties", source = "hasPerformedSameDuties")
 	@Mapping(target = "startDate", source = "projectedStartDate")
 	@Mapping(target = "endDate", source = "projectedEndDate")
 	@Mapping(target = "employmentEquityNeedIdentifiedIndicator", source = "equityNeeded")
@@ -66,6 +51,16 @@ public interface RequestModelMapper {
 	@Mapping(target = "languageRequirement", source = "languageRequirementId")
 	@Mapping(target = "securityClearance", source = "securityClearanceId")
 	@Mapping(target = "employmentEquities", source = "employmentEquityIds")
+	@Mapping(target = "cities", ignore = true)
+	@Mapping(target = "employmentTenure", ignore = true)
+	@Mapping(target = "hiringManager", ignore = true)
+	@Mapping(target = "hrAdvisor", ignore = true)
+	@Mapping(target = "language", ignore = true)
+	@Mapping(target = "requestStatus", ignore = true)
+	@Mapping(target = "subDelegatedManager", ignore = true)
+	@Mapping(target = "submitter", ignore = true)
+	@Mapping(target = "workUnit", ignore = true)
+	@Mapping(target = "delegateIds", ignore = true)
 	@Mapping(target = "id", ignore = true)
 	@Mapping(target = "createdBy", ignore = true)
 	@Mapping(target = "createdDate", ignore = true)
@@ -73,6 +68,48 @@ public interface RequestModelMapper {
 	@Mapping(target = "lastModifiedDate", ignore = true)
 	void updateEntityFromModel(RequestUpdateModel updateModel, @MappingTarget RequestEntity entity);
 
+	@Mapping(target = "selectionProcessNumber", source = "selectionProcessNumber")
+	@Mapping(target = "workforceMgmtApprovalRecvd", source = "workforceMgmtApprovalRecvd")
+	@Mapping(target = "priorityEntitlement", source = "priorityEntitlement")
+	@Mapping(target = "priorityEntitlementRationale", source = "priorityEntitlementRationale")
+	@Mapping(target = "hasPerformedSameDuties", source = "hasPerformedSameDuties")
+	@Mapping(target = "startDate", source = "projectedStartDate")
+	@Mapping(target = "endDate", source = "projectedEndDate")
+	@Mapping(target = "employmentEquityNeedIdentifiedIndicator", source = "equityNeeded")
+	@Mapping(target = "hiringManager", source = "hiringManagerId")
+	@Mapping(target = "hrAdvisor", source = "hrAdvisorId")
+	@Mapping(target = "language", source = "languageOfCorrespondenceId")
+	@Mapping(target = "languageProfileEn", source = "englishLanguageProfile")
+	@Mapping(target = "languageProfileFr", source = "frenchLanguageProfile")
+	@Mapping(target = "languageRequirement", source = "languageRequirementId")
+	@Mapping(target = "nameEn", source = "englishTitle")
+	@Mapping(target = "nameFr", source = "frenchTitle")
+	@Mapping(target = "languageProfileEn", source = "englishLanguageProfile")
+	@Mapping(target = "languageProfileFr", source = "frenchLanguageProfile")
+	@Mapping(target = "somcAndConditionEmploymentEn", source = "englishStatementOfMerit")
+	@Mapping(target = "somcAndConditionEmploymentFr", source = "frenchStatementOfMerit")
+	@Mapping(target = "positionNumber", source = "positionNumbers")
+	@Mapping(target = "selectionProcessType", source = "selectionProcessTypeId")
+	@Mapping(target = "appointmentNonAdvertised", source = "appointmentNonAdvertisedId")
+	@Mapping(target = "workSchedule", source = "workScheduleId")
+	@Mapping(target = "classification", source = "classificationId")
+	@Mapping(target = "languageRequirement", source = "languageRequirementId")
+	@Mapping(target = "securityClearance", source = "securityClearanceId")
+	@Mapping(target = "employmentEquities", source = "employmentEquityIds")
+	@Mapping(target = "cities", ignore = true)
+	@Mapping(target = "employmentTenure", ignore = true)
+	@Mapping(target = "hiringManager", ignore = true)
+	@Mapping(target = "hrAdvisor", ignore = true)
+	@Mapping(target = "language", ignore = true)
+	@Mapping(target = "requestStatus", ignore = true)
+	@Mapping(target = "subDelegatedManager", ignore = true)
+	@Mapping(target = "submitter", ignore = true)
+	@Mapping(target = "workUnit", ignore = true)
+	@Mapping(target = "id", ignore = true)
+	@Mapping(target = "createdBy", ignore = true)
+	@Mapping(target = "createdDate", ignore = true)
+	@Mapping(target = "lastModifiedBy", ignore = true)
+	@Mapping(target = "lastModifiedDate", ignore = true)
 	RequestEntity requestUpdateModelToRequestEntity(RequestUpdateModel request);
 
 	@Mapping(target = "appointmentNonAdvertisedId", source = "appointmentNonAdvertised.id")
@@ -89,7 +126,7 @@ public interface RequestModelMapper {
 	@Mapping(target = "frenchTitle", source = "nameFr")
 	@Mapping(target = "hiringManagerId", source = "hiringManager.id")
 	@Mapping(target = "hrAdvisorId", source = "hrAdvisor.id")
-	@Mapping(target = "langaugeOfCorrespondenceId", source = "language.id")
+	@Mapping(target = "languageOfCorrespondenceId", source = "language.id")
 	@Mapping(target = "languageRequirementId", source = "languageRequirement.id")
 	@Mapping(target = "positionNumbers", source = "positionNumber")
 	@Mapping(target = "projectedEndDate", source = "endDate")
