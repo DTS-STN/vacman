@@ -43,6 +43,7 @@ export function meta({ loaderData }: Route.MetaArgs) {
 
 export async function action({ context, request }: Route.ActionArgs) {
   requireAuthentication(context.session, request);
+  const { t } = await getTranslation(request, handle.i18nNamespace);
   const formData = await request.formData();
   const parseResult = v.safeParse(
     v.object({
@@ -62,14 +63,25 @@ export async function action({ context, request }: Route.ActionArgs) {
     return data({ errors: v.flatten(parseResult.issues).nested }, { status: HttpStatusCodes.BAD_REQUEST });
   }
 
-  const userResult = await getUserService().getUsers(
-    { email: parseResult.output.email },
-    context.session.authState.accessToken,
-  );
-  const user = userResult.into()?.content[0];
-  // TODO: create profile for the user and update with correct profileId
+  const user = (
+    await getUserService().getUsers({ email: parseResult.output.email }, context.session.authState.accessToken)
+  ).into()?.content[0];
+
+  if (!user) {
+    throw new Response('User not found', { status: HttpStatusCodes.NOT_FOUND });
+  }
+
+  const profile = (await getUserService().createProfileForUser(user.id, context.session.authState.accessToken)).into();
+  if (!profile) {
+    return {
+      errors: {
+        email: t('app:hr-advisor-employees-table.errors.profile-already-exists'),
+      },
+    };
+  }
+
   return i18nRedirect('routes/hr-advisor/employee-profile/index.tsx', request, {
-    params: { profileId: user?.id.toString() },
+    params: { profileId: profile.id.toString() },
   });
 }
 

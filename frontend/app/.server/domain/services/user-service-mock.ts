@@ -15,6 +15,7 @@ import type {
 import { mockUsers, mockProfiles, createUserFromEmail } from '~/.server/domain/services/mockData';
 import type { UserService } from '~/.server/domain/services/user-service';
 import { LogFactory } from '~/.server/logging';
+import { PROFILE_STATUS_INCOMPLETE } from '~/domain/constants';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
 
@@ -274,7 +275,9 @@ export function getMockUserService(): UserService {
           createdBy: 'mock-system',
           lastModifiedDate: new Date().toISOString(),
           lastModifiedBy: 'mock-system',
+          profileStatus: PROFILE_STATUS_INCOMPLETE,
         };
+        mockProfiles.push(newProfile);
 
         log.debug(`Successfully created profile for user ID: ${userId}`, {
           profileId: newProfile.id,

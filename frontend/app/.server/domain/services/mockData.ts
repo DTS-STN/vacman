@@ -444,7 +444,7 @@ export function createMockRequest(accessToken: string): RequestReadModel {
 
 export function createUserFromEmail(email: string): User {
   const timestamp = Date.now();
-  return {
+  const newUser = {
     id: Math.max(0, ...mockUsers.map((u) => u.id)) + 1,
     businessEmailAddress: email,
     businessPhoneNumber: '+1-613-555-' + String(timestamp).slice(-4),
@@ -471,4 +471,6 @@ export function createUserFromEmail(email: string): User {
     lastModifiedBy: 'mock-system',
     lastModifiedDate: new Date().toISOString(),
   };
+  mockUsers.push(newUser);
+  return newUser;
 }
