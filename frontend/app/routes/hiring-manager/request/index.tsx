@@ -9,8 +9,6 @@ import type { Route } from './+types/index';
 
 import { getCityService } from '~/.server/domain/services/city-service';
 import { getRequestService } from '~/.server/domain/services/request-service';
-// TODO review
-
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { countCompletedItems } from '~/.server/utils/profile-utils';
 import { AlertMessage } from '~/components/alert-message';
@@ -46,7 +44,6 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   const requestData = await getRequestService().getRequestById(Number(params.requestId), context.session.authState.accessToken);
   const currentRequest = requestData.into();
 
-  //
   // For process information from Request Model
   const requiredProcessFields = {
     selectionProcessNumber: currentRequest?.selectionProcessNumber,
@@ -57,8 +54,8 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     hasPerformedSameDuties: currentRequest?.hasPerformedSameDuties,
     appointmentNonAdvertised: currentRequest?.appointmentNonAdvertised,
     employmentTenure: currentRequest?.employmentTenure,
-    projectedStartDate: currentRequest?.projectedStartDate, // ISO date string (LocalDate)
-    projectedEndDate: currentRequest?.projectedEndDate, // ISO date string (LocalDate)
+    projectedStartDate: currentRequest?.projectedStartDate,
+    projectedEndDate: currentRequest?.projectedEndDate,
     workSchedule: currentRequest?.workSchedule,
     equityNeeded: currentRequest?.equityNeeded,
     employmentEquities: currentRequest?.employmentEquities,
@@ -66,7 +63,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 
   // For position information from Request Model
   const requiredPositionFields = {
-    positionNumber: currentRequest?.positionNumber, // Comma separated list
+    positionNumber: currentRequest?.positionNumber,
     classification: currentRequest?.classification,
     englishTitle: currentRequest?.englishTitle,
     frenchTitle: currentRequest?.frenchTitle,
@@ -214,8 +211,8 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     hasPerformedSameDuties: currentRequest?.hasPerformedSameDuties,
     appointmentNonAdvertised: currentRequest?.appointmentNonAdvertised,
     employmentTenure: currentRequest?.employmentTenure,
-    projectedStartDate: currentRequest?.projectedStartDate, // formatted as ISO date string (LocalDate)
-    projectedEndDate: currentRequest?.projectedEndDate, // formatted as ISO date string (LocalDate)
+    projectedStartDate: currentRequest?.projectedStartDate,
+    projectedEndDate: currentRequest?.projectedEndDate,
     workSchedule: currentRequest?.workSchedule,
     equityNeeded: currentRequest?.equityNeeded,
     employmentEquities: currentRequest?.employmentEquities,
@@ -226,7 +223,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 
   // Position information from Request type
   const positionInformationData = {
-    positionNumber: currentRequest?.positionNumber, // Comma separated list
+    positionNumber: currentRequest?.positionNumber,
     classification: currentRequest?.classification,
     englishTitle: currentRequest?.englishTitle,
     frenchTitle: currentRequest?.frenchTitle,
