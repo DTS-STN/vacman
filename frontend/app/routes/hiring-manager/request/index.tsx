@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 
 import type { RouteHandle } from 'react-router';
-import { useActionData, useFetcher, useLocation, useNavigate, useSearchParams } from 'react-router';
+import { useFetcher, useLocation, useNavigate, useSearchParams } from 'react-router';
 
 import { useTranslation } from 'react-i18next';
 
@@ -390,17 +390,13 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 
 export default function EditRequest({ loaderData, params }: Route.ComponentProps) {
   const { t } = useTranslation(handle.i18nNamespace);
-  const actionData = useActionData();
-  const fetcher = useFetcher();
+  const fetcher = useFetcher<typeof action>();
   const fetcherState = useFetcherState(fetcher);
   const isSubmitting = fetcherState.submitting;
 
-  // Use fetcher.data instead of actionData since we're using fetcher.Form
-  const formActionData = fetcher.data ?? actionData;
-
   const alertRef = useRef<HTMLDivElement>(null);
 
-  if (formActionData && alertRef.current) {
+  if (fetcher.data && alertRef.current) {
     alertRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
     alertRef.current.focus();
   }
@@ -448,7 +444,7 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
       </div>
 
       {/* TODO review alert messages below */}
-      {formActionData && (
+      {fetcher.data && (
         <AlertMessage
           ref={alertRef}
           type={loaderData.isProfileComplete ? 'success' : 'error'}
@@ -500,7 +496,7 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
               isComplete={loaderData.isCompleteProcessInformation}
               isNew={loaderData.isProcessNew}
               params={params}
-              errorState={formActionData?.processComplete === false} //TODO review
+              errorState={fetcher.data?.processInfoComplete === false} //TODO review
               required
               showStatus
             >
@@ -576,7 +572,7 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
               isNew={loaderData.isPositionNew}
               params={params}
               required
-              errorState={formActionData?.positionComplete === false} //TODO review
+              errorState={fetcher.data?.positionInfoComplete === false} //TODO review
               showStatus
             >
               {loaderData.isPositionNew ? (
@@ -638,7 +634,7 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
               isNew={loaderData.isStatementOfMeritCriteriaNew}
               params={params}
               required
-              errorState={formActionData?.statementOfMeritCriteriaComplete === false} //TODO review
+              errorState={fetcher.data?.statementOfMeritCriteriaInfoComplete === false} //TODO review
               showStatus
             >
               {loaderData.isStatementOfMeritCriteriaNew ? (
@@ -664,7 +660,7 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
               isNew={loaderData.isSubmissionNew}
               params={params}
               required
-              errorState={formActionData?.submissionComplete === false} //TODO review
+              errorState={fetcher.data?.submissionInfoComplete === false} //TODO review
               showStatus
             >
               {loaderData.isSubmissionNew ? (
