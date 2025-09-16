@@ -183,7 +183,35 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     equityNeeded: currentRequest?.equityNeeded,
     employmentEquities: currentRequest?.employmentEquities,
   };
-  const requiredProcessInformation = processInformationData;
+
+  const requiredProcessInformation = {
+    processInformationNumber: processInformationData.processInformationNumber,
+    selectionProcessNumber: processInformationData.selectionProcessNumber,
+    workforceMgmtApprovalRecvd: processInformationData.workforceMgmtApprovalRecvd,
+    priorityEntitlement: processInformationData.priorityEntitlement,
+    ...(currentRequest?.priorityEntitlement
+      ? {
+          priorityEntitlementRationale: processInformationData.priorityEntitlementRationale,
+        }
+      : {}),
+    ...(currentRequest?.selectionProcessType?.id === SELECTION_PROCESS_TYPE.externalNonAdvertised
+      ? {
+          hasPerformedSameDuties: processInformationData.hasPerformedSameDuties,
+          appointmentNonAdvertised: processInformationData.appointmentNonAdvertised,
+        }
+      : {}),
+    ...(currentRequest?.employmentTenure?.code === EMPLOYMENT_TENURE.term
+      ? {
+          projectedStartDate: processInformationData.projectedStartDate,
+          projectedEndDate: processInformationData.projectedEndDate,
+        }
+      : {}),
+    ...(currentRequest?.equityNeeded === true
+      ? {
+          employmentEquities: processInformationData.employmentEquities,
+        }
+      : {}),
+  };
   const processInformationCompleted = countCompletedItems(requiredProcessInformation);
   const processInformationTotalFields = Object.keys(requiredProcessInformation).length;
 
@@ -687,12 +715,9 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
             </ProfileCard>
           </div>
 
-          {/* Second Column -  */}
-
           <div className="mt-8 max-w-prose">
             <div className="flex justify-center">
               <fetcher.Form className="mt-6 md:mt-auto" method="post" noValidate>
-                {/* TODO review route */}
                 <ButtonLink
                   className="w-full"
                   variant="alternative"
@@ -706,7 +731,7 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
                 <ButtonLink
                   className="mt-4 w-full"
                   variant="alternative"
-                  file="routes/employee/index.tsx"
+                  file="routes/hiring-manager/index.tsx"
                   id="save"
                   disabled={isSubmitting}
                 >
