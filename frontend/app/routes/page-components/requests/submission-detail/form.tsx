@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import type { JSX } from 'react';
 
-import { Form, useActionData, useFetcher } from 'react-router';
+import { Form } from 'react-router';
 import type { Params } from 'react-router';
 
 import { useTranslation } from 'react-i18next';
@@ -20,19 +20,11 @@ import type { InputRadiosProps } from '~/components/input-radios';
 import { InputRadios } from '~/components/input-radios';
 import { InputSelect } from '~/components/input-select';
 import { InputTextarea } from '~/components/input-textarea';
-import { LoadingButton } from '~/components/loading-button';
 import { PageTitle } from '~/components/page-title';
 import { REQUIRE_OPTIONS } from '~/domain/constants';
-import { useFetcherState } from '~/hooks/use-fetcher-state';
 import type { I18nRouteFile } from '~/i18n-routes';
 import type { Errors } from '~/routes/page-components/requests/validation.server';
 import { extractValidationKey } from '~/utils/validation-utils';
-
-interface ActionData {
-  errors?: Errors;
-  hiringManagerName?: string;
-  subDelegatedManagerName?: string;
-}
 
 interface SubmissionDetailsFormProps {
   cancelLink: I18nRouteFile;
@@ -40,6 +32,7 @@ interface SubmissionDetailsFormProps {
   branchOrServiceCanadaRegions: readonly LocalizedBranch[];
   directorates: readonly LocalizedDirectorate[];
   languagesOfCorrespondence: readonly LocalizedLanguageOfCorrespondence[];
+  formErrors?: Errors;
   params: Params;
   view: 'hr-advisor' | 'hiring-manager';
 }
@@ -50,15 +43,12 @@ export function SubmissionDetailsForm({
   branchOrServiceCanadaRegions,
   directorates,
   languagesOfCorrespondence,
+  formErrors,
   params,
   view,
 }: SubmissionDetailsFormProps): JSX.Element {
   const { t: tApp } = useTranslation('app');
   const { t: tGcweb } = useTranslation('gcweb');
-  const fetcher = useFetcher<ActionData>();
-  const fetcherState = useFetcherState(fetcher);
-  const actionData = useActionData<ActionData>();
-  const errors = actionData?.errors;
 
   const [isSubmitterHiringManager, setIsSubmiterHiringManager] = useState(
     formValues?.submitter && formValues.hiringManager ? formValues.submitter.id === formValues.hiringManager.id : undefined,
@@ -74,6 +64,10 @@ export function SubmissionDetailsForm({
       : undefined,
   );
 
+  function onHiringManagerEmailChange() {
+    setHiringManagerName(''); // email changed
+  }
+
   const [hiringManagerName, setHiringManagerName] = useState(
     `${formValues?.hiringManager?.firstName ?? ''} ${formValues?.hiringManager?.lastName ?? ''}`.trim(),
   );
@@ -81,17 +75,9 @@ export function SubmissionDetailsForm({
     `${formValues?.subDelegatedManager?.firstName ?? ''} ${formValues?.subDelegatedManager?.lastName ?? ''}`.trim(),
   );
 
-  useEffect(() => {
-    if (actionData?.hiringManagerName) {
-      setHiringManagerName(actionData.hiringManagerName);
-    }
-  }, [actionData?.hiringManagerName]);
-
-  useEffect(() => {
-    if (actionData?.subDelegatedManagerName) {
-      setSubDelegatedManagerName(actionData.subDelegatedManagerName);
-    }
-  }, [actionData?.subDelegatedManagerName]);
+  function onSubDelegatedManagerEmailChange() {
+    setSubDelegatedManagerName(''); // email changed
+  }
 
   const [branch, setBranch] = useState(formValues?.workUnit ? String(formValues.workUnit.parent?.id) : undefined);
   const [directorate, setDirectorate] = useState(
@@ -226,7 +212,7 @@ export function SubmissionDetailsForm({
               name="isSubmiterHiringManager"
               options={isSubmiterHiringManagerOptions}
               required
-              errorMessage={tApp(extractValidationKey(errors?.isSubmiterHiringManager))}
+              errorMessage={tApp(extractValidationKey(formErrors?.isSubmiterHiringManager))}
             />
             {isSubmitterHiringManager === true && (
               <>
@@ -242,33 +228,22 @@ export function SubmissionDetailsForm({
                   name="isSubmiterSubdelegate"
                   options={isSubmiterSubdelegateOptions}
                   required
-                  errorMessage={tApp(extractValidationKey(errors?.isSubmiterSubdelegate))}
+                  errorMessage={tApp(extractValidationKey(formErrors?.isSubmiterSubdelegate))}
                 />
               </>
             )}
             {isSubmitterHiringManager === false && (
               <>
-                <div className="flex items-end gap-3">
-                  <InputField
-                    className="w-full"
-                    id="hiring-manager-email-address"
-                    name="hiringManagerEmailAddress"
-                    label={tApp('submission-details.hiring-manager-email')}
-                    defaultValue={formValues?.hiringManager?.businessEmailAddress}
-                    errorMessage={tApp(extractValidationKey(errors?.hiringManagerEmailAddress))}
-                    required
-                  />
-                  <LoadingButton
-                    name="action"
-                    value="searchHiringManagerEmailAddress"
-                    variant="primary"
-                    id="search-hiring-manager-button"
-                    disabled={fetcherState.submitting}
-                    loading={fetcherState.submitting && fetcherState.action === 'searchHiringManagerEmailAddress'}
-                  >
-                    {tApp('submission-details.search')}
-                  </LoadingButton>
-                </div>
+                <InputField
+                  className="w-full"
+                  id="hiring-manager-email-address"
+                  name="hiringManagerEmailAddress"
+                  label={tApp('submission-details.hiring-manager-email')}
+                  defaultValue={formValues?.hiringManager?.businessEmailAddress}
+                  errorMessage={tApp(extractValidationKey(formErrors?.hiringManagerEmailAddress))}
+                  onChange={onHiringManagerEmailChange}
+                  required
+                />
                 {hiringManagerName && (
                   <NameTag
                     name={tApp('submission-details.hiring-manager-name', {
@@ -282,34 +257,23 @@ export function SubmissionDetailsForm({
                   name="isHiringManagerASubDelegate"
                   options={isHiringManagerASubDelegateOptions}
                   required
-                  errorMessage={tApp(extractValidationKey(errors?.isHiringManagerASubDelegate))}
+                  errorMessage={tApp(extractValidationKey(formErrors?.isHiringManagerASubDelegate))}
                 />
               </>
             )}
             {((isSubmitterHiringManager === true && isSubmitterSubDelegate === false) ||
               isHiringManagerASubDelegate === false) && (
               <>
-                <div className="flex items-end gap-3">
-                  <InputField
-                    className="w-full"
-                    id="sub-delegate-email-address"
-                    name="subDelegatedManagerEmailAddress"
-                    label={tApp('submission-details.sub-delegate-email')}
-                    defaultValue={formValues?.subDelegatedManager?.businessEmailAddress}
-                    errorMessage={tApp(extractValidationKey(errors?.subDelegatedManagerEmailAddress))}
-                    required
-                  />
-                  <LoadingButton
-                    name="action"
-                    value="searchSubDelegatedManagerEmailAddress"
-                    variant="primary"
-                    id="search-sub-delegate-manager-button"
-                    disabled={fetcherState.submitting}
-                    loading={fetcherState.submitting && fetcherState.action === 'searchSubDelegatedManagerEmailAddress'}
-                  >
-                    {tApp('submission-details.search')}
-                  </LoadingButton>
-                </div>
+                <InputField
+                  className="w-full"
+                  id="sub-delegate-email-address"
+                  name="subDelegatedManagerEmailAddress"
+                  label={tApp('submission-details.sub-delegate-email')}
+                  defaultValue={formValues?.subDelegatedManager?.businessEmailAddress}
+                  errorMessage={tApp(extractValidationKey(formErrors?.subDelegatedManagerEmailAddress))}
+                  onChange={onSubDelegatedManagerEmailChange}
+                  required
+                />
                 {subDelegatedManagerName && (
                   <NameTag
                     name={tApp('submission-details.sub-delegate-name', {
@@ -322,7 +286,7 @@ export function SubmissionDetailsForm({
             <InputSelect
               id="branchOrServiceCanadaRegion"
               name="branchOrServiceCanadaRegion"
-              errorMessage={tApp(extractValidationKey(errors?.branchOrServiceCanadaRegion))}
+              errorMessage={tApp(extractValidationKey(formErrors?.branchOrServiceCanadaRegion))}
               required
               onChange={handleBranchChange}
               options={branchOrServiceCanadaRegionOptions}
@@ -334,7 +298,7 @@ export function SubmissionDetailsForm({
               <InputSelect
                 id="directorate"
                 name="directorate"
-                errorMessage={tApp(extractValidationKey(errors?.directorate))}
+                errorMessage={tApp(extractValidationKey(formErrors?.directorate))}
                 required
                 options={directorateOptions}
                 label={tApp('submission-details.directorate')}
@@ -348,7 +312,7 @@ export function SubmissionDetailsForm({
               name="languageOfCorrespondenceId"
               legend={tApp('submission-details.preferred-language-of-correspondence')}
               options={languageOptions}
-              errorMessage={tApp(extractValidationKey(errors?.languageOfCorrespondenceId))}
+              errorMessage={tApp(extractValidationKey(formErrors?.languageOfCorrespondenceId))}
               required
             />
             <InputTextarea
@@ -357,14 +321,14 @@ export function SubmissionDetailsForm({
               label={tApp('submission-details.additional-comments')}
               name="additionalComment"
               defaultValue={formValues?.additionalComment}
-              errorMessage={tApp(extractValidationKey(errors?.additionalComment))}
+              errorMessage={tApp(extractValidationKey(formErrors?.additionalComment))}
               maxLength={100}
             />
             <div className="mt-8 flex flex-wrap items-center justify-start gap-3">
               <ButtonLink file={cancelLink} params={params} id="cancel-button" variant="alternative">
                 {tApp('form.cancel')}
               </ButtonLink>
-              <Button name="action" variant="primary" value="submit" id="save-button">
+              <Button name="action" variant="primary" id="save-button">
                 {tApp('form.save')}
               </Button>
             </div>

@@ -10,7 +10,6 @@ import type { RequestReadModel } from '~/.server/domain/models';
 import { getDirectorateService } from '~/.server/domain/services/directorate-service';
 import { getLanguageForCorrespondenceService } from '~/.server/domain/services/language-for-correspondence-service';
 import { getRequestService } from '~/.server/domain/services/request-service';
-import { getUserService } from '~/.server/domain/services/user-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { extractUniqueBranchesFromDirectorates } from '~/.server/utils/directorate-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
@@ -37,99 +36,34 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 
   const formData = await request.formData();
 
-  const action = formData.get('action');
+  const parseResult = v.safeParse(await createSubmissionDetailSchema('hr-advisor'), {
+    isSubmiterHiringManager: formData.get('isSubmiterHiringManager')
+      ? formData.get('isSubmiterHiringManager') === REQUIRE_OPTIONS.yes
+      : undefined,
+    isSubmiterSubdelegate: formData.get('isSubmiterSubdelegate')
+      ? formData.get('isSubmiterSubdelegate') === REQUIRE_OPTIONS.yes
+      : undefined,
+    isHiringManagerASubDelegate: formData.get('isHiringManagerASubDelegate')
+      ? formData.get('isHiringManagerASubDelegate') === REQUIRE_OPTIONS.yes
+      : undefined,
+    hiringManagerEmailAddress: formString(formData.get('hiringManagerEmailAddress')),
+    subDelegatedManagerEmailAddress: formString(formData.get('subDelegatedManagerEmailAddress')),
+    branchOrServiceCanadaRegion: formString(formData.get('branchOrServiceCanadaRegion')),
+    directorate: formString(formData.get('directorate')),
+    languageOfCorrespondenceId: formString(formData.get('languageOfCorrespondenceId')),
+    additionalComment: formString(formData.get('additionalComment')),
+  });
 
-  if (action === 'searchHiringManagerEmailAddress') {
-    const parseResult = v.safeParse(
-      v.object({
-        hiringManagerEmailAddress: v.pipe(
-          v.string('app:submission-details.errors.hiring-manager-email-required'),
-          v.trim(),
-          v.nonEmpty('app:submission-details.errors.hiring-manager-email-required'),
-          v.email('app:submission-details.errors.hiring-manager-email-invalid'),
-        ),
-      }),
-      {
-        hiringManagerEmailAddress: formString(formData.get('hiringManagerEmailAddress')),
-      },
+  if (!parseResult.success) {
+    return data(
+      { errors: v.flatten<SubmissionDetailSchema>(parseResult.issues).nested },
+      { status: HttpStatusCodes.BAD_REQUEST },
     );
-
-    if (!parseResult.success) {
-      return {
-        errors: v.flatten(parseResult.issues).nested,
-      };
-    }
-
-    const userResult = await getUserService().getUsers(
-      { email: parseResult.output.hiringManagerEmailAddress },
-      context.session.authState.accessToken,
-    );
-    const hiringManager = userResult.into()?.content[0];
-    const hiringManagerName = `${hiringManager?.firstName ?? ''} ${hiringManager?.lastName ?? ''}`.trim();
-    return { hiringManagerName };
   }
 
-  if (action === 'searchSubDelegatedManagerEmailAddress') {
-    const parseResult = v.safeParse(
-      v.object({
-        subDelegatedManagerEmailAddress: v.pipe(
-          v.string('app:submission-details.errors.sub-delegate-email-required'),
-          v.trim(),
-          v.nonEmpty('app:submission-details.errors.sub-delegate-email-required'),
-          v.email('app:submission-details.errors.sub-delegate-email-invalid'),
-        ),
-      }),
-      {
-        subDelegatedManagerEmailAddress: formString(formData.get('subDelegatedManagerEmailAddress')),
-      },
-    );
+  //TODO: call request service to update data
 
-    if (!parseResult.success) {
-      return {
-        errors: v.flatten(parseResult.issues).nested,
-      };
-    }
-
-    const userResult = await getUserService().getUsers(
-      { email: parseResult.output.subDelegatedManagerEmailAddress },
-      context.session.authState.accessToken,
-    );
-
-    const subDelegatedManager = userResult.into()?.content[0];
-    const subDelegatedManagerName = `${subDelegatedManager?.firstName ?? ''} ${subDelegatedManager?.lastName ?? ''}`.trim();
-    return { subDelegatedManagerName };
-  }
-
-  if (action === 'submit') {
-    const parseResult = v.safeParse(await createSubmissionDetailSchema('hr-advisor'), {
-      isSubmiterHiringManager: formData.get('isSubmiterHiringManager')
-        ? formData.get('isSubmiterHiringManager') === REQUIRE_OPTIONS.yes
-        : undefined,
-      isSubmiterSubdelegate: formData.get('isSubmiterSubdelegate')
-        ? formData.get('isSubmiterSubdelegate') === REQUIRE_OPTIONS.yes
-        : undefined,
-      isHiringManagerASubDelegate: formData.get('isHiringManagerASubDelegate')
-        ? formData.get('isHiringManagerASubDelegate') === REQUIRE_OPTIONS.yes
-        : undefined,
-      hiringManagerEmailAddress: formString(formData.get('hiringManagerEmailAddress')),
-      subDelegatedManagerEmailAddress: formString(formData.get('subDelegatedManagerEmailAddress')),
-      branchOrServiceCanadaRegion: formString(formData.get('branchOrServiceCanadaRegion')),
-      directorate: formString(formData.get('directorate')),
-      languageOfCorrespondenceId: formString(formData.get('languageOfCorrespondenceId')),
-      additionalComment: formString(formData.get('additionalComment')),
-    });
-
-    if (!parseResult.success) {
-      return data(
-        { errors: v.flatten<SubmissionDetailSchema>(parseResult.issues).nested },
-        { status: HttpStatusCodes.BAD_REQUEST },
-      );
-    }
-
-    //TODO: call request service to update data
-
-    return i18nRedirect('routes/hr-advisor/request/index.tsx', request, { params });
-  }
+  return i18nRedirect('routes/hr-advisor/request/index.tsx', request, { params });
 }
 
 export async function loader({ context, params, request }: Route.LoaderArgs) {
@@ -174,6 +108,7 @@ export async function loader({ context, params, request }: Route.LoaderArgs) {
 
 export default function HiringManagerRequestSubmissionDetails({ loaderData, actionData, params }: Route.ComponentProps) {
   const { t } = useTranslation(handle.i18nNamespace);
+  const errors = actionData?.errors;
 
   return (
     <>
@@ -188,6 +123,7 @@ export default function HiringManagerRequestSubmissionDetails({ loaderData, acti
       <div className="max-w-prose">
         <SubmissionDetailsForm
           cancelLink="routes/hr-advisor/request/index.tsx"
+          formErrors={errors}
           formValues={loaderData.defaultValues}
           branchOrServiceCanadaRegions={loaderData.branchOrServiceCanadaRegions}
           directorates={loaderData.directorates}

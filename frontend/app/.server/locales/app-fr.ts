@@ -400,7 +400,6 @@ export default {
     'directorate': 'Direction',
     'preferred-language-of-correspondence': 'Langue de préférene pour la correspondance',
     'additional-comments': 'Commentaires additionnels',
-    'search': 'Rechercher',
     // TODO: error messages need to be updated when available
     'errors': {
       'is-submitter-hiring-manager-required': 'Is submitter the hiring manager for this request field is required.',
