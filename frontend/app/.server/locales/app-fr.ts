@@ -172,6 +172,8 @@ export default {
       "Un échange de poste a lieu lorsqu'un employé optant ou un employé excédentaire, ayant choisi un droit de priorité de fonctionnaire excédentaire d'une durée de 12 mois (option A) qui préfère rester dans l'administration publique centrale, échange son poste avec un employé non touché (le remplaçant) qui est disposé à quitter l'administration publique centrale avec une mesure de soutien à la transition (MST) (Option B) ou avec une MST et une indemnité scolaire (Option C(i)).",
     'alternation-description-text-para-2':
       "Pour les cadres, l'échange de poste dans le cadre de la transition de carrière permet à un cadre excédentaire ayant choisi l'option 2 (de demeurer au sein de l'administration publique centrale (APC)) en échangeant son poste avec un EX non touché qui accepte de quitter en vertu de la Directive sur les conditions d'emploi pour les cadres supérieurs. L'échange doit se faire au même groupe et niveau, à une date convenue mutuellement, et doit entraîner l'élimination permanente d'une fonction ou d'un poste. Le cadre excédentaire doit satisfaire aux exigences du poste non touché. L'échange de poste est uniquement permise au sein de l'administration publique centrale et n'est pas offerte aux employés des organismes distincts.",
+    'select-all': 'Tout sélectionner',
+    'select-all-sr': 'Toutes les villes du Canada sélectionnées',
     'errors': {
       'language-referral-type-required': 'Le profil linguistique est requis.',
       'language-referral-type-invalid': "Le profil linguistique n'est pas valide.",

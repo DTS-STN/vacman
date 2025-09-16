@@ -169,6 +169,8 @@ export default {
       'An alternation occurs when an opting employee or a surplus employee, having chosen a 12-month surplus priority entitlement (Option A), wishes to remain in the core public administration and exchanges positions with a non-affected employee (the alternate) willing to leave the core public administration with a transition support measure (TSM) (option B) or with a TSM and an Education Allowance (Option C(i)).',
     'alternation-description-text-para-2':
       'For executives (EXs), alternation under Career Transition allows a surplus EX who has chosen Option 2 (to remain in the core public administration (CPA)) by exchanging positions with a non-affected EX willing to leave under the Directive on Terms and Conditions of Employment for Executives. The alternation must occur at the same group and level, on a mutually agreed date, and must result in the permanent elimination of a function or position. The surplus EX must meet the requirements of the unaffected role. Alternation is only permitted within the core public administration and is not available to employees of separate agencies.',
+    'select-all': 'Select all',
+    'select-all-sr': 'All cities in Canada selected',
     'errors': {
       'language-referral-type-required': 'Language profile is required.',
       'language-referral-type-invalid': 'Language profile is invalid.',
