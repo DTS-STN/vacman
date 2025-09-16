@@ -9,6 +9,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 import { getProfileService } from '~/.server/domain/services/profile-service';
 import { getUserService } from '~/.server/domain/services/user-service';
+import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { loader as indexLoader } from '~/routes/index';
 
 // Type definitions for test compatibility
@@ -26,6 +27,7 @@ vi.mock('~/.server/domain/services/profile-service');
 
 // Mock i18n configuration
 vi.mock('~/i18n-config.server', () => ({
+  getFixedT: vi.fn(() => (lng: string, ns: string) => (key: string) => `${key} - ${lng}`),
   getTranslation: vi.fn().mockImplementation((request: Request, namespace: string) => {
     const mockT = vi.fn((key: string) => key);
     return {
@@ -33,6 +35,11 @@ vi.mock('~/i18n-config.server', () => ({
       t: mockT,
     };
   }),
+}));
+
+// Mock the auth-utils module
+vi.mock('~/.server/utils/auth-utils', () => ({
+  requireAuthentication: vi.fn(),
 }));
 
 // Mock i18nRedirect function
@@ -115,6 +122,7 @@ function createMockContext(activeDirectoryId: string, name?: string, roles: stri
 describe('Index Dashboard Selection Flow', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(requireAuthentication).mockReturnValue(undefined);
     // Default: user is not registered
     mockUserService.getCurrentUser.mockResolvedValue(None);
     // Default: no profile exists
@@ -122,15 +130,38 @@ describe('Index Dashboard Selection Flow', () => {
   });
 
   describe('Index Loader', () => {
-    it('should load index page successfully', () => {
+    it('should load index page successfully', async () => {
       const context = createMockContext('test-user-123');
       const request = new Request('http://localhost:3000/en/');
 
-      const response = indexLoader({ context, request, params: {} } as TestRouteArgs);
+      const response = await indexLoader({ context, request, params: {} } as TestRouteArgs);
 
-      expect(response).toBeInstanceOf(Response);
-      expect(response.status).toBe(302);
-      expect(response.headers.get('Location')).toBe('/en/employee');
+      expect(response).toEqual({
+        documentTitle: expect.any(String),
+      });
+
+      expect(requireAuthentication).toHaveBeenCalledWith(context.session, request);
     });
+  });
+
+  it('should handle authentication redirect if not authenticated', async () => {
+    // Mock requireAuthentication to throw a redirect
+    vi.mocked(requireAuthentication).mockImplementation(() => {
+      throw redirect('/login');
+    });
+
+    const context = createMockContext('test-user-123');
+    const request = new Request('http://localhost:3000/en/');
+
+    let error: unknown;
+    try {
+      await indexLoader({ context, request, params: {} } as TestRouteArgs);
+    } catch (e) {
+      error = e;
+    }
+
+    expect(error).toBeInstanceOf(Response);
+    expect((error as Response).status).toBe(302);
+    expect((error as Response).headers.get('Location')).toBe('/login');
   });
 });
