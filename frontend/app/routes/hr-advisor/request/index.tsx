@@ -18,11 +18,13 @@ export function meta({ loaderData }: Route.MetaArgs) {
   return [{ title: loaderData.documentTitle }];
 }
 
-export function action({ context, params, request }: Route.ActionArgs) {
+export function loader({ context, request, params }: Route.LoaderArgs) {
+  //TODO add loader logic
   return undefined;
 }
 
-export function loader({ context, request, params }: Route.LoaderArgs) {
+export function action({ context, params, request }: Route.ActionArgs) {
+  //TODO add action logic
   return undefined;
 }
 
