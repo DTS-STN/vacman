@@ -22,6 +22,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Example;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -30,9 +31,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntityBuilder;
 import ca.gov.dtsstn.vacman.api.data.repository.LanguageRepository;
+import ca.gov.dtsstn.vacman.api.data.repository.ProfileRepository;
+import ca.gov.dtsstn.vacman.api.data.repository.ProfileStatusRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.UserRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.UserTypeRepository;
 import ca.gov.dtsstn.vacman.api.service.MSGraphService;
@@ -55,6 +59,12 @@ class UsersControllerTest {
 
 	@Autowired
 	ObjectMapper objectMapper;
+
+	@Autowired
+	ProfileRepository profileRepository;
+
+	@Autowired
+	ProfileStatusRepository profileStatusRepository;
 
 	@Autowired
 	UserTypeRepository userTypeRepository;
@@ -243,6 +253,148 @@ class UsersControllerTest {
 		@WithMockUser(username = "00000000-0000-0000-0000-000000000000", authorities = { "employee" })
 		void testOverwriteUser() throws Exception {
 			throw new UnsupportedOperationException("not yet implemented");
+		}
+
+	}
+
+	@Nested
+	@DisplayName("POST /api/v1/users/{id}/profiles")
+	class CreateProfileForUser {
+
+		@Test
+		@DisplayName("Should create and return profile for user as hr-advisor")
+		@WithMockUser(username = "00000000-0000-0000-0000-000000000000", authorities = { "hr-advisor" })
+		void testCreateProfileAsHrAdvisor() throws Exception {
+			// create the HR advisor in the database
+			final var hrAdvisor = userRepository.save(UserEntity.builder()
+				.firstName("HR Advisor").lastName("User")
+				.businessEmailAddress("hr-advisor@example.com")
+				.microsoftEntraId("00000000-0000-0000-0000-000000000000")
+				.userType(userTypeRepository.findByCode("HRA").orElseThrow())
+				.language(languageRepository.getReferenceById(1L))
+				.build());
+
+			// create the employee in the database
+			final var employee = userRepository.save(UserEntity.builder()
+				.firstName("Employee").lastName("User")
+				.businessEmailAddress("employee@example.com")
+				.microsoftEntraId("99999999-9999-9999-9999-999999999999")
+				.userType(userTypeRepository.findByCode("employee").orElseThrow())
+				.language(languageRepository.getReferenceById(1L))
+				.build());
+
+			mockMvc.perform(post("/api/v1/users/{id}/profiles", employee.getId()))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.profileStatus.code", is("INCOMPLETE")))
+				.andExpect(jsonPath("$.profileUser.id", is(employee.getId().intValue())))
+				.andExpect(jsonPath("$.hrAdvisorId", is(hrAdvisor.getId().intValue())));
+		}
+
+		@Test
+		@DisplayName("Should return 409 Conflict if user already has an active profile")
+		@WithMockUser(username = "00000000-0000-0000-0000-000000000000", authorities = { "hr-advisor" })
+		void testCreateProfileConflict() throws Exception {
+			// create the HR advisor in the database
+			final var hrAdvisor = userRepository.save(UserEntity.builder()
+				.firstName("HR Advisor").lastName("User")
+				.businessEmailAddress("hr-advisor@example.com")
+				.microsoftEntraId("00000000-0000-0000-0000-000000000000")
+				.userType(userTypeRepository.findByCode("HRA").orElseThrow())
+				.language(languageRepository.getReferenceById(1L))
+				.build());
+
+			// create the employee in the database
+			final var employee = userRepository.save(UserEntity.builder()
+				.firstName("Employee").lastName("User")
+				.businessEmailAddress("employee@example.com")
+				.microsoftEntraId("99999999-9999-9999-9999-999999999999")
+				.userType(userTypeRepository.findByCode("employee").orElseThrow())
+				.language(languageRepository.getReferenceById(1L))
+				.build());
+
+			// create an existing active profile for the employee
+			profileRepository.save(ProfileEntity.builder()
+				.profileStatus(profileStatusRepository.findByCode("INCOMPLETE").orElseThrow())
+				.hrAdvisor(hrAdvisor)
+				.user(employee)
+				.build());
+
+			mockMvc.perform(post("/api/v1/users/{id}/profiles", employee.getId()))
+				.andExpect(status().isConflict());
+		}
+
+		@Test
+		@DisplayName("Should return 409 Conflict if an HR advisor creates a profile for himself")
+		@WithMockUser(username = "00000000-0000-0000-0000-000000000000", authorities = { "hr-advisor" })
+		void testCreateProfileHRAConflict() throws Exception {
+			// create the HR advisor in the database
+			final var hrAdvisor = userRepository.save(UserEntity.builder()
+				.firstName("HR Advisor").lastName("User")
+				.businessEmailAddress("hr-advisor@example.com")
+				.microsoftEntraId("00000000-0000-0000-0000-000000000000")
+				.userType(userTypeRepository.findByCode("HRA").orElseThrow())
+				.language(languageRepository.getReferenceById(1L))
+				.build());
+
+			mockMvc.perform(post("/api/v1/users/{id}/profiles", hrAdvisor.getId()))
+				.andExpect(status().isConflict());
+		}
+
+		@Test
+		@DisplayName("Should return 404 Not Found if user does not exist")
+		@WithMockUser(username = "00000000-0000-0000-0000-000000000000", authorities = { "hr-advisor" })
+		void testCreateProfileForNonExistentUser() throws Exception {
+			// create the HR advisor in the database
+			userRepository.save(UserEntity.builder()
+				.firstName("HR Advisor").lastName("User")
+				.businessEmailAddress("hr-advisor@example.com")
+				.microsoftEntraId("00000000-0000-0000-0000-000000000000")
+				.userType(userTypeRepository.findByCode("HRA").orElseThrow())
+				.language(languageRepository.getReferenceById(1L))
+				.build());
+
+			//
+			// Note: do not create a user in the database 😉
+			//
+
+			mockMvc.perform(post("/api/v1/users/{id}/profiles", 31415926))
+				.andExpect(status().isNotFound());
+		}
+
+		@Test
+		@DisplayName("Should return 403 Forbidden for regular user trying to create for another user")
+		@WithMockUser(username = "00000000-0000-0000-0000-000000000000", authorities = { "employee" })
+		void testCreateProfileForbidden() throws Exception {
+			mockMvc.perform(post("/api/v1/users/{id}/profiles", 16180339))
+				.andExpect(status().isForbidden());
+		}
+
+		@Test
+		@DisplayName("Should allow user to create their own profile")
+		@WithMockUser(username = "00000000-0000-0000-0000-000000000000", authorities = { "employee" })
+		void testCreateProfileForSelf() throws Exception {
+			// create the employee in the database
+			final var employee = userRepository.save(UserEntity.builder()
+				.firstName("Employee").lastName("User")
+				.businessEmailAddress("employee@example.com")
+				.microsoftEntraId("00000000-0000-0000-0000-000000000000")
+				.userType(userTypeRepository.findByCode("employee").orElseThrow())
+				.language(languageRepository.getReferenceById(1L))
+				.build());
+
+			mockMvc.perform(post("/api/v1/users/{id}/profiles", employee.getId()))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.profileStatus.code", is("INCOMPLETE")))
+				.andExpect(jsonPath("$.profileUser.id", is(employee.getId().intValue())))
+				.andExpect(jsonPath("$.hrAdvisorId").doesNotExist()); // ← no HR advisor set
+		}
+
+		@Test
+		@WithAnonymousUser
+		@DisplayName("Should return 401 Unauthorized if not authenticated")
+		void testCreateProfileUnauthorized() throws Exception {
+			mockMvc.perform(post("/api/v1/users/{id}/profiles", 27182818))
+				.andExpect(status().isUnauthorized());
 		}
 
 	}
