@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import org.mapstruct.factory.Mappers;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,7 +27,6 @@ import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes.ProfileStatuses;
 import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes.UserTypes;
 import ca.gov.dtsstn.vacman.api.data.entity.AbstractBaseEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
-import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 import ca.gov.dtsstn.vacman.api.data.repository.CityRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.ClassificationRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.EmploymentOpportunityRepository;
@@ -41,6 +41,7 @@ import ca.gov.dtsstn.vacman.api.event.ProfileReadEvent;
 import ca.gov.dtsstn.vacman.api.event.ProfileStatusChangeEvent;
 import ca.gov.dtsstn.vacman.api.event.ProfileUpdatedEvent;
 import ca.gov.dtsstn.vacman.api.security.SecurityUtils;
+import ca.gov.dtsstn.vacman.api.service.mapper.ProfileEntityMapper;
 import ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException;
 import ca.gov.dtsstn.vacman.api.web.model.ProfilePutModel;
 
@@ -52,6 +53,8 @@ public class ProfileService {
 
 	/** A collection of inactive profile status codes. */
 	public static final Set<String> INACTIVE_PROFILE_STATUS = Set.of("ARCHIVED");
+
+	private final ProfileEntityMapper profileEntityMapper = Mappers.getMapper(ProfileEntityMapper.class);
 
 	private final ProfileRepository profileRepository;
 
@@ -201,23 +204,19 @@ public class ProfileService {
 	}
 
 	/**
-	 * Creates a new profile associated with the {@code user} argument. Defaults the profile status to
-	 * {@code INCOMPLETE}.
-	 *
-	 * @param user The user who is associated with the profile.
-	 * @return The new profile entity.
+	 * Creates a new profile. Defaults the profile status to {@code INCOMPLETE}.
 	 */
-	public ProfileEntity createProfile(UserEntity user) {
-		final var incompleteStatus = profileStatusRepository.findByCode("INCOMPLETE").orElseThrow();
+	public ProfileEntity createProfile(ProfileEntity profile) {
+		final var incompleteStatus = profileStatusRepository.findByCode(profileStatuses.incomplete()).orElseThrow();
 
-		final var profile = profileRepository.save(ProfileEntity.builder()
-			.user(user)
-			.profileStatus(incompleteStatus)
-			.build());
+		final var savedProfile = profileRepository.save(
+			profileEntityMapper.toProfileEntityBuilder(profile)
+				.profileStatus(incompleteStatus)
+				.build());
 
-		eventPublisher.publishEvent(new ProfileCreateEvent(profile));
+		eventPublisher.publishEvent(new ProfileCreateEvent(savedProfile));
 
-		return profile;
+		return savedProfile;
 	}
 
 	/**
