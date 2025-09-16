@@ -211,6 +211,8 @@ public class RequestService {
 				handleRequestSubmitted(request, isOwner, currentStatus);
 			case "requestPickedUp" ->
 				handleRequestPickedUp(request, isHrAdvisor, currentStatus, currentUser);
+			case "vmsNotRequired" ->
+				handleVmsNotRequired(request, isHrAdvisor, currentStatus);
 			default ->
 				throw new IllegalArgumentException("Unknown event type: " + eventType);
 		};
@@ -381,6 +383,29 @@ public class RequestService {
 		log.info("Creating matches for request ID: [{}]", request.getId());
 
 		return true;
+	}
+
+	/**
+	 * Handles the vmsNotRequired event.
+	 * 
+	 * @param request The request entity
+	 * @param isHrAdvisor Whether the current user is an HR advisor
+	 * @param currentStatus The current status code of the request
+	 * @return The updated request entity
+	 */
+	private RequestEntity handleVmsNotRequired(RequestEntity request, boolean isHrAdvisor, String currentStatus) {
+		if (!isHrAdvisor) {
+			throw new UnauthorizedException("Only HR advisors can mark a request as VMS not required");
+		}
+
+		if (!requestStatuses.hrReview().equals(currentStatus)) {
+			throw new ResourceNotFoundException("Request must be in HR_REVIEW status to be marked as VMS not required");
+		}
+
+		// Set status to PENDING_PSC_NO_VMS
+		request.setRequestStatus(getRequestStatusByCode(requestStatuses.pendingPscClearanceNoVms()));
+
+		return request;
 	}
 
 }
