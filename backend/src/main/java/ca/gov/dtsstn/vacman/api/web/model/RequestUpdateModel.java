@@ -77,7 +77,7 @@ public record RequestUpdateModel(
 	Long hrAdvisorId,
 
 	@ValidLanguageCode
-	Long langaugeOfCorrespondenceId,
+	Long languageOfCorrespondenceId,
 
 	@ValidLanguageRequirementCode
 	Long languageRequirementId,

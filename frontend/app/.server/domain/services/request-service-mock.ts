@@ -181,8 +181,8 @@ export function getMockRequestService(): RequestService {
           : existingRequest.cities;
 
       const appointmentNonAdvertised =
-        requestUpdate.nonAdvertisedAppointmentId !== undefined
-          ? (await getNonAdvertisedAppointmentService().getById(requestUpdate.nonAdvertisedAppointmentId)).into()
+        requestUpdate.appointmentNonAdvertisedId !== undefined
+          ? (await getNonAdvertisedAppointmentService().getById(requestUpdate.appointmentNonAdvertisedId)).into()
           : existingRequest.appointmentNonAdvertised;
 
       // Merge updates with existing request
@@ -203,7 +203,7 @@ export function getMockRequestService(): RequestService {
         workSchedule,
         employmentEquities,
         appointmentNonAdvertised,
-        hasPerformedSameDuties: requestUpdate.performedSameDuties,
+        hasPerformedSameDuties: requestUpdate.hasPerformedSameDuties,
         id: requestId, // Ensure ID doesn't change
         lastModifiedDate: new Date().toISOString(),
         lastModifiedBy: 'mock-user',
