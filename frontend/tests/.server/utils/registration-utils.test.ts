@@ -41,6 +41,7 @@ describe('registration-utils', () => {
     updateUser: vi.fn(),
     getUsers: vi.fn(),
     updateUserById: vi.fn(),
+    createProfileForUser: vi.fn(),
   };
 
   const createMockSession = (roles: string[] = []): AuthenticatedSession =>
