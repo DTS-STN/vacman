@@ -65,7 +65,7 @@ inputs = {
   ]
 
   app_web_redirect_uris = [
-    "https://vacman.service.canada.ca/auth/callback/azuread",
+    "https://vacman.esdc-edsc.canada.ca/auth/callback/azuread",
     # TODO ::: GjB ::: remove prod-dp-internal URL after go-live
     "https://vacman.prod-dp-internal.dts-stn.com/auth/callback/azuread",
   ]
