@@ -313,19 +313,10 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
 
   // Clean the URL after reading the param
   useEffect(() => {
-    if (searchParams.get('editedEmp') === 'true') {
-      setHasEmploymentChanged(true);
-      const newUrl = location.pathname;
-      void navigate(newUrl, { replace: true });
-    }
-  }, [searchParams, location.pathname, navigate]);
-
-  useEffect(() => {
-    if (searchParams.get('editedRef') === 'true') {
-      setHasReferralPreferenceChanged(true);
-      const newUrl = location.pathname;
-      void navigate(newUrl, { replace: true });
-    }
+    const newUrl = location.pathname;
+    if (searchParams.get('editedEmp') === 'true') setHasEmploymentChanged(true);
+    if (searchParams.get('editedRef') === 'true') setHasReferralPreferenceChanged(true);
+    void navigate(newUrl, { replace: true });
   }, [searchParams, location.pathname, navigate]);
 
   return (
