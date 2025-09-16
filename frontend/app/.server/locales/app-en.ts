@@ -398,13 +398,10 @@ export default {
     'directorate': 'Directorate',
     'preferred-language-of-correspondence': 'Preferred language for correspondence',
     'additional-comments': 'Additional comments',
-<<<<<<< HEAD
-=======
     'search': 'Search',
     'submiter-title': 'Submitter',
     'hiring-manager-title': 'Hiring manager',
     'sub-delegate-title': 'Sub-delegate',
->>>>>>> 39736667 (complete loader, todos)
     // TODO: error messages need to be updated when available
     'errors': {
       'is-submitter-hiring-manager-required': 'Is submitter the hiring manager for this request field is required.',
