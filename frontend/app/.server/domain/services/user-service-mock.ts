@@ -1,8 +1,18 @@
 import { Err, None, Ok, Some } from 'oxide.ts';
 import type { Option, Result } from 'oxide.ts';
 
-import type { User, UserCreate, UserUpdate, PagedUserResponse, UserQueryParams, PageMetadata } from '~/.server/domain/models';
-import { mockUsers } from '~/.server/domain/services/mockData';
+import { getProfileService } from './profile-service';
+
+import type {
+  User,
+  UserCreate,
+  UserUpdate,
+  PagedUserResponse,
+  UserQueryParams,
+  PageMetadata,
+  Profile,
+} from '~/.server/domain/models';
+import { mockUsers, mockProfiles } from '~/.server/domain/services/mockData';
 import type { UserService } from '~/.server/domain/services/user-service';
 import { LogFactory } from '~/.server/logging';
 import { AppError } from '~/errors/app-error';
@@ -222,6 +232,53 @@ export function getMockUserService(): UserService {
           error: error instanceof Error ? error.message : 'Unknown error',
         });
         return Promise.resolve(Err(new AppError('Failed to register current user', ErrorCodes.PROFILE_CREATE_FAILED)));
+      }
+    },
+
+    /**
+     * Creates a new profile for a user
+     */
+    createProfileForUser: async (userId: number, _accessToken: string): Promise<Result<Profile, AppError>> => {
+      log.debug(`Attempting to create profile for user ID: ${userId}`);
+
+      try {
+        // Check if user exists
+        const user = getUserById(userId);
+        if (!user) {
+          log.debug(`User with ID ${userId} not found`);
+          return Err(new AppError('User not found', ErrorCodes.PROFILE_NOT_FOUND));
+        }
+
+        // Check if user already has a profile (mock logic)
+        const profiles = (await getProfileService().getProfiles({ active: true }, _accessToken)).into()?.content;
+        const hasExistingProfile = profiles?.some((p) => p.profileUser.id === userId);
+        if (hasExistingProfile) {
+          log.debug(`User with ID ${userId} already has an active profile`);
+          return Err(new AppError('User already has an active profile', ErrorCodes.ACTIVE_PROFILE_ALREADY_EXISTS));
+        }
+
+        // Create mock profile
+        const newProfile: Profile = {
+          id: Math.max(...mockProfiles.map(({ id }) => id)) + 1,
+          profileUser: user,
+          hrAdvisorId: undefined,
+          createdDate: new Date().toISOString(),
+          createdBy: 'mock-system',
+          lastModifiedDate: new Date().toISOString(),
+          lastModifiedBy: 'mock-system',
+        };
+
+        log.debug(`Successfully created profile for user ID: ${userId}`, {
+          profileId: newProfile.id,
+        });
+
+        return Ok(newProfile);
+      } catch (error) {
+        log.debug('Failed to create profile', {
+          error: error instanceof Error ? error.message : 'Unknown error',
+          userId,
+        });
+        return Err(new AppError('Failed to create profile', ErrorCodes.PROFILE_CREATE_FAILED));
       }
     },
   };
