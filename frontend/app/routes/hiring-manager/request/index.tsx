@@ -8,7 +8,15 @@ import { useTranslation } from 'react-i18next';
 import type { Route } from './+types/index';
 
 import { getCityService } from '~/.server/domain/services/city-service';
+import { getClassificationService } from '~/.server/domain/services/classification-service';
+import { getDirectorateService } from '~/.server/domain/services/directorate-service';
+import { getEmploymentEquityService } from '~/.server/domain/services/employment-equity-service';
+import { getEmploymentTenureService } from '~/.server/domain/services/employment-tenure-service';
+import { getLanguageForCorrespondenceService } from '~/.server/domain/services/language-for-correspondence-service';
+import { getNonAdvertisedAppointmentService } from '~/.server/domain/services/non-advertised-appointment-service';
 import { getRequestService } from '~/.server/domain/services/request-service';
+import { getSelectionProcessTypeService } from '~/.server/domain/services/selection-process-type-service';
+import { getWorkScheduleService } from '~/.server/domain/services/work-schedule-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { countCompletedItems } from '~/.server/utils/profile-utils';
 import { AlertMessage } from '~/components/alert-message';
@@ -20,7 +28,7 @@ import { PageTitle } from '~/components/page-title';
 import { ProfileCard } from '~/components/profile-card';
 import { Progress } from '~/components/progress';
 import { StatusTag } from '~/components/status-tag';
-import { LANGUAGE_REQUIREMENT_CODES } from '~/domain/constants';
+import { EMPLOYMENT_TENURE, LANGUAGE_REQUIREMENT_CODES, SELECTION_PROCESS_TYPE } from '~/domain/constants';
 //import { PROFILE_STATUS_CODE, EMPLOYEE_WFA_STATUS } from '~/domain/constants';
 import { useFetcherState } from '~/hooks/use-fetcher-state';
 import { getTranslation } from '~/i18n-config.server';
@@ -33,9 +41,6 @@ export const handle = {
 export function meta({ loaderData }: Route.MetaArgs) {
   return [{ title: loaderData.documentTitle }];
 }
-
-// TODO review below and delete what is not needed
-//export default function HiringManagerRequestIndex({ loaderData, params }: Route.ComponentProps) {}
 
 export async function action({ context, params, request }: Route.ActionArgs) {
   requireAuthentication(context.session, request);
@@ -61,6 +66,10 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     employmentEquities: currentRequest?.employmentEquities,
   };
 
+  const languageProficiencyRequired =
+    currentRequest?.languageRequirement?.code === LANGUAGE_REQUIREMENT_CODES.bilingualImperative ||
+    currentRequest?.languageRequirement?.code === LANGUAGE_REQUIREMENT_CODES.bilingualNonImperative;
+
   // For position information from Request Model
   const requiredPositionFields = {
     positionNumber: currentRequest?.positionNumber,
@@ -69,8 +78,12 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     frenchTitle: currentRequest?.frenchTitle,
     cities: currentRequest?.cities,
     languageRequirement: currentRequest?.languageRequirement,
-    englishLanguageProfile: currentRequest?.englishLanguageProfile,
-    frenchLanguageProfile: currentRequest?.frenchLanguageProfile,
+    ...(languageProficiencyRequired
+      ? {
+          englishLanguageProfile: currentRequest.englishLanguageProfile,
+          frenchLanguageProfile: currentRequest.frenchLanguageProfile,
+        }
+      : {}),
     securityClearance: currentRequest?.securityClearance,
   };
 
@@ -89,15 +102,6 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     languageOfCorrespondence: currentRequest?.languageOfCorrespondence,
     additionalComment: currentRequest?.additionalComment,
   };
-
-  // Other data fields from the Request Model not included in the sections above but needed for submission
-  // const otherFields = {
-  //   priorityClearanceNumber: currentRequest?.priorityClearanceNumber,
-  //   pscClearanceNumber: currentRequest?.pscClearanceNumber,
-  //   requestNumber: currentRequest?.requestNumber,
-  //   status: currentRequest?.status,
-  //   hrAdvisor: currentRequest?.hrAdvisor,
-  // }
 
   // Check if all sections are complete
   const processInfoComplete = countCompletedItems(requiredProcessFields) === Object.keys(requiredProcessFields).length;
@@ -153,53 +157,15 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const hasRequestChanged = url.searchParams.get('edited') === 'true';
 
   const allLocalizedCities = await getCityService().listAllLocalized(lang);
+  const allLocalizedProcessTypes = await getSelectionProcessTypeService().listAllLocalized(lang);
+  const allLocalizedAppointmentNonAdvertised = await getNonAdvertisedAppointmentService().listAllLocalized(lang);
+  const allLocalizedTenures = await getEmploymentTenureService().listAllLocalized(lang);
+  const allLocalizedWorkSchedules = await getWorkScheduleService().listAllLocalized(lang);
+  const allLocalizedEmploymentEquities = await getEmploymentEquityService().listAllLocalized(lang);
+  const allLocalizedClassifications = await getClassificationService().listAllLocalized(lang);
+  const allLocalizedDirectorates = await getDirectorateService().listAllLocalized(lang);
+  const allLocalizedPreferredLanguage = await getLanguageForCorrespondenceService().listAllLocalized(lang);
 
-  //
-  // TODO review next section remove what is not needed
-
-  // Fetch reference data
-  //   const [allClassifications, allLocalizedCities] = await Promise.all([
-  //      getClassificationService().listAllLocalized(lang),
-  //      getCityService().listAllLocalized(lang),
-  //   ]);
-
-  // Use profileUser for updated by information as well
-  //   const profileUpdatedByUserName = `${currentRequest.firstName ?? 'Unknown'} ${currentRequest.lastName ?? 'User'}`;
-  //   const profileStatus = profileData.profileStatus
-  //     ? (await getProfileStatusService().findLocalizedById(profileData.profileStatus.id, lang)).unwrap()
-  //     : { code: PROFILE_STATUS_CODE.incomplete, name: 'Incomplete' };
-  //   const workUnitResult =
-  //     profileData.substantiveWorkUnit !== undefined
-  //       ? await getDirectorateService().findLocalizedById(profileData.substantiveWorkUnit.id, lang)
-  //       : undefined;
-  //   const substantivePositionResult =
-  //     profileData.substantiveClassification !== undefined
-  //       ? await getClassificationService().findLocalizedById(profileData.substantiveClassification.id, lang)
-  //       : undefined;
-  //   const cityResult =
-  //     profileData.substantiveCity !== undefined
-  //       ? await getCityService().findLocalizedById(profileData.substantiveCity.id, lang)
-  //       : undefined;
-
-  // convert the IDs to display names
-  //   const substantivePosition = substantivePositionResult?.into()?.name;
-  //   const branchOrServiceCanadaRegion = workUnitResult?.into()?.parent?.name;
-  //   const directorate = workUnitResult?.into()?.name;
-  //   const city = cityResult?.into();
-  //   const hrAdvisors = await getHrAdvisors(context.session.authState.accessToken);  // needed?
-  //   const submitter = hrAdvisors.find((u) => u.id === profileData.submitterId);
-  //   const hiringManager = hrAdvisors.find((u) => u.id === profileData.hiringManagerId);
-  //   const subDelegatedManager = hrAdvisors.find((u) => u.id === profileData.subDelegatedManagerId);
-  //   const hrAdvisor = hrAdvisors.find((u) => u.id === profileData.hrAdvisorId);
-  //   const languageReferralTypes = profileData.preferredLanguages
-  //     ?.map((lang) => allLocalizedLanguageReferralTypes.find((l) => l.id === lang.id))
-  //     .filter(Boolean);
-  //   const classifications = profileData.preferredClassifications
-  //     ?.map((classification) => allClassifications.find((c) => c.id === classification.id))
-  //     .filter(Boolean);
-  //   const cities = profileData.preferredCities?.map((city) => allLocalizedCities.find((c) => c.id === city.id)).filter(Boolean);
-
-  // Check each section if the required fields are complete
   // Process information from Request type
   const processInformationData = {
     processInformationNumber: currentRequest?.selectionProcessNumber,
@@ -280,21 +246,11 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const submissionInformationCompleted = countCompletedItems(requiredSubmissionInformation);
   const submissionInformationTotalFields = Object.keys(requiredSubmissionInformation).length;
 
-  // Other data fields from the Request type not included in the sections above
-  // const otherFields = {
-  //   priorityClearanceNumber: currentRequest?.priorityClearanceNumber,
-  //   pscClearanceNumber: currentRequest?.pscClearanceNumber,
-  //   requestNumber: currentRequest?.requestNumber,
-  //   status: currentRequest?.status,
-  //   hrAdvisor: currentRequest?.hrAdvisor,
-  // }
-
   // Determine completeness
-
   const isCompleteProcessInformation = processInformationCompleted === processInformationTotalFields;
   const isCompletePositionInformation = positionInformationCompleted === positionInformationTotalFields;
   const isCompleteStatementOfMeritCriteriaInformaion =
-    statementOfMeritCriteriaInformationCompleted === statementOfMeritCriteriaInformationTotalFields; // Statement Of Merit Criteria
+    statementOfMeritCriteriaInformationCompleted === statementOfMeritCriteriaInformationTotalFields;
   const isCompleteSubmissionInformation = submissionInformationCompleted === submissionInformationTotalFields;
 
   const profileCompleted =
@@ -309,6 +265,9 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     submissionInformationTotalFields;
   const amountCompleted = (profileCompleted / profileTotalFields) * 100;
   const cities = currentRequest?.cities?.map((city) => allLocalizedCities.find((c) => c.id === city.id)).filter(Boolean);
+  const employmentEquities = currentRequest?.employmentEquities
+    ?.map((eq) => allLocalizedEmploymentEquities.find((e) => e.code === eq.code))
+    .filter(Boolean);
 
   return {
     documentTitle: t('app:hiring-manager-referral-requests.page-title'),
@@ -318,29 +277,25 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       isCompletePositionInformation &&
       isCompleteStatementOfMeritCriteriaInformaion &&
       isCompleteSubmissionInformation,
-    //
-    // process
     isCompleteProcessInformation,
     isProcessNew: processInformationCompleted === 0,
-
     selectionProcessNumber: currentRequest?.selectionProcessNumber,
     workforceMgmtApprovalRecvd: currentRequest?.workforceMgmtApprovalRecvd,
     priorityEntitlement: currentRequest?.priorityEntitlement,
     priorityEntitlementRationale: currentRequest?.priorityEntitlementRationale,
-    selectionProcessType: currentRequest?.selectionProcessType,
+    selectionProcessType: allLocalizedProcessTypes.find((s) => s.code === currentRequest?.selectionProcessType?.code),
     hasPerformedSameDuties: currentRequest?.hasPerformedSameDuties,
-    appointmentNonAdvertised: currentRequest?.appointmentNonAdvertised,
-    employmentTenure: currentRequest?.employmentTenure,
-    projectedStartDate: currentRequest?.projectedStartDate, // formatted as ISO date string (LocalDate)
-    projectedEndDate: currentRequest?.projectedEndDate, // formatted as ISO date string (LocalDate)
-    workSchedule: currentRequest?.workSchedule,
+    appointmentNonAdvertised: allLocalizedAppointmentNonAdvertised.find(
+      (a) => a.code === currentRequest?.appointmentNonAdvertised?.code,
+    ),
+    employmentTenure: allLocalizedTenures.find((t) => t.code === currentRequest?.employmentTenure?.code),
+    projectedStartDate: currentRequest?.projectedStartDate,
+    projectedEndDate: currentRequest?.projectedEndDate,
+    workSchedule: allLocalizedWorkSchedules.find((w) => w.code === currentRequest?.workSchedule?.code),
     equityNeeded: currentRequest?.equityNeeded,
-    employmentEquities: currentRequest?.employmentEquities,
-    //
-    // position
+    employmentEquities: employmentEquities?.map((eq) => eq?.name).join(', '),
     isCompletePositionInformation,
     isPositionNew: positionInformationCompleted === 0,
-
     positionNumber: currentRequest?.positionNumber,
     classification: currentRequest?.classification,
     englishTitle: currentRequest?.englishTitle,
@@ -350,26 +305,21 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     englishLanguageProfile: currentRequest?.englishLanguageProfile,
     frenchLanguageProfile: currentRequest?.frenchLanguageProfile,
     securityClearance: currentRequest?.securityClearance,
-    //
-    // Statement Of Merit Criteria
     isCompleteStatementOfMeritCriteriaInformaion,
     isStatementOfMeritCriteriaNew: statementOfMeritCriteriaInformationCompleted === 0,
-
     englishStatementOfMerit: currentRequest?.englishStatementOfMerit,
     frenchStatementOfMerit: currentRequest?.frenchStatementOfMerit,
-    //
-    // submission
     isCompleteSubmissionInformation,
     isSubmissionNew: submissionInformationCompleted === 0,
-
     submitter: currentRequest?.submitter,
     hiringManager: currentRequest?.hiringManager,
     subDelegatedManager: currentRequest?.subDelegatedManager,
-    workUnit: currentRequest?.workUnit,
-    languageOfCorrespondence: currentRequest?.languageOfCorrespondence,
+    workUnit: allLocalizedClassifications.find((c) => c.code === currentRequest?.workUnit?.parent?.code),
+    directorate: allLocalizedDirectorates.find((d) => d.code === currentRequest?.workUnit?.code),
+    languageOfCorrespondence: allLocalizedPreferredLanguage.find(
+      (p) => p.code === currentRequest?.languageOfCorrespondence?.code,
+    ),
     additionalComment: currentRequest?.additionalComment,
-
-    // Other fields
     status: currentRequest?.status,
     hrAdvisor: currentRequest?.hrAdvisor,
     priorityClearanceNumber: currentRequest?.priorityClearanceNumber,
@@ -377,11 +327,6 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     requestNumber: currentRequest?.requestNumber,
     hasRequestChanged,
     lang,
-
-    // TODO review
-    // lastModifiedDate: currentRequest.lastModifiedDate ?? undefined,
-    // lastUpdatedBy: profileUpdatedByUserName,
-    // baseTimeZone: serverEnvironment.BASE_TIMEZONE,
   };
 }
 
@@ -493,7 +438,7 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
               isComplete={loaderData.isCompleteProcessInformation}
               isNew={loaderData.isProcessNew}
               params={params}
-              errorState={fetcher.data?.processInfoComplete === false} //TODO review
+              errorState={fetcher.data?.processInfoComplete === false}
               required
               showStatus
             >
@@ -501,62 +446,83 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
                 <>{t('app:hiring-manager-referral-requests.process-intro')}</>
               ) : (
                 <DescriptionList>
-                  {/* TODO review All fields */}
                   <DescriptionListItem term={t('app:process-information.selection-process-number')}>
                     {loaderData.selectionProcessNumber ?? t('app:hiring-manager-referral-requests.not-provided')}
                   </DescriptionListItem>
 
-                  {/* TODO review  */}
-                  {/* <DescriptionListItem term={t('app:process-information.workforceMgmtApprovalRecvd')}>
-                    {loaderData.workforceMgmtApprovalRecvd ?? t('app:hiring-manager-referral-requests.not-provided')}
-                  </DescriptionListItem> */}
+                  <DescriptionListItem term={t('app:process-information.approval-received')}>
+                    {loaderData.workforceMgmtApprovalRecvd
+                      ? t('app:process-information.yes')
+                      : t('app:hiring-manager-referral-requests.not-provided')}
+                  </DescriptionListItem>
 
                   <DescriptionListItem term={t('app:process-information.priority-entitlement')}>
-                    {loaderData.priorityEntitlement ?? t('app:hiring-manager-referral-requests.not-provided')}
+                    {loaderData.priorityEntitlement === true
+                      ? t('app:process-information.yes')
+                      : loaderData.priorityEntitlement === false
+                        ? t('app:process-information.no')
+                        : t('app:hiring-manager-referral-requests.not-provided')}
                   </DescriptionListItem>
 
-                  <DescriptionListItem term={t('app:process-information.priority-entitlement-rationale')}>
-                    {loaderData.priorityEntitlementRationale ?? t('app:hiring-manager-referral-requests.not-provided')}
-                  </DescriptionListItem>
+                  {loaderData.priorityEntitlement === true && (
+                    <DescriptionListItem term={t('app:process-information.priority-entitlement-rationale')}>
+                      {loaderData.priorityEntitlementRationale ?? t('app:hiring-manager-referral-requests.not-provided')}
+                    </DescriptionListItem>
+                  )}
 
                   <DescriptionListItem term={t('app:process-information.selection-process-type')}>
-                    {loaderData.selectionProcessType?.code ?? t('app:hiring-manager-referral-requests.not-provided')}
+                    {loaderData.selectionProcessType?.name ?? t('app:hiring-manager-referral-requests.not-provided')}
                   </DescriptionListItem>
 
-                  <DescriptionListItem term={t('app:process-information.performed-duties')}>
-                    {loaderData.hasPerformedSameDuties ?? t('app:hiring-manager-referral-requests.not-provided')}
-                  </DescriptionListItem>
+                  {loaderData.selectionProcessType?.id === SELECTION_PROCESS_TYPE.externalNonAdvertised && (
+                    <>
+                      <DescriptionListItem term={t('app:process-information.performed-duties')}>
+                        {loaderData.hasPerformedSameDuties === true
+                          ? t('app:process-information.yes')
+                          : loaderData.hasPerformedSameDuties === false
+                            ? t('app:process-information.no')
+                            : t('app:hiring-manager-referral-requests.not-provided')}
+                      </DescriptionListItem>
 
-                  {/* TODO review  */}
-                  {/* <DescriptionListItem term={t('app:process-information.appointment-non-advertised')}>    
-                      {loaderData.appointmentNonAdvertised?.code ?? t('app:hiring-manager-referral-requests.not-provided')}
-                  </DescriptionListItem> */}
+                      <DescriptionListItem term={t('app:process-information.non-advertised-appointment')}>
+                        {loaderData.appointmentNonAdvertised?.name ?? t('app:hiring-manager-referral-requests.not-provided')}
+                      </DescriptionListItem>
+                    </>
+                  )}
 
                   <DescriptionListItem term={t('app:process-information.employment-tenure')}>
-                    {loaderData.employmentTenure?.code ?? t('app:hiring-manager-referral-requests.not-provided')}
+                    {loaderData.employmentTenure?.name ?? t('app:hiring-manager-referral-requests.not-provided')}
                   </DescriptionListItem>
 
-                  <DescriptionListItem term={t('app:process-information.projected-start-date')}>
-                    {loaderData.projectedStartDate ?? t('app:hiring-manager-referral-requests.not-provided')}
-                  </DescriptionListItem>
+                  {loaderData.employmentTenure?.code === EMPLOYMENT_TENURE.term && (
+                    <>
+                      <DescriptionListItem term={t('app:process-information.projected-start-date')}>
+                        {loaderData.projectedStartDate ?? t('app:hiring-manager-referral-requests.not-provided')}
+                      </DescriptionListItem>
 
-                  <DescriptionListItem term={t('app:process-information.projected-end-date')}>
-                    {loaderData.projectedEndDate ?? t('app:hiring-manager-referral-requests.not-provided')}
-                  </DescriptionListItem>
+                      <DescriptionListItem term={t('app:process-information.projected-end-date')}>
+                        {loaderData.projectedEndDate ?? t('app:hiring-manager-referral-requests.not-provided')}
+                      </DescriptionListItem>
+                    </>
+                  )}
 
                   <DescriptionListItem term={t('app:process-information.work-schedule')}>
-                    {loaderData.workSchedule?.code ?? t('app:hiring-manager-referral-requests.not-provided')}
+                    {loaderData.workSchedule?.name ?? t('app:hiring-manager-referral-requests.not-provided')}
                   </DescriptionListItem>
 
-                  {/* TODO review  */}
-                  {/* <DescriptionListItem term={t('app:process-information.equity-needed')}>    
-                      {loaderData.equityNeeded ?? t('app:hiring-manager-referral-requests.not-provided')}
-                  </DescriptionListItem> */}
+                  <DescriptionListItem term={t('app:process-information.employment-equity-identified')}>
+                    {loaderData.equityNeeded === true
+                      ? t('app:process-information.yes')
+                      : loaderData.equityNeeded === false
+                        ? t('app:process-information.no')
+                        : t('app:hiring-manager-referral-requests.not-provided')}
+                  </DescriptionListItem>
 
-                  {/* TODO review  */}
-                  {/* <DescriptionListItem term={t('app:process-information.employment-equities')}>    
+                  {loaderData.equityNeeded === true && (
+                    <DescriptionListItem term={t('app:process-information.preferred-employment-equities')}>
                       {loaderData.employmentEquities ?? t('app:hiring-manager-referral-requests.not-provided')}
-                  </DescriptionListItem> */}
+                    </DescriptionListItem>
+                  )}
                 </DescriptionList>
               )}
             </ProfileCard>
@@ -569,14 +535,13 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
               isNew={loaderData.isPositionNew}
               params={params}
               required
-              errorState={fetcher.data?.positionInfoComplete === false} //TODO review
+              errorState={fetcher.data?.positionInfoComplete === false}
               showStatus
             >
               {loaderData.isPositionNew ? (
                 <>{t('app:hiring-manager-referral-requests.position-intro')}</>
               ) : (
                 <DescriptionList>
-                  {/* TODO review All fields */}
                   <DescriptionListItem term={t('app:position-information.position-number')}>
                     {loaderData.positionNumber ?? t('app:hiring-manager-referral-requests.not-provided')}
                   </DescriptionListItem>
@@ -631,7 +596,7 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
               isNew={loaderData.isStatementOfMeritCriteriaNew}
               params={params}
               required
-              errorState={fetcher.data?.statementOfMeritCriteriaInfoComplete === false} //TODO review
+              errorState={fetcher.data?.statementOfMeritCriteriaInfoComplete === false}
               showStatus
             >
               {loaderData.isStatementOfMeritCriteriaNew ? (
@@ -657,39 +622,61 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
               isNew={loaderData.isSubmissionNew}
               params={params}
               required
-              errorState={fetcher.data?.submissionInfoComplete === false} //TODO review
+              errorState={fetcher.data?.submissionInfoComplete === false}
               showStatus
             >
               {loaderData.isSubmissionNew ? (
                 <>{t('app:hiring-manager-referral-requests.submission-intro')}</>
               ) : (
                 <DescriptionList>
-                  {/* TODO review All fields */}
-                  {/* TODO replace name*/}
-                  <DescriptionListItem term={t('app:submission-details.hiring-manager.submitter')}>
-                    {(loaderData.submitter?.firstName, loaderData.submitter?.lastName) ??
-                      t('app:hiring-manager-referral-requests.not-provided')}
+                  <DescriptionListItem term={t('app:submission-details.submiter-title')}>
+                    {loaderData.submitter ? (
+                      <>
+                        {loaderData.submitter.firstName} {loaderData.submitter.lastName}
+                        <br />
+                        {loaderData.submitter.businessEmailAddress}
+                      </>
+                    ) : (
+                      t('app:hiring-manager-referral-requests.not-provided')
+                    )}
                   </DescriptionListItem>
 
-                  {/* TODO replace name*/}
-                  <DescriptionListItem term={t('app:submission-details.hiring-manager-name')}>
-                    {(loaderData.hiringManager?.firstName, loaderData.hiringManager?.lastName) ??
-                      t('app:hiring-manager-referral-requests.not-provided')}
+                  <DescriptionListItem term={t('app:submission-details.hiring-manager-title')}>
+                    {loaderData.hiringManager ? (
+                      <>
+                        {loaderData.hiringManager.firstName} {loaderData.hiringManager.lastName}
+                        <br />
+                        {loaderData.hiringManager.businessEmailAddress}
+                      </>
+                    ) : (
+                      t('app:hiring-manager-referral-requests.not-provided')
+                    )}
                   </DescriptionListItem>
 
-                  {/* TODO replace name*/}
-                  <DescriptionListItem term={t('app:submission-details.sub-delegate-name')}>
-                    {(loaderData.subDelegatedManager?.firstName, loaderData.subDelegatedManager?.lastName) ??
-                      t('app:hiring-manager-referral-requests.not-provided')}
+                  <DescriptionListItem term={t('app:submission-details.sub-delegate-title')}>
+                    {loaderData.subDelegatedManager ? (
+                      <>
+                        {loaderData.subDelegatedManager.firstName} {loaderData.subDelegatedManager.lastName}
+                        <br />
+                        {loaderData.subDelegatedManager.businessEmailAddress}
+                      </>
+                    ) : (
+                      t('app:hiring-manager-referral-requests.not-provided')
+                    )}
                   </DescriptionListItem>
 
-                  <DescriptionListItem term={t('app:submission-details.directorate')}>
-                    {/* TODO review  */}
-                    {/* {loaderData.workUnit ?? t('app:hiring-manager-referral-requests.not-provided')} */}
+                  <DescriptionListItem term={t('app:submission-details.branch-or-service-canada-region')}>
+                    {loaderData.workUnit?.name ?? t('app:hiring-manager-referral-requests.not-provided')}
                   </DescriptionListItem>
+
+                  {loaderData.workUnit && (
+                    <DescriptionListItem term={t('app:submission-details.directorate')}>
+                      {loaderData.directorate?.name ?? t('app:hiring-manager-referral-requests.not-provided')}
+                    </DescriptionListItem>
+                  )}
 
                   <DescriptionListItem term={t('app:submission-details.preferred-language-of-correspondence')}>
-                    {loaderData.languageOfCorrespondence?.code ?? t('app:hiring-manager-referral-requests.not-provided')}
+                    {loaderData.languageOfCorrespondence?.name ?? t('app:hiring-manager-referral-requests.not-provided')}
                   </DescriptionListItem>
 
                   <DescriptionListItem term={t('app:submission-details.additional-comments')}>
