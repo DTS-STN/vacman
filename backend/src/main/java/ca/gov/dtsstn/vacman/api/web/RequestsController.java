@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -32,12 +33,16 @@ import ca.gov.dtsstn.vacman.api.service.UserService;
 import ca.gov.dtsstn.vacman.api.web.model.CollectionModel;
 import ca.gov.dtsstn.vacman.api.web.model.ProfileReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.RequestReadModel;
+import ca.gov.dtsstn.vacman.api.web.model.RequestStatusUpdateModel;
 import ca.gov.dtsstn.vacman.api.web.model.RequestUpdateModel;
 import ca.gov.dtsstn.vacman.api.web.model.mapper.RequestModelMapper;
+import ca.gov.dtsstn.vacman.api.web.validator.ValidHrAdvisorParam;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.util.Optional;
+import ca.gov.dtsstn.vacman.api.data.entity.AbstractBaseEntity;
 
 @RestController
 @ApiResponses.AccessDeniedError
@@ -67,8 +72,26 @@ public class RequestsController {
 	@ApiResponses.BadRequestError
 	@PreAuthorize("hasAuthority('hr-advisor')")
 	@Operation(summary = "Get hiring requests with pagination.")
-	public ResponseEntity<PagedModel<RequestReadModel>> getAllRequests(@ParameterObject Pageable pageable) {
-		throw new UnsupportedOperationException("not yet implemented");
+	public ResponseEntity<PagedModel<RequestReadModel>> getAllRequests(
+			@ParameterObject Pageable pageable,
+			@RequestParam(name = "hr-advisor", required = false) @ValidHrAdvisorParam String hrAdvisorParam) {
+
+		final var hrAdvisorId = Optional.ofNullable(hrAdvisorParam).flatMap(id -> switch (id) {
+			case "me" -> {
+				final var entraId = SecurityUtils.getCurrentUserEntraId()
+					.orElseThrow(asEntraIdUnauthorizedException());
+
+				yield userService.getUserByMicrosoftEntraId(entraId)
+					.map(AbstractBaseEntity::getId);
+			}
+			default -> {
+				yield Optional.of(Long.valueOf(id));
+			}
+		}).orElseThrow(asUserResourceNotFoundException("microsoftEntraId", hrAdvisorParam));
+
+		final var requests = requestService.getAllRequests(pageable, hrAdvisorId).map(requestModelMapper::toModel);
+
+		return ResponseEntity.ok(new PagedModel<>(requests));
 	}
 
 	@ApiResponses.Ok
@@ -120,7 +143,11 @@ public class RequestsController {
 	@Operation(summary = "Delete a request by ID.")
 	@PreAuthorize("hasAuthority('hr-advisor') || hasPermission(#id, 'REQUEST', 'DELETE')")
 	public ResponseEntity<Void> deleteRequestById(@PathVariable Long id) {
-		throw new UnsupportedOperationException("not yet implemented");
+		log.info("Received request to delete request; ID: [{}]", id);
+
+		requestService.deleteRequest(id);
+
+		return ResponseEntity.noContent().build();
 	}
 
 	@ApiResponses.Ok
@@ -145,8 +172,19 @@ public class RequestsController {
 	@ApiResponses.UnprocessableEntityError
 	@Operation(summary = "Update a request by ID.")
 	@PreAuthorize("hasAuthority('hr-advisor') || hasPermission(#id, 'REQUEST', 'UPDATE')")
-	public ResponseEntity<RequestReadModel> updateRequest(@PathVariable Long id, @Valid @RequestBody RequestUpdateModel request) {
-		throw new UnsupportedOperationException("not yet implemented");
+	public ResponseEntity<RequestReadModel> updateRequest(@PathVariable Long id, @Valid @RequestBody RequestUpdateModel updateModel) {
+		log.info("Received request to update request; ID: [{}]", id);
+
+		final var request = requestService.getRequestById(id)
+			.orElseThrow(asResourceNotFoundException("request", id));
+
+		log.trace("Found request: [{}]", request);
+
+		final var preparedEntity = requestService.prepareRequestForUpdate(updateModel, request);
+
+		final var updatedEntity = requestService.updateRequest(preparedEntity);
+
+		return ResponseEntity.ok(requestModelMapper.toModel(updatedEntity));
 	}
 
 	@ApiResponses.Ok
@@ -156,8 +194,38 @@ public class RequestsController {
 	@ApiResponses.UnprocessableEntityError
 	@Operation(summary = "Update the status of a request.")
 	@PreAuthorize("hasAuthority('hr-advisor') || hasPermission(#id, 'REQUEST', 'UPDATE')")
-	public ResponseEntity<RequestReadModel> updateRequestStatus(@PathVariable Long id, @Valid @RequestBody Object statusUpdate) {
-		throw new UnsupportedOperationException("not yet implemented");
+	public ResponseEntity<RequestReadModel> updateRequestStatus(@PathVariable Long id, @Valid @RequestBody RequestStatusUpdateModel statusUpdate) {
+		log.info("Received request to update request status; ID: [{}], Event: [{}]", 
+				id, statusUpdate.eventType());
+
+		final var request = requestService.getRequestById(id)
+			.orElseThrow(asResourceNotFoundException("request", id));
+
+		log.trace("Found request: [{}]", request);
+
+		final var updatedEntity = requestService.updateRequestStatus(request, statusUpdate.eventType());
+
+		return ResponseEntity.ok(requestModelMapper.toModel(updatedEntity));
+	}
+
+	@ApiResponses.Ok
+	@ApiResponses.BadRequestError
+	@PostMapping({ "/{id}/approve" })
+	@ApiResponses.ResourceNotFoundError
+	@ApiResponses.UnprocessableEntityError
+	@Operation(summary = "Approve a request and run the match creation algorithm.")
+	@PreAuthorize("hasAuthority('hr-advisor')")
+	public ResponseEntity<RequestReadModel> approveRequest(@PathVariable Long id) {
+		log.info("Received request to approve request; ID: [{}]", id);
+
+		final var request = requestService.getRequestById(id)
+			.orElseThrow(asResourceNotFoundException("request", id));
+
+		log.trace("Found request: [{}]", request);
+
+		final var updatedEntity = requestService.approveRequest(request);
+
+		return ResponseEntity.ok(requestModelMapper.toModel(updatedEntity));
 	}
 
 	//
