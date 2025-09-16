@@ -399,7 +399,7 @@ public class RequestService {
 		}
 
 		if (!requestStatuses.hrReview().equals(currentStatus)) {
-			throw new ResourceNotFoundException("Request must be in HR_REVIEW status to be marked as VMS not required");
+			throw new ResourceConflictException("Request must be in HR_REVIEW status to be marked as VMS not required");
 		}
 
 		// Set status to PENDING_PSC_NO_VMS
