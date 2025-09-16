@@ -3,6 +3,7 @@ package ca.gov.dtsstn.vacman.api.web;
 import static ca.gov.dtsstn.vacman.api.data.entity.AbstractBaseEntity.byId;
 import static ca.gov.dtsstn.vacman.api.data.entity.AbstractCodeEntity.byCode;
 import static ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException.asResourceNotFoundException;
+import static ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException.asUserResourceNotFoundException;
 import static ca.gov.dtsstn.vacman.api.web.exception.UnauthorizedException.asEntraIdUnauthorizedException;
 
 import java.util.List;
@@ -32,17 +33,21 @@ import ca.gov.dtsstn.vacman.api.config.properties.ApplicationProperties;
 import ca.gov.dtsstn.vacman.api.config.properties.EntraIdProperties.RolesProperties;
 import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes;
 import ca.gov.dtsstn.vacman.api.data.entity.LanguageEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 import ca.gov.dtsstn.vacman.api.security.SecurityUtils;
 import ca.gov.dtsstn.vacman.api.service.CodeService;
 import ca.gov.dtsstn.vacman.api.service.MSGraphService;
+import ca.gov.dtsstn.vacman.api.service.ProfileService;
 import ca.gov.dtsstn.vacman.api.service.UserService;
 import ca.gov.dtsstn.vacman.api.web.exception.ResourceConflictException;
 import ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException;
+import ca.gov.dtsstn.vacman.api.web.model.ProfileReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.UserCreateModel;
 import ca.gov.dtsstn.vacman.api.web.model.UserPatchModel;
 import ca.gov.dtsstn.vacman.api.web.model.UserReadFilterModel;
 import ca.gov.dtsstn.vacman.api.web.model.UserReadModel;
+import ca.gov.dtsstn.vacman.api.web.model.mapper.ProfileModelMapper;
 import ca.gov.dtsstn.vacman.api.web.model.mapper.UserModelMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -66,6 +71,10 @@ public class UsersController {
 
 	private final MSGraphService msGraphService;
 
+	private final ProfileModelMapper profileModelMapper = Mappers.getMapper(ProfileModelMapper.class);
+
+	private final ProfileService profileService;
+
 	private final UserModelMapper userModelMapper = Mappers.getMapper(UserModelMapper.class);
 
 	private final UserService userService;
@@ -75,12 +84,14 @@ public class UsersController {
 			CodeService codeService,
 			LookupCodes lookupCodes,
 			MSGraphService msGraphService,
+			ProfileService profileService,
 			UserService userService) {
 		this.codeService = codeService;
 		this.entraRoles = applicationProperties.entraId().roles();
-		this.msGraphService = msGraphService;
-		this.userService = userService;
 		this.lookupCodes = lookupCodes;
+		this.msGraphService = msGraphService;
+		this.profileService = profileService;
+		this.userService = userService;
 	}
 
 	@ApiResponses.Ok
@@ -258,6 +269,42 @@ public class UsersController {
 		userService.getUserById(id).orElseThrow(asResourceNotFoundException("user", id));
 		final var updatedUser = userService.overwriteUser(id, userModelMapper.toEntity(userUpdate));
 		return ResponseEntity.ok(userModelMapper.toModel(updatedUser));
+	}
+
+	@ApiResponses.Ok
+	@ApiResponses.BadRequestError
+	@ApiResponses.AccessDeniedError
+	@ApiResponses.AuthenticationError
+	@PostMapping({ "/{id}/profiles" })
+	@ApiResponses.ResourceNotFoundError
+	@Operation(summary = "Create a new profile for a user.")
+	@PreAuthorize("hasAuthority('hr-advisor') || hasPermission(#id, 'USER', 'UPDATE')")
+	public ResponseEntity<ProfileReadModel> createProfileForUser(@PathVariable long id) {
+		log.debug("Request to create new profile for userId={}", id);
+
+		final var hasExistingProfile = profileService.getActiveProfilesByUserId(id).size() > 0;
+
+		if (hasExistingProfile) {
+			throw new ResourceConflictException("User with id=[" + id + "] already has an active profile");
+		}
+
+		final var currentEntraId = SecurityUtils.getCurrentUserEntraId().orElseThrow(asEntraIdUnauthorizedException());
+		final var currentUser = userService.getUserByMicrosoftEntraId(currentEntraId).orElseThrow(asUserResourceNotFoundException("user", currentEntraId));
+		final var targetUser = userService.getUserById(id).orElseThrow(asResourceNotFoundException("user", id));
+
+		if (SecurityUtils.hasAuthority("hr-advisor") && currentUser.equals(targetUser)) {
+			throw new ResourceConflictException("HR advisors can not have profiles");
+		}
+
+		final var hrAdvisor = currentUser.equals(targetUser) ? null : currentUser;
+
+		final var profile = profileModelMapper.toModel(
+			profileService.createProfile(ProfileEntity.builder()
+				.hrAdvisor(hrAdvisor)
+				.user(targetUser)
+				.build()));
+
+		return ResponseEntity.ok(profile);
 	}
 
 	private LanguageEntity getEnglishLanguage() {
