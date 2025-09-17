@@ -14,6 +14,7 @@ import { getEmploymentTenureService } from '~/.server/domain/services/employment
 import { getLanguageForCorrespondenceService } from '~/.server/domain/services/language-for-correspondence-service';
 import { getNonAdvertisedAppointmentService } from '~/.server/domain/services/non-advertised-appointment-service';
 import { getRequestService } from '~/.server/domain/services/request-service';
+import { getRequestStatusService } from '~/.server/domain/services/request-status-service';
 import { getSelectionProcessTypeService } from '~/.server/domain/services/selection-process-type-service';
 import { getWorkScheduleService } from '~/.server/domain/services/work-schedule-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
@@ -47,22 +48,37 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   // TODO review data and formatting
   const requestData = await getRequestService().getRequestById(Number(params.requestId), context.session.authState.accessToken);
   const currentRequest = requestData.into();
+  const { lang } = await getTranslation(request, handle.i18nNamespace);
+
+  const allLocalizedRequestStatus = await getRequestStatusService().listAllLocalized(lang);
 
   // For process information from Request Model
   const requiredProcessFields = {
     selectionProcessNumber: currentRequest?.selectionProcessNumber,
     workforceMgmtApprovalRecvd: currentRequest?.workforceMgmtApprovalRecvd,
     priorityEntitlement: currentRequest?.priorityEntitlement,
-    priorityEntitlementRationale: currentRequest?.priorityEntitlementRationale,
-    selectionProcessType: currentRequest?.selectionProcessType,
-    hasPerformedSameDuties: currentRequest?.hasPerformedSameDuties,
-    appointmentNonAdvertised: currentRequest?.appointmentNonAdvertised,
-    employmentTenure: currentRequest?.employmentTenure,
-    projectedStartDate: currentRequest?.projectedStartDate,
-    projectedEndDate: currentRequest?.projectedEndDate,
-    workSchedule: currentRequest?.workSchedule,
-    equityNeeded: currentRequest?.equityNeeded,
-    employmentEquities: currentRequest?.employmentEquities,
+    ...(currentRequest?.priorityEntitlement
+      ? {
+          priorityEntitlementRationale: currentRequest.priorityEntitlementRationale,
+        }
+      : {}),
+    ...(currentRequest?.selectionProcessType?.id === SELECTION_PROCESS_TYPE.externalNonAdvertised
+      ? {
+          hasPerformedSameDuties: currentRequest.hasPerformedSameDuties,
+          appointmentNonAdvertised: currentRequest.appointmentNonAdvertised,
+        }
+      : {}),
+    ...(currentRequest?.employmentTenure?.code === EMPLOYMENT_TENURE.term
+      ? {
+          projectedStartDate: currentRequest.projectedStartDate,
+          projectedEndDate: currentRequest.projectedEndDate,
+        }
+      : {}),
+    ...(currentRequest?.equityNeeded === true
+      ? {
+          employmentEquities: currentRequest.employmentEquities,
+        }
+      : {}),
   };
 
   const languageProficiencyRequired =
@@ -164,6 +180,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     allLocalizedEmploymentEquities,
     allLocalizedDirectorates,
     allLocalizedPreferredLanguage,
+    allLocalizedRequestStatus,
   ] = await Promise.all([
     getCityService().listAllLocalized(lang),
     getSelectionProcessTypeService().listAllLocalized(lang),
@@ -173,6 +190,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     getEmploymentEquityService().listAllLocalized(lang),
     getDirectorateService().listAllLocalized(lang),
     getLanguageForCorrespondenceService().listAllLocalized(lang),
+    getRequestStatusService().listAllLocalized(lang),
   ]);
 
   // Process information from Request type
@@ -356,7 +374,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       (p) => p.code === currentRequest?.languageOfCorrespondence?.code,
     ),
     additionalComment: currentRequest?.additionalComment,
-    status: currentRequest?.status,
+    status: allLocalizedRequestStatus.find((s) => s.code === currentRequest?.status?.code),
     hrAdvisor: currentRequest?.hrAdvisor,
     priorityClearanceNumber: currentRequest?.priorityClearanceNumber,
     pscClearanceNumber: currentRequest?.pscClearanceNumber,
@@ -397,16 +415,14 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
   return (
     <div className="space-y-8">
       <div className="space-y-4 py-8 text-white">
-        <StatusTag
-          status={{
-            code: 'DRAFT', // TODO review loaderData.status,
-            name: 'Draft', // TODO adapt code below
-            // name:
-            //   loaderData.status === REQUEST_STATUS_CODE.draft
-            //     ? t('app:hiring-manager.draft-status-request')
-            //     : loaderData.status.name,
-          }}
-        />
+        {loaderData.status && (
+          <StatusTag
+            status={{
+              code: loaderData.status.code,
+              name: loaderData.status.name,
+            }}
+          />
+        )}
 
         <PageTitle>{t('app:hiring-manager-referral-requests.page-title')}</PageTitle>
 
