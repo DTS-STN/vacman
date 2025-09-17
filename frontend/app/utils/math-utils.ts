@@ -5,9 +5,3 @@ export function clamp(value: number, min: number, max: number): number {
   const upper = Math.max(min, max);
   return Math.min(Math.max(value, lower), upper);
 }
-
-/** Clamp a 0-based page index to a valid range given totalPages. */
-export function clampPageIndex(indexZeroBased: number, totalPages: number): number {
-  const maxIndex = Math.max(0, totalPages - 1);
-  return clamp(indexZeroBased, 0, maxIndex);
-}
