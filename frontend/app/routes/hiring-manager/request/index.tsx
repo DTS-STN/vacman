@@ -156,15 +156,27 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const url = new URL(request.url);
   const hasRequestChanged = url.searchParams.get('edited') === 'true';
 
-  const allLocalizedCities = await getCityService().listAllLocalized(lang);
-  const allLocalizedProcessTypes = await getSelectionProcessTypeService().listAllLocalized(lang);
-  const allLocalizedAppointmentNonAdvertised = await getNonAdvertisedAppointmentService().listAllLocalized(lang);
-  const allLocalizedTenures = await getEmploymentTenureService().listAllLocalized(lang);
-  const allLocalizedWorkSchedules = await getWorkScheduleService().listAllLocalized(lang);
-  const allLocalizedEmploymentEquities = await getEmploymentEquityService().listAllLocalized(lang);
-  const allLocalizedClassifications = await getClassificationService().listAllLocalized(lang);
-  const allLocalizedDirectorates = await getDirectorateService().listAllLocalized(lang);
-  const allLocalizedPreferredLanguage = await getLanguageForCorrespondenceService().listAllLocalized(lang);
+  const [
+    allLocalizedCities,
+    allLocalizedProcessTypes,
+    allLocalizedAppointmentNonAdvertised,
+    allLocalizedTenures,
+    allLocalizedWorkSchedules,
+    allLocalizedEmploymentEquities,
+    allLocalizedClassifications,
+    allLocalizedDirectorates,
+    allLocalizedPreferredLanguage,
+  ] = await Promise.all([
+    getCityService().listAllLocalized(lang),
+    getSelectionProcessTypeService().listAllLocalized(lang),
+    getNonAdvertisedAppointmentService().listAllLocalized(lang),
+    getEmploymentTenureService().listAllLocalized(lang),
+    getWorkScheduleService().listAllLocalized(lang),
+    getEmploymentEquityService().listAllLocalized(lang),
+    getClassificationService().listAllLocalized(lang),
+    getDirectorateService().listAllLocalized(lang),
+    getLanguageForCorrespondenceService().listAllLocalized(lang),
+  ]);
 
   // Process information from Request type
   const processInformationData = {
