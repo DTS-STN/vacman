@@ -1,6 +1,6 @@
 import type { Option, Result } from 'oxide.ts';
 
-import type { User, UserCreate, UserUpdate, PagedUserResponse, UserQueryParams } from '~/.server/domain/models';
+import type { User, UserCreate, UserUpdate, PagedUserResponse, UserQueryParams, Profile } from '~/.server/domain/models';
 import { getDefaultUserService } from '~/.server/domain/services/user-service-default';
 import { getMockUserService } from '~/.server/domain/services/user-service-mock';
 import { serverEnvironment } from '~/.server/environment';
@@ -19,6 +19,8 @@ export type UserService = {
   registerCurrentUser(user: UserCreate, accessToken: string): Promise<Result<User, AppError>>;
   // PUT /api/v1/users/{id} - Update an existing user (full update)
   updateUserById(id: number, user: UserUpdate, accessToken: string): Promise<Result<User, AppError>>;
+  // POST /api/v1/users/{id}/profiles - Create a new profile for a user
+  createProfileForUser(userId: number, accessToken: string): Promise<Result<Profile, AppError>>;
 };
 
 export function getUserService(): UserService {

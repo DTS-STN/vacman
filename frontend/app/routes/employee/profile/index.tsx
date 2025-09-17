@@ -258,7 +258,10 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       isNew: countReferralPreferencesCompleted(referralPreferencesFields) === 0,
       preferredLanguages: languageReferralTypes?.map((l) => l?.name),
       preferredClassifications: classifications?.map((c) => c?.name),
-      preferredCities: cities?.map((city) => city?.provinceTerritory.name + ' - ' + city?.name),
+      preferredCities: cities?.map((city) => ({
+        province: city?.provinceTerritory.name,
+        city: city?.name,
+      })),
       isAvailableForReferral: profileData.isAvailableForReferral,
       isInterestedInAlternation: profileData.isInterestedInAlternation,
     },
@@ -276,6 +279,13 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
   const fetcher = useFetcher<typeof action>();
   const fetcherState = useFetcherState(fetcher);
   const isSubmitting = fetcherState.submitting;
+
+  type CityPreference = {
+    province: string;
+    city: string;
+  };
+
+  type GroupedCities = Record<string, string[]>;
 
   const alertRef = useRef<HTMLDivElement>(null);
   if (fetcher.data && alertRef.current) {
@@ -520,8 +530,26 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
               <DescriptionListItem term={t('app:referral-preferences.work-location')}>
                 {loaderData.referralPreferences.preferredCities === undefined
                   ? t('app:profile.not-provided')
-                  : loaderData.referralPreferences.preferredCities.length > 0 &&
-                    loaderData.referralPreferences.preferredCities.join(', ')}
+                  : loaderData.referralPreferences.preferredCities.length > 0 && (
+                      <div>
+                        {/* Group cities by province */}
+                        {Object.entries(
+                          (loaderData.referralPreferences.preferredCities as CityPreference[]).reduce(
+                            (acc: GroupedCities, city: CityPreference) => {
+                              const provinceName = city.province;
+                              acc[provinceName] ??= [];
+                              acc[provinceName].push(city.city);
+                              return acc;
+                            },
+                            {} as GroupedCities,
+                          ),
+                        ).map(([province, cities]) => (
+                          <div key={province}>
+                            <strong>{province}:</strong> {cities.join(', ')}
+                          </div>
+                        ))}
+                      </div>
+                    )}
               </DescriptionListItem>
               <DescriptionListItem term={t('app:referral-preferences.referral-availibility')}>
                 {loaderData.referralPreferences.isAvailableForReferral === undefined

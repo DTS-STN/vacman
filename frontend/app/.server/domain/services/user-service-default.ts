@@ -1,7 +1,7 @@
 import { Err, None, Ok, Some } from 'oxide.ts';
 import type { Option, Result } from 'oxide.ts';
 
-import type { User, UserCreate, UserUpdate, PagedUserResponse, UserQueryParams } from '~/.server/domain/models';
+import type { User, UserCreate, UserUpdate, PagedUserResponse, UserQueryParams, Profile } from '~/.server/domain/models';
 import { apiClient } from '~/.server/domain/services/api-client';
 import type { UserService } from '~/.server/domain/services/user-service';
 import { AppError } from '~/errors/app-error';
@@ -130,6 +130,42 @@ export function getDefaultUserService(): UserService {
           return Err(new AppError(`User with ID ${id} not found.`, ErrorCodes.VACMAN_API_ERROR));
         }
         return Err(error);
+      }
+
+      return result;
+    },
+
+    /**
+     * Creates a new profile for a user
+     * @param userId The ID of the user to create a profile for
+     * @param accessToken The access token for authorization
+     * @returns A Result containing the created profile or an error
+     */
+    async createProfileForUser(userId: number, accessToken: string): Promise<Result<Profile, AppError>> {
+      const result = await apiClient.post<null, Profile>(
+        `/users/${userId}/profiles`,
+        `create profile for user with ID ${userId}`,
+        null,
+        accessToken,
+      );
+
+      if (result.isErr()) {
+        const error = result.unwrapErr();
+
+        if (error.httpStatusCode === HttpStatusCodes.NOT_FOUND) {
+          return Err(new AppError(`User with ID ${userId} not found.`, ErrorCodes.PROFILE_NOT_FOUND));
+        }
+
+        if (error.httpStatusCode === HttpStatusCodes.CONFLICT) {
+          return Err(new AppError(`User already has an active profile.`, ErrorCodes.ACTIVE_PROFILE_ALREADY_EXISTS));
+        }
+
+        return Err(
+          new AppError(`Failed to create profile. Reason: ${error.message}`, ErrorCodes.PROFILE_CREATE_FAILED, {
+            httpStatusCode: error.httpStatusCode,
+            correlationId: error.correlationId,
+          }),
+        );
       }
 
       return result;
