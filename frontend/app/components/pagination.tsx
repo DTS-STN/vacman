@@ -2,6 +2,7 @@ import type { ComponentProps } from 'react';
 
 import { faEllipsis } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { useTranslation } from 'react-i18next';
 
 import { Button } from '~/components/button';
 import { cn } from '~/utils/tailwind-utils';
@@ -72,6 +73,7 @@ function PaginationNext({ className, children, ...props }: ComponentProps<typeof
 
 // Ellipsis indicator
 function PaginationEllipsis({ className, ...props }: ComponentProps<'span'>) {
+  const { t } = useTranslation(['gcweb']);
   return (
     <span
       aria-hidden
@@ -80,7 +82,7 @@ function PaginationEllipsis({ className, ...props }: ComponentProps<'span'>) {
       {...props}
     >
       <FontAwesomeIcon icon={faEllipsis} className="h-4 w-4" />
-      <span className="sr-only">More pages</span>
+      <span className="sr-only">{t('gcweb:data-table.pagination.more-pages', { defaultValue: 'More pages' })}</span>
     </span>
   );
 }
