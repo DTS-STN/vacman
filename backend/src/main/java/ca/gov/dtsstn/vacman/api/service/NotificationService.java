@@ -42,19 +42,19 @@ public class NotificationService {
 		Assert.hasText(username, "username is required; it must not be blank or null");
 
 		final var templateId = switch (profileStatus) {
-			case CREATED -> language != "en" 
+			case CREATED -> language == "en" 
 				? applicationProperties.gcnotify().profileCreatedTemplateIdEng()
 				: applicationProperties.gcnotify().profileCreatedTemplateIdFra(); 
 
-			case UPDATED -> language != "en" 
+			case UPDATED -> language == "en" 
 				? applicationProperties.gcnotify().profileUpdatedTemplateIdEng()
 				: applicationProperties.gcnotify().profileUpdatedTemplateIdFra();
 
-			case APPROVED -> language != "en" 
+			case APPROVED -> language == "en" 
 				? applicationProperties.gcnotify().profileApprovedTemplateIdEng()
 				: applicationProperties.gcnotify().profileApprovedTemplateIdFra();
 
-			case PENDING -> language != "en" 
+			case PENDING -> language == "en" 
 				? applicationProperties.gcnotify().profilePendingTemplateId()
 				: applicationProperties.gcnotify().profilePendingTemplateId();
 
