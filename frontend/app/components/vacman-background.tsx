@@ -3,11 +3,13 @@ import type { ComponentProps } from 'react';
 import { cn } from '~/utils/tailwind-utils';
 
 export interface VacmanBackgroundProps extends ComponentProps<'div'> {
-  height?: 'h-50' | 'h-60' | 'h-70' | 'h-80' | 'h-90';
+  height?: 'h-30' | 'h-40' | 'h-50' | 'h-60' | 'h-70' | 'h-80' | 'h-90';
   variant?: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
 }
 
 const smallViewportHeights = {
+  ['h-30']: 'h-40',
+  ['h-40']: 'h-50',
   ['h-50']: 'h-60',
   ['h-60']: 'h-70',
   ['h-70']: 'h-80',
