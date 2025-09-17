@@ -198,7 +198,16 @@ export const REQUEST_STATUSES = [
     code: 'CANCELLED',
     category: REQUEST_CATEGORY.inactive,
   },
-];
+] as const;
+
+type StatusCode = (typeof REQUEST_STATUSES)[number]['code'];
+export const REQUEST_STATUS_CODE: Record<StatusCode, StatusCode> = REQUEST_STATUSES.reduce(
+  (statusCodes, status) => {
+    statusCodes[status.code] = status.code;
+    return statusCodes;
+  },
+  {} as Record<StatusCode, StatusCode>,
+);
 
 export const EMPLOYMENT_TENURE = {
   term: 'TERM',

@@ -437,4 +437,35 @@ export default {
     'view-link': 'View request with ID {{requestId}}',
     'next-page': 'Next',
   },
+  'matches': {
+    'referral-request': 'Referral Request',
+    'request-id': 'Request ID',
+    'request-date': 'Request date',
+    'hiring-manager': 'Hiring manager',
+    'hr-advisor': 'HR advisor',
+    'back-request-details': 'Back to request details',
+    'request-candidates': 'Request candidates',
+    'feedback': {
+      approved:
+        '<strong>All feedback approved.</strong> Please return to the <InlineLink>Request details page</InlineLink> and select the next action to take',
+    },
+    'request-details': 'Request details',
+    'page-info':
+      'Review candidate feedback below for approval. If changes are needed, contact the hiring manager directly to discuss, and update before selecting the appropriate action on the request details page.',
+  },
+  'matches-tables': {
+    'employee': 'Employee',
+    'wfa-status': 'WFA/CT status',
+    'feedback': 'Feedback',
+    'comments': 'Comments',
+    'approval': 'Approval',
+    'comment-label': {
+      'add': 'Add Comment',
+      'view-add': 'View/add Comment',
+      'edit': 'Edit Comment',
+      'edit-add': 'Edit/add Comment',
+    },
+    'no-candidates': "You don't have any candidates at the moment.",
+    'next-page': 'Next',
+  },
 };

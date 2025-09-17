@@ -1,6 +1,6 @@
 import type { JSX } from 'react';
 
-import { PROFILE_STATUS_CODE } from '~/domain/constants';
+import { PROFILE_STATUS_CODE, REQUEST_STATUS_CODE } from '~/domain/constants';
 
 interface StatusTagProps {
   status: {
@@ -35,7 +35,12 @@ export function StatusTag({ status }: StatusTagProps): JSX.Element {
           {status.name}
         </span>
       );
-
+    case REQUEST_STATUS_CODE.FDBK_PEND_APPR:
+      return (
+        <span className="w-fit rounded-2xl border border-yellow-400 bg-yellow-100 px-3 py-0.5 text-sm font-semibold text-yellow-800">
+          {status.name}
+        </span>
+      );
     default:
       return <></>;
   }
