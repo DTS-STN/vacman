@@ -21,13 +21,14 @@ export function getDefaultUserService(): UserService {
 
       if (params.page !== undefined) searchParams.append('page', params.page.toString());
       if (params.size !== undefined) searchParams.append('size', params.size.toString());
-      if (params['user-type']) searchParams.append('user-type', params['user-type']);
+      if (params.userType) searchParams.append('userType', params.userType);
       if (params.email) searchParams.append('email', params.email);
       if (params.sort) {
         params.sort.forEach((sortParam) => searchParams.append('sort', sortParam));
       }
 
       const url = `/users${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
+      console.log(url);
       const result = await apiClient.get<PagedUserResponse>(url, 'retrieve paginated users', accessToken);
 
       if (result.isErr()) {
