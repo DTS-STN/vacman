@@ -99,7 +99,7 @@ export default {
       'previous-page': 'Previous',
       'next-page': 'Next',
       'last-page': 'Go to last page',
-  'more-pages': 'More pages',
+      'more-pages': 'More pages',
     },
     'sorting': {
       'sorted-ascending': '{{column}}, sorted ascending. Click to sort descending.',
