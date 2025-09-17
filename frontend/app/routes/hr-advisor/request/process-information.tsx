@@ -21,8 +21,9 @@ import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
 import { ProcessInformationForm } from '~/routes/page-components/requests/process-information/form';
-import { createProcessInformationSchema, toDateString } from '~/routes/page-components/requests/validation.server';
+import { createProcessInformationSchema } from '~/routes/page-components/requests/validation.server';
 import type { ProcessInformationSchema } from '~/routes/page-components/requests/validation.server';
+import { formatISODate } from '~/utils/date-utils';
 import { formString } from '~/utils/string-utils';
 
 export const handle = {
@@ -58,11 +59,13 @@ export async function action({ context, params, request }: Route.ActionArgs) {
       : undefined,
     nonAdvertisedAppointment: formString(formData.get('nonAdvertisedAppointment')),
     employmentTenure: formString(formData.get('employmentTenure')),
-    projectedStartDate: toDateString(projectedStartDateYear, projectedStartDateMonth, projectedStartDateDay),
+    projectedStartDate: formatISODate(`${projectedStartDateYear}-${projectedStartDateMonth}-${projectedStartDateDay}`).unwrapOr(
+      '',
+    ),
     projectedStartDateYear,
     projectedStartDateMonth,
     projectedStartDateDay,
-    projectedEndDate: toDateString(projectedEndDateYear, projectedEndDateMonth, projectedEndDateDay),
+    projectedEndDate: formatISODate(`${projectedEndDateYear}-${projectedEndDateMonth}-${projectedEndDateDay}`).unwrapOr(''),
     projectedEndDateYear,
     projectedEndDateMonth,
     projectedEndDateDay,

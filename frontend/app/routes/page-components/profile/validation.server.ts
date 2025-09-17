@@ -13,7 +13,7 @@ import { getWFAStatuses } from '~/.server/domain/services/wfa-status-service';
 import { extractUniqueBranchesFromDirectoratesNonLocalized } from '~/.server/utils/directorate-utils';
 import { stringToIntegerSchema } from '~/.server/validation/string-to-integer-schema';
 import { EMPLOYEE_WFA_STATUS } from '~/domain/constants';
-import { isValidDateString, toISODateString } from '~/utils/date-utils';
+import { formatISODate, isValidDateString } from '~/utils/date-utils';
 import { isValidPhone } from '~/utils/phone-utils';
 import { REGEX_PATTERNS } from '~/utils/regex-utils';
 import { formString } from '~/utils/string-utils';
@@ -364,11 +364,11 @@ export async function parseEmploymentInformation(formData: FormData, hrAdvisors:
     provinceId: formString(formData.get('province')),
     cityId: formString(formData.get('cityId')),
     wfaStatusId: formString(formData.get('wfaStatus')),
-    wfaStartDate: toDateString(wfaStartDateYear, wfaStartDateMonth, wfaStartDateDay),
+    wfaStartDate: formatISODate(`${wfaStartDateYear}-${wfaStartDateMonth}-${wfaStartDateDay}`).unwrapOr(''),
     wfaStartDateYear,
     wfaStartDateMonth,
     wfaStartDateDay,
-    wfaEndDate: toDateString(wfaEndDateYear, wfaEndDateMonth, wfaEndDateDay),
+    wfaEndDate: formatISODate(`${wfaEndDateYear}-${wfaEndDateMonth}-${wfaEndDateDay}`).unwrapOr(''),
     wfaEndDateYear,
     wfaEndDateMonth,
     wfaEndDateDay,
@@ -395,14 +395,6 @@ export async function parseEmploymentInformation(formData: FormData, hrAdvisors:
       hrAdvisorId: formValues.hrAdvisorId,
     },
   };
-}
-
-function toDateString(year?: string, month?: string, day?: string): string {
-  try {
-    return toISODateString(Number(year), Number(month), Number(day));
-  } catch {
-    return '';
-  }
 }
 
 /**
