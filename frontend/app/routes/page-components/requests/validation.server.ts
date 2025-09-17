@@ -12,7 +12,7 @@ import { getSelectionProcessTypeService } from '~/.server/domain/services/select
 import { extractUniqueBranchesFromDirectoratesNonLocalized } from '~/.server/utils/directorate-utils';
 import { stringToIntegerSchema } from '~/.server/validation/string-to-integer-schema';
 import { EMPLOYMENT_TENURE, LANGUAGE_REQUIREMENT_CODES, SELECTION_PROCESS_TYPE } from '~/domain/constants';
-import { isValidDateString, toISODateString } from '~/utils/date-utils';
+import { isValidDateString } from '~/utils/date-utils';
 
 export type PositionInformationSchema = Awaited<ReturnType<typeof createPositionInformationSchema>>;
 export type ProcessInformationSchema = Awaited<ReturnType<typeof createProcessInformationSchema>>;
@@ -505,12 +505,4 @@ export async function createProcessInformationSchema() {
       ['projectedEndDate'],
     ),
   );
-}
-
-export function toDateString(year?: string, month?: string, day?: string): string {
-  try {
-    return toISODateString(Number(year), Number(month), Number(day));
-  } catch {
-    return '';
-  }
 }
