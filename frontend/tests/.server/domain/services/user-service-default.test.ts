@@ -77,15 +77,15 @@ describe('getDefaultUserService', () => {
       expect(mockApiClient.get).toHaveBeenCalledWith('/users?page=0&size=10', 'retrieve paginated users', mockAccessToken);
     });
 
-    it('should include user-type filter in query', async () => {
+    it('should include userType filter in query', async () => {
       mockApiClient.get.mockResolvedValueOnce(Ok(mockUserResponse));
 
-      const params: UserQueryParams = { 'user-type': 'HRA', 'page': 0, 'size': 10 };
+      const params: UserQueryParams = { userType: 'HRA', page: 0, size: 10 };
       const result = await service.getUsers(params, mockAccessToken);
 
       expect(result.isOk()).toBe(true);
       expect(mockApiClient.get).toHaveBeenCalledWith(
-        '/users?page=0&size=10&user-type=HRA',
+        '/users?page=0&size=10&userType=HRA',
         'retrieve paginated users',
         mockAccessToken,
       );
