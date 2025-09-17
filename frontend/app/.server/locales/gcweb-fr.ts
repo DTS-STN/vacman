@@ -98,8 +98,8 @@ export default {
       'page-button-current': 'Page actuelle, page {{index}}',
       'page-button-go-to': 'Aller à la page {{index}}',
       'first-page': 'Aller à la première page',
-      'previous-page': 'Aller à la page précédente',
-      'next-page': 'Aller à la page suivante',
+      'previous-page': 'Précédent',
+      'next-page': 'Suivant',
       'last-page': 'Aller à la dernière page',
     },
     'sorting': {

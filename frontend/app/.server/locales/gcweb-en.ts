@@ -96,8 +96,8 @@ export default {
       'page-button-current': 'Current page, page {{index}}',
       'page-button-go-to': 'Go to page {{index}}',
       'first-page': 'Go to first page',
-      'previous-page': 'Go to previous page',
-      'next-page': 'Go to next page',
+      'previous-page': 'Previous',
+      'next-page': 'Next',
       'last-page': 'Go to last page',
     },
     'sorting': {
