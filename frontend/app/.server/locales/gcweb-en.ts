@@ -87,15 +87,19 @@ export default {
   'data-table': {
     'zero-records': 'No matching records found',
     'pagination': {
+      'label': 'Pagination',
       'info_zero': 'Showing 0 to 0 of 0 entries',
-      'info_one': 'Showing {{start}} to {{end}} of {{count}} entru',
+      'info_one': 'Showing {{start}} to {{end}} of {{count}} entry',
       'info_other': 'Showing {{start}} to {{end}} of {{count}} entries',
       'page-size': 'Entries per page',
       'page-info': 'Page {{index}} of {{count}}',
+      'page-button-current': 'Current page, page {{index}}',
+      'page-button-go-to': 'Go to page {{index}}',
       'first-page': 'Go to first page',
-      'previous-page': 'Go to previous page',
-      'next-page': 'Go to next page',
+      'previous-page': 'Previous',
+      'next-page': 'Next',
       'last-page': 'Go to last page',
+      'more-pages': 'More pages',
     },
     'sorting': {
       'sorted-ascending': '{{column}}, sorted ascending. Click to sort descending.',
