@@ -293,12 +293,30 @@ application:
     connect-timeout: 30s
     read-timeout: 30s
     api-key: 00000000-0000-0000-0000-000000000000 # must be set externally (ex: 00000000-0000-0000-0000-000000000000)
-    profile-approved-template-id: 00000000-0000-0000-0000-000000000000 # must be set externally (ex: 00000000-0000-0000-0000-000000000000)
-    profile-created-template-id: 00000000-0000-0000-0000-000000000000 # must be set externally (ex: 00000000-0000-0000-0000-000000000000)
-    profile-updated-template-id: 00000000-0000-0000-0000-000000000000 # must be set externally (ex: 00000000-0000-0000-0000-000000000000)
+    profile-approved-template-id-eng: 00000000-0000-0000-0000-000000000000 # must be set externally (ex: 00000000-0000-0000-0000-000000000000) VMS profile activation english
+    profile-approved-template-id-fra: 00000000-0000-0000-0000-000000000000 # must be set externally (ex: 00000000-0000-0000-0000-000000000000) VMS profile activation french
+    profile-created-template-id-eng: 00000000-0000-0000-0000-000000000000 # must be set externally (ex: 00000000-0000-0000-0000-000000000000) approval required english
+    profile-created-template-id-fra: 00000000-0000-0000-0000-000000000000 # must be set externally (ex: 00000000-0000-0000-0000-000000000000) approval required french
+    profile-updated-template-id-eng: 00000000-0000-0000-0000-000000000000 # must be set externally (ex: 00000000-0000-0000-0000-000000000000) approval required english
+    profile-updated-template-id-fra: 00000000-0000-0000-0000-000000000000 # must be set externally (ex: 00000000-0000-0000-0000-000000000000) approval required french
     profile-pending-template-id: 00000000-0000-0000-0000-000000000000 # must be set externally (ex: 00000000-0000-0000-0000-000000000000)
+    profile-closed-template-id-eng: 00000000-0000-0000-0000-000000000000 # must be set externally (ex: 00000000-0000-0000-0000-000000000000) VMS profile closed english
+    profile-closed-template-id-fra: 00000000-0000-0000-0000-000000000000 # must be set externally (ex: 00000000-0000-0000-0000-000000000000) VMS profile closed french
     request-created-template-id: 00000000-0000-0000-0000-000000000000 # must be set externally (ex: 00000000-0000-0000-0000-000000000000)
     request-feedback-pending-template-id: 00000000-0000-0000-0000-000000000000 # must be set externally (ex: 00000000-0000-0000-0000-000000000000)
+    request-feedback-approved-psc-template-id-eng: 00000000-0000-0000-0000-000000000000 # must be set externally (ex: 00000000-0000-0000-0000-000000000000) feedback approved PSC priority english
+    request-feedback-approved-psc-template-id-fra: 00000000-0000-0000-0000-000000000000 # must be set externally (ex: 00000000-0000-0000-0000-000000000000) feedback approved PSC priority french
+    request-feedback-approved-template-id-eng: 00000000-0000-0000-0000-000000000000 # must be set externally (ex: 00000000-0000-0000-0000-000000000000) feedback approved english
+    request-feedback-approved-template-id-fra: 00000000-0000-0000-0000-000000000000 # must be set externally (ex: 00000000-0000-0000-0000-000000000000) feedback approved french
+    request-cancelled-template-id-eng: 00000000-0000-0000-0000-000000000000 # must be set externally (ex: 00000000-0000-0000-0000-000000000000) request cancelled english
+    request-cancelled-template-id-fra: 00000000-0000-0000-0000-000000000000 # must be set externally (ex: 00000000-0000-0000-0000-000000000000) request cancelled french
+    hr-approved-manager-template-id-eng: 00000000-0000-0000-0000-000000000000 # must be set externally (ex: 00000000-0000-0000-0000-000000000000) priorities identified english
+    hr-approved-manager-template-id-fra: 00000000-0000-0000-0000-000000000000 # must be set externally (ex: 00000000-0000-0000-0000-000000000000) priorities identified french
+    job-hr-approved-template-id-eng: 00000000-0000-0000-0000-000000000000 # must be set externally (ex: 00000000-0000-0000-0000-000000000000) job opportunity HR approved english
+    job-hr-approved-template-id-fra: 00000000-0000-0000-0000-000000000000 # must be set externally (ex: 00000000-0000-0000-0000-000000000000) job opportunity HR approved french
+    job-opportunity-template-id-eng: 00000000-0000-0000-0000-000000000000 # must be set externally (ex: 00000000-0000-0000-0000-000000000000) job opportunity english
+    job-opportunity-template-id-fra: 00000000-0000-0000-0000-000000000000 # must be set externally (ex: 00000000-0000-0000-0000-000000000000) job opportunity french 
+
   ms-graph:
     base-url: https://graph.microsoft.com/v1.0
     connect-timeout: 10s

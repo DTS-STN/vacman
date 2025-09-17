@@ -56,9 +56,9 @@ class NotificationServiceTest {
 	}
 
 	@Test
-	@DisplayName("Test send Profile approved email")
-	void getemailProfileApprovedSuccess() {
-		when(applicationProperties.gcnotify().profileApprovedTemplateId())
+	@DisplayName("Test send Profile approved email English")
+	void getemailProfileApprovedEnglishSuccess() {
+		when(applicationProperties.gcnotify().profileApprovedTemplateIdEng())
 			.thenReturn("00000000-0000-0000-0000-000000000000");
 
 		when(restTemplate.postForObject(eq("/email"), any(Map.class), eq(NotificationReceipt.class)))
@@ -68,15 +68,16 @@ class NotificationServiceTest {
 			"test@example.com",
 			"00000000-0000-0000-0000-000000000000",
 			"Ana de Armas",
+			"en",
 			ProfileStatus.APPROVED);
 
 		assertThat(result).isNotNull(); // TODO ::: GjB ::: improve assertion
 	}
 
 	@Test
-	@DisplayName("Test send Profile created email")
-	void getemailProfileCreatedSuccess() {
-		when(applicationProperties.gcnotify().profileCreatedTemplateId())
+	@DisplayName("Test send Profile approved email French")
+	void getemailProfileApprovedFrenchSuccess() {
+		when(applicationProperties.gcnotify().profileApprovedTemplateIdFra())
 			.thenReturn("00000000-0000-0000-0000-000000000000");
 
 		when(restTemplate.postForObject(eq("/email"), any(Map.class), eq(NotificationReceipt.class)))
@@ -86,15 +87,35 @@ class NotificationServiceTest {
 			"test@example.com",
 			"00000000-0000-0000-0000-000000000000",
 			"Ana de Armas",
+			"fr",
+			ProfileStatus.APPROVED);
+
+		assertThat(result).isNotNull(); // TODO ::: GjB ::: improve assertion
+	}
+
+	@Test
+	@DisplayName("Test send Profile created email English")
+	void getemailProfileCreatedEnglishSuccess() {
+		when(applicationProperties.gcnotify().profileCreatedTemplateIdEng())
+			.thenReturn("00000000-0000-0000-0000-000000000000");
+
+		when(restTemplate.postForObject(eq("/email"), any(Map.class), eq(NotificationReceipt.class)))
+			.thenReturn(ImmutableNotificationReceipt.builder().build());
+
+		final var result = notificationService.sendEmailNotification(
+			"test@example.com",
+			"00000000-0000-0000-0000-000000000000",
+			"Ana de Armas",
+			"en",
 			ProfileStatus.CREATED);
 
 		assertThat(result).isNotNull(); // TODO ::: GjB ::: improve assertion
 	}
 
 	@Test
-	@DisplayName("Test send Profile updated email")
-	void getemailProfileUpdatedSuccess() {
-		when(applicationProperties.gcnotify().profileUpdatedTemplateId())
+	@DisplayName("Test send Profile created email French")
+	void getemailProfileCreatedFrenchSuccess() {
+		when(applicationProperties.gcnotify().profileCreatedTemplateIdFra())
 			.thenReturn("00000000-0000-0000-0000-000000000000");
 
 		when(restTemplate.postForObject(eq("/email"), any(Map.class), eq(NotificationReceipt.class)))
@@ -104,6 +125,46 @@ class NotificationServiceTest {
 			"test@example.com",
 			"00000000-0000-0000-0000-000000000000",
 			"Ana de Armas",
+			"fr",
+			ProfileStatus.CREATED);
+
+		assertThat(result).isNotNull(); // TODO ::: GjB ::: improve assertion
+	}
+
+
+	@Test
+	@DisplayName("Test send Profile updated email English")
+	void getemailProfileUpdatedEnglishSuccess() {
+		when(applicationProperties.gcnotify().profileUpdatedTemplateIdEng())
+			.thenReturn("00000000-0000-0000-0000-000000000000");
+
+		when(restTemplate.postForObject(eq("/email"), any(Map.class), eq(NotificationReceipt.class)))
+			.thenReturn(ImmutableNotificationReceipt.builder().build());
+
+		final var result = notificationService.sendEmailNotification(
+			"test@example.com",
+			"00000000-0000-0000-0000-000000000000",
+			"Ana de Armas",
+			"en",
+			ProfileStatus.UPDATED);
+
+		assertThat(result).isNotNull(); // TODO ::: GjB ::: improve assertion
+	}
+
+	@Test
+	@DisplayName("Test send Profile updated email French")
+	void getemailProfileUpdatedFrenchSuccess() {
+		when(applicationProperties.gcnotify().profileUpdatedTemplateIdFra())
+			.thenReturn("00000000-0000-0000-0000-000000000000");
+
+		when(restTemplate.postForObject(eq("/email"), any(Map.class), eq(NotificationReceipt.class)))
+			.thenReturn(ImmutableNotificationReceipt.builder().build());
+
+		final var result = notificationService.sendEmailNotification(
+			"test@example.com",
+			"00000000-0000-0000-0000-000000000000",
+			"Ana de Armas",
+			"fr",
 			ProfileStatus.UPDATED);
 
 		assertThat(result).isNotNull(); // TODO ::: GjB ::: improve assertion
@@ -122,6 +183,7 @@ class NotificationServiceTest {
 			"hradvisor@example.com",
 			"00000000-0000-0000-0000-000000000000",
 			"Ana de Armas",
+			"en",
 			ProfileStatus.PENDING);
 
 		assertThat(result).isNotNull(); // TODO ::: GjB ::: improve assertion

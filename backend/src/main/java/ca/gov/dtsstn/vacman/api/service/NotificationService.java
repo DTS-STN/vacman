@@ -36,29 +36,51 @@ public class NotificationService {
 			.build();
 	}
 
-	public NotificationReceipt sendEmailNotification(String email, String profileId, String username, ProfileStatus profileStatus) {
+	public NotificationReceipt sendEmailNotification(String email, String profileId, String username, String language, ProfileStatus profileStatus) {
 		Assert.hasText(email, "email is required; it must not be blank or null");
 		Assert.hasText(profileId, "profileId is required; it must not be blank or null");
 		Assert.hasText(username, "username is required; it must not be blank or null");
 
 		final var templateId = switch (profileStatus) {
-			case CREATED -> applicationProperties.gcnotify().profileCreatedTemplateId();
-			case UPDATED -> applicationProperties.gcnotify().profileUpdatedTemplateId();
-			case APPROVED -> applicationProperties.gcnotify().profileApprovedTemplateId();
-			case PENDING -> applicationProperties.gcnotify().profilePendingTemplateId();
+			case CREATED -> language != "en" 
+				? applicationProperties.gcnotify().profileCreatedTemplateIdEng()
+				: applicationProperties.gcnotify().profileCreatedTemplateIdFra(); 
+
+			case UPDATED -> language != "en" 
+				? applicationProperties.gcnotify().profileUpdatedTemplateIdEng()
+				: applicationProperties.gcnotify().profileUpdatedTemplateIdFra();
+
+			case APPROVED -> language != "en" 
+				? applicationProperties.gcnotify().profileApprovedTemplateIdEng()
+				: applicationProperties.gcnotify().profileApprovedTemplateIdFra();
+
+			case PENDING -> language != "en" 
+				? applicationProperties.gcnotify().profilePendingTemplateId()
+				: applicationProperties.gcnotify().profilePendingTemplateId();
+
 			default -> throw new IllegalArgumentException("Unknown profile status value " + profileStatus);
 		};
 
-		final var personalization = Map.of("link", profileId, "userName", username);
+		final var personalization = Map.of(
+			"link", profileId, 
+			"userName", username
+		);
+
 		log.trace("Request to send fileNumber notification email=[{}], parameters=[{}]", email, personalization);
 
-		final var request = Map.of("email_address", email, "template_id", templateId, "personalisation", personalization);
+		final var request = Map.of(
+			"email_address", email, 
+			"template_id", templateId, 
+			"personalisation", personalization
+		);
+
 		final var notificationReceipt = restTemplate.postForObject("/email", request, NotificationReceipt.class);
 		log.debug("Notification sent to email [{}] using template [{}]", email, templateId);
 
 		return notificationReceipt;
 	}
 
+	//TODO add language to get the correct template
 	public NotificationReceipt sendRequestNotification(String email, Long requestId, String requestTitle, RequestEvent requestEvent) {
 		Assert.hasText(email, "email is required; it must not be blank or null");
 		Assert.notNull(requestId, "requestId is required; it must not be null");
