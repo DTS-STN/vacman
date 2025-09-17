@@ -24,13 +24,14 @@ import { InputSelect } from '~/components/input-select';
 import { InlineLink } from '~/components/links';
 import { LoadingButton } from '~/components/loading-button';
 import { PageTitle } from '~/components/page-title';
-import { Pagination } from '~/components/pagination';
+import Pagination from '~/components/pagination';
 import { PROFILE_STATUS_CODE } from '~/domain/constants';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { useFetcherState } from '~/hooks/use-fetcher-state';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
 import { formatDateTimeInZone } from '~/utils/date-utils';
+import { getCurrentPage, getPageItems } from '~/utils/pagination-utils';
 import { formString } from '~/utils/string-utils';
 import { extractValidationKey } from '~/utils/validation-utils';
 
@@ -160,6 +161,11 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
       children: t('app:hr-advisor-employees-table.all-employees'),
     },
   ];
+
+  // Pagination helpers
+  const totalPages = loaderData.page.totalPages;
+  const currentPage = getCurrentPage(searchParams, 'page', totalPages);
+  const pageItems = getPageItems(totalPages, currentPage, { threshold: 9, delta: 2 });
 
   const columns: ColumnDef<Profile>[] = [
     {
@@ -293,11 +299,78 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
 
       <DataTable columns={columns} data={loaderData.profiles} showPagination={false} />
 
-      <Pagination pageCount={loaderData.page.totalPages} className="my-4">
-        <Pagination.Previous />
-        <Pagination.Pages />
-        <Pagination.Next />
-      </Pagination>
+      {totalPages > 1 && (
+        <Pagination className="my-4" aria-label={t('gcweb:data-table.pagination.label', { defaultValue: 'Pagination' })}>
+          <p className="sr-only">
+            {t('gcweb:data-table.pagination.page-info', {
+              index: currentPage,
+              count: totalPages,
+            })}
+          </p>
+          <Pagination.Content>
+            {/* Previous */}
+            <Pagination.Item>
+              <Pagination.Previous
+                disabled={currentPage <= 1}
+                onClick={(e) => {
+                  e.preventDefault();
+                  const target = Math.max(1, currentPage - 1);
+                  const next = new URLSearchParams(searchParams);
+                  next.set('page', String(target));
+                  setSearchParams(next);
+                }}
+              />
+            </Pagination.Item>
+
+            {/* Page numbers */}
+            {pageItems.map((item, idx) => {
+              if (item === 'ellipsis') {
+                return (
+                  <Pagination.Item key={`ellipsis-${idx}`}>
+                    <Pagination.Ellipsis />
+                  </Pagination.Item>
+                );
+              }
+              const p = item as number;
+              const isActive = p === currentPage;
+              return (
+                <Pagination.Item key={p}>
+                  <Pagination.Link
+                    isActive={isActive}
+                    aria-label={
+                      isActive
+                        ? t('gcweb:data-table.pagination.page-button-current', { index: p })
+                        : t('gcweb:data-table.pagination.page-button-go-to', { index: p })
+                    }
+                    onClick={(e) => {
+                      e.preventDefault();
+                      const next = new URLSearchParams(searchParams);
+                      next.set('page', String(p));
+                      setSearchParams(next);
+                    }}
+                  >
+                    {p}
+                  </Pagination.Link>
+                </Pagination.Item>
+              );
+            })}
+
+            {/* Next */}
+            <Pagination.Item>
+              <Pagination.Next
+                disabled={currentPage >= totalPages}
+                onClick={(e) => {
+                  e.preventDefault();
+                  const target = Math.min(totalPages, currentPage + 1);
+                  const next = new URLSearchParams(searchParams);
+                  next.set('page', String(target));
+                  setSearchParams(next);
+                }}
+              />
+            </Pagination.Item>
+          </Pagination.Content>
+        </Pagination>
+      )}
     </div>
   );
 }
