@@ -31,7 +31,7 @@ import { useFetcherState } from '~/hooks/use-fetcher-state';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
 import { formatDateTimeInZone } from '~/utils/date-utils';
-import { getCurrentPage, getPageItems } from '~/utils/pagination-utils';
+import { getCurrentPage, getPageItems, makePageClickHandler, nextPage, prevPage } from '~/utils/pagination-utils';
 import { formString } from '~/utils/string-utils';
 import { extractValidationKey } from '~/utils/validation-utils';
 
@@ -166,6 +166,9 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
   const totalPages = loaderData.page.totalPages;
   const currentPage = getCurrentPage(searchParams, 'page', totalPages);
   const pageItems = getPageItems(totalPages, currentPage, { threshold: 9, delta: 2 });
+
+  // Navigation helpers
+  const handlePageClick = (target: number) => makePageClickHandler(searchParams, setSearchParams, target);
 
   const columns: ColumnDef<Profile>[] = [
     {
@@ -310,16 +313,7 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
           <Pagination.Content>
             {/* Previous */}
             <Pagination.Item>
-              <Pagination.Previous
-                disabled={currentPage <= 1}
-                onClick={(e) => {
-                  e.preventDefault();
-                  const target = Math.max(1, currentPage - 1);
-                  const next = new URLSearchParams(searchParams);
-                  next.set('page', String(target));
-                  setSearchParams(next);
-                }}
-              />
+              <Pagination.Previous disabled={currentPage <= 1} onClick={handlePageClick(prevPage(currentPage))} />
             </Pagination.Item>
 
             {/* Page numbers */}
@@ -342,12 +336,7 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
                         ? t('gcweb:data-table.pagination.page-button-current', { index: p })
                         : t('gcweb:data-table.pagination.page-button-go-to', { index: p })
                     }
-                    onClick={(e) => {
-                      e.preventDefault();
-                      const next = new URLSearchParams(searchParams);
-                      next.set('page', String(p));
-                      setSearchParams(next);
-                    }}
+                    onClick={handlePageClick(p)}
                   >
                     {p}
                   </Pagination.Link>
@@ -359,13 +348,7 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
             <Pagination.Item>
               <Pagination.Next
                 disabled={currentPage >= totalPages}
-                onClick={(e) => {
-                  e.preventDefault();
-                  const target = Math.min(totalPages, currentPage + 1);
-                  const next = new URLSearchParams(searchParams);
-                  next.set('page', String(target));
-                  setSearchParams(next);
-                }}
+                onClick={handlePageClick(nextPage(currentPage, totalPages))}
               />
             </Pagination.Item>
           </Pagination.Content>
