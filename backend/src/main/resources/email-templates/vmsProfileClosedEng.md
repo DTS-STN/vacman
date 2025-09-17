@@ -1,4 +1,4 @@
-VMS profile closed – ((name))
+VMS profile closed – ((employee_name))
 
 
 PLEASE DO NOT REPLY to this email. This is a system-generated email.

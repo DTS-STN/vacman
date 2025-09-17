@@ -1,4 +1,4 @@
-Fermeture de profil SGPV – ((name))
+Fermeture de profil SGPV – ((employee_name))
 
 
 VEUILLEZ NE PAS RÉPONDRE à ce courriel. Il s'agit d'un courriel généré par le système.

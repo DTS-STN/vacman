@@ -1,4 +1,4 @@
-VMS profile activation – ((name))
+VMS profile activation – ((employee_name))
 
 
 PLEASE DO NOT REPLY to this email. This is a system-generated email.
