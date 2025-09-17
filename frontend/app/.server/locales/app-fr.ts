@@ -214,6 +214,8 @@ export default {
     'preferred-employment-equities-help-message': "Sélectionnez tout ce qui s'applique",
     'projected-start-date': "Date d'effet anticipée",
     'projected-end-date': 'Date de fin anticipée',
+    'yes': 'Oui',
+    'no': 'Non',
     'errors': {
       // TODO these need to be updated when they're finalized
       'selection-process-number-required': 'Numéro du processus de sélection est requis',
@@ -400,6 +402,10 @@ export default {
     'directorate': 'Direction',
     'preferred-language-of-correspondence': 'Langue de préférene pour la correspondance',
     'additional-comments': 'Commentaires additionnels',
+    'search': 'Rechercher',
+    'submiter-title': 'Personne ayant soumis la demande',
+    'hiring-manager-title': "Gestionnaire d'embauche",
+    'sub-delegate-title': 'Subdélégué-e',
     // TODO: error messages need to be updated when available
     'errors': {
       'is-submitter-hiring-manager-required': 'Is submitter the hiring manager for this request field is required.',
