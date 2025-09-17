@@ -101,6 +101,7 @@ export default {
       'previous-page': 'Précédent',
       'next-page': 'Suivant',
       'last-page': 'Aller à la dernière page',
+  'more-pages': 'Plus de pages',
     },
     'sorting': {
       'sorted-ascending': '{{column}}, trié en ordre croissant. Cliquez pour trier en ordre décroissant.',
