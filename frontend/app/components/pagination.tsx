@@ -59,11 +59,12 @@ function PaginationPrevious({ className, children, ...props }: ComponentProps<ty
 
 // Next page button (uses FontAwesome right chevron)
 function PaginationNext({ className, children, ...props }: ComponentProps<typeof Button>) {
+  const { t } = useTranslation(['gcweb']);
   return (
     <Button
       type="button"
+      aria-label={t('gcweb:data-table.pagination.next-page', { defaultValue: 'Go to next page' })}
       variant="ghost"
-      aria-label="Go to next page"
       className={cn('h-8 border-hidden px-2 text-sm font-medium underline transition-colors duration-200', className)}
       {...props}
     >
