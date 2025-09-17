@@ -162,7 +162,7 @@ export const i18nRoutes = [
         file: 'routes/hr-advisor/index.tsx',
         paths: {
           en: '/en/hr-advisor',
-          fr: '/fr/hr-advisor',
+          fr: '/fr/conseiller-rh',
         },
       },
       {
@@ -170,7 +170,7 @@ export const i18nRoutes = [
         file: 'routes/hr-advisor/employees.tsx',
         paths: {
           en: '/en/hr-advisor/employees',
-          fr: '/fr/hr-advisor/employes',
+          fr: '/fr/conseiller-rh/employes',
         },
       },
       {
@@ -178,7 +178,7 @@ export const i18nRoutes = [
         file: 'routes/hr-advisor/employee-profile/index.tsx',
         paths: {
           en: '/en/hr-advisor/employee-profile/:profileId',
-          fr: '/fr/hr-advisor/employe-profil/:profileId',
+          fr: '/fr/conseiller-rh/employe-profil/:profileId',
         },
       },
       {
@@ -186,7 +186,7 @@ export const i18nRoutes = [
         file: 'routes/hr-advisor/employee-profile/personal-information.tsx',
         paths: {
           en: '/en/hr-advisor/employee-profile/personal-information/:profileId',
-          fr: '/fr/hr-advisor/employe-profil/informations-personnelles/:profileId',
+          fr: '/fr/conseiller-rh/employe-profil/informations-personnelles/:profileId',
         },
       },
       {
@@ -194,7 +194,7 @@ export const i18nRoutes = [
         file: 'routes/hr-advisor/employee-profile/employment-information.tsx',
         paths: {
           en: '/en/hr-advisor/employee-profile/employment-information/:profileId',
-          fr: '/fr/hr-advisor/employe-profil/informations-sur-lemploi/:profileId',
+          fr: '/fr/conseiller-rh/employe-profil/informations-sur-lemploi/:profileId',
         },
       },
       {
@@ -202,7 +202,7 @@ export const i18nRoutes = [
         file: 'routes/hr-advisor/employee-profile/referral-preferences.tsx',
         paths: {
           en: '/en/hr-advisor/employee-profile/referral-preferences/:profileId',
-          fr: '/fr/hr-advisor/employe-profil/preferences-de-presentation-de-canditure/:profileId',
+          fr: '/fr/conseiller-rh/employe-profil/preferences-de-presentation-de-canditure/:profileId',
         },
       },
       {

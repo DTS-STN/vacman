@@ -274,6 +274,7 @@ export default {
     'errors': {
       'email-required': 'Email address is required.',
       'email-invalid': 'Invalid email address.',
+      'profile-already-exists': 'User already has an active profile',
     },
   },
   'hr-advisor-requests': {
