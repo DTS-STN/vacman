@@ -1,183 +1,101 @@
-import type React from 'react';
-import type { ComponentProps, PropsWithChildren } from 'react';
-import { createContext, useContext, useMemo } from 'react';
+import type { ComponentProps } from 'react';
 
-import { useSearchParams } from 'react-router';
-
-import { useTranslation } from 'react-i18next';
+import { faEllipsis } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { Button } from '~/components/button';
-import { clamp } from '~/utils/math-utils';
 import { cn } from '~/utils/tailwind-utils';
 
-type ButtonProps = ComponentProps<typeof Button>;
-
-type PaginationContextValue = {
-  // 1-based current page from URL
-  currentPage: number;
-  // total page count from props
-  pageCount: number;
-  // query string key to use (default: 'page')
-  paramName: string;
-  // navigate to a specific 1-based page, clamped to [1, pageCount]
-  goTo: (pageOneBased: number) => void;
-};
-
-const PaginationContext = createContext<PaginationContextValue | null>(null);
-
-function usePaginationContext(): PaginationContextValue {
-  const ctx = useContext(PaginationContext);
-  if (!ctx) throw new Error('Pagination subcomponents must be used within <Pagination>');
-  return ctx;
+// Pagination (nav)
+function PaginationNav({ className, ...props }: ComponentProps<'nav'>) {
+  return <nav role="navigation" aria-label="pagination" data-slot="pagination" className={cn('px-2', className)} {...props} />;
 }
 
-export interface PaginationRootProps extends PropsWithChildren {
-  pageCount: number;
-  className?: string;
-  paramName?: string; // default 'page'
+// Container for items (ul)
+function PaginationContent({ className, ...props }: ComponentProps<'ul'>) {
+  return <ul data-slot="pagination-content" className={cn('flex items-center gap-2', className)} {...props} />;
 }
 
-function getCurrentPage(searchParams: URLSearchParams, paramName: string, pageCount: number) {
-  const n = Number.parseInt(searchParams.get(paramName) ?? '1', 10) || 1;
-  return clamp(n, 1, Math.max(1, pageCount));
+// Each item (li)
+function PaginationItem(props: ComponentProps<'li'>) {
+  return <li data-slot="pagination-item" {...props} />;
 }
 
-function Root({ children, pageCount, className, paramName = 'page' }: PaginationRootProps) {
-  const { t } = useTranslation(['gcweb', 'app']);
-  const [searchParams, setSearchParams] = useSearchParams();
+// Link/button for a page number
+type PaginationLinkProps = {
+  isActive?: boolean;
+} & ComponentProps<typeof Button>;
 
-  const currentPage = useMemo(() => getCurrentPage(searchParams, paramName, pageCount), [searchParams, paramName, pageCount]);
-
-  const ctx = useMemo<PaginationContextValue>(
-    () => ({
-      currentPage,
-      pageCount,
-      paramName,
-      goTo: (pageOneBased) => {
-        const next = new URLSearchParams(searchParams);
-        next.set(paramName, String(clamp(pageOneBased, 1, Math.max(1, pageCount))));
-        setSearchParams(next);
-      },
-    }),
-    [currentPage, pageCount, paramName, searchParams, setSearchParams],
-  );
-
-  if (pageCount <= 1) return null;
-
+function PaginationLink({ className, isActive, children, ...props }: PaginationLinkProps) {
   return (
-    <PaginationContext.Provider value={ctx}>
-      <nav
-        aria-label={t('gcweb:data-table.pagination.label', { defaultValue: 'Pagination' })}
-        className={cn('px-2', className)}
-      >
-        <p className="sr-only">{t('gcweb:data-table.pagination.page-info', { index: currentPage, count: pageCount })}</p>
-        <ul className="flex items-center gap-2">{children}</ul>
-      </nav>
-    </PaginationContext.Provider>
+    <Button
+      type="button"
+      variant="outline"
+      aria-current={isActive ? 'page' : undefined}
+      className={cn('h-8 w-8 p-0 text-sm', isActive ? 'bg-slate-700 text-white' : 'border-hidden underline', className)}
+      {...props}
+    >
+      {children}
+    </Button>
   );
 }
 
-function Pages() {
-  const { pageCount } = usePaginationContext();
+// Previous page button (uses FontAwesome left chevron)
+function PaginationPrevious({ className, children, ...props }: ComponentProps<typeof Button>) {
   return (
-    <>
-      {Array.from({ length: pageCount }, (_, i) => (
-        <Link key={i} page={i + 1} />
-      ))}
-    </>
+    <Button
+      type="button"
+      variant="ghost"
+      aria-label="Go to previous page"
+      className={cn('h-8 border-hidden px-2 text-sm font-medium underline transition-colors duration-200', className)}
+      {...props}
+    >
+      <span className="hidden sm:inline">{children ?? 'Previous'}</span>
+    </Button>
   );
 }
 
-interface LinkProps extends Omit<ButtonProps, 'onClick'> {
-  page: number; // 1-based target page
-  onClick?: (page: number, event: React.MouseEvent<HTMLButtonElement>) => void;
-}
-
-function Link({ page, className, onClick, children, ...rest }: LinkProps) {
-  const { currentPage, pageCount, goTo } = usePaginationContext();
-  const { t } = useTranslation(['gcweb']);
-  const clamped = clamp(page, 1, Math.max(1, pageCount));
-  const isCurrent = currentPage === clamped;
-  const label = isCurrent
-    ? t('gcweb:data-table.pagination.page-button-current', { index: clamped })
-    : t('gcweb:data-table.pagination.page-button-go-to', { index: clamped });
-
+// Next page button (uses FontAwesome right chevron)
+function PaginationNext({ className, children, ...props }: ComponentProps<typeof Button>) {
   return (
-    <li>
-      <Button
-        type="button"
-        variant="outline"
-        className={cn('h-8 w-8 p-0 text-sm', isCurrent ? 'bg-slate-700 text-white' : 'border-hidden underline', className)}
-        aria-current={isCurrent ? 'page' : undefined}
-        aria-label={label}
-        onClick={(e) => {
-          onClick?.(clamped, e);
-          if (!e.defaultPrevented) goTo(clamped);
-        }}
-        {...rest}
-      >
-        {children ?? clamped}
-      </Button>
-    </li>
+    <Button
+      type="button"
+      variant="ghost"
+      aria-label="Go to next page"
+      className={cn('h-8 border-hidden px-2 text-sm font-medium underline transition-colors duration-200', className)}
+      {...props}
+    >
+      <span className="hidden sm:inline">{children ?? 'Next'}</span>
+    </Button>
   );
 }
 
-type NavButtonProps = Omit<ButtonProps, 'onClick'> & {
-  onClick?: (nextPage: number, event: React.MouseEvent<HTMLButtonElement>) => void;
-};
-
-function Previous({ className, children, onClick, ...rest }: NavButtonProps) {
-  const { currentPage, goTo } = usePaginationContext();
-  const { t } = useTranslation(['gcweb', 'app']);
-  const target = clamp(currentPage - 1, 1, Infinity);
-  const disabled = currentPage <= 1;
+// Ellipsis indicator
+function PaginationEllipsis({ className, ...props }: ComponentProps<'span'>) {
   return (
-    <li>
-      <Button
-        type="button"
-        variant="ghost"
-        disabled={disabled}
-        aria-label={t('gcweb:data-table.pagination.previous-page', { defaultValue: 'Previous page' })}
-        className={cn('h-8 border-hidden px-2 text-sm font-medium underline transition-colors duration-200', className)}
-        onClick={(e) => {
-          if (disabled) return;
-          onClick?.(target, e);
-          if (!e.defaultPrevented) goTo(target);
-        }}
-        {...rest}
-      >
-        {children ?? t('gcweb:data-table.pagination.previous-page', { defaultValue: 'Previous' })}
-      </Button>
-    </li>
+    <span
+      aria-hidden
+      data-slot="pagination-ellipsis"
+      className={cn('flex h-9 w-9 items-center justify-center', className)}
+      {...props}
+    >
+      <FontAwesomeIcon icon={faEllipsis} className="h-4 w-4" />
+      <span className="sr-only">More pages</span>
+    </span>
   );
 }
 
-function Next({ className, children, onClick, ...rest }: NavButtonProps) {
-  const { currentPage, pageCount, goTo } = usePaginationContext();
-  const { t } = useTranslation(['gcweb', 'app']);
-  const target = clamp(currentPage + 1, 1, pageCount);
-  const disabled = currentPage >= pageCount;
-  return (
-    <li>
-      <Button
-        type="button"
-        variant="ghost"
-        disabled={disabled}
-        aria-label={t('gcweb:data-table.pagination.next-page', { defaultValue: 'Next page' })}
-        className={cn('h-8 border-hidden px-2 text-sm font-medium underline transition-colors duration-200', className)}
-        onClick={(e) => {
-          if (disabled) return;
-          onClick?.(target, e);
-          if (!e.defaultPrevented) goTo(target);
-        }}
-        {...rest}
-      >
-        {children ?? t('gcweb:data-table.pagination.next-page', { defaultValue: 'Next' })}
-      </Button>
-    </li>
-  );
-}
+// Named exports
+export { PaginationContent, PaginationItem, PaginationLink, PaginationPrevious, PaginationNext, PaginationEllipsis };
 
-export const Pagination = Object.assign(Root, { Pages, Link, Previous, Next });
+// Backwards-compatible composite export (Pagination.Subcomponents)
+export const Pagination = Object.assign(PaginationNav, {
+  Content: PaginationContent,
+  Item: PaginationItem,
+  Link: PaginationLink,
+  Previous: PaginationPrevious,
+  Next: PaginationNext,
+  Ellipsis: PaginationEllipsis,
+});
 
 export default Pagination;
