@@ -104,7 +104,6 @@ export async function loader({ context, params, request }: Route.LoaderArgs) {
 
 export default function HiringManagerRequestSubmissionDetails({ loaderData, actionData, params }: Route.ComponentProps) {
   const { t } = useTranslation(handle.i18nNamespace);
-  const errors = actionData?.errors;
 
   return (
     <>
@@ -119,7 +118,7 @@ export default function HiringManagerRequestSubmissionDetails({ loaderData, acti
       <div className="max-w-prose">
         <SubmissionDetailsForm
           cancelLink="routes/hiring-manager/request/index.tsx"
-          formErrors={errors}
+          formErrors={actionData?.errors}
           formValues={loaderData.defaultValues}
           branchOrServiceCanadaRegions={loaderData.branchOrServiceCanadaRegions}
           directorates={loaderData.directorates}
