@@ -1,4 +1,4 @@
-Occasion d’emploi - # de demande du SGPV ((request-number))
+Occasion d'emploi - # de demande du SGPV ((request-number))
 
 
 Titre du poste : ((position-title))
@@ -13,7 +13,7 @@ VEUILLEZ NE PAS RÉPONDRE à ce courriel. Il s'agit d'un courriel généré par 
 
 Bonjour,
 
-À la suite de la présentation de votre candidature pour l'occasion d'emploi mentionnée ci-dessus, la rétroaction suivante a été fournie par le gestionnaire d’embauche :
+À la suite de la présentation de votre candidature pour l'occasion d'emploi mentionnée ci-dessus, la rétroaction suivante a été fournie par le gestionnaire d'embauche :
 
 Rétroaction fournie : ((feedback))
 

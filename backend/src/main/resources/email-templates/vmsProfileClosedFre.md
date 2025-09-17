@@ -5,6 +5,6 @@ VEUILLEZ NE PAS RÉPONDRE à ce courriel. Il s'agit d'un courriel généré par 
 
 Bonjour,
 
-Votre profil d’employé dans le Système de gestion des postes vacants est maintenant fermé.
+Votre profil d'employé dans le Système de gestion des postes vacants est maintenant fermé.
 
 Merci

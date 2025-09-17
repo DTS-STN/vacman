@@ -5,17 +5,17 @@ VEUILLEZ NE PAS RÉPONDRE à ce courriel. Il s'agit d'un courriel généré par 
 
 Bonjour, 
 
-Suite à votre demande dans le Système de gestion des postes vacants (SGPV) afin d’obtenir une autorisation en matière de priorité, veuillez noter que des employés ayant un statut prioritaire au sein du ministère ont été identifiés pour fin de considération puisque leur profil correspond aux critères de base du poste (c'est-à-dire, le groupe et niveau de classification, les exigences linguistiques, et le lieu de travail).
+Suite à votre demande dans le Système de gestion des postes vacants (SGPV) afin d'obtenir une autorisation en matière de priorité, veuillez noter que des employés ayant un statut prioritaire au sein du ministère ont été identifiés pour fin de considération puisque leur profil correspond aux critères de base du poste (c'est-à-dire, le groupe et niveau de classification, les exigences linguistiques, et le lieu de travail).
 
 Tous les employés identifiés ont été informés de cette occasion d'emploi et ont été priés de vous faire part de leur intérêt. Ils ont 2 jours ouvrables pour communiquer avec vous.
 
 Accédez à votre tableau de bord du SGPV pour consulter la liste des employés. 
 
-Vous pourriez souhaiter utiliser la fonction d'exportation vers Excel pour consigner toute information pertinente relative à cette demande d’autorisation en matière de priorité (par exemple, les réponses des employés, les résultats d'évaluation, etc.).
+Vous pourriez souhaiter utiliser la fonction d'exportation vers Excel pour consigner toute information pertinente relative à cette demande d'autorisation en matière de priorité (par exemple, les réponses des employés, les résultats d'évaluation, etc.).
 
 Prochaines étapes :
 
-•	Communiquez avec les employés qui ont démontré un intérêt à votre occasion d’emploi, pour obtenir de l’information supplémentaire au besoin, et pour compléter l’évaluation dans un délai raisonnable.
+•	Communiquez avec les employés qui ont démontré un intérêt à votre occasion d'emploi, pour obtenir de l'information supplémentaire au besoin, et pour compléter l'évaluation dans un délai raisonnable.
 
 •	Remplissez la section "Rétroaction" pour chacun des employés dans le SGPV.
 
