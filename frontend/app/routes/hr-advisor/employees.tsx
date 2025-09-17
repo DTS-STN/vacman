@@ -31,7 +31,6 @@ import { useFetcherState } from '~/hooks/use-fetcher-state';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
 import { formatDateTimeInZone } from '~/utils/date-utils';
-import { clampPageIndex } from '~/utils/math-utils';
 import { formString } from '~/utils/string-utils';
 import { extractValidationKey } from '~/utils/validation-utils';
 
@@ -294,17 +293,11 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
 
       <DataTable columns={columns} data={loaderData.profiles} showPagination={false} />
 
-      <Pagination
-        pageIndex={clampPageIndex((Number.parseInt(searchParams.get('page') ?? '1', 10) || 1) - 1, loaderData.page.totalPages)}
-        pageCount={loaderData.page.totalPages}
-        onPageChange={(nextIndex) => {
-          const filter = searchParams.get('filter') ?? 'all';
-          const size = searchParams.get('size') ?? '10';
-          const clampedIndex = clampPageIndex(nextIndex, loaderData.page.totalPages);
-          setSearchParams({ filter, page: String(clampedIndex + 1), size });
-        }}
-        className="my-4"
-      />
+      <Pagination pageCount={loaderData.page.totalPages} className="my-4">
+        <Pagination.Previous />
+        <Pagination.Pages />
+        <Pagination.Next />
+      </Pagination>
     </div>
   );
 }
