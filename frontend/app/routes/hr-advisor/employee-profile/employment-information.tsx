@@ -115,13 +115,13 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       wfaEndDate: profileData.wfaEndDate,
       hrAdvisorId: profileData.hrAdvisorId,
     },
-    substantivePositions: substantivePositions,
-    branchOrServiceCanadaRegions: branchOrServiceCanadaRegions,
-    directorates: directorates,
-    provinces: provinces,
-    cities: cities,
-    wfaStatuses: wfaStatuses,
-    hrAdvisors: hrAdvisors,
+    substantivePositions,
+    branchOrServiceCanadaRegions,
+    directorates,
+    provinces,
+    cities,
+    wfaStatuses,
+    hrAdvisors,
   };
 }
 
