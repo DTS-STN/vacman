@@ -28,7 +28,6 @@ export function getDefaultUserService(): UserService {
       }
 
       const url = `/users${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
-      console.log(url);
       const result = await apiClient.get<PagedUserResponse>(url, 'retrieve paginated users', accessToken);
 
       if (result.isErr()) {
