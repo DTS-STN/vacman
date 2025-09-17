@@ -28,7 +28,7 @@ import { PageTitle } from '~/components/page-title';
 import { ProfileCard } from '~/components/profile-card';
 import { Progress } from '~/components/progress';
 import { StatusTag } from '~/components/status-tag';
-import { EMPLOYMENT_TENURE, LANGUAGE_REQUIREMENT_CODES, SELECTION_PROCESS_TYPE } from '~/domain/constants';
+import { EMPLOYMENT_TENURE, LANGUAGE_REQUIREMENT_CODES, REQUEST_EVENT_TYPE, SELECTION_PROCESS_TYPE } from '~/domain/constants';
 //import { PROFILE_STATUS_CODE, EMPLOYEE_WFA_STATUS } from '~/domain/constants';
 import { useFetcherState } from '~/hooks/use-fetcher-state';
 import { getTranslation } from '~/i18n-config.server';
@@ -123,7 +123,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   // If all complete, submit for review  TODO review
   const submitResult = await getRequestService().updateRequestStatus(
     Number(params.requestId),
-    currentRequest, //TODO review that currentRequest contains all the data required and as expected
+    REQUEST_EVENT_TYPE.submitted,
     context.session.authState.accessToken,
   );
 

@@ -216,7 +216,7 @@ export function getMockRequestService(): RequestService {
     /**
      * Updates a request's status.
      */
-    async updateRequestStatus(requestId: number, statusUpdate: unknown, accessToken: string): Promise<Result<void, AppError>> {
+    async updateRequestStatus(requestId: number, eventType: string, accessToken: string): Promise<Result<void, AppError>> {
       const existingRequestIndex = mockRequests.findIndex((r) => r.id === requestId);
       if (existingRequestIndex === -1) {
         return Err(new AppError(`Request with ID ${requestId} not found.`, ErrorCodes.REQUEST_NOT_FOUND));

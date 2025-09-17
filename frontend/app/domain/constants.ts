@@ -209,3 +209,8 @@ export const SELECTION_PROCESS_TYPE = {
   externalNonAdvertised: 3,
   internalNonAdvertised: 5,
 } as const;
+
+export const REQUEST_EVENT_TYPE = {
+  submitted: 'requestSubmitted',
+  pickedUp: 'requestPickedUp',
+};

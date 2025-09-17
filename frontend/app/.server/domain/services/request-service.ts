@@ -34,11 +34,7 @@ export type RequestService = {
   ): Promise<Result<RequestReadModel, AppError>>;
 
   // PUT /api/v1/requests/{id}/status - Update request status
-  updateRequestStatus(
-    requestId: number,
-    statusUpdate: unknown, // TODO: Define proper status update type
-    accessToken: string,
-  ): Promise<Result<void, AppError>>;
+  updateRequestStatus(requestId: number, eventType: string, accessToken: string): Promise<Result<void, AppError>>;
 
   // DELETE /api/v1/requests/{id} - Delete a request by ID
   deleteRequestById(requestId: number, accessToken: string): Promise<Result<void, AppError>>;
