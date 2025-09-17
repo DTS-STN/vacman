@@ -68,7 +68,7 @@ describe('getMockUserService', () => {
     });
 
     it('should filter by user type', async () => {
-      const params = { 'user-type': 'HRA' };
+      const params = { userType: 'HRA' };
       const result = await service.getUsers(params, mockAccessToken);
 
       expect(result.isOk()).toBe(true);
@@ -81,7 +81,7 @@ describe('getMockUserService', () => {
     });
 
     it('should return empty results for non-existent user type', async () => {
-      const params = { 'user-type': 'NON_EXISTENT' };
+      const params = { userType: 'NON_EXISTENT' };
       const result = await service.getUsers(params, mockAccessToken);
 
       expect(result.isOk()).toBe(true);
