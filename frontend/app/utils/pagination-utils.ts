@@ -1,3 +1,7 @@
+import type React from 'react';
+
+import { clamp } from '~/utils/math-utils';
+
 /**
  * Returns a 1-based current page number clamped to [1, totalPages].
  */
@@ -43,4 +47,49 @@ export function getPageItems(
 
   items.push(last);
   return items;
+}
+
+/**
+ * Returns a new URLSearchParams with the page parameter set to the provided target (no clamping).
+ */
+export function getNextSearchParamsForPage(
+  searchParams: URLSearchParams,
+  targetPage: number,
+  paramName = 'page',
+): URLSearchParams {
+  const next = new URLSearchParams(searchParams);
+  next.set(paramName, String(targetPage));
+  return next;
+}
+
+/**
+ * Factory for a click handler that updates the page query string parameter.
+ * Captures the provided searchParams at creation time similar to inline handlers.
+ */
+export function makePageClickHandler(
+  searchParams: URLSearchParams,
+  setSearchParams: (nextInit: URLSearchParams) => void,
+  targetPage: number,
+  paramName = 'page',
+) {
+  return (e: React.MouseEvent) => {
+    e.preventDefault();
+    const next = getNextSearchParamsForPage(searchParams, targetPage, paramName);
+    setSearchParams(next);
+  };
+}
+
+/** Clamp a page to the inclusive range [1, totalPages]. */
+export function clampPage(page: number, totalPages: number): number {
+  return clamp(page, 1, Math.max(1, totalPages));
+}
+
+/** Previous page, clamped to 1. */
+export function prevPage(currentPage: number): number {
+  return Math.max(1, currentPage - 1);
+}
+
+/** Next page, clamped to totalPages. */
+export function nextPage(currentPage: number, totalPages: number): number {
+  return clampPage(currentPage + 1, totalPages);
 }
