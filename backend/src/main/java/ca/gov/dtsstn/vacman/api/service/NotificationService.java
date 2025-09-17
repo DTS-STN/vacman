@@ -61,9 +61,10 @@ public class NotificationService {
 			default -> throw new IllegalArgumentException("Unknown profile status value " + profileStatus);
 		};
 
+		// Personalization parameters for the email template
 		final var personalization = Map.of(
 			"link", profileId, 
-			"userName", username
+			"employee_name", username
 		);
 
 		log.trace("Request to send fileNumber notification email=[{}], parameters=[{}]", email, personalization);
@@ -91,7 +92,8 @@ public class NotificationService {
 			case FEEDBACK_PENDING -> applicationProperties.gcnotify().requestFeedbackPendingTemplateId();
 			default -> throw new IllegalArgumentException("Unknown request event value " + requestEvent);
 		};
-
+		
+		// TODO personalization parameters for the email template needs to match the templates
 		final var personalization = Map.of(
 			"requestId", requestId.toString(), 
 			"requestTitle", requestTitle
