@@ -146,7 +146,6 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 
 export default function HiringManagerRequestPositionInformation({ loaderData, actionData, params }: Route.ComponentProps) {
   const { t } = useTranslation(handle.i18nNamespace);
-  const errors = actionData?.errors;
 
   return (
     <>
@@ -161,7 +160,7 @@ export default function HiringManagerRequestPositionInformation({ loaderData, ac
       <div className="max-w-prose">
         <PositionInformationForm
           cancelLink="routes/hr-advisor/request/index.tsx"
-          formErrors={errors}
+          formErrors={actionData?.errors}
           formValues={loaderData.defaultValues}
           languageRequirements={loaderData.languageRequirements}
           classifications={loaderData.classifications}

@@ -144,7 +144,6 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 
 export default function PersonalDetails({ loaderData, actionData, params }: Route.ComponentProps) {
   const { t } = useTranslation(handle.i18nNamespace);
-  const errors = actionData?.errors;
 
   return (
     <>
@@ -156,7 +155,7 @@ export default function PersonalDetails({ loaderData, actionData, params }: Rout
           cancelLink="routes/employee/profile/index.tsx"
           formValues={loaderData.defaultValues}
           preferredProvince={loaderData.defaultValues.preferredProvince}
-          formErrors={errors}
+          formErrors={actionData?.errors}
           languageReferralTypes={loaderData.languageReferralTypes}
           classifications={loaderData.classifications}
           provinces={loaderData.provinces}
