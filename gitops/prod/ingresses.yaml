@@ -6,6 +6,10 @@ metadata:
     app.kubernetes.io/name: vacman-frontend
 spec:
   ingressClassName: nginx
+  tls:
+    - secretName: esdcedsc
+      hosts:
+        - vacman.prod-dp-internal.dts-stn.com
   rules:
     - host: vacman.prod-dp-internal.dts-stn.com
       http:
@@ -17,16 +21,13 @@ spec:
                 name: vacman-frontend
                 port:
                   name: http
-#
-# TODO ::: GjB ::: uncomment during golive
-#
-#     - host: vacman.service.canada.ca
-#       http:
-#         paths:
-#           - path: /
-#             pathType: Prefix
-#             backend:
-#               service:
-#                 name: vacman-frontend
-#                 port:
-#                   name: http
+    - host: vacman.esdc-edsc.canada.ca
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: vacman-frontend
+                port:
+                  name: http
