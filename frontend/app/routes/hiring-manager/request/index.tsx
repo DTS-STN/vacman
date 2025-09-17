@@ -8,7 +8,6 @@ import { useTranslation } from 'react-i18next';
 import type { Route } from './+types/index';
 
 import { getCityService } from '~/.server/domain/services/city-service';
-import { getClassificationService } from '~/.server/domain/services/classification-service';
 import { getDirectorateService } from '~/.server/domain/services/directorate-service';
 import { getEmploymentEquityService } from '~/.server/domain/services/employment-equity-service';
 import { getEmploymentTenureService } from '~/.server/domain/services/employment-tenure-service';
@@ -163,7 +162,6 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     allLocalizedTenures,
     allLocalizedWorkSchedules,
     allLocalizedEmploymentEquities,
-    allLocalizedClassifications,
     allLocalizedDirectorates,
     allLocalizedPreferredLanguage,
   ] = await Promise.all([
@@ -173,7 +171,6 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     getEmploymentTenureService().listAllLocalized(lang),
     getWorkScheduleService().listAllLocalized(lang),
     getEmploymentEquityService().listAllLocalized(lang),
-    getClassificationService().listAllLocalized(lang),
     getDirectorateService().listAllLocalized(lang),
     getLanguageForCorrespondenceService().listAllLocalized(lang),
   ]);
@@ -354,8 +351,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     submitter: currentRequest?.submitter,
     hiringManager: currentRequest?.hiringManager,
     subDelegatedManager: currentRequest?.subDelegatedManager,
-    workUnit: allLocalizedClassifications.find((c) => c.code === currentRequest?.workUnit?.parent?.code),
-    directorate: allLocalizedDirectorates.find((d) => d.code === currentRequest?.workUnit?.code),
+    directorate: allLocalizedDirectorates.find((c) => c.code === currentRequest?.workUnit?.code),
     languageOfCorrespondence: allLocalizedPreferredLanguage.find(
       (p) => p.code === currentRequest?.languageOfCorrespondence?.code,
     ),
@@ -706,14 +702,12 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
                   </DescriptionListItem>
 
                   <DescriptionListItem term={t('app:submission-details.branch-or-service-canada-region')}>
-                    {loaderData.workUnit?.name ?? t('app:hiring-manager-referral-requests.not-provided')}
+                    {loaderData.directorate?.parent?.name ?? t('app:hiring-manager-referral-requests.not-provided')}
                   </DescriptionListItem>
 
-                  {loaderData.workUnit && (
-                    <DescriptionListItem term={t('app:submission-details.directorate')}>
-                      {loaderData.directorate?.name ?? t('app:hiring-manager-referral-requests.not-provided')}
-                    </DescriptionListItem>
-                  )}
+                  <DescriptionListItem term={t('app:submission-details.directorate')}>
+                    {loaderData.directorate?.name ?? t('app:hiring-manager-referral-requests.not-provided')}
+                  </DescriptionListItem>
 
                   <DescriptionListItem term={t('app:submission-details.preferred-language-of-correspondence')}>
                     {loaderData.languageOfCorrespondence?.name ?? t('app:hiring-manager-referral-requests.not-provided')}
