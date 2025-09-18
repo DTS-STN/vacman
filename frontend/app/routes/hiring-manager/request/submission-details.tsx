@@ -6,6 +6,7 @@ import * as v from 'valibot';
 
 import type { Route } from './+types/submission-details';
 
+import type { RequestReadModel, RequestUpdateModel } from '~/.server/domain/models';
 import { getDirectorateService } from '~/.server/domain/services/directorate-service';
 import { getLanguageForCorrespondenceService } from '~/.server/domain/services/language-for-correspondence-service';
 import { getRequestService } from '~/.server/domain/services/request-service';
@@ -33,9 +34,10 @@ export function meta({ loaderData }: Route.MetaArgs) {
 
 export async function action({ context, params, request }: Route.ActionArgs) {
   requireAuthentication(context.session, request);
+  const currentUserData = await getUserService().getCurrentUser(context.session.authState.accessToken);
+  const currentUser = currentUserData.unwrap();
 
   const formData = await request.formData();
-
   const parseResult = v.safeParse(await createSubmissionDetailSchema('hiring-manager'), {
     isSubmiterHiringManager: formData.get('isSubmiterHiringManager')
       ? formData.get('isSubmiterHiringManager') === REQUIRE_OPTIONS.yes
@@ -61,7 +63,71 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     );
   }
 
-  //TODO: call request service to update data
+  // call user service to get the user id from the email address
+
+  let hiringManagerId;
+  if (parseResult.output.hiringManagerEmailAddress) {
+    const hiringManagerResult = await getUserService().getUsers(
+      { email: parseResult.output.hiringManagerEmailAddress },
+      context.session.authState.accessToken,
+    );
+    const hiringManager = hiringManagerResult.into()?.content[0];
+    hiringManagerId = hiringManager?.id;
+  }
+
+  let subDelegatedManagerId;
+  if (parseResult.output.subDelegatedManagerEmailAddress) {
+    const subDelegatedManagerResult = await getUserService().getUsers(
+      { email: parseResult.output.subDelegatedManagerEmailAddress },
+      context.session.authState.accessToken,
+    );
+
+    const subDelegatedManager = subDelegatedManagerResult.into()?.content[0];
+    subDelegatedManagerId = subDelegatedManager?.id;
+  }
+
+  if (parseResult.output.isSubmiterHiringManager === true) {
+    hiringManagerId = currentUser.id;
+  }
+
+  if (parseResult.output.isSubmiterHiringManager === true && parseResult.output.isSubmiterSubdelegate === true) {
+    subDelegatedManagerId = currentUser.id;
+  }
+
+  if (parseResult.output.isSubmiterHiringManager === false && parseResult.output.isHiringManagerASubDelegate === true) {
+    subDelegatedManagerId = hiringManagerId;
+  }
+
+  // call request service to update data
+
+  const requestService = getRequestService();
+  const requestResult = await requestService.getRequestById(Number(params.requestId), context.session.authState.accessToken);
+
+  if (requestResult.isErr()) {
+    throw new Response('Request not found', { status: HttpStatusCodes.NOT_FOUND });
+  }
+
+  const requestData: RequestReadModel = requestResult.unwrap();
+
+  const requestPayload: RequestUpdateModel = {
+    // The submitter's information is coming from saved Request, but while creating a new request, the submitter is the logged in user,
+    submitterId: requestData.submitter?.id ?? currentUser.id,
+    hiringManagerId: hiringManagerId,
+    subDelegatedManagerId: subDelegatedManagerId,
+    workUnitId: parseResult.output.directorate,
+    languageOfCorrespondenceId: parseResult.output.languageOfCorrespondenceId,
+    additionalComment: parseResult.output.additionalComment,
+  };
+
+  const updateResult = await requestService.updateRequestById(
+    requestData.id,
+    requestPayload,
+    context.session.authState.accessToken,
+  );
+
+  if (updateResult.isErr()) {
+    throw updateResult.unwrapErr();
+  }
 
   return i18nRedirect('routes/hiring-manager/request/index.tsx', request, { params });
 }
