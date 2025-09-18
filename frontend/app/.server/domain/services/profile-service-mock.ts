@@ -80,7 +80,9 @@ export function getMockProfileService(): ProfileService {
       const startIndex = zeroBasedPage * size;
       const endIndex = startIndex + size;
       const paginatedProfiles = filteredProfiles.slice(startIndex, endIndex);
-      log.debug(`Applied pagination (page: ${requestedPage}, size: ${size}): ${paginatedProfiles.length} profiles in current page`);
+      log.debug(
+        `Applied pagination (page: ${requestedPage}, size: ${size}): ${paginatedProfiles.length} profiles in current page`,
+      );
 
       const response: PagedProfileResponse = {
         content: paginatedProfiles,
