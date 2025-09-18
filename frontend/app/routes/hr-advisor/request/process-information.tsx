@@ -79,7 +79,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     throw updateResult.unwrapErr();
   }
 
-  return i18nRedirect('routes/hiring-manager/request/index.tsx', request, {
+  return i18nRedirect('routes/hr-advisor/request/index.tsx', request, {
     params: { requestId: requestData.id.toString() },
   });
 }
