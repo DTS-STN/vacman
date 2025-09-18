@@ -1,4 +1,6 @@
 import type { ResourceKey } from 'i18next';
+import type { BaseIssue, BaseSchema } from 'valibot';
+import * as v from 'valibot';
 
 /**
  * Normalizes validation error messages into a single i18next `ResourceKey`.
@@ -38,4 +40,17 @@ export function preprocess<K extends string | number | symbol, T>(data: Record<K
     .map(([key, val]) => [key, val === '' ? undefined : val]);
 
   return Object.fromEntries(processedEntries);
+}
+
+/**
+ * A custom schema that transforms an empty string to `undefined` before
+ * passing it to another schema. This makes `v.optional` work correctly
+ * with empty form fields.
+ */
+export function optionalString<TOutput>(schema: BaseSchema<string | undefined, TOutput, BaseIssue<unknown>>) {
+  return v.pipe(
+    v.string(),
+    v.transform((input) => (input.trim() === '' ? undefined : input)),
+    schema,
+  );
 }
