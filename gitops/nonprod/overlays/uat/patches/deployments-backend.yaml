@@ -10,7 +10,7 @@ spec:
     spec:
       containers:
         - name: vacman-backend
-          image: dtsrhpdevscedacr.azurecr.io/vacman/vacman-backend:1.0.0-RC097
+          image: dtsrhpdevscedacr.azurecr.io/vacman/vacman-backend:1.0.0-RC100
           envFrom:
             - secretRef:
                 name: vacman-backend-uat
