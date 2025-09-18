@@ -12,7 +12,7 @@ PLEASE DO NOT REPLY to this email. This is a system-generated email.
 
 Hello, 
  
-Further to the Department’s commitment to maximize employment continuity, a job opportunity has been identified that matches your basic employee profile (that is, classification group and level, language requirements, and work location). 
+Further to the Department's commitment to maximize employment continuity, a job opportunity has been identified that matches your basic employee profile (that is, classification group and level, language requirements, and work location). 
 
 For information on the position's requirements, please refer to the Statement of Merit Criteria (SOMC) below. 
 
