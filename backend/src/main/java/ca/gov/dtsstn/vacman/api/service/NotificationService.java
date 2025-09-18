@@ -11,6 +11,7 @@ import org.springframework.util.Assert;
 import org.springframework.web.client.RestTemplate;
 
 import ca.gov.dtsstn.vacman.api.config.properties.ApplicationProperties;
+import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes;
 import ca.gov.dtsstn.vacman.api.service.notify.NotificationReceipt;
 
 @Service
@@ -26,7 +27,9 @@ public class NotificationService {
 
 	private final RestTemplate restTemplate;
 
-	public NotificationService(ApplicationProperties applicationProperties, RestTemplateBuilder restTemplateBuilder) {
+	private final LookupCodes.Languages languages;
+
+	public NotificationService(ApplicationProperties applicationProperties, RestTemplateBuilder restTemplateBuilder, LookupCodes lookupCodes) {
 		this.applicationProperties = applicationProperties;
 		this.restTemplate = restTemplateBuilder
 			.defaultHeader(HttpHeaders.AUTHORIZATION, "ApiKey-v1 %s".formatted(applicationProperties.gcnotify().apiKey()))
@@ -34,6 +37,7 @@ public class NotificationService {
 			.connectTimeout(applicationProperties.gcnotify().connectTimeout())
 			.readTimeout(applicationProperties.gcnotify().readTimeout())
 			.build();
+		this.languages = lookupCodes.languages();
 	}
 
 	public NotificationReceipt sendEmailNotification(String email, String profileId, String username, String language, ProfileStatus profileStatus) {
@@ -42,19 +46,19 @@ public class NotificationService {
 		Assert.hasText(username, "username is required; it must not be blank or null");
 
 		final var templateId = switch (profileStatus) {
-			case CREATED -> language == "en" 
+			case CREATED -> this.languages.english().equals(language)
 				? applicationProperties.gcnotify().profileCreatedTemplateIdEng()
 				: applicationProperties.gcnotify().profileCreatedTemplateIdFra(); 
 
-			case UPDATED -> language == "en" 
+			case UPDATED -> this.languages.english().equals(language)
 				? applicationProperties.gcnotify().profileUpdatedTemplateIdEng()
 				: applicationProperties.gcnotify().profileUpdatedTemplateIdFra();
 
-			case APPROVED -> language == "en" 
+			case APPROVED -> this.languages.english().equals(language)
 				? applicationProperties.gcnotify().profileApprovedTemplateIdEng()
 				: applicationProperties.gcnotify().profileApprovedTemplateIdFra();
 
-			case PENDING -> language == "en" 
+			case PENDING -> this.languages.english().equals(language)
 				? applicationProperties.gcnotify().profilePendingTemplateId()
 				: applicationProperties.gcnotify().profilePendingTemplateId();
 
@@ -63,7 +67,6 @@ public class NotificationService {
 
 		// Personalization parameters for the email template
 		final var personalization = Map.of(
-			"link", profileId, 
 			"employee_name", username
 		);
 
@@ -87,6 +90,7 @@ public class NotificationService {
 		Assert.notNull(requestId, "requestId is required; it must not be null");
 		Assert.hasText(requestTitle, "requestTitle is required; it must not be blank or null");
 
+		//TODO update code to add new templates there is one for english and one for french refer to the code above
 		final var templateId = switch (requestEvent) {
 			case CREATED -> applicationProperties.gcnotify().requestCreatedTemplateId();
 			case FEEDBACK_PENDING -> applicationProperties.gcnotify().requestFeedbackPendingTemplateId();

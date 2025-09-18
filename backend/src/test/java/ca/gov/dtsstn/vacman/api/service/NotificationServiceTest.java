@@ -18,6 +18,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.web.client.RestTemplate;
 
+import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes;
 import ca.gov.dtsstn.vacman.api.config.properties.ApplicationProperties;
 import ca.gov.dtsstn.vacman.api.config.properties.GcNotifyProperties;
 import ca.gov.dtsstn.vacman.api.service.NotificationService.ProfileStatus;
@@ -34,6 +35,9 @@ class NotificationServiceTest {
 
 	@Mock
 	RestTemplate restTemplate;
+
+	@Mock
+	LookupCodes lookupCodes;
 
 	NotificationService notificationService;
 
@@ -52,7 +56,7 @@ class NotificationServiceTest {
 		when(restTemplateBuilder.readTimeout(any())).thenReturn(restTemplateBuilder);
 		when(restTemplateBuilder.build()).thenReturn(restTemplate);
 
-		this.notificationService = new NotificationService(applicationProperties, restTemplateBuilder);
+		this.notificationService = new NotificationService(applicationProperties, restTemplateBuilder, lookupCodes);
 	}
 
 	@Test
@@ -71,7 +75,7 @@ class NotificationServiceTest {
 			"en",
 			ProfileStatus.APPROVED);
 
-		assertThat(result).isNotNull(); // TODO ::: GjB ::: improve assertion
+		assertThat(result).isNotNull();
 	}
 
 	@Test
@@ -90,7 +94,7 @@ class NotificationServiceTest {
 			"fr",
 			ProfileStatus.APPROVED);
 
-		assertThat(result).isNotNull(); // TODO ::: GjB ::: improve assertion
+		assertThat(result).isNotNull();
 	}
 
 	@Test
@@ -109,7 +113,7 @@ class NotificationServiceTest {
 			"en",
 			ProfileStatus.CREATED);
 
-		assertThat(result).isNotNull(); // TODO ::: GjB ::: improve assertion
+		assertThat(result).isNotNull();
 	}
 
 	@Test
@@ -128,7 +132,7 @@ class NotificationServiceTest {
 			"fr",
 			ProfileStatus.CREATED);
 
-		assertThat(result).isNotNull(); // TODO ::: GjB ::: improve assertion
+		assertThat(result).isNotNull();
 	}
 
 
@@ -148,7 +152,7 @@ class NotificationServiceTest {
 			"en",
 			ProfileStatus.UPDATED);
 
-		assertThat(result).isNotNull(); // TODO ::: GjB ::: improve assertion
+		assertThat(result).isNotNull();
 	}
 
 	@Test
@@ -167,7 +171,7 @@ class NotificationServiceTest {
 			"fr",
 			ProfileStatus.UPDATED);
 
-		assertThat(result).isNotNull(); // TODO ::: GjB ::: improve assertion
+		assertThat(result).isNotNull();
 	}
 
 	@Test
@@ -186,7 +190,7 @@ class NotificationServiceTest {
 			"en",
 			ProfileStatus.PENDING);
 
-		assertThat(result).isNotNull(); // TODO ::: GjB ::: improve assertion
+		assertThat(result).isNotNull();
 	}
 
 }
