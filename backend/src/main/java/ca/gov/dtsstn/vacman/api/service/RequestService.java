@@ -2,10 +2,10 @@ package ca.gov.dtsstn.vacman.api.service;
 
 import static ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException.asResourceNotFoundException;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
+import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
 import org.mapstruct.factory.Mappers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,9 +13,6 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import ca.gov.dtsstn.vacman.api.config.properties.ApplicationProperties;
 
 import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes;
 import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes.RequestStatuses;
@@ -59,7 +56,6 @@ public class RequestService {
 	private final RequestModelMapper requestModelMapper;
 	private final UserService userService;
 	private final NotificationService notificationService;
-	private final ApplicationProperties applicationProperties;
 
 	public RequestService(
 			LookupCodes lookupCodes,RequestRepository requestRepository,
@@ -75,8 +71,7 @@ public class RequestService {
 			WorkScheduleRepository workScheduleRepository,
 			UserService userService,
 			NotificationService notificationService,
-			ApplicationEventPublisher eventPublisher,
-			ApplicationProperties applicationProperties) {
+			ApplicationEventPublisher eventPublisher) {
 		this.requestStatuses = lookupCodes.requestStatuses();
 		this.requestRepository = requestRepository;
 		this.requestStatusRepository = requestStatusRepository;
@@ -89,11 +84,9 @@ public class RequestService {
 		this.workScheduleRepository = workScheduleRepository;
 		this.userService = userService;
 		this.notificationService = notificationService;
-		this.applicationProperties = applicationProperties;
 		this.requestModelMapper = Mappers.getMapper(RequestModelMapper.class);
 	}
 
-	@Transactional(readOnly = false)
 	public RequestEntity createRequest(UserEntity submitter) {
 		log.debug("Fetching DRAFT request status");
 
@@ -104,12 +97,10 @@ public class RequestService {
 				.save(RequestEntity.builder().submitter(submitter).requestStatus(draftStatus).build());
 	}
 
-	@Transactional(readOnly = true)
 	public Optional<RequestEntity> getRequestById(long requestId) {
 		return requestRepository.findById(requestId);
 	}
 
-	@Transactional(readOnly = true)
 	public List<RequestEntity> getAllRequestsAssociatedWithUser(Long userId) {
 		return requestRepository.findAll().stream()
 			.filter(request -> request.getOwnerId().map(id -> id.equals(userId)).orElse(false)
@@ -124,7 +115,6 @@ public class RequestService {
 	 * @param hrAdvisorId Optional HR advisor ID to filter by (null for no filtering)
 	 * @return Page of request entities
 	 */
-	@Transactional(readOnly = true)
 	public Page<RequestEntity> getAllRequests(Pageable pageable, Long hrAdvisorId) {
 		if (hrAdvisorId == null) {
 			return requestRepository.findAll(pageable);
@@ -142,14 +132,12 @@ public class RequestService {
 	 * @param request The request entity to be updated.
 	 * @return The updated request entity.
 	 */
-	@Transactional(readOnly = false)
 	public RequestEntity updateRequest(RequestEntity request) {
 		final var updatedEntity = requestRepository.save(request);
 
 		return updatedEntity;
 	}
 
-	@Transactional(readOnly = true)
 	public RequestEntity prepareRequestForUpdate(RequestUpdateModel updateModel, RequestEntity request) {
 		requestModelMapper.updateEntityFromModel(updateModel, request);
 
@@ -200,7 +188,7 @@ public class RequestService {
 
 	/**
 	 * Updates the request status based on the event type.
-	 *
+	 * 
 	 * @param request The request entity to update
 	 * @param eventType The event type that triggered the status change
 	 * @return The updated request entity
@@ -236,7 +224,7 @@ public class RequestService {
 
 	/**
 	 * Handles the requestSubmitted event.
-	 *
+	 * 
 	 * @param request The request entity
 	 * @param isOwner Whether the current user is the owner of the request
 	 * @param currentStatus The current status code of the request
@@ -262,20 +250,20 @@ public class RequestService {
 
 	/**
 	 * Handles the requestPickedUp event.
-	 *
+	 * 
 	 * @param request The request entity
 	 * @param isHrAdvisor Whether the current user is an HR advisor
 	 * @param currentStatus The current status code of the request
 	 * @param currentUser The current user entity
 	 * @return The updated request entity
 	 */
-	private RequestEntity handleRequestPickedUp(RequestEntity request, boolean isHrAdvisor,
+	private RequestEntity handleRequestPickedUp(RequestEntity request, boolean isHrAdvisor, 
 											   String currentStatus, UserEntity currentUser) {
 		if (!isHrAdvisor) {
 			throw new UnauthorizedException("Only HR advisors can pick up requests");
 		}
 
-		if (!requestStatuses.submitted().equals(currentStatus) &&
+		if (!requestStatuses.submitted().equals(currentStatus) && 
 			!requestStatuses.hrReview().equals(currentStatus)) {
 			throw new ResourceConflictException("Request must be in SUBMIT or HR_REVIEW status to be picked up");
 		}
@@ -299,46 +287,55 @@ public class RequestService {
 
 	/**
 	 * Sends a notification when a request is created.
+	 * For HR Advisors, notifications are sent only to their business email.
 	 */
 	private void sendRequestCreatedNotification(RequestEntity request) {
-		notificationService.sendRequestNotification(
-			applicationProperties.gcnotify().hrGdInboxEmail(),
-			request.getId(),
-			request.getNameEn(),
-			RequestEvent.CREATED
-		);
+		final var hrAdvisor = request.getHrAdvisor();
+
+		// If there's an HR advisor associated with the request, send the notification to their business email address
+		// TODO: The requirements say to use HR groups GD inbox - should we create a field on the user entity for this?
+		if (hrAdvisor != null && hrAdvisor.getBusinessEmailAddress() != null) {
+			notificationService.sendRequestNotification(
+				hrAdvisor.getBusinessEmailAddress(),
+				request.getId(),
+				request.getNameEn(),
+				RequestEvent.CREATED
+			);
+		} else {
+			log.warn("No HR advisor or business email address found for request ID: [{}]", request.getId());
+		}
 	}
 
 	/**
 	 * Sends a notification when a request is approved and feedback is pending.
 	 */
 	private void sendRequestFeedbackPendingNotification(RequestEntity request) {
-		final var owner = request.getSubmitter();
-
-		// If there's an owner associated with the request, send the notification to their business email address
-		if (owner != null && owner.getBusinessEmailAddress() != null) {
-			notificationService.sendRequestNotification(
-				owner.getBusinessEmailAddress(),
-				request.getId(),
-				request.getNameEn(),
-				RequestEvent.FEEDBACK_PENDING
+		Optional.ofNullable(request.getSubmitter())
+			.map(this::getEmployeeEmails)
+			.filter(emails -> !emails.isEmpty())
+			.ifPresentOrElse(
+	emails -> notificationService.sendRequestNotification(
+					emails,
+					request.getId(),
+					request.getNameEn(),
+					RequestEvent.FEEDBACK_PENDING
+				), () -> log.warn("No email addresses found for request ID: [{}]", request.getId())
 			);
-		} else {
-			log.warn("No owner or business email address found for request ID: [{}]", request.getId());
-		}
 	}
 
 	/**
-	 * Runs the match creation algorithm for a request and updates the status.
-	 *
-	 * @param request The request entity to run matches for
+	 * Approves a request by running the match creation algorithm and updating the status.
+	 * 
+	 * @param request The request entity to approve
 	 * @return The updated request entity
 	 */
-	public RequestEntity runMatches(RequestEntity request) {
+	public RequestEntity approveRequest(RequestEntity request) {
 		final boolean isHrAdvisor = SecurityUtils.hasAuthority("hr-advisor");
 
+		// Get current status code
 		final String currentStatus = request.getRequestStatus().getCode();
 
+		// Handle the approval
 		RequestEntity updatedRequest = handleRunMatches(request, isHrAdvisor, currentStatus);
 
 		return updateRequest(updatedRequest);
@@ -346,7 +343,7 @@ public class RequestService {
 
 	/**
 	 * Handles the runMatches event.
-	 *
+	 * 
 	 * @param request The request entity
 	 * @param isHrAdvisor Whether the current user is an HR advisor
 	 * @param currentStatus The current status code of the request
@@ -378,7 +375,7 @@ public class RequestService {
 	/**
 	 * Creates matches for a request.
 	 * This is a dummy implementation that will be replaced with the actual match creation algorithm.
-	 *
+	 * 
 	 * @param request The request entity
 	 * @return True if matches were created, false otherwise (for now always true)
 	 */
@@ -391,7 +388,7 @@ public class RequestService {
 
 	/**
 	 * Handles the vmsNotRequired event.
-	 *
+	 * 
 	 * @param request The request entity
 	 * @param isHrAdvisor Whether the current user is an HR advisor
 	 * @param currentStatus The current status code of the request
@@ -414,7 +411,7 @@ public class RequestService {
 
 	/**
 	 * Handles the submitFeedback event.
-	 *
+	 * 
 	 * @param request The request entity
 	 * @param isOwner Whether the current user is the owner of the request
 	 * @param currentStatus The current status code of the request
@@ -457,6 +454,25 @@ public class RequestService {
 		}
 
 		return request;
+	}
+
+	private List<String> getEmployeeEmails(UserEntity owner) {
+		List<String> emails = new ArrayList<>();
+
+		Optional.ofNullable(owner.getBusinessEmailAddress())
+			.filter(email -> !email.isBlank())
+			.ifPresent(emails::add);
+
+		Optional.ofNullable(owner.getProfiles())
+			.stream()
+			.flatMap(Collection::stream)
+			.map(ProfileEntity::getPersonalEmailAddress)
+			.filter(Objects::nonNull)
+			.filter(email -> !email.isBlank())
+			.findFirst()
+			.ifPresent(emails::add);
+
+		return emails;
 	}
 
 }
