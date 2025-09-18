@@ -1,6 +1,8 @@
 package ca.gov.dtsstn.vacman.api.service;
 
+import java.util.List;
 import java.util.Map;
+import java.util.ArrayList;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +38,9 @@ public class NotificationService {
 			.build();
 	}
 
+	/**
+	 * Sends an email notification to a single email address.
+	 */
 	public NotificationReceipt sendEmailNotification(String email, String profileId, String username, ProfileStatus profileStatus) {
 		Assert.hasText(email, "email is required; it must not be blank or null");
 		Assert.hasText(profileId, "profileId is required; it must not be blank or null");
@@ -59,6 +64,29 @@ public class NotificationService {
 		return notificationReceipt;
 	}
 
+	/**
+	 * Sends an email notification to multiple email addresses.
+	 * Returns a list of notification receipts, one for each email address.
+	 */
+	public List<NotificationReceipt> sendEmailNotification(List<String> emails, String profileId, String username, ProfileStatus profileStatus) {
+		Assert.notEmpty(emails, "emails is required; it must not be empty or null");
+		Assert.hasText(profileId, "profileId is required; it must not be blank or null");
+		Assert.hasText(username, "username is required; it must not be blank or null");
+
+		List<NotificationReceipt> receipts = new ArrayList<>();
+
+		for (String email : emails) {
+			if (email != null && !email.isBlank()) {
+				receipts.add(sendEmailNotification(email, profileId, username, profileStatus));
+			}
+		}
+
+		return receipts;
+	}
+
+	/**
+	 * Sends a request notification to a single email address.
+	 */
 	public NotificationReceipt sendRequestNotification(String email, Long requestId, String requestTitle, RequestEvent requestEvent) {
 		Assert.hasText(email, "email is required; it must not be blank or null");
 		Assert.notNull(requestId, "requestId is required; it must not be null");
@@ -88,6 +116,26 @@ public class NotificationService {
 		log.debug("Notification sent to email [{}] using template [{}]", email, templateId);
 
 		return notificationReceipt;
+	}
+
+	/**
+	 * Sends a request notification to multiple email addresses.
+	 * Returns a list of notification receipts, one for each email address.
+	 */
+	public List<NotificationReceipt> sendRequestNotification(List<String> emails, Long requestId, String requestTitle, RequestEvent requestEvent) {
+		Assert.notEmpty(emails, "emails is required; it must not be empty or null");
+		Assert.notNull(requestId, "requestId is required; it must not be null");
+		Assert.hasText(requestTitle, "requestTitle is required; it must not be blank or null");
+
+		List<NotificationReceipt> receipts = new ArrayList<>();
+
+		for (String email : emails) {
+			if (email != null && !email.isBlank()) {
+				receipts.add(sendRequestNotification(email, requestId, requestTitle, requestEvent));
+			}
+		}
+
+		return receipts;
 	}
 
 }
