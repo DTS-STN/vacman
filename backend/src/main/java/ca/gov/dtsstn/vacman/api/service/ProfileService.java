@@ -41,6 +41,7 @@ import ca.gov.dtsstn.vacman.api.event.ProfileReadEvent;
 import ca.gov.dtsstn.vacman.api.event.ProfileStatusChangeEvent;
 import ca.gov.dtsstn.vacman.api.event.ProfileUpdatedEvent;
 import ca.gov.dtsstn.vacman.api.security.SecurityUtils;
+import ca.gov.dtsstn.vacman.api.service.dto.ProfileQuery;
 import ca.gov.dtsstn.vacman.api.service.mapper.ProfileEntityMapper;
 import ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException;
 import ca.gov.dtsstn.vacman.api.web.model.ProfilePutModel;
@@ -217,6 +218,12 @@ public class ProfileService {
 		eventPublisher.publishEvent(new ProfileCreateEvent(savedProfile));
 
 		return savedProfile;
+	}
+
+	public Page<ProfileEntity> findProfiles(Pageable pageable, ProfileQuery profileQuery) {
+		final var hasHrAdvisorId = ProfileRepository.hasHrAdvisorIdIn(profileQuery.hrAdvisorIds());
+		final var hasStatusId = ProfileRepository.hasProfileStatusIdIn(profileQuery.statusIds());
+		return profileRepository.findAll(hasHrAdvisorId.and(hasStatusId), pageable);
 	}
 
 	/**
