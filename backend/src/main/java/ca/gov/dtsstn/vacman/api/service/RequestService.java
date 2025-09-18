@@ -2,6 +2,7 @@ package ca.gov.dtsstn.vacman.api.service;
 
 import static ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException.asResourceNotFoundException;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -287,11 +288,12 @@ public class RequestService {
 
 	/**
 	 * Sends a notification when a request is created.
+	 * For HR Advisors, notifications are sent only to their business email.
 	 */
 	private void sendRequestCreatedNotification(RequestEntity request) {
 		final var hrAdvisor = request.getHrAdvisor();
 
-		// If there's an HR advisor associated with the request, send the notification to their business email address (assumed to be the GD inbox)
+		// If there's an HR advisor associated with the request, send the notification to their business email address
 		// TODO: The requirements say to use HR groups GD inbox - should we create a field on the user entity for this?
 		if (hrAdvisor != null && hrAdvisor.getBusinessEmailAddress() != null) {
 			notificationService.sendRequestNotification(
@@ -311,16 +313,39 @@ public class RequestService {
 	private void sendRequestFeedbackPendingNotification(RequestEntity request) {
 		final var owner = request.getSubmitter();
 
-		// If there's an owner associated with the request, send the notification to their business email address
-		if (owner != null && owner.getBusinessEmailAddress() != null) {
-			notificationService.sendRequestNotification(
-				owner.getBusinessEmailAddress(),
-				request.getId(),
-				request.getNameEn(),
-				RequestEvent.FEEDBACK_PENDING
-			);
+		// Send the notification to their email addresses (personal and business)
+		if (owner != null) {
+			List<String> emailAddresses = new ArrayList<>();
+
+			if (owner.getBusinessEmailAddress() != null && !owner.getBusinessEmailAddress().isBlank()) {
+				emailAddresses.add(owner.getBusinessEmailAddress());
+			}
+
+			String personalEmail = null;
+			if (owner.getProfiles() != null && !owner.getProfiles().isEmpty()) {
+				personalEmail = owner.getProfiles().stream()
+					.filter(profile -> profile.getPersonalEmailAddress() != null && !profile.getPersonalEmailAddress().isBlank())
+					.findFirst()
+					.map(profile -> profile.getPersonalEmailAddress())
+					.orElse(null);
+
+				if (personalEmail != null) {
+					emailAddresses.add(personalEmail);
+				}
+			}
+
+			if (!emailAddresses.isEmpty()) {
+				notificationService.sendRequestNotification(
+					emailAddresses,
+					request.getId(),
+					request.getNameEn(),
+					RequestEvent.FEEDBACK_PENDING
+				);
+			} else {
+				log.warn("No email addresses found for request ID: [{}]", request.getId());
+			}
 		} else {
-			log.warn("No owner or business email address found for request ID: [{}]", request.getId());
+			log.warn("No owner found for request ID: [{}]", request.getId());
 		}
 	}
 
@@ -444,6 +469,7 @@ public class RequestService {
 		// Send notification with the Feedback Completed template to the HR Advisor
 		UserEntity hrAdvisor = request.getHrAdvisor();
 		if (hrAdvisor != null && hrAdvisor.getBusinessEmailAddress() != null) {
+			// For HR Advisors, send only to business email
 			notificationService.sendRequestNotification(
 				hrAdvisor.getBusinessEmailAddress(),
 				request.getId(),
