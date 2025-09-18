@@ -18,7 +18,7 @@ public class NotificationService {
 
 	public enum ProfileStatus { CREATED, UPDATED, APPROVED, PENDING }
 
-	public enum RequestEvent { CREATED, FEEDBACK_PENDING }
+	public enum RequestEvent { CREATED, FEEDBACK_PENDING, FEEDBACK_COMPLETED }
 
 	private static final Logger log = LoggerFactory.getLogger(NotificationService.class);
 
@@ -67,6 +67,7 @@ public class NotificationService {
 		final var templateId = switch (requestEvent) {
 			case CREATED -> applicationProperties.gcnotify().requestCreatedTemplateId();
 			case FEEDBACK_PENDING -> applicationProperties.gcnotify().requestFeedbackPendingTemplateId();
+			case FEEDBACK_COMPLETED -> applicationProperties.gcnotify().requestFeedbackCompletedTemplateId();
 			default -> throw new IllegalArgumentException("Unknown request event value " + requestEvent);
 		};
 
