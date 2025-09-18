@@ -2,11 +2,10 @@ package ca.gov.dtsstn.vacman.api.service;
 
 import static ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException.asResourceNotFoundException;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
+import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
 import org.mapstruct.factory.Mappers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -311,42 +310,17 @@ public class RequestService {
 	 * Sends a notification when a request is approved and feedback is pending.
 	 */
 	private void sendRequestFeedbackPendingNotification(RequestEntity request) {
-		final var owner = request.getSubmitter();
-
-		// Send the notification to their email addresses (personal and business)
-		if (owner != null) {
-			List<String> emailAddresses = new ArrayList<>();
-
-			if (owner.getBusinessEmailAddress() != null && !owner.getBusinessEmailAddress().isBlank()) {
-				emailAddresses.add(owner.getBusinessEmailAddress());
-			}
-
-			String personalEmail = null;
-			if (owner.getProfiles() != null && !owner.getProfiles().isEmpty()) {
-				personalEmail = owner.getProfiles().stream()
-					.filter(profile -> profile.getPersonalEmailAddress() != null && !profile.getPersonalEmailAddress().isBlank())
-					.findFirst()
-					.map(profile -> profile.getPersonalEmailAddress())
-					.orElse(null);
-
-				if (personalEmail != null) {
-					emailAddresses.add(personalEmail);
-				}
-			}
-
-			if (!emailAddresses.isEmpty()) {
-				notificationService.sendRequestNotification(
-					emailAddresses,
+		Optional.ofNullable(request.getSubmitter())
+			.map(this::getEmployeeEmails)
+			.filter(emails -> !emails.isEmpty())
+			.ifPresentOrElse(
+	emails -> notificationService.sendRequestNotification(
+					emails,
 					request.getId(),
 					request.getNameEn(),
 					RequestEvent.FEEDBACK_PENDING
-				);
-			} else {
-				log.warn("No email addresses found for request ID: [{}]", request.getId());
-			}
-		} else {
-			log.warn("No owner found for request ID: [{}]", request.getId());
-		}
+				), () -> log.warn("No email addresses found for request ID: [{}]", request.getId())
+			);
 	}
 
 	/**
@@ -480,6 +454,25 @@ public class RequestService {
 		}
 
 		return request;
+	}
+
+	private List<String> getEmployeeEmails(UserEntity owner) {
+		List<String> emails = new ArrayList<>();
+
+		Optional.ofNullable(owner.getBusinessEmailAddress())
+			.filter(email -> !email.isBlank())
+			.ifPresent(emails::add);
+
+		Optional.ofNullable(owner.getProfiles())
+			.stream()
+			.flatMap(Collection::stream)
+			.map(ProfileEntity::getPersonalEmailAddress)
+			.filter(Objects::nonNull)
+			.filter(email -> !email.isBlank())
+			.findFirst()
+			.ifPresent(emails::add);
+
+		return emails;
 	}
 
 }
