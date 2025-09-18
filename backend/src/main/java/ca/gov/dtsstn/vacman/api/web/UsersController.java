@@ -172,7 +172,7 @@ public class UsersController {
 	@ApiResponses.AccessDeniedError
 	@ApiResponses.AuthenticationError
 	@Operation(summary = "Get users with pagination.")
-	@PreAuthorize("hasAuthority('hr-advisor') || (isAuthenticated() && #userType == 'hr-advisor')")
+	@PreAuthorize("hasAuthority('hr-advisor') || (isAuthenticated() && #filter.userType == 'hr-advisor')")
 	public ResponseEntity<PagedModel<UserReadModel>> getUsers(@ParameterObject Pageable pageable, @ParameterObject UserReadFilterModel filter) {
 		log.debug("Received request to get users; filter={}", filter);
 

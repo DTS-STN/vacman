@@ -21,8 +21,6 @@ import { ButtonLink } from '~/components/button-link';
 import { DatePickerField } from '~/components/date-picker-field';
 import { FormErrorSummary } from '~/components/error-summary';
 import { InputLegend } from '~/components/input-legend';
-import type { InputRadiosProps } from '~/components/input-radios';
-import { InputRadios } from '~/components/input-radios';
 import { InputSelect } from '~/components/input-select';
 import { PageTitle } from '~/components/page-title';
 import { EMPLOYEE_WFA_STATUS } from '~/domain/constants';
@@ -105,7 +103,12 @@ export function EmploymentInformationForm({
     children: id === 'select-option' ? t('form.select-option') : name,
   }));
 
-  const handleWFAStatusChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const wfaStatusOptions = [{ id: 'select-option', name: '' }, ...wfaStatuses].map(({ id, name }) => ({
+    value: id === 'select-option' ? '' : String(id),
+    children: id === 'select-option' ? t('form.select-option') : name,
+  }));
+
+  const handleWFAStatusChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedValue = event.target.value;
     const selectedStatus = wfaStatuses.find((c) => c.id === Number(selectedValue))?.code;
     setWfaStatusCode(selectedStatus);
@@ -125,13 +128,6 @@ export function EmploymentInformationForm({
       setDirectorate(undefined);
     }
   };
-
-  const wfaStatusOptions: InputRadiosProps['options'] = wfaStatuses.map(({ id, name }) => ({
-    value: String(id),
-    children: name,
-    onChange: handleWFAStatusChange,
-    defaultChecked: formValues?.wfaStatus?.id === id,
-  }));
 
   const hrAdvisorOptions = [{ id: 'select-option', firstName: '', lastName: '' }, ...hrAdvisors].map(
     ({ id, firstName, lastName }) => ({
@@ -217,14 +213,16 @@ export function EmploymentInformationForm({
                 {t('employment-information.wfa-detils')}
               </InputLegend>
               <div className="w-full sm:w-1/2">
-                <InputRadios
+                <InputSelect
                   ariaDescribedbyId="wfaDetilsLegend"
                   id="wfaStatus"
                   name="wfaStatus"
                   errorMessage={t(extractValidationKey(formErrors?.wfaStatusId))}
                   required
                   options={wfaStatusOptions}
-                  legend={t('employment-information.wfa-status')}
+                  label={t('employment-information.wfa-status')}
+                  defaultValue={formValues?.wfaStatus !== undefined ? String(formValues.wfaStatus.id) : ''}
+                  onChange={handleWFAStatusChange}
                 />
               </div>
               <DatePickerField

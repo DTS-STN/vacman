@@ -24,12 +24,14 @@ import { InputSelect } from '~/components/input-select';
 import { InlineLink } from '~/components/links';
 import { LoadingButton } from '~/components/loading-button';
 import { PageTitle } from '~/components/page-title';
+import Pagination from '~/components/pagination';
 import { PROFILE_STATUS_CODE } from '~/domain/constants';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { useFetcherState } from '~/hooks/use-fetcher-state';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
 import { formatDateTimeInZone } from '~/utils/date-utils';
+import { getCurrentPage, getPageItems, makePageClickHandler, nextPage, prevPage } from '~/utils/pagination-utils';
 import { formString } from '~/utils/string-utils';
 import { extractValidationKey } from '~/utils/validation-utils';
 
@@ -90,9 +92,23 @@ export async function loader({ context, request }: Route.LoaderArgs) {
 
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
 
+  // Filter profiles based on hr-advisor selection. Options 'My Employees' or 'All employees'
+  const url = new URL(request.url);
+  const filter = url.searchParams.get('filter');
+  // Server-side pagination params with sensible defaults
+  const pageParam = url.searchParams.get('page');
+  const sizeParam = url.searchParams.get('size');
+  // URL 'page' is treated as 1-based for the backend; default to 1 if missing/invalid
+  const pageOneBased = Math.max(1, Number.parseInt(pageParam ?? '1', 10) || 1);
+  // Keep page size modest for wire efficiency, cap to prevent abuse
+  const size = Math.min(50, Math.max(1, Number.parseInt(sizeParam ?? '10', 10) || 10));
+
   const profileParams = {
     'active': true, // will return In Progress, Pending Approval and Approved
-    'hr-advisor': new URL(request.url).searchParams.get('filter') === 'me' ? 'me' : undefined, // 'me' is used by the API to filter for the current HR advisor
+    'hr-advisor': filter === 'me' ? filter : undefined, // 'me' is used in the API to filter for the current HR advisor
+    // Backend expects 1-based page index
+    'page': pageOneBased,
+    'size': size,
   };
 
   const profilesResult = await getProfileService().getProfiles(profileParams, context.session.authState.accessToken);
@@ -113,6 +129,9 @@ export async function loader({ context, request }: Route.LoaderArgs) {
     localizedStatuses: profiles
       .map(({ profileStatus }) => profileStatus?.[lang === 'en' ? 'nameEn' : 'nameFr'])
       .filter((name) => name !== undefined),
+    profiles: filteredAllProfiles,
+    page: profiles.page,
+    statuses,
     baseTimeZone: serverEnvironment.BASE_TIMEZONE,
     lang,
   };
@@ -124,7 +143,12 @@ export default function EmployeeDashboard({ loaderData, actionData, params }: Ro
   const fetcherState = useFetcherState(fetcher);
   const isSubmitting = fetcherState.submitting;
 
+<<<<<<< HEAD
   const [searchParams, setSearchParams] = useSearchParams({ filter: 'me' });
+=======
+  // Keep URL 'page' 1-based; DataTable remains 0-based internally
+  const [searchParams, setSearchParams] = useSearchParams({ filter: 'all', page: '1', size: '10' });
+>>>>>>> origin/release/v1.0.0
   const [browserTZ, setBrowserTZ] = useState<string | null>(null);
   const [srAnnouncement, setSrAnnouncement] = useState('');
 
@@ -148,6 +172,14 @@ export default function EmployeeDashboard({ loaderData, actionData, params }: Ro
       children: t('app:hr-advisor-employees-table.all-employees'),
     },
   ];
+
+  // Pagination helpers
+  const totalPages = loaderData.page.totalPages;
+  const currentPage = getCurrentPage(searchParams, 'page', totalPages);
+  const pageItems = getPageItems(totalPages, currentPage, { threshold: 9, delta: 2 });
+
+  // Navigation helpers
+  const handlePageClick = (target: number) => makePageClickHandler(searchParams, setSearchParams, target);
 
   const columns: ColumnDef<Profile>[] = [
     {
@@ -258,9 +290,17 @@ export default function EmployeeDashboard({ loaderData, actionData, params }: Ro
             options={employeesOptions}
             label=""
             aria-label={t('app:hr-advisor-employees-table.filter-by')}
+<<<<<<< HEAD
             defaultValue="all"
             onChange={({ target }) => {
               setSearchParams({ filter: target.value });
+=======
+            defaultValue={searchParams.get('filter') ?? 'all'}
+            onChange={({ target }) => {
+              const size = searchParams.get('size') ?? '10';
+              // Reset to page 1 (1-based) on filter change
+              setSearchParams({ filter: target.value, page: '1', size });
+>>>>>>> origin/release/v1.0.0
               // Announce table filtering change to screen readers
               const message =
                 target.value === 'me'
@@ -278,7 +318,60 @@ export default function EmployeeDashboard({ loaderData, actionData, params }: Ro
         {srAnnouncement}
       </div>
 
-      <DataTable columns={columns} data={loaderData.profiles} />
+      <DataTable columns={columns} data={loaderData.profiles} showPagination={false} />
+
+      {totalPages > 1 && (
+        <Pagination className="my-4" aria-label={t('gcweb:data-table.pagination.label', { defaultValue: 'Pagination' })}>
+          <p className="sr-only">
+            {t('gcweb:data-table.pagination.page-info', {
+              index: currentPage,
+              count: totalPages,
+            })}
+          </p>
+          <Pagination.Content>
+            {/* Previous */}
+            <Pagination.Item>
+              <Pagination.Previous disabled={currentPage <= 1} onClick={handlePageClick(prevPage(currentPage))} />
+            </Pagination.Item>
+
+            {/* Page numbers */}
+            {pageItems.map((item, idx) => {
+              if (item === 'ellipsis') {
+                return (
+                  <Pagination.Item key={`ellipsis-${idx}`}>
+                    <Pagination.Ellipsis />
+                  </Pagination.Item>
+                );
+              }
+              const p = item as number;
+              const isActive = p === currentPage;
+              return (
+                <Pagination.Item key={p}>
+                  <Pagination.Link
+                    isActive={isActive}
+                    aria-label={
+                      isActive
+                        ? t('gcweb:data-table.pagination.page-button-current', { index: p })
+                        : t('gcweb:data-table.pagination.page-button-go-to', { index: p })
+                    }
+                    onClick={handlePageClick(p)}
+                  >
+                    {p}
+                  </Pagination.Link>
+                </Pagination.Item>
+              );
+            })}
+
+            {/* Next */}
+            <Pagination.Item>
+              <Pagination.Next
+                disabled={currentPage >= totalPages}
+                onClick={handlePageClick(nextPage(currentPage, totalPages))}
+              />
+            </Pagination.Item>
+          </Pagination.Content>
+        </Pagination>
+      )}
     </div>
   );
 }
