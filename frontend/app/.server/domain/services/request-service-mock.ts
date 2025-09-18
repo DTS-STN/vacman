@@ -265,9 +265,9 @@ export function getMockRequestService(): RequestService {
       // Mock status update - in real implementation, you'd validate and apply the status update
       const newStatus: RequestStatus = {
         id: 1,
-        code: 'PENDING',
-        nameEn: 'Pending',
-        nameFr: 'En attente',
+        code: 'SUBMIT',
+        nameEn: 'Request Submitted',
+        nameFr: 'Demande soumise',
       };
 
       const updatedRequest: RequestReadModel = {

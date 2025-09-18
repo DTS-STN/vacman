@@ -323,6 +323,9 @@ export default {
       'Public Service Commission (PSC) Priority Clearance is required for all term and indeterminate appointments. FR',
     'page-info-3': 'PSC and ESDC Clearances are required prior to advertising all advertised appointment processes. FR',
     'page-info-4': "Consult the Manager's Guide on Priority Clearances for more information. FR",
+    'request-incomplete': 'Veuillez remplir tous les champs obligatoires avant de soumettre votre demande',
+    'request-submitted': "Demande soumise avec succès! Un-e conseiller(ère) RH va l'examiner pour approbation",
+    //'view-link': 'View request with ID {{requestId}}',
   },
   'referral-request': 'Demande de présentation de candidatures',
   'position-information': {

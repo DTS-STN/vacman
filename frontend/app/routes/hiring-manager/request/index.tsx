@@ -28,8 +28,13 @@ import { PageTitle } from '~/components/page-title';
 import { ProfileCard } from '~/components/profile-card';
 import { Progress } from '~/components/progress';
 import { StatusTag } from '~/components/status-tag';
-import { EMPLOYMENT_TENURE, LANGUAGE_REQUIREMENT_CODES, REQUEST_EVENT_TYPE, SELECTION_PROCESS_TYPE } from '~/domain/constants';
-//import { PROFILE_STATUS_CODE, EMPLOYEE_WFA_STATUS } from '~/domain/constants';
+import {
+  EMPLOYMENT_TENURE,
+  LANGUAGE_REQUIREMENT_CODES,
+  REQUEST_EVENT_TYPE,
+  REQUEST_STATUS_CODE,
+  SELECTION_PROCESS_TYPE,
+} from '~/domain/constants';
 import { useFetcherState } from '~/hooks/use-fetcher-state';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
@@ -45,12 +50,8 @@ export function meta({ loaderData }: Route.MetaArgs) {
 export async function action({ context, params, request }: Route.ActionArgs) {
   requireAuthentication(context.session, request);
 
-  // TODO review data and formatting
   const requestData = await getRequestService().getRequestById(Number(params.requestId), context.session.authState.accessToken);
   const currentRequest = requestData.into();
-  const { lang } = await getTranslation(request, handle.i18nNamespace);
-
-  const allLocalizedRequestStatus = await getRequestStatusService().listAllLocalized(lang);
 
   // For process information from Request Model
   const requiredProcessFields = {
@@ -135,7 +136,6 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     };
   }
 
-  // If all complete, submit for review  TODO review
   const submitResult = await getRequestService().updateRequestStatus(
     Number(params.requestId),
     REQUEST_EVENT_TYPE.submitted,
@@ -153,7 +153,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 
   return {
     status: 'submitted',
-    profileStatus: submitResult.unwrap(),
+    requestStatus: submitResult.unwrap(),
   };
 }
 
@@ -327,7 +327,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   return {
     documentTitle: t('app:hiring-manager-referral-requests.page-title'),
     amountCompleted: amountCompleted,
-    isProfileComplete:
+    isRequestComplete:
       isCompleteProcessInformation &&
       isCompletePositionInformation &&
       isCompleteStatementOfMeritCriteriaInformaion &&
@@ -426,23 +426,21 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
 
         <PageTitle>{t('app:hiring-manager-referral-requests.page-title')}</PageTitle>
 
-        {/* TODO review */}
-        <p className="font-normal text-[#9FA3AD]">
-          {/* {t('app:profile.last-updated', { date: browserTZ, name: loaderData.lastUpdatedBy })} */}
-        </p>
-
         <div
           role="presentation"
           className="absolute top-25 left-0 -z-10 h-50 w-full scale-x-[-1] bg-[rgba(9,28,45,1)] bg-[url('/VacMan-design-element-06.svg')] bg-size-[450px] bg-left-bottom bg-no-repeat"
         />
       </div>
 
-      {/* TODO review alert messages below */}
       {fetcher.data && (
         <AlertMessage
           ref={alertRef}
-          type={loaderData.isProfileComplete ? 'success' : 'error'}
-          message={loaderData.isProfileComplete ? t('app:profile.profile-submitted') : t('app:profile.profile-incomplete')}
+          type={loaderData.isRequestComplete ? 'success' : 'error'}
+          message={
+            loaderData.isRequestComplete
+              ? t('app:hiring-manager-referral-requests.request-submitted')
+              : t('app:hiring-manager-referral-requests.request-incomplete')
+          }
           role="alert"
           ariaLive="assertive"
         />
@@ -474,8 +472,7 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
           {t('app:hiring-manager-referral-requests.page-description')}
         </div>
 
-        {/* {loaderData.status?.code === REQUEST.incomplete && (  TODO fix and delete lie below*/}
-        {loaderData.status?.code !== undefined && (
+        {loaderData.status?.code !== REQUEST_STATUS_CODE.SUBMIT && (
           <div className="mt-4">
             <Progress className="color-[#2572B4] mt-8 mb-8" label="" value={loaderData.amountCompleted} />
           </div>
