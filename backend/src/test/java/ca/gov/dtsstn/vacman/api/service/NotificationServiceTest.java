@@ -56,6 +56,11 @@ class NotificationServiceTest {
 		when(restTemplateBuilder.readTimeout(any())).thenReturn(restTemplateBuilder);
 		when(restTemplateBuilder.build()).thenReturn(restTemplate);
 
+		final var languages = mock(LookupCodes.Languages.class);
+		when(lookupCodes.languages()).thenReturn(languages);
+		when(languages.english()).thenReturn("en");
+		when(languages.french()).thenReturn("fr");
+
 		this.notificationService = new NotificationService(applicationProperties, restTemplateBuilder, lookupCodes);
 	}
 
@@ -72,7 +77,7 @@ class NotificationServiceTest {
 			"test@example.com",
 			"00000000-0000-0000-0000-000000000000",
 			"Ana de Armas",
-			"en",
+			lookupCodes.languages().english(),
 			ProfileStatus.APPROVED);
 
 		assertThat(result).isNotNull();
@@ -91,7 +96,7 @@ class NotificationServiceTest {
 			"test@example.com",
 			"00000000-0000-0000-0000-000000000000",
 			"Ana de Armas",
-			"fr",
+			lookupCodes.languages().french(),
 			ProfileStatus.APPROVED);
 
 		assertThat(result).isNotNull();
@@ -110,7 +115,7 @@ class NotificationServiceTest {
 			"test@example.com",
 			"00000000-0000-0000-0000-000000000000",
 			"Ana de Armas",
-			"en",
+			lookupCodes.languages().english(),
 			ProfileStatus.CREATED);
 
 		assertThat(result).isNotNull();
@@ -129,7 +134,7 @@ class NotificationServiceTest {
 			"test@example.com",
 			"00000000-0000-0000-0000-000000000000",
 			"Ana de Armas",
-			"fr",
+			lookupCodes.languages().french(),
 			ProfileStatus.CREATED);
 
 		assertThat(result).isNotNull();
@@ -149,7 +154,7 @@ class NotificationServiceTest {
 			"test@example.com",
 			"00000000-0000-0000-0000-000000000000",
 			"Ana de Armas",
-			"en",
+			lookupCodes.languages().english(),
 			ProfileStatus.UPDATED);
 
 		assertThat(result).isNotNull();
@@ -168,7 +173,7 @@ class NotificationServiceTest {
 			"test@example.com",
 			"00000000-0000-0000-0000-000000000000",
 			"Ana de Armas",
-			"fr",
+			lookupCodes.languages().french(),
 			ProfileStatus.UPDATED);
 
 		assertThat(result).isNotNull();
@@ -187,7 +192,7 @@ class NotificationServiceTest {
 			"hradvisor@example.com",
 			"00000000-0000-0000-0000-000000000000",
 			"Ana de Armas",
-			"en",
+			lookupCodes.languages().english(),
 			ProfileStatus.PENDING);
 
 		assertThat(result).isNotNull();
