@@ -214,7 +214,6 @@ export default {
     'yes': 'Yes',
     'no': 'No',
     'errors': {
-      // TODO these need to be updated when they're finalized
       'selection-process-number-required': 'Selection process number is required',
       'approval-received-required': 'Approval received is required',
       'performed-duties-required': 'Performed duties is required',
@@ -320,7 +319,6 @@ export default {
       'Public Service Commission (PSC) Priority Clearance is required for all term and indeterminate appointments.',
     'page-info-3': 'PSC and ESDC Clearances are required prior to advertising all advertised appointment processes.',
     'page-info-4': "Consult the Manager's Guide on Priority Clearances for more information.",
-    //'view-link': 'View request with ID {{requestId}}',
   },
   'referral-request': 'Referral request',
   'position-information': {
@@ -343,7 +341,6 @@ export default {
     'language-requirement': 'Language requirement',
     'security-requirement': 'Security requirement',
     'errors': {
-      // TODO: error messages need to be updated when available
       'position-number-required': 'Position number is required.',
       'position-number-max-length': 'Each position number must be 6 characters.',
       'group-and-level-required': 'Group and level is required.',
@@ -383,17 +380,17 @@ export default {
     'hr-advisor': {
       'request-submitted-by': 'Request submitted by: {{name}}',
       'is-submitter-hiring-manager': 'Is {{name}} the hiring manager for this request?',
-      'is-submitter-a-sub-delegate': 'Is {{name}} a sub-delegate?',
+      'is-submitter-a-sub-delegate': 'Is {{name}} a sub-delegated manager?',
     },
     'hiring-manager': {
       'submitter': 'Submitter: {{name}}',
       'are-you-hiring-manager-for-request': 'Are you the hiring manager for this request?',
-      'are-you-a-subdelegate': 'Are you a sub-delegate?',
+      'are-you-a-subdelegate': 'Are you a sub-delegated manager?',
     },
     'hiring-manager-email': 'Hiring manager email address',
     'hiring-manager-name': 'Hiring manager: {{name}}',
-    'is-hiring-manager-sub-delegate': 'Is the hiring manager a sub-delegate?',
-    'sub-delegate-email': 'Sub-delegate email address',
+    'is-hiring-manager-sub-delegate': 'Is the hiring manager sub-delegated?',
+    'sub-delegate-email': 'Sub-delegated manager email address',
     'sub-delegate-name': 'Sub-delegate: {{name}}',
     'branch-or-service-canada-region': 'Branch or Service Canada Region',
     'directorate': 'Directorate',
@@ -403,15 +400,14 @@ export default {
     'submiter-title': 'Submitter',
     'hiring-manager-title': 'Hiring manager',
     'sub-delegate-title': 'Sub-delegate',
-    // TODO: error messages need to be updated when available
     'errors': {
-      'is-submitter-hiring-manager-required': 'Is submitter the hiring manager for this request field is required.',
-      'is-submitter-a-sub-delegate-required': 'Is submitter a sub-delegate field is required.',
-      'are-you-hiring-manager-for-request-required': 'Are you the hiring manager for this request field is required.',
-      'are-you-a-subdelegate-required': 'Are you a sub-delegate field is required.',
+      'is-submitter-hiring-manager-required': '"Is submitter the hiring manager for this request" field is required.',
+      'is-submitter-a-sub-delegate-required': '"Is submitter a sub-delegated manager" field is required.',
+      'are-you-hiring-manager-for-request-required': '"Are you the hiring manager for this request" field is required.',
+      'are-you-a-subdelegate-required': '"Are you a sub-delegated manager" field is required.',
       'hiring-manager-email-required': 'Hiring manager email address is required.',
       'hiring-manager-email-invalid': 'Hiring manager email address is invalid.',
-      'is-hiring-manager-sub-delegate-required': 'Is the hiring manager a sub-delegate field is required.',
+      'is-hiring-manager-sub-delegate-required': '"Is the hiring manager sub-delegated" field is required.',
       'sub-delegate-email-required': 'Sub-delegate email address is required.',
       'sub-delegate-email-invalid': 'Sub-delegate email address is invalid.',
       'branch-or-service-canada-region-required': 'Branch or Service Canada Region is required.',

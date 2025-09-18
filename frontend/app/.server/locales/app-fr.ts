@@ -217,7 +217,6 @@ export default {
     'yes': 'Oui',
     'no': 'Non',
     'errors': {
-      // TODO these need to be updated when they're finalized
       'selection-process-number-required': 'Numéro du processus de sélection est requis',
       'approval-received-required': 'Approbation reçue est requise',
       'performed-duties-required': 'Exercé les mêmes fonctions est requis',
@@ -289,6 +288,7 @@ export default {
     'page-heading': 'Tableau de bord du responsable du recrutement',
     'requests': 'Demandes',
   },
+  // TODO updated FR
   'hiring-manager-referral-requests': {
     'page-title': 'Referral requests FR',
     'request-details': 'Request details FR',
@@ -323,7 +323,6 @@ export default {
       'Public Service Commission (PSC) Priority Clearance is required for all term and indeterminate appointments. FR',
     'page-info-3': 'PSC and ESDC Clearances are required prior to advertising all advertised appointment processes. FR',
     'page-info-4': "Consult the Manager's Guide on Priority Clearances for more information. FR",
-    //'view-link': 'View request with ID {{requestId}}',
   },
   'referral-request': 'Demande de présentation de candidatures',
   'position-information': {
@@ -347,23 +346,22 @@ export default {
     'language-requirement': 'Profil linguistique',
     'security-requirement': 'Exigences en matière de sécurité',
     'errors': {
-      // TODO: error messages need to be updated when available
-      'position-number-required': 'Position number is required.',
-      'position-number-max-length': 'Each position number must be 6 characters.',
-      'group-and-level-required': 'Group and level is required.',
-      'title-en-required': 'Title in English is required.',
-      'title-fr-required': 'Title in French is required.',
-      'provinces-required': 'Province is required.',
-      'city-required': 'City is required.',
-      'city-invalid': 'City is invalid.',
-      'city-duplicate': 'Duplicate items for city are not allowed.',
-      'language-requirement-required': 'Language requirement is required.',
+      'position-number-required': 'Le numéro de poste est requis.',
+      'position-number-max-length': 'Chaque numéro de poste doit comporter 6 caractères.',
+      'group-and-level-required': 'Le groupe et le niveau sont requis.',
+      'title-en-required': 'Le titre en anglais est requis.',
+      'title-fr-required': 'Le titre en français est requis.',
+      'provinces-required': 'La province est requise.',
+      'city-required': 'La ville est requise.',
+      'city-invalid': "La ville n'est pas valide.",
+      'city-duplicate': 'Les doublons pour la ville ne sont pas autorisés.',
+      'language-requirement-required': "L'exigence linguistique est requise.",
       'language-profile': {
-        'reading-comprehension-required': 'Reading comprehension is required.',
-        'written-expression-required': 'Written expression is required.',
-        'oral-proficiency-required': 'Oral proficiency is required.',
+        'reading-comprehension-required': "La compréhension de l'écrit est requise.",
+        'written-expression-required': "L'expression écrite est requise.",
+        'oral-proficiency-required': "La compétence à l'oral est requise.",
       },
-      'security-requirement-required': 'Security requirement is required.',
+      'security-requirement-required': "L'exigence de sécurité est requise.",
     },
   },
   'hiring-manager-requests': {
@@ -378,8 +376,8 @@ export default {
     'french-somc-label': "Énoncé de critères de mérite et conditions d'emploi - Français",
     'french-somc-help-message': "Veuillez saisir l'intégralité des critères en français",
     'errors': {
-      'english-somc-required': '(FR) English statement of merit criteria is required',
-      'french-somc-required': '(FR) French statement of merit criteria is required',
+      'english-somc-required': 'Un énoncé de critères de mérite en anglais est requis.',
+      'french-somc-required': 'Un énoncé de critères de mérite en français est requis.',
     },
   },
   'submission-details': {
@@ -392,12 +390,12 @@ export default {
     'hiring-manager': {
       'submitter': 'Personne ayant soumis la demande\u00A0:{{name}}',
       'are-you-hiring-manager-for-request': "Êtes-vous le gestionnaire d'embauche pour cette demande?",
-      'are-you-a-subdelegate': 'Êtes-vous sub-délégué-e\u00A0?',
+      'are-you-a-subdelegate': 'Êtes-vous un-e gestionnaire subdélégué-e\u00A0?',
     },
     'hiring-manager-email': "Adresse courriel du (de la) gestionnaire d'embauche",
     'hiring-manager-name': "Gestionnaire d'embauche\u00A0:{{name}}",
     'is-hiring-manager-sub-delegate': "Est-ce que le-la gestionnaire d'embauche est subdélégué-e?",
-    'sub-delegate-email': 'Adresse courriel du (de la) subdélégué-e',
+    'sub-delegate-email': 'Adresse courriel du (de la) gestionnaire subdélégué-e',
     'sub-delegate-name': 'Subdélégué-e\u00A0:{{name}}',
     'branch-or-service-canada-region': 'Direction générale ou Région de Service Canada',
     'directorate': 'Direction',
@@ -407,17 +405,20 @@ export default {
     'submiter-title': 'Personne ayant soumis la demande',
     'hiring-manager-title': "Gestionnaire d'embauche",
     'sub-delegate-title': 'Subdélégué-e',
-    // TODO: error messages need to be updated when available
     'errors': {
-      'is-submitter-hiring-manager-required': 'Is submitter the hiring manager for this request field is required.',
-      'is-submitter-a-sub-delegate-required': 'Is submitter a sub-delegate field is required.',
-      'are-you-hiring-manager-for-request-required': 'Are you the hiring manager for this request field is required.',
-      'are-you-a-subdelegate-required': 'Are you a sub-delegate field is required.',
-      'hiring-manager-email-required': 'Hiring manager email address is required.',
-      'hiring-manager-email-invalid': 'Hiring manager email address is invalid.',
-      'is-hiring-manager-sub-delegate-required': 'Is the hiring manager a sub-delegate field is required.',
-      'sub-delegate-email-invalid': 'Sub-delegate email address is invalid.',
-      'sub-delegate-email-required': 'Sub-delegate email address is required.',
+      'is-submitter-hiring-manager-required':
+        "Le champ «\u00a0Est-ce que le (la) soumissionnaire est le (la) gestionnaire d'embauche pour cette demande\u00a0» est requis. ",
+      'is-submitter-a-sub-delegate-required':
+        'Le champ «\u00a0Le (la) soumissionnaire est-il (elle)  un-e gestionnaire subdélégué-e\u00a0» est requis.',
+      'are-you-hiring-manager-for-request-required':
+        "Le champ «\u00a0Êtes-vous le (la) gestionnaire d'embauche pour cette demande\u00a0» est requis.",
+      'are-you-a-subdelegate-required': 'Le champ «\u00a0Êtes-vous un-e gestionnaire subdélégué-e\u00a0» est requis.',
+      'hiring-manager-email-required': "L'adresse courriel du (de la) gestionnaire d'embauche est requise.",
+      'hiring-manager-email-invalid': "L'adresse courriel du (de la) gestionnaire d'embauche n'est pas valide.",
+      'is-hiring-manager-sub-delegate-required':
+        "Le champ «\u00a0Le (la) gestionnaire d'embauche est-il (elle) subdélégué-e\u00a0» est requis.",
+      'sub-delegate-email-invalid': "L'adresse courriel du (de la) gestionnaire subdélégué-e n'est pas valide.",
+      'sub-delegate-email-required': "L'adresse courriel du (de la) gestionnaire subdélégué (e) est requise.",
       'branch-or-service-canada-region-required': 'La direction générale ou la région de Service Canada est requise.',
       'directorate-required': 'La direction est requise.',
       'preferred-language-of-correspondence-required': 'La langue de préférence pour la correspondance est requise.',
