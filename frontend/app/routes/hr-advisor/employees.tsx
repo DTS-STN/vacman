@@ -123,8 +123,6 @@ export async function loader({ context, request }: Route.LoaderArgs) {
       [PROFILE_STATUS_CODE.approved, PROFILE_STATUS_CODE.pending].some((code) => code === profileStatus?.code),
     );
 
-  console.log(profilesResult.unwrap());
-
   return {
     documentTitle: t('app:index.employees'),
     profiles: profiles,
