@@ -123,15 +123,15 @@ export async function loader({ context, request }: Route.LoaderArgs) {
       [PROFILE_STATUS_CODE.approved, PROFILE_STATUS_CODE.pending].some((code) => code === profileStatus?.code),
     );
 
+  console.log(profilesResult.unwrap());
+
   return {
     documentTitle: t('app:index.employees'),
     profiles: profiles,
     localizedStatuses: profiles
       .map(({ profileStatus }) => profileStatus?.[lang === 'en' ? 'nameEn' : 'nameFr'])
       .filter((name) => name !== undefined),
-    profiles: filteredAllProfiles,
-    page: profiles.page,
-    statuses,
+    page: profilesResult.unwrap().page,
     baseTimeZone: serverEnvironment.BASE_TIMEZONE,
     lang,
   };
@@ -143,12 +143,8 @@ export default function EmployeeDashboard({ loaderData, actionData, params }: Ro
   const fetcherState = useFetcherState(fetcher);
   const isSubmitting = fetcherState.submitting;
 
-<<<<<<< HEAD
-  const [searchParams, setSearchParams] = useSearchParams({ filter: 'me' });
-=======
   // Keep URL 'page' 1-based; DataTable remains 0-based internally
   const [searchParams, setSearchParams] = useSearchParams({ filter: 'all', page: '1', size: '10' });
->>>>>>> origin/release/v1.0.0
   const [browserTZ, setBrowserTZ] = useState<string | null>(null);
   const [srAnnouncement, setSrAnnouncement] = useState('');
 
@@ -290,17 +286,11 @@ export default function EmployeeDashboard({ loaderData, actionData, params }: Ro
             options={employeesOptions}
             label=""
             aria-label={t('app:hr-advisor-employees-table.filter-by')}
-<<<<<<< HEAD
-            defaultValue="all"
-            onChange={({ target }) => {
-              setSearchParams({ filter: target.value });
-=======
             defaultValue={searchParams.get('filter') ?? 'all'}
             onChange={({ target }) => {
               const size = searchParams.get('size') ?? '10';
               // Reset to page 1 (1-based) on filter change
               setSearchParams({ filter: target.value, page: '1', size });
->>>>>>> origin/release/v1.0.0
               // Announce table filtering change to screen readers
               const message =
                 target.value === 'me'

@@ -74,7 +74,7 @@ export function getMockProfileService(): ProfileService {
       }
 
       // Apply pagination
-      const page = params.page ?? 0;
+      const page = (params.page ?? 1) - 1;
       const size = params.size ?? 10;
       const startIndex = page * size;
       const endIndex = startIndex + size;
