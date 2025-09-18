@@ -1,5 +1,4 @@
 import { parsePhoneNumberWithError } from 'libphonenumber-js';
-import type { BaseIssue, BaseSchema } from 'valibot';
 import * as v from 'valibot';
 
 import type { User } from '~/.server/domain/models';
@@ -17,6 +16,7 @@ import { formatISODate, isValidDateString } from '~/utils/date-utils';
 import { isValidPhone } from '~/utils/phone-utils';
 import { REGEX_PATTERNS } from '~/utils/regex-utils';
 import { formString } from '~/utils/string-utils';
+import { optionalString } from '~/utils/validation-utils';
 
 export type EmploymentInformationSchema = Awaited<ReturnType<typeof createEmploymentInformationSchema>>;
 export type PersonalInformationSchema = Awaited<ReturnType<typeof createPersonalInformationSchema>>;
@@ -395,17 +395,4 @@ export async function parseEmploymentInformation(formData: FormData, hrAdvisors:
       hrAdvisorId: formValues.hrAdvisorId,
     },
   };
-}
-
-/**
- * A custom schema that transforms an empty string to `undefined` before
- * passing it to another schema. This makes `v.optional` work correctly
- * with empty form fields.
- */
-function optionalString<TOutput>(schema: BaseSchema<string | undefined, TOutput, BaseIssue<unknown>>) {
-  return v.pipe(
-    v.string(),
-    v.transform((input) => (input.trim() === '' ? undefined : input)),
-    schema,
-  );
 }
