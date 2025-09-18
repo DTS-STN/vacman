@@ -71,7 +71,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
       { email: parseResult.output.hiringManagerEmailAddress },
       context.session.authState.accessToken,
     );
-    const hiringManager = hiringManagerResult.into()?.content[0];
+    const hiringManager = hiringManagerResult.into()?.content[0]; // TODO: add the error handling if content[0] is undefined
     hiringManagerId = hiringManager?.id;
   }
 
@@ -82,7 +82,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
       context.session.authState.accessToken,
     );
 
-    const subDelegatedManager = subDelegatedManagerResult.into()?.content[0];
+    const subDelegatedManager = subDelegatedManagerResult.into()?.content[0]; // TODO: add the error handling if content[0] is undefined
     subDelegatedManagerId = subDelegatedManager?.id;
   }
 
