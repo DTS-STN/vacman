@@ -469,7 +469,6 @@ public class RequestService {
 		// Send notification with the Feedback Completed template to the HR Advisor
 		UserEntity hrAdvisor = request.getHrAdvisor();
 		if (hrAdvisor != null && hrAdvisor.getBusinessEmailAddress() != null) {
-			// For HR Advisors, send only to business email
 			notificationService.sendRequestNotification(
 				hrAdvisor.getBusinessEmailAddress(),
 				request.getId(),
