@@ -1,0 +1,193 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`VacmanBackground > should render vacman background component > expected html 1`] = `
+<div>
+  <div
+    class="flex text-white sm:h-60 h-70"
+  >
+    <div>
+      vacman background
+    </div>
+    <div
+      class="absolute top-25 left-0 -z-10 w-full bg-[rgba(9,28,45,1)] bg-[url('/VacMan-design-element-06.svg')] bg-size-[450px] bg-left-bottom bg-no-repeat sm:h-60 h-70 scale-x-[1] scale-y-[-1]"
+      role="presentation"
+    />
+  </div>
+</div>
+`;
+
+exports[`VacmanBackground > should render vacman background component at h-30 > expected html 1`] = `
+<div>
+  <div
+    class="flex text-white sm:h-30 h-40"
+  >
+    <div>
+      h-30
+    </div>
+    <div
+      class="absolute top-25 left-0 -z-10 w-full bg-[rgba(9,28,45,1)] bg-[url('/VacMan-design-element-06.svg')] bg-size-[450px] bg-left-bottom bg-no-repeat sm:h-30 h-40 scale-x-[1] scale-y-[-1]"
+      role="presentation"
+    />
+  </div>
+</div>
+`;
+
+exports[`VacmanBackground > should render vacman background component at h-40 > expected html 1`] = `
+<div>
+  <div
+    class="flex text-white sm:h-40 h-50"
+  >
+    <div>
+      h-40
+    </div>
+    <div
+      class="absolute top-25 left-0 -z-10 w-full bg-[rgba(9,28,45,1)] bg-[url('/VacMan-design-element-06.svg')] bg-size-[450px] bg-left-bottom bg-no-repeat sm:h-40 h-50 scale-x-[1] scale-y-[-1]"
+      role="presentation"
+    />
+  </div>
+</div>
+`;
+
+exports[`VacmanBackground > should render vacman background component at h-50 > expected html 1`] = `
+<div>
+  <div
+    class="flex text-white sm:h-50 h-60"
+  >
+    <div>
+      h-50
+    </div>
+    <div
+      class="absolute top-25 left-0 -z-10 w-full bg-[rgba(9,28,45,1)] bg-[url('/VacMan-design-element-06.svg')] bg-size-[450px] bg-left-bottom bg-no-repeat sm:h-50 h-60 scale-x-[1] scale-y-[-1]"
+      role="presentation"
+    />
+  </div>
+</div>
+`;
+
+exports[`VacmanBackground > should render vacman background component at h-60 > expected html 1`] = `
+<div>
+  <div
+    class="flex text-white sm:h-60 h-70"
+  >
+    <div>
+      h-60
+    </div>
+    <div
+      class="absolute top-25 left-0 -z-10 w-full bg-[rgba(9,28,45,1)] bg-[url('/VacMan-design-element-06.svg')] bg-size-[450px] bg-left-bottom bg-no-repeat sm:h-60 h-70 scale-x-[1] scale-y-[-1]"
+      role="presentation"
+    />
+  </div>
+</div>
+`;
+
+exports[`VacmanBackground > should render vacman background component at h-70 > expected html 1`] = `
+<div>
+  <div
+    class="flex text-white sm:h-70 h-80"
+  >
+    <div>
+      h-70
+    </div>
+    <div
+      class="absolute top-25 left-0 -z-10 w-full bg-[rgba(9,28,45,1)] bg-[url('/VacMan-design-element-06.svg')] bg-size-[450px] bg-left-bottom bg-no-repeat sm:h-70 h-80 scale-x-[1] scale-y-[-1]"
+      role="presentation"
+    />
+  </div>
+</div>
+`;
+
+exports[`VacmanBackground > should render vacman background component at h-80 > expected html 1`] = `
+<div>
+  <div
+    class="flex text-white sm:h-80 h-90"
+  >
+    <div>
+      h-80
+    </div>
+    <div
+      class="absolute top-25 left-0 -z-10 w-full bg-[rgba(9,28,45,1)] bg-[url('/VacMan-design-element-06.svg')] bg-size-[450px] bg-left-bottom bg-no-repeat sm:h-80 h-90 scale-x-[1] scale-y-[-1]"
+      role="presentation"
+    />
+  </div>
+</div>
+`;
+
+exports[`VacmanBackground > should render vacman background component at h-90 > expected html 1`] = `
+<div>
+  <div
+    class="flex text-white sm:h-90 h-100"
+  >
+    <div>
+      h-90
+    </div>
+    <div
+      class="absolute top-25 left-0 -z-10 w-full bg-[rgba(9,28,45,1)] bg-[url('/VacMan-design-element-06.svg')] bg-size-[450px] bg-left-bottom bg-no-repeat sm:h-90 h-100 scale-x-[1] scale-y-[-1]"
+      role="presentation"
+    />
+  </div>
+</div>
+`;
+
+exports[`VacmanBackground > should render vacman background component with bottom-left variant > expected html 1`] = `
+<div>
+  <div
+    class="flex text-white sm:h-60 h-70"
+  >
+    <div>
+      bottom-left
+    </div>
+    <div
+      class="absolute top-25 left-0 -z-10 w-full bg-[rgba(9,28,45,1)] bg-[url('/VacMan-design-element-06.svg')] bg-size-[450px] bg-left-bottom bg-no-repeat sm:h-60 h-70 scale-x-[1] scale-y-[1]"
+      role="presentation"
+    />
+  </div>
+</div>
+`;
+
+exports[`VacmanBackground > should render vacman background component with bottom-right variant > expected html 1`] = `
+<div>
+  <div
+    class="flex text-white sm:h-60 h-70"
+  >
+    <div>
+      bottom-right
+    </div>
+    <div
+      class="absolute top-25 left-0 -z-10 w-full bg-[rgba(9,28,45,1)] bg-[url('/VacMan-design-element-06.svg')] bg-size-[450px] bg-left-bottom bg-no-repeat sm:h-60 h-70 scale-x-[-1] scale-y-[1]"
+      role="presentation"
+    />
+  </div>
+</div>
+`;
+
+exports[`VacmanBackground > should render vacman background component with top-left variant > expected html 1`] = `
+<div>
+  <div
+    class="flex text-white sm:h-60 h-70"
+  >
+    <div>
+      top-left
+    </div>
+    <div
+      class="absolute top-25 left-0 -z-10 w-full bg-[rgba(9,28,45,1)] bg-[url('/VacMan-design-element-06.svg')] bg-size-[450px] bg-left-bottom bg-no-repeat sm:h-60 h-70 scale-x-[1] scale-y-[-1]"
+      role="presentation"
+    />
+  </div>
+</div>
+`;
+
+exports[`VacmanBackground > should render vacman background component with top-right variant > expected html 1`] = `
+<div>
+  <div
+    class="flex text-white sm:h-60 h-70"
+  >
+    <div>
+      top-right
+    </div>
+    <div
+      class="absolute top-25 left-0 -z-10 w-full bg-[rgba(9,28,45,1)] bg-[url('/VacMan-design-element-06.svg')] bg-size-[450px] bg-left-bottom bg-no-repeat sm:h-60 h-70 scale-x-[-1] scale-y-[-1]"
+      role="presentation"
+    />
+  </div>
+</div>
+`;

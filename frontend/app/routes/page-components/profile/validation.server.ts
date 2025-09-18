@@ -1,5 +1,4 @@
 import { parsePhoneNumberWithError } from 'libphonenumber-js';
-import type { BaseIssue, BaseSchema } from 'valibot';
 import * as v from 'valibot';
 
 import type { User } from '~/.server/domain/models';
@@ -13,10 +12,11 @@ import { getWFAStatuses } from '~/.server/domain/services/wfa-status-service';
 import { extractUniqueBranchesFromDirectoratesNonLocalized } from '~/.server/utils/directorate-utils';
 import { stringToIntegerSchema } from '~/.server/validation/string-to-integer-schema';
 import { EMPLOYEE_WFA_STATUS } from '~/domain/constants';
-import { isValidDateString, toISODateString } from '~/utils/date-utils';
+import { formatISODate, isValidDateString } from '~/utils/date-utils';
 import { isValidPhone } from '~/utils/phone-utils';
 import { REGEX_PATTERNS } from '~/utils/regex-utils';
 import { formString } from '~/utils/string-utils';
+import { optionalString } from '~/utils/validation-utils';
 
 export type EmploymentInformationSchema = Awaited<ReturnType<typeof createEmploymentInformationSchema>>;
 export type PersonalInformationSchema = Awaited<ReturnType<typeof createPersonalInformationSchema>>;
@@ -364,11 +364,11 @@ export async function parseEmploymentInformation(formData: FormData, hrAdvisors:
     provinceId: formString(formData.get('province')),
     cityId: formString(formData.get('cityId')),
     wfaStatusId: formString(formData.get('wfaStatus')),
-    wfaStartDate: toDateString(wfaStartDateYear, wfaStartDateMonth, wfaStartDateDay),
+    wfaStartDate: formatISODate(`${wfaStartDateYear}-${wfaStartDateMonth}-${wfaStartDateDay}`).unwrapOr(''),
     wfaStartDateYear,
     wfaStartDateMonth,
     wfaStartDateDay,
-    wfaEndDate: toDateString(wfaEndDateYear, wfaEndDateMonth, wfaEndDateDay),
+    wfaEndDate: formatISODate(`${wfaEndDateYear}-${wfaEndDateMonth}-${wfaEndDateDay}`).unwrapOr(''),
     wfaEndDateYear,
     wfaEndDateMonth,
     wfaEndDateDay,
@@ -395,25 +395,4 @@ export async function parseEmploymentInformation(formData: FormData, hrAdvisors:
       hrAdvisorId: formValues.hrAdvisorId,
     },
   };
-}
-
-function toDateString(year?: string, month?: string, day?: string): string {
-  try {
-    return toISODateString(Number(year), Number(month), Number(day));
-  } catch {
-    return '';
-  }
-}
-
-/**
- * A custom schema that transforms an empty string to `undefined` before
- * passing it to another schema. This makes `v.optional` work correctly
- * with empty form fields.
- */
-function optionalString<TOutput>(schema: BaseSchema<string | undefined, TOutput, BaseIssue<unknown>>) {
-  return v.pipe(
-    v.string(),
-    v.transform((input) => (input.trim() === '' ? undefined : input)),
-    schema,
-  );
 }

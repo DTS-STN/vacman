@@ -12,14 +12,17 @@ import type {
 } from '~/.server/domain/models';
 import { getCityService } from '~/.server/domain/services/city-service';
 import { getClassificationService } from '~/.server/domain/services/classification-service';
+import { getDirectorateService } from '~/.server/domain/services/directorate-service';
 import { getEmploymentEquityService } from '~/.server/domain/services/employment-equity-service';
 import { getEmploymentTenureService } from '~/.server/domain/services/employment-tenure-service';
+import { getLanguageForCorrespondenceService } from '~/.server/domain/services/language-for-correspondence-service';
 import { getLanguageRequirementService } from '~/.server/domain/services/language-requirement-service';
 import { createMockRequest, mockRequests } from '~/.server/domain/services/mock-data';
 import { getNonAdvertisedAppointmentService } from '~/.server/domain/services/non-advertised-appointment-service';
 import type { RequestService } from '~/.server/domain/services/request-service';
 import { getSecurityClearanceService } from '~/.server/domain/services/security-clearance-service';
 import { getSelectionProcessTypeService } from '~/.server/domain/services/selection-process-type-service';
+import { getUserService } from '~/.server/domain/services/user-service';
 import { getWorkScheduleService } from '~/.server/domain/services/work-schedule-service';
 import { LogFactory } from '~/.server/logging';
 import { AppError } from '~/errors/app-error';
@@ -185,6 +188,33 @@ export function getMockRequestService(): RequestService {
           ? (await getNonAdvertisedAppointmentService().getById(requestUpdate.appointmentNonAdvertisedId)).into()
           : existingRequest.appointmentNonAdvertised;
 
+      const submitter =
+        requestUpdate.submitterId !== undefined
+          ? (await getUserService().getUserById(requestUpdate.submitterId, accessToken)).into()
+          : existingRequest.submitter;
+
+      const hiringManager =
+        requestUpdate.hiringManagerId !== undefined
+          ? (await getUserService().getUserById(requestUpdate.hiringManagerId, accessToken)).into()
+          : existingRequest.hiringManager;
+
+      const subDelegatedManager =
+        requestUpdate.subDelegatedManagerId !== undefined
+          ? (await getUserService().getUserById(requestUpdate.subDelegatedManagerId, accessToken)).into()
+          : existingRequest.subDelegatedManager;
+
+      const workUnit =
+        requestUpdate.workUnitId !== undefined
+          ? (await Promise.all([getDirectorateService().getById(requestUpdate.workUnitId)]))
+              .filter((result) => result.isOk())
+              .map((result) => result.unwrap())[0]
+          : existingRequest.workUnit;
+
+      const languageOfCorrespondence =
+        requestUpdate.languageOfCorrespondenceId !== undefined
+          ? (await getLanguageForCorrespondenceService().getById(requestUpdate.languageOfCorrespondenceId)).into()
+          : existingRequest.languageOfCorrespondence;
+
       // Merge updates with existing request
       const updatedRequest: RequestReadModel = {
         ...existingRequest,
@@ -201,6 +231,11 @@ export function getMockRequestService(): RequestService {
         selectionProcessType,
         employmentTenure,
         workSchedule,
+        submitter,
+        hiringManager,
+        subDelegatedManager,
+        workUnit,
+        languageOfCorrespondence,
         employmentEquities,
         appointmentNonAdvertised,
         hasPerformedSameDuties: requestUpdate.hasPerformedSameDuties,
@@ -216,7 +251,7 @@ export function getMockRequestService(): RequestService {
     /**
      * Updates a request's status.
      */
-    async updateRequestStatus(requestId: number, statusUpdate: unknown, accessToken: string): Promise<Result<void, AppError>> {
+    async updateRequestStatus(requestId: number, eventType: string, accessToken: string): Promise<Result<void, AppError>> {
       const existingRequestIndex = mockRequests.findIndex((r) => r.id === requestId);
       if (existingRequestIndex === -1) {
         return Err(new AppError(`Request with ID ${requestId} not found.`, ErrorCodes.REQUEST_NOT_FOUND));

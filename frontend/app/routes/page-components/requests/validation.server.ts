@@ -11,8 +11,9 @@ import { getProvinceService } from '~/.server/domain/services/province-service';
 import { getSelectionProcessTypeService } from '~/.server/domain/services/selection-process-type-service';
 import { extractUniqueBranchesFromDirectoratesNonLocalized } from '~/.server/utils/directorate-utils';
 import { stringToIntegerSchema } from '~/.server/validation/string-to-integer-schema';
-import { EMPLOYMENT_TENURE, LANGUAGE_REQUIREMENT_CODES, SELECTION_PROCESS_TYPE } from '~/domain/constants';
-import { isValidDateString, toISODateString } from '~/utils/date-utils';
+import { EMPLOYMENT_TENURE, LANGUAGE_REQUIREMENT_CODES, REQUIRE_OPTIONS, SELECTION_PROCESS_TYPE } from '~/domain/constants';
+import { formatISODate, isValidDateString } from '~/utils/date-utils';
+import { formString } from '~/utils/string-utils';
 
 export type PositionInformationSchema = Awaited<ReturnType<typeof createPositionInformationSchema>>;
 export type ProcessInformationSchema = Awaited<ReturnType<typeof createProcessInformationSchema>>;
@@ -507,10 +508,48 @@ export async function createProcessInformationSchema() {
   );
 }
 
-export function toDateString(year?: string, month?: string, day?: string): string {
-  try {
-    return toISODateString(Number(year), Number(month), Number(day));
-  } catch {
-    return '';
-  }
+export async function parseProcessInformation(formData: FormData) {
+  const projectedStartDateYear = formData.get('projectedStartDateYear')?.toString();
+  const projectedStartDateMonth = formData.get('projectedStartDateMonth')?.toString();
+  const projectedStartDateDay = formData.get('projectedStartDateDay')?.toString();
+  const projectedEndDateYear = formData.get('projectedEndDateYear')?.toString();
+  const projectedEndDateMonth = formData.get('projectedEndDateMonth')?.toString();
+  const projectedEndDateDay = formData.get('projectedEndDateDay')?.toString();
+
+  const formValues = {
+    selectionProcessNumber: formString(formData.get('selectionProcessNumber')),
+    approvalReceived: formString(formData.get('approvalReceived'))
+      ? formString(formData.get('approvalReceived')) === 'on'
+      : undefined,
+    priorityEntitlement: formString(formData.get('priorityEntitlement'))
+      ? formString(formData.get('priorityEntitlement')) === REQUIRE_OPTIONS.yes
+      : undefined,
+    priorityEntitlementRationale: formString(formData.get('priorityEntitlementRationale')),
+    selectionProcessType: formString(formData.get('selectionProcessType')),
+    performedDuties: formString(formData.get('performedDuties'))
+      ? formString(formData.get('performedDuties')) === REQUIRE_OPTIONS.yes
+      : undefined,
+    nonAdvertisedAppointment: formString(formData.get('nonAdvertisedAppointment')),
+    employmentTenure: formString(formData.get('employmentTenure')),
+    projectedStartDate: formatISODate(`${projectedStartDateYear}-${projectedStartDateMonth}-${projectedStartDateDay}`).unwrapOr(
+      '',
+    ),
+    projectedStartDateYear,
+    projectedStartDateMonth,
+    projectedStartDateDay,
+    projectedEndDate: formatISODate(`${projectedEndDateYear}-${projectedEndDateMonth}-${projectedEndDateDay}`).unwrapOr(''),
+    projectedEndDateYear,
+    projectedEndDateMonth,
+    projectedEndDateDay,
+    workSchedule: formString(formData.get('workSchedule')),
+    employmentEquityIdentified: formString(formData.get('employmentEquityIdentified'))
+      ? formString(formData.get('employmentEquityIdentified')) === REQUIRE_OPTIONS.yes
+      : undefined,
+    preferredEmploymentEquities: formData.getAll('preferredEmploymentEquities'),
+  };
+
+  return {
+    parseResult: v.safeParse(await createProcessInformationSchema(), formValues),
+    formValues,
+  };
 }

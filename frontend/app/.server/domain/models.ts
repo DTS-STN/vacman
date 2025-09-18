@@ -223,11 +223,11 @@ export type ProfileStatusUpdate = Readonly<{
 
 // API Query Parameters
 export type UserQueryParams = {
-  'page'?: number;
-  'size'?: number;
-  'sort'?: string[];
-  'user-type'?: string;
-  'email'?: string;
+  page?: number;
+  size?: number;
+  sort?: string[];
+  userType?: string;
+  email?: string;
 };
 
 export type ProfileQueryParams = {

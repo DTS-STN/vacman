@@ -5,7 +5,7 @@ import { getDefaultNonAdvertisedAppointmentService } from '~/.server/domain/serv
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
-import queryClient from '~/query-client';
+import { getQueryClient } from '~/query-client';
 
 // Mock API data that mirrors the structure returned by the API
 const mockApiData = {
@@ -24,7 +24,7 @@ const service = getDefaultNonAdvertisedAppointmentService();
 // Mock global.fetch consistently
 const mockFetch = vi.fn();
 beforeEach(() => {
-  queryClient.clear();
+  getQueryClient().clear();
   global.fetch = mockFetch as unknown as typeof fetch;
   mockFetch.mockClear();
 });

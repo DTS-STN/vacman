@@ -16,14 +16,12 @@ import { getWorkScheduleService } from '~/.server/domain/services/work-schedule-
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { BackLink } from '~/components/back-link';
-import { REQUIRE_OPTIONS } from '~/domain/constants';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
 import { ProcessInformationForm } from '~/routes/page-components/requests/process-information/form';
-import { createProcessInformationSchema, toDateString } from '~/routes/page-components/requests/validation.server';
+import { parseProcessInformation } from '~/routes/page-components/requests/validation.server';
 import type { ProcessInformationSchema } from '~/routes/page-components/requests/validation.server';
-import { formString } from '~/utils/string-utils';
 
 export const handle = {
   i18nNamespace: [...parentHandle.i18nNamespace],
@@ -37,41 +35,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   requireAuthentication(context.session, request);
 
   const formData = await request.formData();
-  const projectedStartDateYear = formData.get('projectedStartDateYear')?.toString();
-  const projectedStartDateMonth = formData.get('projectedStartDateMonth')?.toString();
-  const projectedStartDateDay = formData.get('projectedStartDateDay')?.toString();
-  const projectedEndDateYear = formData.get('projectedEndDateYear')?.toString();
-  const projectedEndDateMonth = formData.get('projectedEndDateMonth')?.toString();
-  const projectedEndDateDay = formData.get('projectedEndDateDay')?.toString();
-  const parseResult = v.safeParse(await createProcessInformationSchema(), {
-    selectionProcessNumber: formString(formData.get('selectionProcessNumber')),
-    approvalReceived: formString(formData.get('approvalReceived'))
-      ? formString(formData.get('approvalReceived')) === 'on'
-      : undefined,
-    priorityEntitlement: formString(formData.get('priorityEntitlement'))
-      ? formString(formData.get('priorityEntitlement')) === REQUIRE_OPTIONS.yes
-      : undefined,
-    priorityEntitlementRationale: formString(formData.get('priorityEntitlementRationale')),
-    selectionProcessType: formString(formData.get('selectionProcessType')),
-    performedDuties: formString(formData.get('performedDuties'))
-      ? formString(formData.get('performedDuties')) === REQUIRE_OPTIONS.yes
-      : undefined,
-    nonAdvertisedAppointment: formString(formData.get('nonAdvertisedAppointment')),
-    employmentTenure: formString(formData.get('employmentTenure')),
-    projectedStartDate: toDateString(projectedStartDateYear, projectedStartDateMonth, projectedStartDateDay),
-    projectedStartDateYear,
-    projectedStartDateMonth,
-    projectedStartDateDay,
-    projectedEndDate: toDateString(projectedEndDateYear, projectedEndDateMonth, projectedEndDateDay),
-    projectedEndDateYear,
-    projectedEndDateMonth,
-    projectedEndDateDay,
-    workSchedule: formString(formData.get('workSchedule')),
-    employmentEquityIdentified: formString(formData.get('employmentEquityIdentified'))
-      ? formString(formData.get('employmentEquityIdentified')) === REQUIRE_OPTIONS.yes
-      : undefined,
-    preferredEmploymentEquities: formData.getAll('preferredEmploymentEquities'),
-  });
+  const { parseResult } = await parseProcessInformation(formData);
 
   if (!parseResult.success) {
     return data(
@@ -115,7 +79,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     throw updateResult.unwrapErr();
   }
 
-  return i18nRedirect('routes/hiring-manager/request/index.tsx', request, {
+  return i18nRedirect('routes/hr-advisor/request/index.tsx', request, {
     params: { requestId: requestData.id.toString() },
   });
 }

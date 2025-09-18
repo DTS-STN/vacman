@@ -1,5 +1,7 @@
 import { TZDate } from '@date-fns/tz';
 import { format, formatISO, isBefore, isToday, isValid, parseISO, startOfDay } from 'date-fns';
+import { Err, Ok } from 'oxide.ts';
+import type { Result } from 'oxide.ts';
 
 import { padWithZero } from '~/utils/string-utils';
 
@@ -259,21 +261,6 @@ export function getLocalizedMonths(
 /**
  * Formats a date into an ISO8601 date string (YYYY-MM-DD).
  *
- * This function takes the year, month, and day as numerical inputs and
- * returns a string representing the date in the "YYYY-MM-DD" format.
- *
- * @param year - The year (e.g., 2023).
- * @param month - The month (1 for January, 12 for December).
- * @param day - The day of the month.
- * @returns An ISO 8601 date string in the format "YYYY-MM-DD".
- */
-export function toISODateString(year: number, month: number, day: number): string {
-  return formatISODate(`${year}-${month}-${day}`);
-}
-
-/**
- * Formats a date into an ISO8601 date string (YYYY-MM-DD).
- *
  * This function accepts a date as a number (Unix timestamp in milliseconds),
  * a string (parsable by the Date constructor), or a Date object and returns
  * a string representing the date in the "YYYY-MM-DD" format. It leverages
@@ -281,11 +268,14 @@ export function toISODateString(year: number, month: number, day: number): strin
  * with the `representation: 'date'` option.
  *
  * @param date - The date to be formatted. Can be a Unix timestamp (milliseconds), a date string, or a Date object.
- * @returns An ISO 8601 date string in the format "YYYY-MM-DD".
- * @throws {TypeError} If the input `date` is not a valid date representation that can be parsed by `formatISO`.
+ * @returns An a Result of an Ok variant of an ISO 8601 date string in the format "YYYY-MM-DD" if parsing is successful otherwise an Err variant of a TypeError.
  */
-export function formatISODate(date: number | string | Date): string {
-  return formatISO(date, { representation: 'date' });
+export function formatISODate(date: number | string | Date): Result<string, TypeError> {
+  try {
+    return Ok(formatISO(date, { representation: 'date' }));
+  } catch (e) {
+    return Err(new TypeError(String(e)));
+  }
 }
 
 /**

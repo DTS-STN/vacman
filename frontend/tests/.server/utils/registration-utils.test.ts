@@ -33,7 +33,7 @@ describe('registration-utils', () => {
     getCurrentUser: vi.fn(),
     registerCurrentUser: vi.fn(),
     updateUserById: vi.fn(),
-    getUserByEmail: vi.fn(),
+    createProfileForUser: vi.fn(),
   };
 
   const createMockSession = (roles: string[] = []): AuthenticatedSession =>

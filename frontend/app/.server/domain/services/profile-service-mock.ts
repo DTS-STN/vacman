@@ -74,17 +74,20 @@ export function getMockProfileService(): ProfileService {
       }
 
       // Apply pagination
-      const page = params.page ?? 0;
+      const requestedPage = params.page ?? 1; // 1-based page from request
+      const zeroBasedPage = requestedPage - 1; // Convert to 0-based for array slicing
       const size = params.size ?? 10;
-      const startIndex = page * size;
+      const startIndex = zeroBasedPage * size;
       const endIndex = startIndex + size;
       const paginatedProfiles = filteredProfiles.slice(startIndex, endIndex);
-      log.debug(`Applied pagination (page: ${page}, size: ${size}): ${paginatedProfiles.length} profiles in current page`);
+      log.debug(
+        `Applied pagination (page: ${requestedPage}, size: ${size}): ${paginatedProfiles.length} profiles in current page`,
+      );
 
       const response: PagedProfileResponse = {
         content: paginatedProfiles,
         page: {
-          number: page,
+          number: requestedPage, // Return 1-based page number to match real backend
           size: size,
           totalElements: filteredProfiles.length,
           totalPages: Math.ceil(filteredProfiles.length / size),
@@ -94,7 +97,7 @@ export function getMockProfileService(): ProfileService {
       log.debug('Successfully retrieved profiles', {
         totalFiltered: filteredProfiles.length,
         pageSize: paginatedProfiles.length,
-        currentPage: page,
+        currentPage: requestedPage,
       });
       return Promise.resolve(Ok(response));
     },

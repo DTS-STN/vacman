@@ -211,6 +211,10 @@ public class RequestService {
 				handleRequestSubmitted(request, isOwner, currentStatus);
 			case "requestPickedUp" ->
 				handleRequestPickedUp(request, isHrAdvisor, currentStatus, currentUser);
+			case "vmsNotRequired" ->
+				handleVmsNotRequired(request, isHrAdvisor, currentStatus);
+			case "submitFeedback" ->
+				handleSubmitFeedback(request, isOwner, currentStatus);
 			default ->
 				throw new IllegalArgumentException("Unknown event type: " + eventType);
 		};
@@ -381,6 +385,76 @@ public class RequestService {
 		log.info("Creating matches for request ID: [{}]", request.getId());
 
 		return true;
+	}
+
+	/**
+	 * Handles the vmsNotRequired event.
+	 * 
+	 * @param request The request entity
+	 * @param isHrAdvisor Whether the current user is an HR advisor
+	 * @param currentStatus The current status code of the request
+	 * @return The updated request entity
+	 */
+	private RequestEntity handleVmsNotRequired(RequestEntity request, boolean isHrAdvisor, String currentStatus) {
+		if (!isHrAdvisor) {
+			throw new UnauthorizedException("Only HR advisors can mark a request as VMS not required");
+		}
+
+		if (!requestStatuses.hrReview().equals(currentStatus)) {
+			throw new ResourceConflictException("Request must be in HR_REVIEW status to be marked as VMS not required");
+		}
+
+		// Set status to PENDING_PSC_NO_VMS
+		request.setRequestStatus(getRequestStatusByCode(requestStatuses.pendingPscClearanceNoVms()));
+
+		return request;
+	}
+
+	/**
+	 * Handles the submitFeedback event.
+	 * 
+	 * @param request The request entity
+	 * @param isOwner Whether the current user is the owner of the request
+	 * @param currentStatus The current status code of the request
+	 * @return The updated request entity
+	 */
+	private RequestEntity handleSubmitFeedback(RequestEntity request, boolean isOwner, String currentStatus) {
+		if (!isOwner) {
+			throw new UnauthorizedException("Only the request owner can submit feedback");
+		}
+
+		if (!requestStatuses.feedbackPending().equals(currentStatus)) {
+			throw new ResourceNotFoundException("Request must be in FDBK_PENDING status to submit feedback");
+		}
+
+		// Set status to FDBK_PEND_APPR
+		request.setRequestStatus(getRequestStatusByCode(requestStatuses.feedbackPendingApproval()));
+
+		// Loop through all the matches under the requestId and set match status to PENDING
+		// This is a placeholder for the actual implementation until the match functionality is implemented
+		// Example:
+		/*
+		List<MatchEntity> matches = matchRepository.findByRequestId(request.getId());
+		for (MatchEntity match : matches) {
+			match.setStatus(getMatchStatusByCode("PENDING"));
+			matchRepository.save(match);
+		}
+		*/
+
+		// Send notification with the Feedback Completed template to the HR Advisor
+		UserEntity hrAdvisor = request.getHrAdvisor();
+		if (hrAdvisor != null && hrAdvisor.getBusinessEmailAddress() != null) {
+			notificationService.sendRequestNotification(
+				hrAdvisor.getBusinessEmailAddress(),
+				request.getId(),
+				request.getNameEn(),
+				RequestEvent.FEEDBACK_COMPLETED
+			);
+		} else {
+			log.warn("No HR advisor or business email address found for request ID: [{}]", request.getId());
+		}
+
+		return request;
 	}
 
 }

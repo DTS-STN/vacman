@@ -36,6 +36,7 @@ public record GcNotifyProperties(
 	@NotBlank String jobHrApprovedTemplateIdFra,
 	@NotBlank String jobOpportunityTemplateIdEng,
 	@NotBlank String jobOpportunityTemplateIdFra,
+	@NotBlank String requestFeedbackCompletedTemplateId,
 	@Nullable Duration connectTimeout,
 	@Nullable Duration readTimeout
 ) {}

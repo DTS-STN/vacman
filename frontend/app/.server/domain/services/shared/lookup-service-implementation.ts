@@ -5,7 +5,7 @@ import type { LookupModel, LocalizedLookupModel } from '~/.server/domain/models'
 import { apiClient } from '~/.server/domain/services/api-client';
 import { AppError } from '~/errors/app-error';
 import type { ErrorCode } from '~/errors/error-codes';
-import queryClient from '~/query-client';
+import { getQueryClient } from '~/query-client';
 
 /**
  * Configuration for lookup service implementation
@@ -54,7 +54,7 @@ export class LookupServiceImplementation<T extends LookupModel, L extends Locali
 
     // Provide the generic types to fetchQuery
     try {
-      const data = await queryClient.fetchQuery<
+      const data = await getQueryClient().fetchQuery<
         readonly (T | null | undefined)[],
         AppError,
         readonly (T | null | undefined)[],
