@@ -1,18 +1,18 @@
-import { Err, None, Ok, Some } from 'oxide.ts';
 import type { Option, Result } from 'oxide.ts';
+import { Err, None, Ok, Some } from 'oxide.ts';
 
 import { getProfileService } from './profile-service';
 
 import type {
-  User,
-  UserCreate,
-  UserUpdate,
   PagedUserResponse,
-  UserQueryParams,
   PageMetadata,
   Profile,
+  User,
+  UserCreate,
+  UserQueryParams,
+  UserUpdate,
 } from '~/.server/domain/models';
-import { mockUsers, mockProfiles, createUserFromEmail } from '~/.server/domain/services/mock-data';
+import { createUserFromEmail, mockProfiles, mockUsers } from '~/.server/domain/services/mock-data';
 import type { UserService } from '~/.server/domain/services/user-service';
 import { LogFactory } from '~/.server/logging';
 import { PROFILE_STATUS_INCOMPLETE } from '~/domain/constants';
@@ -90,9 +90,9 @@ export function getMockUserService(): UserService {
         }
 
         // Apply user type filter if provided
-        if (params['user-type']) {
+        if (params.userType) {
           filteredUsers = filteredUsers.filter(
-            (u) => u.userType?.code === (params['user-type'] === 'hr-advisor' ? 'HRA' : params['user-type']),
+            (u) => u.userType?.code === (params.userType === 'hr-advisor' ? 'HRA' : params.userType),
           );
         }
 

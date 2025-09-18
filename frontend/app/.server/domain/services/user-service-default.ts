@@ -1,7 +1,7 @@
-import { Err, None, Ok, Some } from 'oxide.ts';
 import type { Option, Result } from 'oxide.ts';
+import { Err, None, Ok, Some } from 'oxide.ts';
 
-import type { User, UserCreate, UserUpdate, PagedUserResponse, UserQueryParams, Profile } from '~/.server/domain/models';
+import type { PagedUserResponse, Profile, User, UserCreate, UserQueryParams, UserUpdate } from '~/.server/domain/models';
 import { apiClient } from '~/.server/domain/services/api-client';
 import type { UserService } from '~/.server/domain/services/user-service';
 import { AppError } from '~/errors/app-error';
@@ -21,7 +21,7 @@ export function getDefaultUserService(): UserService {
 
       if (params.page !== undefined) searchParams.append('page', params.page.toString());
       if (params.size !== undefined) searchParams.append('size', params.size.toString());
-      if (params['user-type']) searchParams.append('user-type', params['user-type']);
+      if (params.userType) searchParams.append('userType', params.userType);
       if (params.email) searchParams.append('email', params.email);
       if (params.sort) {
         params.sort.forEach((sortParam) => searchParams.append('sort', sortParam));

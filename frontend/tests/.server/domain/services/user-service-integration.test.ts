@@ -83,7 +83,7 @@ describe('User Service Integration', () => {
         const totalUsers = allUsersResponse.content.length;
 
         // Filter by HRA user type
-        const hrAdvisorResult = await userService.getUsers({ 'user-type': 'HRA' }, mockAccessToken);
+        const hrAdvisorResult = await userService.getUsers({ userType: 'HRA' }, mockAccessToken);
         expect(hrAdvisorResult.isOk()).toBe(true);
         const hrAdvisorResponse = hrAdvisorResult.unwrap();
 
@@ -91,7 +91,7 @@ describe('User Service Integration', () => {
         expect(hrAdvisorResponse.content.every((user) => user.userType?.code === 'HRA')).toBe(true);
 
         // Filter by EMPLOYEE user type
-        const employeeResult = await userService.getUsers({ 'user-type': 'EMPLOYEE' }, mockAccessToken);
+        const employeeResult = await userService.getUsers({ userType: 'EMPLOYEE' }, mockAccessToken);
         expect(employeeResult.isOk()).toBe(true);
         const employeeResponse = employeeResult.unwrap();
 

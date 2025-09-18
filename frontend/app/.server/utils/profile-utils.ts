@@ -119,7 +119,7 @@ export function pickObjectProperties<T extends object, K extends keyof T>(
 }
 
 const userParams: UserQueryParams = {
-  'user-type': 'hr-advisor',
+  userType: 'hr-advisor',
 };
 
 // Function to get HR advisors that requires authentication
