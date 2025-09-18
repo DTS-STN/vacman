@@ -9,7 +9,7 @@ import { standardLocalize } from '~/.server/domain/services/shared/lookup-servic
 import type { MockLookupServiceImplementation } from '~/.server/domain/services/shared/mock-lookup-service-implementation';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
-import queryClient from '~/query-client';
+import { getQueryClient } from '~/query-client';
 
 // Mock the API client
 vi.mock('~/.server/domain/services/api-client', () => ({
@@ -34,7 +34,7 @@ const mockTestData: TestEntity[] = [
 
 describe('LookupServiceImplementation', () => {
   beforeEach(() => {
-    queryClient.clear();
+    getQueryClient().clear();
     vi.resetAllMocks();
   });
 
