@@ -21,6 +21,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes;
 import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes.ProfileStatuses;
@@ -126,6 +127,7 @@ public class ProfileService {
 	 * @param hrAdvisorId Optional ID for additional filtering. Can be set to {@code null}.
 	 * @return A paginated collection of profile entities.
 	 */
+	@Transactional(readOnly = true)
 	public Page<ProfileEntity> getProfilesByStatusAndHrId(Pageable pageable, Boolean isActive, Long hrAdvisorId) {
 		// Dispatch DB call based on presence of isActive & advisor ID
 		Page<ProfileEntity> profilesPage;
@@ -157,6 +159,7 @@ public class ProfileService {
 	/**
 	 * Returns all non-archived profiles owned by a user.
 	 */
+	@Transactional(readOnly = true)
 	public List<ProfileEntity> getActiveProfilesByUserId(long userId) {
 		final var currentUserEntraId = SecurityUtils.getCurrentUserEntraId().orElse("UNKNOWN");
 
@@ -179,6 +182,7 @@ public class ProfileService {
 	 * @param isActive Filter return based on active status.
 	 * @return A collection of profile entities.
 	 */
+	@Transactional(readOnly = true)
 	public List<ProfileEntity> getProfilesByEntraId(String entraId, Boolean isActive) {
 		final var profiles = isActive != null
 			? profileRepository.findAll(hasUserMicrosoftEntraId(entraId).and(hasProfileStatusCodeIn(profileStatusSets.get(isActive))))
@@ -195,6 +199,7 @@ public class ProfileService {
 		return profiles;
 	}
 
+	@Transactional(readOnly = true)
 	public Optional<ProfileEntity> getProfileById(long id) {
 		return profileRepository.findById(id).map(profile -> {
 			final var entraId = getCurrentUserEntraId().orElse("N/A");
@@ -207,6 +212,7 @@ public class ProfileService {
 	/**
 	 * Creates a new profile. Defaults the profile status to {@code INCOMPLETE}.
 	 */
+	@Transactional(readOnly = false)
 	public ProfileEntity createProfile(ProfileEntity profile) {
 		final var incompleteStatus = profileStatusRepository.findByCode(profileStatuses.incomplete()).orElseThrow();
 
@@ -220,6 +226,7 @@ public class ProfileService {
 		return savedProfile;
 	}
 
+	@Transactional(readOnly = true)
 	public Page<ProfileEntity> findProfiles(Pageable pageable, ProfileQuery profileQuery) {
 		final var hasHrAdvisorId = ProfileRepository.hasHrAdvisorIdIn(profileQuery.hrAdvisorIds());
 		final var hasStatusId = ProfileRepository.hasProfileStatusIdIn(profileQuery.statusIds());
@@ -232,6 +239,7 @@ public class ProfileService {
 	 * @param existingProfile The profile entity to be updated.
 	 * @param statusCode The code the profile will be updated to use.
 	 */
+	@Transactional(readOnly = false)
 	public void updateProfileStatus(ProfileEntity existingProfile, String statusCode) {
 		final var previousStatusId = existingProfile.getProfileStatus().getId();
 		final var newStatus = profileStatusRepository.findByCode(statusCode)
@@ -251,6 +259,7 @@ public class ProfileService {
 	 * @return The updated profile entity.
 	 * @throws ResourceNotFoundException When any given ID does not exist within the DB.
 	 */
+	@Transactional(readOnly = false)
 	public ProfileEntity updateProfile(ProfilePutModel updateModel, ProfileEntity profile) {
 		profile.setWfaStartDate(updateModel.wfaStartDate());
 		profile.setWfaEndDate(updateModel.wfaEndDate());

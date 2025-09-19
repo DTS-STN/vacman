@@ -4,6 +4,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import ca.gov.dtsstn.vacman.api.config.CacheConfig.CacheNames;
 import ca.gov.dtsstn.vacman.api.data.entity.CityEntity;
@@ -50,6 +51,7 @@ import ca.gov.dtsstn.vacman.api.data.repository.WorkUnitRepository;
  * which represent lookup values used throughout the application.
  */
 @Service
+@Transactional(readOnly = true)
 public class CodeService {
 
 	private final CityRepository cityRepository;

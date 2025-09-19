@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes;
 import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes.RequestStatuses;
@@ -37,6 +38,7 @@ public class RequestService {
 		this.requestStatusRepository = requestStatusRepository;
 	}
 
+	@Transactional(readOnly = false)
 	public RequestEntity createRequest(UserEntity submitter) {
 		log.debug("Fetching DRAFT request status");
 
@@ -48,10 +50,12 @@ public class RequestService {
 				.save(RequestEntity.builder().submitter(submitter).requestStatus(draftStatus).build());
 	}
 
+	@Transactional(readOnly = true)
 	public Optional<RequestEntity> getRequestById(long requestId) {
 		return requestRepository.findById(requestId);
 	}
 
+	@Transactional(readOnly = true)
 	public List<RequestEntity> getRequestsByUserId(long userId) {
 		final var example = Example
 				.of(RequestEntity.builder().submitter(UserEntity.builder().id(userId).build()).build());
