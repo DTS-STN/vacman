@@ -292,6 +292,7 @@ export default {
   'hiring-manager-referral-requests': {
     'page-title': 'Referral requests FR',
     'request-details': 'Request details FR',
+    'request-completion-progress': "Demander l'avancement de l'achèvement",
     'page-description':
       'Complete all sections detailing the process, position, and required qualifications and submit for approval. FR',
     'process-information': 'Process information FR',
