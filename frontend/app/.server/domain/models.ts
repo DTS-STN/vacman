@@ -149,7 +149,6 @@ export type PageMetadata = Readonly<{
 // Profile Models - Based on OpenAPI ProfileReadModel schema
 export type Profile = Readonly<{
   id: number;
-  additionalComment?: string;
   hasConsentedToPrivacyTerms?: boolean;
   hrAdvisorId?: number;
   isAvailableForReferral?: boolean;
@@ -178,7 +177,6 @@ export type Profile = Readonly<{
 // Profile PUT Model - Based on OpenAPI ProfilePutModel schema
 // Used for updating profiles via PUT /api/v1/profiles/{id}
 export type ProfilePutModel = Readonly<{
-  additionalComment?: string;
   cityId?: number;
   classificationId?: number;
   hasConsentedToPrivacyTerms?: boolean;

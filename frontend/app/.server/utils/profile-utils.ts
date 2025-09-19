@@ -150,7 +150,6 @@ export async function getHrAdvisors(accessToken: string): Promise<User[]> {
  */
 export function mapProfileToPutModel(profile: Profile): ProfilePutModel {
   return {
-    additionalComment: profile.additionalComment,
     cityId: profile.substantiveCity?.id,
     classificationId: profile.substantiveClassification?.id,
     hasConsentedToPrivacyTerms: profile.hasConsentedToPrivacyTerms,

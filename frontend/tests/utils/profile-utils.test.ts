@@ -6,7 +6,6 @@ import { mapProfileToPutModel, mapProfileToPutModelWithOverrides } from '~/.serv
 describe('profile-utils', () => {
   const mockProfile: Profile = {
     id: 1,
-    additionalComment: 'Test comment',
     hasConsentedToPrivacyTerms: false,
     hrAdvisorId: 2,
     isAvailableForReferral: true,
@@ -80,7 +79,6 @@ describe('profile-utils', () => {
       const result = mapProfileToPutModel(mockProfile);
 
       expect(result).toEqual({
-        additionalComment: 'Test comment',
         cityId: 10,
         classificationId: 5,
         hasConsentedToPrivacyTerms: false,
@@ -117,7 +115,6 @@ describe('profile-utils', () => {
       const result = mapProfileToPutModel(minimalProfile);
 
       expect(result).toEqual({
-        additionalComment: undefined,
         cityId: undefined,
         classificationId: undefined,
         hasConsentedToPrivacyTerms: undefined,
@@ -166,7 +163,6 @@ describe('profile-utils', () => {
       const result = mapProfileToPutModelWithOverrides(mockProfile, overrides);
 
       expect(result).toEqual({
-        additionalComment: 'Test comment',
         cityId: 10,
         classificationId: 5,
         hasConsentedToPrivacyTerms: true, // overridden
