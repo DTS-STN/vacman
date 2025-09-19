@@ -25,6 +25,7 @@ import { PageTitle } from '~/components/page-title';
 import { ProfileCard } from '~/components/profile-card';
 import { StatusTag } from '~/components/status-tag';
 import { PROFILE_STATUS_CODE, REQUEST_STATUSES } from '~/domain/constants';
+import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { useFetcherState } from '~/hooks/use-fetcher-state';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
@@ -40,12 +41,13 @@ export function meta({ loaderData }: Route.MetaArgs) {
 export async function loader({ context, request, params }: Route.LoaderArgs) {
   requireAuthentication(context.session, request);
 
-  const requestResult = await getRequestService().getRequestById(
-    Number(params.requestId),
-    context.session.authState.accessToken,
-  );
+  const currentRequest = (
+    await getRequestService().getRequestById(Number(params.requestId), context.session.authState.accessToken)
+  ).into();
 
-  const currentRequest = requestResult.into();
+  if (!currentRequest) {
+    throw new Response('Request not found', { status: HttpStatusCodes.NOT_FOUND });
+  }
 
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
 
@@ -69,51 +71,51 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     getLanguageForCorrespondenceService().listAllLocalized(lang),
   ]);
 
-  const cities = currentRequest?.cities?.map((city) => allLocalizedCities.find((c) => c.id === city.id)).filter(Boolean);
-  const employmentEquities = currentRequest?.employmentEquities
+  const cities = currentRequest.cities?.map((city) => allLocalizedCities.find((c) => c.id === city.id)).filter(Boolean);
+  const employmentEquities = currentRequest.employmentEquities
     ?.map((eq) => allLocalizedEmploymentEquities.find((e) => e.code === eq.code))
     .filter(Boolean);
 
   return {
     documentTitle: t('app:hr-advisor-referral-requests.page-title'),
-    requestNumber: currentRequest?.requestNumber,
-    requestDate: currentRequest?.createdDate,
-    hiringManager: currentRequest?.hiringManager,
-    hrAdvisor: currentRequest?.hrAdvisor,
-    selectionProcessNumber: currentRequest?.selectionProcessNumber,
-    workforceMgmtApprovalRecvd: currentRequest?.workforceMgmtApprovalRecvd,
-    priorityEntitlement: currentRequest?.priorityEntitlement,
-    priorityEntitlementRationale: currentRequest?.priorityEntitlementRationale,
-    selectionProcessType: allLocalizedProcessTypes.find((s) => s.code === currentRequest?.selectionProcessType?.code),
-    hasPerformedSameDuties: currentRequest?.hasPerformedSameDuties,
+    requestNumber: currentRequest.requestNumber,
+    requestDate: currentRequest.createdDate,
+    hiringManager: currentRequest.hiringManager,
+    hrAdvisor: currentRequest.hrAdvisor,
+    selectionProcessNumber: currentRequest.selectionProcessNumber,
+    workforceMgmtApprovalRecvd: currentRequest.workforceMgmtApprovalRecvd,
+    priorityEntitlement: currentRequest.priorityEntitlement,
+    priorityEntitlementRationale: currentRequest.priorityEntitlementRationale,
+    selectionProcessType: allLocalizedProcessTypes.find((s) => s.code === currentRequest.selectionProcessType?.code),
+    hasPerformedSameDuties: currentRequest.hasPerformedSameDuties,
     appointmentNonAdvertised: allLocalizedAppointmentNonAdvertised.find(
-      (a) => a.code === currentRequest?.appointmentNonAdvertised?.code,
+      (a) => a.code === currentRequest.appointmentNonAdvertised?.code,
     ),
-    employmentTenure: allLocalizedTenures.find((t) => t.code === currentRequest?.employmentTenure?.code),
-    projectedStartDate: currentRequest?.projectedStartDate,
-    projectedEndDate: currentRequest?.projectedEndDate,
-    workSchedule: allLocalizedWorkSchedules.find((w) => w.code === currentRequest?.workSchedule?.code),
-    equityNeeded: currentRequest?.equityNeeded,
+    employmentTenure: allLocalizedTenures.find((t) => t.code === currentRequest.employmentTenure?.code),
+    projectedStartDate: currentRequest.projectedStartDate,
+    projectedEndDate: currentRequest.projectedEndDate,
+    workSchedule: allLocalizedWorkSchedules.find((w) => w.code === currentRequest.workSchedule?.code),
+    equityNeeded: currentRequest.equityNeeded,
     employmentEquities: employmentEquities?.map((eq) => eq?.name).join(', '),
-    positionNumber: currentRequest?.positionNumber,
-    classification: currentRequest?.classification,
-    englishTitle: currentRequest?.englishTitle,
-    frenchTitle: currentRequest?.frenchTitle,
+    positionNumber: currentRequest.positionNumber,
+    classification: currentRequest.classification,
+    englishTitle: currentRequest.englishTitle,
+    frenchTitle: currentRequest.frenchTitle,
     cities: cities?.map((city) => city?.provinceTerritory.name + ' - ' + city?.name),
-    languageRequirement: currentRequest?.languageRequirement,
-    englishLanguageProfile: currentRequest?.englishLanguageProfile,
-    frenchLanguageProfile: currentRequest?.frenchLanguageProfile,
-    securityClearance: currentRequest?.securityClearance,
-    englishStatementOfMerit: currentRequest?.englishStatementOfMerit,
-    frenchStatementOfMerit: currentRequest?.frenchStatementOfMerit,
-    submitter: currentRequest?.submitter,
-    subDelegatedManager: currentRequest?.subDelegatedManager,
-    directorate: allLocalizedDirectorates.find((c) => c.code === currentRequest?.workUnit?.code),
+    languageRequirement: currentRequest.languageRequirement,
+    englishLanguageProfile: currentRequest.englishLanguageProfile,
+    frenchLanguageProfile: currentRequest.frenchLanguageProfile,
+    securityClearance: currentRequest.securityClearance,
+    englishStatementOfMerit: currentRequest.englishStatementOfMerit,
+    frenchStatementOfMerit: currentRequest.frenchStatementOfMerit,
+    submitter: currentRequest.submitter,
+    subDelegatedManager: currentRequest.subDelegatedManager,
+    directorate: allLocalizedDirectorates.find((c) => c.code === currentRequest.workUnit?.code),
     languageOfCorrespondence: allLocalizedPreferredLanguage.find(
-      (p) => p.code === currentRequest?.languageOfCorrespondence?.code,
+      (p) => p.code === currentRequest.languageOfCorrespondence?.code,
     ),
-    additionalComment: currentRequest?.additionalComment,
-    status: currentRequest?.status,
+    additionalComment: currentRequest.additionalComment,
+    status: currentRequest.status,
     lang,
   };
 }
@@ -158,6 +160,7 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
           <DescriptionList className="flex">
             <DescriptionListItem
               className="mr-10 w-min whitespace-nowrap"
+              ddClassName="mt-1 text-white sm:col-span-2 sm:mt-0"
               term={t('app:hr-advisor-referral-requests.request-id')}
             >
               {loaderData.requestNumber ?? t('app:hr-advisor-referral-requests.not-provided')}
@@ -165,6 +168,7 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
 
             <DescriptionListItem
               className="mx-10 w-min whitespace-nowrap"
+              ddClassName="mt-1 text-white sm:col-span-2 sm:mt-0"
               term={t('app:hr-advisor-referral-requests.request-date')}
             >
               {loaderData.requestDate ?? t('app:hr-advisor-referral-requests.not-provided')}
@@ -172,6 +176,7 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
 
             <DescriptionListItem
               className="mx-10 w-min whitespace-nowrap"
+              ddClassName="mt-1 text-white sm:col-span-2 sm:mt-0"
               term={t('app:hr-advisor-referral-requests.hiring-manager')}
             >
               {loaderData.hiringManager ? (
@@ -187,6 +192,7 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
 
             <DescriptionListItem
               className="ml-10 w-min whitespace-nowrap"
+              ddClassName="mt-1 text-white sm:col-span-2 sm:mt-0"
               term={t('app:hr-advisor-referral-requests.hr-advisor')}
             >
               {loaderData.hrAdvisor
@@ -370,8 +376,12 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
                   )}
                 </DescriptionListItem>
 
+                <DescriptionListItem term={t('app:submission-details.branch-or-service-canada-region')}>
+                  {loaderData.directorate?.parent?.name ?? t('app:hiring-manager-referral-requests.not-provided')}
+                </DescriptionListItem>
+
                 <DescriptionListItem term={t('app:submission-details.directorate')}>
-                  {loaderData.directorate?.code ?? t('app:hr-advisor-referral-requests.not-provided')}
+                  {loaderData.directorate?.name ?? t('app:hr-advisor-referral-requests.not-provided')}
                 </DescriptionListItem>
 
                 <DescriptionListItem term={t('app:submission-details.preferred-language-of-correspondence')}>
