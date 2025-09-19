@@ -90,7 +90,6 @@ spring:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
   liquibase:
     enabled: true
-    contexts: h2, dev
     change-log: classpath:db/changelog/db.changelog-master.yaml
 
 ---

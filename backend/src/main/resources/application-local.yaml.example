@@ -62,7 +62,7 @@ spring:
     username: sa
     password:
   liquibase:
-    contexts: h2, dev
+    contexts: dev #local, dev, or prod
     drop-first: true
 
 ---
