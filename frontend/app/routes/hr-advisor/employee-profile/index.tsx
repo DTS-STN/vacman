@@ -26,7 +26,7 @@ import { LoadingButton } from '~/components/loading-button';
 import { PageTitle } from '~/components/page-title';
 import { ProfileCard } from '~/components/profile-card';
 import { StatusTag } from '~/components/status-tag';
-import { EMPLOYEE_WFA_STATUS, PROFILE_STATUS_APPROVED } from '~/domain/constants';
+import { EMPLOYEE_WFA_STATUS, PROFILE_STATUS } from '~/domain/constants';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { useFetcherState } from '~/hooks/use-fetcher-state';
 import { getTranslation } from '~/i18n-config.server';
@@ -58,7 +58,7 @@ export async function action({ context, request, params }: Route.ActionArgs) {
   // approve the profile
   const submitResult = await getProfileService().updateProfileStatus(
     profileData.profileUser.id,
-    PROFILE_STATUS_APPROVED,
+    PROFILE_STATUS.APPROVED,
     context.session.authState.accessToken,
   );
   if (submitResult.isErr()) {

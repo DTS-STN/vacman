@@ -25,7 +25,7 @@ import { InlineLink } from '~/components/links';
 import { LoadingButton } from '~/components/loading-button';
 import { PageTitle } from '~/components/page-title';
 import Pagination from '~/components/pagination';
-import { PROFILE_STATUS_APPROVED, PROFILE_STATUS_CODE, PROFILE_STATUS_PENDING } from '~/domain/constants';
+import { PROFILE_STATUS } from '~/domain/constants';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { useFetcherState } from '~/hooks/use-fetcher-state';
 import { getTranslation } from '~/i18n-config.server';
@@ -106,7 +106,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
   const profileParams: ProfileQueryParams = {
     active: true, // will return In Progress, Pending Approval and Approved
     hrAdvisorId: filter === 'me' ? filter : undefined, // 'me' is used in the API to filter for the current HR advisor
-    statusIds: [PROFILE_STATUS_APPROVED.id, PROFILE_STATUS_PENDING.id],
+    statusIds: [PROFILE_STATUS.APPROVED.id, PROFILE_STATUS.PENDING.id],
     // Backend expects 1-based page index
     page: pageOneBased,
     size: size,
@@ -121,7 +121,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
   const profiles = profilesResult
     .unwrap()
     .content.filter(({ profileStatus }) =>
-      [PROFILE_STATUS_CODE.approved, PROFILE_STATUS_CODE.pending].some((code) => code === profileStatus?.code),
+      [PROFILE_STATUS.APPROVED, PROFILE_STATUS.PENDING].some(({ code }) => code === profileStatus?.code),
     );
 
   return {

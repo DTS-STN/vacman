@@ -1,6 +1,6 @@
 import type { JSX } from 'react';
 
-import { PROFILE_STATUS_CODE, REQUEST_STATUS_CODE } from '~/domain/constants';
+import { PROFILE_STATUS, REQUEST_STATUS_CODE } from '~/domain/constants';
 import { cn } from '~/utils/tailwind-utils';
 
 interface StatusTagProps {
@@ -12,13 +12,13 @@ interface StatusTagProps {
 
 function getStatusStyle(code: string): string {
   switch (code) {
-    case PROFILE_STATUS_CODE.approved:
+    case PROFILE_STATUS.APPROVED.code:
       return 'border-green-400 bg-green-100 text-green-800';
-    case PROFILE_STATUS_CODE.archived:
+    case PROFILE_STATUS.ARCHIVED.code:
       return 'border-orange-400 bg-orange-100 text-orange-800';
-    case PROFILE_STATUS_CODE.incomplete:
+    case PROFILE_STATUS.INCOMPLETE.code:
       return 'border-blue-400 bg-blue-100 text-blue-800';
-    case PROFILE_STATUS_CODE.pending:
+    case PROFILE_STATUS.PENDING.code:
     case REQUEST_STATUS_CODE.FDBK_PEND_APPR:
       return 'border-yellow-400 bg-yellow-100 text-yellow-800';
     default:

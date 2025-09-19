@@ -9,13 +9,6 @@ export const EMPLOYEE_WFA_STATUS = {
   surplusOptingOptionA: 'SURPLUS_NO_GRJO',
 } as const;
 
-export const PROFILE_STATUS_CODE = {
-  approved: 'APPROVED',
-  pending: 'PENDING',
-  incomplete: 'INCOMPLETE',
-  archived: 'ARCHIVED',
-} as const;
-
 export const LANGUAGE_ID = {
   en: 0,
   fr: 1,
@@ -37,33 +30,34 @@ export const Acronym = {
 
 export type AcronymEnum = (typeof Acronym)[keyof typeof Acronym];
 
-export const PROFILE_STATUS_PENDING = {
-  id: 0,
-  code: 'PENDING',
-  nameEn: 'Pending approval',
-  nameFr: "En attente d'approbation",
+export const PROFILE_STATUS = {
+  PENDING: {
+    id: 0,
+    code: 'PENDING',
+    nameEn: 'Pending approval',
+    nameFr: "En attente d'approbation",
+  },
+  APPROVED: {
+    id: 1,
+    code: 'APPROVED',
+    nameEn: 'Approved',
+    nameFr: 'Approuvé',
+  },
+  INCOMPLETE: {
+    id: 2,
+    code: 'INCOMPLETE',
+    nameEn: 'In progress',
+    nameFr: 'En cours',
+  },
+  ARCHIVED: {
+    id: 3,
+    code: 'ARCHIVED',
+    nameEn: 'Archived',
+    nameFr: 'Archivé',
+  },
 } as const;
 
-export const PROFILE_STATUS_APPROVED = {
-  id: 1,
-  code: 'APPROVED',
-  nameEn: 'Approved',
-  nameFr: 'Approuvé',
-} as const;
-
-export const PROFILE_STATUS_INCOMPLETE = {
-  id: 2,
-  code: 'INCOMPLETE',
-  nameEn: 'In progress',
-  nameFr: 'En cours',
-} as const;
-
-export const PROFILE_STATUS_ARCHIVED = {
-  id: 3,
-  code: 'ARCHIVED',
-  nameEn: 'Archived',
-  nameFr: 'Archivé',
-} as const;
+export type ProfileStatus = keyof typeof PROFILE_STATUS;
 
 export const PREFERRED_LANGUAGE_ENGLISH = {
   id: 0,
