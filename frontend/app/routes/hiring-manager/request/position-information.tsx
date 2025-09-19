@@ -96,19 +96,19 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     throw updateResult.unwrapErr();
   }
 
-  return i18nRedirect('routes/hiring-manager/request/index.tsx', request, {
-    params: { requestId: requestData.id.toString() },
-  });
+  return i18nRedirect('routes/hiring-manager/request/index.tsx', request, { params });
 }
 
 export async function loader({ context, request, params }: Route.LoaderArgs) {
   requireAuthentication(context.session, request);
 
-  const requestResult = await getRequestService().getRequestById(
-    Number(params.requestId),
-    context.session.authState.accessToken,
-  );
-  const requestData = requestResult.into();
+  const requestData = (
+    await getRequestService().getRequestById(Number(params.requestId), context.session.authState.accessToken)
+  ).into();
+
+  if (!requestData) {
+    throw new Response('Request not found', { status: HttpStatusCodes.NOT_FOUND });
+  }
 
   const { t, lang } = await getTranslation(request, handle.i18nNamespace);
 
@@ -121,15 +121,15 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   return {
     documentTitle: t('app:position-information.page-title'),
     defaultValues: {
-      positionNumber: requestData?.positionNumber,
-      classification: requestData?.classification,
-      englishTitle: requestData?.englishTitle,
-      frenchTitle: requestData?.frenchTitle,
-      englishLanguageProfile: requestData?.englishLanguageProfile,
-      frenchLanguageProfile: requestData?.frenchLanguageProfile,
-      languageRequirement: requestData?.languageRequirement,
-      securityClearance: requestData?.securityClearance,
-      cities: requestData?.cities,
+      positionNumber: requestData.positionNumber,
+      classification: requestData.classification,
+      englishTitle: requestData.englishTitle,
+      frenchTitle: requestData.frenchTitle,
+      englishLanguageProfile: requestData.englishLanguageProfile,
+      frenchLanguageProfile: requestData.frenchLanguageProfile,
+      languageRequirement: requestData.languageRequirement,
+      securityClearance: requestData.securityClearance,
+      cities: requestData.cities,
     },
     languageRequirements: localizedLanguageRequirements,
     classifications: localizedClassifications,

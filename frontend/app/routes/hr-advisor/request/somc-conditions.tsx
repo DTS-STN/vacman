@@ -59,17 +59,19 @@ export async function loader({ context, params, request }: Route.LoaderArgs) {
 
   const { t } = await getTranslation(request, handle.i18nNamespace);
 
-  const requestResult = await getRequestService().getRequestById(
-    Number(params.requestId),
-    context.session.authState.accessToken,
-  );
-  const currentRequest = requestResult.into();
+  const requestData = (
+    await getRequestService().getRequestById(Number(params.requestId), context.session.authState.accessToken)
+  ).into();
+
+  if (!requestData) {
+    throw new Response('Request not found', { status: HttpStatusCodes.NOT_FOUND });
+  }
 
   return {
     documentTitle: t('app:somc-conditions.page-title'),
     defaultValues: {
-      englishStatementOfMerit: currentRequest?.englishStatementOfMerit,
-      frenchStatementOfMerit: currentRequest?.frenchStatementOfMerit,
+      englishStatementOfMerit: requestData.englishStatementOfMerit,
+      frenchStatementOfMerit: requestData.frenchStatementOfMerit,
     },
   };
 }

@@ -133,18 +133,13 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 export async function loader({ context, params, request }: Route.LoaderArgs) {
   requireAuthentication(context.session, request);
 
-  const requestResult = await getRequestService().getRequestById(
-    Number(params.requestId),
-    context.session.authState.accessToken,
-  );
+  const requestData = (
+    await getRequestService().getRequestById(Number(params.requestId), context.session.authState.accessToken)
+  ).into();
 
-  // Since the hr advisor can't create a new request, so this page can throw 404 when the request is not found
-
-  if (requestResult.isErr()) {
+  if (!requestData) {
     throw new Response('Request not found', { status: HttpStatusCodes.NOT_FOUND });
   }
-
-  const requestData: RequestReadModel = requestResult.unwrap();
 
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
 

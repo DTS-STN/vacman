@@ -63,7 +63,7 @@ describe('ProfileServiceMock', () => {
     });
 
     it('should filter by HR advisor when specified', async () => {
-      const params = { 'hr-advisor': '5' };
+      const params = { hrAdvisorId: '5' };
       const accessToken = 'valid-token';
 
       const result = await mockProfileService.getProfiles(params, accessToken);
@@ -78,7 +78,7 @@ describe('ProfileServiceMock', () => {
     });
 
     it('should handle empty results', async () => {
-      const params = { 'hr-advisor': '999' }; // Non-existent HR advisor
+      const params = { hrAdvisorId: '999' }; // Non-existent HR advisor
       const accessToken = 'valid-token';
 
       const result = await mockProfileService.getProfiles(params, accessToken);

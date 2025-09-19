@@ -20,7 +20,7 @@ spring:
   datasource:
     url: jdbc:sqlserver://esdcvacmansqlsrv.database.windows.net;databaseName=EsDVacManDB_UAT;encrypt=true;trustServerCertificate=true;sendStringParametersAsUnicode=false;
   liquibase:
-    contexts: mssql, dev
+    contexts: dev
     change-log: classpath:db/changelog/db.changelog-master.yaml
     # drop-first: true # ⚠️ ‼‼‼ NEVER SET THIS IN PROD ‼‼‼ ⚠️
 

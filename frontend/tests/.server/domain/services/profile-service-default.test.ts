@@ -69,17 +69,17 @@ describe('ProfileServiceDefault', () => {
       mockGet.mockResolvedValue(Ok(mockResponse));
 
       const params = {
-        'page': 2,
-        'size': 20,
-        'active': true,
-        'hr-advisor': '5',
+        page: 2,
+        size: 20,
+        active: true,
+        hrAdvisorId: '5',
       };
       const accessToken = 'valid-token';
 
       await defaultProfileService.getProfiles(params, accessToken);
 
       expect(mockGet).toHaveBeenCalledWith(
-        '/profiles?page=2&size=20&active=true&hr-advisor=5',
+        '/profiles?page=2&size=20&active=true&hrAdvisorId=5',
         'retrieve paginated profiles',
         accessToken,
       );

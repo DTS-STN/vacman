@@ -13,6 +13,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes;
 import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes.RequestStatuses;
@@ -87,6 +88,7 @@ public class RequestService {
 		this.requestModelMapper = Mappers.getMapper(RequestModelMapper.class);
 	}
 
+	@Transactional(readOnly = false)
 	public RequestEntity createRequest(UserEntity submitter) {
 		log.debug("Fetching DRAFT request status");
 
@@ -97,10 +99,12 @@ public class RequestService {
 				.save(RequestEntity.builder().submitter(submitter).requestStatus(draftStatus).build());
 	}
 
+	@Transactional(readOnly = true)
 	public Optional<RequestEntity> getRequestById(long requestId) {
 		return requestRepository.findById(requestId);
 	}
 
+	@Transactional(readOnly = true)
 	public List<RequestEntity> getAllRequestsAssociatedWithUser(Long userId) {
 		return requestRepository.findAll().stream()
 			.filter(request -> request.getOwnerId().map(id -> id.equals(userId)).orElse(false)
@@ -115,6 +119,7 @@ public class RequestService {
 	 * @param hrAdvisorId Optional HR advisor ID to filter by (null for no filtering)
 	 * @return Page of request entities
 	 */
+	@Transactional(readOnly = true)
 	public Page<RequestEntity> getAllRequests(Pageable pageable, Long hrAdvisorId) {
 		if (hrAdvisorId == null) {
 			return requestRepository.findAll(pageable);
@@ -132,12 +137,14 @@ public class RequestService {
 	 * @param request The request entity to be updated.
 	 * @return The updated request entity.
 	 */
+	@Transactional(readOnly = false)
 	public RequestEntity updateRequest(RequestEntity request) {
 		final var updatedEntity = requestRepository.save(request);
 
 		return updatedEntity;
 	}
 
+	@Transactional(readOnly = true)
 	public RequestEntity prepareRequestForUpdate(RequestUpdateModel updateModel, RequestEntity request) {
 		requestModelMapper.updateEntityFromModel(updateModel, request);
 
@@ -188,7 +195,7 @@ public class RequestService {
 
 	/**
 	 * Updates the request status based on the event type.
-	 * 
+	 *
 	 * @param request The request entity to update
 	 * @param eventType The event type that triggered the status change
 	 * @return The updated request entity
@@ -224,7 +231,7 @@ public class RequestService {
 
 	/**
 	 * Handles the requestSubmitted event.
-	 * 
+	 *
 	 * @param request The request entity
 	 * @param isOwner Whether the current user is the owner of the request
 	 * @param currentStatus The current status code of the request
@@ -250,20 +257,20 @@ public class RequestService {
 
 	/**
 	 * Handles the requestPickedUp event.
-	 * 
+	 *
 	 * @param request The request entity
 	 * @param isHrAdvisor Whether the current user is an HR advisor
 	 * @param currentStatus The current status code of the request
 	 * @param currentUser The current user entity
 	 * @return The updated request entity
 	 */
-	private RequestEntity handleRequestPickedUp(RequestEntity request, boolean isHrAdvisor, 
+	private RequestEntity handleRequestPickedUp(RequestEntity request, boolean isHrAdvisor,
 											   String currentStatus, UserEntity currentUser) {
 		if (!isHrAdvisor) {
 			throw new UnauthorizedException("Only HR advisors can pick up requests");
 		}
 
-		if (!requestStatuses.submitted().equals(currentStatus) && 
+		if (!requestStatuses.submitted().equals(currentStatus) &&
 			!requestStatuses.hrReview().equals(currentStatus)) {
 			throw new ResourceConflictException("Request must be in SUBMIT or HR_REVIEW status to be picked up");
 		}
@@ -326,7 +333,7 @@ public class RequestService {
 
 	/**
 	 * Approves a request by running the match creation algorithm and updating the status.
-	 * 
+	 *
 	 * @param request The request entity to approve
 	 * @return The updated request entity
 	 */
@@ -344,7 +351,7 @@ public class RequestService {
 
 	/**
 	 * Handles the runMatches event.
-	 * 
+	 *
 	 * @param request The request entity
 	 * @param isHrAdvisor Whether the current user is an HR advisor
 	 * @param currentStatus The current status code of the request
@@ -376,7 +383,7 @@ public class RequestService {
 	/**
 	 * Creates matches for a request.
 	 * This is a dummy implementation that will be replaced with the actual match creation algorithm.
-	 * 
+	 *
 	 * @param request The request entity
 	 * @return True if matches were created, false otherwise (for now always true)
 	 */
@@ -389,7 +396,7 @@ public class RequestService {
 
 	/**
 	 * Handles the vmsNotRequired event.
-	 * 
+	 *
 	 * @param request The request entity
 	 * @param isHrAdvisor Whether the current user is an HR advisor
 	 * @param currentStatus The current status code of the request
@@ -412,7 +419,7 @@ public class RequestService {
 
 	/**
 	 * Handles the submitFeedback event.
-	 * 
+	 *
 	 * @param request The request entity
 	 * @param isOwner Whether the current user is the owner of the request
 	 * @param currentStatus The current status code of the request

@@ -19,6 +19,8 @@ management:
 spring:
   datasource:
     url: jdbc:sqlserver://esdcvacmansqlsrv.database.windows.net;databaseName=EsDVacManDB_PRD;encrypt=true;trustServerCertificate=true;sendStringParametersAsUnicode=false;
+  liquibase:
+    contexts: prod
 
 application:
   entra-id:

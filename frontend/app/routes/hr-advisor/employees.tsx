@@ -10,7 +10,7 @@ import * as v from 'valibot';
 
 import type { Route } from './+types/employees';
 
-import type { Profile, ProfileStatus } from '~/.server/domain/models';
+import type { Profile, ProfileQueryParams, ProfileStatus } from '~/.server/domain/models';
 import { getProfileService } from '~/.server/domain/services/profile-service';
 import { getUserService } from '~/.server/domain/services/user-service';
 import { serverEnvironment } from '~/.server/environment';
@@ -25,7 +25,7 @@ import { InlineLink } from '~/components/links';
 import { LoadingButton } from '~/components/loading-button';
 import { PageTitle } from '~/components/page-title';
 import Pagination from '~/components/pagination';
-import { PROFILE_STATUS_CODE } from '~/domain/constants';
+import { PROFILE_STATUS } from '~/domain/constants';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { useFetcherState } from '~/hooks/use-fetcher-state';
 import { getTranslation } from '~/i18n-config.server';
@@ -103,12 +103,13 @@ export async function loader({ context, request }: Route.LoaderArgs) {
   // Keep page size modest for wire efficiency, cap to prevent abuse
   const size = Math.min(50, Math.max(1, Number.parseInt(sizeParam ?? '10', 10) || 10));
 
-  const profileParams = {
-    'active': true, // will return In Progress, Pending Approval and Approved
-    'hr-advisor': filter === 'me' ? filter : undefined, // 'me' is used in the API to filter for the current HR advisor
+  const profileParams: ProfileQueryParams = {
+    active: true, // will return In Progress, Pending Approval and Approved
+    hrAdvisorId: filter === 'me' ? filter : undefined, // 'me' is used in the API to filter for the current HR advisor
+    statusIds: [PROFILE_STATUS.APPROVED.id, PROFILE_STATUS.PENDING.id],
     // Backend expects 1-based page index
-    'page': pageOneBased,
-    'size': size,
+    page: pageOneBased,
+    size: size,
   };
 
   const profilesResult = await getProfileService().getProfiles(profileParams, context.session.authState.accessToken);
@@ -120,7 +121,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
   const profiles = profilesResult
     .unwrap()
     .content.filter(({ profileStatus }) =>
-      [PROFILE_STATUS_CODE.approved, PROFILE_STATUS_CODE.pending].some((code) => code === profileStatus?.code),
+      [PROFILE_STATUS.APPROVED, PROFILE_STATUS.PENDING].some(({ code }) => code === profileStatus?.code),
     );
 
   return {

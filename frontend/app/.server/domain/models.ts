@@ -231,10 +231,11 @@ export type UserQueryParams = {
 };
 
 export type ProfileQueryParams = {
-  'page'?: number;
-  'size'?: number;
-  'active'?: boolean;
-  'hr-advisor'?: string;
+  page?: number;
+  size?: number;
+  active?: boolean;
+  hrAdvisorId?: string;
+  statusIds?: number[];
 };
 
 // Request Read Model

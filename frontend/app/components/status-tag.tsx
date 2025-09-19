@@ -1,6 +1,7 @@
 import type { JSX } from 'react';
 
-import { PROFILE_STATUS_CODE, REQUEST_STATUS_CODE } from '~/domain/constants';
+import { PROFILE_STATUS, REQUEST_STATUS_CODE } from '~/domain/constants';
+import { cn } from '~/utils/tailwind-utils';
 
 interface StatusTagProps {
   status: {
@@ -9,39 +10,24 @@ interface StatusTagProps {
   };
 }
 
-export function StatusTag({ status }: StatusTagProps): JSX.Element {
-  switch (status.code) {
-    case PROFILE_STATUS_CODE.approved:
-      return (
-        <span className="w-fit rounded-2xl border border-green-400 bg-green-100 px-3 py-0.5 text-sm font-semibold text-green-800">
-          {status.name}
-        </span>
-      );
-    case PROFILE_STATUS_CODE.archived:
-      return (
-        <span className="w-fit rounded-2xl border border-orange-400 bg-orange-100 px-3 py-0.5 text-sm font-semibold text-orange-800">
-          {status.name}
-        </span>
-      );
-    case PROFILE_STATUS_CODE.incomplete:
-      return (
-        <span className="w-fit rounded-2xl border border-blue-400 bg-blue-100 px-3 py-0.5 text-sm font-semibold text-blue-800">
-          {status.name}
-        </span>
-      );
-    case PROFILE_STATUS_CODE.pending:
-      return (
-        <span className="w-fit rounded-2xl border border-yellow-400 bg-yellow-100 px-3 py-0.5 text-sm font-semibold text-yellow-800">
-          {status.name}
-        </span>
-      );
+function getStatusStyle(code: string): string {
+  switch (code) {
+    case PROFILE_STATUS.APPROVED.code:
+      return 'border-green-400 bg-green-100 text-green-800';
+    case PROFILE_STATUS.ARCHIVED.code:
+      return 'border-orange-400 bg-orange-100 text-orange-800';
+    case PROFILE_STATUS.INCOMPLETE.code:
+      return 'border-blue-400 bg-blue-100 text-blue-800';
+    case PROFILE_STATUS.PENDING.code:
     case REQUEST_STATUS_CODE.FDBK_PEND_APPR:
-      return (
-        <span className="w-fit rounded-2xl border border-yellow-400 bg-yellow-100 px-3 py-0.5 text-sm font-semibold text-yellow-800">
-          {status.name}
-        </span>
-      );
+      return 'border-yellow-400 bg-yellow-100 text-yellow-800';
     default:
-      return <></>;
+      return '';
   }
+}
+
+export function StatusTag({ status }: StatusTagProps): JSX.Element {
+  const styleClass = getStatusStyle(status.code);
+  if (!styleClass) return <></>;
+  return <span className={cn('w-fit rounded-2xl border px-3 py-0.5 text-sm font-semibold', styleClass)}>{status.name}</span>;
 }

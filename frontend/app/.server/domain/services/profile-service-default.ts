@@ -29,7 +29,16 @@ export function getDefaultProfileService(): ProfileService {
       if (params.page !== undefined) searchParams.append('page', params.page.toString());
       if (params.size !== undefined) searchParams.append('size', params.size.toString());
       if (params.active !== undefined) searchParams.append('active', params.active.toString());
-      if (params['hr-advisor']) searchParams.append('hr-advisor', params['hr-advisor']);
+
+      // New filters: hrAdvisorId and statusIds (appended as repeated statusId)
+      if (params.hrAdvisorId) {
+        searchParams.append('hrAdvisorId', params.hrAdvisorId);
+      }
+      if (params.statusIds?.length) {
+        for (const id of params.statusIds) {
+          searchParams.append('statusId', id.toString());
+        }
+      }
 
       const url = `/profiles${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
       const result = await apiClient.get<PagedProfileResponse>(url, 'retrieve paginated profiles', accessToken);
