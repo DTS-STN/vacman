@@ -81,7 +81,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     hiringManager: currentRequest?.hiringManager,
     hrAdvisor: currentRequest?.hrAdvisor,
     selectionProcessNumber: currentRequest?.selectionProcessNumber,
-    workforceMgmtApprovalRecvd: currentRequest?.workforceMgmtApprovalRecvd?.toString(),
+    workforceMgmtApprovalRecvd: currentRequest?.workforceMgmtApprovalRecvd,
     priorityEntitlement: currentRequest?.priorityEntitlement,
     priorityEntitlementRationale: currentRequest?.priorityEntitlementRationale,
     selectionProcessType: allLocalizedProcessTypes.find((s) => s.code === currentRequest?.selectionProcessType?.code),
@@ -125,6 +125,7 @@ export function action({ context, params, request }: Route.ActionArgs) {
 
 export default function HiringManagerRequestIndex({ loaderData, params }: Route.ComponentProps) {
   const { t } = useTranslation(handle.i18nNamespace);
+  const { t: tGcweb } = useTranslation('gcweb');
   const actionData = useActionData();
   const fetcher = useFetcher();
   const fetcherState = useFetcherState(fetcher);
@@ -214,11 +215,21 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
                 </DescriptionListItem>
 
                 <DescriptionListItem term={t('app:process-information.approval-received')}>
-                  {loaderData.workforceMgmtApprovalRecvd ?? t('app:hr-advisor-referral-requests.not-provided')}
+                  {(() => {
+                    if (loaderData.workforceMgmtApprovalRecvd === undefined) {
+                      return t('app:hr-advisor-referral-requests.not-provided');
+                    }
+                    return loaderData.workforceMgmtApprovalRecvd ? tGcweb('input-option.yes') : tGcweb('input-option.no');
+                  })()}
                 </DescriptionListItem>
 
                 <DescriptionListItem term={t('app:process-information.priority-entitlement')}>
-                  {loaderData.priorityEntitlement ?? t('app:hr-advisor-referral-requests.not-provided')}
+                  {(() => {
+                    if (loaderData.priorityEntitlement === undefined) {
+                      return t('app:hr-advisor-referral-requests.not-provided');
+                    }
+                    return loaderData.priorityEntitlement ? tGcweb('input-option.yes') : tGcweb('input-option.no');
+                  })()}
                 </DescriptionListItem>
 
                 <DescriptionListItem term={t('app:process-information.rationale')}>
@@ -230,7 +241,12 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
                 </DescriptionListItem>
 
                 <DescriptionListItem term={t('app:process-information.performed-duties')}>
-                  {loaderData.hasPerformedSameDuties ?? t('app:hr-advisor-referral-requests.not-provided')}
+                  {(() => {
+                    if (loaderData.hasPerformedSameDuties === undefined) {
+                      return t('app:hr-advisor-referral-requests.not-provided');
+                    }
+                    return loaderData.hasPerformedSameDuties ? tGcweb('input-option.yes') : tGcweb('input-option.no');
+                  })()}
                 </DescriptionListItem>
 
                 <DescriptionListItem term={t('app:process-information.non-advertised-appointment')}>
@@ -254,7 +270,12 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
                 </DescriptionListItem>
 
                 <DescriptionListItem term={t('app:process-information.employment-equity-identified-alt')}>
-                  {loaderData.equityNeeded ?? t('app:hr-advisor-referral-requests.not-provided')}
+                  {(() => {
+                    if (loaderData.equityNeeded === undefined) {
+                      return t('app:hr-advisor-referral-requests.not-provided');
+                    }
+                    return loaderData.equityNeeded ? tGcweb('input-option.yes') : tGcweb('input-option.no');
+                  })()}
                 </DescriptionListItem>
 
                 <DescriptionListItem term={t('app:process-information.preferred-employment-equities')}>
@@ -368,7 +389,7 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
           <div className="mt-8 max-w-prose">
             <div className="flex justify-center">
               <fetcher.Form className="mt-6 md:mt-auto" method="post" noValidate>
-                {loaderData.status?.code === REQUEST_STATUSES[1].code ? (
+                {loaderData.status?.code === REQUEST_STATUSES[1].code ? ( //Status: SUBMIT
                   <LoadingButton
                     className="mt-4 w-full"
                     name="action"
