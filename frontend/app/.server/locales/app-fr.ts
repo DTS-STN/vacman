@@ -86,8 +86,8 @@ export default {
     'personal-phone': 'Numéro du téléphone personnel',
     'personal-phone-help-message-primary': 'Cellulaire, domicile ou autre. Par exemple\u00A0: <noWrap>123 456 7890</noWrap>',
     'work-phone-help-message-primary': 'Par exemple\u00A0: <noWrap>123 456 7890</noWrap>',
-    'additional-information': 'Renseignements supplémentaires',
-    'additional-info-help-message': 'Veuillez noter brièvement les absences ou autres informations clés.',
+    'additional-information':
+      'Pour toute information additionnelle concernant vos informations personnelles (par exemple, changement à vos coordonnées ou congé) veuillez communiquer avec le conseiller en RH indiqué sur votre lettre de statut sous le réaménagement des effectifs.',
     'errors': {
       'surname-required': 'Le nom de famille est requis',
       'givenName-required': 'Le prénom est requis',
@@ -102,8 +102,6 @@ export default {
       'work-phone-invalid': "Le numéro du téléphone au travail n'est pas valide.",
       'personal-phone-required': 'Le numéro du téléphone personnel est requis.',
       'personal-phone-invalid': "Le numéro du téléphone personnel n'est pas valide.",
-      'additional-information-required': 'Renseignements supplémentaires est requis.',
-      'additional-information-max-length': "L'information supplémentaire doit contenir moins de 100 caractères.",
     },
   },
   'employment-information': {

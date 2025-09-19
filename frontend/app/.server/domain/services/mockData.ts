@@ -202,7 +202,6 @@ export function buildProfilesFromTemplates(): Profile[] {
       profileId: 1,
       userId: 1,
       data: {
-        additionalComment: 'Looking for opportunities in software development.',
         hasConsentedToPrivacyTerms: false,
         hrAdvisorId: undefined,
         isAvailableForReferral: undefined,
@@ -221,7 +220,6 @@ export function buildProfilesFromTemplates(): Profile[] {
       profileId: 2,
       userId: 2,
       data: {
-        additionalComment: undefined,
         hasConsentedToPrivacyTerms: false,
         hrAdvisorId: undefined,
         isAvailableForReferral: undefined,
@@ -240,7 +238,6 @@ export function buildProfilesFromTemplates(): Profile[] {
       profileId: 3,
       userId: 3,
       data: {
-        additionalComment: 'Interested in remote work.',
         hasConsentedToPrivacyTerms: true,
         hrAdvisorId: 1,
         isAvailableForReferral: false,
@@ -259,7 +256,6 @@ export function buildProfilesFromTemplates(): Profile[] {
       profileId: 4,
       userId: 4,
       data: {
-        additionalComment: 'Fluent in French and English.',
         hasConsentedToPrivacyTerms: true,
         hrAdvisorId: 1,
         isAvailableForReferral: true,
@@ -278,7 +274,6 @@ export function buildProfilesFromTemplates(): Profile[] {
       profileId: 5,
       userId: 5,
       data: {
-        additionalComment: 'Open to contract roles.',
         hasConsentedToPrivacyTerms: true,
         hrAdvisorId: 5,
         isAvailableForReferral: true,
@@ -345,7 +340,6 @@ export function createAndLinkNewMockProfile(accessToken: string): Profile {
   const newProfile: Profile = {
     id: newProfileId,
     profileStatus: PROFILE_STATUS_INCOMPLETE,
-    additionalComment: 'Looking for opportunities in software development.',
     hasConsentedToPrivacyTerms: false,
     personalEmailAddress: 'personal.email@example.com',
     personalPhoneNumber: '613-938-0001',
