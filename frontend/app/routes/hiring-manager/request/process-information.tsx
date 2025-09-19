@@ -87,11 +87,13 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 export async function loader({ context, request, params }: Route.LoaderArgs) {
   requireAuthentication(context.session, request);
 
-  const requestResult = await getRequestService().getRequestById(
-    Number(params.requestId),
-    context.session.authState.accessToken,
-  );
-  const requestData = requestResult.into();
+  const requestData = (
+    await getRequestService().getRequestById(Number(params.requestId), context.session.authState.accessToken)
+  ).into();
+
+  if (!requestData) {
+    throw new Response('Request not found', { status: HttpStatusCodes.NOT_FOUND });
+  }
 
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
 
@@ -104,19 +106,19 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   return {
     documentTitle: t('app:process-information.page-title'),
     defaultValues: {
-      selectionProcessNumber: requestData?.selectionProcessNumber,
-      approvalReceived: requestData?.workforceMgmtApprovalRecvd,
-      priorityEntitlement: requestData?.priorityEntitlement,
-      priorityEntitlementRationale: requestData?.priorityEntitlementRationale,
-      selectionProcessType: requestData?.selectionProcessType,
-      performedDuties: requestData?.hasPerformedSameDuties,
-      nonAdvertisedAppointment: requestData?.appointmentNonAdvertised,
-      employmentTenure: requestData?.employmentTenure,
-      projectedStartDate: requestData?.projectedStartDate,
-      projectedEndDate: requestData?.projectedEndDate,
-      workSchedule: requestData?.workSchedule,
-      employmentEquityIdentified: requestData?.equityNeeded,
-      preferredEmploymentEquities: requestData?.employmentEquities,
+      selectionProcessNumber: requestData.selectionProcessNumber,
+      approvalReceived: requestData.workforceMgmtApprovalRecvd,
+      priorityEntitlement: requestData.priorityEntitlement,
+      priorityEntitlementRationale: requestData.priorityEntitlementRationale,
+      selectionProcessType: requestData.selectionProcessType,
+      performedDuties: requestData.hasPerformedSameDuties,
+      nonAdvertisedAppointment: requestData.appointmentNonAdvertised,
+      employmentTenure: requestData.employmentTenure,
+      projectedStartDate: requestData.projectedStartDate,
+      projectedEndDate: requestData.projectedEndDate,
+      workSchedule: requestData.workSchedule,
+      employmentEquityIdentified: requestData.equityNeeded,
+      preferredEmploymentEquities: requestData.employmentEquities,
     },
     localizedSelectionProcessTypesResult,
     localizedNonAdvertisedAppointmentsResult,

@@ -104,16 +104,13 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 export async function loader({ context, request, params }: Route.LoaderArgs) {
   requireAuthentication(context.session, request);
 
-  const requestResult = await getRequestService().getRequestById(
-    Number(params.requestId),
-    context.session.authState.accessToken,
-  );
+  const requestData = (
+    await getRequestService().getRequestById(Number(params.requestId), context.session.authState.accessToken)
+  ).into();
 
-  if (requestResult.isErr()) {
+  if (!requestData) {
     throw new Response('Request not found', { status: HttpStatusCodes.NOT_FOUND });
   }
-
-  const requestData: RequestReadModel = requestResult.unwrap();
 
   const { t, lang } = await getTranslation(request, handle.i18nNamespace);
 

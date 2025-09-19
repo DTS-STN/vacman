@@ -35,6 +35,7 @@ import {
   REQUEST_STATUS_CODE,
   SELECTION_PROCESS_TYPE,
 } from '~/domain/constants';
+import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { useFetcherState } from '~/hooks/use-fetcher-state';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
@@ -50,73 +51,78 @@ export function meta({ loaderData }: Route.MetaArgs) {
 export async function action({ context, params, request }: Route.ActionArgs) {
   requireAuthentication(context.session, request);
 
-  const requestData = await getRequestService().getRequestById(Number(params.requestId), context.session.authState.accessToken);
-  const currentRequest = requestData.into();
+  const requestData = (
+    await getRequestService().getRequestById(Number(params.requestId), context.session.authState.accessToken)
+  ).into();
+
+  if (!requestData) {
+    throw new Response('Request not found', { status: HttpStatusCodes.NOT_FOUND });
+  }
 
   // For process information from Request Model
   const requiredProcessFields = {
-    selectionProcessNumber: currentRequest?.selectionProcessNumber,
-    workforceMgmtApprovalRecvd: currentRequest?.workforceMgmtApprovalRecvd,
-    priorityEntitlement: currentRequest?.priorityEntitlement,
-    ...(currentRequest?.priorityEntitlement
+    selectionProcessNumber: requestData.selectionProcessNumber,
+    workforceMgmtApprovalRecvd: requestData.workforceMgmtApprovalRecvd,
+    priorityEntitlement: requestData.priorityEntitlement,
+    ...(requestData.priorityEntitlement
       ? {
-          priorityEntitlementRationale: currentRequest.priorityEntitlementRationale,
+          priorityEntitlementRationale: requestData.priorityEntitlementRationale,
         }
       : {}),
-    ...(currentRequest?.selectionProcessType?.id === SELECTION_PROCESS_TYPE.externalNonAdvertised
+    ...(requestData.selectionProcessType?.id === SELECTION_PROCESS_TYPE.externalNonAdvertised
       ? {
-          hasPerformedSameDuties: currentRequest.hasPerformedSameDuties,
-          appointmentNonAdvertised: currentRequest.appointmentNonAdvertised,
+          hasPerformedSameDuties: requestData.hasPerformedSameDuties,
+          appointmentNonAdvertised: requestData.appointmentNonAdvertised,
         }
       : {}),
-    ...(currentRequest?.employmentTenure?.code === EMPLOYMENT_TENURE.term
+    ...(requestData.employmentTenure?.code === EMPLOYMENT_TENURE.term
       ? {
-          projectedStartDate: currentRequest.projectedStartDate,
-          projectedEndDate: currentRequest.projectedEndDate,
+          projectedStartDate: requestData.projectedStartDate,
+          projectedEndDate: requestData.projectedEndDate,
         }
       : {}),
-    ...(currentRequest?.equityNeeded === true
+    ...(requestData.equityNeeded === true
       ? {
-          employmentEquities: currentRequest.employmentEquities,
+          employmentEquities: requestData.employmentEquities,
         }
       : {}),
   };
 
   const languageProficiencyRequired =
-    currentRequest?.languageRequirement?.code === LANGUAGE_REQUIREMENT_CODES.bilingualImperative ||
-    currentRequest?.languageRequirement?.code === LANGUAGE_REQUIREMENT_CODES.bilingualNonImperative;
+    requestData.languageRequirement?.code === LANGUAGE_REQUIREMENT_CODES.bilingualImperative ||
+    requestData.languageRequirement?.code === LANGUAGE_REQUIREMENT_CODES.bilingualNonImperative;
 
   // For position information from Request Model
   const requiredPositionFields = {
-    positionNumber: currentRequest?.positionNumber,
-    classification: currentRequest?.classification,
-    englishTitle: currentRequest?.englishTitle,
-    frenchTitle: currentRequest?.frenchTitle,
-    cities: currentRequest?.cities,
-    languageRequirement: currentRequest?.languageRequirement,
+    positionNumber: requestData.positionNumber,
+    classification: requestData.classification,
+    englishTitle: requestData.englishTitle,
+    frenchTitle: requestData.frenchTitle,
+    cities: requestData.cities,
+    languageRequirement: requestData.languageRequirement,
     ...(languageProficiencyRequired
       ? {
-          englishLanguageProfile: currentRequest.englishLanguageProfile,
-          frenchLanguageProfile: currentRequest.frenchLanguageProfile,
+          englishLanguageProfile: requestData.englishLanguageProfile,
+          frenchLanguageProfile: requestData.frenchLanguageProfile,
         }
       : {}),
-    securityClearance: currentRequest?.securityClearance,
+    securityClearance: requestData.securityClearance,
   };
 
   // For Statement of Merit Criteria and Conditions of Employment from Request Model
   const requiredStatementOfMeritCriteriaFields = {
-    englishStatementOfMerit: currentRequest?.englishStatementOfMerit,
-    frenchStatementOfMerit: currentRequest?.frenchStatementOfMerit,
+    englishStatementOfMerit: requestData.englishStatementOfMerit,
+    frenchStatementOfMerit: requestData.frenchStatementOfMerit,
   };
 
   // For Submission details from Request Model
   const submissionFields = {
-    submitter: currentRequest?.submitter,
-    hiringManager: currentRequest?.hiringManager,
-    subDelegatedManager: currentRequest?.subDelegatedManager,
-    workUnit: currentRequest?.workUnit,
-    languageOfCorrespondence: currentRequest?.languageOfCorrespondence,
-    additionalComment: currentRequest?.additionalComment,
+    submitter: requestData.submitter,
+    hiringManager: requestData.hiringManager,
+    subDelegatedManager: requestData.subDelegatedManager,
+    workUnit: requestData.workUnit,
+    languageOfCorrespondence: requestData.languageOfCorrespondence,
+    additionalComment: requestData.additionalComment,
   };
 
   // Check if all sections are complete
@@ -160,11 +166,13 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 export async function loader({ context, request, params }: Route.LoaderArgs) {
   requireAuthentication(context.session, request);
 
-  const requestResult = await getRequestService().getRequestById(
-    Number(params.requestId),
-    context.session.authState.accessToken,
-  );
-  const currentRequest = requestResult.into();
+  const requestData = (
+    await getRequestService().getRequestById(Number(params.requestId), context.session.authState.accessToken)
+  ).into();
+
+  if (!requestData) {
+    throw new Response('Request not found', { status: HttpStatusCodes.NOT_FOUND });
+  }
 
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
 
@@ -195,20 +203,20 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 
   // Process information from Request type
   const processInformationData = {
-    processInformationNumber: currentRequest?.selectionProcessNumber,
-    selectionProcessNumber: currentRequest?.selectionProcessNumber,
-    workforceMgmtApprovalRecvd: currentRequest?.workforceMgmtApprovalRecvd,
-    priorityEntitlement: currentRequest?.priorityEntitlement,
-    priorityEntitlementRationale: currentRequest?.priorityEntitlementRationale,
-    selectionProcessType: currentRequest?.selectionProcessType,
-    hasPerformedSameDuties: currentRequest?.hasPerformedSameDuties,
-    appointmentNonAdvertised: currentRequest?.appointmentNonAdvertised,
-    employmentTenure: currentRequest?.employmentTenure,
-    projectedStartDate: currentRequest?.projectedStartDate,
-    projectedEndDate: currentRequest?.projectedEndDate,
-    workSchedule: currentRequest?.workSchedule,
-    equityNeeded: currentRequest?.equityNeeded,
-    employmentEquities: currentRequest?.employmentEquities,
+    processInformationNumber: requestData.selectionProcessNumber,
+    selectionProcessNumber: requestData.selectionProcessNumber,
+    workforceMgmtApprovalRecvd: requestData.workforceMgmtApprovalRecvd,
+    priorityEntitlement: requestData.priorityEntitlement,
+    priorityEntitlementRationale: requestData.priorityEntitlementRationale,
+    selectionProcessType: requestData.selectionProcessType,
+    hasPerformedSameDuties: requestData.hasPerformedSameDuties,
+    appointmentNonAdvertised: requestData.appointmentNonAdvertised,
+    employmentTenure: requestData.employmentTenure,
+    projectedStartDate: requestData.projectedStartDate,
+    projectedEndDate: requestData.projectedEndDate,
+    workSchedule: requestData.workSchedule,
+    equityNeeded: requestData.equityNeeded,
+    employmentEquities: requestData.employmentEquities,
   };
 
   const requiredProcessInformation = {
@@ -216,24 +224,24 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     selectionProcessNumber: processInformationData.selectionProcessNumber,
     workforceMgmtApprovalRecvd: processInformationData.workforceMgmtApprovalRecvd,
     priorityEntitlement: processInformationData.priorityEntitlement,
-    ...(currentRequest?.priorityEntitlement
+    ...(requestData.priorityEntitlement
       ? {
           priorityEntitlementRationale: processInformationData.priorityEntitlementRationale,
         }
       : {}),
-    ...(currentRequest?.selectionProcessType?.id === SELECTION_PROCESS_TYPE.externalNonAdvertised
+    ...(requestData.selectionProcessType?.id === SELECTION_PROCESS_TYPE.externalNonAdvertised
       ? {
           hasPerformedSameDuties: processInformationData.hasPerformedSameDuties,
           appointmentNonAdvertised: processInformationData.appointmentNonAdvertised,
         }
       : {}),
-    ...(currentRequest?.employmentTenure?.code === EMPLOYMENT_TENURE.term
+    ...(requestData.employmentTenure?.code === EMPLOYMENT_TENURE.term
       ? {
           projectedStartDate: processInformationData.projectedStartDate,
           projectedEndDate: processInformationData.projectedEndDate,
         }
       : {}),
-    ...(currentRequest?.equityNeeded === true
+    ...(requestData.equityNeeded === true
       ? {
           employmentEquities: processInformationData.employmentEquities,
         }
@@ -244,20 +252,20 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 
   // Position information from Request type
   const positionInformationData = {
-    positionNumber: currentRequest?.positionNumber,
-    classification: currentRequest?.classification,
-    englishTitle: currentRequest?.englishTitle,
-    frenchTitle: currentRequest?.frenchTitle,
-    cities: currentRequest?.cities,
-    languageRequirement: currentRequest?.languageRequirement,
-    englishLanguageProfile: currentRequest?.englishLanguageProfile,
-    frenchLanguageProfile: currentRequest?.frenchLanguageProfile,
-    securityClearance: currentRequest?.securityClearance,
+    positionNumber: requestData.positionNumber,
+    classification: requestData.classification,
+    englishTitle: requestData.englishTitle,
+    frenchTitle: requestData.frenchTitle,
+    cities: requestData.cities,
+    languageRequirement: requestData.languageRequirement,
+    englishLanguageProfile: requestData.englishLanguageProfile,
+    frenchLanguageProfile: requestData.frenchLanguageProfile,
+    securityClearance: requestData.securityClearance,
   };
 
   const languageProficiencyRequired =
-    currentRequest?.languageRequirement?.code === LANGUAGE_REQUIREMENT_CODES.bilingualImperative ||
-    currentRequest?.languageRequirement?.code === LANGUAGE_REQUIREMENT_CODES.bilingualNonImperative;
+    requestData.languageRequirement?.code === LANGUAGE_REQUIREMENT_CODES.bilingualImperative ||
+    requestData.languageRequirement?.code === LANGUAGE_REQUIREMENT_CODES.bilingualNonImperative;
 
   const requiredPositionInformation = {
     positionNumber: positionInformationData.positionNumber,
@@ -279,8 +287,8 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 
   // Statement of Merit and Conditions Information from Request type
   const statementOfMeritCriteriaInformationData = {
-    englishStatementOfMerit: currentRequest?.englishStatementOfMerit,
-    frenchStatementOfMerit: currentRequest?.frenchStatementOfMerit,
+    englishStatementOfMerit: requestData.englishStatementOfMerit,
+    frenchStatementOfMerit: requestData.frenchStatementOfMerit,
   };
 
   const requiredStatementOfMeritCriteriaInformation = statementOfMeritCriteriaInformationData;
@@ -289,12 +297,12 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 
   // Submission Information from Request type
   const submissionInformationData = {
-    submitter: currentRequest?.submitter,
-    hiringManager: currentRequest?.hiringManager,
-    subDelegatedManager: currentRequest?.subDelegatedManager,
-    workUnit: currentRequest?.workUnit,
-    languageOfCorrespondence: currentRequest?.languageOfCorrespondence,
-    additionalComment: currentRequest?.additionalComment,
+    submitter: requestData.submitter,
+    hiringManager: requestData.hiringManager,
+    subDelegatedManager: requestData.subDelegatedManager,
+    workUnit: requestData.workUnit,
+    languageOfCorrespondence: requestData.languageOfCorrespondence,
+    additionalComment: requestData.additionalComment,
   };
 
   const requiredSubmissionInformation = submissionInformationData;
@@ -319,8 +327,8 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     statementOfMeritCriteriaInformationTotalFields +
     submissionInformationTotalFields;
   const amountCompleted = (profileCompleted / profileTotalFields) * 100;
-  const cities = currentRequest?.cities?.map((city) => allLocalizedCities.find((c) => c.id === city.id)).filter(Boolean);
-  const employmentEquities = currentRequest?.employmentEquities
+  const cities = requestData.cities?.map((city) => allLocalizedCities.find((c) => c.id === city.id)).filter(Boolean);
+  const employmentEquities = requestData.employmentEquities
     ?.map((eq) => allLocalizedEmploymentEquities.find((e) => e.code === eq.code))
     .filter(Boolean);
 
@@ -334,51 +342,49 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       isCompleteSubmissionInformation,
     isCompleteProcessInformation,
     isProcessNew: processInformationCompleted === 0,
-    selectionProcessNumber: currentRequest?.selectionProcessNumber,
-    workforceMgmtApprovalRecvd: currentRequest?.workforceMgmtApprovalRecvd,
-    priorityEntitlement: currentRequest?.priorityEntitlement,
-    priorityEntitlementRationale: currentRequest?.priorityEntitlementRationale,
-    selectionProcessType: allLocalizedProcessTypes.find((s) => s.code === currentRequest?.selectionProcessType?.code),
-    hasPerformedSameDuties: currentRequest?.hasPerformedSameDuties,
+    selectionProcessNumber: requestData.selectionProcessNumber,
+    workforceMgmtApprovalRecvd: requestData.workforceMgmtApprovalRecvd,
+    priorityEntitlement: requestData.priorityEntitlement,
+    priorityEntitlementRationale: requestData.priorityEntitlementRationale,
+    selectionProcessType: allLocalizedProcessTypes.find((s) => s.code === requestData.selectionProcessType?.code),
+    hasPerformedSameDuties: requestData.hasPerformedSameDuties,
     appointmentNonAdvertised: allLocalizedAppointmentNonAdvertised.find(
-      (a) => a.code === currentRequest?.appointmentNonAdvertised?.code,
+      (a) => a.code === requestData.appointmentNonAdvertised?.code,
     ),
-    employmentTenure: allLocalizedTenures.find((t) => t.code === currentRequest?.employmentTenure?.code),
-    projectedStartDate: currentRequest?.projectedStartDate,
-    projectedEndDate: currentRequest?.projectedEndDate,
-    workSchedule: allLocalizedWorkSchedules.find((w) => w.code === currentRequest?.workSchedule?.code),
-    equityNeeded: currentRequest?.equityNeeded,
+    employmentTenure: allLocalizedTenures.find((t) => t.code === requestData.employmentTenure?.code),
+    projectedStartDate: requestData.projectedStartDate,
+    projectedEndDate: requestData.projectedEndDate,
+    workSchedule: allLocalizedWorkSchedules.find((w) => w.code === requestData.workSchedule?.code),
+    equityNeeded: requestData.equityNeeded,
     employmentEquities: employmentEquities?.map((eq) => eq?.name).join(', '),
     isCompletePositionInformation,
     isPositionNew: positionInformationCompleted === 0,
-    positionNumber: currentRequest?.positionNumber,
-    classification: currentRequest?.classification,
-    englishTitle: currentRequest?.englishTitle,
-    frenchTitle: currentRequest?.frenchTitle,
+    positionNumber: requestData.positionNumber,
+    classification: requestData.classification,
+    englishTitle: requestData.englishTitle,
+    frenchTitle: requestData.frenchTitle,
     cities: cities?.map((city) => city?.provinceTerritory.name + ' - ' + city?.name),
-    languageRequirement: currentRequest?.languageRequirement,
-    englishLanguageProfile: currentRequest?.englishLanguageProfile,
-    frenchLanguageProfile: currentRequest?.frenchLanguageProfile,
-    securityClearance: currentRequest?.securityClearance,
+    languageRequirement: requestData.languageRequirement,
+    englishLanguageProfile: requestData.englishLanguageProfile,
+    frenchLanguageProfile: requestData.frenchLanguageProfile,
+    securityClearance: requestData.securityClearance,
     isCompleteStatementOfMeritCriteriaInformaion,
     isStatementOfMeritCriteriaNew: statementOfMeritCriteriaInformationCompleted === 0,
-    englishStatementOfMerit: currentRequest?.englishStatementOfMerit,
-    frenchStatementOfMerit: currentRequest?.frenchStatementOfMerit,
+    englishStatementOfMerit: requestData.englishStatementOfMerit,
+    frenchStatementOfMerit: requestData.frenchStatementOfMerit,
     isCompleteSubmissionInformation,
     isSubmissionNew: submissionInformationCompleted === 0,
-    submitter: currentRequest?.submitter,
-    hiringManager: currentRequest?.hiringManager,
-    subDelegatedManager: currentRequest?.subDelegatedManager,
-    directorate: allLocalizedDirectorates.find((c) => c.code === currentRequest?.workUnit?.code),
-    languageOfCorrespondence: allLocalizedPreferredLanguage.find(
-      (p) => p.code === currentRequest?.languageOfCorrespondence?.code,
-    ),
-    additionalComment: currentRequest?.additionalComment,
-    status: allLocalizedRequestStatus.find((s) => s.code === currentRequest?.status?.code),
-    hrAdvisor: currentRequest?.hrAdvisor,
-    priorityClearanceNumber: currentRequest?.priorityClearanceNumber,
-    pscClearanceNumber: currentRequest?.pscClearanceNumber,
-    requestNumber: currentRequest?.requestNumber,
+    submitter: requestData.submitter,
+    hiringManager: requestData.hiringManager,
+    subDelegatedManager: requestData.subDelegatedManager,
+    directorate: allLocalizedDirectorates.find((c) => c.code === requestData.workUnit?.code),
+    languageOfCorrespondence: allLocalizedPreferredLanguage.find((p) => p.code === requestData.languageOfCorrespondence?.code),
+    additionalComment: requestData.additionalComment,
+    status: allLocalizedRequestStatus.find((s) => s.code === requestData.status?.code),
+    hrAdvisor: requestData.hrAdvisor,
+    priorityClearanceNumber: requestData.priorityClearanceNumber,
+    pscClearanceNumber: requestData.pscClearanceNumber,
+    requestNumber: requestData.requestNumber,
     hasRequestChanged,
     lang,
   };
