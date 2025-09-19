@@ -20,6 +20,7 @@ public record GcNotifyProperties(
 	@NotBlank String requestCreatedTemplateId,
 	@NotBlank String requestFeedbackPendingTemplateId,
 	@NotBlank String requestFeedbackCompletedTemplateId,
+	@NotBlank String hrGdInboxEmail,
 	@Nullable Duration connectTimeout,
 	@Nullable Duration readTimeout
 ) {}
