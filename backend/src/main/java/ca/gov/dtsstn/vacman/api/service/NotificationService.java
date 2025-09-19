@@ -10,6 +10,7 @@ import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
 import ca.gov.dtsstn.vacman.api.config.properties.ApplicationProperties;
@@ -73,15 +74,10 @@ public class NotificationService {
 		Assert.hasText(profileId, "profileId is required; it must not be blank or null");
 		Assert.hasText(username, "username is required; it must not be blank or null");
 
-		List<NotificationReceipt> receipts = new ArrayList<>();
-
-		for (String email : emails) {
-			if (email != null && !email.isBlank()) {
-				receipts.add(sendEmailNotification(email, profileId, username, profileStatus));
-			}
-		}
-
-		return receipts;
+		return emails.parallelStream()
+			.filter(StringUtils::hasText)
+			.map(email -> sendEmailNotification(email, profileId, username, profileStatus))
+			.toList();
 	}
 
 	/**
