@@ -178,22 +178,20 @@ export function DataTableColumnHeaderWithOptions<TData, TValue>({
   selected: controlledSelected,
   onSelectionChange,
 }: DataTableColumnHeaderWithOptionsProps<TData, TValue>) {
-  // Prefer controlled selection when provided; fall back to column filter state
-  const selected = controlledSelected ?? column.getFilterValue();
+  // Source of truth: controlled 'selected' if provided, else column filter state
+  const selectedValues: string[] = controlledSelected ?? (column.getFilterValue() as string[] | undefined) ?? [];
 
-  const toggleOption = (value: string) => {
-    let next: string[];
-
-    if (selected?.includes(value)) {
-      next = selected.filter((v) => v !== value);
-    } else {
-      next = [...(selected ?? []), value];
-    }
-
+  const setSelectedValues = (next: string[]) => {
     // Update internal column filter for local filtering/sorting UX
     column.setFilterValue(next.length ? next : undefined);
     // Notify parent when controlled handling is desired
     onSelectionChange?.(next);
+  };
+
+  const toggleOption = (value: string) => {
+    const has = selectedValues.includes(value);
+    const next = has ? selectedValues.filter((v) => v !== value) : [...selectedValues, value];
+    setSelectedValues(next);
   };
 
   return (
@@ -218,7 +216,7 @@ export function DataTableColumnHeaderWithOptions<TData, TValue>({
               <label className="flex w-full cursor-pointer items-center gap-2 px-2 py-1.5">
                 <input
                   type="checkbox"
-                  checked={selected?.includes(option) ?? false}
+                  checked={selectedValues.includes(option)}
                   onChange={() => toggleOption(option)}
                   className="h-4 w-4"
                 />
