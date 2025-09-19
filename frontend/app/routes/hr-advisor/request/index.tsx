@@ -1,4 +1,4 @@
-import { useActionData, useFetcher } from 'react-router';
+import { useFetcher } from 'react-router';
 import type { RouteHandle } from 'react-router';
 
 import { faEye } from '@fortawesome/free-solid-svg-icons';
@@ -126,7 +126,6 @@ export function action({ context, params, request }: Route.ActionArgs) {
 export default function HiringManagerRequestIndex({ loaderData, params }: Route.ComponentProps) {
   const { t } = useTranslation(handle.i18nNamespace);
   const { t: tGcweb } = useTranslation('gcweb');
-  const actionData = useActionData();
   const fetcher = useFetcher();
   const fetcherState = useFetcherState(fetcher);
   const isSubmitting = fetcherState.submitting;
