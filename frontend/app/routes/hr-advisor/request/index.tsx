@@ -1,20 +1,30 @@
-import { useEffect, useRef, useState } from 'react';
-
-import { useActionData, useFetcher, useLocation, useNavigate, useSearchParams } from 'react-router';
+import { useActionData, useFetcher } from 'react-router';
 import type { RouteHandle } from 'react-router';
 
+import { faEye } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useTranslation } from 'react-i18next';
 
 import type { Route } from './+types/index';
 
-import { AlertMessage } from '~/components/alert-message';
+import { getCityService } from '~/.server/domain/services/city-service';
+import { getDirectorateService } from '~/.server/domain/services/directorate-service';
+import { getEmploymentEquityService } from '~/.server/domain/services/employment-equity-service';
+import { getEmploymentTenureService } from '~/.server/domain/services/employment-tenure-service';
+import { getLanguageForCorrespondenceService } from '~/.server/domain/services/language-for-correspondence-service';
+import { getNonAdvertisedAppointmentService } from '~/.server/domain/services/non-advertised-appointment-service';
+import { getRequestService } from '~/.server/domain/services/request-service';
+import { getSelectionProcessTypeService } from '~/.server/domain/services/selection-process-type-service';
+import { getWorkScheduleService } from '~/.server/domain/services/work-schedule-service';
+import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { ButtonLink } from '~/components/button-link';
-import { ContextualAlert } from '~/components/contextual-alert';
 import { DescriptionList, DescriptionListItem } from '~/components/description-list';
+import { InlineLink } from '~/components/links';
 import { LoadingButton } from '~/components/loading-button';
 import { PageTitle } from '~/components/page-title';
 import { ProfileCard } from '~/components/profile-card';
 import { StatusTag } from '~/components/status-tag';
+import { PROFILE_STATUS_CODE, REQUEST_STATUSES } from '~/domain/constants';
 import { useFetcherState } from '~/hooks/use-fetcher-state';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
@@ -28,55 +38,82 @@ export function meta({ loaderData }: Route.MetaArgs) {
 }
 
 export async function loader({ context, request, params }: Route.LoaderArgs) {
+  requireAuthentication(context.session, request);
+
+  const requestResult = await getRequestService().getRequestById(
+    Number(params.requestId),
+    context.session.authState.accessToken,
+  );
+
+  const currentRequest = requestResult.into();
+
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
 
-  //TODO add loader logic
+  const [
+    allLocalizedCities,
+    allLocalizedProcessTypes,
+    allLocalizedAppointmentNonAdvertised,
+    allLocalizedTenures,
+    allLocalizedWorkSchedules,
+    allLocalizedEmploymentEquities,
+    allLocalizedDirectorates,
+    allLocalizedPreferredLanguage,
+  ] = await Promise.all([
+    getCityService().listAllLocalized(lang),
+    getSelectionProcessTypeService().listAllLocalized(lang),
+    getNonAdvertisedAppointmentService().listAllLocalized(lang),
+    getEmploymentTenureService().listAllLocalized(lang),
+    getWorkScheduleService().listAllLocalized(lang),
+    getEmploymentEquityService().listAllLocalized(lang),
+    getDirectorateService().listAllLocalized(lang),
+    getLanguageForCorrespondenceService().listAllLocalized(lang),
+  ]);
+
+  const cities = currentRequest?.cities?.map((city) => allLocalizedCities.find((c) => c.id === city.id)).filter(Boolean);
+  const employmentEquities = currentRequest?.employmentEquities
+    ?.map((eq) => allLocalizedEmploymentEquities.find((e) => e.code === eq.code))
+    .filter(Boolean);
 
   return {
     documentTitle: t('app:hr-advisor-referral-requests.page-title'),
-    isProfileComplete: undefined,
-    isCompleteProcessInformation: undefined,
-    selectionProcessNumber: undefined,
-    workforceMgmtApprovalRecvd: undefined,
-    priorityEntitlement: undefined,
-    priorityEntitlementRationale: undefined,
-    selectionProcessType: undefined,
-    hasPerformedSameDuties: undefined,
-    appointmentNonAdvertised: undefined,
-    employmentTenure: undefined,
-    projectedStartDate: undefined,
-    projectedEndDate: undefined,
-    workSchedule: undefined,
-    equityNeeded: undefined,
-    employmentEquities: undefined,
-    isCompletePositionInformation: undefined,
-    isPositionNew: undefined,
-    positionNumber: undefined,
-    classification: undefined,
-    englishTitle: undefined,
-    frenchTitle: undefined,
-    cities: undefined,
-    languageRequirement: undefined,
-    englishLanguageProfile: undefined,
-    frenchLanguageProfile: undefined,
-    securityClearance: undefined,
-    isCompleteStatementOfMeritCriteriaInformaion: undefined,
-    isStatementOfMeritCriteriaNew: undefined,
-    englishStatementOfMerit: undefined,
-    frenchStatementOfMerit: undefined,
-    isCompleteSubmissionInformation: undefined,
-    submitter: undefined,
-    hiringManager: undefined,
-    subDelegatedManager: undefined,
-    directorate: undefined,
-    languageOfCorrespondence: undefined,
-    additionalComment: undefined,
-    status: undefined,
-    hrAdvisor: undefined,
-    priorityClearanceNumber: undefined,
-    pscClearanceNumber: undefined,
-    requestNumber: undefined,
-    hasRequestChanged: undefined,
+    requestNumber: currentRequest?.requestNumber,
+    requestDate: currentRequest?.createdDate,
+    hiringManager: currentRequest?.hiringManager,
+    hrAdvisor: currentRequest?.hrAdvisor,
+    selectionProcessNumber: currentRequest?.selectionProcessNumber,
+    workforceMgmtApprovalRecvd: currentRequest?.workforceMgmtApprovalRecvd?.toString(),
+    priorityEntitlement: currentRequest?.priorityEntitlement,
+    priorityEntitlementRationale: currentRequest?.priorityEntitlementRationale,
+    selectionProcessType: allLocalizedProcessTypes.find((s) => s.code === currentRequest?.selectionProcessType?.code),
+    hasPerformedSameDuties: currentRequest?.hasPerformedSameDuties,
+    appointmentNonAdvertised: allLocalizedAppointmentNonAdvertised.find(
+      (a) => a.code === currentRequest?.appointmentNonAdvertised?.code,
+    ),
+    employmentTenure: allLocalizedTenures.find((t) => t.code === currentRequest?.employmentTenure?.code),
+    projectedStartDate: currentRequest?.projectedStartDate,
+    projectedEndDate: currentRequest?.projectedEndDate,
+    workSchedule: allLocalizedWorkSchedules.find((w) => w.code === currentRequest?.workSchedule?.code),
+    equityNeeded: currentRequest?.equityNeeded,
+    employmentEquities: employmentEquities?.map((eq) => eq?.name).join(', '),
+    positionNumber: currentRequest?.positionNumber,
+    classification: currentRequest?.classification,
+    englishTitle: currentRequest?.englishTitle,
+    frenchTitle: currentRequest?.frenchTitle,
+    cities: cities?.map((city) => city?.provinceTerritory.name + ' - ' + city?.name),
+    languageRequirement: currentRequest?.languageRequirement,
+    englishLanguageProfile: currentRequest?.englishLanguageProfile,
+    frenchLanguageProfile: currentRequest?.frenchLanguageProfile,
+    securityClearance: currentRequest?.securityClearance,
+    englishStatementOfMerit: currentRequest?.englishStatementOfMerit,
+    frenchStatementOfMerit: currentRequest?.frenchStatementOfMerit,
+    submitter: currentRequest?.submitter,
+    subDelegatedManager: currentRequest?.subDelegatedManager,
+    directorate: allLocalizedDirectorates.find((c) => c.code === currentRequest?.workUnit?.code),
+    languageOfCorrespondence: allLocalizedPreferredLanguage.find(
+      (p) => p.code === currentRequest?.languageOfCorrespondence?.code,
+    ),
+    additionalComment: currentRequest?.additionalComment,
+    status: currentRequest?.status,
     lang,
   };
 }
@@ -93,38 +130,27 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
   const fetcherState = useFetcherState(fetcher);
   const isSubmitting = fetcherState.submitting;
 
-  const formActionData = fetcher.data ?? actionData;
-
-  const alertRef = useRef<HTMLDivElement>(null);
-
-  if (formActionData && alertRef.current) {
-    alertRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    alertRef.current.focus();
-  }
-
-  const [searchParams] = useSearchParams();
-  const location = useLocation();
-  const navigate = useNavigate();
-
-  const [hasRequestChanged, setHasRequestChanged] = useState(loaderData.hasRequestChanged);
-
-  useEffect(() => {
-    if (searchParams.get('edited') === 'true') {
-      setHasRequestChanged(true);
-      const newUrl = location.pathname;
-      void navigate(newUrl, { replace: true });
+  function getStatus(status: typeof loaderData.status) {
+    switch (status?.id) {
+      case 1: //SUBMIT
+        return {
+          code: PROFILE_STATUS_CODE.pending,
+          name: t('app:hr-advisor-referral-requests.status.request-pending-approval'),
+        };
+      case 2: //HR_REVIEW
+        return {
+          code: PROFILE_STATUS_CODE.pending,
+          name: t('app:hr-advisor-referral-requests.status.assigned-hr-review'),
+        };
+      default:
+        return { code: PROFILE_STATUS_CODE.pending, name: 'undefined' };
     }
-  }, [searchParams, location.pathname, navigate]);
+  }
 
   return (
     <div className="space-y-8">
       <div className="space-y-4 py-8 text-white">
-        <StatusTag
-          status={{
-            code: 'REQUEST_PENDING_APPROVAL',
-            name: 'Request pending approval',
-          }}
-        />
+        <StatusTag status={getStatus(loaderData.status)} />
 
         <PageTitle>{t('app:hr-advisor-referral-requests.page-title')}</PageTitle>
 
@@ -148,14 +174,24 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
               className="mx-10 w-min whitespace-nowrap"
               term={t('app:hr-advisor-referral-requests.hiring-manager')}
             >
-              {loaderData.hiringManager ?? t('app:hr-advisor-referral-requests.not-provided')}
+              {loaderData.hiringManager ? (
+                <>
+                  {`${loaderData.hiringManager.firstName} ${loaderData.hiringManager.lastName}`}
+                  <br />
+                  {loaderData.hiringManager.businessEmailAddress}
+                </>
+              ) : (
+                t('app:hr-advisor-referral-requests.not-provided')
+              )}
             </DescriptionListItem>
 
             <DescriptionListItem
               className="ml-10 w-min whitespace-nowrap"
               term={t('app:hr-advisor-referral-requests.hr-advisor')}
             >
-              {loaderData.hrAdvisor ?? t('app:hr-advisor-referral-requests.not-provided')}
+              {loaderData.hrAdvisor
+                ? `${loaderData.hrAdvisor.firstName} ${loaderData.hrAdvisor.lastName}`
+                : t('app:hr-advisor-referral-requests.not-provided')}
             </DescriptionListItem>
           </DescriptionList>
         </div>
@@ -166,37 +202,12 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
         />
       </div>
 
-      {formActionData && (
-        <AlertMessage
-          ref={alertRef}
-          type={loaderData.isProfileComplete ? 'success' : 'error'}
-          message={loaderData.isProfileComplete ? t('app:profile.profile-submitted') : t('app:profile.profile-incomplete')}
-          role="alert"
-          ariaLive="assertive"
-        />
-      )}
-
-      {hasRequestChanged && (
-        <AlertMessage
-          ref={alertRef}
-          type="info"
-          message={t('app:profile.profile-pending-approval')}
-          role="status"
-          ariaLive="polite"
-        />
-      )}
-
       <div className="mt-20 w-full">
         <h2 className="font-lato mt-4 text-xl font-bold">{t('app:hr-advisor-referral-requests.request-details')}</h2>
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div className="mt-8 max-w-prose space-y-10">
-            <ProfileCard
-              title={t('app:hr-advisor-referral-requests.process-information')}
-              isComplete={loaderData.isCompleteProcessInformation}
-              params={params}
-              errorState={formActionData?.processComplete === false}
-            >
+            <ProfileCard title={t('app:hr-advisor-referral-requests.process-information')} params={params}>
               <DescriptionList>
                 <DescriptionListItem term={t('app:process-information.selection-process-number')}>
                   {loaderData.selectionProcessNumber ?? t('app:hr-advisor-referral-requests.not-provided')}
@@ -220,6 +231,10 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
 
                 <DescriptionListItem term={t('app:process-information.performed-duties')}>
                   {loaderData.hasPerformedSameDuties ?? t('app:hr-advisor-referral-requests.not-provided')}
+                </DescriptionListItem>
+
+                <DescriptionListItem term={t('app:process-information.non-advertised-appointment')}>
+                  {loaderData.appointmentNonAdvertised?.name ?? t('app:hr-advisor-referral-requests.not-provided')}
                 </DescriptionListItem>
 
                 <DescriptionListItem term={t('app:process-information.employment-tenure')}>
@@ -248,12 +263,7 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
               </DescriptionList>
             </ProfileCard>
 
-            <ProfileCard
-              title={t('app:hr-advisor-referral-requests.position-information')}
-              isComplete={loaderData.isCompletePositionInformation}
-              params={params}
-              errorState={formActionData?.positionComplete === false}
-            >
+            <ProfileCard title={t('app:hr-advisor-referral-requests.position-information')} params={params}>
               <DescriptionList>
                 <DescriptionListItem term={t('app:position-information.position-number')}>
                   {loaderData.positionNumber ?? t('app:hr-advisor-referral-requests.not-provided')}
@@ -272,11 +282,13 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
                 </DescriptionListItem>
 
                 <DescriptionListItem term={t('app:position-information.locations')}>
-                  {loaderData.locations ?? t('app:hr-advisor-referral-requests.not-provided')}
+                  {loaderData.cities === undefined
+                    ? t('app:hiring-manager-referral-requests.not-provided')
+                    : loaderData.cities.length > 0 && loaderData.cities.join(', ')}
                 </DescriptionListItem>
 
                 <DescriptionListItem term={t('app:position-information.language-requirement')}>
-                  {loaderData.languageRequirement ?? t('app:hr-advisor-referral-requests.not-provided')}
+                  {loaderData.languageRequirement?.code ?? t('app:hr-advisor-referral-requests.not-provided')}
                 </DescriptionListItem>
 
                 <DescriptionListItem term={t('app:position-information.language-profile')}>
@@ -291,52 +303,55 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
               </DescriptionList>
             </ProfileCard>
 
-            <ProfileCard
-              title={t('app:hr-advisor-referral-requests.somc-conditions')}
-              isComplete={loaderData.isCompleteStatementOfMeritCriteriaInformaion}
-              isNew={loaderData.isStatementOfMeritCriteriaNew}
-              params={params}
-              errorState={formActionData?.statementOfMeritCriteriaComplete === false}
-            >
-              {loaderData.isStatementOfMeritCriteriaNew ? (
-                <>{t('app:hr-advisor-referral-requests.somc-intro')}</>
-              ) : (
-                <DescriptionList>
-                  <DescriptionListItem term={t('app:somc-conditions.english-somc-label')}>
-                    {loaderData.englishStatementOfMerit ?? t('app:hr-advisor-referral-requests.not-provided')}
-                  </DescriptionListItem>
-
-                  <DescriptionListItem term={t('app:somc-conditions.french-somc-label')}>
-                    {loaderData.frenchStatementOfMerit ?? t('app:hr-advisor-referral-requests.not-provided')}
-                  </DescriptionListItem>
-                </DescriptionList>
-              )}
+            <ProfileCard title={t('app:hr-advisor-referral-requests.somc-conditions')} params={params}>
+              <span className="flex items-center gap-x-2">
+                <FontAwesomeIcon icon={faEye} />
+                <InlineLink className="font-semibold" file="routes/hr-advisor/request/somc-conditions.tsx" params={params}>
+                  {t('app:hr-advisor-referral-requests.somc-conditions-link')}
+                </InlineLink>
+              </span>
             </ProfileCard>
 
-            <ProfileCard
-              title={t('app:hr-advisor-referral-requests.submission-details')}
-              isComplete={loaderData.isCompleteSubmissionInformation}
-              params={params}
-              errorState={formActionData?.submissionComplete === false}
-            >
+            <ProfileCard title={t('app:hr-advisor-referral-requests.submission-details')} params={params}>
               <DescriptionList>
                 <DescriptionListItem term={t('app:submission-details.submiter-title')}>
-                  {(loaderData.submitter?.firstName, loaderData.submitter?.lastName) ??
-                    t('app:hr-advisor-referral-requests.not-provided')}
+                  {loaderData.submitter ? (
+                    <>
+                      {`${loaderData.submitter.firstName} ${loaderData.submitter.lastName}`}
+                      <br />
+                      {loaderData.submitter.businessEmailAddress}
+                    </>
+                  ) : (
+                    t('app:hr-advisor-referral-requests.not-provided')
+                  )}
                 </DescriptionListItem>
 
                 <DescriptionListItem term={t('app:submission-details.hiring-manager-title')}>
-                  {(loaderData.hiringManager?.firstName, loaderData.hiringManager?.lastName) ??
-                    t('app:hr-advisor-referral-requests.not-provided')}
+                  {loaderData.hiringManager ? (
+                    <>
+                      {`${loaderData.hiringManager.firstName} ${loaderData.hiringManager.lastName}`}
+                      <br />
+                      {loaderData.hiringManager.businessEmailAddress}
+                    </>
+                  ) : (
+                    t('app:hr-advisor-referral-requests.not-provided')
+                  )}
                 </DescriptionListItem>
 
                 <DescriptionListItem term={t('app:submission-details.sub-delegate-title')}>
-                  {(loaderData.subDelegatedManager?.firstName, loaderData.subDelegatedManager?.lastName) ??
-                    t('app:hr-advisor-referral-requests.not-provided')}
+                  {loaderData.subDelegatedManager ? (
+                    <>
+                      {`${loaderData.subDelegatedManager.firstName} ${loaderData.subDelegatedManager.lastName}`}
+                      <br />
+                      {loaderData.subDelegatedManager.businessEmailAddress}
+                    </>
+                  ) : (
+                    t('app:hr-advisor-referral-requests.not-provided')
+                  )}
                 </DescriptionListItem>
 
                 <DescriptionListItem term={t('app:submission-details.directorate')}>
-                  {loaderData.directorate ?? t('app:hr-advisor-referral-requests.not-provided')}
+                  {loaderData.directorate?.code ?? t('app:hr-advisor-referral-requests.not-provided')}
                 </DescriptionListItem>
 
                 <DescriptionListItem term={t('app:submission-details.preferred-language-of-correspondence')}>
@@ -353,7 +368,7 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
           <div className="mt-8 max-w-prose">
             <div className="flex justify-center">
               <fetcher.Form className="mt-6 md:mt-auto" method="post" noValidate>
-                {loaderData.isStatementOfMeritCriteriaNew ? (
+                {loaderData.status?.code === REQUEST_STATUSES[1].code ? (
                   <LoadingButton
                     className="mt-4 w-full"
                     name="action"
@@ -367,7 +382,7 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
                 ) : (
                   <>
                     <ButtonLink
-                      className="w-full"
+                      className="mt-4 w-full"
                       variant="alternative"
                       file="routes/hr-advisor/index.tsx"
                       id="cancel"
