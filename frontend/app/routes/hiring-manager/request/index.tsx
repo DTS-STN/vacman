@@ -557,10 +557,15 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
       <div className="mt-20 w-full">
         <ContextualAlert type={'info'} role="status" ariaLive="polite" textSmall={false}>
           <div className="text-black-800 pl-1 text-base">
-            <p>{t('app:hiring-manager-referral-requests.page-info-1')}</p>
-            <p className="mt-2">{t('app:hiring-manager-referral-requests.page-info-2')}</p>
-            <p className="mt-2">{t('app:hiring-manager-referral-requests.page-info-3')}</p>
-            <p className="mt-2">{t('app:hiring-manager-referral-requests.page-info-4')}</p>
+            <p>{t('app:hiring-manager-referral-requests.notice-line-1')}</p>
+            <ul className='list-disc pl-7 my-3'>
+              <li className="mtx-2">{t('app:hiring-manager-referral-requests.notice-line-2')}</li>
+              <li className="mtx-2">{t('app:hiring-manager-referral-requests.notice-line-3')}</li>
+              <li className="mtx-2">{t('app:hiring-manager-referral-requests.notice-line-4')}</li>
+              <li className="mtx-2">{t('app:hiring-manager-referral-requests.notice-line-5')}</li>
+            </ul>
+            <p className="mt-2">{t('app:hiring-manager-referral-requests.notice-line-6')}</p>
+            <p className="mt-2">{t('app:hiring-manager-referral-requests.notice-line-7')}</p>
           </div>
         </ContextualAlert>
 
@@ -597,7 +602,7 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
                 <>{t('app:hiring-manager-referral-requests.process-intro')}</>
               ) : (
                 <DescriptionList>
-                  <DescriptionListItem term={t('app:process-information.selection-process-number')}>
+                  <DescriptionListItem term={t('app:hiring-manager-referral-requests.selection-process-number')}>
                     {loaderData.selectionProcessNumber ?? t('app:hiring-manager-referral-requests.not-provided')}
                   </DescriptionListItem>
 
