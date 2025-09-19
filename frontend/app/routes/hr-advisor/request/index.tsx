@@ -24,7 +24,7 @@ import { LoadingButton } from '~/components/loading-button';
 import { PageTitle } from '~/components/page-title';
 import { ProfileCard } from '~/components/profile-card';
 import { StatusTag } from '~/components/status-tag';
-import { PROFILE_STATUS_CODE, REQUEST_STATUSES } from '~/domain/constants';
+import { PROFILE_STATUS, REQUEST_STATUSES } from '~/domain/constants';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { useFetcherState } from '~/hooks/use-fetcher-state';
 import { getTranslation } from '~/i18n-config.server';
@@ -136,16 +136,16 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
     switch (status?.id) {
       case 1: //SUBMIT
         return {
-          code: PROFILE_STATUS_CODE.pending,
+          code: PROFILE_STATUS.PENDING.code,
           name: t('app:hr-advisor-referral-requests.status.request-pending-approval'),
         };
       case 2: //HR_REVIEW
         return {
-          code: PROFILE_STATUS_CODE.pending,
+          code: PROFILE_STATUS.PENDING.code,
           name: t('app:hr-advisor-referral-requests.status.assigned-hr-review'),
         };
       default:
-        return { code: PROFILE_STATUS_CODE.pending, name: 'undefined' };
+        return { code: PROFILE_STATUS.PENDING.code, name: 'undefined' };
     }
   }
 
