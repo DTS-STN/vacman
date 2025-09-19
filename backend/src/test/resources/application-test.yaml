@@ -3,6 +3,10 @@
 # Application configuration for tests
 #
 #######################################################################################################################
+spring:
+  liquibase:
+    contexts: dev
+
 application:
   gcnotify:
     base-url: https://api.example.com/v2/notifications
