@@ -79,9 +79,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     throw updateResult.unwrapErr();
   }
 
-  return i18nRedirect('routes/hiring-manager/request/index.tsx', request, {
-    params: { requestId: requestData.id.toString() },
-  });
+  return i18nRedirect('routes/hiring-manager/request/index.tsx', request, { params });
 }
 
 export async function loader({ context, request, params }: Route.LoaderArgs) {
