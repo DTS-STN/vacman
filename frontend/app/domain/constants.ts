@@ -201,13 +201,10 @@ export const REQUEST_STATUSES = [
 ] as const;
 
 type StatusCode = (typeof REQUEST_STATUSES)[number]['code'];
-export const REQUEST_STATUS_CODE: Record<StatusCode, StatusCode> = REQUEST_STATUSES.reduce(
-  (statusCodes, status) => {
-    statusCodes[status.code] = status.code;
-    return statusCodes;
-  },
-  {} as Record<StatusCode, StatusCode>,
-);
+// prettier-ignore
+export const REQUEST_STATUS_CODE = Object.fromEntries(
+  REQUEST_STATUSES.map((status) => [status.code, status.code])
+) as Record<StatusCode,StatusCode>;
 
 export const EMPLOYMENT_TENURE = {
   term: 'TERM',
