@@ -179,7 +179,7 @@ export function DataTableColumnHeaderWithOptions<TData, TValue>({
   onSelectionChange,
 }: DataTableColumnHeaderWithOptionsProps<TData, TValue>) {
   // Prefer controlled selection when provided; fall back to column filter state
-  const selected = (controlledSelected ?? (column.getFilterValue() as string[] | undefined)) as string[] | undefined;
+  const selected = controlledSelected ?? column.getFilterValue();
 
   const toggleOption = (value: string) => {
     let next: string[];
