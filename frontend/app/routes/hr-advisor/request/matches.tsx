@@ -60,8 +60,11 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       },
       wfaStatus: 2,
       feedback: 1,
-      comment: 'Interested in remote work.',
-      approval: 'Approved',
+      comment: {
+        hrAdvisor: undefined,
+        hiringManager: 'Interested in remote work.',
+      },
+      approval: false,
     },
     {
       id: 4,
@@ -72,8 +75,11 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       },
       wfaStatus: 2,
       feedback: 0,
-      comment: 'Interested in remote work.',
-      approval: 'Approved',
+      comment: {
+        hrAdvisor: 'Interested in remote work.',
+        hiringManager: undefined,
+      },
+      approval: false,
     },
     {
       id: 5,
@@ -84,8 +90,11 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       },
       wfaStatus: 1,
       feedback: 1,
-      comment: 'Interested in remote work.',
-      approval: 'Approved',
+      comment: {
+        hrAdvisor: 'Interested in remote work.',
+        hiringManager: undefined,
+      },
+      approval: true,
     },
   ];
 

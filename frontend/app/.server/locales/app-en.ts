@@ -465,6 +465,14 @@ export default {
       'edit': 'Edit Comment',
       'edit-add': 'Edit/add Comment',
     },
+    'comment-popup': {
+      'hiring-manager': 'Hiring manager comments',
+      'hr-advisor': 'HR advisor comments',
+    },
+    'approval-popup': {
+      'approved': 'Approved',
+      'approve-feedback': 'Approve feedback?',
+    },
     'no-candidates': "You don't have any candidates at the moment.",
     'next-page': 'Next',
   },

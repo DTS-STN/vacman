@@ -474,6 +474,14 @@ export default {
       'edit': 'Modifier le commentaire',
       'edit-add': 'Modifier/ajouter un commentaire',
     },
+    'comment-popup': {
+      'hiring-manager': "Commentaires du (de la) gestionnaire d'embauche",
+      'hr-advisor': 'Commentaires du (de la) conseiller(ère) RH',
+    },
+    'approval-popup': {
+      'approved': 'Approuvé',
+      'approve-feedback': 'Approuver la rétroaction?',
+    },
     'no-candidates': "Vous n'avez aucun candidat pour le moment.",
     'next-page': 'Suivant',
   },
