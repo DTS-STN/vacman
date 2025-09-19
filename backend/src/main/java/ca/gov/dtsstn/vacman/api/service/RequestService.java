@@ -4,8 +4,10 @@ import static ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException.a
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
+import org.springframework.util.StringUtils;
 import org.mapstruct.factory.Mappers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -457,22 +459,16 @@ public class RequestService {
 	}
 
 	private List<String> getEmployeeEmails(UserEntity owner) {
-		List<String> emails = new ArrayList<>();
+		final var businessEmail = Optional.ofNullable(owner.getBusinessEmailAddress())
+			.filter(StringUtils::hasText);
 
-		Optional.ofNullable(owner.getBusinessEmailAddress())
-			.filter(email -> !email.isBlank())
-			.ifPresent(emails::add);
-
-		Optional.ofNullable(owner.getProfiles())
-			.stream()
-			.flatMap(Collection::stream)
+		final var personalEmail = owner.getProfiles().stream()
 			.map(ProfileEntity::getPersonalEmailAddress)
-			.filter(Objects::nonNull)
-			.filter(email -> !email.isBlank())
-			.findFirst()
-			.ifPresent(emails::add);
+			.filter(StringUtils::hasText).findFirst();
 
-		return emails;
+		return Stream.of(businessEmail, personalEmail)
+			.filter(Optional::isPresent)
+			.map(Optional::get).toList();
 	}
 
 }
