@@ -288,6 +288,7 @@ export default {
   'hiring-manager-referral-requests': {
     'page-title': 'Referral requests',
     'request-details': 'Request details',
+    'request-completion-progress': 'Request completion progress',
     'page-description':
       'Complete all sections detailing the process, position, and required qualifications and submit for approval.',
     'process-information': 'Process information',

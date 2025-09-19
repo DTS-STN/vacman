@@ -480,7 +480,11 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
 
         {loaderData.status?.code !== REQUEST_STATUS_CODE.SUBMIT && (
           <div className="mt-4">
-            <Progress className="color-[#2572B4] mt-8 mb-8" label="" value={loaderData.amountCompleted} />
+            <Progress
+              className="color-[#2572B4] mt-8 mb-8"
+              label={t('app:hiring-manager-referral-requests.request-completion-progress')}
+              value={loaderData.amountCompleted}
+            />
           </div>
         )}
 
