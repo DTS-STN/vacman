@@ -213,7 +213,9 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
 
   // Selected status codes for the DataTable header control
   const selectedStatusCodes = useMemo(
-    () => selectedStatusIds.map((id: number) => statusCodeById.get(id)).filter(Boolean) as string[],
+    () => selectedStatusIds
+      .map((id: number) => statusCodeById.get(id))
+      .filter((code): code is string => code !== undefined),
     [selectedStatusIds, statusCodeById],
   );
 
