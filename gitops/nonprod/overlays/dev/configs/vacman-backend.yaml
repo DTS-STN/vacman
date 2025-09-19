@@ -25,3 +25,6 @@ application:
     profile-approved-template-id: 00000000-0000-0000-0000-000000000000
     profile-created-template-id: 00000000-0000-0000-0000-000000000000
     profile-updated-template-id: 00000000-0000-0000-0000-000000000000
+    #profile-approved-template-id: ba6ff621-5b4b-4f5b-8509-387b63d3ddf4
+    #profile-created-template-id: 9a62f432-c590-44e2-89c5-6d4d697a2524
+    #profile-updated-template-id: ac981e25-2bb1-4d60-9d78-d4efaad754ff
