@@ -19,7 +19,7 @@ import { createAndLinkNewMockProfile, mockProfiles } from '~/.server/domain/serv
 import type { ProfileService } from '~/.server/domain/services/profile-service';
 import { getWFAStatuses } from '~/.server/domain/services/wfa-status-service';
 import { LogFactory } from '~/.server/logging';
-import { PROFILE_STATUS_CODE } from '~/domain/constants';
+import { PROFILE_STATUS } from '~/domain/constants';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
@@ -42,17 +42,17 @@ export function getMockProfileService(): ProfileService {
 
       // Apply active filter
       if (params.active !== undefined) {
-        const activeStatuses = [PROFILE_STATUS_CODE.pending, PROFILE_STATUS_CODE.approved, PROFILE_STATUS_CODE.incomplete];
-        const inactiveStatuses = [PROFILE_STATUS_CODE.archived];
+        const activeStatuses = [PROFILE_STATUS.PENDING, PROFILE_STATUS.APPROVED, PROFILE_STATUS.INCOMPLETE];
+        const inactiveStatuses = [PROFILE_STATUS.ARCHIVED];
 
         if (params.active === true) {
           filteredProfiles = filteredProfiles.filter(
-            (p) => p.profileStatus && activeStatuses.some((code) => code === p.profileStatus?.code),
+            (p) => p.profileStatus && activeStatuses.some(({ code }) => code === p.profileStatus?.code),
           );
           log.debug(`Applied active filter (true): ${filteredProfiles.length} profiles remaining`);
         } else {
           filteredProfiles = filteredProfiles.filter(
-            (p) => p.profileStatus && inactiveStatuses.some((code) => code === p.profileStatus?.code),
+            (p) => p.profileStatus && inactiveStatuses.some(({ code }) => code === p.profileStatus?.code),
           );
           log.debug(`Applied active filter (false): ${filteredProfiles.length} profiles remaining`);
         }
@@ -131,11 +131,11 @@ export function getMockProfileService(): ProfileService {
       // Apply active filter
       if (params.active !== undefined) {
         const activeStatuses = [
-          PROFILE_STATUS_CODE.incomplete,
-          PROFILE_STATUS_CODE.approved,
-          PROFILE_STATUS_CODE.pending,
+          PROFILE_STATUS.INCOMPLETE.code,
+          PROFILE_STATUS.APPROVED.code,
+          PROFILE_STATUS.PENDING.code,
         ] as string[];
-        const inactiveStatuses = [PROFILE_STATUS_CODE.archived] as string[];
+        const inactiveStatuses = [PROFILE_STATUS.ARCHIVED.code] as string[];
 
         if (params.active === true) {
           userProfiles = userProfiles.filter((p) => p.profileStatus && activeStatuses.includes(p.profileStatus.code));
