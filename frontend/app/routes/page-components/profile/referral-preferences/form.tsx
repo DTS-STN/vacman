@@ -213,7 +213,7 @@ export function ReferralPreferencesForm({
               <InputLegend id="workLocationLegend" required>
                 {tApp('referral-preferences.work-location')}
               </InputLegend>
-              <InputHelp id="workLocationHelpMessage">{tApp('form.select-work-locations')}</InputHelp>
+              <InputHelp id="workLocationHelpMessage">{tApp('referral-preferences.select-work-locations')}</InputHelp>
               <Button variant="primary" onClick={handleSelectAllCities}>
                 {tApp('referral-preferences.select-all')}
               </Button>

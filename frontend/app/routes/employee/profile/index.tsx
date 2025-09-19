@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 
 import type { Route } from '../profile/+types/index';
 
+import type { LocalizedCity } from '~/.server/domain/models';
 import { getCityService } from '~/.server/domain/services/city-service';
 import { getClassificationService } from '~/.server/domain/services/classification-service';
 import { getDirectorateService } from '~/.server/domain/services/directorate-service';
@@ -170,7 +171,6 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const classifications = profileData.preferredClassifications
     ?.map((classification) => allClassifications.find((c) => c.id === classification.id))
     .filter(Boolean);
-  const cities = profileData.preferredCities?.map((city) => allLocalizedCities.find((c) => c.id === city.id)).filter(Boolean);
 
   // Check each section if the required fields are complete
   const personalInformationData = {
@@ -220,6 +220,60 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const profileTotalFields = personalInformationTotalFields + employmentInformationTotalFields + referralPreferencesTotalFields;
   const amountCompleted = (profileCompleted / profileTotalFields) * 100;
 
+  // Display Canada wide or province wide or list of cities on referral preferences section
+
+  const allProvinceIds = Array.from(new Set(allLocalizedCities.map((city) => city.provinceTerritory.id)));
+
+  const preferredCityIds = new Set(profileData.preferredCities?.map((city) => city.id) ?? []);
+  const provinceToCitiesMap = new Map<number, LocalizedCity[]>();
+
+  // Group all cities by province
+  for (const city of allLocalizedCities) {
+    const provinceId = city.provinceTerritory.id;
+    if (!provinceToCitiesMap.has(provinceId)) {
+      provinceToCitiesMap.set(provinceId, []);
+    }
+    provinceToCitiesMap.get(provinceId)?.push(city);
+  }
+
+  // Determine which provinces are fully selected
+  const fullySelectedProvinces: string[] = [];
+  const partiallySelectedCities: { province: string; city: string }[] = [];
+
+  for (const [, cities] of provinceToCitiesMap.entries()) {
+    const selectedCities = cities.filter((city) => preferredCityIds.has(city.id));
+    if (selectedCities.length === cities.length) {
+      // All cities in this province are selected
+      const provinceName = cities[0]?.provinceTerritory.name;
+      if (provinceName) {
+        fullySelectedProvinces.push(provinceName);
+      }
+    } else if (selectedCities.length > 0) {
+      // Some cities in this province are selected
+      for (const city of selectedCities) {
+        partiallySelectedCities.push({
+          province: city.provinceTerritory.name,
+          city: city.name,
+        });
+      }
+    }
+  }
+
+  let locationScope: 'anywhere-in-country' | 'anywhere-in-provinces' | 'specific-cities' | 'not-provided';
+  let provinceNames: string[] = [];
+
+  if (preferredCityIds.size === 0) {
+    locationScope = 'not-provided';
+  } else if (fullySelectedProvinces.length === allProvinceIds.length) {
+    locationScope = 'anywhere-in-country';
+  } else if (fullySelectedProvinces.length > 0 && partiallySelectedCities.length === 0) {
+    locationScope = 'anywhere-in-provinces';
+    provinceNames = fullySelectedProvinces;
+  } else {
+    locationScope = 'specific-cities';
+    provinceNames = fullySelectedProvinces;
+  }
+
   return {
     documentTitle: t('app:profile.page-title'),
     name: `${currentUser.firstName ?? ''} ${currentUser.lastName ?? ''}`.trim() || 'Unknown User',
@@ -258,10 +312,9 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       isNew: countReferralPreferencesCompleted(referralPreferencesFields) === 0,
       preferredLanguages: languageReferralTypes?.map((l) => l?.name),
       preferredClassifications: classifications?.map((c) => c?.name),
-      preferredCities: cities?.map((city) => ({
-        province: city?.provinceTerritory.name,
-        city: city?.name,
-      })),
+      preferredCities: partiallySelectedCities,
+      locationScope,
+      provinceNames,
       isAvailableForReferral: profileData.isAvailableForReferral,
       isInterestedInAlternation: profileData.isInterestedInAlternation,
     },
@@ -528,9 +581,28 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
                     loaderData.referralPreferences.preferredClassifications.join(', ')}
               </DescriptionListItem>
               <DescriptionListItem term={t('app:referral-preferences.work-location')}>
-                {loaderData.referralPreferences.preferredCities === undefined
-                  ? t('app:profile.not-provided')
-                  : loaderData.referralPreferences.preferredCities.length > 0 && (
+                {loaderData.referralPreferences.locationScope === 'not-provided' && <p>{t('app:profile.not-provided')}</p>}
+
+                {loaderData.referralPreferences.locationScope === 'anywhere-in-country' && <p>{t('app:anywhere-in-canada')}</p>}
+
+                {loaderData.referralPreferences.locationScope === 'anywhere-in-provinces' && (
+                  <p>
+                    {t('app:anywhere-in-provinces', {
+                      provinceNames: loaderData.referralPreferences.provinceNames.join(', '),
+                    })}
+                  </p>
+                )}
+
+                {loaderData.referralPreferences.locationScope === 'specific-cities' &&
+                  loaderData.referralPreferences.preferredCities.length > 0 && (
+                    <>
+                      {loaderData.referralPreferences.provinceNames.length > 0 && (
+                        <p>
+                          {t('app:anywhere-in-provinces', {
+                            provinceNames: loaderData.referralPreferences.provinceNames.join(', '),
+                          })}
+                        </p>
+                      )}
                       <div>
                         {/* Group cities by province */}
                         {Object.entries(
@@ -549,7 +621,8 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
                           </div>
                         ))}
                       </div>
-                    )}
+                    </>
+                  )}
               </DescriptionListItem>
               <DescriptionListItem term={t('app:referral-preferences.referral-availibility')}>
                 {loaderData.referralPreferences.isAvailableForReferral === undefined
