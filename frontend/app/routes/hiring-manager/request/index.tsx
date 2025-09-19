@@ -14,6 +14,7 @@ import { getEmploymentTenureService } from '~/.server/domain/services/employment
 import { getLanguageForCorrespondenceService } from '~/.server/domain/services/language-for-correspondence-service';
 import { getNonAdvertisedAppointmentService } from '~/.server/domain/services/non-advertised-appointment-service';
 import { getRequestService } from '~/.server/domain/services/request-service';
+import { getRequestStatusService } from '~/.server/domain/services/request-status-service';
 import { getSelectionProcessTypeService } from '~/.server/domain/services/selection-process-type-service';
 import { getWorkScheduleService } from '~/.server/domain/services/work-schedule-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
@@ -27,8 +28,13 @@ import { PageTitle } from '~/components/page-title';
 import { ProfileCard } from '~/components/profile-card';
 import { Progress } from '~/components/progress';
 import { StatusTag } from '~/components/status-tag';
-import { EMPLOYMENT_TENURE, LANGUAGE_REQUIREMENT_CODES, REQUEST_EVENT_TYPE, SELECTION_PROCESS_TYPE } from '~/domain/constants';
-//import { PROFILE_STATUS_CODE, EMPLOYEE_WFA_STATUS } from '~/domain/constants';
+import {
+  EMPLOYMENT_TENURE,
+  LANGUAGE_REQUIREMENT_CODES,
+  REQUEST_EVENT_TYPE,
+  REQUEST_STATUS_CODE,
+  SELECTION_PROCESS_TYPE,
+} from '~/domain/constants';
 import { useFetcherState } from '~/hooks/use-fetcher-state';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
@@ -44,7 +50,6 @@ export function meta({ loaderData }: Route.MetaArgs) {
 export async function action({ context, params, request }: Route.ActionArgs) {
   requireAuthentication(context.session, request);
 
-  // TODO review data and formatting
   const requestData = await getRequestService().getRequestById(Number(params.requestId), context.session.authState.accessToken);
   const currentRequest = requestData.into();
 
@@ -53,16 +58,28 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     selectionProcessNumber: currentRequest?.selectionProcessNumber,
     workforceMgmtApprovalRecvd: currentRequest?.workforceMgmtApprovalRecvd,
     priorityEntitlement: currentRequest?.priorityEntitlement,
-    priorityEntitlementRationale: currentRequest?.priorityEntitlementRationale,
-    selectionProcessType: currentRequest?.selectionProcessType,
-    hasPerformedSameDuties: currentRequest?.hasPerformedSameDuties,
-    appointmentNonAdvertised: currentRequest?.appointmentNonAdvertised,
-    employmentTenure: currentRequest?.employmentTenure,
-    projectedStartDate: currentRequest?.projectedStartDate,
-    projectedEndDate: currentRequest?.projectedEndDate,
-    workSchedule: currentRequest?.workSchedule,
-    equityNeeded: currentRequest?.equityNeeded,
-    employmentEquities: currentRequest?.employmentEquities,
+    ...(currentRequest?.priorityEntitlement
+      ? {
+          priorityEntitlementRationale: currentRequest.priorityEntitlementRationale,
+        }
+      : {}),
+    ...(currentRequest?.selectionProcessType?.id === SELECTION_PROCESS_TYPE.externalNonAdvertised
+      ? {
+          hasPerformedSameDuties: currentRequest.hasPerformedSameDuties,
+          appointmentNonAdvertised: currentRequest.appointmentNonAdvertised,
+        }
+      : {}),
+    ...(currentRequest?.employmentTenure?.code === EMPLOYMENT_TENURE.term
+      ? {
+          projectedStartDate: currentRequest.projectedStartDate,
+          projectedEndDate: currentRequest.projectedEndDate,
+        }
+      : {}),
+    ...(currentRequest?.equityNeeded === true
+      ? {
+          employmentEquities: currentRequest.employmentEquities,
+        }
+      : {}),
   };
 
   const languageProficiencyRequired =
@@ -119,7 +136,6 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     };
   }
 
-  // If all complete, submit for review  TODO review
   const submitResult = await getRequestService().updateRequestStatus(
     Number(params.requestId),
     REQUEST_EVENT_TYPE.submitted,
@@ -137,7 +153,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 
   return {
     status: 'submitted',
-    profileStatus: submitResult.unwrap(),
+    requestStatus: submitResult.unwrap(),
   };
 }
 
@@ -164,6 +180,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     allLocalizedEmploymentEquities,
     allLocalizedDirectorates,
     allLocalizedPreferredLanguage,
+    allLocalizedRequestStatus,
   ] = await Promise.all([
     getCityService().listAllLocalized(lang),
     getSelectionProcessTypeService().listAllLocalized(lang),
@@ -173,6 +190,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     getEmploymentEquityService().listAllLocalized(lang),
     getDirectorateService().listAllLocalized(lang),
     getLanguageForCorrespondenceService().listAllLocalized(lang),
+    getRequestStatusService().listAllLocalized(lang),
   ]);
 
   // Process information from Request type
@@ -309,7 +327,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   return {
     documentTitle: t('app:hiring-manager-referral-requests.page-title'),
     amountCompleted: amountCompleted,
-    isProfileComplete:
+    isRequestComplete:
       isCompleteProcessInformation &&
       isCompletePositionInformation &&
       isCompleteStatementOfMeritCriteriaInformaion &&
@@ -356,7 +374,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       (p) => p.code === currentRequest?.languageOfCorrespondence?.code,
     ),
     additionalComment: currentRequest?.additionalComment,
-    status: currentRequest?.status,
+    status: allLocalizedRequestStatus.find((s) => s.code === currentRequest?.status?.code),
     hrAdvisor: currentRequest?.hrAdvisor,
     priorityClearanceNumber: currentRequest?.priorityClearanceNumber,
     pscClearanceNumber: currentRequest?.pscClearanceNumber,
@@ -397,23 +415,16 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
   return (
     <div className="space-y-8">
       <div className="space-y-4 py-8 text-white">
-        <StatusTag
-          status={{
-            code: 'DRAFT', // TODO review loaderData.status,
-            name: 'Draft', // TODO adapt code below
-            // name:
-            //   loaderData.status === REQUEST_STATUS_CODE.draft
-            //     ? t('app:hiring-manager.draft-status-request')
-            //     : loaderData.status.name,
-          }}
-        />
+        {loaderData.status && (
+          <StatusTag
+            status={{
+              code: loaderData.status.code,
+              name: loaderData.status.name,
+            }}
+          />
+        )}
 
         <PageTitle>{t('app:hiring-manager-referral-requests.page-title')}</PageTitle>
-
-        {/* TODO review */}
-        <p className="font-normal text-[#9FA3AD]">
-          {/* {t('app:profile.last-updated', { date: browserTZ, name: loaderData.lastUpdatedBy })} */}
-        </p>
 
         <div
           role="presentation"
@@ -421,12 +432,15 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
         />
       </div>
 
-      {/* TODO review alert messages below */}
       {fetcher.data && (
         <AlertMessage
           ref={alertRef}
-          type={loaderData.isProfileComplete ? 'success' : 'error'}
-          message={loaderData.isProfileComplete ? t('app:profile.profile-submitted') : t('app:profile.profile-incomplete')}
+          type={loaderData.isRequestComplete ? 'success' : 'error'}
+          message={
+            loaderData.isRequestComplete
+              ? t('app:hiring-manager-referral-requests.request-submitted')
+              : t('app:hiring-manager-referral-requests.request-incomplete')
+          }
           role="alert"
           ariaLive="assertive"
         />
@@ -458,8 +472,7 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
           {t('app:hiring-manager-referral-requests.page-description')}
         </div>
 
-        {/* {loaderData.status?.code === REQUEST.incomplete && (  TODO fix and delete lie below*/}
-        {loaderData.status?.code !== undefined && (
+        {loaderData.status?.code !== REQUEST_STATUS_CODE.SUBMIT && (
           <div className="mt-4">
             <Progress className="color-[#2572B4] mt-8 mb-8" label="" value={loaderData.amountCompleted} />
           </div>

@@ -9,39 +9,18 @@ interface StatusTagProps {
   };
 }
 
+const statusStyles: Record<string, string> = {
+  [PROFILE_STATUS_CODE.approved]: 'border-green-400 bg-green-100 text-green-800',
+  [PROFILE_STATUS_CODE.archived]: 'border-orange-400 bg-orange-100 text-orange-800',
+  [PROFILE_STATUS_CODE.incomplete]: 'border-blue-400 bg-blue-100 text-blue-800',
+  [PROFILE_STATUS_CODE.pending]: 'border-yellow-400 bg-yellow-100 text-yellow-800',
+  [REQUEST_STATUS_CODE.DRAFT]: 'border-yellow-400 bg-yellow-100 text-yellow-800',
+  [REQUEST_STATUS_CODE.SUBMIT]: 'border-blue-400 bg-blue-100 text-blue-800',
+  [REQUEST_STATUS_CODE.FDBK_PEND_APPR]:
+    'w-fit rounded-2xl border border-yellow-400 bg-yellow-100 px-3 py-0.5 text-sm font-semibold text-yellow-800',
+};
+
 export function StatusTag({ status }: StatusTagProps): JSX.Element {
-  switch (status.code) {
-    case PROFILE_STATUS_CODE.approved:
-      return (
-        <span className="w-fit rounded-2xl border border-green-400 bg-green-100 px-3 py-0.5 text-sm font-semibold text-green-800">
-          {status.name}
-        </span>
-      );
-    case PROFILE_STATUS_CODE.archived:
-      return (
-        <span className="w-fit rounded-2xl border border-orange-400 bg-orange-100 px-3 py-0.5 text-sm font-semibold text-orange-800">
-          {status.name}
-        </span>
-      );
-    case PROFILE_STATUS_CODE.incomplete:
-      return (
-        <span className="w-fit rounded-2xl border border-blue-400 bg-blue-100 px-3 py-0.5 text-sm font-semibold text-blue-800">
-          {status.name}
-        </span>
-      );
-    case PROFILE_STATUS_CODE.pending:
-      return (
-        <span className="w-fit rounded-2xl border border-yellow-400 bg-yellow-100 px-3 py-0.5 text-sm font-semibold text-yellow-800">
-          {status.name}
-        </span>
-      );
-    case REQUEST_STATUS_CODE.FDBK_PEND_APPR:
-      return (
-        <span className="w-fit rounded-2xl border border-yellow-400 bg-yellow-100 px-3 py-0.5 text-sm font-semibold text-yellow-800">
-          {status.name}
-        </span>
-      );
-    default:
-      return <></>;
-  }
+  const style = statusStyles[status.code];
+  return <span className={`w-fit rounded-2xl border px-3 py-0.5 text-sm font-semibold ${style}`}>{status.name}</span>;
 }

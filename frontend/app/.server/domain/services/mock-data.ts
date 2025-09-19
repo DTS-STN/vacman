@@ -394,10 +394,10 @@ export const mockRequests: RequestReadModel[] = [
     englishStatementOfMerit: 'English statement of merit criteria',
     frenchStatementOfMerit: 'Critères de mérite en français',
     status: {
-      id: 1,
-      code: 'SUBMIT',
-      nameEn: 'Request Submitted',
-      nameFr: 'Demande soumise',
+      id: 0,
+      code: 'DRAFT',
+      nameEn: 'Draft',
+      nameFr: 'Ébauche',
     },
     workUnit: undefined,
     submitter: mockUsers[0], // John Doe
