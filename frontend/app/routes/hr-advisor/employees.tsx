@@ -108,7 +108,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
   // Shared default selection for statuses (kept in sync with client UI)
   const DEFAULT_STATUS_IDS = [PROFILE_STATUS_APPROVED.id, PROFILE_STATUS_PENDING.id] as const;
   // Compute desired statusIds, defaulting to Approved + Pending Approval
-  const defaultStatusIds = DEFAULT_STATUS_IDS as unknown as number[];
+  const defaultStatusIds = [...DEFAULT_STATUS_IDS];
   const statusIdsFromQuery = (statusIdsParam ?? '')
     .split(',')
     .map((s) => Number.parseInt(s.trim(), 10))
