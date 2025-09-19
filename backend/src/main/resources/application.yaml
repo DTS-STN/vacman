@@ -300,7 +300,7 @@ application:
     request-created-template-id: 00000000-0000-0000-0000-000000000000 # must be set externally (ex: 00000000-0000-0000-0000-000000000000)
     request-feedback-pending-template-id: 00000000-0000-0000-0000-000000000000 # must be set externally (ex: 00000000-0000-0000-0000-000000000000)
     request-feedback-completed-template-id: 00000000-0000-0000-0000-000000000000 # must be set externally (ex: 00000000-0000-0000-0000-000000000000)
-    hr-gd-inbox-email: na.hr.ESDC@hrsdc-rhdcc.gc.ca # TODO: Update with actual email when available.
+    hr-gd-inbox-email: hr_inbox@example.com # TODO: Update with actual email when available.
   ms-graph:
     base-url: https://graph.microsoft.com/v1.0
     connect-timeout: 10s
