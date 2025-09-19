@@ -59,7 +59,7 @@ class NotificationServiceTest {
 		final var languages = mock(LookupCodes.Languages.class);
 		when(lookupCodes.languages()).thenReturn(languages);
 		when(languages.english()).thenReturn("en");
-		when(languages.french()).thenReturn("fr");
+		//when(languages.french()).thenReturn("fr"); //this line makes the tests fails
 
 		this.notificationService = new NotificationService(applicationProperties, restTemplateBuilder, lookupCodes);
 	}
