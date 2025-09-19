@@ -137,11 +137,13 @@ export async function loader({ context, params, request }: Route.LoaderArgs) {
   const currentUserData = await getUserService().getCurrentUser(context.session.authState.accessToken);
   const currentUser = currentUserData.unwrap();
 
-  const requestResult = await getRequestService().getRequestById(
-    Number(params.requestId),
-    context.session.authState.accessToken,
-  );
-  const requestData = requestResult.into();
+  const requestData = (
+    await getRequestService().getRequestById(Number(params.requestId), context.session.authState.accessToken)
+  ).into();
+
+  if (!requestData) {
+    throw new Response('Request not found', { status: HttpStatusCodes.NOT_FOUND });
+  }
 
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
 
@@ -154,13 +156,13 @@ export async function loader({ context, params, request }: Route.LoaderArgs) {
     documentTitle: t('app:submission-details.page-title'),
     defaultValues: {
       // The submitter's information is coming from saved Request, but while creating a new request, the submitter is the logged in user,
-      submitter: requestData?.submitter ?? currentUser,
-      hiringManager: requestData?.hiringManager,
-      subDelegatedManager: requestData?.subDelegatedManager,
-      hrAdvisor: requestData?.hrAdvisor,
-      workUnit: requestData?.workUnit,
-      languageOfCorrespondence: requestData?.languageOfCorrespondence,
-      additionalComment: requestData?.additionalComment,
+      submitter: requestData.submitter ?? currentUser,
+      hiringManager: requestData.hiringManager,
+      subDelegatedManager: requestData.subDelegatedManager,
+      hrAdvisor: requestData.hrAdvisor,
+      workUnit: requestData.workUnit,
+      languageOfCorrespondence: requestData.languageOfCorrespondence,
+      additionalComment: requestData.additionalComment,
     },
     branchOrServiceCanadaRegions,
     directorates,
