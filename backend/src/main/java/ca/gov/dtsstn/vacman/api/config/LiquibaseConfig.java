@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@EnableConfigurationProperties({LiquibaseProperties.class, DataSourceProperties.class})
+@EnableConfigurationProperties({LiquibaseProperties.class})
 public class LiquibaseConfig {
 	private final DataSource dataSource;
 
@@ -21,7 +21,7 @@ public class LiquibaseConfig {
 	}
 
 	@Bean
-	SpringLiquibase liquibase(LiquibaseProperties liquibaseProperties, DataSourceProperties dataSourceProperties) throws SQLException {
+	SpringLiquibase liquibase(LiquibaseProperties liquibaseProperties) throws SQLException {
 		final SpringLiquibase liquibase = new SpringLiquibase();
 		
 		if (liquibaseProperties.getContexts() == null || liquibaseProperties.getContexts().isEmpty()) {
