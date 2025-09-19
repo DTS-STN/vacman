@@ -295,6 +295,7 @@ export default {
     'page-description':
       'Complete all sections detailing the process, position, and required qualifications and submit for approval. FR',
     'process-information': 'Process information FR',
+    'selection-process-number': 'Selection process number FR',
     'process-intro': 'Specify the process type, tenure, projected and other process details. FR',
     'position-information': 'Position information FR',
     'position-intro': 'Provide position number, group and level, location, language and security requirements. FR',
@@ -317,12 +318,13 @@ export default {
     'cancel': 'Cancel FR',
     'save-and-exit': 'Save and exit FR',
     'submit': 'Submit FR',
-    'page-info-1':
-      'ESDC Priority Clearance via the Vacancy Management System (VMS) is required for all indeterminate deployments and appointments (with the exception of the reclassification of a position, indeterminate deployments within the same branch or region, and alternations). FR',
-    'page-info-2':
-      'Public Service Commission (PSC) Priority Clearance is required for all term and indeterminate appointments. FR',
-    'page-info-3': 'PSC and ESDC Clearances are required prior to advertising all advertised appointment processes. FR',
-    'page-info-4': "Consult the Manager's Guide on Priority Clearances for more information. FR",
+    'notice-line-1': "Le processus d'autorisation en matière de priorité ministériel est requis avant d'entreprendre un processus interne ou externe, annoncé ou non annoncé, dont l'intention mènerait à une dotation indéterminée (mutations et nominations), à l'exception :",
+    'notice-line-2': "d'une mutation à durée indéterminée d'un employé excédentaire d'EDSC ;",
+    'notice-line-3': "d'une mutation à durée indéterminée au sein de la même direction générale ou région ;",
+    'notice-line-4': "d'une nomination subséquente à la reclassification d'un poste ;",
+    'notice-line-5': "d'un échange de postes.",
+    'notice-line-6': "Le processus d'autorisation de la CFP est requis avant d'entreprendre un processus interne ou externe, annoncé ou non annoncé, dont l'objectif mènerait à des nominations pour une période indéterminée ou déterminée.",
+    'notice-line-7': "Consultez le Guide du gestionnaire sur les autorisations en matière de priorité pour plus d'informations.",
   },
   'referral-request': 'Demande de présentation de candidatures',
   'position-information': {

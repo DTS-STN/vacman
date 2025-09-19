@@ -39,7 +39,7 @@ export function ContextualAlert({
     <>
       <div
         ref={ref}
-        className={`${styles[type]} flex w-full items-center border-l-6 p-2`}
+        className={`${styles[type]} flex w-full items-start border-l-6 p-2`}
         role={role}
         aria-live={ariaLive}
         aria-atomic={ariaAtomic}
@@ -47,7 +47,7 @@ export function ContextualAlert({
         {type === 'info' ? (
           <div
             role="presentation"
-            className="bg-[rgba(37, 114, 180,1)] h-28 min-w-[36px] bg-[url('/info-icon.svg')] bg-size-[28px] bg-left-top bg-no-repeat"
+            className="bg-[rgba(37, 114, 180,1)] h-[32px] mt-1 w-[32px] max-w-[32px] flex-none bg-[url('/info-icon.svg')] bg-size-[28px] bg-left-top bg-no-repeat"
           />
         ) : (
           <FontAwesomeIcon
