@@ -154,17 +154,20 @@ export default {
     'language-referral-type': 'Pour quel-s profil-s linguistique-s de postes désirez-vous être référé-e?',
     'classification': 'Pour quel-s groupe-s et niveau-x de classification souhaiteriez-vous être référé-e?',
     'classification-group-help-message-primary':
-      "Les groupes et niveaux sélectionnés doivent être identiques ou équivalents à votre poste d'attache.",
+      "Les groupes et niveaux sélectionnés doivent être les mêmes ou équivalents au  groupe et niveau de votre poste substantif. Sélectionnez tout ce qui s'applique.",
+    'guidance-on-groups-and-levels': 'Orientation additionnelle sur les groupes et niveaux',
+    'guidance-on-groups-and-levels-description':
+      "Veuillez-vous référer au Guide de l'employé du SGPV sur iService et consulter le conseiller RH indiqué sur votre lettre pour de l'orientation additionnelle sur les groupes et niveaux correspondant à votre profil.",
     'work-location': 'Pour quel-s lieu-x de travail aimeriez-vous être référé-e?',
     'province': 'Province',
     'city': 'Ville',
     'referral-availibility': 'Êtes-vous actuellement disponible pour être référé-e?',
     'referral-availibility-help-message-primary':
-      'Sélectionnez "non" si vous serez en congé ou si vous n\'êtes pas actuellement intéressé-e à être référé-e.',
+      'Sélectionnez «\u00a0non\u00a0» si votre situation actuelle ne vous permet pas de considérer des offres d’emploi (par exemple, congé prolongé, en attente d’une offre d’emploi, etc.)',
     'alternate-opportunity': "Êtes-vous intéressé-e par des occasions d'échange de poste?",
-    'what-is-alternation': "Qu'est-ce qu'un échange de poste?",
+    'what-is-alternation': "Qu'est-ce qu'un échange de postes?",
     'alternation-description-text-para-1':
-      "Un échange de poste a lieu lorsqu'un employé optant ou un employé excédentaire, ayant choisi un droit de priorité de fonctionnaire excédentaire d'une durée de 12 mois (option A) qui préfère rester dans l'administration publique centrale, échange son poste avec un employé non touché (le remplaçant) qui est disposé à quitter l'administration publique centrale avec une mesure de soutien à la transition (MST) (Option B) ou avec une MST et une indemnité scolaire (Option C(i)).",
+      "Un échange de postes a lieu lorsqu'un employé optant ou un employé excédentaire, ayant choisi un droit de priorité de fonctionnaire excédentaire d'une durée de 12 mois (option A) qui préfère rester dans l'administration publique centrale, échange son poste avec un employé non touché (le remplaçant) qui est disposé à quitter l'administration publique centrale avec une mesure de soutien à la transition (MST) (Option B) ou avec une MST et une indemnité d'études (Option C(i)).",
     'alternation-description-text-para-2':
       "Pour les cadres, l'échange de poste dans le cadre de la transition de carrière permet à un cadre excédentaire ayant choisi l'option 2 (de demeurer au sein de l'administration publique centrale (APC)) en échangeant son poste avec un EX non touché qui accepte de quitter en vertu de la Directive sur les conditions d'emploi pour les cadres supérieurs. L'échange doit se faire au même groupe et niveau, à une date convenue mutuellement, et doit entraîner l'élimination permanente d'une fonction ou d'un poste. Le cadre excédentaire doit satisfaire aux exigences du poste non touché. L'échange de poste est uniquement permise au sein de l'administration publique centrale et n'est pas offerte aux employés des organismes distincts.",
     'select-work-locations':

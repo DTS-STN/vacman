@@ -151,13 +151,16 @@ export default {
     'language-referral-type': 'Which position language profiles would you like to be referred for?',
     'classification': 'Which classification group(s) and level(s) would you like to be referred for?',
     'classification-group-help-message-primary':
-      'The group and levels selected must be the same or equivalent to your substantive position.',
+      'The group and levels selected must be the same or equivalent to your substantive position. Select all that apply.',
+    'guidance-on-groups-and-levels': 'Guidance on groups and levels',
+    'guidance-on-groups-and-levels-description':
+      'Please refer to the VMS Employee Guide on iService and consult the HR advisor indicated on your letter should you need further guidance on groups and levels corresponding to your profile.',
     'work-location': 'Which work location(s) would you like to be referred to?',
     'province': 'Province',
     'city': 'City',
     'referral-availibility': 'Are you currently available for referrals?',
     'referral-availibility-help-message-primary':
-      "Select no if you'll be on leave or are currently not interested in referrals.",
+      'Select no if your current situation does not allow you to consider job offers (for example, extended leave, waiting for a job offer, etc.)',
     'alternate-opportunity': 'Are you interested in alternation opportunities?',
     'what-is-alternation': 'What is alternation?',
     'alternation-description-text-para-1':
