@@ -420,7 +420,7 @@ export const mockRequests: RequestReadModel[] = [
 export function createMockRequest(accessToken: string): RequestReadModel {
   const newId = Math.max(...mockRequests.map((r) => r.id), 0) + 1;
 
-  return {
+  const newRequest = {
     id: newId,
     selectionProcessNumber: `2024-${newId.toString().padStart(3, '0')}`,
     workforceMgmtApprovalRecvd: false,
@@ -462,6 +462,8 @@ export function createMockRequest(accessToken: string): RequestReadModel {
     lastModifiedBy: 'mock-user',
     lastModifiedDate: new Date().toISOString(),
   };
+  mockRequests.push(newRequest);
+  return newRequest;
 }
 
 export function createUserFromEmail(email: string): User {
