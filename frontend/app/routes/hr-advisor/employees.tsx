@@ -98,8 +98,8 @@ export async function loader({ context, request }: Route.LoaderArgs) {
   // Server-side pagination params with sensible defaults
   const pageParam = url.searchParams.get('page');
   const sizeParam = url.searchParams.get('size');
-  // Optional statusIds param: comma-separated numeric IDs
-  const statusIdsParam = url.searchParams.get('statusIds');
+  // statusIds as repeated params: ?statusIds=1&statusIds=2
+  const statusIdsParams = url.searchParams.getAll('statusIds');
   // URL 'page' is treated as 1-based for the backend; default to 1 if missing/invalid
   const pageOneBased = Math.max(1, Number.parseInt(pageParam ?? '1', 10) || 1);
   // Keep page size modest for wire efficiency, cap to prevent abuse
@@ -109,11 +109,11 @@ export async function loader({ context, request }: Route.LoaderArgs) {
   const DEFAULT_STATUS_IDS = [PROFILE_STATUS_APPROVED.id, PROFILE_STATUS_PENDING.id] as const;
   // Compute desired statusIds, defaulting to Approved + Pending Approval
   const defaultStatusIds = [...DEFAULT_STATUS_IDS];
-  const statusIdsFromQuery = (statusIdsParam ?? '')
-    .split(',')
-    .map((s) => Number.parseInt(s.trim(), 10))
-    .filter((n) => Number.isFinite(n));
-  const desiredStatusIds = statusIdsFromQuery.length ? statusIdsFromQuery : defaultStatusIds;
+  const rawStatusValues = statusIdsParams;
+  const statusIdsFromQuery = rawStatusValues.map((s) => Number.parseInt(s.trim(), 10)).filter((n) => Number.isFinite(n));
+  const desiredStatusIds = statusIdsFromQuery.length
+    ? Array.from(new Set(statusIdsFromQuery)).sort((a, b) => a - b)
+    : defaultStatusIds;
 
   const profileParams: ProfileQueryParams = {
     hrAdvisorId: filter === 'me' ? filter : undefined, // 'me' is used in the API to filter for the current HR advisor
@@ -201,14 +201,13 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
     return map;
   }, [loaderData.statuses]);
 
-  // Selected statusIds from URL (comma-separated). Defaults are already applied in loader
+  // Selected statusIds from URL (repeated). Defaults are already applied in loader
   const selectedStatusIds = useMemo(() => {
-    const param = searchParams.get('statusIds');
-    if (!param) return [...DEFAULT_STATUS_IDS];
-    return param
-      .split(',')
-      .map((s) => Number.parseInt(s.trim(), 10))
-      .filter((n) => Number.isFinite(n));
+    const parts = searchParams.getAll('statusIds');
+    if (parts.length === 0) return [...DEFAULT_STATUS_IDS];
+    return Array.from(new Set(parts.map((s) => Number.parseInt(s.trim(), 10)).filter((n) => Number.isFinite(n)))).sort(
+      (a, b) => a - b,
+    );
   }, [searchParams, DEFAULT_STATUS_IDS]);
 
   // Selected status codes for the DataTable header control
@@ -265,10 +264,11 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
             // Map selected codes to IDs present in loaderData.statuses
             const ids = selectedCodes.map((code) => statusIdByCode.get(code)).filter((n): n is number => typeof n === 'number');
             const filter = searchParams.get('filter') ?? 'all';
-            const page = searchParams.get('page') ?? '1';
             const size = searchParams.get('size') ?? '10';
-            const params: Record<string, string> = { filter, page, size };
-            if (ids.length) params.statusIds = ids.join(',');
+            const params = new URLSearchParams({ filter, page: '1', size });
+            Array.from(new Set(ids))
+              .sort((a, b) => a - b)
+              .forEach((id) => params.append('statusIds', String(id)));
             setSearchParams(params);
             setSrAnnouncement(t('app:hr-advisor-employees-table.updated'));
           }}
@@ -343,10 +343,10 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
             defaultValue={searchParams.get('filter') ?? 'all'}
             onChange={({ target }) => {
               const size = searchParams.get('size') ?? '10';
-              const existingStatusIds = searchParams.get('statusIds') ?? undefined;
+              const existingStatusIds = searchParams.getAll('statusIds');
               // Reset to page 1 (1-based) on filter change and preserve existing statusIds selection
-              const params: Record<string, string> = { filter: target.value, page: '1', size };
-              if (existingStatusIds) params.statusIds = existingStatusIds;
+              const params = new URLSearchParams({ filter: target.value, page: '1', size });
+              existingStatusIds.forEach((id) => params.append('statusIds', id));
               setSearchParams(params);
               // Announce table filtering change to screen readers
               const message =
