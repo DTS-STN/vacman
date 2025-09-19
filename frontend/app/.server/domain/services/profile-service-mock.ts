@@ -58,19 +58,26 @@ export function getMockProfileService(): ProfileService {
         }
       }
 
-      // Apply HR advisor filter
-      if (params['hr-advisor']) {
-        if (params['hr-advisor'] === 'me') {
-          // For mock purposes, filter by hrAdvisorId = 1 when hr-advisor=me
+      // Apply HR advisor filter using hrAdvisorId param
+      if (params.hrAdvisorId) {
+        if (params.hrAdvisorId === 'me') {
+          // For mock purposes, filter by hrAdvisorId = 1 when hrAdvisorId=me
           filteredProfiles = filteredProfiles.filter((p) => p.hrAdvisorId === 1);
           log.debug(`Applied HR advisor filter (me): ${filteredProfiles.length} profiles remaining`);
         } else {
-          const hrAdvisorId = parseInt(params['hr-advisor']);
+          const hrAdvisorId = parseInt(params.hrAdvisorId);
           if (!isNaN(hrAdvisorId)) {
             filteredProfiles = filteredProfiles.filter((p) => p.hrAdvisorId === hrAdvisorId);
             log.debug(`Applied HR advisor filter (${hrAdvisorId}): ${filteredProfiles.length} profiles remaining`);
           }
         }
+      }
+
+      // Apply status filter using statusIds param (array of ids)
+      if (params.statusIds?.length) {
+        const statusIds = params.statusIds.filter((n) => Number.isFinite(n));
+        filteredProfiles = filteredProfiles.filter((p) => (p.profileStatus ? statusIds.includes(p.profileStatus.id) : false));
+        log.debug(`Applied statusId filter (${statusIds.join(',')}): ${filteredProfiles.length} profiles remaining`);
       }
 
       // Apply pagination

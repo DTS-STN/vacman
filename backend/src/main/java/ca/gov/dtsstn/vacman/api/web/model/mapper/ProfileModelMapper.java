@@ -8,10 +8,12 @@ import ca.gov.dtsstn.vacman.api.data.entity.ProfileCityEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.ProfileEmploymentOpportunityEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.ProfileLanguageReferralTypeEntity;
+import ca.gov.dtsstn.vacman.api.service.dto.ProfileQuery;
 import ca.gov.dtsstn.vacman.api.web.model.CityReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.ClassificationReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.EmploymentOpportunityReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.LanguageReferralTypeReadModel;
+import ca.gov.dtsstn.vacman.api.web.model.ProfileReadFilterModel;
 import ca.gov.dtsstn.vacman.api.web.model.ProfileReadModel;
 
 @Mapper(uses = { CodeModelMapper.class })
@@ -32,5 +34,9 @@ public interface ProfileModelMapper {
 
 	@Mapping(source = "languageReferralType", target = ".")
 	LanguageReferralTypeReadModel toLanguageReferralTypeReadModel(ProfileLanguageReferralTypeEntity entity);
+
+	@Mapping(source = "statusId", target = "statusIds")
+	@Mapping(source = "hrAdvisorId", target = "hrAdvisorIds")
+	ProfileQuery toProfileQuery(ProfileReadFilterModel filter);
 
 }
