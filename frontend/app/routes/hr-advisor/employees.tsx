@@ -98,15 +98,26 @@ export async function loader({ context, request }: Route.LoaderArgs) {
   // Server-side pagination params with sensible defaults
   const pageParam = url.searchParams.get('page');
   const sizeParam = url.searchParams.get('size');
+  // Optional statusIds param: comma-separated numeric IDs
+  const statusIdsParam = url.searchParams.get('statusIds');
   // URL 'page' is treated as 1-based for the backend; default to 1 if missing/invalid
   const pageOneBased = Math.max(1, Number.parseInt(pageParam ?? '1', 10) || 1);
   // Keep page size modest for wire efficiency, cap to prevent abuse
   const size = Math.min(50, Math.max(1, Number.parseInt(sizeParam ?? '10', 10) || 10));
 
+  // Shared default selection for statuses (kept in sync with client UI)
+  const DEFAULT_STATUS_IDS = [PROFILE_STATUS_APPROVED.id, PROFILE_STATUS_PENDING.id] as const;
+  // Compute desired statusIds, defaulting to Approved + Pending Approval
+  const defaultStatusIds = DEFAULT_STATUS_IDS as unknown as number[];
+  const statusIdsFromQuery = (statusIdsParam ?? '')
+    .split(',')
+    .map((s) => Number.parseInt(s.trim(), 10))
+    .filter((n) => Number.isFinite(n));
+  const desiredStatusIds = statusIdsFromQuery.length ? statusIdsFromQuery : defaultStatusIds;
+
   const profileParams: ProfileQueryParams = {
-    active: true, // will return In Progress, Pending Approval and Approved
     hrAdvisorId: filter === 'me' ? filter : undefined, // 'me' is used in the API to filter for the current HR advisor
-    statusIds: [PROFILE_STATUS_APPROVED.id, PROFILE_STATUS_PENDING.id],
+    statusIds: desiredStatusIds,
     // Backend expects 1-based page index
     page: pageOneBased,
     size: size,
@@ -139,6 +150,8 @@ export async function loader({ context, request }: Route.LoaderArgs) {
 }
 
 export default function EmployeeDashboard({ loaderData, params }: Route.ComponentProps) {
+  // Keep loader and client UI defaults in sync; memoize to keep stable reference for deps
+  const DEFAULT_STATUS_IDS = useMemo(() => [PROFILE_STATUS_APPROVED.id, PROFILE_STATUS_PENDING.id] as const, []);
   const { t } = useTranslation(handle.i18nNamespace);
   const fetcher = useFetcher<typeof action>();
   const fetcherState = useFetcherState(fetcher);
@@ -174,6 +187,35 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
   const totalPages = loaderData.page.totalPages;
   const currentPage = getCurrentPage(searchParams, 'page', totalPages);
   const pageItems = getPageItems(totalPages, currentPage, { threshold: 9, delta: 2 });
+
+  // Map loader statuses (id + codes) to help translate between codes shown in UI and ids for query
+  const statusCodeById = useMemo(() => {
+    const map = new Map<number, string>();
+    loaderData.statuses.forEach((s) => map.set(s.id, s.code));
+    return map;
+  }, [loaderData.statuses]);
+
+  const statusIdByCode = useMemo(() => {
+    const map = new Map<string, number>();
+    loaderData.statuses.forEach((s) => map.set(s.code, s.id));
+    return map;
+  }, [loaderData.statuses]);
+
+  // Selected statusIds from URL (comma-separated). Defaults are already applied in loader
+  const selectedStatusIds = useMemo(() => {
+    const param = searchParams.get('statusIds');
+    if (!param) return [...DEFAULT_STATUS_IDS];
+    return param
+      .split(',')
+      .map((s) => Number.parseInt(s.trim(), 10))
+      .filter((n) => Number.isFinite(n));
+  }, [searchParams, DEFAULT_STATUS_IDS]);
+
+  // Selected status codes for the DataTable header control
+  const selectedStatusCodes = useMemo(
+    () => selectedStatusIds.map((id: number) => statusCodeById.get(id)).filter(Boolean) as string[],
+    [selectedStatusIds, statusCodeById],
+  );
 
   // Navigation helpers
   const handlePageClick = (target: number) => makePageClickHandler(searchParams, setSearchParams, target);
@@ -218,6 +260,18 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
           column={column}
           title={t('app:hr-advisor-employees-table.status')}
           options={Object.values(PROFILE_STATUS_CODE)}
+          selected={selectedStatusCodes}
+          onSelectionChange={(selectedCodes) => {
+            // Map selected codes to IDs present in loaderData.statuses
+            const ids = selectedCodes.map((code) => statusIdByCode.get(code)).filter((n): n is number => typeof n === 'number');
+            const filter = searchParams.get('filter') ?? 'all';
+            const page = searchParams.get('page') ?? '1';
+            const size = searchParams.get('size') ?? '10';
+            const params: Record<string, string> = { filter, page, size };
+            if (ids.length) params.statusIds = ids.join(',');
+            setSearchParams(params);
+            setSrAnnouncement(t('app:hr-advisor-employees-table.updated'));
+          }}
         />
       ),
       cell: (info) => {
@@ -289,8 +343,11 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
             defaultValue={searchParams.get('filter') ?? 'all'}
             onChange={({ target }) => {
               const size = searchParams.get('size') ?? '10';
-              // Reset to page 1 (1-based) on filter change
-              setSearchParams({ filter: target.value, page: '1', size });
+              const existingStatusIds = searchParams.get('statusIds') ?? undefined;
+              // Reset to page 1 (1-based) on filter change and preserve existing statusIds selection
+              const params: Record<string, string> = { filter: target.value, page: '1', size };
+              if (existingStatusIds) params.statusIds = existingStatusIds;
+              setSearchParams(params);
               // Announce table filtering change to screen readers
               const message =
                 target.value === 'me'
