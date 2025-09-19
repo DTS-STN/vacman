@@ -210,7 +210,6 @@ describe('ProfileServiceMock', () => {
         expect(profile.hasConsentedToPrivacyTerms).toBe(false);
         expect(profile.personalEmailAddress).toBe('personal.email@example.com');
         expect(profile.personalPhoneNumber).toBe('613-938-0001');
-        expect(profile.additionalComment).toBe('Looking for opportunities in software development.');
       }
     });
   });
@@ -265,7 +264,6 @@ describe('ProfileServiceMock', () => {
     it('should update profile successfully', async () => {
       const profileId = 1;
       const updatedProfile: ProfilePutModel = {
-        additionalComment: 'Updated comment',
         hasConsentedToPrivacyTerms: true,
         isAvailableForReferral: false,
         personalEmailAddress: 'updated@example.com',
@@ -279,7 +277,6 @@ describe('ProfileServiceMock', () => {
       if (result.isOk()) {
         const profile = result.unwrap();
         expect(profile.id).toBe(profileId);
-        expect(profile.additionalComment).toBe('Updated comment');
         expect(profile.hasConsentedToPrivacyTerms).toBe(true);
         expect(profile.isAvailableForReferral).toBe(false);
         expect(profile.personalEmailAddress).toBe('updated@example.com');
@@ -292,7 +289,7 @@ describe('ProfileServiceMock', () => {
     it('should return error when profile not found', async () => {
       const profileId = 999;
       const updatedProfile: ProfilePutModel = {
-        additionalComment: 'Updated comment',
+        wfaEndDate: '',
       };
       const accessToken = 'valid-token';
 
@@ -309,7 +306,7 @@ describe('ProfileServiceMock', () => {
     it('should preserve existing fields when not provided', async () => {
       const profileId = 1;
       const partialUpdate: ProfilePutModel = {
-        additionalComment: 'Only updating comment',
+        wfaEndDate: '',
       };
       const accessToken = 'valid-token';
 
@@ -324,7 +321,7 @@ describe('ProfileServiceMock', () => {
       expect(result.isOk()).toBe(true);
       if (result.isOk()) {
         const updatedProfile = result.unwrap();
-        expect(updatedProfile.additionalComment).toBe('Only updating comment');
+        expect(updatedProfile.wfaEndDate).toBe('');
         // Other fields should be preserved
         expect(updatedProfile.profileUser).toEqual(originalProfile.profileUser);
         expect(updatedProfile.profileStatus).toEqual(originalProfile.profileStatus);
@@ -469,8 +466,8 @@ describe('ProfileServiceMock', () => {
           expect(typeof profile.id).toBe('number');
 
           // Optional fields that should have correct types when present
-          if (profile.additionalComment !== undefined) {
-            expect(typeof profile.additionalComment).toBe('string');
+          if (profile.wfaEndDate !== undefined) {
+            expect(typeof profile.wfaEndDate).toBe('string');
           }
           if (profile.hasConsentedToPrivacyTerms !== undefined) {
             expect(typeof profile.hasConsentedToPrivacyTerms).toBe('boolean');

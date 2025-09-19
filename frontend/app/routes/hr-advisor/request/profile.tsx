@@ -89,7 +89,6 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       personalEmail: profileData.personalEmailAddress,
       workPhone: profileUser.businessPhoneNumber,
       personalPhone: profileData.personalPhoneNumber,
-      additionalInformation: profileData.additionalComment,
     },
     employmentInformation: {
       substantivePosition: substantivePosition,
@@ -143,9 +142,6 @@ export default function HiringManagerRequestProfile({ loaderData, params }: Rout
             </DescriptionListItem>
             <DescriptionListItem term={t('app:personal-information.personal-phone')}>
               {loaderData.personalInformation?.personalPhone ?? t('app:profile.not-provided')}
-            </DescriptionListItem>
-            <DescriptionListItem term={t('app:personal-information.additional-information')}>
-              {loaderData.personalInformation?.additionalInformation ?? t('app:profile.not-provided')}
             </DescriptionListItem>
           </DescriptionList>
         </DetailsCard>

@@ -334,7 +334,6 @@ export function getMockProfileService(): ProfileService {
       const updatedProfile: Profile = {
         ...existingProfile,
         // Map ProfilePutModel properties to Profile properties
-        additionalComment: profile.additionalComment ?? existingProfile.additionalComment,
         hasConsentedToPrivacyTerms: profile.hasConsentedToPrivacyTerms ?? existingProfile.hasConsentedToPrivacyTerms,
         isAvailableForReferral: profile.isAvailableForReferral ?? existingProfile.isAvailableForReferral,
         isInterestedInAlternation: profile.isInterestedInAlternation ?? existingProfile.isInterestedInAlternation,

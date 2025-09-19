@@ -264,13 +264,6 @@ export async function createPersonalInformationSchema() {
       v.custom((val) => isValidPhone(val as string), 'app:personal-information.errors.personal-phone-invalid'),
       v.transform((val) => parsePhoneNumberWithError(val, 'CA').formatInternational().replace(/ /g, '')),
     ),
-    additionalComment: v.optional(
-      v.pipe(
-        v.string('app:personal-information.errors.additional-information-required'),
-        v.trim(),
-        v.maxLength(100, 'app:personal-information.errors.additional-information-max-length'),
-      ),
-    ),
   });
 }
 
