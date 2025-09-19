@@ -203,7 +203,6 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       personalEmail: profileData.personalEmailAddress,
       workPhone: profileUser?.businessPhoneNumber ?? profileData.profileUser.businessPhoneNumber,
       personalPhone: profileData.personalPhoneNumber,
-      additionalInformation: profileData.additionalComment,
     },
     employmentInformation: {
       substantivePosition: substantivePosition,
@@ -336,9 +335,6 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
             </DescriptionListItem>
             <DescriptionListItem term={t('app:personal-information.personal-phone')}>
               {loaderData.personalInformation.personalPhone ?? t('app:profile.not-provided')}
-            </DescriptionListItem>
-            <DescriptionListItem term={t('app:personal-information.additional-information')}>
-              {loaderData.personalInformation.additionalInformation ?? t('app:profile.not-provided')}
             </DescriptionListItem>
           </DescriptionList>
         </ProfileCard>

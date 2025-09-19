@@ -45,7 +45,6 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     personalEmailAddress: formString(formData.get('personalEmailAddress')),
     businessPhoneNumber: formString(formData.get('businessPhoneNumber')),
     personalPhoneNumber: formString(formData.get('personalPhoneNumber')),
-    additionalComment: formString(formData.get('additionalComment')),
   });
 
   if (!parseResult.success) {
@@ -105,7 +104,6 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     languageOfCorrespondenceId: personalInformationForProfile.languageOfCorrespondenceId,
     personalEmailAddress: personalInformationForProfile.personalEmailAddress,
     personalPhoneNumber: personalInformationForProfile.personalPhoneNumber,
-    additionalComment: personalInformationForProfile.additionalComment,
   });
 
   const updateResult = await profileService.updateProfileById(
@@ -147,7 +145,6 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       personalEmailAddress: profileData.personalEmailAddress,
       businessPhoneNumber: toE164(currentUser.businessPhoneNumber),
       personalPhoneNumber: toE164(profileData.personalPhoneNumber),
-      additionalComment: profileData.additionalComment,
     },
     languagesOfCorrespondence: localizedLanguagesOfCorrespondenceResult,
   };

@@ -84,8 +84,8 @@ export default {
     'personal-phone': 'Personal phone number',
     'personal-phone-help-message-primary': 'Cell, home, or other. For example <noWrap>123 456 7890</noWrap>',
     'work-phone-help-message-primary': 'For example: <noWrap>123 456 7890</noWrap>',
-    'additional-information': 'Additional information',
-    'additional-info-help-message': 'Briefly note absences or other key information.',
+    'additional-information':
+      'For any additional information regarding your personal information (for example, changes to your contact details or leave of absence) please contact the HR advisor indicated on your workforce adjustment status letter.',
     'errors': {
       'surname-required': 'Surname is required',
       'givenName-required': 'Given name is required',
@@ -100,8 +100,6 @@ export default {
       'work-phone-invalid': 'Invalid work phone number.',
       'personal-phone-required': 'Personal phone number is required.',
       'personal-phone-invalid': 'Invalid personal phone number.',
-      'additional-information-required': 'Additional information is required.',
-      'additional-information-max-length': 'Additional information must be less than 100 characters.',
     },
   },
   'employment-information': {
