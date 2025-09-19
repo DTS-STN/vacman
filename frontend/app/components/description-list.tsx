@@ -4,12 +4,13 @@ import { cn } from '~/utils/tailwind-utils';
 
 export interface DescriptionListItemProps extends ComponentProps<'div'> {
   term: ReactNode;
+  ddClassName?: string;
 }
-export function DescriptionListItem({ className, children, term, ...rest }: DescriptionListItemProps) {
+export function DescriptionListItem({ className, ddClassName, children, term, ...rest }: DescriptionListItemProps) {
   return (
     <div className={cn('py-2', className)} {...rest}>
       <dt className="font-semibold">{term}</dt>
-      <dd className="mt-1 text-gray-600 sm:col-span-2 sm:mt-0">{children}</dd>
+      <dd className={ddClassName ?? 'mt-1 text-gray-600 sm:col-span-2 sm:mt-0'}>{children}</dd>
     </div>
   );
 }
