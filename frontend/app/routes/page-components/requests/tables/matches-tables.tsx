@@ -7,10 +7,18 @@ import { useTranslation } from 'react-i18next';
 
 import { Button } from '~/components/button';
 import { DataTable, DataTableColumnHeader, DataTableColumnHeaderWithOptions } from '~/components/data-table';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTrigger } from '~/components/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '~/components/dropdown-menu';
+import { InputLabel } from '~/components/input-label';
+import { InputTextarea } from '~/components/input-textarea';
 import { InlineLink } from '~/components/links';
 
 //TODO - Replace with the actual model for request matches
+type Comment = {
+  hrAdvisor?: string;
+  hiringManager?: string;
+};
+
 type RequestMatchModel = {
   id: number;
   employee: {
@@ -20,8 +28,8 @@ type RequestMatchModel = {
   };
   wfaStatus: number;
   feedback: number;
-  comment?: string;
-  approval: string;
+  comment: Comment;
+  approval: boolean;
 };
 
 interface RequestTablesProps {
@@ -53,7 +61,7 @@ export default function MatchesTable({
         return (
           <InlineLink
             className="text-sky-800 no-underline decoration-slate-400 decoration-2 hover:underline"
-            file={`routes/${view}/request/match.tsx`}
+            file={`routes/${view}/request/profile.tsx`}
             params={{ requestId, profileId }}
             aria-label={`${t('matches-tables.employee')} ${employee.firstName} ${employee.lastName}`}
           >
@@ -123,29 +131,39 @@ export default function MatchesTable({
       accessorFn: (row) => row.comment,
       header: ({ column }) => <DataTableColumnHeader column={column} title={t('matches-tables.comments')} />,
       cell: (info) => {
-        const profileId = info.row.original.id.toString();
-        const comment = info.getValue() as string;
-        if (comment && comment.trim().length > 0) {
-          return (
-            <InlineLink
-              className="text-sky-800 no-underline decoration-slate-400 decoration-2 hover:underline"
-              file={`routes/${view}/request/match.tsx`}
-              params={{ requestId, profileId }}
-              aria-label={t('matches-tables.comment-label.edit')}
-            >
-              {t('matches-tables.comment-label.edit')}
-            </InlineLink>
-          );
-        }
+        const comment = info.getValue() as Comment;
+        const editComment =
+          (view === 'hr-advisor' && comment.hrAdvisor) ?? (view === 'hiring-manager' && comment.hiringManager);
         return (
-          <InlineLink
-            className="text-sky-800 underline decoration-slate-400 decoration-2 hover:underline"
-            file={`routes/${view}/request/match.tsx`}
-            params={{ requestId, profileId }}
-            aria-label={t('matches-tables.comment-label.add')}
-          >
-            {t('matches-tables.comment-label.add')}
-          </InlineLink>
+          <Dialog>
+            <DialogTrigger className="text-sky-800 no-underline decoration-slate-400 decoration-2 hover:underline">
+              {editComment ? t('matches-tables.comment-label.edit') : t('matches-tables.comment-label.add')}
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogDescription className="space-y-5">
+                  <InputTextarea
+                    className="w-full"
+                    id="hiring-manager-comment"
+                    label={t('matches-tables.comment-popup.hiring-manager')}
+                    name="hiring-manager-comment"
+                    disabled={view === 'hr-advisor'}
+                  >
+                    {comment.hiringManager}
+                  </InputTextarea>
+                  <InputTextarea
+                    className="w-full"
+                    id="hr-advisor-comment"
+                    label={t('matches-tables.comment-popup.hr-advisor')}
+                    name="hr-advisor-comment"
+                    disabled={view === 'hiring-manager'}
+                  >
+                    {comment.hrAdvisor}
+                  </InputTextarea>
+                </DialogDescription>
+              </DialogHeader>
+            </DialogContent>
+          </Dialog>
         );
       },
     },
@@ -153,7 +171,30 @@ export default function MatchesTable({
       accessorKey: 'approval',
       accessorFn: (row) => row.approval,
       header: ({ column }) => <DataTableColumnHeader column={column} title={t('matches-tables.approval')} />,
-      cell: (info) => <p>{info.getValue() as string}</p>,
+      cell: (info) => {
+        const approval = info.getValue() as boolean;
+        if (approval) {
+          return <p>{t('matches-tables.approval-popup.approved')}</p>;
+        }
+        return (
+          <Dialog>
+            <DialogTrigger className="text-sky-800 no-underline decoration-slate-400 decoration-2 hover:underline">
+              <Button variant="alternative">{t('form.approve')}</Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-86">
+              <DialogHeader>
+                <DialogDescription className="space-y-5">
+                  <InputLabel id="approve-feedback">{t('matches-tables.approval-popup.approve-feedback')}</InputLabel>
+                  <div className="space-x-4">
+                    <Button>{t('form.cancel')}</Button>
+                    <Button variant="primary">{t('form.approve')}</Button>
+                  </div>
+                </DialogDescription>
+              </DialogHeader>
+            </DialogContent>
+          </Dialog>
+        );
+      },
     },
   ];
 
