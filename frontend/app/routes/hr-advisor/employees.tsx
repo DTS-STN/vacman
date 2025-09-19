@@ -12,13 +12,8 @@ import type { Route } from './+types/employees';
 
 import type { Profile, ProfileQueryParams, ProfileStatus } from '~/.server/domain/models';
 import { getProfileService } from '~/.server/domain/services/profile-service';
-<<<<<<< HEAD
 import { getUserService } from '~/.server/domain/services/user-service';
 import { serverEnvironment } from '~/.server/environment';
-=======
-import { getProfileStatusService } from '~/.server/domain/services/profile-status-service';
-import { getUserService } from '~/.server/domain/services/user-service';
->>>>>>> origin/release/v1.0.0
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { BackLink } from '~/components/back-link';
@@ -30,11 +25,7 @@ import { InlineLink } from '~/components/links';
 import { LoadingButton } from '~/components/loading-button';
 import { PageTitle } from '~/components/page-title';
 import Pagination from '~/components/pagination';
-<<<<<<< HEAD
-import { PROFILE_STATUS_CODE } from '~/domain/constants';
-=======
 import { PROFILE_STATUS_APPROVED, PROFILE_STATUS_CODE, PROFILE_STATUS_PENDING } from '~/domain/constants';
->>>>>>> origin/release/v1.0.0
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { useFetcherState } from '~/hooks/use-fetcher-state';
 import { getTranslation } from '~/i18n-config.server';
@@ -112,14 +103,6 @@ export async function loader({ context, request }: Route.LoaderArgs) {
   // Keep page size modest for wire efficiency, cap to prevent abuse
   const size = Math.min(50, Math.max(1, Number.parseInt(sizeParam ?? '10', 10) || 10));
 
-<<<<<<< HEAD
-  const profileParams = {
-    'active': true, // will return In Progress, Pending Approval and Approved
-    'hr-advisor': filter === 'me' ? filter : undefined, // 'me' is used in the API to filter for the current HR advisor
-    // Backend expects 1-based page index
-    'page': pageOneBased,
-    'size': size,
-=======
   const profileParams: ProfileQueryParams = {
     active: true, // will return In Progress, Pending Approval and Approved
     hrAdvisorId: filter === 'me' ? filter : undefined, // 'me' is used in the API to filter for the current HR advisor
@@ -127,7 +110,6 @@ export async function loader({ context, request }: Route.LoaderArgs) {
     // Backend expects 1-based page index
     page: pageOneBased,
     size: size,
->>>>>>> origin/release/v1.0.0
   };
 
   const profilesResult = await getProfileService().getProfiles(profileParams, context.session.authState.accessToken);
@@ -136,7 +118,6 @@ export async function loader({ context, request }: Route.LoaderArgs) {
     throw profilesResult.unwrapErr();
   }
 
-<<<<<<< HEAD
   const profiles = profilesResult
     .unwrap()
     .content.filter(({ profileStatus }) =>
@@ -150,17 +131,6 @@ export async function loader({ context, request }: Route.LoaderArgs) {
       .map(({ profileStatus }) => profileStatus?.[lang === 'en' ? 'nameEn' : 'nameFr'])
       .filter((name) => name !== undefined),
     page: profilesResult.unwrap().page,
-=======
-  const profiles = profilesResult.unwrap();
-
-  const { serverEnvironment } = await import('~/.server/environment');
-
-  return {
-    documentTitle: t('app:index.employees'),
-    profiles: profiles.content,
-    page: profiles.page,
-    statuses,
->>>>>>> origin/release/v1.0.0
     baseTimeZone: serverEnvironment.BASE_TIMEZONE,
     lang,
   };

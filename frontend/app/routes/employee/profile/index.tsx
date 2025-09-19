@@ -220,8 +220,6 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const profileTotalFields = personalInformationTotalFields + employmentInformationTotalFields + referralPreferencesTotalFields;
   const amountCompleted = (profileCompleted / profileTotalFields) * 100;
 
-<<<<<<< HEAD
-=======
   // Display Canada wide or province wide or list of cities on referral preferences section
 
   const allProvinceIds = Array.from(new Set(allLocalizedCities.map((city) => city.provinceTerritory.id)));
@@ -276,7 +274,6 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     provinceNames = fullySelectedProvinces;
   }
 
->>>>>>> origin/release/v1.0.0
   return {
     documentTitle: t('app:profile.page-title'),
     name: `${currentUser.firstName ?? ''} ${currentUser.lastName ?? ''}`.trim() || 'Unknown User',
@@ -315,16 +312,9 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       isNew: countReferralPreferencesCompleted(referralPreferencesFields) === 0,
       preferredLanguages: languageReferralTypes?.map((l) => l?.name),
       preferredClassifications: classifications?.map((c) => c?.name),
-<<<<<<< HEAD
-      preferredCities: cities?.map((city) => ({
-        province: city?.provinceTerritory.name,
-        city: city?.name,
-      })),
-=======
       preferredCities: partiallySelectedCities,
       locationScope,
       provinceNames,
->>>>>>> origin/release/v1.0.0
       isAvailableForReferral: profileData.isAvailableForReferral,
       isInterestedInAlternation: profileData.isInterestedInAlternation,
     },
@@ -349,12 +339,6 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
   };
 
   type GroupedCities = Record<string, string[]>;
-<<<<<<< HEAD
-=======
-
-  // Use fetcher.data instead of actionData since we're using fetcher.Form
-  const formActionData = fetcher.data ?? actionData;
->>>>>>> origin/release/v1.0.0
 
   const alertRef = useRef<HTMLDivElement>(null);
   if (fetcher.data && alertRef.current) {
@@ -597,11 +581,6 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
                     loaderData.referralPreferences.preferredClassifications.join(', ')}
               </DescriptionListItem>
               <DescriptionListItem term={t('app:referral-preferences.work-location')}>
-<<<<<<< HEAD
-                {loaderData.referralPreferences.preferredCities === undefined
-                  ? t('app:profile.not-provided')
-                  : loaderData.referralPreferences.preferredCities.length > 0 && (
-=======
                 {loaderData.referralPreferences.locationScope === 'not-provided' && <p>{t('app:profile.not-provided')}</p>}
 
                 {loaderData.referralPreferences.locationScope === 'anywhere-in-country' && <p>{t('app:anywhere-in-canada')}</p>}
@@ -624,7 +603,6 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
                           })}
                         </p>
                       )}
->>>>>>> origin/release/v1.0.0
                       <div>
                         {/* Group cities by province */}
                         {Object.entries(
@@ -643,12 +621,8 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
                           </div>
                         ))}
                       </div>
-<<<<<<< HEAD
-                    )}
-=======
                     </>
                   )}
->>>>>>> origin/release/v1.0.0
               </DescriptionListItem>
               <DescriptionListItem term={t('app:referral-preferences.referral-availibility')}>
                 {loaderData.referralPreferences.isAvailableForReferral === undefined
