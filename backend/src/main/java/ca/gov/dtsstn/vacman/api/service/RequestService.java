@@ -332,18 +332,16 @@ public class RequestService {
 	}
 
 	/**
-	 * Approves a request by running the match creation algorithm and updating the status.
+	 * Runs the match creation algorithm for a request and updates the status.
 	 *
-	 * @param request The request entity to approve
+	 * @param request The request entity to run matches for
 	 * @return The updated request entity
 	 */
-	public RequestEntity approveRequest(RequestEntity request) {
+	public RequestEntity runMatches(RequestEntity request) {
 		final boolean isHrAdvisor = SecurityUtils.hasAuthority("hr-advisor");
 
-		// Get current status code
 		final String currentStatus = request.getRequestStatus().getCode();
 
-		// Handle the approval
 		RequestEntity updatedRequest = handleRunMatches(request, isHrAdvisor, currentStatus);
 
 		return updateRequest(updatedRequest);
