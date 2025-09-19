@@ -35,6 +35,9 @@ import { getCurrentPage, getPageItems, makePageClickHandler, nextPage, prevPage 
 import { formString } from '~/utils/string-utils';
 import { extractValidationKey } from '~/utils/validation-utils';
 
+// Shared default selection for statuses (kept in sync between loader and client UI)
+const DEFAULT_STATUS_IDS = [PROFILE_STATUS_APPROVED.id, PROFILE_STATUS_PENDING.id] as const;
+
 export const handle = {
   i18nNamespace: [...parentHandle.i18nNamespace],
 } as const satisfies RouteHandle;
@@ -105,8 +108,6 @@ export async function loader({ context, request }: Route.LoaderArgs) {
   // Keep page size modest for wire efficiency, cap to prevent abuse
   const size = Math.min(50, Math.max(1, Number.parseInt(sizeParam ?? '10', 10) || 10));
 
-  // Shared default selection for statuses (kept in sync with client UI)
-  const DEFAULT_STATUS_IDS = [PROFILE_STATUS_APPROVED.id, PROFILE_STATUS_PENDING.id] as const;
   // Compute desired statusIds, defaulting to Approved + Pending Approval
   const defaultStatusIds = [...DEFAULT_STATUS_IDS];
   const rawStatusValues = statusIdsParams;
@@ -150,8 +151,6 @@ export async function loader({ context, request }: Route.LoaderArgs) {
 }
 
 export default function EmployeeDashboard({ loaderData, params }: Route.ComponentProps) {
-  // Keep loader and client UI defaults in sync; memoize to keep stable reference for deps
-  const DEFAULT_STATUS_IDS = useMemo(() => [PROFILE_STATUS_APPROVED.id, PROFILE_STATUS_PENDING.id] as const, []);
   const { t } = useTranslation(handle.i18nNamespace);
   const fetcher = useFetcher<typeof action>();
   const fetcherState = useFetcherState(fetcher);
@@ -208,7 +207,7 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
     return Array.from(new Set(parts.map((s) => Number.parseInt(s.trim(), 10)).filter((n) => Number.isFinite(n)))).sort(
       (a, b) => a - b,
     );
-  }, [searchParams, DEFAULT_STATUS_IDS]);
+  }, [searchParams]);
 
   // Selected status codes for the DataTable header control
   const selectedStatusCodes = useMemo(
