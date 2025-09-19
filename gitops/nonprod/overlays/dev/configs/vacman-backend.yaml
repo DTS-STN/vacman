@@ -18,7 +18,10 @@ management:
 spring:
   jpa:
     show-sql: true
-
+  liquibase:
+    contexts: dev
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+  
 application:
   gcnotify:
     base-url: https://api.notification.example.com/v2/notifications
