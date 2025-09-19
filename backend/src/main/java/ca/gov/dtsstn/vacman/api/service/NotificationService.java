@@ -123,15 +123,10 @@ public class NotificationService {
 		Assert.notNull(requestId, "requestId is required; it must not be null");
 		Assert.hasText(requestTitle, "requestTitle is required; it must not be blank or null");
 
-		List<NotificationReceipt> receipts = new ArrayList<>();
-
-		for (String email : emails) {
-			if (email != null && !email.isBlank()) {
-				receipts.add(sendRequestNotification(email, requestId, requestTitle, requestEvent));
-			}
-		}
-
-		return receipts;
+		return emails.parallelStream()
+			.filter(StringUtils::hasText)
+			.map(email -> sendRequestNotification(email, requestId, requestTitle, requestEvent))
+			.toList();
 	}
 
 }
