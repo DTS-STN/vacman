@@ -164,6 +164,10 @@ interface DataTableColumnHeaderWithOptionsProps<TData, TValue> {
   title: string;
   options: string[];
   className?: string;
+  // Optional controlled selection of option values (e.g., status codes)
+  selected?: string[];
+  // Optional change notifier when selection updates
+  onSelectionChange?: (selected: string[]) => void;
 }
 
 export function DataTableColumnHeaderWithOptions<TData, TValue>({
@@ -171,8 +175,11 @@ export function DataTableColumnHeaderWithOptions<TData, TValue>({
   title,
   options,
   className,
+  selected: controlledSelected,
+  onSelectionChange,
 }: DataTableColumnHeaderWithOptionsProps<TData, TValue>) {
-  const selected = column.getFilterValue() as string[] | undefined;
+  // Prefer controlled selection when provided; fall back to column filter state
+  const selected = (controlledSelected ?? (column.getFilterValue() as string[] | undefined)) as string[] | undefined;
 
   const toggleOption = (value: string) => {
     let next: string[];
@@ -183,7 +190,10 @@ export function DataTableColumnHeaderWithOptions<TData, TValue>({
       next = [...(selected ?? []), value];
     }
 
+    // Update internal column filter for local filtering/sorting UX
     column.setFilterValue(next.length ? next : undefined);
+    // Notify parent when controlled handling is desired
+    onSelectionChange?.(next);
   };
 
   return (
