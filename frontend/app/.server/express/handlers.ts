@@ -1,9 +1,11 @@
 import { createRequestHandler } from '@react-router/express';
+import { RouterContextProvider } from 'react-router';
 
 import type { ErrorRequestHandler, NextFunction, Request, Response } from 'express';
 import path from 'node:path';
 import type { ViteDevServer } from 'vite';
 
+import { applicationContext } from '~/.server/application-context';
 import { serverEnvironment } from '~/.server/environment';
 import { LogFactory } from '~/.server/logging';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
@@ -46,10 +48,23 @@ export function rrRequestHandler(viteDevServer?: ViteDevServer) {
 
   return createRequestHandler({
     mode: serverEnvironment.NODE_ENV,
-    getLoadContext: (request, response) => ({
-      nonce: response.locals.nonce,
-      session: request.session,
-    }),
+    getLoadContext: (request, response) => {
+      const contextProvider = new RouterContextProvider();
+
+      contextProvider.set(applicationContext, {
+        nonce: response.locals.nonce,
+        session: request.session,
+      });
+
+      ///
+      /// TODO ::: GjB ::: overriding RouterContextProvider here facilitates an incremental adoption of RRv7 middleware
+      ///                  obviously, this should be removed once the full migration to RRv7 middleware is complete
+      ///                  see: https://reactrouter.com/how-to/middleware#migration-from-apploadcontext
+      ///
+      Object.assign(contextProvider, contextProvider.get(applicationContext));
+
+      return contextProvider;
+    },
     build: viteDevServer //
       ? () => viteDevServer.ssrLoadModule('virtual:react-router/server-build')
       : () => import(rrServerBuild),

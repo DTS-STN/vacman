@@ -2,7 +2,7 @@ import type { RenderToPipeableStreamOptions } from 'react-dom/server';
 import { renderToPipeableStream } from 'react-dom/server';
 
 import { createReadableStreamFromReadable } from '@react-router/node';
-import type { ActionFunctionArgs, AppLoadContext, EntryContext, LoaderFunctionArgs } from 'react-router';
+import type { ActionFunctionArgs, EntryContext, LoaderFunctionArgs, RouterContextProvider } from 'react-router';
 import { ServerRouter } from 'react-router';
 
 import { trace } from '@opentelemetry/api';
@@ -26,7 +26,7 @@ export default async function handleRequest(
   responseStatusCode: number,
   responseHeaders: Headers,
   routerContext: EntryContext,
-  loadContext: AppLoadContext,
+  loadContext: RouterContextProvider,
 ) {
   const language = getLanguage(request);
   const i18n = await initI18next(language);
