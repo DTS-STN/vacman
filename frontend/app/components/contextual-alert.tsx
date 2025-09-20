@@ -47,7 +47,7 @@ export function ContextualAlert({
         {type === 'info' ? (
           <div
             role="presentation"
-            className="bg-[rgba(37, 114, 180,1)] h-[32px] mt-1 w-[32px] max-w-[32px] flex-none bg-[url('/info-icon.svg')] bg-size-[28px] bg-left-top bg-no-repeat"
+            className="bg-[rgba(37, 114, 180,1)] mt-1 h-[32px] w-[32px] max-w-[32px] flex-none bg-[url('/info-icon.svg')] bg-size-[28px] bg-left-top bg-no-repeat"
           />
         ) : (
           <FontAwesomeIcon

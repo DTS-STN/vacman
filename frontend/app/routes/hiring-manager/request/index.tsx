@@ -558,7 +558,7 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
         <ContextualAlert type={'info'} role="status" ariaLive="polite" textSmall={false}>
           <div className="text-black-800 pl-1 text-base">
             <p>{t('app:hiring-manager-referral-requests.notice-line-1')}</p>
-            <ul className='list-disc pl-7 my-3'>
+            <ul className="my-3 list-disc pl-7">
               <li className="mtx-2">{t('app:hiring-manager-referral-requests.notice-line-2')}</li>
               <li className="mtx-2">{t('app:hiring-manager-referral-requests.notice-line-3')}</li>
               <li className="mtx-2">{t('app:hiring-manager-referral-requests.notice-line-4')}</li>

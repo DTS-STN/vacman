@@ -326,12 +326,14 @@ export default {
     'cancel': 'Cancel',
     'save-and-exit': 'Save and exit',
     'submit': 'Submit',
-    'notice-line-1': 'The departmental clearance process is required prior to initiating an internal or external, advertised or non-advertised process for which the intent would result in indeterminate staffing (deployments and appointments), with the exception of:',
+    'notice-line-1':
+      'The departmental clearance process is required prior to initiating an internal or external, advertised or non-advertised process for which the intent would result in indeterminate staffing (deployments and appointments), with the exception of:',
     'notice-line-2': 'an indeterminate deployment of an ESDC surplus employee,',
     'notice-line-3': 'an indeterminate deployment within the same branch or region,',
     'notice-line-4': 'an appointment following the reclassification of a position,',
     'notice-line-5': 'an alternation.',
-    'notice-line-6': 'The PSC priority clearance process is required prior to initiating an internal or external, advertised or non-advertised process for which the intent would result in indeterminate and term appointments.',
+    'notice-line-6':
+      'The PSC priority clearance process is required prior to initiating an internal or external, advertised or non-advertised process for which the intent would result in indeterminate and term appointments.',
     'notice-line-7': "Consult the Manager's Guide on Priority Clearances for more information.",
     'request-cancel': {
       title: 'Cancel request?',
