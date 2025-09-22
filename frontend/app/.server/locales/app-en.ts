@@ -72,6 +72,9 @@ export default {
     'select-option': 'Select option',
     'select-all-that-apply': 'Select all that apply',
     'maximum-characters': 'maximum characters',
+    'pickup-request': 'Pick up request',
+    'vms-not-required': 'VMS clearance not required',
+    'run-matches': 'Run matches',
   },
   'personal-information': {
     'page-title': 'Personal information',
@@ -199,6 +202,7 @@ export default {
     'priority-entitlement':
       'Would the appointment of a priority person result in a priority entitlement for another indeterminate employee?',
     'priority-entitlement-rationale': 'Please provide the rationale',
+    'rationale': 'Rationale',
     'selection-process-type': 'Selection process type',
     'performed-duties':
       'Has the person proposed previously performed the same duties in the last twelve months or is this person still currently performing them in any capacity (casual, Interchange Canada, agency, contractor, acting more than four months, etc.)?',
@@ -208,6 +212,7 @@ export default {
     'work-schedule-help-message': 'Supporting evidence required',
     'employment-equity-identified':
       'Has an organizational need for employment equity been identified for this process, deployment, or appointment?',
+    'employment-equity-identified-alt': 'Has an organizational need for employment equity been identified?',
     'preferred-employment-equities': 'Which organization need for employment equity has been identified?',
     'preferred-employment-equities-help-message': 'Select all that apply',
     'projected-start-date': 'Projected start date',
@@ -324,6 +329,30 @@ export default {
     'request-incomplete': 'Please complete all required fields before submitting request',
     'request-submitted': 'Request submitted successfully! An HR advisor will review it for approval',
     //'view-link': 'View request with ID {{requestId}}',
+  },
+  'hr-advisor-referral-requests': {
+    'page-title': 'Referral requests',
+    'request-id': 'Request ID',
+    'request-date': 'Request date',
+    'hiring-manager': 'Hiring manager',
+    'hr-advisor': 'HR advisor',
+    'request-details': 'Request details',
+    'process-information': 'Process information',
+    'position-information': 'Position information',
+    'somc-conditions': 'Statement of merit criteria and conditions of employment',
+    'somc-conditions-link': 'View statement of merit criteria and conditions of employment',
+    'submission-details': 'Submission details',
+    'required': 'Required',
+    'complete': 'Complete',
+    'in-progress': 'In Progress',
+    'not-provided': 'Not provided',
+    'cancel': 'Cancel',
+    'save-and-exit': 'Save and exit',
+    'submit': 'Submit',
+    'status': {
+      'request-pending-approval': 'Request pending approval',
+      'assigned-hr-review': 'Assigned - HR review',
+    },
   },
   'referral-request': 'Referral request',
   'position-information': {

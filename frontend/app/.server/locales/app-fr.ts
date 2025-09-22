@@ -75,6 +75,9 @@ export default {
     'select-option': 'Sélectionner une option',
     'select-all-that-apply': "Sélectionnez tout ce qui s'applique",
     'maximum-characters': 'caractères maximum',
+    'pickup-request': "Demande d'assignation",
+    'vms-not-required': 'Autorisation SGPV non requise',
+    'run-matches': 'Activer le repérage',
   },
   'personal-information': {
     'page-title': 'Informations personnelles',
@@ -202,6 +205,7 @@ export default {
     'priority-entitlement':
       "Est-ce que la nomination d'un bénéficiaire de priorité aurait pour effet de conférer un droit de priorité à un-e autre fonctionnaire nommé-e pour une période indéterminée ?",
     'priority-entitlement-rationale': 'Veuillez fournir la justification',
+    'rationale': 'Justification',
     'selection-process-type': 'Type de processus de sélection',
     'performed-duties':
       'Est-ce que la personne proposée a déjà exercé les mêmes fonctions au cours des douze derniers mois ou les exerce-t-elle toujours à un autre titre (occasionnel, Échanges Canada, agence ou contractuel, intérimaires de plus de 4 mois, etc.)?',
@@ -211,6 +215,7 @@ export default {
     'work-schedule-help-message': "Preuves à l'appui requises",
     'employment-equity-identified':
       "Est-ce qu'un besoin organisationnel d'équité en matière d'emploi a été identifié pour ce processus, cette mutation ou cette nomination ?",
+    'employment-equity-identified-alt': "Est-ce qu'un besoin organisationnel d'équité en matière d'emploi a été identifié ?",
     'preferred-employment-equities': "Quel besoin organisationnel en matière d'équité en matière d'emploi a été identifié ?",
     'preferred-employment-equities-help-message': "Sélectionnez tout ce qui s'applique",
     'projected-start-date': "Date d'effet anticipée",
@@ -328,6 +333,30 @@ export default {
     'request-incomplete': 'Veuillez remplir tous les champs obligatoires avant de soumettre votre demande',
     'request-submitted': "Demande soumise avec succès! Un-e conseiller(ère) RH va l'examiner pour approbation",
     //'view-link': 'View request with ID {{requestId}}',
+  },
+  'hr-advisor-referral-requests': {
+    'page-title': 'Referral requests FR',
+    'request-id': '(FR) Request ID',
+    'request-date': '(FR) Request date',
+    'hiring-manager': '(FR) Hiring manager',
+    'hr-advisor': '(FR) HR advisor',
+    'request-details': 'Request details FR',
+    'process-information': 'Process information FR',
+    'position-information': 'Position information FR',
+    'somc-conditions': 'Statement of merit criteria and conditions of employment FR',
+    'somc-conditions-link': "Afficher Énoncé de critères de mérite et conditions d'emploi",
+    'submission-details': 'Submission details FR',
+    'required': 'Required FR',
+    'complete': 'Complete FR',
+    'in-progress': 'In Progress FR',
+    'not-provided': 'Not provided FR',
+    'cancel': 'Cancel FR',
+    'save-and-exit': 'Save and exit FR',
+    'submit': 'Submit FR',
+    'status': {
+      'request-pending-approval': '(FR) Request pending approval',
+      'assigned-hr-review': 'Assignée - Revue RH',
+    },
   },
   'referral-request': 'Demande de présentation de candidatures',
   'position-information': {
