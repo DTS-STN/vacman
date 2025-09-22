@@ -202,7 +202,7 @@ public class RequestService {
 
 	/**
 	 * Updates the request status based on the event type.
-	 * 
+	 *
 	 * @param request The request entity to update
 	 * @param eventType The event type that triggered the status change
 	 * @return The updated request entity
@@ -238,7 +238,7 @@ public class RequestService {
 
 	/**
 	 * Handles the requestSubmitted event.
-	 * 
+	 *
 	 * @param request The request entity
 	 * @param isOwner Whether the current user is the owner of the request
 	 * @param currentStatus The current status code of the request
@@ -264,20 +264,20 @@ public class RequestService {
 
 	/**
 	 * Handles the requestPickedUp event.
-	 * 
+	 *
 	 * @param request The request entity
 	 * @param isHrAdvisor Whether the current user is an HR advisor
 	 * @param currentStatus The current status code of the request
 	 * @param currentUser The current user entity
 	 * @return The updated request entity
 	 */
-	private RequestEntity handleRequestPickedUp(RequestEntity request, boolean isHrAdvisor, 
+	private RequestEntity handleRequestPickedUp(RequestEntity request, boolean isHrAdvisor,
 											   String currentStatus, UserEntity currentUser) {
 		if (!isHrAdvisor) {
 			throw new UnauthorizedException("Only HR advisors can pick up requests");
 		}
 
-		if (!requestStatuses.submitted().equals(currentStatus) && 
+		if (!requestStatuses.submitted().equals(currentStatus) &&
 			!requestStatuses.hrReview().equals(currentStatus)) {
 			throw new ResourceConflictException("Request must be in SUBMIT or HR_REVIEW status to be picked up");
 		}
@@ -304,10 +304,10 @@ public class RequestService {
 	 */
 	private void sendRequestCreatedNotification(RequestEntity request) {
 		notificationService.sendRequestNotification(
-				applicationProperties.gcnotify().hrGdInboxEmail(),
-				request.getId(),
-				request.getNameEn(),
-				RequestEvent.CREATED
+			applicationProperties.gcnotify().hrGdInboxEmail(),
+			request.getId(),
+			request.getNameEn(),
+			RequestEvent.CREATED
 		);
 	}
 
@@ -346,7 +346,7 @@ public class RequestService {
 
 	/**
 	 * Handles the runMatches event.
-	 * 
+	 *
 	 * @param request The request entity
 	 * @param isHrAdvisor Whether the current user is an HR advisor
 	 * @param currentStatus The current status code of the request
@@ -378,7 +378,7 @@ public class RequestService {
 	/**
 	 * Creates matches for a request.
 	 * This is a dummy implementation that will be replaced with the actual match creation algorithm.
-	 * 
+	 *
 	 * @param request The request entity
 	 * @return True if matches were created, false otherwise (for now always true)
 	 */
@@ -391,7 +391,7 @@ public class RequestService {
 
 	/**
 	 * Handles the vmsNotRequired event.
-	 * 
+	 *
 	 * @param request The request entity
 	 * @param isHrAdvisor Whether the current user is an HR advisor
 	 * @param currentStatus The current status code of the request
@@ -414,7 +414,7 @@ public class RequestService {
 
 	/**
 	 * Handles the submitFeedback event.
-	 * 
+	 *
 	 * @param request The request entity
 	 * @param isOwner Whether the current user is the owner of the request
 	 * @param currentStatus The current status code of the request
