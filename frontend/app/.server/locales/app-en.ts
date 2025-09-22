@@ -320,6 +320,12 @@ export default {
     'page-info-4': "Consult the Manager's Guide on Priority Clearances for more information.",
     'request-incomplete': 'Please complete all required fields before submitting request',
     'request-submitted': 'Request submitted successfully! An HR advisor will review it for approval',
+    'request-cancel': {
+      title: 'Cancel request?',
+      content: 'Are you sure you want to cancel this request? This action cannot be undone.',
+      keep: 'Keep request',
+      cancel: 'Cancel request',
+    },
     //'view-link': 'View request with ID {{requestId}}',
   },
   'referral-request': 'Referral request',

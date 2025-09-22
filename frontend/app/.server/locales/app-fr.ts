@@ -324,6 +324,12 @@ export default {
     'page-info-4': "Consult the Manager's Guide on Priority Clearances for more information. FR",
     'request-incomplete': 'Veuillez remplir tous les champs obligatoires avant de soumettre votre demande',
     'request-submitted': "Demande soumise avec succès! Un-e conseiller(ère) RH va l'examiner pour approbation",
+    'request-cancel': {
+      title: 'Annuler la demande\u00A0?',
+      content: 'Êtes-vous certain-e de vouloir annuler cette demande\u00A0? Cette action est irréversible.',
+      keep: 'Conserver la demande',
+      cancel: 'Annuler la demande',
+    },
     //'view-link': 'View request with ID {{requestId}}',
   },
   'referral-request': 'Demande de présentation de candidatures',
