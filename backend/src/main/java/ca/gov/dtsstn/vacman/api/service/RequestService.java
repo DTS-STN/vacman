@@ -15,6 +15,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import ca.gov.dtsstn.vacman.api.config.properties.ApplicationProperties;
+
 import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes;
 import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes.RequestStatuses;
 import ca.gov.dtsstn.vacman.api.data.entity.RequestEntity;
@@ -57,6 +59,7 @@ public class RequestService {
 	private final RequestModelMapper requestModelMapper;
 	private final UserService userService;
 	private final NotificationService notificationService;
+	private final ApplicationProperties applicationProperties;
 
 	public RequestService(
 			LookupCodes lookupCodes,RequestRepository requestRepository,
@@ -72,7 +75,8 @@ public class RequestService {
 			WorkScheduleRepository workScheduleRepository,
 			UserService userService,
 			NotificationService notificationService,
-			ApplicationEventPublisher eventPublisher) {
+			ApplicationEventPublisher eventPublisher,
+			ApplicationProperties applicationProperties) {
 		this.requestStatuses = lookupCodes.requestStatuses();
 		this.requestRepository = requestRepository;
 		this.requestStatusRepository = requestStatusRepository;
@@ -85,6 +89,7 @@ public class RequestService {
 		this.workScheduleRepository = workScheduleRepository;
 		this.userService = userService;
 		this.notificationService = notificationService;
+		this.applicationProperties = applicationProperties;
 		this.requestModelMapper = Mappers.getMapper(RequestModelMapper.class);
 	}
 
@@ -296,20 +301,12 @@ public class RequestService {
 	 * Sends a notification when a request is created.
 	 */
 	private void sendRequestCreatedNotification(RequestEntity request) {
-		final var hrAdvisor = request.getHrAdvisor();
-
-		// If there's an HR advisor associated with the request, send the notification to their business email address (assumed to be the GD inbox)
-		// TODO: The requirements say to use HR groups GD inbox - should we create a field on the user entity for this?
-		if (hrAdvisor != null && hrAdvisor.getBusinessEmailAddress() != null) {
-			notificationService.sendRequestNotification(
-				hrAdvisor.getBusinessEmailAddress(),
-				request.getId(),
-				request.getNameEn(),
-				RequestEvent.CREATED
-			);
-		} else {
-			log.warn("No HR advisor or business email address found for request ID: [{}]", request.getId());
-		}
+		notificationService.sendRequestNotification(
+			applicationProperties.gcnotify().hrGdInboxEmail(),
+			request.getId(),
+			request.getNameEn(),
+			RequestEvent.CREATED
+		);
 	}
 
 	/**
