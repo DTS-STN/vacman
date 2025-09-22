@@ -817,12 +817,7 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
           <DialogDescription>{t('app:hiring-manager-referral-requests.request-cancel.content')}</DialogDescription>
           <DialogFooter>
             <DialogClose asChild>
-              <Button
-                id="confirm-modal-back"
-                variant="default"
-                size="sm"
-                data-gc-analytics-customclick="ESDC-EDSC:CDCP Online Application Form-Protected-Adult:Back exit modal - Application successfully submitted click"
-              >
+              <Button id="confirm-modal-back" variant="default" size="sm">
                 {t('app:hiring-manager-referral-requests.request-cancel.keep')}
               </Button>
             </DialogClose>
