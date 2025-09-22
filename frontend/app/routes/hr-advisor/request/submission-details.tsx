@@ -21,7 +21,7 @@ import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
 import { SubmissionDetailsForm } from '~/routes/page-components/requests/submission-detail/form';
 import { createSubmissionDetailSchema } from '~/routes/page-components/requests/validation.server';
-import type { SubmissionDetailSchema } from '~/routes/page-components/requests/validation.server';
+import type { Errors, SubmissionDetailSchema } from '~/routes/page-components/requests/validation.server';
 import { formString } from '~/utils/string-utils';
 
 export const handle = {
@@ -36,8 +36,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   requireAuthentication(context.session, request);
   const { t } = await getTranslation(request, handle.i18nNamespace);
   // Initialize an errors object to collect custom errors
-  type FieldErrors = Readonly<Record<string, [string, ...string[]] | undefined>>;
-  let customActionErrors: FieldErrors = {};
+  let customActionErrors: Errors = {};
 
   const formData = await request.formData();
 
