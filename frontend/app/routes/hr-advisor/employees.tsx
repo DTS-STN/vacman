@@ -210,28 +210,51 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
     [],
   );
 
-  // Derive React Table SortingState from URL search params (single sort supported)
-  const sortingState = useMemo((): { id: string; desc: boolean }[] => {
+  // Derive single current sort from URL search params
+  const currentSort = useMemo((): { id: string; desc: boolean } | null => {
     const value = searchParams.get('sort');
-    if (!value) return [];
+    if (!value) return null;
     const [propRaw, dirRaw] = value.split(',');
     const prop = propRaw ?? '';
     const colId = PROPERTY_TO_COLUMN[prop];
-    if (!colId) return [];
+    if (!colId) return null;
     const dir = (dirRaw ?? 'asc').toLowerCase();
     const desc = dir === 'desc';
-    return [{ id: colId, desc }];
+    return { id: colId, desc };
   }, [searchParams, PROPERTY_TO_COLUMN]);
 
-  // When sorting changes in the table UI, push it into URL and reset to page 1
-  const handleSortingChange = (next: { id: string; desc: boolean }[]) => {
+  // Map column ids to localized header titles for announcements
+  const columnIdToTitle = useMemo(() => {
+    return new Map<string, string>([
+      ['name', t('app:hr-advisor-employees-table.employee')],
+      ['email', t('app:hr-advisor-employees-table.email')],
+      ['dateUpdated', t('app:hr-advisor-employees-table.updated')],
+    ]);
+  }, [t]);
+
+  // When sorting changes in the table UI, push it into URL and announce the change (single sort only)
+  const handleSortingChange = (next: { id: string; desc: boolean } | null | undefined) => {
     const paramsNext = new URLSearchParams(searchParams);
     // Clear and set single sort param
     paramsNext.delete('sort');
-    if (next.length > 0 && next[0]) {
-      const s0 = next[0];
+    if (next?.id) {
+      const s0 = next;
       const prop = COLUMN_TO_PROPERTY[s0.id];
       if (prop) paramsNext.set('sort', `${prop},${s0.desc ? 'desc' : 'asc'}`);
+      // SR announcement: sorted asc/desc for column
+      const colTitle = columnIdToTitle.get(s0.id) ?? s0.id;
+      setSrAnnouncement(
+        s0.desc
+          ? t('gcweb:data-table.sorting.sorted-descending', { column: colTitle })
+          : t('gcweb:data-table.sorting.sorted-ascending', { column: colTitle }),
+      );
+    } else {
+      // Sorting cleared. Use previous column from current state if available for context.
+      const prev = currentSort;
+      const colTitle = prev ? (columnIdToTitle.get(prev.id) ?? prev.id) : undefined;
+      setSrAnnouncement(
+        colTitle ? t('gcweb:data-table.sorting.not-sorted', { column: colTitle }) : t('app:hr-advisor-employees-table.updated'),
+      );
     }
     setSearchParams(paramsNext);
   };
@@ -425,8 +448,8 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
         columns={columns}
         data={loaderData.profiles}
         showPagination={false}
-        sorting={sortingState}
-        onSortingChange={handleSortingChange}
+        sorting={currentSort ? [currentSort] : []}
+        onSortingChange={(state) => handleSortingChange(state[0])}
         disableClientSorting
       />
 
