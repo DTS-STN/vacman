@@ -10,7 +10,7 @@ export function DescriptionListItem({ className, ddClassName, children, term, ..
   return (
     <div className={cn('py-2', className)} {...rest}>
       <dt className="font-semibold">{term}</dt>
-      <dd className={ddClassName ?? 'mt-1 text-gray-600 sm:col-span-2 sm:mt-0'}>{children}</dd>
+      <dd className={cn('mt-1 text-gray-600 sm:col-span-2 sm:mt-0', ddClassName)}>{children}</dd>
     </div>
   );
 }
