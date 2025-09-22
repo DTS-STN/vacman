@@ -468,7 +468,8 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
 
         <PageTitle>{t('app:hiring-manager-referral-requests.page-title')}</PageTitle>
 
-        {loaderData.status?.code === REQUEST_STATUS_CODE.SUBMIT && (
+        {(loaderData.status?.code === REQUEST_STATUS_CODE.SUBMIT ||
+          loaderData.status?.code === REQUEST_STATUS_CODE.HR_REVIEW) && (
           <div>
             <DescriptionList className="flex">
               <DescriptionListItem
