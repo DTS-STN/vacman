@@ -17,9 +17,11 @@ function getStatusStyle(code: string): string {
     case PROFILE_STATUS.ARCHIVED.code:
       return 'border-orange-400 bg-orange-100 text-orange-800';
     case PROFILE_STATUS.INCOMPLETE.code:
+    case REQUEST_STATUS_CODE.SUBMIT:
       return 'border-blue-400 bg-blue-100 text-blue-800';
     case PROFILE_STATUS.PENDING.code:
     case REQUEST_STATUS_CODE.FDBK_PEND_APPR:
+    case REQUEST_STATUS_CODE.DRAFT:
       return 'border-yellow-400 bg-yellow-100 text-yellow-800';
     default:
       return '';
