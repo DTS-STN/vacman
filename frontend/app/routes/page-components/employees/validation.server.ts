@@ -13,7 +13,7 @@ import { getWFAStatuses } from '~/.server/domain/services/wfa-status-service';
 import { extractUniqueBranchesFromDirectoratesNonLocalized } from '~/.server/utils/directorate-utils';
 import { stringToIntegerSchema } from '~/.server/validation/string-to-integer-schema';
 import { EMPLOYEE_WFA_STATUS } from '~/domain/constants';
-import { isValidDateString, toISODateString } from '~/utils/date-utils';
+import { isValidCalendarDate } from '~/utils/date-utils';
 import { isValidPhone } from '~/utils/phone-utils';
 import { REGEX_PATTERNS } from '~/utils/regex-utils';
 import { formString } from '~/utils/string-utils';
@@ -114,15 +114,13 @@ export async function createEmploymentInformationSchema(hrAdvisors: User[]) {
           v.minValue(1, 'app:employment-information.errors.wfa-effective-date.invalid-day'),
           v.maxValue(31, 'app:employment-information.errors.wfa-effective-date.invalid-day'),
         ),
-        wfaStartDate: v.pipe(
-          v.string(),
-          v.trim(),
-          v.transform((input) => (input === '' ? undefined : input)),
+        wfaStartDate: optionalString(
           v.optional(
             v.pipe(
               v.string(),
+              v.isoDate('app:employment-information.errors.wfa-effective-date.invalid'),
               v.custom(
-                (input) => isValidDateString(input as string),
+                (input) => isValidCalendarDate(input as string),
                 'app:employment-information.errors.wfa-effective-date.invalid',
               ),
             ),
@@ -184,8 +182,9 @@ export async function createEmploymentInformationSchema(hrAdvisors: User[]) {
               v.optional(
                 v.pipe(
                   v.string(),
+                  v.isoDate('app:employment-information.errors.wfa-end-date.invalid'),
                   v.custom(
-                    (input) => isValidDateString(input as string),
+                    (input) => isValidCalendarDate(input as string),
                     'app:employment-information.errors.wfa-end-date.invalid',
                   ),
                 ),
@@ -391,11 +390,10 @@ export async function parseEmploymentInformation(formData: FormData, hrAdvisors:
 }
 
 function toDateString(year?: string, month?: string, day?: string): string {
-  try {
-    return toISODateString(Number(year), Number(month), Number(day));
-  } catch {
+  if (year === undefined || month === undefined || day === undefined) {
     return '';
   }
+  return `${year.padStart(4, '0')}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
 }
 
 /**

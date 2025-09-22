@@ -346,3 +346,14 @@ export function formatDateTimeForTimezone(date: string | Date, targetTimeZone: s
     return String(date);
   }
 }
+
+export function isValidCalendarDate(date: string): boolean {
+  const [yearStr, monthStr, dayStr] = date.split('-');
+  const year = Number(yearStr);
+  const month = Number(monthStr);
+  const day = Number(dayStr);
+  if (isNaN(year) || isNaN(month) || isNaN(day)) return false;
+  if (month < 1 || month > 12) return false;
+  if (day < 1 || day > 31) return false;
+  return dateExists(year, month - 1, day);
+}
