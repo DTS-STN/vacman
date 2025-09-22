@@ -315,6 +315,7 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
       },
     },
     {
+      id: 'dateUpdated',
       accessorKey: 'dateUpdated',
       header: ({ column }) => <DataTableColumnHeader column={column} title={t('app:hr-advisor-employees-table.updated')} />,
       cell: (info) => {
