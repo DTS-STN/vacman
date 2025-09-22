@@ -329,12 +329,16 @@ export default {
     'cancel': 'Cancel FR',
     'save-and-exit': 'Save and exit FR',
     'submit': 'Submit FR',
-    'page-info-1':
-      'ESDC Priority Clearance via the Vacancy Management System (VMS) is required for all indeterminate deployments and appointments (with the exception of the reclassification of a position, indeterminate deployments within the same branch or region, and alternations). FR',
-    'page-info-2':
-      'Public Service Commission (PSC) Priority Clearance is required for all term and indeterminate appointments. FR',
-    'page-info-3': 'PSC and ESDC Clearances are required prior to advertising all advertised appointment processes. FR',
-    'page-info-4': "Consult the Manager's Guide on Priority Clearances for more information. FR",
+    'notice-line-1':
+      "Le processus d'autorisation en matière de priorité ministériel est requis avant d'entreprendre un processus interne ou externe, annoncé ou non annoncé, dont l'intention mènerait à une dotation indéterminée (mutations et nominations), à l'exception\u00A0:",
+    'notice-line-2': "d'une mutation à durée indéterminée d'un employé excédentaire d'EDSC\u00A0;",
+    'notice-line-3': "d'une mutation à durée indéterminée au sein de la même direction générale ou région\u00A0;",
+    'notice-line-4': "d'une nomination subséquente à la reclassification d'un poste\u00A0;",
+    'notice-line-5': "d'un échange de postes.",
+    'notice-line-6':
+      "Le processus d'autorisation de la CFP est requis avant d'entreprendre un processus interne ou externe, annoncé ou non annoncé, dont l'objectif mènerait à des nominations pour une période indéterminée ou déterminée.",
+    'notice-line-7':
+      "Consultez le Guide du gestionnaire sur les autorisations en matière de priorité pour plus d'informations.",
     'request-incomplete': 'Veuillez remplir tous les champs obligatoires avant de soumettre votre demande',
     'request-submitted': "Demande soumise avec succès! Un-e conseiller(ère) RH va l'examiner pour approbation",
     'request-cancel': {
