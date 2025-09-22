@@ -58,6 +58,13 @@ inputs = {
       id           = "4414634e-53f1-4427-833a-1c20e1f580b5"
       value        = "hr-advisor"
     },
+    {
+      display_name = "Employee"
+      description  = "Employee"
+      group_name   = "Vacancy Manager: Employees (prod)"
+      id           = "0b2fc216-e4b0-4680-b64c-82185652574e"
+      value        = "employee"
+    },
   ]
 
   app_spa_redirect_uris = [
