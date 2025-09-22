@@ -2,10 +2,12 @@ package ca.gov.dtsstn.vacman.api.service;
 
 import static ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException.asResourceNotFoundException;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
+import org.springframework.util.StringUtils;
 import org.mapstruct.factory.Mappers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -313,19 +315,17 @@ public class RequestService {
 	 * Sends a notification when a request is approved and feedback is pending.
 	 */
 	private void sendRequestFeedbackPendingNotification(RequestEntity request) {
-		final var owner = request.getSubmitter();
-
-		// If there's an owner associated with the request, send the notification to their business email address
-		if (owner != null && owner.getBusinessEmailAddress() != null) {
-			notificationService.sendRequestNotification(
-				owner.getBusinessEmailAddress(),
-				request.getId(),
-				request.getNameEn(),
-				RequestEvent.FEEDBACK_PENDING
+		Optional.ofNullable(request.getSubmitter())
+			.map(this::getEmployeeEmails)
+			.filter(emails -> !emails.isEmpty())
+			.ifPresentOrElse(
+	emails -> notificationService.sendRequestNotification(
+					emails,
+					request.getId(),
+					request.getNameEn(),
+					RequestEvent.FEEDBACK_PENDING
+				), () -> log.warn("No email addresses found for request ID: [{}]", request.getId())
 			);
-		} else {
-			log.warn("No owner or business email address found for request ID: [{}]", request.getId());
-		}
 	}
 
 	/**
@@ -457,6 +457,19 @@ public class RequestService {
 		}
 
 		return request;
+	}
+
+	private List<String> getEmployeeEmails(UserEntity owner) {
+		final var businessEmail = Optional.ofNullable(owner.getBusinessEmailAddress())
+			.filter(StringUtils::hasText);
+
+		final var personalEmail = owner.getProfiles().stream()
+			.map(ProfileEntity::getPersonalEmailAddress)
+			.filter(StringUtils::hasText).findFirst();
+
+		return Stream.of(businessEmail, personalEmail)
+			.filter(Optional::isPresent)
+			.map(Optional::get).toList();
 	}
 
 }
