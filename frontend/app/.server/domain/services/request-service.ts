@@ -33,7 +33,7 @@ export type RequestService = {
     accessToken: string,
   ): Promise<Result<RequestReadModel, AppError>>;
 
-  // PUT /api/v1/requests/{id}/status - Update request status
+  // PUT /api/v1/requests/{id}/status-change - Update request status
   updateRequestStatus(requestId: number, eventType: string, accessToken: string): Promise<Result<void, AppError>>;
 
   // DELETE /api/v1/requests/{id} - Delete a request by ID

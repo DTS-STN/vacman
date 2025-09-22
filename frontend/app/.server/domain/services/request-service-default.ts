@@ -138,7 +138,7 @@ export function getDefaultRequestService(): RequestService {
      */
     async updateRequestStatus(requestId: number, eventType: string, accessToken: string): Promise<Result<void, AppError>> {
       const result = await apiClient.put<unknown, undefined>(
-        `/requests/${requestId}/status`,
+        `/requests/${requestId}/status-change`,
         `update request status for ID ${requestId}`,
         eventType,
         accessToken,
