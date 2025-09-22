@@ -19,10 +19,21 @@ import { getSelectionProcessTypeService } from '~/.server/domain/services/select
 import { getWorkScheduleService } from '~/.server/domain/services/work-schedule-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { countCompletedItems } from '~/.server/utils/profile-utils';
+import { i18nRedirect } from '~/.server/utils/route-utils';
 import { AlertMessage } from '~/components/alert-message';
+import { Button } from '~/components/button';
 import { ButtonLink } from '~/components/button-link';
 import { ContextualAlert } from '~/components/contextual-alert';
 import { DescriptionList, DescriptionListItem } from '~/components/description-list';
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '~/components/dialog';
 import { LoadingButton } from '~/components/loading-button';
 import { PageTitle } from '~/components/page-title';
 import { ProfileCard } from '~/components/profile-card';
@@ -57,6 +68,27 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 
   if (!requestData) {
     throw new Response('Request not found', { status: HttpStatusCodes.NOT_FOUND });
+  }
+
+  const formData = await request.formData();
+  const formAction = formData.get('_action');
+
+  if (formAction === 'cancel') {
+    const cancelRequest = await getRequestService().deleteRequestById(
+      Number(params.requestId),
+      context.session.authState.accessToken,
+    );
+
+    if (cancelRequest.isErr()) {
+      const error = cancelRequest.unwrapErr();
+      return {
+        status: 'error',
+        errorMessage: error.message,
+        errorCode: error.errorCode,
+      };
+    }
+
+    return i18nRedirect('routes/hiring-manager/requests.tsx', request);
   }
 
   // For process information from Request Model
@@ -408,6 +440,7 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
   const navigate = useNavigate();
 
   const [hasRequestChanged, setHasRequestChanged] = useState(loaderData.hasRequestChanged);
+  const [showDialog, setShowDialog] = useState(false);
 
   // Clean the URL after reading the param
   useEffect(() => {
@@ -747,15 +780,9 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
           <div className="mt-8 max-w-prose">
             <div className="flex justify-center">
               <fetcher.Form className="mt-6 md:mt-auto" method="post" noValidate>
-                <ButtonLink
-                  className="w-full"
-                  variant="alternative"
-                  file="routes/hiring-manager/index.tsx"
-                  id="cancel"
-                  disabled={isSubmitting}
-                >
+                <Button type="button" className="w-full" variant="alternative" id="cancel" onClick={() => setShowDialog(true)}>
                   {t('app:form.cancel')}
-                </ButtonLink>
+                </Button>
 
                 <ButtonLink
                   className="mt-4 w-full"
@@ -782,6 +809,26 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
           </div>
         </div>
       </div>
+      <Dialog open={showDialog} onOpenChange={setShowDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>{t('app:hiring-manager-referral-requests.request-cancel.title')}</DialogTitle>
+          </DialogHeader>
+          <DialogDescription>{t('app:hiring-manager-referral-requests.request-cancel.content')}</DialogDescription>
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button id="confirm-modal-back" variant="default" size="sm">
+                {t('app:hiring-manager-referral-requests.request-cancel.keep')}
+              </Button>
+            </DialogClose>
+            <fetcher.Form method="post" noValidate>
+              <Button id="cancel-request" variant="primary" size="sm" name="_action" value="cancel" disabled={isSubmitting}>
+                {t('app:hiring-manager-referral-requests.request-cancel.cancel')}
+              </Button>
+            </fetcher.Form>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
