@@ -335,11 +335,14 @@ export default {
     'notice-line-6':
       'The PSC priority clearance process is required prior to initiating an internal or external, advertised or non-advertised process for which the intent would result in indeterminate and term appointments.',
     'notice-line-7': "Consult the Manager's Guide on Priority Clearances for more information.",
+    'request-incomplete': 'Please complete all required fields before submitting request',
+    'request-submitted': 'Request submitted successfully! An HR advisor will review it for approval',
     'request-cancel': {
       title: 'Cancel request?',
       content: 'Are you sure you want to cancel this request? This action cannot be undone.',
       keep: 'Keep request',
       cancel: 'Cancel request',
+    },
   },
   'referral-request': 'Referral request',
   'position-information': {
