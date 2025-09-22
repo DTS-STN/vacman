@@ -1,11 +1,12 @@
 /**
  * Tests for index dashboard selection and routing flow.
  */
-import type { AppLoadContext } from 'react-router';
+import type { RouterContextProvider } from 'react-router';
 import { redirect } from 'react-router';
 
 import { None } from 'oxide.ts';
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { mock } from 'vitest-mock-extended';
 
 import { getProfileService } from '~/.server/domain/services/profile-service';
 import { getUserService } from '~/.server/domain/services/user-service';
@@ -14,7 +15,7 @@ import { loader as indexLoader } from '~/routes/index';
 
 // Type definitions for test compatibility
 type TestRouteArgs = {
-  context: AppLoadContext;
+  context: RouterContextProvider;
   request: Request;
   params: Record<string, string>;
 };
@@ -87,7 +88,7 @@ const mockProfileService = {
 vi.mocked(getProfileService).mockReturnValue(mockProfileService);
 
 // Helper to create mock context
-function createMockContext(activeDirectoryId: string, name?: string, roles: string[] = []): AppLoadContext {
+function createMockContext(activeDirectoryId: string, name?: string, roles: string[] = []): RouterContextProvider {
   const mockSession = {
     authState: {
       idTokenClaims: {
@@ -114,10 +115,10 @@ function createMockContext(activeDirectoryId: string, name?: string, roles: stri
     },
   } as unknown as AppSession;
 
-  return {
+  return mock({
     nonce: 'test-nonce',
     session: mockSession,
-  };
+  });
 }
 
 describe('Index Dashboard Selection Flow', () => {
