@@ -9,19 +9,11 @@ import type { LocalizedDirectorate, LocalizedBranch, Directorate, Branch } from 
  * @returns Array of unique localized branches sorted by name
  */
 export function extractUniqueBranchesFromDirectorates(directorates: readonly LocalizedDirectorate[]): LocalizedBranch[] {
-  return directorates
-    .filter(
-      (directorate): directorate is typeof directorate & { parent: NonNullable<typeof directorate.parent> } =>
-        directorate.parent !== null,
-    )
-    .map((directorate) => directorate.parent)
-    .filter(
-      (() => {
-        const seen = new Set<number>();
-        return (branch: LocalizedBranch) => !seen.has(branch.id) && seen.add(branch.id);
-      })(),
-    )
-    .sort((a, b) => a.name.localeCompare(b.name));
+  const branchesMap = new Map<number, LocalizedBranch>();
+  for (const directorate of directorates) {
+    if (directorate.parent) branchesMap.set(directorate.parent.id, directorate.parent);
+  }
+  return Array.from(branchesMap.values()).sort((a, b) => a.name.localeCompare(b.name));
 }
 
 /**
@@ -33,17 +25,9 @@ export function extractUniqueBranchesFromDirectorates(directorates: readonly Loc
  * @returns Array of unique branches sorted by English name
  */
 export function extractUniqueBranchesFromDirectoratesNonLocalized(directorates: readonly Directorate[]): Branch[] {
-  return directorates
-    .filter(
-      (directorate): directorate is typeof directorate & { parent: NonNullable<typeof directorate.parent> } =>
-        directorate.parent !== null,
-    )
-    .map((directorate) => directorate.parent)
-    .filter(
-      (() => {
-        const seen = new Set<number>();
-        return (branch: Branch) => !seen.has(branch.id) && seen.add(branch.id);
-      })(),
-    )
-    .sort((a, b) => a.nameEn.localeCompare(b.nameEn));
+  const branchesMap = new Map<number, Branch>();
+  for (const directorate of directorates) {
+    if (directorate.parent) branchesMap.set(directorate.parent.id, directorate.parent);
+  }
+  return Array.from(branchesMap.values()).sort((a, b) => a.nameEn.localeCompare(b.nameEn));
 }
