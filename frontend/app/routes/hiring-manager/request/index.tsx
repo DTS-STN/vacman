@@ -417,6 +417,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     priorityClearanceNumber: requestData.priorityClearanceNumber,
     pscClearanceNumber: requestData.pscClearanceNumber,
     requestNumber: requestData.requestNumber,
+    requestDate: requestData.createdDate,
     hasRequestChanged,
     lang,
   };
@@ -464,6 +465,52 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
         )}
 
         <PageTitle>{t('app:hiring-manager-referral-requests.page-title')}</PageTitle>
+
+        <div>
+          <DescriptionList className="flex">
+            <DescriptionListItem
+              className="mr-10 w-min whitespace-nowrap"
+              ddClassName="mt-1 text-white sm:col-span-2 sm:mt-0"
+              term={t('app:hiring-manager-referral-requests.request-id')}
+            >
+              {loaderData.requestNumber ?? t('app:hiring-manager-referral-requests.not-provided')}
+            </DescriptionListItem>
+
+            <DescriptionListItem
+              className="mx-10 w-min whitespace-nowrap"
+              ddClassName="mt-1 text-white sm:col-span-2 sm:mt-0"
+              term={t('app:hiring-manager-referral-requests.request-date')}
+            >
+              {loaderData.requestDate ?? t('app:hiring-manager-referral-requests.not-provided')}
+            </DescriptionListItem>
+
+            <DescriptionListItem
+              className="mx-10 w-min whitespace-nowrap"
+              ddClassName="mt-1 text-white sm:col-span-2 sm:mt-0"
+              term={t('app:hiring-manager-referral-requests.hiring-manager')}
+            >
+              {loaderData.hiringManager ? (
+                <>
+                  {`${loaderData.hiringManager.firstName} ${loaderData.hiringManager.lastName}`}
+                  <br />
+                  {loaderData.hiringManager.businessEmailAddress}
+                </>
+              ) : (
+                t('app:hiring-manager-referral-requests.not-provided')
+              )}
+            </DescriptionListItem>
+
+            <DescriptionListItem
+              className="ml-10 w-min whitespace-nowrap"
+              ddClassName="mt-1 text-white sm:col-span-2 sm:mt-0"
+              term={t('app:hiring-manager-referral-requests.hr-advisor')}
+            >
+              {loaderData.hrAdvisor
+                ? `${loaderData.hrAdvisor.firstName} ${loaderData.hrAdvisor.lastName}`
+                : t('app:hiring-manager-referral-requests.not-provided')}
+            </DescriptionListItem>
+          </DescriptionList>
+        </div>
 
         <div
           role="presentation"
