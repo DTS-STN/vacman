@@ -39,6 +39,10 @@ export function getDefaultProfileService(): ProfileService {
           searchParams.append('statusId', id.toString());
         }
       }
+      // Sorting: append single 'sort' param in the format `property,(asc|desc)`
+      if (params.sort) {
+        searchParams.append('sort', params.sort);
+      }
 
       const url = `/profiles${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
       const result = await apiClient.get<PagedProfileResponse>(url, 'retrieve paginated profiles', accessToken);

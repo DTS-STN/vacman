@@ -23,11 +23,24 @@ interface DataTableProps<TData, TValue> {
   data: TData[];
   // Whether to render the built-in pagination UI. If false, caller should render their own.
   showPagination?: boolean;
+  // Optional controlled sorting props so parent can drive sorting (e.g., via URL params)
+  sorting?: SortingState;
+  onSortingChange?: (updater: SortingState) => void;
+  // When true, table will not apply client-side sorting (server controls order)
+  disableClientSorting?: boolean;
 }
 
-export function DataTable<TData, TValue>({ columns, data, showPagination = true }: DataTableProps<TData, TValue>) {
+export function DataTable<TData, TValue>({
+  columns,
+  data,
+  showPagination = true,
+  sorting: controlledSorting,
+  onSortingChange,
+  disableClientSorting = false,
+}: DataTableProps<TData, TValue>) {
   const { t } = useTranslation(['gcweb']);
-  const [sorting, setSorting] = useState<SortingState>([]);
+  const [uncontrolledSorting, setUncontrolledSorting] = useState<SortingState>([]);
+  const sorting = controlledSorting ?? uncontrolledSorting;
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
   const table = useReactTable({
@@ -37,8 +50,16 @@ export function DataTable<TData, TValue>({ columns, data, showPagination = true 
     // Only enable local pagination when the pagination UI is shown.
     ...(showPagination ? { getPaginationRowModel: getPaginationRowModel() } : {}),
     autoResetPageIndex: true,
-    onSortingChange: setSorting,
-    getSortedRowModel: getSortedRowModel(),
+    onSortingChange: (updater) => {
+      // Resolve Updater<SortingState> to concrete value
+      const next = typeof updater === 'function' ? updater(sorting) : updater;
+      // Update local state for uncontrolled usage
+      setUncontrolledSorting(next);
+      // Bubble up for controlled scenarios
+      onSortingChange?.(next);
+    },
+    // Apply client-side sorting only if not disabled
+    ...(disableClientSorting ? {} : { getSortedRowModel: getSortedRowModel() }),
     onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
     state: {

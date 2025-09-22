@@ -234,6 +234,7 @@ export type ProfileQueryParams = {
   active?: boolean;
   hrAdvisorId?: string;
   statusIds?: number[];
+  sort?: string;
 };
 
 // Request Read Model
