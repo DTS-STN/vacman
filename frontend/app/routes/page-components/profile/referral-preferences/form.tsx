@@ -196,9 +196,16 @@ export function ReferralPreferencesForm({
               value={selectedClassifications}
               onChange={(values) => setSelectedClassifications(values)}
               placeholder={tApp('form.select-all-that-apply')}
-              helpMessage={tApp('referral-preferences.classification-group-help-message-primary')}
               errorMessage={tApp(extractValidationKey(formErrors?.preferredClassifications))}
               required
+              helpMessage={
+                <>
+                  {tApp('referral-preferences.classification-group-help-message-primary')}
+                  <Collapsible summary={tApp('referral-preferences.guidance-on-groups-and-levels')}>
+                    <p>{tApp('referral-preferences.guidance-on-groups-and-levels-description')}</p>
+                  </Collapsible>
+                </>
+              }
             />
 
             {classificationChoiceTags.length > 0 && (
