@@ -107,6 +107,7 @@ export default {
       'sorted-ascending': '{{column}}, trié en ordre croissant. Cliquez pour trier en ordre décroissant.',
       'sorted-descending': '{{column}}, trié en ordre décroissant. Cliquez pour supprimer le tri.',
       'not-sorted': '{{column}}, non trié. Cliquez pour trier en ordre croissant.',
+      'cleared': 'Tri effacé. Utilisez les en-têtes pour trier.',
     },
   },
   'search-bar': {

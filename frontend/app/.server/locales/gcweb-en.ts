@@ -105,6 +105,7 @@ export default {
       'sorted-ascending': '{{column}}, sorted ascending. Click to sort descending.',
       'sorted-descending': '{{column}}, sorted descending. Click to remove sorting.',
       'not-sorted': '{{column}}, not sorted. Click to sort ascending.',
+      'cleared': 'Sorting cleared. Use headers to sort.',
     },
   },
   'search-bar': {

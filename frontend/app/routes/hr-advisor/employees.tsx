@@ -286,9 +286,7 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
         const prev = currentSort;
         const colTitle = prev ? columnIdToTitle[prev.id] : undefined;
         setSrAnnouncement(
-          colTitle
-            ? t('gcweb:data-table.sorting.not-sorted', { column: colTitle })
-            : t('app:hr-advisor-employees-table.updated'),
+          colTitle ? t('gcweb:data-table.sorting.not-sorted', { column: colTitle }) : t('gcweb:data-table.sorting.cleared'),
         );
       }
     },
