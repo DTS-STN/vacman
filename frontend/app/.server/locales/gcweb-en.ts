@@ -102,9 +102,9 @@ export default {
       'more-pages': 'More pages',
     },
     'sorting': {
-      'sorted-ascending': '{{column}}, sorted ascending. Click to sort descending.',
-      'sorted-descending': '{{column}}, sorted descending. Click to remove sorting.',
-      'not-sorted': '{{column}}, not sorted. Click to sort ascending.',
+      'sorted-ascending': '{{column}}, sorted ascending. Click to remove sorting.',
+      'sorted-descending': '{{column}}, sorted descending. Click to sort ascending.',
+      'not-sorted': '{{column}}, not sorted. Click to sort descending.',
       'cleared': 'Sorting cleared. Use headers to sort.',
     },
   },
