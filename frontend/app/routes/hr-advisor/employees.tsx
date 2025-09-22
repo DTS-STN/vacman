@@ -1,5 +1,5 @@
 import type { JSX } from 'react';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useCallback, startTransition } from 'react';
 
 import type { RouteHandle } from 'react-router';
 import { data, useFetcher, useSearchParams } from 'react-router';
@@ -103,6 +103,8 @@ export async function loader({ context, request }: Route.LoaderArgs) {
   const sizeParam = url.searchParams.get('size');
   // statusIds as repeated params: ?statusIds=1&statusIds=2
   const statusIdsParams = url.searchParams.getAll('statusIds');
+  // sort as a single param: sort=property,(asc|desc)
+  const sortParam = url.searchParams.get('sort');
   // URL 'page' is treated as 1-based for the backend; default to 1 if missing/invalid
   const pageOneBased = Math.max(1, Number.parseInt(pageParam ?? '1', 10) || 1);
   // Keep page size modest for wire efficiency, cap to prevent abuse
@@ -122,6 +124,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
     // Backend expects 1-based page index
     page: pageOneBased,
     size: size,
+    sort: sortParam ?? undefined,
   };
 
   const profileService = getProfileService();
@@ -187,6 +190,124 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
   const currentPage = getCurrentPage(searchParams, 'page', totalPages);
   const pageItems = getPageItems(totalPages, currentPage, { threshold: 9, delta: 2 });
 
+  // Sorting helpers
+  // Strongly type the allowed column ids and backend properties
+  type ColumnId = 'name' | 'email' | 'dateUpdated';
+  type SortProp = 'user.lastName' | 'user.businessEmailAddress' | 'lastModifiedDate';
+
+  // Map column ids to API sort properties
+  const COLUMN_TO_PROPERTY = useMemo(
+    () =>
+      ({
+        name: 'user.lastName',
+        email: 'user.businessEmailAddress',
+        dateUpdated: 'lastModifiedDate',
+      }) as const satisfies Record<ColumnId, SortProp>,
+    [],
+  );
+
+  // Inverse map: API sort properties to column ids
+  const PROPERTY_TO_COLUMN = useMemo(
+    () =>
+      ({
+        'user.lastName': 'name',
+        'user.businessEmailAddress': 'email',
+        'lastModifiedDate': 'dateUpdated',
+      }) as const satisfies Record<SortProp, ColumnId>,
+    [],
+  );
+
+  // Runtime guard: validate backend sort property using the mapping as source of truth
+  const isColumnId = useCallback(
+    (id: string): id is ColumnId => {
+      return Object.prototype.hasOwnProperty.call(COLUMN_TO_PROPERTY, id);
+    },
+    [COLUMN_TO_PROPERTY],
+  );
+
+  const isSortProp = useCallback(
+    (v: string): v is SortProp => {
+      return Object.prototype.hasOwnProperty.call(PROPERTY_TO_COLUMN, v);
+    },
+    [PROPERTY_TO_COLUMN],
+  );
+
+  // Derive single current sort from URL search params
+  const parseSortParam = useCallback(
+    (value: string | null): { id: ColumnId; desc: boolean } | null => {
+      if (!value) return null;
+      const [propRaw, dirRaw] = value.split(',');
+      const propKey = (propRaw ?? '').trim();
+      if (!isSortProp(propKey)) return null;
+      const colId = PROPERTY_TO_COLUMN[propKey];
+      const dir = (dirRaw ?? 'asc').trim().toLowerCase();
+      const desc = dir === 'desc';
+      return { id: colId, desc };
+    },
+    [PROPERTY_TO_COLUMN, isSortProp],
+  );
+
+  const serializeSortParam = useCallback(
+    (s: { id: string; desc: boolean } | null | undefined): string | null => {
+      if (!s?.id || !isColumnId(s.id)) return null;
+      const prop = COLUMN_TO_PROPERTY[s.id];
+      return `${prop},${s.desc ? 'desc' : 'asc'}`;
+    },
+    [COLUMN_TO_PROPERTY, isColumnId],
+  );
+
+  const currentSort = useMemo((): { id: ColumnId; desc: boolean } | null => {
+    return parseSortParam(searchParams.get('sort'));
+  }, [searchParams, parseSortParam]);
+
+  // Map column ids to localized header titles for announcements
+  const columnIdToTitle = useMemo(
+    () =>
+      ({
+        name: t('app:hr-advisor-employees-table.employee'),
+        email: t('app:hr-advisor-employees-table.email'),
+        dateUpdated: t('app:hr-advisor-employees-table.updated'),
+      }) as const satisfies Record<ColumnId, string>,
+    [t],
+  );
+
+  const announceSortChange = useCallback(
+    (next: { id: ColumnId; desc: boolean } | null | undefined) => {
+      if (next?.id) {
+        const colTitle = columnIdToTitle[next.id];
+        setSrAnnouncement(
+          next.desc
+            ? t('gcweb:data-table.sorting.sorted-descending', { column: colTitle })
+            : t('gcweb:data-table.sorting.sorted-ascending', { column: colTitle }),
+        );
+      } else {
+        const prev = currentSort;
+        const colTitle = prev ? columnIdToTitle[prev.id] : undefined;
+        setSrAnnouncement(
+          colTitle ? t('gcweb:data-table.sorting.not-sorted', { column: colTitle }) : t('gcweb:data-table.sorting.cleared'),
+        );
+      }
+    },
+    [columnIdToTitle, currentSort, t],
+  );
+
+  // When sorting changes in the table UI, push it into URL and announce the change (single sort only)
+  const handleSortingChange = useCallback(
+    (next: { id: string; desc: boolean } | null | undefined) => {
+      // Normalize input to our typed ColumnId or clear
+      const normalized: { id: ColumnId; desc: boolean } | null =
+        next?.id && isColumnId(next.id) ? { id: next.id, desc: next.desc } : null;
+      const paramsNext = new URLSearchParams(searchParams);
+      // Clear and set single sort param
+      paramsNext.delete('sort');
+      const encoded = serializeSortParam(normalized);
+      if (encoded) paramsNext.set('sort', encoded);
+      announceSortChange(normalized);
+      startTransition(() => setSearchParams(paramsNext));
+    },
+    [searchParams, serializeSortParam, announceSortChange, setSearchParams, isColumnId],
+  );
+
   // Map loader statuses (id + codes) to help translate between codes shown in UI and ids for query
   const statusCodeById = useMemo(() => {
     const map = new Map<number, string>();
@@ -220,12 +341,14 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
 
   const columns: ColumnDef<Profile>[] = [
     {
+      id: 'name',
       accessorKey: 'profileUser.firstName',
-      accessorFn: (row) => `${row.profileUser.firstName} ${row.profileUser.lastName}`,
+      accessorFn: (row) => `${row.profileUser.lastName}, ${row.profileUser.firstName}`,
       header: ({ column }) => <DataTableColumnHeader column={column} title={t('app:hr-advisor-employees-table.employee')} />,
       cell: (info) => <p>{info.getValue() as string}</p>,
     },
     {
+      id: 'email',
       accessorKey: 'profileUser.businessEmailAddress',
       header: ({ column }) => <DataTableColumnHeader column={column} title={t('app:hr-advisor-employees-table.email')} />,
       cell: (info) => {
@@ -241,6 +364,7 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
       },
     },
     {
+      id: 'dateUpdated',
       accessorKey: 'dateUpdated',
       header: ({ column }) => <DataTableColumnHeader column={column} title={t('app:hr-advisor-employees-table.updated')} />,
       cell: (info) => {
@@ -265,6 +389,9 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
             const filter = searchParams.get('filter') ?? 'all';
             const size = searchParams.get('size') ?? '10';
             const params = new URLSearchParams({ filter, page: '1', size });
+            // Preserve existing single sort
+            const sort = searchParams.get('sort');
+            if (sort) params.set('sort', sort);
             Array.from(new Set(ids))
               .sort((a, b) => a - b)
               .forEach((id) => params.append('statusIds', String(id)));
@@ -345,6 +472,9 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
               const existingStatusIds = searchParams.getAll('statusIds');
               // Reset to page 1 (1-based) on filter change and preserve existing statusIds selection
               const params = new URLSearchParams({ filter: target.value, page: '1', size });
+              // Preserve existing single sort
+              const sort = searchParams.get('sort');
+              if (sort) params.set('sort', sort);
               existingStatusIds.forEach((id) => params.append('statusIds', id));
               setSearchParams(params);
               // Announce table filtering change to screen readers
@@ -364,7 +494,14 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
         {srAnnouncement}
       </div>
 
-      <DataTable columns={columns} data={loaderData.profiles} showPagination={false} />
+      <DataTable
+        columns={columns}
+        data={loaderData.profiles}
+        showPagination={false}
+        sorting={currentSort ? [currentSort] : []}
+        onSortingChange={(state) => handleSortingChange(state[0])}
+        disableClientSorting
+      />
 
       {totalPages > 1 && (
         <Pagination className="my-4" aria-label={t('gcweb:data-table.pagination.label', { defaultValue: 'Pagination' })}>
