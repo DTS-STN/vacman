@@ -1,5 +1,5 @@
 import type { JSX } from 'react';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useCallback, startTransition } from 'react';
 
 import type { RouteHandle } from 'react-router';
 import { data, useFetcher, useSearchParams } from 'react-router';
@@ -191,73 +191,126 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
   const pageItems = getPageItems(totalPages, currentPage, { threshold: 9, delta: 2 });
 
   // Sorting helpers
+  // Strongly type the allowed column ids and backend properties
+  type ColumnId = 'name' | 'email' | 'dateUpdated';
+  type SortProp = 'user.lastName' | 'user.businessEmailAddress' | 'lastModifiedDate';
+
   // Map column ids to API sort properties
-  const COLUMN_TO_PROPERTY: Record<string, string> = useMemo(
-    () => ({
-      name: 'user.lastName',
-      email: 'user.businessEmailAddress',
-      dateUpdated: 'lastModifiedDate',
-    }),
+  const COLUMN_TO_PROPERTY = useMemo(
+    () =>
+      ({
+        name: 'user.lastName',
+        email: 'user.businessEmailAddress',
+        dateUpdated: 'lastModifiedDate',
+      }) as const satisfies Record<ColumnId, SortProp>,
     [],
   );
 
-  const PROPERTY_TO_COLUMN: Record<string, string> = useMemo(
-    () => ({
-      'user.lastName': 'name',
-      'user.businessEmailAddress': 'email',
-      'lastModifiedDate': 'dateUpdated',
-    }),
+  // Inverse map: API sort properties to column ids
+  const PROPERTY_TO_COLUMN = useMemo(
+    () =>
+      ({
+        'user.lastName': 'name',
+        'user.businessEmailAddress': 'email',
+        'lastModifiedDate': 'dateUpdated',
+      }) as const satisfies Record<SortProp, ColumnId>,
     [],
+  );
+
+  const isColumnId = useCallback(
+    (id: string): id is ColumnId => {
+      // Use the COLUMN_TO_PROPERTY map as the source of truth
+      return Object.prototype.hasOwnProperty.call(COLUMN_TO_PROPERTY, id);
+    },
+    [COLUMN_TO_PROPERTY],
+  );
+
+  // Runtime guard: validate backend sort property using the mapping as source of truth
+  const isSortProp = useCallback(
+    (v: string): v is SortProp => {
+      return Object.prototype.hasOwnProperty.call(PROPERTY_TO_COLUMN, v);
+    },
+    [PROPERTY_TO_COLUMN],
   );
 
   // Derive single current sort from URL search params
-  const currentSort = useMemo((): { id: string; desc: boolean } | null => {
-    const value = searchParams.get('sort');
-    if (!value) return null;
-    const [propRaw, dirRaw] = value.split(',');
-    const prop = propRaw ?? '';
-    const colId = PROPERTY_TO_COLUMN[prop];
-    if (!colId) return null;
-    const dir = (dirRaw ?? 'asc').toLowerCase();
-    const desc = dir === 'desc';
-    return { id: colId, desc };
-  }, [searchParams, PROPERTY_TO_COLUMN]);
+  const parseSortParam = useCallback(
+    (value: string | null): { id: ColumnId; desc: boolean } | null => {
+      if (!value) return null;
+      const [propRaw, dirRaw] = value.split(',');
+      const propKey = (propRaw ?? '').trim();
+      // Validate propKey using single source of truth (PROPERTY_TO_COLUMN)
+      if (!isSortProp(propKey)) return null;
+      const colId = PROPERTY_TO_COLUMN[propKey];
+      const dir = (dirRaw ?? 'asc').trim().toLowerCase();
+      const desc = dir === 'desc';
+      return { id: colId, desc };
+    },
+    [PROPERTY_TO_COLUMN, isSortProp],
+  );
+
+  const serializeSortParam = useCallback(
+    (s: { id: string; desc: boolean } | null | undefined): string | null => {
+      if (!s?.id || !isColumnId(s.id)) return null;
+      const prop = COLUMN_TO_PROPERTY[s.id];
+      return `${prop},${s.desc ? 'desc' : 'asc'}`;
+    },
+    [COLUMN_TO_PROPERTY, isColumnId],
+  );
+
+  const currentSort = useMemo((): { id: ColumnId; desc: boolean } | null => {
+    return parseSortParam(searchParams.get('sort'));
+  }, [searchParams, parseSortParam]);
 
   // Map column ids to localized header titles for announcements
-  const columnIdToTitle = useMemo(() => {
-    return new Map<string, string>([
-      ['name', t('app:hr-advisor-employees-table.employee')],
-      ['email', t('app:hr-advisor-employees-table.email')],
-      ['dateUpdated', t('app:hr-advisor-employees-table.updated')],
-    ]);
-  }, [t]);
+  const columnIdToTitle = useMemo(
+    () =>
+      ({
+        name: t('app:hr-advisor-employees-table.employee'),
+        email: t('app:hr-advisor-employees-table.email'),
+        dateUpdated: t('app:hr-advisor-employees-table.updated'),
+      }) as const satisfies Record<ColumnId, string>,
+    [t],
+  );
+
+  const announceSortChange = useCallback(
+    (next: { id: ColumnId; desc: boolean } | null | undefined) => {
+      if (next?.id) {
+        const colTitle = columnIdToTitle[next.id];
+        setSrAnnouncement(
+          next.desc
+            ? t('gcweb:data-table.sorting.sorted-descending', { column: colTitle })
+            : t('gcweb:data-table.sorting.sorted-ascending', { column: colTitle }),
+        );
+      } else {
+        const prev = currentSort;
+        const colTitle = prev ? columnIdToTitle[prev.id] : undefined;
+        setSrAnnouncement(
+          colTitle
+            ? t('gcweb:data-table.sorting.not-sorted', { column: colTitle })
+            : t('app:hr-advisor-employees-table.updated'),
+        );
+      }
+    },
+    [columnIdToTitle, currentSort, t],
+  );
 
   // When sorting changes in the table UI, push it into URL and announce the change (single sort only)
-  const handleSortingChange = (next: { id: string; desc: boolean } | null | undefined) => {
-    const paramsNext = new URLSearchParams(searchParams);
-    // Clear and set single sort param
-    paramsNext.delete('sort');
-    if (next?.id) {
-      const s0 = next;
-      const prop = COLUMN_TO_PROPERTY[s0.id];
-      if (prop) paramsNext.set('sort', `${prop},${s0.desc ? 'desc' : 'asc'}`);
-      // SR announcement: sorted asc/desc for column
-      const colTitle = columnIdToTitle.get(s0.id) ?? s0.id;
-      setSrAnnouncement(
-        s0.desc
-          ? t('gcweb:data-table.sorting.sorted-descending', { column: colTitle })
-          : t('gcweb:data-table.sorting.sorted-ascending', { column: colTitle }),
-      );
-    } else {
-      // Sorting cleared. Use previous column from current state if available for context.
-      const prev = currentSort;
-      const colTitle = prev ? (columnIdToTitle.get(prev.id) ?? prev.id) : undefined;
-      setSrAnnouncement(
-        colTitle ? t('gcweb:data-table.sorting.not-sorted', { column: colTitle }) : t('app:hr-advisor-employees-table.updated'),
-      );
-    }
-    setSearchParams(paramsNext);
-  };
+  const handleSortingChange = useCallback(
+    (next: { id: string; desc: boolean } | null | undefined) => {
+      // Normalize input to our typed ColumnId or clear
+      const normalized: { id: ColumnId; desc: boolean } | null =
+        next?.id && isColumnId(next.id) ? { id: next.id, desc: next.desc } : null;
+      const paramsNext = new URLSearchParams(searchParams);
+      // Clear and set single sort param
+      paramsNext.delete('sort');
+      const encoded = serializeSortParam(next);
+      if (encoded) paramsNext.set('sort', encoded);
+      announceSortChange(normalized);
+      startTransition(() => setSearchParams(paramsNext));
+    },
+    [searchParams, serializeSortParam, announceSortChange, setSearchParams, isColumnId],
+  );
 
   // Map loader statuses (id + codes) to help translate between codes shown in UI and ids for query
   const statusCodeById = useMemo(() => {
