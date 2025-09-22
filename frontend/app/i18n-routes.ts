@@ -345,8 +345,8 @@ export const i18nRoutes = [
         id: 'HIRE-0009',
         file: 'routes/hiring-manager/request/profile.tsx',
         paths: {
-          en: '/en/hiring-manager/request/:requestId/match/:matchId/profile',
-          fr: '/fr/gestionnaire-embauche/demande/:requestId/correspondance/:matchId/profile',
+          en: '/en/hiring-manager/request/:requestId/profile/:profileId',
+          fr: '/fr/gestionnaire-embauche/demande/:requestId/profil/:profileId',
         },
       },
       {

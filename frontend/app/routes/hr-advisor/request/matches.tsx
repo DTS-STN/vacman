@@ -99,7 +99,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   ];
 
   return {
-    documentTitle: t('app:hr-advisor-requests.page-title'),
+    documentTitle: t('app:matches.page-title'),
     requestMatches,
     matchStatusNames,
     matchFeedbackNames,

@@ -489,6 +489,7 @@ export default {
     'next-page': 'Suivant',
   },
   'matches': {
+    'page-title': 'Candidatures de la demande',
     'referral-request': 'Demande de présentation de candidatures',
     'request-id': 'No. de la demande',
     'request-date': 'Date de la demande',
@@ -497,12 +498,15 @@ export default {
     'back-request-details': "Retour à l'information sur la demande",
     'request-candidates': 'Candidatures de la demande',
     'feedback': {
+      success: "Commentaire soumis avec succès ! Un(e) Conseiller(ère) l'examinera pour approbation.",
       approved:
         '<strong>Tous les commentaires ont été approuvés.</strong> Veuillez retourner à la <InlineLink>page des détails de la demande</InlineLink> et sélectionner la prochaine action à effectuer',
     },
     'request-details': "L'information sur la demande",
     'page-info':
       "Consulter la rétroaction sur les candidat-e-s ci-dessous pour approbation. Si des modifications sont nécessaires, communiquez directement avec le-la gestionnaire d'embauche pour en discuter et mettre à jour la demande avant de sélectionner l'action appropriée sur la page l'information sur la demande.",
+    'confirm-info':
+      'Je confirme que les droits en matière de recyclage ont été appliqués et/ou pris en compte pour chaque employé-e touché-e, excédentaire ou mis-e en disponibilité considéré-e.',
   },
   'matches-tables': {
     'employee': 'Employé-e',

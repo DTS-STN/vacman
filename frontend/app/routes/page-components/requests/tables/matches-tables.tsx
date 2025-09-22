@@ -167,7 +167,10 @@ export default function MatchesTable({
         );
       },
     },
-    {
+  ];
+
+  if (view === 'hr-advisor') {
+    columns.push({
       accessorKey: 'approval',
       accessorFn: (row) => row.approval,
       header: ({ column }) => <DataTableColumnHeader column={column} title={t('matches-tables.approval')} />,
@@ -195,8 +198,8 @@ export default function MatchesTable({
           </Dialog>
         );
       },
-    },
-  ];
+    });
+  }
 
   return (
     <div className="mb-8">
