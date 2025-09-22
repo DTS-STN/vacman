@@ -352,8 +352,8 @@ export function getMockProfileService(): ProfileService {
         substantiveWorkUnit,
         substantiveCity,
         wfaStatus,
-        wfaStartDate: profile.wfaStartDate ?? existingProfile.wfaStartDate,
-        wfaEndDate: profile.wfaEndDate ?? existingProfile.wfaEndDate,
+        wfaStartDate: profile.wfaStartDate,
+        wfaEndDate: profile.wfaEndDate,
 
         id: profileId, // Ensure ID doesn't change
         lastModifiedDate: new Date().toISOString(),
