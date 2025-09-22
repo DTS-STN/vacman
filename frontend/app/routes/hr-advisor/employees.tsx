@@ -217,15 +217,14 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
     [],
   );
 
+  // Runtime guard: validate backend sort property using the mapping as source of truth
   const isColumnId = useCallback(
     (id: string): id is ColumnId => {
-      // Use the COLUMN_TO_PROPERTY map as the source of truth
       return Object.prototype.hasOwnProperty.call(COLUMN_TO_PROPERTY, id);
     },
     [COLUMN_TO_PROPERTY],
   );
 
-  // Runtime guard: validate backend sort property using the mapping as source of truth
   const isSortProp = useCallback(
     (v: string): v is SortProp => {
       return Object.prototype.hasOwnProperty.call(PROPERTY_TO_COLUMN, v);
@@ -239,7 +238,6 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
       if (!value) return null;
       const [propRaw, dirRaw] = value.split(',');
       const propKey = (propRaw ?? '').trim();
-      // Validate propKey using single source of truth (PROPERTY_TO_COLUMN)
       if (!isSortProp(propKey)) return null;
       const colId = PROPERTY_TO_COLUMN[propKey];
       const dir = (dirRaw ?? 'asc').trim().toLowerCase();
