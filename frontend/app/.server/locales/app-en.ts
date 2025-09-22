@@ -292,8 +292,13 @@ export default {
     'requests': 'Requests',
   },
   'hiring-manager-referral-requests': {
-    'page-title': 'Referral requests',
+    'page-title': 'Referral request',
     'request-details': 'Request details',
+    'request-id': 'Request ID',
+    'request-date': 'Request date',
+    'hiring-manager': 'Hiring manager',
+    'hr-advisor': 'HR advisor',
+    'not-assigned': 'To be assigned',
     'request-completion-progress': 'Request completion progress',
     'page-description':
       'Complete all sections detailing the process, position, and required qualifications and submit for approval.',

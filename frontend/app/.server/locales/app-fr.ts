@@ -296,8 +296,13 @@ export default {
   },
   // TODO updated FR
   'hiring-manager-referral-requests': {
-    'page-title': 'Referral requests FR',
-    'request-details': 'Request details FR',
+    'page-title': 'Information sur la demande',
+    'request-details': 'Information sur la demande',
+    'request-id': 'No. de la demande',
+    'request-date': 'Date de la demande',
+    'hiring-manager': "Gestionnaire d'embauche",
+    'hr-advisor': 'Conseiller(ère)',
+    'not-assigned': 'À assigner',
     'request-completion-progress': "Demander l'avancement de l'achèvement",
     'page-description':
       'Complete all sections detailing the process, position, and required qualifications and submit for approval. FR',

@@ -50,6 +50,8 @@ import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { useFetcherState } from '~/hooks/use-fetcher-state';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
+import { formatISODate } from '~/utils/date-utils';
+import { cn } from '~/utils/tailwind-utils';
 
 export const handle = {
   i18nNamespace: [...parentHandle.i18nNamespace],
@@ -417,6 +419,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     priorityClearanceNumber: requestData.priorityClearanceNumber,
     pscClearanceNumber: requestData.pscClearanceNumber,
     requestNumber: requestData.requestNumber,
+    requestDate: requestData.createdDate,
     hasRequestChanged,
     lang,
   };
@@ -442,6 +445,9 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
   const [hasRequestChanged, setHasRequestChanged] = useState(loaderData.hasRequestChanged);
   const [showDialog, setShowDialog] = useState(false);
 
+  const isSubmitted =
+    loaderData.status?.code === REQUEST_STATUS_CODE.SUBMIT || loaderData.status?.code === REQUEST_STATUS_CODE.HR_REVIEW;
+
   // Clean the URL after reading the param
   useEffect(() => {
     if (searchParams.get('edited') === 'true') {
@@ -465,9 +471,62 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
 
         <PageTitle>{t('app:hiring-manager-referral-requests.page-title')}</PageTitle>
 
+        {isSubmitted && (
+          <div>
+            <DescriptionList className="flex">
+              <DescriptionListItem
+                className="mr-10 w-min whitespace-nowrap"
+                ddClassName="mt-1 text-white sm:col-span-2 sm:mt-0"
+                term={t('app:hiring-manager-referral-requests.request-id')}
+              >
+                {loaderData.requestNumber ?? t('app:hiring-manager-referral-requests.not-provided')}
+              </DescriptionListItem>
+
+              <DescriptionListItem
+                className="mx-10 w-min whitespace-nowrap"
+                ddClassName="mt-1 text-white sm:col-span-2 sm:mt-0"
+                term={t('app:hiring-manager-referral-requests.request-date')}
+              >
+                {loaderData.requestDate
+                  ? formatISODate(loaderData.requestDate)
+                  : t('app:hiring-manager-referral-requests.not-provided')}
+              </DescriptionListItem>
+
+              <DescriptionListItem
+                className="mx-10 w-min whitespace-nowrap"
+                ddClassName="mt-1 text-white sm:col-span-2 sm:mt-0"
+                term={t('app:hiring-manager-referral-requests.hiring-manager')}
+              >
+                {loaderData.hiringManager ? (
+                  <>
+                    {`${loaderData.hiringManager.firstName} ${loaderData.hiringManager.lastName}`}
+                    <br />
+                    {loaderData.hiringManager.businessEmailAddress}
+                  </>
+                ) : (
+                  t('app:hiring-manager-referral-requests.not-provided')
+                )}
+              </DescriptionListItem>
+
+              <DescriptionListItem
+                className="ml-10 w-min whitespace-nowrap"
+                ddClassName="mt-1 text-white sm:col-span-2 sm:mt-0"
+                term={t('app:hiring-manager-referral-requests.hr-advisor')}
+              >
+                {loaderData.hrAdvisor
+                  ? `${loaderData.hrAdvisor.firstName} ${loaderData.hrAdvisor.lastName}`
+                  : t('app:hiring-manager-referral-requests.not-assigned')}
+              </DescriptionListItem>
+            </DescriptionList>
+          </div>
+        )}
+
         <div
           role="presentation"
-          className="absolute top-25 left-0 -z-10 h-50 w-full scale-x-[-1] bg-[rgba(9,28,45,1)] bg-[url('/VacMan-design-element-06.svg')] bg-size-[450px] bg-left-bottom bg-no-repeat"
+          className={cn(
+            isSubmitted ? 'h-70' : 'h-50',
+            "absolute top-25 left-0 -z-10 w-full scale-x-[-1] bg-[rgba(9,28,45,1)] bg-[url('/VacMan-design-element-06.svg')] bg-size-[450px] bg-left-bottom bg-no-repeat",
+          )}
         />
       </div>
 
