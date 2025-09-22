@@ -436,6 +436,7 @@ export default {
     'next-page': 'Next',
   },
   'matches': {
+    'page-title': 'Request candidates',
     'referral-request': 'Referral Request',
     'request-id': 'Request ID',
     'request-date': 'Request date',
@@ -444,12 +445,15 @@ export default {
     'back-request-details': 'Back to request details',
     'request-candidates': 'Request candidates',
     'feedback': {
+      success: 'Feedback submitted successfully! An HR advisor will review it for approval',
       approved:
         '<strong>All feedback approved.</strong> Please return to the <InlineLink>Request details page</InlineLink> and select the next action to take',
     },
     'request-details': 'Request details',
     'page-info':
       'Review candidate feedback below for approval. If changes are needed, contact the hiring manager directly to discuss, and update before selecting the appropriate action on the request details page.',
+    'confirm-info':
+      'I confirm that retraining rights for any affected, surplus or lay-off priorities were applied and or considered.',
   },
   'matches-tables': {
     'employee': 'Employee',

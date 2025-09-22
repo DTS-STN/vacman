@@ -1,3 +1,189 @@
+import { useRef } from 'react';
+
+import type { RouteHandle } from 'react-router';
+
+import { useTranslation } from 'react-i18next';
+
 import type { Route } from './+types/matches';
 
-export default function HiringManagerRequestMatches({ loaderData, params }: Route.ComponentProps) {}
+import { getMatchFeedbackService } from '~/.server/domain/services/match-feedback-service';
+import { getMatchStatusService } from '~/.server/domain/services/match-status-service';
+import { getRequestStatusService } from '~/.server/domain/services/request-status-service';
+import { requireAuthentication } from '~/.server/utils/auth-utils';
+import { AlertMessage } from '~/components/alert-message';
+import { BackLink } from '~/components/back-link';
+import { Button } from '~/components/button';
+import { InputCheckbox } from '~/components/input-checkbox';
+import { PageTitle } from '~/components/page-title';
+import { Progress } from '~/components/progress';
+import { StatusTag } from '~/components/status-tag';
+import { VacmanBackground } from '~/components/vacman-background';
+import { getTranslation } from '~/i18n-config.server';
+import { handle as parentHandle } from '~/routes/layout';
+import MatchesTable from '~/routes/page-components/requests/tables/matches-tables';
+
+export const handle = {
+  i18nNamespace: [...parentHandle.i18nNamespace],
+} as const satisfies RouteHandle;
+
+export function meta({ loaderData }: Route.MetaArgs) {
+  return [{ title: loaderData.documentTitle }];
+}
+
+export async function loader({ context, request, params }: Route.LoaderArgs) {
+  requireAuthentication(context.session, request);
+
+  const { t, lang } = await getTranslation(request, handle.i18nNamespace);
+
+  /*
+  TODO - implement fetching request matches
+
+  const requestMatchesResult = await getRequestService().getRequestMatches(
+    parseInt(params.requestId),
+    context.session.authState.accessToken,
+  );
+
+  const requestMatches = requestMatchesResult.into()?.content ?? [];
+  */
+  const requestStatuses = await getRequestStatusService().listAllLocalized(lang);
+  const localizedStatuses = await getMatchStatusService().listAllLocalized(lang);
+  const localizedFeedback = await getMatchFeedbackService().listAllLocalized(lang);
+  const matchStatusNames = localizedStatuses.map(({ name }) => name);
+  const matchFeedbackNames = localizedFeedback.map(({ name }) => name);
+
+  const requestMatches = [
+    {
+      id: 3,
+      employee: {
+        firstName: 'Alice',
+        initial: 'M',
+        lastName: 'Smith',
+      },
+      wfaStatus: 2,
+      feedback: 1,
+      comment: {
+        hrAdvisor: undefined,
+        hiringManager: 'Interested in remote work.',
+      },
+      approval: false,
+    },
+    {
+      id: 4,
+      employee: {
+        firstName: 'Bob',
+        initial: 'R',
+        lastName: 'Johnson',
+      },
+      wfaStatus: 2,
+      feedback: 0,
+      comment: {
+        hrAdvisor: 'Interested in remote work.',
+        hiringManager: undefined,
+      },
+      approval: false,
+    },
+    {
+      id: 5,
+      employee: {
+        firstName: 'Alex',
+        initial: 'T',
+        lastName: 'Tan',
+      },
+      wfaStatus: 1,
+      feedback: 1,
+      comment: {
+        hrAdvisor: 'Interested in remote work.',
+        hiringManager: undefined,
+      },
+      approval: true,
+    },
+  ];
+
+  return {
+    documentTitle: t('app:matches.page-title'),
+    requestMatches,
+    matchStatusNames,
+    matchFeedbackNames,
+    requestStatus: requestStatuses[5],
+    branch: 'Chief Financial Officer Branch',
+    requestDate: '0000-00-00',
+    hiringManager: {
+      firstName: 'Tim',
+      lastName: 'Tom',
+      email: 'hiring.manager@email.ca',
+    },
+    hrAdvisor: {
+      firstName: 'Tim',
+      lastName: 'Tam',
+      email: 'hr.advisor@email.ca',
+    },
+    feedbackProgress: 90,
+  };
+}
+
+export default function HiringManagerRequestMatches({ loaderData, params }: Route.ComponentProps) {
+  const { t } = useTranslation(handle.i18nNamespace);
+  const alertRef = useRef<HTMLDivElement>(null);
+  const requestId = params.requestId;
+
+  return (
+    <div className="mb-8 space-y-4">
+      <VacmanBackground variant="top-right" height="h-70">
+        {loaderData.requestStatus && (
+          <div className="mt-8">
+            <StatusTag
+              status={{
+                code: loaderData.requestStatus.code,
+                name: loaderData.requestStatus.name,
+              }}
+            />
+          </div>
+        )}
+        <PageTitle className="after:w-14" subTitle={loaderData.branch}>
+          {t('app:matches.referral-request')}
+        </PageTitle>
+        <div className="grid grid-cols-4 gap-10">
+          <div>
+            <p>{t('app:matches.request-id')}</p>
+            <p className="text-[#9FA3AD]">{requestId}</p>
+          </div>
+          <div>
+            <p>{t('app:matches.request-date')}</p>
+            <p className="text-[#9FA3AD]">{loaderData.requestDate}</p>
+          </div>
+          <div>
+            <p>{t('app:matches.hiring-manager')}</p>
+            <p className="text-[#9FA3AD]">
+              {loaderData.hiringManager.firstName} {loaderData.hiringManager.lastName}
+            </p>
+            <p>{loaderData.hiringManager.email}</p>
+          </div>
+          <div>
+            <p>{t('app:matches.hr-advisor')}</p>
+            <p className="text-[#9FA3AD]">
+              {loaderData.hrAdvisor.firstName} {loaderData.hrAdvisor.lastName}
+            </p>
+            <p>{loaderData.hrAdvisor.email}</p>
+          </div>
+        </div>
+      </VacmanBackground>
+      <BackLink aria-label={t('app:matches.back-request-details')} file="routes/hiring-manager/index.tsx" params={params}>
+        {t('app:matches.back-request-details')}
+      </BackLink>
+      <h2 className="font-lato mt-4 text-2xl font-bold">{t('app:matches.request-candidates')}</h2>
+      <p className="sm:w-2/3 md:w-3/4">{t('app:matches.page-info')}</p>
+      <div className="mt-10 justify-between md:grid md:grid-cols-2">
+        <InputCheckbox name="confirm">{t('app:matches.confirm-info')}</InputCheckbox>
+        <div className="flex justify-end space-x-3">
+          <Button variant="alternative">{t('app:form.save-and-exit')}</Button>
+          <Button variant="primary">{t('app:form.submit')}</Button>
+        </div>
+      </div>
+      <AlertMessage ref={alertRef} type="success" role="alert" ariaLive="assertive">
+        <p className="font-semibold">{t('app:matches.feedback.success')}</p>
+      </AlertMessage>
+      <Progress className="mt-8 mb-8" variant="blue" label="" value={loaderData.feedbackProgress} />
+      <MatchesTable {...loaderData} requestId={params.requestId} view="hiring-manager" />
+    </div>
+  );
+}
