@@ -445,6 +445,9 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
   const [hasRequestChanged, setHasRequestChanged] = useState(loaderData.hasRequestChanged);
   const [showDialog, setShowDialog] = useState(false);
 
+  const isSubmitted =
+    loaderData.status?.code === REQUEST_STATUS_CODE.SUBMIT || loaderData.status?.code === REQUEST_STATUS_CODE.HR_REVIEW;
+
   // Clean the URL after reading the param
   useEffect(() => {
     if (searchParams.get('edited') === 'true') {
@@ -468,8 +471,7 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
 
         <PageTitle>{t('app:hiring-manager-referral-requests.page-title')}</PageTitle>
 
-        {(loaderData.status?.code === REQUEST_STATUS_CODE.SUBMIT ||
-          loaderData.status?.code === REQUEST_STATUS_CODE.HR_REVIEW) && (
+        {isSubmitted && (
           <div>
             <DescriptionList className="flex">
               <DescriptionListItem
@@ -522,7 +524,7 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
         <div
           role="presentation"
           className={cn(
-            loaderData.status?.code === REQUEST_STATUS_CODE.SUBMIT ? 'h-70' : 'h-50',
+            isSubmitted ? 'h-70' : 'h-50',
             "absolute top-25 left-0 -z-10 w-full scale-x-[-1] bg-[rgba(9,28,45,1)] bg-[url('/VacMan-design-element-06.svg')] bg-size-[450px] bg-left-bottom bg-no-repeat",
           )}
         />
