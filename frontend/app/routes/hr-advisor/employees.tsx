@@ -343,7 +343,7 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
     {
       id: 'name',
       accessorKey: 'profileUser.firstName',
-      accessorFn: (row) => `${row.profileUser.firstName} ${row.profileUser.lastName}`,
+      accessorFn: (row) => `${row.profileUser.lastName}, ${row.profileUser.firstName}`,
       header: ({ column }) => <DataTableColumnHeader column={column} title={t('app:hr-advisor-employees-table.employee')} />,
       cell: (info) => <p>{info.getValue() as string}</p>,
     },
