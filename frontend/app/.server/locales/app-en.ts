@@ -298,6 +298,7 @@ export default {
     'request-date': 'Request date',
     'hiring-manager': 'Hiring manager',
     'hr-advisor': 'HR advisor',
+    'not-assigned': 'To be assigned',
     'request-completion-progress': 'Request completion progress',
     'page-description':
       'Complete all sections detailing the process, position, and required qualifications and submit for approval.',

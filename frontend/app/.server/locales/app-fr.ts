@@ -302,6 +302,7 @@ export default {
     'request-date': 'Date de la demande',
     'hiring-manager': "Gestionnaire d'embauche",
     'hr-advisor': 'Conseiller(ère)',
+    'not-assigned': 'À assigner',
     'request-completion-progress': "Demander l'avancement de l'achèvement",
     'page-description':
       'Complete all sections detailing the process, position, and required qualifications and submit for approval. FR',
