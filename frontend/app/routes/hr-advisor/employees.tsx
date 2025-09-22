@@ -302,7 +302,7 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
       const paramsNext = new URLSearchParams(searchParams);
       // Clear and set single sort param
       paramsNext.delete('sort');
-      const encoded = serializeSortParam(next);
+      const encoded = serializeSortParam(normalized);
       if (encoded) paramsNext.set('sort', encoded);
       announceSortChange(normalized);
       startTransition(() => setSearchParams(paramsNext));
