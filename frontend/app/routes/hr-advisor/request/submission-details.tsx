@@ -34,6 +34,10 @@ export function meta({ loaderData }: Route.MetaArgs) {
 
 export async function action({ context, params, request }: Route.ActionArgs) {
   requireAuthentication(context.session, request);
+  const { t } = await getTranslation(request, handle.i18nNamespace);
+  // Initialize an errors object to collect custom errors
+  type FieldErrors = Readonly<Record<string, [string, ...string[]] | undefined>>;
+  let customActionErrors: FieldErrors = {};
 
   const formData = await request.formData();
 
@@ -70,8 +74,16 @@ export async function action({ context, params, request }: Route.ActionArgs) {
       { email: parseResult.output.hiringManagerEmailAddress },
       context.session.authState.accessToken,
     );
-    const hiringManager = hiringManagerResult.into()?.content[0]; // TODO: add the error handling if content[0] is undefined.
-    hiringManagerId = hiringManager?.id;
+    const hiringManager = hiringManagerResult.into()?.content[0];
+    if (!hiringManager) {
+      // Add a specific error for the hiringManagerEmailAddress field
+      customActionErrors = {
+        ...customActionErrors,
+        hiringManagerEmailAddress: [t('app:submission-details.errors.no-user-found-with-this-email')],
+      };
+    } else {
+      hiringManagerId = hiringManager.id;
+    }
   }
 
   let subDelegatedManagerId;
@@ -81,8 +93,20 @@ export async function action({ context, params, request }: Route.ActionArgs) {
       context.session.authState.accessToken,
     );
 
-    const subDelegatedManager = subDelegatedManagerResult.into()?.content[0]; // TODO: add the error handling if content[0] is undefined
-    subDelegatedManagerId = subDelegatedManager?.id;
+    const subDelegatedManager = subDelegatedManagerResult.into()?.content[0];
+    if (!subDelegatedManager) {
+      customActionErrors = {
+        ...customActionErrors,
+        subDelegatedManagerEmailAddress: [t('app:submission-details.errors.no-user-found-with-this-email')],
+      };
+    } else {
+      subDelegatedManagerId = subDelegatedManager.id;
+    }
+  }
+
+  // Check for errors again after checking subDelegatedManager
+  if (Object.keys(customActionErrors).length > 0) {
+    return data({ errors: customActionErrors }, { status: HttpStatusCodes.BAD_REQUEST });
   }
 
   // call request service to update data

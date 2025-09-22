@@ -446,6 +446,7 @@ export default {
     'hiring-manager-title': "Gestionnaire d'embauche",
     'sub-delegate-title': 'Subdélégué-e',
     'errors': {
+      'no-user-found-with-this-email': 'No user found with this email address. FR',
       'is-submitter-hiring-manager-required':
         "Le champ «\u00a0Est-ce que le (la) soumissionnaire est le (la) gestionnaire d'embauche pour cette demande\u00a0» est requis. ",
       'is-submitter-a-sub-delegate-required':

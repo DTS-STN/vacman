@@ -441,6 +441,7 @@ export default {
     'hiring-manager-title': 'Hiring manager',
     'sub-delegate-title': 'Sub-delegate',
     'errors': {
+      'no-user-found-with-this-email': 'No user found with this email address.',
       'is-submitter-hiring-manager-required': '"Is submitter the hiring manager for this request" field is required.',
       'is-submitter-a-sub-delegate-required': '"Is submitter a sub-delegated manager" field is required.',
       'are-you-hiring-manager-for-request-required': '"Are you the hiring manager for this request" field is required.',
