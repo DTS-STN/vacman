@@ -255,15 +255,14 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
 
     // Close dialog and reset state
     setShowArchiveDialog(false);
-    setSelectedProfileForArchive(null);
-    setIsArchiving(false);
-
     // Announce successful archive action to screen readers
     setSrAnnouncement(
       t('app:hr-advisor-employees-table.profile-archived', {
         profileUserName: `${selectedProfileForArchive.profileUser.firstName} ${selectedProfileForArchive.profileUser.lastName}`,
       }),
     );
+    setSelectedProfileForArchive(null);
+    setIsArchiving(false);
   }, [selectedProfileForArchive, archiveFetcher, setSrAnnouncement, t, isArchiving, setIsArchiving]);
 
   const employeesOptions = [
