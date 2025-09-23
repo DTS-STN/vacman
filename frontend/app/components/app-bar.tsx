@@ -46,7 +46,7 @@ function UserButton({ className, children, name }: UserButtonProps): JSX.Element
       >
         <span className="text-md my-auto flex flex-nowrap items-center space-x-2 py-2">
           <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white">
-            <FontAwesomeIcon icon={faUser} className="size-5 text-slate-700" />
+            <FontAwesomeIcon icon={faUser} className="size-5 text-slate-700" aria-label={name} />
           </span>
           <span id="app-bar-menu-label" className="text-md hidden py-2 font-bold sm:block">
             {name}
