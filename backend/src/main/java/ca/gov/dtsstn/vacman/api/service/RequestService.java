@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.util.StringUtils;
 import org.mapstruct.factory.Mappers;
 import org.slf4j.Logger;
@@ -231,6 +232,8 @@ public class RequestService {
 				handleSubmitFeedback(request, isOwner, currentStatus);
 			case "pscNotRequired" ->
 				handlePscNotRequired(request, isHrAdvisor, currentStatus);
+			case "pscRequired" ->
+				handlePscRequired(request, isHrAdvisor, currentStatus);
 			default ->
 				throw new IllegalArgumentException("Unknown event type: " + eventType);
 		};
@@ -482,7 +485,7 @@ public class RequestService {
 		request.setRequestStatus(getRequestStatusByCode(requestStatuses.clearanceGranted()));
 
 		// Generate VacMan clearance number (16 character ID with letters and numbers)
-		String clearanceNumber = generateVacManClearanceNumber();
+		final var clearanceNumber = generateVacManClearanceNumber();
 		request.setPscClearanceNumber(clearanceNumber);
 
 		// TODO: send notification (details need to be worked out)
@@ -491,22 +494,41 @@ public class RequestService {
 	}
 
 	/**
+	 * Handles the pscRequired event.
+	 *
+	 * @param request The request entity
+	 * @param isHrAdvisor Whether the current user is an HR advisor
+	 * @param currentStatus The current status code of the request
+	 * @return The updated request entity
+	 */
+	private RequestEntity handlePscRequired(RequestEntity request, boolean isHrAdvisor, String currentStatus) {
+		if (!isHrAdvisor) {
+			throw new UnauthorizedException("Only HR advisors can mark a request as PSC required");
+		}
+
+		if (!requestStatuses.feedbackPendingApproval().equals(currentStatus)) {
+			throw new ResourceConflictException("Request must be in FDBK_PEND_APPR status to be marked as PSC required");
+		}
+
+		// Set status to PENDING_PSC
+		request.setRequestStatus(getRequestStatusByCode(requestStatuses.pendingPscClearance()));
+
+		// Generate VacMan clearance number (16 character ID with letters and numbers)
+		final var clearanceNumber = generateVacManClearanceNumber();
+		request.setPscClearanceNumber(clearanceNumber);
+
+		return request;
+	}
+
+	/**
 	 * Generates a VacMan clearance number.
-	 * This is a basic/test implementation that generates a 16 character ID with letters and numbers.
+	 * This implementation uses Apache Commons Lang3 RandomStringUtils to generate a 16 character ID with letters and numbers.
 	 * TODO: Real implementation (ADO task 6691)
 	 *
 	 * @return A 16 character clearance number
 	 */
 	private String generateVacManClearanceNumber() {
-		String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-		StringBuilder clearanceNumber = new StringBuilder();
-		Random random = new Random();
-
-		for (int i = 0; i < 16; i++) {
-			clearanceNumber.append(characters.charAt(random.nextInt(characters.length())));
-		}
-
-		return clearanceNumber.toString();
+		return RandomStringUtils.randomAlphanumeric(16).toUpperCase();
 	}
 
 	private List<String> getEmployeeEmails(UserEntity owner) {
