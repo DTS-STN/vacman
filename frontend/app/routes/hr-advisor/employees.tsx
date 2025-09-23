@@ -222,6 +222,7 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
   const [srAnnouncement, setSrAnnouncement] = useState('');
   const [showArchiveDialog, setShowArchiveDialog] = useState(false);
   const [selectedProfileForArchive, setSelectedProfileForArchive] = useState<Profile | null>(null);
+  const [isArchiving, setIsArchiving] = useState(false);
 
   useEffect(() => {
     setBrowserTZ(Intl.DateTimeFormat().resolvedOptions().timeZone);
@@ -240,7 +241,9 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
   }, []);
 
   const confirmArchive = useCallback(() => {
-    if (!selectedProfileForArchive) return;
+    if (!selectedProfileForArchive || isArchiving) return;
+
+    setIsArchiving(true);
 
     // Create form data for the archive action
     const formData = new FormData();
@@ -253,7 +256,15 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
     // Close dialog and reset state
     setShowArchiveDialog(false);
     setSelectedProfileForArchive(null);
-  }, [selectedProfileForArchive, archiveFetcher]);
+    setIsArchiving(false);
+
+    // Announce successful archive action to screen readers
+    setSrAnnouncement(
+      t('app:hr-advisor-employees-table.profile-archived', {
+        profileUserName: `${selectedProfileForArchive.profileUser.firstName} ${selectedProfileForArchive.profileUser.lastName}`,
+      }),
+    );
+  }, [selectedProfileForArchive, archiveFetcher, setSrAnnouncement, t, isArchiving, setIsArchiving]);
 
   const employeesOptions = [
     {
@@ -503,7 +514,7 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
         return (
           <div className="flex gap-4">
             <InlineLink
-              className="text-sky-800 underline decoration-slate-400 decoration-2 hover:text-blue-700 focus:text-blue-700"
+              className="rounded-sm text-sky-800 underline decoration-slate-400 decoration-2 hover:text-blue-700 focus:text-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
               file="routes/hr-advisor/employee-profile/index.tsx"
               params={{ profileId }}
               search={`filter=${searchParams.get('filter')}`}
@@ -517,7 +528,7 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
               <button
                 type="button"
                 onClick={() => handleArchive(profile)}
-                className="text-sky-800 underline decoration-slate-400 decoration-2 hover:text-blue-700 focus:text-blue-700"
+                className="rounded-sm text-sky-800 underline decoration-slate-400 decoration-2 hover:text-blue-700 focus:text-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
                 aria-label={t('app:hr-advisor-employees-table.archive-link', {
                   profileUserName,
                 })}
@@ -659,10 +670,12 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
 
       {/* Archive Confirmation Dialog */}
       <Dialog open={showArchiveDialog} onOpenChange={setShowArchiveDialog}>
-        <DialogContent>
+        <DialogContent aria-describedby={undefined} role="alertdialog">
           <DialogHeader>
-            <DialogTitle>{t('app:hr-advisor-employees-table.archive-confirmation.title')}</DialogTitle>
-            <DialogDescription>
+            <DialogTitle id="archive-dialog-title">
+              {t('app:hr-advisor-employees-table.archive-confirmation.title')}
+            </DialogTitle>
+            <DialogDescription id="archive-dialog-description">
               {selectedProfileForArchive &&
                 t('app:hr-advisor-employees-table.archive-confirmation.message', {
                   profileUserName: `${selectedProfileForArchive.profileUser.firstName} ${selectedProfileForArchive.profileUser.lastName}`,
@@ -671,11 +684,20 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
           </DialogHeader>
           <DialogFooter>
             <DialogClose asChild>
-              <Button variant="alternative">{t('app:hr-advisor-employees-table.archive-confirmation.cancel')}</Button>
+              <Button variant="alternative" aria-describedby="archive-dialog-description" disabled={isArchiving}>
+                {t('app:hr-advisor-employees-table.archive-confirmation.cancel')}
+              </Button>
             </DialogClose>
-            <Button variant="primary" onClick={confirmArchive}>
+            <LoadingButton
+              variant="primary"
+              onClick={confirmArchive}
+              aria-describedby="archive-dialog-description"
+              className="focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+              disabled={isArchiving}
+              loading={isArchiving}
+            >
               {t('app:hr-advisor-employees-table.archive-confirmation.confirm')}
-            </Button>
+            </LoadingButton>
           </DialogFooter>
         </DialogContent>
       </Dialog>
