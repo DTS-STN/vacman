@@ -485,7 +485,8 @@ public class RequestService {
 		request.setRequestStatus(getRequestStatusByCode(requestStatuses.clearanceGranted()));
 
 		// Generate VacMan clearance number (16 character ID with letters and numbers)
-		final var clearanceNumber = generateVacManClearanceNumber();
+		// TODO: Real implementation (ADO task 6691)
+		final var clearanceNumber = RandomStringUtils.insecure().nextAlphanumeric(16).toUpperCase();
 		request.setPscClearanceNumber(clearanceNumber);
 
 		// TODO: send notification (details need to be worked out)
@@ -514,21 +515,12 @@ public class RequestService {
 		request.setRequestStatus(getRequestStatusByCode(requestStatuses.pendingPscClearance()));
 
 		// Generate VacMan clearance number (16 character ID with letters and numbers)
-		final var clearanceNumber = generateVacManClearanceNumber();
+		final var clearanceNumber = RandomStringUtils.insecure().nextAlphanumeric(16).toUpperCase();
 		request.setPscClearanceNumber(clearanceNumber);
 
-		return request;
-	}
+		// TODO: send notification (details need to be worked out)
 
-	/**
-	 * Generates a VacMan clearance number.
-	 * This implementation uses Apache Commons Lang3 RandomStringUtils to generate a 16 character ID with letters and numbers.
-	 * TODO: Real implementation (ADO task 6691)
-	 *
-	 * @return A 16 character clearance number
-	 */
-	private String generateVacManClearanceNumber() {
-		return RandomStringUtils.randomAlphanumeric(16).toUpperCase();
+		return request;
 	}
 
 	private List<String> getEmployeeEmails(UserEntity owner) {
