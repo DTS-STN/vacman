@@ -364,7 +364,6 @@ export default {
     'submit': 'Submit',
     'status': {
       'request-pending-approval': 'Request pending approval',
-      'assigned-hr-review': 'Assigned - HR review',
     },
   },
   'referral-request': 'Referral request',

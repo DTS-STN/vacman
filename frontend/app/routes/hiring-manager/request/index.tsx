@@ -39,7 +39,7 @@ import { LoadingButton } from '~/components/loading-button';
 import { PageTitle } from '~/components/page-title';
 import { ProfileCard } from '~/components/profile-card';
 import { Progress } from '~/components/progress';
-import { StatusTag } from '~/components/status-tag';
+import { RequestStatusTag } from '~/components/status-tag';
 import {
   EMPLOYMENT_TENURE,
   LANGUAGE_REQUIREMENT_CODES,
@@ -223,7 +223,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     allLocalizedEmploymentEquities,
     allLocalizedDirectorates,
     allLocalizedPreferredLanguage,
-    allLocalizedRequestStatus,
+    allRequestStatus,
   ] = await Promise.all([
     getCityService().listAllLocalized(lang),
     getSelectionProcessTypeService().listAllLocalized(lang),
@@ -233,7 +233,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     getEmploymentEquityService().listAllLocalized(lang),
     getDirectorateService().listAllLocalized(lang),
     getLanguageForCorrespondenceService().listAllLocalized(lang),
-    getRequestStatusService().listAllLocalized(lang),
+    getRequestStatusService().listAll(),
   ]);
 
   // Process information from Request type
@@ -415,7 +415,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     directorate: allLocalizedDirectorates.find((c) => c.code === requestData.workUnit?.code),
     languageOfCorrespondence: allLocalizedPreferredLanguage.find((p) => p.code === requestData.languageOfCorrespondence?.code),
     additionalComment: requestData.additionalComment,
-    status: allLocalizedRequestStatus.find((s) => s.code === requestData.status?.code),
+    status: allRequestStatus.find((s) => s.code === requestData.status?.code),
     hrAdvisor: requestData.hrAdvisor,
     priorityClearanceNumber: requestData.priorityClearanceNumber,
     pscClearanceNumber: requestData.pscClearanceNumber,
@@ -462,12 +462,7 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
     <div className="space-y-8">
       <div className="space-y-4 py-8 text-white">
         {loaderData.status && (
-          <StatusTag
-            status={{
-              code: loaderData.status.code,
-              name: loaderData.status.name,
-            }}
-          />
+          <RequestStatusTag status={loaderData.status} lang={loaderData.lang} rounded view="hiring-manager" />
         )}
 
         <PageTitle>{t('app:hiring-manager-referral-requests.page-title')}</PageTitle>

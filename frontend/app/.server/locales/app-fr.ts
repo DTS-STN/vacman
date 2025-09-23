@@ -368,7 +368,6 @@ export default {
     'submit': 'Submit FR',
     'status': {
       'request-pending-approval': '(FR) Request pending approval',
-      'assigned-hr-review': 'Assignée - Revue RH',
     },
   },
   'referral-request': 'Demande de présentation de candidatures',

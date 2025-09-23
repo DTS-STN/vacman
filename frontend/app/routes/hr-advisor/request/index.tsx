@@ -23,8 +23,8 @@ import { InlineLink } from '~/components/links';
 import { LoadingButton } from '~/components/loading-button';
 import { PageTitle } from '~/components/page-title';
 import { ProfileCard } from '~/components/profile-card';
-import { StatusTag } from '~/components/status-tag';
-import { PROFILE_STATUS, REQUEST_STATUSES } from '~/domain/constants';
+import { RequestStatusTag } from '~/components/status-tag';
+import { REQUEST_STATUSES } from '~/domain/constants';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { useFetcherState } from '~/hooks/use-fetcher-state';
 import { getTranslation } from '~/i18n-config.server';
@@ -132,27 +132,12 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
   const fetcherState = useFetcherState(fetcher);
   const isSubmitting = fetcherState.submitting;
 
-  function getStatus(status: typeof loaderData.status) {
-    switch (status?.id) {
-      case 1: //SUBMIT
-        return {
-          code: PROFILE_STATUS.PENDING.code,
-          name: t('app:hr-advisor-referral-requests.status.request-pending-approval'),
-        };
-      case 2: //HR_REVIEW
-        return {
-          code: PROFILE_STATUS.PENDING.code,
-          name: t('app:hr-advisor-referral-requests.status.assigned-hr-review'),
-        };
-      default:
-        return { code: PROFILE_STATUS.PENDING.code, name: 'undefined' };
-    }
-  }
-
   return (
     <div className="space-y-8">
       <div className="space-y-4 py-8 text-white">
-        <StatusTag status={getStatus(loaderData.status)} />
+        {loaderData.status && (
+          <RequestStatusTag status={loaderData.status} lang={loaderData.lang} rounded view={'hr-advisor'} />
+        )}
 
         <PageTitle>{t('app:hr-advisor-referral-requests.page-title')}</PageTitle>
 
