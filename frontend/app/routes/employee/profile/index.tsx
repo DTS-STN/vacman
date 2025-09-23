@@ -9,11 +9,7 @@ import type { Route } from '../profile/+types/index';
 
 import type { LocalizedCity } from '~/.server/domain/models';
 import { getCityService } from '~/.server/domain/services/city-service';
-import { getClassificationService } from '~/.server/domain/services/classification-service';
-import { getDirectorateService } from '~/.server/domain/services/directorate-service';
-import { getLanguageReferralTypeService } from '~/.server/domain/services/language-referral-type-service';
 import { getProfileService } from '~/.server/domain/services/profile-service';
-import { getProfileStatusService } from '~/.server/domain/services/profile-status-service';
 import { serverEnvironment } from '~/.server/environment';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { requirePrivacyConsentForOwnProfile } from '~/.server/utils/privacy-consent-utils';
@@ -134,43 +130,21 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const currentUser = profileData.profileUser;
 
   // Fetch reference data
-  const [allLocalizedLanguageReferralTypes, allClassifications, allLocalizedCities] = await Promise.all([
-    getLanguageReferralTypeService().listAllLocalized(lang),
-    getClassificationService().listAllLocalized(lang),
-    getCityService().listAllLocalized(lang),
-  ]);
+  const allLocalizedCities = await getCityService().listAllLocalized(lang);
 
   // Use profileUser for updated by information as well
   const profileUpdatedByUserName = `${currentUser.firstName ?? 'Unknown'} ${currentUser.lastName ?? 'User'}`;
   const profileStatus = profileData.profileStatus
-    ? (await getProfileStatusService().findLocalizedById(profileData.profileStatus.id, lang)).unwrap()
+    ? {
+        id: profileData.profileStatus.id,
+        code: profileData.profileStatus.code,
+        name: lang === 'en' ? profileData.profileStatus.nameEn : profileData.profileStatus.nameFr,
+      }
     : { code: PROFILE_STATUS.INCOMPLETE.code, name: 'Incomplete' };
-  const workUnitResult =
-    profileData.substantiveWorkUnit !== undefined
-      ? await getDirectorateService().findLocalizedById(profileData.substantiveWorkUnit.id, lang)
-      : undefined;
-  const substantivePositionResult =
-    profileData.substantiveClassification !== undefined
-      ? await getClassificationService().findLocalizedById(profileData.substantiveClassification.id, lang)
-      : undefined;
-  const cityResult =
-    profileData.substantiveCity !== undefined
-      ? await getCityService().findLocalizedById(profileData.substantiveCity.id, lang)
-      : undefined;
 
   // convert the IDs to display names
-  const substantivePosition = substantivePositionResult?.into()?.name;
-  const branchOrServiceCanadaRegion = workUnitResult?.into()?.parent?.name;
-  const directorate = workUnitResult?.into()?.name;
-  const city = cityResult?.into();
   const hrAdvisors = await getHrAdvisors(context.session.authState.accessToken);
   const hrAdvisor = hrAdvisors.find((u) => u.id === profileData.hrAdvisorId);
-  const languageReferralTypes = profileData.preferredLanguages
-    ?.map((lang) => allLocalizedLanguageReferralTypes.find((l) => l.id === lang.id))
-    .filter(Boolean);
-  const classifications = profileData.preferredClassifications
-    ?.map((classification) => allClassifications.find((c) => c.id === classification.id))
-    .filter(Boolean);
 
   // Check each section if the required fields are complete
   const personalInformationData = {
@@ -295,11 +269,16 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     employmentInformation: {
       isComplete: isCompleteEmploymentInformation,
       isNew: countCompletedItems(employmentInformationData) === 0,
-      substantivePosition: substantivePosition,
-      branchOrServiceCanadaRegion: branchOrServiceCanadaRegion,
-      directorate: directorate,
-      province: city?.provinceTerritory.name,
-      city: city?.name,
+      substantivePosition:
+        lang === 'en' ? profileData.substantiveClassification?.nameEn : profileData.substantiveClassification?.nameFr,
+      branchOrServiceCanadaRegion:
+        lang === 'en' ? profileData.substantiveWorkUnit?.parent?.nameEn : profileData.substantiveWorkUnit?.parent?.nameFr,
+      directorate: lang === 'en' ? profileData.substantiveWorkUnit?.nameEn : profileData.substantiveWorkUnit?.nameFr,
+      province:
+        lang === 'en'
+          ? profileData.substantiveCity?.provinceTerritory.nameEn
+          : profileData.substantiveCity?.provinceTerritory.nameFr,
+      city: lang === 'en' ? profileData.substantiveCity?.nameEn : profileData.substantiveCity?.nameFr,
       wfaStatus: lang === 'en' ? profileData.wfaStatus?.nameEn : profileData.wfaStatus?.nameFr,
       wfaStatusCode: profileData.wfaStatus?.code,
       wfaEffectiveDate: profileData.wfaStartDate,
@@ -309,8 +288,8 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     referralPreferences: {
       isComplete: isCompleteReferralPreferences,
       isNew: countReferralPreferencesCompleted(referralPreferencesFields) === 0,
-      preferredLanguages: languageReferralTypes?.map((l) => l?.name),
-      preferredClassifications: classifications?.map((c) => c?.name),
+      preferredLanguages: profileData.preferredLanguages?.map((l) => (lang === 'en' ? l.nameEn : l.nameFr)),
+      preferredClassifications: profileData.preferredClassifications?.map((c) => (lang === 'en' ? c.nameEn : c.nameFr)),
       preferredCities: partiallySelectedCities,
       locationScope,
       provinceNames,
