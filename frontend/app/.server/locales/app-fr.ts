@@ -498,6 +498,7 @@ export default {
     'hiring-manager': "Gestionnaire d'embauche",
     'hr-advisor': 'Conseiller(ère)',
     'back-request-details': "Retour à l'information sur la demande",
+    'back-request-candidates': 'Retour aux candidatures de la demande',
     'request-candidates': 'Candidatures de la demande',
     'feedback': {
       success: "Commentaire soumis avec succès ! Un(e) Conseiller(ère) l'examinera pour approbation.",
