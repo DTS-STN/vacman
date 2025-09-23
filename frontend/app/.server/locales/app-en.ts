@@ -280,6 +280,7 @@ export default {
       'email-required': 'Email address is required.',
       'email-invalid': 'Invalid email address.',
       'profile-already-exists': 'User already has an active profile',
+      'no-user-found-with-this-email': 'No user found with this email address.',
     },
   },
   'hr-advisor-requests': {

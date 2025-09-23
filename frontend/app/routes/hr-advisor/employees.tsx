@@ -79,7 +79,11 @@ export async function action({ context, request }: Route.ActionArgs) {
   ).into()?.content[0];
 
   if (!user) {
-    throw new Response('User not found', { status: HttpStatusCodes.NOT_FOUND });
+    return {
+      errors: {
+        email: t('app:hr-advisor-employees-table.errors.no-user-found-with-this-email'),
+      },
+    };
   }
 
   const profile = (await getUserService().createProfileForUser(user.id, context.session.authState.accessToken)).into();
