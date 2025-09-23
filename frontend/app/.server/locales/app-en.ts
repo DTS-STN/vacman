@@ -487,6 +487,7 @@ export default {
     'hiring-manager': 'Hiring manager',
     'hr-advisor': 'HR advisor',
     'back-request-details': 'Back to request details',
+    'back-request-candidates': 'Back to request candidates',
     'request-candidates': 'Request candidates',
     'feedback': {
       success: 'Feedback submitted successfully! An HR advisor will review it for approval',
