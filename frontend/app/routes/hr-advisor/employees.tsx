@@ -17,7 +17,17 @@ import { getUserService } from '~/.server/domain/services/user-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { BackLink } from '~/components/back-link';
+import { Button } from '~/components/button';
 import { DataTable, DataTableColumnHeader, DataTableColumnHeaderWithOptions } from '~/components/data-table';
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '~/components/dialog';
 import { ActionDataErrorSummary } from '~/components/error-summary';
 import { InputField } from '~/components/input-field';
 import { InputSelect } from '~/components/input-select';
@@ -56,6 +66,45 @@ export async function action({ context, request }: Route.ActionArgs) {
   requireAuthentication(context.session, request);
   const { t } = await getTranslation(request, handle.i18nNamespace);
   const formData = await request.formData();
+
+  const action = formString(formData.get('action'));
+
+  if (action === 'archive') {
+    // Handle archive action
+    const parseResult = v.safeParse(
+      v.object({
+        profileId: v.pipe(
+          v.string(),
+          v.transform((val) => parseInt(val, 10)),
+          v.number('Profile ID must be a number'),
+        ),
+      }),
+      {
+        profileId: formString(formData.get('profileId')),
+      },
+    );
+
+    if (!parseResult.success) {
+      return data({ errors: v.flatten(parseResult.issues).nested }, { status: HttpStatusCodes.BAD_REQUEST });
+    }
+
+    const { profileId } = parseResult.output;
+
+    // Call profile service to update status to ARCHIVED
+    const updateResult = await getProfileService().updateProfileStatus(
+      profileId,
+      { code: PROFILE_STATUS.ARCHIVED.code },
+      context.session.authState.accessToken,
+    );
+
+    if (updateResult.isErr()) {
+      throw updateResult.unwrapErr();
+    }
+
+    return data({ success: true });
+  }
+
+  // Handle create profile action (existing logic)
   const parseResult = v.safeParse(
     v.object({
       email: v.pipe(
@@ -163,6 +212,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
 export default function EmployeeDashboard({ loaderData, params }: Route.ComponentProps) {
   const { t } = useTranslation(handle.i18nNamespace);
   const fetcher = useFetcher<typeof action>();
+  const archiveFetcher = useFetcher();
   const fetcherState = useFetcherState(fetcher);
   const isSubmitting = fetcherState.submitting;
 
@@ -170,6 +220,8 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
   const [searchParams, setSearchParams] = useSearchParams({ filter: 'all', page: '1', size: '10' });
   const [browserTZ, setBrowserTZ] = useState<string | null>(null);
   const [srAnnouncement, setSrAnnouncement] = useState('');
+  const [showArchiveDialog, setShowArchiveDialog] = useState(false);
+  const [selectedProfileForArchive, setSelectedProfileForArchive] = useState<Profile | null>(null);
 
   useEffect(() => {
     setBrowserTZ(Intl.DateTimeFormat().resolvedOptions().timeZone);
@@ -180,6 +232,28 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
       iso ? formatDateTimeInZone(iso, browserTZ ?? loaderData.baseTimeZone, 'yyyy-MM-dd') : '0000-00-00',
     [browserTZ, loaderData.baseTimeZone],
   );
+
+  // Handle archive action
+  const handleArchive = useCallback((profile: Profile) => {
+    setSelectedProfileForArchive(profile);
+    setShowArchiveDialog(true);
+  }, []);
+
+  const confirmArchive = useCallback(() => {
+    if (!selectedProfileForArchive) return;
+
+    // Create form data for the archive action
+    const formData = new FormData();
+    formData.set('profileId', selectedProfileForArchive.id.toString());
+    formData.set('action', 'archive');
+
+    // Submit the archive request using archiveFetcher
+    void archiveFetcher.submit(formData, { method: 'post' });
+
+    // Close dialog and reset state
+    setShowArchiveDialog(false);
+    setSelectedProfileForArchive(null);
+  }, [selectedProfileForArchive, archiveFetcher]);
 
   const employeesOptions = [
     {
@@ -421,20 +495,37 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
       header: t('app:hr-advisor-employees-table.action'),
       id: 'action',
       cell: (info) => {
-        const profileId = info.row.original.id.toString();
-        const profileUserName = `${info.row.original.profileUser.firstName} ${info.row.original.profileUser.lastName}`;
+        const profile = info.row.original;
+        const profileId = profile.id.toString();
+        const profileUserName = `${profile.profileUser.firstName} ${profile.profileUser.lastName}`;
+        const isArchived = profile.profileStatus?.code === 'ARCHIVED';
+
         return (
-          <InlineLink
-            className="text-sky-800 underline decoration-slate-400 decoration-2 hover:text-blue-700 focus:text-blue-700"
-            file="routes/hr-advisor/employee-profile/index.tsx"
-            params={{ profileId }}
-            search={`filter=${searchParams.get('filter')}`}
-            aria-label={t('app:hr-advisor-employees-table.view-link', {
-              profileUserName,
-            })}
-          >
-            {t('app:hr-advisor-employees-table.view')}
-          </InlineLink>
+          <div className="flex gap-4">
+            <InlineLink
+              className="text-sky-800 underline decoration-slate-400 decoration-2 hover:text-blue-700 focus:text-blue-700"
+              file="routes/hr-advisor/employee-profile/index.tsx"
+              params={{ profileId }}
+              search={`filter=${searchParams.get('filter')}`}
+              aria-label={t('app:hr-advisor-employees-table.view-link', {
+                profileUserName,
+              })}
+            >
+              {t('app:hr-advisor-employees-table.view')}
+            </InlineLink>
+            {!isArchived && (
+              <button
+                type="button"
+                onClick={() => handleArchive(profile)}
+                className="text-sky-800 underline decoration-slate-400 decoration-2 hover:text-blue-700 focus:text-blue-700"
+                aria-label={t('app:hr-advisor-employees-table.archive-link', {
+                  profileUserName,
+                })}
+              >
+                {t('app:hr-advisor-employees-table.archive')}
+              </button>
+            )}
+          </div>
         );
       },
     },
@@ -451,14 +542,16 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
         {t('app:hr-advisor-employees-table.back-to-dashboard')}
       </BackLink>
 
-      <ActionDataErrorSummary actionData={fetcher.data}>
+      <ActionDataErrorSummary actionData={fetcher.data && 'errors' in fetcher.data ? fetcher.data : undefined}>
         <h2 className="font-lato mt-8 text-lg font-semibold">{t('app:hr-advisor-employees-table.create-profile')}</h2>
         <section className="mb-8 flex flex-col justify-between gap-8 sm:flex-row">
           <fetcher.Form method="post" noValidate className="grid place-content-between items-end gap-2 sm:grid-cols-2">
             <InputField
               label={t('app:hr-advisor-employees-table.employee-work-email')}
               name="email"
-              errorMessage={t(extractValidationKey(fetcher.data?.errors?.email))}
+              errorMessage={t(
+                extractValidationKey(fetcher.data && 'errors' in fetcher.data ? fetcher.data.errors?.email : undefined),
+              )}
               required
               className="w-full"
             />
@@ -563,6 +656,29 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
           </Pagination.Content>
         </Pagination>
       )}
+
+      {/* Archive Confirmation Dialog */}
+      <Dialog open={showArchiveDialog} onOpenChange={setShowArchiveDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t('app:hr-advisor-employees-table.archive-confirmation.title')}</DialogTitle>
+            <DialogDescription>
+              {selectedProfileForArchive &&
+                t('app:hr-advisor-employees-table.archive-confirmation.message', {
+                  profileUserName: `${selectedProfileForArchive.profileUser.firstName} ${selectedProfileForArchive.profileUser.lastName}`,
+                })}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button variant="alternative">{t('app:hr-advisor-employees-table.archive-confirmation.cancel')}</Button>
+            </DialogClose>
+            <Button variant="primary" onClick={confirmArchive}>
+              {t('app:hr-advisor-employees-table.archive-confirmation.confirm')}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
