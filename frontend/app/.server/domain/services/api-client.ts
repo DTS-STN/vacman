@@ -150,7 +150,9 @@ export const apiClient = {
 
     const response = responseResult.unwrap();
     try {
-      const data = (await response.json()) as TResponseData;
+      // Handle empty responses, common for status update requests.
+      const text = await response.text();
+      const data = text ? (JSON.parse(text) as TResponseData) : (null as TResponseData);
       return Ok(data);
     } catch (parsingError) {
       return Err(
