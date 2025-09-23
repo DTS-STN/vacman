@@ -1,5 +1,8 @@
 import type { JSX } from 'react';
 
+import { useTranslation } from 'react-i18next';
+
+import type { RequestStatus } from '~/.server/domain/models';
 import { PROFILE_STATUS, REQUEST_STATUS_CODE } from '~/domain/constants';
 import { cn } from '~/utils/tailwind-utils';
 
@@ -32,4 +35,44 @@ export function StatusTag({ status }: StatusTagProps): JSX.Element {
   const styleClass = getStatusStyle(status.code);
   if (!styleClass) return <></>;
   return <span className={cn('w-fit rounded-2xl border px-3 py-0.5 text-sm font-semibold', styleClass)}>{status.name}</span>;
+}
+
+interface RequestStatusTagProps {
+  status: RequestStatus;
+  lang: Language;
+  rounded?: boolean;
+  view: 'hr-advisor' | 'hiring-manager';
+}
+
+export function RequestStatusTag({ status, lang, rounded = false, view }: RequestStatusTagProps): JSX.Element {
+  const { t } = useTranslation('app');
+  const styleMap: Record<string, string> = {
+    CLR_GRANTED: 'bg-gray-100 text-slate-700',
+    PSC_GRANTED: 'bg-gray-100 text-slate-700',
+    CANCELLED: 'bg-gray-100 text-slate-700',
+    ...(view === 'hr-advisor'
+      ? { FDBK_PENDING: 'bg-sky-100 text-sky-700', DEFAULT: 'bg-amber-100 text-yellow-900' }
+      : {
+          DRAFT: 'bg-amber-100 text-yellow-900',
+          FDBK_PENDING: 'bg-amber-100 text-yellow-900',
+          DEFAULT: 'bg-sky-100 text-sky-700',
+        }),
+  };
+  const style = styleMap[status.code] ?? styleMap.DEFAULT;
+  const displayName =
+    status.code === 'SUBMIT' && view === 'hr-advisor'
+      ? t('hr-advisor-referral-requests.status.request-pending-approval')
+      : lang === 'en'
+        ? status.nameEn
+        : status.nameFr;
+
+  const baseClasses = 'flex w-fit items-center gap-2 text-sm font-semibold';
+  const defaultRoundedClasses = 'rounded-md px-3 py-1';
+  const roundedTrueClasses = 'rounded-2xl border px-3 py-0.5';
+
+  return (
+    <div className={`${style} ${baseClasses} ${rounded ? roundedTrueClasses : defaultRoundedClasses}`}>
+      <p>{displayName}</p>
+    </div>
+  );
 }
