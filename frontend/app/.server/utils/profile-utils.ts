@@ -129,7 +129,11 @@ export async function getHrAdvisors(accessToken: string): Promise<User[]> {
   if (result.isErr()) {
     throw result.unwrapErr();
   }
-  return result.unwrap().content;
+  return result
+    .unwrap()
+    .content.toSorted(
+      (a, b) => (a.firstName ?? '').localeCompare(b.firstName ?? '') || (a.lastName ?? '').localeCompare(b.lastName ?? ''),
+    );
 }
 
 /**
