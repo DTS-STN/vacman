@@ -283,6 +283,7 @@ export default {
       'email-required': "L'adresse du courriel est requise.",
       'email-invalid': "L'adresse du courriel n'est pas valide.",
       'profile-already-exists': "L'utilisateur a déjà un profil actif",
+      'no-user-found-with-this-email': 'No user found with this email address. FR',
     },
   },
   'hr-advisor-requests': {
