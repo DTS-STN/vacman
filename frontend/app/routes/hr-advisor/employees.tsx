@@ -263,7 +263,7 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
     );
     setSelectedProfileForArchive(null);
     setIsArchiving(false);
-  }, [selectedProfileForArchive, archiveFetcher, setSrAnnouncement, t, isArchiving, setIsArchiving]);
+  }, [selectedProfileForArchive, archiveFetcher, setSrAnnouncement, t, isArchiving]);
 
   const employeesOptions = [
     {
