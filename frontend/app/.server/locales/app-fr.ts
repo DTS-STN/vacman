@@ -287,6 +287,7 @@ export default {
       cancel: 'Annuler',
       confirm: 'Archiver',
     },
+    'profile-archived': 'Le profil de {{profileUserName}} a été archivé avec succès.',
     'errors': {
       'email-required': "L'adresse du courriel est requise.",
       'email-invalid': "L'adresse du courriel n'est pas valide.",

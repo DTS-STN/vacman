@@ -284,6 +284,7 @@ export default {
       cancel: 'Cancel',
       confirm: 'Archive',
     },
+    'profile-archived': 'Profile for {{profileUserName}} has been successfully archived.',
     'errors': {
       'email-required': 'Email address is required.',
       'email-invalid': 'Invalid email address.',
