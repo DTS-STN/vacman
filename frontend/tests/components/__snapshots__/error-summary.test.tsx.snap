@@ -4,8 +4,9 @@ exports[`ActionDataErrorSummary > displays errors from action data > expected ht
 <div>
   <div>
     <section
+      aria-atomic="true"
+      aria-live="assertive"
       class="my-5 border-4 border-red-600 p-4"
-      role="alert"
       tabindex="-1"
     >
       <h2
@@ -47,8 +48,9 @@ exports[`ErrorSummary > should not render an error summary when there are no err
 exports[`ErrorSummary > should render an error summary with 1 error > expected html 1`] = `
 <div>
   <section
+    aria-atomic="true"
+    aria-live="assertive"
     class="my-5 border-4 border-red-600 p-4"
-    role="alert"
     tabindex="-1"
   >
     <h2
@@ -76,8 +78,9 @@ exports[`ErrorSummary > should render an error summary with 1 error > expected h
 exports[`ErrorSummary > should render an error summary with 2 errors > expected html 1`] = `
 <div>
   <section
+    aria-atomic="true"
+    aria-live="assertive"
     class="my-5 border-4 border-red-600 p-4"
-    role="alert"
     tabindex="-1"
   >
     <h2
@@ -115,8 +118,9 @@ exports[`FetcherErrorSummary > displays errors from fetcher data > expected html
 <div>
   <div>
     <section
+      aria-atomic="true"
+      aria-live="assertive"
       class="my-5 border-4 border-red-600 p-4"
-      role="alert"
       tabindex="-1"
     >
       <h2
@@ -157,8 +161,9 @@ exports[`FormErrorSummary > displays errors from form action data > expected htm
 <div>
   <div>
     <section
+      aria-atomic="true"
+      aria-live="assertive"
       class="my-5 border-4 border-red-600 p-4"
-      role="alert"
       tabindex="-1"
     >
       <h2
