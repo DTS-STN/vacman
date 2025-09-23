@@ -21,6 +21,7 @@ import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { countCompletedItems } from '~/.server/utils/profile-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { AlertMessage } from '~/components/alert-message';
+import { BackLink } from '~/components/back-link';
 import { Button } from '~/components/button';
 import { ButtonLink } from '~/components/button-link';
 import { ContextualAlert } from '~/components/contextual-alert';
@@ -530,6 +531,31 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
         />
       </div>
 
+      {!isSubmitted && (
+        <ContextualAlert type={'info'} role="status" ariaLive="polite" textSmall={false}>
+          <div className="text-black-800 pl-1 text-base">
+            <p>{t('app:hiring-manager-referral-requests.page-info-1')}</p>
+            <p className="mt-2">{t('app:hiring-manager-referral-requests.page-info-2')}</p>
+            <p className="mt-2">{t('app:hiring-manager-referral-requests.page-info-3')}</p>
+            <p className="mt-2">{t('app:hiring-manager-referral-requests.page-info-4')}</p>
+          </div>
+        </ContextualAlert>
+      )}
+
+      {isSubmitted && (
+        <BackLink
+          id="back-to-requests"
+          aria-label={t('app:hiring-manager-referral-requests.back')}
+          className="mt-6"
+          file="routes/hiring-manager/requests.tsx"
+          disabled={isSubmitting}
+        >
+          {t('app:hiring-manager-referral-requests.back')}
+        </BackLink>
+      )}
+
+      <h2 className="font-lato mt-4 text-xl font-bold">{t('app:hiring-manager-referral-requests.request-details')}</h2>
+
       {fetcher.data && (
         <AlertMessage
           ref={alertRef}
@@ -554,18 +580,7 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
         />
       )}
 
-      <div className="mt-20 w-full">
-        <ContextualAlert type={'info'} role="status" ariaLive="polite" textSmall={false}>
-          <div className="text-black-800 pl-1 text-base">
-            <p>{t('app:hiring-manager-referral-requests.page-info-1')}</p>
-            <p className="mt-2">{t('app:hiring-manager-referral-requests.page-info-2')}</p>
-            <p className="mt-2">{t('app:hiring-manager-referral-requests.page-info-3')}</p>
-            <p className="mt-2">{t('app:hiring-manager-referral-requests.page-info-4')}</p>
-          </div>
-        </ContextualAlert>
-
-        <h2 className="font-lato mt-4 text-xl font-bold">{t('app:hiring-manager-referral-requests.request-details')}</h2>
-
+      <div className="w-full">
         <div className="text-black-800 mt-4 max-w-prose text-base">
           {t('app:hiring-manager-referral-requests.page-description')}
         </div>
@@ -836,36 +851,44 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
             </ProfileCard>
           </div>
 
-          <div className="mt-8 max-w-prose">
-            <div className="flex justify-center">
-              <fetcher.Form className="mt-6 md:mt-auto" method="post" noValidate>
-                <Button type="button" className="w-full" variant="alternative" id="cancel" onClick={() => setShowDialog(true)}>
-                  {t('app:form.cancel')}
-                </Button>
+          {!isSubmitted && (
+            <div className="mt-8 max-w-prose">
+              <div className="flex justify-center">
+                <fetcher.Form className="mt-6 md:mt-auto" method="post" noValidate>
+                  <Button
+                    type="button"
+                    className="w-full"
+                    variant="alternative"
+                    id="cancel"
+                    onClick={() => setShowDialog(true)}
+                  >
+                    {t('app:form.cancel')}
+                  </Button>
 
-                <ButtonLink
-                  className="mt-4 w-full"
-                  variant="alternative"
-                  file="routes/hiring-manager/index.tsx"
-                  id="save"
-                  disabled={isSubmitting}
-                >
-                  {t('app:form.save-and-exit')}
-                </ButtonLink>
+                  <ButtonLink
+                    className="mt-4 w-full"
+                    variant="alternative"
+                    file="routes/hiring-manager/index.tsx"
+                    id="save"
+                    disabled={isSubmitting}
+                  >
+                    {t('app:form.save-and-exit')}
+                  </ButtonLink>
 
-                <LoadingButton
-                  className="mt-4 w-full"
-                  name="action"
-                  variant="primary"
-                  id="submit"
-                  disabled={isSubmitting}
-                  loading={isSubmitting}
-                >
-                  {t('app:form.submit')}
-                </LoadingButton>
-              </fetcher.Form>
+                  <LoadingButton
+                    className="mt-4 w-full"
+                    name="action"
+                    variant="primary"
+                    id="submit"
+                    disabled={isSubmitting}
+                    loading={isSubmitting}
+                  >
+                    {t('app:form.submit')}
+                  </LoadingButton>
+                </fetcher.Form>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
       <Dialog open={showDialog} onOpenChange={setShowDialog}>
