@@ -262,6 +262,8 @@ export default {
     'page-title': 'Employees',
     'back-to-dashboard': 'Back to dashboard',
     'view': 'View',
+    'archive': 'Archive',
+    'archive-link': 'Archive profile for {{profileUserName}}',
     'my-employees': 'My employees',
     'all-employees': 'All employees',
     'employee': 'Employee',
@@ -276,6 +278,12 @@ export default {
     'table-updated-all-employees': 'Table updated: showing All Employees',
     'create-profile': 'Create profile',
     'employee-work-email': 'Employee work email address',
+    'archive-confirmation': {
+      title: 'Confirm Archive',
+      message: 'Are you sure you want to archive the profile for {{profileUserName}}? This action cannot be undone.',
+      cancel: 'Cancel',
+      confirm: 'Archive',
+    },
     'errors': {
       'email-required': 'Email address is required.',
       'email-invalid': 'Invalid email address.',
