@@ -229,6 +229,8 @@ public class RequestService {
 				handleVmsNotRequired(request, isHrAdvisor, currentStatus);
 			case "submitFeedback" ->
 				handleSubmitFeedback(request, isOwner, currentStatus);
+			case "pscNotRequired" ->
+				handlePscNotRequired(request, isHrAdvisor, currentStatus);
 			default ->
 				throw new IllegalArgumentException("Unknown event type: " + eventType);
 		};
@@ -426,7 +428,7 @@ public class RequestService {
 		}
 
 		if (!requestStatuses.feedbackPending().equals(currentStatus)) {
-			throw new ResourceNotFoundException("Request must be in FDBK_PENDING status to submit feedback");
+			throw new ResourceConflictException("Request must be in FDBK_PENDING status to submit feedback");
 		}
 
 		// Set status to FDBK_PEND_APPR
@@ -457,6 +459,54 @@ public class RequestService {
 		}
 
 		return request;
+	}
+
+	/**
+	 * Handles the pscNotRequired event.
+	 *
+	 * @param request The request entity
+	 * @param isHrAdvisor Whether the current user is an HR advisor
+	 * @param currentStatus The current status code of the request
+	 * @return The updated request entity
+	 */
+	private RequestEntity handlePscNotRequired(RequestEntity request, boolean isHrAdvisor, String currentStatus) {
+		if (!isHrAdvisor) {
+			throw new UnauthorizedException("Only HR advisors can mark a request as PSC not required");
+		}
+
+		if (!requestStatuses.feedbackPendingApproval().equals(currentStatus)) {
+			throw new ResourceConflictException("Request must be in FDBK_PEND_APPR status to be marked as PSC not required");
+		}
+
+		// Set status to CLR_GRANTED
+		request.setRequestStatus(getRequestStatusByCode(requestStatuses.clearanceGranted()));
+
+		// Generate VacMan clearance number (16 character ID with letters and numbers)
+		String clearanceNumber = generateVacManClearanceNumber();
+		request.setPscClearanceNumber(clearanceNumber);
+
+		// TODO: send notification (details need to be worked out)
+
+		return request;
+	}
+
+	/**
+	 * Generates a VacMan clearance number.
+	 * This is a basic/test implementation that generates a 16 character ID with letters and numbers.
+	 * TODO: Real implementation (ADO task 6691)
+	 *
+	 * @return A 16 character clearance number
+	 */
+	private String generateVacManClearanceNumber() {
+		String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+		StringBuilder clearanceNumber = new StringBuilder();
+		Random random = new Random();
+
+		for (int i = 0; i < 16; i++) {
+			clearanceNumber.append(characters.charAt(random.nextInt(characters.length())));
+		}
+
+		return clearanceNumber.toString();
 	}
 
 	private List<String> getEmployeeEmails(UserEntity owner) {
