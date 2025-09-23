@@ -7,6 +7,7 @@ import { InputRadio } from '~/components/input-radio';
 import { cn } from '~/utils/tailwind-utils';
 
 export interface InputRadiosProps {
+  displayAriaDescribedBy?: boolean;
   ariaDescribedbyId?: string;
   errorMessage?: string;
   helpMessagePrimary?: React.ReactNode;
@@ -25,6 +26,7 @@ export interface InputRadiosProps {
 }
 
 export function InputRadios({
+  displayAriaDescribedBy = true,
   ariaDescribedbyId,
   errorMessage,
   helpMessagePrimary,
@@ -45,6 +47,7 @@ export function InputRadios({
   const inputWrapperId = `input-radios-${id}`;
 
   function getAriaDescribedby() {
+    if (displayAriaDescribedBy === false) return undefined;
     const ariaDescribedby = [];
     if (ariaDescribedbyId) ariaDescribedby.push(ariaDescribedbyId);
     if (helpMessagePrimary) ariaDescribedby.push(inputHelpMessagePrimaryId);
