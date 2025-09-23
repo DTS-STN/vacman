@@ -343,6 +343,7 @@ export default {
       keep: 'Conserver la demande',
       cancel: 'Annuler la demande',
     },
+    'back': 'Retour aux demandes',
     //'view-link': 'View request with ID {{requestId}}',
   },
   'hr-advisor-referral-requests': {

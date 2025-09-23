@@ -339,6 +339,7 @@ export default {
       keep: 'Keep request',
       cancel: 'Cancel request',
     },
+    'back': 'Back to requests',
     //'view-link': 'View request with ID {{requestId}}',
   },
   'hr-advisor-referral-requests': {
