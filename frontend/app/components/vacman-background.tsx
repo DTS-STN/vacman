@@ -31,7 +31,7 @@ export function VacmanBackground({ className, children, height = 'h-60', variant
       <div
         role="presentation"
         className={cn(
-          "absolute top-25 left-0 -z-10 w-full bg-[rgba(9,28,45,1)] bg-[url('/VacMan-design-element-06.svg')] bg-size-[450px] bg-left-bottom bg-no-repeat",
+          "absolute left-0 -z-10 w-full bg-[rgba(9,28,45,1)] bg-[url('/VacMan-design-element-06.svg')] bg-size-[450px] bg-left-bottom bg-no-repeat",
           `sm:${height}`,
           smallViewportHeights[height],
           variants[variant],

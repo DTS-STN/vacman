@@ -166,7 +166,12 @@ export default function HrAdvisorMatches({ loaderData, params }: Route.Component
           </div>
         </div>
       </VacmanBackground>
-      <BackLink aria-label={t('app:matches.back-request-details')} file="routes/hr-advisor/index.tsx" params={params}>
+      <BackLink
+        className="my-4"
+        aria-label={t('app:matches.back-request-details')}
+        file="routes/hr-advisor/index.tsx"
+        params={params}
+      >
         {t('app:matches.back-request-details')}
       </BackLink>
       <h2 className="font-lato mt-4 text-2xl font-bold">{t('app:matches.request-candidates')}</h2>
