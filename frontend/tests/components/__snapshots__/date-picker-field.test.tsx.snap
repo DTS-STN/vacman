@@ -602,39 +602,43 @@ exports[`DatePickerField > should render date picker field component with error 
         class="space-y-2"
       >
         <span
+          aria-atomic="true"
+          aria-live="assertive"
           class="inline-block max-w-prose border-l-2 border-red-600 bg-red-50 px-3 py-1"
           data-testid="input-error-test-id"
           id="date-picker-id-error-all"
-          role="alert"
         >
           test error all
         </span>
         <p>
           <span
+            aria-atomic="true"
+            aria-live="assertive"
             class="inline-block max-w-prose border-l-2 border-red-600 bg-red-50 px-3 py-1"
             data-testid="input-error-test-id"
             id="date-picker-id-error-month"
-            role="alert"
           >
             test error month
           </span>
         </p>
         <p>
           <span
+            aria-atomic="true"
+            aria-live="assertive"
             class="inline-block max-w-prose border-l-2 border-red-600 bg-red-50 px-3 py-1"
             data-testid="input-error-test-id"
             id="date-picker-id-error-day"
-            role="alert"
           >
             test error day
           </span>
         </p>
         <p>
           <span
+            aria-atomic="true"
+            aria-live="assertive"
             class="inline-block max-w-prose border-l-2 border-red-600 bg-red-50 px-3 py-1"
             data-testid="input-error-test-id"
             id="date-picker-id-error-year"
-            role="alert"
           >
             test error year
           </span>

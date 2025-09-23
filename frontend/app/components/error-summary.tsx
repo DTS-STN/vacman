@@ -41,14 +41,20 @@ export interface ErrorSummaryProps extends OmitStrict<ComponentPropsWithoutRef<'
 export function ErrorSummary({ className, errors, ...rest }: ErrorSummaryProps): JSX.Element | null {
   const { t } = useTranslation(['gcweb']);
   const sectionRef = useRef<HTMLElement>(null);
+  const [hasAnnounced, setHasAnnounced] = useState(false);
 
   // Scroll and focus on the error summary when errors are updated.
   useEffect(() => {
-    if (errors.length > 0 && sectionRef.current) {
-      sectionRef.current.scrollIntoView({ behavior: 'smooth' });
-      sectionRef.current.focus();
+    if (errors.length > 0 && sectionRef.current && !hasAnnounced) {
+      requestAnimationFrame(() => {
+        sectionRef.current?.scrollIntoView({ behavior: 'smooth' });
+        sectionRef.current?.focus();
+        setHasAnnounced(true);
+      });
+    } else if (errors.length === 0) {
+      setHasAnnounced(false);
     }
-  }, [errors]);
+  }, [errors, hasAnnounced]);
 
   if (errors.length === 0) {
     return null;
@@ -60,7 +66,8 @@ export function ErrorSummary({ className, errors, ...rest }: ErrorSummaryProps):
       className={cn('my-5 border-4 border-red-600 p-4', className)}
       {...rest}
       tabIndex={-1}
-      role="alert"
+      aria-live="assertive"
+      aria-atomic={true}
     >
       <h2 className="font-lato text-lg font-semibold">{t('gcweb:error-summary.header', { count: errors.length })}</h2>
       <ol className="mt-1.5 list-decimal space-y-2 pl-7">

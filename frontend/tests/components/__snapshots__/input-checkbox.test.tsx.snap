@@ -48,10 +48,11 @@ exports[`InputCheckbox > should render input checkbox with error message > expec
     id="input-checkbox-test-id-wrapper"
   >
     <span
+      aria-atomic="true"
+      aria-live="assertive"
       class="inline-block max-w-prose border-l-2 border-red-600 bg-red-50 px-3 py-1 my-2"
       data-testid="input-error-test-id"
       id="input-checkbox-test-id-error"
-      role="alert"
     >
       error message
     </span>

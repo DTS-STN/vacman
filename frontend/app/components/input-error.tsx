@@ -13,7 +13,8 @@ export function InputError(props: InputErrorProps) {
     <span
       className={cn('inline-block max-w-prose border-l-2 border-red-600 bg-red-50 px-3 py-1', className)}
       data-testid="input-error-test-id"
-      role="alert"
+      aria-live="assertive"
+      aria-atomic={true}
       {...restProps}
     >
       {children}
