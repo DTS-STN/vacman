@@ -196,6 +196,12 @@ export default {
       'referral-availibility-required': 'La confirmation de disponibilité pour les références est requise.',
       'alternate-opportunity-required': "La confirmation d'intérêt pour l'échange de poste est requise.",
     },
+    'choice-tag': {
+      city: 'ville',
+      cities: 'villes',
+      classification: 'classification',
+      classifications: 'classements',
+    },
   },
   'employee-dashboard': {
     'page-title': 'Tableau de bord des employés',
@@ -421,6 +427,10 @@ export default {
         'oral-proficiency-required': "La compétence à l'oral est requise.",
       },
       'security-requirement-required': "L'exigence de sécurité est requise.",
+    },
+    'choice-tag': {
+      city: 'ville',
+      cities: 'villes',
     },
   },
   'hiring-manager-requests': {

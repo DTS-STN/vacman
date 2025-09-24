@@ -193,6 +193,12 @@ export default {
       'referral-availibility-required': 'Availablility confirmation for referrals is required.',
       'alternate-opportunity-required': 'Alternation opportunities (confirmation of interest) is required.',
     },
+    'choice-tag': {
+      city: 'city',
+      cities: 'cities',
+      classification: 'classification',
+      classifications: 'classifications',
+    },
   },
   'employee-dashboard': {
     'page-title': 'Employee dashboard',
@@ -416,6 +422,10 @@ export default {
         'oral-proficiency-required': 'Oral proficiency is required.',
       },
       'security-requirement-required': 'Security requirement is required.',
+    },
+    'choice-tag': {
+      city: 'city',
+      cities: 'cities',
     },
   },
   'hiring-manager-requests': {
