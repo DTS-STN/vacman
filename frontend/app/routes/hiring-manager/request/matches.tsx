@@ -136,7 +136,7 @@ export default function HiringManagerRequestMatches({ loaderData, params }: Rout
         <PageTitle className="after:w-14" subTitle={loaderData.branch}>
           {t('app:matches.referral-request')}
         </PageTitle>
-        <div className="grid grid-cols-4 gap-10">
+        <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 md:grid-cols-4">
           <div>
             <p>{t('app:matches.request-id')}</p>
             <p className="text-[#9FA3AD]">{requestId}</p>
