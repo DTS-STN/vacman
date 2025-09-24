@@ -15,8 +15,8 @@ import { serverEnvironment } from '~/.server/environment';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { getHrAdvisors } from '~/.server/utils/profile-utils';
 import { AlertMessage } from '~/components/alert-message';
+import { BackLink } from '~/components/back-link';
 import { DescriptionList, DescriptionListItem } from '~/components/description-list';
-import { InlineLink } from '~/components/links';
 import { LoadingButton } from '~/components/loading-button';
 import { PageTitle } from '~/components/page-title';
 import { ProfileCard } from '~/components/profile-card';
@@ -52,7 +52,7 @@ export async function action({ context, request, params }: Route.ActionArgs) {
 
   // approve the profile
   const submitResult = await getProfileService().updateProfileStatus(
-    profileData.profileUser.id,
+    profileData.id,
     PROFILE_STATUS.APPROVED,
     context.session.authState.accessToken,
   );
@@ -253,20 +253,19 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
         </div>
         <div
           role="presentation"
-          className="absolute top-25 left-0 -z-10 h-70 w-full scale-x-[-1] bg-[rgba(9,28,45,1)] bg-[url('/VacMan-design-element-06.svg')] bg-size-[450px] bg-left-bottom bg-no-repeat sm:h-60"
+          className="absolute bottom-0 left-0 h-40 w-full scale-x-[-1] bg-[url('/VacMan-design-element-06.svg')] bg-size-[30rem] bg-left-bottom bg-no-repeat"
         />
       </div>
       <div className="mt-110 justify-between sm:mt-70 md:grid md:grid-cols-2">
         <div className="max-w-prose">
-          <InlineLink
-            className="mt-6 block"
+          <BackLink
+            aria-label={t('app:employee-profile.back')}
             file="routes/hr-advisor/employees.tsx"
             params={params}
             search={`filter=${loaderData.backLinkFilter}`}
-            id="back-button"
           >
-            {`< ${t('app:employee-profile.back')}`}
-          </InlineLink>
+            {t('app:employee-profile.back')}
+          </BackLink>
           <p className="mt-12">{t('app:employee-profile.about-para-1')}</p>
         </div>
       </div>
