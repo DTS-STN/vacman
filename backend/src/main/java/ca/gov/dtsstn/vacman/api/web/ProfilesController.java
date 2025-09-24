@@ -240,7 +240,7 @@ public class ProfilesController {
 			validPretransitionStates = Set.of(profileStatusCodes.incomplete(), profileStatusCodes.approved());
 		}
 		else if (code.equals(profileStatusCodes.approved())) {
-			validPretransitionStates = Set.of(profileStatusCodes.pending());
+			validPretransitionStates = Set.of(profileStatusCodes.pending(), profileStatusCodes.incomplete());
 		}
 		else if (code.equals(profileStatusCodes.archived())) {
 			validPretransitionStates = Set.of(profileStatusCodes.approved());
