@@ -21,7 +21,6 @@ import { LoadingButton } from '~/components/loading-button';
 import { PageTitle } from '~/components/page-title';
 import { ProfileCard } from '~/components/profile-card';
 import { ProfileStatusTag } from '~/components/status-tag';
-import { VacmanBackground } from '~/components/vacman-background';
 import { EMPLOYEE_WFA_STATUS, PROFILE_STATUS } from '~/domain/constants';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { useFetcherState } from '~/hooks/use-fetcher-state';
@@ -239,20 +238,25 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
 
   return (
     <div className="space-y-8">
-      <VacmanBackground variant="bottom-right" className="pb-12">
-        <div className="container space-y-4 py-8 wrap-break-word">
+      <div className="absolute left-0 w-full space-y-4 bg-[rgba(9,28,45,1)] py-8 wrap-break-word text-white">
+        <div className="container">
           {loaderData.profileStatus && (
             <ProfileStatusTag status={loaderData.profileStatus} lang={loaderData.lang} rounded view="hr-advisor" />
           )}
-          <PageTitle className="after:w-14" variant="bottom" subTitle={loaderData.email} subTitleClassName="mt-3">
+          <PageTitle className="after:w-14" containerClassName="my-6">
             {loaderData.name}
           </PageTitle>
+          {loaderData.email && <p className="mt-1">{loaderData.email}</p>}
           <p className="font-normal text-[#9FA3AD]">
             {t('app:profile.last-updated', { date: browserTZ, name: loaderData.lastUpdatedBy })}
           </p>
         </div>
-      </VacmanBackground>
-      <div className="justify-between md:grid md:grid-cols-2">
+        <div
+          role="presentation"
+          className="absolute bottom-0 left-0 h-40 w-full scale-x-[-1] bg-[url('/VacMan-design-element-06.svg')] bg-size-[30rem] bg-left-bottom bg-no-repeat"
+        />
+      </div>
+      <div className="mt-110 justify-between sm:mt-70 md:grid md:grid-cols-2">
         <div className="max-w-prose">
           <BackLink
             aria-label={t('app:employee-profile.back')}
