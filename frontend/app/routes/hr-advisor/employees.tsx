@@ -235,10 +235,10 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
   );
 
   // Handle archive action
-  const handleArchive = useCallback((profile: Profile) => {
+  const handleArchive = (profile: Profile) => {
     setSelectedProfileForArchive(profile);
     setShowArchiveDialog(true);
-  }, []);
+  };
 
   const confirmArchive = useCallback(() => {
     if (!selectedProfileForArchive || isArchiving) return;
