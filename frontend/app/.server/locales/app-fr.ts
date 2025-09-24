@@ -269,6 +269,8 @@ export default {
     'page-title': 'Employé-e-s',
     'back-to-dashboard': 'Retour au tableau de bord',
     'view': 'Affiché',
+    'archive': 'Archiver',
+    'archive-link': 'Archiver le profil pour {{profileUserName}}',
     'my-employees': 'Mes employé-e-s',
     'all-employees': 'Liste complète des employé-e-s',
     'employee': 'Employé-e',
@@ -283,6 +285,13 @@ export default {
     'table-updated-all-employees': 'Tableau mis à jour : affichage de Liste complète des employé-e-s',
     'create-profile': 'Créer un profil',
     'employee-work-email': "Adresse e-mail professionnelle de l'employé-e",
+    'archive-confirmation': {
+      title: "Confirmer l'archivage",
+      message: 'Êtes-vous sûr de vouloir archiver le profil pour {{profileUserName}} ? Cette action ne peut pas être annulée.',
+      cancel: 'Annuler',
+      confirm: 'Archiver',
+    },
+    'profile-archived': 'Le profil de {{profileUserName}} a été archivé avec succès.',
     'errors': {
       'email-required': "L'adresse du courriel est requise.",
       'email-invalid': "L'adresse du courriel n'est pas valide.",
