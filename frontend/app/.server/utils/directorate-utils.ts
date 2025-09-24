@@ -1,4 +1,4 @@
-import type { LocalizedDirectorate, LocalizedBranch, Directorate, Branch } from '../domain/models';
+import type { LocalizedDirectorate, LocalizedBranch, Directorate, Branch } from '~/.server/domain/models';
 
 /**
  * Extracts unique branches from directorates that have parent branches.
