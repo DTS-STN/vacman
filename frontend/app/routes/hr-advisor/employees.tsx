@@ -147,7 +147,7 @@ export async function action({ context, request }: Route.ActionArgs) {
     return data({ success: true });
   }
 
-  // Handle create profile action (existing logic)
+  // Handle create profile action
   const parseResult = v.safeParse(
     v.object({
       email: v.pipe(
@@ -495,7 +495,7 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
         return (
           <div className="flex gap-4">
             <InlineLink
-              className="rounded-sm text-sky-800 no-underline hover:text-blue-700 focus:text-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
+              className="rounded-sm text-sky-800 underline hover:text-blue-700 focus:text-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
               file="routes/hr-advisor/employee-profile/index.tsx"
               params={{ profileId }}
               search={`filter=${searchParams.get('filter')}`}
@@ -534,7 +534,7 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
         {t('app:hr-advisor-employees-table.back-to-dashboard')}
       </BackLink>
 
-      <ActionDataErrorSummary actionData={fetcher.data && 'errors' in fetcher.data ? fetcher.data : undefined}>
+      <ActionDataErrorSummary actionData={fetcher.data}>
         <h2 className="font-lato mt-8 text-lg font-semibold">{t('app:hr-advisor-employees-table.create-profile')}</h2>
         <section className="mb-8 flex flex-col justify-between gap-8 sm:flex-row">
           <fetcher.Form method="post" noValidate className="grid place-content-between items-end gap-2 sm:grid-cols-2">
