@@ -656,13 +656,13 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
             <DialogTitle id="archive-dialog-title">
               {t('app:hr-advisor-employees-table.archive-confirmation.title')}
             </DialogTitle>
-            <DialogDescription id="archive-dialog-description">
-              {selectedProfileForArchive &&
-                t('app:hr-advisor-employees-table.archive-confirmation.message', {
-                  profileUserName: `${selectedProfileForArchive.profileUser.firstName} ${selectedProfileForArchive.profileUser.lastName}`,
-                })}
-            </DialogDescription>
           </DialogHeader>
+          <DialogDescription>
+            {selectedProfileForArchive &&
+              t('app:hr-advisor-employees-table.archive-confirmation.message', {
+                profileUserName: `${selectedProfileForArchive.profileUser.firstName} ${selectedProfileForArchive.profileUser.lastName}`,
+              })}
+          </DialogDescription>
           <DialogFooter>
             <DialogClose asChild>
               <Button variant="alternative" aria-describedby="archive-dialog-description" disabled={isArchiving}>
@@ -673,7 +673,6 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
               variant="primary"
               onClick={confirmArchive}
               aria-describedby="archive-dialog-description"
-              className="focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
               disabled={isArchiving}
               loading={isArchiving}
             >
