@@ -20,7 +20,7 @@ import { InlineLink } from '~/components/links';
 import { LoadingButton } from '~/components/loading-button';
 import { PageTitle } from '~/components/page-title';
 import { ProfileCard } from '~/components/profile-card';
-import { StatusTag } from '~/components/status-tag';
+import { ProfileStatusTag } from '~/components/status-tag';
 import { EMPLOYEE_WFA_STATUS, PROFILE_STATUS } from '~/domain/constants';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { useFetcherState } from '~/hooks/use-fetcher-state';
@@ -95,13 +95,6 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     : undefined;
   const profileUpdatedByUser = profileUpdatedByUserResult?.into();
   const profileUpdatedByUserName = profileUpdatedByUser && `${profileUpdatedByUser.firstName} ${profileUpdatedByUser.lastName}`;
-  const profileStatus = profileData.profileStatus
-    ? {
-        id: profileData.profileStatus.id,
-        code: profileData.profileStatus.code,
-        name: lang === 'en' ? profileData.profileStatus.nameEn : profileData.profileStatus.nameFr,
-      }
-    : undefined;
 
   // convert the IDs to display names
   const hrAdvisors = await getHrAdvisors(context.session.authState.accessToken);
@@ -165,7 +158,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     documentTitle: t('app:employee-profile.page-title'),
     name: `${profileData.profileUser.firstName} ${profileData.profileUser.lastName}`,
     email: profileUser?.businessEmailAddress ?? profileData.profileUser.businessEmailAddress,
-    profileStatus,
+    profileStatus: profileData.profileStatus,
     personalInformation: {
       personalRecordIdentifier: profileData.profileUser.personalRecordIdentifier,
       preferredLanguage:
@@ -248,7 +241,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
       <div className="absolute left-0 w-full space-y-4 bg-[rgba(9,28,45,1)] py-8 wrap-break-word text-white">
         <div className="container">
           {loaderData.profileStatus && (
-            <StatusTag status={{ code: loaderData.profileStatus.code, name: loaderData.profileStatus.name }} />
+            <ProfileStatusTag status={loaderData.profileStatus} lang={loaderData.lang} rounded view="hr-advisor" />
           )}
           <PageTitle className="after:w-14" containerClassName="my-6">
             {loaderData.name}
