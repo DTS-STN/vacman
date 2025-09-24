@@ -3,10 +3,9 @@
  * This module provides functions to verify if users have accepted privacy consent
  * and redirects them appropriately if they haven't.
  */
-import { getLanguageForCorrespondenceService } from '../domain/services/language-for-correspondence-service';
-import { getProfileService } from '../domain/services/profile-service';
-import { getUserService } from '../domain/services/user-service';
-
+import { getLanguageForCorrespondenceService } from '~/.server/domain/services/language-for-correspondence-service';
+import { getProfileService } from '~/.server/domain/services/profile-service';
+import { getUserService } from '~/.server/domain/services/user-service';
 import { LogFactory } from '~/.server/logging';
 import type { AuthenticatedSession } from '~/.server/utils/auth-utils';
 import { isEmployeeRoute, isPrivacyConsentPath, isProfileRoute } from '~/.server/utils/route-matching-utils';
