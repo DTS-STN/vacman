@@ -651,13 +651,13 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
 
       {/* Archive Confirmation Dialog */}
       <Dialog open={showArchiveDialog} onOpenChange={setShowArchiveDialog}>
-        <DialogContent aria-describedby={undefined} role="alertdialog">
+        <DialogContent aria-describedby="archive-dialog-description" role="alertdialog">
           <DialogHeader>
             <DialogTitle id="archive-dialog-title">
               {t('app:hr-advisor-employees-table.archive-confirmation.title')}
             </DialogTitle>
           </DialogHeader>
-          <DialogDescription>
+          <DialogDescription id="archive-dialog-description">
             {selectedProfileForArchive &&
               t('app:hr-advisor-employees-table.archive-confirmation.message', {
                 profileUserName: `${selectedProfileForArchive.profileUser.firstName} ${selectedProfileForArchive.profileUser.lastName}`,
@@ -665,17 +665,11 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
           </DialogDescription>
           <DialogFooter>
             <DialogClose asChild>
-              <Button variant="alternative" aria-describedby="archive-dialog-description" disabled={isArchiving}>
+              <Button variant="alternative" disabled={isArchiving}>
                 {t('app:hr-advisor-employees-table.archive-confirmation.cancel')}
               </Button>
             </DialogClose>
-            <LoadingButton
-              variant="primary"
-              onClick={confirmArchive}
-              aria-describedby="archive-dialog-description"
-              disabled={isArchiving}
-              loading={isArchiving}
-            >
+            <LoadingButton variant="primary" onClick={confirmArchive} disabled={isArchiving} loading={isArchiving}>
               {t('app:hr-advisor-employees-table.archive-confirmation.confirm')}
             </LoadingButton>
           </DialogFooter>
