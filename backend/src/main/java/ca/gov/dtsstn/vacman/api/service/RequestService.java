@@ -317,6 +317,25 @@ public class RequestService {
 	}
 
 	/**
+	 * Cancels a request.
+	 *
+	 * @param request The request entity to cancel
+	 * @return The updated request entity
+	 */
+	public RequestEntity cancelRequest(RequestEntity request) {
+		final boolean isHrAdvisor = SecurityUtils.hasAuthority("hr-advisor");
+
+		if (!isHrAdvisor) {
+			throw new UnauthorizedException("Only HR advisors can cancel requests");
+		}
+
+		// Set status to CANCELLED
+		request.setRequestStatus(getRequestStatusByCode(requestStatuses.cancelled()));
+
+		return updateRequest(request);
+	}
+
+	/**
 	 * Sends a notification when a request is approved and feedback is pending.
 	 */
 	private void sendRequestFeedbackPendingNotification(RequestEntity request) {
