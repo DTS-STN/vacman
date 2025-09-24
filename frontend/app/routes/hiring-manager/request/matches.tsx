@@ -16,7 +16,7 @@ import { Button } from '~/components/button';
 import { InputCheckbox } from '~/components/input-checkbox';
 import { PageTitle } from '~/components/page-title';
 import { Progress } from '~/components/progress';
-import { StatusTag } from '~/components/status-tag';
+import { RequestStatusTag } from '~/components/status-tag';
 import { VacmanBackground } from '~/components/vacman-background';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
@@ -45,7 +45,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 
   const requestMatches = requestMatchesResult.into()?.content ?? [];
   */
-  const requestStatuses = await getRequestStatusService().listAllLocalized(lang);
+  const requestStatuses = await getRequestStatusService().listAll();
   const localizedStatuses = await getMatchStatusService().listAllLocalized(lang);
   const localizedFeedback = await getMatchFeedbackService().listAllLocalized(lang);
   const matchStatusNames = localizedStatuses.map(({ name }) => name);
@@ -101,6 +101,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 
   return {
     documentTitle: t('app:matches.page-title'),
+    lang,
     requestMatches,
     matchStatusNames,
     matchFeedbackNames,
@@ -128,16 +129,9 @@ export default function HiringManagerRequestMatches({ loaderData, params }: Rout
 
   return (
     <div className="mb-8 space-y-4">
-      <VacmanBackground variant="top-right" height="h-70">
+      <VacmanBackground variant="top-right">
         {loaderData.requestStatus && (
-          <div className="mt-8">
-            <StatusTag
-              status={{
-                code: loaderData.requestStatus.code,
-                name: loaderData.requestStatus.name,
-              }}
-            />
-          </div>
+          <RequestStatusTag rounded status={loaderData.requestStatus} lang={loaderData.lang} view="hiring-manager" />
         )}
         <PageTitle className="after:w-14" subTitle={loaderData.branch}>
           {t('app:matches.referral-request')}
@@ -167,7 +161,12 @@ export default function HiringManagerRequestMatches({ loaderData, params }: Rout
           </div>
         </div>
       </VacmanBackground>
-      <BackLink aria-label={t('app:matches.back-request-details')} file="routes/hiring-manager/index.tsx" params={params}>
+      <BackLink
+        className="my-4"
+        aria-label={t('app:matches.back-request-details')}
+        file="routes/hiring-manager/index.tsx"
+        params={params}
+      >
         {t('app:matches.back-request-details')}
       </BackLink>
       <h2 className="font-lato mt-4 text-2xl font-bold">{t('app:matches.request-candidates')}</h2>

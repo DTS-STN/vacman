@@ -36,6 +36,8 @@ export async function createEmploymentInformationSchema(hrAdvisors: User[]) {
     EMPLOYEE_WFA_STATUS.exOpting,
     EMPLOYEE_WFA_STATUS.surplusOptingOptionA,
     EMPLOYEE_WFA_STATUS.exSurplusCPA,
+    EMPLOYEE_WFA_STATUS.relocation,
+    EMPLOYEE_WFA_STATUS.alternateDeliveryInitiative,
   ] as const;
 
   const validWFAStatusesForOptionalDate = [

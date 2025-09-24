@@ -207,26 +207,31 @@ export function EmploymentInformationForm({
               </>
             )}
 
-            <h2 className="font-lato text-2xl font-bold">{t('employment-information.wfa-detils-heading')}</h2>
-            <fieldset id="wfaDetilsFieldset" className="space-y-6">
-              <InputLegend id="wfaDetilsLegend" childrenClassName="font-normal">
-                {t('employment-information.wfa-detils')}
+            <h2 className="font-lato text-2xl font-bold">{t('employment-information.wfa-details-heading')}</h2>
+            <fieldset id="wfaDetailsFieldset" className="space-y-6">
+              <InputLegend id="wfaDetailsLegend" childrenClassName="font-normal">
+                {t('employment-information.wfa-details')}
               </InputLegend>
-              <div className="w-full sm:w-1/2">
-                <InputSelect
-                  ariaDescribedbyId="wfaDetilsLegend"
-                  id="wfaStatus"
-                  name="wfaStatus"
-                  errorMessage={t(extractValidationKey(formErrors?.wfaStatusId))}
-                  required
-                  options={wfaStatusOptions}
-                  label={t('employment-information.wfa-status')}
-                  defaultValue={formValues?.wfaStatus !== undefined ? String(formValues.wfaStatus.id) : ''}
-                  onChange={handleWFAStatusChange}
-                />
-              </div>
+              <InputSelect
+                ariaDescribedbyId="wfaDetailsLegend"
+                id="wfaStatus"
+                name="wfaStatus"
+                errorMessage={t(extractValidationKey(formErrors?.wfaStatusId))}
+                required
+                options={wfaStatusOptions}
+                label={t('employment-information.wfa-status')}
+                defaultValue={formValues?.wfaStatus !== undefined ? String(formValues.wfaStatus.id) : ''}
+                onChange={handleWFAStatusChange}
+              />
+            </fieldset>
+
+            <h2 className="font-lato text-2xl font-bold">{t('employment-information.wfa-dates-heading')}</h2>
+            <fieldset id="wfaDatesDetailsFieldset" className="space-y-6">
+              <InputLegend id="wfaDatesDetailsLegend" childrenClassName="font-normal">
+                {t('employment-information.wfa-dates-details')}
+              </InputLegend>
               <DatePickerField
-                ariaDescribedbyId="wfaDetilsLegend"
+                ariaDescribedbyId="wfaDatesDetailsLegend"
                 defaultValue={formValues?.wfaStartDate ?? ''}
                 id="wfaStartDate"
                 legend={t('employment-information.wfa-effective-date')}
@@ -246,10 +251,12 @@ export function EmploymentInformationForm({
               {(wfaStatusCode === EMPLOYEE_WFA_STATUS.opting ||
                 wfaStatusCode === EMPLOYEE_WFA_STATUS.exOpting ||
                 wfaStatusCode === EMPLOYEE_WFA_STATUS.surplusOptingOptionA ||
-                wfaStatusCode === EMPLOYEE_WFA_STATUS.exSurplusCPA) && (
+                wfaStatusCode === EMPLOYEE_WFA_STATUS.exSurplusCPA ||
+                wfaStatusCode === EMPLOYEE_WFA_STATUS.relocation ||
+                wfaStatusCode === EMPLOYEE_WFA_STATUS.alternateDeliveryInitiative) && (
                 <>
                   <DatePickerField
-                    ariaDescribedbyId="wfaDetilsLegend"
+                    ariaDescribedbyId="wfaDatesDetailsLegend"
                     defaultValue={formValues?.wfaEndDate ?? ''}
                     id="wfaEndDate"
                     legend={t('employment-information.wfa-end-date')}
@@ -267,18 +274,19 @@ export function EmploymentInformationForm({
                   />
                 </>
               )}
-              <InputSelect
-                ariaDescribedbyId="wfaDetilsLegend"
-                id="hrAdvisorId"
-                name="hrAdvisorId"
-                errorMessage={t(extractValidationKey(formErrors?.hrAdvisorId))}
-                required
-                options={hrAdvisorOptions}
-                label={t('employment-information.hr-advisor')}
-                defaultValue={formValues?.hrAdvisorId ? String(formValues.hrAdvisorId) : ''}
-                className="w-full sm:w-1/2"
-              />
             </fieldset>
+
+            <InputSelect
+              ariaDescribedbyId="wfaDetailsLegend"
+              id="hrAdvisorId"
+              name="hrAdvisorId"
+              errorMessage={t(extractValidationKey(formErrors?.hrAdvisorId))}
+              required
+              options={hrAdvisorOptions}
+              label={t('employment-information.hr-advisor')}
+              defaultValue={formValues?.hrAdvisorId ? String(formValues.hrAdvisorId) : ''}
+              className="w-full sm:w-1/2"
+            />
 
             <div className="mt-8 flex flex-wrap items-center justify-start gap-3">
               <ButtonLink file={cancelLink} params={params} id="cancel-button" variant="alternative">

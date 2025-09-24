@@ -113,11 +113,15 @@ export default {
     'directorate': 'Directorate',
     'provinces': 'Province of the designated work location of your substantive position',
     'city': 'City of the designated work location of your substantive position',
-    'wfa-detils-heading': 'Workforce Adjustment (WFA) or Career Transition for Executives (CT) details',
-    'wfa-detils': 'Refer to the letter you received in your email for this information.',
+    'wfa-details-heading': 'Workforce Adjustment (WFA) or Career Transition for Executives (CT) details',
+    'wfa-details':
+      'Refer to the letter attesting to your workforce adjustment situation to complete the following information.',
     'wfa-status': 'Current WFA/CT status',
-    'wfa-effective-date': 'Effective date of your WFA/CT status',
-    'wfa-end-date': 'End date of your WFA/CT status',
+    'wfa-dates-heading': 'Dates of your WFA/CT status',
+    'wfa-dates-details':
+      'Please insert the effective date and end date (as applicable) of the WFA status indicated on your letter. If there is no effective date, insert the date in the header of your letter.',
+    'wfa-effective-date': 'Effective date',
+    'wfa-end-date': 'End date',
     'hr-advisor': 'HR advisor identified on your WFA/CT letter',
     'errors': {
       'substantive-group-and-level-required': 'Group and level of your substantive position is required.',
@@ -188,6 +192,12 @@ export default {
       'work-location-city-duplicate': 'Duplicate items for work location city are not allowed.',
       'referral-availibility-required': 'Availablility confirmation for referrals is required.',
       'alternate-opportunity-required': 'Alternation opportunities (confirmation of interest) is required.',
+    },
+    'choice-tag': {
+      city: 'city',
+      cities: 'cities',
+      classification: 'classification',
+      classifications: 'classifications',
     },
   },
   'employee-dashboard': {
@@ -262,6 +272,8 @@ export default {
     'page-title': 'Employees',
     'back-to-dashboard': 'Back to dashboard',
     'view': 'View',
+    'archive': 'Archive',
+    'archive-link': 'Archive profile for {{profileUserName}}',
     'my-employees': 'My employees',
     'all-employees': 'All employees',
     'employee': 'Employee',
@@ -276,10 +288,18 @@ export default {
     'table-updated-all-employees': 'Table updated: showing All Employees',
     'create-profile': 'Create profile',
     'employee-work-email': 'Employee work email address',
+    'archive-confirmation': {
+      title: 'Confirm Archive',
+      message: 'Are you sure you want to archive the profile for {{profileUserName}}? This action cannot be undone.',
+      cancel: 'Cancel',
+      confirm: 'Archive',
+    },
+    'profile-archived': 'Profile for {{profileUserName}} has been successfully archived.',
     'errors': {
       'email-required': 'Email address is required.',
       'email-invalid': 'Invalid email address.',
       'profile-already-exists': 'User already has an active profile',
+      'no-user-found-with-this-email': 'No user found with this email address.',
     },
   },
   'hr-advisor-requests': {
@@ -342,6 +362,7 @@ export default {
       keep: 'Keep request',
       cancel: 'Cancel request',
     },
+    'back': 'Back to requests',
     //'view-link': 'View request with ID {{requestId}}',
   },
   'hr-advisor-referral-requests': {
@@ -365,7 +386,6 @@ export default {
     'submit': 'Submit',
     'status': {
       'request-pending-approval': 'Request pending approval',
-      'assigned-hr-review': 'Assigned - HR review',
     },
   },
   'referral-request': 'Referral request',
@@ -405,6 +425,10 @@ export default {
         'oral-proficiency-required': 'Oral proficiency is required.',
       },
       'security-requirement-required': 'Security requirement is required.',
+    },
+    'choice-tag': {
+      city: 'city',
+      cities: 'cities',
     },
   },
   'hiring-manager-requests': {
@@ -490,6 +514,7 @@ export default {
     'hiring-manager': 'Hiring manager',
     'hr-advisor': 'HR advisor',
     'back-request-details': 'Back to request details',
+    'back-request-candidates': 'Back to request candidates',
     'request-candidates': 'Request candidates',
     'feedback': {
       success: 'Feedback submitted successfully! An HR advisor will review it for approval',

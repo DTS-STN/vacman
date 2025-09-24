@@ -35,7 +35,12 @@ output "security_groups" {
     role => {
       name    = group.display_name
       id      = group.id
-      members = length(azuread_group_member.main[*])
+      #
+      # XXX ::: GjB ::: I've intentionally commented out this block of code
+      #                 so we can manage the group members externally
+      #                 (ie: via the Azure Portal)
+      #
+      # members = length(azuread_group_member.main[*])
     }
   }
 }

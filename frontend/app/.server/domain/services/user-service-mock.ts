@@ -1,8 +1,6 @@
 import type { Option, Result } from 'oxide.ts';
 import { Err, None, Ok, Some } from 'oxide.ts';
 
-import { getProfileService } from './profile-service';
-
 import type {
   PagedUserResponse,
   PageMetadata,
@@ -13,6 +11,7 @@ import type {
   UserUpdate,
 } from '~/.server/domain/models';
 import { createUserFromEmail, mockProfiles, mockUsers } from '~/.server/domain/services/mock-data';
+import { getProfileService } from '~/.server/domain/services/profile-service';
 import type { UserService } from '~/.server/domain/services/user-service';
 import { LogFactory } from '~/.server/logging';
 import { PROFILE_STATUS } from '~/domain/constants';

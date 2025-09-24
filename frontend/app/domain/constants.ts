@@ -7,6 +7,8 @@ export const EMPLOYEE_WFA_STATUS = {
   surplusGRJO: 'SURPLUS_GRJO',
   exSurplusCPA: 'EXSURPLUSCPA',
   surplusOptingOptionA: 'SURPLUS_NO_GRJO',
+  relocation: 'RELOCATION',
+  alternateDeliveryInitiative: 'ALTERNATE_DELIVERY_INITIATIVE',
 } as const;
 
 export const LANGUAGE_ID = {

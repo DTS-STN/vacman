@@ -6,10 +6,11 @@ import { useFetcher } from 'react-router';
 import type { ColumnDef } from '@tanstack/react-table';
 import { useTranslation } from 'react-i18next';
 
-import type { LocalizedLookupModel, LookupModel, RequestReadModel, RequestStatus } from '~/.server/domain/models';
+import type { LocalizedLookupModel, LookupModel, RequestReadModel } from '~/.server/domain/models';
 import { DataTable, DataTableColumnHeader, DataTableColumnHeaderWithOptions } from '~/components/data-table';
 import { InlineLink } from '~/components/links';
 import { LoadingButton } from '~/components/loading-button';
+import { RequestStatusTag } from '~/components/status-tag';
 import { useFetcherState } from '~/hooks/use-fetcher-state';
 import { formatDateTimeInZone } from '~/utils/date-utils';
 
@@ -99,7 +100,7 @@ export default function RequestsTables({
         ),
         cell: (info) => {
           const status = info.row.original.status;
-          return status && statusTag(status, lang, view);
+          return status && <RequestStatusTag status={status} lang={lang} view={view} />;
         },
         filterFn: (row, columnId, filterValue: string[]) => {
           const status = row.getValue(columnId) as string;
@@ -156,27 +157,6 @@ export default function RequestsTables({
           <DataTable columns={createColumns(false)} data={archivedRequests} />
         )}
       </section>
-    </div>
-  );
-}
-
-function statusTag(status: RequestStatus, lang: Language, view: string): JSX.Element {
-  const styleMap: Record<string, string> = {
-    CLR_GRANTED: 'bg-gray-100 text-slate-700',
-    PSC_GRANTED: 'bg-gray-100 text-slate-700',
-    CANCELLED: 'bg-gray-100 text-slate-700',
-    ...(view === 'hr-advisor'
-      ? { FDBK_PENDING: 'bg-sky-100 text-sky-700', DEFAULT: 'bg-amber-100 text-yellow-900' }
-      : {
-          DRAFT: 'bg-amber-100 text-yellow-900',
-          FDBK_PENDING: 'bg-amber-100 text-yellow-900',
-          DEFAULT: 'bg-sky-100 text-sky-700',
-        }),
-  };
-  const style = styleMap[status.code] ?? styleMap.DEFAULT;
-  return (
-    <div className={`${style} flex w-fit items-center gap-2 rounded-md px-3 py-1 text-sm font-semibold`}>
-      <p>{lang === 'en' ? status.nameEn : status.nameFr}</p>
     </div>
   );
 }

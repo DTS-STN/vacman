@@ -9,6 +9,6 @@ import jakarta.validation.constraints.NotNull;
 public record RequestStatusUpdateModel(
 	@NotNull
 	@Schema(description = "The event type that triggered the status change",
-	allowableValues = {"requestSubmitted", "requestPickedUp", "vmsNotRequired", "submitFeedback"})
+	allowableValues = {"requestSubmitted", "requestPickedUp", "vmsNotRequired", "submitFeedback", "pscNotRequired", "pscRequired"})
 	String eventType
 ) {}

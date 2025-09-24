@@ -116,9 +116,13 @@ export default {
     'directorate': 'Direction',
     'provinces': 'Province du lieu de travail désigné de votre poste substantif',
     'city': 'Ville du lieu de travail désigné de votre poste substantif',
-    'wfa-detils-heading': 'Détails du réaménagement des effectifs (RE) ou de la Transition de carrière des exécutifs (TC)',
-    'wfa-detils': "Consultez la lettre que vous avez reçue par courriel pour plus d'informations.",
+    'wfa-details-heading': 'Détails du réaménagement des effectifs (RE) ou de la Transition de carrière des exécutifs (TC)',
+    'wfa-details':
+      "Consultez la lettre attestant de votre situation sous le réaménagement des effectifs pour compléter l'information qui suit.",
     'wfa-status': 'Statut actuel sous le RE/TC',
+    'wfa-dates-heading': 'Dates de votre statut de RE/TC',
+    'wfa-dates-details':
+      "Veuillez inscrire la date d'effet et la date de fin (le cas échéant) du statut RE indiquée(s) sur votre lettre. En l'absence de date d'effet, inscrire la date à l'entête de votre lettre.",
     'wfa-effective-date': "Date d'effet de votre statut de RE/TC",
     'wfa-end-date': 'Date de fin de votre statut de RE/TC',
     'hr-advisor': 'Conseiller en RH identifié dans votre lettre de RE/TC',
@@ -167,7 +171,7 @@ export default {
     'city': 'Ville',
     'referral-availibility': 'Êtes-vous actuellement disponible pour être référé-e?',
     'referral-availibility-help-message-primary':
-      'Sélectionnez «\u00a0non\u00a0» si votre situation actuelle ne vous permet pas de considérer des offres d’emploi (par exemple, congé prolongé, en attente d’une offre d’emploi, etc.)',
+      "Sélectionnez «\u00a0non\u00a0» si votre situation actuelle ne vous permet pas de considérer des offres d'emploi (par exemple, congé prolongé, en attente d'une offre d'emploi, etc.)",
     'alternate-opportunity': "Êtes-vous intéressé-e par des occasions d'échange de poste?",
     'what-is-alternation': "Qu'est-ce qu'un échange de postes?",
     'alternation-description-text-para-1':
@@ -191,6 +195,12 @@ export default {
       'work-location-city-duplicate': 'Les éléments dupliqués pour la ville du lieu de travail ne sont pas permis.',
       'referral-availibility-required': 'La confirmation de disponibilité pour les références est requise.',
       'alternate-opportunity-required': "La confirmation d'intérêt pour l'échange de poste est requise.",
+    },
+    'choice-tag': {
+      city: 'ville',
+      cities: 'villes',
+      classification: 'classification',
+      classifications: 'classements',
     },
   },
   'employee-dashboard': {
@@ -265,6 +275,8 @@ export default {
     'page-title': 'Employé-e-s',
     'back-to-dashboard': 'Retour au tableau de bord',
     'view': 'Affiché',
+    'archive': 'Archiver',
+    'archive-link': 'Archiver le profil pour {{profileUserName}}',
     'my-employees': 'Mes employé-e-s',
     'all-employees': 'Liste complète des employé-e-s',
     'employee': 'Employé-e',
@@ -279,10 +291,18 @@ export default {
     'table-updated-all-employees': 'Tableau mis à jour : affichage de Liste complète des employé-e-s',
     'create-profile': 'Créer un profil',
     'employee-work-email': "Adresse e-mail professionnelle de l'employé-e",
+    'archive-confirmation': {
+      title: "Confirmer l'archivage",
+      message: 'Êtes-vous sûr de vouloir archiver le profil pour {{profileUserName}} ? Cette action ne peut pas être annulée.',
+      cancel: 'Annuler',
+      confirm: 'Archiver',
+    },
+    'profile-archived': 'Le profil de {{profileUserName}} a été archivé avec succès.',
     'errors': {
       'email-required': "L'adresse du courriel est requise.",
       'email-invalid': "L'adresse du courriel n'est pas valide.",
       'profile-already-exists': "L'utilisateur a déjà un profil actif",
+      'no-user-found-with-this-email': 'No user found with this email address. FR',
     },
   },
   'hr-advisor-requests': {
@@ -347,6 +367,7 @@ export default {
       keep: 'Conserver la demande',
       cancel: 'Annuler la demande',
     },
+    'back': 'Retour aux demandes',
     //'view-link': 'View request with ID {{requestId}}',
   },
   'hr-advisor-referral-requests': {
@@ -370,7 +391,6 @@ export default {
     'submit': 'Submit FR',
     'status': {
       'request-pending-approval': '(FR) Request pending approval',
-      'assigned-hr-review': 'Assignée - Revue RH',
     },
   },
   'referral-request': 'Demande de présentation de candidatures',
@@ -411,6 +431,10 @@ export default {
         'oral-proficiency-required': "La compétence à l'oral est requise.",
       },
       'security-requirement-required': "L'exigence de sécurité est requise.",
+    },
+    'choice-tag': {
+      city: 'ville',
+      cities: 'villes',
     },
   },
   'hiring-manager-requests': {
@@ -500,6 +524,7 @@ export default {
     'hiring-manager': "Gestionnaire d'embauche",
     'hr-advisor': 'Conseiller(ère)',
     'back-request-details': "Retour à l'information sur la demande",
+    'back-request-candidates': 'Retour aux candidatures de la demande',
     'request-candidates': 'Candidatures de la demande',
     'feedback': {
       success: "Commentaire soumis avec succès ! Un(e) Conseiller(ère) l'examinera pour approbation.",

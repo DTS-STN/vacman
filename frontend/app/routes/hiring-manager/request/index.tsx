@@ -21,6 +21,7 @@ import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { countCompletedItems } from '~/.server/utils/profile-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { AlertMessage } from '~/components/alert-message';
+import { BackLink } from '~/components/back-link';
 import { Button } from '~/components/button';
 import { ButtonLink } from '~/components/button-link';
 import { ContextualAlert } from '~/components/contextual-alert';
@@ -38,7 +39,7 @@ import { LoadingButton } from '~/components/loading-button';
 import { PageTitle } from '~/components/page-title';
 import { ProfileCard } from '~/components/profile-card';
 import { Progress } from '~/components/progress';
-import { StatusTag } from '~/components/status-tag';
+import { RequestStatusTag } from '~/components/status-tag';
 import {
   EMPLOYMENT_TENURE,
   LANGUAGE_REQUIREMENT_CODES,
@@ -222,7 +223,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     allLocalizedEmploymentEquities,
     allLocalizedDirectorates,
     allLocalizedPreferredLanguage,
-    allLocalizedRequestStatus,
+    allRequestStatus,
   ] = await Promise.all([
     getCityService().listAllLocalized(lang),
     getSelectionProcessTypeService().listAllLocalized(lang),
@@ -232,7 +233,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     getEmploymentEquityService().listAllLocalized(lang),
     getDirectorateService().listAllLocalized(lang),
     getLanguageForCorrespondenceService().listAllLocalized(lang),
-    getRequestStatusService().listAllLocalized(lang),
+    getRequestStatusService().listAll(),
   ]);
 
   // Process information from Request type
@@ -414,7 +415,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     directorate: allLocalizedDirectorates.find((c) => c.code === requestData.workUnit?.code),
     languageOfCorrespondence: allLocalizedPreferredLanguage.find((p) => p.code === requestData.languageOfCorrespondence?.code),
     additionalComment: requestData.additionalComment,
-    status: allLocalizedRequestStatus.find((s) => s.code === requestData.status?.code),
+    status: allRequestStatus.find((s) => s.code === requestData.status?.code),
     hrAdvisor: requestData.hrAdvisor,
     priorityClearanceNumber: requestData.priorityClearanceNumber,
     pscClearanceNumber: requestData.pscClearanceNumber,
@@ -461,12 +462,7 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
     <div className="space-y-8">
       <div className="space-y-4 py-8 text-white">
         {loaderData.status && (
-          <StatusTag
-            status={{
-              code: loaderData.status.code,
-              name: loaderData.status.name,
-            }}
-          />
+          <RequestStatusTag status={loaderData.status} lang={loaderData.lang} rounded view="hiring-manager" />
         )}
 
         <PageTitle>{t('app:hiring-manager-referral-requests.page-title')}</PageTitle>
@@ -530,6 +526,36 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
         />
       </div>
 
+      {!isSubmitted && (
+        <ContextualAlert type={'info'} role="status" ariaLive="polite" textSmall={false}>
+          <div className="text-black-800 pl-1 text-base">
+            <p>{t('app:hiring-manager-referral-requests.notice-line-1')}</p>
+            <ul className="my-3 list-disc pl-7">
+              <li className="mtx-2">{t('app:hiring-manager-referral-requests.notice-line-2')}</li>
+              <li className="mtx-2">{t('app:hiring-manager-referral-requests.notice-line-3')}</li>
+              <li className="mtx-2">{t('app:hiring-manager-referral-requests.notice-line-4')}</li>
+              <li className="mtx-2">{t('app:hiring-manager-referral-requests.notice-line-5')}</li>
+            </ul>
+            <p className="mt-2">{t('app:hiring-manager-referral-requests.notice-line-6')}</p>
+            <p className="mt-2">{t('app:hiring-manager-referral-requests.notice-line-7')}</p>
+          </div>
+        </ContextualAlert>
+      )}
+
+      {isSubmitted && (
+        <BackLink
+          id="back-to-requests"
+          aria-label={t('app:hiring-manager-referral-requests.back')}
+          className="mt-6"
+          file="routes/hiring-manager/requests.tsx"
+          disabled={isSubmitting}
+        >
+          {t('app:hiring-manager-referral-requests.back')}
+        </BackLink>
+      )}
+
+      <h2 className="font-lato mt-4 text-xl font-bold">{t('app:hiring-manager-referral-requests.request-details')}</h2>
+
       {fetcher.data && (
         <AlertMessage
           ref={alertRef}
@@ -554,23 +580,7 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
         />
       )}
 
-      <div className="mt-20 w-full">
-        <ContextualAlert type={'info'} role="status" ariaLive="polite" textSmall={false}>
-          <div className="text-black-800 pl-1 text-base">
-            <p>{t('app:hiring-manager-referral-requests.notice-line-1')}</p>
-            <ul className="my-3 list-disc pl-7">
-              <li className="mtx-2">{t('app:hiring-manager-referral-requests.notice-line-2')}</li>
-              <li className="mtx-2">{t('app:hiring-manager-referral-requests.notice-line-3')}</li>
-              <li className="mtx-2">{t('app:hiring-manager-referral-requests.notice-line-4')}</li>
-              <li className="mtx-2">{t('app:hiring-manager-referral-requests.notice-line-5')}</li>
-            </ul>
-            <p className="mt-2">{t('app:hiring-manager-referral-requests.notice-line-6')}</p>
-            <p className="mt-2">{t('app:hiring-manager-referral-requests.notice-line-7')}</p>
-          </div>
-        </ContextualAlert>
-
-        <h2 className="font-lato mt-4 text-xl font-bold">{t('app:hiring-manager-referral-requests.request-details')}</h2>
-
+      <div className="w-full">
         <div className="text-black-800 mt-4 max-w-prose text-base">
           {t('app:hiring-manager-referral-requests.page-description')}
         </div>
@@ -841,52 +851,62 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
             </ProfileCard>
           </div>
 
-          <div className="mt-8 max-w-prose">
-            <div className="flex justify-center">
-              <fetcher.Form className="mt-6 md:mt-auto" method="post" noValidate>
-                <Button type="button" className="w-full" variant="alternative" id="cancel" onClick={() => setShowDialog(true)}>
-                  {t('app:form.cancel')}
-                </Button>
+          {!isSubmitted && (
+            <div className="mt-8 max-w-prose">
+              <div className="flex justify-center">
+                <fetcher.Form className="mt-6 md:mt-auto" method="post" noValidate>
+                  <Button
+                    type="button"
+                    className="w-full"
+                    variant="alternative"
+                    id="cancel"
+                    onClick={() => setShowDialog(true)}
+                  >
+                    {t('app:form.cancel')}
+                  </Button>
 
-                <ButtonLink
-                  className="mt-4 w-full"
-                  variant="alternative"
-                  file="routes/hiring-manager/index.tsx"
-                  id="save"
-                  disabled={isSubmitting}
-                >
-                  {t('app:form.save-and-exit')}
-                </ButtonLink>
+                  <ButtonLink
+                    className="mt-4 w-full"
+                    variant="alternative"
+                    file="routes/hiring-manager/index.tsx"
+                    id="save"
+                    disabled={isSubmitting}
+                  >
+                    {t('app:form.save-and-exit')}
+                  </ButtonLink>
 
-                <LoadingButton
-                  className="mt-4 w-full"
-                  name="action"
-                  variant="primary"
-                  id="submit"
-                  disabled={isSubmitting}
-                  loading={isSubmitting}
-                >
-                  {t('app:form.submit')}
-                </LoadingButton>
-              </fetcher.Form>
+                  <LoadingButton
+                    className="mt-4 w-full"
+                    name="action"
+                    variant="primary"
+                    id="submit"
+                    disabled={isSubmitting}
+                    loading={isSubmitting}
+                  >
+                    {t('app:form.submit')}
+                  </LoadingButton>
+                </fetcher.Form>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
       <Dialog open={showDialog} onOpenChange={setShowDialog}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent aria-describedby="cancel-dialog-description" role="alertdialog">
           <DialogHeader>
-            <DialogTitle>{t('app:hiring-manager-referral-requests.request-cancel.title')}</DialogTitle>
+            <DialogTitle id="cancel-dialog-title">{t('app:hiring-manager-referral-requests.request-cancel.title')}</DialogTitle>
           </DialogHeader>
-          <DialogDescription>{t('app:hiring-manager-referral-requests.request-cancel.content')}</DialogDescription>
+          <DialogDescription id="cancel-dialog-description">
+            {t('app:hiring-manager-referral-requests.request-cancel.content')}
+          </DialogDescription>
           <DialogFooter>
             <DialogClose asChild>
-              <Button id="confirm-modal-back" variant="default" size="sm">
+              <Button id="confirm-modal-back" variant="alternative" disabled={isSubmitting}>
                 {t('app:hiring-manager-referral-requests.request-cancel.keep')}
               </Button>
             </DialogClose>
             <fetcher.Form method="post" noValidate>
-              <Button id="cancel-request" variant="primary" size="sm" name="_action" value="cancel" disabled={isSubmitting}>
+              <Button id="cancel-request" variant="primary" name="_action" value="cancel" disabled={isSubmitting}>
                 {t('app:hiring-manager-referral-requests.request-cancel.cancel')}
               </Button>
             </fetcher.Form>

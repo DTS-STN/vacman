@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.util.StringUtils;
 import org.mapstruct.factory.Mappers;
 import org.slf4j.Logger;
@@ -229,6 +230,10 @@ public class RequestService {
 				handleVmsNotRequired(request, isHrAdvisor, currentStatus);
 			case "submitFeedback" ->
 				handleSubmitFeedback(request, isOwner, currentStatus);
+			case "pscNotRequired" ->
+				handlePscNotRequired(request, isHrAdvisor, currentStatus);
+			case "pscRequired" ->
+				handlePscRequired(request, isHrAdvisor, currentStatus);
 			default ->
 				throw new IllegalArgumentException("Unknown event type: " + eventType);
 		};
@@ -426,7 +431,7 @@ public class RequestService {
 		}
 
 		if (!requestStatuses.feedbackPending().equals(currentStatus)) {
-			throw new ResourceNotFoundException("Request must be in FDBK_PENDING status to submit feedback");
+			throw new ResourceConflictException("Request must be in FDBK_PENDING status to submit feedback");
 		}
 
 		// Set status to FDBK_PEND_APPR
@@ -455,6 +460,65 @@ public class RequestService {
 		} else {
 			log.warn("No HR advisor or business email address found for request ID: [{}]", request.getId());
 		}
+
+		return request;
+	}
+
+	/**
+	 * Handles the pscNotRequired event.
+	 *
+	 * @param request The request entity
+	 * @param isHrAdvisor Whether the current user is an HR advisor
+	 * @param currentStatus The current status code of the request
+	 * @return The updated request entity
+	 */
+	private RequestEntity handlePscNotRequired(RequestEntity request, boolean isHrAdvisor, String currentStatus) {
+		if (!isHrAdvisor) {
+			throw new UnauthorizedException("Only HR advisors can mark a request as PSC not required");
+		}
+
+		if (!requestStatuses.feedbackPendingApproval().equals(currentStatus)) {
+			throw new ResourceConflictException("Request must be in FDBK_PEND_APPR status to be marked as PSC not required");
+		}
+
+		// Set status to CLR_GRANTED
+		request.setRequestStatus(getRequestStatusByCode(requestStatuses.clearanceGranted()));
+
+		// Generate VacMan clearance number (16 character ID with letters and numbers)
+		// TODO: Real implementation (ADO task 6691)
+		final var clearanceNumber = RandomStringUtils.insecure().nextAlphanumeric(16).toUpperCase();
+		request.setPscClearanceNumber(clearanceNumber);
+
+		// TODO: send notification (details need to be worked out)
+
+		return request;
+	}
+
+	/**
+	 * Handles the pscRequired event.
+	 *
+	 * @param request The request entity
+	 * @param isHrAdvisor Whether the current user is an HR advisor
+	 * @param currentStatus The current status code of the request
+	 * @return The updated request entity
+	 */
+	private RequestEntity handlePscRequired(RequestEntity request, boolean isHrAdvisor, String currentStatus) {
+		if (!isHrAdvisor) {
+			throw new UnauthorizedException("Only HR advisors can mark a request as PSC required");
+		}
+
+		if (!requestStatuses.feedbackPendingApproval().equals(currentStatus)) {
+			throw new ResourceConflictException("Request must be in FDBK_PEND_APPR status to be marked as PSC required");
+		}
+
+		// Set status to PENDING_PSC
+		request.setRequestStatus(getRequestStatusByCode(requestStatuses.pendingPscClearance()));
+
+		// Generate VacMan clearance number (16 character ID with letters and numbers)
+		final var clearanceNumber = RandomStringUtils.insecure().nextAlphanumeric(16).toUpperCase();
+		request.setPscClearanceNumber(clearanceNumber);
+
+		// TODO: send notification (details need to be worked out)
 
 		return request;
 	}

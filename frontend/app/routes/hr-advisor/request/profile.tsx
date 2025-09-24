@@ -13,6 +13,7 @@ import { getLanguageReferralTypeService } from '~/.server/domain/services/langua
 import { getProfileService } from '~/.server/domain/services/profile-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { getHrAdvisors } from '~/.server/utils/profile-utils';
+import { BackLink } from '~/components/back-link';
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/card';
 import { DescriptionList, DescriptionListItem } from '~/components/description-list';
 import { PageTitle } from '~/components/page-title';
@@ -116,13 +117,20 @@ export default function HiringManagerRequestProfile({ loaderData, params }: Rout
   const { t } = useTranslation(handle.i18nNamespace);
 
   return (
-    <div>
-      <VacmanBackground variant="bottom-right" height="h-40">
+    <div className="space-y-8">
+      <VacmanBackground variant="bottom-right">
         <PageTitle className="after:w-14" variant="bottom" subTitle={loaderData.email} subTitleClassName="mt-3">
           {loaderData.name}
         </PageTitle>
       </VacmanBackground>
-      <div className="mt-8 max-w-prose space-y-10">
+      <BackLink
+        aria-label={t('app:matches.back-request-candidates')}
+        file="routes/hr-advisor/request/matches.tsx"
+        params={params}
+      >
+        {t('app:matches.back-request-candidates')}
+      </BackLink>
+      <div className="max-w-prose space-y-10">
         <DetailsCard title={t('app:profile.personal-information.title')}>
           <DescriptionList>
             <DescriptionListItem term={t('app:personal-information.personal-record-identifier')}>
@@ -167,7 +175,7 @@ export default function HiringManagerRequestProfile({ loaderData, params }: Rout
             </DescriptionList>
           </div>
           <div>
-            <h3 className="font-lato text-xl font-bold">{t('app:employment-information.wfa-detils-heading')}</h3>
+            <h3 className="font-lato text-xl font-bold">{t('app:employment-information.wfa-details-heading')}</h3>
             <DescriptionList>
               <DescriptionListItem term={t('app:employment-information.wfa-status')}>
                 {loaderData.employmentInformation?.wfaStatus ?? t('app:profile.not-provided')}
@@ -178,7 +186,9 @@ export default function HiringManagerRequestProfile({ loaderData, params }: Rout
               {(loaderData.employmentInformation?.wfaStatusCode === EMPLOYEE_WFA_STATUS.opting ||
                 loaderData.employmentInformation?.wfaStatusCode === EMPLOYEE_WFA_STATUS.exOpting ||
                 loaderData.employmentInformation?.wfaStatusCode === EMPLOYEE_WFA_STATUS.surplusOptingOptionA ||
-                loaderData.employmentInformation?.wfaStatusCode === EMPLOYEE_WFA_STATUS.exSurplusCPA) && (
+                loaderData.employmentInformation?.wfaStatusCode === EMPLOYEE_WFA_STATUS.exSurplusCPA ||
+                loaderData.employmentInformation?.wfaStatusCode === EMPLOYEE_WFA_STATUS.relocation ||
+                loaderData.employmentInformation?.wfaStatusCode === EMPLOYEE_WFA_STATUS.alternateDeliveryInitiative) && (
                 <DescriptionListItem term={t('app:employment-information.wfa-end-date')}>
                   {loaderData.employmentInformation.wfaEndDate ?? t('app:profile.not-provided')}
                 </DescriptionListItem>

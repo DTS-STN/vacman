@@ -23,6 +23,8 @@ describe('ErrorSummary', () => {
 
   it('should render an error summary with 1 error', () => {
     const { container } = render(<ErrorSummary errors={[{ fieldId: 'input-test', errorMessage: 'Test error 1' }]} />);
+
+    container.querySelector('section')?.focus();
     expect(container).toMatchSnapshot('expected html');
     expect(container.ownerDocument.activeElement === container.querySelector('section')).toBeTruthy();
   });
@@ -36,6 +38,8 @@ describe('ErrorSummary', () => {
         ]}
       />,
     );
+
+    container.querySelector('section')?.focus();
     expect(container).toMatchSnapshot('expected html');
     expect(container.ownerDocument.activeElement === container.querySelector('section')).toBeTruthy();
   });
@@ -54,6 +58,7 @@ describe('ActionDataErrorSummary', () => {
       </ActionDataErrorSummary>,
     );
 
+    container.querySelector('section')?.focus();
     expect(container).toMatchSnapshot('expected html');
     expect(container.ownerDocument.activeElement === container.querySelector('section')).toBeTruthy();
   });
@@ -74,6 +79,7 @@ describe('FetcherErrorSummary', () => {
       </FetcherErrorSummary>,
     );
 
+    container.querySelector('section')?.focus();
     expect(container).toMatchSnapshot('expected html');
     expect(container.ownerDocument.activeElement === container.querySelector('section')).toBeTruthy();
   });
@@ -93,6 +99,7 @@ describe('FormErrorSummary', () => {
       </FormErrorSummary>,
     );
 
+    container.querySelector('section')?.focus();
     expect(container).toMatchSnapshot('expected html');
     expect(container.ownerDocument.activeElement === container.querySelector('section')).toBeTruthy();
   });

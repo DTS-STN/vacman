@@ -16,13 +16,13 @@ const sizes = {
 
 // prettier-ignore
 const variants = {
-  alternative: 'border-gray-900 bg-white text-gray-900 hover:bg-gray-100 hover:text-blue-700 focus:bg-gray-100 focus:text-blue-700',
+  alternative: 'border-gray-900 bg-white text-gray-900 hover:bg-gray-100 hover:text-blue-700 focus:bg-gray-100 focus:text-blue-700 focus:ring-2 focus:ring-black focus:ring-offset-2',
   default: 'border-gray-300 bg-gray-200 text-slate-700 hover:bg-neutral-300 focus:bg-neutral-300',
   dark: 'border-gray-800 bg-gray-800 text-white hover:bg-gray-900 focus:bg-gray-900',
   green: 'border-green-700 bg-green-700 text-white hover:bg-green-800 focus:bg-green-800',
   primary: 'border-slate-700 bg-slate-700 text-white hover:bg-sky-800 focus:bg-sky-800',
   red: 'border-red-700 bg-red-700 text-white hover:bg-red-800 focus:bg-red-800',
-  link: 'border-0 bg-white text-gray-900 underline hover:bg-gray-100 hover:text-blue-700 focus:bg-gray-100 focus:text-blue-700',
+  link: 'border-0 bg-white text-gray-900 underline hover:bg-gray-100 hover:text-blue-700 focus:bg-gray-100 focus:text-blue-700 focus:ring-2 focus:ring-slate-500 focus:ring-offset-2',
   ghost: 'border-0 hover:bg-neutral-100 hover:text-neutral-900',
   outline: "border border-neutral-200 bg-white hover:bg-neutral-100 hover:text-neutral-900 disabled:text-neutral-500",
 } as const;
