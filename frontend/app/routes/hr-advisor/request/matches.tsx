@@ -15,7 +15,7 @@ import { BackLink } from '~/components/back-link';
 import { InlineLink } from '~/components/links';
 import { PageTitle } from '~/components/page-title';
 import { Progress } from '~/components/progress';
-import { StatusTag } from '~/components/status-tag';
+import { RequestStatusTag } from '~/components/status-tag';
 import { VacmanBackground } from '~/components/vacman-background';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
@@ -44,7 +44,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 
   const requestMatches = requestMatchesResult.into()?.content ?? [];
   */
-  const requestStatuses = await getRequestStatusService().listAllLocalized(lang);
+  const requestStatuses = await getRequestStatusService().listAll();
   const localizedStatuses = await getMatchStatusService().listAllLocalized(lang);
   const localizedFeedback = await getMatchFeedbackService().listAllLocalized(lang);
   const matchStatusNames = localizedStatuses.map(({ name }) => name);
@@ -100,6 +100,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 
   return {
     documentTitle: t('app:matches.page-title'),
+    lang,
     requestMatches,
     matchStatusNames,
     matchFeedbackNames,
@@ -130,12 +131,7 @@ export default function HrAdvisorMatches({ loaderData, params }: Route.Component
       <VacmanBackground variant="top-right" height="h-70">
         {loaderData.requestStatus && (
           <div className="mt-8">
-            <StatusTag
-              status={{
-                code: loaderData.requestStatus.code,
-                name: loaderData.requestStatus.name,
-              }}
-            />
+            <RequestStatusTag rounded status={loaderData.requestStatus} lang={loaderData.lang} view="hr-advisor" />
           </div>
         )}
         <PageTitle className="after:w-14" subTitle={loaderData.branch}>
