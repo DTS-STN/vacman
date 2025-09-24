@@ -15,12 +15,13 @@ import { serverEnvironment } from '~/.server/environment';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { getHrAdvisors } from '~/.server/utils/profile-utils';
 import { AlertMessage } from '~/components/alert-message';
+import { BackLink } from '~/components/back-link';
 import { DescriptionList, DescriptionListItem } from '~/components/description-list';
-import { InlineLink } from '~/components/links';
 import { LoadingButton } from '~/components/loading-button';
 import { PageTitle } from '~/components/page-title';
 import { ProfileCard } from '~/components/profile-card';
 import { ProfileStatusTag } from '~/components/status-tag';
+import { VacmanBackground } from '~/components/vacman-background';
 import { EMPLOYEE_WFA_STATUS, PROFILE_STATUS } from '~/domain/constants';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { useFetcherState } from '~/hooks/use-fetcher-state';
@@ -52,7 +53,7 @@ export async function action({ context, request, params }: Route.ActionArgs) {
 
   // approve the profile
   const submitResult = await getProfileService().updateProfileStatus(
-    profileData.profileUser.id,
+    profileData.id,
     PROFILE_STATUS.APPROVED,
     context.session.authState.accessToken,
   );
@@ -238,35 +239,29 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
 
   return (
     <div className="space-y-8">
-      <div className="absolute left-0 w-full space-y-4 bg-[rgba(9,28,45,1)] py-8 wrap-break-word text-white">
-        <div className="container">
+      <VacmanBackground variant="bottom-right" className="pb-12">
+        <div className="container space-y-4 py-8 wrap-break-word">
           {loaderData.profileStatus && (
             <ProfileStatusTag status={loaderData.profileStatus} lang={loaderData.lang} rounded view="hr-advisor" />
           )}
-          <PageTitle className="after:w-14" containerClassName="my-6">
+          <PageTitle className="after:w-14" variant="bottom" subTitle={loaderData.email} subTitleClassName="mt-3">
             {loaderData.name}
           </PageTitle>
-          {loaderData.email && <p className="mt-1">{loaderData.email}</p>}
           <p className="font-normal text-[#9FA3AD]">
             {t('app:profile.last-updated', { date: browserTZ, name: loaderData.lastUpdatedBy })}
           </p>
         </div>
-        <div
-          role="presentation"
-          className="absolute top-25 left-0 -z-10 h-70 w-full scale-x-[-1] bg-[rgba(9,28,45,1)] bg-[url('/VacMan-design-element-06.svg')] bg-size-[450px] bg-left-bottom bg-no-repeat sm:h-60"
-        />
-      </div>
-      <div className="mt-110 justify-between sm:mt-70 md:grid md:grid-cols-2">
+      </VacmanBackground>
+      <div className="justify-between md:grid md:grid-cols-2">
         <div className="max-w-prose">
-          <InlineLink
-            className="mt-6 block"
+          <BackLink
+            aria-label={t('app:employee-profile.back')}
             file="routes/hr-advisor/employees.tsx"
             params={params}
             search={`filter=${loaderData.backLinkFilter}`}
-            id="back-button"
           >
-            {`< ${t('app:employee-profile.back')}`}
-          </InlineLink>
+            {t('app:employee-profile.back')}
+          </BackLink>
           <p className="mt-12">{t('app:employee-profile.about-para-1')}</p>
         </div>
       </div>
