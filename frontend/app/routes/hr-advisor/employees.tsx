@@ -54,6 +54,49 @@ const PROFILE_STATUS_CODE = [
   PROFILE_STATUS.INCOMPLETE.code,
 ] as const;
 
+// Strongly type the allowed column ids and backend properties
+type ColumnId = 'name' | 'email' | 'dateUpdated';
+type SortProp = 'user.lastName' | 'user.businessEmailAddress' | 'lastModifiedDate';
+
+// Static mapping objects - moved outside component to avoid recreation
+const COLUMN_TO_PROPERTY = {
+  name: 'user.lastName',
+  email: 'user.businessEmailAddress',
+  dateUpdated: 'lastModifiedDate',
+} as const satisfies Record<ColumnId, SortProp>;
+
+const PROPERTY_TO_COLUMN = {
+  'user.lastName': 'name',
+  'user.businessEmailAddress': 'email',
+  'lastModifiedDate': 'dateUpdated',
+} as const satisfies Record<SortProp, ColumnId>;
+
+// Static helper functions - moved outside component to avoid recreation
+const isColumnId = (id: string): id is ColumnId => {
+  return Object.prototype.hasOwnProperty.call(COLUMN_TO_PROPERTY, id);
+};
+
+const isSortProp = (v: string): v is SortProp => {
+  return Object.prototype.hasOwnProperty.call(PROPERTY_TO_COLUMN, v);
+};
+
+const parseSortParam = (value: string | null): { id: ColumnId; desc: boolean } | null => {
+  if (!value) return null;
+  const [propRaw, dirRaw] = value.split(',');
+  const propKey = (propRaw ?? '').trim();
+  if (!isSortProp(propKey)) return null;
+  const colId = PROPERTY_TO_COLUMN[propKey];
+  const dir = (dirRaw ?? 'asc').trim().toLowerCase();
+  const desc = dir === 'desc';
+  return { id: colId, desc };
+};
+
+const serializeSortParam = (s: { id: string; desc: boolean } | null | undefined): string | null => {
+  if (!s?.id || !isColumnId(s.id)) return null;
+  const prop = COLUMN_TO_PROPERTY[s.id];
+  return `${prop},${s.desc ? 'desc' : 'asc'}`;
+};
+
 export const handle = {
   i18nNamespace: [...parentHandle.i18nNamespace],
 } as const satisfies RouteHandle;
@@ -263,18 +306,21 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
     );
     setSelectedProfileForArchive(null);
     setIsArchiving(false);
-  }, [selectedProfileForArchive, archiveFetcher, setSrAnnouncement, t, isArchiving]);
+  }, [selectedProfileForArchive, archiveFetcher, t, isArchiving]);
 
-  const employeesOptions = [
-    {
-      value: 'me',
-      children: t('app:hr-advisor-employees-table.my-employees'),
-    },
-    {
-      value: 'all',
-      children: t('app:hr-advisor-employees-table.all-employees'),
-    },
-  ];
+  const employeesOptions = useMemo(
+    () => [
+      {
+        value: 'me',
+        children: t('app:hr-advisor-employees-table.my-employees'),
+      },
+      {
+        value: 'all',
+        children: t('app:hr-advisor-employees-table.all-employees'),
+      },
+    ],
+    [t],
+  );
 
   // Pagination helpers
   const totalPages = loaderData.page.totalPages;
@@ -282,74 +328,10 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
   const pageItems = getPageItems(totalPages, currentPage, { threshold: 9, delta: 2 });
 
   // Sorting helpers
-  // Strongly type the allowed column ids and backend properties
-  type ColumnId = 'name' | 'email' | 'dateUpdated';
-  type SortProp = 'user.lastName' | 'user.businessEmailAddress' | 'lastModifiedDate';
-
-  // Map column ids to API sort properties
-  const COLUMN_TO_PROPERTY = useMemo(
-    () =>
-      ({
-        name: 'user.lastName',
-        email: 'user.businessEmailAddress',
-        dateUpdated: 'lastModifiedDate',
-      }) as const satisfies Record<ColumnId, SortProp>,
-    [],
-  );
-
-  // Inverse map: API sort properties to column ids
-  const PROPERTY_TO_COLUMN = useMemo(
-    () =>
-      ({
-        'user.lastName': 'name',
-        'user.businessEmailAddress': 'email',
-        'lastModifiedDate': 'dateUpdated',
-      }) as const satisfies Record<SortProp, ColumnId>,
-    [],
-  );
-
-  // Runtime guard: validate backend sort property using the mapping as source of truth
-  const isColumnId = useCallback(
-    (id: string): id is ColumnId => {
-      return Object.prototype.hasOwnProperty.call(COLUMN_TO_PROPERTY, id);
-    },
-    [COLUMN_TO_PROPERTY],
-  );
-
-  const isSortProp = useCallback(
-    (v: string): v is SortProp => {
-      return Object.prototype.hasOwnProperty.call(PROPERTY_TO_COLUMN, v);
-    },
-    [PROPERTY_TO_COLUMN],
-  );
-
-  // Derive single current sort from URL search params
-  const parseSortParam = useCallback(
-    (value: string | null): { id: ColumnId; desc: boolean } | null => {
-      if (!value) return null;
-      const [propRaw, dirRaw] = value.split(',');
-      const propKey = (propRaw ?? '').trim();
-      if (!isSortProp(propKey)) return null;
-      const colId = PROPERTY_TO_COLUMN[propKey];
-      const dir = (dirRaw ?? 'asc').trim().toLowerCase();
-      const desc = dir === 'desc';
-      return { id: colId, desc };
-    },
-    [PROPERTY_TO_COLUMN, isSortProp],
-  );
-
-  const serializeSortParam = useCallback(
-    (s: { id: string; desc: boolean } | null | undefined): string | null => {
-      if (!s?.id || !isColumnId(s.id)) return null;
-      const prop = COLUMN_TO_PROPERTY[s.id];
-      return `${prop},${s.desc ? 'desc' : 'asc'}`;
-    },
-    [COLUMN_TO_PROPERTY, isColumnId],
-  );
 
   const currentSort = useMemo((): { id: ColumnId; desc: boolean } | null => {
     return parseSortParam(searchParams.get('sort'));
-  }, [searchParams, parseSortParam]);
+  }, [searchParams]);
 
   // Map column ids to localized header titles for announcements
   const columnIdToTitle = useMemo(
@@ -396,7 +378,7 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
       announceSortChange(normalized);
       startTransition(() => setSearchParams(paramsNext));
     },
-    [searchParams, serializeSortParam, announceSortChange, setSearchParams, isColumnId],
+    [searchParams, announceSortChange, setSearchParams],
   );
 
   // Map loader statuses (id + codes) to help translate between codes shown in UI and ids for query
@@ -704,13 +686,14 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
   );
 }
 
-function statusTag(status: ProfileStatus, lang: Language): JSX.Element {
-  const styleMap: Record<string, string> = {
-    APPROVED: 'bg-sky-100 text-sky-700',
-    PENDING: 'bg-amber-100 text-yellow-900',
-    DEFAULT: 'bg-transparent',
-  };
-  const style = styleMap[status.code] ?? styleMap.DEFAULT;
+const STATUS_STYLE_MAP: Record<string, string> = {
+  APPROVED: 'bg-sky-100 text-sky-700',
+  PENDING: 'bg-amber-100 text-yellow-900',
+  DEFAULT: 'bg-transparent',
+};
+
+function statusTag(status: ProfileStatus, lang: string): JSX.Element {
+  const style = STATUS_STYLE_MAP[status.code] ?? STATUS_STYLE_MAP.DEFAULT;
   return (
     <div className={`${style} flex w-fit items-center gap-2 rounded-md px-3 py-1 text-sm font-semibold`}>
       <p>{lang === 'en' ? status.nameEn : status.nameFr}</p>
