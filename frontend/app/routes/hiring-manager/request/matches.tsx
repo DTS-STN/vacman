@@ -129,11 +129,9 @@ export default function HiringManagerRequestMatches({ loaderData, params }: Rout
 
   return (
     <div className="mb-8 space-y-4">
-      <VacmanBackground variant="top-right" height="h-70">
+      <VacmanBackground variant="top-right">
         {loaderData.requestStatus && (
-          <div className="mt-8">
-            <RequestStatusTag rounded status={loaderData.requestStatus} lang={loaderData.lang} view="hiring-manager" />
-          </div>
+          <RequestStatusTag rounded status={loaderData.requestStatus} lang={loaderData.lang} view="hiring-manager" />
         )}
         <PageTitle className="after:w-14" subTitle={loaderData.branch}>
           {t('app:matches.referral-request')}

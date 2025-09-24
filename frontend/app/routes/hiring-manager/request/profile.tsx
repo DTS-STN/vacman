@@ -118,7 +118,7 @@ export default function HiringManagerRequestProfile({ loaderData, params }: Rout
 
   return (
     <div className="space-y-8">
-      <VacmanBackground variant="bottom-right" height="h-40">
+      <VacmanBackground variant="bottom-right">
         <PageTitle className="after:w-14" variant="bottom" subTitle={loaderData.email} subTitleClassName="mt-3">
           {loaderData.name}
         </PageTitle>
