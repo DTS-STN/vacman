@@ -251,7 +251,7 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
     formData.set('action', 'archive');
 
     // Submit the archive request using archiveFetcher
-    void archiveFetcher.submit(formData, { method: 'post' });
+    void archiveFetcher.submit(formData, { method: 'put' });
 
     // Close dialog and reset state
     setShowArchiveDialog(false);
