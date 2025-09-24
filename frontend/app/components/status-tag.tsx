@@ -3,7 +3,7 @@ import type { JSX } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import type { RequestStatus } from '~/.server/domain/models';
-import { PROFILE_STATUS } from '~/domain/constants';
+import { PROFILE_STATUS, REQUEST_STATUS_CODE } from '~/domain/constants';
 import { cn } from '~/utils/tailwind-utils';
 
 interface StatusTagProps {
@@ -44,18 +44,24 @@ interface RequestStatusTagProps {
 export function RequestStatusTag({ status, lang, rounded = false, view }: RequestStatusTagProps): JSX.Element {
   const { t } = useTranslation('app');
   const styleMap: Record<string, string> = {
-    CLR_GRANTED: 'bg-gray-100 text-slate-700',
-    PSC_GRANTED: 'bg-gray-100 text-slate-700',
-    CANCELLED: 'bg-gray-100 text-slate-700',
+    [REQUEST_STATUS_CODE.CLR_GRANTED]: 'bg-gray-100 text-slate-700',
+    [REQUEST_STATUS_CODE.PSC_GRANTED]: 'bg-gray-100 text-slate-700',
+    [REQUEST_STATUS_CODE.CANCELLED]: 'bg-gray-100 text-slate-700',
     ...(view === 'hr-advisor'
-      ? { FDBK_PENDING: 'bg-sky-100 text-sky-700', DEFAULT: 'bg-amber-100 text-yellow-900' }
+      ? {
+          [REQUEST_STATUS_CODE.DRAFT]: 'border-yellow-400 bg-yellow-100 text-yellow-800',
+          [REQUEST_STATUS_CODE.FDBK_PENDING]: 'bg-sky-100 text-sky-700',
+          [REQUEST_STATUS_CODE.FDBK_PEND_APPR]: 'border-yellow-400 bg-yellow-100 text-yellow-800',
+          Default: 'bg-amber-100 text-yellow-900',
+        }
       : {
-          DRAFT: 'bg-amber-100 text-yellow-900',
-          FDBK_PENDING: 'bg-amber-100 text-yellow-900',
-          DEFAULT: 'bg-sky-100 text-sky-700',
+          [REQUEST_STATUS_CODE.DRAFT]: 'bg-amber-100 text-yellow-900',
+          [REQUEST_STATUS_CODE.FDBK_PENDING]: 'bg-amber-100 text-yellow-900',
+          [REQUEST_STATUS_CODE.FDBK_PEND_APPR]: 'border-yellow-400 bg-yellow-100 text-yellow-800',
+          Default: 'bg-sky-100 text-sky-700',
         }),
   };
-  const style = styleMap[status.code] ?? styleMap.DEFAULT;
+  const style = styleMap[status.code] ?? styleMap.Default;
   const displayName =
     status.code === 'SUBMIT' && view === 'hr-advisor'
       ? t('hr-advisor-referral-requests.status.request-pending-approval')
