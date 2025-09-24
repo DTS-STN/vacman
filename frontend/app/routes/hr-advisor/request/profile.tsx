@@ -175,7 +175,7 @@ export default function HiringManagerRequestProfile({ loaderData, params }: Rout
             </DescriptionList>
           </div>
           <div>
-            <h3 className="font-lato text-xl font-bold">{t('app:employment-information.wfa-detils-heading')}</h3>
+            <h3 className="font-lato text-xl font-bold">{t('app:employment-information.wfa-details-heading')}</h3>
             <DescriptionList>
               <DescriptionListItem term={t('app:employment-information.wfa-status')}>
                 {loaderData.employmentInformation?.wfaStatus ?? t('app:profile.not-provided')}
