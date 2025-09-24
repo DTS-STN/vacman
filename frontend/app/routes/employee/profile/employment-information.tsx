@@ -80,7 +80,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   ) {
     // profile needs to be re-approved if and only if the current profile status is 'approved'
     await profileService.updateProfileStatus(
-      currentProfile.profileUser.id,
+      currentProfile.id,
       PROFILE_STATUS.PENDING,
       context.session.authState.accessToken,
     );
