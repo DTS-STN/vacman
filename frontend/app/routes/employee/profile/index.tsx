@@ -357,29 +357,31 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
 
   return (
     <div className="space-y-8">
-      <div className="space-y-4 py-8 text-white">
-        <StatusTag
-          status={{
-            code: loaderData.profileStatus.code,
-            name:
-              loaderData.profileStatus.code === PROFILE_STATUS.PENDING.code
-                ? t('app:profile.pending-status-employee')
-                : loaderData.profileStatus.name,
-          }}
-        />
-        <PageTitle className="after:w-14" containerClassName="my-6">
-          {loaderData.name}
-        </PageTitle>
-        {loaderData.email && <p className="mt-1">{loaderData.email}</p>}
-        <p className="font-normal text-[#9FA3AD]">
-          {t('app:profile.last-updated', { date: browserTZ, name: loaderData.lastUpdatedBy })}
-        </p>
+      <div className="absolute left-0 w-full space-y-4 bg-[rgba(9,28,45,1)] py-8 wrap-break-word text-white">
+        <div className="container">
+          <StatusTag
+            status={{
+              code: loaderData.profileStatus.code,
+              name:
+                loaderData.profileStatus.code === PROFILE_STATUS.PENDING.code
+                  ? t('app:profile.pending-status-employee')
+                  : loaderData.profileStatus.name,
+            }}
+          />
+          <PageTitle className="after:w-14" containerClassName="my-6">
+            {loaderData.name}
+          </PageTitle>
+          {loaderData.email && <p className="mt-1">{loaderData.email}</p>}
+          <p className="font-normal text-[#9FA3AD]">
+            {t('app:profile.last-updated', { date: browserTZ, name: loaderData.lastUpdatedBy })}
+          </p>
+        </div>
         <div
           role="presentation"
-          className="absolute top-25 left-0 -z-10 h-70 w-full scale-x-[-1] bg-[rgba(9,28,45,1)] bg-[url('/VacMan-design-element-06.svg')] bg-size-[450px] bg-left-bottom bg-no-repeat sm:h-60"
+          className="absolute bottom-0 left-0 h-40 w-full scale-x-[-1] bg-[url('/VacMan-design-element-06.svg')] bg-size-[30rem] bg-left-bottom bg-no-repeat"
         />
       </div>
-      <div className="justify-between md:grid md:grid-cols-2">
+      <div className="mt-110 justify-between sm:mt-70 md:grid md:grid-cols-2">
         <div className="max-w-prose">
           <p className="mt-12">
             {loaderData.profileStatus.code === PROFILE_STATUS.PENDING.code
