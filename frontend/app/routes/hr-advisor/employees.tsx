@@ -136,7 +136,7 @@ export async function action({ context, request }: Route.ActionArgs) {
     // Call profile service to update status to ARCHIVED
     const updateResult = await getProfileService().updateProfileStatus(
       profileId,
-     PROFILE_STATUS.ARCHIVED,
+      PROFILE_STATUS.ARCHIVED,
       context.session.authState.accessToken,
     );
 
