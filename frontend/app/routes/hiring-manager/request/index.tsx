@@ -887,19 +887,31 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
         </div>
       </div>
       <Dialog open={showDialog} onOpenChange={setShowDialog}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent aria-describedby={undefined} role="alertdialog">
           <DialogHeader>
-            <DialogTitle>{t('app:hiring-manager-referral-requests.request-cancel.title')}</DialogTitle>
+            <DialogTitle id="cancel-dialog-title">{t('app:hiring-manager-referral-requests.request-cancel.title')}</DialogTitle>
           </DialogHeader>
           <DialogDescription>{t('app:hiring-manager-referral-requests.request-cancel.content')}</DialogDescription>
           <DialogFooter>
             <DialogClose asChild>
-              <Button id="confirm-modal-back" variant="default" size="sm">
+              <Button
+                id="confirm-modal-back"
+                variant="alternative"
+                aria-describedby="cancel-dialog-description"
+                disabled={isSubmitting}
+              >
                 {t('app:hiring-manager-referral-requests.request-cancel.keep')}
               </Button>
             </DialogClose>
             <fetcher.Form method="post" noValidate>
-              <Button id="cancel-request" variant="primary" size="sm" name="_action" value="cancel" disabled={isSubmitting}>
+              <Button
+                id="cancel-request"
+                variant="primary"
+                name="_action"
+                value="cancel"
+                aria-describedby="cancel-dialog-description"
+                disabled={isSubmitting}
+              >
                 {t('app:hiring-manager-referral-requests.request-cancel.cancel')}
               </Button>
             </fetcher.Form>
