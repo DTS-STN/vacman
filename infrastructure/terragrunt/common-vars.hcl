@@ -19,10 +19,11 @@ locals {
 
       roles = {
         # see: https://learn.microsoft.com/en-us/graph/permissions-reference#all-permissions-and-ids
-        "Directory.Read.All" = "7ab1d382-f21e-4acd-a863-ba3e13f7da61"
-        "Group.Read.All"     = "5b567255-7703-4780-807c-7be8301ae99b"
-        "User.Read.All"      = "df021288-bdef-4463-88db-98f22de89214"
-        "User.ReadBasic.All" = "97235f07-e226-4f63-ace3-39588e11d3a1"
+        "Directory.Read.All"   = "7ab1d382-f21e-4acd-a863-ba3e13f7da61"
+        "Group.Read.All"       = "5b567255-7703-4780-807c-7be8301ae99b"
+        "GroupMember.Read.All" = "98830695-27a2-44f7-8c18-0c3ebc9698f6",
+        "User.Read.All"        = "df021288-bdef-4463-88db-98f22de89214"
+        "User.ReadBasic.All"   = "97235f07-e226-4f63-ace3-39588e11d3a1"
       }
 
       scopes = {
@@ -30,13 +31,14 @@ locals {
         "Directory.AccessAsUser.All" = "0e263e50-5827-48a4-b97c-d940288653c7"
         "Directory.Read.All"         = "06da0dbc-49e2-44d2-8312-53f166ab848a"
         "Group.Read.All"             = "5f8c59db-677d-491f-a6b8-5f174b11ec1d"
+        "GroupMember.Read.All"       = "bc024368-1153-4739-b217-4326f2e966d0",
         "User.Read"                  = "e1fe6dd8-ba31-4d61-89e7-88639da4683d"
         "User.Read.All"              = "a154be20-db9c-4678-8ab7-66f6cc099a59"
         "User.ReadBasic.All"         = "b340eb25-3456-403f-be2f-af7a0d370277"
         # standard OpenID scopes
-        "openid"  = "37f7f235-527c-4136-accd-4a02d197296e"
-        "email"   = "64a6cdd6-aab1-4aaf-94b8-3cc8405e90d0"
-        "profile" = "14dad69e-099b-42c9-810b-d002981feec1"
+        "openid"                     = "37f7f235-527c-4136-accd-4a02d197296e"
+        "email"                      = "64a6cdd6-aab1-4aaf-94b8-3cc8405e90d0"
+        "profile"                    = "14dad69e-099b-42c9-810b-d002981feec1"
       }
     }
   }

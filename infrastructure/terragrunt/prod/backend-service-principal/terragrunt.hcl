@@ -44,6 +44,13 @@ inputs = {
         type = "Scope",
       },
       {
+        # GroupMember.Read.All is required to get a listing of all members of our HR Advisors group
+        # (used when syncing nested onprem groups with our app-role security group)
+        id   = local.msgraph_api.roles["GroupMember.Read.All"]
+        type = "Role",
+      },
+      {
+        # User.ReadBasic.All is required to read userinfo (name, email, etc)
         id   = local.msgraph_api.roles["User.ReadBasic.All"]
         type = "Role",
       },
@@ -58,13 +65,6 @@ inputs = {
       id           = "4414634e-53f1-4427-833a-1c20e1f580b5"
       value        = "hr-advisor"
     },
-    {
-      display_name = "Employee"
-      description  = "Employee"
-      group_name   = "Vacancy Manager: Employees (prod)"
-      id           = "0b2fc216-e4b0-4680-b64c-82185652574e"
-      value        = "employee"
-    },
   ]
 
   app_spa_redirect_uris = [
@@ -73,10 +73,5 @@ inputs = {
 
   app_web_redirect_uris = [
     "https://vacman.esdc-edsc.canada.ca/auth/callback/azuread",
-    # TODO ::: GjB ::: remove prod-dp-internal URL after go-live
-    "https://vacman.prod-dp-internal.dts-stn.com/auth/callback/azuread",
   ]
-
-  # TODO ::: GjB ::: remove this after go-live
-  service_principal_assignment_required = true
 }
