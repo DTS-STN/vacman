@@ -116,9 +116,13 @@ export default {
     'directorate': 'Direction',
     'provinces': 'Province du lieu de travail désigné de votre poste substantif',
     'city': 'Ville du lieu de travail désigné de votre poste substantif',
-    'wfa-detils-heading': 'Détails du réaménagement des effectifs (RE) ou de la Transition de carrière des exécutifs (TC)',
-    'wfa-detils': "Consultez la lettre que vous avez reçue par courriel pour plus d'informations.",
+    'wfa-details-heading': 'Détails du réaménagement des effectifs (RE) ou de la Transition de carrière des exécutifs (TC)',
+    'wfa-details':
+      "Consultez la lettre attestant de votre situation sous le réaménagement des effectifs pour compléter l'information qui suit.",
     'wfa-status': 'Statut actuel sous le RE/TC',
+    'wfa-dates-heading': 'Dates de votre statut de RE/TC',
+    'wfa-dates-details':
+      "Veuillez inscrire la date d'effet et la date de fin (le cas échéant) du statut RE indiquée(s) sur votre lettre. En l'absence de date d'effet, inscrire la date à l'entête de votre lettre.",
     'wfa-effective-date': "Date d'effet de votre statut de RE/TC",
     'wfa-end-date': 'Date de fin de votre statut de RE/TC',
     'hr-advisor': 'Conseiller en RH identifié dans votre lettre de RE/TC',
@@ -167,7 +171,7 @@ export default {
     'city': 'Ville',
     'referral-availibility': 'Êtes-vous actuellement disponible pour être référé-e?',
     'referral-availibility-help-message-primary':
-      'Sélectionnez «\u00a0non\u00a0» si votre situation actuelle ne vous permet pas de considérer des offres d’emploi (par exemple, congé prolongé, en attente d’une offre d’emploi, etc.)',
+      "Sélectionnez «\u00a0non\u00a0» si votre situation actuelle ne vous permet pas de considérer des offres d'emploi (par exemple, congé prolongé, en attente d'une offre d'emploi, etc.)",
     'alternate-opportunity': "Êtes-vous intéressé-e par des occasions d'échange de poste?",
     'what-is-alternation': "Qu'est-ce qu'un échange de postes?",
     'alternation-description-text-para-1':

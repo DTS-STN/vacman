@@ -113,11 +113,15 @@ export default {
     'directorate': 'Directorate',
     'provinces': 'Province of the designated work location of your substantive position',
     'city': 'City of the designated work location of your substantive position',
-    'wfa-detils-heading': 'Workforce Adjustment (WFA) or Career Transition for Executives (CT) details',
-    'wfa-detils': 'Refer to the letter you received in your email for this information.',
+    'wfa-details-heading': 'Workforce Adjustment (WFA) or Career Transition for Executives (CT) details',
+    'wfa-details':
+      'Refer to the letter attesting to your workforce adjustment situation to complete the following information.',
     'wfa-status': 'Current WFA/CT status',
-    'wfa-effective-date': 'Effective date of your WFA/CT status',
-    'wfa-end-date': 'End date of your WFA/CT status',
+    'wfa-dates-heading': 'Dates of your WFA/CT status',
+    'wfa-dates-details':
+      'Please insert the effective date and end date (as applicable) of the WFA status indicated on your letter. If there is no effective date, insert the date in the header of your letter.',
+    'wfa-effective-date': 'Effective date',
+    'wfa-end-date': 'End date',
     'hr-advisor': 'HR advisor identified on your WFA/CT letter',
     'errors': {
       'substantive-group-and-level-required': 'Group and level of your substantive position is required.',
