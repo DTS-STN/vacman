@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json.schemastore.org/package",
+  "name": "vacman-support",
+  "description": "Support software for the Vacancy Management solution.",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@10.10.0",
+  "engines": {
+    "node": ">= 22.x",
+    "pnpm": ">= 10.x"
+  },
+  "scripts": {
+    "group-sync": "dotenv -- tsx ./src/group-sync.ts",
+    "group-sync:debug": "dotenv -- tsx --inspect ./src/group-sync.ts",
+    "test": "vitest"
+  },
+  "dependencies": {
+    "@effect/platform": "^0.91.x",
+    "@effect/platform-node": "^0.97.x",
+    "effect": "^3.17.x"
+  },
+  "devDependencies": {
+    "dotenv-cli": "^10.0.x",
+    "tsx": "^4.20.x",
+    "vitest": "^3.2.x"
+  },
+  "prettier": {
+    "printWidth": 128
+  }
+}
