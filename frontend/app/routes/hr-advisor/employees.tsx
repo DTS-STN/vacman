@@ -1,4 +1,3 @@
-import type { JSX } from 'react';
 import { useEffect, useMemo, useState, useCallback, startTransition } from 'react';
 
 import type { RouteHandle } from 'react-router';
@@ -10,7 +9,7 @@ import * as v from 'valibot';
 
 import type { Route } from './+types/employees';
 
-import type { Profile, ProfileQueryParams, ProfileStatus } from '~/.server/domain/models';
+import type { Profile, ProfileQueryParams } from '~/.server/domain/models';
 import { getProfileService } from '~/.server/domain/services/profile-service';
 import { getProfileStatusService } from '~/.server/domain/services/profile-status-service';
 import { getUserService } from '~/.server/domain/services/user-service';
@@ -35,6 +34,7 @@ import { InlineLink } from '~/components/links';
 import { LoadingButton } from '~/components/loading-button';
 import { PageTitle } from '~/components/page-title';
 import Pagination from '~/components/pagination';
+import { ProfileStatusTag } from '~/components/status-tag';
 import { PROFILE_STATUS } from '~/domain/constants';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { useFetcherState } from '~/hooks/use-fetcher-state';
@@ -475,7 +475,7 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
       ),
       cell: (info) => {
         const status = info.row.original.profileStatus;
-        return status && statusTag(status, loaderData.lang);
+        return status && <ProfileStatusTag status={status} lang={loaderData.lang} view="hr-advisor" />;
       },
       filterFn: (row, columnId, filterValue: string[]) => {
         const status = row.getValue(columnId) as string;
@@ -682,21 +682,6 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
-  );
-}
-
-const STATUS_STYLE_MAP: Record<string, string> = {
-  APPROVED: 'bg-sky-100 text-sky-700',
-  PENDING: 'bg-amber-100 text-yellow-900',
-  DEFAULT: 'bg-transparent',
-};
-
-function statusTag(status: ProfileStatus, lang: string): JSX.Element {
-  const style = STATUS_STYLE_MAP[status.code] ?? STATUS_STYLE_MAP.DEFAULT;
-  return (
-    <div className={`${style} flex w-fit items-center gap-2 rounded-md px-3 py-1 text-sm font-semibold`}>
-      <p>{lang === 'en' ? status.nameEn : status.nameFr}</p>
     </div>
   );
 }

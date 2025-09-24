@@ -26,7 +26,7 @@ import { LoadingButton } from '~/components/loading-button';
 import { PageTitle } from '~/components/page-title';
 import { ProfileCard } from '~/components/profile-card';
 import { Progress } from '~/components/progress';
-import { StatusTag } from '~/components/status-tag';
+import { ProfileStatusTag } from '~/components/status-tag';
 import { EMPLOYEE_WFA_STATUS, PROFILE_STATUS } from '~/domain/constants';
 import { useFetcherState } from '~/hooks/use-fetcher-state';
 import { getTranslation } from '~/i18n-config.server';
@@ -134,13 +134,6 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 
   // Use profileUser for updated by information as well
   const profileUpdatedByUserName = `${currentUser.firstName ?? 'Unknown'} ${currentUser.lastName ?? 'User'}`;
-  const profileStatus = profileData.profileStatus
-    ? {
-        id: profileData.profileStatus.id,
-        code: profileData.profileStatus.code,
-        name: lang === 'en' ? profileData.profileStatus.nameEn : profileData.profileStatus.nameFr,
-      }
-    : { code: PROFILE_STATUS.INCOMPLETE.code, name: 'Incomplete' };
 
   // convert the IDs to display names
   const hrAdvisors = await getHrAdvisors(context.session.authState.accessToken);
@@ -254,7 +247,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     email: currentUser.businessEmailAddress,
     amountCompleted: amountCompleted,
     isProfileComplete: isCompletePersonalInformation && isCompleteEmploymentInformation && isCompleteReferralPreferences,
-    profileStatus,
+    profileStatus: profileData.profileStatus,
     personalInformation: {
       isComplete: isCompletePersonalInformation,
       isNew: countCompletedItems(personalInformationData) === 1, // only work email is available
@@ -359,15 +352,9 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
     <div className="space-y-8">
       <div className="absolute left-0 w-full space-y-4 bg-[rgba(9,28,45,1)] py-8 wrap-break-word text-white">
         <div className="container">
-          <StatusTag
-            status={{
-              code: loaderData.profileStatus.code,
-              name:
-                loaderData.profileStatus.code === PROFILE_STATUS.PENDING.code
-                  ? t('app:profile.pending-status-employee')
-                  : loaderData.profileStatus.name,
-            }}
-          />
+          {loaderData.profileStatus && (
+            <ProfileStatusTag status={loaderData.profileStatus} lang={loaderData.lang} rounded view="employee" />
+          )}
           <PageTitle className="after:w-14" containerClassName="my-6">
             {loaderData.name}
           </PageTitle>
@@ -384,7 +371,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
       <div className="mt-110 justify-between sm:mt-70 md:grid md:grid-cols-2">
         <div className="max-w-prose">
           <p className="mt-12">
-            {loaderData.profileStatus.code === PROFILE_STATUS.PENDING.code
+            {loaderData.profileStatus?.code === PROFILE_STATUS.PENDING.code
               ? t('app:profile.about-para-1-pending')
               : t('app:profile.about-para-1')}
           </p>
@@ -393,7 +380,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
           <ButtonLink variant="alternative" file="routes/employee/index.tsx" id="save" disabled={isSubmitting}>
             {t('app:form.save-and-exit')}
           </ButtonLink>
-          {loaderData.profileStatus.code === PROFILE_STATUS.INCOMPLETE.code && (
+          {loaderData.profileStatus?.code === PROFILE_STATUS.INCOMPLETE.code && (
             <LoadingButton name="action" variant="primary" id="submit" disabled={isSubmitting} loading={isSubmitting}>
               {t('app:form.submit')}
             </LoadingButton>
@@ -421,7 +408,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
         />
       )}
 
-      {loaderData.profileStatus.code === PROFILE_STATUS.INCOMPLETE.code && (
+      {loaderData.profileStatus?.code === PROFILE_STATUS.INCOMPLETE.code && (
         <Progress
           className="mt-8 mb-8"
           label={t('app:profile.profile-completion-progress')}
@@ -438,7 +425,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
           params={params}
           errorState={fetcher.data?.personalInfoComplete === false}
           required
-          showStatus={loaderData.profileStatus.code === PROFILE_STATUS.INCOMPLETE.code}
+          showStatus={loaderData.profileStatus?.code === PROFILE_STATUS.INCOMPLETE.code}
         >
           {loaderData.personalInformation.isNew ? (
             <>
@@ -481,7 +468,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
           params={params}
           required
           errorState={fetcher.data?.employmentInfoComplete === false}
-          showStatus={loaderData.profileStatus.code === PROFILE_STATUS.INCOMPLETE.code}
+          showStatus={loaderData.profileStatus?.code === PROFILE_STATUS.INCOMPLETE.code}
           updated={hasEmploymentChanged}
         >
           {loaderData.employmentInformation.isNew ? (
@@ -540,7 +527,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
           params={params}
           required
           errorState={fetcher.data?.referralComplete === false}
-          showStatus={loaderData.profileStatus.code === PROFILE_STATUS.INCOMPLETE.code}
+          showStatus={loaderData.profileStatus?.code === PROFILE_STATUS.INCOMPLETE.code}
           updated={hasReferralPreferenceChanged}
         >
           {loaderData.referralPreferences.isNew ? (
