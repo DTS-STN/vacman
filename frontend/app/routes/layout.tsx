@@ -19,6 +19,7 @@ import { uselayoutHasDecorativeBackground } from '~/hooks/use-layout-has-backgro
 import { useRoute } from '~/hooks/use-route';
 import { getFixedT } from '~/i18n-config.server';
 import { getAltLanguage, getLanguage } from '~/utils/i18n-utils';
+import { cn } from '~/utils/tailwind-utils';
 
 export const handle = {
   i18nNamespace: ['gcweb', 'app'],
@@ -79,24 +80,35 @@ export default function Layout({ loaderData }: Route.ComponentProps) {
       </header>
 
       <main className="flex flex-grow flex-col">
-        <div className="container flex flex-grow flex-col print:w-full print:max-w-none">
+        <div
+          className={cn('flex flex-grow flex-col print:w-full print:max-w-none', !layoutHasDecorativeBackground && 'container')}
+        >
           {layoutHasDecorativeBackground ? (
-            <div className="grid flex-grow grid-cols-9 grid-rows-1 gap-4">
-              <div className="col-span-9 flex flex-col sm:col-span-5">
-                <Outlet />
-                <div className="mt-auto">
-                  <PageDetails buildDate={BUILD_DATE} buildVersion={BUILD_VERSION} pageId={pageId} />
+            <div className="relative flex flex-grow">
+              <div className="pointer-events-none absolute inset-0 hidden grid-cols-1 sm:grid sm:grid-cols-12">
+                <div className="sm:col-span-8"></div>
+                <div className="bg-[rgba(9,28,45,1)] sm:col-span-4">
+                  <div className="grid h-full grid-rows-2">
+                    <div
+                      role="presentation"
+                      className="row-start-1 h-full w-full bg-[url('/VacMan-design-element-07.svg')] bg-right-top bg-no-repeat"
+                    />
+                    <div
+                      role="presentation"
+                      className="row-start-2 h-full w-full bg-[url('/VacMan-design-element-06.svg')] bg-left-bottom bg-no-repeat"
+                    />
+                  </div>
                 </div>
               </div>
-              <div className="col-span-4 grid grid-rows-2 bg-[rgba(9,28,45,1)]">
-                <div
-                  role="presentation"
-                  className="row-start-1 h-full w-full place-self-start bg-[url('/VacMan-design-element-07.svg')] bg-right-top bg-no-repeat"
-                />
-                <div
-                  role="presentation"
-                  className="row-start-2 h-full w-full place-self-end bg-[url('/VacMan-design-element-06.svg')] bg-left-bottom bg-no-repeat"
-                />
+
+              <div className="relative z-10 container flex h-full">
+                <div className="flex flex-1 flex-col">
+                  <Outlet />
+                  <div className="mt-auto">
+                    <PageDetails buildDate={BUILD_DATE} buildVersion={BUILD_VERSION} pageId={pageId} />
+                  </div>
+                </div>
+                <div className="hidden w-4/12 sm:block"></div>
               </div>
             </div>
           ) : (
