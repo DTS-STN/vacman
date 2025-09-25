@@ -7,7 +7,6 @@ import { useTranslation } from 'react-i18next';
 
 import type { Route } from './+types/index';
 
-import { getCityService } from '~/.server/domain/services/city-service';
 import { getDirectorateService } from '~/.server/domain/services/directorate-service';
 import { getEmploymentEquityService } from '~/.server/domain/services/employment-equity-service';
 import { getEmploymentTenureService } from '~/.server/domain/services/employment-tenure-service';
@@ -51,7 +50,6 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
 
   const [
-    allLocalizedCities,
     allLocalizedAppointmentNonAdvertised,
     allLocalizedTenures,
     allLocalizedWorkSchedules,
@@ -59,7 +57,6 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     allLocalizedDirectorates,
     allLocalizedPreferredLanguage,
   ] = await Promise.all([
-    getCityService().listAllLocalized(lang),
     getNonAdvertisedAppointmentService().listAllLocalized(lang),
     getEmploymentTenureService().listAllLocalized(lang),
     getWorkScheduleService().listAllLocalized(lang),
@@ -68,7 +65,6 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     getLanguageForCorrespondenceService().listAllLocalized(lang),
   ]);
 
-  const cities = currentRequest.cities?.map((city) => allLocalizedCities.find((c) => c.id === city.id)).filter(Boolean);
   const employmentEquities = currentRequest.employmentEquities
     ?.map((eq) => allLocalizedEmploymentEquities.find((e) => e.code === eq.code))
     .filter(Boolean);
@@ -100,7 +96,10 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     classification: currentRequest.classification,
     englishTitle: currentRequest.englishTitle,
     frenchTitle: currentRequest.frenchTitle,
-    cities: cities?.map((city) => city?.provinceTerritory.name + ' - ' + city?.name),
+    cities: currentRequest.cities?.map((city) => ({
+      province: lang === 'en' ? city.provinceTerritory.nameEn : city.provinceTerritory.nameFr,
+      city: lang === 'en' ? city.nameEn : city.nameFr,
+    })),
     languageRequirement: currentRequest.languageRequirement,
     englishLanguageProfile: currentRequest.englishLanguageProfile,
     frenchLanguageProfile: currentRequest.frenchLanguageProfile,
@@ -130,6 +129,13 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
   const fetcher = useFetcher();
   const fetcherState = useFetcherState(fetcher);
   const isSubmitting = fetcherState.submitting;
+
+  type CityPreference = {
+    province: string;
+    city: string;
+  };
+
+  type GroupedCities = Record<string, string[]>;
 
   return (
     <div className="space-y-8">
@@ -311,7 +317,23 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
                 <DescriptionListItem term={t('app:position-information.locations')}>
                   {loaderData.cities === undefined
                     ? t('app:hiring-manager-referral-requests.not-provided')
-                    : loaderData.cities.length > 0 && loaderData.cities.join(', ')}
+                    : loaderData.cities.length > 0 && (
+                        <div>
+                          {/* Group cities by province */}
+                          {Object.entries(
+                            (loaderData.cities as CityPreference[]).reduce((acc: GroupedCities, city: CityPreference) => {
+                              const provinceName = city.province;
+                              acc[provinceName] ??= [];
+                              acc[provinceName].push(city.city);
+                              return acc;
+                            }, {} as GroupedCities),
+                          ).map(([province, cities]) => (
+                            <div key={province}>
+                              <strong>{province}:</strong> {cities.join(', ')}
+                            </div>
+                          ))}
+                        </div>
+                      )}
                 </DescriptionListItem>
 
                 <DescriptionListItem term={t('app:position-information.language-requirement')}>
