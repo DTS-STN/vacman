@@ -74,16 +74,16 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   }
 
   const formData = await request.formData();
-  const formAction = formData.get('_action');
+  const formAction = formData.get('action');
 
-  if (formAction === 'cancel') {
-    const cancelRequest = await getRequestService().deleteRequestById(
+  if (formAction === 'delete') {
+    const deleteRequest = await getRequestService().deleteRequestById(
       Number(params.requestId),
       context.session.authState.accessToken,
     );
 
-    if (cancelRequest.isErr()) {
-      const error = cancelRequest.unwrapErr();
+    if (deleteRequest.isErr()) {
+      const error = deleteRequest.unwrapErr();
       return {
         status: 'error',
         errorMessage: error.message,
@@ -858,11 +858,11 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
                   <Button
                     type="button"
                     className="w-full"
-                    variant="alternative"
-                    id="cancel"
+                    variant="redAlternative"
+                    id="delete"
                     onClick={() => setShowDialog(true)}
                   >
-                    {t('app:form.cancel')}
+                    {t('app:hiring-manager-referral-requests.delete-request.delete')}
                   </Button>
 
                   <ButtonLink
@@ -892,22 +892,22 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
         </div>
       </div>
       <Dialog open={showDialog} onOpenChange={setShowDialog}>
-        <DialogContent aria-describedby="cancel-dialog-description" role="alertdialog">
+        <DialogContent aria-describedby="delete-dialog-description" role="alertdialog">
           <DialogHeader>
-            <DialogTitle id="cancel-dialog-title">{t('app:hiring-manager-referral-requests.request-cancel.title')}</DialogTitle>
+            <DialogTitle id="delete-dialog-title">{t('app:hiring-manager-referral-requests.delete-request.title')}</DialogTitle>
           </DialogHeader>
-          <DialogDescription id="cancel-dialog-description">
-            {t('app:hiring-manager-referral-requests.request-cancel.content')}
+          <DialogDescription id="delete-dialog-description">
+            {t('app:hiring-manager-referral-requests.delete-request.content')}
           </DialogDescription>
           <DialogFooter>
             <DialogClose asChild>
               <Button id="confirm-modal-back" variant="alternative" disabled={isSubmitting}>
-                {t('app:hiring-manager-referral-requests.request-cancel.keep')}
+                {t('app:hiring-manager-referral-requests.delete-request.keep')}
               </Button>
             </DialogClose>
             <fetcher.Form method="post" noValidate>
-              <Button id="cancel-request" variant="primary" name="_action" value="cancel" disabled={isSubmitting}>
-                {t('app:hiring-manager-referral-requests.request-cancel.cancel')}
+              <Button id="delete-request" variant="red" name="action" value="delete" disabled={isSubmitting}>
+                {t('app:hiring-manager-referral-requests.delete-request.delete')}
               </Button>
             </fetcher.Form>
           </DialogFooter>
