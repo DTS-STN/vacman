@@ -606,7 +606,7 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
               params={params}
               errorState={fetcher.data?.processInfoComplete === false}
               required
-              showStatus
+              showStatus={loaderData.status?.code === REQUEST_STATUS_CODE.DRAFT}
             >
               {loaderData.isProcessNew ? (
                 <>{t('app:hiring-manager-referral-requests.process-intro')}</>
@@ -702,7 +702,7 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
               params={params}
               required
               errorState={fetcher.data?.positionInfoComplete === false}
-              showStatus
+              showStatus={loaderData.status?.code === REQUEST_STATUS_CODE.DRAFT}
             >
               {loaderData.isPositionNew ? (
                 <>{t('app:hiring-manager-referral-requests.position-intro')}</>
@@ -763,7 +763,7 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
               params={params}
               required
               errorState={fetcher.data?.statementOfMeritCriteriaInfoComplete === false}
-              showStatus
+              showStatus={loaderData.status?.code === REQUEST_STATUS_CODE.DRAFT}
             >
               {loaderData.isStatementOfMeritCriteriaNew ? (
                 <>{t('app:hiring-manager-referral-requests.somc-intro')}</>
@@ -868,7 +868,7 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
                   <ButtonLink
                     className="mt-4 w-full"
                     variant="alternative"
-                    file="routes/hiring-manager/index.tsx"
+                    file="routes/hiring-manager/requests.tsx"
                     id="save"
                     disabled={isSubmitting}
                   >
