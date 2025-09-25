@@ -361,11 +361,11 @@ export default {
       "Consultez le Guide du gestionnaire sur les autorisations en matière de priorité pour plus d'informations.",
     'request-incomplete': 'Veuillez remplir tous les champs obligatoires avant de soumettre votre demande',
     'request-submitted': "Demande soumise avec succès! Un-e conseiller(ère) RH va l'examiner pour approbation",
-    'request-cancel': {
-      title: 'Annuler la demande\u00A0?',
-      content: 'Êtes-vous certain-e de vouloir annuler cette demande\u00A0? Cette action est irréversible.',
+    'delete-request': {
+      title: 'Supprimer cette demande\u00A0?',
+      content: 'Cela supprimera définitivement la demande. Cette action est irréversible.',
       keep: 'Conserver la demande',
-      cancel: 'Annuler la demande',
+      delete: 'Supprimer la demande',
     },
     'back': 'Retour aux demandes',
     //'view-link': 'View request with ID {{requestId}}',
