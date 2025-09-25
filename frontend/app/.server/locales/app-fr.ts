@@ -51,8 +51,9 @@ export default {
     'profile-completion-progress': 'Avancement de la complétion du profil',
     'not-provided': 'Non communiqué',
     'last-updated': 'Dernière mise-à-jour\u00A0: {{date}} par {{name}}',
-    'field-incomplete': 'Champs obligatoires incomplets', // TODO: French translation needs to be verified
+    'field-incomplete': 'Champs obligatoires incomplets',
     'profile-incomplete': 'Veuillez remplir tous les champs obligatoires avant de soumettre votre profil',
+    'profile-incomplete-for-approval': "Veuillez remplir tous les champs obligatoires avant d'approuver le profil",
     'profile-submitted': "Profil soumis avec succès! Votre conseiller(ère) RH va maintenant l'examiner pour approbation",
     'hr-approved': "Profil de l'employé-e approuvé",
     'profile-pending-approval':

@@ -51,6 +51,7 @@ export default {
     'last-updated': 'Last updated: {{date}} by {{name}}',
     'field-incomplete': 'Required fields incomplete',
     'profile-incomplete': 'Please complete all required fields before submitting your profile',
+    'profile-incomplete-for-approval': 'Please complete all required fields before approving the profile',
     'profile-submitted': 'Profile submitted successfully! Your HR advisor will now review it for approval',
     'hr-approved': 'Employee profile successfully approved',
     'profile-pending-approval': 'Your profile edits will require re-approval by your HR advisor',

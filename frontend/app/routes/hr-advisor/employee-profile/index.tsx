@@ -13,7 +13,7 @@ import { getProfileService } from '~/.server/domain/services/profile-service';
 import { getUserService } from '~/.server/domain/services/user-service';
 import { serverEnvironment } from '~/.server/environment';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
-import { getHrAdvisors } from '~/.server/utils/profile-utils';
+import { countCompletedItems, countReferralPreferencesCompleted, getHrAdvisors } from '~/.server/utils/profile-utils';
 import { AlertMessage } from '~/components/alert-message';
 import { BackLink } from '~/components/back-link';
 import { DescriptionList, DescriptionListItem } from '~/components/description-list';
@@ -49,6 +49,49 @@ export async function action({ context, request, params }: Route.ActionArgs) {
   }
 
   const profileData: Profile = profileResult.unwrap();
+
+  // For personal information, check required fields directly on profile and profile user
+  const requiredPersonalFields = {
+    businessEmailAddress: profileData.profileUser.businessEmailAddress,
+    languageOfCorrespondence: profileData.languageOfCorrespondence,
+    personalRecordIdentifier: profileData.profileUser.personalRecordIdentifier,
+    personalEmailAddress: profileData.personalEmailAddress,
+    personalPhoneNumber: profileData.personalPhoneNumber,
+  };
+
+  // For employment information, check required fields directly on profile
+  const requiredEmploymentFields = {
+    substantiveClassification: profileData.substantiveClassification,
+    substantiveWorkUnit: profileData.substantiveWorkUnit,
+    substantiveCity: profileData.substantiveCity,
+    wfaStatus: profileData.wfaStatus,
+    wfaStartDate: profileData.wfaStartDate,
+    hrAdvisorId: profileData.hrAdvisorId,
+  };
+
+  // For referral preferences, use the correct property names from Profile type
+  const referralPreferencesFields = {
+    preferredLanguages: profileData.preferredLanguages,
+    preferredClassifications: profileData.preferredClassifications,
+    preferredCities: profileData.preferredCities,
+    isAvailableForReferral: profileData.isAvailableForReferral,
+    isInterestedInAlternation: profileData.isInterestedInAlternation,
+  };
+
+  // Check if all sections are complete
+  const personalInfoComplete = countCompletedItems(requiredPersonalFields) === Object.keys(requiredPersonalFields).length;
+  const employmentInfoComplete = countCompletedItems(requiredEmploymentFields) === Object.keys(requiredEmploymentFields).length;
+  const referralComplete =
+    countReferralPreferencesCompleted(referralPreferencesFields) === Object.keys(referralPreferencesFields).length;
+
+  // If any section is incomplete, return incomplete state
+  if (!personalInfoComplete || !employmentInfoComplete || !referralComplete) {
+    return {
+      personalInfoComplete,
+      employmentInfoComplete,
+      referralComplete,
+    };
+  }
 
   // approve the profile
   const submitResult = await getProfileService().updateProfileStatus(
@@ -266,25 +309,40 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
           >
             {t('app:employee-profile.back')}
           </BackLink>
-          <p className="mt-12">{t('app:employee-profile.about-para-1')}</p>
+          {(loaderData.profileStatus?.code === PROFILE_STATUS.INCOMPLETE.code ||
+            loaderData.profileStatus?.code === PROFILE_STATUS.PENDING.code) && (
+            <p className="mt-12">{t('app:employee-profile.about-para-1')}</p>
+          )}
         </div>
       </div>
 
-      {fetcher.data && (
-        <AlertMessage
-          ref={alertRef}
-          type={'success'}
-          message={t('app:profile.hr-approved')}
-          role="alert"
-          ariaLive="assertive"
-        />
-      )}
+      {fetcher.data &&
+        (fetcher.data.personalInfoComplete === false ||
+        fetcher.data.employmentInfoComplete === false ||
+        fetcher.data.referralComplete === false ? (
+          <AlertMessage
+            ref={alertRef}
+            type={'error'}
+            message={t('app:profile.profile-incomplete-for-approval')}
+            role="alert"
+            ariaLive="assertive"
+          />
+        ) : (
+          <AlertMessage
+            ref={alertRef}
+            type={'success'}
+            message={t('app:profile.hr-approved')}
+            role="alert"
+            ariaLive="assertive"
+          />
+        ))}
 
       <div className="mt-8 max-w-prose space-y-10">
         <ProfileCard
           title={t('app:profile.personal-information.title')}
           linkLabel={t('app:profile.personal-information.link-label')}
           file="routes/hr-advisor/employee-profile/personal-information.tsx"
+          errorState={fetcher.data?.personalInfoComplete === false}
           params={params}
         >
           <DescriptionList>
@@ -312,6 +370,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
           title={t('app:profile.employment.title')}
           linkLabel={t('app:profile.employment.link-label')}
           file="routes/hr-advisor/employee-profile/employment-information.tsx"
+          errorState={fetcher.data?.employmentInfoComplete === false}
           params={params}
         >
           <>
@@ -362,6 +421,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
           linkLabel={t('app:profile.referral.link-label')}
           file="routes/hr-advisor/employee-profile/referral-preferences.tsx"
           params={params}
+          errorState={fetcher.data?.referralComplete === false}
           required
         >
           <DescriptionList>
@@ -439,9 +499,12 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
         </ProfileCard>
       </div>
       <fetcher.Form className="mt-6 flex place-content-start space-x-5 md:mt-auto" method="post" noValidate>
-        <LoadingButton name="action" variant="primary" id="submit" disabled={isSubmitting} loading={isSubmitting}>
-          {t('app:form.approve')}
-        </LoadingButton>
+        {(loaderData.profileStatus?.code === PROFILE_STATUS.INCOMPLETE.code ||
+          loaderData.profileStatus?.code === PROFILE_STATUS.PENDING.code) && (
+          <LoadingButton name="action" variant="primary" id="submit" disabled={isSubmitting} loading={isSubmitting}>
+            {t('app:form.approve')}
+          </LoadingButton>
+        )}
       </fetcher.Form>
     </div>
   );
