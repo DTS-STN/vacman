@@ -1,5 +1,5 @@
-import { HttpClient, HttpClientRequest, HttpClientResponse } from "@effect/platform";
-import { Chunk, Data, Duration, Effect, Schema } from "effect";
+import { HttpClient, HttpClientRequest, HttpClientResponse } from '@effect/platform';
+import { Chunk, Data, Duration, Effect, Schema } from 'effect';
 
 /**
  * Max number of users per batch request. Enforced by Microsoft.
@@ -23,7 +23,7 @@ const REQUEST_TIMEOUT = Duration.seconds(10);
  * class extends `Data.TaggedError` to provide a structured way to represent
  * errors, capturing the original error and an optional descriptive message.
  */
-export class MSGraphError extends Data.TaggedError("@support/MSGraphError")<{
+export class MSGraphError extends Data.TaggedError('@support/MSGraphError')<{
   readonly error: unknown;
   readonly message?: string;
 }> {}
@@ -73,9 +73,9 @@ const BatchResponse = Schema.Struct({
  * discriminator.
  */
 const MSGraphUser = Schema.Struct({
-  "@odata.type": Schema.String,
-  id: Schema.String,
-  displayName: Schema.String,
+  '@odata.type': Schema.String,
+  'id': Schema.String,
+  'displayName': Schema.String,
 });
 
 /**
@@ -86,8 +86,8 @@ const MSGraphUser = Schema.Struct({
  */
 export const PagedResponse = <A, I, R>(schema: Schema.Schema<A, I, R>) =>
   Schema.Struct({
-    "@odata.nextLink": Schema.optional(Schema.String),
-    value: Schema.Array(schema),
+    '@odata.nextLink': Schema.optional(Schema.String),
+    'value': Schema.Array(schema),
   });
 
 //
@@ -115,21 +115,21 @@ export const authenticate = (
   tenantId: string, //
   clientId: string,
   clientSecret: string,
-  scope: string
+  scope: string,
 ) =>
   Effect.gen(function* () {
     const httpClient = yield* HttpClient.HttpClient;
     const url = `https://login.microsoftonline.com/${tenantId}/oauth2/v2.0/token`;
 
-    yield* Effect.logInfo("Initiating authentication");
+    yield* Effect.logInfo('Initiating authentication');
 
     const request = HttpClientRequest.post(url).pipe(
       HttpClientRequest.bodyUrlParams({
         client_id: clientId,
         client_secret: clientSecret,
         scope: scope,
-        grant_type: "client_credentials",
-      })
+        grant_type: 'client_credentials',
+      }),
     );
 
     return yield* httpClient.execute(request).pipe(
@@ -138,24 +138,18 @@ export const authenticate = (
         Effect.logTrace({
           headers: response.headers,
           status: response.status,
-        })
+        }),
       ),
       Effect.flatMap(HttpClientResponse.filterStatusOk),
       Effect.flatMap(HttpClientResponse.schemaBodyJson(AccessTokenResponse)),
       Effect.map((response) => response.access_token),
       Effect.tap((accessToken) => Effect.logTrace({ accessToken })),
-      Effect.tap(() => Effect.logInfo("Successfully authenticated")),
-      Effect.mapError(
-        (error) =>
-          new MSGraphError({
-            message: "Failed to authenticate",
-            error: error,
-          })
-      )
+      Effect.tap(() => Effect.logInfo('Successfully authenticated')),
     );
   }).pipe(
-    Effect.withLogSpan("authenticate"), //
-    Effect.annotateLogs({ tenantId, clientId, scope })
+    Effect.withLogSpan('authenticate'), //
+    Effect.annotateLogs({ tenantId, clientId, scope }),
+    Effect.mapError((error) => new MSGraphError({ message: 'Failed to authenticate', error: error })),
   );
 
 /**
@@ -177,7 +171,7 @@ export const authenticate = (
  */
 export const getDirectGroupMembers = (
   authToken: string, //
-  groupId: string
+  groupId: string,
 ) =>
   Effect.gen(function* () {
     const httpClient = yield* HttpClient.HttpClient;
@@ -194,24 +188,18 @@ export const getDirectGroupMembers = (
         Effect.logTrace({
           headers: response.headers,
           status: response.status,
-        })
+        }),
       ),
       Effect.flatMap(HttpClientResponse.filterStatusOk),
       Effect.flatMap(HttpClientResponse.schemaBodyJson(PagedResponse(MSGraphUser))),
-      Effect.map(({ value }) => value.filter((member) => member["@odata.type"] === "#microsoft.graph.user")),
+      Effect.map(({ value }) => value.filter((member) => member['@odata.type'] === '#microsoft.graph.user')),
       Effect.tap((users) => Effect.logTrace({ users })),
       Effect.tap((users) => Effect.logInfo(`Group has ${users.length} direct members`)),
-      Effect.mapError(
-        (error) =>
-          new MSGraphError({
-            message: `Failed to fetch members for group ${groupId}`,
-            error: error,
-          })
-      )
     );
   }).pipe(
-    Effect.withLogSpan("getDirectGroupMembers"), //
-    Effect.annotateLogs({ groupId })
+    Effect.withLogSpan('getDirectGroupMembers'), //
+    Effect.annotateLogs({ groupId }),
+    Effect.mapError((error) => new MSGraphError({ message: `Failed to fetch members for group ${groupId}`, error: error })),
   );
 
 /**
@@ -233,7 +221,7 @@ export const getDirectGroupMembers = (
  */
 export const getTransitiveGroupMembers = (
   authToken: string, //
-  groupId: string
+  groupId: string,
 ) =>
   Effect.gen(function* () {
     const httpClient = yield* HttpClient.HttpClient;
@@ -250,24 +238,18 @@ export const getTransitiveGroupMembers = (
         Effect.logTrace({
           headers: response.headers,
           status: response.status,
-        })
+        }),
       ),
       Effect.flatMap(HttpClientResponse.filterStatusOk),
       Effect.flatMap(HttpClientResponse.schemaBodyJson(PagedResponse(MSGraphUser))),
-      Effect.map(({ value }) => value.filter((member) => member["@odata.type"] === "#microsoft.graph.user")),
+      Effect.map(({ value }) => value.filter((member) => member['@odata.type'] === '#microsoft.graph.user')),
       Effect.tap((users) => Effect.logTrace({ users })),
       Effect.tap((users) => Effect.logInfo(`Group has ${users.length} transitive members`)),
-      Effect.mapError(
-        (error) =>
-          new MSGraphError({
-            message: `Failed to fetch members for group ${groupId}`,
-            error: error,
-          })
-      )
     );
   }).pipe(
-    Effect.withLogSpan("getTransitiveGroupMembers"), //
-    Effect.annotateLogs({ groupId })
+    Effect.withLogSpan('getTransitiveGroupMembers'), //
+    Effect.annotateLogs({ groupId }),
+    Effect.mapError((error) => new MSGraphError({ message: `Failed to fetch members for group ${groupId}`, error: error })),
   );
 
 /**
@@ -288,13 +270,13 @@ export const getTransitiveGroupMembers = (
 export const addMembersToGroup = (
   authToken: string, //
   groupId: string,
-  users: MSGraphUser[]
+  users: MSGraphUser[],
 ) =>
   Effect.gen(function* () {
     const httpClient = yield* HttpClient.HttpClient;
     const url = `https://graph.microsoft.com/v1.0/groups/${groupId}`;
 
-    yield* Effect.logInfo("Adding users to group");
+    yield* Effect.logInfo('Adding users to group');
 
     const mapUsersToDirectoryIds = (chunk: Chunk.Chunk<MSGraphUser>) => {
       return Chunk.map(chunk, (user) => `https://graph.microsoft.com/v1.0/directoryObjects/${user.id}`);
@@ -309,8 +291,8 @@ export const addMembersToGroup = (
         request: HttpClientRequest.patch(url).pipe(
           HttpClientRequest.bearerToken(authToken),
           HttpClientRequest.bodyUnsafeJson({
-            "members@odata.bind": Chunk.toArray(mapUsersToDirectoryIds(userChunk)),
-          })
+            'members@odata.bind': Chunk.toArray(mapUsersToDirectoryIds(userChunk)),
+          }),
         ),
       })),
       Chunk.map((userChunk, idx) =>
@@ -321,18 +303,19 @@ export const addMembersToGroup = (
               chunk: userChunk.index,
               headers: response.headers,
               status: response.status,
-            })
+            }),
           ),
-          Effect.flatMap(HttpClientResponse.filterStatusOk)
-        )
-      )
+          Effect.flatMap(HttpClientResponse.filterStatusOk),
+        ),
+      ),
     );
 
-    yield* Effect.all(effects, { concurrency: "inherit" });
-    yield* Effect.logInfo("Users added successfully", { total: users.length });
+    yield* Effect.all(effects, { concurrency: 'inherit' });
+    yield* Effect.logInfo('Users added successfully', { total: users.length });
   }).pipe(
-    Effect.withLogSpan("addMembersToGroup"), //
-    Effect.annotateLogs({ groupId, users })
+    Effect.withLogSpan('addMembersToGroup'), //
+    Effect.annotateLogs({ groupId, users }),
+    Effect.mapError((error) => new MSGraphError({ message: `Failed to add members to group`, error: error })),
   );
 
 /**
@@ -353,17 +336,17 @@ export const addMembersToGroup = (
 export const removeMembersFromGroup = (
   authToken: string, //
   groupId: string,
-  users: MSGraphUser[]
+  users: MSGraphUser[],
 ) =>
   Effect.gen(function* () {
     const httpClient = yield* HttpClient.HttpClient;
-    const url = "https://graph.microsoft.com/v1.0/$batch";
+    const url = 'https://graph.microsoft.com/v1.0/$batch';
 
     yield* Effect.logInfo(`Removing ${users.length} users from group`);
 
     const requests = users.map((user) => ({
       id: user.id,
-      method: "DELETE",
+      method: 'DELETE',
       url: `/groups/${groupId}/members/${user.id}/$ref`,
     }));
 
@@ -377,7 +360,7 @@ export const removeMembersFromGroup = (
           HttpClientRequest.bearerToken(authToken),
           HttpClientRequest.bodyUnsafeJson({
             requests: Chunk.toArray(requestChunk),
-          })
+          }),
         ),
       })),
 
@@ -389,28 +372,24 @@ export const removeMembersFromGroup = (
               chunk: requestChunk.index,
               headers: response.headers,
               status: response.status,
-            })
+            }),
           ),
           Effect.flatMap(HttpClientResponse.filterStatusOk),
           Effect.flatMap(HttpClientResponse.schemaBodyJson(BatchResponse)),
           Effect.flatMap(({ responses }) => {
             const failures = responses.filter((response) => response.status >= 400);
-            return failures.length == 0
-              ? Effect.logInfo("Chunk succeeded", { groupId, chunk: requestChunk.index, users: requestChunk.size })
-              : Effect.fail(
-                  new MSGraphError({
-                    message: `Failed to remove ${failures.length} users in batch chunk ${requestChunk.index}.`,
-                    error: failures,
-                  })
-                );
-          })
-        )
-      )
+            return failures.length === 0
+              ? Effect.logInfo('Chunk succeeded', { groupId, chunk: requestChunk.index, users: requestChunk.size })
+              : Effect.fail(failures);
+          }),
+        ),
+      ),
     );
 
-    yield* Effect.all(effects, { concurrency: "inherit" });
-    yield* Effect.logInfo("Users removed successfully", { total: users.length });
+    yield* Effect.all(effects, { concurrency: 'inherit' });
+    yield* Effect.logInfo('Users removed successfully', { total: users.length });
   }).pipe(
-    Effect.withLogSpan("removeMembersFromGroup"), //
-    Effect.annotateLogs({ groupId, userCount: users.length })
+    Effect.withLogSpan('removeMembersFromGroup'), //
+    Effect.annotateLogs({ groupId, userCount: users.length }),
+    Effect.mapError((error) => new MSGraphError({ message: 'Failed to remove members from group', error: error })),
   );
