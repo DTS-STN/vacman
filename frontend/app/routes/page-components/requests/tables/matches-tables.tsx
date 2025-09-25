@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 
 import { Button } from '~/components/button';
 import { DataTable, DataTableColumnHeader, DataTableColumnHeaderWithOptions } from '~/components/data-table';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTrigger } from '~/components/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogTitle, DialogTrigger } from '~/components/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '~/components/dropdown-menu';
 import { InputLabel } from '~/components/input-label';
 import { InputTextarea } from '~/components/input-textarea';
@@ -103,7 +103,7 @@ export default function MatchesTable({
                 className="-ml-3 h-8 w-full justify-between font-sans font-medium data-[state=open]:bg-neutral-100"
               >
                 <span>{feedback}</span>
-                <span className="ml-1 rounded-sm p-1 text-neutral-500 hover:bg-slate-300">
+                <span className="mb-2">
                   <FontAwesomeIcon icon={faSortDown} />
                 </span>
               </Button>
@@ -140,28 +140,27 @@ export default function MatchesTable({
               {editComment ? t('matches-tables.comment-label.edit') : t('matches-tables.comment-label.add')}
             </DialogTrigger>
             <DialogContent>
-              <DialogHeader>
-                <DialogDescription className="space-y-5">
+              <DialogTitle>{t('matches-tables.comments')}</DialogTitle>
+              <DialogDescription className="space-y-5" asChild>
+                <div>
                   <InputTextarea
                     className="w-full"
                     id="hiring-manager-comment"
                     label={t('matches-tables.comment-popup.hiring-manager')}
                     name="hiring-manager-comment"
                     disabled={view === 'hr-advisor'}
-                  >
-                    {comment.hiringManager}
-                  </InputTextarea>
+                    defaultValue={comment.hiringManager}
+                  />
                   <InputTextarea
                     className="w-full"
                     id="hr-advisor-comment"
                     label={t('matches-tables.comment-popup.hr-advisor')}
                     name="hr-advisor-comment"
                     disabled={view === 'hiring-manager'}
-                  >
-                    {comment.hrAdvisor}
-                  </InputTextarea>
-                </DialogDescription>
-              </DialogHeader>
+                    defaultValue={comment.hrAdvisor}
+                  />
+                </div>
+              </DialogDescription>
             </DialogContent>
           </Dialog>
         );
@@ -181,19 +180,20 @@ export default function MatchesTable({
         }
         return (
           <Dialog>
-            <DialogTrigger className="text-sky-800 no-underline decoration-slate-400 decoration-2 hover:underline">
+            <DialogTrigger asChild>
               <Button variant="alternative">{t('form.approve')}</Button>
             </DialogTrigger>
             <DialogContent className="max-w-86">
-              <DialogHeader>
-                <DialogDescription className="space-y-5">
+              <DialogTitle>{t('matches-tables.approval')}</DialogTitle>
+              <DialogDescription className="space-y-5" asChild>
+                <div>
                   <InputLabel id="approve-feedback">{t('matches-tables.approval-popup.approve-feedback')}</InputLabel>
                   <div className="space-x-4">
                     <Button>{t('form.cancel')}</Button>
                     <Button variant="primary">{t('form.approve')}</Button>
                   </div>
-                </DialogDescription>
-              </DialogHeader>
+                </div>
+              </DialogDescription>
             </DialogContent>
           </Dialog>
         );
