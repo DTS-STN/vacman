@@ -127,57 +127,70 @@ export function InputMultiSelect(props: InputMultiSelectProps) {
           </InputHelp>
         )}
 
-        <button
-          ref={triggerRef}
+        {value.map((selectedValue) => (
+          <input key={selectedValue} type="hidden" name={name} value={selectedValue} />
+        ))}
+
+        <div
           id={id}
-          type="button"
-          disabled={disabled}
-          aria-haspopup="true"
-          aria-expanded={isOpen}
-          aria-controls={dropdownId}
+          role="application"
+          aria-errormessage={errorMessage ? errorId : undefined}
+          aria-invalid={!!errorMessage}
           aria-describedby={describedBy}
-          onClick={() => setIsOpen(!isOpen)}
-          className={cn(triggerBaseClassName, disabled && triggerDisabledClassName, errorMessage && triggerErrorClassName)}
+          aria-label={legend}
         >
-          <span className="block truncate">{getDisplayValue()}</span>
-          <span className="pointer-events-none flex items-center">
-            <FontAwesomeIcon
-              icon={isOpen ? faChevronUp : faChevronDown}
-              className="my-auto size-3 text-gray-400"
-              aria-hidden="true"
-            />
-          </span>
-        </button>
+          <button
+            ref={triggerRef}
+            id={id}
+            type="button"
+            disabled={disabled}
+            aria-haspopup="true"
+            aria-expanded={isOpen}
+            aria-controls={dropdownId}
+            aria-describedby={describedBy}
+            onClick={() => setIsOpen(!isOpen)}
+            className={cn(triggerBaseClassName, disabled && triggerDisabledClassName, errorMessage && triggerErrorClassName)}
+          >
+            <span className="block truncate">{getDisplayValue()}</span>
+            <span className="pointer-events-none flex items-center">
+              <FontAwesomeIcon
+                icon={isOpen ? faChevronUp : faChevronDown}
+                className="my-auto size-3 text-gray-400"
+                aria-hidden="true"
+              />
+            </span>
+          </button>
 
-        {isOpen && (
-          <div id={dropdownId} className={dropdownClassName}>
-            {options.map((option, index) => {
-              const optionId = `${id}-option-${index}`;
-              const isChecked = value.includes(option.value);
+          {isOpen && (
+            <div id={dropdownId} className={dropdownClassName}>
+              {options.map((option, index) => {
+                const optionId = `${id}-option-${index}`;
+                const isChecked = value.includes(option.value);
 
-              return (
-                <div key={option.value} className="relative p-2 hover:bg-gray-100">
-                  <InputCheckbox
-                    id={optionId}
-                    name={`${name}-${option.value}`}
-                    checked={isChecked}
-                    onChange={() => handleSelectOption(option.value)}
-                    onKeyDown={(e: ReactKeyboardEvent<HTMLInputElement>) => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault();
-                        handleSelectOption(option.value);
-                      }
-                    }}
-                    hasError={!!errorMessage}
-                    {...option}
-                  >
-                    {option.label}
-                  </InputCheckbox>
-                </div>
-              );
-            })}
-          </div>
-        )}
+                return (
+                  <div key={option.value} className="relative p-2 hover:bg-gray-100">
+                    <InputCheckbox
+                      id={optionId}
+                      name={`${name}-${option.value}`}
+                      checked={isChecked}
+                      onChange={() => handleSelectOption(option.value)}
+                      onKeyDown={(e: ReactKeyboardEvent<HTMLInputElement>) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          handleSelectOption(option.value);
+                        }
+                      }}
+                      hasError={!!errorMessage}
+                      {...option}
+                    >
+                      {option.label}
+                    </InputCheckbox>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
       </fieldset>
     </div>
   );
