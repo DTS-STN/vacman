@@ -7,13 +7,7 @@ import { useTranslation } from 'react-i18next';
 
 import type { Route } from './+types/index';
 
-import { getEmploymentEquityService } from '~/.server/domain/services/employment-equity-service';
-import { getEmploymentTenureService } from '~/.server/domain/services/employment-tenure-service';
-import { getLanguageForCorrespondenceService } from '~/.server/domain/services/language-for-correspondence-service';
-import { getNonAdvertisedAppointmentService } from '~/.server/domain/services/non-advertised-appointment-service';
 import { getRequestService } from '~/.server/domain/services/request-service';
-import { getWorkScheduleService } from '~/.server/domain/services/work-schedule-service';
-import { getWorkUnitService } from '~/.server/domain/services/workunit-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { ButtonLink } from '~/components/button-link';
 import { DescriptionList, DescriptionListItem } from '~/components/description-list';
@@ -22,7 +16,7 @@ import { LoadingButton } from '~/components/loading-button';
 import { PageTitle } from '~/components/page-title';
 import { ProfileCard } from '~/components/profile-card';
 import { RequestStatusTag } from '~/components/status-tag';
-import { REQUEST_STATUSES, SELECTION_PROCESS_TYPE } from '~/domain/constants';
+import { EMPLOYMENT_TENURE, REQUEST_STATUSES, SELECTION_PROCESS_TYPE } from '~/domain/constants';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { useFetcherState } from '~/hooks/use-fetcher-state';
 import { getTranslation } from '~/i18n-config.server';
@@ -50,25 +44,10 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
 
-  const [
-    allLocalizedAppointmentNonAdvertised,
-    allLocalizedTenures,
-    allLocalizedWorkSchedules,
-    allLocalizedEmploymentEquities,
-    allLocalizedDirectorates,
-    allLocalizedPreferredLanguage,
-  ] = await Promise.all([
-    getNonAdvertisedAppointmentService().listAllLocalized(lang),
-    getEmploymentTenureService().listAllLocalized(lang),
-    getWorkScheduleService().listAllLocalized(lang),
-    getEmploymentEquityService().listAllLocalized(lang),
-    getWorkUnitService().listAllLocalized(lang),
-    getLanguageForCorrespondenceService().listAllLocalized(lang),
-  ]);
-
-  const employmentEquities = currentRequest.employmentEquities
-    ?.map((eq) => allLocalizedEmploymentEquities.find((e) => e.code === eq.code))
-    .filter(Boolean);
+  const employmentEquityNames = currentRequest.employmentEquities
+    ?.map((eq) => (lang === 'en' ? eq.nameEn : eq.nameFr))
+    .filter(Boolean) // Remove any null or undefined names
+    .join(', ');
 
   return {
     documentTitle: t('app:hr-advisor-referral-requests.page-title'),
@@ -84,15 +63,15 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       lang === 'en' ? currentRequest.selectionProcessType?.nameEn : currentRequest.selectionProcessType?.nameEn,
     selectionProcessTypeCode: currentRequest.selectionProcessType?.code,
     hasPerformedSameDuties: currentRequest.hasPerformedSameDuties,
-    appointmentNonAdvertised: allLocalizedAppointmentNonAdvertised.find(
-      (a) => a.code === currentRequest.appointmentNonAdvertised?.code,
-    ),
-    employmentTenure: allLocalizedTenures.find((t) => t.code === currentRequest.employmentTenure?.code),
+    appointmentNonAdvertised:
+      lang === 'en' ? currentRequest.appointmentNonAdvertised?.nameEn : currentRequest.appointmentNonAdvertised?.nameFr,
+    employmentTenure: lang === 'en' ? currentRequest.employmentTenure?.nameEn : currentRequest.employmentTenure?.nameFr,
+    employmentTenureCode: currentRequest.employmentTenure?.code,
     projectedStartDate: currentRequest.projectedStartDate,
     projectedEndDate: currentRequest.projectedEndDate,
-    workSchedule: allLocalizedWorkSchedules.find((w) => w.code === currentRequest.workSchedule?.code),
+    workSchedule: lang === 'en' ? currentRequest.workSchedule?.nameEn : currentRequest.workSchedule?.nameFr,
     equityNeeded: currentRequest.equityNeeded,
-    employmentEquities: employmentEquities?.map((eq) => eq?.name).join(', '),
+    employmentEquities: employmentEquityNames,
     positionNumber: currentRequest.positionNumber,
     classification: currentRequest.classification,
     englishTitle: currentRequest.englishTitle,
@@ -109,10 +88,11 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     frenchStatementOfMerit: currentRequest.frenchStatementOfMerit,
     submitter: currentRequest.submitter,
     subDelegatedManager: currentRequest.subDelegatedManager,
-    directorate: allLocalizedDirectorates.find((c) => c.code === currentRequest.workUnit?.code),
-    languageOfCorrespondence: allLocalizedPreferredLanguage.find(
-      (p) => p.code === currentRequest.languageOfCorrespondence?.code,
-    ),
+    branchOrServiceCanadaRegion:
+      lang === 'en' ? currentRequest.workUnit?.parent?.nameEn : currentRequest.workUnit?.parent?.nameFr,
+    directorate: lang === 'en' ? currentRequest.workUnit?.nameEn : currentRequest.workUnit?.nameFr,
+    languageOfCorrespondence:
+      lang === 'en' ? currentRequest.languageOfCorrespondence?.nameEn : currentRequest.languageOfCorrespondence?.nameFr,
     additionalComment: currentRequest.additionalComment,
     status: currentRequest.status,
     lang,
@@ -248,38 +228,29 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
                     </DescriptionListItem>
 
                     <DescriptionListItem term={t('app:process-information.non-advertised-appointment')}>
-                      {loaderData.appointmentNonAdvertised?.name ?? t('app:hiring-manager-referral-requests.not-provided')}
+                      {loaderData.appointmentNonAdvertised ?? t('app:hiring-manager-referral-requests.not-provided')}
                     </DescriptionListItem>
                   </>
                 )}
 
-                <DescriptionListItem term={t('app:process-information.performed-duties')}>
-                  {(() => {
-                    if (loaderData.hasPerformedSameDuties === undefined) {
-                      return t('app:hr-advisor-referral-requests.not-provided');
-                    }
-                    return loaderData.hasPerformedSameDuties ? tGcweb('input-option.yes') : tGcweb('input-option.no');
-                  })()}
-                </DescriptionListItem>
-
-                <DescriptionListItem term={t('app:process-information.non-advertised-appointment')}>
-                  {loaderData.appointmentNonAdvertised?.name ?? t('app:hr-advisor-referral-requests.not-provided')}
-                </DescriptionListItem>
-
                 <DescriptionListItem term={t('app:process-information.employment-tenure')}>
-                  {loaderData.employmentTenure?.code ?? t('app:hr-advisor-referral-requests.not-provided')}
+                  {loaderData.employmentTenure ?? t('app:hr-advisor-referral-requests.not-provided')}
                 </DescriptionListItem>
 
-                <DescriptionListItem term={t('app:process-information.projected-start-date')}>
-                  {loaderData.projectedStartDate ?? t('app:hr-advisor-referral-requests.not-provided')}
-                </DescriptionListItem>
+                {loaderData.employmentTenureCode === EMPLOYMENT_TENURE.term && (
+                  <>
+                    <DescriptionListItem term={t('app:process-information.projected-start-date')}>
+                      {loaderData.projectedStartDate ?? t('app:hiring-manager-referral-requests.not-provided')}
+                    </DescriptionListItem>
 
-                <DescriptionListItem term={t('app:process-information.projected-end-date')}>
-                  {loaderData.projectedEndDate ?? t('app:hr-advisor-referral-requests.not-provided')}
-                </DescriptionListItem>
+                    <DescriptionListItem term={t('app:process-information.projected-end-date')}>
+                      {loaderData.projectedEndDate ?? t('app:hiring-manager-referral-requests.not-provided')}
+                    </DescriptionListItem>
+                  </>
+                )}
 
                 <DescriptionListItem term={t('app:process-information.work-schedule')}>
-                  {loaderData.workSchedule?.code ?? t('app:hr-advisor-referral-requests.not-provided')}
+                  {loaderData.workSchedule ?? t('app:hr-advisor-referral-requests.not-provided')}
                 </DescriptionListItem>
 
                 <DescriptionListItem term={t('app:process-information.employment-equity-identified-alt')}>
@@ -401,15 +372,15 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
                 </DescriptionListItem>
 
                 <DescriptionListItem term={t('app:submission-details.branch-or-service-canada-region')}>
-                  {loaderData.directorate?.parent?.name ?? t('app:hiring-manager-referral-requests.not-provided')}
+                  {loaderData.branchOrServiceCanadaRegion ?? t('app:hiring-manager-referral-requests.not-provided')}
                 </DescriptionListItem>
 
                 <DescriptionListItem term={t('app:submission-details.directorate')}>
-                  {loaderData.directorate?.name ?? t('app:hr-advisor-referral-requests.not-provided')}
+                  {loaderData.directorate ?? t('app:hr-advisor-referral-requests.not-provided')}
                 </DescriptionListItem>
 
                 <DescriptionListItem term={t('app:submission-details.preferred-language-of-correspondence')}>
-                  {loaderData.languageOfCorrespondence?.code ?? t('app:hr-advisor-referral-requests.not-provided')}
+                  {loaderData.languageOfCorrespondence ?? t('app:hr-advisor-referral-requests.not-provided')}
                 </DescriptionListItem>
 
                 <DescriptionListItem term={t('app:submission-details.additional-comments')}>
