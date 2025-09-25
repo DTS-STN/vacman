@@ -310,15 +310,17 @@ export async function createProcessInformationSchema() {
   const allEmploymentEquities = await getEmploymentEquityService().listAll();
 
   const selectedSelectionProcessTypeForExternalNonAdvertised = allSelectionProcessTypes.filter(
-    (c) => c.id === SELECTION_PROCESS_TYPE.externalNonAdvertised,
+    (c) => c.id === SELECTION_PROCESS_TYPE.EXTERNAL_NON_ADVERTISED.id,
   );
 
   const selectedSelectionProcessTypeForInternalNonAdvertised = allSelectionProcessTypes.filter(
-    (c) => c.id === SELECTION_PROCESS_TYPE.internalNonAdvertised,
+    (c) => c.id === SELECTION_PROCESS_TYPE.APPOINTMENT_INTERNAL_NON_ADVERTISED.id,
   );
 
   const selectedSelectionProcessTypesExcludingNonAdvertised = allSelectionProcessTypes.filter(
-    (c) => c.id !== SELECTION_PROCESS_TYPE.internalNonAdvertised && c.id !== SELECTION_PROCESS_TYPE.externalNonAdvertised,
+    (c) =>
+      c.id !== SELECTION_PROCESS_TYPE.APPOINTMENT_INTERNAL_NON_ADVERTISED.id &&
+      c.id !== SELECTION_PROCESS_TYPE.EXTERNAL_NON_ADVERTISED.id,
   );
 
   const selectedEmploymentTenureForIndeterminate = allEmploymentTenures.filter(

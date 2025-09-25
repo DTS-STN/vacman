@@ -14,7 +14,6 @@ import { getEmploymentTenureService } from '~/.server/domain/services/employment
 import { getLanguageForCorrespondenceService } from '~/.server/domain/services/language-for-correspondence-service';
 import { getNonAdvertisedAppointmentService } from '~/.server/domain/services/non-advertised-appointment-service';
 import { getRequestService } from '~/.server/domain/services/request-service';
-import { getSelectionProcessTypeService } from '~/.server/domain/services/selection-process-type-service';
 import { getWorkScheduleService } from '~/.server/domain/services/work-schedule-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { ButtonLink } from '~/components/button-link';
@@ -24,7 +23,7 @@ import { LoadingButton } from '~/components/loading-button';
 import { PageTitle } from '~/components/page-title';
 import { ProfileCard } from '~/components/profile-card';
 import { RequestStatusTag } from '~/components/status-tag';
-import { REQUEST_STATUSES } from '~/domain/constants';
+import { REQUEST_STATUSES, SELECTION_PROCESS_TYPE } from '~/domain/constants';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { useFetcherState } from '~/hooks/use-fetcher-state';
 import { getTranslation } from '~/i18n-config.server';
@@ -53,7 +52,6 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 
   const [
     allLocalizedCities,
-    allLocalizedProcessTypes,
     allLocalizedAppointmentNonAdvertised,
     allLocalizedTenures,
     allLocalizedWorkSchedules,
@@ -62,7 +60,6 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     allLocalizedPreferredLanguage,
   ] = await Promise.all([
     getCityService().listAllLocalized(lang),
-    getSelectionProcessTypeService().listAllLocalized(lang),
     getNonAdvertisedAppointmentService().listAllLocalized(lang),
     getEmploymentTenureService().listAllLocalized(lang),
     getWorkScheduleService().listAllLocalized(lang),
@@ -86,7 +83,9 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     workforceMgmtApprovalRecvd: currentRequest.workforceMgmtApprovalRecvd,
     priorityEntitlement: currentRequest.priorityEntitlement,
     priorityEntitlementRationale: currentRequest.priorityEntitlementRationale,
-    selectionProcessType: allLocalizedProcessTypes.find((s) => s.code === currentRequest.selectionProcessType?.code),
+    selectionProcessType:
+      lang === 'en' ? currentRequest.selectionProcessType?.nameEn : currentRequest.selectionProcessType?.nameEn,
+    selectionProcessTypeCode: currentRequest.selectionProcessType?.code,
     hasPerformedSameDuties: currentRequest.hasPerformedSameDuties,
     appointmentNonAdvertised: allLocalizedAppointmentNonAdvertised.find(
       (a) => a.code === currentRequest.appointmentNonAdvertised?.code,
@@ -227,8 +226,25 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
                 </DescriptionListItem>
 
                 <DescriptionListItem term={t('app:process-information.selection-process-type')}>
-                  {loaderData.selectionProcessType?.code ?? t('app:hr-advisor-referral-requests.not-provided')}
+                  {loaderData.selectionProcessType ?? t('app:hiring-manager-referral-requests.not-provided')}
                 </DescriptionListItem>
+
+                {(loaderData.selectionProcessTypeCode === SELECTION_PROCESS_TYPE.EXTERNAL_NON_ADVERTISED.code ||
+                  loaderData.selectionProcessTypeCode === SELECTION_PROCESS_TYPE.APPOINTMENT_INTERNAL_NON_ADVERTISED.code) && (
+                  <>
+                    <DescriptionListItem term={t('app:process-information.performed-duties')}>
+                      {loaderData.hasPerformedSameDuties === true
+                        ? t('app:process-information.yes')
+                        : loaderData.hasPerformedSameDuties === false
+                          ? t('app:process-information.no')
+                          : t('app:hiring-manager-referral-requests.not-provided')}
+                    </DescriptionListItem>
+
+                    <DescriptionListItem term={t('app:process-information.non-advertised-appointment')}>
+                      {loaderData.appointmentNonAdvertised?.name ?? t('app:hiring-manager-referral-requests.not-provided')}
+                    </DescriptionListItem>
+                  </>
+                )}
 
                 <DescriptionListItem term={t('app:process-information.performed-duties')}>
                   {(() => {
