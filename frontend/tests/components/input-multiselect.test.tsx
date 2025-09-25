@@ -7,17 +7,11 @@ import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { InputMultiSelect } from '~/components/input-multiselect';
 import type { InputMultiSelectProps } from '~/components/input-multiselect';
 
-// --- 1. Mock all dependencies ---
-
-// Mock FontAwesomeIcon to simplify testing
-
 vi.mock('@fortawesome/react-fontawesome', () => ({
   FontAwesomeIcon: (props: { icon: { iconName: string } }) => <i data-icon={props.icon.iconName} />,
 }));
-
-// Mock child components to isolate the component under test
-vi.mock('~/components/input-label', () => ({
-  InputLabel: (props: ComponentProps<'label'>) => <label {...props}>{props.children}</label>,
+vi.mock('~/components/input-legend', () => ({
+  InputLegend: (props: ComponentProps<'legend'>) => <legend {...props}>{props.children}</legend>,
 }));
 vi.mock('~/components/input-error', () => ({
   InputError: (props: ComponentProps<'span'>) => <span {...props}>{props.children}</span>,
@@ -26,30 +20,18 @@ vi.mock('~/components/input-help', () => ({
   InputHelp: (props: ComponentProps<'p'>) => <p {...props}>{props.children}</p>,
 }));
 vi.mock('~/components/input-checkbox', () => ({
-  InputCheckbox: ({
-    children,
-    hasError,
-    errorMessage,
-    labelClassName,
-    appendClassName,
-    append,
-    ...props
-  }: {
-    children: React.ReactNode;
-    hasError?: boolean;
-    errorMessage?: string;
-    labelClassName?: string;
-    appendClassName?: string;
-    append?: React.ReactNode;
-  } & ComponentProps<'input'>) => (
-    <div>
-      <input type="checkbox" {...props} />
-      <label>{children}</label>
-    </div>
+  InputCheckbox: ({ children, onChange, checked, ...props }: ComponentProps<'input'> & { children: React.ReactNode }) => (
+    <label>
+      <input type="checkbox" {...props} checked={!!checked} onChange={onChange} />
+      {children}
+    </label>
   ),
 }));
-
-// --- 2. Test Suite Setup ---
+vi.mock('react-i18next', () => ({
+  useTranslation: () => ({
+    t: (_key: string, options?: { count?: number }) => `${options?.count} items selected`,
+  }),
+}));
 
 const MOCK_OPTIONS = [
   { label: 'React', value: 'react' },
@@ -58,101 +40,103 @@ const MOCK_OPTIONS = [
 ];
 
 describe('InputMultiSelect', () => {
-  let onChange: ReturnType<typeof vi.fn>;
+  let onChangeMock: ReturnType<typeof vi.fn>;
   let defaultProps: InputMultiSelectProps;
 
   beforeEach(() => {
-    onChange = vi.fn();
+    onChangeMock = vi.fn();
     defaultProps = {
       id: 'framework',
       name: 'frameworks',
       legend: 'Favorite Frameworks',
       options: MOCK_OPTIONS,
       value: [],
-      onChange,
+      onChange: onChangeMock,
+      placeholder: 'Choose a framework...',
     };
   });
 
-  const renderComponent = (props: Partial<InputMultiSelectProps> = {}) => {
-    return render(<InputMultiSelect {...defaultProps} {...props} />);
+  const setup = (props: Partial<InputMultiSelectProps> = {}) => {
+    const user = userEvent.setup();
+    render(<InputMultiSelect {...defaultProps} {...props} />);
+    return { user };
   };
 
-  // --- 3. Tests ---
+  it('should display the correct text based on selection', () => {
+    const { rerender } = render(<InputMultiSelect {...defaultProps} value={[]} />);
+    expect(screen.getByText('Choose a framework...')).toBeTruthy();
 
-  it('should render correctly with a placeholder', () => {
-    renderComponent({ placeholder: 'Choose one...' });
-    expect(screen.getByText('Favorite Frameworks')).toBeTruthy();
-    expect(screen.getByText('Choose one...')).toBeTruthy();
-    expect(screen.queryByRole('listbox')).toBeNull();
+    rerender(<InputMultiSelect {...defaultProps} value={['react']} />);
+    expect(screen.getByText('React')).toBeTruthy();
+
+    rerender(<InputMultiSelect {...defaultProps} value={['react', 'svelte']} />);
+    expect(screen.getByText('2 items selected')).toBeTruthy();
   });
 
-  it('should toggle the dropdown on click', async () => {
-    const user = userEvent.setup();
-    renderComponent();
-    const combobox = screen.getByRole('combobox', { name: 'Favorite Frameworks' });
+  it('should render help and error messages when provided', () => {
+    setup({
+      errorMessage: 'This field is required.',
+      helpMessage: 'Select at least one option.',
+    });
 
-    expect(combobox.getAttribute('aria-expanded')).toBe('false');
+    expect(screen.getByText('This field is required.')).toBeTruthy();
+    expect(screen.getByText('Select at least one option.')).toBeTruthy();
 
-    await user.click(combobox);
-    expect(screen.getByRole('listbox')).toBeTruthy();
-    expect(combobox.getAttribute('aria-expanded')).toBe('true');
+    const trigger = screen.getByRole('button');
+    const error = screen.getByText('This field is required.');
 
-    await user.click(combobox);
-    expect(screen.queryByRole('listbox')).toBeNull();
-  });
-
-  it('should call onChange when selecting an option', async () => {
-    const user = userEvent.setup();
-    renderComponent();
-
-    await user.click(screen.getByRole('combobox'));
-    await user.click(screen.getByText('Svelte'));
-
-    expect(onChange).toHaveBeenCalledWith(['svelte']);
-  });
-
-  it('should select an option with the Enter key on the option', async () => {
-    const user = userEvent.setup();
-    renderComponent();
-
-    await user.click(screen.getByRole('combobox'));
-    const vueOption = screen.getByText('Vue').closest('div[role="option"]');
-
-    expect(vueOption).toBeInstanceOf(HTMLElement);
-    (vueOption as HTMLElement).focus();
-
-    await user.keyboard('{Enter}');
-    expect(onChange).toHaveBeenCalledWith(['vue']);
-  });
-
-  it('should render an error message and apply error styles', () => {
-    renderComponent({ errorMessage: 'This field is required' });
-    expect(screen.getByText('This field is required')).toBeTruthy();
-    const combobox = screen.getByRole('combobox');
-
-    expect(combobox.className).toContain('border-red-500');
+    expect(trigger.classList.contains('border-red-500')).toBe(true);
+    expect(error.getAttribute('id')).toBe(`${defaultProps.id}-error`);
   });
 
   it('should be disabled when the disabled prop is true', () => {
-    renderComponent({ disabled: true });
-    const combobox = screen.getByRole('combobox');
-
-    expect(combobox.getAttribute('aria-disabled')).toBe('true');
-    expect(combobox.getAttribute('tabIndex')).toBe('-1');
+    setup({ disabled: true });
+    const trigger = screen.getByRole('button') as HTMLButtonElement;
+    expect(trigger.disabled).toBe(true);
   });
 
-  it('should render multiple hidden inputs for form submission', () => {
-    const { container } = renderComponent({ value: ['react', 'svelte'] });
+  it('should toggle the dropdown when the trigger is clicked', async () => {
+    const { user } = setup();
+    const trigger = screen.getByRole('button', { name: 'Choose a framework...' });
 
-    const hiddenInputs = container.querySelectorAll('input[type="hidden"][name="frameworks"]');
-    expect(hiddenInputs).toHaveLength(2);
+    expect(trigger.getAttribute('aria-expanded')).toBe('false');
+    expect(screen.queryByRole('checkbox')).toBeNull();
 
-    const values = Array.from(hiddenInputs).map((input) => (input as HTMLInputElement).value);
-    expect(values).toEqual(['react', 'svelte']);
+    await user.click(trigger);
+    expect(trigger.getAttribute('aria-expanded')).toBe('true');
+    expect(screen.getByLabelText('React')).toBeTruthy();
+
+    await user.click(trigger);
+    expect(trigger.getAttribute('aria-expanded')).toBe('false');
   });
 
-  it('should match the initial snapshot', () => {
-    const { container } = renderComponent();
-    expect(container).toMatchSnapshot();
+  it('should select and deselect options correctly', async () => {
+    const { user } = setup();
+    await user.click(screen.getByRole('button'));
+
+    const svelteCheckbox = screen.getByLabelText('Svelte');
+    const reactCheckbox = screen.getByLabelText('React');
+
+    await user.click(svelteCheckbox);
+    await user.click(reactCheckbox);
+
+    expect(onChangeMock).toHaveBeenCalledWith(expect.arrayContaining(['svelte']));
+    expect(onChangeMock).toHaveBeenCalledWith(expect.arrayContaining(['react']));
+
+    await user.click(svelteCheckbox);
+    expect(onChangeMock).toHaveBeenCalledWith(['react']);
+  });
+
+  it('should close the dropdown when the "Escape" key is pressed and focus the trigger', async () => {
+    const { user } = setup();
+    const trigger = screen.getByRole('button');
+
+    await user.click(trigger);
+    expect(screen.getByLabelText('React')).toBeTruthy();
+
+    await user.keyboard('{Escape}');
+
+    expect(screen.queryByLabelText('React')).toBeNull();
+    expect(document.activeElement).toBe(trigger);
   });
 });

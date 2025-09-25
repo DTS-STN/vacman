@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import type { ComponentProps, ReactNode } from 'react';
+import type { ComponentProps, KeyboardEvent as ReactKeyboardEvent, ReactNode } from 'react';
 
 import { faChevronDown, faChevronUp } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -56,7 +56,7 @@ export function InputMultiSelect(props: InputMultiSelectProps) {
     value,
     onChange,
     disabled,
-    placeholder = 'Select options...',
+    placeholder,
     name,
     ...restDivProps
   } = props;
@@ -64,42 +64,36 @@ export function InputMultiSelect(props: InputMultiSelectProps) {
   const { t } = useTranslation(['gcweb']);
   const [isOpen, setIsOpen] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
 
-  const inputErrorId = `input-${id}-error`;
-  const inputHelpMessageId = `input-${id}-help`;
-  const inputLegendId = `input-${id}-legend`;
-  const inputWrapperId = `input-${id}`;
+  const errorId = `${id}-error`;
+  const helpId = `${id}-help`;
+  const legendId = `${id}-legend`;
   const dropdownId = `${id}-dropdown`;
 
   useEffect(() => {
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape') {
+        setIsOpen(false);
+        triggerRef.current?.focus();
+      }
+    }
     function handleClickOutside(event: MouseEvent) {
       if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
         setIsOpen(false);
       }
     }
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === 'Escape') {
-        setIsOpen(false);
-      }
-    }
-    document.addEventListener('mousedown', handleClickOutside);
     document.addEventListener('keydown', handleKeyDown);
+    document.addEventListener('mousedown', handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
       document.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
 
-  const handleOptionClick = (optionValue: string) => {
+  const handleSelectOption = (optionValue: string) => {
     const newSelectedValues = value.includes(optionValue) ? value.filter((v) => v !== optionValue) : [...value, optionValue];
     onChange(newSelectedValues);
-  };
-
-  const handleOptionKeyDown = (e: React.KeyboardEvent, optionValue: string) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      handleOptionClick(optionValue);
-    }
   };
 
   const getDisplayValue = () => {
@@ -113,104 +107,71 @@ export function InputMultiSelect(props: InputMultiSelectProps) {
     return t('gcweb:input.input-items-selected', { count: value.length });
   };
 
-  const ariaDescribedbyIds =
-    [
-      !!helpMessage && inputHelpMessageId, //
-      !!ariaDescribedbyId && ariaDescribedbyId,
-    ]
-      .filter(Boolean)
-      .join(' ') || undefined;
+  const describedBy = [helpMessage && helpId, ariaDescribedbyId].filter(Boolean).join(' ') || undefined;
 
   return (
-    <div className="relative" ref={wrapperRef} {...restDivProps}>
-      <fieldset id={inputWrapperId} aria-describedby={ariaDescribedbyId}>
-        <InputLegend id={inputLegendId} required={required} className="mb-2">
+    <div className={cn('relative', className)} ref={wrapperRef} {...restDivProps}>
+      <fieldset>
+        <InputLegend id={legendId} required={required} className="mb-2">
           {legend}
         </InputLegend>
+
         {errorMessage && (
           <p className="mb-2">
-            <InputError id={inputErrorId}>{errorMessage}</InputError>
+            <InputError id={errorId}>{errorMessage}</InputError>
           </p>
         )}
-        {value.map((val) => (
-          <input type="hidden" name={name} key={val} value={val} />
-        ))}
         {helpMessage && (
-          <InputHelp id={inputHelpMessageId} className="mt-2 mb-2">
+          <InputHelp id={helpId} className="mb-2">
             {helpMessage}
           </InputHelp>
         )}
 
-        <div
+        <button
+          ref={triggerRef}
           id={id}
-          role="combobox"
-          tabIndex={disabled ? -1 : 0}
-          aria-required={required ? true : undefined}
-          aria-disabled={disabled}
-          aria-haspopup="listbox"
+          type="button"
+          disabled={disabled}
+          aria-haspopup="true"
           aria-expanded={isOpen}
           aria-controls={dropdownId}
-          aria-invalid={!!errorMessage}
-          aria-errormessage={errorMessage ? inputErrorId : undefined}
-          aria-labelledby={inputLegendId}
-          aria-describedby={ariaDescribedbyIds}
-          onClick={disabled ? undefined : () => setIsOpen(!isOpen)}
-          onKeyDown={
-            disabled
-              ? undefined
-              : (e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault(); // Prevent space from scrolling
-                    setIsOpen(!isOpen);
-                  }
-                }
-          }
-          className={cn(
-            triggerBaseClassName,
-            disabled && triggerDisabledClassName,
-            errorMessage && triggerErrorClassName,
-            className,
-          )}
+          aria-describedby={describedBy}
+          onClick={() => setIsOpen(!isOpen)}
+          className={cn(triggerBaseClassName, disabled && triggerDisabledClassName, errorMessage && triggerErrorClassName)}
         >
           <span className="block truncate">{getDisplayValue()}</span>
-          <span className="pointer-events-none inset-y-0 right-0 flex items-center pr-2">
-            {isOpen ? (
-              <FontAwesomeIcon icon={faChevronUp} className="my-auto size-3 text-gray-400" />
-            ) : (
-              <FontAwesomeIcon icon={faChevronDown} className="my-auto size-3 text-gray-400" />
-            )}
+          <span className="pointer-events-none flex items-center">
+            <FontAwesomeIcon
+              icon={isOpen ? faChevronUp : faChevronDown}
+              className="my-auto size-3 text-gray-400"
+              aria-hidden="true"
+            />
           </span>
-        </div>
+        </button>
+
         {isOpen && (
-          <div id={dropdownId} role="listbox" aria-multiselectable="true" className={dropdownClassName}>
-            {options.map((optionProps, index) => {
-              const isSelected = value.includes(optionProps.value);
-              const optionId = `${id}-multiselect-option-${index}`;
+          <div id={dropdownId} className={dropdownClassName}>
+            {options.map((option, index) => {
+              const optionId = `${id}-option-${index}`;
+              const isChecked = value.includes(option.value);
 
               return (
-                <div
-                  key={optionProps.value}
-                  id={optionId}
-                  role="option"
-                  aria-selected={isSelected}
-                  onClick={() => handleOptionClick(optionProps.value)}
-                  tabIndex={0}
-                  onKeyDown={(e) => handleOptionKeyDown(e, optionProps.value)}
-                  className="relative cursor-pointer p-2 text-gray-900 select-none hover:bg-gray-100 focus:bg-gray-100 focus:outline-none"
-                >
+                <div key={option.value} className="relative p-2 hover:bg-gray-100">
                   <InputCheckbox
-                    id={`${optionId}-checkbox`}
-                    name={`${name}-${optionProps.value}`}
-                    checked={isSelected}
-                    disabled={true}
-                    readOnly={true}
-                    required={required}
+                    id={optionId}
+                    name={`${name}-${option.value}`}
+                    checked={isChecked}
+                    onChange={() => handleSelectOption(option.value)}
+                    onKeyDown={(e: ReactKeyboardEvent<HTMLInputElement>) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        handleSelectOption(option.value);
+                      }
+                    }}
                     hasError={!!errorMessage}
-                    tabIndex={-1}
-                    className="pointer-events-none"
-                    {...optionProps}
+                    {...option}
                   >
-                    {optionProps.label}
+                    {option.label}
                   </InputCheckbox>
                 </div>
               );
