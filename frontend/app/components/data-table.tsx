@@ -201,6 +201,7 @@ export function DataTableColumnHeaderWithOptions<TData, TValue>({
   selected: controlledSelected,
   onSelectionChange,
 }: DataTableColumnHeaderWithOptionsProps<TData, TValue>) {
+  const { t } = useTranslation(['gcweb', 'app']);
   // Source of truth: controlled 'selected' if provided, else column filter state
   const selectedValues: string[] = controlledSelected ?? (column.getFilterValue() as string[] | undefined) ?? [];
 
@@ -217,6 +218,16 @@ export function DataTableColumnHeaderWithOptions<TData, TValue>({
     setSelectedValues(next);
   };
 
+  const selectedCount = selectedValues.length;
+
+  const ariaLabel =
+    selectedCount > 0
+      ? t('gcweb:data-table.filters.header-aria', {
+          title,
+          count: selectedCount,
+        })
+      : title;
+
   return (
     <div className={cn('flex items-center space-x-2', className)}>
       <DropdownMenu>
@@ -226,8 +237,14 @@ export function DataTableColumnHeaderWithOptions<TData, TValue>({
             variant="ghost"
             size="sm"
             className="-ml-3 h-8 font-sans font-medium data-[state=open]:bg-neutral-100"
+            aria-label={ariaLabel}
           >
             {title}
+            {selectedCount > 0 && (
+              <span aria-hidden="true" className="ml-1 text-xs font-semibold text-[#0535D2]">
+                ({selectedCount})
+              </span>
+            )}
             <span className="ml-1 rounded-sm p-1 text-neutral-500 hover:bg-slate-300">
               <FontAwesomeIcon icon={faSortDown} />
             </span>
