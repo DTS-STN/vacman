@@ -9,10 +9,10 @@ import type { Route } from '../profile/+types/employment-information';
 import type { Profile, ProfilePutModel } from '~/.server/domain/models';
 import { getCityService } from '~/.server/domain/services/city-service';
 import { getClassificationService } from '~/.server/domain/services/classification-service';
-import { getDirectorateService } from '~/.server/domain/services/directorate-service';
 import { getProfileService } from '~/.server/domain/services/profile-service';
 import { getProvinceService } from '~/.server/domain/services/province-service';
 import { getWFAStatuses } from '~/.server/domain/services/wfa-status-service';
+import { getWorkUnitService } from '~/.server/domain/services/workunit-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { extractUniqueBranchesFromDirectorates } from '~/.server/utils/directorate-utils';
 import { requirePrivacyConsentForOwnProfile } from '~/.server/utils/privacy-consent-utils';
@@ -100,8 +100,8 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const profileData = await getProfileService().findCurrentUserProfile(profileParams, context.session.authState.accessToken);
 
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
+  const directorates = await getWorkUnitService().listLocalizedDirectorates(lang);
   const substantivePositions = await getClassificationService().listAllLocalized(lang);
-  const directorates = await getDirectorateService().listAllLocalized(lang);
   // Extract unique branches from directorates that have parents
   const branchOrServiceCanadaRegions = extractUniqueBranchesFromDirectorates(directorates);
   const provinces = await getProvinceService().listAllLocalized(lang);

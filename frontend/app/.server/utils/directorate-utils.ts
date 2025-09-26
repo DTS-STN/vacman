@@ -1,4 +1,4 @@
-import type { LocalizedDirectorate, LocalizedBranch, Directorate, Branch } from '~/.server/domain/models';
+import type { LocalizedWorkUnit, WorkUnit, LocalizedLookupModel, LookupModel } from '~/.server/domain/models';
 
 /**
  * Extracts unique branches from directorates that have parent branches.
@@ -8,8 +8,8 @@ import type { LocalizedDirectorate, LocalizedBranch, Directorate, Branch } from 
  * @param directorates Array of localized directorates
  * @returns Array of unique localized branches sorted by name
  */
-export function extractUniqueBranchesFromDirectorates(directorates: readonly LocalizedDirectorate[]): LocalizedBranch[] {
-  const branchesMap = new Map<number, LocalizedBranch>();
+export function extractUniqueBranchesFromDirectorates(directorates: readonly LocalizedWorkUnit[]): LocalizedLookupModel[] {
+  const branchesMap = new Map<number, LocalizedLookupModel>();
   for (const directorate of directorates) {
     if (directorate.parent) branchesMap.set(directorate.parent.id, directorate.parent);
   }
@@ -24,8 +24,8 @@ export function extractUniqueBranchesFromDirectorates(directorates: readonly Loc
  * @param directorates Array of directorates
  * @returns Array of unique branches sorted by English name
  */
-export function extractUniqueBranchesFromDirectoratesNonLocalized(directorates: readonly Directorate[]): Branch[] {
-  const branchesMap = new Map<number, Branch>();
+export function extractUniqueBranchesFromDirectoratesNonLocalized(directorates: readonly WorkUnit[]): LookupModel[] {
+  const branchesMap = new Map<number, LookupModel>();
   for (const directorate of directorates) {
     if (directorate.parent) branchesMap.set(directorate.parent.id, directorate.parent);
   }
