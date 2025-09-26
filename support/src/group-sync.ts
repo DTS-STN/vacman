@@ -58,34 +58,33 @@ const AppConfig = Config.all({
  *   - Previewing changes before execution
  *   - Auditing what the sync would do
  */
-const executeDryRun = (
-  usersToAdd: MSGraphClient.MSGraphUser[], //
+const executeDryRun = Effect.fn(function* (
+  usersToAdd: MSGraphClient.MSGraphUser[],
   usersToRemove: MSGraphClient.MSGraphUser[],
-) =>
-  Effect.gen(function* () {
-    yield* Effect.logWarning('DRY RUN ENABLED -- No changes will be made.');
+) {
+  yield* Effect.logWarning('DRY RUN ENABLED -- No changes will be made.');
 
-    if (usersToAdd.length > 0) {
-      yield* Effect.logWarning(
-        `DRY RUN: Would add ${usersToAdd.length} users:`,
-        usersToAdd.map((user) => user.displayName),
-      );
-    }
+  if (usersToAdd.length > 0) {
+    yield* Effect.logWarning(
+      `DRY RUN: Would add ${usersToAdd.length} users:`,
+      usersToAdd.map((user) => user.displayName),
+    );
+  }
 
-    if (usersToRemove.length > 0) {
-      yield* Effect.logWarning(
-        `DRY RUN: Would remove ${usersToRemove.length} users:`,
-        usersToRemove.map((user) => user.displayName),
-      );
-    }
+  if (usersToRemove.length > 0) {
+    yield* Effect.logWarning(
+      `DRY RUN: Would remove ${usersToRemove.length} users:`,
+      usersToRemove.map((user) => user.displayName),
+    );
+  }
 
-    // Log summary for easy overview
-    yield* Effect.logInfo('DRY RUN SUMMARY:', {
-      totalChanges: usersToAdd.length + usersToRemove.length,
-      additions: usersToAdd.length,
-      removals: usersToRemove.length,
-    });
+  // Log summary for easy overview
+  yield* Effect.logInfo('DRY RUN SUMMARY:', {
+    totalChanges: usersToAdd.length + usersToRemove.length,
+    additions: usersToAdd.length,
+    removals: usersToRemove.length,
   });
+});
 
 /**
  * Executes the actual synchronization by adding and removing users from the target group.
@@ -94,24 +93,23 @@ const executeDryRun = (
  * Operations are performed concurrently for efficiency, but the function will
  * fail fast if either operation encounters an error.
  */
-const executeSync = (
+const executeSync = Effect.fn(function* (
   authToken: string,
   targetGroupId: string,
   usersToAdd: MSGraphClient.MSGraphUser[],
   usersToRemove: MSGraphClient.MSGraphUser[],
-) =>
-  Effect.gen(function* () {
-    yield* Effect.logInfo('‼️ EXECUTING CHANGES ‼️');
+) {
+  yield* Effect.logInfo('‼️ EXECUTING CHANGES ‼️');
 
-    // Perform add and remove operations concurrently for efficiency..
-    // Using Effect.all ensures both operations complete successfully or the entire sync fails
-    yield* Effect.all([
-      usersToAdd.length > 0 ? MSGraphClient.addMembersToGroup(authToken, targetGroupId, usersToAdd) : Effect.void,
-      usersToRemove.length > 0 ? MSGraphClient.removeMembersFromGroup(authToken, targetGroupId, usersToRemove) : Effect.void,
-    ]);
+  // Perform add and remove operations concurrently for efficiency..
+  // Using Effect.all ensures both operations complete successfully or the entire sync fails
+  yield* Effect.all([
+    usersToAdd.length > 0 ? MSGraphClient.addMembersToGroup(authToken, targetGroupId, usersToAdd) : Effect.void,
+    usersToRemove.length > 0 ? MSGraphClient.removeMembersFromGroup(authToken, targetGroupId, usersToRemove) : Effect.void,
+  ]);
 
-    yield* Effect.logInfo('All membership changes applied successfully');
-  });
+  yield* Effect.logInfo('All membership changes applied successfully');
+});
 
 //
 // ─────────────────────────────────────────────────────────────
@@ -220,15 +218,21 @@ const calculateMembershipChanges = (sourceUsers: MSGraphClient.MSGraphUser[], ta
 /**
  * Fetches and categorizes members from a target group and multiple source groups.
  */
-const getGroupMembers = (authToken: string, targetGroupId: string, sourceGroupIds: string[]) =>
-  Effect.gen(function* () {
-    const [targetUsers, sourceUsers] = yield* Effect.all([
-      MSGraphClient.getDirectGroupMembers(authToken, targetGroupId),
-      collectAndDedupeSourceUsers(authToken, sourceGroupIds),
-    ]);
+const getGroupMembers = Effect.fn(function* (
+  authToken: string, //
+  targetGroupId: string,
+  sourceGroupIds: string[],
+) {
+  const [targetUsers, sourceUsers] = yield* Effect.all([
+    MSGraphClient.getDirectGroupMembers(authToken, targetGroupId),
+    collectAndDedupeSourceUsers(authToken, sourceGroupIds),
+  ]);
 
-    return { targetUsers, sourceUsers };
-  });
+  return {
+    targetUsers,
+    sourceUsers,
+  };
+});
 
 /**
  * Main synchronization program that orchestrates the entire process.
