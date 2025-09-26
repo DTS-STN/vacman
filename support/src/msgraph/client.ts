@@ -1,5 +1,8 @@
 import { HttpClient, HttpClientRequest, HttpClientResponse } from '@effect/platform';
-import { Chunk, Data, Duration, Effect, Schema } from 'effect';
+import { Chunk, Duration, Effect } from 'effect';
+
+import { MSGraphError } from '~/msgraph/errors';
+import { AccessTokenResponse, BatchResponse, MSGraphUser, PagedResponse } from '~/msgraph/schemas';
 
 /**
  * Max number of users per batch request. Enforced by Microsoft.
@@ -13,88 +16,6 @@ const MAX_REQUESTS_PER_BATCH = 20;
  * Standard timeout for API requests.
  */
 const REQUEST_TIMEOUT = Duration.seconds(10);
-
-///
-/// Error types
-///
-
-/**
- * A custom error type for failures related to the Microsoft Graph API. This
- * class extends `Data.TaggedError` to provide a structured way to represent
- * errors, capturing the original error and an optional descriptive message.
- */
-export class MSGraphError extends Data.TaggedError('@support/MSGraphError')<{
-  readonly error: unknown;
-  readonly message?: string;
-}> {}
-
-///
-/// Request/response schemas
-///
-
-/**
- * Schema for the standard error response from the Microsoft Graph API. Captures
- * the structured error object containing a code and message, as documented by
- * Microsoft Graph.
- */
-const MSGraphErrorResponse = Schema.Struct({
-  error: Schema.Struct({
-    code: Schema.String,
-    message: Schema.String,
-  }),
-});
-
-/**
- * Schema for the OAuth2 access token response from Microsoft Entra ID.
- * Parses the successful response from the `/oauth2/v2.0/token` endpoint.
- */
-const AccessTokenResponse = Schema.Struct({
-  access_token: Schema.String,
-});
-
-const BatchSuccessResponse = Schema.Struct({
-  id: Schema.String,
-  status: Schema.Int.pipe(Schema.filter((status) => status >= 200 && status < 300)),
-});
-
-const BatchErrorResponse = Schema.Struct({
-  id: Schema.String,
-  status: Schema.Int,
-  body: MSGraphErrorResponse,
-});
-
-const BatchResponse = Schema.Struct({
-  responses: Schema.Array(Schema.Union(BatchSuccessResponse, BatchErrorResponse)),
-});
-
-/**
- * Schema for a Microsoft Graph User object. Defines the structure for a user,
- * including essential fields like `id`, `displayName`, and the `@odata.type`
- * discriminator.
- */
-const MSGraphUser = Schema.Struct({
-  '@odata.type': Schema.String,
-  'id': Schema.String,
-  'displayName': Schema.String,
-});
-
-/**
- * A generic schema for parsing MSGraph responses that contain paginated data.
- *
- * @param schema The `Schema.Schema` to apply to each element in the `value` array.
- * @returns A `Schema.Struct` that can parse the standard collection response.
- */
-export const PagedResponse = <A, I, R>(schema: Schema.Schema<A, I, R>) =>
-  Schema.Struct({
-    '@odata.nextLink': Schema.optional(Schema.String),
-    'value': Schema.Array(schema),
-  });
-
-//
-// Exported types
-//
-
-export type MSGraphUser = Schema.Schema.Type<typeof MSGraphUser>;
 
 ///
 /// Runnable effects

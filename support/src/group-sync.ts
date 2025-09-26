@@ -1,7 +1,8 @@
 import { NodeHttpClient, NodeRuntime } from '@effect/platform-node';
 import { Config, Effect, Logger, LogLevel } from 'effect';
 
-import * as MSGraphClient from '~/msgraph/msgraph-client';
+import * as MSGraphClient from '~/msgraph/client';
+import type { MSGraphUser } from '~/msgraph/schemas';
 
 //
 // ─────────────────────────────────────────────────────────────
@@ -58,10 +59,7 @@ const AppConfig = Config.all({
  *   - Previewing changes before execution
  *   - Auditing what the sync would do
  */
-const executeDryRun = Effect.fn(function* (
-  usersToAdd: MSGraphClient.MSGraphUser[],
-  usersToRemove: MSGraphClient.MSGraphUser[],
-) {
+const executeDryRun = Effect.fn(function* (usersToAdd: MSGraphUser[], usersToRemove: MSGraphUser[]) {
   yield* Effect.logWarning('DRY RUN ENABLED -- No changes will be made.');
 
   if (usersToAdd.length > 0) {
@@ -96,8 +94,8 @@ const executeDryRun = Effect.fn(function* (
 const executeSync = Effect.fn(function* (
   authToken: string,
   targetGroupId: string,
-  usersToAdd: MSGraphClient.MSGraphUser[],
-  usersToRemove: MSGraphClient.MSGraphUser[],
+  usersToAdd: MSGraphUser[],
+  usersToRemove: MSGraphUser[],
 ) {
   yield* Effect.logInfo('‼️ EXECUTING CHANGES ‼️');
 
@@ -166,7 +164,7 @@ const parseLogLevel = (level: string): LogLevel.LogLevel => {
  * @param users The array of users to deduplicate.
  * @returns A new array with duplicate users removed.
  */
-const dedupeUsers = (users: MSGraphClient.MSGraphUser[]) => {
+const dedupeUsers = (users: MSGraphUser[]) => {
   const userMap = new Map(users.map((user) => [user.id, user]));
   return Array.from(userMap.values());
 };
@@ -196,7 +194,7 @@ const collectAndDedupeSourceUsers = (authToken: string, sourceGroupIds: string[]
  *   - Users in target group but not in any source group → REMOVE
  *   - Users in both → NO CHANGE (already synchronized)
  */
-const calculateMembershipChanges = (sourceUsers: MSGraphClient.MSGraphUser[], targetUsers: MSGraphClient.MSGraphUser[]) => {
+const calculateMembershipChanges = (sourceUsers: MSGraphUser[], targetUsers: MSGraphUser[]) => {
   const sourceUserIds = new Set(sourceUsers.map((user) => user.id));
   const targetUserIds = new Set(targetUsers.map((user) => user.id));
 

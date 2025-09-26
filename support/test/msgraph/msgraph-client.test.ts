@@ -3,7 +3,7 @@ import { HttpClient, HttpClientResponse } from '@effect/platform';
 import { describe, it } from '@effect/vitest';
 import { Effect, Exit, Layer, Ref } from 'effect';
 
-import * as MSGraphClient from '~/msgraph/msgraph-client';
+import * as MSGraphClient from '~/msgraph/client';
 
 /**
  * Test suite for the MSGraphClient module.
