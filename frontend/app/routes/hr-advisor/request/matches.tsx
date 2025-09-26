@@ -29,6 +29,12 @@ export function meta({ loaderData }: Route.MetaArgs) {
   return [{ title: loaderData.documentTitle }];
 }
 
+export function action({ context, params, request }: Route.ActionArgs) {
+  requireAuthentication(context.session, request);
+  //TODO add action logic
+  return undefined;
+}
+
 export async function loader({ context, request, params }: Route.LoaderArgs) {
   requireAuthentication(context.session, request);
 
@@ -45,10 +51,8 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const requestMatches = requestMatchesResult.into()?.content ?? [];
   */
   const requestStatuses = await getRequestStatusService().listAll();
-  const localizedStatuses = await getMatchStatusService().listAllLocalized(lang);
-  const localizedFeedback = await getMatchFeedbackService().listAllLocalized(lang);
-  const matchStatusNames = localizedStatuses.map(({ name }) => name);
-  const matchFeedbackNames = localizedFeedback.map(({ name }) => name);
+  const matchStatus = await getMatchStatusService().listAllLocalized(lang);
+  const matchFeedback = await getMatchFeedbackService().listAllLocalized(lang);
 
   const requestMatches = [
     {
@@ -58,8 +62,8 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
         initial: 'M',
         lastName: 'Smith',
       },
-      wfaStatus: 2,
-      feedback: 1,
+      wfaStatus: 'A-A',
+      feedback: 'QA-QOA',
       comment: {
         hrAdvisor: undefined,
         hiringManager: 'Interested in remote work.',
@@ -73,8 +77,8 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
         initial: 'R',
         lastName: 'Johnson',
       },
-      wfaStatus: 2,
-      feedback: 0,
+      wfaStatus: 'A-A',
+      feedback: 'QNS',
       comment: {
         hrAdvisor: 'Interested in remote work.',
         hiringManager: undefined,
@@ -88,8 +92,8 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
         initial: 'T',
         lastName: 'Tan',
       },
-      wfaStatus: 1,
-      feedback: 1,
+      wfaStatus: 'PA-EAA',
+      feedback: 'NQO-NQA',
       comment: {
         hrAdvisor: 'Interested in remote work.',
         hiringManager: undefined,
@@ -101,9 +105,9 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   return {
     documentTitle: t('app:matches.page-title'),
     lang,
+    matchStatus,
+    matchFeedback,
     requestMatches,
-    matchStatusNames,
-    matchFeedbackNames,
     requestStatus: requestStatuses[5],
     branch: 'Chief Financial Officer Branch',
     requestDate: '0000-00-00',
