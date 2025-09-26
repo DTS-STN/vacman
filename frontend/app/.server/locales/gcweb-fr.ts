@@ -88,6 +88,10 @@ export default {
   },
   'data-table': {
     'zero-records': 'Aucune entrée correspondante trouvée',
+    'filters': {
+      'header-aria_one': '{{title}} : {{count}} sélectionné',
+      'header-aria_other': '{{title}} : {{count}} sélectionnés',
+    },
     'pagination': {
       'label': 'Pagination',
       'info_zero': 'Affichage de 0 à 0 sur 0 entrées',

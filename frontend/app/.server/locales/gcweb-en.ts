@@ -86,6 +86,10 @@ export default {
   },
   'data-table': {
     'zero-records': 'No matching records found',
+    'filters': {
+      'header-aria_one': '{{title}}: {{count}} selected',
+      'header-aria_other': '{{title}}: {{count}} selected',
+    },
     'pagination': {
       'label': 'Pagination',
       'info_zero': 'Showing 0 to 0 of 0 entries',
