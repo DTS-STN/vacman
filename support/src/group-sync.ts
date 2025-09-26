@@ -3,9 +3,26 @@ import { Config, Effect, Logger, LogLevel } from 'effect';
 
 import * as MSGraphClient from '~/msgraph/msgraph-client';
 
+//
+// ─────────────────────────────────────────────────────────────
+// Constants
+// ─────────────────────────────────────────────────────────────
+//
+/**
+ * Microsoft Graph API scope for application-level access
+ */
+const MS_GRAPH_SCOPE = 'https://graph.microsoft.com/.default';
+
+/**
+ * Concurrency limit for HTTP requests to avoid overwhelming the API
+ */
+const HTTP_CONCURRENCY_LIMIT = 5;
+
+//
 // ─────────────────────────────────────────────────────────────
 // Configuration Schema
 // ─────────────────────────────────────────────────────────────
+//
 
 /**
  * Application configuration schema using Effect Config.
@@ -17,7 +34,6 @@ import * as MSGraphClient from '~/msgraph/msgraph-client';
  *   - TENANT_ID, CLIENT_ID, CLIENT_SECRET: Azure AD app registration credentials
  */
 const AppConfig = Config.all({
-  // Safety default: always dry run unless explicitly disabled
   dryRun: Config.withDefault(Config.boolean('DRY_RUN'), true),
   logLevel: Config.withDefault(Config.string('LOG_LEVEL'), 'info'),
 
@@ -28,20 +44,6 @@ const AppConfig = Config.all({
   clientId: Config.string('CLIENT_ID'),
   clientSecret: Config.string('CLIENT_SECRET'),
 });
-
-// ─────────────────────────────────────────────────────────────
-// Constants
-// ─────────────────────────────────────────────────────────────
-
-/**
- * Microsoft Graph API scope for application-level access
- */
-const MS_GRAPH_SCOPE = 'https://graph.microsoft.com/.default';
-
-/**
- * Concurrency limit for HTTP requests to avoid overwhelming the API
- */
-const HTTP_CONCURRENCY_LIMIT = 5;
 
 // ─────────────────────────────────────────────────────────────
 // Execution Strategies
@@ -56,7 +58,10 @@ const HTTP_CONCURRENCY_LIMIT = 5;
  *   - Previewing changes before execution
  *   - Auditing what the sync would do
  */
-const executeDryRun = (usersToAdd: MSGraphClient.MSGraphUser[], usersToRemove: MSGraphClient.MSGraphUser[]) =>
+const executeDryRun = (
+  usersToAdd: MSGraphClient.MSGraphUser[], //
+  usersToRemove: MSGraphClient.MSGraphUser[],
+) =>
   Effect.gen(function* () {
     yield* Effect.logWarning('DRY RUN ENABLED -- No changes will be made.');
 
@@ -98,49 +103,75 @@ const executeSync = (
   Effect.gen(function* () {
     yield* Effect.logInfo('‼️ EXECUTING CHANGES ‼️');
 
-    // Perform add and remove operations concurrently for efficiency
+    // Perform add and remove operations concurrently for efficiency..
     // Using Effect.all ensures both operations complete successfully or the entire sync fails
     yield* Effect.all([
       usersToAdd.length > 0 ? MSGraphClient.addMembersToGroup(authToken, targetGroupId, usersToAdd) : Effect.void,
       usersToRemove.length > 0 ? MSGraphClient.removeMembersFromGroup(authToken, targetGroupId, usersToRemove) : Effect.void,
     ]);
 
-    yield* Effect.logInfo('✅ All membership changes applied successfully');
+    yield* Effect.logInfo('All membership changes applied successfully');
   });
 
+//
 // ─────────────────────────────────────────────────────────────
 // Utility Functions
 // ─────────────────────────────────────────────────────────────
+//
 
 /**
  * Converts a string log level to Effect's LogLevel enum.
  * Supports common log level names (case-insensitive) and provides a fallback to Info.
  */
 const parseLogLevel = (level: string): LogLevel.LogLevel => {
-  const normalizedLevel = level.toLowerCase().trim();
-
-  switch (normalizedLevel) {
-    case 'trace':
+  switch (level.toLowerCase().trim()) {
+    case 'trace': {
       return LogLevel.Trace;
-    case 'debug':
+    }
+
+    case 'debug': {
       return LogLevel.Debug;
-    case 'info':
+    }
+
+    case 'info': {
       return LogLevel.Info;
-    case 'warn':
+    }
+
+    case 'warn': {
       return LogLevel.Warning;
-    case 'error':
+    }
+
+    case 'error': {
       return LogLevel.Error;
-    case 'fatal':
+    }
+
+    case 'fatal': {
       return LogLevel.Fatal;
-    default:
-      console.warn(`Invalid LOG_LEVEL ${level}`);
+    }
+
+    default: {
+      console.warn(`Invalid LOG_LEVEL ${level}; defaulting to INFO`);
       return LogLevel.Info;
+    }
   }
 };
 
+//
 // ─────────────────────────────────────────────────────────────
 // User Collection & Deduplication Utilities
 // ─────────────────────────────────────────────────────────────
+//
+
+/**
+ * Deduplicates an array of MSGraphUser objects by user ID.
+ *
+ * @param users The array of users to deduplicate.
+ * @returns A new array with duplicate users removed.
+ */
+const dedupeUsers = (users: MSGraphClient.MSGraphUser[]) => {
+  const userMap = new Map(users.map((user) => [user.id, user]));
+  return Array.from(userMap.values());
+};
 
 /**
  * Collects all users from source groups and deduplicates them by user ID.
@@ -153,14 +184,10 @@ const parseLogLevel = (level: string): LogLevel.LogLevel => {
  * We use transitive membership to capture users in nested groups, which is
  * often desired in organizational hierarchies.
  */
-const collectAndDeduplicateSourceUsers = (authToken: string, sourceGroupIds: string[]) =>
+const collectAndDedupeSourceUsers = (authToken: string, sourceGroupIds: string[]) =>
   Effect.forEach(sourceGroupIds, (groupId) => MSGraphClient.getTransitiveGroupMembers(authToken, groupId)).pipe(
     Effect.map((userArrays) => userArrays.flat()),
-    Effect.map((users) => {
-      // Deduplicate by user ID using Map (preserves first occurrence)
-      const userMap = new Map(users.map((user) => [user.id, user]));
-      return Array.from(userMap.values());
-    }),
+    Effect.map(dedupeUsers),
   );
 
 /**
@@ -184,9 +211,24 @@ const calculateMembershipChanges = (sourceUsers: MSGraphClient.MSGraphUser[], ta
   return { usersToAdd, usersToRemove };
 };
 
+//
 // ─────────────────────────────────────────────────────────────
 // Main Program
 // ─────────────────────────────────────────────────────────────
+//
+
+/**
+ * Fetches and categorizes members from a target group and multiple source groups.
+ */
+const getGroupMembers = (authToken: string, targetGroupId: string, sourceGroupIds: string[]) =>
+  Effect.gen(function* () {
+    const [targetUsers, sourceUsers] = yield* Effect.all([
+      MSGraphClient.getDirectGroupMembers(authToken, targetGroupId),
+      collectAndDedupeSourceUsers(authToken, sourceGroupIds),
+    ]);
+
+    return { targetUsers, sourceUsers };
+  });
 
 /**
  * Main synchronization program that orchestrates the entire process.
@@ -201,7 +243,6 @@ const calculateMembershipChanges = (sourceUsers: MSGraphClient.MSGraphUser[], ta
  *   7. Log comprehensive summary
  */
 const program = Effect.gen(function* () {
-  // ─── Step 1: Load Configuration ───
   const appConfig = yield* AppConfig;
 
   yield* Effect.logInfo('Starting group synchronization', {
@@ -210,8 +251,8 @@ const program = Effect.gen(function* () {
     targetGroup: appConfig.targetGroupId,
   });
 
-  // ─── Step 2: Authenticate with MS Graph ───
   yield* Effect.logInfo('Authenticating with Microsoft Graph API...');
+
   const authToken = yield* MSGraphClient.authenticate(
     appConfig.tenantId,
     appConfig.clientId,
@@ -219,44 +260,36 @@ const program = Effect.gen(function* () {
     MS_GRAPH_SCOPE,
   );
 
-  // ─── Step 3 & 4: Fetch Current Group Memberships ───
   yield* Effect.logInfo('Fetching group memberships...');
 
-  const [targetUsers, sourceUsers] = yield* Effect.all([
-    // Get direct members of target group (we don't want transitive here since we manage membership)
-    MSGraphClient.getDirectGroupMembers(authToken, appConfig.targetGroupId),
-    // Get all users from source groups (including nested groups)
-    collectAndDeduplicateSourceUsers(authToken, appConfig.sourceGroupIds),
-  ]);
+  const { targetUsers, sourceUsers } = yield* getGroupMembers(authToken, appConfig.targetGroupId, appConfig.sourceGroupIds);
 
-  // ─── Step 5: Log Current State ───
-  yield* Effect.logInfo(`📊 Current state:`, {
+  yield* Effect.logInfo('Current state:', {
     targetGroupMembers: targetUsers.length,
     sourceGroupMembers: sourceUsers.length,
     sourceGroups: appConfig.sourceGroupIds.length,
-  });
+  }).pipe(Effect.annotateLogs({ sourceGroupIds: appConfig.sourceGroupIds, targetGroupId: appConfig.targetGroupId }));
 
-  // ─── Step 6: Calculate Required Changes ───
   const { usersToAdd, usersToRemove } = calculateMembershipChanges(sourceUsers, targetUsers);
 
-  yield* Effect.logInfo(`📋 Synchronization plan:`, {
+  yield* Effect.logInfo('Synchronization plan:', {
     usersToAdd: usersToAdd.length,
     usersToRemove: usersToRemove.length,
     totalChanges: usersToAdd.length + usersToRemove.length,
-  }).pipe(Effect.annotateLogs({ targetGroupId: appConfig.targetGroupId }));
+  }).pipe(Effect.annotateLogs({ sourceGroupIds: appConfig.sourceGroupIds, targetGroupId: appConfig.targetGroupId }));
 
+  //
   // Early exit if no changes are needed
+  //
   if (usersToAdd.length === 0 && usersToRemove.length === 0) {
-    return yield* Effect.logInfo('✅ No changes needed - groups are already synchronized');
+    return yield* Effect.logInfo('No changes needed -- groups are already synchronized');
   }
 
-  // ─── Step 7: Execute Changes ───
   yield* appConfig.dryRun
     ? executeDryRun(usersToAdd, usersToRemove)
     : executeSync(authToken, appConfig.targetGroupId, usersToAdd, usersToRemove);
 
-  // ─── Step 8: Log Final Summary ───
-  yield* Effect.logInfo('🏁 Group synchronization complete', {
+  yield* Effect.logInfo('Group synchronization complete', {
     operation: appConfig.dryRun ? 'DRY_RUN' : 'SYNC',
     sourceGroups: appConfig.sourceGroupIds,
     targetGroup: appConfig.targetGroupId,
@@ -266,6 +299,7 @@ const program = Effect.gen(function* () {
       usersAdded: usersToAdd.length,
       usersRemoved: usersToRemove.length,
     },
+
     // Include user details for audit trail (consider removing in production for large groups)
     details: {
       addedUsers: usersToAdd.map((user) => ({ id: user.id, displayName: user.displayName })),
@@ -274,9 +308,11 @@ const program = Effect.gen(function* () {
   });
 });
 
+//
 // ─────────────────────────────────────────────────────────────
 // Application Entry Point
 // ─────────────────────────────────────────────────────────────
+//
 
 /**
  * Application entry point with comprehensive runtime configuration.
@@ -289,16 +325,16 @@ const program = Effect.gen(function* () {
  *   - HTTP client layer for making API requests
  */
 const main = Effect.gen(function* () {
-  const { logLevel: logLevelString } = yield* AppConfig;
-  const logLevel = parseLogLevel(logLevelString);
+  const { logLevel } = yield* AppConfig;
 
   return yield* program.pipe(
+    Logger.withMinimumLogLevel(parseLogLevel(logLevel)),
     Effect.withConcurrency(HTTP_CONCURRENCY_LIMIT), // Limit concurrent HTTP requests
     Effect.withLogSpan('group-sync-main'), // Add tracing span for the entire operation
-    Logger.withMinimumLogLevel(logLevel), // Filter out debug/trace logs
-    Effect.provide(Logger.pretty), // Use pretty console logging
+    Effect.provide(Logger.pretty),
     Effect.provide(NodeHttpClient.layer),
   );
 });
 
+// Let 'er rip! 🎉
 NodeRuntime.runMain(main);
