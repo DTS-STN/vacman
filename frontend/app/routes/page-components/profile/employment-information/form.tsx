@@ -10,9 +10,9 @@ import type {
   LocalizedBranch,
   LocalizedCity,
   LocalizedClassification,
-  LocalizedDirectorate,
   LocalizedProvince,
   LocalizedWFAStatus,
+  LocalizedWorkUnit,
   Profile,
   User,
 } from '~/.server/domain/models';
@@ -34,7 +34,7 @@ interface EmploymentProps {
   formErrors?: Errors;
   substantivePositions: readonly LocalizedClassification[];
   branchOrServiceCanadaRegions: readonly LocalizedBranch[];
-  directorates: readonly LocalizedDirectorate[];
+  directorates: readonly LocalizedWorkUnit[];
   provinces: readonly LocalizedProvince[];
   cities: readonly LocalizedCity[];
   wfaStatuses: readonly LocalizedWFAStatus[];

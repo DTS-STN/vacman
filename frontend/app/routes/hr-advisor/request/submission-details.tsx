@@ -7,10 +7,10 @@ import * as v from 'valibot';
 import type { Route } from './+types/submission-details';
 
 import type { RequestReadModel, RequestUpdateModel } from '~/.server/domain/models';
-import { getDirectorateService } from '~/.server/domain/services/directorate-service';
 import { getLanguageForCorrespondenceService } from '~/.server/domain/services/language-for-correspondence-service';
 import { getRequestService } from '~/.server/domain/services/request-service';
 import { getUserService } from '~/.server/domain/services/user-service';
+import { getWorkUnitService } from '~/.server/domain/services/workunit-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { extractUniqueBranchesFromDirectorates } from '~/.server/utils/directorate-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
@@ -166,7 +166,7 @@ export async function loader({ context, params, request }: Route.LoaderArgs) {
 
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
 
-  const directorates = await getDirectorateService().listAllLocalized(lang);
+  const directorates = await getWorkUnitService().listAllLocalized(lang);
   // Extract unique branches from directorates that have parents
   const branchOrServiceCanadaRegions = extractUniqueBranchesFromDirectorates(directorates);
   const languagesOfCorrespondence = await getLanguageForCorrespondenceService().listAllLocalized(lang);

@@ -7,7 +7,6 @@ import { useTranslation } from 'react-i18next';
 
 import type { Route } from './+types/index';
 
-import { getDirectorateService } from '~/.server/domain/services/directorate-service';
 import { getEmploymentEquityService } from '~/.server/domain/services/employment-equity-service';
 import { getEmploymentTenureService } from '~/.server/domain/services/employment-tenure-service';
 import { getLanguageForCorrespondenceService } from '~/.server/domain/services/language-for-correspondence-service';
@@ -15,6 +14,7 @@ import { getNonAdvertisedAppointmentService } from '~/.server/domain/services/no
 import { getRequestService } from '~/.server/domain/services/request-service';
 import { getRequestStatusService } from '~/.server/domain/services/request-status-service';
 import { getWorkScheduleService } from '~/.server/domain/services/work-schedule-service';
+import { getWorkUnitService } from '~/.server/domain/services/workunit-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { countCompletedItems } from '~/.server/utils/profile-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
@@ -223,7 +223,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     getEmploymentTenureService().listAllLocalized(lang),
     getWorkScheduleService().listAllLocalized(lang),
     getEmploymentEquityService().listAllLocalized(lang),
-    getDirectorateService().listAllLocalized(lang),
+    getWorkUnitService().listAllLocalized(lang),
     getLanguageForCorrespondenceService().listAllLocalized(lang),
     getRequestStatusService().listAll(),
   ]);

@@ -8,9 +8,9 @@ import type { Route } from './+types/profile';
 
 import { getCityService } from '~/.server/domain/services/city-service';
 import { getClassificationService } from '~/.server/domain/services/classification-service';
-import { getDirectorateService } from '~/.server/domain/services/directorate-service';
 import { getLanguageReferralTypeService } from '~/.server/domain/services/language-referral-type-service';
 import { getProfileService } from '~/.server/domain/services/profile-service';
+import { getWorkUnitService } from '~/.server/domain/services/workunit-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { getHrAdvisors } from '~/.server/utils/profile-utils';
 import { BackLink } from '~/components/back-link';
@@ -52,7 +52,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   // Use profileUser for updated by information as well
   const workUnitResult =
     profileData.substantiveWorkUnit !== undefined
-      ? await getDirectorateService().findLocalizedById(profileData.substantiveWorkUnit.id, lang)
+      ? await getWorkUnitService().findLocalizedById(profileData.substantiveWorkUnit.id, lang)
       : undefined;
   const substantivePositionResult =
     profileData.substantiveClassification !== undefined

@@ -44,10 +44,6 @@ export type LocalizedClassification = LocalizedLookupModel;
 export type WFAStatus = LookupModel;
 export type LocalizedWFAStatus = LocalizedLookupModel;
 
-//TODO: Remove this if we can leverage the workunit model
-export type Directorate = HierarchicalLookupModel<Branch>;
-export type LocalizedDirectorate = LocalizedHierarchicalLookupModel<LocalizedBranch>;
-
 export type EmploymentTenure = LookupModel;
 export type LocalizedEmploymentTenure = LocalizedLookupModel;
 
