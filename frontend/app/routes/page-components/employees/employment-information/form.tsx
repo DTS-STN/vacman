@@ -246,7 +246,9 @@ export function EmploymentInformationForm({
               {(wfaStatusCode === EMPLOYEE_WFA_STATUS.opting ||
                 wfaStatusCode === EMPLOYEE_WFA_STATUS.exOpting ||
                 wfaStatusCode === EMPLOYEE_WFA_STATUS.surplusOptingOptionA ||
-                wfaStatusCode === EMPLOYEE_WFA_STATUS.exSurplusCPA) && (
+                wfaStatusCode === EMPLOYEE_WFA_STATUS.exSurplusCPA ||
+                wfaStatusCode === EMPLOYEE_WFA_STATUS.relocation ||
+                wfaStatusCode === EMPLOYEE_WFA_STATUS.alternateDeliveryInitiative) && (
                 <>
                   <DatePickerField
                     ariaDescribedbyId="wfaDetilsLegend"
