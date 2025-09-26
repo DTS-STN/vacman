@@ -1,15 +1,13 @@
 import type { JSX } from 'react';
 
-import { faSortDown } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import type { ColumnDef } from '@tanstack/react-table';
 import { useTranslation } from 'react-i18next';
 
 import { Button } from '~/components/button';
 import { DataTable, DataTableColumnHeader, DataTableColumnHeaderWithOptions } from '~/components/data-table';
 import { Dialog, DialogContent, DialogDescription, DialogTitle, DialogTrigger } from '~/components/dialog';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '~/components/dropdown-menu';
 import { InputLabel } from '~/components/input-label';
+import { InputSelect } from '~/components/input-select';
 import { InputTextarea } from '~/components/input-textarea';
 import { InlineLink } from '~/components/links';
 
@@ -26,24 +24,36 @@ type RequestMatchModel = {
     lastName: string;
     middleName?: string;
   };
-  wfaStatus: number;
-  feedback: number;
+  wfaStatus: string;
+  feedback: string;
   comment: Comment;
   approval: boolean;
 };
 
+type MatchFeedback = readonly Readonly<{
+  id: number;
+  name: string;
+  code: string;
+}>[];
+
+type MatchStatus = readonly Readonly<{
+  id: number;
+  name: string;
+  code: string;
+}>[];
+
 interface RequestTablesProps {
   requestMatches: RequestMatchModel[];
-  matchStatusNames: string[];
-  matchFeedbackNames: string[];
+  matchStatus: MatchStatus;
+  matchFeedback: MatchFeedback;
   requestId: string;
   view: 'hr-advisor' | 'hiring-manager';
 }
 
 export default function MatchesTable({
   requestMatches,
-  matchStatusNames,
-  matchFeedbackNames,
+  matchStatus,
+  matchFeedback,
   requestId,
   view,
 }: RequestTablesProps): JSX.Element {
@@ -55,7 +65,6 @@ export default function MatchesTable({
       accessorFn: (row) => `${row.employee.firstName} ${row.employee.lastName}`,
       header: ({ column }) => <DataTableColumnHeader column={column} title={t('matches-tables.employee')} />,
       cell: (info) => {
-        //TODO - Update link to proper redirect
         const profileId = info.row.original.id.toString();
         const employee = info.row.original.employee;
         return (
@@ -72,57 +81,55 @@ export default function MatchesTable({
     },
     {
       accessorKey: 'wfaStatus',
-      accessorFn: (row) => matchStatusNames[row.wfaStatus],
+      accessorFn: (row) => row.wfaStatus,
       header: ({ column }) => (
-        <DataTableColumnHeaderWithOptions column={column} title={t('matches-tables.wfa-status')} options={matchStatusNames} />
+        <DataTableColumnHeaderWithOptions
+          column={column}
+          title={t('matches-tables.wfa-status')}
+          options={matchStatus.map((status) => status.name)}
+        />
       ),
       cell: (info) => {
-        return matchStatusNames[info.row.original.wfaStatus];
+        const status = info.row.original.wfaStatus;
+        return matchStatus.find((match) => match.code === status)?.name ?? status;
       },
       filterFn: (row, columnId, filterValue: string[]) => {
         const status = row.getValue(columnId) as string;
-        return filterValue.length === 0 || filterValue.includes(status);
+        const statusName = matchStatus.find((match) => match.code === status)?.name ?? '';
+        return filterValue.length === 0 || filterValue.includes(statusName);
       },
       enableColumnFilter: true,
     },
     {
       accessorKey: 'feedback',
-      accessorFn: (row) => matchFeedbackNames[row.feedback],
+      accessorFn: (row) => row.feedback,
       header: ({ column }) => (
-        <DataTableColumnHeaderWithOptions column={column} title={t('matches-tables.feedback')} options={matchFeedbackNames} />
+        <DataTableColumnHeaderWithOptions
+          column={column}
+          title={t('matches-tables.feedback')}
+          options={matchFeedback.map((feedback) => feedback.name)}
+        />
       ),
       cell: (info) => {
-        const feedback = matchFeedbackNames[info.row.original.feedback];
+        const selectOptions = matchFeedback.map((option) => ({
+          value: option.code,
+          children: option.name,
+        }));
         return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="-ml-3 h-8 w-full justify-between font-sans font-medium data-[state=open]:bg-neutral-100"
-              >
-                <span>{feedback}</span>
-                <span className="mb-2">
-                  <FontAwesomeIcon icon={faSortDown} />
-                </span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="max-h-60 overflow-y-auto p-2">
-              {matchFeedbackNames.map((option) => (
-                <DropdownMenuItem key={option} asChild>
-                  <label className="flex w-full cursor-pointer items-center gap-2 px-2 py-1.5">
-                    <span className="text-sm capitalize">{option.replace('-', ' ')}</span>
-                  </label>
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <InputSelect
+            id={info.cell.id}
+            name={t('matches-tables.feedback')}
+            options={selectOptions}
+            defaultValue={info.row.original.feedback}
+            aria-label={t('matches-tables.feedback')}
+            variant="alternative"
+          />
         );
       },
       filterFn: (row, columnId, filterValue: string[]) => {
         const feedback = row.getValue(columnId) as string;
-        return filterValue.length === 0 || filterValue.includes(feedback);
+        const feedbackName = matchFeedback.find((match) => match.code === feedback)?.name ?? '';
+        return filterValue.length === 0 || filterValue.includes(feedbackName);
       },
       enableColumnFilter: true,
     },
