@@ -201,7 +201,7 @@ export function DataTableColumnHeaderWithOptions<TData, TValue>({
   selected: controlledSelected,
   onSelectionChange,
 }: DataTableColumnHeaderWithOptionsProps<TData, TValue>) {
-  const { t } = useTranslation(['gcweb', 'app']);
+  const { t } = useTranslation(['gcweb']);
   // Source of truth: controlled 'selected' if provided, else column filter state
   const selectedValues: string[] = controlledSelected ?? (column.getFilterValue() as string[] | undefined) ?? [];
 
