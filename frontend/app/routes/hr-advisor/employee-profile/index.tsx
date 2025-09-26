@@ -56,7 +56,7 @@ export async function action({ context, request, params }: Route.ActionArgs) {
 
   // approve the profile
   const submitResult = await getProfileService().updateProfileStatus(
-    profileData.profileUser.id,
+    profileData.id,
     PROFILE_STATUS_APPROVED,
     context.session.authState.accessToken,
   );

@@ -89,11 +89,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     hasReferralDataChanged(oldReferralData, newReferralData)
   ) {
     // profile needs to be re-approved if and only if the current profile status is 'approved'
-    await profileService.updateProfileStatus(
-      currentProfile.profileUser.id,
-      PROFILE_STATUS_PENDING,
-      context.session.authState.accessToken,
-    );
+    await profileService.updateProfileStatus(currentProfile.id, PROFILE_STATUS_PENDING, context.session.authState.accessToken);
     return i18nRedirect('routes/employee/profile/index.tsx', request, {
       params: { id: currentProfile.profileUser.id.toString() },
       search: new URLSearchParams({
