@@ -230,8 +230,8 @@ export function ProcessInformationForm({
               onChange={({ target }) => setSelectionProcessType(Number(target.value))}
               required
             />
-            {(selectionProcessType === SELECTION_PROCESS_TYPE.externalNonAdvertised ||
-              selectionProcessType === SELECTION_PROCESS_TYPE.internalNonAdvertised) && (
+            {(selectionProcessType === SELECTION_PROCESS_TYPE.EXTERNAL_NON_ADVERTISED.id ||
+              selectionProcessType === SELECTION_PROCESS_TYPE.APPOINTMENT_INTERNAL_NON_ADVERTISED.id) && (
               <>
                 <InputRadios
                   id="performed-duties"
@@ -246,7 +246,7 @@ export function ProcessInformationForm({
                   name="nonAdvertisedAppointment"
                   legend={tApp('process-information.non-advertised-appointment')}
                   options={
-                    selectionProcessType === SELECTION_PROCESS_TYPE.externalNonAdvertised
+                    selectionProcessType === SELECTION_PROCESS_TYPE.EXTERNAL_NON_ADVERTISED.id
                       ? externalNonAdvertisedAppointmentOptions
                       : internalNonAdvertisedAppointmentOptions
                   }

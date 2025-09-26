@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 
 import type { RouteHandle } from 'react-router';
-import { useFetcher, useLocation, useNavigate, useSearchParams } from 'react-router';
+import { useFetcher } from 'react-router';
 
 import { useTranslation } from 'react-i18next';
 
@@ -15,7 +15,6 @@ import { getLanguageForCorrespondenceService } from '~/.server/domain/services/l
 import { getNonAdvertisedAppointmentService } from '~/.server/domain/services/non-advertised-appointment-service';
 import { getRequestService } from '~/.server/domain/services/request-service';
 import { getRequestStatusService } from '~/.server/domain/services/request-status-service';
-import { getSelectionProcessTypeService } from '~/.server/domain/services/selection-process-type-service';
 import { getWorkScheduleService } from '~/.server/domain/services/work-schedule-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { countCompletedItems } from '~/.server/utils/profile-utils';
@@ -104,7 +103,8 @@ export async function action({ context, params, request }: Route.ActionArgs) {
           priorityEntitlementRationale: requestData.priorityEntitlementRationale,
         }
       : {}),
-    ...(requestData.selectionProcessType?.id === SELECTION_PROCESS_TYPE.externalNonAdvertised
+    ...(requestData.selectionProcessType?.code === SELECTION_PROCESS_TYPE.EXTERNAL_NON_ADVERTISED.code ||
+    requestData.selectionProcessType?.code === SELECTION_PROCESS_TYPE.APPOINTMENT_INTERNAL_NON_ADVERTISED.code
       ? {
           hasPerformedSameDuties: requestData.hasPerformedSameDuties,
           appointmentNonAdvertised: requestData.appointmentNonAdvertised,
@@ -211,12 +211,8 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
 
-  const url = new URL(request.url);
-  const hasRequestChanged = url.searchParams.get('edited') === 'true';
-
   const [
     allLocalizedCities,
-    allLocalizedProcessTypes,
     allLocalizedAppointmentNonAdvertised,
     allLocalizedTenures,
     allLocalizedWorkSchedules,
@@ -226,7 +222,6 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     allRequestStatus,
   ] = await Promise.all([
     getCityService().listAllLocalized(lang),
-    getSelectionProcessTypeService().listAllLocalized(lang),
     getNonAdvertisedAppointmentService().listAllLocalized(lang),
     getEmploymentTenureService().listAllLocalized(lang),
     getWorkScheduleService().listAllLocalized(lang),
@@ -264,7 +259,8 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
           priorityEntitlementRationale: processInformationData.priorityEntitlementRationale,
         }
       : {}),
-    ...(requestData.selectionProcessType?.id === SELECTION_PROCESS_TYPE.externalNonAdvertised
+    ...(requestData.selectionProcessType?.code === SELECTION_PROCESS_TYPE.EXTERNAL_NON_ADVERTISED.code ||
+    requestData.selectionProcessType?.code === SELECTION_PROCESS_TYPE.APPOINTMENT_INTERNAL_NON_ADVERTISED.code
       ? {
           hasPerformedSameDuties: processInformationData.hasPerformedSameDuties,
           appointmentNonAdvertised: processInformationData.appointmentNonAdvertised,
@@ -351,17 +347,17 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     statementOfMeritCriteriaInformationCompleted === statementOfMeritCriteriaInformationTotalFields;
   const isCompleteSubmissionInformation = submissionInformationCompleted === submissionInformationTotalFields;
 
-  const profileCompleted =
+  const requestCompleted =
     processInformationCompleted +
     positionInformationCompleted +
     statementOfMeritCriteriaInformationCompleted +
     submissionInformationCompleted;
-  const profileTotalFields =
+  const requestTotalFields =
     processInformationTotalFields +
     positionInformationTotalFields +
     statementOfMeritCriteriaInformationTotalFields +
     submissionInformationTotalFields;
-  const amountCompleted = (profileCompleted / profileTotalFields) * 100;
+  const amountCompleted = (requestCompleted / requestTotalFields) * 100;
   const cities = requestData.cities?.map((city) => allLocalizedCities.find((c) => c.id === city.id)).filter(Boolean);
   const employmentEquities = requestData.employmentEquities
     ?.map((eq) => allLocalizedEmploymentEquities.find((e) => e.code === eq.code))
@@ -381,7 +377,8 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     workforceMgmtApprovalRecvd: requestData.workforceMgmtApprovalRecvd,
     priorityEntitlement: requestData.priorityEntitlement,
     priorityEntitlementRationale: requestData.priorityEntitlementRationale,
-    selectionProcessType: allLocalizedProcessTypes.find((s) => s.code === requestData.selectionProcessType?.code),
+    selectionProcessType: lang === 'en' ? requestData.selectionProcessType?.nameEn : requestData.selectionProcessType?.nameEn,
+    selectionProcessTypeCode: requestData.selectionProcessType?.code,
     hasPerformedSameDuties: requestData.hasPerformedSameDuties,
     appointmentNonAdvertised: allLocalizedAppointmentNonAdvertised.find(
       (a) => a.code === requestData.appointmentNonAdvertised?.code,
@@ -421,7 +418,6 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     pscClearanceNumber: requestData.pscClearanceNumber,
     requestNumber: requestData.requestNumber,
     requestDate: requestData.createdDate,
-    hasRequestChanged,
     lang,
   };
 }
@@ -439,24 +435,10 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
     alertRef.current.focus();
   }
 
-  const [searchParams] = useSearchParams();
-  const location = useLocation();
-  const navigate = useNavigate();
-
-  const [hasRequestChanged, setHasRequestChanged] = useState(loaderData.hasRequestChanged);
   const [showDialog, setShowDialog] = useState(false);
 
   const isSubmitted =
     loaderData.status?.code === REQUEST_STATUS_CODE.SUBMIT || loaderData.status?.code === REQUEST_STATUS_CODE.HR_REVIEW;
-
-  // Clean the URL after reading the param
-  useEffect(() => {
-    if (searchParams.get('edited') === 'true') {
-      setHasRequestChanged(true);
-      const newUrl = location.pathname;
-      void navigate(newUrl, { replace: true });
-    }
-  }, [searchParams, location.pathname, navigate]);
 
   return (
     <div className="space-y-8">
@@ -570,22 +552,12 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
         />
       )}
 
-      {hasRequestChanged && (
-        <AlertMessage
-          ref={alertRef}
-          type="info"
-          message={t('app:profile.profile-pending-approval')}
-          role="status"
-          ariaLive="polite"
-        />
-      )}
-
       <div className="w-full">
         <div className="text-black-800 mt-4 max-w-prose text-base">
           {t('app:hiring-manager-referral-requests.page-description')}
         </div>
 
-        {loaderData.status?.code !== REQUEST_STATUS_CODE.SUBMIT && (
+        {loaderData.status?.code === REQUEST_STATUS_CODE.DRAFT && (
           <div className="mt-4">
             <Progress
               className="color-[#2572B4] mt-8 mb-8"
@@ -637,10 +609,12 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
                   )}
 
                   <DescriptionListItem term={t('app:process-information.selection-process-type')}>
-                    {loaderData.selectionProcessType?.name ?? t('app:hiring-manager-referral-requests.not-provided')}
+                    {loaderData.selectionProcessType ?? t('app:hiring-manager-referral-requests.not-provided')}
                   </DescriptionListItem>
 
-                  {loaderData.selectionProcessType?.id === SELECTION_PROCESS_TYPE.externalNonAdvertised && (
+                  {(loaderData.selectionProcessTypeCode === SELECTION_PROCESS_TYPE.EXTERNAL_NON_ADVERTISED.code ||
+                    loaderData.selectionProcessTypeCode ===
+                      SELECTION_PROCESS_TYPE.APPOINTMENT_INTERNAL_NON_ADVERTISED.code) && (
                     <>
                       <DescriptionListItem term={t('app:process-information.performed-duties')}>
                         {loaderData.hasPerformedSameDuties === true
