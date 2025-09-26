@@ -407,15 +407,6 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
   const isSubmitted =
     loaderData.status?.code === REQUEST_STATUS_CODE.SUBMIT || loaderData.status?.code === REQUEST_STATUS_CODE.HR_REVIEW;
 
-  // Clean the URL after reading the param
-  useEffect(() => {
-    if (searchParams.get('edited') === 'true') {
-      setHasRequestChanged(true);
-      const newUrl = location.pathname;
-      void navigate(newUrl, { replace: true });
-    }
-  }, [searchParams, location.pathname, navigate]);
-
   type CityPreference = {
     province: string;
     city: string;
