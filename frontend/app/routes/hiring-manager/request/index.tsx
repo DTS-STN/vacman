@@ -98,6 +98,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     selectionProcessNumber: requestData.selectionProcessNumber,
     workforceMgmtApprovalRecvd: requestData.workforceMgmtApprovalRecvd,
     priorityEntitlement: requestData.priorityEntitlement,
+    workSchedule: requestData.workSchedule,
     ...(requestData.priorityEntitlement
       ? {
           priorityEntitlementRationale: requestData.priorityEntitlementRationale,
@@ -157,7 +158,6 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     subDelegatedManager: requestData.subDelegatedManager,
     workUnit: requestData.workUnit,
     languageOfCorrespondence: requestData.languageOfCorrespondence,
-    additionalComment: requestData.additionalComment,
   };
 
   // Check if all sections are complete
@@ -232,84 +232,55 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   ]);
 
   // Process information from Request type
-  const processInformationData = {
-    processInformationNumber: requestData.selectionProcessNumber,
+  const requiredProcessInformation = {
     selectionProcessNumber: requestData.selectionProcessNumber,
     workforceMgmtApprovalRecvd: requestData.workforceMgmtApprovalRecvd,
     priorityEntitlement: requestData.priorityEntitlement,
-    priorityEntitlementRationale: requestData.priorityEntitlementRationale,
-    selectionProcessType: requestData.selectionProcessType,
-    hasPerformedSameDuties: requestData.hasPerformedSameDuties,
-    appointmentNonAdvertised: requestData.appointmentNonAdvertised,
-    employmentTenure: requestData.employmentTenure,
-    projectedStartDate: requestData.projectedStartDate,
-    projectedEndDate: requestData.projectedEndDate,
     workSchedule: requestData.workSchedule,
-    equityNeeded: requestData.equityNeeded,
-    employmentEquities: requestData.employmentEquities,
-  };
-
-  const requiredProcessInformation = {
-    processInformationNumber: processInformationData.processInformationNumber,
-    selectionProcessNumber: processInformationData.selectionProcessNumber,
-    workforceMgmtApprovalRecvd: processInformationData.workforceMgmtApprovalRecvd,
-    priorityEntitlement: processInformationData.priorityEntitlement,
     ...(requestData.priorityEntitlement
       ? {
-          priorityEntitlementRationale: processInformationData.priorityEntitlementRationale,
+          priorityEntitlementRationale: requestData.priorityEntitlementRationale,
         }
       : {}),
     ...(requestData.selectionProcessType?.code === SELECTION_PROCESS_TYPE.EXTERNAL_NON_ADVERTISED.code ||
     requestData.selectionProcessType?.code === SELECTION_PROCESS_TYPE.APPOINTMENT_INTERNAL_NON_ADVERTISED.code
       ? {
-          hasPerformedSameDuties: processInformationData.hasPerformedSameDuties,
-          appointmentNonAdvertised: processInformationData.appointmentNonAdvertised,
+          hasPerformedSameDuties: requestData.hasPerformedSameDuties,
+          appointmentNonAdvertised: requestData.appointmentNonAdvertised,
         }
       : {}),
     ...(requestData.employmentTenure?.code === EMPLOYMENT_TENURE.term
       ? {
-          projectedStartDate: processInformationData.projectedStartDate,
-          projectedEndDate: processInformationData.projectedEndDate,
+          projectedStartDate: requestData.projectedStartDate,
+          projectedEndDate: requestData.projectedEndDate,
         }
       : {}),
     ...(requestData.equityNeeded === true
       ? {
-          employmentEquities: processInformationData.employmentEquities,
+          employmentEquities: requestData.employmentEquities,
         }
       : {}),
   };
   const processInformationCompleted = countCompletedItems(requiredProcessInformation);
   const processInformationTotalFields = Object.keys(requiredProcessInformation).length;
 
+  const languageProficiencyRequired =
+    requestData.languageRequirement?.code === LANGUAGE_REQUIREMENT_CODES.bilingualImperative ||
+    requestData.languageRequirement?.code === LANGUAGE_REQUIREMENT_CODES.bilingualNonImperative;
+
   // Position information from Request type
-  const positionInformationData = {
+  const requiredPositionInformation = {
     positionNumber: requestData.positionNumber,
     classification: requestData.classification,
     englishTitle: requestData.englishTitle,
     frenchTitle: requestData.frenchTitle,
     cities: requestData.cities,
     languageRequirement: requestData.languageRequirement,
-    englishLanguageProfile: requestData.englishLanguageProfile,
-    frenchLanguageProfile: requestData.frenchLanguageProfile,
     securityClearance: requestData.securityClearance,
-  };
-
-  const languageProficiencyRequired =
-    requestData.languageRequirement?.code === LANGUAGE_REQUIREMENT_CODES.bilingualImperative ||
-    requestData.languageRequirement?.code === LANGUAGE_REQUIREMENT_CODES.bilingualNonImperative;
-
-  const requiredPositionInformation = {
-    positionNumber: positionInformationData.positionNumber,
-    classification: positionInformationData.classification,
-    englishTitle: positionInformationData.englishTitle,
-    frenchTitle: positionInformationData.frenchTitle,
-    cities: positionInformationData.cities,
-    languageRequirement: positionInformationData.languageRequirement,
-    securityClearance: positionInformationData.securityClearance,
     ...(languageProficiencyRequired
       ? {
-          englishLanguageProfile: positionInformationData.englishLanguageProfile,
-          frenchLanguageProfile: positionInformationData.frenchLanguageProfile,
+          englishLanguageProfile: requestData.englishLanguageProfile,
+          frenchLanguageProfile: requestData.frenchLanguageProfile,
         }
       : {}),
   };
@@ -317,26 +288,23 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const positionInformationTotalFields = Object.keys(requiredPositionInformation).length;
 
   // Statement of Merit and Conditions Information from Request type
-  const statementOfMeritCriteriaInformationData = {
+  const requiredStatementOfMeritCriteriaInformation = {
     englishStatementOfMerit: requestData.englishStatementOfMerit,
     frenchStatementOfMerit: requestData.frenchStatementOfMerit,
   };
 
-  const requiredStatementOfMeritCriteriaInformation = statementOfMeritCriteriaInformationData;
   const statementOfMeritCriteriaInformationCompleted = countCompletedItems(requiredStatementOfMeritCriteriaInformation);
   const statementOfMeritCriteriaInformationTotalFields = Object.keys(requiredStatementOfMeritCriteriaInformation).length;
 
   // Submission Information from Request type
-  const submissionInformationData = {
+  const requiredSubmissionInformation = {
     submitter: requestData.submitter,
     hiringManager: requestData.hiringManager,
     subDelegatedManager: requestData.subDelegatedManager,
     workUnit: requestData.workUnit,
     languageOfCorrespondence: requestData.languageOfCorrespondence,
-    additionalComment: requestData.additionalComment,
   };
 
-  const requiredSubmissionInformation = submissionInformationData;
   const submissionInformationCompleted = countCompletedItems(requiredSubmissionInformation);
   const submissionInformationTotalFields = Object.keys(requiredSubmissionInformation).length;
 
