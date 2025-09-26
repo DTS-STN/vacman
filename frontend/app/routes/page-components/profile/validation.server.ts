@@ -4,11 +4,11 @@ import * as v from 'valibot';
 import type { User } from '~/.server/domain/models';
 import { getCityService } from '~/.server/domain/services/city-service';
 import { getClassificationService } from '~/.server/domain/services/classification-service';
-import { getDirectorateService } from '~/.server/domain/services/directorate-service';
 import { getLanguageForCorrespondenceService } from '~/.server/domain/services/language-for-correspondence-service';
 import { getLanguageReferralTypeService } from '~/.server/domain/services/language-referral-type-service';
 import { getProvinceService } from '~/.server/domain/services/province-service';
 import { getWFAStatuses } from '~/.server/domain/services/wfa-status-service';
+import { getWorkUnitService } from '~/.server/domain/services/workunit-service';
 import { extractUniqueBranchesFromDirectoratesNonLocalized } from '~/.server/utils/directorate-utils';
 import { stringToIntegerSchema } from '~/.server/validation/string-to-integer-schema';
 import { EMPLOYEE_WFA_STATUS } from '~/domain/constants';
@@ -25,7 +25,7 @@ export type Errors = Readonly<Record<string, [string, ...string[]] | undefined>>
 
 export async function createEmploymentInformationSchema(hrAdvisors: User[]) {
   const allSubstantivePositions = await getClassificationService().listAll();
-  const allDirectorates = await getDirectorateService().listAll();
+  const allDirectorates = await getWorkUnitService().listAll();
   const allBranchOrServiceCanadaRegions = extractUniqueBranchesFromDirectoratesNonLocalized(allDirectorates);
   const allProvinces = await getProvinceService().listAll();
   const allCities = await getCityService().listAll();
