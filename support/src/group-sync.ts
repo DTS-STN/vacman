@@ -304,8 +304,8 @@ const program = Effect.gen(function* () {
 
     // Include user details for audit trail (consider removing in production for large groups)
     details: {
-      addedUsers: usersToAdd.map((user) => ({ id: user.id, displayName: user.displayName })),
-      removedUsers: usersToRemove.map((user) => ({ id: user.id, displayName: user.displayName })),
+      addedUsers: usersToAdd.map((user) => user.displayName),
+      removedUsers: usersToRemove.map((user) => user.displayName),
     },
   });
 });
