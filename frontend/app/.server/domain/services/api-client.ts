@@ -150,10 +150,15 @@ export const apiClient = {
 
     const response = responseResult.unwrap();
     try {
-      // Handle empty responses, common for status update requests.
+      // Some endpoints (e.g., 202 Accepted or 204 No Content) legitimately return an empty body.
+      // Attempting response.json() on an empty body throws a SyntaxError, so we read text first.
       const text = await response.text();
-      const data = text ? (JSON.parse(text) as TResponseData) : (null as TResponseData);
-      return Ok(data);
+      if (!text.trim()) {
+        // Return undefined (or null) as the typed response when no body is present.
+        return Ok(undefined as TResponseData);
+      }
+      const parsed = JSON.parse(text) as TResponseData;
+      return Ok(parsed);
     } catch (parsingError) {
       return Err(
         new AppError(

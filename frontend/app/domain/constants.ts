@@ -11,6 +11,22 @@ export const EMPLOYEE_WFA_STATUS = {
   alternateDeliveryInitiative: 'ALTERNATE_DELIVERY_INITIATIVE',
 } as const;
 
+export const PROFILE_STATUS_CODE = {
+  approved: 'APPROVED',
+  pending: 'PENDING',
+  incomplete: 'INCOMPLETE',
+  archived: 'ARCHIVED',
+} as const;
+
+export type ProfileStatusCode = (typeof PROFILE_STATUS_CODE)[keyof typeof PROFILE_STATUS_CODE];
+
+export const PROFILE_STATUS_ID = {
+  pending: 0,
+  approved: 1,
+  incomplete: 2,
+  archived: 3,
+} as const;
+
 export const LANGUAGE_ID = {
   en: 0,
   fr: 1,
