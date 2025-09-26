@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: vacman-backend
-          image: dtsrhpprodscedspokeacr.azurecr.io/vacman/vacman-backend:1.0.0
+          image: dtsrhpprodscedspokeacr.azurecr.io/vacman/vacman-backend:1.0.1-5454f682
           envFrom:
             - secretRef:
                 name: vacman-backend
@@ -83,7 +83,7 @@ spec:
     spec:
       containers:
         - name: vacman-frontend
-          image: dtsrhpprodscedspokeacr.azurecr.io/vacman/vacman-frontend:1.0.0
+          image: dtsrhpprodscedspokeacr.azurecr.io/vacman/vacman-frontend:1.0.1
           envFrom:
             - configMapRef:
                 name: vacman-frontend
