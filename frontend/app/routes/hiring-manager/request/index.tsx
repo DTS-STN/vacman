@@ -61,10 +61,11 @@ export function meta({ loaderData }: Route.MetaArgs) {
 }
 
 export async function action({ context, params, request }: Route.ActionArgs) {
-  requireAuthentication(context.session, request);
+  const { session } = context.get(context.applicationContext);
+  requireAuthentication(session, request);
 
   const requestData = (
-    await getRequestService().getRequestById(Number(params.requestId), context.session.authState.accessToken)
+    await getRequestService().getRequestById(Number(params.requestId), session.authState.accessToken)
   ).into();
 
   if (!requestData) {
@@ -75,10 +76,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   const formAction = formData.get('action');
 
   if (formAction === 'delete') {
-    const deleteRequest = await getRequestService().deleteRequestById(
-      Number(params.requestId),
-      context.session.authState.accessToken,
-    );
+    const deleteRequest = await getRequestService().deleteRequestById(Number(params.requestId), session.authState.accessToken);
 
     if (deleteRequest.isErr()) {
       const error = deleteRequest.unwrapErr();
@@ -179,7 +177,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   const submitResult = await getRequestService().updateRequestStatus(
     Number(params.requestId),
     REQUEST_EVENT_TYPE.submitted,
-    context.session.authState.accessToken,
+    session.authState.accessToken,
   );
 
   if (submitResult.isErr()) {
@@ -198,10 +196,11 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 }
 
 export async function loader({ context, request, params }: Route.LoaderArgs) {
-  requireAuthentication(context.session, request);
+  const { session } = context.get(context.applicationContext);
+  requireAuthentication(session, request);
 
   const requestData = (
-    await getRequestService().getRequestById(Number(params.requestId), context.session.authState.accessToken)
+    await getRequestService().getRequestById(Number(params.requestId), session.authState.accessToken)
   ).into();
 
   if (!requestData) {

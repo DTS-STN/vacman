@@ -31,13 +31,15 @@ export function meta({ loaderData }: Route.MetaArgs) {
 }
 
 export function action({ context, params, request }: Route.ActionArgs) {
-  requireAuthentication(context.session, request);
+  const { session } = context.get(context.applicationContext);
+  requireAuthentication(session, request);
   //TODO add action logic
   return undefined;
 }
 
 export async function loader({ context, request, params }: Route.LoaderArgs) {
-  requireAuthentication(context.session, request);
+  const { session } = context.get(context.applicationContext);
+  requireAuthentication(session, request);
 
   const { t, lang } = await getTranslation(request, handle.i18nNamespace);
 
@@ -46,7 +48,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 
   const requestMatchesResult = await getRequestService().getRequestMatches(
     parseInt(params.requestId),
-    context.session.authState.accessToken,
+    session.authState.accessToken,
   );
 
   const requestMatches = requestMatchesResult.into()?.content ?? [];

@@ -14,8 +14,8 @@ export const handle = {
 } as const satisfies RouteHandle;
 
 export async function loader({ context, request }: Route.LoaderArgs) {
-  // First ensure the user is authenticated
-  requireAuthentication(context.session, request);
+  const { session } = context.get(context.applicationContext);
+  requireAuthentication(session, request);
   const en = await getFixedT('en', handle.i18nNamespace);
   const fr = await getFixedT('fr', handle.i18nNamespace);
   return { documentTitle: `${en('header.govt-of-canada.text')} / ${fr('header.govt-of-canada.text')}` };

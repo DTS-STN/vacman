@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, useCallback, startTransition } from 'react';
+import { startTransition, useCallback, useEffect, useMemo, useState } from 'react';
 
 import type { RouteHandle } from 'react-router';
 import { data, useFetcher, useSearchParams } from 'react-router';
@@ -106,7 +106,8 @@ export function meta({ loaderData }: Route.MetaArgs) {
 }
 
 export async function action({ context, request }: Route.ActionArgs) {
-  requireAuthentication(context.session, request);
+  const { session } = context.get(context.applicationContext);
+  requireAuthentication(session, request);
   const { t } = await getTranslation(request, handle.i18nNamespace);
   const formData = await request.formData();
 
@@ -137,7 +138,7 @@ export async function action({ context, request }: Route.ActionArgs) {
     const updateResult = await getProfileService().updateProfileStatus(
       profileId,
       PROFILE_STATUS.ARCHIVED,
-      context.session.authState.accessToken,
+      session.authState.accessToken,
     );
 
     if (updateResult.isErr()) {
@@ -166,9 +167,8 @@ export async function action({ context, request }: Route.ActionArgs) {
     return data({ errors: v.flatten(parseResult.issues).nested }, { status: HttpStatusCodes.BAD_REQUEST });
   }
 
-  const user = (
-    await getUserService().getUsers({ email: parseResult.output.email }, context.session.authState.accessToken)
-  ).into()?.content[0];
+  const user = (await getUserService().getUsers({ email: parseResult.output.email }, session.authState.accessToken)).into()
+    ?.content[0];
 
   if (!user) {
     return {
@@ -178,7 +178,7 @@ export async function action({ context, request }: Route.ActionArgs) {
     };
   }
 
-  const profile = (await getUserService().createProfileForUser(user.id, context.session.authState.accessToken)).into();
+  const profile = (await getUserService().createProfileForUser(user.id, session.authState.accessToken)).into();
   if (!profile) {
     return {
       errors: {
@@ -193,7 +193,8 @@ export async function action({ context, request }: Route.ActionArgs) {
 }
 
 export async function loader({ context, request }: Route.LoaderArgs) {
-  requireAuthentication(context.session, request);
+  const { session } = context.get(context.applicationContext);
+  requireAuthentication(session, request);
 
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
 
@@ -230,7 +231,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
   };
 
   const [profilesResult, statuses] = await Promise.all([
-    getProfileService().getProfiles(profileParams, context.session.authState.accessToken),
+    getProfileService().getProfiles(profileParams, session.authState.accessToken),
     getProfileStatusService().listAllLocalized(lang),
   ]);
 

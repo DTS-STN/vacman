@@ -18,6 +18,8 @@ export function loader({ context, params, request }: Route.LoaderArgs) {
 }
 
 function handleLogout({ context, params, request }: Route.LoaderArgs) {
+  const { session } = context.get(context.applicationContext);
+
   const span = trace.getActiveSpan();
   span?.updateName('routes.auth.logout.handle_logout');
 
@@ -31,7 +33,7 @@ function handleLogout({ context, params, request }: Route.LoaderArgs) {
   // before checking the returnTo value to
   // ensure that the user is logged out even
   // when providing an invalid returnto value
-  delete context.session.authState;
+  delete session.authState;
 
   if (returnTo && !returnTo.startsWith('/')) {
     span?.addEvent('returnto.invalid');
