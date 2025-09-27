@@ -7,13 +7,13 @@ import { useTranslation } from 'react-i18next';
 
 import type { Route } from './+types/index';
 
-import { getDirectorateService } from '~/.server/domain/services/directorate-service';
 import { getEmploymentEquityService } from '~/.server/domain/services/employment-equity-service';
 import { getEmploymentTenureService } from '~/.server/domain/services/employment-tenure-service';
 import { getLanguageForCorrespondenceService } from '~/.server/domain/services/language-for-correspondence-service';
 import { getNonAdvertisedAppointmentService } from '~/.server/domain/services/non-advertised-appointment-service';
 import { getRequestService } from '~/.server/domain/services/request-service';
 import { getWorkScheduleService } from '~/.server/domain/services/work-schedule-service';
+import { getWorkUnitService } from '~/.server/domain/services/workunit-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { ButtonLink } from '~/components/button-link';
 import { DescriptionList, DescriptionListItem } from '~/components/description-list';
@@ -61,7 +61,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     getEmploymentTenureService().listAllLocalized(lang),
     getWorkScheduleService().listAllLocalized(lang),
     getEmploymentEquityService().listAllLocalized(lang),
-    getDirectorateService().listAllLocalized(lang),
+    getWorkUnitService().listAllLocalized(lang),
     getLanguageForCorrespondenceService().listAllLocalized(lang),
   ]);
 

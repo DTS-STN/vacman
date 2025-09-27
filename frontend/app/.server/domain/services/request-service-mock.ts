@@ -12,7 +12,6 @@ import type {
 } from '~/.server/domain/models';
 import { getCityService } from '~/.server/domain/services/city-service';
 import { getClassificationService } from '~/.server/domain/services/classification-service';
-import { getDirectorateService } from '~/.server/domain/services/directorate-service';
 import { getEmploymentEquityService } from '~/.server/domain/services/employment-equity-service';
 import { getEmploymentTenureService } from '~/.server/domain/services/employment-tenure-service';
 import { getLanguageForCorrespondenceService } from '~/.server/domain/services/language-for-correspondence-service';
@@ -24,6 +23,7 @@ import { getSecurityClearanceService } from '~/.server/domain/services/security-
 import { getSelectionProcessTypeService } from '~/.server/domain/services/selection-process-type-service';
 import { getUserService } from '~/.server/domain/services/user-service';
 import { getWorkScheduleService } from '~/.server/domain/services/work-schedule-service';
+import { getWorkUnitService } from '~/.server/domain/services/workunit-service';
 import { LogFactory } from '~/.server/logging';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
@@ -205,7 +205,7 @@ export function getMockRequestService(): RequestService {
 
       const workUnit =
         requestUpdate.workUnitId !== undefined
-          ? (await Promise.all([getDirectorateService().getById(requestUpdate.workUnitId)]))
+          ? (await Promise.all([getWorkUnitService().getById(requestUpdate.workUnitId)]))
               .filter((result) => result.isOk())
               .map((result) => result.unwrap())[0]
           : existingRequest.workUnit;

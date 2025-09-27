@@ -8,8 +8,8 @@ import { useTranslation } from 'react-i18next';
 
 import type {
   LocalizedBranch,
-  LocalizedDirectorate,
   LocalizedLanguageOfCorrespondence,
+  LocalizedWorkUnit,
   RequestReadModel,
 } from '~/.server/domain/models';
 import { Button } from '~/components/button';
@@ -30,7 +30,7 @@ interface SubmissionDetailsFormProps {
   cancelLink: I18nRouteFile;
   formValues: Partial<RequestReadModel> | undefined;
   branchOrServiceCanadaRegions: readonly LocalizedBranch[];
-  directorates: readonly LocalizedDirectorate[];
+  directorates: readonly LocalizedWorkUnit[];
   languagesOfCorrespondence: readonly LocalizedLanguageOfCorrespondence[];
   formErrors?: Errors;
   params: Params;
