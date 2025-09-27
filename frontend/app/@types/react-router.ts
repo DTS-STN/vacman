@@ -9,7 +9,7 @@ declare module 'react-router' {
   //
   // This should be removed once the full migration to RRv7 middleware is complete.
   // see ~/.server/express/handlers for an explanation for why this is needed
-  interface RouterContextProvider extends ApplicationContext {
+  interface RouterContextProvider {
     applicationContext: RouterContext<ApplicationContext>;
   }
 

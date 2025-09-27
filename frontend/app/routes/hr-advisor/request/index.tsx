@@ -1,5 +1,5 @@
-import { useFetcher } from 'react-router';
 import type { RouteHandle } from 'react-router';
+import { useFetcher } from 'react-router';
 
 import { faEye } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -37,10 +37,11 @@ export function meta({ loaderData }: Route.MetaArgs) {
 }
 
 export async function loader({ context, request, params }: Route.LoaderArgs) {
-  requireAuthentication(context.session, request);
+  const { session } = context.get(context.applicationContext);
+  requireAuthentication(session, request);
 
   const currentRequest = (
-    await getRequestService().getRequestById(Number(params.requestId), context.session.authState.accessToken)
+    await getRequestService().getRequestById(Number(params.requestId), session.authState.accessToken)
   ).into();
 
   if (!currentRequest) {

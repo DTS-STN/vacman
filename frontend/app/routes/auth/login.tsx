@@ -26,7 +26,7 @@ export async function loader({ context, params, request }: Route.LoaderArgs) {
   const provider = params['*'];
 
   const currentUrl = new URL(request.url);
-  const { session } = context;
+  const { session } = context.get(context.applicationContext);
 
   switch (provider) {
     case '': {

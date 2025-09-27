@@ -37,12 +37,10 @@ export function meta({ loaderData }: Route.MetaArgs) {
 }
 
 export async function action({ context, request, params }: Route.ActionArgs) {
-  requireAuthentication(context.session, request);
+  const { session } = context.get(context.applicationContext);
+  requireAuthentication(session, request);
 
-  const profileResult = await getProfileService().getProfileById(
-    Number(params.profileId),
-    context.session.authState.accessToken,
-  );
+  const profileResult = await getProfileService().getProfileById(Number(params.profileId), session.authState.accessToken);
 
   if (profileResult.isErr()) {
     throw new Response('Profile not found', { status: HttpStatusCodes.NOT_FOUND });
@@ -97,7 +95,7 @@ export async function action({ context, request, params }: Route.ActionArgs) {
   const submitResult = await getProfileService().updateProfileStatus(
     profileData.id,
     PROFILE_STATUS.APPROVED,
-    context.session.authState.accessToken,
+    session.authState.accessToken,
   );
   if (submitResult.isErr()) {
     throw submitResult.unwrapErr();
@@ -110,13 +108,14 @@ export async function action({ context, request, params }: Route.ActionArgs) {
 }
 
 export async function loader({ context, request, params }: Route.LoaderArgs) {
-  requireAuthentication(context.session, request);
+  const { session } = context.get(context.applicationContext);
+  requireAuthentication(session, request);
 
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
 
   // Fetch both the profile user and the profile data
   const [profileResult, allLocalizedCities] = await Promise.all([
-    getProfileService().getProfileById(Number(params.profileId), context.session.authState.accessToken),
+    getProfileService().getProfileById(Number(params.profileId), session.authState.accessToken),
     getCityService().listAllLocalized(lang),
   ]);
 
@@ -127,20 +126,17 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const profileData: Profile = profileResult.unwrap();
 
   // Fetch the profile user data to get current businessEmail and other user info
-  const profileUserResult = await getUserService().getUserById(
-    profileData.profileUser.id,
-    context.session.authState.accessToken,
-  );
+  const profileUserResult = await getUserService().getUserById(profileData.profileUser.id, session.authState.accessToken);
   const profileUser = profileUserResult.into();
 
   const profileUpdatedByUserResult = profileData.profileUser.lastModifiedBy
-    ? await getUserService().getUserById(profileData.profileUser.id, context.session.authState.accessToken)
+    ? await getUserService().getUserById(profileData.profileUser.id, session.authState.accessToken)
     : undefined;
   const profileUpdatedByUser = profileUpdatedByUserResult?.into();
   const profileUpdatedByUserName = profileUpdatedByUser && `${profileUpdatedByUser.firstName} ${profileUpdatedByUser.lastName}`;
 
   // convert the IDs to display names
-  const hrAdvisors = await getHrAdvisors(context.session.authState.accessToken);
+  const hrAdvisors = await getHrAdvisors(session.authState.accessToken);
   const hrAdvisor = hrAdvisors.find((u) => u.id === profileData.hrAdvisorId);
 
   // Display Canada wide or province wide or list of cities on referral preferences section

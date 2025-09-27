@@ -27,12 +27,13 @@ export const handle = {
 } as const satisfies RouteHandle;
 
 export async function loader({ context, request, params }: Route.LoaderArgs) {
-  requireAuthentication(context.session, request);
+  const { session } = context.get(context.applicationContext);
+  requireAuthentication(session, request);
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
   //TODO - Use getRequestService() to get the request profile
   const profileDataOption = await getProfileService().findProfileById(
     parseInt(params.profileId),
-    context.session.authState.accessToken,
+    session.authState.accessToken,
   );
 
   if (profileDataOption.isNone()) {
@@ -68,7 +69,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const branchOrServiceCanadaRegion = workUnitResult?.into()?.parent?.name;
   const directorate = workUnitResult?.into()?.name;
   const city = cityResult?.into();
-  const hrAdvisors = await getHrAdvisors(context.session.authState.accessToken);
+  const hrAdvisors = await getHrAdvisors(session.authState.accessToken);
   const hrAdvisor = hrAdvisors.find((u) => u.id === profileData.hrAdvisorId);
   const languageReferralTypes = profileData.preferredLanguages
     ?.map((lang) => allLocalizedLanguageReferralTypes.find((l) => l.id === lang.id))

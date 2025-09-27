@@ -33,7 +33,8 @@ export function meta({ loaderData }: Route.MetaArgs) {
 }
 
 export async function action({ context, params, request }: Route.ActionArgs) {
-  requireAuthentication(context.session, request);
+  const { session } = context.get(context.applicationContext);
+  requireAuthentication(session, request);
 
   const formData = await request.formData();
   const parseResult = v.safeParse(await createPersonalInformationSchema(), {
@@ -57,14 +58,11 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   const profileService = getProfileService();
   const profileParams = { active: true };
 
-  const currentProfile: Profile = await profileService.findCurrentUserProfile(
-    profileParams,
-    context.session.authState.accessToken,
-  );
+  const currentProfile: Profile = await profileService.findCurrentUserProfile(profileParams, session.authState.accessToken);
 
   // Get current user for complete user update
   const userService = getUserService();
-  const currentUserOption = await userService.getCurrentUser(context.session.authState.accessToken);
+  const currentUserOption = await userService.getCurrentUser(session.authState.accessToken);
   const currentUser = currentUserOption.into();
 
   // Extract fields for user update, remove it from profile data
@@ -90,7 +88,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
         personalRecordIdentifier: personalRecordIdentifier,
         languageId: currentUser.language.id,
       },
-      context.session.authState.accessToken,
+      session.authState.accessToken,
     );
 
     if (userUpdateResult.isErr()) {
@@ -106,11 +104,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     personalPhoneNumber: personalInformationForProfile.personalPhoneNumber,
   });
 
-  const updateResult = await profileService.updateProfileById(
-    currentProfile.id,
-    profilePayload,
-    context.session.authState.accessToken,
-  );
+  const updateResult = await profileService.updateProfileById(currentProfile.id, profilePayload, session.authState.accessToken);
 
   if (updateResult.isErr()) {
     throw updateResult.unwrapErr();
@@ -122,10 +116,11 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 }
 
 export async function loader({ context, request, params }: Route.LoaderArgs) {
-  requireAuthentication(context.session, request);
-  await requirePrivacyConsentForOwnProfile(context.session, request);
+  const { session } = context.get(context.applicationContext);
+  requireAuthentication(session, request);
+  await requirePrivacyConsentForOwnProfile(session, request);
 
-  const accessToken = context.session.authState.accessToken;
+  const accessToken = session.authState.accessToken;
   const currentUserOption = await getUserService().getCurrentUser(accessToken);
   const currentUser = currentUserOption.unwrap();
   const profileParams = { active: true };
