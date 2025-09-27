@@ -42,10 +42,11 @@ export function meta({ loaderData }: Route.MetaArgs) {
 }
 
 export async function action({ context, request }: Route.ActionArgs) {
-  requireAuthentication(context.session, request);
+  const { session } = context.get(context.applicationContext);
+  requireAuthentication(session, request);
 
   const profileParams = { active: true };
-  const profileData = await getProfileService().findCurrentUserProfile(profileParams, context.session.authState.accessToken);
+  const profileData = await getProfileService().findCurrentUserProfile(profileParams, session.authState.accessToken);
 
   const currentUser = profileData.profileUser;
 
@@ -96,7 +97,7 @@ export async function action({ context, request }: Route.ActionArgs) {
   const submitResult = await getProfileService().updateProfileStatus(
     profileData.id,
     PROFILE_STATUS.PENDING,
-    context.session.authState.accessToken,
+    session.authState.accessToken,
   );
   if (submitResult.isErr()) {
     const error = submitResult.unwrapErr();
@@ -114,11 +115,12 @@ export async function action({ context, request }: Route.ActionArgs) {
 }
 
 export async function loader({ context, request, params }: Route.LoaderArgs) {
-  requireAuthentication(context.session, request);
-  await requirePrivacyConsentForOwnProfile(context.session, request);
+  const { session } = context.get(context.applicationContext);
+  requireAuthentication(session, request);
+  await requirePrivacyConsentForOwnProfile(session, request);
 
   const profileParams = { active: true };
-  const profileData = await getProfileService().findCurrentUserProfile(profileParams, context.session.authState.accessToken);
+  const profileData = await getProfileService().findCurrentUserProfile(profileParams, session.authState.accessToken);
 
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
 
@@ -136,7 +138,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const profileUpdatedByUserName = `${currentUser.firstName ?? 'Unknown'} ${currentUser.lastName ?? 'User'}`;
 
   // convert the IDs to display names
-  const hrAdvisors = await getHrAdvisors(context.session.authState.accessToken);
+  const hrAdvisors = await getHrAdvisors(session.authState.accessToken);
   const hrAdvisor = hrAdvisors.find((u) => u.id === profileData.hrAdvisorId);
 
   // Check each section if the required fields are complete

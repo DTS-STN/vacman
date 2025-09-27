@@ -34,10 +34,11 @@ export function meta({ loaderData }: Route.MetaArgs) {
 }
 
 export async function action({ context, params, request }: Route.ActionArgs) {
-  requireAuthentication(context.session, request);
+  const { session } = context.get(context.applicationContext);
+  requireAuthentication(session, request);
 
   const profileService = getProfileService();
-  const profileResult = await profileService.getProfileById(Number(params.profileId), context.session.authState.accessToken);
+  const profileResult = await profileService.getProfileById(Number(params.profileId), session.authState.accessToken);
 
   if (profileResult.isErr()) {
     throw new Response('Profile not found', { status: HttpStatusCodes.NOT_FOUND });
@@ -45,7 +46,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 
   const profile = profileResult.unwrap();
 
-  const hrAdvisors = await getHrAdvisors(context.session.authState.accessToken);
+  const hrAdvisors = await getHrAdvisors(session.authState.accessToken);
   const formData = await request.formData();
   const { parseResult, formValues } = await parseEmploymentInformation(formData, hrAdvisors);
   if (!parseResult.success) {
@@ -65,11 +66,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     hrAdvisorId: parseResult.output.hrAdvisorId,
   });
 
-  const updateResult = await profileService.updateProfileById(
-    profile.id,
-    profilePayload,
-    context.session.authState.accessToken,
-  );
+  const updateResult = await profileService.updateProfileById(profile.id, profilePayload, session.authState.accessToken);
 
   if (updateResult.isErr()) {
     throw updateResult.unwrapErr();
@@ -81,12 +78,10 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 }
 
 export async function loader({ context, request, params }: Route.LoaderArgs) {
-  requireAuthentication(context.session, request);
+  const { session } = context.get(context.applicationContext);
+  requireAuthentication(session, request);
 
-  const profileResult = await getProfileService().getProfileById(
-    Number(params.profileId),
-    context.session.authState.accessToken,
-  );
+  const profileResult = await getProfileService().getProfileById(Number(params.profileId), session.authState.accessToken);
 
   if (profileResult.isErr()) {
     throw new Response('Profile not found', { status: HttpStatusCodes.NOT_FOUND });
@@ -101,7 +96,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const cities = await getCityService().listAllLocalized(lang);
   const wfaStatuses = await getWFAStatuses().listAllLocalized(lang);
 
-  const hrAdvisors = await getHrAdvisors(context.session.authState.accessToken);
+  const hrAdvisors = await getHrAdvisors(session.authState.accessToken);
   const profileData: Profile = profileResult.unwrap();
 
   return {

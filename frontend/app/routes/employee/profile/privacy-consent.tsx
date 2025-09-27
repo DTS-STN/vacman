@@ -33,11 +33,12 @@ export function meta({ loaderData }: Route.MetaArgs) {
 }
 
 export async function action({ context, request }: Route.ActionArgs) {
-  requireAuthentication(context.session, request);
+  const { session } = context.get(context.applicationContext);
+  requireAuthentication(session, request);
 
   const profileService = getProfileService();
   const profileParams = { active: true };
-  const profileResult = await getProfileService().getCurrentUserProfiles(profileParams, context.session.authState.accessToken);
+  const profileResult = await getProfileService().getCurrentUserProfiles(profileParams, session.authState.accessToken);
 
   if (profileResult.isErr()) {
     log.debug(`Profile not found for the current user`);
@@ -63,14 +64,15 @@ export async function action({ context, request }: Route.ActionArgs) {
     hasConsentedToPrivacyTerms: true,
   });
 
-  await profileService.updateProfileById(profile.id, updatePrivacyConsent, context.session.authState.accessToken);
+  await profileService.updateProfileById(profile.id, updatePrivacyConsent, session.authState.accessToken);
 
   log.debug(`User ${profile.profileUser.id} has accepted privacy consent.`);
   return i18nRedirect('routes/employee/profile/index.tsx', request);
 }
 
 export async function loader({ context, request }: Route.LoaderArgs) {
-  requireAuthentication(context.session, request);
+  const { session } = context.get(context.applicationContext);
+  requireAuthentication(session, request);
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
   return { documentTitle: t('app:privacy-consent.privacy-notice-statement'), lang: lang };
 }
