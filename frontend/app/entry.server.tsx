@@ -77,7 +77,7 @@ export default async function handleRequest(
             log.error('Error while rendering react element', error);
           }
         },
-        nonce: nonce,
+        nonce,
       },
     );
 
