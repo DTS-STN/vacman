@@ -52,10 +52,8 @@ export function links(): Route.LinkDescriptors {
 }
 
 export function loader({ context }: Route.LoaderArgs) {
-  return {
-    nonce: context.nonce,
-    clientEnvRevision: clientEnvironment.revision,
-  };
+  const { nonce } = context.get(context.applicationContext);
+  return { nonce, clientEnvRevision: clientEnvironment.revision };
 }
 
 export default function App({ loaderData }: Route.ComponentProps) {
