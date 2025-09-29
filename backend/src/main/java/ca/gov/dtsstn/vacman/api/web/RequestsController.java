@@ -238,12 +238,7 @@ public class RequestsController {
 	public ResponseEntity<RequestReadModel> cancelRequest(@PathVariable Long id) {
 		log.info("Received request to cancel request; ID: [{}]", id);
 
-		final var request = requestService.getRequestById(id)
-			.orElseThrow(asResourceNotFoundException("request", id));
-
-		log.trace("Found request: [{}]", request);
-
-		final var updatedEntity = requestService.cancelRequest(request);
+		final var updatedEntity = requestService.cancelRequest(id);
 
 		return ResponseEntity.ok(requestModelMapper.toModel(updatedEntity));
 	}
