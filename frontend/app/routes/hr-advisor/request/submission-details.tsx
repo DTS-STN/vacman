@@ -36,11 +36,8 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   const { session } = context.get(context.applicationContext);
   requireAuthentication(session, request);
   const { t } = await getTranslation(request, handle.i18nNamespace);
-  // Initialize an errors object to collect custom errors
-  let customActionErrors: Errors = {};
 
   const formData = await request.formData();
-
   const parseResult = v.safeParse(await createSubmissionDetailSchema('hr-advisor'), {
     isSubmiterHiringManager: formData.get('isSubmiterHiringManager')
       ? formData.get('isSubmiterHiringManager') === REQUIRE_OPTIONS.yes
@@ -66,50 +63,36 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     );
   }
 
-  // call user service to get the user id from the email address
-
-  let hiringManagerId;
+  const errors: Errors = {};
+  let hiringManagerId: number | undefined;
+  let subDelegatedManagerId: number | undefined;
+  const userService = getUserService();
   if (parseResult.output.hiringManagerEmailAddress) {
-    const hiringManagerResult = await getUserService().getUsers(
-      { email: parseResult.output.hiringManagerEmailAddress },
-      session.authState.accessToken,
-    );
-    const hiringManager = hiringManagerResult.into()?.content[0];
-    if (!hiringManager) {
-      // Add a specific error for the hiringManagerEmailAddress field
-      customActionErrors = {
-        ...customActionErrors,
-        hiringManagerEmailAddress: [t('app:submission-details.errors.no-user-found-with-this-email')],
-      };
-    } else {
-      hiringManagerId = hiringManager.id;
+    try {
+      hiringManagerId = (
+        await userService.getUsers({ email: parseResult.output.hiringManagerEmailAddress }, session.authState.accessToken)
+      ).into()?.content[0]?.id;
+    } catch {
+      Object.assign(errors, { hiringManagerEmailAddress: [t('app:submission-details.errors.no-user-found-with-this-email')] });
     }
   }
 
-  let subDelegatedManagerId;
   if (parseResult.output.subDelegatedManagerEmailAddress) {
-    const subDelegatedManagerResult = await getUserService().getUsers(
-      { email: parseResult.output.subDelegatedManagerEmailAddress },
-      session.authState.accessToken,
-    );
-
-    const subDelegatedManager = subDelegatedManagerResult.into()?.content[0];
-    if (!subDelegatedManager) {
-      customActionErrors = {
-        ...customActionErrors,
+    try {
+      subDelegatedManagerId = (
+        await userService.getUsers({ email: parseResult.output.subDelegatedManagerEmailAddress }, session.authState.accessToken)
+      ).into()?.content[0]?.id;
+    } catch {
+      Object.assign(errors, {
         subDelegatedManagerEmailAddress: [t('app:submission-details.errors.no-user-found-with-this-email')],
-      };
-    } else {
-      subDelegatedManagerId = subDelegatedManager.id;
+      });
     }
   }
 
   // Check for errors again after checking subDelegatedManager
-  if (Object.keys(customActionErrors).length > 0) {
-    return data({ errors: customActionErrors }, { status: HttpStatusCodes.BAD_REQUEST });
+  if (Object.keys(errors).length > 0) {
+    return data({ errors }, { status: HttpStatusCodes.BAD_REQUEST });
   }
-
-  // call request service to update data
 
   const requestService = getRequestService();
   const requestResult = await requestService.getRequestById(Number(params.requestId), session.authState.accessToken);
@@ -119,23 +102,20 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   }
 
   const requestData: RequestReadModel = requestResult.unwrap();
-
-  if (parseResult.output.isSubmiterHiringManager === true) {
+  const { isSubmiterHiringManager, isSubmiterSubdelegate, isHiringManagerASubDelegate } = parseResult.output;
+  if (isSubmiterHiringManager) {
     hiringManagerId = requestData.submitter?.id;
-  }
-
-  if (parseResult.output.isSubmiterHiringManager === true && parseResult.output.isSubmiterSubdelegate === true) {
-    subDelegatedManagerId = requestData.submitter?.id;
-  }
-
-  if (parseResult.output.isSubmiterHiringManager === false && parseResult.output.isHiringManagerASubDelegate === true) {
+    if (isSubmiterSubdelegate) {
+      subDelegatedManagerId = requestData.submitter?.id;
+    }
+  } else if (isHiringManagerASubDelegate) {
     subDelegatedManagerId = hiringManagerId;
   }
 
   const requestPayload: RequestUpdateModel = {
     submitterId: requestData.submitter?.id, // The submitter's information is coming from saved Request
-    hiringManagerId: hiringManagerId,
-    subDelegatedManagerId: subDelegatedManagerId,
+    hiringManagerId,
+    subDelegatedManagerId,
     workUnitId: parseResult.output.directorate,
     languageOfCorrespondenceId: parseResult.output.languageOfCorrespondenceId,
     additionalComment: parseResult.output.additionalComment,
