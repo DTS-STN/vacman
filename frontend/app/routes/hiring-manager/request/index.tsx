@@ -753,7 +753,7 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
               params={params}
               required
               errorState={fetcher.data?.submissionInfoComplete === false}
-              showStatus
+              showStatus={loaderData.status?.code === REQUEST_STATUS_CODE.DRAFT}
             >
               {loaderData.isSubmissionNew ? (
                 <>{t('app:hiring-manager-referral-requests.submission-intro')}</>
