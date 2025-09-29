@@ -1,5 +1,5 @@
-import { data } from 'react-router';
 import type { RouteHandle } from 'react-router';
+import { data } from 'react-router';
 
 import { useTranslation } from 'react-i18next';
 import * as v from 'valibot';
@@ -20,8 +20,8 @@ import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
 import { SubmissionDetailsForm } from '~/routes/page-components/requests/submission-detail/form';
-import { createSubmissionDetailSchema } from '~/routes/page-components/requests/validation.server';
 import type { Errors, SubmissionDetailSchema } from '~/routes/page-components/requests/validation.server';
+import { createSubmissionDetailSchema } from '~/routes/page-components/requests/validation.server';
 import { formString } from '~/utils/string-utils';
 
 export const handle = {
@@ -33,12 +33,13 @@ export function meta({ loaderData }: Route.MetaArgs) {
 }
 
 export async function action({ context, params, request }: Route.ActionArgs) {
-  requireAuthentication(context.session, request);
+  const { session } = context.get(context.applicationContext);
+  requireAuthentication(session, request);
   const { t } = await getTranslation(request, handle.i18nNamespace);
   // Initialize an errors object to collect custom errors
   let customActionErrors: Errors = {};
 
-  const currentUserData = await getUserService().getCurrentUser(context.session.authState.accessToken);
+  const currentUserData = await getUserService().getCurrentUser(session.authState.accessToken);
   const currentUser = currentUserData.unwrap();
 
   const formData = await request.formData();
@@ -73,7 +74,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   if (parseResult.output.hiringManagerEmailAddress) {
     const hiringManagerResult = await getUserService().getUsers(
       { email: parseResult.output.hiringManagerEmailAddress },
-      context.session.authState.accessToken,
+      session.authState.accessToken,
     );
 
     const hiringManager = hiringManagerResult.into()?.content[0];
@@ -92,7 +93,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   if (parseResult.output.subDelegatedManagerEmailAddress) {
     const subDelegatedManagerResult = await getUserService().getUsers(
       { email: parseResult.output.subDelegatedManagerEmailAddress },
-      context.session.authState.accessToken,
+      session.authState.accessToken,
     );
 
     const subDelegatedManager = subDelegatedManagerResult.into()?.content[0];
@@ -126,7 +127,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   // call request service to update data
 
   const requestService = getRequestService();
-  const requestResult = await requestService.getRequestById(Number(params.requestId), context.session.authState.accessToken);
+  const requestResult = await requestService.getRequestById(Number(params.requestId), session.authState.accessToken);
 
   if (requestResult.isErr()) {
     throw new Response('Request not found', { status: HttpStatusCodes.NOT_FOUND });
@@ -144,11 +145,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     additionalComment: parseResult.output.additionalComment,
   };
 
-  const updateResult = await requestService.updateRequestById(
-    requestData.id,
-    requestPayload,
-    context.session.authState.accessToken,
-  );
+  const updateResult = await requestService.updateRequestById(requestData.id, requestPayload, session.authState.accessToken);
 
   if (updateResult.isErr()) {
     throw updateResult.unwrapErr();
@@ -158,12 +155,13 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 }
 
 export async function loader({ context, params, request }: Route.LoaderArgs) {
-  requireAuthentication(context.session, request);
-  const currentUserData = await getUserService().getCurrentUser(context.session.authState.accessToken);
+  const { session } = context.get(context.applicationContext);
+  requireAuthentication(session, request);
+  const currentUserData = await getUserService().getCurrentUser(session.authState.accessToken);
   const currentUser = currentUserData.unwrap();
 
   const requestData = (
-    await getRequestService().getRequestById(Number(params.requestId), context.session.authState.accessToken)
+    await getRequestService().getRequestById(Number(params.requestId), session.authState.accessToken)
   ).into();
 
   if (!requestData) {

@@ -26,18 +26,17 @@ export const handle = {
 } as const satisfies RouteHandle;
 
 export async function loader({ context, request }: Route.LoaderArgs) {
+  const { session } = context.get(context.applicationContext);
+  requireAuthentication(session, request);
+
   const altLang = getAltLanguage(getLanguage(request) ?? 'en');
   const altT = await getFixedT(altLang, 'gcweb');
 
-  // First ensure the user is authenticated (no specific roles required)
-  requireAuthentication(context.session, request);
-
   // There is no security group in Azure AD for hiring managers, hiring managers are also regular users
-
-  await checkHrAdvisorRouteRegistration(context.session, request);
+  await checkHrAdvisorRouteRegistration(session, request);
 
   return {
-    name: context.session.authState.idTokenClaims.name,
+    name: session.authState.idTokenClaims.name,
     dashboardFile: getDashboardFile(request),
     altLang,
     altLogoText: altT('header.govt-of-canada.text'),
