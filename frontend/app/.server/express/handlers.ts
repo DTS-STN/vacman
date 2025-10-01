@@ -56,16 +56,19 @@ export function rrRequestHandler(viteDevServer?: ViteDevServer) {
 
   // create the context outside of the handler, since it contains no request-bound data
   const applicationContext = createContext<ApplicationContext>();
+  log.debug('Created application context for RR request handler');
 
   return createRequestHandler({
     mode: serverEnvironment.NODE_ENV,
     getLoadContext: (request, response) => {
+      log.debug('Building load context', { url: request.url, method: request.method });
       const contextProvider = new RouterContextProvider();
 
       contextProvider.set(applicationContext, {
         nonce: response.locals.nonce,
         session: request.session,
       });
+      log.debug('Set application context values on RouterContextProvider');
 
       //
       // TODO ::: GjB ::: Remove this compatibility layer once the migration to RRv7 middleware is complete.
@@ -89,6 +92,7 @@ export function rrRequestHandler(viteDevServer?: ViteDevServer) {
       //
       Object.assign(contextProvider, { applicationContext });
       Object.assign(contextProvider, contextProvider.get(applicationContext));
+      log.debug('Applied compatibility layer on load context');
 
       return contextProvider;
     },
