@@ -3,9 +3,12 @@ import { Err, Ok } from 'oxide.ts';
 
 import type { LookupModel, LocalizedLookupModel } from '~/.server/domain/models';
 import { apiClient } from '~/.server/domain/services/api-client';
+import { LogFactory } from '~/.server/logging';
 import { AppError } from '~/errors/app-error';
 import type { ErrorCode } from '~/errors/error-codes';
 import { getQueryClient } from '~/query-client';
+
+const logger = LogFactory.getRequestLogger('lookup-service');
 
 /**
  * Configuration for lookup service implementation
@@ -43,13 +46,25 @@ export class LookupServiceImplementation<T extends LookupModel, L extends Locali
         content: readonly (T | null | undefined)[];
       };
       const context = `list all ${this.config.entityName} codes`;
+      logger.debug('lookup.fetch.start', { endpoint: this.config.apiEndpoint, entity: this.config.entityName });
       const response = await apiClient.get<ApiResponse>(this.config.apiEndpoint, context);
 
       if (response.isErr()) {
+        logger.warn('lookup.fetch.error', {
+          endpoint: this.config.apiEndpoint,
+          entity: this.config.entityName,
+          error: response.unwrapErr(),
+        });
         throw response.unwrapErr();
       }
 
-      return response.unwrap().content;
+      const content = response.unwrap().content;
+      logger.debug('lookup.fetch.success', {
+        endpoint: this.config.apiEndpoint,
+        entity: this.config.entityName,
+        count: content.length,
+      });
+      return content;
     };
 
     // Provide the generic types to fetchQuery
@@ -63,8 +78,14 @@ export class LookupServiceImplementation<T extends LookupModel, L extends Locali
         queryKey,
         queryFn,
       });
+      logger.debug('lookup.cache.hit', {
+        endpoint: this.config.apiEndpoint,
+        entity: this.config.entityName,
+        count: data.length,
+      });
       return Ok(data);
     } catch (error) {
+      logger.error('lookup.cache.error', { endpoint: this.config.apiEndpoint, entity: this.config.entityName, error });
       return Err(error as AppError);
     }
   }
@@ -102,11 +123,13 @@ export class LookupServiceImplementation<T extends LookupModel, L extends Locali
     const foundItem = dirtyList.find((item) => item?.id === id);
 
     if (foundItem) {
+      logger.debug('lookup.getById.found', { endpoint: this.config.apiEndpoint, entity: this.config.entityName, id });
       return Ok(foundItem);
     }
 
     // If not found, return the specific "not found" error.
     const context = `Get ${this.config.entityName} with ID '${id}'`;
+    logger.info('lookup.getById.not-found', { endpoint: this.config.apiEndpoint, entity: this.config.entityName, id });
     return Err(new AppError(`${context} not found.`, this.config.notFoundErrorCode));
   }
 
