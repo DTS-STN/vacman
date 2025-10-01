@@ -3,20 +3,25 @@ package ca.gov.dtsstn.vacman.api.data.entity;
 import java.time.Instant;
 
 import org.hibernate.annotations.Immutable;
+import org.immutables.builder.Builder;
 
 import jakarta.annotation.Nullable;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 
 @Entity(name = "MatchFeedback")
-@Immutable
 @Table(name = "[CD_MATCH_FEEDBACK]")
 public class MatchFeedbackEntity extends AbstractCodeEntity {
+
+	public static MatchFeedbackEntityBuilder builder() {
+		return new MatchFeedbackEntityBuilder();
+	}
 
 	public MatchFeedbackEntity() {
 		super();
 	}
 
+	@Builder.Constructor
 	public MatchFeedbackEntity(
 			@Nullable Long id,
 			@Nullable String code,
