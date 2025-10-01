@@ -482,17 +482,17 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
       </div>
 
       {!isSubmitted && (
-        <ContextualAlert type={'info'} role="status" ariaLive="polite" textSmall={false}>
-          <div className="text-black-800 pl-1 text-base">
+        <ContextualAlert type="info" role="status" ariaLive="polite">
+          <div className="space-y-2 px-4">
             <p>{t('app:hiring-manager-referral-requests.notice-line-1')}</p>
-            <ul className="my-3 list-disc pl-7">
-              <li className="mtx-2">{t('app:hiring-manager-referral-requests.notice-line-2')}</li>
-              <li className="mtx-2">{t('app:hiring-manager-referral-requests.notice-line-3')}</li>
-              <li className="mtx-2">{t('app:hiring-manager-referral-requests.notice-line-4')}</li>
-              <li className="mtx-2">{t('app:hiring-manager-referral-requests.notice-line-5')}</li>
+            <ul className="list-inside list-disc">
+              <li>{t('app:hiring-manager-referral-requests.notice-line-2')}</li>
+              <li>{t('app:hiring-manager-referral-requests.notice-line-3')}</li>
+              <li>{t('app:hiring-manager-referral-requests.notice-line-4')}</li>
+              <li>{t('app:hiring-manager-referral-requests.notice-line-5')}</li>
             </ul>
-            <p className="mt-2">{t('app:hiring-manager-referral-requests.notice-line-6')}</p>
-            <p className="mt-2">{t('app:hiring-manager-referral-requests.notice-line-7')}</p>
+            <p>{t('app:hiring-manager-referral-requests.notice-line-6')}</p>
+            <p>{t('app:hiring-manager-referral-requests.notice-line-7')}</p>
           </div>
         </ContextualAlert>
       )}
