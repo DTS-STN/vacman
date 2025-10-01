@@ -47,7 +47,7 @@ export function getDefaultUserService(): UserService {
       }
       const page = result.unwrap();
       log.info('Fetched users page', { size: page.page.size, number: page.page.number, total: page.page.totalElements });
-      return Ok(result.unwrap());
+      return Ok(page);
     },
 
     /**
