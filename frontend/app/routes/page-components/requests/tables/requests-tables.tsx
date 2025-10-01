@@ -114,16 +114,33 @@ export default function RequestsTables({
         cell: (info) => {
           const requestId = info.row.original.id.toString();
           return (
-            <InlineLink
-              className="text-sky-800 decoration-slate-400 decoration-2"
-              file={`routes/${view}/request/index.tsx`}
-              params={{ requestId }}
-              aria-label={t('requests-tables.view-link', {
-                requestId,
-              })}
-            >
-              {t('requests-tables.view')}
-            </InlineLink>
+            <div className="flex items-baseline gap-4">
+              <InlineLink
+                className="rounded-sm text-sky-800 underline hover:text-blue-700 focus:text-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
+                file={`routes/${view}/request/index.tsx`}
+                params={{ requestId }}
+                aria-label={t('requests-tables.view-link', {
+                  requestId,
+                })}
+              >
+                {t('requests-tables.view')}
+              </InlineLink>
+              {view === 'hiring-manager' && (
+                <fetcher.Form method="post" noValidate>
+                  <input type="hidden" name="requestId" value={requestId}></input>
+                  <LoadingButton
+                    name="action"
+                    variant="alternative"
+                    size="sm"
+                    disabled={isSubmitting}
+                    loading={isSubmitting}
+                    value="copy"
+                  >
+                    {t('requests-tables.copy')}
+                  </LoadingButton>
+                </fetcher.Form>
+              )}
+            </div>
           );
         },
       },
@@ -134,7 +151,14 @@ export default function RequestsTables({
     <div className="mb-8 space-y-4">
       {view === 'hiring-manager' && (
         <fetcher.Form method="post" noValidate className="mb-8">
-          <LoadingButton name="action" variant="primary" size="sm" disabled={isSubmitting} loading={isSubmitting}>
+          <LoadingButton
+            name="action"
+            variant="primary"
+            size="sm"
+            disabled={isSubmitting}
+            loading={isSubmitting}
+            value="create"
+          >
             {t('requests-tables.create-request')}
           </LoadingButton>
         </fetcher.Form>

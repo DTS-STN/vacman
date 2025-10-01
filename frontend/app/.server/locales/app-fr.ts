@@ -515,6 +515,8 @@ export default {
     'action': 'Action',
     'view': 'Affiché',
     'view-link': "Afficher la demande avec l'identifiant {{requestId}}",
+    'copy': 'Copier',
+    'copy-link': "Copier la demande avec l'identifiant {{requestId}}",
     'next-page': 'Suivant',
   },
   'matches': {
