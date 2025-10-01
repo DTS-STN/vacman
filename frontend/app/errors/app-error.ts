@@ -2,7 +2,12 @@ import type { ErrorCode } from '~/errors/error-codes';
 import { ErrorCodes } from '~/errors/error-codes';
 import type { HttpStatusCode } from '~/errors/http-status-codes';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
-import { randomString } from '~/utils/string-utils';
+import { generateCorrelationId } from '~/utils/correlation';
+
+// Use a dynamic import signature to avoid bundling server-only modules in the client.
+// When running server-side, globalThis.__vacmanGetReqId will be set by the server utils.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+declare const globalThis: any;
 
 type AppErrorOptions = {
   correlationId?: string;
@@ -36,7 +41,10 @@ export class AppError {
     this.errorCode = errorCode;
     this.msg = msg;
 
-    this.correlationId = opts?.correlationId ?? generateCorrelationId();
+    // Prefer explicit correlationId, then request-scoped reqId, then random fallback
+    const requestReqId: string | undefined =
+      typeof globalThis?.__vacmanGetReqId === 'function' ? globalThis.__vacmanGetReqId() : undefined;
+    this.correlationId = opts?.correlationId ?? requestReqId ?? generateCorrelationId();
     this.httpStatusCode = opts?.httpStatusCode ?? HttpStatusCodes.INTERNAL_SERVER_ERROR;
 
     try {
@@ -55,13 +63,4 @@ export class AppError {
  */
 export function isAppError(error: unknown): error is AppError {
   return error instanceof Object && 'name' in error && error.name === 'AppError';
-}
-
-/**
- * Generates a random correlation ID.
- */
-function generateCorrelationId() {
-  const prefix = randomString(2).toUpperCase();
-  const suffix = randomString(6).toUpperCase();
-  return `${prefix}-${suffix}`;
 }
