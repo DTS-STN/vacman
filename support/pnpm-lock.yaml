@@ -28,7 +28,7 @@ importers:
         specifier: ^5.2.x
         version: 5.2.2(prettier@3.6.2)
       '@vitest/coverage-v8':
-        specifier: ^3.2.4
+        specifier: ^3.2.x
         version: 3.2.4(vitest@3.2.4(tsx@4.20.6))
       dotenv-cli:
         specifier: ^10.0.x
