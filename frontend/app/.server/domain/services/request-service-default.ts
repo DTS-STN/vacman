@@ -51,7 +51,7 @@ export function getDefaultRequestService(): RequestService {
       }
       const page = result.unwrap();
       log.info('Fetched requests page', { size: page.page.size, number: page.page.number, total: page.page.totalElements });
-      return Ok(result.unwrap());
+      return Ok(page);
     },
 
     /**
