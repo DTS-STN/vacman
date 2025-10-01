@@ -3,20 +3,25 @@ package ca.gov.dtsstn.vacman.api.data.entity;
 import java.time.Instant;
 
 import org.hibernate.annotations.Immutable;
+import org.immutables.builder.Builder;
 
 import jakarta.annotation.Nullable;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 
 @Entity(name = "MatchStatus")
-@Immutable
 @Table(name = "[CD_MATCH_STATUS]")
 public class MatchStatusEntity extends AbstractCodeEntity {
+
+	public static MatchStatusEntityBuilder builder() {
+		return new MatchStatusEntityBuilder();
+	}
 
 	public MatchStatusEntity() {
 		super();
 	}
 
+	@Builder.Constructor
 	public MatchStatusEntity(
 			@Nullable Long id,
 			@Nullable String code,
