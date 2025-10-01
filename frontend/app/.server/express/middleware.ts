@@ -8,6 +8,8 @@ import { randomUUID } from 'node:crypto';
 import type { ServerEnvironment } from '~/.server/environment';
 import { createMemoryStore, createRedisStore } from '~/.server/express/session';
 import { LogFactory } from '~/.server/logging';
+import { getRequestContext, runWithRequestContext } from '~/.server/utils/request-context';
+import { generateCorrelationId } from '~/utils/correlation';
 
 const log = LogFactory.getLogger(import.meta.url);
 
@@ -40,13 +42,18 @@ export function logging(environment: ServerEnvironment): RequestHandler {
   });
 
   return (request, response, next) => {
+    // Ensure a reqId exists for this request lifecycle
+    const existing = request.get('x-correlation-id') ?? undefined;
+    const reqId = existing ?? generateCorrelationId();
+
+    // Make reqId available via ALS and response header
+    response.setHeader('x-correlation-id', reqId);
     if (shouldIgnore(ignorePatterns, request.path)) {
-      // we're intentionally NOT logging the "skipping logging"
-      // message like the other middlewares do here 🥸🧠
-      return next();
+      // Intentionally do not log a "skipping logging" message.
+      return runWithRequestContext({ reqId }, () => next());
     }
 
-    return middleware(request, response, next);
+    return runWithRequestContext({ reqId }, () => middleware(request, response, next));
   };
 }
 
@@ -178,6 +185,12 @@ export function tracing(): RequestHandler {
     const spanName = `${request.method} ${pathname}`;
     log.trace('Updating span name to match request: [%s]', spanName);
     span?.updateName(spanName);
+
+    // Attach correlation id to response (fallback if not already set)
+    const ctx = getRequestContext();
+    if (ctx?.reqId) {
+      response.setHeader('x-correlation-id', ctx.reqId);
+    }
 
     return next();
   };
