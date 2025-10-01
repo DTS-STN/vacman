@@ -1,8 +1,11 @@
 import type { Route } from './+types/translations';
 
 import { serverDefaults } from '~/.server/environment';
+import { LogFactory } from '~/.server/logging';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { initI18next } from '~/i18n-config.server';
+
+const log = LogFactory.getLogger(import.meta.url);
 
 // we will aggressively cache the requested resource bundle for 1y
 const CACHE_DURATION_SECS = 365 * 24 * 60 * 60;
@@ -12,8 +15,10 @@ export async function loader({ context, params, request }: Route.LoaderArgs) {
 
   const language = url.searchParams.get('lng');
   const namespace = url.searchParams.get('ns');
+  log.debug('Translations requested', { language, namespace });
 
   if (!language || !namespace) {
+    log.warn('Translations request missing parameters');
     return Response.json(
       { message: 'You must provide a language (lng) and namespace (ns)' },
       { status: HttpStatusCodes.BAD_REQUEST },
@@ -24,6 +29,7 @@ export async function loader({ context, params, request }: Route.LoaderArgs) {
   const resourceBundle = i18next.getResourceBundle(language, namespace);
 
   if (!resourceBundle) {
+    log.warn('No resource bundle found', { language, namespace });
     return Response.json(
       { message: 'No resource bundle found for this language and namespace' },
       { status: HttpStatusCodes.NOT_FOUND },
@@ -34,6 +40,7 @@ export async function loader({ context, params, request }: Route.LoaderArgs) {
   // than the default build revision used during development
   const revision = url.searchParams.get('v') ?? serverDefaults.BUILD_REVISION;
   const shouldCache = revision !== serverDefaults.BUILD_REVISION;
+  log.debug('Translations cache decision', { shouldCache, revision });
 
   return Response.json(resourceBundle, {
     headers: shouldCache //

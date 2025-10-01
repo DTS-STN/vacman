@@ -73,6 +73,7 @@ export function requireAllRoles(
   const missingRoles = roles.filter((role) => !hasRole(session, role));
 
   if (missingRoles.length > 0) {
+    log.warn('Access denied: missing required roles', { missingRoles, path: currentUrl.pathname });
     throw new AppError(
       `User does not have the following required roles: [${missingRoles.join(', ')}]`,
       ErrorCodes.ACCESS_FORBIDDEN,
@@ -97,6 +98,7 @@ export function requireAnyRole(
   const hasAnyRole = roles.some((role) => hasRole(session, role));
 
   if (!hasAnyRole) {
+    log.warn('Access denied: user lacks any required roles', { required: roles, path: currentUrl.pathname });
     throw new AppError(
       `User does not have any of the following required roles: [${roles.join(', ')}]`,
       ErrorCodes.ACCESS_FORBIDDEN,

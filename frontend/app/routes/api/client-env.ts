@@ -1,6 +1,9 @@
 import type { Route } from './+types/client-env';
 
 import { clientEnvironment, serverDefaults } from '~/.server/environment';
+import { LogFactory } from '~/.server/logging';
+
+const log = LogFactory.getLogger(import.meta.url);
 
 // we will aggressively cache the requested resource bundle for 1y
 const CACHE_DURATION_SECS = 365 * 24 * 60 * 60;
@@ -12,6 +15,7 @@ const CACHE_DURATION_SECS = 365 * 24 * 60 * 60;
  */
 export function loader({ context, params, request }: Route.LoaderArgs) {
   const revision = new URL(request.url).searchParams.get('v') ?? serverDefaults.BUILD_REVISION;
+  log.debug('Client environment requested', { revision, url: request.url });
 
   // cache if the requested revision is anything other
   // than the default build revision used during development
