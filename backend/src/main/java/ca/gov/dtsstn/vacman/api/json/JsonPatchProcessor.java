@@ -81,6 +81,7 @@ public class JsonPatchProcessor {
 	 * @return the patched and validated object
 	 * @throws ConstraintViolationException if the patched object does not pass validation
 	 */
+	@SuppressWarnings({ "unchecked" })
 	protected <T> T patch(T object, Function<? super Object, ? extends JsonValue> patchFn) {
 		Assert.notNull(object, "object is required; it must not be null");
 		Assert.notNull(patchFn, "patchFn is required; it must not be null");
