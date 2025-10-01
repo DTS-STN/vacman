@@ -93,7 +93,7 @@ export function getDefaultProfileService(): ProfileService {
       }
       const response = result.unwrap();
       log.info('Fetched current user profiles', { count: response.content.length });
-      return Ok(result.unwrap());
+      return Ok(response);
     },
 
     /**
