@@ -9,17 +9,17 @@ import type { Route } from '../profile/+types/employment-information';
 import type { Profile, ProfilePutModel } from '~/.server/domain/models';
 import { getCityService } from '~/.server/domain/services/city-service';
 import { getClassificationService } from '~/.server/domain/services/classification-service';
-import { getDirectorateService } from '~/.server/domain/services/directorate-service';
 import { getProfileService } from '~/.server/domain/services/profile-service';
 import { getProvinceService } from '~/.server/domain/services/province-service';
 import { getWFAStatuses } from '~/.server/domain/services/wfa-status-service';
+import { getWorkUnitService } from '~/.server/domain/services/workunit-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { extractUniqueBranchesFromDirectorates } from '~/.server/utils/directorate-utils';
 import { requirePrivacyConsentForOwnProfile } from '~/.server/utils/privacy-consent-utils';
 import { getHrAdvisors, hasEmploymentDataChanged, mapProfileToPutModelWithOverrides } from '~/.server/utils/profile-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { BackLink } from '~/components/back-link';
-import { PROFILE_STATUS_CODE, PROFILE_STATUS_PENDING } from '~/domain/constants';
+import { PROFILE_STATUS } from '~/domain/constants';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
@@ -36,9 +36,10 @@ export function meta({ loaderData }: Route.MetaArgs) {
 }
 
 export async function action({ context, params, request }: Route.ActionArgs) {
-  requireAuthentication(context.session, request);
+  const { session } = context.get(context.applicationContext);
+  requireAuthentication(session, request);
 
-  const hrAdvisors = await getHrAdvisors(context.session.authState.accessToken);
+  const hrAdvisors = await getHrAdvisors(session.authState.accessToken);
   const formData = await request.formData();
   const { parseResult, formValues } = await parseEmploymentInformation(formData, hrAdvisors);
   if (!parseResult.success) {
@@ -49,10 +50,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   }
   const profileService = getProfileService();
   const profileParams = { active: true };
-  const currentProfile: Profile = await profileService.findCurrentUserProfile(
-    profileParams,
-    context.session.authState.accessToken,
-  );
+  const currentProfile: Profile = await profileService.findCurrentUserProfile(profileParams, session.authState.accessToken);
 
   const profilePayload: ProfilePutModel = mapProfileToPutModelWithOverrides(currentProfile, {
     classificationId: parseResult.output.substantiveClassification,
@@ -64,26 +62,18 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     hrAdvisorId: parseResult.output.hrAdvisorId,
   });
 
-  const updateResult = await profileService.updateProfileById(
-    currentProfile.id,
-    profilePayload,
-    context.session.authState.accessToken,
-  );
+  const updateResult = await profileService.updateProfileById(currentProfile.id, profilePayload, session.authState.accessToken);
 
   if (updateResult.isErr()) {
     throw updateResult.unwrapErr();
   }
 
   if (
-    currentProfile.profileStatus?.code === PROFILE_STATUS_CODE.approved &&
+    currentProfile.profileStatus?.code === PROFILE_STATUS.APPROVED.code &&
     hasEmploymentDataChanged(currentProfile, parseResult.output)
   ) {
     // profile needs to be re-approved if and only if the current profile status is 'approved'
-    await profileService.updateProfileStatus(
-      currentProfile.profileUser.id,
-      PROFILE_STATUS_PENDING,
-      context.session.authState.accessToken,
-    );
+    await profileService.updateProfileStatus(currentProfile.id, PROFILE_STATUS.PENDING, session.authState.accessToken);
     return i18nRedirect('routes/employee/profile/index.tsx', request, {
       params: { id: currentProfile.profileUser.id.toString() },
       search: new URLSearchParams({
@@ -97,21 +87,22 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 }
 
 export async function loader({ context, request, params }: Route.LoaderArgs) {
-  requireAuthentication(context.session, request);
-  await requirePrivacyConsentForOwnProfile(context.session, request);
+  const { session } = context.get(context.applicationContext);
+  requireAuthentication(session, request);
+  await requirePrivacyConsentForOwnProfile(session, request);
 
   const profileParams = { active: true };
-  const profileData = await getProfileService().findCurrentUserProfile(profileParams, context.session.authState.accessToken);
+  const profileData = await getProfileService().findCurrentUserProfile(profileParams, session.authState.accessToken);
 
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
+  const directorates = await getWorkUnitService().listLocalizedDirectorates(lang);
   const substantivePositions = await getClassificationService().listAllLocalized(lang);
-  const directorates = await getDirectorateService().listAllLocalized(lang);
   // Extract unique branches from directorates that have parents
   const branchOrServiceCanadaRegions = extractUniqueBranchesFromDirectorates(directorates);
   const provinces = await getProvinceService().listAllLocalized(lang);
   const cities = await getCityService().listAllLocalized(lang);
   const wfaStatuses = await getWFAStatuses().listAllLocalized(lang);
-  const hrAdvisors = await getHrAdvisors(context.session.authState.accessToken);
+  const hrAdvisors = await getHrAdvisors(session.authState.accessToken);
 
   return {
     documentTitle: t('app:employment-information.page-title'),

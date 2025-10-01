@@ -8,11 +8,12 @@ import type { Route } from './+types/profile';
 
 import { getCityService } from '~/.server/domain/services/city-service';
 import { getClassificationService } from '~/.server/domain/services/classification-service';
-import { getDirectorateService } from '~/.server/domain/services/directorate-service';
 import { getLanguageReferralTypeService } from '~/.server/domain/services/language-referral-type-service';
 import { getProfileService } from '~/.server/domain/services/profile-service';
+import { getWorkUnitService } from '~/.server/domain/services/workunit-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { getHrAdvisors } from '~/.server/utils/profile-utils';
+import { BackLink } from '~/components/back-link';
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/card';
 import { DescriptionList, DescriptionListItem } from '~/components/description-list';
 import { PageTitle } from '~/components/page-title';
@@ -26,12 +27,13 @@ export const handle = {
 } as const satisfies RouteHandle;
 
 export async function loader({ context, request, params }: Route.LoaderArgs) {
-  requireAuthentication(context.session, request);
+  const { session } = context.get(context.applicationContext);
+  requireAuthentication(session, request);
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
   //TODO - Use getRequestService() to get the request profile
   const profileDataOption = await getProfileService().findProfileById(
     parseInt(params.profileId),
-    context.session.authState.accessToken,
+    session.authState.accessToken,
   );
 
   if (profileDataOption.isNone()) {
@@ -51,7 +53,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   // Use profileUser for updated by information as well
   const workUnitResult =
     profileData.substantiveWorkUnit !== undefined
-      ? await getDirectorateService().findLocalizedById(profileData.substantiveWorkUnit.id, lang)
+      ? await getWorkUnitService().findLocalizedById(profileData.substantiveWorkUnit.id, lang)
       : undefined;
   const substantivePositionResult =
     profileData.substantiveClassification !== undefined
@@ -67,7 +69,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const branchOrServiceCanadaRegion = workUnitResult?.into()?.parent?.name;
   const directorate = workUnitResult?.into()?.name;
   const city = cityResult?.into();
-  const hrAdvisors = await getHrAdvisors(context.session.authState.accessToken);
+  const hrAdvisors = await getHrAdvisors(session.authState.accessToken);
   const hrAdvisor = hrAdvisors.find((u) => u.id === profileData.hrAdvisorId);
   const languageReferralTypes = profileData.preferredLanguages
     ?.map((lang) => allLocalizedLanguageReferralTypes.find((l) => l.id === lang.id))
@@ -89,7 +91,6 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       personalEmail: profileData.personalEmailAddress,
       workPhone: profileUser.businessPhoneNumber,
       personalPhone: profileData.personalPhoneNumber,
-      additionalInformation: profileData.additionalComment,
     },
     employmentInformation: {
       substantivePosition: substantivePosition,
@@ -117,13 +118,20 @@ export default function HiringManagerRequestProfile({ loaderData, params }: Rout
   const { t } = useTranslation(handle.i18nNamespace);
 
   return (
-    <div>
-      <VacmanBackground variant="bottom-right" height="h-40">
+    <div className="space-y-8">
+      <VacmanBackground variant="bottom-right">
         <PageTitle className="after:w-14" variant="bottom" subTitle={loaderData.email} subTitleClassName="mt-3">
           {loaderData.name}
         </PageTitle>
       </VacmanBackground>
-      <div className="mt-8 max-w-prose space-y-10">
+      <BackLink
+        aria-label={t('app:matches.back-request-candidates')}
+        file="routes/hr-advisor/request/matches.tsx"
+        params={params}
+      >
+        {t('app:matches.back-request-candidates')}
+      </BackLink>
+      <div className="max-w-prose space-y-10">
         <DetailsCard title={t('app:profile.personal-information.title')}>
           <DescriptionList>
             <DescriptionListItem term={t('app:personal-information.personal-record-identifier')}>
@@ -143,9 +151,6 @@ export default function HiringManagerRequestProfile({ loaderData, params }: Rout
             </DescriptionListItem>
             <DescriptionListItem term={t('app:personal-information.personal-phone')}>
               {loaderData.personalInformation?.personalPhone ?? t('app:profile.not-provided')}
-            </DescriptionListItem>
-            <DescriptionListItem term={t('app:personal-information.additional-information')}>
-              {loaderData.personalInformation?.additionalInformation ?? t('app:profile.not-provided')}
             </DescriptionListItem>
           </DescriptionList>
         </DetailsCard>
@@ -171,7 +176,7 @@ export default function HiringManagerRequestProfile({ loaderData, params }: Rout
             </DescriptionList>
           </div>
           <div>
-            <h3 className="font-lato text-xl font-bold">{t('app:employment-information.wfa-detils-heading')}</h3>
+            <h3 className="font-lato text-xl font-bold">{t('app:employment-information.wfa-details-heading')}</h3>
             <DescriptionList>
               <DescriptionListItem term={t('app:employment-information.wfa-status')}>
                 {loaderData.employmentInformation?.wfaStatus ?? t('app:profile.not-provided')}
@@ -182,7 +187,9 @@ export default function HiringManagerRequestProfile({ loaderData, params }: Rout
               {(loaderData.employmentInformation?.wfaStatusCode === EMPLOYEE_WFA_STATUS.opting ||
                 loaderData.employmentInformation?.wfaStatusCode === EMPLOYEE_WFA_STATUS.exOpting ||
                 loaderData.employmentInformation?.wfaStatusCode === EMPLOYEE_WFA_STATUS.surplusOptingOptionA ||
-                loaderData.employmentInformation?.wfaStatusCode === EMPLOYEE_WFA_STATUS.exSurplusCPA) && (
+                loaderData.employmentInformation?.wfaStatusCode === EMPLOYEE_WFA_STATUS.exSurplusCPA ||
+                loaderData.employmentInformation?.wfaStatusCode === EMPLOYEE_WFA_STATUS.relocation ||
+                loaderData.employmentInformation?.wfaStatusCode === EMPLOYEE_WFA_STATUS.alternateDeliveryInitiative) && (
                 <DescriptionListItem term={t('app:employment-information.wfa-end-date')}>
                   {loaderData.employmentInformation.wfaEndDate ?? t('app:profile.not-provided')}
                 </DescriptionListItem>

@@ -11,15 +11,15 @@ import type {
 } from '~/.server/domain/models';
 import { getCityService } from '~/.server/domain/services/city-service';
 import { getClassificationService } from '~/.server/domain/services/classification-service';
-import { getDirectorateService } from '~/.server/domain/services/directorate-service';
 import { getEmploymentOpportunityTypeService } from '~/.server/domain/services/employment-opportunity-type-service';
 import { getLanguageForCorrespondenceService } from '~/.server/domain/services/language-for-correspondence-service';
 import { getLanguageReferralTypeService } from '~/.server/domain/services/language-referral-type-service';
 import { createAndLinkNewMockProfile, mockProfiles } from '~/.server/domain/services/mock-data';
 import type { ProfileService } from '~/.server/domain/services/profile-service';
 import { getWFAStatuses } from '~/.server/domain/services/wfa-status-service';
+import { getWorkUnitService } from '~/.server/domain/services/workunit-service';
 import { LogFactory } from '~/.server/logging';
-import { PROFILE_STATUS_CODE } from '~/domain/constants';
+import { PROFILE_STATUS } from '~/domain/constants';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
@@ -42,35 +42,42 @@ export function getMockProfileService(): ProfileService {
 
       // Apply active filter
       if (params.active !== undefined) {
-        const activeStatuses = [PROFILE_STATUS_CODE.pending, PROFILE_STATUS_CODE.approved, PROFILE_STATUS_CODE.incomplete];
-        const inactiveStatuses = [PROFILE_STATUS_CODE.archived];
+        const activeStatuses = [PROFILE_STATUS.PENDING, PROFILE_STATUS.APPROVED, PROFILE_STATUS.INCOMPLETE];
+        const inactiveStatuses = [PROFILE_STATUS.ARCHIVED];
 
         if (params.active === true) {
           filteredProfiles = filteredProfiles.filter(
-            (p) => p.profileStatus && activeStatuses.some((code) => code === p.profileStatus?.code),
+            (p) => p.profileStatus && activeStatuses.some(({ code }) => code === p.profileStatus?.code),
           );
           log.debug(`Applied active filter (true): ${filteredProfiles.length} profiles remaining`);
         } else {
           filteredProfiles = filteredProfiles.filter(
-            (p) => p.profileStatus && inactiveStatuses.some((code) => code === p.profileStatus?.code),
+            (p) => p.profileStatus && inactiveStatuses.some(({ code }) => code === p.profileStatus?.code),
           );
           log.debug(`Applied active filter (false): ${filteredProfiles.length} profiles remaining`);
         }
       }
 
-      // Apply HR advisor filter
-      if (params['hr-advisor']) {
-        if (params['hr-advisor'] === 'me') {
-          // For mock purposes, filter by hrAdvisorId = 1 when hr-advisor=me
+      // Apply HR advisor filter using hrAdvisorId param
+      if (params.hrAdvisorId) {
+        if (params.hrAdvisorId === 'me') {
+          // For mock purposes, filter by hrAdvisorId = 1 when hrAdvisorId=me
           filteredProfiles = filteredProfiles.filter((p) => p.hrAdvisorId === 1);
           log.debug(`Applied HR advisor filter (me): ${filteredProfiles.length} profiles remaining`);
         } else {
-          const hrAdvisorId = parseInt(params['hr-advisor']);
+          const hrAdvisorId = parseInt(params.hrAdvisorId);
           if (!isNaN(hrAdvisorId)) {
             filteredProfiles = filteredProfiles.filter((p) => p.hrAdvisorId === hrAdvisorId);
             log.debug(`Applied HR advisor filter (${hrAdvisorId}): ${filteredProfiles.length} profiles remaining`);
           }
         }
+      }
+
+      // Apply status filter using statusIds param (array of ids)
+      if (params.statusIds?.length) {
+        const statusIds = params.statusIds.filter((n) => Number.isFinite(n));
+        filteredProfiles = filteredProfiles.filter((p) => (p.profileStatus ? statusIds.includes(p.profileStatus.id) : false));
+        log.debug(`Applied statusId filter (${statusIds.join(',')}): ${filteredProfiles.length} profiles remaining`);
       }
 
       // Apply pagination
@@ -124,11 +131,11 @@ export function getMockProfileService(): ProfileService {
       // Apply active filter
       if (params.active !== undefined) {
         const activeStatuses = [
-          PROFILE_STATUS_CODE.incomplete,
-          PROFILE_STATUS_CODE.approved,
-          PROFILE_STATUS_CODE.pending,
+          PROFILE_STATUS.INCOMPLETE.code,
+          PROFILE_STATUS.APPROVED.code,
+          PROFILE_STATUS.PENDING.code,
         ] as string[];
-        const inactiveStatuses = [PROFILE_STATUS_CODE.archived] as string[];
+        const inactiveStatuses = [PROFILE_STATUS.ARCHIVED.code] as string[];
 
         if (params.active === true) {
           userProfiles = userProfiles.filter((p) => p.profileStatus && activeStatuses.includes(p.profileStatus.code));
@@ -257,7 +264,7 @@ export function getMockProfileService(): ProfileService {
       const classificationService = getClassificationService();
       const cityService = getCityService();
       const employmentOppourtunityService = getEmploymentOpportunityTypeService();
-      const directorateService = getDirectorateService();
+      const workunitService = getWorkUnitService();
       const wfaStatusService = getWFAStatuses();
 
       let languageOfCorrespondence = existingProfile.languageOfCorrespondence;
@@ -304,7 +311,7 @@ export function getMockProfileService(): ProfileService {
 
       const substantiveWorkUnit =
         profile.workUnitId !== undefined
-          ? (await Promise.all([directorateService.getById(profile.workUnitId)]))
+          ? (await Promise.all([workunitService.getById(profile.workUnitId)]))
               .filter((result) => result.isOk())
               .map((result) => result.unwrap())[0]
           : existingProfile.substantiveWorkUnit;
@@ -327,7 +334,6 @@ export function getMockProfileService(): ProfileService {
       const updatedProfile: Profile = {
         ...existingProfile,
         // Map ProfilePutModel properties to Profile properties
-        additionalComment: profile.additionalComment ?? existingProfile.additionalComment,
         hasConsentedToPrivacyTerms: profile.hasConsentedToPrivacyTerms ?? existingProfile.hasConsentedToPrivacyTerms,
         isAvailableForReferral: profile.isAvailableForReferral ?? existingProfile.isAvailableForReferral,
         isInterestedInAlternation: profile.isInterestedInAlternation ?? existingProfile.isInterestedInAlternation,
@@ -346,8 +352,8 @@ export function getMockProfileService(): ProfileService {
         substantiveWorkUnit,
         substantiveCity,
         wfaStatus,
-        wfaStartDate: profile.wfaStartDate ?? existingProfile.wfaStartDate,
-        wfaEndDate: profile.wfaEndDate ?? existingProfile.wfaEndDate,
+        wfaStartDate: profile.wfaStartDate,
+        wfaEndDate: profile.wfaEndDate,
 
         id: profileId, // Ensure ID doesn't change
         lastModifiedDate: new Date().toISOString(),

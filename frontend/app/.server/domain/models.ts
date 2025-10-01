@@ -44,10 +44,6 @@ export type LocalizedClassification = LocalizedLookupModel;
 export type WFAStatus = LookupModel;
 export type LocalizedWFAStatus = LocalizedLookupModel;
 
-//TODO: Remove this if we can leverage the workunit model
-export type Directorate = HierarchicalLookupModel<Branch>;
-export type LocalizedDirectorate = LocalizedHierarchicalLookupModel<LocalizedBranch>;
-
 export type EmploymentTenure = LookupModel;
 export type LocalizedEmploymentTenure = LocalizedLookupModel;
 
@@ -149,7 +145,6 @@ export type PageMetadata = Readonly<{
 // Profile Models - Based on OpenAPI ProfileReadModel schema
 export type Profile = Readonly<{
   id: number;
-  additionalComment?: string;
   hasConsentedToPrivacyTerms?: boolean;
   hrAdvisorId?: number;
   isAvailableForReferral?: boolean;
@@ -178,7 +173,6 @@ export type Profile = Readonly<{
 // Profile PUT Model - Based on OpenAPI ProfilePutModel schema
 // Used for updating profiles via PUT /api/v1/profiles/{id}
 export type ProfilePutModel = Readonly<{
-  additionalComment?: string;
   cityId?: number;
   classificationId?: number;
   hasConsentedToPrivacyTerms?: boolean;
@@ -231,10 +225,12 @@ export type UserQueryParams = {
 };
 
 export type ProfileQueryParams = {
-  'page'?: number;
-  'size'?: number;
-  'active'?: boolean;
-  'hr-advisor'?: string;
+  page?: number;
+  size?: number;
+  active?: boolean;
+  hrAdvisorId?: string;
+  statusIds?: number[];
+  sort?: string;
 };
 
 // Request Read Model

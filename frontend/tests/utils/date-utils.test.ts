@@ -1,8 +1,15 @@
 import { describe, expect, it, vi } from 'vitest';
 
 import {
+  dateExists,
+  extractDateParts,
+  formatDateTime,
   formatDateTimeForTimezone,
+  formatDateTimeInZone,
+  formatISODate,
+  getLocalizedMonths,
   getStartOfDayInTimezone,
+  isDateInPastOrTodayInTimeZone,
   isPastInTimezone,
   isPastOrTodayInTimeZone,
   isTodayInTimezone,
@@ -190,6 +197,205 @@ describe('date-utils', () => {
       const midnightUTC = '2023-12-25T00:00:00Z';
       const result = formatDateTimeForTimezone(midnightUTC, 'America/Toronto', 'en');
       expect(result).toBe('2023-12-24, 07:00 p.m. EST');
+    });
+  });
+  describe('extractDateParts', () => {
+    it('should extract valid date parts from YYYY-MM-DD format', () => {
+      const result = extractDateParts('2023-05-20');
+      expect(result).toEqual({
+        year: '2023',
+        month: '05',
+        day: '20',
+      });
+    });
+
+    it('should return empty object for invalid date string format', () => {
+      expect(extractDateParts('2023-05')).toEqual({});
+      expect(extractDateParts('invalid-date')).toEqual({});
+      expect(extractDateParts('2023-05-20extra')).toEqual({});
+    });
+
+    it('should return empty object for non-existent dates', () => {
+      expect(extractDateParts('2023-02-30')).toEqual({});
+      expect(extractDateParts('2023-04-31')).toEqual({});
+    });
+
+    it('should handle single-digit months and days by padding with zeros', () => {
+      const result = extractDateParts('2023-5-9');
+      expect(result).toEqual({
+        year: '2023',
+        month: '05',
+        day: '09',
+      });
+    });
+  });
+
+  describe('dateExists', () => {
+    it('should return true for valid dates', () => {
+      expect(dateExists(2023, 0, 15)).toBe(true);
+      expect(dateExists(2020, 1, 29)).toBe(true);
+      expect(dateExists(2023, 11, 31)).toBe(true);
+    });
+
+    it('should return false for invalid dates', () => {
+      expect(dateExists(2023, 1, 30)).toBe(false);
+      expect(dateExists(2023, 3, 31)).toBe(false);
+      expect(dateExists(2023, 0, 32)).toBe(false);
+      expect(dateExists(2023, 13, 1)).toBe(false);
+    });
+
+    it('should handle leap years correctly', () => {
+      expect(dateExists(2020, 1, 29)).toBe(true);
+      expect(dateExists(2023, 1, 29)).toBe(false);
+    });
+  });
+
+  describe('getLocalizedMonths', () => {
+    it('should return 12 months for English locale', () => {
+      const months = getLocalizedMonths('en');
+      expect(months).toHaveLength(12);
+      expect(months[0]).toEqual({ index: 1, text: expect.any(String) });
+      expect(months[11]).toEqual({ index: 12, text: expect.any(String) });
+    });
+
+    it('should return months in French locale', () => {
+      const months = getLocalizedMonths('fr');
+      expect(months).toHaveLength(12);
+      expect(months[0]?.text).toMatch(/janvier/i);
+    });
+
+    it('should respect the format parameter', () => {
+      const shortMonths = getLocalizedMonths('en', 'short');
+      expect(shortMonths[0]?.text).toMatch(/^[A-Za-z]{3}/);
+    });
+
+    it('should return numeric months when format is numeric', () => {
+      const months = getLocalizedMonths('en', 'numeric');
+      expect(months[0]?.text).toBe('1');
+      expect(months[11]?.text).toBe('12');
+    });
+  });
+
+  describe('formatISODate', () => {
+    it('should return Ok with formatted ISO date for valid Date object', () => {
+      const date = new Date('2023-05-20T00:00:00Z');
+      const result = formatISODate(date);
+
+      expect(result.isOk()).toBe(true);
+      const formatted = result.unwrap();
+      expect(['2023-05-19', '2023-05-20']).toContain(formatted);
+    });
+
+    it('should return Ok with formatted ISO date for valid timestamp', () => {
+      const timestamp = new Date('2023-05-20T12:00:00Z').getTime();
+      const result = formatISODate(timestamp);
+
+      expect(result.isOk()).toBe(true);
+      const formatted = result.unwrap();
+      expect(formatted).toBe('2023-05-20');
+    });
+
+    it('should return Ok with formatted ISO date for valid date string', () => {
+      const result = formatISODate('2023-05-20T12:00:00Z');
+
+      expect(result.isOk()).toBe(true);
+      expect(result.unwrap()).toBe('2023-05-20');
+    });
+
+    it('should return Err for invalid date input', () => {
+      const result = formatISODate('invalid-date');
+
+      expect(result.isErr()).toBe(true);
+      expect(result.unwrapErr()).toBeInstanceOf(TypeError);
+    });
+  });
+
+  describe('formatDateTime', () => {
+    it('should format Date object correctly', () => {
+      const date = new Date('2023-05-20T10:30:45Z');
+      const result = formatDateTime(date);
+
+      expect(result).toMatch(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/);
+      expect(result).toContain('2023-05-');
+    });
+
+    it('should format ISO string correctly', () => {
+      const result = formatDateTime('2023-05-20T10:30:45Z');
+      expect(result).toMatch(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/);
+      expect(result).toContain('2023-05-');
+    });
+
+    it('should format timestamp correctly', () => {
+      const timestamp = new Date('2023-05-20T10:30:45Z').getTime();
+      const result = formatDateTime(timestamp);
+      expect(result).toMatch(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/);
+      expect(result).toContain('2023-05-');
+    });
+
+    it('should return "Invalid Date" for invalid input', () => {
+      expect(formatDateTime('invalid-date')).toBe('Invalid Date');
+      expect(formatDateTime(new Date('invalid'))).toBe('Invalid Date');
+    });
+
+    it('should handle midnight correctly', () => {
+      const date = new Date('2023-05-20T00:00:00Z');
+      const result = formatDateTime(date);
+      expect(result).toMatch(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/);
+      expect(result).toContain('2023-05-');
+    });
+  });
+
+  describe('formatDateTimeInZone', () => {
+    it('should format date in specified timezone with default pattern', () => {
+      const date = '2024-03-15T10:00:00Z';
+      const result = formatDateTimeInZone(date, 'America/New_York');
+      expect(result).toBe('2024-03-15 06:00');
+    });
+
+    it('should format date in specified timezone with custom pattern', () => {
+      const date = '2024-03-15T10:00:00Z';
+      const result = formatDateTimeInZone(date, 'America/New_York', 'yyyy/MM/dd HH:mm');
+      expect(result).toBe('2024/03/15 06:00');
+    });
+
+    it('should handle different timezones correctly', () => {
+      const date = '2024-03-15T10:00:00Z';
+      const nyResult = formatDateTimeInZone(date, 'America/New_York');
+      const londonResult = formatDateTimeInZone(date, 'Europe/London');
+
+      expect(nyResult).not.toBe(londonResult);
+      expect(nyResult).toBe('2024-03-15 06:00');
+      expect(londonResult).toBe('2024-03-15 10:00');
+    });
+  });
+
+  describe('isDateInPastOrTodayInTimeZone', () => {
+    it('should return true for past dates', () => {
+      vi.setSystemTime(new Date('2000-01-01T00:00:00Z'));
+      expect(isDateInPastOrTodayInTimeZone('UTC', new Date('1900-01-01T00:00:00Z'))).toBe(true);
+    });
+
+    it('should return false for future dates', () => {
+      vi.setSystemTime(new Date('2000-01-01T00:00:00Z'));
+      expect(isDateInPastOrTodayInTimeZone('UTC', new Date('2100-01-01T00:00:00Z'))).toBe(false);
+    });
+
+    it('should return true for today dates', () => {
+      vi.setSystemTime(new Date('2000-01-01T12:00:00Z'));
+      expect(isDateInPastOrTodayInTimeZone('UTC', new Date('2000-01-01T00:00:00Z'))).toBe(true);
+    });
+  });
+
+  describe('edge cases', () => {
+    it('should handle timezone changes for isTodayInTimezone around midnight', () => {
+      vi.setSystemTime(new Date('2023-03-15T04:00:00Z'));
+      const result = isTodayInTimezone('America/New_York', new Date('2023-03-14T23:00:00Z'));
+      expect(typeof result).toBe('boolean');
+    });
+
+    it('should handle invalid inputs gracefully for getStartOfDayInTimezone', () => {
+      const result = getStartOfDayInTimezone('UTC', 'invalid-date');
+      expect(result).toBeInstanceOf(Date);
     });
   });
 });

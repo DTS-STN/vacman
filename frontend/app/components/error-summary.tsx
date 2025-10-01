@@ -60,7 +60,8 @@ export function ErrorSummary({ className, errors, ...rest }: ErrorSummaryProps):
       className={cn('my-5 border-4 border-red-600 p-4', className)}
       {...rest}
       tabIndex={-1}
-      role="alert"
+      aria-live="assertive"
+      aria-atomic={true}
     >
       <h2 className="font-lato text-lg font-semibold">{t('gcweb:error-summary.header', { count: errors.length })}</h2>
       <ol className="mt-1.5 list-decimal space-y-2 pl-7">

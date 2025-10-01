@@ -20,8 +20,8 @@ import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
 import { ProcessInformationForm } from '~/routes/page-components/requests/process-information/form';
-import { parseProcessInformation } from '~/routes/page-components/requests/validation.server';
 import type { ProcessInformationSchema } from '~/routes/page-components/requests/validation.server';
+import { parseProcessInformation } from '~/routes/page-components/requests/validation.server';
 
 export const handle = {
   i18nNamespace: [...parentHandle.i18nNamespace],
@@ -32,7 +32,8 @@ export function meta({ loaderData }: Route.MetaArgs) {
 }
 
 export async function action({ context, params, request }: Route.ActionArgs) {
-  requireAuthentication(context.session, request);
+  const { session } = context.get(context.applicationContext);
+  requireAuthentication(session, request);
 
   const formData = await request.formData();
   const { parseResult } = await parseProcessInformation(formData);
@@ -45,7 +46,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   }
 
   const requestService = getRequestService();
-  const requestResult = await requestService.getRequestById(Number(params.requestId), context.session.authState.accessToken);
+  const requestResult = await requestService.getRequestById(Number(params.requestId), session.authState.accessToken);
 
   if (requestResult.isErr()) {
     throw new Response('Request not found', { status: HttpStatusCodes.NOT_FOUND });
@@ -69,34 +70,26 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     employmentEquityIds: parseResult.output.preferredEmploymentEquities,
   };
 
-  const updateResult = await requestService.updateRequestById(
-    requestData.id,
-    requestPayload,
-    context.session.authState.accessToken,
-  );
+  const updateResult = await requestService.updateRequestById(requestData.id, requestPayload, session.authState.accessToken);
 
   if (updateResult.isErr()) {
     throw updateResult.unwrapErr();
   }
 
-  return i18nRedirect('routes/hr-advisor/request/index.tsx', request, {
-    params: { requestId: requestData.id.toString() },
-  });
+  return i18nRedirect('routes/hr-advisor/request/index.tsx', request, { params });
 }
 
 export async function loader({ context, request, params }: Route.LoaderArgs) {
-  requireAuthentication(context.session, request);
+  const { session } = context.get(context.applicationContext);
+  requireAuthentication(session, request);
 
-  const requestResult = await getRequestService().getRequestById(
-    Number(params.requestId),
-    context.session.authState.accessToken,
-  );
+  const requestData = (
+    await getRequestService().getRequestById(Number(params.requestId), session.authState.accessToken)
+  ).into();
 
-  if (requestResult.isErr()) {
+  if (!requestData) {
     throw new Response('Request not found', { status: HttpStatusCodes.NOT_FOUND });
   }
-
-  const requestData: RequestReadModel = requestResult.unwrap();
 
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
 

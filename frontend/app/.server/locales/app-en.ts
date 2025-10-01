@@ -51,6 +51,7 @@ export default {
     'last-updated': 'Last updated: {{date}} by {{name}}',
     'field-incomplete': 'Required fields incomplete',
     'profile-incomplete': 'Please complete all required fields before submitting your profile',
+    'profile-incomplete-for-approval': 'Please complete all required fields before approving the profile',
     'profile-submitted': 'Profile submitted successfully! Your HR advisor will now review it for approval',
     'hr-approved': 'Employee profile successfully approved',
     'profile-pending-approval': 'Your profile edits will require re-approval by your HR advisor',
@@ -71,9 +72,10 @@ export default {
     'select': 'Select',
     'select-option': 'Select option',
     'select-all-that-apply': 'Select all that apply',
-    'select-work-locations':
-      "Select a province to see available cities. You can choose as many cities as you'd like from any province.",
     'maximum-characters': 'maximum characters',
+    'pickup-request': 'Pick up request',
+    'vms-not-required': 'VMS clearance not required',
+    'run-matches': 'Run matches',
   },
   'personal-information': {
     'page-title': 'Personal information',
@@ -86,8 +88,8 @@ export default {
     'personal-phone': 'Personal phone number',
     'personal-phone-help-message-primary': 'Cell, home, or other. For example <noWrap>123 456 7890</noWrap>',
     'work-phone-help-message-primary': 'For example: <noWrap>123 456 7890</noWrap>',
-    'additional-information': 'Additional information',
-    'additional-info-help-message': 'Briefly note absences or other key information.',
+    'additional-information':
+      'For any additional information regarding your personal information (for example, changes to your contact details or leave of absence) please contact the HR advisor indicated on your workforce adjustment status letter.',
     'errors': {
       'surname-required': 'Surname is required',
       'givenName-required': 'Given name is required',
@@ -102,8 +104,6 @@ export default {
       'work-phone-invalid': 'Invalid work phone number.',
       'personal-phone-required': 'Personal phone number is required.',
       'personal-phone-invalid': 'Invalid personal phone number.',
-      'additional-information-required': 'Additional information is required.',
-      'additional-information-max-length': 'Additional information must be less than 100 characters.',
     },
   },
   'employment-information': {
@@ -114,11 +114,15 @@ export default {
     'directorate': 'Directorate',
     'provinces': 'Province of the designated work location of your substantive position',
     'city': 'City of the designated work location of your substantive position',
-    'wfa-detils-heading': 'Workforce Adjustment (WFA) or Career Transition for Executives (CT) details',
-    'wfa-detils': 'Refer to the letter you received in your email for this information.',
+    'wfa-details-heading': 'Workforce Adjustment (WFA) or Career Transition for Executives (CT) details',
+    'wfa-details':
+      'Refer to the letter attesting to your workforce adjustment situation to complete the following information.',
     'wfa-status': 'Current WFA/CT status',
-    'wfa-effective-date': 'Effective date of your WFA/CT status',
-    'wfa-end-date': 'End date of your WFA/CT status',
+    'wfa-dates-heading': 'Dates of your WFA/CT status',
+    'wfa-dates-details':
+      'Please insert the effective date and end date (as applicable) of the WFA status indicated on your letter. If there is no effective date, insert the date in the header of your letter.',
+    'wfa-effective-date': 'Effective date',
+    'wfa-end-date': 'End date',
     'hr-advisor': 'HR advisor identified on your WFA/CT letter',
     'errors': {
       'substantive-group-and-level-required': 'Group and level of your substantive position is required.',
@@ -156,21 +160,26 @@ export default {
     'language-referral-type': 'Which position language profiles would you like to be referred for?',
     'classification': 'Which classification group(s) and level(s) would you like to be referred for?',
     'classification-group-help-message-primary':
-      'The group and levels selected must be the same or equivalent to your substantive position.',
+      'The group and levels selected must be the same or equivalent to your substantive position. Select all that apply.',
+    'guidance-on-groups-and-levels': 'Guidance on groups and levels',
+    'guidance-on-groups-and-levels-description':
+      'Please refer to the VMS Employee Guide on iService and consult the HR advisor indicated on your letter should you need further guidance on groups and levels corresponding to your profile.',
     'work-location': 'Which work location(s) would you like to be referred to?',
     'province': 'Province',
     'city': 'City',
     'referral-availibility': 'Are you currently available for referrals?',
     'referral-availibility-help-message-primary':
-      "Select no if you'll be on leave or are currently not interested in referrals.",
+      'Select no if your current situation does not allow you to consider job offers (for example, extended leave, waiting for a job offer, etc.)',
     'alternate-opportunity': 'Are you interested in alternation opportunities?',
     'what-is-alternation': 'What is alternation?',
     'alternation-description-text-para-1':
       'An alternation occurs when an opting employee or a surplus employee, having chosen a 12-month surplus priority entitlement (Option A), wishes to remain in the core public administration and exchanges positions with a non-affected employee (the alternate) willing to leave the core public administration with a transition support measure (TSM) (option B) or with a TSM and an Education Allowance (Option C(i)).',
     'alternation-description-text-para-2':
       'For executives (EXs), alternation under Career Transition allows a surplus EX who has chosen Option 2 (to remain in the core public administration (CPA)) by exchanging positions with a non-affected EX willing to leave under the Directive on Terms and Conditions of Employment for Executives. The alternation must occur at the same group and level, on a mutually agreed date, and must result in the permanent elimination of a function or position. The surplus EX must meet the requirements of the unaffected role. Alternation is only permitted within the core public administration and is not available to employees of separate agencies.',
-    'select-all': 'Select all',
-    'select-all-sr': 'All cities in Canada selected',
+    'select-work-locations':
+      'Select a province to see available cities. You can choose as many cities as you\'d like from any province, or use the "Select all work locations" below to choose all work locations',
+    'select-all': 'Select all work locations',
+    'select-all-sr': 'All work locations in Canada selected.',
     'errors': {
       'language-referral-type-required': 'Language profile is required.',
       'language-referral-type-invalid': 'Language profile is invalid.',
@@ -185,6 +194,12 @@ export default {
       'referral-availibility-required': 'Availablility confirmation for referrals is required.',
       'alternate-opportunity-required': 'Alternation opportunities (confirmation of interest) is required.',
     },
+    'choice-tag': {
+      city: 'city',
+      cities: 'cities',
+      classification: 'classification',
+      classifications: 'classifications',
+    },
   },
   'employee-dashboard': {
     'page-title': 'Employee dashboard',
@@ -198,6 +213,7 @@ export default {
     'priority-entitlement':
       'Would the appointment of a priority person result in a priority entitlement for another indeterminate employee?',
     'priority-entitlement-rationale': 'Please provide the rationale',
+    'rationale': 'Rationale',
     'selection-process-type': 'Selection process type',
     'performed-duties':
       'Has the person proposed previously performed the same duties in the last twelve months or is this person still currently performing them in any capacity (casual, Interchange Canada, agency, contractor, acting more than four months, etc.)?',
@@ -207,6 +223,7 @@ export default {
     'work-schedule-help-message': 'Supporting evidence required',
     'employment-equity-identified':
       'Has an organizational need for employment equity been identified for this process, deployment, or appointment?',
+    'employment-equity-identified-alt': 'Has an organizational need for employment equity been identified?',
     'preferred-employment-equities': 'Which organization need for employment equity has been identified?',
     'preferred-employment-equities-help-message': 'Select all that apply',
     'projected-start-date': 'Projected start date',
@@ -256,6 +273,8 @@ export default {
     'page-title': 'Employees',
     'back-to-dashboard': 'Back to dashboard',
     'view': 'View',
+    'archive': 'Archive',
+    'archive-link': 'Archive profile for {{profileUserName}}',
     'my-employees': 'My employees',
     'all-employees': 'All employees',
     'employee': 'Employee',
@@ -270,10 +289,18 @@ export default {
     'table-updated-all-employees': 'Table updated: showing All Employees',
     'create-profile': 'Create profile',
     'employee-work-email': 'Employee work email address',
+    'archive-confirmation': {
+      title: 'Confirm Archive',
+      message: 'Are you sure you want to archive the profile for {{profileUserName}}? This action cannot be undone.',
+      cancel: 'Cancel',
+      confirm: 'Archive',
+    },
+    'profile-archived': 'Profile for {{profileUserName}} has been successfully archived.',
     'errors': {
       'email-required': 'Email address is required.',
       'email-invalid': 'Invalid email address.',
       'profile-already-exists': 'User already has an active profile',
+      'no-user-found-with-this-email': 'No user found with this email address.',
     },
   },
   'hr-advisor-requests': {
@@ -286,8 +313,14 @@ export default {
     'requests': 'Requests',
   },
   'hiring-manager-referral-requests': {
-    'page-title': 'Referral requests',
+    'page-title': 'Referral request',
     'request-details': 'Request details',
+    'request-id': 'Request ID',
+    'request-date': 'Request date',
+    'hiring-manager': 'Hiring manager',
+    'hr-advisor': 'HR advisor',
+    'not-assigned': 'To be assigned',
+    'request-completion-progress': 'Request completion progress',
     'page-description':
       'Complete all sections detailing the process, position, and required qualifications and submit for approval.',
     'process-information': 'Process information',
@@ -313,12 +346,48 @@ export default {
     'cancel': 'Cancel',
     'save-and-exit': 'Save and exit',
     'submit': 'Submit',
-    'page-info-1':
-      'ESDC Priority Clearance via the Vacancy Management System (VMS) is required for all indeterminate deployments and appointments (with the exception of the reclassification of a position, indeterminate deployments within the same branch or region, and alternations).',
-    'page-info-2':
-      'Public Service Commission (PSC) Priority Clearance is required for all term and indeterminate appointments.',
-    'page-info-3': 'PSC and ESDC Clearances are required prior to advertising all advertised appointment processes.',
-    'page-info-4': "Consult the Manager's Guide on Priority Clearances for more information.",
+    'notice-line-1':
+      'The departmental clearance process is required prior to initiating an internal or external, advertised or non-advertised process for which the intent would result in indeterminate staffing (deployments and appointments), with the exception of:',
+    'notice-line-2': 'an indeterminate deployment of an ESDC surplus employee,',
+    'notice-line-3': 'an indeterminate deployment within the same branch or region,',
+    'notice-line-4': 'an appointment following the reclassification of a position,',
+    'notice-line-5': 'an alternation.',
+    'notice-line-6':
+      'The PSC priority clearance process is required prior to initiating an internal or external, advertised or non-advertised process for which the intent would result in indeterminate and term appointments.',
+    'notice-line-7': "Consult the Manager's Guide on Priority Clearances for more information.",
+    'request-incomplete': 'Please complete all required fields before submitting request',
+    'request-submitted': 'Request submitted successfully! An HR advisor will review it for approval',
+    'delete-request': {
+      title: 'Delete this request?',
+      content: 'This will permanently delete this request. This action cannot be undone.',
+      keep: 'Keep request',
+      delete: 'Delete request',
+    },
+    'back': 'Back to requests',
+    //'view-link': 'View request with ID {{requestId}}',
+  },
+  'hr-advisor-referral-requests': {
+    'page-title': 'Referral requests',
+    'request-id': 'Request ID',
+    'request-date': 'Request date',
+    'hiring-manager': 'Hiring manager',
+    'hr-advisor': 'HR advisor',
+    'request-details': 'Request details',
+    'process-information': 'Process information',
+    'position-information': 'Position information',
+    'somc-conditions': 'Statement of merit criteria and conditions of employment',
+    'somc-conditions-link': 'View statement of merit criteria and conditions of employment',
+    'submission-details': 'Submission details',
+    'required': 'Required',
+    'complete': 'Complete',
+    'in-progress': 'In Progress',
+    'not-provided': 'Not provided',
+    'cancel': 'Cancel',
+    'save-and-exit': 'Save and exit',
+    'submit': 'Submit',
+    'status': {
+      'request-pending-approval': 'Request pending approval',
+    },
   },
   'referral-request': 'Referral request',
   'position-information': {
@@ -357,6 +426,10 @@ export default {
         'oral-proficiency-required': 'Oral proficiency is required.',
       },
       'security-requirement-required': 'Security requirement is required.',
+    },
+    'choice-tag': {
+      city: 'city',
+      cities: 'cities',
     },
   },
   'hiring-manager-requests': {
@@ -401,6 +474,7 @@ export default {
     'hiring-manager-title': 'Hiring manager',
     'sub-delegate-title': 'Sub-delegate',
     'errors': {
+      'no-user-found-with-this-email': 'No user found with this email address.',
       'is-submitter-hiring-manager-required': '"Is submitter the hiring manager for this request" field is required.',
       'is-submitter-a-sub-delegate-required': '"Is submitter a sub-delegated manager" field is required.',
       'are-you-hiring-manager-for-request-required': '"Are you the hiring manager for this request" field is required.',
@@ -434,20 +508,25 @@ export default {
     'next-page': 'Next',
   },
   'matches': {
+    'page-title': 'Request candidates',
     'referral-request': 'Referral Request',
     'request-id': 'Request ID',
     'request-date': 'Request date',
     'hiring-manager': 'Hiring manager',
     'hr-advisor': 'HR advisor',
     'back-request-details': 'Back to request details',
+    'back-request-candidates': 'Back to request candidates',
     'request-candidates': 'Request candidates',
     'feedback': {
+      success: 'Feedback submitted successfully! An HR advisor will review it for approval',
       approved:
         '<strong>All feedback approved.</strong> Please return to the <InlineLink>Request details page</InlineLink> and select the next action to take',
     },
     'request-details': 'Request details',
     'page-info':
       'Review candidate feedback below for approval. If changes are needed, contact the hiring manager directly to discuss, and update before selecting the appropriate action on the request details page.',
+    'confirm-info':
+      'I confirm that retraining rights for any affected, surplus or lay-off priorities were applied and or considered.',
   },
   'matches-tables': {
     'employee': 'Employee',
@@ -461,7 +540,17 @@ export default {
       'edit': 'Edit Comment',
       'edit-add': 'Edit/add Comment',
     },
+    'comment-popup': {
+      'hiring-manager': 'Hiring manager comments',
+      'hr-advisor': 'HR advisor comments',
+    },
+    'approval-popup': {
+      'approved': 'Approved',
+      'approve-feedback': 'Approve feedback?',
+    },
     'no-candidates': "You don't have any candidates at the moment.",
     'next-page': 'Next',
   },
+  'anywhere-in-canada': 'Anywhere in Canada',
+  'anywhere-in-provinces': 'Anywhere in {{provinceNames}}',
 };

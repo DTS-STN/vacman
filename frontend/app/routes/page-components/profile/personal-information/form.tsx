@@ -12,7 +12,6 @@ import { FormErrorSummary } from '~/components/error-summary';
 import { InputField } from '~/components/input-field';
 import { InputPhoneField } from '~/components/input-phone-field';
 import { InputRadios } from '~/components/input-radios';
-import { InputTextarea } from '~/components/input-textarea';
 import { PageTitle } from '~/components/page-title';
 import type { I18nRouteFile } from '~/i18n-routes';
 import type { Errors } from '~/routes/page-components/profile/validation.server';
@@ -27,7 +26,6 @@ export type UserPersonalInformation = {
   personalEmailAddress?: string;
   businessPhoneNumber?: string;
   personalPhoneNumber?: string;
-  additionalComment?: string;
 };
 
 interface PersonalInformationFormProps {
@@ -137,16 +135,7 @@ export function PersonalInformationForm({
               }
               required
             />
-            <InputTextarea
-              id="additional-comment"
-              className="w-full"
-              label={t('personal-information.additional-information')}
-              name="additionalComment"
-              defaultValue={formValues?.additionalComment}
-              errorMessage={t(extractValidationKey(formErrors?.additionalComment))}
-              helpMessage={t('personal-information.additional-info-help-message')}
-              maxLength={100}
-            />
+            <p className="block max-w-prose text-gray-500">{t('personal-information.additional-information')}</p>
             <div className="mt-8 flex flex-wrap items-center justify-start gap-3">
               <ButtonLink file={cancelLink} params={params} id="cancel-button" variant="alternative">
                 {t('form.cancel')}

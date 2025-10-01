@@ -7,6 +7,8 @@ export const EMPLOYEE_WFA_STATUS = {
   surplusGRJO: 'SURPLUS_GRJO',
   exSurplusCPA: 'EXSURPLUSCPA',
   surplusOptingOptionA: 'SURPLUS_NO_GRJO',
+  relocation: 'RELOCATION',
+  alternateDeliveryInitiative: 'ALTERNATE_DELIVERY_INITIATIVE',
 } as const;
 
 export const PROFILE_STATUS_CODE = {
@@ -14,6 +16,15 @@ export const PROFILE_STATUS_CODE = {
   pending: 'PENDING',
   incomplete: 'INCOMPLETE',
   archived: 'ARCHIVED',
+} as const;
+
+export type ProfileStatusCode = (typeof PROFILE_STATUS_CODE)[keyof typeof PROFILE_STATUS_CODE];
+
+export const PROFILE_STATUS_ID = {
+  pending: 0,
+  approved: 1,
+  incomplete: 2,
+  archived: 3,
 } as const;
 
 export const LANGUAGE_ID = {
@@ -37,33 +48,34 @@ export const Acronym = {
 
 export type AcronymEnum = (typeof Acronym)[keyof typeof Acronym];
 
-export const PROFILE_STATUS_PENDING = {
-  id: 0,
-  code: 'PENDING',
-  nameEn: 'Pending approval',
-  nameFr: "En attente d'approbation",
+export const PROFILE_STATUS = {
+  PENDING: {
+    id: 0,
+    code: 'PENDING',
+    nameEn: 'Pending approval',
+    nameFr: "En attente d'approbation",
+  },
+  APPROVED: {
+    id: 1,
+    code: 'APPROVED',
+    nameEn: 'Approved',
+    nameFr: 'Approuvé',
+  },
+  INCOMPLETE: {
+    id: 2,
+    code: 'INCOMPLETE',
+    nameEn: 'In progress',
+    nameFr: 'En cours',
+  },
+  ARCHIVED: {
+    id: 3,
+    code: 'ARCHIVED',
+    nameEn: 'Archived',
+    nameFr: 'Archivé',
+  },
 } as const;
 
-export const PROFILE_STATUS_APPROVED = {
-  id: 1,
-  code: 'APPROVED',
-  nameEn: 'Approved',
-  nameFr: 'Approuvé',
-} as const;
-
-export const PROFILE_STATUS_INCOMPLETE = {
-  id: 2,
-  code: 'INCOMPLETE',
-  nameEn: 'In progress',
-  nameFr: 'En cours',
-} as const;
-
-export const PROFILE_STATUS_ARCHIVED = {
-  id: 3,
-  code: 'ARCHIVED',
-  nameEn: 'Archived',
-  nameFr: 'Archivé',
-} as const;
+export type ProfileStatus = keyof typeof PROFILE_STATUS;
 
 export const PREFERRED_LANGUAGE_ENGLISH = {
   id: 0,
@@ -201,13 +213,10 @@ export const REQUEST_STATUSES = [
 ] as const;
 
 type StatusCode = (typeof REQUEST_STATUSES)[number]['code'];
-export const REQUEST_STATUS_CODE: Record<StatusCode, StatusCode> = REQUEST_STATUSES.reduce(
-  (statusCodes, status) => {
-    statusCodes[status.code] = status.code;
-    return statusCodes;
-  },
-  {} as Record<StatusCode, StatusCode>,
-);
+// prettier-ignore
+export const REQUEST_STATUS_CODE = Object.fromEntries(
+  REQUEST_STATUSES.map((status) => [status.code, status.code])
+) as Record<StatusCode,StatusCode>;
 
 export const EMPLOYMENT_TENURE = {
   term: 'TERM',
@@ -215,8 +224,66 @@ export const EMPLOYMENT_TENURE = {
 } as const;
 
 export const SELECTION_PROCESS_TYPE = {
-  externalNonAdvertised: 3,
-  internalNonAdvertised: 5,
+  APPOINTMENT: {
+    id: 0,
+    code: 'AEP',
+    nameEn: 'Appointment - ESDC Priority',
+    nameFr: "Nomination - Priorité d'EDSC",
+  },
+  APPOINTMENT_OTHER_DEPT_PRIORITY: {
+    id: 1,
+    code: 'AODP',
+    nameEn: 'Appointment - Other Department Priority',
+    nameFr: 'Nomination - Priorité autre ministère',
+  },
+  EXTERNAL_ADVERTISE: {
+    id: 2,
+    code: 'AEA',
+    nameEn: 'Appointment - External Advertised (from outside the public service)',
+    nameFr: "Nomination - Externe annoncé (de l'extérieur de la fonction publique)",
+  },
+  EXTERNAL_NON_ADVERTISED: {
+    id: 3,
+    code: 'AENA',
+    nameEn: 'Appointment - External Non-Advertised (from outside the public service)',
+    nameFr: "Nomination - Externe non-annoncé (de l'extérieur de la fonction publique)",
+  },
+  APPOINTMENT_INTERNAL_ADVERTISED: {
+    id: 4,
+    code: 'AIA',
+    nameEn: 'Appointment - Internal Advertised (from inside the public service)',
+    nameFr: 'Nomination - Interne annoncé (au sein de la fonction publique)',
+  },
+  APPOINTMENT_INTERNAL_NON_ADVERTISED: {
+    id: 5,
+    code: 'AINA',
+    nameEn: 'Appointment - Internal Non-Advertised (from inside the public service)',
+    nameFr: 'Nomination - Interne non-annoncé (au sein de la fonction publique)',
+  },
+  INITIATE_AN_ADVERTISED_PROCESS: {
+    id: 6,
+    code: 'IAP',
+    nameEn: 'Initiate an Avertised Process (Internal or External)',
+    nameFr: "Initiation d'un processus annoncé (Interne ou externe)",
+  },
+  DEPLOYMENT_ESDC_PRIORITY: {
+    id: 7,
+    code: 'DEP',
+    nameEn: 'Deployment - ESDC Priority',
+    nameFr: "Mutation - Priorité d'EDSC",
+  },
+  DEPLOYMENT_WITHIN_ESDC: {
+    id: 8,
+    code: 'DWE',
+    nameEn: 'Deployment - From within ESDC',
+    nameFr: 'Mutation - Au sein de EDSC',
+  },
+  DEPLOYMENT_FROM_OTHER_DEPT: {
+    id: 9,
+    code: 'DAD',
+    nameEn: 'Deployment - From another department/agency',
+    nameFr: "Mutation - D'un autre ministère",
+  },
 } as const;
 
 export const REQUEST_EVENT_TYPE = {

@@ -20,8 +20,8 @@ import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
 import { PositionInformationForm } from '~/routes/page-components/requests/position-information/form';
-import { createPositionInformationSchema } from '~/routes/page-components/requests/validation.server';
 import type { PositionInformationSchema } from '~/routes/page-components/requests/validation.server';
+import { createPositionInformationSchema } from '~/routes/page-components/requests/validation.server';
 import { formString } from '~/utils/string-utils';
 
 export const handle = {
@@ -33,7 +33,8 @@ export function meta({ loaderData }: Route.MetaArgs) {
 }
 
 export async function action({ context, params, request }: Route.ActionArgs) {
-  requireAuthentication(context.session, request);
+  const { session } = context.get(context.applicationContext);
+  requireAuthentication(session, request);
 
   const formData = await request.formData();
   const parseResult = v.safeParse(await createPositionInformationSchema(), {
@@ -61,7 +62,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   }
 
   const requestService = getRequestService();
-  const requestResult = await requestService.getRequestById(Number(params.requestId), context.session.authState.accessToken);
+  const requestResult = await requestService.getRequestById(Number(params.requestId), session.authState.accessToken);
 
   if (requestResult.isErr()) {
     throw new Response('Request not found', { status: HttpStatusCodes.NOT_FOUND });
@@ -86,29 +87,26 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     securityClearanceId: Number(parseResult.output.securityRequirement),
   };
 
-  const updateResult = await requestService.updateRequestById(
-    requestData.id,
-    requestPayload,
-    context.session.authState.accessToken,
-  );
+  const updateResult = await requestService.updateRequestById(requestData.id, requestPayload, session.authState.accessToken);
 
   if (updateResult.isErr()) {
     throw updateResult.unwrapErr();
   }
 
-  return i18nRedirect('routes/hiring-manager/request/index.tsx', request, {
-    params: { requestId: requestData.id.toString() },
-  });
+  return i18nRedirect('routes/hiring-manager/request/index.tsx', request, { params });
 }
 
 export async function loader({ context, request, params }: Route.LoaderArgs) {
-  requireAuthentication(context.session, request);
+  const { session } = context.get(context.applicationContext);
+  requireAuthentication(session, request);
 
-  const requestResult = await getRequestService().getRequestById(
-    Number(params.requestId),
-    context.session.authState.accessToken,
-  );
-  const requestData = requestResult.into();
+  const requestData = (
+    await getRequestService().getRequestById(Number(params.requestId), session.authState.accessToken)
+  ).into();
+
+  if (!requestData) {
+    throw new Response('Request not found', { status: HttpStatusCodes.NOT_FOUND });
+  }
 
   const { t, lang } = await getTranslation(request, handle.i18nNamespace);
 
@@ -121,15 +119,15 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   return {
     documentTitle: t('app:position-information.page-title'),
     defaultValues: {
-      positionNumber: requestData?.positionNumber,
-      classification: requestData?.classification,
-      englishTitle: requestData?.englishTitle,
-      frenchTitle: requestData?.frenchTitle,
-      englishLanguageProfile: requestData?.englishLanguageProfile,
-      frenchLanguageProfile: requestData?.frenchLanguageProfile,
-      languageRequirement: requestData?.languageRequirement,
-      securityClearance: requestData?.securityClearance,
-      cities: requestData?.cities,
+      positionNumber: requestData.positionNumber,
+      classification: requestData.classification,
+      englishTitle: requestData.englishTitle,
+      frenchTitle: requestData.frenchTitle,
+      englishLanguageProfile: requestData.englishLanguageProfile,
+      frenchLanguageProfile: requestData.frenchLanguageProfile,
+      languageRequirement: requestData.languageRequirement,
+      securityClearance: requestData.securityClearance,
+      cities: requestData.cities,
     },
     languageRequirements: localizedLanguageRequirements,
     classifications: localizedClassifications,

@@ -2,9 +2,7 @@ import type { Profile, RequestReadModel, User } from '~/.server/domain/models';
 import {
   PREFERRED_LANGUAGE_ENGLISH,
   PREFERRED_LANGUAGE_FRENCH,
-  PROFILE_STATUS_APPROVED,
-  PROFILE_STATUS_INCOMPLETE,
-  PROFILE_STATUS_PENDING,
+  PROFILE_STATUS,
   USER_TYPE_EMPLOYEE,
   USER_TYPE_HIRING_MANAGER,
   USER_TYPE_HR_ADVISOR,
@@ -202,7 +200,6 @@ export function buildProfilesFromTemplates(): Profile[] {
       profileId: 1,
       userId: 1,
       data: {
-        additionalComment: 'Looking for opportunities in software development.',
         hasConsentedToPrivacyTerms: false,
         hrAdvisorId: undefined,
         isAvailableForReferral: undefined,
@@ -210,7 +207,7 @@ export function buildProfilesFromTemplates(): Profile[] {
         personalEmailAddress: 'john.doe@example.com',
         personalPhoneNumber: '613-555-0001',
         languageOfCorrespondence: PREFERRED_LANGUAGE_ENGLISH,
-        profileStatus: PROFILE_STATUS_INCOMPLETE,
+        profileStatus: PROFILE_STATUS.INCOMPLETE,
         createdBy: 'system',
         createdDate: '2024-01-01T00:00:00Z',
         lastModifiedBy: undefined,
@@ -221,7 +218,6 @@ export function buildProfilesFromTemplates(): Profile[] {
       profileId: 2,
       userId: 2,
       data: {
-        additionalComment: undefined,
         hasConsentedToPrivacyTerms: false,
         hrAdvisorId: undefined,
         isAvailableForReferral: undefined,
@@ -229,7 +225,7 @@ export function buildProfilesFromTemplates(): Profile[] {
         personalEmailAddress: undefined,
         personalPhoneNumber: undefined,
         languageOfCorrespondence: undefined,
-        profileStatus: PROFILE_STATUS_INCOMPLETE,
+        profileStatus: PROFILE_STATUS.INCOMPLETE,
         createdBy: 'system',
         createdDate: '2024-01-01T00:00:00Z',
         lastModifiedBy: 'jane.doe',
@@ -240,7 +236,6 @@ export function buildProfilesFromTemplates(): Profile[] {
       profileId: 3,
       userId: 3,
       data: {
-        additionalComment: 'Interested in remote work.',
         hasConsentedToPrivacyTerms: true,
         hrAdvisorId: 1,
         isAvailableForReferral: false,
@@ -248,7 +243,7 @@ export function buildProfilesFromTemplates(): Profile[] {
         personalEmailAddress: 'alice.smith@example.com',
         personalPhoneNumber: '613-555-0001',
         languageOfCorrespondence: PREFERRED_LANGUAGE_ENGLISH,
-        profileStatus: PROFILE_STATUS_PENDING,
+        profileStatus: PROFILE_STATUS.PENDING,
         createdBy: 'system',
         createdDate: '2024-02-01T09:00:00Z',
         lastModifiedBy: 'john.smith',
@@ -259,7 +254,6 @@ export function buildProfilesFromTemplates(): Profile[] {
       profileId: 4,
       userId: 4,
       data: {
-        additionalComment: 'Fluent in French and English.',
         hasConsentedToPrivacyTerms: true,
         hrAdvisorId: 1,
         isAvailableForReferral: true,
@@ -267,7 +261,7 @@ export function buildProfilesFromTemplates(): Profile[] {
         personalEmailAddress: 'bob.johnson@example.com',
         personalPhoneNumber: '613-555-5555',
         languageOfCorrespondence: PREFERRED_LANGUAGE_FRENCH,
-        profileStatus: PROFILE_STATUS_APPROVED,
+        profileStatus: PROFILE_STATUS.APPROVED,
         createdBy: 'system',
         createdDate: '2024-03-15T08:30:00Z',
         lastModifiedBy: 'john.smith',
@@ -278,7 +272,6 @@ export function buildProfilesFromTemplates(): Profile[] {
       profileId: 5,
       userId: 5,
       data: {
-        additionalComment: 'Open to contract roles.',
         hasConsentedToPrivacyTerms: true,
         hrAdvisorId: 5,
         isAvailableForReferral: true,
@@ -286,7 +279,7 @@ export function buildProfilesFromTemplates(): Profile[] {
         personalEmailAddress: 'alex.tan@example.com',
         personalPhoneNumber: '613-555-3333',
         languageOfCorrespondence: PREFERRED_LANGUAGE_ENGLISH,
-        profileStatus: PROFILE_STATUS_APPROVED,
+        profileStatus: PROFILE_STATUS.APPROVED,
         createdBy: 'system',
         createdDate: '2024-04-20T11:45:00Z',
         lastModifiedBy: 'alex.tan',
@@ -344,8 +337,7 @@ export function createAndLinkNewMockProfile(accessToken: string): Profile {
   const newProfileId = mockProfiles.length > 0 ? Math.max(...mockProfiles.map((p) => p.id)) + 1 : 1;
   const newProfile: Profile = {
     id: newProfileId,
-    profileStatus: PROFILE_STATUS_INCOMPLETE,
-    additionalComment: 'Looking for opportunities in software development.',
+    profileStatus: PROFILE_STATUS.INCOMPLETE,
     hasConsentedToPrivacyTerms: false,
     personalEmailAddress: 'personal.email@example.com',
     personalPhoneNumber: '613-938-0001',
@@ -394,10 +386,10 @@ export const mockRequests: RequestReadModel[] = [
     englishStatementOfMerit: 'English statement of merit criteria',
     frenchStatementOfMerit: 'Critères de mérite en français',
     status: {
-      id: 1,
-      code: 'SUBMIT',
-      nameEn: 'Request Submitted',
-      nameFr: 'Demande soumise',
+      id: 0,
+      code: 'DRAFT',
+      nameEn: 'Draft',
+      nameFr: 'Ébauche',
     },
     workUnit: undefined,
     submitter: mockUsers[0], // John Doe
@@ -419,33 +411,37 @@ export const mockRequests: RequestReadModel[] = [
 
 export function createMockRequest(accessToken: string): RequestReadModel {
   const newId = Math.max(...mockRequests.map((r) => r.id), 0) + 1;
-
-  return {
+  const newRequest = {
     id: newId,
-    selectionProcessNumber: `2024-${newId.toString().padStart(3, '0')}`,
-    workforceMgmtApprovalRecvd: false,
-    priorityEntitlement: false,
+    selectionProcessNumber: undefined,
+    workforceMgmtApprovalRecvd: undefined,
+    priorityEntitlement: undefined,
     priorityEntitlementRationale: undefined,
     selectionProcessType: undefined,
-    hasPerformedSameDuties: false,
+    hasPerformedSameDuties: undefined,
     appointmentNonAdvertised: undefined,
-    projectedStartDate: '2024-01-01',
-    projectedEndDate: '2024-12-31',
+    projectedStartDate: undefined,
+    projectedEndDate: undefined,
     workSchedule: undefined,
-    equityNeeded: false,
+    equityNeeded: undefined,
     employmentEquities: undefined,
-    positionNumber: 'TBD',
+    positionNumber: undefined,
     classification: undefined,
-    englishTitle: 'New Position',
-    frenchTitle: 'Nouveau poste',
+    englishTitle: undefined,
+    frenchTitle: undefined,
     cities: undefined,
     languageRequirement: undefined,
-    englishLanguageProfile: 'BBB',
-    frenchLanguageProfile: 'BBB',
+    englishLanguageProfile: undefined,
+    frenchLanguageProfile: undefined,
     securityClearance: undefined,
-    englishStatementOfMerit: 'To be determined',
-    frenchStatementOfMerit: 'À déterminer',
-    status: undefined,
+    englishStatementOfMerit: undefined,
+    frenchStatementOfMerit: undefined,
+    status: {
+      id: 0,
+      code: 'DRAFT',
+      nameEn: 'Draft',
+      nameFr: 'Ébauche',
+    },
     workUnit: undefined,
     submitter: undefined,
     hiringManager: undefined,
@@ -462,6 +458,8 @@ export function createMockRequest(accessToken: string): RequestReadModel {
     lastModifiedBy: 'mock-user',
     lastModifiedDate: new Date().toISOString(),
   };
+  mockRequests.push(newRequest);
+  return newRequest;
 }
 
 export function createUserFromEmail(email: string): User {

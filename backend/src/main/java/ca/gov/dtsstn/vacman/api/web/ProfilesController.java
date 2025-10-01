@@ -7,9 +7,9 @@ import static ca.gov.dtsstn.vacman.api.web.model.CollectionModel.toCollectionMod
 import static java.util.Collections.emptySet;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.lang3.StringUtils;
 import org.mapstruct.factory.Mappers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,14 +35,16 @@ import ca.gov.dtsstn.vacman.api.config.properties.ApplicationProperties;
 import ca.gov.dtsstn.vacman.api.config.properties.EntraIdProperties.RolesProperties;
 import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes;
 import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes.ProfileStatuses;
+import ca.gov.dtsstn.vacman.api.data.entity.AbstractBaseEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
-import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 import ca.gov.dtsstn.vacman.api.security.SecurityUtils;
 import ca.gov.dtsstn.vacman.api.service.ProfileService;
 import ca.gov.dtsstn.vacman.api.service.UserService;
 import ca.gov.dtsstn.vacman.api.web.exception.ResourceConflictException;
 import ca.gov.dtsstn.vacman.api.web.model.CollectionModel;
 import ca.gov.dtsstn.vacman.api.web.model.ProfilePutModel;
+import ca.gov.dtsstn.vacman.api.web.model.ProfileReadFilterModel;
+import ca.gov.dtsstn.vacman.api.web.model.ProfileReadFilterModelBuilder;
 import ca.gov.dtsstn.vacman.api.web.model.ProfileReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.ProfileStatusUpdateModel;
 import ca.gov.dtsstn.vacman.api.web.model.mapper.ProfileModelMapper;
@@ -92,37 +94,15 @@ public class ProfilesController {
 	@ApiResponses.AuthenticationError
 	@PreAuthorize("hasAuthority('hr-advisor')")
 	@Operation(summary = "Retrieve a list of profiles with optional filters on active profiles, inactive profiles, and HR advisor assocation.")
-	public ResponseEntity<PagedModel<ProfileReadModel>> getProfiles(
-			@ParameterObject
-			Pageable pageable,
+	public ResponseEntity<PagedModel<ProfileReadModel>> getProfiles(@ParameterObject Pageable pageable, @ParameterObject ProfileReadFilterModel filter) {
+		final var profileQuery = profileModelMapper.toProfileQuery(
+			ProfileReadFilterModelBuilder.builder(filter)
+				// ?hrAdvisorId=me is a valid filter, so we must replace any instance
+				// of 'me' with the current user's id before fetching the data
+				.hrAdvisorId(resolveMeKeyword(filter.hrAdvisorId()))
+				.build());
 
-			@RequestParam(name = "active", required = false)
-			@Parameter(name = "active", description = "Return only active or inactive profiles")
-			Boolean isActive,
-
-			@RequestParam(name = "hr-advisor", required = false)
-			@Parameter(name = "hr-advisor", description = "Return only the profiles that are associated with the HR advisor")
-			String hrAdvisor) {
-		// Determine the advisor ID based on the advisor param (or lack thereof).
-		Long hrAdvisorId;
-
-		if (StringUtils.isBlank(hrAdvisor)) {
-			hrAdvisorId = null;
-		}
-		else if (hrAdvisor.equalsIgnoreCase("me")) {
-			final var entraId = SecurityUtils.getCurrentUserEntraId()
-				.orElseThrow(asEntraIdUnauthorizedException());
-
-			hrAdvisorId = userService.getUserByMicrosoftEntraId(entraId)
-				.map(UserEntity::getId)
-				.orElseThrow(asUserResourceNotFoundException("microsoftEntraId", entraId));
-		}
-		else {
-			hrAdvisorId = Long.valueOf(hrAdvisor);
-		}
-
-		// Determine the mapping function to use.
-		final var profiles = profileService.getProfilesByStatusAndHrId(pageable, isActive, hrAdvisorId)
+		final var profiles = profileService.findProfiles(pageable, profileQuery)
 			.map(profileModelMapper::toModel);
 
 		return ResponseEntity.ok(new PagedModel<>(profiles));
@@ -260,10 +240,10 @@ public class ProfilesController {
 			validPretransitionStates = Set.of(profileStatusCodes.incomplete(), profileStatusCodes.approved());
 		}
 		else if (code.equals(profileStatusCodes.approved())) {
-			validPretransitionStates = Set.of(profileStatusCodes.pending());
+			validPretransitionStates = Set.of(profileStatusCodes.pending(), profileStatusCodes.incomplete());
 		}
 		else if (code.equals(profileStatusCodes.archived())) {
-			validPretransitionStates = Set.of(profileStatusCodes.approved());
+			validPretransitionStates = Set.of(profileStatusCodes.incomplete(), profileStatusCodes.pending(), profileStatusCodes.approved());
 		}
 		else {
 			throw new ResourceConflictException("Cannot transition profile status to code=[" + code + "]");
@@ -284,6 +264,24 @@ public class ProfilesController {
 			.orElse(emptySet());
 
 		return userAuthorities.contains(roles.hrAdvisor());
+	}
+
+	/**
+	 * Replaces the "me" keyword in a list of IDs with the current authenticated user's ID.
+	 */
+	private List<String> resolveMeKeyword(Collection<String> hrAdvisorIds) {
+		// if the "me" keyword isn't used, we don't need to do anything.
+		if (!hrAdvisorIds.contains("me")) { return List.copyOf(hrAdvisorIds); }
+
+		final var currentUserId = SecurityUtils.getCurrentUserEntraId()
+			.flatMap(userService::getUserByMicrosoftEntraId)
+			.map(AbstractBaseEntity::getId)
+			.orElseThrow(asEntraIdUnauthorizedException());
+
+		// replace all occurrences of "me" with the actual userid
+		return hrAdvisorIds.stream()
+			.map(id -> "me".equals(id) ? currentUserId.toString() : id)
+			.toList();
 	}
 
 	private void updateStatusToTarget(ProfileEntity profile, String targetStatus, Collection<String> validPreTransitionStates) {

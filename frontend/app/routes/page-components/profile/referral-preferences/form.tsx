@@ -118,7 +118,11 @@ export function ReferralPreferencesForm({
   const classificationChoiceTags: ChoiceTag[] = selectedClassifications
     .map((classification) => {
       const selectedC = classifications.find((c) => c.id === Number(classification));
-      return { label: selectedC?.name ?? classification, name: 'classification', value: classification };
+      return {
+        label: selectedC?.name ?? classification,
+        name: tApp('referral-preferences.choice-tag.classification'),
+        value: classification,
+      };
     })
     .toSorted((a, b) => String(a.label).localeCompare(String(b.label)));
 
@@ -131,14 +135,21 @@ export function ReferralPreferencesForm({
   };
 
   const handleOnClearAllClassifications: ChoiceTagClearAllEventHandler = () => {
-    setSrAnnouncement(tGcweb('choice-tag.clear-all-sr-message', { item: 'classifications' }));
+    setSrAnnouncement(
+      tGcweb('choice-tag.clear-all-sr-message', { item: tApp('referral-preferences.choice-tag.classifications') }),
+    );
     setSelectedClassifications([]);
   };
 
   // Choice tags for cities
   const citiesChoiceTags: ChoiceTag[] = selectedCities.map((city) => {
     const selectedC = cities.find((c) => c.id === Number(city));
-    return { label: selectedC?.name ?? city, name: 'city', value: city, group: selectedC?.provinceTerritory.name };
+    return {
+      label: selectedC?.name ?? city,
+      name: tApp('referral-preferences.choice-tag.city'),
+      value: city,
+      group: selectedC?.provinceTerritory.name,
+    };
   });
 
   /**
@@ -152,12 +163,14 @@ export function ReferralPreferencesForm({
   };
 
   const handleOnClearAllCities: ChoiceTagClearAllEventHandler = () => {
-    setSrAnnouncement(tGcweb('choice-tag.clear-all-sr-message', { item: 'cities' }));
+    setSrAnnouncement(tGcweb('choice-tag.clear-all-sr-message', { item: tApp('referral-preferences.choice-tag.cities') }));
     setSelectedCities([]);
   };
 
   const handleOnClearCityGroup = (groupName: string) => {
-    setSrAnnouncement(tGcweb('choice-tag.clear-group-label', { items: 'cities', groupName }));
+    setSrAnnouncement(
+      tGcweb('choice-tag.clear-group-label', { items: tApp('referral-preferences.choice-tag.cities'), groupName }),
+    );
     setSelectedCities((prev) =>
       prev.filter((cityId) => {
         const city = cities.find((c) => c.id === Number(cityId));
@@ -196,9 +209,16 @@ export function ReferralPreferencesForm({
               value={selectedClassifications}
               onChange={(values) => setSelectedClassifications(values)}
               placeholder={tApp('form.select-all-that-apply')}
-              helpMessage={tApp('referral-preferences.classification-group-help-message-primary')}
               errorMessage={tApp(extractValidationKey(formErrors?.preferredClassifications))}
               required
+              helpMessage={
+                <>
+                  {tApp('referral-preferences.classification-group-help-message-primary')}
+                  <Collapsible summary={tApp('referral-preferences.guidance-on-groups-and-levels')}>
+                    <p>{tApp('referral-preferences.guidance-on-groups-and-levels-description')}</p>
+                  </Collapsible>
+                </>
+              }
             />
 
             {classificationChoiceTags.length > 0 && (
@@ -213,7 +233,7 @@ export function ReferralPreferencesForm({
               <InputLegend id="workLocationLegend" required>
                 {tApp('referral-preferences.work-location')}
               </InputLegend>
-              <InputHelp id="workLocationHelpMessage">{tApp('form.select-work-locations')}</InputHelp>
+              <InputHelp id="workLocationHelpMessage">{tApp('referral-preferences.select-work-locations')}</InputHelp>
               <Button variant="primary" onClick={handleSelectAllCities}>
                 {tApp('referral-preferences.select-all')}
               </Button>
@@ -277,6 +297,7 @@ export function ReferralPreferencesForm({
               options={alternateOpportunityOptions}
               required
               errorMessage={tApp(extractValidationKey(formErrors?.isInterestedInAlternation))}
+              displayAriaDescribedBy={false}
               helpMessagePrimary={
                 <Collapsible summary={tApp('referral-preferences.what-is-alternation')}>
                   <p>{tApp('referral-preferences.alternation-description-text-para-1')}</p>

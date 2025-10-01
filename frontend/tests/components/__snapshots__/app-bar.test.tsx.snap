@@ -88,7 +88,8 @@ exports[`AppBar > should render render an AppBar with a name provided > expected
               class="flex h-8 w-8 items-center justify-center rounded-full bg-white"
             >
               <svg
-                aria-hidden="true"
+                aria-hidden="false"
+                aria-label="Test User"
                 class="svg-inline--fa fa-user size-5 text-slate-700"
                 data-icon="user"
                 data-prefix="fas"
@@ -164,7 +165,8 @@ exports[`AppBar > should render render an AppBar with a profile item provided > 
               class="flex h-8 w-8 items-center justify-center rounded-full bg-white"
             >
               <svg
-                aria-hidden="true"
+                aria-hidden="false"
+                aria-label="Test User"
                 class="svg-inline--fa fa-user size-5 text-slate-700"
                 data-icon="user"
                 data-prefix="fas"

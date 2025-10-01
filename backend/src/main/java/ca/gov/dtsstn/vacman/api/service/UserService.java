@@ -11,6 +11,7 @@ import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import ca.gov.dtsstn.vacman.api.config.properties.ApplicationProperties;
 import ca.gov.dtsstn.vacman.api.config.properties.EntraIdProperties.RolesProperties;
@@ -57,6 +58,7 @@ public class UserService {
 		this.userTypeCodes = lookupCodes.userTypes();
 	}
 
+	@Transactional(readOnly = false)
 	public UserEntity createUser(UserEntity user) {
 		final var userTypeCode = SecurityUtils.hasAuthority(entraRoles.hrAdvisor())
 			? userTypeCodes.hrAdvisor()
@@ -76,6 +78,7 @@ public class UserService {
 		return createdUser;
 	}
 
+	@Transactional(readOnly = true)
 	public Optional<UserEntity> getUserById(long id) {
 		return userRepository.findById(id).map(user -> {
 			eventPublisher.publishEvent(new UserReadEvent(user));
@@ -83,6 +86,7 @@ public class UserService {
 		});
 	}
 
+	@Transactional(readOnly = true)
 	public Optional<UserEntity> getUserByMicrosoftEntraId(String entraId) {
 		// No need to emit an event here because this is used
 		// in intermediary steps by other methods that emit events
@@ -96,6 +100,7 @@ public class UserService {
 		return userRepository.findOne(example);
 	}
 
+	@Transactional(readOnly = true)
 	public Page<UserEntity> getUsers(Pageable pageable) {
 		final var users = userRepository.findAll(pageable);
 		users.forEach(user -> eventPublisher.publishEvent(new UserReadEvent(user)));
@@ -112,12 +117,14 @@ public class UserService {
 	 * @return A {@link Page} of {@link UserEntity} objects that match the example.
 	 *         Will never be {@code null}.
 	 */
+	@Transactional(readOnly = true)
 	public Page<UserEntity> findUsers(UserEntity example, Pageable pageable) {
 		final var users = userRepository.findAll(Example.of(example), pageable);
 		users.forEach(user -> eventPublisher.publishEvent(new UserReadEvent(user)));
 		return users;
 	}
 
+	@Transactional(readOnly = false)
 	public UserEntity overwriteUser(long id, UserEntity updates) {
 		final var existingUser = userRepository.findById(id).orElseThrow();
 		userEntityMapper.overwrite(updates, existingUser);
@@ -127,6 +134,7 @@ public class UserService {
 		return updatedUser;
 	}
 
+	@Transactional(readOnly = false)
 	public UserEntity updateUser(long id, UserEntity updates) {
 		final var existingUser = userRepository.findById(id).orElseThrow();
 		userEntityMapper.update(updates, existingUser);
@@ -136,6 +144,7 @@ public class UserService {
 		return updatedUser;
 	}
 
+	@Transactional(readOnly = false)
 	public void deleteUser(long id) {
 		userRepository.findById(id).ifPresent(user -> {
 			userRepository.deleteById(id);

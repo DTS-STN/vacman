@@ -54,6 +54,7 @@ export const ErrorCodes = {
   NO_WORK_SCHEDULE_FOUND: 'SVC-0021',
   NO_MATCH_FEEDBACK_FOUND: 'SVC-0022',
   NO_MATCH_STATUS_FOUND: 'SVC-0023',
+  NO_WORKUNIT_FOUND: 'SVC-0024',
 
   // vacman api error codes
   VACMAN_API_ERROR: 'API-0001',

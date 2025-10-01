@@ -15,7 +15,7 @@ import { BackLink } from '~/components/back-link';
 import { InlineLink } from '~/components/links';
 import { PageTitle } from '~/components/page-title';
 import { Progress } from '~/components/progress';
-import { StatusTag } from '~/components/status-tag';
+import { RequestStatusTag } from '~/components/status-tag';
 import { VacmanBackground } from '~/components/vacman-background';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
@@ -29,8 +29,16 @@ export function meta({ loaderData }: Route.MetaArgs) {
   return [{ title: loaderData.documentTitle }];
 }
 
+export function action({ context, params, request }: Route.ActionArgs) {
+  const { session } = context.get(context.applicationContext);
+  requireAuthentication(session, request);
+  //TODO add action logic
+  return undefined;
+}
+
 export async function loader({ context, request, params }: Route.LoaderArgs) {
-  requireAuthentication(context.session, request);
+  const { session } = context.get(context.applicationContext);
+  requireAuthentication(session, request);
 
   const { t, lang } = await getTranslation(request, handle.i18nNamespace);
 
@@ -39,16 +47,14 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 
   const requestMatchesResult = await getRequestService().getRequestMatches(
     parseInt(params.requestId),
-    context.session.authState.accessToken,
+    session.authState.accessToken,
   );
 
   const requestMatches = requestMatchesResult.into()?.content ?? [];
   */
-  const requestStatuses = await getRequestStatusService().listAllLocalized(lang);
-  const localizedStatuses = await getMatchStatusService().listAllLocalized(lang);
-  const localizedFeedback = await getMatchFeedbackService().listAllLocalized(lang);
-  const matchStatusNames = localizedStatuses.map(({ name }) => name);
-  const matchFeedbackNames = localizedFeedback.map(({ name }) => name);
+  const requestStatuses = await getRequestStatusService().listAll();
+  const matchStatus = await getMatchStatusService().listAllLocalized(lang);
+  const matchFeedback = await getMatchFeedbackService().listAllLocalized(lang);
 
   const requestMatches = [
     {
@@ -58,10 +64,13 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
         initial: 'M',
         lastName: 'Smith',
       },
-      wfaStatus: 2,
-      feedback: 1,
-      comment: 'Interested in remote work.',
-      approval: 'Approved',
+      wfaStatus: 'A-A',
+      feedback: 'QA-QOA',
+      comment: {
+        hrAdvisor: undefined,
+        hiringManager: 'Interested in remote work.',
+      },
+      approval: false,
     },
     {
       id: 4,
@@ -70,10 +79,13 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
         initial: 'R',
         lastName: 'Johnson',
       },
-      wfaStatus: 2,
-      feedback: 0,
-      comment: 'Interested in remote work.',
-      approval: 'Approved',
+      wfaStatus: 'A-A',
+      feedback: 'QNS',
+      comment: {
+        hrAdvisor: 'Interested in remote work.',
+        hiringManager: undefined,
+      },
+      approval: false,
     },
     {
       id: 5,
@@ -82,18 +94,22 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
         initial: 'T',
         lastName: 'Tan',
       },
-      wfaStatus: 1,
-      feedback: 1,
-      comment: 'Interested in remote work.',
-      approval: 'Approved',
+      wfaStatus: 'PA-EAA',
+      feedback: 'NQO-NQA',
+      comment: {
+        hrAdvisor: 'Interested in remote work.',
+        hiringManager: undefined,
+      },
+      approval: true,
     },
   ];
 
   return {
-    documentTitle: t('app:hr-advisor-requests.page-title'),
+    documentTitle: t('app:matches.page-title'),
+    lang,
+    matchStatus,
+    matchFeedback,
     requestMatches,
-    matchStatusNames,
-    matchFeedbackNames,
     requestStatus: requestStatuses[5],
     branch: 'Chief Financial Officer Branch',
     requestDate: '0000-00-00',
@@ -118,21 +134,14 @@ export default function HrAdvisorMatches({ loaderData, params }: Route.Component
 
   return (
     <div className="mb-8 space-y-4">
-      <VacmanBackground variant="top-right" height="h-70">
+      <VacmanBackground variant="top-right">
         {loaderData.requestStatus && (
-          <div className="mt-8">
-            <StatusTag
-              status={{
-                code: loaderData.requestStatus.code,
-                name: loaderData.requestStatus.name,
-              }}
-            />
-          </div>
+          <RequestStatusTag rounded status={loaderData.requestStatus} lang={loaderData.lang} view="hr-advisor" />
         )}
         <PageTitle className="after:w-14" subTitle={loaderData.branch}>
           {t('app:matches.referral-request')}
         </PageTitle>
-        <div className="grid grid-cols-4 gap-10">
+        <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 md:grid-cols-4">
           <div>
             <p>{t('app:matches.request-id')}</p>
             <p className="text-[#9FA3AD]">{requestId}</p>
@@ -157,7 +166,12 @@ export default function HrAdvisorMatches({ loaderData, params }: Route.Component
           </div>
         </div>
       </VacmanBackground>
-      <BackLink aria-label={t('app:matches.back-request-details')} file="routes/hr-advisor/index.tsx" params={params}>
+      <BackLink
+        className="my-4"
+        aria-label={t('app:matches.back-request-details')}
+        file="routes/hr-advisor/index.tsx"
+        params={params}
+      >
         {t('app:matches.back-request-details')}
       </BackLink>
       <h2 className="font-lato mt-4 text-2xl font-bold">{t('app:matches.request-candidates')}</h2>

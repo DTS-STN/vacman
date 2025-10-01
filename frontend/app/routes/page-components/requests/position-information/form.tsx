@@ -118,7 +118,12 @@ export function PositionInformationForm({
 
   const citiesChoiceTags: ChoiceTag[] = selectedCities.map((city) => {
     const selectedC = cities.find((c) => c.id === Number(city));
-    return { label: selectedC?.name ?? city, name: 'city', value: city, group: selectedC?.provinceTerritory.name };
+    return {
+      label: selectedC?.name ?? city,
+      name: tApp('position-information.choice-tag.city'),
+      value: city,
+      group: selectedC?.provinceTerritory.name,
+    };
   });
 
   const handleOnDeleteCityTag: ChoiceTagDeleteEventHandler = (name, label, value, group) => {
@@ -129,12 +134,14 @@ export function PositionInformationForm({
   };
 
   const handleOnClearAllCities: ChoiceTagClearAllEventHandler = () => {
-    setSrAnnouncement(tGcweb('choice-tag.clear-all-sr-message', { item: 'cities' }));
+    setSrAnnouncement(tGcweb('choice-tag.clear-all-sr-message', { item: tApp('position-information.choice-tag.cities') }));
     setSelectedCities([]);
   };
 
   const handleOnClearCityGroup = (groupName: string) => {
-    setSrAnnouncement(tGcweb('choice-tag.clear-group-label', { items: 'cities', groupName }));
+    setSrAnnouncement(
+      tGcweb('choice-tag.clear-group-label', { items: tApp('position-information.choice-tag.cities'), groupName }),
+    );
     setSelectedCities((prev) =>
       prev.filter((cityId) => {
         const city = cities.find((c) => c.id === Number(cityId));

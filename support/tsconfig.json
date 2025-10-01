@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "include": ["./src/", "./test/", "./eslint.config.mjs", "./prettier.config.mjs", "./vitest.config.ts"],
+  "exclude": ["./coverage/", "./dist/"],
+  "compilerOptions": {
+    "baseUrl": ".",
+    "checkJs": true,
+    "module": "ESNext",
+    "moduleDetection": "force",
+    "moduleResolution": "Bundler",
+    "noEmit": true,
+    "noImplicitOverride": true,
+    "noUncheckedIndexedAccess": true,
+    "paths": {
+      "~/*": ["./src/*"]
+    },
+    "rootDirs": ["./"],
+    "skipLibCheck": true,
+    "strict": true,
+    "target": "ES2022",
+    "useUnknownInCatchVariables": true,
+    "verbatimModuleSyntax": true
+  }
+}

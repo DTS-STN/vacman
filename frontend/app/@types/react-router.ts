@@ -1,11 +1,16 @@
-import 'react-router';
+import type { RouterContext } from 'react-router';
 
 import type { Namespace } from 'i18next';
 
+import type { ApplicationContext } from '~/.server/express/handlers';
+
 declare module 'react-router' {
-  interface AppLoadContext {
-    nonce: string;
-    session: AppSession;
+  // TODO ::: GjB ::: overriding RouterContextProvider here facilitates an incremental adoption of RRv7 middleware
+  //
+  // This should be removed once the full migration to RRv7 middleware is complete.
+  // see ~/.server/express/handlers for an explanation for why this is needed
+  interface RouterContextProvider {
+    applicationContext: RouterContext<ApplicationContext>;
   }
 
   /**

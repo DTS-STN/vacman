@@ -90,7 +90,6 @@ spring:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
   liquibase:
     enabled: true
-    contexts: h2, dev
     change-log: classpath:db/changelog/db.changelog-master.yaml
 
 ---
@@ -317,6 +316,7 @@ application:
     job-hr-approved-template-id-fra: 00000000-0000-0000-0000-000000000000 # must be set externally (ex: 00000000-0000-0000-0000-000000000000) job opportunity HR approved french
     job-opportunity-template-id-eng: 00000000-0000-0000-0000-000000000000 # must be set externally (ex: 00000000-0000-0000-0000-000000000000) job opportunity english
     job-opportunity-template-id-fra: 00000000-0000-0000-0000-000000000000 # must be set externally (ex: 00000000-0000-0000-0000-000000000000) job opportunity french 
+    hr-gd-inbox-email: hr_inbox@example.com # TODO: Update with actual email when available.
   ms-graph:
     base-url: https://graph.microsoft.com/v1.0
     connect-timeout: 10s

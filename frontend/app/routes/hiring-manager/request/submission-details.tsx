@@ -1,5 +1,5 @@
-import { data } from 'react-router';
 import type { RouteHandle } from 'react-router';
+import { data } from 'react-router';
 
 import { useTranslation } from 'react-i18next';
 import * as v from 'valibot';
@@ -7,10 +7,10 @@ import * as v from 'valibot';
 import type { Route } from './+types/submission-details';
 
 import type { RequestReadModel, RequestUpdateModel } from '~/.server/domain/models';
-import { getDirectorateService } from '~/.server/domain/services/directorate-service';
 import { getLanguageForCorrespondenceService } from '~/.server/domain/services/language-for-correspondence-service';
 import { getRequestService } from '~/.server/domain/services/request-service';
 import { getUserService } from '~/.server/domain/services/user-service';
+import { getWorkUnitService } from '~/.server/domain/services/workunit-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { extractUniqueBranchesFromDirectorates } from '~/.server/utils/directorate-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
@@ -20,8 +20,8 @@ import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
 import { SubmissionDetailsForm } from '~/routes/page-components/requests/submission-detail/form';
+import type { Errors, SubmissionDetailSchema } from '~/routes/page-components/requests/validation.server';
 import { createSubmissionDetailSchema } from '~/routes/page-components/requests/validation.server';
-import type { SubmissionDetailSchema } from '~/routes/page-components/requests/validation.server';
 import { formString } from '~/utils/string-utils';
 
 export const handle = {
@@ -33,8 +33,11 @@ export function meta({ loaderData }: Route.MetaArgs) {
 }
 
 export async function action({ context, params, request }: Route.ActionArgs) {
-  requireAuthentication(context.session, request);
-  const currentUserData = await getUserService().getCurrentUser(context.session.authState.accessToken);
+  const { session } = context.get(context.applicationContext);
+  requireAuthentication(session, request);
+  const { t } = await getTranslation(request, handle.i18nNamespace);
+
+  const currentUserData = await getUserService().getCurrentUser(session.authState.accessToken);
   const currentUser = currentUserData.unwrap();
 
   const formData = await request.formData();
@@ -63,67 +66,66 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     );
   }
 
-  // call user service to get the user id from the email address
-
-  let hiringManagerId;
+  const errors: Errors = {};
+  let hiringManagerId: number | undefined;
+  let subDelegatedManagerId: number | undefined;
+  const userService = getUserService();
   if (parseResult.output.hiringManagerEmailAddress) {
-    const hiringManagerResult = await getUserService().getUsers(
-      { email: parseResult.output.hiringManagerEmailAddress },
-      context.session.authState.accessToken,
-    );
-    const hiringManager = hiringManagerResult.into()?.content[0]; // TODO: add the error handling if content[0] is undefined
-    hiringManagerId = hiringManager?.id;
+    try {
+      hiringManagerId = (
+        await userService.getUsers({ email: parseResult.output.hiringManagerEmailAddress }, session.authState.accessToken)
+      ).into()?.content[0]?.id;
+    } catch {
+      Object.assign(errors, { hiringManagerEmailAddress: [t('app:submission-details.errors.no-user-found-with-this-email')] });
+    }
   }
 
-  let subDelegatedManagerId;
   if (parseResult.output.subDelegatedManagerEmailAddress) {
-    const subDelegatedManagerResult = await getUserService().getUsers(
-      { email: parseResult.output.subDelegatedManagerEmailAddress },
-      context.session.authState.accessToken,
-    );
-
-    const subDelegatedManager = subDelegatedManagerResult.into()?.content[0]; // TODO: add the error handling if content[0] is undefined
-    subDelegatedManagerId = subDelegatedManager?.id;
+    try {
+      subDelegatedManagerId = (
+        await userService.getUsers({ email: parseResult.output.subDelegatedManagerEmailAddress }, session.authState.accessToken)
+      ).into()?.content[0]?.id;
+    } catch {
+      Object.assign(errors, {
+        subDelegatedManagerEmailAddress: [t('app:submission-details.errors.no-user-found-with-this-email')],
+      });
+    }
   }
 
-  if (parseResult.output.isSubmiterHiringManager === true) {
-    hiringManagerId = currentUser.id;
+  // Check for errors again after checking subDelegatedManager
+  if (Object.keys(errors).length > 0) {
+    return data({ errors }, { status: HttpStatusCodes.BAD_REQUEST });
   }
-
-  if (parseResult.output.isSubmiterHiringManager === true && parseResult.output.isSubmiterSubdelegate === true) {
-    subDelegatedManagerId = currentUser.id;
-  }
-
-  if (parseResult.output.isSubmiterHiringManager === false && parseResult.output.isHiringManagerASubDelegate === true) {
-    subDelegatedManagerId = hiringManagerId;
-  }
-
-  // call request service to update data
 
   const requestService = getRequestService();
-  const requestResult = await requestService.getRequestById(Number(params.requestId), context.session.authState.accessToken);
+  const requestResult = await requestService.getRequestById(Number(params.requestId), session.authState.accessToken);
 
   if (requestResult.isErr()) {
     throw new Response('Request not found', { status: HttpStatusCodes.NOT_FOUND });
   }
 
   const requestData: RequestReadModel = requestResult.unwrap();
+  const { isSubmiterHiringManager, isSubmiterSubdelegate, isHiringManagerASubDelegate } = parseResult.output;
+  if (isSubmiterHiringManager) {
+    hiringManagerId = requestData.submitter?.id;
+    if (isSubmiterSubdelegate) {
+      subDelegatedManagerId = requestData.submitter?.id;
+    }
+  } else if (isHiringManagerASubDelegate) {
+    subDelegatedManagerId = hiringManagerId;
+  }
 
   const requestPayload: RequestUpdateModel = {
     // The submitter's information is coming from saved Request, but while creating a new request, the submitter is the logged in user,
     submitterId: requestData.submitter?.id ?? currentUser.id,
-    hiringManagerId: hiringManagerId,
-    subDelegatedManagerId: subDelegatedManagerId,
+    hiringManagerId,
+    subDelegatedManagerId,
     workUnitId: parseResult.output.directorate,
     languageOfCorrespondenceId: parseResult.output.languageOfCorrespondenceId,
     additionalComment: parseResult.output.additionalComment,
   };
 
-  const updateResult = await requestService.updateRequestById(
-    requestData.id,
-    requestPayload,
-    context.session.authState.accessToken,
-  );
+  const updateResult = await requestService.updateRequestById(requestData.id, requestPayload, session.authState.accessToken);
 
   if (updateResult.isErr()) {
     throw updateResult.unwrapErr();
@@ -133,19 +135,22 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 }
 
 export async function loader({ context, params, request }: Route.LoaderArgs) {
-  requireAuthentication(context.session, request);
-  const currentUserData = await getUserService().getCurrentUser(context.session.authState.accessToken);
+  const { session } = context.get(context.applicationContext);
+  requireAuthentication(session, request);
+  const currentUserData = await getUserService().getCurrentUser(session.authState.accessToken);
   const currentUser = currentUserData.unwrap();
 
-  const requestResult = await getRequestService().getRequestById(
-    Number(params.requestId),
-    context.session.authState.accessToken,
-  );
-  const requestData = requestResult.into();
+  const requestData = (
+    await getRequestService().getRequestById(Number(params.requestId), session.authState.accessToken)
+  ).into();
+
+  if (!requestData) {
+    throw new Response('Request not found', { status: HttpStatusCodes.NOT_FOUND });
+  }
 
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
 
-  const directorates = await getDirectorateService().listAllLocalized(lang);
+  const directorates = await getWorkUnitService().listAllLocalized(lang);
   // Extract unique branches from directorates that have parents
   const branchOrServiceCanadaRegions = extractUniqueBranchesFromDirectorates(directorates);
   const languagesOfCorrespondence = await getLanguageForCorrespondenceService().listAllLocalized(lang);
@@ -154,13 +159,13 @@ export async function loader({ context, params, request }: Route.LoaderArgs) {
     documentTitle: t('app:submission-details.page-title'),
     defaultValues: {
       // The submitter's information is coming from saved Request, but while creating a new request, the submitter is the logged in user,
-      submitter: requestData?.submitter ?? currentUser,
-      hiringManager: requestData?.hiringManager,
-      subDelegatedManager: requestData?.subDelegatedManager,
-      hrAdvisor: requestData?.hrAdvisor,
-      workUnit: requestData?.workUnit,
-      languageOfCorrespondence: requestData?.languageOfCorrespondence,
-      additionalComment: requestData?.additionalComment,
+      submitter: requestData.submitter ?? currentUser,
+      hiringManager: requestData.hiringManager,
+      subDelegatedManager: requestData.subDelegatedManager,
+      hrAdvisor: requestData.hrAdvisor,
+      workUnit: requestData.workUnit,
+      languageOfCorrespondence: requestData.languageOfCorrespondence,
+      additionalComment: requestData.additionalComment,
     },
     branchOrServiceCanadaRegions,
     directorates,

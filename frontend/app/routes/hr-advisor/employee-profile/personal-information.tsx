@@ -14,6 +14,7 @@ import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { mapProfileToPutModelWithOverrides } from '~/.server/utils/profile-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { BackLink } from '~/components/back-link';
+import { PROFILE_STATUS } from '~/domain/constants';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
@@ -32,10 +33,11 @@ export function meta({ loaderData }: Route.MetaArgs) {
 }
 
 export async function action({ context, params, request }: Route.ActionArgs) {
-  requireAuthentication(context.session, request);
+  const { session } = context.get(context.applicationContext);
+  requireAuthentication(session, request);
 
   const profileService = getProfileService();
-  const profileResult = await profileService.getProfileById(Number(params.profileId), context.session.authState.accessToken);
+  const profileResult = await profileService.getProfileById(Number(params.profileId), session.authState.accessToken);
 
   if (profileResult.isErr()) {
     throw new Response('Profile not found', { status: HttpStatusCodes.NOT_FOUND });
@@ -53,7 +55,6 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     personalEmailAddress: formString(formData.get('personalEmailAddress')),
     businessPhoneNumber: formString(formData.get('businessPhoneNumber')),
     personalPhoneNumber: formString(formData.get('personalPhoneNumber')),
-    additionalComment: formString(formData.get('additionalComment')),
   });
 
   if (!parseResult.success) {
@@ -74,7 +75,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   } = parseResult.output;
 
   const userService = getUserService();
-  const userResult = await userService.getUserById(profile.profileUser.id, context.session.authState.accessToken);
+  const userResult = await userService.getUserById(profile.profileUser.id, session.authState.accessToken);
 
   if (userResult.isErr()) {
     throw new Response('User not found', { status: HttpStatusCodes.NOT_FOUND });
@@ -94,7 +95,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
       personalRecordIdentifier: personalRecordIdentifier,
       languageId: user.language.id,
     },
-    context.session.authState.accessToken,
+    session.authState.accessToken,
   );
 
   if (userUpdateResult.isErr()) {
@@ -107,14 +108,9 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     languageOfCorrespondenceId: personalInformationForProfile.languageOfCorrespondenceId,
     personalEmailAddress: personalInformationForProfile.personalEmailAddress,
     personalPhoneNumber: personalInformationForProfile.personalPhoneNumber,
-    additionalComment: personalInformationForProfile.additionalComment,
   });
 
-  const updateProfileResult = await profileService.updateProfileById(
-    profile.id,
-    profilePayload,
-    context.session.authState.accessToken,
-  );
+  const updateProfileResult = await profileService.updateProfileById(profile.id, profilePayload, session.authState.accessToken);
 
   if (updateProfileResult.isErr()) {
     throw updateProfileResult.unwrapErr();
@@ -126,9 +122,10 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 }
 
 export async function loader({ context, request, params }: Route.LoaderArgs) {
-  requireAuthentication(context.session, request);
+  const { session } = context.get(context.applicationContext);
+  requireAuthentication(session, request);
 
-  const accessToken = context.session.authState.accessToken;
+  const accessToken = session.authState.accessToken;
   const profileResult = await getProfileService().getProfileById(Number(params.profileId), accessToken);
 
   if (profileResult.isErr()) {
@@ -150,9 +147,9 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       personalEmailAddress: profileData.personalEmailAddress,
       businessPhoneNumber: toE164(profileData.profileUser.businessPhoneNumber),
       personalPhoneNumber: toE164(profileData.personalPhoneNumber),
-      additionalComment: profileData.additionalComment,
     },
     languagesOfCorrespondence: localizedLanguagesOfCorrespondenceResult,
+    profileStatus: profileData.profileStatus,
   };
 }
 
@@ -169,7 +166,7 @@ export default function PersonalInformation({ loaderData, actionData, params }: 
           cancelLink="routes/hr-advisor/employee-profile/index.tsx"
           formValues={loaderData.defaultValues}
           formErrors={actionData?.errors}
-          isReadOnly={true}
+          isReadOnly={loaderData.profileStatus?.code !== PROFILE_STATUS.INCOMPLETE.code}
           languagesOfCorrespondence={loaderData.languagesOfCorrespondence}
           params={params}
         />

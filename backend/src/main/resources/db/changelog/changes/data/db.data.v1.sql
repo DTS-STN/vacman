@@ -797,7 +797,9 @@ SET IDENTITY_INSERT CD_EMPLOYMENT_TENURE ON;
 INSERT INTO [CD_EMPLOYMENT_TENURE] ([ID], [CODE], [NAME_EN], [NAME_FR], [EFFECTIVE_DATE], [USER_CREATED], [DATE_CREATED], [USER_UPDATED], [DATE_UPDATED])
 VALUES
 (0, 'INDETERMINATE', 'Indeterminate', 'Indéterminée', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
-(1, 'TERM', 'Term', 'Durée déterminée', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
+(1, 'TERM', 'Term', 'Durée déterminée', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+(2, 'CASUAL', 'Casual', 'Occasionnel', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+(3, 'STUDENT', 'Student', 'Étudiant', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
 
 --changeset system:cd_employment_tenure_off dbms:mssql
 SET IDENTITY_INSERT CD_EMPLOYMENT_TENURE OFF;
@@ -911,7 +913,9 @@ SET IDENTITY_INSERT CD_WORK_SCHEDULE ON;
 INSERT INTO [CD_WORK_SCHEDULE] ([ID], [CODE], [NAME_EN], [NAME_FR], [EFFECTIVE_DATE], [USER_CREATED], [DATE_CREATED], [USER_UPDATED], [DATE_UPDATED])
 VALUES
 (0, 'FULL_TIME', 'Full-time', 'Temps plein', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
-(1, 'PART_TIME', 'Part-time', 'Temps partiel', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
+(1, 'PART_TIME', 'Part-time', 'Temps partiel', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+(2, 'CASUAL', 'Casual', 'Occasionnel', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
+(3, 'TERM', 'Term', 'Durée déterminée', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
 
 --changeset system:cd_work_schedule_off dbms:mssql
 SET IDENTITY_INSERT CD_WORK_SCHEDULE OFF;
@@ -954,7 +958,7 @@ SET IDENTITY_INSERT CD_CLASSIFICATION ON;
 
 --changeset system:cd_classification_ex4_5 dbms:mssql,h2
 INSERT INTO [CD_CLASSIFICATION] ([ID], [CODE], [NAME_EN], [NAME_FR], [EFFECTIVE_DATE], [USER_CREATED], [DATE_CREATED], [USER_UPDATED], [DATE_UPDATED])
-VALUES 
+VALUES
 (84, 'EX-04', 'EX-04', 'EX-04', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
 (85, 'EX-05', 'EX-05', 'EX-05', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
 
@@ -967,7 +971,7 @@ SET IDENTITY_INSERT CD_WFA_STATUS ON;
 
 --changeset system:cd_wfa_status_career_transit dbms:mssql,h2
 INSERT INTO [CD_WFA_STATUS] ([ID], [CODE], [NAME_EN], [NAME_FR], [SORT_ORDER], [EFFECTIVE_DATE], [USER_CREATED], [DATE_CREATED], [USER_UPDATED], [DATE_UPDATED])
-VALUES 
+VALUES
 (7, 'CAREERTRANSITION', 'Career Transition', 'Transition de carrière', 3, '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
 
 --changeset system:cd_wfa_status_career_transit_off dbms:mssql

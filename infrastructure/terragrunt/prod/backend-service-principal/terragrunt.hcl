@@ -44,6 +44,13 @@ inputs = {
         type = "Scope",
       },
       {
+        # GroupMember.Read.All is required to get a listing of all members of our HR Advisors group
+        # (used when syncing nested onprem groups with our app-role security group)
+        id   = local.msgraph_api.roles["GroupMember.Read.All"]
+        type = "Role",
+      },
+      {
+        # User.ReadBasic.All is required to read userinfo (name, email, etc)
         id   = local.msgraph_api.roles["User.ReadBasic.All"]
         type = "Role",
       },
@@ -66,10 +73,5 @@ inputs = {
 
   app_web_redirect_uris = [
     "https://vacman.esdc-edsc.canada.ca/auth/callback/azuread",
-    # TODO ::: GjB ::: remove prod-dp-internal URL after go-live
-    "https://vacman.prod-dp-internal.dts-stn.com/auth/callback/azuread",
   ]
-
-  # TODO ::: GjB ::: remove this after go-live
-  service_principal_assignment_required = true
 }

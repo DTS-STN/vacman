@@ -51,8 +51,9 @@ export default {
     'profile-completion-progress': 'Avancement de la complétion du profil',
     'not-provided': 'Non communiqué',
     'last-updated': 'Dernière mise-à-jour\u00A0: {{date}} par {{name}}',
-    'field-incomplete': 'Champs obligatoires incomplets', // TODO: French translation needs to be verified
+    'field-incomplete': 'Champs obligatoires incomplets',
     'profile-incomplete': 'Veuillez remplir tous les champs obligatoires avant de soumettre votre profil',
+    'profile-incomplete-for-approval': "Veuillez remplir tous les champs obligatoires avant d'approuver le profil",
     'profile-submitted': "Profil soumis avec succès! Votre conseiller(ère) RH va maintenant l'examiner pour approbation",
     'hr-approved': "Profil de l'employé-e approuvé",
     'profile-pending-approval':
@@ -74,9 +75,10 @@ export default {
     'select': 'Sélectionner',
     'select-option': 'Sélectionner une option',
     'select-all-that-apply': "Sélectionnez tout ce qui s'applique",
-    'select-work-locations':
-      'Sélectionnez une province pour voir les villes disponibles. Vous pouvez choisir autant de villes que vous le souhaitez dans chaque province.',
     'maximum-characters': 'caractères maximum',
+    'pickup-request': "Demande d'assignation",
+    'vms-not-required': 'Autorisation SGPV non requise',
+    'run-matches': 'Activer le repérage',
   },
   'personal-information': {
     'page-title': 'Informations personnelles',
@@ -89,8 +91,8 @@ export default {
     'personal-phone': 'Numéro du téléphone personnel',
     'personal-phone-help-message-primary': 'Cellulaire, domicile ou autre. Par exemple\u00A0: <noWrap>123 456 7890</noWrap>',
     'work-phone-help-message-primary': 'Par exemple\u00A0: <noWrap>123 456 7890</noWrap>',
-    'additional-information': 'Renseignements supplémentaires',
-    'additional-info-help-message': 'Veuillez noter brièvement les absences ou autres informations clés.',
+    'additional-information':
+      'Pour toute information additionnelle concernant vos informations personnelles (par exemple, changement à vos coordonnées ou congé) veuillez communiquer avec le conseiller en RH indiqué sur votre lettre de statut sous le réaménagement des effectifs.',
     'errors': {
       'surname-required': 'Le nom de famille est requis',
       'givenName-required': 'Le prénom est requis',
@@ -105,8 +107,6 @@ export default {
       'work-phone-invalid': "Le numéro du téléphone au travail n'est pas valide.",
       'personal-phone-required': 'Le numéro du téléphone personnel est requis.',
       'personal-phone-invalid': "Le numéro du téléphone personnel n'est pas valide.",
-      'additional-information-required': 'Renseignements supplémentaires est requis.',
-      'additional-information-max-length': "L'information supplémentaire doit contenir moins de 100 caractères.",
     },
   },
   'employment-information': {
@@ -117,9 +117,13 @@ export default {
     'directorate': 'Direction',
     'provinces': 'Province du lieu de travail désigné de votre poste substantif',
     'city': 'Ville du lieu de travail désigné de votre poste substantif',
-    'wfa-detils-heading': 'Détails du réaménagement des effectifs (RE) ou de la Transition de carrière des exécutifs (TC)',
-    'wfa-detils': "Consultez la lettre que vous avez reçue par courriel pour plus d'informations.",
+    'wfa-details-heading': 'Détails du réaménagement des effectifs (RE) ou de la Transition de carrière des exécutifs (TC)',
+    'wfa-details':
+      "Consultez la lettre attestant de votre situation sous le réaménagement des effectifs pour compléter l'information qui suit.",
     'wfa-status': 'Statut actuel sous le RE/TC',
+    'wfa-dates-heading': 'Dates de votre statut de RE/TC',
+    'wfa-dates-details':
+      "Veuillez inscrire la date d'effet et la date de fin (le cas échéant) du statut RE indiquée(s) sur votre lettre. En l'absence de date d'effet, inscrire la date à l'entête de votre lettre.",
     'wfa-effective-date': "Date d'effet de votre statut de RE/TC",
     'wfa-end-date': 'Date de fin de votre statut de RE/TC',
     'hr-advisor': 'Conseiller en RH identifié dans votre lettre de RE/TC',
@@ -159,21 +163,26 @@ export default {
     'language-referral-type': 'Pour quel-s profil-s linguistique-s de postes désirez-vous être référé-e?',
     'classification': 'Pour quel-s groupe-s et niveau-x de classification souhaiteriez-vous être référé-e?',
     'classification-group-help-message-primary':
-      "Les groupes et niveaux sélectionnés doivent être identiques ou équivalents à votre poste d'attache.",
+      "Les groupes et niveaux sélectionnés doivent être les mêmes ou équivalents au  groupe et niveau de votre poste substantif. Sélectionnez tout ce qui s'applique.",
+    'guidance-on-groups-and-levels': 'Orientation additionnelle sur les groupes et niveaux',
+    'guidance-on-groups-and-levels-description':
+      "Veuillez-vous référer au Guide de l'employé du SGPV sur iService et consulter le conseiller RH indiqué sur votre lettre pour de l'orientation additionnelle sur les groupes et niveaux correspondant à votre profil.",
     'work-location': 'Pour quel-s lieu-x de travail aimeriez-vous être référé-e?',
     'province': 'Province',
     'city': 'Ville',
     'referral-availibility': 'Êtes-vous actuellement disponible pour être référé-e?',
     'referral-availibility-help-message-primary':
-      'Sélectionnez "non" si vous serez en congé ou si vous n\'êtes pas actuellement intéressé-e à être référé-e.',
+      "Sélectionnez «\u00a0non\u00a0» si votre situation actuelle ne vous permet pas de considérer des offres d'emploi (par exemple, congé prolongé, en attente d'une offre d'emploi, etc.)",
     'alternate-opportunity': "Êtes-vous intéressé-e par des occasions d'échange de poste?",
-    'what-is-alternation': "Qu'est-ce qu'un échange de poste?",
+    'what-is-alternation': "Qu'est-ce qu'un échange de postes?",
     'alternation-description-text-para-1':
-      "Un échange de poste a lieu lorsqu'un employé optant ou un employé excédentaire, ayant choisi un droit de priorité de fonctionnaire excédentaire d'une durée de 12 mois (option A) qui préfère rester dans l'administration publique centrale, échange son poste avec un employé non touché (le remplaçant) qui est disposé à quitter l'administration publique centrale avec une mesure de soutien à la transition (MST) (Option B) ou avec une MST et une indemnité scolaire (Option C(i)).",
+      "Un échange de postes a lieu lorsqu'un employé optant ou un employé excédentaire, ayant choisi un droit de priorité de fonctionnaire excédentaire d'une durée de 12 mois (option A) qui préfère rester dans l'administration publique centrale, échange son poste avec un employé non touché (le remplaçant) qui est disposé à quitter l'administration publique centrale avec une mesure de soutien à la transition (MST) (Option B) ou avec une MST et une indemnité d'études (Option C(i)).",
     'alternation-description-text-para-2':
       "Pour les cadres, l'échange de poste dans le cadre de la transition de carrière permet à un cadre excédentaire ayant choisi l'option 2 (de demeurer au sein de l'administration publique centrale (APC)) en échangeant son poste avec un EX non touché qui accepte de quitter en vertu de la Directive sur les conditions d'emploi pour les cadres supérieurs. L'échange doit se faire au même groupe et niveau, à une date convenue mutuellement, et doit entraîner l'élimination permanente d'une fonction ou d'un poste. Le cadre excédentaire doit satisfaire aux exigences du poste non touché. L'échange de poste est uniquement permise au sein de l'administration publique centrale et n'est pas offerte aux employés des organismes distincts.",
-    'select-all': 'Tout sélectionner',
-    'select-all-sr': 'Toutes les villes du Canada sélectionnées',
+    'select-work-locations':
+      'Sélectionnez une province pour voir les villes disponibles. Vous pouvez choisir autant de villes que vous le souhaitez dans chaque province. «\u00a0Sélectionner tous les lieux de travail\u00a0» sélectionnera toutes les provinces et toutes les villes disponibles',
+    'select-all': 'Sélectionner tous les lieux de travail',
+    'select-all-sr': 'Tous les lieux de travail au Canada ont été sélectionnés.',
     'errors': {
       'language-referral-type-required': 'Le profil linguistique est requis.',
       'language-referral-type-invalid': "Le profil linguistique n'est pas valide.",
@@ -188,6 +197,12 @@ export default {
       'referral-availibility-required': 'La confirmation de disponibilité pour les références est requise.',
       'alternate-opportunity-required': "La confirmation d'intérêt pour l'échange de poste est requise.",
     },
+    'choice-tag': {
+      city: 'ville',
+      cities: 'villes',
+      classification: 'classification',
+      classifications: 'classements',
+    },
   },
   'employee-dashboard': {
     'page-title': 'Tableau de bord des employés',
@@ -201,6 +216,7 @@ export default {
     'priority-entitlement':
       "Est-ce que la nomination d'un bénéficiaire de priorité aurait pour effet de conférer un droit de priorité à un-e autre fonctionnaire nommé-e pour une période indéterminée ?",
     'priority-entitlement-rationale': 'Veuillez fournir la justification',
+    'rationale': 'Justification',
     'selection-process-type': 'Type de processus de sélection',
     'performed-duties':
       'Est-ce que la personne proposée a déjà exercé les mêmes fonctions au cours des douze derniers mois ou les exerce-t-elle toujours à un autre titre (occasionnel, Échanges Canada, agence ou contractuel, intérimaires de plus de 4 mois, etc.)?',
@@ -210,6 +226,7 @@ export default {
     'work-schedule-help-message': "Preuves à l'appui requises",
     'employment-equity-identified':
       "Est-ce qu'un besoin organisationnel d'équité en matière d'emploi a été identifié pour ce processus, cette mutation ou cette nomination ?",
+    'employment-equity-identified-alt': "Est-ce qu'un besoin organisationnel d'équité en matière d'emploi a été identifié ?",
     'preferred-employment-equities': "Quel besoin organisationnel en matière d'équité en matière d'emploi a été identifié ?",
     'preferred-employment-equities-help-message': "Sélectionnez tout ce qui s'applique",
     'projected-start-date': "Date d'effet anticipée",
@@ -259,6 +276,8 @@ export default {
     'page-title': 'Employé-e-s',
     'back-to-dashboard': 'Retour au tableau de bord',
     'view': 'Affiché',
+    'archive': 'Archiver',
+    'archive-link': 'Archiver le profil pour {{profileUserName}}',
     'my-employees': 'Mes employé-e-s',
     'all-employees': 'Liste complète des employé-e-s',
     'employee': 'Employé-e',
@@ -273,10 +292,18 @@ export default {
     'table-updated-all-employees': 'Tableau mis à jour : affichage de Liste complète des employé-e-s',
     'create-profile': 'Créer un profil',
     'employee-work-email': "Adresse e-mail professionnelle de l'employé-e",
+    'archive-confirmation': {
+      title: "Confirmer l'archivage",
+      message: 'Êtes-vous sûr de vouloir archiver le profil pour {{profileUserName}} ? Cette action ne peut pas être annulée.',
+      cancel: 'Annuler',
+      confirm: 'Archiver',
+    },
+    'profile-archived': 'Le profil de {{profileUserName}} a été archivé avec succès.',
     'errors': {
       'email-required': "L'adresse du courriel est requise.",
       'email-invalid': "L'adresse du courriel n'est pas valide.",
       'profile-already-exists': "L'utilisateur a déjà un profil actif",
+      'no-user-found-with-this-email': 'No user found with this email address. FR',
     },
   },
   'hr-advisor-requests': {
@@ -290,8 +317,14 @@ export default {
   },
   // TODO updated FR
   'hiring-manager-referral-requests': {
-    'page-title': 'Referral requests FR',
-    'request-details': 'Request details FR',
+    'page-title': 'Information sur la demande',
+    'request-details': 'Information sur la demande',
+    'request-id': 'No. de la demande',
+    'request-date': 'Date de la demande',
+    'hiring-manager': "Gestionnaire d'embauche",
+    'hr-advisor': 'Conseiller(ère)',
+    'not-assigned': 'À assigner',
+    'request-completion-progress': "Demander l'avancement de l'achèvement",
     'page-description':
       'Complete all sections detailing the process, position, and required qualifications and submit for approval. FR',
     'process-information': 'Process information FR',
@@ -317,12 +350,49 @@ export default {
     'cancel': 'Cancel FR',
     'save-and-exit': 'Save and exit FR',
     'submit': 'Submit FR',
-    'page-info-1':
-      'ESDC Priority Clearance via the Vacancy Management System (VMS) is required for all indeterminate deployments and appointments (with the exception of the reclassification of a position, indeterminate deployments within the same branch or region, and alternations). FR',
-    'page-info-2':
-      'Public Service Commission (PSC) Priority Clearance is required for all term and indeterminate appointments. FR',
-    'page-info-3': 'PSC and ESDC Clearances are required prior to advertising all advertised appointment processes. FR',
-    'page-info-4': "Consult the Manager's Guide on Priority Clearances for more information. FR",
+    'notice-line-1':
+      "Le processus d'autorisation en matière de priorité ministériel est requis avant d'entreprendre un processus interne ou externe, annoncé ou non annoncé, dont l'intention mènerait à une dotation indéterminée (mutations et nominations), à l'exception\u00A0:",
+    'notice-line-2': "d'une mutation à durée indéterminée d'un employé excédentaire d'EDSC\u00A0;",
+    'notice-line-3': "d'une mutation à durée indéterminée au sein de la même direction générale ou région\u00A0;",
+    'notice-line-4': "d'une nomination subséquente à la reclassification d'un poste\u00A0;",
+    'notice-line-5': "d'un échange de postes.",
+    'notice-line-6':
+      "Le processus d'autorisation de la CFP est requis avant d'entreprendre un processus interne ou externe, annoncé ou non annoncé, dont l'objectif mènerait à des nominations pour une période indéterminée ou déterminée.",
+    'notice-line-7':
+      "Consultez le Guide du gestionnaire sur les autorisations en matière de priorité pour plus d'informations.",
+    'request-incomplete': 'Veuillez remplir tous les champs obligatoires avant de soumettre votre demande',
+    'request-submitted': "Demande soumise avec succès! Un-e conseiller(ère) RH va l'examiner pour approbation",
+    'delete-request': {
+      title: 'Supprimer cette demande\u00A0?',
+      content: 'Cela supprimera définitivement la demande. Cette action est irréversible.',
+      keep: 'Conserver la demande',
+      delete: 'Supprimer la demande',
+    },
+    'back': 'Retour aux demandes',
+    //'view-link': 'View request with ID {{requestId}}',
+  },
+  'hr-advisor-referral-requests': {
+    'page-title': 'Referral requests FR',
+    'request-id': '(FR) Request ID',
+    'request-date': '(FR) Request date',
+    'hiring-manager': '(FR) Hiring manager',
+    'hr-advisor': '(FR) HR advisor',
+    'request-details': 'Request details FR',
+    'process-information': 'Process information FR',
+    'position-information': 'Position information FR',
+    'somc-conditions': 'Statement of merit criteria and conditions of employment FR',
+    'somc-conditions-link': "Afficher Énoncé de critères de mérite et conditions d'emploi",
+    'submission-details': 'Submission details FR',
+    'required': 'Required FR',
+    'complete': 'Complete FR',
+    'in-progress': 'In Progress FR',
+    'not-provided': 'Not provided FR',
+    'cancel': 'Cancel FR',
+    'save-and-exit': 'Save and exit FR',
+    'submit': 'Submit FR',
+    'status': {
+      'request-pending-approval': '(FR) Request pending approval',
+    },
   },
   'referral-request': 'Demande de présentation de candidatures',
   'position-information': {
@@ -362,6 +432,10 @@ export default {
         'oral-proficiency-required': "La compétence à l'oral est requise.",
       },
       'security-requirement-required': "L'exigence de sécurité est requise.",
+    },
+    'choice-tag': {
+      city: 'ville',
+      cities: 'villes',
     },
   },
   'hiring-manager-requests': {
@@ -406,6 +480,7 @@ export default {
     'hiring-manager-title': "Gestionnaire d'embauche",
     'sub-delegate-title': 'Subdélégué-e',
     'errors': {
+      'no-user-found-with-this-email': 'No user found with this email address. FR',
       'is-submitter-hiring-manager-required':
         "Le champ «\u00a0Est-ce que le (la) soumissionnaire est le (la) gestionnaire d'embauche pour cette demande\u00a0» est requis. ",
       'is-submitter-a-sub-delegate-required':
@@ -443,20 +518,25 @@ export default {
     'next-page': 'Suivant',
   },
   'matches': {
+    'page-title': 'Candidatures de la demande',
     'referral-request': 'Demande de présentation de candidatures',
     'request-id': 'No. de la demande',
     'request-date': 'Date de la demande',
     'hiring-manager': "Gestionnaire d'embauche",
     'hr-advisor': 'Conseiller(ère)',
     'back-request-details': "Retour à l'information sur la demande",
+    'back-request-candidates': 'Retour aux candidatures de la demande',
     'request-candidates': 'Candidatures de la demande',
     'feedback': {
+      success: "Commentaire soumis avec succès ! Un(e) Conseiller(ère) l'examinera pour approbation.",
       approved:
         '<strong>Tous les commentaires ont été approuvés.</strong> Veuillez retourner à la <InlineLink>page des détails de la demande</InlineLink> et sélectionner la prochaine action à effectuer',
     },
     'request-details': "L'information sur la demande",
     'page-info':
       "Consulter la rétroaction sur les candidat-e-s ci-dessous pour approbation. Si des modifications sont nécessaires, communiquez directement avec le-la gestionnaire d'embauche pour en discuter et mettre à jour la demande avant de sélectionner l'action appropriée sur la page l'information sur la demande.",
+    'confirm-info':
+      'Je confirme que les droits en matière de recyclage ont été appliqués et/ou pris en compte pour chaque employé-e touché-e, excédentaire ou mis-e en disponibilité considéré-e.',
   },
   'matches-tables': {
     'employee': 'Employé-e',
@@ -470,7 +550,17 @@ export default {
       'edit': 'Modifier le commentaire',
       'edit-add': 'Modifier/ajouter un commentaire',
     },
+    'comment-popup': {
+      'hiring-manager': "Commentaires du (de la) gestionnaire d'embauche",
+      'hr-advisor': 'Commentaires du (de la) conseiller(ère) RH',
+    },
+    'approval-popup': {
+      'approved': 'Approuvé',
+      'approve-feedback': 'Approuver la rétroaction?',
+    },
     'no-candidates': "Vous n'avez aucun candidat pour le moment.",
     'next-page': 'Suivant',
   },
+  'anywhere-in-canada': 'Tous les lieux de travail au Canada',
+  'anywhere-in-provinces': 'Tous les lieux de travail en {{provinceNames}}',
 } satisfies typeof appEn;

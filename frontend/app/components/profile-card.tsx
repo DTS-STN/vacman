@@ -13,8 +13,8 @@ import { cn } from '~/utils/tailwind-utils';
 
 interface ProfileCardProps {
   title: string;
-  linkLabel: string;
-  file: I18nRouteFile;
+  linkLabel?: string;
+  file?: I18nRouteFile;
   isComplete?: boolean;
   isNew?: boolean;
   required?: boolean;
@@ -43,6 +43,10 @@ export function ProfileCard({
   const { t } = useTranslation('app');
 
   const labelPrefix = `${isNew ? t('profile.add') : t('profile.edit')}\u0020`;
+
+  // Excluding file or linkLabel will omit the edit link footer from the card (ex. for hr-advisor requests)
+  const editLink = file && linkLabel;
+
   return (
     <Card ref={ref} className={`${errorState && 'border-b-6 border-[#C90101]'} rounded-md p-4 sm:p-6`}>
       <CardHeader className="p-0">
@@ -66,27 +70,29 @@ export function ProfileCard({
       </CardHeader>
       <CardContent className="my-3 space-y-3 p-0">{children}</CardContent>
 
-      <CardFooter
-        className={cn(
-          'mt-3',
-          errorState ? 'bg-red-100' : 'bg-gray-100', // Add background
-          '-mx-4 sm:-mx-6', // Pull horizontally to cancel parent padding
-          '-mb-4 sm:-mb-6', // Pull down to cancel parent bottom padding
-          'px-4 sm:px-6', // Add horizontal padding back for the content
-          'py-4', // Add vertical padding for the contents
-          'rounded-b-xs', // Re-apply bottom roundings
-        )}
-      >
-        {errorState && <h3 className="pb-4 text-lg font-bold text-[#333333]">{t('profile.field-incomplete')}</h3>}
-        <span className="flex items-center gap-x-2">
-          {errorState && <FontAwesomeIcon icon={faTriangleExclamation} className="text-red-800" />}
-          {!errorState && (isNew ? <FontAwesomeIcon icon={faPlus} /> : <FontAwesomeIcon icon={faPenToSquare} />)}
-          <InlineLink className={`${errorState && 'text-red-800'} font-semibold`} file={file} params={params}>
-            {labelPrefix}
-            {linkLabel}
-          </InlineLink>
-        </span>
-      </CardFooter>
+      {editLink && (
+        <CardFooter
+          className={cn(
+            'mt-3',
+            errorState ? 'bg-red-100' : 'bg-gray-100', // Add background
+            '-mx-4 sm:-mx-6', // Pull horizontally to cancel parent padding
+            '-mb-4 sm:-mb-6', // Pull down to cancel parent bottom padding
+            'px-4 sm:px-6', // Add horizontal padding back for the content
+            'py-4', // Add vertical padding for the contents
+            'rounded-b-xs', // Re-apply bottom roundings
+          )}
+        >
+          {errorState && <h3 className="pb-4 text-lg font-bold text-[#333333]">{t('profile.field-incomplete')}</h3>}
+          <span className="flex items-center gap-x-2">
+            {errorState && <FontAwesomeIcon icon={faTriangleExclamation} className="text-red-800" />}
+            {!errorState && (isNew ? <FontAwesomeIcon icon={faPlus} /> : <FontAwesomeIcon icon={faPenToSquare} />)}
+            <InlineLink className={`${errorState && 'text-red-800'} font-semibold`} file={file} params={params}>
+              {labelPrefix}
+              {linkLabel}
+            </InlineLink>
+          </span>
+        </CardFooter>
+      )}
     </Card>
   );
 }

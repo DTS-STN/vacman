@@ -1,6 +1,8 @@
 package ca.gov.dtsstn.vacman.api.service;
 
+import java.util.List;
 import java.util.Map;
+import java.util.ArrayList;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,6 +10,7 @@ import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
 import ca.gov.dtsstn.vacman.api.config.properties.ApplicationProperties;
@@ -40,6 +43,9 @@ public class NotificationService {
 		this.languages = lookupCodes.languages();
 	}
 
+	/**
+	* Sends an email notification to a single email address.
+	*/
 	public NotificationReceipt sendEmailNotification(String email, String profileId, String username, String language, ProfileStatus profileStatus) {
 		Assert.hasText(email, "email is required; it must not be blank or null");
 		Assert.hasText(profileId, "profileId is required; it must not be blank or null");
@@ -85,6 +91,10 @@ public class NotificationService {
 	}
 
 	//TODO add language to get the correct template
+	/**
+	 * Sends an email notification to multiple email addresses.
+	 * Returns a list of notification receipts, one for each email address.
+	 */
 	public NotificationReceipt sendRequestNotification(String email, Long requestId, String requestTitle, RequestEvent requestEvent) {
 		Assert.hasText(email, "email is required; it must not be blank or null");
 		Assert.notNull(requestId, "requestId is required; it must not be null");
@@ -116,6 +126,21 @@ public class NotificationService {
 		log.debug("Notification sent to email [{}] using template [{}]", email, templateId);
 
 		return notificationReceipt;
+	}
+
+	/**
+	 * Sends a request notification to multiple email addresses.
+	 * Returns a list of notification receipts, one for each email address.
+	 */
+	public List<NotificationReceipt> sendRequestNotification(List<String> emails, Long requestId, String requestTitle, RequestEvent requestEvent) {
+		Assert.notEmpty(emails, "emails is required; it must not be empty or null");
+		Assert.notNull(requestId, "requestId is required; it must not be null");
+		Assert.hasText(requestTitle, "requestTitle is required; it must not be blank or null");
+
+		return emails.parallelStream()
+			.filter(StringUtils::hasText)
+			.map(email -> sendRequestNotification(email, requestId, requestTitle, requestEvent))
+			.toList();
 	}
 
 }

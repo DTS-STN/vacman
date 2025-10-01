@@ -2,7 +2,7 @@ import type { RenderToPipeableStreamOptions } from 'react-dom/server';
 import { renderToPipeableStream } from 'react-dom/server';
 
 import { createReadableStreamFromReadable } from '@react-router/node';
-import type { ActionFunctionArgs, AppLoadContext, EntryContext, LoaderFunctionArgs } from 'react-router';
+import type { ActionFunctionArgs, EntryContext, LoaderFunctionArgs, RouterContextProvider } from 'react-router';
 import { ServerRouter } from 'react-router';
 
 import { trace } from '@opentelemetry/api';
@@ -26,12 +26,13 @@ export default async function handleRequest(
   responseStatusCode: number,
   responseHeaders: Headers,
   routerContext: EntryContext,
-  loadContext: AppLoadContext,
+  loadContext: RouterContextProvider,
 ) {
   const language = getLanguage(request);
   const i18n = await initI18next(language);
 
   return new Promise((resolve, reject) => {
+    const { nonce } = loadContext.get(loadContext.applicationContext);
     const userAgent = request.headers.get('user-agent');
 
     // Ensure requests from bots and SPA Mode renders wait for all content to load before responding
@@ -45,7 +46,7 @@ export default async function handleRequest(
 
     const { pipe, abort } = renderToPipeableStream(
       <I18nextProvider i18n={i18n}>
-        <ServerRouter context={routerContext} url={request.url} nonce={loadContext.nonce} />
+        <ServerRouter context={routerContext} url={request.url} nonce={nonce} />
       </I18nextProvider>,
       {
         [readyOption]() {
@@ -76,7 +77,7 @@ export default async function handleRequest(
             log.error('Error while rendering react element', error);
           }
         },
-        nonce: loadContext.nonce,
+        nonce,
       },
     );
 

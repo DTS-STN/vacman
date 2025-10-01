@@ -32,7 +32,6 @@ describe('ProfileServiceDefault', () => {
       content: [
         {
           id: 1,
-          additionalComment: 'Test comment',
           hasConsentedToPrivacyTerms: true,
           profileUser: { id: 1, firstName: 'John', lastName: 'Doe' },
           profileStatus: { id: 1, code: 'PENDING', nameEn: 'Pending', nameFr: 'En attente' },
@@ -69,17 +68,17 @@ describe('ProfileServiceDefault', () => {
       mockGet.mockResolvedValue(Ok(mockResponse));
 
       const params = {
-        'page': 2,
-        'size': 20,
-        'active': true,
-        'hr-advisor': '5',
+        page: 2,
+        size: 20,
+        active: true,
+        hrAdvisorId: '5',
       };
       const accessToken = 'valid-token';
 
       await defaultProfileService.getProfiles(params, accessToken);
 
       expect(mockGet).toHaveBeenCalledWith(
-        '/profiles?page=2&size=20&active=true&hr-advisor=5',
+        '/profiles?page=2&size=20&active=true&hrAdvisorId=5',
         'retrieve paginated profiles',
         accessToken,
       );
@@ -280,7 +279,6 @@ describe('ProfileServiceDefault', () => {
   describe('getProfileById', () => {
     const mockProfile = {
       id: 42,
-      additionalComment: 'Detailed profile',
       hasConsentedToPrivacyTerms: true,
       hrAdvisorId: 5,
       profileUser: { id: 3, firstName: 'Jane', lastName: 'Smith' },
@@ -325,7 +323,6 @@ describe('ProfileServiceDefault', () => {
   describe('updateProfileById', () => {
     const mockUpdatedProfile = {
       id: 42,
-      additionalComment: 'Updated comment',
       hasConsentedToPrivacyTerms: true,
       personalEmailAddress: 'updated@example.com',
       lastModifiedDate: '2024-01-15T12:00:00Z',
@@ -337,7 +334,6 @@ describe('ProfileServiceDefault', () => {
 
       const profileId = 42;
       const updatedProfile: ProfilePutModel = {
-        additionalComment: 'Updated comment',
         hasConsentedToPrivacyTerms: true,
         personalEmailAddress: 'updated@example.com',
       };
@@ -356,7 +352,6 @@ describe('ProfileServiceDefault', () => {
       if (result.isOk()) {
         const profile = result.unwrap();
         expect(profile.id).toBe(42);
-        expect(profile.additionalComment).toBe('Updated comment');
         expect(profile.personalEmailAddress).toBe('updated@example.com');
       }
     });
@@ -366,7 +361,7 @@ describe('ProfileServiceDefault', () => {
       mockPut.mockResolvedValue(updateError);
 
       const profileId = 42;
-      const updatedProfile: ProfilePutModel = { additionalComment: 'Updated comment' };
+      const updatedProfile: ProfilePutModel = { personalEmailAddress: 'updated@example.com' };
       const accessToken = 'valid-token';
 
       const result = await defaultProfileService.updateProfileById(profileId, updatedProfile, accessToken);
@@ -488,7 +483,7 @@ describe('ProfileServiceDefault', () => {
       await defaultProfileService.getCurrentUserProfiles({}, accessToken);
       await defaultProfileService.registerProfile(accessToken);
       await defaultProfileService.getProfileById(1, accessToken);
-      await defaultProfileService.updateProfileById(1, { additionalComment: 'test' }, accessToken);
+      await defaultProfileService.updateProfileById(1, { personalEmailAddress: 'updated@example.com' }, accessToken);
       await defaultProfileService.updateProfileStatus(1, {}, accessToken);
       await defaultProfileService.findProfileById(1, accessToken);
 
@@ -500,7 +495,7 @@ describe('ProfileServiceDefault', () => {
       expect(mockPut).toHaveBeenCalledWith(
         '/profiles/1',
         'update profile with ID 1',
-        { additionalComment: 'test' },
+        { personalEmailAddress: 'updated@example.com' },
         accessToken,
       );
       expect(mockPut).toHaveBeenCalledWith('/profiles/1/status', 'update profile status for ID 1', {}, accessToken);

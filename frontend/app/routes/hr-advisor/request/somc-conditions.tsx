@@ -26,7 +26,8 @@ export function meta({ loaderData }: Route.MetaArgs) {
 }
 
 export async function action({ context, params, request }: Route.ActionArgs) {
-  requireAuthentication(context.session, request);
+  const { session } = context.get(context.applicationContext);
+  requireAuthentication(session, request);
 
   const formData = await request.formData();
   const parseResult = v.safeParse(somcConditionsSchema, {
@@ -44,7 +45,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   const updateResult = await getRequestService().updateRequestById(
     Number(params.requestId),
     parseResult.output,
-    context.session.authState.accessToken,
+    session.authState.accessToken,
   );
 
   if (updateResult.isErr()) {
@@ -55,21 +56,24 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 }
 
 export async function loader({ context, params, request }: Route.LoaderArgs) {
-  requireAuthentication(context.session, request);
+  const { session } = context.get(context.applicationContext);
+  requireAuthentication(session, request);
 
   const { t } = await getTranslation(request, handle.i18nNamespace);
 
-  const requestResult = await getRequestService().getRequestById(
-    Number(params.requestId),
-    context.session.authState.accessToken,
-  );
-  const currentRequest = requestResult.into();
+  const requestData = (
+    await getRequestService().getRequestById(Number(params.requestId), session.authState.accessToken)
+  ).into();
+
+  if (!requestData) {
+    throw new Response('Request not found', { status: HttpStatusCodes.NOT_FOUND });
+  }
 
   return {
     documentTitle: t('app:somc-conditions.page-title'),
     defaultValues: {
-      englishStatementOfMerit: currentRequest?.englishStatementOfMerit,
-      frenchStatementOfMerit: currentRequest?.frenchStatementOfMerit,
+      englishStatementOfMerit: requestData.englishStatementOfMerit,
+      frenchStatementOfMerit: requestData.frenchStatementOfMerit,
     },
   };
 }

@@ -7,12 +7,9 @@ import { useTranslation } from 'react-i18next';
 
 import type { Route } from '../profile/+types/index';
 
+import type { LocalizedCity } from '~/.server/domain/models';
 import { getCityService } from '~/.server/domain/services/city-service';
-import { getClassificationService } from '~/.server/domain/services/classification-service';
-import { getDirectorateService } from '~/.server/domain/services/directorate-service';
-import { getLanguageReferralTypeService } from '~/.server/domain/services/language-referral-type-service';
 import { getProfileService } from '~/.server/domain/services/profile-service';
-import { getProfileStatusService } from '~/.server/domain/services/profile-status-service';
 import { serverEnvironment } from '~/.server/environment';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { requirePrivacyConsentForOwnProfile } from '~/.server/utils/privacy-consent-utils';
@@ -29,8 +26,8 @@ import { LoadingButton } from '~/components/loading-button';
 import { PageTitle } from '~/components/page-title';
 import { ProfileCard } from '~/components/profile-card';
 import { Progress } from '~/components/progress';
-import { StatusTag } from '~/components/status-tag';
-import { EMPLOYEE_WFA_STATUS, PROFILE_STATUS_CODE, PROFILE_STATUS_PENDING } from '~/domain/constants';
+import { ProfileStatusTag } from '~/components/status-tag';
+import { EMPLOYEE_WFA_STATUS, PROFILE_STATUS } from '~/domain/constants';
 import { useFetcherState } from '~/hooks/use-fetcher-state';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
@@ -45,10 +42,11 @@ export function meta({ loaderData }: Route.MetaArgs) {
 }
 
 export async function action({ context, request }: Route.ActionArgs) {
-  requireAuthentication(context.session, request);
+  const { session } = context.get(context.applicationContext);
+  requireAuthentication(session, request);
 
   const profileParams = { active: true };
-  const profileData = await getProfileService().findCurrentUserProfile(profileParams, context.session.authState.accessToken);
+  const profileData = await getProfileService().findCurrentUserProfile(profileParams, session.authState.accessToken);
 
   const currentUser = profileData.profileUser;
 
@@ -98,8 +96,8 @@ export async function action({ context, request }: Route.ActionArgs) {
   // If all complete, submit for review
   const submitResult = await getProfileService().updateProfileStatus(
     profileData.id,
-    PROFILE_STATUS_PENDING,
-    context.session.authState.accessToken,
+    PROFILE_STATUS.PENDING,
+    session.authState.accessToken,
   );
   if (submitResult.isErr()) {
     const error = submitResult.unwrapErr();
@@ -117,11 +115,12 @@ export async function action({ context, request }: Route.ActionArgs) {
 }
 
 export async function loader({ context, request, params }: Route.LoaderArgs) {
-  requireAuthentication(context.session, request);
-  await requirePrivacyConsentForOwnProfile(context.session, request);
+  const { session } = context.get(context.applicationContext);
+  requireAuthentication(session, request);
+  await requirePrivacyConsentForOwnProfile(session, request);
 
   const profileParams = { active: true };
-  const profileData = await getProfileService().findCurrentUserProfile(profileParams, context.session.authState.accessToken);
+  const profileData = await getProfileService().findCurrentUserProfile(profileParams, session.authState.accessToken);
 
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
 
@@ -133,44 +132,14 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const currentUser = profileData.profileUser;
 
   // Fetch reference data
-  const [allLocalizedLanguageReferralTypes, allClassifications, allLocalizedCities] = await Promise.all([
-    getLanguageReferralTypeService().listAllLocalized(lang),
-    getClassificationService().listAllLocalized(lang),
-    getCityService().listAllLocalized(lang),
-  ]);
+  const allLocalizedCities = await getCityService().listAllLocalized(lang);
 
   // Use profileUser for updated by information as well
   const profileUpdatedByUserName = `${currentUser.firstName ?? 'Unknown'} ${currentUser.lastName ?? 'User'}`;
-  const profileStatus = profileData.profileStatus
-    ? (await getProfileStatusService().findLocalizedById(profileData.profileStatus.id, lang)).unwrap()
-    : { code: PROFILE_STATUS_CODE.incomplete, name: 'Incomplete' };
-  const workUnitResult =
-    profileData.substantiveWorkUnit !== undefined
-      ? await getDirectorateService().findLocalizedById(profileData.substantiveWorkUnit.id, lang)
-      : undefined;
-  const substantivePositionResult =
-    profileData.substantiveClassification !== undefined
-      ? await getClassificationService().findLocalizedById(profileData.substantiveClassification.id, lang)
-      : undefined;
-  const cityResult =
-    profileData.substantiveCity !== undefined
-      ? await getCityService().findLocalizedById(profileData.substantiveCity.id, lang)
-      : undefined;
 
   // convert the IDs to display names
-  const substantivePosition = substantivePositionResult?.into()?.name;
-  const branchOrServiceCanadaRegion = workUnitResult?.into()?.parent?.name;
-  const directorate = workUnitResult?.into()?.name;
-  const city = cityResult?.into();
-  const hrAdvisors = await getHrAdvisors(context.session.authState.accessToken);
+  const hrAdvisors = await getHrAdvisors(session.authState.accessToken);
   const hrAdvisor = hrAdvisors.find((u) => u.id === profileData.hrAdvisorId);
-  const languageReferralTypes = profileData.preferredLanguages
-    ?.map((lang) => allLocalizedLanguageReferralTypes.find((l) => l.id === lang.id))
-    .filter(Boolean);
-  const classifications = profileData.preferredClassifications
-    ?.map((classification) => allClassifications.find((c) => c.id === classification.id))
-    .filter(Boolean);
-  const cities = profileData.preferredCities?.map((city) => allLocalizedCities.find((c) => c.id === city.id)).filter(Boolean);
 
   // Check each section if the required fields are complete
   const personalInformationData = {
@@ -220,13 +189,67 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const profileTotalFields = personalInformationTotalFields + employmentInformationTotalFields + referralPreferencesTotalFields;
   const amountCompleted = (profileCompleted / profileTotalFields) * 100;
 
+  // Display Canada wide or province wide or list of cities on referral preferences section
+
+  const allProvinceIds = Array.from(new Set(allLocalizedCities.map((city) => city.provinceTerritory.id)));
+
+  const preferredCityIds = new Set(profileData.preferredCities?.map((city) => city.id) ?? []);
+  const provinceToCitiesMap = new Map<number, LocalizedCity[]>();
+
+  // Group all cities by province
+  for (const city of allLocalizedCities) {
+    const provinceId = city.provinceTerritory.id;
+    if (!provinceToCitiesMap.has(provinceId)) {
+      provinceToCitiesMap.set(provinceId, []);
+    }
+    provinceToCitiesMap.get(provinceId)?.push(city);
+  }
+
+  // Determine which provinces are fully selected
+  const fullySelectedProvinces: string[] = [];
+  const partiallySelectedCities: { province: string; city: string }[] = [];
+
+  for (const [, cities] of provinceToCitiesMap.entries()) {
+    const selectedCities = cities.filter((city) => preferredCityIds.has(city.id));
+    if (selectedCities.length === cities.length) {
+      // All cities in this province are selected
+      const provinceName = cities[0]?.provinceTerritory.name;
+      if (provinceName) {
+        fullySelectedProvinces.push(provinceName);
+      }
+    } else if (selectedCities.length > 0) {
+      // Some cities in this province are selected
+      for (const city of selectedCities) {
+        partiallySelectedCities.push({
+          province: city.provinceTerritory.name,
+          city: city.name,
+        });
+      }
+    }
+  }
+
+  let locationScope: 'anywhere-in-country' | 'anywhere-in-provinces' | 'specific-cities' | 'not-provided';
+  let provinceNames: string[] = [];
+
+  if (preferredCityIds.size === 0) {
+    locationScope = 'not-provided';
+  } else if (fullySelectedProvinces.length === allProvinceIds.length) {
+    locationScope = 'anywhere-in-country';
+  } else if (fullySelectedProvinces.length > 0 && partiallySelectedCities.length === 0) {
+    locationScope = 'anywhere-in-provinces';
+    provinceNames = fullySelectedProvinces;
+  } else {
+    locationScope = 'specific-cities';
+    provinceNames = fullySelectedProvinces;
+  }
+
   return {
     documentTitle: t('app:profile.page-title'),
     name: `${currentUser.firstName ?? ''} ${currentUser.lastName ?? ''}`.trim() || 'Unknown User',
     email: currentUser.businessEmailAddress,
     amountCompleted: amountCompleted,
     isProfileComplete: isCompletePersonalInformation && isCompleteEmploymentInformation && isCompleteReferralPreferences,
-    profileStatus,
+    profileStatus: profileData.profileStatus,
     personalInformation: {
       isComplete: isCompletePersonalInformation,
       isNew: countCompletedItems(personalInformationData) === 1, // only work email is available
@@ -237,16 +260,20 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       personalEmail: profileData.personalEmailAddress,
       workPhone: currentUser.businessPhoneNumber,
       personalPhone: profileData.personalPhoneNumber,
-      additionalInformation: profileData.additionalComment,
     },
     employmentInformation: {
       isComplete: isCompleteEmploymentInformation,
       isNew: countCompletedItems(employmentInformationData) === 0,
-      substantivePosition: substantivePosition,
-      branchOrServiceCanadaRegion: branchOrServiceCanadaRegion,
-      directorate: directorate,
-      province: city?.provinceTerritory.name,
-      city: city?.name,
+      substantivePosition:
+        lang === 'en' ? profileData.substantiveClassification?.nameEn : profileData.substantiveClassification?.nameFr,
+      branchOrServiceCanadaRegion:
+        lang === 'en' ? profileData.substantiveWorkUnit?.parent?.nameEn : profileData.substantiveWorkUnit?.parent?.nameFr,
+      directorate: lang === 'en' ? profileData.substantiveWorkUnit?.nameEn : profileData.substantiveWorkUnit?.nameFr,
+      province:
+        lang === 'en'
+          ? profileData.substantiveCity?.provinceTerritory.nameEn
+          : profileData.substantiveCity?.provinceTerritory.nameFr,
+      city: lang === 'en' ? profileData.substantiveCity?.nameEn : profileData.substantiveCity?.nameFr,
       wfaStatus: lang === 'en' ? profileData.wfaStatus?.nameEn : profileData.wfaStatus?.nameFr,
       wfaStatusCode: profileData.wfaStatus?.code,
       wfaEffectiveDate: profileData.wfaStartDate,
@@ -256,12 +283,11 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     referralPreferences: {
       isComplete: isCompleteReferralPreferences,
       isNew: countReferralPreferencesCompleted(referralPreferencesFields) === 0,
-      preferredLanguages: languageReferralTypes?.map((l) => l?.name),
-      preferredClassifications: classifications?.map((c) => c?.name),
-      preferredCities: cities?.map((city) => ({
-        province: city?.provinceTerritory.name,
-        city: city?.name,
-      })),
+      preferredLanguages: profileData.preferredLanguages?.map((l) => (lang === 'en' ? l.nameEn : l.nameFr)),
+      preferredClassifications: profileData.preferredClassifications?.map((c) => (lang === 'en' ? c.nameEn : c.nameFr)),
+      preferredCities: partiallySelectedCities,
+      locationScope,
+      provinceNames,
       isAvailableForReferral: profileData.isAvailableForReferral,
       isInterestedInAlternation: profileData.isInterestedInAlternation,
     },
@@ -326,32 +352,28 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
 
   return (
     <div className="space-y-8">
-      <div className="space-y-4 py-8 text-white">
-        <StatusTag
-          status={{
-            code: loaderData.profileStatus.code,
-            name:
-              loaderData.profileStatus.code === PROFILE_STATUS_CODE.pending
-                ? t('app:profile.pending-status-employee')
-                : loaderData.profileStatus.name,
-          }}
-        />
-        <PageTitle className="after:w-14" containerClassName="my-6">
-          {loaderData.name}
-        </PageTitle>
-        {loaderData.email && <p className="mt-1">{loaderData.email}</p>}
-        <p className="font-normal text-[#9FA3AD]">
-          {t('app:profile.last-updated', { date: browserTZ, name: loaderData.lastUpdatedBy })}
-        </p>
+      <div className="absolute left-0 w-full space-y-4 bg-[rgba(9,28,45,1)] py-8 wrap-break-word text-white">
+        <div className="container">
+          {loaderData.profileStatus && (
+            <ProfileStatusTag status={loaderData.profileStatus} lang={loaderData.lang} rounded view="employee" />
+          )}
+          <PageTitle className="after:w-14" containerClassName="my-6">
+            {loaderData.name}
+          </PageTitle>
+          {loaderData.email && <p className="mt-1">{loaderData.email}</p>}
+          <p className="font-normal text-[#9FA3AD]">
+            {t('app:profile.last-updated', { date: browserTZ, name: loaderData.lastUpdatedBy })}
+          </p>
+        </div>
         <div
           role="presentation"
-          className="absolute top-25 left-0 -z-10 h-70 w-full scale-x-[-1] bg-[rgba(9,28,45,1)] bg-[url('/VacMan-design-element-06.svg')] bg-size-[450px] bg-left-bottom bg-no-repeat sm:h-60"
+          className="absolute bottom-0 left-0 h-40 w-full scale-x-[-1] bg-[url('/VacMan-design-element-06.svg')] bg-size-[30rem] bg-left-bottom bg-no-repeat"
         />
       </div>
-      <div className="justify-between md:grid md:grid-cols-2">
+      <div className="mt-110 justify-between sm:mt-70 md:grid md:grid-cols-2">
         <div className="max-w-prose">
           <p className="mt-12">
-            {loaderData.profileStatus.code === PROFILE_STATUS_CODE.pending
+            {loaderData.profileStatus?.code === PROFILE_STATUS.PENDING.code
               ? t('app:profile.about-para-1-pending')
               : t('app:profile.about-para-1')}
           </p>
@@ -360,7 +382,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
           <ButtonLink variant="alternative" file="routes/employee/index.tsx" id="save" disabled={isSubmitting}>
             {t('app:form.save-and-exit')}
           </ButtonLink>
-          {loaderData.profileStatus.code === PROFILE_STATUS_CODE.incomplete && (
+          {loaderData.profileStatus?.code === PROFILE_STATUS.INCOMPLETE.code && (
             <LoadingButton name="action" variant="primary" id="submit" disabled={isSubmitting} loading={isSubmitting}>
               {t('app:form.submit')}
             </LoadingButton>
@@ -388,7 +410,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
         />
       )}
 
-      {loaderData.profileStatus.code === PROFILE_STATUS_CODE.incomplete && (
+      {loaderData.profileStatus?.code === PROFILE_STATUS.INCOMPLETE.code && (
         <Progress
           className="mt-8 mb-8"
           label={t('app:profile.profile-completion-progress')}
@@ -405,7 +427,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
           params={params}
           errorState={fetcher.data?.personalInfoComplete === false}
           required
-          showStatus={loaderData.profileStatus.code === PROFILE_STATUS_CODE.incomplete}
+          showStatus={loaderData.profileStatus?.code === PROFILE_STATUS.INCOMPLETE.code}
         >
           {loaderData.personalInformation.isNew ? (
             <>
@@ -436,9 +458,6 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
               <DescriptionListItem term={t('app:personal-information.personal-phone')}>
                 {loaderData.personalInformation.personalPhone ?? t('app:profile.not-provided')}
               </DescriptionListItem>
-              <DescriptionListItem term={t('app:personal-information.additional-information')}>
-                {loaderData.personalInformation.additionalInformation ?? t('app:profile.not-provided')}
-              </DescriptionListItem>
             </DescriptionList>
           )}
         </ProfileCard>
@@ -451,7 +470,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
           params={params}
           required
           errorState={fetcher.data?.employmentInfoComplete === false}
-          showStatus={loaderData.profileStatus.code === PROFILE_STATUS_CODE.incomplete}
+          showStatus={loaderData.profileStatus?.code === PROFILE_STATUS.INCOMPLETE.code}
           updated={hasEmploymentChanged}
         >
           {loaderData.employmentInformation.isNew ? (
@@ -476,7 +495,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
                   {loaderData.employmentInformation.city ?? t('app:profile.not-provided')}
                 </DescriptionListItem>
               </DescriptionList>
-              <h3 className="font-lato text-xl font-bold">{t('app:employment-information.wfa-detils-heading')}</h3>
+              <h3 className="font-lato text-xl font-bold">{t('app:employment-information.wfa-details-heading')}</h3>
               <DescriptionList>
                 <DescriptionListItem term={t('app:employment-information.wfa-status')}>
                   {loaderData.employmentInformation.wfaStatus ?? t('app:profile.not-provided')}
@@ -487,7 +506,9 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
                 {(loaderData.employmentInformation.wfaStatusCode === EMPLOYEE_WFA_STATUS.opting ||
                   loaderData.employmentInformation.wfaStatusCode === EMPLOYEE_WFA_STATUS.exOpting ||
                   loaderData.employmentInformation.wfaStatusCode === EMPLOYEE_WFA_STATUS.surplusOptingOptionA ||
-                  loaderData.employmentInformation.wfaStatusCode === EMPLOYEE_WFA_STATUS.exSurplusCPA) && (
+                  loaderData.employmentInformation.wfaStatusCode === EMPLOYEE_WFA_STATUS.exSurplusCPA ||
+                  loaderData.employmentInformation.wfaStatusCode === EMPLOYEE_WFA_STATUS.relocation ||
+                  loaderData.employmentInformation.wfaStatusCode === EMPLOYEE_WFA_STATUS.alternateDeliveryInitiative) && (
                   <DescriptionListItem term={t('app:employment-information.wfa-end-date')}>
                     {loaderData.employmentInformation.wfaEndDate ?? t('app:profile.not-provided')}
                   </DescriptionListItem>
@@ -508,7 +529,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
           params={params}
           required
           errorState={fetcher.data?.referralComplete === false}
-          showStatus={loaderData.profileStatus.code === PROFILE_STATUS_CODE.incomplete}
+          showStatus={loaderData.profileStatus?.code === PROFILE_STATUS.INCOMPLETE.code}
           updated={hasReferralPreferenceChanged}
         >
           {loaderData.referralPreferences.isNew ? (
@@ -528,9 +549,28 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
                     loaderData.referralPreferences.preferredClassifications.join(', ')}
               </DescriptionListItem>
               <DescriptionListItem term={t('app:referral-preferences.work-location')}>
-                {loaderData.referralPreferences.preferredCities === undefined
-                  ? t('app:profile.not-provided')
-                  : loaderData.referralPreferences.preferredCities.length > 0 && (
+                {loaderData.referralPreferences.locationScope === 'not-provided' && <p>{t('app:profile.not-provided')}</p>}
+
+                {loaderData.referralPreferences.locationScope === 'anywhere-in-country' && <p>{t('app:anywhere-in-canada')}</p>}
+
+                {loaderData.referralPreferences.locationScope === 'anywhere-in-provinces' && (
+                  <p>
+                    {t('app:anywhere-in-provinces', {
+                      provinceNames: loaderData.referralPreferences.provinceNames.join(', '),
+                    })}
+                  </p>
+                )}
+
+                {loaderData.referralPreferences.locationScope === 'specific-cities' &&
+                  loaderData.referralPreferences.preferredCities.length > 0 && (
+                    <>
+                      {loaderData.referralPreferences.provinceNames.length > 0 && (
+                        <p>
+                          {t('app:anywhere-in-provinces', {
+                            provinceNames: loaderData.referralPreferences.provinceNames.join(', '),
+                          })}
+                        </p>
+                      )}
                       <div>
                         {/* Group cities by province */}
                         {Object.entries(
@@ -549,7 +589,8 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
                           </div>
                         ))}
                       </div>
-                    )}
+                    </>
+                  )}
               </DescriptionListItem>
               <DescriptionListItem term={t('app:referral-preferences.referral-availibility')}>
                 {loaderData.referralPreferences.isAvailableForReferral === undefined

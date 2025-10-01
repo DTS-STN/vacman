@@ -4,15 +4,15 @@ import * as v from 'valibot';
 import type { User } from '~/.server/domain/models';
 import { getCityService } from '~/.server/domain/services/city-service';
 import { getClassificationService } from '~/.server/domain/services/classification-service';
-import { getDirectorateService } from '~/.server/domain/services/directorate-service';
 import { getLanguageForCorrespondenceService } from '~/.server/domain/services/language-for-correspondence-service';
 import { getLanguageReferralTypeService } from '~/.server/domain/services/language-referral-type-service';
 import { getProvinceService } from '~/.server/domain/services/province-service';
 import { getWFAStatuses } from '~/.server/domain/services/wfa-status-service';
+import { getWorkUnitService } from '~/.server/domain/services/workunit-service';
 import { extractUniqueBranchesFromDirectoratesNonLocalized } from '~/.server/utils/directorate-utils';
 import { stringToIntegerSchema } from '~/.server/validation/string-to-integer-schema';
 import { EMPLOYEE_WFA_STATUS } from '~/domain/constants';
-import { formatISODate, isValidDateString } from '~/utils/date-utils';
+import { isValidCalendarDate, toDateString } from '~/utils/date-utils';
 import { isValidPhone } from '~/utils/phone-utils';
 import { REGEX_PATTERNS } from '~/utils/regex-utils';
 import { formString } from '~/utils/string-utils';
@@ -25,7 +25,7 @@ export type Errors = Readonly<Record<string, [string, ...string[]] | undefined>>
 
 export async function createEmploymentInformationSchema(hrAdvisors: User[]) {
   const allSubstantivePositions = await getClassificationService().listAll();
-  const allDirectorates = await getDirectorateService().listAll();
+  const allDirectorates = await getWorkUnitService().listAll();
   const allBranchOrServiceCanadaRegions = extractUniqueBranchesFromDirectoratesNonLocalized(allDirectorates);
   const allProvinces = await getProvinceService().listAll();
   const allCities = await getCityService().listAll();
@@ -36,6 +36,8 @@ export async function createEmploymentInformationSchema(hrAdvisors: User[]) {
     EMPLOYEE_WFA_STATUS.exOpting,
     EMPLOYEE_WFA_STATUS.surplusOptingOptionA,
     EMPLOYEE_WFA_STATUS.exSurplusCPA,
+    EMPLOYEE_WFA_STATUS.relocation,
+    EMPLOYEE_WFA_STATUS.alternateDeliveryInitiative,
   ] as const;
 
   const validWFAStatusesForOptionalDate = [
@@ -114,15 +116,13 @@ export async function createEmploymentInformationSchema(hrAdvisors: User[]) {
           v.minValue(1, 'app:employment-information.errors.wfa-effective-date.invalid-day'),
           v.maxValue(31, 'app:employment-information.errors.wfa-effective-date.invalid-day'),
         ),
-        wfaStartDate: v.pipe(
-          v.string(),
-          v.trim(),
-          v.transform((input) => (input === '' ? undefined : input)),
+        wfaStartDate: optionalString(
           v.optional(
             v.pipe(
               v.string(),
+              v.isoDate('app:employment-information.errors.wfa-effective-date.invalid'),
               v.custom(
-                (input) => isValidDateString(input as string),
+                (input) => isValidCalendarDate(input as string),
                 'app:employment-information.errors.wfa-effective-date.invalid',
               ),
             ),
@@ -184,8 +184,9 @@ export async function createEmploymentInformationSchema(hrAdvisors: User[]) {
               v.optional(
                 v.pipe(
                   v.string(),
+                  v.isoDate('app:employment-information.errors.wfa-end-date.invalid'),
                   v.custom(
-                    (input) => isValidDateString(input as string),
+                    (input) => isValidCalendarDate(input as string),
                     'app:employment-information.errors.wfa-end-date.invalid',
                   ),
                 ),
@@ -263,13 +264,6 @@ export async function createPersonalInformationSchema() {
       v.nonEmpty('app:personal-information.errors.personal-phone-required'),
       v.custom((val) => isValidPhone(val as string), 'app:personal-information.errors.personal-phone-invalid'),
       v.transform((val) => parsePhoneNumberWithError(val, 'CA').formatInternational().replace(/ /g, '')),
-    ),
-    additionalComment: v.optional(
-      v.pipe(
-        v.string('app:personal-information.errors.additional-information-required'),
-        v.trim(),
-        v.maxLength(100, 'app:personal-information.errors.additional-information-max-length'),
-      ),
     ),
   });
 }
@@ -364,11 +358,11 @@ export async function parseEmploymentInformation(formData: FormData, hrAdvisors:
     provinceId: formString(formData.get('province')),
     cityId: formString(formData.get('cityId')),
     wfaStatusId: formString(formData.get('wfaStatus')),
-    wfaStartDate: formatISODate(`${wfaStartDateYear}-${wfaStartDateMonth}-${wfaStartDateDay}`).unwrapOr(''),
+    wfaStartDate: toDateString(wfaStartDateYear, wfaStartDateMonth, wfaStartDateDay),
     wfaStartDateYear,
     wfaStartDateMonth,
     wfaStartDateDay,
-    wfaEndDate: formatISODate(`${wfaEndDateYear}-${wfaEndDateMonth}-${wfaEndDateDay}`).unwrapOr(''),
+    wfaEndDate: toDateString(wfaEndDateYear, wfaEndDateMonth, wfaEndDateDay),
     wfaEndDateYear,
     wfaEndDateMonth,
     wfaEndDateDay,

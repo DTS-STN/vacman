@@ -170,6 +170,7 @@
   [type='radio'] {
     border-radius: 100%;
   }
+  [role='option']:focus,
   [type='checkbox']:focus,
   [type='radio']:focus {
     outline: 2px solid transparent;

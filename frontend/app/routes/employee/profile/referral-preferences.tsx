@@ -17,7 +17,7 @@ import { requirePrivacyConsentForOwnProfile } from '~/.server/utils/privacy-cons
 import { hasReferralDataChanged, mapProfileToPutModelWithOverrides } from '~/.server/utils/profile-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { BackLink } from '~/components/back-link';
-import { PROFILE_STATUS_CODE, PROFILE_STATUS_PENDING, REQUIRE_OPTIONS } from '~/domain/constants';
+import { PROFILE_STATUS, REQUIRE_OPTIONS } from '~/domain/constants';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
@@ -35,7 +35,8 @@ export function meta({ loaderData }: Route.MetaArgs) {
 }
 
 export async function action({ context, params, request }: Route.ActionArgs) {
-  requireAuthentication(context.session, request);
+  const { session } = context.get(context.applicationContext);
+  requireAuthentication(session, request);
 
   const formData = await request.formData();
   const parseResult = v.safeParse(await createReferralPreferencesSchema(), {
@@ -60,7 +61,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 
   const profileService = getProfileService();
   const profileParams = { active: true };
-  const currentProfile = await profileService.findCurrentUserProfile(profileParams, context.session.authState.accessToken);
+  const currentProfile = await profileService.findCurrentUserProfile(profileParams, session.authState.accessToken);
 
   const oldReferralData = currentProfile;
   const newReferralData = parseResult.output;
@@ -74,26 +75,18 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     preferredEmploymentOpportunities: [], //TODO: remove when the ProfileUpdateModel is updated in backend
   });
 
-  const updateResult = await profileService.updateProfileById(
-    currentProfile.id,
-    profilePayload,
-    context.session.authState.accessToken,
-  );
+  const updateResult = await profileService.updateProfileById(currentProfile.id, profilePayload, session.authState.accessToken);
 
   if (updateResult.isErr()) {
     throw updateResult.unwrapErr();
   }
 
   if (
-    currentProfile.profileStatus?.code === PROFILE_STATUS_CODE.approved &&
+    currentProfile.profileStatus?.code === PROFILE_STATUS.APPROVED.code &&
     hasReferralDataChanged(oldReferralData, newReferralData)
   ) {
     // profile needs to be re-approved if and only if the current profile status is 'approved'
-    await profileService.updateProfileStatus(
-      currentProfile.profileUser.id,
-      PROFILE_STATUS_PENDING,
-      context.session.authState.accessToken,
-    );
+    await profileService.updateProfileStatus(currentProfile.id, PROFILE_STATUS.PENDING, session.authState.accessToken);
     return i18nRedirect('routes/employee/profile/index.tsx', request, {
       params: { id: currentProfile.profileUser.id.toString() },
       search: new URLSearchParams({
@@ -107,11 +100,12 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 }
 
 export async function loader({ context, request, params }: Route.LoaderArgs) {
-  requireAuthentication(context.session, request);
-  await requirePrivacyConsentForOwnProfile(context.session, request);
+  const { session } = context.get(context.applicationContext);
+  requireAuthentication(session, request);
+  await requirePrivacyConsentForOwnProfile(session, request);
 
   const profileParams = { active: true };
-  const profileData = await getProfileService().findCurrentUserProfile(profileParams, context.session.authState.accessToken);
+  const profileData = await getProfileService().findCurrentUserProfile(profileParams, session.authState.accessToken);
 
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
   const localizedLanguageReferralTypesResult = await getLanguageReferralTypeService().listAllLocalized(lang);

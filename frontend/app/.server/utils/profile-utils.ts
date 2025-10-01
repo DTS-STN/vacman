@@ -129,7 +129,11 @@ export async function getHrAdvisors(accessToken: string): Promise<User[]> {
   if (result.isErr()) {
     throw result.unwrapErr();
   }
-  return result.unwrap().content;
+  return result
+    .unwrap()
+    .content.toSorted(
+      (a, b) => (a.firstName ?? '').localeCompare(b.firstName ?? '') || (a.lastName ?? '').localeCompare(b.lastName ?? ''),
+    );
 }
 
 /**
@@ -150,7 +154,6 @@ export async function getHrAdvisors(accessToken: string): Promise<User[]> {
  */
 export function mapProfileToPutModel(profile: Profile): ProfilePutModel {
   return {
-    additionalComment: profile.additionalComment,
     cityId: profile.substantiveCity?.id,
     classificationId: profile.substantiveClassification?.id,
     hasConsentedToPrivacyTerms: profile.hasConsentedToPrivacyTerms,

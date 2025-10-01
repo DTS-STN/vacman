@@ -83,6 +83,30 @@
       "createdDate": "2025-08-14T17:26:28.71Z",
       "lastModifiedBy": "system",
       "lastModifiedDate": "2025-08-14T17:26:28.71Z"
+    },
+    {
+      "id": 7,
+      "code": "RELOCATION",
+      "nameEn": "Relocation of a work unit ",
+      "nameFr": "Réinstallation d'une unité de travail",
+      "effectiveDate": "1970-01-01T00:00:00Z",
+      "expiryDate": null,
+      "createdBy": "system",
+      "createdDate": "2025-08-14T17:26:28.71Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-08-14T17:26:28.71Z"
+    },
+    {
+      "id": 8,
+      "code": "ALTERNATE_DELIVERY_INITIATIVE",
+      "nameEn": "Alternative delivery initiative",
+      "nameFr": "Diversification des modes d'exécution",
+      "effectiveDate": "1970-01-01T00:00:00Z",
+      "expiryDate": null,
+      "createdBy": "system",
+      "createdDate": "2025-08-14T17:26:28.71Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-08-14T17:26:28.71Z"
     }
   ]
 }

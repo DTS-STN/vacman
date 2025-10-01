@@ -213,10 +213,11 @@ exports[`InputPatternField > should render with error message > expected html 1`
       class="mb-2"
     >
       <span
+        aria-atomic="true"
+        aria-live="assertive"
         class="inline-block max-w-prose border-l-2 border-red-600 bg-red-50 px-3 py-1"
         data-testid="input-error-test-id"
         id="input-pattern-field-test-id-error"
-        role="alert"
       >
         error message
       </span>

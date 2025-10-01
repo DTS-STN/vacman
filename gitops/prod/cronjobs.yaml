@@ -1,0 +1,47 @@
+#
+# A cron job that will synchronize Entra ID security groups every hour.
+#
+
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: group-sync
+  labels:
+    app.kubernetes.io/name: group-sync
+spec:
+  # Schedule to run the job at the top of the hour.
+  # For more examples, see https://crontab.guru/
+  schedule: '00 * * * *'
+  jobTemplate:
+    spec:
+      backoffLimit: 0
+      template:
+        spec:
+          containers:
+            - name: group-sync
+              image: docker.io/library/node:22.19.0-trixie-slim
+              command:
+                - "/bin/sh"
+                - "-c"
+                - |
+                  set -e
+
+                  echo "Installing dependencies..."
+                  apt update
+                  apt install git --yes
+                  corepack enable
+                  corepack prepare pnpm@10.10.0 --activate
+
+                  echo "Cloning repository..."
+                  git clone https://github.com/DTS-STN/vacman.git /app
+                  cd /app/support
+
+                  echo "Running group-sync script..."
+                  pnpm install
+                  pnpm run group-sync
+              envFrom:
+                - configMapRef:
+                    name: group-sync
+                - secretRef:
+                    name: group-sync
+          restartPolicy: Never

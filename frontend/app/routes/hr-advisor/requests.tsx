@@ -24,11 +24,12 @@ export function meta({ loaderData }: Route.MetaArgs) {
 }
 
 export async function loader({ context, request }: Route.LoaderArgs) {
-  requireAuthentication(context.session, request);
+  const { session } = context.get(context.applicationContext);
+  requireAuthentication(session, request);
 
   const { t, lang } = await getTranslation(request, handle.i18nNamespace);
 
-  const requestsResult = await getRequestService().getCurrentUserRequests(context.session.authState.accessToken);
+  const requestsResult = await getRequestService().getCurrentUserRequests(session.authState.accessToken);
   const requests = (requestsResult.into()?.content ?? []).filter((req) => req.status?.code !== 'DRAFT');
 
   const activeRequests = requests.filter((req) =>

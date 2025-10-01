@@ -88,6 +88,10 @@ export default {
   },
   'data-table': {
     'zero-records': 'Aucune entrée correspondante trouvée',
+    'filters': {
+      'header-aria_one': '{{title}} : {{count}} sélectionné',
+      'header-aria_other': '{{title}} : {{count}} sélectionnés',
+    },
     'pagination': {
       'label': 'Pagination',
       'info_zero': 'Affichage de 0 à 0 sur 0 entrées',
@@ -104,9 +108,10 @@ export default {
       'more-pages': 'Plus de pages',
     },
     'sorting': {
-      'sorted-ascending': '{{column}}, trié en ordre croissant. Cliquez pour trier en ordre décroissant.',
-      'sorted-descending': '{{column}}, trié en ordre décroissant. Cliquez pour supprimer le tri.',
-      'not-sorted': '{{column}}, non trié. Cliquez pour trier en ordre croissant.',
+      'sorted-ascending': '{{column}}, trié en ordre croissant. Cliquez pour supprimer le tri.',
+      'sorted-descending': '{{column}}, trié en ordre décroissant. Cliquez pour trier en ordre croissant.',
+      'not-sorted': '{{column}}, non trié. Cliquez pour trier en ordre décroissant.',
+      'cleared': 'Tri effacé. Utilisez les en-têtes pour trier.',
     },
   },
   'search-bar': {

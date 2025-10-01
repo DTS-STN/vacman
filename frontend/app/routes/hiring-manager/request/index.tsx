@@ -1,37 +1,56 @@
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 
 import type { RouteHandle } from 'react-router';
-import { useFetcher, useLocation, useNavigate, useSearchParams } from 'react-router';
+import { useFetcher } from 'react-router';
 
 import { useTranslation } from 'react-i18next';
 
 import type { Route } from './+types/index';
 
-import { getCityService } from '~/.server/domain/services/city-service';
-import { getDirectorateService } from '~/.server/domain/services/directorate-service';
 import { getEmploymentEquityService } from '~/.server/domain/services/employment-equity-service';
 import { getEmploymentTenureService } from '~/.server/domain/services/employment-tenure-service';
 import { getLanguageForCorrespondenceService } from '~/.server/domain/services/language-for-correspondence-service';
 import { getNonAdvertisedAppointmentService } from '~/.server/domain/services/non-advertised-appointment-service';
 import { getRequestService } from '~/.server/domain/services/request-service';
-import { getSelectionProcessTypeService } from '~/.server/domain/services/selection-process-type-service';
+import { getRequestStatusService } from '~/.server/domain/services/request-status-service';
 import { getWorkScheduleService } from '~/.server/domain/services/work-schedule-service';
+import { getWorkUnitService } from '~/.server/domain/services/workunit-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { countCompletedItems } from '~/.server/utils/profile-utils';
+import { i18nRedirect } from '~/.server/utils/route-utils';
 import { AlertMessage } from '~/components/alert-message';
+import { BackLink } from '~/components/back-link';
+import { Button } from '~/components/button';
 import { ButtonLink } from '~/components/button-link';
 import { ContextualAlert } from '~/components/contextual-alert';
 import { DescriptionList, DescriptionListItem } from '~/components/description-list';
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '~/components/dialog';
 import { LoadingButton } from '~/components/loading-button';
 import { PageTitle } from '~/components/page-title';
 import { ProfileCard } from '~/components/profile-card';
 import { Progress } from '~/components/progress';
-import { StatusTag } from '~/components/status-tag';
-import { EMPLOYMENT_TENURE, LANGUAGE_REQUIREMENT_CODES, REQUEST_EVENT_TYPE, SELECTION_PROCESS_TYPE } from '~/domain/constants';
-//import { PROFILE_STATUS_CODE, EMPLOYEE_WFA_STATUS } from '~/domain/constants';
+import { RequestStatusTag } from '~/components/status-tag';
+import {
+  EMPLOYMENT_TENURE,
+  LANGUAGE_REQUIREMENT_CODES,
+  REQUEST_EVENT_TYPE,
+  REQUEST_STATUS_CODE,
+  SELECTION_PROCESS_TYPE,
+} from '~/domain/constants';
+import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { useFetcherState } from '~/hooks/use-fetcher-state';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
+import { formatISODate } from '~/utils/date-utils';
+import { cn } from '~/utils/tailwind-utils';
 
 export const handle = {
   i18nNamespace: [...parentHandle.i18nNamespace],
@@ -42,64 +61,100 @@ export function meta({ loaderData }: Route.MetaArgs) {
 }
 
 export async function action({ context, params, request }: Route.ActionArgs) {
-  requireAuthentication(context.session, request);
+  const { session } = context.get(context.applicationContext);
+  requireAuthentication(session, request);
 
-  // TODO review data and formatting
-  const requestData = await getRequestService().getRequestById(Number(params.requestId), context.session.authState.accessToken);
-  const currentRequest = requestData.into();
+  const requestData = (
+    await getRequestService().getRequestById(Number(params.requestId), session.authState.accessToken)
+  ).into();
+
+  if (!requestData) {
+    throw new Response('Request not found', { status: HttpStatusCodes.NOT_FOUND });
+  }
+
+  const formData = await request.formData();
+  const formAction = formData.get('action');
+
+  if (formAction === 'delete') {
+    const deleteRequest = await getRequestService().deleteRequestById(Number(params.requestId), session.authState.accessToken);
+
+    if (deleteRequest.isErr()) {
+      const error = deleteRequest.unwrapErr();
+      return {
+        status: 'error',
+        errorMessage: error.message,
+        errorCode: error.errorCode,
+      };
+    }
+
+    return i18nRedirect('routes/hiring-manager/requests.tsx', request);
+  }
 
   // For process information from Request Model
   const requiredProcessFields = {
-    selectionProcessNumber: currentRequest?.selectionProcessNumber,
-    workforceMgmtApprovalRecvd: currentRequest?.workforceMgmtApprovalRecvd,
-    priorityEntitlement: currentRequest?.priorityEntitlement,
-    priorityEntitlementRationale: currentRequest?.priorityEntitlementRationale,
-    selectionProcessType: currentRequest?.selectionProcessType,
-    hasPerformedSameDuties: currentRequest?.hasPerformedSameDuties,
-    appointmentNonAdvertised: currentRequest?.appointmentNonAdvertised,
-    employmentTenure: currentRequest?.employmentTenure,
-    projectedStartDate: currentRequest?.projectedStartDate,
-    projectedEndDate: currentRequest?.projectedEndDate,
-    workSchedule: currentRequest?.workSchedule,
-    equityNeeded: currentRequest?.equityNeeded,
-    employmentEquities: currentRequest?.employmentEquities,
+    selectionProcessNumber: requestData.selectionProcessNumber,
+    workforceMgmtApprovalRecvd: requestData.workforceMgmtApprovalRecvd,
+    priorityEntitlement: requestData.priorityEntitlement,
+    workSchedule: requestData.workSchedule,
+    ...(requestData.priorityEntitlement
+      ? {
+          priorityEntitlementRationale: requestData.priorityEntitlementRationale,
+        }
+      : {}),
+    ...(requestData.selectionProcessType?.code === SELECTION_PROCESS_TYPE.EXTERNAL_NON_ADVERTISED.code ||
+    requestData.selectionProcessType?.code === SELECTION_PROCESS_TYPE.APPOINTMENT_INTERNAL_NON_ADVERTISED.code
+      ? {
+          hasPerformedSameDuties: requestData.hasPerformedSameDuties,
+          appointmentNonAdvertised: requestData.appointmentNonAdvertised,
+        }
+      : {}),
+    ...(requestData.employmentTenure?.code === EMPLOYMENT_TENURE.term
+      ? {
+          projectedStartDate: requestData.projectedStartDate,
+          projectedEndDate: requestData.projectedEndDate,
+        }
+      : {}),
+    ...(requestData.equityNeeded === true
+      ? {
+          employmentEquities: requestData.employmentEquities,
+        }
+      : {}),
   };
 
   const languageProficiencyRequired =
-    currentRequest?.languageRequirement?.code === LANGUAGE_REQUIREMENT_CODES.bilingualImperative ||
-    currentRequest?.languageRequirement?.code === LANGUAGE_REQUIREMENT_CODES.bilingualNonImperative;
+    requestData.languageRequirement?.code === LANGUAGE_REQUIREMENT_CODES.bilingualImperative ||
+    requestData.languageRequirement?.code === LANGUAGE_REQUIREMENT_CODES.bilingualNonImperative;
 
   // For position information from Request Model
   const requiredPositionFields = {
-    positionNumber: currentRequest?.positionNumber,
-    classification: currentRequest?.classification,
-    englishTitle: currentRequest?.englishTitle,
-    frenchTitle: currentRequest?.frenchTitle,
-    cities: currentRequest?.cities,
-    languageRequirement: currentRequest?.languageRequirement,
+    positionNumber: requestData.positionNumber,
+    classification: requestData.classification,
+    englishTitle: requestData.englishTitle,
+    frenchTitle: requestData.frenchTitle,
+    cities: requestData.cities,
+    languageRequirement: requestData.languageRequirement,
     ...(languageProficiencyRequired
       ? {
-          englishLanguageProfile: currentRequest.englishLanguageProfile,
-          frenchLanguageProfile: currentRequest.frenchLanguageProfile,
+          englishLanguageProfile: requestData.englishLanguageProfile,
+          frenchLanguageProfile: requestData.frenchLanguageProfile,
         }
       : {}),
-    securityClearance: currentRequest?.securityClearance,
+    securityClearance: requestData.securityClearance,
   };
 
   // For Statement of Merit Criteria and Conditions of Employment from Request Model
   const requiredStatementOfMeritCriteriaFields = {
-    englishStatementOfMerit: currentRequest?.englishStatementOfMerit,
-    frenchStatementOfMerit: currentRequest?.frenchStatementOfMerit,
+    englishStatementOfMerit: requestData.englishStatementOfMerit,
+    frenchStatementOfMerit: requestData.frenchStatementOfMerit,
   };
 
   // For Submission details from Request Model
   const submissionFields = {
-    submitter: currentRequest?.submitter,
-    hiringManager: currentRequest?.hiringManager,
-    subDelegatedManager: currentRequest?.subDelegatedManager,
-    workUnit: currentRequest?.workUnit,
-    languageOfCorrespondence: currentRequest?.languageOfCorrespondence,
-    additionalComment: currentRequest?.additionalComment,
+    submitter: requestData.submitter,
+    hiringManager: requestData.hiringManager,
+    subDelegatedManager: requestData.subDelegatedManager,
+    workUnit: requestData.workUnit,
+    languageOfCorrespondence: requestData.languageOfCorrespondence,
   };
 
   // Check if all sections are complete
@@ -119,11 +174,10 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     };
   }
 
-  // If all complete, submit for review  TODO review
   const submitResult = await getRequestService().updateRequestStatus(
     Number(params.requestId),
     REQUEST_EVENT_TYPE.submitted,
-    context.session.authState.accessToken,
+    session.authState.accessToken,
   );
 
   if (submitResult.isErr()) {
@@ -137,122 +191,92 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 
   return {
     status: 'submitted',
-    profileStatus: submitResult.unwrap(),
+    requestStatus: submitResult.unwrap(),
   };
 }
 
 export async function loader({ context, request, params }: Route.LoaderArgs) {
-  requireAuthentication(context.session, request);
+  const { session } = context.get(context.applicationContext);
+  requireAuthentication(session, request);
 
-  const requestResult = await getRequestService().getRequestById(
-    Number(params.requestId),
-    context.session.authState.accessToken,
-  );
-  const currentRequest = requestResult.into();
+  const requestData = (
+    await getRequestService().getRequestById(Number(params.requestId), session.authState.accessToken)
+  ).into();
+
+  if (!requestData) {
+    throw new Response('Request not found', { status: HttpStatusCodes.NOT_FOUND });
+  }
 
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
 
-  const url = new URL(request.url);
-  const hasRequestChanged = url.searchParams.get('edited') === 'true';
-
   const [
-    allLocalizedCities,
-    allLocalizedProcessTypes,
     allLocalizedAppointmentNonAdvertised,
     allLocalizedTenures,
     allLocalizedWorkSchedules,
     allLocalizedEmploymentEquities,
     allLocalizedDirectorates,
     allLocalizedPreferredLanguage,
+    allRequestStatus,
   ] = await Promise.all([
-    getCityService().listAllLocalized(lang),
-    getSelectionProcessTypeService().listAllLocalized(lang),
     getNonAdvertisedAppointmentService().listAllLocalized(lang),
     getEmploymentTenureService().listAllLocalized(lang),
     getWorkScheduleService().listAllLocalized(lang),
     getEmploymentEquityService().listAllLocalized(lang),
-    getDirectorateService().listAllLocalized(lang),
+    getWorkUnitService().listAllLocalized(lang),
     getLanguageForCorrespondenceService().listAllLocalized(lang),
+    getRequestStatusService().listAll(),
   ]);
 
   // Process information from Request type
-  const processInformationData = {
-    processInformationNumber: currentRequest?.selectionProcessNumber,
-    selectionProcessNumber: currentRequest?.selectionProcessNumber,
-    workforceMgmtApprovalRecvd: currentRequest?.workforceMgmtApprovalRecvd,
-    priorityEntitlement: currentRequest?.priorityEntitlement,
-    priorityEntitlementRationale: currentRequest?.priorityEntitlementRationale,
-    selectionProcessType: currentRequest?.selectionProcessType,
-    hasPerformedSameDuties: currentRequest?.hasPerformedSameDuties,
-    appointmentNonAdvertised: currentRequest?.appointmentNonAdvertised,
-    employmentTenure: currentRequest?.employmentTenure,
-    projectedStartDate: currentRequest?.projectedStartDate,
-    projectedEndDate: currentRequest?.projectedEndDate,
-    workSchedule: currentRequest?.workSchedule,
-    equityNeeded: currentRequest?.equityNeeded,
-    employmentEquities: currentRequest?.employmentEquities,
-  };
-
   const requiredProcessInformation = {
-    processInformationNumber: processInformationData.processInformationNumber,
-    selectionProcessNumber: processInformationData.selectionProcessNumber,
-    workforceMgmtApprovalRecvd: processInformationData.workforceMgmtApprovalRecvd,
-    priorityEntitlement: processInformationData.priorityEntitlement,
-    ...(currentRequest?.priorityEntitlement
+    selectionProcessNumber: requestData.selectionProcessNumber,
+    workforceMgmtApprovalRecvd: requestData.workforceMgmtApprovalRecvd,
+    priorityEntitlement: requestData.priorityEntitlement,
+    workSchedule: requestData.workSchedule,
+    ...(requestData.priorityEntitlement
       ? {
-          priorityEntitlementRationale: processInformationData.priorityEntitlementRationale,
+          priorityEntitlementRationale: requestData.priorityEntitlementRationale,
         }
       : {}),
-    ...(currentRequest?.selectionProcessType?.id === SELECTION_PROCESS_TYPE.externalNonAdvertised
+    ...(requestData.selectionProcessType?.code === SELECTION_PROCESS_TYPE.EXTERNAL_NON_ADVERTISED.code ||
+    requestData.selectionProcessType?.code === SELECTION_PROCESS_TYPE.APPOINTMENT_INTERNAL_NON_ADVERTISED.code
       ? {
-          hasPerformedSameDuties: processInformationData.hasPerformedSameDuties,
-          appointmentNonAdvertised: processInformationData.appointmentNonAdvertised,
+          hasPerformedSameDuties: requestData.hasPerformedSameDuties,
+          appointmentNonAdvertised: requestData.appointmentNonAdvertised,
         }
       : {}),
-    ...(currentRequest?.employmentTenure?.code === EMPLOYMENT_TENURE.term
+    ...(requestData.employmentTenure?.code === EMPLOYMENT_TENURE.term
       ? {
-          projectedStartDate: processInformationData.projectedStartDate,
-          projectedEndDate: processInformationData.projectedEndDate,
+          projectedStartDate: requestData.projectedStartDate,
+          projectedEndDate: requestData.projectedEndDate,
         }
       : {}),
-    ...(currentRequest?.equityNeeded === true
+    ...(requestData.equityNeeded === true
       ? {
-          employmentEquities: processInformationData.employmentEquities,
+          employmentEquities: requestData.employmentEquities,
         }
       : {}),
   };
   const processInformationCompleted = countCompletedItems(requiredProcessInformation);
   const processInformationTotalFields = Object.keys(requiredProcessInformation).length;
 
-  // Position information from Request type
-  const positionInformationData = {
-    positionNumber: currentRequest?.positionNumber,
-    classification: currentRequest?.classification,
-    englishTitle: currentRequest?.englishTitle,
-    frenchTitle: currentRequest?.frenchTitle,
-    cities: currentRequest?.cities,
-    languageRequirement: currentRequest?.languageRequirement,
-    englishLanguageProfile: currentRequest?.englishLanguageProfile,
-    frenchLanguageProfile: currentRequest?.frenchLanguageProfile,
-    securityClearance: currentRequest?.securityClearance,
-  };
-
   const languageProficiencyRequired =
-    currentRequest?.languageRequirement?.code === LANGUAGE_REQUIREMENT_CODES.bilingualImperative ||
-    currentRequest?.languageRequirement?.code === LANGUAGE_REQUIREMENT_CODES.bilingualNonImperative;
+    requestData.languageRequirement?.code === LANGUAGE_REQUIREMENT_CODES.bilingualImperative ||
+    requestData.languageRequirement?.code === LANGUAGE_REQUIREMENT_CODES.bilingualNonImperative;
 
+  // Position information from Request type
   const requiredPositionInformation = {
-    positionNumber: positionInformationData.positionNumber,
-    classification: positionInformationData.classification,
-    englishTitle: positionInformationData.englishTitle,
-    frenchTitle: positionInformationData.frenchTitle,
-    cities: positionInformationData.cities,
-    languageRequirement: positionInformationData.languageRequirement,
-    securityClearance: positionInformationData.securityClearance,
+    positionNumber: requestData.positionNumber,
+    classification: requestData.classification,
+    englishTitle: requestData.englishTitle,
+    frenchTitle: requestData.frenchTitle,
+    cities: requestData.cities,
+    languageRequirement: requestData.languageRequirement,
+    securityClearance: requestData.securityClearance,
     ...(languageProficiencyRequired
       ? {
-          englishLanguageProfile: positionInformationData.englishLanguageProfile,
-          frenchLanguageProfile: positionInformationData.frenchLanguageProfile,
+          englishLanguageProfile: requestData.englishLanguageProfile,
+          frenchLanguageProfile: requestData.frenchLanguageProfile,
         }
       : {}),
   };
@@ -260,26 +284,23 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const positionInformationTotalFields = Object.keys(requiredPositionInformation).length;
 
   // Statement of Merit and Conditions Information from Request type
-  const statementOfMeritCriteriaInformationData = {
-    englishStatementOfMerit: currentRequest?.englishStatementOfMerit,
-    frenchStatementOfMerit: currentRequest?.frenchStatementOfMerit,
+  const requiredStatementOfMeritCriteriaInformation = {
+    englishStatementOfMerit: requestData.englishStatementOfMerit,
+    frenchStatementOfMerit: requestData.frenchStatementOfMerit,
   };
 
-  const requiredStatementOfMeritCriteriaInformation = statementOfMeritCriteriaInformationData;
   const statementOfMeritCriteriaInformationCompleted = countCompletedItems(requiredStatementOfMeritCriteriaInformation);
   const statementOfMeritCriteriaInformationTotalFields = Object.keys(requiredStatementOfMeritCriteriaInformation).length;
 
   // Submission Information from Request type
-  const submissionInformationData = {
-    submitter: currentRequest?.submitter,
-    hiringManager: currentRequest?.hiringManager,
-    subDelegatedManager: currentRequest?.subDelegatedManager,
-    workUnit: currentRequest?.workUnit,
-    languageOfCorrespondence: currentRequest?.languageOfCorrespondence,
-    additionalComment: currentRequest?.additionalComment,
+  const requiredSubmissionInformation = {
+    submitter: requestData.submitter,
+    hiringManager: requestData.hiringManager,
+    subDelegatedManager: requestData.subDelegatedManager,
+    workUnit: requestData.workUnit,
+    languageOfCorrespondence: requestData.languageOfCorrespondence,
   };
 
-  const requiredSubmissionInformation = submissionInformationData;
   const submissionInformationCompleted = countCompletedItems(requiredSubmissionInformation);
   const submissionInformationTotalFields = Object.keys(requiredSubmissionInformation).length;
 
@@ -290,78 +311,79 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     statementOfMeritCriteriaInformationCompleted === statementOfMeritCriteriaInformationTotalFields;
   const isCompleteSubmissionInformation = submissionInformationCompleted === submissionInformationTotalFields;
 
-  const profileCompleted =
+  const requestCompleted =
     processInformationCompleted +
     positionInformationCompleted +
     statementOfMeritCriteriaInformationCompleted +
     submissionInformationCompleted;
-  const profileTotalFields =
+  const requestTotalFields =
     processInformationTotalFields +
     positionInformationTotalFields +
     statementOfMeritCriteriaInformationTotalFields +
     submissionInformationTotalFields;
-  const amountCompleted = (profileCompleted / profileTotalFields) * 100;
-  const cities = currentRequest?.cities?.map((city) => allLocalizedCities.find((c) => c.id === city.id)).filter(Boolean);
-  const employmentEquities = currentRequest?.employmentEquities
+  const amountCompleted = (requestCompleted / requestTotalFields) * 100;
+  const employmentEquities = requestData.employmentEquities
     ?.map((eq) => allLocalizedEmploymentEquities.find((e) => e.code === eq.code))
     .filter(Boolean);
 
   return {
     documentTitle: t('app:hiring-manager-referral-requests.page-title'),
     amountCompleted: amountCompleted,
-    isProfileComplete:
+    isRequestComplete:
       isCompleteProcessInformation &&
       isCompletePositionInformation &&
       isCompleteStatementOfMeritCriteriaInformaion &&
       isCompleteSubmissionInformation,
     isCompleteProcessInformation,
     isProcessNew: processInformationCompleted === 0,
-    selectionProcessNumber: currentRequest?.selectionProcessNumber,
-    workforceMgmtApprovalRecvd: currentRequest?.workforceMgmtApprovalRecvd,
-    priorityEntitlement: currentRequest?.priorityEntitlement,
-    priorityEntitlementRationale: currentRequest?.priorityEntitlementRationale,
-    selectionProcessType: allLocalizedProcessTypes.find((s) => s.code === currentRequest?.selectionProcessType?.code),
-    hasPerformedSameDuties: currentRequest?.hasPerformedSameDuties,
+    selectionProcessNumber: requestData.selectionProcessNumber,
+    workforceMgmtApprovalRecvd: requestData.workforceMgmtApprovalRecvd,
+    priorityEntitlement: requestData.priorityEntitlement,
+    priorityEntitlementRationale: requestData.priorityEntitlementRationale,
+    selectionProcessType: lang === 'en' ? requestData.selectionProcessType?.nameEn : requestData.selectionProcessType?.nameEn,
+    selectionProcessTypeCode: requestData.selectionProcessType?.code,
+    hasPerformedSameDuties: requestData.hasPerformedSameDuties,
     appointmentNonAdvertised: allLocalizedAppointmentNonAdvertised.find(
-      (a) => a.code === currentRequest?.appointmentNonAdvertised?.code,
+      (a) => a.code === requestData.appointmentNonAdvertised?.code,
     ),
-    employmentTenure: allLocalizedTenures.find((t) => t.code === currentRequest?.employmentTenure?.code),
-    projectedStartDate: currentRequest?.projectedStartDate,
-    projectedEndDate: currentRequest?.projectedEndDate,
-    workSchedule: allLocalizedWorkSchedules.find((w) => w.code === currentRequest?.workSchedule?.code),
-    equityNeeded: currentRequest?.equityNeeded,
+    employmentTenure: allLocalizedTenures.find((t) => t.code === requestData.employmentTenure?.code),
+    projectedStartDate: requestData.projectedStartDate,
+    projectedEndDate: requestData.projectedEndDate,
+    workSchedule: allLocalizedWorkSchedules.find((w) => w.code === requestData.workSchedule?.code),
+    equityNeeded: requestData.equityNeeded,
     employmentEquities: employmentEquities?.map((eq) => eq?.name).join(', '),
     isCompletePositionInformation,
     isPositionNew: positionInformationCompleted === 0,
-    positionNumber: currentRequest?.positionNumber,
-    classification: currentRequest?.classification,
-    englishTitle: currentRequest?.englishTitle,
-    frenchTitle: currentRequest?.frenchTitle,
-    cities: cities?.map((city) => city?.provinceTerritory.name + ' - ' + city?.name),
-    languageRequirement: currentRequest?.languageRequirement,
-    englishLanguageProfile: currentRequest?.englishLanguageProfile,
-    frenchLanguageProfile: currentRequest?.frenchLanguageProfile,
-    securityClearance: currentRequest?.securityClearance,
+    positionNumber: requestData.positionNumber,
+    classification: requestData.classification,
+    englishTitle: requestData.englishTitle,
+    frenchTitle: requestData.frenchTitle,
+    cities: requestData.cities?.map((city) => ({
+      province: lang === 'en' ? city.provinceTerritory.nameEn : city.provinceTerritory.nameFr,
+      city: lang === 'en' ? city.nameEn : city.nameFr,
+    })),
+    languageRequirement: requestData.languageRequirement,
+    englishLanguageProfile: requestData.englishLanguageProfile,
+    frenchLanguageProfile: requestData.frenchLanguageProfile,
+    securityClearance: requestData.securityClearance,
     isCompleteStatementOfMeritCriteriaInformaion,
     isStatementOfMeritCriteriaNew: statementOfMeritCriteriaInformationCompleted === 0,
-    englishStatementOfMerit: currentRequest?.englishStatementOfMerit,
-    frenchStatementOfMerit: currentRequest?.frenchStatementOfMerit,
+    englishStatementOfMerit: requestData.englishStatementOfMerit,
+    frenchStatementOfMerit: requestData.frenchStatementOfMerit,
     isCompleteSubmissionInformation,
     isSubmissionNew: submissionInformationCompleted === 0,
-    submitter: currentRequest?.submitter,
-    hiringManager: currentRequest?.hiringManager,
-    subDelegatedManager: currentRequest?.subDelegatedManager,
-    directorate: allLocalizedDirectorates.find((c) => c.code === currentRequest?.workUnit?.code),
-    languageOfCorrespondence: allLocalizedPreferredLanguage.find(
-      (p) => p.code === currentRequest?.languageOfCorrespondence?.code,
-    ),
-    additionalComment: currentRequest?.additionalComment,
-    status: currentRequest?.status,
-    hrAdvisor: currentRequest?.hrAdvisor,
-    priorityClearanceNumber: currentRequest?.priorityClearanceNumber,
-    pscClearanceNumber: currentRequest?.pscClearanceNumber,
-    requestNumber: currentRequest?.requestNumber,
-    hasRequestChanged,
+    submitter: requestData.submitter,
+    hiringManager: requestData.hiringManager,
+    subDelegatedManager: requestData.subDelegatedManager,
+    directorate: allLocalizedDirectorates.find((c) => c.code === requestData.workUnit?.code),
+    languageOfCorrespondence: allLocalizedPreferredLanguage.find((p) => p.code === requestData.languageOfCorrespondence?.code),
+    additionalComment: requestData.additionalComment,
+    status: allRequestStatus.find((s) => s.code === requestData.status?.code),
+    hrAdvisor: requestData.hrAdvisor,
+    priorityClearanceNumber: requestData.priorityClearanceNumber,
+    pscClearanceNumber: requestData.pscClearanceNumber,
+    requestNumber: requestData.requestNumber,
+    requestDate: requestData.createdDate,
     lang,
   };
 }
@@ -379,89 +401,142 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
     alertRef.current.focus();
   }
 
-  const [searchParams] = useSearchParams();
-  const location = useLocation();
-  const navigate = useNavigate();
+  const [showDialog, setShowDialog] = useState(false);
 
-  const [hasRequestChanged, setHasRequestChanged] = useState(loaderData.hasRequestChanged);
+  const isSubmitted =
+    loaderData.status?.code === REQUEST_STATUS_CODE.SUBMIT || loaderData.status?.code === REQUEST_STATUS_CODE.HR_REVIEW;
 
-  // Clean the URL after reading the param
-  useEffect(() => {
-    if (searchParams.get('edited') === 'true') {
-      setHasRequestChanged(true);
-      const newUrl = location.pathname;
-      void navigate(newUrl, { replace: true });
-    }
-  }, [searchParams, location.pathname, navigate]);
+  type CityPreference = {
+    province: string;
+    city: string;
+  };
+
+  type GroupedCities = Record<string, string[]>;
 
   return (
     <div className="space-y-8">
       <div className="space-y-4 py-8 text-white">
-        <StatusTag
-          status={{
-            code: 'DRAFT', // TODO review loaderData.status,
-            name: 'Draft', // TODO adapt code below
-            // name:
-            //   loaderData.status === REQUEST_STATUS_CODE.draft
-            //     ? t('app:hiring-manager.draft-status-request')
-            //     : loaderData.status.name,
-          }}
-        />
+        {loaderData.status && (
+          <RequestStatusTag status={loaderData.status} lang={loaderData.lang} rounded view="hiring-manager" />
+        )}
 
         <PageTitle>{t('app:hiring-manager-referral-requests.page-title')}</PageTitle>
 
-        {/* TODO review */}
-        <p className="font-normal text-[#9FA3AD]">
-          {/* {t('app:profile.last-updated', { date: browserTZ, name: loaderData.lastUpdatedBy })} */}
-        </p>
+        {isSubmitted && (
+          <div>
+            <DescriptionList className="flex">
+              <DescriptionListItem
+                className="mr-10 w-min whitespace-nowrap"
+                ddClassName="mt-1 text-white sm:col-span-2 sm:mt-0"
+                term={t('app:hiring-manager-referral-requests.request-id')}
+              >
+                {loaderData.requestNumber ?? t('app:hiring-manager-referral-requests.not-provided')}
+              </DescriptionListItem>
+
+              <DescriptionListItem
+                className="mx-10 w-min whitespace-nowrap"
+                ddClassName="mt-1 text-white sm:col-span-2 sm:mt-0"
+                term={t('app:hiring-manager-referral-requests.request-date')}
+              >
+                {loaderData.requestDate
+                  ? formatISODate(loaderData.requestDate)
+                  : t('app:hiring-manager-referral-requests.not-provided')}
+              </DescriptionListItem>
+
+              <DescriptionListItem
+                className="mx-10 w-min whitespace-nowrap"
+                ddClassName="mt-1 text-white sm:col-span-2 sm:mt-0"
+                term={t('app:hiring-manager-referral-requests.hiring-manager')}
+              >
+                {loaderData.hiringManager ? (
+                  <>
+                    {`${loaderData.hiringManager.firstName} ${loaderData.hiringManager.lastName}`}
+                    <br />
+                    {loaderData.hiringManager.businessEmailAddress}
+                  </>
+                ) : (
+                  t('app:hiring-manager-referral-requests.not-provided')
+                )}
+              </DescriptionListItem>
+
+              <DescriptionListItem
+                className="ml-10 w-min whitespace-nowrap"
+                ddClassName="mt-1 text-white sm:col-span-2 sm:mt-0"
+                term={t('app:hiring-manager-referral-requests.hr-advisor')}
+              >
+                {loaderData.hrAdvisor
+                  ? `${loaderData.hrAdvisor.firstName} ${loaderData.hrAdvisor.lastName}`
+                  : t('app:hiring-manager-referral-requests.not-assigned')}
+              </DescriptionListItem>
+            </DescriptionList>
+          </div>
+        )}
 
         <div
           role="presentation"
-          className="absolute top-25 left-0 -z-10 h-50 w-full scale-x-[-1] bg-[rgba(9,28,45,1)] bg-[url('/VacMan-design-element-06.svg')] bg-size-[450px] bg-left-bottom bg-no-repeat"
+          className={cn(
+            isSubmitted ? 'h-70' : 'h-50',
+            "absolute top-25 left-0 -z-10 w-full scale-x-[-1] bg-[rgba(9,28,45,1)] bg-[url('/VacMan-design-element-06.svg')] bg-size-[450px] bg-left-bottom bg-no-repeat",
+          )}
         />
       </div>
 
-      {/* TODO review alert messages below */}
+      {!isSubmitted && (
+        <ContextualAlert type={'info'} role="status" ariaLive="polite" textSmall={false}>
+          <div className="text-black-800 pl-1 text-base">
+            <p>{t('app:hiring-manager-referral-requests.notice-line-1')}</p>
+            <ul className="my-3 list-disc pl-7">
+              <li className="mtx-2">{t('app:hiring-manager-referral-requests.notice-line-2')}</li>
+              <li className="mtx-2">{t('app:hiring-manager-referral-requests.notice-line-3')}</li>
+              <li className="mtx-2">{t('app:hiring-manager-referral-requests.notice-line-4')}</li>
+              <li className="mtx-2">{t('app:hiring-manager-referral-requests.notice-line-5')}</li>
+            </ul>
+            <p className="mt-2">{t('app:hiring-manager-referral-requests.notice-line-6')}</p>
+            <p className="mt-2">{t('app:hiring-manager-referral-requests.notice-line-7')}</p>
+          </div>
+        </ContextualAlert>
+      )}
+
+      {isSubmitted && (
+        <BackLink
+          id="back-to-requests"
+          aria-label={t('app:hiring-manager-referral-requests.back')}
+          className="mt-6"
+          file="routes/hiring-manager/requests.tsx"
+          disabled={isSubmitting}
+        >
+          {t('app:hiring-manager-referral-requests.back')}
+        </BackLink>
+      )}
+
+      <h2 className="font-lato mt-4 text-xl font-bold">{t('app:hiring-manager-referral-requests.request-details')}</h2>
+
       {fetcher.data && (
         <AlertMessage
           ref={alertRef}
-          type={loaderData.isProfileComplete ? 'success' : 'error'}
-          message={loaderData.isProfileComplete ? t('app:profile.profile-submitted') : t('app:profile.profile-incomplete')}
+          type={loaderData.isRequestComplete ? 'success' : 'error'}
+          message={
+            loaderData.isRequestComplete
+              ? t('app:hiring-manager-referral-requests.request-submitted')
+              : t('app:hiring-manager-referral-requests.request-incomplete')
+          }
           role="alert"
           ariaLive="assertive"
         />
       )}
 
-      {hasRequestChanged && (
-        <AlertMessage
-          ref={alertRef}
-          type="info"
-          message={t('app:profile.profile-pending-approval')}
-          role="status"
-          ariaLive="polite"
-        />
-      )}
-
-      <div className="mt-20 w-full">
-        <ContextualAlert type={'info'} role="status" ariaLive="polite" textSmall={false}>
-          <div className="text-black-800 pl-1 text-base">
-            <p>{t('app:hiring-manager-referral-requests.page-info-1')}</p>
-            <p className="mt-2">{t('app:hiring-manager-referral-requests.page-info-2')}</p>
-            <p className="mt-2">{t('app:hiring-manager-referral-requests.page-info-3')}</p>
-            <p className="mt-2">{t('app:hiring-manager-referral-requests.page-info-4')}</p>
-          </div>
-        </ContextualAlert>
-
-        <h2 className="font-lato mt-4 text-xl font-bold">{t('app:hiring-manager-referral-requests.request-details')}</h2>
-
+      <div className="w-full">
         <div className="text-black-800 mt-4 max-w-prose text-base">
           {t('app:hiring-manager-referral-requests.page-description')}
         </div>
 
-        {/* {loaderData.status?.code === REQUEST.incomplete && (  TODO fix and delete lie below*/}
-        {loaderData.status?.code !== undefined && (
+        {loaderData.status?.code === REQUEST_STATUS_CODE.DRAFT && (
           <div className="mt-4">
-            <Progress className="color-[#2572B4] mt-8 mb-8" label="" value={loaderData.amountCompleted} />
+            <Progress
+              className="color-[#2572B4] mt-8 mb-8"
+              label={t('app:hiring-manager-referral-requests.request-completion-progress')}
+              value={loaderData.amountCompleted}
+            />
           </div>
         )}
 
@@ -476,7 +551,7 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
               params={params}
               errorState={fetcher.data?.processInfoComplete === false}
               required
-              showStatus
+              showStatus={loaderData.status?.code === REQUEST_STATUS_CODE.DRAFT}
             >
               {loaderData.isProcessNew ? (
                 <>{t('app:hiring-manager-referral-requests.process-intro')}</>
@@ -507,10 +582,12 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
                   )}
 
                   <DescriptionListItem term={t('app:process-information.selection-process-type')}>
-                    {loaderData.selectionProcessType?.name ?? t('app:hiring-manager-referral-requests.not-provided')}
+                    {loaderData.selectionProcessType ?? t('app:hiring-manager-referral-requests.not-provided')}
                   </DescriptionListItem>
 
-                  {loaderData.selectionProcessType?.id === SELECTION_PROCESS_TYPE.externalNonAdvertised && (
+                  {(loaderData.selectionProcessTypeCode === SELECTION_PROCESS_TYPE.EXTERNAL_NON_ADVERTISED.code ||
+                    loaderData.selectionProcessTypeCode ===
+                      SELECTION_PROCESS_TYPE.APPOINTMENT_INTERNAL_NON_ADVERTISED.code) && (
                     <>
                       <DescriptionListItem term={t('app:process-information.performed-duties')}>
                         {loaderData.hasPerformedSameDuties === true
@@ -572,7 +649,7 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
               params={params}
               required
               errorState={fetcher.data?.positionInfoComplete === false}
-              showStatus
+              showStatus={loaderData.status?.code === REQUEST_STATUS_CODE.DRAFT}
             >
               {loaderData.isPositionNew ? (
                 <>{t('app:hiring-manager-referral-requests.position-intro')}</>
@@ -597,7 +674,23 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
                   <DescriptionListItem term={t('app:position-information.locations')}>
                     {loaderData.cities === undefined
                       ? t('app:hiring-manager-referral-requests.not-provided')
-                      : loaderData.cities.length > 0 && loaderData.cities.join(', ')}
+                      : loaderData.cities.length > 0 && (
+                          <div>
+                            {/* Group cities by province */}
+                            {Object.entries(
+                              (loaderData.cities as CityPreference[]).reduce((acc: GroupedCities, city: CityPreference) => {
+                                const provinceName = city.province;
+                                acc[provinceName] ??= [];
+                                acc[provinceName].push(city.city);
+                                return acc;
+                              }, {} as GroupedCities),
+                            ).map(([province, cities]) => (
+                              <div key={province}>
+                                <strong>{province}:</strong> {cities.join(', ')}
+                              </div>
+                            ))}
+                          </div>
+                        )}
                   </DescriptionListItem>
 
                   <DescriptionListItem term={t('app:position-information.language-profile')}>
@@ -633,7 +726,7 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
               params={params}
               required
               errorState={fetcher.data?.statementOfMeritCriteriaInfoComplete === false}
-              showStatus
+              showStatus={loaderData.status?.code === REQUEST_STATUS_CODE.DRAFT}
             >
               {loaderData.isStatementOfMeritCriteriaNew ? (
                 <>{t('app:hiring-manager-referral-requests.somc-intro')}</>
@@ -659,7 +752,7 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
               params={params}
               required
               errorState={fetcher.data?.submissionInfoComplete === false}
-              showStatus
+              showStatus={loaderData.status?.code === REQUEST_STATUS_CODE.DRAFT}
             >
               {loaderData.isSubmissionNew ? (
                 <>{t('app:hiring-manager-referral-requests.submission-intro')}</>
@@ -721,44 +814,68 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
             </ProfileCard>
           </div>
 
-          <div className="mt-8 max-w-prose">
-            <div className="flex justify-center">
-              <fetcher.Form className="mt-6 md:mt-auto" method="post" noValidate>
-                <ButtonLink
-                  className="w-full"
-                  variant="alternative"
-                  file="routes/hiring-manager/index.tsx"
-                  id="cancel"
-                  disabled={isSubmitting}
-                >
-                  {t('app:form.cancel')}
-                </ButtonLink>
+          {!isSubmitted && (
+            <div className="mt-8 max-w-prose">
+              <div className="flex justify-center">
+                <fetcher.Form className="mt-6 md:mt-auto" method="post" noValidate>
+                  <Button
+                    type="button"
+                    className="w-full"
+                    variant="redAlternative"
+                    id="delete"
+                    onClick={() => setShowDialog(true)}
+                  >
+                    {t('app:hiring-manager-referral-requests.delete-request.delete')}
+                  </Button>
 
-                <ButtonLink
-                  className="mt-4 w-full"
-                  variant="alternative"
-                  file="routes/hiring-manager/index.tsx"
-                  id="save"
-                  disabled={isSubmitting}
-                >
-                  {t('app:form.save-and-exit')}
-                </ButtonLink>
+                  <ButtonLink
+                    className="mt-4 w-full"
+                    variant="alternative"
+                    file="routes/hiring-manager/requests.tsx"
+                    id="save"
+                    disabled={isSubmitting}
+                  >
+                    {t('app:form.save-and-exit')}
+                  </ButtonLink>
 
-                <LoadingButton
-                  className="mt-4 w-full"
-                  name="action"
-                  variant="primary"
-                  id="submit"
-                  disabled={isSubmitting}
-                  loading={isSubmitting}
-                >
-                  {t('app:form.submit')}
-                </LoadingButton>
-              </fetcher.Form>
+                  <LoadingButton
+                    className="mt-4 w-full"
+                    name="action"
+                    variant="primary"
+                    id="submit"
+                    disabled={isSubmitting}
+                    loading={isSubmitting}
+                  >
+                    {t('app:form.submit')}
+                  </LoadingButton>
+                </fetcher.Form>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
+      <Dialog open={showDialog} onOpenChange={setShowDialog}>
+        <DialogContent aria-describedby="delete-dialog-description" role="alertdialog">
+          <DialogHeader>
+            <DialogTitle id="delete-dialog-title">{t('app:hiring-manager-referral-requests.delete-request.title')}</DialogTitle>
+          </DialogHeader>
+          <DialogDescription id="delete-dialog-description">
+            {t('app:hiring-manager-referral-requests.delete-request.content')}
+          </DialogDescription>
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button id="confirm-modal-back" variant="alternative" disabled={isSubmitting}>
+                {t('app:hiring-manager-referral-requests.delete-request.keep')}
+              </Button>
+            </DialogClose>
+            <fetcher.Form method="post" noValidate>
+              <Button id="delete-request" variant="red" name="action" value="delete" disabled={isSubmitting}>
+                {t('app:hiring-manager-referral-requests.delete-request.delete')}
+              </Button>
+            </fetcher.Form>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

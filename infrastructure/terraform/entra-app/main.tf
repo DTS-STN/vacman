@@ -196,18 +196,23 @@ resource "azuread_group" "main" {
 
 
 # Assign users to the appropriate security groups based on role
-resource "azuread_group_member" "main" {
-  for_each = {
-    for role_assignment in flatten([
-      for role, emails in var.role_assignments : [
-        for email in emails : { role = role, email = email }
-      ]
-    ]) : "${role_assignment.role}:${role_assignment.email}" => role_assignment
-  }
+#
+# XXX ::: GjB ::: I've intentionally commented out this block of code
+#                 so we can manage the group members externally
+#                 (ie: via the Azure Portal)
+#
+# resource "azuread_group_member" "main" {
+#   for_each = {
+#     for role_assignment in flatten([
+#       for role, emails in var.role_assignments : [
+#         for email in emails : { role = role, email = email }
+#       ]
+#     ]) : "${role_assignment.role}:${role_assignment.email}" => role_assignment
+#   }
 
-  group_object_id  = azuread_group.main[each.value.role].object_id
-  member_object_id = data.azuread_user.users[each.value.email].object_id
-}
+#   group_object_id  = azuread_group.main[each.value.role].object_id
+#   member_object_id = data.azuread_user.users[each.value.email].object_id
+# }
 
 
 

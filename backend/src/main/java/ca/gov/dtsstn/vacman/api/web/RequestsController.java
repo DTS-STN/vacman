@@ -189,7 +189,7 @@ public class RequestsController {
 
 	@ApiResponses.Ok
 	@ApiResponses.BadRequestError
-	@PutMapping({ "/{id}/status" })
+	@PutMapping({ "/{id}/status-change" })
 	@ApiResponses.ResourceNotFoundError
 	@ApiResponses.UnprocessableEntityError
 	@Operation(summary = "Update the status of a request.")
@@ -210,20 +210,20 @@ public class RequestsController {
 
 	@ApiResponses.Ok
 	@ApiResponses.BadRequestError
-	@PostMapping({ "/{id}/approve" })
+	@PostMapping({ "/{id}/run-matches" })
 	@ApiResponses.ResourceNotFoundError
 	@ApiResponses.UnprocessableEntityError
-	@Operation(summary = "Approve a request and run the match creation algorithm.")
+	@Operation(summary = "Run the match creation algorithm for a request.")
 	@PreAuthorize("hasAuthority('hr-advisor')")
-	public ResponseEntity<RequestReadModel> approveRequest(@PathVariable Long id) {
-		log.info("Received request to approve request; ID: [{}]", id);
+	public ResponseEntity<RequestReadModel> runMatches(@PathVariable Long id) {
+		log.info("Received request to run matches for request; ID: [{}]", id);
 
 		final var request = requestService.getRequestById(id)
 			.orElseThrow(asResourceNotFoundException("request", id));
 
 		log.trace("Found request: [{}]", request);
 
-		final var updatedEntity = requestService.approveRequest(request);
+		final var updatedEntity = requestService.runMatches(request);
 
 		return ResponseEntity.ok(requestModelMapper.toModel(updatedEntity));
 	}

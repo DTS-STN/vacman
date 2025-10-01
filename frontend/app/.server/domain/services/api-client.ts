@@ -150,8 +150,15 @@ export const apiClient = {
 
     const response = responseResult.unwrap();
     try {
-      const data = (await response.json()) as TResponseData;
-      return Ok(data);
+      // Some endpoints (e.g., 202 Accepted or 204 No Content) legitimately return an empty body.
+      // Attempting response.json() on an empty body throws a SyntaxError, so we read text first.
+      const text = await response.text();
+      if (!text.trim()) {
+        // Return undefined (or null) as the typed response when no body is present.
+        return Ok(undefined as TResponseData);
+      }
+      const parsed = JSON.parse(text) as TResponseData;
+      return Ok(parsed);
     } catch (parsingError) {
       return Err(
         new AppError(

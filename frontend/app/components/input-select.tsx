@@ -6,11 +6,14 @@ import { InputLabel } from '~/components/input-label';
 import { InputLegend } from '~/components/input-legend';
 import { cn } from '~/utils/tailwind-utils';
 
-const inputBaseClassName =
-  'block rounded-lg border-gray-500 focus:border-blue-500 focus:outline-none focus:ring focus:ring-blue-500';
 const inputDisabledClassName =
   'disabled:bg-gray-100 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-70';
 const inputErrorClassName = 'border-red-500 focus:border-red-500 focus:ring-red-500';
+
+const variants = {
+  alternative: 'block rounded-lg border-0 focus:border-blue-500 focus:outline-none focus:ring focus:ring-blue-500',
+  default: 'block rounded-lg border-gray-500 focus:border-blue-500 focus:outline-none focus:ring focus:ring-blue-500',
+} as const;
 
 export interface InputSelectProps
   extends OmitStrict<
@@ -21,11 +24,12 @@ export interface InputSelectProps
   errorMessage?: string;
   helpMessage?: ReactNode;
   id: string;
-  label: string;
+  label?: string;
   legendClassName?: string;
   name: string;
   options: OmitStrict<ComponentProps<'option'>, 'id'>[];
   ref?: React.Ref<HTMLSelectElement>;
+  variant?: keyof typeof variants;
 }
 
 export function InputSelect(props: InputSelectProps) {
@@ -40,6 +44,7 @@ export function InputSelect(props: InputSelectProps) {
     className,
     required,
     ref,
+    variant = 'default',
     ...restInputProps
   } = props;
 
@@ -92,7 +97,7 @@ export function InputSelect(props: InputSelectProps) {
         aria-invalid={!!errorMessage}
         aria-labelledby={ariaLabelledBy}
         aria-required={required}
-        className={cn(inputBaseClassName, inputDisabledClassName, errorMessage && inputErrorClassName, className)}
+        className={cn(variants[variant], inputDisabledClassName, errorMessage && inputErrorClassName, className)}
         data-testid={inputIds.test}
         id={id}
         required={required}

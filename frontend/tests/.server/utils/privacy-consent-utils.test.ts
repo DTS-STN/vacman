@@ -1,11 +1,12 @@
 /**
  * Tests for privacy consent utilities and flow.
  */
-import type { AppLoadContext } from 'react-router';
+import type { RouterContextProvider } from 'react-router';
 import { redirect } from 'react-router';
 
-import { None, Some, Ok } from 'oxide.ts';
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { None, Ok, Some } from 'oxide.ts';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { mock } from 'vitest-mock-extended';
 
 import { getProfileService } from '~/.server/domain/services/profile-service';
 import { getUserService } from '~/.server/domain/services/user-service';
@@ -15,7 +16,7 @@ import { loader as privacyLoader } from '~/routes/employee/profile/privacy-conse
 
 // Type definitions for test compatibility
 type TestRouteArgs = {
-  context: AppLoadContext;
+  context: RouterContextProvider;
   request: Request;
   params: Record<string, string>;
 };
@@ -102,37 +103,16 @@ const mockProfileService = {
 vi.mocked(getProfileService).mockReturnValue(mockProfileService);
 
 // Helper to create mock context
-function createMockContext(activeDirectoryId: string, name?: string, roles: string[] = []): AppLoadContext {
-  const mockSession = {
+function createMockContext(): RouterContextProvider {
+  const mockSession = mock<AppSession>({
     authState: {
-      idTokenClaims: {
-        sub: activeDirectoryId,
-        oid: activeDirectoryId, // Add the missing oid field that privacy-consent route expects
-        name,
-        iss: 'test-issuer',
-        aud: 'test-audience',
-        iat: Math.floor(Date.now() / 1000),
-        exp: Math.floor(Date.now() / 1000) + 3600,
-      },
-      accessTokenClaims: {
-        roles,
-        iss: 'test-issuer',
-        exp: Math.floor(Date.now() / 1000) + 3600,
-        aud: 'test-audience',
-        sub: activeDirectoryId,
-        client_id: 'test-client',
-        iat: Math.floor(Date.now() / 1000),
-        jti: 'test-jti',
-      },
       accessToken: 'mock-access-token',
-      idToken: 'mock-id-token',
     },
-  } as unknown as AppSession;
+  });
 
-  return {
-    nonce: 'test-nonce',
-    session: mockSession,
-  };
+  return mock<RouterContextProvider>({
+    get: vi.fn().mockReturnValue({ session: mockSession }),
+  });
 }
 
 describe('Privacy Consent Flow', () => {
@@ -146,7 +126,7 @@ describe('Privacy Consent Flow', () => {
 
   describe('Employee Privacy Consent Flow', () => {
     it('should load privacy consent page successfully', async () => {
-      const context = createMockContext('test-user-123');
+      const context = createMockContext();
       const request = new Request('http://localhost:3000/en/employee/profile/privacy-consent');
 
       const response = await privacyLoader({ context, request, params: {} } as TestRouteArgs);
