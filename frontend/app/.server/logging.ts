@@ -7,6 +7,7 @@
  * environment variables. It also provides a factory for creating and retrieving logger
  * instances for different categories within the application.
  */
+import { trace } from '@opentelemetry/api';
 import util from 'node:util';
 import type { Logform, Logger } from 'winston';
 import winston, { format, transports } from 'winston';
@@ -80,8 +81,10 @@ export const LogFactory = {
 function asFormattedInfo(transformableInfo: Logform.TransformableInfo): string {
   const { label, level, message, timestamp, ...rest } = transformableInfo;
   const formattedInfo = `${timestamp} ${level.toUpperCase().padStart(7)} --- [${formatLabel(`${label}`, 25)}]: ${message}`;
+  const traceInfo = getTraceContextSuffix();
+  const withTrace = traceInfo ? `${formattedInfo} ${traceInfo}` : formattedInfo;
   const sanitizedRest = Object.fromEntries(Object.entries(rest).filter(([key]) => typeof key !== 'symbol'));
-  return isEmpty(sanitizedRest) ? formattedInfo : `${formattedInfo} --- ${util.inspect(sanitizedRest, false, null, true)}`;
+  return isEmpty(sanitizedRest) ? withTrace : `${withTrace} --- ${util.inspect(sanitizedRest, false, null, true)}`;
 }
 
 /**
@@ -100,6 +103,24 @@ function isEmpty(obj: object): boolean {
  */
 function formatLabel(label: string, size: number): string {
   return label.length > size ? `…${label.slice(-size + 1)}` : label.padStart(size);
+}
+
+/**
+ * Returns a formatted suffix containing OpenTelemetry trace/span context if available.
+ * Example: "[traceId abc123...; spanId: def456...]"
+ */
+function getTraceContextSuffix(): string | undefined {
+  try {
+    const span = trace.getActiveSpan();
+    const ctx = span?.spanContext();
+    const traceId = ctx?.traceId;
+    const spanId = ctx?.spanId;
+    if (traceId && spanId) {
+      return `[traceId ${traceId}; spanId: ${spanId}]`;
+    }
+  } catch {
+    // If tracing isn't configured or errors, omit context gracefully.
+  }
 }
 
 /**
