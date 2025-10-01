@@ -22,16 +22,14 @@ function shouldIgnore(ignorePatterns: string[], path: string): boolean {
   return ignorePatterns.some((entry) => minimatch(path, entry));
 }
 
+// Common paths that we exclude from request/submission logging
+const COMMON_IGNORE_PATTERNS = ['/__manifest', '/api/readyz', '/assets/**', '/favicon.ico'];
+
 /**
  * Configures a logging middleware with appropriate format and filtering.
  */
 export function logging(environment: ServerEnvironment): RequestHandler {
-  const ignorePatterns = [
-    '/__manifest', //
-    '/api/readyz',
-    '/assets/**',
-    '/favicon.ico',
-  ];
+  const ignorePatterns = COMMON_IGNORE_PATTERNS;
 
   const logFormat = environment.isProduction ? 'tiny' : 'dev';
 
@@ -46,9 +44,39 @@ export function logging(environment: ServerEnvironment): RequestHandler {
       return next();
     }
 
+    // Augment audit logging with submission-specific logs for state-changing requests
+    const method = request.method.toUpperCase();
+    const isMutation = method !== 'GET' && method !== 'HEAD';
+
+    if (isMutation) {
+      const startedAt = Date.now();
+      const { pathname } = new URL(request.url, 'http://localhost:3000/');
+      const contentType = request.headers['content-type'];
+      const contentLength = request.headers['content-length'];
+
+      log.info('Submission received', {
+        method,
+        path: pathname,
+        contentType,
+        contentLength,
+      });
+
+      response.on('finish', () => {
+        const durationMs = Date.now() - startedAt;
+        log.info('Submission completed', {
+          method,
+          path: pathname,
+          status: response.statusCode,
+          durationMs,
+        });
+      });
+    }
+
     return middleware(request, response, next);
   };
 }
+
+// Note: submission-specific logging has been consolidated into the `logging` middleware above.
 
 /**
  * Sets various security headers to protect the application.
