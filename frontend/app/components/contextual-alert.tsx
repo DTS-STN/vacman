@@ -1,12 +1,11 @@
-import type { Ref } from 'react';
-
 import type { IconDefinition } from '@fortawesome/free-solid-svg-icons';
-import { faTriangleExclamation, faCircleExclamation, faCircleCheck } from '@fortawesome/free-solid-svg-icons';
+import { faTriangleExclamation, faCircleInfo, faCircleCheck } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+
+import { cn } from '~/utils/tailwind-utils';
 
 interface ContextualAlertProps {
   type: 'info' | 'success' | 'error';
-  ref?: Ref<HTMLDivElement>;
   role?: 'alert' | 'status' | 'log';
   ariaLive?: 'assertive' | 'polite';
   ariaAtomic?: boolean;
@@ -23,11 +22,16 @@ const styles: Record<NonNullable<ContextualAlertProps['type']>, string> = {
 const icons: Record<NonNullable<ContextualAlertProps['type']>, IconDefinition> = {
   success: faCircleCheck,
   error: faTriangleExclamation,
-  info: faCircleExclamation, //not used
+  info: faCircleInfo,
+};
+
+const iconColors: Record<NonNullable<ContextualAlertProps['type']>, string> = {
+  success: 'text-green-600',
+  error: 'text-red-800',
+  info: 'text-[#2572B4]',
 };
 
 export function ContextualAlert({
-  ref,
   type = 'info',
   role = 'alert',
   ariaLive = 'polite',
@@ -36,30 +40,19 @@ export function ContextualAlert({
   children,
 }: ContextualAlertProps) {
   return (
-    <>
-      <div
-        ref={ref}
-        className={`${styles[type]} flex w-full items-start border-l-6 p-2`}
-        role={role}
-        aria-live={ariaLive}
-        aria-atomic={ariaAtomic}
-      >
-        {type === 'info' ? (
-          <div
-            role="presentation"
-            className="bg-[rgba(37, 114, 180,1)] mt-1 h-[32px] w-[32px] max-w-[32px] flex-none bg-[url('/info-icon.svg')] bg-size-[28px] bg-left-top bg-no-repeat"
-          />
-        ) : (
-          <FontAwesomeIcon
-            icon={icons[type]}
-            size="xl"
-            color={`${type === 'success' ? 'green-600' : 'red-800'}`}
-            className={`${type === 'success' ? 'text-green-600' : 'text-red-800'} min-w-[36px]`}
-          />
-        )}
-
-        <div className={`pl-2 ${textSmall ? 'text-sm' : 'text-base'}`}>{children}</div>
-      </div>
-    </>
+    <div
+      className={cn(styles[type], 'flex w-full items-start gap-1 border-l-6 p-2')}
+      role={role}
+      aria-live={ariaLive}
+      aria-atomic={ariaAtomic}
+    >
+      <FontAwesomeIcon
+        icon={icons[type]}
+        size="xl"
+        className={cn('min-w-[36px] self-baseline', iconColors[type])}
+        aria-hidden={true}
+      />
+      <div className={cn(textSmall && 'text-sm')}>{children}</div>
+    </div>
   );
 }
