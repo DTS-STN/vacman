@@ -49,6 +49,7 @@ public record CollectionModel<T>(List<T> content) {
 	 * This is a convenience method for quickly creating a {@code CollectionModel} without needing to construct an intermediate
 	 * collection.
 	 */
+	@SuppressWarnings({ "unchecked" })
 	public static <T> CollectionModel<T> of(T... items) {
 		return new CollectionModel<>(List.of(items));
 	}
