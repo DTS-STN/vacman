@@ -71,7 +71,7 @@ export function getDefaultRequestService(): RequestService {
       }
       const response = result.unwrap();
       log.info('Fetched current user requests', { count: response.content.length });
-      return Ok(result.unwrap());
+      return Ok(response);
     },
 
     /**
