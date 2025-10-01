@@ -5,7 +5,6 @@ import { useTranslation } from 'react-i18next';
 
 import type { Route } from './+types/layout';
 
-import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { checkHrAdvisorRouteRegistration } from '~/.server/utils/registration-utils';
 import { getDashboardFile } from '~/.server/utils/route-utils';
 import { AppBar } from '~/components/app-bar';
@@ -18,6 +17,7 @@ import { useLanguage } from '~/hooks/use-language';
 import { uselayoutHasDecorativeBackground } from '~/hooks/use-layout-has-background';
 import { useRoute } from '~/hooks/use-route';
 import { getFixedT } from '~/i18n-config.server';
+import { authMiddleware } from '~/routes/middleware';
 import { getAltLanguage, getLanguage } from '~/utils/i18n-utils';
 import { cn } from '~/utils/tailwind-utils';
 
@@ -25,9 +25,12 @@ export const handle = {
   i18nNamespace: ['gcweb', 'app'],
 } as const satisfies RouteHandle;
 
+export const middleware: Route.MiddlewareFunction[] = [
+  authMiddleware, //
+];
+
 export async function loader({ context, request }: Route.LoaderArgs) {
   const { session } = context.get(context.applicationContext);
-  requireAuthentication(session, request);
 
   const altLang = getAltLanguage(getLanguage(request) ?? 'en');
   const altT = await getFixedT(altLang, 'gcweb');
