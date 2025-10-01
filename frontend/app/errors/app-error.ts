@@ -4,10 +4,10 @@ import type { HttpStatusCode } from '~/errors/http-status-codes';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { generateCorrelationId } from '~/utils/correlation';
 
-// Use a dynamic import signature to avoid bundling server-only modules in the client.
+// Use a dynamic access to avoid bundling server-only modules in the client.
 // When running server-side, globalThis.__vacmanGetReqId will be set by the server utils.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-declare const globalThis: any;
+
+type GlobalWithReqId = typeof globalThis & { __vacmanGetReqId?: () => string };
 
 type AppErrorOptions = {
   correlationId?: string;
@@ -42,8 +42,8 @@ export class AppError {
     this.msg = msg;
 
     // Prefer explicit correlationId, then request-scoped reqId, then random fallback
-    const requestReqId: string | undefined =
-      typeof globalThis?.__vacmanGetReqId === 'function' ? globalThis.__vacmanGetReqId() : undefined;
+    const getReqId = (globalThis as GlobalWithReqId).__vacmanGetReqId;
+    const requestReqId: string | undefined = typeof getReqId === 'function' ? getReqId() : undefined;
     this.correlationId = opts?.correlationId ?? requestReqId ?? generateCorrelationId();
     this.httpStatusCode = opts?.httpStatusCode ?? HttpStatusCodes.INTERNAL_SERVER_ERROR;
 
