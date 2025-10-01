@@ -248,7 +248,7 @@ interface DetailsCardProps {
 
 function DetailsCard({ title, children }: DetailsCardProps): JSX.Element {
   return (
-    <Card className={`rounded-md p-4 sm:p-6`}>
+    <Card className="rounded-md p-4 sm:p-6">
       <CardHeader className="p-0">
         <CardTitle className="text-2xl">{title}</CardTitle>
       </CardHeader>

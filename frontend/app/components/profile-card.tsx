@@ -48,7 +48,7 @@ export function ProfileCard({
   const editLink = file && linkLabel;
 
   return (
-    <Card ref={ref} className={`${errorState && 'border-b-6 border-[#C90101]'} rounded-md p-4 sm:p-6`}>
+    <Card ref={ref} className={cn(errorState && 'border-b-6 border-[#C90101]', 'rounded-md p-4 sm:p-6')}>
       <CardHeader className="p-0">
         <div className="mb-6 grid justify-between gap-2 select-none sm:grid-cols-2">
           <div>
