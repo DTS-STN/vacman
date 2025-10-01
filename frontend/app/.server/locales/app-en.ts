@@ -505,6 +505,8 @@ export default {
     'action': 'Action',
     'view': 'View',
     'view-link': 'View request with ID {{requestId}}',
+    'copy': 'Copy',
+    'copy-link': 'Copy request with ID {{requestId}}',
     'next-page': 'Next',
   },
   'matches': {

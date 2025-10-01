@@ -5,16 +5,20 @@ import { useTranslation } from 'react-i18next';
 import RequestsTables from '../page-components/requests/tables/requests-tables';
 import type { Route } from './+types/requests';
 
+import type { RequestUpdateModel } from '~/.server/domain/models';
 import { getRequestService } from '~/.server/domain/services/request-service';
 import { getRequestStatusService } from '~/.server/domain/services/request-status-service';
+import { getUserService } from '~/.server/domain/services/user-service';
 import { serverEnvironment } from '~/.server/environment';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { BackLink } from '~/components/back-link';
 import { PageTitle } from '~/components/page-title';
 import { REQUEST_CATEGORY, REQUEST_STATUSES } from '~/domain/constants';
+import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
+import { formString } from '~/utils/string-utils';
 
 export const handle = {
   i18nNamespace: [...parentHandle.i18nNamespace],
@@ -27,11 +31,77 @@ export function meta({ loaderData }: Route.MetaArgs) {
 export async function action({ context, request }: Route.ActionArgs) {
   const { session } = context.get(context.applicationContext);
   requireAuthentication(session, request);
+  const currentUserData = await getUserService().getCurrentUser(session.authState.accessToken);
+  const currentUser = currentUserData.unwrap();
 
-  const newRequestResult = await getRequestService().createRequest(session.authState.accessToken);
-  const requestId = newRequestResult.into()?.id.toString();
+  const formData = await request.formData();
+  switch (formData.get('action')) {
+    case 'create': {
+      const newRequestResult = await getRequestService().createRequest(session.authState.accessToken);
+      const requestId = newRequestResult.into()?.id.toString();
 
-  return i18nRedirect('routes/hiring-manager/request/index.tsx', request, { params: { requestId } });
+      return i18nRedirect('routes/hiring-manager/request/index.tsx', request, { params: { requestId } });
+    }
+    case 'copy': {
+      const copiedRequestId = formString(formData.get('requestId'));
+      const copiedRequestData = (
+        await getRequestService().getRequestById(Number(copiedRequestId), session.authState.accessToken)
+      ).into();
+
+      if (!copiedRequestData) {
+        throw new Response('Request not found', { status: HttpStatusCodes.NOT_FOUND });
+      }
+      const newRequestResult = await getRequestService().createRequest(session.authState.accessToken);
+      const requestId = newRequestResult.into()?.id.toString();
+
+      // Update new Request with data copied from other request
+
+      const requestPayload: RequestUpdateModel = {
+        positionNumbers: copiedRequestData.positionNumber?.split(',').map((num) => num.trim()),
+        classificationId: copiedRequestData.classification?.id,
+        englishTitle: copiedRequestData.englishTitle,
+        frenchTitle: copiedRequestData.frenchTitle,
+        cityIds: copiedRequestData.cities?.map((city) => city.id),
+        languageRequirementId: copiedRequestData.languageRequirement?.id,
+        englishLanguageProfile: copiedRequestData.englishLanguageProfile,
+        frenchLanguageProfile: copiedRequestData.frenchLanguageProfile,
+        securityClearanceId: copiedRequestData.securityClearance?.id,
+        selectionProcessNumber: copiedRequestData.selectionProcessNumber,
+        workforceMgmtApprovalRecvd: copiedRequestData.workforceMgmtApprovalRecvd,
+        priorityEntitlement: copiedRequestData.priorityEntitlement,
+        priorityEntitlementRationale: copiedRequestData.priorityEntitlementRationale,
+        selectionProcessTypeId: copiedRequestData.selectionProcessType?.id,
+        hasPerformedSameDuties: copiedRequestData.hasPerformedSameDuties,
+        appointmentNonAdvertisedId: copiedRequestData.appointmentNonAdvertised?.id,
+        employmentTenureId: copiedRequestData.employmentTenure?.id,
+        projectedStartDate: copiedRequestData.projectedStartDate,
+        projectedEndDate: copiedRequestData.projectedEndDate,
+        workScheduleId: copiedRequestData.workSchedule?.id,
+        equityNeeded: copiedRequestData.equityNeeded,
+        employmentEquityIds: copiedRequestData.employmentEquities?.map((employmentEquity) => employmentEquity.id),
+        englishStatementOfMerit: copiedRequestData.englishStatementOfMerit,
+        frenchStatementOfMerit: copiedRequestData.frenchStatementOfMerit,
+        submitterId: currentUser.id, // the sbmitter will be the one who copied
+        workUnitId: copiedRequestData.workUnit?.id,
+        languageOfCorrespondenceId: copiedRequestData.languageOfCorrespondence?.id,
+        additionalComment: copiedRequestData.additionalComment,
+      };
+
+      const updateResult = await getRequestService().updateRequestById(
+        Number(requestId),
+        requestPayload,
+        session.authState.accessToken,
+      );
+
+      if (updateResult.isErr()) {
+        throw updateResult.unwrapErr();
+      }
+
+      return i18nRedirect('routes/hiring-manager/request/index.tsx', request, { params: { requestId } });
+    }
+  }
+
+  return undefined;
 }
 
 export async function loader({ context, request }: Route.LoaderArgs) {
