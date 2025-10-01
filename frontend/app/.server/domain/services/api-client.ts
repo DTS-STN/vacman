@@ -2,9 +2,12 @@ import type { Result } from 'oxide.ts';
 import { Err, Ok } from 'oxide.ts';
 
 import { serverEnvironment } from '~/.server/environment';
+import { LogFactory } from '~/.server/logging';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
 import type { HttpStatusCode } from '~/errors/http-status-codes';
+
+const log = LogFactory.getLogger(import.meta.url);
 
 type baseFetchOptions = {
   accessToken?: string;
@@ -33,6 +36,10 @@ async function baseFetch(
     const cleanPath = path.startsWith('/') ? path.slice(1) : path;
     const finalUrl = `${cleanBase}/${cleanPath}`;
 
+    const startedAt = Date.now();
+    log.info('HTTP %s %s', method, cleanPath);
+    log.debug('Request details', { context, url: finalUrl, hasToken: Boolean(options?.accessToken) });
+
     const response = await fetch(finalUrl, {
       method: method,
       headers: {
@@ -41,6 +48,15 @@ async function baseFetch(
       },
       body: options?.body ?? undefined,
     });
+
+    const durationMs = Date.now() - startedAt;
+    log.debug('Response received', { status: response.status, ok: response.ok, durationMs });
+    if (!response.ok) {
+      // surface a concise warning with timing; the caller may add richer context
+      log.warn('HTTP %s %s failed', method, cleanPath, { status: response.status, durationMs });
+    } else {
+      log.info('HTTP %s %s -> %s in %dms', method, cleanPath, response.status, durationMs);
+    }
 
     if (!response.ok) {
       return Err(
@@ -54,6 +70,7 @@ async function baseFetch(
 
     return Ok(response);
   } catch (error) {
+    log.error(`Network error during ${method} ${path}`, error);
     return Err(
       new AppError(
         `A network error occurred while trying to ${context.toLowerCase()}: ${String(error)}`,
