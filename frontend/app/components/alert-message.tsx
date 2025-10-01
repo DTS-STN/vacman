@@ -4,6 +4,8 @@ import type { IconDefinition } from '@fortawesome/free-solid-svg-icons';
 import { faTriangleExclamation, faCircleExclamation, faCircleCheck } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
+import { cn } from '~/utils/tailwind-utils';
+
 interface AlertMessageProps {
   message?: string;
   children?: ReactNode;
@@ -38,7 +40,7 @@ export function AlertMessage({
   return (
     <div
       ref={ref}
-      className={`${styles[type]} flex w-full items-center border-l-4 p-2`}
+      className={cn(styles[type], 'flex w-full items-center border-l-4 p-2')}
       role={role}
       aria-live={ariaLive}
       aria-atomic={ariaAtomic}
