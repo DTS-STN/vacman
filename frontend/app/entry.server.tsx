@@ -28,11 +28,19 @@ export default async function handleRequest(
   routerContext: EntryContext,
   loadContext: RouterContextProvider,
 ) {
+  log.info('SSR request received', {
+    url: request.url,
+    method: request.method,
+    userAgent: request.headers.get('user-agent') ?? undefined,
+  });
   const language = getLanguage(request);
+  log.debug('Resolved language for request', { language });
   const i18n = await initI18next(language);
+  log.debug('i18n initialized for SSR');
 
   return new Promise((resolve, reject) => {
     const { nonce } = loadContext.get(loadContext.applicationContext);
+    log.debug('SSR security context resolved');
     const userAgent = request.headers.get('user-agent');
 
     // Ensure requests from bots and SPA Mode renders wait for all content to load before responding
@@ -50,6 +58,7 @@ export default async function handleRequest(
       </I18nextProvider>,
       {
         [readyOption]() {
+          log.debug('SSR shell ready', { readyOption });
           shellRendered = true;
           responseHeaders.set('Content-Type', 'text/html');
 
@@ -66,6 +75,7 @@ export default async function handleRequest(
           pipe(body);
         },
         onShellError(error) {
+          log.error('Shell rendering error', error);
           reject(error);
         },
         onError(error) {
@@ -84,7 +94,10 @@ export default async function handleRequest(
     // Abort the streaming render pass after 11 seconds
     // to allow the rejected boundaries to be flushed
     // see: https://reactrouter.com/explanation/special-files#streamtimeout
-    setTimeout(abort, 10_000);
+    setTimeout(() => {
+      log.warn('SSR render timeout reached, aborting stream');
+      abort();
+    }, 10_000);
   });
 }
 
@@ -92,6 +105,11 @@ export default async function handleRequest(
 export function handleError(error: unknown, { context, params, request }: LoaderFunctionArgs | ActionFunctionArgs) {
   if (!request.signal.aborted) {
     log.error('Uncaught error while handling request:', error);
+    log.debug('Request context details', {
+      method: request.method,
+      url: request.url,
+      params,
+    });
 
     createCounter('server.errors.total').add(1, {
       'error.class': getErrorClassName(error),
