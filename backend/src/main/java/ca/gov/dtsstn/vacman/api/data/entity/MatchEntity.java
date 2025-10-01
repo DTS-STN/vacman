@@ -17,9 +17,8 @@ import jakarta.persistence.Table;
 @Table(name = "[MATCH]")
 public class MatchEntity extends AbstractBaseEntity implements Ownable {
 
-	@Builder.Factory
-	public static MatchEntity builder() {
-		return new MatchEntity();
+	public static MatchEntityBuilder builder() {
+		return new MatchEntityBuilder();
 	}
 
 	@ManyToOne
@@ -48,6 +47,7 @@ public class MatchEntity extends AbstractBaseEntity implements Ownable {
 		super();
 	}
 
+	@Builder.Constructor
 	public MatchEntity(
 			@Nullable Long id,
 			@Nullable ProfileEntity profile,
