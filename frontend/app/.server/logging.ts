@@ -80,11 +80,13 @@ export const LogFactory = {
  */
 function asFormattedInfo(transformableInfo: Logform.TransformableInfo): string {
   const { label, level, message, timestamp, ...rest } = transformableInfo;
-  const formattedInfo = `${timestamp} ${level.toUpperCase().padStart(7)} --- [${formatLabel(`${label}`, 25)}]: ${message}`;
+  const levelStr = level.toUpperCase().padStart(7);
+  const base = `${timestamp} ${levelStr} --- [${formatLabel(`${label}`, 25)}]:`;
   const traceInfo = getTraceContextSuffix();
-  const withTrace = traceInfo ? `${formattedInfo} ${traceInfo}` : formattedInfo;
+  const withTracePrefix = traceInfo ? `${base} ${traceInfo}` : base;
+  const withMessage = `${withTracePrefix} ${message}`;
   const sanitizedRest = Object.fromEntries(Object.entries(rest).filter(([key]) => typeof key !== 'symbol'));
-  return isEmpty(sanitizedRest) ? withTrace : `${withTrace} --- ${util.inspect(sanitizedRest, false, null, true)}`;
+  return isEmpty(sanitizedRest) ? withMessage : `${withMessage} --- ${util.inspect(sanitizedRest, false, null, true)}`;
 }
 
 /**
