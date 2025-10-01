@@ -235,7 +235,7 @@ export function getDefaultRequestService(): RequestService {
       }
       const response = result.unwrap();
       log.info('Fetched request matches', { count: response.content.length, requestId });
-      return Ok(result.unwrap());
+      return Ok(response);
     },
 
     /**
