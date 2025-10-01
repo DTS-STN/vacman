@@ -14,6 +14,7 @@ import { getProvinceService } from '~/.server/domain/services/province-service';
 import { getRequestService } from '~/.server/domain/services/request-service';
 import { getSecurityClearanceService } from '~/.server/domain/services/security-clearance-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
+import { mapRequestToUpdateModelWithOverrides } from '~/.server/utils/request-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { BackLink } from '~/components/back-link';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
@@ -70,13 +71,12 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 
   const requestData: RequestReadModel = requestResult.unwrap();
 
-  const requestPayload: RequestUpdateModel = {
-    ...requestData,
-    positionNumbers: parseResult.output.positionNumber.split(',').map((num) => num.trim()),
+  const requestPayload: RequestUpdateModel = mapRequestToUpdateModelWithOverrides(requestData, {
+    positionNumbers: parseResult.output.positionNumber,
     classificationId: Number(parseResult.output.groupAndLevel),
     englishTitle: parseResult.output.titleEn,
     frenchTitle: parseResult.output.titleFr,
-    cityIds: parseResult.output.cities,
+    cityIds: parseResult.output.cities.map((id) => ({ value: id })),
     languageRequirementId: Number(parseResult.output.languageRequirement),
     englishLanguageProfile: [parseResult.output.readingEn, parseResult.output.writingEn, parseResult.output.oralEn]
       .filter(Boolean)
@@ -85,7 +85,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
       .filter(Boolean)
       .join(''),
     securityClearanceId: Number(parseResult.output.securityRequirement),
-  };
+  });
 
   const updateResult = await requestService.updateRequestById(requestData.id, requestPayload, session.authState.accessToken);
 

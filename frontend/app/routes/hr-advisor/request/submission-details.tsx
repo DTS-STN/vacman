@@ -13,6 +13,7 @@ import { getUserService } from '~/.server/domain/services/user-service';
 import { getWorkUnitService } from '~/.server/domain/services/workunit-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { extractUniqueBranchesFromDirectorates } from '~/.server/utils/directorate-utils';
+import { mapRequestToUpdateModelWithOverrides } from '~/.server/utils/request-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { BackLink } from '~/components/back-link';
 import { REQUIRE_OPTIONS } from '~/domain/constants';
@@ -112,14 +113,14 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     subDelegatedManagerId = hiringManagerId;
   }
 
-  const requestPayload: RequestUpdateModel = {
+  const requestPayload: RequestUpdateModel = mapRequestToUpdateModelWithOverrides(requestData, {
     submitterId: requestData.submitter?.id, // The submitter's information is coming from saved Request
     hiringManagerId,
     subDelegatedManagerId,
     workUnitId: parseResult.output.directorate,
     languageOfCorrespondenceId: parseResult.output.languageOfCorrespondenceId,
     additionalComment: parseResult.output.additionalComment,
-  };
+  });
 
   const updateResult = await requestService.updateRequestById(requestData.id, requestPayload, session.authState.accessToken);
 
