@@ -2,9 +2,14 @@ import type { Result } from 'oxide.ts';
 import { Err, Ok } from 'oxide.ts';
 
 import { serverEnvironment } from '~/.server/environment';
+import { LogFactory, msSince } from '~/.server/logging';
+import { getRequestContext } from '~/.server/utils/request-context';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
 import type { HttpStatusCode } from '~/errors/http-status-codes';
+import { generateCorrelationId } from '~/utils/correlation';
+
+const logger = LogFactory.getRequestLogger('api-client');
 
 type baseFetchOptions = {
   accessToken?: string;
@@ -25,7 +30,9 @@ async function baseFetch(
   method: string,
   options?: baseFetchOptions,
 ): Promise<Result<Response, AppError>> {
+  const reqId = getRequestContext()?.reqId ?? generateCorrelationId();
   try {
+    const started = Date.now();
     const cleanBase = serverEnvironment.VACMAN_API_BASE_URI.endsWith('/')
       ? serverEnvironment.VACMAN_API_BASE_URI.slice(0, -1)
       : serverEnvironment.VACMAN_API_BASE_URI;
@@ -33,31 +40,64 @@ async function baseFetch(
     const cleanPath = path.startsWith('/') ? path.slice(1) : path;
     const finalUrl = `${cleanBase}/${cleanPath}`;
 
+    logger.debug('api.request', {
+      reqId,
+      method,
+      url: finalUrl,
+      context,
+    });
+
     const response = await fetch(finalUrl, {
       method: method,
       headers: {
         'Authorization': options?.accessToken ? `Bearer ${options.accessToken}` : '',
         'Content-Type': 'application/json',
+        'x-correlation-id': reqId,
       },
       body: options?.body ?? undefined,
     });
 
     if (!response.ok) {
+      logger.warn('api.response.error', {
+        reqId,
+        method,
+        url: finalUrl,
+        status: response.status,
+        statusText: response.statusText,
+        context,
+        durationMs: msSince(started),
+      });
       return Err(
         new AppError(
           `Failed to ${context.toLowerCase()}. The server responded with status ${response.status}.`,
           ErrorCodes.VACMAN_API_ERROR,
-          { httpStatusCode: response.status as HttpStatusCode },
+          { httpStatusCode: response.status as HttpStatusCode, correlationId: reqId },
         ),
       );
     }
 
+    logger.debug('api.response.ok', {
+      reqId,
+      method,
+      url: finalUrl,
+      status: response.status,
+      context,
+      durationMs: msSince(started),
+    });
     return Ok(response);
   } catch (error) {
+    logger.error('api.network.error', {
+      reqId,
+      method,
+      path,
+      context,
+      error,
+    });
     return Err(
       new AppError(
         `A network error occurred while trying to ${context.toLowerCase()}: ${String(error)}`,
         ErrorCodes.VACMAN_API_ERROR,
+        { correlationId: reqId },
       ),
     );
   }
@@ -75,14 +115,17 @@ export const apiClient = {
   async get<TResponseData>(path: string, context: string, token?: string): Promise<Result<TResponseData, AppError>> {
     const responseResult = await baseFetch(path, context, 'GET', { accessToken: token });
     if (responseResult.isErr()) {
+      logger.warn('api.get.failed', { path, context, error: responseResult.unwrapErr() });
       return responseResult;
     }
 
     const response = responseResult.unwrap();
     try {
       const data = (await response.json()) as TResponseData;
+      logger.debug('api.get.parsed', { path, context });
       return Ok(data);
     } catch (parsingError) {
+      logger.error('api.get.parse.error', { path, context, error: parsingError });
       return Err(
         new AppError(
           `Failed to parse JSON response on '${context.toLowerCase()}': ${String(parsingError)}`,
@@ -110,14 +153,17 @@ export const apiClient = {
   ): Promise<Result<TResponseData, AppError>> {
     const responseResult = await baseFetch(path, context, 'POST', { accessToken: token, body: JSON.stringify(data) });
     if (responseResult.isErr()) {
+      logger.warn('api.post.failed', { path, context, error: responseResult.unwrapErr() });
       return responseResult;
     }
 
     const response = responseResult.unwrap();
     try {
       const data = (await response.json()) as TResponseData;
+      logger.debug('api.post.parsed', { path, context });
       return Ok(data);
     } catch (parsingError) {
+      logger.error('api.post.parse.error', { path, context, error: parsingError });
       return Err(
         new AppError(
           `Failed to parse JSON response on '${context.toLowerCase()}': ${String(parsingError)}`,
@@ -145,6 +191,7 @@ export const apiClient = {
   ): Promise<Result<TResponseData, AppError>> {
     const responseResult = await baseFetch(path, context, 'PUT', { accessToken: token, body: JSON.stringify(data) });
     if (responseResult.isErr()) {
+      logger.warn('api.put.failed', { path, context, error: responseResult.unwrapErr() });
       return responseResult;
     }
 
@@ -155,11 +202,14 @@ export const apiClient = {
       const text = await response.text();
       if (!text.trim()) {
         // Return undefined (or null) as the typed response when no body is present.
+        logger.debug('api.put.no-content', { path, context });
         return Ok(undefined as TResponseData);
       }
       const parsed = JSON.parse(text) as TResponseData;
+      logger.debug('api.put.parsed', { path, context });
       return Ok(parsed);
     } catch (parsingError) {
+      logger.error('api.put.parse.error', { path, context, error: parsingError });
       return Err(
         new AppError(
           `Failed to parse JSON response on '${context.toLowerCase()}': ${String(parsingError)}`,
@@ -188,6 +238,7 @@ export const apiClient = {
     const jsonBody = data ? JSON.stringify(data) : undefined;
     const responseResult = await baseFetch(path, context, 'DELETE', { accessToken: token, body: jsonBody });
     if (responseResult.isErr()) {
+      logger.warn('api.delete.failed', { path, context, error: responseResult.unwrapErr() });
       return responseResult;
     }
 
@@ -196,9 +247,11 @@ export const apiClient = {
       // The JSON from the response should be parsed as the response type.
       // Handle empty responses, common for DELETE requests.
       const text = await response.text();
-      const data = text ? (JSON.parse(text) as TResponseData) : (null as TResponseData);
-      return Ok(data);
+      const parsed = text ? (JSON.parse(text) as TResponseData) : (null as TResponseData);
+      logger.debug(text ? 'api.delete.parsed' : 'api.delete.no-content', { path, context });
+      return Ok(parsed);
     } catch (parsingError) {
+      logger.error('api.delete.parse.error', { path, context, error: parsingError });
       return Err(
         new AppError(
           `Failed to parse JSON response on '${context.toLowerCase()}': ${String(parsingError)}`,
