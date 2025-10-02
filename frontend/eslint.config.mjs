@@ -104,12 +104,14 @@ const config = tseslint.config(
     files: ['**/*.tsx'],
     extends: [
       jsxA11yPlugin.flatConfigs['recommended'],
-      reactHooksPlugin.configs['recommended-latest'],
       // @ts-expect-error TS2322 -- see https://github.com/jsx-eslint/eslint-plugin-react/issues/3878
       reactPlugin.configs.flat['recommended'],
       // @ts-expect-error TS2322 -- see https://github.com/jsx-eslint/eslint-plugin-react/issues/3878
       reactPlugin.configs.flat['jsx-runtime'],
     ],
+    plugins: {
+      'react-hooks': reactHooksPlugin,
+    },
     rules: {
       'react/no-unknown-property': ['error', { ignore: ['property', 'resource', 'typeof', 'vocab'] }],
       'react/prop-types': 'off',
