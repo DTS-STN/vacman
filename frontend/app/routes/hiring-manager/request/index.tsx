@@ -535,7 +535,7 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
                 <>{t('app:hiring-manager-referral-requests.process-intro')}</>
               ) : (
                 <DescriptionList>
-                  <DescriptionListItem term={t('app:process-information.selection-process-number')}>
+                  <DescriptionListItem term={t('app:hiring-manager-referral-requests.selection-process-number')}>
                     {loaderData.selectionProcessNumber ?? t('app:hiring-manager-referral-requests.not-provided')}
                   </DescriptionListItem>
 
