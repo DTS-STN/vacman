@@ -68,6 +68,7 @@ export default {
   },
   'form': {
     'approve': 'Approuver',
+    'archive': 'Archiver la demande',
     'cancel': 'Annuler',
     'save': 'Enregistrer',
     'save-and-exit': 'Enregistrer et quitter',
@@ -79,6 +80,10 @@ export default {
     'pickup-request': "Demande d'assignation",
     'vms-not-required': 'Autorisation SGPV non requise',
     'run-matches': 'Activer le repérage',
+    'psc-clearance-received': 'Autorisation CFP reçue',
+    'psc-clearance-required': 'Autorisation CFP requise',
+    'psc-clearance-not-required': 'Autorisation CFP non requise',
+    're-assign-to-me': 'Réassigner à moi',
   },
   'personal-information': {
     'page-title': 'Informations personnelles',
@@ -390,7 +395,21 @@ export default {
     'not-provided': 'Not provided FR',
     'cancel': 'Cancel FR',
     'save-and-exit': 'Save and exit FR',
+    'psc-clearance-number': 'PSC clearance number',
     'submit': 'Submit FR',
+    'archive-request': {
+      title: 'Archiver cette demande\u00A0?',
+      content:
+        "L'archivage annulera la demande et mettra fin au processus. Vous ne pourrez plus apporter de modifications, mais la demande restera disponible dans votre liste des demandes archivées.",
+      continue: 'Continuer la demande',
+      archive: 'Archiver et quitter',
+    },
+    're-assign-request': {
+      title: 'Réassigner la demande\u00A0?',
+      content:
+        'Cette demande est actuellement assignée à [nom du conseiller RH actuel]. Êtes-vous certain-e de vouloir vous la réassigner\u00A0?',
+      reassign: 'Réassigner à moi',
+    },
     'status': {
       'request-pending-approval': '(FR) Request pending approval',
     },

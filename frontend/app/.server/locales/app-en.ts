@@ -65,6 +65,7 @@ export default {
   },
   'form': {
     'approve': 'Approve',
+    'archive': 'Archive request',
     'cancel': 'Cancel',
     'save': 'Save',
     'save-and-exit': 'Save and exit',
@@ -76,6 +77,10 @@ export default {
     'pickup-request': 'Pick up request',
     'vms-not-required': 'VMS clearance not required',
     'run-matches': 'Run matches',
+    'psc-clearance-received': 'PSC clearance received',
+    'psc-clearance-required': 'PSC clearance required',
+    'psc-clearance-not-required': 'PSC clearance not required',
+    're-assign-to-me': 'Reassign to me',
   },
   'personal-information': {
     'page-title': 'Personal information',
@@ -385,7 +390,21 @@ export default {
     'not-provided': 'Not provided',
     'cancel': 'Cancel',
     'save-and-exit': 'Save and exit',
+    'psc-clearance-number': 'PSC clearance number',
     'submit': 'Submit',
+    'archive-request': {
+      title: 'Archive this request?',
+      content:
+        "Archiving will cancel the request and end the process. You won't be able to make changes, but the request will remain in your archived list.",
+      continue: 'Continue request',
+      archive: 'Archive and exit',
+    },
+    're-assign-request': {
+      title: 'Re-assign request?',
+      content:
+        "This request is currently assigned to [current HR advisor's name]. Are you sure you want to re-assign it to yourself?",
+      reassign: 'Re-assgin to me',
+    },
     'status': {
       'request-pending-approval': 'Request pending approval',
     },

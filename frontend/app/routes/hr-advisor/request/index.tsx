@@ -1,3 +1,6 @@
+import { useState } from 'react';
+import type { JSX } from 'react';
+
 import type { RouteHandle } from 'react-router';
 import { useFetcher } from 'react-router';
 
@@ -8,15 +11,27 @@ import { useTranslation } from 'react-i18next';
 import type { Route } from './+types/index';
 
 import { getRequestService } from '~/.server/domain/services/request-service';
+import { getUserService } from '~/.server/domain/services/user-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
+import { Button } from '~/components/button';
 import { ButtonLink } from '~/components/button-link';
 import { DescriptionList, DescriptionListItem } from '~/components/description-list';
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '~/components/dialog';
+import { InputField } from '~/components/input-field';
 import { InlineLink } from '~/components/links';
 import { LoadingButton } from '~/components/loading-button';
 import { PageTitle } from '~/components/page-title';
 import { ProfileCard } from '~/components/profile-card';
 import { RequestStatusTag } from '~/components/status-tag';
-import { EMPLOYMENT_TENURE, REQUEST_STATUSES, SELECTION_PROCESS_TYPE } from '~/domain/constants';
+import { EMPLOYMENT_TENURE, REQUEST_STATUS_CODE, SELECTION_PROCESS_TYPE } from '~/domain/constants';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { useFetcherState } from '~/hooks/use-fetcher-state';
 import { getTranslation } from '~/i18n-config.server';
@@ -41,6 +56,9 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   if (!currentRequest) {
     throw new Response('Request not found', { status: HttpStatusCodes.NOT_FOUND });
   }
+
+  const currentUserData = await getUserService().getCurrentUser(session.authState.accessToken);
+  const currentUser = currentUserData.unwrap();
 
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
 
@@ -96,6 +114,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     additionalComment: currentRequest.additionalComment,
     status: currentRequest.status,
     lang,
+    isRequestAssignedToCurrentUser: currentUser.id === currentRequest.hrAdvisor?.id,
   };
 }
 
@@ -117,6 +136,8 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
   };
 
   type GroupedCities = Record<string, string[]>;
+  const [showArchiveDialog, setShowArchiveDialog] = useState(false);
+  const [showReAssignDialog, setShowReAssignDialog] = useState(false);
 
   return (
     <div className="space-y-8">
@@ -393,67 +414,248 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
           <div className="mt-8 max-w-prose">
             <div className="flex justify-center">
               <fetcher.Form className="mt-6 md:mt-auto" method="post" noValidate>
-                {loaderData.status?.code === REQUEST_STATUSES[1].code ? ( //Status: SUBMIT
-                  <LoadingButton
-                    className="mt-4 w-full"
-                    name="action"
-                    variant="primary"
-                    id="pickup-request"
-                    disabled={isSubmitting}
-                    loading={isSubmitting}
-                  >
-                    {t('app:form.pickup-request')}
-                  </LoadingButton>
-                ) : (
-                  <>
-                    <ButtonLink
-                      className="mt-4 w-full"
-                      variant="alternative"
-                      file="routes/hr-advisor/index.tsx"
-                      id="cancel"
-                      disabled={isSubmitting}
-                    >
-                      {t('app:form.cancel')}
-                    </ButtonLink>
-
-                    <ButtonLink
-                      className="mt-4 w-full"
-                      variant="alternative"
-                      file="routes/employee/index.tsx"
-                      id="save"
-                      disabled={isSubmitting}
-                    >
-                      {t('app:form.save-and-exit')}
-                    </ButtonLink>
-
-                    <LoadingButton
-                      className="mt-4 w-full"
-                      name="action"
-                      variant="primary"
-                      id="vms-not-required"
-                      disabled={isSubmitting}
-                      loading={isSubmitting}
-                    >
-                      {t('app:form.vms-not-required')}
-                    </LoadingButton>
-
-                    <LoadingButton
-                      className="mt-4 w-full"
-                      name="action"
-                      variant="primary"
-                      id="run-matches"
-                      disabled={isSubmitting}
-                      loading={isSubmitting}
-                    >
-                      {t('app:form.run-matches')}
-                    </LoadingButton>
-                  </>
-                )}
+                <RenderButtonsByStatus
+                  code={loaderData.status?.code}
+                  isRequestAssignedToCurrentUser={loaderData.isRequestAssignedToCurrentUser}
+                  isSubmitting={isSubmitting}
+                  onArchiveClick={() => setShowArchiveDialog(true)}
+                  onReAssignClick={() => setShowReAssignDialog(true)}
+                />
               </fetcher.Form>
             </div>
           </div>
         </div>
       </div>
+      <Dialog open={showArchiveDialog} onOpenChange={setShowArchiveDialog}>
+        <DialogContent aria-describedby="archive-dialog-description" role="alertdialog">
+          <DialogHeader>
+            <DialogTitle id="archive-dialog-title">{t('app:hr-advisor-referral-requests.archive-request.title')}</DialogTitle>
+          </DialogHeader>
+          <DialogDescription id="archive-dialog-description">
+            {t('app:hr-advisor-referral-requests.archive-request.content')}
+          </DialogDescription>
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button id="confirm-modal-back" variant="alternative" disabled={isSubmitting}>
+                {t('app:hr-advisor-referral-requests.archive-request.continue')}
+              </Button>
+            </DialogClose>
+            <fetcher.Form method="post" noValidate>
+              <Button id="archive-request" variant="primary" name="action" value="archive" disabled={isSubmitting}>
+                {t('app:hr-advisor-referral-requests.archive-request.archive')}
+              </Button>
+            </fetcher.Form>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      <Dialog open={showReAssignDialog} onOpenChange={setShowReAssignDialog}>
+        <DialogContent aria-describedby="re-assign-dialog-description" role="alertdialog">
+          <DialogHeader>
+            <DialogTitle id="re-assign-dialog-title">
+              {t('app:hr-advisor-referral-requests.re-assign-request.title')}
+            </DialogTitle>
+          </DialogHeader>
+          <DialogDescription id="re-assign-dialog-description">
+            {t('app:hr-advisor-referral-requests.re-assign-request.content')}
+          </DialogDescription>
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button id="confirm-modal-back" variant="alternative" disabled={isSubmitting}>
+                {t('app:form.cancel')}
+              </Button>
+            </DialogClose>
+            <fetcher.Form method="post" noValidate>
+              <Button id="re-assign-request" variant="primary" name="action" value="re-assign" disabled={isSubmitting}>
+                {t('app:hr-advisor-referral-requests.re-assign-request.reassign')}
+              </Button>
+            </fetcher.Form>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
+}
+
+interface RenderButtonsByStatusProps {
+  code?: string;
+  isRequestAssignedToCurrentUser: boolean;
+  isSubmitting: boolean;
+  onArchiveClick: () => void;
+  onReAssignClick: () => void;
+}
+
+function RenderButtonsByStatus({
+  code,
+  isRequestAssignedToCurrentUser,
+  isSubmitting,
+  onArchiveClick,
+  onReAssignClick,
+}: RenderButtonsByStatusProps): JSX.Element {
+  const { t } = useTranslation('app');
+
+  // Re-assign only shows up for HR advisors who haven't picked up that request
+  if (!isRequestAssignedToCurrentUser && code !== REQUEST_STATUS_CODE.SUBMIT && code !== REQUEST_STATUS_CODE.DRAFT) {
+    return (
+      <LoadingButton
+        className="mt-4 w-full"
+        name="action"
+        variant="primary"
+        id="re-assign-to-me"
+        disabled={isSubmitting}
+        loading={isSubmitting}
+        value="re-assign-to-me"
+        onClick={onReAssignClick}
+      >
+        {t('form.re-assign-to-me')}
+      </LoadingButton>
+    );
+  }
+
+  switch (code) {
+    case REQUEST_STATUS_CODE.SUBMIT:
+      return (
+        <LoadingButton
+          className="mt-4 w-full"
+          name="action"
+          variant="primary"
+          id="pickup-request"
+          disabled={isSubmitting}
+          loading={isSubmitting}
+          value="pickup-request"
+        >
+          {t('form.pickup-request')}
+        </LoadingButton>
+      );
+    case REQUEST_STATUS_CODE.HR_REVIEW:
+      return (
+        <>
+          <Button className="mt-4 w-full" variant="alternative" id="archive" onClick={onArchiveClick}>
+            {t('form.archive')}
+          </Button>
+
+          <ButtonLink
+            className="mt-4 w-full"
+            variant="alternative"
+            file="routes/hr-advisor/request/index.tsx"
+            id="save"
+            disabled={isSubmitting}
+          >
+            {t('form.save-and-exit')}
+          </ButtonLink>
+
+          <LoadingButton
+            className="mt-4 w-full"
+            name="action"
+            variant="primary"
+            id="vms-not-required"
+            disabled={isSubmitting}
+            loading={isSubmitting}
+            value="vms-not-required"
+          >
+            {t('form.vms-not-required')}
+          </LoadingButton>
+
+          <LoadingButton
+            className="mt-4 w-full"
+            name="action"
+            variant="primary"
+            id="run-matches"
+            disabled={isSubmitting}
+            loading={isSubmitting}
+            value="run-matches"
+          >
+            {t('form.run-matches')}
+          </LoadingButton>
+        </>
+      );
+    case REQUEST_STATUS_CODE.PENDING_PSC_NO_VMS:
+    case REQUEST_STATUS_CODE.PENDING_PSC:
+      return (
+        <>
+          <Button className="mt-4 w-full" variant="alternative" id="archive" onClick={onArchiveClick}>
+            {t('form.archive')}
+          </Button>
+
+          <InputField
+            className="w-full"
+            id="psc-clearance-number"
+            name="pscClearanceNumber"
+            label={t('hr-advisor-referral-requests.psc-clearance-number')}
+            required
+          />
+
+          <Button
+            className="mt-4 w-full"
+            name="action"
+            variant="primary"
+            id="psc-clearance-received"
+            disabled={isSubmitting}
+            value="psc-clearance-received"
+          >
+            {t('form.psc-clearance-received')}
+          </Button>
+        </>
+      );
+
+    case REQUEST_STATUS_CODE.FDBK_PENDING:
+      return (
+        <>
+          <Button className="mt-4 w-full" variant="alternative" id="archive" onClick={onArchiveClick}>
+            {t('form.archive')}
+          </Button>
+          <ButtonLink
+            className="mt-4 w-full"
+            variant="alternative"
+            file="routes/hr-advisor/request/index.tsx"
+            id="save"
+            disabled={isSubmitting}
+          >
+            {t('form.save-and-exit')}
+          </ButtonLink>
+        </>
+      );
+
+    case REQUEST_STATUS_CODE.NO_MATCH_HR_REVIEW:
+    case REQUEST_STATUS_CODE.FDBK_PEND_APPR:
+      return (
+        <>
+          <Button className="mt-4 w-full" variant="alternative" id="archive" onClick={onArchiveClick}>
+            {t('form.archive')}
+          </Button>
+          <ButtonLink
+            className="mt-4 w-full"
+            variant="alternative"
+            file="routes/hr-advisor/request/index.tsx"
+            id="save"
+            disabled={isSubmitting}
+          >
+            {t('form.save-and-exit')}
+          </ButtonLink>
+          <LoadingButton
+            className="mt-4 w-full"
+            name="action"
+            variant="primary"
+            id="psc-clearance-required"
+            disabled={isSubmitting}
+            loading={isSubmitting}
+            value="psc-clearance-required"
+          >
+            {t('form.psc-clearance-required')}
+          </LoadingButton>
+          <LoadingButton
+            className="mt-4 w-full"
+            name="action"
+            variant="primary"
+            id="psc-clearance-not-required"
+            disabled={isSubmitting}
+            loading={isSubmitting}
+            value="psc-clearance-not-required"
+          >
+            {t('form.psc-clearance-not-required')}
+          </LoadingButton>
+        </>
+      );
+    default:
+      return <></>;
+  }
 }
