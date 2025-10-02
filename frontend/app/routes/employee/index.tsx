@@ -53,7 +53,7 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
   return (
     <>
       <PageTitle>{t('app:employee-dashboard.page-heading')}</PageTitle>
-      <DashboardCard file="routes/employee/profile/index.tsx" icon={faUser} title={t('app:profile.view')} />
+      <DashboardCard file="routes/employee/profile/index.tsx" icon={faUser} title={t('app:profile.view-profile')} />
     </>
   );
 }
