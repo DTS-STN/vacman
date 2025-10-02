@@ -324,6 +324,7 @@ export default {
     'page-description':
       'Complete all sections detailing the process, position, and required qualifications and submit for approval.',
     'process-information': 'Process information',
+    'selection-process-number': 'Selection process number',
     'process-intro': 'Specify the process type, tenure, projected and other process details.',
     'position-information': 'Position information',
     'position-intro': 'Provide position number, group and level, location, language and security requirements.',
