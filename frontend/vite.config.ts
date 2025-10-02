@@ -4,7 +4,7 @@ import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 import tsconfigPaths from 'vite-tsconfig-paths';
-import { coverageConfigDefaults } from 'vitest/config';
+import { configDefaults, coverageConfigDefaults } from 'vitest/config';
 
 // important: this must be a non-aliased (ie: not ~/) import
 import { preserveImportMetaUrl } from './vite.server.config';
@@ -39,7 +39,9 @@ export default defineConfig({
   test: {
     coverage: {
       // Includes only files within the `app` directory for test coverage reporting.
-      include: ['**/app/**'],
+      include: [
+        '**/app/**', //
+      ],
       exclude: [
         '!**/app/[.]client/**', //
         '!**/app/[.]server/**',
@@ -68,8 +70,15 @@ export default defineConfig({
         test: {
           name: 'node',
           environment: 'node',
-          include: ['**/tests/**/*.test.(ts|tsx)'],
-          exclude: ['**/tests/components/**', '**/tests/hooks/**', '**/tests/routes/**'],
+          include: [
+            '**/tests/**/*.test.(ts|tsx)', //
+          ],
+          exclude: [
+            '**/tests/components/**', //
+            '**/tests/hooks/**',
+            '**/tests/routes/**',
+            ...configDefaults.exclude,
+          ],
         },
       },
     ],
