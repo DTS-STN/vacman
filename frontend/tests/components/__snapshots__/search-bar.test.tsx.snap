@@ -111,7 +111,7 @@ exports[`SearchBar > should render search bar suggestions > expected html 1`] = 
         <li>
           <button
             class="inline-flex w-full border-none px-4 py-2 hover:bg-neutral-500 hover:text-white focus:bg-gray-600 focus:text-white focus:outline-none"
-            id="«r4»0"
+            id="_r_4_0"
             tabindex="-1"
             type="button"
           >
@@ -121,7 +121,7 @@ exports[`SearchBar > should render search bar suggestions > expected html 1`] = 
         <li>
           <button
             class="inline-flex w-full border-none px-4 py-2 hover:bg-neutral-500 hover:text-white focus:bg-gray-600 focus:text-white focus:outline-none"
-            id="«r4»1"
+            id="_r_4_1"
             tabindex="-1"
             type="button"
           >
