@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 
 import { Button } from '~/components/button';
 import { ButtonLink } from '~/components/button-link';
+import { Card, CardContent, CardHeader, CardTitle } from '~/components/card';
 import { FormErrorSummary } from '~/components/error-summary';
 import { InputTextarea } from '~/components/input-textarea';
 import { PageTitle } from '~/components/page-title';
@@ -24,9 +25,16 @@ interface PositionInformationFormProps {
   formValues: Partial<SomcConditions> | undefined;
   formErrors?: Errors;
   params: Params;
+  canEdit?: boolean;
 }
 
-export function SomcConditionsForm({ cancelLink, formValues, formErrors, params }: PositionInformationFormProps): JSX.Element {
+export function SomcConditionsForm({
+  cancelLink,
+  formValues,
+  formErrors,
+  params,
+  canEdit,
+}: PositionInformationFormProps): JSX.Element {
   const { t } = useTranslation('app');
 
   return (
@@ -34,43 +42,59 @@ export function SomcConditionsForm({ cancelLink, formValues, formErrors, params 
       <PageTitle className="after:w-14" subTitle={t('referral-request')}>
         {t('somc-conditions.page-title')}
       </PageTitle>
-      <FormErrorSummary>
-        <Form method="post" noValidate>
-          <div className="space-y-6">
-            <InputTextarea
-              id="englishStatementOfMerit"
-              className="w-full"
-              label={t('somc-conditions.english-somc-label')}
-              name="englishStatementOfMerit"
-              helpMessage={t('somc-conditions.english-somc-help-message')}
-              defaultValue={formValues?.englishStatementOfMerit}
-              errorMessage={t(extractValidationKey(formErrors?.englishStatementOfMerit))}
-              required
-              lang="en"
-            />
-
-            <InputTextarea
-              id="frenchStatementOfMerit"
-              className="w-full"
-              label={t('somc-conditions.french-somc-label')}
-              name="frenchStatementOfMerit"
-              helpMessage={t('somc-conditions.french-somc-help-message')}
-              defaultValue={formValues?.frenchStatementOfMerit}
-              errorMessage={t(extractValidationKey(formErrors?.frenchStatementOfMerit))}
-              required
-              lang="fr"
-            />
-            <div className="mt-8 flex flex-wrap items-center justify-start gap-3">
-              <ButtonLink file={cancelLink} params={params} id="cancel-button" variant="alternative">
-                {t('form.cancel')}
-              </ButtonLink>
-              <Button name="action" variant="primary" id="save-button">
-                {t('form.save')}
-              </Button>
+      {canEdit ? (
+        <FormErrorSummary>
+          <Form method="post" noValidate>
+            <div className="space-y-6">
+              <InputTextarea
+                id="englishStatementOfMerit"
+                className="w-full"
+                label={t('somc-conditions.english-somc-label')}
+                name="englishStatementOfMerit"
+                helpMessage={t('somc-conditions.english-somc-help-message')}
+                defaultValue={formValues?.englishStatementOfMerit}
+                errorMessage={t(extractValidationKey(formErrors?.englishStatementOfMerit))}
+                required
+                lang="en"
+              />
+              <InputTextarea
+                id="frenchStatementOfMerit"
+                className="w-full"
+                label={t('somc-conditions.french-somc-label')}
+                name="frenchStatementOfMerit"
+                helpMessage={t('somc-conditions.french-somc-help-message')}
+                defaultValue={formValues?.frenchStatementOfMerit}
+                errorMessage={t(extractValidationKey(formErrors?.frenchStatementOfMerit))}
+                required
+                lang="fr"
+              />
+              <div className="mt-8 flex flex-wrap items-center justify-start gap-3">
+                <ButtonLink file={cancelLink} params={params} id="cancel-button" variant="alternative">
+                  {t('form.cancel')}
+                </ButtonLink>
+                <Button name="action" variant="primary" id="save-button">
+                  {t('form.save')}
+                </Button>
+              </div>
             </div>
-          </div>
-        </Form>
-      </FormErrorSummary>
+          </Form>
+        </FormErrorSummary>
+      ) : (
+        <div className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>{t('somc-conditions.english-somc-label')}</CardTitle>
+            </CardHeader>
+            <CardContent>{formValues?.englishStatementOfMerit}</CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>{t('somc-conditions.french-somc-label')}</CardTitle>
+            </CardHeader>
+            <CardContent>{formValues?.frenchStatementOfMerit}</CardContent>
+          </Card>
+        </div>
+      )}
     </>
   );
 }

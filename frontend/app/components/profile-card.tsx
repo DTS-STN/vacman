@@ -2,7 +2,7 @@ import type { JSX, ReactNode, Ref } from 'react';
 
 import type { Params } from 'react-router';
 
-import { faCheck, faPenToSquare, faPlus, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
+import { faCheck, faEye, faPenToSquare, faPlus, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useTranslation } from 'react-i18next';
 
@@ -24,6 +24,7 @@ interface ProfileCardProps {
   ref?: Ref<HTMLDivElement>;
   showStatus?: boolean;
   updated?: boolean;
+  linkType?: 'edit' | 'view';
 }
 
 export function ProfileCard({
@@ -39,13 +40,11 @@ export function ProfileCard({
   ref,
   showStatus,
   updated,
+  linkType,
 }: ProfileCardProps): JSX.Element {
   const { t } = useTranslation('app');
 
-  const labelPrefix = `${isNew ? t('profile.add') : t('profile.edit')}\u0020`;
-
   // Excluding file or linkLabel will omit the edit link footer from the card (ex. for hr-advisor requests)
-  const editLink = file && linkLabel;
 
   return (
     <Card ref={ref} className={cn(errorState && 'border-b-6 border-[#C90101]', 'rounded-md p-4 sm:p-6')}>
@@ -70,7 +69,7 @@ export function ProfileCard({
       </CardHeader>
       <CardContent className="my-3 space-y-3 p-0">{children}</CardContent>
 
-      {editLink && (
+      {linkType && file && linkLabel && (
         <CardFooter
           className={cn(
             'mt-3',
@@ -82,15 +81,28 @@ export function ProfileCard({
             'rounded-b-xs', // Re-apply bottom roundings
           )}
         >
-          {errorState && <h3 className="pb-4 text-lg font-bold text-[#333333]">{t('profile.field-incomplete')}</h3>}
-          <span className="flex items-center gap-x-2">
-            {errorState && <FontAwesomeIcon icon={faTriangleExclamation} className="text-red-800" />}
-            {!errorState && (isNew ? <FontAwesomeIcon icon={faPlus} /> : <FontAwesomeIcon icon={faPenToSquare} />)}
-            <InlineLink className={`${errorState && 'text-red-800'} font-semibold`} file={file} params={params}>
-              {labelPrefix}
-              {linkLabel}
-            </InlineLink>
-          </span>
+          {linkType === 'edit' && (
+            <>
+              {errorState && <h3 className="pb-4 text-lg font-bold text-[#333333]">{t('profile.field-incomplete')}</h3>}
+              <span className="flex items-center gap-x-2">
+                {errorState && <FontAwesomeIcon icon={faTriangleExclamation} className="text-red-800" />}
+                {!errorState && (isNew ? <FontAwesomeIcon icon={faPlus} /> : <FontAwesomeIcon icon={faPenToSquare} />)}
+                <InlineLink className={`${errorState && 'text-red-800'} font-semibold`} file={file} params={params}>
+                  {`${isNew ? t('profile.add') : t('profile.edit')}\u0020`}
+                  {linkLabel}
+                </InlineLink>
+              </span>
+            </>
+          )}
+          {linkType === 'view' && (
+            <span className="flex items-center gap-x-2">
+              {<FontAwesomeIcon icon={faEye} />}
+              <InlineLink className="font-semibold" file={file} params={params}>
+                {`${t('profile.view')}\u0020`}
+                {linkLabel}
+              </InlineLink>
+            </span>
+          )}
         </CardFooter>
       )}
     </Card>

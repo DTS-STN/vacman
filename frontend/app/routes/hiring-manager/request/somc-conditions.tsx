@@ -10,6 +10,7 @@ import { getRequestService } from '~/.server/domain/services/request-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { BackLink } from '~/components/back-link';
+import { REQUEST_STATUS_CODE } from '~/domain/constants';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
@@ -28,6 +29,13 @@ export function meta({ loaderData }: Route.MetaArgs) {
 export async function action({ context, params, request }: Route.ActionArgs) {
   const { session } = context.get(context.applicationContext);
   requireAuthentication(session, request);
+
+  const editable =
+    (await getRequestService().getRequestById(Number(params.requestId), session.authState.accessToken)).into()?.status?.code ===
+    REQUEST_STATUS_CODE.DRAFT;
+  if (!editable) {
+    throw new Response('Cannot edit request', { status: HttpStatusCodes.BAD_REQUEST });
+  }
 
   const formData = await request.formData();
   const parseResult = v.safeParse(somcConditionsSchema, {
@@ -75,6 +83,7 @@ export async function loader({ context, params, request }: Route.LoaderArgs) {
       englishStatementOfMerit: requestData.englishStatementOfMerit,
       frenchStatementOfMerit: requestData.frenchStatementOfMerit,
     },
+    canEdit: requestData.status?.code === REQUEST_STATUS_CODE.DRAFT,
   };
 }
 
@@ -93,6 +102,7 @@ export default function HiringManagerRequestSomcConditions({ loaderData, actionD
       </BackLink>
       <div className="max-w-prose">
         <SomcConditionsForm
+          canEdit={loaderData.canEdit}
           cancelLink="routes/hiring-manager/request/index.tsx"
           formErrors={actionData?.errors}
           formValues={loaderData.defaultValues}

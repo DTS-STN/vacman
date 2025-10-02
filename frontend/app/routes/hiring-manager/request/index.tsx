@@ -43,6 +43,7 @@ import { useFetcherState } from '~/hooks/use-fetcher-state';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
 import { formatISODate } from '~/utils/date-utils';
+import { trimToUndefined } from '~/utils/string-utils';
 import { cn } from '~/utils/tailwind-utils';
 
 export const handle = {
@@ -530,6 +531,7 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
               errorState={fetcher.data?.processInfoComplete === false}
               required
               showStatus={loaderData.status?.code === REQUEST_STATUS_CODE.DRAFT}
+              linkType={loaderData.status?.code === REQUEST_STATUS_CODE.DRAFT ? 'edit' : undefined}
             >
               {loaderData.isProcessNew ? (
                 <>{t('app:hiring-manager-referral-requests.process-intro')}</>
@@ -628,6 +630,7 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
               required
               errorState={fetcher.data?.positionInfoComplete === false}
               showStatus={loaderData.status?.code === REQUEST_STATUS_CODE.DRAFT}
+              linkType={loaderData.status?.code === REQUEST_STATUS_CODE.DRAFT ? 'edit' : undefined}
             >
               {loaderData.isPositionNew ? (
                 <>{t('app:hiring-manager-referral-requests.position-intro')}</>
@@ -705,19 +708,16 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
               required
               errorState={fetcher.data?.statementOfMeritCriteriaInfoComplete === false}
               showStatus={loaderData.status?.code === REQUEST_STATUS_CODE.DRAFT}
+              linkType={loaderData.status?.code === REQUEST_STATUS_CODE.DRAFT ? 'edit' : 'view'}
             >
               {loaderData.isStatementOfMeritCriteriaNew ? (
                 <>{t('app:hiring-manager-referral-requests.somc-intro')}</>
               ) : (
-                <DescriptionList>
-                  <DescriptionListItem term={t('app:somc-conditions.english-somc-label')}>
-                    {loaderData.englishStatementOfMerit ?? t('app:hiring-manager-referral-requests.not-provided')}
-                  </DescriptionListItem>
-
-                  <DescriptionListItem term={t('app:somc-conditions.french-somc-label')}>
-                    {loaderData.frenchStatementOfMerit ?? t('app:hiring-manager-referral-requests.not-provided')}
-                  </DescriptionListItem>
-                </DescriptionList>
+                <p className="font-medium">
+                  {trimToUndefined(loaderData.englishStatementOfMerit) && trimToUndefined(loaderData.frenchStatementOfMerit)
+                    ? t('app:somc-conditions.english-french-provided')
+                    : t('app:hiring-manager-referral-requests.not-provided')}
+                </p>
               )}
             </ProfileCard>
 
@@ -731,6 +731,7 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
               required
               errorState={fetcher.data?.submissionInfoComplete === false}
               showStatus={loaderData.status?.code === REQUEST_STATUS_CODE.DRAFT}
+              linkType={loaderData.status?.code === REQUEST_STATUS_CODE.DRAFT ? 'edit' : undefined}
             >
               {loaderData.isSubmissionNew ? (
                 <>{t('app:hiring-manager-referral-requests.submission-intro')}</>
