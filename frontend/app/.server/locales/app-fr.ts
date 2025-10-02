@@ -510,6 +510,7 @@ export default {
     'back': "Retour à l'information sur la demande",
     'requestId': 'No. de la demande',
     'classification': 'Groupe et niveau',
+    'work-unit': 'Direction générale',
     'updated': 'Mis à jour',
     'status': 'Statut',
     'action': 'Action',

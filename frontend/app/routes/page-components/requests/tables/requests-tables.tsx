@@ -52,7 +52,7 @@ export default function RequestsTables({
   function createColumns(
     isActive: boolean,
   ): ColumnDef<RequestReadModel & { classification?: LookupModel; requestStatus?: LocalizedLookupModel }>[] {
-    return [
+    const columns: ColumnDef<RequestReadModel & { classification?: LookupModel; requestStatus?: LocalizedLookupModel }>[] = [
       {
         accessorKey: 'id',
         header: ({ column }) => <DataTableColumnHeader column={column} title={t('requests-tables.requestId')} />,
@@ -63,21 +63,37 @@ export default function RequestsTables({
               className="text-sky-800 decoration-slate-400 decoration-2"
               file={`routes/${view}/request/index.tsx`}
               params={{ requestId }}
-              aria-label={t('requests-tables.view-link', {
-                requestId,
-              })}
+              aria-label={t('requests-tables.view-link', { requestId })}
             >
               {info.getValue() as string}
             </InlineLink>
           );
         },
       },
-
       {
         accessorKey: 'classification.id',
         header: ({ column }) => <DataTableColumnHeader column={column} title={t('requests-tables.classification')} />,
         cell: (info) => <p>{info.row.original.classification?.code}</p>,
       },
+    ];
+
+    // Insert workUnit column only for HR Advisor
+    if (view === 'hr-advisor') {
+      columns.push({
+        accessorKey: 'workUnit',
+        header: ({ column }) => <DataTableColumnHeader column={column} title={t('requests-tables.work-unit')} />,
+        cell: (info) => (
+          <p>
+            {lang === 'en'
+              ? (info.row.original.workUnit?.parent?.nameEn ?? '-')
+              : (info.row.original.workUnit?.parent?.nameFr ?? '-')}
+          </p>
+        ),
+      });
+    }
+
+    // Continue with the rest of the columns
+    columns.push(
       {
         accessorKey: 'dateUpdated',
         header: ({ column }) => <DataTableColumnHeader column={column} title={t('requests-tables.updated')} />,
@@ -119,9 +135,7 @@ export default function RequestsTables({
                 className="rounded-sm text-sky-800 underline hover:text-blue-700 focus:text-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
                 file={`routes/${view}/request/index.tsx`}
                 params={{ requestId }}
-                aria-label={t('requests-tables.view-link', {
-                  requestId,
-                })}
+                aria-label={t('requests-tables.view-link', { requestId })}
               >
                 {t('requests-tables.view')}
               </InlineLink>
@@ -144,7 +158,9 @@ export default function RequestsTables({
           );
         },
       },
-    ];
+    );
+
+    return columns;
   }
 
   return (

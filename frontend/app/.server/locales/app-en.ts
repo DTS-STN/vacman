@@ -500,6 +500,7 @@ export default {
     'back': 'Back to request details',
     'requestId': 'Request ID',
     'classification': 'Group and level',
+    'work-unit': 'Branch',
     'updated': 'Updated',
     'status': 'Status',
     'action': 'Action',
