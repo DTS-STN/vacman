@@ -50,7 +50,7 @@ class UserRepositoryTest {
 		final var user = UserEntity.builder()
 			.language(languageRepository.findById(1L).orElseThrow())
 			.userType(userTypeRepository.findById(1L).orElseThrow())
-			.microsoftEntraId("00000000-0000-0000-0000-000000000000")
+			.microsoftEntraId("01010101-0101-0101-0101-010101010101")
 			.businessEmailAddress("test.user@example.com")
 			.firstName("Test")
 			.lastName("User")
