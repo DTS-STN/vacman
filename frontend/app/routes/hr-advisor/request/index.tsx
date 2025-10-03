@@ -31,7 +31,7 @@ import { LoadingButton } from '~/components/loading-button';
 import { PageTitle } from '~/components/page-title';
 import { ProfileCard } from '~/components/profile-card';
 import { RequestStatusTag } from '~/components/status-tag';
-import { EMPLOYMENT_TENURE, REQUEST_STATUS_CODE, SELECTION_PROCESS_TYPE } from '~/domain/constants';
+import { EMPLOYMENT_TENURE, REQUEST_EVENT_TYPE, REQUEST_STATUS_CODE, SELECTION_PROCESS_TYPE } from '~/domain/constants';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { useFetcherState } from '~/hooks/use-fetcher-state';
 import { getTranslation } from '~/i18n-config.server';
@@ -118,8 +118,45 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   };
 }
 
-export function action({ context, params, request }: Route.ActionArgs) {
-  //TODO add action logic
+export async function action({ context, params, request }: Route.ActionArgs) {
+  const { session } = context.get(context.applicationContext);
+  requireAuthentication(session, request);
+
+  const requestData = (
+    await getRequestService().getRequestById(Number(params.requestId), session.authState.accessToken)
+  ).into();
+
+  if (!requestData) {
+    throw new Response('Request not found', { status: HttpStatusCodes.NOT_FOUND });
+  }
+
+  const formData = await request.formData();
+  const formAction = formData.get('action');
+
+  if (formAction === 'pickup-request') {
+    const submitResult = await getRequestService().updateRequestStatus(
+      requestData.id,
+      { eventType: REQUEST_EVENT_TYPE.pickedUp },
+      session.authState.accessToken,
+    );
+
+    if (submitResult.isErr()) {
+      const error = submitResult.unwrapErr();
+      return {
+        status: 'error',
+        errorMessage: error.message,
+        errorCode: error.errorCode,
+      };
+    }
+
+    const updatedRequest = submitResult.unwrap();
+
+    return {
+      status: 'submitted',
+      requestStatus: updatedRequest.status,
+    };
+  }
+
   return undefined;
 }
 
