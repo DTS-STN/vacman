@@ -321,7 +321,7 @@ public class RequestService {
 		request.setRequestStatus(getRequestStatusByCode(requestStatuses.submitted()));
 
 		// Send notification
-		sendRequestCreatedNotification(request);
+		// sendRequestCreatedNotification(request);
 
 		return request;
 	}

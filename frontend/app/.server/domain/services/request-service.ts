@@ -7,6 +7,7 @@ import type {
   CollectionRequestResponse,
   RequestQueryParams,
   PagedProfileResponse,
+  RequestStatusUpdate,
 } from '~/.server/domain/models';
 import { getDefaultRequestService } from '~/.server/domain/services/request-service-default';
 import { getMockRequestService } from '~/.server/domain/services/request-service-mock';
@@ -34,7 +35,11 @@ export type RequestService = {
   ): Promise<Result<RequestReadModel, AppError>>;
 
   // PUT /api/v1/requests/{id}/status-change - Update request status
-  updateRequestStatus(requestId: number, eventType: string, accessToken: string): Promise<Result<void, AppError>>;
+  updateRequestStatus(
+    requestId: number,
+    statusUpdate: RequestStatusUpdate,
+    accessToken: string,
+  ): Promise<Result<RequestReadModel, AppError>>;
 
   // DELETE /api/v1/requests/{id} - Delete a request by ID
   deleteRequestById(requestId: number, accessToken: string): Promise<Result<void, AppError>>;

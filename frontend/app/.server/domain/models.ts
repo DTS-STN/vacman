@@ -1,3 +1,5 @@
+import type { RequestEventType } from '~/domain/constants';
+
 // Generic base types for all lookup models
 export type LookupModel = Readonly<{
   id: number;
@@ -70,6 +72,10 @@ export type LocalizedProfileStatus = LocalizedLookupModel;
 
 export type RequestStatus = LookupModel;
 export type LocalizedRequestStatus = LocalizedLookupModel;
+
+export type RequestStatusUpdate = Readonly<{
+  eventType: RequestEventType;
+}>;
 
 export type SecurityClearance = LookupModel;
 export type LocalizedSecurityClearance = LocalizedLookupModel;

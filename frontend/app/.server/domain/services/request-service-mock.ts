@@ -9,6 +9,7 @@ import type {
   RequestQueryParams,
   PagedProfileResponse,
   RequestStatus,
+  RequestStatusUpdate,
 } from '~/.server/domain/models';
 import { getCityService } from '~/.server/domain/services/city-service';
 import { getClassificationService } from '~/.server/domain/services/classification-service';
@@ -253,7 +254,11 @@ export function getMockRequestService(): RequestService {
     /**
      * Updates a request's status.
      */
-    async updateRequestStatus(requestId: number, eventType: string, accessToken: string): Promise<Result<void, AppError>> {
+    async updateRequestStatus(
+      requestId: number,
+      statusUpdate: RequestStatusUpdate,
+      accessToken: string,
+    ): Promise<Result<RequestReadModel, AppError>> {
       const existingRequestIndex = mockRequests.findIndex((r) => r.id === requestId);
       if (existingRequestIndex === -1) {
         return Err(new AppError(`Request with ID ${requestId} not found.`, ErrorCodes.REQUEST_NOT_FOUND));
@@ -264,13 +269,52 @@ export function getMockRequestService(): RequestService {
         return Err(new AppError(`Request with ID ${requestId} not found.`, ErrorCodes.REQUEST_NOT_FOUND));
       }
 
-      // Mock status update - in real implementation, you'd validate and apply the status update
-      const newStatus: RequestStatus = {
-        id: 1,
-        code: 'SUBMIT',
-        nameEn: 'Request Submitted',
-        nameFr: 'Demande soumise',
+      const statusByEvent: Partial<Record<RequestStatusUpdate['eventType'], RequestStatus>> = {
+        requestSubmitted: {
+          id: 1,
+          code: 'SUBMIT',
+          nameEn: 'Request Submitted',
+          nameFr: 'Demande soumise',
+        },
+        requestPickedUp: {
+          id: 2,
+          code: 'HR_REVIEW',
+          nameEn: 'HR Review',
+          nameFr: 'Révision RH',
+        },
+        vmsNotRequired: {
+          id: 3,
+          code: 'NO_MATCH_HR_REVIEW',
+          nameEn: 'No Match – HR Review',
+          nameFr: 'Aucune concordance – Révision RH',
+        },
+        submitFeedback: {
+          id: 4,
+          code: 'FDBK_PENDING',
+          nameEn: 'Feedback Pending',
+          nameFr: 'Rétroaction en attente',
+        },
+        pscNotRequired: {
+          id: 5,
+          code: 'PENDING_PSC_NO_VMS',
+          nameEn: 'PSC Not Required',
+          nameFr: 'CFP non requise',
+        },
+        pscRequired: {
+          id: 6,
+          code: 'PENDING_PSC',
+          nameEn: 'PSC Required',
+          nameFr: 'CFP requise',
+        },
+        complete: {
+          id: 7,
+          code: 'CLR_GRANTED',
+          nameEn: 'Clearance Granted',
+          nameFr: 'Autorisation accordée',
+        },
       };
+
+      const newStatus = statusByEvent[statusUpdate.eventType] ?? existingRequest.status;
 
       const updatedRequest: RequestReadModel = {
         ...existingRequest,
@@ -280,7 +324,7 @@ export function getMockRequestService(): RequestService {
       };
 
       mockRequests[existingRequestIndex] = updatedRequest;
-      return Promise.resolve(Ok(undefined));
+      return Promise.resolve(Ok(updatedRequest));
     },
 
     /**

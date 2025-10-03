@@ -170,7 +170,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 
   const submitResult = await getRequestService().updateRequestStatus(
     Number(params.requestId),
-    REQUEST_EVENT_TYPE.submitted,
+    { eventType: REQUEST_EVENT_TYPE.submitted },
     session.authState.accessToken,
   );
 
@@ -183,9 +183,11 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     };
   }
 
+  const updatedRequest = submitResult.unwrap();
+
   return {
     status: 'submitted',
-    requestStatus: submitResult.unwrap(),
+    requestStatus: updatedRequest.status,
   };
 }
 
