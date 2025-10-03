@@ -196,9 +196,11 @@ public class RequestService {
 				.map(securityClearanceRepository::getReferenceById)
 				.ifPresent(request::setSecurityClearance);
 
-		request.setEmploymentEquities(updateModel.employmentEquityIds().stream()
-				.map(id -> employmentEquityRepository.getReferenceById(id.value()))
-				.collect(Collectors.toList()));
+		request.setEmploymentEquities(Optional.ofNullable(updateModel.employmentEquityIds()).stream()
+			.flatMap(Collection::stream)
+			.map(RequestUpdateModel.EmploymentEquityId::value)
+			.map(employmentEquityRepository::getReferenceById)
+			.collect(Collectors.toList()));
 
 		request.setCities(Optional.ofNullable(updateModel.cityIds()).stream()
 				.flatMap(Collection::stream)
