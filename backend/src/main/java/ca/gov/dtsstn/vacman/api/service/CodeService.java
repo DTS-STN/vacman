@@ -351,7 +351,7 @@ public class CodeService {
 	}
 
 	/**
-	 * Retrieves a paginated list of match feedbacks.
+	 * Retrieves a paginated list of match feedback options.
 	 *
 	 * @param pageable pagination information
 	 * @return a page of {@link MatchFeedbackEntity} objects
