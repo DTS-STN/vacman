@@ -1,40 +1,39 @@
 package ca.gov.dtsstn.vacman.api.config;
 
-import java.sql.SQLException;
+import static java.lang.String.join;
+import static org.springframework.util.CollectionUtils.isEmpty;
 
 import javax.sql.DataSource;
-import liquibase.integration.spring.SpringLiquibase;
 
-import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.liquibase.LiquibaseProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import liquibase.integration.spring.SpringLiquibase;
+
 @Configuration
-@EnableConfigurationProperties({LiquibaseProperties.class})
+@EnableConfigurationProperties({ LiquibaseProperties.class })
 public class LiquibaseConfig {
-	private final DataSource dataSource;
 
-	public LiquibaseConfig(DataSource dataSource) {
-		this.dataSource = dataSource;
-	}
+	@Autowired DataSource dataSource;
 
-	@Bean
-	SpringLiquibase liquibase(LiquibaseProperties liquibaseProperties) throws SQLException {
-		final SpringLiquibase liquibase = new SpringLiquibase();
-		
-		if (liquibaseProperties.getContexts() == null || liquibaseProperties.getContexts().isEmpty()) {
+	@Autowired LiquibaseProperties liquibaseProperties;
+
+	@Bean SpringLiquibase liquibase() throws Exception {
+		if (isEmpty(liquibaseProperties.getContexts())) {
 			throw new IllegalStateException("The 'spring.liquibase.contexts' property must be set to run Liquibase migrations.");
-        }
+		}
 
-		final String contextsAsString = String.join(",", liquibaseProperties.getContexts());
-
-		liquibase.setDataSource(dataSource);
+		final var liquibase = new SpringLiquibase();
 		liquibase.setChangeLog(liquibaseProperties.getChangeLog());
+		liquibase.setContexts(join(",", liquibaseProperties.getContexts()));
+		liquibase.setDataSource(dataSource);
+		liquibase.setDropFirst(liquibaseProperties.isDropFirst());
 		liquibase.setShouldRun(liquibaseProperties.isEnabled());
-		liquibase.setContexts(contextsAsString);
 
 		return liquibase;
 	}
+
 }
