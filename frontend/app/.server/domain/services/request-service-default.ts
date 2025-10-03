@@ -169,7 +169,13 @@ export function getDefaultRequestService(): RequestService {
      * Deletes a request by its ID.
      */
     async deleteRequestById(requestId: number, accessToken: string): Promise<Result<void, AppError>> {
-      const result = await apiClient.delete(`/requests/${requestId}`, `delete request with ID ${requestId}`, accessToken);
+      console.log(accessToken);
+      const result = await apiClient.delete(
+        `/requests/${requestId}`,
+        `delete request with ID ${requestId}`,
+        undefined,
+        accessToken,
+      );
 
       if (result.isErr()) {
         const error = result.unwrapErr();
