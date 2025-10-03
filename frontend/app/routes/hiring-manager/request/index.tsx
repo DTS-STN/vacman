@@ -418,19 +418,22 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
     defaultValue: 'Something went wrong while deleting the request. Try again later.',
   });
 
-  const alertConfig = fetcher.data
-    ? isActionErrorResult(fetcher.data)
-      ? {
-          type: 'error' as const,
-          message: fetcher.data.errorMessage ?? defaultDeleteErrorMessage,
-        }
-      : {
-          type: loaderData.isRequestComplete ? ('success' as const) : ('error' as const),
-          message: loaderData.isRequestComplete
-            ? t('app:hiring-manager-referral-requests.request-submitted')
-            : t('app:hiring-manager-referral-requests.request-incomplete'),
-        }
-    : undefined;
+  function getAlertConfig() {
+    if (!fetcher.data) return undefined;
+    if (isActionErrorResult(fetcher.data)) {
+      return {
+        type: 'error' as const,
+        message: fetcher.data.errorMessage ?? defaultDeleteErrorMessage,
+      };
+    }
+    return {
+      type: loaderData.isRequestComplete ? ('success' as const) : ('error' as const),
+      message: loaderData.isRequestComplete
+        ? t('app:hiring-manager-referral-requests.request-submitted')
+        : t('app:hiring-manager-referral-requests.request-incomplete'),
+    };
+  }
+  const alertConfig = getAlertConfig();
 
   const isSubmitted =
     loaderData.status?.code === REQUEST_STATUS_CODE.SUBMIT || loaderData.status?.code === REQUEST_STATUS_CODE.HR_REVIEW;
