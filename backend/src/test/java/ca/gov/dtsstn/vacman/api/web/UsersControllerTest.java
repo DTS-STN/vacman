@@ -81,11 +81,11 @@ class UsersControllerTest {
 
 		@Test
 		@DisplayName("Should create and return user")
-		@WithMockUser(username = "00000000-0000-0000-0000-000000000000", authorities = { "employee" })
+		@WithMockUser(username = "01010101-0101-0101-0101-010101010101", authorities = { "employee" })
 		void testCreateCurrentUser() throws Exception {
 			when(msGraphService.getUserById(any()))
 				.thenReturn(Optional.of(MSGraphUserBuilder.builder()
-					.id("00000000-0000-0000-0000-000000000000")
+					.id("01010101-0101-0101-0101-010101010101")
 					.givenName("Test")
 					.surname("User")
 					.mail("test.user@example.com")
@@ -103,12 +103,12 @@ class UsersControllerTest {
 				.andExpect(jsonPath("$.firstName", is("Test")))
 				.andExpect(jsonPath("$.lastName", is("User")))
 				.andExpect(jsonPath("$.businessEmailAddress", is("test.user@example.com")))
-				.andExpect(jsonPath("$.microsoftEntraId", is("00000000-0000-0000-0000-000000000000")))
+				.andExpect(jsonPath("$.microsoftEntraId", is("01010101-0101-0101-0101-010101010101")))
 				.andExpect(jsonPath("$.language.id", is(1)))
 				.andExpect(jsonPath("$.userType.code", is("employee")));
 
 			final var userInDb = userRepository.findOne(Example.of(new UserEntityBuilder()
-				.microsoftEntraId("00000000-0000-0000-0000-000000000000")
+				.microsoftEntraId("01010101-0101-0101-0101-010101010101")
 				.build()));
 
 			assertThat(userInDb).isPresent()
@@ -119,11 +119,11 @@ class UsersControllerTest {
 
 		@Test
 		@DisplayName("Should return 409 Conflict if user already exists")
-		@WithMockUser(username = "00000000-0000-0000-0000-000000000000", authorities = { "employee" })
+		@WithMockUser(username = "01010101-0101-0101-0101-010101010101", authorities = { "employee" })
 		void testCreateCurrentUserConflict() throws Exception {
 			userRepository.save(new UserEntityBuilder()
 				.businessEmailAddress("existing.user@example.com")
-				.microsoftEntraId("00000000-0000-0000-0000-000000000000")
+				.microsoftEntraId("01010101-0101-0101-0101-010101010101")
 				.firstName("Existing")
 				.lastName("User")
 				.language(languageRepository.getReferenceById(1L))
@@ -141,7 +141,7 @@ class UsersControllerTest {
 		}
 
 		@Test
-		@DisplayName("Should return 401 Unauthorized if not authenticated")
+		@DisplayName("Should return 40 Unauthorized if not authenticated")
 		void testCreateCurrentUserUnauthorized() throws Exception {
 			final var request = UserCreateModelBuilder.builder()
 				.languageId(1L)
@@ -170,7 +170,7 @@ class UsersControllerTest {
 		@Test
 		@Disabled("not yet implemented")
 		@DisplayName("Should return 404 Not Found if user does not exist in DB")
-		@WithMockUser(username = "00000000-0000-0000-0000-000000000000", authorities = { "employee" })
+		@WithMockUser(username = "01010101-0101-0101-0101-010101010101", authorities = { "employee" })
 		void testGetCurrentUserNotFound() throws Exception {
 			throw new UnsupportedOperationException("not yet implemented");
 		}
@@ -183,7 +183,7 @@ class UsersControllerTest {
 
 		@Test
 		@Disabled("not yet implemented")
-		@WithMockUser(username = "00000000-0000-0000-0000-000000000000", authorities = { "hr-advisor", "employee" })
+		@WithMockUser(username = "01010101-0101-0101-0101-010101010101", authorities = { "hr-advisor", "employee" })
 		@DisplayName("Should return paged users for hr-advisor")
 		void testGetUsersAsHrAdvisor() throws Exception {
 			throw new UnsupportedOperationException("not yet implemented");
@@ -192,7 +192,7 @@ class UsersControllerTest {
 		@Test
 		@Disabled("not yet implemented")
 		@DisplayName("Should return 403 Forbidden for regular user")
-		@WithMockUser(username = "00000000-0000-0000-0000-000000000000", authorities = { "employee" })
+		@WithMockUser(username = "01010101-0101-0101-0101-010101010101", authorities = { "employee" })
 		void testGetUsersAsRegularUser() throws Exception {
 			throw new UnsupportedOperationException("not yet implemented");
 		}
@@ -206,7 +206,7 @@ class UsersControllerTest {
 		@Test
 		@Disabled("not yet implemented")
 		@DisplayName("Should return user for hr-advisor")
-		@WithMockUser(username = "00000000-0000-0000-0000-000000000000", authorities = { "hr-advisor", "employee" })
+		@WithMockUser(username = "01010101-0101-0101-0101-010101010101", authorities = { "hr-advisor", "employee" })
 		void testGetUserByIdAsHrAdvisor() throws Exception {
 			throw new UnsupportedOperationException("not yet implemented");
 		}
@@ -214,7 +214,7 @@ class UsersControllerTest {
 		@Test
 		@Disabled("not yet implemented")
 		@DisplayName("Should return user if owner")
-		@WithMockUser(username = "00000000-0000-0000-0000-000000000000", authorities = { "employee" })
+		@WithMockUser(username = "01010101-0101-0101-0101-010101010101", authorities = { "employee" })
 		void testGetUserByIdAsOwner() throws Exception {
 			throw new UnsupportedOperationException("not yet implemented");
 		}
@@ -222,7 +222,7 @@ class UsersControllerTest {
 		@Test
 		@Disabled("not yet implemented")
 		@DisplayName("Should return 403 Forbidden if not owner")
-		@WithMockUser(username = "00000000-0000-0000-0000-000000000000", authorities = { "employee" })
+		@WithMockUser(username = "01010101-0101-0101-0101-010101010101", authorities = { "employee" })
 		void testGetUserByIdAsOtherUser() throws Exception {
 			throw new UnsupportedOperationException("not yet implemented");
 		}
@@ -236,7 +236,7 @@ class UsersControllerTest {
 		@Test
 		@Disabled("not yet implemented")
 		@DisplayName("Should update user")
-		@WithMockUser(username = "00000000-0000-0000-0000-000000000000", authorities = { "employee" })
+		@WithMockUser(username = "01010101-0101-0101-0101-010101010101", authorities = { "employee" })
 		void testUpdateUser() throws Exception {
 			throw new UnsupportedOperationException("not yet implemented");
 		}
@@ -250,7 +250,7 @@ class UsersControllerTest {
 		@Test
 		@Disabled("not yet implemented")
 		@DisplayName("Should overwrite user")
-		@WithMockUser(username = "00000000-0000-0000-0000-000000000000", authorities = { "employee" })
+		@WithMockUser(username = "01010101-0101-0101-0101-010101010101", authorities = { "employee" })
 		void testOverwriteUser() throws Exception {
 			throw new UnsupportedOperationException("not yet implemented");
 		}
@@ -263,13 +263,13 @@ class UsersControllerTest {
 
 		@Test
 		@DisplayName("Should create and return profile for user as hr-advisor")
-		@WithMockUser(username = "00000000-0000-0000-0000-000000000000", authorities = { "hr-advisor" })
+		@WithMockUser(username = "01010101-0101-0101-0101-010101010101", authorities = { "hr-advisor" })
 		void testCreateProfileAsHrAdvisor() throws Exception {
 			// create the HR advisor in the database
 			final var hrAdvisor = userRepository.save(UserEntity.builder()
 				.firstName("HR Advisor").lastName("User")
 				.businessEmailAddress("hr-advisor@example.com")
-				.microsoftEntraId("00000000-0000-0000-0000-000000000000")
+				.microsoftEntraId("01010101-0101-0101-0101-010101010101")
 				.userType(userTypeRepository.findByCode("HRA").orElseThrow())
 				.language(languageRepository.getReferenceById(1L))
 				.build());
@@ -292,13 +292,13 @@ class UsersControllerTest {
 
 		@Test
 		@DisplayName("Should return 409 Conflict if user already has an active profile")
-		@WithMockUser(username = "00000000-0000-0000-0000-000000000000", authorities = { "hr-advisor" })
+		@WithMockUser(username = "01010101-0101-0101-0101-010101010101", authorities = { "hr-advisor" })
 		void testCreateProfileConflict() throws Exception {
 			// create the HR advisor in the database
 			final var hrAdvisor = userRepository.save(UserEntity.builder()
 				.firstName("HR Advisor").lastName("User")
 				.businessEmailAddress("hr-advisor@example.com")
-				.microsoftEntraId("00000000-0000-0000-0000-000000000000")
+				.microsoftEntraId("01010101-0101-0101-0101-010101010101")
 				.userType(userTypeRepository.findByCode("HRA").orElseThrow())
 				.language(languageRepository.getReferenceById(1L))
 				.build());
@@ -325,13 +325,13 @@ class UsersControllerTest {
 
 		@Test
 		@DisplayName("Should return 409 Conflict if an HR advisor creates a profile for himself")
-		@WithMockUser(username = "00000000-0000-0000-0000-000000000000", authorities = { "hr-advisor" })
+		@WithMockUser(username = "01010101-0101-0101-0101-010101010101", authorities = { "hr-advisor" })
 		void testCreateProfileHRAConflict() throws Exception {
 			// create the HR advisor in the database
 			final var hrAdvisor = userRepository.save(UserEntity.builder()
 				.firstName("HR Advisor").lastName("User")
 				.businessEmailAddress("hr-advisor@example.com")
-				.microsoftEntraId("00000000-0000-0000-0000-000000000000")
+				.microsoftEntraId("01010101-0101-0101-0101-010101010101")
 				.userType(userTypeRepository.findByCode("HRA").orElseThrow())
 				.language(languageRepository.getReferenceById(1L))
 				.build());
@@ -342,13 +342,13 @@ class UsersControllerTest {
 
 		@Test
 		@DisplayName("Should return 404 Not Found if user does not exist")
-		@WithMockUser(username = "00000000-0000-0000-0000-000000000000", authorities = { "hr-advisor" })
+		@WithMockUser(username = "01010101-0101-0101-0101-010101010101", authorities = { "hr-advisor" })
 		void testCreateProfileForNonExistentUser() throws Exception {
 			// create the HR advisor in the database
 			userRepository.save(UserEntity.builder()
 				.firstName("HR Advisor").lastName("User")
 				.businessEmailAddress("hr-advisor@example.com")
-				.microsoftEntraId("00000000-0000-0000-0000-000000000000")
+				.microsoftEntraId("01010101-0101-0101-0101-010101010101")
 				.userType(userTypeRepository.findByCode("HRA").orElseThrow())
 				.language(languageRepository.getReferenceById(1L))
 				.build());
@@ -363,7 +363,7 @@ class UsersControllerTest {
 
 		@Test
 		@DisplayName("Should return 403 Forbidden for regular user trying to create for another user")
-		@WithMockUser(username = "00000000-0000-0000-0000-000000000000", authorities = { "employee" })
+		@WithMockUser(username = "01010101-0101-0101-0101-010101010101", authorities = { "employee" })
 		void testCreateProfileForbidden() throws Exception {
 			mockMvc.perform(post("/api/v1/users/{id}/profiles", 16180339))
 				.andExpect(status().isForbidden());
@@ -371,13 +371,13 @@ class UsersControllerTest {
 
 		@Test
 		@DisplayName("Should allow user to create their own profile")
-		@WithMockUser(username = "00000000-0000-0000-0000-000000000000", authorities = { "employee" })
+		@WithMockUser(username = "01010101-0101-0101-0101-010101010101", authorities = { "employee" })
 		void testCreateProfileForSelf() throws Exception {
 			// create the employee in the database
 			final var employee = userRepository.save(UserEntity.builder()
 				.firstName("Employee").lastName("User")
 				.businessEmailAddress("employee@example.com")
-				.microsoftEntraId("00000000-0000-0000-0000-000000000000")
+				.microsoftEntraId("01010101-0101-0101-0101-010101010101")
 				.userType(userTypeRepository.findByCode("employee").orElseThrow())
 				.language(languageRepository.getReferenceById(1L))
 				.build());
