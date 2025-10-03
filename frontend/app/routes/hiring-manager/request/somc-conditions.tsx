@@ -32,13 +32,6 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   const { session } = context.get(context.applicationContext);
   requireAuthentication(session, request);
 
-  const editable =
-    (await getRequestService().getRequestById(Number(params.requestId), session.authState.accessToken)).into()?.status?.code ===
-    REQUEST_STATUS_CODE.DRAFT;
-  if (!editable) {
-    throw new Response('Cannot edit request', { status: HttpStatusCodes.BAD_REQUEST });
-  }
-
   const formData = await request.formData();
   const parseResult = v.safeParse(somcConditionsSchema, {
     englishStatementOfMerit: formString(formData.get('englishStatementOfMerit')),
@@ -58,6 +51,10 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 
   if (!requestData) {
     throw new Response('Request not found', { status: HttpStatusCodes.NOT_FOUND });
+  }
+
+  if (!requestData.status || requestData.status.code !== REQUEST_STATUS_CODE.DRAFT) {
+    throw new Response('Cannot edit request', { status: HttpStatusCodes.BAD_REQUEST });
   }
 
   const requestPayload: RequestUpdateModel = mapRequestToUpdateModelWithOverrides(requestData, {
