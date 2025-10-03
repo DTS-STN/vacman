@@ -17,6 +17,7 @@ import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { mapRequestToUpdateModelWithOverrides } from '~/.server/utils/request-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { BackLink } from '~/components/back-link';
+import { REQUEST_STATUS_CODE } from '~/domain/constants';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
@@ -70,6 +71,9 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   }
 
   const requestData: RequestReadModel = requestResult.unwrap();
+  if (!requestData.status || requestData.status.code !== REQUEST_STATUS_CODE.DRAFT) {
+    throw new Response('Cannot edit request', { status: HttpStatusCodes.BAD_REQUEST });
+  }
 
   const requestPayload: RequestUpdateModel = mapRequestToUpdateModelWithOverrides(requestData, {
     positionNumbers: parseResult.output.positionNumber,
@@ -106,6 +110,10 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 
   if (!requestData) {
     throw new Response('Request not found', { status: HttpStatusCodes.NOT_FOUND });
+  }
+
+  if (!requestData.status || requestData.status.code !== REQUEST_STATUS_CODE.DRAFT) {
+    throw new Response('Cannot edit request', { status: HttpStatusCodes.NOT_FOUND });
   }
 
   const { t, lang } = await getTranslation(request, handle.i18nNamespace);
