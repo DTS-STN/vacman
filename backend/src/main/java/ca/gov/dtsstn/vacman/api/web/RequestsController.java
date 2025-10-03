@@ -228,6 +228,21 @@ public class RequestsController {
 		return ResponseEntity.ok(requestModelMapper.toModel(updatedEntity));
 	}
 
+	@ApiResponses.Ok
+	@ApiResponses.BadRequestError
+	@PostMapping({ "/{id}/cancel" })
+	@ApiResponses.ResourceNotFoundError
+	@ApiResponses.UnprocessableEntityError
+	@Operation(summary = "Cancel a request.")
+	@PreAuthorize("hasAuthority('hr-advisor')")
+	public ResponseEntity<RequestReadModel> cancelRequest(@PathVariable Long id) {
+		log.info("Received request to cancel request; ID: [{}]", id);
+
+		final var updatedEntity = requestService.cancelRequest(id);
+
+		return ResponseEntity.ok(requestModelMapper.toModel(updatedEntity));
+	}
+
 	//
 	//
 	// --- /requests/.../matches endpoints

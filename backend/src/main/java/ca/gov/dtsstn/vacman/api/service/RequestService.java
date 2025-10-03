@@ -375,6 +375,23 @@ public class RequestService {
 	}
 
 	/**
+	 * Cancels a request.
+	 *
+	 * @param requestId The ID of the request to cancel
+	 * @return The updated request entity
+	 */
+	public RequestEntity cancelRequest(Long requestId) {
+
+		final var request = getRequestById(requestId)
+			.orElseThrow(asResourceNotFoundException("request", requestId));
+
+		// Set status to CANCELLED
+		request.setRequestStatus(getRequestStatusByCode(requestStatuses.cancelled()));
+
+		return updateRequest(request);
+	}
+
+	/**
 	 * Sends a notification when a request is approved and feedback is pending.
 	 */
 	private void sendRequestFeedbackPendingNotification(RequestEntity request) {
@@ -397,11 +414,9 @@ public class RequestService {
 	 * @return The updated request entity
 	 */
 	public RequestEntity runMatches(RequestEntity request) {
-		final boolean isHrAdvisor = SecurityUtils.hasAuthority("hr-advisor");
-
 		final String currentStatus = request.getRequestStatus().getCode();
 
-		RequestEntity updatedRequest = handleRunMatches(request, isHrAdvisor, currentStatus);
+		RequestEntity updatedRequest = handleRunMatches(request, currentStatus);
 
 		return updateRequest(updatedRequest);
 	}
@@ -409,15 +424,11 @@ public class RequestService {
 	/**
 	 * Handles the runMatches event.
 	 *
-	 * @param request       The request entity
-	 * @param isHrAdvisor   Whether the current user is an HR advisor
+	 * @param request The request entity
 	 * @param currentStatus The current status code of the request
 	 * @return The updated request entity
 	 */
-	private RequestEntity handleRunMatches(RequestEntity request, boolean isHrAdvisor, String currentStatus) {
-		if (!isHrAdvisor) {
-			throw new UnauthorizedException("Only HR advisors can approve requests");
-		}
+	private RequestEntity handleRunMatches(RequestEntity request, String currentStatus) {
 
 		if (!requestStatuses.hrReview().equals(currentStatus)) {
 			throw new ResourceConflictException("Request must be in HR_REVIEW status to be approved");
