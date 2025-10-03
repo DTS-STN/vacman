@@ -117,7 +117,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
     REQUEST_STATUSES.some((s) => s.code === req.status?.code && s.category === REQUEST_CATEGORY.active),
   );
 
-  const archivedRequests = requests.filter((req) =>
+  const inactiveRequests = requests.filter((req) =>
     REQUEST_STATUSES.some((s) => s.code === req.status?.code && s.category === REQUEST_CATEGORY.inactive),
   );
 
@@ -134,7 +134,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
   return {
     documentTitle: t('app:hiring-manager-requests.page-title'),
     activeRequests,
-    archivedRequests,
+    inactiveRequests,
     activeRequestNames,
     inactiveRequestNames,
     baseTimeZone: serverEnvironment.BASE_TIMEZONE,
