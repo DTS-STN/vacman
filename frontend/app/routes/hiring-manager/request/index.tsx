@@ -415,9 +415,7 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
   }, [isDeleting, showDialog]);
 
   const defaultDeleteErrorMessage = t('app:hiring-manager-referral-requests.delete-request.error-generic', {
-    defaultValue: t('app:generic-error', {
-      defaultValue: 'Something went wrong while deleting the request. Try again later.',
-    }),
+    defaultValue: 'Something went wrong while deleting the request. Try again later.',
   });
 
   const alertConfig = fetcher.data
