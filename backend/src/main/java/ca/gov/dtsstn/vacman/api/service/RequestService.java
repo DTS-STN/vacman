@@ -215,10 +215,10 @@ public class RequestService {
 		}
 
 		request.setEmploymentEquities(Optional.ofNullable(updateModel.employmentEquityIds()).stream()
-			.flatMap(Collection::stream)
-			.map(RequestUpdateModel.EmploymentEquityId::value)
-			.map(employmentEquityRepository::getReferenceById)
-			.collect(Collectors.toList()));
+				.flatMap(Collection::stream)
+				.map(RequestUpdateModel.EmploymentEquityId::value)
+				.map(employmentEquityRepository::getReferenceById)
+				.collect(Collectors.toList()));
 
 		request.setCities(Optional.ofNullable(updateModel.cityIds()).stream()
 				.flatMap(Collection::stream)
