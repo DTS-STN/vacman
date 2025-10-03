@@ -39,6 +39,7 @@ import ca.gov.dtsstn.vacman.api.data.repository.RequestStatusRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.SecurityClearanceRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.SelectionProcessTypeRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.WorkScheduleRepository;
+import ca.gov.dtsstn.vacman.api.data.repository.WorkUnitRepository;
 import ca.gov.dtsstn.vacman.api.security.SecurityUtils;
 import ca.gov.dtsstn.vacman.api.service.NotificationService.RequestEvent;
 import ca.gov.dtsstn.vacman.api.web.exception.ResourceConflictException;
@@ -58,12 +59,14 @@ public class RequestService {
 	private final ClassificationRepository classificationRepository;
 	private final EmploymentEquityRepository employmentEquityRepository;
 	private final EmploymentTenureRepository employmentTenureRepository;
+	private final LanguageRepository languageRepository;
 	private final LanguageRequirementRepository languageRequirementRepository;
 	private final NonAdvertisedAppointmentRepository nonAdvertisedAppointmentRepository;
 	private final CityRepository cityRepository;
 	private final SecurityClearanceRepository securityClearanceRepository;
 	private final SelectionProcessTypeRepository selectionProcessTypeRepository;
 	private final WorkScheduleRepository workScheduleRepository;
+	private final WorkUnitRepository workUnitRepository;
 	private final RequestModelMapper requestModelMapper;
 	private final UserService userService;
 	private final NotificationService notificationService;
@@ -83,6 +86,7 @@ public class RequestService {
 			SecurityClearanceRepository securityClearanceRepository,
 			SelectionProcessTypeRepository selectionProcessTypeRepository,
 			WorkScheduleRepository workScheduleRepository,
+			WorkUnitRepository workUnitRepository,
 			UserService userService,
 			NotificationService notificationService,
 			ApplicationEventPublisher eventPublisher,
@@ -93,12 +97,14 @@ public class RequestService {
 		this.classificationRepository = classificationRepository;
 		this.employmentEquityRepository = employmentEquityRepository;
 		this.employmentTenureRepository = employmentTenureRepository;
+		this.languageRepository = languageRepository;
 		this.languageRequirementRepository = languageRequirementRepository;
 		this.nonAdvertisedAppointmentRepository = nonAdvertisedAppointmentRepository;
 		this.cityRepository = cityRepository;
 		this.securityClearanceRepository = securityClearanceRepository;
 		this.selectionProcessTypeRepository = selectionProcessTypeRepository;
 		this.workScheduleRepository = workScheduleRepository;
+		this.workUnitRepository = workUnitRepository;
 		this.userService = userService;
 		this.notificationService = notificationService;
 		this.applicationProperties = applicationProperties;
@@ -188,6 +194,12 @@ public class RequestService {
 				.map(classificationRepository::getReferenceById)
 				.ifPresent(request::setClassification);
 
+		if (updateModel.languageOfCorrespondenceId() == null) {
+			request.setLanguage(null);
+		} else {
+			request.setLanguage(languageRepository.getReferenceById(updateModel.languageOfCorrespondenceId()));
+		}
+
 		Optional.ofNullable(updateModel.languageRequirementId())
 				.map(languageRequirementRepository::getReferenceById)
 				.ifPresent(request::setLanguageRequirement);
@@ -195,6 +207,12 @@ public class RequestService {
 		Optional.ofNullable(updateModel.securityClearanceId())
 				.map(securityClearanceRepository::getReferenceById)
 				.ifPresent(request::setSecurityClearance);
+
+		if (updateModel.workUnitId() == null) {
+			request.setWorkUnit(null);
+		} else {
+			request.setWorkUnit(workUnitRepository.getReferenceById(updateModel.workUnitId()));
+		}
 
 		request.setEmploymentEquities(Optional.ofNullable(updateModel.employmentEquityIds()).stream()
 			.flatMap(Collection::stream)
