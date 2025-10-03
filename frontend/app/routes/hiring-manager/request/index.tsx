@@ -385,9 +385,6 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
 
   const [showDialog, setShowDialog] = useState(false);
 
-  const isSubmitted =
-    loaderData.status?.code === REQUEST_STATUS_CODE.SUBMIT || loaderData.status?.code === REQUEST_STATUS_CODE.HR_REVIEW;
-
   type CityPreference = {
     province: string;
     city: string;
@@ -404,7 +401,7 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
 
         <PageTitle>{t('app:hiring-manager-referral-requests.page-title')}</PageTitle>
 
-        {isSubmitted && (
+        {loaderData.status?.code !== REQUEST_STATUS_CODE.DRAFT && (
           <div>
             <DescriptionList className="flex">
               <DescriptionListItem
@@ -457,13 +454,23 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
         <div
           role="presentation"
           className={cn(
-            isSubmitted ? 'h-70' : 'h-50',
+            loaderData.status?.code !== REQUEST_STATUS_CODE.DRAFT ? 'h-70' : 'h-50',
             "absolute top-25 left-0 -z-10 w-full scale-x-[-1] bg-[rgba(9,28,45,1)] bg-[url('/VacMan-design-element-06.svg')] bg-size-[450px] bg-left-bottom bg-no-repeat",
           )}
         />
       </div>
 
-      {!isSubmitted && (
+      <BackLink
+        id="back-to-requests"
+        aria-label={t('app:hiring-manager-referral-requests.back')}
+        className="mt-10"
+        file="routes/hiring-manager/requests.tsx"
+        disabled={isSubmitting}
+      >
+        {t('app:hiring-manager-referral-requests.back')}
+      </BackLink>
+
+      {loaderData.status?.code === REQUEST_STATUS_CODE.DRAFT && (
         <ContextualAlert type="info" role="status" ariaLive="polite">
           <div className="space-y-2 px-4">
             <p>{t('app:hiring-manager-referral-requests.notice-line-1')}</p>
@@ -477,18 +484,6 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
             <p>{t('app:hiring-manager-referral-requests.notice-line-7')}</p>
           </div>
         </ContextualAlert>
-      )}
-
-      {isSubmitted && (
-        <BackLink
-          id="back-to-requests"
-          aria-label={t('app:hiring-manager-referral-requests.back')}
-          className="mt-6"
-          file="routes/hiring-manager/requests.tsx"
-          disabled={isSubmitting}
-        >
-          {t('app:hiring-manager-referral-requests.back')}
-        </BackLink>
       )}
 
       <h2 className="font-lato mt-4 text-xl font-bold">{t('app:hiring-manager-referral-requests.request-details')}</h2>
@@ -508,9 +503,11 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
       )}
 
       <div className="w-full">
-        <div className="text-black-800 mt-4 max-w-prose text-base">
-          {t('app:hiring-manager-referral-requests.page-description')}
-        </div>
+        {loaderData.status?.code === REQUEST_STATUS_CODE.DRAFT && (
+          <div className="text-black-800 mt-4 max-w-prose text-base">
+            {t('app:hiring-manager-referral-requests.page-description')}
+          </div>
+        )}
 
         {loaderData.status?.code === REQUEST_STATUS_CODE.DRAFT && (
           <div className="mt-4">
@@ -796,7 +793,7 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
             </ProfileCard>
           </div>
 
-          {!isSubmitted && (
+          {loaderData.status?.code === REQUEST_STATUS_CODE.DRAFT && (
             <div className="mt-8 max-w-prose">
               <div className="flex justify-center">
                 <fetcher.Form className="mt-6 md:mt-auto" method="post" noValidate>
