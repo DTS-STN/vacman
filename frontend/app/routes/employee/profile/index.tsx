@@ -428,6 +428,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
           errorState={fetcher.data?.personalInfoComplete === false}
           required
           showStatus={loaderData.profileStatus?.code === PROFILE_STATUS.INCOMPLETE.code}
+          linkType="edit"
         >
           {loaderData.personalInformation.isNew ? (
             <>
@@ -472,6 +473,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
           errorState={fetcher.data?.employmentInfoComplete === false}
           showStatus={loaderData.profileStatus?.code === PROFILE_STATUS.INCOMPLETE.code}
           updated={hasEmploymentChanged}
+          linkType="edit"
         >
           {loaderData.employmentInformation.isNew ? (
             <>{t('app:profile.employment.detail')}</>
@@ -531,6 +533,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
           errorState={fetcher.data?.referralComplete === false}
           showStatus={loaderData.profileStatus?.code === PROFILE_STATUS.INCOMPLETE.code}
           updated={hasReferralPreferenceChanged}
+          linkType="edit"
         >
           {loaderData.referralPreferences.isNew ? (
             <>{t('app:profile.referral.detail')}</>

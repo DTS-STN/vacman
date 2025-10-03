@@ -340,6 +340,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
           file="routes/hr-advisor/employee-profile/personal-information.tsx"
           errorState={fetcher.data?.personalInfoComplete === false}
           params={params}
+          linkType="edit"
         >
           <DescriptionList>
             <DescriptionListItem term={t('app:personal-information.personal-record-identifier')}>
@@ -368,6 +369,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
           file="routes/hr-advisor/employee-profile/employment-information.tsx"
           errorState={fetcher.data?.employmentInfoComplete === false}
           params={params}
+          linkType="edit"
         >
           <>
             <h3 className="font-lato text-xl font-bold">{t('app:employment-information.substantive-position-heading')}</h3>
@@ -419,6 +421,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
           params={params}
           errorState={fetcher.data?.referralComplete === false}
           required
+          linkType="edit"
         >
           <DescriptionList>
             <DescriptionListItem term={t('app:referral-preferences.language-referral-type')}>
