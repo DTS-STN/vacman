@@ -1,5 +1,6 @@
 import { useRef } from 'react';
 
+import { useFetcher } from 'react-router';
 import type { RouteHandle } from 'react-router';
 
 import { useTranslation } from 'react-i18next';
@@ -10,6 +11,7 @@ import { getMatchFeedbackService } from '~/.server/domain/services/match-feedbac
 import { getMatchStatusService } from '~/.server/domain/services/match-status-service';
 import { getRequestStatusService } from '~/.server/domain/services/request-status-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
+import { i18nRedirect } from '~/.server/utils/route-utils';
 import { AlertMessage } from '~/components/alert-message';
 import { BackLink } from '~/components/back-link';
 import { Button } from '~/components/button';
@@ -18,9 +20,11 @@ import { PageTitle } from '~/components/page-title';
 import { Progress } from '~/components/progress';
 import { RequestStatusTag } from '~/components/status-tag';
 import { VacmanBackground } from '~/components/vacman-background';
+import { useFetcherState } from '~/hooks/use-fetcher-state';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
-import MatchesTable from '~/routes/page-components/requests/tables/matches-tables';
+import MatchesTables from '~/routes/page-components/requests/tables/matches-tables';
+import { formString } from '~/utils/string-utils';
 
 export const handle = {
   i18nNamespace: [...parentHandle.i18nNamespace],
@@ -30,8 +34,42 @@ export function meta({ loaderData }: Route.MetaArgs) {
   return [{ title: loaderData.documentTitle }];
 }
 
+export async function action({ context, params, request }: Route.ActionArgs) {
+  const { session } = context.get(context.applicationContext);
+  requireAuthentication(session, request);
+  const formData = await request.formData();
+
+  //TODO - Implement form submit
+  switch (formData.get('action')) {
+    case 'save': {
+      return i18nRedirect('routes/hiring-manager/request/index.tsx', request, {
+        params,
+      });
+    }
+    case 'submit': {
+      const confirmRetraining = formData.get('confirmRetraining') ? true : false;
+      return {
+        confirmRetraining,
+      };
+    }
+    case 'feedback': {
+      formString(formData.get('id'));
+      formString(formData.get('feedback'));
+      break;
+    }
+    case 'comment': {
+      formString(formData.get('id'));
+      formString(formData.get('comment'));
+      break;
+    }
+  }
+
+  return undefined;
+}
+
 export async function loader({ context, request, params }: Route.LoaderArgs) {
-  requireAuthentication(context.session, request);
+  const { session } = context.get(context.applicationContext);
+  requireAuthentication(session, request);
 
   const { t, lang } = await getTranslation(request, handle.i18nNamespace);
 
@@ -40,16 +78,14 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 
   const requestMatchesResult = await getRequestService().getRequestMatches(
     parseInt(params.requestId),
-    context.session.authState.accessToken,
+    session.authState.accessToken,
   );
 
   const requestMatches = requestMatchesResult.into()?.content ?? [];
   */
   const requestStatuses = await getRequestStatusService().listAll();
-  const localizedStatuses = await getMatchStatusService().listAllLocalized(lang);
-  const localizedFeedback = await getMatchFeedbackService().listAllLocalized(lang);
-  const matchStatusNames = localizedStatuses.map(({ name }) => name);
-  const matchFeedbackNames = localizedFeedback.map(({ name }) => name);
+  const matchStatus = await getMatchStatusService().listAllLocalized(lang);
+  const matchFeedback = await getMatchFeedbackService().listAllLocalized(lang);
 
   const requestMatches = [
     {
@@ -59,8 +95,8 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
         initial: 'M',
         lastName: 'Smith',
       },
-      wfaStatus: 2,
-      feedback: 1,
+      wfaStatus: 'A-A',
+      feedback: 'QA-QOA',
       comment: {
         hrAdvisor: undefined,
         hiringManager: 'Interested in remote work.',
@@ -74,13 +110,13 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
         initial: 'R',
         lastName: 'Johnson',
       },
-      wfaStatus: 2,
-      feedback: 0,
+      wfaStatus: 'A-A',
+      feedback: 'QNS',
       comment: {
         hrAdvisor: 'Interested in remote work.',
         hiringManager: undefined,
       },
-      approval: false,
+      approval: true,
     },
     {
       id: 5,
@@ -89,8 +125,8 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
         initial: 'T',
         lastName: 'Tan',
       },
-      wfaStatus: 1,
-      feedback: 1,
+      wfaStatus: 'PA-EAA',
+      feedback: 'NQO-NQA',
       comment: {
         hrAdvisor: 'Interested in remote work.',
         hiringManager: undefined,
@@ -102,9 +138,9 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   return {
     documentTitle: t('app:matches.page-title'),
     lang,
+    matchStatus,
+    matchFeedback,
     requestMatches,
-    matchStatusNames,
-    matchFeedbackNames,
     requestStatus: requestStatuses[5],
     branch: 'Chief Financial Officer Branch',
     requestDate: '0000-00-00',
@@ -118,7 +154,10 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       lastName: 'Tam',
       email: 'hr.advisor@email.ca',
     },
-    feedbackProgress: 90,
+    confirmRetraining: false,
+    feedbackSubmitted: false,
+    feedbackProgress:
+      requestMatches.length > 0 ? (requestMatches.filter((match) => match.approval).length / requestMatches.length) * 100 : 0,
   };
 }
 
@@ -126,19 +165,21 @@ export default function HiringManagerRequestMatches({ loaderData, params }: Rout
   const { t } = useTranslation(handle.i18nNamespace);
   const alertRef = useRef<HTMLDivElement>(null);
   const requestId = params.requestId;
+  const fetcher = useFetcher<typeof action>();
+  const fetcherState = useFetcherState(fetcher);
+  const isSubmitting = fetcherState.submitting;
+  const matchesFetcher = useFetcher();
 
   return (
     <div className="mb-8 space-y-4">
-      <VacmanBackground variant="top-right" height="h-70">
+      <VacmanBackground variant="top-right">
         {loaderData.requestStatus && (
-          <div className="mt-8">
-            <RequestStatusTag rounded status={loaderData.requestStatus} lang={loaderData.lang} view="hiring-manager" />
-          </div>
+          <RequestStatusTag rounded status={loaderData.requestStatus} lang={loaderData.lang} view="hiring-manager" />
         )}
         <PageTitle className="after:w-14" subTitle={loaderData.branch}>
           {t('app:matches.referral-request')}
         </PageTitle>
-        <div className="grid grid-cols-4 gap-10">
+        <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 md:grid-cols-4">
           <div>
             <p>{t('app:matches.request-id')}</p>
             <p className="text-[#9FA3AD]">{requestId}</p>
@@ -166,25 +207,42 @@ export default function HiringManagerRequestMatches({ loaderData, params }: Rout
       <BackLink
         className="my-4"
         aria-label={t('app:matches.back-request-details')}
-        file="routes/hiring-manager/index.tsx"
+        file="routes/hiring-manager/request/index.tsx"
         params={params}
+        disabled={isSubmitting}
       >
         {t('app:matches.back-request-details')}
       </BackLink>
       <h2 className="font-lato mt-4 text-2xl font-bold">{t('app:matches.request-candidates')}</h2>
       <p className="sm:w-2/3 md:w-3/4">{t('app:matches.page-info')}</p>
-      <div className="mt-10 justify-between md:grid md:grid-cols-2">
-        <InputCheckbox name="confirm">{t('app:matches.confirm-info')}</InputCheckbox>
-        <div className="flex justify-end space-x-3">
-          <Button variant="alternative">{t('app:form.save-and-exit')}</Button>
-          <Button variant="primary">{t('app:form.submit')}</Button>
-        </div>
-      </div>
-      <AlertMessage ref={alertRef} type="success" role="alert" ariaLive="assertive">
-        <p className="font-semibold">{t('app:matches.feedback.success')}</p>
-      </AlertMessage>
+      {loaderData.feedbackSubmitted ? (
+        <AlertMessage ref={alertRef} type="success" role="alert" ariaLive="assertive">
+          <p className="font-semibold">{t('app:matches.feedback.success')}</p>
+        </AlertMessage>
+      ) : (
+        <fetcher.Form method="post" noValidate>
+          <div className="mt-10 justify-between md:grid md:grid-cols-2">
+            <InputCheckbox
+              id="confirm-retraining"
+              name="confirmRetraining"
+              defaultChecked={loaderData.confirmRetraining}
+              required
+            >
+              {t('app:matches.confirm-info')}
+            </InputCheckbox>
+            <div className="flex justify-end space-x-3">
+              <Button variant="alternative" type="submit" value="save" name="action">
+                {t('app:form.save-and-exit')}
+              </Button>
+              <Button variant="primary" type="submit" value="submit" name="action">
+                {t('app:form.submit')}
+              </Button>
+            </div>
+          </div>
+        </fetcher.Form>
+      )}
       <Progress className="mt-8 mb-8" variant="blue" label="" value={loaderData.feedbackProgress} />
-      <MatchesTable {...loaderData} requestId={params.requestId} view="hiring-manager" />
+      <MatchesTables {...loaderData} requestId={params.requestId} submit={matchesFetcher.submit} view="hiring-manager" />
     </div>
   );
 }

@@ -12,7 +12,6 @@ import type {
 } from '~/.server/domain/models';
 import { getCityService } from '~/.server/domain/services/city-service';
 import { getClassificationService } from '~/.server/domain/services/classification-service';
-import { getDirectorateService } from '~/.server/domain/services/directorate-service';
 import { getEmploymentEquityService } from '~/.server/domain/services/employment-equity-service';
 import { getEmploymentTenureService } from '~/.server/domain/services/employment-tenure-service';
 import { getLanguageForCorrespondenceService } from '~/.server/domain/services/language-for-correspondence-service';
@@ -24,6 +23,7 @@ import { getSecurityClearanceService } from '~/.server/domain/services/security-
 import { getSelectionProcessTypeService } from '~/.server/domain/services/selection-process-type-service';
 import { getUserService } from '~/.server/domain/services/user-service';
 import { getWorkScheduleService } from '~/.server/domain/services/work-schedule-service';
+import { getWorkUnitService } from '~/.server/domain/services/workunit-service';
 import { LogFactory } from '~/.server/logging';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
@@ -153,9 +153,10 @@ export function getMockRequestService(): RequestService {
           ? (await getEmploymentTenureService().getById(requestUpdate.employmentTenureId)).into()
           : existingRequest.employmentTenure;
 
+      const incomingEmploymentEquityIds = requestUpdate.employmentEquityIds?.map((ee) => ee.value);
       const employmentEquities =
-        requestUpdate.employmentEquityIds !== undefined
-          ? (await getEmploymentEquityService().listAll()).filter(({ id }) => requestUpdate.employmentEquityIds?.includes(id))
+        incomingEmploymentEquityIds !== undefined
+          ? (await getEmploymentEquityService().listAll()).filter(({ id }) => incomingEmploymentEquityIds.includes(id))
           : existingRequest.employmentEquities;
 
       const workSchedule =
@@ -178,9 +179,10 @@ export function getMockRequestService(): RequestService {
           ? (await getSecurityClearanceService().getById(requestUpdate.securityClearanceId)).into()
           : existingRequest.securityClearance;
 
+      const incomingCityIds = requestUpdate.cityIds?.map((city) => city.value);
       const cities =
-        requestUpdate.cityIds !== undefined
-          ? (await getCityService().listAll()).filter(({ id }) => requestUpdate.cityIds?.includes(id))
+        incomingCityIds !== undefined
+          ? (await getCityService().listAll()).filter(({ id }) => incomingCityIds.includes(id))
           : existingRequest.cities;
 
       const appointmentNonAdvertised =
@@ -205,7 +207,7 @@ export function getMockRequestService(): RequestService {
 
       const workUnit =
         requestUpdate.workUnitId !== undefined
-          ? (await Promise.all([getDirectorateService().getById(requestUpdate.workUnitId)]))
+          ? (await Promise.all([getWorkUnitService().getById(requestUpdate.workUnitId)]))
               .filter((result) => result.isOk())
               .map((result) => result.unwrap())[0]
           : existingRequest.workUnit;
@@ -219,7 +221,7 @@ export function getMockRequestService(): RequestService {
       const updatedRequest: RequestReadModel = {
         ...existingRequest,
         ...requestUpdate,
-        positionNumber: requestUpdate.positionNumbers?.join(',') ?? existingRequest.positionNumber,
+        positionNumber: requestUpdate.positionNumbers ?? existingRequest.positionNumber,
         englishTitle: requestUpdate.englishTitle ?? existingRequest.englishTitle,
         frenchTitle: requestUpdate.frenchTitle ?? existingRequest.frenchTitle,
         languageRequirement,

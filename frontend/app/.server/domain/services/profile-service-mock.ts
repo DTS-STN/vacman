@@ -11,13 +11,13 @@ import type {
 } from '~/.server/domain/models';
 import { getCityService } from '~/.server/domain/services/city-service';
 import { getClassificationService } from '~/.server/domain/services/classification-service';
-import { getDirectorateService } from '~/.server/domain/services/directorate-service';
 import { getEmploymentOpportunityTypeService } from '~/.server/domain/services/employment-opportunity-type-service';
 import { getLanguageForCorrespondenceService } from '~/.server/domain/services/language-for-correspondence-service';
 import { getLanguageReferralTypeService } from '~/.server/domain/services/language-referral-type-service';
 import { createAndLinkNewMockProfile, mockProfiles } from '~/.server/domain/services/mock-data';
 import type { ProfileService } from '~/.server/domain/services/profile-service';
 import { getWFAStatuses } from '~/.server/domain/services/wfa-status-service';
+import { getWorkUnitService } from '~/.server/domain/services/workunit-service';
 import { LogFactory } from '~/.server/logging';
 import { PROFILE_STATUS } from '~/domain/constants';
 import { AppError } from '~/errors/app-error';
@@ -264,7 +264,7 @@ export function getMockProfileService(): ProfileService {
       const classificationService = getClassificationService();
       const cityService = getCityService();
       const employmentOppourtunityService = getEmploymentOpportunityTypeService();
-      const directorateService = getDirectorateService();
+      const workunitService = getWorkUnitService();
       const wfaStatusService = getWFAStatuses();
 
       let languageOfCorrespondence = existingProfile.languageOfCorrespondence;
@@ -311,7 +311,7 @@ export function getMockProfileService(): ProfileService {
 
       const substantiveWorkUnit =
         profile.workUnitId !== undefined
-          ? (await Promise.all([directorateService.getById(profile.workUnitId)]))
+          ? (await Promise.all([workunitService.getById(profile.workUnitId)]))
               .filter((result) => result.isOk())
               .map((result) => result.unwrap())[0]
           : existingProfile.substantiveWorkUnit;

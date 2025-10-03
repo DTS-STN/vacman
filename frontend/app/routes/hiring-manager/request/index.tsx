@@ -1,22 +1,13 @@
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 
 import type { RouteHandle } from 'react-router';
-import { useFetcher, useLocation, useNavigate, useSearchParams } from 'react-router';
+import { useFetcher } from 'react-router';
 
 import { useTranslation } from 'react-i18next';
 
 import type { Route } from './+types/index';
 
-import { getCityService } from '~/.server/domain/services/city-service';
-import { getDirectorateService } from '~/.server/domain/services/directorate-service';
-import { getEmploymentEquityService } from '~/.server/domain/services/employment-equity-service';
-import { getEmploymentTenureService } from '~/.server/domain/services/employment-tenure-service';
-import { getLanguageForCorrespondenceService } from '~/.server/domain/services/language-for-correspondence-service';
-import { getNonAdvertisedAppointmentService } from '~/.server/domain/services/non-advertised-appointment-service';
 import { getRequestService } from '~/.server/domain/services/request-service';
-import { getRequestStatusService } from '~/.server/domain/services/request-status-service';
-import { getSelectionProcessTypeService } from '~/.server/domain/services/selection-process-type-service';
-import { getWorkScheduleService } from '~/.server/domain/services/work-schedule-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { countCompletedItems } from '~/.server/utils/profile-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
@@ -52,6 +43,7 @@ import { useFetcherState } from '~/hooks/use-fetcher-state';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
 import { formatISODate } from '~/utils/date-utils';
+import { trimToUndefined } from '~/utils/string-utils';
 import { cn } from '~/utils/tailwind-utils';
 
 export const handle = {
@@ -63,10 +55,11 @@ export function meta({ loaderData }: Route.MetaArgs) {
 }
 
 export async function action({ context, params, request }: Route.ActionArgs) {
-  requireAuthentication(context.session, request);
+  const { session } = context.get(context.applicationContext);
+  requireAuthentication(session, request);
 
   const requestData = (
-    await getRequestService().getRequestById(Number(params.requestId), context.session.authState.accessToken)
+    await getRequestService().getRequestById(Number(params.requestId), session.authState.accessToken)
   ).into();
 
   if (!requestData) {
@@ -74,16 +67,13 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   }
 
   const formData = await request.formData();
-  const formAction = formData.get('_action');
+  const formAction = formData.get('action');
 
-  if (formAction === 'cancel') {
-    const cancelRequest = await getRequestService().deleteRequestById(
-      Number(params.requestId),
-      context.session.authState.accessToken,
-    );
+  if (formAction === 'delete') {
+    const deleteRequest = await getRequestService().deleteRequestById(Number(params.requestId), session.authState.accessToken);
 
-    if (cancelRequest.isErr()) {
-      const error = cancelRequest.unwrapErr();
+    if (deleteRequest.isErr()) {
+      const error = deleteRequest.unwrapErr();
       return {
         status: 'error',
         errorMessage: error.message,
@@ -99,12 +89,14 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     selectionProcessNumber: requestData.selectionProcessNumber,
     workforceMgmtApprovalRecvd: requestData.workforceMgmtApprovalRecvd,
     priorityEntitlement: requestData.priorityEntitlement,
+    workSchedule: requestData.workSchedule,
     ...(requestData.priorityEntitlement
       ? {
           priorityEntitlementRationale: requestData.priorityEntitlementRationale,
         }
       : {}),
-    ...(requestData.selectionProcessType?.id === SELECTION_PROCESS_TYPE.externalNonAdvertised
+    ...(requestData.selectionProcessType?.code === SELECTION_PROCESS_TYPE.EXTERNAL_NON_ADVERTISED.code ||
+    requestData.selectionProcessType?.code === SELECTION_PROCESS_TYPE.APPOINTMENT_INTERNAL_NON_ADVERTISED.code
       ? {
           hasPerformedSameDuties: requestData.hasPerformedSameDuties,
           appointmentNonAdvertised: requestData.appointmentNonAdvertised,
@@ -157,7 +149,6 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     subDelegatedManager: requestData.subDelegatedManager,
     workUnit: requestData.workUnit,
     languageOfCorrespondence: requestData.languageOfCorrespondence,
-    additionalComment: requestData.additionalComment,
   };
 
   // Check if all sections are complete
@@ -180,7 +171,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   const submitResult = await getRequestService().updateRequestStatus(
     Number(params.requestId),
     REQUEST_EVENT_TYPE.submitted,
-    context.session.authState.accessToken,
+    session.authState.accessToken,
   );
 
   if (submitResult.isErr()) {
@@ -199,10 +190,11 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 }
 
 export async function loader({ context, request, params }: Route.LoaderArgs) {
-  requireAuthentication(context.session, request);
+  const { session } = context.get(context.applicationContext);
+  requireAuthentication(session, request);
 
   const requestData = (
-    await getRequestService().getRequestById(Number(params.requestId), context.session.authState.accessToken)
+    await getRequestService().getRequestById(Number(params.requestId), session.authState.accessToken)
   ).into();
 
   if (!requestData) {
@@ -211,109 +203,56 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
 
-  const url = new URL(request.url);
-  const hasRequestChanged = url.searchParams.get('edited') === 'true';
-
-  const [
-    allLocalizedCities,
-    allLocalizedProcessTypes,
-    allLocalizedAppointmentNonAdvertised,
-    allLocalizedTenures,
-    allLocalizedWorkSchedules,
-    allLocalizedEmploymentEquities,
-    allLocalizedDirectorates,
-    allLocalizedPreferredLanguage,
-    allRequestStatus,
-  ] = await Promise.all([
-    getCityService().listAllLocalized(lang),
-    getSelectionProcessTypeService().listAllLocalized(lang),
-    getNonAdvertisedAppointmentService().listAllLocalized(lang),
-    getEmploymentTenureService().listAllLocalized(lang),
-    getWorkScheduleService().listAllLocalized(lang),
-    getEmploymentEquityService().listAllLocalized(lang),
-    getDirectorateService().listAllLocalized(lang),
-    getLanguageForCorrespondenceService().listAllLocalized(lang),
-    getRequestStatusService().listAll(),
-  ]);
-
   // Process information from Request type
-  const processInformationData = {
-    processInformationNumber: requestData.selectionProcessNumber,
+  const requiredProcessInformation = {
     selectionProcessNumber: requestData.selectionProcessNumber,
     workforceMgmtApprovalRecvd: requestData.workforceMgmtApprovalRecvd,
     priorityEntitlement: requestData.priorityEntitlement,
-    priorityEntitlementRationale: requestData.priorityEntitlementRationale,
-    selectionProcessType: requestData.selectionProcessType,
-    hasPerformedSameDuties: requestData.hasPerformedSameDuties,
-    appointmentNonAdvertised: requestData.appointmentNonAdvertised,
-    employmentTenure: requestData.employmentTenure,
-    projectedStartDate: requestData.projectedStartDate,
-    projectedEndDate: requestData.projectedEndDate,
     workSchedule: requestData.workSchedule,
-    equityNeeded: requestData.equityNeeded,
-    employmentEquities: requestData.employmentEquities,
-  };
-
-  const requiredProcessInformation = {
-    processInformationNumber: processInformationData.processInformationNumber,
-    selectionProcessNumber: processInformationData.selectionProcessNumber,
-    workforceMgmtApprovalRecvd: processInformationData.workforceMgmtApprovalRecvd,
-    priorityEntitlement: processInformationData.priorityEntitlement,
     ...(requestData.priorityEntitlement
       ? {
-          priorityEntitlementRationale: processInformationData.priorityEntitlementRationale,
+          priorityEntitlementRationale: requestData.priorityEntitlementRationale,
         }
       : {}),
-    ...(requestData.selectionProcessType?.id === SELECTION_PROCESS_TYPE.externalNonAdvertised
+    ...(requestData.selectionProcessType?.code === SELECTION_PROCESS_TYPE.EXTERNAL_NON_ADVERTISED.code ||
+    requestData.selectionProcessType?.code === SELECTION_PROCESS_TYPE.APPOINTMENT_INTERNAL_NON_ADVERTISED.code
       ? {
-          hasPerformedSameDuties: processInformationData.hasPerformedSameDuties,
-          appointmentNonAdvertised: processInformationData.appointmentNonAdvertised,
+          hasPerformedSameDuties: requestData.hasPerformedSameDuties,
+          appointmentNonAdvertised: requestData.appointmentNonAdvertised,
         }
       : {}),
     ...(requestData.employmentTenure?.code === EMPLOYMENT_TENURE.term
       ? {
-          projectedStartDate: processInformationData.projectedStartDate,
-          projectedEndDate: processInformationData.projectedEndDate,
+          projectedStartDate: requestData.projectedStartDate,
+          projectedEndDate: requestData.projectedEndDate,
         }
       : {}),
     ...(requestData.equityNeeded === true
       ? {
-          employmentEquities: processInformationData.employmentEquities,
+          employmentEquities: requestData.employmentEquities,
         }
       : {}),
   };
   const processInformationCompleted = countCompletedItems(requiredProcessInformation);
   const processInformationTotalFields = Object.keys(requiredProcessInformation).length;
 
+  const languageProficiencyRequired =
+    requestData.languageRequirement?.code === LANGUAGE_REQUIREMENT_CODES.bilingualImperative ||
+    requestData.languageRequirement?.code === LANGUAGE_REQUIREMENT_CODES.bilingualNonImperative;
+
   // Position information from Request type
-  const positionInformationData = {
+  const requiredPositionInformation = {
     positionNumber: requestData.positionNumber,
     classification: requestData.classification,
     englishTitle: requestData.englishTitle,
     frenchTitle: requestData.frenchTitle,
     cities: requestData.cities,
     languageRequirement: requestData.languageRequirement,
-    englishLanguageProfile: requestData.englishLanguageProfile,
-    frenchLanguageProfile: requestData.frenchLanguageProfile,
     securityClearance: requestData.securityClearance,
-  };
-
-  const languageProficiencyRequired =
-    requestData.languageRequirement?.code === LANGUAGE_REQUIREMENT_CODES.bilingualImperative ||
-    requestData.languageRequirement?.code === LANGUAGE_REQUIREMENT_CODES.bilingualNonImperative;
-
-  const requiredPositionInformation = {
-    positionNumber: positionInformationData.positionNumber,
-    classification: positionInformationData.classification,
-    englishTitle: positionInformationData.englishTitle,
-    frenchTitle: positionInformationData.frenchTitle,
-    cities: positionInformationData.cities,
-    languageRequirement: positionInformationData.languageRequirement,
-    securityClearance: positionInformationData.securityClearance,
     ...(languageProficiencyRequired
       ? {
-          englishLanguageProfile: positionInformationData.englishLanguageProfile,
-          frenchLanguageProfile: positionInformationData.frenchLanguageProfile,
+          englishLanguageProfile: requestData.englishLanguageProfile,
+          frenchLanguageProfile: requestData.frenchLanguageProfile,
         }
       : {}),
   };
@@ -321,26 +260,23 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const positionInformationTotalFields = Object.keys(requiredPositionInformation).length;
 
   // Statement of Merit and Conditions Information from Request type
-  const statementOfMeritCriteriaInformationData = {
+  const requiredStatementOfMeritCriteriaInformation = {
     englishStatementOfMerit: requestData.englishStatementOfMerit,
     frenchStatementOfMerit: requestData.frenchStatementOfMerit,
   };
 
-  const requiredStatementOfMeritCriteriaInformation = statementOfMeritCriteriaInformationData;
   const statementOfMeritCriteriaInformationCompleted = countCompletedItems(requiredStatementOfMeritCriteriaInformation);
   const statementOfMeritCriteriaInformationTotalFields = Object.keys(requiredStatementOfMeritCriteriaInformation).length;
 
   // Submission Information from Request type
-  const submissionInformationData = {
+  const requiredSubmissionInformation = {
     submitter: requestData.submitter,
     hiringManager: requestData.hiringManager,
     subDelegatedManager: requestData.subDelegatedManager,
     workUnit: requestData.workUnit,
     languageOfCorrespondence: requestData.languageOfCorrespondence,
-    additionalComment: requestData.additionalComment,
   };
 
-  const requiredSubmissionInformation = submissionInformationData;
   const submissionInformationCompleted = countCompletedItems(requiredSubmissionInformation);
   const submissionInformationTotalFields = Object.keys(requiredSubmissionInformation).length;
 
@@ -351,21 +287,21 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     statementOfMeritCriteriaInformationCompleted === statementOfMeritCriteriaInformationTotalFields;
   const isCompleteSubmissionInformation = submissionInformationCompleted === submissionInformationTotalFields;
 
-  const profileCompleted =
+  const requestCompleted =
     processInformationCompleted +
     positionInformationCompleted +
     statementOfMeritCriteriaInformationCompleted +
     submissionInformationCompleted;
-  const profileTotalFields =
+  const requestTotalFields =
     processInformationTotalFields +
     positionInformationTotalFields +
     statementOfMeritCriteriaInformationTotalFields +
     submissionInformationTotalFields;
-  const amountCompleted = (profileCompleted / profileTotalFields) * 100;
-  const cities = requestData.cities?.map((city) => allLocalizedCities.find((c) => c.id === city.id)).filter(Boolean);
-  const employmentEquities = requestData.employmentEquities
-    ?.map((eq) => allLocalizedEmploymentEquities.find((e) => e.code === eq.code))
-    .filter(Boolean);
+  const amountCompleted = (requestCompleted / requestTotalFields) * 100;
+  const employmentEquityNames = requestData.employmentEquities
+    ?.map((eq) => (lang === 'en' ? eq.nameEn : eq.nameFr))
+    .filter(Boolean) // Remove any null or undefined names
+    .join(', ');
 
   return {
     documentTitle: t('app:hiring-manager-referral-requests.page-title'),
@@ -381,24 +317,28 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     workforceMgmtApprovalRecvd: requestData.workforceMgmtApprovalRecvd,
     priorityEntitlement: requestData.priorityEntitlement,
     priorityEntitlementRationale: requestData.priorityEntitlementRationale,
-    selectionProcessType: allLocalizedProcessTypes.find((s) => s.code === requestData.selectionProcessType?.code),
+    selectionProcessType: lang === 'en' ? requestData.selectionProcessType?.nameEn : requestData.selectionProcessType?.nameEn,
+    selectionProcessTypeCode: requestData.selectionProcessType?.code,
     hasPerformedSameDuties: requestData.hasPerformedSameDuties,
-    appointmentNonAdvertised: allLocalizedAppointmentNonAdvertised.find(
-      (a) => a.code === requestData.appointmentNonAdvertised?.code,
-    ),
-    employmentTenure: allLocalizedTenures.find((t) => t.code === requestData.employmentTenure?.code),
+    appointmentNonAdvertised:
+      lang === 'en' ? requestData.appointmentNonAdvertised?.nameEn : requestData.appointmentNonAdvertised?.nameFr,
+    employmentTenure: lang === 'en' ? requestData.employmentTenure?.nameEn : requestData.employmentTenure?.nameFr,
+    employmentTenureCode: requestData.employmentTenure?.code,
     projectedStartDate: requestData.projectedStartDate,
     projectedEndDate: requestData.projectedEndDate,
-    workSchedule: allLocalizedWorkSchedules.find((w) => w.code === requestData.workSchedule?.code),
+    workSchedule: lang === 'en' ? requestData.workSchedule?.nameEn : requestData.workSchedule?.nameFr,
     equityNeeded: requestData.equityNeeded,
-    employmentEquities: employmentEquities?.map((eq) => eq?.name).join(', '),
+    employmentEquities: employmentEquityNames,
     isCompletePositionInformation,
     isPositionNew: positionInformationCompleted === 0,
     positionNumber: requestData.positionNumber,
     classification: requestData.classification,
     englishTitle: requestData.englishTitle,
     frenchTitle: requestData.frenchTitle,
-    cities: cities?.map((city) => city?.provinceTerritory.name + ' - ' + city?.name),
+    cities: requestData.cities?.map((city) => ({
+      province: lang === 'en' ? city.provinceTerritory.nameEn : city.provinceTerritory.nameFr,
+      city: lang === 'en' ? city.nameEn : city.nameFr,
+    })),
     languageRequirement: requestData.languageRequirement,
     englishLanguageProfile: requestData.englishLanguageProfile,
     frenchLanguageProfile: requestData.frenchLanguageProfile,
@@ -412,16 +352,17 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     submitter: requestData.submitter,
     hiringManager: requestData.hiringManager,
     subDelegatedManager: requestData.subDelegatedManager,
-    directorate: allLocalizedDirectorates.find((c) => c.code === requestData.workUnit?.code),
-    languageOfCorrespondence: allLocalizedPreferredLanguage.find((p) => p.code === requestData.languageOfCorrespondence?.code),
+    branchOrServiceCanadaRegion: lang === 'en' ? requestData.workUnit?.parent?.nameEn : requestData.workUnit?.parent?.nameFr,
+    directorate: lang === 'en' ? requestData.workUnit?.nameEn : requestData.workUnit?.nameFr,
+    languageOfCorrespondence:
+      lang === 'en' ? requestData.languageOfCorrespondence?.nameEn : requestData.languageOfCorrespondence?.nameFr,
     additionalComment: requestData.additionalComment,
-    status: allRequestStatus.find((s) => s.code === requestData.status?.code),
+    status: requestData.status,
     hrAdvisor: requestData.hrAdvisor,
     priorityClearanceNumber: requestData.priorityClearanceNumber,
     pscClearanceNumber: requestData.pscClearanceNumber,
     requestNumber: requestData.requestNumber,
     requestDate: requestData.createdDate,
-    hasRequestChanged,
     lang,
   };
 }
@@ -439,24 +380,17 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
     alertRef.current.focus();
   }
 
-  const [searchParams] = useSearchParams();
-  const location = useLocation();
-  const navigate = useNavigate();
-
-  const [hasRequestChanged, setHasRequestChanged] = useState(loaderData.hasRequestChanged);
   const [showDialog, setShowDialog] = useState(false);
 
   const isSubmitted =
     loaderData.status?.code === REQUEST_STATUS_CODE.SUBMIT || loaderData.status?.code === REQUEST_STATUS_CODE.HR_REVIEW;
 
-  // Clean the URL after reading the param
-  useEffect(() => {
-    if (searchParams.get('edited') === 'true') {
-      setHasRequestChanged(true);
-      const newUrl = location.pathname;
-      void navigate(newUrl, { replace: true });
-    }
-  }, [searchParams, location.pathname, navigate]);
+  type CityPreference = {
+    province: string;
+    city: string;
+  };
+
+  type GroupedCities = Record<string, string[]>;
 
   return (
     <div className="space-y-8">
@@ -527,12 +461,17 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
       </div>
 
       {!isSubmitted && (
-        <ContextualAlert type={'info'} role="status" ariaLive="polite" textSmall={false}>
-          <div className="text-black-800 pl-1 text-base">
-            <p>{t('app:hiring-manager-referral-requests.page-info-1')}</p>
-            <p className="mt-2">{t('app:hiring-manager-referral-requests.page-info-2')}</p>
-            <p className="mt-2">{t('app:hiring-manager-referral-requests.page-info-3')}</p>
-            <p className="mt-2">{t('app:hiring-manager-referral-requests.page-info-4')}</p>
+        <ContextualAlert type="info" role="status" ariaLive="polite">
+          <div className="space-y-2 px-4">
+            <p>{t('app:hiring-manager-referral-requests.notice-line-1')}</p>
+            <ul className="list-inside list-disc">
+              <li>{t('app:hiring-manager-referral-requests.notice-line-2')}</li>
+              <li>{t('app:hiring-manager-referral-requests.notice-line-3')}</li>
+              <li>{t('app:hiring-manager-referral-requests.notice-line-4')}</li>
+              <li>{t('app:hiring-manager-referral-requests.notice-line-5')}</li>
+            </ul>
+            <p>{t('app:hiring-manager-referral-requests.notice-line-6')}</p>
+            <p>{t('app:hiring-manager-referral-requests.notice-line-7')}</p>
           </div>
         </ContextualAlert>
       )}
@@ -565,22 +504,12 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
         />
       )}
 
-      {hasRequestChanged && (
-        <AlertMessage
-          ref={alertRef}
-          type="info"
-          message={t('app:profile.profile-pending-approval')}
-          role="status"
-          ariaLive="polite"
-        />
-      )}
-
       <div className="w-full">
         <div className="text-black-800 mt-4 max-w-prose text-base">
           {t('app:hiring-manager-referral-requests.page-description')}
         </div>
 
-        {loaderData.status?.code !== REQUEST_STATUS_CODE.SUBMIT && (
+        {loaderData.status?.code === REQUEST_STATUS_CODE.DRAFT && (
           <div className="mt-4">
             <Progress
               className="color-[#2572B4] mt-8 mb-8"
@@ -601,13 +530,14 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
               params={params}
               errorState={fetcher.data?.processInfoComplete === false}
               required
-              showStatus
+              showStatus={loaderData.status?.code === REQUEST_STATUS_CODE.DRAFT}
+              linkType={loaderData.status?.code === REQUEST_STATUS_CODE.DRAFT ? 'edit' : undefined}
             >
               {loaderData.isProcessNew ? (
                 <>{t('app:hiring-manager-referral-requests.process-intro')}</>
               ) : (
                 <DescriptionList>
-                  <DescriptionListItem term={t('app:process-information.selection-process-number')}>
+                  <DescriptionListItem term={t('app:hiring-manager-referral-requests.selection-process-number')}>
                     {loaderData.selectionProcessNumber ?? t('app:hiring-manager-referral-requests.not-provided')}
                   </DescriptionListItem>
 
@@ -632,10 +562,12 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
                   )}
 
                   <DescriptionListItem term={t('app:process-information.selection-process-type')}>
-                    {loaderData.selectionProcessType?.name ?? t('app:hiring-manager-referral-requests.not-provided')}
+                    {loaderData.selectionProcessType ?? t('app:hiring-manager-referral-requests.not-provided')}
                   </DescriptionListItem>
 
-                  {loaderData.selectionProcessType?.id === SELECTION_PROCESS_TYPE.externalNonAdvertised && (
+                  {(loaderData.selectionProcessTypeCode === SELECTION_PROCESS_TYPE.EXTERNAL_NON_ADVERTISED.code ||
+                    loaderData.selectionProcessTypeCode ===
+                      SELECTION_PROCESS_TYPE.APPOINTMENT_INTERNAL_NON_ADVERTISED.code) && (
                     <>
                       <DescriptionListItem term={t('app:process-information.performed-duties')}>
                         {loaderData.hasPerformedSameDuties === true
@@ -646,16 +578,16 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
                       </DescriptionListItem>
 
                       <DescriptionListItem term={t('app:process-information.non-advertised-appointment')}>
-                        {loaderData.appointmentNonAdvertised?.name ?? t('app:hiring-manager-referral-requests.not-provided')}
+                        {loaderData.appointmentNonAdvertised ?? t('app:hiring-manager-referral-requests.not-provided')}
                       </DescriptionListItem>
                     </>
                   )}
 
                   <DescriptionListItem term={t('app:process-information.employment-tenure')}>
-                    {loaderData.employmentTenure?.name ?? t('app:hiring-manager-referral-requests.not-provided')}
+                    {loaderData.employmentTenure ?? t('app:hiring-manager-referral-requests.not-provided')}
                   </DescriptionListItem>
 
-                  {loaderData.employmentTenure?.code === EMPLOYMENT_TENURE.term && (
+                  {loaderData.employmentTenureCode === EMPLOYMENT_TENURE.term && (
                     <>
                       <DescriptionListItem term={t('app:process-information.projected-start-date')}>
                         {loaderData.projectedStartDate ?? t('app:hiring-manager-referral-requests.not-provided')}
@@ -668,7 +600,7 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
                   )}
 
                   <DescriptionListItem term={t('app:process-information.work-schedule')}>
-                    {loaderData.workSchedule?.name ?? t('app:hiring-manager-referral-requests.not-provided')}
+                    {loaderData.workSchedule ?? t('app:hiring-manager-referral-requests.not-provided')}
                   </DescriptionListItem>
 
                   <DescriptionListItem term={t('app:process-information.employment-equity-identified')}>
@@ -697,7 +629,8 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
               params={params}
               required
               errorState={fetcher.data?.positionInfoComplete === false}
-              showStatus
+              showStatus={loaderData.status?.code === REQUEST_STATUS_CODE.DRAFT}
+              linkType={loaderData.status?.code === REQUEST_STATUS_CODE.DRAFT ? 'edit' : undefined}
             >
               {loaderData.isPositionNew ? (
                 <>{t('app:hiring-manager-referral-requests.position-intro')}</>
@@ -722,7 +655,23 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
                   <DescriptionListItem term={t('app:position-information.locations')}>
                     {loaderData.cities === undefined
                       ? t('app:hiring-manager-referral-requests.not-provided')
-                      : loaderData.cities.length > 0 && loaderData.cities.join(', ')}
+                      : loaderData.cities.length > 0 && (
+                          <div>
+                            {/* Group cities by province */}
+                            {Object.entries(
+                              (loaderData.cities as CityPreference[]).reduce((acc: GroupedCities, city: CityPreference) => {
+                                const provinceName = city.province;
+                                acc[provinceName] ??= [];
+                                acc[provinceName].push(city.city);
+                                return acc;
+                              }, {} as GroupedCities),
+                            ).map(([province, cities]) => (
+                              <div key={province}>
+                                <strong>{province}:</strong> {cities.join(', ')}
+                              </div>
+                            ))}
+                          </div>
+                        )}
                   </DescriptionListItem>
 
                   <DescriptionListItem term={t('app:position-information.language-profile')}>
@@ -758,20 +707,17 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
               params={params}
               required
               errorState={fetcher.data?.statementOfMeritCriteriaInfoComplete === false}
-              showStatus
+              showStatus={loaderData.status?.code === REQUEST_STATUS_CODE.DRAFT}
+              linkType={loaderData.status?.code === REQUEST_STATUS_CODE.DRAFT ? 'edit' : 'view'}
             >
               {loaderData.isStatementOfMeritCriteriaNew ? (
                 <>{t('app:hiring-manager-referral-requests.somc-intro')}</>
               ) : (
-                <DescriptionList>
-                  <DescriptionListItem term={t('app:somc-conditions.english-somc-label')}>
-                    {loaderData.englishStatementOfMerit ?? t('app:hiring-manager-referral-requests.not-provided')}
-                  </DescriptionListItem>
-
-                  <DescriptionListItem term={t('app:somc-conditions.french-somc-label')}>
-                    {loaderData.frenchStatementOfMerit ?? t('app:hiring-manager-referral-requests.not-provided')}
-                  </DescriptionListItem>
-                </DescriptionList>
+                <p className="font-medium">
+                  {trimToUndefined(loaderData.englishStatementOfMerit) && trimToUndefined(loaderData.frenchStatementOfMerit)
+                    ? t('app:somc-conditions.english-french-provided')
+                    : t('app:hiring-manager-referral-requests.not-provided')}
+                </p>
               )}
             </ProfileCard>
 
@@ -784,7 +730,8 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
               params={params}
               required
               errorState={fetcher.data?.submissionInfoComplete === false}
-              showStatus
+              showStatus={loaderData.status?.code === REQUEST_STATUS_CODE.DRAFT}
+              linkType={loaderData.status?.code === REQUEST_STATUS_CODE.DRAFT ? 'edit' : undefined}
             >
               {loaderData.isSubmissionNew ? (
                 <>{t('app:hiring-manager-referral-requests.submission-intro')}</>
@@ -827,15 +774,15 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
                   </DescriptionListItem>
 
                   <DescriptionListItem term={t('app:submission-details.branch-or-service-canada-region')}>
-                    {loaderData.directorate?.parent?.name ?? t('app:hiring-manager-referral-requests.not-provided')}
+                    {loaderData.branchOrServiceCanadaRegion ?? t('app:hiring-manager-referral-requests.not-provided')}
                   </DescriptionListItem>
 
                   <DescriptionListItem term={t('app:submission-details.directorate')}>
-                    {loaderData.directorate?.name ?? t('app:hiring-manager-referral-requests.not-provided')}
+                    {loaderData.directorate ?? t('app:hiring-manager-referral-requests.not-provided')}
                   </DescriptionListItem>
 
                   <DescriptionListItem term={t('app:submission-details.preferred-language-of-correspondence')}>
-                    {loaderData.languageOfCorrespondence?.name ?? t('app:hiring-manager-referral-requests.not-provided')}
+                    {loaderData.languageOfCorrespondence ?? t('app:hiring-manager-referral-requests.not-provided')}
                   </DescriptionListItem>
 
                   <DescriptionListItem term={t('app:submission-details.additional-comments')}>
@@ -853,17 +800,17 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
                   <Button
                     type="button"
                     className="w-full"
-                    variant="alternative"
-                    id="cancel"
+                    variant="redAlternative"
+                    id="delete"
                     onClick={() => setShowDialog(true)}
                   >
-                    {t('app:form.cancel')}
+                    {t('app:hiring-manager-referral-requests.delete-request.delete')}
                   </Button>
 
                   <ButtonLink
                     className="mt-4 w-full"
                     variant="alternative"
-                    file="routes/hiring-manager/index.tsx"
+                    file="routes/hiring-manager/requests.tsx"
                     id="save"
                     disabled={isSubmitting}
                   >
@@ -887,20 +834,22 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
         </div>
       </div>
       <Dialog open={showDialog} onOpenChange={setShowDialog}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent aria-describedby="delete-dialog-description" role="alertdialog">
           <DialogHeader>
-            <DialogTitle>{t('app:hiring-manager-referral-requests.request-cancel.title')}</DialogTitle>
+            <DialogTitle id="delete-dialog-title">{t('app:hiring-manager-referral-requests.delete-request.title')}</DialogTitle>
           </DialogHeader>
-          <DialogDescription>{t('app:hiring-manager-referral-requests.request-cancel.content')}</DialogDescription>
+          <DialogDescription id="delete-dialog-description">
+            {t('app:hiring-manager-referral-requests.delete-request.content')}
+          </DialogDescription>
           <DialogFooter>
             <DialogClose asChild>
-              <Button id="confirm-modal-back" variant="default" size="sm">
-                {t('app:hiring-manager-referral-requests.request-cancel.keep')}
+              <Button id="confirm-modal-back" variant="alternative" disabled={isSubmitting}>
+                {t('app:hiring-manager-referral-requests.delete-request.keep')}
               </Button>
             </DialogClose>
             <fetcher.Form method="post" noValidate>
-              <Button id="cancel-request" variant="primary" size="sm" name="_action" value="cancel" disabled={isSubmitting}>
-                {t('app:hiring-manager-referral-requests.request-cancel.cancel')}
+              <Button id="delete-request" variant="red" name="action" value="delete" disabled={isSubmitting}>
+                {t('app:hiring-manager-referral-requests.delete-request.delete')}
               </Button>
             </fetcher.Form>
           </DialogFooter>

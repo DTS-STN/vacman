@@ -44,10 +44,6 @@ export type LocalizedClassification = LocalizedLookupModel;
 export type WFAStatus = LookupModel;
 export type LocalizedWFAStatus = LocalizedLookupModel;
 
-//TODO: Remove this if we can leverage the workunit model
-export type Directorate = HierarchicalLookupModel<Branch>;
-export type LocalizedDirectorate = LocalizedHierarchicalLookupModel<LocalizedBranch>;
-
 export type EmploymentTenure = LookupModel;
 export type LocalizedEmploymentTenure = LocalizedLookupModel;
 
@@ -240,41 +236,43 @@ export type ProfileQueryParams = {
 // Request Read Model
 export type RequestReadModel = Readonly<{
   // Main fields
-  selectionProcessNumber?: string;
-  workforceMgmtApprovalRecvd?: boolean;
-  priorityEntitlement?: boolean;
-  priorityEntitlementRationale?: string;
-  selectionProcessType?: SelectionProcessType;
-  hasPerformedSameDuties?: boolean;
+  additionalComment?: string;
+  alternateContactEmailAddress?: string;
   appointmentNonAdvertised?: NonAdvertisedAppointment;
-  projectedStartDate?: string;
-  projectedEndDate?: string;
-  workSchedule?: WorkSchedule;
-  equityNeeded?: boolean;
-  employmentEquities?: EmploymentEquity[];
-  positionNumber?: string;
-  classification?: Classification;
-  englishTitle?: string;
-  frenchTitle?: string;
   cities?: City[];
-  languageRequirement?: LanguageRequirement;
+  classification?: Classification;
+  employmentEquities?: EmploymentEquity[];
+  employmentTenure?: EmploymentTenure;
   englishLanguageProfile?: string;
-  frenchLanguageProfile?: string;
-  securityClearance?: SecurityClearance;
   englishStatementOfMerit?: string;
+  englishTitle?: string;
+  equityNeeded?: boolean;
+  frenchLanguageProfile?: string;
   frenchStatementOfMerit?: string;
-  status?: RequestStatus;
-  workUnit?: WorkUnit;
-  submitter?: User;
+  frenchTitle?: string;
+  hasPerformedSameDuties?: boolean;
   hiringManager?: User;
-  subDelegatedManager?: User;
   hrAdvisor?: User;
   languageOfCorrespondence?: LanguageOfCorrespondence;
-  employmentTenure?: EmploymentTenure;
+  languageRequirement?: LanguageRequirement;
+  positionNumber?: string;
   priorityClearanceNumber?: string;
+  priorityEntitlement?: boolean;
+  priorityEntitlementRationale?: string;
+  projectedEndDate?: string;
+  projectedStartDate?: string;
   pscClearanceNumber?: string;
   requestNumber?: string;
-  additionalComment?: string;
+  securityClearance?: SecurityClearance;
+  selectionProcessNumber?: string;
+  selectionProcessType?: SelectionProcessType;
+  status?: RequestStatus;
+  subDelegatedManager?: User;
+  submitter?: User;
+  teleworkAllowed?: boolean;
+  workSchedule?: WorkSchedule;
+  workUnit?: WorkUnit;
+  workforceMgmtApprovalRecvd?: boolean;
 
   // Tombstone fields
   id: number;
@@ -284,12 +282,22 @@ export type RequestReadModel = Readonly<{
   lastModifiedDate?: string;
 }>;
 
-// Request Update Model (PATCH)
+export type CityId = {
+  value: number;
+};
+
+export type EmploymentEquityId = {
+  value: number;
+};
+
+// Request Update Model
 export type RequestUpdateModel = Partial<{
   additionalComment: string;
   alternateContactEmailAddress: string;
   appointmentNonAdvertisedId: number;
+  cityIds: CityId[];
   classificationId: number;
+  employmentEquityIds: EmploymentEquityId[];
   employmentTenureId: number;
   englishLanguageProfile: string;
   englishStatementOfMerit: string;
@@ -303,7 +311,7 @@ export type RequestUpdateModel = Partial<{
   hrAdvisorId: number;
   languageOfCorrespondenceId: number;
   languageRequirementId: number;
-  positionNumbers: string[];
+  positionNumbers: string;
   priorityClearanceNumber: string;
   priorityEntitlement: boolean;
   priorityEntitlementRationale: string;
@@ -318,11 +326,9 @@ export type RequestUpdateModel = Partial<{
   subDelegatedManagerId: number;
   submitterId: number;
   teleworkAllowed: boolean;
-  workforceMgmtApprovalRecvd: boolean;
   workScheduleId: number;
   workUnitId: number;
-  cityIds: number[];
-  employmentEquityIds: number[];
+  workforceMgmtApprovalRecvd: boolean;
 }>;
 
 // Request Response Models

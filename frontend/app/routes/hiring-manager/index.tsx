@@ -25,11 +25,12 @@ export function meta({ loaderData }: Route.MetaArgs) {
 }
 
 export async function loader({ context, request }: Route.LoaderArgs) {
-  requireAuthentication(context.session, request);
-  const currentUser = await getUserService().getCurrentUser(context.session.authState.accessToken);
+  const { session } = context.get(context.applicationContext);
+  requireAuthentication(session, request);
+  const currentUser = await getUserService().getCurrentUser(session.authState.accessToken);
   if (currentUser.isNone()) {
     const language = await getLanguageForCorrespondenceService().findById(LANGUAGE_ID[getLanguage(request) ?? 'en']);
-    await getUserService().registerCurrentUser({ languageId: language.unwrap().id }, context.session.authState.accessToken);
+    await getUserService().registerCurrentUser({ languageId: language.unwrap().id }, session.authState.accessToken);
   }
 
   const { t } = await getTranslation(request, handle.i18nNamespace);

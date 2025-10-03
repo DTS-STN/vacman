@@ -24,18 +24,19 @@ export function meta({ loaderData }: Route.MetaArgs) {
 }
 
 export async function loader({ context, request }: Route.LoaderArgs) {
-  requireAuthentication(context.session, request);
+  const { session } = context.get(context.applicationContext);
+  requireAuthentication(session, request);
 
   const { t, lang } = await getTranslation(request, handle.i18nNamespace);
 
-  const requestsResult = await getRequestService().getCurrentUserRequests(context.session.authState.accessToken);
+  const requestsResult = await getRequestService().getCurrentUserRequests(session.authState.accessToken);
   const requests = (requestsResult.into()?.content ?? []).filter((req) => req.status?.code !== 'DRAFT');
 
   const activeRequests = requests.filter((req) =>
     REQUEST_STATUSES.some((s) => s.code === req.status?.code && s.category === REQUEST_CATEGORY.active),
   );
 
-  const archivedRequests = requests.filter((req) =>
+  const inactiveRequests = requests.filter((req) =>
     REQUEST_STATUSES.some((s) => s.code === req.status?.code && s.category === REQUEST_CATEGORY.inactive),
   );
 
@@ -54,7 +55,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
   return {
     documentTitle: t('app:hr-advisor-requests.page-title'),
     activeRequests,
-    archivedRequests,
+    inactiveRequests,
     activeRequestNames,
     inactiveRequestNames,
     baseTimeZone: serverEnvironment.BASE_TIMEZONE,

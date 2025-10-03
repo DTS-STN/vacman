@@ -240,10 +240,10 @@ public class ProfilesController {
 			validPretransitionStates = Set.of(profileStatusCodes.incomplete(), profileStatusCodes.approved());
 		}
 		else if (code.equals(profileStatusCodes.approved())) {
-			validPretransitionStates = Set.of(profileStatusCodes.pending());
+			validPretransitionStates = Set.of(profileStatusCodes.pending(), profileStatusCodes.incomplete());
 		}
 		else if (code.equals(profileStatusCodes.archived())) {
-			validPretransitionStates = Set.of(profileStatusCodes.approved());
+			validPretransitionStates = Set.of(profileStatusCodes.incomplete(), profileStatusCodes.pending(), profileStatusCodes.approved());
 		}
 		else {
 			throw new ResourceConflictException("Cannot transition profile status to code=[" + code + "]");

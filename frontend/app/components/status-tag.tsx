@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 
 import type { ProfileStatus, RequestStatus } from '~/.server/domain/models';
 import { PROFILE_STATUS, REQUEST_STATUS_CODE } from '~/domain/constants';
+import { cn } from '~/utils/tailwind-utils';
 
 interface ProfileStatusTagProps {
   status: ProfileStatus;
@@ -89,7 +90,7 @@ export function RequestStatusTag({ status, lang, rounded = false, view }: Reques
   const roundedTrueClasses = 'rounded-2xl border px-3 py-0.5';
 
   return (
-    <div className={`${style} ${baseClasses} ${rounded ? roundedTrueClasses : defaultRoundedClasses}`}>
+    <div className={cn(style, baseClasses, rounded ? roundedTrueClasses : defaultRoundedClasses)}>
       <p>{displayName}</p>
     </div>
   );

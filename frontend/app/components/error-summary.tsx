@@ -41,20 +41,14 @@ export interface ErrorSummaryProps extends OmitStrict<ComponentPropsWithoutRef<'
 export function ErrorSummary({ className, errors, ...rest }: ErrorSummaryProps): JSX.Element | null {
   const { t } = useTranslation(['gcweb']);
   const sectionRef = useRef<HTMLElement>(null);
-  const [hasAnnounced, setHasAnnounced] = useState(false);
 
   // Scroll and focus on the error summary when errors are updated.
   useEffect(() => {
-    if (errors.length > 0 && sectionRef.current && !hasAnnounced) {
-      requestAnimationFrame(() => {
-        sectionRef.current?.scrollIntoView({ behavior: 'smooth' });
-        sectionRef.current?.focus();
-        setHasAnnounced(true);
-      });
-    } else if (errors.length === 0) {
-      setHasAnnounced(false);
+    if (errors.length > 0 && sectionRef.current) {
+      sectionRef.current.scrollIntoView({ behavior: 'smooth' });
+      sectionRef.current.focus();
     }
-  }, [errors, hasAnnounced]);
+  }, [errors]);
 
   if (errors.length === 0) {
     return null;

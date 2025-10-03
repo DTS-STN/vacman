@@ -6,10 +6,13 @@ import * as v from 'valibot';
 
 import type { Route } from './+types/somc-conditions';
 
+import type { RequestUpdateModel } from '~/.server/domain/models';
 import { getRequestService } from '~/.server/domain/services/request-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
+import { mapRequestToUpdateModelWithOverrides } from '~/.server/utils/request-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { BackLink } from '~/components/back-link';
+import { REQUEST_STATUS_CODE } from '~/domain/constants';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
@@ -26,7 +29,15 @@ export function meta({ loaderData }: Route.MetaArgs) {
 }
 
 export async function action({ context, params, request }: Route.ActionArgs) {
-  requireAuthentication(context.session, request);
+  const { session } = context.get(context.applicationContext);
+  requireAuthentication(session, request);
+
+  const editable =
+    (await getRequestService().getRequestById(Number(params.requestId), session.authState.accessToken)).into()?.status?.code ===
+    REQUEST_STATUS_CODE.DRAFT;
+  if (!editable) {
+    throw new Response('Cannot edit request', { status: HttpStatusCodes.BAD_REQUEST });
+  }
 
   const formData = await request.formData();
   const parseResult = v.safeParse(somcConditionsSchema, {
@@ -41,10 +52,23 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     );
   }
 
+  const requestData = (
+    await getRequestService().getRequestById(Number(params.requestId), session.authState.accessToken)
+  ).into();
+
+  if (!requestData) {
+    throw new Response('Request not found', { status: HttpStatusCodes.NOT_FOUND });
+  }
+
+  const requestPayload: RequestUpdateModel = mapRequestToUpdateModelWithOverrides(requestData, {
+    englishStatementOfMerit: parseResult.output.englishStatementOfMerit,
+    frenchStatementOfMerit: parseResult.output.frenchStatementOfMerit,
+  });
+
   const updateResult = await getRequestService().updateRequestById(
-    Number(params.requestId),
-    parseResult.output,
-    context.session.authState.accessToken,
+    requestData.id,
+    requestPayload,
+    session.authState.accessToken,
   );
 
   if (updateResult.isErr()) {
@@ -55,12 +79,13 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 }
 
 export async function loader({ context, params, request }: Route.LoaderArgs) {
-  requireAuthentication(context.session, request);
+  const { session } = context.get(context.applicationContext);
+  requireAuthentication(session, request);
 
   const { t } = await getTranslation(request, handle.i18nNamespace);
 
   const requestData = (
-    await getRequestService().getRequestById(Number(params.requestId), context.session.authState.accessToken)
+    await getRequestService().getRequestById(Number(params.requestId), session.authState.accessToken)
   ).into();
 
   if (!requestData) {
@@ -73,6 +98,7 @@ export async function loader({ context, params, request }: Route.LoaderArgs) {
       englishStatementOfMerit: requestData.englishStatementOfMerit,
       frenchStatementOfMerit: requestData.frenchStatementOfMerit,
     },
+    canEdit: requestData.status?.code === REQUEST_STATUS_CODE.DRAFT,
   };
 }
 
@@ -91,6 +117,7 @@ export default function HiringManagerRequestSomcConditions({ loaderData, actionD
       </BackLink>
       <div className="max-w-prose">
         <SomcConditionsForm
+          canEdit={loaderData.canEdit}
           cancelLink="routes/hiring-manager/request/index.tsx"
           formErrors={actionData?.errors}
           formValues={loaderData.defaultValues}

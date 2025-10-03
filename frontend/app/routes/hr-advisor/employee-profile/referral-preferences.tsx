@@ -34,10 +34,11 @@ export function meta({ loaderData }: Route.MetaArgs) {
 }
 
 export async function action({ context, params, request }: Route.ActionArgs) {
-  requireAuthentication(context.session, request);
+  const { session } = context.get(context.applicationContext);
+  requireAuthentication(session, request);
 
   const profileService = getProfileService();
-  const profileResult = await profileService.getProfileById(Number(params.profileId), context.session.authState.accessToken);
+  const profileResult = await profileService.getProfileById(Number(params.profileId), session.authState.accessToken);
 
   if (profileResult.isErr()) {
     throw new Response('Profile not found', { status: HttpStatusCodes.NOT_FOUND });
@@ -75,11 +76,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     preferredEmploymentOpportunities: [], //TODO: remove when the ProfileUpdateModel is updated in backend
   });
 
-  const updateResult = await profileService.updateProfileById(
-    profile.id,
-    profilePayload,
-    context.session.authState.accessToken,
-  );
+  const updateResult = await profileService.updateProfileById(profile.id, profilePayload, session.authState.accessToken);
 
   if (updateResult.isErr()) {
     throw updateResult.unwrapErr();
@@ -91,12 +88,10 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 }
 
 export async function loader({ context, request, params }: Route.LoaderArgs) {
-  requireAuthentication(context.session, request);
+  const { session } = context.get(context.applicationContext);
+  requireAuthentication(session, request);
 
-  const profileResult = await getProfileService().getProfileById(
-    Number(params.profileId),
-    context.session.authState.accessToken,
-  );
+  const profileResult = await getProfileService().getProfileById(Number(params.profileId), session.authState.accessToken);
 
   if (profileResult.isErr()) {
     throw new Response('Profile not found', { status: HttpStatusCodes.NOT_FOUND });

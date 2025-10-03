@@ -16,7 +16,7 @@ import { formatDateTimeInZone } from '~/utils/date-utils';
 
 interface RequestTablesProps {
   activeRequests: RequestReadModel[];
-  archivedRequests: RequestReadModel[];
+  inactiveRequests: RequestReadModel[];
   activeRequestNames: string[];
   inactiveRequestNames: string[];
   baseTimeZone: string;
@@ -26,7 +26,7 @@ interface RequestTablesProps {
 
 export default function RequestsTables({
   activeRequests,
-  archivedRequests,
+  inactiveRequests,
   activeRequestNames,
   inactiveRequestNames,
   baseTimeZone,
@@ -52,7 +52,7 @@ export default function RequestsTables({
   function createColumns(
     isActive: boolean,
   ): ColumnDef<RequestReadModel & { classification?: LookupModel; requestStatus?: LocalizedLookupModel }>[] {
-    return [
+    const columns: ColumnDef<RequestReadModel & { classification?: LookupModel; requestStatus?: LocalizedLookupModel }>[] = [
       {
         accessorKey: 'id',
         header: ({ column }) => <DataTableColumnHeader column={column} title={t('requests-tables.requestId')} />,
@@ -63,21 +63,37 @@ export default function RequestsTables({
               className="text-sky-800 decoration-slate-400 decoration-2"
               file={`routes/${view}/request/index.tsx`}
               params={{ requestId }}
-              aria-label={t('requests-tables.view-link', {
-                requestId,
-              })}
+              aria-label={t('requests-tables.view-link', { requestId })}
             >
               {info.getValue() as string}
             </InlineLink>
           );
         },
       },
-
       {
         accessorKey: 'classification.id',
         header: ({ column }) => <DataTableColumnHeader column={column} title={t('requests-tables.classification')} />,
         cell: (info) => <p>{info.row.original.classification?.code}</p>,
       },
+    ];
+
+    // Insert workUnit column only for HR Advisor
+    if (view === 'hr-advisor') {
+      columns.push({
+        accessorKey: 'workUnit',
+        header: ({ column }) => <DataTableColumnHeader column={column} title={t('requests-tables.work-unit')} />,
+        cell: (info) => (
+          <p>
+            {lang === 'en'
+              ? (info.row.original.workUnit?.parent?.nameEn ?? '-')
+              : (info.row.original.workUnit?.parent?.nameFr ?? '-')}
+          </p>
+        ),
+      });
+    }
+
+    // Continue with the rest of the columns
+    columns.push(
       {
         accessorKey: 'dateUpdated',
         header: ({ column }) => <DataTableColumnHeader column={column} title={t('requests-tables.updated')} />,
@@ -114,27 +130,51 @@ export default function RequestsTables({
         cell: (info) => {
           const requestId = info.row.original.id.toString();
           return (
-            <InlineLink
-              className="text-sky-800 decoration-slate-400 decoration-2"
-              file={`routes/${view}/request/index.tsx`}
-              params={{ requestId }}
-              aria-label={t('requests-tables.view-link', {
-                requestId,
-              })}
-            >
-              {t('requests-tables.view')}
-            </InlineLink>
+            <div className="flex items-baseline gap-4">
+              <InlineLink
+                className="rounded-sm text-sky-800 underline hover:text-blue-700 focus:text-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
+                file={`routes/${view}/request/index.tsx`}
+                params={{ requestId }}
+                aria-label={t('requests-tables.view-link', { requestId })}
+              >
+                {t('requests-tables.view')}
+              </InlineLink>
+              {view === 'hiring-manager' && (
+                <fetcher.Form method="post" noValidate>
+                  <input type="hidden" name="requestId" value={requestId}></input>
+                  <LoadingButton
+                    name="action"
+                    variant="alternative"
+                    size="sm"
+                    disabled={isSubmitting}
+                    loading={isSubmitting}
+                    value="copy"
+                  >
+                    {t('requests-tables.copy')}
+                  </LoadingButton>
+                </fetcher.Form>
+              )}
+            </div>
           );
         },
       },
-    ];
+    );
+
+    return columns;
   }
 
   return (
     <div className="mb-8 space-y-4">
       {view === 'hiring-manager' && (
         <fetcher.Form method="post" noValidate className="mb-8">
-          <LoadingButton name="action" variant="primary" size="sm" disabled={isSubmitting} loading={isSubmitting}>
+          <LoadingButton
+            name="action"
+            variant="primary"
+            size="sm"
+            disabled={isSubmitting}
+            loading={isSubmitting}
+            value="create"
+          >
             {t('requests-tables.create-request')}
           </LoadingButton>
         </fetcher.Form>
@@ -150,11 +190,11 @@ export default function RequestsTables({
       </section>
 
       <section>
-        <h2 className="font-lato text-xl font-bold">{t('requests-tables.archived-requests')}</h2>
-        {archivedRequests.length === 0 ? (
-          <div>{t('requests-tables.no-archived-requests')}</div>
+        <h2 className="font-lato text-xl font-bold">{t('requests-tables.inactive-requests')}</h2>
+        {inactiveRequests.length === 0 ? (
+          <div>{t('requests-tables.no-inactive-requests')}</div>
         ) : (
-          <DataTable columns={createColumns(false)} data={archivedRequests} />
+          <DataTable columns={createColumns(false)} data={inactiveRequests} />
         )}
       </section>
     </div>

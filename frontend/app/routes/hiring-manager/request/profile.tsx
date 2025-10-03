@@ -8,9 +8,9 @@ import type { Route } from './+types/profile';
 
 import { getCityService } from '~/.server/domain/services/city-service';
 import { getClassificationService } from '~/.server/domain/services/classification-service';
-import { getDirectorateService } from '~/.server/domain/services/directorate-service';
 import { getLanguageReferralTypeService } from '~/.server/domain/services/language-referral-type-service';
 import { getProfileService } from '~/.server/domain/services/profile-service';
+import { getWorkUnitService } from '~/.server/domain/services/workunit-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { getHrAdvisors } from '~/.server/utils/profile-utils';
 import { BackLink } from '~/components/back-link';
@@ -27,12 +27,13 @@ export const handle = {
 } as const satisfies RouteHandle;
 
 export async function loader({ context, request, params }: Route.LoaderArgs) {
-  requireAuthentication(context.session, request);
+  const { session } = context.get(context.applicationContext);
+  requireAuthentication(session, request);
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
   //TODO - Use getRequestService() to get the request profile
   const profileDataOption = await getProfileService().findProfileById(
     parseInt(params.profileId),
-    context.session.authState.accessToken,
+    session.authState.accessToken,
   );
 
   if (profileDataOption.isNone()) {
@@ -52,7 +53,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   // Use profileUser for updated by information as well
   const workUnitResult =
     profileData.substantiveWorkUnit !== undefined
-      ? await getDirectorateService().findLocalizedById(profileData.substantiveWorkUnit.id, lang)
+      ? await getWorkUnitService().findLocalizedById(profileData.substantiveWorkUnit.id, lang)
       : undefined;
   const substantivePositionResult =
     profileData.substantiveClassification !== undefined
@@ -68,7 +69,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const branchOrServiceCanadaRegion = workUnitResult?.into()?.parent?.name;
   const directorate = workUnitResult?.into()?.name;
   const city = cityResult?.into();
-  const hrAdvisors = await getHrAdvisors(context.session.authState.accessToken);
+  const hrAdvisors = await getHrAdvisors(session.authState.accessToken);
   const hrAdvisor = hrAdvisors.find((u) => u.id === profileData.hrAdvisorId);
   const languageReferralTypes = profileData.preferredLanguages
     ?.map((lang) => allLocalizedLanguageReferralTypes.find((l) => l.id === lang.id))
@@ -118,7 +119,7 @@ export default function HiringManagerRequestProfile({ loaderData, params }: Rout
 
   return (
     <div className="space-y-8">
-      <VacmanBackground variant="bottom-right" height="h-40">
+      <VacmanBackground variant="bottom-right">
         <PageTitle className="after:w-14" variant="bottom" subTitle={loaderData.email} subTitleClassName="mt-3">
           {loaderData.name}
         </PageTitle>
@@ -247,7 +248,7 @@ interface DetailsCardProps {
 
 function DetailsCard({ title, children }: DetailsCardProps): JSX.Element {
   return (
-    <Card className={`rounded-md p-4 sm:p-6`}>
+    <Card className="rounded-md p-4 sm:p-6">
       <CardHeader className="p-0">
         <CardTitle className="text-2xl">{title}</CardTitle>
       </CardHeader>

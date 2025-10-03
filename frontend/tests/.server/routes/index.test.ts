@@ -88,36 +88,10 @@ const mockProfileService = {
 vi.mocked(getProfileService).mockReturnValue(mockProfileService);
 
 // Helper to create mock context
-function createMockContext(activeDirectoryId: string, name?: string, roles: string[] = []): RouterContextProvider {
-  const mockSession = {
-    authState: {
-      idTokenClaims: {
-        sub: activeDirectoryId,
-        oid: activeDirectoryId, // Add the missing oid field that privacy-consent route expects
-        name,
-        iss: 'test-issuer',
-        aud: 'test-audience',
-        iat: Math.floor(Date.now() / 1000),
-        exp: Math.floor(Date.now() / 1000) + 3600,
-      },
-      accessTokenClaims: {
-        roles,
-        iss: 'test-issuer',
-        exp: Math.floor(Date.now() / 1000) + 3600,
-        aud: 'test-audience',
-        sub: activeDirectoryId,
-        client_id: 'test-client',
-        iat: Math.floor(Date.now() / 1000),
-        jti: 'test-jti',
-      },
-      accessToken: 'mock-access-token',
-      idToken: 'mock-id-token',
-    },
-  } as unknown as AppSession;
-
-  return mock({
-    nonce: 'test-nonce',
-    session: mockSession,
+function createMockContext(): RouterContextProvider {
+  const mockSession = mock<AppSession>();
+  return mock<RouterContextProvider>({
+    get: vi.fn().mockReturnValue({ session: mockSession }),
   });
 }
 
@@ -133,7 +107,7 @@ describe('Index Dashboard Selection Flow', () => {
 
   describe('Index Loader', () => {
     it('should load index page successfully', async () => {
-      const context = createMockContext('test-user-123');
+      const context = createMockContext();
       const request = new Request('http://localhost:3000/en/');
 
       const response = await indexLoader({ context, request, params: {} } as TestRouteArgs);
@@ -142,7 +116,8 @@ describe('Index Dashboard Selection Flow', () => {
         documentTitle: expect.any(String),
       });
 
-      expect(requireAuthentication).toHaveBeenCalledWith(context.session, request);
+      const { session } = context.get(context.applicationContext);
+      expect(requireAuthentication).toHaveBeenCalledWith(session, request);
     });
   });
 
@@ -152,7 +127,7 @@ describe('Index Dashboard Selection Flow', () => {
       throw redirect('/login');
     });
 
-    const context = createMockContext('test-user-123');
+    const context = createMockContext();
     const request = new Request('http://localhost:3000/en/');
 
     let error: unknown;

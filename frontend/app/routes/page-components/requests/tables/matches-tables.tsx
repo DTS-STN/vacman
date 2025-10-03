@@ -1,15 +1,16 @@
-import type { JSX } from 'react';
+import type { JSX, ChangeEvent } from 'react';
+import { useRef } from 'react';
 
-import { faSortDown } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import type { FetcherSubmitFunction } from 'react-router';
+
 import type { ColumnDef } from '@tanstack/react-table';
 import { useTranslation } from 'react-i18next';
 
 import { Button } from '~/components/button';
 import { DataTable, DataTableColumnHeader, DataTableColumnHeaderWithOptions } from '~/components/data-table';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTrigger } from '~/components/dialog';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '~/components/dropdown-menu';
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogTitle, DialogTrigger } from '~/components/dialog';
 import { InputLabel } from '~/components/input-label';
+import { InputSelect } from '~/components/input-select';
 import { InputTextarea } from '~/components/input-textarea';
 import { InlineLink } from '~/components/links';
 
@@ -26,36 +27,73 @@ type RequestMatchModel = {
     lastName: string;
     middleName?: string;
   };
-  wfaStatus: number;
-  feedback: number;
+  wfaStatus: string;
+  feedback: string;
   comment: Comment;
   approval: boolean;
 };
 
-interface RequestTablesProps {
+type MatchFeedback = {
+  id: number;
+  name: string;
+  code: string;
+};
+
+type MatchStatus = {
+  id: number;
+  name: string;
+  code: string;
+};
+
+interface MatchesTablesProps {
   requestMatches: RequestMatchModel[];
-  matchStatusNames: string[];
-  matchFeedbackNames: string[];
-  requestId: string;
+  matchStatus: readonly Readonly<MatchStatus>[];
+  matchFeedback: readonly Readonly<MatchFeedback>[];
+  requestId: string | undefined;
   view: 'hr-advisor' | 'hiring-manager';
+  submit: FetcherSubmitFunction;
 }
 
-export default function MatchesTable({
+export default function MatchesTables({
   requestMatches,
-  matchStatusNames,
-  matchFeedbackNames,
+  matchStatus,
+  matchFeedback,
   requestId,
   view,
-}: RequestTablesProps): JSX.Element {
+  submit,
+}: MatchesTablesProps): JSX.Element {
   const { t } = useTranslation('app');
 
+  const updateFeedback = (id: number, feedback: string) => {
+    const formData = new FormData();
+    formData.set('action', 'feedback');
+    formData.set('id', id.toString());
+    formData.set('feedback', feedback);
+    void submit(formData, { method: 'post' });
+  };
+
+  const updateComment = (id: number, comment: string) => {
+    const formData = new FormData();
+    formData.set('action', 'comment');
+    formData.set('id', id.toString());
+    formData.set('comment', comment);
+    void submit(formData, { method: 'post' });
+  };
+
+  const approveRequest = (id: number) => {
+    const formData = new FormData();
+    formData.set('action', 'approve');
+    formData.set('id', id.toString());
+    void submit(formData, { method: 'post' });
+  };
+
+  const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const columns: ColumnDef<RequestMatchModel>[] = [
     {
       accessorKey: 'employee.firstName',
       accessorFn: (row) => `${row.employee.firstName} ${row.employee.lastName}`,
       header: ({ column }) => <DataTableColumnHeader column={column} title={t('matches-tables.employee')} />,
       cell: (info) => {
-        //TODO - Update link to proper redirect
         const profileId = info.row.original.id.toString();
         const employee = info.row.original.employee;
         return (
@@ -65,64 +103,63 @@ export default function MatchesTable({
             params={{ requestId, profileId }}
             aria-label={`${t('matches-tables.employee')} ${employee.firstName} ${employee.lastName}`}
           >
-            {info.getValue() as string}
+            {String(info.renderValue())}
           </InlineLink>
         );
       },
     },
     {
       accessorKey: 'wfaStatus',
-      accessorFn: (row) => matchStatusNames[row.wfaStatus],
+      accessorFn: (row) => row.wfaStatus,
       header: ({ column }) => (
-        <DataTableColumnHeaderWithOptions column={column} title={t('matches-tables.wfa-status')} options={matchStatusNames} />
+        <DataTableColumnHeaderWithOptions
+          column={column}
+          title={t('matches-tables.wfa-status')}
+          options={matchStatus.map((status) => status.name)}
+        />
       ),
       cell: (info) => {
-        return matchStatusNames[info.row.original.wfaStatus];
+        const status = info.getValue();
+        return matchStatus.find((match) => match.code === status)?.name ?? status;
       },
       filterFn: (row, columnId, filterValue: string[]) => {
-        const status = row.getValue(columnId) as string;
-        return filterValue.length === 0 || filterValue.includes(status);
+        const status = row.getValue(columnId);
+        const statusName = matchStatus.find((match) => match.code === status)?.name ?? '';
+        return filterValue.length === 0 || filterValue.includes(statusName);
       },
       enableColumnFilter: true,
     },
     {
       accessorKey: 'feedback',
-      accessorFn: (row) => matchFeedbackNames[row.feedback],
+      accessorFn: (row) => row.feedback,
       header: ({ column }) => (
-        <DataTableColumnHeaderWithOptions column={column} title={t('matches-tables.feedback')} options={matchFeedbackNames} />
+        <DataTableColumnHeaderWithOptions
+          column={column}
+          title={t('matches-tables.feedback')}
+          options={matchFeedback.map((feedback) => feedback.name)}
+        />
       ),
       cell: (info) => {
-        const feedback = matchFeedbackNames[info.row.original.feedback];
+        const selectOptions = matchFeedback.map((option) => ({
+          value: option.code,
+          children: option.name,
+        }));
         return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="-ml-3 h-8 w-full justify-between font-sans font-medium data-[state=open]:bg-neutral-100"
-              >
-                <span>{feedback}</span>
-                <span className="ml-1 rounded-sm p-1 text-neutral-500 hover:bg-slate-300">
-                  <FontAwesomeIcon icon={faSortDown} />
-                </span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="max-h-60 overflow-y-auto p-2">
-              {matchFeedbackNames.map((option) => (
-                <DropdownMenuItem key={option} asChild>
-                  <label className="flex w-full cursor-pointer items-center gap-2 px-2 py-1.5">
-                    <span className="text-sm capitalize">{option.replace('-', ' ')}</span>
-                  </label>
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <InputSelect
+            id={info.cell.id}
+            name={t('matches-tables.feedback')}
+            options={selectOptions}
+            defaultValue={String(info.getValue())}
+            aria-label={t('matches-tables.feedback')}
+            variant="alternative"
+            onChange={(event: ChangeEvent<HTMLSelectElement>) => updateFeedback(info.row.original.id, event.target.value)}
+          />
         );
       },
       filterFn: (row, columnId, filterValue: string[]) => {
-        const feedback = row.getValue(columnId) as string;
-        return filterValue.length === 0 || filterValue.includes(feedback);
+        const feedback = row.getValue(columnId);
+        const feedbackName = matchFeedback.find((match) => match.code === feedback)?.name ?? '';
+        return filterValue.length === 0 || filterValue.includes(feedbackName);
       },
       enableColumnFilter: true,
     },
@@ -131,37 +168,43 @@ export default function MatchesTable({
       accessorFn: (row) => row.comment,
       header: ({ column }) => <DataTableColumnHeader column={column} title={t('matches-tables.comments')} />,
       cell: (info) => {
-        const comment = info.getValue() as Comment;
+        const comment = info.getValue<Comment>();
         const editComment =
           (view === 'hr-advisor' && comment.hrAdvisor) ?? (view === 'hiring-manager' && comment.hiringManager);
         return (
-          <Dialog>
+          <Dialog
+            onOpenChange={(open) => {
+              if (open) return;
+              updateComment(info.row.original.id, textAreaRef.current?.value ?? '');
+            }}
+          >
             <DialogTrigger className="text-sky-800 no-underline decoration-slate-400 decoration-2 hover:underline">
               {editComment ? t('matches-tables.comment-label.edit') : t('matches-tables.comment-label.add')}
             </DialogTrigger>
             <DialogContent>
-              <DialogHeader>
-                <DialogDescription className="space-y-5">
+              <DialogTitle>{t('matches-tables.comments')}</DialogTitle>
+              <DialogDescription className="space-y-5" asChild>
+                <div>
                   <InputTextarea
                     className="w-full"
                     id="hiring-manager-comment"
                     label={t('matches-tables.comment-popup.hiring-manager')}
                     name="hiring-manager-comment"
                     disabled={view === 'hr-advisor'}
-                  >
-                    {comment.hiringManager}
-                  </InputTextarea>
+                    defaultValue={comment.hiringManager}
+                    ref={view === 'hiring-manager' ? textAreaRef : null}
+                  />
                   <InputTextarea
                     className="w-full"
                     id="hr-advisor-comment"
                     label={t('matches-tables.comment-popup.hr-advisor')}
                     name="hr-advisor-comment"
                     disabled={view === 'hiring-manager'}
-                  >
-                    {comment.hrAdvisor}
-                  </InputTextarea>
-                </DialogDescription>
-              </DialogHeader>
+                    defaultValue={comment.hrAdvisor}
+                    ref={view === 'hr-advisor' ? textAreaRef : null}
+                  />
+                </div>
+              </DialogDescription>
             </DialogContent>
           </Dialog>
         );
@@ -175,25 +218,32 @@ export default function MatchesTable({
       accessorFn: (row) => row.approval,
       header: ({ column }) => <DataTableColumnHeader column={column} title={t('matches-tables.approval')} />,
       cell: (info) => {
-        const approval = info.getValue() as boolean;
+        const approval = info.getValue();
         if (approval) {
           return <p>{t('matches-tables.approval-popup.approved')}</p>;
         }
         return (
           <Dialog>
-            <DialogTrigger className="text-sky-800 no-underline decoration-slate-400 decoration-2 hover:underline">
+            <DialogTrigger asChild>
               <Button variant="alternative">{t('form.approve')}</Button>
             </DialogTrigger>
             <DialogContent className="max-w-86">
-              <DialogHeader>
-                <DialogDescription className="space-y-5">
+              <DialogTitle>{t('matches-tables.approval')}</DialogTitle>
+              <DialogDescription className="space-y-5" asChild>
+                <div>
                   <InputLabel id="approve-feedback">{t('matches-tables.approval-popup.approve-feedback')}</InputLabel>
                   <div className="space-x-4">
-                    <Button>{t('form.cancel')}</Button>
-                    <Button variant="primary">{t('form.approve')}</Button>
+                    <DialogClose asChild>
+                      <Button>{t('form.cancel')}</Button>
+                    </DialogClose>
+                    <DialogClose asChild>
+                      <Button variant="primary" onClick={() => approveRequest(info.row.original.id)}>
+                        {t('form.approve')}
+                      </Button>
+                    </DialogClose>
                   </div>
-                </DialogDescription>
-              </DialogHeader>
+                </div>
+              </DialogDescription>
             </DialogContent>
           </Dialog>
         );

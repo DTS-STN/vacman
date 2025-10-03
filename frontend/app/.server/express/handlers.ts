@@ -1,16 +1,24 @@
 import { createRequestHandler } from '@react-router/express';
-import { RouterContextProvider } from 'react-router';
+import { createContext, RouterContextProvider } from 'react-router';
 
 import type { ErrorRequestHandler, NextFunction, Request, Response } from 'express';
 import path from 'node:path';
 import type { ViteDevServer } from 'vite';
 
-import { applicationContext } from '~/.server/application-context';
 import { serverEnvironment } from '~/.server/environment';
 import { LogFactory } from '~/.server/logging';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 
 const log = LogFactory.getLogger(import.meta.url);
+
+/**
+ * The ApplicationContext represents the data that will be handed from
+ * our custom express server to our React Router application.
+ */
+export type ApplicationContext = {
+  readonly nonce: string;
+  readonly session: AppSession;
+};
 
 export function globalErrorHandler(): ErrorRequestHandler {
   return (error: unknown, request: Request, response: Response, next: NextFunction) => {
@@ -46,6 +54,9 @@ export function rrRequestHandler(viteDevServer?: ViteDevServer) {
   // dynamically declare the path to avoid static analysis errors 💩
   const rrServerBuild = './app.js';
 
+  // create the context outside of the handler, since it contains no request-bound data
+  const applicationContext = createContext<ApplicationContext>();
+
   return createRequestHandler({
     mode: serverEnvironment.NODE_ENV,
     getLoadContext: (request, response) => {
@@ -56,11 +67,27 @@ export function rrRequestHandler(viteDevServer?: ViteDevServer) {
         session: request.session,
       });
 
-      ///
-      /// TODO ::: GjB ::: overriding RouterContextProvider here facilitates an incremental adoption of RRv7 middleware
-      ///                  obviously, this should be removed once the full migration to RRv7 middleware is complete
-      ///                  see: https://reactrouter.com/how-to/middleware#migration-from-apploadcontext
-      ///
+      //
+      // TODO ::: GjB ::: Remove this compatibility layer once the migration to RRv7 middleware is complete.
+      //
+      // This block of code provides backward compatibility for our existing app structure
+      // during the incremental adoption of the new RouterContextProvider pattern.
+      // see: https://reactrouter.com/how-to/middleware#migration-from-apploadcontext
+      //
+      // There are two things happening here:
+      //
+      // 1. `Object.assign(contextProvider, contextProvider.get(applicationContext))`
+      //    This takes the values from our `applicationContext` (like `session` and `nonce`)
+      //    and adds them directly to the top level of the `contextProvider`. Existing parts
+      //    of the app expect these values on the root `loader` context, and this keeps them working.
+      //
+      // 2. `Object.assign(contextProvider, { applicationContext })`
+      //    This adds the `applicationContext` object itself to the provider. We need this so the RRv7
+      //    framework can access the context instance. We can't simply export/import it because Vite's
+      //    SSR module handling can create different instances of the module, leading to context mismatches.
+      //    Attaching it here ensures we always get the correct instance.
+      //
+      Object.assign(contextProvider, { applicationContext });
       Object.assign(contextProvider, contextProvider.get(applicationContext));
 
       return contextProvider;

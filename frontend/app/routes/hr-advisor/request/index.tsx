@@ -1,5 +1,8 @@
-import { useFetcher } from 'react-router';
+import { useState } from 'react';
+import type { JSX } from 'react';
+
 import type { RouteHandle } from 'react-router';
+import { useFetcher } from 'react-router';
 
 import { faEye } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -7,24 +10,28 @@ import { useTranslation } from 'react-i18next';
 
 import type { Route } from './+types/index';
 
-import { getCityService } from '~/.server/domain/services/city-service';
-import { getDirectorateService } from '~/.server/domain/services/directorate-service';
-import { getEmploymentEquityService } from '~/.server/domain/services/employment-equity-service';
-import { getEmploymentTenureService } from '~/.server/domain/services/employment-tenure-service';
-import { getLanguageForCorrespondenceService } from '~/.server/domain/services/language-for-correspondence-service';
-import { getNonAdvertisedAppointmentService } from '~/.server/domain/services/non-advertised-appointment-service';
 import { getRequestService } from '~/.server/domain/services/request-service';
-import { getSelectionProcessTypeService } from '~/.server/domain/services/selection-process-type-service';
-import { getWorkScheduleService } from '~/.server/domain/services/work-schedule-service';
+import { getUserService } from '~/.server/domain/services/user-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
+import { Button } from '~/components/button';
 import { ButtonLink } from '~/components/button-link';
 import { DescriptionList, DescriptionListItem } from '~/components/description-list';
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '~/components/dialog';
+import { InputField } from '~/components/input-field';
 import { InlineLink } from '~/components/links';
 import { LoadingButton } from '~/components/loading-button';
 import { PageTitle } from '~/components/page-title';
 import { ProfileCard } from '~/components/profile-card';
 import { RequestStatusTag } from '~/components/status-tag';
-import { REQUEST_STATUSES } from '~/domain/constants';
+import { EMPLOYMENT_TENURE, REQUEST_STATUS_CODE, SELECTION_PROCESS_TYPE } from '~/domain/constants';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { useFetcherState } from '~/hooks/use-fetcher-state';
 import { getTranslation } from '~/i18n-config.server';
@@ -39,42 +46,26 @@ export function meta({ loaderData }: Route.MetaArgs) {
 }
 
 export async function loader({ context, request, params }: Route.LoaderArgs) {
-  requireAuthentication(context.session, request);
+  const { session } = context.get(context.applicationContext);
+  requireAuthentication(session, request);
 
   const currentRequest = (
-    await getRequestService().getRequestById(Number(params.requestId), context.session.authState.accessToken)
+    await getRequestService().getRequestById(Number(params.requestId), session.authState.accessToken)
   ).into();
 
   if (!currentRequest) {
     throw new Response('Request not found', { status: HttpStatusCodes.NOT_FOUND });
   }
 
+  const currentUserData = await getUserService().getCurrentUser(session.authState.accessToken);
+  const currentUser = currentUserData.unwrap();
+
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
 
-  const [
-    allLocalizedCities,
-    allLocalizedProcessTypes,
-    allLocalizedAppointmentNonAdvertised,
-    allLocalizedTenures,
-    allLocalizedWorkSchedules,
-    allLocalizedEmploymentEquities,
-    allLocalizedDirectorates,
-    allLocalizedPreferredLanguage,
-  ] = await Promise.all([
-    getCityService().listAllLocalized(lang),
-    getSelectionProcessTypeService().listAllLocalized(lang),
-    getNonAdvertisedAppointmentService().listAllLocalized(lang),
-    getEmploymentTenureService().listAllLocalized(lang),
-    getWorkScheduleService().listAllLocalized(lang),
-    getEmploymentEquityService().listAllLocalized(lang),
-    getDirectorateService().listAllLocalized(lang),
-    getLanguageForCorrespondenceService().listAllLocalized(lang),
-  ]);
-
-  const cities = currentRequest.cities?.map((city) => allLocalizedCities.find((c) => c.id === city.id)).filter(Boolean);
-  const employmentEquities = currentRequest.employmentEquities
-    ?.map((eq) => allLocalizedEmploymentEquities.find((e) => e.code === eq.code))
-    .filter(Boolean);
+  const employmentEquityNames = currentRequest.employmentEquities
+    ?.map((eq) => (lang === 'en' ? eq.nameEn : eq.nameFr))
+    .filter(Boolean) // Remove any null or undefined names
+    .join(', ');
 
   return {
     documentTitle: t('app:hr-advisor-referral-requests.page-title'),
@@ -86,22 +77,27 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     workforceMgmtApprovalRecvd: currentRequest.workforceMgmtApprovalRecvd,
     priorityEntitlement: currentRequest.priorityEntitlement,
     priorityEntitlementRationale: currentRequest.priorityEntitlementRationale,
-    selectionProcessType: allLocalizedProcessTypes.find((s) => s.code === currentRequest.selectionProcessType?.code),
+    selectionProcessType:
+      lang === 'en' ? currentRequest.selectionProcessType?.nameEn : currentRequest.selectionProcessType?.nameEn,
+    selectionProcessTypeCode: currentRequest.selectionProcessType?.code,
     hasPerformedSameDuties: currentRequest.hasPerformedSameDuties,
-    appointmentNonAdvertised: allLocalizedAppointmentNonAdvertised.find(
-      (a) => a.code === currentRequest.appointmentNonAdvertised?.code,
-    ),
-    employmentTenure: allLocalizedTenures.find((t) => t.code === currentRequest.employmentTenure?.code),
+    appointmentNonAdvertised:
+      lang === 'en' ? currentRequest.appointmentNonAdvertised?.nameEn : currentRequest.appointmentNonAdvertised?.nameFr,
+    employmentTenure: lang === 'en' ? currentRequest.employmentTenure?.nameEn : currentRequest.employmentTenure?.nameFr,
+    employmentTenureCode: currentRequest.employmentTenure?.code,
     projectedStartDate: currentRequest.projectedStartDate,
     projectedEndDate: currentRequest.projectedEndDate,
-    workSchedule: allLocalizedWorkSchedules.find((w) => w.code === currentRequest.workSchedule?.code),
+    workSchedule: lang === 'en' ? currentRequest.workSchedule?.nameEn : currentRequest.workSchedule?.nameFr,
     equityNeeded: currentRequest.equityNeeded,
-    employmentEquities: employmentEquities?.map((eq) => eq?.name).join(', '),
+    employmentEquities: employmentEquityNames,
     positionNumber: currentRequest.positionNumber,
     classification: currentRequest.classification,
     englishTitle: currentRequest.englishTitle,
     frenchTitle: currentRequest.frenchTitle,
-    cities: cities?.map((city) => city?.provinceTerritory.name + ' - ' + city?.name),
+    cities: currentRequest.cities?.map((city) => ({
+      province: lang === 'en' ? city.provinceTerritory.nameEn : city.provinceTerritory.nameFr,
+      city: lang === 'en' ? city.nameEn : city.nameFr,
+    })),
     languageRequirement: currentRequest.languageRequirement,
     englishLanguageProfile: currentRequest.englishLanguageProfile,
     frenchLanguageProfile: currentRequest.frenchLanguageProfile,
@@ -110,13 +106,15 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     frenchStatementOfMerit: currentRequest.frenchStatementOfMerit,
     submitter: currentRequest.submitter,
     subDelegatedManager: currentRequest.subDelegatedManager,
-    directorate: allLocalizedDirectorates.find((c) => c.code === currentRequest.workUnit?.code),
-    languageOfCorrespondence: allLocalizedPreferredLanguage.find(
-      (p) => p.code === currentRequest.languageOfCorrespondence?.code,
-    ),
+    branchOrServiceCanadaRegion:
+      lang === 'en' ? currentRequest.workUnit?.parent?.nameEn : currentRequest.workUnit?.parent?.nameFr,
+    directorate: lang === 'en' ? currentRequest.workUnit?.nameEn : currentRequest.workUnit?.nameFr,
+    languageOfCorrespondence:
+      lang === 'en' ? currentRequest.languageOfCorrespondence?.nameEn : currentRequest.languageOfCorrespondence?.nameFr,
     additionalComment: currentRequest.additionalComment,
     status: currentRequest.status,
     lang,
+    isRequestAssignedToCurrentUser: currentUser.id === currentRequest.hrAdvisor?.id,
   };
 }
 
@@ -131,6 +129,15 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
   const fetcher = useFetcher();
   const fetcherState = useFetcherState(fetcher);
   const isSubmitting = fetcherState.submitting;
+
+  type CityPreference = {
+    province: string;
+    city: string;
+  };
+
+  type GroupedCities = Record<string, string[]>;
+  const [showArchiveDialog, setShowArchiveDialog] = useState(false);
+  const [showReAssignDialog, setShowReAssignDialog] = useState(false);
 
   return (
     <div className="space-y-8">
@@ -227,36 +234,44 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
                 </DescriptionListItem>
 
                 <DescriptionListItem term={t('app:process-information.selection-process-type')}>
-                  {loaderData.selectionProcessType?.code ?? t('app:hr-advisor-referral-requests.not-provided')}
+                  {loaderData.selectionProcessType ?? t('app:hiring-manager-referral-requests.not-provided')}
                 </DescriptionListItem>
 
-                <DescriptionListItem term={t('app:process-information.performed-duties')}>
-                  {(() => {
-                    if (loaderData.hasPerformedSameDuties === undefined) {
-                      return t('app:hr-advisor-referral-requests.not-provided');
-                    }
-                    return loaderData.hasPerformedSameDuties ? tGcweb('input-option.yes') : tGcweb('input-option.no');
-                  })()}
-                </DescriptionListItem>
+                {(loaderData.selectionProcessTypeCode === SELECTION_PROCESS_TYPE.EXTERNAL_NON_ADVERTISED.code ||
+                  loaderData.selectionProcessTypeCode === SELECTION_PROCESS_TYPE.APPOINTMENT_INTERNAL_NON_ADVERTISED.code) && (
+                  <>
+                    <DescriptionListItem term={t('app:process-information.performed-duties')}>
+                      {loaderData.hasPerformedSameDuties === true
+                        ? t('app:process-information.yes')
+                        : loaderData.hasPerformedSameDuties === false
+                          ? t('app:process-information.no')
+                          : t('app:hiring-manager-referral-requests.not-provided')}
+                    </DescriptionListItem>
 
-                <DescriptionListItem term={t('app:process-information.non-advertised-appointment')}>
-                  {loaderData.appointmentNonAdvertised?.name ?? t('app:hr-advisor-referral-requests.not-provided')}
-                </DescriptionListItem>
+                    <DescriptionListItem term={t('app:process-information.non-advertised-appointment')}>
+                      {loaderData.appointmentNonAdvertised ?? t('app:hiring-manager-referral-requests.not-provided')}
+                    </DescriptionListItem>
+                  </>
+                )}
 
                 <DescriptionListItem term={t('app:process-information.employment-tenure')}>
-                  {loaderData.employmentTenure?.code ?? t('app:hr-advisor-referral-requests.not-provided')}
+                  {loaderData.employmentTenure ?? t('app:hr-advisor-referral-requests.not-provided')}
                 </DescriptionListItem>
 
-                <DescriptionListItem term={t('app:process-information.projected-start-date')}>
-                  {loaderData.projectedStartDate ?? t('app:hr-advisor-referral-requests.not-provided')}
-                </DescriptionListItem>
+                {loaderData.employmentTenureCode === EMPLOYMENT_TENURE.term && (
+                  <>
+                    <DescriptionListItem term={t('app:process-information.projected-start-date')}>
+                      {loaderData.projectedStartDate ?? t('app:hiring-manager-referral-requests.not-provided')}
+                    </DescriptionListItem>
 
-                <DescriptionListItem term={t('app:process-information.projected-end-date')}>
-                  {loaderData.projectedEndDate ?? t('app:hr-advisor-referral-requests.not-provided')}
-                </DescriptionListItem>
+                    <DescriptionListItem term={t('app:process-information.projected-end-date')}>
+                      {loaderData.projectedEndDate ?? t('app:hiring-manager-referral-requests.not-provided')}
+                    </DescriptionListItem>
+                  </>
+                )}
 
                 <DescriptionListItem term={t('app:process-information.work-schedule')}>
-                  {loaderData.workSchedule?.code ?? t('app:hr-advisor-referral-requests.not-provided')}
+                  {loaderData.workSchedule ?? t('app:hr-advisor-referral-requests.not-provided')}
                 </DescriptionListItem>
 
                 <DescriptionListItem term={t('app:process-information.employment-equity-identified-alt')}>
@@ -295,7 +310,23 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
                 <DescriptionListItem term={t('app:position-information.locations')}>
                   {loaderData.cities === undefined
                     ? t('app:hiring-manager-referral-requests.not-provided')
-                    : loaderData.cities.length > 0 && loaderData.cities.join(', ')}
+                    : loaderData.cities.length > 0 && (
+                        <div>
+                          {/* Group cities by province */}
+                          {Object.entries(
+                            (loaderData.cities as CityPreference[]).reduce((acc: GroupedCities, city: CityPreference) => {
+                              const provinceName = city.province;
+                              acc[provinceName] ??= [];
+                              acc[provinceName].push(city.city);
+                              return acc;
+                            }, {} as GroupedCities),
+                          ).map(([province, cities]) => (
+                            <div key={province}>
+                              <strong>{province}:</strong> {cities.join(', ')}
+                            </div>
+                          ))}
+                        </div>
+                      )}
                 </DescriptionListItem>
 
                 <DescriptionListItem term={t('app:position-information.language-requirement')}>
@@ -362,15 +393,15 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
                 </DescriptionListItem>
 
                 <DescriptionListItem term={t('app:submission-details.branch-or-service-canada-region')}>
-                  {loaderData.directorate?.parent?.name ?? t('app:hiring-manager-referral-requests.not-provided')}
+                  {loaderData.branchOrServiceCanadaRegion ?? t('app:hiring-manager-referral-requests.not-provided')}
                 </DescriptionListItem>
 
                 <DescriptionListItem term={t('app:submission-details.directorate')}>
-                  {loaderData.directorate?.name ?? t('app:hr-advisor-referral-requests.not-provided')}
+                  {loaderData.directorate ?? t('app:hr-advisor-referral-requests.not-provided')}
                 </DescriptionListItem>
 
                 <DescriptionListItem term={t('app:submission-details.preferred-language-of-correspondence')}>
-                  {loaderData.languageOfCorrespondence?.code ?? t('app:hr-advisor-referral-requests.not-provided')}
+                  {loaderData.languageOfCorrespondence ?? t('app:hr-advisor-referral-requests.not-provided')}
                 </DescriptionListItem>
 
                 <DescriptionListItem term={t('app:submission-details.additional-comments')}>
@@ -383,67 +414,248 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
           <div className="mt-8 max-w-prose">
             <div className="flex justify-center">
               <fetcher.Form className="mt-6 md:mt-auto" method="post" noValidate>
-                {loaderData.status?.code === REQUEST_STATUSES[1].code ? ( //Status: SUBMIT
-                  <LoadingButton
-                    className="mt-4 w-full"
-                    name="action"
-                    variant="primary"
-                    id="pickup-request"
-                    disabled={isSubmitting}
-                    loading={isSubmitting}
-                  >
-                    {t('app:form.pickup-request')}
-                  </LoadingButton>
-                ) : (
-                  <>
-                    <ButtonLink
-                      className="mt-4 w-full"
-                      variant="alternative"
-                      file="routes/hr-advisor/index.tsx"
-                      id="cancel"
-                      disabled={isSubmitting}
-                    >
-                      {t('app:form.cancel')}
-                    </ButtonLink>
-
-                    <ButtonLink
-                      className="mt-4 w-full"
-                      variant="alternative"
-                      file="routes/employee/index.tsx"
-                      id="save"
-                      disabled={isSubmitting}
-                    >
-                      {t('app:form.save-and-exit')}
-                    </ButtonLink>
-
-                    <LoadingButton
-                      className="mt-4 w-full"
-                      name="action"
-                      variant="primary"
-                      id="vms-not-required"
-                      disabled={isSubmitting}
-                      loading={isSubmitting}
-                    >
-                      {t('app:form.vms-not-required')}
-                    </LoadingButton>
-
-                    <LoadingButton
-                      className="mt-4 w-full"
-                      name="action"
-                      variant="primary"
-                      id="run-matches"
-                      disabled={isSubmitting}
-                      loading={isSubmitting}
-                    >
-                      {t('app:form.run-matches')}
-                    </LoadingButton>
-                  </>
-                )}
+                <RenderButtonsByStatus
+                  code={loaderData.status?.code}
+                  isRequestAssignedToCurrentUser={loaderData.isRequestAssignedToCurrentUser}
+                  isSubmitting={isSubmitting}
+                  onArchiveClick={() => setShowArchiveDialog(true)}
+                  onReAssignClick={() => setShowReAssignDialog(true)}
+                />
               </fetcher.Form>
             </div>
           </div>
         </div>
       </div>
+      <Dialog open={showArchiveDialog} onOpenChange={setShowArchiveDialog}>
+        <DialogContent aria-describedby="archive-dialog-description" role="alertdialog">
+          <DialogHeader>
+            <DialogTitle id="archive-dialog-title">{t('app:hr-advisor-referral-requests.archive-request.title')}</DialogTitle>
+          </DialogHeader>
+          <DialogDescription id="archive-dialog-description">
+            {t('app:hr-advisor-referral-requests.archive-request.content')}
+          </DialogDescription>
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button id="confirm-modal-back" variant="alternative" disabled={isSubmitting}>
+                {t('app:hr-advisor-referral-requests.archive-request.continue')}
+              </Button>
+            </DialogClose>
+            <fetcher.Form method="post" noValidate>
+              <Button id="archive-request" variant="primary" name="action" value="archive" disabled={isSubmitting}>
+                {t('app:hr-advisor-referral-requests.archive-request.archive')}
+              </Button>
+            </fetcher.Form>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      <Dialog open={showReAssignDialog} onOpenChange={setShowReAssignDialog}>
+        <DialogContent aria-describedby="re-assign-dialog-description" role="alertdialog">
+          <DialogHeader>
+            <DialogTitle id="re-assign-dialog-title">
+              {t('app:hr-advisor-referral-requests.re-assign-request.title')}
+            </DialogTitle>
+          </DialogHeader>
+          <DialogDescription id="re-assign-dialog-description">
+            {t('app:hr-advisor-referral-requests.re-assign-request.content')}
+          </DialogDescription>
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button id="confirm-modal-back" variant="alternative" disabled={isSubmitting}>
+                {t('app:form.cancel')}
+              </Button>
+            </DialogClose>
+            <fetcher.Form method="post" noValidate>
+              <Button id="re-assign-request" variant="primary" name="action" value="re-assign" disabled={isSubmitting}>
+                {t('app:hr-advisor-referral-requests.re-assign-request.reassign')}
+              </Button>
+            </fetcher.Form>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
+}
+
+interface RenderButtonsByStatusProps {
+  code?: string;
+  isRequestAssignedToCurrentUser: boolean;
+  isSubmitting: boolean;
+  onArchiveClick: () => void;
+  onReAssignClick: () => void;
+}
+
+function RenderButtonsByStatus({
+  code,
+  isRequestAssignedToCurrentUser,
+  isSubmitting,
+  onArchiveClick,
+  onReAssignClick,
+}: RenderButtonsByStatusProps): JSX.Element {
+  const { t } = useTranslation('app');
+
+  // Re-assign only shows up for HR advisors who haven't picked up that request
+  if (!isRequestAssignedToCurrentUser && code !== REQUEST_STATUS_CODE.SUBMIT && code !== REQUEST_STATUS_CODE.DRAFT) {
+    return (
+      <LoadingButton
+        className="mt-4 w-full"
+        name="action"
+        variant="primary"
+        id="re-assign-to-me"
+        disabled={isSubmitting}
+        loading={isSubmitting}
+        value="re-assign-to-me"
+        onClick={onReAssignClick}
+      >
+        {t('form.re-assign-to-me')}
+      </LoadingButton>
+    );
+  }
+
+  switch (code) {
+    case REQUEST_STATUS_CODE.SUBMIT:
+      return (
+        <LoadingButton
+          className="mt-4 w-full"
+          name="action"
+          variant="primary"
+          id="pickup-request"
+          disabled={isSubmitting}
+          loading={isSubmitting}
+          value="pickup-request"
+        >
+          {t('form.pickup-request')}
+        </LoadingButton>
+      );
+    case REQUEST_STATUS_CODE.HR_REVIEW:
+      return (
+        <>
+          <Button className="mt-4 w-full" variant="alternative" id="archive" onClick={onArchiveClick}>
+            {t('form.archive')}
+          </Button>
+
+          <ButtonLink
+            className="mt-4 w-full"
+            variant="alternative"
+            file="routes/hr-advisor/request/index.tsx"
+            id="save"
+            disabled={isSubmitting}
+          >
+            {t('form.save-and-exit')}
+          </ButtonLink>
+
+          <LoadingButton
+            className="mt-4 w-full"
+            name="action"
+            variant="primary"
+            id="vms-not-required"
+            disabled={isSubmitting}
+            loading={isSubmitting}
+            value="vms-not-required"
+          >
+            {t('form.vms-not-required')}
+          </LoadingButton>
+
+          <LoadingButton
+            className="mt-4 w-full"
+            name="action"
+            variant="primary"
+            id="run-matches"
+            disabled={isSubmitting}
+            loading={isSubmitting}
+            value="run-matches"
+          >
+            {t('form.run-matches')}
+          </LoadingButton>
+        </>
+      );
+    case REQUEST_STATUS_CODE.PENDING_PSC_NO_VMS:
+    case REQUEST_STATUS_CODE.PENDING_PSC:
+      return (
+        <>
+          <Button className="mt-4 w-full" variant="alternative" id="archive" onClick={onArchiveClick}>
+            {t('form.archive')}
+          </Button>
+
+          <InputField
+            className="w-full"
+            id="psc-clearance-number"
+            name="pscClearanceNumber"
+            label={t('hr-advisor-referral-requests.psc-clearance-number')}
+            required
+          />
+
+          <Button
+            className="mt-4 w-full"
+            name="action"
+            variant="primary"
+            id="psc-clearance-received"
+            disabled={isSubmitting}
+            value="psc-clearance-received"
+          >
+            {t('form.psc-clearance-received')}
+          </Button>
+        </>
+      );
+
+    case REQUEST_STATUS_CODE.FDBK_PENDING:
+      return (
+        <>
+          <Button className="mt-4 w-full" variant="alternative" id="archive" onClick={onArchiveClick}>
+            {t('form.archive')}
+          </Button>
+          <ButtonLink
+            className="mt-4 w-full"
+            variant="alternative"
+            file="routes/hr-advisor/request/index.tsx"
+            id="save"
+            disabled={isSubmitting}
+          >
+            {t('form.save-and-exit')}
+          </ButtonLink>
+        </>
+      );
+
+    case REQUEST_STATUS_CODE.NO_MATCH_HR_REVIEW:
+    case REQUEST_STATUS_CODE.FDBK_PEND_APPR:
+      return (
+        <>
+          <Button className="mt-4 w-full" variant="alternative" id="archive" onClick={onArchiveClick}>
+            {t('form.archive')}
+          </Button>
+          <ButtonLink
+            className="mt-4 w-full"
+            variant="alternative"
+            file="routes/hr-advisor/request/index.tsx"
+            id="save"
+            disabled={isSubmitting}
+          >
+            {t('form.save-and-exit')}
+          </ButtonLink>
+          <LoadingButton
+            className="mt-4 w-full"
+            name="action"
+            variant="primary"
+            id="psc-clearance-required"
+            disabled={isSubmitting}
+            loading={isSubmitting}
+            value="psc-clearance-required"
+          >
+            {t('form.psc-clearance-required')}
+          </LoadingButton>
+          <LoadingButton
+            className="mt-4 w-full"
+            name="action"
+            variant="primary"
+            id="psc-clearance-not-required"
+            disabled={isSubmitting}
+            loading={isSubmitting}
+            value="psc-clearance-not-required"
+          >
+            {t('form.psc-clearance-not-required')}
+          </LoadingButton>
+        </>
+      );
+    default:
+      return <></>;
+  }
 }

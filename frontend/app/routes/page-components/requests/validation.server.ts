@@ -1,7 +1,6 @@
 import * as v from 'valibot';
 
 import { getCityService } from '~/.server/domain/services/city-service';
-import { getDirectorateService } from '~/.server/domain/services/directorate-service';
 import { getEmploymentEquityService } from '~/.server/domain/services/employment-equity-service';
 import { getEmploymentTenureService } from '~/.server/domain/services/employment-tenure-service';
 import { getLanguageForCorrespondenceService } from '~/.server/domain/services/language-for-correspondence-service';
@@ -9,6 +8,7 @@ import { getLanguageRequirementService } from '~/.server/domain/services/languag
 import { getNonAdvertisedAppointmentService } from '~/.server/domain/services/non-advertised-appointment-service';
 import { getProvinceService } from '~/.server/domain/services/province-service';
 import { getSelectionProcessTypeService } from '~/.server/domain/services/selection-process-type-service';
+import { getWorkUnitService } from '~/.server/domain/services/workunit-service';
 import { extractUniqueBranchesFromDirectoratesNonLocalized } from '~/.server/utils/directorate-utils';
 import { stringToIntegerSchema } from '~/.server/validation/string-to-integer-schema';
 import { EMPLOYMENT_TENURE, LANGUAGE_REQUIREMENT_CODES, REQUIRE_OPTIONS, SELECTION_PROCESS_TYPE } from '~/domain/constants';
@@ -165,7 +165,7 @@ export const somcConditionsSchema = v.pipe(
 );
 
 export async function createSubmissionDetailSchema(view: 'hr-advisor' | 'hiring-manager') {
-  const allDirectorates = await getDirectorateService().listAll();
+  const allDirectorates = await getWorkUnitService().listAll();
   const allBranchOrServiceCanadaRegions = extractUniqueBranchesFromDirectoratesNonLocalized(allDirectorates);
   const allLanguagesOfCorrespondence = await getLanguageForCorrespondenceService().listAll();
 
@@ -310,15 +310,17 @@ export async function createProcessInformationSchema() {
   const allEmploymentEquities = await getEmploymentEquityService().listAll();
 
   const selectedSelectionProcessTypeForExternalNonAdvertised = allSelectionProcessTypes.filter(
-    (c) => c.id === SELECTION_PROCESS_TYPE.externalNonAdvertised,
+    (c) => c.id === SELECTION_PROCESS_TYPE.EXTERNAL_NON_ADVERTISED.id,
   );
 
   const selectedSelectionProcessTypeForInternalNonAdvertised = allSelectionProcessTypes.filter(
-    (c) => c.id === SELECTION_PROCESS_TYPE.internalNonAdvertised,
+    (c) => c.id === SELECTION_PROCESS_TYPE.APPOINTMENT_INTERNAL_NON_ADVERTISED.id,
   );
 
   const selectedSelectionProcessTypesExcludingNonAdvertised = allSelectionProcessTypes.filter(
-    (c) => c.id !== SELECTION_PROCESS_TYPE.internalNonAdvertised && c.id !== SELECTION_PROCESS_TYPE.externalNonAdvertised,
+    (c) =>
+      c.id !== SELECTION_PROCESS_TYPE.APPOINTMENT_INTERNAL_NON_ADVERTISED.id &&
+      c.id !== SELECTION_PROCESS_TYPE.EXTERNAL_NON_ADVERTISED.id,
   );
 
   const selectedEmploymentTenureForIndeterminate = allEmploymentTenures.filter(

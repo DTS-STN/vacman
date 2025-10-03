@@ -395,7 +395,7 @@ export const mockRequests: RequestReadModel[] = [
     submitter: mockUsers[0], // John Doe
     hiringManager: mockUsers[3], // Bob Johnson
     subDelegatedManager: mockUsers[0], // John Doe
-    hrAdvisor: mockUsers[3], // Bob Johnson
+    hrAdvisor: undefined,
     languageOfCorrespondence: undefined,
     employmentTenure: undefined,
     priorityClearanceNumber: undefined,
