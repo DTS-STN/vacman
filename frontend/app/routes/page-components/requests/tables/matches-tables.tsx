@@ -1,11 +1,14 @@
-import type { JSX } from 'react';
+import type { JSX, ChangeEvent } from 'react';
+import { useRef } from 'react';
+
+import type { FetcherSubmitFunction } from 'react-router';
 
 import type { ColumnDef } from '@tanstack/react-table';
 import { useTranslation } from 'react-i18next';
 
 import { Button } from '~/components/button';
 import { DataTable, DataTableColumnHeader, DataTableColumnHeaderWithOptions } from '~/components/data-table';
-import { Dialog, DialogContent, DialogDescription, DialogTitle, DialogTrigger } from '~/components/dialog';
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogTitle, DialogTrigger } from '~/components/dialog';
 import { InputLabel } from '~/components/input-label';
 import { InputSelect } from '~/components/input-select';
 import { InputTextarea } from '~/components/input-textarea';
@@ -30,35 +33,61 @@ type RequestMatchModel = {
   approval: boolean;
 };
 
-type MatchFeedback = readonly Readonly<{
+type MatchFeedback = {
   id: number;
   name: string;
   code: string;
-}>[];
+};
 
-type MatchStatus = readonly Readonly<{
+type MatchStatus = {
   id: number;
   name: string;
   code: string;
-}>[];
+};
 
-interface RequestTablesProps {
+interface MatchesTablesProps {
   requestMatches: RequestMatchModel[];
-  matchStatus: MatchStatus;
-  matchFeedback: MatchFeedback;
-  requestId: string;
+  matchStatus: readonly Readonly<MatchStatus>[];
+  matchFeedback: readonly Readonly<MatchFeedback>[];
+  requestId: string | undefined;
   view: 'hr-advisor' | 'hiring-manager';
+  submit: FetcherSubmitFunction;
 }
 
-export default function MatchesTable({
+export default function MatchesTables({
   requestMatches,
   matchStatus,
   matchFeedback,
   requestId,
   view,
-}: RequestTablesProps): JSX.Element {
+  submit,
+}: MatchesTablesProps): JSX.Element {
   const { t } = useTranslation('app');
 
+  const updateFeedback = (id: number, feedback: string) => {
+    const formData = new FormData();
+    formData.set('action', 'feedback');
+    formData.set('id', id.toString());
+    formData.set('feedback', feedback);
+    void submit(formData, { method: 'post' });
+  };
+
+  const updateComment = (id: number, comment: string) => {
+    const formData = new FormData();
+    formData.set('action', 'comment');
+    formData.set('id', id.toString());
+    formData.set('comment', comment);
+    void submit(formData, { method: 'post' });
+  };
+
+  const approveRequest = (id: number) => {
+    const formData = new FormData();
+    formData.set('action', 'approve');
+    formData.set('id', id.toString());
+    void submit(formData, { method: 'post' });
+  };
+
+  const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const columns: ColumnDef<RequestMatchModel>[] = [
     {
       accessorKey: 'employee.firstName',
@@ -74,7 +103,7 @@ export default function MatchesTable({
             params={{ requestId, profileId }}
             aria-label={`${t('matches-tables.employee')} ${employee.firstName} ${employee.lastName}`}
           >
-            {info.getValue() as string}
+            {String(info.renderValue())}
           </InlineLink>
         );
       },
@@ -90,11 +119,11 @@ export default function MatchesTable({
         />
       ),
       cell: (info) => {
-        const status = info.row.original.wfaStatus;
+        const status = info.getValue();
         return matchStatus.find((match) => match.code === status)?.name ?? status;
       },
       filterFn: (row, columnId, filterValue: string[]) => {
-        const status = row.getValue(columnId) as string;
+        const status = row.getValue(columnId);
         const statusName = matchStatus.find((match) => match.code === status)?.name ?? '';
         return filterValue.length === 0 || filterValue.includes(statusName);
       },
@@ -120,14 +149,15 @@ export default function MatchesTable({
             id={info.cell.id}
             name={t('matches-tables.feedback')}
             options={selectOptions}
-            defaultValue={info.row.original.feedback}
+            defaultValue={String(info.getValue())}
             aria-label={t('matches-tables.feedback')}
             variant="alternative"
+            onChange={(event: ChangeEvent<HTMLSelectElement>) => updateFeedback(info.row.original.id, event.target.value)}
           />
         );
       },
       filterFn: (row, columnId, filterValue: string[]) => {
-        const feedback = row.getValue(columnId) as string;
+        const feedback = row.getValue(columnId);
         const feedbackName = matchFeedback.find((match) => match.code === feedback)?.name ?? '';
         return filterValue.length === 0 || filterValue.includes(feedbackName);
       },
@@ -138,11 +168,16 @@ export default function MatchesTable({
       accessorFn: (row) => row.comment,
       header: ({ column }) => <DataTableColumnHeader column={column} title={t('matches-tables.comments')} />,
       cell: (info) => {
-        const comment = info.getValue() as Comment;
+        const comment = info.getValue<Comment>();
         const editComment =
           (view === 'hr-advisor' && comment.hrAdvisor) ?? (view === 'hiring-manager' && comment.hiringManager);
         return (
-          <Dialog>
+          <Dialog
+            onOpenChange={(open) => {
+              if (open) return;
+              updateComment(info.row.original.id, textAreaRef.current?.value ?? '');
+            }}
+          >
             <DialogTrigger className="text-sky-800 no-underline decoration-slate-400 decoration-2 hover:underline">
               {editComment ? t('matches-tables.comment-label.edit') : t('matches-tables.comment-label.add')}
             </DialogTrigger>
@@ -157,6 +192,7 @@ export default function MatchesTable({
                     name="hiring-manager-comment"
                     disabled={view === 'hr-advisor'}
                     defaultValue={comment.hiringManager}
+                    ref={view === 'hiring-manager' ? textAreaRef : null}
                   />
                   <InputTextarea
                     className="w-full"
@@ -165,6 +201,7 @@ export default function MatchesTable({
                     name="hr-advisor-comment"
                     disabled={view === 'hiring-manager'}
                     defaultValue={comment.hrAdvisor}
+                    ref={view === 'hr-advisor' ? textAreaRef : null}
                   />
                 </div>
               </DialogDescription>
@@ -181,7 +218,7 @@ export default function MatchesTable({
       accessorFn: (row) => row.approval,
       header: ({ column }) => <DataTableColumnHeader column={column} title={t('matches-tables.approval')} />,
       cell: (info) => {
-        const approval = info.getValue() as boolean;
+        const approval = info.getValue();
         if (approval) {
           return <p>{t('matches-tables.approval-popup.approved')}</p>;
         }
@@ -196,8 +233,14 @@ export default function MatchesTable({
                 <div>
                   <InputLabel id="approve-feedback">{t('matches-tables.approval-popup.approve-feedback')}</InputLabel>
                   <div className="space-x-4">
-                    <Button>{t('form.cancel')}</Button>
-                    <Button variant="primary">{t('form.approve')}</Button>
+                    <DialogClose asChild>
+                      <Button>{t('form.cancel')}</Button>
+                    </DialogClose>
+                    <DialogClose asChild>
+                      <Button variant="primary" onClick={() => approveRequest(info.row.original.id)}>
+                        {t('form.approve')}
+                      </Button>
+                    </DialogClose>
                   </div>
                 </div>
               </DialogDescription>

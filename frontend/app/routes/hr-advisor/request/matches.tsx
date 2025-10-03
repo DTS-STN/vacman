@@ -1,5 +1,6 @@
 import { useRef } from 'react';
 
+import { useFetcher } from 'react-router';
 import type { RouteHandle } from 'react-router';
 
 import { Trans, useTranslation } from 'react-i18next';
@@ -19,7 +20,8 @@ import { RequestStatusTag } from '~/components/status-tag';
 import { VacmanBackground } from '~/components/vacman-background';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
-import MatchesTable from '~/routes/page-components/requests/tables/matches-tables';
+import MatchesTables from '~/routes/page-components/requests/tables/matches-tables';
+import { formString } from '~/utils/string-utils';
 
 export const handle = {
   i18nNamespace: [...parentHandle.i18nNamespace],
@@ -29,10 +31,27 @@ export function meta({ loaderData }: Route.MetaArgs) {
   return [{ title: loaderData.documentTitle }];
 }
 
-export function action({ context, params, request }: Route.ActionArgs) {
+export async function action({ context, request }: Route.ActionArgs) {
   const { session } = context.get(context.applicationContext);
   requireAuthentication(session, request);
-  //TODO add action logic
+  const formData = await request.formData();
+
+  //TODO - For updates to feedback, comment, or approve
+  formString(formData.get('id'));
+  switch (formData.get('action')) {
+    case 'feedback': {
+      formString(formData.get('feedback'));
+      break;
+    }
+    case 'comment': {
+      formString(formData.get('comment'));
+      break;
+    }
+    case 'approve': {
+      break;
+    }
+  }
+
   return undefined;
 }
 
@@ -85,7 +104,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
         hrAdvisor: 'Interested in remote work.',
         hiringManager: undefined,
       },
-      approval: false,
+      approval: true,
     },
     {
       id: 5,
@@ -123,7 +142,8 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       lastName: 'Tam',
       email: 'hr.advisor@email.ca',
     },
-    feedbackProgress: 90,
+    feedbackProgress:
+      requestMatches.length > 0 ? (requestMatches.filter((match) => match.approval).length / requestMatches.length) * 100 : 0,
   };
 }
 
@@ -131,6 +151,7 @@ export default function HrAdvisorMatches({ loaderData, params }: Route.Component
   const { t } = useTranslation(handle.i18nNamespace);
   const alertRef = useRef<HTMLDivElement>(null);
   const requestId = params.requestId;
+  const matchesFetcher = useFetcher();
 
   return (
     <div className="mb-8 space-y-4">
@@ -169,30 +190,33 @@ export default function HrAdvisorMatches({ loaderData, params }: Route.Component
       <BackLink
         className="my-4"
         aria-label={t('app:matches.back-request-details')}
-        file="routes/hr-advisor/index.tsx"
+        file="routes/hr-advisor/request/index.tsx"
         params={params}
       >
         {t('app:matches.back-request-details')}
       </BackLink>
       <h2 className="font-lato mt-4 text-2xl font-bold">{t('app:matches.request-candidates')}</h2>
       <p className="sm:w-2/3 md:w-3/4">{t('app:matches.page-info')}</p>
-      <AlertMessage ref={alertRef} type="info" role="alert" ariaLive="assertive">
-        <Trans
-          i18nKey="app:matches.feedback.approved"
-          components={{
-            InlineLink: (
-              <InlineLink
-                className="text-sky-800 decoration-slate-400"
-                file={`routes/hr-advisor/request/index.tsx`}
-                params={params}
-              />
-            ),
-            strong: <strong className="font-semibold" />,
-          }}
-        />
-      </AlertMessage>
-      <Progress className="mt-8 mb-8" variant="blue" label="" value={loaderData.feedbackProgress} />
-      <MatchesTable {...loaderData} requestId={params.requestId} view="hr-advisor" />
+      {loaderData.feedbackProgress >= 100 ? (
+        <AlertMessage ref={alertRef} type="info" role="alert" ariaLive="assertive">
+          <Trans
+            i18nKey="app:matches.feedback.approved"
+            components={{
+              InlineLink: (
+                <InlineLink
+                  className="text-sky-800 decoration-slate-400"
+                  file={`routes/hr-advisor/request/index.tsx`}
+                  params={params}
+                />
+              ),
+              strong: <strong className="font-semibold" />,
+            }}
+          />
+        </AlertMessage>
+      ) : (
+        <Progress className="mt-8 mb-8" variant="blue" label="" value={loaderData.feedbackProgress} />
+      )}
+      <MatchesTables {...loaderData} requestId={params.requestId} submit={matchesFetcher.submit} view="hr-advisor" />
     </div>
   );
 }
