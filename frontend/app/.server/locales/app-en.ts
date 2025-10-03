@@ -66,8 +66,8 @@ export default {
   },
   'form': {
     'approve': 'Approve',
-    'archive': 'Archive request',
     'cancel': 'Cancel',
+    'cancel-request': 'Cancel Request',
     'save': 'Save',
     'save-and-exit': 'Save and exit',
     'submit': 'Submit',
@@ -393,12 +393,12 @@ export default {
     'save-and-exit': 'Save and exit',
     'psc-clearance-number': 'PSC clearance number',
     'submit': 'Submit',
-    'archive-request': {
-      title: 'Archive this request?',
-      content:
-        "Archiving will cancel the request and end the process. You won't be able to make changes, but the request will remain in your archived list.",
-      continue: 'Continue request',
-      archive: 'Archive and exit',
+    'cancel-request': {
+      'title': 'Cancel this request?',
+      'content':
+        "This will end the request process. You won't be able to make changes, but the request will remain in your inactive list.",
+      'continue': 'Continue request',
+      'cancel-and-exit': 'Cancel and exit',
     },
     're-assign-request': {
       title: 'Re-assign request?',

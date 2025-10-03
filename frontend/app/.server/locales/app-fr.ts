@@ -69,8 +69,8 @@ export default {
   },
   'form': {
     'approve': 'Approuver',
-    'archive': 'Archiver la demande',
     'cancel': 'Annuler',
+    'cancel-request': 'Annuler la demande',
     'save': 'Enregistrer',
     'save-and-exit': 'Enregistrer et quitter',
     'submit': 'Soumettre',
@@ -398,12 +398,12 @@ export default {
     'save-and-exit': 'Save and exit FR',
     'psc-clearance-number': 'PSC clearance number',
     'submit': 'Submit FR',
-    'archive-request': {
-      title: 'Archiver cette demande\u00A0?',
-      content:
-        "L'archivage annulera la demande et mettra fin au processus. Vous ne pourrez plus apporter de modifications, mais la demande restera disponible dans votre liste des demandes archivées.",
-      continue: 'Continuer la demande',
-      archive: 'Archiver et quitter',
+    'cancel-request': {
+      'title': 'Annuler cette demande\u00A0?',
+      'content':
+        'Cela mettra fin au processus de demande. Vous ne pourrez plus apporter de modifications, mais la demande restera disponible dans votre liste des demandes inactives.',
+      'continue': 'Continuer la demande',
+      'cancel-and-exit': 'Annuler et quitter',
     },
     're-assign-request': {
       title: 'Réassigner la demande\u00A0?',
