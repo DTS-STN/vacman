@@ -14,6 +14,7 @@ import { getRequestService } from '~/.server/domain/services/request-service';
 import { getSelectionProcessTypeService } from '~/.server/domain/services/selection-process-type-service';
 import { getWorkScheduleService } from '~/.server/domain/services/work-schedule-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
+import { mapRequestToUpdateModelWithOverrides } from '~/.server/utils/request-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { BackLink } from '~/components/back-link';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
@@ -54,7 +55,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 
   const requestData: RequestReadModel = requestResult.unwrap();
 
-  const requestPayload: RequestUpdateModel = {
+  const requestPayload: RequestUpdateModel = mapRequestToUpdateModelWithOverrides(requestData, {
     selectionProcessNumber: parseResult.output.selectionProcessNumber,
     workforceMgmtApprovalRecvd: parseResult.output.approvalReceived,
     priorityEntitlement: parseResult.output.priorityEntitlement,
@@ -67,8 +68,8 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     projectedEndDate: parseResult.output.projectedEndDate,
     workScheduleId: Number(parseResult.output.workSchedule),
     equityNeeded: parseResult.output.employmentEquityIdentified,
-    employmentEquityIds: parseResult.output.preferredEmploymentEquities,
-  };
+    employmentEquityIds: parseResult.output.preferredEmploymentEquities?.map((id) => ({ value: id })),
+  });
 
   const updateResult = await requestService.updateRequestById(requestData.id, requestPayload, session.authState.accessToken);
 

@@ -57,11 +57,11 @@ export async function action({ context, request }: Route.ActionArgs) {
       // Update new Request with data copied from other request
 
       const requestPayload: RequestUpdateModel = {
-        positionNumbers: copiedRequestData.positionNumber?.split(',').map((num) => num.trim()),
+        positionNumbers: copiedRequestData.positionNumber,
         classificationId: copiedRequestData.classification?.id,
         englishTitle: copiedRequestData.englishTitle,
         frenchTitle: copiedRequestData.frenchTitle,
-        cityIds: copiedRequestData.cities?.map((city) => city.id),
+        cityIds: copiedRequestData.cities?.map((city) => ({ value: city.id })),
         languageRequirementId: copiedRequestData.languageRequirement?.id,
         englishLanguageProfile: copiedRequestData.englishLanguageProfile,
         frenchLanguageProfile: copiedRequestData.frenchLanguageProfile,
@@ -78,7 +78,7 @@ export async function action({ context, request }: Route.ActionArgs) {
         projectedEndDate: copiedRequestData.projectedEndDate,
         workScheduleId: copiedRequestData.workSchedule?.id,
         equityNeeded: copiedRequestData.equityNeeded,
-        employmentEquityIds: copiedRequestData.employmentEquities?.map((employmentEquity) => employmentEquity.id),
+        employmentEquityIds: copiedRequestData.employmentEquities?.map((eq) => ({ value: eq.id })),
         englishStatementOfMerit: copiedRequestData.englishStatementOfMerit,
         frenchStatementOfMerit: copiedRequestData.frenchStatementOfMerit,
         submitterId: currentUser.id, // the sbmitter will be the one who copied

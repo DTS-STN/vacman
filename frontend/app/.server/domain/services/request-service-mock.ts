@@ -153,9 +153,10 @@ export function getMockRequestService(): RequestService {
           ? (await getEmploymentTenureService().getById(requestUpdate.employmentTenureId)).into()
           : existingRequest.employmentTenure;
 
+      const incomingEmploymentEquityIds = requestUpdate.employmentEquityIds?.map((ee) => ee.value);
       const employmentEquities =
-        requestUpdate.employmentEquityIds !== undefined
-          ? (await getEmploymentEquityService().listAll()).filter(({ id }) => requestUpdate.employmentEquityIds?.includes(id))
+        incomingEmploymentEquityIds !== undefined
+          ? (await getEmploymentEquityService().listAll()).filter(({ id }) => incomingEmploymentEquityIds.includes(id))
           : existingRequest.employmentEquities;
 
       const workSchedule =
@@ -178,9 +179,10 @@ export function getMockRequestService(): RequestService {
           ? (await getSecurityClearanceService().getById(requestUpdate.securityClearanceId)).into()
           : existingRequest.securityClearance;
 
+      const incomingCityIds = requestUpdate.cityIds?.map((city) => city.value);
       const cities =
-        requestUpdate.cityIds !== undefined
-          ? (await getCityService().listAll()).filter(({ id }) => requestUpdate.cityIds?.includes(id))
+        incomingCityIds !== undefined
+          ? (await getCityService().listAll()).filter(({ id }) => incomingCityIds.includes(id))
           : existingRequest.cities;
 
       const appointmentNonAdvertised =
@@ -219,7 +221,7 @@ export function getMockRequestService(): RequestService {
       const updatedRequest: RequestReadModel = {
         ...existingRequest,
         ...requestUpdate,
-        positionNumber: requestUpdate.positionNumbers?.join(',') ?? existingRequest.positionNumber,
+        positionNumber: requestUpdate.positionNumbers ?? existingRequest.positionNumber,
         englishTitle: requestUpdate.englishTitle ?? existingRequest.englishTitle,
         frenchTitle: requestUpdate.frenchTitle ?? existingRequest.frenchTitle,
         languageRequirement,

@@ -6,8 +6,10 @@ import * as v from 'valibot';
 
 import type { Route } from './+types/somc-conditions';
 
+import type { RequestUpdateModel } from '~/.server/domain/models';
 import { getRequestService } from '~/.server/domain/services/request-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
+import { mapRequestToUpdateModelWithOverrides } from '~/.server/utils/request-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { BackLink } from '~/components/back-link';
 import { REQUEST_STATUS_CODE } from '~/domain/constants';
@@ -50,9 +52,22 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     );
   }
 
+  const requestData = (
+    await getRequestService().getRequestById(Number(params.requestId), session.authState.accessToken)
+  ).into();
+
+  if (!requestData) {
+    throw new Response('Request not found', { status: HttpStatusCodes.NOT_FOUND });
+  }
+
+  const requestPayload: RequestUpdateModel = mapRequestToUpdateModelWithOverrides(requestData, {
+    englishStatementOfMerit: parseResult.output.englishStatementOfMerit,
+    frenchStatementOfMerit: parseResult.output.frenchStatementOfMerit,
+  });
+
   const updateResult = await getRequestService().updateRequestById(
-    Number(params.requestId),
-    parseResult.output,
+    requestData.id,
+    requestPayload,
     session.authState.accessToken,
   );
 
