@@ -15,6 +15,8 @@ import ca.gov.dtsstn.vacman.api.data.entity.EmploymentTenureEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.LanguageEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.LanguageReferralTypeEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.LanguageRequirementEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.MatchFeedbackEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.MatchStatusEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.NonAdvertisedAppointmentEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.ProfileStatusEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.ProvinceEntity;
@@ -33,6 +35,8 @@ import ca.gov.dtsstn.vacman.api.data.repository.EmploymentTenureRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.LanguageReferralTypeRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.LanguageRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.LanguageRequirementRepository;
+import ca.gov.dtsstn.vacman.api.data.repository.MatchFeedbackRepository;
+import ca.gov.dtsstn.vacman.api.data.repository.MatchStatusRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.NonAdvertisedAppointmentRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.ProfileStatusRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.ProvinceRepository;
@@ -90,6 +94,10 @@ public class CodeService {
 
 	private final WorkUnitRepository workUnitRepository;
 
+	private final MatchStatusRepository matchStatusRepository;
+
+	private final MatchFeedbackRepository matchFeedbackRepository;
+
 	public CodeService(
 			CityRepository cityRepository,
 			ClassificationRepository classificationRepository,
@@ -99,6 +107,8 @@ public class CodeService {
 			LanguageRepository languageRepository,
 			LanguageReferralTypeRepository languageReferralTypeRepository,
 			LanguageRequirementRepository languageRequirementRepository,
+			MatchFeedbackRepository matchFeedbackRepository,
+			MatchStatusRepository matchStatusRepository,
 			NonAdvertisedAppointmentRepository nonAdvertisedAppointmentRepository,
 			ProfileStatusRepository profileStatusRepository,
 			ProvinceRepository provinceRepository,
@@ -127,6 +137,8 @@ public class CodeService {
 		this.wfaStatusRepository = wfaStatusRepository;
 		this.workScheduleRepository = workScheduleRepository;
 		this.workUnitRepository = workUnitRepository;
+		this.matchStatusRepository = matchStatusRepository;
+		this.matchFeedbackRepository = matchFeedbackRepository;
 	}
 
 	/**
@@ -327,4 +339,25 @@ public class CodeService {
 		return workUnitRepository.findAll(pageable);
 	}
 
+	/**
+	 * Retrieves a paginated list of match statuses.
+	 *
+	 * @param pageable pagination information
+	 * @return a page of {@link MatchStatusEntity} objects
+	 */
+	@Cacheable(cacheNames = { CacheNames.MATCH_STATUSES })
+	public Page<MatchStatusEntity> getMatchStatuses(Pageable pageable) {
+		return matchStatusRepository.findAll(pageable);
+	}
+
+	/**
+	 * Retrieves a paginated list of match feedback options.
+	 *
+	 * @param pageable pagination information
+	 * @return a page of {@link MatchFeedbackEntity} objects
+	 */
+	@Cacheable(cacheNames = { CacheNames.MATCH_FEEDBACKS })
+	public Page<MatchFeedbackEntity> getMatchFeedbacks(Pageable pageable) {
+		return matchFeedbackRepository.findAll(pageable);
+	}
 }

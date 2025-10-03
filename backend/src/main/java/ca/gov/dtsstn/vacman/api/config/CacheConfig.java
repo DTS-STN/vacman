@@ -26,6 +26,8 @@ public class CacheConfig {
 		public static final String LANGUAGES = "languages";
 		public static final String LANGUAGE_REFERRAL_TYPES = "language-referral-types";
 		public static final String LANGUAGE_REQUIREMENTS = "language-requirements";
+		public static final String MATCH_FEEDBACKS = "match-feedbacks";
+		public static final String MATCH_STATUSES = "match-statuses";
 		public static final String NON_ADVERTISED_APPOINTMENTS = "non-advertised-appointments";
 		public static final String PRIORITY_LEVELS = "priority-levels";
 		public static final String PROFILE_STATUSES = "profile-statuses";
@@ -152,6 +154,18 @@ public class CacheConfig {
 	@Bean CaffeineCacheFactory workUnitCache() {
 		log.info("Creating 'workUnitCache' bean");
 		return new CaffeineCacheFactory(CacheNames.WORK_UNITS);
+	}
+
+	@ConfigurationProperties("application.caching.caches.match-statuses")
+	@Bean CaffeineCacheFactory matchStatusCache() {
+		log.info("Creating 'matchStatusCache' bean");
+		return new CaffeineCacheFactory(CacheNames.MATCH_STATUSES);
+	}
+
+	@ConfigurationProperties("application.caching.caches.match-feedbacks")
+	@Bean CaffeineCacheFactory matchFeedbackCache() {
+		log.info("Creating 'matchFeedbackCache' bean");
+		return new CaffeineCacheFactory(CacheNames.MATCH_FEEDBACKS);
 	}
 
 }
