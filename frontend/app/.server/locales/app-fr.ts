@@ -166,21 +166,21 @@ export default {
   },
   'referral-preferences': {
     'page-title': 'Préférences de présentation de candidature',
-    'language-referral-type': 'Pour quel-s profil-s linguistique-s de postes désirez-vous être référé-e?',
-    'classification': 'Pour quel-s groupe-s et niveau-x de classification souhaiteriez-vous être référé-e?',
+    'language-referral-type': 'Pour quel-s profil-s linguistique-s de postes désirez-vous être référé-e\u00A0?',
+    'classification': 'Pour quel-s groupe-s et niveau-x de classification souhaiteriez-vous être référé-e\u00A0?',
     'classification-group-help-message-primary':
       "Les groupes et niveaux sélectionnés doivent être les mêmes ou équivalents au  groupe et niveau de votre poste substantif. Sélectionnez tout ce qui s'applique.",
     'guidance-on-groups-and-levels': 'Orientation additionnelle sur les groupes et niveaux',
     'guidance-on-groups-and-levels-description':
       "Veuillez-vous référer au Guide de l'employé du SGPV sur iService et consulter le conseiller RH indiqué sur votre lettre pour de l'orientation additionnelle sur les groupes et niveaux correspondant à votre profil.",
-    'work-location': 'Pour quel-s lieu-x de travail aimeriez-vous être référé-e?',
+    'work-location': 'Pour quel-s lieu-x de travail aimeriez-vous être référé-e\u00A0?',
     'province': 'Province',
     'city': 'Ville',
-    'referral-availibility': 'Êtes-vous actuellement disponible pour être référé-e?',
+    'referral-availibility': 'Êtes-vous actuellement disponible pour être référé-e\u00A0?',
     'referral-availibility-help-message-primary':
       "Sélectionnez «\u00a0non\u00a0» si votre situation actuelle ne vous permet pas de considérer des offres d'emploi (par exemple, congé prolongé, en attente d'une offre d'emploi, etc.)",
-    'alternate-opportunity': "Êtes-vous intéressé-e par des occasions d'échange de poste?",
-    'what-is-alternation': "Qu'est-ce qu'un échange de postes?",
+    'alternate-opportunity': "Êtes-vous intéressé-e par des occasions d'échange de poste\u00A0?",
+    'what-is-alternation': "Qu'est-ce qu'un échange de postes\u00A0?",
     'alternation-description-text-para-1':
       "Un échange de postes a lieu lorsqu'un employé optant ou un employé excédentaire, ayant choisi un droit de priorité de fonctionnaire excédentaire d'une durée de 12 mois (option A) qui préfère rester dans l'administration publique centrale, échange son poste avec un employé non touché (le remplaçant) qui est disposé à quitter l'administration publique centrale avec une mesure de soutien à la transition (MST) (Option B) ou avec une MST et une indemnité d'études (Option C(i)).",
     'alternation-description-text-para-2':
@@ -220,20 +220,22 @@ export default {
     'approval-received':
       'Approbation reçue du Comité de gestion des effectifs (postes non-EX) ou du Comité de gestion des personnes et du leadership (postes EX)',
     'priority-entitlement':
-      "Est-ce que la nomination d'un bénéficiaire de priorité aurait pour effet de conférer un droit de priorité à un-e autre fonctionnaire nommé-e pour une période indéterminée ?",
+      "Est-ce que la nomination d'un bénéficiaire de priorité aurait pour effet de conférer un droit de priorité à un-e autre fonctionnaire nommé-e pour une période indéterminée\u00A0?",
     'priority-entitlement-rationale': 'Veuillez fournir la justification',
     'rationale': 'Justification',
     'selection-process-type': 'Type de processus de sélection',
     'performed-duties':
-      'Est-ce que la personne proposée a déjà exercé les mêmes fonctions au cours des douze derniers mois ou les exerce-t-elle toujours à un autre titre (occasionnel, Échanges Canada, agence ou contractuel, intérimaires de plus de 4 mois, etc.)?',
+      'Est-ce que la personne proposée a déjà exercé les mêmes fonctions au cours des douze derniers mois ou les exerce-t-elle toujours à un autre titre (occasionnel, Échanges Canada, agence ou contractuel, intérimaires de plus de 4 mois, etc.)\u00A0?',
     'non-advertised-appointment': "Raison de la nomination d'un processus non-annoncé",
     'employment-tenure': 'Durée',
     'work-schedule': 'Horaire de travail',
     'work-schedule-help-message': "Preuves à l'appui requises",
     'employment-equity-identified':
-      "Est-ce qu'un besoin organisationnel d'équité en matière d'emploi a été identifié pour ce processus, cette mutation ou cette nomination ?",
-    'employment-equity-identified-alt': "Est-ce qu'un besoin organisationnel d'équité en matière d'emploi a été identifié ?",
-    'preferred-employment-equities': "Quel besoin organisationnel en matière d'équité en matière d'emploi a été identifié ?",
+      "Est-ce qu'un besoin organisationnel d'équité en matière d'emploi a été identifié pour ce processus, cette mutation ou cette nomination\u00A0?",
+    'employment-equity-identified-alt':
+      "Est-ce qu'un besoin organisationnel d'équité en matière d'emploi a été identifié\u00A0?",
+    'preferred-employment-equities':
+      "Quel besoin organisationnel en matière d'équité en matière d'emploi a été identifié\u00A0?",
     'preferred-employment-equities-help-message': "Sélectionnez tout ce qui s'applique",
     'projected-start-date': "Date d'effet anticipée",
     'projected-end-date': 'Date de fin anticipée',
@@ -300,7 +302,8 @@ export default {
     'employee-work-email': "Adresse e-mail professionnelle de l'employé-e",
     'archive-confirmation': {
       title: "Confirmer l'archivage",
-      message: 'Êtes-vous sûr de vouloir archiver le profil pour {{profileUserName}} ? Cette action ne peut pas être annulée.',
+      message:
+        'Êtes-vous sûr de vouloir archiver le profil pour {{profileUserName}}\u00A0? Cette action ne peut pas être annulée.',
       cancel: 'Annuler',
       confirm: 'Archiver',
     },
@@ -309,7 +312,7 @@ export default {
       'email-required': "L'adresse du courriel est requise.",
       'email-invalid': "L'adresse du courriel n'est pas valide.",
       'profile-already-exists': "L'utilisateur a déjà un profil actif",
-      'no-user-found-with-this-email': 'No user found with this email address. FR',
+      'no-user-found-with-this-email': "Aucun utilisateur n'a été trouvé avec cette adresse e-mail.",
     },
   },
   'hr-advisor-requests': {
@@ -376,28 +379,25 @@ export default {
       delete: 'Supprimer la demande',
     },
     'back': 'Retour aux demandes',
-    //'view-link': 'View request with ID {{requestId}}',
   },
   'hr-advisor-referral-requests': {
-    'page-title': 'Referral requests FR',
-    'request-id': '(FR) Request ID',
-    'request-date': '(FR) Request date',
-    'hiring-manager': '(FR) Hiring manager',
-    'hr-advisor': '(FR) HR advisor',
-    'request-details': 'Request details FR',
-    'process-information': 'Process information FR',
-    'position-information': 'Position information FR',
-    'somc-conditions': 'Statement of merit criteria and conditions of employment FR',
+    'page-title': 'Demande de présentation de candidatures',
+    'back': 'Retour aux demandes',
+    'request-id': 'No. de la demande',
+    'request-date': 'Date de la demande',
+    'hiring-manager': "Gestionnaire d'embauche",
+    'hr-advisor': 'Conseiller(ère)',
+    'request-details': 'Information sur la demande',
+    'notice-line-1':
+      "Consultez les détails de la demande ci-dessous pour approbation. Si des modifications sont nécessaires, communiquez directement avec le-la gestionnaire d'embauche pour en discuter et mettre à jour la demande avant de sélectionner l'action appropriée.",
+    'process-information': 'Informations sur le processus',
+    'position-information': 'Informations sur le poste',
+    'somc-conditions': "Énoncé de critères de mérite et conditions d'emploi",
     'somc-conditions-link': "Afficher Énoncé de critères de mérite et conditions d'emploi",
-    'submission-details': 'Submission details FR',
-    'required': 'Required FR',
-    'complete': 'Complete FR',
-    'in-progress': 'In Progress FR',
-    'not-provided': 'Not provided FR',
-    'cancel': 'Cancel FR',
-    'save-and-exit': 'Save and exit FR',
-    'psc-clearance-number': 'PSC clearance number',
-    'submit': 'Submit FR',
+    'submission-details': 'Détails de la soumission',
+    'not-provided': 'non fourni',
+    'psc-clearance-number': "Numéro d'autorisation de la CFP",
+    'submit': 'Soumettre',
     'archive-request': {
       title: 'Archiver cette demande\u00A0?',
       content:
@@ -412,7 +412,7 @@ export default {
       reassign: 'Réassigner à moi',
     },
     'status': {
-      'request-pending-approval': '(FR) Request pending approval',
+      'request-pending-approval': "Demande en attente d'approbation",
     },
   },
   'referral-request': 'Demande de présentation de candidatures',
@@ -480,17 +480,17 @@ export default {
     'page-title': 'Détails de la soumission',
     'hr-advisor': {
       'request-submitted-by': 'Demande soumise par\u00A0:{{name}}',
-      'is-submitter-hiring-manager': "Est-ce que {{name}} est le-la gestionnaire d'embauche de cette demande?",
-      'is-submitter-a-sub-delegate': 'Est-ce que {{name}} est sub-délégué-e?',
+      'is-submitter-hiring-manager': "Est-ce que {{name}} est le-la gestionnaire d'embauche de cette demande\u00A0?",
+      'is-submitter-a-sub-delegate': 'Est-ce que {{name}} est sub-délégué-e\u00A0?',
     },
     'hiring-manager': {
       'submitter': 'Personne ayant soumis la demande\u00A0:{{name}}',
-      'are-you-hiring-manager-for-request': "Êtes-vous le gestionnaire d'embauche pour cette demande?",
+      'are-you-hiring-manager-for-request': "Êtes-vous le gestionnaire d'embauche pour cette demande\u00A0?",
       'are-you-a-subdelegate': 'Êtes-vous un-e gestionnaire subdélégué-e\u00A0?',
     },
     'hiring-manager-email': "Adresse courriel du (de la) gestionnaire d'embauche",
     'hiring-manager-name': "Gestionnaire d'embauche\u00A0:{{name}}",
-    'is-hiring-manager-sub-delegate': "Est-ce que le-la gestionnaire d'embauche est subdélégué-e?",
+    'is-hiring-manager-sub-delegate': "Est-ce que le-la gestionnaire d'embauche est subdélégué-e\u00A0?",
     'sub-delegate-email': 'Adresse courriel du (de la) gestionnaire subdélégué-e',
     'sub-delegate-name': 'Subdélégué-e\u00A0:{{name}}',
     'branch-or-service-canada-region': 'Direction générale ou Région de Service Canada',
@@ -502,7 +502,7 @@ export default {
     'hiring-manager-title': "Gestionnaire d'embauche",
     'sub-delegate-title': 'Subdélégué-e',
     'errors': {
-      'no-user-found-with-this-email': 'No user found with this email address. FR',
+      'no-user-found-with-this-email': "Aucun utilisateur n'a été trouvé avec cette adresse e-mail",
       'is-submitter-hiring-manager-required':
         "Le champ «\u00a0Est-ce que le (la) soumissionnaire est le (la) gestionnaire d'embauche pour cette demande\u00a0» est requis. ",
       'is-submitter-a-sub-delegate-required':
@@ -581,7 +581,7 @@ export default {
     },
     'approval-popup': {
       'approved': 'Approuvé',
-      'approve-feedback': 'Approuver la rétroaction?',
+      'approve-feedback': 'Approuver la rétroaction\u00A0?',
     },
     'no-candidates': "Vous n'avez aucun candidat pour le moment.",
     'next-page': 'Suivant',
