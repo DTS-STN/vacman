@@ -16,7 +16,7 @@ import { formatDateTimeInZone } from '~/utils/date-utils';
 
 interface RequestTablesProps {
   activeRequests: RequestReadModel[];
-  archivedRequests: RequestReadModel[];
+  inactiveRequests: RequestReadModel[];
   activeRequestNames: string[];
   inactiveRequestNames: string[];
   baseTimeZone: string;
@@ -26,7 +26,7 @@ interface RequestTablesProps {
 
 export default function RequestsTables({
   activeRequests,
-  archivedRequests,
+  inactiveRequests,
   activeRequestNames,
   inactiveRequestNames,
   baseTimeZone,
@@ -190,11 +190,11 @@ export default function RequestsTables({
       </section>
 
       <section>
-        <h2 className="font-lato text-xl font-bold">{t('requests-tables.archived-requests')}</h2>
-        {archivedRequests.length === 0 ? (
-          <div>{t('requests-tables.no-archived-requests')}</div>
+        <h2 className="font-lato text-xl font-bold">{t('requests-tables.inactive-requests')}</h2>
+        {inactiveRequests.length === 0 ? (
+          <div>{t('requests-tables.no-inactive-requests')}</div>
         ) : (
-          <DataTable columns={createColumns(false)} data={archivedRequests} />
+          <DataTable columns={createColumns(false)} data={inactiveRequests} />
         )}
       </section>
     </div>
