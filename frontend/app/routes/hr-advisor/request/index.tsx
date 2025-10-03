@@ -31,7 +31,7 @@ import { LoadingButton } from '~/components/loading-button';
 import { PageTitle } from '~/components/page-title';
 import { ProfileCard } from '~/components/profile-card';
 import { RequestStatusTag } from '~/components/status-tag';
-import { EMPLOYMENT_TENURE, REQUEST_STATUS_CODE, SELECTION_PROCESS_TYPE } from '~/domain/constants';
+import { EMPLOYMENT_TENURE, REQUEST_EVENT_TYPE, REQUEST_STATUS_CODE, SELECTION_PROCESS_TYPE } from '~/domain/constants';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { useFetcherState } from '~/hooks/use-fetcher-state';
 import { getTranslation } from '~/i18n-config.server';
@@ -145,6 +145,31 @@ export async function action({ context, params, request }: Route.ActionArgs) {
       };
     }
   }
+
+  if (formAction === 'pickup-request') {
+    const submitResult = await getRequestService().updateRequestStatus(
+      requestData.id,
+      { eventType: REQUEST_EVENT_TYPE.pickedUp },
+      session.authState.accessToken,
+    );
+
+    if (submitResult.isErr()) {
+      const error = submitResult.unwrapErr();
+      return {
+        status: 'error',
+        errorMessage: error.message,
+        errorCode: error.errorCode,
+      };
+    }
+
+    const updatedRequest = submitResult.unwrap();
+
+    return {
+      status: 'submitted',
+      requestStatus: updatedRequest.status,
+    };
+  }
+
   return undefined;
 }
 
@@ -539,7 +564,7 @@ function RenderButtonsByStatus({
   if (!isRequestAssignedToCurrentUser && code !== REQUEST_STATUS_CODE.SUBMIT && code !== REQUEST_STATUS_CODE.DRAFT) {
     return (
       <LoadingButton
-        className="mt-4 w-full"
+        className="w-full"
         name="action"
         variant="primary"
         id="re-assign-to-me"
@@ -557,7 +582,7 @@ function RenderButtonsByStatus({
     case REQUEST_STATUS_CODE.SUBMIT:
       return (
         <LoadingButton
-          className="mt-4 w-full"
+          className="w-full"
           name="action"
           variant="primary"
           id="pickup-request"
@@ -570,15 +595,15 @@ function RenderButtonsByStatus({
       );
     case REQUEST_STATUS_CODE.HR_REVIEW:
       return (
-        <>
-          <Button className="mt-4 w-full" variant="alternative" id="cancel-request" onClick={onCancelRequestClick}>
+        <div className="flex flex-col">
+          <Button className="w-full" variant="alternative" id="cancel-request" onClick={onCancelRequestClick}>
             {t('form.cancel-request')}
           </Button>
 
           <ButtonLink
             className="mt-4 w-full"
             variant="alternative"
-            file="routes/hr-advisor/request/index.tsx"
+            file="routes/hr-advisor/requests.tsx"
             id="save"
             disabled={isSubmitting}
           >
@@ -608,13 +633,13 @@ function RenderButtonsByStatus({
           >
             {t('form.run-matches')}
           </LoadingButton>
-        </>
+        </div>
       );
     case REQUEST_STATUS_CODE.PENDING_PSC_NO_VMS:
     case REQUEST_STATUS_CODE.PENDING_PSC:
       return (
-        <>
-          <Button className="mt-4 w-full" variant="alternative" id="cancel-request" onClick={onCancelRequestClick}>
+        <div className="flex flex-col">
+          <Button className="w-full" variant="alternative" id="cancel-request" onClick={onCancelRequestClick}>
             {t('form.cancel-request')}
           </Button>
 
@@ -636,38 +661,38 @@ function RenderButtonsByStatus({
           >
             {t('form.psc-clearance-received')}
           </Button>
-        </>
+        </div>
       );
 
     case REQUEST_STATUS_CODE.FDBK_PENDING:
       return (
-        <>
-          <Button className="mt-4 w-full" variant="alternative" id="cancel-request" onClick={onCancelRequestClick}>
+        <div className="flex flex-col">
+          <Button className="w-full" variant="alternative" id="cancel-request" onClick={onCancelRequestClick}>
             {t('form.cancel-request')}
           </Button>
           <ButtonLink
             className="mt-4 w-full"
             variant="alternative"
-            file="routes/hr-advisor/request/index.tsx"
+            file="routes/hr-advisor/requests.tsx"
             id="save"
             disabled={isSubmitting}
           >
             {t('form.save-and-exit')}
           </ButtonLink>
-        </>
+        </div>
       );
 
     case REQUEST_STATUS_CODE.NO_MATCH_HR_REVIEW:
     case REQUEST_STATUS_CODE.FDBK_PEND_APPR:
       return (
-        <>
-          <Button className="mt-4 w-full" variant="alternative" id="cancel-request" onClick={onCancelRequestClick}>
+        <div className="flex flex-col">
+          <Button className="w-full" variant="alternative" id="cancel-request" onClick={onCancelRequestClick}>
             {t('form.cancel-request')}
           </Button>
           <ButtonLink
             className="mt-4 w-full"
             variant="alternative"
-            file="routes/hr-advisor/request/index.tsx"
+            file="routes/hr-advisor/requests.tsx"
             id="save"
             disabled={isSubmitting}
           >
@@ -695,7 +720,7 @@ function RenderButtonsByStatus({
           >
             {t('form.psc-clearance-not-required')}
           </LoadingButton>
-        </>
+        </div>
       );
     default:
       return <></>;
