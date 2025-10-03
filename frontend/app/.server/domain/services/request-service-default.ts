@@ -8,6 +8,7 @@ import type {
   CollectionRequestResponse,
   RequestQueryParams,
   PagedProfileResponse,
+  RequestStatusUpdate,
 } from '~/.server/domain/models';
 import { apiClient } from '~/.server/domain/services/api-client';
 import type { RequestService } from '~/.server/domain/services/request-service';
@@ -136,11 +137,15 @@ export function getDefaultRequestService(): RequestService {
     /**
      * Updates a request's status.
      */
-    async updateRequestStatus(requestId: number, eventType: string, accessToken: string): Promise<Result<void, AppError>> {
-      const result = await apiClient.put<unknown, undefined>(
+    async updateRequestStatus(
+      requestId: number,
+      statusUpdate: RequestStatusUpdate,
+      accessToken: string,
+    ): Promise<Result<RequestReadModel, AppError>> {
+      const result = await apiClient.put<RequestStatusUpdate, RequestReadModel>(
         `/requests/${requestId}/status-change`,
         `update request status for ID ${requestId}`,
-        eventType,
+        statusUpdate,
         accessToken,
       );
 
@@ -157,7 +162,7 @@ export function getDefaultRequestService(): RequestService {
         );
       }
 
-      return Ok(undefined);
+      return Ok(result.unwrap());
     },
 
     /**
