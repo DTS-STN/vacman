@@ -1,6 +1,7 @@
 import type appEn from '~/.server/locales/app-en';
 
 export default {
+  'generic-error': 'Une erreur est survenue. Veuillez réessayer plus tard.',
   'index': {
     'about': "L'initiative VacMan!",
     'dashboard': 'Tableau de bord',
@@ -370,10 +371,12 @@ export default {
     'request-incomplete': 'Veuillez remplir tous les champs obligatoires avant de soumettre votre demande',
     'request-submitted': "Demande soumise avec succès! Un-e conseiller(ère) RH va l'examiner pour approbation",
     'delete-request': {
-      title: 'Supprimer cette demande?',
-      content: 'Cela supprimera définitivement la demande. Cette action est irréversible.',
-      keep: 'Conserver la demande',
-      delete: 'Supprimer la demande',
+      'title': 'Supprimer cette demande?',
+      'content': 'Cela supprimera définitivement la demande. Cette action est irréversible.',
+      'keep': 'Conserver la demande',
+      'delete': 'Supprimer la demande',
+      'not-allowed': 'Les demandes déjà soumises ne peuvent pas être supprimées. Seuls les brouillons peuvent être retirés.',
+      'error-generic': 'Une erreur est survenue lors de la suppression de la demande. Veuillez réessayer plus tard.',
     },
     'back': 'Retour aux demandes',
   },
