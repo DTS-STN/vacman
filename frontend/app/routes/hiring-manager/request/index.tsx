@@ -344,7 +344,6 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     languageRequirement: requestData.languageRequirement,
     englishLanguageProfile: requestData.englishLanguageProfile,
     frenchLanguageProfile: requestData.frenchLanguageProfile,
-    securityClearance: requestData.securityClearance,
     isCompleteStatementOfMeritCriteriaInformaion,
     isStatementOfMeritCriteriaNew: statementOfMeritCriteriaInformationCompleted === 0,
     englishStatementOfMerit: requestData.englishStatementOfMerit,
@@ -365,6 +364,8 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     pscClearanceNumber: requestData.pscClearanceNumber,
     requestNumber: requestData.requestNumber,
     requestDate: requestData.createdDate,
+    languageRequirementName: lang === 'en' ? requestData.languageRequirement?.nameEn : requestData.languageRequirement?.nameFr,
+    securityClearanceName: lang === 'en' ? requestData.securityClearance?.nameEn : requestData.securityClearance?.nameFr,
     lang,
   };
 }
@@ -677,7 +678,7 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
                   </DescriptionListItem>
 
                   <DescriptionListItem term={t('app:position-information.language-profile')}>
-                    {loaderData.languageRequirement?.code ?? t('app:hiring-manager-referral-requests.not-provided')}
+                    {loaderData.languageRequirementName ?? t('app:hiring-manager-referral-requests.not-provided')}
                   </DescriptionListItem>
 
                   {(loaderData.languageRequirement?.code === LANGUAGE_REQUIREMENT_CODES.bilingualImperative ||
@@ -694,7 +695,7 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
                   )}
 
                   <DescriptionListItem term={t('app:position-information.security-requirement')}>
-                    {loaderData.securityClearance?.code ?? t('app:hiring-manager-referral-requests.not-provided')}
+                    {loaderData.securityClearanceName ?? t('app:hiring-manager-referral-requests.not-provided')}
                   </DescriptionListItem>
                 </DescriptionList>
               )}
