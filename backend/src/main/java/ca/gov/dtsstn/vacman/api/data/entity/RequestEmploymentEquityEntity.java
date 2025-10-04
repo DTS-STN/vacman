@@ -6,6 +6,8 @@ import java.util.Objects;
 import org.immutables.builder.Builder;
 import org.springframework.core.style.ToStringCreator;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.annotation.Nullable;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
@@ -25,6 +27,7 @@ public class RequestEmploymentEquityEntity extends AbstractBaseEntity {
 	private EmploymentEquityEntity employmentEquity;
 
 	@ManyToOne
+	@JsonBackReference
 	@JoinColumn(name = "[REQUEST_ID]", nullable = false)
 	private RequestEntity request;
 
