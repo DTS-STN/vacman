@@ -40,6 +40,7 @@ import ca.gov.dtsstn.vacman.api.data.repository.SecurityClearanceRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.SelectionProcessTypeRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.WorkScheduleRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.WorkUnitRepository;
+import ca.gov.dtsstn.vacman.api.event.RequestFeedbackCompletedEventBuilder;
 import ca.gov.dtsstn.vacman.api.security.SecurityUtils;
 import ca.gov.dtsstn.vacman.api.service.NotificationService.RequestEvent;
 import ca.gov.dtsstn.vacman.api.web.exception.ResourceConflictException;
@@ -53,44 +54,65 @@ public class RequestService {
 
 	private static final Logger log = LoggerFactory.getLogger(RequestService.class);
 
-	private final RequestRepository requestRepository;
-	private final RequestStatuses requestStatuses;
-	private final RequestStatusRepository requestStatusRepository;
-	private final ClassificationRepository classificationRepository;
-	private final EmploymentEquityRepository employmentEquityRepository;
-	private final EmploymentTenureRepository employmentTenureRepository;
-	private final LanguageRepository languageRepository;
-	private final LanguageRequirementRepository languageRequirementRepository;
-	private final NonAdvertisedAppointmentRepository nonAdvertisedAppointmentRepository;
-	private final CityRepository cityRepository;
-	private final SecurityClearanceRepository securityClearanceRepository;
-	private final SelectionProcessTypeRepository selectionProcessTypeRepository;
-	private final WorkScheduleRepository workScheduleRepository;
-	private final WorkUnitRepository workUnitRepository;
-	private final RequestModelMapper requestModelMapper;
-	private final UserService userService;
-	private final NotificationService notificationService;
+	private final ApplicationEventPublisher eventPublisher;
+
 	private final ApplicationProperties applicationProperties;
 
+	private final CityRepository cityRepository;
+
+	private final ClassificationRepository classificationRepository;
+
+	private final EmploymentEquityRepository employmentEquityRepository;
+
+	private final EmploymentTenureRepository employmentTenureRepository;
+
+	private final LanguageRepository languageRepository;
+
+	private final LanguageRequirementRepository languageRequirementRepository;
+
+	private final NonAdvertisedAppointmentRepository nonAdvertisedAppointmentRepository;
+
+	private final NotificationService notificationService;
+
+	private final RequestModelMapper requestModelMapper;
+
+	private final RequestRepository requestRepository;
+
+	private final RequestStatuses requestStatuses;
+
+	private final RequestStatusRepository requestStatusRepository;
+
+	private final SecurityClearanceRepository securityClearanceRepository;
+
+	private final SelectionProcessTypeRepository selectionProcessTypeRepository;
+
+	private final UserService userService;
+
+	private final WorkScheduleRepository workScheduleRepository;
+
+	private final WorkUnitRepository workUnitRepository;
+
 	public RequestService(
-			LookupCodes lookupCodes, RequestRepository requestRepository,
-			RequestStatusRepository requestStatusRepository,
+			ApplicationEventPublisher eventPublisher,
+			ApplicationProperties applicationProperties,
+			CityRepository cityRepository,
 			ClassificationRepository classificationRepository,
 			EmploymentEquityRepository employmentEquityRepository,
 			EmploymentTenureRepository employmentTenureRepository,
 			LanguageRepository languageRepository,
 			LanguageRequirementRepository languageRequirementRepository,
+			LookupCodes lookupCodes,
 			NonAdvertisedAppointmentRepository nonAdvertisedAppointmentRepository,
+			NotificationService notificationService,
 			ProvinceRepository provinceRepository,
-			CityRepository cityRepository,
+			RequestRepository requestRepository,
+			RequestStatusRepository requestStatusRepository,
 			SecurityClearanceRepository securityClearanceRepository,
 			SelectionProcessTypeRepository selectionProcessTypeRepository,
-			WorkScheduleRepository workScheduleRepository,
-			WorkUnitRepository workUnitRepository,
 			UserService userService,
-			NotificationService notificationService,
-			ApplicationEventPublisher eventPublisher,
-			ApplicationProperties applicationProperties) {
+			WorkScheduleRepository workScheduleRepository,
+			WorkUnitRepository workUnitRepository) {
+		this.eventPublisher = eventPublisher;
 		this.requestStatuses = lookupCodes.requestStatuses();
 		this.requestRepository = requestRepository;
 		this.requestStatusRepository = requestStatusRepository;
@@ -272,11 +294,11 @@ public class RequestService {
 				.flatMap(userService::getUserByMicrosoftEntraId)
 				.orElseThrow(() -> new UnauthorizedException("User not authenticated"));
 
-		final boolean isHrAdvisor = SecurityUtils.hasAuthority("hr-advisor");
-		final boolean isOwner = request.isOwnedBy(currentUser.getId());
+		final var isHrAdvisor = SecurityUtils.hasAuthority("hr-advisor");
+		final var isOwner = request.isOwnedBy(currentUser.getId());
 
 		// Get current status code
-		final String currentStatus = request.getRequestStatus().getCode();
+		final var currentStatus = request.getRequestStatus().getCode();
 
 		final var updatedRequest = switch (eventType) {
 			case "requestSubmitted" ->
@@ -414,9 +436,9 @@ public class RequestService {
 	 * @return The updated request entity
 	 */
 	public RequestEntity runMatches(RequestEntity request) {
-		final String currentStatus = request.getRequestStatus().getCode();
+		final var currentStatus = request.getRequestStatus().getCode();
 
-		RequestEntity updatedRequest = handleRunMatches(request, currentStatus);
+		final var updatedRequest = handleRunMatches(request, currentStatus);
 
 		return updateRequest(updatedRequest);
 	}
@@ -434,7 +456,7 @@ public class RequestService {
 			throw new ResourceConflictException("Request must be in HR_REVIEW status to be approved");
 		}
 
-		boolean hasMatches = createMatches(request);
+		final var hasMatches = createMatches(request);
 
 		if (hasMatches) {
 			// Set status to FDBK_PENDING and send notification to the owner
@@ -519,17 +541,7 @@ public class RequestService {
 		 * }
 		 */
 
-		// Send notification with the Feedback Completed template to the HR Advisor
-		UserEntity hrAdvisor = request.getHrAdvisor();
-		if (hrAdvisor != null && hrAdvisor.getBusinessEmailAddress() != null) {
-			notificationService.sendRequestNotification(
-					hrAdvisor.getBusinessEmailAddress(),
-					request.getId(),
-					request.getNameEn(),
-					RequestEvent.FEEDBACK_COMPLETED);
-		} else {
-			log.warn("No HR advisor or business email address found for request ID: [{}]", request.getId());
-		}
+		eventPublisher.publishEvent(RequestFeedbackCompletedEventBuilder.builder().entity(request).build());
 
 		return request;
 	}
