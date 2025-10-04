@@ -36,8 +36,11 @@ import ca.gov.dtsstn.vacman.api.data.repository.SecurityClearanceRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.SelectionProcessTypeRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.WorkScheduleRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.WorkUnitRepository;
-import ca.gov.dtsstn.vacman.api.event.RequestFeedbackCompletedEventBuilder;
-import ca.gov.dtsstn.vacman.api.event.RequestFeedbackPendingEventBuilder;
+import ca.gov.dtsstn.vacman.api.event.RequestCompletedEvent;
+import ca.gov.dtsstn.vacman.api.event.RequestCreatedEvent;
+import ca.gov.dtsstn.vacman.api.event.RequestFeedbackCompletedEvent;
+import ca.gov.dtsstn.vacman.api.event.RequestFeedbackPendingEvent;
+import ca.gov.dtsstn.vacman.api.event.RequestUpdatedEvent;
 import ca.gov.dtsstn.vacman.api.security.SecurityUtils;
 import ca.gov.dtsstn.vacman.api.service.NotificationService.RequestEvent;
 import ca.gov.dtsstn.vacman.api.web.exception.ResourceConflictException;
@@ -136,10 +139,14 @@ public class RequestService {
 		final var draftStatus = requestStatusRepository.findByCode(requestStatuses.draft())
 			.orElseThrow(asResourceNotFoundException("requestStatus", "code", requestStatuses.draft()));
 
-		return requestRepository.save(RequestEntity.builder()
+		final var request = requestRepository.save(RequestEntity.builder()
 			.submitter(submitter)
 			.requestStatus(draftStatus)
 			.build());
+
+		eventPublisher.publishEvent(new RequestCreatedEvent(request));
+
+		return request;
 	}
 
 	@Transactional(readOnly = true)
@@ -177,7 +184,9 @@ public class RequestService {
 	 */
 	@Transactional(readOnly = false)
 	public RequestEntity updateRequest(RequestEntity request) {
-		return requestRepository.save(request);
+		final var updatedRequest = requestRepository.save(request);
+		eventPublisher.publishEvent(new RequestUpdatedEvent(updatedRequest));
+		return updatedRequest;
 	}
 
 	@Transactional(readOnly = true)
@@ -366,10 +375,10 @@ public class RequestService {
 	 */
 	private void sendRequestCreatedNotification(RequestEntity request) {
 		notificationService.sendRequestNotification(
-				applicationProperties.gcnotify().hrGdInboxEmail(),
-				request.getId(),
-				request.getNameEn(),
-				RequestEvent.CREATED);
+			applicationProperties.gcnotify().hrGdInboxEmail(),
+			request.getId(),
+			request.getNameEn(),
+			RequestEvent.CREATED);
 	}
 
 	/**
@@ -417,7 +426,7 @@ public class RequestService {
 		if (hasMatches) {
 			// Set status to FDBK_PENDING and send notification to the owner
 			request.setRequestStatus(getRequestStatusByCode(requestStatuses.feedbackPending()));
-			eventPublisher.publishEvent(RequestFeedbackPendingEventBuilder.builder().entity(request).build());
+			eventPublisher.publishEvent(new RequestFeedbackPendingEvent(request));
 		}
 		else {
 			// Set status to NO_MATCH_HR_REVIEW
@@ -497,7 +506,7 @@ public class RequestService {
 		 * }
 		 */
 
-		eventPublisher.publishEvent(RequestFeedbackCompletedEventBuilder.builder().entity(request).build());
+		eventPublisher.publishEvent(new RequestFeedbackCompletedEvent(request));
 
 		return request;
 	}
@@ -527,8 +536,6 @@ public class RequestService {
 		final var clearanceNumber = RandomStringUtils.insecure().nextAlphanumeric(16).toUpperCase();
 		request.setPscClearanceNumber(clearanceNumber);
 
-		// TODO: send notification (details need to be worked out)
-
 		return request;
 	}
 
@@ -556,8 +563,6 @@ public class RequestService {
 		final var clearanceNumber = RandomStringUtils.insecure().nextAlphanumeric(16).toUpperCase();
 		request.setPscClearanceNumber(clearanceNumber);
 
-		// TODO: send notification (details need to be worked out)
-
 		return request;
 	}
 
@@ -580,6 +585,7 @@ public class RequestService {
 
 		// Set status to PSC_GRANTED
 		request.setRequestStatus(getRequestStatusByCode(requestStatuses.pscClearanceGranted()));
+		eventPublisher.publishEvent(new RequestCompletedEvent(request));
 
 		return request;
 	}
