@@ -5,8 +5,6 @@ import static ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException.a
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.mapstruct.factory.Mappers;
@@ -17,12 +15,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
 import ca.gov.dtsstn.vacman.api.config.properties.ApplicationProperties;
 import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes;
 import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes.RequestStatuses;
-import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.RequestEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.RequestStatusEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
@@ -41,6 +37,7 @@ import ca.gov.dtsstn.vacman.api.data.repository.SelectionProcessTypeRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.WorkScheduleRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.WorkUnitRepository;
 import ca.gov.dtsstn.vacman.api.event.RequestFeedbackCompletedEventBuilder;
+import ca.gov.dtsstn.vacman.api.event.RequestFeedbackPendingEventBuilder;
 import ca.gov.dtsstn.vacman.api.security.SecurityUtils;
 import ca.gov.dtsstn.vacman.api.service.NotificationService.RequestEvent;
 import ca.gov.dtsstn.vacman.api.web.exception.ResourceConflictException;
@@ -74,7 +71,7 @@ public class RequestService {
 
 	private final NotificationService notificationService;
 
-	private final RequestModelMapper requestModelMapper;
+	private final RequestModelMapper requestModelMapper = Mappers.getMapper(RequestModelMapper.class);
 
 	private final RequestRepository requestRepository;
 
@@ -130,7 +127,6 @@ public class RequestService {
 		this.userService = userService;
 		this.notificationService = notificationService;
 		this.applicationProperties = applicationProperties;
-		this.requestModelMapper = Mappers.getMapper(RequestModelMapper.class);
 	}
 
 	@Transactional(readOnly = false)
@@ -138,10 +134,12 @@ public class RequestService {
 		log.debug("Fetching DRAFT request status");
 
 		final var draftStatus = requestStatusRepository.findByCode(requestStatuses.draft())
-				.orElseThrow(asResourceNotFoundException("requestStatus", "code", requestStatuses.draft()));
+			.orElseThrow(asResourceNotFoundException("requestStatus", "code", requestStatuses.draft()));
 
-		return requestRepository
-				.save(RequestEntity.builder().submitter(submitter).requestStatus(draftStatus).build());
+		return requestRepository.save(RequestEntity.builder()
+			.submitter(submitter)
+			.requestStatus(draftStatus)
+			.build());
 	}
 
 	@Transactional(readOnly = true)
@@ -152,9 +150,8 @@ public class RequestService {
 	@Transactional(readOnly = true)
 	public List<RequestEntity> getAllRequestsAssociatedWithUser(Long userId) {
 		return requestRepository.findAll().stream()
-				.filter(request -> request.getOwnerId().map(id -> id.equals(userId)).orElse(false)
-						|| request.getDelegateIds().contains(userId))
-				.collect(Collectors.toList());
+			.filter(request -> request.getOwnerId().map(id -> id.equals(userId)).orElse(false) || request.getDelegateIds().contains(userId))
+			.toList();
 	}
 
 	/**
@@ -167,13 +164,8 @@ public class RequestService {
 	 */
 	@Transactional(readOnly = true)
 	public Page<RequestEntity> getAllRequests(Pageable pageable, Long hrAdvisorId) {
-		if (hrAdvisorId == null) {
-			return requestRepository.findAll(pageable);
-		} else {
-			return requestRepository.findAll(
-					RequestRepository.hasHrAdvisorId(hrAdvisorId),
-					pageable);
-		}
+		if (hrAdvisorId == null) { return requestRepository.findAll(pageable); }
+		return requestRepository.findAll(RequestRepository.hasHrAdvisorId(hrAdvisorId), pageable);
 	}
 
 	/**
@@ -185,9 +177,7 @@ public class RequestService {
 	 */
 	@Transactional(readOnly = false)
 	public RequestEntity updateRequest(RequestEntity request) {
-		final var updatedEntity = requestRepository.save(request);
-
-		return updatedEntity;
+		return requestRepository.save(request);
 	}
 
 	@Transactional(readOnly = true)
@@ -197,56 +187,58 @@ public class RequestService {
 		request.setPositionNumber(String.join(",", updateModel.positionNumbers()));
 
 		Optional.ofNullable(updateModel.selectionProcessTypeId())
-				.map(selectionProcessTypeRepository::getReferenceById)
-				.ifPresent(request::setSelectionProcessType);
+			.map(selectionProcessTypeRepository::getReferenceById)
+			.ifPresent(request::setSelectionProcessType);
 
 		Optional.ofNullable(updateModel.appointmentNonAdvertisedId())
-				.map(nonAdvertisedAppointmentRepository::getReferenceById)
-				.ifPresent(request::setAppointmentNonAdvertised);
+			.map(nonAdvertisedAppointmentRepository::getReferenceById)
+			.ifPresent(request::setAppointmentNonAdvertised);
 
 		Optional.ofNullable(updateModel.workScheduleId())
-				.map(workScheduleRepository::getReferenceById)
-				.ifPresent(request::setWorkSchedule);
+			.map(workScheduleRepository::getReferenceById)
+			.ifPresent(request::setWorkSchedule);
 
 		Optional.ofNullable(updateModel.employmentTenureId())
-				.map(employmentTenureRepository::getReferenceById)
-				.ifPresent(request::setEmploymentTenure);
+			.map(employmentTenureRepository::getReferenceById)
+			.ifPresent(request::setEmploymentTenure);
 
 		Optional.ofNullable(updateModel.classificationId())
-				.map(classificationRepository::getReferenceById)
-				.ifPresent(request::setClassification);
+			.map(classificationRepository::getReferenceById)
+			.ifPresent(request::setClassification);
 
 		if (updateModel.languageOfCorrespondenceId() == null) {
 			request.setLanguage(null);
-		} else {
+		}
+		else {
 			request.setLanguage(languageRepository.getReferenceById(updateModel.languageOfCorrespondenceId()));
 		}
 
 		Optional.ofNullable(updateModel.languageRequirementId())
-				.map(languageRequirementRepository::getReferenceById)
-				.ifPresent(request::setLanguageRequirement);
+			.map(languageRequirementRepository::getReferenceById)
+			.ifPresent(request::setLanguageRequirement);
 
 		Optional.ofNullable(updateModel.securityClearanceId())
-				.map(securityClearanceRepository::getReferenceById)
-				.ifPresent(request::setSecurityClearance);
+			.map(securityClearanceRepository::getReferenceById)
+			.ifPresent(request::setSecurityClearance);
 
 		if (updateModel.workUnitId() == null) {
 			request.setWorkUnit(null);
-		} else {
+		}
+		else {
 			request.setWorkUnit(workUnitRepository.getReferenceById(updateModel.workUnitId()));
 		}
 
 		request.setEmploymentEquities(Optional.ofNullable(updateModel.employmentEquityIds()).stream()
-				.flatMap(Collection::stream)
-				.map(RequestUpdateModel.EmploymentEquityId::value)
-				.map(employmentEquityRepository::getReferenceById)
-				.collect(Collectors.toList()));
+			.flatMap(Collection::stream)
+			.map(RequestUpdateModel.EmploymentEquityId::value)
+			.map(employmentEquityRepository::getReferenceById)
+			.toList());
 
 		request.setCities(Optional.ofNullable(updateModel.cityIds()).stream()
-				.flatMap(Collection::stream)
-				.map(RequestUpdateModel.CityId::value)
-				.map(cityRepository::getReferenceById)
-				.collect(Collectors.toList()));
+			.flatMap(Collection::stream)
+			.map(RequestUpdateModel.CityId::value)
+			.map(cityRepository::getReferenceById)
+			.toList());
 
 		request.setHiringManager(resolveUser(updateModel.hiringManagerId()));
 		request.setHrAdvisor(resolveUser(updateModel.hrAdvisorId()));
@@ -254,28 +246,24 @@ public class RequestService {
 		request.setSubmitter(resolveUser(updateModel.submitterId()));
 
 		Optional.ofNullable(updateModel.statusId())
-				.map(requestStatusRepository::getReferenceById)
-				.ifPresent(request::setRequestStatus);
+			.map(requestStatusRepository::getReferenceById)
+			.ifPresent(request::setRequestStatus);
 
 		return request;
 	}
 
 	private UserEntity resolveUser(Long userId) {
-		if (userId == null) {
-			return null;
-		}
-
+		if (userId == null) { return null; }
 		return userService.getUserById(userId)
-				.orElseThrow(asResourceNotFoundException("user", userId));
+			.orElseThrow(asResourceNotFoundException("user", userId));
 	}
 
 	public void deleteRequest(Long requestId) {
 		final var request = getRequestById(requestId)
-				.orElseThrow(asResourceNotFoundException("request", requestId));
+			.orElseThrow(asResourceNotFoundException("request", requestId));
 
 		if (!requestStatuses.draft().equals(request.getRequestStatus().getCode())) {
-			throw new ResourceConflictException(
-					"Request with ID=[" + requestId + "] cannot be deleted because its status is not DRAFT");
+			throw new ResourceConflictException("Request with ID=[" + requestId + "] cannot be deleted because its status is not DRAFT");
 		}
 
 		requestRepository.delete(request);
@@ -289,34 +277,23 @@ public class RequestService {
 	 * @return The updated request entity
 	 */
 	public RequestEntity updateRequestStatus(RequestEntity request, String eventType) {
-		// Get current user information
 		final var currentUser = SecurityUtils.getCurrentUserEntraId()
-				.flatMap(userService::getUserByMicrosoftEntraId)
-				.orElseThrow(() -> new UnauthorizedException("User not authenticated"));
+			.flatMap(userService::getUserByMicrosoftEntraId)
+			.orElseThrow(() -> new UnauthorizedException("User not authenticated"));
 
 		final var isHrAdvisor = SecurityUtils.hasAuthority("hr-advisor");
 		final var isOwner = request.isOwnedBy(currentUser.getId());
-
-		// Get current status code
 		final var currentStatus = request.getRequestStatus().getCode();
 
 		final var updatedRequest = switch (eventType) {
-			case "requestSubmitted" ->
-				handleRequestSubmitted(request, isOwner, currentStatus);
-			case "requestPickedUp" ->
-				handleRequestPickedUp(request, isHrAdvisor, currentStatus, currentUser);
-			case "vmsNotRequired" ->
-				handleVmsNotRequired(request, isHrAdvisor, currentStatus);
-			case "submitFeedback" ->
-				handleSubmitFeedback(request, isOwner, currentStatus);
-			case "pscNotRequired" ->
-				handlePscNotRequired(request, isHrAdvisor, currentStatus);
-			case "pscRequired" ->
-				handlePscRequired(request, isHrAdvisor, currentStatus);
-			case "complete" ->
-				handleComplete(request, isHrAdvisor, currentStatus);
-			default ->
-				throw new IllegalArgumentException("Unknown event type: " + eventType);
+			case "requestSubmitted" -> handleRequestSubmitted(request, isOwner, currentStatus);
+			case "requestPickedUp" -> handleRequestPickedUp(request, isHrAdvisor, currentStatus, currentUser);
+			case "vmsNotRequired" -> handleVmsNotRequired(request, isHrAdvisor, currentStatus);
+			case "submitFeedback" -> handleSubmitFeedback(request, isOwner, currentStatus);
+			case "pscNotRequired" -> handlePscNotRequired(request, isHrAdvisor, currentStatus);
+			case "pscRequired" -> handlePscRequired(request, isHrAdvisor, currentStatus);
+			case "complete" -> handleComplete(request, isHrAdvisor, currentStatus);
+			default -> throw new IllegalArgumentException("Unknown event type: " + eventType);
 		};
 
 		return updateRequest(updatedRequest);
@@ -357,14 +334,12 @@ public class RequestService {
 	 * @param currentUser   The current user entity
 	 * @return The updated request entity
 	 */
-	private RequestEntity handleRequestPickedUp(RequestEntity request, boolean isHrAdvisor,
-			String currentStatus, UserEntity currentUser) {
+	private RequestEntity handleRequestPickedUp(RequestEntity request, boolean isHrAdvisor, String currentStatus, UserEntity currentUser) {
 		if (!isHrAdvisor) {
 			throw new UnauthorizedException("Only HR advisors can pick up requests");
 		}
 
-		if (!requestStatuses.submitted().equals(currentStatus) &&
-				!requestStatuses.hrReview().equals(currentStatus)) {
+		if (!requestStatuses.submitted().equals(currentStatus) && !requestStatuses.hrReview().equals(currentStatus)) {
 			throw new ResourceConflictException("Request must be in SUBMIT or HR_REVIEW status to be picked up");
 		}
 
@@ -382,11 +357,12 @@ public class RequestService {
 	 */
 	private RequestStatusEntity getRequestStatusByCode(String code) {
 		return requestStatusRepository.findByCode(code)
-				.orElseThrow(() -> new IllegalStateException("Request status not found: " + code));
+			.orElseThrow(() -> new IllegalStateException("Request status not found: " + code));
 	}
 
 	/**
 	 * Sends a notification when a request is created.
+	 * TODO ::: GjB ::: this should be done via events. see RequestEventListener.java
 	 */
 	private void sendRequestCreatedNotification(RequestEntity request) {
 		notificationService.sendRequestNotification(
@@ -403,7 +379,6 @@ public class RequestService {
 	 * @return The updated request entity
 	 */
 	public RequestEntity cancelRequest(Long requestId) {
-
 		final var request = getRequestById(requestId)
 			.orElseThrow(asResourceNotFoundException("request", requestId));
 
@@ -414,22 +389,6 @@ public class RequestService {
 	}
 
 	/**
-	 * Sends a notification when a request is approved and feedback is pending.
-	 */
-	private void sendRequestFeedbackPendingNotification(RequestEntity request) {
-		Optional.ofNullable(request.getSubmitter())
-				.map(this::getEmployeeEmails)
-				.filter(emails -> !emails.isEmpty())
-				.ifPresentOrElse(
-						emails -> notificationService.sendRequestNotification(
-								emails,
-								request.getId(),
-								request.getNameEn(),
-								RequestEvent.FEEDBACK_PENDING),
-						() -> log.warn("No email addresses found for request ID: [{}]", request.getId()));
-	}
-
-	/**
 	 * Runs the match creation algorithm for a request and updates the status.
 	 *
 	 * @param request The request entity to run matches for
@@ -437,9 +396,7 @@ public class RequestService {
 	 */
 	public RequestEntity runMatches(RequestEntity request) {
 		final var currentStatus = request.getRequestStatus().getCode();
-
 		final var updatedRequest = handleRunMatches(request, currentStatus);
-
 		return updateRequest(updatedRequest);
 	}
 
@@ -451,7 +408,6 @@ public class RequestService {
 	 * @return The updated request entity
 	 */
 	private RequestEntity handleRunMatches(RequestEntity request, String currentStatus) {
-
 		if (!requestStatuses.hrReview().equals(currentStatus)) {
 			throw new ResourceConflictException("Request must be in HR_REVIEW status to be approved");
 		}
@@ -461,8 +417,9 @@ public class RequestService {
 		if (hasMatches) {
 			// Set status to FDBK_PENDING and send notification to the owner
 			request.setRequestStatus(getRequestStatusByCode(requestStatuses.feedbackPending()));
-			sendRequestFeedbackPendingNotification(request);
-		} else {
+			eventPublisher.publishEvent(RequestFeedbackPendingEventBuilder.builder().entity(request).build());
+		}
+		else {
 			// Set status to NO_MATCH_HR_REVIEW
 			request.setRequestStatus(getRequestStatusByCode(requestStatuses.noMatchHrReview()));
 		}
@@ -481,7 +438,6 @@ public class RequestService {
 	private boolean createMatches(RequestEntity request) {
 		// dummy (placeholder) implementation that returns true
 		log.info("Creating matches for request ID: [{}]", request.getId());
-
 		return true;
 	}
 
@@ -605,19 +561,6 @@ public class RequestService {
 		return request;
 	}
 
-	private List<String> getEmployeeEmails(UserEntity owner) {
-		final var businessEmail = Optional.ofNullable(owner.getBusinessEmailAddress())
-				.filter(StringUtils::hasText);
-
-		final var personalEmail = owner.getProfiles().stream()
-				.map(ProfileEntity::getPersonalEmailAddress)
-				.filter(StringUtils::hasText).findFirst();
-
-		return Stream.of(businessEmail, personalEmail)
-				.filter(Optional::isPresent)
-				.map(Optional::get).toList();
-	}
-
 	/**
 	 * Handles the complete event.
 	 *
@@ -631,10 +574,8 @@ public class RequestService {
 			throw new UnauthorizedException("Only HR advisors can complete a request");
 		}
 
-		if (!requestStatuses.pendingPscClearance().equals(currentStatus) &&
-				!requestStatuses.pendingPscClearanceNoVms().equals(currentStatus)) {
-			throw new ResourceConflictException(
-					"Request must be in PENDING_PSC or PENDING_PSC_NO_VMS status to be completed");
+		if (!requestStatuses.pendingPscClearance().equals(currentStatus) && !requestStatuses.pendingPscClearanceNoVms().equals(currentStatus)) {
+			throw new ResourceConflictException("Request must be in PENDING_PSC or PENDING_PSC_NO_VMS status to be completed");
 		}
 
 		// Set status to PSC_GRANTED
