@@ -283,6 +283,33 @@ export function getDefaultRequestService(): RequestService {
     },
 
     /**
+     * Cancels a request by its ID.
+     */
+    async cancelRequestById(requestId: number, accessToken: string): Promise<Result<RequestReadModel, AppError>> {
+      const result = await apiClient.post<null, RequestReadModel>(
+        `/requests/${requestId}/cancel`,
+        `cancel request with ID ${requestId}`,
+        null,
+        accessToken,
+      );
+
+      if (result.isErr()) {
+        const error = result.unwrapErr();
+        if (error.httpStatusCode === HttpStatusCodes.NOT_FOUND) {
+          return Err(new AppError(`Request with ID ${requestId} not found.`, ErrorCodes.REQUEST_NOT_FOUND));
+        }
+        return Err(
+          new AppError(`Failed to cancel request. Reason: ${error.message}`, ErrorCodes.REQUEST_CANCEL_FAILED, {
+            httpStatusCode: error.httpStatusCode,
+            correlationId: error.correlationId,
+          }),
+        );
+      }
+
+      return result;
+    },
+
+    /**
      * Finds a request by its ID.
      */
     async findRequestById(requestId: number, accessToken: string): Promise<Option<RequestReadModel>> {

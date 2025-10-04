@@ -394,6 +394,38 @@ export function getMockRequestService(): RequestService {
     },
 
     /**
+     * Cancels a request by its ID.
+     */
+    async cancelRequestById(requestId: number, accessToken: string): Promise<Result<RequestReadModel, AppError>> {
+      const existingRequestIndex = mockRequests.findIndex((r) => r.id === requestId);
+      if (existingRequestIndex === -1) {
+        return Err(new AppError(`Request with ID ${requestId} not found.`, ErrorCodes.REQUEST_NOT_FOUND));
+      }
+
+      const existingRequest = mockRequests[existingRequestIndex];
+      if (!existingRequest) {
+        return Err(new AppError(`Request with ID ${requestId} not found.`, ErrorCodes.REQUEST_NOT_FOUND));
+      }
+
+      const newStatus: RequestStatus = {
+        id: 10,
+        code: 'CANCELLED',
+        nameEn: 'Cancelled',
+        nameFr: 'Annulée',
+      };
+
+      const updatedRequest: RequestReadModel = {
+        ...existingRequest,
+        status: newStatus,
+        lastModifiedDate: new Date().toISOString(),
+        lastModifiedBy: 'system',
+      };
+
+      mockRequests[existingRequestIndex] = updatedRequest;
+      return Promise.resolve(Ok(updatedRequest));
+    },
+
+    /**
      * Finds a request by its ID.
      */
     async findRequestById(requestId: number, accessToken: string): Promise<Option<RequestReadModel>> {

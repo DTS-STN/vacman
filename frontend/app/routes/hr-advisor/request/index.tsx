@@ -118,8 +118,33 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   };
 }
 
-export function action({ context, params, request }: Route.ActionArgs) {
-  //TODO add action logic
+export async function action({ context, params, request }: Route.ActionArgs) {
+  const { session } = context.get(context.applicationContext);
+  requireAuthentication(session, request);
+
+  const requestData = (
+    await getRequestService().getRequestById(Number(params.requestId), session.authState.accessToken)
+  ).into();
+
+  if (!requestData) {
+    throw new Response('Request not found', { status: HttpStatusCodes.NOT_FOUND });
+  }
+
+  const formData = await request.formData();
+  const formAction = formData.get('action');
+
+  if (formAction === 'cancel-request') {
+    const cancelRequest = await getRequestService().cancelRequestById(requestData.id, session.authState.accessToken);
+
+    if (cancelRequest.isErr()) {
+      const error = cancelRequest.unwrapErr();
+      return {
+        status: 'error',
+        errorMessage: error.message,
+        errorCode: error.errorCode,
+      };
+    }
+  }
   return undefined;
 }
 
@@ -136,7 +161,7 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
   };
 
   type GroupedCities = Record<string, string[]>;
-  const [showArchiveDialog, setShowArchiveDialog] = useState(false);
+  const [showCancelRequestDialog, setShowCancelRequestDialog] = useState(false);
   const [showReAssignDialog, setShowReAssignDialog] = useState(false);
 
   return (
@@ -418,7 +443,7 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
                   code={loaderData.status?.code}
                   isRequestAssignedToCurrentUser={loaderData.isRequestAssignedToCurrentUser}
                   isSubmitting={isSubmitting}
-                  onArchiveClick={() => setShowArchiveDialog(true)}
+                  onCancelRequestClick={() => setShowCancelRequestDialog(true)}
                   onReAssignClick={() => setShowReAssignDialog(true)}
                 />
               </fetcher.Form>
@@ -426,23 +451,32 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
           </div>
         </div>
       </div>
-      <Dialog open={showArchiveDialog} onOpenChange={setShowArchiveDialog}>
-        <DialogContent aria-describedby="archive-dialog-description" role="alertdialog">
+      <Dialog open={showCancelRequestDialog} onOpenChange={setShowCancelRequestDialog}>
+        <DialogContent aria-describedby="cancel-request-dialog-description" role="alertdialog">
           <DialogHeader>
-            <DialogTitle id="archive-dialog-title">{t('app:hr-advisor-referral-requests.archive-request.title')}</DialogTitle>
+            <DialogTitle id="cancel-request-dialog-title">
+              {t('app:hr-advisor-referral-requests.cancel-request.title')}
+            </DialogTitle>
           </DialogHeader>
-          <DialogDescription id="archive-dialog-description">
-            {t('app:hr-advisor-referral-requests.archive-request.content')}
+          <DialogDescription id="cancel-request-dialog-description">
+            {t('app:hr-advisor-referral-requests.cancel-request.content')}
           </DialogDescription>
           <DialogFooter>
             <DialogClose asChild>
               <Button id="confirm-modal-back" variant="alternative" disabled={isSubmitting}>
-                {t('app:hr-advisor-referral-requests.archive-request.continue')}
+                {t('app:hr-advisor-referral-requests.cancel-request.continue')}
               </Button>
             </DialogClose>
             <fetcher.Form method="post" noValidate>
-              <Button id="archive-request" variant="primary" name="action" value="archive" disabled={isSubmitting}>
-                {t('app:hr-advisor-referral-requests.archive-request.archive')}
+              <Button
+                id="cancel-request-request"
+                variant="primary"
+                name="action"
+                value="cancel-request"
+                disabled={isSubmitting}
+                onClick={() => setShowCancelRequestDialog(false)}
+              >
+                {t('app:hr-advisor-referral-requests.cancel-request.cancel-and-exit')}
               </Button>
             </fetcher.Form>
           </DialogFooter>
@@ -465,7 +499,14 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
               </Button>
             </DialogClose>
             <fetcher.Form method="post" noValidate>
-              <Button id="re-assign-request" variant="primary" name="action" value="re-assign" disabled={isSubmitting}>
+              <Button
+                id="re-assign-request"
+                variant="primary"
+                name="action"
+                value="re-assign"
+                disabled={isSubmitting}
+                onClick={() => setShowReAssignDialog(false)}
+              >
                 {t('app:hr-advisor-referral-requests.re-assign-request.reassign')}
               </Button>
             </fetcher.Form>
@@ -480,7 +521,7 @@ interface RenderButtonsByStatusProps {
   code?: string;
   isRequestAssignedToCurrentUser: boolean;
   isSubmitting: boolean;
-  onArchiveClick: () => void;
+  onCancelRequestClick: () => void;
   onReAssignClick: () => void;
 }
 
@@ -488,12 +529,13 @@ function RenderButtonsByStatus({
   code,
   isRequestAssignedToCurrentUser,
   isSubmitting,
-  onArchiveClick,
+  onCancelRequestClick,
   onReAssignClick,
 }: RenderButtonsByStatusProps): JSX.Element {
   const { t } = useTranslation('app');
 
   // Re-assign only shows up for HR advisors who haven't picked up that request
+  // TODO: remove this button for inactive requests
   if (!isRequestAssignedToCurrentUser && code !== REQUEST_STATUS_CODE.SUBMIT && code !== REQUEST_STATUS_CODE.DRAFT) {
     return (
       <LoadingButton
@@ -529,8 +571,8 @@ function RenderButtonsByStatus({
     case REQUEST_STATUS_CODE.HR_REVIEW:
       return (
         <>
-          <Button className="mt-4 w-full" variant="alternative" id="archive" onClick={onArchiveClick}>
-            {t('form.archive')}
+          <Button className="mt-4 w-full" variant="alternative" id="cancel-request" onClick={onCancelRequestClick}>
+            {t('form.cancel-request')}
           </Button>
 
           <ButtonLink
@@ -572,8 +614,8 @@ function RenderButtonsByStatus({
     case REQUEST_STATUS_CODE.PENDING_PSC:
       return (
         <>
-          <Button className="mt-4 w-full" variant="alternative" id="archive" onClick={onArchiveClick}>
-            {t('form.archive')}
+          <Button className="mt-4 w-full" variant="alternative" id="cancel-request" onClick={onCancelRequestClick}>
+            {t('form.cancel-request')}
           </Button>
 
           <InputField
@@ -600,8 +642,8 @@ function RenderButtonsByStatus({
     case REQUEST_STATUS_CODE.FDBK_PENDING:
       return (
         <>
-          <Button className="mt-4 w-full" variant="alternative" id="archive" onClick={onArchiveClick}>
-            {t('form.archive')}
+          <Button className="mt-4 w-full" variant="alternative" id="cancel-request" onClick={onCancelRequestClick}>
+            {t('form.cancel-request')}
           </Button>
           <ButtonLink
             className="mt-4 w-full"
@@ -619,8 +661,8 @@ function RenderButtonsByStatus({
     case REQUEST_STATUS_CODE.FDBK_PEND_APPR:
       return (
         <>
-          <Button className="mt-4 w-full" variant="alternative" id="archive" onClick={onArchiveClick}>
-            {t('form.archive')}
+          <Button className="mt-4 w-full" variant="alternative" id="cancel-request" onClick={onCancelRequestClick}>
+            {t('form.cancel-request')}
           </Button>
           <ButtonLink
             className="mt-4 w-full"
