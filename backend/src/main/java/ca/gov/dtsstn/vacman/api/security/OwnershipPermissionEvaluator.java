@@ -17,8 +17,10 @@ import ca.gov.dtsstn.vacman.api.service.RequestService;
 import ca.gov.dtsstn.vacman.api.service.UserService;
 
 /**
- * A custom permission evaluator that checks if the current user is the owner of a given domain object.
- * This is used in conjunction with Spring Security's @PreAuthorize and @PostAuthorize annotations.
+ * A custom permission evaluator that checks if the current user is the owner of
+ * a given domain object.
+ * This is used in conjunction with Spring Security's @PreAuthorize
+ * and @PostAuthorize annotations.
  * <p>
  * It primarily evaluates permissions based on the target object's ID and type.
  */
@@ -33,33 +35,39 @@ public class OwnershipPermissionEvaluator implements PermissionEvaluator {
 
 	private final UserService userService;
 
-	public OwnershipPermissionEvaluator(ProfileService profileService, RequestService requestService, UserService userService) {
+	public OwnershipPermissionEvaluator(ProfileService profileService, RequestService requestService,
+			UserService userService) {
 		this.profileService = profileService;
 		this.requestService = requestService;
 		this.userService = userService;
 	}
 
 	/**
-	 * This implementation is not supported as we favor checking permissions before the object is fetched,
+	 * This implementation is not supported as we favor checking permissions before
+	 * the object is fetched,
 	 * using {@link #hasPermission(Authentication, Serializable, String, Object)}.
 	 */
 	@Override
 	public boolean hasPermission(Authentication authentication, Object targetDomainObject, Object permission) {
-		throw new UnsupportedOperationException("ID based permission evaluation is required. Use hasPermission(Authentication, Serializable, String, Object).");
+		throw new UnsupportedOperationException(
+				"ID based permission evaluation is required. Use hasPermission(Authentication, Serializable, String, Object).");
 	}
 
 	/**
-	 * Determines if a user has a given permission for a target resource, identified by its id and type.
-	 * The primary check is to verify if the authenticated user is the owner of the target entity.
+	 * Determines if a user has a given permission for a target resource, identified
+	 * by its id and type.
+	 * The primary check is to verify if the authenticated user is the owner of the
+	 * target entity.
 	 */
 	@Override
-	public boolean hasPermission(Authentication authentication, Serializable targetId, String targetType, Object permission) {
+	public boolean hasPermission(Authentication authentication, Serializable targetId, String targetType,
+			Object permission) {
 		final var currentUserId = userService.getUserByMicrosoftEntraId(authentication.getName()).map(UserEntity::getId);
 
 		if (currentUserId.isEmpty()) {
 			log.warn("Access denied: user not found; "
-				+ "permission=[{}], targetType=[{}], targetId=[{}]",
-				permission, targetType, targetId);
+					+ "permission=[{}], targetType=[{}], targetId=[{}]",
+					permission, targetType, targetId);
 			return false;
 		}
 
@@ -67,8 +75,8 @@ public class OwnershipPermissionEvaluator implements PermissionEvaluator {
 
 		if (targetResource.isEmpty()) {
 			log.warn("Access denied: resource does not exist; "
-				+ "permission=[{}], targetType=[{}], targetId=[{}], currentUserId=[{}]",
-				permission, targetType, targetId, currentUserId.get());
+					+ "permission=[{}], targetType=[{}], targetId=[{}], currentUserId=[{}]",
+					permission, targetType, targetId, currentUserId.get());
 			return false;
 		}
 
@@ -77,8 +85,8 @@ public class OwnershipPermissionEvaluator implements PermissionEvaluator {
 
 			if (ownerId.isEmpty()) {
 				log.warn("Access denied: resource does not have an owner; "
-					+ "permission=[{}], targetType=[{}], targetId=[{}], currentUserId=[{}]",
-					permission, targetType, targetId, currentUserId.get());
+						+ "permission=[{}], targetType=[{}], targetId=[{}], currentUserId=[{}]",
+						permission, targetType, targetId, currentUserId.get());
 				return false;
 			}
 
@@ -106,8 +114,8 @@ public class OwnershipPermissionEvaluator implements PermissionEvaluator {
 
 					default: {
 						log.warn("Access denied: user is a delegate but requested non-READ permission; "
-							+ "permission=[{}], targetType=[{}], targetId=[{}], currentUserId=[{}]",
-							permission, targetType, targetId, currentUserId.get());
+								+ "permission=[{}], targetType=[{}], targetId=[{}], currentUserId=[{}]",
+								permission, targetType, targetId, currentUserId.get());
 						return false;
 					}
 				}
@@ -115,8 +123,8 @@ public class OwnershipPermissionEvaluator implements PermissionEvaluator {
 		}
 
 		log.warn("Access denied: "
-			+ "permission=[{}], targetType=[{}], targetId=[{}], currentUserId=[{}]",
-			permission, targetType, targetId, currentUserId.get());
+				+ "permission=[{}], targetType=[{}], targetId=[{}], currentUserId=[{}]",
+				permission, targetType, targetId, currentUserId.get());
 		return false;
 	}
 
