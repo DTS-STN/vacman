@@ -8,7 +8,6 @@ import jakarta.validation.constraints.NotNull;
 @Schema(name = "RequestStatusUpdate")
 public record RequestStatusUpdateModel(
 	@NotNull
-	@Schema(description = "The event type that triggered the status change",
-	allowableValues = {"requestSubmitted", "requestPickedUp", "vmsNotRequired", "submitFeedback", "pscNotRequired", "pscRequired", "complete"})
+	@Schema(description = "The event type that triggered the status change", allowableValues = {"requestSubmitted", "requestPickedUp", "vmsNotRequired", "submitFeedback", "pscNotRequired", "pscRequired", "complete"})
 	String eventType
 ) {}
