@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import type { RouteHandle } from 'react-router';
 import { useFetcher } from 'react-router';
@@ -50,6 +50,16 @@ export const handle = {
   i18nNamespace: [...parentHandle.i18nNamespace],
 } as const satisfies RouteHandle;
 
+type ActionErrorResult = {
+  status: 'error';
+  errorMessage?: string;
+  errorCode?: string;
+};
+
+function isActionErrorResult(data: unknown): data is ActionErrorResult {
+  return typeof data === 'object' && data !== null && 'status' in data && (data as { status?: unknown }).status === 'error';
+}
+
 export function meta({ loaderData }: Route.MetaArgs) {
   return [{ title: loaderData.documentTitle }];
 }
@@ -70,6 +80,16 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   const formAction = formData.get('action');
 
   if (formAction === 'delete') {
+    const { t } = await getTranslation(request, handle.i18nNamespace);
+
+    if (requestData.status?.code !== REQUEST_STATUS_CODE.DRAFT) {
+      return {
+        status: 'error',
+        errorMessage: t('app:hiring-manager-referral-requests.delete-request.not-allowed'),
+        errorCode: 'REQUEST_DELETE_NOT_ALLOWED',
+      };
+    }
+
     const deleteRequest = await getRequestService().deleteRequestById(Number(params.requestId), session.authState.accessToken);
 
     if (deleteRequest.isErr()) {
@@ -375,6 +395,7 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
   const fetcher = useFetcher<typeof action>();
   const fetcherState = useFetcherState(fetcher);
   const isSubmitting = fetcherState.submitting;
+  const isDeleting = fetcherState.submitting && fetcherState.action === 'delete';
 
   const alertRef = useRef<HTMLDivElement>(null);
 
@@ -384,6 +405,31 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
   }
 
   const [showDialog, setShowDialog] = useState(false);
+
+  useEffect(() => {
+    if (isDeleting && showDialog) {
+      setShowDialog(false);
+    }
+  }, [isDeleting, showDialog]);
+
+  const defaultDeleteErrorMessage = t('app:hiring-manager-referral-requests.delete-request.error-generic');
+
+  function getAlertConfig() {
+    if (!fetcher.data) return undefined;
+    if (isActionErrorResult(fetcher.data)) {
+      return {
+        type: 'error' as const,
+        message: fetcher.data.errorMessage ?? defaultDeleteErrorMessage,
+      };
+    }
+    return {
+      type: loaderData.isRequestComplete ? ('success' as const) : ('error' as const),
+      message: loaderData.isRequestComplete
+        ? t('app:hiring-manager-referral-requests.request-submitted')
+        : t('app:hiring-manager-referral-requests.request-incomplete'),
+    };
+  }
+  const alertConfig = getAlertConfig();
 
   type CityPreference = {
     province: string;
@@ -488,18 +534,8 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
 
       <h2 className="font-lato mt-4 text-xl font-bold">{t('app:hiring-manager-referral-requests.request-details')}</h2>
 
-      {fetcher.data && (
-        <AlertMessage
-          ref={alertRef}
-          type={loaderData.isRequestComplete ? 'success' : 'error'}
-          message={
-            loaderData.isRequestComplete
-              ? t('app:hiring-manager-referral-requests.request-submitted')
-              : t('app:hiring-manager-referral-requests.request-incomplete')
-          }
-          role="alert"
-          ariaLive="assertive"
-        />
+      {alertConfig && (
+        <AlertMessage ref={alertRef} type={alertConfig.type} message={alertConfig.message} role="alert" ariaLive="assertive" />
       )}
 
       <div className="w-full">

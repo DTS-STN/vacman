@@ -1,4 +1,5 @@
 export default {
+  'generic-error': 'Something went wrong. Try again later.',
   'index': {
     'about': 'The VacMan initiative!',
     'dashboard': 'Dashboard',
@@ -365,10 +366,12 @@ export default {
     'request-incomplete': 'Please complete all required fields before submitting request',
     'request-submitted': 'Request submitted successfully! An HR advisor will review it for approval',
     'delete-request': {
-      title: 'Delete this request?',
-      content: 'This will permanently delete this request. This action cannot be undone.',
-      keep: 'Keep request',
-      delete: 'Delete request',
+      'title': 'Delete this request?',
+      'content': 'This will permanently delete this request. This action cannot be undone.',
+      'keep': 'Keep request',
+      'delete': 'Delete request',
+      'not-allowed': 'Submitted requests can’t be deleted. Only drafts may be removed.',
+      'error-generic': 'Something went wrong while deleting the request. Try again later.',
     },
     'back': 'Back to requests',
   },
