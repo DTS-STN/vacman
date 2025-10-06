@@ -34,6 +34,7 @@ import { PageTitle } from '~/components/page-title';
 import { LANGUAGE_LEVEL, LANGUAGE_REQUIREMENT_CODES } from '~/domain/constants';
 import type { I18nRouteFile } from '~/i18n-routes';
 import type { Errors } from '~/routes/page-components/requests/validation.server';
+import { sanitizePositionNumber } from '~/utils/request-utils';
 import { extractValidationKey } from '~/utils/validation-utils';
 
 interface PositionInformationFormProps {
@@ -61,6 +62,8 @@ export function PositionInformationForm({
 }: PositionInformationFormProps): JSX.Element {
   const { t: tApp } = useTranslation('app');
   const { t: tGcweb } = useTranslation('gcweb');
+
+  const defaultPositionNumber = sanitizePositionNumber(formValues?.positionNumber) ?? '';
 
   const [province, setProvince] = useState(
     formValues?.cities?.[0]?.provinceTerritory.id !== undefined ? String(formValues.cities[0].provinceTerritory.id) : undefined,
@@ -163,7 +166,7 @@ export function PositionInformationForm({
               id="position-number"
               name="positionNumber"
               label={tApp('position-information.position-number')}
-              defaultValue={formValues?.positionNumber}
+              defaultValue={defaultPositionNumber}
               errorMessage={tApp(extractValidationKey(formErrors?.positionNumber))}
               helpMessagePrimary={tApp('position-information.position-number-instruction')}
               required
