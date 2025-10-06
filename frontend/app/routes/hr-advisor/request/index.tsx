@@ -32,7 +32,14 @@ import { LoadingButton } from '~/components/loading-button';
 import { PageTitle } from '~/components/page-title';
 import { ProfileCard } from '~/components/profile-card';
 import { RequestStatusTag } from '~/components/status-tag';
-import { EMPLOYMENT_TENURE, REQUEST_EVENT_TYPE, REQUEST_STATUS_CODE, SELECTION_PROCESS_TYPE } from '~/domain/constants';
+import {
+  EMPLOYMENT_TENURE,
+  REQUEST_CATEGORY,
+  REQUEST_EVENT_TYPE,
+  REQUEST_STATUS_CODE,
+  REQUEST_STATUSES,
+  SELECTION_PROCESS_TYPE,
+} from '~/domain/constants';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { useFetcherState } from '~/hooks/use-fetcher-state';
 import { getTranslation } from '~/i18n-config.server';
@@ -568,9 +575,10 @@ function RenderButtonsByStatus({
 }: RenderButtonsByStatusProps): JSX.Element {
   const { t } = useTranslation('app');
 
+  const isActiveRequest = REQUEST_STATUSES.some((s) => s.code === code && s.category === REQUEST_CATEGORY.active);
+
   // Re-assign only shows up for HR advisors who haven't picked up that request
-  // TODO: remove this button for inactive requests
-  if (!isRequestAssignedToCurrentUser && code !== REQUEST_STATUS_CODE.SUBMIT && code !== REQUEST_STATUS_CODE.DRAFT) {
+  if (!isRequestAssignedToCurrentUser && code !== REQUEST_STATUS_CODE.SUBMIT && isActiveRequest) {
     return (
       <LoadingButton
         className="w-full"
