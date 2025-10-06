@@ -85,9 +85,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     if (requestData.status?.code !== REQUEST_STATUS_CODE.DRAFT) {
       return {
         status: 'error',
-        errorMessage: t('app:hiring-manager-referral-requests.delete-request.not-allowed', {
-          defaultValue: 'Only draft requests can be deleted.',
-        }),
+        errorMessage: t('app:hiring-manager-referral-requests.delete-request.not-allowed'),
         errorCode: 'REQUEST_DELETE_NOT_ALLOWED',
       };
     }
@@ -414,9 +412,7 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
     }
   }, [isDeleting, showDialog]);
 
-  const defaultDeleteErrorMessage = t('app:hiring-manager-referral-requests.delete-request.error-generic', {
-    defaultValue: 'Something went wrong while deleting the request. Try again later.',
-  });
+  const defaultDeleteErrorMessage = t('app:hiring-manager-referral-requests.delete-request.error-generic');
 
   function getAlertConfig() {
     if (!fetcher.data) return undefined;
