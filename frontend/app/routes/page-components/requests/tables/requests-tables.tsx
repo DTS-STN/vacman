@@ -8,10 +8,13 @@ import { useTranslation } from 'react-i18next';
 
 import type { LocalizedLookupModel, LookupModel, RequestReadModel } from '~/.server/domain/models';
 import { DataTable, DataTableColumnHeader, DataTableColumnHeaderWithOptions } from '~/components/data-table';
+import { InputSelect } from '~/components/input-select';
 import { InlineLink } from '~/components/links';
 import { LoadingButton } from '~/components/loading-button';
 import { RequestStatusTag } from '~/components/status-tag';
+import { REQUEST_STATUS_CODE } from '~/domain/constants';
 import { useFetcherState } from '~/hooks/use-fetcher-state';
+import { useLanguage } from '~/hooks/use-language';
 import { formatDateTimeInZone } from '~/utils/date-utils';
 
 interface RequestTablesProps {
@@ -38,7 +41,10 @@ export default function RequestsTables({
   const isSubmitting = fetcherState.submitting;
   const { t } = useTranslation('app');
 
+  const { currentLanguage } = useLanguage();
   const [browserTZ, setBrowserTZ] = useState<string | null>(null);
+  const [srAnnouncement, setSrAnnouncement] = useState('');
+  const [activeFilter, setActiveFilter] = useState<string>('all');
 
   useEffect(() => {
     setBrowserTZ(Intl.DateTimeFormat().resolvedOptions().timeZone);
@@ -105,8 +111,8 @@ export default function RequestsTables({
         },
       },
       {
-        accessorKey: 'requestStatus.id',
-        accessorFn: (row) => row.requestStatus?.name,
+        accessorKey: 'status.code',
+        accessorFn: (row) => (currentLanguage === 'en' ? row.status?.nameEn : row.status?.nameFr),
         header: ({ column }) => (
           <DataTableColumnHeaderWithOptions
             column={column}
@@ -163,40 +169,89 @@ export default function RequestsTables({
     return columns;
   }
 
+  const requestsOptions = useMemo(
+    () => [
+      {
+        value: 'me',
+        children: t('requests-tables.my-requests'),
+      },
+      {
+        value: 'all',
+        children: t('requests-tables.all-requests'),
+      },
+    ],
+    [t],
+  );
+
   return (
-    <div className="mb-8 space-y-4">
-      {view === 'hiring-manager' && (
-        <fetcher.Form method="post" noValidate className="mb-8">
-          <LoadingButton
-            name="action"
-            variant="primary"
-            size="sm"
-            disabled={isSubmitting}
-            loading={isSubmitting}
-            value="create"
-          >
-            {t('requests-tables.create-request')}
-          </LoadingButton>
-        </fetcher.Form>
-      )}
-
-      <section className="mb-8">
-        <h2 className="font-lato text-xl font-bold">{t('requests-tables.active-requests')}</h2>
-        {activeRequests.length === 0 ? (
-          <div>{t('requests-tables.no-active-requests')}</div>
-        ) : (
-          <DataTable columns={createColumns(true)} data={activeRequests} />
+    <>
+      {/* ARIA live region for screen reader announcements */}
+      <div aria-live="polite" role="status" className="sr-only">
+        {srAnnouncement}
+      </div>
+      <div className="mb-8 space-y-4">
+        {view === 'hiring-manager' && (
+          <fetcher.Form method="post" noValidate className="mb-8">
+            <LoadingButton
+              name="action"
+              variant="primary"
+              size="sm"
+              disabled={isSubmitting}
+              loading={isSubmitting}
+              value="create"
+            >
+              {t('requests-tables.create-request')}
+            </LoadingButton>
+          </fetcher.Form>
         )}
-      </section>
+        <section className="my-8">
+          {view === 'hr-advisor' ? (
+            <section className="mb-5 flex flex-col items-end justify-between gap-8 sm:flex-row">
+              <h2 className="font-lato text-xl font-bold">{t('requests-tables.active-requests')}</h2>
+              <InputSelect
+                id="selectRequests"
+                name="selectRequests"
+                required={false}
+                options={requestsOptions}
+                aria-label={t('hr-advisor-employees-table.filter-by')}
+                defaultValue={activeFilter}
+                onChange={({ target }) => {
+                  setActiveFilter(target.value);
+                  const message =
+                    target.value === 'me'
+                      ? t('requests-tables.table-updated.my-requests')
+                      : t('requests-tables.table-updated.all-requests');
+                  setSrAnnouncement(message);
+                }}
+                className="text-left"
+              />
+            </section>
+          ) : (
+            <h2 className="font-lato text-xl font-bold">{t('requests-tables.active-requests')}</h2>
+          )}
 
-      <section>
-        <h2 className="font-lato text-xl font-bold">{t('requests-tables.inactive-requests')}</h2>
-        {inactiveRequests.length === 0 ? (
-          <div>{t('requests-tables.no-inactive-requests')}</div>
-        ) : (
-          <DataTable columns={createColumns(false)} data={inactiveRequests} />
-        )}
-      </section>
-    </div>
+          {activeRequests.length === 0 ? (
+            <div>{t('requests-tables.no-active-requests')}</div>
+          ) : (
+            <DataTable
+              columns={createColumns(true)}
+              data={activeRequests.filter((req) =>
+                activeFilter === 'me' ? req.status?.code === REQUEST_STATUS_CODE.HR_REVIEW : true,
+              )}
+              disableClientSorting={true}
+            />
+          )}
+        </section>
+
+        <section>
+          <h2 className="font-lato text-xl font-bold">{t('requests-tables.inactive-requests')}</h2>
+          {inactiveRequests.length === 0 ? (
+            <div>{t('requests-tables.no-inactive-requests')}</div>
+          ) : (
+            <DataTable columns={createColumns(false)} data={inactiveRequests} />
+          )}
+        </section>
+      </div>
+    </>
   );
 }

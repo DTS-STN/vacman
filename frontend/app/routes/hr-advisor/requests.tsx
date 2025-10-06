@@ -11,7 +11,7 @@ import { serverEnvironment } from '~/.server/environment';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { BackLink } from '~/components/back-link';
 import { PageTitle } from '~/components/page-title';
-import { REQUEST_CATEGORY, REQUEST_STATUSES } from '~/domain/constants';
+import { REQUEST_CATEGORY, REQUEST_STATUS_CODE, REQUEST_STATUSES } from '~/domain/constants';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
 
@@ -30,7 +30,21 @@ export async function loader({ context, request }: Route.LoaderArgs) {
   const { t, lang } = await getTranslation(request, handle.i18nNamespace);
 
   const requestsResult = await getRequestService().getCurrentUserRequests(session.authState.accessToken);
-  const requests = (requestsResult.into()?.content ?? []).filter((req) => req.status?.code !== 'DRAFT');
+  const requests = (requestsResult.into()?.content ?? [])
+    .filter((req) => req.status?.code !== 'DRAFT')
+    .map((req) =>
+      //Replace REQUEST_STATUS_CODE.SUBMIT name with "Request pending approval" for table filtering
+      req.status?.code === REQUEST_STATUS_CODE.SUBMIT
+        ? {
+            ...req,
+            status: {
+              ...req.status,
+              nameEn: t('app:hr-advisor-referral-requests.status.request-pending-approval', { lng: 'en' }),
+              nameFr: t('app:hr-advisor-referral-requests.status.request-pending-approval', { lng: 'fr' }),
+            },
+          }
+        : req,
+    );
 
   const activeRequests = requests.filter((req) =>
     REQUEST_STATUSES.some((s) => s.code === req.status?.code && s.category === REQUEST_CATEGORY.active),
@@ -40,17 +54,22 @@ export async function loader({ context, request }: Route.LoaderArgs) {
     REQUEST_STATUSES.some((s) => s.code === req.status?.code && s.category === REQUEST_CATEGORY.inactive),
   );
 
-  const requestStatuses = await getRequestStatusService().listAllLocalized(lang);
+  const requestStatuses = (await getRequestStatusService().listAllLocalized(lang)).map((req) =>
+    //Replace REQUEST_STATUS_CODE.SUBMIT name with "Request pending approval" for table filtering
+    req.code === REQUEST_STATUS_CODE.SUBMIT
+      ? { ...req, name: t('app:hr-advisor-referral-requests.status.request-pending-approval') }
+      : req,
+  );
 
   const activeRequestNames = requestStatuses
     .filter((req) =>
       REQUEST_STATUSES.some((s) => s.code === req.code && s.category === REQUEST_CATEGORY.active && req.code !== 'DRAFT'),
     )
-    .map(({ name }) => name);
+    .map((req) => req.name);
 
   const inactiveRequestNames = requestStatuses
-    .filter((req) => REQUEST_STATUSES.some((s) => s.code === req.code && s.category === REQUEST_CATEGORY.active))
-    .map(({ name }) => name);
+    .filter((req) => REQUEST_STATUSES.some((s) => s.code === req.code && s.category === REQUEST_CATEGORY.inactive))
+    .map((req) => req.name);
 
   return {
     documentTitle: t('app:hr-advisor-requests.page-title'),
