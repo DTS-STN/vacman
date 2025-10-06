@@ -25,7 +25,7 @@ interface PositionInformationFormProps {
   formValues: Partial<SomcConditions> | undefined;
   formErrors?: Errors;
   params: Params;
-  canEdit?: boolean;
+  canEdit: boolean;
 }
 
 export function SomcConditionsForm({

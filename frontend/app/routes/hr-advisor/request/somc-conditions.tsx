@@ -8,6 +8,7 @@ import type { Route } from './+types/somc-conditions';
 
 import type { RequestUpdateModel } from '~/.server/domain/models';
 import { getRequestService } from '~/.server/domain/services/request-service';
+import { getUserService } from '~/.server/domain/services/user-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { mapRequestToUpdateModelWithOverrides } from '~/.server/utils/request-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
@@ -52,6 +53,13 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     throw new Response('Request not found', { status: HttpStatusCodes.NOT_FOUND });
   }
 
+  const currentUserData = await getUserService().getCurrentUser(session.authState.accessToken);
+  const currentUser = currentUserData.unwrap();
+
+  if (currentUser.id !== requestData.hrAdvisor?.id) {
+    throw new Response('Cannot edit request', { status: HttpStatusCodes.BAD_REQUEST });
+  }
+
   const requestPayload: RequestUpdateModel = mapRequestToUpdateModelWithOverrides(requestData, {
     englishStatementOfMerit: parseResult.output.englishStatementOfMerit,
     frenchStatementOfMerit: parseResult.output.frenchStatementOfMerit,
@@ -84,12 +92,16 @@ export async function loader({ context, params, request }: Route.LoaderArgs) {
     throw new Response('Request not found', { status: HttpStatusCodes.NOT_FOUND });
   }
 
+  const currentUserData = await getUserService().getCurrentUser(session.authState.accessToken);
+  const currentUser = currentUserData.unwrap();
+
   return {
     documentTitle: t('app:somc-conditions.page-title'),
     defaultValues: {
       englishStatementOfMerit: requestData.englishStatementOfMerit,
       frenchStatementOfMerit: requestData.frenchStatementOfMerit,
     },
+    canEdit: currentUser.id === requestData.hrAdvisor?.id,
   };
 }
 
@@ -108,6 +120,7 @@ export default function HiringManagerRequestSomcConditions({ loaderData, actionD
       </BackLink>
       <div className="max-w-prose">
         <SomcConditionsForm
+          canEdit={loaderData.canEdit}
           cancelLink="routes/hr-advisor/request/index.tsx"
           formErrors={actionData?.errors}
           formValues={loaderData.defaultValues}

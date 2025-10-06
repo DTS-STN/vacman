@@ -578,9 +578,12 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
                   </DescriptionListItem>
 
                   <DescriptionListItem term={t('app:process-information.approval-received')}>
-                    {loaderData.workforceMgmtApprovalRecvd
-                      ? t('app:process-information.yes')
-                      : t('app:hiring-manager-referral-requests.not-provided')}
+                    {(() => {
+                      if (loaderData.workforceMgmtApprovalRecvd === undefined) {
+                        return t('app:hiring-manager-referral-requests.not-provided');
+                      }
+                      return loaderData.workforceMgmtApprovalRecvd ? t('gcweb:input-option.yes') : t('gcweb:input-option.no');
+                    })()}
                   </DescriptionListItem>
 
                   <DescriptionListItem term={t('app:process-information.priority-entitlement')}>
@@ -592,7 +595,7 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
                   </DescriptionListItem>
 
                   {loaderData.priorityEntitlement === true && (
-                    <DescriptionListItem term={t('app:process-information.priority-entitlement-rationale')}>
+                    <DescriptionListItem term={t('app:process-information.rationale')}>
                       {loaderData.priorityEntitlementRationale ?? t('app:hiring-manager-referral-requests.not-provided')}
                     </DescriptionListItem>
                   )}
