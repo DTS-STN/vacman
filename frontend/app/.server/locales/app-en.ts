@@ -392,6 +392,8 @@ export default {
     'submission-details': 'Submission details',
     'not-provided': 'Not provided',
     'psc-clearance-number': 'PSC clearance number',
+    'vms-clearance-number': 'VMS clearance number',
+    'psc-clearance-received': 'PSC clearance marked as received',
     'submit': 'Submit',
     'cancel-request': {
       'title': 'Cancel this request?',
@@ -408,6 +410,10 @@ export default {
     },
     'status': {
       'request-pending-approval': 'Request pending approval',
+    },
+    'errors': {
+      'psc-clearance-number-required': 'PSC clearance number is required',
+      'psc-clearance-number-invalid': 'PSC clearance number is invalid',
     },
   },
   'referral-request': 'Referral request',
