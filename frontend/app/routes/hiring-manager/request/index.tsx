@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import type { RouteHandle } from 'react-router';
 import { useFetcher } from 'react-router';
@@ -395,6 +395,7 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
   const fetcher = useFetcher<typeof action>();
   const fetcherState = useFetcherState(fetcher);
   const isSubmitting = fetcherState.submitting;
+  const isDeleting = fetcherState.submitting && fetcherState.action === 'delete';
 
   const alertRef = useRef<HTMLDivElement>(null);
 
@@ -404,6 +405,12 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
   }
 
   const [showDialog, setShowDialog] = useState(false);
+
+  useEffect(() => {
+    if (isDeleting && showDialog) {
+      setShowDialog(false);
+    }
+  }, [isDeleting, showDialog]);
 
   const defaultDeleteErrorMessage = t('app:hiring-manager-referral-requests.delete-request.error-generic');
 
@@ -877,14 +884,7 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
               </Button>
             </DialogClose>
             <fetcher.Form method="post" noValidate>
-              <Button
-                id="delete-request"
-                variant="red"
-                name="action"
-                value="delete"
-                disabled={isSubmitting}
-                onClick={() => setShowDialog(false)}
-              >
+              <Button id="delete-request" variant="red" name="action" value="delete" disabled={isSubmitting}>
                 {t('app:hiring-manager-referral-requests.delete-request.delete')}
               </Button>
             </fetcher.Form>
