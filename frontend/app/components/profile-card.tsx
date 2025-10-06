@@ -13,8 +13,8 @@ import { cn } from '~/utils/tailwind-utils';
 
 interface ProfileCardProps {
   title: string;
-  linkLabel?: string;
-  file?: I18nRouteFile;
+  linkLabel: string;
+  file: I18nRouteFile;
   isComplete?: boolean;
   isNew?: boolean;
   required?: boolean;
@@ -69,7 +69,7 @@ export function ProfileCard({
       </CardHeader>
       <CardContent className="my-3 space-y-3 p-0">{children}</CardContent>
 
-      {linkType && file && linkLabel && (
+      {linkType && (
         <CardFooter
           className={cn(
             'mt-3',

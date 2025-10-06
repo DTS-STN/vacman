@@ -13,6 +13,7 @@ import { getLanguageRequirementService } from '~/.server/domain/services/languag
 import { getProvinceService } from '~/.server/domain/services/province-service';
 import { getRequestService } from '~/.server/domain/services/request-service';
 import { getSecurityClearanceService } from '~/.server/domain/services/security-clearance-service';
+import { getUserService } from '~/.server/domain/services/user-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { mapRequestToUpdateModelWithOverrides } from '~/.server/utils/request-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
@@ -71,6 +72,13 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 
   const requestData: RequestReadModel = requestResult.unwrap();
 
+  const currentUserData = await getUserService().getCurrentUser(session.authState.accessToken);
+  const currentUser = currentUserData.unwrap();
+
+  if (currentUser.id !== requestData.hrAdvisor?.id) {
+    throw new Response('Cannot edit request', { status: HttpStatusCodes.BAD_REQUEST });
+  }
+
   const requestPayload: RequestUpdateModel = mapRequestToUpdateModelWithOverrides(requestData, {
     positionNumbers: parseResult.output.positionNumber,
     classificationId: Number(parseResult.output.groupAndLevel),
@@ -106,6 +114,13 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 
   if (!requestData) {
     throw new Response('Request not found', { status: HttpStatusCodes.NOT_FOUND });
+  }
+
+  const currentUserData = await getUserService().getCurrentUser(session.authState.accessToken);
+  const currentUser = currentUserData.unwrap();
+
+  if (currentUser.id !== requestData.hrAdvisor?.id) {
+    throw new Response('Cannot edit request', { status: HttpStatusCodes.NOT_FOUND });
   }
 
   const { t, lang } = await getTranslation(request, handle.i18nNamespace);

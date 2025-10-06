@@ -4,8 +4,6 @@ import type { JSX } from 'react';
 import type { RouteHandle } from 'react-router';
 import { useFetcher } from 'react-router';
 
-import { faEye } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useTranslation } from 'react-i18next';
 
 import type { Route } from './+types/index';
@@ -27,7 +25,6 @@ import {
   DialogTitle,
 } from '~/components/dialog';
 import { InputField } from '~/components/input-field';
-import { InlineLink } from '~/components/links';
 import { LoadingButton } from '~/components/loading-button';
 import { PageTitle } from '~/components/page-title';
 import { ProfileCard } from '~/components/profile-card';
@@ -44,6 +41,7 @@ import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { useFetcherState } from '~/hooks/use-fetcher-state';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
+import { formatISODate } from '~/utils/date-utils';
 
 export const handle = {
   i18nNamespace: [...parentHandle.i18nNamespace],
@@ -221,7 +219,9 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
               ddClassName="mt-1 text-white sm:col-span-2 sm:mt-0"
               term={t('app:hr-advisor-referral-requests.request-date')}
             >
-              {loaderData.requestDate ?? t('app:hr-advisor-referral-requests.not-provided')}
+              {loaderData.requestDate
+                ? formatISODate(loaderData.requestDate)
+                : t('app:hr-advisor-referral-requests.not-provided')}
             </DescriptionListItem>
 
             <DescriptionListItem
@@ -271,7 +271,13 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div className="mt-8 max-w-prose space-y-10">
-            <ProfileCard title={t('app:hr-advisor-referral-requests.process-information')} params={params}>
+            <ProfileCard
+              title={t('app:hr-advisor-referral-requests.process-information')}
+              linkLabel={t('app:hiring-manager-referral-requests.edit-process-information')}
+              file="routes/hr-advisor/request/process-information.tsx"
+              params={params}
+              linkType={loaderData.isRequestAssignedToCurrentUser ? 'edit' : undefined}
+            >
               <DescriptionList>
                 <DescriptionListItem term={t('app:process-information.selection-process-number')}>
                   {loaderData.selectionProcessNumber ?? t('app:hr-advisor-referral-requests.not-provided')}
@@ -295,9 +301,11 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
                   })()}
                 </DescriptionListItem>
 
-                <DescriptionListItem term={t('app:process-information.rationale')}>
-                  {loaderData.priorityEntitlementRationale ?? t('app:hr-advisor-referral-requests.not-provided')}
-                </DescriptionListItem>
+                {loaderData.priorityEntitlement === true && (
+                  <DescriptionListItem term={t('app:process-information.rationale')}>
+                    {loaderData.priorityEntitlementRationale ?? t('app:hr-advisor-referral-requests.not-provided')}
+                  </DescriptionListItem>
+                )}
 
                 <DescriptionListItem term={t('app:process-information.selection-process-type')}>
                   {loaderData.selectionProcessType ?? t('app:hiring-manager-referral-requests.not-provided')}
@@ -355,7 +363,13 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
               </DescriptionList>
             </ProfileCard>
 
-            <ProfileCard title={t('app:hr-advisor-referral-requests.position-information')} params={params}>
+            <ProfileCard
+              title={t('app:hr-advisor-referral-requests.position-information')}
+              linkLabel={t('app:hiring-manager-referral-requests.edit-position-information')}
+              file="routes/hr-advisor/request/position-information.tsx"
+              params={params}
+              linkType={loaderData.isRequestAssignedToCurrentUser ? 'edit' : undefined}
+            >
               <DescriptionList>
                 <DescriptionListItem term={t('app:position-information.position-number')}>
                   {loaderData.positionNumber ?? t('app:hr-advisor-referral-requests.not-provided')}
@@ -411,16 +425,23 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
               </DescriptionList>
             </ProfileCard>
 
-            <ProfileCard title={t('app:hr-advisor-referral-requests.somc-conditions')} params={params}>
-              <span className="flex items-center gap-x-2">
-                <FontAwesomeIcon icon={faEye} />
-                <InlineLink className="font-semibold" file="routes/hr-advisor/request/somc-conditions.tsx" params={params}>
-                  {t('app:hr-advisor-referral-requests.somc-conditions-link')}
-                </InlineLink>
-              </span>
+            <ProfileCard
+              title={t('app:hr-advisor-referral-requests.somc-conditions')}
+              linkLabel={t('app:hiring-manager-referral-requests.edit-somc-conditions')}
+              file="routes/hr-advisor/request/somc-conditions.tsx"
+              params={params}
+              linkType={loaderData.isRequestAssignedToCurrentUser ? 'edit' : 'view'}
+            >
+              <p className="font-medium">{t('app:somc-conditions.english-french-provided')}</p>
             </ProfileCard>
 
-            <ProfileCard title={t('app:hr-advisor-referral-requests.submission-details')} params={params}>
+            <ProfileCard
+              title={t('app:hr-advisor-referral-requests.submission-details')}
+              linkLabel={t('app:hiring-manager-referral-requests.edit-submission-details')}
+              file="routes/hr-advisor/request/submission-details.tsx"
+              params={params}
+              linkType={loaderData.isRequestAssignedToCurrentUser ? 'edit' : undefined}
+            >
               <DescriptionList>
                 <DescriptionListItem term={t('app:submission-details.submiter-title')}>
                   {loaderData.submitter ? (
