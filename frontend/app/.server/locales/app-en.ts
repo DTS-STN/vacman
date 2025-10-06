@@ -1,4 +1,5 @@
 export default {
+  'generic-error': 'Something went wrong. Try again later.',
   'index': {
     'about': 'The VacMan initiative!',
     'dashboard': 'Dashboard',
@@ -66,8 +67,8 @@ export default {
   },
   'form': {
     'approve': 'Approve',
-    'archive': 'Archive request',
     'cancel': 'Cancel',
+    'cancel-request': 'Cancel Request',
     'save': 'Save',
     'save-and-exit': 'Save and exit',
     'submit': 'Submit',
@@ -365,40 +366,39 @@ export default {
     'request-incomplete': 'Please complete all required fields before submitting request',
     'request-submitted': 'Request submitted successfully! An HR advisor will review it for approval',
     'delete-request': {
-      title: 'Delete this request?',
-      content: 'This will permanently delete this request. This action cannot be undone.',
-      keep: 'Keep request',
-      delete: 'Delete request',
+      'title': 'Delete this request?',
+      'content': 'This will permanently delete this request. This action cannot be undone.',
+      'keep': 'Keep request',
+      'delete': 'Delete request',
+      'not-allowed': 'Submitted requests can’t be deleted. Only drafts may be removed.',
+      'error-generic': 'Something went wrong while deleting the request. Try again later.',
     },
     'back': 'Back to requests',
-    //'view-link': 'View request with ID {{requestId}}',
   },
   'hr-advisor-referral-requests': {
     'page-title': 'Referral requests',
+    'back': 'Back to requests',
     'request-id': 'Request ID',
     'request-date': 'Request date',
     'hiring-manager': 'Hiring manager',
     'hr-advisor': 'HR advisor',
     'request-details': 'Request details',
+    'notice-line-1':
+      'Review request details below for approval. If changes are needed, contact the hiring manager directly to discuss, and update before selecting the appropriate action.',
     'process-information': 'Process information',
     'position-information': 'Position information',
     'somc-conditions': 'Statement of merit criteria and conditions of employment',
     'somc-conditions-link': 'View statement of merit criteria and conditions of employment',
     'submission-details': 'Submission details',
-    'required': 'Required',
-    'complete': 'Complete',
-    'in-progress': 'In Progress',
     'not-provided': 'Not provided',
-    'cancel': 'Cancel',
-    'save-and-exit': 'Save and exit',
     'psc-clearance-number': 'PSC clearance number',
     'submit': 'Submit',
-    'archive-request': {
-      title: 'Archive this request?',
-      content:
-        "Archiving will cancel the request and end the process. You won't be able to make changes, but the request will remain in your archived list.",
-      continue: 'Continue request',
-      archive: 'Archive and exit',
+    'cancel-request': {
+      'title': 'Cancel this request?',
+      'content':
+        "This will end the request process. You won't be able to make changes, but the request will remain in your inactive list.",
+      'continue': 'Continue request',
+      'cancel-and-exit': 'Cancel and exit',
     },
     're-assign-request': {
       title: 'Re-assign request?',

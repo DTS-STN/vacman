@@ -4,8 +4,6 @@ import type { JSX } from 'react';
 import type { RouteHandle } from 'react-router';
 import { useFetcher } from 'react-router';
 
-import { faEye } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useTranslation } from 'react-i18next';
 
 import type { Route } from './+types/index';
@@ -13,6 +11,7 @@ import type { Route } from './+types/index';
 import { getRequestService } from '~/.server/domain/services/request-service';
 import { getUserService } from '~/.server/domain/services/user-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
+import { BackLink } from '~/components/back-link';
 import { Button } from '~/components/button';
 import { ButtonLink } from '~/components/button-link';
 import { DescriptionList, DescriptionListItem } from '~/components/description-list';
@@ -26,16 +25,23 @@ import {
   DialogTitle,
 } from '~/components/dialog';
 import { InputField } from '~/components/input-field';
-import { InlineLink } from '~/components/links';
 import { LoadingButton } from '~/components/loading-button';
 import { PageTitle } from '~/components/page-title';
 import { ProfileCard } from '~/components/profile-card';
 import { RequestStatusTag } from '~/components/status-tag';
-import { EMPLOYMENT_TENURE, REQUEST_STATUS_CODE, SELECTION_PROCESS_TYPE } from '~/domain/constants';
+import {
+  EMPLOYMENT_TENURE,
+  REQUEST_CATEGORY,
+  REQUEST_EVENT_TYPE,
+  REQUEST_STATUS_CODE,
+  REQUEST_STATUSES,
+  SELECTION_PROCESS_TYPE,
+} from '~/domain/constants';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { useFetcherState } from '~/hooks/use-fetcher-state';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
+import { formatISODate } from '~/utils/date-utils';
 
 export const handle = {
   i18nNamespace: [...parentHandle.i18nNamespace],
@@ -118,8 +124,58 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   };
 }
 
-export function action({ context, params, request }: Route.ActionArgs) {
-  //TODO add action logic
+export async function action({ context, params, request }: Route.ActionArgs) {
+  const { session } = context.get(context.applicationContext);
+  requireAuthentication(session, request);
+
+  const requestData = (
+    await getRequestService().getRequestById(Number(params.requestId), session.authState.accessToken)
+  ).into();
+
+  if (!requestData) {
+    throw new Response('Request not found', { status: HttpStatusCodes.NOT_FOUND });
+  }
+
+  const formData = await request.formData();
+  const formAction = formData.get('action');
+
+  if (formAction === 'cancel-request') {
+    const cancelRequest = await getRequestService().cancelRequestById(requestData.id, session.authState.accessToken);
+
+    if (cancelRequest.isErr()) {
+      const error = cancelRequest.unwrapErr();
+      return {
+        status: 'error',
+        errorMessage: error.message,
+        errorCode: error.errorCode,
+      };
+    }
+  }
+
+  if (formAction === 'pickup-request') {
+    const submitResult = await getRequestService().updateRequestStatus(
+      requestData.id,
+      { eventType: REQUEST_EVENT_TYPE.pickedUp },
+      session.authState.accessToken,
+    );
+
+    if (submitResult.isErr()) {
+      const error = submitResult.unwrapErr();
+      return {
+        status: 'error',
+        errorMessage: error.message,
+        errorCode: error.errorCode,
+      };
+    }
+
+    const updatedRequest = submitResult.unwrap();
+
+    return {
+      status: 'submitted',
+      requestStatus: updatedRequest.status,
+    };
+  }
+
   return undefined;
 }
 
@@ -136,7 +192,7 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
   };
 
   type GroupedCities = Record<string, string[]>;
-  const [showArchiveDialog, setShowArchiveDialog] = useState(false);
+  const [showCancelRequestDialog, setShowCancelRequestDialog] = useState(false);
   const [showReAssignDialog, setShowReAssignDialog] = useState(false);
 
   return (
@@ -163,7 +219,9 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
               ddClassName="mt-1 text-white sm:col-span-2 sm:mt-0"
               term={t('app:hr-advisor-referral-requests.request-date')}
             >
-              {loaderData.requestDate ?? t('app:hr-advisor-referral-requests.not-provided')}
+              {loaderData.requestDate
+                ? formatISODate(loaderData.requestDate)
+                : t('app:hr-advisor-referral-requests.not-provided')}
             </DescriptionListItem>
 
             <DescriptionListItem
@@ -199,13 +257,27 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
           className="absolute top-25 left-0 -z-10 h-70 w-full scale-x-[-1] bg-[rgba(9,28,45,1)] bg-[url('/VacMan-design-element-06.svg')] bg-size-[450px] bg-left-bottom bg-no-repeat"
         />
       </div>
-
-      <div className="mt-20 w-full">
+      <BackLink
+        id="back-to-requests"
+        aria-label={t('app:hr-advisor-referral-requests.back')}
+        className="mt-6"
+        file="routes/hr-advisor/requests.tsx"
+        disabled={isSubmitting}
+      >
+        {t('app:hr-advisor-referral-requests.back')}
+      </BackLink>
+      <div className="w-full">
         <h2 className="font-lato mt-4 text-xl font-bold">{t('app:hr-advisor-referral-requests.request-details')}</h2>
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div className="mt-8 max-w-prose space-y-10">
-            <ProfileCard title={t('app:hr-advisor-referral-requests.process-information')} params={params}>
+            <ProfileCard
+              title={t('app:hr-advisor-referral-requests.process-information')}
+              linkLabel={t('app:hiring-manager-referral-requests.edit-process-information')}
+              file="routes/hr-advisor/request/process-information.tsx"
+              params={params}
+              linkType={loaderData.isRequestAssignedToCurrentUser ? 'edit' : undefined}
+            >
               <DescriptionList>
                 <DescriptionListItem term={t('app:process-information.selection-process-number')}>
                   {loaderData.selectionProcessNumber ?? t('app:hr-advisor-referral-requests.not-provided')}
@@ -229,9 +301,11 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
                   })()}
                 </DescriptionListItem>
 
-                <DescriptionListItem term={t('app:process-information.rationale')}>
-                  {loaderData.priorityEntitlementRationale ?? t('app:hr-advisor-referral-requests.not-provided')}
-                </DescriptionListItem>
+                {loaderData.priorityEntitlement === true && (
+                  <DescriptionListItem term={t('app:process-information.rationale')}>
+                    {loaderData.priorityEntitlementRationale ?? t('app:hr-advisor-referral-requests.not-provided')}
+                  </DescriptionListItem>
+                )}
 
                 <DescriptionListItem term={t('app:process-information.selection-process-type')}>
                   {loaderData.selectionProcessType ?? t('app:hiring-manager-referral-requests.not-provided')}
@@ -289,7 +363,13 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
               </DescriptionList>
             </ProfileCard>
 
-            <ProfileCard title={t('app:hr-advisor-referral-requests.position-information')} params={params}>
+            <ProfileCard
+              title={t('app:hr-advisor-referral-requests.position-information')}
+              linkLabel={t('app:hiring-manager-referral-requests.edit-position-information')}
+              file="routes/hr-advisor/request/position-information.tsx"
+              params={params}
+              linkType={loaderData.isRequestAssignedToCurrentUser ? 'edit' : undefined}
+            >
               <DescriptionList>
                 <DescriptionListItem term={t('app:position-information.position-number')}>
                   {loaderData.positionNumber ?? t('app:hr-advisor-referral-requests.not-provided')}
@@ -345,16 +425,23 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
               </DescriptionList>
             </ProfileCard>
 
-            <ProfileCard title={t('app:hr-advisor-referral-requests.somc-conditions')} params={params}>
-              <span className="flex items-center gap-x-2">
-                <FontAwesomeIcon icon={faEye} />
-                <InlineLink className="font-semibold" file="routes/hr-advisor/request/somc-conditions.tsx" params={params}>
-                  {t('app:hr-advisor-referral-requests.somc-conditions-link')}
-                </InlineLink>
-              </span>
+            <ProfileCard
+              title={t('app:hr-advisor-referral-requests.somc-conditions')}
+              linkLabel={t('app:hiring-manager-referral-requests.edit-somc-conditions')}
+              file="routes/hr-advisor/request/somc-conditions.tsx"
+              params={params}
+              linkType={loaderData.isRequestAssignedToCurrentUser ? 'edit' : 'view'}
+            >
+              <p className="font-medium">{t('app:somc-conditions.english-french-provided')}</p>
             </ProfileCard>
 
-            <ProfileCard title={t('app:hr-advisor-referral-requests.submission-details')} params={params}>
+            <ProfileCard
+              title={t('app:hr-advisor-referral-requests.submission-details')}
+              linkLabel={t('app:hiring-manager-referral-requests.edit-submission-details')}
+              file="routes/hr-advisor/request/submission-details.tsx"
+              params={params}
+              linkType={loaderData.isRequestAssignedToCurrentUser ? 'edit' : undefined}
+            >
               <DescriptionList>
                 <DescriptionListItem term={t('app:submission-details.submiter-title')}>
                   {loaderData.submitter ? (
@@ -418,7 +505,7 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
                   code={loaderData.status?.code}
                   isRequestAssignedToCurrentUser={loaderData.isRequestAssignedToCurrentUser}
                   isSubmitting={isSubmitting}
-                  onArchiveClick={() => setShowArchiveDialog(true)}
+                  onCancelRequestClick={() => setShowCancelRequestDialog(true)}
                   onReAssignClick={() => setShowReAssignDialog(true)}
                 />
               </fetcher.Form>
@@ -426,23 +513,32 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
           </div>
         </div>
       </div>
-      <Dialog open={showArchiveDialog} onOpenChange={setShowArchiveDialog}>
-        <DialogContent aria-describedby="archive-dialog-description" role="alertdialog">
+      <Dialog open={showCancelRequestDialog} onOpenChange={setShowCancelRequestDialog}>
+        <DialogContent aria-describedby="cancel-request-dialog-description" role="alertdialog">
           <DialogHeader>
-            <DialogTitle id="archive-dialog-title">{t('app:hr-advisor-referral-requests.archive-request.title')}</DialogTitle>
+            <DialogTitle id="cancel-request-dialog-title">
+              {t('app:hr-advisor-referral-requests.cancel-request.title')}
+            </DialogTitle>
           </DialogHeader>
-          <DialogDescription id="archive-dialog-description">
-            {t('app:hr-advisor-referral-requests.archive-request.content')}
+          <DialogDescription id="cancel-request-dialog-description">
+            {t('app:hr-advisor-referral-requests.cancel-request.content')}
           </DialogDescription>
           <DialogFooter>
             <DialogClose asChild>
               <Button id="confirm-modal-back" variant="alternative" disabled={isSubmitting}>
-                {t('app:hr-advisor-referral-requests.archive-request.continue')}
+                {t('app:hr-advisor-referral-requests.cancel-request.continue')}
               </Button>
             </DialogClose>
             <fetcher.Form method="post" noValidate>
-              <Button id="archive-request" variant="primary" name="action" value="archive" disabled={isSubmitting}>
-                {t('app:hr-advisor-referral-requests.archive-request.archive')}
+              <Button
+                id="cancel-request-request"
+                variant="primary"
+                name="action"
+                value="cancel-request"
+                disabled={isSubmitting}
+                onClick={() => setShowCancelRequestDialog(false)}
+              >
+                {t('app:hr-advisor-referral-requests.cancel-request.cancel-and-exit')}
               </Button>
             </fetcher.Form>
           </DialogFooter>
@@ -465,7 +561,14 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
               </Button>
             </DialogClose>
             <fetcher.Form method="post" noValidate>
-              <Button id="re-assign-request" variant="primary" name="action" value="re-assign" disabled={isSubmitting}>
+              <Button
+                id="re-assign-request"
+                variant="primary"
+                name="action"
+                value="re-assign"
+                disabled={isSubmitting}
+                onClick={() => setShowReAssignDialog(false)}
+              >
                 {t('app:hr-advisor-referral-requests.re-assign-request.reassign')}
               </Button>
             </fetcher.Form>
@@ -480,7 +583,7 @@ interface RenderButtonsByStatusProps {
   code?: string;
   isRequestAssignedToCurrentUser: boolean;
   isSubmitting: boolean;
-  onArchiveClick: () => void;
+  onCancelRequestClick: () => void;
   onReAssignClick: () => void;
 }
 
@@ -488,16 +591,18 @@ function RenderButtonsByStatus({
   code,
   isRequestAssignedToCurrentUser,
   isSubmitting,
-  onArchiveClick,
+  onCancelRequestClick,
   onReAssignClick,
 }: RenderButtonsByStatusProps): JSX.Element {
   const { t } = useTranslation('app');
 
+  const isActiveRequest = REQUEST_STATUSES.some((s) => s.code === code && s.category === REQUEST_CATEGORY.active);
+
   // Re-assign only shows up for HR advisors who haven't picked up that request
-  if (!isRequestAssignedToCurrentUser && code !== REQUEST_STATUS_CODE.SUBMIT && code !== REQUEST_STATUS_CODE.DRAFT) {
+  if (!isRequestAssignedToCurrentUser && code !== REQUEST_STATUS_CODE.SUBMIT && isActiveRequest) {
     return (
       <LoadingButton
-        className="mt-4 w-full"
+        className="w-full"
         name="action"
         variant="primary"
         id="re-assign-to-me"
@@ -515,7 +620,7 @@ function RenderButtonsByStatus({
     case REQUEST_STATUS_CODE.SUBMIT:
       return (
         <LoadingButton
-          className="mt-4 w-full"
+          className="w-full"
           name="action"
           variant="primary"
           id="pickup-request"
@@ -528,15 +633,15 @@ function RenderButtonsByStatus({
       );
     case REQUEST_STATUS_CODE.HR_REVIEW:
       return (
-        <>
-          <Button className="mt-4 w-full" variant="alternative" id="archive" onClick={onArchiveClick}>
-            {t('form.archive')}
+        <div className="flex flex-col">
+          <Button className="w-full" variant="alternative" id="cancel-request" onClick={onCancelRequestClick}>
+            {t('form.cancel-request')}
           </Button>
 
           <ButtonLink
             className="mt-4 w-full"
             variant="alternative"
-            file="routes/hr-advisor/request/index.tsx"
+            file="routes/hr-advisor/requests.tsx"
             id="save"
             disabled={isSubmitting}
           >
@@ -566,14 +671,14 @@ function RenderButtonsByStatus({
           >
             {t('form.run-matches')}
           </LoadingButton>
-        </>
+        </div>
       );
     case REQUEST_STATUS_CODE.PENDING_PSC_NO_VMS:
     case REQUEST_STATUS_CODE.PENDING_PSC:
       return (
-        <>
-          <Button className="mt-4 w-full" variant="alternative" id="archive" onClick={onArchiveClick}>
-            {t('form.archive')}
+        <div className="flex flex-col">
+          <Button className="w-full" variant="alternative" id="cancel-request" onClick={onCancelRequestClick}>
+            {t('form.cancel-request')}
           </Button>
 
           <InputField
@@ -594,38 +699,38 @@ function RenderButtonsByStatus({
           >
             {t('form.psc-clearance-received')}
           </Button>
-        </>
+        </div>
       );
 
     case REQUEST_STATUS_CODE.FDBK_PENDING:
       return (
-        <>
-          <Button className="mt-4 w-full" variant="alternative" id="archive" onClick={onArchiveClick}>
-            {t('form.archive')}
+        <div className="flex flex-col">
+          <Button className="w-full" variant="alternative" id="cancel-request" onClick={onCancelRequestClick}>
+            {t('form.cancel-request')}
           </Button>
           <ButtonLink
             className="mt-4 w-full"
             variant="alternative"
-            file="routes/hr-advisor/request/index.tsx"
+            file="routes/hr-advisor/requests.tsx"
             id="save"
             disabled={isSubmitting}
           >
             {t('form.save-and-exit')}
           </ButtonLink>
-        </>
+        </div>
       );
 
     case REQUEST_STATUS_CODE.NO_MATCH_HR_REVIEW:
     case REQUEST_STATUS_CODE.FDBK_PEND_APPR:
       return (
-        <>
-          <Button className="mt-4 w-full" variant="alternative" id="archive" onClick={onArchiveClick}>
-            {t('form.archive')}
+        <div className="flex flex-col">
+          <Button className="w-full" variant="alternative" id="cancel-request" onClick={onCancelRequestClick}>
+            {t('form.cancel-request')}
           </Button>
           <ButtonLink
             className="mt-4 w-full"
             variant="alternative"
-            file="routes/hr-advisor/request/index.tsx"
+            file="routes/hr-advisor/requests.tsx"
             id="save"
             disabled={isSubmitting}
           >
@@ -653,7 +758,7 @@ function RenderButtonsByStatus({
           >
             {t('form.psc-clearance-not-required')}
           </LoadingButton>
-        </>
+        </div>
       );
     default:
       return <></>;

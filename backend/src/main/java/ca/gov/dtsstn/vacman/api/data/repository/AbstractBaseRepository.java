@@ -5,6 +5,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.repository.NoRepositoryBean;
 
+import ca.gov.dtsstn.vacman.api.data.entity.AbstractBaseEntity;
+
 /**
  * Abstract base repository for common CRUD operations.
  *
@@ -18,6 +20,13 @@ public interface AbstractBaseRepository<T> extends JpaRepository<T, Long>, JpaSp
 	 */
 	static <T> Specification<T> empty() {
 		return (root, query, cb) -> cb.conjunction();
+	}
+
+	/**
+	 * Specification to find a an entity by ID
+	 */
+	static <T extends AbstractBaseEntity> Specification<T> hasId(Long id) {
+		return (root, query, cb) -> cb.equal(root.get("id"), id);
 	}
 
 }

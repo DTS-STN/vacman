@@ -5,6 +5,8 @@ import static ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException.a
 import static ca.gov.dtsstn.vacman.api.web.exception.UnauthorizedException.asEntraIdUnauthorizedException;
 import static ca.gov.dtsstn.vacman.api.web.model.CollectionModel.toCollectionModel;
 
+import java.util.Optional;
+
 import org.mapstruct.factory.Mappers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import ca.gov.dtsstn.vacman.api.config.SpringDocConfig;
+import ca.gov.dtsstn.vacman.api.data.entity.AbstractBaseEntity;
 import ca.gov.dtsstn.vacman.api.security.SecurityUtils;
 import ca.gov.dtsstn.vacman.api.service.ProfileService;
 import ca.gov.dtsstn.vacman.api.service.RequestService;
@@ -41,8 +44,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import java.util.Optional;
-import ca.gov.dtsstn.vacman.api.data.entity.AbstractBaseEntity;
 
 @RestController
 @ApiResponses.AccessDeniedError
@@ -195,8 +196,7 @@ public class RequestsController {
 	@Operation(summary = "Update the status of a request.")
 	@PreAuthorize("hasAuthority('hr-advisor') || hasPermission(#id, 'REQUEST', 'UPDATE')")
 	public ResponseEntity<RequestReadModel> updateRequestStatus(@PathVariable Long id, @Valid @RequestBody RequestStatusUpdateModel statusUpdate) {
-		log.info("Received request to update request status; ID: [{}], Event: [{}]", 
-				id, statusUpdate.eventType());
+		log.info("Received request to update request status; ID: [{}], Event: [{}]",  id, statusUpdate.eventType());
 
 		final var request = requestService.getRequestById(id)
 			.orElseThrow(asResourceNotFoundException("request", id));

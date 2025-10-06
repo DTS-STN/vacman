@@ -127,12 +127,13 @@ public class MatchEntity extends AbstractBaseEntity implements Ownable {
 	@Override
 	public String toString() {
 		return new ToStringCreator(this).append("super", super.toString())
-			.append("profile", profile.getId())
-			.append("request", request.getId())
-			.append("matchStatus", matchStatus.getCode())
-			.append("matchFeedback", matchFeedback.getCode())
+			.append("profile.id", Optional.ofNullable(profile).map(AbstractBaseEntity::getId).orElse(null))
+			.append("request.id", Optional.ofNullable(request).map(AbstractBaseEntity::getId).orElse(null))
+			.append("matchStatus.code", Optional.ofNullable(matchStatus).map(AbstractCodeEntity::getCode).orElse(null))
+			.append("matchFeedback.code", Optional.ofNullable(matchFeedback).map(AbstractCodeEntity::getCode).orElse(null))
 			.append("hiringManagerComment", hiringManagerComment)
 			.append("hrAdvisorComment", hrAdvisorComment)
 			.toString();
 	}
+
 }

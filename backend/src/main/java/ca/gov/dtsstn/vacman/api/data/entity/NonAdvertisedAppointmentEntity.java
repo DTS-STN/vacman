@@ -3,8 +3,10 @@ package ca.gov.dtsstn.vacman.api.data.entity;
 import java.time.Instant;
 
 import org.immutables.builder.Builder;
+import org.springframework.core.style.ToStringCreator;
 
 import jakarta.annotation.Nullable;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 
@@ -15,6 +17,9 @@ public class NonAdvertisedAppointmentEntity extends AbstractCodeEntity {
 	public static NonAdvertisedAppointmentEntityBuilder builder() {
 		return new NonAdvertisedAppointmentEntityBuilder();
 	}
+
+	@Column(name = "[INTERNAL_IND]", nullable = false)
+	protected Boolean internal;
 
 	public NonAdvertisedAppointmentEntity() {
 		super();
@@ -28,11 +33,29 @@ public class NonAdvertisedAppointmentEntity extends AbstractCodeEntity {
 			@Nullable String nameFr,
 			@Nullable Instant effectiveDate,
 			@Nullable Instant expiryDate,
+			@Nullable Boolean internal,
 			@Nullable String createdBy,
 			@Nullable Instant createdDate,
 			@Nullable String lastModifiedBy,
 			@Nullable Instant lastModifiedDate) {
 		super(id, code, nameEn, nameFr, effectiveDate, expiryDate, createdBy, createdDate, lastModifiedBy, lastModifiedDate);
+		this.internal = internal;
+	}
+
+	public Boolean getInternal() {
+		return internal;
+	}
+
+	public void setInternal(Boolean internal) {
+		this.internal = internal;
+	}
+
+	@Override
+	public String toString() {
+		return new ToStringCreator(this)
+			.append("super", super.toString())
+			.append("internal", internal)
+			.toString();
 	}
 
 }

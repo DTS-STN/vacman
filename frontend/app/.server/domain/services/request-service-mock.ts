@@ -8,8 +8,9 @@ import type {
   CollectionRequestResponse,
   RequestQueryParams,
   PagedProfileResponse,
-  RequestStatus,
   RequestStatusUpdate,
+  RequestStatus,
+  User,
 } from '~/.server/domain/models';
 import { getCityService } from '~/.server/domain/services/city-service';
 import { getClassificationService } from '~/.server/domain/services/classification-service';
@@ -17,7 +18,7 @@ import { getEmploymentEquityService } from '~/.server/domain/services/employment
 import { getEmploymentTenureService } from '~/.server/domain/services/employment-tenure-service';
 import { getLanguageForCorrespondenceService } from '~/.server/domain/services/language-for-correspondence-service';
 import { getLanguageRequirementService } from '~/.server/domain/services/language-requirement-service';
-import { createMockRequest, mockRequests } from '~/.server/domain/services/mock-data';
+import { createMockRequest, mockRequests, mockUsers } from '~/.server/domain/services/mock-data';
 import { getNonAdvertisedAppointmentService } from '~/.server/domain/services/non-advertised-appointment-service';
 import type { RequestService } from '~/.server/domain/services/request-service';
 import { getSecurityClearanceService } from '~/.server/domain/services/security-clearance-service';
@@ -26,6 +27,7 @@ import { getUserService } from '~/.server/domain/services/user-service';
 import { getWorkScheduleService } from '~/.server/domain/services/work-schedule-service';
 import { getWorkUnitService } from '~/.server/domain/services/workunit-service';
 import { LogFactory } from '~/.server/logging';
+import { REQUEST_EVENT_TYPE } from '~/domain/constants';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
 
@@ -285,8 +287,8 @@ export function getMockRequestService(): RequestService {
         vmsNotRequired: {
           id: 3,
           code: 'NO_MATCH_HR_REVIEW',
-          nameEn: 'No Match – HR Review',
-          nameFr: 'Aucune concordance – Révision RH',
+          nameEn: 'No Match - HR Review',
+          nameFr: 'Aucune concordance - Révision RH',
         },
         submitFeedback: {
           id: 4,
@@ -316,9 +318,16 @@ export function getMockRequestService(): RequestService {
 
       const newStatus = statusByEvent[statusUpdate.eventType] ?? existingRequest.status;
 
+      // Only assign hrAdvisor for the pickedUp event
+      let hrAdvisor: User | undefined = undefined;
+      if (statusUpdate.eventType === REQUEST_EVENT_TYPE.pickedUp) {
+        hrAdvisor = mockUsers.find((u) => u.userType?.code === 'HRA');
+      }
+
       const updatedRequest: RequestReadModel = {
         ...existingRequest,
         status: newStatus,
+        hrAdvisor,
         lastModifiedDate: new Date().toISOString(),
         lastModifiedBy: 'system',
       };
@@ -391,6 +400,38 @@ export function getMockRequestService(): RequestService {
         },
       };
       return Promise.resolve(Ok(response));
+    },
+
+    /**
+     * Cancels a request by its ID.
+     */
+    async cancelRequestById(requestId: number, accessToken: string): Promise<Result<RequestReadModel, AppError>> {
+      const existingRequestIndex = mockRequests.findIndex((r) => r.id === requestId);
+      if (existingRequestIndex === -1) {
+        return Err(new AppError(`Request with ID ${requestId} not found.`, ErrorCodes.REQUEST_NOT_FOUND));
+      }
+
+      const existingRequest = mockRequests[existingRequestIndex];
+      if (!existingRequest) {
+        return Err(new AppError(`Request with ID ${requestId} not found.`, ErrorCodes.REQUEST_NOT_FOUND));
+      }
+
+      const newStatus: RequestStatus = {
+        id: 10,
+        code: 'CANCELLED',
+        nameEn: 'Cancelled',
+        nameFr: 'Annulée',
+      };
+
+      const updatedRequest: RequestReadModel = {
+        ...existingRequest,
+        status: newStatus,
+        lastModifiedDate: new Date().toISOString(),
+        lastModifiedBy: 'system',
+      };
+
+      mockRequests[existingRequestIndex] = updatedRequest;
+      return Promise.resolve(Ok(updatedRequest));
     },
 
     /**

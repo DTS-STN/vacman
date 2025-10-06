@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import type { RouteHandle } from 'react-router';
 import { useFetcher } from 'react-router';
@@ -50,6 +50,16 @@ export const handle = {
   i18nNamespace: [...parentHandle.i18nNamespace],
 } as const satisfies RouteHandle;
 
+type ActionErrorResult = {
+  status: 'error';
+  errorMessage?: string;
+  errorCode?: string;
+};
+
+function isActionErrorResult(data: unknown): data is ActionErrorResult {
+  return typeof data === 'object' && data !== null && 'status' in data && (data as { status?: unknown }).status === 'error';
+}
+
 export function meta({ loaderData }: Route.MetaArgs) {
   return [{ title: loaderData.documentTitle }];
 }
@@ -70,6 +80,16 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   const formAction = formData.get('action');
 
   if (formAction === 'delete') {
+    const { t } = await getTranslation(request, handle.i18nNamespace);
+
+    if (requestData.status?.code !== REQUEST_STATUS_CODE.DRAFT) {
+      return {
+        status: 'error',
+        errorMessage: t('app:hiring-manager-referral-requests.delete-request.not-allowed'),
+        errorCode: 'REQUEST_DELETE_NOT_ALLOWED',
+      };
+    }
+
     const deleteRequest = await getRequestService().deleteRequestById(Number(params.requestId), session.authState.accessToken);
 
     if (deleteRequest.isErr()) {
@@ -344,7 +364,6 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     languageRequirement: requestData.languageRequirement,
     englishLanguageProfile: requestData.englishLanguageProfile,
     frenchLanguageProfile: requestData.frenchLanguageProfile,
-    securityClearance: requestData.securityClearance,
     isCompleteStatementOfMeritCriteriaInformaion,
     isStatementOfMeritCriteriaNew: statementOfMeritCriteriaInformationCompleted === 0,
     englishStatementOfMerit: requestData.englishStatementOfMerit,
@@ -365,6 +384,8 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     pscClearanceNumber: requestData.pscClearanceNumber,
     requestNumber: requestData.requestNumber,
     requestDate: requestData.createdDate,
+    languageRequirementName: lang === 'en' ? requestData.languageRequirement?.nameEn : requestData.languageRequirement?.nameFr,
+    securityClearanceName: lang === 'en' ? requestData.securityClearance?.nameEn : requestData.securityClearance?.nameFr,
     lang,
   };
 }
@@ -374,6 +395,7 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
   const fetcher = useFetcher<typeof action>();
   const fetcherState = useFetcherState(fetcher);
   const isSubmitting = fetcherState.submitting;
+  const isDeleting = fetcherState.submitting && fetcherState.action === 'delete';
 
   const alertRef = useRef<HTMLDivElement>(null);
 
@@ -384,8 +406,30 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
 
   const [showDialog, setShowDialog] = useState(false);
 
-  const isSubmitted =
-    loaderData.status?.code === REQUEST_STATUS_CODE.SUBMIT || loaderData.status?.code === REQUEST_STATUS_CODE.HR_REVIEW;
+  useEffect(() => {
+    if (isDeleting && showDialog) {
+      setShowDialog(false);
+    }
+  }, [isDeleting, showDialog]);
+
+  const defaultDeleteErrorMessage = t('app:hiring-manager-referral-requests.delete-request.error-generic');
+
+  function getAlertConfig() {
+    if (!fetcher.data) return undefined;
+    if (isActionErrorResult(fetcher.data)) {
+      return {
+        type: 'error' as const,
+        message: fetcher.data.errorMessage ?? defaultDeleteErrorMessage,
+      };
+    }
+    return {
+      type: loaderData.isRequestComplete ? ('success' as const) : ('error' as const),
+      message: loaderData.isRequestComplete
+        ? t('app:hiring-manager-referral-requests.request-submitted')
+        : t('app:hiring-manager-referral-requests.request-incomplete'),
+    };
+  }
+  const alertConfig = getAlertConfig();
 
   type CityPreference = {
     province: string;
@@ -403,7 +447,7 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
 
         <PageTitle>{t('app:hiring-manager-referral-requests.page-title')}</PageTitle>
 
-        {isSubmitted && (
+        {loaderData.status?.code !== REQUEST_STATUS_CODE.DRAFT && (
           <div>
             <DescriptionList className="flex">
               <DescriptionListItem
@@ -456,13 +500,23 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
         <div
           role="presentation"
           className={cn(
-            isSubmitted ? 'h-70' : 'h-50',
+            loaderData.status?.code !== REQUEST_STATUS_CODE.DRAFT ? 'h-70' : 'h-50',
             "absolute top-25 left-0 -z-10 w-full scale-x-[-1] bg-[rgba(9,28,45,1)] bg-[url('/VacMan-design-element-06.svg')] bg-size-[450px] bg-left-bottom bg-no-repeat",
           )}
         />
       </div>
 
-      {!isSubmitted && (
+      <BackLink
+        id="back-to-requests"
+        aria-label={t('app:hiring-manager-referral-requests.back')}
+        className="mt-10"
+        file="routes/hiring-manager/requests.tsx"
+        disabled={isSubmitting}
+      >
+        {t('app:hiring-manager-referral-requests.back')}
+      </BackLink>
+
+      {loaderData.status?.code === REQUEST_STATUS_CODE.DRAFT && (
         <ContextualAlert type="info" role="status" ariaLive="polite">
           <div className="space-y-2 px-4">
             <p>{t('app:hiring-manager-referral-requests.notice-line-1')}</p>
@@ -478,38 +532,18 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
         </ContextualAlert>
       )}
 
-      {isSubmitted && (
-        <BackLink
-          id="back-to-requests"
-          aria-label={t('app:hiring-manager-referral-requests.back')}
-          className="mt-6"
-          file="routes/hiring-manager/requests.tsx"
-          disabled={isSubmitting}
-        >
-          {t('app:hiring-manager-referral-requests.back')}
-        </BackLink>
-      )}
-
       <h2 className="font-lato mt-4 text-xl font-bold">{t('app:hiring-manager-referral-requests.request-details')}</h2>
 
-      {fetcher.data && (
-        <AlertMessage
-          ref={alertRef}
-          type={loaderData.isRequestComplete ? 'success' : 'error'}
-          message={
-            loaderData.isRequestComplete
-              ? t('app:hiring-manager-referral-requests.request-submitted')
-              : t('app:hiring-manager-referral-requests.request-incomplete')
-          }
-          role="alert"
-          ariaLive="assertive"
-        />
+      {alertConfig && (
+        <AlertMessage ref={alertRef} type={alertConfig.type} message={alertConfig.message} role="alert" ariaLive="assertive" />
       )}
 
       <div className="w-full">
-        <div className="text-black-800 mt-4 max-w-prose text-base">
-          {t('app:hiring-manager-referral-requests.page-description')}
-        </div>
+        {loaderData.status?.code === REQUEST_STATUS_CODE.DRAFT && (
+          <div className="text-black-800 mt-4 max-w-prose text-base">
+            {t('app:hiring-manager-referral-requests.page-description')}
+          </div>
+        )}
 
         {loaderData.status?.code === REQUEST_STATUS_CODE.DRAFT && (
           <div className="mt-4">
@@ -544,9 +578,12 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
                   </DescriptionListItem>
 
                   <DescriptionListItem term={t('app:process-information.approval-received')}>
-                    {loaderData.workforceMgmtApprovalRecvd
-                      ? t('app:process-information.yes')
-                      : t('app:hiring-manager-referral-requests.not-provided')}
+                    {(() => {
+                      if (loaderData.workforceMgmtApprovalRecvd === undefined) {
+                        return t('app:hiring-manager-referral-requests.not-provided');
+                      }
+                      return loaderData.workforceMgmtApprovalRecvd ? t('gcweb:input-option.yes') : t('gcweb:input-option.no');
+                    })()}
                   </DescriptionListItem>
 
                   <DescriptionListItem term={t('app:process-information.priority-entitlement')}>
@@ -558,7 +595,7 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
                   </DescriptionListItem>
 
                   {loaderData.priorityEntitlement === true && (
-                    <DescriptionListItem term={t('app:process-information.priority-entitlement-rationale')}>
+                    <DescriptionListItem term={t('app:process-information.rationale')}>
                       {loaderData.priorityEntitlementRationale ?? t('app:hiring-manager-referral-requests.not-provided')}
                     </DescriptionListItem>
                   )}
@@ -677,7 +714,7 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
                   </DescriptionListItem>
 
                   <DescriptionListItem term={t('app:position-information.language-profile')}>
-                    {loaderData.languageRequirement?.code ?? t('app:hiring-manager-referral-requests.not-provided')}
+                    {loaderData.languageRequirementName ?? t('app:hiring-manager-referral-requests.not-provided')}
                   </DescriptionListItem>
 
                   {(loaderData.languageRequirement?.code === LANGUAGE_REQUIREMENT_CODES.bilingualImperative ||
@@ -694,7 +731,7 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
                   )}
 
                   <DescriptionListItem term={t('app:position-information.security-requirement')}>
-                    {loaderData.securityClearance?.code ?? t('app:hiring-manager-referral-requests.not-provided')}
+                    {loaderData.securityClearanceName ?? t('app:hiring-manager-referral-requests.not-provided')}
                   </DescriptionListItem>
                 </DescriptionList>
               )}
@@ -795,7 +832,7 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
             </ProfileCard>
           </div>
 
-          {!isSubmitted && (
+          {loaderData.status?.code === REQUEST_STATUS_CODE.DRAFT && (
             <div className="mt-8 max-w-prose">
               <div className="flex justify-center">
                 <fetcher.Form className="mt-6 md:mt-auto" method="post" noValidate>

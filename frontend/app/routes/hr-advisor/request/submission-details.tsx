@@ -103,6 +103,14 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   }
 
   const requestData: RequestReadModel = requestResult.unwrap();
+
+  const currentUserData = await getUserService().getCurrentUser(session.authState.accessToken);
+  const currentUser = currentUserData.unwrap();
+
+  if (currentUser.id !== requestData.hrAdvisor?.id) {
+    throw new Response('Cannot edit request', { status: HttpStatusCodes.BAD_REQUEST });
+  }
+
   const { isSubmiterHiringManager, isSubmiterSubdelegate, isHiringManagerASubDelegate } = parseResult.output;
   if (isSubmiterHiringManager) {
     hiringManagerId = requestData.submitter?.id;
@@ -141,6 +149,13 @@ export async function loader({ context, params, request }: Route.LoaderArgs) {
 
   if (!requestData) {
     throw new Response('Request not found', { status: HttpStatusCodes.NOT_FOUND });
+  }
+
+  const currentUserData = await getUserService().getCurrentUser(session.authState.accessToken);
+  const currentUser = currentUserData.unwrap();
+
+  if (currentUser.id !== requestData.hrAdvisor?.id) {
+    throw new Response('Cannot edit request', { status: HttpStatusCodes.NOT_FOUND });
   }
 
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);

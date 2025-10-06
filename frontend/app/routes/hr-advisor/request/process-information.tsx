@@ -12,6 +12,7 @@ import { getEmploymentTenureService } from '~/.server/domain/services/employment
 import { getNonAdvertisedAppointmentService } from '~/.server/domain/services/non-advertised-appointment-service';
 import { getRequestService } from '~/.server/domain/services/request-service';
 import { getSelectionProcessTypeService } from '~/.server/domain/services/selection-process-type-service';
+import { getUserService } from '~/.server/domain/services/user-service';
 import { getWorkScheduleService } from '~/.server/domain/services/work-schedule-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { mapRequestToUpdateModelWithOverrides } from '~/.server/utils/request-utils';
@@ -55,6 +56,13 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 
   const requestData: RequestReadModel = requestResult.unwrap();
 
+  const currentUserData = await getUserService().getCurrentUser(session.authState.accessToken);
+  const currentUser = currentUserData.unwrap();
+
+  if (currentUser.id !== requestData.hrAdvisor?.id) {
+    throw new Response('Cannot edit request', { status: HttpStatusCodes.BAD_REQUEST });
+  }
+
   const requestPayload: RequestUpdateModel = mapRequestToUpdateModelWithOverrides(requestData, {
     selectionProcessNumber: parseResult.output.selectionProcessNumber,
     workforceMgmtApprovalRecvd: parseResult.output.approvalReceived,
@@ -90,6 +98,13 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 
   if (!requestData) {
     throw new Response('Request not found', { status: HttpStatusCodes.NOT_FOUND });
+  }
+
+  const currentUserData = await getUserService().getCurrentUser(session.authState.accessToken);
+  const currentUser = currentUserData.unwrap();
+
+  if (currentUser.id !== requestData.hrAdvisor?.id) {
+    throw new Response('Cannot edit request', { status: HttpStatusCodes.NOT_FOUND });
   }
 
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);

@@ -1,6 +1,7 @@
 import type appEn from '~/.server/locales/app-en';
 
 export default {
+  'generic-error': 'Une erreur est survenue. Veuillez réessayer plus tard.',
   'index': {
     'about': "L'initiative VacMan!",
     'dashboard': 'Tableau de bord',
@@ -69,8 +70,8 @@ export default {
   },
   'form': {
     'approve': 'Approuver',
-    'archive': 'Archiver la demande',
     'cancel': 'Annuler',
+    'cancel-request': 'Annuler la demande',
     'save': 'Enregistrer',
     'save-and-exit': 'Enregistrer et quitter',
     'submit': 'Soumettre',
@@ -220,7 +221,7 @@ export default {
     'approval-received':
       'Approbation reçue du Comité de gestion des effectifs (postes non-EX) ou du Comité de gestion des personnes et du leadership (postes EX)',
     'priority-entitlement':
-      "Est-ce que la nomination d'un bénéficiaire de priorité aurait pour effet de conférer un droit de priorité à un-e autre fonctionnaire nommé-e pour une période indéterminée ?",
+      "Est-ce que la nomination d'un bénéficiaire de priorité aurait pour effet de conférer un droit de priorité à un-e autre fonctionnaire nommé-e pour une période indéterminée?",
     'priority-entitlement-rationale': 'Veuillez fournir la justification',
     'rationale': 'Justification',
     'selection-process-type': 'Type de processus de sélection',
@@ -231,9 +232,9 @@ export default {
     'work-schedule': 'Horaire de travail',
     'work-schedule-help-message': "Preuves à l'appui requises",
     'employment-equity-identified':
-      "Est-ce qu'un besoin organisationnel d'équité en matière d'emploi a été identifié pour ce processus, cette mutation ou cette nomination ?",
-    'employment-equity-identified-alt': "Est-ce qu'un besoin organisationnel d'équité en matière d'emploi a été identifié ?",
-    'preferred-employment-equities': "Quel besoin organisationnel en matière d'équité en matière d'emploi a été identifié ?",
+      "Est-ce qu'un besoin organisationnel d'équité en matière d'emploi a été identifié pour ce processus, cette mutation ou cette nomination?",
+    'employment-equity-identified-alt': "Est-ce qu'un besoin organisationnel d'équité en matière d'emploi a été identifié?",
+    'preferred-employment-equities': "Quel besoin organisationnel en matière d'équité en matière d'emploi a été identifié?",
     'preferred-employment-equities-help-message': "Sélectionnez tout ce qui s'applique",
     'projected-start-date': "Date d'effet anticipée",
     'projected-end-date': 'Date de fin anticipée',
@@ -300,7 +301,7 @@ export default {
     'employee-work-email': "Adresse e-mail professionnelle de l'employé-e",
     'archive-confirmation': {
       title: "Confirmer l'archivage",
-      message: 'Êtes-vous sûr de vouloir archiver le profil pour {{profileUserName}} ? Cette action ne peut pas être annulée.',
+      message: 'Êtes-vous sûr de vouloir archiver le profil pour {{profileUserName}}? Cette action ne peut pas être annulée.',
       cancel: 'Annuler',
       confirm: 'Archiver',
     },
@@ -309,7 +310,7 @@ export default {
       'email-required': "L'adresse du courriel est requise.",
       'email-invalid': "L'adresse du courriel n'est pas valide.",
       'profile-already-exists': "L'utilisateur a déjà un profil actif",
-      'no-user-found-with-this-email': 'No user found with this email address. FR',
+      'no-user-found-with-this-email': "Aucun utilisateur n'a été trouvé avec cette adresse e-mail.",
     },
   },
   'hr-advisor-requests': {
@@ -370,49 +371,48 @@ export default {
     'request-incomplete': 'Veuillez remplir tous les champs obligatoires avant de soumettre votre demande',
     'request-submitted': "Demande soumise avec succès! Un-e conseiller(ère) RH va l'examiner pour approbation",
     'delete-request': {
-      title: 'Supprimer cette demande\u00A0?',
-      content: 'Cela supprimera définitivement la demande. Cette action est irréversible.',
-      keep: 'Conserver la demande',
-      delete: 'Supprimer la demande',
+      'title': 'Supprimer cette demande?',
+      'content': 'Cela supprimera définitivement la demande. Cette action est irréversible.',
+      'keep': 'Conserver la demande',
+      'delete': 'Supprimer la demande',
+      'not-allowed': 'Les demandes déjà soumises ne peuvent pas être supprimées. Seuls les brouillons peuvent être retirés.',
+      'error-generic': 'Une erreur est survenue lors de la suppression de la demande. Veuillez réessayer plus tard.',
     },
     'back': 'Retour aux demandes',
-    //'view-link': 'View request with ID {{requestId}}',
   },
   'hr-advisor-referral-requests': {
-    'page-title': 'Referral requests FR',
-    'request-id': '(FR) Request ID',
-    'request-date': '(FR) Request date',
-    'hiring-manager': '(FR) Hiring manager',
-    'hr-advisor': '(FR) HR advisor',
-    'request-details': 'Request details FR',
-    'process-information': 'Process information FR',
-    'position-information': 'Position information FR',
-    'somc-conditions': 'Statement of merit criteria and conditions of employment FR',
+    'page-title': 'Demande de présentation de candidatures',
+    'back': 'Retour aux demandes',
+    'request-id': 'No. de la demande',
+    'request-date': 'Date de la demande',
+    'hiring-manager': "Gestionnaire d'embauche",
+    'hr-advisor': 'Conseiller(ère)',
+    'request-details': 'Information sur la demande',
+    'notice-line-1':
+      "Consultez les détails de la demande ci-dessous pour approbation. Si des modifications sont nécessaires, communiquez directement avec le-la gestionnaire d'embauche pour en discuter et mettre à jour la demande avant de sélectionner l'action appropriée.",
+    'process-information': 'Informations sur le processus',
+    'position-information': 'Informations sur le poste',
+    'somc-conditions': "Énoncé de critères de mérite et conditions d'emploi",
     'somc-conditions-link': "Afficher Énoncé de critères de mérite et conditions d'emploi",
-    'submission-details': 'Submission details FR',
-    'required': 'Required FR',
-    'complete': 'Complete FR',
-    'in-progress': 'In Progress FR',
-    'not-provided': 'Not provided FR',
-    'cancel': 'Cancel FR',
-    'save-and-exit': 'Save and exit FR',
-    'psc-clearance-number': 'PSC clearance number',
-    'submit': 'Submit FR',
-    'archive-request': {
-      title: 'Archiver cette demande\u00A0?',
-      content:
-        "L'archivage annulera la demande et mettra fin au processus. Vous ne pourrez plus apporter de modifications, mais la demande restera disponible dans votre liste des demandes archivées.",
-      continue: 'Continuer la demande',
-      archive: 'Archiver et quitter',
+    'submission-details': 'Détails de la soumission',
+    'not-provided': 'non fourni',
+    'psc-clearance-number': "Numéro d'autorisation de la CFP",
+    'submit': 'Soumettre',
+    'cancel-request': {
+      'title': 'Annuler cette demande?',
+      'content':
+        'Cela mettra fin au processus de demande. Vous ne pourrez plus apporter de modifications, mais la demande restera disponible dans votre liste des demandes inactives.',
+      'continue': 'Continuer la demande',
+      'cancel-and-exit': 'Annuler et quitter',
     },
     're-assign-request': {
-      title: 'Réassigner la demande\u00A0?',
+      title: 'Réassigner la demande?',
       content:
-        'Cette demande est actuellement assignée à [nom du conseiller RH actuel]. Êtes-vous certain-e de vouloir vous la réassigner\u00A0?',
+        'Cette demande est actuellement assignée à [nom du conseiller RH actuel]. Êtes-vous certain-e de vouloir vous la réassigner?',
       reassign: 'Réassigner à moi',
     },
     'status': {
-      'request-pending-approval': '(FR) Request pending approval',
+      'request-pending-approval': "Demande en attente d'approbation",
     },
   },
   'referral-request': 'Demande de présentation de candidatures',
@@ -486,7 +486,7 @@ export default {
     'hiring-manager': {
       'submitter': 'Personne ayant soumis la demande\u00A0:{{name}}',
       'are-you-hiring-manager-for-request': "Êtes-vous le gestionnaire d'embauche pour cette demande?",
-      'are-you-a-subdelegate': 'Êtes-vous un-e gestionnaire subdélégué-e\u00A0?',
+      'are-you-a-subdelegate': 'Êtes-vous un-e gestionnaire subdélégué-e?',
     },
     'hiring-manager-email': "Adresse courriel du (de la) gestionnaire d'embauche",
     'hiring-manager-name': "Gestionnaire d'embauche\u00A0:{{name}}",
@@ -502,7 +502,7 @@ export default {
     'hiring-manager-title': "Gestionnaire d'embauche",
     'sub-delegate-title': 'Subdélégué-e',
     'errors': {
-      'no-user-found-with-this-email': 'No user found with this email address. FR',
+      'no-user-found-with-this-email': "Aucun utilisateur n'a été trouvé avec cette adresse e-mail",
       'is-submitter-hiring-manager-required':
         "Le champ «\u00a0Est-ce que le (la) soumissionnaire est le (la) gestionnaire d'embauche pour cette demande\u00a0» est requis. ",
       'is-submitter-a-sub-delegate-required':

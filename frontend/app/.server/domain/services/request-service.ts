@@ -61,6 +61,9 @@ export type RequestService = {
   // GET /api/v1/requests/{id}/profiles - Get candidate profiles for a request
   getRequestProfiles(requestId: number, accessToken: string): Promise<Result<PagedProfileResponse, AppError>>;
 
+  //POST /api/v1/requests/{id}/cancel - Cancel a request by ID
+  cancelRequestById(requestId: number, accessToken: string): Promise<Result<RequestReadModel, AppError>>;
+
   // Optional method for finding request by ID
   findRequestById(requestId: number, accessToken: string): Promise<Option<RequestReadModel>>;
 };

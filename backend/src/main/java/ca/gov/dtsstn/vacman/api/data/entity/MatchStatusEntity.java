@@ -2,7 +2,6 @@ package ca.gov.dtsstn.vacman.api.data.entity;
 
 import java.time.Instant;
 
-import org.hibernate.annotations.Immutable;
 import org.immutables.builder.Builder;
 
 import jakarta.annotation.Nullable;
@@ -35,4 +34,5 @@ public class MatchStatusEntity extends AbstractCodeEntity {
 			@Nullable Instant lastModifiedDate) {
 		super(id, code, nameEn, nameFr, effectiveDate, expiryDate, createdBy, createdDate, lastModifiedBy, lastModifiedDate);
 	}
+
 }
