@@ -13,6 +13,7 @@ import type { Route } from './+types/index';
 import { getRequestService } from '~/.server/domain/services/request-service';
 import { getUserService } from '~/.server/domain/services/user-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
+import { BackLink } from '~/components/back-link';
 import { Button } from '~/components/button';
 import { ButtonLink } from '~/components/button-link';
 import { DescriptionList, DescriptionListItem } from '~/components/description-list';
@@ -224,8 +225,16 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
           className="absolute top-25 left-0 -z-10 h-70 w-full scale-x-[-1] bg-[rgba(9,28,45,1)] bg-[url('/VacMan-design-element-06.svg')] bg-size-[450px] bg-left-bottom bg-no-repeat"
         />
       </div>
-
-      <div className="mt-20 w-full">
+      <BackLink
+        id="back-to-requests"
+        aria-label={t('app:hr-advisor-referral-requests.back')}
+        className="mt-6"
+        file="routes/hr-advisor/requests.tsx"
+        disabled={isSubmitting}
+      >
+        {t('app:hr-advisor-referral-requests.back')}
+      </BackLink>
+      <div className="w-full">
         <h2 className="font-lato mt-4 text-xl font-bold">{t('app:hr-advisor-referral-requests.request-details')}</h2>
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
