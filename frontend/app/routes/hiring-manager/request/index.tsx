@@ -435,9 +435,6 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
   }
   const alertConfig = getAlertConfig();
 
-  const isSubmitted =
-    loaderData.status?.code === REQUEST_STATUS_CODE.SUBMIT || loaderData.status?.code === REQUEST_STATUS_CODE.HR_REVIEW;
-
   type CityPreference = {
     province: string;
     city: string;
