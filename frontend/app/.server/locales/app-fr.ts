@@ -397,6 +397,8 @@ export default {
     'submission-details': 'Détails de la soumission',
     'not-provided': 'non fourni',
     'psc-clearance-number': "Numéro d'autorisation de la CFP",
+    'vms-clearance-number': "Numéro d'autorisation SGPV",
+    'psc-clearance-received': 'Autorisation de la CFP marquée comme reçue',
     'submit': 'Soumettre',
     'cancel-request': {
       'title': 'Annuler cette demande?',
@@ -413,6 +415,10 @@ export default {
     },
     'status': {
       'request-pending-approval': "Demande en attente d'approbation",
+    },
+    'errors': {
+      'psc-clearance-number-required': 'Autorisation CFP est requise',
+      'psc-clearance-number-invalid': "L'autorisation de la CFP n'est pas valide",
     },
   },
   'referral-request': 'Demande de présentation de candidatures',

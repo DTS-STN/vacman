@@ -1,16 +1,20 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import type { JSX } from 'react';
 
 import type { RouteHandle } from 'react-router';
-import { useFetcher } from 'react-router';
+import { data, useFetcher } from 'react-router';
 
 import { useTranslation } from 'react-i18next';
+import * as v from 'valibot';
 
 import type { Route } from './+types/index';
 
+import type { RequestUpdateModel } from '~/.server/domain/models';
 import { getRequestService } from '~/.server/domain/services/request-service';
 import { getUserService } from '~/.server/domain/services/user-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
+import { mapRequestToUpdateModelWithOverrides } from '~/.server/utils/request-utils';
+import { AlertMessage } from '~/components/alert-message';
 import { BackLink } from '~/components/back-link';
 import { Button } from '~/components/button';
 import { ButtonLink } from '~/components/button-link';
@@ -24,6 +28,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '~/components/dialog';
+import { ActionDataErrorSummary } from '~/components/error-summary';
 import { InputField } from '~/components/input-field';
 import { LoadingButton } from '~/components/loading-button';
 import { PageTitle } from '~/components/page-title';
@@ -41,7 +46,12 @@ import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { useFetcherState } from '~/hooks/use-fetcher-state';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
+import { PSCGrantedCard } from '~/routes/page-components/requests/psc-granted-card';
+import type { Errors } from '~/routes/page-components/requests/validation.server';
 import { formatISODate } from '~/utils/date-utils';
+import { REGEX_PATTERNS } from '~/utils/regex-utils';
+import { formString } from '~/utils/string-utils';
+import { extractValidationKey } from '~/utils/validation-utils';
 
 export const handle = {
   i18nNamespace: [...parentHandle.i18nNamespace],
@@ -83,6 +93,8 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     workforceMgmtApprovalRecvd: currentRequest.workforceMgmtApprovalRecvd,
     priorityEntitlement: currentRequest.priorityEntitlement,
     priorityEntitlementRationale: currentRequest.priorityEntitlementRationale,
+    pscClearanceNumber: currentRequest.pscClearanceNumber,
+    priorityClearanceNumber: currentRequest.priorityClearanceNumber,
     selectionProcessType:
       lang === 'en' ? currentRequest.selectionProcessType?.nameEn : currentRequest.selectionProcessType?.nameEn,
     selectionProcessTypeCode: currentRequest.selectionProcessType?.code,
@@ -137,43 +149,126 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   }
 
   const formData = await request.formData();
-  const formAction = formData.get('action');
 
-  if (formAction === 'cancel-request') {
-    const cancelRequest = await getRequestService().cancelRequestById(requestData.id, session.authState.accessToken);
+  switch (formData.get('action')) {
+    case 'cancel-request': {
+      const cancelRequest = await getRequestService().cancelRequestById(requestData.id, session.authState.accessToken);
 
-    if (cancelRequest.isErr()) {
-      const error = cancelRequest.unwrapErr();
-      return {
-        status: 'error',
-        errorMessage: error.message,
-        errorCode: error.errorCode,
-      };
-    }
-  }
-
-  if (formAction === 'pickup-request') {
-    const submitResult = await getRequestService().updateRequestStatus(
-      requestData.id,
-      { eventType: REQUEST_EVENT_TYPE.pickedUp },
-      session.authState.accessToken,
-    );
-
-    if (submitResult.isErr()) {
-      const error = submitResult.unwrapErr();
-      return {
-        status: 'error',
-        errorMessage: error.message,
-        errorCode: error.errorCode,
-      };
+      if (cancelRequest.isErr()) {
+        const error = cancelRequest.unwrapErr();
+        return {
+          status: 'error',
+          errorMessage: error.message,
+          errorCode: error.errorCode,
+        };
+      }
+      break;
     }
 
-    const updatedRequest = submitResult.unwrap();
+    case 'pickup-request': {
+      const submitResult = await getRequestService().updateRequestStatus(
+        requestData.id,
+        { eventType: REQUEST_EVENT_TYPE.pickedUp },
+        session.authState.accessToken,
+      );
 
-    return {
-      status: 'submitted',
-      requestStatus: updatedRequest.status,
-    };
+      if (submitResult.isErr()) {
+        const error = submitResult.unwrapErr();
+        return {
+          status: 'error',
+          errorMessage: error.message,
+          errorCode: error.errorCode,
+        };
+      }
+
+      const updatedRequest = submitResult.unwrap();
+
+      return {
+        status: 'submitted',
+        requestStatus: updatedRequest.status,
+      };
+    }
+
+    case 'vms-not-required': {
+      const submitResult = await getRequestService().updateRequestStatus(
+        requestData.id,
+        { eventType: REQUEST_EVENT_TYPE.vmsNotRequired },
+        session.authState.accessToken,
+      );
+
+      if (submitResult.isErr()) {
+        const error = submitResult.unwrapErr();
+        return {
+          status: 'error',
+          errorMessage: error.message,
+          errorCode: error.errorCode,
+        };
+      }
+
+      const updatedRequest = submitResult.unwrap();
+
+      return {
+        status: 'submitted',
+        requestStatus: updatedRequest.status,
+      };
+    }
+
+    case 'psc-clearance-received': {
+      const parseResult = v.safeParse(
+        v.object({
+          pscClearanceNumber: v.pipe(
+            v.string('app:hr-advisor-referral-requests.errors.psc-clearance-number-required'),
+            v.trim(),
+            v.nonEmpty('app:hr-advisor-referral-requests.errors.psc-clearance-number-required'),
+            v.length(11, 'app:hr-advisor-referral-requests.errors.psc-clearance-number-invalid'),
+            v.regex(REGEX_PATTERNS.DIGIT_ONLY, 'app:hr-advisor-referral-requests.errors.psc-clearance-number-invalid'),
+          ),
+        }),
+        {
+          pscClearanceNumber: formString(formData.get('pscClearanceNumber')),
+        },
+      );
+
+      if (!parseResult.success) {
+        return data({ errors: v.flatten(parseResult.issues).nested }, { status: HttpStatusCodes.BAD_REQUEST });
+      }
+
+      const requestPayload: RequestUpdateModel = mapRequestToUpdateModelWithOverrides(requestData, {
+        pscClearanceNumber: parseResult.output.pscClearanceNumber,
+      });
+
+      const updateResult = await getRequestService().updateRequestById(
+        requestData.id,
+        requestPayload,
+        session.authState.accessToken,
+      );
+
+      if (updateResult.isErr()) {
+        throw updateResult.unwrapErr();
+      }
+
+      const submitResult = await getRequestService().updateRequestStatus(
+        requestData.id,
+        { eventType: REQUEST_EVENT_TYPE.complete },
+        session.authState.accessToken,
+      );
+
+      if (submitResult.isErr()) {
+        const error = submitResult.unwrapErr();
+        return {
+          status: 'error',
+          errorMessage: error.message,
+          errorCode: error.errorCode,
+        };
+      }
+
+      const updatedRequest = submitResult.unwrap();
+
+      return {
+        status: 'submitted',
+        requestStatus: updatedRequest.status,
+      };
+    }
   }
 
   return undefined;
@@ -182,9 +277,16 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 export default function HiringManagerRequestIndex({ loaderData, params }: Route.ComponentProps) {
   const { t } = useTranslation(handle.i18nNamespace);
   const { t: tGcweb } = useTranslation('gcweb');
-  const fetcher = useFetcher();
+  const fetcher = useFetcher<typeof action>();
   const fetcherState = useFetcherState(fetcher);
   const isSubmitting = fetcherState.submitting;
+
+  const alertRef = useRef<HTMLDivElement>(null);
+
+  if (fetcher.data && alertRef.current) {
+    alertRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    alertRef.current.focus();
+  }
 
   type CityPreference = {
     province: string;
@@ -266,253 +368,275 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
       >
         {t('app:hr-advisor-referral-requests.back')}
       </BackLink>
-      <div className="w-full">
-        <h2 className="font-lato mt-4 text-xl font-bold">{t('app:hr-advisor-referral-requests.request-details')}</h2>
 
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <div className="mt-8 max-w-prose space-y-10">
-            <ProfileCard
-              title={t('app:hr-advisor-referral-requests.process-information')}
-              linkLabel={t('app:hiring-manager-referral-requests.edit-process-information')}
-              file="routes/hr-advisor/request/process-information.tsx"
-              params={params}
-              linkType={loaderData.isRequestAssignedToCurrentUser ? 'edit' : undefined}
-            >
-              <DescriptionList>
-                <DescriptionListItem term={t('app:process-information.selection-process-number')}>
-                  {loaderData.selectionProcessNumber ?? t('app:hr-advisor-referral-requests.not-provided')}
+      <h2 className="font-lato mt-4 text-xl font-bold">{t('app:hr-advisor-referral-requests.request-details')}</h2>
+
+      {fetcher.data && loaderData.status?.code === REQUEST_STATUS_CODE.PSC_GRANTED && (
+        <AlertMessage
+          ref={alertRef}
+          type={'success'}
+          message={t('app:hr-advisor-referral-requests.psc-clearance-received')}
+          role="alert"
+          ariaLive="assertive"
+        />
+      )}
+
+      {loaderData.status?.code === REQUEST_STATUS_CODE.PSC_GRANTED && (
+        <PSCGrantedCard
+          priorityClearanceNumber={loaderData.priorityClearanceNumber}
+          pscClearanceNumber={loaderData.pscClearanceNumber}
+          requestStatus={loaderData.status}
+          lang={loaderData.lang}
+        />
+      )}
+
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div className="mt-8 max-w-prose space-y-10">
+          <ProfileCard
+            title={t('app:hr-advisor-referral-requests.process-information')}
+            linkLabel={t('app:hiring-manager-referral-requests.edit-process-information')}
+            file="routes/hr-advisor/request/process-information.tsx"
+            params={params}
+            linkType={loaderData.isRequestAssignedToCurrentUser ? 'edit' : undefined}
+          >
+            <DescriptionList>
+              <DescriptionListItem term={t('app:process-information.selection-process-number')}>
+                {loaderData.selectionProcessNumber ?? t('app:hr-advisor-referral-requests.not-provided')}
+              </DescriptionListItem>
+
+              <DescriptionListItem term={t('app:process-information.approval-received')}>
+                {(() => {
+                  if (loaderData.workforceMgmtApprovalRecvd === undefined) {
+                    return t('app:hr-advisor-referral-requests.not-provided');
+                  }
+                  return loaderData.workforceMgmtApprovalRecvd ? tGcweb('input-option.yes') : tGcweb('input-option.no');
+                })()}
+              </DescriptionListItem>
+
+              <DescriptionListItem term={t('app:process-information.priority-entitlement')}>
+                {(() => {
+                  if (loaderData.priorityEntitlement === undefined) {
+                    return t('app:hr-advisor-referral-requests.not-provided');
+                  }
+                  return loaderData.priorityEntitlement ? tGcweb('input-option.yes') : tGcweb('input-option.no');
+                })()}
+              </DescriptionListItem>
+
+              {loaderData.priorityEntitlement === true && (
+                <DescriptionListItem term={t('app:process-information.rationale')}>
+                  {loaderData.priorityEntitlementRationale ?? t('app:hr-advisor-referral-requests.not-provided')}
                 </DescriptionListItem>
+              )}
 
-                <DescriptionListItem term={t('app:process-information.approval-received')}>
-                  {(() => {
-                    if (loaderData.workforceMgmtApprovalRecvd === undefined) {
-                      return t('app:hr-advisor-referral-requests.not-provided');
-                    }
-                    return loaderData.workforceMgmtApprovalRecvd ? tGcweb('input-option.yes') : tGcweb('input-option.no');
-                  })()}
-                </DescriptionListItem>
+              <DescriptionListItem term={t('app:process-information.selection-process-type')}>
+                {loaderData.selectionProcessType ?? t('app:hiring-manager-referral-requests.not-provided')}
+              </DescriptionListItem>
 
-                <DescriptionListItem term={t('app:process-information.priority-entitlement')}>
-                  {(() => {
-                    if (loaderData.priorityEntitlement === undefined) {
-                      return t('app:hr-advisor-referral-requests.not-provided');
-                    }
-                    return loaderData.priorityEntitlement ? tGcweb('input-option.yes') : tGcweb('input-option.no');
-                  })()}
-                </DescriptionListItem>
-
-                {loaderData.priorityEntitlement === true && (
-                  <DescriptionListItem term={t('app:process-information.rationale')}>
-                    {loaderData.priorityEntitlementRationale ?? t('app:hr-advisor-referral-requests.not-provided')}
+              {(loaderData.selectionProcessTypeCode === SELECTION_PROCESS_TYPE.EXTERNAL_NON_ADVERTISED.code ||
+                loaderData.selectionProcessTypeCode === SELECTION_PROCESS_TYPE.APPOINTMENT_INTERNAL_NON_ADVERTISED.code) && (
+                <>
+                  <DescriptionListItem term={t('app:process-information.performed-duties')}>
+                    {loaderData.hasPerformedSameDuties === true
+                      ? t('app:process-information.yes')
+                      : loaderData.hasPerformedSameDuties === false
+                        ? t('app:process-information.no')
+                        : t('app:hiring-manager-referral-requests.not-provided')}
                   </DescriptionListItem>
-                )}
 
-                <DescriptionListItem term={t('app:process-information.selection-process-type')}>
-                  {loaderData.selectionProcessType ?? t('app:hiring-manager-referral-requests.not-provided')}
-                </DescriptionListItem>
+                  <DescriptionListItem term={t('app:process-information.non-advertised-appointment')}>
+                    {loaderData.appointmentNonAdvertised ?? t('app:hiring-manager-referral-requests.not-provided')}
+                  </DescriptionListItem>
+                </>
+              )}
 
-                {(loaderData.selectionProcessTypeCode === SELECTION_PROCESS_TYPE.EXTERNAL_NON_ADVERTISED.code ||
-                  loaderData.selectionProcessTypeCode === SELECTION_PROCESS_TYPE.APPOINTMENT_INTERNAL_NON_ADVERTISED.code) && (
+              <DescriptionListItem term={t('app:process-information.employment-tenure')}>
+                {loaderData.employmentTenure ?? t('app:hr-advisor-referral-requests.not-provided')}
+              </DescriptionListItem>
+
+              {loaderData.employmentTenureCode === EMPLOYMENT_TENURE.term && (
+                <>
+                  <DescriptionListItem term={t('app:process-information.projected-start-date')}>
+                    {loaderData.projectedStartDate ?? t('app:hiring-manager-referral-requests.not-provided')}
+                  </DescriptionListItem>
+
+                  <DescriptionListItem term={t('app:process-information.projected-end-date')}>
+                    {loaderData.projectedEndDate ?? t('app:hiring-manager-referral-requests.not-provided')}
+                  </DescriptionListItem>
+                </>
+              )}
+
+              <DescriptionListItem term={t('app:process-information.work-schedule')}>
+                {loaderData.workSchedule ?? t('app:hr-advisor-referral-requests.not-provided')}
+              </DescriptionListItem>
+
+              <DescriptionListItem term={t('app:process-information.employment-equity-identified-alt')}>
+                {(() => {
+                  if (loaderData.equityNeeded === undefined) {
+                    return t('app:hr-advisor-referral-requests.not-provided');
+                  }
+                  return loaderData.equityNeeded ? tGcweb('input-option.yes') : tGcweb('input-option.no');
+                })()}
+              </DescriptionListItem>
+
+              <DescriptionListItem term={t('app:process-information.preferred-employment-equities')}>
+                {loaderData.employmentEquities ?? t('app:hr-advisor-referral-requests.not-provided')}
+              </DescriptionListItem>
+            </DescriptionList>
+          </ProfileCard>
+
+          <ProfileCard
+            title={t('app:hr-advisor-referral-requests.position-information')}
+            linkLabel={t('app:hiring-manager-referral-requests.edit-position-information')}
+            file="routes/hr-advisor/request/position-information.tsx"
+            params={params}
+            linkType={loaderData.isRequestAssignedToCurrentUser ? 'edit' : undefined}
+          >
+            <DescriptionList>
+              <DescriptionListItem term={t('app:position-information.position-number')}>
+                {loaderData.positionNumber ?? t('app:hr-advisor-referral-requests.not-provided')}
+              </DescriptionListItem>
+
+              <DescriptionListItem term={t('app:position-information.group-and-level')}>
+                {loaderData.classification?.code ?? t('app:hr-advisor-referral-requests.not-provided')}
+              </DescriptionListItem>
+
+              <DescriptionListItem term={t('app:position-information.title-en')}>
+                {loaderData.englishTitle ?? t('app:hr-advisor-referral-requests.not-provided')}
+              </DescriptionListItem>
+
+              <DescriptionListItem term={t('app:position-information.title-fr')}>
+                {loaderData.frenchTitle ?? t('app:hr-advisor-referral-requests.not-provided')}
+              </DescriptionListItem>
+
+              <DescriptionListItem term={t('app:position-information.locations')}>
+                {loaderData.cities === undefined
+                  ? t('app:hiring-manager-referral-requests.not-provided')
+                  : loaderData.cities.length > 0 && (
+                      <div>
+                        {/* Group cities by province */}
+                        {Object.entries(
+                          (loaderData.cities as CityPreference[]).reduce((acc: GroupedCities, city: CityPreference) => {
+                            const provinceName = city.province;
+                            acc[provinceName] ??= [];
+                            acc[provinceName].push(city.city);
+                            return acc;
+                          }, {} as GroupedCities),
+                        ).map(([province, cities]) => (
+                          <div key={province}>
+                            <strong>{province}:</strong> {cities.join(', ')}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+              </DescriptionListItem>
+
+              <DescriptionListItem term={t('app:position-information.language-requirement')}>
+                {loaderData.languageRequirement?.code ?? t('app:hr-advisor-referral-requests.not-provided')}
+              </DescriptionListItem>
+
+              <DescriptionListItem term={t('app:position-information.language-profile')}>
+                {`${t('app:position-information.english')}: ${loaderData.englishLanguageProfile ?? t('app:hr-advisor-referral-requests.not-provided')}`}
+                <br />
+                {`${t('app:position-information.french')}: ${loaderData.frenchLanguageProfile ?? t('app:hr-advisor-referral-requests.not-provided')}`}
+              </DescriptionListItem>
+
+              <DescriptionListItem term={t('app:position-information.security-requirement')}>
+                {loaderData.securityClearance?.code ?? t('app:hr-advisor-referral-requests.not-provided')}
+              </DescriptionListItem>
+            </DescriptionList>
+          </ProfileCard>
+
+          <ProfileCard
+            title={t('app:hr-advisor-referral-requests.somc-conditions')}
+            linkLabel={t('app:hiring-manager-referral-requests.edit-somc-conditions')}
+            file="routes/hr-advisor/request/somc-conditions.tsx"
+            params={params}
+            linkType={loaderData.isRequestAssignedToCurrentUser ? 'edit' : 'view'}
+          >
+            <p className="font-medium">{t('app:somc-conditions.english-french-provided')}</p>
+          </ProfileCard>
+
+          <ProfileCard
+            title={t('app:hr-advisor-referral-requests.submission-details')}
+            linkLabel={t('app:hiring-manager-referral-requests.edit-submission-details')}
+            file="routes/hr-advisor/request/submission-details.tsx"
+            params={params}
+            linkType={loaderData.isRequestAssignedToCurrentUser ? 'edit' : undefined}
+          >
+            <DescriptionList>
+              <DescriptionListItem term={t('app:submission-details.submiter-title')}>
+                {loaderData.submitter ? (
                   <>
-                    <DescriptionListItem term={t('app:process-information.performed-duties')}>
-                      {loaderData.hasPerformedSameDuties === true
-                        ? t('app:process-information.yes')
-                        : loaderData.hasPerformedSameDuties === false
-                          ? t('app:process-information.no')
-                          : t('app:hiring-manager-referral-requests.not-provided')}
-                    </DescriptionListItem>
-
-                    <DescriptionListItem term={t('app:process-information.non-advertised-appointment')}>
-                      {loaderData.appointmentNonAdvertised ?? t('app:hiring-manager-referral-requests.not-provided')}
-                    </DescriptionListItem>
+                    {`${loaderData.submitter.firstName} ${loaderData.submitter.lastName}`}
+                    <br />
+                    {loaderData.submitter.businessEmailAddress}
                   </>
+                ) : (
+                  t('app:hr-advisor-referral-requests.not-provided')
                 )}
+              </DescriptionListItem>
 
-                <DescriptionListItem term={t('app:process-information.employment-tenure')}>
-                  {loaderData.employmentTenure ?? t('app:hr-advisor-referral-requests.not-provided')}
-                </DescriptionListItem>
-
-                {loaderData.employmentTenureCode === EMPLOYMENT_TENURE.term && (
+              <DescriptionListItem term={t('app:submission-details.hiring-manager-title')}>
+                {loaderData.hiringManager ? (
                   <>
-                    <DescriptionListItem term={t('app:process-information.projected-start-date')}>
-                      {loaderData.projectedStartDate ?? t('app:hiring-manager-referral-requests.not-provided')}
-                    </DescriptionListItem>
-
-                    <DescriptionListItem term={t('app:process-information.projected-end-date')}>
-                      {loaderData.projectedEndDate ?? t('app:hiring-manager-referral-requests.not-provided')}
-                    </DescriptionListItem>
+                    {`${loaderData.hiringManager.firstName} ${loaderData.hiringManager.lastName}`}
+                    <br />
+                    {loaderData.hiringManager.businessEmailAddress}
                   </>
+                ) : (
+                  t('app:hr-advisor-referral-requests.not-provided')
                 )}
+              </DescriptionListItem>
 
-                <DescriptionListItem term={t('app:process-information.work-schedule')}>
-                  {loaderData.workSchedule ?? t('app:hr-advisor-referral-requests.not-provided')}
-                </DescriptionListItem>
+              <DescriptionListItem term={t('app:submission-details.sub-delegate-title')}>
+                {loaderData.subDelegatedManager ? (
+                  <>
+                    {`${loaderData.subDelegatedManager.firstName} ${loaderData.subDelegatedManager.lastName}`}
+                    <br />
+                    {loaderData.subDelegatedManager.businessEmailAddress}
+                  </>
+                ) : (
+                  t('app:hr-advisor-referral-requests.not-provided')
+                )}
+              </DescriptionListItem>
 
-                <DescriptionListItem term={t('app:process-information.employment-equity-identified-alt')}>
-                  {(() => {
-                    if (loaderData.equityNeeded === undefined) {
-                      return t('app:hr-advisor-referral-requests.not-provided');
-                    }
-                    return loaderData.equityNeeded ? tGcweb('input-option.yes') : tGcweb('input-option.no');
-                  })()}
-                </DescriptionListItem>
+              <DescriptionListItem term={t('app:submission-details.branch-or-service-canada-region')}>
+                {loaderData.branchOrServiceCanadaRegion ?? t('app:hiring-manager-referral-requests.not-provided')}
+              </DescriptionListItem>
 
-                <DescriptionListItem term={t('app:process-information.preferred-employment-equities')}>
-                  {loaderData.employmentEquities ?? t('app:hr-advisor-referral-requests.not-provided')}
-                </DescriptionListItem>
-              </DescriptionList>
-            </ProfileCard>
+              <DescriptionListItem term={t('app:submission-details.directorate')}>
+                {loaderData.directorate ?? t('app:hr-advisor-referral-requests.not-provided')}
+              </DescriptionListItem>
 
-            <ProfileCard
-              title={t('app:hr-advisor-referral-requests.position-information')}
-              linkLabel={t('app:hiring-manager-referral-requests.edit-position-information')}
-              file="routes/hr-advisor/request/position-information.tsx"
-              params={params}
-              linkType={loaderData.isRequestAssignedToCurrentUser ? 'edit' : undefined}
-            >
-              <DescriptionList>
-                <DescriptionListItem term={t('app:position-information.position-number')}>
-                  {loaderData.positionNumber ?? t('app:hr-advisor-referral-requests.not-provided')}
-                </DescriptionListItem>
+              <DescriptionListItem term={t('app:submission-details.preferred-language-of-correspondence')}>
+                {loaderData.languageOfCorrespondence ?? t('app:hr-advisor-referral-requests.not-provided')}
+              </DescriptionListItem>
 
-                <DescriptionListItem term={t('app:position-information.group-and-level')}>
-                  {loaderData.classification?.code ?? t('app:hr-advisor-referral-requests.not-provided')}
-                </DescriptionListItem>
+              <DescriptionListItem term={t('app:submission-details.additional-comments')}>
+                {loaderData.additionalComment ?? t('app:hr-advisor-referral-requests.not-provided')}
+              </DescriptionListItem>
+            </DescriptionList>
+          </ProfileCard>
+        </div>
 
-                <DescriptionListItem term={t('app:position-information.title-en')}>
-                  {loaderData.englishTitle ?? t('app:hr-advisor-referral-requests.not-provided')}
-                </DescriptionListItem>
-
-                <DescriptionListItem term={t('app:position-information.title-fr')}>
-                  {loaderData.frenchTitle ?? t('app:hr-advisor-referral-requests.not-provided')}
-                </DescriptionListItem>
-
-                <DescriptionListItem term={t('app:position-information.locations')}>
-                  {loaderData.cities === undefined
-                    ? t('app:hiring-manager-referral-requests.not-provided')
-                    : loaderData.cities.length > 0 && (
-                        <div>
-                          {/* Group cities by province */}
-                          {Object.entries(
-                            (loaderData.cities as CityPreference[]).reduce((acc: GroupedCities, city: CityPreference) => {
-                              const provinceName = city.province;
-                              acc[provinceName] ??= [];
-                              acc[provinceName].push(city.city);
-                              return acc;
-                            }, {} as GroupedCities),
-                          ).map(([province, cities]) => (
-                            <div key={province}>
-                              <strong>{province}:</strong> {cities.join(', ')}
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                </DescriptionListItem>
-
-                <DescriptionListItem term={t('app:position-information.language-requirement')}>
-                  {loaderData.languageRequirement?.code ?? t('app:hr-advisor-referral-requests.not-provided')}
-                </DescriptionListItem>
-
-                <DescriptionListItem term={t('app:position-information.language-profile')}>
-                  {`${t('app:position-information.english')}: ${loaderData.englishLanguageProfile ?? t('app:hr-advisor-referral-requests.not-provided')}`}
-                  <br />
-                  {`${t('app:position-information.french')}: ${loaderData.frenchLanguageProfile ?? t('app:hr-advisor-referral-requests.not-provided')}`}
-                </DescriptionListItem>
-
-                <DescriptionListItem term={t('app:position-information.security-requirement')}>
-                  {loaderData.securityClearance?.code ?? t('app:hr-advisor-referral-requests.not-provided')}
-                </DescriptionListItem>
-              </DescriptionList>
-            </ProfileCard>
-
-            <ProfileCard
-              title={t('app:hr-advisor-referral-requests.somc-conditions')}
-              linkLabel={t('app:hiring-manager-referral-requests.edit-somc-conditions')}
-              file="routes/hr-advisor/request/somc-conditions.tsx"
-              params={params}
-              linkType={loaderData.isRequestAssignedToCurrentUser ? 'edit' : 'view'}
-            >
-              <p className="font-medium">{t('app:somc-conditions.english-french-provided')}</p>
-            </ProfileCard>
-
-            <ProfileCard
-              title={t('app:hr-advisor-referral-requests.submission-details')}
-              linkLabel={t('app:hiring-manager-referral-requests.edit-submission-details')}
-              file="routes/hr-advisor/request/submission-details.tsx"
-              params={params}
-              linkType={loaderData.isRequestAssignedToCurrentUser ? 'edit' : undefined}
-            >
-              <DescriptionList>
-                <DescriptionListItem term={t('app:submission-details.submiter-title')}>
-                  {loaderData.submitter ? (
-                    <>
-                      {`${loaderData.submitter.firstName} ${loaderData.submitter.lastName}`}
-                      <br />
-                      {loaderData.submitter.businessEmailAddress}
-                    </>
-                  ) : (
-                    t('app:hr-advisor-referral-requests.not-provided')
-                  )}
-                </DescriptionListItem>
-
-                <DescriptionListItem term={t('app:submission-details.hiring-manager-title')}>
-                  {loaderData.hiringManager ? (
-                    <>
-                      {`${loaderData.hiringManager.firstName} ${loaderData.hiringManager.lastName}`}
-                      <br />
-                      {loaderData.hiringManager.businessEmailAddress}
-                    </>
-                  ) : (
-                    t('app:hr-advisor-referral-requests.not-provided')
-                  )}
-                </DescriptionListItem>
-
-                <DescriptionListItem term={t('app:submission-details.sub-delegate-title')}>
-                  {loaderData.subDelegatedManager ? (
-                    <>
-                      {`${loaderData.subDelegatedManager.firstName} ${loaderData.subDelegatedManager.lastName}`}
-                      <br />
-                      {loaderData.subDelegatedManager.businessEmailAddress}
-                    </>
-                  ) : (
-                    t('app:hr-advisor-referral-requests.not-provided')
-                  )}
-                </DescriptionListItem>
-
-                <DescriptionListItem term={t('app:submission-details.branch-or-service-canada-region')}>
-                  {loaderData.branchOrServiceCanadaRegion ?? t('app:hiring-manager-referral-requests.not-provided')}
-                </DescriptionListItem>
-
-                <DescriptionListItem term={t('app:submission-details.directorate')}>
-                  {loaderData.directorate ?? t('app:hr-advisor-referral-requests.not-provided')}
-                </DescriptionListItem>
-
-                <DescriptionListItem term={t('app:submission-details.preferred-language-of-correspondence')}>
-                  {loaderData.languageOfCorrespondence ?? t('app:hr-advisor-referral-requests.not-provided')}
-                </DescriptionListItem>
-
-                <DescriptionListItem term={t('app:submission-details.additional-comments')}>
-                  {loaderData.additionalComment ?? t('app:hr-advisor-referral-requests.not-provided')}
-                </DescriptionListItem>
-              </DescriptionList>
-            </ProfileCard>
-          </div>
-
-          <div className="mt-8 max-w-prose">
-            <div className="flex justify-center">
+        <div className="mt-8 max-w-prose">
+          <div className="flex justify-center">
+            <ActionDataErrorSummary actionData={fetcher.data}>
               <fetcher.Form className="mt-6 md:mt-auto" method="post" noValidate>
                 <RenderButtonsByStatus
                   code={loaderData.status?.code}
+                  formErrors={fetcher.data && 'errors' in fetcher.data ? fetcher.data.errors : undefined}
                   isRequestAssignedToCurrentUser={loaderData.isRequestAssignedToCurrentUser}
                   isSubmitting={isSubmitting}
                   onCancelRequestClick={() => setShowCancelRequestDialog(true)}
                   onReAssignClick={() => setShowReAssignDialog(true)}
                 />
               </fetcher.Form>
-            </div>
+            </ActionDataErrorSummary>
           </div>
         </div>
       </div>
+
       <Dialog open={showCancelRequestDialog} onOpenChange={setShowCancelRequestDialog}>
         <DialogContent aria-describedby="cancel-request-dialog-description" role="alertdialog">
           <DialogHeader>
@@ -581,6 +705,7 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
 
 interface RenderButtonsByStatusProps {
   code?: string;
+  formErrors?: Errors;
   isRequestAssignedToCurrentUser: boolean;
   isSubmitting: boolean;
   onCancelRequestClick: () => void;
@@ -589,6 +714,7 @@ interface RenderButtonsByStatusProps {
 
 function RenderButtonsByStatus({
   code,
+  formErrors,
   isRequestAssignedToCurrentUser,
   isSubmitting,
   onCancelRequestClick,
@@ -677,7 +803,7 @@ function RenderButtonsByStatus({
     case REQUEST_STATUS_CODE.PENDING_PSC:
       return (
         <div className="flex flex-col">
-          <Button className="w-full" variant="alternative" id="cancel-request" onClick={onCancelRequestClick}>
+          <Button className="mb-8 w-full" variant="alternative" id="cancel-request" onClick={onCancelRequestClick}>
             {t('form.cancel-request')}
           </Button>
 
@@ -686,6 +812,7 @@ function RenderButtonsByStatus({
             id="psc-clearance-number"
             name="pscClearanceNumber"
             label={t('hr-advisor-referral-requests.psc-clearance-number')}
+            errorMessage={t(extractValidationKey(formErrors?.pscClearanceNumber?.[0]))}
             required
           />
 
