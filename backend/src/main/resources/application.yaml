@@ -329,6 +329,10 @@ codes:
   languages:
     english: EN
     french: FR
+  language-referral-types:
+    bilingual: BILINGUAL
+    english: ENGLISH
+    french: FRENCH
   language-requirements:
     bilingual-imperative: BI
     bilingual-non-imperative: BNI
