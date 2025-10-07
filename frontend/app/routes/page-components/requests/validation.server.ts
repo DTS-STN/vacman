@@ -55,7 +55,7 @@ export async function createPositionInformationSchema() {
           v.custom((input) => {
             const value = input as string;
             const numbers = value.split(',').map((n) => n.trim());
-            return numbers.every((n) => n.length === 6); // TODO: Need to confirm validation
+            return numbers.every((n) => n.length === 8); // TODO: Need to confirm validation
           }, 'app:position-information.errors.position-number-max-length'),
         ),
         groupAndLevel: v.pipe(

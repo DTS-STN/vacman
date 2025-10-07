@@ -164,8 +164,6 @@ export function PositionInformationForm({
               name="positionNumber"
               label={tApp('position-information.position-number')}
               defaultValue={formValues?.positionNumber}
-              size={8}
-              maxLength={8}
               errorMessage={tApp(extractValidationKey(formErrors?.positionNumber))}
               helpMessagePrimary={tApp('position-information.position-number-instruction')}
               required
