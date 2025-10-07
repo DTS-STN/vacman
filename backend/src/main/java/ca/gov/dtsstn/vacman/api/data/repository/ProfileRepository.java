@@ -12,6 +12,28 @@ import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
 public interface ProfileRepository extends AbstractBaseRepository<ProfileEntity> {
 
 	/**
+	 * JPA specification to find profiles with preferred city IDs in the given collection.
+	 */
+	static Specification<ProfileEntity> hasPreferredCityIdIn(Collection<Long> cityIds) {
+		if (CollectionUtils.isEmpty(cityIds)) { return AbstractBaseRepository.empty(); }
+		return (root, query, cb) -> {
+			final var join = root.join("preferredCities");
+			return join.get("city").get("id").in(cityIds);
+		};
+	}
+
+	/**
+	 * JPA specification to find profiles with preferred city codes in the given collection.
+	 */
+	static Specification<ProfileEntity> hasPreferredCityCodeIn(Collection<String> cityCodes) {
+		if (CollectionUtils.isEmpty(cityCodes)) { return AbstractBaseRepository.empty(); }
+		return (root, query, cb) -> {
+			final var join = root.join("preferredCities");
+			return join.get("city").get("code").in(cityCodes);
+		};
+	}
+
+	/**
 	 * JPA specification to find profiles assigned to a specific HR Advisor.
 	 */
 	static Specification<ProfileEntity> hasHrAdvisorId(Long hrAdvisorId) {

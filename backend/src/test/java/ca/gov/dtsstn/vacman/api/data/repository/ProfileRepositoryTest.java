@@ -2,6 +2,8 @@ package ca.gov.dtsstn.vacman.api.data.repository;
 
 import static ca.gov.dtsstn.vacman.api.data.repository.ProfileRepository.hasHrAdvisorId;
 import static ca.gov.dtsstn.vacman.api.data.repository.ProfileRepository.hasHrAdvisorIdIn;
+import static ca.gov.dtsstn.vacman.api.data.repository.ProfileRepository.hasPreferredCityCodeIn;
+import static ca.gov.dtsstn.vacman.api.data.repository.ProfileRepository.hasPreferredCityIdIn;
 import static ca.gov.dtsstn.vacman.api.data.repository.ProfileRepository.hasPreferredClassificationCodeIn;
 import static ca.gov.dtsstn.vacman.api.data.repository.ProfileRepository.hasPreferredClassificationIdIn;
 import static ca.gov.dtsstn.vacman.api.data.repository.ProfileRepository.hasProfileStatusCodeIn;
@@ -29,6 +31,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import ca.gov.dtsstn.vacman.api.SecurityAuditor;
 import ca.gov.dtsstn.vacman.api.config.DataSourceConfig;
+import ca.gov.dtsstn.vacman.api.data.entity.CityEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.ClassificationEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.ProfileStatusEntity;
@@ -42,22 +45,25 @@ import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 class ProfileRepositoryTest {
 
 	@Autowired
-	ProfileRepository profileRepository;
+	CityRepository cityRepository;
 
 	@Autowired
-	UserRepository userRepository;
+	ClassificationRepository classificationRepository;
 
 	@Autowired
 	LanguageRepository languageRepository;
 
 	@Autowired
-	UserTypeRepository userTypeRepository;
+	ProfileRepository profileRepository;
 
 	@Autowired
 	ProfileStatusRepository profileStatusRepository;
 
 	@Autowired
-	ClassificationRepository classificationRepository;
+	UserRepository userRepository;
+
+	@Autowired
+	UserTypeRepository userTypeRepository;
 
 	@MockitoBean
 	SecurityAuditor securityAuditor;
@@ -72,6 +78,10 @@ class ProfileRepositoryTest {
 	ClassificationEntity classification1;
 	ClassificationEntity classification2;
 	ClassificationEntity classification3;
+
+	CityEntity city3;
+	CityEntity city2;
+	CityEntity city1;
 
 	@BeforeEach
 	void setUp() {
@@ -123,6 +133,550 @@ class ProfileRepositoryTest {
 		classification1 = classificationRepository.findByCode("AS-01").orElseThrow();
 		classification2 = classificationRepository.findByCode("PM-02").orElseThrow();
 		classification3 = classificationRepository.findByCode("IT-03").orElseThrow();
+
+		//
+		// Get cities that will be used throughout the tests
+		//
+
+		city1 = cityRepository.findByCode("NB1").orElseThrow();
+		city2 = cityRepository.findByCode("NL14").orElseThrow();
+		city3 = cityRepository.findByCode("ON52").orElseThrow();
+	}
+
+	@Nested
+	@DisplayName("Availability Specification Tests")
+	class AvailabilitySpecificationTests {
+
+		@Test
+		@DisplayName("isAvailableForReferral should find profiles available for referral")
+		void testIsAvailableForReferral() {
+			final var availableProfile1 = profileRepository.save(
+				ProfileEntity.builder()
+					.user(testUser)
+					.profileStatus(approvedStatus)
+					.isAvailableForReferral(true)
+					.build());
+
+			final var availableProfile2 = profileRepository.save(
+				ProfileEntity.builder()
+					.user(testUser)
+					.profileStatus(approvedStatus)
+					.isAvailableForReferral(true)
+					.build());
+
+			@SuppressWarnings("unused")
+			final var notAvailableProfile = profileRepository.save(
+				ProfileEntity.builder()
+					.user(testUser)
+					.profileStatus(approvedStatus)
+					.isAvailableForReferral(false)
+					.build());
+
+			@SuppressWarnings("unused")
+			final var nullAvailableProfile = profileRepository.save(
+				ProfileEntity.builder()
+					.user(testUser)
+					.profileStatus(approvedStatus)
+					.isAvailableForReferral(null)
+					.build());
+
+			final var results = profileRepository.findAll(
+				isAvailableForReferral()
+				.and(ProfileRepository.hasUserId(testUser.getId())));
+
+			assertThat(results).hasSize(2);
+			assertThat(results).extracting(ProfileEntity::getId)
+				.containsExactlyInAnyOrder(availableProfile1.getId(), availableProfile2.getId());
+		}
+
+		@Test
+		@DisplayName("isAvailableForReferral should return empty list when no profiles are available")
+		void testIsAvailableForReferralNoMatches() {
+			@SuppressWarnings("unused")
+			final var notAvailableProfile = profileRepository.save(
+				ProfileEntity.builder()
+					.user(testUser)
+					.profileStatus(approvedStatus)
+					.isAvailableForReferral(false)
+					.build());
+
+			final var results = profileRepository.findAll(
+				isAvailableForReferral()
+				.and(ProfileRepository.hasUserId(testUser.getId())));
+
+			assertThat(results).isEmpty();
+		}
+
+		@Test
+		@DisplayName("isAvailableForReferral should exclude null values")
+		void testIsAvailableForReferralExcludesNull() {
+			@SuppressWarnings("unused")
+			final var nullAvailableProfile = profileRepository.save(
+				ProfileEntity.builder()
+					.user(testUser)
+					.profileStatus(approvedStatus)
+					.isAvailableForReferral(null)
+					.build());
+
+			final var results = profileRepository.findAll(
+				isAvailableForReferral()
+				.and(ProfileRepository.hasUserId(testUser.getId())));
+
+			assertThat(results).isEmpty();
+		}
+
+	}
+
+	@Nested
+	@DisplayName("City Specification Tests")
+	class CitySpecificationTests {
+
+		@Test
+		@DisplayName("hasPreferredCityIdIn should find profiles by preferred city IDs")
+		void testHasPreferredCityIdIn() {
+			final var profile1 = profileRepository.save(
+				ProfileEntity.builder()
+					.user(testUser)
+					.profileStatus(approvedStatus)
+					.preferredCities(List.of(city3, city2))
+					.build());
+
+			final var profile2 = profileRepository.save(
+				ProfileEntity.builder()
+					.user(testUser)
+					.profileStatus(approvedStatus)
+					.preferredCities(List.of(city2))
+					.build());
+
+			@SuppressWarnings("unused")
+			final var profile3 = profileRepository.save(
+				ProfileEntity.builder()
+					.user(testUser)
+					.profileStatus(approvedStatus)
+					.preferredCities(List.of(city1))
+					.build());
+
+			final var results = profileRepository.findAll(
+				hasPreferredCityIdIn(List.of(city3.getId(), city2.getId()))
+				.and(hasUserId(testUser.getId())));
+
+			assertThat(results).hasSize(2);
+			assertThat(results).extracting(ProfileEntity::getId)
+				.containsExactlyInAnyOrder(profile1.getId(), profile2.getId());
+		}
+
+		@Test
+		@DisplayName("hasPreferredCityIdIn should find profiles with any matching city")
+		void testHasPreferredCityIdInAnyMatch() {
+			final var profile1 = profileRepository.save(
+				ProfileEntity.builder()
+					.user(testUser)
+					.profileStatus(approvedStatus)
+					.preferredCities(List.of(city3))
+					.build());
+
+			@SuppressWarnings("unused")
+			final var profile2 = profileRepository.save(
+				ProfileEntity.builder()
+					.user(testUser)
+					.profileStatus(approvedStatus)
+					.preferredCities(List.of(city1))
+					.build());
+
+			final var results = profileRepository.findAll(
+				hasPreferredCityIdIn(List.of(city3.getId()))
+				.and(hasUserId(testUser.getId())));
+
+			assertThat(results).hasSize(1);
+			assertThat(results.get(0).getId()).isEqualTo(profile1.getId());
+		}
+
+		@Test
+		@DisplayName("hasPreferredCityIdIn should return empty when no profiles match")
+		void testHasPreferredCityIdInNoMatches() {
+			@SuppressWarnings("unused")
+			final var profile = profileRepository.save(
+				ProfileEntity.builder()
+					.user(testUser)
+					.profileStatus(approvedStatus)
+					.preferredCities(List.of(city3))
+					.build());
+
+			final var results = profileRepository.findAll(
+				hasPreferredCityIdIn(List.of(999999L))
+				.and(hasUserId(testUser.getId())));
+
+			assertThat(results).isEmpty();
+		}
+
+		@Test
+		@DisplayName("hasPreferredCityIdIn should match all when collection is empty")
+		void testHasPreferredCityIdInEmptyCollection() {
+			@SuppressWarnings("unused")
+			final var profile = profileRepository.save(
+				ProfileEntity.builder()
+					.user(testUser)
+					.profileStatus(approvedStatus)
+					.preferredCities(List.of(city3))
+					.build());
+
+			final var results = profileRepository.findAll(hasPreferredCityIdIn(List.of()));
+
+			assertThat(results).isNotNull();
+		}
+
+		@Test
+		@DisplayName("hasPreferredCityIdIn should match all when collection is null")
+		void testHasPreferredCityIdInNullCollection() {
+			@SuppressWarnings("unused")
+			final var profile = profileRepository.save(
+				ProfileEntity.builder()
+					.user(testUser)
+					.profileStatus(approvedStatus)
+					.preferredCities(List.of(city3))
+					.build());
+
+			final var results = profileRepository.findAll(hasPreferredCityIdIn(null));
+
+			assertThat(results).isNotNull();
+		}
+
+		@Test
+		@DisplayName("hasPreferredCityCodeIn should find profiles by preferred city codes")
+		void testHasPreferredCityCodeIn() {
+			final var profile1 = profileRepository.save(
+				ProfileEntity.builder()
+					.user(testUser)
+					.profileStatus(approvedStatus)
+					.preferredCities(List.of(city3, city2))
+					.build());
+
+			final var profile2 = profileRepository.save(
+				ProfileEntity.builder()
+					.user(testUser)
+					.profileStatus(approvedStatus)
+					.preferredCities(List.of(city2))
+					.build());
+
+			@SuppressWarnings("unused")
+			final var profile3 = profileRepository.save(
+				ProfileEntity.builder()
+					.user(testUser)
+					.profileStatus(approvedStatus)
+					.preferredCities(List.of(city1))
+					.build());
+
+			final var results = profileRepository.findAll(
+				hasPreferredCityCodeIn(List.of(city3.getCode(), city2.getCode()))
+				.and(hasUserId(testUser.getId())));
+
+			assertThat(results).hasSize(2);
+			assertThat(results).extracting(ProfileEntity::getId)
+				.containsExactlyInAnyOrder(profile1.getId(), profile2.getId());
+		}
+
+		@Test
+		@DisplayName("hasPreferredCityCodeIn should find profiles with any matching city code")
+		void testHasPreferredCityCodeInAnyMatch() {
+			final var profile1 = profileRepository.save(
+				ProfileEntity.builder()
+					.user(testUser)
+					.profileStatus(approvedStatus)
+					.preferredCities(List.of(city3))
+					.build());
+
+			@SuppressWarnings("unused")
+			final var profile2 = profileRepository.save(
+				ProfileEntity.builder()
+					.user(testUser)
+					.profileStatus(approvedStatus)
+					.preferredCities(List.of(city1))
+					.build());
+
+			final var results = profileRepository.findAll(
+				hasPreferredCityCodeIn(List.of(city3.getCode()))
+				.and(hasUserId(testUser.getId())));
+
+			assertThat(results).hasSize(1);
+			assertThat(results.get(0).getId()).isEqualTo(profile1.getId());
+		}
+
+		@Test
+		@DisplayName("hasPreferredCityCodeIn should return empty when no profiles match")
+		void testHasPreferredCityCodeInNoMatches() {
+			@SuppressWarnings("unused")
+			final var profile = profileRepository.save(
+				ProfileEntity.builder()
+					.user(testUser)
+					.profileStatus(approvedStatus)
+					.preferredCities(List.of(city3))
+					.build());
+
+			final var results = profileRepository.findAll(
+				hasPreferredCityCodeIn(List.of("NONEXISTENT"))
+				.and(hasUserId(testUser.getId())));
+
+			assertThat(results).isEmpty();
+		}
+
+		@Test
+		@DisplayName("hasPreferredCityCodeIn should match all when collection is empty")
+		void testHasPreferredCityCodeInEmptyCollection() {
+			@SuppressWarnings("unused")
+			final var profile = profileRepository.save(
+				ProfileEntity.builder()
+					.user(testUser)
+					.profileStatus(approvedStatus)
+					.preferredCities(List.of(city3))
+					.build());
+
+			final var results = profileRepository.findAll(hasPreferredCityCodeIn(List.of()));
+
+			assertThat(results).isNotNull();
+		}
+
+		@Test
+		@DisplayName("hasPreferredCityCodeIn should match all when collection is null")
+		void testHasPreferredCityCodeInNullCollection() {
+			@SuppressWarnings("unused")
+			final var profile = profileRepository.save(
+				ProfileEntity.builder()
+					.user(testUser)
+					.profileStatus(approvedStatus)
+					.preferredCities(List.of(city3))
+					.build());
+
+			final var results = profileRepository.findAll(hasPreferredCityCodeIn(null));
+
+			assertThat(results).isNotNull();
+		}
+
+	}
+
+	@Nested
+	@DisplayName("Classification Specification Tests")
+	class ClassificationSpecificationTests {
+
+		@Test
+		@DisplayName("hasPreferredClassificationIdIn should find profiles by preferred classification IDs")
+		void testHasPreferredClassificationIdIn() {
+			final var profile1 = profileRepository.save(
+				ProfileEntity.builder()
+					.user(testUser)
+					.profileStatus(approvedStatus)
+					.preferredClassifications(List.of(classification1, classification2))
+					.build());
+
+			final var profile2 = profileRepository.save(
+				ProfileEntity.builder()
+					.user(testUser)
+					.profileStatus(approvedStatus)
+					.preferredClassifications(List.of(classification2))
+					.build());
+
+			@SuppressWarnings("unused")
+			final var profile3 = profileRepository.save(
+				ProfileEntity.builder()
+					.user(testUser)
+					.profileStatus(approvedStatus)
+					.preferredClassifications(List.of(classification3))
+					.build());
+
+			final var results = profileRepository.findAll(
+				hasPreferredClassificationIdIn(List.of(classification1.getId(), classification2.getId()))
+				.and(hasUserId(testUser.getId())));
+
+			assertThat(results).hasSize(2);
+			assertThat(results).extracting(ProfileEntity::getId)
+				.containsExactlyInAnyOrder(profile1.getId(), profile2.getId());
+		}
+
+		@Test
+		@DisplayName("hasPreferredClassificationIdIn should find profiles with any matching classification")
+		void testHasPreferredClassificationIdInAnyMatch() {
+			final var profile1 = profileRepository.save(
+				ProfileEntity.builder()
+					.user(testUser)
+					.profileStatus(approvedStatus)
+					.preferredClassifications(List.of(classification1))
+					.build());
+
+			@SuppressWarnings("unused")
+			final var profile2 = profileRepository.save(
+				ProfileEntity.builder()
+					.user(testUser)
+					.profileStatus(approvedStatus)
+					.preferredClassifications(List.of(classification3))
+					.build());
+
+			final var results = profileRepository.findAll(
+				hasPreferredClassificationIdIn(List.of(classification1.getId()))
+				.and(hasUserId(testUser.getId())));
+
+			assertThat(results).hasSize(1);
+			assertThat(results.get(0).getId()).isEqualTo(profile1.getId());
+		}
+
+		@Test
+		@DisplayName("hasPreferredClassificationIdIn should return empty when no profiles match")
+		void testHasPreferredClassificationIdInNoMatches() {
+			@SuppressWarnings("unused")
+			final var profile = profileRepository.save(
+				ProfileEntity.builder()
+					.user(testUser)
+					.profileStatus(approvedStatus)
+					.preferredClassifications(List.of(classification1))
+					.build());
+
+			final var results = profileRepository.findAll(
+				hasPreferredClassificationIdIn(List.of(999999L))
+				.and(hasUserId(testUser.getId())));
+
+			assertThat(results).isEmpty();
+		}
+
+		@Test
+		@DisplayName("hasPreferredClassificationIdIn should match all when collection is empty")
+		void testHasPreferredClassificationIdInEmptyCollection() {
+			@SuppressWarnings("unused")
+			final var profile = profileRepository.save(
+				ProfileEntity.builder()
+					.user(testUser)
+					.profileStatus(approvedStatus)
+					.preferredClassifications(List.of(classification1))
+					.build());
+
+			final var results = profileRepository.findAll(hasPreferredClassificationIdIn(List.of()));
+
+			assertThat(results).isNotNull();
+		}
+
+		@Test
+		@DisplayName("hasPreferredClassificationIdIn should match all when collection is null")
+		void testHasPreferredClassificationIdInNullCollection() {
+			@SuppressWarnings("unused")
+			final var profile = profileRepository.save(
+				ProfileEntity.builder()
+					.user(testUser)
+					.profileStatus(approvedStatus)
+					.preferredClassifications(List.of(classification1))
+					.build());
+
+			final var results = profileRepository.findAll(hasPreferredClassificationIdIn(null));
+
+			assertThat(results).isNotNull();
+		}
+
+		@Test
+		@DisplayName("hasPreferredClassificationCodeIn should find profiles by preferred classification codes")
+		void testHasPreferredClassificationCodeIn() {
+			final var profile1 = profileRepository.save(
+				ProfileEntity.builder()
+					.user(testUser)
+					.profileStatus(approvedStatus)
+					.preferredClassifications(List.of(classification1, classification2))
+					.build());
+
+			final var profile2 = profileRepository.save(
+				ProfileEntity.builder()
+					.user(testUser)
+					.profileStatus(approvedStatus)
+					.preferredClassifications(List.of(classification2))
+					.build());
+
+			@SuppressWarnings("unused")
+			final var profile3 = profileRepository.save(
+				ProfileEntity.builder()
+					.user(testUser)
+					.profileStatus(approvedStatus)
+					.preferredClassifications(List.of(classification3))
+					.build());
+
+			final var results = profileRepository.findAll(
+				hasPreferredClassificationCodeIn(List.of(classification1.getCode(), classification2.getCode()))
+				.and(hasUserId(testUser.getId())));
+
+			assertThat(results).hasSize(2);
+			assertThat(results).extracting(ProfileEntity::getId)
+				.containsExactlyInAnyOrder(profile1.getId(), profile2.getId());
+		}
+
+		@Test
+		@DisplayName("hasPreferredClassificationCodeIn should find profiles with any matching classification code")
+		void testHasPreferredClassificationCodeInAnyMatch() {
+			final var profile1 = profileRepository.save(
+				ProfileEntity.builder()
+					.user(testUser)
+					.profileStatus(approvedStatus)
+					.preferredClassifications(List.of(classification1))
+					.build());
+
+			@SuppressWarnings("unused")
+			final var profile2 = profileRepository.save(
+				ProfileEntity.builder()
+					.user(testUser)
+					.profileStatus(approvedStatus)
+					.preferredClassifications(List.of(classification3))
+					.build());
+
+			final var results = profileRepository.findAll(
+				hasPreferredClassificationCodeIn(List.of(classification1.getCode()))
+				.and(hasUserId(testUser.getId())));
+
+			assertThat(results).hasSize(1);
+			assertThat(results.get(0).getId()).isEqualTo(profile1.getId());
+		}
+
+		@Test
+		@DisplayName("hasPreferredClassificationCodeIn should return empty when no profiles match")
+		void testHasPreferredClassificationCodeInNoMatches() {
+			@SuppressWarnings("unused")
+			final var profile = profileRepository.save(
+				ProfileEntity.builder()
+					.user(testUser)
+					.profileStatus(approvedStatus)
+					.preferredClassifications(List.of(classification1))
+					.build());
+
+			final var results = profileRepository.findAll(
+				hasPreferredClassificationCodeIn(List.of("NONEXISTENT"))
+				.and(hasUserId(testUser.getId())));
+
+			assertThat(results).isEmpty();
+		}
+
+		@Test
+		@DisplayName("hasPreferredClassificationCodeIn should match all when collection is empty")
+		void testHasPreferredClassificationCodeInEmptyCollection() {
+			@SuppressWarnings("unused")
+			final var profile = profileRepository.save(
+				ProfileEntity.builder()
+					.user(testUser)
+					.profileStatus(approvedStatus)
+					.preferredClassifications(List.of(classification1))
+					.build());
+
+			final var results = profileRepository.findAll(hasPreferredClassificationCodeIn(List.of()));
+
+			assertThat(results).isNotNull();
+		}
+
+		@Test
+		@DisplayName("hasPreferredClassificationCodeIn should match all when collection is null")
+		void testHasPreferredClassificationCodeInNullCollection() {
+			@SuppressWarnings("unused")
+			final var profile = profileRepository.save(
+				ProfileEntity.builder()
+					.user(testUser)
+					.profileStatus(approvedStatus)
+					.preferredClassifications(List.of(classification1))
+					.build());
+
+			final var results = profileRepository.findAll(hasPreferredClassificationCodeIn(null));
+
+			assertThat(results).isNotNull();
+		}
+
 	}
 
 	@Nested
@@ -511,316 +1065,6 @@ class ProfileRepositoryTest {
 			final var results = profileRepository.findAll(hasUserMicrosoftEntraId("99999999-9999-9999-9999-999999999999"));
 
 			assertThat(results).isEmpty();
-		}
-
-	}
-
-	@Nested
-	@DisplayName("Availability Specification Tests")
-	class AvailabilitySpecificationTests {
-
-		@Test
-		@DisplayName("isAvailableForReferral should find profiles available for referral")
-		void testIsAvailableForReferral() {
-			final var availableProfile1 = profileRepository.save(
-				ProfileEntity.builder()
-					.user(testUser)
-					.profileStatus(approvedStatus)
-					.isAvailableForReferral(true)
-					.build());
-
-			final var availableProfile2 = profileRepository.save(
-				ProfileEntity.builder()
-					.user(testUser)
-					.profileStatus(approvedStatus)
-					.isAvailableForReferral(true)
-					.build());
-
-			@SuppressWarnings("unused")
-			final var notAvailableProfile = profileRepository.save(
-				ProfileEntity.builder()
-					.user(testUser)
-					.profileStatus(approvedStatus)
-					.isAvailableForReferral(false)
-					.build());
-
-			@SuppressWarnings("unused")
-			final var nullAvailableProfile = profileRepository.save(
-				ProfileEntity.builder()
-					.user(testUser)
-					.profileStatus(approvedStatus)
-					.isAvailableForReferral(null)
-					.build());
-
-			final var results = profileRepository.findAll(
-				isAvailableForReferral()
-				.and(ProfileRepository.hasUserId(testUser.getId())));
-
-			assertThat(results).hasSize(2);
-			assertThat(results).extracting(ProfileEntity::getId)
-				.containsExactlyInAnyOrder(availableProfile1.getId(), availableProfile2.getId());
-		}
-
-		@Test
-		@DisplayName("isAvailableForReferral should return empty list when no profiles are available")
-		void testIsAvailableForReferralNoMatches() {
-			@SuppressWarnings("unused")
-			final var notAvailableProfile = profileRepository.save(
-				ProfileEntity.builder()
-					.user(testUser)
-					.profileStatus(approvedStatus)
-					.isAvailableForReferral(false)
-					.build());
-
-			final var results = profileRepository.findAll(
-				isAvailableForReferral()
-				.and(ProfileRepository.hasUserId(testUser.getId())));
-
-			assertThat(results).isEmpty();
-		}
-
-		@Test
-		@DisplayName("isAvailableForReferral should exclude null values")
-		void testIsAvailableForReferralExcludesNull() {
-			@SuppressWarnings("unused")
-			final var nullAvailableProfile = profileRepository.save(
-				ProfileEntity.builder()
-					.user(testUser)
-					.profileStatus(approvedStatus)
-					.isAvailableForReferral(null)
-					.build());
-
-			final var results = profileRepository.findAll(
-				isAvailableForReferral()
-				.and(ProfileRepository.hasUserId(testUser.getId())));
-
-			assertThat(results).isEmpty();
-		}
-
-	}
-
-	@Nested
-	@DisplayName("Classification Specification Tests")
-	class ClassificationSpecificationTests {
-
-		@Test
-		@DisplayName("hasPreferredClassificationIdIn should find profiles by preferred classification IDs")
-		void testHasPreferredClassificationIdIn() {
-			final var profile1 = profileRepository.save(
-				ProfileEntity.builder()
-					.user(testUser)
-					.profileStatus(approvedStatus)
-					.preferredClassifications(List.of(classification1, classification2))
-					.build());
-
-			final var profile2 = profileRepository.save(
-				ProfileEntity.builder()
-					.user(testUser)
-					.profileStatus(approvedStatus)
-					.preferredClassifications(List.of(classification2))
-					.build());
-
-			@SuppressWarnings("unused")
-			final var profile3 = profileRepository.save(
-				ProfileEntity.builder()
-					.user(testUser)
-					.profileStatus(approvedStatus)
-					.preferredClassifications(List.of(classification3))
-					.build());
-
-			final var results = profileRepository.findAll(
-				hasPreferredClassificationIdIn(List.of(classification1.getId(), classification2.getId()))
-				.and(hasUserId(testUser.getId())));
-
-			assertThat(results).hasSize(2);
-			assertThat(results).extracting(ProfileEntity::getId)
-				.containsExactlyInAnyOrder(profile1.getId(), profile2.getId());
-		}
-
-		@Test
-		@DisplayName("hasPreferredClassificationIdIn should find profiles with any matching classification")
-		void testHasPreferredClassificationIdInAnyMatch() {
-			final var profile1 = profileRepository.save(
-				ProfileEntity.builder()
-					.user(testUser)
-					.profileStatus(approvedStatus)
-					.preferredClassifications(List.of(classification1))
-					.build());
-
-			@SuppressWarnings("unused")
-			final var profile2 = profileRepository.save(
-				ProfileEntity.builder()
-					.user(testUser)
-					.profileStatus(approvedStatus)
-					.preferredClassifications(List.of(classification3))
-					.build());
-
-			final var results = profileRepository.findAll(
-				hasPreferredClassificationIdIn(List.of(classification1.getId()))
-				.and(hasUserId(testUser.getId())));
-
-			assertThat(results).hasSize(1);
-			assertThat(results.get(0).getId()).isEqualTo(profile1.getId());
-		}
-
-		@Test
-		@DisplayName("hasPreferredClassificationIdIn should return empty when no profiles match")
-		void testHasPreferredClassificationIdInNoMatches() {
-			@SuppressWarnings("unused")
-			final var profile = profileRepository.save(
-				ProfileEntity.builder()
-					.user(testUser)
-					.profileStatus(approvedStatus)
-					.preferredClassifications(List.of(classification1))
-					.build());
-
-			final var results = profileRepository.findAll(
-				hasPreferredClassificationIdIn(List.of(999999L))
-				.and(hasUserId(testUser.getId())));
-
-			assertThat(results).isEmpty();
-		}
-
-		@Test
-		@DisplayName("hasPreferredClassificationIdIn should match all when collection is empty")
-		void testHasPreferredClassificationIdInEmptyCollection() {
-			@SuppressWarnings("unused")
-			final var profile = profileRepository.save(
-				ProfileEntity.builder()
-					.user(testUser)
-					.profileStatus(approvedStatus)
-					.preferredClassifications(List.of(classification1))
-					.build());
-
-			final var results = profileRepository.findAll(hasPreferredClassificationIdIn(List.of()));
-
-			assertThat(results).isNotNull();
-		}
-
-		@Test
-		@DisplayName("hasPreferredClassificationIdIn should match all when collection is null")
-		void testHasPreferredClassificationIdInNullCollection() {
-			@SuppressWarnings("unused")
-			final var profile = profileRepository.save(
-				ProfileEntity.builder()
-					.user(testUser)
-					.profileStatus(approvedStatus)
-					.preferredClassifications(List.of(classification1))
-					.build());
-
-			final var results = profileRepository.findAll(hasPreferredClassificationIdIn(null));
-
-			assertThat(results).isNotNull();
-		}
-
-		@Test
-		@DisplayName("hasPreferredClassificationCodeIn should find profiles by preferred classification codes")
-		void testHasPreferredClassificationCodeIn() {
-			final var profile1 = profileRepository.save(
-				ProfileEntity.builder()
-					.user(testUser)
-					.profileStatus(approvedStatus)
-					.preferredClassifications(List.of(classification1, classification2))
-					.build());
-
-			final var profile2 = profileRepository.save(
-				ProfileEntity.builder()
-					.user(testUser)
-					.profileStatus(approvedStatus)
-					.preferredClassifications(List.of(classification2))
-					.build());
-
-			@SuppressWarnings("unused")
-			final var profile3 = profileRepository.save(
-				ProfileEntity.builder()
-					.user(testUser)
-					.profileStatus(approvedStatus)
-					.preferredClassifications(List.of(classification3))
-					.build());
-
-			final var results = profileRepository.findAll(
-				hasPreferredClassificationCodeIn(List.of(classification1.getCode(), classification2.getCode()))
-				.and(hasUserId(testUser.getId())));
-
-			assertThat(results).hasSize(2);
-			assertThat(results).extracting(ProfileEntity::getId)
-				.containsExactlyInAnyOrder(profile1.getId(), profile2.getId());
-		}
-
-		@Test
-		@DisplayName("hasPreferredClassificationCodeIn should find profiles with any matching classification code")
-		void testHasPreferredClassificationCodeInAnyMatch() {
-			final var profile1 = profileRepository.save(
-				ProfileEntity.builder()
-					.user(testUser)
-					.profileStatus(approvedStatus)
-					.preferredClassifications(List.of(classification1))
-					.build());
-
-			@SuppressWarnings("unused")
-			final var profile2 = profileRepository.save(
-				ProfileEntity.builder()
-					.user(testUser)
-					.profileStatus(approvedStatus)
-					.preferredClassifications(List.of(classification3))
-					.build());
-
-			final var results = profileRepository.findAll(
-				hasPreferredClassificationCodeIn(List.of(classification1.getCode()))
-				.and(hasUserId(testUser.getId())));
-
-			assertThat(results).hasSize(1);
-			assertThat(results.get(0).getId()).isEqualTo(profile1.getId());
-		}
-
-		@Test
-		@DisplayName("hasPreferredClassificationCodeIn should return empty when no profiles match")
-		void testHasPreferredClassificationCodeInNoMatches() {
-			@SuppressWarnings("unused")
-			final var profile = profileRepository.save(
-				ProfileEntity.builder()
-					.user(testUser)
-					.profileStatus(approvedStatus)
-					.preferredClassifications(List.of(classification1))
-					.build());
-
-			final var results = profileRepository.findAll(
-				hasPreferredClassificationCodeIn(List.of("NONEXISTENT"))
-				.and(hasUserId(testUser.getId())));
-
-			assertThat(results).isEmpty();
-		}
-
-		@Test
-		@DisplayName("hasPreferredClassificationCodeIn should match all when collection is empty")
-		void testHasPreferredClassificationCodeInEmptyCollection() {
-			@SuppressWarnings("unused")
-			final var profile = profileRepository.save(
-				ProfileEntity.builder()
-					.user(testUser)
-					.profileStatus(approvedStatus)
-					.preferredClassifications(List.of(classification1))
-					.build());
-
-			final var results = profileRepository.findAll(hasPreferredClassificationCodeIn(List.of()));
-
-			assertThat(results).isNotNull();
-		}
-
-		@Test
-		@DisplayName("hasPreferredClassificationCodeIn should match all when collection is null")
-		void testHasPreferredClassificationCodeInNullCollection() {
-			@SuppressWarnings("unused")
-			final var profile = profileRepository.save(
-				ProfileEntity.builder()
-					.user(testUser)
-					.profileStatus(approvedStatus)
-					.preferredClassifications(List.of(classification1))
-					.build());
-
-			final var results = profileRepository.findAll(hasPreferredClassificationCodeIn(null));
-
-			assertThat(results).isNotNull();
 		}
 
 	}
