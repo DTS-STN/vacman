@@ -9,10 +9,11 @@ import { getNonAdvertisedAppointmentService } from '~/.server/domain/services/no
 import { getProvinceService } from '~/.server/domain/services/province-service';
 import { getSelectionProcessTypeService } from '~/.server/domain/services/selection-process-type-service';
 import { getWorkUnitService } from '~/.server/domain/services/workunit-service';
+import { serverEnvironment } from '~/.server/environment';
 import { extractUniqueBranchesFromDirectoratesNonLocalized } from '~/.server/utils/directorate-utils';
 import { stringToIntegerSchema } from '~/.server/validation/string-to-integer-schema';
 import { EMPLOYMENT_TENURE, LANGUAGE_REQUIREMENT_CODES, REQUIRE_OPTIONS, SELECTION_PROCESS_TYPE } from '~/domain/constants';
-import { formatISODate, isValidDateString } from '~/utils/date-utils';
+import { formatISODate, isPastOrTodayInTimeZone, isValidDateString } from '~/utils/date-utils';
 import { formString } from '~/utils/string-utils';
 
 export type PositionInformationSchema = Awaited<ReturnType<typeof createPositionInformationSchema>>;
@@ -467,6 +468,10 @@ export async function createProcessInformationSchema() {
               v.custom(
                 (input) => isValidDateString(input as string),
                 'app:process-information.errors.projected-end-date.invalid',
+              ),
+              v.custom(
+                (input) => !isPastOrTodayInTimeZone(serverEnvironment.BASE_TIMEZONE, input as string),
+                'app:process-information.errors.projected-end-date.invalid-future',
               ),
             ),
           }),
