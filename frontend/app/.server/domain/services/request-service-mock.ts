@@ -285,10 +285,10 @@ export function getMockRequestService(): RequestService {
           nameFr: 'Révision RH',
         },
         vmsNotRequired: {
-          id: 3,
-          code: 'NO_MATCH_HR_REVIEW',
-          nameEn: 'No Match - HR Review',
-          nameFr: 'Aucune concordance - Révision RH',
+          id: 7,
+          code: 'PENDING_PSC_NO_VMS',
+          nameEn: 'VMS not required - Pending PSC clearance',
+          nameFr: "Demande VMS non-requise - En attente de l'autorisation de la CFP",
         },
         submitFeedback: {
           id: 4,
@@ -309,10 +309,10 @@ export function getMockRequestService(): RequestService {
           nameFr: 'CFP requise',
         },
         complete: {
-          id: 7,
-          code: 'CLR_GRANTED',
-          nameEn: 'Clearance Granted',
-          nameFr: 'Autorisation accordée',
+          id: 9,
+          code: 'PSC_GRANTED',
+          nameEn: 'PSC Clearance Granted',
+          nameFr: 'Autorisation de la CFP accordée',
         },
       };
 
@@ -327,7 +327,7 @@ export function getMockRequestService(): RequestService {
       const updatedRequest: RequestReadModel = {
         ...existingRequest,
         status: newStatus,
-        hrAdvisor,
+        hrAdvisor: hrAdvisor ?? existingRequest.hrAdvisor,
         lastModifiedDate: new Date().toISOString(),
         lastModifiedBy: 'system',
       };
