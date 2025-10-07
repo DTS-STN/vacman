@@ -294,7 +294,6 @@ export const REQUEST_EVENT_TYPE = {
   pscNotRequired: 'pscNotRequired',
   pscRequired: 'pscRequired',
   complete: 'complete',
-  runMatches: 'runMatches',
 } as const;
 
 export type RequestEventType = (typeof REQUEST_EVENT_TYPE)[keyof typeof REQUEST_EVENT_TYPE];

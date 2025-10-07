@@ -30,10 +30,10 @@ export function ClearanceGrantedCard({
               <CardTitle>{lang === 'en' ? requestStatus.nameEn : requestStatus.nameFr}</CardTitle>
             </CardHeader>
             <CardContent>
-              {t('hr-advisor-referral-requests.vms-clearance-number')}: {priorityClearanceNumber} <br />
+              {labelWithColon(t('hr-advisor-referral-requests.vms-clearance-number'), lang)} {priorityClearanceNumber} <br />
               {requestStatus.code === REQUEST_STATUS_CODE.PSC_GRANTED && (
                 <>
-                  {t('hr-advisor-referral-requests.psc-clearance-number')} : {pscClearanceNumber}
+                  {labelWithColon(t('hr-advisor-referral-requests.psc-clearance-number'), lang)} {pscClearanceNumber}
                 </>
               )}
               {/* TODO: display View candidates link when the matches are available and the request status id is PSC_GRANTED */}
@@ -43,4 +43,8 @@ export function ClearanceGrantedCard({
       )}
     </>
   );
+}
+
+function labelWithColon(label: string, lang: 'en' | 'fr') {
+  return lang === 'fr' ? `${label}\u00A0:` : `${label}:`;
 }

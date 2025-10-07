@@ -314,13 +314,6 @@ export function getMockRequestService(): RequestService {
           nameEn: 'PSC Clearance Granted',
           nameFr: 'Autorisation de la CFP accordée',
         },
-        runMatches: {
-          // TODO: update runMatches when api is ready to reflect which requests status is returned i.e. "NO_MATCH_HR_REVIEW" or "FDBK_PENDING"
-          id: 3,
-          code: 'NO_MATCH_HR_REVIEW',
-          nameEn: 'No match - HR Review',
-          nameFr: 'Aucune candidature repérée - Revue RH',
-        },
       };
 
       const newStatus = statusByEvent[statusUpdate.eventType] ?? existingRequest.status;

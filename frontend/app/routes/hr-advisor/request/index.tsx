@@ -34,6 +34,7 @@ import { LoadingButton } from '~/components/loading-button';
 import { PageTitle } from '~/components/page-title';
 import { ProfileCard } from '~/components/profile-card';
 import { RequestStatusTag } from '~/components/status-tag';
+import type { RequestEventType } from '~/domain/constants';
 import {
   EMPLOYMENT_TENURE,
   REQUEST_CATEGORY,
@@ -148,6 +149,31 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     throw new Response('Request not found', { status: HttpStatusCodes.NOT_FOUND });
   }
 
+  // Helper function to update request status with common error handling
+  async function updateRequestStatus(eventType: string, requestId: number, accessToken: string) {
+    const submitResult = await getRequestService().updateRequestStatus(
+      requestId,
+      { eventType: eventType as RequestEventType },
+      accessToken,
+    );
+
+    if (submitResult.isErr()) {
+      const error = submitResult.unwrapErr();
+      return {
+        status: 'error',
+        errorMessage: error.message,
+        errorCode: error.errorCode,
+      };
+    }
+
+    const updatedRequest = submitResult.unwrap();
+
+    return {
+      status: 'submitted',
+      requestStatus: updatedRequest.status,
+    };
+  }
+
   const formData = await request.formData();
 
   switch (formData.get('action')) {
@@ -167,52 +193,24 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 
     case 'pickup-request':
     case 're-assign-request': {
-      const submitResult = await getRequestService().updateRequestStatus(
-        requestData.id,
-        { eventType: REQUEST_EVENT_TYPE.pickedUp },
-        session.authState.accessToken,
-      );
-
-      if (submitResult.isErr()) {
-        const error = submitResult.unwrapErr();
-        return {
-          status: 'error',
-          errorMessage: error.message,
-          errorCode: error.errorCode,
-        };
-      }
-
-      const updatedRequest = submitResult.unwrap();
-
-      return {
-        status: 'submitted',
-        requestStatus: updatedRequest.status,
-      };
+      return await updateRequestStatus(REQUEST_EVENT_TYPE.pickedUp, requestData.id, session.authState.accessToken);
     }
 
     case 'vms-not-required': {
-      const submitResult = await getRequestService().updateRequestStatus(
-        requestData.id,
-        { eventType: REQUEST_EVENT_TYPE.vmsNotRequired },
-        session.authState.accessToken,
-      );
-
-      if (submitResult.isErr()) {
-        const error = submitResult.unwrapErr();
-        return {
-          status: 'error',
-          errorMessage: error.message,
-          errorCode: error.errorCode,
-        };
-      }
-
-      const updatedRequest = submitResult.unwrap();
-
-      return {
-        status: 'submitted',
-        requestStatus: updatedRequest.status,
-      };
+      return await updateRequestStatus(REQUEST_EVENT_TYPE.vmsNotRequired, requestData.id, session.authState.accessToken);
     }
+
+    case 'psc-clearance-required': {
+      return await updateRequestStatus(REQUEST_EVENT_TYPE.pscRequired, requestData.id, session.authState.accessToken);
+    }
+
+    case 'psc-clearance-not-required': {
+      return await updateRequestStatus(REQUEST_EVENT_TYPE.pscNotRequired, requestData.id, session.authState.accessToken);
+    }
+
+    /*case 'run-matches': {
+    // TODO: call  POST to /requests/{id}/run-matches instead of changing status here
+    }*/
 
     case 'psc-clearance-received': {
       const parseResult = v.safeParse(
@@ -248,99 +246,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
         throw updateResult.unwrapErr();
       }
 
-      const submitResult = await getRequestService().updateRequestStatus(
-        requestData.id,
-        { eventType: REQUEST_EVENT_TYPE.complete },
-        session.authState.accessToken,
-      );
-
-      if (submitResult.isErr()) {
-        const error = submitResult.unwrapErr();
-        return {
-          status: 'error',
-          errorMessage: error.message,
-          errorCode: error.errorCode,
-        };
-      }
-
-      const updatedRequest = submitResult.unwrap();
-
-      return {
-        status: 'submitted',
-        requestStatus: updatedRequest.status,
-      };
-    }
-
-    case 'run-matches': {
-      const submitResult = await getRequestService().updateRequestStatus(
-        requestData.id,
-        { eventType: REQUEST_EVENT_TYPE.runMatches },
-        session.authState.accessToken,
-      );
-
-      if (submitResult.isErr()) {
-        const error = submitResult.unwrapErr();
-        return {
-          status: 'error',
-          errorMessage: error.message,
-          errorCode: error.errorCode,
-        };
-      }
-
-      const updatedRequest = submitResult.unwrap();
-
-      return {
-        status: 'submitted',
-        requestStatus: updatedRequest.status,
-      };
-    }
-
-    case 'psc-clearance-required': {
-      const submitResult = await getRequestService().updateRequestStatus(
-        requestData.id,
-        { eventType: REQUEST_EVENT_TYPE.pscRequired },
-        session.authState.accessToken,
-      );
-
-      if (submitResult.isErr()) {
-        const error = submitResult.unwrapErr();
-        return {
-          status: 'error',
-          errorMessage: error.message,
-          errorCode: error.errorCode,
-        };
-      }
-
-      const updatedRequest = submitResult.unwrap();
-
-      return {
-        status: 'submitted',
-        requestStatus: updatedRequest.status,
-      };
-    }
-
-    case 'psc-clearance-not-required': {
-      const submitResult = await getRequestService().updateRequestStatus(
-        requestData.id,
-        { eventType: REQUEST_EVENT_TYPE.pscNotRequired },
-        session.authState.accessToken,
-      );
-
-      if (submitResult.isErr()) {
-        const error = submitResult.unwrapErr();
-        return {
-          status: 'error',
-          errorMessage: error.message,
-          errorCode: error.errorCode,
-        };
-      }
-
-      const updatedRequest = submitResult.unwrap();
-
-      return {
-        status: 'submitted',
-        requestStatus: updatedRequest.status,
-      };
+      return await updateRequestStatus(REQUEST_EVENT_TYPE.complete, requestData.id, session.authState.accessToken);
     }
   }
 
