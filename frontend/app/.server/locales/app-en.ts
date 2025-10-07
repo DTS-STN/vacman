@@ -238,7 +238,7 @@ export default {
     'yes': 'Yes',
     'no': 'No',
     'errors': {
-      'selection-process-number-required': 'Selection process number is required',
+      'selection-process-number-invalid': 'Selection process number is invalid',
       'approval-received-required': 'Approval received is required',
       'performed-duties-required': 'Performed duties is required',
       'priority-entitlement-rationale-required': 'Priority entitlement rationale is required',

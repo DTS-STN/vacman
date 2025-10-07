@@ -241,7 +241,7 @@ export default {
     'yes': 'Oui',
     'no': 'Non',
     'errors': {
-      'selection-process-number-required': 'Numéro du processus de sélection est requis',
+      'selection-process-number-invalid': 'Le numéro du processus de sélection est invalide',
       'approval-received-required': 'Approbation reçue est requise',
       'performed-duties-required': 'Exercé les mêmes fonctions est requis',
       'priority-entitlement-rationale-required': "Nomination d'un bénéficiaire de priorité est requise",
