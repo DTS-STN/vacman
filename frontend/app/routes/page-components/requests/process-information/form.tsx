@@ -190,7 +190,6 @@ export function ProcessInformationForm({
               name="selectionProcessNumber"
               label={tApp('process-information.selection-process-number')}
               defaultValue={formValues?.selectionProcessNumber}
-              size={8}
               errorMessage={tApp(extractValidationKey(formErrors?.selectionProcessNumber))}
             />
             <InputCheckbox
