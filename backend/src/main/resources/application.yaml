@@ -329,6 +329,13 @@ codes:
   languages:
     english: EN
     french: FR
+  language-requirements:
+    bilingual-imperative: BI
+    bilingual-non-imperative: BNI
+    english-essential: EE-AE
+    french-essential: FE
+    eitherOr: EF-AF
+    various: VAR
   profile-statuses:
     approved: APPROVED
     archived: ARCHIVED
