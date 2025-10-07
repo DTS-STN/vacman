@@ -6,6 +6,7 @@ import static ca.gov.dtsstn.vacman.api.data.repository.ProfileRepository.hasProf
 import static ca.gov.dtsstn.vacman.api.data.repository.ProfileRepository.hasProfileStatusIdIn;
 import static ca.gov.dtsstn.vacman.api.data.repository.ProfileRepository.hasUserId;
 import static ca.gov.dtsstn.vacman.api.data.repository.ProfileRepository.hasUserMicrosoftEntraId;
+import static ca.gov.dtsstn.vacman.api.data.repository.ProfileRepository.isAvailableForReferral;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
@@ -478,6 +479,84 @@ class ProfileRepositoryTest {
 					.build());
 
 			final var results = profileRepository.findAll(hasUserMicrosoftEntraId("99999999-9999-9999-9999-999999999999"));
+
+			assertThat(results).isEmpty();
+		}
+
+		@Test
+		@DisplayName("isAvailableForReferral should find profiles available for referral")
+		void testIsAvailableForReferral() {
+			final var availableProfile1 = profileRepository.save(
+				ProfileEntity.builder()
+					.user(testUser)
+					.profileStatus(approvedStatus)
+					.isAvailableForReferral(true)
+					.build());
+
+			final var availableProfile2 = profileRepository.save(
+				ProfileEntity.builder()
+					.user(testUser)
+					.profileStatus(approvedStatus)
+					.isAvailableForReferral(true)
+					.build());
+
+			@SuppressWarnings("unused")
+			final var notAvailableProfile = profileRepository.save(
+				ProfileEntity.builder()
+					.user(testUser)
+					.profileStatus(approvedStatus)
+					.isAvailableForReferral(false)
+					.build());
+
+			@SuppressWarnings("unused")
+			final var nullAvailableProfile = profileRepository.save(
+				ProfileEntity.builder()
+					.user(testUser)
+					.profileStatus(approvedStatus)
+					.isAvailableForReferral(null)
+					.build());
+
+			final var results = profileRepository.findAll(
+				isAvailableForReferral()
+				.and(ProfileRepository.hasUserId(testUser.getId())));
+
+			assertThat(results).hasSize(2);
+			assertThat(results).extracting(ProfileEntity::getId)
+				.containsExactlyInAnyOrder(availableProfile1.getId(), availableProfile2.getId());
+		}
+
+		@Test
+		@DisplayName("isAvailableForReferral should return empty list when no profiles are available")
+		void testIsAvailableForReferralNoMatches() {
+			@SuppressWarnings("unused")
+			final var notAvailableProfile = profileRepository.save(
+				ProfileEntity.builder()
+					.user(testUser)
+					.profileStatus(approvedStatus)
+					.isAvailableForReferral(false)
+					.build());
+
+			final var results = profileRepository.findAll(
+				isAvailableForReferral()
+				.and(ProfileRepository.hasUserId(testUser.getId())));
+
+			assertThat(results).isEmpty();
+		}
+
+		@Test
+		@DisplayName("isAvailableForReferral should exclude null values")
+		void testIsAvailableForReferralExcludesNull() {
+			@SuppressWarnings("unused")
+			final var nullAvailableProfile = profileRepository.save(
+				ProfileEntity.builder()
+					.user(testUser)
+					.profileStatus(approvedStatus)
+					.isAvailableForReferral(null)
+					.build());
+
+			final var results = profileRepository.findAll(
+				isAvailableForReferral()
+				.and(ProfileRepository.hasUserId(testUser.getId())));
 
 			assertThat(results).isEmpty();
 		}

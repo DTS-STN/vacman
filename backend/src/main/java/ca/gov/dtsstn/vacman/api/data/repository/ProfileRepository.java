@@ -50,10 +50,17 @@ public interface ProfileRepository extends AbstractBaseRepository<ProfileEntity>
 	}
 
 	/**
-	 * A JPA specification to find profiles by the user's Microsoft Entra ID.
+	 * JPA specification to find profiles by the user's Microsoft Entra ID.
 	 */
 	static Specification<ProfileEntity> hasUserMicrosoftEntraId(String entraId) {
 		return (root, query, cb) -> cb.equal(root.get("user").get("microsoftEntraId"), entraId);
+	}
+
+	/**
+	 * JPA specification to find profiles that are available for referral.
+	 */
+	static Specification<ProfileEntity> isAvailableForReferral() {
+		return (root, query, cb) -> cb.equal(root.get("isAvailableForReferral"), true);
 	}
 
 }
