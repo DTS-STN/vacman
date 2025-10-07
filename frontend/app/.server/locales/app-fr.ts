@@ -438,7 +438,7 @@ export default {
     'security-requirement': 'Exigences en matière de sécurité',
     'errors': {
       'position-number-required': 'Le numéro de poste est requis.',
-      'position-number-max-length': 'Chaque numéro de poste doit comporter 6 caractères.',
+      'position-number-max-length': 'Chaque numéro de poste doit comporter 8 caractères.',
       'group-and-level-required': 'Le groupe et le niveau sont requis.',
       'title-en-required': 'Le titre en anglais est requis.',
       'title-fr-required': 'Le titre en français est requis.',
