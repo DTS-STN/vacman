@@ -537,6 +537,12 @@ export default {
     'copy': 'Copy',
     'copy-link': 'Copy request with ID {{requestId}}',
     'next-page': 'Next',
+    'my-requests': 'My requests',
+    'all-requests': 'All requests',
+    'table-updated': {
+      'my-requests': 'Table updated: showing My requests',
+      'all-requests': 'Table updated: showing All requests',
+    },
   },
   'matches': {
     'page-title': 'Request candidates',

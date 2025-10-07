@@ -547,6 +547,12 @@ export default {
     'copy': 'Copier',
     'copy-link': "Copier la demande avec l'identifiant {{requestId}}",
     'next-page': 'Suivant',
+    'my-requests': 'Mes demandes',
+    'all-requests': 'Toutes les demandes',
+    'table-updated': {
+      'my-requests': 'Tableau mis à jour : affichage de Mes demandes',
+      'all-requests': 'Tableau mis à jour : affichage de Toutes les demandes',
+    },
   },
   'matches': {
     'page-title': 'Candidatures de la demande',
