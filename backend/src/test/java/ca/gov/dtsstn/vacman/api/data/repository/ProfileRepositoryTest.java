@@ -74,24 +74,24 @@ class ProfileRepositoryTest {
 	@MockitoBean
 	SecurityAuditor securityAuditor;
 
+	CityEntity cityOttawa;
+	CityEntity cityStJohns;
+	CityEntity cityBathurst;
+
+	ClassificationEntity classificationAs01;
+	ClassificationEntity classificationPm02;
+	ClassificationEntity classificationIt03;
+
+	LanguageReferralTypeEntity languageReferralTypeBilingual;
+	LanguageReferralTypeEntity languageReferralTypeEnglish;
+	LanguageReferralTypeEntity languageReferralTypeFrench;
+
+	ProfileStatusEntity statusApproved;
+	ProfileStatusEntity statusPending;
+
 	UserEntity testUser;
 	UserEntity hrAdvisor1;
 	UserEntity hrAdvisor2;
-
-	ProfileStatusEntity approvedStatus;
-	ProfileStatusEntity pendingStatus;
-
-	ClassificationEntity classification1;
-	ClassificationEntity classification2;
-	ClassificationEntity classification3;
-
-	CityEntity city3;
-	CityEntity city2;
-	CityEntity city1;
-
-	LanguageReferralTypeEntity bilingualLanguageReferralType;
-	LanguageReferralTypeEntity englishLanguageReferralType;
-	LanguageReferralTypeEntity frenchLanguageReferralType;
 
 	@BeforeEach
 	void setUp() {
@@ -130,36 +130,36 @@ class ProfileRepositoryTest {
 			.build());
 
 		//
-		// Get profile statuses that will be throughout the tests
+		// Get cities that will be used throughout the tests
 		//
 
-		approvedStatus = profileStatusRepository.findByCode("APPROVED").orElseThrow();
-		pendingStatus = profileStatusRepository.findByCode("PENDING").orElseThrow();
+		cityBathurst = cityRepository.findByCode("NB1").orElseThrow();
+		cityOttawa = cityRepository.findByCode("ON52").orElseThrow();
+		cityStJohns = cityRepository.findByCode("NL14").orElseThrow();
 
 		//
 		// Get classifications that will be used throughout the tests
 		//
 
-		classification1 = classificationRepository.findByCode("AS-01").orElseThrow();
-		classification2 = classificationRepository.findByCode("PM-02").orElseThrow();
-		classification3 = classificationRepository.findByCode("IT-03").orElseThrow();
-
-		//
-		// Get cities that will be used throughout the tests
-		//
-
-		city1 = cityRepository.findByCode("NB1").orElseThrow();
-		city2 = cityRepository.findByCode("NL14").orElseThrow();
-		city3 = cityRepository.findByCode("ON52").orElseThrow();
+		classificationAs01 = classificationRepository.findByCode("AS-01").orElseThrow();
+		classificationIt03 = classificationRepository.findByCode("IT-03").orElseThrow();
+		classificationPm02 = classificationRepository.findByCode("PM-02").orElseThrow();
 
 		//
 		// Get language referral types that will be used throughout the tests
 		// Note: Using database IDs since we know these exist in test data
 		//
 
-		bilingualLanguageReferralType = languageReferralTypeRepository.findByCode("BILINGUAL").orElseThrow();
-		englishLanguageReferralType = languageReferralTypeRepository.findByCode("ENGLISH").orElseThrow();
-		frenchLanguageReferralType = languageReferralTypeRepository.findByCode("FRENCH").orElseThrow();
+		languageReferralTypeBilingual = languageReferralTypeRepository.findByCode("BILINGUAL").orElseThrow();
+		languageReferralTypeEnglish = languageReferralTypeRepository.findByCode("ENGLISH").orElseThrow();
+		languageReferralTypeFrench = languageReferralTypeRepository.findByCode("FRENCH").orElseThrow();
+
+		//
+		// Get profile statuses that will be throughout the tests
+		//
+
+		statusApproved = profileStatusRepository.findByCode("APPROVED").orElseThrow();
+		statusPending = profileStatusRepository.findByCode("PENDING").orElseThrow();
 	}
 
 	@Nested
@@ -172,14 +172,14 @@ class ProfileRepositoryTest {
 			final var availableProfile1 = profileRepository.save(
 				ProfileEntity.builder()
 					.user(testUser)
-					.profileStatus(approvedStatus)
+					.profileStatus(statusApproved)
 					.isAvailableForReferral(true)
 					.build());
 
 			final var availableProfile2 = profileRepository.save(
 				ProfileEntity.builder()
 					.user(testUser)
-					.profileStatus(approvedStatus)
+					.profileStatus(statusApproved)
 					.isAvailableForReferral(true)
 					.build());
 
@@ -187,7 +187,7 @@ class ProfileRepositoryTest {
 			final var notAvailableProfile = profileRepository.save(
 				ProfileEntity.builder()
 					.user(testUser)
-					.profileStatus(approvedStatus)
+					.profileStatus(statusApproved)
 					.isAvailableForReferral(false)
 					.build());
 
@@ -195,7 +195,7 @@ class ProfileRepositoryTest {
 			final var nullAvailableProfile = profileRepository.save(
 				ProfileEntity.builder()
 					.user(testUser)
-					.profileStatus(approvedStatus)
+					.profileStatus(statusApproved)
 					.isAvailableForReferral(null)
 					.build());
 
@@ -215,7 +215,7 @@ class ProfileRepositoryTest {
 			final var notAvailableProfile = profileRepository.save(
 				ProfileEntity.builder()
 					.user(testUser)
-					.profileStatus(approvedStatus)
+					.profileStatus(statusApproved)
 					.isAvailableForReferral(false)
 					.build());
 
@@ -233,7 +233,7 @@ class ProfileRepositoryTest {
 			final var nullAvailableProfile = profileRepository.save(
 				ProfileEntity.builder()
 					.user(testUser)
-					.profileStatus(approvedStatus)
+					.profileStatus(statusApproved)
 					.isAvailableForReferral(null)
 					.build());
 
@@ -256,27 +256,27 @@ class ProfileRepositoryTest {
 			final var profile1 = profileRepository.save(
 				ProfileEntity.builder()
 					.user(testUser)
-					.profileStatus(approvedStatus)
-					.preferredCities(List.of(city3, city2))
+					.profileStatus(statusApproved)
+					.preferredCities(List.of(cityOttawa, cityStJohns))
 					.build());
 
 			final var profile2 = profileRepository.save(
 				ProfileEntity.builder()
 					.user(testUser)
-					.profileStatus(approvedStatus)
-					.preferredCities(List.of(city2))
+					.profileStatus(statusApproved)
+					.preferredCities(List.of(cityStJohns))
 					.build());
 
 			@SuppressWarnings("unused")
 			final var profile3 = profileRepository.save(
 				ProfileEntity.builder()
 					.user(testUser)
-					.profileStatus(approvedStatus)
-					.preferredCities(List.of(city1))
+					.profileStatus(statusApproved)
+					.preferredCities(List.of(cityBathurst))
 					.build());
 
 			final var results = profileRepository.findAll(
-				hasPreferredCityIdIn(List.of(city3.getId(), city2.getId()))
+				hasPreferredCityIdIn(List.of(cityOttawa.getId(), cityStJohns.getId()))
 				.and(hasUserId(testUser.getId())));
 
 			assertThat(results).hasSize(2);
@@ -290,20 +290,20 @@ class ProfileRepositoryTest {
 			final var profile1 = profileRepository.save(
 				ProfileEntity.builder()
 					.user(testUser)
-					.profileStatus(approvedStatus)
-					.preferredCities(List.of(city3))
+					.profileStatus(statusApproved)
+					.preferredCities(List.of(cityOttawa))
 					.build());
 
 			@SuppressWarnings("unused")
 			final var profile2 = profileRepository.save(
 				ProfileEntity.builder()
 					.user(testUser)
-					.profileStatus(approvedStatus)
-					.preferredCities(List.of(city1))
+					.profileStatus(statusApproved)
+					.preferredCities(List.of(cityBathurst))
 					.build());
 
 			final var results = profileRepository.findAll(
-				hasPreferredCityIdIn(List.of(city3.getId()))
+				hasPreferredCityIdIn(List.of(cityOttawa.getId()))
 				.and(hasUserId(testUser.getId())));
 
 			assertThat(results).hasSize(1);
@@ -317,8 +317,8 @@ class ProfileRepositoryTest {
 			final var profile = profileRepository.save(
 				ProfileEntity.builder()
 					.user(testUser)
-					.profileStatus(approvedStatus)
-					.preferredCities(List.of(city3))
+					.profileStatus(statusApproved)
+					.preferredCities(List.of(cityOttawa))
 					.build());
 
 			final var results = profileRepository.findAll(
@@ -335,8 +335,8 @@ class ProfileRepositoryTest {
 			final var profile = profileRepository.save(
 				ProfileEntity.builder()
 					.user(testUser)
-					.profileStatus(approvedStatus)
-					.preferredCities(List.of(city3))
+					.profileStatus(statusApproved)
+					.preferredCities(List.of(cityOttawa))
 					.build());
 
 			final var results = profileRepository.findAll(hasPreferredCityIdIn(List.of()));
@@ -351,8 +351,8 @@ class ProfileRepositoryTest {
 			final var profile = profileRepository.save(
 				ProfileEntity.builder()
 					.user(testUser)
-					.profileStatus(approvedStatus)
-					.preferredCities(List.of(city3))
+					.profileStatus(statusApproved)
+					.preferredCities(List.of(cityOttawa))
 					.build());
 
 			final var results = profileRepository.findAll(hasPreferredCityIdIn(null));
@@ -366,27 +366,27 @@ class ProfileRepositoryTest {
 			final var profile1 = profileRepository.save(
 				ProfileEntity.builder()
 					.user(testUser)
-					.profileStatus(approvedStatus)
-					.preferredCities(List.of(city3, city2))
+					.profileStatus(statusApproved)
+					.preferredCities(List.of(cityOttawa, cityStJohns))
 					.build());
 
 			final var profile2 = profileRepository.save(
 				ProfileEntity.builder()
 					.user(testUser)
-					.profileStatus(approvedStatus)
-					.preferredCities(List.of(city2))
+					.profileStatus(statusApproved)
+					.preferredCities(List.of(cityStJohns))
 					.build());
 
 			@SuppressWarnings("unused")
 			final var profile3 = profileRepository.save(
 				ProfileEntity.builder()
 					.user(testUser)
-					.profileStatus(approvedStatus)
-					.preferredCities(List.of(city1))
+					.profileStatus(statusApproved)
+					.preferredCities(List.of(cityBathurst))
 					.build());
 
 			final var results = profileRepository.findAll(
-				hasPreferredCityCodeIn(List.of(city3.getCode(), city2.getCode()))
+				hasPreferredCityCodeIn(List.of(cityOttawa.getCode(), cityStJohns.getCode()))
 				.and(hasUserId(testUser.getId())));
 
 			assertThat(results).hasSize(2);
@@ -400,20 +400,20 @@ class ProfileRepositoryTest {
 			final var profile1 = profileRepository.save(
 				ProfileEntity.builder()
 					.user(testUser)
-					.profileStatus(approvedStatus)
-					.preferredCities(List.of(city3))
+					.profileStatus(statusApproved)
+					.preferredCities(List.of(cityOttawa))
 					.build());
 
 			@SuppressWarnings("unused")
 			final var profile2 = profileRepository.save(
 				ProfileEntity.builder()
 					.user(testUser)
-					.profileStatus(approvedStatus)
-					.preferredCities(List.of(city1))
+					.profileStatus(statusApproved)
+					.preferredCities(List.of(cityBathurst))
 					.build());
 
 			final var results = profileRepository.findAll(
-				hasPreferredCityCodeIn(List.of(city3.getCode()))
+				hasPreferredCityCodeIn(List.of(cityOttawa.getCode()))
 				.and(hasUserId(testUser.getId())));
 
 			assertThat(results).hasSize(1);
@@ -427,8 +427,8 @@ class ProfileRepositoryTest {
 			final var profile = profileRepository.save(
 				ProfileEntity.builder()
 					.user(testUser)
-					.profileStatus(approvedStatus)
-					.preferredCities(List.of(city3))
+					.profileStatus(statusApproved)
+					.preferredCities(List.of(cityOttawa))
 					.build());
 
 			final var results = profileRepository.findAll(
@@ -445,8 +445,8 @@ class ProfileRepositoryTest {
 			final var profile = profileRepository.save(
 				ProfileEntity.builder()
 					.user(testUser)
-					.profileStatus(approvedStatus)
-					.preferredCities(List.of(city3))
+					.profileStatus(statusApproved)
+					.preferredCities(List.of(cityOttawa))
 					.build());
 
 			final var results = profileRepository.findAll(hasPreferredCityCodeIn(List.of()));
@@ -461,8 +461,8 @@ class ProfileRepositoryTest {
 			final var profile = profileRepository.save(
 				ProfileEntity.builder()
 					.user(testUser)
-					.profileStatus(approvedStatus)
-					.preferredCities(List.of(city3))
+					.profileStatus(statusApproved)
+					.preferredCities(List.of(cityOttawa))
 					.build());
 
 			final var results = profileRepository.findAll(hasPreferredCityCodeIn(null));
@@ -482,27 +482,27 @@ class ProfileRepositoryTest {
 			final var profile1 = profileRepository.save(
 				ProfileEntity.builder()
 					.user(testUser)
-					.profileStatus(approvedStatus)
-					.preferredClassifications(List.of(classification1, classification2))
+					.profileStatus(statusApproved)
+					.preferredClassifications(List.of(classificationAs01, classificationPm02))
 					.build());
 
 			final var profile2 = profileRepository.save(
 				ProfileEntity.builder()
 					.user(testUser)
-					.profileStatus(approvedStatus)
-					.preferredClassifications(List.of(classification2))
+					.profileStatus(statusApproved)
+					.preferredClassifications(List.of(classificationPm02))
 					.build());
 
 			@SuppressWarnings("unused")
 			final var profile3 = profileRepository.save(
 				ProfileEntity.builder()
 					.user(testUser)
-					.profileStatus(approvedStatus)
-					.preferredClassifications(List.of(classification3))
+					.profileStatus(statusApproved)
+					.preferredClassifications(List.of(classificationIt03))
 					.build());
 
 			final var results = profileRepository.findAll(
-				hasPreferredClassificationIdIn(List.of(classification1.getId(), classification2.getId()))
+				hasPreferredClassificationIdIn(List.of(classificationAs01.getId(), classificationPm02.getId()))
 				.and(hasUserId(testUser.getId())));
 
 			assertThat(results).hasSize(2);
@@ -516,20 +516,20 @@ class ProfileRepositoryTest {
 			final var profile1 = profileRepository.save(
 				ProfileEntity.builder()
 					.user(testUser)
-					.profileStatus(approvedStatus)
-					.preferredClassifications(List.of(classification1))
+					.profileStatus(statusApproved)
+					.preferredClassifications(List.of(classificationAs01))
 					.build());
 
 			@SuppressWarnings("unused")
 			final var profile2 = profileRepository.save(
 				ProfileEntity.builder()
 					.user(testUser)
-					.profileStatus(approvedStatus)
-					.preferredClassifications(List.of(classification3))
+					.profileStatus(statusApproved)
+					.preferredClassifications(List.of(classificationIt03))
 					.build());
 
 			final var results = profileRepository.findAll(
-				hasPreferredClassificationIdIn(List.of(classification1.getId()))
+				hasPreferredClassificationIdIn(List.of(classificationAs01.getId()))
 				.and(hasUserId(testUser.getId())));
 
 			assertThat(results).hasSize(1);
@@ -543,8 +543,8 @@ class ProfileRepositoryTest {
 			final var profile = profileRepository.save(
 				ProfileEntity.builder()
 					.user(testUser)
-					.profileStatus(approvedStatus)
-					.preferredClassifications(List.of(classification1))
+					.profileStatus(statusApproved)
+					.preferredClassifications(List.of(classificationAs01))
 					.build());
 
 			final var results = profileRepository.findAll(
@@ -561,8 +561,8 @@ class ProfileRepositoryTest {
 			final var profile = profileRepository.save(
 				ProfileEntity.builder()
 					.user(testUser)
-					.profileStatus(approvedStatus)
-					.preferredClassifications(List.of(classification1))
+					.profileStatus(statusApproved)
+					.preferredClassifications(List.of(classificationAs01))
 					.build());
 
 			final var results = profileRepository.findAll(hasPreferredClassificationIdIn(List.of()));
@@ -577,8 +577,8 @@ class ProfileRepositoryTest {
 			final var profile = profileRepository.save(
 				ProfileEntity.builder()
 					.user(testUser)
-					.profileStatus(approvedStatus)
-					.preferredClassifications(List.of(classification1))
+					.profileStatus(statusApproved)
+					.preferredClassifications(List.of(classificationAs01))
 					.build());
 
 			final var results = profileRepository.findAll(hasPreferredClassificationIdIn(null));
@@ -592,27 +592,27 @@ class ProfileRepositoryTest {
 			final var profile1 = profileRepository.save(
 				ProfileEntity.builder()
 					.user(testUser)
-					.profileStatus(approvedStatus)
-					.preferredClassifications(List.of(classification1, classification2))
+					.profileStatus(statusApproved)
+					.preferredClassifications(List.of(classificationAs01, classificationPm02))
 					.build());
 
 			final var profile2 = profileRepository.save(
 				ProfileEntity.builder()
 					.user(testUser)
-					.profileStatus(approvedStatus)
-					.preferredClassifications(List.of(classification2))
+					.profileStatus(statusApproved)
+					.preferredClassifications(List.of(classificationPm02))
 					.build());
 
 			@SuppressWarnings("unused")
 			final var profile3 = profileRepository.save(
 				ProfileEntity.builder()
 					.user(testUser)
-					.profileStatus(approvedStatus)
-					.preferredClassifications(List.of(classification3))
+					.profileStatus(statusApproved)
+					.preferredClassifications(List.of(classificationIt03))
 					.build());
 
 			final var results = profileRepository.findAll(
-				hasPreferredClassificationCodeIn(List.of(classification1.getCode(), classification2.getCode()))
+				hasPreferredClassificationCodeIn(List.of(classificationAs01.getCode(), classificationPm02.getCode()))
 				.and(hasUserId(testUser.getId())));
 
 			assertThat(results).hasSize(2);
@@ -626,20 +626,20 @@ class ProfileRepositoryTest {
 			final var profile1 = profileRepository.save(
 				ProfileEntity.builder()
 					.user(testUser)
-					.profileStatus(approvedStatus)
-					.preferredClassifications(List.of(classification1))
+					.profileStatus(statusApproved)
+					.preferredClassifications(List.of(classificationAs01))
 					.build());
 
 			@SuppressWarnings("unused")
 			final var profile2 = profileRepository.save(
 				ProfileEntity.builder()
 					.user(testUser)
-					.profileStatus(approvedStatus)
-					.preferredClassifications(List.of(classification3))
+					.profileStatus(statusApproved)
+					.preferredClassifications(List.of(classificationIt03))
 					.build());
 
 			final var results = profileRepository.findAll(
-				hasPreferredClassificationCodeIn(List.of(classification1.getCode()))
+				hasPreferredClassificationCodeIn(List.of(classificationAs01.getCode()))
 				.and(hasUserId(testUser.getId())));
 
 			assertThat(results).hasSize(1);
@@ -653,8 +653,8 @@ class ProfileRepositoryTest {
 			final var profile = profileRepository.save(
 				ProfileEntity.builder()
 					.user(testUser)
-					.profileStatus(approvedStatus)
-					.preferredClassifications(List.of(classification1))
+					.profileStatus(statusApproved)
+					.preferredClassifications(List.of(classificationAs01))
 					.build());
 
 			final var results = profileRepository.findAll(
@@ -671,8 +671,8 @@ class ProfileRepositoryTest {
 			final var profile = profileRepository.save(
 				ProfileEntity.builder()
 					.user(testUser)
-					.profileStatus(approvedStatus)
-					.preferredClassifications(List.of(classification1))
+					.profileStatus(statusApproved)
+					.preferredClassifications(List.of(classificationAs01))
 					.build());
 
 			final var results = profileRepository.findAll(hasPreferredClassificationCodeIn(List.of()));
@@ -687,8 +687,8 @@ class ProfileRepositoryTest {
 			final var profile = profileRepository.save(
 				ProfileEntity.builder()
 					.user(testUser)
-					.profileStatus(approvedStatus)
-					.preferredClassifications(List.of(classification1))
+					.profileStatus(statusApproved)
+					.preferredClassifications(List.of(classificationAs01))
 					.build());
 
 			final var results = profileRepository.findAll(hasPreferredClassificationCodeIn(null));
@@ -712,7 +712,7 @@ class ProfileRepositoryTest {
 				ProfileEntity.builder()
 					.user(testUser)
 					.hrAdvisor(hrAdvisor1)
-					.profileStatus(approvedStatus)
+					.profileStatus(statusApproved)
 					.build());
 
 			@SuppressWarnings({ "unused" })
@@ -720,14 +720,14 @@ class ProfileRepositoryTest {
 				ProfileEntity.builder()
 					.user(testUser)
 					.hrAdvisor(hrAdvisor2)
-					.profileStatus(approvedStatus)
+					.profileStatus(statusApproved)
 					.build());
 
 			final var profile3 = profileRepository.save(
 				ProfileEntity.builder()
 					.user(testUser)
 					.hrAdvisor(hrAdvisor1)
-					.profileStatus(approvedStatus)
+					.profileStatus(statusApproved)
 					.build());
 
 			final var results = profileRepository.findAll(hasHrAdvisorId(hrAdvisor1.getId()));
@@ -745,7 +745,7 @@ class ProfileRepositoryTest {
 				ProfileEntity.builder()
 					.user(testUser)
 					.hrAdvisor(hrAdvisor1)
-					.profileStatus(approvedStatus)
+					.profileStatus(statusApproved)
 					.build());
 
 			final var results = profileRepository.findAll(hasHrAdvisorId(999999L));
@@ -760,21 +760,21 @@ class ProfileRepositoryTest {
 				ProfileEntity.builder()
 					.user(testUser)
 					.hrAdvisor(hrAdvisor1)
-					.profileStatus(approvedStatus)
+					.profileStatus(statusApproved)
 					.build());
 
 			final var profile2 = profileRepository.save(
 				ProfileEntity.builder()
 					.user(testUser)
 					.hrAdvisor(hrAdvisor2)
-					.profileStatus(approvedStatus)
+					.profileStatus(statusApproved)
 					.build());
 
 			@SuppressWarnings({ "unused" })
 			final var profile3 = profileRepository.save(
 				ProfileEntity.builder()
 					.user(testUser)
-					.profileStatus(approvedStatus)
+					.profileStatus(statusApproved)
 					.build());
 
 			final var results = profileRepository.findAll(hasHrAdvisorIdIn(List.of(
@@ -794,7 +794,7 @@ class ProfileRepositoryTest {
 				ProfileEntity.builder()
 					.user(testUser)
 					.hrAdvisor(hrAdvisor1)
-					.profileStatus(approvedStatus)
+					.profileStatus(statusApproved)
 					.build());
 
 			final var results = profileRepository.findAll(hasHrAdvisorIdIn(List.of()));
@@ -812,7 +812,7 @@ class ProfileRepositoryTest {
 				ProfileEntity.builder()
 					.user(testUser)
 					.hrAdvisor(hrAdvisor1)
-					.profileStatus(approvedStatus)
+					.profileStatus(statusApproved)
 					.build());
 
 			final var results = profileRepository.findAll(hasHrAdvisorIdIn(null));
@@ -834,27 +834,27 @@ class ProfileRepositoryTest {
 			final var profile1 = profileRepository.save(
 				ProfileEntity.builder()
 					.user(testUser)
-					.profileStatus(approvedStatus)
-					.preferredLanguages(List.of(bilingualLanguageReferralType, englishLanguageReferralType))
+					.profileStatus(statusApproved)
+					.preferredLanguages(List.of(languageReferralTypeBilingual, languageReferralTypeEnglish))
 					.build());
 
 			final var profile2 = profileRepository.save(
 				ProfileEntity.builder()
 					.user(testUser)
-					.profileStatus(approvedStatus)
-					.preferredLanguages(List.of(englishLanguageReferralType))
+					.profileStatus(statusApproved)
+					.preferredLanguages(List.of(languageReferralTypeEnglish))
 					.build());
 
 			@SuppressWarnings("unused")
 			final var profile3 = profileRepository.save(
 				ProfileEntity.builder()
 					.user(testUser)
-					.profileStatus(approvedStatus)
-					.preferredLanguages(List.of(frenchLanguageReferralType))
+					.profileStatus(statusApproved)
+					.preferredLanguages(List.of(languageReferralTypeFrench))
 					.build());
 
 			final var results = profileRepository.findAll(
-				hasPreferredLanguageIdIn(List.of(bilingualLanguageReferralType.getId(), englishLanguageReferralType.getId()))
+				hasPreferredLanguageIdIn(List.of(languageReferralTypeBilingual.getId(), languageReferralTypeEnglish.getId()))
 				.and(hasUserId(testUser.getId())));
 
 			assertThat(results).hasSize(2);
@@ -868,20 +868,20 @@ class ProfileRepositoryTest {
 			final var profile1 = profileRepository.save(
 				ProfileEntity.builder()
 					.user(testUser)
-					.profileStatus(approvedStatus)
-					.preferredLanguages(List.of(bilingualLanguageReferralType))
+					.profileStatus(statusApproved)
+					.preferredLanguages(List.of(languageReferralTypeBilingual))
 					.build());
 
 			@SuppressWarnings("unused")
 			final var profile2 = profileRepository.save(
 				ProfileEntity.builder()
 					.user(testUser)
-					.profileStatus(approvedStatus)
-					.preferredLanguages(List.of(frenchLanguageReferralType))
+					.profileStatus(statusApproved)
+					.preferredLanguages(List.of(languageReferralTypeFrench))
 					.build());
 
 			final var results = profileRepository.findAll(
-				hasPreferredLanguageIdIn(List.of(bilingualLanguageReferralType.getId()))
+				hasPreferredLanguageIdIn(List.of(languageReferralTypeBilingual.getId()))
 				.and(hasUserId(testUser.getId())));
 
 			assertThat(results).hasSize(1);
@@ -895,8 +895,8 @@ class ProfileRepositoryTest {
 			final var profile = profileRepository.save(
 				ProfileEntity.builder()
 					.user(testUser)
-					.profileStatus(approvedStatus)
-					.preferredLanguages(List.of(bilingualLanguageReferralType))
+					.profileStatus(statusApproved)
+					.preferredLanguages(List.of(languageReferralTypeBilingual))
 					.build());
 
 			final var results = profileRepository.findAll(
@@ -913,8 +913,8 @@ class ProfileRepositoryTest {
 			final var profile = profileRepository.save(
 				ProfileEntity.builder()
 					.user(testUser)
-					.profileStatus(approvedStatus)
-					.preferredLanguages(List.of(bilingualLanguageReferralType))
+					.profileStatus(statusApproved)
+					.preferredLanguages(List.of(languageReferralTypeBilingual))
 					.build());
 
 			final var results = profileRepository.findAll(hasPreferredLanguageIdIn(List.of()));
@@ -929,8 +929,8 @@ class ProfileRepositoryTest {
 			final var profile = profileRepository.save(
 				ProfileEntity.builder()
 					.user(testUser)
-					.profileStatus(approvedStatus)
-					.preferredLanguages(List.of(bilingualLanguageReferralType))
+					.profileStatus(statusApproved)
+					.preferredLanguages(List.of(languageReferralTypeBilingual))
 					.build());
 
 			final var results = profileRepository.findAll(hasPreferredLanguageIdIn(null));
@@ -944,27 +944,27 @@ class ProfileRepositoryTest {
 			final var profile1 = profileRepository.save(
 				ProfileEntity.builder()
 					.user(testUser)
-					.profileStatus(approvedStatus)
-					.preferredLanguages(List.of(bilingualLanguageReferralType, englishLanguageReferralType))
+					.profileStatus(statusApproved)
+					.preferredLanguages(List.of(languageReferralTypeBilingual, languageReferralTypeEnglish))
 					.build());
 
 			final var profile2 = profileRepository.save(
 				ProfileEntity.builder()
 					.user(testUser)
-					.profileStatus(approvedStatus)
-					.preferredLanguages(List.of(englishLanguageReferralType))
+					.profileStatus(statusApproved)
+					.preferredLanguages(List.of(languageReferralTypeEnglish))
 					.build());
 
 			@SuppressWarnings("unused")
 			final var profile3 = profileRepository.save(
 				ProfileEntity.builder()
 					.user(testUser)
-					.profileStatus(approvedStatus)
-					.preferredLanguages(List.of(frenchLanguageReferralType))
+					.profileStatus(statusApproved)
+					.preferredLanguages(List.of(languageReferralTypeFrench))
 					.build());
 
 			final var results = profileRepository.findAll(
-				hasPreferredLanguageCodeIn(List.of(bilingualLanguageReferralType.getCode(), englishLanguageReferralType.getCode()))
+				hasPreferredLanguageCodeIn(List.of(languageReferralTypeBilingual.getCode(), languageReferralTypeEnglish.getCode()))
 				.and(hasUserId(testUser.getId())));
 
 			assertThat(results).hasSize(2);
@@ -978,20 +978,20 @@ class ProfileRepositoryTest {
 			final var profile1 = profileRepository.save(
 				ProfileEntity.builder()
 					.user(testUser)
-					.profileStatus(approvedStatus)
-					.preferredLanguages(List.of(bilingualLanguageReferralType))
+					.profileStatus(statusApproved)
+					.preferredLanguages(List.of(languageReferralTypeBilingual))
 					.build());
 
 			@SuppressWarnings("unused")
 			final var profile2 = profileRepository.save(
 				ProfileEntity.builder()
 					.user(testUser)
-					.profileStatus(approvedStatus)
-					.preferredLanguages(List.of(frenchLanguageReferralType))
+					.profileStatus(statusApproved)
+					.preferredLanguages(List.of(languageReferralTypeFrench))
 					.build());
 
 			final var results = profileRepository.findAll(
-				hasPreferredLanguageCodeIn(List.of(bilingualLanguageReferralType.getCode()))
+				hasPreferredLanguageCodeIn(List.of(languageReferralTypeBilingual.getCode()))
 				.and(hasUserId(testUser.getId())));
 
 			assertThat(results).hasSize(1);
@@ -1005,8 +1005,8 @@ class ProfileRepositoryTest {
 			final var profile = profileRepository.save(
 				ProfileEntity.builder()
 					.user(testUser)
-					.profileStatus(approvedStatus)
-					.preferredLanguages(List.of(bilingualLanguageReferralType))
+					.profileStatus(statusApproved)
+					.preferredLanguages(List.of(languageReferralTypeBilingual))
 					.build());
 
 			final var results = profileRepository.findAll(
@@ -1023,8 +1023,8 @@ class ProfileRepositoryTest {
 			final var profile = profileRepository.save(
 				ProfileEntity.builder()
 					.user(testUser)
-					.profileStatus(approvedStatus)
-					.preferredLanguages(List.of(bilingualLanguageReferralType))
+					.profileStatus(statusApproved)
+					.preferredLanguages(List.of(languageReferralTypeBilingual))
 					.build());
 
 			final var results = profileRepository.findAll(hasPreferredLanguageCodeIn(List.of()));
@@ -1039,8 +1039,8 @@ class ProfileRepositoryTest {
 			final var profile = profileRepository.save(
 				ProfileEntity.builder()
 					.user(testUser)
-					.profileStatus(approvedStatus)
-					.preferredLanguages(List.of(bilingualLanguageReferralType))
+					.profileStatus(statusApproved)
+					.preferredLanguages(List.of(languageReferralTypeBilingual))
 					.build());
 
 			final var results = profileRepository.findAll(hasPreferredLanguageCodeIn(null));
@@ -1060,18 +1060,18 @@ class ProfileRepositoryTest {
 			final var activeProfile = profileRepository.save(
 				ProfileEntity.builder()
 					.user(testUser)
-					.profileStatus(approvedStatus)
+					.profileStatus(statusApproved)
 					.build());
 
 			@SuppressWarnings({ "unused" })
 			final var pendingProfile = profileRepository.save(
 				ProfileEntity.builder()
 					.user(testUser)
-					.profileStatus(pendingStatus)
+					.profileStatus(statusPending)
 					.build());
 
 			final var results = profileRepository.findAll(
-				hasProfileStatusCodeIn(List.of(approvedStatus.getCode()))
+				hasProfileStatusCodeIn(List.of(statusApproved.getCode()))
 				.and(hasUserId(testUser.getId())));
 
 			assertThat(results).hasSize(1);
@@ -1084,17 +1084,17 @@ class ProfileRepositoryTest {
 			final var activeProfile = profileRepository.save(
 				ProfileEntity.builder()
 					.user(testUser)
-					.profileStatus(approvedStatus)
+					.profileStatus(statusApproved)
 					.build());
 
 			final var pendingProfile = profileRepository.save(
 				ProfileEntity.builder()
 					.user(testUser)
-					.profileStatus(pendingStatus)
+					.profileStatus(statusPending)
 					.build());
 
 			final var results = profileRepository.findAll(
-				hasProfileStatusCodeIn(List.of(approvedStatus.getCode(), pendingStatus.getCode()))
+				hasProfileStatusCodeIn(List.of(statusApproved.getCode(), statusPending.getCode()))
 				.and(hasUserId(testUser.getId())));
 
 			assertThat(results).hasSize(2);
@@ -1109,7 +1109,7 @@ class ProfileRepositoryTest {
 			final var profile = profileRepository.save(
 				ProfileEntity.builder()
 					.user(testUser)
-					.profileStatus(approvedStatus)
+					.profileStatus(statusApproved)
 					.build());
 
 			final var results = profileRepository.findAll(hasProfileStatusCodeIn(List.of()));
@@ -1124,7 +1124,7 @@ class ProfileRepositoryTest {
 			final var profile = profileRepository.save(
 				ProfileEntity.builder()
 					.user(testUser)
-					.profileStatus(approvedStatus)
+					.profileStatus(statusApproved)
 					.build());
 
 			final var results = profileRepository.findAll(hasProfileStatusCodeIn(null));
@@ -1138,18 +1138,18 @@ class ProfileRepositoryTest {
 			final var activeProfile = profileRepository.save(
 				ProfileEntity.builder()
 					.user(testUser)
-					.profileStatus(approvedStatus)
+					.profileStatus(statusApproved)
 					.build());
 
 			@SuppressWarnings({ "unused" })
 			final var pendingProfile = profileRepository.save(
 				ProfileEntity.builder()
 					.user(testUser)
-					.profileStatus(pendingStatus)
+					.profileStatus(statusPending)
 					.build());
 
 			final var results = profileRepository.findAll(
-				hasProfileStatusIdIn(List.of(approvedStatus.getId()))
+				hasProfileStatusIdIn(List.of(statusApproved.getId()))
 				.and(hasUserId(testUser.getId())));
 
 			assertThat(results).hasSize(1);
@@ -1162,17 +1162,17 @@ class ProfileRepositoryTest {
 			final var activeProfile = profileRepository.save(
 				ProfileEntity.builder()
 					.user(testUser)
-					.profileStatus(approvedStatus)
+					.profileStatus(statusApproved)
 					.build());
 
 			final var pendingProfile = profileRepository.save(
 				ProfileEntity.builder()
 					.user(testUser)
-					.profileStatus(pendingStatus)
+					.profileStatus(statusPending)
 					.build());
 
 			final var results = profileRepository.findAll(
-				hasProfileStatusIdIn(List.of(approvedStatus.getId(), pendingStatus.getId()))
+				hasProfileStatusIdIn(List.of(statusApproved.getId(), statusPending.getId()))
 				.and(hasUserId(testUser.getId())));
 
 			assertThat(results).hasSize(2);
@@ -1187,7 +1187,7 @@ class ProfileRepositoryTest {
 			final var profile = profileRepository.save(
 				ProfileEntity.builder()
 					.user(testUser)
-					.profileStatus(approvedStatus)
+					.profileStatus(statusApproved)
 					.build());
 
 			final var results = profileRepository.findAll(hasProfileStatusIdIn(List.of()));
@@ -1202,7 +1202,7 @@ class ProfileRepositoryTest {
 			final var profile = profileRepository.save(
 				ProfileEntity.builder()
 					.user(testUser)
-					.profileStatus(approvedStatus)
+					.profileStatus(statusApproved)
 					.build());
 
 			final var results = profileRepository.findAll(hasProfileStatusIdIn(null));
@@ -1232,14 +1232,14 @@ class ProfileRepositoryTest {
 			final var profile1 = profileRepository.save(
 				ProfileEntity.builder()
 					.user(testUser)
-					.profileStatus(approvedStatus)
+					.profileStatus(statusApproved)
 					.build());
 
 			@SuppressWarnings({ "unused" })
 			final var profile2 = profileRepository.save(
 				ProfileEntity.builder()
 					.user(anotherUser)
-					.profileStatus(approvedStatus)
+					.profileStatus(statusApproved)
 					.build());
 
 			final var results = profileRepository.findAll(hasUserId(testUser.getId()));
@@ -1255,7 +1255,7 @@ class ProfileRepositoryTest {
 			final var profile = profileRepository.save(
 				ProfileEntity.builder()
 					.user(testUser)
-					.profileStatus(approvedStatus)
+					.profileStatus(statusApproved)
 					.build());
 
 			final var results = profileRepository.findAll(hasUserId(999999L));
@@ -1279,14 +1279,14 @@ class ProfileRepositoryTest {
 			final var profile1 = profileRepository.save(
 				ProfileEntity.builder()
 					.user(testUser)
-					.profileStatus(approvedStatus)
+					.profileStatus(statusApproved)
 					.build());
 
 			@SuppressWarnings({ "unused" })
 			final var profile2 = profileRepository.save(
 				ProfileEntity.builder()
 					.user(anotherUser)
-					.profileStatus(approvedStatus)
+					.profileStatus(statusApproved)
 					.build());
 
 			final var results = profileRepository.findAll(hasUserMicrosoftEntraId(testUser.getMicrosoftEntraId()));
@@ -1304,7 +1304,7 @@ class ProfileRepositoryTest {
 			final var profile = profileRepository.save(
 				ProfileEntity.builder()
 					.user(testUser)
-					.profileStatus(approvedStatus)
+					.profileStatus(statusApproved)
 					.build());
 
 			final var results = profileRepository.findAll(hasUserMicrosoftEntraId("99999999-9999-9999-9999-999999999999"));
@@ -1319,13 +1319,17 @@ class ProfileRepositoryTest {
 	class CombinedSpecificationTests {
 
 		@Test
-		@DisplayName("should support combining multiple specifications")
-		void testCombinedSpecifications() {
+		@DisplayName("should combine all major specifications in complex query")
+		void testComplexCombinedQuery() {
 			final var targetProfile = profileRepository.save(
 				ProfileEntity.builder()
 					.user(testUser)
 					.hrAdvisor(hrAdvisor1)
-					.profileStatus(approvedStatus)
+					.profileStatus(statusApproved)
+					.isAvailableForReferral(true)
+					.preferredClassifications(List.of(classificationAs01, classificationPm02))
+					.preferredCities(List.of(cityBathurst, cityStJohns))
+					.preferredLanguages(List.of(languageReferralTypeBilingual))
 					.build());
 
 			@SuppressWarnings({ "unused" })
@@ -1333,20 +1337,33 @@ class ProfileRepositoryTest {
 				ProfileEntity.builder()
 					.user(testUser)
 					.hrAdvisor(hrAdvisor2)
-					.profileStatus(approvedStatus)
+					.profileStatus(statusApproved)
+					.isAvailableForReferral(true)
+					.preferredClassifications(List.of(classificationAs01))
+					.preferredCities(List.of(cityBathurst))
+					.preferredLanguages(List.of(languageReferralTypeBilingual))
 					.build());
 
 			@SuppressWarnings({ "unused" })
-			final var wrongStatus = profileRepository.save(
+			final var notAvailable = profileRepository.save(
 				ProfileEntity.builder()
 					.user(testUser)
 					.hrAdvisor(hrAdvisor1)
-					.profileStatus(pendingStatus)
+					.profileStatus(statusApproved)
+					.isAvailableForReferral(false)
+					.preferredClassifications(List.of(classificationAs01))
+					.preferredCities(List.of(cityBathurst))
+					.preferredLanguages(List.of(languageReferralTypeBilingual))
 					.build());
 
 			final var results = profileRepository.findAll(
-				hasHrAdvisorId(hrAdvisor1.getId())
-				.and(hasProfileStatusCodeIn(List.of(approvedStatus.getCode()))));
+				hasUserId(testUser.getId())
+				.and(hasHrAdvisorId(hrAdvisor1.getId()))
+				.and(hasProfileStatusCodeIn(List.of(statusApproved.getCode())))
+				.and(isAvailableForReferral())
+				.and(hasPreferredClassificationIdIn(List.of(classificationAs01.getId(), classificationPm02.getId())))
+				.and(hasPreferredCityCodeIn(List.of(cityBathurst.getCode(), cityStJohns.getCode())))
+				.and(hasPreferredLanguageCodeIn(List.of(languageReferralTypeBilingual.getCode()))));
 
 			assertThat(results).hasSize(1);
 			assertThat(results.get(0).getId()).isEqualTo(targetProfile.getId());
