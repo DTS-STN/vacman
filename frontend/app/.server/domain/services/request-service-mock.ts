@@ -297,10 +297,10 @@ export function getMockRequestService(): RequestService {
           nameFr: 'Rétroaction en attente',
         },
         pscNotRequired: {
-          id: 5,
-          code: 'PENDING_PSC_NO_VMS',
-          nameEn: 'PSC Not Required',
-          nameFr: 'CFP non requise',
+          id: 6,
+          code: 'PENDING_PSC',
+          nameEn: 'VMS request on Hold - Pending PSC clearance',
+          nameFr: "Demande VMS en suspens - En attente de l'autorisation de la CFP",
         },
         pscRequired: {
           id: 6,

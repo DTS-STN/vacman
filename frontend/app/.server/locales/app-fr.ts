@@ -418,7 +418,7 @@ export default {
     },
     'errors': {
       'psc-clearance-number-required': 'Autorisation CFP est requise',
-      'psc-clearance-number-invalid': "Autorisation CFP n'est pas validee",
+      'psc-clearance-number-invalid': "L'autorisation de la CFP n'est pas valide",
     },
   },
   'referral-request': 'Demande de présentation de candidatures',

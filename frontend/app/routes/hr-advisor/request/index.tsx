@@ -18,7 +18,6 @@ import { AlertMessage } from '~/components/alert-message';
 import { BackLink } from '~/components/back-link';
 import { Button } from '~/components/button';
 import { ButtonLink } from '~/components/button-link';
-import { Card, CardContent, CardHeader, CardTitle } from '~/components/card';
 import { DescriptionList, DescriptionListItem } from '~/components/description-list';
 import {
   Dialog,
@@ -47,6 +46,7 @@ import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { useFetcherState } from '~/hooks/use-fetcher-state';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
+import { PSCGrantedCard } from '~/routes/page-components/requests/psc-granted-card';
 import type { Errors } from '~/routes/page-components/requests/validation.server';
 import { formatISODate } from '~/utils/date-utils';
 import { REGEX_PATTERNS } from '~/utils/regex-utils';
@@ -381,19 +381,14 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
         />
       )}
 
-      <div>
-        {loaderData.status?.code === REQUEST_STATUS_CODE.PSC_GRANTED && (
-          <Card className="mt-6 space-y-6 rounded bg-gray-100">
-            <CardHeader>
-              <CardTitle>{loaderData.lang === 'en' ? loaderData.status.nameEn : loaderData.status.nameFr}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {t('app:hr-advisor-referral-requests.vms-clearance-number')}: {loaderData.priorityClearanceNumber} <br />
-              {t('app:hr-advisor-referral-requests.psc-clearance-number')}: {loaderData.pscClearanceNumber}
-            </CardContent>
-          </Card>
-        )}
-      </div>
+      {loaderData.status?.code === REQUEST_STATUS_CODE.PSC_GRANTED && (
+        <PSCGrantedCard
+          priorityClearanceNumber={loaderData.priorityClearanceNumber}
+          pscClearanceNumber={loaderData.pscClearanceNumber}
+          requestStatus={loaderData.status}
+          lang={loaderData.lang}
+        />
+      )}
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <div className="mt-8 max-w-prose space-y-10">
