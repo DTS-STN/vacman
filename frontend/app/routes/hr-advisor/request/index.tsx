@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { JSX } from 'react';
 
 import type { RouteHandle } from 'react-router';
@@ -165,7 +165,8 @@ export async function action({ context, params, request }: Route.ActionArgs) {
       break;
     }
 
-    case 'pickup-request': {
+    case 'pickup-request':
+    case 're-assign-request': {
       const submitResult = await getRequestService().updateRequestStatus(
         requestData.id,
         { eventType: REQUEST_EVENT_TYPE.pickedUp },
@@ -280,6 +281,7 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
   const fetcher = useFetcher<typeof action>();
   const fetcherState = useFetcherState(fetcher);
   const isSubmitting = fetcherState.submitting;
+  const isReassigning = fetcherState.submitting && fetcherState.action === 're-assign-request';
 
   const alertRef = useRef<HTMLDivElement>(null);
 
@@ -296,6 +298,12 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
   type GroupedCities = Record<string, string[]>;
   const [showCancelRequestDialog, setShowCancelRequestDialog] = useState(false);
   const [showReAssignDialog, setShowReAssignDialog] = useState(false);
+
+  useEffect(() => {
+    if (isReassigning && showReAssignDialog) {
+      setShowReAssignDialog(false);
+    }
+  }, [isReassigning, showReAssignDialog]);
 
   return (
     <div className="space-y-8">
@@ -685,14 +693,7 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
               </Button>
             </DialogClose>
             <fetcher.Form method="post" noValidate>
-              <Button
-                id="re-assign-request"
-                variant="primary"
-                name="action"
-                value="re-assign"
-                disabled={isSubmitting}
-                onClick={() => setShowReAssignDialog(false)}
-              >
+              <Button id="re-assign-request" variant="primary" name="action" value="re-assign-request" disabled={isSubmitting}>
                 {t('app:hr-advisor-referral-requests.re-assign-request.reassign')}
               </Button>
             </fetcher.Form>
