@@ -42,7 +42,7 @@ import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { useFetcherState } from '~/hooks/use-fetcher-state';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
-import { PSCGrantedCard } from '~/routes/page-components/requests/psc-granted-card';
+import { ClearanceGrantedCard } from '~/routes/page-components/requests/clearance-granted-card';
 import { formatISODate } from '~/utils/date-utils';
 import { trimToUndefined } from '~/utils/string-utils';
 import { cn } from '~/utils/tailwind-utils';
@@ -556,8 +556,8 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
           </div>
         )}
 
-        {loaderData.status?.code === REQUEST_STATUS_CODE.PSC_GRANTED && (
-          <PSCGrantedCard
+        {loaderData.status && (
+          <ClearanceGrantedCard
             priorityClearanceNumber={loaderData.priorityClearanceNumber}
             pscClearanceNumber={loaderData.pscClearanceNumber}
             requestStatus={loaderData.status}

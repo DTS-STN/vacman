@@ -34,6 +34,7 @@ import { LoadingButton } from '~/components/loading-button';
 import { PageTitle } from '~/components/page-title';
 import { ProfileCard } from '~/components/profile-card';
 import { RequestStatusTag } from '~/components/status-tag';
+import type { RequestEventType } from '~/domain/constants';
 import {
   EMPLOYMENT_TENURE,
   REQUEST_CATEGORY,
@@ -46,7 +47,7 @@ import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { useFetcherState } from '~/hooks/use-fetcher-state';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
-import { PSCGrantedCard } from '~/routes/page-components/requests/psc-granted-card';
+import { ClearanceGrantedCard } from '~/routes/page-components/requests/clearance-granted-card';
 import type { Errors } from '~/routes/page-components/requests/validation.server';
 import { formatISODate } from '~/utils/date-utils';
 import { REGEX_PATTERNS } from '~/utils/regex-utils';
@@ -148,6 +149,31 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     throw new Response('Request not found', { status: HttpStatusCodes.NOT_FOUND });
   }
 
+  // Helper function to update request status with common error handling
+  async function updateRequestStatus(eventType: string, requestId: number, accessToken: string) {
+    const submitResult = await getRequestService().updateRequestStatus(
+      requestId,
+      { eventType: eventType as RequestEventType },
+      accessToken,
+    );
+
+    if (submitResult.isErr()) {
+      const error = submitResult.unwrapErr();
+      return {
+        status: 'error',
+        errorMessage: error.message,
+        errorCode: error.errorCode,
+      };
+    }
+
+    const updatedRequest = submitResult.unwrap();
+
+    return {
+      status: 'submitted',
+      requestStatus: updatedRequest.status,
+    };
+  }
+
   const formData = await request.formData();
 
   switch (formData.get('action')) {
@@ -167,52 +193,24 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 
     case 'pickup-request':
     case 're-assign-request': {
-      const submitResult = await getRequestService().updateRequestStatus(
-        requestData.id,
-        { eventType: REQUEST_EVENT_TYPE.pickedUp },
-        session.authState.accessToken,
-      );
-
-      if (submitResult.isErr()) {
-        const error = submitResult.unwrapErr();
-        return {
-          status: 'error',
-          errorMessage: error.message,
-          errorCode: error.errorCode,
-        };
-      }
-
-      const updatedRequest = submitResult.unwrap();
-
-      return {
-        status: 'submitted',
-        requestStatus: updatedRequest.status,
-      };
+      return await updateRequestStatus(REQUEST_EVENT_TYPE.pickedUp, requestData.id, session.authState.accessToken);
     }
 
     case 'vms-not-required': {
-      const submitResult = await getRequestService().updateRequestStatus(
-        requestData.id,
-        { eventType: REQUEST_EVENT_TYPE.vmsNotRequired },
-        session.authState.accessToken,
-      );
-
-      if (submitResult.isErr()) {
-        const error = submitResult.unwrapErr();
-        return {
-          status: 'error',
-          errorMessage: error.message,
-          errorCode: error.errorCode,
-        };
-      }
-
-      const updatedRequest = submitResult.unwrap();
-
-      return {
-        status: 'submitted',
-        requestStatus: updatedRequest.status,
-      };
+      return await updateRequestStatus(REQUEST_EVENT_TYPE.vmsNotRequired, requestData.id, session.authState.accessToken);
     }
+
+    case 'psc-clearance-required': {
+      return await updateRequestStatus(REQUEST_EVENT_TYPE.pscRequired, requestData.id, session.authState.accessToken);
+    }
+
+    case 'psc-clearance-not-required': {
+      return await updateRequestStatus(REQUEST_EVENT_TYPE.pscNotRequired, requestData.id, session.authState.accessToken);
+    }
+
+    /*case 'run-matches': {
+    // TODO: call  POST to /requests/{id}/run-matches instead of changing status here
+    }*/
 
     case 'psc-clearance-received': {
       const parseResult = v.safeParse(
@@ -248,27 +246,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
         throw updateResult.unwrapErr();
       }
 
-      const submitResult = await getRequestService().updateRequestStatus(
-        requestData.id,
-        { eventType: REQUEST_EVENT_TYPE.complete },
-        session.authState.accessToken,
-      );
-
-      if (submitResult.isErr()) {
-        const error = submitResult.unwrapErr();
-        return {
-          status: 'error',
-          errorMessage: error.message,
-          errorCode: error.errorCode,
-        };
-      }
-
-      const updatedRequest = submitResult.unwrap();
-
-      return {
-        status: 'submitted',
-        requestStatus: updatedRequest.status,
-      };
+      return await updateRequestStatus(REQUEST_EVENT_TYPE.complete, requestData.id, session.authState.accessToken);
     }
   }
 
@@ -304,6 +282,28 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
       setShowReAssignDialog(false);
     }
   }, [isReassigning, showReAssignDialog]);
+
+  const alertConfig: Record<string, { type: 'success' | 'info'; message: string }> = {
+    [REQUEST_STATUS_CODE.PSC_GRANTED]: {
+      type: 'success',
+      message: t('app:hr-advisor-referral-requests.psc-clearance-received'),
+    },
+    [REQUEST_STATUS_CODE.NO_MATCH_HR_REVIEW]: {
+      type: 'info',
+      message: t('app:hr-advisor-referral-requests.no-match-found-alert-msg'),
+    },
+    [REQUEST_STATUS_CODE.PENDING_PSC]: {
+      type: 'success',
+      message: t('app:hr-advisor-referral-requests.pending-psc-clearance-alert-msg'),
+    },
+    [REQUEST_STATUS_CODE.CLR_GRANTED]: {
+      type: 'success',
+      message: t('app:hr-advisor-referral-requests.clearance-generated-alert-msg'),
+    },
+  };
+
+  const statusCode = loaderData.status?.code;
+  const currentAlert = statusCode ? alertConfig[statusCode] : undefined;
 
   return (
     <div className="space-y-8">
@@ -379,18 +379,18 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
 
       <h2 className="font-lato mt-4 text-xl font-bold">{t('app:hr-advisor-referral-requests.request-details')}</h2>
 
-      {fetcher.data && loaderData.status?.code === REQUEST_STATUS_CODE.PSC_GRANTED && (
+      {currentAlert && (
         <AlertMessage
           ref={alertRef}
-          type={'success'}
-          message={t('app:hr-advisor-referral-requests.psc-clearance-received')}
+          type={currentAlert.type}
+          message={currentAlert.message}
           role="alert"
           ariaLive="assertive"
         />
       )}
 
-      {loaderData.status?.code === REQUEST_STATUS_CODE.PSC_GRANTED && (
-        <PSCGrantedCard
+      {loaderData.status && (
+        <ClearanceGrantedCard
           priorityClearanceNumber={loaderData.priorityClearanceNumber}
           pscClearanceNumber={loaderData.pscClearanceNumber}
           requestStatus={loaderData.status}
