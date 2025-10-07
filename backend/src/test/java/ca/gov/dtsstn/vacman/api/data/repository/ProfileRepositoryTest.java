@@ -126,8 +126,8 @@ class ProfileRepositoryTest {
 	}
 
 	@Nested
-	@DisplayName("JPA Specification Tests")
-	class SpecificationTests {
+	@DisplayName("HR Advisor Specification Tests")
+	class HrAdvisorSpecificationTests {
 
 		@Test
 		@DisplayName("hasHrAdvisorId should find profiles by HR advisor ID")
@@ -248,6 +248,12 @@ class ProfileRepositoryTest {
 			// (note: matches all due to conjunction)
 			assertThat(results).isNotNull();
 		}
+
+	}
+
+	@Nested
+	@DisplayName("Profile Status Specification Tests")
+	class ProfileStatusSpecificationTests {
 
 		@Test
 		@DisplayName("hasProfileStatusCodeIn should find profiles by status codes")
@@ -405,6 +411,12 @@ class ProfileRepositoryTest {
 			assertThat(results).isNotNull();
 		}
 
+	}
+
+	@Nested
+	@DisplayName("User Specification Tests")
+	class UserSpecificationTests {
+
 		@Test
 		@DisplayName("hasUserId should find profiles by user ID")
 		void testHasUserId() {
@@ -501,6 +513,12 @@ class ProfileRepositoryTest {
 			assertThat(results).isEmpty();
 		}
 
+	}
+
+	@Nested
+	@DisplayName("Availability Specification Tests")
+	class AvailabilitySpecificationTests {
+
 		@Test
 		@DisplayName("isAvailableForReferral should find profiles available for referral")
 		void testIsAvailableForReferral() {
@@ -578,6 +596,12 @@ class ProfileRepositoryTest {
 
 			assertThat(results).isEmpty();
 		}
+
+	}
+
+	@Nested
+	@DisplayName("Classification Specification Tests")
+	class ClassificationSpecificationTests {
 
 		@Test
 		@DisplayName("hasPreferredClassificationIdIn should find profiles by preferred classification IDs")
@@ -798,6 +822,12 @@ class ProfileRepositoryTest {
 
 			assertThat(results).isNotNull();
 		}
+
+	}
+
+	@Nested
+	@DisplayName("Combined Specification Tests")
+	class CombinedSpecificationTests {
 
 		@Test
 		@DisplayName("should support combining multiple specifications")
