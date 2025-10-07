@@ -6,6 +6,8 @@ import static ca.gov.dtsstn.vacman.api.data.repository.ProfileRepository.hasPref
 import static ca.gov.dtsstn.vacman.api.data.repository.ProfileRepository.hasPreferredCityIdIn;
 import static ca.gov.dtsstn.vacman.api.data.repository.ProfileRepository.hasPreferredClassificationCodeIn;
 import static ca.gov.dtsstn.vacman.api.data.repository.ProfileRepository.hasPreferredClassificationIdIn;
+import static ca.gov.dtsstn.vacman.api.data.repository.ProfileRepository.hasPreferredLanguageCodeIn;
+import static ca.gov.dtsstn.vacman.api.data.repository.ProfileRepository.hasPreferredLanguageIdIn;
 import static ca.gov.dtsstn.vacman.api.data.repository.ProfileRepository.hasProfileStatusCodeIn;
 import static ca.gov.dtsstn.vacman.api.data.repository.ProfileRepository.hasProfileStatusIdIn;
 import static ca.gov.dtsstn.vacman.api.data.repository.ProfileRepository.hasUserId;
@@ -33,6 +35,7 @@ import ca.gov.dtsstn.vacman.api.SecurityAuditor;
 import ca.gov.dtsstn.vacman.api.config.DataSourceConfig;
 import ca.gov.dtsstn.vacman.api.data.entity.CityEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.ClassificationEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.LanguageReferralTypeEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.ProfileStatusEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
@@ -52,6 +55,9 @@ class ProfileRepositoryTest {
 
 	@Autowired
 	LanguageRepository languageRepository;
+
+	@Autowired
+	LanguageReferralTypeRepository languageReferralTypeRepository;
 
 	@Autowired
 	ProfileRepository profileRepository;
@@ -82,6 +88,10 @@ class ProfileRepositoryTest {
 	CityEntity city3;
 	CityEntity city2;
 	CityEntity city1;
+
+	LanguageReferralTypeEntity bilingualLanguageReferralType;
+	LanguageReferralTypeEntity englishLanguageReferralType;
+	LanguageReferralTypeEntity frenchLanguageReferralType;
 
 	@BeforeEach
 	void setUp() {
@@ -141,6 +151,15 @@ class ProfileRepositoryTest {
 		city1 = cityRepository.findByCode("NB1").orElseThrow();
 		city2 = cityRepository.findByCode("NL14").orElseThrow();
 		city3 = cityRepository.findByCode("ON52").orElseThrow();
+
+		//
+		// Get language referral types that will be used throughout the tests
+		// Note: Using database IDs since we know these exist in test data
+		//
+
+		bilingualLanguageReferralType = languageReferralTypeRepository.findByCode("BILINGUAL").orElseThrow();
+		englishLanguageReferralType = languageReferralTypeRepository.findByCode("ENGLISH").orElseThrow();
+		frenchLanguageReferralType = languageReferralTypeRepository.findByCode("FRENCH").orElseThrow();
 	}
 
 	@Nested
@@ -800,6 +819,232 @@ class ProfileRepositoryTest {
 
 			// Verify it returns results without error
 			// (note: matches all due to conjunction)
+			assertThat(results).isNotNull();
+		}
+
+	}
+
+	@Nested
+	@DisplayName("Language Specification Tests")
+	class LanguageSpecificationTests {
+
+		@Test
+		@DisplayName("hasPreferredLanguageIdIn should find profiles by preferred language referral type IDs")
+		void testHasPreferredLanguageIdIn() {
+			final var profile1 = profileRepository.save(
+				ProfileEntity.builder()
+					.user(testUser)
+					.profileStatus(approvedStatus)
+					.preferredLanguages(List.of(bilingualLanguageReferralType, englishLanguageReferralType))
+					.build());
+
+			final var profile2 = profileRepository.save(
+				ProfileEntity.builder()
+					.user(testUser)
+					.profileStatus(approvedStatus)
+					.preferredLanguages(List.of(englishLanguageReferralType))
+					.build());
+
+			@SuppressWarnings("unused")
+			final var profile3 = profileRepository.save(
+				ProfileEntity.builder()
+					.user(testUser)
+					.profileStatus(approvedStatus)
+					.preferredLanguages(List.of(frenchLanguageReferralType))
+					.build());
+
+			final var results = profileRepository.findAll(
+				hasPreferredLanguageIdIn(List.of(bilingualLanguageReferralType.getId(), englishLanguageReferralType.getId()))
+				.and(hasUserId(testUser.getId())));
+
+			assertThat(results).hasSize(2);
+			assertThat(results).extracting(ProfileEntity::getId)
+				.containsExactlyInAnyOrder(profile1.getId(), profile2.getId());
+		}
+
+		@Test
+		@DisplayName("hasPreferredLanguageIdIn should find profiles with any matching language")
+		void testHasPreferredLanguageIdInAnyMatch() {
+			final var profile1 = profileRepository.save(
+				ProfileEntity.builder()
+					.user(testUser)
+					.profileStatus(approvedStatus)
+					.preferredLanguages(List.of(bilingualLanguageReferralType))
+					.build());
+
+			@SuppressWarnings("unused")
+			final var profile2 = profileRepository.save(
+				ProfileEntity.builder()
+					.user(testUser)
+					.profileStatus(approvedStatus)
+					.preferredLanguages(List.of(frenchLanguageReferralType))
+					.build());
+
+			final var results = profileRepository.findAll(
+				hasPreferredLanguageIdIn(List.of(bilingualLanguageReferralType.getId()))
+				.and(hasUserId(testUser.getId())));
+
+			assertThat(results).hasSize(1);
+			assertThat(results.get(0).getId()).isEqualTo(profile1.getId());
+		}
+
+		@Test
+		@DisplayName("hasPreferredLanguageIdIn should return empty when no profiles match")
+		void testHasPreferredLanguageIdInNoMatches() {
+			@SuppressWarnings("unused")
+			final var profile = profileRepository.save(
+				ProfileEntity.builder()
+					.user(testUser)
+					.profileStatus(approvedStatus)
+					.preferredLanguages(List.of(bilingualLanguageReferralType))
+					.build());
+
+			final var results = profileRepository.findAll(
+				hasPreferredLanguageIdIn(List.of(999999L))
+				.and(hasUserId(testUser.getId())));
+
+			assertThat(results).isEmpty();
+		}
+
+		@Test
+		@DisplayName("hasPreferredLanguageIdIn should match all when collection is empty")
+		void testHasPreferredLanguageIdInEmptyCollection() {
+			@SuppressWarnings("unused")
+			final var profile = profileRepository.save(
+				ProfileEntity.builder()
+					.user(testUser)
+					.profileStatus(approvedStatus)
+					.preferredLanguages(List.of(bilingualLanguageReferralType))
+					.build());
+
+			final var results = profileRepository.findAll(hasPreferredLanguageIdIn(List.of()));
+
+			assertThat(results).isNotNull();
+		}
+
+		@Test
+		@DisplayName("hasPreferredLanguageIdIn should match all when collection is null")
+		void testHasPreferredLanguageIdInNullCollection() {
+			@SuppressWarnings("unused")
+			final var profile = profileRepository.save(
+				ProfileEntity.builder()
+					.user(testUser)
+					.profileStatus(approvedStatus)
+					.preferredLanguages(List.of(bilingualLanguageReferralType))
+					.build());
+
+			final var results = profileRepository.findAll(hasPreferredLanguageIdIn(null));
+
+			assertThat(results).isNotNull();
+		}
+
+		@Test
+		@DisplayName("hasPreferredLanguageCodeIn should find profiles by preferred language referral type codes")
+		void testHasPreferredLanguageCodeIn() {
+			final var profile1 = profileRepository.save(
+				ProfileEntity.builder()
+					.user(testUser)
+					.profileStatus(approvedStatus)
+					.preferredLanguages(List.of(bilingualLanguageReferralType, englishLanguageReferralType))
+					.build());
+
+			final var profile2 = profileRepository.save(
+				ProfileEntity.builder()
+					.user(testUser)
+					.profileStatus(approvedStatus)
+					.preferredLanguages(List.of(englishLanguageReferralType))
+					.build());
+
+			@SuppressWarnings("unused")
+			final var profile3 = profileRepository.save(
+				ProfileEntity.builder()
+					.user(testUser)
+					.profileStatus(approvedStatus)
+					.preferredLanguages(List.of(frenchLanguageReferralType))
+					.build());
+
+			final var results = profileRepository.findAll(
+				hasPreferredLanguageCodeIn(List.of(bilingualLanguageReferralType.getCode(), englishLanguageReferralType.getCode()))
+				.and(hasUserId(testUser.getId())));
+
+			assertThat(results).hasSize(2);
+			assertThat(results).extracting(ProfileEntity::getId)
+				.containsExactlyInAnyOrder(profile1.getId(), profile2.getId());
+		}
+
+		@Test
+		@DisplayName("hasPreferredLanguageCodeIn should find profiles with any matching language code")
+		void testHasPreferredLanguageCodeInAnyMatch() {
+			final var profile1 = profileRepository.save(
+				ProfileEntity.builder()
+					.user(testUser)
+					.profileStatus(approvedStatus)
+					.preferredLanguages(List.of(bilingualLanguageReferralType))
+					.build());
+
+			@SuppressWarnings("unused")
+			final var profile2 = profileRepository.save(
+				ProfileEntity.builder()
+					.user(testUser)
+					.profileStatus(approvedStatus)
+					.preferredLanguages(List.of(frenchLanguageReferralType))
+					.build());
+
+			final var results = profileRepository.findAll(
+				hasPreferredLanguageCodeIn(List.of(bilingualLanguageReferralType.getCode()))
+				.and(hasUserId(testUser.getId())));
+
+			assertThat(results).hasSize(1);
+			assertThat(results.get(0).getId()).isEqualTo(profile1.getId());
+		}
+
+		@Test
+		@DisplayName("hasPreferredLanguageCodeIn should return empty when no profiles match")
+		void testHasPreferredLanguageCodeInNoMatches() {
+			@SuppressWarnings("unused")
+			final var profile = profileRepository.save(
+				ProfileEntity.builder()
+					.user(testUser)
+					.profileStatus(approvedStatus)
+					.preferredLanguages(List.of(bilingualLanguageReferralType))
+					.build());
+
+			final var results = profileRepository.findAll(
+				hasPreferredLanguageCodeIn(List.of("NONEXISTENT"))
+				.and(hasUserId(testUser.getId())));
+
+			assertThat(results).isEmpty();
+		}
+
+		@Test
+		@DisplayName("hasPreferredLanguageCodeIn should match all when collection is empty")
+		void testHasPreferredLanguageCodeInEmptyCollection() {
+			@SuppressWarnings("unused")
+			final var profile = profileRepository.save(
+				ProfileEntity.builder()
+					.user(testUser)
+					.profileStatus(approvedStatus)
+					.preferredLanguages(List.of(bilingualLanguageReferralType))
+					.build());
+
+			final var results = profileRepository.findAll(hasPreferredLanguageCodeIn(List.of()));
+
+			assertThat(results).isNotNull();
+		}
+
+		@Test
+		@DisplayName("hasPreferredLanguageCodeIn should match all when collection is null")
+		void testHasPreferredLanguageCodeInNullCollection() {
+			@SuppressWarnings("unused")
+			final var profile = profileRepository.save(
+				ProfileEntity.builder()
+					.user(testUser)
+					.profileStatus(approvedStatus)
+					.preferredLanguages(List.of(bilingualLanguageReferralType))
+					.build());
+
+			final var results = profileRepository.findAll(hasPreferredLanguageCodeIn(null));
+
 			assertThat(results).isNotNull();
 		}
 

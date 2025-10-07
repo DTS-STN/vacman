@@ -49,6 +49,28 @@ public interface ProfileRepository extends AbstractBaseRepository<ProfileEntity>
 	}
 
 	/**
+	 * JPA specification to find profiles with a preferred language referral type ID in the given collection.
+	 */
+	static Specification<ProfileEntity> hasPreferredLanguageIdIn(Collection<Long> languageReferralTypeIds) {
+		if (CollectionUtils.isEmpty(languageReferralTypeIds)) { return AbstractBaseRepository.empty(); }
+		return (root, query, cb) -> {
+			final var join = root.join("preferredLanguages");
+			return join.get("languageReferralType").get("id").in(languageReferralTypeIds);
+		};
+	}
+
+	/**
+	 * JPA specification to find profiles with a preferred language referral type code in the given collection.
+	 */
+	static Specification<ProfileEntity> hasPreferredLanguageCodeIn(Collection<String> languageReferralTypeCodes) {
+		if (CollectionUtils.isEmpty(languageReferralTypeCodes)) { return AbstractBaseRepository.empty(); }
+		return (root, query, cb) -> {
+			final var join = root.join("preferredLanguages");
+			return join.get("languageReferralType").get("code").in(languageReferralTypeCodes);
+		};
+	}
+
+	/**
 	 * JPA specification to find profiles with a preferred classification ID in the given collection.
 	 */
 	static Specification<ProfileEntity> hasPreferredClassificationIdIn(Collection<Long> classificationIds) {
