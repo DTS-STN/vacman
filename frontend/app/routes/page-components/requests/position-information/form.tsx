@@ -197,7 +197,7 @@ export function PositionInformationForm({
               required
             />
 
-            <fieldset id="location-fieldset" aria-describedby='locationLegend locationHelpMessage'>
+            <fieldset id="location-fieldset" aria-describedby="locationLegend locationHelpMessage">
               <InputLegend id="locationLegend" required>
                 {tApp('position-information.locations')}
               </InputLegend>
@@ -256,7 +256,9 @@ export function PositionInformationForm({
               languageRequirementCode === LANGUAGE_REQUIREMENT_CODES.bilingualNonImperative) && (
               <>
                 <fieldset id="language-profile-fieldset" aria-describedby="language-profile-legend">
-                  <InputLegend id="language-profile-legend" required>{tApp('position-information.language-profile')}</InputLegend>
+                  <InputLegend id="language-profile-legend" required>
+                    {tApp('position-information.language-profile')}
+                  </InputLegend>
                   <h3 className="font-semibold">{tApp('position-information.reading-comprehension')}</h3>
                   <div className="flex space-x-2">
                     <InputSelect
