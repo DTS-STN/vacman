@@ -395,6 +395,9 @@ export default {
     'psc-clearance-number': 'PSC clearance number',
     'vms-clearance-number': 'VMS clearance number',
     'psc-clearance-received': 'PSC clearance marked as received',
+    'pending-psc-clearance-alert-msg': 'Request is now pending PSC clearance.',
+    'no-match-found-alert-msg': 'Matching process ran - no match found. Request is now pending PSC clearance.',
+    'clearance-generated-alert-msg': 'Clearance generated successfully!',
     'submit': 'Submit',
     'cancel-request': {
       'title': 'Cancel this request?',
@@ -411,6 +414,7 @@ export default {
     },
     'status': {
       'request-pending-approval': 'Request pending approval',
+      'vms-request-on-hold-pending-psc-clearance': 'Pending PSC Clearance',
     },
     'errors': {
       'psc-clearance-number-required': 'PSC clearance number is required',

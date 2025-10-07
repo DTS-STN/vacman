@@ -400,6 +400,10 @@ export default {
     'psc-clearance-number': "Numéro d'autorisation de la CFP",
     'vms-clearance-number': "Numéro d'autorisation SGPV",
     'psc-clearance-received': 'Autorisation de la CFP marquée comme reçue',
+    'pending-psc-clearance-alert-msg': "La demande est maintenant en attente d'autorisation de la CFP.",
+    'no-match-found-alert-msg':
+      "Processus de repérage effectué - aucune candidature repérée. La demande est en attente d'une autorisation en matière de priorité de la CFP",
+    'clearance-generated-alert-msg': 'Autorisation accordée avec succès',
     'submit': 'Soumettre',
     'cancel-request': {
       'title': 'Annuler cette demande?',
@@ -416,6 +420,7 @@ export default {
     },
     'status': {
       'request-pending-approval': "Demande en attente d'approbation",
+      'vms-request-on-hold-pending-psc-clearance': "En attente de l'autorisation de la CF",
     },
     'errors': {
       'psc-clearance-number-required': 'Autorisation CFP est requise',

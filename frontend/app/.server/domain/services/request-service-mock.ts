@@ -297,22 +297,29 @@ export function getMockRequestService(): RequestService {
           nameFr: 'Rétroaction en attente',
         },
         pscNotRequired: {
-          id: 6,
-          code: 'PENDING_PSC',
-          nameEn: 'VMS request on Hold - Pending PSC clearance',
-          nameFr: "Demande VMS en suspens - En attente de l'autorisation de la CFP",
+          id: 8,
+          code: 'CLR_GRANTED',
+          nameEn: 'Clearance Granted',
+          nameFr: 'Autorisation accordée',
         },
         pscRequired: {
           id: 6,
           code: 'PENDING_PSC',
-          nameEn: 'PSC Required',
-          nameFr: 'CFP requise',
+          nameEn: 'VMS request on Hold - Pending PSC clearance',
+          nameFr: "Demande VMS en suspens - En attente de l'autorisation de la CFP",
         },
         complete: {
           id: 9,
           code: 'PSC_GRANTED',
           nameEn: 'PSC Clearance Granted',
           nameFr: 'Autorisation de la CFP accordée',
+        },
+        runMatches: {
+          // TODO: update runMatches when api is ready to reflect which requests status is returned i.e. "NO_MATCH_HR_REVIEW" or "FDBK_PENDING"
+          id: 3,
+          code: 'NO_MATCH_HR_REVIEW',
+          nameEn: 'No match - HR Review',
+          nameFr: 'Aucune candidature repérée - Revue RH',
         },
       };
 
