@@ -27,6 +27,28 @@ public interface ProfileRepository extends AbstractBaseRepository<ProfileEntity>
 	}
 
 	/**
+	 * JPA specification to find profiles with a preferred classification ID in the given collection.
+	 */
+	static Specification<ProfileEntity> hasPreferredClassificationIdIn(Collection<Long> classificationIds) {
+		if (CollectionUtils.isEmpty(classificationIds)) { return AbstractBaseRepository.empty(); }
+		return (root, query, cb) -> {
+			final var join = root.join("preferredClassifications");
+			return join.get("classification").get("id").in(classificationIds);
+		};
+	}
+
+	/**
+	 * JPA specification to find profiles with a preferred classification code in the given collection.
+	 */
+	static Specification<ProfileEntity> hasPreferredClassificationCodeIn(Collection<String> classificationCodes) {
+		if (CollectionUtils.isEmpty(classificationCodes)) { return AbstractBaseRepository.empty(); }
+		return (root, query, cb) -> {
+			final var join = root.join("preferredClassifications");
+			return join.get("classification").get("code").in(classificationCodes);
+		};
+	}
+
+	/**
 	 * JPA specification to find profiles with a status code in the given collection.
 	 */
 	static Specification<ProfileEntity> hasProfileStatusCodeIn(Collection<String> statuses) {

@@ -2,6 +2,8 @@ package ca.gov.dtsstn.vacman.api.data.repository;
 
 import static ca.gov.dtsstn.vacman.api.data.repository.ProfileRepository.hasHrAdvisorId;
 import static ca.gov.dtsstn.vacman.api.data.repository.ProfileRepository.hasHrAdvisorIdIn;
+import static ca.gov.dtsstn.vacman.api.data.repository.ProfileRepository.hasPreferredClassificationCodeIn;
+import static ca.gov.dtsstn.vacman.api.data.repository.ProfileRepository.hasPreferredClassificationIdIn;
 import static ca.gov.dtsstn.vacman.api.data.repository.ProfileRepository.hasProfileStatusCodeIn;
 import static ca.gov.dtsstn.vacman.api.data.repository.ProfileRepository.hasProfileStatusIdIn;
 import static ca.gov.dtsstn.vacman.api.data.repository.ProfileRepository.hasUserId;
@@ -27,6 +29,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import ca.gov.dtsstn.vacman.api.SecurityAuditor;
 import ca.gov.dtsstn.vacman.api.config.DataSourceConfig;
+import ca.gov.dtsstn.vacman.api.data.entity.ClassificationEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.ProfileStatusEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
@@ -53,6 +56,9 @@ class ProfileRepositoryTest {
 	@Autowired
 	ProfileStatusRepository profileStatusRepository;
 
+	@Autowired
+	ClassificationRepository classificationRepository;
+
 	@MockitoBean
 	SecurityAuditor securityAuditor;
 
@@ -62,6 +68,10 @@ class ProfileRepositoryTest {
 
 	ProfileStatusEntity approvedStatus;
 	ProfileStatusEntity pendingStatus;
+
+	ClassificationEntity classification1;
+	ClassificationEntity classification2;
+	ClassificationEntity classification3;
 
 	@BeforeEach
 	void setUp() {
@@ -105,6 +115,14 @@ class ProfileRepositoryTest {
 
 		approvedStatus = profileStatusRepository.findByCode("APPROVED").orElseThrow();
 		pendingStatus = profileStatusRepository.findByCode("PENDING").orElseThrow();
+
+		//
+		// Get classifications that will be used throughout the tests
+		//
+
+		classification1 = classificationRepository.findByCode("AS-01").orElseThrow();
+		classification2 = classificationRepository.findByCode("PM-02").orElseThrow();
+		classification3 = classificationRepository.findByCode("IT-03").orElseThrow();
 	}
 
 	@Nested
@@ -559,6 +577,226 @@ class ProfileRepositoryTest {
 				.and(ProfileRepository.hasUserId(testUser.getId())));
 
 			assertThat(results).isEmpty();
+		}
+
+		@Test
+		@DisplayName("hasPreferredClassificationIdIn should find profiles by preferred classification IDs")
+		void testHasPreferredClassificationIdIn() {
+			final var profile1 = profileRepository.save(
+				ProfileEntity.builder()
+					.user(testUser)
+					.profileStatus(approvedStatus)
+					.preferredClassifications(List.of(classification1, classification2))
+					.build());
+
+			final var profile2 = profileRepository.save(
+				ProfileEntity.builder()
+					.user(testUser)
+					.profileStatus(approvedStatus)
+					.preferredClassifications(List.of(classification2))
+					.build());
+
+			@SuppressWarnings("unused")
+			final var profile3 = profileRepository.save(
+				ProfileEntity.builder()
+					.user(testUser)
+					.profileStatus(approvedStatus)
+					.preferredClassifications(List.of(classification3))
+					.build());
+
+			final var results = profileRepository.findAll(
+				hasPreferredClassificationIdIn(List.of(classification1.getId(), classification2.getId()))
+				.and(hasUserId(testUser.getId())));
+
+			assertThat(results).hasSize(2);
+			assertThat(results).extracting(ProfileEntity::getId)
+				.containsExactlyInAnyOrder(profile1.getId(), profile2.getId());
+		}
+
+		@Test
+		@DisplayName("hasPreferredClassificationIdIn should find profiles with any matching classification")
+		void testHasPreferredClassificationIdInAnyMatch() {
+			final var profile1 = profileRepository.save(
+				ProfileEntity.builder()
+					.user(testUser)
+					.profileStatus(approvedStatus)
+					.preferredClassifications(List.of(classification1))
+					.build());
+
+			@SuppressWarnings("unused")
+			final var profile2 = profileRepository.save(
+				ProfileEntity.builder()
+					.user(testUser)
+					.profileStatus(approvedStatus)
+					.preferredClassifications(List.of(classification3))
+					.build());
+
+			final var results = profileRepository.findAll(
+				hasPreferredClassificationIdIn(List.of(classification1.getId()))
+				.and(hasUserId(testUser.getId())));
+
+			assertThat(results).hasSize(1);
+			assertThat(results.get(0).getId()).isEqualTo(profile1.getId());
+		}
+
+		@Test
+		@DisplayName("hasPreferredClassificationIdIn should return empty when no profiles match")
+		void testHasPreferredClassificationIdInNoMatches() {
+			@SuppressWarnings("unused")
+			final var profile = profileRepository.save(
+				ProfileEntity.builder()
+					.user(testUser)
+					.profileStatus(approvedStatus)
+					.preferredClassifications(List.of(classification1))
+					.build());
+
+			final var results = profileRepository.findAll(
+				hasPreferredClassificationIdIn(List.of(999999L))
+				.and(hasUserId(testUser.getId())));
+
+			assertThat(results).isEmpty();
+		}
+
+		@Test
+		@DisplayName("hasPreferredClassificationIdIn should match all when collection is empty")
+		void testHasPreferredClassificationIdInEmptyCollection() {
+			@SuppressWarnings("unused")
+			final var profile = profileRepository.save(
+				ProfileEntity.builder()
+					.user(testUser)
+					.profileStatus(approvedStatus)
+					.preferredClassifications(List.of(classification1))
+					.build());
+
+			final var results = profileRepository.findAll(hasPreferredClassificationIdIn(List.of()));
+
+			assertThat(results).isNotNull();
+		}
+
+		@Test
+		@DisplayName("hasPreferredClassificationIdIn should match all when collection is null")
+		void testHasPreferredClassificationIdInNullCollection() {
+			@SuppressWarnings("unused")
+			final var profile = profileRepository.save(
+				ProfileEntity.builder()
+					.user(testUser)
+					.profileStatus(approvedStatus)
+					.preferredClassifications(List.of(classification1))
+					.build());
+
+			final var results = profileRepository.findAll(hasPreferredClassificationIdIn(null));
+
+			assertThat(results).isNotNull();
+		}
+
+		@Test
+		@DisplayName("hasPreferredClassificationCodeIn should find profiles by preferred classification codes")
+		void testHasPreferredClassificationCodeIn() {
+			final var profile1 = profileRepository.save(
+				ProfileEntity.builder()
+					.user(testUser)
+					.profileStatus(approvedStatus)
+					.preferredClassifications(List.of(classification1, classification2))
+					.build());
+
+			final var profile2 = profileRepository.save(
+				ProfileEntity.builder()
+					.user(testUser)
+					.profileStatus(approvedStatus)
+					.preferredClassifications(List.of(classification2))
+					.build());
+
+			@SuppressWarnings("unused")
+			final var profile3 = profileRepository.save(
+				ProfileEntity.builder()
+					.user(testUser)
+					.profileStatus(approvedStatus)
+					.preferredClassifications(List.of(classification3))
+					.build());
+
+			final var results = profileRepository.findAll(
+				hasPreferredClassificationCodeIn(List.of(classification1.getCode(), classification2.getCode()))
+				.and(hasUserId(testUser.getId())));
+
+			assertThat(results).hasSize(2);
+			assertThat(results).extracting(ProfileEntity::getId)
+				.containsExactlyInAnyOrder(profile1.getId(), profile2.getId());
+		}
+
+		@Test
+		@DisplayName("hasPreferredClassificationCodeIn should find profiles with any matching classification code")
+		void testHasPreferredClassificationCodeInAnyMatch() {
+			final var profile1 = profileRepository.save(
+				ProfileEntity.builder()
+					.user(testUser)
+					.profileStatus(approvedStatus)
+					.preferredClassifications(List.of(classification1))
+					.build());
+
+			@SuppressWarnings("unused")
+			final var profile2 = profileRepository.save(
+				ProfileEntity.builder()
+					.user(testUser)
+					.profileStatus(approvedStatus)
+					.preferredClassifications(List.of(classification3))
+					.build());
+
+			final var results = profileRepository.findAll(
+				hasPreferredClassificationCodeIn(List.of(classification1.getCode()))
+				.and(hasUserId(testUser.getId())));
+
+			assertThat(results).hasSize(1);
+			assertThat(results.get(0).getId()).isEqualTo(profile1.getId());
+		}
+
+		@Test
+		@DisplayName("hasPreferredClassificationCodeIn should return empty when no profiles match")
+		void testHasPreferredClassificationCodeInNoMatches() {
+			@SuppressWarnings("unused")
+			final var profile = profileRepository.save(
+				ProfileEntity.builder()
+					.user(testUser)
+					.profileStatus(approvedStatus)
+					.preferredClassifications(List.of(classification1))
+					.build());
+
+			final var results = profileRepository.findAll(
+				hasPreferredClassificationCodeIn(List.of("NONEXISTENT"))
+				.and(hasUserId(testUser.getId())));
+
+			assertThat(results).isEmpty();
+		}
+
+		@Test
+		@DisplayName("hasPreferredClassificationCodeIn should match all when collection is empty")
+		void testHasPreferredClassificationCodeInEmptyCollection() {
+			@SuppressWarnings("unused")
+			final var profile = profileRepository.save(
+				ProfileEntity.builder()
+					.user(testUser)
+					.profileStatus(approvedStatus)
+					.preferredClassifications(List.of(classification1))
+					.build());
+
+			final var results = profileRepository.findAll(hasPreferredClassificationCodeIn(List.of()));
+
+			assertThat(results).isNotNull();
+		}
+
+		@Test
+		@DisplayName("hasPreferredClassificationCodeIn should match all when collection is null")
+		void testHasPreferredClassificationCodeInNullCollection() {
+			@SuppressWarnings("unused")
+			final var profile = profileRepository.save(
+				ProfileEntity.builder()
+					.user(testUser)
+					.profileStatus(approvedStatus)
+					.preferredClassifications(List.of(classification1))
+					.build());
+
+			final var results = profileRepository.findAll(hasPreferredClassificationCodeIn(null));
+
+			assertThat(results).isNotNull();
 		}
 
 		@Test
