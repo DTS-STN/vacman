@@ -261,6 +261,7 @@ export default {
       'projected-end-date': {
         'invalid': "La date de fin prévue n'est pas valide",
         'invalid-before-start-date': 'La date de fin prévue doit être postérieure à la date de début prévue',
+        'invalid-future': "La date de fin prévue doit être postérieure à aujourd'hui",
         'required-year': "L'année de la date de fin prévue est requise",
         'invalid-year': "L'année de la date de fin prévue n'est pas valide",
         'required-month': 'Le mois de la date de fin prévue est requis',

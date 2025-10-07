@@ -258,6 +258,7 @@ export default {
       'projected-end-date': {
         'invalid': 'Projected end date is invalid',
         'invalid-before-start-date': 'Projected end date must be after the start date',
+        'invalid-future': 'Projected end date must be after today',
         'required-year': 'Year of Projected end date is required',
         'invalid-year': 'Year of Projected end date is invalid',
         'required-month': 'Month of Projected end date is required',
