@@ -334,10 +334,12 @@ export async function createProcessInformationSchema() {
   return v.pipe(
     v.intersect([
       v.object({
-        selectionProcessNumber: v.pipe(
-          v.string('app:process-information.errors.selection-process-number-required'),
-          v.trim(),
-          v.nonEmpty('app:process-information.errors.selection-process-number-required'),
+        selectionProcessNumber: v.optional(
+          v.pipe(
+            v.string('app:process-information.errors.selection-process-number-invalid'),
+            v.trim(),
+            v.nonEmpty('app:process-information.errors.selection-process-number-invalid'),
+          ),
         ),
         approvalReceived: v.pipe(v.boolean('app:process-information.errors.approval-received-required')),
         workSchedule: v.pipe(
