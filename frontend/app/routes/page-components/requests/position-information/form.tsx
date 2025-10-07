@@ -62,7 +62,7 @@ export function PositionInformationForm({
   const { t: tApp } = useTranslation('app');
   const { t: tGcweb } = useTranslation('gcweb');
 
-  const defaultPositionNumber = formValues?.positionNumber === 'null' ? '' : formValues?.positionNumber;
+  const defaultPositionNumber = formValues?.positionNumber ?? '';
 
   const [province, setProvince] = useState(
     formValues?.cities?.[0]?.provinceTerritory.id !== undefined ? String(formValues.cities[0].provinceTerritory.id) : undefined,
