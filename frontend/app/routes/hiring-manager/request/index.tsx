@@ -107,7 +107,6 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 
   // For process information from Request Model
   const requiredProcessFields = {
-    selectionProcessNumber: requestData.selectionProcessNumber,
     workforceMgmtApprovalRecvd: requestData.workforceMgmtApprovalRecvd,
     priorityEntitlement: requestData.priorityEntitlement,
     workSchedule: requestData.workSchedule,
@@ -228,7 +227,6 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 
   // Process information from Request type
   const requiredProcessInformation = {
-    selectionProcessNumber: requestData.selectionProcessNumber,
     workforceMgmtApprovalRecvd: requestData.workforceMgmtApprovalRecvd,
     priorityEntitlement: requestData.priorityEntitlement,
     workSchedule: requestData.workSchedule,
