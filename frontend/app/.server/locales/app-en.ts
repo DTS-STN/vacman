@@ -216,7 +216,7 @@ export default {
     'page-title': 'Process information',
     'selection-process-number': 'Selection process number (if applicable)',
     'approval-received':
-      'Approval received from the Workforce Management Committee (Non-EX positions) or the People Management Leadership Committee (EX positions)',
+      'Approval received from the Workforce Management Committee (Non-EX positions) or the People Management Leadership Committee (EX positions) (required)',
     'priority-entitlement':
       'Would the appointment of a priority person result in a priority entitlement for another indeterminate employee?',
     'priority-entitlement-rationale': 'Please provide the rationale',

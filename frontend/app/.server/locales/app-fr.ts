@@ -219,7 +219,7 @@ export default {
     'page-title': 'Informations sur le processus',
     'selection-process-number': 'Numéro du processus de sélection (si applicable)',
     'approval-received':
-      'Approbation reçue du Comité de gestion des effectifs (postes non-EX) ou du Comité de gestion des personnes et du leadership (postes EX)',
+      'Approbation reçue du Comité de gestion des effectifs (postes non-EX) ou du Comité de gestion des personnes et du leadership (postes EX) (obligatoire)',
     'priority-entitlement':
       "Est-ce que la nomination d'un bénéficiaire de priorité aurait pour effet de conférer un droit de priorité à un-e autre fonctionnaire nommé-e pour une période indéterminée?",
     'priority-entitlement-rationale': 'Veuillez fournir la justification',
