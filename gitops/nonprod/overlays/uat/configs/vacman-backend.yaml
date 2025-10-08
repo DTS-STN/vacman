@@ -25,6 +25,8 @@ spring:
     # drop-first: true # ⚠️ ‼‼‼ NEVER SET THIS IN PROD ‼‼‼ ⚠️
 
 application:
+  requests:
+    enabled: true
   gcnotify:
     profile-approved-template-id: ba6ff621-5b4b-4f5b-8509-387b63d3ddf4
     profile-created-template-id: 9a62f432-c590-44e2-89c5-6d4d697a2524
