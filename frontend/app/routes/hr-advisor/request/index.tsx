@@ -371,9 +371,14 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
               ddClassName="mt-1 text-white sm:col-span-2 sm:mt-0"
               term={t('app:hr-advisor-referral-requests.hr-advisor')}
             >
-              {loaderData.hrAdvisor
-                ? `${loaderData.hrAdvisor.firstName} ${loaderData.hrAdvisor.lastName}`
-                : t('app:hr-advisor-referral-requests.not-provided')}
+              {loaderData.hrAdvisor ? (
+                <>
+                  {`${loaderData.hrAdvisor.firstName} ${loaderData.hrAdvisor.lastName}`} <br />
+                  {loaderData.hrAdvisor.businessEmailAddress}
+                </>
+              ) : (
+                t('app:hr-advisor-referral-requests.not-provided')
+              )}
             </DescriptionListItem>
           </DescriptionList>
         </div>
@@ -700,7 +705,9 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
             </DialogTitle>
           </DialogHeader>
           <DialogDescription id="re-assign-dialog-description">
-            {t('app:hr-advisor-referral-requests.re-assign-request.content')}
+            {t('app:hr-advisor-referral-requests.re-assign-request.content', {
+              'current-hr-advisor-name': `${loaderData.hrAdvisor?.firstName} ${loaderData.hrAdvisor?.lastName}`,
+            })}
           </DialogDescription>
           <DialogFooter>
             <DialogClose asChild>

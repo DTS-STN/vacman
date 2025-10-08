@@ -415,7 +415,7 @@ export default {
     're-assign-request': {
       title: 'Réassigner la demande?',
       content:
-        'Cette demande est actuellement assignée à [nom du conseiller RH actuel]. Êtes-vous certain-e de vouloir vous la réassigner?',
+        'Cette demande est actuellement assignée à {{current-hr-advisor-name}}. Êtes-vous certain-e de vouloir vous la réassigner?',
       reassign: 'Réassigner à moi',
     },
     'status': {

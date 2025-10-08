@@ -409,8 +409,8 @@ export default {
     're-assign-request': {
       title: 'Re-assign request?',
       content:
-        "This request is currently assigned to [current HR advisor's name]. Are you sure you want to re-assign it to yourself?",
-      reassign: 'Re-assgin to me',
+        'This request is currently assigned to {{current-hr-advisor-name}}. Are you sure you want to re-assign it to yourself?',
+      reassign: 'Re-assign to me',
     },
     'status': {
       'approved-assessment-feedback-pending': 'Assessment feedback pending',
