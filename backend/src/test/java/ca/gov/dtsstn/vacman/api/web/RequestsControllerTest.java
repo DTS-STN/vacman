@@ -901,7 +901,7 @@ class RequestsControllerTest {
 		}
 
 		@Test
-		@DisplayName("Should return 500 when eventType is invalid")
+		@DisplayName("Should return 400 when eventType is invalid")
 		@WithMockUser(username = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", authorities = { "hr-advisor" })
 		void testUpdateStatusInvalidEventType() throws Exception {
 			final var request = requestRepository.save(RequestEntity.builder()
@@ -918,12 +918,10 @@ class RequestsControllerTest {
 
 			final var statusUpdate = new RequestStatusUpdateModel("invalidEvent");
 
-			// Implementation throws IllegalArgumentException which results in 500
-			// TODO: Should validate eventType and return 400 Bad Request instead
 			mockMvc.perform(put("/api/v1/requests/{id}/status-change", request.getId())
 					.contentType(MediaType.APPLICATION_JSON)
 					.content(objectMapper.writeValueAsString(statusUpdate)))
-				.andExpect(status().isInternalServerError());
+				.andExpect(status().isBadRequest());
 		}
 
 		@Test
