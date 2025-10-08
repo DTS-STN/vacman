@@ -415,10 +415,11 @@ export default {
     're-assign-request': {
       title: 'Réassigner la demande?',
       content:
-        'Cette demande est actuellement assignée à [nom du conseiller RH actuel]. Êtes-vous certain-e de vouloir vous la réassigner?',
+        'Cette demande est actuellement assignée à {{current-hr-advisor-name}}. Êtes-vous certain-e de vouloir vous la réassigner?',
       reassign: 'Réassigner à moi',
     },
     'status': {
+      'approved-assessment-feedback-pending': "En attente de retroaction d'évaluation",
       'request-pending-approval': "Demande en attente d'approbation",
       'vms-request-on-hold-pending-psc-clearance': "En attente de l'autorisation de la CF",
     },

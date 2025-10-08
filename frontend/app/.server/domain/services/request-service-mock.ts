@@ -337,6 +337,47 @@ export function getMockRequestService(): RequestService {
     },
 
     /**
+     * Updates a request's status after running matches
+     */
+    async runMatches(requestId: number, accessToken: string): Promise<Result<RequestReadModel, AppError>> {
+      const existingRequestIndex = mockRequests.findIndex((r) => r.id === requestId);
+      if (existingRequestIndex === -1) {
+        return Err(new AppError(`Request with ID ${requestId} not found.`, ErrorCodes.REQUEST_NOT_FOUND));
+      }
+
+      const existingRequest = mockRequests[existingRequestIndex];
+      if (!existingRequest) {
+        return Err(new AppError(`Request with ID ${requestId} not found.`, ErrorCodes.REQUEST_NOT_FOUND));
+      }
+
+      // Simulate running matches and updating the request status
+      const hasMatches = Math.random() > 0.5; // Randomly determine if there are matches
+      const newStatus = hasMatches
+        ? {
+            id: 4,
+            code: 'FDBK_PENDING',
+            nameEn: 'Approved - Assessment Feedback Pending',
+            nameFr: "Approuvée - En attente de retroaction d'évaluation",
+          }
+        : {
+            id: 3,
+            code: 'NO_MATCH_HR_REVIEW',
+            nameEn: 'No match - HR Review',
+            nameFr: 'Aucune candidature repérée - Revue RH',
+          };
+
+      const updatedRequest: RequestReadModel = {
+        ...existingRequest,
+        status: newStatus,
+        lastModifiedDate: new Date().toISOString(),
+        lastModifiedBy: 'system',
+      };
+
+      mockRequests[existingRequestIndex] = updatedRequest;
+      return Promise.resolve(Ok(updatedRequest));
+    },
+
+    /**
      * Deletes a request by its ID.
      */
     async deleteRequestById(requestId: number, accessToken: string): Promise<Result<void, AppError>> {

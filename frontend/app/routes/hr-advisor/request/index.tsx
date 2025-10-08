@@ -208,9 +208,25 @@ export async function action({ context, params, request }: Route.ActionArgs) {
       return await updateRequestStatus(REQUEST_EVENT_TYPE.pscNotRequired, requestData.id, session.authState.accessToken);
     }
 
-    /*case 'run-matches': {
-    // TODO: call  POST to /requests/{id}/run-matches instead of changing status here
-    }*/
+    case 'run-matches': {
+      const submitResult = await getRequestService().runMatches(requestData.id, session.authState.accessToken);
+
+      if (submitResult.isErr()) {
+        const error = submitResult.unwrapErr();
+        return {
+          status: 'error',
+          errorMessage: error.message,
+          errorCode: error.errorCode,
+        };
+      }
+
+      const updatedRequest = submitResult.unwrap();
+
+      return {
+        status: 'submitted',
+        requestStatus: updatedRequest.status,
+      };
+    }
 
     case 'psc-clearance-received': {
       const parseResult = v.safeParse(
@@ -355,9 +371,14 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
               ddClassName="mt-1 text-white sm:col-span-2 sm:mt-0"
               term={t('app:hr-advisor-referral-requests.hr-advisor')}
             >
-              {loaderData.hrAdvisor
-                ? `${loaderData.hrAdvisor.firstName} ${loaderData.hrAdvisor.lastName}`
-                : t('app:hr-advisor-referral-requests.not-provided')}
+              {loaderData.hrAdvisor ? (
+                <>
+                  {`${loaderData.hrAdvisor.firstName} ${loaderData.hrAdvisor.lastName}`} <br />
+                  {loaderData.hrAdvisor.businessEmailAddress}
+                </>
+              ) : (
+                t('app:hr-advisor-referral-requests.not-provided')
+              )}
             </DescriptionListItem>
           </DescriptionList>
         </div>
@@ -684,7 +705,9 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
             </DialogTitle>
           </DialogHeader>
           <DialogDescription id="re-assign-dialog-description">
-            {t('app:hr-advisor-referral-requests.re-assign-request.content')}
+            {t('app:hr-advisor-referral-requests.re-assign-request.content', {
+              'current-hr-advisor-name': `${loaderData.hrAdvisor?.firstName} ${loaderData.hrAdvisor?.lastName}`,
+            })}
           </DialogDescription>
           <DialogFooter>
             <DialogClose asChild>

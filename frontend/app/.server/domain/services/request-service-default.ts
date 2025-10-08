@@ -166,6 +166,33 @@ export function getDefaultRequestService(): RequestService {
     },
 
     /**
+     * Updates a request's status after running matches
+     */
+    async runMatches(requestId: number, accessToken: string): Promise<Result<RequestReadModel, AppError>> {
+      const result = await apiClient.post<null, RequestReadModel>(
+        `/requests/${requestId}/run-matches`,
+        `run matches for request ID ${requestId}`,
+        null,
+        accessToken,
+      );
+
+      if (result.isErr()) {
+        const error = result.unwrapErr();
+        if (error.httpStatusCode === HttpStatusCodes.NOT_FOUND) {
+          return Err(new AppError(`Request with ID ${requestId} not found.`, ErrorCodes.REQUEST_NOT_FOUND));
+        }
+        return Err(
+          new AppError(`Failed to run matches. Reason: ${error.message}`, ErrorCodes.REQUEST_RUN_MATCHES_FAILED, {
+            httpStatusCode: error.httpStatusCode,
+            correlationId: error.correlationId,
+          }),
+        );
+      }
+
+      return Ok(result.unwrap());
+    },
+
+    /**
      * Deletes a request by its ID.
      */
     async deleteRequestById(requestId: number, accessToken: string): Promise<Result<void, AppError>> {
