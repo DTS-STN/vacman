@@ -182,7 +182,7 @@ class RequestsControllerTest {
 				.hrAdvisorId(hrAdvisor.getId())
 				.languageOfCorrespondenceId(1L)
 				.languageRequirementId(1L)
-				.positionNumbers("POS-123,POS-456")
+				.positionNumbers("123456,789012")
 				.projectedEndDate(LocalDate.now().plusDays(400))
 				.projectedStartDate(LocalDate.now().plusDays(45))
 				.submitterId(submitter.getId())
@@ -199,7 +199,7 @@ class RequestsControllerTest {
 				.andExpect(jsonPath("$.frenchTitle", is("Développeur logiciel senior")))
 				.andExpect(jsonPath("$.id", is(request.getId().intValue())))
 				.andExpect(jsonPath("$.lastModifiedDate", notNullValue()))
-				.andExpect(jsonPath("$.positionNumber", is("POS-123,POS-456")))
+				.andExpect(jsonPath("$.positionNumber", is("123456,789012")))
 				.andExpect(jsonPath("$.teleworkAllowed", is(true)));
 
 			// Verify database was updated - entity uses nameEn/nameFr
@@ -364,6 +364,36 @@ class RequestsControllerTest {
 				.englishTitle("Test Position")
 				.frenchTitle("Poste de test")
 				.languageRequirementId(1L)
+				.build();
+
+			mockMvc.perform(put("/api/v1/requests/{id}", request.getId())
+					.contentType(MediaType.APPLICATION_JSON)
+					.content(objectMapper.writeValueAsString(updateModel)))
+				.andExpect(status().isBadRequest());
+		}
+
+		@Test
+		@DisplayName("Should return 400 when validation fails - invalid position numbers format")
+		@WithMockUser(username = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", authorities = { "hr-advisor" })
+		void testUpdateRequestValidationFailsInvalidPositionNumbers() throws Exception {
+			final var request = requestRepository.save(RequestEntity.builder()
+				.classification(classificationRepository.getReferenceById(1L))
+				.hiringManager(hiringManager)
+				.languageRequirement(languageRequirementRepository.getReferenceById(1L))
+				.nameEn("Test Position")
+				.nameFr("Poste de test")
+				.requestNumber("REQ-004A")
+				.requestStatus(requestStatusRepository.findByCode(lookupCodes.requestStatuses().draft()).orElseThrow())
+				.submitter(submitter)
+				.workUnit(workUnitRepository.getReferenceById(1L))
+				.build());
+
+			final var updateModel = RequestUpdateModelBuilder.builder()
+				.classificationId(1L)
+				.englishTitle("Test Position")
+				.frenchTitle("Poste de test")
+				.languageRequirementId(1L)
+				.positionNumbers("123,null,,456")
 				.build();
 
 			mockMvc.perform(put("/api/v1/requests/{id}", request.getId())
@@ -549,7 +579,7 @@ class RequestsControllerTest {
 				.hrAdvisorId(hrAdvisor.getId())
 				.languageOfCorrespondenceId(1L)
 				.languageRequirementId(1L)
-				.positionNumbers("POS-001,POS-002,POS-003")
+				.positionNumbers("123456,234567,345678")
 				.priorityClearanceNumber("PRI-2024-001")
 				.priorityEntitlement(true)
 				.priorityEntitlementRationale("Priority clearance required")
@@ -578,7 +608,7 @@ class RequestsControllerTest {
 				.andExpect(jsonPath("$.equityNeeded", is(true)))
 				.andExpect(jsonPath("$.frenchLanguageProfile", is("BBB")))
 				.andExpect(jsonPath("$.id", is(request.getId().intValue())))
-				.andExpect(jsonPath("$.positionNumber", is("POS-001,POS-002,POS-003")))
+				.andExpect(jsonPath("$.positionNumber", is("123456,234567,345678")))
 				.andExpect(jsonPath("$.priorityEntitlement", is(true)))
 				.andExpect(jsonPath("$.selectionProcessNumber", is("SP-2024-001")))
 				.andExpect(jsonPath("$.teleworkAllowed", is(true)));

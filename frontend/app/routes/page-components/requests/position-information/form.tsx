@@ -62,6 +62,8 @@ export function PositionInformationForm({
   const { t: tApp } = useTranslation('app');
   const { t: tGcweb } = useTranslation('gcweb');
 
+  const defaultPositionNumber = formValues?.positionNumber ?? '';
+
   const [province, setProvince] = useState(
     formValues?.cities?.[0]?.provinceTerritory.id !== undefined ? String(formValues.cities[0].provinceTerritory.id) : undefined,
   );
@@ -163,7 +165,7 @@ export function PositionInformationForm({
               id="position-number"
               name="positionNumber"
               label={tApp('position-information.position-number')}
-              defaultValue={formValues?.positionNumber}
+              defaultValue={defaultPositionNumber}
               errorMessage={tApp(extractValidationKey(formErrors?.positionNumber))}
               helpMessagePrimary={tApp('position-information.position-number-instruction')}
               required
