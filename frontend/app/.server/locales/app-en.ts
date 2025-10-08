@@ -219,7 +219,7 @@ export default {
       'Approval received from the Workforce Management Committee (Non-EX positions) or the People Management Leadership Committee (EX positions) (required)',
     'priority-entitlement':
       'Would the appointment of a priority person result in a priority entitlement for another indeterminate employee?',
-    'priority-entitlement-rationale': 'Please provide the rationale',
+    'priority-entitlement-rationale': 'Please provide the rationale (required)',
     'rationale': 'Rationale',
     'selection-process-type': 'Selection process type',
     'performed-duties':
