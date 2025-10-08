@@ -255,89 +255,93 @@ export function PositionInformationForm({
             {(languageRequirementCode === LANGUAGE_REQUIREMENT_CODES.bilingualImperative ||
               languageRequirementCode === LANGUAGE_REQUIREMENT_CODES.bilingualNonImperative) && (
               <>
-                              <fieldset id="language-profile-fieldset" aria-describedby="language-profile-legend" className="space-y-2">
-                <InputLegend id="language-profile-legend" className="text-xl" required>
-                  {tApp('position-information.language-profile')}
-                </InputLegend>
+                <fieldset id="language-profile-fieldset" aria-describedby="language-profile-legend" className="space-y-2">
+                  <InputLegend id="language-profile-legend" className="text-xl" required>
+                    {tApp('position-information.language-profile')}
+                  </InputLegend>
 
-                <fieldset
-                  className="flex space-x-2"
-                  id="reading-comprehension-fieldset"
-                  aria-describedby="reading-comprehension-legend"
-                >
-                  <InputLegend id="reading-comprehension-legend" required>
-                    {tApp('position-information.reading-comprehension')}
-                  </InputLegend>
-                  <InputSelect
-                    id="reading-en"
-                    name="readingEn"
-                    label={tApp('position-information.english')}
-                    className="w-32"
-                    options={languageLevelOptions}
-                    defaultValue={formValues?.englishLanguageProfile?.charAt(0) ?? ''}
-                    errorMessage={tApp(extractValidationKey(formErrors?.readingEn))}
-                  />
-                  <InputSelect
-                    id="reading-fr"
-                    name="readingFr"
-                    label={tApp('position-information.french')}
-                    className="w-32"
-                    options={languageLevelOptions}
-                    defaultValue={formValues?.frenchLanguageProfile?.charAt(0) ?? ''}
-                    errorMessage={tApp(extractValidationKey(formErrors?.readingFr))}
-                  />
+                  <fieldset
+                    className="flex space-x-2"
+                    id="reading-comprehension-fieldset"
+                    aria-describedby="reading-comprehension-legend"
+                  >
+                    <InputLegend id="reading-comprehension-legend" required>
+                      {tApp('position-information.reading-comprehension')}
+                    </InputLegend>
+                    <InputSelect
+                      id="reading-en"
+                      name="readingEn"
+                      label={tApp('position-information.english')}
+                      className="w-32"
+                      options={languageLevelOptions}
+                      defaultValue={formValues?.englishLanguageProfile?.charAt(0) ?? ''}
+                      errorMessage={tApp(extractValidationKey(formErrors?.readingEn))}
+                    />
+                    <InputSelect
+                      id="reading-fr"
+                      name="readingFr"
+                      label={tApp('position-information.french')}
+                      className="w-32"
+                      options={languageLevelOptions}
+                      defaultValue={formValues?.frenchLanguageProfile?.charAt(0) ?? ''}
+                      errorMessage={tApp(extractValidationKey(formErrors?.readingFr))}
+                    />
+                  </fieldset>
+                  <fieldset
+                    className="flex space-x-2"
+                    id="written-expression-fieldset"
+                    aria-describedby="written-expression-legend"
+                  >
+                    <InputLegend id="written-expression-legend" required>
+                      {tApp('position-information.written-expression')}
+                    </InputLegend>
+                    <InputSelect
+                      id="writing-en"
+                      name="writingEn"
+                      label={tApp('position-information.english')}
+                      className="w-32"
+                      options={languageLevelOptions}
+                      defaultValue={formValues?.englishLanguageProfile?.charAt(1) ?? ''}
+                      errorMessage={tApp(extractValidationKey(formErrors?.writingEn))}
+                    />
+                    <InputSelect
+                      id="writing-fr"
+                      name="writingFr"
+                      label={tApp('position-information.french')}
+                      className="w-32"
+                      options={languageLevelOptions}
+                      defaultValue={formValues?.frenchLanguageProfile?.charAt(1) ?? ''}
+                      errorMessage={tApp(extractValidationKey(formErrors?.writingFr))}
+                    />
+                  </fieldset>
+                  <fieldset
+                    className="flex space-x-2"
+                    id="oral-proficiency-fieldset"
+                    aria-describedby="oral-proficiency-legend"
+                  >
+                    <InputLegend id="oral-proficiency-legend" required>
+                      {tApp('position-information.oral-proficiency')}
+                    </InputLegend>
+                    <InputSelect
+                      id="oral-en"
+                      name="oralEn"
+                      label={tApp('position-information.english')}
+                      className="w-32"
+                      options={languageLevelOptions}
+                      defaultValue={formValues?.englishLanguageProfile?.charAt(2) ?? ''}
+                      errorMessage={tApp(extractValidationKey(formErrors?.oralEn))}
+                    />
+                    <InputSelect
+                      id="oral-fr"
+                      name="oralFr"
+                      label={tApp('position-information.french')}
+                      className="w-32"
+                      options={languageLevelOptions}
+                      defaultValue={formValues?.frenchLanguageProfile?.charAt(2) ?? ''}
+                      errorMessage={tApp(extractValidationKey(formErrors?.oralFr))}
+                    />
+                  </fieldset>
                 </fieldset>
-                <fieldset
-                  className="flex space-x-2"
-                  id="written-expression-fieldset"
-                  aria-describedby="written-expression-legend"
-                >
-                  <InputLegend id="written-expression-legend" required>
-                    {tApp('position-information.written-expression')}
-                  </InputLegend>
-                  <InputSelect
-                    id="writing-en"
-                    name="writingEn"
-                    label={tApp('position-information.english')}
-                    className="w-32"
-                    options={languageLevelOptions}
-                    defaultValue={formValues?.englishLanguageProfile?.charAt(1) ?? ''}
-                    errorMessage={tApp(extractValidationKey(formErrors?.writingEn))}
-                  />
-                  <InputSelect
-                    id="writing-fr"
-                    name="writingFr"
-                    label={tApp('position-information.french')}
-                    className="w-32"
-                    options={languageLevelOptions}
-                    defaultValue={formValues?.frenchLanguageProfile?.charAt(1) ?? ''}
-                    errorMessage={tApp(extractValidationKey(formErrors?.writingFr))}
-                  />
-                </fieldset>
-                <fieldset className="flex space-x-2" id="oral-proficiency-fieldset" aria-describedby="oral-proficiency-legend">
-                  <InputLegend id="oral-proficiency-legend" required>
-                    {tApp('position-information.oral-proficiency')}
-                  </InputLegend>
-                  <InputSelect
-                    id="oral-en"
-                    name="oralEn"
-                    label={tApp('position-information.english')}
-                    className="w-32"
-                    options={languageLevelOptions}
-                    defaultValue={formValues?.englishLanguageProfile?.charAt(2) ?? ''}
-                    errorMessage={tApp(extractValidationKey(formErrors?.oralEn))}
-                  />
-                  <InputSelect
-                    id="oral-fr"
-                    name="oralFr"
-                    label={tApp('position-information.french')}
-                    className="w-32"
-                    options={languageLevelOptions}
-                    defaultValue={formValues?.frenchLanguageProfile?.charAt(2) ?? ''}
-                    errorMessage={tApp(extractValidationKey(formErrors?.oralFr))}
-                  />
-                </fieldset>
-              </fieldset>
               </>
             )}
 
