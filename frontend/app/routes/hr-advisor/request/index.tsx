@@ -47,7 +47,7 @@ import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { useFetcherState } from '~/hooks/use-fetcher-state';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
-import { ClearanceGrantedCard } from '~/routes/page-components/requests/clearance-granted-card';
+import { RequestSummaryCard } from '~/routes/page-components/requests/request-summary-card';
 import type { Errors } from '~/routes/page-components/requests/validation.server';
 import { formatISODate } from '~/utils/date-utils';
 import { REGEX_PATTERNS } from '~/utils/regex-utils';
@@ -356,11 +356,10 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
               term={t('app:hr-advisor-referral-requests.hiring-manager')}
             >
               {loaderData.hiringManager ? (
-                <>
-                  {`${loaderData.hiringManager.firstName} ${loaderData.hiringManager.lastName}`}
-                  <br />
-                  {loaderData.hiringManager.businessEmailAddress}
-                </>
+                <div className="flex flex-col gap-1">
+                  <span>{`${loaderData.hiringManager.firstName} ${loaderData.hiringManager.lastName}`}</span>
+                  <span>{loaderData.hiringManager.businessEmailAddress}</span>
+                </div>
               ) : (
                 t('app:hr-advisor-referral-requests.not-provided')
               )}
@@ -372,10 +371,10 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
               term={t('app:hr-advisor-referral-requests.hr-advisor')}
             >
               {loaderData.hrAdvisor ? (
-                <>
-                  {`${loaderData.hrAdvisor.firstName} ${loaderData.hrAdvisor.lastName}`} <br />
-                  {loaderData.hrAdvisor.businessEmailAddress}
-                </>
+                <div className="flex flex-col gap-1">
+                  <span>{`${loaderData.hrAdvisor.firstName} ${loaderData.hrAdvisor.lastName}`}</span>
+                  <span>{loaderData.hrAdvisor.businessEmailAddress}</span>
+                </div>
               ) : (
                 t('app:hr-advisor-referral-requests.not-provided')
               )}
@@ -411,11 +410,13 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
       )}
 
       {loaderData.status && (
-        <ClearanceGrantedCard
+        <RequestSummaryCard
           priorityClearanceNumber={loaderData.priorityClearanceNumber}
           pscClearanceNumber={loaderData.pscClearanceNumber}
           requestStatus={loaderData.status}
           lang={loaderData.lang}
+          view="hr-advisor"
+          params={params}
         />
       )}
 

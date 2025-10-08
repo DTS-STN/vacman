@@ -366,6 +366,9 @@ export default {
     'notice-line-7': "Consult the Manager's Guide on Priority Clearances for more information.",
     'request-incomplete': 'Please complete all required fields before submitting request',
     'request-submitted': 'Request submitted successfully! An HR advisor will review it for approval',
+    'matches-available': 'Matches available',
+    'matches-available-detail': 'Candidates for this request have been found. Review them and submit your feedback.',
+    'matches-available-link': 'View candidates',
     'delete-request': {
       'title': 'Delete this request?',
       'content': 'This will permanently delete this request. This action cannot be undone.',

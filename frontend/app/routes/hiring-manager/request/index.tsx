@@ -42,7 +42,7 @@ import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { useFetcherState } from '~/hooks/use-fetcher-state';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
-import { ClearanceGrantedCard } from '~/routes/page-components/requests/clearance-granted-card';
+import { RequestSummaryCard } from '~/routes/page-components/requests/request-summary-card';
 import { formatISODate } from '~/utils/date-utils';
 import { trimToUndefined } from '~/utils/string-utils';
 import { cn } from '~/utils/tailwind-utils';
@@ -473,11 +473,10 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
                 term={t('app:hiring-manager-referral-requests.hiring-manager')}
               >
                 {loaderData.hiringManager ? (
-                  <>
-                    {`${loaderData.hiringManager.firstName} ${loaderData.hiringManager.lastName}`}
-                    <br />
-                    {loaderData.hiringManager.businessEmailAddress}
-                  </>
+                  <div className="flex flex-col gap-1">
+                    <span>{`${loaderData.hiringManager.firstName} ${loaderData.hiringManager.lastName}`}</span>
+                    <span>{loaderData.hiringManager.businessEmailAddress}</span>
+                  </div>
                 ) : (
                   t('app:hiring-manager-referral-requests.not-provided')
                 )}
@@ -488,9 +487,14 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
                 ddClassName="mt-1 text-white sm:col-span-2 sm:mt-0"
                 term={t('app:hiring-manager-referral-requests.hr-advisor')}
               >
-                {loaderData.hrAdvisor
-                  ? `${loaderData.hrAdvisor.firstName} ${loaderData.hrAdvisor.lastName}`
-                  : t('app:hiring-manager-referral-requests.not-assigned')}
+                {loaderData.hrAdvisor ? (
+                  <div className="flex flex-col gap-1">
+                    <span>{`${loaderData.hrAdvisor.firstName} ${loaderData.hrAdvisor.lastName}`}</span>
+                    <span>{loaderData.hrAdvisor.businessEmailAddress}</span>
+                  </div>
+                ) : (
+                  t('app:hiring-manager-referral-requests.not-assigned')
+                )}
               </DescriptionListItem>
             </DescriptionList>
           </div>
@@ -555,11 +559,14 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
         )}
 
         {loaderData.status && (
-          <ClearanceGrantedCard
+          <RequestSummaryCard
             priorityClearanceNumber={loaderData.priorityClearanceNumber}
             pscClearanceNumber={loaderData.pscClearanceNumber}
             requestStatus={loaderData.status}
             lang={loaderData.lang}
+            view="hiring-manager"
+            file="routes/hiring-manager/request/matches.tsx"
+            params={params}
           />
         )}
 

@@ -371,6 +371,10 @@ export default {
       "Consultez le Guide du gestionnaire sur les autorisations en matière de priorité pour plus d'informations.",
     'request-incomplete': 'Veuillez remplir tous les champs obligatoires avant de soumettre votre demande',
     'request-submitted': "Demande soumise avec succès! Un-e conseiller(ère) RH va l'examiner pour approbation",
+    'matches-available': 'Candidatures disponibles',
+    'matches-available-detail':
+      'Des candidatures qui correspondent à cette demande ont été trouvées. Veuillez les consulter et nous faire parvenir votre rétroaction.',
+    'matches-available-link': 'Voir les candidatures',
     'delete-request': {
       'title': 'Supprimer cette demande?',
       'content': 'Cela supprimera définitivement la demande. Cette action est irréversible.',
