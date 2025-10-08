@@ -83,6 +83,8 @@ export function RequestStatusTag({ status, lang, rounded = false, view }: Reques
 
   if (status.code === 'PENDING_PSC') {
     displayName = t('hr-advisor-referral-requests.status.vms-request-on-hold-pending-psc-clearance');
+  } else if (status.code === 'FDBK_PENDING') {
+    displayName = t('hr-advisor-referral-requests.status.approved-assessment-feedback-pending');
   } else if (status.code === 'SUBMIT' && view === 'hr-advisor') {
     displayName = t('hr-advisor-referral-requests.status.request-pending-approval');
   } else {

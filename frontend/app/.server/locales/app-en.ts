@@ -413,6 +413,7 @@ export default {
       reassign: 'Re-assgin to me',
     },
     'status': {
+      'approved-assessment-feedback-pending': 'Assessment feedback pending',
       'request-pending-approval': 'Request pending approval',
       'vms-request-on-hold-pending-psc-clearance': 'Pending PSC Clearance',
     },

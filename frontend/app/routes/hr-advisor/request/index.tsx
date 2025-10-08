@@ -208,9 +208,25 @@ export async function action({ context, params, request }: Route.ActionArgs) {
       return await updateRequestStatus(REQUEST_EVENT_TYPE.pscNotRequired, requestData.id, session.authState.accessToken);
     }
 
-    /*case 'run-matches': {
-    // TODO: call  POST to /requests/{id}/run-matches instead of changing status here
-    }*/
+    case 'run-matches': {
+      const submitResult = await getRequestService().runMatches(requestData.id, session.authState.accessToken);
+
+      if (submitResult.isErr()) {
+        const error = submitResult.unwrapErr();
+        return {
+          status: 'error',
+          errorMessage: error.message,
+          errorCode: error.errorCode,
+        };
+      }
+
+      const updatedRequest = submitResult.unwrap();
+
+      return {
+        status: 'submitted',
+        requestStatus: updatedRequest.status,
+      };
+    }
 
     case 'psc-clearance-received': {
       const parseResult = v.safeParse(

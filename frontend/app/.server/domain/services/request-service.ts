@@ -41,6 +41,10 @@ export type RequestService = {
     accessToken: string,
   ): Promise<Result<RequestReadModel, AppError>>;
 
+  // POST /api/v1/requests/{id}/run-matches - initiate running matches - Update request status after running matches
+  // returns the Request with updated request status with "NO_MATCH_HR_REVIEW" if no matches found or "FDBK_PENDING" if there are matches
+  runMatches(requestId: number, accessToken: string): Promise<Result<RequestReadModel, AppError>>;
+
   // DELETE /api/v1/requests/{id} - Delete a request by ID
   deleteRequestById(requestId: number, accessToken: string): Promise<Result<void, AppError>>;
 
