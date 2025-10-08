@@ -443,7 +443,7 @@ export default {
     'security-requirement': 'Security requirement',
     'errors': {
       'position-number-required': 'Position number is required.',
-      'position-number-max-length': 'Each position number must be 6 characters.',
+      'position-number-max-length': 'Each position number must be 8 characters.',
       'group-and-level-required': 'Group and level is required.',
       'title-en-required': 'Title in English is required.',
       'title-fr-required': 'Title in French is required.',
