@@ -2,7 +2,6 @@ package ca.gov.dtsstn.vacman.api.service;
 
 import static ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException.asResourceNotFoundException;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -194,8 +193,6 @@ public class RequestService {
 	public RequestEntity prepareRequestForUpdate(RequestUpdateModel updateModel, RequestEntity request) {
 		requestModelMapper.updateEntityFromModel(updateModel, request);
 
-		request.setPositionNumber(normalizePositionNumbers(updateModel.positionNumbers()));
-
 		Optional.ofNullable(updateModel.selectionProcessTypeId())
 			.map(selectionProcessTypeRepository::getReferenceById)
 			.ifPresent(request::setSelectionProcessType);
@@ -260,25 +257,7 @@ public class RequestService {
 			.ifPresent(request::setRequestStatus);
 
 		return request;
-	}
-
-	private String normalizePositionNumbers(String rawPositionNumbers) {
-		if (rawPositionNumbers == null) {
-			return null;
 		}
-
-		final var tokens = Arrays.stream(rawPositionNumbers.split(","))
-			.map(String::trim)
-			.filter(token -> !token.isEmpty())
-			.filter(token -> !"null".equalsIgnoreCase(token))
-			.toList();
-
-		if (tokens.isEmpty()) {
-			return null;
-		}
-
-		return String.join(",", tokens);
-	}
 
 	private UserEntity resolveUser(Long userId) {
 		if (userId == null) { return null; }

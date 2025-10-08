@@ -22,6 +22,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 @RecordBuilder
@@ -82,6 +83,8 @@ public record RequestUpdateModel(
 	@ValidLanguageRequirementCode
 	Long languageRequirementId,
 
+	@Pattern(regexp = "^\\d{6}(,\\d{6})*$",
+		message = "Position numbers must be comma-separated six digit numbers")
 	@Size(max = 100)
 	String positionNumbers,
 
