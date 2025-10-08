@@ -222,7 +222,7 @@ export default {
       'Approbation reçue du Comité de gestion des effectifs (postes non-EX) ou du Comité de gestion des personnes et du leadership (postes EX) (obligatoire)',
     'priority-entitlement':
       "Est-ce que la nomination d'un bénéficiaire de priorité aurait pour effet de conférer un droit de priorité à un-e autre fonctionnaire nommé-e pour une période indéterminée?",
-    'priority-entitlement-rationale': 'Veuillez fournir la justification (obligatoire)',
+    'priority-entitlement-rationale': 'Veuillez fournir la justification',
     'rationale': 'Justification',
     'selection-process-type': 'Type de processus de sélection',
     'performed-duties':

@@ -217,6 +217,7 @@ export function ProcessInformationForm({
                 defaultValue={formValues?.priorityEntitlementRationale}
                 errorMessage={tApp(extractValidationKey(formErrors?.priorityEntitlementRationale))}
                 maxLength={100}
+                required
               />
             )}
             <InputSelect
