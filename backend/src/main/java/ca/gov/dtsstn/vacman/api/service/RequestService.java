@@ -15,6 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import ca.gov.dtsstn.vacman.api.config.properties.ApplicationProperties;
 import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes;
@@ -192,6 +193,10 @@ public class RequestService {
 	@Transactional(readOnly = true)
 	public RequestEntity prepareRequestForUpdate(RequestUpdateModel updateModel, RequestEntity request) {
 		requestModelMapper.updateEntityFromModel(updateModel, request);
+
+		if (StringUtils.hasText(updateModel.positionNumbers())) {
+      request.setPositionNumber(updateModel.positionNumbers());
+		}
 
 		Optional.ofNullable(updateModel.selectionProcessTypeId())
 			.map(selectionProcessTypeRepository::getReferenceById)
