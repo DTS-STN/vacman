@@ -197,7 +197,7 @@ export function PositionInformationForm({
               required
             />
 
-            <fieldset id="location-fieldset" aria-describedby="locationLegend locationHelpMessage">
+            <fieldset id="location-fieldset" aria-describedby="locationLegend locationHelpMessage" className="space-y-2">
               <InputLegend id="locationLegend" required>
                 {tApp('position-information.locations')}
               </InputLegend>
