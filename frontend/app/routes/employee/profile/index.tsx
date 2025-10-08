@@ -24,7 +24,13 @@ import { ButtonLink } from '~/components/button-link';
 import { DescriptionList, DescriptionListItem } from '~/components/description-list';
 import { LoadingButton } from '~/components/loading-button';
 import { PageTitle } from '~/components/page-title';
-import { ProfileCard } from '~/components/profile-card';
+import {
+  ProfileCard,
+  ProfileCardContent,
+  ProfileCardEditLink,
+  ProfileCardFooter,
+  ProfileCardHeader,
+} from '~/components/profile-card';
 import { Progress } from '~/components/progress';
 import { ProfileStatusTag } from '~/components/status-tag';
 import { EMPLOYEE_WFA_STATUS, PROFILE_STATUS } from '~/domain/constants';
@@ -305,6 +311,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
   const fetcher = useFetcher<typeof action>();
   const fetcherState = useFetcherState(fetcher);
   const isSubmitting = fetcherState.submitting;
+  const incompleteProfile = loaderData.profileStatus?.code === PROFILE_STATUS.INCOMPLETE.code;
 
   type CityPreference = {
     province: string;
@@ -410,7 +417,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
         />
       )}
 
-      {loaderData.profileStatus?.code === PROFILE_STATUS.INCOMPLETE.code && (
+      {incompleteProfile && (
         <Progress
           className="mt-8 mb-8"
           label={t('app:profile.profile-completion-progress')}
@@ -418,199 +425,219 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
         />
       )}
       <div className="mt-8 max-w-prose space-y-10">
-        <ProfileCard
-          title={t('app:profile.personal-information.title')}
-          linkLabel={t('app:profile.personal-information.link-label')}
-          file="routes/employee/profile/personal-information.tsx"
-          isComplete={loaderData.personalInformation.isComplete}
-          isNew={loaderData.personalInformation.isNew}
-          params={params}
-          errorState={fetcher.data?.personalInfoComplete === false}
-          required
-          showStatus={loaderData.profileStatus?.code === PROFILE_STATUS.INCOMPLETE.code}
-          linkType="edit"
-        >
-          {loaderData.personalInformation.isNew ? (
-            <>
-              {t('app:profile.personal-information.detail')}
+        <ProfileCard errorState={fetcher.data?.personalInfoComplete === false}>
+          <ProfileCardHeader
+            required
+            status={incompleteProfile ? (loaderData.personalInformation.isComplete ? 'complete' : 'in-progress') : undefined}
+          >
+            {t('app:profile.personal-information.title')}
+          </ProfileCardHeader>
+          <ProfileCardContent>
+            {loaderData.personalInformation.isNew ? (
+              <>
+                {t('app:profile.personal-information.detail')}
+                <DescriptionList>
+                  <DescriptionListItem term={t('app:personal-information.work-email')}>
+                    {loaderData.personalInformation.workEmail}
+                  </DescriptionListItem>
+                </DescriptionList>
+              </>
+            ) : (
               <DescriptionList>
+                <DescriptionListItem term={t('app:personal-information.personal-record-identifier')}>
+                  {loaderData.personalInformation.personalRecordIdentifier ?? t('app:profile.not-provided')}
+                </DescriptionListItem>
+                <DescriptionListItem term={t('app:personal-information.language-of-correspondence')}>
+                  {loaderData.personalInformation.preferredLanguage ?? t('app:profile.not-provided')}
+                </DescriptionListItem>
                 <DescriptionListItem term={t('app:personal-information.work-email')}>
                   {loaderData.personalInformation.workEmail}
                 </DescriptionListItem>
+                <DescriptionListItem term={t('app:personal-information.personal-email')}>
+                  {loaderData.personalInformation.personalEmail ?? t('app:profile.not-provided')}
+                </DescriptionListItem>
+                <DescriptionListItem term={t('app:personal-information.work-phone')}>
+                  {loaderData.personalInformation.workPhone ?? t('app:profile.not-provided')}
+                </DescriptionListItem>
+                <DescriptionListItem term={t('app:personal-information.personal-phone')}>
+                  {loaderData.personalInformation.personalPhone ?? t('app:profile.not-provided')}
+                </DescriptionListItem>
               </DescriptionList>
-            </>
-          ) : (
-            <DescriptionList>
-              <DescriptionListItem term={t('app:personal-information.personal-record-identifier')}>
-                {loaderData.personalInformation.personalRecordIdentifier ?? t('app:profile.not-provided')}
-              </DescriptionListItem>
-              <DescriptionListItem term={t('app:personal-information.language-of-correspondence')}>
-                {loaderData.personalInformation.preferredLanguage ?? t('app:profile.not-provided')}
-              </DescriptionListItem>
-              <DescriptionListItem term={t('app:personal-information.work-email')}>
-                {loaderData.personalInformation.workEmail}
-              </DescriptionListItem>
-              <DescriptionListItem term={t('app:personal-information.personal-email')}>
-                {loaderData.personalInformation.personalEmail ?? t('app:profile.not-provided')}
-              </DescriptionListItem>
-              <DescriptionListItem term={t('app:personal-information.work-phone')}>
-                {loaderData.personalInformation.workPhone ?? t('app:profile.not-provided')}
-              </DescriptionListItem>
-              <DescriptionListItem term={t('app:personal-information.personal-phone')}>
-                {loaderData.personalInformation.personalPhone ?? t('app:profile.not-provided')}
-              </DescriptionListItem>
-            </DescriptionList>
-          )}
+            )}
+          </ProfileCardContent>
+          <ProfileCardFooter>
+            <ProfileCardEditLink
+              isNew={loaderData.personalInformation.isNew}
+              file="routes/employee/profile/personal-information.tsx"
+              params={params}
+            >
+              {t('app:profile.personal-information.link-label')}
+            </ProfileCardEditLink>
+          </ProfileCardFooter>
         </ProfileCard>
-        <ProfileCard
-          title={t('app:profile.employment.title')}
-          linkLabel={t('app:profile.employment.link-label')}
-          file="routes/employee/profile/employment-information.tsx"
-          isComplete={loaderData.employmentInformation.isComplete}
-          isNew={loaderData.employmentInformation.isNew}
-          params={params}
-          required
-          errorState={fetcher.data?.employmentInfoComplete === false}
-          showStatus={loaderData.profileStatus?.code === PROFILE_STATUS.INCOMPLETE.code}
-          updated={hasEmploymentChanged}
-          linkType="edit"
-        >
-          {loaderData.employmentInformation.isNew ? (
-            <>{t('app:profile.employment.detail')}</>
-          ) : (
-            <>
-              <h3 className="font-lato text-xl font-bold">{t('app:employment-information.substantive-position-heading')}</h3>
-              <DescriptionList>
-                <DescriptionListItem term={t('app:employment-information.substantive-position-group-and-level')}>
-                  {loaderData.employmentInformation.substantivePosition ?? t('app:profile.not-provided')}
-                </DescriptionListItem>
-                <DescriptionListItem term={t('app:employment-information.branch-or-service-canada-region')}>
-                  {loaderData.employmentInformation.branchOrServiceCanadaRegion ?? t('app:profile.not-provided')}
-                </DescriptionListItem>
-                <DescriptionListItem term={t('app:employment-information.directorate')}>
-                  {loaderData.employmentInformation.directorate ?? t('app:profile.not-provided')}
-                </DescriptionListItem>
-                <DescriptionListItem term={t('app:employment-information.provinces')}>
-                  {loaderData.employmentInformation.province ?? t('app:profile.not-provided')}
-                </DescriptionListItem>
-                <DescriptionListItem term={t('app:employment-information.city')}>
-                  {loaderData.employmentInformation.city ?? t('app:profile.not-provided')}
-                </DescriptionListItem>
-              </DescriptionList>
-              <h3 className="font-lato text-xl font-bold">{t('app:employment-information.wfa-details-heading')}</h3>
-              <DescriptionList>
-                <DescriptionListItem term={t('app:employment-information.wfa-status')}>
-                  {loaderData.employmentInformation.wfaStatus ?? t('app:profile.not-provided')}
-                </DescriptionListItem>
-                <DescriptionListItem term={t('app:employment-information.wfa-effective-date')}>
-                  {loaderData.employmentInformation.wfaEffectiveDate ?? t('app:profile.not-provided')}
-                </DescriptionListItem>
-                {(loaderData.employmentInformation.wfaStatusCode === EMPLOYEE_WFA_STATUS.opting ||
-                  loaderData.employmentInformation.wfaStatusCode === EMPLOYEE_WFA_STATUS.exOpting ||
-                  loaderData.employmentInformation.wfaStatusCode === EMPLOYEE_WFA_STATUS.surplusOptingOptionA ||
-                  loaderData.employmentInformation.wfaStatusCode === EMPLOYEE_WFA_STATUS.exSurplusCPA ||
-                  loaderData.employmentInformation.wfaStatusCode === EMPLOYEE_WFA_STATUS.relocation ||
-                  loaderData.employmentInformation.wfaStatusCode === EMPLOYEE_WFA_STATUS.alternateDeliveryInitiative) && (
-                  <DescriptionListItem term={t('app:employment-information.wfa-end-date')}>
-                    {loaderData.employmentInformation.wfaEndDate ?? t('app:profile.not-provided')}
+
+        <ProfileCard errorState={fetcher.data?.employmentInfoComplete === false}>
+          <ProfileCardHeader
+            required
+            status={incompleteProfile ? (loaderData.employmentInformation.isComplete ? 'complete' : 'in-progress') : undefined}
+          >
+            {t('app:profile.employment.title')}
+          </ProfileCardHeader>
+          <ProfileCardContent>
+            {loaderData.employmentInformation.isNew ? (
+              <>{t('app:profile.employment.detail')}</>
+            ) : (
+              <>
+                <h3 className="font-lato text-xl font-bold">{t('app:employment-information.substantive-position-heading')}</h3>
+                <DescriptionList>
+                  <DescriptionListItem term={t('app:employment-information.substantive-position-group-and-level')}>
+                    {loaderData.employmentInformation.substantivePosition ?? t('app:profile.not-provided')}
                   </DescriptionListItem>
-                )}
-                <DescriptionListItem term={t('app:employment-information.hr-advisor')}>
-                  {loaderData.employmentInformation.hrAdvisor ?? t('app:profile.not-provided')}
+                  <DescriptionListItem term={t('app:employment-information.branch-or-service-canada-region')}>
+                    {loaderData.employmentInformation.branchOrServiceCanadaRegion ?? t('app:profile.not-provided')}
+                  </DescriptionListItem>
+                  <DescriptionListItem term={t('app:employment-information.directorate')}>
+                    {loaderData.employmentInformation.directorate ?? t('app:profile.not-provided')}
+                  </DescriptionListItem>
+                  <DescriptionListItem term={t('app:employment-information.provinces')}>
+                    {loaderData.employmentInformation.province ?? t('app:profile.not-provided')}
+                  </DescriptionListItem>
+                  <DescriptionListItem term={t('app:employment-information.city')}>
+                    {loaderData.employmentInformation.city ?? t('app:profile.not-provided')}
+                  </DescriptionListItem>
+                </DescriptionList>
+                <h3 className="font-lato text-xl font-bold">{t('app:employment-information.wfa-details-heading')}</h3>
+                <DescriptionList>
+                  <DescriptionListItem term={t('app:employment-information.wfa-status')}>
+                    {loaderData.employmentInformation.wfaStatus ?? t('app:profile.not-provided')}
+                  </DescriptionListItem>
+                  <DescriptionListItem term={t('app:employment-information.wfa-effective-date')}>
+                    {loaderData.employmentInformation.wfaEffectiveDate ?? t('app:profile.not-provided')}
+                  </DescriptionListItem>
+                  {(loaderData.employmentInformation.wfaStatusCode === EMPLOYEE_WFA_STATUS.opting ||
+                    loaderData.employmentInformation.wfaStatusCode === EMPLOYEE_WFA_STATUS.exOpting ||
+                    loaderData.employmentInformation.wfaStatusCode === EMPLOYEE_WFA_STATUS.surplusOptingOptionA ||
+                    loaderData.employmentInformation.wfaStatusCode === EMPLOYEE_WFA_STATUS.exSurplusCPA ||
+                    loaderData.employmentInformation.wfaStatusCode === EMPLOYEE_WFA_STATUS.relocation ||
+                    loaderData.employmentInformation.wfaStatusCode === EMPLOYEE_WFA_STATUS.alternateDeliveryInitiative) && (
+                    <DescriptionListItem term={t('app:employment-information.wfa-end-date')}>
+                      {loaderData.employmentInformation.wfaEndDate ?? t('app:profile.not-provided')}
+                    </DescriptionListItem>
+                  )}
+                  <DescriptionListItem term={t('app:employment-information.hr-advisor')}>
+                    {loaderData.employmentInformation.hrAdvisor ?? t('app:profile.not-provided')}
+                  </DescriptionListItem>
+                </DescriptionList>
+              </>
+            )}
+          </ProfileCardContent>
+          <ProfileCardFooter>
+            <ProfileCardEditLink
+              isNew={loaderData.employmentInformation.isNew}
+              file="routes/employee/profile/employment-information.tsx"
+              params={params}
+            >
+              {t('app:profile.employment.link-label')}
+            </ProfileCardEditLink>
+          </ProfileCardFooter>
+        </ProfileCard>
+
+        <ProfileCard errorState={fetcher.data?.referralComplete === false}>
+          <ProfileCardHeader
+            required
+            status={incompleteProfile ? (loaderData.referralPreferences.isComplete ? 'complete' : 'in-progress') : undefined}
+          >
+            {t('app:profile.referral.title')}
+          </ProfileCardHeader>
+          <ProfileCardContent>
+            {loaderData.referralPreferences.isNew ? (
+              <>{t('app:profile.referral.detail')}</>
+            ) : (
+              <DescriptionList>
+                <DescriptionListItem term={t('app:referral-preferences.language-referral-type')}>
+                  {loaderData.referralPreferences.preferredLanguages === undefined
+                    ? t('app:profile.not-provided')
+                    : loaderData.referralPreferences.preferredLanguages.length > 0 &&
+                      loaderData.referralPreferences.preferredLanguages.join(', ')}
+                </DescriptionListItem>
+                <DescriptionListItem term={t('app:referral-preferences.classification')}>
+                  {loaderData.referralPreferences.preferredClassifications === undefined
+                    ? t('app:profile.not-provided')
+                    : loaderData.referralPreferences.preferredClassifications.length > 0 &&
+                      loaderData.referralPreferences.preferredClassifications.join(', ')}
+                </DescriptionListItem>
+                <DescriptionListItem term={t('app:referral-preferences.work-location')}>
+                  {loaderData.referralPreferences.locationScope === 'not-provided' && <p>{t('app:profile.not-provided')}</p>}
+
+                  {loaderData.referralPreferences.locationScope === 'anywhere-in-country' && (
+                    <p>{t('app:anywhere-in-canada')}</p>
+                  )}
+
+                  {loaderData.referralPreferences.locationScope === 'anywhere-in-provinces' && (
+                    <p>
+                      {t('app:anywhere-in-provinces', {
+                        provinceNames: loaderData.referralPreferences.provinceNames.join(', '),
+                      })}
+                    </p>
+                  )}
+
+                  {loaderData.referralPreferences.locationScope === 'specific-cities' &&
+                    loaderData.referralPreferences.preferredCities.length > 0 && (
+                      <>
+                        {loaderData.referralPreferences.provinceNames.length > 0 && (
+                          <p>
+                            {t('app:anywhere-in-provinces', {
+                              provinceNames: loaderData.referralPreferences.provinceNames.join(', '),
+                            })}
+                          </p>
+                        )}
+                        <div>
+                          {/* Group cities by province */}
+                          {Object.entries(
+                            (loaderData.referralPreferences.preferredCities as CityPreference[]).reduce(
+                              (acc: GroupedCities, city: CityPreference) => {
+                                const provinceName = city.province;
+                                acc[provinceName] ??= [];
+                                acc[provinceName].push(city.city);
+                                return acc;
+                              },
+                              {} as GroupedCities,
+                            ),
+                          ).map(([province, cities]) => (
+                            <div key={province}>
+                              <strong>{province}:</strong> {cities.join(', ')}
+                            </div>
+                          ))}
+                        </div>
+                      </>
+                    )}
+                </DescriptionListItem>
+                <DescriptionListItem term={t('app:referral-preferences.referral-availibility')}>
+                  {loaderData.referralPreferences.isAvailableForReferral === undefined
+                    ? t('app:profile.not-provided')
+                    : loaderData.referralPreferences.isAvailableForReferral
+                      ? t('gcweb:input-option.yes')
+                      : t('gcweb:input-option.no')}
+                </DescriptionListItem>
+                <DescriptionListItem term={t('app:referral-preferences.alternate-opportunity')}>
+                  {loaderData.referralPreferences.isInterestedInAlternation === undefined
+                    ? t('app:profile.not-provided')
+                    : loaderData.referralPreferences.isInterestedInAlternation
+                      ? t('gcweb:input-option.yes')
+                      : t('gcweb:input-option.no')}
                 </DescriptionListItem>
               </DescriptionList>
-            </>
-          )}
-        </ProfileCard>
-        <ProfileCard
-          title={t('app:profile.referral.title')}
-          linkLabel={t('app:profile.referral.link-label')}
-          file="routes/employee/profile/referral-preferences.tsx"
-          isComplete={loaderData.referralPreferences.isComplete}
-          isNew={loaderData.referralPreferences.isNew}
-          params={params}
-          required
-          errorState={fetcher.data?.referralComplete === false}
-          showStatus={loaderData.profileStatus?.code === PROFILE_STATUS.INCOMPLETE.code}
-          updated={hasReferralPreferenceChanged}
-          linkType="edit"
-        >
-          {loaderData.referralPreferences.isNew ? (
-            <>{t('app:profile.referral.detail')}</>
-          ) : (
-            <DescriptionList>
-              <DescriptionListItem term={t('app:referral-preferences.language-referral-type')}>
-                {loaderData.referralPreferences.preferredLanguages === undefined
-                  ? t('app:profile.not-provided')
-                  : loaderData.referralPreferences.preferredLanguages.length > 0 &&
-                    loaderData.referralPreferences.preferredLanguages.join(', ')}
-              </DescriptionListItem>
-              <DescriptionListItem term={t('app:referral-preferences.classification')}>
-                {loaderData.referralPreferences.preferredClassifications === undefined
-                  ? t('app:profile.not-provided')
-                  : loaderData.referralPreferences.preferredClassifications.length > 0 &&
-                    loaderData.referralPreferences.preferredClassifications.join(', ')}
-              </DescriptionListItem>
-              <DescriptionListItem term={t('app:referral-preferences.work-location')}>
-                {loaderData.referralPreferences.locationScope === 'not-provided' && <p>{t('app:profile.not-provided')}</p>}
-
-                {loaderData.referralPreferences.locationScope === 'anywhere-in-country' && <p>{t('app:anywhere-in-canada')}</p>}
-
-                {loaderData.referralPreferences.locationScope === 'anywhere-in-provinces' && (
-                  <p>
-                    {t('app:anywhere-in-provinces', {
-                      provinceNames: loaderData.referralPreferences.provinceNames.join(', '),
-                    })}
-                  </p>
-                )}
-
-                {loaderData.referralPreferences.locationScope === 'specific-cities' &&
-                  loaderData.referralPreferences.preferredCities.length > 0 && (
-                    <>
-                      {loaderData.referralPreferences.provinceNames.length > 0 && (
-                        <p>
-                          {t('app:anywhere-in-provinces', {
-                            provinceNames: loaderData.referralPreferences.provinceNames.join(', '),
-                          })}
-                        </p>
-                      )}
-                      <div>
-                        {/* Group cities by province */}
-                        {Object.entries(
-                          (loaderData.referralPreferences.preferredCities as CityPreference[]).reduce(
-                            (acc: GroupedCities, city: CityPreference) => {
-                              const provinceName = city.province;
-                              acc[provinceName] ??= [];
-                              acc[provinceName].push(city.city);
-                              return acc;
-                            },
-                            {} as GroupedCities,
-                          ),
-                        ).map(([province, cities]) => (
-                          <div key={province}>
-                            <strong>{province}:</strong> {cities.join(', ')}
-                          </div>
-                        ))}
-                      </div>
-                    </>
-                  )}
-              </DescriptionListItem>
-              <DescriptionListItem term={t('app:referral-preferences.referral-availibility')}>
-                {loaderData.referralPreferences.isAvailableForReferral === undefined
-                  ? t('app:profile.not-provided')
-                  : loaderData.referralPreferences.isAvailableForReferral
-                    ? t('gcweb:input-option.yes')
-                    : t('gcweb:input-option.no')}
-              </DescriptionListItem>
-              <DescriptionListItem term={t('app:referral-preferences.alternate-opportunity')}>
-                {loaderData.referralPreferences.isInterestedInAlternation === undefined
-                  ? t('app:profile.not-provided')
-                  : loaderData.referralPreferences.isInterestedInAlternation
-                    ? t('gcweb:input-option.yes')
-                    : t('gcweb:input-option.no')}
-              </DescriptionListItem>
-            </DescriptionList>
-          )}
+            )}
+          </ProfileCardContent>
+          <ProfileCardFooter>
+            <ProfileCardEditLink
+              isNew={loaderData.referralPreferences.isNew}
+              file="routes/employee/profile/referral-preferences.tsx"
+              params={params}
+            >
+              {t('app:profile.referral.link-label')}
+            </ProfileCardEditLink>
+          </ProfileCardFooter>
         </ProfileCard>
       </div>
     </div>

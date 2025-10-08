@@ -28,7 +28,14 @@ import {
 } from '~/components/dialog';
 import { LoadingButton } from '~/components/loading-button';
 import { PageTitle } from '~/components/page-title';
-import { ProfileCard } from '~/components/profile-card';
+import {
+  ProfileCard,
+  ProfileCardContent,
+  ProfileCardEditLink,
+  ProfileCardFooter,
+  ProfileCardHeader,
+  ProfileCardViewLink,
+} from '~/components/profile-card';
 import { Progress } from '~/components/progress';
 import { RequestStatusTag } from '~/components/status-tag';
 import {
@@ -397,6 +404,7 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
   const fetcherState = useFetcherState(fetcher);
   const isSubmitting = fetcherState.submitting;
   const isDeleting = fetcherState.submitting && fetcherState.action === 'delete';
+  const isDraft = loaderData.status?.code === REQUEST_STATUS_CODE.DRAFT;
 
   const alertRef = useRef<HTMLDivElement>(null);
 
@@ -567,277 +575,315 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div className="mt-8 max-w-prose space-y-10">
-            <ProfileCard
-              title={t('app:hiring-manager-referral-requests.process-information')}
-              linkLabel={t('app:hiring-manager-referral-requests.edit-process-information')}
-              file="routes/hiring-manager/request/process-information.tsx"
-              isComplete={loaderData.isCompleteProcessInformation}
-              isNew={loaderData.isProcessNew}
-              params={params}
-              errorState={fetcher.data?.processInfoComplete === false}
-              required
-              showStatus={loaderData.status?.code === REQUEST_STATUS_CODE.DRAFT}
-              linkType={loaderData.status?.code === REQUEST_STATUS_CODE.DRAFT ? 'edit' : undefined}
-            >
-              {loaderData.isProcessNew ? (
-                <>{t('app:hiring-manager-referral-requests.process-intro')}</>
-              ) : (
-                <DescriptionList>
-                  <DescriptionListItem term={t('app:hiring-manager-referral-requests.selection-process-number')}>
-                    {loaderData.selectionProcessNumber ?? t('app:hiring-manager-referral-requests.not-provided')}
-                  </DescriptionListItem>
-
-                  <DescriptionListItem term={t('app:process-information.approval-received')}>
-                    {(() => {
-                      if (loaderData.workforceMgmtApprovalRecvd === undefined) {
-                        return t('app:hiring-manager-referral-requests.not-provided');
-                      }
-                      return loaderData.workforceMgmtApprovalRecvd ? t('gcweb:input-option.yes') : t('gcweb:input-option.no');
-                    })()}
-                  </DescriptionListItem>
-
-                  <DescriptionListItem term={t('app:process-information.priority-entitlement')}>
-                    {loaderData.priorityEntitlement === true
-                      ? t('app:process-information.yes')
-                      : loaderData.priorityEntitlement === false
-                        ? t('app:process-information.no')
-                        : t('app:hiring-manager-referral-requests.not-provided')}
-                  </DescriptionListItem>
-
-                  {loaderData.priorityEntitlement === true && (
-                    <DescriptionListItem term={t('app:process-information.rationale')}>
-                      {loaderData.priorityEntitlementRationale ?? t('app:hiring-manager-referral-requests.not-provided')}
+            <ProfileCard errorState={fetcher.data?.processInfoComplete === false}>
+              <ProfileCardHeader
+                required
+                status={isDraft ? (loaderData.isCompleteProcessInformation ? 'complete' : 'in-progress') : undefined}
+              >
+                {t('app:hiring-manager-referral-requests.process-information')}
+              </ProfileCardHeader>
+              <ProfileCardContent>
+                {loaderData.isProcessNew ? (
+                  <>{t('app:hiring-manager-referral-requests.process-intro')}</>
+                ) : (
+                  <DescriptionList>
+                    <DescriptionListItem term={t('app:hiring-manager-referral-requests.selection-process-number')}>
+                      {loaderData.selectionProcessNumber ?? t('app:hiring-manager-referral-requests.not-provided')}
                     </DescriptionListItem>
-                  )}
 
-                  <DescriptionListItem term={t('app:process-information.selection-process-type')}>
-                    {loaderData.selectionProcessType ?? t('app:hiring-manager-referral-requests.not-provided')}
-                  </DescriptionListItem>
-
-                  {(loaderData.selectionProcessTypeCode === SELECTION_PROCESS_TYPE.EXTERNAL_NON_ADVERTISED.code ||
-                    loaderData.selectionProcessTypeCode ===
-                      SELECTION_PROCESS_TYPE.APPOINTMENT_INTERNAL_NON_ADVERTISED.code) && (
-                    <>
-                      <DescriptionListItem term={t('app:process-information.performed-duties')}>
-                        {loaderData.hasPerformedSameDuties === true
-                          ? t('app:process-information.yes')
-                          : loaderData.hasPerformedSameDuties === false
-                            ? t('app:process-information.no')
-                            : t('app:hiring-manager-referral-requests.not-provided')}
-                      </DescriptionListItem>
-
-                      <DescriptionListItem term={t('app:process-information.non-advertised-appointment')}>
-                        {loaderData.appointmentNonAdvertised ?? t('app:hiring-manager-referral-requests.not-provided')}
-                      </DescriptionListItem>
-                    </>
-                  )}
-
-                  <DescriptionListItem term={t('app:process-information.employment-tenure')}>
-                    {loaderData.employmentTenure ?? t('app:hiring-manager-referral-requests.not-provided')}
-                  </DescriptionListItem>
-
-                  {loaderData.employmentTenureCode === EMPLOYMENT_TENURE.term && (
-                    <>
-                      <DescriptionListItem term={t('app:process-information.projected-start-date')}>
-                        {loaderData.projectedStartDate ?? t('app:hiring-manager-referral-requests.not-provided')}
-                      </DescriptionListItem>
-
-                      <DescriptionListItem term={t('app:process-information.projected-end-date')}>
-                        {loaderData.projectedEndDate ?? t('app:hiring-manager-referral-requests.not-provided')}
-                      </DescriptionListItem>
-                    </>
-                  )}
-
-                  <DescriptionListItem term={t('app:process-information.work-schedule')}>
-                    {loaderData.workSchedule ?? t('app:hiring-manager-referral-requests.not-provided')}
-                  </DescriptionListItem>
-
-                  <DescriptionListItem term={t('app:process-information.employment-equity-identified')}>
-                    {loaderData.equityNeeded === true
-                      ? t('app:process-information.yes')
-                      : loaderData.equityNeeded === false
-                        ? t('app:process-information.no')
-                        : t('app:hiring-manager-referral-requests.not-provided')}
-                  </DescriptionListItem>
-
-                  {loaderData.equityNeeded === true && (
-                    <DescriptionListItem term={t('app:process-information.preferred-employment-equities')}>
-                      {loaderData.employmentEquities ?? t('app:hiring-manager-referral-requests.not-provided')}
+                    <DescriptionListItem term={t('app:process-information.approval-received')}>
+                      {(() => {
+                        if (loaderData.workforceMgmtApprovalRecvd === undefined) {
+                          return t('app:hiring-manager-referral-requests.not-provided');
+                        }
+                        return loaderData.workforceMgmtApprovalRecvd ? t('gcweb:input-option.yes') : t('gcweb:input-option.no');
+                      })()}
                     </DescriptionListItem>
-                  )}
-                </DescriptionList>
-              )}
-            </ProfileCard>
 
-            <ProfileCard
-              title={t('app:hiring-manager-referral-requests.position-information')}
-              linkLabel={t('app:hiring-manager-referral-requests.edit-position-information')}
-              file="routes/hiring-manager/request/position-information.tsx"
-              isComplete={loaderData.isCompletePositionInformation}
-              isNew={loaderData.isPositionNew}
-              params={params}
-              required
-              errorState={fetcher.data?.positionInfoComplete === false}
-              showStatus={loaderData.status?.code === REQUEST_STATUS_CODE.DRAFT}
-              linkType={loaderData.status?.code === REQUEST_STATUS_CODE.DRAFT ? 'edit' : undefined}
-            >
-              {loaderData.isPositionNew ? (
-                <>{t('app:hiring-manager-referral-requests.position-intro')}</>
-              ) : (
-                <DescriptionList>
-                  <DescriptionListItem term={t('app:position-information.position-number')}>
-                    {loaderData.positionNumber ?? t('app:hiring-manager-referral-requests.not-provided')}
-                  </DescriptionListItem>
+                    <DescriptionListItem term={t('app:process-information.priority-entitlement')}>
+                      {loaderData.priorityEntitlement === true
+                        ? t('app:process-information.yes')
+                        : loaderData.priorityEntitlement === false
+                          ? t('app:process-information.no')
+                          : t('app:hiring-manager-referral-requests.not-provided')}
+                    </DescriptionListItem>
 
-                  <DescriptionListItem term={t('app:position-information.group-and-level')}>
-                    {loaderData.classification?.code ?? t('app:hiring-manager-referral-requests.not-provided')}
-                  </DescriptionListItem>
-
-                  <DescriptionListItem term={t('app:position-information.title-en')}>
-                    {loaderData.englishTitle ?? t('app:hiring-manager-referral-requests.not-provided')}
-                  </DescriptionListItem>
-
-                  <DescriptionListItem term={t('app:position-information.title-fr')}>
-                    {loaderData.frenchTitle ?? t('app:hiring-manager-referral-requests.not-provided')}
-                  </DescriptionListItem>
-
-                  <DescriptionListItem term={t('app:position-information.locations')}>
-                    {loaderData.cities === undefined
-                      ? t('app:hiring-manager-referral-requests.not-provided')
-                      : loaderData.cities.length > 0 && (
-                          <div>
-                            {/* Group cities by province */}
-                            {Object.entries(
-                              (loaderData.cities as CityPreference[]).reduce((acc: GroupedCities, city: CityPreference) => {
-                                const provinceName = city.province;
-                                acc[provinceName] ??= [];
-                                acc[provinceName].push(city.city);
-                                return acc;
-                              }, {} as GroupedCities),
-                            ).map(([province, cities]) => (
-                              <div key={province}>
-                                <strong>{province}:</strong> {cities.join(', ')}
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                  </DescriptionListItem>
-
-                  <DescriptionListItem term={t('app:position-information.language-profile')}>
-                    {loaderData.languageRequirementName ?? t('app:hiring-manager-referral-requests.not-provided')}
-                  </DescriptionListItem>
-
-                  {(loaderData.languageRequirement?.code === LANGUAGE_REQUIREMENT_CODES.bilingualImperative ||
-                    loaderData.languageRequirement?.code === LANGUAGE_REQUIREMENT_CODES.bilingualNonImperative) && (
-                    <>
-                      <DescriptionListItem term={t('app:position-information.english')}>
-                        {loaderData.englishLanguageProfile ?? t('app:hiring-manager-referral-requests.not-provided')}
+                    {loaderData.priorityEntitlement === true && (
+                      <DescriptionListItem term={t('app:process-information.rationale')}>
+                        {loaderData.priorityEntitlementRationale ?? t('app:hiring-manager-referral-requests.not-provided')}
                       </DescriptionListItem>
+                    )}
 
-                      <DescriptionListItem term={t('app:position-information.french')}>
-                        {loaderData.frenchLanguageProfile ?? t('app:hiring-manager-referral-requests.not-provided')}
+                    <DescriptionListItem term={t('app:process-information.selection-process-type')}>
+                      {loaderData.selectionProcessType ?? t('app:hiring-manager-referral-requests.not-provided')}
+                    </DescriptionListItem>
+
+                    {(loaderData.selectionProcessTypeCode === SELECTION_PROCESS_TYPE.EXTERNAL_NON_ADVERTISED.code ||
+                      loaderData.selectionProcessTypeCode ===
+                        SELECTION_PROCESS_TYPE.APPOINTMENT_INTERNAL_NON_ADVERTISED.code) && (
+                      <>
+                        <DescriptionListItem term={t('app:process-information.performed-duties')}>
+                          {loaderData.hasPerformedSameDuties === true
+                            ? t('app:process-information.yes')
+                            : loaderData.hasPerformedSameDuties === false
+                              ? t('app:process-information.no')
+                              : t('app:hiring-manager-referral-requests.not-provided')}
+                        </DescriptionListItem>
+
+                        <DescriptionListItem term={t('app:process-information.non-advertised-appointment')}>
+                          {loaderData.appointmentNonAdvertised ?? t('app:hiring-manager-referral-requests.not-provided')}
+                        </DescriptionListItem>
+                      </>
+                    )}
+
+                    <DescriptionListItem term={t('app:process-information.employment-tenure')}>
+                      {loaderData.employmentTenure ?? t('app:hiring-manager-referral-requests.not-provided')}
+                    </DescriptionListItem>
+
+                    {loaderData.employmentTenureCode === EMPLOYMENT_TENURE.term && (
+                      <>
+                        <DescriptionListItem term={t('app:process-information.projected-start-date')}>
+                          {loaderData.projectedStartDate ?? t('app:hiring-manager-referral-requests.not-provided')}
+                        </DescriptionListItem>
+
+                        <DescriptionListItem term={t('app:process-information.projected-end-date')}>
+                          {loaderData.projectedEndDate ?? t('app:hiring-manager-referral-requests.not-provided')}
+                        </DescriptionListItem>
+                      </>
+                    )}
+
+                    <DescriptionListItem term={t('app:process-information.work-schedule')}>
+                      {loaderData.workSchedule ?? t('app:hiring-manager-referral-requests.not-provided')}
+                    </DescriptionListItem>
+
+                    <DescriptionListItem term={t('app:process-information.employment-equity-identified')}>
+                      {loaderData.equityNeeded === true
+                        ? t('app:process-information.yes')
+                        : loaderData.equityNeeded === false
+                          ? t('app:process-information.no')
+                          : t('app:hiring-manager-referral-requests.not-provided')}
+                    </DescriptionListItem>
+
+                    {loaderData.equityNeeded === true && (
+                      <DescriptionListItem term={t('app:process-information.preferred-employment-equities')}>
+                        {loaderData.employmentEquities ?? t('app:hiring-manager-referral-requests.not-provided')}
                       </DescriptionListItem>
-                    </>
-                  )}
-
-                  <DescriptionListItem term={t('app:position-information.security-requirement')}>
-                    {loaderData.securityClearanceName ?? t('app:hiring-manager-referral-requests.not-provided')}
-                  </DescriptionListItem>
-                </DescriptionList>
+                    )}
+                  </DescriptionList>
+                )}
+              </ProfileCardContent>
+              {loaderData.status?.code === REQUEST_STATUS_CODE.DRAFT && (
+                <ProfileCardFooter>
+                  <ProfileCardEditLink
+                    isNew={loaderData.isProcessNew}
+                    file="routes/hiring-manager/request/process-information.tsx"
+                    params={params}
+                  >
+                    {t('app:hiring-manager-referral-requests.edit-process-information')}
+                  </ProfileCardEditLink>
+                </ProfileCardFooter>
               )}
             </ProfileCard>
 
-            <ProfileCard
-              title={t('app:hiring-manager-referral-requests.somc-conditions')}
-              linkLabel={t('app:hiring-manager-referral-requests.edit-somc-conditions')}
-              file="routes/hiring-manager/request/somc-conditions.tsx"
-              isComplete={loaderData.isCompleteStatementOfMeritCriteriaInformaion}
-              isNew={loaderData.isStatementOfMeritCriteriaNew}
-              params={params}
-              required
-              errorState={fetcher.data?.statementOfMeritCriteriaInfoComplete === false}
-              showStatus={loaderData.status?.code === REQUEST_STATUS_CODE.DRAFT}
-              linkType={loaderData.status?.code === REQUEST_STATUS_CODE.DRAFT ? 'edit' : 'view'}
-            >
-              {loaderData.isStatementOfMeritCriteriaNew ? (
-                <>{t('app:hiring-manager-referral-requests.somc-intro')}</>
-              ) : (
-                <p className="font-medium">
-                  {trimToUndefined(loaderData.englishStatementOfMerit) && trimToUndefined(loaderData.frenchStatementOfMerit)
-                    ? t('app:somc-conditions.english-french-provided')
-                    : t('app:hiring-manager-referral-requests.not-provided')}
-                </p>
+            <ProfileCard errorState={fetcher.data?.positionInfoComplete === false}>
+              <ProfileCardHeader
+                required
+                status={isDraft ? (loaderData.isCompletePositionInformation ? 'complete' : 'in-progress') : undefined}
+              >
+                {t('app:hiring-manager-referral-requests.position-information')}
+              </ProfileCardHeader>
+              <ProfileCardContent>
+                {loaderData.isPositionNew ? (
+                  <>{t('app:hiring-manager-referral-requests.position-intro')}</>
+                ) : (
+                  <DescriptionList>
+                    <DescriptionListItem term={t('app:position-information.position-number')}>
+                      {loaderData.positionNumber ?? t('app:hiring-manager-referral-requests.not-provided')}
+                    </DescriptionListItem>
+
+                    <DescriptionListItem term={t('app:position-information.group-and-level')}>
+                      {loaderData.classification?.code ?? t('app:hiring-manager-referral-requests.not-provided')}
+                    </DescriptionListItem>
+
+                    <DescriptionListItem term={t('app:position-information.title-en')}>
+                      {loaderData.englishTitle ?? t('app:hiring-manager-referral-requests.not-provided')}
+                    </DescriptionListItem>
+
+                    <DescriptionListItem term={t('app:position-information.title-fr')}>
+                      {loaderData.frenchTitle ?? t('app:hiring-manager-referral-requests.not-provided')}
+                    </DescriptionListItem>
+
+                    <DescriptionListItem term={t('app:position-information.locations')}>
+                      {loaderData.cities === undefined
+                        ? t('app:hiring-manager-referral-requests.not-provided')
+                        : loaderData.cities.length > 0 && (
+                            <div>
+                              {/* Group cities by province */}
+                              {Object.entries(
+                                (loaderData.cities as CityPreference[]).reduce((acc: GroupedCities, city: CityPreference) => {
+                                  const provinceName = city.province;
+                                  acc[provinceName] ??= [];
+                                  acc[provinceName].push(city.city);
+                                  return acc;
+                                }, {} as GroupedCities),
+                              ).map(([province, cities]) => (
+                                <div key={province}>
+                                  <strong>{province}:</strong> {cities.join(', ')}
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                    </DescriptionListItem>
+
+                    <DescriptionListItem term={t('app:position-information.language-profile')}>
+                      {loaderData.languageRequirementName ?? t('app:hiring-manager-referral-requests.not-provided')}
+                    </DescriptionListItem>
+
+                    {(loaderData.languageRequirement?.code === LANGUAGE_REQUIREMENT_CODES.bilingualImperative ||
+                      loaderData.languageRequirement?.code === LANGUAGE_REQUIREMENT_CODES.bilingualNonImperative) && (
+                      <>
+                        <DescriptionListItem term={t('app:position-information.english')}>
+                          {loaderData.englishLanguageProfile ?? t('app:hiring-manager-referral-requests.not-provided')}
+                        </DescriptionListItem>
+
+                        <DescriptionListItem term={t('app:position-information.french')}>
+                          {loaderData.frenchLanguageProfile ?? t('app:hiring-manager-referral-requests.not-provided')}
+                        </DescriptionListItem>
+                      </>
+                    )}
+
+                    <DescriptionListItem term={t('app:position-information.security-requirement')}>
+                      {loaderData.securityClearanceName ?? t('app:hiring-manager-referral-requests.not-provided')}
+                    </DescriptionListItem>
+                  </DescriptionList>
+                )}
+              </ProfileCardContent>
+              {loaderData.status?.code === REQUEST_STATUS_CODE.DRAFT && (
+                <ProfileCardFooter>
+                  <ProfileCardEditLink
+                    isNew={loaderData.isPositionNew}
+                    file="routes/hiring-manager/request/position-information.tsx"
+                    params={params}
+                  >
+                    {t('app:hiring-manager-referral-requests.edit-position-information')}
+                  </ProfileCardEditLink>
+                </ProfileCardFooter>
               )}
             </ProfileCard>
 
-            <ProfileCard
-              title={t('app:hiring-manager-referral-requests.submission-details')}
-              linkLabel={t('app:hiring-manager-referral-requests.edit-submission-details')}
-              file="routes/hiring-manager/request/submission-details.tsx"
-              isComplete={loaderData.isCompleteSubmissionInformation}
-              isNew={loaderData.isSubmissionNew}
-              params={params}
-              required
-              errorState={fetcher.data?.submissionInfoComplete === false}
-              showStatus={loaderData.status?.code === REQUEST_STATUS_CODE.DRAFT}
-              linkType={loaderData.status?.code === REQUEST_STATUS_CODE.DRAFT ? 'edit' : undefined}
-            >
-              {loaderData.isSubmissionNew ? (
-                <>{t('app:hiring-manager-referral-requests.submission-intro')}</>
-              ) : (
-                <DescriptionList>
-                  <DescriptionListItem term={t('app:submission-details.submiter-title')}>
-                    {loaderData.submitter ? (
-                      <>
-                        {loaderData.submitter.firstName} {loaderData.submitter.lastName}
-                        <br />
-                        {loaderData.submitter.businessEmailAddress}
-                      </>
-                    ) : (
-                      t('app:hiring-manager-referral-requests.not-provided')
-                    )}
-                  </DescriptionListItem>
+            <ProfileCard errorState={fetcher.data?.statementOfMeritCriteriaInfoComplete === false}>
+              <ProfileCardHeader
+                required
+                status={
+                  isDraft ? (loaderData.isCompleteStatementOfMeritCriteriaInformaion ? 'complete' : 'in-progress') : undefined
+                }
+              >
+                {t('app:hiring-manager-referral-requests.somc-conditions')}
+              </ProfileCardHeader>
+              <ProfileCardContent>
+                {loaderData.isStatementOfMeritCriteriaNew ? (
+                  <>{t('app:hiring-manager-referral-requests.somc-intro')}</>
+                ) : (
+                  <p className="font-medium">
+                    {trimToUndefined(loaderData.englishStatementOfMerit) && trimToUndefined(loaderData.frenchStatementOfMerit)
+                      ? t('app:somc-conditions.english-french-provided')
+                      : t('app:hiring-manager-referral-requests.not-provided')}
+                  </p>
+                )}
+              </ProfileCardContent>
+              <ProfileCardFooter>
+                {loaderData.status?.code === REQUEST_STATUS_CODE.DRAFT ? (
+                  <ProfileCardEditLink
+                    isNew={loaderData.isStatementOfMeritCriteriaNew}
+                    file="routes/hiring-manager/request/somc-conditions.tsx"
+                    params={params}
+                  >
+                    {t('app:hiring-manager-referral-requests.edit-somc-conditions')}
+                  </ProfileCardEditLink>
+                ) : (
+                  <ProfileCardViewLink file="routes/hiring-manager/request/somc-conditions.tsx" params={params}>
+                    {t('app:hiring-manager-referral-requests.edit-somc-conditions')}
+                  </ProfileCardViewLink>
+                )}
+              </ProfileCardFooter>
+            </ProfileCard>
 
-                  <DescriptionListItem term={t('app:submission-details.hiring-manager-title')}>
-                    {loaderData.hiringManager ? (
-                      <>
-                        {loaderData.hiringManager.firstName} {loaderData.hiringManager.lastName}
-                        <br />
-                        {loaderData.hiringManager.businessEmailAddress}
-                      </>
-                    ) : (
-                      t('app:hiring-manager-referral-requests.not-provided')
-                    )}
-                  </DescriptionListItem>
+            <ProfileCard errorState={fetcher.data?.submissionInfoComplete === false}>
+              <ProfileCardHeader
+                required
+                status={isDraft ? (loaderData.isCompleteSubmissionInformation ? 'complete' : 'in-progress') : undefined}
+              >
+                {t('app:hiring-manager-referral-requests.submission-details')}
+              </ProfileCardHeader>
+              <ProfileCardContent>
+                {loaderData.isSubmissionNew ? (
+                  <>{t('app:hiring-manager-referral-requests.submission-intro')}</>
+                ) : (
+                  <DescriptionList>
+                    <DescriptionListItem term={t('app:submission-details.submiter-title')}>
+                      {loaderData.submitter ? (
+                        <>
+                          {loaderData.submitter.firstName} {loaderData.submitter.lastName}
+                          <br />
+                          {loaderData.submitter.businessEmailAddress}
+                        </>
+                      ) : (
+                        t('app:hiring-manager-referral-requests.not-provided')
+                      )}
+                    </DescriptionListItem>
 
-                  <DescriptionListItem term={t('app:submission-details.sub-delegate-title')}>
-                    {loaderData.subDelegatedManager ? (
-                      <>
-                        {loaderData.subDelegatedManager.firstName} {loaderData.subDelegatedManager.lastName}
-                        <br />
-                        {loaderData.subDelegatedManager.businessEmailAddress}
-                      </>
-                    ) : (
-                      t('app:hiring-manager-referral-requests.not-provided')
-                    )}
-                  </DescriptionListItem>
+                    <DescriptionListItem term={t('app:submission-details.hiring-manager-title')}>
+                      {loaderData.hiringManager ? (
+                        <>
+                          {loaderData.hiringManager.firstName} {loaderData.hiringManager.lastName}
+                          <br />
+                          {loaderData.hiringManager.businessEmailAddress}
+                        </>
+                      ) : (
+                        t('app:hiring-manager-referral-requests.not-provided')
+                      )}
+                    </DescriptionListItem>
 
-                  <DescriptionListItem term={t('app:submission-details.branch-or-service-canada-region')}>
-                    {loaderData.branchOrServiceCanadaRegion ?? t('app:hiring-manager-referral-requests.not-provided')}
-                  </DescriptionListItem>
+                    <DescriptionListItem term={t('app:submission-details.sub-delegate-title')}>
+                      {loaderData.subDelegatedManager ? (
+                        <>
+                          {loaderData.subDelegatedManager.firstName} {loaderData.subDelegatedManager.lastName}
+                          <br />
+                          {loaderData.subDelegatedManager.businessEmailAddress}
+                        </>
+                      ) : (
+                        t('app:hiring-manager-referral-requests.not-provided')
+                      )}
+                    </DescriptionListItem>
 
-                  <DescriptionListItem term={t('app:submission-details.directorate')}>
-                    {loaderData.directorate ?? t('app:hiring-manager-referral-requests.not-provided')}
-                  </DescriptionListItem>
+                    <DescriptionListItem term={t('app:submission-details.branch-or-service-canada-region')}>
+                      {loaderData.branchOrServiceCanadaRegion ?? t('app:hiring-manager-referral-requests.not-provided')}
+                    </DescriptionListItem>
 
-                  <DescriptionListItem term={t('app:submission-details.preferred-language-of-correspondence')}>
-                    {loaderData.languageOfCorrespondence ?? t('app:hiring-manager-referral-requests.not-provided')}
-                  </DescriptionListItem>
+                    <DescriptionListItem term={t('app:submission-details.directorate')}>
+                      {loaderData.directorate ?? t('app:hiring-manager-referral-requests.not-provided')}
+                    </DescriptionListItem>
 
-                  <DescriptionListItem term={t('app:submission-details.additional-comments')}>
-                    {loaderData.additionalComment ?? t('app:hiring-manager-referral-requests.not-provided')}
-                  </DescriptionListItem>
-                </DescriptionList>
+                    <DescriptionListItem term={t('app:submission-details.preferred-language-of-correspondence')}>
+                      {loaderData.languageOfCorrespondence ?? t('app:hiring-manager-referral-requests.not-provided')}
+                    </DescriptionListItem>
+
+                    <DescriptionListItem term={t('app:submission-details.additional-comments')}>
+                      {loaderData.additionalComment ?? t('app:hiring-manager-referral-requests.not-provided')}
+                    </DescriptionListItem>
+                  </DescriptionList>
+                )}
+              </ProfileCardContent>
+              {loaderData.status?.code === REQUEST_STATUS_CODE.DRAFT && (
+                <ProfileCardFooter>
+                  <ProfileCardEditLink
+                    isNew={loaderData.isSubmissionNew}
+                    file="routes/hiring-manager/request/submission-details.tsx"
+                    params={params}
+                  >
+                    {t('app:hiring-manager-referral-requests.edit-submission-details')}
+                  </ProfileCardEditLink>
+                </ProfileCardFooter>
               )}
             </ProfileCard>
           </div>
