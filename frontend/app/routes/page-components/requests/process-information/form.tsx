@@ -197,6 +197,7 @@ export function ProcessInformationForm({
               name="approvalReceived"
               defaultChecked={formValues?.approvalReceived}
               errorMessage={tApp(extractValidationKey(formErrors?.approvalReceived))}
+              required
             >
               {tApp('process-information.approval-received')}
             </InputCheckbox>
