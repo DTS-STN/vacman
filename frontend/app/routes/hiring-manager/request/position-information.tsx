@@ -76,7 +76,10 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   }
 
   const requestPayload: RequestUpdateModel = mapRequestToUpdateModelWithOverrides(requestData, {
-    positionNumbers: parseResult.output.positionNumber,
+    positionNumbers: parseResult.output.positionNumber
+      .split(',')
+      .map((num) => num.trim())
+      .join(','),
     classificationId: Number(parseResult.output.groupAndLevel),
     englishTitle: parseResult.output.titleEn,
     frenchTitle: parseResult.output.titleFr,
@@ -127,7 +130,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   return {
     documentTitle: t('app:position-information.page-title'),
     defaultValues: {
-      positionNumber: requestData.positionNumber,
+      positionNumber: requestData.positionNumber?.split(',').join(', '),
       classification: requestData.classification,
       englishTitle: requestData.englishTitle,
       frenchTitle: requestData.frenchTitle,
