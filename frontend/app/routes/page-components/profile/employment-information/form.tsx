@@ -24,6 +24,7 @@ import { InputLegend } from '~/components/input-legend';
 import { InputSelect } from '~/components/input-select';
 import { PageTitle } from '~/components/page-title';
 import { EMPLOYEE_WFA_STATUS } from '~/domain/constants';
+import { useLanguage } from '~/hooks/use-language';
 import type { I18nRouteFile } from '~/i18n-routes';
 import type { Errors } from '~/routes/page-components/profile/validation.server';
 import { extractValidationKey } from '~/utils/validation-utils';
@@ -56,6 +57,7 @@ export function EmploymentInformationForm({
   params,
 }: EmploymentProps): JSX.Element {
   const { t } = useTranslation('app');
+  const { currentLanguage } = useLanguage();
 
   const [branch, setBranch] = useState(
     formValues?.substantiveWorkUnit ? String(formValues.substantiveWorkUnit.parent?.id) : undefined,
@@ -129,12 +131,16 @@ export function EmploymentInformationForm({
     }
   };
 
-  const hrAdvisorOptions = [{ id: 'select-option', firstName: '', lastName: '' }, ...hrAdvisors].map(
-    ({ id, firstName, lastName }) => ({
+  const hrAdvisorOptions = [{ id: 'select-option', firstName: '', lastName: '' }, ...hrAdvisors]
+    .sort((advisor1, advisor2) => {
+      const compareResult = (advisor1.firstName ?? '').localeCompare(advisor2.firstName ?? '', currentLanguage ?? 'en');
+      if (compareResult !== 0) return compareResult;
+      return (advisor1.lastName ?? '').localeCompare(advisor2.lastName ?? '', currentLanguage ?? 'en');
+    })
+    .map(({ id, firstName, lastName }) => ({
       value: id === 'select-option' ? '' : String(id),
       children: id === 'select-option' ? t('form.select-option') : `${firstName} ${lastName}`,
-    }),
-  );
+    }));
 
   return (
     <>
