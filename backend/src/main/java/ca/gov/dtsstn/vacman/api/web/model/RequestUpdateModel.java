@@ -83,9 +83,8 @@ public record RequestUpdateModel(
 	@ValidLanguageRequirementCode
 	Long languageRequirementId,
 
-	@Pattern(regexp = "^\\d{6}(,\\d{6})*$",
-		message = "Position numbers must be comma-separated six digit numbers")
 	@Size(max = 100)
+	@Pattern(regexp = "^\\d{8}(,\\d{8})*$", message = "Position numbers must be comma-separated eight digit numbers")
 	String positionNumbers,
 
 	@Size(max = 200)

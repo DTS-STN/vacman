@@ -195,7 +195,7 @@ public class RequestService {
 		requestModelMapper.updateEntityFromModel(updateModel, request);
 
 		if (StringUtils.hasText(updateModel.positionNumbers())) {
-      request.setPositionNumber(updateModel.positionNumbers());
+			request.setPositionNumber(updateModel.positionNumbers());
 		}
 
 		Optional.ofNullable(updateModel.selectionProcessTypeId())
