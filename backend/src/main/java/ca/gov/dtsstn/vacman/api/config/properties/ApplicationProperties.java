@@ -12,11 +12,13 @@ import org.springframework.validation.annotation.Validated;
 	EntraIdProperties.class,
 	GcNotifyProperties.class,
 	MSGraphProperties.class,
+	RequestMatchingProperties.class,
 	SwaggerUiProperties.class,
 })
 public record ApplicationProperties(
 	@NestedConfigurationProperty EntraIdProperties entraId,
 	@NestedConfigurationProperty GcNotifyProperties gcnotify,
+	@NestedConfigurationProperty RequestMatchingProperties matches,
 	@NestedConfigurationProperty MSGraphProperties msGraph,
 	@NestedConfigurationProperty SwaggerUiProperties swaggerUi
 ) {}
