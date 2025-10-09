@@ -423,6 +423,7 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
           requestStatus={loaderData.status}
           lang={loaderData.lang}
           view="hr-advisor"
+          file="routes/hr-advisor/request/matches.tsx"
           params={params}
         />
       )}

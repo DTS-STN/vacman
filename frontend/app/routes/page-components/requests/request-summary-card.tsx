@@ -10,6 +10,34 @@ import { InlineLink } from '~/components/links';
 import { REQUEST_STATUS_CODE } from '~/domain/constants';
 import type { I18nRouteFile } from '~/i18n-routes';
 
+interface RenderCardProps {
+  title: string;
+  details: string[];
+  linkText?: string;
+  file?: I18nRouteFile;
+  params?: Params;
+}
+
+function RenderCard({ title, details, linkText, file, params }: RenderCardProps): JSX.Element {
+  return (
+    <Card className="mt-6 rounded bg-gray-100">
+      <CardHeader>
+        <CardTitle>{title}</CardTitle>
+      </CardHeader>
+      <CardContent className="flex flex-col gap-1">
+        {details.map((detail) => (
+          <span key={detail}>{detail}</span>
+        ))}
+        {linkText && file && (
+          <InlineLink className="text-sky-800 decoration-slate-400" file={file} params={params}>
+            {linkText}
+          </InlineLink>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
 export interface RequestSummaryCardProps extends ComponentProps<'div'> {
   file?: I18nRouteFile;
   lang: 'en' | 'fr';
@@ -28,53 +56,61 @@ export function RequestSummaryCard({
   pscClearanceNumber,
   requestStatus,
   view,
-}: RequestSummaryCardProps): JSX.Element {
+}: RequestSummaryCardProps): JSX.Element | null {
   const { t } = useTranslation('app');
+  const code = requestStatus.code;
 
-  const showClearanceCard =
-    requestStatus.code === REQUEST_STATUS_CODE.PSC_GRANTED || requestStatus.code === REQUEST_STATUS_CODE.CLR_GRANTED;
+  // Named booleans for clarity
+  const showClearanceCard = code === REQUEST_STATUS_CODE.PSC_GRANTED || code === REQUEST_STATUS_CODE.CLR_GRANTED;
 
-  const showMatchesCard = requestStatus.code === REQUEST_STATUS_CODE.FDBK_PENDING && view === 'hiring-manager';
+  const showMatchesCard = code === REQUEST_STATUS_CODE.FDBK_PENDING && view === 'hiring-manager';
 
-  return (
-    <>
-      {showClearanceCard && (
-        <div>
-          <Card className="mt-6 rounded bg-gray-100">
-            <CardHeader>
-              <CardTitle>{lang === 'en' ? requestStatus.nameEn : requestStatus.nameFr}</CardTitle>
-            </CardHeader>
-            <CardContent className="flex flex-col gap-1">
-              <span>
-                {labelWithColon(t('hr-advisor-referral-requests.vms-clearance-number'), lang)} {priorityClearanceNumber}
-              </span>
-              {requestStatus.code === REQUEST_STATUS_CODE.PSC_GRANTED && (
-                <span>
-                  {labelWithColon(t('hr-advisor-referral-requests.psc-clearance-number'), lang)} {pscClearanceNumber}
-                </span>
-              )}
-              {/* TODO: display View candidates link when the matches are available and the request status id is PSC_GRANTED */}
-            </CardContent>
-          </Card>
-        </div>
-      )}
-      {showMatchesCard && (
-        <Card className="mt-6 rounded bg-gray-100">
-          <CardHeader>
-            <CardTitle>{t('hiring-manager-referral-requests.matches-available')}</CardTitle>
-          </CardHeader>
-          <CardContent className="flex flex-col gap-1">
-            <span>{t('hiring-manager-referral-requests.matches-available-detail')}</span>
-            {file && (
-              <InlineLink className="text-sky-800 decoration-slate-400" file={file} params={params}>
-                {t('hiring-manager-referral-requests.matches-available-link')}
-              </InlineLink>
-            )}
-          </CardContent>
-        </Card>
-      )}
-    </>
-  );
+  const showCandidateFeedbackSubmittedCard = code === REQUEST_STATUS_CODE.FDBK_PEND_APPR && view === 'hiring-manager';
+
+  const showFeedbackAvailableCard = code === REQUEST_STATUS_CODE.FDBK_PEND_APPR && view === 'hr-advisor';
+
+  let cardProps: RenderCardProps | null = null;
+
+  if (showClearanceCard) {
+    const title = lang === 'en' ? requestStatus.nameEn : requestStatus.nameFr;
+    const details = [
+      `${labelWithColon(t('hr-advisor-referral-requests.vms-clearance-number'), lang)} ${priorityClearanceNumber}`,
+    ];
+
+    if (code === REQUEST_STATUS_CODE.PSC_GRANTED) {
+      details.push(`${labelWithColon(t('hr-advisor-referral-requests.psc-clearance-number'), lang)} ${pscClearanceNumber}`);
+    }
+
+    // TODO: conditionally display view candidates link
+
+    cardProps = { title, details };
+  } else if (showMatchesCard) {
+    cardProps = {
+      title: t('hiring-manager-referral-requests.matches-available'),
+      details: [t('hiring-manager-referral-requests.matches-available-detail')],
+      linkText: t('hiring-manager-referral-requests.view-candidates-link'),
+      file,
+      params,
+    };
+  } else if (showCandidateFeedbackSubmittedCard) {
+    cardProps = {
+      title: t('hiring-manager-referral-requests.candidate-feedback-submitted'),
+      details: [t('hiring-manager-referral-requests.candidate-feedback-submitted-detail')],
+      linkText: t('hiring-manager-referral-requests.view-candidates-link'),
+      file,
+      params,
+    };
+  } else if (showFeedbackAvailableCard) {
+    cardProps = {
+      title: t('hr-advisor-referral-requests.feedback-available'),
+      details: [t('hr-advisor-referral-requests.feedback-available-detail')],
+      linkText: t('hr-advisor-referral-requests.view-feedback-link'),
+      file,
+      params,
+    };
+  }
+
+  return cardProps ? <RenderCard {...cardProps} /> : null;
 }
 
 function labelWithColon(label: string, lang: 'en' | 'fr') {

@@ -374,7 +374,10 @@ export default {
     'matches-available': 'Candidatures disponibles',
     'matches-available-detail':
       'Des candidatures qui correspondent à cette demande ont été trouvées. Veuillez les consulter et nous faire parvenir votre rétroaction.',
-    'matches-available-link': 'Voir les candidatures',
+    'view-candidates-link': 'Voir les candidatures',
+    'candidate-feedback-submitted': 'Rétroaction sur les candidat-e-s soumise',
+    'candidate-feedback-submitted-detail': 'Tous les commentaires des candidat-e-s concernant cette demande ont été complétés',
+    'feedback-submitted-alert-msg': "Rétroaction soumise avec succès! Un-e conseiller(ère) RH va l'examiner pour approbation",
     'delete-request': {
       'title': 'Supprimer cette demande?',
       'content': 'Cela supprimera définitivement la demande. Cette action est irréversible.',
@@ -409,6 +412,9 @@ export default {
       "Processus de repérage effectué - aucune candidature repérée. La demande est en attente d'une autorisation en matière de priorité de la CFP",
     'clearance-generated-alert-msg': 'Autorisation accordée avec succès',
     'submit': 'Soumettre',
+    'feedback-available': 'Rétroaction disponible',
+    'feedback-available-detail': 'La rétroaction en lien à cette demande est complétée et a été soumise pour révision',
+    'view-feedback-link': 'Voir la rétroaction',
     'cancel-request': {
       'title': 'Annuler cette demande?',
       'content':
@@ -423,8 +429,9 @@ export default {
       reassign: 'Réassigner à moi',
     },
     'status': {
-      'approved-assessment-feedback-pending': "En attente de retroaction d'évaluation",
+      'approved-assessment-feedback-pending': "En attente de rétroaction d'évaluation",
       'request-pending-approval': "Demande en attente d'approbation",
+      'pending-feedback-pending-approval': "Rétroaction d'évaluation en attente d'approbation",
       'vms-request-on-hold-pending-psc-clearance': "En attente de l'autorisation de la CF",
     },
     'errors': {
