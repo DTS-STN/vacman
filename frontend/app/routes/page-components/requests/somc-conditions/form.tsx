@@ -5,11 +5,11 @@ import type { Params } from 'react-router';
 
 import { useTranslation } from 'react-i18next';
 
-import { Button } from '~/components/button';
 import { ButtonLink } from '~/components/button-link';
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/card';
 import { FormErrorSummary } from '~/components/error-summary';
 import { InputTextarea } from '~/components/input-textarea';
+import { LoadingButton } from '~/components/loading-button';
 import { PageTitle } from '~/components/page-title';
 import type { I18nRouteFile } from '~/i18n-routes';
 import type { Errors } from '~/routes/page-components/requests/validation.server';
@@ -72,9 +72,9 @@ export function SomcConditionsForm({
                 <ButtonLink file={cancelLink} params={params} id="cancel-button" variant="alternative">
                   {t('form.cancel')}
                 </ButtonLink>
-                <Button name="action" variant="primary" id="save-button">
+                <LoadingButton name="action" variant="primary" id="save-button">
                   {t('form.save')}
-                </Button>
+                </LoadingButton>
               </div>
             </div>
           </Form>
