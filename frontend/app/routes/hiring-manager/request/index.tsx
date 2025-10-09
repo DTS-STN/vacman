@@ -703,7 +703,9 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
                 ) : (
                   <DescriptionList>
                     <DescriptionListItem term={t('app:position-information.position-number')}>
-                      {loaderData.positionNumber ?? t('app:hiring-manager-referral-requests.not-provided')}
+                      {loaderData.positionNumber
+                        ? loaderData.positionNumber.split(',').join(', ')
+                        : t('app:hiring-manager-referral-requests.not-provided')}
                     </DescriptionListItem>
 
                     <DescriptionListItem term={t('app:position-information.group-and-level')}>

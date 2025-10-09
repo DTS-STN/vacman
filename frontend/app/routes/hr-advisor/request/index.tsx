@@ -530,7 +530,9 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
             <ProfileCardContent>
               <DescriptionList>
                 <DescriptionListItem term={t('app:position-information.position-number')}>
-                  {loaderData.positionNumber ?? t('app:hr-advisor-referral-requests.not-provided')}
+                  {loaderData.positionNumber
+                    ? loaderData.positionNumber.split(',').join(', ')
+                    : t('app:hr-advisor-referral-requests.not-provided')}
                 </DescriptionListItem>
 
                 <DescriptionListItem term={t('app:position-information.group-and-level')}>
