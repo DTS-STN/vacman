@@ -182,7 +182,7 @@ class RequestsControllerTest {
 				.hrAdvisorId(hrAdvisor.getId())
 				.languageOfCorrespondenceId(1L)
 				.languageRequirementId(1L)
-				.positionNumbers("123456,789012")
+				.positionNumbers("12345678,90123456")
 				.projectedEndDate(LocalDate.now().plusDays(400))
 				.projectedStartDate(LocalDate.now().plusDays(45))
 				.submitterId(submitter.getId())
@@ -199,7 +199,7 @@ class RequestsControllerTest {
 				.andExpect(jsonPath("$.frenchTitle", is("Développeur logiciel senior")))
 				.andExpect(jsonPath("$.id", is(request.getId().intValue())))
 				.andExpect(jsonPath("$.lastModifiedDate", notNullValue()))
-				.andExpect(jsonPath("$.positionNumber", is("123456,789012")))
+				.andExpect(jsonPath("$.positionNumber", is("12345678,90123456")))
 				.andExpect(jsonPath("$.teleworkAllowed", is(true)));
 
 			// Verify database was updated - entity uses nameEn/nameFr
@@ -579,7 +579,7 @@ class RequestsControllerTest {
 				.hrAdvisorId(hrAdvisor.getId())
 				.languageOfCorrespondenceId(1L)
 				.languageRequirementId(1L)
-				.positionNumbers("123456,234567,345678")
+				.positionNumbers("12345678,23456789,34567890")
 				.priorityClearanceNumber("PRI-2024-001")
 				.priorityEntitlement(true)
 				.priorityEntitlementRationale("Priority clearance required")
@@ -608,7 +608,7 @@ class RequestsControllerTest {
 				.andExpect(jsonPath("$.equityNeeded", is(true)))
 				.andExpect(jsonPath("$.frenchLanguageProfile", is("BBB")))
 				.andExpect(jsonPath("$.id", is(request.getId().intValue())))
-				.andExpect(jsonPath("$.positionNumber", is("123456,234567,345678")))
+				.andExpect(jsonPath("$.positionNumber", is("12345678,23456789,34567890")))
 				.andExpect(jsonPath("$.priorityEntitlement", is(true)))
 				.andExpect(jsonPath("$.selectionProcessNumber", is("SP-2024-001")))
 				.andExpect(jsonPath("$.teleworkAllowed", is(true)));
