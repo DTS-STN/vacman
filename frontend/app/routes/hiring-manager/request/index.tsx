@@ -38,6 +38,7 @@ import {
 } from '~/components/profile-card';
 import { Progress } from '~/components/progress';
 import { RequestStatusTag } from '~/components/status-tag';
+import { VacmanBackground } from '~/components/vacman-background';
 import {
   EMPLOYMENT_TENURE,
   LANGUAGE_REQUIREMENT_CODES,
@@ -52,7 +53,6 @@ import { handle as parentHandle } from '~/routes/layout';
 import { RequestSummaryCard } from '~/routes/page-components/requests/request-summary-card';
 import { formatISODate } from '~/utils/date-utils';
 import { trimToUndefined } from '~/utils/string-utils';
-import { cn } from '~/utils/tailwind-utils';
 
 export const handle = {
   i18nNamespace: [...parentHandle.i18nNamespace],
@@ -447,7 +447,7 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
 
   return (
     <div className="space-y-8">
-      <div className="space-y-4 py-8 text-white">
+      <VacmanBackground variant="bottom-right">
         {loaderData.status && (
           <RequestStatusTag status={loaderData.status} lang={loaderData.lang} rounded view="hiring-manager" />
         )}
@@ -507,20 +507,11 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
             </DescriptionList>
           </div>
         )}
-
-        <div
-          role="presentation"
-          className={cn(
-            loaderData.status?.code !== REQUEST_STATUS_CODE.DRAFT ? 'h-70' : 'h-50',
-            "absolute top-25 left-0 -z-10 w-full scale-x-[-1] bg-[rgba(9,28,45,1)] bg-[url('/VacMan-design-element-06.svg')] bg-size-[450px] bg-left-bottom bg-no-repeat",
-          )}
-        />
-      </div>
+      </VacmanBackground>
 
       <BackLink
         id="back-to-requests"
         aria-label={t('app:hiring-manager-referral-requests.back')}
-        className="mt-10"
         file="routes/hiring-manager/requests.tsx"
         disabled={isSubmitting}
       >

@@ -33,6 +33,7 @@ import {
 } from '~/components/profile-card';
 import { Progress } from '~/components/progress';
 import { ProfileStatusTag } from '~/components/status-tag';
+import { VacmanBackground } from '~/components/vacman-background';
 import { EMPLOYEE_WFA_STATUS, PROFILE_STATUS } from '~/domain/constants';
 import { useFetcherState } from '~/hooks/use-fetcher-state';
 import { getTranslation } from '~/i18n-config.server';
@@ -359,27 +360,21 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
 
   return (
     <div className="space-y-8">
-      <div className="absolute left-0 w-full space-y-4 bg-[rgba(9,28,45,1)] py-8 wrap-break-word text-white">
-        <div className="container">
-          {loaderData.profileStatus && (
-            <ProfileStatusTag status={loaderData.profileStatus} lang={loaderData.lang} rounded view="employee" />
-          )}
-          <PageTitle className="after:w-14" containerClassName="my-6">
-            {loaderData.name}
-          </PageTitle>
-          {loaderData.email && <p className="mt-1">{loaderData.email}</p>}
-          <p className="font-normal text-[#9FA3AD]">
-            {t('app:profile.last-updated', { date: browserTZ, name: loaderData.lastUpdatedBy })}
-          </p>
-        </div>
-        <div
-          role="presentation"
-          className="absolute bottom-0 left-0 h-40 w-full scale-x-[-1] bg-[url('/VacMan-design-element-06.svg')] bg-size-[30rem] bg-left-bottom bg-no-repeat"
-        />
-      </div>
-      <div className="mt-110 justify-between sm:mt-70 md:grid md:grid-cols-2">
+      <VacmanBackground variant="bottom-right">
+        {loaderData.profileStatus && (
+          <ProfileStatusTag status={loaderData.profileStatus} lang={loaderData.lang} rounded view="employee" />
+        )}
+        <PageTitle className="after:w-14" containerClassName="my-6">
+          {loaderData.name}
+        </PageTitle>
+        {loaderData.email && <p className="mt-1">{loaderData.email}</p>}
+        <p className="font-normal text-[#9FA3AD]">
+          {t('app:profile.last-updated', { date: browserTZ, name: loaderData.lastUpdatedBy })}
+        </p>
+      </VacmanBackground>
+      <div className="justify-between md:grid md:grid-cols-2">
         <div className="max-w-prose">
-          <p className="mt-12">
+          <p className="mt-5">
             {loaderData.profileStatus?.code === PROFILE_STATUS.PENDING.code
               ? t('app:profile.about-para-1-pending')
               : t('app:profile.about-para-1')}
