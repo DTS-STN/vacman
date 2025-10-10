@@ -18,6 +18,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.web.client.RestTemplate;
 
+import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes;
 import ca.gov.dtsstn.vacman.api.config.properties.ApplicationProperties;
 import ca.gov.dtsstn.vacman.api.config.properties.GcNotifyProperties;
 import ca.gov.dtsstn.vacman.api.service.NotificationService.ProfileStatus;
@@ -34,6 +35,9 @@ class NotificationServiceTest {
 
 	@Mock
 	RestTemplate restTemplate;
+
+	@Mock
+	LookupCodes lookupCodes;
 
 	NotificationService notificationService;
 
@@ -52,13 +56,18 @@ class NotificationServiceTest {
 		when(restTemplateBuilder.readTimeout(any())).thenReturn(restTemplateBuilder);
 		when(restTemplateBuilder.build()).thenReturn(restTemplate);
 
-		this.notificationService = new NotificationService(applicationProperties, restTemplateBuilder);
+		final var languages = mock(LookupCodes.Languages.class);
+		when(lookupCodes.languages()).thenReturn(languages);
+		when(languages.english()).thenReturn("en");
+		//when(languages.french()).thenReturn("fr"); //this line makes the tests fails
+
+		this.notificationService = new NotificationService(applicationProperties, restTemplateBuilder, lookupCodes);
 	}
 
 	@Test
-	@DisplayName("Test send Profile approved email")
-	void getemailProfileApprovedSuccess() {
-		when(applicationProperties.gcnotify().profileApprovedTemplateId())
+	@DisplayName("Test send Profile approved email English")
+	void getemailProfileApprovedEnglishSuccess() {
+		when(applicationProperties.gcnotify().profileApprovedTemplateIdEng())
 			.thenReturn("00000000-0000-0000-0000-000000000000");
 
 		when(restTemplate.postForObject(eq("/email"), any(Map.class), eq(NotificationReceipt.class)))
@@ -68,15 +77,16 @@ class NotificationServiceTest {
 			"test@example.com",
 			"00000000-0000-0000-0000-000000000000",
 			"Ana de Armas",
+			lookupCodes.languages().english(),
 			ProfileStatus.APPROVED);
 
-		assertThat(result).isNotNull(); // TODO ::: GjB ::: improve assertion
+		assertThat(result).isNotNull();
 	}
 
 	@Test
-	@DisplayName("Test send Profile created email")
-	void getemailProfileCreatedSuccess() {
-		when(applicationProperties.gcnotify().profileCreatedTemplateId())
+	@DisplayName("Test send Profile approved email French")
+	void getemailProfileApprovedFrenchSuccess() {
+		when(applicationProperties.gcnotify().profileApprovedTemplateIdFra())
 			.thenReturn("00000000-0000-0000-0000-000000000000");
 
 		when(restTemplate.postForObject(eq("/email"), any(Map.class), eq(NotificationReceipt.class)))
@@ -86,15 +96,35 @@ class NotificationServiceTest {
 			"test@example.com",
 			"00000000-0000-0000-0000-000000000000",
 			"Ana de Armas",
+			lookupCodes.languages().french(),
+			ProfileStatus.APPROVED);
+
+		assertThat(result).isNotNull();
+	}
+
+	@Test
+	@DisplayName("Test send Profile created email English")
+	void getemailProfileCreatedEnglishSuccess() {
+		when(applicationProperties.gcnotify().profileCreatedTemplateIdEng())
+			.thenReturn("00000000-0000-0000-0000-000000000000");
+
+		when(restTemplate.postForObject(eq("/email"), any(Map.class), eq(NotificationReceipt.class)))
+			.thenReturn(ImmutableNotificationReceipt.builder().build());
+
+		final var result = notificationService.sendEmailNotification(
+			"test@example.com",
+			"00000000-0000-0000-0000-000000000000",
+			"Ana de Armas",
+			lookupCodes.languages().english(),
 			ProfileStatus.CREATED);
 
-		assertThat(result).isNotNull(); // TODO ::: GjB ::: improve assertion
+		assertThat(result).isNotNull();
 	}
 
 	@Test
-	@DisplayName("Test send Profile updated email")
-	void getemailProfileUpdatedSuccess() {
-		when(applicationProperties.gcnotify().profileUpdatedTemplateId())
+	@DisplayName("Test send Profile created email French")
+	void getemailProfileCreatedFrenchSuccess() {
+		when(applicationProperties.gcnotify().profileCreatedTemplateIdFra())
 			.thenReturn("00000000-0000-0000-0000-000000000000");
 
 		when(restTemplate.postForObject(eq("/email"), any(Map.class), eq(NotificationReceipt.class)))
@@ -104,9 +134,49 @@ class NotificationServiceTest {
 			"test@example.com",
 			"00000000-0000-0000-0000-000000000000",
 			"Ana de Armas",
+			lookupCodes.languages().french(),
+			ProfileStatus.CREATED);
+
+		assertThat(result).isNotNull();
+	}
+
+
+	@Test
+	@DisplayName("Test send Profile updated email English")
+	void getemailProfileUpdatedEnglishSuccess() {
+		when(applicationProperties.gcnotify().profileUpdatedTemplateIdEng())
+			.thenReturn("00000000-0000-0000-0000-000000000000");
+
+		when(restTemplate.postForObject(eq("/email"), any(Map.class), eq(NotificationReceipt.class)))
+			.thenReturn(ImmutableNotificationReceipt.builder().build());
+
+		final var result = notificationService.sendEmailNotification(
+			"test@example.com",
+			"00000000-0000-0000-0000-000000000000",
+			"Ana de Armas",
+			lookupCodes.languages().english(),
 			ProfileStatus.UPDATED);
 
-		assertThat(result).isNotNull(); // TODO ::: GjB ::: improve assertion
+		assertThat(result).isNotNull();
+	}
+
+	@Test
+	@DisplayName("Test send Profile updated email French")
+	void getemailProfileUpdatedFrenchSuccess() {
+		when(applicationProperties.gcnotify().profileUpdatedTemplateIdFra())
+			.thenReturn("00000000-0000-0000-0000-000000000000");
+
+		when(restTemplate.postForObject(eq("/email"), any(Map.class), eq(NotificationReceipt.class)))
+			.thenReturn(ImmutableNotificationReceipt.builder().build());
+
+		final var result = notificationService.sendEmailNotification(
+			"test@example.com",
+			"00000000-0000-0000-0000-000000000000",
+			"Ana de Armas",
+			lookupCodes.languages().french(),
+			ProfileStatus.UPDATED);
+
+		assertThat(result).isNotNull();
 	}
 
 	@Test
@@ -122,9 +192,10 @@ class NotificationServiceTest {
 			"hradvisor@example.com",
 			"00000000-0000-0000-0000-000000000000",
 			"Ana de Armas",
+			lookupCodes.languages().english(),
 			ProfileStatus.PENDING);
 
-		assertThat(result).isNotNull(); // TODO ::: GjB ::: improve assertion
+		assertThat(result).isNotNull();
 	}
 
 }
