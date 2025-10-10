@@ -18,18 +18,19 @@ import ca.gov.dtsstn.vacman.api.web.model.RequestUpdateModel.EmploymentEquityId;
 		UserModelMapper.class }, unmappedTargetPolicy = ReportingPolicy.ERROR, collectionMappingStrategy = CollectionMappingStrategy.ADDER_PREFERRED)
 public interface RequestModelMapper {
 
-	@Mapping(target = "englishLanguageProfile", source = "languageProfileEn")
-	@Mapping(target = "englishStatementOfMerit", source = "somcAndConditionEmploymentEn")
-	@Mapping(target = "englishTitle", source = "nameEn")
-	@Mapping(target = "equityNeeded", source = "employmentEquityNeedIdentifiedIndicator")
-	@Mapping(target = "frenchLanguageProfile", source = "languageProfileFr")
-	@Mapping(target = "frenchStatementOfMerit", source = "somcAndConditionEmploymentFr")
-	@Mapping(target = "frenchTitle", source = "nameFr")
-	@Mapping(target = "languageOfCorrespondence", source = "language")
-	@Mapping(target = "projectedEndDate", source = "endDate")
-	@Mapping(target = "projectedStartDate", source = "startDate")
-	@Mapping(target = "status", source = "requestStatus")
-	RequestReadModel toModel(RequestEntity entity);
+	@Mapping(target = "englishLanguageProfile", source = "entity.languageProfileEn")
+	@Mapping(target = "englishStatementOfMerit", source = "entity.somcAndConditionEmploymentEn")
+	@Mapping(target = "englishTitle", source = "entity.nameEn")
+	@Mapping(target = "equityNeeded", source = "entity.employmentEquityNeedIdentifiedIndicator")
+	@Mapping(target = "frenchLanguageProfile", source = "entity.languageProfileFr")
+	@Mapping(target = "frenchStatementOfMerit", source = "entity.somcAndConditionEmploymentFr")
+	@Mapping(target = "frenchTitle", source = "entity.nameFr")
+	@Mapping(target = "languageOfCorrespondence", source = "entity.language")
+	@Mapping(target = "projectedEndDate", source = "entity.endDate")
+	@Mapping(target = "projectedStartDate", source = "entity.startDate")
+	@Mapping(target = "status", source = "entity.requestStatus")
+	@Mapping(target = "hasMatches", source = "hasMatches")
+	RequestReadModel toModel(RequestEntity entity, Boolean hasMatches);
 
 	@Mapping(target = "selectionProcessNumber", source = "selectionProcessNumber")
 	@Mapping(target = "workforceMgmtApprovalRecvd", source = "workforceMgmtApprovalRecvd")

@@ -53,6 +53,9 @@ public record RequestReadModel(
 	@Schema(description = "French title of this request.", example = "Ingénieur informatique")
 	String frenchTitle,
 
+	@Schema(description = "Whether or not this hiring request have employee profile matches.")
+	Boolean hasMatches,
+
 	@Schema(description = "Has the person proposed previously performed the same duties in the last twelve months or is this person still currently performing them in any capacity?")
 	Boolean hasPerformedSameDuties,
 
