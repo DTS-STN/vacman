@@ -6,12 +6,12 @@ import { Form } from 'react-router';
 import { Trans, useTranslation } from 'react-i18next';
 
 import type { LanguageOfCorrespondence, LocalizedLanguageOfCorrespondence } from '~/.server/domain/models';
-import { Button } from '~/components/button';
 import { ButtonLink } from '~/components/button-link';
 import { FormErrorSummary } from '~/components/error-summary';
 import { InputField } from '~/components/input-field';
 import { InputPhoneField } from '~/components/input-phone-field';
 import { InputRadios } from '~/components/input-radios';
+import { LoadingButton } from '~/components/loading-button';
 import { PageTitle } from '~/components/page-title';
 import type { I18nRouteFile } from '~/i18n-routes';
 import type { Errors } from '~/routes/page-components/profile/validation.server';
@@ -140,9 +140,9 @@ export function PersonalInformationForm({
               <ButtonLink file={cancelLink} params={params} id="cancel-button" variant="alternative">
                 {t('form.cancel')}
               </ButtonLink>
-              <Button name="action" variant="primary" id="save-button">
+              <LoadingButton name="action" variant="primary" id="save-button">
                 {t('form.save')}
-              </Button>
+              </LoadingButton>
             </div>
           </div>
         </Form>

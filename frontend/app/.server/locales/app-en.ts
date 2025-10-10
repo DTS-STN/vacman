@@ -216,7 +216,7 @@ export default {
     'page-title': 'Process information',
     'selection-process-number': 'Selection process number (if applicable)',
     'approval-received':
-      'Appropriate level of approval received according to the Workforce Management Committee (WMC) and/or the People Management and Leadership Committee (PMLC) parameters',
+      'Approval received from the Workforce Management Committee (Non-EX positions) or the People Management Leadership Committee (EX positions) (required)',
     'priority-entitlement':
       'Would the appointment of a priority person result in a priority entitlement for another indeterminate employee?',
     'priority-entitlement-rationale': 'Please provide the rationale',
@@ -238,7 +238,7 @@ export default {
     'yes': 'Yes',
     'no': 'No',
     'errors': {
-      'selection-process-number-required': 'Selection process number is required',
+      'selection-process-number-invalid': 'Selection process number is invalid',
       'approval-received-required': 'Approval received is required',
       'performed-duties-required': 'Performed duties is required',
       'priority-entitlement-rationale-required': 'Priority entitlement rationale is required',
@@ -258,6 +258,7 @@ export default {
       'projected-end-date': {
         'invalid': 'Projected end date is invalid',
         'invalid-before-start-date': 'Projected end date must be after the start date',
+        'invalid-future': 'Projected end date must be after today',
         'required-year': 'Year of Projected end date is required',
         'invalid-year': 'Year of Projected end date is invalid',
         'required-month': 'Month of Projected end date is required',
@@ -365,12 +366,18 @@ export default {
     'notice-line-7': "Consult the Manager's Guide on Priority Clearances for more information.",
     'request-incomplete': 'Please complete all required fields before submitting request',
     'request-submitted': 'Request submitted successfully! An HR advisor will review it for approval',
+    'matches-available': 'Matches available',
+    'matches-available-detail': 'Candidates for this request have been found. Review them and submit your feedback.',
+    'view-candidates-link': 'View candidates',
+    'candidate-feedback-submitted': 'Candidate feedback submitted',
+    'candidate-feedback-submitted-detail': 'All candidate feedback for this request has been completed.',
+    'feedback-submitted-alert-msg': 'Feedback submitted successfully! An HR advisor will review it for approval',
     'delete-request': {
       'title': 'Delete this request?',
       'content': 'This will permanently delete this request. This action cannot be undone.',
       'keep': 'Keep request',
       'delete': 'Delete request',
-      'not-allowed': 'Submitted requests can’t be deleted. Only drafts may be removed.',
+      'not-allowed': "Submitted requests can't be deleted. Only drafts may be removed.",
       'error-generic': 'Something went wrong while deleting the request. Try again later.',
     },
     'back': 'Back to requests',
@@ -392,7 +399,15 @@ export default {
     'submission-details': 'Submission details',
     'not-provided': 'Not provided',
     'psc-clearance-number': 'PSC clearance number',
+    'vms-clearance-number': 'VMS clearance number',
+    'psc-clearance-received': 'PSC clearance marked as received',
+    'pending-psc-clearance-alert-msg': 'Request is now pending PSC clearance.',
+    'no-match-found-alert-msg': 'Matching process ran - no match found. Request is now pending PSC clearance.',
+    'clearance-generated-alert-msg': 'Clearance generated successfully!',
     'submit': 'Submit',
+    'feedback-available': 'Feedback available',
+    'feedback-available-detail': 'All candidate feedback for this request has been completed and submitted for your review.',
+    'view-feedback-link': 'View feedback',
     'cancel-request': {
       'title': 'Cancel this request?',
       'content':
@@ -403,11 +418,18 @@ export default {
     're-assign-request': {
       title: 'Re-assign request?',
       content:
-        "This request is currently assigned to [current HR advisor's name]. Are you sure you want to re-assign it to yourself?",
-      reassign: 'Re-assgin to me',
+        'This request is currently assigned to {{current-hr-advisor-name}}. Are you sure you want to re-assign it to yourself?',
+      reassign: 'Re-assign to me',
     },
     'status': {
+      'approved-assessment-feedback-pending': 'Assessment feedback pending',
       'request-pending-approval': 'Request pending approval',
+      'pending-feedback-pending-approval': 'Feedback Pending Approval',
+      'vms-request-on-hold-pending-psc-clearance': 'Pending PSC Clearance',
+    },
+    'errors': {
+      'psc-clearance-number-required': 'PSC clearance number is required',
+      'psc-clearance-number-invalid': 'PSC clearance number is invalid',
     },
   },
   'referral-request': 'Referral request',
@@ -432,7 +454,7 @@ export default {
     'security-requirement': 'Security requirement',
     'errors': {
       'position-number-required': 'Position number is required.',
-      'position-number-max-length': 'Each position number must be 6 characters.',
+      'position-number-max-length': 'Each position number must be 8 characters.',
       'group-and-level-required': 'Group and level is required.',
       'title-en-required': 'Title in English is required.',
       'title-fr-required': 'Title in French is required.',
@@ -531,6 +553,12 @@ export default {
     'copy': 'Copy',
     'copy-link': 'Copy request with ID {{requestId}}',
     'next-page': 'Next',
+    'my-requests': 'My requests',
+    'all-requests': 'All requests',
+    'table-updated': {
+      'my-requests': 'Table updated: showing My requests',
+      'all-requests': 'Table updated: showing All requests',
+    },
   },
   'matches': {
     'page-title': 'Request candidates',

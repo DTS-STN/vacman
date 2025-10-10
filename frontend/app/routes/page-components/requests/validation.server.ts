@@ -9,10 +9,11 @@ import { getNonAdvertisedAppointmentService } from '~/.server/domain/services/no
 import { getProvinceService } from '~/.server/domain/services/province-service';
 import { getSelectionProcessTypeService } from '~/.server/domain/services/selection-process-type-service';
 import { getWorkUnitService } from '~/.server/domain/services/workunit-service';
+import { serverEnvironment } from '~/.server/environment';
 import { extractUniqueBranchesFromDirectoratesNonLocalized } from '~/.server/utils/directorate-utils';
 import { stringToIntegerSchema } from '~/.server/validation/string-to-integer-schema';
 import { EMPLOYMENT_TENURE, LANGUAGE_REQUIREMENT_CODES, REQUIRE_OPTIONS, SELECTION_PROCESS_TYPE } from '~/domain/constants';
-import { formatISODate, isValidDateString } from '~/utils/date-utils';
+import { formatISODate, isPastOrTodayInTimeZone, isValidDateString } from '~/utils/date-utils';
 import { formString } from '~/utils/string-utils';
 
 export type PositionInformationSchema = Awaited<ReturnType<typeof createPositionInformationSchema>>;
@@ -55,7 +56,7 @@ export async function createPositionInformationSchema() {
           v.custom((input) => {
             const value = input as string;
             const numbers = value.split(',').map((n) => n.trim());
-            return numbers.every((n) => n.length === 6); // TODO: Need to confirm validation
+            return numbers.every((n) => n.length === 8);
           }, 'app:position-information.errors.position-number-max-length'),
         ),
         groupAndLevel: v.pipe(
@@ -334,10 +335,12 @@ export async function createProcessInformationSchema() {
   return v.pipe(
     v.intersect([
       v.object({
-        selectionProcessNumber: v.pipe(
-          v.string('app:process-information.errors.selection-process-number-required'),
-          v.trim(),
-          v.nonEmpty('app:process-information.errors.selection-process-number-required'),
+        selectionProcessNumber: v.optional(
+          v.pipe(
+            v.string('app:process-information.errors.selection-process-number-invalid'),
+            v.trim(),
+            v.nonEmpty('app:process-information.errors.selection-process-number-invalid'),
+          ),
         ),
         approvalReceived: v.pipe(v.boolean('app:process-information.errors.approval-received-required')),
         workSchedule: v.pipe(
@@ -465,6 +468,10 @@ export async function createProcessInformationSchema() {
               v.custom(
                 (input) => isValidDateString(input as string),
                 'app:process-information.errors.projected-end-date.invalid',
+              ),
+              v.custom(
+                (input) => !isPastOrTodayInTimeZone(serverEnvironment.BASE_TIMEZONE, input as string),
+                'app:process-information.errors.projected-end-date.invalid-future',
               ),
             ),
           }),

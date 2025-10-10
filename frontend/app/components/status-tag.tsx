@@ -78,12 +78,20 @@ export function RequestStatusTag({ status, lang, rounded = false, view }: Reques
         }),
   };
   const style = styleMap[status.code] ?? styleMap.Default;
-  const displayName =
-    status.code === 'SUBMIT' && view === 'hr-advisor'
-      ? t('hr-advisor-referral-requests.status.request-pending-approval')
-      : lang === 'en'
-        ? status.nameEn
-        : status.nameFr;
+
+  let displayName: string;
+
+  if (status.code === 'PENDING_PSC') {
+    displayName = t('hr-advisor-referral-requests.status.vms-request-on-hold-pending-psc-clearance');
+  } else if (status.code === 'FDBK_PENDING') {
+    displayName = t('hr-advisor-referral-requests.status.approved-assessment-feedback-pending');
+  } else if (status.code === 'FDBK_PEND_APPR') {
+    displayName = t('hr-advisor-referral-requests.status.pending-feedback-pending-approval');
+  } else if (status.code === 'SUBMIT' && view === 'hr-advisor') {
+    displayName = t('hr-advisor-referral-requests.status.request-pending-approval');
+  } else {
+    displayName = lang === 'en' ? status.nameEn : status.nameFr;
+  }
 
   const baseClasses = 'flex w-fit items-center gap-2 text-sm font-semibold';
   const defaultRoundedClasses = 'rounded-md px-3 py-1';

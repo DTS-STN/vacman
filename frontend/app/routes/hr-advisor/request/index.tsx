@@ -1,16 +1,20 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { JSX } from 'react';
 
 import type { RouteHandle } from 'react-router';
-import { useFetcher } from 'react-router';
+import { data, useFetcher } from 'react-router';
 
 import { useTranslation } from 'react-i18next';
+import * as v from 'valibot';
 
 import type { Route } from './+types/index';
 
+import type { RequestUpdateModel } from '~/.server/domain/models';
 import { getRequestService } from '~/.server/domain/services/request-service';
 import { getUserService } from '~/.server/domain/services/user-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
+import { mapRequestToUpdateModelWithOverrides } from '~/.server/utils/request-utils';
+import { AlertMessage } from '~/components/alert-message';
 import { BackLink } from '~/components/back-link';
 import { Button } from '~/components/button';
 import { ButtonLink } from '~/components/button-link';
@@ -24,11 +28,20 @@ import {
   DialogHeader,
   DialogTitle,
 } from '~/components/dialog';
+import { ActionDataErrorSummary } from '~/components/error-summary';
 import { InputField } from '~/components/input-field';
 import { LoadingButton } from '~/components/loading-button';
 import { PageTitle } from '~/components/page-title';
-import { ProfileCard } from '~/components/profile-card';
+import {
+  ProfileCard,
+  ProfileCardContent,
+  ProfileCardEditLink,
+  ProfileCardFooter,
+  ProfileCardHeader,
+  ProfileCardViewLink,
+} from '~/components/profile-card';
 import { RequestStatusTag } from '~/components/status-tag';
+import type { RequestEventType } from '~/domain/constants';
 import {
   EMPLOYMENT_TENURE,
   REQUEST_CATEGORY,
@@ -41,7 +54,12 @@ import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { useFetcherState } from '~/hooks/use-fetcher-state';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
+import { RequestSummaryCard } from '~/routes/page-components/requests/request-summary-card';
+import type { Errors } from '~/routes/page-components/requests/validation.server';
 import { formatISODate } from '~/utils/date-utils';
+import { REGEX_PATTERNS } from '~/utils/regex-utils';
+import { formString } from '~/utils/string-utils';
+import { extractValidationKey } from '~/utils/validation-utils';
 
 export const handle = {
   i18nNamespace: [...parentHandle.i18nNamespace],
@@ -83,6 +101,8 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     workforceMgmtApprovalRecvd: currentRequest.workforceMgmtApprovalRecvd,
     priorityEntitlement: currentRequest.priorityEntitlement,
     priorityEntitlementRationale: currentRequest.priorityEntitlementRationale,
+    pscClearanceNumber: currentRequest.pscClearanceNumber,
+    priorityClearanceNumber: currentRequest.priorityClearanceNumber,
     selectionProcessType:
       lang === 'en' ? currentRequest.selectionProcessType?.nameEn : currentRequest.selectionProcessType?.nameEn,
     selectionProcessTypeCode: currentRequest.selectionProcessType?.code,
@@ -136,27 +156,12 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     throw new Response('Request not found', { status: HttpStatusCodes.NOT_FOUND });
   }
 
-  const formData = await request.formData();
-  const formAction = formData.get('action');
-
-  if (formAction === 'cancel-request') {
-    const cancelRequest = await getRequestService().cancelRequestById(requestData.id, session.authState.accessToken);
-
-    if (cancelRequest.isErr()) {
-      const error = cancelRequest.unwrapErr();
-      return {
-        status: 'error',
-        errorMessage: error.message,
-        errorCode: error.errorCode,
-      };
-    }
-  }
-
-  if (formAction === 'pickup-request') {
+  // Helper function to update request status with common error handling
+  async function updateRequestStatus(eventType: string, requestId: number, accessToken: string) {
     const submitResult = await getRequestService().updateRequestStatus(
-      requestData.id,
-      { eventType: REQUEST_EVENT_TYPE.pickedUp },
-      session.authState.accessToken,
+      requestId,
+      { eventType: eventType as RequestEventType },
+      accessToken,
     );
 
     if (submitResult.isErr()) {
@@ -176,15 +181,115 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     };
   }
 
+  const formData = await request.formData();
+
+  switch (formData.get('action')) {
+    case 'cancel-request': {
+      const cancelRequest = await getRequestService().cancelRequestById(requestData.id, session.authState.accessToken);
+
+      if (cancelRequest.isErr()) {
+        const error = cancelRequest.unwrapErr();
+        return {
+          status: 'error',
+          errorMessage: error.message,
+          errorCode: error.errorCode,
+        };
+      }
+      break;
+    }
+
+    case 'pickup-request':
+    case 're-assign-request': {
+      return await updateRequestStatus(REQUEST_EVENT_TYPE.pickedUp, requestData.id, session.authState.accessToken);
+    }
+
+    case 'vms-not-required': {
+      return await updateRequestStatus(REQUEST_EVENT_TYPE.vmsNotRequired, requestData.id, session.authState.accessToken);
+    }
+
+    case 'psc-clearance-required': {
+      return await updateRequestStatus(REQUEST_EVENT_TYPE.pscRequired, requestData.id, session.authState.accessToken);
+    }
+
+    case 'psc-clearance-not-required': {
+      return await updateRequestStatus(REQUEST_EVENT_TYPE.pscNotRequired, requestData.id, session.authState.accessToken);
+    }
+
+    case 'run-matches': {
+      const submitResult = await getRequestService().runMatches(requestData.id, session.authState.accessToken);
+
+      if (submitResult.isErr()) {
+        const error = submitResult.unwrapErr();
+        return {
+          status: 'error',
+          errorMessage: error.message,
+          errorCode: error.errorCode,
+        };
+      }
+
+      const updatedRequest = submitResult.unwrap();
+
+      return {
+        status: 'submitted',
+        requestStatus: updatedRequest.status,
+      };
+    }
+
+    case 'psc-clearance-received': {
+      const parseResult = v.safeParse(
+        v.object({
+          pscClearanceNumber: v.pipe(
+            v.string('app:hr-advisor-referral-requests.errors.psc-clearance-number-required'),
+            v.trim(),
+            v.nonEmpty('app:hr-advisor-referral-requests.errors.psc-clearance-number-required'),
+            v.length(11, 'app:hr-advisor-referral-requests.errors.psc-clearance-number-invalid'),
+            v.regex(REGEX_PATTERNS.DIGIT_ONLY, 'app:hr-advisor-referral-requests.errors.psc-clearance-number-invalid'),
+          ),
+        }),
+        {
+          pscClearanceNumber: formString(formData.get('pscClearanceNumber')),
+        },
+      );
+
+      if (!parseResult.success) {
+        return data({ errors: v.flatten(parseResult.issues).nested }, { status: HttpStatusCodes.BAD_REQUEST });
+      }
+
+      const requestPayload: RequestUpdateModel = mapRequestToUpdateModelWithOverrides(requestData, {
+        pscClearanceNumber: parseResult.output.pscClearanceNumber,
+      });
+
+      const updateResult = await getRequestService().updateRequestById(
+        requestData.id,
+        requestPayload,
+        session.authState.accessToken,
+      );
+
+      if (updateResult.isErr()) {
+        throw updateResult.unwrapErr();
+      }
+
+      return await updateRequestStatus(REQUEST_EVENT_TYPE.complete, requestData.id, session.authState.accessToken);
+    }
+  }
+
   return undefined;
 }
 
 export default function HiringManagerRequestIndex({ loaderData, params }: Route.ComponentProps) {
   const { t } = useTranslation(handle.i18nNamespace);
   const { t: tGcweb } = useTranslation('gcweb');
-  const fetcher = useFetcher();
+  const fetcher = useFetcher<typeof action>();
   const fetcherState = useFetcherState(fetcher);
   const isSubmitting = fetcherState.submitting;
+  const isReassigning = fetcherState.submitting && fetcherState.action === 're-assign-request';
+
+  const alertRef = useRef<HTMLDivElement>(null);
+
+  if (fetcher.data && alertRef.current) {
+    alertRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    alertRef.current.focus();
+  }
 
   type CityPreference = {
     province: string;
@@ -194,6 +299,34 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
   type GroupedCities = Record<string, string[]>;
   const [showCancelRequestDialog, setShowCancelRequestDialog] = useState(false);
   const [showReAssignDialog, setShowReAssignDialog] = useState(false);
+
+  useEffect(() => {
+    if (isReassigning && showReAssignDialog) {
+      setShowReAssignDialog(false);
+    }
+  }, [isReassigning, showReAssignDialog]);
+
+  const alertConfig: Record<string, { type: 'success' | 'info'; message: string }> = {
+    [REQUEST_STATUS_CODE.PSC_GRANTED]: {
+      type: 'success',
+      message: t('app:hr-advisor-referral-requests.psc-clearance-received'),
+    },
+    [REQUEST_STATUS_CODE.NO_MATCH_HR_REVIEW]: {
+      type: 'info',
+      message: t('app:hr-advisor-referral-requests.no-match-found-alert-msg'),
+    },
+    [REQUEST_STATUS_CODE.PENDING_PSC]: {
+      type: 'success',
+      message: t('app:hr-advisor-referral-requests.pending-psc-clearance-alert-msg'),
+    },
+    [REQUEST_STATUS_CODE.CLR_GRANTED]: {
+      type: 'success',
+      message: t('app:hr-advisor-referral-requests.clearance-generated-alert-msg'),
+    },
+  };
+
+  const statusCode = loaderData.status?.code;
+  const currentAlert = statusCode ? alertConfig[statusCode] : undefined;
 
   return (
     <div className="space-y-8">
@@ -230,11 +363,10 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
               term={t('app:hr-advisor-referral-requests.hiring-manager')}
             >
               {loaderData.hiringManager ? (
-                <>
-                  {`${loaderData.hiringManager.firstName} ${loaderData.hiringManager.lastName}`}
-                  <br />
-                  {loaderData.hiringManager.businessEmailAddress}
-                </>
+                <div className="flex flex-col gap-1">
+                  <span>{`${loaderData.hiringManager.firstName} ${loaderData.hiringManager.lastName}`}</span>
+                  <span>{loaderData.hiringManager.businessEmailAddress}</span>
+                </div>
               ) : (
                 t('app:hr-advisor-referral-requests.not-provided')
               )}
@@ -245,9 +377,14 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
               ddClassName="mt-1 text-white sm:col-span-2 sm:mt-0"
               term={t('app:hr-advisor-referral-requests.hr-advisor')}
             >
-              {loaderData.hrAdvisor
-                ? `${loaderData.hrAdvisor.firstName} ${loaderData.hrAdvisor.lastName}`
-                : t('app:hr-advisor-referral-requests.not-provided')}
+              {loaderData.hrAdvisor ? (
+                <div className="flex flex-col gap-1">
+                  <span>{`${loaderData.hrAdvisor.firstName} ${loaderData.hrAdvisor.lastName}`}</span>
+                  <span>{loaderData.hrAdvisor.businessEmailAddress}</span>
+                </div>
+              ) : (
+                t('app:hr-advisor-referral-requests.not-provided')
+              )}
             </DescriptionListItem>
           </DescriptionList>
         </div>
@@ -266,18 +403,36 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
       >
         {t('app:hr-advisor-referral-requests.back')}
       </BackLink>
-      <div className="w-full">
-        <h2 className="font-lato mt-4 text-xl font-bold">{t('app:hr-advisor-referral-requests.request-details')}</h2>
 
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <div className="mt-8 max-w-prose space-y-10">
-            <ProfileCard
-              title={t('app:hr-advisor-referral-requests.process-information')}
-              linkLabel={t('app:hiring-manager-referral-requests.edit-process-information')}
-              file="routes/hr-advisor/request/process-information.tsx"
-              params={params}
-              linkType={loaderData.isRequestAssignedToCurrentUser ? 'edit' : undefined}
-            >
+      <h2 className="font-lato mt-4 text-xl font-bold">{t('app:hr-advisor-referral-requests.request-details')}</h2>
+
+      {currentAlert && (
+        <AlertMessage
+          ref={alertRef}
+          type={currentAlert.type}
+          message={currentAlert.message}
+          role="alert"
+          ariaLive="assertive"
+        />
+      )}
+
+      {loaderData.status && (
+        <RequestSummaryCard
+          priorityClearanceNumber={loaderData.priorityClearanceNumber}
+          pscClearanceNumber={loaderData.pscClearanceNumber}
+          requestStatus={loaderData.status}
+          lang={loaderData.lang}
+          view="hr-advisor"
+          file="routes/hr-advisor/request/matches.tsx"
+          params={params}
+        />
+      )}
+
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div className="mt-8 max-w-prose space-y-10">
+          <ProfileCard>
+            <ProfileCardHeader>{t('app:hr-advisor-referral-requests.process-information')}</ProfileCardHeader>
+            <ProfileCardContent>
               <DescriptionList>
                 <DescriptionListItem term={t('app:process-information.selection-process-number')}>
                   {loaderData.selectionProcessNumber ?? t('app:hr-advisor-referral-requests.not-provided')}
@@ -361,18 +516,24 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
                   {loaderData.employmentEquities ?? t('app:hr-advisor-referral-requests.not-provided')}
                 </DescriptionListItem>
               </DescriptionList>
-            </ProfileCard>
+            </ProfileCardContent>
+            {loaderData.isRequestAssignedToCurrentUser && (
+              <ProfileCardFooter>
+                <ProfileCardEditLink file="routes/hr-advisor/request/process-information.tsx" params={params}>
+                  {t('app:hiring-manager-referral-requests.edit-process-information')}
+                </ProfileCardEditLink>
+              </ProfileCardFooter>
+            )}
+          </ProfileCard>
 
-            <ProfileCard
-              title={t('app:hr-advisor-referral-requests.position-information')}
-              linkLabel={t('app:hiring-manager-referral-requests.edit-position-information')}
-              file="routes/hr-advisor/request/position-information.tsx"
-              params={params}
-              linkType={loaderData.isRequestAssignedToCurrentUser ? 'edit' : undefined}
-            >
+          <ProfileCard>
+            <ProfileCardHeader>{t('app:hr-advisor-referral-requests.position-information')}</ProfileCardHeader>
+            <ProfileCardContent>
               <DescriptionList>
                 <DescriptionListItem term={t('app:position-information.position-number')}>
-                  {loaderData.positionNumber ?? t('app:hr-advisor-referral-requests.not-provided')}
+                  {loaderData.positionNumber
+                    ? loaderData.positionNumber.split(',').join(', ')
+                    : t('app:hr-advisor-referral-requests.not-provided')}
                 </DescriptionListItem>
 
                 <DescriptionListItem term={t('app:position-information.group-and-level')}>
@@ -423,25 +584,38 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
                   {loaderData.securityClearance?.code ?? t('app:hr-advisor-referral-requests.not-provided')}
                 </DescriptionListItem>
               </DescriptionList>
-            </ProfileCard>
+            </ProfileCardContent>
+            {loaderData.isRequestAssignedToCurrentUser && (
+              <ProfileCardFooter>
+                <ProfileCardEditLink file="routes/hr-advisor/request/position-information.tsx" params={params}>
+                  {t('app:hiring-manager-referral-requests.edit-position-information')}
+                </ProfileCardEditLink>
+              </ProfileCardFooter>
+            )}
+          </ProfileCard>
 
-            <ProfileCard
-              title={t('app:hr-advisor-referral-requests.somc-conditions')}
-              linkLabel={t('app:hiring-manager-referral-requests.edit-somc-conditions')}
-              file="routes/hr-advisor/request/somc-conditions.tsx"
-              params={params}
-              linkType={loaderData.isRequestAssignedToCurrentUser ? 'edit' : 'view'}
-            >
+          <ProfileCard>
+            <ProfileCardHeader>{t('app:hr-advisor-referral-requests.somc-conditions')}</ProfileCardHeader>
+            <ProfileCardContent>
               <p className="font-medium">{t('app:somc-conditions.english-french-provided')}</p>
-            </ProfileCard>
+            </ProfileCardContent>
 
-            <ProfileCard
-              title={t('app:hr-advisor-referral-requests.submission-details')}
-              linkLabel={t('app:hiring-manager-referral-requests.edit-submission-details')}
-              file="routes/hr-advisor/request/submission-details.tsx"
-              params={params}
-              linkType={loaderData.isRequestAssignedToCurrentUser ? 'edit' : undefined}
-            >
+            <ProfileCardFooter>
+              {loaderData.isRequestAssignedToCurrentUser ? (
+                <ProfileCardEditLink file="routes/hr-advisor/request/somc-conditions.tsx" params={params}>
+                  {t('app:hiring-manager-referral-requests.edit-somc-conditions')}
+                </ProfileCardEditLink>
+              ) : (
+                <ProfileCardViewLink file="routes/hr-advisor/request/somc-conditions.tsx" params={params}>
+                  {t('app:hiring-manager-referral-requests.edit-somc-conditions')}
+                </ProfileCardViewLink>
+              )}
+            </ProfileCardFooter>
+          </ProfileCard>
+
+          <ProfileCard>
+            <ProfileCardHeader>{t('app:hr-advisor-referral-requests.submission-details')}</ProfileCardHeader>
+            <ProfileCardContent>
               <DescriptionList>
                 <DescriptionListItem term={t('app:submission-details.submiter-title')}>
                   {loaderData.submitter ? (
@@ -495,24 +669,35 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
                   {loaderData.additionalComment ?? t('app:hr-advisor-referral-requests.not-provided')}
                 </DescriptionListItem>
               </DescriptionList>
-            </ProfileCard>
-          </div>
+            </ProfileCardContent>
+            {loaderData.isRequestAssignedToCurrentUser && (
+              <ProfileCardFooter>
+                <ProfileCardEditLink file="routes/hr-advisor/request/submission-details.tsx" params={params}>
+                  {t('app:hiring-manager-referral-requests.edit-submission-details')}
+                </ProfileCardEditLink>
+              </ProfileCardFooter>
+            )}
+          </ProfileCard>
+        </div>
 
-          <div className="mt-8 max-w-prose">
-            <div className="flex justify-center">
+        <div className="mt-8 max-w-prose">
+          <div className="flex justify-center">
+            <ActionDataErrorSummary actionData={fetcher.data}>
               <fetcher.Form className="mt-6 md:mt-auto" method="post" noValidate>
                 <RenderButtonsByStatus
                   code={loaderData.status?.code}
+                  formErrors={fetcher.data && 'errors' in fetcher.data ? fetcher.data.errors : undefined}
                   isRequestAssignedToCurrentUser={loaderData.isRequestAssignedToCurrentUser}
                   isSubmitting={isSubmitting}
                   onCancelRequestClick={() => setShowCancelRequestDialog(true)}
                   onReAssignClick={() => setShowReAssignDialog(true)}
                 />
               </fetcher.Form>
-            </div>
+            </ActionDataErrorSummary>
           </div>
         </div>
       </div>
+
       <Dialog open={showCancelRequestDialog} onOpenChange={setShowCancelRequestDialog}>
         <DialogContent aria-describedby="cancel-request-dialog-description" role="alertdialog">
           <DialogHeader>
@@ -552,7 +737,9 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
             </DialogTitle>
           </DialogHeader>
           <DialogDescription id="re-assign-dialog-description">
-            {t('app:hr-advisor-referral-requests.re-assign-request.content')}
+            {t('app:hr-advisor-referral-requests.re-assign-request.content', {
+              'current-hr-advisor-name': `${loaderData.hrAdvisor?.firstName} ${loaderData.hrAdvisor?.lastName}`,
+            })}
           </DialogDescription>
           <DialogFooter>
             <DialogClose asChild>
@@ -561,14 +748,7 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
               </Button>
             </DialogClose>
             <fetcher.Form method="post" noValidate>
-              <Button
-                id="re-assign-request"
-                variant="primary"
-                name="action"
-                value="re-assign"
-                disabled={isSubmitting}
-                onClick={() => setShowReAssignDialog(false)}
-              >
+              <Button id="re-assign-request" variant="primary" name="action" value="re-assign-request" disabled={isSubmitting}>
                 {t('app:hr-advisor-referral-requests.re-assign-request.reassign')}
               </Button>
             </fetcher.Form>
@@ -581,6 +761,7 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
 
 interface RenderButtonsByStatusProps {
   code?: string;
+  formErrors?: Errors;
   isRequestAssignedToCurrentUser: boolean;
   isSubmitting: boolean;
   onCancelRequestClick: () => void;
@@ -589,6 +770,7 @@ interface RenderButtonsByStatusProps {
 
 function RenderButtonsByStatus({
   code,
+  formErrors,
   isRequestAssignedToCurrentUser,
   isSubmitting,
   onCancelRequestClick,
@@ -677,7 +859,7 @@ function RenderButtonsByStatus({
     case REQUEST_STATUS_CODE.PENDING_PSC:
       return (
         <div className="flex flex-col">
-          <Button className="w-full" variant="alternative" id="cancel-request" onClick={onCancelRequestClick}>
+          <Button className="mb-8 w-full" variant="alternative" id="cancel-request" onClick={onCancelRequestClick}>
             {t('form.cancel-request')}
           </Button>
 
@@ -686,6 +868,7 @@ function RenderButtonsByStatus({
             id="psc-clearance-number"
             name="pscClearanceNumber"
             label={t('hr-advisor-referral-requests.psc-clearance-number')}
+            errorMessage={t(extractValidationKey(formErrors?.pscClearanceNumber?.[0]))}
             required
           />
 

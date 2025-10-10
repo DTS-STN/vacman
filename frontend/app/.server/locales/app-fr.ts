@@ -219,7 +219,7 @@ export default {
     'page-title': 'Informations sur le processus',
     'selection-process-number': 'Numéro du processus de sélection (si applicable)',
     'approval-received':
-      "L'approbation au niveau approprié selon les paramètres du Comité de gestion des effectifs (CGE) et/ou du Comité de gestion des personnes et leadership (CGPL) a été obtenue",
+      'Approbation reçue du Comité de gestion des effectifs (postes non-EX) ou du Comité de gestion des personnes et du leadership (postes EX) (obligatoire)',
     'priority-entitlement':
       "Est-ce que la nomination d'un bénéficiaire de priorité aurait pour effet de conférer un droit de priorité à un-e autre fonctionnaire nommé-e pour une période indéterminée?",
     'priority-entitlement-rationale': 'Veuillez fournir la justification',
@@ -241,7 +241,7 @@ export default {
     'yes': 'Oui',
     'no': 'Non',
     'errors': {
-      'selection-process-number-required': 'Numéro du processus de sélection est requis',
+      'selection-process-number-invalid': 'Le numéro du processus de sélection est invalide',
       'approval-received-required': 'Approbation reçue est requise',
       'performed-duties-required': 'Exercé les mêmes fonctions est requis',
       'priority-entitlement-rationale-required': "Nomination d'un bénéficiaire de priorité est requise",
@@ -261,6 +261,7 @@ export default {
       'projected-end-date': {
         'invalid': "La date de fin prévue n'est pas valide",
         'invalid-before-start-date': 'La date de fin prévue doit être postérieure à la date de début prévue',
+        'invalid-future': "La date de fin prévue doit être postérieure à aujourd'hui",
         'required-year': "L'année de la date de fin prévue est requise",
         'invalid-year': "L'année de la date de fin prévue n'est pas valide",
         'required-month': 'Le mois de la date de fin prévue est requis',
@@ -370,6 +371,13 @@ export default {
       "Consultez le Guide du gestionnaire sur les autorisations en matière de priorité pour plus d'informations.",
     'request-incomplete': 'Veuillez remplir tous les champs obligatoires avant de soumettre votre demande',
     'request-submitted': "Demande soumise avec succès! Un-e conseiller(ère) RH va l'examiner pour approbation",
+    'matches-available': 'Candidatures disponibles',
+    'matches-available-detail':
+      'Des candidatures qui correspondent à cette demande ont été trouvées. Veuillez les consulter et nous faire parvenir votre rétroaction.',
+    'view-candidates-link': 'Voir les candidatures',
+    'candidate-feedback-submitted': 'Rétroaction sur les candidat-e-s soumise',
+    'candidate-feedback-submitted-detail': 'Tous les commentaires des candidat-e-s concernant cette demande ont été complétés',
+    'feedback-submitted-alert-msg': "Rétroaction soumise avec succès! Un-e conseiller(ère) RH va l'examiner pour approbation",
     'delete-request': {
       'title': 'Supprimer cette demande?',
       'content': 'Cela supprimera définitivement la demande. Cette action est irréversible.',
@@ -397,7 +405,16 @@ export default {
     'submission-details': 'Détails de la soumission',
     'not-provided': 'non fourni',
     'psc-clearance-number': "Numéro d'autorisation de la CFP",
+    'vms-clearance-number': "Numéro d'autorisation SGPV",
+    'psc-clearance-received': 'Autorisation de la CFP marquée comme reçue',
+    'pending-psc-clearance-alert-msg': "La demande est maintenant en attente d'autorisation de la CFP.",
+    'no-match-found-alert-msg':
+      "Processus de repérage effectué - aucune candidature repérée. La demande est en attente d'une autorisation en matière de priorité de la CFP",
+    'clearance-generated-alert-msg': 'Autorisation accordée avec succès',
     'submit': 'Soumettre',
+    'feedback-available': 'Rétroaction disponible',
+    'feedback-available-detail': 'La rétroaction en lien à cette demande est complétée et a été soumise pour révision',
+    'view-feedback-link': 'Voir la rétroaction',
     'cancel-request': {
       'title': 'Annuler cette demande?',
       'content':
@@ -408,11 +425,18 @@ export default {
     're-assign-request': {
       title: 'Réassigner la demande?',
       content:
-        'Cette demande est actuellement assignée à [nom du conseiller RH actuel]. Êtes-vous certain-e de vouloir vous la réassigner?',
+        'Cette demande est actuellement assignée à {{current-hr-advisor-name}}. Êtes-vous certain-e de vouloir vous la réassigner?',
       reassign: 'Réassigner à moi',
     },
     'status': {
+      'approved-assessment-feedback-pending': "En attente de rétroaction d'évaluation",
       'request-pending-approval': "Demande en attente d'approbation",
+      'pending-feedback-pending-approval': "Rétroaction d'évaluation en attente d'approbation",
+      'vms-request-on-hold-pending-psc-clearance': "En attente de l'autorisation de la CF",
+    },
+    'errors': {
+      'psc-clearance-number-required': 'Autorisation CFP est requise',
+      'psc-clearance-number-invalid': "L'autorisation de la CFP n'est pas valide",
     },
   },
   'referral-request': 'Demande de présentation de candidatures',
@@ -438,7 +462,7 @@ export default {
     'security-requirement': 'Exigences en matière de sécurité',
     'errors': {
       'position-number-required': 'Le numéro de poste est requis.',
-      'position-number-max-length': 'Chaque numéro de poste doit comporter 6 caractères.',
+      'position-number-max-length': 'Chaque numéro de poste doit comporter 8 caractères.',
       'group-and-level-required': 'Le groupe et le niveau sont requis.',
       'title-en-required': 'Le titre en anglais est requis.',
       'title-fr-required': 'Le titre en français est requis.',
@@ -542,6 +566,12 @@ export default {
     'copy': 'Copier',
     'copy-link': "Copier la demande avec l'identifiant {{requestId}}",
     'next-page': 'Suivant',
+    'my-requests': 'Mes demandes',
+    'all-requests': 'Toutes les demandes',
+    'table-updated': {
+      'my-requests': 'Tableau mis à jour : affichage de Mes demandes',
+      'all-requests': 'Tableau mis à jour : affichage de Toutes les demandes',
+    },
   },
   'matches': {
     'page-title': 'Candidatures de la demande',

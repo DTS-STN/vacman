@@ -19,7 +19,13 @@ import { BackLink } from '~/components/back-link';
 import { DescriptionList, DescriptionListItem } from '~/components/description-list';
 import { LoadingButton } from '~/components/loading-button';
 import { PageTitle } from '~/components/page-title';
-import { ProfileCard } from '~/components/profile-card';
+import {
+  ProfileCard,
+  ProfileCardContent,
+  ProfileCardEditLink,
+  ProfileCardFooter,
+  ProfileCardHeader,
+} from '~/components/profile-card';
 import { ProfileStatusTag } from '~/components/status-tag';
 import { EMPLOYEE_WFA_STATUS, PROFILE_STATUS } from '~/domain/constants';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
@@ -334,167 +340,171 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
         ))}
 
       <div className="mt-8 max-w-prose space-y-10">
-        <ProfileCard
-          title={t('app:profile.personal-information.title')}
-          linkLabel={t('app:profile.personal-information.link-label')}
-          file="routes/hr-advisor/employee-profile/personal-information.tsx"
-          errorState={fetcher.data?.personalInfoComplete === false}
-          params={params}
-          linkType="edit"
-        >
-          <DescriptionList>
-            <DescriptionListItem term={t('app:personal-information.personal-record-identifier')}>
-              {loaderData.personalInformation.personalRecordIdentifier ?? t('app:profile.not-provided')}
-            </DescriptionListItem>
-            <DescriptionListItem term={t('app:personal-information.language-of-correspondence')}>
-              {loaderData.personalInformation.preferredLanguage ?? t('app:profile.not-provided')}
-            </DescriptionListItem>
-            <DescriptionListItem term={t('app:personal-information.work-email')}>
-              {loaderData.personalInformation.workEmail}
-            </DescriptionListItem>
-            <DescriptionListItem term={t('app:personal-information.personal-email')}>
-              {loaderData.personalInformation.personalEmail ?? t('app:profile.not-provided')}
-            </DescriptionListItem>
-            <DescriptionListItem term={t('app:personal-information.work-phone')}>
-              {loaderData.personalInformation.workPhone ?? t('app:profile.not-provided')}
-            </DescriptionListItem>
-            <DescriptionListItem term={t('app:personal-information.personal-phone')}>
-              {loaderData.personalInformation.personalPhone ?? t('app:profile.not-provided')}
-            </DescriptionListItem>
-          </DescriptionList>
-        </ProfileCard>
-        <ProfileCard
-          title={t('app:profile.employment.title')}
-          linkLabel={t('app:profile.employment.link-label')}
-          file="routes/hr-advisor/employee-profile/employment-information.tsx"
-          errorState={fetcher.data?.employmentInfoComplete === false}
-          params={params}
-          linkType="edit"
-        >
-          <>
-            <h3 className="font-lato text-xl font-bold">{t('app:employment-information.substantive-position-heading')}</h3>
+        <ProfileCard errorState={fetcher.data?.personalInfoComplete === false}>
+          <ProfileCardHeader>{t('app:profile.personal-information.title')}</ProfileCardHeader>
+          <ProfileCardContent>
             <DescriptionList>
-              <DescriptionListItem term={t('app:employment-information.substantive-position-group-and-level')}>
-                {loaderData.employmentInformation.substantivePosition ?? t('app:profile.not-provided')}
+              <DescriptionListItem term={t('app:personal-information.personal-record-identifier')}>
+                {loaderData.personalInformation.personalRecordIdentifier ?? t('app:profile.not-provided')}
               </DescriptionListItem>
-              <DescriptionListItem term={t('app:employment-information.branch-or-service-canada-region')}>
-                {loaderData.employmentInformation.branchOrServiceCanadaRegion ?? t('app:profile.not-provided')}
+              <DescriptionListItem term={t('app:personal-information.language-of-correspondence')}>
+                {loaderData.personalInformation.preferredLanguage ?? t('app:profile.not-provided')}
               </DescriptionListItem>
-              <DescriptionListItem term={t('app:employment-information.directorate')}>
-                {loaderData.employmentInformation.directorate ?? t('app:profile.not-provided')}
+              <DescriptionListItem term={t('app:personal-information.work-email')}>
+                {loaderData.personalInformation.workEmail}
               </DescriptionListItem>
-              <DescriptionListItem term={t('app:employment-information.provinces')}>
-                {loaderData.employmentInformation.province ?? t('app:profile.not-provided')}
+              <DescriptionListItem term={t('app:personal-information.personal-email')}>
+                {loaderData.personalInformation.personalEmail ?? t('app:profile.not-provided')}
               </DescriptionListItem>
-              <DescriptionListItem term={t('app:employment-information.city')}>
-                {loaderData.employmentInformation.city ?? t('app:profile.not-provided')}
+              <DescriptionListItem term={t('app:personal-information.work-phone')}>
+                {loaderData.personalInformation.workPhone ?? t('app:profile.not-provided')}
+              </DescriptionListItem>
+              <DescriptionListItem term={t('app:personal-information.personal-phone')}>
+                {loaderData.personalInformation.personalPhone ?? t('app:profile.not-provided')}
               </DescriptionListItem>
             </DescriptionList>
-            <h3 className="font-lato text-xl font-bold">{t('app:employment-information.wfa-details-heading')}</h3>
-            <DescriptionList>
-              <DescriptionListItem term={t('app:employment-information.wfa-status')}>
-                {loaderData.employmentInformation.wfaStatus ?? t('app:profile.not-provided')}
-              </DescriptionListItem>
-              <DescriptionListItem term={t('app:employment-information.wfa-effective-date')}>
-                {loaderData.employmentInformation.wfaEffectiveDate ?? t('app:profile.not-provided')}
-              </DescriptionListItem>
-              {(loaderData.employmentInformation.wfaStatusCode === EMPLOYEE_WFA_STATUS.opting ||
-                loaderData.employmentInformation.wfaStatusCode === EMPLOYEE_WFA_STATUS.exOpting ||
-                loaderData.employmentInformation.wfaStatusCode === EMPLOYEE_WFA_STATUS.surplusOptingOptionA ||
-                loaderData.employmentInformation.wfaStatusCode === EMPLOYEE_WFA_STATUS.exSurplusCPA ||
-                loaderData.employmentInformation.wfaStatusCode === EMPLOYEE_WFA_STATUS.relocation ||
-                loaderData.employmentInformation.wfaStatusCode === EMPLOYEE_WFA_STATUS.alternateDeliveryInitiative) && (
-                <DescriptionListItem term={t('app:employment-information.wfa-end-date')}>
-                  {loaderData.employmentInformation.wfaEndDate ?? t('app:profile.not-provided')}
+          </ProfileCardContent>
+          <ProfileCardFooter>
+            <ProfileCardEditLink file="routes/hr-advisor/employee-profile/personal-information.tsx" params={params}>
+              {t('app:profile.personal-information.link-label')}
+            </ProfileCardEditLink>
+          </ProfileCardFooter>
+        </ProfileCard>
+
+        <ProfileCard errorState={fetcher.data?.employmentInfoComplete === false}>
+          <ProfileCardHeader>{t('app:profile.employment.title')}</ProfileCardHeader>
+          <ProfileCardContent>
+            <>
+              <h3 className="font-lato text-xl font-bold">{t('app:employment-information.substantive-position-heading')}</h3>
+              <DescriptionList>
+                <DescriptionListItem term={t('app:employment-information.substantive-position-group-and-level')}>
+                  {loaderData.employmentInformation.substantivePosition ?? t('app:profile.not-provided')}
                 </DescriptionListItem>
-              )}
-              <DescriptionListItem term={t('app:employment-information.hr-advisor')}>
-                {loaderData.employmentInformation.hrAdvisor ?? t('app:profile.not-provided')}
+                <DescriptionListItem term={t('app:employment-information.branch-or-service-canada-region')}>
+                  {loaderData.employmentInformation.branchOrServiceCanadaRegion ?? t('app:profile.not-provided')}
+                </DescriptionListItem>
+                <DescriptionListItem term={t('app:employment-information.directorate')}>
+                  {loaderData.employmentInformation.directorate ?? t('app:profile.not-provided')}
+                </DescriptionListItem>
+                <DescriptionListItem term={t('app:employment-information.provinces')}>
+                  {loaderData.employmentInformation.province ?? t('app:profile.not-provided')}
+                </DescriptionListItem>
+                <DescriptionListItem term={t('app:employment-information.city')}>
+                  {loaderData.employmentInformation.city ?? t('app:profile.not-provided')}
+                </DescriptionListItem>
+              </DescriptionList>
+              <h3 className="font-lato text-xl font-bold">{t('app:employment-information.wfa-details-heading')}</h3>
+              <DescriptionList>
+                <DescriptionListItem term={t('app:employment-information.wfa-status')}>
+                  {loaderData.employmentInformation.wfaStatus ?? t('app:profile.not-provided')}
+                </DescriptionListItem>
+                <DescriptionListItem term={t('app:employment-information.wfa-effective-date')}>
+                  {loaderData.employmentInformation.wfaEffectiveDate ?? t('app:profile.not-provided')}
+                </DescriptionListItem>
+                {(loaderData.employmentInformation.wfaStatusCode === EMPLOYEE_WFA_STATUS.opting ||
+                  loaderData.employmentInformation.wfaStatusCode === EMPLOYEE_WFA_STATUS.exOpting ||
+                  loaderData.employmentInformation.wfaStatusCode === EMPLOYEE_WFA_STATUS.surplusOptingOptionA ||
+                  loaderData.employmentInformation.wfaStatusCode === EMPLOYEE_WFA_STATUS.exSurplusCPA ||
+                  loaderData.employmentInformation.wfaStatusCode === EMPLOYEE_WFA_STATUS.relocation ||
+                  loaderData.employmentInformation.wfaStatusCode === EMPLOYEE_WFA_STATUS.alternateDeliveryInitiative) && (
+                  <DescriptionListItem term={t('app:employment-information.wfa-end-date')}>
+                    {loaderData.employmentInformation.wfaEndDate ?? t('app:profile.not-provided')}
+                  </DescriptionListItem>
+                )}
+                <DescriptionListItem term={t('app:employment-information.hr-advisor')}>
+                  {loaderData.employmentInformation.hrAdvisor ?? t('app:profile.not-provided')}
+                </DescriptionListItem>
+              </DescriptionList>
+            </>
+          </ProfileCardContent>
+          <ProfileCardFooter>
+            <ProfileCardEditLink file="routes/hr-advisor/employee-profile/employment-information.tsx" params={params}>
+              {t('app:profile.employment.link-label')}
+            </ProfileCardEditLink>
+          </ProfileCardFooter>
+        </ProfileCard>
+
+        <ProfileCard errorState={fetcher.data?.referralComplete === false}>
+          <ProfileCardHeader required>{t('app:profile.referral.title')}</ProfileCardHeader>
+          <ProfileCardContent>
+            <DescriptionList>
+              <DescriptionListItem term={t('app:referral-preferences.language-referral-type')}>
+                {loaderData.referralPreferences.preferredLanguages === undefined
+                  ? t('app:profile.not-provided')
+                  : loaderData.referralPreferences.preferredLanguages.length > 0 &&
+                    loaderData.referralPreferences.preferredLanguages.join(', ')}
+              </DescriptionListItem>
+              <DescriptionListItem term={t('app:referral-preferences.classification')}>
+                {loaderData.referralPreferences.preferredClassifications === undefined
+                  ? t('app:profile.not-provided')
+                  : loaderData.referralPreferences.preferredClassifications.length > 0 &&
+                    loaderData.referralPreferences.preferredClassifications.join(', ')}
+              </DescriptionListItem>
+              <DescriptionListItem term={t('app:referral-preferences.work-location')}>
+                {loaderData.referralPreferences.locationScope === 'not-provided' && <p>{t('app:profile.not-provided')}</p>}
+
+                {loaderData.referralPreferences.locationScope === 'anywhere-in-country' && <p>{t('app:anywhere-in-canada')}</p>}
+
+                {loaderData.referralPreferences.locationScope === 'anywhere-in-provinces' && (
+                  <p>
+                    {t('app:anywhere-in-provinces', {
+                      provinceNames: loaderData.referralPreferences.provinceNames.join(', '),
+                    })}
+                  </p>
+                )}
+
+                {loaderData.referralPreferences.locationScope === 'specific-cities' &&
+                  loaderData.referralPreferences.preferredCities.length > 0 && (
+                    <>
+                      {loaderData.referralPreferences.provinceNames.length > 0 && (
+                        <p>
+                          {t('app:anywhere-in-provinces', {
+                            provinceNames: loaderData.referralPreferences.provinceNames.join(', '),
+                          })}
+                        </p>
+                      )}
+                      <div>
+                        {/* Group cities by province */}
+                        {Object.entries(
+                          (loaderData.referralPreferences.preferredCities as CityPreference[]).reduce(
+                            (acc: GroupedCities, city: CityPreference) => {
+                              const provinceName = city.province;
+                              acc[provinceName] ??= [];
+                              acc[provinceName].push(city.city);
+                              return acc;
+                            },
+                            {} as GroupedCities,
+                          ),
+                        ).map(([province, cities]) => (
+                          <div key={province}>
+                            <strong>{province}:</strong> {cities.join(', ')}
+                          </div>
+                        ))}
+                      </div>
+                    </>
+                  )}
+              </DescriptionListItem>
+              <DescriptionListItem term={t('app:referral-preferences.referral-availibility')}>
+                {loaderData.referralPreferences.isAvailableForReferral === undefined
+                  ? t('app:profile.not-provided')
+                  : loaderData.referralPreferences.isAvailableForReferral
+                    ? t('gcweb:input-option.yes')
+                    : t('gcweb:input-option.no')}
+              </DescriptionListItem>
+              <DescriptionListItem term={t('app:referral-preferences.alternate-opportunity')}>
+                {loaderData.referralPreferences.isInterestedInAlternation === undefined
+                  ? t('app:profile.not-provided')
+                  : loaderData.referralPreferences.isInterestedInAlternation
+                    ? t('gcweb:input-option.yes')
+                    : t('gcweb:input-option.no')}
               </DescriptionListItem>
             </DescriptionList>
-          </>
-        </ProfileCard>
-        <ProfileCard
-          title={t('app:profile.referral.title')}
-          linkLabel={t('app:profile.referral.link-label')}
-          file="routes/hr-advisor/employee-profile/referral-preferences.tsx"
-          params={params}
-          errorState={fetcher.data?.referralComplete === false}
-          required
-          linkType="edit"
-        >
-          <DescriptionList>
-            <DescriptionListItem term={t('app:referral-preferences.language-referral-type')}>
-              {loaderData.referralPreferences.preferredLanguages === undefined
-                ? t('app:profile.not-provided')
-                : loaderData.referralPreferences.preferredLanguages.length > 0 &&
-                  loaderData.referralPreferences.preferredLanguages.join(', ')}
-            </DescriptionListItem>
-            <DescriptionListItem term={t('app:referral-preferences.classification')}>
-              {loaderData.referralPreferences.preferredClassifications === undefined
-                ? t('app:profile.not-provided')
-                : loaderData.referralPreferences.preferredClassifications.length > 0 &&
-                  loaderData.referralPreferences.preferredClassifications.join(', ')}
-            </DescriptionListItem>
-            <DescriptionListItem term={t('app:referral-preferences.work-location')}>
-              {loaderData.referralPreferences.locationScope === 'not-provided' && <p>{t('app:profile.not-provided')}</p>}
-
-              {loaderData.referralPreferences.locationScope === 'anywhere-in-country' && <p>{t('app:anywhere-in-canada')}</p>}
-
-              {loaderData.referralPreferences.locationScope === 'anywhere-in-provinces' && (
-                <p>
-                  {t('app:anywhere-in-provinces', {
-                    provinceNames: loaderData.referralPreferences.provinceNames.join(', '),
-                  })}
-                </p>
-              )}
-
-              {loaderData.referralPreferences.locationScope === 'specific-cities' &&
-                loaderData.referralPreferences.preferredCities.length > 0 && (
-                  <>
-                    {loaderData.referralPreferences.provinceNames.length > 0 && (
-                      <p>
-                        {t('app:anywhere-in-provinces', {
-                          provinceNames: loaderData.referralPreferences.provinceNames.join(', '),
-                        })}
-                      </p>
-                    )}
-                    <div>
-                      {/* Group cities by province */}
-                      {Object.entries(
-                        (loaderData.referralPreferences.preferredCities as CityPreference[]).reduce(
-                          (acc: GroupedCities, city: CityPreference) => {
-                            const provinceName = city.province;
-                            acc[provinceName] ??= [];
-                            acc[provinceName].push(city.city);
-                            return acc;
-                          },
-                          {} as GroupedCities,
-                        ),
-                      ).map(([province, cities]) => (
-                        <div key={province}>
-                          <strong>{province}:</strong> {cities.join(', ')}
-                        </div>
-                      ))}
-                    </div>
-                  </>
-                )}
-            </DescriptionListItem>
-            <DescriptionListItem term={t('app:referral-preferences.referral-availibility')}>
-              {loaderData.referralPreferences.isAvailableForReferral === undefined
-                ? t('app:profile.not-provided')
-                : loaderData.referralPreferences.isAvailableForReferral
-                  ? t('gcweb:input-option.yes')
-                  : t('gcweb:input-option.no')}
-            </DescriptionListItem>
-            <DescriptionListItem term={t('app:referral-preferences.alternate-opportunity')}>
-              {loaderData.referralPreferences.isInterestedInAlternation === undefined
-                ? t('app:profile.not-provided')
-                : loaderData.referralPreferences.isInterestedInAlternation
-                  ? t('gcweb:input-option.yes')
-                  : t('gcweb:input-option.no')}
-            </DescriptionListItem>
-          </DescriptionList>
+          </ProfileCardContent>
+          <ProfileCardFooter>
+            <ProfileCardEditLink file="routes/hr-advisor/employee-profile/referral-preferences.tsx" params={params}>
+              {t('app:profile.referral.link-label')}
+            </ProfileCardEditLink>
+          </ProfileCardFooter>
         </ProfileCard>
       </div>
       <fetcher.Form className="mt-6 flex place-content-start space-x-5 md:mt-auto" method="post" noValidate>

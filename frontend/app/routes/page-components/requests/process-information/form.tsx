@@ -18,7 +18,6 @@ import type {
   EmploymentEquity,
   SelectionProcessType,
 } from '~/.server/domain/models';
-import { Button } from '~/components/button';
 import { ButtonLink } from '~/components/button-link';
 import { DatePickerField } from '~/components/date-picker-field';
 import { FormErrorSummary } from '~/components/error-summary';
@@ -29,6 +28,7 @@ import { InputRadios } from '~/components/input-radios';
 import type { InputRadiosProps } from '~/components/input-radios';
 import { InputSelect } from '~/components/input-select';
 import { InputTextarea } from '~/components/input-textarea';
+import { LoadingButton } from '~/components/loading-button';
 import { PageTitle } from '~/components/page-title';
 import { EMPLOYMENT_TENURE, REQUIRE_OPTIONS, SELECTION_PROCESS_TYPE } from '~/domain/constants';
 import type { I18nRouteFile } from '~/i18n-routes';
@@ -197,6 +197,7 @@ export function ProcessInformationForm({
               name="approvalReceived"
               defaultChecked={formValues?.approvalReceived}
               errorMessage={tApp(extractValidationKey(formErrors?.approvalReceived))}
+              required
             >
               {tApp('process-information.approval-received')}
             </InputCheckbox>
@@ -217,6 +218,7 @@ export function ProcessInformationForm({
                 defaultValue={formValues?.priorityEntitlementRationale}
                 errorMessage={tApp(extractValidationKey(formErrors?.priorityEntitlementRationale))}
                 maxLength={100}
+                required
               />
             )}
             <InputSelect
@@ -332,9 +334,9 @@ export function ProcessInformationForm({
               <ButtonLink file={cancelLink} params={params} id="cancel-button" variant="alternative">
                 {tApp('form.cancel')}
               </ButtonLink>
-              <Button name="action" variant="primary" id="save-button">
+              <LoadingButton name="action" variant="primary" id="save-button">
                 {tApp('form.save')}
-              </Button>
+              </LoadingButton>
             </div>
           </div>
         </Form>

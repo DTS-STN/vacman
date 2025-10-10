@@ -10,6 +10,8 @@ import jakarta.validation.constraints.NotBlank;
 @ConfigurationProperties("codes")
 public record LookupCodes(
 	@NestedConfigurationProperty Languages languages,
+	@NestedConfigurationProperty LanguageReferralTypes languageReferralTypes,
+	@NestedConfigurationProperty LanguageRequirements languageRequirements,
 	@NestedConfigurationProperty ProfileStatuses profileStatuses,
 	@NestedConfigurationProperty RequestStatuses requestStatuses,
 	@NestedConfigurationProperty UserTypes userTypes
@@ -19,6 +21,23 @@ public record LookupCodes(
 	public record Languages(
 		@NotBlank String english,
 		@NotBlank String french
+	) {}
+
+	@Validated
+	public record LanguageReferralTypes(
+		@NotBlank String bilingual,
+		@NotBlank String english,
+		@NotBlank String french
+	) {}
+
+	@Validated
+	public record LanguageRequirements(
+		@NotBlank String bilingualImperative,
+		@NotBlank String bilingualNonImperative,
+		@NotBlank String englishEssential,
+		@NotBlank String frenchEssential,
+		@NotBlank String eitherOr,
+		@NotBlank String various
 	) {}
 
 	@Validated

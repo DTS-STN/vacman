@@ -23,6 +23,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes;
 import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes.ProfileStatuses;
 import ca.gov.dtsstn.vacman.api.data.entity.EventEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.LanguageEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.ProfileStatusEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
@@ -208,6 +209,9 @@ class ProfileEventListenerTest {
 				.user(UserEntity.builder()
 					.firstName("John")
 					.lastName("Doe")
+					.language(LanguageEntity.builder()
+						.code("EN")
+						.build())
 					.businessEmailAddress("john.doe@example.com")
 					.build())
 				.build();
@@ -221,6 +225,7 @@ class ProfileEventListenerTest {
 				eq("john.doe@example.com"),
 				eq("222"),
 				eq("John Doe"),
+				any(String.class),
 				eq(ProfileStatus.APPROVED)
 			);
 		}
@@ -250,6 +255,7 @@ class ProfileEventListenerTest {
 				any(String.class),
 				any(String.class),
 				any(String.class),
+				any(String.class),
 				eq(ProfileStatus.APPROVED)
 			);
 		}
@@ -275,6 +281,7 @@ class ProfileEventListenerTest {
 				any(String.class),
 				any(String.class),
 				any(String.class),
+				any(String.class),
 				eq(ProfileStatus.APPROVED)
 			);
 		}
@@ -291,6 +298,9 @@ class ProfileEventListenerTest {
 				.user(UserEntity.builder()
 					.firstName("Alice")
 					.lastName("Johnson")
+					.language(LanguageEntity.builder()
+						.code("EN")
+						.build())
 					.build())
 				.hrAdvisor(UserEntity.builder()
 					.businessEmailAddress("hradvisor@example.com")
@@ -313,6 +323,7 @@ class ProfileEventListenerTest {
 				eq("hradvisor@example.com"),
 				eq("555"),
 				eq("Alice Johnson"),
+				any(String.class),
 				eq(ProfileStatus.PENDING)
 			);
 		}
@@ -329,6 +340,9 @@ class ProfileEventListenerTest {
 				.user(UserEntity.builder()
 					.firstName("Bob")
 					.lastName("Williams")
+					.language(LanguageEntity.builder()
+						.code("EN")
+						.build())
 					.build())
 				.hrAdvisor(UserEntity.builder()
 					.businessEmailAddress("hr@example.com")
@@ -351,6 +365,7 @@ class ProfileEventListenerTest {
 				eq("hr@example.com"),
 				eq("666"),
 				eq("Bob Williams"),
+				any(String.class),
 				eq(ProfileStatus.PENDING)
 			);
 		}
@@ -384,6 +399,7 @@ class ProfileEventListenerTest {
 			profileEventListener.handleProfileStatusChange(new ProfileStatusChangeEvent(profile, 1L, 2L));
 
 			verify(notificationService, never()).sendEmailNotification(
+				any(String.class),
 				any(String.class),
 				any(String.class),
 				any(String.class),
@@ -421,6 +437,7 @@ class ProfileEventListenerTest {
 			profileEventListener.handleProfileStatusChange(new ProfileStatusChangeEvent(profile, 1L, 2L));
 
 			verify(notificationService, never()).sendEmailNotification(
+				any(String.class),
 				any(String.class),
 				any(String.class),
 				any(String.class),
@@ -462,6 +479,7 @@ class ProfileEventListenerTest {
 				any(String.class),
 				any(String.class),
 				any(String.class),
+				any(String.class),
 				eq(ProfileStatus.PENDING)
 			);
 		}
@@ -477,6 +495,7 @@ class ProfileEventListenerTest {
 			profileEventListener.handleProfileStatusChange(new ProfileStatusChangeEvent(profile, 1L, 2L));
 
 			verify(notificationService, never()).sendEmailNotification(
+				any(String.class),
 				any(String.class),
 				any(String.class),
 				any(String.class),
@@ -512,6 +531,7 @@ class ProfileEventListenerTest {
 				any(String.class),
 				any(String.class),
 				any(String.class),
+				any(String.class),
 				eq(ProfileStatus.PENDING)
 			);
 		}
@@ -539,6 +559,7 @@ class ProfileEventListenerTest {
 			profileEventListener.handleProfileStatusChange(new ProfileStatusChangeEvent(profile, 1L, 3L));
 
 			verify(notificationService, never()).sendEmailNotification(
+				any(String.class),
 				any(String.class),
 				any(String.class),
 				any(String.class),

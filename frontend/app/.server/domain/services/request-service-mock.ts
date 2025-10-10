@@ -285,10 +285,10 @@ export function getMockRequestService(): RequestService {
           nameFr: 'Révision RH',
         },
         vmsNotRequired: {
-          id: 3,
-          code: 'NO_MATCH_HR_REVIEW',
-          nameEn: 'No Match - HR Review',
-          nameFr: 'Aucune concordance - Révision RH',
+          id: 7,
+          code: 'PENDING_PSC_NO_VMS',
+          nameEn: 'VMS not required - Pending PSC clearance',
+          nameFr: "Demande VMS non-requise - En attente de l'autorisation de la CFP",
         },
         submitFeedback: {
           id: 4,
@@ -297,22 +297,22 @@ export function getMockRequestService(): RequestService {
           nameFr: 'Rétroaction en attente',
         },
         pscNotRequired: {
-          id: 5,
-          code: 'PENDING_PSC_NO_VMS',
-          nameEn: 'PSC Not Required',
-          nameFr: 'CFP non requise',
+          id: 8,
+          code: 'CLR_GRANTED',
+          nameEn: 'Clearance Granted',
+          nameFr: 'Autorisation accordée',
         },
         pscRequired: {
           id: 6,
           code: 'PENDING_PSC',
-          nameEn: 'PSC Required',
-          nameFr: 'CFP requise',
+          nameEn: 'VMS request on Hold - Pending PSC clearance',
+          nameFr: "Demande VMS en suspens - En attente de l'autorisation de la CFP",
         },
         complete: {
-          id: 7,
-          code: 'CLR_GRANTED',
-          nameEn: 'Clearance Granted',
-          nameFr: 'Autorisation accordée',
+          id: 9,
+          code: 'PSC_GRANTED',
+          nameEn: 'PSC Clearance Granted',
+          nameFr: 'Autorisation de la CFP accordée',
         },
       };
 
@@ -327,7 +327,48 @@ export function getMockRequestService(): RequestService {
       const updatedRequest: RequestReadModel = {
         ...existingRequest,
         status: newStatus,
-        hrAdvisor,
+        hrAdvisor: hrAdvisor ?? existingRequest.hrAdvisor,
+        lastModifiedDate: new Date().toISOString(),
+        lastModifiedBy: 'system',
+      };
+
+      mockRequests[existingRequestIndex] = updatedRequest;
+      return Promise.resolve(Ok(updatedRequest));
+    },
+
+    /**
+     * Updates a request's status after running matches
+     */
+    async runMatches(requestId: number, accessToken: string): Promise<Result<RequestReadModel, AppError>> {
+      const existingRequestIndex = mockRequests.findIndex((r) => r.id === requestId);
+      if (existingRequestIndex === -1) {
+        return Err(new AppError(`Request with ID ${requestId} not found.`, ErrorCodes.REQUEST_NOT_FOUND));
+      }
+
+      const existingRequest = mockRequests[existingRequestIndex];
+      if (!existingRequest) {
+        return Err(new AppError(`Request with ID ${requestId} not found.`, ErrorCodes.REQUEST_NOT_FOUND));
+      }
+
+      // Simulate running matches and updating the request status
+      const hasMatches = Math.random() > 0.5; // Randomly determine if there are matches
+      const newStatus = hasMatches
+        ? {
+            id: 4,
+            code: 'FDBK_PENDING',
+            nameEn: 'Approved - Assessment Feedback Pending',
+            nameFr: "Approuvée - En attente de retroaction d'évaluation",
+          }
+        : {
+            id: 3,
+            code: 'NO_MATCH_HR_REVIEW',
+            nameEn: 'No match - HR Review',
+            nameFr: 'Aucune candidature repérée - Revue RH',
+          };
+
+      const updatedRequest: RequestReadModel = {
+        ...existingRequest,
+        status: newStatus,
         lastModifiedDate: new Date().toISOString(),
         lastModifiedBy: 'system',
       };

@@ -2,7 +2,6 @@ package ca.gov.dtsstn.vacman.api.service;
 
 import java.util.List;
 import java.util.Map;
-import java.util.ArrayList;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,6 +13,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
 import ca.gov.dtsstn.vacman.api.config.properties.ApplicationProperties;
+import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes;
 import ca.gov.dtsstn.vacman.api.service.notify.NotificationReceipt;
 
 @Service
@@ -29,7 +29,9 @@ public class NotificationService {
 
 	private final RestTemplate restTemplate;
 
-	public NotificationService(ApplicationProperties applicationProperties, RestTemplateBuilder restTemplateBuilder) {
+	private final LookupCodes.Languages languages;
+
+	public NotificationService(ApplicationProperties applicationProperties, RestTemplateBuilder restTemplateBuilder, LookupCodes lookupCodes) {
 		this.applicationProperties = applicationProperties;
 		this.restTemplate = restTemplateBuilder
 			.defaultHeader(HttpHeaders.AUTHORIZATION, "ApiKey-v1 %s".formatted(applicationProperties.gcnotify().apiKey()))
@@ -37,57 +39,67 @@ public class NotificationService {
 			.connectTimeout(applicationProperties.gcnotify().connectTimeout())
 			.readTimeout(applicationProperties.gcnotify().readTimeout())
 			.build();
+		this.languages = lookupCodes.languages();
 	}
 
 	/**
-	 * Sends an email notification to a single email address.
-	 */
-	public NotificationReceipt sendEmailNotification(String email, String profileId, String username, ProfileStatus profileStatus) {
+	* Sends an email notification to a single email address.
+	*/
+	public NotificationReceipt sendEmailNotification(String email, String profileId, String username, String language, ProfileStatus profileStatus) {
 		Assert.hasText(email, "email is required; it must not be blank or null");
 		Assert.hasText(profileId, "profileId is required; it must not be blank or null");
 		Assert.hasText(username, "username is required; it must not be blank or null");
 
 		final var templateId = switch (profileStatus) {
-			case CREATED -> applicationProperties.gcnotify().profileCreatedTemplateId();
-			case UPDATED -> applicationProperties.gcnotify().profileUpdatedTemplateId();
-			case APPROVED -> applicationProperties.gcnotify().profileApprovedTemplateId();
-			case PENDING -> applicationProperties.gcnotify().profilePendingTemplateId();
+			case CREATED -> this.languages.english().equals(language)
+				? applicationProperties.gcnotify().profileCreatedTemplateIdEng()
+				: applicationProperties.gcnotify().profileCreatedTemplateIdFra();
+
+			case UPDATED -> this.languages.english().equals(language)
+				? applicationProperties.gcnotify().profileUpdatedTemplateIdEng()
+				: applicationProperties.gcnotify().profileUpdatedTemplateIdFra();
+
+			case APPROVED -> this.languages.english().equals(language)
+				? applicationProperties.gcnotify().profileApprovedTemplateIdEng()
+				: applicationProperties.gcnotify().profileApprovedTemplateIdFra();
+
+			case PENDING -> this.languages.english().equals(language)
+				? applicationProperties.gcnotify().profilePendingTemplateId()
+				: applicationProperties.gcnotify().profilePendingTemplateId();
+
 			default -> throw new IllegalArgumentException("Unknown profile status value " + profileStatus);
 		};
 
-		final var personalization = Map.of("link", profileId, "userName", username);
+		// Personalization parameters for the email template
+		final var personalization = Map.of(
+			"employee_name", username
+		);
+
 		log.trace("Request to send fileNumber notification email=[{}], parameters=[{}]", email, personalization);
 
-		final var request = Map.of("email_address", email, "template_id", templateId, "personalisation", personalization);
+		final var request = Map.of(
+			"email_address", email,
+			"template_id", templateId,
+			"personalisation", personalization
+		);
+
 		final var notificationReceipt = restTemplate.postForObject("/email", request, NotificationReceipt.class);
 		log.debug("Notification sent to email [{}] using template [{}]", email, templateId);
 
 		return notificationReceipt;
 	}
 
+	//TODO add language to get the correct template
 	/**
 	 * Sends an email notification to multiple email addresses.
 	 * Returns a list of notification receipts, one for each email address.
-	 */
-	public List<NotificationReceipt> sendEmailNotification(List<String> emails, String profileId, String username, ProfileStatus profileStatus) {
-		Assert.notEmpty(emails, "emails is required; it must not be empty or null");
-		Assert.hasText(profileId, "profileId is required; it must not be blank or null");
-		Assert.hasText(username, "username is required; it must not be blank or null");
-
-		return emails.parallelStream()
-			.filter(StringUtils::hasText)
-			.map(email -> sendEmailNotification(email, profileId, username, profileStatus))
-			.toList();
-	}
-
-	/**
-	 * Sends a request notification to a single email address.
 	 */
 	public NotificationReceipt sendRequestNotification(String email, Long requestId, String requestTitle, RequestEvent requestEvent) {
 		Assert.hasText(email, "email is required; it must not be blank or null");
 		Assert.notNull(requestId, "requestId is required; it must not be null");
 		Assert.hasText(requestTitle, "requestTitle is required; it must not be blank or null");
 
+		//TODO update code to add new templates there is one for english and one for french refer to the code above
 		final var templateId = switch (requestEvent) {
 			case CREATED -> applicationProperties.gcnotify().requestCreatedTemplateId();
 			case FEEDBACK_PENDING -> applicationProperties.gcnotify().requestFeedbackPendingTemplateId();
@@ -95,16 +107,17 @@ public class NotificationService {
 			default -> throw new IllegalArgumentException("Unknown request event value " + requestEvent);
 		};
 
+		// TODO personalization parameters for the email template needs to match the templates
 		final var personalization = Map.of(
-			"requestId", requestId.toString(), 
+			"requestId", requestId.toString(),
 			"requestTitle", requestTitle
 		);
 
 		log.trace("Request to send request notification email=[{}], parameters=[{}]", email, personalization);
 
 		final var request = Map.of(
-			"email_address", email, 
-			"template_id", templateId, 
+			"email_address", email,
+			"template_id", templateId,
 			"personalisation", personalization
 		);
 

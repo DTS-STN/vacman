@@ -47,7 +47,7 @@
 
 		<!-- dependency/plugin versions -->
 
-		<immutables.version>2.11.4</immutables.version>
+		<immutables.version>2.11.6</immutables.version>
 		<johnzon.version>1.2.21</johnzon.version>
 		<mapstruct.version>1.6.3</mapstruct.version>
 		<record-builder.version>49</record-builder.version>
