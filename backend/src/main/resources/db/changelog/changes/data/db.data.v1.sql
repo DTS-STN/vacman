@@ -888,6 +888,7 @@ VALUES
 (7, 'DEP', 'Deployment - ESDC Priority', 'Mutation - Priorité d''EDSC', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
 (8, 'DWE', 'Deployment - From within ESDC', 'Mutation - Au sein de EDSC', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP),
 (9, 'DAD', 'Deployment - From another department/agency', 'Mutation - D''un autre ministère', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
+(10, 'DIE', 'Deployment - Indeterminate (refer to exceptions)', 'Mutation - Durée indéterminée (veuillez consulter les exceptions)', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
 
 --changeset system:cd_selection_process_type_off dbms:mssql
 SET IDENTITY_INSERT CD_SELECTION_PROCESS_TYPE OFF;

@@ -284,6 +284,12 @@ export const SELECTION_PROCESS_TYPE = {
     nameEn: 'Deployment - From another department/agency',
     nameFr: "Mutation - D'un autre ministère",
   },
+  DEPLOYMENT_INDETERMINATE: {
+    id: 10,
+    code: 'DIE',
+    nameEn: 'Deployment - Indeterminate (refer to exceptions)',
+    nameFr: 'Mutation - Durée indéterminée (veuillez consulter les exceptions)',
+  },
 } as const;
 
 export const REQUEST_EVENT_TYPE = {
