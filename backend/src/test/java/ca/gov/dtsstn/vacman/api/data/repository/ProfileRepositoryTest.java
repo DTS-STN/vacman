@@ -200,7 +200,7 @@ class ProfileRepositoryTest {
 					.build());
 
 			final var results = profileRepository.findAll(
-				isAvailableForReferral()
+				isAvailableForReferral(true)
 				.and(ProfileRepository.hasUserId(testUser.getId())));
 
 			assertThat(results).hasSize(2);
@@ -220,7 +220,7 @@ class ProfileRepositoryTest {
 					.build());
 
 			final var results = profileRepository.findAll(
-				isAvailableForReferral()
+				isAvailableForReferral(true)
 				.and(ProfileRepository.hasUserId(testUser.getId())));
 
 			assertThat(results).isEmpty();
@@ -238,7 +238,7 @@ class ProfileRepositoryTest {
 					.build());
 
 			final var results = profileRepository.findAll(
-				isAvailableForReferral()
+				isAvailableForReferral(true)
 				.and(ProfileRepository.hasUserId(testUser.getId())));
 
 			assertThat(results).isEmpty();
@@ -1360,7 +1360,7 @@ class ProfileRepositoryTest {
 				hasUserId(testUser.getId())
 				.and(hasHrAdvisorId(hrAdvisor1.getId()))
 				.and(hasProfileStatusCodeIn(List.of(statusApproved.getCode())))
-				.and(isAvailableForReferral())
+				.and(isAvailableForReferral(true))
 				.and(hasPreferredClassificationIdIn(List.of(classificationAs01.getId(), classificationPm02.getId())))
 				.and(hasPreferredCityCodeIn(List.of(cityBathurst.getCode(), cityStJohns.getCode())))
 				.and(hasPreferredLanguageCodeIn(List.of(languageReferralTypeBilingual.getCode()))));

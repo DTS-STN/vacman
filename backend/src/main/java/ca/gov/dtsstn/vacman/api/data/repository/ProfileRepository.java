@@ -125,8 +125,8 @@ public interface ProfileRepository extends AbstractBaseRepository<ProfileEntity>
 	/**
 	 * JPA specification to find profiles that are available for referral.
 	 */
-	static Specification<ProfileEntity> isAvailableForReferral() {
-		return (root, query, cb) -> cb.equal(root.get("isAvailableForReferral"), true);
+	static Specification<ProfileEntity> isAvailableForReferral(boolean value) {
+		return (root, query, cb) -> cb.equal(root.get("isAvailableForReferral"), value);
 	}
 
 }
