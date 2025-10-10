@@ -372,6 +372,8 @@ export default {
     'candidate-feedback-submitted': 'Candidate feedback submitted',
     'candidate-feedback-submitted-detail': 'All candidate feedback for this request has been completed.',
     'feedback-submitted-alert-msg': 'Feedback submitted successfully! An HR advisor will review it for approval',
+    'clearance-granted': 'Clearance granted',
+    'psc-clearance-granted': 'PSC clearance granted',
     'delete-request': {
       'title': 'Delete this request?',
       'content': 'This will permanently delete this request. This action cannot be undone.',

@@ -392,6 +392,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     requestDate: requestData.createdDate,
     languageRequirementName: lang === 'en' ? requestData.languageRequirement?.nameEn : requestData.languageRequirement?.nameFr,
     securityClearanceName: lang === 'en' ? requestData.securityClearance?.nameEn : requestData.securityClearance?.nameFr,
+    hasMatches: requestData.hasMatches,
     lang,
   };
 }
@@ -559,6 +560,7 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
 
         {loaderData.status && (
           <RequestSummaryCard
+            hasMatches={loaderData.hasMatches}
             priorityClearanceNumber={loaderData.priorityClearanceNumber}
             pscClearanceNumber={loaderData.pscClearanceNumber}
             requestStatus={loaderData.status}
