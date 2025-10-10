@@ -368,13 +368,16 @@ export default {
     'request-submitted': 'Request submitted successfully! An HR advisor will review it for approval',
     'matches-available': 'Matches available',
     'matches-available-detail': 'Candidates for this request have been found. Review them and submit your feedback.',
-    'matches-available-link': 'View candidates',
+    'view-candidates-link': 'View candidates',
+    'candidate-feedback-submitted': 'Candidate feedback submitted',
+    'candidate-feedback-submitted-detail': 'All candidate feedback for this request has been completed.',
+    'feedback-submitted-alert-msg': 'Feedback submitted successfully! An HR advisor will review it for approval',
     'delete-request': {
       'title': 'Delete this request?',
       'content': 'This will permanently delete this request. This action cannot be undone.',
       'keep': 'Keep request',
       'delete': 'Delete request',
-      'not-allowed': 'Submitted requests can’t be deleted. Only drafts may be removed.',
+      'not-allowed': "Submitted requests can't be deleted. Only drafts may be removed.",
       'error-generic': 'Something went wrong while deleting the request. Try again later.',
     },
     'back': 'Back to requests',
@@ -402,6 +405,9 @@ export default {
     'no-match-found-alert-msg': 'Matching process ran - no match found. Request is now pending PSC clearance.',
     'clearance-generated-alert-msg': 'Clearance generated successfully!',
     'submit': 'Submit',
+    'feedback-available': 'Feedback available',
+    'feedback-available-detail': 'All candidate feedback for this request has been completed and submitted for your review.',
+    'view-feedback-link': 'View feedback',
     'cancel-request': {
       'title': 'Cancel this request?',
       'content':
@@ -418,6 +424,7 @@ export default {
     'status': {
       'approved-assessment-feedback-pending': 'Assessment feedback pending',
       'request-pending-approval': 'Request pending approval',
+      'pending-feedback-pending-approval': 'Feedback Pending Approval',
       'vms-request-on-hold-pending-psc-clearance': 'Pending PSC Clearance',
     },
     'errors': {
