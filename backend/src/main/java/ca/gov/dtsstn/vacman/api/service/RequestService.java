@@ -29,6 +29,7 @@ import ca.gov.dtsstn.vacman.api.data.repository.EmploymentEquityRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.EmploymentTenureRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.LanguageRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.LanguageRequirementRepository;
+import ca.gov.dtsstn.vacman.api.data.repository.MatchRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.NonAdvertisedAppointmentRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.ProvinceRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.RequestRepository;
@@ -71,6 +72,8 @@ public class RequestService {
 
 	private final LanguageRequirementRepository languageRequirementRepository;
 
+	private final MatchRepository matchRepository;
+
 	private final NonAdvertisedAppointmentRepository nonAdvertisedAppointmentRepository;
 
 	private final NotificationService notificationService;
@@ -103,6 +106,7 @@ public class RequestService {
 			LanguageRepository languageRepository,
 			LanguageRequirementRepository languageRequirementRepository,
 			LookupCodes lookupCodes,
+			MatchRepository matchRepository,
 			NonAdvertisedAppointmentRepository nonAdvertisedAppointmentRepository,
 			NotificationService notificationService,
 			ProvinceRepository provinceRepository,
@@ -122,6 +126,7 @@ public class RequestService {
 		this.employmentTenureRepository = employmentTenureRepository;
 		this.languageRepository = languageRepository;
 		this.languageRequirementRepository = languageRequirementRepository;
+		this.matchRepository = matchRepository;
 		this.nonAdvertisedAppointmentRepository = nonAdvertisedAppointmentRepository;
 		this.cityRepository = cityRepository;
 		this.securityClearanceRepository = securityClearanceRepository;
@@ -160,6 +165,17 @@ public class RequestService {
 		return requestRepository.findAll().stream()
 			.filter(request -> request.getOwnerId().map(id -> id.equals(userId)).orElse(false) || request.getDelegateIds().contains(userId))
 			.toList();
+	}
+
+	/**
+	 * Checks if a request has any associated matches.
+	 *
+	 * @param requestId The request ID
+	 * @return true if matches exist for the request, false otherwise
+	 */
+	@Transactional(readOnly = true)
+	public boolean hasMatches(Long requestId) {
+		return matchRepository.exists(MatchRepository.hasRequestId(requestId));
 	}
 
 	/**
