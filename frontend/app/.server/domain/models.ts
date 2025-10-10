@@ -253,6 +253,7 @@ export type RequestReadModel = Readonly<{
   englishStatementOfMerit?: string;
   englishTitle?: string;
   equityNeeded?: boolean;
+  hasMatches?: boolean;
   frenchLanguageProfile?: string;
   frenchStatementOfMerit?: string;
   frenchTitle?: string;

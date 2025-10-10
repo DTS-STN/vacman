@@ -27,7 +27,7 @@ import { getUserService } from '~/.server/domain/services/user-service';
 import { getWorkScheduleService } from '~/.server/domain/services/work-schedule-service';
 import { getWorkUnitService } from '~/.server/domain/services/workunit-service';
 import { LogFactory } from '~/.server/logging';
-import { REQUEST_EVENT_TYPE } from '~/domain/constants';
+import { REQUEST_EVENT_TYPE, REQUEST_STATUS_CODE } from '~/domain/constants';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
 
@@ -369,6 +369,7 @@ export function getMockRequestService(): RequestService {
       const updatedRequest: RequestReadModel = {
         ...existingRequest,
         status: newStatus,
+        hasMatches: newStatus.code === REQUEST_STATUS_CODE.FDBK_PENDING,
         lastModifiedDate: new Date().toISOString(),
         lastModifiedBy: 'system',
       };
