@@ -2,7 +2,6 @@ package ca.gov.dtsstn.vacman.api.service;
 
 import java.util.List;
 import java.util.Map;
-import java.util.ArrayList;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,7 +53,7 @@ public class NotificationService {
 		final var templateId = switch (profileStatus) {
 			case CREATED -> this.languages.english().equals(language)
 				? applicationProperties.gcnotify().profileCreatedTemplateIdEng()
-				: applicationProperties.gcnotify().profileCreatedTemplateIdFra(); 
+				: applicationProperties.gcnotify().profileCreatedTemplateIdFra();
 
 			case UPDATED -> this.languages.english().equals(language)
 				? applicationProperties.gcnotify().profileUpdatedTemplateIdEng()
@@ -79,8 +78,8 @@ public class NotificationService {
 		log.trace("Request to send fileNumber notification email=[{}], parameters=[{}]", email, personalization);
 
 		final var request = Map.of(
-			"email_address", email, 
-			"template_id", templateId, 
+			"email_address", email,
+			"template_id", templateId,
 			"personalisation", personalization
 		);
 
@@ -107,18 +106,18 @@ public class NotificationService {
 			case FEEDBACK_COMPLETED -> applicationProperties.gcnotify().requestFeedbackCompletedTemplateId();
 			default -> throw new IllegalArgumentException("Unknown request event value " + requestEvent);
 		};
-		
+
 		// TODO personalization parameters for the email template needs to match the templates
 		final var personalization = Map.of(
-			"requestId", requestId.toString(), 
+			"requestId", requestId.toString(),
 			"requestTitle", requestTitle
 		);
 
 		log.trace("Request to send request notification email=[{}], parameters=[{}]", email, personalization);
 
 		final var request = Map.of(
-			"email_address", email, 
-			"template_id", templateId, 
+			"email_address", email,
+			"template_id", templateId,
 			"personalisation", personalization
 		);
 

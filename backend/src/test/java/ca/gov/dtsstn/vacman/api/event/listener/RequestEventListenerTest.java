@@ -1,6 +1,7 @@
 package ca.gov.dtsstn.vacman.api.event.listener;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -160,7 +161,7 @@ class RequestEventListenerTest {
 			requestEventListener.sendRequestFeedbackPendingNotification(new RequestFeedbackPendingEvent(request));
 
 			verify(notificationService, never()).sendRequestNotification(
-				any(List.class),
+				anyList(),
 				any(Long.class),
 				any(String.class),
 				any(RequestEvent.class)
@@ -181,7 +182,7 @@ class RequestEventListenerTest {
 			requestEventListener.sendRequestFeedbackPendingNotification(new RequestFeedbackPendingEvent(request));
 
 			verify(notificationService, never()).sendRequestNotification(
-				any(List.class),
+				anyList(),
 				any(Long.class),
 				any(String.class),
 				any(RequestEvent.class)
