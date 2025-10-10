@@ -14,7 +14,6 @@ import type {
   LocalizedSecurityClearance,
   RequestReadModel,
 } from '~/.server/domain/models';
-import { Button } from '~/components/button';
 import { ButtonLink } from '~/components/button-link';
 import type {
   ChoiceTag,
@@ -30,6 +29,7 @@ import { InputMultiSelect } from '~/components/input-multiselect';
 import type { InputRadiosProps } from '~/components/input-radios';
 import { InputRadios } from '~/components/input-radios';
 import { InputSelect } from '~/components/input-select';
+import { LoadingButton } from '~/components/loading-button';
 import { PageTitle } from '~/components/page-title';
 import { LANGUAGE_LEVEL, LANGUAGE_REQUIREMENT_CODES } from '~/domain/constants';
 import type { I18nRouteFile } from '~/i18n-routes';
@@ -359,9 +359,9 @@ export function PositionInformationForm({
               <ButtonLink file={cancelLink} params={params} id="cancel-button" variant="alternative">
                 {tApp('form.cancel')}
               </ButtonLink>
-              <Button name="action" variant="primary" id="save-button">
+              <LoadingButton name="action" variant="primary" id="save-button">
                 {tApp('form.save')}
-              </Button>
+              </LoadingButton>
             </div>
           </div>
         </Form>

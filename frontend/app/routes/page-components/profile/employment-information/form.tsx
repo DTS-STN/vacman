@@ -16,12 +16,12 @@ import type {
   Profile,
   User,
 } from '~/.server/domain/models';
-import { Button } from '~/components/button';
 import { ButtonLink } from '~/components/button-link';
 import { DatePickerField } from '~/components/date-picker-field';
 import { FormErrorSummary } from '~/components/error-summary';
 import { InputLegend } from '~/components/input-legend';
 import { InputSelect } from '~/components/input-select';
+import { LoadingButton } from '~/components/loading-button';
 import { PageTitle } from '~/components/page-title';
 import { EMPLOYEE_WFA_STATUS } from '~/domain/constants';
 import { useLanguage } from '~/hooks/use-language';
@@ -298,9 +298,9 @@ export function EmploymentInformationForm({
               <ButtonLink file={cancelLink} params={params} id="cancel-button" variant="alternative">
                 {t('form.cancel')}
               </ButtonLink>
-              <Button name="action" variant="primary" id="save-button">
+              <LoadingButton name="action" variant="primary" id="save-button">
                 {t('form.save')}
-              </Button>
+              </LoadingButton>
             </div>
           </div>
         </Form>

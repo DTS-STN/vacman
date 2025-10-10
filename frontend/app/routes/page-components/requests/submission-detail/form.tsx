@@ -12,7 +12,6 @@ import type {
   LocalizedWorkUnit,
   RequestReadModel,
 } from '~/.server/domain/models';
-import { Button } from '~/components/button';
 import { ButtonLink } from '~/components/button-link';
 import { FormErrorSummary } from '~/components/error-summary';
 import { InputField } from '~/components/input-field';
@@ -20,6 +19,7 @@ import type { InputRadiosProps } from '~/components/input-radios';
 import { InputRadios } from '~/components/input-radios';
 import { InputSelect } from '~/components/input-select';
 import { InputTextarea } from '~/components/input-textarea';
+import { LoadingButton } from '~/components/loading-button';
 import { PageTitle } from '~/components/page-title';
 import { REQUIRE_OPTIONS } from '~/domain/constants';
 import type { I18nRouteFile } from '~/i18n-routes';
@@ -328,9 +328,9 @@ export function SubmissionDetailsForm({
               <ButtonLink file={cancelLink} params={params} id="cancel-button" variant="alternative">
                 {tApp('form.cancel')}
               </ButtonLink>
-              <Button name="action" variant="primary" id="save-button">
+              <LoadingButton name="action" variant="primary" id="save-button">
                 {tApp('form.save')}
-              </Button>
+              </LoadingButton>
             </div>
           </div>
         </Form>
