@@ -16,6 +16,7 @@ import static ca.gov.dtsstn.vacman.api.data.repository.ProfileRepository.isAvail
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -355,7 +356,7 @@ class ProfileRepositoryTest {
 					.preferredCities(List.of(cityOttawa))
 					.build());
 
-			final var results = profileRepository.findAll(hasPreferredCityIdIn(null));
+			final var results = profileRepository.findAll(hasPreferredCityIdIn((Collection<Long>) null));
 
 			assertThat(results).isNotNull();
 		}
@@ -465,7 +466,7 @@ class ProfileRepositoryTest {
 					.preferredCities(List.of(cityOttawa))
 					.build());
 
-			final var results = profileRepository.findAll(hasPreferredCityCodeIn(null));
+			final var results = profileRepository.findAll(hasPreferredCityCodeIn((Collection<String>) null));
 
 			assertThat(results).isNotNull();
 		}
@@ -581,7 +582,7 @@ class ProfileRepositoryTest {
 					.preferredClassifications(List.of(classificationAs01))
 					.build());
 
-			final var results = profileRepository.findAll(hasPreferredClassificationIdIn(null));
+			final var results = profileRepository.findAll(hasPreferredClassificationIdIn((Collection<Long>) null));
 
 			assertThat(results).isNotNull();
 		}
@@ -691,7 +692,7 @@ class ProfileRepositoryTest {
 					.preferredClassifications(List.of(classificationAs01))
 					.build());
 
-			final var results = profileRepository.findAll(hasPreferredClassificationCodeIn(null));
+			final var results = profileRepository.findAll(hasPreferredClassificationCodeIn((Collection<String>) null));
 
 			assertThat(results).isNotNull();
 		}
@@ -815,7 +816,7 @@ class ProfileRepositoryTest {
 					.profileStatus(statusApproved)
 					.build());
 
-			final var results = profileRepository.findAll(hasHrAdvisorIdIn(null));
+			final var results = profileRepository.findAll(hasHrAdvisorIdIn((Collection<Long>) null));
 
 			// Verify it returns results without error
 			// (note: matches all due to conjunction)
@@ -933,7 +934,7 @@ class ProfileRepositoryTest {
 					.preferredLanguages(List.of(languageReferralTypeBilingual))
 					.build());
 
-			final var results = profileRepository.findAll(hasPreferredLanguageIdIn(null));
+			final var results = profileRepository.findAll(hasPreferredLanguageIdIn((Collection<Long>) null));
 
 			assertThat(results).isNotNull();
 		}
@@ -1043,7 +1044,7 @@ class ProfileRepositoryTest {
 					.preferredLanguages(List.of(languageReferralTypeBilingual))
 					.build());
 
-			final var results = profileRepository.findAll(hasPreferredLanguageCodeIn(null));
+			final var results = profileRepository.findAll(hasPreferredLanguageCodeIn((Collection<String>) null));
 
 			assertThat(results).isNotNull();
 		}
@@ -1127,7 +1128,7 @@ class ProfileRepositoryTest {
 					.profileStatus(statusApproved)
 					.build());
 
-			final var results = profileRepository.findAll(hasProfileStatusCodeIn(null));
+			final var results = profileRepository.findAll(hasProfileStatusCodeIn((Collection<String>) null));
 
 			assertThat(results).isNotNull();
 		}
@@ -1205,7 +1206,7 @@ class ProfileRepositoryTest {
 					.profileStatus(statusApproved)
 					.build());
 
-			final var results = profileRepository.findAll(hasProfileStatusIdIn(null));
+			final var results = profileRepository.findAll(hasProfileStatusIdIn((Collection<Long>) null));
 
 			assertThat(results).isNotNull();
 		}
