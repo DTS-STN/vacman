@@ -88,6 +88,20 @@ spring:
       naming:
         # Use the exact names for tables and columns as specified in the entity classes
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    properties:
+      # maximum number of SQL statements
+      # (specifically, INSERT, UPDATE, and DELETE statements)
+      # that Hibernate will batch together before sending
+      # them to the database driver for execution
+      '[hibernate.jdbc.batch_size]': 50
+      # The default batch size for fetching entities or
+      # collections when using select fetching
+      '[hibernate.default_batch_fetch_size]': 50
+      # Groups similar SQL statements together so they can be batched.
+      '[hibernate.order_inserts]': true
+      '[hibernate.order_updates]': true
+      # Ensures that entities using @Version (optimistic locking) can be batched.
+      '[hibernate.batch_versioned_data]': true
   liquibase:
     enabled: true
     change-log: classpath:db/changelog/db.changelog-master.yaml
@@ -220,6 +234,9 @@ springdoc:
 #######################################################################################################################
 
 application:
+  performance-test:
+    data:
+      enabled: false
   async:
     enabled: true
   caching:
