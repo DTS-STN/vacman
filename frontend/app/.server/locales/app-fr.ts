@@ -429,10 +429,7 @@ export default {
       reassign: 'Réassigner à moi',
     },
     'status': {
-      'approved-assessment-feedback-pending': "En attente de rétroaction d'évaluation",
       'request-pending-approval': "Demande en attente d'approbation",
-      'pending-feedback-pending-approval': "Rétroaction d'évaluation en attente d'approbation",
-      'vms-request-on-hold-pending-psc-clearance': "En attente de l'autorisation de la CF",
     },
     'errors': {
       'psc-clearance-number-required': 'Autorisation CFP est requise',
