@@ -422,10 +422,7 @@ export default {
       reassign: 'Re-assign to me',
     },
     'status': {
-      'approved-assessment-feedback-pending': 'Assessment feedback pending',
       'request-pending-approval': 'Request pending approval',
-      'pending-feedback-pending-approval': 'Feedback Pending Approval',
-      'vms-request-on-hold-pending-psc-clearance': 'Pending PSC Clearance',
     },
     'errors': {
       'psc-clearance-number-required': 'PSC clearance number is required',
