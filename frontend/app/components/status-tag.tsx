@@ -81,7 +81,7 @@ export function RequestStatusTag({ status, lang, rounded = false, view }: Reques
 
   let displayName: string;
 
-  if (status.code === 'SUBMIT' && view === 'hr-advisor') {
+  if (status.code === REQUEST_STATUS_CODE.SUBMIT && view === 'hr-advisor') {
     displayName = t('hr-advisor-referral-requests.status.request-pending-approval');
   } else {
     displayName = lang === 'en' ? status.nameEn : status.nameFr;
