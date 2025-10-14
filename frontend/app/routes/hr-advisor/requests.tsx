@@ -7,6 +7,7 @@ import type { Route } from './+types/requests';
 
 import { getRequestService } from '~/.server/domain/services/request-service';
 import { getRequestStatusService } from '~/.server/domain/services/request-status-service';
+import { getUserService } from '~/.server/domain/services/user-service';
 import { serverEnvironment } from '~/.server/environment';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { BackLink } from '~/components/back-link';
@@ -28,6 +29,9 @@ export async function loader({ context, request }: Route.LoaderArgs) {
   requireAuthentication(session, request);
 
   const { t, lang } = await getTranslation(request, handle.i18nNamespace);
+
+  const currentUserResult = await getUserService().getCurrentUser(session.authState.accessToken);
+  const currentUser = currentUserResult.unwrap();
 
   const requestsResult = await getRequestService().getCurrentUserRequests(session.authState.accessToken);
   const requests = (requestsResult.into()?.content ?? [])
@@ -78,6 +82,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
     activeRequestNames,
     inactiveRequestNames,
     baseTimeZone: serverEnvironment.BASE_TIMEZONE,
+    userId: currentUser.id,
     lang,
   };
 }
