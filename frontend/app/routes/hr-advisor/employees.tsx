@@ -494,7 +494,7 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
         const isArchived = profile.profileStatus?.code === 'ARCHIVED';
 
         return (
-          <div className="flex gap-4">
+          <div className="flex items-baseline gap-4">
             <InlineLink
               className="rounded-sm text-sky-800 underline hover:text-blue-700 focus:text-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
               file="routes/hr-advisor/employee-profile/index.tsx"
@@ -507,16 +507,17 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
               {t('app:hr-advisor-employees-table.view')}
             </InlineLink>
             {!isArchived && (
-              <button
-                type="button"
+              <Button
+                variant="alternative"
+                id="archive-employee"
                 onClick={() => handleArchive(profile)}
-                className="rounded-sm text-sky-800 hover:text-blue-700 focus:text-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
                 aria-label={t('app:hr-advisor-employees-table.archive-link', {
                   profileUserName,
                 })}
+                size="sm"
               >
                 {t('app:hr-advisor-employees-table.archive')}
-              </button>
+              </Button>
             )}
           </div>
         );
