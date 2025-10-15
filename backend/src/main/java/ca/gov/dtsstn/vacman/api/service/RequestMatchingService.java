@@ -21,6 +21,7 @@ import java.util.function.Function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import ca.gov.dtsstn.vacman.api.config.properties.ApplicationProperties;
@@ -115,6 +116,7 @@ public class RequestMatchingService {
 	 *
 	 *   - Limit: Select up to `max` profiles from the sorted list.
 	 */
+	@Transactional
 	public List<MatchEntity> performRequestMatching(long requestId, int max) {
 		Assert.isTrue(max > 0, "max must be positive");
 
