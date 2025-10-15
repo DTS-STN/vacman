@@ -339,7 +339,7 @@ class RequestMatchingServiceTest {
 				profileRepository.save(profile);
 			}
 
-			final var matches = requestMatchingService.findMatches(request.getId(), 20);
+			final var matches = requestMatchingService.performRequestMatching(request.getId(), 20);
 
 			final Predicate<ProfileEntity> hasOttawa = p -> p.getPreferredCities().stream().anyMatch(byCode("ON52"));
 			final Predicate<ProfileEntity> hasToronto = p -> p.getPreferredCities().stream().anyMatch(byCode("ON72"));
@@ -439,7 +439,7 @@ class RequestMatchingServiceTest {
 				profileRepository.save(profile);
 			}
 
-			final var matches = requestMatchingService.findMatches(request.getId(), 20);
+			final var matches = requestMatchingService.performRequestMatching(request.getId(), 20);
 
 			assertThat(matches).as("Should match all profiles that include IT-01 in their preferred classifications")
 				.extracting(MatchEntity::getProfile)
@@ -525,7 +525,7 @@ class RequestMatchingServiceTest {
 				profileRepository.save(profile);
 			}
 
-			final var matches = requestMatchingService.findMatches(request.getId(), 10);
+			final var matches = requestMatchingService.performRequestMatching(request.getId(), 10);
 
 			assertThat(matches).as("Should find only profiles with APPROVED status")
 				.extracting(MatchEntity::getProfile)
@@ -596,7 +596,7 @@ class RequestMatchingServiceTest {
 				profileRepository.save(profile);
 			}
 
-			final var matches = requestMatchingService.findMatches(request.getId(), 10);
+			final var matches = requestMatchingService.performRequestMatching(request.getId(), 10);
 
 			assertThat(matches).as("Should find only profiles available for referral (7 available, capped at max)")
 				.extracting(MatchEntity::getProfile)
@@ -688,7 +688,7 @@ class RequestMatchingServiceTest {
 			// Request 7 profiles. The expectation is to get:
 			// - All 5 profiles from the high-priority "grace period" group.
 			// - 2 randomly selected profiles from the "beyond grace period" group to fill the limit.
-			final var matches = requestMatchingService.findMatches(request.getId(), 7);
+			final var matches = requestMatchingService.performRequestMatching(request.getId(), 7);
 
 			final var gracePeriodCount = matches.stream()
 				.map(MatchEntity::getProfile)
@@ -773,7 +773,7 @@ class RequestMatchingServiceTest {
 			}
 
 			// Request 7 profiles (less than the 10 available)
-			final var matches = requestMatchingService.findMatches(request.getId(), 7);
+			final var matches = requestMatchingService.performRequestMatching(request.getId(), 7);
 
 			final var gracePeriodCount = matches.stream()
 				.map(MatchEntity::getProfile)
@@ -870,7 +870,7 @@ class RequestMatchingServiceTest {
 			profileRepository.saveAll(List.of(withinGrace, atBoundary, beyondGrace));
 
 			// Request all 3 profiles to observe their ordering
-			final var matches = requestMatchingService.findMatches(request.getId(), 3);
+			final var matches = requestMatchingService.performRequestMatching(request.getId(), 3);
 
 			assertThat(matches).as("Should return all 3 profiles")
 				.hasSize(3);
@@ -1033,7 +1033,7 @@ class RequestMatchingServiceTest {
 			}
 
 			// Request 7 profiles
-			final var matches = requestMatchingService.findMatches(request.getId(), 7);
+			final var matches = requestMatchingService.performRequestMatching(request.getId(), 7);
 
 			// Count profiles by priority level
 			final var highPriorityCount = matches.stream()
@@ -1145,7 +1145,7 @@ class RequestMatchingServiceTest {
 				profileRepository.save(profile);
 			}
 
-			final var matches = requestMatchingService.findMatches(request.getId(), 10);
+			final var matches = requestMatchingService.performRequestMatching(request.getId(), 10);
 
 			assertThat(matches).as("Should find only profiles with ENGLISH language preference")
 				.extracting(MatchEntity::getProfile)
@@ -1214,7 +1214,7 @@ class RequestMatchingServiceTest {
 				profileRepository.save(profile);
 			}
 
-			final var matches = requestMatchingService.findMatches(request.getId(), 10);
+			final var matches = requestMatchingService.performRequestMatching(request.getId(), 10);
 
 			assertThat(matches).as("Should find only profiles with FRENCH language preference")
 				.extracting(MatchEntity::getProfile)
@@ -1301,7 +1301,7 @@ class RequestMatchingServiceTest {
 				profileRepository.save(profile);
 			}
 
-			final var matches = requestMatchingService.findMatches(request.getId(), 10);
+			final var matches = requestMatchingService.performRequestMatching(request.getId(), 10);
 
 			assertThat(matches).as("Should find profiles with either ENGLISH or FRENCH language preference")
 				.extracting(MatchEntity::getProfile)
@@ -1385,7 +1385,7 @@ class RequestMatchingServiceTest {
 				profileRepository.save(profile);
 			}
 
-			final var matches = requestMatchingService.findMatches(request.getId(), 10);
+			final var matches = requestMatchingService.performRequestMatching(request.getId(), 10);
 
 			assertThat(matches).as("Should find all profiles regardless of language preference")
 				.hasSize(10);
@@ -1452,7 +1452,7 @@ class RequestMatchingServiceTest {
 				profileRepository.save(profile);
 			}
 
-			final var matches = requestMatchingService.findMatches(request.getId(), 10);
+			final var matches = requestMatchingService.performRequestMatching(request.getId(), 10);
 
 			assertThat(matches).as("Should find only profiles with BILINGUAL language preference")
 				.extracting(MatchEntity::getProfile)
@@ -1521,7 +1521,7 @@ class RequestMatchingServiceTest {
 				profileRepository.save(profile);
 			}
 
-			final var matches = requestMatchingService.findMatches(request.getId(), 10);
+			final var matches = requestMatchingService.performRequestMatching(request.getId(), 10);
 
 			assertThat(matches).as("Should find only profiles with BILINGUAL language preference")
 				.extracting(MatchEntity::getProfile)
@@ -1641,7 +1641,7 @@ class RequestMatchingServiceTest {
 				profileRepository.save(profile);
 			}
 
-			final var matches = requestMatchingService.findMatches(request.getId(), 10);
+			final var matches = requestMatchingService.performRequestMatching(request.getId(), 10);
 
 			// Count profiles by priority
 			final var highPriorityCount = matches.stream()
@@ -1807,7 +1807,7 @@ class RequestMatchingServiceTest {
 			}
 
 			// Request all 100 profiles
-			final var matches = requestMatchingService.findMatches(request.getId(), 100);
+			final var matches = requestMatchingService.performRequestMatching(request.getId(), 100);
 
 			assertThat(matches).as("Should return all 100 matching profiles")
 				.hasSize(100);
@@ -1930,7 +1930,7 @@ class RequestMatchingServiceTest {
 			}
 
 			// Request only 10 profiles (less than the 12 available)
-			final var matches = requestMatchingService.findMatches(request.getId(), 10);
+			final var matches = requestMatchingService.performRequestMatching(request.getId(), 10);
 
 			final var definedPriorityCount = matches.stream()
 				.filter(p -> p.getProfile().getWfaStatus().getId().equals(definedPriorityStatus.getId()))
@@ -2021,7 +2021,7 @@ class RequestMatchingServiceTest {
 				profileRepository.save(profile);
 			}
 
-			final var matches = requestMatchingService.findMatches(request.getId(), 10);
+			final var matches = requestMatchingService.performRequestMatching(request.getId(), 10);
 
 			assertThat(matches).as("Should find profiles including those with null start date (8 total, capped at max)")
 				.extracting(MatchEntity::getProfile)
@@ -2092,7 +2092,7 @@ class RequestMatchingServiceTest {
 				profileRepository.save(profile);
 			}
 
-			final var matches = requestMatchingService.findMatches(request.getId(), 10);
+			final var matches = requestMatchingService.performRequestMatching(request.getId(), 10);
 
 			assertThat(matches).as("Should find profiles including those with null end date (10 total, matches max limit)")
 				.extracting(MatchEntity::getProfile)
@@ -2164,7 +2164,7 @@ class RequestMatchingServiceTest {
 				profileRepository.save(profile);
 			}
 
-			final var matches = requestMatchingService.findMatches(request.getId(), 10);
+			final var matches = requestMatchingService.performRequestMatching(request.getId(), 10);
 
 			final Predicate<ProfileEntity> hasStartedOrNoStartDate = p ->
 				p.getWfaStartDate() == null || !p.getWfaStartDate().isAfter(LocalDate.now());
@@ -2238,7 +2238,7 @@ class RequestMatchingServiceTest {
 				profileRepository.save(profile);
 			}
 
-			final var matches = requestMatchingService.findMatches(request.getId(), 10);
+			final var matches = requestMatchingService.performRequestMatching(request.getId(), 10);
 
 			final Predicate<ProfileEntity> hasNotEndedOrNoEndDate = p ->
 				p.getWfaEndDate() == null || !p.getWfaEndDate().isBefore(LocalDate.now());
@@ -2302,7 +2302,7 @@ class RequestMatchingServiceTest {
 				profileRepository.save(profile);
 			}
 
-			final var matches = requestMatchingService.findMatches(request.getId(), 10);
+			final var matches = requestMatchingService.performRequestMatching(request.getId(), 10);
 
 			assertThat(matches).as("Should return empty list when no profiles match all criteria")
 				.isEmpty();
@@ -2338,7 +2338,7 @@ class RequestMatchingServiceTest {
 					.submitter(requestSubmitter)
 					.build());
 
-			assertThatThrownBy(() -> requestMatchingService.findMatches(request.getId(), 10))
+			assertThatThrownBy(() -> requestMatchingService.performRequestMatching(request.getId(), 10))
 				.isInstanceOf(IllegalArgumentException.class)
 				.hasMessageContaining("Unknown language requirement code: UNKNOWN-CODE");
 		}
@@ -2411,7 +2411,7 @@ class RequestMatchingServiceTest {
 			profileRepository.save(profile);
 		}
 
-		final var matches = requestMatchingService.findMatches(request.getId(), 25);
+		final var matches = requestMatchingService.performRequestMatching(request.getId(), 25);
 
 		// create some predicates to help make the assertions more readable
 		final Predicate<ProfileEntity> hasApprovedStatus = p -> p.getProfileStatus().getCode().equals("APPROVED");

@@ -115,7 +115,7 @@ public class RequestMatchingService {
 	 *
 	 *   - Limit: Select up to `max` profiles from the sorted list.
 	 */
-	public List<MatchEntity> findMatches(long requestId, int max) {
+	public List<MatchEntity> performRequestMatching(long requestId, int max) {
 		Assert.isTrue(max > 0, "max must be positive");
 
 		log.info("Finding maximum {} matches for request ID: {}", max, requestId);
