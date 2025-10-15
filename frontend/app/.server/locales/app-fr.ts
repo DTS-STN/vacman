@@ -293,6 +293,7 @@ export default {
     'updated': 'Mis à jour',
     'status': 'Statut',
     'action': 'Actions',
+    'branch': 'Direction générale',
     'next-page': 'Suivant',
     'filter-by': "Tableau de filtrage par tous les employés ou profil qui m'est attribué",
     'view-link': 'Afficher les informations de profil pour {{profileUserName}} ',

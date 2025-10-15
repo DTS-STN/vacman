@@ -290,6 +290,7 @@ export default {
     'updated': 'Updated',
     'status': 'Status',
     'action': 'Action',
+    'branch': 'Branch',
     'next-page': 'Next',
     'filter-by': 'Filter table by all employees or profile assigned to me',
     'view-link': 'View profile information for {{profileUserName}}',
