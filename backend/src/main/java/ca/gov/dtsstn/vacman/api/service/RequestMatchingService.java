@@ -165,7 +165,7 @@ public class RequestMatchingService {
 			// Sort by WFA status, then urgency
 			// this is a stable sort that will ensure profiles with identical
 			// sort order AND urgency retain their relative shuffled order
-			.sorted(byPriority())
+			.sorted(byPriority(today))
 			// Select top 'max' profiles
 			.limit(max).toList();
 
@@ -241,9 +241,9 @@ public class RequestMatchingService {
 	 * This comparator is designed to be used as a stable sort after an initial random shuffle,
 	 * ensuring that profiles equal on both criteria retain their random ordering.
 	 */
-	private Comparator<ProfileEntity> byPriority() {
+	private Comparator<ProfileEntity> byPriority(LocalDate today) {
 		final Function<ProfileEntity, Integer> bySortOrder = this::getWfaSortOrder;
-		final Function<ProfileEntity, Boolean> byUrgency = this::isUrgent;
+		final Function<ProfileEntity, Boolean> byUrgency = profile -> isUrgent(profile, today);
 		// note: isUrgent comparison is reversed because urgent=true must come before urgent=false
 		return comparing(bySortOrder).thenComparing(byUrgency, reverseOrder());
 	}
@@ -275,9 +275,9 @@ public class RequestMatchingService {
 	 * If a profile has no WFA end date (null), it is not considered within the grace period
 	 * since there is no imminent expiration.
 	 */
-	private boolean isUrgent(ProfileEntity profile) {
+	private boolean isUrgent(ProfileEntity profile, LocalDate today) {
 		final var gracePeriod = requestMatchingProperties.wfaEndDateGracePeriod();
-		final var cutoffDate = LocalDate.now().plusDays(gracePeriod.toDays());
+		final var cutoffDate = today.plusDays(gracePeriod.toDays());
 		final var wfaEndDate = profile.getWfaEndDate();
 		final var isUrgent = wfaEndDate != null && !wfaEndDate.isAfter(cutoffDate);
 		log.trace("Profile {}: urgent: {} (end date: {}, cutoff: {})", profile.getId(), isUrgent, wfaEndDate, cutoffDate);
