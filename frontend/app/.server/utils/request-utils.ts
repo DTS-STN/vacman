@@ -44,7 +44,6 @@ export function mapRequestToUpdateModel(request: RequestReadModel): RequestUpdat
     projectedEndDate: request.projectedEndDate,
     projectedStartDate: request.projectedStartDate,
     pscClearanceNumber: request.pscClearanceNumber,
-    requestNumber: request.requestNumber,
     securityClearanceId: request.securityClearance?.id,
     selectionProcessNumber: request.selectionProcessNumber,
     selectionProcessTypeId: request.selectionProcessType?.id,

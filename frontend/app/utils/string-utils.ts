@@ -173,3 +173,36 @@ export function padWithZero(value: number, maxLength: number): string {
   if (value.toString().length >= maxLength) return value.toString();
   return value.toString().padStart(maxLength, '0');
 }
+
+/**
+ * Formats a numeric ID by padding it with leading zeros and grouping digits with hyphens.
+ *
+ * @param id - The numeric ID to format.
+ * @param groupSizes - An array of numbers representing the sizes of each group of digits.
+ *                     The total sum of the group sizes determines the total length of the padded ID.
+ *
+ * @returns A string representing the formatted ID, with groups separated by hyphens.
+ *
+ * @example
+ * ```ts
+ * const requestId = 123456;
+ * const groupSizes = [4, 4, 2]; // Format: ####-####-##
+ * const formatted = formatId(requestId, groupSizes);
+ * console.log(formatted); // Output: "0000-1234-56"
+ * ```
+ */
+export function formatId(id: number, groupSizes: number[]) {
+  const padded = id.toString().padStart(
+    groupSizes.reduce((a, b) => a + b, 0),
+    '0',
+  );
+  const parts = [];
+  let index = 0;
+
+  for (const size of groupSizes) {
+    parts.push(padded.slice(index, index + size));
+    index += size;
+  }
+
+  return parts.join('-');
+}

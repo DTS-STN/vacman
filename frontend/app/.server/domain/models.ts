@@ -268,7 +268,6 @@ export type RequestReadModel = Readonly<{
   projectedEndDate?: string;
   projectedStartDate?: string;
   pscClearanceNumber?: string;
-  requestNumber?: string;
   securityClearance?: SecurityClearance;
   selectionProcessNumber?: string;
   selectionProcessType?: SelectionProcessType;
@@ -324,7 +323,6 @@ export type RequestUpdateModel = Partial<{
   projectedEndDate: string;
   projectedStartDate: string;
   pscClearanceNumber: string;
-  requestNumber: string;
   securityClearanceId: number;
   selectionProcessNumber: string;
   selectionProcessTypeId: number;

@@ -52,7 +52,7 @@ import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
 import { RequestSummaryCard } from '~/routes/page-components/requests/request-summary-card';
 import { formatISODate } from '~/utils/date-utils';
-import { trimToUndefined } from '~/utils/string-utils';
+import { formatId, trimToUndefined } from '~/utils/string-utils';
 
 export const handle = {
   i18nNamespace: [...parentHandle.i18nNamespace],
@@ -388,7 +388,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     hrAdvisor: requestData.hrAdvisor,
     priorityClearanceNumber: requestData.priorityClearanceNumber,
     pscClearanceNumber: requestData.pscClearanceNumber,
-    requestNumber: requestData.requestNumber,
+    requestId: formatId(requestData.id, [4, 4, 2]), // display request id in format ####-####-##
     requestDate: requestData.createdDate,
     languageRequirementName: lang === 'en' ? requestData.languageRequirement?.nameEn : requestData.languageRequirement?.nameFr,
     securityClearanceName: lang === 'en' ? requestData.securityClearance?.nameEn : requestData.securityClearance?.nameFr,
@@ -462,7 +462,7 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
                 ddClassName="mt-1 text-white sm:col-span-2 sm:mt-0"
                 term={t('app:hiring-manager-referral-requests.request-id')}
               >
-                {loaderData.requestNumber ?? t('app:hiring-manager-referral-requests.not-provided')}
+                {loaderData.requestId}
               </DescriptionListItem>
 
               <DescriptionListItem
