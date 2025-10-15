@@ -113,7 +113,7 @@ public class RequestMatchingService {
 	 *       - Secondary: Grace period status (profiles with WFA ending soon = higher priority)
 	 *       - Tertiary: Random order from step 2 (for profiles equal on both criteria)
 	 *
-	 *   - Limit: Select up to `max profiles from the sorted list.
+	 *   - Limit: Select up to `max` profiles from the sorted list.
 	 */
 	public List<MatchEntity> findMatches(long requestId, int max) {
 		Assert.isTrue(max > 0, "max must be positive");
