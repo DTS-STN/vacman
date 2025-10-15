@@ -145,14 +145,30 @@ public class RequestService {
 		final var draftStatus = requestStatusRepository.findByCode(requestStatuses.draft())
 			.orElseThrow(asResourceNotFoundException("requestStatus", "code", requestStatuses.draft()));
 
+		// Save the request to get an ID
 		final var request = requestRepository.save(RequestEntity.builder()
 			.submitter(submitter)
 			.requestStatus(draftStatus)
 			.build());
 
-		eventPublisher.publishEvent(new RequestCreatedEvent(request));
+		// Generate and set the request number
+		String requestNumber = generateRequestNumber(request.getId());
+		log.debug("Generated request number: {}", requestNumber);
+		request.setRequestNumber(requestNumber);
 
-		return request;
+		// Save the request again with the request number
+		final var updatedRequest = requestRepository.save(request);
+
+		eventPublisher.publishEvent(new RequestCreatedEvent(updatedRequest));
+
+		return updatedRequest;
+	}
+
+	/**
+	 * Generates a request number in the format REQ-0000123 using the request id
+	 */
+	private String generateRequestNumber(Long requestId) {
+		return String.format("REQ-%07d", requestId);
 	}
 
 	@Transactional(readOnly = true)

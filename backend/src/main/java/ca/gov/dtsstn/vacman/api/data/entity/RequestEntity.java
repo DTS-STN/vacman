@@ -109,7 +109,7 @@ public class RequestEntity extends AbstractBaseEntity implements Ownable {
 	@Column(name = "[NAME_FR]", length = 200)
 	private String nameFr;
 
-	@Column(name = "[REQUEST_NUMBER]", length = 10)
+	@Column(name = "[REQUEST_NUMBER]", length = 15)
 	private String requestNumber;
 
 	@ManyToOne
