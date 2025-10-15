@@ -15,7 +15,7 @@ import { RequestStatusTag } from '~/components/status-tag';
 import { useFetcherState } from '~/hooks/use-fetcher-state';
 import { useLanguage } from '~/hooks/use-language';
 import { formatDateTimeInZone } from '~/utils/date-utils';
-import { formatId } from '~/utils/string-utils';
+import { formatWithMask } from '~/utils/string-utils';
 
 interface RequestTablesProps {
   userId: number;
@@ -73,7 +73,7 @@ export default function RequestsTables({
               params={{ requestId }}
               aria-label={t('requests-tables.view-link', { requestId })}
             >
-              {formatId(info.row.original.id, [4, 4, 2])} {/* display request id in format ####-####-## */}
+              {formatWithMask(info.row.original.id, '####-####-##')}
             </InlineLink>
           );
         },

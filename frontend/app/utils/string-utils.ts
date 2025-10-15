@@ -175,34 +175,38 @@ export function padWithZero(value: number, maxLength: number): string {
 }
 
 /**
- * Formats a numeric ID by padding it with leading zeros and grouping digits with hyphens.
+ * Formats a numeric or numeric-string input using a mask (e.g., "####-####-##").
+ * Pads the input with leading zeros to match the number of placeholders in the mask.
  *
- * @param id - The numeric ID to format.
- * @param groupSizes - An array of numbers representing the sizes of each group of digits.
- *                     The total sum of the group sizes determines the total length of the padded ID.
- *
- * @returns A string representing the formatted ID, with groups separated by hyphens.
+ * @param input - The number or numeric string to format.
+ * @param mask - A string mask using '#' as digit placeholders. Other characters are treated as separators.
+ * @returns The formatted string.
  *
  * @example
  * ```ts
- * const requestId = 123456;
- * const groupSizes = [4, 4, 2]; // Format: ####-####-##
- * const formatted = formatId(requestId, groupSizes);
- * console.log(formatted); // Output: "0000-1234-56"
+ * formatWithMask(123456, "####-####-##"); // "0000-1234-56"
+ * formatWithMask("789", "##-##-##");      // "00-07-89"
  * ```
  */
-export function formatId(id: number, groupSizes: number[]) {
-  const padded = id.toString().padStart(
-    groupSizes.reduce((a, b) => a + b, 0),
-    '0',
-  );
-  const parts = [];
-  let index = 0;
+export function formatWithMask(input: number | string, mask: string): string {
+  const digits = input.toString().replace(/\D/g, '');
+  const totalDigits = mask.replace(/[^#]/g, '').length;
+  const padded = digits.padStart(totalDigits, '0');
 
-  for (const size of groupSizes) {
-    parts.push(padded.slice(index, index + size));
-    index += size;
+  let result = '';
+  let digitIndex = 0;
+
+  for (const char of mask) {
+    if (char === '#') {
+      if (digitIndex < padded.length) {
+        result += padded[digitIndex++];
+      } else {
+        break; // Stop if there are no more digits to insert
+      }
+    } else {
+      result += char;
+    }
   }
 
-  return parts.join('-');
+  return result;
 }

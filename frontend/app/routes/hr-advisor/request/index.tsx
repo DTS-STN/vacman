@@ -59,7 +59,7 @@ import { RequestSummaryCard } from '~/routes/page-components/requests/request-su
 import type { Errors } from '~/routes/page-components/requests/validation.server';
 import { formatISODate } from '~/utils/date-utils';
 import { REGEX_PATTERNS } from '~/utils/regex-utils';
-import { formatId, formString } from '~/utils/string-utils';
+import { formatWithMask, formString } from '~/utils/string-utils';
 import { extractValidationKey } from '~/utils/validation-utils';
 
 export const handle = {
@@ -94,7 +94,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 
   return {
     documentTitle: t('app:hr-advisor-referral-requests.page-title'),
-    requestId: formatId(currentRequest.id, [4, 4, 2]), // display request id in format ####-####-##
+    requestId: formatWithMask(currentRequest.id, '####-####-##'),
     requestDate: currentRequest.createdDate,
     hiringManager: currentRequest.hiringManager,
     hrAdvisor: currentRequest.hrAdvisor,

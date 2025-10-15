@@ -21,6 +21,7 @@ import { VacmanBackground } from '~/components/vacman-background';
 import { EMPLOYEE_WFA_STATUS } from '~/domain/constants';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
+import { formatWithMask } from '~/utils/string-utils';
 
 export const handle = {
   i18nNamespace: [...parentHandle.i18nNamespace],
@@ -84,7 +85,9 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     name: `${profileUser.firstName ?? ''} ${profileUser.lastName ?? ''}`.trim() || 'Unknown User',
     email: profileUser.businessEmailAddress,
     personalInformation: {
-      personalRecordIdentifier: profileUser.personalRecordIdentifier,
+      personalRecordIdentifier: profileUser.personalRecordIdentifier
+        ? formatWithMask(profileUser.personalRecordIdentifier, '### ### ###')
+        : undefined,
       preferredLanguage:
         lang === 'en' ? profileData.languageOfCorrespondence?.nameEn : profileData.languageOfCorrespondence?.nameFr,
       workEmail: profileUser.businessEmailAddress,

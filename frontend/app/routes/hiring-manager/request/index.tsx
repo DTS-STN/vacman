@@ -52,7 +52,7 @@ import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
 import { RequestSummaryCard } from '~/routes/page-components/requests/request-summary-card';
 import { formatISODate } from '~/utils/date-utils';
-import { formatId, trimToUndefined } from '~/utils/string-utils';
+import { formatWithMask, trimToUndefined } from '~/utils/string-utils';
 
 export const handle = {
   i18nNamespace: [...parentHandle.i18nNamespace],
@@ -388,7 +388,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     hrAdvisor: requestData.hrAdvisor,
     priorityClearanceNumber: requestData.priorityClearanceNumber,
     pscClearanceNumber: requestData.pscClearanceNumber,
-    requestId: formatId(requestData.id, [4, 4, 2]), // display request id in format ####-####-##
+    requestId: formatWithMask(requestData.id, '####-####-##'),
     requestDate: requestData.createdDate,
     languageRequirementName: lang === 'en' ? requestData.languageRequirement?.nameEn : requestData.languageRequirement?.nameFr,
     securityClearanceName: lang === 'en' ? requestData.securityClearance?.nameEn : requestData.securityClearance?.nameFr,
