@@ -242,10 +242,10 @@ public class RequestMatchingService {
 	 * ensuring that profiles equal on both criteria retain their random ordering.
 	 */
 	private Comparator<ProfileEntity> byPriority() {
-		final Function<ProfileEntity, Integer> bySortOder = this::getWfaSortOrder;
+		final Function<ProfileEntity, Integer> bySortOrder = this::getWfaSortOrder;
 		final Function<ProfileEntity, Boolean> byUrgency = this::isUrgent;
 		// note: isUrgent comparison is reversed because urgent=true must come before urgent=false
-		return comparing(bySortOder).thenComparing(byUrgency, reverseOrder());
+		return comparing(bySortOrder).thenComparing(byUrgency, reverseOrder());
 	}
 
 	/**
