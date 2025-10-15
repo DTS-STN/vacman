@@ -219,7 +219,7 @@ export default {
     'page-title': 'Informations sur le processus',
     'selection-process-number': 'Numéro du processus de sélection (si applicable)',
     'approval-received':
-      'Approbation reçue du Comité de gestion des effectifs (postes non-EX) ou du Comité de gestion des personnes et du leadership (postes EX) (obligatoire)',
+      "L'approbation au niveau approprié selon les paramètres du Comité de gestion des effectifs (CGE) et/ou du Comité de gestion des personnes et leadership (CGPL) a été obtenue (obligatoire)",
     'priority-entitlement':
       "Est-ce que la nomination d'un bénéficiaire de priorité aurait pour effet de conférer un droit de priorité à un-e autre fonctionnaire nommé-e pour une période indéterminée?",
     'priority-entitlement-rationale': 'Veuillez fournir la justification',
@@ -505,18 +505,18 @@ export default {
     'hr-advisor': {
       'request-submitted-by': 'Demande soumise par\u00A0:{{name}}',
       'is-submitter-hiring-manager': "Est-ce que {{name}} est le-la gestionnaire d'embauche de cette demande?",
-      'is-submitter-a-sub-delegate': 'Est-ce que {{name}} est sub-délégué-e?',
+      'is-submitter-a-sub-delegate': 'Est-ce que {{name}} est gestionnaire subdélégué-e à la dotation?',
     },
     'hiring-manager': {
       'submitter': 'Personne ayant soumis la demande\u00A0:{{name}}',
       'are-you-hiring-manager-for-request': "Êtes-vous le gestionnaire d'embauche pour cette demande?",
-      'are-you-a-subdelegate': 'Êtes-vous un-e gestionnaire subdélégué-e?',
+      'are-you-a-subdelegate': 'Êtes-vous un-e gestionnaire subdélégué-e à la dotation?',
     },
     'hiring-manager-email': "Adresse courriel du (de la) gestionnaire d'embauche",
     'hiring-manager-name': "Gestionnaire d'embauche\u00A0:{{name}}",
-    'is-hiring-manager-sub-delegate': "Est-ce que le-la gestionnaire d'embauche est subdélégué-e?",
-    'sub-delegate-email': 'Adresse courriel du (de la) gestionnaire subdélégué-e',
-    'sub-delegate-name': 'Subdélégué-e\u00A0:{{name}}',
+    'is-hiring-manager-sub-delegate': "Est-ce que le-la gestionnaire d'embauche est gestionnaire subdélégué-e à la dotation?",
+    'sub-delegate-email': 'Adresse courriel du (de la) gestionnaire subdélégué-e à la dotation',
+    'sub-delegate-name': 'Gestionnaire subdélégué-e à la dotation\u00A0:{{name}}',
     'branch-or-service-canada-region': 'Direction générale ou Région de Service Canada',
     'directorate': 'Direction',
     'preferred-language-of-correspondence': 'Langue de préférene pour la correspondance',
@@ -524,22 +524,23 @@ export default {
     'search': 'Rechercher',
     'submiter-title': 'Personne ayant soumis la demande',
     'hiring-manager-title': "Gestionnaire d'embauche",
-    'sub-delegate-title': 'Subdélégué-e',
+    'sub-delegate-title': 'Gestionnaire subdélégué-e à la dotation',
     'errors': {
       'no-user-found-with-this-email': "Aucun utilisateur n'a été trouvé avec cette adresse e-mail",
       'is-submitter-hiring-manager-required':
         "Le champ «\u00a0Est-ce que le (la) soumissionnaire est le (la) gestionnaire d'embauche pour cette demande\u00a0» est requis. ",
       'is-submitter-a-sub-delegate-required':
-        'Le champ «\u00a0Le (la) soumissionnaire est-il (elle)  un-e gestionnaire subdélégué-e\u00a0» est requis.',
+        'Le champ «\u00a0Le (la) soumissionnaire est-il (elle)  un-e gestionnaire subdélégué-e à la dotation\u00a0» est requis.',
       'are-you-hiring-manager-for-request-required':
         "Le champ «\u00a0Êtes-vous le (la) gestionnaire d'embauche pour cette demande\u00a0» est requis.",
-      'are-you-a-subdelegate-required': 'Le champ «\u00a0Êtes-vous un-e gestionnaire subdélégué-e\u00a0» est requis.',
+      'are-you-a-subdelegate-required':
+        'Le champ «\u00a0Êtes-vous un-e gestionnaire subdélégué-e à la dotation\u00a0» est requis.',
       'hiring-manager-email-required': "L'adresse courriel du (de la) gestionnaire d'embauche est requise.",
       'hiring-manager-email-invalid': "L'adresse courriel du (de la) gestionnaire d'embauche n'est pas valide.",
       'is-hiring-manager-sub-delegate-required':
-        "Le champ «\u00a0Le (la) gestionnaire d'embauche est-il (elle) subdélégué-e\u00a0» est requis.",
-      'sub-delegate-email-invalid': "L'adresse courriel du (de la) gestionnaire subdélégué-e n'est pas valide.",
-      'sub-delegate-email-required': "L'adresse courriel du (de la) gestionnaire subdélégué (e) est requise.",
+        "Le champ «\u00a0Le (la) gestionnaire d'embauche est-il (elle) gestionnaire subdélégué-e à la dotation\u00a0» est requis.",
+      'sub-delegate-email-invalid': "L'adresse courriel du (de la) gestionnaire subdélégué-e à la dotation n'est pas valide.",
+      'sub-delegate-email-required': "L'adresse courriel du (de la) gestionnaire subdélégué-e à la dotation est requise.",
       'branch-or-service-canada-region-required': 'La direction générale ou la région de Service Canada est requise.',
       'directorate-required': 'La direction est requise.',
       'preferred-language-of-correspondence-required': 'La langue de préférence pour la correspondance est requise.',
