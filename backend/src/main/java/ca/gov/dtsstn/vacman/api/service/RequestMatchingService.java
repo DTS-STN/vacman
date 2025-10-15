@@ -256,7 +256,7 @@ public class RequestMatchingService {
 		final var wfaStatus = profile.getWfaStatus();
 		final var wfaStatusCode = wfaStatus != null ? wfaStatus.getCode() : "N/A";
 		final var sortOrder = wfaStatus != null ? wfaStatus.getSortOrder() : Integer.MAX_VALUE;
-		log.trace("Profile {}: WFA staus: {}; sort order: {}", profile.getId(), wfaStatusCode, sortOrder);
+		log.trace("Profile {}: WFA status: {}; sort order: {}", profile.getId(), wfaStatusCode, sortOrder);
 		return sortOrder;
 	}
 
