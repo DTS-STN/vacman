@@ -88,6 +88,20 @@ spring:
       naming:
         # Use the exact names for tables and columns as specified in the entity classes
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    properties:
+      # maximum number of SQL statements
+      # (specifically, INSERT, UPDATE, and DELETE statements)
+      # that Hibernate will batch together before sending
+      # them to the database driver for execution
+      '[hibernate.jdbc.batch_size]': 50
+      # The default batch size for fetching entities or
+      # collections when using select fetching
+      '[hibernate.default_batch_fetch_size]': 50
+      # Groups similar SQL statements together so they can be batched.
+      '[hibernate.order_inserts]': true
+      '[hibernate.order_updates]': true
+      # Ensures that entities using @Version (optimistic locking) can be batched.
+      '[hibernate.batch_versioned_data]': true
   liquibase:
     enabled: true
     change-log: classpath:db/changelog/db.changelog-master.yaml
@@ -220,6 +234,9 @@ springdoc:
 #######################################################################################################################
 
 application:
+  performance-test:
+    data:
+      enabled: false
   async:
     enabled: true
   caching:
@@ -323,6 +340,8 @@ application:
     job-opportunity-template-id-eng: 00000000-0000-0000-0000-000000000000 # must be set externally (ex: 00000000-0000-0000-0000-000000000000) job opportunity english
     job-opportunity-template-id-fra: 00000000-0000-0000-0000-000000000000 # must be set externally (ex: 00000000-0000-0000-0000-000000000000) job opportunity french 
     hr-gd-inbox-email: hr_inbox@example.com # TODO: Update with actual email when available.
+  matches:
+    wfa-end-date-grace-period: 30d
   ms-graph:
     base-url: https://graph.microsoft.com/v1.0
     connect-timeout: 10s
@@ -357,6 +376,10 @@ codes:
     french-essential: FE
     eitherOr: EF-AF
     various: VAR
+  match-statuses:
+    approved: A-A;
+    in-progress: IP-EC
+    pending-approval: PA-EAA
   profile-statuses:
     approved: APPROVED
     archived: ARCHIVED

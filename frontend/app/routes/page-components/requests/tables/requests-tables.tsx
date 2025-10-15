@@ -12,12 +12,12 @@ import { InputSelect } from '~/components/input-select';
 import { InlineLink } from '~/components/links';
 import { LoadingButton } from '~/components/loading-button';
 import { RequestStatusTag } from '~/components/status-tag';
-import { REQUEST_STATUS_CODE } from '~/domain/constants';
 import { useFetcherState } from '~/hooks/use-fetcher-state';
 import { useLanguage } from '~/hooks/use-language';
 import { formatDateTimeInZone } from '~/utils/date-utils';
 
 interface RequestTablesProps {
+  userId: number;
   activeRequests: RequestReadModel[];
   inactiveRequests: RequestReadModel[];
   activeRequestNames: string[];
@@ -28,6 +28,7 @@ interface RequestTablesProps {
 }
 
 export default function RequestsTables({
+  userId,
   activeRequests,
   inactiveRequests,
   activeRequestNames,
@@ -40,11 +41,11 @@ export default function RequestsTables({
   const fetcherState = useFetcherState(fetcher);
   const isSubmitting = fetcherState.submitting;
   const { t } = useTranslation('app');
-
+  const enableRequestsFilter = view === 'hr-advisor' && (activeRequests.length > 0 || inactiveRequests.length > 0);
   const { currentLanguage } = useLanguage();
   const [browserTZ, setBrowserTZ] = useState<string | null>(null);
   const [srAnnouncement, setSrAnnouncement] = useState('');
-  const [activeFilter, setActiveFilter] = useState<string>('all');
+  const [requestsFilter, setRequestsFilter] = useState<string>('all');
 
   useEffect(() => {
     setBrowserTZ(Intl.DateTimeFormat().resolvedOptions().timeZone);
@@ -205,7 +206,7 @@ export default function RequestsTables({
           </fetcher.Form>
         )}
         <section className="my-8">
-          {view === 'hr-advisor' ? (
+          {enableRequestsFilter ? (
             <section className="mb-5 flex flex-col items-end justify-between gap-8 sm:flex-row">
               <h2 className="font-lato text-xl font-bold">{t('requests-tables.active-requests')}</h2>
               <InputSelect
@@ -214,9 +215,9 @@ export default function RequestsTables({
                 required={false}
                 options={requestsOptions}
                 aria-label={t('hr-advisor-employees-table.filter-by')}
-                defaultValue={activeFilter}
+                defaultValue={requestsFilter}
                 onChange={({ target }) => {
-                  setActiveFilter(target.value);
+                  setRequestsFilter(target.value);
                   const message =
                     target.value === 'me'
                       ? t('requests-tables.table-updated.my-requests')
@@ -235,9 +236,7 @@ export default function RequestsTables({
           ) : (
             <DataTable
               columns={createColumns(true)}
-              data={activeRequests.filter((req) =>
-                activeFilter === 'me' ? req.status?.code === REQUEST_STATUS_CODE.HR_REVIEW : true,
-              )}
+              data={activeRequests.filter((req) => (requestsFilter === 'me' ? req.hrAdvisor?.id === userId : true))}
               disableClientSorting={true}
             />
           )}
@@ -248,7 +247,10 @@ export default function RequestsTables({
           {inactiveRequests.length === 0 ? (
             <div>{t('requests-tables.no-inactive-requests')}</div>
           ) : (
-            <DataTable columns={createColumns(false)} data={inactiveRequests} />
+            <DataTable
+              columns={createColumns(false)}
+              data={inactiveRequests.filter((req) => (requestsFilter === 'me' ? req.hrAdvisor?.id === userId : true))}
+            />
           )}
         </section>
       </div>

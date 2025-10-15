@@ -110,6 +110,9 @@ export async function loader({ context, request }: Route.LoaderArgs) {
 
   const { t, lang } = await getTranslation(request, handle.i18nNamespace);
 
+  const currentUserResult = await getUserService().getCurrentUser(session.authState.accessToken);
+  const currentUser = currentUserResult.unwrap();
+
   const requestsResult = await getRequestService().getCurrentUserRequests(session.authState.accessToken);
   const requests = requestsResult.into()?.content ?? [];
 
@@ -138,6 +141,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
     activeRequestNames,
     inactiveRequestNames,
     baseTimeZone: serverEnvironment.BASE_TIMEZONE,
+    userId: currentUser.id,
     lang,
   };
 }

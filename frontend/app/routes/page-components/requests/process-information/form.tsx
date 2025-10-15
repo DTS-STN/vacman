@@ -217,7 +217,7 @@ export function ProcessInformationForm({
                 name="priorityEntitlementRationale"
                 defaultValue={formValues?.priorityEntitlementRationale}
                 errorMessage={tApp(extractValidationKey(formErrors?.priorityEntitlementRationale))}
-                maxLength={100}
+                maxLength={200}
                 required
               />
             )}

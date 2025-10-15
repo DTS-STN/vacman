@@ -41,6 +41,7 @@ import {
   ProfileCardViewLink,
 } from '~/components/profile-card';
 import { RequestStatusTag } from '~/components/status-tag';
+import { VacmanBackground } from '~/components/vacman-background';
 import type { RequestEventType } from '~/domain/constants';
 import {
   EMPLOYMENT_TENURE,
@@ -330,7 +331,7 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
 
   return (
     <div className="space-y-8">
-      <div className="space-y-4 py-8 text-white">
+      <VacmanBackground variant="bottom-right">
         {loaderData.status && (
           <RequestStatusTag status={loaderData.status} lang={loaderData.lang} rounded view={'hr-advisor'} />
         )}
@@ -388,23 +389,17 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
             </DescriptionListItem>
           </DescriptionList>
         </div>
-
-        <div
-          role="presentation"
-          className="absolute top-25 left-0 -z-10 h-70 w-full scale-x-[-1] bg-[rgba(9,28,45,1)] bg-[url('/VacMan-design-element-06.svg')] bg-size-[450px] bg-left-bottom bg-no-repeat"
-        />
-      </div>
+      </VacmanBackground>
       <BackLink
         id="back-to-requests"
         aria-label={t('app:hr-advisor-referral-requests.back')}
-        className="mt-6"
         file="routes/hr-advisor/requests.tsx"
         disabled={isSubmitting}
       >
         {t('app:hr-advisor-referral-requests.back')}
       </BackLink>
 
-      <h2 className="font-lato mt-4 text-xl font-bold">{t('app:hr-advisor-referral-requests.request-details')}</h2>
+      <h2 className="font-lato mt-2 text-2xl font-bold">{t('app:hr-advisor-referral-requests.request-details')}</h2>
 
       {currentAlert && (
         <AlertMessage
@@ -429,7 +424,7 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
       )}
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-        <div className="mt-8 max-w-prose space-y-10">
+        <div className="max-w-prose space-y-10">
           <ProfileCard>
             <ProfileCardHeader>{t('app:hr-advisor-referral-requests.process-information')}</ProfileCardHeader>
             <ProfileCardContent>
@@ -680,7 +675,7 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
           </ProfileCard>
         </div>
 
-        <div className="mt-8 max-w-prose">
+        <div className="max-w-prose">
           <div className="flex justify-center">
             <ActionDataErrorSummary actionData={fetcher.data}>
               <fetcher.Form className="mt-6 md:mt-auto" method="post" noValidate>

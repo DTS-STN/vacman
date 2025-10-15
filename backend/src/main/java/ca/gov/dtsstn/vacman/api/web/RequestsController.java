@@ -90,7 +90,8 @@ public class RequestsController {
 			}
 		}).orElseThrow(asUserResourceNotFoundException("microsoftEntraId", hrAdvisorParam));
 
-		final var requests = requestService.getAllRequests(pageable, hrAdvisorId).map(requestModelMapper::toModel);
+		final var requests = requestService.getAllRequests(pageable, hrAdvisorId)
+			.map(entity -> requestModelMapper.toModel(entity, requestService.hasMatches(entity.getId())));
 
 		return ResponseEntity.ok(new PagedModel<>(requests));
 	}
@@ -108,7 +109,7 @@ public class RequestsController {
 			.orElseThrow(asUserResourceNotFoundException("microsoftEntraId", entraId));
 
 		final var requests = requestService.getAllRequestsAssociatedWithUser(user.getId()).stream()
-			.map(requestModelMapper::toModel)
+			.map(entity -> requestModelMapper.toModel(entity, requestService.hasMatches(entity.getId())))
 			.collect(toCollectionModel());
 
 		return ResponseEntity.ok(requests);
@@ -134,7 +135,8 @@ public class RequestsController {
 			.path("/api/v1/requests/{id}")
 			.buildAndExpand(request.getId()).toUri();
 
-		return ResponseEntity.created(location).body(requestModelMapper.toModel(request));
+		return ResponseEntity.created(location)
+			.body(requestModelMapper.toModel(request, requestService.hasMatches(request.getId())));
 	}
 
 	@ApiResponses.NoContent
@@ -159,10 +161,9 @@ public class RequestsController {
 	@PreAuthorize("hasAuthority('hr-advisor') || hasPermission(#id, 'REQUEST', 'READ')")
 	public ResponseEntity<RequestReadModel> getRequestById(@PathVariable Long id) {
 		final var request = requestService.getRequestById(id)
-			.map(requestModelMapper::toModel)
 			.orElseThrow(asResourceNotFoundException("request", id));
 
-		return ResponseEntity.ok(request);
+		return ResponseEntity.ok(requestModelMapper.toModel(request, requestService.hasMatches(request.getId())));
 	}
 
 
@@ -185,7 +186,7 @@ public class RequestsController {
 
 		final var updatedEntity = requestService.updateRequest(preparedEntity);
 
-		return ResponseEntity.ok(requestModelMapper.toModel(updatedEntity));
+		return ResponseEntity.ok(requestModelMapper.toModel(updatedEntity, requestService.hasMatches(updatedEntity.getId())));
 	}
 
 	@ApiResponses.Ok
@@ -205,7 +206,7 @@ public class RequestsController {
 
 		final var updatedEntity = requestService.updateRequestStatus(request, statusUpdate.eventType());
 
-		return ResponseEntity.ok(requestModelMapper.toModel(updatedEntity));
+		return ResponseEntity.ok(requestModelMapper.toModel(updatedEntity, requestService.hasMatches(updatedEntity.getId())));
 	}
 
 	@ApiResponses.Ok
@@ -225,7 +226,7 @@ public class RequestsController {
 
 		final var updatedEntity = requestService.runMatches(request);
 
-		return ResponseEntity.ok(requestModelMapper.toModel(updatedEntity));
+		return ResponseEntity.ok(requestModelMapper.toModel(updatedEntity, requestService.hasMatches(updatedEntity.getId())));
 	}
 
 	@ApiResponses.Ok
@@ -240,7 +241,7 @@ public class RequestsController {
 
 		final var updatedEntity = requestService.cancelRequest(id);
 
-		return ResponseEntity.ok(requestModelMapper.toModel(updatedEntity));
+		return ResponseEntity.ok(requestModelMapper.toModel(updatedEntity, requestService.hasMatches(updatedEntity.getId())));
 	}
 
 	//

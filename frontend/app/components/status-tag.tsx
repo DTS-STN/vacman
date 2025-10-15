@@ -81,13 +81,7 @@ export function RequestStatusTag({ status, lang, rounded = false, view }: Reques
 
   let displayName: string;
 
-  if (status.code === 'PENDING_PSC') {
-    displayName = t('hr-advisor-referral-requests.status.vms-request-on-hold-pending-psc-clearance');
-  } else if (status.code === 'FDBK_PENDING') {
-    displayName = t('hr-advisor-referral-requests.status.approved-assessment-feedback-pending');
-  } else if (status.code === 'FDBK_PEND_APPR') {
-    displayName = t('hr-advisor-referral-requests.status.pending-feedback-pending-approval');
-  } else if (status.code === 'SUBMIT' && view === 'hr-advisor') {
+  if (status.code === REQUEST_STATUS_CODE.SUBMIT && view === 'hr-advisor') {
     displayName = t('hr-advisor-referral-requests.status.request-pending-approval');
   } else {
     displayName = lang === 'en' ? status.nameEn : status.nameFr;

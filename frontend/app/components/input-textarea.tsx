@@ -36,6 +36,7 @@ export function InputTextarea({
   required,
   rows,
   maxLength,
+  defaultValue,
   ...restInputProps
 }: InputTextareaProps) {
   const inputErrorId = `input-${id}-error`;
@@ -44,7 +45,7 @@ export function InputTextarea({
   const inputWrapperId = `input-${id}`;
   const { t } = useTranslation('app');
 
-  const [characterCount, setCharacterCount] = useState(0);
+  const [characterCount, setCharacterCount] = useState(defaultValue?.toString().length ?? 0);
 
   return (
     <div id={inputWrapperId} data-testid={inputWrapperId} className="form-group space-y-2">
@@ -76,6 +77,7 @@ export function InputTextarea({
           id={id}
           required={required}
           maxLength={maxLength}
+          defaultValue={defaultValue}
           onChange={(e) => setCharacterCount(e.target.value.length)}
           {...restInputProps}
         />
