@@ -299,6 +299,7 @@ export function ProcessInformationForm({
                     month: tApp(extractValidationKey(formErrors?.projectedEndDateMonth)),
                     day: tApp(extractValidationKey(formErrors?.projectedEndDateDay)),
                   }}
+                  required
                 />
               </>
             )}
