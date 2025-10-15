@@ -172,7 +172,8 @@ public class RequestMatchingService {
 		log.info("Returning {} prioritized matches for request ID: [{}]", prioritizedProfiles.size(), requestId);
 		log.trace("Final prioritized profile ids: {}", prioritizedProfiles.stream().map(AbstractBaseEntity::getId).toList());
 
-		final var pendingMatchStatus = matchStatusRepository.findByCode(matchStatuses.pendingApproval()).orElseThrow();
+		final var pendingMatchStatus = matchStatusRepository.findByCode(matchStatuses.pendingApproval())
+			.orElseThrow(() -> new IllegalStateException("Match status 'pending approval' not found"));
 
 		return matchRepository.saveAll(
 			prioritizedProfiles.stream()
