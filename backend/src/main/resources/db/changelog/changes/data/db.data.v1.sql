@@ -985,5 +985,5 @@ INSERT INTO [CD_SELECTION_PROCESS_TYPE] ([ID], [CODE], [NAME_EN], [NAME_FR], [EF
 VALUES
 (10, 'DIE', 'Deployment - Indeterminate (refer to exceptions)', 'Mutation - Durée indéterminée (veuillez consulter les exceptions)', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
 
---changeset system:cd_selection_process_type_adding_DIE_on dbms:mssql
+--changeset system:cd_selection_process_type_adding_DIE_off dbms:mssql
 SET IDENTITY_INSERT CD_SELECTION_PROCESS_TYPE OFF;
