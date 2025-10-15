@@ -140,6 +140,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       lang === 'en' ? currentRequest.languageOfCorrespondence?.nameEn : currentRequest.languageOfCorrespondence?.nameFr,
     additionalComment: currentRequest.additionalComment,
     status: currentRequest.status,
+    hasMatches: currentRequest.hasMatches,
     lang,
     isRequestAssignedToCurrentUser: currentUser.id === currentRequest.hrAdvisor?.id,
   };
@@ -413,6 +414,7 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
 
       {loaderData.status && (
         <RequestSummaryCard
+          hasMatches={loaderData.hasMatches}
           priorityClearanceNumber={loaderData.priorityClearanceNumber}
           pscClearanceNumber={loaderData.pscClearanceNumber}
           requestStatus={loaderData.status}

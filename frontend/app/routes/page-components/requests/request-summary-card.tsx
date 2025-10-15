@@ -40,6 +40,7 @@ function RenderCard({ title, details, linkText, file, params }: RenderCardProps)
 
 export interface RequestSummaryCardProps extends ComponentProps<'div'> {
   file?: I18nRouteFile;
+  hasMatches?: boolean;
   lang: 'en' | 'fr';
   params?: Params;
   priorityClearanceNumber?: string;
@@ -50,6 +51,7 @@ export interface RequestSummaryCardProps extends ComponentProps<'div'> {
 
 export function RequestSummaryCard({
   file,
+  hasMatches,
   lang,
   params,
   priorityClearanceNumber,
@@ -61,7 +63,9 @@ export function RequestSummaryCard({
   const code = requestStatus.code;
 
   // Named booleans for clarity
-  const showClearanceCard = code === REQUEST_STATUS_CODE.PSC_GRANTED || code === REQUEST_STATUS_CODE.CLR_GRANTED;
+  const showClearanceCard = code === REQUEST_STATUS_CODE.CLR_GRANTED;
+
+  const showPSCClearanceCard = code === REQUEST_STATUS_CODE.PSC_GRANTED;
 
   const showMatchesCard = code === REQUEST_STATUS_CODE.FDBK_PENDING && view === 'hiring-manager';
 
@@ -72,18 +76,19 @@ export function RequestSummaryCard({
   let cardProps: RenderCardProps | null = null;
 
   if (showClearanceCard) {
-    const title = lang === 'en' ? requestStatus.nameEn : requestStatus.nameFr;
-    const details = [
-      `${labelWithColon(t('hr-advisor-referral-requests.vms-clearance-number'), lang)} ${priorityClearanceNumber}`,
-    ];
-
-    if (code === REQUEST_STATUS_CODE.PSC_GRANTED) {
-      details.push(`${labelWithColon(t('hr-advisor-referral-requests.psc-clearance-number'), lang)} ${pscClearanceNumber}`);
-    }
-
-    // TODO: conditionally display view candidates link
-
-    cardProps = { title, details };
+    const details = getClearanceDetails(t, lang, priorityClearanceNumber);
+    cardProps = {
+      title: t('hiring-manager-referral-requests.clearance-granted'),
+      details,
+      ...(hasMatches && { linkText: t('hiring-manager-referral-requests.view-candidates-link'), file, params }),
+    };
+  } else if (showPSCClearanceCard) {
+    const details = getClearanceDetails(t, lang, priorityClearanceNumber, pscClearanceNumber);
+    cardProps = {
+      title: t('hiring-manager-referral-requests.psc-clearance-granted'),
+      details,
+      ...(hasMatches && { linkText: t('hiring-manager-referral-requests.view-candidates-link'), file, params }),
+    };
   } else if (showMatchesCard) {
     cardProps = {
       title: t('hiring-manager-referral-requests.matches-available'),
@@ -115,4 +120,19 @@ export function RequestSummaryCard({
 
 function labelWithColon(label: string, lang: 'en' | 'fr') {
   return lang === 'fr' ? `${label}\u00A0:` : `${label}:`;
+}
+
+function getClearanceDetails(
+  t: ReturnType<typeof useTranslation>['t'],
+  lang: 'en' | 'fr',
+  priorityClearanceNumber?: string,
+  pscClearanceNumber?: string,
+): string[] {
+  const details = [
+    `${labelWithColon(t('hr-advisor-referral-requests.vms-clearance-number'), lang)} ${priorityClearanceNumber}`,
+  ];
+  if (pscClearanceNumber) {
+    details.push(`${labelWithColon(t('hr-advisor-referral-requests.psc-clearance-number'), lang)} ${pscClearanceNumber}`);
+  }
+  return details;
 }

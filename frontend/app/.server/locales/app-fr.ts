@@ -378,6 +378,8 @@ export default {
     'candidate-feedback-submitted': 'Rétroaction sur les candidat-e-s soumise',
     'candidate-feedback-submitted-detail': 'Tous les commentaires des candidat-e-s concernant cette demande ont été complétés',
     'feedback-submitted-alert-msg': "Rétroaction soumise avec succès! Un-e conseiller(ère) RH va l'examiner pour approbation",
+    'clearance-granted': 'Autorisation accordée',
+    'psc-clearance-granted': 'Autorisation de la CFP accordée',
     'delete-request': {
       'title': 'Supprimer cette demande?',
       'content': 'Cela supprimera définitivement la demande. Cette action est irréversible.',
