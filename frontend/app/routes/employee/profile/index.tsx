@@ -39,6 +39,7 @@ import { useFetcherState } from '~/hooks/use-fetcher-state';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
 import { formatDateTimeForTimezone } from '~/utils/date-utils';
+import { formatWithMask } from '~/utils/string-utils';
 
 export const handle = {
   i18nNamespace: [...parentHandle.i18nNamespace],
@@ -260,7 +261,9 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     personalInformation: {
       isComplete: isCompletePersonalInformation,
       isNew: countCompletedItems(personalInformationData) === 1, // only work email is available
-      personalRecordIdentifier: currentUser.personalRecordIdentifier,
+      personalRecordIdentifier: currentUser.personalRecordIdentifier
+        ? formatWithMask(currentUser.personalRecordIdentifier, '### ### ###')
+        : undefined,
       preferredLanguage:
         lang === 'en' ? profileData.languageOfCorrespondence?.nameEn : profileData.languageOfCorrespondence?.nameFr,
       workEmail: currentUser.businessEmailAddress,
