@@ -12,6 +12,7 @@ public record LookupCodes(
 	@NestedConfigurationProperty Languages languages,
 	@NestedConfigurationProperty LanguageReferralTypes languageReferralTypes,
 	@NestedConfigurationProperty LanguageRequirements languageRequirements,
+	@NestedConfigurationProperty MatchStatuses matchStatuses,
 	@NestedConfigurationProperty ProfileStatuses profileStatuses,
 	@NestedConfigurationProperty RequestStatuses requestStatuses,
 	@NestedConfigurationProperty UserTypes userTypes
@@ -38,6 +39,13 @@ public record LookupCodes(
 		@NotBlank String frenchEssential,
 		@NotBlank String eitherOr,
 		@NotBlank String various
+	) {}
+
+	@Validated
+	public record MatchStatuses(
+		@NotBlank String approved,
+		@NotBlank String inProgress,
+		@NotBlank String pendingApproval
 	) {}
 
 	@Validated

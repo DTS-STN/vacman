@@ -376,6 +376,10 @@ codes:
     french-essential: FE
     eitherOr: EF-AF
     various: VAR
+  match-statuses:
+    approved: A-A;
+    in-progress: IP-EC
+    pending-approval: PA-EAA
   profile-statuses:
     approved: APPROVED
     archived: ARCHIVED
