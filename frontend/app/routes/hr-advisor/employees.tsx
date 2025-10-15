@@ -54,38 +54,28 @@ const PROFILE_STATUS_CODE = [
   PROFILE_STATUS.INCOMPLETE.code,
 ] as const;
 
-// Strongly type the allowed column ids and backend properties
-type ColumnId = 'name' | 'email' | 'dateUpdated';
-type SortProp = 'user.lastName' | 'user.businessEmailAddress' | 'lastModifiedDate';
+// Strongly type the allowed column ids
+type ColumnId = 'name' | 'email' | 'dateUpdated' | 'branch';
 
-// Static mapping objects - moved outside component to avoid recreation
-const COLUMN_TO_PROPERTY = {
-  name: 'user.lastName',
-  email: 'user.businessEmailAddress',
-  dateUpdated: 'lastModifiedDate',
-} as const satisfies Record<ColumnId, SortProp>;
+// Static mapping object - moved outside component to avoid recreation
+const TABLE_COLUMN = {
+  name: 'name',
+  email: 'email',
+  dateUpdated: 'dateUpdated',
+  branch: 'branch',
+} as const satisfies Record<ColumnId, ColumnId>;
 
-const PROPERTY_TO_COLUMN = {
-  'user.lastName': 'name',
-  'user.businessEmailAddress': 'email',
-  'lastModifiedDate': 'dateUpdated',
-} as const satisfies Record<SortProp, ColumnId>;
-
-// Static helper functions - moved outside component to avoid recreation
+// Static helper function - moved outside component to avoid recreation
 const isColumnId = (id: string): id is ColumnId => {
-  return Object.prototype.hasOwnProperty.call(COLUMN_TO_PROPERTY, id);
-};
-
-const isSortProp = (v: string): v is SortProp => {
-  return Object.prototype.hasOwnProperty.call(PROPERTY_TO_COLUMN, v);
+  return Object.prototype.hasOwnProperty.call(TABLE_COLUMN, id);
 };
 
 const parseSortParam = (value: string | null): { id: ColumnId; desc: boolean } | null => {
   if (!value) return null;
   const [propRaw, dirRaw] = value.split(',');
   const propKey = (propRaw ?? '').trim();
-  if (!isSortProp(propKey)) return null;
-  const colId = PROPERTY_TO_COLUMN[propKey];
+  if (!isColumnId(propKey)) return null;
+  const colId = TABLE_COLUMN[propKey];
   const dir = (dirRaw ?? 'asc').trim().toLowerCase();
   const desc = dir === 'desc';
   return { id: colId, desc };
@@ -93,7 +83,7 @@ const parseSortParam = (value: string | null): { id: ColumnId; desc: boolean } |
 
 const serializeSortParam = (s: { id: string; desc: boolean } | null | undefined): string | null => {
   if (!s?.id || !isColumnId(s.id)) return null;
-  const prop = COLUMN_TO_PROPERTY[s.id];
+  const prop = TABLE_COLUMN[s.id];
   return `${prop},${s.desc ? 'desc' : 'asc'}`;
 };
 
@@ -341,6 +331,7 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
         name: t('app:hr-advisor-employees-table.employee'),
         email: t('app:hr-advisor-employees-table.email'),
         dateUpdated: t('app:hr-advisor-employees-table.updated'),
+        branch: t('app:hr-advisor-employees-table.branch'),
       }) as const satisfies Record<ColumnId, string>,
     [t],
   );
@@ -416,14 +407,13 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
   const columns: ColumnDef<Profile>[] = [
     {
       id: 'name',
-      accessorKey: 'profileUser.firstName',
       accessorFn: (row) => `${row.profileUser.lastName}, ${row.profileUser.firstName}`,
       header: ({ column }) => <DataTableColumnHeader column={column} title={t('app:hr-advisor-employees-table.employee')} />,
       cell: (info) => <p>{info.getValue() as string}</p>,
     },
     {
       id: 'email',
-      accessorKey: 'profileUser.businessEmailAddress',
+      accessorFn: (row) => row.profileUser.businessEmailAddress,
       header: ({ column }) => <DataTableColumnHeader column={column} title={t('app:hr-advisor-employees-table.email')} />,
       cell: (info) => {
         const email = info.row.original.profileUser.businessEmailAddress;
@@ -439,13 +429,25 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
     },
     {
       id: 'dateUpdated',
-      accessorKey: 'dateUpdated',
+      accessorFn: (row) => formatDateYMD(row.lastModifiedDate),
       header: ({ column }) => <DataTableColumnHeader column={column} title={t('app:hr-advisor-employees-table.updated')} />,
       cell: (info) => {
         const lastModifiedDate = info.row.original.lastModifiedDate;
         const userUpdated = info.row.original.lastModifiedBy ?? 'Unknown User';
         const dateUpdated = formatDateYMD(lastModifiedDate);
         return <p className="text-neutral-600">{`${dateUpdated}: ${userUpdated}`}</p>;
+      },
+    },
+    {
+      id: 'branch',
+      accessorFn: (row) => {
+        const branch = row.substantiveWorkUnit?.parent;
+        return loaderData.lang === 'en' ? branch?.nameEn : branch?.nameFr;
+      },
+      header: ({ column }) => <DataTableColumnHeader column={column} title={t('app:hr-advisor-employees-table.branch')} />,
+      cell: (info) => {
+        const branch = info.row.original.substantiveWorkUnit?.parent;
+        return <p className="text-neutral-600">{loaderData.lang === 'en' ? branch?.nameEn : branch?.nameFr}</p>;
       },
     },
     {
@@ -595,7 +597,6 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
         showPagination={false}
         sorting={currentSort ? [currentSort] : []}
         onSortingChange={(state) => handleSortingChange(state[0])}
-        disableClientSorting
       />
 
       {totalPages > 1 && (
