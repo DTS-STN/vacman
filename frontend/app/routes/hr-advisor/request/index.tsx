@@ -777,6 +777,37 @@ function RenderButtonsByStatus({
 
   const isActiveRequest = REQUEST_STATUSES.some((s) => s.code === code && s.category === REQUEST_CATEGORY.active);
 
+  // Always show PSC input section for these statuses
+  if (code === REQUEST_STATUS_CODE.PENDING_PSC_NO_VMS || code === REQUEST_STATUS_CODE.PENDING_PSC) {
+    return (
+      <div className="flex flex-col">
+        <Button className="mb-8 w-full" variant="alternative" id="cancel-request" onClick={onCancelRequestClick}>
+          {t('form.cancel-request')}
+        </Button>
+
+        <InputField
+          className="w-full"
+          id="psc-clearance-number"
+          name="pscClearanceNumber"
+          label={t('hr-advisor-referral-requests.psc-clearance-number')}
+          errorMessage={t(extractValidationKey(formErrors?.pscClearanceNumber?.[0]))}
+          required
+        />
+
+        <Button
+          className="mt-4 w-full"
+          name="action"
+          variant="primary"
+          id="psc-clearance-received"
+          disabled={isSubmitting}
+          value="psc-clearance-received"
+        >
+          {t('form.psc-clearance-received')}
+        </Button>
+      </div>
+    );
+  }
+
   // Re-assign only shows up for HR advisors who haven't picked up that request
   if (!isRequestAssignedToCurrentUser && code !== REQUEST_STATUS_CODE.SUBMIT && isActiveRequest) {
     return (
@@ -850,35 +881,6 @@ function RenderButtonsByStatus({
           >
             {t('form.run-matches')}
           </LoadingButton>
-        </div>
-      );
-    case REQUEST_STATUS_CODE.PENDING_PSC_NO_VMS:
-    case REQUEST_STATUS_CODE.PENDING_PSC:
-      return (
-        <div className="flex flex-col">
-          <Button className="mb-8 w-full" variant="alternative" id="cancel-request" onClick={onCancelRequestClick}>
-            {t('form.cancel-request')}
-          </Button>
-
-          <InputField
-            className="w-full"
-            id="psc-clearance-number"
-            name="pscClearanceNumber"
-            label={t('hr-advisor-referral-requests.psc-clearance-number')}
-            errorMessage={t(extractValidationKey(formErrors?.pscClearanceNumber?.[0]))}
-            required
-          />
-
-          <Button
-            className="mt-4 w-full"
-            name="action"
-            variant="primary"
-            id="psc-clearance-received"
-            disabled={isSubmitting}
-            value="psc-clearance-received"
-          >
-            {t('form.psc-clearance-received')}
-          </Button>
         </div>
       );
 
