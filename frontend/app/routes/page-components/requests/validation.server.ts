@@ -13,8 +13,9 @@ import { serverEnvironment } from '~/.server/environment';
 import { extractUniqueBranchesFromDirectoratesNonLocalized } from '~/.server/utils/directorate-utils';
 import { stringToIntegerSchema } from '~/.server/validation/string-to-integer-schema';
 import { EMPLOYMENT_TENURE, LANGUAGE_REQUIREMENT_CODES, REQUIRE_OPTIONS, SELECTION_PROCESS_TYPE } from '~/domain/constants';
-import { formatISODate, isPastOrTodayInTimeZone, isValidDateString } from '~/utils/date-utils';
+import { isPastOrTodayInTimeZone, isValidCalendarDate, toDateString } from '~/utils/date-utils';
 import { formString } from '~/utils/string-utils';
+import { optionalString } from '~/utils/validation-utils';
 
 export type PositionInformationSchema = Awaited<ReturnType<typeof createPositionInformationSchema>>;
 export type ProcessInformationSchema = Awaited<ReturnType<typeof createProcessInformationSchema>>;
@@ -429,7 +430,7 @@ export async function createProcessInformationSchema() {
           v.object({
             employmentTenure: v.pipe(stringToIntegerSchema(), v.picklist(selectedEmploymentTenureForTerm.map(({ id }) => id))),
             projectedStartDateYear: v.pipe(
-              stringToIntegerSchema('app:process-information.errors.projected-start-date.invalid-year'),
+              stringToIntegerSchema('app:process-information.errors.projected-start-date.required-year'),
               v.minValue(1, 'app:process-information.errors.projected-start-date.invalid-year'),
             ),
             projectedStartDateMonth: v.pipe(
@@ -442,15 +443,20 @@ export async function createProcessInformationSchema() {
               v.minValue(1, 'app:process-information.errors.projected-start-date.invalid-day'),
               v.maxValue(31, 'app:process-information.errors.projected-start-date.invalid-day'),
             ),
-            projectedStartDate: v.pipe(
-              v.string(),
-              v.custom(
-                (input) => isValidDateString(input as string),
-                'app:process-information.errors.projected-start-date.invalid',
+            projectedStartDate: optionalString(
+              v.optional(
+                v.pipe(
+                  v.string(),
+                  v.isoDate('app:process-information.errors.projected-start-date.invalid'),
+                  v.custom(
+                    (input) => isValidCalendarDate(input as string),
+                    'app:process-information.errors.projected-start-date.invalid',
+                  ),
+                ),
               ),
             ),
             projectedEndDateYear: v.pipe(
-              stringToIntegerSchema('app:process-information.errors.projected-end-date.invalid-year'),
+              stringToIntegerSchema('app:process-information.errors.projected-end-date.required-year'),
               v.minValue(1, 'app:process-information.errors.projected-end-date.invalid-year'),
             ),
             projectedEndDateMonth: v.pipe(
@@ -463,15 +469,20 @@ export async function createProcessInformationSchema() {
               v.minValue(1, 'app:process-information.errors.projected-end-date.invalid-day'),
               v.maxValue(31, 'app:process-information.errors.projected-end-date.invalid-day'),
             ),
-            projectedEndDate: v.pipe(
-              v.string(),
-              v.custom(
-                (input) => isValidDateString(input as string),
-                'app:process-information.errors.projected-end-date.invalid',
-              ),
-              v.custom(
-                (input) => !isPastOrTodayInTimeZone(serverEnvironment.BASE_TIMEZONE, input as string),
-                'app:process-information.errors.projected-end-date.invalid-future',
+            projectedEndDate: optionalString(
+              v.optional(
+                v.pipe(
+                  v.string(),
+                  v.isoDate('app:process-information.errors.projected-end-date.invalid'),
+                  v.custom(
+                    (input) => isValidCalendarDate(input as string),
+                    'app:process-information.errors.projected-end-date.invalid',
+                  ),
+                  v.custom(
+                    (input) => !isPastOrTodayInTimeZone(serverEnvironment.BASE_TIMEZONE, input as string),
+                    'app:process-information.errors.projected-end-date.invalid-future',
+                  ),
+                ),
               ),
             ),
           }),
@@ -540,13 +551,11 @@ export async function parseProcessInformation(formData: FormData) {
       : undefined,
     nonAdvertisedAppointment: formString(formData.get('nonAdvertisedAppointment')),
     employmentTenure: formString(formData.get('employmentTenure')),
-    projectedStartDate: formatISODate(`${projectedStartDateYear}-${projectedStartDateMonth}-${projectedStartDateDay}`).unwrapOr(
-      '',
-    ),
+    projectedStartDate: toDateString(projectedStartDateYear, projectedStartDateMonth, projectedStartDateDay),
     projectedStartDateYear,
     projectedStartDateMonth,
     projectedStartDateDay,
-    projectedEndDate: formatISODate(`${projectedEndDateYear}-${projectedEndDateMonth}-${projectedEndDateDay}`).unwrapOr(''),
+    projectedEndDate: toDateString(projectedEndDateYear, projectedEndDateMonth, projectedEndDateDay),
     projectedEndDateYear,
     projectedEndDateMonth,
     projectedEndDateDay,
