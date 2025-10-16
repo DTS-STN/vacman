@@ -486,6 +486,11 @@ public class RequestService {
 			throw new ResourceConflictException("Request must be in HR_REVIEW status to be marked as VMS not required");
 		}
 
+		// Generate VacMan clearance number (16 character ID with letters and numbers)
+		// TODO: Real implementation (ADO task 6691)
+		final var priorityClearanceNumber = RandomStringUtils.insecure().nextAlphanumeric(16).toUpperCase();
+		request.setPriorityClearanceNumber(priorityClearanceNumber);
+
 		// Set status to PENDING_PSC_NO_VMS
 		request.setRequestStatus(getRequestStatusByCode(requestStatuses.pendingPscClearanceNoVms()));
 
@@ -552,6 +557,9 @@ public class RequestService {
 
 		// Generate VacMan clearance number (16 character ID with letters and numbers)
 		// TODO: Real implementation (ADO task 6691)
+		final var priorityClearanceNumber = RandomStringUtils.insecure().nextAlphanumeric(16).toUpperCase();
+		request.setPriorityClearanceNumber(priorityClearanceNumber);
+
 		final var clearanceNumber = RandomStringUtils.insecure().nextAlphanumeric(16).toUpperCase();
 		request.setPscClearanceNumber(clearanceNumber);
 
@@ -579,6 +587,10 @@ public class RequestService {
 		request.setRequestStatus(getRequestStatusByCode(requestStatuses.pendingPscClearance()));
 
 		// Generate VacMan clearance number (16 character ID with letters and numbers)
+		// TODO: Real implementation (ADO task 6691)
+		final var priorityClearanceNumber = RandomStringUtils.insecure().nextAlphanumeric(16).toUpperCase();
+		request.setPriorityClearanceNumber(priorityClearanceNumber);
+
 		final var clearanceNumber = RandomStringUtils.insecure().nextAlphanumeric(16).toUpperCase();
 		request.setPscClearanceNumber(clearanceNumber);
 
