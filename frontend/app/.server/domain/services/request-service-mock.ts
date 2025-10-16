@@ -30,6 +30,7 @@ import { LogFactory } from '~/.server/logging';
 import { REQUEST_EVENT_TYPE, REQUEST_STATUS_CODE } from '~/domain/constants';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
+import { randomString } from '~/utils/string-utils';
 
 const log = LogFactory.getLogger(import.meta.url);
 
@@ -318,16 +319,25 @@ export function getMockRequestService(): RequestService {
 
       const newStatus = statusByEvent[statusUpdate.eventType] ?? existingRequest.status;
 
-      // Only assign hrAdvisor for the pickedUp event
-      let hrAdvisor: User | undefined = undefined;
-      if (statusUpdate.eventType === REQUEST_EVENT_TYPE.pickedUp) {
-        hrAdvisor = mockUsers.find((u) => u.userType?.code === 'HRA');
+      let hrAdvisor: User | undefined = undefined; // Only assign hrAdvisor for the pickedUp event
+      let priorityClearanceNumber: string | undefined = undefined;
+
+      switch (statusUpdate.eventType) {
+        case REQUEST_EVENT_TYPE.pickedUp:
+          hrAdvisor = mockUsers.find((u) => u.userType?.code === 'HRA');
+          break;
+        case REQUEST_EVENT_TYPE.vmsNotRequired:
+        case REQUEST_EVENT_TYPE.pscRequired:
+        case REQUEST_EVENT_TYPE.pscNotRequired:
+          priorityClearanceNumber = randomString(16).toUpperCase();
+          break;
       }
 
       const updatedRequest: RequestReadModel = {
         ...existingRequest,
         status: newStatus,
         hrAdvisor: hrAdvisor ?? existingRequest.hrAdvisor,
+        priorityClearanceNumber: priorityClearanceNumber ?? existingRequest.priorityClearanceNumber,
         lastModifiedDate: new Date().toISOString(),
         lastModifiedBy: 'system',
       };
