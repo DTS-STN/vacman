@@ -20,7 +20,7 @@ import { REQUIRE_OPTIONS } from '~/domain/constants';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
-import { SubmissionDetailsForm } from '~/routes/page-components/requests/submission-detail/form';
+import { SubmissionDetailsForm } from '~/routes/page-components/requests/submission-detail-form';
 import type { Errors, SubmissionDetailSchema } from '~/routes/page-components/requests/validation.server';
 import { createSubmissionDetailSchema } from '~/routes/page-components/requests/validation.server';
 import { formString } from '~/utils/string-utils';

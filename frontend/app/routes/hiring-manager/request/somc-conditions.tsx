@@ -16,7 +16,7 @@ import { REQUEST_STATUS_CODE } from '~/domain/constants';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
-import { SomcConditionsForm } from '~/routes/page-components/requests/somc-conditions/form';
+import { SomcConditionsForm } from '~/routes/page-components/requests/somc-conditions-form';
 import { somcConditionsSchema } from '~/routes/page-components/requests/validation.server';
 import { formString } from '~/utils/string-utils';
 

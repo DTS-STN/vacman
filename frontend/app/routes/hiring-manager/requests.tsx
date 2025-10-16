@@ -2,7 +2,7 @@ import type { RouteHandle } from 'react-router';
 
 import { useTranslation } from 'react-i18next';
 
-import RequestsTables from '../page-components/requests/tables/requests-tables';
+import RequestsTables from '../page-components/requests/requests-tables';
 import type { Route } from './+types/requests';
 
 import type { RequestUpdateModel } from '~/.server/domain/models';
