@@ -3,6 +3,7 @@ package ca.gov.dtsstn.vacman.api.web;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -145,6 +146,132 @@ class RequestsControllerTest {
 			.userType(userTypeRepository.findByCode("employee").orElseThrow())
 			.language(languageRepository.getReferenceById(1L))
 			.build());
+	}
+
+	@Nested
+	@DisplayName("GET /api/v1/requests")
+	class GetAllRequests {
+
+		@Test
+		@DisplayName("Should return all requests when no filter")
+		@WithMockUser(username = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", authorities = { "hr-advisor" })
+		void testGetAllRequestsNoFilter() throws Exception {
+			// Create test requests
+			requestRepository.saveAll(List.of(
+				RequestEntity.builder()
+					.classification(classificationRepository.getReferenceById(1L))
+					.hiringManager(hiringManager)
+					.hrAdvisor(hrAdvisor)
+					.language(languageRepository.getReferenceById(1L))
+					.languageRequirement(languageRequirementRepository.getReferenceById(1L))
+					.nameEn("Software Developer")
+					.nameFr("Développeur logiciel")
+					.requestNumber("REQ-001")
+					.requestStatus(requestStatusRepository.findByCode(lookupCodes.requestStatuses().draft()).orElseThrow())
+					.submitter(submitter)
+					.workUnit(workUnitRepository.getReferenceById(1L))
+					.build(),
+				RequestEntity.builder()
+					.classification(classificationRepository.getReferenceById(1L))
+					.hiringManager(hiringManager)
+					.hrAdvisor(null)
+					.language(languageRepository.getReferenceById(1L))
+					.languageRequirement(languageRequirementRepository.getReferenceById(1L))
+					.nameEn("Data Analyst")
+					.nameFr("Analyste de données")
+					.requestNumber("REQ-002")
+					.requestStatus(requestStatusRepository.findByCode(lookupCodes.requestStatuses().draft()).orElseThrow())
+					.submitter(submitter)
+					.workUnit(workUnitRepository.getReferenceById(1L))
+					.build()));
+
+			mockMvc.perform(get("/api/v1/requests"))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.content.length()", is(2)))
+				.andExpect(jsonPath("$.content[0].englishTitle", is("Software Developer")))
+				.andExpect(jsonPath("$.content[1].englishTitle", is("Data Analyst")));
+		}
+
+		@Test
+		@DisplayName("Should filter requests by hrAdvisorId")
+		@WithMockUser(username = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", authorities = { "hr-advisor" })
+		void testGetAllRequestsFilteredByHrAdvisorId() throws Exception {
+			// Create test requests
+			requestRepository.saveAll(List.of(
+				RequestEntity.builder()
+					.classification(classificationRepository.getReferenceById(1L))
+					.hiringManager(hiringManager)
+					.hrAdvisor(hrAdvisor)
+					.language(languageRepository.getReferenceById(1L))
+					.languageRequirement(languageRequirementRepository.getReferenceById(1L))
+					.nameEn("Software Developer")
+					.nameFr("Développeur logiciel")
+					.requestNumber("REQ-001")
+					.requestStatus(requestStatusRepository.findByCode(lookupCodes.requestStatuses().draft()).orElseThrow())
+					.submitter(submitter)
+					.workUnit(workUnitRepository.getReferenceById(1L))
+					.build(),
+				RequestEntity.builder()
+					.classification(classificationRepository.getReferenceById(1L))
+					.hiringManager(hiringManager)
+					.hrAdvisor(null)
+					.language(languageRepository.getReferenceById(1L))
+					.languageRequirement(languageRequirementRepository.getReferenceById(1L))
+					.nameEn("Data Analyst")
+					.nameFr("Analyste de données")
+					.requestNumber("REQ-002")
+					.requestStatus(requestStatusRepository.findByCode(lookupCodes.requestStatuses().draft()).orElseThrow())
+					.submitter(submitter)
+					.workUnit(workUnitRepository.getReferenceById(1L))
+					.build()));
+
+			mockMvc.perform(get("/api/v1/requests").param("hrAdvisorId", hrAdvisor.getId().toString()))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.content.length()", is(1)))
+				.andExpect(jsonPath("$.content[0].englishTitle", is("Software Developer")));
+		}
+
+		@Test
+		@DisplayName("Should filter requests by 'me' for current user")
+		@WithMockUser(username = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", authorities = { "hr-advisor" })
+		void testGetAllRequestsFilteredByMe() throws Exception {
+			// Create test request assigned to current HR advisor
+			requestRepository.save(RequestEntity.builder()
+				.classification(classificationRepository.getReferenceById(1L))
+				.hiringManager(hiringManager)
+				.hrAdvisor(hrAdvisor)
+				.language(languageRepository.getReferenceById(1L))
+				.languageRequirement(languageRequirementRepository.getReferenceById(1L))
+				.nameEn("Software Developer")
+				.nameFr("Développeur logiciel")
+				.requestNumber("REQ-001")
+				.requestStatus(requestStatusRepository.findByCode(lookupCodes.requestStatuses().draft()).orElseThrow())
+				.submitter(submitter)
+				.workUnit(workUnitRepository.getReferenceById(1L))
+				.build());
+
+			mockMvc.perform(get("/api/v1/requests").param("hrAdvisorId", "me"))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.content.length()", is(1)))
+				.andExpect(jsonPath("$.content[0].englishTitle", is("Software Developer")));
+		}
+
+		@Test
+		@DisplayName("Should return 401 Unauthorized when not authenticated")
+		@WithAnonymousUser
+		void testGetAllRequestsUnauthorized() throws Exception {
+			mockMvc.perform(get("/api/v1/requests"))
+				.andExpect(status().isUnauthorized());
+		}
+
+		@Test
+		@DisplayName("Should return 403 Forbidden when user lacks hr-advisor authority")
+		@WithMockUser(username = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb", authorities = { "employee" })
+		void testGetAllRequestsForbidden() throws Exception {
+			mockMvc.perform(get("/api/v1/requests"))
+				.andExpect(status().isForbidden());
+		}
+
 	}
 
 	@Nested
