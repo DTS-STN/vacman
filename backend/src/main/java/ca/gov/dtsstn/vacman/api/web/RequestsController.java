@@ -23,23 +23,22 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import ca.gov.dtsstn.vacman.api.config.SpringDocConfig;
-import ca.gov.dtsstn.vacman.api.data.entity.AbstractBaseEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 import ca.gov.dtsstn.vacman.api.security.SecurityUtils;
 import ca.gov.dtsstn.vacman.api.service.ProfileService;
 import ca.gov.dtsstn.vacman.api.service.RequestService;
 import ca.gov.dtsstn.vacman.api.service.UserService;
 import ca.gov.dtsstn.vacman.api.web.model.CollectionModel;
 import ca.gov.dtsstn.vacman.api.web.model.ProfileReadModel;
+import ca.gov.dtsstn.vacman.api.web.model.RequestReadFilterModel;
 import ca.gov.dtsstn.vacman.api.web.model.RequestReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.RequestStatusUpdateModel;
 import ca.gov.dtsstn.vacman.api.web.model.RequestUpdateModel;
 import ca.gov.dtsstn.vacman.api.web.model.mapper.RequestModelMapper;
-import ca.gov.dtsstn.vacman.api.web.validator.ValidHrAdvisorParam;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -73,22 +72,19 @@ public class RequestsController {
 	@ApiResponses.BadRequestError
 	@PreAuthorize("hasAuthority('hr-advisor')")
 	@Operation(summary = "Get hiring requests with pagination.")
-	public ResponseEntity<PagedModel<RequestReadModel>> getAllRequests(
-			@ParameterObject Pageable pageable,
-			@RequestParam(name = "hr-advisor", required = false) @ValidHrAdvisorParam String hrAdvisorParam) {
+	public ResponseEntity<PagedModel<RequestReadModel>> getAllRequests(@ParameterObject Pageable pageable, @ParameterObject RequestReadFilterModel filter) {
+		log.info("Received request to get all hiring requests.");
+		log.debug("Pageable: {}, Filter: {}", pageable, filter);
 
-		final var hrAdvisorId = Optional.ofNullable(hrAdvisorParam).flatMap(id -> switch (id) {
-			case "me" -> {
-				final var entraId = SecurityUtils.getCurrentUserEntraId()
-					.orElseThrow(asEntraIdUnauthorizedException());
-
-				yield userService.getUserByMicrosoftEntraId(entraId)
-					.map(AbstractBaseEntity::getId);
-			}
-			default -> {
-				yield Optional.of(Long.valueOf(id));
-			}
-		}).orElseThrow(asUserResourceNotFoundException("microsoftEntraId", hrAdvisorParam));
+		final var hrAdvisorId = Optional.ofNullable(filter)
+			.map(RequestReadFilterModel::hrAdvisorId)
+			.map(id -> "me".equals(id)
+				? SecurityUtils.getCurrentUserEntraId()
+					.flatMap(userService::getUserByMicrosoftEntraId)
+					.map(UserEntity::getId)
+					.orElseThrow(asEntraIdUnauthorizedException())
+				: Long.valueOf(id))
+			.orElse(null);
 
 		final var requests = requestService.getAllRequests(pageable, hrAdvisorId)
 			.map(entity -> requestModelMapper.toModel(entity, requestService.hasMatches(entity.getId())));
