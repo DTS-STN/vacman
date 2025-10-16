@@ -18,7 +18,7 @@ import { PROFILE_STATUS } from '~/domain/constants';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
-import { PersonalInformationForm } from '~/routes/page-components/profile/personal-information/form';
+import { PersonalInformationForm } from '~/routes/page-components/profile/personal-information-form';
 import type { PersonalInformationSchema } from '~/routes/page-components/profile/validation.server';
 import { createPersonalInformationSchema } from '~/routes/page-components/profile/validation.server';
 import { toE164 } from '~/utils/phone-utils';

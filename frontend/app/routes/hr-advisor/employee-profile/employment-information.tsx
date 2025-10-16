@@ -21,7 +21,7 @@ import { BackLink } from '~/components/back-link';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
-import { EmploymentInformationForm } from '~/routes/page-components/profile/employment-information/form';
+import { EmploymentInformationForm } from '~/routes/page-components/profile/employment-information-form';
 import type { EmploymentInformationSchema } from '~/routes/page-components/profile/validation.server';
 import { parseEmploymentInformation } from '~/routes/page-components/profile/validation.server';
 
