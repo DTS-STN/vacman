@@ -22,7 +22,7 @@ spring:
   liquibase:
     contexts: dev
     change-log: classpath:db/changelog/db.changelog-master.yaml
-    # drop-first: true # ⚠️ ‼‼‼ NEVER SET THIS IN PROD ‼‼‼ ⚠️
+    drop-first: true # ⚠️ ‼‼‼ NEVER SET THIS IN PROD ‼‼‼ ⚠️
 
 application:
   requests:
@@ -47,7 +47,7 @@ application:
     job-hr-approved-template-id-eng: 13da1bd7-e99a-4187-84d2-3d3e12063663 # job opportunity HR approved english
     job-hr-approved-template-id-fra: a1dc35e5-e5b8-4ea9-80b1-a3c098cd28eb # job opportunity HR approved french
     job-opportunity-template-id-eng: 9e5f835b-2579-47da-b1de-037744493560 # job opportunity english
-    job-opportunity-template-id-fra: a97ecc42-0441-4492-a875-ba1981e913b3 # job opportunity french 
+    job-opportunity-template-id-fra: a97ecc42-0441-4492-a875-ba1981e913b3 # job opportunity french
     # unknown to which template should these go to
     profile-pending-template-id: 4fcdff75-2ff5-4ae5-8edb-5be5233ca8bf # must be set externally (ex: 00000000-0000-0000-0000-000000000000)
     request-created-template-id: 00000000-0000-0000-0000-000000000000 # must be set externally (ex: 00000000-0000-0000-0000-000000000000)
