@@ -21,7 +21,7 @@ import { REQUEST_STATUS_CODE } from '~/domain/constants';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
-import { ProcessInformationForm } from '~/routes/page-components/requests/process-information/form';
+import { ProcessInformationForm } from '~/routes/page-components/requests/process-information-form';
 import type { ProcessInformationSchema } from '~/routes/page-components/requests/validation.server';
 import { parseProcessInformation } from '~/routes/page-components/requests/validation.server';
 

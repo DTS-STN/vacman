@@ -20,7 +20,7 @@ import { RequestStatusTag } from '~/components/status-tag';
 import { VacmanBackground } from '~/components/vacman-background';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
-import MatchesTables from '~/routes/page-components/requests/tables/matches-tables';
+import MatchesTables from '~/routes/page-components/requests/matches-tables';
 import { formString } from '~/utils/string-utils';
 
 export const handle = {
