@@ -17,7 +17,7 @@ spec:
     spec:
       initContainers:
         - name: init
-          image: docker.io/library/redis7
+          image: docker.io/library/redis:7
           command: [bash, /etc/init.sh]
           envFrom:
             - secretRef:
