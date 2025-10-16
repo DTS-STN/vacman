@@ -6,8 +6,8 @@
 
 logging:
   level:
-    '[ca.gov.dts_stn.vacman.api]': trace
-    '[org.springframework]': debug
+    '[ca.gov.dts_stn.vacman.api]': debug
+    # '[org.springframework]': debug
 
 management:
   otlp:
