@@ -8,6 +8,8 @@ import type {
   RequestQueryParams,
   PagedProfileResponse,
   RequestStatusUpdate,
+  CollectionMatchResponse,
+  MatchReadModel,
 } from '~/.server/domain/models';
 import { getDefaultRequestService } from '~/.server/domain/services/request-service-default';
 import { getMockRequestService } from '~/.server/domain/services/request-service-mock';
@@ -49,10 +51,10 @@ export type RequestService = {
   deleteRequestById(requestId: number, accessToken: string): Promise<Result<void, AppError>>;
 
   // GET /api/v1/requests/{id}/matches - Get all matches for a request
-  getRequestMatches(requestId: number, accessToken: string): Promise<Result<CollectionRequestResponse, AppError>>;
+  getRequestMatches(requestId: number, accessToken: string): Promise<Result<CollectionMatchResponse, AppError>>;
 
   // GET /api/v1/requests/{id}/matches/{matchId} - Get specific match for a request
-  getRequestMatchById(requestId: number, matchId: number, accessToken: string): Promise<Result<unknown, AppError>>; // TODO: Define match type
+  getRequestMatchById(requestId: number, matchId: number, accessToken: string): Promise<Result<MatchReadModel, AppError>>;
 
   // PUT /api/v1/requests/{id}/matches/{matchId}/status - Update match status
   updateRequestMatchStatus(
