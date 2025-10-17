@@ -48,6 +48,28 @@ export default function RequestsTables({
   const [srAnnouncement, setSrAnnouncement] = useState('');
   const [requestsFilter, setRequestsFilter] = useState<string>('all');
 
+  // Helper to generate unique, sorted work unit names for filter options
+  function getUniqueWorkUnitNames(requests: RequestReadModel[], language: string): string[] {
+    const uniqueWorkUnits = new Set<string>();
+    requests.forEach((request) => {
+      const workUnitName = language === 'en' ? request.workUnit?.parent?.nameEn : request.workUnit?.parent?.nameFr;
+      if (workUnitName) {
+        uniqueWorkUnits.add(workUnitName);
+      }
+    });
+    return Array.from(uniqueWorkUnits).sort();
+  }
+
+  const activeWorkUnitNames = useMemo(
+    () => getUniqueWorkUnitNames(activeRequests, currentLanguage ?? 'en'),
+    [activeRequests, currentLanguage],
+  );
+
+  const inactiveWorkUnitNames = useMemo(
+    () => getUniqueWorkUnitNames(inactiveRequests, currentLanguage ?? 'en'),
+    [inactiveRequests, currentLanguage],
+  );
+
   useEffect(() => {
     setBrowserTZ(Intl.DateTimeFormat().resolvedOptions().timeZone);
   }, []);
@@ -63,6 +85,7 @@ export default function RequestsTables({
     const columns: ColumnDef<RequestReadModel & { classification?: LookupModel; requestStatus?: LocalizedLookupModel }>[] = [
       {
         accessorKey: 'id',
+        accessorFn: (row) => row.id,
         header: ({ column }) => <DataTableColumnHeader column={column} title={t('requests-tables.requestId')} />,
         cell: (info) => {
           const requestId = info.row.original.id.toString();
@@ -77,9 +100,15 @@ export default function RequestsTables({
             </InlineLink>
           );
         },
+        sortingFn: (rowA, rowB) => {
+          const a = rowA.original.id;
+          const b = rowB.original.id;
+          return a - b;
+        },
       },
       {
-        accessorKey: 'classification.id',
+        accessorKey: 'classification',
+        accessorFn: (row) => row.classification?.code ?? '',
         header: ({ column }) => <DataTableColumnHeader column={column} title={t('requests-tables.classification')} />,
         cell: (info) => <p>{info.row.original.classification?.code}</p>,
       },
@@ -89,7 +118,14 @@ export default function RequestsTables({
     if (view === 'hr-advisor') {
       columns.push({
         accessorKey: 'workUnit',
-        header: ({ column }) => <DataTableColumnHeader column={column} title={t('requests-tables.work-unit')} />,
+        accessorFn: (row) => (currentLanguage === 'en' ? row.workUnit?.parent?.nameEn : row.workUnit?.parent?.nameFr),
+        header: ({ column }) => (
+          <DataTableColumnHeaderWithOptions
+            column={column}
+            title={t('requests-tables.work-unit')}
+            options={isActive ? activeWorkUnitNames : inactiveWorkUnitNames}
+          />
+        ),
         cell: (info) => (
           <p>
             {lang === 'en'
@@ -97,13 +133,19 @@ export default function RequestsTables({
               : (info.row.original.workUnit?.parent?.nameFr ?? '-')}
           </p>
         ),
+        filterFn: (row, columnId, filterValue: string[]) => {
+          const branch = row.getValue(columnId) as string;
+          return filterValue.length === 0 || filterValue.includes(branch);
+        },
+        enableColumnFilter: true,
       });
     }
 
     // Continue with the rest of the columns
     columns.push(
       {
-        accessorKey: 'dateUpdated',
+        accessorKey: 'lastModifiedDate',
+        accessorFn: (row) => row.lastModifiedDate ?? '',
         header: ({ column }) => <DataTableColumnHeader column={column} title={t('requests-tables.updated')} />,
         cell: (info) => {
           const lastModifiedDate = info.row.original.lastModifiedDate;
@@ -238,7 +280,6 @@ export default function RequestsTables({
             <DataTable
               columns={createColumns(true)}
               data={activeRequests.filter((req) => (requestsFilter === 'me' ? req.hrAdvisor?.id === userId : true))}
-              disableClientSorting={true}
             />
           )}
         </section>
