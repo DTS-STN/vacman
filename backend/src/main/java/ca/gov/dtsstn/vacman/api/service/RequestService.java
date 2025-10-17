@@ -1,6 +1,11 @@
 package ca.gov.dtsstn.vacman.api.service;
 
+import static ca.gov.dtsstn.vacman.api.data.repository.MatchRepository.hasRequestId;
+import static ca.gov.dtsstn.vacman.api.data.repository.RequestRepository.hasHrAdvisorIdIn;
+import static ca.gov.dtsstn.vacman.api.data.repository.RequestRepository.hasRequestStatusIdIn;
+import static ca.gov.dtsstn.vacman.api.data.repository.RequestRepository.hasWorkUnitIdIn;
 import static ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException.asResourceNotFoundException;
+import static org.springframework.data.jpa.domain.Specification.allOf;
 
 import java.util.Collection;
 import java.util.List;
@@ -45,6 +50,7 @@ import ca.gov.dtsstn.vacman.api.event.RequestFeedbackPendingEvent;
 import ca.gov.dtsstn.vacman.api.event.RequestUpdatedEvent;
 import ca.gov.dtsstn.vacman.api.security.SecurityUtils;
 import ca.gov.dtsstn.vacman.api.service.NotificationService.RequestEvent;
+import ca.gov.dtsstn.vacman.api.service.dto.RequestQuery;
 import ca.gov.dtsstn.vacman.api.web.exception.ResourceConflictException;
 import ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException;
 import ca.gov.dtsstn.vacman.api.web.exception.UnauthorizedException;
@@ -175,21 +181,26 @@ public class RequestService {
 	 */
 	@Transactional(readOnly = true)
 	public boolean hasMatches(Long requestId) {
-		return matchRepository.exists(MatchRepository.hasRequestId(requestId));
+		return matchRepository.exists(hasRequestId(requestId));
 	}
 
 	/**
-	 * Get all requests, optionally filtered by HR advisor ID.
+	 * Get all requests, optionally filtered by HR advisor ID, status code, and work unit code.
 	 *
-	 * @param pageable    Pagination information
-	 * @param hrAdvisorId Optional HR advisor ID to filter by (null for no
-	 *                    filtering)
-	 * @return Page of request entities
+	 * @param pageable      Pagination information
+	 * @param hrAdvisorId   Optional HR advisor ID to filter by (null for no filtering)
+	 * @param statusCode    Optional status code to filter by (null for no filtering)
+	 * @param workUnitCode  Optional work unit code to filter by (null for no filtering)
 	 */
 	@Transactional(readOnly = true)
-	public Page<RequestEntity> getAllRequests(Pageable pageable, Long hrAdvisorId) {
-		if (hrAdvisorId == null) { return requestRepository.findAll(pageable); }
-		return requestRepository.findAll(RequestRepository.hasHrAdvisorId(hrAdvisorId), pageable);
+	public Page<RequestEntity> findRequests(Pageable pageable, RequestQuery query) {
+		final var specification = allOf(
+			hasHrAdvisorIdIn(query.hrAdvisorIds()),
+			hasRequestStatusIdIn(query.statusIds()),
+			hasWorkUnitIdIn(query.workUnitIds())
+		);
+
+		return requestRepository.findAll(specification, pageable);
 	}
 
 	/**
