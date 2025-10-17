@@ -172,12 +172,7 @@ export default function MatchesTables({
         const editComment =
           (view === 'hr-advisor' && comment.hrAdvisor) ?? (view === 'hiring-manager' && comment.hiringManager);
         return (
-          <Dialog
-            onOpenChange={(open) => {
-              if (open) return;
-              updateComment(info.row.original.id, textAreaRef.current?.value ?? '');
-            }}
-          >
+          <Dialog>
             <DialogTrigger className="text-sky-800 no-underline decoration-slate-400 decoration-2 hover:underline">
               {editComment ? t('matches-tables.comment-label.edit') : t('matches-tables.comment-label.add')}
             </DialogTrigger>
@@ -203,6 +198,24 @@ export default function MatchesTables({
                     defaultValue={comment.hrAdvisor}
                     ref={view === 'hr-advisor' ? textAreaRef : null}
                   />
+                  <div className="space-x-4">
+                    <DialogClose asChild>
+                      <Button name="cancel" variant="alternative" id="cancel-button" type="button">
+                        {t('form.cancel')}
+                      </Button>
+                    </DialogClose>
+                    <Button
+                      name="save"
+                      variant="primary"
+                      id="save-button"
+                      type="button"
+                      onClick={() => {
+                        updateComment(info.row.original.id, textAreaRef.current?.value ?? '');
+                      }}
+                    >
+                      {t('form.save')}
+                    </Button>
+                  </div>
                 </div>
               </DialogDescription>
             </DialogContent>
@@ -234,7 +247,9 @@ export default function MatchesTables({
                   <InputLabel id="approve-feedback">{t('matches-tables.approval-popup.approve-feedback')}</InputLabel>
                   <div className="space-x-4">
                     <DialogClose asChild>
-                      <Button>{t('form.cancel')}</Button>
+                      <Button name="cancel" variant="alternative" id="cancel-button" type="button">
+                        {t('form.cancel')}
+                      </Button>
                     </DialogClose>
                     <DialogClose asChild>
                       <Button variant="primary" onClick={() => approveRequest(info.row.original.id)}>
