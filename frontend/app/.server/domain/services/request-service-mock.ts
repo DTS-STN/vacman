@@ -11,6 +11,8 @@ import type {
   RequestStatusUpdate,
   RequestStatus,
   User,
+  CollectionMatchResponse,
+  MatchReadModel,
 } from '~/.server/domain/models';
 import { getCityService } from '~/.server/domain/services/city-service';
 import { getClassificationService } from '~/.server/domain/services/classification-service';
@@ -404,9 +406,9 @@ export function getMockRequestService(): RequestService {
     /**
      * Gets all matches for a request.
      */
-    async getRequestMatches(requestId: number, accessToken: string): Promise<Result<CollectionRequestResponse, AppError>> {
+    async getRequestMatches(requestId: number, accessToken: string): Promise<Result<CollectionMatchResponse, AppError>> {
       // Mock implementation - return empty collection
-      const response: CollectionRequestResponse = {
+      const response: CollectionMatchResponse = {
         content: [],
       };
       return Promise.resolve(Ok(response));
@@ -415,11 +417,13 @@ export function getMockRequestService(): RequestService {
     /**
      * Gets a specific match for a request.
      */
-    async getRequestMatchById(requestId: number, matchId: number, accessToken: string): Promise<Result<unknown, AppError>> {
+    async getRequestMatchById(
+      requestId: number,
+      matchId: number,
+      accessToken: string,
+    ): Promise<Result<MatchReadModel, AppError>> {
       return Promise.resolve(
-        Promise.resolve(
-          Err(new AppError(`Match ${matchId} for request ID ${requestId} not found.`, ErrorCodes.MATCH_NOT_FOUND)),
-        ),
+        Err(new AppError(`Match ${matchId} for request ID ${requestId} not found.`, ErrorCodes.MATCH_NOT_FOUND)),
       );
     },
 

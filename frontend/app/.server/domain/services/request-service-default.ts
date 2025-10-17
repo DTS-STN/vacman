@@ -9,6 +9,8 @@ import type {
   RequestQueryParams,
   PagedProfileResponse,
   RequestStatusUpdate,
+  CollectionMatchResponse,
+  MatchReadModel,
 } from '~/.server/domain/models';
 import { apiClient } from '~/.server/domain/services/api-client';
 import type { RequestService } from '~/.server/domain/services/request-service';
@@ -222,8 +224,8 @@ export function getDefaultRequestService(): RequestService {
     /**
      * Gets all matches for a request.
      */
-    async getRequestMatches(requestId: number, accessToken: string): Promise<Result<CollectionRequestResponse, AppError>> {
-      const result = await apiClient.get<CollectionRequestResponse>(
+    async getRequestMatches(requestId: number, accessToken: string): Promise<Result<CollectionMatchResponse, AppError>> {
+      const result = await apiClient.get<CollectionMatchResponse>(
         `/requests/${requestId}/matches`,
         `retrieve matches for request ID ${requestId}`,
         accessToken,
@@ -243,8 +245,12 @@ export function getDefaultRequestService(): RequestService {
     /**
      * Gets a specific match for a request.
      */
-    async getRequestMatchById(requestId: number, matchId: number, accessToken: string): Promise<Result<unknown, AppError>> {
-      const result = await apiClient.get<unknown>(
+    async getRequestMatchById(
+      requestId: number,
+      matchId: number,
+      accessToken: string,
+    ): Promise<Result<MatchReadModel, AppError>> {
+      const result = await apiClient.get<MatchReadModel>(
         `/requests/${requestId}/matches/${matchId}`,
         `retrieve match ${matchId} for request ID ${requestId}`,
         accessToken,

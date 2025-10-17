@@ -355,3 +355,36 @@ export type RequestQueryParams = {
   classification?: string;
   province?: string;
 };
+
+// Match Read Model
+export type MatchReadModel = Readonly<{
+  // Main fields
+  profile?: Profile;
+  request?: RequestReadModel;
+  matchStatus?: MatchStatus;
+  matchFeedback?: MatchFeedback;
+  hiringManagerComment?: string;
+  hrAdvisorComment?: string;
+
+  // Tombstone fields
+  id: number;
+  createdBy?: string;
+  createdDate?: string;
+  lastModifiedBy?: string;
+  lastModifiedDate?: string;
+}>;
+
+// Match Update Model
+export type MatchUpdateModel = Partial<{
+  profileId: number;
+  requestId: number;
+  statusId: number;
+  matchFeedbackId: number;
+  hiringManagerComment: string;
+  hrAdvisorComment: string;
+}>;
+
+// Match Response Models
+export type CollectionMatchResponse = Readonly<{
+  content: MatchReadModel[];
+}>;
