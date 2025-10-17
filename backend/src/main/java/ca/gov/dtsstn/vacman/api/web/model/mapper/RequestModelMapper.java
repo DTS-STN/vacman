@@ -9,6 +9,8 @@ import org.mapstruct.ReportingPolicy;
 import ca.gov.dtsstn.vacman.api.data.entity.CityEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.EmploymentEquityEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.RequestEntity;
+import ca.gov.dtsstn.vacman.api.service.dto.RequestQuery;
+import ca.gov.dtsstn.vacman.api.web.model.RequestReadFilterModel;
 import ca.gov.dtsstn.vacman.api.web.model.RequestReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.RequestUpdateModel;
 import ca.gov.dtsstn.vacman.api.web.model.RequestUpdateModel.CityId;
@@ -136,6 +138,11 @@ public interface RequestModelMapper {
 	@Mapping(target = "workScheduleId", source = "workSchedule.id")
 	@Mapping(target = "workUnitId", source = "workUnit.id")
 	RequestUpdateModel requestEntityToRequestUpdateModel(RequestEntity request);
+
+	@Mapping(source = "statusId", target = "statusIds")
+	@Mapping(source = "workUnitId", target = "workUnitIds")
+	@Mapping(source = "hrAdvisorId", target = "hrAdvisorIds")
+	RequestQuery toRequestQuery(RequestReadFilterModel filter);
 
 	default Long cityIdToLong(CityId cityId) {
 		return cityId == null ? null : cityId.value();

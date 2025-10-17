@@ -57,6 +57,28 @@ public interface RequestRepository extends AbstractBaseRepository<RequestEntity>
 	}
 
 	/**
+	 * JPA specification to find requests with a specific status ID.
+	 */
+	static Specification<RequestEntity> hasRequestStatusId(Long id) {
+		return (root, query, cb) -> cb.equal(root.get("requestStatus").get("id"), id);
+	}
+
+	/**
+	 * JPA specification to find requests with specific status IDs.
+	 */
+	static Specification<RequestEntity> hasRequestStatusIdIn(Long ... ids) {
+		return hasRequestStatusIdIn(Arrays.asList(ids));
+	}
+
+	/**
+	 * JPA specification to find requests with specific status IDs.
+	 */
+	static Specification<RequestEntity> hasRequestStatusIdIn(Collection<Long> ids) {
+		if (CollectionUtils.isEmpty(ids)) { return AbstractBaseRepository.empty(); }
+		return (root, query, cb) -> root.get("requestStatus").get("id").in(ids);
+	}
+
+	/**
 	 * JPA specification to find requests with a specific work-unit code.
 	 */
 	static Specification<RequestEntity> hasWorkUnitCode(String code) {
@@ -76,6 +98,28 @@ public interface RequestRepository extends AbstractBaseRepository<RequestEntity>
 	static Specification<RequestEntity> hasWorkUnitCodeIn(Collection<String> codes) {
 		if (CollectionUtils.isEmpty(codes)) { return Specification.unrestricted(); }
 		return (root, query, cb) -> root.get("workUnit").get("code").in(codes);
+	}
+
+	/**
+	 * JPA specification to find requests with a specific work-unit ID.
+	 */
+	static Specification<RequestEntity> hasWorkUnitId(Long id) {
+		return (root, query, cb) -> cb.equal(root.get("workUnit").get("id"), id);
+	}
+
+	/**
+	 * JPA specification to find requests with specific work-unit IDs.
+	 */
+	static Specification<RequestEntity> hasWorkUnitIdIn(Long ... ids) {
+		return hasWorkUnitIdIn(Arrays.asList(ids));
+	}
+
+	/**
+	 * JPA specification to find requests with specific work-unit IDs.
+	 */
+	static Specification<RequestEntity> hasWorkUnitIdIn(Collection<Long> ids) {
+		if (CollectionUtils.isEmpty(ids)) { return AbstractBaseRepository.empty(); }
+		return (root, query, cb) -> root.get("workUnit").get("id").in(ids);
 	}
 
 }

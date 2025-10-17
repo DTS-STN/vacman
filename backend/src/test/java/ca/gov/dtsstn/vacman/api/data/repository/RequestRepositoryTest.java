@@ -2,10 +2,14 @@ package ca.gov.dtsstn.vacman.api.data.repository;
 
 import static ca.gov.dtsstn.vacman.api.data.repository.RequestRepository.hasHrAdvisorId;
 import static ca.gov.dtsstn.vacman.api.data.repository.RequestRepository.hasHrAdvisorIdIn;
+import static ca.gov.dtsstn.vacman.api.data.repository.RequestRepository.hasRequestStatusId;
+import static ca.gov.dtsstn.vacman.api.data.repository.RequestRepository.hasRequestStatusIdIn;
 import static ca.gov.dtsstn.vacman.api.data.repository.RequestRepository.hasStatusCode;
 import static ca.gov.dtsstn.vacman.api.data.repository.RequestRepository.hasStatusCodeIn;
 import static ca.gov.dtsstn.vacman.api.data.repository.RequestRepository.hasWorkUnitCode;
 import static ca.gov.dtsstn.vacman.api.data.repository.RequestRepository.hasWorkUnitCodeIn;
+import static ca.gov.dtsstn.vacman.api.data.repository.RequestRepository.hasWorkUnitId;
+import static ca.gov.dtsstn.vacman.api.data.repository.RequestRepository.hasWorkUnitIdIn;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
@@ -350,6 +354,108 @@ class RequestRepositoryTest {
 			assertThat(results).as("Should match all requests when status code collection is null").hasSize(1);
 		}
 
+		@Test
+		@DisplayName("hasRequestStatusId should find requests by status ID")
+		void testHasRequestStatusId() {
+			final var request1 = requestRepository.save(
+				RequestEntity.builder()
+					.submitter(submitter)
+					.requestStatus(statusDraft)
+					.build());
+
+			final var request2 = requestRepository.save(
+				RequestEntity.builder()
+					.submitter(submitter)
+					.requestStatus(statusDraft)
+					.build());
+
+			@SuppressWarnings("unused")
+			final var request3 = requestRepository.save(
+				RequestEntity.builder()
+					.submitter(submitter)
+					.requestStatus(statusSubmitted)
+					.build());
+
+			final var results = requestRepository.findAll(hasRequestStatusId(statusDraft.getId()));
+
+			assertThat(results).as("Should find 2 requests with DRAFT status ID").hasSize(2);
+			assertThat(results).extracting(RequestEntity::getId)
+				.as("Should contain the IDs of the two DRAFT requests")
+				.containsExactlyInAnyOrder(request1.getId(), request2.getId());
+		}
+
+		@Test
+		@DisplayName("hasRequestStatusId should return empty list when no requests match")
+		void testHasRequestStatusIdNoMatches() {
+			@SuppressWarnings("unused")
+			final var request = requestRepository.save(
+				RequestEntity.builder()
+					.submitter(submitter)
+					.requestStatus(statusDraft)
+					.build());
+
+			final var results = requestRepository.findAll(hasRequestStatusId(999999L));
+
+			assertThat(results).as("Should return empty list when no requests match the status ID").isEmpty();
+		}
+
+		@Test
+		@DisplayName("hasRequestStatusIdIn should find requests by multiple status IDs")
+		void testHasRequestStatusIdIn() {
+			final var request1 = requestRepository.save(
+				RequestEntity.builder()
+					.submitter(submitter)
+					.requestStatus(statusDraft)
+					.build());
+
+			final var request2 = requestRepository.save(
+				RequestEntity.builder()
+					.submitter(submitter)
+					.requestStatus(statusDraft)
+					.build());
+
+			final var request3 = requestRepository.save(
+				RequestEntity.builder()
+					.submitter(submitter)
+					.requestStatus(statusSubmitted)
+					.build());
+
+			final var results = requestRepository.findAll(hasRequestStatusIdIn(statusDraft.getId(), statusSubmitted.getId()));
+
+			assertThat(results).as("Should find 3 requests with either DRAFT or SUBMIT status ID").hasSize(3);
+			assertThat(results).extracting(RequestEntity::getId)
+				.as("Should contain the IDs of the three requests with DRAFT or SUBMIT status ID")
+				.containsExactlyInAnyOrder(request1.getId(), request2.getId(), request3.getId());
+		}
+
+		@Test
+		@DisplayName("hasRequestStatusIdIn should match all when collection is empty")
+		void testHasRequestStatusIdInEmptyCollection() {
+			requestRepository.save(
+				RequestEntity.builder()
+					.submitter(submitter)
+					.requestStatus(statusDraft)
+					.build());
+
+			final var results = requestRepository.findAll(hasRequestStatusIdIn(List.of()));
+
+			assertThat(results).as("Should match all requests when status ID collection is empty").hasSize(1);
+		}
+
+		@Test
+		@DisplayName("hasRequestStatusIdIn should match all when collection is null")
+		void testHasRequestStatusIdInNullCollection() {
+			requestRepository.save(
+				RequestEntity.builder()
+					.submitter(submitter)
+					.requestStatus(statusDraft)
+					.build());
+
+			final var results = requestRepository.findAll(hasRequestStatusIdIn((Collection<Long>) null));
+
+			assertThat(results).as("Should match all requests when status ID collection is null").hasSize(1);
+		}
+
 	}
 
 	@Nested
@@ -472,6 +578,124 @@ class RequestRepositoryTest {
 			final var results = requestRepository.findAll(hasWorkUnitCodeIn((Collection<String>) null));
 
 			assertThat(results).as("Should match all requests when work unit code collection is null").hasSize(1);
+		}
+
+		@Test
+		@DisplayName("hasWorkUnitId should find requests by work unit ID")
+		void testHasWorkUnitId() {
+			final var request1 = requestRepository.save(
+				RequestEntity.builder()
+					.submitter(submitter)
+					.requestStatus(statusDraft)
+					.workUnit(workUnit1)
+					.build());
+
+			final var request2 = requestRepository.save(
+				RequestEntity.builder()
+					.submitter(submitter)
+					.requestStatus(statusDraft)
+					.workUnit(workUnit1)
+					.build());
+
+			@SuppressWarnings("unused")
+			final var request3 = requestRepository.save(
+				RequestEntity.builder()
+					.submitter(submitter)
+					.requestStatus(statusDraft)
+					.workUnit(workUnit2)
+					.build());
+
+			final var results = requestRepository.findAll(hasWorkUnitId(workUnit1.getId()));
+
+			assertThat(results).as("Should find 2 requests with work unit 100713 ID").hasSize(2);
+			assertThat(results).extracting(RequestEntity::getId)
+				.as("Should contain the IDs of the two requests with work unit 100713 ID")
+				.containsExactlyInAnyOrder(request1.getId(), request2.getId());
+		}
+
+		@Test
+		@DisplayName("hasWorkUnitId should return empty list when no requests match")
+		void testHasWorkUnitIdNoMatches() {
+			@SuppressWarnings("unused")
+			final var request = requestRepository.save(
+				RequestEntity.builder()
+					.submitter(submitter)
+					.requestStatus(statusDraft)
+					.workUnit(workUnit1)
+					.build());
+
+			final var results = requestRepository.findAll(hasWorkUnitId(999999L));
+
+			assertThat(results).as("Should return empty list when no requests match the work unit ID").isEmpty();
+		}
+
+		@Test
+		@DisplayName("hasWorkUnitIdIn should find requests by multiple work unit IDs")
+		void testHasWorkUnitIdIn() {
+			final var request1 = requestRepository.save(
+				RequestEntity.builder()
+					.submitter(submitter)
+					.requestStatus(statusDraft)
+					.workUnit(workUnit1)
+					.build());
+
+			final var request2 = requestRepository.save(
+				RequestEntity.builder()
+					.submitter(submitter)
+					.requestStatus(statusDraft)
+					.workUnit(workUnit1)
+					.build());
+
+			final var request3 = requestRepository.save(
+				RequestEntity.builder()
+					.submitter(submitter)
+					.requestStatus(statusDraft)
+					.workUnit(workUnit2)
+					.build());
+
+			@SuppressWarnings("unused")
+			final var request4 = requestRepository.save(
+				RequestEntity.builder()
+					.submitter(submitter)
+					.requestStatus(statusDraft)
+					.build()); // no workUnit
+
+			final var results = requestRepository.findAll(hasWorkUnitIdIn(workUnit1.getId(), workUnit2.getId()));
+
+			assertThat(results).as("Should find 3 requests with either work unit 100713 or 100732 ID").hasSize(3);
+			assertThat(results).extracting(RequestEntity::getId)
+				.as("Should contain the IDs of the three requests with work units 100713 or 100732 ID")
+				.containsExactlyInAnyOrder(request1.getId(), request2.getId(), request3.getId());
+		}
+
+		@Test
+		@DisplayName("hasWorkUnitIdIn should match all when collection is empty")
+		void testHasWorkUnitIdInEmptyCollection() {
+			requestRepository.save(
+				RequestEntity.builder()
+					.submitter(submitter)
+					.requestStatus(statusDraft)
+					.workUnit(workUnit1)
+					.build());
+
+			final var results = requestRepository.findAll(hasWorkUnitIdIn(List.of()));
+
+			assertThat(results).as("Should match all requests when work unit ID collection is empty").hasSize(1);
+		}
+
+		@Test
+		@DisplayName("hasWorkUnitIdIn should match all when collection is null")
+		void testHasWorkUnitIdInNullCollection() {
+			requestRepository.save(
+				RequestEntity.builder()
+					.submitter(submitter)
+					.requestStatus(statusDraft)
+					.workUnit(workUnit1)
+					.build());
+
+			final var results = requestRepository.findAll(hasWorkUnitIdIn((Collection<Long>) null));
+
+			assertThat(results).as("Should match all requests when work unit ID collection is null").hasSize(1);
 		}
 
 	}

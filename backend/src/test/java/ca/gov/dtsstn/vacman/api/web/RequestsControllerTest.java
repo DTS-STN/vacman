@@ -127,7 +127,7 @@ class RequestsControllerTest {
 			.firstName("HR").lastName("Advisor")
 			.businessEmailAddress("hr.advisor@example.com")
 			.microsoftEntraId("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa")
-			.userType(userTypeRepository.findByCode("HRA").orElseThrow())
+			.userType(userTypeRepository.findByCode(lookupCodes.userTypes().hrAdvisor()).orElseThrow())
 			.language(languageRepository.getReferenceById(1L))
 			.build());
 
@@ -135,7 +135,7 @@ class RequestsControllerTest {
 			.firstName("Hiring").lastName("Manager")
 			.businessEmailAddress("hiring.manager@example.com")
 			.microsoftEntraId("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb")
-			.userType(userTypeRepository.findByCode("employee").orElseThrow())
+			.userType(userTypeRepository.findByCode(lookupCodes.userTypes().employee()).orElseThrow())
 			.language(languageRepository.getReferenceById(1L))
 			.build());
 
@@ -143,7 +143,7 @@ class RequestsControllerTest {
 			.firstName("Request").lastName("Submitter")
 			.businessEmailAddress("submitter@example.com")
 			.microsoftEntraId("cccccccc-cccc-cccc-cccc-cccccccccccc")
-			.userType(userTypeRepository.findByCode("employee").orElseThrow())
+			.userType(userTypeRepository.findByCode(lookupCodes.userTypes().employee()).orElseThrow())
 			.language(languageRepository.getReferenceById(1L))
 			.build());
 	}
@@ -251,6 +251,377 @@ class RequestsControllerTest {
 				.build());
 
 			mockMvc.perform(get("/api/v1/requests").param("hrAdvisorId", "me"))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.content.length()", is(1)))
+				.andExpect(jsonPath("$.content[0].englishTitle", is("Software Developer")));
+		}
+
+		@Test
+		@DisplayName("Should filter requests by statusCode")
+		@WithMockUser(username = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", authorities = { "hr-advisor" })
+		void testGetAllRequestsFilteredByStatusCode() throws Exception {
+			// Create test requests with different statuses
+			final var draftStatus = requestStatusRepository.findByCode(lookupCodes.requestStatuses().draft()).orElseThrow();
+			final var submitStatus = requestStatusRepository.findByCode(lookupCodes.requestStatuses().submitted()).orElseThrow();
+
+			requestRepository.saveAll(List.of(
+				RequestEntity.builder()
+					.classification(classificationRepository.getReferenceById(1L))
+					.hiringManager(hiringManager)
+					.hrAdvisor(hrAdvisor)
+					.language(languageRepository.getReferenceById(1L))
+					.languageRequirement(languageRequirementRepository.getReferenceById(1L))
+					.nameEn("Software Developer")
+					.nameFr("Développeur logiciel")
+					.requestNumber("REQ-001")
+					.requestStatus(draftStatus)
+					.submitter(submitter)
+					.workUnit(workUnitRepository.getReferenceById(1L))
+					.build(),
+				RequestEntity.builder()
+					.classification(classificationRepository.getReferenceById(1L))
+					.hiringManager(hiringManager)
+					.hrAdvisor(hrAdvisor)
+					.language(languageRepository.getReferenceById(1L))
+					.languageRequirement(languageRequirementRepository.getReferenceById(1L))
+					.nameEn("Data Analyst")
+					.nameFr("Analyste de données")
+					.requestNumber("REQ-002")
+					.requestStatus(submitStatus)
+					.submitter(submitter)
+					.workUnit(workUnitRepository.getReferenceById(1L))
+					.build()));
+
+			mockMvc.perform(get("/api/v1/requests").param("statusId", draftStatus.getId().toString()))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.content.length()", is(1)))
+				.andExpect(jsonPath("$.content[0].englishTitle", is("Software Developer")));
+		}
+
+		@Test
+		@DisplayName("Should filter requests by workUnitCode")
+		@WithMockUser(username = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", authorities = { "hr-advisor" })
+		void testGetAllRequestsFilteredByWorkUnitCode() throws Exception {
+			// Create test requests with different work units
+			final var workUnit1 = workUnitRepository.getReferenceById(1L);
+			final var workUnit2 = workUnitRepository.getReferenceById(2L);
+
+			requestRepository.saveAll(List.of(
+				RequestEntity.builder()
+					.classification(classificationRepository.getReferenceById(1L))
+					.hiringManager(hiringManager)
+					.hrAdvisor(hrAdvisor)
+					.language(languageRepository.getReferenceById(1L))
+					.languageRequirement(languageRequirementRepository.getReferenceById(1L))
+					.nameEn("Software Developer")
+					.nameFr("Développeur logiciel")
+					.requestNumber("REQ-001")
+					.requestStatus(requestStatusRepository.findByCode(lookupCodes.requestStatuses().draft()).orElseThrow())
+					.submitter(submitter)
+					.workUnit(workUnit1)
+					.build(),
+				RequestEntity.builder()
+					.classification(classificationRepository.getReferenceById(1L))
+					.hiringManager(hiringManager)
+					.hrAdvisor(hrAdvisor)
+					.language(languageRepository.getReferenceById(1L))
+					.languageRequirement(languageRequirementRepository.getReferenceById(1L))
+					.nameEn("Data Analyst")
+					.nameFr("Analyste de données")
+					.requestNumber("REQ-002")
+					.requestStatus(requestStatusRepository.findByCode(lookupCodes.requestStatuses().draft()).orElseThrow())
+					.submitter(submitter)
+					.workUnit(workUnit2)
+					.build()));
+
+			mockMvc.perform(get("/api/v1/requests").param("workUnitId", workUnit1.getId().toString()))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.content.length()", is(1)))
+				.andExpect(jsonPath("$.content[0].englishTitle", is("Software Developer")));
+		}
+
+		@Test
+		@DisplayName("Should filter requests by statusId")
+		@WithMockUser(username = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", authorities = { "hr-advisor" })
+		void testGetAllRequestsFilteredByStatusId() throws Exception {
+			// Create test requests with different statuses
+			final var draftStatus = requestStatusRepository.findByCode(lookupCodes.requestStatuses().draft()).orElseThrow();
+			final var submitStatus = requestStatusRepository.findByCode(lookupCodes.requestStatuses().submitted()).orElseThrow();
+
+			requestRepository.saveAll(List.of(
+				RequestEntity.builder()
+					.classification(classificationRepository.getReferenceById(1L))
+					.hiringManager(hiringManager)
+					.hrAdvisor(hrAdvisor)
+					.language(languageRepository.getReferenceById(1L))
+					.languageRequirement(languageRequirementRepository.getReferenceById(1L))
+					.nameEn("Software Developer")
+					.nameFr("Développeur logiciel")
+					.requestNumber("REQ-001")
+					.requestStatus(draftStatus)
+					.submitter(submitter)
+					.workUnit(workUnitRepository.getReferenceById(1L))
+					.build(),
+				RequestEntity.builder()
+					.classification(classificationRepository.getReferenceById(1L))
+					.hiringManager(hiringManager)
+					.hrAdvisor(hrAdvisor)
+					.language(languageRepository.getReferenceById(1L))
+					.languageRequirement(languageRequirementRepository.getReferenceById(1L))
+					.nameEn("Data Analyst")
+					.nameFr("Analyste de données")
+					.requestNumber("REQ-002")
+					.requestStatus(submitStatus)
+					.submitter(submitter)
+					.workUnit(workUnitRepository.getReferenceById(1L))
+					.build()));
+
+			mockMvc.perform(get("/api/v1/requests").param("statusId", draftStatus.getId().toString()))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.content.length()", is(1)))
+				.andExpect(jsonPath("$.content[0].englishTitle", is("Software Developer")));
+		}
+
+		@Test
+		@DisplayName("Should filter requests by workUnitId")
+		@WithMockUser(username = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", authorities = { "hr-advisor" })
+		void testGetAllRequestsFilteredByWorkUnitId() throws Exception {
+			// Create test requests with different work units
+			final var workUnit1 = workUnitRepository.getReferenceById(1L);
+			final var workUnit2 = workUnitRepository.getReferenceById(2L);
+
+			requestRepository.saveAll(List.of(
+				RequestEntity.builder()
+					.classification(classificationRepository.getReferenceById(1L))
+					.hiringManager(hiringManager)
+					.hrAdvisor(hrAdvisor)
+					.language(languageRepository.getReferenceById(1L))
+					.languageRequirement(languageRequirementRepository.getReferenceById(1L))
+					.nameEn("Software Developer")
+					.nameFr("Développeur logiciel")
+					.requestNumber("REQ-001")
+					.requestStatus(requestStatusRepository.findByCode(lookupCodes.requestStatuses().draft()).orElseThrow())
+					.submitter(submitter)
+					.workUnit(workUnit1)
+					.build(),
+				RequestEntity.builder()
+					.classification(classificationRepository.getReferenceById(1L))
+					.hiringManager(hiringManager)
+					.hrAdvisor(hrAdvisor)
+					.language(languageRepository.getReferenceById(1L))
+					.languageRequirement(languageRequirementRepository.getReferenceById(1L))
+					.nameEn("Data Analyst")
+					.nameFr("Analyste de données")
+					.requestNumber("REQ-002")
+					.requestStatus(requestStatusRepository.findByCode(lookupCodes.requestStatuses().draft()).orElseThrow())
+					.submitter(submitter)
+					.workUnit(workUnit2)
+					.build()));
+
+			mockMvc.perform(get("/api/v1/requests").param("workUnitId", workUnit1.getId().toString()))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.content.length()", is(1)))
+				.andExpect(jsonPath("$.content[0].englishTitle", is("Software Developer")));
+		}
+
+		@Test
+		@DisplayName("Should filter requests by statusId and hrAdvisorId")
+		@WithMockUser(username = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", authorities = { "hr-advisor" })
+		void testGetAllRequestsFilteredByStatusIdAndHrAdvisorId() throws Exception {
+			// Create another HR advisor for testing
+			final var hrAdvisor2 = userRepository.save(UserEntity.builder()
+				.firstName("HR2").lastName("Advisor2")
+				.businessEmailAddress("hr2.advisor@example.com")
+				.microsoftEntraId("aaaaaaaa-bbbb-aaaa-aaaa-aaaaaaaaaaaa")
+				.userType(userTypeRepository.findByCode(lookupCodes.userTypes().hrAdvisor()).orElseThrow())
+				.language(languageRepository.getReferenceById(1L))
+				.build());
+
+			// Create test requests with different combinations of status and hrAdvisor
+			final var draftStatus = requestStatusRepository.findByCode(lookupCodes.requestStatuses().draft()).orElseThrow();
+			final var submitStatus = requestStatusRepository.findByCode(lookupCodes.requestStatuses().submitted()).orElseThrow();
+
+			requestRepository.saveAll(List.of(
+				// Draft status, hrAdvisor1
+				RequestEntity.builder()
+					.classification(classificationRepository.getReferenceById(1L))
+					.hiringManager(hiringManager)
+					.hrAdvisor(hrAdvisor)
+					.language(languageRepository.getReferenceById(1L))
+					.languageRequirement(languageRequirementRepository.getReferenceById(1L))
+					.nameEn("Software Developer")
+					.nameFr("Développeur logiciel")
+					.requestNumber("RM-001")
+					.requestStatus(draftStatus)
+					.submitter(submitter)
+					.workUnit(workUnitRepository.getReferenceById(1L))
+					.build(),
+				// Draft status, hrAdvisor2
+				RequestEntity.builder()
+					.classification(classificationRepository.getReferenceById(1L))
+					.hiringManager(hiringManager)
+					.hrAdvisor(hrAdvisor2)
+					.language(languageRepository.getReferenceById(1L))
+					.languageRequirement(languageRequirementRepository.getReferenceById(1L))
+					.nameEn("Data Analyst")
+					.nameFr("Analyste de données")
+					.requestNumber("RM-002")
+					.requestStatus(draftStatus)
+					.submitter(submitter)
+					.workUnit(workUnitRepository.getReferenceById(1L))
+					.build(),
+				// Submitted status, hrAdvisor1
+				RequestEntity.builder()
+					.classification(classificationRepository.getReferenceById(1L))
+					.hiringManager(hiringManager)
+					.hrAdvisor(hrAdvisor)
+					.language(languageRepository.getReferenceById(1L))
+					.languageRequirement(languageRequirementRepository.getReferenceById(1L))
+					.nameEn("Project Manager")
+					.nameFr("Gestionnaire de projet")
+					.requestNumber("RM-003")
+					.requestStatus(submitStatus)
+					.submitter(submitter)
+					.workUnit(workUnitRepository.getReferenceById(1L))
+					.build()));
+
+			// Filter by draft status and hrAdvisor1 - should return only the first request
+			mockMvc.perform(get("/api/v1/requests")
+					.param("statusId", draftStatus.getId().toString())
+					.param("hrAdvisorId", hrAdvisor.getId().toString()))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.content.length()", is(1)))
+				.andExpect(jsonPath("$.content[0].englishTitle", is("Software Developer")));
+		}
+
+		@Test
+		@DisplayName("Should filter requests by statusId and workUnitId")
+		@WithMockUser(username = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", authorities = { "hr-advisor" })
+		void testGetAllRequestsFilteredByStatusIdAndWorkUnitId() throws Exception {
+			// Create test requests with different combinations of status and workUnit
+			final var draftStatus = requestStatusRepository.findByCode(lookupCodes.requestStatuses().draft()).orElseThrow();
+			final var submitStatus = requestStatusRepository.findByCode(lookupCodes.requestStatuses().submitted()).orElseThrow();
+			final var workUnit1 = workUnitRepository.getReferenceById(1L);
+			final var workUnit2 = workUnitRepository.getReferenceById(2L);
+
+			requestRepository.saveAll(List.of(
+				// Draft status, workUnit1
+				RequestEntity.builder()
+					.classification(classificationRepository.getReferenceById(1L))
+					.hiringManager(hiringManager)
+					.hrAdvisor(hrAdvisor)
+					.language(languageRepository.getReferenceById(1L))
+					.languageRequirement(languageRequirementRepository.getReferenceById(1L))
+					.nameEn("Software Developer")
+					.nameFr("Développeur logiciel")
+					.requestNumber("RW-001")
+					.requestStatus(draftStatus)
+					.submitter(submitter)
+					.workUnit(workUnit1)
+					.build(),
+				// Draft status, workUnit2
+				RequestEntity.builder()
+					.classification(classificationRepository.getReferenceById(1L))
+					.hiringManager(hiringManager)
+					.hrAdvisor(hrAdvisor)
+					.language(languageRepository.getReferenceById(1L))
+					.languageRequirement(languageRequirementRepository.getReferenceById(1L))
+					.nameEn("Data Analyst")
+					.nameFr("Analyste de données")
+					.requestNumber("RW-002")
+					.requestStatus(draftStatus)
+					.submitter(submitter)
+					.workUnit(workUnit2)
+					.build(),
+				// Submitted status, workUnit1
+				RequestEntity.builder()
+					.classification(classificationRepository.getReferenceById(1L))
+					.hiringManager(hiringManager)
+					.hrAdvisor(hrAdvisor)
+					.language(languageRepository.getReferenceById(1L))
+					.languageRequirement(languageRequirementRepository.getReferenceById(1L))
+					.nameEn("Project Manager")
+					.nameFr("Gestionnaire de projet")
+					.requestNumber("RW-003")
+					.requestStatus(submitStatus)
+					.submitter(submitter)
+					.workUnit(workUnit1)
+					.build()));
+
+			// Filter by draft status and workUnit1 - should return only the first request
+			mockMvc.perform(get("/api/v1/requests")
+					.param("statusId", draftStatus.getId().toString())
+					.param("workUnitId", workUnit1.getId().toString()))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.content.length()", is(1)))
+				.andExpect(jsonPath("$.content[0].englishTitle", is("Software Developer")));
+		}
+
+		@Test
+		@DisplayName("Should filter requests by hrAdvisorId and workUnitId")
+		@WithMockUser(username = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", authorities = { "hr-advisor" })
+		void testGetAllRequestsFilteredByHrAdvisorIdAndWorkUnitId() throws Exception {
+			// Create another HR advisor for testing
+			final var hrAdvisor2 = userRepository.save(UserEntity.builder()
+				.firstName("HR2").lastName("Advisor2")
+				.businessEmailAddress("hr2.advisor@example.com")
+				.microsoftEntraId("aaaaaaaa-bbbb-aaaa-aaaa-aaaaaaaaaaaa")
+				.userType(userTypeRepository.findByCode(lookupCodes.userTypes().hrAdvisor()).orElseThrow())
+				.language(languageRepository.getReferenceById(1L))
+				.build());
+
+			// Create test requests with different combinations of hrAdvisor and workUnit
+			final var workUnit1 = workUnitRepository.getReferenceById(1L);
+			final var workUnit2 = workUnitRepository.getReferenceById(2L);
+
+			requestRepository.saveAll(List.of(
+				// hrAdvisor1, workUnit1
+				RequestEntity.builder()
+					.classification(classificationRepository.getReferenceById(1L))
+					.hiringManager(hiringManager)
+					.hrAdvisor(hrAdvisor)
+					.language(languageRepository.getReferenceById(1L))
+					.languageRequirement(languageRequirementRepository.getReferenceById(1L))
+					.nameEn("Software Developer")
+					.nameFr("Développeur logiciel")
+					.requestNumber("RQ-MLT-007")
+					.requestStatus(requestStatusRepository.findByCode(lookupCodes.requestStatuses().draft()).orElseThrow())
+					.submitter(submitter)
+					.workUnit(workUnit1)
+					.build(),
+				// hrAdvisor1, workUnit2
+				RequestEntity.builder()
+					.classification(classificationRepository.getReferenceById(1L))
+					.hiringManager(hiringManager)
+					.hrAdvisor(hrAdvisor)
+					.language(languageRepository.getReferenceById(1L))
+					.languageRequirement(languageRequirementRepository.getReferenceById(1L))
+					.nameEn("Data Analyst")
+					.nameFr("Analyste de données")
+					.requestNumber("RQ-MLT-008")
+					.requestStatus(requestStatusRepository.findByCode(lookupCodes.requestStatuses().draft()).orElseThrow())
+					.submitter(submitter)
+					.workUnit(workUnit2)
+					.build(),
+				// hrAdvisor2, workUnit1
+				RequestEntity.builder()
+					.classification(classificationRepository.getReferenceById(1L))
+					.hiringManager(hiringManager)
+					.hrAdvisor(hrAdvisor2)
+					.language(languageRepository.getReferenceById(1L))
+					.languageRequirement(languageRequirementRepository.getReferenceById(1L))
+					.nameEn("Project Manager")
+					.nameFr("Gestionnaire de projet")
+					.requestNumber("RQ-MLT-009")
+					.requestStatus(requestStatusRepository.findByCode(lookupCodes.requestStatuses().draft()).orElseThrow())
+					.submitter(submitter)
+					.workUnit(workUnit1)
+					.build()));
+
+			// Filter by hrAdvisor1 and workUnit1 - should return only the first request
+			mockMvc.perform(get("/api/v1/requests")
+					.param("hrAdvisorId", hrAdvisor.getId().toString())
+					.param("workUnitId", workUnit1.getId().toString()))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.content.length()", is(1)))
 				.andExpect(jsonPath("$.content[0].englishTitle", is("Software Developer")));

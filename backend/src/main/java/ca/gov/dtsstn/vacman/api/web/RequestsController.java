@@ -5,7 +5,8 @@ import static ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException.a
 import static ca.gov.dtsstn.vacman.api.web.exception.UnauthorizedException.asEntraIdUnauthorizedException;
 import static ca.gov.dtsstn.vacman.api.web.model.CollectionModel.toCollectionModel;
 
-import java.util.Optional;
+import java.util.Collection;
+import java.util.List;
 
 import org.mapstruct.factory.Mappers;
 import org.slf4j.Logger;
@@ -27,7 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import ca.gov.dtsstn.vacman.api.config.SpringDocConfig;
-import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.AbstractBaseEntity;
 import ca.gov.dtsstn.vacman.api.security.SecurityUtils;
 import ca.gov.dtsstn.vacman.api.service.ProfileService;
 import ca.gov.dtsstn.vacman.api.service.RequestService;
@@ -35,6 +36,7 @@ import ca.gov.dtsstn.vacman.api.service.UserService;
 import ca.gov.dtsstn.vacman.api.web.model.CollectionModel;
 import ca.gov.dtsstn.vacman.api.web.model.ProfileReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.RequestReadFilterModel;
+import ca.gov.dtsstn.vacman.api.web.model.RequestReadFilterModelBuilder;
 import ca.gov.dtsstn.vacman.api.web.model.RequestReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.RequestStatusUpdateModel;
 import ca.gov.dtsstn.vacman.api.web.model.RequestUpdateModel;
@@ -76,17 +78,13 @@ public class RequestsController {
 		log.info("Received request to get all hiring requests.");
 		log.debug("Pageable: {}, Filter: {}", pageable, filter);
 
-		final var hrAdvisorId = Optional.ofNullable(filter)
-			.map(RequestReadFilterModel::hrAdvisorId)
-			.map(id -> "me".equals(id)
-				? SecurityUtils.getCurrentUserEntraId()
-					.flatMap(userService::getUserByMicrosoftEntraId)
-					.map(UserEntity::getId)
-					.orElseThrow(asEntraIdUnauthorizedException())
-				: Long.valueOf(id))
-			.orElse(null);
+		final var requestQuery = requestModelMapper.toRequestQuery(RequestReadFilterModelBuilder.builder(filter)
+			// ?hrAdvisorId=me is a valid filter, so we must replace any instance
+			// of 'me' with the current user's id before fetching the data
+			.hrAdvisorId(resolveMeKeyword(filter.hrAdvisorId()))
+			.build());
 
-		final var requests = requestService.getAllRequests(pageable, hrAdvisorId)
+		final var requests = requestService.findRequests(pageable, requestQuery)
 			.map(entity -> requestModelMapper.toModel(entity, requestService.hasMatches(entity.getId())));
 
 		return ResponseEntity.ok(new PagedModel<>(requests));
@@ -301,6 +299,24 @@ public class RequestsController {
 	@PreAuthorize("hasAuthority('hr-advisor') || hasPermission(#id, 'REQUEST', 'READ')")
 	public ResponseEntity<ProfileReadModel> getRequestProfileById(@PathVariable Long id, @PathVariable Long profileId) {
 		throw new UnsupportedOperationException("not yet implemented");
+	}
+
+	/**
+	 * Replaces the "me" keyword in a list of IDs with the current authenticated user's ID.
+	 */
+	private List<String> resolveMeKeyword(Collection<String> hrAdvisorIds) {
+		// if the "me" keyword isn't used, we don't need to do anything.
+		if (!hrAdvisorIds.contains("me")) { return List.copyOf(hrAdvisorIds); }
+
+		final var currentUserId = SecurityUtils.getCurrentUserEntraId()
+			.flatMap(userService::getUserByMicrosoftEntraId)
+			.map(AbstractBaseEntity::getId)
+			.orElseThrow(asEntraIdUnauthorizedException());
+
+		// replace all occurrences of "me" with the actual userid
+		return hrAdvisorIds.stream()
+			.map(id -> "me".equals(id) ? currentUserId.toString() : id)
+			.toList();
 	}
 
 }
