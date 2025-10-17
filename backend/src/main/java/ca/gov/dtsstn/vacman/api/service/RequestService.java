@@ -56,6 +56,7 @@ import ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException;
 import ca.gov.dtsstn.vacman.api.web.exception.UnauthorizedException;
 import ca.gov.dtsstn.vacman.api.web.model.RequestUpdateModel;
 import ca.gov.dtsstn.vacman.api.web.model.mapper.RequestModelMapper;
+import ca.gov.dtsstn.vacman.api.data.entity.MatchEntity;
 
 @Service
 public class RequestService {
@@ -102,6 +103,8 @@ public class RequestService {
 
 	private final WorkUnitRepository workUnitRepository;
 
+	private final RequestMatchingService requestMatchingService;
+
 	public RequestService(
 			ApplicationEventPublisher eventPublisher,
 			ApplicationProperties applicationProperties,
@@ -122,7 +125,8 @@ public class RequestService {
 			SelectionProcessTypeRepository selectionProcessTypeRepository,
 			UserService userService,
 			WorkScheduleRepository workScheduleRepository,
-			WorkUnitRepository workUnitRepository) {
+			WorkUnitRepository workUnitRepository,
+			RequestMatchingService requestMatchingService) {
 		this.eventPublisher = eventPublisher;
 		this.requestStatuses = lookupCodes.requestStatuses();
 		this.requestRepository = requestRepository;
@@ -142,6 +146,7 @@ public class RequestService {
 		this.userService = userService;
 		this.notificationService = notificationService;
 		this.applicationProperties = applicationProperties;
+		this.requestMatchingService = requestMatchingService;
 	}
 
 	@Transactional(readOnly = false)
@@ -451,9 +456,9 @@ public class RequestService {
 			throw new ResourceConflictException("Request must be in HR_REVIEW status to be approved");
 		}
 
-		final var hasMatches = createMatches(request);
+		final var matches = createMatches(request);
 
-		if (hasMatches) {
+		if (!matches.isEmpty()) {
 			// Set status to FDBK_PENDING and send notification to the owner
 			request.setRequestStatus(getRequestStatusByCode(requestStatuses.feedbackPending()));
 			eventPublisher.publishEvent(new RequestFeedbackPendingEvent(request));
@@ -467,17 +472,18 @@ public class RequestService {
 	}
 
 	/**
-	 * Creates matches for a request.
-	 * This is a dummy implementation that will be replaced with the actual match
-	 * creation algorithm.
+	 * Creates matches for a request using the matching algorithm.
 	 *
 	 * @param request The request entity
-	 * @return True if matches were created, false otherwise (for now always true)
+	 * @return List of created match entities
 	 */
-	private boolean createMatches(RequestEntity request) {
-		// dummy (placeholder) implementation that returns true
+	private List<MatchEntity> createMatches(RequestEntity request) {
 		log.info("Creating matches for request ID: [{}]", request.getId());
-		return true;
+
+		final int maxMatches = applicationProperties.matches().maxMatchesPerRequest();
+		log.debug("Using configured maximum matches per request: {}", maxMatches);
+
+		return requestMatchingService.performRequestMatching(request.getId(), maxMatches);
 	}
 
 	/**
