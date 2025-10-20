@@ -263,24 +263,37 @@ public class RequestsController {
 					entity.getProfile().getId(),
 					entity.getProfile().getUser().getFirstName(),
 					entity.getProfile().getUser().getLastName(),
-					entity.getProfile().getSubstantiveClassification() != null ?
+					entity.getProfile().getWfaStatus() != null ?
 						new MatchSummaryReadModel.CodeSummary(
-							entity.getProfile().getSubstantiveClassification().getId(),
-							entity.getProfile().getSubstantiveClassification().getCode(),
-							entity.getProfile().getSubstantiveClassification().getNameEn(),
-							entity.getProfile().getSubstantiveClassification().getNameFr()
-						) : null,
-					entity.getProfile().getSubstantiveCity() != null ?
-						new MatchSummaryReadModel.CodeSummary(
-							entity.getProfile().getSubstantiveCity().getId(),
-							entity.getProfile().getSubstantiveCity().getCode(),
-							entity.getProfile().getSubstantiveCity().getNameEn(),
-							entity.getProfile().getSubstantiveCity().getNameFr()
+							entity.getProfile().getWfaStatus().getId(),
+							entity.getProfile().getWfaStatus().getCode(),
+							entity.getProfile().getWfaStatus().getNameEn(),
+							entity.getProfile().getWfaStatus().getNameFr()
 						) : null
 				);
 
 				final var requestSummary = new MatchSummaryReadModel.RequestSummary(
-					entity.getRequest().getId()
+					entity.getRequest().getId(),
+					entity.getRequest().getRequestStatus() != null ?
+						new MatchSummaryReadModel.CodeSummary(
+							entity.getRequest().getRequestStatus().getId(),
+							entity.getRequest().getRequestStatus().getCode(),
+							entity.getRequest().getRequestStatus().getNameEn(),
+							entity.getRequest().getRequestStatus().getNameFr()
+						) : null,
+					entity.getRequest().getCreatedDate(),
+					entity.getRequest().getHiringManager() != null ?
+						entity.getRequest().getHiringManager().getFirstName() : null,
+					entity.getRequest().getHiringManager() != null ?
+						entity.getRequest().getHiringManager().getLastName() : null,
+					entity.getRequest().getHiringManager() != null ?
+						entity.getRequest().getHiringManager().getBusinessEmailAddress() : null,
+					entity.getRequest().getHrAdvisor() != null ?
+						entity.getRequest().getHrAdvisor().getFirstName() : null,
+					entity.getRequest().getHrAdvisor() != null ?
+						entity.getRequest().getHrAdvisor().getLastName() : null,
+					entity.getRequest().getHrAdvisor() != null ?
+						entity.getRequest().getHrAdvisor().getBusinessEmailAddress() : null
 				);
 
 				return new MatchSummaryReadModel(

@@ -41,13 +41,20 @@ public record MatchSummaryReadModel(
 		Long id,
 		String firstName,
 		String lastName,
-		CodeSummary substantiveClassification,
-		CodeSummary substantiveCity
+		CodeSummary wfaStatus
 	) {}
 
 	@RecordBuilder
 	public record RequestSummary(
-		Long id
+		Long id,
+		CodeSummary requestStatus,
+		Instant requestDate,
+		String hiringManagerFirstName,
+		String hiringManagerLastName,
+		String hiringManagerEmail,
+		String hrAdvisorFirstName,
+		String hrAdvisorLastName,
+		String hrAdvisorEmail
 	) {}
 
 	@RecordBuilder
