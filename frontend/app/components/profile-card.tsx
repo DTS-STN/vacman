@@ -18,7 +18,7 @@ interface ProfileBaseProps {
 }
 
 interface ProfileExtendedProps extends ProfileBaseProps {
-  children: (ReactElement<ProfileBaseProps> | false) | (ReactElement<ProfileBaseProps> | false)[];
+  children: (ReactElement<ProfileBaseProps> | false | undefined) | (ReactElement<ProfileBaseProps> | false | undefined)[];
 }
 
 function ChildrenWithProps({ errorState, children }: ProfileExtendedProps): ReactNode {

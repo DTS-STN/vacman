@@ -336,15 +336,9 @@ export default {
     'page-description':
       'Remplissez toutes les sections détaillant le processus, le poste et les qualifications requises, puis soumettez-les pour approbation',
     'process-information': 'Information sur la demande',
-    'selection-process-number': 'Numéro du processus de sélection',
-    'process-intro': 'Précisez le type de processus, la durée du poste, les dates prévues et autres détails',
     'position-information': 'Informations sur le poste',
-    'position-intro':
-      'Indiquez le numéro du poste, le groupe et le niveau, le titre, le lieu, les exigences linguistiques et de sécurité',
     'somc-conditions': "Énoncé de critères de mérite et conditions d'emploi",
-    'somc-intro': "Insérez l'énoncé des critères de mérite en anglais et en français",
     'submission-details': 'Détails de la soumission',
-    'submission-intro': 'Confirmez les personnes concernées par cette demande et ajoutez toute autre remarque importante',
     'add-process-information': 'information sur la demande',
     'add-position-information': 'information sur la demande',
     'add-somc-conditions': "énoncé de critères de mérite et conditions d'emploi",
@@ -356,7 +350,6 @@ export default {
     'required': 'Requis',
     'complete': 'Complet',
     'in-progress': 'En cours',
-    'not-provided': 'non fourni',
     'cancel': 'Annuler',
     'save-and-exit': 'Sauvegarder et quitter',
     'submit': 'Soumettre',
@@ -391,6 +384,15 @@ export default {
     },
     'back': 'Retour aux demandes',
   },
+  'referral-requests': {
+    'position-intro':
+      'Indiquez le numéro du poste, le groupe et le niveau, le titre, le lieu, les exigences linguistiques et de sécurité',
+    'process-intro': 'Précisez le type de processus, la durée du poste, les dates prévues et autres détails',
+    'somc-intro': "Insérez l'énoncé des critères de mérite en anglais et en français",
+    'submission-intro': 'Confirmez les personnes concernées par cette demande et ajoutez toute autre remarque importante',
+    'selection-process-number': 'Numéro du processus de sélection',
+    'not-provided': 'non fourni',
+  },
   'hr-advisor-referral-requests': {
     'page-title': 'Demande de présentation de candidatures',
     'back': 'Retour aux demandes',
@@ -406,7 +408,6 @@ export default {
     'somc-conditions': "Énoncé de critères de mérite et conditions d'emploi",
     'somc-conditions-link': "Afficher Énoncé de critères de mérite et conditions d'emploi",
     'submission-details': 'Détails de la soumission',
-    'not-provided': 'non fourni',
     'psc-clearance-number': "Numéro d'autorisation de la CFP",
     'vms-clearance-number': "Numéro d'autorisation SGPV",
     'psc-clearance-received': 'Autorisation de la CFP marquée comme reçue',
