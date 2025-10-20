@@ -360,4 +360,15 @@ public class CodeService {
 	public Page<MatchFeedbackEntity> getMatchFeedbacks(Pageable pageable) {
 		return matchFeedbackRepository.findAll(pageable);
 	}
+
+	/**
+	 * Retrieves a match feedback by ID.
+	 *
+	 * @param id the ID of the match feedback
+	 * @return the match feedback entity, or empty if not found
+	 */
+	@Cacheable(cacheNames = { CacheNames.MATCH_FEEDBACKS })
+	public java.util.Optional<MatchFeedbackEntity> getMatchFeedbackById(Long id) {
+		return matchFeedbackRepository.findById(id);
+	}
 }

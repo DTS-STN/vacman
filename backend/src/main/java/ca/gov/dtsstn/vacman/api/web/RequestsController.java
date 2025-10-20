@@ -34,6 +34,7 @@ import ca.gov.dtsstn.vacman.api.service.RequestService;
 import ca.gov.dtsstn.vacman.api.service.UserService;
 import ca.gov.dtsstn.vacman.api.web.model.CollectionModel;
 import ca.gov.dtsstn.vacman.api.web.model.MatchSummaryReadModel;
+import ca.gov.dtsstn.vacman.api.web.model.MatchUpdateModel;
 import ca.gov.dtsstn.vacman.api.web.model.ProfileReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.RequestReadFilterModel;
 import ca.gov.dtsstn.vacman.api.web.model.RequestReadFilterModelBuilder;
@@ -260,50 +261,65 @@ public class RequestsController {
 		final var matches = requestService.getMatchesByRequestId(id).stream()
 			.map(entity -> {
 				final var profileSummary = new MatchSummaryReadModel.ProfileSummary(
-					entity.getProfile().getId(),
-					entity.getProfile().getUser().getFirstName(),
-					entity.getProfile().getUser().getLastName(),
-					entity.getProfile().getSubstantiveClassification() != null ?
-						new MatchSummaryReadModel.CodeSummary(
-							entity.getProfile().getSubstantiveClassification().getId(),
-							entity.getProfile().getSubstantiveClassification().getCode(),
-							entity.getProfile().getSubstantiveClassification().getNameEn(),
-							entity.getProfile().getSubstantiveClassification().getNameFr()
-						) : null,
-					entity.getProfile().getSubstantiveCity() != null ?
-						new MatchSummaryReadModel.CodeSummary(
-							entity.getProfile().getSubstantiveCity().getId(),
-							entity.getProfile().getSubstantiveCity().getCode(),
-							entity.getProfile().getSubstantiveCity().getNameEn(),
-							entity.getProfile().getSubstantiveCity().getNameFr()
-						) : null
+						entity.getProfile().getId(),
+						entity.getProfile().getUser().getFirstName(),
+						entity.getProfile().getUser().getLastName(),
+						entity.getProfile().getWfaStatus() != null ?
+								new MatchSummaryReadModel.CodeSummary(
+										entity.getProfile().getWfaStatus().getId(),
+										entity.getProfile().getWfaStatus().getCode(),
+										entity.getProfile().getWfaStatus().getNameEn(),
+										entity.getProfile().getWfaStatus().getNameFr()
+								) : null
 				);
 
 				final var requestSummary = new MatchSummaryReadModel.RequestSummary(
-					entity.getRequest().getId()
+						entity.getRequest().getId(),
+						entity.getRequest().getRequestStatus() != null ?
+								new MatchSummaryReadModel.CodeSummary(
+										entity.getRequest().getRequestStatus().getId(),
+										entity.getRequest().getRequestStatus().getCode(),
+										entity.getRequest().getRequestStatus().getNameEn(),
+										entity.getRequest().getRequestStatus().getNameFr()
+								) : null,
+						entity.getRequest().getCreatedDate(),
+						entity.getRequest().getHiringManager() != null ?
+								entity.getRequest().getHiringManager().getFirstName() : null,
+						entity.getRequest().getHiringManager() != null ?
+								entity.getRequest().getHiringManager().getLastName() : null,
+						entity.getRequest().getHiringManager() != null ?
+								entity.getRequest().getHiringManager().getBusinessEmailAddress() : null,
+						entity.getRequest().getHrAdvisor() != null ?
+								entity.getRequest().getHrAdvisor().getId() : null,
+						entity.getRequest().getHrAdvisor() != null ?
+								entity.getRequest().getHrAdvisor().getFirstName() : null,
+						entity.getRequest().getHrAdvisor() != null ?
+								entity.getRequest().getHrAdvisor().getLastName() : null,
+						entity.getRequest().getHrAdvisor() != null ?
+								entity.getRequest().getHrAdvisor().getBusinessEmailAddress() : null
 				);
 
 				return new MatchSummaryReadModel(
-					entity.getId(),
-					profileSummary,
-					requestSummary,
-					entity.getMatchStatus() != null ?
-						new MatchSummaryReadModel.CodeSummary(
-							entity.getMatchStatus().getId(),
-							entity.getMatchStatus().getCode(),
-							entity.getMatchStatus().getNameEn(),
-							entity.getMatchStatus().getNameFr()
-						) : null,
-					entity.getMatchFeedback() != null ?
-						new MatchSummaryReadModel.CodeSummary(
-							entity.getMatchFeedback().getId(),
-							entity.getMatchFeedback().getCode(),
-							entity.getMatchFeedback().getNameEn(),
-							entity.getMatchFeedback().getNameFr()
-						) : null,
-					entity.getHiringManagerComment(),
-					entity.getHrAdvisorComment(),
-					entity.getCreatedDate()
+						entity.getId(),
+						profileSummary,
+						requestSummary,
+						entity.getMatchStatus() != null ?
+								new MatchSummaryReadModel.CodeSummary(
+										entity.getMatchStatus().getId(),
+										entity.getMatchStatus().getCode(),
+										entity.getMatchStatus().getNameEn(),
+										entity.getMatchStatus().getNameFr()
+								) : null,
+						entity.getMatchFeedback() != null ?
+								new MatchSummaryReadModel.CodeSummary(
+										entity.getMatchFeedback().getId(),
+										entity.getMatchFeedback().getCode(),
+										entity.getMatchFeedback().getNameEn(),
+										entity.getMatchFeedback().getNameFr()
+								) : null,
+						entity.getHiringManagerComment(),
+						entity.getHrAdvisorComment(),
+						entity.getCreatedDate()
 				);
 			})
 			.collect(toCollectionModel());
@@ -330,6 +346,89 @@ public class RequestsController {
 	@PreAuthorize("hasAuthority('hr-advisor') || hasPermission(#id, 'REQUEST', 'UPDATE')")
 	public ResponseEntity<Object> updateRequestMatchStatus(@PathVariable Long id, @PathVariable Long matchId, @Valid @RequestBody Object statusUpdate) {
 		throw new UnsupportedOperationException("not yet implemented");
+	}
+
+	@ApiResponses.Ok
+	@ApiResponses.BadRequestError
+	@ApiResponses.ResourceNotFoundError
+	@PutMapping({ "/{id}/matches/{matchId}" })
+	@Operation(summary = "Update a match for a request.")
+	@PreAuthorize("hasAuthority('hr-advisor') || hasPermission(#id, 'REQUEST', 'UPDATE')")
+	public ResponseEntity<MatchSummaryReadModel> updateRequestMatch(@PathVariable Long id, @PathVariable Long matchId, @Valid @RequestBody MatchUpdateModel updateModel) {
+		log.info("Received request to update match for request; Request ID: [{}], Match ID: [{}]", id, matchId);
+
+		final var request = requestService.getRequestById(id)
+			.orElseThrow(asResourceNotFoundException("request", id));
+
+		log.trace("Found request: [{}]", request);
+
+		final var matchEntity = requestService.updateMatch(id, matchId, updateModel);
+
+		log.trace("Updated match: [{}]", matchEntity);
+
+		final var profileSummary = new MatchSummaryReadModel.ProfileSummary(
+				matchEntity.getProfile().getId(),
+				matchEntity.getProfile().getUser().getFirstName(),
+				matchEntity.getProfile().getUser().getLastName(),
+				matchEntity.getProfile().getWfaStatus() != null ?
+						new MatchSummaryReadModel.CodeSummary(
+								matchEntity.getProfile().getWfaStatus().getId(),
+								matchEntity.getProfile().getWfaStatus().getCode(),
+								matchEntity.getProfile().getWfaStatus().getNameEn(),
+								matchEntity.getProfile().getWfaStatus().getNameFr()
+						) : null
+		);
+
+		final var requestSummary = new MatchSummaryReadModel.RequestSummary(
+				matchEntity.getRequest().getId(),
+				matchEntity.getRequest().getRequestStatus() != null ?
+						new MatchSummaryReadModel.CodeSummary(
+								matchEntity.getRequest().getRequestStatus().getId(),
+								matchEntity.getRequest().getRequestStatus().getCode(),
+								matchEntity.getRequest().getRequestStatus().getNameEn(),
+								matchEntity.getRequest().getRequestStatus().getNameFr()
+						) : null,
+				matchEntity.getRequest().getCreatedDate(),
+				matchEntity.getRequest().getHiringManager() != null ?
+						matchEntity.getRequest().getHiringManager().getFirstName() : null,
+				matchEntity.getRequest().getHiringManager() != null ?
+						matchEntity.getRequest().getHiringManager().getLastName() : null,
+				matchEntity.getRequest().getHiringManager() != null ?
+						matchEntity.getRequest().getHiringManager().getBusinessEmailAddress() : null,
+				matchEntity.getRequest().getHrAdvisor() != null ?
+						matchEntity.getRequest().getHrAdvisor().getId() : null,
+				matchEntity.getRequest().getHrAdvisor() != null ?
+						matchEntity.getRequest().getHrAdvisor().getFirstName() : null,
+				matchEntity.getRequest().getHrAdvisor() != null ?
+						matchEntity.getRequest().getHrAdvisor().getLastName() : null,
+				matchEntity.getRequest().getHrAdvisor() != null ?
+						matchEntity.getRequest().getHrAdvisor().getBusinessEmailAddress() : null
+		);
+
+		final var matchSummary = new MatchSummaryReadModel(
+				matchEntity.getId(),
+				profileSummary,
+				requestSummary,
+				matchEntity.getMatchStatus() != null ?
+						new MatchSummaryReadModel.CodeSummary(
+								matchEntity.getMatchStatus().getId(),
+								matchEntity.getMatchStatus().getCode(),
+								matchEntity.getMatchStatus().getNameEn(),
+								matchEntity.getMatchStatus().getNameFr()
+						) : null,
+				matchEntity.getMatchFeedback() != null ?
+						new MatchSummaryReadModel.CodeSummary(
+								matchEntity.getMatchFeedback().getId(),
+								matchEntity.getMatchFeedback().getCode(),
+								matchEntity.getMatchFeedback().getNameEn(),
+								matchEntity.getMatchFeedback().getNameFr()
+						) : null,
+				matchEntity.getHiringManagerComment(),
+				matchEntity.getHrAdvisorComment(),
+				matchEntity.getCreatedDate()
+		);
+
+		return ResponseEntity.ok(matchSummary);
 	}
 
 	//

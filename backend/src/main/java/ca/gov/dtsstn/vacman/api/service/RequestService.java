@@ -1,5 +1,6 @@
 package ca.gov.dtsstn.vacman.api.service;
 
+import static ca.gov.dtsstn.vacman.api.data.repository.AbstractBaseRepository.hasId;
 import static ca.gov.dtsstn.vacman.api.data.repository.MatchRepository.hasRequestId;
 import static ca.gov.dtsstn.vacman.api.data.repository.RequestRepository.hasHrAdvisorIdIn;
 import static ca.gov.dtsstn.vacman.api.data.repository.RequestRepository.hasRequestStatusIdIn;
@@ -55,6 +56,7 @@ import ca.gov.dtsstn.vacman.api.service.dto.RequestQuery;
 import ca.gov.dtsstn.vacman.api.web.exception.ResourceConflictException;
 import ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException;
 import ca.gov.dtsstn.vacman.api.web.exception.UnauthorizedException;
+import ca.gov.dtsstn.vacman.api.web.model.MatchUpdateModel;
 import ca.gov.dtsstn.vacman.api.web.model.RequestUpdateModel;
 import ca.gov.dtsstn.vacman.api.web.model.mapper.RequestModelMapper;
 
@@ -105,11 +107,14 @@ public class RequestService {
 
 	private final RequestMatchingService requestMatchingService;
 
+	private final CodeService codeService;
+
 	public RequestService(
 			ApplicationEventPublisher eventPublisher,
 			ApplicationProperties applicationProperties,
 			CityRepository cityRepository,
 			ClassificationRepository classificationRepository,
+			CodeService codeService,
 			EmploymentEquityRepository employmentEquityRepository,
 			EmploymentTenureRepository employmentTenureRepository,
 			LanguageRepository languageRepository,
@@ -147,6 +152,7 @@ public class RequestService {
 		this.notificationService = notificationService;
 		this.applicationProperties = applicationProperties;
 		this.requestMatchingService = requestMatchingService;
+		this.codeService = codeService;
 	}
 
 	@Transactional(readOnly = false)
@@ -192,6 +198,52 @@ public class RequestService {
 	@Transactional(readOnly = true)
 	public List<MatchEntity> getMatchesByRequestId(Long requestId) {
 		return matchRepository.findAll(hasRequestId(requestId));
+	}
+
+	/**
+	 * Get a specific match by request ID and match ID
+	 *
+	 * @param requestId The request ID
+	 * @param matchId The match ID
+	 * @return Optional containing the match if found
+	 */
+	@Transactional(readOnly = true)
+	public Optional<MatchEntity> getMatchByRequestIdAndMatchId(Long requestId, Long matchId) {
+		return matchRepository.findOne(allOf(
+			hasId(matchId),
+			hasRequestId(requestId)
+		));
+	}
+
+	/**
+	 * Update a match with the provided data
+	 *
+	 * @param requestId The request ID
+	 * @param matchId The match ID
+	 * @param updateModel The update data
+	 * @return The updated match entity
+	 */
+	@Transactional
+	public MatchEntity updateMatch(Long requestId, Long matchId, MatchUpdateModel updateModel) {
+		final var matchEntity = getMatchByRequestIdAndMatchId(requestId, matchId)
+			.orElseThrow(() -> new ResourceNotFoundException("Match not found with ID: " + matchId));
+
+		// Update match feedback if provided
+		if (updateModel.matchFeedbackId() != null) {
+			matchEntity.setMatchFeedback(codeService.getMatchFeedbackById(updateModel.matchFeedbackId())
+				.orElseThrow(() -> new ResourceNotFoundException("Match feedback not found with ID: " + updateModel.matchFeedbackId())));
+		}
+
+		// Update comments if provided
+		if (updateModel.hiringManagerComment() != null) {
+			matchEntity.setHiringManagerComment(updateModel.hiringManagerComment());
+		}
+
+		if (updateModel.hrAdvisorComment() != null) {
+			matchEntity.setHrAdvisorComment(updateModel.hrAdvisorComment());
+		}
+
+		return matchRepository.save(matchEntity);
 	}
 
 	/**
