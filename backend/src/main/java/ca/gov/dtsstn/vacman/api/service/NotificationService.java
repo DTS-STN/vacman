@@ -43,9 +43,9 @@ public class NotificationService {
 	}
 
 	/**
-	* Sends an email notification to a single email address.
+	* Sends a profile notification to a single email address.
 	*/
-	public NotificationReceipt sendEmailNotification(String email, String profileId, String username, String language, ProfileStatus profileStatus) {
+	public NotificationReceipt sendProfileNotification(String email, String profileId, String username, String language, ProfileStatus profileStatus) {
 		Assert.hasText(email, "email is required; it must not be blank or null");
 		Assert.hasText(profileId, "profileId is required; it must not be blank or null");
 		Assert.hasText(username, "username is required; it must not be blank or null");
@@ -75,7 +75,7 @@ public class NotificationService {
 			"employee_name", username
 		);
 
-		log.trace("Request to send fileNumber notification email=[{}], parameters=[{}]", email, personalization);
+		log.trace("Request to send profile notification email=[{}], parameters=[{}]", email, personalization);
 
 		final var request = Map.of(
 			"email_address", email,

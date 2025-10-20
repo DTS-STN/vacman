@@ -73,7 +73,7 @@ class NotificationServiceTest {
 		when(restTemplate.postForObject(eq("/email"), any(Map.class), eq(NotificationReceipt.class)))
 			.thenReturn(ImmutableNotificationReceipt.builder().build());
 
-		final var result = notificationService.sendEmailNotification(
+		final var result = notificationService.sendProfileNotification(
 			"test@example.com",
 			"00000000-0000-0000-0000-000000000000",
 			"Ana de Armas",
@@ -92,7 +92,7 @@ class NotificationServiceTest {
 		when(restTemplate.postForObject(eq("/email"), any(Map.class), eq(NotificationReceipt.class)))
 			.thenReturn(ImmutableNotificationReceipt.builder().build());
 
-		final var result = notificationService.sendEmailNotification(
+		final var result = notificationService.sendProfileNotification(
 			"test@example.com",
 			"00000000-0000-0000-0000-000000000000",
 			"Ana de Armas",
@@ -111,7 +111,7 @@ class NotificationServiceTest {
 		when(restTemplate.postForObject(eq("/email"), any(Map.class), eq(NotificationReceipt.class)))
 			.thenReturn(ImmutableNotificationReceipt.builder().build());
 
-		final var result = notificationService.sendEmailNotification(
+		final var result = notificationService.sendProfileNotification(
 			"test@example.com",
 			"00000000-0000-0000-0000-000000000000",
 			"Ana de Armas",
@@ -130,7 +130,7 @@ class NotificationServiceTest {
 		when(restTemplate.postForObject(eq("/email"), any(Map.class), eq(NotificationReceipt.class)))
 			.thenReturn(ImmutableNotificationReceipt.builder().build());
 
-		final var result = notificationService.sendEmailNotification(
+		final var result = notificationService.sendProfileNotification(
 			"test@example.com",
 			"00000000-0000-0000-0000-000000000000",
 			"Ana de Armas",
@@ -150,7 +150,7 @@ class NotificationServiceTest {
 		when(restTemplate.postForObject(eq("/email"), any(Map.class), eq(NotificationReceipt.class)))
 			.thenReturn(ImmutableNotificationReceipt.builder().build());
 
-		final var result = notificationService.sendEmailNotification(
+		final var result = notificationService.sendProfileNotification(
 			"test@example.com",
 			"00000000-0000-0000-0000-000000000000",
 			"Ana de Armas",
@@ -169,7 +169,7 @@ class NotificationServiceTest {
 		when(restTemplate.postForObject(eq("/email"), any(Map.class), eq(NotificationReceipt.class)))
 			.thenReturn(ImmutableNotificationReceipt.builder().build());
 
-		final var result = notificationService.sendEmailNotification(
+		final var result = notificationService.sendProfileNotification(
 			"test@example.com",
 			"00000000-0000-0000-0000-000000000000",
 			"Ana de Armas",
@@ -188,7 +188,7 @@ class NotificationServiceTest {
 		when(restTemplate.postForObject(eq("/email"), any(Map.class), eq(NotificationReceipt.class)))
 			.thenReturn(ImmutableNotificationReceipt.builder().build());
 
-		final var result = notificationService.sendEmailNotification(
+		final var result = notificationService.sendProfileNotification(
 			"hradvisor@example.com",
 			"00000000-0000-0000-0000-000000000000",
 			"Ana de Armas",
