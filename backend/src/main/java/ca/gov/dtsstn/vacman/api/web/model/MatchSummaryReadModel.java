@@ -52,6 +52,7 @@ public record MatchSummaryReadModel(
 		String hiringManagerFirstName,
 		String hiringManagerLastName,
 		String hiringManagerEmail,
+		Long hrAdvisorId,
 		String hrAdvisorFirstName,
 		String hrAdvisorLastName,
 		String hrAdvisorEmail

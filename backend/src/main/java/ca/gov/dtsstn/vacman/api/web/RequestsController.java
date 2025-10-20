@@ -289,6 +289,8 @@ public class RequestsController {
 					entity.getRequest().getHiringManager() != null ?
 						entity.getRequest().getHiringManager().getBusinessEmailAddress() : null,
 					entity.getRequest().getHrAdvisor() != null ?
+						entity.getRequest().getHrAdvisor().getId() : null,
+					entity.getRequest().getHrAdvisor() != null ?
 						entity.getRequest().getHrAdvisor().getFirstName() : null,
 					entity.getRequest().getHrAdvisor() != null ?
 						entity.getRequest().getHrAdvisor().getLastName() : null,
