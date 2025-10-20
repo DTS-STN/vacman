@@ -15,5 +15,6 @@ public record RequestMatchingProperties(
 	 * For example, if set to 30 days, a profile with a WFA end date 15 days from now would be automatically
 	 * included in matching results rather than being part of the random selection pool.
 	 */
-	Duration wfaEndDateGracePeriod
+	Duration wfaEndDateGracePeriod,
+	int maxMatchesPerRequest
 ) {}

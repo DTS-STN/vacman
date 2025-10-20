@@ -339,6 +339,7 @@ application:
     hr-gd-inbox-email: hr_inbox@example.com # TODO: Update with actual email when available.
   matches:
     wfa-end-date-grace-period: 30d
+    max-matches-per-request: 1000
   ms-graph:
     base-url: https://graph.microsoft.com/v1.0
     connect-timeout: 10s
