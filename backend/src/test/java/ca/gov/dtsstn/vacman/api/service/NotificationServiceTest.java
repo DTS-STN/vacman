@@ -73,7 +73,7 @@ class NotificationServiceTest {
 		when(restTemplate.postForObject(eq("/email"), any(Map.class), eq(NotificationReceipt.class)))
 			.thenReturn(ImmutableNotificationReceipt.builder().build());
 
-		final var result = notificationService.sendEmailNotification(
+		final var result = notificationService.sendProfileNotification(
 			"test@example.com",
 			"00000000-0000-0000-0000-000000000000",
 			"Ana de Armas",
@@ -92,7 +92,7 @@ class NotificationServiceTest {
 		when(restTemplate.postForObject(eq("/email"), any(Map.class), eq(NotificationReceipt.class)))
 			.thenReturn(ImmutableNotificationReceipt.builder().build());
 
-		final var result = notificationService.sendEmailNotification(
+		final var result = notificationService.sendProfileNotification(
 			"test@example.com",
 			"00000000-0000-0000-0000-000000000000",
 			"Ana de Armas",
@@ -102,97 +102,40 @@ class NotificationServiceTest {
 		assertThat(result).isNotNull();
 	}
 
+
 	@Test
-	@DisplayName("Test send Profile created email English")
-	void getemailProfileCreatedEnglishSuccess() {
-		when(applicationProperties.gcnotify().profileCreatedTemplateIdEng())
+	@DisplayName("Test send Profile pending email English")
+	void getemailProfilePendingEnglishSuccess() {
+		when(applicationProperties.gcnotify().profilePendingTemplateIdEng())
 			.thenReturn("00000000-0000-0000-0000-000000000000");
 
 		when(restTemplate.postForObject(eq("/email"), any(Map.class), eq(NotificationReceipt.class)))
 			.thenReturn(ImmutableNotificationReceipt.builder().build());
 
-		final var result = notificationService.sendEmailNotification(
-			"test@example.com",
-			"00000000-0000-0000-0000-000000000000",
-			"Ana de Armas",
-			lookupCodes.languages().english(),
-			ProfileStatus.CREATED);
-
-		assertThat(result).isNotNull();
-	}
-
-	@Test
-	@DisplayName("Test send Profile created email French")
-	void getemailProfileCreatedFrenchSuccess() {
-		when(applicationProperties.gcnotify().profileCreatedTemplateIdFra())
-			.thenReturn("00000000-0000-0000-0000-000000000000");
-
-		when(restTemplate.postForObject(eq("/email"), any(Map.class), eq(NotificationReceipt.class)))
-			.thenReturn(ImmutableNotificationReceipt.builder().build());
-
-		final var result = notificationService.sendEmailNotification(
-			"test@example.com",
-			"00000000-0000-0000-0000-000000000000",
-			"Ana de Armas",
-			lookupCodes.languages().french(),
-			ProfileStatus.CREATED);
-
-		assertThat(result).isNotNull();
-	}
-
-
-	@Test
-	@DisplayName("Test send Profile updated email English")
-	void getemailProfileUpdatedEnglishSuccess() {
-		when(applicationProperties.gcnotify().profileUpdatedTemplateIdEng())
-			.thenReturn("00000000-0000-0000-0000-000000000000");
-
-		when(restTemplate.postForObject(eq("/email"), any(Map.class), eq(NotificationReceipt.class)))
-			.thenReturn(ImmutableNotificationReceipt.builder().build());
-
-		final var result = notificationService.sendEmailNotification(
-			"test@example.com",
-			"00000000-0000-0000-0000-000000000000",
-			"Ana de Armas",
-			lookupCodes.languages().english(),
-			ProfileStatus.UPDATED);
-
-		assertThat(result).isNotNull();
-	}
-
-	@Test
-	@DisplayName("Test send Profile updated email French")
-	void getemailProfileUpdatedFrenchSuccess() {
-		when(applicationProperties.gcnotify().profileUpdatedTemplateIdFra())
-			.thenReturn("00000000-0000-0000-0000-000000000000");
-
-		when(restTemplate.postForObject(eq("/email"), any(Map.class), eq(NotificationReceipt.class)))
-			.thenReturn(ImmutableNotificationReceipt.builder().build());
-
-		final var result = notificationService.sendEmailNotification(
-			"test@example.com",
-			"00000000-0000-0000-0000-000000000000",
-			"Ana de Armas",
-			lookupCodes.languages().french(),
-			ProfileStatus.UPDATED);
-
-		assertThat(result).isNotNull();
-	}
-
-	@Test
-	@DisplayName("Test send Profile pending email")
-	void getemailProfilePendingSuccess() {
-		when(applicationProperties.gcnotify().profilePendingTemplateId())
-			.thenReturn("00000000-0000-0000-0000-000000000000");
-
-		when(restTemplate.postForObject(eq("/email"), any(Map.class), eq(NotificationReceipt.class)))
-			.thenReturn(ImmutableNotificationReceipt.builder().build());
-
-		final var result = notificationService.sendEmailNotification(
+		final var result = notificationService.sendProfileNotification(
 			"hradvisor@example.com",
 			"00000000-0000-0000-0000-000000000000",
 			"Ana de Armas",
 			lookupCodes.languages().english(),
+			ProfileStatus.PENDING);
+
+		assertThat(result).isNotNull();
+	}
+
+	@Test
+	@DisplayName("Test send Profile pending email French")
+	void getemailProfilePendingFrenchSuccess() {
+		when(applicationProperties.gcnotify().profilePendingTemplateIdFra())
+			.thenReturn("00000000-0000-0000-0000-000000000000");
+
+		when(restTemplate.postForObject(eq("/email"), any(Map.class), eq(NotificationReceipt.class)))
+			.thenReturn(ImmutableNotificationReceipt.builder().build());
+
+		final var result = notificationService.sendProfileNotification(
+			"hradvisor@example.com",
+			"00000000-0000-0000-0000-000000000000",
+			"Ana de Armas",
+			lookupCodes.languages().french(),
 			ProfileStatus.PENDING);
 
 		assertThat(result).isNotNull();

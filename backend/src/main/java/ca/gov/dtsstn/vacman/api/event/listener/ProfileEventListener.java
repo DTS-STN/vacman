@@ -140,7 +140,7 @@ public class ProfileEventListener {
 				final var name = String.format("%s %s", user.getFirstName(), user.getLastName());
 				final var language = user.getLanguage().getCode();
 
-				notificationService.sendEmailNotification(email, profileId, name, language, ProfileStatus.APPROVED);
+				notificationService.sendProfileNotification(email, profileId, name, language, ProfileStatus.APPROVED);
 			}, () -> log.warn("Could not send approval notification - no email address found for profile ID: {}", profile.getId()));
 	}
 
@@ -153,7 +153,7 @@ public class ProfileEventListener {
 				final var name = String.format("%s %s", user.getFirstName(), user.getLastName());
 				final var language = user.getLanguage().getCode();
 
-				notificationService.sendEmailNotification(email, profileId, name, language, ProfileStatus.PENDING);
+				notificationService.sendProfileNotification(email, profileId, name, language, ProfileStatus.PENDING);
 			}, () -> log.warn("Could not send pending notification - no HR advisor found for profile ID: {}", profile.getId()));
 	}
 }

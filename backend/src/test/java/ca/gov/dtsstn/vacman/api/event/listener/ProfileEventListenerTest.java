@@ -221,7 +221,7 @@ class ProfileEventListenerTest {
 
 			profileEventListener.handleProfileStatusChange(new ProfileStatusChangeEvent(profile, 1L, 2L));
 
-			verify(notificationService).sendEmailNotification(
+			verify(notificationService).sendProfileNotification(
 				eq("john.doe@example.com"),
 				eq("222"),
 				eq("John Doe"),
@@ -251,7 +251,7 @@ class ProfileEventListenerTest {
 
 			profileEventListener.handleProfileStatusChange(new ProfileStatusChangeEvent(profile, 1L, 2L));
 
-			verify(notificationService, never()).sendEmailNotification(
+			verify(notificationService, never()).sendProfileNotification(
 				any(String.class),
 				any(String.class),
 				any(String.class),
@@ -277,7 +277,7 @@ class ProfileEventListenerTest {
 
 			profileEventListener.handleProfileStatusChange(new ProfileStatusChangeEvent(profile, 1L, 2L));
 
-			verify(notificationService, never()).sendEmailNotification(
+			verify(notificationService, never()).sendProfileNotification(
 				any(String.class),
 				any(String.class),
 				any(String.class),
@@ -319,7 +319,7 @@ class ProfileEventListenerTest {
 
 			profileEventListener.handleProfileStatusChange(new ProfileStatusChangeEvent(profile, 1L, 2L));
 
-			verify(notificationService).sendEmailNotification(
+			verify(notificationService).sendProfileNotification(
 				eq("hradvisor@example.com"),
 				eq("555"),
 				eq("Alice Johnson"),
@@ -361,7 +361,7 @@ class ProfileEventListenerTest {
 
 			profileEventListener.handleProfileStatusChange(new ProfileStatusChangeEvent(profile, 1L, 2L));
 
-			verify(notificationService).sendEmailNotification(
+			verify(notificationService).sendProfileNotification(
 				eq("hr@example.com"),
 				eq("666"),
 				eq("Bob Williams"),
@@ -398,7 +398,7 @@ class ProfileEventListenerTest {
 
 			profileEventListener.handleProfileStatusChange(new ProfileStatusChangeEvent(profile, 1L, 2L));
 
-			verify(notificationService, never()).sendEmailNotification(
+			verify(notificationService, never()).sendProfileNotification(
 				any(String.class),
 				any(String.class),
 				any(String.class),
@@ -436,7 +436,7 @@ class ProfileEventListenerTest {
 
 			profileEventListener.handleProfileStatusChange(new ProfileStatusChangeEvent(profile, 1L, 2L));
 
-			verify(notificationService, never()).sendEmailNotification(
+			verify(notificationService, never()).sendProfileNotification(
 				any(String.class),
 				any(String.class),
 				any(String.class),
@@ -475,7 +475,7 @@ class ProfileEventListenerTest {
 
 			profileEventListener.handleProfileStatusChange(new ProfileStatusChangeEvent(profile, 1L, 2L));
 
-			verify(notificationService, never()).sendEmailNotification(
+			verify(notificationService, never()).sendProfileNotification(
 				any(String.class),
 				any(String.class),
 				any(String.class),
@@ -494,7 +494,7 @@ class ProfileEventListenerTest {
 
 			profileEventListener.handleProfileStatusChange(new ProfileStatusChangeEvent(profile, 1L, 2L));
 
-			verify(notificationService, never()).sendEmailNotification(
+			verify(notificationService, never()).sendProfileNotification(
 				any(String.class),
 				any(String.class),
 				any(String.class),
@@ -527,7 +527,7 @@ class ProfileEventListenerTest {
 
 			profileEventListener.handleProfileStatusChange(new ProfileStatusChangeEvent(profile, 1L, 2L));
 
-			verify(notificationService, never()).sendEmailNotification(
+			verify(notificationService, never()).sendProfileNotification(
 				any(String.class),
 				any(String.class),
 				any(String.class),
@@ -558,7 +558,7 @@ class ProfileEventListenerTest {
 
 			profileEventListener.handleProfileStatusChange(new ProfileStatusChangeEvent(profile, 1L, 3L));
 
-			verify(notificationService, never()).sendEmailNotification(
+			verify(notificationService, never()).sendProfileNotification(
 				any(String.class),
 				any(String.class),
 				any(String.class),
