@@ -34,7 +34,6 @@ import ca.gov.dtsstn.vacman.api.service.ProfileService;
 import ca.gov.dtsstn.vacman.api.service.RequestService;
 import ca.gov.dtsstn.vacman.api.service.UserService;
 import ca.gov.dtsstn.vacman.api.web.model.CollectionModel;
-import ca.gov.dtsstn.vacman.api.web.model.MatchReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.MatchSummaryReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.ProfileReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.RequestReadFilterModel;
@@ -42,12 +41,7 @@ import ca.gov.dtsstn.vacman.api.web.model.RequestReadFilterModelBuilder;
 import ca.gov.dtsstn.vacman.api.web.model.RequestReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.RequestStatusUpdateModel;
 import ca.gov.dtsstn.vacman.api.web.model.RequestUpdateModel;
-import ca.gov.dtsstn.vacman.api.web.model.mapper.CodeModelMapper;
-import ca.gov.dtsstn.vacman.api.web.model.mapper.ProfileModelMapper;
 import ca.gov.dtsstn.vacman.api.web.model.mapper.RequestModelMapper;
-import ca.gov.dtsstn.vacman.api.web.model.MatchReadModelBuilder;
-import ca.gov.dtsstn.vacman.api.web.model.ImmutableMatchStatusReadModel;
-import ca.gov.dtsstn.vacman.api.web.model.ImmutableMatchFeedbackReadModel;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -66,7 +60,6 @@ public class RequestsController {
 	private static final Logger log = LoggerFactory.getLogger(RequestsController.class);
 
 	private final RequestModelMapper requestModelMapper = Mappers.getMapper(RequestModelMapper.class);
-	private final ProfileModelMapper profileModelMapper = Mappers.getMapper(ProfileModelMapper.class);
 
 	private final RequestService requestService;
 
