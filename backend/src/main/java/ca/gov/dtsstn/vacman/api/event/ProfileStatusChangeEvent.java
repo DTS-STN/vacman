@@ -7,7 +7,6 @@ import io.soabase.recordbuilder.core.RecordBuilder;
 
 /**
  * Event that is published when a profile's status is changed.
- * TODO: emit this event when the PUT /profiles/{id}/status endpoint is implemented.
  */
 @RecordBuilder
 public record ProfileStatusChangeEvent(ProfileEntity entity, Long previousStatusId, Long newStatusId, Instant timestamp) {
