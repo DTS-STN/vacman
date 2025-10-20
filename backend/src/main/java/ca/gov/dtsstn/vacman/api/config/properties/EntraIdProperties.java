@@ -12,6 +12,7 @@ public record EntraIdProperties(
 	@NotBlank String clientId,
 	@NotBlank String principalClaimName,
 	@NestedConfigurationProperty RolesProperties roles,
+	@NotBlank String rolesClaimName,
 	@NotBlank String tenantId
 ) {
 

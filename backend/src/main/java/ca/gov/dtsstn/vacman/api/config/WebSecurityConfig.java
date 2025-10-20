@@ -92,7 +92,7 @@ public class WebSecurityConfig {
 		@Bean Converter<Jwt, Collection<GrantedAuthority>> jwtGrantedAuthoritiesConverter() {
 			log.info("Creating 'jwtGrantedAuthoritiesConverter' bean");
 
-			return jwt -> Optional.ofNullable(jwt.getClaimAsStringList("roles")) // TODO ::: GjB ::: extract to config string
+			return jwt -> Optional.ofNullable(jwt.getClaimAsStringList(applicationProperties.entraId().rolesClaimName()))
 				.orElse(Collections.emptyList()).stream()
 				.map(SimpleGrantedAuthority::new)
 				.collect(Collectors.toUnmodifiableList());
