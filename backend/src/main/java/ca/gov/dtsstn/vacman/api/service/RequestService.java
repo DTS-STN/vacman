@@ -23,6 +23,7 @@ import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes.RequestStatuses;
 import ca.gov.dtsstn.vacman.api.data.entity.RequestEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.RequestStatusEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.MatchEntity;
 import ca.gov.dtsstn.vacman.api.data.repository.CityRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.ClassificationRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.EmploymentEquityRepository;
@@ -50,7 +51,6 @@ import ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException;
 import ca.gov.dtsstn.vacman.api.web.exception.UnauthorizedException;
 import ca.gov.dtsstn.vacman.api.web.model.RequestUpdateModel;
 import ca.gov.dtsstn.vacman.api.web.model.mapper.RequestModelMapper;
-import ca.gov.dtsstn.vacman.api.data.entity.MatchEntity;
 
 @Service
 public class RequestService {
@@ -429,18 +429,7 @@ public class RequestService {
 	 */
 	public RequestEntity runMatches(RequestEntity request) {
 		final var currentStatus = request.getRequestStatus().getCode();
-		final var updatedRequest = handleRunMatches(request, currentStatus);
-		return updateRequest(updatedRequest);
-	}
 
-	/**
-	 * Handles the runMatches event.
-	 *
-	 * @param request The request entity
-	 * @param currentStatus The current status code of the request
-	 * @return The updated request entity
-	 */
-	private RequestEntity handleRunMatches(RequestEntity request, String currentStatus) {
 		if (!requestStatuses.hrReview().equals(currentStatus)) {
 			throw new ResourceConflictException("Request must be in HR_REVIEW status to be approved");
 		}
@@ -457,7 +446,7 @@ public class RequestService {
 			request.setRequestStatus(getRequestStatusByCode(requestStatuses.noMatchHrReview()));
 		}
 
-		return request;
+		return updateRequest(request);
 	}
 
 	/**
