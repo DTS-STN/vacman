@@ -189,13 +189,16 @@ public class RequestService {
 		return matchRepository.exists(hasRequestId(requestId));
 	}
 
+	@Transactional(readOnly = true)
+	public List<MatchEntity> getMatchesByRequestId(Long requestId) {
+		return matchRepository.findAll(hasRequestId(requestId));
+	}
+
 	/**
-	 * Get all requests, optionally filtered by HR advisor ID, status code, and work unit code.
+	 * Get all requests, optionally filtered by HR advisor IDs, status IDs, and work unit IDs.
 	 *
 	 * @param pageable      Pagination information
-	 * @param hrAdvisorId   Optional HR advisor ID to filter by (null for no filtering)
-	 * @param statusCode    Optional status code to filter by (null for no filtering)
-	 * @param workUnitCode  Optional work unit code to filter by (null for no filtering)
+	 * @param query         Query parameters for filtering requests
 	 */
 	@Transactional(readOnly = true)
 	public Page<RequestEntity> findRequests(Pageable pageable, RequestQuery query) {
