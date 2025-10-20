@@ -10,14 +10,14 @@ import jakarta.validation.constraints.Size;
 @RecordBuilder
 @Schema(name = "MatchUpdate")
 public record MatchUpdateModel(
-    @Schema(description = "The ID of the match feedback.")
-    Long matchFeedbackId,
+	@Schema(description = "The ID of the match feedback.")
+	Long matchFeedbackId,
 
-    @Schema(description = "Comment from the hiring manager.")
-    @Size(max = 2000)
-    String hiringManagerComment,
+	@Schema(description = "Comment from the hiring manager.")
+	@Size(max = 2000)
+	String hiringManagerComment,
 
-    @Schema(description = "Comment from the HR advisor.")
-    @Size(max = 2000)
-    String hrAdvisorComment
+	@Schema(description = "Comment from the HR advisor.")
+	@Size(max = 2000)
+	String hrAdvisorComment
 ) {}

@@ -300,26 +300,26 @@ public class RequestsController {
 				);
 
 				return new MatchSummaryReadModel(
-						entity.getId(),
-						profileSummary,
-						requestSummary,
-						entity.getMatchStatus() != null ?
-								new MatchSummaryReadModel.CodeSummary(
-										entity.getMatchStatus().getId(),
-										entity.getMatchStatus().getCode(),
-										entity.getMatchStatus().getNameEn(),
-										entity.getMatchStatus().getNameFr()
-								) : null,
-						entity.getMatchFeedback() != null ?
-								new MatchSummaryReadModel.CodeSummary(
-										entity.getMatchFeedback().getId(),
-										entity.getMatchFeedback().getCode(),
-										entity.getMatchFeedback().getNameEn(),
-										entity.getMatchFeedback().getNameFr()
-								) : null,
-						entity.getHiringManagerComment(),
-						entity.getHrAdvisorComment(),
-						entity.getCreatedDate()
+					entity.getId(),
+					profileSummary,
+					requestSummary,
+					entity.getMatchStatus() != null ?
+						new MatchSummaryReadModel.CodeSummary(
+								entity.getMatchStatus().getId(),
+								entity.getMatchStatus().getCode(),
+								entity.getMatchStatus().getNameEn(),
+								entity.getMatchStatus().getNameFr()
+						) : null,
+					entity.getMatchFeedback() != null ?
+						new MatchSummaryReadModel.CodeSummary(
+								entity.getMatchFeedback().getId(),
+								entity.getMatchFeedback().getCode(),
+								entity.getMatchFeedback().getNameEn(),
+								entity.getMatchFeedback().getNameFr()
+						) : null,
+					entity.getHiringManagerComment(),
+					entity.getHrAdvisorComment(),
+					entity.getCreatedDate()
 				);
 			})
 			.collect(toCollectionModel());
