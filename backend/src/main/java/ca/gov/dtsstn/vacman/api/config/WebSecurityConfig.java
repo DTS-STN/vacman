@@ -26,6 +26,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.web.SecurityFilterChain;
 
+import ca.gov.dtsstn.vacman.api.config.properties.ApplicationProperties;
 import ca.gov.dtsstn.vacman.api.security.OwnershipPermissionEvaluator;
 import ca.gov.dtsstn.vacman.api.web.AuthErrorHandler;
 
@@ -66,6 +67,8 @@ public class WebSecurityConfig {
 	@ConditionalOnProperty(name = "application.security.disabled", havingValue = "false", matchIfMissing = true)
 	static class DefaultWebSecurityConfig {
 
+		@Autowired ApplicationProperties applicationProperties;
+
 		@Autowired AuthErrorHandler authErrorHandler;
 
 		@Autowired OwnershipPermissionEvaluator ownershipPermissionEvaluator;
@@ -77,7 +80,7 @@ public class WebSecurityConfig {
 			log.info("Creating 'jwtAuthenticationConverter' bean");
 
 			final var jwtAuthenticationConverter = new JwtAuthenticationConverter();
-			jwtAuthenticationConverter.setPrincipalClaimName("oid"); // TODO ::: GjB ::: extract to config string
+			jwtAuthenticationConverter.setPrincipalClaimName(applicationProperties.entraId().principalClaimName());
 			jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwtGrantedAuthoritiesConverter());
 
 			return jwtAuthenticationConverter;

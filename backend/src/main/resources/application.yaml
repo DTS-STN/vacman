@@ -305,6 +305,7 @@ application:
   entra-id:
     client-id: ea3a6648-7e77-445b-b777-486d26367ee8
     tenant-id: 9ed55846-8a81-4246-acd8-b1a01abfc0d1
+    principal-claim-name: oid
     roles:
       hr-advisor: hr-advisor
   gcnotify:
