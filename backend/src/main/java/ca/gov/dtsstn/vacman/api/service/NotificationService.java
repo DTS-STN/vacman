@@ -59,7 +59,6 @@ public class NotificationService {
 				? applicationProperties.gcnotify().profilePendingTemplateIdEng()
 				: applicationProperties.gcnotify().profilePendingTemplateIdFra();
 
-			default -> throw new IllegalArgumentException("Unknown profile status value " + profileStatus);
 		};
 
 		// Personalization parameters for the email template
