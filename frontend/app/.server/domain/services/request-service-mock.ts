@@ -426,7 +426,7 @@ export function getMockRequestService(): RequestService {
       }
 
       log.debug(`Match with request ID ${requestId} not found`);
-      return Err(new AppError(`Match with request ID ${requestId} not found.`, ErrorCodes.REQUEST_NOT_FOUND));
+      return Err(new AppError(`Match with request ID ${requestId} not found.`, ErrorCodes.MATCH_NOT_FOUND));
     },
 
     /**
