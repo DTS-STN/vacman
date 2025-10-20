@@ -234,9 +234,6 @@ springdoc:
 #######################################################################################################################
 
 application:
-  performance-test:
-    data:
-      enabled: false
   async:
     enabled: true
   caching:
@@ -338,7 +335,7 @@ application:
     job-hr-approved-template-id-eng: 00000000-0000-0000-0000-000000000000 # must be set externally (ex: 00000000-0000-0000-0000-000000000000) job opportunity HR approved english
     job-hr-approved-template-id-fra: 00000000-0000-0000-0000-000000000000 # must be set externally (ex: 00000000-0000-0000-0000-000000000000) job opportunity HR approved french
     job-opportunity-template-id-eng: 00000000-0000-0000-0000-000000000000 # must be set externally (ex: 00000000-0000-0000-0000-000000000000) job opportunity english
-    job-opportunity-template-id-fra: 00000000-0000-0000-0000-000000000000 # must be set externally (ex: 00000000-0000-0000-0000-000000000000) job opportunity french 
+    job-opportunity-template-id-fra: 00000000-0000-0000-0000-000000000000 # must be set externally (ex: 00000000-0000-0000-0000-000000000000) job opportunity french
     hr-gd-inbox-email: hr_inbox@example.com # TODO: Update with actual email when available.
   matches:
     wfa-end-date-grace-period: 30d
