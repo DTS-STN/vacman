@@ -317,11 +317,8 @@ application:
     api-key: 00000000-0000-0000-0000-000000000000 # must be set externally (ex: 00000000-0000-0000-0000-000000000000)
     profile-approved-template-id-eng: 00000000-0000-0000-0000-000000000000 # must be set externally (ex: 00000000-0000-0000-0000-000000000000) VMS profile activation english
     profile-approved-template-id-fra: 00000000-0000-0000-0000-000000000000 # must be set externally (ex: 00000000-0000-0000-0000-000000000000) VMS profile activation french
-    profile-created-template-id-eng: 00000000-0000-0000-0000-000000000000 # must be set externally (ex: 00000000-0000-0000-0000-000000000000) approval required english
-    profile-created-template-id-fra: 00000000-0000-0000-0000-000000000000 # must be set externally (ex: 00000000-0000-0000-0000-000000000000) approval required french
-    profile-updated-template-id-eng: 00000000-0000-0000-0000-000000000000 # must be set externally (ex: 00000000-0000-0000-0000-000000000000) approval required english
-    profile-updated-template-id-fra: 00000000-0000-0000-0000-000000000000 # must be set externally (ex: 00000000-0000-0000-0000-000000000000) approval required french
-    profile-pending-template-id: 00000000-0000-0000-0000-000000000000 # must be set externally (ex: 00000000-0000-0000-0000-000000000000)
+    profile-pending-template-id-eng: 00000000-0000-0000-0000-000000000000 # must be set externally (ex: 00000000-0000-0000-0000-000000000000) approval required english
+    profile-pending-template-id-fra: 00000000-0000-0000-0000-000000000000 # must be set externally (ex: 00000000-0000-0000-0000-000000000000) approval required french
     profile-closed-template-id-eng: 00000000-0000-0000-0000-000000000000 # must be set externally (ex: 00000000-0000-0000-0000-000000000000) VMS profile closed english
     profile-closed-template-id-fra: 00000000-0000-0000-0000-000000000000 # must be set externally (ex: 00000000-0000-0000-0000-000000000000) VMS profile closed french
     request-created-template-id: 00000000-0000-0000-0000-000000000000 # must be set externally (ex: 00000000-0000-0000-0000-000000000000)

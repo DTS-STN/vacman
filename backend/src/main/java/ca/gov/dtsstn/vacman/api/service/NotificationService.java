@@ -19,7 +19,7 @@ import ca.gov.dtsstn.vacman.api.service.notify.NotificationReceipt;
 @Service
 public class NotificationService {
 
-	public enum ProfileStatus { CREATED, UPDATED, APPROVED, PENDING }
+	public enum ProfileStatus { APPROVED, PENDING }
 
 	public enum RequestEvent { CREATED, FEEDBACK_PENDING, FEEDBACK_COMPLETED }
 
@@ -43,7 +43,7 @@ public class NotificationService {
 	}
 
 	/**
-	* Sends a profile notification to a single email address.
+	* Sends an email notification (specific to a profile) to a single email address.
 	*/
 	public NotificationReceipt sendProfileNotification(String email, String profileId, String username, String language, ProfileStatus profileStatus) {
 		Assert.hasText(email, "email is required; it must not be blank or null");
@@ -51,21 +51,13 @@ public class NotificationService {
 		Assert.hasText(username, "username is required; it must not be blank or null");
 
 		final var templateId = switch (profileStatus) {
-			case CREATED -> this.languages.english().equals(language)
-				? applicationProperties.gcnotify().profileCreatedTemplateIdEng()
-				: applicationProperties.gcnotify().profileCreatedTemplateIdFra();
-
-			case UPDATED -> this.languages.english().equals(language)
-				? applicationProperties.gcnotify().profileUpdatedTemplateIdEng()
-				: applicationProperties.gcnotify().profileUpdatedTemplateIdFra();
-
 			case APPROVED -> this.languages.english().equals(language)
 				? applicationProperties.gcnotify().profileApprovedTemplateIdEng()
 				: applicationProperties.gcnotify().profileApprovedTemplateIdFra();
 
 			case PENDING -> this.languages.english().equals(language)
-				? applicationProperties.gcnotify().profilePendingTemplateId()
-				: applicationProperties.gcnotify().profilePendingTemplateId();
+				? applicationProperties.gcnotify().profilePendingTemplateIdEng()
+				: applicationProperties.gcnotify().profilePendingTemplateIdFra();
 
 			default -> throw new IllegalArgumentException("Unknown profile status value " + profileStatus);
 		};
