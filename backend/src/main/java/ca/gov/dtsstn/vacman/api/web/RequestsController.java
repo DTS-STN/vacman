@@ -12,7 +12,6 @@ import org.mapstruct.factory.Mappers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springdoc.core.annotations.ParameterObject;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedModel;
 import org.springframework.http.ResponseEntity;
@@ -52,7 +51,6 @@ import jakarta.validation.Valid;
 @ApiResponses.InternalServerError
 @RequestMapping({ "/api/v1/requests" })
 @SecurityRequirement(name = SpringDocConfig.AZURE_AD)
-@ConditionalOnProperty(name = { "application.requests.enabled" }) // TODO ::: GjB ::: remove once live in prod
 @Tag(name = "Requests", description = "Hiring manager requests for departmental clearance.")
 public class RequestsController {
 
