@@ -34,13 +34,20 @@ import ca.gov.dtsstn.vacman.api.service.ProfileService;
 import ca.gov.dtsstn.vacman.api.service.RequestService;
 import ca.gov.dtsstn.vacman.api.service.UserService;
 import ca.gov.dtsstn.vacman.api.web.model.CollectionModel;
+import ca.gov.dtsstn.vacman.api.web.model.MatchReadModel;
+import ca.gov.dtsstn.vacman.api.web.model.MatchSummaryReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.ProfileReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.RequestReadFilterModel;
 import ca.gov.dtsstn.vacman.api.web.model.RequestReadFilterModelBuilder;
 import ca.gov.dtsstn.vacman.api.web.model.RequestReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.RequestStatusUpdateModel;
 import ca.gov.dtsstn.vacman.api.web.model.RequestUpdateModel;
+import ca.gov.dtsstn.vacman.api.web.model.mapper.CodeModelMapper;
+import ca.gov.dtsstn.vacman.api.web.model.mapper.ProfileModelMapper;
 import ca.gov.dtsstn.vacman.api.web.model.mapper.RequestModelMapper;
+import ca.gov.dtsstn.vacman.api.web.model.MatchReadModelBuilder;
+import ca.gov.dtsstn.vacman.api.web.model.ImmutableMatchStatusReadModel;
+import ca.gov.dtsstn.vacman.api.web.model.ImmutableMatchFeedbackReadModel;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -59,6 +66,7 @@ public class RequestsController {
 	private static final Logger log = LoggerFactory.getLogger(RequestsController.class);
 
 	private final RequestModelMapper requestModelMapper = Mappers.getMapper(RequestModelMapper.class);
+	private final ProfileModelMapper profileModelMapper = Mappers.getMapper(ProfileModelMapper.class);
 
 	private final RequestService requestService;
 
@@ -250,8 +258,66 @@ public class RequestsController {
 	@ApiResponses.ResourceNotFoundError
 	@Operation(summary = "Get all matches for a request.")
 	@PreAuthorize("hasAuthority('hr-advisor') || hasPermission(#id, 'REQUEST', 'READ')")
-	public ResponseEntity<CollectionModel<Object>> getAllRequestMatches(@PathVariable Long id) {
-		throw new UnsupportedOperationException("not yet implemented");
+	public ResponseEntity<CollectionModel<MatchSummaryReadModel>> getAllRequestMatches(@PathVariable Long id) {
+		log.info("Received request to get all matches for request; ID: [{}]", id);
+
+		final var request = requestService.getRequestById(id)
+			.orElseThrow(asResourceNotFoundException("request", id));
+
+		log.trace("Found request: [{}]", request);
+
+		final var matches = requestService.getMatchesByRequestId(id).stream()
+			.map(entity -> {
+				final var profileSummary = new MatchSummaryReadModel.ProfileSummary(
+					entity.getProfile().getId(),
+					entity.getProfile().getUser().getFirstName(),
+					entity.getProfile().getUser().getLastName(),
+					entity.getProfile().getSubstantiveClassification() != null ?
+						new MatchSummaryReadModel.CodeSummary(
+							entity.getProfile().getSubstantiveClassification().getId(),
+							entity.getProfile().getSubstantiveClassification().getCode(),
+							entity.getProfile().getSubstantiveClassification().getNameEn(),
+							entity.getProfile().getSubstantiveClassification().getNameFr()
+						) : null,
+					entity.getProfile().getSubstantiveCity() != null ?
+						new MatchSummaryReadModel.CodeSummary(
+							entity.getProfile().getSubstantiveCity().getId(),
+							entity.getProfile().getSubstantiveCity().getCode(),
+							entity.getProfile().getSubstantiveCity().getNameEn(),
+							entity.getProfile().getSubstantiveCity().getNameFr()
+						) : null
+				);
+
+				final var requestSummary = new MatchSummaryReadModel.RequestSummary(
+					entity.getRequest().getId()
+				);
+
+				return new MatchSummaryReadModel(
+					entity.getId(),
+					profileSummary,
+					requestSummary,
+					entity.getMatchStatus() != null ?
+						new MatchSummaryReadModel.CodeSummary(
+							entity.getMatchStatus().getId(),
+							entity.getMatchStatus().getCode(),
+							entity.getMatchStatus().getNameEn(),
+							entity.getMatchStatus().getNameFr()
+						) : null,
+					entity.getMatchFeedback() != null ?
+						new MatchSummaryReadModel.CodeSummary(
+							entity.getMatchFeedback().getId(),
+							entity.getMatchFeedback().getCode(),
+							entity.getMatchFeedback().getNameEn(),
+							entity.getMatchFeedback().getNameFr()
+						) : null,
+					entity.getHiringManagerComment(),
+					entity.getHrAdvisorComment(),
+					entity.getCreatedDate()
+				);
+			})
+			.collect(toCollectionModel());
+
+		return ResponseEntity.ok(matches);
 	}
 
 	@ApiResponses.Ok
