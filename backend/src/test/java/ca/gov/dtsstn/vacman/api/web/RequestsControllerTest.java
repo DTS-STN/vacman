@@ -24,7 +24,6 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -58,7 +57,6 @@ import ca.gov.dtsstn.vacman.api.web.model.RequestUpdateModelBuilder;
 @ActiveProfiles({ "test" })
 @DisplayName("RequestsController API endpoints")
 @AutoConfigureTestDatabase(replace = Replace.NONE)
-@TestPropertySource(properties = { "application.requests.enabled=true" })
 class RequestsControllerTest {
 
 	@Autowired

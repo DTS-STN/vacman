@@ -341,8 +341,6 @@ application:
     base-url: https://graph.microsoft.com/v1.0
     connect-timeout: 10s
     read-timeout: 30s
-  requests:
-    enabled: false
   swagger-ui:
     application-name: Vacancy Manager API -- OpenAPI 3.0
     authentication:
