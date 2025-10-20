@@ -303,3 +303,26 @@ export const REQUEST_EVENT_TYPE = {
 } as const;
 
 export type RequestEventType = (typeof REQUEST_EVENT_TYPE)[keyof typeof REQUEST_EVENT_TYPE];
+
+export const MATCH_STATUS = {
+  INPROGRESS: {
+    id: 0,
+    code: 'IP-EC',
+    nameEn: 'In Progress',
+    nameFr: 'En cours',
+  },
+  PENDING: {
+    id: 1,
+    code: 'PA-EAA',
+    nameEn: 'Pending Approval',
+    nameFr: "En attente d'approbation",
+  },
+  APPROVED: {
+    id: 2,
+    code: 'A-A',
+    nameEn: 'Approved',
+    nameFr: 'Approuvé',
+  },
+} as const;
+
+export type PatchStatus = keyof typeof MATCH_STATUS;
