@@ -839,7 +839,7 @@ export function buildMatchesFromTemplates(): MatchSummaryReadModel[] {
       profile: {
         id: profile.id,
         firstName: profile.profileUser.firstName,
-        lastName: profile.profileUser.lastModifiedDate,
+        lastName: profile.profileUser.lastName,
         wfaStatus: profile.wfaStatus,
       },
       request: {
