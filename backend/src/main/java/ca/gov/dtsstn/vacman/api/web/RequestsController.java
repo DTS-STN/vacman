@@ -1,5 +1,6 @@
 package ca.gov.dtsstn.vacman.api.web;
 
+import static ca.gov.dtsstn.vacman.api.data.entity.AbstractBaseEntity.byId;
 import static ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException.asResourceNotFoundException;
 import static ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException.asUserResourceNotFoundException;
 import static ca.gov.dtsstn.vacman.api.web.exception.UnauthorizedException.asEntraIdUnauthorizedException;
@@ -29,17 +30,21 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import ca.gov.dtsstn.vacman.api.config.SpringDocConfig;
 import ca.gov.dtsstn.vacman.api.data.entity.AbstractBaseEntity;
 import ca.gov.dtsstn.vacman.api.security.SecurityUtils;
+import ca.gov.dtsstn.vacman.api.service.CodeService;
 import ca.gov.dtsstn.vacman.api.service.ProfileService;
 import ca.gov.dtsstn.vacman.api.service.RequestService;
 import ca.gov.dtsstn.vacman.api.service.UserService;
+import ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException;
 import ca.gov.dtsstn.vacman.api.web.model.CollectionModel;
 import ca.gov.dtsstn.vacman.api.web.model.MatchSummaryReadModel;
+import ca.gov.dtsstn.vacman.api.web.model.MatchUpdateModel;
 import ca.gov.dtsstn.vacman.api.web.model.ProfileReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.RequestReadFilterModel;
 import ca.gov.dtsstn.vacman.api.web.model.RequestReadFilterModelBuilder;
 import ca.gov.dtsstn.vacman.api.web.model.RequestReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.RequestStatusUpdateModel;
 import ca.gov.dtsstn.vacman.api.web.model.RequestUpdateModel;
+import ca.gov.dtsstn.vacman.api.web.model.mapper.MatchModelMapper;
 import ca.gov.dtsstn.vacman.api.web.model.mapper.RequestModelMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -58,14 +63,18 @@ public class RequestsController {
 	private static final Logger log = LoggerFactory.getLogger(RequestsController.class);
 
 	private final RequestModelMapper requestModelMapper = Mappers.getMapper(RequestModelMapper.class);
+	private final MatchModelMapper matchModelMapper = Mappers.getMapper(MatchModelMapper.class);
 
 	private final RequestService requestService;
 
 	private final UserService userService;
 
-	public RequestsController(RequestService requestService, UserService userService, ProfileService profileService) {
+	private final CodeService codeService;
+
+	public RequestsController(RequestService requestService, UserService userService, ProfileService profileService, CodeService codeService) {
 		this.requestService = requestService;
 		this.userService = userService;
+		this.codeService = codeService;
 	}
 
 	@GetMapping
@@ -258,69 +267,7 @@ public class RequestsController {
 		log.trace("Found request: [{}]", request);
 
 		final var matches = requestService.getMatchesByRequestId(id).stream()
-			.map(entity -> {
-				final var profileSummary = new MatchSummaryReadModel.ProfileSummary(
-					entity.getProfile().getId(),
-					entity.getProfile().getUser().getFirstName(),
-					entity.getProfile().getUser().getLastName(),
-					entity.getProfile().getWfaStatus() != null ?
-						new MatchSummaryReadModel.CodeSummary(
-							entity.getProfile().getWfaStatus().getId(),
-							entity.getProfile().getWfaStatus().getCode(),
-							entity.getProfile().getWfaStatus().getNameEn(),
-							entity.getProfile().getWfaStatus().getNameFr()
-						) : null
-				);
-
-				final var requestSummary = new MatchSummaryReadModel.RequestSummary(
-					entity.getRequest().getId(),
-					entity.getRequest().getRequestStatus() != null ?
-						new MatchSummaryReadModel.CodeSummary(
-							entity.getRequest().getRequestStatus().getId(),
-							entity.getRequest().getRequestStatus().getCode(),
-							entity.getRequest().getRequestStatus().getNameEn(),
-							entity.getRequest().getRequestStatus().getNameFr()
-						) : null,
-					entity.getRequest().getCreatedDate(),
-					entity.getRequest().getHiringManager() != null ?
-						entity.getRequest().getHiringManager().getFirstName() : null,
-					entity.getRequest().getHiringManager() != null ?
-						entity.getRequest().getHiringManager().getLastName() : null,
-					entity.getRequest().getHiringManager() != null ?
-						entity.getRequest().getHiringManager().getBusinessEmailAddress() : null,
-					entity.getRequest().getHrAdvisor() != null ?
-						entity.getRequest().getHrAdvisor().getId() : null,
-					entity.getRequest().getHrAdvisor() != null ?
-						entity.getRequest().getHrAdvisor().getFirstName() : null,
-					entity.getRequest().getHrAdvisor() != null ?
-						entity.getRequest().getHrAdvisor().getLastName() : null,
-					entity.getRequest().getHrAdvisor() != null ?
-						entity.getRequest().getHrAdvisor().getBusinessEmailAddress() : null
-				);
-
-				return new MatchSummaryReadModel(
-					entity.getId(),
-					profileSummary,
-					requestSummary,
-					entity.getMatchStatus() != null ?
-						new MatchSummaryReadModel.CodeSummary(
-							entity.getMatchStatus().getId(),
-							entity.getMatchStatus().getCode(),
-							entity.getMatchStatus().getNameEn(),
-							entity.getMatchStatus().getNameFr()
-						) : null,
-					entity.getMatchFeedback() != null ?
-						new MatchSummaryReadModel.CodeSummary(
-							entity.getMatchFeedback().getId(),
-							entity.getMatchFeedback().getCode(),
-							entity.getMatchFeedback().getNameEn(),
-							entity.getMatchFeedback().getNameFr()
-						) : null,
-					entity.getHiringManagerComment(),
-					entity.getHrAdvisorComment(),
-					entity.getCreatedDate()
-				);
-			})
+			.map(matchModelMapper::toModel)
 			.collect(toCollectionModel());
 
 		return ResponseEntity.ok(matches);
@@ -345,6 +292,43 @@ public class RequestsController {
 	@PreAuthorize("hasAuthority('hr-advisor') || hasPermission(#id, 'REQUEST', 'UPDATE')")
 	public ResponseEntity<Object> updateRequestMatchStatus(@PathVariable Long id, @PathVariable Long matchId, @Valid @RequestBody Object statusUpdate) {
 		throw new UnsupportedOperationException("not yet implemented");
+	}
+
+	@ApiResponses.Ok
+	@ApiResponses.BadRequestError
+	@ApiResponses.ResourceNotFoundError
+	@PutMapping({ "/{id}/matches/{matchId}" })
+	@Operation(summary = "Update a match for a request.")
+	@PreAuthorize("hasAuthority('hr-advisor') || hasPermission(#id, 'REQUEST', 'UPDATE')")
+	public ResponseEntity<MatchSummaryReadModel> updateRequestMatch(@PathVariable Long id, @PathVariable Long matchId, @Valid @RequestBody MatchUpdateModel updateModel) {
+		log.info("Received request to update match for request; Request ID: [{}], Match ID: [{}]", id, matchId);
+
+		// Get the existing match entity
+		final var matchEntity = requestService.getMatchById(matchId)
+			.orElseThrow(asResourceNotFoundException("match", matchId));
+
+		log.trace("Found match: {}", matchEntity);
+
+		// Update match feedback if provided
+		if (updateModel.matchFeedbackId() != null) {
+			matchEntity.setMatchFeedback(codeService.getMatchFeedbacks(Pageable.unpaged()).stream()
+				.filter(byId(updateModel.matchFeedbackId()))
+				.findFirst()
+				.orElseThrow(() -> new ResourceNotFoundException("Match feedback not found with ID: " + updateModel.matchFeedbackId())));
+		}
+
+		// Update comments if provided
+		matchEntity.setHiringManagerComment(updateModel.hiringManagerComment());
+		matchEntity.setHrAdvisorComment(updateModel.hrAdvisorComment());
+
+		// Save the updated entity
+		final var savedMatchEntity = requestService.saveMatch(matchEntity);
+
+		log.trace("Updated match: {}", savedMatchEntity);
+
+		final var matchSummary = matchModelMapper.toModel(savedMatchEntity);
+
+		return ResponseEntity.ok(matchSummary);
 	}
 
 	//

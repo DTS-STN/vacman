@@ -1,5 +1,6 @@
 package ca.gov.dtsstn.vacman.api.service;
 
+import static ca.gov.dtsstn.vacman.api.data.repository.AbstractBaseRepository.hasId;
 import static ca.gov.dtsstn.vacman.api.data.repository.MatchRepository.hasRequestId;
 import static ca.gov.dtsstn.vacman.api.data.repository.RequestRepository.hasHrAdvisorIdIn;
 import static ca.gov.dtsstn.vacman.api.data.repository.RequestRepository.hasRequestStatusIdIn;
@@ -105,11 +106,14 @@ public class RequestService {
 
 	private final RequestMatchingService requestMatchingService;
 
+	private final CodeService codeService;
+
 	public RequestService(
 			ApplicationEventPublisher eventPublisher,
 			ApplicationProperties applicationProperties,
 			CityRepository cityRepository,
 			ClassificationRepository classificationRepository,
+			CodeService codeService,
 			EmploymentEquityRepository employmentEquityRepository,
 			EmploymentTenureRepository employmentTenureRepository,
 			LanguageRepository languageRepository,
@@ -147,6 +151,7 @@ public class RequestService {
 		this.notificationService = notificationService;
 		this.applicationProperties = applicationProperties;
 		this.requestMatchingService = requestMatchingService;
+		this.codeService = codeService;
 	}
 
 	@Transactional(readOnly = false)
@@ -192,6 +197,28 @@ public class RequestService {
 	@Transactional(readOnly = true)
 	public List<MatchEntity> getMatchesByRequestId(Long requestId) {
 		return matchRepository.findAll(hasRequestId(requestId));
+	}
+
+	/**
+	 * Get a match by ID
+	 *
+	 * @param matchId The match ID
+	 * @return Optional containing the match if found
+	 */
+	@Transactional(readOnly = true)
+	public Optional<MatchEntity> getMatchById(Long matchId) {
+		return matchRepository.findOne(hasId(matchId));
+	}
+
+	/**
+	 * Save a match entity
+	 *
+	 * @param match The fully populated match entity
+	 * @return The saved match entity
+	 */
+	@Transactional
+	public MatchEntity saveMatch(MatchEntity match) {
+		return matchRepository.save(match);
 	}
 
 	/**
