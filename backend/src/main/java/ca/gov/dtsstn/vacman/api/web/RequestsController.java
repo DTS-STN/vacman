@@ -45,6 +45,7 @@ import ca.gov.dtsstn.vacman.api.web.model.RequestReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.RequestStatusUpdateModel;
 import ca.gov.dtsstn.vacman.api.web.model.RequestUpdateModel;
 import ca.gov.dtsstn.vacman.api.web.model.mapper.MatchModelMapper;
+import ca.gov.dtsstn.vacman.api.web.model.mapper.ProfileModelMapper;
 import ca.gov.dtsstn.vacman.api.web.model.mapper.RequestModelMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -64,16 +65,17 @@ public class RequestsController {
 
 	private final RequestModelMapper requestModelMapper = Mappers.getMapper(RequestModelMapper.class);
 	private final MatchModelMapper matchModelMapper = Mappers.getMapper(MatchModelMapper.class);
+	private final ProfileModelMapper profileModelMapper = Mappers.getMapper(ProfileModelMapper.class);
 
 	private final RequestService requestService;
-
 	private final UserService userService;
-
+	private final ProfileService profileService;
 	private final CodeService codeService;
 
 	public RequestsController(RequestService requestService, UserService userService, ProfileService profileService, CodeService codeService) {
 		this.requestService = requestService;
 		this.userService = userService;
+		this.profileService = profileService;
 		this.codeService = codeService;
 	}
 
@@ -308,7 +310,7 @@ public class RequestsController {
 			.orElseThrow(asResourceNotFoundException("match", matchId));
 
 		if (!matchEntity.getRequest().getId().equals(id)) {
-			throw new ResourceNotFoundException("A match ith id=[" + matchId + "] does not exist");
+			throw new ResourceNotFoundException("A match with id=[" + matchId + "] does not exist");
 		}
 
 		log.trace("Found match: {}", matchEntity);
@@ -358,7 +360,28 @@ public class RequestsController {
 	@Operation(summary = "Get a specific candidate profile for a request.")
 	@PreAuthorize("hasAuthority('hr-advisor') || hasPermission(#id, 'REQUEST', 'READ')")
 	public ResponseEntity<ProfileReadModel> getRequestProfileById(@PathVariable Long id, @PathVariable Long profileId) {
-		throw new UnsupportedOperationException("not yet implemented");
+		log.info("Received request to get profile for request; Request ID: [{}], Profile ID: [{}]", id, profileId);
+
+		final var requestEntity = requestService.getRequestById(id)
+			.orElseThrow(asResourceNotFoundException("request", id));
+
+		log.trace("Found request: {}", requestEntity);
+
+		final var profileEntity = profileService.getProfileById(profileId)
+			.orElseThrow(asResourceNotFoundException("profile", profileId));
+
+		log.trace("Found profile: {}", profileEntity);
+
+		// Verify that the request and profile are linked by a match
+		boolean matchExists = requestService.getMatchesByRequestId(id).stream()
+			.anyMatch(match -> match.getProfile().getId().equals(profileId));
+
+		if (!matchExists) {
+			throw new ResourceNotFoundException("No match found between request with id=[" + id + 
+				"] and profile with id=[" + profileId + "]");
+		}
+
+		return ResponseEntity.ok(profileModelMapper.toModel(profileEntity));
 	}
 
 	/**
