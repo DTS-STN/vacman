@@ -68,11 +68,15 @@ public class CodeService {
 
 	private final EmploymentTenureRepository employmentTenureRepository;
 
-	private final LanguageRepository languageRepository;
-
 	private final LanguageReferralTypeRepository languageReferralTypeRepository;
 
+	private final LanguageRepository languageRepository;
+
 	private final LanguageRequirementRepository languageRequirementRepository;
+
+	private final MatchFeedbackRepository matchFeedbackRepository;
+
+	private final MatchStatusRepository matchStatusRepository;
 
 	private final NonAdvertisedAppointmentRepository nonAdvertisedAppointmentRepository;
 
@@ -93,10 +97,6 @@ public class CodeService {
 	private final WorkScheduleRepository workScheduleRepository;
 
 	private final WorkUnitRepository workUnitRepository;
-
-	private final MatchStatusRepository matchStatusRepository;
-
-	private final MatchFeedbackRepository matchFeedbackRepository;
 
 	public CodeService(
 			CityRepository cityRepository,
@@ -128,6 +128,8 @@ public class CodeService {
 		this.languageReferralTypeRepository = languageReferralTypeRepository;
 		this.languageRequirementRepository = languageRequirementRepository;
 		this.nonAdvertisedAppointmentRepository = nonAdvertisedAppointmentRepository;
+		this.matchFeedbackRepository = matchFeedbackRepository;
+		this.matchStatusRepository = matchStatusRepository;
 		this.profileStatusRepository = profileStatusRepository;
 		this.provinceRepository = provinceRepository;
 		this.requestStatusRepository = requestStatusRepository;
@@ -137,8 +139,6 @@ public class CodeService {
 		this.wfaStatusRepository = wfaStatusRepository;
 		this.workScheduleRepository = workScheduleRepository;
 		this.workUnitRepository = workUnitRepository;
-		this.matchStatusRepository = matchStatusRepository;
-		this.matchFeedbackRepository = matchFeedbackRepository;
 	}
 
 	/**
@@ -197,17 +197,6 @@ public class CodeService {
 	}
 
 	/**
-	 * Retrieves a paginated list of languages.
-	 *
-	 * @param pageable pagination information
-	 * @return a page of {@link LanguageEntity} objects
-	 */
-	@Cacheable(cacheNames = { CacheNames.LANGUAGES })
-	public Page<LanguageEntity> getLanguages(Pageable pageable) {
-		return languageRepository.findAll(pageable);
-	}
-
-	/**
 	 * Retrieves a paginated list of language referral types.
 	 *
 	 * @param pageable pagination information
@@ -227,6 +216,39 @@ public class CodeService {
 	@Cacheable(cacheNames = { CacheNames.LANGUAGE_REQUIREMENTS })
 	public Page<LanguageRequirementEntity> getLanguageRequirements(Pageable pageable) {
 		return languageRequirementRepository.findAll(pageable);
+	}
+
+	/**
+	 * Retrieves a paginated list of languages.
+	 *
+	 * @param pageable pagination information
+	 * @return a page of {@link LanguageEntity} objects
+	 */
+	@Cacheable(cacheNames = { CacheNames.LANGUAGES })
+	public Page<LanguageEntity> getLanguages(Pageable pageable) {
+		return languageRepository.findAll(pageable);
+	}
+
+	/**
+	 * Retrieves a paginated list of match feedback options.
+	 *
+	 * @param pageable pagination information
+	 * @return a page of {@link MatchFeedbackEntity} objects
+	 */
+	@Cacheable(cacheNames = { CacheNames.MATCH_FEEDBACKS })
+	public Page<MatchFeedbackEntity> getMatchFeedbacks(Pageable pageable) {
+		return matchFeedbackRepository.findAll(pageable);
+	}
+
+	/**
+	 * Retrieves a paginated list of match statuses.
+	 *
+	 * @param pageable pagination information
+	 * @return a page of {@link MatchStatusEntity} objects
+	 */
+	@Cacheable(cacheNames = { CacheNames.MATCH_STATUSES })
+	public Page<MatchStatusEntity> getMatchStatuses(Pageable pageable) {
+		return matchStatusRepository.findAll(pageable);
 	}
 
 	/**
@@ -339,25 +361,4 @@ public class CodeService {
 		return workUnitRepository.findAll(pageable);
 	}
 
-	/**
-	 * Retrieves a paginated list of match statuses.
-	 *
-	 * @param pageable pagination information
-	 * @return a page of {@link MatchStatusEntity} objects
-	 */
-	@Cacheable(cacheNames = { CacheNames.MATCH_STATUSES })
-	public Page<MatchStatusEntity> getMatchStatuses(Pageable pageable) {
-		return matchStatusRepository.findAll(pageable);
-	}
-
-	/**
-	 * Retrieves a paginated list of match feedback options.
-	 *
-	 * @param pageable pagination information
-	 * @return a page of {@link MatchFeedbackEntity} objects
-	 */
-	@Cacheable(cacheNames = { CacheNames.MATCH_FEEDBACKS })
-	public Page<MatchFeedbackEntity> getMatchFeedbacks(Pageable pageable) {
-		return matchFeedbackRepository.findAll(pageable);
-	}
 }
