@@ -184,9 +184,9 @@ public class RequestsController {
 
 	@ApiResponses.Ok
 	@ApiResponses.BadRequestError
-	@PutMapping({ "/{id}/status-change" })
 	@ApiResponses.ResourceNotFoundError
 	@ApiResponses.UnprocessableEntityError
+	@PostMapping({ "/{id}/status-change" })
 	@Operation(summary = "Update the status of a request.")
 	@PreAuthorize("hasAuthority('hr-advisor') || hasPermission(#id, 'REQUEST', 'UPDATE')")
 	public ResponseEntity<RequestReadModel> updateRequestStatus(@PathVariable Long id, @Valid @RequestBody RequestStatusUpdateModel statusUpdate) {
@@ -340,7 +340,7 @@ public class RequestsController {
 	@ApiResponses.BadRequestError
 	@ApiResponses.ResourceNotFoundError
 	@ApiResponses.UnprocessableEntityError
-	@PutMapping({ "/{id}/matches/{matchId}/status" })
+	@PostMapping({ "/{id}/matches/{matchId}/status-change" })
 	@Operation(summary = "Update the status of a request match.")
 	@PreAuthorize("hasAuthority('hr-advisor') || hasPermission(#id, 'REQUEST', 'UPDATE')")
 	public ResponseEntity<Object> updateRequestMatchStatus(@PathVariable Long id, @PathVariable Long matchId, @Valid @RequestBody Object statusUpdate) {

@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -1194,7 +1195,7 @@ class RequestsControllerTest {
 
 			final var statusUpdate = new RequestStatusUpdateModel("requestSubmitted");
 
-			mockMvc.perform(put("/api/v1/requests/{id}/status-change", request.getId())
+			mockMvc.perform(post("/api/v1/requests/{id}/status-change", request.getId())
 					.contentType(MediaType.APPLICATION_JSON)
 					.content(objectMapper.writeValueAsString(statusUpdate)))
 				.andExpect(status().isOk())
@@ -1225,7 +1226,7 @@ class RequestsControllerTest {
 
 			final var statusUpdate = new RequestStatusUpdateModel("requestPickedUp");
 
-			mockMvc.perform(put("/api/v1/requests/{id}/status-change", request.getId())
+			mockMvc.perform(post("/api/v1/requests/{id}/status-change", request.getId())
 					.contentType(MediaType.APPLICATION_JSON)
 					.content(objectMapper.writeValueAsString(statusUpdate)))
 				.andExpect(status().isOk())
@@ -1259,7 +1260,7 @@ class RequestsControllerTest {
 
 			final var statusUpdate = new RequestStatusUpdateModel("vmsNotRequired");
 
-			mockMvc.perform(put("/api/v1/requests/{id}/status-change", request.getId())
+			mockMvc.perform(post("/api/v1/requests/{id}/status-change", request.getId())
 					.contentType(MediaType.APPLICATION_JSON)
 					.content(objectMapper.writeValueAsString(statusUpdate)))
 				.andExpect(status().isOk())
@@ -1289,7 +1290,7 @@ class RequestsControllerTest {
 
 			final var statusUpdate = new RequestStatusUpdateModel("submitFeedback");
 
-			mockMvc.perform(put("/api/v1/requests/{id}/status-change", request.getId())
+			mockMvc.perform(post("/api/v1/requests/{id}/status-change", request.getId())
 					.contentType(MediaType.APPLICATION_JSON)
 					.content(objectMapper.writeValueAsString(statusUpdate)))
 				.andExpect(status().isOk())
@@ -1319,7 +1320,7 @@ class RequestsControllerTest {
 
 			final var statusUpdate = new RequestStatusUpdateModel("pscNotRequired");
 
-			mockMvc.perform(put("/api/v1/requests/{id}/status-change", request.getId())
+			mockMvc.perform(post("/api/v1/requests/{id}/status-change", request.getId())
 					.contentType(MediaType.APPLICATION_JSON)
 					.content(objectMapper.writeValueAsString(statusUpdate)))
 				.andExpect(status().isOk())
@@ -1349,7 +1350,7 @@ class RequestsControllerTest {
 
 			final var statusUpdate = new RequestStatusUpdateModel("pscRequired");
 
-			mockMvc.perform(put("/api/v1/requests/{id}/status-change", request.getId())
+			mockMvc.perform(post("/api/v1/requests/{id}/status-change", request.getId())
 					.contentType(MediaType.APPLICATION_JSON)
 					.content(objectMapper.writeValueAsString(statusUpdate)))
 				.andExpect(status().isOk())
@@ -1381,7 +1382,7 @@ class RequestsControllerTest {
 
 			final var statusUpdate = new RequestStatusUpdateModel("complete");
 
-			mockMvc.perform(put("/api/v1/requests/{id}/status-change", request.getId())
+			mockMvc.perform(post("/api/v1/requests/{id}/status-change", request.getId())
 					.contentType(MediaType.APPLICATION_JSON)
 					.content(objectMapper.writeValueAsString(statusUpdate)))
 				.andExpect(status().isOk())
@@ -1398,7 +1399,7 @@ class RequestsControllerTest {
 		void testUpdateStatusRequestNotFound() throws Exception {
 			final var statusUpdate = new RequestStatusUpdateModel("requestPickedUp");
 
-			mockMvc.perform(put("/api/v1/requests/{id}/status-change", 999999L)
+			mockMvc.perform(post("/api/v1/requests/{id}/status-change", 999999L)
 					.contentType(MediaType.APPLICATION_JSON)
 					.content(objectMapper.writeValueAsString(statusUpdate)))
 				.andExpect(status().isNotFound());
@@ -1420,7 +1421,7 @@ class RequestsControllerTest {
 				.workUnit(workUnitRepository.getReferenceById(1L))
 				.build());
 
-			mockMvc.perform(put("/api/v1/requests/{id}/status-change", request.getId())
+			mockMvc.perform(post("/api/v1/requests/{id}/status-change", request.getId())
 					.contentType(MediaType.APPLICATION_JSON)
 					.content("{\"eventType\": null}"))
 				.andExpect(status().isBadRequest());
@@ -1444,7 +1445,7 @@ class RequestsControllerTest {
 
 			final var statusUpdate = new RequestStatusUpdateModel("invalidEvent");
 
-			mockMvc.perform(put("/api/v1/requests/{id}/status-change", request.getId())
+			mockMvc.perform(post("/api/v1/requests/{id}/status-change", request.getId())
 					.contentType(MediaType.APPLICATION_JSON)
 					.content(objectMapper.writeValueAsString(statusUpdate)))
 				.andExpect(status().isBadRequest());
@@ -1456,7 +1457,7 @@ class RequestsControllerTest {
 		void testUpdateStatusUnauthorized() throws Exception {
 			final var statusUpdate = new RequestStatusUpdateModel("requestSubmitted");
 
-			mockMvc.perform(put("/api/v1/requests/{id}/status-change", 1L)
+			mockMvc.perform(post("/api/v1/requests/{id}/status-change", 1L)
 					.contentType(MediaType.APPLICATION_JSON)
 					.content(objectMapper.writeValueAsString(statusUpdate)))
 				.andExpect(status().isUnauthorized());
@@ -1480,7 +1481,7 @@ class RequestsControllerTest {
 
 			final var statusUpdate = new RequestStatusUpdateModel("requestSubmitted");
 
-			mockMvc.perform(put("/api/v1/requests/{id}/status-change", request.getId())
+			mockMvc.perform(post("/api/v1/requests/{id}/status-change", request.getId())
 					.contentType(MediaType.APPLICATION_JSON)
 					.content(objectMapper.writeValueAsString(statusUpdate)))
 				.andExpect(status().isForbidden());
@@ -1506,7 +1507,7 @@ class RequestsControllerTest {
 
 			// Implementation throws UnauthorizedException but @ResponseStatus isn't handled properly in tests
 			// TODO: Add explicit exception handler for UnauthorizedException in ApiErrorHandler
-			mockMvc.perform(put("/api/v1/requests/{id}/status-change", request.getId())
+			mockMvc.perform(post("/api/v1/requests/{id}/status-change", request.getId())
 					.contentType(MediaType.APPLICATION_JSON)
 					.content(objectMapper.writeValueAsString(statusUpdate)))
 				.andExpect(status().isInternalServerError());
@@ -1532,7 +1533,7 @@ class RequestsControllerTest {
 
 			final var statusUpdate = new RequestStatusUpdateModel("requestPickedUp");
 
-			mockMvc.perform(put("/api/v1/requests/{id}/status-change", request.getId())
+			mockMvc.perform(post("/api/v1/requests/{id}/status-change", request.getId())
 					.contentType(MediaType.APPLICATION_JSON)
 					.content(objectMapper.writeValueAsString(statusUpdate)))
 				.andExpect(status().isOk())
@@ -1558,7 +1559,7 @@ class RequestsControllerTest {
 			final var statusUpdate = new RequestStatusUpdateModel("requestSubmitted");
 
 			// Implementation throws ResourceNotFoundException (404) - should be ResourceConflictException (409)
-			mockMvc.perform(put("/api/v1/requests/{id}/status-change", request.getId())
+			mockMvc.perform(post("/api/v1/requests/{id}/status-change", request.getId())
 					.contentType(MediaType.APPLICATION_JSON)
 					.content(objectMapper.writeValueAsString(statusUpdate)))
 				.andExpect(status().isNotFound());
@@ -1582,7 +1583,7 @@ class RequestsControllerTest {
 				.build());
 
 			// Step 1: Submit the request (DRAFT -> SUBMIT)
-			mockMvc.perform(put("/api/v1/requests/{id}/status-change", request.getId())
+			mockMvc.perform(post("/api/v1/requests/{id}/status-change", request.getId())
 					.contentType(MediaType.APPLICATION_JSON)
 					.content(objectMapper.writeValueAsString(new RequestStatusUpdateModel("requestSubmitted"))))
 				.andExpect(status().isOk())
