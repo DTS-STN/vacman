@@ -116,7 +116,7 @@ export default {
   'employment-information': {
     'page-title': 'Employment information',
     'substantive-position-heading': 'Substantive position',
-    'substantive-position-group-and-level': 'Group and level of your substantive position',
+    'substantive-position-group-and-level': 'Group and level of the position',
     'branch-or-service-canada-region': 'Branch or Service Canada Region',
     'directorate': 'Directorate',
     'provinces': 'Province of the designated work location of your substantive position',
@@ -231,7 +231,7 @@ export default {
     'employment-equity-identified':
       'Has an organizational need for employment equity been identified for this process, deployment, or appointment?',
     'employment-equity-identified-alt': 'Has an organizational need for employment equity been identified?',
-    'preferred-employment-equities': 'Which organization need for employment equity has been identified?',
+    'preferred-employment-equities': 'Which organizational need for employment equity has been identified?',
     'preferred-employment-equities-help-message': 'Select all that apply',
     'projected-start-date': 'Projected start date',
     'projected-end-date': 'Projected end date',
@@ -322,7 +322,7 @@ export default {
     'requests': 'Requests',
   },
   'hiring-manager-referral-requests': {
-    'page-title': 'Referral request',
+    'page-title': 'Priority clearance request',
     'request-details': 'Request details',
     'request-id': 'Request ID',
     'request-date': 'Request date',
@@ -358,7 +358,9 @@ export default {
     'notice-line-5': 'an alternation.',
     'notice-line-6':
       'The PSC priority clearance process is required prior to initiating an internal or external, advertised or non-advertised process for which the intent would result in indeterminate and term appointments.',
-    'notice-line-7': "Consult the Manager's Guide on Priority Clearances for more information.",
+    'notice-line-7': "Consult the <InlineLink>Manager's Guide on Priority Clearances</InlineLink> for more information.",
+    'priority-clearance-href':
+      'https://iservice.prv/eng/hr/staffing/topics/staffing-actions/request-psc-priority-referrals-mg.shtml',
     'request-incomplete': 'Please complete all required fields before submitting request',
     'request-submitted': 'Request submitted successfully! An HR advisor will review it for approval',
     'matches-available': 'Matches available',
@@ -381,7 +383,7 @@ export default {
   },
   'referral-requests': {
     'position-intro': 'Provide position number, group and level, location, language and security requirements.',
-    'process-intro': 'Specify the process type, tenure, projected and other process details.',
+    'process-intro': 'Specify the process type, tenure, projected dates and other process details.',
     'somc-intro': 'Insert the statement of merit criteria in both English and French.',
     'submission-intro': 'Confirm details and individuals involved in this request.',
     'selection-process-number': 'Selection process number',

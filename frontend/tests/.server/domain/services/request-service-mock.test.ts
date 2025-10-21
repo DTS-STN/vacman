@@ -183,7 +183,7 @@ describe('RequestServiceMock', () => {
         englishTitle: 'Updated Title',
         frenchTitle: 'Titre Mis à Jour',
         languageRequirement: { id: 1, code: 'BNI', nameEn: 'Bilingual Non-imperative', nameFr: 'Bilingue non-impérative' },
-        securityClearance: { id: 3, code: 'ES-SA', nameEn: 'Enhanced Secret', nameFr: 'Secret approfondie' },
+        securityClearance: { id: 3, code: 'ES-SA', nameEn: 'Enhanced Secret', nameFr: 'Secret avec fiabilité approfondie' },
       };
       const accessToken = 'valid-token';
 
