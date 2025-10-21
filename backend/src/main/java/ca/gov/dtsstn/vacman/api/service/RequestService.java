@@ -217,30 +217,17 @@ public class RequestService {
 	}
 
 	/**
-	 * Update a match with the provided data
+	 * Save a match entity
 	 *
-	 * @param requestId The request ID
-	 * @param matchId The match ID
-	 * @param updateModel The update data
-	 * @return The updated match entity
+	 * @param match The fully populated match entity
+	 * @return The saved match entity
 	 */
 	@Transactional
-	public MatchEntity updateMatch(Long requestId, Long matchId, MatchUpdateModel updateModel) {
-		final var matchEntity = getMatchByRequestIdAndMatchId(requestId, matchId)
-			.orElseThrow(() -> new ResourceNotFoundException("Match not found with ID: " + matchId));
+	public MatchEntity saveMatch(MatchEntity match) {
+		getMatchByRequestIdAndMatchId(match.getRequest().getId(), match.getId())
+			.orElseThrow(() -> new ResourceNotFoundException("Match not found with ID: " + match.getId()));
 
-		// Update match feedback if provided
-		matchEntity.setMatchFeedback(codeService.getMatchFeedbacks(Pageable.unpaged()).stream()
-			.filter(matchFeedback -> matchFeedback.getId().equals(updateModel.matchFeedbackId()))
-			.findFirst()
-			.orElseThrow(() -> new ResourceNotFoundException("Match feedback not found with ID: " + updateModel.matchFeedbackId())));
-
-		// Update comments if provided
-		matchEntity.setHiringManagerComment(updateModel.hiringManagerComment());
-
-		matchEntity.setHrAdvisorComment(updateModel.hrAdvisorComment());
-
-		return matchRepository.save(matchEntity);
+		return matchRepository.save(match);
 	}
 
 	/**

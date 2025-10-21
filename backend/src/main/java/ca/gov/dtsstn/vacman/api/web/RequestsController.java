@@ -29,9 +29,11 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import ca.gov.dtsstn.vacman.api.config.SpringDocConfig;
 import ca.gov.dtsstn.vacman.api.data.entity.AbstractBaseEntity;
 import ca.gov.dtsstn.vacman.api.security.SecurityUtils;
+import ca.gov.dtsstn.vacman.api.service.CodeService;
 import ca.gov.dtsstn.vacman.api.service.ProfileService;
 import ca.gov.dtsstn.vacman.api.service.RequestService;
 import ca.gov.dtsstn.vacman.api.service.UserService;
+import ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException;
 import ca.gov.dtsstn.vacman.api.web.model.CollectionModel;
 import ca.gov.dtsstn.vacman.api.web.model.MatchSummaryReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.MatchUpdateModel;
@@ -66,9 +68,12 @@ public class RequestsController {
 
 	private final UserService userService;
 
-	public RequestsController(RequestService requestService, UserService userService, ProfileService profileService) {
+	private final CodeService codeService;
+
+	public RequestsController(RequestService requestService, UserService userService, ProfileService profileService, CodeService codeService) {
 		this.requestService = requestService;
 		this.userService = userService;
+		this.codeService = codeService;
 	}
 
 	@GetMapping
@@ -297,16 +302,28 @@ public class RequestsController {
 	public ResponseEntity<MatchSummaryReadModel> updateRequestMatch(@PathVariable Long id, @PathVariable Long matchId, @Valid @RequestBody MatchUpdateModel updateModel) {
 		log.info("Received request to update match for request; Request ID: [{}], Match ID: [{}]", id, matchId);
 
-		final var request = requestService.getRequestById(id)
-			.orElseThrow(asResourceNotFoundException("request", id));
+		// Get the existing match entity
+		final var matchEntity = requestService.getMatchByRequestIdAndMatchId(id, matchId)
+			.orElseThrow(asResourceNotFoundException("match", matchId));
 
-		log.trace("Found request: [{}]", request);
+		log.trace("Found match: {}", matchEntity);
 
-		final var matchEntity = requestService.updateMatch(id, matchId, updateModel);
+		// Update match feedback if provided
+		matchEntity.setMatchFeedback(codeService.getMatchFeedbacks(Pageable.unpaged()).stream()
+			.filter(matchFeedback -> matchFeedback.getId().equals(updateModel.matchFeedbackId()))
+			.findFirst()
+			.orElseThrow(() -> new ResourceNotFoundException("Match feedback not found with ID: " + updateModel.matchFeedbackId())));
 
-		log.trace("Updated match: [{}]", matchEntity);
+		// Update comments if provided
+		matchEntity.setHiringManagerComment(updateModel.hiringManagerComment());
+		matchEntity.setHrAdvisorComment(updateModel.hrAdvisorComment());
 
-		final var matchSummary = matchModelMapper.toModel(matchEntity);
+		// Save the updated entity
+		final var savedMatchEntity = requestService.saveMatch(matchEntity);
+
+		log.trace("Updated match: {}", savedMatchEntity);
+
+		final var matchSummary = matchModelMapper.toModel(savedMatchEntity);
 
 		return ResponseEntity.ok(matchSummary);
 	}
