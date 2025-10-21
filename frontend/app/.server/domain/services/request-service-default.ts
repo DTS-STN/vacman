@@ -1,16 +1,16 @@
-import { Err, Ok } from 'oxide.ts';
 import type { Option, Result } from 'oxide.ts';
+import { Err, Ok } from 'oxide.ts';
 
 import type {
-  RequestReadModel,
-  RequestUpdateModel,
-  PagedRequestResponse,
-  CollectionRequestResponse,
-  RequestQueryParams,
-  PagedProfileResponse,
-  RequestStatusUpdate,
   CollectionMatchResponse,
+  CollectionRequestResponse,
   MatchReadModel,
+  PagedProfileResponse,
+  PagedRequestResponse,
+  RequestQueryParams,
+  RequestReadModel,
+  RequestStatusUpdate,
+  RequestUpdateModel,
 } from '~/.server/domain/models';
 import { apiClient } from '~/.server/domain/services/api-client';
 import type { RequestService } from '~/.server/domain/services/request-service';
@@ -144,7 +144,7 @@ export function getDefaultRequestService(): RequestService {
       statusUpdate: RequestStatusUpdate,
       accessToken: string,
     ): Promise<Result<RequestReadModel, AppError>> {
-      const result = await apiClient.put<RequestStatusUpdate, RequestReadModel>(
+      const result = await apiClient.post<RequestStatusUpdate, RequestReadModel>(
         `/requests/${requestId}/status-change`,
         `update request status for ID ${requestId}`,
         statusUpdate,

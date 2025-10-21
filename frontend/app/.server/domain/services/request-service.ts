@@ -1,15 +1,15 @@
 import type { Option, Result } from 'oxide.ts';
 
 import type {
-  RequestReadModel,
-  RequestUpdateModel,
-  PagedRequestResponse,
-  CollectionRequestResponse,
-  RequestQueryParams,
-  PagedProfileResponse,
-  RequestStatusUpdate,
   CollectionMatchResponse,
+  CollectionRequestResponse,
   MatchReadModel,
+  PagedProfileResponse,
+  PagedRequestResponse,
+  RequestQueryParams,
+  RequestReadModel,
+  RequestStatusUpdate,
+  RequestUpdateModel,
 } from '~/.server/domain/models';
 import { getDefaultRequestService } from '~/.server/domain/services/request-service-default';
 import { getMockRequestService } from '~/.server/domain/services/request-service-mock';
@@ -36,7 +36,7 @@ export type RequestService = {
     accessToken: string,
   ): Promise<Result<RequestReadModel, AppError>>;
 
-  // PUT /api/v1/requests/{id}/status-change - Update request status
+  // POST /api/v1/requests/{id}/status-change - Update request status
   updateRequestStatus(
     requestId: number,
     statusUpdate: RequestStatusUpdate,

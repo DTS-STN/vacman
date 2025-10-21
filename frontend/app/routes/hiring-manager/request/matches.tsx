@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { useFetcher } from 'react-router';
 import type { RouteHandle } from 'react-router';
@@ -8,8 +8,8 @@ import { useTranslation } from 'react-i18next';
 import type { Route } from './+types/matches';
 
 import { getMatchFeedbackService } from '~/.server/domain/services/match-feedback-service';
-import { getMatchStatusService } from '~/.server/domain/services/match-status-service';
-import { getRequestStatusService } from '~/.server/domain/services/request-status-service';
+import { getRequestService } from '~/.server/domain/services/request-service';
+import { serverEnvironment } from '~/.server/environment';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { AlertMessage } from '~/components/alert-message';
@@ -20,10 +20,12 @@ import { PageTitle } from '~/components/page-title';
 import { Progress } from '~/components/progress';
 import { RequestStatusTag } from '~/components/status-tag';
 import { VacmanBackground } from '~/components/vacman-background';
+import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { useFetcherState } from '~/hooks/use-fetcher-state';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
 import MatchesTables from '~/routes/page-components/requests/matches-tables';
+import { formatDateTimeForTimezone } from '~/utils/date-utils';
 import { formString } from '~/utils/string-utils';
 
 export const handle = {
@@ -73,8 +75,13 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 
   const { t, lang } = await getTranslation(request, handle.i18nNamespace);
 
-  /*
-  TODO - implement fetching request matches
+  const requestData = (
+    await getRequestService().getRequestById(Number(params.requestId), session.authState.accessToken)
+  ).into();
+
+  if (!requestData) {
+    throw new Response('Request not found', { status: HttpStatusCodes.NOT_FOUND });
+  }
 
   const requestMatchesResult = await getRequestService().getRequestMatches(
     parseInt(params.requestId),
@@ -82,93 +89,58 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   );
 
   const requestMatches = requestMatchesResult.into()?.content ?? [];
-  */
-  const requestStatuses = await getRequestStatusService().listAll();
-  const matchStatus = await getMatchStatusService().listAllLocalized(lang);
-  const matchFeedback = await getMatchFeedbackService().listAllLocalized(lang);
 
-  const requestMatches = [
-    {
-      id: 3,
-      employee: {
-        firstName: 'Alice',
-        initial: 'M',
-        lastName: 'Smith',
-      },
-      wfaStatus: 'A-A',
-      feedback: 'QA-QOA',
-      comment: {
-        hrAdvisor: undefined,
-        hiringManager: 'Interested in remote work.',
-      },
-      approval: false,
-    },
-    {
-      id: 4,
-      employee: {
-        firstName: 'Bob',
-        initial: 'R',
-        lastName: 'Johnson',
-      },
-      wfaStatus: 'A-A',
-      feedback: 'QNS',
-      comment: {
-        hrAdvisor: 'Interested in remote work.',
-        hiringManager: undefined,
-      },
-      approval: true,
-    },
-    {
-      id: 5,
-      employee: {
-        firstName: 'Alex',
-        initial: 'T',
-        lastName: 'Tan',
-      },
-      wfaStatus: 'PA-EAA',
-      feedback: 'NQO-NQA',
-      comment: {
-        hrAdvisor: 'Interested in remote work.',
-        hiringManager: undefined,
-      },
-      approval: true,
-    },
-  ];
+  const matchFeedbacks = await getMatchFeedbackService().listAllLocalized(lang);
 
   return {
     documentTitle: t('app:matches.page-title'),
     lang,
-    matchStatus,
-    matchFeedback,
+    matchFeedbacks,
     requestMatches,
-    requestStatus: requestStatuses[5],
-    branch: 'Chief Financial Officer Branch',
-    requestDate: '0000-00-00',
+    requestId: requestData.id,
+    requestStatus: requestData.status,
+    branch: lang === 'en' ? requestData.workUnit?.parent?.nameEn : requestData.workUnit?.parent?.nameFr,
+    requestDate: requestData.createdDate,
+    baseTimeZone: serverEnvironment.BASE_TIMEZONE,
     hiringManager: {
-      firstName: 'Tim',
-      lastName: 'Tom',
-      email: 'hiring.manager@email.ca',
+      firstName: requestData.hiringManager?.firstName,
+      lastName: requestData.hiringManager?.lastName,
+      email: requestData.hiringManager?.businessEmailAddress,
     },
     hrAdvisor: {
-      firstName: 'Tim',
-      lastName: 'Tam',
-      email: 'hr.advisor@email.ca',
+      firstName: requestData.hrAdvisor?.firstName,
+      lastName: requestData.hrAdvisor?.lastName,
+      email: requestData.hrAdvisor?.businessEmailAddress,
     },
-    confirmRetraining: false,
-    feedbackSubmitted: false,
-    feedbackProgress:
-      requestMatches.length > 0 ? (requestMatches.filter((match) => match.approval).length / requestMatches.length) * 100 : 0,
+    confirmRetraining: false, // TODO: fix it in separate pr
+    feedbackSubmitted: false, // TODO: check the request status to determine it this is true or false, fix it in separate pr
+    feedbackProgress: 10, // TODO: fix it in separate pr
+    // requestMatches.length > 0 ? (requestMatches.filter((match) => match.approval).length / requestMatches.length) * 100 : 0, // TODO: fix it in separate pr
   };
 }
 
 export default function HiringManagerRequestMatches({ loaderData, params }: Route.ComponentProps) {
   const { t } = useTranslation(handle.i18nNamespace);
   const alertRef = useRef<HTMLDivElement>(null);
-  const requestId = params.requestId;
   const fetcher = useFetcher<typeof action>();
   const fetcherState = useFetcherState(fetcher);
   const isSubmitting = fetcherState.submitting;
   const matchesFetcher = useFetcher();
+
+  const [browserTZ, setBrowserTZ] = useState(() =>
+    loaderData.requestDate
+      ? formatDateTimeForTimezone(loaderData.requestDate, loaderData.baseTimeZone, loaderData.lang)
+      : '0000-00-00 00:00',
+  );
+
+  useEffect(() => {
+    if (!loaderData.requestDate) return;
+
+    const browserTZ = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    if (browserTZ) {
+      setBrowserTZ(formatDateTimeForTimezone(loaderData.requestDate, browserTZ, loaderData.lang));
+    }
+  }, [loaderData.requestDate, loaderData.lang]);
 
   return (
     <div className="mb-8 space-y-4">
@@ -182,11 +154,11 @@ export default function HiringManagerRequestMatches({ loaderData, params }: Rout
         <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 md:grid-cols-4">
           <div>
             <p>{t('app:matches.request-id')}</p>
-            <p className="text-[#9FA3AD]">{requestId}</p>
+            <p className="text-[#9FA3AD]">{loaderData.requestId}</p>
           </div>
           <div>
             <p>{t('app:matches.request-date')}</p>
-            <p className="text-[#9FA3AD]">{loaderData.requestDate}</p>
+            <p className="text-[#9FA3AD]">{browserTZ}</p>
           </div>
           <div>
             <p>{t('app:matches.hiring-manager')}</p>
@@ -242,7 +214,7 @@ export default function HiringManagerRequestMatches({ loaderData, params }: Rout
         </fetcher.Form>
       )}
       <Progress className="mt-8 mb-8" variant="blue" label="" value={loaderData.feedbackProgress} />
-      <MatchesTables {...loaderData} requestId={params.requestId} submit={matchesFetcher.submit} view="hiring-manager" />
+      <MatchesTables {...loaderData} submit={matchesFetcher.submit} view="hiring-manager" />
     </div>
   );
 }

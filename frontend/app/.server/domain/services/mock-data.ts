@@ -7,6 +7,7 @@ import {
   USER_TYPE_EMPLOYEE,
   USER_TYPE_HIRING_MANAGER,
   USER_TYPE_HR_ADVISOR,
+  WFA_STATUS,
 } from '~/domain/constants';
 
 /**
@@ -209,6 +210,7 @@ export function buildProfilesFromTemplates(): Profile[] {
         personalPhoneNumber: '613-555-0001',
         languageOfCorrespondence: PREFERRED_LANGUAGE_ENGLISH,
         profileStatus: PROFILE_STATUS.INCOMPLETE,
+        wfaStatus: WFA_STATUS.AFFECTED,
         createdBy: 'system',
         createdDate: '2024-01-01T00:00:00Z',
         lastModifiedBy: undefined,
@@ -227,6 +229,7 @@ export function buildProfilesFromTemplates(): Profile[] {
         personalPhoneNumber: undefined,
         languageOfCorrespondence: undefined,
         profileStatus: PROFILE_STATUS.INCOMPLETE,
+        wfaStatus: WFA_STATUS.SURPLUS_GRJO,
         createdBy: 'system',
         createdDate: '2024-01-01T00:00:00Z',
         lastModifiedBy: 'jane.doe',
@@ -245,6 +248,7 @@ export function buildProfilesFromTemplates(): Profile[] {
         personalPhoneNumber: '613-555-0001',
         languageOfCorrespondence: PREFERRED_LANGUAGE_ENGLISH,
         profileStatus: PROFILE_STATUS.PENDING,
+        wfaStatus: WFA_STATUS.SURPLUS_NO_GRJO,
         createdBy: 'system',
         createdDate: '2024-02-01T09:00:00Z',
         lastModifiedBy: 'john.smith',
@@ -263,6 +267,7 @@ export function buildProfilesFromTemplates(): Profile[] {
         personalPhoneNumber: '613-555-5555',
         languageOfCorrespondence: PREFERRED_LANGUAGE_FRENCH,
         profileStatus: PROFILE_STATUS.APPROVED,
+        wfaStatus: WFA_STATUS.AFFECTED,
         createdBy: 'system',
         createdDate: '2024-03-15T08:30:00Z',
         lastModifiedBy: 'john.smith',
@@ -281,6 +286,7 @@ export function buildProfilesFromTemplates(): Profile[] {
         personalPhoneNumber: '613-555-3333',
         languageOfCorrespondence: PREFERRED_LANGUAGE_ENGLISH,
         profileStatus: PROFILE_STATUS.APPROVED,
+        wfaStatus: WFA_STATUS.EXAFFECTED,
         createdBy: 'system',
         createdDate: '2024-04-20T11:45:00Z',
         lastModifiedBy: 'alex.tan',

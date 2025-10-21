@@ -195,9 +195,9 @@ public class RequestsController {
 
 	@ApiResponses.Ok
 	@ApiResponses.BadRequestError
-	@PutMapping({ "/{id}/status-change" })
 	@ApiResponses.ResourceNotFoundError
 	@ApiResponses.UnprocessableEntityError
+	@PostMapping({ "/{id}/status-change" })
 	@Operation(summary = "Update the status of a request.")
 	@PreAuthorize("hasAuthority('hr-advisor') || hasPermission(#id, 'REQUEST', 'UPDATE')")
 	public ResponseEntity<RequestReadModel> updateRequestStatus(@PathVariable Long id, @Valid @RequestBody RequestStatusUpdateModel statusUpdate) {
@@ -289,7 +289,7 @@ public class RequestsController {
 	@ApiResponses.BadRequestError
 	@ApiResponses.ResourceNotFoundError
 	@ApiResponses.UnprocessableEntityError
-	@PutMapping({ "/{id}/matches/{matchId}/status" })
+	@PostMapping({ "/{id}/matches/{matchId}/status-change" })
 	@Operation(summary = "Update the status of a request match.")
 	@PreAuthorize("hasAuthority('hr-advisor') || hasPermission(#id, 'REQUEST', 'UPDATE')")
 	public ResponseEntity<Object> updateRequestMatchStatus(@PathVariable Long id, @PathVariable Long matchId, @Valid @RequestBody Object statusUpdate) {
@@ -342,16 +342,6 @@ public class RequestsController {
 	// --- /requests/.../profiles endpoints
 	//
 	//
-
-	@ApiResponses.Ok
-	@ApiResponses.BadRequestError
-	@GetMapping({ "/{id}/profiles" })
-	@ApiResponses.ResourceNotFoundError
-	@Operation(summary = "Get all candidate profiles for a request.")
-	@PreAuthorize("hasAuthority('hr-advisor') || hasPermission(#id, 'REQUEST', 'READ')")
-	public ResponseEntity<CollectionModel<ProfileReadModel>> getAllRequestProfiles(@PathVariable Long id) {
-		throw new UnsupportedOperationException("not yet implemented");
-	}
 
 	@ApiResponses.Ok
 	@ApiResponses.BadRequestError
