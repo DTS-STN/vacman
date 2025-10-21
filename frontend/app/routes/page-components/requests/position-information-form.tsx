@@ -168,6 +168,7 @@ export function PositionInformationForm({
               defaultValue={defaultPositionNumber}
               errorMessage={tApp(extractValidationKey(formErrors?.positionNumber))}
               helpMessagePrimary={tApp('position-information.position-number-instruction')}
+              maxLength={100}
               required
             />
             <InputSelect
