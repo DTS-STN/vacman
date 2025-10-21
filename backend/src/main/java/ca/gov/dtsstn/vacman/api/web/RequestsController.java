@@ -355,16 +355,6 @@ public class RequestsController {
 
 	@ApiResponses.Ok
 	@ApiResponses.BadRequestError
-	@GetMapping({ "/{id}/profiles" })
-	@ApiResponses.ResourceNotFoundError
-	@Operation(summary = "Get all candidate profiles for a request.")
-	@PreAuthorize("hasAuthority('hr-advisor') || hasPermission(#id, 'REQUEST', 'READ')")
-	public ResponseEntity<CollectionModel<ProfileReadModel>> getAllRequestProfiles(@PathVariable Long id) {
-		throw new UnsupportedOperationException("not yet implemented");
-	}
-
-	@ApiResponses.Ok
-	@ApiResponses.BadRequestError
 	@ApiResponses.ResourceNotFoundError
 	@GetMapping({ "/{id}/profiles/{profileId}" })
 	@Operation(summary = "Get a specific candidate profile for a request.")
