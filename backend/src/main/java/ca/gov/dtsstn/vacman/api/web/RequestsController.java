@@ -1,5 +1,6 @@
 package ca.gov.dtsstn.vacman.api.web;
 
+import static ca.gov.dtsstn.vacman.api.data.entity.AbstractBaseEntity.byId;
 import static ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException.asResourceNotFoundException;
 import static ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException.asUserResourceNotFoundException;
 import static ca.gov.dtsstn.vacman.api.web.exception.UnauthorizedException.asEntraIdUnauthorizedException;
@@ -303,14 +304,19 @@ public class RequestsController {
 		log.info("Received request to update match for request; Request ID: [{}], Match ID: [{}]", id, matchId);
 
 		// Get the existing match entity
-		final var matchEntity = requestService.getMatchByRequestIdAndMatchId(id, matchId)
+		final var matchEntity = requestService.getMatchById(matchId)
 			.orElseThrow(asResourceNotFoundException("match", matchId));
+
+		// Verify that the match belongs to the specified request (security check)
+		if (!matchEntity.getRequest().getId().equals(id)) {
+			throw new ResourceNotFoundException("Match not found with ID: " + matchId + " for request with ID: " + id);
+		}
 
 		log.trace("Found match: {}", matchEntity);
 
 		// Update match feedback if provided
 		matchEntity.setMatchFeedback(codeService.getMatchFeedbacks(Pageable.unpaged()).stream()
-			.filter(matchFeedback -> matchFeedback.getId().equals(updateModel.matchFeedbackId()))
+			.filter(byId(updateModel.matchFeedbackId()))
 			.findFirst()
 			.orElseThrow(() -> new ResourceNotFoundException("Match feedback not found with ID: " + updateModel.matchFeedbackId())));
 

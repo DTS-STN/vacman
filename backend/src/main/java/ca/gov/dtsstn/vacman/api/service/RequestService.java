@@ -217,6 +217,17 @@ public class RequestService {
 	}
 
 	/**
+	 * Get a match by ID
+	 *
+	 * @param matchId The match ID
+	 * @return Optional containing the match if found
+	 */
+	@Transactional(readOnly = true)
+	public Optional<MatchEntity> getMatchById(Long matchId) {
+		return matchRepository.findOne(hasId(matchId));
+	}
+
+	/**
 	 * Save a match entity
 	 *
 	 * @param match The fully populated match entity
@@ -224,9 +235,6 @@ public class RequestService {
 	 */
 	@Transactional
 	public MatchEntity saveMatch(MatchEntity match) {
-		getMatchByRequestIdAndMatchId(match.getRequest().getId(), match.getId())
-			.orElseThrow(() -> new ResourceNotFoundException("Match not found with ID: " + match.getId()));
-
 		return matchRepository.save(match);
 	}
 
