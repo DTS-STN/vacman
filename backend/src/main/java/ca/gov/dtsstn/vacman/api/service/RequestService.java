@@ -1,6 +1,5 @@
 package ca.gov.dtsstn.vacman.api.service;
 
-import static ca.gov.dtsstn.vacman.api.data.entity.AbstractBaseEntity.byId;
 import static ca.gov.dtsstn.vacman.api.data.repository.AbstractBaseRepository.hasId;
 import static ca.gov.dtsstn.vacman.api.data.repository.MatchRepository.hasRequestId;
 import static ca.gov.dtsstn.vacman.api.data.repository.RequestRepository.hasHrAdvisorIdIn;
@@ -57,7 +56,6 @@ import ca.gov.dtsstn.vacman.api.service.dto.RequestQuery;
 import ca.gov.dtsstn.vacman.api.web.exception.ResourceConflictException;
 import ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException;
 import ca.gov.dtsstn.vacman.api.web.exception.UnauthorizedException;
-import ca.gov.dtsstn.vacman.api.web.model.MatchUpdateModel;
 import ca.gov.dtsstn.vacman.api.web.model.RequestUpdateModel;
 import ca.gov.dtsstn.vacman.api.web.model.mapper.RequestModelMapper;
 

@@ -310,10 +310,12 @@ public class RequestsController {
 		log.trace("Found match: {}", matchEntity);
 
 		// Update match feedback if provided
-		matchEntity.setMatchFeedback(codeService.getMatchFeedbacks(Pageable.unpaged()).stream()
-			.filter(byId(updateModel.matchFeedbackId()))
-			.findFirst()
-			.orElseThrow(() -> new ResourceNotFoundException("Match feedback not found with ID: " + updateModel.matchFeedbackId())));
+		if (updateModel.matchFeedbackId() != null) {
+			matchEntity.setMatchFeedback(codeService.getMatchFeedbacks(Pageable.unpaged()).stream()
+				.filter(byId(updateModel.matchFeedbackId()))
+				.findFirst()
+				.orElseThrow(() -> new ResourceNotFoundException("Match feedback not found with ID: " + updateModel.matchFeedbackId())));
+		}
 
 		// Update comments if provided
 		matchEntity.setHiringManagerComment(updateModel.hiringManagerComment());
