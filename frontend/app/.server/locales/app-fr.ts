@@ -491,6 +491,8 @@ export default {
   },
   'somc-conditions': {
     'page-title': "Énoncé de critères de mérite et conditions d'emploi",
+    'page-content':
+      "L'énoncé de critères de mérite (ECM) définit les qualifications (critères de mérite) requises pour un poste, ce qui est fondamental pour l'évaluation. Par conséquent, il est attendu que les gestionnaires examinent l'ECM pour s'assurer qu'il est inclusif et que  les mesures nécessaires soient prises afin d'atténuer ou éliminer tout biais ou obstacle potentiel.",
     'english-somc-label': "Énoncé de critères de mérite et conditions d'emploi - Anglais",
     'english-somc-help-message': "Veuillez saisir l'intégralité des critères en anglais",
     'french-somc-label': "Énoncé de critères de mérite et conditions d'emploi - Français",

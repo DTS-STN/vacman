@@ -483,6 +483,8 @@ export default {
   },
   'somc-conditions': {
     'page-title': 'Statement of merit criteria and conditions of employment',
+    'page-content':
+      'The Statement of Merit Criteria (SOMC) defines the qualifications (merit criteria) required for a position, which is fundamental to the assessment; therefore, managers are expected to review the SOMC to ensure it is inclusive and to take any necessary measures to mitigate or remove any potential biases or barriers.',
     'english-somc-label': 'English statement of merit criteria of employment',
     'english-somc-help-message': 'Please enter the full English criteria here',
     'french-somc-label': 'French statement of merit criteria of employment',
