@@ -307,6 +307,10 @@ public class RequestsController {
 		final var matchEntity = requestService.getMatchById(matchId)
 			.orElseThrow(asResourceNotFoundException("match", matchId));
 
+		if (!matchEntity.getRequest().getId().equals(id)) {
+			throw new ResourceNotFoundException("A match ith id=[" + matchId + "] does not exist");
+		}
+
 		log.trace("Found match: {}", matchEntity);
 
 		// Update match feedback if provided
