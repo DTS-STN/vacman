@@ -42,6 +42,7 @@ export function SomcConditionsForm({
       <PageTitle className="after:w-14" subTitle={t('referral-request')}>
         {t('somc-conditions.page-title')}
       </PageTitle>
+      <p className="my-8">{t('somc-conditions.page-content')}</p>
       {canEdit ? (
         <FormErrorSummary>
           <Form method="post" noValidate>
