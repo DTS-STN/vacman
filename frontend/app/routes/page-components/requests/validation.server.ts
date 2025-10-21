@@ -54,6 +54,7 @@ export async function createPositionInformationSchema() {
           v.string('app:position-information.errors.position-number-required'),
           v.trim(),
           v.nonEmpty('app:position-information.errors.position-number-required'),
+          v.maxLength(100, 'app:position-information.errors.position-number-max'),
           v.custom((input) => {
             const value = input as string;
             const numbers = value.split(',').map((n) => n.trim());
