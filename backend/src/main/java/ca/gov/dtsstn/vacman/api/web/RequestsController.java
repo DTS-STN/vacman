@@ -307,11 +307,6 @@ public class RequestsController {
 		final var matchEntity = requestService.getMatchById(matchId)
 			.orElseThrow(asResourceNotFoundException("match", matchId));
 
-		// Verify that the match belongs to the specified request (security check)
-		if (!matchEntity.getRequest().getId().equals(id)) {
-			throw new ResourceNotFoundException("Match not found with ID: " + matchId + " for request with ID: " + id);
-		}
-
 		log.trace("Found match: {}", matchEntity);
 
 		// Update match feedback if provided

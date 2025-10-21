@@ -202,21 +202,6 @@ public class RequestService {
 	}
 
 	/**
-	 * Get a specific match by request ID and match ID
-	 *
-	 * @param requestId The request ID
-	 * @param matchId The match ID
-	 * @return Optional containing the match if found
-	 */
-	@Transactional(readOnly = true)
-	public Optional<MatchEntity> getMatchByRequestIdAndMatchId(Long requestId, Long matchId) {
-		return matchRepository.findOne(allOf(
-			hasId(matchId),
-			hasRequestId(requestId)
-		));
-	}
-
-	/**
 	 * Get a match by ID
 	 *
 	 * @param matchId The match ID
