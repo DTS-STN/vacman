@@ -237,70 +237,28 @@ application:
     enabled: true
   caching:
     enabled: true
-    caches:
-      cities:
-        expire-after-write: 1
-        time-unit: minutes
-      classifications:
-        expire-after-write: 1
-        time-unit: minutes
-      employment-equities:
-        expire-after-write: 1
-        time-unit: minutes
-      employment-opportunities:
-        expire-after-write: 1
-        time-unit: minutes
-      employment-tenures:
-        expire-after-write: 1
-        time-unit: minutes
-      languages:
-        expire-after-write: 1
-        time-unit: minutes
-      language-referral-types:
-        expire-after-write: 1
-        time-unit: minutes
-      language-requirements:
-        expire-after-write: 1
-        time-unit: minutes
-      non-advertised-appointments:
-        expire-after-write: 1
-        time-unit: minutes
-      priority-levels:
-        expire-after-write: 1
-        time-unit: minutes
-      profile-statuses:
-        expire-after-write: 1
-        time-unit: minutes
-      provinces:
-        expire-after-write: 1
-        time-unit: minutes
-      request-statuses:
-        expire-after-write: 1
-        time-unit: minutes
-      security-clearances:
-        expire-after-write: 1
-        time-unit: minutes
-      selection-process-types:
-        expire-after-write: 1
-        time-unit: minutes
-      user-types:
-        expire-after-write: 1
-        time-unit: minutes
-      wfa-statuses:
-        expire-after-write: 1
-        time-unit: minutes
-      work-schedules:
-        expire-after-write: 1
-        time-unit: minutes
-      work-units:
-        expire-after-write: 1
-        time-unit: minutes
-      match-statuses:
-        expire-after-write: 1
-        time-unit: minutes
-      match-feedbacks:
-        expire-after-write: 1
-        time-unit: minutes
+    cache-specs:
+      cities: expireAfterWrite=1m,recordStats
+      classifications: expireAfterWrite=1m,recordStats
+      employment-equities: expireAfterWrite=1m,recordStats
+      employment-opportunities: expireAfterWrite=1m,recordStats
+      employment-tenures: expireAfterWrite=1m,recordStats
+      language-referral-types: expireAfterWrite=1m,recordStats
+      language-requirements: expireAfterWrite=1m,recordStats
+      languages: expireAfterWrite=1m,recordStats
+      match-feedbacks: expireAfterWrite=1m,recordStats
+      match-statuses: expireAfterWrite=1m,recordStats
+      non-advertised-appointments: expireAfterWrite=1m,recordStats
+      priority-levels: expireAfterWrite=1m,recordStats
+      profile-statuses: expireAfterWrite=1m,recordStats
+      provinces: expireAfterWrite=1m,recordStats
+      request-statuses: expireAfterWrite=1m,recordStats
+      security-clearances: expireAfterWrite=1m,recordStats
+      selection-process-types: expireAfterWrite=1m,recordStats
+      user-types: expireAfterWrite=1m,recordStats
+      wfa-statuses: expireAfterWrite=1m,recordStats
+      work-schedules: expireAfterWrite=1m,recordStats
+      work-units: expireAfterWrite=1m,recordStats
   entra-id:
     client-id: ea3a6648-7e77-445b-b777-486d26367ee8
     tenant-id: 9ed55846-8a81-4246-acd8-b1a01abfc0d1
