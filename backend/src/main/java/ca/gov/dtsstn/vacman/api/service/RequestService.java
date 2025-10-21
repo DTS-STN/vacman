@@ -26,10 +26,10 @@ import org.springframework.util.StringUtils;
 import ca.gov.dtsstn.vacman.api.config.properties.ApplicationProperties;
 import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes;
 import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes.RequestStatuses;
+import ca.gov.dtsstn.vacman.api.data.entity.MatchEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.RequestEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.RequestStatusEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
-import ca.gov.dtsstn.vacman.api.data.entity.MatchEntity;
 import ca.gov.dtsstn.vacman.api.data.repository.CityRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.ClassificationRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.EmploymentEquityRepository;
@@ -584,8 +584,8 @@ public class RequestService {
 			throw new UnauthorizedException("Only HR advisors can mark a request as PSC not required");
 		}
 
-		if (!requestStatuses.feedbackPendingApproval().equals(currentStatus)) {
-			throw new ResourceConflictException("Request must be in FDBK_PEND_APPR status to be marked as PSC not required");
+		if (!requestStatuses.feedbackPendingApproval().equals(currentStatus) && !requestStatuses.noMatchHrReview().equals(currentStatus)) {
+			throw new ResourceConflictException("Request must be in FDBK_PEND_APPR or NO_MATCH_HR_REVIEW status to be marked as PSC not required");
 		}
 
 		// Set status to CLR_GRANTED
@@ -615,8 +615,8 @@ public class RequestService {
 			throw new UnauthorizedException("Only HR advisors can mark a request as PSC required");
 		}
 
-		if (!requestStatuses.feedbackPendingApproval().equals(currentStatus)) {
-			throw new ResourceConflictException("Request must be in FDBK_PEND_APPR status to be marked as PSC required");
+		if (!requestStatuses.feedbackPendingApproval().equals(currentStatus) && !requestStatuses.noMatchHrReview().equals(currentStatus)) {
+			throw new ResourceConflictException("Request must be in FDBK_PEND_APPR or NO_MATCH_HR_REVIEW status to be marked as PSC required");
 		}
 
 		// Set status to PENDING_PSC
