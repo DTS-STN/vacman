@@ -408,7 +408,7 @@ export type RequestSummary = Readonly<{
 export type MatchSummaryReadModel = Readonly<{
   // Main fields
   profile?: ProfileSummary;
-  request?: RequestSummary;
+  request?: RequestSummary; // Consider removing it as request will be fetched separatly
   matchStatus?: MatchStatus;
   matchFeedback?: MatchFeedback;
   hiringManagerComment?: string;

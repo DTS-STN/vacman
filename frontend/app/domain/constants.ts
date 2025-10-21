@@ -325,4 +325,63 @@ export const MATCH_STATUS = {
   },
 } as const;
 
-export type PatchStatus = keyof typeof MATCH_STATUS;
+export type MatchStatus = keyof typeof MATCH_STATUS;
+
+export const WFA_STATUS = {
+  AFFECTED: {
+    id: 0,
+    code: 'AFFECTED',
+    nameEn: 'Affected',
+    nameFr: 'Touché',
+  },
+  SURPLUS_GRJO: {
+    id: 1,
+    code: 'SURPLUS_GRJO',
+    nameEn: 'Surplus (GRJO)',
+    nameFr: 'Excédentaire (GOER)',
+  },
+  SURPLUS_NO_GRJO: {
+    id: 2,
+    code: 'SURPLUS_NO_GRJO',
+    nameEn: 'Surplus (Opting Option A)',
+    nameFr: 'Excédentaire (Optant Option A)',
+  },
+  EXAFFECTED: {
+    id: 3,
+    code: 'EXAFFECTED',
+    nameEn: 'Affected - EX',
+    nameFr: 'Touché - EX',
+  },
+  EXSURPLUSCPA: {
+    id: 4,
+    code: 'EXSURPLUSCPA',
+    nameEn: 'Surplus - EX (Stay CPA)',
+    nameFr: 'Excédentaire - EX (Reste APC)',
+  },
+  OPTING: {
+    id: 5,
+    code: 'OPTING',
+    nameEn: 'Opting',
+    nameFr: 'Optant',
+  },
+  OPTING_EX: {
+    id: 6,
+    code: 'OPTING_EX',
+    nameEn: 'Opting - EX',
+    nameFr: 'Optant - EX',
+  },
+  RELOCATION: {
+    id: 7,
+    code: 'RELOCATION',
+    nameEn: 'Relocation of a work unit ',
+    nameFr: "Réinstallation d'une unité de travail",
+  },
+  ALTERNATE_DELIVERY_INITIATIVE: {
+    id: 8,
+    code: 'ALTERNATE_DELIVERY_INITIATIVE',
+    nameEn: 'Alternative delivery initiative',
+    nameFr: "Diversification des modes d'exécution",
+  },
+} as const;
+
+export type WFAStatus = keyof typeof WFA_STATUS;
