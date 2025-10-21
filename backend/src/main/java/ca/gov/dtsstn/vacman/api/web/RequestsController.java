@@ -296,7 +296,7 @@ public class RequestsController {
 		final var match = matchService.getMatchById(matchId)
 			.orElseThrow(asResourceNotFoundException("match", matchId));
 
-		if (match.getRequest().getId() != id) {
+		if (!match.getRequest().getId().equals(id)) {
 			// ensure that the match belongs to the request and throw a 404 if it doesn't
 			// this prevents unauthorized access and also prevents leaking the existence of the match
 			throw new ResourceNotFoundException("A match with id=[" + matchId + "] does not exist");
