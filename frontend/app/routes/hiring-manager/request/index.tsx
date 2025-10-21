@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { RouteHandle } from 'react-router';
 import { useFetcher } from 'react-router';
 
-import { useTranslation } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 
 import type { Route } from './+types/index';
 
@@ -26,6 +26,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '~/components/dialog';
+import { InlineLink } from '~/components/links';
 import { LoadingButton } from '~/components/loading-button';
 import { PageTitle } from '~/components/page-title';
 import {
@@ -525,7 +526,20 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
               <li>{t('app:hiring-manager-referral-requests.notice-line-5')}</li>
             </ul>
             <p>{t('app:hiring-manager-referral-requests.notice-line-6')}</p>
-            <p>{t('app:hiring-manager-referral-requests.notice-line-7')}</p>
+            <p>
+              <Trans
+                i18nKey="app:hiring-manager-referral-requests.notice-line-7"
+                components={{
+                  InlineLink: (
+                    <InlineLink
+                      className="text-sky-800 decoration-slate-400"
+                      to={t('app:hiring-manager-referral-requests.priority-clearance-href')}
+                      lang={loaderData.lang}
+                    />
+                  ),
+                }}
+              />
+            </p>
           </div>
         </ContextualAlert>
       )}

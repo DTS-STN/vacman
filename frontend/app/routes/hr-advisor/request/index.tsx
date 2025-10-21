@@ -102,7 +102,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     pscClearanceNumber: currentRequest.pscClearanceNumber,
     priorityClearanceNumber: currentRequest.priorityClearanceNumber,
     selectionProcessType:
-      lang === 'en' ? currentRequest.selectionProcessType?.nameEn : currentRequest.selectionProcessType?.nameEn,
+      lang === 'en' ? currentRequest.selectionProcessType?.nameEn : currentRequest.selectionProcessType?.nameFr,
     selectionProcessTypeCode: currentRequest.selectionProcessType?.code,
     hasPerformedSameDuties: currentRequest.hasPerformedSameDuties,
     appointmentNonAdvertised:
