@@ -112,3 +112,13 @@ application:
     profile-created-template-id: # must be set externally (ex: 00000000-0000-0000-0000-000000000000)
     profile-updated-template-id:  # must be set externally (ex: 00000000-0000-0000-0000-000000000000)
     profile-approved-template-id: # must be set externally (ex: 00000000-0000-0000-0000-000000000000)
+
+---
+
+#
+# Enable the dev-only data seeder to generate some test data.
+#
+
+application:
+  data-seeder:
+    enabled: true

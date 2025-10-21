@@ -384,7 +384,42 @@ export type MatchUpdateModel = Partial<{
   hrAdvisorComment: string;
 }>;
 
+// Lightweight read model for matches with nested records for related entities.
+export type ProfileSummary = Readonly<{
+  id: number;
+  firstName?: string;
+  lastName?: string;
+  wfaStatus?: WFAStatus;
+}>;
+
+export type RequestSummary = Readonly<{
+  id: number;
+  requestStatus?: RequestStatus;
+  requestDate?: string;
+  hiringManagerFirstName?: string;
+  hiringManagerLastName?: string;
+  hiringManagerEmail?: string;
+  hrAdvisorId?: number;
+  hrAdvisorFirstName?: string;
+  hrAdvisorLastName?: string;
+  hrAdvisorEmail?: string;
+}>;
+
+export type MatchSummaryReadModel = Readonly<{
+  // Main fields
+  profile?: ProfileSummary;
+  request?: RequestSummary;
+  matchStatus?: MatchStatus;
+  matchFeedback?: MatchFeedback;
+  hiringManagerComment?: string;
+  hrAdvisorComment?: string;
+
+  // Tombstone fields
+  id: number;
+  createdDate?: string;
+}>;
+
 // Match Response Models
 export type CollectionMatchResponse = Readonly<{
-  content: MatchReadModel[];
+  content: MatchSummaryReadModel[];
 }>;

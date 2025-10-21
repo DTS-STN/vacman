@@ -20,7 +20,7 @@ import { getEmploymentEquityService } from '~/.server/domain/services/employment
 import { getEmploymentTenureService } from '~/.server/domain/services/employment-tenure-service';
 import { getLanguageForCorrespondenceService } from '~/.server/domain/services/language-for-correspondence-service';
 import { getLanguageRequirementService } from '~/.server/domain/services/language-requirement-service';
-import { createMockRequest, mockRequests, mockUsers } from '~/.server/domain/services/mock-data';
+import { createMockRequest, mockMatches, mockRequests, mockUsers } from '~/.server/domain/services/mock-data';
 import { getNonAdvertisedAppointmentService } from '~/.server/domain/services/non-advertised-appointment-service';
 import type { RequestService } from '~/.server/domain/services/request-service';
 import { getSecurityClearanceService } from '~/.server/domain/services/security-clearance-service';
@@ -407,11 +407,26 @@ export function getMockRequestService(): RequestService {
      * Gets all matches for a request.
      */
     async getRequestMatches(requestId: number, accessToken: string): Promise<Result<CollectionMatchResponse, AppError>> {
-      // Mock implementation - return empty collection
-      const response: CollectionMatchResponse = {
-        content: [],
-      };
-      return Promise.resolve(Ok(response));
+      log.debug(`Attempting to retrieve match with request ID: ${requestId}`, {
+        accessTokenLength: accessToken.length,
+      });
+
+      const match = mockMatches.find((m) => m.request?.id === requestId);
+
+      if (match) {
+        log.debug(`Successfully retrieved match with request ID: ${requestId}`, {
+          profileId: match.profile?.id,
+          requestId: match.request?.id,
+          matchStatus: match.matchStatus?.code,
+        });
+        const response: CollectionMatchResponse = {
+          content: [match],
+        };
+        return Promise.resolve(Ok(response));
+      }
+
+      log.debug(`Match with request ID ${requestId} not found`);
+      return Err(new AppError(`Match with request ID ${requestId} not found.`, ErrorCodes.MATCH_NOT_FOUND));
     },
 
     /**

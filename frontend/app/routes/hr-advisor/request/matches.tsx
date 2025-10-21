@@ -62,13 +62,15 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const { t, lang } = await getTranslation(request, handle.i18nNamespace);
 
   /*
-  TODO - implement fetching request matches
-
+  TODO - update the page to display data from MatchReadModel
+  
   const requestMatchesResult = await getRequestService().getRequestMatches(
     parseInt(params.requestId),
     session.authState.accessToken,
   );
 
+  console.log('Matches'); // TODO remove it after updating the page to display data from MatchReadModel
+  console.log(requestMatchesResult.into()?.content);  // TODO remove it after updating the page to display data from MatchReadModel
   const requestMatches = requestMatchesResult.into()?.content ?? [];
   */
   const requestStatuses = await getRequestStatusService().listAll();
