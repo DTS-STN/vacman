@@ -1,5 +1,6 @@
 package ca.gov.dtsstn.vacman.api.service;
 
+import static ca.gov.dtsstn.vacman.api.data.entity.AbstractBaseEntity.byId;
 import static ca.gov.dtsstn.vacman.api.data.repository.AbstractBaseRepository.hasId;
 import static ca.gov.dtsstn.vacman.api.data.repository.MatchRepository.hasRequestId;
 import static ca.gov.dtsstn.vacman.api.data.repository.RequestRepository.hasHrAdvisorIdIn;
@@ -229,19 +230,15 @@ public class RequestService {
 			.orElseThrow(() -> new ResourceNotFoundException("Match not found with ID: " + matchId));
 
 		// Update match feedback if provided
-		if (updateModel.matchFeedbackId() != null) {
-			matchEntity.setMatchFeedback(codeService.getMatchFeedbackById(updateModel.matchFeedbackId())
-				.orElseThrow(() -> new ResourceNotFoundException("Match feedback not found with ID: " + updateModel.matchFeedbackId())));
-		}
+		matchEntity.setMatchFeedback(codeService.getMatchFeedbacks(Pageable.unpaged()).stream()
+			.filter(matchFeedback -> matchFeedback.getId().equals(updateModel.matchFeedbackId()))
+			.findFirst()
+			.orElseThrow(() -> new ResourceNotFoundException("Match feedback not found with ID: " + updateModel.matchFeedbackId())));
 
 		// Update comments if provided
-		if (updateModel.hiringManagerComment() != null) {
-			matchEntity.setHiringManagerComment(updateModel.hiringManagerComment());
-		}
+		matchEntity.setHiringManagerComment(updateModel.hiringManagerComment());
 
-		if (updateModel.hrAdvisorComment() != null) {
-			matchEntity.setHrAdvisorComment(updateModel.hrAdvisorComment());
-		}
+		matchEntity.setHrAdvisorComment(updateModel.hrAdvisorComment());
 
 		return matchRepository.save(matchEntity);
 	}
