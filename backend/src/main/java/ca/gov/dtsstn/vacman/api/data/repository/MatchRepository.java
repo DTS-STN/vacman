@@ -17,5 +17,15 @@ public interface MatchRepository extends AbstractBaseRepository<MatchEntity> {
 	static Specification<MatchEntity> hasRequestId(Long requestId) {
 		return (root, query, cb) -> cb.equal(root.get("request").get("id"), requestId);
 	}
+	
+	/**
+	 * Specification to find matches by profile ID
+	 *
+	 * @param profileId The profile ID
+	 * @return Specification for matching by profile ID
+	 */
+	static Specification<MatchEntity> hasProfileId(Long profileId) {
+		return (root, query, cb) -> cb.equal(root.get("profile").get("id"), profileId);
 
+	}
 }
