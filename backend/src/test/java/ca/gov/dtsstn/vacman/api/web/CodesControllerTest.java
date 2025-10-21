@@ -2,6 +2,7 @@ package ca.gov.dtsstn.vacman.api.web;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.Mockito.when;
+import static org.springframework.data.domain.Pageable.unpaged;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -15,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -30,6 +30,8 @@ import ca.gov.dtsstn.vacman.api.data.entity.EmploymentTenureEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.LanguageEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.LanguageReferralTypeEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.LanguageRequirementEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.MatchFeedbackEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.MatchStatusEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.NonAdvertisedAppointmentEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.ProfileStatusEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.ProvinceEntity;
@@ -83,7 +85,7 @@ class CodesControllerTest {
 			.lastModifiedDate(Instant.EPOCH)
 			.build();
 
-		when(codeService.getCities(Pageable.unpaged())).thenReturn(new PageImpl<>(List.of(city)));
+		when(codeService.getCities(unpaged())).thenReturn(new PageImpl<>(List.of(city)));
 
 		mockMvc.perform(get("/api/v1/codes/cities"))
 			.andExpect(status().isOk())
@@ -121,7 +123,7 @@ class CodesControllerTest {
 			.lastModifiedDate(Instant.EPOCH)
 			.build();
 
-		when(codeService.getClassifications(Pageable.unpaged())).thenReturn(new PageImpl<>(List.of(classification)));
+		when(codeService.getClassifications(unpaged())).thenReturn(new PageImpl<>(List.of(classification)));
 
 		mockMvc.perform(get("/api/v1/codes/classifications"))
 			.andExpect(status().isOk())
@@ -151,7 +153,7 @@ class CodesControllerTest {
 			.lastModifiedDate(Instant.EPOCH)
 			.build();
 
-		when(codeService.getEmploymentEquities(Pageable.unpaged())).thenReturn(new PageImpl<>(List.of(employmentEquity)));
+		when(codeService.getEmploymentEquities(unpaged())).thenReturn(new PageImpl<>(List.of(employmentEquity)));
 
 		mockMvc.perform(get("/api/v1/codes/employment-equities"))
 			.andExpect(status().isOk())
@@ -181,7 +183,7 @@ class CodesControllerTest {
 			.lastModifiedDate(Instant.EPOCH)
 			.build();
 
-		when(codeService.getEmploymentOpportunities(Pageable.unpaged())).thenReturn(new PageImpl<>(List.of(employmentOpportunity)));
+		when(codeService.getEmploymentOpportunities(unpaged())).thenReturn(new PageImpl<>(List.of(employmentOpportunity)));
 
 		mockMvc.perform(get("/api/v1/codes/employment-opportunities"))
 			.andExpect(status().isOk())
@@ -211,7 +213,7 @@ class CodesControllerTest {
 			.lastModifiedDate(Instant.EPOCH)
 			.build();
 
-		when(codeService.getEmploymentTenures(Pageable.unpaged())).thenReturn(new PageImpl<>(List.of(employmentTenure)));
+		when(codeService.getEmploymentTenures(unpaged())).thenReturn(new PageImpl<>(List.of(employmentTenure)));
 
 		mockMvc.perform(get("/api/v1/codes/employment-tenures"))
 			.andExpect(status().isOk())
@@ -241,7 +243,7 @@ class CodesControllerTest {
 			.lastModifiedDate(Instant.EPOCH)
 			.build();
 
-		when(codeService.getLanguages(Pageable.unpaged())).thenReturn(new PageImpl<>(List.of(language)));
+		when(codeService.getLanguages(unpaged())).thenReturn(new PageImpl<>(List.of(language)));
 
 		mockMvc.perform(get("/api/v1/codes/languages"))
 			.andExpect(status().isOk())
@@ -271,7 +273,7 @@ class CodesControllerTest {
 			.lastModifiedDate(Instant.EPOCH)
 			.build();
 
-		when(codeService.getLanguageReferralTypes(Pageable.unpaged())).thenReturn(new PageImpl<>(List.of(languageReferralType)));
+		when(codeService.getLanguageReferralTypes(unpaged())).thenReturn(new PageImpl<>(List.of(languageReferralType)));
 
 		mockMvc.perform(get("/api/v1/codes/language-referral-types"))
 			.andExpect(status().isOk())
@@ -301,7 +303,7 @@ class CodesControllerTest {
 			.lastModifiedDate(Instant.EPOCH)
 			.build();
 
-		when(codeService.getLanguageRequirements(Pageable.unpaged())).thenReturn(new PageImpl<>(List.of(languageRequirement)));
+		when(codeService.getLanguageRequirements(unpaged())).thenReturn(new PageImpl<>(List.of(languageRequirement)));
 
 		mockMvc.perform(get("/api/v1/codes/language-requirements"))
 			.andExpect(status().isOk())
@@ -314,6 +316,66 @@ class CodesControllerTest {
 			.andExpect(jsonPath("$.content[0].createdDate").value(languageRequirement.getCreatedDate().toString()))
 			.andExpect(jsonPath("$.content[0].lastModifiedBy").value(languageRequirement.getLastModifiedBy()))
 			.andExpect(jsonPath("$.content[0].lastModifiedDate").value(languageRequirement.getLastModifiedDate().toString()));
+	}
+
+	@Test
+	@WithAnonymousUser
+	@DisplayName("GET /codes/match-feedbacks - Should return 200 OK with a page of match feedbacks")
+	void getMatchFeedbacks_shouldReturnOk() throws Exception {
+		final var matchFeedback = MatchFeedbackEntity.builder()
+			.id(0L)
+			.code("TEST")
+			.nameEn("Test Match Feedback")
+			.nameFr("Retour de correspondance de test")
+			.createdBy("TestUser")
+			.createdDate(Instant.EPOCH)
+			.lastModifiedBy("TestUser")
+			.lastModifiedDate(Instant.EPOCH)
+			.build();
+
+		when(codeService.getMatchFeedbacks(unpaged())).thenReturn(new PageImpl<>(List.of(matchFeedback)));
+
+		mockMvc.perform(get("/api/v1/codes/match-feedbacks"))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.content", hasSize(1)))
+			.andExpect(jsonPath("$.content[0].id").value(matchFeedback.getId()))
+			.andExpect(jsonPath("$.content[0].code").value(matchFeedback.getCode()))
+			.andExpect(jsonPath("$.content[0].nameEn").value(matchFeedback.getNameEn()))
+			.andExpect(jsonPath("$.content[0].nameFr").value(matchFeedback.getNameFr()))
+			.andExpect(jsonPath("$.content[0].createdBy").value(matchFeedback.getCreatedBy()))
+			.andExpect(jsonPath("$.content[0].createdDate").value(matchFeedback.getCreatedDate().toString()))
+			.andExpect(jsonPath("$.content[0].lastModifiedBy").value(matchFeedback.getLastModifiedBy()))
+			.andExpect(jsonPath("$.content[0].lastModifiedDate").value(matchFeedback.getLastModifiedDate().toString()));
+	}
+
+	@Test
+	@WithAnonymousUser
+	@DisplayName("GET /codes/match-statuses - Should return 200 OK with a page of match statuses")
+	void getMatchStatuses_shouldReturnOk() throws Exception {
+		final var matchStatus = MatchStatusEntity.builder()
+			.id(0L)
+			.code("TEST")
+			.nameEn("Test Match Status")
+			.nameFr("Statut de correspondance de test")
+			.createdBy("TestUser")
+			.createdDate(Instant.EPOCH)
+			.lastModifiedBy("TestUser")
+			.lastModifiedDate(Instant.EPOCH)
+			.build();
+
+		when(codeService.getMatchStatuses(unpaged())).thenReturn(new PageImpl<>(List.of(matchStatus)));
+
+		mockMvc.perform(get("/api/v1/codes/match-statuses"))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.content", hasSize(1)))
+			.andExpect(jsonPath("$.content[0].id").value(matchStatus.getId()))
+			.andExpect(jsonPath("$.content[0].code").value(matchStatus.getCode()))
+			.andExpect(jsonPath("$.content[0].nameEn").value(matchStatus.getNameEn()))
+			.andExpect(jsonPath("$.content[0].nameFr").value(matchStatus.getNameFr()))
+			.andExpect(jsonPath("$.content[0].createdBy").value(matchStatus.getCreatedBy()))
+			.andExpect(jsonPath("$.content[0].createdDate").value(matchStatus.getCreatedDate().toString()))
+			.andExpect(jsonPath("$.content[0].lastModifiedBy").value(matchStatus.getLastModifiedBy()))
+			.andExpect(jsonPath("$.content[0].lastModifiedDate").value(matchStatus.getLastModifiedDate().toString()));
 	}
 
 	@Test
@@ -331,7 +393,7 @@ class CodesControllerTest {
 			.lastModifiedDate(Instant.EPOCH)
 			.build();
 
-		when(codeService.getNonAdvertisedAppointments(Pageable.unpaged())).thenReturn(new PageImpl<>(List.of(nonAdvertisedAppointment)));
+		when(codeService.getNonAdvertisedAppointments(unpaged())).thenReturn(new PageImpl<>(List.of(nonAdvertisedAppointment)));
 
 		mockMvc.perform(get("/api/v1/codes/non-advertised-appointments"))
 			.andExpect(status().isOk())
@@ -361,7 +423,7 @@ class CodesControllerTest {
 			.lastModifiedDate(Instant.EPOCH)
 			.build();
 
-		when(codeService.getProfileStatuses(Pageable.unpaged())).thenReturn(new PageImpl<>(List.of(profileStatus)));
+		when(codeService.getProfileStatuses(unpaged())).thenReturn(new PageImpl<>(List.of(profileStatus)));
 
 		mockMvc.perform(get("/api/v1/codes/profile-statuses"))
 			.andExpect(status().isOk())
@@ -391,7 +453,7 @@ class CodesControllerTest {
 			.lastModifiedDate(Instant.EPOCH)
 			.build();
 
-		when(codeService.getProvinces(Pageable.unpaged())).thenReturn(new PageImpl<>(List.of(province)));
+		when(codeService.getProvinces(unpaged())).thenReturn(new PageImpl<>(List.of(province)));
 
 		mockMvc.perform(get("/api/v1/codes/provinces"))
 			.andExpect(status().isOk())
@@ -421,7 +483,7 @@ class CodesControllerTest {
 			.lastModifiedDate(Instant.EPOCH)
 			.build();
 
-		when(codeService.getRequestStatuses(Pageable.unpaged())).thenReturn(new PageImpl<>(List.of(requestStatus)));
+		when(codeService.getRequestStatuses(unpaged())).thenReturn(new PageImpl<>(List.of(requestStatus)));
 
 		mockMvc.perform(get("/api/v1/codes/request-statuses"))
 			.andExpect(status().isOk())
@@ -451,7 +513,7 @@ class CodesControllerTest {
 			.lastModifiedDate(Instant.EPOCH)
 			.build();
 
-		when(codeService.getSecurityClearances(Pageable.unpaged())).thenReturn(new PageImpl<>(List.of(securityClearance)));
+		when(codeService.getSecurityClearances(unpaged())).thenReturn(new PageImpl<>(List.of(securityClearance)));
 
 		mockMvc.perform(get("/api/v1/codes/security-clearances"))
 			.andExpect(status().isOk())
@@ -481,7 +543,7 @@ class CodesControllerTest {
 			.lastModifiedDate(Instant.EPOCH)
 			.build();
 
-		when(codeService.getSelectionProcessTypes(Pageable.unpaged())).thenReturn(new PageImpl<>(List.of(selectionProcessType)));
+		when(codeService.getSelectionProcessTypes(unpaged())).thenReturn(new PageImpl<>(List.of(selectionProcessType)));
 
 		mockMvc.perform(get("/api/v1/codes/selection-process-types"))
 			.andExpect(status().isOk())
@@ -511,7 +573,7 @@ class CodesControllerTest {
 			.lastModifiedDate(Instant.EPOCH)
 			.build();
 
-		when(codeService.getUserTypes(Pageable.unpaged())).thenReturn(new PageImpl<>(List.of(userType)));
+		when(codeService.getUserTypes(unpaged())).thenReturn(new PageImpl<>(List.of(userType)));
 
 		mockMvc.perform(get("/api/v1/codes/user-types"))
 			.andExpect(status().isOk())
@@ -541,7 +603,7 @@ class CodesControllerTest {
 			.lastModifiedDate(Instant.EPOCH)
 			.build();
 
-		when(codeService.getWfaStatuses(Pageable.unpaged())).thenReturn(new PageImpl<>(List.of(wfaStatus)));
+		when(codeService.getWfaStatuses(unpaged())).thenReturn(new PageImpl<>(List.of(wfaStatus)));
 
 		mockMvc.perform(get("/api/v1/codes/wfa-statuses"))
 			.andExpect(status().isOk())
@@ -571,7 +633,7 @@ class CodesControllerTest {
 			.lastModifiedDate(Instant.EPOCH)
 			.build();
 
-		when(codeService.getWorkSchedules(Pageable.unpaged())).thenReturn(new PageImpl<>(List.of(workSchedule)));
+		when(codeService.getWorkSchedules(unpaged())).thenReturn(new PageImpl<>(List.of(workSchedule)));
 
 		mockMvc.perform(get("/api/v1/codes/work-schedules"))
 			.andExpect(status().isOk())
@@ -601,7 +663,7 @@ class CodesControllerTest {
 			.lastModifiedDate(Instant.EPOCH)
 			.build();
 
-		when(codeService.getWorkUnits(Pageable.unpaged())).thenReturn(new PageImpl<>(List.of(workUnit)));
+		when(codeService.getWorkUnits(unpaged())).thenReturn(new PageImpl<>(List.of(workUnit)));
 
 		mockMvc.perform(get("/api/v1/codes/work-units"))
 			.andExpect(status().isOk())
