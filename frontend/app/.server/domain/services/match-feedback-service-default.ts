@@ -5,7 +5,7 @@ import { ErrorCodes } from '~/errors/error-codes';
 
 // Create a single instance of the service using shared implementation with standard localization
 const sharedService = createLookupService<MatchFeedback>(
-  '/codes/match-feedback',
+  '/codes/match-feedbacks',
   'match-feedback',
   ErrorCodes.NO_MATCH_FEEDBACK_FOUND,
 );
