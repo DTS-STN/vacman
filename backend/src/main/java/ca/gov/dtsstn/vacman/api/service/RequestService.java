@@ -1,6 +1,7 @@
 package ca.gov.dtsstn.vacman.api.service;
 
 import static ca.gov.dtsstn.vacman.api.data.repository.AbstractBaseRepository.hasId;
+import static ca.gov.dtsstn.vacman.api.data.repository.MatchRepository.hasProfileId;
 import static ca.gov.dtsstn.vacman.api.data.repository.MatchRepository.hasRequestId;
 import static ca.gov.dtsstn.vacman.api.data.repository.RequestRepository.hasHrAdvisorIdIn;
 import static ca.gov.dtsstn.vacman.api.data.repository.RequestRepository.hasRequestStatusIdIn;
@@ -52,6 +53,7 @@ import ca.gov.dtsstn.vacman.api.event.RequestFeedbackPendingEvent;
 import ca.gov.dtsstn.vacman.api.event.RequestUpdatedEvent;
 import ca.gov.dtsstn.vacman.api.security.SecurityUtils;
 import ca.gov.dtsstn.vacman.api.service.NotificationService.RequestEvent;
+import ca.gov.dtsstn.vacman.api.service.dto.MatchQuery;
 import ca.gov.dtsstn.vacman.api.service.dto.RequestQuery;
 import ca.gov.dtsstn.vacman.api.web.exception.ResourceConflictException;
 import ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException;
@@ -236,6 +238,21 @@ public class RequestService {
 		);
 
 		return requestRepository.findAll(specification, pageable);
+	}
+
+	/**
+	 * Find matches based on the provided query parameters.
+	 *
+	 * @param query Query parameters for filtering matches
+	 */
+	@Transactional(readOnly = true)
+	public List<MatchEntity> findMatches(MatchQuery query) {
+		final var specification = allOf(
+			hasProfileId(query.profileId()),
+			hasRequestId(query.requestId())
+		);
+
+		return matchRepository.findAll(specification);
 	}
 
 	/**

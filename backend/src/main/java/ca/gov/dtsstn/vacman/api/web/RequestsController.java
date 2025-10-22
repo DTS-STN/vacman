@@ -8,6 +8,7 @@ import static ca.gov.dtsstn.vacman.api.web.model.CollectionModel.toCollectionMod
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import org.mapstruct.factory.Mappers;
 import org.slf4j.Logger;
@@ -34,6 +35,8 @@ import ca.gov.dtsstn.vacman.api.service.CodeService;
 import ca.gov.dtsstn.vacman.api.service.ProfileService;
 import ca.gov.dtsstn.vacman.api.service.RequestService;
 import ca.gov.dtsstn.vacman.api.service.UserService;
+import ca.gov.dtsstn.vacman.api.service.dto.MatchQuery;
+import ca.gov.dtsstn.vacman.api.service.dto.MatchQueryBuilder;
 import ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException;
 import ca.gov.dtsstn.vacman.api.web.model.CollectionModel;
 import ca.gov.dtsstn.vacman.api.web.model.MatchSummaryReadModel;
@@ -352,24 +355,19 @@ public class RequestsController {
 	public ResponseEntity<ProfileReadModel> getRequestProfileById(@PathVariable Long id, @PathVariable Long profileId) {
 		log.info("Received request to get profile for request; Request ID: [{}], Profile ID: [{}]", id, profileId);
 
-		final var requestEntity = requestService.getRequestById(id)
-			.orElseThrow(asResourceNotFoundException("request", id));
+		final var matchQuery = MatchQueryBuilder.builder()
+			.profileId(profileId)
+			.requestId(id)
+			.build();
 
-		log.trace("Found request: {}", requestEntity);
+		final var match = requestService.findMatches(matchQuery).stream()
+			.findFirst()
+			.orElseThrow(() -> new ResourceNotFoundException("No match found between request with id=[" + id +
+				"] and profile with id=[" + profileId + "]"));
 
-		final var profileEntity = profileService.getProfileById(profileId)
-			.orElseThrow(asResourceNotFoundException("profile", profileId));
+		log.trace("Found match: {}", match);
 
-		log.trace("Found profile: {}", profileEntity);
-
-		// Verify that the request and profile are linked by a match
-		boolean matchExists = requestService.getMatchesByRequestId(id).stream()
-			.anyMatch(match -> match.getProfile().getId().equals(profileId));
-
-		if (!matchExists) {
-			throw new ResourceNotFoundException("No match found between request with id=[" + id + 
-				"] and profile with id=[" + profileId + "]");
-		}
+		final var profileEntity = match.getProfile();
 
 		return ResponseEntity.ok(profileModelMapper.toModel(profileEntity));
 	}
