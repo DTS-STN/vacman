@@ -2,10 +2,10 @@ import type { ComponentProps } from 'react';
 
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { vi, describe, it, expect, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { InputMultiSelect } from '~/components/input-multiselect';
 import type { InputMultiSelectProps } from '~/components/input-multiselect';
+import { InputMultiSelect } from '~/components/input-multiselect';
 
 vi.mock('@fortawesome/react-fontawesome', () => ({
   FontAwesomeIcon: (props: { icon: { iconName: string } }) => <i data-icon={props.icon.iconName} />,
@@ -20,7 +20,13 @@ vi.mock('~/components/input-help', () => ({
   InputHelp: (props: ComponentProps<'p'>) => <p {...props}>{props.children}</p>,
 }));
 vi.mock('~/components/input-checkbox', () => ({
-  InputCheckbox: ({ children, onChange, checked, ...props }: ComponentProps<'input'> & { children: React.ReactNode }) => (
+  InputCheckbox: ({
+    children,
+    onChange,
+    checked,
+    hasError,
+    ...props
+  }: ComponentProps<'input'> & { children: React.ReactNode; hasError?: boolean }) => (
     <label>
       <input type="checkbox" {...props} checked={!!checked} onChange={onChange} />
       {children}
