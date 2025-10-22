@@ -1,7 +1,6 @@
 package ca.gov.dtsstn.vacman.api.web.model;
 
 import java.time.Instant;
-import java.time.LocalDate;
 
 import io.soabase.recordbuilder.core.RecordBuilder;
 import io.swagger.v3.oas.annotations.media.Schema;

@@ -11,13 +11,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 public record ProfileReadFilterModel(
 	// Note: this field is intentionally /singular/ so that it will map
 	// to the correct endpoint querystring param (ie: ?hrAdvisorId=1&hrAdvisorId=2)
-	// TODO ::: GjB :: is there a way to achieve this without needing a singular-form name here?
 	@Schema(description = "Filter by HR advisor IDs")
 	Collection<String> hrAdvisorId,
 
 	// Note: this field is intentionally /singular/ so that it will map
 	// to the correct endpoint querystring param (ie: ?statusId=1&statusId=2)
-	// TODO ::: GjB :: is there a way to achieve this without needing a singular-form name here?
 	@Schema(description = "Filter by status IDs")
 	Collection<String> statusId
 ) {

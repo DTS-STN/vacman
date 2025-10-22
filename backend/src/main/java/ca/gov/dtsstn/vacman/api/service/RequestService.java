@@ -108,14 +108,11 @@ public class RequestService {
 
 	private final RequestMatchingService requestMatchingService;
 
-	private final CodeService codeService;
-
 	public RequestService(
 			ApplicationEventPublisher eventPublisher,
 			ApplicationProperties applicationProperties,
 			CityRepository cityRepository,
 			ClassificationRepository classificationRepository,
-			CodeService codeService,
 			EmploymentEquityRepository employmentEquityRepository,
 			EmploymentTenureRepository employmentTenureRepository,
 			LanguageRepository languageRepository,
@@ -125,35 +122,35 @@ public class RequestService {
 			NonAdvertisedAppointmentRepository nonAdvertisedAppointmentRepository,
 			NotificationService notificationService,
 			ProvinceRepository provinceRepository,
+			RequestMatchingService requestMatchingService,
 			RequestRepository requestRepository,
 			RequestStatusRepository requestStatusRepository,
 			SecurityClearanceRepository securityClearanceRepository,
 			SelectionProcessTypeRepository selectionProcessTypeRepository,
 			UserService userService,
 			WorkScheduleRepository workScheduleRepository,
-			WorkUnitRepository workUnitRepository,
-			RequestMatchingService requestMatchingService) {
-		this.eventPublisher = eventPublisher;
-		this.requestStatuses = lookupCodes.requestStatuses();
-		this.requestRepository = requestRepository;
-		this.requestStatusRepository = requestStatusRepository;
+			WorkUnitRepository workUnitRepository) {
+		this.applicationProperties = applicationProperties;
+		this.cityRepository = cityRepository;
 		this.classificationRepository = classificationRepository;
 		this.employmentEquityRepository = employmentEquityRepository;
 		this.employmentTenureRepository = employmentTenureRepository;
+		this.eventPublisher = eventPublisher;
 		this.languageRepository = languageRepository;
 		this.languageRequirementRepository = languageRequirementRepository;
 		this.matchRepository = matchRepository;
 		this.nonAdvertisedAppointmentRepository = nonAdvertisedAppointmentRepository;
-		this.cityRepository = cityRepository;
+		this.notificationService = notificationService;
+		this.requestMatchingService = requestMatchingService;
+		this.requestRepository = requestRepository;
+		this.requestStatusRepository = requestStatusRepository;
 		this.securityClearanceRepository = securityClearanceRepository;
 		this.selectionProcessTypeRepository = selectionProcessTypeRepository;
+		this.userService = userService;
 		this.workScheduleRepository = workScheduleRepository;
 		this.workUnitRepository = workUnitRepository;
-		this.userService = userService;
-		this.notificationService = notificationService;
-		this.applicationProperties = applicationProperties;
-		this.requestMatchingService = requestMatchingService;
-		this.codeService = codeService;
+
+		this.requestStatuses = lookupCodes.requestStatuses();
 	}
 
 	@Transactional(readOnly = false)
