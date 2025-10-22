@@ -4,6 +4,8 @@
 # This file provides environment-specific overrides to the default configuration.
 #######################################################################################################################
 
+application.data-seeder.enabled: true
+
 logging:
   level:
     '[ca.gov.dts_stn.vacman.api]': debug
@@ -22,7 +24,7 @@ spring:
   liquibase:
     contexts: dev
     change-log: classpath:db/changelog/db.changelog-master.yaml
-    # drop-first: true # ⚠️ ‼‼‼ NEVER SET THIS IN PROD ‼‼‼ ⚠️
+    drop-first: true # ⚠️ ‼‼‼ NEVER SET THIS IN PROD ‼‼‼ ⚠️
 
 application:
   gcnotify:
