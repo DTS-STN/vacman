@@ -8,7 +8,6 @@ import static ca.gov.dtsstn.vacman.api.web.model.CollectionModel.toCollectionMod
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 import org.mapstruct.factory.Mappers;
 import org.slf4j.Logger;
@@ -32,13 +31,13 @@ import ca.gov.dtsstn.vacman.api.config.SpringDocConfig;
 import ca.gov.dtsstn.vacman.api.data.entity.AbstractBaseEntity;
 import ca.gov.dtsstn.vacman.api.security.SecurityUtils;
 import ca.gov.dtsstn.vacman.api.service.CodeService;
-import ca.gov.dtsstn.vacman.api.service.ProfileService;
+import ca.gov.dtsstn.vacman.api.service.MatchService;
 import ca.gov.dtsstn.vacman.api.service.RequestService;
 import ca.gov.dtsstn.vacman.api.service.UserService;
-import ca.gov.dtsstn.vacman.api.service.dto.MatchQuery;
 import ca.gov.dtsstn.vacman.api.service.dto.MatchQueryBuilder;
 import ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException;
 import ca.gov.dtsstn.vacman.api.web.model.CollectionModel;
+import ca.gov.dtsstn.vacman.api.web.model.MatchReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.MatchSummaryReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.MatchUpdateModel;
 import ca.gov.dtsstn.vacman.api.web.model.ProfileReadModel;
@@ -66,20 +65,29 @@ public class RequestsController {
 
 	private static final Logger log = LoggerFactory.getLogger(RequestsController.class);
 
-	private final RequestModelMapper requestModelMapper = Mappers.getMapper(RequestModelMapper.class);
 	private final MatchModelMapper matchModelMapper = Mappers.getMapper(MatchModelMapper.class);
+
 	private final ProfileModelMapper profileModelMapper = Mappers.getMapper(ProfileModelMapper.class);
 
-	private final RequestService requestService;
-	private final UserService userService;
-	private final ProfileService profileService;
+	private final RequestModelMapper requestModelMapper = Mappers.getMapper(RequestModelMapper.class);
+
 	private final CodeService codeService;
 
-	public RequestsController(RequestService requestService, UserService userService, ProfileService profileService, CodeService codeService) {
+	private final MatchService matchService;
+
+	private final RequestService requestService;
+
+	private final UserService userService;
+
+	public RequestsController(
+			CodeService codeService,
+			MatchService matchService,
+			RequestService requestService,
+			UserService userService) {
+		this.codeService = codeService;
+		this.matchService = matchService;
 		this.requestService = requestService;
 		this.userService = userService;
-		this.profileService = profileService;
-		this.codeService = codeService;
 	}
 
 	@GetMapping
@@ -272,7 +280,7 @@ public class RequestsController {
 		log.trace("Found request: [{}]", request);
 
 		final var matches = requestService.getMatchesByRequestId(id).stream()
-			.map(matchModelMapper::toModel)
+			.map(matchModelMapper::toSummaryModel)
 			.collect(toCollectionModel());
 
 		return ResponseEntity.ok(matches);
@@ -284,8 +292,17 @@ public class RequestsController {
 	@GetMapping({ "/{id}/matches/{matchId}" })
 	@Operation(summary = "Get a specific match for a request.")
 	@PreAuthorize("hasAuthority('hr-advisor') || hasPermission(#id, 'REQUEST', 'READ')")
-	public ResponseEntity<Object> getRequestMatchById(@PathVariable Long id, @PathVariable Long matchId) {
-		throw new UnsupportedOperationException("not yet implemented");
+	public ResponseEntity<MatchReadModel> getRequestMatchById(@PathVariable Long id, @PathVariable Long matchId) {
+		final var match = matchService.getMatchById(matchId)
+			.orElseThrow(asResourceNotFoundException("match", matchId));
+
+		if (!match.getRequest().getId().equals(id)) {
+			// ensure that the match belongs to the request and throw a 404 if it doesn't
+			// this prevents unauthorized access and also prevents leaking the existence of the match
+			throw new ResourceNotFoundException("A match with id=[" + matchId + "] does not exist");
+		}
+
+		return ResponseEntity.ok(matchModelMapper.toModel(match));
 	}
 
 	@ApiResponses.Ok
@@ -335,7 +352,7 @@ public class RequestsController {
 
 		log.trace("Updated match: {}", savedMatchEntity);
 
-		final var matchSummary = matchModelMapper.toModel(savedMatchEntity);
+		final var matchSummary = matchModelMapper.toSummaryModel(savedMatchEntity);
 
 		return ResponseEntity.ok(matchSummary);
 	}
