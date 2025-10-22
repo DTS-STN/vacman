@@ -11,10 +11,13 @@ import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.domain.Example;
+import org.springframework.scheduling.annotation.Async;
 
 import ca.gov.dtsstn.vacman.api.data.entity.CityEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.ClassificationEntity;
@@ -127,24 +130,53 @@ public class DataSeederConfig {
 
 	@SuppressWarnings({ "unused" })
 	@Bean ApplicationRunner dataSeeder() {
-		return args -> {
-			logger.info("Seeding application data...");
+		return new ApplicationRunner() {
 
-			final var users = seedUsers();
-			final var profiles = seedProfiles(users);
-			final var requests = seedRequests(users);
+			@Async
+			@Override
+			public void run(ApplicationArguments args) {
+				logger.info("Checking if data seeding is needed...");
 
-			logger.info("Data seeding complete");
+				final var sentinelUser = UserEntity.builder()
+					.businessEmailAddress("seeded-data@example.com")
+					.build();
+
+				if (userRepository.exists(Example.of(sentinelUser))) {
+					logger.info("Data already seeded (sentinel user found), skipping.");
+					return;
+				}
+
+				logger.info("Seeding application data...");
+
+				final var users = seedUsers();
+				final var profiles = seedProfiles(users);
+				final var requests = seedRequests(users);
+
+				logger.info("Data seeding complete");
+			}
+
 		};
 	}
 
 	/**
 	 * Seeds 100 employee users with random fake data including names, emails, and language.
+	 * Includes a sentinel user as the first entry to mark seeding completion.
 	 */
 	List<UserEntity> seedUsers() {
 		final var faker = new Faker(new Random(6146794652083548235L));
 
-		final var users = IntStream.range(0, 100)
+		// Create the sentinel user first
+		final var sentinelUser = UserEntity.builder()
+			.businessEmailAddress("seeded-data@example.com")
+			.firstName("Seeded")
+			.lastName("Data")
+			.language(randomElement(faker, languages))
+			.microsoftEntraId("SENTINEL-123456789")
+			.userType(userTypes.stream().filter(byCode("employee")).findFirst().orElseThrow())
+			.build();
+
+		// Seed the remaining 99 users
+		final var additionalUsers = IntStream.range(0, 99)
 			.mapToObj(xxx -> {
 				final var firstName = faker.name().firstName();
 				final var lastName = faker.name().lastName();
@@ -163,7 +195,10 @@ public class DataSeederConfig {
 					.build();
 			}).toList();
 
-		return userRepository.saveAll(users);
+		// Combine sentinel and additional users
+		final var allUsers = Stream.concat(Stream.of(sentinelUser), additionalUsers.stream()).toList();
+
+		return userRepository.saveAll(allUsers);
 	}
 
 	/**
@@ -181,7 +216,7 @@ public class DataSeederConfig {
 	/**
 	 * Seeds 50 profiles that are likely to match requests: approved status, available for referral, broad preferences.
 	 */
-	private List<ProfileEntity> seedMatchingProfiles(List<UserEntity> users) {
+	List<ProfileEntity> seedMatchingProfiles(List<UserEntity> users) {
 		final var approvedStatus = profileStatuses.stream()
 			.filter(byCode("APPROVED"))
 			.findFirst().orElseThrow();
@@ -204,7 +239,7 @@ public class DataSeederConfig {
 	/**
 	 * Seeds 50 profiles that might not match requests: random status, availability, and preferences.
 	 */
-	private List<ProfileEntity> seedNonMatchingProfiles(List<UserEntity> users) {
+	List<ProfileEntity> seedNonMatchingProfiles(List<UserEntity> users) {
 		final var faker = new Faker(new Random(7423979211207825555L));
 
 		final var approvedStatus = profileStatuses.stream()
