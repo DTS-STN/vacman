@@ -64,3 +64,20 @@ SET [NAME_FR] = CASE [CODE]
   ELSE [NAME_FR]
 END
 WHERE [CODE] IN ('ES-SA', 'ETS-TSA');
+
+--------------------------------------------------------------------------------
+
+--
+-- Add the NA-PD code to CD_MATCH_FEEDBACK
+--
+
+--changeset system:cd_match_feedback_adding_NA_PD_on dbms:mssql
+SET IDENTITY_INSERT CD_MATCH_FEEDBACK ON;
+
+--changeset system:cd_match_feedback_adding_NA_PD dbms:mssql,h2
+INSERT INTO [CD_MATCH_FEEDBACK] ([ID], [CODE], [NAME_EN], [NAME_FR], [EFFECTIVE_DATE], [USER_CREATED], [DATE_CREATED], [USER_UPDATED], [DATE_UPDATED])
+VALUES
+(8, 'NA-PD', 'Not available', 'Pas disponible', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
+
+--changeset system:cd_match_feedback_adding_NA_PD_off dbms:mssql
+SET IDENTITY_INSERT CD_MATCH_FEEDBACK OFF;
