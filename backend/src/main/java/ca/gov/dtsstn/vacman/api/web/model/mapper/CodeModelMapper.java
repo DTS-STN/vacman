@@ -12,6 +12,8 @@ import ca.gov.dtsstn.vacman.api.data.entity.EmploymentTenureEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.LanguageEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.LanguageReferralTypeEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.LanguageRequirementEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.MatchFeedbackEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.MatchStatusEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.NonAdvertisedAppointmentEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.ProfileStatusEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.ProvinceEntity;
@@ -30,6 +32,8 @@ import ca.gov.dtsstn.vacman.api.web.model.EmploymentTenureReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.LanguageReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.LanguageReferralTypeReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.LanguageRequirementReadModel;
+import ca.gov.dtsstn.vacman.api.web.model.MatchFeedbackReadModel;
+import ca.gov.dtsstn.vacman.api.web.model.MatchStatusReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.NonAdvertisedAppointmentReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.ProfileStatusReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.ProvinceReadModel;
@@ -91,6 +95,18 @@ public interface CodeModelMapper {
 	@BeanMapping(ignoreByDefault = true)
 	@Mapping(target = "id", source = "id")
 	LanguageRequirementEntity idToLanguageRequirementEntity(Long id);
+
+	MatchFeedbackReadModel map(MatchFeedbackEntity entity);
+
+	@BeanMapping(ignoreByDefault = true)
+	@Mapping(target = "id", source = "id")
+	MatchFeedbackEntity idToMatchFeedbackEntity(Long id);
+
+	MatchStatusReadModel map(MatchStatusEntity entity);
+
+	@BeanMapping(ignoreByDefault = true)
+	@Mapping(target = "id", source = "id")
+	MatchStatusEntity idToMatchStatusEntity(Long id);
 
 	NonAdvertisedAppointmentReadModel map(NonAdvertisedAppointmentEntity entity);
 
