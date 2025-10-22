@@ -378,7 +378,7 @@ export type MatchReadModel = Readonly<{
 export type MatchUpdateModel = Partial<{
   profileId: number;
   requestId: number;
-  statusId: number;
+  matchStatusId: number;
   matchFeedbackId: number;
   hiringManagerComment: string;
   hrAdvisorComment: string;

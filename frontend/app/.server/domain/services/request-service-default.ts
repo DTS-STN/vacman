@@ -5,8 +5,9 @@ import type {
   CollectionMatchResponse,
   CollectionRequestResponse,
   MatchReadModel,
-  PagedProfileResponse,
+  MatchUpdateModel,
   PagedRequestResponse,
+  Profile,
   RequestQueryParams,
   RequestReadModel,
   RequestStatusUpdate,
@@ -277,7 +278,7 @@ export function getDefaultRequestService(): RequestService {
       accessToken: string,
     ): Promise<Result<void, AppError>> {
       const result = await apiClient.put<unknown, undefined>(
-        `/requests/${requestId}/matches/${matchId}/status`,
+        `/requests/${requestId}/matches/${matchId}/status-change`,
         `update match status for match ${matchId} and request ID ${requestId}`,
         statusUpdate,
         accessToken,
@@ -300,19 +301,24 @@ export function getDefaultRequestService(): RequestService {
     },
 
     /**
-     * Gets candidate profiles for a request.
+     * Get a specific candidate profile for a request.
      */
-    async getRequestProfiles(requestId: number, accessToken: string): Promise<Result<PagedProfileResponse, AppError>> {
-      const result = await apiClient.get<PagedProfileResponse>(
-        `/requests/${requestId}/profiles`,
-        `retrieve profiles for request ID ${requestId}`,
+    async getRequestProfile(requestId: number, profileId: number, accessToken: string): Promise<Result<Profile, AppError>> {
+      const result = await apiClient.get<Profile>(
+        `/requests/${requestId}/profiles/${profileId}`,
+        `retrieve profile with ID ${profileId} for request ID ${requestId}`,
         accessToken,
       );
 
       if (result.isErr()) {
         const error = result.unwrapErr();
         if (error.httpStatusCode === HttpStatusCodes.NOT_FOUND) {
-          return Err(new AppError(`Request with ID ${requestId} not found.`, ErrorCodes.REQUEST_NOT_FOUND));
+          return Err(
+            new AppError(
+              `Profile with ID ${profileId} for Request with ID ${requestId} not found.`,
+              ErrorCodes.PROFILE_FOR_REQUEST_NOT_FOUND,
+            ),
+          );
         }
         return Err(error);
       }
@@ -345,6 +351,38 @@ export function getDefaultRequestService(): RequestService {
       }
 
       return result;
+    },
+
+    /**
+     * Update request match by its ID.
+     */
+    async updateRequestMatchById(
+      requestId: number,
+      matchId: number,
+      match: MatchUpdateModel,
+      accessToken: string,
+    ): Promise<Result<MatchReadModel, AppError>> {
+      const result = await apiClient.put<MatchUpdateModel, MatchReadModel>(
+        `/requests/${requestId}/matches/${matchId}`,
+        `update match for match ${matchId} and request ID ${requestId}`,
+        match,
+        accessToken,
+      );
+
+      if (result.isErr()) {
+        const error = result.unwrapErr();
+        if (error.httpStatusCode === HttpStatusCodes.NOT_FOUND) {
+          return Err(new AppError(`Match ${matchId} for request ID ${requestId} not found.`, ErrorCodes.MATCH_NOT_FOUND));
+        }
+        return Err(
+          new AppError(`Failed to update match status. Reason: ${error.message}`, ErrorCodes.MATCH_UPDATE_FAILED, {
+            httpStatusCode: error.httpStatusCode,
+            correlationId: error.correlationId,
+          }),
+        );
+      }
+
+      return Ok(result.unwrap());
     },
 
     /**

@@ -7,12 +7,13 @@ import type {
   PagedRequestResponse,
   CollectionRequestResponse,
   RequestQueryParams,
-  PagedProfileResponse,
   RequestStatusUpdate,
   RequestStatus,
   User,
   CollectionMatchResponse,
   MatchReadModel,
+  MatchUpdateModel,
+  Profile,
 } from '~/.server/domain/models';
 import { getCityService } from '~/.server/domain/services/city-service';
 import { getClassificationService } from '~/.server/domain/services/classification-service';
@@ -20,7 +21,7 @@ import { getEmploymentEquityService } from '~/.server/domain/services/employment
 import { getEmploymentTenureService } from '~/.server/domain/services/employment-tenure-service';
 import { getLanguageForCorrespondenceService } from '~/.server/domain/services/language-for-correspondence-service';
 import { getLanguageRequirementService } from '~/.server/domain/services/language-requirement-service';
-import { createMockRequest, mockMatches, mockRequests, mockUsers } from '~/.server/domain/services/mock-data';
+import { createMockRequest, mockMatches, mockProfiles, mockRequests, mockUsers } from '~/.server/domain/services/mock-data';
 import { getNonAdvertisedAppointmentService } from '~/.server/domain/services/non-advertised-appointment-service';
 import type { RequestService } from '~/.server/domain/services/request-service';
 import { getSecurityClearanceService } from '~/.server/domain/services/security-clearance-service';
@@ -457,20 +458,25 @@ export function getMockRequestService(): RequestService {
     },
 
     /**
-     * Gets candidate profiles for a request.
+     * Get a specific candidate profile for a request.
      */
-    async getRequestProfiles(requestId: number, accessToken: string): Promise<Result<PagedProfileResponse, AppError>> {
-      // Mock implementation - return empty paginated response
-      const response: PagedProfileResponse = {
-        content: [],
-        page: {
-          number: 0,
-          size: 10,
-          totalElements: 0,
-          totalPages: 0,
-        },
-      };
-      return Promise.resolve(Ok(response));
+    async getRequestProfile(requestId: number, profileId: number, accessToken: string): Promise<Result<Profile, AppError>> {
+      // Mock implementation - it does not check if the profile is linked to the request match
+      log.debug(`Attempting to retrieve profile with ID: ${profileId}`, {
+        accessTokenLength: accessToken.length,
+      });
+
+      const profile = mockProfiles.find((p) => p.id === profileId);
+      if (profile) {
+        log.debug(`Successfully retrieved profile with ID: ${profileId}`, {
+          profileStatus: profile.profileStatus?.code,
+          userId: profile.profileUser.id,
+        });
+        return Promise.resolve(Ok(profile));
+      }
+
+      log.debug(`Profile with ID ${profileId} not found`);
+      return Err(new AppError(`Profile with ID ${profileId} not found.`, ErrorCodes.PROFILE_NOT_FOUND));
     },
 
     /**
@@ -503,6 +509,20 @@ export function getMockRequestService(): RequestService {
 
       mockRequests[existingRequestIndex] = updatedRequest;
       return Promise.resolve(Ok(updatedRequest));
+    },
+
+    /**
+     * Update request match by its ID.
+     */
+    async updateRequestMatchById(
+      requestId: number,
+      matchId: number,
+      match: MatchUpdateModel,
+      accessToken: string,
+    ): Promise<Result<MatchReadModel, AppError>> {
+      return Promise.resolve(
+        Err(new AppError(`Match ${matchId} for request ID ${requestId} not found.`, ErrorCodes.MATCH_NOT_FOUND)),
+      );
     },
 
     /**

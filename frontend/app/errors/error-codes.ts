@@ -84,4 +84,6 @@ export const ErrorCodes = {
   // match error codes
   MATCH_NOT_FOUND: 'MTCH-0001',
   MATCH_STATUS_UPDATE_FAILED: 'MTCH-0002',
+  MATCH_UPDATE_FAILED: 'MTCH-0003',
+  PROFILE_FOR_REQUEST_NOT_FOUND: 'MTCH-0003',
 } as const;
