@@ -8,6 +8,7 @@ import static ca.gov.dtsstn.vacman.api.web.model.CollectionModel.toCollectionMod
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import org.mapstruct.factory.Mappers;
 import org.slf4j.Logger;
@@ -34,6 +35,8 @@ import ca.gov.dtsstn.vacman.api.service.CodeService;
 import ca.gov.dtsstn.vacman.api.service.ProfileService;
 import ca.gov.dtsstn.vacman.api.service.RequestService;
 import ca.gov.dtsstn.vacman.api.service.UserService;
+import ca.gov.dtsstn.vacman.api.service.dto.MatchQuery;
+import ca.gov.dtsstn.vacman.api.service.dto.MatchQueryBuilder;
 import ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException;
 import ca.gov.dtsstn.vacman.api.web.model.CollectionModel;
 import ca.gov.dtsstn.vacman.api.web.model.MatchSummaryReadModel;
@@ -45,6 +48,7 @@ import ca.gov.dtsstn.vacman.api.web.model.RequestReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.RequestStatusUpdateModel;
 import ca.gov.dtsstn.vacman.api.web.model.RequestUpdateModel;
 import ca.gov.dtsstn.vacman.api.web.model.mapper.MatchModelMapper;
+import ca.gov.dtsstn.vacman.api.web.model.mapper.ProfileModelMapper;
 import ca.gov.dtsstn.vacman.api.web.model.mapper.RequestModelMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -64,16 +68,17 @@ public class RequestsController {
 
 	private final RequestModelMapper requestModelMapper = Mappers.getMapper(RequestModelMapper.class);
 	private final MatchModelMapper matchModelMapper = Mappers.getMapper(MatchModelMapper.class);
+	private final ProfileModelMapper profileModelMapper = Mappers.getMapper(ProfileModelMapper.class);
 
 	private final RequestService requestService;
-
 	private final UserService userService;
-
+	private final ProfileService profileService;
 	private final CodeService codeService;
 
 	public RequestsController(RequestService requestService, UserService userService, ProfileService profileService, CodeService codeService) {
 		this.requestService = requestService;
 		this.userService = userService;
+		this.profileService = profileService;
 		this.codeService = codeService;
 	}
 
@@ -308,7 +313,7 @@ public class RequestsController {
 			.orElseThrow(asResourceNotFoundException("match", matchId));
 
 		if (!matchEntity.getRequest().getId().equals(id)) {
-			throw new ResourceNotFoundException("A match ith id=[" + matchId + "] does not exist");
+			throw new ResourceNotFoundException("A match with id=[" + matchId + "] does not exist");
 		}
 
 		log.trace("Found match: {}", matchEntity);
@@ -348,7 +353,23 @@ public class RequestsController {
 	@Operation(summary = "Get a specific candidate profile for a request.")
 	@PreAuthorize("hasAuthority('hr-advisor') || hasPermission(#id, 'REQUEST', 'READ')")
 	public ResponseEntity<ProfileReadModel> getRequestProfileById(@PathVariable Long id, @PathVariable Long profileId) {
-		throw new UnsupportedOperationException("not yet implemented");
+		log.info("Received request to get profile for request; Request ID: [{}], Profile ID: [{}]", id, profileId);
+
+		final var matchQuery = MatchQueryBuilder.builder()
+			.profileId(profileId)
+			.requestId(id)
+			.build();
+
+		final var match = requestService.findMatches(matchQuery).stream()
+			.findFirst()
+			.orElseThrow(() -> new ResourceNotFoundException("No match found between request with id=[" + id +
+				"] and profile with id=[" + profileId + "]"));
+
+		log.trace("Found match: {}", match);
+
+		final var profileEntity = match.getProfile();
+
+		return ResponseEntity.ok(profileModelMapper.toModel(profileEntity));
 	}
 
 	/**
