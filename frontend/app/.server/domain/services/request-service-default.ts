@@ -359,13 +359,13 @@ export function getDefaultRequestService(): RequestService {
     async updateRequestMatchById(
       requestId: number,
       matchId: number,
-      match: MatchUpdateModel,
+      matchUpdate: MatchUpdateModel,
       accessToken: string,
     ): Promise<Result<MatchReadModel, AppError>> {
       const result = await apiClient.put<MatchUpdateModel, MatchReadModel>(
         `/requests/${requestId}/matches/${matchId}`,
         `update match for match ${matchId} and request ID ${requestId}`,
-        match,
+        matchUpdate,
         accessToken,
       );
 
