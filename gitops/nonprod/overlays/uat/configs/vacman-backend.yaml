@@ -24,7 +24,7 @@ spring:
   liquibase:
     contexts: dev
     change-log: classpath:db/changelog/db.changelog-master.yaml
-    drop-first: true # ⚠️ ‼‼‼ NEVER SET THIS IN PROD ‼‼‼ ⚠️
+    # drop-first: true # ⚠️ ‼‼‼ NEVER SET THIS IN PROD ‼‼‼ ⚠️
 
 application:
   gcnotify:
