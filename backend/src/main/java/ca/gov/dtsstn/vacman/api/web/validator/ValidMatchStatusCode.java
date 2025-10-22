@@ -15,7 +15,7 @@ import jakarta.validation.Payload;
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.FIELD, ElementType.PARAMETER, ElementType.TYPE_USE })
-@Constraint(validatedBy = MatchStatusCodeValidator.class)
+@Constraint(validatedBy = { MatchStatusCodeValidator.class, MatchStatusCodeStringValidator.class })
 public @interface ValidMatchStatusCode {
 
 	String message() default "Match status does not exist";

@@ -1,10 +1,12 @@
 package ca.gov.dtsstn.vacman.api.web;
 
 import static ca.gov.dtsstn.vacman.api.data.entity.AbstractBaseEntity.byId;
+import static ca.gov.dtsstn.vacman.api.data.entity.AbstractCodeEntity.byCode;
 import static ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException.asResourceNotFoundException;
 import static ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException.asUserResourceNotFoundException;
 import static ca.gov.dtsstn.vacman.api.web.exception.UnauthorizedException.asEntraIdUnauthorizedException;
 import static ca.gov.dtsstn.vacman.api.web.model.CollectionModel.toCollectionModel;
+import static org.springframework.data.domain.Pageable.unpaged;
 
 import java.util.Collection;
 import java.util.List;
@@ -38,6 +40,7 @@ import ca.gov.dtsstn.vacman.api.service.dto.MatchQueryBuilder;
 import ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException;
 import ca.gov.dtsstn.vacman.api.web.model.CollectionModel;
 import ca.gov.dtsstn.vacman.api.web.model.MatchReadModel;
+import ca.gov.dtsstn.vacman.api.web.model.MatchStatusUpdateModel;
 import ca.gov.dtsstn.vacman.api.web.model.MatchSummaryReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.MatchUpdateModel;
 import ca.gov.dtsstn.vacman.api.web.model.ProfileReadModel;
@@ -305,15 +308,31 @@ public class RequestsController {
 		return ResponseEntity.ok(matchModelMapper.toModel(match));
 	}
 
-	@ApiResponses.Ok
+	@ApiResponses.NoContent
 	@ApiResponses.BadRequestError
 	@ApiResponses.ResourceNotFoundError
 	@ApiResponses.UnprocessableEntityError
 	@PostMapping({ "/{id}/matches/{matchId}/status-change" })
 	@Operation(summary = "Update the status of a request match.")
 	@PreAuthorize("hasAuthority('hr-advisor') || hasPermission(#id, 'REQUEST', 'UPDATE')")
-	public ResponseEntity<Object> updateRequestMatchStatus(@PathVariable Long id, @PathVariable Long matchId, @Valid @RequestBody Object statusUpdate) {
-		throw new UnsupportedOperationException("not yet implemented");
+	public ResponseEntity<Void> updateRequestMatchStatus(@PathVariable Long id, @PathVariable Long matchId, @Valid @RequestBody MatchStatusUpdateModel statusUpdate) {
+		final var match = matchService.getMatchById(matchId)
+			.orElseThrow(asResourceNotFoundException("match", matchId));
+
+		if (!match.getRequest().getId().equals(id)) {
+			// ensure that the match belongs to the request and throw a 404 if it doesn't
+			// this prevents unauthorized access and also prevents leaking the existence of the match
+			throw new ResourceNotFoundException("A match with id=[" + matchId + "] does not exist");
+		}
+
+		final var matchStatus = codeService.getMatchStatuses(unpaged()).stream()
+			.filter(byCode(statusUpdate.statusCode()))
+			.findFirst().orElseThrow();
+
+		match.setMatchStatus(matchStatus);
+		matchService.updateMatch(match);
+
+		return ResponseEntity.noContent().build();
 	}
 
 	@ApiResponses.Ok

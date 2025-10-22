@@ -27,4 +27,10 @@ public class MatchService {
 		return matchRepository.findById(id);
 	}
 
+	@Transactional
+	public MatchEntity updateMatch(MatchEntity match) {
+		log.debug("Updating match with id: [{}]", match.getId());
+		return matchRepository.save(match);
+	}
+
 }
