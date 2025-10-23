@@ -501,8 +501,8 @@ export default {
     'french-somc-label': "Énoncé des critères de mérite et conditions d'emploi - Français",
     'french-somc-help-message': "Veuillez saisir l'intégralité des critères en français",
     'errors': {
-      'english-somc-required': 'Un énoncé de critères de mérite en anglais est requis.',
-      'french-somc-required': 'Un énoncé de critères de mérite en français est requis.',
+      'english-somc-required': "Un énoncé de critères de mérite et conditions d'emploi en anglais est requis.",
+      'french-somc-required': "Un énoncé de critères de mérite et conditions d'emploi en français est requis.",
     },
     'english-french-provided': 'Contenu en anglais et en français fourni',
   },
