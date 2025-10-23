@@ -245,6 +245,7 @@ export default {
       'priority-entitlement-required': 'Priority entitlement is required',
       'non-advertised-appointment-required': 'Nonadvertised appointment is required',
       'selection-process-type-required': 'Selection process type is required',
+      'work-schedule-required': 'Work schedule is required',
       'projected-start-date': {
         'invalid': 'Projected start date is invalid',
         'invalid-future-date': 'Projected start date must be in past or today',
@@ -459,6 +460,7 @@ export default {
       'position-number-required': 'Position number is required.',
       'position-number-max': 'Position number cannot exceed 100 characters.',
       'position-number-max-length': 'Each position number must be 8 characters.',
+      'position-number-duplicate': 'Position number cannot have duplicates.',
       'group-and-level-required': 'Group and level is required.',
       'title-en-required': 'Title in English is required.',
       'title-fr-required': 'Title in French is required.',
