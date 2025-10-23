@@ -19,19 +19,22 @@ class RouteIndexes {
     this.fileToRouteMap = new Map();
     this.pathToRouteMap = new Map();
 
+    const fileMap = this.fileToRouteMap;
+    const pathMap = this.pathToRouteMap;
+
     const collectRoutes = (routeList: I18nRoute[]): void => {
       for (const route of routeList) {
         if (isI18nLayoutRoute(route)) {
           collectRoutes(route.children);
         } else if (isI18nPageRoute(route)) {
           // Index by file
-          this.fileToRouteMap!.set(route.file, route);
+          fileMap.set(route.file, route);
 
           // Index by paths (both languages)
           for (const lang of ['en', 'fr'] as Language[]) {
             const path = route.paths[lang];
             if (path) {
-              this.pathToRouteMap!.set(normalizePath(path), route);
+              pathMap.set(normalizePath(path), route);
             }
           }
         }
@@ -192,7 +195,7 @@ function normalizePath(pathname: string): string {
 /**
  * Build route indexes for improved lookup performance.
  * This should be called once at application startup.
- * 
+ *
  * @param routes - The array of I18nRoutes to index.
  */
 export function buildRouteIndexes(routes: I18nRoute[]): void {

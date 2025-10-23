@@ -1,18 +1,19 @@
 #!/usr/bin/env tsx
 /**
  * Route validation script
- * 
+ *
  * Validates the i18n route configuration to catch common issues:
  * - Duplicate route IDs
  * - Missing or invalid file paths
  * - Path conflicts between routes
  * - Missing language paths
  */
+import { matchPath } from 'react-router';
 
 import { existsSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { matchPath } from 'react-router';
+
 import type { I18nPageRoute, I18nRoute } from '../app/i18n-routes';
 import { i18nRoutes, isI18nLayoutRoute, isI18nPageRoute } from '../app/i18n-routes';
 
@@ -63,7 +64,7 @@ function validateUniqueIds(): void {
  */
 function validateFilePaths(): void {
   const appDir = resolve(__dirname, '../app');
-  
+
   for (const route of allPageRoutes) {
     const filePath = resolve(appDir, route.file);
     if (!existsSync(filePath)) {
@@ -81,7 +82,7 @@ function validateFilePaths(): void {
  */
 function validateLanguagePaths(): void {
   const requiredLanguages: Language[] = ['en', 'fr'];
-  
+
   for (const route of allPageRoutes) {
     for (const lang of requiredLanguages) {
       if (!route.paths[lang]) {
@@ -100,27 +101,27 @@ function validateLanguagePaths(): void {
  */
 function validatePathConflicts(): void {
   const languages: Language[] = ['en', 'fr'];
-  
+
   for (const lang of languages) {
     const pathsForLang = allPageRoutes.map((r) => ({
       route: r,
       path: r.paths[lang],
     }));
-    
+
     // Check each path against all others
     for (let i = 0; i < pathsForLang.length; i++) {
       for (let j = i + 1; j < pathsForLang.length; j++) {
         const route1 = pathsForLang[i];
         const route2 = pathsForLang[j];
-        
-        // Skip if either path is undefined
-        if (!route1.path || !route2.path) continue;
-        
+
+        // Skip if either route or path is undefined
+        if (!route1 || !route2 || !route1.path || !route2.path) continue;
+
         // Check if paths would match each other
         // This catches conflicts like /foo/:id matching /foo/bar
         const match1 = matchPath(route1.path, route2.path);
         const match2 = matchPath(route2.path, route1.path);
-        
+
         if (match1 || match2) {
           // Only report if they're not identical (identical is fine for testing)
           if (route1.path !== route2.path) {
@@ -140,33 +141,37 @@ function validatePathConflicts(): void {
  */
 function validate(): void {
   console.log('🔍 Validating i18n routes...\n');
-  
+
   // Collect all routes
   collectPageRoutes(i18nRoutes);
   console.log(`Found ${allPageRoutes.length} page routes\n`);
-  
+
   // Run validations
   validateUniqueIds();
   validateFilePaths();
   validateLanguagePaths();
   validatePathConflicts();
-  
+
   // Report results
   if (errors.length === 0) {
     console.log('✅ All validations passed!\n');
     process.exit(0);
   } else {
     console.error(`❌ Found ${errors.length} validation error(s):\n`);
-    
+
     // Group errors by type
-    const errorsByType = errors.reduce((acc, error) => {
-      if (!acc[error.type]) {
-        acc[error.type] = [];
-      }
-      acc[error.type].push(error);
-      return acc;
-    }, {} as Record<string, ValidationError[]>);
-    
+    const errorsByType = errors.reduce(
+      (acc, error) => {
+        const key = error.type;
+        if (!acc[key]) {
+          acc[key] = [];
+        }
+        acc[key]!.push(error);
+        return acc;
+      },
+      {} as Record<string, ValidationError[]>,
+    );
+
     // Print errors by type
     for (const [type, typeErrors] of Object.entries(errorsByType)) {
       console.error(`\n${type.toUpperCase().replace(/_/g, ' ')}:`);
@@ -174,7 +179,7 @@ function validate(): void {
         console.error(`  • ${error.message}`);
       }
     }
-    
+
     console.error('\n');
     process.exit(1);
   }

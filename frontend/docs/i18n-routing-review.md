@@ -19,6 +19,7 @@ The frontend application implements a robust internationalization (i18n) routing
 ### Current Architecture
 
 **Key Files:**
+
 - `app/i18n-routes.ts` (362 lines) - Route definitions with bilingual paths
 - `app/routes.ts` - React Router configuration generator
 - `app/utils/route-utils.ts` - Route lookup utilities
@@ -28,6 +29,7 @@ The frontend application implements a robust internationalization (i18n) routing
 - `app/components/links.tsx` - Bilingual link components
 
 **Route Structure:**
+
 - 30+ routes organized hierarchically under a layout
 - Each route has:
   - `id`: Unique identifier (e.g., "EMPL-0001", "HRAD-0002")
@@ -39,11 +41,13 @@ The frontend application implements a robust internationalization (i18n) routing
 ### 1. Route Path Duplication and Maintenance Burden
 
 **Issue**: Each route requires manually defining both English and French paths, leading to:
+
 - High maintenance burden (30+ routes × 2 languages = 60+ path strings)
 - Risk of inconsistency between language versions
 - Difficulty scaling to additional languages
 
 **Current Example:**
+
 ```typescript
 {
   id: 'EMPL-0002',
@@ -56,6 +60,7 @@ The frontend application implements a robust internationalization (i18n) routing
 ```
 
 **Recommendation**: Create a translation-based path builder
+
 - Store path segments in translation files
 - Generate paths programmatically from translations
 - Reduces duplication and centralizes path translations
@@ -67,12 +72,14 @@ The frontend application implements a robust internationalization (i18n) routing
 ### 2. Missing Route Validation
 
 **Issue**: No compile-time or runtime validation that:
+
 - Route IDs are unique
 - All required paths exist for each language
 - File paths actually exist in the filesystem
 - URL paths don't conflict
 
 **Recommendation**: Add validation utilities
+
 - Create a build-time validator script
 - Check for duplicate IDs across all routes
 - Verify file existence
@@ -85,11 +92,13 @@ The frontend application implements a robust internationalization (i18n) routing
 ### 3. Performance: Recursive Route Lookups
 
 **Issue**: `findRouteByFile` and `findRouteByPath` use recursive search on every call
+
 - No caching mechanism
 - O(n) complexity for each lookup
 - Called frequently (on every navigation, link render)
 
 **Current Implementation:**
+
 ```typescript
 export function findRouteByFile(file: string, routes: I18nRoute[]): I18nPageRoute | undefined {
   for (const route of routes) {
@@ -105,6 +114,7 @@ export function findRouteByFile(file: string, routes: I18nRoute[]): I18nPageRout
 ```
 
 **Recommendation**: Implement route indexing
+
 - Create Map-based indexes on initialization
 - `fileToRoute: Map<string, I18nPageRoute>`
 - `pathToRoute: Map<string, I18nPageRoute>`
@@ -117,11 +127,13 @@ export function findRouteByFile(file: string, routes: I18nRoute[]): I18nPageRout
 ### 4. Path Normalization Inconsistency
 
 **Issue**: Path normalization in `findRouteByPath`:
+
 - Decodes URL encoding
 - Removes trailing slashes
 - Applied inconsistently (only in one function)
 
 **Recommendation**: Create dedicated path normalization utility
+
 - Apply consistently across all path operations
 - Handle edge cases (double slashes, special characters)
 - Document normalization rules
@@ -133,13 +145,15 @@ export function findRouteByFile(file: string, routes: I18nRoute[]): I18nPageRout
 ### 5. Language Detection Logic Complexity
 
 **Issue**: `getLanguage` function tries multiple strategies:
+
 1. Extract from pathname
 2. Parse Accept-Language header
 3. Return undefined
 
 This creates unpredictable behavior when language cannot be determined.
 
-**Recommendation**: 
+**Recommendation**:
+
 - Add explicit fallback language parameter
 - Document language detection precedence
 - Consider session-based language persistence
@@ -151,11 +165,13 @@ This creates unpredictable behavior when language cannot be determined.
 ### 6. Limited Route Metadata
 
 **Issue**: Routes only store `id`, `file`, and `paths`
+
 - No route title, description, or other metadata
 - Navigation breadcrumbs must be hardcoded
 - No support for route-level permissions or features
 
 **Recommendation**: Extend route definitions with metadata
+
 ```typescript
 {
   id: 'EMPL-0002',
@@ -179,11 +195,13 @@ This creates unpredictable behavior when language cannot be determined.
 ### 7. Type Extraction Complexity
 
 **Issue**: Complex type extraction utilities:
+
 - `ExtractI18nRouteFile`, `ExtractI18nRouteIds`
 - Hard to understand for new developers
 - Limited IDE support for error messages
 
 **Recommendation**: Simplify or document with examples
+
 - Add JSDoc examples showing how types work
 - Consider simpler alternatives if possible
 
@@ -194,11 +212,13 @@ This creates unpredictable behavior when language cannot be determined.
 ### 8. Missing Route Generation Tools
 
 **Issue**: No CLI or automated tools to:
+
 - Generate new i18n routes
 - Update existing routes
 - Validate route definitions
 
 **Recommendation**: Create CLI tools
+
 ```bash
 pnpm route:generate employee/new-page
 pnpm route:validate
@@ -212,10 +232,12 @@ pnpm route:list
 ### 9. URL Parameter Type Safety
 
 **Issue**: Route parameters (`:id`, `:profileId`, etc.) are not type-safe
+
 - No validation that required params are provided
 - No TypeScript checking for param names
 
-**Recommendation**: 
+**Recommendation**:
+
 - Consider using a library like `typesafe-routes` or `type-route`
 - Or enhance current system with param extraction types
 
@@ -226,10 +248,12 @@ pnpm route:list
 ### 10. Inconsistent French Translations
 
 **Issue**: Some French paths appear inconsistent:
+
 - `/fr/hr-advisor/demandes` (not translated prefix)
 - `/fr/hr-advisor/demande/:requestId` (mixed)
 
 **Current Examples:**
+
 ```typescript
 {
   id: 'HRAD-0007',
@@ -240,7 +264,8 @@ pnpm route:list
 }
 ```
 
-**Recommendation**: 
+**Recommendation**:
+
 - Audit all paths for consistency
 - Decide on translation policy (full vs partial)
 - Document decision in style guide
@@ -252,20 +277,24 @@ pnpm route:list
 ## Prioritized Action Plan
 
 ### Phase 1: Critical Improvements (High Priority, Low Effort)
+
 1. Add route validation script
 2. Implement route indexing for performance
 3. Audit and fix French path inconsistencies
 
 ### Phase 2: Infrastructure Improvements (High Priority, Medium Effort)
+
 1. Create translation-based path builder system
 2. Enhance language detection with explicit fallbacks
 
 ### Phase 3: Developer Experience (Low/Medium Priority)
+
 1. Add JSDoc documentation and examples
 2. Create CLI route generation tools
 3. Extend route metadata support
 
 ### Phase 4: Advanced Features (Medium Priority, High Effort)
+
 1. Implement URL parameter type safety
 2. Add support for dynamic route configuration
 
@@ -279,6 +308,7 @@ pnpm route:list
 ## Migration Strategy
 
 For any breaking changes:
+
 1. Implement new system alongside old
 2. Add deprecation warnings
 3. Provide codemod scripts for migration
@@ -290,6 +320,7 @@ For any breaking changes:
 The current i18n routing system is well-architected with good separation of concerns and type safety. The recommended improvements focus on reducing maintenance burden, improving performance, and enhancing developer experience without requiring major architectural changes.
 
 **Recommended Next Steps:**
+
 1. Review and prioritize recommendations with team
 2. Implement Phase 1 improvements (validation, indexing, consistency)
 3. Gather metrics on impact
