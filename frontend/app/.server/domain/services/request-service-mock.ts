@@ -21,7 +21,16 @@ import { getEmploymentEquityService } from '~/.server/domain/services/employment
 import { getEmploymentTenureService } from '~/.server/domain/services/employment-tenure-service';
 import { getLanguageForCorrespondenceService } from '~/.server/domain/services/language-for-correspondence-service';
 import { getLanguageRequirementService } from '~/.server/domain/services/language-requirement-service';
-import { createMockRequest, mockMatches, mockProfiles, mockRequests, mockUsers } from '~/.server/domain/services/mock-data';
+import { getMatchFeedbackService } from '~/.server/domain/services/match-feedback-service';
+import { getMatchStatusService } from '~/.server/domain/services/match-status-service';
+import {
+  createMockRequest,
+  mockMatchDetails,
+  mockMatches,
+  mockProfiles,
+  mockRequests,
+  mockUsers,
+} from '~/.server/domain/services/mock-data';
 import { getNonAdvertisedAppointmentService } from '~/.server/domain/services/non-advertised-appointment-service';
 import type { RequestService } from '~/.server/domain/services/request-service';
 import { getSecurityClearanceService } from '~/.server/domain/services/security-clearance-service';
@@ -517,12 +526,68 @@ export function getMockRequestService(): RequestService {
     async updateRequestMatchById(
       requestId: number,
       matchId: number,
-      match: MatchUpdateModel,
+      matchUpdate: MatchUpdateModel,
       accessToken: string,
     ): Promise<Result<MatchReadModel, AppError>> {
-      return Promise.resolve(
-        Err(new AppError(`Match ${matchId} for request ID ${requestId} not found.`, ErrorCodes.MATCH_NOT_FOUND)),
-      );
+      const existingMatchIndex = mockMatchDetails.findIndex((r) => r.id === matchId);
+      if (existingMatchIndex === -1) {
+        return Err(new AppError(`Match with ID ${matchId} not found.`, ErrorCodes.MATCH_NOT_FOUND));
+      }
+
+      const existingMatch = mockMatchDetails[existingMatchIndex];
+      if (!existingMatch) {
+        return Err(new AppError(`Match with ID ${matchId} not found.`, ErrorCodes.MATCH_NOT_FOUND));
+      }
+
+      const profile =
+        matchUpdate.profileId !== undefined && matchUpdate.profileId !== existingMatch.profile?.id
+          ? (await this.getRequestProfile(requestId, matchUpdate.profileId, accessToken)).into()
+          : existingMatch.profile;
+
+      if (!profile) {
+        return Err(new AppError(`Profile for match update could not be found.`, ErrorCodes.PROFILE_NOT_FOUND));
+      }
+
+      // The profileUser is a required part of the profile, so we use its existing value
+      const profileUser = profile.profileUser;
+
+      const request = await this.getRequestById(requestId, accessToken);
+
+      if (request.isErr()) {
+        log.debug('Failed to retrieve Request for match');
+        throw request.unwrapErr();
+      }
+
+      const matchStatus =
+        matchUpdate.matchStatusId !== undefined
+          ? (await getMatchStatusService().getById(matchUpdate.matchStatusId)).into()
+          : existingMatch.matchStatus;
+
+      const matchFeedback =
+        matchUpdate.matchFeedbackId !== undefined
+          ? (await getMatchFeedbackService().getById(matchUpdate.matchFeedbackId)).into()
+          : existingMatch.matchFeedback;
+
+      // Merge updates with existing match
+      const updatedMatch: MatchReadModel = {
+        ...existingMatch,
+        ...matchUpdate,
+        profile: {
+          ...profile,
+          profileUser: profileUser,
+        },
+        request: request.unwrap(),
+        matchStatus,
+        matchFeedback,
+        hiringManagerComment: matchUpdate.hiringManagerComment ?? existingMatch.hiringManagerComment,
+        hrAdvisorComment: matchUpdate.hrAdvisorComment ?? existingMatch.hrAdvisorComment,
+        id: matchId, // Ensure ID doesn't change
+        lastModifiedDate: new Date().toISOString(),
+        lastModifiedBy: 'mock-user',
+      };
+
+      mockMatchDetails[existingMatchIndex] = updatedMatch;
+      return Promise.resolve(Ok(updatedMatch));
     },
 
     /**

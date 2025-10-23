@@ -53,7 +53,7 @@ export type RequestService = {
   updateRequestMatchById(
     requestId: number,
     matchId: number,
-    match: MatchUpdateModel,
+    matchUpdate: MatchUpdateModel,
     accessToken: string,
   ): Promise<Result<MatchReadModel, AppError>>;
 

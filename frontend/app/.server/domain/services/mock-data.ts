@@ -1,4 +1,4 @@
-import type { MatchSummaryReadModel, Profile, RequestReadModel, User } from '~/.server/domain/models';
+import type { MatchReadModel, MatchSummaryReadModel, Profile, RequestReadModel, User } from '~/.server/domain/models';
 import {
   MATCH_STATUS,
   PREFERRED_LANGUAGE_ENGLISH,
@@ -745,7 +745,8 @@ export const mockRequests: RequestReadModel[] = [
 /**
  * Mock match data for testing and development.
  */
-export function buildMatchesFromTemplates(): MatchSummaryReadModel[] {
+// Create a builder for the summary match model
+export function buildMatchSummariesFromTemplates(): MatchSummaryReadModel[] {
   const matchTemplates = [
     {
       profileId: 1,
@@ -864,7 +865,115 @@ export function buildMatchesFromTemplates(): MatchSummaryReadModel[] {
   });
 }
 
-export const mockMatches: MatchSummaryReadModel[] = buildMatchesFromTemplates();
+// create mock for summary view
+export const mockMatches: MatchSummaryReadModel[] = buildMatchSummariesFromTemplates();
+
+// Create a builder for the detailed match model
+export function buildMatchDetailsFromTemplates(): MatchReadModel[] {
+  const matchTemplates = [
+    {
+      profileId: 1,
+      requestId: 3,
+      data: {
+        id: 1,
+        matchStatus: MATCH_STATUS.PENDING,
+        matchFeedback: undefined,
+        hiringManagerComment: undefined,
+        hrAdvisorComment: undefined,
+        createdBy: 'system',
+        createdDate: '2024-01-01T00:00:00Z',
+        lastModifiedBy: undefined,
+        lastModifiedDate: undefined,
+      },
+    },
+    {
+      profileId: 2,
+      requestId: 3,
+      data: {
+        id: 2,
+        matchStatus: MATCH_STATUS.PENDING,
+        matchFeedback: undefined,
+        hiringManagerComment: undefined,
+        hrAdvisorComment: undefined,
+        createdBy: 'system',
+        createdDate: '2024-01-01T00:00:00Z',
+        lastModifiedBy: 'jane.doe',
+        lastModifiedDate: '2024-01-15T10:30:00Z',
+      },
+    },
+    {
+      profileId: 3,
+      requestId: 4,
+      data: {
+        id: 3,
+        matchStatus: MATCH_STATUS.APPROVED,
+        matchFeedback: undefined,
+        hiringManagerComment: undefined,
+        hrAdvisorComment: undefined,
+        createdBy: 'system',
+        createdDate: '2024-02-01T09:00:00Z',
+        lastModifiedBy: 'john.smith',
+        lastModifiedDate: '2024-02-10T14:00:00Z',
+      },
+    },
+    {
+      profileId: 4,
+      requestId: 4,
+      data: {
+        id: 4,
+        matchStatus: MATCH_STATUS.APPROVED,
+        matchFeedback: undefined,
+        hiringManagerComment: undefined,
+        hrAdvisorComment: undefined,
+        createdBy: 'system',
+        createdDate: '2024-03-15T08:30:00Z',
+        lastModifiedBy: 'john.smith',
+        lastModifiedDate: '2024-02-10T14:00:00Z',
+      },
+    },
+    {
+      profileId: 5,
+      requestId: 4,
+      data: {
+        id: 5,
+        matchStatus: MATCH_STATUS.APPROVED,
+        matchFeedback: undefined,
+        hiringManagerComment: undefined,
+        hrAdvisorComment: undefined,
+        createdBy: 'system',
+        createdDate: '2024-04-20T11:45:00Z',
+        lastModifiedBy: 'alex.tan',
+        lastModifiedDate: '2024-05-01T10:00:00Z',
+      },
+    },
+  ];
+
+  function findProfile(id: number): Profile | undefined {
+    return mockProfiles.find((u) => u.id === id);
+  }
+  function findRequest(id: number): RequestReadModel | undefined {
+    return mockRequests.find((u) => u.id === id);
+  }
+
+  return matchTemplates.map((template) => {
+    const profile = findProfile(template.profileId);
+    if (!profile) {
+      throw new Error(`FATAL MOCK ERROR: Profile with ID ${template.profileId} not found.`);
+    }
+    const request = findRequest(template.requestId);
+    if (!request) {
+      throw new Error(`FATAL MOCK ERROR: Request with ID ${template.requestId} not found.`);
+    }
+    return {
+      ...template.data,
+      profile,
+      request,
+    };
+  });
+}
+
+// create a detailed mock store
+export const mockMatchDetails: MatchReadModel[] = buildMatchDetailsFromTemplates();
 
 export function createMockRequest(accessToken: string): RequestReadModel {
   const newId = Math.max(...mockRequests.map((r) => r.id), 0) + 1;
