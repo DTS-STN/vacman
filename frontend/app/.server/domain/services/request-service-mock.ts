@@ -5,7 +5,6 @@ import type {
   RequestReadModel,
   RequestUpdateModel,
   PagedRequestResponse,
-  CollectionRequestResponse,
   RequestQueryParams,
   RequestStatusUpdate,
   RequestStatus,
@@ -91,18 +90,38 @@ export function getMockRequestService(): RequestService {
     /**
      * Retrieves requests for the current user.
      */
-    async getCurrentUserRequests(accessToken: string): Promise<Result<CollectionRequestResponse, AppError>> {
-      log.debug('Attempting to retrieve current user requests', { accessTokenLength: accessToken.length });
+    async getCurrentUserRequests(
+      params: RequestQueryParams,
+      accessToken: string,
+    ): Promise<Result<PagedRequestResponse, AppError>> {
+      log.debug('Attempting to retrieve current user requests', { params, accessTokenLength: accessToken.length });
 
       // For mock purposes, return requests for user ID 1
       const userRequests = [...mockRequests];
       log.debug(`Found ${userRequests.length} requests for current user`);
 
-      const response: CollectionRequestResponse = {
-        content: userRequests,
+      // Apply pagination
+      const page = params.page ?? 0;
+      const size = params.size ?? 10;
+      const startIndex = page * size;
+      const endIndex = startIndex + size;
+      const paginatedRequests = userRequests.slice(startIndex, endIndex);
+
+      const response: PagedRequestResponse = {
+        content: paginatedRequests,
+        page: {
+          number: page,
+          size: size,
+          totalElements: userRequests.length,
+          totalPages: Math.ceil(userRequests.length / size),
+        },
       };
 
-      log.debug('Successfully retrieved current user requests', { requestCount: userRequests.length });
+      log.debug('Successfully retrieved requests', {
+        totalFiltered: userRequests.length,
+        pageSize: paginatedRequests.length,
+        currentPage: page,
+      });
       return Promise.resolve(Ok(response));
     },
 

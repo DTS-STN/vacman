@@ -342,10 +342,6 @@ export type PagedRequestResponse = Readonly<{
   page: PageMetadata;
 }>;
 
-export type CollectionRequestResponse = Readonly<{
-  content: RequestReadModel[];
-}>;
-
 // API Query Parameters for Requests
 export type RequestQueryParams = {
   page?: number;
