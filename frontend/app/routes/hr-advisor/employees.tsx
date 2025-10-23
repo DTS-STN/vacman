@@ -551,7 +551,7 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
               required
               className="w-full"
             />
-            <LoadingButton variant="primary" className="w-1/2" disabled={isSubmitting} loading={isSubmitting}>
+            <LoadingButton variant="primary" className="mb-2 w-1/2" disabled={isSubmitting} loading={isSubmitting}>
               {t('app:hr-advisor-employees-table.create-profile')}
             </LoadingButton>
           </fetcher.Form>
