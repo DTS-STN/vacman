@@ -92,18 +92,22 @@ public class JsonPatchProcessor {
 
 		try {
 			log.debug("Patching object of type {}", object.getClass().getSimpleName());
+
 			final var originalJsonString = objectMapper.writeValueAsString(object);
-			final var originalJsonStructure = Json.createReader(new StringReader(originalJsonString)).read();
-			final var patchedJsonValue = patchFn.apply(originalJsonStructure);
-			final var patchedJsonString = patchedJsonValue.toString();
-			final var patchedObject = objectMapper.readValue(patchedJsonString, object.getClass());
 
-			log.debug("Performing JSON patch validation");
-			final Set<ConstraintViolation<Object>> violations = validator.validate(patchedObject);
-			if (violations.isEmpty() == false) { throw new ConstraintViolationException(violations); }
-			log.debug("No validation errors for {}", object.getClass().getSimpleName());
+			try (final var jsonReader = Json.createReader(new StringReader(originalJsonString))) {
+				final var originalJsonStructure = jsonReader.read();
+				final var patchedJsonValue = patchFn.apply(originalJsonStructure);
+				final var patchedJsonString = patchedJsonValue.toString();
+				final var patchedObject = objectMapper.readValue(patchedJsonString, object.getClass());
 
-			return (T) patchedObject;
+				log.debug("Performing JSON patch validation");
+				final Set<ConstraintViolation<Object>> violations = validator.validate(patchedObject);
+				if (violations.isEmpty() == false) { throw new ConstraintViolationException(violations); }
+				log.debug("No validation errors for {}", object.getClass().getSimpleName());
+
+				return (T) patchedObject;
+			}
 		}
 		// JsonException can be thrown by Johnzon
 		// JsonProcessingException can be thrown by Jackson
