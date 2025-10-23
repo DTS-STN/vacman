@@ -1,4 +1,4 @@
-import type { RequestReadModel, RequestUpdateModel } from '~/.server/domain/models';
+import type { MatchReadModel, MatchUpdateModel, RequestReadModel, RequestUpdateModel } from '~/.server/domain/models';
 
 /**
  * Maps a Request read model to a RequestUpdateModel for updating via PUT endpoint.
@@ -87,5 +87,64 @@ export function mapRequestToUpdateModelWithOverrides(
   overrides: Partial<RequestUpdateModel>,
 ): RequestUpdateModel {
   const basePutModel = mapRequestToUpdateModel(request);
+  return { ...basePutModel, ...overrides };
+}
+
+/**
+ * Maps a MatchReadModel to a MatchUpdateModel for updating via PUT endpoint.
+ * This function extracts IDs from nested objects and ensures all fields are properly mapped
+ * to prevent null value errors when calling the PUT /api/v1/requests/{id}/matches/{matchId} endpoint.
+ *
+ * @param match The match read model to convert
+ * @returns A complete MatchUpdateModel with all fields mapped from the source match
+ *
+ * @example
+ * ```typescript
+ * // Basic usage - convert match to put model format
+ * const match = await requestService.getRequestMatchById(requestId, matchId, accessToken);
+ * const putModel = mapMatchToUpdateModel(match);
+ * await requestService.updateRequestMatchById(requestId, matchId, putModel, accessToken);
+ * ```
+ */
+export function mapMatchToUpdateModel(match: MatchReadModel): MatchUpdateModel {
+  return {
+    profileId: match.profile?.id,
+    requestId: match.request?.id,
+    matchStatusId: match.matchStatus?.id,
+    matchFeedbackId: match.matchFeedback?.id,
+    hiringManagerComment: match.hiringManagerComment,
+    hrAdvisorComment: match.hrAdvisorComment,
+  };
+}
+
+/**
+ * Maps a MatchReadModel to a MatchUpdateModel with specific field overrides.
+ * This is useful when you want to update only certain fields while preserving all others.
+ *
+ * @param match The match read model to convert
+ * @param overrides Partial MatchUpdateModel with fields to override
+ * @returns A complete MatchUpdateModel with overridden fields applied
+ *
+ * @example
+ * ```typescript
+ * // Update only hiringManagerComment while preserving all other fields
+ * const match = await requestService.getRequestMatchById(requestId, matchId, accessToken);
+ * const putModel = mapMatchToUpdateModelWithOverrides(match, {
+ *   hiringManagerComment: 'New comment',
+ * });
+ * await requestService.updateRequestMatchById(requestId, matchId, putModel, accessToken);
+ *
+ * // Update multiple fields
+ * const putModel = mapMatchToUpdateModelWithOverrides(match, {
+ *   matchFeedbackId: 1,
+ *   hiringManagerComment: 'New comment',
+ * });
+ * ```
+ */
+export function mapMatchToUpdateModelWithOverrides(
+  match: MatchReadModel,
+  overrides: Partial<MatchUpdateModel>,
+): MatchUpdateModel {
+  const basePutModel = mapMatchToUpdateModel(match);
   return { ...basePutModel, ...overrides };
 }
