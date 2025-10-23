@@ -1505,12 +1505,10 @@ class RequestsControllerTest {
 
 			final var statusUpdate = new RequestStatusUpdateModel("requestPickedUp");
 
-			// Implementation throws UnauthorizedException but @ResponseStatus isn't handled properly in tests
-			// TODO: Add explicit exception handler for UnauthorizedException in ApiErrorHandler
 			mockMvc.perform(post("/api/v1/requests/{id}/status-change", request.getId())
 					.contentType(MediaType.APPLICATION_JSON)
 					.content(objectMapper.writeValueAsString(statusUpdate)))
-				.andExpect(status().isInternalServerError());
+				.andExpect(status().isUnauthorized());
 		}
 
 		@Test

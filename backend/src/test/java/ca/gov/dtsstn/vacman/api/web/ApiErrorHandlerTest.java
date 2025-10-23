@@ -23,6 +23,8 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.context.request.WebRequest;
 
+import ca.gov.dtsstn.vacman.api.web.exception.UnauthorizedException;
+
 @ExtendWith(MockitoExtension.class)
 @DisplayName("ApiErrorHandler Tests")
 class ApiErrorHandlerTest {
@@ -113,6 +115,41 @@ class ApiErrorHandlerTest {
 					.extracting("errors", type(Map.class))
 					.satisfies(errors -> {
 						assertThat(errors).isEmpty();
+					});
+			});
+	}
+
+	@Test
+	@DisplayName("handleUnauthorizedException should return Unauthorized with ProblemDetail")
+	void handleUnauthorizedException_returnsUnauthorizedWithProblemDetail() {
+		final var unauthorizedException = mock(UnauthorizedException.class);
+		when(unauthorizedException.getMessage()).thenReturn("Only HR advisors can pick up requests");
+
+		final var responseEntity = apiErrorHandler.handleUnauthorizedException(unauthorizedException, mock(WebRequest.class));
+
+		assertThat(responseEntity)
+			.extracting(ResponseEntity::getStatusCode)
+			.isEqualTo(HttpStatus.UNAUTHORIZED);
+
+		assertThat(responseEntity)
+			.extracting(ResponseEntity::getBody, type(ProblemDetail.class))
+			.satisfies(problemDetail -> {
+				assertThat(problemDetail)
+					.extracting(ProblemDetail::getStatus)
+					.isEqualTo(HttpStatus.UNAUTHORIZED.value());
+
+				assertThat(problemDetail)
+					.extracting(ProblemDetail::getDetail)
+					.isEqualTo("Only HR advisors can pick up requests");
+
+				assertThat(problemDetail)
+					.extracting(ProblemDetail::getProperties)
+					.satisfies(properties -> {
+						assertThat(properties)
+							.containsKey("correlationId")
+							.containsKey("errorCode");
+
+						assertThat(properties.get("errorCode")).isEqualTo("API-0401");
 					});
 			});
 	}

@@ -25,6 +25,7 @@ import ca.gov.dtsstn.vacman.api.json.JsonPatchException;
 import ca.gov.dtsstn.vacman.api.web.exception.ForbiddenException;
 import ca.gov.dtsstn.vacman.api.web.exception.ResourceConflictException;
 import ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException;
+import ca.gov.dtsstn.vacman.api.web.exception.UnauthorizedException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 
@@ -121,6 +122,17 @@ public class ApiErrorHandler extends ResponseEntityExceptionHandler {
 		problemDetail.setProperty("errorCode", "API-0404");
 
 		return super.handleExceptionInternal(exception, problemDetail, new HttpHeaders(), HttpStatus.NOT_FOUND, request);
+	}
+
+	@ExceptionHandler({ UnauthorizedException.class })
+	public ResponseEntity<Object> handleUnauthorizedException(UnauthorizedException exception, WebRequest request) {
+		final var correlationId = generateCorrelationId();
+
+		final var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, exception.getMessage());
+		problemDetail.setProperty("correlationId", correlationId);
+		problemDetail.setProperty("errorCode", "API-0401");
+
+		return super.handleExceptionInternal(exception, problemDetail, new HttpHeaders(), HttpStatus.UNAUTHORIZED, request);
 	}
 
 	@ExceptionHandler({ Exception.class })
