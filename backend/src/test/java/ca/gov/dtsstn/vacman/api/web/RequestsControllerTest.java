@@ -1627,6 +1627,28 @@ class RequestsControllerTest {
 		}
 
 		@Test
+		@DisplayName("GET /api/v1/requests/me with filters returns filtered requests")
+		@WithMockUser(username = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb", authorities = { "employee" })
+		void testGetCurrentUserRequestsWithFilters() throws Exception {
+			requestRepository.save(RequestEntity.builder()
+				.classification(classificationRepository.getReferenceById(1L))
+				.hiringManager(hiringManager)
+				.languageRequirement(languageRequirementRepository.getReferenceById(1L))
+				.nameEn("My Filtered Position")
+				.nameFr("Mon poste filtré")
+				.requestNumber("MEF-001")
+				.requestStatus(draftStatus)
+				.submitter(hiringManager)
+				.workUnit(workUnitRepository.getReferenceById(1L))
+				.build());
+
+			mockMvc.perform(get("/api/v1/requests/me").param("statusId", draftStatus.getId().toString()))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.content.length()", is(1)))
+				.andExpect(jsonPath("$.content[0].englishTitle", is("My Filtered Position")));
+		}
+
+		@Test
 		@DisplayName("POST /api/v1/requests/me creates a request for current user")
 		@WithMockUser(username = "cccccccc-cccc-cccc-cccc-cccccccccccc", authorities = { "employee" })
 		void testCreateCurrentUserRequest() throws Exception {
