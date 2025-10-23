@@ -248,6 +248,7 @@ export default {
       'priority-entitlement-required': "Nomination d'un bénéficiaire de priorité est requise",
       'non-advertised-appointment-required': "Raison de la nomination d'un processus non-annoncée est requise",
       'selection-process-type-required': 'Sélection du type de processus est requise',
+      'work-schedule-required': 'Horaire de travail est requise',
       'projected-start-date': {
         'invalid': "La date de début prévue n'est pas valide",
         'invalid-future-date': "La date de début prévue doit être dans le passé ou aujourd'hui",
@@ -467,6 +468,7 @@ export default {
       'position-number-required': 'Le numéro de poste est requis.',
       'position-number-max': 'Le numéro de poste ne peut pas dépasser 100 caractères.',
       'position-number-max-length': 'Chaque numéro de poste doit comporter 8 caractères.',
+      'position-number-duplicate': 'Le numéro de position ne peut pas comporter de doublons.',
       'group-and-level-required': 'Le groupe et le niveau sont requis.',
       'title-en-required': 'Le titre en anglais est requis.',
       'title-fr-required': 'Le titre en français est requis.',

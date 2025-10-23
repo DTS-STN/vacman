@@ -60,6 +60,12 @@ export async function createPositionInformationSchema() {
             const numbers = value.split(',').map((n) => n.trim());
             return numbers.every((n) => n.length === 8);
           }, 'app:position-information.errors.position-number-max-length'),
+          v.custom((input) => {
+            const value = input as string;
+            const numbers = value.split(',').map((n) => n.trim());
+            const uniqueNumbers = new Set(numbers);
+            return uniqueNumbers.size === numbers.length;
+          }, 'app:position-information.errors.position-number-duplicate'),
         ),
         groupAndLevel: v.pipe(
           v.string('app:position-information.errors.group-and-level-required'),
@@ -346,9 +352,9 @@ export async function createProcessInformationSchema() {
         ),
         approvalReceived: v.pipe(v.boolean('app:process-information.errors.approval-received-required')),
         workSchedule: v.pipe(
-          v.string('app:process-information.errors.performed-duties-required'),
+          v.string('app:process-information.errors.work-schedule-required'),
           v.trim(),
-          v.nonEmpty('app:process-information.errors.performed-duties-required'),
+          v.nonEmpty('app:process-information.errors.work-schedule-required'),
         ),
       }),
       v.variant(
