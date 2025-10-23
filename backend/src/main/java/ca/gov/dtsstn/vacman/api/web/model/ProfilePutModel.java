@@ -3,8 +3,10 @@ package ca.gov.dtsstn.vacman.api.web.model;
 import java.time.LocalDate;
 import java.util.Set;
 
+import io.soabase.recordbuilder.core.RecordBuilder;
 import io.swagger.v3.oas.annotations.media.Schema;
 
+@RecordBuilder
 @Schema(name = "ProfilePutModel")
 public record ProfilePutModel (
 	@Schema(accessMode = Schema.AccessMode.WRITE_ONLY, description = "The unique identifier for the HR advisor associated with this profile.", example = "2")
@@ -60,4 +62,10 @@ public record ProfilePutModel (
 
 	@Schema(accessMode = Schema.AccessMode.WRITE_ONLY, description = "Collection of language IDs designated as preferred.")
 	Set<Long> preferredLanguages
-) {}
+) {
+
+	public static ProfilePutModelBuilder builder() {
+		return ProfilePutModelBuilder.builder();
+	}
+
+}

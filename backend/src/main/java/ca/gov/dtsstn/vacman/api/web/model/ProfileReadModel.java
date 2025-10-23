@@ -4,8 +4,10 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Set;
 
+import io.soabase.recordbuilder.core.RecordBuilder;
 import io.swagger.v3.oas.annotations.media.Schema;
 
+@RecordBuilder
 public record ProfileReadModel(
 	@Schema(accessMode = Schema.AccessMode.READ_ONLY, description = "The unique identifier for this profile.", example = "1")
 	Long id,
@@ -81,4 +83,10 @@ public record ProfileReadModel(
 
 	@Schema(accessMode = Schema.AccessMode.READ_ONLY, description = "The time this user was last modified.", example = "2000-01-01T00:00:00Z")
 	Instant lastModifiedDate
-) {}
+) {
+
+	public static ProfileReadModelBuilder builder() {
+		return ProfileReadModelBuilder.builder();
+	}
+
+}
