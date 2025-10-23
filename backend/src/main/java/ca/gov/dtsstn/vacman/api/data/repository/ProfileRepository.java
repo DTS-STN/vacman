@@ -1,5 +1,7 @@
 package ca.gov.dtsstn.vacman.api.data.repository;
 
+import static org.springframework.data.jpa.domain.Specification.unrestricted;
+
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collection;
@@ -31,7 +33,7 @@ public interface ProfileRepository extends AbstractBaseRepository<ProfileEntity>
 	 * JPA specification to find profiles assigned to specific HR Advisors.
 	 */
 	static Specification<ProfileEntity> hasHrAdvisorIdIn(Collection<Long> ids) {
-		if (CollectionUtils.isEmpty(ids)) { return AbstractBaseRepository.empty(); }
+		if (CollectionUtils.isEmpty(ids)) { return unrestricted(); }
 		return (root, query, cb) -> root.get("hrAdvisor").get("id").in(ids);
 	}
 
@@ -56,7 +58,7 @@ public interface ProfileRepository extends AbstractBaseRepository<ProfileEntity>
 	 * JPA specification to find profiles with preferred city IDs in the given collection.
 	 */
 	static Specification<ProfileEntity> hasPreferredCityIdIn(Collection<Long> ids) {
-		if (CollectionUtils.isEmpty(ids)) { return AbstractBaseRepository.empty(); }
+		if (CollectionUtils.isEmpty(ids)) { return unrestricted(); }
 		return (root, query, cb) -> {
 			final var join = root.join("preferredCities");
 			return join.get("city").get("id").in(ids);
@@ -84,7 +86,7 @@ public interface ProfileRepository extends AbstractBaseRepository<ProfileEntity>
 	 * JPA specification to find profiles with preferred city codes in the given collection.
 	 */
 	static Specification<ProfileEntity> hasPreferredCityCodeIn(Collection<String> codes) {
-		if (CollectionUtils.isEmpty(codes)) { return AbstractBaseRepository.empty(); }
+		if (CollectionUtils.isEmpty(codes)) { return unrestricted(); }
 		return (root, query, cb) -> {
 			final var join = root.join("preferredCities");
 			return join.get("city").get("code").in(codes);
@@ -112,7 +114,7 @@ public interface ProfileRepository extends AbstractBaseRepository<ProfileEntity>
 	 * JPA specification to find profiles with a preferred classification ID in the given collection.
 	 */
 	static Specification<ProfileEntity> hasPreferredClassificationIdIn(Collection<Long> ids) {
-		if (CollectionUtils.isEmpty(ids)) { return AbstractBaseRepository.empty(); }
+		if (CollectionUtils.isEmpty(ids)) { return unrestricted(); }
 		return (root, query, cb) -> {
 			final var join = root.join("preferredClassifications");
 			return join.get("classification").get("id").in(ids);
@@ -140,7 +142,7 @@ public interface ProfileRepository extends AbstractBaseRepository<ProfileEntity>
 	 * JPA specification to find profiles with a preferred classification code in the given collection.
 	 */
 	static Specification<ProfileEntity> hasPreferredClassificationCodeIn(Collection<String> codes) {
-		if (CollectionUtils.isEmpty(codes)) { return AbstractBaseRepository.empty(); }
+		if (CollectionUtils.isEmpty(codes)) { return unrestricted(); }
 		return (root, query, cb) -> {
 			final var join = root.join("preferredClassifications");
 			return join.get("classification").get("code").in(codes);
@@ -168,7 +170,7 @@ public interface ProfileRepository extends AbstractBaseRepository<ProfileEntity>
 	 * JPA specification to find profiles with a preferred language referral type ID in the given collection.
 	 */
 	static Specification<ProfileEntity> hasPreferredLanguageIdIn(Collection<Long> ids) {
-		if (CollectionUtils.isEmpty(ids)) { return AbstractBaseRepository.empty(); }
+		if (CollectionUtils.isEmpty(ids)) { return unrestricted(); }
 		return (root, query, cb) -> {
 			final var join = root.join("preferredLanguages");
 			return join.get("languageReferralType").get("id").in(ids);
@@ -196,7 +198,7 @@ public interface ProfileRepository extends AbstractBaseRepository<ProfileEntity>
 	 * JPA specification to find profiles with a preferred language referral type code in the given collection.
 	 */
 	static Specification<ProfileEntity> hasPreferredLanguageCodeIn(Collection<String> codes) {
-		if (CollectionUtils.isEmpty(codes)) { return AbstractBaseRepository.empty(); }
+		if (CollectionUtils.isEmpty(codes)) { return unrestricted(); }
 		return (root, query, cb) -> {
 			final var join = root.join("preferredLanguages");
 			return join.get("languageReferralType").get("code").in(codes);
@@ -221,7 +223,7 @@ public interface ProfileRepository extends AbstractBaseRepository<ProfileEntity>
 	 * JPA specification to find profiles with a status ID in the given collection.
 	 */
 	static Specification<ProfileEntity> hasProfileStatusIdIn(Collection<Long> ids) {
-		if (CollectionUtils.isEmpty(ids)) { return AbstractBaseRepository.empty(); }
+		if (CollectionUtils.isEmpty(ids)) { return unrestricted(); }
 		return (root, query, cb) -> root.get("profileStatus").get("id").in(ids);
 	}
 
@@ -243,7 +245,7 @@ public interface ProfileRepository extends AbstractBaseRepository<ProfileEntity>
 	 * JPA specification to find profiles with a status code in the given collection.
 	 */
 	static Specification<ProfileEntity> hasProfileStatusCodeIn(Collection<String> statuses) {
-		if (CollectionUtils.isEmpty(statuses)) { return AbstractBaseRepository.empty(); }
+		if (CollectionUtils.isEmpty(statuses)) { return unrestricted(); }
 		return (root, query, cb) -> root.get("profileStatus").get("code").in(statuses);
 	}
 

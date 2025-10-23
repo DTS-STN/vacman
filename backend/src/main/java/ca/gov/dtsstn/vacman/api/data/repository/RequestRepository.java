@@ -1,5 +1,7 @@
 package ca.gov.dtsstn.vacman.api.data.repository;
 
+import static org.springframework.data.jpa.domain.Specification.unrestricted;
+
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -30,7 +32,7 @@ public interface RequestRepository extends AbstractBaseRepository<RequestEntity>
 	 * JPA specification to find requests assigned to specific HR Advisors.
 	 */
 	static Specification<RequestEntity> hasHrAdvisorIdIn(Collection<Long> ids) {
-		if (CollectionUtils.isEmpty(ids)) { return Specification.unrestricted(); }
+		if (CollectionUtils.isEmpty(ids)) { return unrestricted(); }
 		return (root, query, cb) -> root.get("hrAdvisor").get("id").in(ids);
 	}
 
@@ -52,7 +54,7 @@ public interface RequestRepository extends AbstractBaseRepository<RequestEntity>
 	 * JPA specification to find requests with specific status codes.
 	 */
 	static Specification<RequestEntity> hasStatusCodeIn(Collection<String> codes) {
-		if (CollectionUtils.isEmpty(codes)) { return Specification.unrestricted(); }
+		if (CollectionUtils.isEmpty(codes)) { return unrestricted(); }
 		return (root, query, cb) -> root.get("requestStatus").get("code").in(codes);
 	}
 
@@ -74,7 +76,7 @@ public interface RequestRepository extends AbstractBaseRepository<RequestEntity>
 	 * JPA specification to find requests with specific status IDs.
 	 */
 	static Specification<RequestEntity> hasRequestStatusIdIn(Collection<Long> ids) {
-		if (CollectionUtils.isEmpty(ids)) { return AbstractBaseRepository.empty(); }
+		if (CollectionUtils.isEmpty(ids)) { return unrestricted(); }
 		return (root, query, cb) -> root.get("requestStatus").get("id").in(ids);
 	}
 
@@ -96,7 +98,7 @@ public interface RequestRepository extends AbstractBaseRepository<RequestEntity>
 	 * JPA specification to find requests with specific work-unit codes.
 	 */
 	static Specification<RequestEntity> hasWorkUnitCodeIn(Collection<String> codes) {
-		if (CollectionUtils.isEmpty(codes)) { return Specification.unrestricted(); }
+		if (CollectionUtils.isEmpty(codes)) { return unrestricted(); }
 		return (root, query, cb) -> root.get("workUnit").get("code").in(codes);
 	}
 
@@ -118,7 +120,7 @@ public interface RequestRepository extends AbstractBaseRepository<RequestEntity>
 	 * JPA specification to find requests with specific work-unit IDs.
 	 */
 	static Specification<RequestEntity> hasWorkUnitIdIn(Collection<Long> ids) {
-		if (CollectionUtils.isEmpty(ids)) { return AbstractBaseRepository.empty(); }
+		if (CollectionUtils.isEmpty(ids)) { return unrestricted(); }
 		return (root, query, cb) -> root.get("workUnit").get("id").in(ids);
 	}
 
