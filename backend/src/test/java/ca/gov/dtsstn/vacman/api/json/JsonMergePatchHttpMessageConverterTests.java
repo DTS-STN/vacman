@@ -16,13 +16,13 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 
-import javax.json.Json;
-import javax.json.JsonMergePatch;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpInputMessage;
 import org.springframework.http.HttpOutputMessage;
+
+import jakarta.json.Json;
+import jakarta.json.JsonMergePatch;
 
 /**
  * Tests for {@link JsonMergePatchHttpMessageConverter}.

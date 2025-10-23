@@ -1,7 +1,5 @@
 package ca.gov.dtsstn.vacman.api.config;
 
-import javax.json.JsonPatch;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springdoc.core.customizers.OpenApiCustomizer;
@@ -29,6 +27,7 @@ import io.swagger.v3.oas.models.security.OAuthFlow;
 import io.swagger.v3.oas.models.security.OAuthFlows;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.security.SecurityScheme.Type;
+import jakarta.json.JsonPatch;
 
 @Configuration
 public class SpringDocConfig {
