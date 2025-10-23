@@ -465,7 +465,7 @@ export default {
       'provinces-required': 'Province is required.',
       'city-required': 'City is required.',
       'city-invalid': 'City is invalid.',
-      'city-duplicate': 'Duplicate items for city are not allowed.',
+      'city-duplicate': 'Duplicate items for same city are not allowed.',
       'language-requirement-required': 'Language requirement is required.',
       'language-profile': {
         'reading-comprehension-required': 'Reading comprehension is required.',
@@ -537,7 +537,6 @@ export default {
       'branch-or-service-canada-region-required': 'Branch or Service Canada Region is required.',
       'directorate-required': 'Directorate is required.',
       'preferred-language-of-correspondence-required': 'Preferred language for correspondence is required.',
-      'additional-comments-required': 'Additional comments are required.',
       'additional-comments-max-length': 'Additional comments must be less than 100 characters.',
     },
   },
