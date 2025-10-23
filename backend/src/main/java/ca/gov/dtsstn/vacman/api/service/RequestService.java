@@ -180,13 +180,21 @@ public class RequestService {
 	}
 
 	@Transactional(readOnly = true)
-	public Page<RequestEntity> getAllRequestsAssociatedWithUser(Pageable pageable, Long userId) {
+	public Page<RequestEntity> getAllRequestsAssociatedWithUser(Pageable pageable, Long userId, RequestQuery query) {
 		final var requestsAssociatedWithUser = anyOf(
 			hasSubmitterId(userId),
 			hasHiringManagerId(userId),
-			hasSubDelegatedManagerId(userId));
+			hasSubDelegatedManagerId(userId)
+		);
 
-		return requestRepository.findAll(requestsAssociatedWithUser, pageable);
+		final var specification = allOf(
+			requestsAssociatedWithUser,
+			hasHrAdvisorIdIn(query.hrAdvisorIds()),
+			hasRequestStatusIdIn(query.statusIds()),
+			hasWorkUnitIdIn(query.workUnitIds())
+		);
+
+		return requestRepository.findAll(specification, pageable);
 	}
 
 	/**

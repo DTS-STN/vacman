@@ -99,7 +99,7 @@ public class RequestsController {
 	@PreAuthorize("hasAuthority('hr-advisor')")
 	@Operation(summary = "Get hiring requests with pagination.")
 	public ResponseEntity<PagedModel<RequestReadModel>> getAllRequests(@ParameterObject Pageable pageable, @ParameterObject RequestReadFilterModel filter) {
-		log.info("Received request to get all hiring requests.");
+		log.info("Received request to get all hiring requests");
 		log.debug("Pageable: {}, Filter: {}", pageable, filter);
 
 		final var requestQuery = requestModelMapper.toRequestQuery(RequestReadFilterModelBuilder.builder(filter)
@@ -119,14 +119,23 @@ public class RequestsController {
 	@PreAuthorize("isAuthenticated()")
 	@ApiResponses.ResourceNotFoundError
 	@Operation(summary = "Get all hiring requests for the current user.")
-	public ResponseEntity<PagedModel<RequestReadModel>> getCurrentUserRequests(@ParameterObject Pageable pageable) {
+	public ResponseEntity<PagedModel<RequestReadModel>> getCurrentUserRequests(@ParameterObject Pageable pageable, @ParameterObject RequestReadFilterModel filter) {
+		log.info("Received request to get all hiring requests for current user");
+		log.debug("Pageable: {}, Filter: {}", pageable, filter);
+
 		final var entraId = SecurityUtils.getCurrentUserEntraId()
 			.orElseThrow(asEntraIdUnauthorizedException());
 
 		final var user = userService.getUserByMicrosoftEntraId(entraId)
 			.orElseThrow(asUserResourceNotFoundException("microsoftEntraId", entraId));
 
-		final var requests = requestService.getAllRequestsAssociatedWithUser(pageable, user.getId())
+		final var requestQuery = requestModelMapper.toRequestQuery(RequestReadFilterModelBuilder.builder(filter)
+			// ?hrAdvisorId=me is a valid filter, so we must replace any instance
+			// of 'me' with the current user's id before fetching the data
+			.hrAdvisorId(resolveMeKeyword(filter.hrAdvisorId()))
+			.build());
+
+		final var requests = requestService.getAllRequestsAssociatedWithUser(pageable, user.getId(), requestQuery)
 			.map(entity -> requestModelMapper.toModel(entity, requestService.hasMatches(entity.getId())));
 
 		return ResponseEntity.ok(new PagedModel<>(requests));
