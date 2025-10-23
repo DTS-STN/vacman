@@ -2,7 +2,6 @@ import type { Option, Result } from 'oxide.ts';
 
 import type {
   CollectionMatchResponse,
-  CollectionRequestResponse,
   MatchReadModel,
   MatchUpdateModel,
   PagedRequestResponse,
@@ -21,8 +20,8 @@ export type RequestService = {
   // GET /api/v1/requests - Get requests with pagination and filtering
   getRequests(params: RequestQueryParams, accessToken: string): Promise<Result<PagedRequestResponse, AppError>>;
 
-  // GET /api/v1/requests/me - Get requests for current user
-  getCurrentUserRequests(accessToken: string): Promise<Result<CollectionRequestResponse, AppError>>;
+  // GET /api/v1/requests/me - Get requests with pagination and filtering for current user
+  getCurrentUserRequests(params: RequestQueryParams, accessToken: string): Promise<Result<PagedRequestResponse, AppError>>;
 
   // POST /api/v1/requests/me - Create a new request for current user
   createRequest(accessToken: string): Promise<Result<RequestReadModel, AppError>>;

@@ -3,7 +3,6 @@ import { Err, Ok } from 'oxide.ts';
 
 import type {
   CollectionMatchResponse,
-  CollectionRequestResponse,
   MatchReadModel,
   MatchUpdateModel,
   PagedRequestResponse,
@@ -32,7 +31,7 @@ export function getDefaultRequestService(): RequestService {
       if (params.status) searchParams.append('status', params.status);
       if (params.classification) searchParams.append('classification', params.classification);
       if (params.province) searchParams.append('province', params.province);
-      if (params.sort) params.sort.forEach((sort) => searchParams.append('sort', sort));
+      if (params.sort?.length) params.sort.forEach((sort) => searchParams.append('sort', sort));
 
       const url = `/requests${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
       const result = await apiClient.get<PagedRequestResponse>(url, 'retrieve paginated requests', accessToken);
@@ -47,12 +46,18 @@ export function getDefaultRequestService(): RequestService {
     /**
      * Retrieves requests for the current user.
      */
-    async getCurrentUserRequests(accessToken: string): Promise<Result<CollectionRequestResponse, AppError>> {
-      const result = await apiClient.get<CollectionRequestResponse>(
-        '/requests/me',
-        'retrieve current user requests',
-        accessToken,
-      );
+    async getCurrentUserRequests(
+      params: RequestQueryParams,
+      accessToken: string,
+    ): Promise<Result<PagedRequestResponse, AppError>> {
+      const searchParams = new URLSearchParams();
+
+      if (params.page !== undefined) searchParams.append('page', params.page.toString());
+      if (params.size !== undefined) searchParams.append('size', params.size.toString());
+      if (params.sort?.length) params.sort.forEach((sort) => searchParams.append('sort', sort));
+
+      const url = `/requests/me${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
+      const result = await apiClient.get<PagedRequestResponse>(url, 'retrieve current user requests', accessToken);
 
       if (result.isErr()) {
         return Err(result.unwrapErr());

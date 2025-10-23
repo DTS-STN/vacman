@@ -113,7 +113,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
   const currentUserResult = await getUserService().getCurrentUser(session.authState.accessToken);
   const currentUser = currentUserResult.unwrap();
 
-  const requestsResult = await getRequestService().getCurrentUserRequests(session.authState.accessToken);
+  const requestsResult = await getRequestService().getCurrentUserRequests({}, session.authState.accessToken); // TODO: call getCurrentUserRequests with RequestQueryParams
   const requests = requestsResult.into()?.content ?? [];
 
   const activeRequests = requests.filter((req) =>

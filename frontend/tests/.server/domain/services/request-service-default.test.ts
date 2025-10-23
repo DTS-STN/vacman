@@ -1,12 +1,7 @@
 import { Ok, Err } from 'oxide.ts';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import type {
-  RequestReadModel,
-  RequestUpdateModel,
-  PagedRequestResponse,
-  CollectionRequestResponse,
-} from '~/.server/domain/models';
+import type { RequestReadModel, RequestUpdateModel, PagedRequestResponse } from '~/.server/domain/models';
 import { apiClient } from '~/.server/domain/services/api-client';
 import { getDefaultRequestService } from '~/.server/domain/services/request-service-default';
 import { AppError } from '~/errors/app-error';
@@ -104,7 +99,7 @@ describe('RequestServiceDefault', () => {
   });
 
   describe('getCurrentUserRequests', () => {
-    const mockResponse: CollectionRequestResponse = {
+    const mockResponse: PagedRequestResponse = {
       content: [
         {
           id: 1,
@@ -115,6 +110,12 @@ describe('RequestServiceDefault', () => {
           status: { code: 'APPROVED', id: 2, nameEn: 'Approved', nameFr: 'Approuvé' },
         },
       ],
+      page: {
+        number: 1,
+        size: 10,
+        totalElements: 1,
+        totalPages: 1,
+      },
     };
 
     it('should fetch current user requests successfully', async () => {
@@ -122,7 +123,7 @@ describe('RequestServiceDefault', () => {
 
       const accessToken = 'user-token';
 
-      const result = await defaultRequestService.getCurrentUserRequests(accessToken);
+      const result = await defaultRequestService.getCurrentUserRequests({}, accessToken);
 
       expect(result.isOk()).toBe(true);
       expect(mockGet).toHaveBeenCalledWith('/requests/me', 'retrieve current user requests', accessToken);
@@ -148,7 +149,7 @@ describe('RequestServiceDefault', () => {
 
       const accessToken = 'invalid-token';
 
-      const result = await defaultRequestService.getCurrentUserRequests(accessToken);
+      const result = await defaultRequestService.getCurrentUserRequests({}, accessToken);
 
       expect(result.isErr()).toBe(true);
       if (result.isErr()) {
