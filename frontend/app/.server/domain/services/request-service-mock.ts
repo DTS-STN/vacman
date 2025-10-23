@@ -78,7 +78,7 @@ export function getMockRequestService(): RequestService {
         log.debug(`Applied statusId filter (${statusIds.join(',')}): ${filteredRequests.length} requests remaining`);
       }
 
-      // Apply status filter using statusIds param (array of ids)
+      // Apply work unit filter using workUnitIds param (array of ids)
       if (params.workUnitIds?.length) {
         const workUnitIds = params.workUnitIds.filter((n) => Number.isFinite(n));
         filteredRequests = filteredRequests.filter((r) =>
