@@ -80,7 +80,7 @@ public class JsonPatchProcessor {
 	 *
 	 * @param <T> the type of the object to patch
 	 * @param object the object to patch
-	 * @param patchFn a function that takes a {@link JsonStructure} and returns a {@link JsonValue} after applying the patch
+	 * @param patchFn a function that receives a {@link JsonStructure} representing the original object and returns the patched {@link JsonValue}
 	 * @return the patched and validated object
 	 * @throws ConstraintViolationException if the patched object does not pass validation
 	 * @throws JsonPatchException if an error occurs during JSON processing
