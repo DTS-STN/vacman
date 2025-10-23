@@ -28,10 +28,21 @@ export function getDefaultRequestService(): RequestService {
 
       if (params.page !== undefined) searchParams.append('page', params.page.toString());
       if (params.size !== undefined) searchParams.append('size', params.size.toString());
-      if (params.status) searchParams.append('status', params.status);
-      if (params.classification) searchParams.append('classification', params.classification);
-      if (params.province) searchParams.append('province', params.province);
       if (params.sort?.length) params.sort.forEach((sort) => searchParams.append('sort', sort));
+      // New filters: hrAdvisorId, statusIds and workUnitIds (appended as repeated statusId and workUnitId)
+      if (params.hrAdvisorId) {
+        searchParams.append('hrAdvisorId', params.hrAdvisorId);
+      }
+      if (params.statusIds?.length) {
+        for (const id of params.statusIds) {
+          searchParams.append('statusId', id.toString());
+        }
+      }
+      if (params.workUnitIds?.length) {
+        for (const id of params.workUnitIds) {
+          searchParams.append('workUnitId', id.toString());
+        }
+      }
 
       const url = `/requests${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
       const result = await apiClient.get<PagedRequestResponse>(url, 'retrieve paginated requests', accessToken);

@@ -69,13 +69,13 @@ describe('RequestServiceDefault', () => {
     it('should include query parameters when provided', async () => {
       mockGet.mockResolvedValue(Ok(mockResponse));
 
-      const params = { page: 2, size: 20, status: 'PENDING', classification: 'AS-01' };
+      const params = { page: 2, size: 20, statusIds: [0], hrAdvisorId: 'me' };
       const accessToken = 'valid-token';
 
       await defaultRequestService.getRequests(params, accessToken);
 
       expect(mockGet).toHaveBeenCalledWith(
-        '/requests?page=2&size=20&status=PENDING&classification=AS-01',
+        '/requests?page=2&size=20&hrAdvisorId=me&statusId=0',
         'retrieve paginated requests',
         accessToken,
       );

@@ -347,9 +347,9 @@ export type RequestQueryParams = {
   page?: number;
   size?: number;
   sort?: string[];
-  status?: string;
-  classification?: string;
-  province?: string;
+  statusIds?: number[];
+  hrAdvisorId?: string;
+  workUnitIds?: number[];
 };
 
 // Match Read Model
