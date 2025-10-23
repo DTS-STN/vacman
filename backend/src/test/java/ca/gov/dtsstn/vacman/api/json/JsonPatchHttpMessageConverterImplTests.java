@@ -9,13 +9,13 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.Map;
 
-import javax.json.Json;
-import javax.json.JsonPatch;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpInputMessage;
 import org.springframework.http.HttpOutputMessage;
+
+import jakarta.json.Json;
+import jakarta.json.JsonPatch;
 
 /**
  * Tests for {@link JsonPatchHttpMessageConverter}.

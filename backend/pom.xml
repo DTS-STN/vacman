@@ -49,7 +49,7 @@
 
 		<datafaker.version>2.5.2</datafaker.version>
 		<immutables.version>2.11.6</immutables.version>
-		<johnzon.version>1.2.21</johnzon.version>
+		<johnzon.version>2.0.2</johnzon.version>
 		<mapstruct.version>1.6.3</mapstruct.version>
 		<record-builder.version>49</record-builder.version>
 		<spring-boot-configuration-processor.version>3.5.6</spring-boot-configuration-processor.version>
@@ -58,10 +58,7 @@
 
 
 	<dependencies>
-		<dependency>
-			<groupId>com.fasterxml.jackson.datatype</groupId>
-			<artifactId>jackson-datatype-jsr353</artifactId>
-		</dependency>
+
 		<dependency>
 			<groupId>com.github.ben-manes.caffeine</groupId>
 			<artifactId>caffeine</artifactId>
