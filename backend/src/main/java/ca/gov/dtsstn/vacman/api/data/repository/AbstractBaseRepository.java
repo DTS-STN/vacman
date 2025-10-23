@@ -16,13 +16,6 @@ import ca.gov.dtsstn.vacman.api.data.entity.AbstractBaseEntity;
 public interface AbstractBaseRepository<T> extends JpaRepository<T, Long>, JpaSpecificationExecutor<T> {
 
 	/**
-	 * A conjunction (with zero conjuncts). Always evaluates to true.
-	 */
-	static <T> Specification<T> empty() {
-		return (root, query, cb) -> cb.conjunction();
-	}
-
-	/**
 	 * Specification to find a an entity by ID
 	 */
 	static <T extends AbstractBaseEntity> Specification<T> hasId(Long id) {
