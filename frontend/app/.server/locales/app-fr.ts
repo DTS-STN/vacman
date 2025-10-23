@@ -219,7 +219,7 @@ export default {
     'page-title': 'Information sur le processus',
     'selection-process-number': 'Numéro du processus de sélection (si applicable)',
     'approval-received':
-      "L'approbation au niveau approprié selon les paramètres du Comité de gestion des effectifs (CGE) et/ou du Comité de gestion des personnes et leadership (CGPL) a été obtenue (obligatoire)",
+      "L'approbation au niveau approprié selon les paramètres du Comité de gestion des effectifs (CGE) et/ou du Comité de gestion des personnes et leadership (CGPL) a été obtenue (requise)",
     'priority-entitlement':
       "Est-ce que la nomination d'un bénéficiaire de priorité aurait pour effet de conférer un droit de priorité à un-e autre fonctionnaire nommé-e pour une période indéterminée?",
     'priority-entitlement-rationale': 'Veuillez fournir la justification',
@@ -244,8 +244,8 @@ export default {
       'selection-process-number-invalid': 'Le numéro du processus de sélection est invalide',
       'approval-received-required': 'Approbation reçue est requise',
       'performed-duties-required': 'Exercé les mêmes fonctions est requis',
-      'priority-entitlement-rationale-required': "Nomination d'un bénéficiaire de priorité est requise",
-      'priority-entitlement-required': "Justification de la nomination d'un bénéficiaire de priorité est requise",
+      'priority-entitlement-rationale-required': "Justification de la nomination d'un bénéficiaire de priorité est requise",
+      'priority-entitlement-required': "Nomination d'un bénéficiaire de priorité est requise",
       'non-advertised-appointment-required': "Raison de la nomination d'un processus non-annoncée est requise",
       'selection-process-type-required': 'Sélection du type de processus est requise',
       'projected-start-date': {
@@ -550,7 +550,6 @@ export default {
       'branch-or-service-canada-region-required': 'La direction générale ou la région de Service Canada est requise.',
       'directorate-required': 'La direction est requise.',
       'preferred-language-of-correspondence-required': 'La langue de préférence pour la correspondance est requise.',
-      'additional-comments-required': 'Commentaires additionnels est requise.',
       'additional-comments-max-length': 'Les commentaires supplémentaires doivent comporter moins de 100 caractères.',
     },
   },
