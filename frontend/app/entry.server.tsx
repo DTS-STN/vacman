@@ -15,11 +15,16 @@ import { createCounter, handleSpanException } from '~/.server/utils/telemetry-ut
 import { isAppError } from '~/errors/app-error';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { initI18next } from '~/i18n-config.server';
+import { i18nRoutes } from '~/i18n-routes';
 import { getLanguage } from '~/utils/i18n-utils';
+import { buildRouteIndexes } from '~/utils/route-utils';
 
 /* eslint-disable no-param-reassign */
 
 const log = LogFactory.getLogger(import.meta.url);
+
+// Build route indexes for improved lookup performance (server-side)
+buildRouteIndexes(i18nRoutes);
 
 export default async function handleRequest(
   request: Request,

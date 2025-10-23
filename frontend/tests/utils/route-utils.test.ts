@@ -1,12 +1,28 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, beforeEach, afterEach } from 'vitest';
 
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
 import type { I18nRouteFile } from '~/i18n-routes';
 import { i18nRoutes, isI18nLayoutRoute, isI18nPageRoute } from '~/i18n-routes';
-import { findRouteByFile, findRouteByPath, getRouteByFile, getRouteByPath } from '~/utils/route-utils';
+import {
+  findRouteByFile,
+  findRouteByPath,
+  getRouteByFile,
+  getRouteByPath,
+  buildRouteIndexes,
+  clearRouteIndexes,
+} from '~/utils/route-utils';
 
 describe('route-utils', () => {
+  beforeEach(() => {
+    // Build indexes before each test for consistent behavior
+    buildRouteIndexes(i18nRoutes);
+  });
+
+  afterEach(() => {
+    // Clear indexes after each test
+    clearRouteIndexes();
+  });
   describe('findRouteByFile', () => {
     it('should return the correct route for a given file', () => {
       expect(findRouteByFile('routes/employee/index.tsx', i18nRoutes)).toEqual({

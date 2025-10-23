@@ -7,7 +7,12 @@ import type { i18n } from 'i18next';
 import { I18nextProvider } from 'react-i18next';
 
 import { initI18next } from '~/i18n-config.client';
+import { i18nRoutes } from '~/i18n-routes';
 import { getI18nNamespace } from '~/utils/i18n-utils';
+import { buildRouteIndexes } from '~/utils/route-utils';
+
+// Build route indexes for improved lookup performance
+buildRouteIndexes(i18nRoutes);
 
 function hydrateDocument(i18n: i18n): void {
   hydrateRoot(
