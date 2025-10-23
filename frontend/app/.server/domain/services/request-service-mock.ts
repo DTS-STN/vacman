@@ -84,7 +84,7 @@ export function getMockRequestService(): RequestService {
         filteredRequests = filteredRequests.filter((r) =>
           r.workUnit && r.workUnit.parent ? workUnitIds.includes(r.workUnit.parent.id) : false,
         );
-        log.debug(`Applied statusId filter (${workUnitIds.join(',')}): ${filteredRequests.length} requests remaining`);
+        log.debug(`Applied workUnitId filter (${workUnitIds.join(',')}): ${filteredRequests.length} requests remaining`);
       }
 
       // Apply pagination
