@@ -3,6 +3,7 @@ package ca.gov.dtsstn.vacman.api.web;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -32,6 +33,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes;
 import ca.gov.dtsstn.vacman.api.data.entity.RequestEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.RequestStatusEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 import ca.gov.dtsstn.vacman.api.data.repository.CityRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.ClassificationRepository;
@@ -166,7 +168,7 @@ class RequestsControllerTest {
 					.nameEn("Software Developer")
 					.nameFr("Développeur logiciel")
 					.requestNumber("REQ-001")
-					.requestStatus(requestStatusRepository.findByCode(lookupCodes.requestStatuses().draft()).orElseThrow())
+					.requestStatus(requestStatusRepository.findByCode(lookupCodes.requestStatuses().hrReview()).orElseThrow())
 					.submitter(submitter)
 					.workUnit(workUnitRepository.getReferenceById(1L))
 					.build(),
@@ -1590,6 +1592,137 @@ class RequestsControllerTest {
 			// Verify first transition
 			final var updatedRequest = requestRepository.findById(request.getId()).orElseThrow();
 			assertThat(updatedRequest.getRequestStatus().getCode()).isEqualTo(lookupCodes.requestStatuses().submitted());
+		}
+
+	}
+
+	@Nested
+	@DisplayName("Other request endpoints")
+	class OtherRequests {
+
+		final RequestStatusEntity draftStatus = requestStatusRepository.findByCode(lookupCodes.requestStatuses().draft()).orElseThrow();
+
+		final RequestStatusEntity hrReviewStatus = requestStatusRepository.findByCode(lookupCodes.requestStatuses().hrReview()).orElseThrow();
+
+		@Test
+		@DisplayName("GET /api/v1/requests/me returns current user's requests")
+		@WithMockUser(username = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb", authorities = { "employee" })
+		void testGetCurrentUserRequests() throws Exception {
+			requestRepository.save(RequestEntity.builder()
+				.classification(classificationRepository.getReferenceById(1L))
+				.hiringManager(hiringManager)
+				.languageRequirement(languageRequirementRepository.getReferenceById(1L))
+				.nameEn("My Position")
+				.nameFr("Mon poste")
+				.requestNumber("ME-001")
+				.requestStatus(draftStatus)
+				.submitter(hiringManager)
+				.workUnit(workUnitRepository.getReferenceById(1L))
+				.build());
+
+			mockMvc.perform(get("/api/v1/requests/me"))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.content.length()", is(1)))
+				.andExpect(jsonPath("$.content[0].englishTitle", is("My Position")));
+		}
+
+		@Test
+		@DisplayName("POST /api/v1/requests/me creates a request for current user")
+		@WithMockUser(username = "cccccccc-cccc-cccc-cccc-cccccccccccc", authorities = { "employee" })
+		void testCreateCurrentUserRequest() throws Exception {
+			mockMvc.perform(post("/api/v1/requests/me"))
+				.andExpect(status().isCreated())
+				.andExpect(jsonPath("$.id", notNullValue()));
+		}
+
+		@Test
+		@DisplayName("GET /api/v1/requests/{id} returns request")
+		@WithMockUser(username = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", authorities = { "hr-advisor" })
+		void testGetRequestById() throws Exception {
+			final var request = requestRepository.save(RequestEntity.builder()
+				.classification(classificationRepository.getReferenceById(1L))
+				.hiringManager(hiringManager)
+				.hrAdvisor(hrAdvisor)
+				.languageRequirement(languageRequirementRepository.getReferenceById(1L))
+				.nameEn("Single Request")
+				.nameFr("Demande unique")
+				.requestNumber("S-001")
+				.requestStatus(hrReviewStatus)
+				.submitter(submitter)
+				.workUnit(workUnitRepository.getReferenceById(1L))
+				.build());
+
+			mockMvc.perform(get("/api/v1/requests/{id}", request.getId()))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.id", is(request.getId().intValue())))
+				.andExpect(jsonPath("$.englishTitle", is("Single Request")));
+		}
+
+		@Test
+		@DisplayName("DELETE /api/v1/requests/{id} deletes request")
+		@WithMockUser(username = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", authorities = { "hr-advisor" })
+		void testDeleteRequestById() throws Exception {
+			final var request = requestRepository.save(RequestEntity.builder()
+				.classification(classificationRepository.getReferenceById(1L))
+				.hiringManager(hiringManager)
+				.hrAdvisor(hrAdvisor)
+				.languageRequirement(languageRequirementRepository.getReferenceById(1L))
+				.nameEn("Delete Request")
+				.nameFr("Supprimer demande")
+				.requestNumber("D-001")
+				.requestStatus(draftStatus)
+				.submitter(submitter)
+				.workUnit(workUnitRepository.getReferenceById(1L))
+				.build());
+
+			mockMvc.perform(delete("/api/v1/requests/{id}", request.getId()))
+				.andExpect(status().isNoContent());
+
+			assertThat(requestRepository.findById(request.getId())).isEmpty();
+		}
+
+		@Test
+		@DisplayName("POST /api/v1/requests/{id}/run-matches runs matching algorithm")
+		@WithMockUser(username = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", authorities = { "hr-advisor" })
+		void testRunMatches() throws Exception {
+			final var request = requestRepository.save(RequestEntity.builder()
+				.classification(classificationRepository.getReferenceById(1L))
+				.hiringManager(hiringManager)
+				.hrAdvisor(hrAdvisor)
+				.languageRequirement(languageRequirementRepository.getReferenceById(1L))
+				.nameEn("Run Matches")
+				.nameFr("Exécuter correspondances")
+				.requestNumber("RM-001")
+				.requestStatus(hrReviewStatus)
+				.submitter(submitter)
+				.workUnit(workUnitRepository.getReferenceById(1L))
+				.build());
+
+			mockMvc.perform(post("/api/v1/requests/{id}/run-matches", request.getId()))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.id", is(request.getId().intValue())));
+		}
+
+		@Test
+		@DisplayName("POST /api/v1/requests/{id}/cancel cancels request")
+		@WithMockUser(username = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", authorities = { "hr-advisor" })
+		void testCancelRequest() throws Exception {
+			final var request = requestRepository.save(RequestEntity.builder()
+				.classification(classificationRepository.getReferenceById(1L))
+				.hiringManager(hiringManager)
+				.hrAdvisor(hrAdvisor)
+				.languageRequirement(languageRequirementRepository.getReferenceById(1L))
+				.nameEn("Cancel Position")
+				.nameFr("Annuler poste")
+				.requestNumber("C-001")
+				.requestStatus(draftStatus)
+				.submitter(submitter)
+				.workUnit(workUnitRepository.getReferenceById(1L))
+				.build());
+
+			mockMvc.perform(post("/api/v1/requests/{id}/cancel", request.getId()))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.id", is(request.getId().intValue())));
 		}
 
 	}
