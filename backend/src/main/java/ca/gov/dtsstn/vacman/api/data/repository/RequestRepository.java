@@ -124,4 +124,70 @@ public interface RequestRepository extends AbstractBaseRepository<RequestEntity>
 		return (root, query, cb) -> root.get("workUnit").get("id").in(ids);
 	}
 
+	/**
+	 * JPA specification to find requests submitted by a specific user.
+	 */
+	static Specification<RequestEntity> hasSubmitterId(Long id) {
+		return (root, query, cb) -> cb.equal(root.get("submitter").get("id"), id);
+	}
+
+	/**
+	 * JPA specification to find requests submitted by specific users.
+	 */
+	static Specification<RequestEntity> hasSubmitterIdIn(Long ... ids) {
+		return hasSubmitterIdIn(Arrays.asList(ids));
+	}
+
+	/**
+	 * JPA specification to find requests submitted by specific users.
+	 */
+	static Specification<RequestEntity> hasSubmitterIdIn(Collection<Long> ids) {
+		if (CollectionUtils.isEmpty(ids)) { return unrestricted(); }
+		return (root, query, cb) -> root.get("submitter").get("id").in(ids);
+	}
+
+	/**
+	 * JPA specification to find requests with a specific hiring manager.
+	 */
+	static Specification<RequestEntity> hasHiringManagerId(Long id) {
+		return (root, query, cb) -> cb.equal(root.get("hiringManager").get("id"), id);
+	}
+
+	/**
+	 * JPA specification to find requests with specific hiring managers.
+	 */
+	static Specification<RequestEntity> hasHiringManagerIdIn(Long ... ids) {
+		return hasHiringManagerIdIn(Arrays.asList(ids));
+	}
+
+	/**
+	 * JPA specification to find requests with specific hiring managers.
+	 */
+	static Specification<RequestEntity> hasHiringManagerIdIn(Collection<Long> ids) {
+		if (CollectionUtils.isEmpty(ids)) { return unrestricted(); }
+		return (root, query, cb) -> root.get("hiringManager").get("id").in(ids);
+	}
+
+	/**
+	 * JPA specification to find requests with a specific sub-delegated manager.
+	 */
+	static Specification<RequestEntity> hasSubDelegatedManagerId(Long id) {
+		return (root, query, cb) -> cb.equal(root.get("subDelegatedManager").get("id"), id);
+	}
+
+	/**
+	 * JPA specification to find requests with specific sub-delegated managers.
+	 */
+	static Specification<RequestEntity> hasSubDelegatedManagerIdIn(Long ... ids) {
+		return hasSubDelegatedManagerIdIn(Arrays.asList(ids));
+	}
+
+	/**
+	 * JPA specification to find requests with specific sub-delegated managers.
+	 */
+	static Specification<RequestEntity> hasSubDelegatedManagerIdIn(Collection<Long> ids) {
+		if (CollectionUtils.isEmpty(ids)) { return unrestricted(); }
+		return (root, query, cb) -> root.get("subDelegatedManager").get("id").in(ids);
+	}
+
 }

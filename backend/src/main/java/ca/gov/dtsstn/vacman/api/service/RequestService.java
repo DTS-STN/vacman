@@ -3,11 +3,15 @@ package ca.gov.dtsstn.vacman.api.service;
 import static ca.gov.dtsstn.vacman.api.data.repository.AbstractBaseRepository.hasId;
 import static ca.gov.dtsstn.vacman.api.data.repository.MatchRepository.hasProfileId;
 import static ca.gov.dtsstn.vacman.api.data.repository.MatchRepository.hasRequestId;
+import static ca.gov.dtsstn.vacman.api.data.repository.RequestRepository.hasHiringManagerId;
 import static ca.gov.dtsstn.vacman.api.data.repository.RequestRepository.hasHrAdvisorIdIn;
 import static ca.gov.dtsstn.vacman.api.data.repository.RequestRepository.hasRequestStatusIdIn;
+import static ca.gov.dtsstn.vacman.api.data.repository.RequestRepository.hasSubDelegatedManagerId;
+import static ca.gov.dtsstn.vacman.api.data.repository.RequestRepository.hasSubmitterId;
 import static ca.gov.dtsstn.vacman.api.data.repository.RequestRepository.hasWorkUnitIdIn;
 import static ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException.asResourceNotFoundException;
 import static org.springframework.data.jpa.domain.Specification.allOf;
+import static org.springframework.data.jpa.domain.Specification.anyOf;
 
 import java.util.Collection;
 import java.util.List;
@@ -176,10 +180,13 @@ public class RequestService {
 	}
 
 	@Transactional(readOnly = true)
-	public List<RequestEntity> getAllRequestsAssociatedWithUser(Long userId) {
-		return requestRepository.findAll().stream()
-			.filter(request -> request.getOwnerId().map(id -> id.equals(userId)).orElse(false) || request.getDelegateIds().contains(userId))
-			.toList();
+	public Page<RequestEntity> getAllRequestsAssociatedWithUser(Pageable pageable, Long userId) {
+		final var requestsAssociatedWithUser = anyOf(
+			hasSubmitterId(userId),
+			hasHiringManagerId(userId),
+			hasSubDelegatedManagerId(userId));
+
+		return requestRepository.findAll(requestsAssociatedWithUser, pageable);
 	}
 
 	/**

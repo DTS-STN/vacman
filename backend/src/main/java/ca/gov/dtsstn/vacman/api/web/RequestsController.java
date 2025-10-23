@@ -119,18 +119,17 @@ public class RequestsController {
 	@PreAuthorize("isAuthenticated()")
 	@ApiResponses.ResourceNotFoundError
 	@Operation(summary = "Get all hiring requests for the current user.")
-	public ResponseEntity<CollectionModel<RequestReadModel>> getCurrentUserRequests() {
+	public ResponseEntity<PagedModel<RequestReadModel>> getCurrentUserRequests(@ParameterObject Pageable pageable) {
 		final var entraId = SecurityUtils.getCurrentUserEntraId()
 			.orElseThrow(asEntraIdUnauthorizedException());
 
 		final var user = userService.getUserByMicrosoftEntraId(entraId)
 			.orElseThrow(asUserResourceNotFoundException("microsoftEntraId", entraId));
 
-		final var requests = requestService.getAllRequestsAssociatedWithUser(user.getId()).stream()
-			.map(entity -> requestModelMapper.toModel(entity, requestService.hasMatches(entity.getId())))
-			.collect(toCollectionModel());
+		final var requests = requestService.getAllRequestsAssociatedWithUser(pageable, user.getId())
+			.map(entity -> requestModelMapper.toModel(entity, requestService.hasMatches(entity.getId())));
 
-		return ResponseEntity.ok(requests);
+		return ResponseEntity.ok(new PagedModel<>(requests));
 	}
 
 	@ApiResponses.Created
