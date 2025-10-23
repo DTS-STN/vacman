@@ -213,8 +213,8 @@ public class ProfilesController {
 		// APPROVED and ARCHIVED statuses require that the submitter be an HR advisor
 		//
 
-		final var requiresHrAdvisor = profileStatusCodes.approved().equals(updatedProfileStatus.getCode())
-			|| profileStatusCodes.archived().equals(updatedProfileStatus.getCode());
+		final var requiresHrAdvisor = profileStatusCodes.approved().equals(updatedProfileStatus.code())
+			|| profileStatusCodes.archived().equals(updatedProfileStatus.code());
 
 		if (requiresHrAdvisor && !isHrAdvisor()) {
 			throw new AccessDeniedException("Only HR advisors can set status to APPROVED or ARCHIVED");
@@ -224,7 +224,7 @@ public class ProfilesController {
 		// PENDING is the only valid status for normal (non HR advisor) employees
 		//
 
-		final var isPendingStatus = profileStatusCodes.pending().equals(updatedProfileStatus.getCode());
+		final var isPendingStatus = profileStatusCodes.pending().equals(updatedProfileStatus.code());
 
 		if (!requiresHrAdvisor && !isPendingStatus) {
 			throw new AccessDeniedException("Profile status can only be set to APPROVED");
@@ -234,7 +234,7 @@ public class ProfilesController {
 			.orElseThrow(asResourceNotFoundException(PROFILE, id));
 
 		final Set<String> validPretransitionStates;
-		final var code = updatedProfileStatus.getCode();
+		final var code = updatedProfileStatus.code();
 
 		if (code.equals(profileStatusCodes.pending())) {
 			validPretransitionStates = Set.of(profileStatusCodes.incomplete(), profileStatusCodes.approved());
@@ -249,7 +249,7 @@ public class ProfilesController {
 			throw new ResourceConflictException("Cannot transition profile status to code=[" + code + "]");
 		}
 
-		updateStatusToTarget(foundProfile, updatedProfileStatus.getCode(), validPretransitionStates);
+		updateStatusToTarget(foundProfile, updatedProfileStatus.code(), validPretransitionStates);
 
 		return ResponseEntity.accepted().build();
 	}
