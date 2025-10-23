@@ -2,10 +2,16 @@ package ca.gov.dtsstn.vacman.api.data.repository;
 
 import static ca.gov.dtsstn.vacman.api.data.repository.RequestRepository.hasHrAdvisorId;
 import static ca.gov.dtsstn.vacman.api.data.repository.RequestRepository.hasHrAdvisorIdIn;
+import static ca.gov.dtsstn.vacman.api.data.repository.RequestRepository.hasHiringManagerId;
+import static ca.gov.dtsstn.vacman.api.data.repository.RequestRepository.hasHiringManagerIdIn;
 import static ca.gov.dtsstn.vacman.api.data.repository.RequestRepository.hasRequestStatusId;
 import static ca.gov.dtsstn.vacman.api.data.repository.RequestRepository.hasRequestStatusIdIn;
 import static ca.gov.dtsstn.vacman.api.data.repository.RequestRepository.hasStatusCode;
 import static ca.gov.dtsstn.vacman.api.data.repository.RequestRepository.hasStatusCodeIn;
+import static ca.gov.dtsstn.vacman.api.data.repository.RequestRepository.hasSubDelegatedManagerId;
+import static ca.gov.dtsstn.vacman.api.data.repository.RequestRepository.hasSubDelegatedManagerIdIn;
+import static ca.gov.dtsstn.vacman.api.data.repository.RequestRepository.hasSubmitterId;
+import static ca.gov.dtsstn.vacman.api.data.repository.RequestRepository.hasSubmitterIdIn;
 import static ca.gov.dtsstn.vacman.api.data.repository.RequestRepository.hasWorkUnitCode;
 import static ca.gov.dtsstn.vacman.api.data.repository.RequestRepository.hasWorkUnitCodeIn;
 import static ca.gov.dtsstn.vacman.api.data.repository.RequestRepository.hasWorkUnitId;
@@ -70,6 +76,11 @@ class RequestRepositoryTest {
 	UserEntity hrAdvisor1;
 	UserEntity hrAdvisor2;
 	UserEntity submitter;
+	UserEntity submitter2;
+	UserEntity hiringManager1;
+	UserEntity hiringManager2;
+	UserEntity subDelegatedManager1;
+	UserEntity subDelegatedManager2;
 
 	WorkUnitEntity workUnit1;
 	WorkUnitEntity workUnit2;
@@ -108,6 +119,51 @@ class RequestRepositoryTest {
 			.businessEmailAddress("hr.advisor2@example.com")
 			.firstName("HR")
 			.lastName("Advisor 2")
+			.build());
+
+		submitter2 = userRepository.save(UserEntity.builder()
+			.language(languageRepository.findByCode("EN").orElseThrow())
+			.userType(userTypeRepository.findByCode("employee").orElseThrow())
+			.microsoftEntraId("04040404-0404-0404-0404-040404040404")
+			.businessEmailAddress("submitter2@example.com")
+			.firstName("Test2")
+			.lastName("Submitter2")
+			.build());
+
+		hiringManager1 = userRepository.save(UserEntity.builder()
+			.language(languageRepository.findByCode("EN").orElseThrow())
+			.userType(userTypeRepository.findByCode("employee").orElseThrow())
+			.microsoftEntraId("05050505-0505-0505-0505-050505050505")
+			.businessEmailAddress("hiring.manager1@example.com")
+			.firstName("Hiring")
+			.lastName("Manager 1")
+			.build());
+
+		hiringManager2 = userRepository.save(UserEntity.builder()
+			.language(languageRepository.findByCode("FR").orElseThrow())
+			.userType(userTypeRepository.findByCode("employee").orElseThrow())
+			.microsoftEntraId("06060606-0606-0606-0606-060606060606")
+			.businessEmailAddress("hiring.manager2@example.com")
+			.firstName("Hiring")
+			.lastName("Manager 2")
+			.build());
+
+		subDelegatedManager1 = userRepository.save(UserEntity.builder()
+			.language(languageRepository.findByCode("EN").orElseThrow())
+			.userType(userTypeRepository.findByCode("employee").orElseThrow())
+			.microsoftEntraId("07070707-0707-0707-0707-070707070707")
+			.businessEmailAddress("subdelegated.manager1@example.com")
+			.firstName("Subdelegated")
+			.lastName("Manager 1")
+			.build());
+
+		subDelegatedManager2 = userRepository.save(UserEntity.builder()
+			.language(languageRepository.findByCode("FR").orElseThrow())
+			.userType(userTypeRepository.findByCode("employee").orElseThrow())
+			.microsoftEntraId("08080808-0808-0808-0808-080808080808")
+			.businessEmailAddress("subdelegated.manager2@example.com")
+			.firstName("Subdelegated")
+			.lastName("Manager 2")
 			.build());
 
 		//
@@ -696,6 +752,359 @@ class RequestRepositoryTest {
 			final var results = requestRepository.findAll(hasWorkUnitIdIn((Collection<Long>) null));
 
 			assertThat(results).as("Should match all requests when work unit ID collection is null").hasSize(1);
+		}
+
+	}
+
+	@Nested
+	@DisplayName("Submitter Specification Tests")
+	class SubmitterSpecificationTests {
+
+		@Test
+		@DisplayName("hasSubmitterId should find requests by submitter ID")
+		void testHasSubmitterId() {
+			final var request1 = requestRepository.save(
+				RequestEntity.builder()
+					.submitter(submitter)
+					.requestStatus(statusDraft)
+					.build());
+
+			final var request2 = requestRepository.save(
+				RequestEntity.builder()
+					.submitter(submitter)
+					.requestStatus(statusDraft)
+					.build());
+
+			@SuppressWarnings("unused")
+			final var request3 = requestRepository.save(
+				RequestEntity.builder()
+					.submitter(submitter2)
+					.requestStatus(statusDraft)
+					.build());
+
+			final var results = requestRepository.findAll(hasSubmitterId(submitter.getId()));
+
+			assertThat(results).as("Should find 2 requests submitted by submitter").hasSize(2);
+			assertThat(results).extracting(RequestEntity::getId)
+				.as("Should contain the IDs of the two requests submitted by submitter")
+				.containsExactlyInAnyOrder(request1.getId(), request2.getId());
+		}
+
+		@Test
+		@DisplayName("hasSubmitterId should return empty list when no requests match")
+		void testHasSubmitterIdNoMatches() {
+			requestRepository.save(
+				RequestEntity.builder()
+					.submitter(submitter)
+					.requestStatus(statusDraft)
+					.build());
+
+			final var results = requestRepository.findAll(hasSubmitterId(999999L));
+
+			assertThat(results).as("Should return empty list when no requests match the submitter ID").isEmpty();
+		}
+
+		@Test
+		@DisplayName("hasSubmitterIdIn should find requests by multiple submitter IDs")
+		void testHasSubmitterIdIn() {
+			final var request1 = requestRepository.save(
+				RequestEntity.builder()
+					.submitter(submitter)
+					.requestStatus(statusDraft)
+					.build());
+
+			final var request2 = requestRepository.save(
+				RequestEntity.builder()
+					.submitter(submitter)
+					.requestStatus(statusDraft)
+					.build());
+
+			final var request3 = requestRepository.save(
+				RequestEntity.builder()
+					.submitter(submitter2)
+					.requestStatus(statusDraft)
+					.build());
+
+			final var results = requestRepository.findAll(hasSubmitterIdIn(submitter.getId(), submitter2.getId()));
+
+			assertThat(results).as("Should find 3 requests submitted by either submitter or submitter2").hasSize(3);
+			assertThat(results).extracting(RequestEntity::getId)
+				.as("Should contain the IDs of the three requests submitted by submitter or submitter2")
+				.containsExactlyInAnyOrder(request1.getId(), request2.getId(), request3.getId());
+		}
+
+		@Test
+		@DisplayName("hasSubmitterIdIn should match all when collection is empty")
+		void testHasSubmitterIdInEmptyCollection() {
+			requestRepository.save(
+				RequestEntity.builder()
+					.submitter(submitter)
+					.requestStatus(statusDraft)
+					.build());
+
+			final var results = requestRepository.findAll(hasSubmitterIdIn(List.of()));
+
+			assertThat(results).as("Should match all requests when submitter ID collection is empty").hasSize(1);
+		}
+
+		@Test
+		@DisplayName("hasSubmitterIdIn should match all when collection is null")
+		void testHasSubmitterIdInNullCollection() {
+			requestRepository.save(
+				RequestEntity.builder()
+					.submitter(submitter)
+					.requestStatus(statusDraft)
+					.build());
+
+			final var results = requestRepository.findAll(hasSubmitterIdIn((Collection<Long>) null));
+
+			assertThat(results).as("Should match all requests when submitter ID collection is null").hasSize(1);
+		}
+
+	}
+
+	@Nested
+	@DisplayName("Hiring Manager Specification Tests")
+	class HiringManagerSpecificationTests {
+
+		@Test
+		@DisplayName("hasHiringManagerId should find requests by hiring manager ID")
+		void testHasHiringManagerId() {
+			final var request1 = requestRepository.save(
+				RequestEntity.builder()
+					.submitter(submitter)
+					.requestStatus(statusDraft)
+					.hiringManager(hiringManager1)
+					.build());
+
+			final var request2 = requestRepository.save(
+				RequestEntity.builder()
+					.submitter(submitter)
+					.requestStatus(statusDraft)
+					.hiringManager(hiringManager1)
+					.build());
+
+			@SuppressWarnings("unused")
+			final var request3 = requestRepository.save(
+				RequestEntity.builder()
+					.submitter(submitter)
+					.requestStatus(statusDraft)
+					.hiringManager(hiringManager2)
+					.build());
+
+			final var results = requestRepository.findAll(hasHiringManagerId(hiringManager1.getId()));
+
+			assertThat(results).as("Should find 2 requests with hiring manager 1").hasSize(2);
+			assertThat(results).extracting(RequestEntity::getId)
+				.as("Should contain the IDs of the two requests with hiring manager 1")
+				.containsExactlyInAnyOrder(request1.getId(), request2.getId());
+		}
+
+		@Test
+		@DisplayName("hasHiringManagerId should return empty list when no requests match")
+		void testHasHiringManagerIdNoMatches() {
+			requestRepository.save(
+				RequestEntity.builder()
+					.submitter(submitter)
+					.requestStatus(statusDraft)
+					.hiringManager(hiringManager1)
+					.build());
+
+			final var results = requestRepository.findAll(hasHiringManagerId(999999L));
+
+			assertThat(results).as("Should return empty list when no requests match the hiring manager ID").isEmpty();
+		}
+
+		@Test
+		@DisplayName("hasHiringManagerIdIn should find requests by multiple hiring manager IDs")
+		void testHasHiringManagerIdIn() {
+			final var request1 = requestRepository.save(
+				RequestEntity.builder()
+					.submitter(submitter)
+					.requestStatus(statusDraft)
+					.hiringManager(hiringManager1)
+					.build());
+
+			final var request2 = requestRepository.save(
+				RequestEntity.builder()
+					.submitter(submitter)
+					.requestStatus(statusDraft)
+					.hiringManager(hiringManager1)
+					.build());
+
+			final var request3 = requestRepository.save(
+				RequestEntity.builder()
+					.submitter(submitter)
+					.requestStatus(statusDraft)
+					.hiringManager(hiringManager2)
+					.build());
+
+			@SuppressWarnings("unused")
+			final var request4 = requestRepository.save(
+				RequestEntity.builder()
+					.submitter(submitter)
+					.requestStatus(statusDraft)
+					.build()); // no hiringManager
+
+			final var results = requestRepository.findAll(hasHiringManagerIdIn(hiringManager1.getId(), hiringManager2.getId()));
+
+			assertThat(results).as("Should find 3 requests with either hiring manager 1 or 2").hasSize(3);
+			assertThat(results).extracting(RequestEntity::getId)
+				.as("Should contain the IDs of the three requests with hiring managers 1 or 2")
+				.containsExactlyInAnyOrder(request1.getId(), request2.getId(), request3.getId());
+		}
+
+		@Test
+		@DisplayName("hasHiringManagerIdIn should match all when collection is empty")
+		void testHasHiringManagerIdInEmptyCollection() {
+			requestRepository.save(
+				RequestEntity.builder()
+					.submitter(submitter)
+					.requestStatus(statusDraft)
+					.hiringManager(hiringManager1)
+					.build());
+
+			final var results = requestRepository.findAll(hasHiringManagerIdIn(List.of()));
+
+			assertThat(results).as("Should match all requests when hiring manager ID collection is empty").hasSize(1);
+		}
+
+		@Test
+		@DisplayName("hasHiringManagerIdIn should match all when collection is null")
+		void testHasHiringManagerIdInNullCollection() {
+			requestRepository.save(
+				RequestEntity.builder()
+					.submitter(submitter)
+					.requestStatus(statusDraft)
+					.hiringManager(hiringManager1)
+					.build());
+
+			final var results = requestRepository.findAll(hasHiringManagerIdIn((Collection<Long>) null));
+
+			assertThat(results).as("Should match all requests when hiring manager ID collection is null").hasSize(1);
+		}
+
+	}
+
+	@Nested
+	@DisplayName("Sub-Delegated Manager Specification Tests")
+	class SubDelegatedManagerSpecificationTests {
+
+		@Test
+		@DisplayName("hasSubDelegatedManagerId should find requests by sub-delegated manager ID")
+		void testHasSubDelegatedManagerId() {
+			final var request1 = requestRepository.save(
+				RequestEntity.builder()
+					.submitter(submitter)
+					.requestStatus(statusDraft)
+					.subDelegatedManager(subDelegatedManager1)
+					.build());
+
+			final var request2 = requestRepository.save(
+				RequestEntity.builder()
+					.submitter(submitter)
+					.requestStatus(statusDraft)
+					.subDelegatedManager(subDelegatedManager1)
+					.build());
+
+			@SuppressWarnings("unused")
+			final var request3 = requestRepository.save(
+				RequestEntity.builder()
+					.submitter(submitter)
+					.requestStatus(statusDraft)
+					.subDelegatedManager(subDelegatedManager2)
+					.build());
+
+			final var results = requestRepository.findAll(hasSubDelegatedManagerId(subDelegatedManager1.getId()));
+
+			assertThat(results).as("Should find 2 requests with sub-delegated manager 1").hasSize(2);
+			assertThat(results).extracting(RequestEntity::getId)
+				.as("Should contain the IDs of the two requests with sub-delegated manager 1")
+				.containsExactlyInAnyOrder(request1.getId(), request2.getId());
+		}
+
+		@Test
+		@DisplayName("hasSubDelegatedManagerId should return empty list when no requests match")
+		void testHasSubDelegatedManagerIdNoMatches() {
+			requestRepository.save(
+				RequestEntity.builder()
+					.submitter(submitter)
+					.requestStatus(statusDraft)
+					.subDelegatedManager(subDelegatedManager1)
+					.build());
+
+			final var results = requestRepository.findAll(hasSubDelegatedManagerId(999999L));
+
+			assertThat(results).as("Should return empty list when no requests match the sub-delegated manager ID").isEmpty();
+		}
+
+		@Test
+		@DisplayName("hasSubDelegatedManagerIdIn should find requests by multiple sub-delegated manager IDs")
+		void testHasSubDelegatedManagerIdIn() {
+			final var request1 = requestRepository.save(
+				RequestEntity.builder()
+					.submitter(submitter)
+					.requestStatus(statusDraft)
+					.subDelegatedManager(subDelegatedManager1)
+					.build());
+
+			final var request2 = requestRepository.save(
+				RequestEntity.builder()
+					.submitter(submitter)
+					.requestStatus(statusDraft)
+					.subDelegatedManager(subDelegatedManager1)
+					.build());
+
+			final var request3 = requestRepository.save(
+				RequestEntity.builder()
+					.submitter(submitter)
+					.requestStatus(statusDraft)
+					.subDelegatedManager(subDelegatedManager2)
+					.build());
+
+			@SuppressWarnings("unused")
+			final var request4 = requestRepository.save(
+				RequestEntity.builder()
+					.submitter(submitter)
+					.requestStatus(statusDraft)
+					.build()); // no subDelegatedManager
+
+			final var results = requestRepository.findAll(hasSubDelegatedManagerIdIn(subDelegatedManager1.getId(), subDelegatedManager2.getId()));
+
+			assertThat(results).as("Should find 3 requests with either sub-delegated manager 1 or 2").hasSize(3);
+			assertThat(results).extracting(RequestEntity::getId)
+				.as("Should contain the IDs of the three requests with sub-delegated managers 1 or 2")
+				.containsExactlyInAnyOrder(request1.getId(), request2.getId(), request3.getId());
+		}
+
+		@Test
+		@DisplayName("hasSubDelegatedManagerIdIn should match all when collection is empty")
+		void testHasSubDelegatedManagerIdInEmptyCollection() {
+			requestRepository.save(
+				RequestEntity.builder()
+					.submitter(submitter)
+					.requestStatus(statusDraft)
+					.subDelegatedManager(subDelegatedManager1)
+					.build());
+
+			final var results = requestRepository.findAll(hasSubDelegatedManagerIdIn(List.of()));
+
+			assertThat(results).as("Should match all requests when sub-delegated manager ID collection is empty").hasSize(1);
+		}
+
+		@Test
+		@DisplayName("hasSubDelegatedManagerIdIn should match all when collection is null")
+		void testHasSubDelegatedManagerIdInNullCollection() {
+			requestRepository.save(
+				RequestEntity.builder()
+					.submitter(submitter)
+					.requestStatus(statusDraft)
+					.subDelegatedManager(subDelegatedManager1)
+					.build());
+
+			final var results = requestRepository.findAll(hasSubDelegatedManagerIdIn((Collection<Long>) null));
+
+			assertThat(results).as("Should match all requests when sub-delegated manager ID collection is null").hasSize(1);
 		}
 
 	}
