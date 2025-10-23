@@ -1,9 +1,11 @@
 package ca.gov.dtsstn.vacman.api.web.model;
 
 import ca.gov.dtsstn.vacman.api.web.validator.ValidLanguageCode;
+import io.soabase.recordbuilder.core.RecordBuilder;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 
+@RecordBuilder
 @Schema(name = "UserPatchUpdate")
 public record UserPatchModel(
 	@Schema(description = "The first name of this user.", example = "John", requiredMode = RequiredMode.NOT_REQUIRED)
@@ -30,4 +32,10 @@ public record UserPatchModel(
 	@ValidLanguageCode(message = "Language not found")
 	@Schema(description = "The language ID for this user.", example = "1", requiredMode = RequiredMode.NOT_REQUIRED)
 	Long languageId
-) {}
+) {
+
+	public static UserPatchModelBuilder builder() {
+		return UserPatchModelBuilder.builder();
+	}
+
+}
