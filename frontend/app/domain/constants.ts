@@ -1,16 +1,3 @@
-// Mapping of current WFA status
-export const EMPLOYEE_WFA_STATUS = {
-  affected: 'AFFECTED',
-  exAffected: 'EXAFFECTED',
-  opting: 'OPTING',
-  exOpting: 'OPTING_EX',
-  surplusGRJO: 'SURPLUS_GRJO',
-  exSurplusCPA: 'EXSURPLUSCPA',
-  surplusOptingOptionA: 'SURPLUS_NO_GRJO',
-  relocation: 'RELOCATION',
-  alternateDeliveryInitiative: 'ALTERNATE_DELIVERY_INITIATIVE',
-} as const;
-
 export const PROFILE_STATUS_CODE = {
   approved: 'APPROVED',
   pending: 'PENDING',
@@ -376,9 +363,9 @@ export const WFA_STATUS = {
     nameEn: 'Relocation of a work unit ',
     nameFr: "Réinstallation d'une unité de travail",
   },
-  ALTERNATE_DELIVERY_INITIATIVE: {
+  ALTERNATE_DELIVERY: {
     id: 8,
-    code: 'ALTERNATE_DELIVERY_INITIATIVE',
+    code: 'ALTERNATE_DELIVERY',
     nameEn: 'Alternative delivery initiative',
     nameFr: "Diversification des modes d'exécution",
   },

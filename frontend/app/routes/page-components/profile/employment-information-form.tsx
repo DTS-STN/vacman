@@ -23,7 +23,7 @@ import { InputLegend } from '~/components/input-legend';
 import { InputSelect } from '~/components/input-select';
 import { LoadingButton } from '~/components/loading-button';
 import { PageTitle } from '~/components/page-title';
-import { EMPLOYEE_WFA_STATUS } from '~/domain/constants';
+import { WFA_STATUS } from '~/domain/constants';
 import { useLanguage } from '~/hooks/use-language';
 import type { I18nRouteFile } from '~/i18n-routes';
 import type { Errors } from '~/routes/page-components/profile/validation.server';
@@ -254,12 +254,12 @@ export function EmploymentInformationForm({
                 }}
                 required
               />
-              {(wfaStatusCode === EMPLOYEE_WFA_STATUS.opting ||
-                wfaStatusCode === EMPLOYEE_WFA_STATUS.exOpting ||
-                wfaStatusCode === EMPLOYEE_WFA_STATUS.surplusOptingOptionA ||
-                wfaStatusCode === EMPLOYEE_WFA_STATUS.exSurplusCPA ||
-                wfaStatusCode === EMPLOYEE_WFA_STATUS.relocation ||
-                wfaStatusCode === EMPLOYEE_WFA_STATUS.alternateDeliveryInitiative) && (
+              {(wfaStatusCode === WFA_STATUS.OPTING.code ||
+                wfaStatusCode === WFA_STATUS.OPTING_EX.code ||
+                wfaStatusCode === WFA_STATUS.SURPLUS_NO_GRJO.code ||
+                wfaStatusCode === WFA_STATUS.EXSURPLUSCPA.code ||
+                wfaStatusCode === WFA_STATUS.RELOCATION.code ||
+                wfaStatusCode === WFA_STATUS.ALTERNATE_DELIVERY.code) && (
                 <>
                   <DatePickerField
                     ariaDescribedbyId="wfaDatesDetailsLegend"

@@ -81,3 +81,37 @@ VALUES
 
 --changeset system:cd_match_feedback_adding_NA_PD_off dbms:mssql
 SET IDENTITY_INSERT CD_MATCH_FEEDBACK OFF;
+
+--------------------------------------------------------------------------------
+
+--
+-- Update the row for CAREERTRANSITION code to RELOCATION code in CD_WFA_STATUS
+--
+
+--changeset system:update_cd_wfa_status_row dbms:mssql,h2
+UPDATE [CD_WFA_STATUS]
+SET [CODE] = 'RELOCATION',
+  [NAME_EN] = 'Relocation of a work unit',
+  [NAME_FR] = 'Réinstallation d''une unité de travail',
+  [SORT_ORDER] = 7,
+  [EFFECTIVE_DATE] = '1970-01-01 00:00:00',
+  [USER_UPDATED] = 'system',
+  [DATE_UPDATED] = CURRENT_TIMESTAMP
+WHERE [ID] = 7;
+
+
+--------------------------------------------------------------------------------
+
+--
+-- Add the ALTERNATE_DELIVERY code to CD_WFA_STATUS
+--
+
+--changeset system:cd_wfa_status_on dbms:mssql
+SET IDENTITY_INSERT CD_WFA_STATUS ON;
+
+--changeset system:cd_wfa_status dbms:mssql,h2
+INSERT INTO [CD_WFA_STATUS] ([ID], [CODE], [NAME_EN], [NAME_FR], [SORT_ORDER], [EFFECTIVE_DATE], [USER_CREATED], [DATE_CREATED], [USER_UPDATED], [DATE_UPDATED])
+VALUES (8, 'ALTERNATE_DELIVERY', 'Alternative delivery initiative', 'Diversification des modes d''exécution', 8, '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
+
+--changeset system:cd_wfa_status_off dbms:mssql
+SET IDENTITY_INSERT CD_WFA_STATUS OFF;
