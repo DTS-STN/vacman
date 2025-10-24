@@ -138,8 +138,8 @@ importers:
         specifier: ^19.2.0
         version: 19.2.0(react@19.2.0)
       react-i18next:
-        specifier: ^16.1.5
-        version: 16.1.5(i18next@25.6.0(typescript@5.9.3))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(typescript@5.9.3)
+        specifier: ^16.1.6
+        version: 16.1.6(i18next@25.6.0(typescript@5.9.3))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(typescript@5.9.3)
       react-idle-timer:
         specifier: ^5.7.2
         version: 5.7.2(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
@@ -147,8 +147,8 @@ importers:
         specifier: ^5.4.4
         version: 5.4.4(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       react-phone-number-input:
-        specifier: ^3.4.12
-        version: 3.4.12(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+        specifier: ^3.4.13
+        version: 3.4.13(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       react-router:
         specifier: ^7.9.4
         version: 7.9.4(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
@@ -2789,8 +2789,8 @@ packages:
     resolution: {integrity: sha512-9Kr/j4O16ISv8zBBhJoi4bXOYNTkFLOqSL3UDB0njXxCXNezjeyVrJyGOWtgfs/q2km1gwBcfH8q1yEGoMYunA==}
     engines: {node: '>=18'}
 
-  country-flag-icons@1.5.19:
-    resolution: {integrity: sha512-D/ZkRyj+ywJC6b2IrAN3/tpbReMUqmuRLlcKFoY/o0+EPQN9Ev/e8tV+D3+9scvu/tarxwLErNwS73C3yzxs/g==}
+  country-flag-icons@1.5.21:
+    resolution: {integrity: sha512-0KmU4oeiyAM+F+atzK99ghQDQJKxEY3tiDhnRraVFL4o65rZgrmrx7xKi0b+hxcVpcEpuUbu+KCC6TKTZQTDcA==}
 
   cross-env@10.1.0:
     resolution: {integrity: sha512-GsYosgnACZTADcmEyJctkJIoqAhHjttw7RsFrVoJNXbsWWqaq6Ym+7kZjq6mS45O0jij6vtiReppKQEtqWy6Dw==}
@@ -3874,6 +3874,9 @@ packages:
   magic-string@0.30.21:
     resolution: {integrity: sha512-vd2F4YUyEXKGcLHoq+TEyCjxueSeHnFxyyjNp80yg0XV4vUhnDer/lvvlqM/arB5bXQN5K2/3oinyCRyx8T2CQ==}
 
+  magic-string@0.30.21:
+    resolution: {integrity: sha512-vd2F4YUyEXKGcLHoq+TEyCjxueSeHnFxyyjNp80yg0XV4vUhnDer/lvvlqM/arB5bXQN5K2/3oinyCRyx8T2CQ==}
+
   magicast@0.3.5:
     resolution: {integrity: sha512-L0WhttDl+2BOsybvEOLK7fW3UA0OQ0IQ2d6Zl2x/a6vVRs3bAY0ECOSHHeL5jD+SbOpOCUEi0y1DgHEn9Qn1AQ==}
 
@@ -4348,8 +4351,8 @@ packages:
     peerDependencies:
       react: ^19.2.0
 
-  react-i18next@16.1.5:
-    resolution: {integrity: sha512-+0dHUH7zQOXPhS3jt60Dq9nWIg+7xmN9ZrzN2YrBc1MN6kZl9u81qbN5JCkV/F5nsOu0udMbK7n7DiFMCs0PWg==}
+  react-i18next@16.1.6:
+    resolution: {integrity: sha512-62Iy0TO/2hJpTa80XaTIbHM4yjpile1YNieeg70vmdi91N2L3Q3MuxXBT0n6JpsryT88utpkqv0QbnIrDSxbAQ==}
     peerDependencies:
       i18next: '>= 25.5.2'
       react: '>= 16.8.0'
@@ -4382,8 +4385,8 @@ packages:
       react: ^0.14 || ^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
       react-dom: ^0.14 || ^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
-  react-phone-number-input@3.4.12:
-    resolution: {integrity: sha512-Raob77KdtLGm49iC6nuOX9qy6Mg16idkgC7Y1mHmvG2WBYoauHpzxYNlfmFskQKeiztrJIwPhPzBhjFwjenNCA==}
+  react-phone-number-input@3.4.13:
+    resolution: {integrity: sha512-9l5Zj4MChLwA+AwOtwS59s6ZfyJCuZrZU4EdHt6BJ9BhWwK1NFhtFcE4zMK4fP31GXnwjkesvadAjNHVPuVP0Q==}
     peerDependencies:
       react: '>=16.8'
       react-dom: '>=16.8'
@@ -7929,7 +7932,7 @@ snapshots:
 
   cookie@1.0.2: {}
 
-  country-flag-icons@1.5.19: {}
+  country-flag-icons@1.5.21: {}
 
   cross-env@10.1.0:
     dependencies:
@@ -9281,6 +9284,11 @@ snapshots:
     dependencies:
       '@jridgewell/sourcemap-codec': 1.5.5
 
+  magic-string@0.30.21:
+    dependencies:
+      '@jridgewell/sourcemap-codec': 1.5.5
+    optional: true
+
   magicast@0.3.5:
     dependencies:
       '@babel/parser': 7.28.5
@@ -9682,7 +9690,7 @@ snapshots:
       react: 19.2.0
       scheduler: 0.27.0
 
-  react-i18next@16.1.5(i18next@25.6.0(typescript@5.9.3))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(typescript@5.9.3):
+  react-i18next@16.1.6(i18next@25.6.0(typescript@5.9.3))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(typescript@5.9.3):
     dependencies:
       '@babel/runtime': 7.28.4
       html-parse-stringify: 3.0.1
@@ -9706,10 +9714,10 @@ snapshots:
       react: 19.2.0
       react-dom: 19.2.0(react@19.2.0)
 
-  react-phone-number-input@3.4.12(react-dom@19.2.0(react@19.2.0))(react@19.2.0):
+  react-phone-number-input@3.4.13(react-dom@19.2.0(react@19.2.0))(react@19.2.0):
     dependencies:
       classnames: 2.5.1
-      country-flag-icons: 1.5.19
+      country-flag-icons: 1.5.21
       input-format: 0.3.14(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       libphonenumber-js: 1.12.24
       prop-types: 15.8.1
