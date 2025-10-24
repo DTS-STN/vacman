@@ -9,7 +9,7 @@ import type { Route } from './+types/profile';
 import type { LocalizedCity } from '~/.server/domain/models';
 import { getCityService } from '~/.server/domain/services/city-service';
 import { getClassificationService } from '~/.server/domain/services/classification-service';
-import { getProfileService } from '~/.server/domain/services/profile-service';
+import { getRequestService } from '~/.server/domain/services/request-service';
 import { getWorkUnitService } from '~/.server/domain/services/workunit-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { getHrAdvisors } from '~/.server/utils/profile-utils';
@@ -33,9 +33,13 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const { session } = context.get(context.applicationContext);
   requireAuthentication(session, request);
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
-  //TODO - Use getRequestService() to get the request profile
+
   const [profileResult, allLocalizedCities] = await Promise.all([
-    getProfileService().getProfileById(Number(params.profileId), session.authState.accessToken),
+    getRequestService().getRequestProfile(
+      parseInt(params.requestId),
+      parseInt(params.profileId),
+      session.authState.accessToken,
+    ),
     getCityService().listAllLocalized(lang),
   ]);
 

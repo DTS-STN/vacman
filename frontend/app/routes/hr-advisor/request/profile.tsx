@@ -9,7 +9,7 @@ import type { Route } from './+types/profile';
 import { getCityService } from '~/.server/domain/services/city-service';
 import { getClassificationService } from '~/.server/domain/services/classification-service';
 import { getLanguageReferralTypeService } from '~/.server/domain/services/language-referral-type-service';
-import { getProfileService } from '~/.server/domain/services/profile-service';
+import { getRequestService } from '~/.server/domain/services/request-service';
 import { getWorkUnitService } from '~/.server/domain/services/workunit-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { getHrAdvisors } from '~/.server/utils/profile-utils';
@@ -19,6 +19,7 @@ import { DescriptionList, DescriptionListItem } from '~/components/description-l
 import { PageTitle } from '~/components/page-title';
 import { VacmanBackground } from '~/components/vacman-background';
 import { WFA_STATUS } from '~/domain/constants';
+import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
 import { formatWithMask } from '~/utils/string-utils';
@@ -31,14 +32,15 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const { session } = context.get(context.applicationContext);
   requireAuthentication(session, request);
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
-  //TODO - Use getRequestService() to get the request profile
-  const profileDataOption = await getProfileService().findProfileById(
+
+  const profileDataOption = await getRequestService().getRequestProfile(
+    parseInt(params.requestId),
     parseInt(params.profileId),
     session.authState.accessToken,
   );
 
-  if (profileDataOption.isNone()) {
-    return { documentTitle: t('app:profile.page-title') };
+  if (profileDataOption.isErr()) {
+    throw new Response('Profile not found', { status: HttpStatusCodes.NOT_FOUND });
   }
 
   const profileData = profileDataOption.unwrap();
@@ -138,22 +140,22 @@ export default function HiringManagerRequestProfile({ loaderData, params }: Rout
         <DetailsCard title={t('app:profile.personal-information.title')}>
           <DescriptionList>
             <DescriptionListItem term={t('app:personal-information.personal-record-identifier')}>
-              {loaderData.personalInformation?.personalRecordIdentifier ?? t('app:profile.not-provided')}
+              {loaderData.personalInformation.personalRecordIdentifier ?? t('app:profile.not-provided')}
             </DescriptionListItem>
             <DescriptionListItem term={t('app:personal-information.language-of-correspondence')}>
-              {loaderData.personalInformation?.preferredLanguage ?? t('app:profile.not-provided')}
+              {loaderData.personalInformation.preferredLanguage ?? t('app:profile.not-provided')}
             </DescriptionListItem>
             <DescriptionListItem term={t('app:personal-information.work-email')}>
-              {loaderData.personalInformation?.workEmail}
+              {loaderData.personalInformation.workEmail}
             </DescriptionListItem>
             <DescriptionListItem term={t('app:personal-information.personal-email')}>
-              {loaderData.personalInformation?.personalEmail ?? t('app:profile.not-provided')}
+              {loaderData.personalInformation.personalEmail ?? t('app:profile.not-provided')}
             </DescriptionListItem>
             <DescriptionListItem term={t('app:personal-information.work-phone')}>
-              {loaderData.personalInformation?.workPhone ?? t('app:profile.not-provided')}
+              {loaderData.personalInformation.workPhone ?? t('app:profile.not-provided')}
             </DescriptionListItem>
             <DescriptionListItem term={t('app:personal-information.personal-phone')}>
-              {loaderData.personalInformation?.personalPhone ?? t('app:profile.not-provided')}
+              {loaderData.personalInformation.personalPhone ?? t('app:profile.not-provided')}
             </DescriptionListItem>
           </DescriptionList>
         </DetailsCard>
@@ -162,19 +164,19 @@ export default function HiringManagerRequestProfile({ loaderData, params }: Rout
             <h3 className="font-lato text-xl font-bold">{t('app:employment-information.substantive-position-heading')}</h3>
             <DescriptionList>
               <DescriptionListItem term={t('app:employment-information.substantive-position-group-and-level')}>
-                {loaderData.employmentInformation?.substantivePosition ?? t('app:profile.not-provided')}
+                {loaderData.employmentInformation.substantivePosition ?? t('app:profile.not-provided')}
               </DescriptionListItem>
               <DescriptionListItem term={t('app:employment-information.branch-or-service-canada-region')}>
-                {loaderData.employmentInformation?.branchOrServiceCanadaRegion ?? t('app:profile.not-provided')}
+                {loaderData.employmentInformation.branchOrServiceCanadaRegion ?? t('app:profile.not-provided')}
               </DescriptionListItem>
               <DescriptionListItem term={t('app:employment-information.directorate')}>
-                {loaderData.employmentInformation?.directorate ?? t('app:profile.not-provided')}
+                {loaderData.employmentInformation.directorate ?? t('app:profile.not-provided')}
               </DescriptionListItem>
               <DescriptionListItem term={t('app:employment-information.provinces')}>
-                {loaderData.employmentInformation?.province ?? t('app:profile.not-provided')}
+                {loaderData.employmentInformation.province ?? t('app:profile.not-provided')}
               </DescriptionListItem>
               <DescriptionListItem term={t('app:employment-information.city')}>
-                {loaderData.employmentInformation?.city ?? t('app:profile.not-provided')}
+                {loaderData.employmentInformation.city ?? t('app:profile.not-provided')}
               </DescriptionListItem>
             </DescriptionList>
           </div>
@@ -182,23 +184,23 @@ export default function HiringManagerRequestProfile({ loaderData, params }: Rout
             <h3 className="font-lato text-xl font-bold">{t('app:employment-information.wfa-details-heading')}</h3>
             <DescriptionList>
               <DescriptionListItem term={t('app:employment-information.wfa-status')}>
-                {loaderData.employmentInformation?.wfaStatus ?? t('app:profile.not-provided')}
+                {loaderData.employmentInformation.wfaStatus ?? t('app:profile.not-provided')}
               </DescriptionListItem>
               <DescriptionListItem term={t('app:employment-information.wfa-effective-date')}>
-                {loaderData.employmentInformation?.wfaEffectiveDate ?? t('app:profile.not-provided')}
+                {loaderData.employmentInformation.wfaEffectiveDate ?? t('app:profile.not-provided')}
               </DescriptionListItem>
-              {(loaderData.employmentInformation?.wfaStatusCode === WFA_STATUS.OPTING.code ||
-                loaderData.employmentInformation?.wfaStatusCode === WFA_STATUS.OPTING_EX.code ||
-                loaderData.employmentInformation?.wfaStatusCode === WFA_STATUS.SURPLUS_NO_GRJO.code ||
-                loaderData.employmentInformation?.wfaStatusCode === WFA_STATUS.EXSURPLUSCPA.code ||
-                loaderData.employmentInformation?.wfaStatusCode === WFA_STATUS.RELOCATION.code ||
-                loaderData.employmentInformation?.wfaStatusCode === WFA_STATUS.ALTERNATE_DELIVERY.code) && (
+              {(loaderData.employmentInformation.wfaStatusCode === WFA_STATUS.OPTING.code ||
+                loaderData.employmentInformation.wfaStatusCode === WFA_STATUS.OPTING_EX.code ||
+                loaderData.employmentInformation.wfaStatusCode === WFA_STATUS.SURPLUS_NO_GRJO.code ||
+                loaderData.employmentInformation.wfaStatusCode === WFA_STATUS.EXSURPLUSCPA.code ||
+                loaderData.employmentInformation.wfaStatusCode === WFA_STATUS.RELOCATION.code ||
+                loaderData.employmentInformation.wfaStatusCode === WFA_STATUS.ALTERNATE_DELIVERY.code) && (
                 <DescriptionListItem term={t('app:employment-information.wfa-end-date')}>
                   {loaderData.employmentInformation.wfaEndDate ?? t('app:profile.not-provided')}
                 </DescriptionListItem>
               )}
               <DescriptionListItem term={t('app:employment-information.hr-advisor')}>
-                {loaderData.employmentInformation?.hrAdvisor ?? t('app:profile.not-provided')}
+                {loaderData.employmentInformation.hrAdvisor ?? t('app:profile.not-provided')}
               </DescriptionListItem>
             </DescriptionList>
           </div>
@@ -206,32 +208,32 @@ export default function HiringManagerRequestProfile({ loaderData, params }: Rout
         <DetailsCard title={t('app:profile.referral.title')}>
           <DescriptionList>
             <DescriptionListItem term={t('app:referral-preferences.language-referral-type')}>
-              {loaderData.referralPreferences?.preferredLanguages === undefined
+              {loaderData.referralPreferences.preferredLanguages === undefined
                 ? t('app:profile.not-provided')
                 : loaderData.referralPreferences.preferredLanguages.length > 0 &&
                   loaderData.referralPreferences.preferredLanguages.join(', ')}
             </DescriptionListItem>
             <DescriptionListItem term={t('app:referral-preferences.classification')}>
-              {loaderData.referralPreferences?.preferredClassifications === undefined
+              {loaderData.referralPreferences.preferredClassifications === undefined
                 ? t('app:profile.not-provided')
                 : loaderData.referralPreferences.preferredClassifications.length > 0 &&
                   loaderData.referralPreferences.preferredClassifications.join(', ')}
             </DescriptionListItem>
             <DescriptionListItem term={t('app:referral-preferences.work-location')}>
-              {loaderData.referralPreferences?.preferredCities === undefined
+              {loaderData.referralPreferences.preferredCities === undefined
                 ? t('app:profile.not-provided')
                 : loaderData.referralPreferences.preferredCities.length > 0 &&
                   loaderData.referralPreferences.preferredCities.join(', ')}
             </DescriptionListItem>
             <DescriptionListItem term={t('app:referral-preferences.referral-availibility')}>
-              {loaderData.referralPreferences?.isAvailableForReferral === undefined
+              {loaderData.referralPreferences.isAvailableForReferral === undefined
                 ? t('app:profile.not-provided')
                 : loaderData.referralPreferences.isAvailableForReferral
                   ? t('gcweb:input-option.yes')
                   : t('gcweb:input-option.no')}
             </DescriptionListItem>
             <DescriptionListItem term={t('app:referral-preferences.alternate-opportunity')}>
-              {loaderData.referralPreferences?.isInterestedInAlternation === undefined
+              {loaderData.referralPreferences.isInterestedInAlternation === undefined
                 ? t('app:profile.not-provided')
                 : loaderData.referralPreferences.isInterestedInAlternation
                   ? t('gcweb:input-option.yes')

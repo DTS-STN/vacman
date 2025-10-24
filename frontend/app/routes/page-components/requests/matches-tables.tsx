@@ -79,16 +79,23 @@ export default function MatchesTables({
       accessorFn: (row) => `${row.profile?.firstName} ${row.profile?.lastName}`,
       header: ({ column }) => <DataTableColumnHeader column={column} title={t('matches-tables.employee')} />,
       cell: (info) => {
-        const profileId = info.row.original.id.toString();
         const profile = info.row.original.profile;
+        const profileId = profile?.id;
+        const employeeName = `${profile?.firstName ?? ''} ${profile?.lastName ?? ''}`.trim();
+
+        // Only render link if profileId exists
+        if (!profileId) {
+          return <span>{employeeName || '-'}</span>;
+        }
+
         return (
           <InlineLink
             className="text-sky-800 no-underline decoration-slate-400 decoration-2 hover:underline"
             file={`routes/${view}/request/profile.tsx`}
             params={{ requestId: requestId.toString(), profileId: profileId.toString() }}
-            aria-label={`${t('matches-tables.employee')} ${profile?.firstName} ${profile?.lastName}`}
+            aria-label={`${t('matches-tables.employee')} ${profile.firstName} ${profile.lastName}`}
           >
-            {String(info.renderValue())}
+            {employeeName || '-'}
           </InlineLink>
         );
       },
