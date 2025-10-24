@@ -372,3 +372,10 @@ export const WFA_STATUS = {
 } as const;
 
 export type WFAStatus = keyof typeof WFA_STATUS;
+
+export const MATCH_STATUS_CODE = {
+  inProgress: 'IP-EC',
+  pending: 'PA-EAA',
+  approved: 'A-A',
+} as const;
+export type MatchStatusCode = (typeof MATCH_STATUS_CODE)[keyof typeof MATCH_STATUS_CODE];

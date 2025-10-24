@@ -3,6 +3,7 @@ import type { Option, Result } from 'oxide.ts';
 import type {
   CollectionMatchResponse,
   MatchReadModel,
+  MatchStatusUpdate,
   MatchUpdateModel,
   PagedRequestResponse,
   Profile,
@@ -60,9 +61,12 @@ export type RequestService = {
   updateRequestMatchStatus(
     requestId: number,
     matchId: number,
-    statusUpdate: unknown, // TODO: Define match status update type
+    statusUpdate: MatchStatusUpdate,
     accessToken: string,
   ): Promise<Result<void, AppError>>;
+
+  // Convenience method for approving a match
+  approveRequestMatch(requestId: number, matchId: number, accessToken: string): Promise<Result<void, AppError>>;
 
   // GET /api/v1/requests/{id}/profiles/{profileId} - Get a specific candidate profile for a request
   getRequestProfile(requestId: number, profileId: number, accessToken: string): Promise<Result<Profile, AppError>>;
