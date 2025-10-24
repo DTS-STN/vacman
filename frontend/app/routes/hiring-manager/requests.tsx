@@ -7,7 +7,6 @@ import type { Route } from './+types/requests';
 
 import type { RequestUpdateModel } from '~/.server/domain/models';
 import { getRequestService } from '~/.server/domain/services/request-service';
-import { getRequestStatusService } from '~/.server/domain/services/request-status-service';
 import { getUserService } from '~/.server/domain/services/user-service';
 import { serverEnvironment } from '~/.server/environment';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
@@ -113,33 +112,45 @@ export async function loader({ context, request }: Route.LoaderArgs) {
   const currentUserResult = await getUserService().getCurrentUser(session.authState.accessToken);
   const currentUser = currentUserResult.unwrap();
 
-  const requestsResult = await getRequestService().getCurrentUserRequests({}, session.authState.accessToken); // TODO: call getCurrentUserRequests with RequestQueryParams
-  const requests = requestsResult.into()?.content ?? [];
+  const searchParams = new URL(request.url).searchParams;
 
-  const activeRequests = requests.filter((req) =>
-    REQUEST_STATUSES.some((s) => s.code === req.status?.code && s.category === REQUEST_CATEGORY.active),
+  // Active requests query
+  const activeRequestsQuery = {
+    page: Math.max(1, Number.parseInt(searchParams.get('activepage') ?? '1', 10) || 1),
+    statusId: REQUEST_STATUSES.filter((s) => s.category === REQUEST_CATEGORY.active).map((s) => s.id.toString()),
+    size: 10,
+  };
+  const activeRequestsResult = await getRequestService().getCurrentUserRequests(
+    activeRequestsQuery,
+    session.authState.accessToken,
   );
+  if (activeRequestsResult.isErr()) {
+    throw activeRequestsResult.unwrapErr();
+  }
 
-  const inactiveRequests = requests.filter((req) =>
-    REQUEST_STATUSES.some((s) => s.code === req.status?.code && s.category === REQUEST_CATEGORY.inactive),
+  // Inactive requests query
+  const inactiveRequestsQuery = {
+    page: Math.max(1, Number.parseInt(searchParams.get('inactivepage') ?? '1', 10) || 1),
+    statusId: REQUEST_STATUSES.filter((s) => s.category === REQUEST_CATEGORY.inactive).map((s) => s.id.toString()),
+    size: 10,
+  };
+  const inactiveRequestsResult = await getRequestService().getCurrentUserRequests(
+    inactiveRequestsQuery,
+    session.authState.accessToken,
   );
+  if (inactiveRequestsResult.isErr()) {
+    throw inactiveRequestsResult.unwrapErr();
+  }
 
-  const requestStatuses = await getRequestStatusService().listAllLocalized(lang);
-
-  const activeRequestNames = requestStatuses
-    .filter((req) => REQUEST_STATUSES.some((s) => s.code === req.code && s.category === REQUEST_CATEGORY.active))
-    .map(({ name }) => name);
-
-  const inactiveRequestNames = requestStatuses
-    .filter((req) => REQUEST_STATUSES.some((s) => s.code === req.code && s.category === REQUEST_CATEGORY.active))
-    .map(({ name }) => name);
+  const { content: activeRequests, page: activeRequestsPage } = activeRequestsResult.unwrap();
+  const { content: inactiveRequests, page: inactiveRequestsPage } = inactiveRequestsResult.unwrap();
 
   return {
     documentTitle: t('app:hiring-manager-requests.page-title'),
     activeRequests,
+    activeRequestsPage,
     inactiveRequests,
-    activeRequestNames,
-    inactiveRequestNames,
+    inactiveRequestsPage,
     baseTimeZone: serverEnvironment.BASE_TIMEZONE,
     userId: currentUser.id,
     lang,
