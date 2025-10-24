@@ -53,3 +53,5 @@ application:
     request-created-template-id: 00000000-0000-0000-0000-000000000000 # must be set externally (ex: 00000000-0000-0000-0000-000000000000)
     request-feedback-pending-template-id: 00000000-0000-0000-0000-000000000000 # must be set externally (ex: 00000000-0000-0000-0000-000000000000)
     request-feedback-completed-template-id: 00000000-0000-0000-0000-000000000000 # must be set externally (ex: 00000000-0000-0000-0000-000000000000)
+  metrics:
+    environment-name: int
