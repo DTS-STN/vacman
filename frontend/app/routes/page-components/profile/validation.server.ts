@@ -11,7 +11,7 @@ import { getWFAStatuses } from '~/.server/domain/services/wfa-status-service';
 import { getWorkUnitService } from '~/.server/domain/services/workunit-service';
 import { extractUniqueBranchesFromDirectoratesNonLocalized } from '~/.server/utils/directorate-utils';
 import { stringToIntegerSchema } from '~/.server/validation/string-to-integer-schema';
-import { EMPLOYEE_WFA_STATUS } from '~/domain/constants';
+import { WFA_STATUS } from '~/domain/constants';
 import { isValidCalendarDate, toDateString } from '~/utils/date-utils';
 import { isValidPhone } from '~/utils/phone-utils';
 import { REGEX_PATTERNS } from '~/utils/regex-utils';
@@ -32,18 +32,18 @@ export async function createEmploymentInformationSchema(hrAdvisors: User[]) {
   const allWfaStatus = await getWFAStatuses().listAll();
 
   const validWFAStatusesForRequiredDate = [
-    EMPLOYEE_WFA_STATUS.opting,
-    EMPLOYEE_WFA_STATUS.exOpting,
-    EMPLOYEE_WFA_STATUS.surplusOptingOptionA,
-    EMPLOYEE_WFA_STATUS.exSurplusCPA,
-    EMPLOYEE_WFA_STATUS.relocation,
-    EMPLOYEE_WFA_STATUS.alternateDeliveryInitiative,
+    WFA_STATUS.OPTING.code,
+    WFA_STATUS.OPTING_EX.code,
+    WFA_STATUS.SURPLUS_NO_GRJO.code,
+    WFA_STATUS.EXSURPLUSCPA.code,
+    WFA_STATUS.RELOCATION.code,
+    WFA_STATUS.ALTERNATE_DELIVERY.code,
   ] as const;
 
   const validWFAStatusesForOptionalDate = [
-    EMPLOYEE_WFA_STATUS.affected,
-    EMPLOYEE_WFA_STATUS.exAffected,
-    EMPLOYEE_WFA_STATUS.surplusGRJO,
+    WFA_STATUS.AFFECTED.code,
+    WFA_STATUS.EXAFFECTED.code,
+    WFA_STATUS.SURPLUS_GRJO.code,
   ] as const;
 
   const selectedValidWfaStatusesForRequiredDate = allWfaStatus.filter((c) =>

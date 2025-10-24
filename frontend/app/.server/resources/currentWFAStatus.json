@@ -87,7 +87,7 @@
     {
       "id": 7,
       "code": "RELOCATION",
-      "nameEn": "Relocation of a work unit ",
+      "nameEn": "Relocation of a work unit",
       "nameFr": "Réinstallation d'une unité de travail",
       "effectiveDate": "1970-01-01T00:00:00Z",
       "expiryDate": null,
@@ -98,7 +98,7 @@
     },
     {
       "id": 8,
-      "code": "ALTERNATE_DELIVERY_INITIATIVE",
+      "code": "ALTERNATE_DELIVERY",
       "nameEn": "Alternative delivery initiative",
       "nameFr": "Diversification des modes d'exécution",
       "effectiveDate": "1970-01-01T00:00:00Z",

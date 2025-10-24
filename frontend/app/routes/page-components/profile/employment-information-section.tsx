@@ -3,7 +3,7 @@ import type { JSX } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { DescriptionList, DescriptionListItem } from '~/components/description-list';
-import { EMPLOYEE_WFA_STATUS } from '~/domain/constants';
+import { WFA_STATUS } from '~/domain/constants';
 
 interface EmploymentInformationSectionProps {
   branchOrServiceCanadaRegion?: string;
@@ -61,12 +61,12 @@ export function EmploymentInformationSection({
           <DescriptionListItem term={t('employment-information.wfa-effective-date')}>
             {wfaEffectiveDate ?? t('profile.not-provided')}
           </DescriptionListItem>
-          {(wfaStatusCode === EMPLOYEE_WFA_STATUS.opting ||
-            wfaStatusCode === EMPLOYEE_WFA_STATUS.exOpting ||
-            wfaStatusCode === EMPLOYEE_WFA_STATUS.surplusOptingOptionA ||
-            wfaStatusCode === EMPLOYEE_WFA_STATUS.exSurplusCPA ||
-            wfaStatusCode === EMPLOYEE_WFA_STATUS.relocation ||
-            wfaStatusCode === EMPLOYEE_WFA_STATUS.alternateDeliveryInitiative) && (
+          {(wfaStatusCode === WFA_STATUS.OPTING.code ||
+            wfaStatusCode === WFA_STATUS.OPTING_EX.code ||
+            wfaStatusCode === WFA_STATUS.SURPLUS_NO_GRJO.code ||
+            wfaStatusCode === WFA_STATUS.EXSURPLUSCPA.code ||
+            wfaStatusCode === WFA_STATUS.RELOCATION.code ||
+            wfaStatusCode === WFA_STATUS.ALTERNATE_DELIVERY.code) && (
             <DescriptionListItem term={t('employment-information.wfa-end-date')}>
               {wfaEndDate ?? t('profile.not-provided')}
             </DescriptionListItem>

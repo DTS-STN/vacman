@@ -18,7 +18,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '~/components/card';
 import { DescriptionList, DescriptionListItem } from '~/components/description-list';
 import { PageTitle } from '~/components/page-title';
 import { VacmanBackground } from '~/components/vacman-background';
-import { EMPLOYEE_WFA_STATUS } from '~/domain/constants';
+import { WFA_STATUS } from '~/domain/constants';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
 import { formatWithMask } from '~/utils/string-utils';
@@ -187,12 +187,12 @@ export default function HiringManagerRequestProfile({ loaderData, params }: Rout
               <DescriptionListItem term={t('app:employment-information.wfa-effective-date')}>
                 {loaderData.employmentInformation?.wfaEffectiveDate ?? t('app:profile.not-provided')}
               </DescriptionListItem>
-              {(loaderData.employmentInformation?.wfaStatusCode === EMPLOYEE_WFA_STATUS.opting ||
-                loaderData.employmentInformation?.wfaStatusCode === EMPLOYEE_WFA_STATUS.exOpting ||
-                loaderData.employmentInformation?.wfaStatusCode === EMPLOYEE_WFA_STATUS.surplusOptingOptionA ||
-                loaderData.employmentInformation?.wfaStatusCode === EMPLOYEE_WFA_STATUS.exSurplusCPA ||
-                loaderData.employmentInformation?.wfaStatusCode === EMPLOYEE_WFA_STATUS.relocation ||
-                loaderData.employmentInformation?.wfaStatusCode === EMPLOYEE_WFA_STATUS.alternateDeliveryInitiative) && (
+              {(loaderData.employmentInformation?.wfaStatusCode === WFA_STATUS.OPTING.code ||
+                loaderData.employmentInformation?.wfaStatusCode === WFA_STATUS.OPTING_EX.code ||
+                loaderData.employmentInformation?.wfaStatusCode === WFA_STATUS.SURPLUS_NO_GRJO.code ||
+                loaderData.employmentInformation?.wfaStatusCode === WFA_STATUS.EXSURPLUSCPA.code ||
+                loaderData.employmentInformation?.wfaStatusCode === WFA_STATUS.RELOCATION.code ||
+                loaderData.employmentInformation?.wfaStatusCode === WFA_STATUS.ALTERNATE_DELIVERY.code) && (
                 <DescriptionListItem term={t('app:employment-information.wfa-end-date')}>
                   {loaderData.employmentInformation.wfaEndDate ?? t('app:profile.not-provided')}
                 </DescriptionListItem>
