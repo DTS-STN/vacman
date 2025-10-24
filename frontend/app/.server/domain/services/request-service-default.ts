@@ -4,6 +4,7 @@ import { Err, Ok } from 'oxide.ts';
 import type {
   CollectionMatchResponse,
   MatchReadModel,
+  MatchStatusUpdate,
   MatchUpdateModel,
   PagedRequestResponse,
   Profile,
@@ -14,6 +15,7 @@ import type {
 } from '~/.server/domain/models';
 import { apiClient } from '~/.server/domain/services/api-client';
 import type { RequestService } from '~/.server/domain/services/request-service';
+import { MATCH_STATUS_CODE } from '~/domain/constants';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
@@ -276,14 +278,15 @@ export function getDefaultRequestService(): RequestService {
 
     /**
      * Updates a request match status.
+     * @returns Result<void, AppError> - API returns 204 No Content on success
      */
     async updateRequestMatchStatus(
       requestId: number,
       matchId: number,
-      statusUpdate: unknown,
+      statusUpdate: MatchStatusUpdate,
       accessToken: string,
     ): Promise<Result<void, AppError>> {
-      const result = await apiClient.put<unknown, undefined>(
+      const result = await apiClient.post<MatchStatusUpdate, undefined>(
         `/requests/${requestId}/matches/${matchId}/status-change`,
         `update match status for match ${matchId} and request ID ${requestId}`,
         statusUpdate,
@@ -304,6 +307,14 @@ export function getDefaultRequestService(): RequestService {
       }
 
       return Ok(undefined);
+    },
+
+    /**
+     * Convenience method for approving a match.
+     * @returns Result<void, AppError> - API returns 204 No Content on success
+     */
+    async approveRequestMatch(requestId: number, matchId: number, accessToken: string): Promise<Result<void, AppError>> {
+      return this.updateRequestMatchStatus(requestId, matchId, { statusCode: MATCH_STATUS_CODE.approved }, accessToken);
     },
 
     /**

@@ -13,6 +13,7 @@ import type {
   MatchReadModel,
   MatchUpdateModel,
   Profile,
+  MatchStatusUpdate,
 } from '~/.server/domain/models';
 import { getCityService } from '~/.server/domain/services/city-service';
 import { getClassificationService } from '~/.server/domain/services/classification-service';
@@ -38,7 +39,7 @@ import { getUserService } from '~/.server/domain/services/user-service';
 import { getWorkScheduleService } from '~/.server/domain/services/work-schedule-service';
 import { getWorkUnitService } from '~/.server/domain/services/workunit-service';
 import { LogFactory } from '~/.server/logging';
-import { REQUEST_EVENT_TYPE, REQUEST_STATUS_CODE } from '~/domain/constants';
+import { MATCH_STATUS_CODE, REQUEST_EVENT_TYPE, REQUEST_STATUS_CODE } from '~/domain/constants';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
 import { randomString } from '~/utils/string-utils';
@@ -328,8 +329,8 @@ export function getMockRequestService(): RequestService {
         requestPickedUp: {
           id: 2,
           code: 'HR_REVIEW',
-          nameEn: 'HR Review',
-          nameFr: 'Révision RH',
+          nameEn: 'Assigned - HR Review',
+          nameFr: 'Assignée - Révision RH',
         },
         vmsNotRequired: {
           id: 7,
@@ -492,12 +493,43 @@ export function getMockRequestService(): RequestService {
     async updateRequestMatchStatus(
       requestId: number,
       matchId: number,
-      statusUpdate: unknown,
+      statusUpdate: MatchStatusUpdate,
       accessToken: string,
     ): Promise<Result<void, AppError>> {
-      return Promise.resolve(
-        Err(new AppError(`Match ${matchId} for request ID ${requestId} not found.`, ErrorCodes.MATCH_NOT_FOUND)),
-      );
+      const existingMatchIndex = mockMatchDetails.findIndex((r) => r.id === matchId);
+      if (existingMatchIndex === -1) {
+        return Err(new AppError(`Match with ID ${matchId} not found.`, ErrorCodes.MATCH_NOT_FOUND));
+      }
+
+      const existingMatch = mockMatchDetails[existingMatchIndex];
+      if (!existingMatch) {
+        return Err(new AppError(`Match with ID ${matchId} not found.`, ErrorCodes.MATCH_NOT_FOUND));
+      }
+
+      const matchStatuses = await getMatchStatusService().listAll();
+      const matchStatus = matchStatuses.find((m) => m.code === statusUpdate.statusCode);
+      if (!matchStatus) {
+        return Err(new AppError(`Match status code ${statusUpdate.statusCode} not found.`, ErrorCodes.NO_MATCH_STATUS_FOUND));
+      }
+
+      // Merge updates with existing match
+      const updatedMatch: MatchReadModel = {
+        ...existingMatch,
+        matchStatus: matchStatus,
+        id: matchId, // Ensure ID doesn't change
+        lastModifiedDate: new Date().toISOString(),
+        lastModifiedBy: 'mock-user',
+      };
+
+      mockMatchDetails[existingMatchIndex] = updatedMatch;
+      return Promise.resolve(Ok(undefined));
+    },
+
+    /**
+     * Convenience method for approving a match.
+     */
+    async approveRequestMatch(requestId: number, matchId: number, accessToken: string): Promise<Result<void, AppError>> {
+      return this.updateRequestMatchStatus(requestId, matchId, { statusCode: MATCH_STATUS_CODE.approved }, accessToken);
     },
 
     /**

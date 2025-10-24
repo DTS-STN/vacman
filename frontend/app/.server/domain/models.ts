@@ -1,4 +1,4 @@
-import type { RequestEventType } from '~/domain/constants';
+import type { MatchStatusCode, RequestEventType } from '~/domain/constants';
 
 // Generic base types for all lookup models
 export type LookupModel = Readonly<{
@@ -100,6 +100,10 @@ export type LocalizedMatchStatus = LocalizedLookupModel;
 
 export type WorkUnit = HierarchicalLookupModel;
 export type LocalizedWorkUnit = LocalizedHierarchicalLookupModel;
+
+export type MatchStatusUpdate = Readonly<{
+  statusCode: MatchStatusCode;
+}>;
 
 // User Models - Based on OpenAPI User schema
 export type User = Readonly<{
