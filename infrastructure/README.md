@@ -88,6 +88,22 @@ To apply the infrastructure for a specific environment, navigate to the environm
     terragrunt apply
     ```
 
+### Updating Terraform Modules
+
+To update the Terraform modules to their latest versions, run the following command from the root of the infrastructure directory:
+
+```bash
+terragrunt init -upgrade --terragrunt-working-dir ./terragrunt/<environment>/<module>
+```
+
+Replace `<environment>` and `<module>` with the appropriate values, such as `prod/backend-service-principal`.
+
+For example:
+
+```bash
+terragrunt init -upgrade --terragrunt-working-dir ./terragrunt/prod/backend-service-principal
+```
+
 ### Retrieving Outputs
 
 After applying the infrastructure, you can retrieve the outputs, such as application secrets or client IDs, using the `terragrunt output` command.
