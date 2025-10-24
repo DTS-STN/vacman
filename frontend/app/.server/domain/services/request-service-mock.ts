@@ -481,9 +481,31 @@ export function getMockRequestService(): RequestService {
       matchId: number,
       accessToken: string,
     ): Promise<Result<MatchReadModel, AppError>> {
-      return Promise.resolve(
-        Err(new AppError(`Match ${matchId} for request ID ${requestId} not found.`, ErrorCodes.MATCH_NOT_FOUND)),
-      );
+      log.debug(`Attempting to retrieve match ${matchId} for request ${requestId}`, {
+        accessTokenLength: accessToken.length,
+      });
+
+      // Find the match by ID
+      const match = mockMatchDetails.find((m) => m.id === matchId);
+      if (!match) {
+        log.debug(`Match with ID ${matchId} not found`);
+        return Err(new AppError(`Match ${matchId} for request ID ${requestId} not found.`, ErrorCodes.MATCH_NOT_FOUND));
+      }
+
+      // Validate that the match belongs to the specified request
+      if (match.request?.id !== requestId) {
+        log.debug(`Match ${matchId} does not belong to request ${requestId}`, {
+          matchRequestId: match.request?.id,
+          expectedRequestId: requestId,
+        });
+        return Err(new AppError(`Match ${matchId} for request ID ${requestId} not found.`, ErrorCodes.MATCH_NOT_FOUND));
+      }
+
+      log.debug(`Successfully retrieved match ${matchId} for request ${requestId}`, {
+        matchStatus: match.matchStatus?.code,
+        profileId: match.profile?.id,
+      });
+      return Promise.resolve(Ok(match));
     },
 
     /**
