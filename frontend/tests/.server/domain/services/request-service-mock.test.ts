@@ -50,7 +50,7 @@ describe('RequestServiceMock', () => {
     });
 
     it('should filter by status when specified', async () => {
-      const params = { statusIds: [1] };
+      const params = { statusId: ['1'] };
       const accessToken = 'valid-token';
 
       const result = await requestService.getRequests(params, accessToken);
@@ -65,7 +65,7 @@ describe('RequestServiceMock', () => {
     });
 
     it('should handle empty results', async () => {
-      const params = { statusIds: [10] }; // non existent status id
+      const params = { statusId: ['10'] }; // non existent status id
       const accessToken = 'valid-token';
 
       const result = await requestService.getRequests(params, accessToken);

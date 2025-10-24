@@ -58,31 +58,21 @@ export function getMockRequestService(): RequestService {
 
       // Apply HR advisor filter using hrAdvisorId param
       if (params.hrAdvisorId) {
-        if (params.hrAdvisorId === 'me') {
-          // For mock purposes, filter by hrAdvisorId = 1 when hrAdvisorId=me
-          filteredRequests = filteredRequests.filter((p) => p.hrAdvisor?.id === 1);
-          log.debug(`Applied HR advisor filter (me): ${filteredRequests.length} requests remaining`);
-        } else {
-          const hrAdvisorId = parseInt(params.hrAdvisorId);
-          if (!isNaN(hrAdvisorId)) {
-            filteredRequests = filteredRequests.filter((p) => p.hrAdvisor?.id === hrAdvisorId);
-            log.debug(`Applied HR advisor filter (${hrAdvisorId}): ${filteredRequests.length} requests remaining`);
-          }
-        }
+        filteredRequests = filteredRequests.filter((p) => params.hrAdvisorId?.some((id) => p.hrAdvisor?.id.toString() === id));
       }
 
       // Apply status filter using statusIds param (array of ids)
-      if (params.statusIds?.length) {
-        const statusIds = params.statusIds.filter((n) => Number.isFinite(n));
-        filteredRequests = filteredRequests.filter((r) => (r.status ? statusIds.includes(r.status.id) : false));
+      if (params.statusId?.length) {
+        const statusIds = params.statusId.filter((n) => Number.isFinite(n));
+        filteredRequests = filteredRequests.filter((r) => (r.status ? statusIds.includes(r.status.id.toString()) : false));
         log.debug(`Applied statusId filter (${statusIds.join(',')}): ${filteredRequests.length} requests remaining`);
       }
 
       // Apply work unit filter using workUnitIds param (array of ids)
-      if (params.workUnitIds?.length) {
-        const workUnitIds = params.workUnitIds.filter((n) => Number.isFinite(n));
+      if (params.workUnitId?.length) {
+        const workUnitIds = params.workUnitId.filter((n) => Number.isFinite(n));
         filteredRequests = filteredRequests.filter((r) =>
-          r.workUnit && r.workUnit.parent ? workUnitIds.includes(r.workUnit.parent.id) : false,
+          r.workUnit && r.workUnit.parent ? workUnitIds.includes(r.workUnit.parent.id.toString()) : false,
         );
         log.debug(`Applied workUnitId filter (${workUnitIds.join(',')}): ${filteredRequests.length} requests remaining`);
       }

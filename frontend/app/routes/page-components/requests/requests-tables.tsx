@@ -1,13 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { JSX } from 'react';
 
-import { useFetcher } from 'react-router';
+import type { FetcherWithComponents, SetURLSearchParams } from 'react-router';
+import { useFetcher, useSearchParams } from 'react-router';
 
-import type { ColumnDef } from '@tanstack/react-table';
 import { useTranslation } from 'react-i18next';
 
-import type { LocalizedLookupModel, LookupModel, RequestReadModel } from '~/.server/domain/models';
-import { DataTable, DataTableColumnHeader, DataTableColumnHeaderWithOptions } from '~/components/data-table';
+import type { LookupModel, PageMetadata, RequestReadModel } from '~/.server/domain/models';
+import { Column, ColumnOptions, ServerTable, DataTableColumnHeader } from '~/components/data-table';
 import { InputSelect } from '~/components/input-select';
 import { InlineLink } from '~/components/links';
 import { LoadingButton } from '~/components/loading-button';
@@ -18,55 +18,55 @@ import { formatDateTimeInZone } from '~/utils/date-utils';
 import { formatWithMask } from '~/utils/string-utils';
 
 interface RequestTablesProps {
-  userId: number;
+  activeRequestsPage: PageMetadata;
   activeRequests: RequestReadModel[];
+  inactiveRequestsPage: PageMetadata;
   inactiveRequests: RequestReadModel[];
-  activeRequestNames: string[];
-  inactiveRequestNames: string[];
   baseTimeZone: string;
-  lang: Language;
   view: 'hr-advisor' | 'hiring-manager';
 }
 
 export default function RequestsTables({
-  userId,
+  activeRequestsPage,
   activeRequests,
+  inactiveRequestsPage,
   inactiveRequests,
-  activeRequestNames,
-  inactiveRequestNames,
   baseTimeZone,
-  lang,
   view,
 }: RequestTablesProps): JSX.Element {
+  const [searchParams, setSearchParams] = useSearchParams({ filter: 'all', page: '1', size: '10' });
   const fetcher = useFetcher();
   const fetcherState = useFetcherState(fetcher);
   const isSubmitting = fetcherState.submitting;
   const { t } = useTranslation('app');
-  const enableRequestsFilter = view === 'hr-advisor' && (activeRequests.length > 0 || inactiveRequests.length > 0);
+  const enableRequestsFilter = view === 'hr-advisor';
   const { currentLanguage } = useLanguage();
   const [browserTZ, setBrowserTZ] = useState<string | null>(null);
   const [srAnnouncement, setSrAnnouncement] = useState('');
   const [requestsFilter, setRequestsFilter] = useState<string>('all');
 
   // Helper to generate unique, sorted work unit names for filter options
-  function getUniqueWorkUnitNames(requests: RequestReadModel[], language: string): string[] {
-    const uniqueWorkUnits = new Set<string>();
+  function getUniqueWorkUnits(requests: RequestReadModel[], language: string): LookupModel[] {
+    const uniqueWorkUnits = new Set<LookupModel>();
     requests.forEach((request) => {
-      const workUnitName = language === 'en' ? request.workUnit?.parent?.nameEn : request.workUnit?.parent?.nameFr;
-      if (workUnitName) {
-        uniqueWorkUnits.add(workUnitName);
+      if (request.workUnit?.parent) {
+        uniqueWorkUnits.add(request.workUnit.parent);
       }
     });
-    return Array.from(uniqueWorkUnits).sort();
+    return Array.from(uniqueWorkUnits).sort((a, b) =>
+      currentLanguage === 'en'
+        ? a.nameEn.localeCompare(b.nameEn, currentLanguage)
+        : a.nameFr.localeCompare(b.nameFr, currentLanguage),
+    );
   }
 
-  const activeWorkUnitNames = useMemo(
-    () => getUniqueWorkUnitNames(activeRequests, currentLanguage ?? 'en'),
+  const activeWorkUnits = useMemo(
+    () => getUniqueWorkUnits(activeRequests, currentLanguage ?? 'en'),
     [activeRequests, currentLanguage],
   );
 
-  const inactiveWorkUnitNames = useMemo(
-    () => getUniqueWorkUnitNames(inactiveRequests, currentLanguage ?? 'en'),
+  const inactiveWorkUnits = useMemo(
+    () => getUniqueWorkUnits(inactiveRequests, currentLanguage ?? 'en'),
     [inactiveRequests, currentLanguage],
   );
 
@@ -78,140 +78,6 @@ export default function RequestsTables({
     () => (iso?: string) => (iso ? formatDateTimeInZone(iso, browserTZ ?? baseTimeZone, 'yyyy-MM-dd') : '0000-00-00'),
     [browserTZ, baseTimeZone],
   );
-
-  function createColumns(
-    isActive: boolean,
-  ): ColumnDef<RequestReadModel & { classification?: LookupModel; requestStatus?: LocalizedLookupModel }>[] {
-    const columns: ColumnDef<RequestReadModel & { classification?: LookupModel; requestStatus?: LocalizedLookupModel }>[] = [
-      {
-        accessorKey: 'id',
-        accessorFn: (row) => row.id,
-        header: ({ column }) => <DataTableColumnHeader column={column} title={t('requests-tables.requestId')} />,
-        cell: (info) => {
-          const requestId = info.row.original.id.toString();
-          return (
-            <InlineLink
-              className="text-sky-800 decoration-slate-400 decoration-2"
-              file={`routes/${view}/request/index.tsx`}
-              params={{ requestId }}
-              aria-label={t('requests-tables.view-link', { requestId })}
-            >
-              {formatWithMask(info.row.original.id, '####-####-##')}
-            </InlineLink>
-          );
-        },
-        sortingFn: (rowA, rowB) => {
-          const a = rowA.original.id;
-          const b = rowB.original.id;
-          return a - b;
-        },
-      },
-      {
-        accessorKey: 'classification',
-        accessorFn: (row) => row.classification?.code ?? '',
-        header: ({ column }) => <DataTableColumnHeader column={column} title={t('requests-tables.classification')} />,
-        cell: (info) => <p>{info.row.original.classification?.code}</p>,
-      },
-    ];
-
-    // Insert workUnit column only for HR Advisor
-    if (view === 'hr-advisor') {
-      columns.push({
-        accessorKey: 'workUnit',
-        accessorFn: (row) => (currentLanguage === 'en' ? row.workUnit?.parent?.nameEn : row.workUnit?.parent?.nameFr),
-        header: ({ column }) => (
-          <DataTableColumnHeaderWithOptions
-            column={column}
-            title={t('requests-tables.work-unit')}
-            options={isActive ? activeWorkUnitNames : inactiveWorkUnitNames}
-          />
-        ),
-        cell: (info) => (
-          <p>
-            {lang === 'en'
-              ? (info.row.original.workUnit?.parent?.nameEn ?? '-')
-              : (info.row.original.workUnit?.parent?.nameFr ?? '-')}
-          </p>
-        ),
-        filterFn: (row, columnId, filterValue: string[]) => {
-          const branch = row.getValue(columnId) as string;
-          return filterValue.length === 0 || filterValue.includes(branch);
-        },
-        enableColumnFilter: true,
-      });
-    }
-
-    // Continue with the rest of the columns
-    columns.push(
-      {
-        accessorKey: 'lastModifiedDate',
-        accessorFn: (row) => row.lastModifiedDate ?? '',
-        header: ({ column }) => <DataTableColumnHeader column={column} title={t('requests-tables.updated')} />,
-        cell: (info) => {
-          const lastModifiedDate = info.row.original.lastModifiedDate;
-          const userUpdated = info.row.original.lastModifiedBy ?? 'Unknown User';
-          const dateUpdated = formatDateYMD(lastModifiedDate);
-          return <p className="text-neutral-600">{`${dateUpdated}: ${userUpdated}`}</p>;
-        },
-      },
-      {
-        accessorKey: 'status.code',
-        accessorFn: (row) => (currentLanguage === 'en' ? row.status?.nameEn : row.status?.nameFr),
-        header: ({ column }) => (
-          <DataTableColumnHeaderWithOptions
-            column={column}
-            title={t('requests-tables.status')}
-            options={isActive ? activeRequestNames : inactiveRequestNames}
-          />
-        ),
-        cell: (info) => {
-          const status = info.row.original.status;
-          return status && <RequestStatusTag status={status} lang={lang} view={view} />;
-        },
-        filterFn: (row, columnId, filterValue: string[]) => {
-          const status = row.getValue(columnId) as string;
-          return filterValue.length === 0 || filterValue.includes(status);
-        },
-        enableColumnFilter: true,
-      },
-      {
-        header: t('requests-tables.action'),
-        id: 'action',
-        cell: (info) => {
-          const requestId = info.row.original.id.toString();
-          return (
-            <div className="flex items-baseline gap-4">
-              <InlineLink
-                className="rounded-sm text-sky-800 underline hover:text-blue-700 focus:text-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
-                file={`routes/${view}/request/index.tsx`}
-                params={{ requestId }}
-                aria-label={t('requests-tables.view-link', { requestId })}
-              >
-                {t('requests-tables.view')}
-              </InlineLink>
-              {view === 'hiring-manager' && (
-                <fetcher.Form method="post" noValidate>
-                  <input type="hidden" name="requestId" value={requestId}></input>
-                  <LoadingButton
-                    name="action"
-                    variant="alternative"
-                    size="sm"
-                    disabled={isSubmitting}
-                    loading={isSubmitting}
-                    value="copy"
-                  >
-                    {t('requests-tables.copy')}
-                  </LoadingButton>
-                </fetcher.Form>
-              )}
-            </div>
-          );
-        },
-      },
-    );
-
-    return columns;
-  }
 
   const requestsOptions = useMemo(
     () => [
@@ -248,7 +114,7 @@ export default function RequestsTables({
             </LoadingButton>
           </fetcher.Form>
         )}
-        <section className="my-8">
+        <section className="mt-8 mb-12">
           {enableRequestsFilter ? (
             <section className="mb-5 flex flex-col items-end justify-between gap-8 sm:flex-row">
               <h2 className="font-lato text-xl font-bold">{t('requests-tables.active-requests')}</h2>
@@ -260,6 +126,10 @@ export default function RequestsTables({
                 aria-label={t('hr-advisor-employees-table.filter-by')}
                 defaultValue={requestsFilter}
                 onChange={({ target }) => {
+                  const params = new URLSearchParams({ ...Object.fromEntries(searchParams.entries()), page: '1' });
+                  params.delete('filter');
+                  params.append('filter', target.value);
+                  setSearchParams(params);
                   setRequestsFilter(target.value);
                   const message =
                     target.value === 'me'
@@ -277,9 +147,17 @@ export default function RequestsTables({
           {activeRequests.length === 0 ? (
             <div>{t('requests-tables.no-active-requests')}</div>
           ) : (
-            <DataTable
-              columns={createColumns(true)}
-              data={activeRequests.filter((req) => (requestsFilter === 'me' ? req.hrAdvisor?.id === userId : true))}
+            <RequestsColumns
+              keyPrefix="active"
+              fetcher={fetcher}
+              page={activeRequestsPage}
+              requests={activeRequests}
+              workUnits={activeWorkUnits}
+              view={view}
+              isSubmitting={isSubmitting}
+              formatDateYMD={formatDateYMD}
+              searchParams={searchParams}
+              setSearchParams={setSearchParams}
             />
           )}
         </section>
@@ -289,13 +167,198 @@ export default function RequestsTables({
           {inactiveRequests.length === 0 ? (
             <div>{t('requests-tables.no-inactive-requests')}</div>
           ) : (
-            <DataTable
-              columns={createColumns(false)}
-              data={inactiveRequests.filter((req) => (requestsFilter === 'me' ? req.hrAdvisor?.id === userId : true))}
+            <RequestsColumns
+              keyPrefix="inactive"
+              fetcher={fetcher}
+              page={inactiveRequestsPage}
+              requests={inactiveRequests}
+              workUnits={inactiveWorkUnits}
+              view={view}
+              isSubmitting={isSubmitting}
+              formatDateYMD={formatDateYMD}
+              searchParams={searchParams}
+              setSearchParams={setSearchParams}
             />
           )}
         </section>
       </div>
     </>
+  );
+}
+
+interface RequestColumnsProps {
+  keyPrefix: string;
+  fetcher: FetcherWithComponents<unknown>;
+  page: PageMetadata;
+  requests: RequestReadModel[];
+  workUnits: LookupModel[];
+  view: 'hr-advisor' | 'hiring-manager';
+  isSubmitting: boolean;
+  formatDateYMD: (iso?: string | undefined) => string;
+  searchParams: URLSearchParams;
+  setSearchParams: SetURLSearchParams;
+}
+
+function RequestsColumns({
+  keyPrefix,
+  fetcher,
+  page,
+  requests,
+  view,
+  workUnits,
+  isSubmitting,
+  formatDateYMD,
+  searchParams,
+  setSearchParams,
+}: RequestColumnsProps) {
+  const { currentLanguage } = useLanguage();
+  const { t } = useTranslation('app');
+
+  const workUnitOptions = useMemo(() => {
+    // Use a map to remove any duplicates
+    return [...new Map(workUnits.map((unit) => [unit.id, unit])).values()];
+  }, [requests]);
+
+  //TODO: Call the API for status options
+  const statusOptions = useMemo(() => {
+    // Use a map to remove any duplicates
+    return [...new Map(requests.map((req) => [req.status?.id, req.status])).values()].filter((s) => s !== undefined);
+  }, [requests]);
+
+  return (
+    <ServerTable
+      page={page}
+      pageParam={`${keyPrefix}page`}
+      data={requests}
+      searchParams={searchParams}
+      setSearchParams={setSearchParams}
+    >
+      <Column
+        accessorKey={`${keyPrefix}id`}
+        accessorFn={(row: RequestReadModel) => row.id}
+        header={({ column }) => <DataTableColumnHeader column={column} title={t('requests-tables.requestId')} />}
+        cell={(info) => {
+          const requestId = info.row.original.id.toString();
+          return (
+            <InlineLink
+              className="text-sky-800 decoration-slate-400 decoration-2"
+              file={`routes/${view}/request/index.tsx`}
+              params={{ requestId }}
+              aria-label={t('requests-tables.view-link', { requestId })}
+            >
+              {formatWithMask(info.row.original.id, '####-####-##')}
+            </InlineLink>
+          );
+        }}
+        sortingFn={(rowA, rowB) => {
+          const a = rowA.original.id;
+          const b = rowB.original.id;
+          return a - b;
+        }}
+      />
+      <Column
+        accessorKey={`${keyPrefix}group`}
+        accessorFn={(row: RequestReadModel) => row.classification?.code ?? ''}
+        header={({ column }) => <DataTableColumnHeader column={column} title={t('requests-tables.classification')} />}
+        cell={(info) => <p>{info.row.original.classification?.code}</p>}
+      />
+      {view === 'hr-advisor' && (
+        <Column
+          accessorKey={`${keyPrefix}workUnitId`}
+          accessorFn={(row: RequestReadModel) =>
+            (currentLanguage === 'en' ? row.workUnit?.parent?.nameEn : row.workUnit?.parent?.nameFr) ?? '-'
+          }
+          header={({ column }) => (
+            <ColumnOptions
+              column={column}
+              title={t('requests-tables.work-unit')}
+              options={workUnitOptions}
+              searchParams={searchParams}
+              setSearchParams={setSearchParams}
+            />
+          )}
+          cell={(info) => (
+            <p>
+              {currentLanguage === 'en'
+                ? (info.row.original.workUnit?.parent?.nameEn ?? '-')
+                : (info.row.original.workUnit?.parent?.nameFr ?? '-')}
+            </p>
+          )}
+          filterFn={(row, columnId, filterValue) => {
+            const branch = row.getValue(columnId);
+            return filterValue.length === 0 || filterValue.some((filter) => filter.name === branch);
+          }}
+          enableColumnFilter={true}
+        />
+      )}
+      <Column
+        accessorKey={`${keyPrefix}updated`}
+        accessorFn={(row: RequestReadModel) => row.lastModifiedDate ?? ''}
+        header={({ column }) => <DataTableColumnHeader column={column} title={t('requests-tables.updated')} />}
+        cell={(info) => {
+          const lastModifiedDate = info.row.original.lastModifiedDate;
+          const userUpdated = info.row.original.lastModifiedBy ?? 'Unknown User';
+          const dateUpdated = formatDateYMD(lastModifiedDate);
+          return <p className="text-neutral-600">{`${dateUpdated}: ${userUpdated}`}</p>;
+        }}
+      />
+      <Column
+        accessorKey={`${keyPrefix}statusId`}
+        accessorFn={(row: RequestReadModel) => (currentLanguage === 'en' ? row.status?.nameEn : row.status?.nameFr) ?? '-'}
+        header={({ column }) => (
+          <ColumnOptions
+            column={column}
+            title={t('requests-tables.status')}
+            options={statusOptions}
+            searchParams={searchParams}
+            setSearchParams={setSearchParams}
+          />
+        )}
+        cell={(info) => {
+          const status = info.row.original.status;
+          return status && <RequestStatusTag status={status} lang={currentLanguage ?? 'en'} view={view} />;
+        }}
+        filterFn={(row, columnId, filterValue) => {
+          const status = row.getValue(columnId);
+          return filterValue.length === 0 || filterValue.some((filter) => filter.name === status);
+        }}
+        enableColumnFilter={true}
+      />
+      <Column
+        header={t('requests-tables.action')}
+        accessorKey={`${keyPrefix}action`}
+        accessorFn={(row: RequestReadModel) => row.id}
+        cell={(info) => {
+          const requestId = info.row.original.id.toString();
+          return (
+            <div className="flex items-baseline gap-4">
+              <InlineLink
+                className="rounded-sm text-sky-800 underline hover:text-blue-700 focus:text-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
+                file={`routes/${view}/request/index.tsx`}
+                params={{ requestId }}
+                aria-label={t('requests-tables.view-link', { requestId })}
+              >
+                {t('requests-tables.view')}
+              </InlineLink>
+              {view === 'hiring-manager' && (
+                <fetcher.Form method="post" noValidate>
+                  <input type="hidden" name="requestId" value={requestId}></input>
+                  <LoadingButton
+                    name="action"
+                    variant="alternative"
+                    size="sm"
+                    disabled={isSubmitting}
+                    loading={isSubmitting}
+                    value="copy"
+                  >
+                    {t('requests-tables.copy')}
+                  </LoadingButton>
+                </fetcher.Form>
+              )}
+            </div>
+          );
+        }}
+      />
+    </ServerTable>
   );
 }
