@@ -13,6 +13,7 @@ import type { Profile, ProfileQueryParams } from '~/.server/domain/models';
 import { getProfileService } from '~/.server/domain/services/profile-service';
 import { getProfileStatusService } from '~/.server/domain/services/profile-status-service';
 import { getUserService } from '~/.server/domain/services/user-service';
+import { serverEnvironment } from '~/.server/environment';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { BackLink } from '~/components/back-link';
@@ -230,8 +231,6 @@ export async function loader({ context, request }: Route.LoaderArgs) {
   }
 
   const profiles = profilesResult.unwrap();
-
-  const { serverEnvironment } = await import('~/.server/environment');
 
   return {
     documentTitle: t('app:index.employees'),
