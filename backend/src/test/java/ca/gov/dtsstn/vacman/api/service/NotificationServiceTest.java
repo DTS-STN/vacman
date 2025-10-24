@@ -13,18 +13,19 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.web.client.RestTemplate;
 
-import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes;
 import ca.gov.dtsstn.vacman.api.config.properties.ApplicationProperties;
 import ca.gov.dtsstn.vacman.api.config.properties.GcNotifyProperties;
+import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes;
 import ca.gov.dtsstn.vacman.api.service.NotificationService.ProfileStatus;
 import ca.gov.dtsstn.vacman.api.service.notify.ImmutableNotificationReceipt;
 import ca.gov.dtsstn.vacman.api.service.notify.NotificationReceipt;
-
+import io.micrometer.core.instrument.MeterRegistry;
 
 @ExtendWith({ MockitoExtension.class })
 @DisplayName("NotificationService tests")
@@ -38,6 +39,9 @@ class NotificationServiceTest {
 
 	@Mock
 	LookupCodes lookupCodes;
+
+	@Mock(answer = Answers.RETURNS_DEEP_STUBS)
+	MeterRegistry meterRegistry;
 
 	NotificationService notificationService;
 
@@ -59,9 +63,9 @@ class NotificationServiceTest {
 		final var languages = mock(LookupCodes.Languages.class);
 		when(lookupCodes.languages()).thenReturn(languages);
 		when(languages.english()).thenReturn("en");
-		//when(languages.french()).thenReturn("fr"); //this line makes the tests fails
+		// when(languages.french()).thenReturn("fr"); // TODO this line makes the tests fails
 
-		this.notificationService = new NotificationService(applicationProperties, restTemplateBuilder, lookupCodes);
+		this.notificationService = new NotificationService(applicationProperties, restTemplateBuilder, lookupCodes, meterRegistry);
 	}
 
 	@Test

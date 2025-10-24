@@ -48,6 +48,7 @@ import ca.gov.dtsstn.vacman.api.web.model.ProfileReadFilterModelBuilder;
 import ca.gov.dtsstn.vacman.api.web.model.ProfileReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.ProfileStatusUpdateModel;
 import ca.gov.dtsstn.vacman.api.web.model.mapper.ProfileModelMapper;
+import io.micrometer.core.instrument.MeterRegistry;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -77,12 +78,16 @@ public class ProfilesController {
 
 	private final ProfileModelMapper profileModelMapper = Mappers.getMapper(ProfileModelMapper.class);
 
+	private final MeterRegistry meterRegistry;
+
 	public ProfilesController(
 			ApplicationProperties applicationProperties,
 			LookupCodes lookupCodes,
+			MeterRegistry meterRegistry,
 			ProfileService profileService,
 			UserService userService) {
 		this.roles = applicationProperties.entraId().roles();
+		this.meterRegistry = meterRegistry;
 		this.profileService = profileService;
 		this.profileStatusCodes = lookupCodes.profileStatuses();
 		this.userService = userService;
@@ -105,6 +110,8 @@ public class ProfilesController {
 		final var profiles = profileService.findProfiles(pageable, profileQuery)
 			.map(profileModelMapper::toModel);
 
+		meterRegistry.counter("profiles.fetched").increment();
+
 		return ResponseEntity.ok(new PagedModel<>(profiles));
 	}
 
@@ -125,6 +132,8 @@ public class ProfilesController {
 			.map(profileModelMapper::toModel)
 			.collect(toCollectionModel());
 
+		meterRegistry.counter("profiles.fetched").increment();
+
 		return ResponseEntity.ok(profiles);
 	}
 
@@ -143,6 +152,8 @@ public class ProfilesController {
 			.orElseThrow(asResourceNotFoundException(PROFILE, id));
 
 		log.trace(FOUND_PROFILE_LOG_MSG, profile);
+
+		meterRegistry.counter("profiles.fetched").increment();
 
 		return ResponseEntity.ok(profile);
 	}
@@ -176,6 +187,8 @@ public class ProfilesController {
 
 		log.trace("Successfully created profile user: [{}]", createdProfile);
 
+		meterRegistry.counter("profiles.created").increment();
+
 		return ResponseEntity.ok(createdProfile);
 	}
 
@@ -195,6 +208,8 @@ public class ProfilesController {
 		log.trace(FOUND_PROFILE_LOG_MSG, foundProfile);
 
 		final var updatedEntity = profileService.updateProfile(updatedProfile, foundProfile);
+
+		meterRegistry.counter("profiles.updated").increment();
 
 		return ResponseEntity.ok(profileModelMapper.toModel(updatedEntity));
 	}
@@ -250,6 +265,8 @@ public class ProfilesController {
 		}
 
 		updateStatusToTarget(foundProfile, updatedProfileStatus.code(), validPretransitionStates);
+
+		meterRegistry.counter("profiles.status_updated").increment();
 
 		return ResponseEntity.accepted().build();
 	}

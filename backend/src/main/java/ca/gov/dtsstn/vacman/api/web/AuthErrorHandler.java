@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.micrometer.core.instrument.MeterRegistry;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -45,8 +46,11 @@ public class AuthErrorHandler implements AccessDeniedHandler, AuthenticationEntr
 
 	private final ObjectMapper objectMapper;
 
-	public AuthErrorHandler(ObjectMapper objectMapper) {
+	private final MeterRegistry meterRegistry;
+
+	public AuthErrorHandler(MeterRegistry meterRegistry, ObjectMapper objectMapper) {
 		this.objectMapper = objectMapper;
+		this.meterRegistry = meterRegistry;
 	}
 
 	@Override
@@ -58,6 +62,8 @@ public class AuthErrorHandler implements AccessDeniedHandler, AuthenticationEntr
 		final var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, "The request lacks valid authentication credentials for the requested resource.");
 		problemDetail.setProperty("correlationId", correlationId);
 		problemDetail.setProperty("errorCode", "API-0401");
+
+		meterRegistry.counter("auth.failures", "type", "unauthorized").increment();
 
 		sendResponse(response, HttpStatus.UNAUTHORIZED, problemDetail);
 	}
@@ -78,6 +84,8 @@ public class AuthErrorHandler implements AccessDeniedHandler, AuthenticationEntr
 		final var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN, "The server understands the request but refuses to authorize it.");
 		problemDetail.setProperty("correlationId", correlationId);
 		problemDetail.setProperty("errorCode", "API-0403");
+
+		meterRegistry.counter("auth.failures", "type", "forbidden").increment();
 
 		sendResponse(response, HttpStatus.FORBIDDEN, problemDetail);
 	}

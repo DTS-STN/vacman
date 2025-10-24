@@ -1,12 +1,13 @@
 package ca.gov.dtsstn.vacman.api.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.actuate.autoconfigure.metrics.MeterRegistryCustomizer;
 import org.springframework.boot.info.GitProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import ca.gov.dtsstn.vacman.api.config.properties.ApplicationProperties;
-import io.micrometer.core.instrument.binder.MeterBinder;
+import io.micrometer.core.instrument.MeterRegistry;
 
 @Configuration
 public class MetricsConfig {
@@ -20,7 +21,7 @@ public class MetricsConfig {
 	 * This includes service name, service version, and deployment environment name.
 	 * These tags help in identifying and filtering metrics in monitoring systems.
 	 */
-	@Bean MeterBinder commonTags() {
+	@Bean MeterRegistryCustomizer<MeterRegistry> commonTags() {
 		return registry -> {
 			registry.config().commonTags(
 				"service.name", applicationProperties.metrics().serviceName(),

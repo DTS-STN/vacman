@@ -15,6 +15,7 @@ import org.springframework.web.client.RestTemplate;
 
 import ca.gov.dtsstn.vacman.api.config.properties.ApplicationProperties;
 import ca.gov.dtsstn.vacman.api.service.dto.MSGraphUser;
+import io.micrometer.core.instrument.MeterRegistry;
 
 @Service
 public class MSGraphService {
@@ -39,7 +40,10 @@ public class MSGraphService {
 
 	private final RestTemplate restTemplate;
 
-	public MSGraphService(ApplicationProperties applicationProperties, OAuth2AuthorizedClientManager oauth2AuthorizedClientManager, RestTemplateBuilder restTemplateBuilder) {
+	private final MeterRegistry meterRegistry;
+
+	public MSGraphService(ApplicationProperties applicationProperties, MeterRegistry meterRegistry, OAuth2AuthorizedClientManager oauth2AuthorizedClientManager, RestTemplateBuilder restTemplateBuilder) {
+		this.meterRegistry = meterRegistry;
 		this.restTemplate = restTemplateBuilder
 			.rootUri(applicationProperties.msGraph().baseUrl())
 			.connectTimeout(applicationProperties.msGraph().connectTimeout())
@@ -54,12 +58,19 @@ public class MSGraphService {
 		try {
 			final var response = restTemplate.getForEntity("/users/{id}?$select={properties}", MSGraphUser.class, microsoftEntraId, SELECTED_USER_PROPERTIES);
 			log.debug("Successfully retrieved user with id=[{}] from MSGraph: [{}]", microsoftEntraId, response.getBody());
+			meterRegistry.counter("msgraph.requests", "method", "getUserById", "status", "success").increment();
 			return Optional.ofNullable(response.getBody());
 
 		}
 		catch (final HttpClientErrorException.NotFound exception) {
 			log.warn("Could not find user with id=[{}] in MSGraph", microsoftEntraId);
+			meterRegistry.counter("msgraph.requests", "method", "getUserById", "status", "not_found").increment();
 			return Optional.empty();
+		}
+		catch (final Exception exception) {
+			log.error("Error fetching user with id=[{}] from MSGraph", microsoftEntraId, exception);
+			meterRegistry.counter("msgraph.requests", "method", "getUserById", "status", "error").increment();
+			throw exception;
 		}
 	}
 
@@ -69,12 +80,19 @@ public class MSGraphService {
 		try {
 			final var response = restTemplate.getForEntity("/users/{email}?$select={properties}", MSGraphUser.class, email, SELECTED_USER_PROPERTIES);
 			log.debug("Successfully retrieved user with email=[{}] from MSGraph: [{}]", email, response.getBody());
+			meterRegistry.counter("msgraph.requests", "method", "getUserByEmail", "status", "success").increment();
 			return Optional.ofNullable(response.getBody());
 
 		}
 		catch (final HttpClientErrorException.NotFound exception) {
 			log.warn("Could not find user with email=[{}] in MSGraph", email);
+			meterRegistry.counter("msgraph.requests", "method", "getUserByEmail", "status", "not_found").increment();
 			return Optional.empty();
+		}
+		catch (final Exception exception) {
+			log.error("Error fetching user with email=[{}] from MSGraph", email, exception);
+			meterRegistry.counter("msgraph.requests", "method", "getUserByEmail", "status", "error").increment();
+			throw exception;
 		}
 	}
 

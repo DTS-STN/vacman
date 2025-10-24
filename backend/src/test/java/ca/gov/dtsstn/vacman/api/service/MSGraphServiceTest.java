@@ -12,6 +12,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -25,10 +26,17 @@ import org.springframework.web.client.RestTemplate;
 import ca.gov.dtsstn.vacman.api.config.properties.ApplicationProperties;
 import ca.gov.dtsstn.vacman.api.config.properties.MSGraphProperties;
 import ca.gov.dtsstn.vacman.api.service.dto.MSGraphUserBuilder;
+import io.micrometer.core.instrument.MeterRegistry;
 
 @DisplayName("MSGraphService tests")
 @ExtendWith({ MockitoExtension.class })
 class MSGraphServiceTest {
+
+	@Mock(answer = Answers.RETURNS_DEEP_STUBS)
+	MeterRegistry meterRegistry;
+
+	@Mock
+	OAuth2AuthorizedClientManager authorizedClientManager;
 
 	@Mock
 	RestTemplate restTemplate;
@@ -50,7 +58,11 @@ class MSGraphServiceTest {
 		when(restTemplateBuilder.interceptors(any(ClientHttpRequestInterceptor.class))).thenReturn(restTemplateBuilder);
 		when(restTemplateBuilder.build()).thenReturn(restTemplate);
 
-		this.msGraphService = new MSGraphService(applicationProperties, mock(OAuth2AuthorizedClientManager.class), restTemplateBuilder);
+		this.msGraphService = new MSGraphService(
+			applicationProperties,
+			meterRegistry,
+			authorizedClientManager,
+			restTemplateBuilder);
 	}
 
 	@Test

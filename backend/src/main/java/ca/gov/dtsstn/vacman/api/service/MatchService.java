@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import ca.gov.dtsstn.vacman.api.data.entity.MatchEntity;
 import ca.gov.dtsstn.vacman.api.data.repository.MatchRepository;
+import io.micrometer.core.instrument.MeterRegistry;
 
 @Service
 public class MatchService {
@@ -17,8 +18,11 @@ public class MatchService {
 
 	private final MatchRepository matchRepository;
 
-	public MatchService(MatchRepository matchRepository) {
+	private final MeterRegistry meterRegistry;
+
+	public MatchService(MatchRepository matchRepository, MeterRegistry meterRegistry) {
 		this.matchRepository = matchRepository;
+		this.meterRegistry = meterRegistry;
 	}
 
 	@Transactional(readOnly = true)
@@ -30,7 +34,9 @@ public class MatchService {
 	@Transactional
 	public MatchEntity updateMatch(MatchEntity match) {
 		log.debug("Updating match with id: [{}]", match.getId());
-		return matchRepository.save(match);
+		final var updated = matchRepository.save(match);
+		meterRegistry.counter("matches.updated").increment();
+		return updated;
 	}
 
 }

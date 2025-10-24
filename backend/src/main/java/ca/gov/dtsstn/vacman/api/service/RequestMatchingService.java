@@ -39,6 +39,7 @@ import ca.gov.dtsstn.vacman.api.data.repository.MatchRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.MatchStatusRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.ProfileRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.RequestRepository;
+import io.micrometer.core.instrument.MeterRegistry;
 
 @Service
 public class RequestMatchingService {
@@ -63,16 +64,20 @@ public class RequestMatchingService {
 
 	private final ProfileStatuses profileStatuses;
 
+	private final MeterRegistry meterRegistry;
+
 	public RequestMatchingService(
 			ApplicationProperties applicationProperties,
 			LookupCodes lookupCodes,
 			MatchRepository matchRepository,
+			MeterRegistry meterRegistry,
 			MatchStatusRepository matchStatusRepository,
 			ProfileRepository profileRepository,
 			RequestRepository requestRepository) {
 		Assert.notNull(applicationProperties, "applicationProperties is required; it must not be null");
 		Assert.notNull(lookupCodes, "lookupCodes is required; it must not be null");
 		Assert.notNull(matchRepository, "matchRepository is required; it must not be null");
+		Assert.notNull(meterRegistry, "meterRegistry is required; it must not be null");
 		Assert.notNull(matchStatusRepository, "matchStatusRepository is required; it must not be null");
 		Assert.notNull(profileRepository, "profileRepository is required; it must not be null");
 		Assert.notNull(requestRepository, "requestRepository is required; it must not be null");
@@ -82,6 +87,7 @@ public class RequestMatchingService {
 		this.languageRequirements = lookupCodes.languageRequirements();
 		this.matchStatuses = lookupCodes.matchStatuses();
 		this.profileStatuses = lookupCodes.profileStatuses();
+		this.meterRegistry = meterRegistry;
 
 		this.matchRepository = matchRepository;
 		this.matchStatusRepository = matchStatusRepository;
@@ -154,6 +160,8 @@ public class RequestMatchingService {
 		log.debug("Found {} matching profiles before prioritization", matchingProfiles.size());
 		log.trace("Matching profile ids: {}", matchingProfiles.stream().map(AbstractBaseEntity::getId).toList());
 
+		meterRegistry.counter("matching.candidates_evaluated").increment(matchingProfiles.size());
+
 		// Apply two-stage sorting followed by limiting:
 		//   1. Random shuffle: establishes baseline fairness
 		//   2. Stable priority sort: orders by WFA status and urgency, preserving random order for ties
@@ -177,7 +185,7 @@ public class RequestMatchingService {
 		final var pendingMatchStatus = matchStatusRepository.findByCode(matchStatuses.pendingApproval())
 			.orElseThrow(() -> new IllegalStateException("Match status 'pending approval' not found"));
 
-		return matchRepository.saveAll(
+		final var matches = matchRepository.saveAll(
 			prioritizedProfiles.stream()
 				.map(profile -> MatchEntity.builder()
 					.matchStatus(pendingMatchStatus)
@@ -185,6 +193,10 @@ public class RequestMatchingService {
 					.request(request)
 					.build())
 				.toList());
+
+		meterRegistry.counter("matching.matches_found").increment(matches.size());
+
+		return matches;
 	}
 
 	/**

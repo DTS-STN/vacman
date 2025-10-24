@@ -20,10 +20,14 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
+import org.mockito.Answers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.util.Assert;
 
 import ca.gov.dtsstn.vacman.api.SecurityAuditor;
@@ -57,6 +61,7 @@ import ca.gov.dtsstn.vacman.api.data.repository.RequestStatusRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.UserRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.UserTypeRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.WfaStatusRepository;
+import io.micrometer.core.instrument.MeterRegistry;
 
 /**
  * Integration tests for {@link RequestMatchingService}.
@@ -133,10 +138,10 @@ import ca.gov.dtsstn.vacman.api.data.repository.WfaStatusRepository;
  * @see ProfileTestBuilder
  */
 @DataJpaTest
+@TestInstance(Lifecycle.PER_CLASS)
 @DisplayName("RequestMatchingService tests")
+@AutoConfigureTestDatabase(replace = Replace.NONE)
 @Import({ DataSourceConfig.class, SecurityAuditor.class })
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class RequestMatchingServiceTest {
 
 	@Autowired LookupCodes lookupCodes;
@@ -155,6 +160,9 @@ class RequestMatchingServiceTest {
 	@Autowired UserRepository userRepository;
 	@Autowired UserTypeRepository userTypeRepository;
 	@Autowired WfaStatusRepository wfaStatusRepository;
+
+	@MockitoBean(answers = Answers.RETURNS_DEEP_STUBS)
+	MeterRegistry meterRegistry;
 
 	List<CityEntity> cities;
 	List<ClassificationEntity> classifications;
@@ -205,6 +213,7 @@ class RequestMatchingServiceTest {
 			applicationProperties,
 			lookupCodes,
 			matchRepository,
+			meterRegistry,
 			matchStatusRepository,
 			profileRepository,
 			requestRepository

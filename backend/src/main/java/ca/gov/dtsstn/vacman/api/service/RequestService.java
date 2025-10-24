@@ -64,6 +64,8 @@ import ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException;
 import ca.gov.dtsstn.vacman.api.web.exception.UnauthorizedException;
 import ca.gov.dtsstn.vacman.api.web.model.RequestUpdateModel;
 import ca.gov.dtsstn.vacman.api.web.model.mapper.RequestModelMapper;
+import io.micrometer.core.instrument.MeterRegistry;
+import jakarta.validation.ConstraintViolationException;
 
 @Service
 public class RequestService {
@@ -112,6 +114,8 @@ public class RequestService {
 
 	private final RequestMatchingService requestMatchingService;
 
+	private final MeterRegistry meterRegistry;
+
 	public RequestService(
 			ApplicationEventPublisher eventPublisher,
 			ApplicationProperties applicationProperties,
@@ -123,6 +127,7 @@ public class RequestService {
 			LanguageRequirementRepository languageRequirementRepository,
 			LookupCodes lookupCodes,
 			MatchRepository matchRepository,
+			MeterRegistry meterRegistry,
 			NonAdvertisedAppointmentRepository nonAdvertisedAppointmentRepository,
 			NotificationService notificationService,
 			ProvinceRepository provinceRepository,
@@ -143,6 +148,7 @@ public class RequestService {
 		this.languageRepository = languageRepository;
 		this.languageRequirementRepository = languageRequirementRepository;
 		this.matchRepository = matchRepository;
+		this.meterRegistry = meterRegistry;
 		this.nonAdvertisedAppointmentRepository = nonAdvertisedAppointmentRepository;
 		this.notificationService = notificationService;
 		this.requestMatchingService = requestMatchingService;
@@ -170,6 +176,8 @@ public class RequestService {
 			.build());
 
 		eventPublisher.publishEvent(new RequestCreatedEvent(request));
+
+		meterRegistry.counter("requests.created").increment();
 
 		return request;
 	}
@@ -399,6 +407,8 @@ public class RequestService {
 			default -> throw new IllegalArgumentException("Unknown event type: " + eventType);
 		};
 
+		meterRegistry.counter("requests.status_updated").increment();
+
 		return updateRequest(updatedRequest);
 	}
 
@@ -488,6 +498,8 @@ public class RequestService {
 		// Set status to CANCELLED
 		request.setRequestStatus(getRequestStatusByCode(requestStatuses.cancelled()));
 
+		meterRegistry.counter("requests.cancelled").increment();
+
 		return updateRequest(request);
 	}
 
@@ -515,6 +527,8 @@ public class RequestService {
 			// Set status to NO_MATCH_HR_REVIEW
 			request.setRequestStatus(getRequestStatusByCode(requestStatuses.noMatchHrReview()));
 		}
+
+		meterRegistry.counter("matches.run").increment();
 
 		return updateRequest(request);
 	}

@@ -15,6 +15,7 @@ import org.springframework.web.client.RestTemplate;
 import ca.gov.dtsstn.vacman.api.config.properties.ApplicationProperties;
 import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes;
 import ca.gov.dtsstn.vacman.api.service.notify.NotificationReceipt;
+import io.micrometer.core.instrument.MeterRegistry;
 
 @Service
 public class NotificationService {
@@ -31,7 +32,9 @@ public class NotificationService {
 
 	private final LookupCodes.Languages languages;
 
-	public NotificationService(ApplicationProperties applicationProperties, RestTemplateBuilder restTemplateBuilder, LookupCodes lookupCodes) {
+	private final MeterRegistry meterRegistry;
+
+	public NotificationService(ApplicationProperties applicationProperties, RestTemplateBuilder restTemplateBuilder, LookupCodes lookupCodes, MeterRegistry meterRegistry) {
 		this.applicationProperties = applicationProperties;
 		this.restTemplate = restTemplateBuilder
 			.defaultHeader(HttpHeaders.AUTHORIZATION, "ApiKey-v1 %s".formatted(applicationProperties.gcnotify().apiKey()))
@@ -40,6 +43,7 @@ public class NotificationService {
 			.readTimeout(applicationProperties.gcnotify().readTimeout())
 			.build();
 		this.languages = lookupCodes.languages();
+		this.meterRegistry = meterRegistry;
 	}
 
 	/**
@@ -114,6 +118,8 @@ public class NotificationService {
 
 		final var notificationReceipt = restTemplate.postForObject("/email", request, NotificationReceipt.class);
 		log.debug("Notification sent to email [{}] using template [{}]", email, templateId);
+
+		meterRegistry.counter("notifications.sent", "type", requestEvent.name()).increment();
 
 		return notificationReceipt;
 	}

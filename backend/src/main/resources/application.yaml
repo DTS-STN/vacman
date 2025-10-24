@@ -197,6 +197,9 @@ management:
         include:
           - health
           - metrics
+  observations:
+    annotations:
+      enabled: true
   otlp:
     metrics:
       export:

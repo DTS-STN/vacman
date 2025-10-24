@@ -52,6 +52,7 @@ import ca.gov.dtsstn.vacman.api.web.model.RequestUpdateModel;
 import ca.gov.dtsstn.vacman.api.web.model.mapper.MatchModelMapper;
 import ca.gov.dtsstn.vacman.api.web.model.mapper.ProfileModelMapper;
 import ca.gov.dtsstn.vacman.api.web.model.mapper.RequestModelMapper;
+import io.micrometer.core.instrument.MeterRegistry;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -78,6 +79,8 @@ public class RequestsController {
 
 	private final MatchService matchService;
 
+	private final MeterRegistry meterRegistry;
+
 	private final RequestService requestService;
 
 	private final UserService userService;
@@ -85,10 +88,12 @@ public class RequestsController {
 	public RequestsController(
 			CodeService codeService,
 			MatchService matchService,
+			MeterRegistry meterRegistry,
 			RequestService requestService,
 			UserService userService) {
 		this.codeService = codeService;
 		this.matchService = matchService;
+		this.meterRegistry = meterRegistry;
 		this.requestService = requestService;
 		this.userService = userService;
 	}
@@ -110,6 +115,8 @@ public class RequestsController {
 
 		final var requests = requestService.findRequests(pageable, requestQuery)
 			.map(entity -> requestModelMapper.toModel(entity, requestService.hasMatches(entity.getId())));
+
+		meterRegistry.counter("requests.fetched").increment();
 
 		return ResponseEntity.ok(new PagedModel<>(requests));
 	}
@@ -138,6 +145,8 @@ public class RequestsController {
 		final var requests = requestService.getAllRequestsAssociatedWithUser(pageable, user.getId(), requestQuery)
 			.map(entity -> requestModelMapper.toModel(entity, requestService.hasMatches(entity.getId())));
 
+		meterRegistry.counter("requests.fetched").increment();
+
 		return ResponseEntity.ok(new PagedModel<>(requests));
 	}
 
@@ -156,6 +165,8 @@ public class RequestsController {
 			.orElseThrow(asUserResourceNotFoundException("microsoftEntraId", entraId));
 
 		final var request = requestService.createRequest(currentUser);
+
+		meterRegistry.counter("requests.created").increment();
 
 		final var location = ServletUriComponentsBuilder.fromCurrentContextPath()
 			.path("/api/v1/requests/{id}")
@@ -232,6 +243,8 @@ public class RequestsController {
 
 		final var updatedEntity = requestService.updateRequestStatus(request, statusUpdate.eventType());
 
+		meterRegistry.counter("requests.status_updated").increment();
+
 		return ResponseEntity.ok(requestModelMapper.toModel(updatedEntity, requestService.hasMatches(updatedEntity.getId())));
 	}
 
@@ -251,6 +264,8 @@ public class RequestsController {
 		log.trace("Found request: [{}]", request);
 
 		final var updatedEntity = requestService.runMatches(request);
+
+		meterRegistry.counter("matches.run").increment();
 
 		return ResponseEntity.ok(requestModelMapper.toModel(updatedEntity, requestService.hasMatches(updatedEntity.getId())));
 	}
@@ -339,6 +354,8 @@ public class RequestsController {
 
 		match.setMatchStatus(matchStatus);
 		matchService.updateMatch(match);
+
+		meterRegistry.counter("matches.status_updated").increment();
 
 		return ResponseEntity.noContent().build();
 	}

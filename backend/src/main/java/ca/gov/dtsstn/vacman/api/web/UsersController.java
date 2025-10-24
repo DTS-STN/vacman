@@ -49,6 +49,7 @@ import ca.gov.dtsstn.vacman.api.web.model.UserReadFilterModel;
 import ca.gov.dtsstn.vacman.api.web.model.UserReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.mapper.ProfileModelMapper;
 import ca.gov.dtsstn.vacman.api.web.model.mapper.UserModelMapper;
+import io.micrometer.core.instrument.MeterRegistry;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -69,6 +70,8 @@ public class UsersController {
 
 	private final LookupCodes lookupCodes;
 
+	private final MeterRegistry meterRegistry;
+
 	private final MSGraphService msGraphService;
 
 	private final ProfileModelMapper profileModelMapper = Mappers.getMapper(ProfileModelMapper.class);
@@ -83,12 +86,14 @@ public class UsersController {
 			ApplicationProperties applicationProperties,
 			CodeService codeService,
 			LookupCodes lookupCodes,
+			MeterRegistry meterRegistry,
 			MSGraphService msGraphService,
 			ProfileService profileService,
 			UserService userService) {
 		this.codeService = codeService;
 		this.entraRoles = applicationProperties.entraId().roles();
 		this.lookupCodes = lookupCodes;
+		this.meterRegistry = meterRegistry;
 		this.msGraphService = msGraphService;
 		this.profileService = profileService;
 		this.userService = userService;
@@ -140,6 +145,8 @@ public class UsersController {
 		log.debug("Creating user in database...");
 		final var createdUser = userModelMapper.toModel(userService.createUser(userEntity));
 		log.trace("Successfully created new user: [{}]", createdUser);
+
+		meterRegistry.counter("users.created").increment();
 
 		return ResponseEntity.ok(createdUser);
 	}
@@ -254,6 +261,9 @@ public class UsersController {
 	public ResponseEntity<UserReadModel> updateUser(@PathVariable long id, @RequestBody @Valid UserPatchModel updates) {
 		userService.getUserById(id).orElseThrow(asResourceNotFoundException("user", id));
 		final var updatedUser = userService.updateUser(id, userModelMapper.toEntity(updates));
+
+		meterRegistry.counter("users.updated").increment();
+
 		return ResponseEntity.ok(userModelMapper.toModel(updatedUser));
 	}
 
@@ -268,6 +278,9 @@ public class UsersController {
 	public ResponseEntity<UserReadModel> updateUser(@PathVariable Long id, @RequestBody @Valid UserPatchModel userUpdate) {
 		userService.getUserById(id).orElseThrow(asResourceNotFoundException("user", id));
 		final var updatedUser = userService.overwriteUser(id, userModelMapper.toEntity(userUpdate));
+
+		meterRegistry.counter("users.updated").increment();
+
 		return ResponseEntity.ok(userModelMapper.toModel(updatedUser));
 	}
 
@@ -303,6 +316,8 @@ public class UsersController {
 				.hrAdvisor(hrAdvisor)
 				.user(targetUser)
 				.build()));
+
+		meterRegistry.counter("profiles.created").increment();
 
 		return ResponseEntity.ok(profile);
 	}
