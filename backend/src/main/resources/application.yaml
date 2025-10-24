@@ -339,6 +339,9 @@ application:
   matches:
     wfa-end-date-grace-period: 30d
     max-matches-per-request: 1000
+  metrics:
+    environment-name: local
+    service-name: vacman-api
   ms-graph:
     base-url: https://graph.microsoft.com/v1.0
     connect-timeout: 10s
