@@ -1,5 +1,5 @@
-import { useMatches } from 'react-router';
 import type { RouteHandle } from 'react-router';
+import { useMatches } from 'react-router';
 
 /**
  * Custom hook that determines whether the current route's layout
@@ -17,7 +17,7 @@ import type { RouteHandle } from 'react-router';
  * const layoutHasDecorativeBackground = uselayoutHasDecorativeBackground();
  *
  * return (
- *   <div className={layoutHasDecorativeBackground ? "bg-[url('/background.png')]" : ""}>
+ *   <div className={layoutHasDecorativeBackground ? "bg-[rgba(9,28,45,1)]" : ""}>
  *     <Outlet />
  *   </div>
  * );
