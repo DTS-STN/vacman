@@ -15,6 +15,7 @@ import org.springframework.web.client.RestTemplate;
 import ca.gov.dtsstn.vacman.api.config.properties.ApplicationProperties;
 import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes;
 import ca.gov.dtsstn.vacman.api.service.notify.NotificationReceipt;
+import io.micrometer.core.annotation.Counted;
 
 @Service
 public class NotificationService {
@@ -45,6 +46,7 @@ public class NotificationService {
 	/**
 	* Sends an email notification (specific to a profile) to a single email address.
 	*/
+	@Counted("service.notification.sendProfileNotification.count")
 	public NotificationReceipt sendProfileNotification(String email, String profileId, String username, String language, ProfileStatus profileStatus) {
 		Assert.hasText(email, "email is required; it must not be blank or null");
 		Assert.hasText(profileId, "profileId is required; it must not be blank or null");
@@ -85,6 +87,7 @@ public class NotificationService {
 	 * Sends an email notification to multiple email addresses.
 	 * Returns a list of notification receipts, one for each email address.
 	 */
+	@Counted("service.notification.sendRequestNotificationSingle.count")
 	public NotificationReceipt sendRequestNotification(String email, Long requestId, String requestTitle, RequestEvent requestEvent) {
 		Assert.hasText(email, "email is required; it must not be blank or null");
 		Assert.notNull(requestId, "requestId is required; it must not be null");
@@ -122,6 +125,7 @@ public class NotificationService {
 	 * Sends a request notification to multiple email addresses.
 	 * Returns a list of notification receipts, one for each email address.
 	 */
+	@Counted("service.notification.sendRequestNotificationMultiple.count")
 	public List<NotificationReceipt> sendRequestNotification(List<String> emails, Long requestId, String requestTitle, RequestEvent requestEvent) {
 		Assert.notEmpty(emails, "emails is required; it must not be empty or null");
 		Assert.notNull(requestId, "requestId is required; it must not be null");
