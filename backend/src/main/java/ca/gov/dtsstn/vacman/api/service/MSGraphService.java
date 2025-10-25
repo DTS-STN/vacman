@@ -15,6 +15,7 @@ import org.springframework.web.client.RestTemplate;
 
 import ca.gov.dtsstn.vacman.api.config.properties.ApplicationProperties;
 import ca.gov.dtsstn.vacman.api.service.dto.MSGraphUser;
+import io.micrometer.core.annotation.Counted;
 
 @Service
 public class MSGraphService {
@@ -48,6 +49,7 @@ public class MSGraphService {
 			.build();
 	}
 
+	@Counted("service.msgraph.getUserById.count")
 	public Optional<MSGraphUser> getUserById(String microsoftEntraId) {
 		log.debug("Fetching user with id=[{}] from MSGraph", microsoftEntraId);
 
@@ -63,6 +65,7 @@ public class MSGraphService {
 		}
 	}
 
+	@Counted("service.msgraph.getUserByEmail.count")
 	public Optional<MSGraphUser> getUserByEmail(String email) {
 		log.debug("Fetching user with id=[{}] from MSGraph", email);
 
