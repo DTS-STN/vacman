@@ -44,6 +44,7 @@ import ca.gov.dtsstn.vacman.api.data.entity.WorkScheduleEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.WorkUnitEntity;
 import ca.gov.dtsstn.vacman.api.security.OwnershipPermissionEvaluator;
 import ca.gov.dtsstn.vacman.api.service.CodeService;
+import io.micrometer.core.instrument.MeterRegistry;
 
 @ActiveProfiles({ "test" })
 @Import({ WebSecurityConfig.class })
@@ -56,6 +57,9 @@ class CodesControllerTest {
 
 	@MockitoBean
 	CodeService codeService;
+
+	@MockitoBean
+	MeterRegistry meterRegistry;
 
 	@MockitoBean
 	OwnershipPermissionEvaluator ownershipPermissionEvaluator;
