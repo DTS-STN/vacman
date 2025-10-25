@@ -13,6 +13,7 @@
     "build": "pnpm run build:application && pnpm run build:server",
     "build:application": "react-router build",
     "build:server": "vite build --config ./vite.server.config.ts",
+    "dbg": "nodemon --config ./nodemon-dbg.json",
     "dev": "nodemon --config ./nodemon.json",
     "preview": "pnpm run build && cross-env NODE_ENV=production SESSION_COOKIE_SECURE=false node --env-file-if-exists=./.env --import ./build/server/telemetry.js ./build/server/server.js",
     "start": "cross-env NODE_ENV=production node --import ./build/server/telemetry.js ./build/server/server.js",
