@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.micrometer.core.annotation.Counted;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -51,6 +52,7 @@ public class AuthErrorHandler implements AccessDeniedHandler, AuthenticationEntr
 
 	@Override
 	@ExceptionHandler({ AuthenticationException.class })
+	@Counted(value = "auth.failures", extraTags = {"type", "unauthorized"})
 	public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authenticationException) throws IOException {
 		final var correlationId = generateCorrelationId();
 		log.warn("[correlationId: {}] Authentication Error: statusCode=401; remoteAddress={}; message={}", correlationId, request.getRemoteAddr(), authenticationException.getMessage());
@@ -64,6 +66,7 @@ public class AuthErrorHandler implements AccessDeniedHandler, AuthenticationEntr
 
 	@Override
 	@ExceptionHandler({ AccessDeniedException.class })
+	@Counted(value = "auth.failures", extraTags = {"type", "forbidden"})
 	public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException) throws IOException {
 		final var correlationId = generateCorrelationId();
 		log.warn("[correlationId: {}] Authentication Error: statusCode=403; remoteAddress={}; message={}", correlationId, request.getRemoteAddr(), accessDeniedException.getMessage());
