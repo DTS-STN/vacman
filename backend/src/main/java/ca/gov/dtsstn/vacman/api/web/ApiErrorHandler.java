@@ -26,6 +26,7 @@ import ca.gov.dtsstn.vacman.api.web.exception.ForbiddenException;
 import ca.gov.dtsstn.vacman.api.web.exception.ResourceConflictException;
 import ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException;
 import ca.gov.dtsstn.vacman.api.web.exception.UnauthorizedException;
+import io.micrometer.core.annotation.Counted;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 
@@ -35,6 +36,7 @@ public class ApiErrorHandler extends ResponseEntityExceptionHandler {
 	private static final Logger log = LoggerFactory.getLogger(ApiErrorHandler.class);
 
 	@ExceptionHandler({ AccessDeniedException.class })
+	@Counted(value = "errors.handled", extraTags = { "type", "access_denied", "status", "403" })
 	public ResponseEntity<Object> handleAccessDeniedException(AccessDeniedException exception, WebRequest request) {
 		final var correlationId = generateCorrelationId();
 
@@ -46,6 +48,7 @@ public class ApiErrorHandler extends ResponseEntityExceptionHandler {
 	}
 
 	@ExceptionHandler({ ConstraintViolationException.class })
+	@Counted(value = "errors.handled", extraTags = { "type", "validation", "status", "400" })
 	public ResponseEntity<Object> handleConstraintViolationException(ConstraintViolationException exception, WebRequest request) {
 		final var correlationId = generateCorrelationId();
 
@@ -61,6 +64,7 @@ public class ApiErrorHandler extends ResponseEntityExceptionHandler {
 	}
 
 	@ExceptionHandler({ ForbiddenException.class })
+	@Counted(value = "errors.handled", extraTags = { "type", "forbidden", "status", "403" })
 	public ResponseEntity<Object> handleForbiddenException(ForbiddenException exception, WebRequest request) {
 		final var correlationId = generateCorrelationId();
 
@@ -72,6 +76,7 @@ public class ApiErrorHandler extends ResponseEntityExceptionHandler {
 	}
 
 	@ExceptionHandler({ JsonPatchException.class })
+	@Counted(value = "errors.handled", extraTags = { "type", "json_patch", "status", "400" })
 	public ResponseEntity<Object> handleJsonPatchException(JsonPatchException exception, WebRequest request) {
 		final var correlationId = generateCorrelationId();
 
@@ -87,6 +92,7 @@ public class ApiErrorHandler extends ResponseEntityExceptionHandler {
 	}
 
 	@Override
+	@Counted(value = "errors.handled", extraTags = { "type", "validation", "status", "400" })
 	protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
 		final var correlationId = generateCorrelationId();
 
@@ -102,6 +108,7 @@ public class ApiErrorHandler extends ResponseEntityExceptionHandler {
 	}
 
 	@ExceptionHandler({ ResourceConflictException.class })
+	@Counted(value = "errors.handled", extraTags = { "type", "conflict", "status", "409" })
 	public ResponseEntity<Object> handleResourceConflictException(ResourceConflictException exception, WebRequest request) {
 		final var correlationId = generateCorrelationId();
 		log.error("[correlationId: {}] Request processing failed; nested exception is {}: {}", correlationId, exception.getClass().getName(), exception.getMessage(), exception);
@@ -114,6 +121,7 @@ public class ApiErrorHandler extends ResponseEntityExceptionHandler {
 	}
 
 	@ExceptionHandler({ ResourceNotFoundException.class })
+	@Counted(value = "errors.handled", extraTags = { "type", "not_found", "status", "404" })
 	public ResponseEntity<Object> handleResourceNotFoundException(ResourceNotFoundException exception, WebRequest request) {
 		final var correlationId = generateCorrelationId();
 
@@ -125,6 +133,7 @@ public class ApiErrorHandler extends ResponseEntityExceptionHandler {
 	}
 
 	@ExceptionHandler({ UnauthorizedException.class })
+	@Counted(value = "errors.handled", extraTags = { "type", "unauthorized", "status", "401" })
 	public ResponseEntity<Object> handleUnauthorizedException(UnauthorizedException exception, WebRequest request) {
 		final var correlationId = generateCorrelationId();
 
@@ -136,6 +145,7 @@ public class ApiErrorHandler extends ResponseEntityExceptionHandler {
 	}
 
 	@ExceptionHandler({ Exception.class })
+	@Counted(value = "errors.handled", extraTags = { "type", "internal_server", "status", "500" })
 	public ResponseEntity<Object> handleGenericException(Exception exception, WebRequest request) {
 		final var correlationId = generateCorrelationId();
 		log.error("[correlationId: {}] Request processing failed; nested exception is {}: {}", correlationId, exception.getClass().getName(), exception.getMessage(), exception);

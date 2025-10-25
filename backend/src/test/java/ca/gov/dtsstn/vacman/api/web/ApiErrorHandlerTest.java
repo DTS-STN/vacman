@@ -9,10 +9,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Answers;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -24,17 +26,17 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.context.request.WebRequest;
 
 import ca.gov.dtsstn.vacman.api.web.exception.UnauthorizedException;
+import io.micrometer.core.instrument.MeterRegistry;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("ApiErrorHandler Tests")
 class ApiErrorHandlerTest {
 
-	ApiErrorHandler apiErrorHandler;
+	@Mock(answer = Answers.RETURNS_DEEP_STUBS)
+	MeterRegistry meterRegistry;
 
-	@BeforeEach
-	void beforeEach() {
-		this.apiErrorHandler = new ApiErrorHandler();
-	}
+	@InjectMocks
+	ApiErrorHandler apiErrorHandler;
 
 	@Test
 	@SuppressWarnings({ "unchecked" })
