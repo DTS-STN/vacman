@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import ca.gov.dtsstn.vacman.api.data.entity.MatchEntity;
 import ca.gov.dtsstn.vacman.api.data.repository.MatchRepository;
+import io.micrometer.core.annotation.Counted;
 
 @Service
 public class MatchService {
@@ -22,12 +23,14 @@ public class MatchService {
 	}
 
 	@Transactional(readOnly = true)
+	@Counted("service.match.getMatchById.count")
 	public Optional<MatchEntity> getMatchById(long id) {
 		log.debug("Fetching match with id: [{}]", id);
 		return matchRepository.findById(id);
 	}
 
 	@Transactional
+	@Counted("service.match.updateMatch.count")
 	public MatchEntity updateMatch(MatchEntity match) {
 		log.debug("Updating match with id: [{}]", match.getId());
 		return matchRepository.save(match);
