@@ -46,6 +46,7 @@ import ca.gov.dtsstn.vacman.api.service.dto.ProfileQuery;
 import ca.gov.dtsstn.vacman.api.service.mapper.ProfileEntityMapper;
 import ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException;
 import ca.gov.dtsstn.vacman.api.web.model.ProfilePutModel;
+import io.micrometer.core.annotation.Counted;
 
 @Service
 public class ProfileService {
@@ -128,6 +129,7 @@ public class ProfileService {
 	 * @return A paginated collection of profile entities.
 	 */
 	@Transactional(readOnly = true)
+	@Counted("service.profile.getProfilesByStatusAndHrId.count")
 	public Page<ProfileEntity> getProfilesByStatusAndHrId(Pageable pageable, Boolean isActive, Long hrAdvisorId) {
 		// Dispatch DB call based on presence of isActive & advisor ID
 		Page<ProfileEntity> profilesPage;
@@ -160,6 +162,7 @@ public class ProfileService {
 	 * Returns all non-archived profiles owned by a user.
 	 */
 	@Transactional(readOnly = true)
+	@Counted("service.profile.getActiveProfilesByUserId.count")
 	public List<ProfileEntity> getActiveProfilesByUserId(long userId) {
 		final var currentUserEntraId = SecurityUtils.getCurrentUserEntraId().orElse("UNKNOWN");
 
@@ -183,6 +186,7 @@ public class ProfileService {
 	 * @return A collection of profile entities.
 	 */
 	@Transactional(readOnly = true)
+	@Counted("service.profile.getProfilesByEntraId.count")
 	public List<ProfileEntity> getProfilesByEntraId(String entraId, Boolean isActive) {
 		final var profiles = isActive != null
 			? profileRepository.findAll(hasUserMicrosoftEntraId(entraId).and(hasProfileStatusCodeIn(profileStatusSets.get(isActive))))
@@ -200,6 +204,7 @@ public class ProfileService {
 	}
 
 	@Transactional(readOnly = true)
+	@Counted("service.profile.getProfileById.count")
 	public Optional<ProfileEntity> getProfileById(long id) {
 		return profileRepository.findById(id).map(profile -> {
 			final var entraId = getCurrentUserEntraId().orElse("N/A");
@@ -213,6 +218,7 @@ public class ProfileService {
 	 * Creates a new profile. Defaults the profile status to {@code INCOMPLETE}.
 	 */
 	@Transactional(readOnly = false)
+	@Counted("service.profile.createProfile.count")
 	public ProfileEntity createProfile(ProfileEntity profile) {
 		final var incompleteStatus = profileStatusRepository.findByCode(profileStatuses.incomplete()).orElseThrow();
 
@@ -227,6 +233,7 @@ public class ProfileService {
 	}
 
 	@Transactional(readOnly = true)
+	@Counted("service.profile.findProfiles.count")
 	public Page<ProfileEntity> findProfiles(Pageable pageable, ProfileQuery profileQuery) {
 		final var hasHrAdvisorId = ProfileRepository.hasHrAdvisorIdIn(profileQuery.hrAdvisorIds());
 		final var hasStatusId = ProfileRepository.hasProfileStatusIdIn(profileQuery.statusIds());
@@ -240,6 +247,7 @@ public class ProfileService {
 	 * @param statusCode The code the profile will be updated to use.
 	 */
 	@Transactional(readOnly = false)
+	@Counted("service.profile.updateProfileStatus.count")
 	public void updateProfileStatus(ProfileEntity existingProfile, String statusCode) {
 		final var previousStatusId = existingProfile.getProfileStatus().getId();
 		final var newStatus = profileStatusRepository.findByCode(statusCode)
@@ -260,6 +268,7 @@ public class ProfileService {
 	 * @throws ResourceNotFoundException When any given ID does not exist within the DB.
 	 */
 	@Transactional(readOnly = false)
+	@Counted("service.profile.updateProfile.count")
 	public ProfileEntity updateProfile(ProfilePutModel updateModel, ProfileEntity profile) {
 		profile.setWfaStartDate(updateModel.wfaStartDate());
 		profile.setWfaEndDate(updateModel.wfaEndDate());
