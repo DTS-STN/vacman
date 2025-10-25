@@ -47,6 +47,7 @@ import ca.gov.dtsstn.vacman.api.data.repository.UserTypeRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.WfaStatusRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.WorkScheduleRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.WorkUnitRepository;
+import io.micrometer.core.annotation.Counted;
 
 /**
  * Service class for retrieving code table values.
@@ -147,6 +148,7 @@ public class CodeService {
 	 * @param pageable pagination information
 	 * @return a page of {@link CityEntity} objects
 	 */
+	@Counted("service.code.getCities.count")
 	@Cacheable(cacheNames = { CacheNames.CITIES })
 	public Page<CityEntity> getCities(Pageable pageable) {
 		return cityRepository.findAll(pageable);
@@ -158,6 +160,7 @@ public class CodeService {
 	 * @param pageable pagination information
 	 * @return a page of {@link ClassificationEntity} objects
 	 */
+	@Counted("service.code.getClassifications.count")
 	@Cacheable(cacheNames = { CacheNames.CLASSIFICATIONS })
 	public Page<ClassificationEntity> getClassifications(Pageable pageable) {
 		return classificationRepository.findAll(pageable);
@@ -169,6 +172,7 @@ public class CodeService {
 	 * @param pageable pagination information
 	 * @return a page of {@link EmploymentEquityEntity} objects
 	 */
+	@Counted("service.code.getEmploymentEquities.count")
 	@Cacheable(cacheNames = { CacheNames.EMPLOYMENT_EQUITIES })
 	public Page<EmploymentEquityEntity> getEmploymentEquities(Pageable pageable) {
 		return employmentEquityRepository.findAll(pageable);
@@ -180,6 +184,7 @@ public class CodeService {
 	 * @param pageable pagination information
 	 * @return a page of {@link EmploymentOpportunityEntity} objects
 	 */
+	@Counted("service.code.getEmploymentOpportunities.count")
 	@Cacheable(cacheNames = { CacheNames.EMPLOYMENT_OPPORTUNITIES })
 	public Page<EmploymentOpportunityEntity> getEmploymentOpportunities(Pageable pageable) {
 		return employmentOpportunityRepository.findAll(pageable);
@@ -191,6 +196,7 @@ public class CodeService {
 	 * @param pageable pagination information
 	 * @return a page of {@link EmploymentTenureEntity} objects
 	 */
+	@Counted("service.code.getEmploymentTenures.count")
 	@Cacheable(cacheNames = { CacheNames.EMPLOYMENT_TENURES })
 	public Page<EmploymentTenureEntity> getEmploymentTenures(Pageable pageable) {
 		return employmentTenureRepository.findAll(pageable);
@@ -202,6 +208,7 @@ public class CodeService {
 	 * @param pageable pagination information
 	 * @return a page of {@link LanguageReferralTypeEntity} objects
 	 */
+	@Counted("service.code.getLanguageReferralTypes.count")
 	@Cacheable(cacheNames = { CacheNames.LANGUAGE_REFERRAL_TYPES })
 	public Page<LanguageReferralTypeEntity> getLanguageReferralTypes(Pageable pageable) {
 		return languageReferralTypeRepository.findAll(pageable);
@@ -213,6 +220,7 @@ public class CodeService {
 	 * @param pageable pagination information
 	 * @return a page of {@link LanguageRequirementEntity} objects
 	 */
+	@Counted("service.code.getLanguageRequirements.count")
 	@Cacheable(cacheNames = { CacheNames.LANGUAGE_REQUIREMENTS })
 	public Page<LanguageRequirementEntity> getLanguageRequirements(Pageable pageable) {
 		return languageRequirementRepository.findAll(pageable);
@@ -224,6 +232,7 @@ public class CodeService {
 	 * @param pageable pagination information
 	 * @return a page of {@link LanguageEntity} objects
 	 */
+	@Counted("service.code.getLanguages.count")
 	@Cacheable(cacheNames = { CacheNames.LANGUAGES })
 	public Page<LanguageEntity> getLanguages(Pageable pageable) {
 		return languageRepository.findAll(pageable);
@@ -235,6 +244,7 @@ public class CodeService {
 	 * @param pageable pagination information
 	 * @return a page of {@link MatchFeedbackEntity} objects
 	 */
+	@Counted("service.code.getMatchFeedbacks.count")
 	@Cacheable(cacheNames = { CacheNames.MATCH_FEEDBACKS })
 	public Page<MatchFeedbackEntity> getMatchFeedbacks(Pageable pageable) {
 		return matchFeedbackRepository.findAll(pageable);
@@ -246,6 +256,7 @@ public class CodeService {
 	 * @param pageable pagination information
 	 * @return a page of {@link MatchStatusEntity} objects
 	 */
+	@Counted("service.code.getMatchStatuses.count")
 	@Cacheable(cacheNames = { CacheNames.MATCH_STATUSES })
 	public Page<MatchStatusEntity> getMatchStatuses(Pageable pageable) {
 		return matchStatusRepository.findAll(pageable);
@@ -257,6 +268,7 @@ public class CodeService {
 	 * @param pageable pagination information
 	 * @return a page of {@link NonAdvertisedAppointmentEntity} objects
 	 */
+	@Counted("service.code.getNonAdvertisedAppointments.count")
 	@Cacheable(cacheNames = { CacheNames.NON_ADVERTISED_APPOINTMENTS })
 	public Page<NonAdvertisedAppointmentEntity> getNonAdvertisedAppointments(Pageable pageable) {
 		return nonAdvertisedAppointmentRepository.findAll(pageable);
@@ -268,6 +280,7 @@ public class CodeService {
 	 * @param pageable pagination information
 	 * @return a page of {@link ProfileStatusEntity} objects
 	 */
+	@Counted("service.code.getProfileStatuses.count")
 	@Cacheable(cacheNames = { CacheNames.PROFILE_STATUSES })
 	public Page<ProfileStatusEntity> getProfileStatuses(Pageable pageable) {
 		return profileStatusRepository.findAll(pageable);
@@ -279,6 +292,7 @@ public class CodeService {
 	 * @param pageable pagination information
 	 * @return a page of {@link ProvinceEntity} objects
 	 */
+	@Counted("service.code.getProvinces.count")
 	@Cacheable(cacheNames = { CacheNames.PROVINCES })
 	public Page<ProvinceEntity> getProvinces(Pageable pageable) {
 		return provinceRepository.findAll(pageable);
@@ -290,6 +304,7 @@ public class CodeService {
 	 * @param pageable pagination information
 	 * @return a page of {@link RequestStatusEntity} objects
 	 */
+	@Counted("service.code.getRequestStatuses.count")
 	@Cacheable(cacheNames = { CacheNames.REQUEST_STATUSES })
 	public Page<RequestStatusEntity> getRequestStatuses(Pageable pageable) {
 		return requestStatusRepository.findAll(pageable);
@@ -301,6 +316,7 @@ public class CodeService {
 	 * @param pageable pagination information
 	 * @return a page of {@link SecurityClearanceEntity} objects
 	 */
+	@Counted("service.code.getSecurityClearances.count")
 	@Cacheable(cacheNames = { CacheNames.SECURITY_CLEARANCES })
 	public Page<SecurityClearanceEntity> getSecurityClearances(Pageable pageable) {
 		return securityClearanceRepository.findAll(pageable);
@@ -312,6 +328,7 @@ public class CodeService {
 	 * @param pageable pagination information
 	 * @return a page of {@link SelectionProcessTypeEntity} objects
 	 */
+	@Counted("service.code.getSelectionProcessTypes.count")
 	@Cacheable(cacheNames = { CacheNames.SELECTION_PROCESS_TYPES })
 	public Page<SelectionProcessTypeEntity> getSelectionProcessTypes(Pageable pageable) {
 		return selectionProcessTypeRepository.findAll(pageable);
@@ -323,6 +340,7 @@ public class CodeService {
 	 * @param pageable pagination information
 	 * @return a page of {@link UserTypeEntity} objects
 	 */
+	@Counted("service.code.getUserTypes.count")
 	@Cacheable(cacheNames = { CacheNames.USER_TYPES })
 	public Page<UserTypeEntity> getUserTypes(Pageable pageable) {
 		return userTypeRepository.findAll(pageable);
@@ -334,6 +352,7 @@ public class CodeService {
 	 * @param pageable pagination information
 	 * @return a page of {@link WfaStatusEntity} objects
 	 */
+	@Counted("service.code.getWfaStatuses.count")
 	@Cacheable(cacheNames = { CacheNames.WFA_STATUSES })
 	public Page<WfaStatusEntity> getWfaStatuses(Pageable pageable) {
 		return wfaStatusRepository.findAll(pageable);
@@ -345,6 +364,7 @@ public class CodeService {
 	 * @param pageable pagination information
 	 * @return a page of {@link WorkScheduleEntity} objects
 	 */
+	@Counted("service.code.getWorkSchedules.count")
 	@Cacheable(cacheNames = { CacheNames.WORK_SCHEDULES })
 	public Page<WorkScheduleEntity> getWorkSchedules(Pageable pageable) {
 		return workScheduleRepository.findAll(pageable);
@@ -356,6 +376,7 @@ public class CodeService {
 	 * @param pageable pagination information
 	 * @return a page of {@link WorkUnitEntity} objects
 	 */
+	@Counted("service.code.getWorkUnits.count")
 	@Cacheable(cacheNames = { CacheNames.WORK_UNITS })
 	public Page<WorkUnitEntity> getWorkUnits(Pageable pageable) {
 		return workUnitRepository.findAll(pageable);
