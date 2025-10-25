@@ -64,6 +64,7 @@ import ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException;
 import ca.gov.dtsstn.vacman.api.web.exception.UnauthorizedException;
 import ca.gov.dtsstn.vacman.api.web.model.RequestUpdateModel;
 import ca.gov.dtsstn.vacman.api.web.model.mapper.RequestModelMapper;
+import io.micrometer.core.annotation.Counted;
 
 @Service
 public class RequestService {
@@ -158,6 +159,7 @@ public class RequestService {
 	}
 
 	@Transactional(readOnly = false)
+	@Counted("service.request.createRequest.count")
 	public RequestEntity createRequest(UserEntity submitter) {
 		log.debug("Fetching DRAFT request status");
 
@@ -175,11 +177,13 @@ public class RequestService {
 	}
 
 	@Transactional(readOnly = true)
+	@Counted("service.request.getRequestById.count")
 	public Optional<RequestEntity> getRequestById(long requestId) {
 		return requestRepository.findById(requestId);
 	}
 
 	@Transactional(readOnly = true)
+	@Counted("service.request.getAllRequestsAssociatedWithUser.count")
 	public Page<RequestEntity> getAllRequestsAssociatedWithUser(Pageable pageable, Long userId, RequestQuery query) {
 		final var requestsAssociatedWithUser = anyOf(
 			hasSubmitterId(userId),
@@ -204,11 +208,13 @@ public class RequestService {
 	 * @return true if matches exist for the request, false otherwise
 	 */
 	@Transactional(readOnly = true)
+	@Counted("service.request.hasMatches.count")
 	public boolean hasMatches(Long requestId) {
 		return matchRepository.exists(hasRequestId(requestId));
 	}
 
 	@Transactional(readOnly = true)
+	@Counted("service.request.getMatchesByRequestId.count")
 	public List<MatchEntity> getMatchesByRequestId(Long requestId) {
 		return matchRepository.findAll(hasRequestId(requestId));
 	}
@@ -220,6 +226,7 @@ public class RequestService {
 	 * @return Optional containing the match if found
 	 */
 	@Transactional(readOnly = true)
+	@Counted("service.request.getMatchById.count")
 	public Optional<MatchEntity> getMatchById(Long matchId) {
 		return matchRepository.findOne(hasId(matchId));
 	}
@@ -231,6 +238,7 @@ public class RequestService {
 	 * @return The saved match entity
 	 */
 	@Transactional
+	@Counted("service.request.saveMatch.count")
 	public MatchEntity saveMatch(MatchEntity match) {
 		return matchRepository.save(match);
 	}
@@ -242,6 +250,7 @@ public class RequestService {
 	 * @param query         Query parameters for filtering requests
 	 */
 	@Transactional(readOnly = true)
+	@Counted("service.request.findRequests.count")
 	public Page<RequestEntity> findRequests(Pageable pageable, RequestQuery query) {
 		final var specification = allOf(
 			hasHrAdvisorIdIn(query.hrAdvisorIds()),
@@ -258,6 +267,7 @@ public class RequestService {
 	 * @param query Query parameters for filtering matches
 	 */
 	@Transactional(readOnly = true)
+	@Counted("service.request.findMatches.count")
 	public List<MatchEntity> findMatches(MatchQuery query) {
 		final var specification = allOf(
 			hasProfileId(query.profileId()),
@@ -275,6 +285,7 @@ public class RequestService {
 	 * @return The updated request entity.
 	 */
 	@Transactional(readOnly = false)
+	@Counted("service.request.updateRequest.count")
 	public RequestEntity updateRequest(RequestEntity request) {
 		final var updatedRequest = requestRepository.save(request);
 		eventPublisher.publishEvent(new RequestUpdatedEvent(updatedRequest));
@@ -282,6 +293,7 @@ public class RequestService {
 	}
 
 	@Transactional(readOnly = true)
+	@Counted("service.request.prepareRequestForUpdate.count")
 	public RequestEntity prepareRequestForUpdate(RequestUpdateModel updateModel, RequestEntity request) {
 		requestModelMapper.updateEntityFromModel(updateModel, request);
 
@@ -361,6 +373,7 @@ public class RequestService {
 			.orElseThrow(asResourceNotFoundException("user", userId));
 	}
 
+	@Counted("service.request.deleteRequest.count")
 	public void deleteRequest(Long requestId) {
 		final var request = getRequestById(requestId)
 			.orElseThrow(asResourceNotFoundException("request", requestId));
@@ -379,6 +392,7 @@ public class RequestService {
 	 * @param eventType The event type that triggered the status change
 	 * @return The updated request entity
 	 */
+	@Counted("service.request.updateRequestStatus.count")
 	public RequestEntity updateRequestStatus(RequestEntity request, String eventType) {
 		final var currentUser = SecurityUtils.getCurrentUserEntraId()
 			.flatMap(userService::getUserByMicrosoftEntraId)
@@ -481,6 +495,7 @@ public class RequestService {
 	 * @param requestId The ID of the request to cancel
 	 * @return The updated request entity
 	 */
+	@Counted("service.request.cancelRequest.count")
 	public RequestEntity cancelRequest(Long requestId) {
 		final var request = getRequestById(requestId)
 			.orElseThrow(asResourceNotFoundException("request", requestId));
@@ -497,6 +512,7 @@ public class RequestService {
 	 * @param request The request entity to run matches for
 	 * @return The updated request entity
 	 */
+	@Counted("service.request.runMatches.count")
 	public RequestEntity runMatches(RequestEntity request) {
 		final var currentStatus = request.getRequestStatus().getCode();
 
