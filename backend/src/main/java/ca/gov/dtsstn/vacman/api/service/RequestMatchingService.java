@@ -39,6 +39,7 @@ import ca.gov.dtsstn.vacman.api.data.repository.MatchRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.MatchStatusRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.ProfileRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.RequestRepository;
+import io.micrometer.core.annotation.Counted;
 
 @Service
 public class RequestMatchingService {
@@ -117,6 +118,7 @@ public class RequestMatchingService {
 	 *   - Limit: Select up to `max` profiles from the sorted list.
 	 */
 	@Transactional
+	@Counted("service.requestmatching.performRequestMatching.count")
 	public List<MatchEntity> performRequestMatching(long requestId, int max) {
 		Assert.isTrue(max > 0, "max must be positive");
 
