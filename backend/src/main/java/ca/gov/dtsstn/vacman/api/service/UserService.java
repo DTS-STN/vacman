@@ -25,6 +25,7 @@ import ca.gov.dtsstn.vacman.api.event.UserReadEvent;
 import ca.gov.dtsstn.vacman.api.event.UserUpdatedEvent;
 import ca.gov.dtsstn.vacman.api.security.SecurityUtils;
 import ca.gov.dtsstn.vacman.api.service.mapper.UserEntityMapper;
+import io.micrometer.core.annotation.Counted;
 
 @Service
 public class UserService {
@@ -59,6 +60,7 @@ public class UserService {
 	}
 
 	@Transactional(readOnly = false)
+	@Counted("service.user.createUser.count")
 	public UserEntity createUser(UserEntity user) {
 		final var userTypeCode = SecurityUtils.hasAuthority(entraRoles.hrAdvisor())
 			? userTypeCodes.hrAdvisor()
@@ -79,6 +81,7 @@ public class UserService {
 	}
 
 	@Transactional(readOnly = true)
+	@Counted("service.user.getUserById.count")
 	public Optional<UserEntity> getUserById(long id) {
 		return userRepository.findById(id).map(user -> {
 			eventPublisher.publishEvent(new UserReadEvent(user));
@@ -87,6 +90,7 @@ public class UserService {
 	}
 
 	@Transactional(readOnly = true)
+	@Counted("service.user.getUserByMicrosoftEntraId.count")
 	public Optional<UserEntity> getUserByMicrosoftEntraId(String entraId) {
 		// No need to emit an event here because this is used
 		// in intermediary steps by other methods that emit events
@@ -101,6 +105,7 @@ public class UserService {
 	}
 
 	@Transactional(readOnly = true)
+	@Counted("service.user.getUsers.count")
 	public Page<UserEntity> getUsers(Pageable pageable) {
 		final var users = userRepository.findAll(pageable);
 		users.forEach(user -> eventPublisher.publishEvent(new UserReadEvent(user)));
@@ -118,6 +123,7 @@ public class UserService {
 	 *         Will never be {@code null}.
 	 */
 	@Transactional(readOnly = true)
+	@Counted("service.user.findUsers.count")
 	public Page<UserEntity> findUsers(UserEntity example, Pageable pageable) {
 		final var users = userRepository.findAll(Example.of(example), pageable);
 		users.forEach(user -> eventPublisher.publishEvent(new UserReadEvent(user)));
@@ -125,6 +131,7 @@ public class UserService {
 	}
 
 	@Transactional(readOnly = false)
+	@Counted("service.user.overwriteUser.count")
 	public UserEntity overwriteUser(long id, UserEntity updates) {
 		final var existingUser = userRepository.findById(id).orElseThrow();
 		userEntityMapper.overwrite(updates, existingUser);
@@ -135,6 +142,7 @@ public class UserService {
 	}
 
 	@Transactional(readOnly = false)
+	@Counted("service.user.updateUser.count")
 	public UserEntity updateUser(long id, UserEntity updates) {
 		final var existingUser = userRepository.findById(id).orElseThrow();
 		userEntityMapper.update(updates, existingUser);
@@ -145,6 +153,7 @@ public class UserService {
 	}
 
 	@Transactional(readOnly = false)
+	@Counted("service.user.deleteUser.count")
 	public void deleteUser(long id) {
 		userRepository.findById(id).ifPresent(user -> {
 			userRepository.deleteById(id);
