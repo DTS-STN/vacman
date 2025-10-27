@@ -603,6 +603,8 @@ export default {
     'errors': {
       'match-id': "L'identifiant doit être un nombre.",
       'feedback-required': 'Une rétroaction est requise.',
+      'comment-required': 'Les commentaires sont obligatoires.',
+      'comment-max-length': 'Les commentaires doivent comporter moins de 100 caractères.',
     },
   },
   'matches-tables': {

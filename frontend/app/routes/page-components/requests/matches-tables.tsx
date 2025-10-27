@@ -15,6 +15,8 @@ import { InputSelect } from '~/components/input-select';
 import { InputTextarea } from '~/components/input-textarea';
 import { InlineLink } from '~/components/links';
 import { MATCH_STATUS } from '~/domain/constants';
+import type { Errors } from '~/routes/page-components/requests/validation.server';
+import { extractValidationKey } from '~/utils/validation-utils';
 
 interface MatchesTablesProps {
   requestMatches: MatchSummaryReadModel[];
@@ -24,6 +26,7 @@ interface MatchesTablesProps {
   submit: FetcherSubmitFunction;
   lang: 'en' | 'fr';
   isUpdating?: boolean;
+  errors?: Errors;
 }
 
 export default function MatchesTables({
@@ -34,6 +37,7 @@ export default function MatchesTables({
   submit,
   lang,
   isUpdating = false,
+  errors,
 }: MatchesTablesProps): JSX.Element {
   const { t } = useTranslation('app');
 
@@ -66,7 +70,7 @@ export default function MatchesTables({
       formData.set('action', 'comment');
       formData.set('matchId', id.toString());
       formData.set('comment', comment);
-      void submit(formData, { method: 'post' }); // TODO call PUT /api/v1/requests/{id}/matches/{matchId} to update comment
+      void submit(formData, { method: 'post' });
     },
     [submit],
   );
@@ -247,6 +251,7 @@ export default function MatchesTables({
                     disabled={view === 'hr-advisor'}
                     value={hiringManagerComment}
                     onChange={(e) => setHiringManagerComment(e.target.value)}
+                    maxLength={100}
                   />
                   <InputTextarea
                     className="w-full"
@@ -256,6 +261,8 @@ export default function MatchesTables({
                     disabled={view === 'hiring-manager'}
                     value={hrAdvisorComment}
                     onChange={(e) => setHrAdvisorComment(e.target.value)}
+                    maxLength={100}
+                    errorMessage={t(extractValidationKey(errors?.comment?.[match.id]))}
                   />
                   <div className="space-x-4">
                     <DialogClose asChild>
