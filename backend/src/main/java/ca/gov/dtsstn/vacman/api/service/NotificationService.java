@@ -59,7 +59,11 @@ public class NotificationService {
 
 		// Determine template path based on status and language
 		final var langFolder = this.languages.english().equals(language) ? "en" : "fr";
-		final var templateBaseName = profileStatus == ProfileStatus.APPROVED ? "vmsProfileActivation" : "approvalRequired";
+		final var templateBaseName = switch (profileStatus) {
+			case APPROVED -> "vmsProfileActivation";
+			case PENDING -> "vmsProfilePending";
+
+		};
 		final var templateName = String.format("email/%s/%s.ftl", langFolder, templateBaseName);
 
 		// Create model for template processing
@@ -109,21 +113,13 @@ public class NotificationService {
 
 		// Determine template path based on event and language
 		String langFolder = this.languages.english().equals(language) ? "en" : "fr";
-		String templateBaseName;
 
-		switch (requestEvent) {
-			case CREATED:
-				templateBaseName = "requestCreated";
-				break;
-			case FEEDBACK_PENDING:
-				templateBaseName = "requestFeedbackPending";
-				break;
-			case FEEDBACK_COMPLETED:
-				templateBaseName = "feedbackApproved";
-				break;
-			default:
-				throw new IllegalArgumentException("Unknown request event value " + requestEvent);
-		}
+		//TODO: match templates to events
+		final var templateBaseName = switch (requestEvent) {
+			case CREATED -> "requestCreated";
+			case FEEDBACK_PENDING -> "requestFeedbackPending";
+			case FEEDBACK_COMPLETED -> "feedbackApproved";
+		};
 
 		String templateName = String.format("email/%s/%s.ftl", langFolder, templateBaseName);
 
