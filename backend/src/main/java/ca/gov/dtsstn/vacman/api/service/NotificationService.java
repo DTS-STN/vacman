@@ -58,13 +58,9 @@ public class NotificationService {
 		Assert.hasText(username, "username is required; it must not be blank or null");
 
 		// Determine template path based on status and language
-		String templateName = "email/" + 
-							 (this.languages.english().equals(language) ? "en/" : "fr/") +
-							 (profileStatus == ProfileStatus.APPROVED ? "vmsProfileActivationEng.ftl" : "approvalRequiredEng.ftl");
-
-		if (!this.languages.english().equals(language)) {
-			templateName = "email/fr/" + (profileStatus == ProfileStatus.APPROVED ? "vmsProfileActivationFre.ftl" : "approvalRequiredFre.ftl");
-		}
+		final var langFolder = this.languages.english().equals(language) ? "en" : "fr";
+		final var templateBaseName = profileStatus == ProfileStatus.APPROVED ? "vmsProfileActivation" : "approvalRequired";
+		final var templateName = String.format("email/%s/%s.ftl", langFolder, templateBaseName);
 
 		// Create model for template processing
 		Map<String, Object> model = Map.of(
@@ -73,16 +69,13 @@ public class NotificationService {
 		);
 
 		try {
-			// Process the template with FreeMarker
-			EmailContent emailContent = emailTemplateService.processEmailTemplate(templateName, model);
-
-			// Use the generic template ID
+			final var emailContent = emailTemplateService.processEmailTemplate(templateName, model);
 			final var templateId = applicationProperties.gcnotify().genericTemplateId();
 
-			// Personalization parameters for the generic template
+			// Personalization parameters
 			final var personalization = Map.of(
 				"email_subject", emailContent.subject(),
-				"email_message", emailContent.body()
+				"email_body", emailContent.body()
 			);
 
 			log.trace("Request to send profile notification email=[{}], parameters=[{}]", email, personalization);
@@ -104,33 +97,35 @@ public class NotificationService {
 	}
 
 	/**
-	 * Sends an email notification to multiple email addresses.
-	 * Returns a list of notification receipts, one for each email address.
+	 * Sends an email notification to a single email address.
+	 * Return a receipt for the notification
 	 */
 	@Counted("service.notification.sendRequestNotificationSingle.count")
-	public NotificationReceipt sendRequestNotification(String email, Long requestId, String requestTitle, RequestEvent requestEvent) {
+	public NotificationReceipt sendRequestNotification(String email, Long requestId, String requestTitle, RequestEvent requestEvent, String language) {
+		// Default to English if language is not provided
 		Assert.hasText(email, "email is required; it must not be blank or null");
 		Assert.notNull(requestId, "requestId is required; it must not be null");
 		Assert.hasText(requestTitle, "requestTitle is required; it must not be blank or null");
 
-		// Determine template name based on event (assuming English for now)
-		// In a real implementation, you would add a language parameter to this method
-		String language = this.languages.english(); // Default to English
-		String templateName = "email/en/";
+		// Determine template path based on event and language
+		String langFolder = this.languages.english().equals(language) ? "en" : "fr";
+		String templateBaseName;
 
 		switch (requestEvent) {
 			case CREATED:
-				templateName += "requestCreated.ftl";
+				templateBaseName = "requestCreated";
 				break;
 			case FEEDBACK_PENDING:
-				templateName += "requestFeedbackPending.ftl";
+				templateBaseName = "requestFeedbackPending";
 				break;
 			case FEEDBACK_COMPLETED:
-				templateName += "feedbackApprovedEng.ftl";
+				templateBaseName = "feedbackApproved";
 				break;
 			default:
 				throw new IllegalArgumentException("Unknown request event value " + requestEvent);
 		}
+
+		String templateName = String.format("email/%s/%s.ftl", langFolder, templateBaseName);
 
 		// Create model for template processing
 		Map<String, Object> model = Map.of(
@@ -175,14 +170,15 @@ public class NotificationService {
 	 * Returns a list of notification receipts, one for each email address.
 	 */
 	@Counted("service.notification.sendRequestNotificationMultiple.count")
-	public List<NotificationReceipt> sendRequestNotification(List<String> emails, Long requestId, String requestTitle, RequestEvent requestEvent) {
+	public List<NotificationReceipt> sendRequestNotification(List<String> emails, Long requestId, String requestTitle, RequestEvent requestEvent, String language) {
+		// Default to English if language is not provided
 		Assert.notEmpty(emails, "emails is required; it must not be empty or null");
 		Assert.notNull(requestId, "requestId is required; it must not be null");
 		Assert.hasText(requestTitle, "requestTitle is required; it must not be blank or null");
 
 		return emails.parallelStream()
 			.filter(StringUtils::hasText)
-			.map(email -> sendRequestNotification(email, requestId, requestTitle, requestEvent))
+			.map(email -> sendRequestNotification(email, requestId, requestTitle, requestEvent, language))
 			.toList();
 	}
 

@@ -3,10 +3,12 @@ package ca.gov.dtsstn.vacman.api.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -39,6 +41,9 @@ class NotificationServiceTest {
 	@Mock
 	LookupCodes lookupCodes;
 
+	@Mock
+	EmailTemplateService emailTemplateService;
+
 	NotificationService notificationService;
 
 	@BeforeEach
@@ -59,17 +64,22 @@ class NotificationServiceTest {
 		final var languages = mock(LookupCodes.Languages.class);
 		when(lookupCodes.languages()).thenReturn(languages);
 		when(languages.english()).thenReturn("en");
-		//when(languages.french()).thenReturn("fr"); //this line makes the tests fails
 
-		this.notificationService = new NotificationService(applicationProperties, restTemplateBuilder, lookupCodes);
+		// Mock EmailTemplateService
+		EmailTemplateService.EmailContent mockEmailContent = mock(EmailTemplateService.EmailContent.class);
+		when(mockEmailContent.subject()).thenReturn("Test Subject");
+		when(mockEmailContent.body()).thenReturn("Test Body");
+		when(emailTemplateService.processEmailTemplate(any(), any())).thenReturn(mockEmailContent);
+
+		// Mock generic template ID
+		when(applicationProperties.gcnotify().genericTemplateId()).thenReturn("generic-template-id");
+
+		this.notificationService = new NotificationService(applicationProperties, restTemplateBuilder, lookupCodes, emailTemplateService);
 	}
 
 	@Test
 	@DisplayName("Test send Profile approved email English")
 	void getemailProfileApprovedEnglishSuccess() {
-		when(applicationProperties.gcnotify().profileApprovedTemplateIdEng())
-			.thenReturn("00000000-0000-0000-0000-000000000000");
-
 		when(restTemplate.postForObject(eq("/email"), any(Map.class), eq(NotificationReceipt.class)))
 			.thenReturn(ImmutableNotificationReceipt.builder().build());
 
@@ -86,9 +96,6 @@ class NotificationServiceTest {
 	@Test
 	@DisplayName("Test send Profile approved email French")
 	void getemailProfileApprovedFrenchSuccess() {
-		when(applicationProperties.gcnotify().profileApprovedTemplateIdFra())
-			.thenReturn("00000000-0000-0000-0000-000000000000");
-
 		when(restTemplate.postForObject(eq("/email"), any(Map.class), eq(NotificationReceipt.class)))
 			.thenReturn(ImmutableNotificationReceipt.builder().build());
 
@@ -106,9 +113,6 @@ class NotificationServiceTest {
 	@Test
 	@DisplayName("Test send Profile pending email English")
 	void getemailProfilePendingEnglishSuccess() {
-		when(applicationProperties.gcnotify().profilePendingTemplateIdEng())
-			.thenReturn("00000000-0000-0000-0000-000000000000");
-
 		when(restTemplate.postForObject(eq("/email"), any(Map.class), eq(NotificationReceipt.class)))
 			.thenReturn(ImmutableNotificationReceipt.builder().build());
 
@@ -125,9 +129,6 @@ class NotificationServiceTest {
 	@Test
 	@DisplayName("Test send Profile pending email French")
 	void getemailProfilePendingFrenchSuccess() {
-		when(applicationProperties.gcnotify().profilePendingTemplateIdFra())
-			.thenReturn("00000000-0000-0000-0000-000000000000");
-
 		when(restTemplate.postForObject(eq("/email"), any(Map.class), eq(NotificationReceipt.class)))
 			.thenReturn(ImmutableNotificationReceipt.builder().build());
 
@@ -141,4 +142,69 @@ class NotificationServiceTest {
 		assertThat(result).isNotNull();
 	}
 
+	@Test
+	@DisplayName("Test send Request notification English")
+	void sendRequestNotificationEnglishSuccess() {
+		when(restTemplate.postForObject(eq("/email"), any(Map.class), eq(NotificationReceipt.class)))
+			.thenReturn(ImmutableNotificationReceipt.builder().build());
+
+		final var result = notificationService.sendRequestNotification(
+			"test@example.com",
+			123L,
+			"Test Request",
+			NotificationService.RequestEvent.CREATED,
+			lookupCodes.languages().english());
+
+		assertThat(result).isNotNull();
+	}
+
+	@Test
+	@DisplayName("Test send Request notification French")
+	void sendRequestNotificationFrenchSuccess() {
+		when(restTemplate.postForObject(eq("/email"), any(Map.class), eq(NotificationReceipt.class)))
+			.thenReturn(ImmutableNotificationReceipt.builder().build());
+
+		final var result = notificationService.sendRequestNotification(
+			"test@example.com",
+			123L,
+			"Test Request",
+			NotificationService.RequestEvent.CREATED,
+			lookupCodes.languages().french());
+
+		assertThat(result).isNotNull();
+	}
+
+	@Test
+	@DisplayName("Test send Request notification to multiple emails with English language")
+	void sendRequestNotificationMultipleEnglishSuccess() {
+		when(restTemplate.postForObject(eq("/email"), any(Map.class), eq(NotificationReceipt.class)))
+			.thenReturn(ImmutableNotificationReceipt.builder().build());
+
+		final var result = notificationService.sendRequestNotification(
+			List.of("test1@example.com", "test2@example.com"),
+			123L,
+			"Test Request",
+			NotificationService.RequestEvent.CREATED,
+			lookupCodes.languages().english());
+
+		assertThat(result).isNotNull();
+		assertThat(result.size()).isEqualTo(2);
+	}
+
+	@Test
+	@DisplayName("Test send Request notification to multiple emails with French language")
+	void sendRequestNotificationMultipleFrenchSuccess() {
+		when(restTemplate.postForObject(eq("/email"), any(Map.class), eq(NotificationReceipt.class)))
+			.thenReturn(ImmutableNotificationReceipt.builder().build());
+
+		final var result = notificationService.sendRequestNotification(
+			List.of("test1@example.com", "test2@example.com"),
+			123L,
+			"Test Request",
+			NotificationService.RequestEvent.CREATED,
+			lookupCodes.languages().french());
+
+		assertThat(result).isNotNull();
+		assertThat(result.size()).isEqualTo(2);
+	}
 }

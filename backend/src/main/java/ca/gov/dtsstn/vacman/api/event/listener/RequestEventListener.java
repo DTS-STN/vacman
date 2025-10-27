@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import ca.gov.dtsstn.vacman.api.data.entity.LanguageEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
@@ -45,9 +46,19 @@ public class RequestEventListener {
 		Optional.ofNullable(request.getHrAdvisor())
 			.map(UserEntity::getBusinessEmailAddress)
 			.ifPresentOrElse(
-				email -> notificationService.sendRequestNotification(email, event.entity().getId(), event.entity().getNameEn(), RequestEvent.FEEDBACK_COMPLETED),
-				() -> log.warn("No HR advisor or business email address found for request ID: [{}]", event.entity().getId()));
+				email -> {
+					final var language = Optional.ofNullable(request.getLanguage())
+						.map(LanguageEntity::getCode)
+						.orElse(null);
 
+					notificationService.sendRequestNotification(
+						email,
+						request.getId(),
+						request.getNameEn(),
+						RequestEvent.FEEDBACK_COMPLETED,
+						language
+					);
+				}, () -> log.warn("No HR advisor or business email address found for request ID: [{}]", event.entity().getId()));
 	}
 
 	/**
@@ -64,8 +75,19 @@ public class RequestEventListener {
 			.map(this::getEmployeeEmails)
 			.filter(emails -> !emails.isEmpty())
 			.ifPresentOrElse(
-				emails -> notificationService.sendRequestNotification(emails, request.getId(), request.getNameEn(), RequestEvent.FEEDBACK_PENDING),
-				() -> log.warn("No email addresses found for request ID: [{}]", request.getId()));
+				emails -> {
+					final var language = Optional.ofNullable(request.getLanguage())
+						.map(LanguageEntity::getCode)
+						.orElse(null);
+
+					notificationService.sendRequestNotification(
+						emails,
+						request.getId(),
+						request.getNameEn(),
+						RequestEvent.FEEDBACK_PENDING,
+						language
+					);
+				}, () -> log.warn("No email addresses found for request ID: [{}]", request.getId()));
 	}
 
 	/**

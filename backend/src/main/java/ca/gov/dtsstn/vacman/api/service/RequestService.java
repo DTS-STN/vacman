@@ -486,7 +486,8 @@ public class RequestService {
 			applicationProperties.gcnotify().hrGdInboxEmail(),
 			request.getId(),
 			request.getNameEn(),
-			RequestEvent.CREATED);
+			RequestEvent.CREATED,
+			null); // Use null to let NotificationService use its default language (English)
 	}
 
 	/**
