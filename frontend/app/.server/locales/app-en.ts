@@ -587,6 +587,10 @@ export default {
       'Review candidate feedback below for approval. If changes are needed, contact the hiring manager directly to discuss, and update before selecting the appropriate action on the request details page.',
     'confirm-info':
       'I confirm that retraining rights for any affected, surplus or lay-off priorities were applied and or considered.',
+    'errors': {
+      'match-id': 'ID must be a number.',
+      'feedback-required': 'Feedback is required.',
+    },
   },
   'matches-tables': {
     'employee': 'Employee',

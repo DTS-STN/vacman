@@ -126,6 +126,7 @@ export default function HiringManagerRequestMatches({ loaderData, params }: Rout
   const fetcherState = useFetcherState(fetcher);
   const isSubmitting = fetcherState.submitting;
   const matchesFetcher = useFetcher();
+  const isUpdating = matchesFetcher.state !== 'idle';
 
   const [browserTZ, setBrowserTZ] = useState(() =>
     loaderData.requestDate
@@ -214,7 +215,7 @@ export default function HiringManagerRequestMatches({ loaderData, params }: Rout
         </fetcher.Form>
       )}
       <Progress className="mt-8 mb-8" variant="blue" label="" value={loaderData.feedbackProgress} />
-      <MatchesTables {...loaderData} submit={matchesFetcher.submit} view="hiring-manager" />
+      <MatchesTables {...loaderData} submit={matchesFetcher.submit} view="hiring-manager" isUpdating={isUpdating} />
     </div>
   );
 }

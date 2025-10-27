@@ -1,16 +1,20 @@
 import { useEffect, useRef, useState } from 'react';
 
-import { useFetcher } from 'react-router';
+import { data, useFetcher } from 'react-router';
 import type { RouteHandle } from 'react-router';
 
 import { Trans, useTranslation } from 'react-i18next';
+import * as v from 'valibot';
 
 import type { Route } from './+types/matches';
 
+import type { MatchReadModel, MatchUpdateModel } from '~/.server/domain/models';
 import { getMatchFeedbackService } from '~/.server/domain/services/match-feedback-service';
 import { getRequestService } from '~/.server/domain/services/request-service';
 import { serverEnvironment } from '~/.server/environment';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
+import { mapMatchToUpdateModelWithOverrides } from '~/.server/utils/request-utils';
+import { stringToIntegerSchema } from '~/.server/validation/string-to-integer-schema';
 import { AlertMessage } from '~/components/alert-message';
 import { BackLink } from '~/components/back-link';
 import { InlineLink } from '~/components/links';
@@ -33,17 +37,81 @@ export function meta({ loaderData }: Route.MetaArgs) {
   return [{ title: loaderData.documentTitle }];
 }
 
-export async function action({ context, request }: Route.ActionArgs) {
+export async function action({ context, request, params }: Route.ActionArgs) {
   const { session } = context.get(context.applicationContext);
   requireAuthentication(session, request);
+
+  const allFeedbacks = await getMatchFeedbackService().listAll();
+
+  //get request id from params
+  const requestData = (
+    await getRequestService().getRequestById(Number(params.requestId), session.authState.accessToken)
+  ).into();
+
+  if (!requestData) {
+    throw new Response('Request not found', { status: HttpStatusCodes.NOT_FOUND });
+  }
+
+  const requestId = requestData.id;
+
   const formData = await request.formData();
 
-  //TODO - For updates to feedback, comment, or approve
-  formString(formData.get('id'));
   switch (formData.get('action')) {
     case 'feedback': {
-      formString(formData.get('feedback'));
-      break;
+      const parseResult = v.safeParse(
+        v.object({
+          matchId: v.pipe(
+            v.string(),
+            v.transform((val) => parseInt(val, 10)),
+            v.number('app:matches.errors.match-id'),
+          ),
+          feedback: v.pipe(
+            stringToIntegerSchema('app:matches.errors.feedback-required'),
+            v.picklist(
+              allFeedbacks.map(({ id }) => id),
+              'app:matches.errors.feedback-required',
+            ),
+          ),
+        }),
+        {
+          matchId: formString(formData.get('matchId')),
+          feedback: formString(formData.get('feedback')),
+        },
+      );
+
+      if (!parseResult.success) {
+        return data({ errors: v.flatten(parseResult.issues).nested }, { status: HttpStatusCodes.BAD_REQUEST });
+      }
+
+      const { matchId } = parseResult.output;
+      const matchResult = await getRequestService().getRequestMatchById(
+        requestId,
+        Number(matchId),
+        session.authState.accessToken,
+      );
+
+      if (matchResult.isErr()) {
+        throw new Response('Request Match not found', { status: HttpStatusCodes.NOT_FOUND });
+      }
+
+      const matchData: MatchReadModel = matchResult.unwrap();
+
+      // call PUT /api/v1/requests/{id}/matches/{matchId} to update feedback
+      const matchPayload: MatchUpdateModel = mapMatchToUpdateModelWithOverrides(matchData, {
+        matchFeedbackId: parseResult.output.feedback,
+      });
+      const updateResult = await getRequestService().updateRequestMatchById(
+        requestId,
+        matchData.id,
+        matchPayload,
+        session.authState.accessToken,
+      );
+
+      if (updateResult.isErr()) {
+        throw updateResult.unwrapErr();
+      }
+
+      return data({ success: true });
     }
     case 'comment': {
       formString(formData.get('comment'));
@@ -109,6 +177,7 @@ export default function HrAdvisorMatches({ loaderData, params }: Route.Component
   const { t } = useTranslation(handle.i18nNamespace);
   const alertRef = useRef<HTMLDivElement>(null);
   const matchesFetcher = useFetcher();
+  const isUpdating = matchesFetcher.state !== 'idle';
 
   const [browserTZ, setBrowserTZ] = useState(() =>
     loaderData.requestDate
@@ -188,7 +257,7 @@ export default function HrAdvisorMatches({ loaderData, params }: Route.Component
       ) : (
         <Progress className="mt-8 mb-8" variant="blue" label="" value={loaderData.feedbackProgress} />
       )}
-      <MatchesTables {...loaderData} submit={matchesFetcher.submit} view="hr-advisor" />
+      <MatchesTables {...loaderData} submit={matchesFetcher.submit} view="hr-advisor" isUpdating={isUpdating} />
     </div>
   );
 }
