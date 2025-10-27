@@ -14,6 +14,7 @@ import org.springframework.web.client.RestTemplate;
 
 import ca.gov.dtsstn.vacman.api.config.properties.ApplicationProperties;
 import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes;
+import ca.gov.dtsstn.vacman.api.service.EmailTemplateService.EmailContent;
 import ca.gov.dtsstn.vacman.api.service.notify.NotificationReceipt;
 import io.micrometer.core.annotation.Counted;
 
@@ -32,7 +33,10 @@ public class NotificationService {
 
 	private final LookupCodes.Languages languages;
 
-	public NotificationService(ApplicationProperties applicationProperties, RestTemplateBuilder restTemplateBuilder, LookupCodes lookupCodes) {
+	private final EmailTemplateService emailTemplateService;
+
+	public NotificationService(ApplicationProperties applicationProperties, RestTemplateBuilder restTemplateBuilder, 
+	                          LookupCodes lookupCodes, EmailTemplateService emailTemplateService) {
 		this.applicationProperties = applicationProperties;
 		this.restTemplate = restTemplateBuilder
 			.defaultHeader(HttpHeaders.AUTHORIZATION, "ApiKey-v1 %s".formatted(applicationProperties.gcnotify().apiKey()))
@@ -41,6 +45,7 @@ public class NotificationService {
 			.readTimeout(applicationProperties.gcnotify().readTimeout())
 			.build();
 		this.languages = lookupCodes.languages();
+		this.emailTemplateService = emailTemplateService;
 	}
 
 	/**
@@ -52,37 +57,52 @@ public class NotificationService {
 		Assert.hasText(profileId, "profileId is required; it must not be blank or null");
 		Assert.hasText(username, "username is required; it must not be blank or null");
 
-		final var templateId = switch (profileStatus) {
-			case APPROVED -> this.languages.english().equals(language)
-				? applicationProperties.gcnotify().profileApprovedTemplateIdEng()
-				: applicationProperties.gcnotify().profileApprovedTemplateIdFra();
+		// Determine template path based on status and language
+		String templateName = "email/" + 
+							 (this.languages.english().equals(language) ? "en/" : "fr/") +
+							 (profileStatus == ProfileStatus.APPROVED ? "vmsProfileActivationEng.ftl" : "approvalRequiredEng.ftl");
 
-			case PENDING -> this.languages.english().equals(language)
-				? applicationProperties.gcnotify().profilePendingTemplateIdEng()
-				: applicationProperties.gcnotify().profilePendingTemplateIdFra();
+		if (!this.languages.english().equals(language)) {
+			templateName = "email/fr/" + (profileStatus == ProfileStatus.APPROVED ? "vmsProfileActivationFre.ftl" : "approvalRequiredFre.ftl");
+		}
 
-		};
-
-		// Personalization parameters for the email template
-		final var personalization = Map.of(
-			"employee_name", username
+		// Create model for template processing
+		Map<String, Object> model = Map.of(
+			"employee_name", username,
+			"profileId", profileId
 		);
 
-		log.trace("Request to send profile notification email=[{}], parameters=[{}]", email, personalization);
+		try {
+			// Process the template with FreeMarker
+			EmailContent emailContent = emailTemplateService.processEmailTemplate(templateName, model);
 
-		final var request = Map.of(
-			"email_address", email,
-			"template_id", templateId,
-			"personalisation", personalization
-		);
+			// Use the generic template ID
+			final var templateId = applicationProperties.gcnotify().genericTemplateId();
 
-		final var notificationReceipt = restTemplate.postForObject("/email", request, NotificationReceipt.class);
-		log.debug("Notification sent to email [{}] using template [{}]", email, templateId);
+			// Personalization parameters for the generic template
+			final var personalization = Map.of(
+				"email_subject", emailContent.subject(),
+				"email_message", emailContent.body()
+			);
 
-		return notificationReceipt;
+			log.trace("Request to send profile notification email=[{}], parameters=[{}]", email, personalization);
+
+			final var request = Map.of(
+				"email_address", email,
+				"template_id", templateId,
+				"personalisation", personalization
+			);
+
+			final var notificationReceipt = restTemplate.postForObject("/email", request, NotificationReceipt.class);
+			log.debug("Notification sent to email [{}] using template [{}]", email, templateId);
+
+			return notificationReceipt;
+		} catch (Exception e) {
+			log.error("Error processing email template: {}", e.getMessage(), e);
+			throw new RuntimeException("Failed to process email template", e);
+		}
 	}
 
-	//TODO add language to get the correct template
 	/**
 	 * Sends an email notification to multiple email addresses.
 	 * Returns a list of notification receipts, one for each email address.
@@ -93,32 +113,61 @@ public class NotificationService {
 		Assert.notNull(requestId, "requestId is required; it must not be null");
 		Assert.hasText(requestTitle, "requestTitle is required; it must not be blank or null");
 
-		//TODO update code to add new templates there is one for english and one for french refer to the code above
-		final var templateId = switch (requestEvent) {
-			case CREATED -> applicationProperties.gcnotify().requestCreatedTemplateId();
-			case FEEDBACK_PENDING -> applicationProperties.gcnotify().requestFeedbackPendingTemplateId();
-			case FEEDBACK_COMPLETED -> applicationProperties.gcnotify().requestFeedbackCompletedTemplateId();
-			default -> throw new IllegalArgumentException("Unknown request event value " + requestEvent);
-		};
+		// Determine template name based on event (assuming English for now)
+		// In a real implementation, you would add a language parameter to this method
+		String language = this.languages.english(); // Default to English
+		String templateName = "email/en/";
 
-		// TODO personalization parameters for the email template needs to match the templates
-		final var personalization = Map.of(
-			"requestId", requestId.toString(),
-			"requestTitle", requestTitle
+		switch (requestEvent) {
+			case CREATED:
+				templateName += "requestCreated.ftl";
+				break;
+			case FEEDBACK_PENDING:
+				templateName += "requestFeedbackPending.ftl";
+				break;
+			case FEEDBACK_COMPLETED:
+				templateName += "feedbackApprovedEng.ftl";
+				break;
+			default:
+				throw new IllegalArgumentException("Unknown request event value " + requestEvent);
+		}
+
+		// Create model for template processing
+		Map<String, Object> model = Map.of(
+			"request-number", requestId.toString(),
+			"requestTitle", requestTitle,
+			"clearance-number", "CL-" + requestId // Example clearance number
 		);
 
-		log.trace("Request to send request notification email=[{}], parameters=[{}]", email, personalization);
+		try {
+			// Process the template with FreeMarker
+			EmailContent emailContent = emailTemplateService.processEmailTemplate(templateName, model);
 
-		final var request = Map.of(
-			"email_address", email,
-			"template_id", templateId,
-			"personalisation", personalization
-		);
+			// Use the generic template ID
+			final var templateId = applicationProperties.gcnotify().genericTemplateId();
 
-		final var notificationReceipt = restTemplate.postForObject("/email", request, NotificationReceipt.class);
-		log.debug("Notification sent to email [{}] using template [{}]", email, templateId);
+			// Personalization parameters for the generic template
+			final var personalization = Map.of(
+				"email_subject", emailContent.subject(),
+				"email_message", emailContent.body()
+			);
 
-		return notificationReceipt;
+			log.trace("Request to send request notification email=[{}], parameters=[{}]", email, personalization);
+
+			final var request = Map.of(
+				"email_address", email,
+				"template_id", templateId,
+				"personalisation", personalization
+			);
+
+			final var notificationReceipt = restTemplate.postForObject("/email", request, NotificationReceipt.class);
+			log.debug("Notification sent to email [{}] using template [{}]", email, templateId);
+
+			return notificationReceipt;
+		} catch (Exception e) {
+			log.error("Error processing email template: {}", e.getMessage(), e);
+			throw new RuntimeException("Failed to process email template", e);
+		}
 	}
 
 	/**

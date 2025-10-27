@@ -334,6 +334,7 @@ application:
     job-hr-approved-template-id-fra: 00000000-0000-0000-0000-000000000000 # must be set externally (ex: 00000000-0000-0000-0000-000000000000) job opportunity HR approved french
     job-opportunity-template-id-eng: 00000000-0000-0000-0000-000000000000 # must be set externally (ex: 00000000-0000-0000-0000-000000000000) job opportunity english
     job-opportunity-template-id-fra: 00000000-0000-0000-0000-000000000000 # must be set externally (ex: 00000000-0000-0000-0000-000000000000) job opportunity french
+    generic-template-id: 00000000-0000-0000-0000-000000000000 # must be set externally (ex: 00000000-0000-0000-0000-000000000000) generic template for FreeMarker
     hr-gd-inbox-email: hr_inbox@example.com # TODO: Update with actual email when available.
   matches:
     wfa-end-date-grace-period: 30d
