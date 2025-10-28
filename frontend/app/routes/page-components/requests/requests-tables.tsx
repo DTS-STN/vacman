@@ -123,8 +123,8 @@ export default function RequestsTables({
                 defaultValue={requestsFilter}
                 onChange={({ target }) => {
                   const params = new URLSearchParams(searchParams.toString());
-                  params.delete('activepage');
-                  params.delete('inactivepage');
+                  params.delete('activePage');
+                  params.delete('inactivePage');
                   params.delete('filter');
                   params.append('filter', target.value);
                   setSearchParams(params);
