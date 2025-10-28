@@ -130,7 +130,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
           )
         : REQUEST_STATUSES.filter((req) => req.category === REQUEST_CATEGORY.active).map((req) => req.id.toString()),
     workUnitId: workUnitIdsFromBranchIds(directorates, searchParams.getAll('activeBranch')),
-    hrAdvisorId: searchParams.get('filter') === 'me' ? [currentUser.id.toString()] : undefined,
+    hrAdvisorId: [currentUser.id.toString()],
     sort: activeSortParam.length > 0 ? activeSortParam : undefined,
     size: 10,
   };
@@ -149,7 +149,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
           )
         : REQUEST_STATUSES.filter((req) => req.category === REQUEST_CATEGORY.inactive).map((req) => req.id.toString()),
     workUnitId: workUnitIdsFromBranchIds(directorates, searchParams.getAll('inactiveBranch')),
-    hrAdvisorId: searchParams.get('filter') === 'me' ? [currentUser.id.toString()] : undefined,
+    hrAdvisorId: [currentUser.id.toString()],
     sort: inactiveSortParam.length > 0 ? inactiveSortParam : undefined,
     size: 10,
   };
