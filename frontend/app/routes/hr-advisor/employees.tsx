@@ -1,9 +1,8 @@
-import { startTransition, useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import type { RouteHandle } from 'react-router';
 import { data, useFetcher, useSearchParams } from 'react-router';
 
-import type { ColumnDef } from '@tanstack/react-table';
 import { useTranslation } from 'react-i18next';
 import * as v from 'valibot';
 
@@ -18,7 +17,7 @@ import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { BackLink } from '~/components/back-link';
 import { Button } from '~/components/button';
-import { DataTable, DataTableColumnHeader, DataTableColumnHeaderWithOptions } from '~/components/data-table';
+import { DataTableColumnHeader } from '~/components/data-table';
 import {
   Dialog,
   DialogClose,
@@ -34,7 +33,7 @@ import { InputSelect } from '~/components/input-select';
 import { InlineLink } from '~/components/links';
 import { LoadingButton } from '~/components/loading-button';
 import { PageTitle } from '~/components/page-title';
-import Pagination from '~/components/pagination';
+import { Column, ColumnOptions, ServerTable } from '~/components/server-table';
 import { ProfileStatusTag } from '~/components/status-tag';
 import { PROFILE_STATUS } from '~/domain/constants';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
@@ -42,46 +41,11 @@ import { useFetcherState } from '~/hooks/use-fetcher-state';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
 import { formatDateTimeInZone } from '~/utils/date-utils';
-import { getCurrentPage, getPageItems, makePageClickHandler, nextPage, prevPage } from '~/utils/pagination-utils';
 import { formString } from '~/utils/string-utils';
 import { extractValidationKey } from '~/utils/validation-utils';
 
 // Shared default selection for statuses (kept in sync between loader and client UI)
 const DEFAULT_STATUS_IDS = [PROFILE_STATUS.APPROVED.id, PROFILE_STATUS.PENDING.id] as const;
-const PROFILE_STATUS_CODE = [PROFILE_STATUS.APPROVED.code, PROFILE_STATUS.PENDING.code, PROFILE_STATUS.ARCHIVED.code] as const;
-
-// Strongly type the allowed column ids
-type ColumnId = 'name' | 'email' | 'dateUpdated' | 'branch';
-
-// Static mapping object - moved outside component to avoid recreation
-const TABLE_COLUMN = {
-  name: 'name',
-  email: 'email',
-  dateUpdated: 'dateUpdated',
-  branch: 'branch',
-} as const satisfies Record<ColumnId, ColumnId>;
-
-// Static helper function - moved outside component to avoid recreation
-const isColumnId = (id: string): id is ColumnId => {
-  return Object.prototype.hasOwnProperty.call(TABLE_COLUMN, id);
-};
-
-const parseSortParam = (value: string | null): { id: ColumnId; desc: boolean } | null => {
-  if (!value) return null;
-  const [propRaw, dirRaw] = value.split(',');
-  const propKey = (propRaw ?? '').trim();
-  if (!isColumnId(propKey)) return null;
-  const colId = TABLE_COLUMN[propKey];
-  const dir = (dirRaw ?? 'asc').trim().toLowerCase();
-  const desc = dir === 'desc';
-  return { id: colId, desc };
-};
-
-const serializeSortParam = (s: { id: string; desc: boolean } | null | undefined): string | null => {
-  if (!s?.id || !isColumnId(s.id)) return null;
-  const prop = TABLE_COLUMN[s.id];
-  return `${prop},${s.desc ? 'desc' : 'asc'}`;
-};
 
 export const handle = {
   i18nNamespace: [...parentHandle.i18nNamespace],
@@ -219,9 +183,23 @@ export async function loader({ context, request }: Route.LoaderArgs) {
   const defaultStatusIds = [...DEFAULT_STATUS_IDS];
   const rawStatusValues = statusIdsParams;
   const statusIdsFromQuery = rawStatusValues.map((s) => Number.parseInt(s.trim(), 10)).filter((n) => Number.isFinite(n));
-  const desiredStatusIds = statusIdsFromQuery.length
-    ? Array.from(new Set(statusIdsFromQuery)).sort((a, b) => a - b)
+
+  // Filter out INCOMPLETE status (id: 2) - profiles with INCOMPLETE status should never be displayed
+  const validStatusIdsFromQuery = statusIdsFromQuery.filter((id) => id !== PROFILE_STATUS.INCOMPLETE.id);
+
+  const desiredStatusIds = validStatusIdsFromQuery.length
+    ? Array.from(new Set(validStatusIdsFromQuery)).sort((a, b) => a - b)
     : defaultStatusIds;
+
+  // If no statusIds in URL, redirect to include default statusIds so ColumnOptions shows them as selected
+  if (validStatusIdsFromQuery.length === 0) {
+    const redirectUrl = new URL(request.url);
+    defaultStatusIds.forEach((id) => redirectUrl.searchParams.append('statusIds', id.toString()));
+    throw new Response(null, {
+      status: 302,
+      headers: { Location: redirectUrl.toString() },
+    });
+  }
 
   const profileParams: ProfileQueryParams = {
     hrAdvisorId: filter === 'me' ? filter : undefined, // 'me' is used in the API to filter for the current HR advisor
@@ -232,7 +210,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
     sort: sortParam ?? undefined,
   };
 
-  const [profilesResult, statuses] = await Promise.all([
+  const [profilesResult, allStatuses] = await Promise.all([
     getProfileService().getProfiles(profileParams, session.authState.accessToken),
     getProfileStatusService().listAllLocalized(lang),
   ]);
@@ -242,6 +220,9 @@ export async function loader({ context, request }: Route.LoaderArgs) {
   }
 
   const profiles = profilesResult.unwrap();
+
+  // Filter out INCOMPLETE status from dropdown options - profiles with INCOMPLETE status should never be displayed
+  const statuses = allStatuses.filter((status) => status.code !== 'INCOMPLETE');
 
   return {
     documentTitle: t('app:index.employees'),
@@ -323,219 +304,10 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
     [t],
   );
 
-  // Pagination helpers
-  const totalPages = loaderData.page.totalPages;
-  const currentPage = getCurrentPage(searchParams, 'page', totalPages);
-  const pageItems = getPageItems(totalPages, currentPage, { threshold: 9, delta: 2 });
-
-  // Sorting helpers
-
-  const currentSort = useMemo((): { id: ColumnId; desc: boolean } | null => {
-    return parseSortParam(searchParams.get('sort'));
-  }, [searchParams]);
-
-  // Map column ids to localized header titles for announcements
-  const columnIdToTitle = useMemo(
-    () =>
-      ({
-        name: t('app:hr-advisor-employees-table.employee'),
-        email: t('app:hr-advisor-employees-table.email'),
-        dateUpdated: t('app:hr-advisor-employees-table.updated'),
-        branch: t('app:hr-advisor-employees-table.branch'),
-      }) as const satisfies Record<ColumnId, string>,
-    [t],
-  );
-
-  const announceSortChange = useCallback(
-    (next: { id: ColumnId; desc: boolean } | null | undefined) => {
-      if (next?.id) {
-        const colTitle = columnIdToTitle[next.id];
-        setSrAnnouncement(
-          next.desc
-            ? t('gcweb:data-table.sorting.sorted-descending', { column: colTitle })
-            : t('gcweb:data-table.sorting.sorted-ascending', { column: colTitle }),
-        );
-      } else {
-        const prev = currentSort;
-        const colTitle = prev ? columnIdToTitle[prev.id] : undefined;
-        setSrAnnouncement(
-          colTitle ? t('gcweb:data-table.sorting.not-sorted', { column: colTitle }) : t('gcweb:data-table.sorting.cleared'),
-        );
-      }
-    },
-    [columnIdToTitle, currentSort, t],
-  );
-
-  // When sorting changes in the table UI, push it into URL and announce the change (single sort only)
-  const handleSortingChange = useCallback(
-    (next: { id: string; desc: boolean } | null | undefined) => {
-      // Normalize input to our typed ColumnId or clear
-      const normalized: { id: ColumnId; desc: boolean } | null =
-        next?.id && isColumnId(next.id) ? { id: next.id, desc: next.desc } : null;
-      const paramsNext = new URLSearchParams(searchParams);
-      // Clear and set single sort param
-      paramsNext.delete('sort');
-      const encoded = serializeSortParam(normalized);
-      if (encoded) paramsNext.set('sort', encoded);
-      announceSortChange(normalized);
-      startTransition(() => setSearchParams(paramsNext));
-    },
-    [searchParams, announceSortChange, setSearchParams],
-  );
-
-  // Map loader statuses (id + codes) to help translate between codes shown in UI and ids for query
-  const statusCodeById = useMemo(() => {
-    const map = new Map<number, string>();
-    loaderData.statuses.forEach((s) => map.set(s.id, s.code));
-    return map;
-  }, [loaderData.statuses]);
-
-  const statusIdByCode = useMemo(() => {
-    const map = new Map<string, number>();
-    loaderData.statuses.forEach((s) => map.set(s.code, s.id));
-    return map;
-  }, [loaderData.statuses]);
-
-  // Selected statusIds from URL (repeated). Defaults are already applied in loader
-  const selectedStatusIds = useMemo(() => {
-    const parts = searchParams.getAll('statusIds');
-    if (parts.length === 0) return [...DEFAULT_STATUS_IDS];
-    return Array.from(new Set(parts.map((s) => Number.parseInt(s.trim(), 10)).filter((n) => Number.isFinite(n)))).sort(
-      (a, b) => a - b,
-    );
-  }, [searchParams]);
-
-  // Selected status codes for the DataTable header control
-  const selectedStatusCodes = useMemo(
-    () => selectedStatusIds.map((id: number) => statusCodeById.get(id)).filter((code): code is string => code !== undefined),
-    [selectedStatusIds, statusCodeById],
-  );
-
-  // Navigation helpers
-  const handlePageClick = (target: number) => makePageClickHandler(searchParams, setSearchParams, target);
-
-  const columns: ColumnDef<Profile>[] = [
-    {
-      id: 'name',
-      accessorFn: (row) => `${row.profileUser.lastName}, ${row.profileUser.firstName}`,
-      header: ({ column }) => <DataTableColumnHeader column={column} title={t('app:hr-advisor-employees-table.employee')} />,
-      cell: (info) => <p>{info.getValue() as string}</p>,
-    },
-    {
-      id: 'email',
-      accessorFn: (row) => row.profileUser.businessEmailAddress,
-      header: ({ column }) => <DataTableColumnHeader column={column} title={t('app:hr-advisor-employees-table.email')} />,
-      cell: (info) => {
-        const email = info.row.original.profileUser.businessEmailAddress;
-        return (
-          <a
-            href={`mailto:${email}`}
-            className="text-sky-800 underline decoration-slate-400 decoration-2 hover:text-blue-700 focus:text-blue-700"
-          >
-            {email}
-          </a>
-        );
-      },
-    },
-    {
-      id: 'dateUpdated',
-      accessorFn: (row) => formatDateYMD(row.lastModifiedDate),
-      header: ({ column }) => <DataTableColumnHeader column={column} title={t('app:hr-advisor-employees-table.updated')} />,
-      cell: (info) => {
-        const lastModifiedDate = info.row.original.lastModifiedDate;
-        const userUpdated = info.row.original.lastModifiedBy ?? 'Unknown User';
-        const dateUpdated = formatDateYMD(lastModifiedDate);
-        return <p className="text-neutral-600">{`${dateUpdated}: ${userUpdated}`}</p>;
-      },
-    },
-    {
-      id: 'branch',
-      accessorFn: (row) => {
-        const branch = row.substantiveWorkUnit?.parent;
-        return loaderData.lang === 'en' ? branch?.nameEn : branch?.nameFr;
-      },
-      header: ({ column }) => <DataTableColumnHeader column={column} title={t('app:hr-advisor-employees-table.branch')} />,
-      cell: (info) => {
-        const branch = info.row.original.substantiveWorkUnit?.parent;
-        return <p className="text-neutral-600">{loaderData.lang === 'en' ? branch?.nameEn : branch?.nameFr}</p>;
-      },
-    },
-    {
-      accessorKey: 'status',
-      accessorFn: (row) => row.profileStatus?.code,
-      header: ({ column }) => (
-        <DataTableColumnHeaderWithOptions
-          column={column}
-          title={t('app:hr-advisor-employees-table.status')}
-          options={Object.values(PROFILE_STATUS_CODE)}
-          selected={selectedStatusCodes}
-          onSelectionChange={(selectedCodes) => {
-            // Map selected codes to IDs present in loaderData.statuses
-            const ids = selectedCodes.map((code) => statusIdByCode.get(code)).filter((n): n is number => typeof n === 'number');
-            const filter = searchParams.get('filter') ?? 'all';
-            const size = searchParams.get('size') ?? '10';
-            const params = new URLSearchParams({ filter, page: '1', size });
-            // Preserve existing single sort
-            const sort = searchParams.get('sort');
-            if (sort) params.set('sort', sort);
-            Array.from(new Set(ids))
-              .sort((a, b) => a - b)
-              .forEach((id) => params.append('statusIds', String(id)));
-            setSearchParams(params);
-            setSrAnnouncement(t('app:hr-advisor-employees-table.updated'));
-          }}
-        />
-      ),
-      cell: (info) => {
-        const status = info.row.original.profileStatus;
-        return status && <ProfileStatusTag status={status} lang={loaderData.lang} view="hr-advisor" />;
-      },
-      filterFn: (row, columnId, filterValue: string[]) => {
-        const status = row.getValue(columnId) as string;
-        return filterValue.length === 0 || filterValue.includes(status);
-      },
-      enableColumnFilter: true,
-    },
-    {
-      header: t('app:hr-advisor-employees-table.action'),
-      id: 'action',
-      cell: (info) => {
-        const profile = info.row.original;
-        const profileId = profile.id.toString();
-        const profileUserName = `${profile.profileUser.firstName} ${profile.profileUser.lastName}`;
-        const isArchived = profile.profileStatus?.code === 'ARCHIVED';
-
-        return (
-          <div className="flex items-baseline gap-4">
-            <InlineLink
-              className="rounded-sm text-sky-800 underline hover:text-blue-700 focus:text-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
-              file="routes/hr-advisor/employee-profile/index.tsx"
-              params={{ profileId }}
-              search={`filter=${searchParams.get('filter')}`}
-              aria-label={t('app:hr-advisor-employees-table.view-link', {
-                profileUserName,
-              })}
-            >
-              {t('app:hr-advisor-employees-table.view')}
-            </InlineLink>
-            {!isArchived && (
-              <Button
-                variant="alternative"
-                id="archive-employee"
-                onClick={() => handleArchive(profile)}
-                aria-label={t('app:hr-advisor-employees-table.archive-link', {
-                  profileUserName,
-                })}
-                size="sm"
-              >
-                {t('app:hr-advisor-employees-table.archive')}
-              </Button>
-            )}
-          </div>
-        );
-      },
-    },
-  ];
+  // Get dynamic column ID for branch based on language
+  const getBranchColumnId = useMemo(() => {
+    return loaderData.lang === 'fr' ? 'substantiveWorkUnit.parent.nameFr' : 'substantiveWorkUnit.parent.nameEn';
+  }, [loaderData.lang]);
 
   return (
     <div className="mb-8">
@@ -601,66 +373,126 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
         {srAnnouncement}
       </div>
 
-      <DataTable
-        columns={columns}
+      <ServerTable
+        page={loaderData.page}
         data={loaderData.profiles}
-        showPagination={false}
-        sorting={currentSort ? [currentSort] : []}
-        onSortingChange={(state) => handleSortingChange(state[0])}
-      />
+        searchParams={searchParams}
+        setSearchParams={setSearchParams}
+      >
+        <Column
+          id="user.lastName"
+          accessorFn={(row: Profile) => `${row.profileUser.lastName}, ${row.profileUser.firstName}`}
+          header={({ column }) => (
+            <DataTableColumnHeader column={column} title={t('app:hr-advisor-employees-table.employee')} />
+          )}
+          cell={(info) => <p>{info.getValue() as string}</p>}
+        />
 
-      {totalPages > 1 && (
-        <Pagination className="my-4" aria-label={t('gcweb:data-table.pagination.label', { defaultValue: 'Pagination' })}>
-          <p className="sr-only">
-            {t('gcweb:data-table.pagination.page-info', {
-              index: currentPage,
-              count: totalPages,
-            })}
-          </p>
-          <Pagination.Content>
-            {/* Previous */}
-            <Pagination.Item>
-              <Pagination.Previous disabled={currentPage <= 1} onClick={handlePageClick(prevPage(currentPage))} />
-            </Pagination.Item>
+        <Column
+          id="user.businessEmailAddress"
+          accessorFn={(row: Profile) => row.profileUser.businessEmailAddress}
+          header={({ column }) => <DataTableColumnHeader column={column} title={t('app:hr-advisor-employees-table.email')} />}
+          cell={(info) => {
+            const email = info.row.original.profileUser.businessEmailAddress;
+            return (
+              <a
+                href={`mailto:${email}`}
+                className="text-sky-800 underline decoration-slate-400 decoration-2 hover:text-blue-700 focus:text-blue-700"
+              >
+                {email}
+              </a>
+            );
+          }}
+        />
 
-            {/* Page numbers */}
-            {pageItems.map((item, idx) => {
-              if (item === 'ellipsis') {
-                return (
-                  <Pagination.Item key={`ellipsis-${idx}`}>
-                    <Pagination.Ellipsis />
-                  </Pagination.Item>
-                );
-              }
-              const p = item as number;
-              const isActive = p === currentPage;
-              return (
-                <Pagination.Item key={p}>
-                  <Pagination.Link
-                    isActive={isActive}
-                    aria-label={
-                      isActive
-                        ? t('gcweb:data-table.pagination.page-button-current', { index: p })
-                        : t('gcweb:data-table.pagination.page-button-go-to', { index: p })
-                    }
-                    onClick={handlePageClick(p)}
+        <Column
+          id="lastModifiedDate"
+          accessorFn={(row: Profile) => formatDateYMD(row.lastModifiedDate)}
+          header={({ column }) => <DataTableColumnHeader column={column} title={t('app:hr-advisor-employees-table.updated')} />}
+          cell={(info) => {
+            const lastModifiedDate = info.row.original.lastModifiedDate;
+            const userUpdated = info.row.original.lastModifiedBy ?? 'Unknown User';
+            const dateUpdated = formatDateYMD(lastModifiedDate);
+            return <p className="text-neutral-600">{`${dateUpdated}: ${userUpdated}`}</p>;
+          }}
+        />
+
+        <Column
+          id={getBranchColumnId}
+          accessorFn={(row: Profile) => {
+            const branch = row.substantiveWorkUnit?.parent;
+            return loaderData.lang === 'en' ? branch?.nameEn : branch?.nameFr;
+          }}
+          header={({ column }) => <DataTableColumnHeader column={column} title={t('app:hr-advisor-employees-table.branch')} />}
+          cell={(info) => {
+            const branch = info.row.original.substantiveWorkUnit?.parent;
+            return <p className="text-neutral-600">{loaderData.lang === 'en' ? branch?.nameEn : branch?.nameFr}</p>;
+          }}
+        />
+
+        <Column
+          id="statusIds"
+          accessorKey="profileStatus"
+          accessorFn={(row: Profile) =>
+            (loaderData.lang === 'en' ? row.profileStatus?.nameEn : row.profileStatus?.nameFr) ?? '-'
+          }
+          header={({ column }) => (
+            <ColumnOptions
+              column={column}
+              title={t('app:hr-advisor-employees-table.status')}
+              options={loaderData.statuses}
+              page={`page`}
+              searchParams={searchParams}
+              setSearchParams={setSearchParams}
+            />
+          )}
+          cell={(info) => {
+            const status = info.row.original.profileStatus;
+            return status && <ProfileStatusTag status={status} lang={loaderData.lang} view="hr-advisor" />;
+          }}
+        />
+
+        <Column
+          id="action"
+          accessorFn={() => ''}
+          header={() => t('app:hr-advisor-employees-table.action')}
+          cell={(info) => {
+            const profile = info.row.original as Profile;
+            const profileId = profile.id.toString();
+            const profileUserName = `${profile.profileUser.firstName} ${profile.profileUser.lastName}`;
+            const isArchived = profile.profileStatus?.code === 'ARCHIVED';
+
+            return (
+              <div className="flex items-baseline gap-4">
+                <InlineLink
+                  className="rounded-sm text-sky-800 underline hover:text-blue-700 focus:text-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
+                  file="routes/hr-advisor/employee-profile/index.tsx"
+                  params={{ profileId }}
+                  search={`filter=${searchParams.get('filter')}`}
+                  aria-label={t('app:hr-advisor-employees-table.view-link', {
+                    profileUserName,
+                  })}
+                >
+                  {t('app:hr-advisor-employees-table.view')}
+                </InlineLink>
+                {!isArchived && (
+                  <Button
+                    variant="alternative"
+                    id="archive-employee"
+                    onClick={() => handleArchive(profile)}
+                    aria-label={t('app:hr-advisor-employees-table.archive-link', {
+                      profileUserName,
+                    })}
+                    size="sm"
                   >
-                    {p}
-                  </Pagination.Link>
-                </Pagination.Item>
-              );
-            })}
-
-            {/* Next */}
-            <Pagination.Item>
-              <Pagination.Next
-                disabled={currentPage >= totalPages}
-                onClick={handlePageClick(nextPage(currentPage, totalPages))}
-              />
-            </Pagination.Item>
-          </Pagination.Content>
-        </Pagination>
-      )}
+                    {t('app:hr-advisor-employees-table.archive')}
+                  </Button>
+                )}
+              </div>
+            );
+          }}
+        />
+      </ServerTable>
 
       {/* Archive Confirmation Dialog */}
       <Dialog open={showArchiveDialog} onOpenChange={setShowArchiveDialog}>
