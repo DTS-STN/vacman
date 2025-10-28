@@ -130,7 +130,6 @@ export async function loader({ context, request }: Route.LoaderArgs) {
           )
         : REQUEST_STATUSES.filter((req) => req.category === REQUEST_CATEGORY.active).map((req) => req.id.toString()),
     workUnitId: workUnitIdsFromBranchIds(directorates, searchParams.getAll('activeBranch')),
-    hrAdvisorId: [currentUser.id.toString()],
     sort: activeSortParam.length > 0 ? activeSortParam : undefined,
     size: 10,
   };
@@ -149,7 +148,6 @@ export async function loader({ context, request }: Route.LoaderArgs) {
           )
         : REQUEST_STATUSES.filter((req) => req.category === REQUEST_CATEGORY.inactive).map((req) => req.id.toString()),
     workUnitId: workUnitIdsFromBranchIds(directorates, searchParams.getAll('inactiveBranch')),
-    hrAdvisorId: [currentUser.id.toString()],
     sort: inactiveSortParam.length > 0 ? inactiveSortParam : undefined,
     size: 10,
   };
@@ -160,12 +158,18 @@ export async function loader({ context, request }: Route.LoaderArgs) {
 
   const workUnits = extractUniqueBranchesFromDirectorates(directorates);
 
-  const activeRequestsResult = await getRequestService().getRequests(activeRequestsQuery, session.authState.accessToken);
+  const activeRequestsResult = await getRequestService().getCurrentUserRequests(
+    activeRequestsQuery,
+    session.authState.accessToken,
+  );
   if (activeRequestsResult.isErr()) {
     throw activeRequestsResult.unwrapErr();
   }
 
-  const inactiveRequestsResult = await getRequestService().getRequests(inactiveRequestsQuery, session.authState.accessToken);
+  const inactiveRequestsResult = await getRequestService().getCurrentUserRequests(
+    inactiveRequestsQuery,
+    session.authState.accessToken,
+  );
   if (inactiveRequestsResult.isErr()) {
     throw inactiveRequestsResult.unwrapErr();
   }
