@@ -54,6 +54,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
             (req) => req.category === REQUEST_CATEGORY.active && req.code !== REQUEST_STATUS_CODE.DRAFT,
           ).map((req) => req.id.toString()),
     workUnitId: workUnitIdsFromBranchIds(directorates, searchParams.getAll('activeBranch')),
+    hrAdvisorId: searchParams.get('filter') === 'me' ? [currentUser.id.toString()] : undefined,
     sort: activeSortParam.length > 0 ? activeSortParam : undefined,
     size: 10,
   };
@@ -74,20 +75,17 @@ export async function loader({ context, request }: Route.LoaderArgs) {
             (req) => req.category === REQUEST_CATEGORY.inactive && req.code !== REQUEST_STATUS_CODE.DRAFT,
           ).map((req) => req.id.toString()),
     workUnitId: workUnitIdsFromBranchIds(directorates, searchParams.getAll('inactiveBranch')),
+    hrAdvisorId: searchParams.get('filter') === 'me' ? [currentUser.id.toString()] : undefined,
     sort: inactiveSortParam.length > 0 ? inactiveSortParam : undefined,
     size: 10,
   };
 
-  const activeRequestsResult = await (searchParams.get('filter') === 'me'
-    ? getRequestService().getCurrentUserRequests(activeRequestsQuery, session.authState.accessToken)
-    : getRequestService().getRequests(activeRequestsQuery, session.authState.accessToken));
+  const activeRequestsResult = await getRequestService().getRequests(activeRequestsQuery, session.authState.accessToken);
   if (activeRequestsResult.isErr()) {
     throw activeRequestsResult.unwrapErr();
   }
 
-  const inactiveRequestsResult = await (searchParams.get('filter') === 'me'
-    ? getRequestService().getCurrentUserRequests(inactiveRequestsQuery, session.authState.accessToken)
-    : getRequestService().getRequests(inactiveRequestsQuery, session.authState.accessToken));
+  const inactiveRequestsResult = await getRequestService().getRequests(inactiveRequestsQuery, session.authState.accessToken);
   if (inactiveRequestsResult.isErr()) {
     throw inactiveRequestsResult.unwrapErr();
   }
