@@ -197,8 +197,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
       break;
     }
 
-    case 'pickup-request':
-    case 're-assign-request': {
+    case 'pickup-request': {
       return await updateRequestStatus(REQUEST_EVENT_TYPE.pickedUp, requestData.id, session.authState.accessToken);
     }
 
@@ -269,6 +268,31 @@ export async function action({ context, params, request }: Route.ActionArgs) {
       }
 
       return await updateRequestStatus(REQUEST_EVENT_TYPE.complete, requestData.id, session.authState.accessToken);
+    }
+
+    case 're-assign-request': {
+      const currentUserData = await getUserService().getCurrentUser(session.authState.accessToken);
+      const currentUser = currentUserData.unwrap();
+      const requestPayload: RequestUpdateModel = mapRequestToUpdateModelWithOverrides(requestData, {
+        hrAdvisorId: currentUser.id,
+      });
+
+      const updateResult = await getRequestService().updateRequestById(
+        requestData.id,
+        requestPayload,
+        session.authState.accessToken,
+      );
+
+      if (updateResult.isErr()) {
+        throw updateResult.unwrapErr();
+      }
+
+      const updatedRequest = updateResult.unwrap();
+
+      return {
+        status: 'submitted',
+        requestStatus: updatedRequest.status,
+      };
     }
   }
 
