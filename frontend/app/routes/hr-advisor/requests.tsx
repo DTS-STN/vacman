@@ -54,7 +54,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
             (req) => req.category === REQUEST_CATEGORY.active && req.code !== REQUEST_STATUS_CODE.DRAFT,
           ).map((req) => req.id.toString()),
     workUnitId: workUnitIdsFromBranchIds(directorates, searchParams.getAll('activeBranch')),
-    hrAdvisorId: searchParams.get('filter') === 'me' ? [currentUser.id.toString()] : undefined,
+    hrAdvisorId: searchParams.get('filter') === 'me' ? ['me'] : undefined,
     sort: activeSortParam.length > 0 ? activeSortParam : undefined,
     size: 10,
   };
@@ -75,7 +75,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
             (req) => req.category === REQUEST_CATEGORY.inactive && req.code !== REQUEST_STATUS_CODE.DRAFT,
           ).map((req) => req.id.toString()),
     workUnitId: workUnitIdsFromBranchIds(directorates, searchParams.getAll('inactiveBranch')),
-    hrAdvisorId: searchParams.get('filter') === 'me' ? [currentUser.id.toString()] : undefined,
+    hrAdvisorId: searchParams.get('filter') === 'me' ? ['me'] : undefined,
     sort: inactiveSortParam.length > 0 ? inactiveSortParam : undefined,
     size: 10,
   };
