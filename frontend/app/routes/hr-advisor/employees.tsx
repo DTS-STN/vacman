@@ -48,12 +48,7 @@ import { extractValidationKey } from '~/utils/validation-utils';
 
 // Shared default selection for statuses (kept in sync between loader and client UI)
 const DEFAULT_STATUS_IDS = [PROFILE_STATUS.APPROVED.id, PROFILE_STATUS.PENDING.id] as const;
-const PROFILE_STATUS_CODE = [
-  PROFILE_STATUS.APPROVED.code,
-  PROFILE_STATUS.PENDING.code,
-  PROFILE_STATUS.ARCHIVED.code,
-  PROFILE_STATUS.INCOMPLETE.code,
-] as const;
+const PROFILE_STATUS_CODE = [PROFILE_STATUS.APPROVED.code, PROFILE_STATUS.PENDING.code, PROFILE_STATUS.ARCHIVED.code] as const;
 
 // Strongly type the allowed column ids
 type ColumnId = 'name' | 'email' | 'dateUpdated' | 'branch';
