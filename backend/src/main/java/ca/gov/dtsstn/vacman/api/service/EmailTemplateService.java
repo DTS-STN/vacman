@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.Locale;
 import java.util.Map;
 
 @Service
@@ -19,9 +20,10 @@ public class EmailTemplateService {
 		this.freemarkerConfig = freemarkerConfig;
 	}
 
-	public EmailContent processEmailTemplate(String templateName, Map<String, Object> model) {
+	public EmailContent processEmailTemplate(String templateName, String locale, Map<String, Object> model) {
 		try {
-			final var template = freemarkerConfig.getTemplate(templateName);
+			// automatically fetches correct template based on locale
+			final var template = freemarkerConfig.getTemplate(templateName, Locale.of(locale));
 			return merge(template, model);
 		} catch (IOException e) {
 			throw new RuntimeException("Failed to process email template: " + templateName, e);

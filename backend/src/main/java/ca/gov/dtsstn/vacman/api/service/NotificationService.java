@@ -58,13 +58,11 @@ public class NotificationService {
 		Assert.hasText(username, "username is required; it must not be blank or null");
 
 		// Determine template path based on status and language
-		final var langSuffix = this.languages.english().equals(language) ? "_en" : "_fr";
-		final var templateBaseName = switch (profileStatus) {
+		final var templateName = switch (profileStatus) {
 			case APPROVED -> "vmsProfileActivation";
 			case PENDING -> "vmsProfilePending";
 
 		};
-		final var templateName = String.format("email/%s%s.ftl", templateBaseName, langSuffix);
 
 		// Create model for template processing
 		Map<String, Object> model = Map.of(
@@ -73,7 +71,7 @@ public class NotificationService {
 		);
 
 		try {
-			final var emailContent = emailTemplateService.processEmailTemplate(templateName, model);
+			final var emailContent = emailTemplateService.processEmailTemplate(templateName, language, model);
 			final var templateId = applicationProperties.gcnotify().genericTemplateId();
 
 			// Personalization parameters
