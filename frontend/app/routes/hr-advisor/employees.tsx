@@ -178,6 +178,22 @@ export async function action({ context, request }: Route.ActionArgs) {
     };
   }
 
+  // Profile created by an HR advisor default to PENDING status
+  const submitResult = await getProfileService().updateProfileStatus(
+    profile.id,
+    PROFILE_STATUS.PENDING,
+    session.authState.accessToken,
+  );
+
+  if (submitResult.isErr()) {
+    const error = submitResult.unwrapErr();
+    return {
+      status: 'error',
+      errorMessage: error.message,
+      errorCode: error.errorCode,
+    };
+  }
+
   return i18nRedirect('routes/hr-advisor/employee-profile/index.tsx', request, {
     params: { profileId: profile.id.toString() },
   });
