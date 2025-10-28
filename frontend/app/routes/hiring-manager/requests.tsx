@@ -7,9 +7,12 @@ import type { Route } from './+types/requests';
 
 import type { RequestUpdateModel } from '~/.server/domain/models';
 import { getRequestService } from '~/.server/domain/services/request-service';
+import { getRequestStatusService } from '~/.server/domain/services/request-status-service';
 import { getUserService } from '~/.server/domain/services/user-service';
+import { getWorkUnitService } from '~/.server/domain/services/workunit-service';
 import { serverEnvironment } from '~/.server/environment';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
+import { extractUniqueBranchesFromDirectorates, workUnitIdsFromBranchIds } from '~/.server/utils/directorate-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { BackLink } from '~/components/back-link';
 import { PageTitle } from '~/components/page-title';
@@ -112,14 +115,49 @@ export async function loader({ context, request }: Route.LoaderArgs) {
   const currentUserResult = await getUserService().getCurrentUser(session.authState.accessToken);
   const currentUser = currentUserResult.unwrap();
 
+  const directorates = await getWorkUnitService().listAllLocalized(lang);
   const searchParams = new URL(request.url).searchParams;
 
   // Active requests query
+  const activeSortParam = searchParams.getAll('activeSort');
+  const activeStatusIds = searchParams.getAll('activeStatus');
   const activeRequestsQuery = {
-    page: Math.max(1, Number.parseInt(searchParams.get('activepage') ?? '1', 10) || 1),
-    statusId: REQUEST_STATUSES.filter((s) => s.category === REQUEST_CATEGORY.active).map((s) => s.id.toString()),
+    page: Math.max(1, Number.parseInt(searchParams.get('activePage') ?? '1', 10) || 1),
+    statusId:
+      activeStatusIds.length > 0
+        ? activeStatusIds.filter((id) =>
+            REQUEST_STATUSES.filter((req) => req.category === REQUEST_CATEGORY.active).find((req) => req.id.toString() === id),
+          )
+        : REQUEST_STATUSES.filter((req) => req.category === REQUEST_CATEGORY.active).map((req) => req.id.toString()),
+    workUnitId: workUnitIdsFromBranchIds(directorates, searchParams.getAll('activeBranch')),
+    sort: activeSortParam.length > 0 ? activeSortParam : undefined,
     size: 10,
   };
+
+  // Inactive requests query
+  const inactiveSortParam = searchParams.getAll('inactiveSort');
+  const inactiveStatusIds = searchParams.getAll('inactiveStatus');
+  const inactiveRequestsQuery = {
+    page: Math.max(1, Number.parseInt(searchParams.get('inactivePage') ?? '1', 10) || 1),
+    statusId:
+      inactiveStatusIds.length > 0
+        ? inactiveStatusIds.filter((id) =>
+            REQUEST_STATUSES.filter((req) => req.category === REQUEST_CATEGORY.inactive).find(
+              (req) => req.id.toString() === id,
+            ),
+          )
+        : REQUEST_STATUSES.filter((req) => req.category === REQUEST_CATEGORY.inactive).map((req) => req.id.toString()),
+    workUnitId: workUnitIdsFromBranchIds(directorates, searchParams.getAll('inactiveBranch')),
+    sort: inactiveSortParam.length > 0 ? inactiveSortParam : undefined,
+    size: 10,
+  };
+
+  const requestStatuses = (await getRequestStatusService().listAllLocalized(lang)).toSorted((a, b) =>
+    a.name.localeCompare(b.name, lang),
+  );
+
+  const workUnits = extractUniqueBranchesFromDirectorates(directorates);
+
   const activeRequestsResult = await getRequestService().getCurrentUserRequests(
     activeRequestsQuery,
     session.authState.accessToken,
@@ -128,12 +166,6 @@ export async function loader({ context, request }: Route.LoaderArgs) {
     throw activeRequestsResult.unwrapErr();
   }
 
-  // Inactive requests query
-  const inactiveRequestsQuery = {
-    page: Math.max(1, Number.parseInt(searchParams.get('inactivepage') ?? '1', 10) || 1),
-    statusId: REQUEST_STATUSES.filter((s) => s.category === REQUEST_CATEGORY.inactive).map((s) => s.id.toString()),
-    size: 10,
-  };
   const inactiveRequestsResult = await getRequestService().getCurrentUserRequests(
     inactiveRequestsQuery,
     session.authState.accessToken,
@@ -151,6 +183,8 @@ export async function loader({ context, request }: Route.LoaderArgs) {
     activeRequestsPage,
     inactiveRequests,
     inactiveRequestsPage,
+    requestStatuses,
+    workUnits,
     baseTimeZone: serverEnvironment.BASE_TIMEZONE,
     userId: currentUser.id,
     lang,

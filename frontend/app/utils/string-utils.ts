@@ -210,3 +210,7 @@ export function formatWithMask(input: number | string, mask: string): string {
 
   return result;
 }
+
+export function parseCSVString(input: string): string[] {
+  return input.split(',').map((item) => item.trim());
+}
