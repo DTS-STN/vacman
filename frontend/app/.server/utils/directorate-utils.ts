@@ -31,3 +31,20 @@ export function extractUniqueBranchesFromDirectoratesNonLocalized(directorates: 
   }
   return Array.from(branchesMap.values()).sort((a, b) => a.nameEn.localeCompare(b.nameEn));
 }
+
+/**
+ * Extracts ids of directorates from provided parent branch ids.
+ *
+ * @param directorates Array of localized directorates
+ * @param branchIds Array of parent branch ids
+ * @returns Array of directorates ids
+ */
+export function workUnitIdsFromBranchIds(directorates: readonly LocalizedWorkUnit[], branchIds: string[]) {
+  const workUnitIds: string[] = [];
+  for (const directorate of directorates) {
+    if (!directorate.parent) continue;
+    if (!branchIds.includes(directorate.parent.id.toString())) continue;
+    workUnitIds.push(directorate.id.toString());
+  }
+  return workUnitIds;
+}
