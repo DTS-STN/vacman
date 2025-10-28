@@ -43,7 +43,7 @@ export async function action({ context, request, params }: Route.ActionArgs) {
 
   const allFeedbacks = await getMatchFeedbackService().listAll();
 
-  //get request id from params
+  // Get request id from params.
   const requestData = (
     await getRequestService().getRequestById(Number(params.requestId), session.authState.accessToken)
   ).into();
@@ -84,11 +84,7 @@ export async function action({ context, request, params }: Route.ActionArgs) {
       }
 
       const { matchId } = parseResult.output;
-      const matchResult = await getRequestService().getRequestMatchById(
-        requestId,
-        Number(matchId),
-        session.authState.accessToken,
-      );
+      const matchResult = await getRequestService().getRequestMatchById(requestId, matchId, session.authState.accessToken);
 
       if (matchResult.isErr()) {
         throw new Response('Request Match not found', { status: HttpStatusCodes.NOT_FOUND });
@@ -114,8 +110,56 @@ export async function action({ context, request, params }: Route.ActionArgs) {
       return data({ success: true });
     }
     case 'comment': {
-      formString(formData.get('comment'));
-      break;
+      const parseResult = v.safeParse(
+        v.object({
+          matchId: v.pipe(
+            v.string(),
+            v.transform((val) => parseInt(val, 10)),
+            v.number('app:matches.errors.match-id'),
+          ),
+          comment: v.optional(
+            v.pipe(
+              v.string('app:matches.errors.comment-required'),
+              v.trim(),
+              v.maxLength(100, 'app:matches.errors.comment-max-length'),
+            ),
+          ),
+        }),
+        {
+          matchId: formString(formData.get('matchId')),
+          comment: formString(formData.get('comment')),
+        },
+      );
+
+      if (!parseResult.success) {
+        return data({ errors: v.flatten(parseResult.issues).nested }, { status: HttpStatusCodes.BAD_REQUEST });
+      }
+
+      const { matchId } = parseResult.output;
+      const matchResult = await getRequestService().getRequestMatchById(requestId, matchId, session.authState.accessToken);
+
+      if (matchResult.isErr()) {
+        throw new Response('Request Match not found', { status: HttpStatusCodes.NOT_FOUND });
+      }
+
+      const matchData: MatchReadModel = matchResult.unwrap();
+
+      // call PUT /api/v1/requests/{id}/matches/{matchId} to update HR advisor comment
+      const matchPayload: MatchUpdateModel = mapMatchToUpdateModelWithOverrides(matchData, {
+        hrAdvisorComment: parseResult.output.comment,
+      });
+      const updateResult = await getRequestService().updateRequestMatchById(
+        requestId,
+        matchData.id,
+        matchPayload,
+        session.authState.accessToken,
+      );
+
+      if (updateResult.isErr()) {
+        throw updateResult.unwrapErr();
+      }
+
+      return data({ success: true });
     }
     case 'approve': {
       break;
@@ -257,7 +301,13 @@ export default function HrAdvisorMatches({ loaderData, params }: Route.Component
       ) : (
         <Progress className="mt-8 mb-8" variant="blue" label="" value={loaderData.feedbackProgress} />
       )}
-      <MatchesTables {...loaderData} submit={matchesFetcher.submit} view="hr-advisor" isUpdating={isUpdating} />
+      <MatchesTables
+        {...loaderData}
+        submit={matchesFetcher.submit}
+        view="hr-advisor"
+        isUpdating={isUpdating}
+        errors={matchesFetcher.data?.errors}
+      />
     </div>
   );
 }

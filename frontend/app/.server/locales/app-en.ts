@@ -590,6 +590,8 @@ export default {
     'errors': {
       'match-id': 'ID must be a number.',
       'feedback-required': 'Feedback is required.',
+      'comment-required': 'Comments are required.',
+      'comment-max-length': 'Comments must be less than 100 characters.',
     },
   },
   'matches-tables': {

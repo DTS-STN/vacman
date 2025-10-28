@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { useTranslation } from 'react-i18next';
 
@@ -37,6 +37,8 @@ export function InputTextarea({
   rows,
   maxLength,
   defaultValue,
+  value,
+  onChange,
   ...restInputProps
 }: InputTextareaProps) {
   const inputErrorId = `input-${id}-error`;
@@ -45,7 +47,26 @@ export function InputTextarea({
   const inputWrapperId = `input-${id}`;
   const { t } = useTranslation('app');
 
-  const [characterCount, setCharacterCount] = useState(defaultValue?.toString().length ?? 0);
+  // Determine if this is a controlled component (has value prop)
+  const isControlled = value !== undefined;
+
+  // Initialize character count based on controlled vs uncontrolled usage
+  const initialCount = isControlled ? value.toString().length : (defaultValue?.toString().length ?? 0);
+
+  const [characterCount, setCharacterCount] = useState(initialCount);
+
+  // Update character count when value prop changes (for controlled components)
+  useEffect(() => {
+    if (isControlled) {
+      setCharacterCount(value.toString().length);
+    }
+  }, [isControlled, value]);
+
+  // Handle change events - update count and call parent onChange
+  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setCharacterCount(e.target.value.length);
+    onChange?.(e);
+  };
 
   return (
     <div id={inputWrapperId} data-testid={inputWrapperId} className="form-group space-y-2">
@@ -77,8 +98,9 @@ export function InputTextarea({
           id={id}
           required={required}
           maxLength={maxLength}
-          defaultValue={defaultValue}
-          onChange={(e) => setCharacterCount(e.target.value.length)}
+          value={isControlled ? value : undefined}
+          defaultValue={isControlled ? undefined : defaultValue}
+          onChange={handleChange}
           {...restInputProps}
         />
         {maxLength && (
