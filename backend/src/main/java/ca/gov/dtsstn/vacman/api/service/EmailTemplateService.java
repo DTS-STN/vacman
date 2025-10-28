@@ -19,19 +19,6 @@ public class EmailTemplateService {
 		this.freemarkerConfig = freemarkerConfig;
 	}
 
-	public String processTemplate(String templateName, Map<String, Object> model) {
-		try {
-			final var template = freemarkerConfig.getTemplate(templateName);
-
-			final var writer = new StringWriter();
-			template.process(model, writer);
-
-			return writer.toString();
-		} catch (IOException | TemplateException e) {
-			throw new RuntimeException("Failed to process email template: " + templateName, e);
-		}
-	}
-
 	public EmailContent processEmailTemplate(String templateName, Map<String, Object> model) {
 		try {
 			final var template = freemarkerConfig.getTemplate(templateName);
