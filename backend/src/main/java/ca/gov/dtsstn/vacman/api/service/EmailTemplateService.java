@@ -1,6 +1,8 @@
 package ca.gov.dtsstn.vacman.api.service;
 
 import freemarker.template.Configuration;
+import freemarker.template.SimpleScalar;
+import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import org.springframework.stereotype.Service;
 
@@ -31,23 +33,29 @@ public class EmailTemplateService {
 	}
 
 	public EmailContent processEmailTemplate(String templateName, Map<String, Object> model) {
-		// Process the template
-		final var content = processTemplate(templateName, model);
-
-		// Extract subject and body using the assign directive markers
-		final var subject = extractBetween(content, "<!-- SUBJECT_START -->", "<!-- SUBJECT_END -->");
-		final var body = extractBetween(content, "<!-- BODY_START -->", "<!-- BODY_END -->");
-
-		return new EmailContent(subject, body);
+		try {
+			final var template = freemarkerConfig.getTemplate(templateName);
+			return merge(template, model);
+		} catch (IOException e) {
+			throw new RuntimeException("Failed to process email template: " + templateName, e);
+		}
 	}
 
-	private String extractBetween(String content, String startMarker, String endMarker) {
-		final var startIdx = content.indexOf(startMarker) + startMarker.length();
-		final var endIdx = content.indexOf(endMarker);
-		if (startIdx == -1 || endIdx == -1 || startIdx >= endIdx) {
-			throw new RuntimeException("Failed to extract content between markers: " + startMarker + " and " + endMarker);
+	private EmailContent merge(Template template, Map<String, ?> model) {
+		try {
+			final var environment = template.createProcessingEnvironment(model, new StringWriter());
+			environment.process();
+
+			final var subjectTemplateModel = environment.getVariable("emailSubject");
+			final var subject = ((SimpleScalar) subjectTemplateModel).getAsString();
+
+			final var body = environment.getOut().toString();
+
+			return new EmailContent(subject, body);
 		}
-		return content.substring(startIdx, endIdx).trim();
+		catch (IOException | TemplateException exception) {
+			throw new RuntimeException("Failed to process email template: " + template.getName(), exception);
+		}
 	}
 
 	/**
