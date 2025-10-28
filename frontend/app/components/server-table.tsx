@@ -67,7 +67,20 @@ export function ServerTable<TData>({
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const { page: pageParam = 'page', sort: sortParam = 'sort' } = urlParam;
   const columns = React.Children.map(baseColumns, (column) => (column ? column.props : undefined)) ?? [];
-  const [sorting, setSorting] = useState<SortingState>([]);
+  const [sorting, setSorting] = useState<SortingState>(
+    searchParams
+      .getAll(sortParam)
+      .map(parseCSVString)
+      .filter((param) => param.length === 2)
+      .filter((param) => param[1] === 'desc' || param[1] === 'asc')
+      .filter((param) => columns.some((column) => (column.accessorKey ?? column.id) === param[0]))
+      .map((param) => {
+        return {
+          id: param[0] ?? '',
+          desc: param[1] === 'desc',
+        };
+      }),
+  );
   const totalPages = page.totalPages;
   const currentPage = getCurrentPage(searchParams, pageParam, totalPages);
   const pageItems = getPageItems(totalPages, currentPage, { threshold: 9, delta: 2 });
@@ -306,7 +319,7 @@ export function ColumnOptions<TData, TValue>({
           option.id.some((id) =>
             searchParams
               .getAll(column.id)
-              .flatMap((id) => parseCSVString(decodeURIComponent(id)))
+              .flatMap((id) => parseCSVString(id))
               .includes(id.toString()),
           ),
         )
@@ -322,17 +335,12 @@ export function ColumnOptions<TData, TValue>({
     column.setFilterValue(selected);
     onSelectionChange?.(selected);
     const params = new URLSearchParams(searchParams.toString());
-    if (page) {
-      params.delete(page);
-      params.append(page, '1');
-    }
+    if (page) params.delete(page);
     params.delete(column.id);
     selected
       .sort((a, b) => (a.id[0] ?? 0) - (b.id[0] ?? 0))
       .forEach((option) =>
-        filter === 'id'
-          ? params.append(column.id, encodeURIComponent(option.id.join(',')))
-          : params.append(column.id, option[filter]),
+        filter === 'id' ? params.append(column.id, option.id.join(',')) : params.append(column.id, option[filter]),
       );
     setSearchParams(params);
   };
