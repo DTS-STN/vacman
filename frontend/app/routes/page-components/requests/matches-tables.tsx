@@ -14,6 +14,7 @@ import { InputLabel } from '~/components/input-label';
 import { InputSelect } from '~/components/input-select';
 import { InputTextarea } from '~/components/input-textarea';
 import { InlineLink } from '~/components/links';
+import { LoadingButton } from '~/components/loading-button';
 import { MATCH_STATUS } from '~/domain/constants';
 import type { Errors } from '~/routes/page-components/requests/validation.server';
 import { extractValidationKey } from '~/utils/validation-utils';
@@ -80,7 +81,7 @@ export default function MatchesTables({
       const formData = new FormData();
       formData.set('action', 'approve');
       formData.set('matchId', id.toString());
-      void submit(formData, { method: 'post' }); // TODO call POST /requests/{id}/matches/{id}/status-change and send  { "type"="feedbackApproved"}
+      void submit(formData, { method: 'post' });
     },
     [submit],
   );
@@ -303,14 +304,16 @@ export default function MatchesTables({
               <p>{t('matches-tables.approval-popup.approved')}</p>
             ) : (
               <>
-                <Button
+                <LoadingButton
                   variant="alternative"
                   id={`approve-employee-${match.id}`}
                   onClick={() => setShowApprovalDialog(true)}
                   size="sm"
+                  disabled={isUpdating}
+                  loading={isUpdating}
                 >
                   {t('form.approve')}
-                </Button>
+                </LoadingButton>
                 {/* Approval Confirmation Dialog */}
                 <Dialog open={showApprovalDialog} onOpenChange={setShowApprovalDialog}>
                   <DialogContent className="max-w-86">
