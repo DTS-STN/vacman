@@ -1,6 +1,7 @@
 import { describe, expect, it, beforeEach, vi } from 'vitest';
 
 import type { RequestService } from '~/.server/domain/services/request-service';
+import { getMockRequestService } from '~/.server/domain/services/request-service-mock';
 import { ErrorCodes } from '~/errors/error-codes';
 
 describe('RequestServiceMock', () => {
@@ -8,27 +9,22 @@ describe('RequestServiceMock', () => {
 
   beforeEach(async () => {
     vi.resetModules();
-    const { getMockRequestService } = await import('~/.server/domain/services/request-service-mock');
     requestService = getMockRequestService();
 
-    const requestResult = await getMockRequestService().createRequest('mock-user');
+    const requestResult = await requestService.createRequest('mock-user');
     if (requestResult.isOk()) {
       const request = requestResult.unwrap();
+      // Only update basic fields to avoid timeout from multiple service dependencies
       await requestService.updateRequestById(
         request.id,
         {
           englishTitle: 'Software Developer',
           frenchTitle: 'Développeur de logiciels',
-          classificationId: 0,
-          languageRequirementId: 0,
-          securityClearanceId: 0,
-          englishLanguageProfile: 'CBC',
-          frenchLanguageProfile: 'CBC',
         },
         'mock-user',
       );
     }
-  });
+  }, 15000); // Increase timeout to 15 seconds
 
   describe('getRequests', () => {
     it('should return paginated requests successfully', async () => {

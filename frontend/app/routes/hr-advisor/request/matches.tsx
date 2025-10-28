@@ -8,7 +8,7 @@ import * as v from 'valibot';
 
 import type { Route } from './+types/matches';
 
-import type { MatchReadModel, MatchUpdateModel } from '~/.server/domain/models';
+import type { MatchReadModel, MatchSummaryReadModel, MatchUpdateModel } from '~/.server/domain/models';
 import { getMatchFeedbackService } from '~/.server/domain/services/match-feedback-service';
 import { getRequestService } from '~/.server/domain/services/request-service';
 import { serverEnvironment } from '~/.server/environment';
@@ -22,6 +22,7 @@ import { PageTitle } from '~/components/page-title';
 import { Progress } from '~/components/progress';
 import { RequestStatusTag } from '~/components/status-tag';
 import { VacmanBackground } from '~/components/vacman-background';
+import { MATCH_STATUS } from '~/domain/constants';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
@@ -162,7 +163,35 @@ export async function action({ context, request, params }: Route.ActionArgs) {
       return data({ success: true });
     }
     case 'approve': {
-      break;
+      const parseResult = v.safeParse(
+        v.object({
+          matchId: v.pipe(
+            v.string(),
+            v.transform((val) => parseInt(val, 10)),
+            v.number('app:matches.errors.match-id'),
+          ),
+        }),
+        {
+          matchId: formString(formData.get('matchId')),
+        },
+      );
+
+      if (!parseResult.success) {
+        return data({ errors: v.flatten(parseResult.issues).nested }, { status: HttpStatusCodes.BAD_REQUEST });
+      }
+      const { matchId } = parseResult.output;
+
+      const approveRequestResult = await getRequestService().approveRequestMatch(
+        requestId,
+        matchId,
+        session.authState.accessToken,
+      );
+
+      if (approveRequestResult.isErr()) {
+        throw approveRequestResult.unwrapErr();
+      }
+
+      return data({ success: true });
     }
   }
 
@@ -192,6 +221,12 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 
   const matchFeedbacks = await getMatchFeedbackService().listAllLocalized(lang);
 
+  function getFeedbackProgress(requestMatches: MatchSummaryReadModel[]): number {
+    if (requestMatches.length === 0) return 0;
+    const count = requestMatches.filter((match) => match.matchStatus?.code === MATCH_STATUS.APPROVED.code).length;
+    return (count / requestMatches.length) * 100;
+  }
+
   return {
     documentTitle: t('app:matches.page-title'),
     lang,
@@ -212,8 +247,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       lastName: requestData.hrAdvisor?.lastName,
       email: requestData.hrAdvisor?.businessEmailAddress,
     },
-    feedbackProgress: 10, // TODO: fix it in separate pr
-    // requestMatches.length > 0 ? (requestMatches.filter((match) => match.approval).length / requestMatches.length) * 100 : 0, // TODO: fix it in separate pr
+    feedbackProgress: getFeedbackProgress(requestMatches),
   };
 }
 

@@ -392,7 +392,7 @@ export function getDefaultRequestService(): RequestService {
           return Err(new AppError(`Match ${matchId} for request ID ${requestId} not found.`, ErrorCodes.MATCH_NOT_FOUND));
         }
         return Err(
-          new AppError(`Failed to update match status. Reason: ${error.message}`, ErrorCodes.MATCH_UPDATE_FAILED, {
+          new AppError(`Failed to update match. Reason: ${error.message}`, ErrorCodes.MATCH_UPDATE_FAILED, {
             httpStatusCode: error.httpStatusCode,
             correlationId: error.correlationId,
           }),
