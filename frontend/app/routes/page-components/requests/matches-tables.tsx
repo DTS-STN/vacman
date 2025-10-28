@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useCallback } from 'react';
 import type { JSX, ChangeEvent } from 'react';
 
 import type { FetcherSubmitFunction } from 'react-router';
@@ -23,6 +23,7 @@ interface MatchesTablesProps {
   view: 'hr-advisor' | 'hiring-manager';
   submit: FetcherSubmitFunction;
   lang: 'en' | 'fr';
+  isUpdating?: boolean;
 }
 
 export default function MatchesTables({
@@ -32,31 +33,53 @@ export default function MatchesTables({
   view,
   submit,
   lang,
+  isUpdating = false,
 }: MatchesTablesProps): JSX.Element {
   const { t } = useTranslation('app');
 
-  const updateFeedback = (id: number, feedback: string) => {
-    const formData = new FormData();
-    formData.set('action', 'feedback');
-    formData.set('id', id.toString());
-    formData.set('feedback', feedback);
-    void submit(formData, { method: 'post' }); // TODO call PUT /api/v1/requests/{id}/matches/{matchId} to update feedback
+  // Helper function to safely extract feedback value from mixed data types
+  // This is necessary because matchFeedback can come from different sources:
+  // - Initial loader: object with id property
+  // - Real-time updates: primitive value
+  const extractFeedbackValue = (feedback: unknown): string | number | null => {
+    if (!feedback) return null;
+    if (typeof feedback === 'object' && 'id' in feedback) {
+      return (feedback as { id: string | number }).id;
+    }
+    return feedback as string | number;
   };
 
-  const updateComment = (id: number, comment: string) => {
-    const formData = new FormData();
-    formData.set('action', 'comment');
-    formData.set('id', id.toString());
-    formData.set('comment', comment);
-    void submit(formData, { method: 'post' }); // TODO call PUT /api/v1/requests/{id}/matches/{matchId} to update comment
-  };
+  const updateFeedback = useCallback(
+    (id: number, feedback: string) => {
+      const formData = new FormData();
+      formData.set('action', 'feedback');
+      formData.set('matchId', id.toString());
+      formData.set('feedback', feedback);
+      void submit(formData, { method: 'post' });
+    },
+    [submit],
+  );
 
-  const approveRequest = (id: number) => {
-    const formData = new FormData();
-    formData.set('action', 'approve');
-    formData.set('id', id.toString());
-    void submit(formData, { method: 'post' }); // TODO call POST /requests/{id}/matches/{id}/status-change and send  { "type"="feedbackApproved"}
-  };
+  const updateComment = useCallback(
+    (id: number, comment: string) => {
+      const formData = new FormData();
+      formData.set('action', 'comment');
+      formData.set('matchId', id.toString());
+      formData.set('comment', comment);
+      void submit(formData, { method: 'post' }); // TODO call PUT /api/v1/requests/{id}/matches/{matchId} to update comment
+    },
+    [submit],
+  );
+
+  const approveRequest = useCallback(
+    (id: number) => {
+      const formData = new FormData();
+      formData.set('action', 'approve');
+      formData.set('matchId', id.toString());
+      void submit(formData, { method: 'post' }); // TODO call POST /requests/{id}/matches/{id}/status-change and send  { "type"="feedbackApproved"}
+    },
+    [submit],
+  );
 
   // Helper to generate unique, sorted wfa status names for filter options
   function getUniqueWFAStatusNames(requestMatches: MatchSummaryReadModel[], language: string): string[] {
@@ -132,19 +155,25 @@ export default function MatchesTables({
         />
       ),
       cell: (info) => {
-        const selectOptions = matchFeedbacks.map((option) => ({
-          value: option.code,
-          children: option.name,
+        const match = info.row.original;
+        const currentFeedback = match.matchFeedback;
+        const feedbackValue = extractFeedbackValue(currentFeedback);
+
+        const selectOptions = [{ id: 'select-option', name: '' }, ...matchFeedbacks].map(({ id, name }) => ({
+          value: id === 'select-option' ? '' : String(id),
+          children: id === 'select-option' ? t('form.select-option') : name,
         }));
+
         return (
           <InputSelect
             id={info.cell.id}
             name={t('matches-tables.feedback')}
             options={selectOptions}
-            defaultValue={String(info.getValue())}
+            value={feedbackValue ?? ''}
             aria-label={t('matches-tables.feedback')}
             variant="alternative"
-            onChange={(event: ChangeEvent<HTMLSelectElement>) => updateFeedback(info.row.original.id, event.target.value)}
+            disabled={isUpdating}
+            onChange={(event: ChangeEvent<HTMLSelectElement>) => updateFeedback(match.id, event.target.value)}
           />
         );
       },
