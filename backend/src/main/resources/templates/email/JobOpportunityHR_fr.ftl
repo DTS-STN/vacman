@@ -2,7 +2,6 @@
 Occasion d'emploi - # de demande du SGPV ${request-number}
 </#assign>
 
-<#assign emailBody>
 Titre du poste : ${position-title}
 Durée des fonctions : Durée indéterminée 
 Classification : ${classification}
@@ -22,7 +21,3 @@ Rétroaction fournie : ${feedback}
 Si vous désirez obtenir de l'information additionnelle concernant cette rétroaction, veuillez contacter ${submitter-name} par courriel à ${submitter-email}.
 
 Merci
-</#assign>
-
-<!-- SUBJECT_START -->${emailSubject}<!-- SUBJECT_END -->
-<!-- BODY_START -->${emailBody}<!-- BODY_END -->

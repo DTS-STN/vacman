@@ -2,8 +2,7 @@
 Priorités identifiées - # de demande du SGPV ${request-number}
 </#assign>
 
-<#assign emailBody>
-VEUILLEZ NE PAS RÉPONDRE à ce courriel. Il s'agit d'un courriel généré par le système. 
+VEUILLEZ NE PAS RÉPONDRE à ce courriel. Il s'agit d'un courriel généré par le système.
 
 Bonjour, 
 
@@ -28,7 +27,3 @@ Rappel : Travaillez avec votre conseiller en ressources humaines pour vous assur
 Si vous avez des questions, veuillez contacter votre conseiller en ressources humaines pour obtenir de l'aide.
 
 Merci
-</#assign>
-
-<!-- SUBJECT_START -->${emailSubject}<!-- SUBJECT_END -->
-<!-- BODY_START -->${emailBody}<!-- BODY_END -->

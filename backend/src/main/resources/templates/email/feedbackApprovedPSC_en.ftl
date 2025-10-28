@@ -2,7 +2,6 @@
 Feedback approved – VMS Request # ${request-number}
 </#assign>
 
-<#assign emailBody>
 PLEASE DO NOT REPLY to this email. This is a system-generated email.
 
 Hello, 
@@ -19,7 +18,3 @@ You may now proceed with your proposed staffing action.
 If you have any questions, please contact the HR Advisor assigned to your request.
 
 Thank you.
-</#assign>
-
-<!-- SUBJECT_START -->${emailSubject}<!-- SUBJECT_END -->
-<!-- BODY_START -->${emailBody}<!-- BODY_END -->

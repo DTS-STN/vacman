@@ -2,7 +2,6 @@
 Occasion d'emploi - # de demande du SGPV ${request-number}
 </#assign>
 
-<#assign emailBody>
 Titre du poste : ${position-title}
 Durée des fonctions : Durée indéterminée 
 Classification : ${classification}
@@ -39,7 +38,3 @@ Si vous avez des questions, veuillez contacter ${submitter-name} par courriel à
 Merci
 
 ${statement-Of-Merit-Criteria}
-</#assign>
-
-<!-- SUBJECT_START -->${emailSubject}<!-- SUBJECT_END -->
-<!-- BODY_START -->${emailBody}<!-- BODY_END -->

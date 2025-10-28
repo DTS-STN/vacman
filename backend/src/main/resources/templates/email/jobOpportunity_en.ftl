@@ -2,7 +2,6 @@
 Job Opportunity - VMS Request # ${request-number}
 </#assign>
 
-<#assign emailBody>
 Position Title: ${position-title}
 Position Tenure: Indeterminate
 Classification: ${classification}
@@ -39,7 +38,3 @@ Should you have any questions, please contact ${submitter-name} by email at ${su
 Thank you
 
 ${statement-Of-Merit-Criteria}
-</#assign>
-
-<!-- SUBJECT_START -->${emailSubject}<!-- SUBJECT_END -->
-<!-- BODY_START -->${emailBody}<!-- BODY_END -->
