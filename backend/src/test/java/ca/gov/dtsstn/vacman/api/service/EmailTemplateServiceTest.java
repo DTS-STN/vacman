@@ -11,29 +11,27 @@ import java.io.StringReader;
 import java.util.Locale;
 import java.util.Map;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import ca.gov.dtsstn.vacman.api.service.EmailTemplateService.EmailContent;
 import freemarker.template.Configuration;
+import freemarker.template.Template;
 
-@ExtendWith(MockitoExtension.class)
+@ExtendWith({ MockitoExtension.class })
 @DisplayName("EmailTemplateService tests")
 class EmailTemplateServiceTest {
 
 	@Mock
-	private Configuration freemarkerConfig;
+	Configuration freemarkerConfig;
 
-	private EmailTemplateService emailTemplateService;
-
-	@BeforeEach
-	void setUp() {
-		emailTemplateService = new EmailTemplateService(freemarkerConfig);
-	}
+	@InjectMocks
+	EmailTemplateService emailTemplateService;
 
 	@Nested
 	@DisplayName("processEmailTemplate()")
@@ -42,162 +40,141 @@ class EmailTemplateServiceTest {
 		@Test
 		@DisplayName("Should extract subject and body correctly from a basic template")
 		void shouldExtractSubjectAndBodyCorrectly() throws Exception {
-			String templateContent =
-				"<#assign emailSubject>\n" +
-				"Test Subject\n" +
-				"</#assign>\n" +
-				"This is the email body.";
+			final var templateContent = """
+				<#assign emailSubject>Test Subject</#assign>
+				This is the email body.""";
 
 			mockTemplate("testTemplate", "en", templateContent);
 
-			EmailTemplateService.EmailContent emailContent =
-				emailTemplateService.processEmailTemplate("testTemplate", "en", Map.of());
+			final var emailContent = emailTemplateService.processEmailTemplate("testTemplate", Locale.ENGLISH, Map.of());
 
-			assertThat(emailContent).extracting(EmailTemplateService.EmailContent::subject)
-				.isEqualTo("Test Subject\n");
-			assertThat(emailContent).extracting(EmailTemplateService.EmailContent::body)
+			assertThat(emailContent).extracting(EmailContent::subject)
+				.isEqualTo("Test Subject");
+			assertThat(emailContent).extracting(EmailContent::body)
 				.isEqualTo("This is the email body.");
 		}
 
 		@Test
 		@DisplayName("Should substitute variables in subject and body")
 		void shouldSubstituteVariables() throws Exception {
-			String templateContent =
-				"<#assign emailSubject>\n" +
-				"Hello ${name}.. This is the subject of the email.\n" +
-				"</#assign>\n" +
-				"Hello ${name}... this is the body of the email.";
+			final var templateContent = """
+				<#assign emailSubject>Hello ${name}.. This is the subject of the email.</#assign>
+				Hello ${name}... this is the body of the email.""";
 
 			mockTemplate("testTemplate", "en", templateContent);
 
-			EmailTemplateService.EmailContent emailContent =
-				emailTemplateService.processEmailTemplate(
-					"testTemplate", 
-					"en", 
-					Map.of("name", "John Doe")
-				);
+			final var emailContent = emailTemplateService.processEmailTemplate(
+				"testTemplate",
+				Locale.ENGLISH,
+				Map.of("name", "John Doe")
+			);
 
-			assertThat(emailContent).extracting(EmailTemplateService.EmailContent::subject)
-				.isEqualTo("Hello John Doe.. This is the subject of the email.\n");
-			assertThat(emailContent).extracting(EmailTemplateService.EmailContent::body)
+			assertThat(emailContent).extracting(EmailContent::subject)
+				.isEqualTo("Hello John Doe.. This is the subject of the email.");
+			assertThat(emailContent).extracting(EmailContent::body)
 				.isEqualTo("Hello John Doe... this is the body of the email.");
 		}
 
 		@Test
 		@DisplayName("Should handle complex variable substitution")
 		void shouldHandleComplexVariableSubstitution() throws Exception {
-			String templateContent =
-				"<#assign emailSubject>\n" +
-				"Request #${requestId} - ${status}\n" +
-				"</#assign>\n" +
-				"Hello ${name},\n\n" +
-				"Your request #${requestId} has been ${status}.\n" +
-				"Reference: ${reference}";
+			final var templateContent = """
+				<#assign emailSubject>Request #${requestId} - ${status}</#assign>
+				Hello ${name},
+
+				Your request #${requestId} has been ${status}.
+				Reference: ${reference}""";
 
 			mockTemplate("testTemplate", "en", templateContent);
 
-			EmailTemplateService.EmailContent emailContent =
-				emailTemplateService.processEmailTemplate(
-					"testTemplate",
-					"en",
-					Map.of(
-						"requestId", "12345",
-						"status", "approved",
-						"name", "John",
-						"reference", "REF-67890"
-					)
-				);
+			final var emailContent = emailTemplateService.processEmailTemplate(
+				"testTemplate",
+				Locale.ENGLISH,
+				Map.of(
+					"requestId", "12345",
+					"status", "approved",
+					"name", "John",
+					"reference", "REF-67890"
+				)
+			);
 
-			assertThat(emailContent).extracting(EmailTemplateService.EmailContent::subject)
-				.isEqualTo("Request #12345 - approved\n");
-			assertThat(emailContent).extracting(EmailTemplateService.EmailContent::body)
+			assertThat(emailContent).extracting(EmailContent::subject)
+				.isEqualTo("Request #12345 - approved");
+			assertThat(emailContent).extracting(EmailContent::body)
 				.isEqualTo("Hello John,\n\nYour request #12345 has been approved.\nReference: REF-67890");
 		}
 
 		@Test
 		@DisplayName("Should select correct template based on language")
 		void shouldSelectCorrectTemplateBasedOnLanguage() throws Exception {
-			String enTemplateContent =
-				"<#assign emailSubject>\n" +
-				"English Subject\n" +
-				"</#assign>\n" +
-				"English body.";
+			final var enTemplateContent = """
+				<#assign emailSubject>English Subject</#assign>
+				English body.""";
 
-			String frTemplateContent = 
-				"<#assign emailSubject>\n" +
-				"French Subject\n" +
-				"</#assign>\n" +
-				"French body.";
+			final var frTemplateContent = """
+				<#assign emailSubject>French Subject</#assign>
+				French body.""";
 
 			mockTemplate("testTemplate", "en", enTemplateContent);
 			mockTemplate("testTemplate", "fr", frTemplateContent);
 
-			EmailTemplateService.EmailContent enContent =
-				emailTemplateService.processEmailTemplate("testTemplate", "en", Map.of());
-			EmailTemplateService.EmailContent frContent = 
-				emailTemplateService.processEmailTemplate("testTemplate", "fr", Map.of());
+			final var enContent = emailTemplateService.processEmailTemplate("testTemplate", Locale.ENGLISH, Map.of());
+			final var frContent = emailTemplateService.processEmailTemplate("testTemplate", Locale.FRENCH, Map.of());
 
-			assertThat(enContent).extracting(EmailTemplateService.EmailContent::subject)
-				.isEqualTo("English Subject\n");
-			assertThat(enContent).extracting(EmailTemplateService.EmailContent::body)
+			assertThat(enContent).extracting(EmailContent::subject)
+				.isEqualTo("English Subject");
+			assertThat(enContent).extracting(EmailContent::body)
 				.isEqualTo("English body.");
 
-			assertThat(frContent).extracting(EmailTemplateService.EmailContent::subject)
-				.isEqualTo("French Subject\n");
-			assertThat(frContent).extracting(EmailTemplateService.EmailContent::body)
+			assertThat(frContent).extracting(EmailContent::subject)
+				.isEqualTo("French Subject");
+			assertThat(frContent).extracting(EmailContent::body)
 				.isEqualTo("French body.");
 		}
 
 		@Test
 		@DisplayName("Should throw exception when emailSubject is missing")
 		void shouldThrowExceptionWhenEmailSubjectIsMissing() throws Exception {
-			String templateContent = "This is just a body without a subject.";
+			final var templateContent = "This is just a body without a subject.";
 
 			mockTemplate("testTemplate", "en", templateContent);
 
-			assertThatThrownBy(() ->
-				emailTemplateService.processEmailTemplate("testTemplate", "en", Map.of())
-			)
+			assertThatThrownBy(() -> emailTemplateService.processEmailTemplate("testTemplate", Locale.ENGLISH, Map.of()))
 				.isInstanceOf(NullPointerException.class);
 		}
 
 		@Test
 		@DisplayName("Should handle empty subject and body")
 		void shouldHandleEmptySubjectAndBody() throws Exception {
-			String templateContent =
-				"<#assign emailSubject>\n" +
-				"</#assign>\n";
+			final var templateContent = "<#assign emailSubject></#assign>";
 
 			mockTemplate("testTemplate", "en", templateContent);
 
-			EmailTemplateService.EmailContent emailContent =
-				emailTemplateService.processEmailTemplate("testTemplate", "en", Map.of());
+			final var emailContent = emailTemplateService.processEmailTemplate("testTemplate", Locale.ENGLISH, Map.of());
 
-			assertThat(emailContent).extracting(EmailTemplateService.EmailContent::subject)
-				.asString()
-				.isEmpty();
-			assertThat(emailContent).extracting(EmailTemplateService.EmailContent::body)
-				.asString()
-				.isEmpty();
+			assertThat(emailContent).extracting(EmailContent::subject).asString().isEmpty();
+			assertThat(emailContent).extracting(EmailContent::body).asString().isEmpty();
 		}
 
 		// Helper method to mock FreeMarker template
-		private void mockTemplate(String templateName, String language, String content) throws Exception {
-			freemarker.template.Template mockTemplate = mock(freemarker.template.Template.class);
-			when(freemarkerConfig.getTemplate(eq(templateName), eq(Locale.of(language))))
+		void mockTemplate(String templateName, String language, String content) throws Exception {
+			final var mockTemplate = mock(Template.class);
+
+			when(freemarkerConfig.getTemplate(eq("email/" + templateName), eq(Locale.of(language))))
 				.thenReturn(mockTemplate);
 
 			// This is a bit complex because we need to mock the FreeMarker processing environment
 			when(mockTemplate.createProcessingEnvironment(any(), any()))
 				.thenAnswer(invocation -> {
-					Map<String, Object> model = invocation.getArgument(0);
+					final var model = invocation.getArgument(0);
 
 					// Process the template with the actual FreeMarker engine
-					freemarker.template.Template actualTemplate = new freemarker.template.Template(
-						templateName, new StringReader(content), new Configuration(Configuration.VERSION_2_3_32));
+					final var actualTemplate = new Template(templateName, new StringReader(content), new Configuration(Configuration.VERSION_2_3_32));
 
 					return actualTemplate.createProcessingEnvironment(model, invocation.getArgument(1));
 				});
 		}
+
 	}
+
 }

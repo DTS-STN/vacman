@@ -3,7 +3,9 @@ package ca.gov.dtsstn.vacman.api.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.time.Duration;
 import java.util.List;
@@ -18,13 +20,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.web.client.RestTemplate;
 
-import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes;
 import ca.gov.dtsstn.vacman.api.config.properties.ApplicationProperties;
 import ca.gov.dtsstn.vacman.api.config.properties.GcNotifyProperties;
+import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes;
 import ca.gov.dtsstn.vacman.api.service.NotificationService.ProfileStatus;
 import ca.gov.dtsstn.vacman.api.service.notify.ImmutableNotificationReceipt;
 import ca.gov.dtsstn.vacman.api.service.notify.NotificationReceipt;
-
 
 @ExtendWith({ MockitoExtension.class })
 @DisplayName("NotificationService tests")
@@ -48,7 +49,7 @@ class NotificationServiceTest {
 	void beforeEach() {
 		when(applicationProperties.gcnotify()).thenReturn(mock(GcNotifyProperties.class));
 		when(applicationProperties.gcnotify().apiKey()).thenReturn("test-api-key");
-		when(applicationProperties.gcnotify().baseUrl()).thenReturn("https://api.notification.canada.ca/v2/notifications/email");
+		when(applicationProperties.gcnotify().baseUrl()).thenReturn("https://notification.example.com/notifications/email");
 		when(applicationProperties.gcnotify().connectTimeout()).thenReturn(Duration.ofSeconds(10));
 		when(applicationProperties.gcnotify().readTimeout()).thenReturn(Duration.ofSeconds(10));
 
@@ -62,9 +63,10 @@ class NotificationServiceTest {
 		final var languages = mock(LookupCodes.Languages.class);
 		when(lookupCodes.languages()).thenReturn(languages);
 		lenient().when(languages.english()).thenReturn("en");
+		lenient().when(languages.french()).thenReturn("fr");
 
 		// Mock EmailTemplateService
-		EmailTemplateService.EmailContent mockEmailContent = mock(EmailTemplateService.EmailContent.class);
+		final var mockEmailContent = mock(EmailTemplateService.EmailContent.class);
 		when(mockEmailContent.subject()).thenReturn("Test Subject");
 		when(mockEmailContent.body()).thenReturn("Test Body");
 		when(emailTemplateService.processEmailTemplate(any(), any(), any())).thenReturn(mockEmailContent);
@@ -205,4 +207,5 @@ class NotificationServiceTest {
 		assertThat(result).isNotNull();
 		assertThat(result.size()).isEqualTo(2);
 	}
+
 }

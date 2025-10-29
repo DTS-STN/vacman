@@ -1,13 +1,11 @@
-<#assign emailSubject>
-Occasion d'emploi - # de demande du SGPV ${request-number}
-</#assign>
+<#assign emailSubject>Occasion d'emploi - # de demande du SGPV ${requestNumber}</#assign>
 
-Titre du poste : ${position-title}
-Durée des fonctions : Durée indéterminée 
+Titre du poste : ${positionTitle}
+Durée des fonctions : Durée indéterminée
 Classification : ${classification}
-Exigences linguistiques : ${language-requirement}
+Exigences linguistiques : ${languageRequirement}
 Lieu : ${location}
-Exigences en matière de sécurité ${security-clearance} 
+Exigences en matière de sécurité ${securityClearance}
 
 
 VEUILLEZ NE PAS RÉPONDRE à ce courriel. Il s'agit d'un courriel généré par le système.
@@ -18,6 +16,6 @@ Bonjour,
 
 Rétroaction fournie : ${feedback}
 
-Si vous désirez obtenir de l'information additionnelle concernant cette rétroaction, veuillez contacter ${submitter-name} par courriel à ${submitter-email}.
+Si vous désirez obtenir de l'information additionnelle concernant cette rétroaction, veuillez contacter ${submitterName} par courriel à ${submitterEmail}.
 
 Merci

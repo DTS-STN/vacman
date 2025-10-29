@@ -1,22 +1,20 @@
-<#assign emailSubject>
-Job Opportunity - VMS Request # ${request-number}
-</#assign>
+<#assign emailSubject>Job Opportunity - VMS Request # ${requestNumber}</#assign>
 
-Position Title: ${position-title}
+Position Title: ${positionTitle}
 Position Tenure: Indeterminate
 Classification: ${classification}
-Language Requirements: ${language-requirement}
+Language Requirements: ${languageRequirement}
 Location: ${location}
-Security clearance requirements: ${security-clearance}
+Security clearance requirements: ${securityClearance}
 
 PLEASE DO NOT REPLY to this email. This is a system-generated email.
 
-Hello, 
+Hello,
 
-Further to your referral to the above-noted job opportunity, the following feedback was provided by the hiring manager. 
+Further to your referral to the above-noted job opportunity, the following feedback was provided by the hiring manager.
 
 Feedback provided: ${feedback}
 
-If you wish to seek additional information regarding this feedback, please contact ${submitter-name} by email at ${submitter-email}.
+If you wish to seek additional information regarding this feedback, please contact ${submitterName} by email at ${submitterEmail}.
 
 Thank you

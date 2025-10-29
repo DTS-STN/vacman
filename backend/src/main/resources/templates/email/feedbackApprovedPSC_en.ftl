@@ -1,17 +1,15 @@
-<#assign emailSubject>
-Feedback approved – VMS Request # ${request-number}
-</#assign>
+<#assign emailSubject>Feedback approved – VMS Request # ${requestNumber}</#assign>
 
 PLEASE DO NOT REPLY to this email. This is a system-generated email.
 
-Hello, 
+Hello,
 
-Thank you for submitting the referral feedback for all referred ESDC and PSC priorities, as applicable. 
+Thank you for submitting the referral feedback for all referred ESDC and PSC priorities, as applicable.
 
-Your feedback has been approved, and the following clearance numbers have been issued: 
+Your feedback has been approved, and the following clearance numbers have been issued:
 
-Departmental Clearance Number: ${clearance-number}
-PSC Clearance Number: ${psc-clearance-number}
+Departmental Clearance Number: ${clearanceNumber}
+PSC Clearance Number: ${pscClearanceNumber}
 
 You may now proceed with your proposed staffing action.
 

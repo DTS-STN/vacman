@@ -1,10 +1,8 @@
-<#assign emailSubject>
-VMS profile closed – ${employee-name}
-</#assign>
+<#assign emailSubject>VMS profile closed – ${employeeName}</#assign>
 
 PLEASE DO NOT REPLY to this email. This is a system-generated email.
 
-Hello, 
+Hello,
 
 Your employee profile has been closed in the Vacancy Management System.
 
