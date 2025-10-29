@@ -1,5 +1,5 @@
 <#assign emailSubject>
-VMS profile closed – ${employee_name}
+VMS profile closed – ${employee-name}
 </#assign>
 
 PLEASE DO NOT REPLY to this email. This is a system-generated email.

@@ -37,4 +37,4 @@ Should you have any questions, please contact ${submitter-name} by email at ${su
 
 Thank you
 
-${statement-Of-Merit-Criteria}
+${statement-of-merit-criteria}

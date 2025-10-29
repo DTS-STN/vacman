@@ -1,5 +1,5 @@
 <#assign emailSubject>
-VMS profile activation – ${employee_name}
+VMS profile activation – ${employee-name}
 </#assign>
 
 PLEASE DO NOT REPLY to this email. This is a system-generated email.

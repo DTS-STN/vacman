@@ -1,5 +1,5 @@
 <#assign emailSubject>
-Activation du profil SGPV – ${employee_name}
+Activation du profil SGPV – ${employee-name}
 </#assign>
 
 VEUILLEZ NE PAS RÉPONDRE à ce courriel. Il s'agit d'un courriel généré par le système.

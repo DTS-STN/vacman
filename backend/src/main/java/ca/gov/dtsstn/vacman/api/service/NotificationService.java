@@ -66,8 +66,8 @@ public class NotificationService {
 
 		// Create model for template processing
 		final var model = Map.<String, Object>of(
-			"employee_name", username,
-			"profileId", profileId
+			"employee-name", username,
+			"profile-id", profileId
 		);
 
 		final var emailContent = emailTemplateService.processEmailTemplate(templateName, language, model);
@@ -113,7 +113,7 @@ public class NotificationService {
 		// Create model for template processing
 		final var model = Map.<String, Object>of(
 			"request-number", requestId.toString(),
-			"requestTitle", requestTitle,
+			"request-title", requestTitle,
 			"clearance-number", "CL-" + requestId // Example clearance number
 		);
 

@@ -1,5 +1,5 @@
 <#assign emailSubject>
-Approbation requise – Activation de profil SGPV – ${employee_name}
+Approbation requise – Activation de profil SGPV – ${employee-name}
 </#assign>
 
 VEUILLEZ NE PAS RÉPONDRE à ce courriel. Il s'agit d'un courriel généré par le système.
