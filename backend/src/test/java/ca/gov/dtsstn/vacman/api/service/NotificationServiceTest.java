@@ -3,8 +3,7 @@ package ca.gov.dtsstn.vacman.api.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import java.time.Duration;
 import java.util.List;
@@ -62,7 +61,7 @@ class NotificationServiceTest {
 
 		final var languages = mock(LookupCodes.Languages.class);
 		when(lookupCodes.languages()).thenReturn(languages);
-		when(languages.english()).thenReturn("en");
+		lenient().when(languages.english()).thenReturn("en");
 
 		// Mock EmailTemplateService
 		EmailTemplateService.EmailContent mockEmailContent = mock(EmailTemplateService.EmailContent.class);
