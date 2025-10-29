@@ -605,6 +605,9 @@ export default {
       'feedback-required': 'Une rétroaction est requise.',
       'comment-required': 'Les commentaires sont obligatoires.',
       'comment-max-length': 'Les commentaires doivent comporter moins de 100 caractères.',
+      'retraining-required': 'Confirmation des droits de recyclage requise.',
+      'comments-missing': 'Des commentaires sont manquants.',
+      'feedback-missing': 'Des rétroactions sont manquantes.',
     },
   },
   'matches-tables': {
