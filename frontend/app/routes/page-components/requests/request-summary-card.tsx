@@ -71,7 +71,8 @@ export function RequestSummaryCard({
 
   const showCandidateFeedbackSubmittedCard = code === REQUEST_STATUS_CODE.FDBK_PEND_APPR && view === 'hiring-manager';
 
-  const showFeedbackAvailableCard = code === REQUEST_STATUS_CODE.FDBK_PEND_APPR && view === 'hr-advisor';
+  const showFeedbackAvailableCard =
+    (code === REQUEST_STATUS_CODE.FDBK_PEND_APPR || code === REQUEST_STATUS_CODE.FDBK_PENDING) && view === 'hr-advisor'; // TODO update it back to only REQUEST_STATUS_CODE.FDBK_PEND_APPR
 
   let cardProps: RenderCardProps | null = null;
 
