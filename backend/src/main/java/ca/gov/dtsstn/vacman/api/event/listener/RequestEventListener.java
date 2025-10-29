@@ -43,14 +43,14 @@ public class RequestEventListener {
 	public void sendRequestFeedbackCompletedNotification(RequestFeedbackCompletedEvent event) {
 		final var request = event.entity();
 
+		final var language = Optional.ofNullable(request.getLanguage())
+			.map(LanguageEntity::getCode)
+			.orElse(null);
+
 		Optional.ofNullable(request.getHrAdvisor())
 			.map(UserEntity::getBusinessEmailAddress)
 			.ifPresentOrElse(
 				email -> {
-					final var language = Optional.ofNullable(request.getLanguage())
-						.map(LanguageEntity::getCode)
-						.orElse(null);
-
 					notificationService.sendRequestNotification(
 						email,
 						request.getId(),
@@ -71,15 +71,15 @@ public class RequestEventListener {
 	public void sendRequestFeedbackPendingNotification(RequestFeedbackPendingEvent event) {
 		final var request = event.entity();
 
+		final var language = Optional.ofNullable(request.getLanguage())
+			.map(LanguageEntity::getCode)
+			.orElse(null);
+
 		Optional.ofNullable(request.getSubmitter())
 			.map(this::getEmployeeEmails)
 			.filter(emails -> !emails.isEmpty())
 			.ifPresentOrElse(
 				emails -> {
-					final var language = Optional.ofNullable(request.getLanguage())
-						.map(LanguageEntity::getCode)
-						.orElse(null);
-
 					notificationService.sendRequestNotification(
 						emails,
 						request.getId(),
