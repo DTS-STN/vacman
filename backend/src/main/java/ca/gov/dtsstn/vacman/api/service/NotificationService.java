@@ -65,37 +65,32 @@ public class NotificationService {
 		};
 
 		// Create model for template processing
-		Map<String, Object> model = Map.of(
+		final var model = Map.of(
 			"employee_name", username,
 			"profileId", profileId
 		);
 
-		try {
-			final var emailContent = emailTemplateService.processEmailTemplate(templateName, language, model);
-			final var templateId = applicationProperties.gcnotify().genericTemplateId();
+		final var emailContent = emailTemplateService.processEmailTemplate(templateName, language, model);
+		final var templateId = applicationProperties.gcnotify().genericTemplateId();
 
-			// Personalization parameters
-			final var personalization = Map.of(
-				"email_subject", emailContent.subject(),
-				"email_body", emailContent.body()
-			);
+		// Personalization parameters
+		final var personalization = Map.of(
+			"email_subject", emailContent.subject(),
+			"email_body", emailContent.body()
+		);
 
-			log.trace("Request to send profile notification email=[{}], parameters=[{}]", email, personalization);
+		log.trace("Request to send profile notification email=[{}], parameters=[{}]", email, personalization);
 
-			final var request = Map.of(
-				"email_address", email,
-				"template_id", templateId,
-				"personalisation", personalization
-			);
+		final var request = Map.of(
+			"email_address", email,
+			"template_id", templateId,
+			"personalisation", personalization
+		);
 
-			final var notificationReceipt = restTemplate.postForObject("/email", request, NotificationReceipt.class);
-			log.debug("Notification sent to email [{}] using template [{}]", email, templateId);
+		final var notificationReceipt = restTemplate.postForObject("/email", request, NotificationReceipt.class);
+		log.debug("Notification sent to email [{}] using template [{}]", email, templateId);
 
-			return notificationReceipt;
-		} catch (Exception e) {
-			log.error("Error processing email template: {}", e.getMessage(), e);
-			throw new RuntimeException("Failed to process email template", e);
-		}
+		return notificationReceipt;
 	}
 
 	/**
@@ -104,7 +99,6 @@ public class NotificationService {
 	 */
 	@Counted("service.notification.sendRequestNotificationSingle.count")
 	public NotificationReceipt sendRequestNotification(String email, Long requestId, String requestTitle, RequestEvent requestEvent, String language) {
-		// Default to English if language is not provided
 		Assert.hasText(email, "email is required; it must not be blank or null");
 		Assert.notNull(requestId, "requestId is required; it must not be null");
 		Assert.hasText(requestTitle, "requestTitle is required; it must not be blank or null");
@@ -122,41 +116,36 @@ public class NotificationService {
 		String templateName = String.format("email/%s%s.ftl", templateBaseName, langSuffix);
 
 		// Create model for template processing
-		Map<String, Object> model = Map.of(
+		final var model = Map.of(
 			"request-number", requestId.toString(),
 			"requestTitle", requestTitle,
 			"clearance-number", "CL-" + requestId // Example clearance number
 		);
 
-		try {
-			// Process the template with FreeMarker
-			EmailContent emailContent = emailTemplateService.processEmailTemplate(templateName, model);
+		// Process the template with FreeMarker
+		final var emailContent = emailTemplateService.processEmailTemplate(templateName, model);
 
-			// Use the generic template ID
-			final var templateId = applicationProperties.gcnotify().genericTemplateId();
+		// Use the generic template ID
+		final var templateId = applicationProperties.gcnotify().genericTemplateId();
 
-			// Personalization parameters for the generic template
-			final var personalization = Map.of(
-				"email_subject", emailContent.subject(),
-				"email_message", emailContent.body()
-			);
+		// Personalization parameters for the generic template
+		final var personalization = Map.of(
+			"email_subject", emailContent.subject(),
+			"email_body", emailContent.body()
+		);
 
-			log.trace("Request to send request notification email=[{}], parameters=[{}]", email, personalization);
+		log.trace("Request to send request notification email=[{}], parameters=[{}]", email, personalization);
 
-			final var request = Map.of(
-				"email_address", email,
-				"template_id", templateId,
-				"personalisation", personalization
-			);
+		final var request = Map.of(
+			"email_address", email,
+			"template_id", templateId,
+			"personalisation", personalization
+		);
 
-			final var notificationReceipt = restTemplate.postForObject("/email", request, NotificationReceipt.class);
-			log.debug("Notification sent to email [{}] using template [{}]", email, templateId);
+		final var notificationReceipt = restTemplate.postForObject("/email", request, NotificationReceipt.class);
+		log.debug("Notification sent to email [{}] using template [{}]", email, templateId);
 
-			return notificationReceipt;
-		} catch (Exception e) {
-			log.error("Error processing email template: {}", e.getMessage(), e);
-			throw new RuntimeException("Failed to process email template", e);
-		}
+		return notificationReceipt;
 	}
 
 	/**
@@ -165,7 +154,6 @@ public class NotificationService {
 	 */
 	@Counted("service.notification.sendRequestNotificationMultiple.count")
 	public List<NotificationReceipt> sendRequestNotification(List<String> emails, Long requestId, String requestTitle, RequestEvent requestEvent, String language) {
-		// Default to English if language is not provided
 		Assert.notEmpty(emails, "emails is required; it must not be empty or null");
 		Assert.notNull(requestId, "requestId is required; it must not be null");
 		Assert.hasText(requestTitle, "requestTitle is required; it must not be blank or null");
