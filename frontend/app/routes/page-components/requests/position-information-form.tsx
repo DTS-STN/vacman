@@ -189,6 +189,7 @@ export function PositionInformationForm({
               defaultValue={formValues?.englishTitle}
               errorMessage={tApp(extractValidationKey(formErrors?.titleEn))}
               required
+              maxLength={200}
             />
             <InputField
               className="w-full"
@@ -198,6 +199,7 @@ export function PositionInformationForm({
               defaultValue={formValues?.frenchTitle}
               errorMessage={tApp(extractValidationKey(formErrors?.titleFr))}
               required
+              maxLength={200}
             />
 
             <fieldset id="location-fieldset" aria-describedby="locationLegend locationHelpMessage" className="space-y-2">

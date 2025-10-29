@@ -76,11 +76,13 @@ export async function createPositionInformationSchema() {
           v.string('app:position-information.errors.title-en-required'),
           v.trim(),
           v.nonEmpty('app:position-information.errors.title-en-required'),
+          v.maxLength(200, 'app:position-information.errors.title-en-max-length'),
         ),
         titleFr: v.pipe(
           v.string('app:position-information.errors.title-fr-required'),
           v.trim(),
           v.nonEmpty('app:position-information.errors.title-fr-required'),
+          v.maxLength(200, 'app:position-information.errors.title-fr-max-length'),
         ),
         province: v.lazy(() =>
           v.pipe(
@@ -133,22 +135,22 @@ export async function createPositionInformationSchema() {
               v.picklist(selectedLanguageRequirementForRequiredLanguageLevel.map(({ id }) => id)),
             ),
             readingEn: v.pipe(
-              v.pipe(v.string('app:position-information.errors.language-profile.reading-comprehension-required'), v.trim()),
+              v.pipe(v.string('app:position-information.errors.language-profile.reading-comprehension-en-required'), v.trim()),
             ),
             readingFr: v.pipe(
-              v.pipe(v.string('app:position-information.errors.language-profile.reading-comprehension-required'), v.trim()),
+              v.pipe(v.string('app:position-information.errors.language-profile.reading-comprehension-fr-required'), v.trim()),
             ),
             writingEn: v.pipe(
-              v.pipe(v.string('app:position-information.errors.language-profile.written-expression-required'), v.trim()),
+              v.pipe(v.string('app:position-information.errors.language-profile.written-expression-en-required'), v.trim()),
             ),
             writingFr: v.pipe(
-              v.pipe(v.string('app:position-information.errors.language-profile.written-expression-required'), v.trim()),
+              v.pipe(v.string('app:position-information.errors.language-profile.written-expression-fr-required'), v.trim()),
             ),
             oralEn: v.pipe(
-              v.pipe(v.string('app:position-information.errors.language-profile.oral-proficiency-required'), v.trim()),
+              v.pipe(v.string('app:position-information.errors.language-profile.oral-proficiency-en-required'), v.trim()),
             ),
             oralFr: v.pipe(
-              v.pipe(v.string('app:position-information.errors.language-profile.oral-proficiency-required'), v.trim()),
+              v.pipe(v.string('app:position-information.errors.language-profile.oral-proficiency-fr-required'), v.trim()),
             ),
           }),
         ],
@@ -348,6 +350,7 @@ export async function createProcessInformationSchema() {
             v.string('app:process-information.errors.selection-process-number-invalid'),
             v.trim(),
             v.nonEmpty('app:process-information.errors.selection-process-number-invalid'),
+            v.maxLength(30, 'app:process-information.errors.selection-process-number-max-length'),
           ),
         ),
         approvalReceived: v.pipe(v.boolean('app:process-information.errors.approval-received-required')),
@@ -366,6 +369,7 @@ export async function createProcessInformationSchema() {
               v.string('app:process-information.errors.priority-entitlement-rationale-required'),
               v.trim(),
               v.nonEmpty('app:process-information.errors.priority-entitlement-rationale-required'),
+              v.maxLength(200, 'app:process-information.errors.priority-entitlement-rationale-max-length'),
             ),
           }),
           v.object({
