@@ -487,7 +487,7 @@ public class RequestService {
 			request.getId(),
 			request.getNameEn(),
 			RequestEvent.CREATED,
-			null); // Use null to let NotificationService use its default language (English)
+			"en");
 	}
 
 	/**
