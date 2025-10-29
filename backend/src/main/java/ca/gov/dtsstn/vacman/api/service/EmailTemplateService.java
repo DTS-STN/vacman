@@ -20,10 +20,10 @@ public class EmailTemplateService {
 		this.freemarkerConfig = freemarkerConfig;
 	}
 
-	public EmailContent processEmailTemplate(String templateName, String locale, Map<String, Object> model) {
+	public EmailContent processEmailTemplate(String templateName, String language, Map<String, Object> model) {
 		try {
-			// automatically fetches correct template based on locale
-			final var template = freemarkerConfig.getTemplate(templateName, Locale.of(locale));
+			// Automatically fetches correct template based on locale by recognizing the suffix in the template file name
+			final var template = freemarkerConfig.getTemplate(templateName, Locale.of(language));
 			return merge(template, model);
 		} catch (IOException e) {
 			throw new RuntimeException("Failed to process email template: " + templateName, e);

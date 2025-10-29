@@ -65,7 +65,7 @@ public class NotificationService {
 		};
 
 		// Create model for template processing
-		final var model = Map.of(
+		final var model = Map.<String, Object>of(
 			"employee_name", username,
 			"profileId", profileId
 		);
@@ -103,27 +103,22 @@ public class NotificationService {
 		Assert.notNull(requestId, "requestId is required; it must not be null");
 		Assert.hasText(requestTitle, "requestTitle is required; it must not be blank or null");
 
-		// Determine template path based on event and language
-		String langSuffix = this.languages.english().equals(language) ? "_en" : "_fr";
-
 		//TODO: match templates to events
-		final var templateBaseName = switch (requestEvent) {
+		final var templateName = switch (requestEvent) {
 			case CREATED -> "requestCreated";
 			case FEEDBACK_PENDING -> "requestFeedbackPending";
 			case FEEDBACK_COMPLETED -> "feedbackApproved";
 		};
 
-		String templateName = String.format("email/%s%s.ftl", templateBaseName, langSuffix);
-
 		// Create model for template processing
-		final var model = Map.of(
+		final var model = Map.<String, Object>of(
 			"request-number", requestId.toString(),
 			"requestTitle", requestTitle,
 			"clearance-number", "CL-" + requestId // Example clearance number
 		);
 
 		// Process the template with FreeMarker
-		final var emailContent = emailTemplateService.processEmailTemplate(templateName, model);
+		final var emailContent = emailTemplateService.processEmailTemplate(templateName, language, model);
 
 		// Use the generic template ID
 		final var templateId = applicationProperties.gcnotify().genericTemplateId();
