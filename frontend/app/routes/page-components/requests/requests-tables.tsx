@@ -125,8 +125,7 @@ export default function RequestsTables({
                   const params = new URLSearchParams(searchParams.toString());
                   params.delete('activePage');
                   params.delete('inactivePage');
-                  params.delete('filter');
-                  params.append('filter', target.value);
+                  params.set('filter', target.value);
                   setSearchParams(params);
                   setRequestsFilter(target.value);
                   const message =
