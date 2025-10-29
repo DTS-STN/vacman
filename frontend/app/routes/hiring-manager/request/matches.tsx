@@ -1,25 +1,31 @@
 import { useEffect, useRef, useState } from 'react';
 
-import { useFetcher } from 'react-router';
+import { data, useFetcher } from 'react-router';
 import type { RouteHandle } from 'react-router';
 
 import { useTranslation } from 'react-i18next';
+import * as v from 'valibot';
 
 import type { Route } from './+types/matches';
 
+import type { MatchReadModel, MatchSummaryReadModel, MatchUpdateModel } from '~/.server/domain/models';
 import { getMatchFeedbackService } from '~/.server/domain/services/match-feedback-service';
 import { getRequestService } from '~/.server/domain/services/request-service';
 import { serverEnvironment } from '~/.server/environment';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
+import { mapMatchToUpdateModelWithOverrides } from '~/.server/utils/request-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
+import { stringToIntegerSchema } from '~/.server/validation/string-to-integer-schema';
 import { AlertMessage } from '~/components/alert-message';
 import { BackLink } from '~/components/back-link';
 import { Button } from '~/components/button';
 import { InputCheckbox } from '~/components/input-checkbox';
+import { InputError } from '~/components/input-error';
 import { PageTitle } from '~/components/page-title';
 import { Progress } from '~/components/progress';
 import { RequestStatusTag } from '~/components/status-tag';
 import { VacmanBackground } from '~/components/vacman-background';
+import { MATCH_STATUS, REQUEST_EVENT_TYPE, REQUEST_STATUS_CODE } from '~/domain/constants';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { useFetcherState } from '~/hooks/use-fetcher-state';
 import { getTranslation } from '~/i18n-config.server';
@@ -27,6 +33,7 @@ import { handle as parentHandle } from '~/routes/layout';
 import MatchesTables from '~/routes/page-components/requests/matches-tables';
 import { formatDateTimeForTimezone } from '~/utils/date-utils';
 import { formString } from '~/utils/string-utils';
+import { extractValidationKey } from '~/utils/validation-utils';
 
 export const handle = {
   i18nNamespace: [...parentHandle.i18nNamespace],
@@ -39,9 +46,31 @@ export function meta({ loaderData }: Route.MetaArgs) {
 export async function action({ context, params, request }: Route.ActionArgs) {
   const { session } = context.get(context.applicationContext);
   requireAuthentication(session, request);
+
+  // Get request id from params.
+  const requestData = (
+    await getRequestService().getRequestById(Number(params.requestId), session.authState.accessToken)
+  ).into();
+
+  if (!requestData) {
+    throw new Response('Request not found', { status: HttpStatusCodes.NOT_FOUND });
+  }
+
+  const requestMatchesResult = await getRequestService().getRequestMatches(
+    parseInt(params.requestId),
+    session.authState.accessToken,
+  );
+
+  if (requestMatchesResult.isErr()) {
+    throw new Response('Request matches not found', { status: HttpStatusCodes.NOT_FOUND });
+  }
+
+  const requestMatches = requestMatchesResult.unwrap().content;
+
+  const requestId = requestData.id;
+  const allFeedbacks = await getMatchFeedbackService().listAll();
   const formData = await request.formData();
 
-  //TODO - Implement form submit
   switch (formData.get('action')) {
     case 'save': {
       return i18nRedirect('routes/hiring-manager/request/index.tsx', request, {
@@ -49,20 +78,142 @@ export async function action({ context, params, request }: Route.ActionArgs) {
       });
     }
     case 'submit': {
-      const confirmRetraining = formData.get('confirmRetraining') ? true : false;
-      return {
-        confirmRetraining,
-      };
+      const matchesSubmitSchema = v.object({
+        confirmRetraining: v.pipe(v.boolean('app:matches.errors.retraining-required')),
+        feedbackMissing: v.custom((val) => val === false, 'app:matches.errors.feedback-missing'),
+        commentsMissing: v.custom((val) => val === false, 'app:matches.errors.comments-missing'),
+      });
+
+      const parseResult = v.safeParse(matchesSubmitSchema, {
+        confirmRetraining: formData.get('confirmRetraining') === 'on' ? true : undefined,
+        feedbackMissing: requestMatches.some((match) => match.matchFeedback === undefined),
+        commentsMissing: requestMatches.some((match) => match.hiringManagerComment === undefined),
+      });
+
+      if (!parseResult.success) {
+        return data(
+          { errors: v.flatten<typeof matchesSubmitSchema>(parseResult.issues).nested },
+          { status: HttpStatusCodes.BAD_REQUEST },
+        );
+      }
+
+      const requestResult = await getRequestService().updateRequestStatus(
+        requestId,
+        {
+          eventType: REQUEST_EVENT_TYPE.submitFeedback,
+        },
+        session.authState.accessToken,
+      );
+
+      if (requestResult.isErr()) {
+        throw requestResult.unwrapErr();
+      }
+
+      return data({ success: true, errors: undefined });
     }
     case 'feedback': {
-      formString(formData.get('id'));
-      formString(formData.get('feedback'));
-      break;
+      const parseResult = v.safeParse(
+        v.object({
+          matchId: v.pipe(
+            v.string(),
+            v.transform((val) => parseInt(val, 10)),
+            v.number('app:matches.errors.match-id'),
+          ),
+          feedback: v.pipe(
+            stringToIntegerSchema('app:matches.errors.feedback-required'),
+            v.picklist(
+              allFeedbacks.map(({ id }) => id),
+              'app:matches.errors.feedback-required',
+            ),
+          ),
+        }),
+        {
+          matchId: formString(formData.get('matchId')),
+          feedback: formString(formData.get('feedback')),
+        },
+      );
+
+      if (!parseResult.success) {
+        return data({ errors: v.flatten(parseResult.issues).nested }, { status: HttpStatusCodes.BAD_REQUEST });
+      }
+
+      const { matchId } = parseResult.output;
+      const matchResult = await getRequestService().getRequestMatchById(requestId, matchId, session.authState.accessToken);
+
+      if (matchResult.isErr()) {
+        throw new Response('Request Match not found', { status: HttpStatusCodes.NOT_FOUND });
+      }
+
+      const matchData: MatchReadModel = matchResult.unwrap();
+
+      // call PUT /api/v1/requests/{id}/matches/{matchId} to update feedback
+      const matchPayload: MatchUpdateModel = mapMatchToUpdateModelWithOverrides(matchData, {
+        matchFeedbackId: parseResult.output.feedback,
+      });
+      const updateResult = await getRequestService().updateRequestMatchById(
+        requestId,
+        matchData.id,
+        matchPayload,
+        session.authState.accessToken,
+      );
+
+      if (updateResult.isErr()) {
+        throw updateResult.unwrapErr();
+      }
+
+      return data({ success: true, errors: undefined });
     }
     case 'comment': {
-      formString(formData.get('id'));
-      formString(formData.get('comment'));
-      break;
+      const parseResult = v.safeParse(
+        v.object({
+          matchId: v.pipe(
+            v.string(),
+            v.transform((val) => parseInt(val, 10)),
+            v.number('app:matches.errors.match-id'),
+          ),
+          comment: v.optional(
+            v.pipe(
+              v.string('app:matches.errors.comment-required'),
+              v.trim(),
+              v.maxLength(100, 'app:matches.errors.comment-max-length'),
+            ),
+          ),
+        }),
+        {
+          matchId: formString(formData.get('matchId')),
+          comment: formString(formData.get('comment')),
+        },
+      );
+
+      if (!parseResult.success) {
+        return data({ errors: v.flatten(parseResult.issues).nested }, { status: HttpStatusCodes.BAD_REQUEST });
+      }
+
+      const { matchId } = parseResult.output;
+      const matchResult = await getRequestService().getRequestMatchById(requestId, matchId, session.authState.accessToken);
+
+      if (matchResult.isErr()) {
+        throw new Response('Request Match not found', { status: HttpStatusCodes.NOT_FOUND });
+      }
+
+      const matchData: MatchReadModel = matchResult.unwrap();
+
+      // call PUT /api/v1/requests/{id}/matches/{matchId} to update HR advisor comment
+      const matchPayload: MatchUpdateModel = mapMatchToUpdateModelWithOverrides(matchData, {
+        hiringManagerComment: parseResult.output.comment,
+      });
+      const updateResult = await getRequestService().updateRequestMatchById(
+        requestId,
+        matchData.id,
+        matchPayload,
+        session.authState.accessToken,
+      );
+
+      if (updateResult.isErr()) {
+        throw updateResult.unwrapErr();
+      }
+
+      return data({ success: true, errors: undefined });
     }
   }
 
@@ -92,6 +243,12 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 
   const matchFeedbacks = await getMatchFeedbackService().listAllLocalized(lang);
 
+  function getFeedbackProgress(requestMatches: MatchSummaryReadModel[]): number {
+    if (requestMatches.length === 0) return 0;
+    const count = requestMatches.filter((match) => match.matchStatus?.code === MATCH_STATUS.APPROVED.code).length;
+    return (count / requestMatches.length) * 100;
+  }
+
   return {
     documentTitle: t('app:matches.page-title'),
     lang,
@@ -112,14 +269,12 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       lastName: requestData.hrAdvisor?.lastName,
       email: requestData.hrAdvisor?.businessEmailAddress,
     },
-    confirmRetraining: false, // TODO: fix it in separate pr
-    feedbackSubmitted: false, // TODO: check the request status to determine it this is true or false, fix it in separate pr
-    feedbackProgress: 10, // TODO: fix it in separate pr
-    // requestMatches.length > 0 ? (requestMatches.filter((match) => match.approval).length / requestMatches.length) * 100 : 0, // TODO: fix it in separate pr
+    feedbackSubmitted: requestData.status?.code === REQUEST_STATUS_CODE.FDBK_PEND_APPR,
+    feedbackProgress: getFeedbackProgress(requestMatches),
   };
 }
 
-export default function HiringManagerRequestMatches({ loaderData, params }: Route.ComponentProps) {
+export default function HiringManagerRequestMatches({ loaderData, actionData, params }: Route.ComponentProps) {
   const { t } = useTranslation(handle.i18nNamespace);
   const alertRef = useRef<HTMLDivElement>(null);
   const fetcher = useFetcher<typeof action>();
@@ -127,6 +282,7 @@ export default function HiringManagerRequestMatches({ loaderData, params }: Rout
   const isSubmitting = fetcherState.submitting;
   const matchesFetcher = useFetcher();
   const isUpdating = matchesFetcher.state !== 'idle';
+  const formErrors = fetcher.data?.errors;
 
   const [browserTZ, setBrowserTZ] = useState(() =>
     loaderData.requestDate
@@ -186,6 +342,20 @@ export default function HiringManagerRequestMatches({ loaderData, params }: Rout
       >
         {t('app:matches.back-request-details')}
       </BackLink>
+      {(formErrors?.commentsMissing ?? formErrors?.feedbackMissing) && (
+        <div className="flex flex-col">
+          {formErrors.commentsMissing && (
+            <InputError id="missing-comments" className="my-2">
+              {t(extractValidationKey(formErrors.commentsMissing))}
+            </InputError>
+          )}
+          {formErrors.feedbackMissing && (
+            <InputError id="missing-feedback" className="my-2">
+              {t(extractValidationKey(formErrors.feedbackMissing))}
+            </InputError>
+          )}
+        </div>
+      )}
       <h2 className="font-lato mt-4 text-2xl font-bold">{t('app:matches.request-candidates')}</h2>
       <p className="sm:w-2/3 md:w-3/4">{t('app:matches.page-info')}</p>
       {loaderData.feedbackSubmitted ? (
@@ -194,22 +364,24 @@ export default function HiringManagerRequestMatches({ loaderData, params }: Rout
         </AlertMessage>
       ) : (
         <fetcher.Form method="post" noValidate>
-          <div className="mt-10 justify-between md:grid md:grid-cols-2">
+          <div className="mt-10 justify-between space-y-5 md:grid md:grid-cols-2 md:space-y-0">
             <InputCheckbox
               id="confirm-retraining"
               name="confirmRetraining"
-              defaultChecked={loaderData.confirmRetraining}
+              errorMessage={t(extractValidationKey(formErrors?.confirmRetraining))}
               required
             >
               {t('app:matches.confirm-info')}
             </InputCheckbox>
-            <div className="flex justify-end space-x-3">
-              <Button variant="alternative" type="submit" value="save" name="action">
-                {t('app:form.save-and-exit')}
-              </Button>
-              <Button variant="primary" type="submit" value="submit" name="action">
-                {t('app:form.submit')}
-              </Button>
+            <div className="flex justify-end">
+              <div className="mt-auto space-x-3">
+                <Button variant="alternative" type="submit" value="save" name="action">
+                  {t('app:form.save-and-exit')}
+                </Button>
+                <Button variant="primary" type="submit" value="submit" name="action">
+                  {t('app:form.submit')}
+                </Button>
+              </div>
             </div>
           </div>
         </fetcher.Form>
