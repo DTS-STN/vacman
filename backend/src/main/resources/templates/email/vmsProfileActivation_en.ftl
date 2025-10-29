@@ -1,9 +1,8 @@
-VMS profile activation – ((employee_name))
-
+<#assign emailSubject>VMS profile activation – ${employeeName}</#assign>
 
 PLEASE DO NOT REPLY to this email. This is a system-generated email.
 
-Hello, 
+Hello,
 
 Your employee profile is now active in the Vacancy Management System. You can access your profile at any time to make updates.
 

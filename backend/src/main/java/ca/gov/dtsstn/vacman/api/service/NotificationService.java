@@ -1,6 +1,7 @@
 package ca.gov.dtsstn.vacman.api.service;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -17,12 +18,27 @@ import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes;
 import ca.gov.dtsstn.vacman.api.service.notify.NotificationReceipt;
 import io.micrometer.core.annotation.Counted;
 
+/**
+ * Service for handling email notifications using GC Notify.
+ * This service provides methods to send profile-related and request-related email notifications,
+ * utilizing FreeMarker templates for content generation and supporting multiple languages.
+ */
 @Service
 public class NotificationService {
 
-	public enum ProfileStatus { APPROVED, PENDING }
+	/**
+	 * The possible statuses of a user profile.
+	 */
+	public enum ProfileStatus {
+		APPROVED, PENDING
+	}
 
-	public enum RequestEvent { CREATED, FEEDBACK_PENDING, FEEDBACK_COMPLETED }
+	/**
+	 * The events in the request lifecycle that trigger notifications.
+	 */
+	public enum RequestEvent {
+		CREATED, FEEDBACK_PENDING, FEEDBACK_COMPLETED
+	}
 
 	private static final Logger log = LoggerFactory.getLogger(NotificationService.class);
 
@@ -30,42 +46,66 @@ public class NotificationService {
 
 	private final RestTemplate restTemplate;
 
-	private final LookupCodes.Languages languages;
+	private final EmailTemplateService emailTemplateService;
 
-	public NotificationService(ApplicationProperties applicationProperties, RestTemplateBuilder restTemplateBuilder, LookupCodes lookupCodes) {
+	/**
+	 * Constructs a NotificationService with the required dependencies.
+	 *
+	 * @param applicationProperties the application configuration properties
+	 * @param restTemplateBuilder builder for creating the REST template
+	 * @param lookupCodes lookup codes configuration (reserved for future use)
+	 * @param emailTemplateService the email template service
+	 */
+	public NotificationService(
+			ApplicationProperties applicationProperties,
+			RestTemplateBuilder restTemplateBuilder,
+			LookupCodes lookupCodes,
+			EmailTemplateService emailTemplateService) {
 		this.applicationProperties = applicationProperties;
+		this.emailTemplateService = emailTemplateService;
 		this.restTemplate = restTemplateBuilder
 			.defaultHeader(HttpHeaders.AUTHORIZATION, "ApiKey-v1 %s".formatted(applicationProperties.gcnotify().apiKey()))
 			.rootUri(applicationProperties.gcnotify().baseUrl())
 			.connectTimeout(applicationProperties.gcnotify().connectTimeout())
 			.readTimeout(applicationProperties.gcnotify().readTimeout())
 			.build();
-		this.languages = lookupCodes.languages();
 	}
 
 	/**
-	* Sends an email notification (specific to a profile) to a single email address.
-	*/
+	 * Sends an email notification specific to a profile to a single email address.
+	 * The notification content is generated using FreeMarker templates based on the profile status.
+	 *
+	 * @param email the recipient's email address; must not be blank or null
+	 * @param profileId the ID of the profile; must not be blank or null
+	 * @param username the username of the profile owner; must not be blank or null
+	 * @param language the language code for the notification (e.g., "en", "fr")
+	 * @param profileStatus the status of the profile (APPROVED or PENDING)
+	 * @return the notification receipt from GC Notify containing details about the sent email
+	 */
 	@Counted("service.notification.sendProfileNotification.count")
 	public NotificationReceipt sendProfileNotification(String email, String profileId, String username, String language, ProfileStatus profileStatus) {
 		Assert.hasText(email, "email is required; it must not be blank or null");
 		Assert.hasText(profileId, "profileId is required; it must not be blank or null");
 		Assert.hasText(username, "username is required; it must not be blank or null");
 
-		final var templateId = switch (profileStatus) {
-			case APPROVED -> this.languages.english().equals(language)
-				? applicationProperties.gcnotify().profileApprovedTemplateIdEng()
-				: applicationProperties.gcnotify().profileApprovedTemplateIdFra();
-
-			case PENDING -> this.languages.english().equals(language)
-				? applicationProperties.gcnotify().profilePendingTemplateIdEng()
-				: applicationProperties.gcnotify().profilePendingTemplateIdFra();
+		final var templateName = switch (profileStatus) {
+			case APPROVED -> "vmsProfileActivation.ftl";
+			case PENDING -> "vmsProfilePending.ftl";
 
 		};
 
-		// Personalization parameters for the email template
+		final var model = Map.<String, String>of(
+			"employeeName", username,
+			"profileId", profileId
+		);
+
+		final var emailContent = emailTemplateService.processEmailTemplate(templateName, Locale.of(language), model);
+		final var templateId = applicationProperties.gcnotify().genericTemplateId();
+
+		// Personalization parameters
 		final var personalization = Map.of(
-			"employee_name", username
+			"email_subject", emailContent.subject(),
+			"email_body", emailContent.body()
 		);
 
 		log.trace("Request to send profile notification email=[{}], parameters=[{}]", email, personalization);
@@ -82,29 +122,42 @@ public class NotificationService {
 		return notificationReceipt;
 	}
 
-	//TODO add language to get the correct template
 	/**
-	 * Sends an email notification to multiple email addresses.
-	 * Returns a list of notification receipts, one for each email address.
+	 * Sends an email notification for a request event to a single email address.
+	 * The notification content is generated using FreeMarker templates based on the request event.
+	 *
+	 * @param email the recipient's email address; must not be blank or null
+	 * @param requestId the ID of the request; must not be null
+	 * @param requestTitle the title of the request; must not be blank or null
+	 * @param requestEvent the event that triggered the notification
+	 * @param language the language code for the notification (e.g., "en", "fr")
+	 * @return the notification receipt from GC Notify containing details about the sent email
 	 */
 	@Counted("service.notification.sendRequestNotificationSingle.count")
-	public NotificationReceipt sendRequestNotification(String email, Long requestId, String requestTitle, RequestEvent requestEvent) {
+	public NotificationReceipt sendRequestNotification(String email, Long requestId, String requestTitle, RequestEvent requestEvent, String language) {
 		Assert.hasText(email, "email is required; it must not be blank or null");
 		Assert.notNull(requestId, "requestId is required; it must not be null");
 		Assert.hasText(requestTitle, "requestTitle is required; it must not be blank or null");
 
-		//TODO update code to add new templates there is one for english and one for french refer to the code above
-		final var templateId = switch (requestEvent) {
-			case CREATED -> applicationProperties.gcnotify().requestCreatedTemplateId();
-			case FEEDBACK_PENDING -> applicationProperties.gcnotify().requestFeedbackPendingTemplateId();
-			case FEEDBACK_COMPLETED -> applicationProperties.gcnotify().requestFeedbackCompletedTemplateId();
-			default -> throw new IllegalArgumentException("Unknown request event value " + requestEvent);
+		// TODO: match templates to events
+		final var templateName = switch (requestEvent) {
+			case CREATED -> "requestCreated.ftl";
+			case FEEDBACK_PENDING -> "requestFeedbackPending.ftl";
+			case FEEDBACK_COMPLETED -> "feedbackApproved.ftl";
 		};
 
-		// TODO personalization parameters for the email template needs to match the templates
+		final var model = Map.<String, String>of(
+			"requestNumber", requestId.toString(),
+			"requestTitle", requestTitle,
+			"clearanceNumber", "CL-" + requestId // XXX ::: example clearance number
+		);
+
+		final var emailContent = emailTemplateService.processEmailTemplate(templateName, Locale.of(language), model);
+		final var templateId = applicationProperties.gcnotify().genericTemplateId();
+
 		final var personalization = Map.of(
-			"requestId", requestId.toString(),
-			"requestTitle", requestTitle
+			"email_subject", emailContent.subject(),
+			"email_body", emailContent.body()
 		);
 
 		log.trace("Request to send request notification email=[{}], parameters=[{}]", email, personalization);
@@ -123,17 +176,24 @@ public class NotificationService {
 
 	/**
 	 * Sends a request notification to multiple email addresses.
-	 * Returns a list of notification receipts, one for each email address.
+	 * Notifications are sent in parallel for efficiency, and each email address receives the same notification content.
+	 *
+	 * @param emails the list of recipient email addresses; must not be empty or null, and individual emails must not be blank
+	 * @param requestId the ID of the request; must not be null
+	 * @param requestTitle the title of the request; must not be blank or null
+	 * @param requestEvent the event that triggered the notification
+	 * @param language the language code for the notification (e.g., "en", "fr")
+	 * @return a list of notification receipts, one for each successfully sent email
 	 */
 	@Counted("service.notification.sendRequestNotificationMultiple.count")
-	public List<NotificationReceipt> sendRequestNotification(List<String> emails, Long requestId, String requestTitle, RequestEvent requestEvent) {
+	public List<NotificationReceipt> sendRequestNotification(List<String> emails, Long requestId, String requestTitle, RequestEvent requestEvent, String language) {
 		Assert.notEmpty(emails, "emails is required; it must not be empty or null");
 		Assert.notNull(requestId, "requestId is required; it must not be null");
 		Assert.hasText(requestTitle, "requestTitle is required; it must not be blank or null");
 
 		return emails.parallelStream()
 			.filter(StringUtils::hasText)
-			.map(email -> sendRequestNotification(email, requestId, requestTitle, requestEvent))
+			.map(email -> sendRequestNotification(email, requestId, requestTitle, requestEvent, language))
 			.toList();
 	}
 

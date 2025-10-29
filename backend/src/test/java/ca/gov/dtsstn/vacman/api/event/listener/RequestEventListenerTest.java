@@ -59,7 +59,8 @@ class RequestEventListenerTest {
 				eq("hradvisor@example.com"),
 				eq(123L),
 				eq("Test Request"),
-				eq(RequestEvent.FEEDBACK_COMPLETED)
+				eq(RequestEvent.FEEDBACK_COMPLETED),
+				any()
 			);
 		}
 
@@ -76,7 +77,8 @@ class RequestEventListenerTest {
 				any(String.class),
 				any(Long.class),
 				any(String.class),
-				any(RequestEvent.class)
+				any(RequestEvent.class),
+				any()
 			);
 		}
 
@@ -95,7 +97,8 @@ class RequestEventListenerTest {
 				any(String.class),
 				any(Long.class),
 				any(String.class),
-				any(RequestEvent.class)
+				any(RequestEvent.class),
+				any()
 			);
 		}
 
@@ -123,7 +126,8 @@ class RequestEventListenerTest {
 				eq(List.of("submitter@example.com")),
 				eq(789L),
 				eq("Feedback Pending Request"),
-				eq(RequestEvent.FEEDBACK_PENDING)
+				eq(RequestEvent.FEEDBACK_PENDING),
+				any()
 			);
 		}
 
@@ -147,7 +151,8 @@ class RequestEventListenerTest {
 				eq(List.of("business@example.com", "personal@example.com")),
 				eq(999L),
 				eq("Multi Email Request"),
-				eq(RequestEvent.FEEDBACK_PENDING)
+				eq(RequestEvent.FEEDBACK_PENDING),
+				any()
 			);
 		}
 
@@ -164,7 +169,8 @@ class RequestEventListenerTest {
 				anyList(),
 				any(Long.class),
 				any(String.class),
-				any(RequestEvent.class)
+				any(RequestEvent.class),
+				any()
 			);
 		}
 
@@ -185,7 +191,8 @@ class RequestEventListenerTest {
 				anyList(),
 				any(Long.class),
 				any(String.class),
-				any(RequestEvent.class)
+				any(RequestEvent.class),
+				any()
 			);
 		}
 
@@ -208,7 +215,8 @@ class RequestEventListenerTest {
 				eq(List.of("personal@example.com")),
 				eq(333L),
 				eq("Personal Email Only Request"),
-				eq(RequestEvent.FEEDBACK_PENDING)
+				eq(RequestEvent.FEEDBACK_PENDING),
+				any()
 			);
 		}
 
