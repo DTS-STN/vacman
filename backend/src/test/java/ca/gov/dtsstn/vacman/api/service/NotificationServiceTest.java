@@ -69,7 +69,7 @@ class NotificationServiceTest {
 		EmailTemplateService.EmailContent mockEmailContent = mock(EmailTemplateService.EmailContent.class);
 		when(mockEmailContent.subject()).thenReturn("Test Subject");
 		when(mockEmailContent.body()).thenReturn("Test Body");
-		when(emailTemplateService.processEmailTemplate(any(), any())).thenReturn(mockEmailContent);
+		when(emailTemplateService.processEmailTemplate(any(), any(), any())).thenReturn(mockEmailContent);
 
 		// Mock generic template ID
 		when(applicationProperties.gcnotify().genericTemplateId()).thenReturn("generic-template-id");
