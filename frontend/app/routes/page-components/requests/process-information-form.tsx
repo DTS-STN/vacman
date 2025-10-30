@@ -191,6 +191,7 @@ export function ProcessInformationForm({
               label={tApp('process-information.selection-process-number')}
               defaultValue={formValues?.selectionProcessNumber}
               errorMessage={tApp(extractValidationKey(formErrors?.selectionProcessNumber))}
+              maxLength={30}
             />
             <InputCheckbox
               id="approval-received"
