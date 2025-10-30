@@ -237,7 +237,8 @@ public class ProfileService {
 	public Page<ProfileEntity> findProfiles(Pageable pageable, ProfileQuery profileQuery) {
 		final var hasHrAdvisorId = ProfileRepository.hasHrAdvisorIdIn(profileQuery.hrAdvisorIds());
 		final var hasStatusId = ProfileRepository.hasProfileStatusIdIn(profileQuery.statusIds());
-		return profileRepository.findAll(hasHrAdvisorId.and(hasStatusId), pageable);
+		final var hasEmployeeName = ProfileRepository.hasEmployeeNameContaining(profileQuery.employeeName());
+		return profileRepository.findAll(hasHrAdvisorId.and(hasStatusId).and(hasEmployeeName), pageable);
 	}
 
 	/**

@@ -290,4 +290,24 @@ public interface ProfileRepository extends AbstractBaseRepository<ProfileEntity>
 			cb.lessThanOrEqualTo(root.get("wfaStartDate"), date));
 	}
 
+	/**
+	 * JPA specification to find profiles by employee name (first name, middle name, or last name).
+	 * This is used to filter profiles where the user's name contains the search term.
+	 */
+	static Specification<ProfileEntity> hasEmployeeNameContaining(String name) {
+		return (root, query, cb) -> {
+			if (name == null || name.isEmpty()) {
+				return null;
+			}
+
+			String searchTerm = "%" + name.toLowerCase() + "%";
+
+			return cb.or(
+				cb.like(cb.lower(root.get("user").get("firstName")), searchTerm),
+				cb.like(cb.lower(root.get("user").get("middleName")), searchTerm),
+				cb.like(cb.lower(root.get("user").get("lastName")), searchTerm)
+			);
+		};
+	}
+
 }

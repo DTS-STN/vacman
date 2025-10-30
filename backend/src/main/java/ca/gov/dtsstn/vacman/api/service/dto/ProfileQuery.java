@@ -7,5 +7,6 @@ import io.soabase.recordbuilder.core.RecordBuilder;
 @RecordBuilder
 public record ProfileQuery(
 	Set<Long> hrAdvisorIds,
-	Set<Long> statusIds
+	Set<Long> statusIds,
+	String employeeName
 ) {}

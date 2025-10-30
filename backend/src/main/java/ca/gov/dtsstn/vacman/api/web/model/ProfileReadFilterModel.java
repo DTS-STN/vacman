@@ -17,15 +17,19 @@ public record ProfileReadFilterModel(
 	// Note: this field is intentionally /singular/ so that it will map
 	// to the correct endpoint querystring param (ie: ?statusId=1&statusId=2)
 	@Schema(description = "Filter by status IDs")
-	Collection<String> statusId
+	Collection<String> statusId,
+
+	@Schema(description = "Filter by employee name (searches first name, middle name, and last name)")
+	String employeeName
 ) {
 
 	/**
 	 * Constructor to prevent null collections being returned
 	 */
-	public ProfileReadFilterModel(Collection<String> hrAdvisorId, Collection<String> statusId) {
+	public ProfileReadFilterModel(Collection<String> hrAdvisorId, Collection<String> statusId, String employeeName) {
 		this.hrAdvisorId = Objects.requireNonNullElse(hrAdvisorId, Set.of());
 		this.statusId = Objects.requireNonNullElse(statusId, Set.of());
+		this.employeeName = employeeName;
 	}
 
 }
