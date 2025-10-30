@@ -8,5 +8,7 @@ import io.soabase.recordbuilder.core.RecordBuilder;
 public record ProfileQuery(
 	Set<Long> hrAdvisorIds,
 	Set<Long> statusIds,
-	String employeeName
+	String firstName,
+	String middleName,
+	String lastName
 ) {}

@@ -291,23 +291,50 @@ public interface ProfileRepository extends AbstractBaseRepository<ProfileEntity>
 	}
 
 	/**
-	 * JPA specification to find profiles by employee name (first name, middle name, or last name).
-	 * This is used to filter profiles where the user's name contains the search term.
+	 * JPA specification to find profiles by employee first name.
 	 */
-	static Specification<ProfileEntity> hasEmployeeNameContaining(String name) {
+	static Specification<ProfileEntity> hasFirstNameContaining(String firstName) {
 		return (root, query, cb) -> {
-			if (name == null || name.isEmpty()) {
+			if (firstName == null || firstName.isEmpty()) {
 				return null;
 			}
 
-			String searchTerm = "%" + name.toLowerCase() + "%";
-
-			return cb.or(
-				cb.like(cb.lower(root.get("user").get("firstName")), searchTerm),
-				cb.like(cb.lower(root.get("user").get("middleName")), searchTerm),
-				cb.like(cb.lower(root.get("user").get("lastName")), searchTerm)
+			return cb.like(
+					cb.lower(root.get("user").get("firstName")),
+					"%" + firstName.toLowerCase() + "%"
 			);
 		};
 	}
 
+	/**
+	 * JPA specification to find profiles by employee middle name.
+	 */
+	static Specification<ProfileEntity> hasMiddleNameContaining(String middleName) {
+		return (root, query, cb) -> {
+			if (middleName == null || middleName.isEmpty()) {
+				return null;
+			}
+
+			return cb.like(
+					cb.lower(root.get("user").get("middleName")),
+					"%" + middleName.toLowerCase() + "%"
+			);
+		};
+	}
+
+	/**
+	 * JPA specification to find profiles by employee last name.
+	 */
+	static Specification<ProfileEntity> hasLastNameContaining(String lastName) {
+		return (root, query, cb) -> {
+			if (lastName == null || lastName.isEmpty()) {
+				return null;
+			}
+
+			return cb.like(
+					cb.lower(root.get("user").get("lastName")),
+					"%" + lastName.toLowerCase() + "%"
+			);
+		};
+	}
 }

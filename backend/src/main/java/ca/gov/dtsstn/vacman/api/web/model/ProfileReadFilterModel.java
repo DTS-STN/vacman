@@ -19,17 +19,24 @@ public record ProfileReadFilterModel(
 	@Schema(description = "Filter by status IDs")
 	Collection<String> statusId,
 
-	@Schema(description = "Filter by employee name (searches first name, middle name, and last name)")
-	String employeeName
+	@Schema(description = "Filter by employee first name")
+	String firstName,
+
+	@Schema(description = "Filter by employee middle name")
+	String middleName,
+
+	@Schema(description = "Filter by employee last name")
+	String lastName
 ) {
 
 	/**
 	 * Constructor to prevent null collections being returned
 	 */
-	public ProfileReadFilterModel(Collection<String> hrAdvisorId, Collection<String> statusId, String employeeName) {
+	public ProfileReadFilterModel(Collection<String> hrAdvisorId, Collection<String> statusId, String firstName, String middleName, String lastName) {
 		this.hrAdvisorId = Objects.requireNonNullElse(hrAdvisorId, Set.of());
 		this.statusId = Objects.requireNonNullElse(statusId, Set.of());
-		this.employeeName = employeeName;
+		this.firstName = firstName;
+		this.middleName = middleName;
+		this.lastName = lastName;
 	}
-
 }
