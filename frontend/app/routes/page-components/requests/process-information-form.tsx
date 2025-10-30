@@ -62,6 +62,7 @@ interface ProcessInformationFormProps {
   formErrors?: Errors;
   isReadOnly: boolean;
   params: Params;
+  isSubmitting?: boolean;
 }
 
 export function ProcessInformationForm({
@@ -75,6 +76,7 @@ export function ProcessInformationForm({
   formValues,
   formErrors,
   params,
+  isSubmitting,
 }: ProcessInformationFormProps): JSX.Element {
   const { t: tApp } = useTranslation('app');
   const { t: tGcweb } = useTranslation('gcweb');
@@ -341,7 +343,7 @@ export function ProcessInformationForm({
               <ButtonLink file={cancelLink} params={params} id="cancel-button" variant="alternative">
                 {tApp('form.cancel')}
               </ButtonLink>
-              <LoadingButton name="action" variant="primary" id="save-button">
+              <LoadingButton name="action" variant="primary" id="save-button" disabled={isSubmitting} loading={isSubmitting}>
                 {tApp('form.save')}
               </LoadingButton>
             </div>

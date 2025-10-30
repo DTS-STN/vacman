@@ -35,6 +35,7 @@ interface PersonalInformationFormProps {
   isReadOnly: boolean;
   languagesOfCorrespondence: readonly LocalizedLanguageOfCorrespondence[];
   params: Params;
+  isSubmitting?: boolean;
 }
 
 export function PersonalInformationForm({
@@ -44,6 +45,7 @@ export function PersonalInformationForm({
   formErrors,
   languagesOfCorrespondence,
   params,
+  isSubmitting,
 }: PersonalInformationFormProps): JSX.Element {
   const { t } = useTranslation('app');
 
@@ -140,7 +142,7 @@ export function PersonalInformationForm({
               <ButtonLink file={cancelLink} params={params} id="cancel-button" variant="alternative">
                 {t('form.cancel')}
               </ButtonLink>
-              <LoadingButton name="action" variant="primary" id="save-button">
+              <LoadingButton name="action" variant="primary" id="save-button" disabled={isSubmitting} loading={isSubmitting}>
                 {t('form.save')}
               </LoadingButton>
             </div>
