@@ -28,6 +28,7 @@ export interface InputPatternFieldProps
   id: string;
   label: string;
   name: string;
+  requiredForm?: 'feminine' | 'masculine';
 }
 
 export function InputPatternField(props: InputPatternFieldProps) {
@@ -43,6 +44,7 @@ export function InputPatternField(props: InputPatternFieldProps) {
     id,
     label,
     required,
+    requiredForm,
     ...restProps
   } = props;
 
@@ -62,7 +64,7 @@ export function InputPatternField(props: InputPatternFieldProps) {
 
   return (
     <div id={inputWrapperId} data-testid={inputWrapperId}>
-      <InputLabel id={inputLabelId} htmlFor={id} className="mb-2" required={required}>
+      <InputLabel id={inputLabelId} htmlFor={id} className="mb-2" required={required} requiredForm={requiredForm}>
         {label}
       </InputLabel>
       {errorMessage && (

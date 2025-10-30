@@ -232,6 +232,7 @@ export function ProcessInformationForm({
               value={selectionProcessType ?? ''}
               onChange={({ target }) => setSelectionProcessType(Number(target.value))}
               required
+              requiredForm="masculine"
             />
             {(selectionProcessType === SELECTION_PROCESS_TYPE.EXTERNAL_NON_ADVERTISED.id ||
               selectionProcessType === SELECTION_PROCESS_TYPE.APPOINTMENT_INTERNAL_NON_ADVERTISED.id) && (
@@ -243,6 +244,7 @@ export function ProcessInformationForm({
                   options={performedDutiesOptions}
                   errorMessage={tApp(extractValidationKey(formErrors?.performedDuties))}
                   required
+                  requiredForm="masculine"
                 />
                 <InputRadios
                   id="non-advertised-appointment"
@@ -311,6 +313,7 @@ export function ProcessInformationForm({
               options={workScheduleOptions}
               errorMessage={tApp(extractValidationKey(formErrors?.workSchedule))}
               required
+              requiredForm="masculine"
             />
             <InputRadios
               id="employment-equity-identified"
@@ -318,8 +321,9 @@ export function ProcessInformationForm({
               legend={tApp('process-information.employment-equity-identified')}
               options={employmentEquityIdentifiedOptions}
               errorMessage={tApp(extractValidationKey(formErrors?.employmentEquityIdentified))}
-              helpMessagePrimary={tApp('process-information.work-schedule-help-message')}
+              helpMessagePrimary={tApp('process-information.employment-equity-identified-help-message')}
               required
+              requiredForm="masculine"
             />
             {employmentEquityIdentified === true && (
               <InputCheckboxes
@@ -330,6 +334,7 @@ export function ProcessInformationForm({
                 options={employmentEquityOptions}
                 helpMessagePrimary={tApp('process-information.preferred-employment-equities-help-message')}
                 required
+                requiredForm="masculine"
               />
             )}
             <div className="mt-8 flex flex-wrap items-center justify-start gap-3">

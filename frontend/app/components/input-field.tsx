@@ -19,6 +19,7 @@ export interface InputFieldProps extends ComponentProps<'input'> {
   name: string;
   type?: 'email' | 'number' | 'password' | 'search' | 'tel' | 'text' | 'url';
   icon?: IconProp;
+  requiredForm?: 'feminine' | 'masculine';
 }
 
 export function InputField({
@@ -34,6 +35,7 @@ export function InputField({
   required,
   type = 'text',
   icon,
+  requiredForm,
   ...rest
 }: InputFieldProps) {
   const defaultId = useId();
@@ -60,7 +62,7 @@ export function InputField({
 
   return (
     <div id={ids.wrapper} className="space-y-2">
-      <InputLabel id={ids.label} htmlFor={ids.input} required={required}>
+      <InputLabel id={ids.label} htmlFor={ids.input} required={required} requiredForm={requiredForm}>
         {label}
       </InputLabel>
       {errorMessage && (

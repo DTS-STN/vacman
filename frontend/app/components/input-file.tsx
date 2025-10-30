@@ -17,6 +17,7 @@ export interface InputFileProps extends OmitStrict<ComponentProps<'input'>, 'typ
   helpMessageSecondaryClassName?: string;
   label: string;
   name: string;
+  requiredForm?: 'feminine' | 'masculine';
 }
 
 export function InputFile({
@@ -32,6 +33,7 @@ export function InputFile({
   label,
   required,
   onChange,
+  requiredForm,
   ...rest
 }: InputFileProps) {
   const { t } = useTranslation('gcweb');
@@ -58,7 +60,7 @@ export function InputFile({
       .join(' ') || undefined;
   return (
     <div id={ids.wrapper} className={cn('space-y-2', className)}>
-      <InputLabel id={ids.label} required={required}>
+      <InputLabel id={ids.label} required={required} requiredForm={requiredForm}>
         {label}
       </InputLabel>
       {errorMessage && (
