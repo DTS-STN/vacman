@@ -35,6 +35,7 @@ interface SubmissionDetailsFormProps {
   formErrors?: Errors;
   params: Params;
   view: 'hr-advisor' | 'hiring-manager';
+  isSubmitting?: boolean;
 }
 
 export function SubmissionDetailsForm({
@@ -46,6 +47,7 @@ export function SubmissionDetailsForm({
   formErrors,
   params,
   view,
+  isSubmitting,
 }: SubmissionDetailsFormProps): JSX.Element {
   const { t: tApp } = useTranslation('app');
   const { t: tGcweb } = useTranslation('gcweb');
@@ -331,7 +333,7 @@ export function SubmissionDetailsForm({
               <ButtonLink file={cancelLink} params={params} id="cancel-button" variant="alternative">
                 {tApp('form.cancel')}
               </ButtonLink>
-              <LoadingButton name="action" variant="primary" id="save-button">
+              <LoadingButton name="action" variant="primary" id="save-button" disabled={isSubmitting} loading={isSubmitting}>
                 {tApp('form.save')}
               </LoadingButton>
             </div>

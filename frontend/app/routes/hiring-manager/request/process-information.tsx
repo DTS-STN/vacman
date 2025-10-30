@@ -1,5 +1,5 @@
 import type { RouteHandle } from 'react-router';
-import { data } from 'react-router';
+import { data, useNavigation } from 'react-router';
 
 import { useTranslation } from 'react-i18next';
 import * as v from 'valibot';
@@ -135,6 +135,8 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 
 export default function HiringManagerRequestProcessInformation({ loaderData, actionData, params }: Route.ComponentProps) {
   const { t } = useTranslation(handle.i18nNamespace);
+  const navigation = useNavigation();
+  const isSubmitting = navigation.state === 'submitting';
 
   return (
     <>
@@ -158,6 +160,7 @@ export default function HiringManagerRequestProcessInformation({ loaderData, act
           formValues={loaderData.defaultValues}
           isReadOnly={false}
           params={params}
+          isSubmitting={isSubmitting}
         />
       </div>
     </>

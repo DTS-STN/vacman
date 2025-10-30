@@ -46,6 +46,7 @@ interface PositionInformationFormProps {
   securityClearances: readonly LocalizedSecurityClearance[];
   formErrors?: Errors;
   params: Params;
+  isSubmitting?: boolean;
 }
 
 export function PositionInformationForm({
@@ -58,6 +59,7 @@ export function PositionInformationForm({
   securityClearances,
   formErrors,
   params,
+  isSubmitting,
 }: PositionInformationFormProps): JSX.Element {
   const { t: tApp } = useTranslation('app');
   const { t: tGcweb } = useTranslation('gcweb');
@@ -366,7 +368,7 @@ export function PositionInformationForm({
               <ButtonLink file={cancelLink} params={params} id="cancel-button" variant="alternative">
                 {tApp('form.cancel')}
               </ButtonLink>
-              <LoadingButton name="action" variant="primary" id="save-button">
+              <LoadingButton name="action" variant="primary" id="save-button" disabled={isSubmitting} loading={isSubmitting}>
                 {tApp('form.save')}
               </LoadingButton>
             </div>

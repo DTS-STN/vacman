@@ -47,6 +47,7 @@ interface ReferralPreferencesFormProps {
   provinces: readonly LocalizedProvince[];
   cities: readonly LocalizedCity[];
   params: Params;
+  isSubmitting?: boolean;
 }
 
 export function ReferralPreferencesForm({
@@ -59,6 +60,7 @@ export function ReferralPreferencesForm({
   provinces,
   cities,
   params,
+  isSubmitting,
 }: ReferralPreferencesFormProps): JSX.Element {
   const { t: tApp } = useTranslation('app');
   const { t: tGcweb } = useTranslation('gcweb');
@@ -311,7 +313,7 @@ export function ReferralPreferencesForm({
               <ButtonLink file={cancelLink} params={params} id="cancel-button" variant="alternative">
                 {tApp('form.cancel')}
               </ButtonLink>
-              <LoadingButton name="action" variant="primary" id="save-button">
+              <LoadingButton name="action" variant="primary" id="save-button" disabled={isSubmitting} loading={isSubmitting}>
                 {tApp('form.save')}
               </LoadingButton>
             </div>

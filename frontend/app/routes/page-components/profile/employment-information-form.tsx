@@ -41,6 +41,7 @@ interface EmploymentProps {
   wfaStatuses: readonly LocalizedWFAStatus[];
   hrAdvisors: readonly User[];
   params: Params;
+  isSubmitting?: boolean;
 }
 
 export function EmploymentInformationForm({
@@ -55,6 +56,7 @@ export function EmploymentInformationForm({
   wfaStatuses,
   hrAdvisors,
   params,
+  isSubmitting,
 }: EmploymentProps): JSX.Element {
   const { t } = useTranslation('app');
   const { currentLanguage } = useLanguage();
@@ -298,7 +300,7 @@ export function EmploymentInformationForm({
               <ButtonLink file={cancelLink} params={params} id="cancel-button" variant="alternative">
                 {t('form.cancel')}
               </ButtonLink>
-              <LoadingButton name="action" variant="primary" id="save-button">
+              <LoadingButton name="action" variant="primary" id="save-button" disabled={isSubmitting} loading={isSubmitting}>
                 {t('form.save')}
               </LoadingButton>
             </div>

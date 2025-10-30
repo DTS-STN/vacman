@@ -26,6 +26,7 @@ interface PositionInformationFormProps {
   formErrors?: Errors;
   params: Params;
   canEdit: boolean;
+  isSubmitting?: boolean;
 }
 
 export function SomcConditionsForm({
@@ -34,6 +35,7 @@ export function SomcConditionsForm({
   formErrors,
   params,
   canEdit,
+  isSubmitting,
 }: PositionInformationFormProps): JSX.Element {
   const { t } = useTranslation('app');
 
@@ -75,7 +77,7 @@ export function SomcConditionsForm({
                 <ButtonLink file={cancelLink} params={params} id="cancel-button" variant="alternative">
                   {t('form.cancel')}
                 </ButtonLink>
-                <LoadingButton name="action" variant="primary" id="save-button">
+                <LoadingButton name="action" variant="primary" id="save-button" disabled={isSubmitting} loading={isSubmitting}>
                   {t('form.save')}
                 </LoadingButton>
               </div>
