@@ -242,7 +242,7 @@ public class ProfileService {
 			ProfileRepository.hasFirstNameContaining(profileQuery.employeeName())
 			.or(ProfileRepository.hasMiddleNameContaining(profileQuery.employeeName()))
 			.or(ProfileRepository.hasLastNameContaining(profileQuery.employeeName()));
-		
+
 		return profileRepository.findAll(hasHrAdvisorId.and(hasStatusId).and(nameSpecification), pageable);
 	}
 
