@@ -1,9 +1,10 @@
 import type { ReactElement } from 'react';
 import React, { startTransition, useEffect, useState } from 'react';
 
+import { useLocation, useNavigation } from 'react-router';
 import type { SetURLSearchParams } from 'react-router';
 
-import { faSortDown } from '@fortawesome/free-solid-svg-icons';
+import { faSort, faSortDown, faSortUp, faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import type { ColumnDef, SortingState, Column, ColumnFiltersState, Row } from '@tanstack/react-table';
 import { flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
@@ -65,6 +66,9 @@ export function ServerTable<TData>({
 }: ServerTableProps<TData>) {
   const { t } = useTranslation(['gcweb']);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const location = useLocation();
+  const navigation = useNavigation();
+  const [loading, setLoading] = useState(navigation.state === 'loading');
   const { page: pageParam = 'page', sort: sortParam = 'sort' } = urlParam;
   const columns = React.Children.map(baseColumns, (column) => (column ? column.props : undefined)) ?? [];
   const [sorting, setSorting] = useState<SortingState>(
@@ -108,6 +112,16 @@ export function ServerTable<TData>({
     },
   });
 
+  useEffect(() => {
+    if (navigation.state !== 'loading') {
+      setLoading(false);
+      return;
+    }
+    if (location.pathname === navigation.location.pathname) {
+      setLoading(true);
+    }
+  }, [navigation]);
+
   return (
     <>
       <Table className="rounded-md border-b border-neutral-300">
@@ -123,7 +137,6 @@ export function ServerTable<TData>({
                       ? 'descending'
                       : 'none'
                   : undefined;
-
                 return (
                   <TableHead
                     key={header.id}
@@ -137,7 +150,7 @@ export function ServerTable<TData>({
             </TableRow>
           ))}
         </TableHeader>
-        <TableBody>
+        <TableBody className={cn(loading ? 'pointer-events-none animate-pulse cursor-not-allowed select-none' : '')}>
           {table.getRowModel().rows.length ? (
             table.getRowModel().rows.map((row) => (
               <TableRow
@@ -148,7 +161,11 @@ export function ServerTable<TData>({
                 {row.getVisibleCells().map((cell) => (
                   <TableCell
                     key={cell.id}
-                    className={cn('w-fit px-4 py-3 text-sm text-neutral-800', cell.column.columnDef.meta?.cellClassName)}
+                    className={cn(
+                      'w-fit px-4 py-3 text-sm text-neutral-800',
+                      loading ? 'opacity-50' : '',
+                      cell.column.columnDef.meta?.cellClassName,
+                    )}
                   >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>
@@ -157,8 +174,15 @@ export function ServerTable<TData>({
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={columns.length} className="h-24 w-fit text-center">
-                {t('gcweb:data-table.zero-records')}
+              <TableCell
+                colSpan={columns.length}
+                className={cn('h-24 w-fit justify-items-center text-center', loading ? 'opacity-50' : '')}
+              >
+                {loading ? (
+                  <FontAwesomeIcon className="h-10 w-10" icon={faSpinner} spin={true} />
+                ) : (
+                  t('gcweb:data-table.zero-records')
+                )}
               </TableCell>
             </TableRow>
           )}
@@ -400,6 +424,54 @@ export function ColumnOptions<TData, TValue>({
         </DropdownMenuContent>
       </DropdownMenu>
     </div>
+  );
+}
+
+interface ColumnHeaderProps<TData, TValue> extends React.HTMLAttributes<HTMLDivElement> {
+  column: Column<TData, TValue>;
+  title: string;
+}
+/**
+ * Component for providing a header and sort direction to `<Column/>`
+ *
+ * @example
+ * ```tsx
+ * <Column
+ *   header={({ column }) => <ColumnHeader column={column} {...props} />
+ *   {...columnProps}
+ * />
+ * ```
+ */
+export function ColumnHeader<TData, TValue>({ column, title, className }: ColumnHeaderProps<TData, TValue>) {
+  const { t } = useTranslation(['gcweb']);
+
+  if (!column.getCanSort()) {
+    return <div className={cn('flex items-center', className)}>{title}</div>;
+  }
+
+  const sortDirection = column.getIsSorted();
+
+  // Create accessible label that describes the current state and action
+  const getAriaLabel = () => {
+    if (sortDirection === 'asc') {
+      return t('gcweb:data-table.sorting.sorted-ascending', { column: title });
+    } else if (sortDirection === 'desc') {
+      return t('gcweb:data-table.sorting.sorted-descending', { column: title });
+    }
+    return t('gcweb:data-table.sorting.not-sorted', { column: title });
+  };
+
+  return (
+    <button
+      onClick={() => column.toggleSorting()}
+      className={cn('flex items-center gap-1 text-left text-sm font-semibold hover:underline', className)}
+      aria-label={getAriaLabel()}
+    >
+      {title}
+      <span className="rounded-sm p-1 text-neutral-500 hover:bg-slate-300" aria-hidden="true">
+        <FontAwesomeIcon icon={sortDirection === 'desc' ? faSortDown : sortDirection === 'asc' ? faSortUp : faSort} />
+      </span>
+    </button>
   );
 }
 
