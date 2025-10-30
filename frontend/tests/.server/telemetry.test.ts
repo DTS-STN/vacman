@@ -28,13 +28,13 @@ vi.mock('~/.server/environment', () => ({
   },
 }));
 
-vi.mock('@opentelemetry/sdk-node', () => {
-  const NodeSDK = vi.fn();
-  NodeSDK.prototype.start = vi.fn();
-  NodeSDK.prototype.shutdown = vi.fn(() => Promise.resolve());
-
-  return { NodeSDK };
-});
+vi.mock('@opentelemetry/sdk-node', () => ({
+  // prettier-ignore
+  NodeSDK: vi.fn(class {
+    start = vi.fn();
+    shutdown = vi.fn(() => Promise.resolve());
+  }),
+}));
 
 describe('NodeSDK', () => {
   it('should create a NodeSDK instance with the correct configuration', async () => {
@@ -94,7 +94,11 @@ describe('NodeSDK', () => {
 
   it('should start the NodeSDK', async () => {
     await import('~/.server/telemetry');
-    const instance = vi.mocked(NodeSDK).mock.instances.at(0);
+
+    // XXX ::: GjB ::: Vitest types are fubar for this case
+    // see: https://github.com/vitest-dev/vitest/issues/8869
+    const instance = vi.mocked(NodeSDK).mock.instances.at(0) as NodeSDK | undefined;
+
     assert(instance !== undefined, 'Expected instance to be defined');
     expect(instance.start).toHaveBeenCalled();
   });
