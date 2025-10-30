@@ -10,5 +10,6 @@ public record ProfileQuery(
 	Set<Long> statusIds,
 	String firstName,
 	String middleName,
-	String lastName
+	String lastName,
+	String employeeName
 ) {}

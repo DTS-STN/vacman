@@ -20,6 +20,7 @@ import org.mapstruct.factory.Mappers;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -237,16 +238,16 @@ public class ProfileService {
 	public Page<ProfileEntity> findProfiles(Pageable pageable, ProfileQuery profileQuery) {
 		final var hasHrAdvisorId = ProfileRepository.hasHrAdvisorIdIn(profileQuery.hrAdvisorIds());
 		final var hasStatusId = ProfileRepository.hasProfileStatusIdIn(profileQuery.statusIds());
-		final var hasFirstName = ProfileRepository.hasFirstNameContaining(profileQuery.firstName());
-		final var hasMiddleName = ProfileRepository.hasMiddleNameContaining(profileQuery.middleName());
-		final var hasLastName = ProfileRepository.hasLastNameContaining(profileQuery.lastName());
+
+		final var nameSpecification = (profileQuery.employeeName() != null && !profileQuery.employeeName().isEmpty()) ?
+			ProfileRepository.hasFirstNameContaining(profileQuery.employeeName())
+				.or(ProfileRepository.hasMiddleNameContaining(profileQuery.employeeName()))
+				.or(ProfileRepository.hasLastNameContaining(profileQuery.employeeName())) : null;
 
 		return profileRepository.findAll(
 			hasHrAdvisorId
 				.and(hasStatusId)
-				.and(hasFirstName)
-				.and(hasMiddleName)
-				.and(hasLastName),
+				.and(nameSpecification),
 			pageable
 		);
 	}
