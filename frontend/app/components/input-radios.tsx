@@ -23,6 +23,7 @@ export interface InputRadiosProps {
   name: string;
   required?: boolean;
   legendClassName?: string;
+  requiredForm?: 'feminine' | 'masculine';
 }
 
 export function InputRadios({
@@ -39,6 +40,7 @@ export function InputRadios({
   options,
   required,
   legendClassName,
+  requiredForm,
 }: InputRadiosProps) {
   const inputErrorId = `input-radios-${id}-error`;
   const inputHelpMessagePrimaryId = `input-radios-${id}-help-primary`;
@@ -57,7 +59,7 @@ export function InputRadios({
 
   return (
     <fieldset id={inputWrapperId} data-testid={inputWrapperId} aria-describedby={ariaDescribedbyId}>
-      <InputLegend id={inputLegendId} className={cn('mb-2', legendClassName)} required={required}>
+      <InputLegend id={inputLegendId} className={cn('mb-2', legendClassName)} required={required} requiredForm={requiredForm}>
         {legend}
       </InputLegend>
       {errorMessage && (

@@ -227,7 +227,7 @@ export default {
     'non-advertised-appointment': 'Reason for the appointment from a non-advertised process',
     'employment-tenure': 'Tenure',
     'work-schedule': 'Work Schedule',
-    'work-schedule-help-message': 'Supporting evidence required',
+    'employment-equity-identified-help-message': 'Supporting evidence required',
     'employment-equity-identified':
       'Has an organizational need for employment equity been identified for this process, deployment, or appointment?',
     'employment-equity-identified-alt': 'Has an organizational need for employment equity been identified?',

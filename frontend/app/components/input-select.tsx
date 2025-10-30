@@ -30,6 +30,7 @@ export interface InputSelectProps
   options: OmitStrict<ComponentProps<'option'>, 'id'>[];
   ref?: React.Ref<HTMLSelectElement>;
   variant?: keyof typeof variants;
+  requiredForm?: 'feminine' | 'masculine';
 }
 
 export function InputSelect(props: InputSelectProps) {
@@ -45,6 +46,7 @@ export function InputSelect(props: InputSelectProps) {
     required,
     ref,
     variant = 'default',
+    requiredForm,
     ...restInputProps
   } = props;
 
@@ -73,12 +75,17 @@ export function InputSelect(props: InputSelectProps) {
   return (
     <Container {...containerProps}>
       {ariaDescribedbyId ? (
-        <InputLegend id={inputIds.legend} className={cn('mb-2', legendClassName)} required={required}>
+        <InputLegend
+          id={inputIds.legend}
+          className={cn('mb-2', legendClassName)}
+          required={required}
+          requiredForm={requiredForm}
+        >
           {label}
         </InputLegend>
       ) : (
         label && (
-          <InputLabel id={inputIds.label} htmlFor={id} className="mb-2" required={required}>
+          <InputLabel id={inputIds.label} htmlFor={id} className="mb-2" required={required} requiredForm={requiredForm}>
             {label}
           </InputLabel>
         )

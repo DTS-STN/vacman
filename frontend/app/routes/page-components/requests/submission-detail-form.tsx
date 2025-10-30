@@ -213,6 +213,7 @@ export function SubmissionDetailsForm({
               options={isSubmiterHiringManagerOptions}
               required
               errorMessage={tApp(extractValidationKey(formErrors?.isSubmiterHiringManager))}
+              requiredForm="masculine"
             />
             {isSubmitterHiringManager === true && (
               <>
@@ -229,6 +230,7 @@ export function SubmissionDetailsForm({
                   options={isSubmiterSubdelegateOptions}
                   required
                   errorMessage={tApp(extractValidationKey(formErrors?.isSubmiterSubdelegate))}
+                  requiredForm="masculine"
                 />
               </>
             )}
@@ -258,6 +260,7 @@ export function SubmissionDetailsForm({
                   options={isHiringManagerASubDelegateOptions}
                   required
                   errorMessage={tApp(extractValidationKey(formErrors?.isHiringManagerASubDelegate))}
+                  requiredForm="masculine"
                 />
               </>
             )}

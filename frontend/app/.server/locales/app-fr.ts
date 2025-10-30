@@ -230,7 +230,7 @@ export default {
     'non-advertised-appointment': "Raison de la nomination d'un processus non-annoncée",
     'employment-tenure': 'Durée',
     'work-schedule': 'Horaire de travail',
-    'work-schedule-help-message': "Preuves à l'appui requises",
+    'employment-equity-identified-help-message': "Preuves à l'appui requises",
     'employment-equity-identified':
       "Est-ce qu'un besoin organisationnel d'équité en matière d'emploi a été identifié pour ce processus, cette mutation ou cette nomination?",
     'employment-equity-identified-alt': "Est-ce qu'un besoin organisationnel d'équité en matière d'emploi a été identifié?",
