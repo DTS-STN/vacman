@@ -270,14 +270,6 @@ export const i18nRoutes = [
         },
       },
       {
-        id: 'HRAD-0015',
-        file: 'routes/hr-advisor/request/match.tsx',
-        paths: {
-          en: '/en/hr-advisor/request/:requestId/match/:profileId',
-          fr: '/fr/hr-advisor/demande/:requestId/correspondance/:profileId',
-        },
-      },
-      {
         id: 'HIRE-0001',
         file: 'routes/hiring-manager/index.tsx',
         paths: {
@@ -347,14 +339,6 @@ export const i18nRoutes = [
         paths: {
           en: '/en/hiring-manager/request/:requestId/profile/:profileId',
           fr: '/fr/gestionnaire-embauche/demande/:requestId/profil/:profileId',
-        },
-      },
-      {
-        id: 'HIRE-0010',
-        file: 'routes/hiring-manager/request/match.tsx',
-        paths: {
-          en: '/en/hiring-manager/request/:requestId/match/:profileId',
-          fr: '/fr/gestionnaire-embauche/demande/:requestId/correspondance/:profileId',
         },
       },
     ],
