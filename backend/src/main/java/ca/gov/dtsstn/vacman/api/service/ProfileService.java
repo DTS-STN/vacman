@@ -238,17 +238,12 @@ public class ProfileService {
 		final var hasHrAdvisorId = ProfileRepository.hasHrAdvisorIdIn(profileQuery.hrAdvisorIds());
 		final var hasStatusId = ProfileRepository.hasProfileStatusIdIn(profileQuery.statusIds());
 
-		final var nameSpecification = (profileQuery.employeeName() != null && !profileQuery.employeeName().isEmpty()) ?
+		final var nameSpecification =
 			ProfileRepository.hasFirstNameContaining(profileQuery.employeeName())
-				.or(ProfileRepository.hasMiddleNameContaining(profileQuery.employeeName()))
-				.or(ProfileRepository.hasLastNameContaining(profileQuery.employeeName())) : null;
-
-		var specification = hasHrAdvisorId.and(hasStatusId);
-		if (nameSpecification != null) {
-			specification = specification.and(nameSpecification);
-		}
-
-		return profileRepository.findAll(specification, pageable);
+			.or(ProfileRepository.hasMiddleNameContaining(profileQuery.employeeName()))
+			.or(ProfileRepository.hasLastNameContaining(profileQuery.employeeName()));
+		
+		return profileRepository.findAll(hasHrAdvisorId.and(hasStatusId).and(nameSpecification), pageable);
 	}
 
 	/**
