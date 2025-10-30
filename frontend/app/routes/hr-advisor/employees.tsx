@@ -17,7 +17,6 @@ import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { BackLink } from '~/components/back-link';
 import { Button } from '~/components/button';
-import { DataTableColumnHeader } from '~/components/data-table';
 import {
   Dialog,
   DialogClose,
@@ -33,7 +32,7 @@ import { InputSelect } from '~/components/input-select';
 import { InlineLink } from '~/components/links';
 import { LoadingButton } from '~/components/loading-button';
 import { PageTitle } from '~/components/page-title';
-import { Column, ColumnOptions, ServerTable } from '~/components/server-table';
+import { Column, ColumnHeader, ColumnOptions, ServerTable } from '~/components/server-table';
 import { ProfileStatusTag } from '~/components/status-tag';
 import { PROFILE_STATUS } from '~/domain/constants';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
@@ -382,16 +381,14 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
         <Column
           id="user.lastName"
           accessorFn={(row: Profile) => `${row.profileUser.lastName}, ${row.profileUser.firstName}`}
-          header={({ column }) => (
-            <DataTableColumnHeader column={column} title={t('app:hr-advisor-employees-table.employee')} />
-          )}
+          header={({ column }) => <ColumnHeader column={column} title={t('app:hr-advisor-employees-table.employee')} />}
           cell={(info) => <p>{info.getValue() as string}</p>}
         />
 
         <Column
           id="user.businessEmailAddress"
           accessorFn={(row: Profile) => row.profileUser.businessEmailAddress}
-          header={({ column }) => <DataTableColumnHeader column={column} title={t('app:hr-advisor-employees-table.email')} />}
+          header={({ column }) => <ColumnHeader column={column} title={t('app:hr-advisor-employees-table.email')} />}
           cell={(info) => {
             const email = info.row.original.profileUser.businessEmailAddress;
             return (
@@ -408,7 +405,7 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
         <Column
           id="lastModifiedDate"
           accessorFn={(row: Profile) => formatDateYMD(row.lastModifiedDate)}
-          header={({ column }) => <DataTableColumnHeader column={column} title={t('app:hr-advisor-employees-table.updated')} />}
+          header={({ column }) => <ColumnHeader column={column} title={t('app:hr-advisor-employees-table.updated')} />}
           cell={(info) => {
             const lastModifiedDate = info.row.original.lastModifiedDate;
             const userUpdated = info.row.original.lastModifiedBy ?? 'Unknown User';
@@ -423,7 +420,7 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
             const branch = row.substantiveWorkUnit?.parent;
             return loaderData.lang === 'en' ? branch?.nameEn : branch?.nameFr;
           }}
-          header={({ column }) => <DataTableColumnHeader column={column} title={t('app:hr-advisor-employees-table.branch')} />}
+          header={({ column }) => <ColumnHeader column={column} title={t('app:hr-advisor-employees-table.branch')} />}
           cell={(info) => {
             const branch = info.row.original.substantiveWorkUnit?.parent;
             return <p className="text-neutral-600">{loaderData.lang === 'en' ? branch?.nameEn : branch?.nameFr}</p>;

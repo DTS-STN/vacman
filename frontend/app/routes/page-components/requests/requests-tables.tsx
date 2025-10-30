@@ -7,11 +7,10 @@ import { useFetcher, useSearchParams } from 'react-router';
 import { useTranslation } from 'react-i18next';
 
 import type { LocalizedLookupModel, PageMetadata, RequestReadModel } from '~/.server/domain/models';
-import { DataTableColumnHeader } from '~/components/data-table';
 import { InputSelect } from '~/components/input-select';
 import { InlineLink } from '~/components/links';
 import { LoadingButton } from '~/components/loading-button';
-import { Column, ColumnOptions, ServerTable } from '~/components/server-table';
+import { Column, ColumnHeader, ColumnOptions, ServerTable } from '~/components/server-table';
 import { RequestStatusTag } from '~/components/status-tag';
 import { REQUEST_CATEGORY, REQUEST_STATUSES } from '~/domain/constants';
 import { useFetcherState } from '~/hooks/use-fetcher-state';
@@ -221,7 +220,7 @@ function RequestsColumns({
       <Column
         accessorKey="id"
         accessorFn={(row: RequestReadModel) => row.id}
-        header={({ column }) => <DataTableColumnHeader column={column} title={t('requests-tables.requestId')} />}
+        header={({ column }) => <ColumnHeader column={column} title={t('requests-tables.requestId')} />}
         cell={(info) => {
           const requestId = info.row.original.id.toString();
           return (
@@ -244,7 +243,7 @@ function RequestsColumns({
       <Column
         accessorKey="classification"
         accessorFn={(row: RequestReadModel) => row.classification?.code ?? ''}
-        header={({ column }) => <DataTableColumnHeader column={column} title={t('requests-tables.classification')} />}
+        header={({ column }) => <ColumnHeader column={column} title={t('requests-tables.classification')} />}
         cell={(info) => <p>{info.row.original.classification?.code}</p>}
       />
       {view === 'hr-advisor' && (
@@ -275,7 +274,7 @@ function RequestsColumns({
       <Column
         accessorKey="lastModifiedDate"
         accessorFn={(row: RequestReadModel) => row.lastModifiedDate ?? ''}
-        header={({ column }) => <DataTableColumnHeader column={column} title={t('requests-tables.updated')} />}
+        header={({ column }) => <ColumnHeader column={column} title={t('requests-tables.updated')} />}
         cell={(info) => {
           const lastModifiedDate = info.row.original.lastModifiedDate;
           const userUpdated = info.row.original.lastModifiedBy ?? 'Unknown User';
