@@ -16,8 +16,9 @@ import { loader as indexLoader } from '~/routes/index';
 // Type definitions for test compatibility
 type TestRouteArgs = {
   context: RouterContextProvider;
-  request: Request;
   params: Record<string, string>;
+  request: Request;
+  unstable_pattern: string;
 };
 
 // Mock the user service
