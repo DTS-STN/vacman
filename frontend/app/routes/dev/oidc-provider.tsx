@@ -31,7 +31,7 @@ const tokenCache = new Map<AuthCode, TokenSet>();
 /**
  * Handle OIDC actions, such as token exchange.
  */
-export async function action({ context, params, request }: Route.ActionArgs) {
+export async function action(actionArgs: Route.ActionArgs) {
   const { ENABLE_DEVMODE_OIDC } = serverEnvironment;
 
   if (!ENABLE_DEVMODE_OIDC) {
@@ -39,11 +39,11 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     return Response.json(null, { status: HttpStatusCodes.NOT_FOUND });
   }
 
-  const endpoint = params['*'];
+  const endpoint = actionArgs.params['*'];
 
   switch (endpoint) {
     case 'token': {
-      return await handleTokenRequest({ context, params, request });
+      return await handleTokenRequest(actionArgs);
     }
 
     default: {
@@ -55,17 +55,17 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 /**
  * Handle OIDC loader requests, such as discovery, user info, etc.
  */
-export async function loader({ context, params, request }: Route.LoaderArgs) {
+export async function loader(loaderArgs: Route.LoaderArgs) {
   if (!serverEnvironment.ENABLE_DEVMODE_OIDC) {
     // return a 404 if devmode OIDC is not enabled
     return Response.json(null, { status: HttpStatusCodes.NOT_FOUND });
   }
 
-  const endpoint = params['*'];
+  const endpoint = loaderArgs.params['*'];
 
   switch (endpoint) {
     case '.well-known/openid-configuration': {
-      return handleMetadataRequest({ context, params, request });
+      return handleMetadataRequest(loaderArgs);
     }
 
     case '.well-known/jwks.json': {
@@ -73,11 +73,11 @@ export async function loader({ context, params, request }: Route.LoaderArgs) {
     }
 
     case 'authorize': {
-      return await handleAuthorizeRequest({ context, params, request });
+      return await handleAuthorizeRequest(loaderArgs);
     }
 
     case 'userinfo': {
-      return handleUserinfoRequest();
+      return handleUserinfoRequest(loaderArgs);
     }
 
     default: {
@@ -271,7 +271,7 @@ async function handleTokenRequest({ request }: Route.LoaderArgs): Promise<Respon
 /**
  * see: https://openid.net/specs/openid-connect-core-1_0.html#UserInfo
  */
-function handleUserinfoRequest(): Response {
+function handleUserinfoRequest({ request }: Route.LoaderArgs): Response {
   return Response.json({
     sub: '00000000-0000-0000-0000-000000000000',
     name: 'Application Developer',
