@@ -1513,7 +1513,6 @@ class ProfileRepositoryTest {
 
 			final var specification = ProfileRepository.hasEmployeeNameContaining(null);
 
-			// When the specification returns null, it should be treated as a no-op in an AND condition
 			final var results = profileRepository.findAll(
 				hasUserId(testUser.getId()).and(specification));
 
@@ -1533,7 +1532,6 @@ class ProfileRepositoryTest {
 
 			final var specification = ProfileRepository.hasEmployeeNameContaining("");
 
-			// When the specification returns null, it should be treated as a no-op in an AND condition
 			final var results = profileRepository.findAll(
 				hasUserId(testUser.getId()).and(specification));
 
