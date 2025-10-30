@@ -243,12 +243,12 @@ public class ProfileService {
 				.or(ProfileRepository.hasMiddleNameContaining(profileQuery.employeeName()))
 				.or(ProfileRepository.hasLastNameContaining(profileQuery.employeeName())) : null;
 
-		return profileRepository.findAll(
-			hasHrAdvisorId
-				.and(hasStatusId)
-				.and(nameSpecification),
-			pageable
-		);
+		var specification = hasHrAdvisorId.and(hasStatusId);
+		if (nameSpecification != null) {
+			specification = specification.and(nameSpecification);
+		}
+
+		return profileRepository.findAll(specification, pageable);
 	}
 
 	/**
