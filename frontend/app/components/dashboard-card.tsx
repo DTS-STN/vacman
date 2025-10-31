@@ -3,12 +3,14 @@ import type { ComponentProps, JSX } from 'react';
 import type { Params } from 'react-router';
 
 import type { FlipProp, IconProp } from '@fortawesome/fontawesome-svg-core';
-import { faChevronRight } from '@fortawesome/free-solid-svg-icons';
+import { faChevronRight, faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { Card, CardHeader, CardIcon, CardTitle } from '~/components/card';
 import { AppLink } from '~/components/links';
+import { useLinkLoading } from '~/hooks/use-loading';
 import type { I18nRouteFile } from '~/i18n-routes';
+import { cn } from '~/utils/tailwind-utils';
 
 type DashboardCardProps = ComponentProps<typeof AppLink> & {
   file: I18nRouteFile;
@@ -20,9 +22,16 @@ type DashboardCardProps = ComponentProps<typeof AppLink> & {
 };
 
 export function DashboardCard({ file, params, icon, iconFlip, title, body, ...props }: DashboardCardProps): JSX.Element {
+  const isLoading = useLinkLoading(file);
   return (
-    <Card asChild className="flex cursor-pointer items-center gap-4 p-4 transition-colors hover:bg-gray-50 sm:p-6">
-      <AppLink file={file} params={params} {...props}>
+    <Card
+      asChild
+      className={cn(
+        'flex cursor-pointer items-center gap-4 p-4 transition-colors hover:bg-gray-50 sm:p-6',
+        isLoading ? 'pointer-events-none animate-pulse cursor-not-allowed select-none' : '',
+      )}
+    >
+      <AppLink file={file} params={params} {...props} disabled={isLoading}>
         <CardIcon icon={icon} iconFlip={iconFlip} />
         <div className="flex flex-col gap-2">
           <CardHeader asChild className="p-0">
@@ -37,6 +46,7 @@ export function DashboardCard({ file, params, icon, iconFlip, title, body, ...pr
           </CardHeader>
           {body && <div>{body}</div>}
         </div>
+        {isLoading && <FontAwesomeIcon className="ml-1" icon={faSpinner} spin={true} />}
       </AppLink>
     </Card>
   );

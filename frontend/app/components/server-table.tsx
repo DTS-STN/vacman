@@ -1,7 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { startTransition, useEffect, useState } from 'react';
 
-import { useLocation, useNavigation } from 'react-router';
 import type { SetURLSearchParams } from 'react-router';
 
 import { faSort, faSortDown, faSortUp, faSpinner } from '@fortawesome/free-solid-svg-icons';
@@ -16,6 +15,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import Pagination from '~/components/pagination';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '~/components/table';
 import { useLanguage } from '~/hooks/use-language';
+import { useFetchLoading } from '~/hooks/use-loading';
 import { getCurrentPage, getPageItems, makePageClickHandler, nextPage, prevPage } from '~/utils/pagination-utils';
 import { parseCSVString } from '~/utils/string-utils';
 import { cn } from '~/utils/tailwind-utils';
@@ -66,9 +66,6 @@ export function ServerTable<TData>({
 }: ServerTableProps<TData>) {
   const { t } = useTranslation(['gcweb']);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const location = useLocation();
-  const navigation = useNavigation();
-  const [loading, setLoading] = useState(navigation.state === 'loading');
   const { page: pageParam = 'page', sort: sortParam = 'sort' } = urlParam;
   const columns = React.Children.map(baseColumns, (column) => (column ? column.props : undefined)) ?? [];
   const [sorting, setSorting] = useState<SortingState>(
@@ -89,6 +86,7 @@ export function ServerTable<TData>({
   const currentPage = getCurrentPage(searchParams, pageParam, totalPages);
   const pageItems = getPageItems(totalPages, currentPage, { threshold: 9, delta: 2 });
   const handlePageClick = (target: number) => makePageClickHandler(searchParams, setSearchParams, target, pageParam);
+  const isLoading = useFetchLoading();
 
   const table = useReactTable({
     data,
@@ -111,16 +109,6 @@ export function ServerTable<TData>({
       columnFilters,
     },
   });
-
-  useEffect(() => {
-    if (navigation.state !== 'loading') {
-      setLoading(false);
-      return;
-    }
-    if (location.pathname === navigation.location.pathname) {
-      setLoading(true);
-    }
-  }, [navigation]);
 
   return (
     <>
@@ -150,7 +138,7 @@ export function ServerTable<TData>({
             </TableRow>
           ))}
         </TableHeader>
-        <TableBody className={cn(loading ? 'pointer-events-none animate-pulse cursor-not-allowed select-none' : '')}>
+        <TableBody className={cn(isLoading ? 'pointer-events-none animate-pulse cursor-not-allowed select-none' : '')}>
           {table.getRowModel().rows.length ? (
             table.getRowModel().rows.map((row) => (
               <TableRow
@@ -163,7 +151,7 @@ export function ServerTable<TData>({
                     key={cell.id}
                     className={cn(
                       'w-fit px-4 py-3 text-sm text-neutral-800',
-                      loading ? 'opacity-50' : '',
+                      isLoading ? 'opacity-50' : '',
                       cell.column.columnDef.meta?.cellClassName,
                     )}
                   >
@@ -176,9 +164,9 @@ export function ServerTable<TData>({
             <TableRow>
               <TableCell
                 colSpan={columns.length}
-                className={cn('h-24 w-fit justify-items-center text-center', loading ? 'opacity-50' : '')}
+                className={cn('h-24 w-fit justify-items-center text-center', isLoading ? 'opacity-50' : '')}
               >
-                {loading ? (
+                {isLoading ? (
                   <FontAwesomeIcon className="h-10 w-10" icon={faSpinner} spin={true} />
                 ) : (
                   t('gcweb:data-table.zero-records')
