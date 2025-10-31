@@ -488,7 +488,7 @@ export default {
         'written-expression-en-required': "L'expression écrite en anglais est requise.",
         'written-expression-fr-required': "L'expression écrite en français est requise.",
         'oral-proficiency-en-required': "La compétence à l'oral en anglais est requise.",
-        'oral-proficiency-fr-required': "La compétence à l'oral en françcais est requise.",
+        'oral-proficiency-fr-required': "La compétence à l'oral en français est requise.",
       },
       'security-requirement-required': "L'exigence de sécurité est requise.",
     },
