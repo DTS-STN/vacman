@@ -59,36 +59,51 @@ export function getMockRequestService(): RequestService {
 
       // Apply HR advisor filter using hrAdvisorId param
       if (params.hrAdvisorId) {
-        filteredRequests = filteredRequests.filter((p) => params.hrAdvisorId?.some((id) => p.hrAdvisor?.id.toString() === id));
+        if (params.hrAdvisorId.includes('me')) {
+          // For mock purposes, filter by hrAdvisorId = 1 when hrAdvisorId=me
+          filteredRequests = filteredRequests.filter((p) => p.hrAdvisor?.id === 1);
+          log.debug(`Applied HR advisor filter (me): ${filteredRequests.length} requests remaining`);
+        } else {
+          const hrAdvisorId = parseInt(params.hrAdvisorId[0] ?? '0');
+          if (!isNaN(hrAdvisorId)) {
+            filteredRequests = filteredRequests.filter((p) => p.hrAdvisor?.id === hrAdvisorId);
+            log.debug(`Applied HR advisor filter (${hrAdvisorId}): ${filteredRequests.length} requests remaining`);
+          }
+        }
       }
 
       // Apply status filter using statusIds param (array of ids)
       if (params.statusId?.length) {
-        const statusIds = params.statusId.filter((n) => Number.isFinite(n));
-        filteredRequests = filteredRequests.filter((r) => (r.status ? statusIds.includes(r.status.id.toString()) : false));
-        log.debug(`Applied statusId filter (${statusIds.join(',')}): ${filteredRequests.length} requests remaining`);
+        const statusIds = params.statusId.filter((id) => id && id.trim() !== '');
+        if (statusIds.length > 0) {
+          filteredRequests = filteredRequests.filter((r) => (r.status ? statusIds.includes(r.status.id.toString()) : false));
+          log.debug(`Applied statusId filter (${statusIds.join(',')}): ${filteredRequests.length} requests remaining`);
+        }
       }
 
       // Apply work unit filter using workUnitIds param (array of ids)
       if (params.workUnitId?.length) {
-        const workUnitIds = params.workUnitId.filter((n) => Number.isFinite(n));
-        filteredRequests = filteredRequests.filter((r) =>
-          r.workUnit && r.workUnit.parent ? workUnitIds.includes(r.workUnit.parent.id.toString()) : false,
-        );
-        log.debug(`Applied workUnitId filter (${workUnitIds.join(',')}): ${filteredRequests.length} requests remaining`);
+        const workUnitIds = params.workUnitId.filter((id) => id && id.trim() !== '');
+        if (workUnitIds.length > 0) {
+          filteredRequests = filteredRequests.filter((r) =>
+            r.workUnit ? workUnitIds.includes(r.workUnit.id.toString()) : false,
+          );
+          log.debug(`Applied workUnitId filter (${workUnitIds.join(',')}): ${filteredRequests.length} requests remaining`);
+        }
       }
 
       // Apply pagination
-      const page = params.page ?? 0;
+      const requestedPage = params.page ?? 1; // 1-based page from request
+      const zeroBasedPage = requestedPage - 1; // Convert to 0-based for array slicing
       const size = params.size ?? 10;
-      const startIndex = page * size;
+      const startIndex = zeroBasedPage * size;
       const endIndex = startIndex + size;
       const paginatedRequests = filteredRequests.slice(startIndex, endIndex);
 
       const response: PagedRequestResponse = {
         content: paginatedRequests,
         page: {
-          number: page,
+          number: requestedPage,
           size: size,
           totalElements: filteredRequests.length,
           totalPages: Math.ceil(filteredRequests.length / size),
@@ -98,7 +113,7 @@ export function getMockRequestService(): RequestService {
       log.debug('Successfully retrieved requests', {
         totalFiltered: filteredRequests.length,
         pageSize: paginatedRequests.length,
-        currentPage: page,
+        currentPage: requestedPage,
       });
       return Promise.resolve(Ok(response));
     },
@@ -113,30 +128,40 @@ export function getMockRequestService(): RequestService {
       log.debug('Attempting to retrieve current user requests', { params, accessTokenLength: accessToken.length });
 
       // For mock purposes, return requests for user ID 1
-      const userRequests = [...mockRequests];
-      log.debug(`Found ${userRequests.length} requests for current user`);
+      let filteredRequests = [...mockRequests];
+      log.debug(`Found ${filteredRequests.length} requests for current user`);
+
+      // Apply status filter using statusIds param (array of ids)
+      if (params.statusId?.length) {
+        const statusIds = params.statusId.filter((id) => id && id.trim() !== '');
+        if (statusIds.length > 0) {
+          filteredRequests = filteredRequests.filter((r) => (r.status ? statusIds.includes(r.status.id.toString()) : false));
+          log.debug(`Applied statusId filter (${statusIds.join(',')}): ${filteredRequests.length} requests remaining`);
+        }
+      }
 
       // Apply pagination
-      const page = params.page ?? 0;
+      const requestedPage = params.page ?? 1; // 1-based page from request
+      const zeroBasedPage = requestedPage - 1; // Convert to 0-based for array slicing
       const size = params.size ?? 10;
-      const startIndex = page * size;
+      const startIndex = zeroBasedPage * size;
       const endIndex = startIndex + size;
-      const paginatedRequests = userRequests.slice(startIndex, endIndex);
+      const paginatedRequests = filteredRequests.slice(startIndex, endIndex);
 
       const response: PagedRequestResponse = {
         content: paginatedRequests,
         page: {
-          number: page,
+          number: requestedPage,
           size: size,
-          totalElements: userRequests.length,
-          totalPages: Math.ceil(userRequests.length / size),
+          totalElements: filteredRequests.length,
+          totalPages: Math.ceil(filteredRequests.length / size),
         },
       };
 
       log.debug('Successfully retrieved requests', {
-        totalFiltered: userRequests.length,
+        totalFiltered: filteredRequests.length,
         pageSize: paginatedRequests.length,
-        currentPage: page,
+        currentPage: requestedPage,
       });
       return Promise.resolve(Ok(response));
     },

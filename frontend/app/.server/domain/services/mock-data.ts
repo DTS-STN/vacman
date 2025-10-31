@@ -651,7 +651,7 @@ export const mockRequests: RequestReadModel[] = [
     selectionProcessNumber: '2024-002',
     selectionProcessType: undefined,
     status: {
-      id: 2,
+      id: 7,
       code: 'PENDING_PSC_NO_VMS',
       nameEn: 'VMS not required - Pending PSC clearance',
       nameFr: "Demande VMS non-requise - En attente de l'autorisation de la CFP",
@@ -714,7 +714,7 @@ export const mockRequests: RequestReadModel[] = [
     selectionProcessNumber: '2024-002',
     selectionProcessType: undefined,
     status: {
-      id: 2,
+      id: 6,
       code: 'PENDING_PSC',
       nameEn: 'VMS request on Hold - Pending PSC clearance',
       nameFr: "Demande VMS en suspens - En attente de l'autorisation de la CFP",
