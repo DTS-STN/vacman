@@ -3,12 +3,13 @@ import React from 'react';
 
 import type { Params } from 'react-router';
 
-import { faCheck, faEye, faPenToSquare, faPlus, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
+import { faCheck, faEye, faPenToSquare, faPlus, faSpinner, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useTranslation } from 'react-i18next';
 
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '~/components/card';
 import { InlineLink } from '~/components/links';
+import { useLinkLoading } from '~/hooks/use-loading';
 import type { I18nRouteFile } from '~/i18n-routes';
 import { cn } from '~/utils/tailwind-utils';
 
@@ -111,6 +112,7 @@ interface ProfileCardEditLinkProps extends ProfileBaseProps {
 
 export function ProfileCardEditLink({ isNew, file, params, errorState, children }: ProfileCardEditLinkProps): JSX.Element {
   const { t } = useTranslation('app');
+  const isLoading = useLinkLoading(file);
   return (
     <>
       {errorState && <h3 className="pb-4 text-lg font-bold text-[#333333]">{t('profile.field-incomplete')}</h3>}
@@ -121,6 +123,7 @@ export function ProfileCardEditLink({ isNew, file, params, errorState, children 
           {`${isNew ? t('profile.add') : t('profile.edit')}\u0020`}
           {children}
         </InlineLink>
+        {isLoading && <FontAwesomeIcon icon={faSpinner} spin={true} />}
       </span>
     </>
   );
