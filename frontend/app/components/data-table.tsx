@@ -192,6 +192,7 @@ interface DataTableColumnHeaderWithOptionsProps<TData, TValue> {
   selected?: string[];
   // Optional change notifier when selection updates
   onSelectionChange?: (selected: string[]) => void;
+  showClearAll?: boolean;
 }
 
 export function DataTableColumnHeaderWithOptions<TData, TValue>({
@@ -201,6 +202,7 @@ export function DataTableColumnHeaderWithOptions<TData, TValue>({
   className,
   selected: controlledSelected,
   onSelectionChange,
+  showClearAll = false,
 }: DataTableColumnHeaderWithOptionsProps<TData, TValue>) {
   const { t } = useTranslation(['gcweb']);
   // Source of truth: controlled 'selected' if provided, else column filter state
@@ -251,20 +253,48 @@ export function DataTableColumnHeaderWithOptions<TData, TValue>({
             </span>
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="start" className="max-h-60 w-48 overflow-y-auto p-2">
+        <DropdownMenuContent align="start" className="max-h-60 w-48 overflow-y-auto p-2" role="menu">
           {options.map((option) => (
             <DropdownMenuItem key={option} asChild>
-              <label className="flex w-full cursor-pointer items-center gap-2 px-2 py-1.5">
+              <div
+                className="flex w-full cursor-pointer items-center gap-2 px-2 py-1.5"
+                role="menuitemcheckbox"
+                aria-checked={selectedValues.some((v) => v === option)}
+                onClick={() => toggleOption(option)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    toggleOption(option);
+                  }
+                }}
+                tabIndex={0}
+              >
                 <input
                   type="checkbox"
                   checked={selectedValues.includes(option)}
                   onChange={() => toggleOption(option)}
                   className="h-4 w-4"
+                  aria-label={t('data-table.filters.filter-option', { value: option })}
+                  tabIndex={-1}
                 />
                 <span className="text-sm capitalize">{option.replace('-', ' ')}</span>
-              </label>
+              </div>
             </DropdownMenuItem>
           ))}
+          {showClearAll && (
+            <DropdownMenuItem asChild>
+              <Button
+                id="clear-all-button"
+                variant="alternative"
+                size="sm"
+                aria-roledescription="button"
+                onClick={() => setSelectedValues([])}
+                className="m-2"
+              >
+                {t('data-table.filters.clear-all')}
+              </Button>
+            </DropdownMenuItem>
+          )}
         </DropdownMenuContent>
       </DropdownMenu>
     </div>

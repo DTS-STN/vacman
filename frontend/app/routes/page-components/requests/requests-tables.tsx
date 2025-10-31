@@ -260,6 +260,7 @@ function RequestsColumns({
               page={`${keyPrefix}Page`}
               searchParams={searchParams}
               setSearchParams={setSearchParams}
+              showClearAll
             />
           )}
           cell={(info) => (
@@ -293,6 +294,7 @@ function RequestsColumns({
             page={`${keyPrefix}Page`}
             searchParams={searchParams}
             setSearchParams={setSearchParams}
+            showClearAll
           />
         )}
         cell={(info) => {
