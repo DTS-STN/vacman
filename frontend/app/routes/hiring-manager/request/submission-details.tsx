@@ -75,7 +75,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   const registerFieldError = (field: 'hiringManagerEmailAddress' | 'subDelegatedManagerEmailAddress') => {
     Object.assign(errors, {
       [field]: [t('app:submission-details.errors.no-user-found-with-this-email')],
-    } as Record<string, [string, ...string[]]>);
+    });
   };
 
   const resolveUserId = async (
