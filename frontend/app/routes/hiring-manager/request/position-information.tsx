@@ -130,7 +130,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   return {
     documentTitle: t('app:position-information.page-title'),
     defaultValues: {
-      positionNumber: requestData.positionNumber?.split(',').join(', '),
+      positionNumber: requestData.positionNumber,
       classification: requestData.classification,
       englishTitle: requestData.englishTitle,
       frenchTitle: requestData.frenchTitle,

@@ -470,7 +470,7 @@ export default {
     'errors': {
       'position-number-required': 'Le numéro de poste est requis.',
       'position-number-max': 'Le numéro de poste ne peut pas dépasser 100 caractères.',
-      'position-number-max-length': 'Chaque numéro de poste doit comporter 8 caractères.',
+      'position-number-max-length': 'Chaque numéro de poste doit comporter 8 chiffres.',
       'position-number-duplicate': 'Le numéro de poste ne peut pas comporter de doublons.',
       'group-and-level-required': 'Le groupe et le niveau sont requis.',
       'title-en-required': 'Le titre en anglais est requis.',

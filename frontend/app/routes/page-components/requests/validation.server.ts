@@ -14,6 +14,7 @@ import { extractUniqueBranchesFromDirectoratesNonLocalized } from '~/.server/uti
 import { stringToIntegerSchema } from '~/.server/validation/string-to-integer-schema';
 import { EMPLOYMENT_TENURE, LANGUAGE_REQUIREMENT_CODES, REQUIRE_OPTIONS, SELECTION_PROCESS_TYPE } from '~/domain/constants';
 import { isPastOrTodayInTimeZone, isValidCalendarDate, toDateString } from '~/utils/date-utils';
+import { REGEX_PATTERNS } from '~/utils/regex-utils';
 import { formString } from '~/utils/string-utils';
 import { optionalString } from '~/utils/validation-utils';
 
@@ -58,7 +59,8 @@ export async function createPositionInformationSchema() {
           v.custom((input) => {
             const value = input as string;
             const numbers = value.split(',').map((n) => n.trim());
-            return numbers.every((n) => n.length === 8);
+            // Check that each position number is exactly 8 digits
+            return numbers.every((n) => n.length === 8 && REGEX_PATTERNS.DIGIT_ONLY.test(n));
           }, 'app:position-information.errors.position-number-max-length'),
           v.custom((input) => {
             const value = input as string;
