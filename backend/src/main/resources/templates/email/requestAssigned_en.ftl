@@ -1,7 +1,6 @@
-
 <#assign emailSubject>Request assigned – VMS Request # ${requestNumber}</#assign>
 
- 
+
 PLEASE DO NOT REPLY to this email. This is a system-generated email.
 
 Hello,
