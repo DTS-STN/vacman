@@ -20,6 +20,7 @@ import org.mapstruct.factory.Mappers;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -243,7 +244,7 @@ public class ProfileService {
 			.or(ProfileRepository.hasMiddleNameContaining(profileQuery.employeeName()))
 			.or(ProfileRepository.hasLastNameContaining(profileQuery.employeeName()));
 
-		return profileRepository.findAll(hasHrAdvisorId.and(hasStatusId).and(nameSpecification), pageable);
+		return profileRepository.findAll(Specification.allOf(hasHrAdvisorId, hasStatusId, nameSpecification), pageable);
 	}
 
 	/**
