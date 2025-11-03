@@ -126,6 +126,21 @@ export function getMockUserService(): UserService {
       }
     },
 
+    getOrCreateUserByEmail: (email: string, _accessToken: string): Promise<Result<User, AppError>> => {
+      const existingUser = mockUsers.find((u) => u.businessEmailAddress === email);
+
+      if (existingUser) {
+        return Promise.resolve(Ok(existingUser));
+      }
+
+      try {
+        const newUser = createUserFromEmail(email);
+        return Promise.resolve(Ok(newUser));
+      } catch {
+        return Promise.resolve(Err(new AppError('Failed to create user from email', ErrorCodes.VACMAN_API_ERROR)));
+      }
+    },
+
     /**
      * Retrieves a specific user by their ID.
      */

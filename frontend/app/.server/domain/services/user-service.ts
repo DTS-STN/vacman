@@ -9,6 +9,8 @@ import type { AppError } from '~/errors/app-error';
 export type UserService = {
   // GET /api/v1/users - Get users with pagination and filtering
   getUsers(params: UserQueryParams, accessToken: string): Promise<Result<PagedUserResponse, AppError>>;
+  // GET /api/v1/users?email= - Get or create a user by email address
+  getOrCreateUserByEmail(email: string, accessToken: string): Promise<Result<User, AppError>>;
   // GET /api/v1/users/{id} - Get a user by ID
   getUserById(id: number, accessToken: string): Promise<Result<User, AppError>>;
   // Optional method for finding user by ID
