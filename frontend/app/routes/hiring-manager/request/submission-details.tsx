@@ -71,27 +71,43 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   let hiringManagerId: number | undefined;
   let subDelegatedManagerId: number | undefined;
   const userService = getUserService();
-  if (parseResult.output.hiringManagerEmailAddress) {
-    try {
-      hiringManagerId = (
-        await userService.getUsers({ email: parseResult.output.hiringManagerEmailAddress }, session.authState.accessToken)
-      ).into()?.content[0]?.id;
-    } catch {
-      Object.assign(errors, { hiringManagerEmailAddress: [t('app:submission-details.errors.no-user-found-with-this-email')] });
-    }
-  }
 
-  if (parseResult.output.subDelegatedManagerEmailAddress) {
-    try {
-      subDelegatedManagerId = (
-        await userService.getUsers({ email: parseResult.output.subDelegatedManagerEmailAddress }, session.authState.accessToken)
-      ).into()?.content[0]?.id;
-    } catch {
-      Object.assign(errors, {
-        subDelegatedManagerEmailAddress: [t('app:submission-details.errors.no-user-found-with-this-email')],
-      });
+  const registerFieldError = (field: 'hiringManagerEmailAddress' | 'subDelegatedManagerEmailAddress') => {
+    Object.assign(errors, {
+      [field]: [t('app:submission-details.errors.no-user-found-with-this-email')],
+    } as Record<string, [string, ...string[]]>);
+  };
+
+  const resolveUserId = async (
+    email: string | undefined,
+    field: 'hiringManagerEmailAddress' | 'subDelegatedManagerEmailAddress',
+  ) => {
+    if (!email) {
+      return undefined;
     }
-  }
+
+    const result = await userService.getOrCreateUserByEmail(email, session.authState.accessToken);
+
+    if (result.isErr()) {
+      const error = result.unwrapErr();
+
+      if (error.httpStatusCode === HttpStatusCodes.NOT_FOUND) {
+        registerFieldError(field);
+        return undefined;
+      }
+
+      throw error;
+    }
+
+    return result.unwrap().id;
+  };
+
+  hiringManagerId = await resolveUserId(parseResult.output.hiringManagerEmailAddress, 'hiringManagerEmailAddress');
+
+  subDelegatedManagerId = await resolveUserId(
+    parseResult.output.subDelegatedManagerEmailAddress,
+    'subDelegatedManagerEmailAddress',
+  );
 
   // Check for errors again after checking subDelegatedManager
   if (Object.keys(errors).length > 0) {
