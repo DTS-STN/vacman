@@ -222,7 +222,7 @@ class ProfileEventListenerTest {
 			profileEventListener.handleProfileStatusChange(new ProfileStatusChangeEvent(profile, 1L, 2L));
 
 			verify(notificationService).sendProfileNotification(
-				eq("john.doe@example.com"),
+				eq(List.of("john.doe@example.com")),
 				eq("222"),
 				eq("John Doe"),
 				any(String.class),
@@ -231,7 +231,7 @@ class ProfileEventListenerTest {
 		}
 
 		@Test
-		@DisplayName("Should send approval notification to personal email when new status is approved")
+		@DisplayName("Should send approval notification to both business and personal emails when new status is approved")
 		void shouldSendApprovalNotificationToPersonalEmailWhenNewStatusIsApproved() throws Exception {
 			final var profile = ProfileEntity.builder()
 				.id(222L)
@@ -256,7 +256,7 @@ class ProfileEventListenerTest {
 			profileEventListener.handleProfileStatusChange(new ProfileStatusChangeEvent(profile, 1L, 2L));
 
 			verify(notificationService).sendProfileNotification(
-				eq("john.personal@example.com"),
+				eq(List.of("john.doe@example.com", "john.personal@example.com")),
 				eq("222"),
 				eq("John Doe"),
 				any(String.class),
@@ -290,7 +290,7 @@ class ProfileEventListenerTest {
 			profileEventListener.handleProfileStatusChange(new ProfileStatusChangeEvent(profile, 1L, 2L));
 
 			verify(notificationService).sendProfileNotification(
-				eq("jane.personal@example.com"),
+				eq(List.of("jane.personal@example.com")),
 				eq("333"),
 				eq("Jane Smith"),
 				any(String.class),
