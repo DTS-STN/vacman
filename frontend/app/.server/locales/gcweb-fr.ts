@@ -90,8 +90,10 @@ export default {
   'data-table': {
     'zero-records': 'Aucune entrée correspondante trouvée',
     'filters': {
+      'clear-all': 'Tout effacer',
       'header-aria_one': '{{title}} : {{count}} sélectionné',
       'header-aria_other': '{{title}} : {{count}} sélectionnés',
+      'filter-option': 'option de filtre de {{value}}',
     },
     'pagination': {
       'label': 'Pagination',

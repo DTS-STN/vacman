@@ -88,8 +88,10 @@ export default {
   'data-table': {
     'zero-records': 'No matching records found',
     'filters': {
+      'clear-all': 'Clear all',
       'header-aria_one': '{{title}}: {{count}} selected',
       'header-aria_other': '{{title}}: {{count}} selected',
+      'filter-option': '{{value}} filter option',
     },
     'pagination': {
       'label': 'Pagination',
