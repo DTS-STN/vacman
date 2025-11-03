@@ -46,8 +46,8 @@ const MOCK_OPTIONS = [
 ];
 
 describe('InputMultiSelect', () => {
-  let onChangeMock: ReturnType<typeof vi.fn>;
   let defaultProps: InputMultiSelectProps;
+  let onChangeMock: InputMultiSelectProps['onChange'];
 
   beforeEach(() => {
     onChangeMock = vi.fn();
