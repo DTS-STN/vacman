@@ -1,6 +1,7 @@
 package ca.gov.dtsstn.vacman.api.event.listener;
 
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +27,7 @@ import ca.gov.dtsstn.vacman.api.event.ProfileStatusChangeEvent;
 import ca.gov.dtsstn.vacman.api.event.ProfileUpdatedEvent;
 import ca.gov.dtsstn.vacman.api.service.NotificationService;
 import ca.gov.dtsstn.vacman.api.service.NotificationService.ProfileStatus;
+import org.springframework.util.StringUtils;
 
 /**
  * Listener for profile-related events.
@@ -137,20 +139,17 @@ public class ProfileEventListener {
 				final var profileId = profile.getId().toString();
 				final var name = String.format("%s %s", user.getFirstName(), user.getLastName());
 				final var language = user.getLanguage().getCode();
-				final var businessEmail = user.getBusinessEmailAddress();
-				final var personalEmail = profile.getPersonalEmailAddress();
 
-				// Send notification to business email
-				if (businessEmail != null && !businessEmail.isEmpty()) {
-					notificationService.sendProfileNotification(businessEmail, profileId, name, language, ProfileStatus.APPROVED);
-				}
+				// Gather available emails
+				final var emails = Stream.of(
+					user.getBusinessEmailAddress(),
+					profile.getPersonalEmailAddress())
+						.filter(StringUtils::hasText)
+						.toList();
 
-				// Send notification to personal email
-				if (personalEmail != null && !personalEmail.isEmpty()) {
-					notificationService.sendProfileNotification(personalEmail, profileId, name, language, ProfileStatus.APPROVED);
-				}
-
-				if ((businessEmail == null || businessEmail.isEmpty()) && (personalEmail == null || personalEmail.isEmpty())) {
+				if (!emails.isEmpty()) {
+					notificationService.sendProfileNotification(emails, profileId, name, language, ProfileStatus.APPROVED);
+				} else {
 					log.warn("Could not send approval notification - no email addresses found for profile ID: {}", profile.getId());
 				}
 			}, () -> log.warn("Could not send approval notification - no user found for profile ID: {}", profile.getId()));

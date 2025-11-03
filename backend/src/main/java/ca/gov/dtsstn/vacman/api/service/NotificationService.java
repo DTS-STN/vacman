@@ -123,6 +123,29 @@ public class NotificationService {
 	}
 
 	/**
+	 * Sends a profile specific email notification to multiple email addresses.
+	 * Notifications are sent in parallel for efficiency, and each email address receives the same notification content.
+	 *
+	 * @param emails the list of recipient email addresses; must not be empty or null, and individual emails must not be blank
+	 * @param profileId the ID of the profile; must not be blank or null
+	 * @param username the username of the profile owner; must not be blank or null
+	 * @param language the language code for the notification (e.g., "en", "fr")
+	 * @param profileStatus the status of the profile (APPROVED or PENDING)
+	 * @return a list of notification receipts, one for each successfully sent email
+	 */
+	@Counted("service.notification.sendProfileNotificationMultiple.count")
+	public List<NotificationReceipt> sendProfileNotification(List<String> emails, String profileId, String username, String language, ProfileStatus profileStatus) {
+		Assert.notEmpty(emails, "emails is required; it must not be blank or null");
+		Assert.hasText(profileId, "profileId is required; it must not be blank or null");
+		Assert.hasText(username, "username is required; it must not be blank or null");
+
+		return emails.parallelStream()
+			.filter(StringUtils::hasText)
+			.map(email -> sendProfileNotification(email, profileId, username, language, profileStatus))
+			.toList();
+	}
+
+	/**
 	 * Sends an email notification for a request event to a single email address.
 	 * The notification content is generated using FreeMarker templates based on the request event.
 	 *
