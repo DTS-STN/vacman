@@ -105,8 +105,8 @@ importers:
         specifier: ^25.6.0
         version: 25.6.0(typescript@5.9.3)
       i18next-fetch-backend:
-        specifier: ^6.0.0
-        version: 6.0.0
+        specifier: ^7.0.0
+        version: 7.0.0
       ioredis:
         specifier: ^5.8.2
         version: 5.8.2
@@ -3430,9 +3430,9 @@ packages:
     resolution: {integrity: sha512-vK9P5/iUfdl95AI+JVyUuIcVtd4ofvtrOr3HNtM2yxC9bnMbEdp3x01OhQNnjb8IJYi38VlTE3mBXwcfvywuSw==}
     engines: {node: '>= 14'}
 
-  i18next-fetch-backend@6.0.0:
-    resolution: {integrity: sha512-kVqnydqLVMZfVlOuP2nf71cREydlxEKLH43jUXAFdOku/GF+6b9fBg31anoos5XncdhdtiYgL9fheqMrtXRwng==}
-    engines: {node: '>=18'}
+  i18next-fetch-backend@7.0.0:
+    resolution: {integrity: sha512-BUS/xzHDXNwGKKBQTaNWxY3xvgC40jcYw+4nSpTlaxcGenAubgIgBFuq4CIeeYcs3UkAQs8mf5y6iLnHhd01vw==}
+    engines: {node: '>=20'}
 
   i18next@25.6.0:
     resolution: {integrity: sha512-tTn8fLrwBYtnclpL5aPXK/tAYBLWVvoHM1zdfXoRNLcI+RvtMsoZRV98ePlaW3khHYKuNh/Q65W/+NVFUeIwVw==}
@@ -8854,7 +8854,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  i18next-fetch-backend@6.0.0: {}
+  i18next-fetch-backend@7.0.0: {}
 
   i18next@25.6.0(typescript@5.9.3):
     dependencies:
