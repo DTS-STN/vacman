@@ -90,7 +90,7 @@ public class NotificationService {
 
 		final var templateName = switch (profileStatus) {
 			case APPROVED -> "vmsProfileActivation.ftl";
-			case PENDING -> "vmsProfileActivation.ftl";
+			case PENDING -> "approvalRequired.ftl";
 			case ARCHIVED -> "vmsProfileClosed.ftl";
 		};
 
