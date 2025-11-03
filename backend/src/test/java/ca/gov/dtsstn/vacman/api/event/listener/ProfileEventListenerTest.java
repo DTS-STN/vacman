@@ -198,7 +198,7 @@ class ProfileEventListenerTest {
 		}
 
 		@Test
-		@DisplayName("Should send approval notification when new status is approved")
+		@DisplayName("Should send approval notification to business email when new status is approved")
 		void shouldSendApprovalNotificationWhenNewStatusIsApproved() throws Exception {
 			final var profile = ProfileEntity.builder()
 				.id(222L)
@@ -231,18 +231,90 @@ class ProfileEventListenerTest {
 		}
 
 		@Test
-		@DisplayName("Should not send approval notification when user email is null")
-		void shouldNotSendApprovalNotificationWhenUserEmailIsNull() throws Exception {
+		@DisplayName("Should send approval notification to personal email when new status is approved")
+		void shouldSendApprovalNotificationToPersonalEmailWhenNewStatusIsApproved() throws Exception {
+			final var profile = ProfileEntity.builder()
+				.id(222L)
+				.profileStatus(ProfileStatusEntity.builder()
+					.id(2L)
+					.code("APPROVED")
+					.build())
+				.personalEmailAddress("john.personal@example.com")
+				.user(UserEntity.builder()
+					.firstName("John")
+					.lastName("Doe")
+					.language(LanguageEntity.builder()
+						.code("EN")
+						.build())
+					.businessEmailAddress("john.doe@example.com")
+					.build())
+				.build();
+
+			when(profileStatusCodes.approved()).thenReturn("APPROVED");
+			when(profileStatusCodes.pending()).thenReturn("PENDING");
+
+			profileEventListener.handleProfileStatusChange(new ProfileStatusChangeEvent(profile, 1L, 2L));
+
+			verify(notificationService).sendProfileNotification(
+				eq("john.personal@example.com"),
+				eq("222"),
+				eq("John Doe"),
+				any(String.class),
+				eq(ProfileStatus.APPROVED)
+			);
+		}
+
+		@Test
+		@DisplayName("Should still send approval notification to personal email when business email is null")
+		void shouldStillSendApprovalNotificationToPersonalEmailWhenBusinessEmailIsNull() throws Exception {
 			final var profile = ProfileEntity.builder()
 				.id(333L)
 				.profileStatus(ProfileStatusEntity.builder()
 					.id(2L)
 					.code("APPROVED")
 					.build())
+				.personalEmailAddress("jane.personal@example.com")
 				.user(UserEntity.builder()
 					.firstName("Jane")
 					.lastName("Smith")
-					.businessEmailAddress(null) // intentional
+					.language(LanguageEntity.builder()
+						.code("EN")
+						.build())
+					.businessEmailAddress(null)
+					.build())
+				.build();
+
+			when(profileStatusCodes.approved()).thenReturn("APPROVED");
+			when(profileStatusCodes.pending()).thenReturn("PENDING");
+
+			profileEventListener.handleProfileStatusChange(new ProfileStatusChangeEvent(profile, 1L, 2L));
+
+			verify(notificationService).sendProfileNotification(
+				eq("jane.personal@example.com"),
+				eq("333"),
+				eq("Jane Smith"),
+				any(String.class),
+				eq(ProfileStatus.APPROVED)
+			);
+		}
+
+		@Test
+		@DisplayName("Should not send approval notification when both business and personal emails are null")
+		void shouldNotSendApprovalNotificationWhenBothEmailsAreNull() throws Exception {
+			final var profile = ProfileEntity.builder()
+				.id(334L)
+				.profileStatus(ProfileStatusEntity.builder()
+					.id(2L)
+					.code("APPROVED")
+					.build())
+				.personalEmailAddress(null)
+				.user(UserEntity.builder()
+					.firstName("Jane")
+					.lastName("Smith")
+					.language(LanguageEntity.builder()
+						.code("EN")
+						.build())
+					.businessEmailAddress(null)
 					.build())
 				.build();
 

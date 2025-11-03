@@ -133,15 +133,27 @@ public class ProfileEventListener {
 
 	private void sendApprovalNotification(ProfileEntity profile) {
 		Optional.ofNullable(profile.getUser())
-			.map(UserEntity::getBusinessEmailAddress)
-			.ifPresentOrElse(email -> {
+			.ifPresentOrElse(user -> {
 				final var profileId = profile.getId().toString();
-				final var user = profile.getUser();
 				final var name = String.format("%s %s", user.getFirstName(), user.getLastName());
 				final var language = user.getLanguage().getCode();
+				final var businessEmail = user.getBusinessEmailAddress();
+				final var personalEmail = profile.getPersonalEmailAddress();
 
-				notificationService.sendProfileNotification(email, profileId, name, language, ProfileStatus.APPROVED);
-			}, () -> log.warn("Could not send approval notification - no email address found for profile ID: {}", profile.getId()));
+				// Send notification to business email
+				if (businessEmail != null && !businessEmail.isEmpty()) {
+					notificationService.sendProfileNotification(businessEmail, profileId, name, language, ProfileStatus.APPROVED);
+				}
+
+				// Send notification to personal email
+				if (personalEmail != null && !personalEmail.isEmpty()) {
+					notificationService.sendProfileNotification(personalEmail, profileId, name, language, ProfileStatus.APPROVED);
+				}
+
+				if ((businessEmail == null || businessEmail.isEmpty()) && (personalEmail == null || personalEmail.isEmpty())) {
+					log.warn("Could not send approval notification - no email addresses found for profile ID: {}", profile.getId());
+				}
+			}, () -> log.warn("Could not send approval notification - no user found for profile ID: {}", profile.getId()));
 	}
 
 	private void sendPendingNotificationToHrAdvisor(ProfileEntity profile) {
