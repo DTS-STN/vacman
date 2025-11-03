@@ -95,9 +95,7 @@ describe('NodeSDK', () => {
   it('should start the NodeSDK', async () => {
     await import('~/.server/telemetry');
 
-    // XXX ::: GjB ::: Vitest types are fubar for this case
-    // see: https://github.com/vitest-dev/vitest/issues/8869
-    const instance = vi.mocked(NodeSDK).mock.instances.at(0) as NodeSDK | undefined;
+    const instance = vi.mocked(NodeSDK).mock.instances.at(0);
 
     assert(instance !== undefined, 'Expected instance to be defined');
     expect(instance.start).toHaveBeenCalled();
