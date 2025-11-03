@@ -30,7 +30,7 @@ public class NotificationService {
 	 * The possible statuses of a user profile.
 	 */
 	public enum ProfileStatus {
-		APPROVED, PENDING
+		APPROVED, PENDING, ARCHIVED
 	}
 
 	/**
@@ -90,8 +90,8 @@ public class NotificationService {
 
 		final var templateName = switch (profileStatus) {
 			case APPROVED -> "vmsProfileActivation.ftl";
-			case PENDING -> "vmsProfilePending.ftl";
-
+			case ARCHIVED -> "vmsProfileClosed.ftl";
+			default -> throw new IllegalStateException("Unexpected value: " + profileStatus);
 		};
 
 		final var model = Map.<String, String>of(
