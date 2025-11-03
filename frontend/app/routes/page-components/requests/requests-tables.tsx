@@ -8,8 +8,8 @@ import { useTranslation } from 'react-i18next';
 
 import type { LocalizedLookupModel, PageMetadata, RequestReadModel } from '~/.server/domain/models';
 import { InputSelect } from '~/components/input-select';
-import { InlineLink } from '~/components/links';
 import { LoadingButton } from '~/components/loading-button';
+import { LoadingLink } from '~/components/loading-link';
 import { Column, ColumnHeader, ColumnOptions, ServerTable } from '~/components/server-table';
 import { RequestStatusTag } from '~/components/status-tag';
 import { REQUEST_CATEGORY, REQUEST_STATUSES } from '~/domain/constants';
@@ -224,14 +224,14 @@ function RequestsColumns({
         cell={(info) => {
           const requestId = info.row.original.id.toString();
           return (
-            <InlineLink
+            <LoadingLink
               className="text-sky-800 decoration-slate-400 decoration-2"
               file={`routes/${view}/request/index.tsx`}
               params={{ requestId }}
               aria-label={t('requests-tables.view-link', { requestId })}
             >
               {formatWithMask(info.row.original.id, '####-####-##')}
-            </InlineLink>
+            </LoadingLink>
           );
         }}
         sortingFn={(rowA, rowB) => {
@@ -310,14 +310,14 @@ function RequestsColumns({
           const requestId = info.row.original.id.toString();
           return (
             <div className="flex items-baseline gap-4">
-              <InlineLink
+              <LoadingLink
                 className="rounded-sm text-sky-800 underline hover:text-blue-700 focus:text-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
                 file={`routes/${view}/request/index.tsx`}
                 params={{ requestId }}
                 aria-label={t('requests-tables.view-link', { requestId })}
               >
                 {t('requests-tables.view')}
-              </InlineLink>
+              </LoadingLink>
               {view === 'hiring-manager' && (
                 <fetcher.Form method="post" noValidate>
                   <input type="hidden" name="requestId" value={requestId}></input>

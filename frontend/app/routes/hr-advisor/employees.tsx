@@ -29,8 +29,8 @@ import {
 import { ActionDataErrorSummary } from '~/components/error-summary';
 import { InputField } from '~/components/input-field';
 import { InputSelect } from '~/components/input-select';
-import { InlineLink } from '~/components/links';
 import { LoadingButton } from '~/components/loading-button';
+import { LoadingLink } from '~/components/loading-link';
 import { PageTitle } from '~/components/page-title';
 import { Column, ColumnHeader, ColumnOptions, ServerTable } from '~/components/server-table';
 import { ProfileStatusTag } from '~/components/status-tag';
@@ -461,7 +461,7 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
 
             return (
               <div className="flex items-baseline gap-4">
-                <InlineLink
+                <LoadingLink
                   className="rounded-sm text-sky-800 underline hover:text-blue-700 focus:text-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
                   file="routes/hr-advisor/employee-profile/index.tsx"
                   params={{ profileId }}
@@ -471,7 +471,7 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
                   })}
                 >
                   {t('app:hr-advisor-employees-table.view')}
-                </InlineLink>
+                </LoadingLink>
                 {!isArchived && (
                   <Button
                     variant="alternative"

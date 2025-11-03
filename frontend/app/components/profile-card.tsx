@@ -3,13 +3,12 @@ import React from 'react';
 
 import type { Params } from 'react-router';
 
-import { faCheck, faEye, faPenToSquare, faPlus, faSpinner, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
+import { faCheck, faEye, faPenToSquare, faPlus, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useTranslation } from 'react-i18next';
 
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '~/components/card';
-import { InlineLink } from '~/components/links';
-import { useLinkLoading } from '~/hooks/use-loading';
+import { LoadingLink } from '~/components/loading-link';
 import type { I18nRouteFile } from '~/i18n-routes';
 import { cn } from '~/utils/tailwind-utils';
 
@@ -112,18 +111,17 @@ interface ProfileCardEditLinkProps extends ProfileBaseProps {
 
 export function ProfileCardEditLink({ isNew, file, params, errorState, children }: ProfileCardEditLinkProps): JSX.Element {
   const { t } = useTranslation('app');
-  const isLoading = useLinkLoading(file);
+
   return (
     <>
       {errorState && <h3 className="pb-4 text-lg font-bold text-[#333333]">{t('profile.field-incomplete')}</h3>}
       <span className="flex items-center gap-x-2">
         {errorState && <FontAwesomeIcon icon={faTriangleExclamation} className="text-red-800" />}
         {!errorState && (isNew ? <FontAwesomeIcon icon={faPlus} /> : <FontAwesomeIcon icon={faPenToSquare} />)}
-        <InlineLink className={`${errorState && 'text-red-800'} font-semibold`} file={file} params={params}>
+        <LoadingLink className={`${errorState && 'text-red-800'} font-semibold`} file={file} params={params}>
           {`${isNew ? t('profile.add') : t('profile.edit')}\u0020`}
           {children}
-        </InlineLink>
-        {isLoading && <FontAwesomeIcon icon={faSpinner} spin={true} />}
+        </LoadingLink>
       </span>
     </>
   );
@@ -139,10 +137,10 @@ export function ProfileCardViewLink({ file, params, children }: ProfileCardViewL
   return (
     <span className="flex items-center gap-x-2">
       {<FontAwesomeIcon icon={faEye} />}
-      <InlineLink className="font-semibold" file={file} params={params}>
+      <LoadingLink className="font-semibold" file={file} params={params}>
         {`${t('profile.view')}\u0020`}
         {children}
-      </InlineLink>
+      </LoadingLink>
     </span>
   );
 }
