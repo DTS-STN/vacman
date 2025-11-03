@@ -13,8 +13,8 @@ import { Dialog, DialogClose, DialogContent, DialogDescription, DialogTitle, Dia
 import { InputLabel } from '~/components/input-label';
 import { InputSelect } from '~/components/input-select';
 import { InputTextarea } from '~/components/input-textarea';
-import { InlineLink } from '~/components/links';
 import { LoadingButton } from '~/components/loading-button';
+import { LoadingLink } from '~/components/loading-link';
 import { MATCH_STATUS } from '~/domain/constants';
 import type { Errors } from '~/routes/page-components/requests/validation.server';
 import { extractValidationKey } from '~/utils/validation-utils';
@@ -117,14 +117,14 @@ export default function MatchesTables({
         }
 
         return (
-          <InlineLink
+          <LoadingLink
             className="text-sky-800 no-underline decoration-slate-400 decoration-2 hover:underline"
             file={`routes/${view}/request/profile.tsx`}
             params={{ requestId: requestId.toString(), profileId: profileId.toString() }}
             aria-label={`${t('matches-tables.employee')} ${profile.firstName} ${profile.lastName}`}
           >
             {employeeName || '-'}
-          </InlineLink>
+          </LoadingLink>
         );
       },
     },

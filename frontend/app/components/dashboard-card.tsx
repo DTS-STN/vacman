@@ -22,7 +22,7 @@ type DashboardCardProps = ComponentProps<typeof AppLink> & {
 };
 
 export function DashboardCard({ file, params, icon, iconFlip, title, body, ...props }: DashboardCardProps): JSX.Element {
-  const isLoading = useLinkLoading(file);
+  const isLoading = useLinkLoading(file, params);
   return (
     <Card
       asChild
