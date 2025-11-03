@@ -90,8 +90,8 @@ public class NotificationService {
 
 		final var templateName = switch (profileStatus) {
 			case APPROVED -> "vmsProfileActivation.ftl";
+			case PENDING -> "vmsProfileActivation.ftl";
 			case ARCHIVED -> "vmsProfileClosed.ftl";
-			default -> throw new IllegalStateException("Unexpected value: " + profileStatus);
 		};
 
 		final var model = Map.<String, String>of(

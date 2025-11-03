@@ -208,4 +208,36 @@ class NotificationServiceTest {
 		assertThat(result.size()).isEqualTo(2);
 	}
 
+	@Test
+	@DisplayName("Test send Profile archived email")
+	void sendProfileArchivedEmailSuccess() {
+		when(restTemplate.postForObject(eq("/email"), any(Map.class), eq(NotificationReceipt.class)))
+			.thenReturn(ImmutableNotificationReceipt.builder().build());
+
+		final var result = notificationService.sendProfileNotification(
+			"test@example.com",
+			"00000000-0000-0000-0000-000000000000",
+			"Ana de Armas",
+			lookupCodes.languages().english(),
+			ProfileStatus.ARCHIVED);
+
+		assertThat(result).isNotNull();
+	}
+
+	@Test
+	@DisplayName("Test send Profile notification to multiple emails")
+	void sendProfileNotificationMultipleSuccess() {
+		when(restTemplate.postForObject(eq("/email"), any(Map.class), eq(NotificationReceipt.class)))
+			.thenReturn(ImmutableNotificationReceipt.builder().build());
+
+		final var result = notificationService.sendProfileNotification(
+			List.of("test1@example.com", "test2@example.com"),
+			"00000000-0000-0000-0000-000000000000",
+			"Ana de Armas",
+			lookupCodes.languages().english(),
+			ProfileStatus.APPROVED);
+
+		assertThat(result).isNotNull();
+		assertThat(result.size()).isEqualTo(2);
+	}
 }
