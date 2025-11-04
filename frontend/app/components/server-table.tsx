@@ -305,6 +305,9 @@ export function ColumnOptions<TData, TValue>({
 }: ColumnOptionsProps<TData, TValue>) {
   const { t } = useTranslation(['gcweb']);
   const { currentLanguage } = useLanguage();
+  const isLoading = useFetchLoading();
+  const hasChanged = useRef(false);
+  const [open, setOpen] = useState(false);
   const options =
     baseOptions instanceof Map
       ? baseOptions
@@ -325,7 +328,7 @@ export function ColumnOptions<TData, TValue>({
             value: name.replace('-', ' '),
           };
         });
-  const selectedValues =
+  const [selected, setSelected] = useState(
     filter === 'id'
       ? options.filter((option) =>
           option.id.some((id) =>
@@ -335,10 +338,11 @@ export function ColumnOptions<TData, TValue>({
               .includes(id.toString()),
           ),
         )
-      : options.filter((option) => searchParams.getAll(column.id).includes(option[filter]));
+      : options.filter((option) => searchParams.getAll(column.id).includes(option[filter])),
+  );
 
-  const setSelectedValues = (selected: FilterOption[]) => {
-    onSelectionChange?.(selected);
+  const updateURLParams = () => {
+    if (!hasChanged.current) return;
     const params = new URLSearchParams(searchParams.toString());
     if (page) params.delete(page);
     params.delete(column.id);
@@ -347,17 +351,18 @@ export function ColumnOptions<TData, TValue>({
       .forEach((option) =>
         filter === 'id' ? params.append(column.id, option.id.join(',')) : params.append(column.id, option[filter]),
       );
-    setSearchParams(params);
+    startTransition(() => setSearchParams(params));
   };
 
   const toggleOption = (option: FilterOption) => {
-    const has = selectedValues.some((v) => v.code === option.code);
-    const next = has ? selectedValues.filter((v) => v.code !== option.code) : [...selectedValues, option];
-    setSelectedValues(next);
+    hasChanged.current = true;
+    const has = selected.some((v) => v.code === option.code);
+    const next = has ? selected.filter((v) => v.code !== option.code) : [...selected, option];
+    onSelectionChange?.(next);
+    setSelected(next);
   };
 
-  const selectedCount = selectedValues.length;
-
+  const selectedCount = selected.length;
   const ariaLabel =
     selectedCount > 0
       ? t('gcweb:data-table.filters.header-aria', {
@@ -368,7 +373,12 @@ export function ColumnOptions<TData, TValue>({
 
   return (
     <div className={cn('flex items-center space-x-2', className)}>
-      <DropdownMenu>
+      <DropdownMenu
+        open={open}
+        onOpenChange={(open) => {
+          setOpen(open);
+        }}
+      >
         <DropdownMenuTrigger asChild>
           <Button
             type="button"
@@ -378,36 +388,68 @@ export function ColumnOptions<TData, TValue>({
             aria-label={ariaLabel}
           >
             <span className="text-left font-sans">{title}</span>
-            {selectedCount > 0 && (
-              <span aria-hidden="true" className="ml-1 text-xs font-semibold text-[#0535D2]">
-                ({selectedCount})
-              </span>
-            )}
+            {selectedCount > 0 &&
+              (isLoading ? (
+                <span
+                  aria-hidden="true"
+                  className="ml-1 inline-flex text-xs leading-none font-semibold whitespace-nowrap text-[#0535D2]"
+                >
+                  &#40;
+                  <FontAwesomeIcon icon={faSpinner} spin={true} />
+                  &#41;
+                </span>
+              ) : (
+                <span aria-hidden="true" className="ml-1 text-xs font-semibold text-[#0535D2]">
+                  ({selectedCount})
+                </span>
+              ))}
             <span className="ml-1 rounded-sm p-1 text-neutral-500 hover:bg-slate-300">
               <FontAwesomeIcon icon={faSliders} />
             </span>
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="start" className="max-h-60 w-full overflow-y-auto p-2" role="menu">
+        <DropdownMenuContent
+          onCloseAutoFocus={() => {
+            updateURLParams();
+          }}
+          align="start"
+          className="max-h-60 w-full overflow-y-auto p-2"
+          role="menu"
+        >
           {options.map((option) => (
             <DropdownMenuItem key={option.code} asChild>
               <div
                 className="flex w-full cursor-pointer items-center gap-2 px-2 py-1.5"
                 role="menuitemcheckbox"
-                aria-checked={selectedValues.some((v) => v.code === option.code)}
-                onClick={() => toggleOption(option)}
+                aria-checked={selected.some((v) => v.code === option.code)}
+                onClick={(e) => {
+                  e.preventDefault();
+                  toggleOption(option);
+                }}
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    toggleOption(option);
+                  switch (e.key) {
+                    case 'Enter':
+                    case ' ': {
+                      e.preventDefault();
+                      toggleOption(option);
+                      break;
+                    }
+                    case 'Tab': {
+                      e.preventDefault();
+                      setOpen(false);
+                      break;
+                    }
                   }
                 }}
                 tabIndex={0}
               >
                 <input
                   type="checkbox"
-                  checked={selectedValues.some((v) => v.code === option.code)}
-                  onChange={() => toggleOption(option)}
+                  checked={selected.some((v) => v.code === option.code)}
+                  onChange={(e) => {
+                    e.preventDefault();
+                    toggleOption(option);
+                  }}
                   className="h-4 w-4"
                   aria-label={t('data-table.filters.filter-option', { value: option.value })}
                   tabIndex={-1}
@@ -423,7 +465,7 @@ export function ColumnOptions<TData, TValue>({
                 variant="alternative"
                 size="sm"
                 aria-roledescription="button"
-                onClick={() => setSelectedValues([])}
+                onClick={() => setSelected([])}
                 className="m-2"
               >
                 {t('data-table.filters.clear-all')}
@@ -437,8 +479,6 @@ export function ColumnOptions<TData, TValue>({
 }
 
 interface ColumnSearchProps<TData, TValue> extends ColumnHeaderProps<TData, TValue> {
-  column: Column<TData, TValue>;
-  title: string;
   searchParams: URLSearchParams;
   setSearchParams: SetURLSearchParams;
   page?: string;
@@ -468,19 +508,24 @@ export function ColumnSearch<TData, TValue>({
   const { t } = useTranslation(['gcweb']);
   const [open, setOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const forceUpdate = useRef(false);
+  const search = useRef('');
   const prevSearchValue = searchParams.get(column.id) ?? '';
 
-  const setSearchedValue = (search = '', forceSearch?: boolean) => {
-    if (!forceSearch && search === prevSearchValue) {
-      setOpen(false);
-      return;
-    }
-    onSearchChange?.(search);
+  const updateURLParam = () => {
+    if (search.current === prevSearchValue && !forceUpdate.current) return;
+    onSearchChange?.(search.current);
     const params = new URLSearchParams(searchParams.toString());
     if (page) params.delete(page);
     params.delete(column.id);
-    if (search !== '') params.append(column.id, search);
-    setSearchParams(params);
+    if (search.current !== '') params.append(column.id, search.current);
+    startTransition(() => setSearchParams(params));
+  };
+
+  const setSearchValue = (force?: boolean) => {
+    forceUpdate.current = force === true;
+    search.current = inputRef.current?.value ?? '';
+    setOpen(false);
   };
 
   return (
@@ -489,8 +534,6 @@ export function ColumnSearch<TData, TValue>({
         open={open}
         onOpenChange={(open) => {
           setOpen(open);
-          if (open) return;
-          setSearchedValue(inputRef.current?.value);
         }}
       >
         <DropdownMenuTrigger asChild>
@@ -517,7 +560,32 @@ export function ColumnSearch<TData, TValue>({
             </span>
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="start" className="flex w-full justify-center overflow-y-auto p-4" role="menu">
+        <DropdownMenuContent
+          onFocus={() => {
+            inputRef.current?.focus();
+          }}
+          onCloseAutoFocus={() => {
+            updateURLParam();
+          }}
+          onKeyDown={(e) => {
+            switch (e.key) {
+              case 'ArrowDown':
+              case 'ArrowUp': {
+                e.preventDefault();
+                inputRef.current?.focus();
+                break;
+              }
+              case 'Tab': {
+                e.preventDefault();
+                setSearchValue();
+                break;
+              }
+            }
+          }}
+          align="start"
+          className="flex w-full justify-center overflow-y-auto p-4"
+          role="searchbox"
+        >
           <InputField
             ref={inputRef}
             type="search"
@@ -527,9 +595,9 @@ export function ColumnSearch<TData, TValue>({
             icon={faSearch}
             defaultValue={prevSearchValue}
             onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
+              if (e.key === 'Enter') {
                 e.preventDefault();
-                setSearchedValue(inputRef.current?.value, true);
+                setSearchValue(true);
               }
             }}
             className="block h-10 w-75 rounded-lg border-gray-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-hidden"
