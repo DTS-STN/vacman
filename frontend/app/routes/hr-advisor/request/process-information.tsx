@@ -110,6 +110,10 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
 
   const localizedSelectionProcessTypesResult = await getSelectionProcessTypeService().listAllLocalized(lang);
+  const sortedSelectionProcessTypes = [...localizedSelectionProcessTypesResult].sort((a, b) => {
+    return a.name.localeCompare(b.name);
+  });
+
   const localizedNonAdvertisedAppointmentsResult = await getNonAdvertisedAppointmentService().listAllLocalized(lang);
   const localizedEmploymentTenures = await getEmploymentTenureService().listAllLocalized(lang);
   const localizedWorkSchedules = await getWorkScheduleService().listAllLocalized(lang);
@@ -132,7 +136,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       employmentEquityIdentified: requestData.equityNeeded,
       preferredEmploymentEquities: requestData.employmentEquities,
     },
-    localizedSelectionProcessTypesResult,
+    localizedSelectionProcessTypesResult: sortedSelectionProcessTypes,
     localizedNonAdvertisedAppointmentsResult,
     localizedEmploymentTenures,
     localizedWorkSchedules,

@@ -108,6 +108,10 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const localizedWorkSchedules = await getWorkScheduleService().listAllLocalized(lang);
   const localizedEmploymentEquities = await getEmploymentEquityService().listAllLocalized(lang);
 
+  const sortedSelectionProcessTypes = [...localizedSelectionProcessTypesResult].sort((a, b) => {
+    return a.name.localeCompare(b.name);
+  });
+
   return {
     documentTitle: t('app:process-information.page-title'),
     defaultValues: {
@@ -125,7 +129,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       employmentEquityIdentified: requestData.equityNeeded,
       preferredEmploymentEquities: requestData.employmentEquities,
     },
-    localizedSelectionProcessTypesResult,
+    localizedSelectionProcessTypesResult: sortedSelectionProcessTypes,
     localizedNonAdvertisedAppointmentsResult,
     localizedEmploymentTenures,
     localizedWorkSchedules,
