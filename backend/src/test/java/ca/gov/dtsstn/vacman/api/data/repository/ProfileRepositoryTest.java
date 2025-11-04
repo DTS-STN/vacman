@@ -1,7 +1,10 @@
 package ca.gov.dtsstn.vacman.api.data.repository;
 
+import static ca.gov.dtsstn.vacman.api.data.repository.ProfileRepository.hasFirstNameContaining;
 import static ca.gov.dtsstn.vacman.api.data.repository.ProfileRepository.hasHrAdvisorId;
 import static ca.gov.dtsstn.vacman.api.data.repository.ProfileRepository.hasHrAdvisorIdIn;
+import static ca.gov.dtsstn.vacman.api.data.repository.ProfileRepository.hasLastNameContaining;
+import static ca.gov.dtsstn.vacman.api.data.repository.ProfileRepository.hasMiddleNameContaining;
 import static ca.gov.dtsstn.vacman.api.data.repository.ProfileRepository.hasPreferredCityCodeIn;
 import static ca.gov.dtsstn.vacman.api.data.repository.ProfileRepository.hasPreferredCityIdIn;
 import static ca.gov.dtsstn.vacman.api.data.repository.ProfileRepository.hasPreferredClassificationCodeIn;
@@ -1313,6 +1316,189 @@ class ProfileRepositoryTest {
 			assertThat(results).isEmpty();
 		}
 
+	}
+
+	@Nested
+	@DisplayName("Employee Name Search Tests")
+	class EmployeeNameSearchTests {
+
+		@Test
+		@DisplayName("should find profiles across all name fields")
+		void testFindAcrossAllNameFields() {
+			// Create users with the search term in different name fields
+			final var firstNameUser = userRepository.save(UserEntity.builder()
+				.firstName("Robert")
+				.lastName("Smith")
+				.language(languageRepository.findByCode("EN").orElseThrow())
+				.userType(userTypeRepository.findByCode("employee").orElseThrow())
+				.microsoftEntraId("77777777-7777-7777-7777-777777777777")
+				.businessEmailAddress("robert.smith2@example.com")
+				.build());
+
+			final var middleNameUser = userRepository.save(UserEntity.builder()
+				.firstName("John")
+				.middleName("Robert")
+				.lastName("Smith")
+				.language(languageRepository.findByCode("EN").orElseThrow())
+				.userType(userTypeRepository.findByCode("employee").orElseThrow())
+				.microsoftEntraId("88888888-8888-8888-8888-888888888888")
+				.businessEmailAddress("john.robert.smith2@example.com")
+				.build());
+
+			final var lastNameUser = userRepository.save(UserEntity.builder()
+				.firstName("John")
+				.lastName("Robertson")
+				.language(languageRepository.findByCode("EN").orElseThrow())
+				.userType(userTypeRepository.findByCode("employee").orElseThrow())
+				.microsoftEntraId("99999999-9999-9999-9999-999999999999")
+				.businessEmailAddress("john.robertson2@example.com")
+				.build());
+
+			final var nonMatchingUser = userRepository.save(UserEntity.builder()
+				.firstName("Jane")
+				.lastName("Doe")
+				.language(languageRepository.findByCode("EN").orElseThrow())
+				.userType(userTypeRepository.findByCode("employee").orElseThrow())
+				.microsoftEntraId("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa")
+				.businessEmailAddress("jane.doe2@example.com")
+				.build());
+
+			// Create profiles with these users
+			final var firstNameMatch = profileRepository.save(
+				ProfileEntity.builder()
+					.user(firstNameUser)
+					.hrAdvisor(hrAdvisor1)
+					.profileStatus(statusApproved)
+					.build());
+
+			final var middleNameMatch = profileRepository.save(
+				ProfileEntity.builder()
+					.user(middleNameUser)
+					.hrAdvisor(hrAdvisor1)
+					.profileStatus(statusApproved)
+					.build());
+
+			final var lastNameMatch = profileRepository.save(
+				ProfileEntity.builder()
+					.user(lastNameUser)
+					.hrAdvisor(hrAdvisor1)
+					.profileStatus(statusApproved)
+					.build());
+
+			// Create a profile that shouldn't match
+			profileRepository.save(
+				ProfileEntity.builder()
+					.user(nonMatchingUser)
+					.hrAdvisor(hrAdvisor1)
+					.profileStatus(statusApproved)
+					.build());
+
+			// Search for "obert" using combined specification
+			final var nameSpecification = 
+				hasFirstNameContaining("obert")
+				.or(hasMiddleNameContaining("obert"))
+				.or(hasLastNameContaining("obert"));
+
+			final var results = profileRepository.findAll(nameSpecification);
+
+			// Should find all three matching profiles
+			assertThat(results).hasSize(3);
+			assertThat(results).extracting("id")
+				.containsExactlyInAnyOrder(
+					firstNameMatch.getId(),
+					middleNameMatch.getId(),
+					lastNameMatch.getId()
+				);
+		}
+
+		@Test
+		@DisplayName("should perform case-insensitive search")
+		void testCaseInsensitiveSearch() {
+			// Create a user with uppercase name
+			final var upperCaseUser = userRepository.save(UserEntity.builder()
+				.firstName("Robert")
+				.lastName("Smith")
+				.language(languageRepository.findByCode("EN").orElseThrow())
+				.userType(userTypeRepository.findByCode("employee").orElseThrow())
+				.microsoftEntraId("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb")
+				.businessEmailAddress("robert.smith@example.com")
+				.build());
+
+			// Create a profile with the user
+			final var targetProfile = profileRepository.save(
+				ProfileEntity.builder()
+					.user(upperCaseUser)
+					.hrAdvisor(hrAdvisor1)
+					.profileStatus(statusApproved)
+					.build());
+
+			// Search with upper case
+			final var lowerCaseResults = profileRepository.findAll(hasFirstNameContaining("ROBERT"));
+			assertThat(lowerCaseResults).hasSize(1);
+			assertThat(lowerCaseResults.get(0).getId()).isEqualTo(targetProfile.getId());
+
+			// Search with mixed case
+			final var mixedCaseResults = profileRepository.findAll(hasFirstNameContaining("RoBerT"));
+			assertThat(mixedCaseResults).hasSize(1);
+			assertThat(mixedCaseResults.get(0).getId()).isEqualTo(targetProfile.getId());
+		}
+
+		@Test
+		@DisplayName("should handle null or empty search term")
+		void testNullOrEmptySearchTerm() {
+			// Create a test user
+			final var testUser = userRepository.save(UserEntity.builder()
+				.firstName("Robert")
+				.lastName("Smith")
+				.language(languageRepository.findByCode("EN").orElseThrow())
+				.userType(userTypeRepository.findByCode("employee").orElseThrow())
+				.microsoftEntraId("cccccccc-cccc-cccc-cccc-cccccccccccc")
+				.businessEmailAddress("robert.smith3@example.com")
+				.build());
+
+			// Create a profile with the user
+			final var profile = profileRepository.save(
+				ProfileEntity.builder()
+					.user(testUser)
+					.hrAdvisor(hrAdvisor1)
+					.profileStatus(statusApproved)
+					.build());
+
+			// Test with a valid search term that matches our profile
+			final var matchingSpec = hasFirstNameContaining("Rob");
+			assertThat(profileRepository.findAll(matchingSpec)).containsExactly(profile);
+
+			// Test with a valid search term that doesn't match any profile
+			final var nonMatchingSpec = hasFirstNameContaining("xyz");
+			assertThat(profileRepository.findAll(nonMatchingSpec)).isEmpty();
+
+			// Verify the behavior of the specifications when the search term is null or empty
+			// According to the implementation, they should return null, which means no filtering
+			// This is different from returning an empty result
+
+			// Create a specification that will only match our profile
+			final var specificProfileSpec = hasUserId(testUser.getId());
+
+			// Test with null search terms combined with a specific profile specification
+			final var nullFirstNameWithSpecificProfile = hasFirstNameContaining(null).and(specificProfileSpec);
+			final var nullMiddleNameWithSpecificProfile = hasMiddleNameContaining(null).and(specificProfileSpec);
+			final var nullLastNameWithSpecificProfile = hasLastNameContaining(null).and(specificProfileSpec);
+
+			// The result should be the specific profile, because the null specifications don't filter anything
+			assertThat(profileRepository.findAll(nullFirstNameWithSpecificProfile)).containsExactly(profile);
+			assertThat(profileRepository.findAll(nullMiddleNameWithSpecificProfile)).containsExactly(profile);
+			assertThat(profileRepository.findAll(nullLastNameWithSpecificProfile)).containsExactly(profile);
+
+			// Test with empty search terms combined with a specific profile specification
+			final var emptyFirstNameWithSpecificProfile = hasFirstNameContaining("").and(specificProfileSpec);
+			final var emptyMiddleNameWithSpecificProfile = hasMiddleNameContaining("").and(specificProfileSpec);
+			final var emptyLastNameWithSpecificProfile = hasLastNameContaining("").and(specificProfileSpec);
+
+			// The result should be the specific profile, because the empty specifications don't filter anything
+			assertThat(profileRepository.findAll(emptyFirstNameWithSpecificProfile)).containsExactly(profile);
+			assertThat(profileRepository.findAll(emptyMiddleNameWithSpecificProfile)).containsExactly(profile);
+			assertThat(profileRepository.findAll(emptyLastNameWithSpecificProfile)).containsExactly(profile);
+		}
 	}
 
 	@Nested

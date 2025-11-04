@@ -38,5 +38,4 @@ public interface ProfileModelMapper {
 	@Mapping(source = "statusId", target = "statusIds")
 	@Mapping(source = "hrAdvisorId", target = "hrAdvisorIds")
 	ProfileQuery toProfileQuery(ProfileReadFilterModel filter);
-
 }

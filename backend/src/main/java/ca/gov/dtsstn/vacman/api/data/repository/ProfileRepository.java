@@ -290,4 +290,51 @@ public interface ProfileRepository extends AbstractBaseRepository<ProfileEntity>
 			cb.lessThanOrEqualTo(root.get("wfaStartDate"), date));
 	}
 
+	/**
+	 * JPA specification to find profiles by employee first name.
+	 */
+	static Specification<ProfileEntity> hasFirstNameContaining(String firstName) {
+		return (root, query, cb) -> {
+			if (firstName == null || firstName.isEmpty()) {
+				return null;
+			}
+
+			return cb.like(
+					cb.lower(root.get("user").get("firstName")),
+					"%" + firstName.toLowerCase() + "%"
+			);
+		};
+	}
+
+	/**
+	 * JPA specification to find profiles by employee middle name.
+	 */
+	static Specification<ProfileEntity> hasMiddleNameContaining(String middleName) {
+		return (root, query, cb) -> {
+			if (middleName == null || middleName.isEmpty()) {
+				return null;
+			}
+
+			return cb.like(
+					cb.lower(root.get("user").get("middleName")),
+					"%" + middleName.toLowerCase() + "%"
+			);
+		};
+	}
+
+	/**
+	 * JPA specification to find profiles by employee last name.
+	 */
+	static Specification<ProfileEntity> hasLastNameContaining(String lastName) {
+		return (root, query, cb) -> {
+			if (lastName == null || lastName.isEmpty()) {
+				return null;
+			}
+
+			return cb.like(
+					cb.lower(root.get("user").get("lastName")),
+					"%" + lastName.toLowerCase() + "%"
+			);
+		};
+	}
 }
