@@ -601,9 +601,9 @@ export default {
       'feedback-required': 'Feedback is required.',
       'comment-required': 'Comments are required.',
       'comment-max-length': 'Comments must be less than 100 characters.',
-      'retraining-required': 'Retraining rights confirmation required.',
-      'comments-missing': 'Matches are missing comments.',
-      'feedback-missing': 'Matches are missing feedback.',
+      'retraining-required':
+        'The confirmation regarding retraining rights for affected, surplus, or lay-off priorities is required.',
+      'feedback-missing': 'Please complete all feedbacks before submitting matches.',
     },
   },
   'matches-tables': {

@@ -20,7 +20,6 @@ import { AlertMessage } from '~/components/alert-message';
 import { BackLink } from '~/components/back-link';
 import { Button } from '~/components/button';
 import { InputCheckbox } from '~/components/input-checkbox';
-import { InputError } from '~/components/input-error';
 import { PageTitle } from '~/components/page-title';
 import { Progress } from '~/components/progress';
 import { RequestStatusTag } from '~/components/status-tag';
@@ -81,13 +80,11 @@ export async function action({ context, params, request }: Route.ActionArgs) {
       const matchesSubmitSchema = v.object({
         confirmRetraining: v.pipe(v.boolean('app:matches.errors.retraining-required')),
         feedbackMissing: v.custom((val) => val === false, 'app:matches.errors.feedback-missing'),
-        commentsMissing: v.custom((val) => val === false, 'app:matches.errors.comments-missing'),
       });
 
       const parseResult = v.safeParse(matchesSubmitSchema, {
         confirmRetraining: formData.get('confirmRetraining') === 'on' ? true : undefined,
         feedbackMissing: requestMatches.some((match) => match.matchFeedback === undefined),
-        commentsMissing: requestMatches.some((match) => match.hiringManagerComment === undefined),
       });
 
       if (!parseResult.success) {
@@ -342,19 +339,14 @@ export default function HiringManagerRequestMatches({ loaderData, actionData, pa
       >
         {t('app:matches.back-request-details')}
       </BackLink>
-      {(formErrors?.commentsMissing ?? formErrors?.feedbackMissing) && (
-        <div className="flex flex-col">
-          {formErrors.commentsMissing && (
-            <InputError id="missing-comments" className="my-2">
-              {t(extractValidationKey(formErrors.commentsMissing))}
-            </InputError>
-          )}
-          {formErrors.feedbackMissing && (
-            <InputError id="missing-feedback" className="my-2">
-              {t(extractValidationKey(formErrors.feedbackMissing))}
-            </InputError>
-          )}
-        </div>
+
+      {(formErrors?.confirmRetraining ?? formErrors?.feedbackMissing) && (
+        <AlertMessage ref={alertRef} type={'error'} role="alert" ariaLive="assertive">
+          <ol className="mt-1.5 list-decimal space-y-2 pl-7">
+            {formErrors.confirmRetraining && <li>{t(extractValidationKey(formErrors.confirmRetraining))}</li>}
+            {formErrors.feedbackMissing && <li>{t(extractValidationKey(formErrors.feedbackMissing))}</li>}
+          </ol>
+        </AlertMessage>
       )}
       <h2 className="font-lato mt-4 text-2xl font-bold">{t('app:matches.request-candidates')}</h2>
       <p className="sm:w-2/3 md:w-3/4">{t('app:matches.page-info')}</p>

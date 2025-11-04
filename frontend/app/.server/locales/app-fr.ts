@@ -615,9 +615,9 @@ export default {
       'feedback-required': 'Une rétroaction est requise.',
       'comment-required': 'Les commentaires sont obligatoires.',
       'comment-max-length': 'Les commentaires doivent comporter moins de 100 caractères.',
-      'retraining-required': 'Confirmation des droits de recyclage requise.',
-      'comments-missing': 'Des commentaires sont manquants.',
-      'feedback-missing': 'Des rétroactions sont manquantes.',
+      'retraining-required':
+        "La confirmation concernant l'application et/ou la prise en compte des droits en matière de recyclage est requise.",
+      'feedback-missing': 'Veuillez compléter tous les retours avant de soumettre les matchs.',
     },
   },
   'matches-tables': {
