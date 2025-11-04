@@ -37,7 +37,7 @@ public class NotificationService {
 	 * The events in the request lifecycle that trigger notifications.
 	 */
 	public enum RequestEvent {
-		SUBMITTED, FEEDBACK_PENDING, FEEDBACK_COMPLETED, VMS_NOT_REQUIRED
+		SUBMITTED, FEEDBACK_PENDING, FEEDBACK_COMPLETED, VMS_NOT_REQUIRED, PSC_NOT_REQUIRED, PSC_REQUIRED
 	}
 
 	private static final Logger log = LoggerFactory.getLogger(NotificationService.class);
@@ -163,9 +163,9 @@ public class NotificationService {
 		Assert.hasText(requestTitle, "requestTitle is required; it must not be blank or null");
 
 		final var templateName = switch (requestEvent) {
-			case SUBMITTED, VMS_NOT_REQUIRED -> "requestAssigned.ftl";
+			case SUBMITTED, VMS_NOT_REQUIRED, PSC_REQUIRED -> "requestAssigned.ftl";
 			case FEEDBACK_PENDING -> "requestFeedbackPending.ftl";
-			case FEEDBACK_COMPLETED -> "feedbackApproved.ftl";
+			case FEEDBACK_COMPLETED, PSC_NOT_REQUIRED -> "feedbackApproved.ftl";
 		};
 
 		final var model = Map.<String, String>of(

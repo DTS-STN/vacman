@@ -77,9 +77,9 @@ public class RequestEventListener {
 	@EventListener({ RequestUpdatedEvent.class })
 	public void handleRequestUpdated(RequestUpdatedEvent event) throws JsonProcessingException {
 		eventRepository.save(EventEntity.builder()
-				.type("REQUEST_UPDATED")
-				.details(objectMapper.writeValueAsString(event))
-				.build());
+			.type("REQUEST_UPDATED")
+			.details(objectMapper.writeValueAsString(event))
+			.build());
 
 		log.info("Event: request updated - ID: {}", event.entity().getId());
 	}
@@ -150,6 +150,10 @@ public class RequestEventListener {
 		// Determine which users to notify based on the status change
 		if ("PENDING_PSC_NO_VMS".equals(newStatusCode)) {
 			sendVmsNotRequiredNotification(request);
+		} else if ("CLR_GRANTED".equals(newStatusCode)) {
+			sendPscNotRequiredNotification(request);
+		} else if ("PENDING_PSC".equals(newStatusCode)) {
+			sendPscRequiredNotification(request);
 		}
 		// Add more status change handlers here as needed
 	}
@@ -222,6 +226,61 @@ public class RequestEventListener {
 			request.getId(),
 			request.getNameEn(),
 			RequestEvent.VMS_NOT_REQUIRED,
+			language
+		);
+	}
+
+	/**
+	 * Sends a notification when a request is marked as PSC not required.
+	 * The notification is sent to the request owner which could be the submitter, 
+	 * the hiring manager or the hr delegate. Send email to all 3.
+	 * 
+	 * @param request The request entity
+	 */
+	private void sendPscNotRequiredNotification(RequestEntity request) {
+		final var language = Optional.ofNullable(request.getLanguage())
+			.map(LanguageEntity::getCode)
+			.orElse("en");
+
+		// Collect emails from submitter, hiring manager, and HR delegate
+		var emails = Stream.<UserEntity>builder();
+
+		Optional.ofNullable(request.getSubmitter()).ifPresent(emails::add);
+		Optional.ofNullable(request.getHiringManager()).ifPresent(emails::add);
+		// Add HR delegate if available
+		// TODO: Obtain the email of the HR delegate
+
+		final var allEmails = emails.build()
+			.flatMap(user -> getEmployeeEmails(user).stream())
+			.toList();
+
+		notificationService.sendRequestNotification(
+			allEmails,
+			request.getId(),
+			request.getNameEn(),
+			RequestEvent.PSC_NOT_REQUIRED,
+			language
+		);
+	}
+
+	/**
+	 * Sends a notification when a request is marked as PSC required.
+	 * The notification is sent to the PIMS team email.
+	 * 
+	 * @param request The request entity
+	 */
+	private void sendPscRequiredNotification(RequestEntity request) {
+		final var language = Optional.ofNullable(request.getLanguage())
+			.map(LanguageEntity::getCode)
+			.orElse("en");
+
+		final var pimsEmail = applicationProperties.gcnotify().pimsSleTeamEmail();
+
+		notificationService.sendRequestNotification(
+			pimsEmail,
+			request.getId(),
+			request.getNameEn(),
+			RequestEvent.PSC_REQUIRED,
 			language
 		);
 	}

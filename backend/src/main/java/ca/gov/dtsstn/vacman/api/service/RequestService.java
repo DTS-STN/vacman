@@ -534,6 +534,76 @@ public class RequestService {
 	}
 
 	/**
+	 * Handles the pscNotRequired event.
+	 *
+	 * @param request       The request entity
+	 * @param isHrAdvisor   Whether the current user is an HR advisor
+	 * @param currentStatus The current status code of the request
+	 * @return The updated request entity
+	 */
+	private RequestEntity handlePscNotRequired(RequestEntity request, boolean isHrAdvisor, String currentStatus) {
+		if (!isHrAdvisor) {
+			throw new UnauthorizedException("Only HR advisors can mark a request as PSC not required");
+		}
+
+		if (!requestStatuses.feedbackPendingApproval().equals(currentStatus) && !requestStatuses.noMatchHrReview().equals(currentStatus)) {
+			throw new ResourceConflictException("Request must be in FDBK_PEND_APPR or NO_MATCH_HR_REVIEW status to be marked as PSC not required");
+		}
+
+		// Set status to CLR_GRANTED
+		request.setRequestStatus(getRequestStatusByCode(requestStatuses.clearanceGranted()));
+
+		// Generate VacMan clearance number (16 character ID with letters and numbers)
+		// TODO: Real implementation (ADO task 6691)
+		final var priorityClearanceNumber = RandomStringUtils.insecure().nextAlphanumeric(16).toUpperCase();
+		request.setPriorityClearanceNumber(priorityClearanceNumber);
+
+		final var clearanceNumber = RandomStringUtils.insecure().nextAlphanumeric(16).toUpperCase();
+		request.setPscClearanceNumber(clearanceNumber);
+
+		eventPublisher.publishEvent(new RequestStatusChangeEvent(request, currentStatus, requestStatuses.clearanceGranted()));
+
+		return request;
+	}
+
+	/**
+	 * Handles the pscRequired event.
+	 *
+	 * @param request       The request entity
+	 * @param isHrAdvisor   Whether the current user is an HR advisor
+	 * @param currentStatus The current status code of the request
+	 * @return The updated request entity
+	 */
+	private RequestEntity handlePscRequired(RequestEntity request, boolean isHrAdvisor, String currentStatus) {
+		if (!isHrAdvisor) {
+			throw new UnauthorizedException("Only HR advisors can mark a request as PSC required");
+		}
+
+		if (!requestStatuses.feedbackPendingApproval().equals(currentStatus) && !requestStatuses.noMatchHrReview().equals(currentStatus)) {
+			throw new ResourceConflictException("Request must be in FDBK_PEND_APPR or NO_MATCH_HR_REVIEW status to be marked as PSC required");
+		}
+
+		// Store the previous status code before changing it
+		final var previousStatusCode = currentStatus;
+
+		// Set status to PENDING_PSC
+		request.setRequestStatus(getRequestStatusByCode(requestStatuses.pendingPscClearance()));
+
+		// Generate VacMan clearance number (16 character ID with letters and numbers)
+		// TODO: Real implementation (ADO task 6691)
+		final var priorityClearanceNumber = RandomStringUtils.insecure().nextAlphanumeric(16).toUpperCase();
+		request.setPriorityClearanceNumber(priorityClearanceNumber);
+
+		final var clearanceNumber = RandomStringUtils.insecure().nextAlphanumeric(16).toUpperCase();
+		request.setPscClearanceNumber(clearanceNumber);
+
+		// Publish a RequestStatusChangeEvent
+		eventPublisher.publishEvent(new RequestStatusChangeEvent(request, previousStatusCode, requestStatuses.pendingPscClearance()));
+
+		return request;
+	}
+
+	/**
 	 * Gets a RequestStatusEntity by its code.
 	 */
 	private RequestStatusEntity getRequestStatusByCode(String code) {
@@ -600,68 +670,6 @@ public class RequestService {
 		log.debug("Using configured maximum matches per request: {}", maxMatches);
 
 		return requestMatchingService.performRequestMatching(request.getId(), maxMatches);
-	}
-
-	/**
-	 * Handles the pscNotRequired event.
-	 *
-	 * @param request       The request entity
-	 * @param isHrAdvisor   Whether the current user is an HR advisor
-	 * @param currentStatus The current status code of the request
-	 * @return The updated request entity
-	 */
-	private RequestEntity handlePscNotRequired(RequestEntity request, boolean isHrAdvisor, String currentStatus) {
-		if (!isHrAdvisor) {
-			throw new UnauthorizedException("Only HR advisors can mark a request as PSC not required");
-		}
-
-		if (!requestStatuses.feedbackPendingApproval().equals(currentStatus) && !requestStatuses.noMatchHrReview().equals(currentStatus)) {
-			throw new ResourceConflictException("Request must be in FDBK_PEND_APPR or NO_MATCH_HR_REVIEW status to be marked as PSC not required");
-		}
-
-		// Set status to CLR_GRANTED
-		request.setRequestStatus(getRequestStatusByCode(requestStatuses.clearanceGranted()));
-
-		// Generate VacMan clearance number (16 character ID with letters and numbers)
-		// TODO: Real implementation (ADO task 6691)
-		final var priorityClearanceNumber = RandomStringUtils.insecure().nextAlphanumeric(16).toUpperCase();
-		request.setPriorityClearanceNumber(priorityClearanceNumber);
-
-		final var clearanceNumber = RandomStringUtils.insecure().nextAlphanumeric(16).toUpperCase();
-		request.setPscClearanceNumber(clearanceNumber);
-
-		return request;
-	}
-
-	/**
-	 * Handles the pscRequired event.
-	 *
-	 * @param request       The request entity
-	 * @param isHrAdvisor   Whether the current user is an HR advisor
-	 * @param currentStatus The current status code of the request
-	 * @return The updated request entity
-	 */
-	private RequestEntity handlePscRequired(RequestEntity request, boolean isHrAdvisor, String currentStatus) {
-		if (!isHrAdvisor) {
-			throw new UnauthorizedException("Only HR advisors can mark a request as PSC required");
-		}
-
-		if (!requestStatuses.feedbackPendingApproval().equals(currentStatus) && !requestStatuses.noMatchHrReview().equals(currentStatus)) {
-			throw new ResourceConflictException("Request must be in FDBK_PEND_APPR or NO_MATCH_HR_REVIEW status to be marked as PSC required");
-		}
-
-		// Set status to PENDING_PSC
-		request.setRequestStatus(getRequestStatusByCode(requestStatuses.pendingPscClearance()));
-
-		// Generate VacMan clearance number (16 character ID with letters and numbers)
-		// TODO: Real implementation (ADO task 6691)
-		final var priorityClearanceNumber = RandomStringUtils.insecure().nextAlphanumeric(16).toUpperCase();
-		request.setPriorityClearanceNumber(priorityClearanceNumber);
-
-		final var clearanceNumber = RandomStringUtils.insecure().nextAlphanumeric(16).toUpperCase();
-		request.setPscClearanceNumber(clearanceNumber);
-
-		return request;
 	}
 
 	/**
