@@ -7,6 +7,4 @@ Hello,
 
 A request has been assigned to you.
 
-You can view the request online by clicking on the following link: VMS request # ${requestNumber}
-
 Thank you
