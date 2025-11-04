@@ -225,7 +225,7 @@ export function ProcessInformationForm({
               />
             )}
             <InputSelect
-              className="w-full sm:w-1/2"
+              className="w-full"
               id="selection-process-type"
               name="selectionProcessType"
               label={tApp('process-information.selection-process-type')}

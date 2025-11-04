@@ -131,6 +131,18 @@
       "createdDate": "2025-10-09T19:04:29.4666667Z",
       "lastModifiedBy": "system",
       "lastModifiedDate": "2025-10-09T19:04:29.4666667Z"
+    },
+    {
+      "id": 11,
+      "code": "CRV",
+      "nameEn": "Candidate referrals from VMS",
+      "nameFr": "Présentation de candidats du SGPV",
+      "effectiveDate": "1970-01-01T00:00:00Z",
+      "expiryDate": null,
+      "createdBy": "system",
+      "createdDate": "2025-10-09T19:04:29.4666667Z",
+      "lastModifiedBy": "system",
+      "lastModifiedDate": "2025-10-09T19:04:29.4666667Z"
     }
   ]
 }

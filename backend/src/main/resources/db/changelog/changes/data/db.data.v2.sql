@@ -115,3 +115,19 @@ VALUES (8, 'ALTERNATE_DELIVERY', 'Alternative delivery initiative', 'Diversifica
 
 --changeset system:cd_wfa_status_off dbms:mssql
 SET IDENTITY_INSERT CD_WFA_STATUS OFF;
+
+--------------------------------------------------------------------------------
+
+--
+-- Add the CRV code to CD_SELECTION_PROCESS_TYPE
+--
+
+--changeset system:cd_selection_process_type_on dbms:mssql
+SET IDENTITY_INSERT CD_SELECTION_PROCESS_TYPE ON;
+
+--changeset system:cd_selection_process_type dbms:mssql,h2
+INSERT INTO [CD_SELECTION_PROCESS_TYPE] ([ID], [CODE], [NAME_EN], [NAME_FR], [EFFECTIVE_DATE], [USER_CREATED], [DATE_CREATED], [USER_UPDATED], [DATE_UPDATED])
+VALUES (11, 'CRV', 'Candidate referrals from VMS', 'Présentation de candidats du SGPV', '1970-01-01 00:00:00', 'system', CURRENT_TIMESTAMP, 'system', CURRENT_TIMESTAMP);
+
+--changeset system:cd_selection_process_type_off dbms:mssql
+SET IDENTITY_INSERT CD_SELECTION_PROCESS_TYPE OFF;
