@@ -23,6 +23,7 @@ import ca.gov.dtsstn.vacman.api.data.repository.EventRepository;
 import ca.gov.dtsstn.vacman.api.event.RequestCreatedEvent;
 import ca.gov.dtsstn.vacman.api.event.RequestFeedbackCompletedEvent;
 import ca.gov.dtsstn.vacman.api.event.RequestFeedbackPendingEvent;
+import ca.gov.dtsstn.vacman.api.event.RequestUpdatedEvent;
 import ca.gov.dtsstn.vacman.api.service.NotificationService;
 import ca.gov.dtsstn.vacman.api.service.NotificationService.RequestEvent;
 
@@ -117,6 +118,20 @@ public class RequestEventListener {
 						language
 					);
 				}, () -> log.warn("No email addresses found for request ID: [{}]", request.getId()));
+	}
+
+	/**
+	 * Handles the RequestUpdatedEvent and saves it to the event repository.
+	 */
+	@Async
+	@EventListener({ RequestUpdatedEvent.class })
+	public void handleRequestUpdated(RequestUpdatedEvent event) throws JsonProcessingException {
+		eventRepository.save(EventEntity.builder()
+			.type("REQUEST_UPDATED")
+			.details(objectMapper.writeValueAsString(event))
+			.build());
+
+		log.info("Event: request updated - ID: {}", event.entity().getId());
 	}
 
 	/**

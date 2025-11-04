@@ -24,6 +24,7 @@ import ca.gov.dtsstn.vacman.api.data.repository.EventRepository;
 import ca.gov.dtsstn.vacman.api.event.RequestCreatedEvent;
 import ca.gov.dtsstn.vacman.api.event.RequestFeedbackCompletedEvent;
 import ca.gov.dtsstn.vacman.api.event.RequestFeedbackPendingEvent;
+import ca.gov.dtsstn.vacman.api.event.RequestUpdatedEvent;
 import ca.gov.dtsstn.vacman.api.service.NotificationService;
 import ca.gov.dtsstn.vacman.api.service.NotificationService.RequestEvent;
 
@@ -240,6 +241,23 @@ class RequestEventListenerTest {
 				.build();
 
 			requestEventListener.handleRequestCreated(new RequestCreatedEvent(request));
+
+			verify(eventRepository).save(any(EventEntity.class));
+		}
+	}
+
+	@Nested
+	@DisplayName("handleRequestUpdated()")
+	class HandleRequestUpdated {
+
+		@Test
+		@DisplayName("Should save event to repository")
+		void shouldSaveEventToRepository() throws Exception {
+			final var request = RequestEntity.builder()
+				.id(789L)
+				.build();
+
+			requestEventListener.handleRequestUpdated(new RequestUpdatedEvent(request));
 
 			verify(eventRepository).save(any(EventEntity.class));
 		}
