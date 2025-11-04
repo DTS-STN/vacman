@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import ca.gov.dtsstn.vacman.api.config.properties.ApplicationProperties;
 import ca.gov.dtsstn.vacman.api.data.entity.LanguageEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,11 +19,13 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 
 import ca.gov.dtsstn.vacman.api.data.entity.EventEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.RequestEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 import ca.gov.dtsstn.vacman.api.data.repository.EventRepository;
 import ca.gov.dtsstn.vacman.api.event.RequestCreatedEvent;
 import ca.gov.dtsstn.vacman.api.event.RequestFeedbackCompletedEvent;
 import ca.gov.dtsstn.vacman.api.event.RequestFeedbackPendingEvent;
+import ca.gov.dtsstn.vacman.api.event.RequestStatusChangeEvent;
 import ca.gov.dtsstn.vacman.api.event.RequestUpdatedEvent;
 import ca.gov.dtsstn.vacman.api.service.NotificationService;
 import ca.gov.dtsstn.vacman.api.service.NotificationService.RequestEvent;
@@ -37,6 +40,7 @@ public class RequestEventListener {
 
 	private final EventRepository eventRepository;
 	private final NotificationService notificationService;
+	private final ApplicationProperties applicationProperties;
 
 	private final ObjectMapper objectMapper = new ObjectMapper()
 		.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
@@ -44,9 +48,11 @@ public class RequestEventListener {
 
 	public RequestEventListener(
 			EventRepository eventRepository,
-			NotificationService notificationService) {
+			NotificationService notificationService,
+			ApplicationProperties applicationProperties) {
 		this.eventRepository = eventRepository;
 		this.notificationService = notificationService;
+		this.applicationProperties = applicationProperties;
 	}
 
 	/**
@@ -132,6 +138,52 @@ public class RequestEventListener {
 			.build());
 
 		log.info("Event: request updated - ID: {}", event.entity().getId());
+	}
+
+	/**
+	 * Handles the RequestStatusChangeEvent and sends a notification based on the status change.
+	 */
+	@Async
+	@EventListener({ RequestStatusChangeEvent.class })
+	public void handleRequestStatusChange(RequestStatusChangeEvent event) throws JsonProcessingException {
+		eventRepository.save(EventEntity.builder()
+			.type("REQUEST_STATUS_CHANGE")
+			.details(objectMapper.writeValueAsString(event))
+			.build());
+
+		log.info("Event: request status changed - ID: {}, from status: {}, to status: {}",
+			event.entity().getId(), event.previousStatusCode(), event.newStatusCode());
+
+		final var request = event.entity();
+		final var newStatusCode = event.newStatusCode();
+
+		// Determine which users to notify based on the status change
+		if ("submitted".equals(newStatusCode)) {
+			sendSubmittedNotification(request);
+		}
+		// Add more status change handlers here as needed
+	}
+
+	/**
+	 * Sends a notification when a request is submitted.
+	 * The notification is sent to the HR inbox email configured in the application properties.
+	 * 
+	 * @param request The request entity
+	 */
+	private void sendSubmittedNotification(RequestEntity request) {
+		final var language = Optional.ofNullable(request.getLanguage())
+			.map(LanguageEntity::getCode)
+			.orElse("en");
+
+		final var hrEmail = applicationProperties.gcnotify().hrGdInboxEmail();
+
+		notificationService.sendRequestNotification(
+			hrEmail,
+			request.getId(),
+			request.getNameEn(),
+			RequestEvent.SUBMITTED,
+			language
+		);
 	}
 
 	/**

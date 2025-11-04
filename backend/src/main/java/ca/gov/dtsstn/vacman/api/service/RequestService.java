@@ -17,6 +17,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
+import ca.gov.dtsstn.vacman.api.event.*;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.mapstruct.factory.Mappers;
 import org.slf4j.Logger;
@@ -50,11 +51,6 @@ import ca.gov.dtsstn.vacman.api.data.repository.SecurityClearanceRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.SelectionProcessTypeRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.WorkScheduleRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.WorkUnitRepository;
-import ca.gov.dtsstn.vacman.api.event.RequestCompletedEvent;
-import ca.gov.dtsstn.vacman.api.event.RequestCreatedEvent;
-import ca.gov.dtsstn.vacman.api.event.RequestFeedbackCompletedEvent;
-import ca.gov.dtsstn.vacman.api.event.RequestFeedbackPendingEvent;
-import ca.gov.dtsstn.vacman.api.event.RequestUpdatedEvent;
 import ca.gov.dtsstn.vacman.api.security.SecurityUtils;
 import ca.gov.dtsstn.vacman.api.service.NotificationService.RequestEvent;
 import ca.gov.dtsstn.vacman.api.service.dto.MatchQuery;
@@ -437,7 +433,7 @@ public class RequestService {
 		request.setRequestStatus(getRequestStatusByCode(requestStatuses.submitted()));
 
 		// Send notification
-		sendRequestSubmittedNotification(request);
+		eventPublisher.publishEvent(new RequestStatusChangeEvent(request, requestStatuses.draft(), requestStatuses.submitted()));
 
 		return request;
 	}

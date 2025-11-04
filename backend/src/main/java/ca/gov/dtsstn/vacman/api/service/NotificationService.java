@@ -37,7 +37,7 @@ public class NotificationService {
 	 * The events in the request lifecycle that trigger notifications.
 	 */
 	public enum RequestEvent {
-		CREATED, FEEDBACK_PENDING, FEEDBACK_COMPLETED
+		SUBMITTED, FEEDBACK_PENDING, FEEDBACK_COMPLETED
 	}
 
 	private static final Logger log = LoggerFactory.getLogger(NotificationService.class);
@@ -162,9 +162,8 @@ public class NotificationService {
 		Assert.notNull(requestId, "requestId is required; it must not be null");
 		Assert.hasText(requestTitle, "requestTitle is required; it must not be blank or null");
 
-		// TODO: match templates to events
 		final var templateName = switch (requestEvent) {
-			case CREATED -> "requestCreated.ftl";
+			case SUBMITTED -> "requestAssigned.ftl";
 			case FEEDBACK_PENDING -> "requestFeedbackPending.ftl";
 			case FEEDBACK_COMPLETED -> "feedbackApproved.ftl";
 		};
