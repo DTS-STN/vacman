@@ -71,31 +71,17 @@ public class RequestEventListener {
 	}
 
 	/**
-	 * Handles the RequestFeedbackCompletedEvent and sends a notification to the HR advisor.
-	 * The notification is sent to the HR advisor's business email address.
-	 * If no HR advisor or business email address is found, a warning is logged.
+	 * Handles the RequestUpdatedEvent and saves it to the event repository.
 	 */
 	@Async
-	@EventListener({ RequestFeedbackCompletedEvent.class })
-	public void sendRequestFeedbackCompletedNotification(RequestFeedbackCompletedEvent event) {
-		final var request = event.entity();
+	@EventListener({ RequestUpdatedEvent.class })
+	public void handleRequestUpdated(RequestUpdatedEvent event) throws JsonProcessingException {
+		eventRepository.save(EventEntity.builder()
+				.type("REQUEST_UPDATED")
+				.details(objectMapper.writeValueAsString(event))
+				.build());
 
-		final var language = Optional.ofNullable(request.getLanguage())
-			.map(LanguageEntity::getCode)
-			.orElse(null);
-
-		Optional.ofNullable(request.getHrAdvisor())
-			.map(UserEntity::getBusinessEmailAddress)
-			.ifPresentOrElse(
-				email -> {
-					notificationService.sendRequestNotification(
-						email,
-						request.getId(),
-						request.getNameEn(),
-						RequestEvent.FEEDBACK_COMPLETED,
-						language
-					);
-				}, () -> log.warn("No HR advisor or business email address found for request ID: [{}]", event.entity().getId()));
+		log.info("Event: request updated - ID: {}", event.entity().getId());
 	}
 
 	/**
@@ -125,20 +111,6 @@ public class RequestEventListener {
 						language
 					);
 				}, () -> log.warn("No email addresses found for request ID: [{}]", request.getId()));
-	}
-
-	/**
-	 * Handles the RequestUpdatedEvent and saves it to the event repository.
-	 */
-	@Async
-	@EventListener({ RequestUpdatedEvent.class })
-	public void handleRequestUpdated(RequestUpdatedEvent event) throws JsonProcessingException {
-		eventRepository.save(EventEntity.builder()
-			.type("REQUEST_UPDATED")
-			.details(objectMapper.writeValueAsString(event))
-			.build());
-
-		log.info("Event: request updated - ID: {}", event.entity().getId());
 	}
 
 	/**
@@ -180,6 +152,34 @@ public class RequestEventListener {
 			sendVmsNotRequiredNotification(request);
 		}
 		// Add more status change handlers here as needed
+	}
+
+	/**
+	 * Handles the RequestFeedbackCompletedEvent and sends a notification to the HR advisor.
+	 * The notification is sent to the HR advisor's business email address.
+	 * If no HR advisor or business email address is found, a warning is logged.
+	 */
+	@Async
+	@EventListener({ RequestFeedbackCompletedEvent.class })
+	public void sendRequestFeedbackCompletedNotification(RequestFeedbackCompletedEvent event) {
+		final var request = event.entity();
+
+		final var language = Optional.ofNullable(request.getLanguage())
+			.map(LanguageEntity::getCode)
+			.orElse(null);
+
+		Optional.ofNullable(request.getHrAdvisor())
+			.map(UserEntity::getBusinessEmailAddress)
+			.ifPresentOrElse(
+				email -> {
+					notificationService.sendRequestNotification(
+						email,
+						request.getId(),
+						request.getNameEn(),
+						RequestEvent.FEEDBACK_COMPLETED,
+						language
+					);
+				}, () -> log.warn("No HR advisor or business email address found for request ID: [{}]", event.entity().getId()));
 	}
 
 	/**
