@@ -314,8 +314,8 @@ application:
     read-timeout: 30s
     api-key: 00000000-0000-0000-0000-000000000000 # must be set externally (ex: 00000000-0000-0000-0000-000000000000)
     generic-template-id: 00000000-0000-0000-0000-000000000000 # must be set externally (ex: 00000000-0000-0000-0000-000000000000) generic template for FreeMarker
-    hr-gd-inbox-email: hr_inbox@example.com # TODO: Update with actual email when available.
-
+    hr-gd-inbox-email: hr_inbox@example.com
+    pims-sle-team-email: pims_inbox@example.com
     profile-approved-template-id-eng: 00000000-0000-0000-0000-000000000000 # must be set externally (ex: 00000000-0000-0000-0000-000000000000) VMS profile activation english
     profile-approved-template-id-fra: 00000000-0000-0000-0000-000000000000 # must be set externally (ex: 00000000-0000-0000-0000-000000000000) VMS profile activation french
     profile-pending-template-id-eng: 00000000-0000-0000-0000-000000000000 # must be set externally (ex: 00000000-0000-0000-0000-000000000000) approval required english

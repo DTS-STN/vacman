@@ -161,6 +161,9 @@ public class RequestEventListener {
 		if ("submitted".equals(newStatusCode)) {
 			sendSubmittedNotification(request);
 		}
+		else if ("PENDING_PSC_NO_VMS".equals(newStatusCode)) {
+			sendVmsNotRequiredNotification(request);
+		}
 		// Add more status change handlers here as needed
 	}
 
@@ -182,6 +185,28 @@ public class RequestEventListener {
 			request.getId(),
 			request.getNameEn(),
 			RequestEvent.SUBMITTED,
+			language
+		);
+	}
+
+	/**
+	 * Sends a notification when a request is marked as VMS not required.
+	 * The notification is sent to the PIMS SLE team(?) email.
+	 * 
+	 * @param request The request entity
+	 */
+	private void sendVmsNotRequiredNotification(RequestEntity request) {
+		final var language = Optional.ofNullable(request.getLanguage())
+			.map(LanguageEntity::getCode)
+			.orElse("en");
+
+		final var pimsEmail = applicationProperties.gcnotify().pimsSleTeamEmail();
+
+		notificationService.sendRequestNotification(
+			pimsEmail,
+			request.getId(),
+			request.getNameEn(),
+			RequestEvent.VMS_NOT_REQUIRED,
 			language
 		);
 	}
