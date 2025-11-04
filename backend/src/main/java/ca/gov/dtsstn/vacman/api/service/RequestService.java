@@ -474,19 +474,6 @@ public class RequestService {
 	}
 
 	/**
-	 * Sends a notification when a request is created.
-	 * TODO ::: GjB ::: this should be done via events. see RequestEventListener.java
-	 */
-	private void sendRequestSubmittedNotification(RequestEntity request) {
-		notificationService.sendRequestNotification(
-			applicationProperties.gcnotify().hrGdInboxEmail(),
-			request.getId(),
-			request.getNameEn(),
-			RequestEvent.CREATED,
-			"en");
-	}
-
-	/**
 	 * Cancels a request.
 	 *
 	 * @param requestId The ID of the request to cancel
