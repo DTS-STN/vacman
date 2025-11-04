@@ -132,6 +132,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
     workUnitId: workUnitIdsFromBranchIds(directorates, searchParams.getAll('activeBranch')),
     sort: activeSortParam.length > 0 ? activeSortParam : undefined,
     size: 10,
+    //TODO: Add id search, searchParams.get('activeId'),
   };
 
   // Inactive requests query
@@ -150,6 +151,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
     workUnitId: workUnitIdsFromBranchIds(directorates, searchParams.getAll('inactiveBranch')),
     sort: inactiveSortParam.length > 0 ? inactiveSortParam : undefined,
     size: 10,
+    //TODO: Add id search, searchParams.get('inactiveId'),
   };
 
   const requestStatuses = (await getRequestStatusService().listAllLocalized(lang)).toSorted((a, b) =>

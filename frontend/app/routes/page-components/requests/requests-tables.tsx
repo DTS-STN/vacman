@@ -10,7 +10,7 @@ import type { LocalizedLookupModel, PageMetadata, RequestReadModel } from '~/.se
 import { InputSelect } from '~/components/input-select';
 import { LoadingButton } from '~/components/loading-button';
 import { LoadingLink } from '~/components/loading-link';
-import { Column, ColumnHeader, ColumnOptions, ServerTable } from '~/components/server-table';
+import { Column, ColumnHeader, ColumnOptions, ColumnSearch, ServerTable } from '~/components/server-table';
 import { RequestStatusTag } from '~/components/status-tag';
 import { REQUEST_CATEGORY, REQUEST_STATUSES } from '~/domain/constants';
 import { useFetcherState } from '~/hooks/use-fetcher-state';
@@ -205,22 +205,25 @@ function RequestsColumns({
 }: RequestColumnsProps) {
   const { currentLanguage } = useLanguage();
   const { t } = useTranslation('app');
+  const urlParam = {
+    page: `${keyPrefix}Page`,
+    sort: `${keyPrefix}Sort`,
+  };
 
   return (
-    <ServerTable
-      page={page}
-      data={requests}
-      searchParams={searchParams}
-      setSearchParams={setSearchParams}
-      urlParam={{
-        page: `${keyPrefix}Page`,
-        sort: `${keyPrefix}Sort`,
-      }}
-    >
+    <ServerTable page={page} data={requests} searchParams={searchParams} setSearchParams={setSearchParams} urlParam={urlParam}>
       <Column
-        accessorKey="id"
+        accessorKey={`${keyPrefix}Id`}
         accessorFn={(row: RequestReadModel) => row.id}
-        header={({ column }) => <ColumnHeader column={column} title={t('requests-tables.requestId')} />}
+        header={({ column }) => (
+          <ColumnSearch
+            column={column}
+            title={t('requests-tables.requestId')}
+            page={urlParam.page}
+            searchParams={searchParams}
+            setSearchParams={setSearchParams}
+          />
+        )}
         cell={(info) => {
           const requestId = info.row.original.id.toString();
           return (
@@ -257,7 +260,7 @@ function RequestsColumns({
               column={column}
               title={t('requests-tables.work-unit')}
               options={workUnits}
-              page={`${keyPrefix}Page`}
+              page={urlParam.page}
               searchParams={searchParams}
               setSearchParams={setSearchParams}
               showClearAll
@@ -291,7 +294,7 @@ function RequestsColumns({
             column={column}
             title={t('requests-tables.status')}
             options={requestStatuses}
-            page={`${keyPrefix}Page`}
+            page={urlParam.page}
             searchParams={searchParams}
             setSearchParams={setSearchParams}
             showClearAll
