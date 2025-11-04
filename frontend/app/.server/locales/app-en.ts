@@ -559,6 +559,8 @@ export default {
     'requestId': 'Request ID',
     'classification': 'Group and level',
     'work-unit': 'Branch',
+    'not-assigned': 'To be assigned',
+    'hr-advisor': 'HR advisor',
     'updated': 'Updated',
     'status': 'Status',
     'action': 'Action',

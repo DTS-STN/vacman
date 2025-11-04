@@ -210,6 +210,11 @@ function RequestsColumns({
     sort: `${keyPrefix}Sort`,
   };
 
+  // Helper function to get HR advisor name
+  const getHrAdvisorName = (hrAdvisor: RequestReadModel['hrAdvisor']) => {
+    return hrAdvisor ? `${hrAdvisor.firstName} ${hrAdvisor.lastName}` : '';
+  };
+
   return (
     <ServerTable page={page} data={requests} searchParams={searchParams} setSearchParams={setSearchParams} urlParam={urlParam}>
       <Column
@@ -284,6 +289,15 @@ function RequestsColumns({
           const userUpdated = info.row.original.lastModifiedBy ?? 'Unknown User';
           const dateUpdated = formatDateYMD(lastModifiedDate);
           return <p className="text-neutral-600">{`${dateUpdated}: ${userUpdated}`}</p>;
+        }}
+      />
+      <Column
+        accessorKey="hrAdvisor"
+        accessorFn={(row: RequestReadModel) => getHrAdvisorName(row.hrAdvisor)}
+        header={({ column }) => <ColumnHeader column={column} title={t('requests-tables.hr-advisor')} />}
+        cell={(info) => {
+          const hrAdvisorName = getHrAdvisorName(info.row.original.hrAdvisor) || t('requests-tables.not-assigned');
+          return <p className="text-neutral-600">{hrAdvisorName}</p>;
         }}
       />
       <Column
