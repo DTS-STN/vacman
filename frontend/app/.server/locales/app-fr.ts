@@ -573,6 +573,8 @@ export default {
     'requestId': 'No. de la demande',
     'classification': 'Groupe et niveau',
     'work-unit': 'Direction générale',
+    'not-assigned': 'À assigner',
+    'hr-advisor': 'Conseiller(ère)',
     'updated': 'Mis à jour',
     'status': 'Statut',
     'action': 'Action',
