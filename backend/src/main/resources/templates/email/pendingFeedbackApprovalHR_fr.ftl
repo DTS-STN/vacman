@@ -7,7 +7,5 @@ Bonjour,
 
 Une demande est en attente de votre approbation.
 
-Vous pouvez accéder à la demande en cliquant sur le lien suivant : # de demande SGPV ${requestNumber}
-
 Merci
 
