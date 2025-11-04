@@ -7,7 +7,5 @@ Hello,
 
 A request is pending your approval.
 
-You can view the request online by clicking on the following link: VMS request # ${requestNumber}
-
 Thank you
 
