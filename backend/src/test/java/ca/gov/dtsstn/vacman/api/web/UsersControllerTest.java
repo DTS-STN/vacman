@@ -236,11 +236,12 @@ class UsersControllerTest {
 		}
 
 		@Test
-		@DisplayName("Should return 403 Forbidden for regular user")
+		@DisplayName("Should allow regular user to view users list")
 		@WithMockUser(username = "01010101-0101-0101-0101-010101010101", authorities = { "employee" })
 		void testGetUsersAsRegularUser() throws Exception {
 			mockMvc.perform(get("/api/v1/users"))
-				.andExpect(status().isForbidden());
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.content").isArray());
 		}
 
 		@Test

@@ -76,6 +76,7 @@ vi.mock('~/.server/utils/route-utils', () => ({
 
 const mockUserService = {
   getUsersByRole: vi.fn(),
+  getOrCreateUserByEmail: vi.fn(),
   getUserById: vi.fn(),
   findUserById: vi.fn(),
   updateUserRole: vi.fn(),

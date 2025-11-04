@@ -37,6 +37,27 @@ export function getDefaultUserService(): UserService {
       return Ok(result.unwrap());
     },
 
+    async getOrCreateUserByEmail(email: string, accessToken: string): Promise<Result<User, AppError>> {
+      const usersResult = await this.getUsers({ email, size: 1 }, accessToken);
+
+      if (usersResult.isErr()) {
+        return Err(usersResult.unwrapErr());
+      }
+
+      const { content: users = [] } = usersResult.unwrap();
+      const user = users[0];
+
+      if (!user) {
+        return Err(
+          new AppError(`No user found with email ${email}.`, ErrorCodes.VACMAN_API_ERROR, {
+            httpStatusCode: HttpStatusCodes.NOT_FOUND,
+          }),
+        );
+      }
+
+      return Ok(user);
+    },
+
     /**
      * Retrieves a user by their ID.
      * @param id The ID of the user to retrieve.
