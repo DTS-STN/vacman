@@ -1,17 +1,18 @@
 import type { ReactElement } from 'react';
-import React, { startTransition, useEffect, useState } from 'react';
+import React, { startTransition, useRef, useState } from 'react';
 
 import type { SetURLSearchParams } from 'react-router';
 
-import { faSort, faSortDown, faSortUp, faSpinner } from '@fortawesome/free-solid-svg-icons';
+import { faEllipsis, faSearch, faSliders, faSort, faSortDown, faSortUp, faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import type { ColumnDef, SortingState, Column, ColumnFiltersState, Row } from '@tanstack/react-table';
+import type { ColumnDef, SortingState, Column, ColumnFiltersState } from '@tanstack/react-table';
 import { flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import { useTranslation } from 'react-i18next';
 
 import type { PageMetadata } from '~/.server/domain/models';
 import { Button } from '~/components/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '~/components/dropdown-menu';
+import { InputField } from '~/components/input-field';
 import Pagination from '~/components/pagination';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '~/components/table';
 import { useLanguage } from '~/hooks/use-language';
@@ -128,7 +129,7 @@ export function ServerTable<TData>({
                 return (
                   <TableHead
                     key={header.id}
-                    className={cn('text-left text-sm font-semibold', header.column.columnDef.meta?.headerClassName)}
+                    className={cn('px-5 text-left text-sm font-semibold', header.column.columnDef.meta?.headerClassName)}
                     aria-sort={ariaSortValue}
                   >
                     {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
@@ -150,7 +151,7 @@ export function ServerTable<TData>({
                   <TableCell
                     key={cell.id}
                     className={cn(
-                      'w-fit px-4 py-3 text-sm text-neutral-800',
+                      'w-fit px-5 py-3 text-sm text-neutral-800',
                       isLoading ? 'opacity-50' : '',
                       cell.column.columnDef.meta?.cellClassName,
                     )}
@@ -240,9 +241,7 @@ type FilterOption = Readonly<{
   value: string;
 }>;
 
-interface ColumnOptionsProps<TData, TValue> {
-  column: Column<TData, TValue>;
-  title: string;
+interface ColumnOptionsProps<TData, TValue> extends ColumnHeaderProps<TData, TValue> {
   options:
     | Readonly<{
         id: number;
@@ -277,7 +276,6 @@ interface ColumnOptionsProps<TData, TValue> {
   setSearchParams: SetURLSearchParams;
   filter?: 'id' | 'code' | 'value';
   page?: string;
-  className?: string;
   onSelectionChange?: (selected: FilterOption[]) => void;
   showClearAll?: boolean;
 }
@@ -339,14 +337,7 @@ export function ColumnOptions<TData, TValue>({
         )
       : options.filter((option) => searchParams.getAll(column.id).includes(option[filter]));
 
-  useEffect(() => {
-    if (!column.getFilterValue()) {
-      column.setFilterValue(selectedValues);
-    }
-  }, []);
-
   const setSelectedValues = (selected: FilterOption[]) => {
-    column.setFilterValue(selected);
     onSelectionChange?.(selected);
     const params = new URLSearchParams(searchParams.toString());
     if (page) params.delete(page);
@@ -383,17 +374,17 @@ export function ColumnOptions<TData, TValue>({
             type="button"
             variant="ghost"
             size="sm"
-            className="-ml-3 h-8 font-sans font-medium data-[state=open]:bg-neutral-100"
+            className="-ml-3.5 h-8 data-[state=open]:bg-neutral-100"
             aria-label={ariaLabel}
           >
-            {title}
+            <span className="text-left font-sans">{title}</span>
             {selectedCount > 0 && (
               <span aria-hidden="true" className="ml-1 text-xs font-semibold text-[#0535D2]">
                 ({selectedCount})
               </span>
             )}
             <span className="ml-1 rounded-sm p-1 text-neutral-500 hover:bg-slate-300">
-              <FontAwesomeIcon icon={faSortDown} />
+              <FontAwesomeIcon icon={faSliders} />
             </span>
           </Button>
         </DropdownMenuTrigger>
@@ -445,7 +436,111 @@ export function ColumnOptions<TData, TValue>({
   );
 }
 
-interface ColumnHeaderProps<TData, TValue> extends React.HTMLAttributes<HTMLDivElement> {
+interface ColumnSearchProps<TData, TValue> extends ColumnHeaderProps<TData, TValue> {
+  column: Column<TData, TValue>;
+  title: string;
+  searchParams: URLSearchParams;
+  setSearchParams: SetURLSearchParams;
+  page?: string;
+  onSearchChange?: (search: string) => void;
+}
+
+/**
+ * Component for providing a search filter to `<Column/>`
+ *
+ * @example
+ * ```tsx
+ * <Column
+ *   header={({ column }) => <ColumnSearch column={column} {...props} />
+ *   {...columnProps}
+ * />
+ * ```
+ */
+export function ColumnSearch<TData, TValue>({
+  column,
+  title,
+  searchParams,
+  setSearchParams,
+  page,
+  className,
+  onSearchChange,
+}: ColumnSearchProps<TData, TValue>) {
+  const { t } = useTranslation(['gcweb']);
+  const [open, setOpen] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const prevSearchValue = searchParams.get(column.id) ?? '';
+
+  const setSearchedValue = (search = '', forceSearch?: boolean) => {
+    if (!forceSearch && search === prevSearchValue) {
+      setOpen(false);
+      return;
+    }
+    onSearchChange?.(search);
+    const params = new URLSearchParams(searchParams.toString());
+    if (page) params.delete(page);
+    params.delete(column.id);
+    if (search !== '') params.append(column.id, search);
+    setSearchParams(params);
+  };
+
+  return (
+    <div className={cn('flex items-center space-x-2', className)}>
+      <DropdownMenu
+        open={open}
+        onOpenChange={(open) => {
+          setOpen(open);
+          if (open) return;
+          setSearchedValue(inputRef.current?.value);
+        }}
+      >
+        <DropdownMenuTrigger asChild>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="-ml-3.5 h-10 data-[state=open]:bg-neutral-100"
+            aria-label={title}
+          >
+            <span className="w-full text-left font-sans">{title}</span>
+            {prevSearchValue && (
+              <span
+                aria-hidden="true"
+                className="ml-1 inline-flex text-xs leading-none font-semibold whitespace-nowrap text-[#0535D2]"
+              >
+                &#40;
+                <FontAwesomeIcon icon={faEllipsis} />
+                &#41;
+              </span>
+            )}
+            <span className="ml-1 rounded-sm p-1 text-neutral-500 hover:bg-slate-300">
+              <FontAwesomeIcon icon={faSearch} />
+            </span>
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="start" className="flex w-full justify-center overflow-y-auto p-4" role="menu">
+          <InputField
+            ref={inputRef}
+            type="search"
+            autoComplete="off"
+            label={`${t('search-bar.search')} ${title}`}
+            name="search"
+            icon={faSearch}
+            defaultValue={prevSearchValue}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                setSearchedValue(inputRef.current?.value, true);
+              }
+            }}
+            className="block h-10 w-75 rounded-lg border-gray-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-hidden"
+          />
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
+  );
+}
+
+interface ColumnHeaderProps<TData, TValue> extends React.HTMLAttributes<HTMLElement> {
   column: Column<TData, TValue>;
   title: string;
 }
@@ -495,7 +590,6 @@ export function ColumnHeader<TData, TValue>({ column, title, className }: Column
 
 type ColumnProps<TData, TValue> = Omit<ColumnDef<TData, TValue>, 'filterFn'> & {
   accessorFn: (data: TData) => TValue;
-  filterFn?: (row: Row<TData>, columnId: string, selectedFilters: FilterOption[]) => boolean;
 } & (
     | {
         id?: string;

@@ -57,6 +57,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
     hrAdvisorId: searchParams.get('filter') === 'me' ? ['me'] : undefined,
     sort: activeSortParam.length > 0 ? activeSortParam : undefined,
     size: 10,
+    //TODO: Add id search, searchParams.get('activeId'),
   };
 
   // Inactive requests query
@@ -78,6 +79,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
     hrAdvisorId: searchParams.get('filter') === 'me' ? ['me'] : undefined,
     sort: inactiveSortParam.length > 0 ? inactiveSortParam : undefined,
     size: 10,
+    //TODO: Add id search, searchParams.get('inactiveId'),
   };
 
   const activeRequestsResult = await getRequestService().getRequests(activeRequestsQuery, session.authState.accessToken);
