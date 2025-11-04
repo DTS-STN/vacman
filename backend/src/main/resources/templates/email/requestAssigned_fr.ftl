@@ -7,6 +7,4 @@ Bonjour,
 
 Une demande vous a été assignée.
 
-Vous pouvez accéder à la demande en cliquant sur le lien suivant : # de demande SGPV ${requestNumber}
-
 Merci
