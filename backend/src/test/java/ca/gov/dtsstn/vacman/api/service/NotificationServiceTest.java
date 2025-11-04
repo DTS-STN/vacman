@@ -152,7 +152,7 @@ class NotificationServiceTest {
 			"test@example.com",
 			123L,
 			"Test Request",
-			NotificationService.RequestEvent.CREATED,
+			NotificationService.RequestEvent.SUBMITTED,
 			lookupCodes.languages().english());
 
 		assertThat(result).isNotNull();
@@ -168,7 +168,7 @@ class NotificationServiceTest {
 			"test@example.com",
 			123L,
 			"Test Request",
-			NotificationService.RequestEvent.CREATED,
+			NotificationService.RequestEvent.SUBMITTED,
 			lookupCodes.languages().french());
 
 		assertThat(result).isNotNull();
@@ -184,7 +184,7 @@ class NotificationServiceTest {
 			List.of("test1@example.com", "test2@example.com"),
 			123L,
 			"Test Request",
-			NotificationService.RequestEvent.CREATED,
+			NotificationService.RequestEvent.SUBMITTED,
 			lookupCodes.languages().english());
 
 		assertThat(result).isNotNull();
@@ -201,7 +201,7 @@ class NotificationServiceTest {
 			List.of("test1@example.com", "test2@example.com"),
 			123L,
 			"Test Request",
-			NotificationService.RequestEvent.CREATED,
+			NotificationService.RequestEvent.SUBMITTED,
 			lookupCodes.languages().french());
 
 		assertThat(result).isNotNull();

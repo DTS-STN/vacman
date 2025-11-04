@@ -433,7 +433,7 @@ public class RequestService {
 		request.setRequestStatus(getRequestStatusByCode(requestStatuses.submitted()));
 
 		// Send notification
-		eventPublisher.publishEvent(new RequestStatusChangeEvent(request, requestStatuses.draft(), requestStatuses.submitted()));
+		eventPublisher.publishEvent(new RequestSubmittedEvent(request, requestStatuses.draft(), requestStatuses.submitted()));
 
 		return request;
 	}
@@ -491,6 +491,44 @@ public class RequestService {
 		request.setRequestStatus(getRequestStatusByCode(requestStatuses.pendingPscClearanceNoVms()));
 
 		eventPublisher.publishEvent(new RequestStatusChangeEvent(request, requestStatuses.hrReview(), requestStatuses.pendingPscClearanceNoVms()));
+
+		return request;
+	}
+
+	/**
+	 * Handles the submitFeedback event.
+	 *
+	 * @param request       The request entity
+	 * @param isOwner       Whether the current user is the owner of the request
+	 * @param currentStatus The current status code of the request
+	 * @return The updated request entity
+	 */
+	private RequestEntity handleSubmitFeedback(RequestEntity request, boolean isOwner, String currentStatus) {
+		if (!isOwner) {
+			throw new UnauthorizedException("Only the request owner can submit feedback");
+		}
+
+		if (!requestStatuses.feedbackPending().equals(currentStatus)) {
+			throw new ResourceConflictException("Request must be in FDBK_PENDING status to submit feedback");
+		}
+
+		// Set status to FDBK_PEND_APPR
+		request.setRequestStatus(getRequestStatusByCode(requestStatuses.feedbackPendingApproval()));
+
+		// Loop through all the matches under the requestId and set match status to
+		// PENDING
+		// This is a placeholder for the actual implementation until the match
+		// functionality is implemented
+		// Example:
+		/*
+		 * List<MatchEntity> matches = matchRepository.findByRequestId(request.getId());
+		 * for (MatchEntity match : matches) {
+		 * match.setStatus(getMatchStatusByCode("PENDING"));
+		 * matchRepository.save(match);
+		 * }
+		 */
+
+		eventPublisher.publishEvent(new RequestFeedbackCompletedEvent(request));
 
 		return request;
 	}
@@ -562,44 +600,6 @@ public class RequestService {
 		log.debug("Using configured maximum matches per request: {}", maxMatches);
 
 		return requestMatchingService.performRequestMatching(request.getId(), maxMatches);
-	}
-
-	/**
-	 * Handles the submitFeedback event.
-	 *
-	 * @param request       The request entity
-	 * @param isOwner       Whether the current user is the owner of the request
-	 * @param currentStatus The current status code of the request
-	 * @return The updated request entity
-	 */
-	private RequestEntity handleSubmitFeedback(RequestEntity request, boolean isOwner, String currentStatus) {
-		if (!isOwner) {
-			throw new UnauthorizedException("Only the request owner can submit feedback");
-		}
-
-		if (!requestStatuses.feedbackPending().equals(currentStatus)) {
-			throw new ResourceConflictException("Request must be in FDBK_PENDING status to submit feedback");
-		}
-
-		// Set status to FDBK_PEND_APPR
-		request.setRequestStatus(getRequestStatusByCode(requestStatuses.feedbackPendingApproval()));
-
-		// Loop through all the matches under the requestId and set match status to
-		// PENDING
-		// This is a placeholder for the actual implementation until the match
-		// functionality is implemented
-		// Example:
-		/*
-		 * List<MatchEntity> matches = matchRepository.findByRequestId(request.getId());
-		 * for (MatchEntity match : matches) {
-		 * match.setStatus(getMatchStatusByCode("PENDING"));
-		 * matchRepository.save(match);
-		 * }
-		 */
-
-		eventPublisher.publishEvent(new RequestFeedbackCompletedEvent(request));
-
-		return request;
 	}
 
 	/**

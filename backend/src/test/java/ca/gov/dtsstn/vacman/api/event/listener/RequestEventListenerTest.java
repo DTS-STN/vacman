@@ -16,6 +16,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import ca.gov.dtsstn.vacman.api.config.properties.ApplicationProperties;
 import ca.gov.dtsstn.vacman.api.data.entity.EventEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.RequestEntity;
@@ -24,6 +25,7 @@ import ca.gov.dtsstn.vacman.api.data.repository.EventRepository;
 import ca.gov.dtsstn.vacman.api.event.RequestCreatedEvent;
 import ca.gov.dtsstn.vacman.api.event.RequestFeedbackCompletedEvent;
 import ca.gov.dtsstn.vacman.api.event.RequestFeedbackPendingEvent;
+import ca.gov.dtsstn.vacman.api.event.RequestSubmittedEvent;
 import ca.gov.dtsstn.vacman.api.event.RequestUpdatedEvent;
 import ca.gov.dtsstn.vacman.api.service.NotificationService;
 import ca.gov.dtsstn.vacman.api.service.NotificationService.RequestEvent;
@@ -38,11 +40,14 @@ class RequestEventListenerTest {
 	@Mock
 	EventRepository eventRepository;
 
+	@Mock
+	ApplicationProperties applicationProperties;
+
 	RequestEventListener requestEventListener;
 
 	@BeforeEach
 	void beforeEach() {
-		this.requestEventListener = new RequestEventListener(eventRepository, notificationService);
+		this.requestEventListener = new RequestEventListener(eventRepository, notificationService, applicationProperties);
 	}
 
 	@Nested

@@ -26,6 +26,7 @@ import ca.gov.dtsstn.vacman.api.event.RequestCreatedEvent;
 import ca.gov.dtsstn.vacman.api.event.RequestFeedbackCompletedEvent;
 import ca.gov.dtsstn.vacman.api.event.RequestFeedbackPendingEvent;
 import ca.gov.dtsstn.vacman.api.event.RequestStatusChangeEvent;
+import ca.gov.dtsstn.vacman.api.event.RequestSubmittedEvent;
 import ca.gov.dtsstn.vacman.api.event.RequestUpdatedEvent;
 import ca.gov.dtsstn.vacman.api.service.NotificationService;
 import ca.gov.dtsstn.vacman.api.service.NotificationService.RequestEvent;
@@ -141,6 +142,23 @@ public class RequestEventListener {
 	}
 
 	/**
+	 * Handles the RequestSubmittedEvent and sends a notification when a request is submitted.
+	 */
+	@Async
+	@EventListener({ RequestSubmittedEvent.class })
+	public void handleRequestSubmitted(RequestSubmittedEvent event) throws JsonProcessingException {
+		eventRepository.save(EventEntity.builder()
+			.type("REQUEST_SUBMITTED")
+			.details(objectMapper.writeValueAsString(event))
+			.build());
+
+		log.info("Event: request submitted - ID: {}, from status: {}, to status: {}",
+			event.entity().getId(), event.previousStatusCode(), event.newStatusCode());
+
+		sendSubmittedNotification(event.entity());
+	}
+
+	/**
 	 * Handles the RequestStatusChangeEvent and sends a notification based on the status change.
 	 */
 	@Async
@@ -158,10 +176,7 @@ public class RequestEventListener {
 		final var newStatusCode = event.newStatusCode();
 
 		// Determine which users to notify based on the status change
-		if ("submitted".equals(newStatusCode)) {
-			sendSubmittedNotification(request);
-		}
-		else if ("PENDING_PSC_NO_VMS".equals(newStatusCode)) {
+		if ("PENDING_PSC_NO_VMS".equals(newStatusCode)) {
 			sendVmsNotRequiredNotification(request);
 		}
 		// Add more status change handlers here as needed
@@ -169,7 +184,7 @@ public class RequestEventListener {
 
 	/**
 	 * Sends a notification when a request is submitted.
-	 * The notification is sent to the HR inbox email configured in the application properties.
+	 * The notification is sent to the HR inbox email.
 	 * 
 	 * @param request The request entity
 	 */
