@@ -10,7 +10,7 @@ import jakarta.validation.constraints.Pattern;
 public record RequestStatusUpdateModel(
 	@NotNull
 	@Pattern(
-		regexp = "requestSubmitted|requestPickedUp|vmsNotRequired|submitFeedback|pscNotRequired|pscRequired|complete",
+		regexp = "requestSubmitted|requestPickedUp|vmsNotRequired|submitFeedback|matchApproved|pscNotRequired|pscRequired|complete|cancelled",
 		message = "Invalid event type"
 	)
 	@Schema(description = "The event type that triggered the status change", allowableValues = {"requestSubmitted", "requestPickedUp", "vmsNotRequired", "submitFeedback", "pscNotRequired", "pscRequired", "complete"})

@@ -12,8 +12,15 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+
+import ca.gov.dtsstn.vacman.api.data.entity.EventEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
+import ca.gov.dtsstn.vacman.api.data.repository.EventRepository;
+import ca.gov.dtsstn.vacman.api.event.RequestCreatedEvent;
 import ca.gov.dtsstn.vacman.api.event.RequestFeedbackCompletedEvent;
 import ca.gov.dtsstn.vacman.api.event.RequestFeedbackPendingEvent;
 import ca.gov.dtsstn.vacman.api.service.NotificationService;
@@ -27,10 +34,32 @@ public class RequestEventListener {
 
 	private static final Logger log = LoggerFactory.getLogger(RequestEventListener.class);
 
+	private final EventRepository eventRepository;
 	private final NotificationService notificationService;
 
-	public RequestEventListener(NotificationService notificationService) {
+	private final ObjectMapper objectMapper = new ObjectMapper()
+		.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+		.findAndRegisterModules();
+
+	public RequestEventListener(
+			EventRepository eventRepository,
+			NotificationService notificationService) {
+		this.eventRepository = eventRepository;
 		this.notificationService = notificationService;
+	}
+
+	/**
+	 * Handles the RequestCreatedEvent and saves it to the event repository.
+	 */
+	@Async
+	@EventListener({ RequestCreatedEvent.class })
+	public void handleRequestCreated(RequestCreatedEvent event) throws JsonProcessingException {
+		eventRepository.save(EventEntity.builder()
+			.type("REQUEST_CREATED")
+			.details(objectMapper.writeValueAsString(event))
+			.build());
+
+		log.info("Event: request created - ID: {}", event.entity().getId());
 	}
 
 	/**

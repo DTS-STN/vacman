@@ -437,7 +437,7 @@ public class RequestService {
 		request.setRequestStatus(getRequestStatusByCode(requestStatuses.submitted()));
 
 		// Send notification
-		// sendRequestCreatedNotification(request);
+		sendRequestSubmittedNotification(request);
 
 		return request;
 	}
@@ -481,7 +481,7 @@ public class RequestService {
 	 * Sends a notification when a request is created.
 	 * TODO ::: GjB ::: this should be done via events. see RequestEventListener.java
 	 */
-	private void sendRequestCreatedNotification(RequestEntity request) {
+	private void sendRequestSubmittedNotification(RequestEntity request) {
 		notificationService.sendRequestNotification(
 			applicationProperties.gcnotify().hrGdInboxEmail(),
 			request.getId(),

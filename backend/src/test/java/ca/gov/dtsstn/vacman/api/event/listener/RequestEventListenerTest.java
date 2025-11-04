@@ -16,9 +16,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import ca.gov.dtsstn.vacman.api.data.entity.EventEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.RequestEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
+import ca.gov.dtsstn.vacman.api.data.repository.EventRepository;
+import ca.gov.dtsstn.vacman.api.event.RequestCreatedEvent;
 import ca.gov.dtsstn.vacman.api.event.RequestFeedbackCompletedEvent;
 import ca.gov.dtsstn.vacman.api.event.RequestFeedbackPendingEvent;
 import ca.gov.dtsstn.vacman.api.service.NotificationService;
@@ -31,11 +34,14 @@ class RequestEventListenerTest {
 	@Mock
 	NotificationService notificationService;
 
+	@Mock
+	EventRepository eventRepository;
+
 	RequestEventListener requestEventListener;
 
 	@BeforeEach
 	void beforeEach() {
-		this.requestEventListener = new RequestEventListener(notificationService);
+		this.requestEventListener = new RequestEventListener(eventRepository, notificationService);
 	}
 
 	@Nested
@@ -220,6 +226,23 @@ class RequestEventListenerTest {
 			);
 		}
 
+	}
+
+	@Nested
+	@DisplayName("handleRequestCreated()")
+	class HandleRequestCreated {
+
+		@Test
+		@DisplayName("Should save event to repository")
+		void shouldSaveEventToRepository() throws Exception {
+			final var request = RequestEntity.builder()
+				.id(456L)
+				.build();
+
+			requestEventListener.handleRequestCreated(new RequestCreatedEvent(request));
+
+			verify(eventRepository).save(any(EventEntity.class));
+		}
 	}
 
 }
