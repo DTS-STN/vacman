@@ -483,8 +483,8 @@ export default {
       'city-duplicate': 'Les doublons pour la ville ne sont pas autorisés.',
       'language-requirement-required': "L'exigence linguistique est requise.",
       'language-profile': {
-        'reading-comprehension-en-required': "La compréhension en lecture de l'anglais est requise.",
-        'reading-comprehension-fr-required': 'La compréhension en lecture du français est requise.',
+        'reading-comprehension-en-required': "La compréhension de l'écrit de l'anglais est requise.",
+        'reading-comprehension-fr-required': "La compréhension de l'écrit du français est requise.",
         'written-expression-en-required': "L'expression écrite en anglais est requise.",
         'written-expression-fr-required': "L'expression écrite en français est requise.",
         'oral-proficiency-en-required': "La compétence à l'oral en anglais est requise.",
@@ -615,9 +615,9 @@ export default {
       'feedback-required': 'Une rétroaction est requise.',
       'comment-required': 'Les commentaires sont obligatoires.',
       'comment-max-length': 'Les commentaires doivent comporter moins de 100 caractères.',
-      'retraining-required': 'Confirmation des droits de recyclage requise.',
-      'comments-missing': 'Des commentaires sont manquants.',
-      'feedback-missing': 'Des rétroactions sont manquantes.',
+      'retraining-required':
+        "La confirmation concernant l'application et/ou la prise en compte des droits en matière de recyclage est requise.",
+      'feedback-missing': 'Veuillez compléter tous les retours avant de soumettre les matchs.',
     },
   },
   'matches-tables': {
