@@ -89,9 +89,9 @@ public class RequestEventListener {
 	}
 
 	/**
-	 * Handles the RequestFeedbackPendingEvent and sends a notification to the request submitter.
-	 * The notification is sent to the submitter's business and/or personal email addresses.
-	 * If no submitter or email addresses are found, a warning is logged.
+	 * Handles the RequestFeedbackPendingEvent and sends a notification to the request submitter, hiring manager, and HR delegate.
+	 * The notification is sent to their business and/or personal email addresses.
+	 * If no email addresses are found, a warning is logged.
 	 */
 	@Async
 	@EventListener({ RequestFeedbackPendingEvent.class })
@@ -102,19 +102,28 @@ public class RequestEventListener {
 			.map(LanguageEntity::getCode)
 			.orElse(null);
 
-		Optional.ofNullable(request.getSubmitter())
-			.map(this::getEmployeeEmails)
-			.filter(emails -> !emails.isEmpty())
-			.ifPresentOrElse(
-				emails -> {
-					notificationService.sendRequestNotification(
-						emails,
-						request.getId(),
-						request.getNameEn(),
-						RequestEvent.FEEDBACK_PENDING,
-						language
-					);
-				}, () -> log.warn("No email addresses found for request ID: [{}]", request.getId()));
+		var emails = Stream.<UserEntity>builder();
+
+		Optional.ofNullable(request.getSubmitter()).ifPresent(emails::add);
+		Optional.ofNullable(request.getHiringManager()).ifPresent(emails::add);
+		Optional.ofNullable(request.getSubDelegatedManager()).ifPresent(emails::add);
+
+		final var allEmails = emails.build()
+			.flatMap(user -> getEmployeeEmails(user).stream())
+			.toList();
+
+		if (allEmails.isEmpty()) {
+			log.warn("No email addresses found for request ID: [{}]", request.getId());
+			return;
+		}
+
+		notificationService.sendRequestNotification(
+			allEmails,
+			request.getId(),
+			request.getNameEn(),
+			RequestEvent.FEEDBACK_PENDING,
+			language
+		);
 	}
 
 	/**

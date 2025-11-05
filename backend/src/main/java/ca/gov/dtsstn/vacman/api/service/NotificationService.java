@@ -164,7 +164,7 @@ public class NotificationService {
 
 		final var templateName = switch (requestEvent) {
 			case SUBMITTED, VMS_NOT_REQUIRED, PSC_REQUIRED -> "requestAssigned.ftl";
-			case FEEDBACK_PENDING -> "requestFeedbackPending.ftl";
+			case FEEDBACK_PENDING -> "prioritiesIdentified.ftl";
 			case FEEDBACK_COMPLETED, PSC_NOT_REQUIRED -> "feedbackApproved.ftl";
 			case COMPLETED -> "feedbackApprovedPSC.ftl";
 			case CANCELLED -> "requestCancelled.ftl";
