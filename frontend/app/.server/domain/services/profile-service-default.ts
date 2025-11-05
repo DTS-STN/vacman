@@ -39,6 +39,9 @@ export function getDefaultProfileService(): ProfileService {
           searchParams.append('statusId', id.toString());
         }
       }
+      if (params.employeeName) {
+        searchParams.append('employeeName', params.employeeName);
+      }
       // Sorting: append single 'sort' param in the format `property,(asc|desc)`
       if (params.sort) {
         searchParams.append('sort', params.sort);

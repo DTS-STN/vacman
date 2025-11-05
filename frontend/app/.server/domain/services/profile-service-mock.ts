@@ -80,6 +80,19 @@ export function getMockProfileService(): ProfileService {
         log.debug(`Applied statusId filter (${statusIds.join(',')}): ${filteredProfiles.length} profiles remaining`);
       }
 
+      if (params.employeeName?.trim()) {
+        const search = params.employeeName.trim().toLowerCase();
+        filteredProfiles = filteredProfiles.filter((p) => {
+          const firstName = p.profileUser.firstName ?? '';
+          const lastName = p.profileUser.lastName ?? '';
+          const email = p.profileUser.businessEmailAddress ?? '';
+          const fullName = `${firstName} ${lastName}`.toLowerCase();
+          const reversedName = `${lastName} ${firstName}`.toLowerCase();
+          return fullName.includes(search) || reversedName.includes(search) || email.toLowerCase().includes(search);
+        });
+        log.debug(`Applied employeeName filter (${params.employeeName}): ${filteredProfiles.length} profiles remaining`);
+      }
+
       // Apply pagination
       const requestedPage = params.page ?? 1; // 1-based page from request
       const zeroBasedPage = requestedPage - 1; // Convert to 0-based for array slicing
