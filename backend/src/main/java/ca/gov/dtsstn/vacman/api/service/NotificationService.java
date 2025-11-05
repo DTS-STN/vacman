@@ -37,7 +37,7 @@ public class NotificationService {
 	 * The events in the request lifecycle that trigger notifications.
 	 */
 	public enum RequestEvent {
-		SUBMITTED, FEEDBACK_PENDING, FEEDBACK_COMPLETED, VMS_NOT_REQUIRED, PSC_NOT_REQUIRED, PSC_REQUIRED
+		SUBMITTED, FEEDBACK_PENDING, FEEDBACK_COMPLETED, VMS_NOT_REQUIRED, PSC_NOT_REQUIRED, PSC_REQUIRED, COMPLETED
 	}
 
 	private static final Logger log = LoggerFactory.getLogger(NotificationService.class);
@@ -166,6 +166,7 @@ public class NotificationService {
 			case SUBMITTED, VMS_NOT_REQUIRED, PSC_REQUIRED -> "requestAssigned.ftl";
 			case FEEDBACK_PENDING -> "requestFeedbackPending.ftl";
 			case FEEDBACK_COMPLETED, PSC_NOT_REQUIRED -> "feedbackApproved.ftl";
+			case COMPLETED -> "feedbackApprovedPSC.ftl";
 		};
 
 		final var model = Map.<String, String>of(

@@ -604,6 +604,30 @@ public class RequestService {
 	}
 
 	/**
+	 * Handles the complete event.
+	 *
+	 * @param request       The request entity
+	 * @param isHrAdvisor   Whether the current user is an HR advisor
+	 * @param currentStatus The current status code of the request
+	 * @return The updated request entity
+	 */
+	private RequestEntity handleComplete(RequestEntity request, boolean isHrAdvisor, String currentStatus) {
+		if (!isHrAdvisor) {
+			throw new UnauthorizedException("Only HR advisors can complete a request");
+		}
+
+		if (!requestStatuses.pendingPscClearance().equals(currentStatus) && !requestStatuses.pendingPscClearanceNoVms().equals(currentStatus)) {
+			throw new ResourceConflictException("Request must be in PENDING_PSC or PENDING_PSC_NO_VMS status to be completed");
+		}
+
+		// Set status to PSC_GRANTED
+		request.setRequestStatus(getRequestStatusByCode(requestStatuses.pscClearanceGranted()));
+		eventPublisher.publishEvent(new RequestCompletedEvent(request));
+
+		return request;
+	}
+
+	/**
 	 * Gets a RequestStatusEntity by its code.
 	 */
 	private RequestStatusEntity getRequestStatusByCode(String code) {
@@ -671,29 +695,4 @@ public class RequestService {
 
 		return requestMatchingService.performRequestMatching(request.getId(), maxMatches);
 	}
-
-	/**
-	 * Handles the complete event.
-	 *
-	 * @param request       The request entity
-	 * @param isHrAdvisor   Whether the current user is an HR advisor
-	 * @param currentStatus The current status code of the request
-	 * @return The updated request entity
-	 */
-	private RequestEntity handleComplete(RequestEntity request, boolean isHrAdvisor, String currentStatus) {
-		if (!isHrAdvisor) {
-			throw new UnauthorizedException("Only HR advisors can complete a request");
-		}
-
-		if (!requestStatuses.pendingPscClearance().equals(currentStatus) && !requestStatuses.pendingPscClearanceNoVms().equals(currentStatus)) {
-			throw new ResourceConflictException("Request must be in PENDING_PSC or PENDING_PSC_NO_VMS status to be completed");
-		}
-
-		// Set status to PSC_GRANTED
-		request.setRequestStatus(getRequestStatusByCode(requestStatuses.pscClearanceGranted()));
-		eventPublisher.publishEvent(new RequestCompletedEvent(request));
-
-		return request;
-	}
-
 }

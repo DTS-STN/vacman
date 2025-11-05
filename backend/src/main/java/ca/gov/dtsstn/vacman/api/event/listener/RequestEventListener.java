@@ -1,7 +1,10 @@
 package ca.gov.dtsstn.vacman.api.event.listener;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import ca.gov.dtsstn.vacman.api.config.properties.ApplicationProperties;
@@ -22,6 +25,7 @@ import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.RequestEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 import ca.gov.dtsstn.vacman.api.data.repository.EventRepository;
+import ca.gov.dtsstn.vacman.api.event.RequestCompletedEvent;
 import ca.gov.dtsstn.vacman.api.event.RequestCreatedEvent;
 import ca.gov.dtsstn.vacman.api.event.RequestFeedbackCompletedEvent;
 import ca.gov.dtsstn.vacman.api.event.RequestFeedbackPendingEvent;
@@ -187,6 +191,58 @@ public class RequestEventListener {
 	}
 
 	/**
+	 * Handles the RequestCompletedEvent and sends an email notification.
+	 * The notification is sent to the submitter, hiring manager, HR delegate, and the HR advisor's business email.
+	 */
+	@Async
+	@EventListener({ RequestCompletedEvent.class })
+	public void handleRequestCompleted(RequestCompletedEvent event) throws JsonProcessingException {
+		final var request = event.entity();
+
+		eventRepository.save(EventEntity.builder()
+			.type("REQUEST_COMPLETED")
+			.details(objectMapper.writeValueAsString(event))
+			.build());
+
+		log.info("Event: request completed - ID: {}", request.getId());
+
+		final var language = Optional.ofNullable(request.getLanguage())
+			.map(LanguageEntity::getCode)
+			.orElse("en");
+
+		// Collect emails from submitter, hiring manager, and HR delegate
+		var emails = Stream.<UserEntity>builder();
+
+		Optional.ofNullable(request.getSubmitter()).ifPresent(emails::add);
+		Optional.ofNullable(request.getHiringManager()).ifPresent(emails::add);
+		Optional.ofNullable(request.getSubDelegatedManager()).ifPresent(emails::add);
+
+		// Get all emails from the users
+		final var userEmails = emails.build()
+			.flatMap(user -> getEmployeeEmails(user).stream())
+			.collect(Collectors.toList());
+
+		// Add HR Advisor's business email if available
+		Optional.ofNullable(request.getHrAdvisor())
+			.map(UserEntity::getBusinessEmailAddress)
+			.filter(StringUtils::hasText)
+			.ifPresent(userEmails::add);
+
+		if (userEmails.isEmpty()) {
+			log.warn("No email addresses found for request ID: [{}]", request.getId());
+			return;
+		}
+
+		notificationService.sendRequestNotification(
+			userEmails,
+			request.getId(),
+			request.getNameEn(),
+			RequestEvent.COMPLETED,
+			language
+		);
+	}
+
+	/**
 	 * Sends a notification when a request is submitted.
 	 * The notification is sent to the HR inbox email.
 	 * 
@@ -247,8 +303,7 @@ public class RequestEventListener {
 
 		Optional.ofNullable(request.getSubmitter()).ifPresent(emails::add);
 		Optional.ofNullable(request.getHiringManager()).ifPresent(emails::add);
-		// Add HR delegate if available
-		// TODO: Obtain the email of the HR delegate
+		Optional.ofNullable(request.getSubDelegatedManager()).ifPresent(emails::add);
 
 		final var allEmails = emails.build()
 			.flatMap(user -> getEmployeeEmails(user).stream())
