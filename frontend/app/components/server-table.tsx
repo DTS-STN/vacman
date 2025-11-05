@@ -429,11 +429,6 @@ export function ColumnOptions<TData, TValue>({
                 onKeyDown={(e) => {
                   switch (e.key) {
                     case 'Enter':
-                    case ' ': {
-                      e.preventDefault();
-                      toggleOption(option);
-                      break;
-                    }
                     case 'Tab': {
                       e.preventDefault();
                       setOpen(false);
