@@ -214,6 +214,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 
   const requestMatchesResult = await getRequestService().getRequestMatches(
     parseInt(params.requestId),
+    {},
     session.authState.accessToken,
   );
 

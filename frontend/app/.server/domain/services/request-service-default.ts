@@ -2,7 +2,7 @@ import type { Option, Result } from 'oxide.ts';
 import { Err, Ok } from 'oxide.ts';
 
 import type {
-  CollectionMatchResponse,
+  PagedMatchResponse,
   MatchReadModel,
   MatchStatusUpdate,
   MatchUpdateModel,
@@ -12,6 +12,7 @@ import type {
   RequestReadModel,
   RequestStatusUpdate,
   RequestUpdateModel,
+  MatchQueryParams,
 } from '~/.server/domain/models';
 import { apiClient } from '~/.server/domain/services/api-client';
 import type { RequestService } from '~/.server/domain/services/request-service';
@@ -237,12 +238,32 @@ export function getDefaultRequestService(): RequestService {
     /**
      * Gets all matches for a request.
      */
-    async getRequestMatches(requestId: number, accessToken: string): Promise<Result<CollectionMatchResponse, AppError>> {
-      const result = await apiClient.get<CollectionMatchResponse>(
-        `/requests/${requestId}/matches`,
-        `retrieve matches for request ID ${requestId}`,
-        accessToken,
-      );
+    async getRequestMatches(
+      requestId: number,
+      params: MatchQueryParams,
+      accessToken: string,
+    ): Promise<Result<PagedMatchResponse, AppError>> {
+      const searchParams = new URLSearchParams();
+
+      if (params.page !== undefined) searchParams.append('page', params.page.toString());
+      if (params.size !== undefined) searchParams.append('size', params.size.toString());
+      if (params.sort?.length) params.sort.forEach((sort) => searchParams.append('sort', sort));
+      if (params.profile?.employeeName) searchParams.append('profile.employeeName', params.profile.employeeName);
+
+      // filters: appended as repeated Id
+      if (params.matchFeedbackId?.length) {
+        for (const id of params.matchFeedbackId) {
+          searchParams.append('matchFeedbackId', id.toString());
+        }
+      }
+      if (params.profile?.wfaStatusId?.length) {
+        for (const id of params.profile.wfaStatusId) {
+          searchParams.append('profile.wfaStatusId', id.toString());
+        }
+      }
+
+      const url = `/requests/${requestId}/matches${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
+      const result = await apiClient.get<PagedMatchResponse>(url, `retrieve matches for request ID ${requestId}`, accessToken);
 
       if (result.isErr()) {
         const error = result.unwrapErr();
