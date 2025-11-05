@@ -3,7 +3,7 @@
   To maintain consistency and predictable style application:
   - Import external library styles within the vendor layer to contain third-party CSS.
   - Use the theme layer for foundational elements, such as font declarations.
-  - Ensure that the cascade order aligns with Tailwind’s design principles to avoid specificity conflicts.
+  - Ensure that the cascade order aligns with Tailwind's design principles to avoid specificity conflicts.
   This approach guarantees that utility classes take precedence and prevents style overrides by third-party code.
   For reference, see the Tailwind CSS index file:
   https://github.com/tailwindlabs/tailwindcss/blob/main/packages/tailwindcss/index.css
