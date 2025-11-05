@@ -240,6 +240,7 @@ export type ProfileQueryParams = {
   active?: boolean;
   hrAdvisorId?: string;
   statusIds?: number[];
+  employeeName?: string;
   sort?: string;
 };
 
