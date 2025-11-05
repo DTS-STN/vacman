@@ -189,7 +189,9 @@ export default {
     'select-work-locations':
       'Sélectionnez une province pour voir les villes disponibles. Vous pouvez choisir autant de villes que vous le souhaitez dans chaque province. «\u00a0Sélectionner tous les lieux de travail\u00a0» sélectionnera toutes les provinces et toutes les villes disponibles',
     'select-all': 'Sélectionner tous les lieux de travail',
+    'select-all-cities': 'Sélectionnez toutes les villes',
     'select-all-sr': 'Tous les lieux de travail au Canada ont été sélectionnés.',
+    'select-all-cities-sr': 'Toutes les villes de {{province}} ont été sélectionnées.',
     'errors': {
       'language-referral-type-required': 'Le profil linguistique est requis.',
       'language-referral-type-invalid': "Le profil linguistique n'est pas valide.",

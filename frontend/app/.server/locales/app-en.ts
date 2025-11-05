@@ -186,7 +186,9 @@ export default {
     'select-work-locations':
       'Select a province to see available cities. You can choose as many cities as you\'d like from any province, or use the "Select all work locations" below to choose all work locations',
     'select-all': 'Select all work locations',
+    'select-all-cities': 'Select all cities',
     'select-all-sr': 'All work locations in Canada selected.',
+    'select-all-cities-sr': 'All cities in {{province}} selected.',
     'errors': {
       'language-referral-type-required': 'Language profile is required.',
       'language-referral-type-invalid': 'Language profile is invalid.',
