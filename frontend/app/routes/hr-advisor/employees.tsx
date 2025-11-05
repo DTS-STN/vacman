@@ -32,7 +32,7 @@ import { InputSelect } from '~/components/input-select';
 import { LoadingButton } from '~/components/loading-button';
 import { LoadingLink } from '~/components/loading-link';
 import { PageTitle } from '~/components/page-title';
-import { Column, ColumnHeader, ColumnOptions, ServerTable } from '~/components/server-table';
+import { Column, ColumnHeader, ColumnOptions, ColumnSearch, ServerTable } from '~/components/server-table';
 import { ProfileStatusTag } from '~/components/status-tag';
 import { PROFILE_STATUS } from '~/domain/constants';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
@@ -173,6 +173,8 @@ export async function loader({ context, request }: Route.LoaderArgs) {
   const statusIdsParams = url.searchParams.getAll('statusIds');
   // sort as a single param: sort=property,(asc|desc)
   const sortParam = url.searchParams.get('sort');
+  const employeeNameParam = url.searchParams.get('employeeName');
+  const employeeNameFilter = employeeNameParam?.trim() ?? '';
   // URL 'page' is treated as 1-based for the backend; default to 1 if missing/invalid
   const pageOneBased = Math.max(1, Number.parseInt(pageParam ?? '1', 10) || 1);
   // Keep page size modest for wire efficiency, cap to prevent abuse
@@ -207,6 +209,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
     page: pageOneBased,
     size: size,
     sort: sortParam ?? undefined,
+    employeeName: employeeNameFilter !== '' ? employeeNameFilter : undefined,
   };
 
   const [profilesResult, allStatuses] = await Promise.all([
@@ -303,6 +306,8 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
     [t],
   );
 
+  const employeeHeaderTitle = t('app:hr-advisor-employees-table.employee');
+
   // Get dynamic column ID for branch based on language
   const getBranchColumnId = useMemo(() => {
     return loaderData.lang === 'fr' ? 'substantiveWorkUnit.parent.nameFr' : 'substantiveWorkUnit.parent.nameEn';
@@ -353,6 +358,8 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
               // Preserve existing single sort
               const sort = searchParams.get('sort');
               if (sort) params.set('sort', sort);
+              const employeeName = searchParams.get('employeeName');
+              if (employeeName) params.set('employeeName', employeeName);
               existingStatusIds.forEach((id) => params.append('statusIds', id));
               setSearchParams(params);
               // Announce table filtering change to screen readers
@@ -379,9 +386,17 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
         setSearchParams={setSearchParams}
       >
         <Column
-          id="user.lastName"
+          id="employeeName"
           accessorFn={(row: Profile) => `${row.profileUser.lastName}, ${row.profileUser.firstName}`}
-          header={({ column }) => <ColumnHeader column={column} title={t('app:hr-advisor-employees-table.employee')} />}
+          header={({ column }) => (
+            <ColumnSearch
+              column={column}
+              title={employeeHeaderTitle}
+              page="page"
+              searchParams={searchParams}
+              setSearchParams={setSearchParams}
+            />
+          )}
           cell={(info) => <p>{info.getValue() as string}</p>}
         />
 
