@@ -2,17 +2,17 @@ import type { Option, Result } from 'oxide.ts';
 import { Err, Ok } from 'oxide.ts';
 
 import type {
-  PagedMatchResponse,
+  MatchQueryParams,
   MatchReadModel,
   MatchStatusUpdate,
   MatchUpdateModel,
+  PagedMatchResponse,
   PagedRequestResponse,
   Profile,
   RequestQueryParams,
   RequestReadModel,
   RequestStatusUpdate,
   RequestUpdateModel,
-  MatchQueryParams,
 } from '~/.server/domain/models';
 import { apiClient } from '~/.server/domain/services/api-client';
 import type { RequestService } from '~/.server/domain/services/request-service';
@@ -266,11 +266,7 @@ export function getDefaultRequestService(): RequestService {
       const result = await apiClient.get<PagedMatchResponse>(url, `retrieve matches for request ID ${requestId}`, accessToken);
 
       if (result.isErr()) {
-        const error = result.unwrapErr();
-        if (error.httpStatusCode === HttpStatusCodes.NOT_FOUND) {
-          return Err(new AppError(`Request with ID ${requestId} not found.`, ErrorCodes.REQUEST_NOT_FOUND));
-        }
-        return Err(error);
+        return Err(result.unwrapErr());
       }
 
       return Ok(result.unwrap());

@@ -490,6 +490,11 @@ export function getMockRequestService(): RequestService {
       log.debug(`Starting with ${filteredMatches.length} total matches`);
 
       filteredMatches = mockMatches.filter((m) => m.request?.id === requestId);
+      if (filteredMatches.length > 0) {
+        log.debug(`Successfully retrieved match with request ID: ${requestId}`);
+      } else {
+        log.debug(`Match with request ID ${requestId} not found`);
+      }
 
       // Apply status filter using matchFeedbackId param (array of ids)
       if (params.matchFeedbackId?.length) {
@@ -532,22 +537,16 @@ export function getMockRequestService(): RequestService {
         `Applied pagination (page: ${requestedPage}, size: ${size}): ${paginatedMatches.length} matches in current page`,
       );
 
-      if (filteredMatches.length > 0) {
-        log.debug(`Successfully retrieved match with request ID: ${requestId}`);
-        const response: PagedMatchResponse = {
-          content: paginatedMatches,
-          page: {
-            number: requestedPage, // Return 1-based page number to match real backend
-            size: size,
-            totalElements: filteredMatches.length,
-            totalPages: Math.ceil(filteredMatches.length / size),
-          },
-        };
-        return Promise.resolve(Ok(response));
-      }
-
-      log.debug(`Match with request ID ${requestId} not found`);
-      return Err(new AppError(`Match with request ID ${requestId} not found.`, ErrorCodes.MATCH_NOT_FOUND));
+      const response: PagedRequestResponse = {
+        content: paginatedMatches,
+        page: {
+          number: requestedPage,
+          size: size,
+          totalElements: filteredMatches.length,
+          totalPages: Math.ceil(filteredMatches.length / size),
+        },
+      };
+      return Promise.resolve(Ok(response));
     },
 
     /**
