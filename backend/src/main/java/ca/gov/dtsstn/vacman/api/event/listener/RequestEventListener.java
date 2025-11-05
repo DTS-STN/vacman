@@ -158,6 +158,8 @@ public class RequestEventListener {
 			sendPscNotRequiredNotification(request);
 		} else if ("PENDING_PSC".equals(newStatusCode)) {
 			sendPscRequiredNotification(request);
+		} else if ("CANCELLED".equals(newStatusCode)) {
+			sendCancelledNotification(request);
 		}
 		// Add more status change handlers here as needed
 	}
@@ -358,4 +360,34 @@ public class RequestEventListener {
 			.toList();
 	}
 
+	/**
+	 * Sends a notification when a request is cancelled.
+	 * The notification is sent to the submitter, hiring manager, and HR delegate.
+	 * 
+	 * @param request The request entity
+	 */
+	private void sendCancelledNotification(RequestEntity request) {
+		final var language = Optional.ofNullable(request.getLanguage())
+			.map(LanguageEntity::getCode)
+			.orElse("en");
+
+		// Collect emails from submitter, hiring manager, and HR delegate
+		var emails = Stream.<UserEntity>builder();
+
+		Optional.ofNullable(request.getSubmitter()).ifPresent(emails::add);
+		Optional.ofNullable(request.getHiringManager()).ifPresent(emails::add);
+		Optional.ofNullable(request.getSubDelegatedManager()).ifPresent(emails::add);
+
+		final var allEmails = emails.build()
+			.flatMap(user -> getEmployeeEmails(user).stream())
+			.toList();
+
+		notificationService.sendRequestNotification(
+			allEmails,
+			request.getId(),
+			request.getNameEn(),
+			RequestEvent.CANCELLED,
+			language
+		);
+	}
 }

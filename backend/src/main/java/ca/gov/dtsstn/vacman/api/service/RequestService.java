@@ -628,14 +628,6 @@ public class RequestService {
 	}
 
 	/**
-	 * Gets a RequestStatusEntity by its code.
-	 */
-	private RequestStatusEntity getRequestStatusByCode(String code) {
-		return requestStatusRepository.findByCode(code)
-			.orElseThrow(() -> new IllegalStateException("Request status not found: " + code));
-	}
-
-	/**
 	 * Cancels a request.
 	 *
 	 * @param requestId The ID of the request to cancel
@@ -644,12 +636,24 @@ public class RequestService {
 	@Counted("service.request.cancelRequest.count")
 	public RequestEntity cancelRequest(Long requestId) {
 		final var request = getRequestById(requestId)
-			.orElseThrow(asResourceNotFoundException("request", requestId));
+				.orElseThrow(asResourceNotFoundException("request", requestId));
 
-		// Set status to CANCELLED
+		final var previousStatusCode = request.getRequestStatus().getCode();
+
 		request.setRequestStatus(getRequestStatusByCode(requestStatuses.cancelled()));
+		final var updatedRequest = updateRequest(request);
 
-		return updateRequest(request);
+		eventPublisher.publishEvent(new RequestStatusChangeEvent(updatedRequest, previousStatusCode, requestStatuses.cancelled()));
+
+		return updatedRequest;
+	}
+
+	/**
+	 * Gets a RequestStatusEntity by its code.
+	 */
+	private RequestStatusEntity getRequestStatusByCode(String code) {
+		return requestStatusRepository.findByCode(code)
+			.orElseThrow(() -> new IllegalStateException("Request status not found: " + code));
 	}
 
 	/**
