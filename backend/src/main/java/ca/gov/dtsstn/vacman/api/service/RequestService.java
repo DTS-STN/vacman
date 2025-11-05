@@ -225,9 +225,7 @@ public class RequestService {
 			hasRequestId(query.requestId()),
 			anyOf(
 				// match specifications
-				hasMatchFeedbackIdIn(query.matchFeedbackIds())
-			),
-			anyOf(
+				hasMatchFeedbackIdIn(query.matchFeedbackIds()),
 				// match.profile specifications
 				hasProfileWfaStatusIdIn(query.profileWfaStatusIds()),
 				hasProfileFirstNameContaining(query.profileEmployeeName()),
