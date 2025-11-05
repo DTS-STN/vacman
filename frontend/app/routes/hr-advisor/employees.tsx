@@ -359,7 +359,7 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
               const employeeName = searchParams.get('employeeName');
               if (employeeName) params.set('employeeName', employeeName);
               existingStatusIds.forEach((id) => params.append('statusIds', id));
-              setSearchParams(params);
+              setSearchParams(params, { preventScrollReset: true });
               // Announce table filtering change to screen readers
               const message =
                 target.value === 'me'

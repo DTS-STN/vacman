@@ -102,7 +102,7 @@ export function ServerTable<TData>({
       const paramsNext = new URLSearchParams(searchParams.toString());
       paramsNext.delete(sortParam);
       if (sort) paramsNext.set(sortParam, `${sort.id},${sort.desc ? 'desc' : 'asc'}`);
-      startTransition(() => setSearchParams(paramsNext));
+      startTransition(() => setSearchParams(paramsNext, { preventScrollReset: true }));
     },
     onColumnFiltersChange: setColumnFilters,
     state: {
@@ -351,7 +351,7 @@ export function ColumnOptions<TData, TValue>({
       .forEach((option) =>
         filter === 'id' ? params.append(column.id, option.id.join(',')) : params.append(column.id, option[filter]),
       );
-    startTransition(() => setSearchParams(params));
+    startTransition(() => setSearchParams(params, { preventScrollReset: true }));
   };
 
   const toggleOption = (option: FilterOption) => {
@@ -510,7 +510,7 @@ export function ColumnSearch<TData, TValue>({
     if (page) params.delete(page);
     params.delete(column.id);
     if (search.current !== '') params.append(column.id, search.current);
-    startTransition(() => setSearchParams(params));
+    startTransition(() => setSearchParams(params, { preventScrollReset: true }));
   };
 
   return (
