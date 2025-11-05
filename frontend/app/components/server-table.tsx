@@ -446,13 +446,9 @@ export function ColumnOptions<TData, TValue>({
                 <input
                   type="checkbox"
                   checked={selected.some((v) => v.code === option.code)}
-                  onChange={(e) => {
-                    e.preventDefault();
-                    toggleOption(option);
-                  }}
-                  className="h-4 w-4"
+                  readOnly
+                  className="pointer-events-none h-4 w-4"
                   aria-label={t('data-table.filters.filter-option', { value: option.value })}
-                  tabIndex={-1}
                 />
                 <span className="text-sm capitalize">{option.value}</span>
               </div>
@@ -509,8 +505,8 @@ export function ColumnSearch<TData, TValue>({
   const [open, setOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const forceUpdate = useRef(false);
-  const search = useRef('');
   const prevSearchValue = searchParams.get(column.id) ?? '';
+  const search = useRef(prevSearchValue);
 
   const updateURLParam = () => {
     if (search.current === prevSearchValue && !forceUpdate.current) return;
@@ -520,12 +516,6 @@ export function ColumnSearch<TData, TValue>({
     params.delete(column.id);
     if (search.current !== '') params.append(column.id, search.current);
     startTransition(() => setSearchParams(params));
-  };
-
-  const setSearchValue = (force?: boolean) => {
-    forceUpdate.current = force === true;
-    search.current = inputRef.current?.value ?? '';
-    setOpen(false);
   };
 
   return (
@@ -577,7 +567,7 @@ export function ColumnSearch<TData, TValue>({
               }
               case 'Tab': {
                 e.preventDefault();
-                setSearchValue();
+                setOpen(false);
                 break;
               }
             }
@@ -594,10 +584,14 @@ export function ColumnSearch<TData, TValue>({
             name="search"
             icon={faSearch}
             defaultValue={prevSearchValue}
+            onChange={(e) => {
+              search.current = e.target.value;
+            }}
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
                 e.preventDefault();
-                setSearchValue(true);
+                forceUpdate.current = true;
+                setOpen(false);
               }
             }}
             className="block h-10 w-75 rounded-lg border-gray-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-hidden"
