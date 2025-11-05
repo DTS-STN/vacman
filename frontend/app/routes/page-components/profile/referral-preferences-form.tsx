@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import type { JSX, SyntheticEvent } from 'react';
 
 import { Form } from 'react-router';
@@ -85,13 +85,19 @@ export function ReferralPreferencesForm({
     value: id === 'select-option' ? '' : String(id),
     children: id === 'select-option' ? tApp('form.select-option') : name,
   }));
-  const cityOptions = cities
-    .filter((c) => c.provinceTerritory.id === Number(province))
-    .map((city) => ({
-      value: String(city.id),
-      label: city.name,
-      group: city.provinceTerritory.name,
-    }));
+
+  const cityOptions = useMemo(
+    () =>
+      cities
+        .filter((c) => c.provinceTerritory.id === Number(province))
+        .map((city) => ({
+          value: String(city.id),
+          label: city.name,
+          group: city.provinceTerritory.name,
+        })),
+    [cities, province],
+  );
+
   const referralAvailibilityOptions: InputRadiosProps['options'] = [
     {
       children: tGcweb('input-option.yes'),
@@ -181,12 +187,20 @@ export function ReferralPreferencesForm({
       }),
     );
   };
-
-  const handleSelectAllCities = (e: SyntheticEvent<HTMLButtonElement>) => {
+  const handleSelectAllLocations = (e: SyntheticEvent<HTMLButtonElement>) => {
     e.preventDefault();
     setSrAnnouncement(tApp('referral-preferences.select-all-sr'));
     setSelectedCities(cities.map(({ id }) => id.toString()));
     setProvince((provinces.at(0)?.id ?? 0).toString());
+  };
+
+  const handleSelectAllCities = (e: SyntheticEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    const selectedP = provinces.find((p) => p.id === Number(province));
+    setSrAnnouncement(tApp('referral-preferences.select-all-cities-sr', { province: selectedP?.name }));
+    const selectedC = cities.filter((c) => c.provinceTerritory.id === Number(province));
+    const newCityIds = selectedC.map(({ id }) => id.toString());
+    setSelectedCities((prev) => [...new Set([...prev, ...newCityIds])]);
   };
 
   return (
@@ -237,7 +251,7 @@ export function ReferralPreferencesForm({
                 {tApp('referral-preferences.work-location')}
               </InputLegend>
               <InputHelp id="workLocationHelpMessage">{tApp('referral-preferences.select-work-locations')}</InputHelp>
-              <Button variant="primary" onClick={handleSelectAllCities}>
+              <Button variant="primary" onClick={handleSelectAllLocations}>
                 {tApp('referral-preferences.select-all')}
               </Button>
               <InputSelect
@@ -254,6 +268,9 @@ export function ReferralPreferencesForm({
               />
               {province && (
                 <>
+                  <Button variant="primary" onClick={handleSelectAllCities}>
+                    {tApp('referral-preferences.select-all-cities')}
+                  </Button>
                   <InputMultiSelect
                     ariaDescribedbyId="workLocationHelpMessage"
                     id="preferred-cities"
