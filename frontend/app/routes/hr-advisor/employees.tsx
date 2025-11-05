@@ -306,8 +306,6 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
     [t],
   );
 
-  const employeeHeaderTitle = t('app:hr-advisor-employees-table.employee');
-
   // Get dynamic column ID for branch based on language
   const getBranchColumnId = useMemo(() => {
     return loaderData.lang === 'fr' ? 'substantiveWorkUnit.parent.nameFr' : 'substantiveWorkUnit.parent.nameEn';
@@ -391,7 +389,7 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
           header={({ column }) => (
             <ColumnSearch
               column={column}
-              title={employeeHeaderTitle}
+              title={t('app:hr-advisor-employees-table.employee')}
               page="page"
               searchParams={searchParams}
               setSearchParams={setSearchParams}
