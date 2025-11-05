@@ -5,11 +5,11 @@ import static ca.gov.dtsstn.vacman.api.data.entity.AbstractCodeEntity.byCode;
 import static ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException.asResourceNotFoundException;
 import static ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException.asUserResourceNotFoundException;
 import static ca.gov.dtsstn.vacman.api.web.exception.UnauthorizedException.asEntraIdUnauthorizedException;
-import static ca.gov.dtsstn.vacman.api.web.model.CollectionModel.toCollectionModel;
 import static org.springframework.data.domain.Pageable.unpaged;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 import org.mapstruct.factory.Mappers;
 import org.slf4j.Logger;
@@ -36,9 +36,10 @@ import ca.gov.dtsstn.vacman.api.service.CodeService;
 import ca.gov.dtsstn.vacman.api.service.MatchService;
 import ca.gov.dtsstn.vacman.api.service.RequestService;
 import ca.gov.dtsstn.vacman.api.service.UserService;
+import ca.gov.dtsstn.vacman.api.service.dto.MatchQuery;
 import ca.gov.dtsstn.vacman.api.service.dto.MatchQueryBuilder;
 import ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException;
-import ca.gov.dtsstn.vacman.api.web.model.CollectionModel;
+import ca.gov.dtsstn.vacman.api.web.model.MatchReadFilterModel;
 import ca.gov.dtsstn.vacman.api.web.model.MatchReadModel;
 import ca.gov.dtsstn.vacman.api.web.model.MatchStatusUpdateModel;
 import ca.gov.dtsstn.vacman.api.web.model.MatchSummaryReadModel;
@@ -278,23 +279,31 @@ public class RequestsController {
 
 	@ApiResponses.Ok
 	@ApiResponses.BadRequestError
-	@GetMapping({ "/{id}/matches" })
 	@ApiResponses.ResourceNotFoundError
+	@GetMapping({ "/{requestId}/matches" })
 	@Operation(summary = "Get all matches for a request.")
 	@PreAuthorize("hasAuthority('hr-advisor') || hasPermission(#id, 'REQUEST', 'READ')")
-	public ResponseEntity<CollectionModel<MatchSummaryReadModel>> getAllRequestMatches(@PathVariable Long id) {
-		log.info("Received request to get all matches for request; ID: [{}]", id);
+	public ResponseEntity<PagedModel<MatchSummaryReadModel>> getAllRequestMatches(@PathVariable Long requestId, @ParameterObject Pageable pageable, @ParameterObject MatchReadFilterModel filter) {
+		log.info("Received request to get all matches for request; ID: [{}]", requestId);
 
-		final var request = requestService.getRequestById(id)
-			.orElseThrow(asResourceNotFoundException("request", id));
+		final var request = requestService.getRequestById(requestId)
+			.orElseThrow(asResourceNotFoundException("request", requestId));
 
 		log.trace("Found request: [{}]", request);
 
-		final var matches = requestService.getMatchesByRequestId(id).stream()
-			.map(matchModelMapper::toSummaryModel)
-			.collect(toCollectionModel());
+		final var matchQueryBuilder = MatchQuery.builder()
+			.requestId(requestId)
+			.matchFeedbackIds(filter.matchFeedbackId());
 
-		return ResponseEntity.ok(matches);
+		Optional.ofNullable(filter.profile()).ifPresent(profile -> {
+			matchQueryBuilder.profileEmployeeName(profile.employeeName());
+			matchQueryBuilder.profileWfaStatusIds(profile.wfaStatusId());
+		});
+
+		final var matches = requestService.getMatchesByRequestId(pageable, matchQueryBuilder.build())
+			.map(matchModelMapper::toSummaryModel);
+
+		return ResponseEntity.ok(new PagedModel<>(matches));
 	}
 
 	@ApiResponses.Ok

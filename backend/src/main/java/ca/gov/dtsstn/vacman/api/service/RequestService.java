@@ -1,7 +1,12 @@
 package ca.gov.dtsstn.vacman.api.service;
 
 import static ca.gov.dtsstn.vacman.api.data.repository.AbstractBaseRepository.hasId;
+import static ca.gov.dtsstn.vacman.api.data.repository.MatchRepository.hasMatchFeedbackIdIn;
+import static ca.gov.dtsstn.vacman.api.data.repository.MatchRepository.hasProfileFirstNameContaining;
 import static ca.gov.dtsstn.vacman.api.data.repository.MatchRepository.hasProfileId;
+import static ca.gov.dtsstn.vacman.api.data.repository.MatchRepository.hasProfileLastNameContaining;
+import static ca.gov.dtsstn.vacman.api.data.repository.MatchRepository.hasProfileMiddleNameContaining;
+import static ca.gov.dtsstn.vacman.api.data.repository.MatchRepository.hasProfileWfaStatusIdIn;
 import static ca.gov.dtsstn.vacman.api.data.repository.MatchRepository.hasRequestId;
 import static ca.gov.dtsstn.vacman.api.data.repository.RequestRepository.hasHiringManagerId;
 import static ca.gov.dtsstn.vacman.api.data.repository.RequestRepository.hasHrAdvisorIdIn;
@@ -215,8 +220,23 @@ public class RequestService {
 
 	@Transactional(readOnly = true)
 	@Counted("service.request.getMatchesByRequestId.count")
-	public List<MatchEntity> getMatchesByRequestId(Long requestId) {
-		return matchRepository.findAll(hasRequestId(requestId));
+	public Page<MatchEntity> getMatchesByRequestId(Pageable pageable, MatchQuery query) {
+		final var specification = allOf(
+			hasRequestId(query.requestId()),
+			anyOf(
+				// match specifications
+				hasMatchFeedbackIdIn(query.matchFeedbackIds())
+			),
+			anyOf(
+				// match.profile specifications
+				hasProfileWfaStatusIdIn(query.profileWfaStatusIds()),
+				hasProfileFirstNameContaining(query.profileEmployeeName()),
+				hasProfileMiddleNameContaining(query.profileEmployeeName()),
+				hasProfileLastNameContaining(query.profileEmployeeName())
+			)
+		);
+
+		return matchRepository.findAll(specification, pageable);
 	}
 
 	/**
