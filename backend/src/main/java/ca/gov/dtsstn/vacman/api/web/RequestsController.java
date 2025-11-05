@@ -282,7 +282,7 @@ public class RequestsController {
 	@ApiResponses.ResourceNotFoundError
 	@GetMapping({ "/{requestId}/matches" })
 	@Operation(summary = "Get all matches for a request.")
-	@PreAuthorize("hasAuthority('hr-advisor') || hasPermission(#id, 'REQUEST', 'READ')")
+	@PreAuthorize("hasAuthority('hr-advisor') || hasPermission(#requestId, 'REQUEST', 'READ')")
 	public ResponseEntity<PagedModel<MatchSummaryReadModel>> getAllRequestMatches(@PathVariable Long requestId, @ParameterObject Pageable pageable, @ParameterObject MatchReadFilterModel filter) {
 		log.info("Received request to get all matches for request; ID: [{}]", requestId);
 
