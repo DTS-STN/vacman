@@ -1,5 +1,7 @@
 import type React from 'react';
 
+import type { SetURLSearchParams } from 'react-router';
+
 import { clamp } from '~/utils/math-utils';
 
 /**
@@ -68,14 +70,14 @@ export function getNextSearchParamsForPage(
  */
 export function makePageClickHandler(
   searchParams: URLSearchParams,
-  setSearchParams: (nextInit: URLSearchParams) => void,
+  setSearchParams: SetURLSearchParams,
   targetPage: number,
   paramName = 'page',
 ) {
   return (e: React.MouseEvent) => {
     e.preventDefault();
     const next = getNextSearchParamsForPage(searchParams, targetPage, paramName);
-    setSearchParams(next);
+    setSearchParams(next, { preventScrollReset: true });
   };
 }
 
