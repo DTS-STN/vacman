@@ -236,6 +236,7 @@ function RequestsColumns({
               className="text-sky-800 decoration-slate-400 decoration-2"
               file={`routes/${view}/request/index.tsx`}
               params={{ requestId }}
+              search={searchParams}
               aria-label={t('requests-tables.view-link', { requestId })}
             >
               {formatWithMask(info.row.original.id, '####-####-##')}

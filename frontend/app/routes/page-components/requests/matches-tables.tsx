@@ -123,6 +123,7 @@ export default function MatchesTables({
                   file={`routes/${view}/request/profile.tsx`}
                   params={{ requestId: requestId.toString(), profileId: profileId.toString() }}
                   aria-label={`${t('matches-tables.employee')} ${profile.firstName} ${profile.lastName}`}
+                  search={searchParams}
                 >
                   {employeeName || '-'}
                 </LoadingLink>
