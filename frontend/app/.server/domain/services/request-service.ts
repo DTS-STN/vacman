@@ -1,7 +1,7 @@
 import type { Option, Result } from 'oxide.ts';
 
 import type {
-  CollectionMatchResponse,
+  PagedMatchResponse,
   MatchReadModel,
   MatchStatusUpdate,
   MatchUpdateModel,
@@ -11,6 +11,7 @@ import type {
   RequestReadModel,
   RequestStatusUpdate,
   RequestUpdateModel,
+  MatchQueryParams,
 } from '~/.server/domain/models';
 import { getDefaultRequestService } from '~/.server/domain/services/request-service-default';
 import { getMockRequestService } from '~/.server/domain/services/request-service-mock';
@@ -44,7 +45,11 @@ export type RequestService = {
   cancelRequestById(requestId: number, accessToken: string): Promise<Result<RequestReadModel, AppError>>;
 
   // GET /api/v1/requests/{id}/matches - Get all matches for a request
-  getRequestMatches(requestId: number, accessToken: string): Promise<Result<CollectionMatchResponse, AppError>>;
+  getRequestMatches(
+    requestId: number,
+    params: MatchQueryParams,
+    accessToken: string,
+  ): Promise<Result<PagedMatchResponse, AppError>>;
 
   // GET /api/v1/requests/{id}/matches/{matchId} - Get specific match for a request
   getRequestMatchById(requestId: number, matchId: number, accessToken: string): Promise<Result<MatchReadModel, AppError>>;

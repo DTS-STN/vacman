@@ -57,6 +57,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 
   const requestMatchesResult = await getRequestService().getRequestMatches(
     parseInt(params.requestId),
+    {},
     session.authState.accessToken,
   );
 
@@ -233,6 +234,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 
   const requestMatchesResult = await getRequestService().getRequestMatches(
     parseInt(params.requestId),
+    {},
     session.authState.accessToken,
   );
 

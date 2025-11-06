@@ -421,6 +421,19 @@ export type MatchSummaryReadModel = Readonly<{
 }>;
 
 // Match Response Models
-export type CollectionMatchResponse = Readonly<{
+export type PagedMatchResponse = Readonly<{
   content: MatchSummaryReadModel[];
+  page: PageMetadata;
 }>;
+
+// API Query Parameters for Matches
+export type MatchQueryParams = {
+  page?: number;
+  size?: number;
+  sort?: string[];
+  matchFeedbackId?: number[];
+  profile?: {
+    employeeName?: string;
+    wfaStatusId?: number[];
+  };
+};

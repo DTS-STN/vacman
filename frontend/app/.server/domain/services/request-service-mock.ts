@@ -9,11 +9,12 @@ import type {
   RequestStatusUpdate,
   RequestStatus,
   User,
-  CollectionMatchResponse,
+  PagedMatchResponse,
   MatchReadModel,
   MatchUpdateModel,
   Profile,
   MatchStatusUpdate,
+  MatchQueryParams,
 } from '~/.server/domain/models';
 import { getCityService } from '~/.server/domain/services/city-service';
 import { getClassificationService } from '~/.server/domain/services/classification-service';
@@ -476,21 +477,71 @@ export function getMockRequestService(): RequestService {
     /**
      * Gets all matches for a request.
      */
-    async getRequestMatches(requestId: number, accessToken: string): Promise<Result<CollectionMatchResponse, AppError>> {
+    async getRequestMatches(
+      requestId: number,
+      params: MatchQueryParams,
+      accessToken: string,
+    ): Promise<Result<PagedMatchResponse, AppError>> {
       log.debug(`Attempting to retrieve match with request ID: ${requestId}`, {
         accessTokenLength: accessToken.length,
       });
 
-      const match = mockMatches.find((m) => m.request?.id === requestId);
+      let filteredMatches = [...mockMatches];
+      log.debug(`Starting with ${filteredMatches.length} total matches`);
 
-      if (match) {
-        log.debug(`Successfully retrieved match with request ID: ${requestId}`, {
-          profileId: match.profile?.id,
-          requestId: match.request?.id,
-          matchStatus: match.matchStatus?.code,
+      filteredMatches = mockMatches.filter((m) => m.request?.id === requestId);
+
+      // Apply status filter using matchFeedbackId param (array of ids)
+      if (params.matchFeedbackId?.length) {
+        const matchFeedbackId = params.matchFeedbackId.filter((n) => Number.isFinite(n));
+        filteredMatches = filteredMatches.filter((p) =>
+          p.matchFeedback?.id ? matchFeedbackId.includes(p.matchFeedback.id) : false,
+        );
+        log.debug(`Applied matchFeedbackId filter (${matchFeedbackId.join(',')}): ${filteredMatches.length} matches remaining`);
+      }
+
+      // Apply status filter using wfaStatusId param (array of ids)
+      if (params.profile?.wfaStatusId?.length) {
+        const wfaStatusId = params.profile.wfaStatusId.filter((n) => Number.isFinite(n));
+        filteredMatches = filteredMatches.filter((p) =>
+          p.profile?.wfaStatus?.id ? wfaStatusId.includes(p.profile.wfaStatus.id) : false,
+        );
+        log.debug(`Applied wfaStatusId filter (${wfaStatusId.join(',')}): ${filteredMatches.length} matches remaining`);
+      }
+
+      if (params.profile?.employeeName?.trim()) {
+        const search = params.profile.employeeName.trim().toLowerCase();
+        filteredMatches = filteredMatches.filter((p) => {
+          const firstName = p.profile?.firstName ?? '';
+          const lastName = p.profile?.lastName ?? '';
+          const fullName = `${firstName} ${lastName}`.toLowerCase();
+          const reversedName = `${lastName} ${firstName}`.toLowerCase();
+          return fullName.includes(search) || reversedName.includes(search);
         });
-        const response: CollectionMatchResponse = {
-          content: [match],
+        log.debug(`Applied employeeName filter (${params.profile.employeeName}): ${filteredMatches.length} matches remaining`);
+      }
+
+      // Apply pagination
+      const requestedPage = params.page ?? 1; // 1-based page from request
+      const zeroBasedPage = requestedPage - 1; // Convert to 0-based for array slicing
+      const size = params.size ?? 10;
+      const startIndex = zeroBasedPage * size;
+      const endIndex = startIndex + size;
+      const paginatedMatches = filteredMatches.slice(startIndex, endIndex);
+      log.debug(
+        `Applied pagination (page: ${requestedPage}, size: ${size}): ${paginatedMatches.length} matches in current page`,
+      );
+
+      if (filteredMatches.length > 0) {
+        log.debug(`Successfully retrieved match with request ID: ${requestId}`);
+        const response: PagedMatchResponse = {
+          content: paginatedMatches,
+          page: {
+            number: requestedPage, // Return 1-based page number to match real backend
+            size: size,
+            totalElements: filteredMatches.length,
+            totalPages: Math.ceil(filteredMatches.length / size),
+          },
         };
         return Promise.resolve(Ok(response));
       }
