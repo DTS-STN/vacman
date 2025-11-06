@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
+import ca.gov.dtsstn.vacman.api.event.*;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.mapstruct.factory.Mappers;
 import org.slf4j.Logger;
@@ -55,11 +56,6 @@ import ca.gov.dtsstn.vacman.api.data.repository.SecurityClearanceRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.SelectionProcessTypeRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.WorkScheduleRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.WorkUnitRepository;
-import ca.gov.dtsstn.vacman.api.event.RequestCompletedEvent;
-import ca.gov.dtsstn.vacman.api.event.RequestCreatedEvent;
-import ca.gov.dtsstn.vacman.api.event.RequestFeedbackCompletedEvent;
-import ca.gov.dtsstn.vacman.api.event.RequestFeedbackPendingEvent;
-import ca.gov.dtsstn.vacman.api.event.RequestUpdatedEvent;
 import ca.gov.dtsstn.vacman.api.security.SecurityUtils;
 import ca.gov.dtsstn.vacman.api.service.NotificationService.RequestEvent;
 import ca.gov.dtsstn.vacman.api.service.dto.MatchQuery;
@@ -455,7 +451,7 @@ public class RequestService {
 		request.setRequestStatus(getRequestStatusByCode(requestStatuses.submitted()));
 
 		// Send notification
-		// sendRequestCreatedNotification(request);
+		eventPublisher.publishEvent(new RequestSubmittedEvent(request, requestStatuses.draft(), requestStatuses.submitted()));
 
 		return request;
 	}
@@ -488,88 +484,6 @@ public class RequestService {
 	}
 
 	/**
-	 * Gets a RequestStatusEntity by its code.
-	 */
-	private RequestStatusEntity getRequestStatusByCode(String code) {
-		return requestStatusRepository.findByCode(code)
-			.orElseThrow(() -> new IllegalStateException("Request status not found: " + code));
-	}
-
-	/**
-	 * Sends a notification when a request is created.
-	 * TODO ::: GjB ::: this should be done via events. see RequestEventListener.java
-	 */
-	private void sendRequestCreatedNotification(RequestEntity request) {
-		notificationService.sendRequestNotification(
-			applicationProperties.gcnotify().hrGdInboxEmail(),
-			request.getId(),
-			request.getNameEn(),
-			RequestEvent.CREATED,
-			"en");
-	}
-
-	/**
-	 * Cancels a request.
-	 *
-	 * @param requestId The ID of the request to cancel
-	 * @return The updated request entity
-	 */
-	@Counted("service.request.cancelRequest.count")
-	public RequestEntity cancelRequest(Long requestId) {
-		final var request = getRequestById(requestId)
-			.orElseThrow(asResourceNotFoundException("request", requestId));
-
-		// Set status to CANCELLED
-		request.setRequestStatus(getRequestStatusByCode(requestStatuses.cancelled()));
-
-		return updateRequest(request);
-	}
-
-	/**
-	 * Runs the match creation algorithm for a request and updates the status.
-	 *
-	 * @param request The request entity to run matches for
-	 * @return The updated request entity
-	 */
-	@Counted("service.request.runMatches.count")
-	public RequestEntity runMatches(RequestEntity request) {
-		final var currentStatus = request.getRequestStatus().getCode();
-
-		if (!requestStatuses.hrReview().equals(currentStatus)) {
-			throw new ResourceConflictException("Request must be in HR_REVIEW status to be approved");
-		}
-
-		final var matches = createMatches(request);
-
-		if (!matches.isEmpty()) {
-			// Set status to FDBK_PENDING and send notification to the owner
-			request.setRequestStatus(getRequestStatusByCode(requestStatuses.feedbackPending()));
-			eventPublisher.publishEvent(new RequestFeedbackPendingEvent(request));
-		}
-		else {
-			// Set status to NO_MATCH_HR_REVIEW
-			request.setRequestStatus(getRequestStatusByCode(requestStatuses.noMatchHrReview()));
-		}
-
-		return updateRequest(request);
-	}
-
-	/**
-	 * Creates matches for a request using the matching algorithm.
-	 *
-	 * @param request The request entity
-	 * @return List of created match entities
-	 */
-	private List<MatchEntity> createMatches(RequestEntity request) {
-		log.info("Creating matches for request ID: [{}]", request.getId());
-
-		final int maxMatches = applicationProperties.matches().maxMatchesPerRequest();
-		log.debug("Using configured maximum matches per request: {}", maxMatches);
-
-		return requestMatchingService.performRequestMatching(request.getId(), maxMatches);
-	}
-
-	/**
 	 * Handles the vmsNotRequired event.
 	 *
 	 * @param request       The request entity
@@ -593,6 +507,8 @@ public class RequestService {
 
 		// Set status to PENDING_PSC_NO_VMS
 		request.setRequestStatus(getRequestStatusByCode(requestStatuses.pendingPscClearanceNoVms()));
+
+		eventPublisher.publishEvent(new RequestStatusChangeEvent(request, requestStatuses.hrReview(), requestStatuses.pendingPscClearanceNoVms()));
 
 		return request;
 	}
@@ -663,6 +579,8 @@ public class RequestService {
 		final var clearanceNumber = RandomStringUtils.insecure().nextAlphanumeric(16).toUpperCase();
 		request.setPscClearanceNumber(clearanceNumber);
 
+		eventPublisher.publishEvent(new RequestStatusChangeEvent(request, currentStatus, requestStatuses.clearanceGranted()));
+
 		return request;
 	}
 
@@ -683,6 +601,9 @@ public class RequestService {
 			throw new ResourceConflictException("Request must be in FDBK_PEND_APPR or NO_MATCH_HR_REVIEW status to be marked as PSC required");
 		}
 
+		// Store the previous status code before changing it
+		final var previousStatusCode = currentStatus;
+
 		// Set status to PENDING_PSC
 		request.setRequestStatus(getRequestStatusByCode(requestStatuses.pendingPscClearance()));
 
@@ -693,6 +614,9 @@ public class RequestService {
 
 		final var clearanceNumber = RandomStringUtils.insecure().nextAlphanumeric(16).toUpperCase();
 		request.setPscClearanceNumber(clearanceNumber);
+
+		// Publish a RequestStatusChangeEvent
+		eventPublisher.publishEvent(new RequestStatusChangeEvent(request, previousStatusCode, requestStatuses.pendingPscClearance()));
 
 		return request;
 	}
@@ -721,4 +645,76 @@ public class RequestService {
 		return request;
 	}
 
+	/**
+	 * Cancels a request.
+	 *
+	 * @param requestId The ID of the request to cancel
+	 * @return The updated request entity
+	 */
+	@Counted("service.request.cancelRequest.count")
+	public RequestEntity cancelRequest(Long requestId) {
+		final var request = getRequestById(requestId)
+				.orElseThrow(asResourceNotFoundException("request", requestId));
+
+		final var previousStatusCode = request.getRequestStatus().getCode();
+
+		request.setRequestStatus(getRequestStatusByCode(requestStatuses.cancelled()));
+		final var updatedRequest = updateRequest(request);
+
+		eventPublisher.publishEvent(new RequestStatusChangeEvent(updatedRequest, previousStatusCode, requestStatuses.cancelled()));
+
+		return updatedRequest;
+	}
+
+	/**
+	 * Gets a RequestStatusEntity by its code.
+	 */
+	private RequestStatusEntity getRequestStatusByCode(String code) {
+		return requestStatusRepository.findByCode(code)
+			.orElseThrow(() -> new IllegalStateException("Request status not found: " + code));
+	}
+
+	/**
+	 * Runs the match creation algorithm for a request and updates the status.
+	 *
+	 * @param request The request entity to run matches for
+	 * @return The updated request entity
+	 */
+	@Counted("service.request.runMatches.count")
+	public RequestEntity runMatches(RequestEntity request) {
+		final var currentStatus = request.getRequestStatus().getCode();
+
+		if (!requestStatuses.hrReview().equals(currentStatus)) {
+			throw new ResourceConflictException("Request must be in HR_REVIEW status to be approved");
+		}
+
+		final var matches = createMatches(request);
+
+		if (!matches.isEmpty()) {
+			// Set status to FDBK_PENDING and send notification to the owner and matched users.
+			request.setRequestStatus(getRequestStatusByCode(requestStatuses.feedbackPending()));
+			eventPublisher.publishEvent(new RequestFeedbackPendingEvent(request));
+		}
+		else {
+			// Set status to NO_MATCH_HR_REVIEW
+			request.setRequestStatus(getRequestStatusByCode(requestStatuses.noMatchHrReview()));
+		}
+
+		return updateRequest(request);
+	}
+
+	/**
+	 * Creates matches for a request using the matching algorithm.
+	 *
+	 * @param request The request entity
+	 * @return List of created match entities
+	 */
+	private List<MatchEntity> createMatches(RequestEntity request) {
+		log.info("Creating matches for request ID: [{}]", request.getId());
+
+		final int maxMatches = applicationProperties.matches().maxMatchesPerRequest();
+		log.debug("Using configured maximum matches per request: {}", maxMatches);
+
+		return requestMatchingService.performRequestMatching(request.getId(), maxMatches);
+	}
 }
