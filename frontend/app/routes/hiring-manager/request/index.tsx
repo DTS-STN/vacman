@@ -399,6 +399,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     securityClearanceName: lang === 'en' ? requestData.securityClearance?.nameEn : requestData.securityClearance?.nameFr,
     hasMatches: requestData.hasMatches,
     lang,
+    backLinkSearchParams: new URL(request.url).searchParams.toString(),
   };
 }
 
@@ -511,6 +512,8 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
         aria-label={t('app:hiring-manager-referral-requests.back')}
         file="routes/hiring-manager/requests.tsx"
         disabled={isSubmitting}
+        params={params}
+        search={new URLSearchParams(loaderData.backLinkSearchParams)}
       >
         {t('app:hiring-manager-referral-requests.back')}
       </BackLink>

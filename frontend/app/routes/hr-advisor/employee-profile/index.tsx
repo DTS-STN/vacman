@@ -249,7 +249,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     lastModifiedDate: profileData.lastModifiedDate ?? undefined,
     baseTimeZone: serverEnvironment.BASE_TIMEZONE,
     lang,
-    backLinkFilter: new URL(request.url).searchParams.get('filter') ?? 'me',
+    backLinkSearchParams: new URL(request.url).searchParams.toString(),
   };
 }
 
@@ -300,7 +300,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
             aria-label={t('app:employee-profile.back')}
             file="routes/hr-advisor/employees.tsx"
             params={params}
-            search={`filter=${loaderData.backLinkFilter}`}
+            search={new URLSearchParams(loaderData.backLinkSearchParams)}
           >
             {t('app:employee-profile.back')}
           </BackLink>

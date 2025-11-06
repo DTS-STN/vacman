@@ -47,7 +47,7 @@ export default function EmployeeDashboard() {
       <div className="grid gap-4">
         <DashboardCard
           file="routes/hr-advisor/employees.tsx"
-          search="filter=me"
+          search={new URLSearchParams([['filter', 'me']])}
           icon={faUser}
           title={t('app:hr-advisor-dashboard.employees')}
         />
