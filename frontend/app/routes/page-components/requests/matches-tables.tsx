@@ -141,6 +141,7 @@ export default function MatchesTables({
                 options={wfaStatuses}
                 searchParams={searchParams}
                 setSearchParams={setSearchParams}
+                showClearAll
               />
             )}
             cell={(info) => {
@@ -163,6 +164,7 @@ export default function MatchesTables({
                 options={matchFeedbacks}
                 searchParams={searchParams}
                 setSearchParams={setSearchParams}
+                showClearAll
               />
             )}
             cell={(info) => {
