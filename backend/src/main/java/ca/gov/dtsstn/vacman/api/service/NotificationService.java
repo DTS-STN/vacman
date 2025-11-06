@@ -306,7 +306,7 @@ public class NotificationService {
 		Assert.notNull(jobOpportunityHR, "jobOpportunityHR is required; it must not be null");
 		Assert.hasText(language, "language is required; it must not be blank or null");
 
-		final var templateName = "jobOpportunityHR";
+		final var templateName = "jobOpportunityHR.ftl";
 		final var model = recordToMap(jobOpportunityHR);
 
 		final var emailContent = emailTemplateService.processEmailTemplate(templateName, Locale.of(language), model);

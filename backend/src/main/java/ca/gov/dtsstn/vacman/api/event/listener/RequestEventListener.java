@@ -5,11 +5,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import java.util.ArrayList;
-import java.util.Locale;
 
 import ca.gov.dtsstn.vacman.api.config.properties.ApplicationProperties;
 import ca.gov.dtsstn.vacman.api.data.entity.*;
-import ca.gov.dtsstn.vacman.api.service.email.data.EmailTemplateModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
@@ -368,7 +366,7 @@ public class RequestEventListener {
 
 	/**
 	 * Sends a notification when a request is marked as VMS not required.
-	 * The notification is sent to the PIMS SLE team(?) email.
+	 * The notification is sent to the PIMS SLE team email.
 	 * 
 	 * @param request The request entity
 	 */
