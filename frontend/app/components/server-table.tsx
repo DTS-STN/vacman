@@ -456,7 +456,10 @@ export function ColumnOptions<TData, TValue>({
                 variant="alternative"
                 size="sm"
                 aria-roledescription="button"
-                onClick={() => setSelected([])}
+                onClick={() => {
+                  hasChanged.current = true; // to trigger the updateParams
+                  setSelected([]);
+                }}
                 className="m-2"
               >
                 {t('data-table.filters.clear-all')}
