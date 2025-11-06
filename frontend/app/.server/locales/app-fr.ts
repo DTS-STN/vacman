@@ -612,6 +612,8 @@ export default {
       "Consulter la rétroaction sur les candidat-e-s ci-dessous pour approbation. Si des modifications sont nécessaires, communiquez directement avec le-la gestionnaire d'embauche pour en discuter et mettre à jour la demande avant de sélectionner l'action appropriée sur la page l'information sur la demande.",
     'confirm-info':
       'Je confirme que les droits en matière de recyclage ont été appliqués et/ou pris en compte pour chaque employé-e touché-e, excédentaire ou mis-e en disponibilité considéré-e.',
+    'approval-completion-progress': "Progression de l'achèvement de l'approbation",
+    'feedback-completion-progress': "Progression de l'achèvement des retours",
     'errors': {
       'match-id': "L'identifiant doit être un nombre.",
       'feedback-required': 'Une rétroaction est requise.',

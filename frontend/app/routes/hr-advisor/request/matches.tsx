@@ -238,7 +238,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 
   const matchFeedbacks = await getMatchFeedbackService().listAllLocalized(lang);
 
-  function getFeedbackProgress(requestMatches: MatchSummaryReadModel[]): number {
+  function getApprovalProgress(requestMatches: MatchSummaryReadModel[]): number {
     if (requestMatches.length === 0) return 0;
     const count = requestMatches.filter((match) => match.matchStatus?.code === MATCH_STATUS.APPROVED.code).length;
     return (count / requestMatches.length) * 100;
@@ -265,7 +265,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       lastName: requestData.hrAdvisor?.lastName,
       email: requestData.hrAdvisor?.businessEmailAddress,
     },
-    feedbackProgress: getFeedbackProgress(requestMatches),
+    approvalProgress: getApprovalProgress(requestMatches),
     page,
   };
 }
@@ -335,7 +335,7 @@ export default function HrAdvisorMatches({ loaderData, params }: Route.Component
       </BackLink>
       <h2 className="font-lato mt-4 text-2xl font-bold">{t('app:matches.request-candidates')}</h2>
       <p className="sm:w-2/3 md:w-3/4">{t('app:matches.page-info')}</p>
-      {loaderData.feedbackProgress >= 100 ? (
+      {loaderData.approvalProgress >= 100 ? (
         <AlertMessage ref={alertRef} type="info" role="alert" ariaLive="assertive">
           <Trans
             i18nKey="app:matches.feedback.approved"
@@ -352,7 +352,12 @@ export default function HrAdvisorMatches({ loaderData, params }: Route.Component
           />
         </AlertMessage>
       ) : (
-        <Progress className="mt-8 mb-8" variant="blue" label="" value={loaderData.feedbackProgress} />
+        <Progress
+          className="mt-8 mb-8"
+          variant="blue"
+          label={t('app:matches.approval-completion-progress')}
+          value={loaderData.approvalProgress}
+        />
       )}
       <MatchesTables
         {...loaderData}

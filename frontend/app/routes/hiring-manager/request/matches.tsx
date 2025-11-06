@@ -25,7 +25,7 @@ import { PageTitle } from '~/components/page-title';
 import { Progress } from '~/components/progress';
 import { RequestStatusTag } from '~/components/status-tag';
 import { VacmanBackground } from '~/components/vacman-background';
-import { MATCH_STATUS, REQUEST_EVENT_TYPE, REQUEST_STATUS_CODE } from '~/domain/constants';
+import { REQUEST_EVENT_TYPE, REQUEST_STATUS_CODE } from '~/domain/constants';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { useFetcherState } from '~/hooks/use-fetcher-state';
 import { getTranslation } from '~/i18n-config.server';
@@ -260,7 +260,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 
   function getFeedbackProgress(requestMatches: MatchSummaryReadModel[]): number {
     if (requestMatches.length === 0) return 0;
-    const count = requestMatches.filter((match) => match.matchStatus?.code === MATCH_STATUS.APPROVED.code).length;
+    const count = requestMatches.filter((match) => match.matchFeedback).length;
     return (count / requestMatches.length) * 100;
   }
 
@@ -398,7 +398,14 @@ export default function HiringManagerRequestMatches({ loaderData, actionData, pa
           </div>
         </fetcher.Form>
       )}
-      <Progress className="mt-8 mb-8" variant="blue" label="" value={loaderData.feedbackProgress} />
+      {!loaderData.feedbackSubmitted && (
+        <Progress
+          className="mt-8 mb-8"
+          variant="blue"
+          label={t('app:matches.feedback-completion-progress')}
+          value={loaderData.feedbackProgress}
+        />
+      )}
       <MatchesTables {...loaderData} submit={matchesFetcher.submit} view="hiring-manager" isUpdating={isUpdating} />
     </div>
   );
