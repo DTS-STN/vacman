@@ -23,11 +23,18 @@ import { NodeSDK } from '@opentelemetry/sdk-node';
 import { ConsoleSpanExporter } from '@opentelemetry/sdk-trace-node';
 import { ATTR_SERVICE_NAME, ATTR_SERVICE_VERSION } from '@opentelemetry/semantic-conventions';
 import { ATTR_DEPLOYMENT_ENVIRONMENT_NAME } from '@opentelemetry/semantic-conventions/incubating';
+import { minimatch } from 'minimatch';
 
 import { serverEnvironment } from '~/.server/environment';
 import { LogFactory } from '~/.server/logging';
 
 const log = LogFactory.getLogger(import.meta.url);
+
+// Patterns for URLs to ignore in tracing to reduce noise from health checks or frequent endpoints.
+// Patterns here can match minimatch syntax. see https://www.npmjs.com/package/minimatch
+const traceIgnorePatterns = [
+  '/api/readyz', //
+];
 
 log.info('Initializing OpenTelemetry SDK...');
 
@@ -45,6 +52,13 @@ const nodeSdk = new NodeSDK({
 
   instrumentations: [
     getNodeAutoInstrumentations({
+      // Configure HTTP instrumentation to ignore configured endpoints
+      '@opentelemetry/instrumentation-http': {
+        ignoreIncomingRequestHook: (request) => {
+          const pathname = new URL(request.url ?? '/', 'http://localhost:3000/').pathname;
+          return traceIgnorePatterns.some((pattern) => minimatch(pathname, pattern));
+        },
+      },
       // winston auto-instrumentation adds a lot of unwanted attributes to the logs
       '@opentelemetry/instrumentation-winston': { enabled: false },
     }),

@@ -88,6 +88,7 @@ describe('NodeSDK', () => {
     await import('~/.server/telemetry');
 
     expect(getNodeAutoInstrumentations).toHaveBeenCalledWith({
+      '@opentelemetry/instrumentation-http': { ignoreIncomingRequestHook: expect.any(Function) },
       '@opentelemetry/instrumentation-winston': { enabled: false },
     });
   });
