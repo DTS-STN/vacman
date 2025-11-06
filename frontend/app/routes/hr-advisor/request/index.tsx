@@ -140,6 +140,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     hasMatches: currentRequest.hasMatches,
     lang,
     isRequestAssignedToCurrentUser: currentUser.id === currentRequest.hrAdvisor?.id,
+    backLinkSearchParams: new URL(request.url).searchParams.toString(),
   };
 }
 
@@ -408,6 +409,8 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
         aria-label={t('app:hr-advisor-referral-requests.back')}
         file="routes/hr-advisor/requests.tsx"
         disabled={isSubmitting}
+        params={params}
+        search={new URLSearchParams(loaderData.backLinkSearchParams)}
       >
         {t('app:hr-advisor-referral-requests.back')}
       </BackLink>

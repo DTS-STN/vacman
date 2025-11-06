@@ -16,6 +16,7 @@ type LanguageSwitcherProps = OmitStrict<
 export function LanguageSwitcher({ className, children, ...props }: LanguageSwitcherProps) {
   const { altLanguage } = useLanguage();
   const { search } = useLocation();
+  const searchParams = new URLSearchParams(search);
   const { file } = useRoute();
   const params = useParams();
 
@@ -26,7 +27,7 @@ export function LanguageSwitcher({ className, children, ...props }: LanguageSwit
       lang={altLanguage}
       params={params}
       reloadDocument={true}
-      search={search}
+      search={searchParams}
       {...props}
     >
       {children}

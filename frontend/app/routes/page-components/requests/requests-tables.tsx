@@ -331,6 +331,7 @@ function RequestsColumns({
                 className="rounded-sm text-sky-800 underline hover:text-blue-700 focus:text-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
                 file={`routes/${view}/request/index.tsx`}
                 params={{ requestId }}
+                search={searchParams}
                 aria-label={t('requests-tables.view-link', { requestId })}
               >
                 {t('requests-tables.view')}

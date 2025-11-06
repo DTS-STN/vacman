@@ -25,7 +25,7 @@ type BilingualLinkProps = OmitStrict<ComponentProps<typeof Link>, 'to'> & {
   hash?: Path['hash'];
   lang?: Language;
   params?: Params;
-  search?: Path['search'];
+  search?: URLSearchParams | string;
   to?: never;
   newTabIndicator?: boolean;
 };
@@ -125,7 +125,16 @@ export function AppLink({
   const reloadDocumentProp = props.reloadDocument ?? lang !== undefined;
 
   return (
-    <Link lang={langProp} to={{ hash, pathname, search }} reloadDocument={reloadDocumentProp} {...props}>
+    <Link
+      lang={langProp}
+      to={{
+        hash,
+        pathname,
+        search: search ? search.toString() : undefined,
+      }}
+      reloadDocument={reloadDocumentProp}
+      {...props}
+    >
       {children}
       {newTabIndicator && <NewTabIndicator />}
     </Link>

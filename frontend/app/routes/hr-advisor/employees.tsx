@@ -478,7 +478,7 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
                   className="rounded-sm text-sky-800 underline hover:text-blue-700 focus:text-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
                   file="routes/hr-advisor/employee-profile/index.tsx"
                   params={{ profileId }}
-                  search={`filter=${searchParams.get('filter')}`}
+                  search={searchParams}
                   aria-label={t('app:hr-advisor-employees-table.view-link', {
                     profileUserName,
                   })}
