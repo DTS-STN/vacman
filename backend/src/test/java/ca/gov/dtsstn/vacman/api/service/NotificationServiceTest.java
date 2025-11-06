@@ -24,6 +24,7 @@ import ca.gov.dtsstn.vacman.api.config.properties.ApplicationProperties;
 import ca.gov.dtsstn.vacman.api.config.properties.GcNotifyProperties;
 import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes;
 import ca.gov.dtsstn.vacman.api.service.NotificationService.ProfileStatus;
+import ca.gov.dtsstn.vacman.api.service.email.data.EmailTemplateModel;
 import ca.gov.dtsstn.vacman.api.service.notify.ImmutableNotificationReceipt;
 import ca.gov.dtsstn.vacman.api.service.notify.NotificationReceipt;
 
@@ -67,12 +68,12 @@ class NotificationServiceTest {
 
 		// Mock EmailTemplateService
 		final var mockEmailContent = mock(EmailTemplateService.EmailContent.class);
-		when(mockEmailContent.subject()).thenReturn("Test Subject");
-		when(mockEmailContent.body()).thenReturn("Test Body");
-		when(emailTemplateService.processEmailTemplate(any(), any(), any())).thenReturn(mockEmailContent);
+		lenient().when(mockEmailContent.subject()).thenReturn("Test Subject");
+		lenient().when(mockEmailContent.body()).thenReturn("Test Body");
+		lenient().when(emailTemplateService.processEmailTemplate(any(), any(), any())).thenReturn(mockEmailContent);
 
 		// Mock generic template ID
-		when(applicationProperties.gcnotify().genericTemplateId()).thenReturn("generic-template-id");
+		lenient().when(applicationProperties.gcnotify().genericTemplateId()).thenReturn("generic-template-id");
 
 		this.notificationService = new NotificationService(applicationProperties, restTemplateBuilder, lookupCodes, emailTemplateService);
 	}
@@ -241,4 +242,272 @@ class NotificationServiceTest {
 		assertThat(result.size()).isEqualTo(2);
 	}
 
+	@Test
+	@DisplayName("Test send bulk job opportunity notification with English language")
+	void sendBulkJobOpportunityNotificationEnglishSuccess() {
+		// Mock the response from the REST template
+		when(restTemplate.postForObject(eq("/v2/notifications/bulk"), any(Map.class), eq(NotificationReceipt.class)))
+			.thenReturn(ImmutableNotificationReceipt.builder().build());
+
+		// Create test data
+		final var recipientEmails = List.of("test1@example.com", "test2@example.com");
+		final Long requestId = 123L;
+		final var requestTitle = "Test Job Opportunity";
+		final var jobModel = new EmailTemplateModel.JobOpportunity(
+			"REQ-123",
+			"Software Developer",
+			"CS-03",
+			"Bilingual",
+			"Ottawa",
+			"Secret",
+			"John Doe",
+			"john.doe@example.com",
+			"Yes",
+			"Experience with Java"
+		);
+		final var language = lookupCodes.languages().english();
+
+		// Call the method being tested
+		final var result = notificationService.sendBulkJobOpportunityNotification(
+			recipientEmails,
+			requestId,
+			requestTitle,
+			jobModel,
+			language
+		);
+
+		// Verify the result
+		assertThat(result).isNotNull();
+	}
+
+	@Test
+	@DisplayName("Test send bulk job opportunity notification with French language")
+	void sendBulkJobOpportunityNotificationFrenchSuccess() {
+		// Mock the response from the REST template
+		when(restTemplate.postForObject(eq("/v2/notifications/bulk"), any(Map.class), eq(NotificationReceipt.class)))
+			.thenReturn(ImmutableNotificationReceipt.builder().build());
+
+		// Create test data
+		final var recipientEmails = List.of("test1@example.com", "test2@example.com");
+		final Long requestId = 123L;
+		final var requestTitle = "Test d'opportunité d'emploi";
+		final var jobModel = new EmailTemplateModel.JobOpportunity(
+			"REQ-123",
+			"Développeur de logiciels",
+			"CS-03",
+			"Bilingue",
+			"Ottawa",
+			"Secret",
+			"Jean Dupont",
+			"jean.dupont@example.com",
+			"Oui",
+			"Expérience avec Java"
+		);
+		final var language = lookupCodes.languages().french();
+
+		// Call the method being tested
+		final var result = notificationService.sendBulkJobOpportunityNotification(
+			recipientEmails,
+			requestId,
+			requestTitle,
+			jobModel,
+			language
+		);
+
+		// Verify the result
+		assertThat(result).isNotNull();
+	}
+
+	@Test
+	@DisplayName("Test send bulk job opportunity notification with single recipient")
+	void sendBulkJobOpportunityNotificationSingleRecipientSuccess() {
+		// Mock the response from the REST template
+		when(restTemplate.postForObject(eq("/v2/notifications/bulk"), any(Map.class), eq(NotificationReceipt.class)))
+			.thenReturn(ImmutableNotificationReceipt.builder().build());
+
+		// Create test data with a single recipient
+		final var recipientEmails = List.of("single@example.com");
+		final Long requestId = 123L;
+		final var requestTitle = "Test Job Opportunity";
+		final var jobModel = new EmailTemplateModel.JobOpportunity(
+			"REQ-123",
+			"Software Developer",
+			"CS-03",
+			"Bilingual",
+			"Ottawa",
+			"Secret",
+			"John Doe",
+			"john.doe@example.com",
+			"Yes",
+			"Experience with Java"
+		);
+		final var language = lookupCodes.languages().english();
+
+		// Call the method being tested
+		final var result = notificationService.sendBulkJobOpportunityNotification(
+			recipientEmails,
+			requestId,
+			requestTitle,
+			jobModel,
+			language
+		);
+
+		// Verify the result
+		assertThat(result).isNotNull();
+	}
+
+	@Test
+	@DisplayName("Test send bulk job opportunity notification with empty recipient list")
+	void sendBulkJobOpportunityNotificationEmptyRecipientList() {
+		// Create test data with an empty recipient list
+		final List<String> recipientEmails = List.of();
+		final Long requestId = 123L;
+		final var requestTitle = "Test Job Opportunity";
+		final var jobModel = new EmailTemplateModel.JobOpportunity(
+			"REQ-123",
+			"Software Developer",
+			"CS-03",
+			"Bilingual",
+			"Ottawa",
+			"Secret",
+			"John Doe",
+			"john.doe@example.com",
+			"Yes",
+			"Experience with Java"
+		);
+		final var language = lookupCodes.languages().english();
+
+		// Verify that an IllegalArgumentException is thrown
+		org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class, () -> {
+			notificationService.sendBulkJobOpportunityNotification(
+				recipientEmails,
+				requestId,
+				requestTitle,
+				jobModel,
+				language
+			);
+		});
+	}
+
+	@Test
+	@DisplayName("Test send bulk job opportunity notification with null requestId")
+	void sendBulkJobOpportunityNotificationNullRequestId() {
+		// Create test data with a null requestId
+		final var recipientEmails = List.of("test@example.com");
+		final Long requestId = null;
+		final var requestTitle = "Test Job Opportunity";
+		final var jobModel = new EmailTemplateModel.JobOpportunity(
+			"REQ-123",
+			"Software Developer",
+			"CS-03",
+			"Bilingual",
+			"Ottawa",
+			"Secret",
+			"John Doe",
+			"john.doe@example.com",
+			"Yes",
+			"Experience with Java"
+		);
+		final var language = lookupCodes.languages().english();
+
+		// Verify that an IllegalArgumentException is thrown
+		org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class, () -> {
+			notificationService.sendBulkJobOpportunityNotification(
+				recipientEmails,
+				requestId,
+				requestTitle,
+				jobModel,
+				language
+			);
+		});
+	}
+
+	@Test
+	@DisplayName("Test send bulk job opportunity notification with blank requestTitle")
+	void sendBulkJobOpportunityNotificationBlankRequestTitle() {
+		// Create test data with a blank requestTitle
+		final var recipientEmails = List.of("test@example.com");
+		final Long requestId = 123L;
+		final var requestTitle = "";
+		final var jobModel = new EmailTemplateModel.JobOpportunity(
+			"REQ-123",
+			"Software Developer",
+			"CS-03",
+			"Bilingual",
+			"Ottawa",
+			"Secret",
+			"John Doe",
+			"john.doe@example.com",
+			"Yes",
+			"Experience with Java"
+		);
+		final var language = lookupCodes.languages().english();
+
+		// Verify that an IllegalArgumentException is thrown
+		org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class, () -> {
+			notificationService.sendBulkJobOpportunityNotification(
+				recipientEmails,
+				requestId,
+				requestTitle,
+				jobModel,
+				language
+			);
+		});
+	}
+
+	@Test
+	@DisplayName("Test send bulk job opportunity notification with null jobModel")
+	void sendBulkJobOpportunityNotificationNullJobModel() {
+		// Create test data with a null jobModel
+		final var recipientEmails = List.of("test@example.com");
+		final Long requestId = 123L;
+		final var requestTitle = "Test Job Opportunity";
+		final EmailTemplateModel.JobOpportunity jobModel = null;
+		final var language = lookupCodes.languages().english();
+
+		// Verify that an IllegalArgumentException is thrown
+		org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class, () -> {
+			notificationService.sendBulkJobOpportunityNotification(
+				recipientEmails,
+				requestId,
+				requestTitle,
+				jobModel,
+				language
+			);
+		});
+	}
+
+	@Test
+	@DisplayName("Test send bulk job opportunity notification with blank language")
+	@org.mockito.junit.jupiter.MockitoSettings(strictness = org.mockito.quality.Strictness.LENIENT)
+	void sendBulkJobOpportunityNotificationBlankLanguage() {
+		// Create test data with a blank language
+		final var recipientEmails = List.of("test@example.com");
+		final Long requestId = 123L;
+		final var requestTitle = "Test Job Opportunity";
+		final var jobModel = new EmailTemplateModel.JobOpportunity(
+			"REQ-123",
+			"Software Developer",
+			"CS-03",
+			"Bilingual",
+			"Ottawa",
+			"Secret",
+			"John Doe",
+			"john.doe@example.com",
+			"Yes",
+			"Experience with Java"
+		);
+		final var language = "";
+
+		// Verify that an IllegalArgumentException is thrown
+		org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class, () -> {
+			notificationService.sendBulkJobOpportunityNotification(
+				recipientEmails,
+				requestId,
+				requestTitle,
+				jobModel,
+				language
+			);
+		});
+	}
 }
