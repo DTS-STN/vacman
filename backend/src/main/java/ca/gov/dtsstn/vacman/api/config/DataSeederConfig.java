@@ -2,11 +2,9 @@ package ca.gov.dtsstn.vacman.api.config;
 
 import static ca.gov.dtsstn.vacman.api.data.entity.AbstractCodeEntity.byCode;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Random;
 import java.util.function.Supplier;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.slf4j.Logger;
@@ -21,13 +19,11 @@ import org.springframework.scheduling.annotation.Async;
 
 import ca.gov.dtsstn.vacman.api.data.entity.CityEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.ClassificationEntity;
-import ca.gov.dtsstn.vacman.api.data.entity.EmploymentEquityEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.EmploymentOpportunityEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.EmploymentTenureEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.LanguageEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.LanguageReferralTypeEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.LanguageRequirementEntity;
-import ca.gov.dtsstn.vacman.api.data.entity.NonAdvertisedAppointmentEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.ProfileStatusEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.RequestEntity;
@@ -36,17 +32,16 @@ import ca.gov.dtsstn.vacman.api.data.entity.SecurityClearanceEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.SelectionProcessTypeEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.UserTypeEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.WfaStatusEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.WorkScheduleEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.WorkUnitEntity;
 import ca.gov.dtsstn.vacman.api.data.repository.CityRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.ClassificationRepository;
-import ca.gov.dtsstn.vacman.api.data.repository.EmploymentEquityRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.EmploymentOpportunityRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.EmploymentTenureRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.LanguageReferralTypeRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.LanguageRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.LanguageRequirementRepository;
-import ca.gov.dtsstn.vacman.api.data.repository.NonAdvertisedAppointmentRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.ProfileRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.ProfileStatusRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.RequestRepository;
@@ -55,6 +50,7 @@ import ca.gov.dtsstn.vacman.api.data.repository.SecurityClearanceRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.SelectionProcessTypeRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.UserRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.UserTypeRepository;
+import ca.gov.dtsstn.vacman.api.data.repository.WfaStatusRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.WorkScheduleRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.WorkUnitRepository;
 import net.datafaker.Faker;
@@ -71,31 +67,28 @@ public class DataSeederConfig {
 
 	final List<CityEntity> cities;
 	final List<ClassificationEntity> classifications;
-	final List<EmploymentEquityEntity> employmentEquities;
 	final List<EmploymentOpportunityEntity> employmentOpportunities;
 	final List<EmploymentTenureEntity> employmentTenures;
 	final List<LanguageEntity> languages;
 	final List<LanguageReferralTypeEntity> languageReferralTypes;
 	final List<LanguageRequirementEntity> languageRequirements;
-	final List<NonAdvertisedAppointmentEntity> nonAdvertisedAppointments;
 	final List<ProfileStatusEntity> profileStatuses;
 	final List<RequestStatusEntity> requestStatuses;
 	final List<SecurityClearanceEntity> securityClearances;
 	final List<SelectionProcessTypeEntity> selectionProcessTypes;
 	final List<UserTypeEntity> userTypes;
+	final List<WfaStatusEntity> wfaStatuses;
 	final List<WorkScheduleEntity> workSchedules;
 	final List<WorkUnitEntity> workUnits;
 
 	DataSeederConfig(
 			CityRepository cityRepository,
 			ClassificationRepository classificationRepository,
-			EmploymentEquityRepository employmentEquityRepository,
 			EmploymentOpportunityRepository employmentOpportunityRepository,
 			EmploymentTenureRepository employmentTenureRepository,
 			LanguageReferralTypeRepository languageReferralTypeRepository,
 			LanguageRepository languageRepository,
 			LanguageRequirementRepository languageRequirementRepository,
-			NonAdvertisedAppointmentRepository nonAdvertisedAppointmentRepository,
 			ProfileRepository profileRepository,
 			ProfileStatusRepository profileStatusRepository,
 			RequestRepository requestRepository,
@@ -104,6 +97,7 @@ public class DataSeederConfig {
 			SelectionProcessTypeRepository selectionProcessTypeRepository,
 			UserRepository userRepository,
 			UserTypeRepository userTypeRepository,
+			WfaStatusRepository wfaStatusRepository,
 			WorkScheduleRepository workScheduleRepository,
 			WorkUnitRepository workUnitRepository) {
 		this.profileRepository = profileRepository;
@@ -112,23 +106,21 @@ public class DataSeederConfig {
 
 		this.cities = cityRepository.findAll();
 		this.classifications = classificationRepository.findAll();
-		this.employmentEquities = employmentEquityRepository.findAll();
 		this.employmentOpportunities = employmentOpportunityRepository.findAll();
 		this.employmentTenures = employmentTenureRepository.findAll();
 		this.languages = languageRepository.findAll();
 		this.languageReferralTypes = languageReferralTypeRepository.findAll();
 		this.languageRequirements = languageRequirementRepository.findAll();
-		this.nonAdvertisedAppointments = nonAdvertisedAppointmentRepository.findAll();
 		this.profileStatuses = profileStatusRepository.findAll();
 		this.requestStatuses = requestStatusRepository.findAll();
 		this.securityClearances = securityClearanceRepository.findAll();
 		this.selectionProcessTypes = selectionProcessTypeRepository.findAll();
 		this.userTypes = userTypeRepository.findAll();
+		this.wfaStatuses = wfaStatusRepository.findAll();
 		this.workSchedules = workScheduleRepository.findAll();
 		this.workUnits = workUnitRepository.findAll();
 	}
 
-	@SuppressWarnings({ "unused" })
 	@Bean ApplicationRunner dataSeeder() {
 		return new ApplicationRunner() {
 
@@ -148,9 +140,8 @@ public class DataSeederConfig {
 
 				logger.info("Seeding application data...");
 
-				final var users = seedUsers();
-				final var profiles = seedProfiles(users);
-				final var requests = seedRequests(users);
+				seedUsers();
+				seedRequests();
 
 				logger.info("Data seeding complete");
 			}
@@ -158,14 +149,9 @@ public class DataSeederConfig {
 		};
 	}
 
-	/**
-	 * Seeds 100 employee users with random fake data including names, emails, and language.
-	 * Includes a sentinel user as the first entry to mark seeding completion.
-	 */
-	List<UserEntity> seedUsers() {
-		final var faker = new Faker(new Random(6146794652083548235L));
+	void seedUsers() {
+		final var faker = new Faker(new Random(0xDEADBEEF));
 
-		// Create the sentinel user first
 		final var sentinelUser = UserEntity.builder()
 			.businessEmailAddress("seeded-data@example.com")
 			.firstName("Seeded")
@@ -175,192 +161,202 @@ public class DataSeederConfig {
 			.userType(userTypes.stream().filter(byCode("employee")).findFirst().orElseThrow())
 			.build();
 
-		// Seed the remaining 99 users
-		final var additionalUsers = IntStream.range(0, 99)
-			.mapToObj(xxx -> {
-				final var firstName = faker.name().firstName();
-				final var lastName = faker.name().lastName();
-				final var businessEmailAddress = faker.internet().safeEmailAddress();
-				final var language = randomElement(faker, languages);
-				final var microsoftEntraId = faker.idNumber().valid();
-				final var employeeUserType = userTypes.stream().filter(byCode("employee")).findFirst().orElseThrow();
+		userRepository.save(sentinelUser);
 
-				return UserEntity.builder()
-					.businessEmailAddress(businessEmailAddress)
-					.firstName(firstName)
-					.language(language)
-					.lastName(lastName)
-					.microsoftEntraId(microsoftEntraId)
-					.userType(employeeUserType)
-					.build();
-			}).toList();
+		final var affectedWfa = wfaStatuses.stream().filter(byCode("AFFECTED")).findFirst().orElseThrow();
+		final var surplusWfa = wfaStatuses.stream().filter(byCode("SURPLUS_GRJO")).findFirst().orElseThrow();
+		final var approvedStatus = profileStatuses.stream().filter(byCode("APPROVED")).findFirst().orElseThrow();
+		final var as05 = classifications.stream().filter(byCode("AS-05")).findFirst().orElseThrow();
+		final var pm05 = classifications.stream().filter(byCode("PM-05")).findFirst().orElseThrow();
+		final var ottawa = cities.stream().filter(c -> "Ottawa".equals(c.getNameEn())).findFirst().orElseThrow();
+		final var gatineau = cities.stream().filter(c -> "Gatineau".equals(c.getNameEn())).findFirst().orElseThrow();
+		final var montreal = cities.stream().filter(c -> "Montréal".equals(c.getNameEn())).findFirst().orElseThrow();
+		final var bilingual = languageReferralTypes.stream().filter(byCode("BILINGUAL")).findFirst().orElseThrow();
+		final var englishOnly = languageReferralTypes.stream().filter(byCode("ENGLISH")).findFirst().orElseThrow();
 
-		// Combine sentinel and additional users
-		final var allUsers = Stream.concat(Stream.of(sentinelUser), additionalUsers.stream()).toList();
-
-		return userRepository.saveAll(allUsers);
-	}
-
-	/**
-	 * Seeds one profile per user, split into matching and non-matching profiles.
-	 */
-	List<ProfileEntity> seedProfiles(List<UserEntity> users) {
-		final var matchingProfiles = seedMatchingProfiles(users.subList(0, 50));
-		final var nonMatchingProfiles = seedNonMatchingProfiles(users.subList(50, 100));
-
-		final var profiles = Stream.concat(matchingProfiles.stream(),nonMatchingProfiles.stream()).toList();
-
-		return profileRepository.saveAll(profiles);
-	}
-
-	/**
-	 * Seeds 50 profiles that are likely to match requests: approved status, available for referral, broad preferences.
-	 */
-	List<ProfileEntity> seedMatchingProfiles(List<UserEntity> users) {
-		final var approvedStatus = profileStatuses.stream()
-			.filter(byCode("APPROVED"))
-			.findFirst().orElseThrow();
-
-		final var profiles = users.stream()
-			.map(user -> ProfileEntity.builder()
-				.user(user)
-				.isAvailableForReferral(true)
-				.preferredCities(cities)                                   // all cities
-				.preferredClassifications(classifications)                 // all classifications
-				.preferredEmploymentOpportunities(employmentOpportunities) // all employement opportunities
-				.preferredLanguages(languageReferralTypes)                 // all languages
-				.profileStatus(approvedStatus)
+		final var users = Stream.generate(() -> UserEntity.builder()
+				.businessEmailAddress(faker.internet().safeEmailAddress())
+				.firstName(faker.name().firstName())
+				.language(randomElement(faker, languages))
+				.lastName(faker.name().lastName())
+				.microsoftEntraId(faker.idNumber().valid())
+				.userType(userTypes.stream()
+					.filter(byCode("employee"))
+					.findFirst().orElseThrow())
 				.build())
+			.map(userRepository::save)
+			.limit(4)
 			.toList();
 
-		return profiles;
+		//
+		// Create profiles for each user
+		// Each profile matches different criteria for testing purposes
+		//
+
+		profileRepository.save(ProfileEntity.builder()
+			.user(users.get(0))
+			.profileStatus(approvedStatus)
+			.wfaStatus(affectedWfa)
+			.preferredClassifications(List.of(as05))
+			.preferredCities(List.of(ottawa, gatineau))
+			.preferredLanguages(List.of(bilingual))
+			.preferredEmploymentOpportunities(employmentOpportunities)
+			.isAvailableForReferral(true)
+			.build());
+
+		profileRepository.save(ProfileEntity.builder()
+			.user(users.get(1))
+			.profileStatus(approvedStatus)
+			.wfaStatus(surplusWfa)
+			.preferredClassifications(List.of(as05, pm05))
+			.preferredCities(List.of(ottawa, gatineau, montreal))
+			.preferredLanguages(List.of(bilingual))
+			.preferredEmploymentOpportunities(employmentOpportunities)
+			.isAvailableForReferral(true)
+			.build());
+
+		profileRepository.save(ProfileEntity.builder()
+			.user(users.get(2))
+			.profileStatus(approvedStatus)
+			.wfaStatus(surplusWfa)
+			.preferredClassifications(List.of(as05))
+			.preferredCities(List.of(ottawa, gatineau))
+			.preferredLanguages(List.of(englishOnly))
+			.preferredEmploymentOpportunities(employmentOpportunities)
+			.isAvailableForReferral(true)
+			.build());
+
+		profileRepository.save(ProfileEntity.builder()
+			.user(users.get(3))
+			.profileStatus(approvedStatus)
+			.wfaStatus(affectedWfa)
+			.preferredClassifications(List.of(as05))
+			.preferredCities(List.of(ottawa, gatineau))
+			.preferredLanguages(List.of(bilingual))
+			.preferredEmploymentOpportunities(employmentOpportunities)
+			.isAvailableForReferral(false)
+			.build());
 	}
 
-	/**
-	 * Seeds 50 profiles that might not match requests: random status, availability, and preferences.
-	 */
-	List<ProfileEntity> seedNonMatchingProfiles(List<UserEntity> users) {
-		final var faker = new Faker(new Random(7423979211207825555L));
+	void seedRequests() {
+		final var submittedStatus = requestStatuses.stream().filter(byCode("SUBMIT")).findFirst().orElseThrow();
+		final var biLanguageReq = languageRequirements.stream().filter(byCode("BI")).findFirst().orElseThrow();
+		final var eeAeLanguageReq = languageRequirements.stream().filter(byCode("EE-AE")).findFirst().orElseThrow();
+		final var as05 = classifications.stream().filter(byCode("AS-05")).findFirst().orElseThrow();
+		final var pm05 = classifications.stream().filter(byCode("PM-05")).findFirst().orElseThrow();
+		final var ottawa = cities.stream().filter(c -> "Ottawa".equals(c.getNameEn())).findFirst().orElseThrow();
+		final var gatineau = cities.stream().filter(c -> "Gatineau".equals(c.getNameEn())).findFirst().orElseThrow();
+		final var montreal = cities.stream().filter(c -> "Montréal".equals(c.getNameEn())).findFirst().orElseThrow();
 
-		final var approvedStatus = profileStatuses.stream()
-			.filter(byCode("APPROVED"))
-			.findFirst().orElseThrow();
+		// Get default values for required fields
+		final var defaultEmploymentTenure = employmentTenures.get(0);         // Use first available
+		final var defaultSelectionProcessType = selectionProcessTypes.get(0); // Use first available
+		final var defaultWorkSchedule = workSchedules.get(0);                 // Use first available
+		final var defaultSecurityClearance = securityClearances.get(0);       // Use first available
+		final var defaultLanguage = languages.get(0);                         // Use first available
 
-		final var pendingStatus = profileStatuses.stream()
-			.filter(byCode("PENDING"))
-			.findFirst().orElseThrow();
+		// Find directorate work units for testing
+		final var workplaceDirectorate = workUnits.stream().filter(byCode("100712")).findFirst().orElseThrow();        // Workplace Directorate
+		final var digitalServiceDirectorate = workUnits.stream().filter(byCode("100570")).findFirst().orElseThrow();   // Digital Service Directorate
+		final var accessibleCanadaDirectorate = workUnits.stream().filter(byCode("106061")).findFirst().orElseThrow(); // Accessible Canada Directorate
 
-		return users.stream().map(user -> {
-			final var preferredCities = randomSubList(faker, cities);
-			final var preferredClassifications = randomSubList(faker, classifications);
-			final var preferredEmploymentOpportunities = randomSubList(faker, employmentOpportunities);
-			final var preferredLanguages = randomSubList(faker, languageReferralTypes);
+		// Find the existing sentinel user (created in seedUsers)
+		final var sentinelUser = userRepository.findOne(Example.of(UserEntity.builder()
+			.microsoftEntraId("SENTINEL-123456789")
+			.build())).orElseThrow();
 
-			// 50/50 chance for profile to be marked as available for referral
-			final var isAvailable = faker.random().nextBoolean();
+		// Request 1: AS-05 classification, Ottawa city, BI language requirement, Workplace Directorate
+		// Should match Profile 0 and Profile 1
+		requestRepository.save(RequestEntity.builder()
+			.nameEn("AS-05 Bilingual Position in Ottawa")
+			.nameFr("Poste AS-05 bilingue à Ottawa")
+			.requestNumber("REQ-001")
+			.positionNumber("00000001")
+			.classification(as05)
+			.cities(List.of(ottawa))
+			.languageRequirement(biLanguageReq)
+			.languageProfileEn("BBB")
+			.languageProfileFr("BBB")
+			.somcAndConditionEmploymentEn("English statement of merit criteria and conditions of employment for AS-05 position requiring bilingual proficiency.")
+			.somcAndConditionEmploymentFr("Énoncé des critères de mérite et conditions d'emploi en français pour le poste AS-05 exigeant la compétence bilingue.")
+			.requestStatus(submittedStatus)
+			.submitter(sentinelUser)
+			.hiringManager(sentinelUser)       // Submitter is the hiring manager
+			.subDelegatedManager(sentinelUser) // Submitter is the staffing sub-delegated manager
+			.language(defaultLanguage)
+			.workUnit(workplaceDirectorate)
+			.startDate(java.time.LocalDate.now().plusDays(30))
+			.endDate(java.time.LocalDate.now().plusDays(90))
+			.employmentTenure(defaultEmploymentTenure)
+			.selectionProcessType(defaultSelectionProcessType)
+			.workSchedule(defaultWorkSchedule)
+			.securityClearance(defaultSecurityClearance)
+			.workforceMgmtApprovalRecvd(true)
+			.priorityEntitlement(false)
+			.employmentEquityNeedIdentifiedIndicator(false)
+			.build());
 
-			// 25% PENDING, 75% APPROVED
-			final var isPending = faker.number().numberBetween(0, 100) < 25;
-			final var profileStatus = isPending ? pendingStatus : approvedStatus;
+		// Request 2: AS-05 classification, Gatineau city, EE-AE language requirement, Digital Service Directorate
+		// Should match Profile 2
+		requestRepository.save(RequestEntity.builder()
+			.nameEn("AS-05 English Essential Position in Gatineau")
+			.nameFr("Poste AS-05 essentiel anglais à Gatineau")
+			.requestNumber("REQ-002")
+			.positionNumber("00000002")
+			.classification(as05)
+			.cities(List.of(gatineau))
+			.languageRequirement(eeAeLanguageReq)
+			.languageProfileEn("BBB")
+			.languageProfileFr("BBB")
+			.somcAndConditionEmploymentEn("English statement of merit criteria and conditions of employment for AS-05 position requiring English essential proficiency.")
+			.somcAndConditionEmploymentFr("Énoncé des critères de mérite et conditions d'emploi en français pour le poste AS-05 exigeant la compétence essentiel anglais.")
+			.requestStatus(submittedStatus)
+			.submitter(sentinelUser)
+			.hiringManager(null)             // Different hiring manager
+			.subDelegatedManager(null) // Different sub-delegated manager
+			.language(defaultLanguage)
+			.workUnit(digitalServiceDirectorate)
+			.startDate(java.time.LocalDate.now().plusDays(30))
+			.endDate(java.time.LocalDate.now().plusDays(90))
+			.employmentTenure(defaultEmploymentTenure)
+			.selectionProcessType(defaultSelectionProcessType)
+			.workSchedule(defaultWorkSchedule)
+			.securityClearance(defaultSecurityClearance)
+			.workforceMgmtApprovalRecvd(true)
+			.priorityEntitlement(false)
+			.employmentEquityNeedIdentifiedIndicator(false)
+			.build());
 
-			return ProfileEntity.builder()
-				.user(user)
-				.isAvailableForReferral(isAvailable)
-				.preferredCities(preferredCities)
-				.preferredClassifications(preferredClassifications)
-				.preferredEmploymentOpportunities(preferredEmploymentOpportunities)
-				.preferredLanguages(preferredLanguages)
-				.profileStatus(profileStatus)
-				.build();
-		})
-		.toList();
-	}
-
-	/**
-	 * Seeds requests by iterating through users, with a 25% chance per user to create 1-10 requests for that user.
-	 * Each request has random details including classification, status, cities, dates, and other attributes.
-	 */
-	List<RequestEntity> seedRequests(List<UserEntity> users) {
-		final var faker = new Faker(new Random(4437113781045784766L));
-
-		final var requests = users.stream()
-			.filter(user -> faker.number().numberBetween(0, 100) < 25)
-			.flatMap(user -> {
-				final var nRequests = faker.number().numberBetween(1, 11);
-
-				return IntStream.range(0, nRequests).mapToObj(j -> {
-					// note: at max 25 cities because requests with too many cities make everything slow
-					final var nRequestCities = faker.number().numberBetween(1, 25 + 1);
-
-					final var nameEn = faker.job().title();
-					final var nameFr = faker.job().title();
-
-					final var startDate = LocalDate.now().plusDays(faker.number().numberBetween(0, 365));
-					final var endDate = startDate.plusDays(faker.number().numberBetween(30, 30 + 365));
-
-					final var additionalComment = randomValue(faker, faker.lorem()::sentence);
-					final var appointmentNonAdvertised = randomValue(faker, () -> randomElement(faker, nonAdvertisedAppointments));
-					final var classification = randomElement(faker, classifications);
-					final var employmentEquityNeedIdentifiedIndicator = faker.random().nextBoolean();
-					final var employmentTenure = randomElement(faker, employmentTenures);
-					final var hasPerformedSameDuties = faker.random().nextBoolean();
-					final var hiringManager = randomValue(faker, () -> randomElement(faker, users));
-					final var hrAdvisor = randomValue(faker, () -> randomElement(faker, users));
-					final var language = randomElement(faker, languages);
-					final var languageProfileEn = faker.random().nextBoolean() ? "CBC" : "BBB";
-					final var languageProfileFr = faker.random().nextBoolean() ? "CBC" : "BBB";
-					final var languageRequirement = randomElement(faker, languageRequirements);
-					final var positionNumber = "POS-" + faker.number().digits(6);
-					final var priorityEntitlement = faker.random().nextBoolean();
-					final var requestCities = cities.subList(1, nRequestCities + 1);
-					final var requestEmploymentEquities = randomSubList(faker, employmentEquities);
-					final var requestNumber = "REQ-" + faker.number().digits(6);
-					final var requestStatus = randomElement(faker, requestStatuses);
-					final var securityClearance = randomElement(faker, securityClearances);
-					final var selectionProcessType = randomElement(faker, selectionProcessTypes);
-					final var subDelegatedManager = randomValue(faker, () -> randomElement(faker, users));
-					final var teleworkAllowed = faker.random().nextBoolean();
-					final var workforceMgmtApprovalRecvd = faker.random().nextBoolean();
-					final var workSchedule = randomElement(faker, workSchedules);
-					final var workUnit = randomElement(faker, workUnits);
-
-					return RequestEntity.builder()
-						.additionalComment(additionalComment)
-						.appointmentNonAdvertised(appointmentNonAdvertised)
-						.cities(requestCities)
-						.classification(classification)
-						.employmentEquities(requestEmploymentEquities)
-						.employmentEquityNeedIdentifiedIndicator(employmentEquityNeedIdentifiedIndicator)
-						.employmentTenure(employmentTenure)
-						.endDate(endDate)
-						.hasPerformedSameDuties(hasPerformedSameDuties)
-						.hiringManager(hiringManager)
-						.hrAdvisor(hrAdvisor)
-						.language(language)
-						.languageProfileEn(languageProfileEn)
-						.languageProfileFr(languageProfileFr)
-						.languageRequirement(languageRequirement)
-						.nameEn(nameEn)
-						.nameFr(nameFr)
-						.positionNumber(positionNumber)
-						.priorityEntitlement(priorityEntitlement)
-						.requestNumber(requestNumber)
-						.requestStatus(requestStatus)
-						.securityClearance(securityClearance)
-						.selectionProcessType(selectionProcessType)
-						.startDate(startDate)
-						.subDelegatedManager(subDelegatedManager)
-						.submitter(user)
-						.teleworkAllowed(teleworkAllowed)
-						.workforceMgmtApprovalRecvd(workforceMgmtApprovalRecvd)
-						.workSchedule(workSchedule)
-						.workUnit(workUnit)
-						.build();
-				});
-			})
-			.toList();
-
-		return requestRepository.saveAll(requests);
+		// Request 3: PM-05 classification, Montreal city, BI language requirement, Accessible Canada Directorate
+		// Should match Profile 1
+		requestRepository.save(RequestEntity.builder()
+			.nameEn("PM-05 Bilingual Position in Montreal")
+			.nameFr("Poste PM-05 bilingue à Montréal")
+			.requestNumber("REQ-003")
+			.positionNumber("00000003")
+			.classification(pm05)
+			.cities(List.of(montreal))
+			.languageRequirement(biLanguageReq)
+			.languageProfileEn("BBB")
+			.languageProfileFr("BBB")
+			.somcAndConditionEmploymentEn("English statement of merit criteria and conditions of employment for PM-05 position requiring bilingual proficiency.")
+			.somcAndConditionEmploymentFr("Énoncé des critères de mérite et conditions d'emploi en français pour le poste PM-05 exigeant la compétence bilingue.")
+			.requestStatus(submittedStatus)
+			.submitter(sentinelUser)
+			.hiringManager(sentinelUser)                    // Submitter is the hiring manager
+			.subDelegatedManager(null) // Different sub-delegated manager
+			.language(defaultLanguage)
+			.workUnit(accessibleCanadaDirectorate)
+			.startDate(java.time.LocalDate.now().plusDays(30))
+			.endDate(java.time.LocalDate.now().plusDays(90))
+			.employmentTenure(defaultEmploymentTenure)
+			.selectionProcessType(defaultSelectionProcessType)
+			.workSchedule(defaultWorkSchedule)
+			.securityClearance(defaultSecurityClearance)
+			.workforceMgmtApprovalRecvd(true)
+			.priorityEntitlement(false)
+			.employmentEquityNeedIdentifiedIndicator(false)
+			.build());
 	}
 
 	<T> T randomElement(Faker faker, List<T> list) {
