@@ -130,7 +130,7 @@ public class NotificationService {
 	 * @param profileId the ID of the profile; must not be blank or null
 	 * @param username the username of the profile owner; must not be blank or null
 	 * @param language the language code for the notification (e.g., "en", "fr")
-	 * @param profileStatus the status of the profile (APPROVED or PENDING)
+	 * @param profileStatus the status of the profile (APPROVED, PENDING or ARCHIVED)
 	 * @return a list of notification receipts, one for each successfully sent email
 	 */
 	@Counted("service.notification.sendProfileNotificationMultiple.count")
