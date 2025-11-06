@@ -4,6 +4,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import java.util.ArrayList;
+import java.util.Locale;
+
 import ca.gov.dtsstn.vacman.api.config.properties.ApplicationProperties;
 import ca.gov.dtsstn.vacman.api.data.entity.*;
 import ca.gov.dtsstn.vacman.api.service.email.data.EmailTemplateModel;
@@ -20,6 +23,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 
 import ca.gov.dtsstn.vacman.api.data.repository.EventRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.MatchRepository;
+import ca.gov.dtsstn.vacman.api.event.MatchStatusChangeEvent;
 import ca.gov.dtsstn.vacman.api.event.RequestCompletedEvent;
 import ca.gov.dtsstn.vacman.api.event.RequestCreatedEvent;
 import ca.gov.dtsstn.vacman.api.event.RequestFeedbackCompletedEvent;
@@ -29,6 +33,7 @@ import ca.gov.dtsstn.vacman.api.event.RequestSubmittedEvent;
 import ca.gov.dtsstn.vacman.api.event.RequestUpdatedEvent;
 import ca.gov.dtsstn.vacman.api.service.NotificationService;
 import ca.gov.dtsstn.vacman.api.service.NotificationService.RequestEvent;
+import ca.gov.dtsstn.vacman.api.service.email.data.EmailTemplateModel;
 
 /**
  * Listener for request-related events.
@@ -484,6 +489,77 @@ public class RequestEventListener {
 			RequestEvent.CANCELLED,
 			language
 		);
+	}
+
+	/**
+	 * Handles the MatchStatusChangeEvent and sends a notification when a match status changes from MATCH_PENDING to APPROVED.
+	 * The notification is sent to the profile owner's personal and business emails.
+	 */
+	@Async
+	@EventListener({ MatchStatusChangeEvent.class })
+	public void handleMatchStatusChange(MatchStatusChangeEvent event) throws JsonProcessingException {
+		// Save the event to the repository
+		eventRepository.save(EventEntity.builder()
+			.type("MATCH_STATUS_CHANGE")
+			.details(objectMapper.writeValueAsString(event))
+			.build());
+
+		log.info("Event: match status changed - ID: {}, from status: {}, to status: {}",
+			event.entity().getId(), event.previousStatusCode(), event.newStatusCode());
+
+		// Check if the status has changed from MATCH_PENDING to APPROVED
+		if ("MATCH_PENDING".equals(event.previousStatusCode()) && "APPROVED".equals(event.newStatusCode())) {
+			final var match = event.entity();
+			final var profile = match.getProfile();
+			final var request = match.getRequest();
+
+			List<String> profileEmails = new ArrayList<>();
+
+			// Add personal and business emails if available
+			if (StringUtils.hasText(profile.getPersonalEmailAddress())) {
+				profileEmails.add(profile.getPersonalEmailAddress());
+			}
+
+			if (profile.getUser() != null && StringUtils.hasText(profile.getUser().getBusinessEmailAddress())) {
+				profileEmails.add(profile.getUser().getBusinessEmailAddress());
+			}
+
+			if (profileEmails.isEmpty()) {
+				log.warn("No emails found for profile ID: [{}]", profile.getId());
+				return;
+			}
+
+			// Get the profile owner's language preference
+			final var language = Optional.ofNullable(profile.getLanguageOfCorrespondence())
+				.map(LanguageEntity::getCode)
+				.orElse("en");
+
+			log.info("Sending job opportunity HR notification to profile owner for match ID: [{}]", match.getId());
+
+			final var jobModel = createJobModel(request, language);
+
+			// Get match feedback if available
+			final var matchFeedback = Optional.ofNullable(match.getMatchFeedback())
+				.map(feedback -> "en".equals(language) ? feedback.getNameEn() : feedback.getNameFr())
+				.orElse("N/A");
+
+			final var jobOpportunityHR = new EmailTemplateModel.JobOpportunityHR(
+				jobModel.requestNumber(),
+				jobModel.positionTitle(),
+				jobModel.classification(),
+				jobModel.languageRequirement(),
+				jobModel.location(),
+				jobModel.securityClearance(),
+				matchFeedback,
+				jobModel.submitterName(),
+				jobModel.submitterEmail()
+			);
+
+			notificationService.sendJobOpportunityHRNotification(profileEmails, jobOpportunityHR, language);
+
+			log.info("Sent job opportunity HR notifications to {} recipient(s) for match ID: [{}]",
+				profileEmails.size(), match.getId());
+		}
 	}
 
 	/**

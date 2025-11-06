@@ -292,6 +292,67 @@ public class NotificationService {
 	}
 
 	/**
+	 * Sends a notification that a match was approved to a single email address.
+	 * The notification content is generated using the jobOpportunityHR template.
+	 *
+	 * @param email the recipient's email address; must not be blank or null
+	 * @param jobOpportunityHR the job opportunity HR model containing the data for the notification
+	 * @param language the language code for the notification (e.g., "en", "fr")
+	 * @return the notification receipt from GC Notify containing details about the sent email
+	 */
+	@Counted("service.notification.sendJobOpportunityHRNotification.count")
+	public NotificationReceipt sendJobOpportunityHRNotification(String email, EmailTemplateModel.JobOpportunityHR jobOpportunityHR, String language) {
+		Assert.hasText(email, "email is required; it must not be blank or null");
+		Assert.notNull(jobOpportunityHR, "jobOpportunityHR is required; it must not be null");
+		Assert.hasText(language, "language is required; it must not be blank or null");
+
+		final var templateName = "jobOpportunityHR";
+		final var model = recordToMap(jobOpportunityHR);
+
+		final var emailContent = emailTemplateService.processEmailTemplate(templateName, Locale.of(language), model);
+		final var templateId = applicationProperties.gcnotify().genericTemplateId();
+
+		final var personalization = Map.of(
+			"email_subject", emailContent.subject(),
+			"email_body", emailContent.body()
+		);
+
+		log.trace("Request to send job opportunity HR notification email=[{}], parameters=[{}]", email, personalization);
+
+		final var request = Map.of(
+			"email_address", email,
+			"template_id", templateId,
+			"personalisation", personalization
+		);
+
+		final var notificationReceipt = restTemplate.postForObject("/email", request, NotificationReceipt.class);
+		log.debug("Job opportunity HR notification sent to email [{}] using template [{}]", email, templateId);
+
+		return notificationReceipt;
+	}
+
+	/**
+	 * Sends a job opportunity HR notification to multiple email addresses.
+	 * Notifications are sent in parallel for efficiency, and each email address receives the same notification content.
+	 *
+	 * @param emails the list of recipient email addresses; must not be empty or null, and individual emails must not be blank
+	 * @param jobOpportunityHR the job opportunity HR model containing the data for the notification
+	 * @param language the language code for the notification (e.g., "en", "fr")
+	 * @return a list of notification receipts, one for each successfully sent email
+	 */
+	@Counted("service.notification.sendJobOpportunityHRNotificationMultiple.count")
+	public List<NotificationReceipt> sendJobOpportunityHRNotification(List<String> emails, EmailTemplateModel.JobOpportunityHR jobOpportunityHR, String language) {
+		Assert.notEmpty(emails, "emails is required; it must not be empty or null");
+		Assert.notNull(jobOpportunityHR, "jobOpportunityHR is required; it must not be null");
+		Assert.hasText(language, "language is required; it must not be blank or null");
+
+		return emails.parallelStream()
+			.filter(StringUtils::hasText)
+			.map(email -> sendJobOpportunityHRNotification(email, jobOpportunityHR, language))
+			.toList();
+	}
+
+	/**
 	 * Converts a record to a Map that can be used with the email template service.
 	 *
 	 * @param record The record to convert
