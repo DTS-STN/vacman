@@ -1,8 +1,7 @@
 package ca.gov.dtsstn.vacman.api.service;
 
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.lang.reflect.RecordComponent;
+import java.util.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +14,7 @@ import org.springframework.web.client.RestTemplate;
 
 import ca.gov.dtsstn.vacman.api.config.properties.ApplicationProperties;
 import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes;
+import ca.gov.dtsstn.vacman.api.service.email.data.EmailTemplateModel;
 import ca.gov.dtsstn.vacman.api.service.notify.NotificationReceipt;
 import io.micrometer.core.annotation.Counted;
 
@@ -170,11 +170,19 @@ public class NotificationService {
 			case CANCELLED -> "requestCancelled.ftl";
 		};
 
-		final var model = Map.<String, String>of(
-			"requestNumber", requestId.toString(),
-			"requestTitle", requestTitle,
-			"clearanceNumber", "CL-" + requestId // XXX ::: example clearance number
-		);
+		// Create the appropriate model based on the request event
+		final var model = switch (requestEvent) {
+			case SUBMITTED, VMS_NOT_REQUIRED, PSC_REQUIRED -> 
+				recordToMap(new EmailTemplateModel.RequestAssigned(requestId.toString()));
+			case FEEDBACK_PENDING -> 
+				recordToMap(new EmailTemplateModel.PrioritiesIdentified(requestId.toString()));
+			case FEEDBACK_COMPLETED, PSC_NOT_REQUIRED -> 
+				recordToMap(new EmailTemplateModel.FeedbackApproved(requestId.toString(), "CL-" + requestId));
+			case COMPLETED -> 
+				recordToMap(new EmailTemplateModel.FeedbackApprovedPSC(requestId.toString(), "CL-" + requestId, "PSC-" + requestId));
+			case CANCELLED -> 
+				recordToMap(new EmailTemplateModel.RequestCancelled(requestId.toString()));
+		};
 
 		final var emailContent = emailTemplateService.processEmailTemplate(templateName, Locale.of(language), model);
 		final var templateId = applicationProperties.gcnotify().genericTemplateId();
@@ -221,4 +229,185 @@ public class NotificationService {
 			.toList();
 	}
 
+	/**
+	 * Sends a job opportunity notification to a single email address.
+	 * This notification is sent to matched profiles when there are returned matches in the runMatches logic.
+	 *
+	 * @param email the recipient's email address; must not be blank or null
+	 * @param requestId the ID of the request; must not be null
+	 * @param requestTitle the title of the request; must not be blank or null
+	 * @param language the language code for the notification (e.g., "en", "fr")
+	 * @param jobModel the job opportunity model containing the data for the notification
+	 * @return the notification receipt from GC Notify containing details about the sent email
+	 */
+	@Counted("service.notification.sendJobOpportunityNotification.count")
+	public NotificationReceipt sendJobOpportunityNotification(String email, Long requestId, String requestTitle, String language, EmailTemplateModel.JobOpportunity jobModel) {
+		Assert.hasText(email, "email is required; it must not be blank or null");
+		Assert.notNull(requestId, "requestId is required; it must not be null");
+		Assert.hasText(requestTitle, "requestTitle is required; it must not be blank or null");
+		Assert.notNull(jobModel, "jobModel is required; it must not be null");
+
+		final var templateName = "jobOpportunity.ftl";
+		final var model = recordToMap(jobModel);
+
+		final var emailContent = emailTemplateService.processEmailTemplate(templateName, Locale.of(language), model);
+		final var templateId = applicationProperties.gcnotify().genericTemplateId();
+
+		final var personalization = Map.of(
+			"email_subject", emailContent.subject(),
+			"email_body", emailContent.body()
+		);
+
+		log.trace("Request to send job opportunity notification email=[{}], parameters=[{}]", email, personalization);
+
+		final var request = Map.of(
+			"email_address", email,
+			"template_id", templateId,
+			"personalisation", personalization
+		);
+
+		final var notificationReceipt = restTemplate.postForObject("/email", request, NotificationReceipt.class);
+		log.debug("Job opportunity notification sent to email [{}] using template [{}]", email, templateId);
+
+		return notificationReceipt;
+	}
+
+	/**
+	 * Sends a job opportunity notification to a single email address.
+	 * This notification is sent to matched profiles when there are returned matches in the runMatches logic.
+	 * This overload uses default values for the job opportunity model.
+	 *
+	 * @param email the recipient's email address; must not be blank or null
+	 * @param requestId the ID of the request; must not be null
+	 * @param requestTitle the title of the request; must not be blank or null
+	 * @param language the language code for the notification (e.g., "en", "fr")
+	 * @return the notification receipt from GC Notify containing details about the sent email
+	 */
+	@Counted("service.notification.sendJobOpportunityNotification.count")
+	public NotificationReceipt sendJobOpportunityNotification(String email, Long requestId, String requestTitle, String language) {
+		Assert.hasText(email, "email is required; it must not be blank or null");
+		Assert.notNull(requestId, "requestId is required; it must not be null");
+		Assert.hasText(requestTitle, "requestTitle is required; it must not be blank or null");
+
+		// Create a default job model with placeholder values
+		final var jobModel = new EmailTemplateModel.JobOpportunity(
+			requestId.toString(),
+			requestTitle, // Using requestTitle as positionTitle for now
+			"AS-05", // Example classification
+			"English Essential", // Example language requirement
+			"Ottawa, ON", // Example location
+			"Secret", // Example security clearance
+			"Hiring Manager", // Example submitter name
+			"hiring.manager@example.com", // Example submitter email
+			"If applicable", // Example bilingual text
+			"Statement of Merit Criteria goes here" // Example SOMC
+		);
+
+		return sendJobOpportunityNotification(email, requestId, requestTitle, language, jobModel);
+	}
+
+	/**
+	 * Sends a job opportunity notification to multiple email addresses.
+	 * Notifications are sent in parallel for efficiency, and each email address receives the same notification content.
+	 *
+	 * @param emails the list of recipient email addresses; must not be empty or null, and individual emails must not be blank
+	 * @param requestId the ID of the request; must not be null
+	 * @param requestTitle the title of the request; must not be blank or null
+	 * @param language the language code for the notification (e.g., "en", "fr")
+	 * @return a list of notification receipts, one for each successfully sent email
+	 */
+	@Counted("service.notification.sendJobOpportunityNotificationMultiple.count")
+	public List<NotificationReceipt> sendJobOpportunityNotification(List<String> emails, Long requestId, String requestTitle, String language) {
+		Assert.notEmpty(emails, "emails is required; it must not be empty or null");
+		Assert.notNull(requestId, "requestId is required; it must not be null");
+		Assert.hasText(requestTitle, "requestTitle is required; it must not be blank or null");
+
+		return emails.parallelStream()
+			.filter(StringUtils::hasText)
+			.map(email -> sendJobOpportunityNotification(email, requestId, requestTitle, language))
+			.toList();
+	}
+
+	/**
+	 * Sends job opportunity notifications to multiple recipients in a single bulk API call.
+	 *
+	 * @param recipientEmails List of recipient email addresses
+	 * @param requestId the ID of the request
+	 * @param requestTitle the title of the request
+	 * @param jobModel the job opportunity model containing the data for the notification
+	 * @param language the language code for the notification (e.g., "en", "fr")
+	 * @return the notification receipt from GC Notify containing details about the sent emails
+	 */
+	@Counted("service.notification.sendBulkJobOpportunityNotification.count")
+	public NotificationReceipt sendBulkJobOpportunityNotification(
+			List<String> recipientEmails,
+			Long requestId,
+			String requestTitle,
+			EmailTemplateModel.JobOpportunity jobModel,
+			String language) {
+
+		Assert.notEmpty(recipientEmails, "recipientEmails is required; it must not be empty or null");
+		Assert.notNull(requestId, "requestId is required; it must not be null");
+		Assert.hasText(requestTitle, "requestTitle is required; it must not be blank or null");
+		Assert.notNull(jobModel, "jobModel is required; it must not be null");
+		Assert.hasText(language, "language is required; it must not be blank or null");
+
+		final var templateName = "jobOpportunity.ftl";
+		final var model = recordToMap(jobModel);
+
+		// Process the email template to get subject and body using the provided language
+		final var emailContent = emailTemplateService.processEmailTemplate(templateName, Locale.of(language), model);
+		final var templateId = applicationProperties.gcnotify().genericTemplateId();
+
+		// Create the rows array for bulk sending
+		// First row is the header with column names - only need email address
+		List<String[]> rows = new ArrayList<>();
+		rows.add(new String[]{"email address"});
+
+		// Add all recipient emails
+		for (String email : recipientEmails) {
+			rows.add(new String[]{email});
+		}
+
+		final var bulkRequest = Map.of(
+			"name", "Job Opportunity Notification - " + requestId,
+			"template_id", templateId,
+			"rows", rows,
+			"personalisation", Map.of(
+				"email_subject", emailContent.subject(),
+				"email_body", emailContent.body()
+			)
+		);
+
+		log.trace("Request to send bulk job opportunity notifications to {} recipients for request ID: [{}]",
+			recipientEmails.size(), requestId);
+
+		final var notificationReceipt = restTemplate.postForObject("/v2/notifications/bulk", bulkRequest, NotificationReceipt.class);
+		log.debug("Bulk job opportunity notifications sent to {} recipients using template [{}]",
+			recipientEmails.size(), templateId);
+
+		return notificationReceipt;
+	}
+
+	/**
+	 * Converts a record to a Map that can be used with the email template service.
+	 *
+	 * @param record The record to convert
+	 * @return A Map containing the record's fields
+	 */
+	private Map<String, Object> recordToMap(Record record) {
+		Map<String, Object> map = new HashMap<>();
+		for (RecordComponent component : record.getClass().getRecordComponents()) {
+			try {
+				final var name = component.getName();
+				final var value = component.getAccessor().invoke(record);
+				if (value != null) {
+					map.put(name, value);
+				}
+			} catch (Exception e) {
+				log.warn("Failed to get record component value", e);
+			}
+		}
+		return map;
+	}
 }

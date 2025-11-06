@@ -673,7 +673,7 @@ public class RequestService {
 		final var matches = createMatches(request);
 
 		if (!matches.isEmpty()) {
-			// Set status to FDBK_PENDING and send notification to the owner
+			// Set status to FDBK_PENDING and send notification to the owner and matched users.
 			request.setRequestStatus(getRequestStatusByCode(requestStatuses.feedbackPending()));
 			eventPublisher.publishEvent(new RequestFeedbackPendingEvent(request));
 		}

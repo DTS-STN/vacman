@@ -22,6 +22,7 @@ import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.RequestEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 import ca.gov.dtsstn.vacman.api.data.repository.EventRepository;
+import ca.gov.dtsstn.vacman.api.data.repository.MatchRepository;
 import ca.gov.dtsstn.vacman.api.event.RequestCreatedEvent;
 import ca.gov.dtsstn.vacman.api.event.RequestFeedbackCompletedEvent;
 import ca.gov.dtsstn.vacman.api.event.RequestFeedbackPendingEvent;
@@ -43,11 +44,14 @@ class RequestEventListenerTest {
 	@Mock
 	ApplicationProperties applicationProperties;
 
+	@Mock
+	MatchRepository matchRepository;
+
 	RequestEventListener requestEventListener;
 
 	@BeforeEach
 	void beforeEach() {
-		this.requestEventListener = new RequestEventListener(eventRepository, notificationService, applicationProperties);
+		this.requestEventListener = new RequestEventListener(eventRepository, notificationService, applicationProperties, matchRepository);
 	}
 
 	@Nested

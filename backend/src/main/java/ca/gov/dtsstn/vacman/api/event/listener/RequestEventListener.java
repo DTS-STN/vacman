@@ -1,14 +1,12 @@
 package ca.gov.dtsstn.vacman.api.event.listener;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import ca.gov.dtsstn.vacman.api.config.properties.ApplicationProperties;
-import ca.gov.dtsstn.vacman.api.data.entity.LanguageEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.*;
+import ca.gov.dtsstn.vacman.api.service.email.data.EmailTemplateModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
@@ -20,11 +18,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
-import ca.gov.dtsstn.vacman.api.data.entity.EventEntity;
-import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
-import ca.gov.dtsstn.vacman.api.data.entity.RequestEntity;
-import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 import ca.gov.dtsstn.vacman.api.data.repository.EventRepository;
+import ca.gov.dtsstn.vacman.api.data.repository.MatchRepository;
 import ca.gov.dtsstn.vacman.api.event.RequestCompletedEvent;
 import ca.gov.dtsstn.vacman.api.event.RequestCreatedEvent;
 import ca.gov.dtsstn.vacman.api.event.RequestFeedbackCompletedEvent;
@@ -46,6 +41,7 @@ public class RequestEventListener {
 	private final EventRepository eventRepository;
 	private final NotificationService notificationService;
 	private final ApplicationProperties applicationProperties;
+	private final MatchRepository matchRepository;
 
 	private final ObjectMapper objectMapper = new ObjectMapper()
 		.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
@@ -54,10 +50,12 @@ public class RequestEventListener {
 	public RequestEventListener(
 			EventRepository eventRepository,
 			NotificationService notificationService,
-			ApplicationProperties applicationProperties) {
+			ApplicationProperties applicationProperties,
+			MatchRepository matchRepository) {
 		this.eventRepository = eventRepository;
 		this.notificationService = notificationService;
 		this.applicationProperties = applicationProperties;
+		this.matchRepository = matchRepository;
 	}
 
 	/**
@@ -89,13 +87,12 @@ public class RequestEventListener {
 	}
 
 	/**
-	 * Handles the RequestFeedbackPendingEvent and sends a notification to the request submitter, hiring manager, and HR delegate.
-	 * The notification is sent to their business and/or personal email addresses.
-	 * If no email addresses are found, a warning is logged.
+	 * Handles the RequestFeedbackPendingEvent and sends a notification to the request owner and matched profiles
 	 */
 	@Async
 	@EventListener({ RequestFeedbackPendingEvent.class })
 	public void sendRequestFeedbackPendingNotification(RequestFeedbackPendingEvent event) {
+		// Send a notification to the request owner
 		final var request = event.entity();
 
 		final var language = Optional.ofNullable(request.getLanguage())
@@ -124,6 +121,95 @@ public class RequestEventListener {
 			RequestEvent.FEEDBACK_PENDING,
 			language
 		);
+
+		// Send job opportunity notifications to matched profiles
+		sendJobOpportunityNotificationsToMatchedProfiles(request);
+	}
+
+	/**
+	 * Sends job opportunity notifications to the personal and business emails of matched profiles.
+	 *
+	 * @param request The request entity
+	 */
+	private void sendJobOpportunityNotificationsToMatchedProfiles(RequestEntity request) {
+		// Get matches for the request
+		final var matches = matchRepository.findAll(MatchRepository.hasRequestId(request.getId()));
+
+		if (matches.isEmpty()) {
+			log.warn("No matches found for request ID: [{}]", request.getId());
+			return;
+		}
+
+		// Collect emails by language preference
+		Map<String, List<String>> emailsByLanguage = new HashMap<>();
+		emailsByLanguage.put("en", new ArrayList<>());
+		emailsByLanguage.put("fr", new ArrayList<>());
+
+		// Process each match to collect recipient emails by language
+		for (MatchEntity match : matches) {
+			final var profile = match.getProfile();
+			final var user = profile.getUser();
+
+			// Get the preferred language of correspondence for this profile
+			final var language = Optional.ofNullable(profile.getLanguageOfCorrespondence())
+				.map(LanguageEntity::getCode)
+				.orElseGet(() -> Optional.ofNullable(request.getLanguage())
+					.map(LanguageEntity::getCode)
+					.orElse("en"));
+
+			// Add personal email if available
+			Optional.ofNullable(profile.getPersonalEmailAddress())
+				.filter(StringUtils::hasText)
+				.ifPresent(email -> emailsByLanguage.get(language).add(email));
+
+			// Add business email if available
+			Optional.ofNullable(user)
+				.map(UserEntity::getBusinessEmailAddress)
+				.filter(StringUtils::hasText)
+				.ifPresent(email -> emailsByLanguage.get(language).add(email));
+		}
+
+		// Send bulk notifications by language preference
+		int totalEmailsSent = 0;
+
+		// Send English emails
+		List<String> englishEmails = emailsByLanguage.get("en");
+		if (!englishEmails.isEmpty()) {
+			log.info("Sending bulk job opportunity notifications to {} English-speaking recipients for request ID: [{}]",
+				englishEmails.size(), request.getId());
+
+			final var jobModelEn = createJobModel(request, "en");
+
+			notificationService.sendBulkJobOpportunityNotification(
+				englishEmails,
+				request.getId(),
+				request.getNameEn(),
+				jobModelEn,
+				"en"
+			);
+
+			totalEmailsSent += englishEmails.size();
+		}
+
+		// Send French emails
+		List<String> frenchEmails = emailsByLanguage.get("fr");
+		if (!frenchEmails.isEmpty()) {
+			log.info("Sending bulk job opportunity notifications to {} French-speaking recipients for request ID: [{}]",
+				frenchEmails.size(), request.getId());
+
+			final var jobModelFr = createJobModel(request, "fr");
+
+			notificationService.sendBulkJobOpportunityNotification(
+				frenchEmails,
+				request.getId(),
+				request.getNameFr(),
+				jobModelFr,
+				"fr"
+			);
+		}
+
+		log.info("Sent job opportunity notifications to {} total recipients for request ID: [{}]",
+			totalEmailsSent, request.getId());
 	}
 
 	/**
@@ -397,6 +483,67 @@ public class RequestEventListener {
 			request.getNameEn(),
 			RequestEvent.CANCELLED,
 			language
+		);
+	}
+
+	/**
+	 * Creates a job opportunity model for an email template based on the specified language.
+	 *
+	 * @param request The request entity
+	 * @param language The language code ("en" or "fr")
+	 * @return A job opportunity model with properties in the specified language
+	 */
+	private EmailTemplateModel.JobOpportunity createJobModel(RequestEntity request, String language) {
+		boolean isEnglish = "en".equals(language);
+
+		// Get location cities
+		final var location = request.getCities().stream()
+			.map(city -> isEnglish ? city.getNameEn() : city.getNameFr())
+			.collect(Collectors.joining(", "));
+
+		// Get classification name
+		final var classification = Optional.ofNullable(request.getClassification())
+			.map(cls -> isEnglish ? cls.getNameEn() : cls.getNameFr())
+			.orElse("N/A");
+
+		// Get language requirement
+		final var languageRequirement = Optional.ofNullable(request.getLanguageRequirement())
+			.map(req -> isEnglish ? req.getNameEn() : req.getNameFr())
+			.orElse("N/A");
+
+		// Get security clearance
+		final var securityClearance = Optional.ofNullable(request.getSecurityClearance())
+			.map(sec -> isEnglish ? sec.getNameEn() : sec.getNameFr())
+			.orElse("N/A");
+
+		// Get submitter information
+		final var submitterName = Optional.ofNullable(request.getSubmitter())
+			.map(submitter -> submitter.getFirstName() + " " + submitter.getLastName())
+			.orElse("N/A");
+
+		final var submitterEmail = Optional.ofNullable(request.getSubmitter())
+			.map(UserEntity::getBusinessEmailAddress)
+			.orElse("N/A");
+
+		// TODO: Unsure what this should hold.
+		final var bilingual = "Test test, please replace";
+
+		// Get statement of merit criteria
+		final var statementOfMeritCriteria = Optional.ofNullable(
+			isEnglish ? request.getSomcAndConditionEmploymentEn() : request.getSomcAndConditionEmploymentFr()
+		).orElse("N/A");
+
+		return new EmailTemplateModel.JobOpportunity(
+			request.getRequestNumber(),
+			isEnglish ? request.getNameEn() : request.getNameFr(),
+			classification,
+			languageRequirement,
+			location,
+			securityClearance,
+			submitterName,
+			submitterEmail,
+			bilingual,
+			statementOfMeritCriteria
 		);
 	}
 }
