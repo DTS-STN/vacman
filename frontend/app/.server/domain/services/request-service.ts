@@ -1,17 +1,17 @@
 import type { Option, Result } from 'oxide.ts';
 
 import type {
-  PagedMatchResponse,
+  MatchQueryParams,
   MatchReadModel,
   MatchStatusUpdate,
   MatchUpdateModel,
+  PagedMatchResponse,
   PagedRequestResponse,
   Profile,
   RequestQueryParams,
   RequestReadModel,
   RequestStatusUpdate,
   RequestUpdateModel,
-  MatchQueryParams,
 } from '~/.server/domain/models';
 import { getDefaultRequestService } from '~/.server/domain/services/request-service-default';
 import { getMockRequestService } from '~/.server/domain/services/request-service-mock';

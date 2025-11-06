@@ -11,6 +11,7 @@ import type { Route } from './+types/matches';
 import type { MatchReadModel, MatchSummaryReadModel, MatchUpdateModel } from '~/.server/domain/models';
 import { getMatchFeedbackService } from '~/.server/domain/services/match-feedback-service';
 import { getRequestService } from '~/.server/domain/services/request-service';
+import { wfaStatusService } from '~/.server/domain/services/wfa-status-service-default';
 import { serverEnvironment } from '~/.server/environment';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { mapMatchToUpdateModelWithOverrides } from '~/.server/utils/request-utils';
@@ -212,13 +213,28 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     throw new Response('Request not found', { status: HttpStatusCodes.NOT_FOUND });
   }
 
+  const searchParams = new URL(request.url).searchParams;
+  const sortParam = searchParams.getAll('sort');
   const requestMatchesResult = await getRequestService().getRequestMatches(
     parseInt(params.requestId),
-    {},
+    {
+      page: Math.max(1, Number.parseInt(searchParams.get('page') ?? '1', 10) || 1),
+      sort: sortParam.length > 0 ? sortParam : undefined,
+      profile: {
+        employeeName: searchParams.get('employeeName') ?? undefined,
+        wfaStatusId: searchParams.getAll('wfaStatusId').map((id) => parseInt(id)),
+      },
+      matchFeedbackId: searchParams.getAll('matchFeedbackId').map((id) => parseInt(id)),
+    },
     session.authState.accessToken,
   );
+  if (requestMatchesResult.isErr()) {
+    throw requestMatchesResult.unwrapErr();
+  }
 
-  const requestMatches = requestMatchesResult.into()?.content ?? [];
+  const wfaStatuses = await wfaStatusService.listAll();
+
+  const { content: requestMatches, page } = requestMatchesResult.unwrap();
 
   const matchFeedbacks = await getMatchFeedbackService().listAllLocalized(lang);
 
@@ -233,6 +249,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     lang,
     matchFeedbacks,
     requestMatches,
+    wfaStatuses,
     requestId: requestData.id,
     requestStatus: requestData.status,
     branch: lang === 'en' ? requestData.workUnit?.parent?.nameEn : requestData.workUnit?.parent?.nameFr,
@@ -249,6 +266,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       email: requestData.hrAdvisor?.businessEmailAddress,
     },
     feedbackProgress: getFeedbackProgress(requestMatches),
+    page,
   };
 }
 
