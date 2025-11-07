@@ -371,8 +371,6 @@ export default {
     'matches-available': 'Matches available',
     'matches-available-hiring-manager-detail':
       'Candidates for this request have been found. Review them and submit your feedback.',
-    'matches-available-hr-advisor-detail':
-      'Matching process ran successfully. Candidates for this request have been found. A hiring manager will review the results.',
     'view-candidates-link': 'View candidates',
     'candidate-feedback-submitted': 'Candidate feedback submitted',
     'candidate-feedback-submitted-detail': 'All candidate feedback for this request has been completed.',
@@ -603,6 +601,8 @@ export default {
       'I confirm that retraining rights for any affected, surplus or lay-off priorities were applied and or considered.',
     'approval-completion-progress': 'Approval completion progress',
     'feedback-completion-progress': 'Feedback completion progress',
+    'matches-available-hr-advisor-detail':
+      'Matching process ran successfully. Candidates for this request have been found. A hiring manager will review the results.',
     'errors': {
       'match-id': 'ID must be a number.',
       'feedback-required': 'Feedback is required.',
