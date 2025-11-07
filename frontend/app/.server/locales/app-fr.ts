@@ -373,8 +373,10 @@ export default {
     'request-incomplete': 'Veuillez remplir tous les champs obligatoires avant de soumettre votre demande',
     'request-submitted': "Demande soumise avec succès! Un-e conseiller(ère) RH va l'examiner pour approbation",
     'matches-available': 'Candidatures disponibles',
-    'matches-available-detail':
+    'matches-available-hiring-manager-detail':
       'Des candidatures qui correspondent à cette demande ont été trouvées. Veuillez les consulter et nous faire parvenir votre rétroaction.',
+    'matches-available-hr-advisor-detail':
+      'FR Matching process ran successfully. Candidates for this request have been found. A hiring manager will review the results.',
     'view-candidates-link': 'Voir les candidatures',
     'candidate-feedback-submitted': 'Rétroaction sur les candidat-e-s soumise',
     'candidate-feedback-submitted-detail': 'Tous les commentaires des candidat-e-s concernant cette demande ont été complétés',
