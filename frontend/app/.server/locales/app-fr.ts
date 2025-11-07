@@ -376,7 +376,7 @@ export default {
     'matches-available-hiring-manager-detail':
       'Des candidatures qui correspondent à cette demande ont été trouvées. Veuillez les consulter et nous faire parvenir votre rétroaction.',
     'matches-available-hr-advisor-detail':
-      'FR Matching process ran successfully. Candidates for this request have been found. A hiring manager will review the results.',
+      "Le processus d'appariement a réussi. Des candidat-e-s correspondant à cette demande ont été trouvé-e-s. Un gestionnaire d'embauche examinera les résultats.",
     'view-candidates-link': 'Voir les candidatures',
     'candidate-feedback-submitted': 'Rétroaction sur les candidat-e-s soumise',
     'candidate-feedback-submitted-detail': 'Tous les commentaires des candidat-e-s concernant cette demande ont été complétés',
