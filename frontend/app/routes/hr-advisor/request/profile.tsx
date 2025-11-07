@@ -116,6 +116,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       isAvailableForReferral: profileData.isAvailableForReferral,
       isInterestedInAlternation: profileData.isInterestedInAlternation,
     },
+    backLinkSearchParams: new URL(request.url).searchParams.toString(),
   };
 }
 
@@ -133,6 +134,7 @@ export default function HiringManagerRequestProfile({ loaderData, params }: Rout
         aria-label={t('app:matches.back-request-candidates')}
         file="routes/hr-advisor/request/matches.tsx"
         params={params}
+        search={new URLSearchParams(loaderData.backLinkSearchParams)}
       >
         {t('app:matches.back-request-candidates')}
       </BackLink>
