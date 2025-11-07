@@ -369,7 +369,10 @@ export default {
     'request-incomplete': 'Please complete all required fields before submitting request',
     'request-submitted': 'Request submitted successfully! An HR advisor will review it for approval',
     'matches-available': 'Matches available',
-    'matches-available-detail': 'Candidates for this request have been found. Review them and submit your feedback.',
+    'matches-available-hiring-manager-detail':
+      'Candidates for this request have been found. Review them and submit your feedback.',
+    'matches-available-hr-advisor-detail':
+      'Matching process ran successfully. Candidates for this request have been found. A hiring manager will review the results.',
     'view-candidates-link': 'View candidates',
     'candidate-feedback-submitted': 'Candidate feedback submitted',
     'candidate-feedback-submitted-detail': 'All candidate feedback for this request has been completed.',

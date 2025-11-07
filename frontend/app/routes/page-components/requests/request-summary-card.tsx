@@ -67,12 +67,13 @@ export function RequestSummaryCard({
 
   const showPSCClearanceCard = code === REQUEST_STATUS_CODE.PSC_GRANTED;
 
-  const showMatchesCard = code === REQUEST_STATUS_CODE.FDBK_PENDING && view === 'hiring-manager';
+  const showMatchesCardHiringManager = code === REQUEST_STATUS_CODE.FDBK_PENDING && view === 'hiring-manager';
+
+  const showMatchesCardHrAdvisor = code === REQUEST_STATUS_CODE.FDBK_PENDING && view === 'hr-advisor';
 
   const showCandidateFeedbackSubmittedCard = code === REQUEST_STATUS_CODE.FDBK_PEND_APPR && view === 'hiring-manager';
 
-  const showFeedbackAvailableCard =
-    (code === REQUEST_STATUS_CODE.FDBK_PEND_APPR || code === REQUEST_STATUS_CODE.FDBK_PENDING) && view === 'hr-advisor'; // TODO update it back to only REQUEST_STATUS_CODE.FDBK_PEND_APPR
+  const showFeedbackAvailableCard = code === REQUEST_STATUS_CODE.FDBK_PEND_APPR && view === 'hr-advisor';
 
   let cardProps: RenderCardProps | null = null;
 
@@ -90,10 +91,18 @@ export function RequestSummaryCard({
       details,
       ...(hasMatches && { linkText: t('hiring-manager-referral-requests.view-candidates-link'), file, params }),
     };
-  } else if (showMatchesCard) {
+  } else if (showMatchesCardHiringManager) {
     cardProps = {
       title: t('hiring-manager-referral-requests.matches-available'),
-      details: [t('hiring-manager-referral-requests.matches-available-detail')],
+      details: [t('hiring-manager-referral-requests.matches-available-hiring-manager-detail')],
+      linkText: t('hiring-manager-referral-requests.view-candidates-link'),
+      file,
+      params,
+    };
+  } else if (showMatchesCardHrAdvisor) {
+    cardProps = {
+      title: t('hiring-manager-referral-requests.matches-available'),
+      details: [t('hiring-manager-referral-requests.matches-available-hr-advisor-detail')],
       linkText: t('hiring-manager-referral-requests.view-candidates-link'),
       file,
       params,
