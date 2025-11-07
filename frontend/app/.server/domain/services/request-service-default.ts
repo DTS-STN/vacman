@@ -31,10 +31,13 @@ export function getDefaultRequestService(): RequestService {
 
       if (params.page !== undefined) searchParams.append('page', params.page.toString());
       if (params.size !== undefined) searchParams.append('size', params.size.toString());
+      if (params.requestId !== undefined) searchParams.append('requestId', params.requestId.toString());
       if (params.hrAdvisorId?.length)
         params.hrAdvisorId.forEach((hrAdvisorId) => searchParams.append('hrAdvisorId', hrAdvisorId));
       if (params.statusId?.length) params.statusId.forEach((statusId) => searchParams.append('statusId', statusId));
       if (params.workUnitId?.length) params.workUnitId.forEach((workUnitId) => searchParams.append('workUnitId', workUnitId));
+      if (params.classificationId?.length)
+        params.classificationId.forEach((workUnitId) => searchParams.append('classificationId', workUnitId));
       if (params.sort?.length) params.sort.forEach((sort) => searchParams.append('sort', sort));
 
       const url = `/requests${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;

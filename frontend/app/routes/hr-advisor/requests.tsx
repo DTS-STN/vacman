@@ -5,6 +5,8 @@ import { useTranslation } from 'react-i18next';
 import RequestsTables from '../page-components/requests/requests-tables';
 import type { Route } from './+types/requests';
 
+import type { RequestQueryParams } from '~/.server/domain/models';
+import { getClassificationService } from '~/.server/domain/services/classification-service';
 import { getRequestService } from '~/.server/domain/services/request-service';
 import { getRequestStatusService } from '~/.server/domain/services/request-status-service';
 import { getUserService } from '~/.server/domain/services/user-service';
@@ -17,6 +19,7 @@ import { PageTitle } from '~/components/page-title';
 import { REQUEST_CATEGORY, REQUEST_STATUS_CODE, REQUEST_STATUSES } from '~/domain/constants';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
+import { removeNumberMask } from '~/utils/string-utils';
 
 export const handle = {
   i18nNamespace: [...parentHandle.i18nNamespace],
@@ -35,13 +38,14 @@ export async function loader({ context, request }: Route.LoaderArgs) {
   const currentUserResult = await getUserService().getCurrentUser(session.authState.accessToken);
   const currentUser = currentUserResult.unwrap();
 
+  const classifications = await getClassificationService().listAllLocalized(lang);
   const directorates = await getWorkUnitService().listAllLocalized(lang);
   const searchParams = new URL(request.url).searchParams;
 
   // Active requests query, either 'me' or 'all' requests
   const activeSortParam = searchParams.getAll('activeSort');
   const activeStatusIds = searchParams.getAll('activeStatus');
-  const activeRequestsQuery = {
+  const activeRequestsQuery: RequestQueryParams = {
     page: Math.max(1, Number.parseInt(searchParams.get('activePage') ?? '1', 10) || 1),
     statusId:
       activeStatusIds.length > 0
@@ -55,15 +59,16 @@ export async function loader({ context, request }: Route.LoaderArgs) {
           ).map((req) => req.id.toString()),
     workUnitId: workUnitIdsFromBranchIds(directorates, searchParams.getAll('activeBranch')),
     hrAdvisorId: searchParams.get('filter') === 'me' ? ['me'] : undefined,
+    classificationId: searchParams.getAll('activeGroup').map((id) => id),
+    requestId: removeNumberMask(searchParams.get('activeId') ?? undefined)?.toString(),
     sort: activeSortParam.length > 0 ? activeSortParam : undefined,
     size: 10,
-    //TODO: Add id search, searchParams.get('activeId'),
   };
 
   // Inactive requests query
   const inactiveSortParam = searchParams.getAll('inactiveSort');
   const inactiveStatusIds = searchParams.getAll('inactiveStatus');
-  const inactiveRequestsQuery = {
+  const inactiveRequestsQuery: RequestQueryParams = {
     page: Math.max(1, Number.parseInt(searchParams.get('inactivePage') ?? '1', 10) || 1),
     statusId:
       inactiveStatusIds.length > 0
@@ -77,9 +82,10 @@ export async function loader({ context, request }: Route.LoaderArgs) {
           ).map((req) => req.id.toString()),
     workUnitId: workUnitIdsFromBranchIds(directorates, searchParams.getAll('inactiveBranch')),
     hrAdvisorId: searchParams.get('filter') === 'me' ? ['me'] : undefined,
+    classificationId: searchParams.getAll('inactiveGroup').map((id) => id),
+    requestId: removeNumberMask(searchParams.get('inactiveId'))?.toString(),
     sort: inactiveSortParam.length > 0 ? inactiveSortParam : undefined,
     size: 10,
-    //TODO: Add id search, searchParams.get('inactiveId'),
   };
 
   const activeRequestsResult = await getRequestService().getRequests(activeRequestsQuery, session.authState.accessToken);
@@ -142,6 +148,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
     inactiveRequests,
     inactiveRequestsPage,
     requestStatuses,
+    classifications,
     workUnits,
     baseTimeZone: serverEnvironment.BASE_TIMEZONE,
     userId: currentUser.id,

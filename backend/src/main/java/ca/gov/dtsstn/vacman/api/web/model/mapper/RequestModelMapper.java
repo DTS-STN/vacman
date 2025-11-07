@@ -142,6 +142,8 @@ public interface RequestModelMapper {
 	@Mapping(source = "statusId", target = "statusIds")
 	@Mapping(source = "workUnitId", target = "workUnitIds")
 	@Mapping(source = "hrAdvisorId", target = "hrAdvisorIds")
+	@Mapping(source = "classificationId", target = "classificationIds")
+	@Mapping(source = "requestId", target = "requestId")
 	RequestQuery toRequestQuery(RequestReadFilterModel filter);
 
 	default Long cityIdToLong(CityId cityId) {

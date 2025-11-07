@@ -214,3 +214,9 @@ export function formatWithMask(input: number | string, mask: string): string {
 export function parseCSVString(input: string): string[] {
   return input.split(',').map((item) => item.trim());
 }
+
+export function removeNumberMask(input: string | null | undefined): number | undefined {
+  if (!input) return undefined;
+  const cleaned = input.replace(/\D/g, '');
+  return cleaned ? Number(cleaned) : undefined;
+}

@@ -6,6 +6,7 @@ import RequestsTables from '../page-components/requests/requests-tables';
 import type { Route } from './+types/requests';
 
 import type { RequestUpdateModel } from '~/.server/domain/models';
+import { getClassificationService } from '~/.server/domain/services/classification-service';
 import { getRequestService } from '~/.server/domain/services/request-service';
 import { getRequestStatusService } from '~/.server/domain/services/request-status-service';
 import { getUserService } from '~/.server/domain/services/user-service';
@@ -20,7 +21,7 @@ import { REQUEST_CATEGORY, REQUEST_STATUSES } from '~/domain/constants';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
-import { formString } from '~/utils/string-utils';
+import { formString, removeNumberMask } from '~/utils/string-utils';
 
 export const handle = {
   i18nNamespace: [...parentHandle.i18nNamespace],
@@ -115,6 +116,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
   const currentUserResult = await getUserService().getCurrentUser(session.authState.accessToken);
   const currentUser = currentUserResult.unwrap();
 
+  const classifications = await getClassificationService().listAllLocalized(lang);
   const directorates = await getWorkUnitService().listAllLocalized(lang);
   const searchParams = new URL(request.url).searchParams;
 
@@ -130,6 +132,8 @@ export async function loader({ context, request }: Route.LoaderArgs) {
           )
         : REQUEST_STATUSES.filter((req) => req.category === REQUEST_CATEGORY.active).map((req) => req.id.toString()),
     workUnitId: workUnitIdsFromBranchIds(directorates, searchParams.getAll('activeBranch')),
+    classificationId: searchParams.getAll('activeGroup').map((id) => id),
+    requestId: removeNumberMask(searchParams.get('activeId') ?? undefined)?.toString(),
     sort: activeSortParam.length > 0 ? activeSortParam : undefined,
     size: 10,
     //TODO: Add id search, searchParams.get('activeId'),
@@ -149,6 +153,8 @@ export async function loader({ context, request }: Route.LoaderArgs) {
           )
         : REQUEST_STATUSES.filter((req) => req.category === REQUEST_CATEGORY.inactive).map((req) => req.id.toString()),
     workUnitId: workUnitIdsFromBranchIds(directorates, searchParams.getAll('inactiveBranch')),
+    classificationId: searchParams.getAll('inactiveGroup').map((id) => id),
+    requestId: removeNumberMask(searchParams.get('inactiveId') ?? undefined)?.toString(),
     sort: inactiveSortParam.length > 0 ? inactiveSortParam : undefined,
     size: 10,
     //TODO: Add id search, searchParams.get('inactiveId'),
@@ -186,6 +192,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
     inactiveRequests,
     inactiveRequestsPage,
     requestStatuses,
+    classifications,
     workUnits,
     baseTimeZone: serverEnvironment.BASE_TIMEZONE,
     userId: currentUser.id,

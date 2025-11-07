@@ -8,6 +8,7 @@ import static ca.gov.dtsstn.vacman.api.data.repository.MatchRepository.hasProfil
 import static ca.gov.dtsstn.vacman.api.data.repository.MatchRepository.hasProfileMiddleNameContaining;
 import static ca.gov.dtsstn.vacman.api.data.repository.MatchRepository.hasProfileWfaStatusIdIn;
 import static ca.gov.dtsstn.vacman.api.data.repository.MatchRepository.hasRequestId;
+import static ca.gov.dtsstn.vacman.api.data.repository.RequestRepository.hasClassificationIdIn;
 import static ca.gov.dtsstn.vacman.api.data.repository.RequestRepository.hasHiringManagerId;
 import static ca.gov.dtsstn.vacman.api.data.repository.RequestRepository.hasHrAdvisorIdIn;
 import static ca.gov.dtsstn.vacman.api.data.repository.RequestRepository.hasRequestStatusIdIn;
@@ -21,6 +22,7 @@ import static org.springframework.data.jpa.domain.Specification.anyOf;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+
 
 import ca.gov.dtsstn.vacman.api.event.*;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -194,9 +196,11 @@ public class RequestService {
 
 		final var specification = allOf(
 			requestsAssociatedWithUser,
+			RequestRepository.hasId(query.requestId()),
 			hasHrAdvisorIdIn(query.hrAdvisorIds()),
 			hasRequestStatusIdIn(query.statusIds()),
-			hasWorkUnitIdIn(query.workUnitIds())
+			hasWorkUnitIdIn(query.workUnitIds()),
+			hasClassificationIdIn(query.classificationIds())
 		);
 
 		return requestRepository.findAll(specification, pageable);
@@ -267,9 +271,11 @@ public class RequestService {
 	@Counted("service.request.findRequests.count")
 	public Page<RequestEntity> findRequests(Pageable pageable, RequestQuery query) {
 		final var specification = allOf(
+			RequestRepository.hasId(query.requestId()),
 			hasHrAdvisorIdIn(query.hrAdvisorIds()),
 			hasRequestStatusIdIn(query.statusIds()),
-			hasWorkUnitIdIn(query.workUnitIds())
+			hasWorkUnitIdIn(query.workUnitIds()),
+			hasClassificationIdIn(query.classificationIds())
 		);
 
 		return requestRepository.findAll(specification, pageable);
