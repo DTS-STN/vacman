@@ -384,7 +384,7 @@ export function ColumnOptions<TData, TValue>({
             type="button"
             variant="ghost"
             size="sm"
-            className="-ml-3.5 h-8 data-[state=open]:bg-neutral-100"
+            className="-ml-3.5 data-[state=open]:bg-neutral-100"
             aria-label={ariaLabel}
           >
             <span className="text-left font-sans">{title}</span>

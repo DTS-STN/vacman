@@ -352,9 +352,11 @@ export type RequestQueryParams = {
   page?: number;
   size?: number;
   sort?: string[];
+  classificationId?: string[];
   hrAdvisorId?: string[];
   statusId?: string[];
   workUnitId?: string[];
+  requestId?: string;
 };
 
 // Match Read Model

@@ -24,6 +24,7 @@ interface RequestTablesProps {
   inactiveRequestsPage: PageMetadata;
   inactiveRequests: RequestReadModel[];
   requestStatuses: readonly LocalizedLookupModel[];
+  classifications: readonly LocalizedLookupModel[];
   workUnits: LocalizedLookupModel[];
   baseTimeZone: string;
   view: 'hr-advisor' | 'hiring-manager';
@@ -35,6 +36,7 @@ export default function RequestsTables({
   inactiveRequestsPage,
   inactiveRequests,
   requestStatuses,
+  classifications,
   workUnits,
   baseTimeZone,
   view,
@@ -146,6 +148,7 @@ export default function RequestsTables({
             page={activeRequestsPage}
             requests={activeRequests}
             requestStatuses={activeRequestsOptions}
+            classifications={classifications}
             workUnits={workUnits}
             view={view}
             isSubmitting={isSubmitting}
@@ -163,6 +166,7 @@ export default function RequestsTables({
             page={inactiveRequestsPage}
             requests={inactiveRequests}
             requestStatuses={inactiveRequestsOptions}
+            classifications={classifications}
             workUnits={workUnits}
             view={view}
             isSubmitting={isSubmitting}
@@ -182,6 +186,7 @@ interface RequestColumnsProps {
   page: PageMetadata;
   requests: RequestReadModel[];
   requestStatuses: readonly LocalizedLookupModel[];
+  classifications: readonly LocalizedLookupModel[];
   workUnits: LocalizedLookupModel[];
   view: 'hr-advisor' | 'hiring-manager';
   isSubmitting: boolean;
@@ -197,6 +202,7 @@ function RequestsColumns({
   requests,
   view,
   requestStatuses,
+  classifications,
   workUnits,
   isSubmitting,
   formatDateYMD,
@@ -250,9 +256,19 @@ function RequestsColumns({
         }}
       />
       <Column
-        accessorKey="classification"
+        accessorKey={`${keyPrefix}Group`}
         accessorFn={(row: RequestReadModel) => row.classification?.code ?? ''}
-        header={({ column }) => <ColumnHeader column={column} title={t('requests-tables.classification')} />}
+        header={({ column }) => (
+          <ColumnOptions
+            column={column}
+            title={t('requests-tables.classification')}
+            options={classifications}
+            page={urlParam.page}
+            searchParams={searchParams}
+            setSearchParams={setSearchParams}
+            showClearAll
+          />
+        )}
         cell={(info) => <p>{info.row.original.classification?.code}</p>}
       />
       {view === 'hr-advisor' && (

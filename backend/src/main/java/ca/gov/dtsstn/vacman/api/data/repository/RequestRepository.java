@@ -190,4 +190,20 @@ public interface RequestRepository extends AbstractBaseRepository<RequestEntity>
 		return (root, query, cb) -> root.get("subDelegatedManager").get("id").in(ids);
 	}
 
+	/**
+	 * JPA specification to find requests with specific classification IDs.
+	 */
+
+	static Specification<RequestEntity> hasClassificationIdIn(Collection<Long> ids) {
+		if (CollectionUtils.isEmpty(ids)) { return unrestricted(); }
+		return (root, query, cb) -> root.get("classification").get("id").in(ids);
+	}
+
+	/**
+	 * JPA specification to find requests by request ID.
+	 */
+	static Specification<RequestEntity> hasId(Long id) {
+		if (id == null) { return unrestricted(); }
+		return (root, query, cb) -> cb.equal(root.get("id"), id);
+	}
 }
