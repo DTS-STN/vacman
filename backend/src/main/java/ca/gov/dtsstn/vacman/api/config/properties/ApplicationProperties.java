@@ -8,6 +8,7 @@ import org.springframework.validation.annotation.Validated;
 @Validated
 @ConfigurationProperties("application")
 @EnableConfigurationProperties({
+	CachingProperties.class,
 	EntraIdProperties.class,
 	GcNotifyProperties.class,
 	MetricsProperties.class,
@@ -16,6 +17,7 @@ import org.springframework.validation.annotation.Validated;
 	SwaggerUiProperties.class,
 })
 public record ApplicationProperties(
+	@NestedConfigurationProperty CachingProperties caching,
 	@NestedConfigurationProperty EntraIdProperties entraId,
 	@NestedConfigurationProperty GcNotifyProperties gcnotify,
 	@NestedConfigurationProperty MetricsProperties metrics,
