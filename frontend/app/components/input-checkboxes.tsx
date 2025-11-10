@@ -85,8 +85,8 @@ export function InputCheckboxes({
               <InputCheckbox
                 aria-describedby={descriptiveIds}
                 aria-errormessage={errorMessage ? ids.error : undefined}
-                aria-invalid={errorMessage ? 'true' : 'false'}
-                aria-required={required ? 'true' : 'false'}
+                aria-invalid={errorMessage ? 'true' : undefined}
+                aria-required={required ? 'true' : undefined}
                 hasError={!!errorMessage}
                 id={checkboxId}
                 name={name}
