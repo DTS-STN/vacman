@@ -102,7 +102,7 @@ export function RequestSummaryCard({
   } else if (showMatchesCardHrAdvisor) {
     cardProps = {
       title: t('hiring-manager-referral-requests.matches-available'),
-      details: [t('hiring-manager-referral-requests.matches-available-hr-advisor-detail')],
+      details: [t('matches.matches-available-hr-advisor-detail')],
       linkText: t('hiring-manager-referral-requests.view-candidates-link'),
       file,
       params,

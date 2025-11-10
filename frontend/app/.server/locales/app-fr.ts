@@ -375,8 +375,6 @@ export default {
     'matches-available': 'Candidatures disponibles',
     'matches-available-hiring-manager-detail':
       'Des candidatures qui correspondent à cette demande ont été trouvées. Veuillez les consulter et nous faire parvenir votre rétroaction.',
-    'matches-available-hr-advisor-detail':
-      "Le processus d'appariement a réussi. Des candidat-e-s correspondant à cette demande ont été trouvé-e-s. Un gestionnaire d'embauche examinera les résultats.",
     'view-candidates-link': 'Voir les candidatures',
     'candidate-feedback-submitted': 'Rétroaction sur les candidat-e-s soumise',
     'candidate-feedback-submitted-detail': 'Tous les commentaires des candidat-e-s concernant cette demande ont été complétés',
@@ -616,6 +614,8 @@ export default {
       'Je confirme que les droits en matière de recyclage ont été appliqués et/ou pris en compte pour chaque employé-e touché-e, excédentaire ou mis-e en disponibilité considéré-e.',
     'approval-completion-progress': "Progression de l'achèvement de l'approbation",
     'feedback-completion-progress': "Progression de l'achèvement des retours",
+    'matches-available-hr-advisor-detail':
+      "Le processus d'appariement a réussi. Des candidat-e-s correspondant à cette demande ont été trouvé-e-s. Un gestionnaire d'embauche examinera les résultats.",
     'errors': {
       'match-id': "L'identifiant doit être un nombre.",
       'feedback-required': 'Une rétroaction est requise.',

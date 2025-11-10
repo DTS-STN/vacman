@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
+import type { JSX } from 'react';
 
-import { data, useFetcher } from 'react-router';
+import { data, useFetcher, useSearchParams } from 'react-router';
 import type { RouteHandle } from 'react-router';
 
 import { Trans, useTranslation } from 'react-i18next';
@@ -8,7 +9,13 @@ import * as v from 'valibot';
 
 import type { Route } from './+types/matches';
 
-import type { MatchReadModel, MatchSummaryReadModel, MatchUpdateModel } from '~/.server/domain/models';
+import type {
+  LookupModel,
+  MatchReadModel,
+  MatchSummaryReadModel,
+  MatchUpdateModel,
+  PageMetadata,
+} from '~/.server/domain/models';
 import { getMatchFeedbackService } from '~/.server/domain/services/match-feedback-service';
 import { getRequestService } from '~/.server/domain/services/request-service';
 import { wfaStatusService } from '~/.server/domain/services/wfa-status-service-default';
@@ -19,17 +26,19 @@ import { stringToIntegerSchema } from '~/.server/validation/string-to-integer-sc
 import { AlertMessage } from '~/components/alert-message';
 import { BackLink } from '~/components/back-link';
 import { InlineLink } from '~/components/links';
+import { LoadingLink } from '~/components/loading-link';
 import { PageTitle } from '~/components/page-title';
 import { Progress } from '~/components/progress';
+import { Column, ColumnOptions, ColumnSearch, ServerTable } from '~/components/server-table';
 import { RequestStatusTag } from '~/components/status-tag';
 import { VacmanBackground } from '~/components/vacman-background';
-import { MATCH_STATUS } from '~/domain/constants';
+import { MATCH_STATUS, REQUEST_STATUS_CODE } from '~/domain/constants';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
 import MatchesTables from '~/routes/page-components/requests/matches-tables';
 import { formatDateTimeForTimezone } from '~/utils/date-utils';
-import { formString } from '~/utils/string-utils';
+import { formatWithMask, formString } from '~/utils/string-utils';
 
 export const handle = {
   i18nNamespace: [...parentHandle.i18nNamespace],
@@ -251,6 +260,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     requestMatches,
     wfaStatuses,
     requestId: requestData.id,
+    requestIdFormatted: formatWithMask(requestData.id, '####-####-##'),
     requestStatus: requestData.status,
     branch: lang === 'en' ? requestData.workUnit?.parent?.nameEn : requestData.workUnit?.parent?.nameFr,
     requestDate: requestData.createdDate,
@@ -265,6 +275,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
       lastName: requestData.hrAdvisor?.lastName,
       email: requestData.hrAdvisor?.businessEmailAddress,
     },
+    feedbackSubmitted: requestData.status?.code === REQUEST_STATUS_CODE.FDBK_PEND_APPR,
     approvalProgress: getApprovalProgress(requestMatches),
     page,
   };
@@ -303,7 +314,7 @@ export default function HrAdvisorMatches({ loaderData, params }: Route.Component
         <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 md:grid-cols-4">
           <div>
             <p>{t('app:matches.request-id')}</p>
-            <p className="text-[#9FA3AD]">{loaderData.requestId}</p>
+            <p className="text-[#9FA3AD]">{loaderData.requestIdFormatted}</p>
           </div>
           <div>
             <p>{t('app:matches.request-date')}</p>
@@ -334,8 +345,12 @@ export default function HrAdvisorMatches({ loaderData, params }: Route.Component
         {t('app:matches.back-request-details')}
       </BackLink>
       <h2 className="font-lato mt-4 text-2xl font-bold">{t('app:matches.request-candidates')}</h2>
-      <p className="sm:w-2/3 md:w-3/4">{t('app:matches.page-info')}</p>
-      {loaderData.approvalProgress >= 100 ? (
+      {loaderData.feedbackSubmitted ? (
+        <p className="sm:w-2/3 md:w-3/4">{t('app:matches.page-info')}</p>
+      ) : (
+        <p className="sm:w-2/3 md:w-3/4">{t('app:matches.matches-available-hr-advisor-detail')}</p>
+      )}
+      {loaderData.approvalProgress >= 100 && (
         <AlertMessage ref={alertRef} type="info" role="alert" ariaLive="assertive">
           <Trans
             i18nKey="app:matches.feedback.approved"
@@ -351,7 +366,8 @@ export default function HrAdvisorMatches({ loaderData, params }: Route.Component
             }}
           />
         </AlertMessage>
-      ) : (
+      )}
+      {loaderData.feedbackSubmitted && loaderData.approvalProgress < 100 && (
         <Progress
           className="mt-8 mb-8"
           variant="blue"
@@ -359,13 +375,101 @@ export default function HrAdvisorMatches({ loaderData, params }: Route.Component
           value={loaderData.approvalProgress}
         />
       )}
-      <MatchesTables
-        {...loaderData}
-        submit={matchesFetcher.submit}
-        view="hr-advisor"
-        isUpdating={isUpdating}
-        errors={matchesFetcher.data?.errors}
-      />
+      {loaderData.feedbackSubmitted ? (
+        <MatchesTables
+          {...loaderData}
+          submit={matchesFetcher.submit}
+          view="hr-advisor"
+          isUpdating={isUpdating}
+          errors={matchesFetcher.data?.errors}
+        />
+      ) : (
+        <DisplayCandidatesTable {...loaderData} />
+      )}
     </div>
+  );
+}
+interface DisplayCandidatesTableProps {
+  requestMatches: MatchSummaryReadModel[];
+  wfaStatuses: readonly Readonly<LookupModel>[];
+  requestId: number;
+  lang: 'en' | 'fr';
+  page: PageMetadata;
+}
+
+function DisplayCandidatesTable({
+  requestMatches,
+  wfaStatuses,
+  requestId,
+  lang,
+  page,
+}: DisplayCandidatesTableProps): JSX.Element {
+  const { t } = useTranslation('app');
+  const [searchParams, setSearchParams] = useSearchParams({ filter: 'all' });
+
+  return (
+    <section className="mb-8 sm:w-1/2">
+      <ServerTable page={page} data={requestMatches} searchParams={searchParams} setSearchParams={setSearchParams}>
+        <Column
+          accessorKey="employeeName"
+          accessorFn={(row: MatchSummaryReadModel) => `${row.profile?.firstName} ${row.profile?.lastName}`}
+          header={({ column }) => (
+            <ColumnSearch
+              column={column}
+              title={t('matches-tables.employee')}
+              searchParams={searchParams}
+              setSearchParams={setSearchParams}
+            />
+          )}
+          cell={(info) => {
+            const profile = info.row.original.profile;
+            const profileId = profile?.id;
+            const employeeName = `${profile?.firstName ?? ''} ${profile?.lastName ?? ''}`.trim();
+
+            // Only render link if profileId exists
+            if (!profileId) {
+              return <span>{employeeName || '-'}</span>;
+            }
+
+            return (
+              <LoadingLink
+                className="text-sky-800 no-underline decoration-slate-400 decoration-2 hover:underline"
+                file={`routes/hr-advisor/request/profile.tsx`}
+                params={{ requestId: requestId.toString(), profileId: profileId.toString() }}
+                aria-label={`${t('matches-tables.employee')} ${profile.firstName} ${profile.lastName}`}
+                search={searchParams}
+              >
+                {employeeName || '-'}
+              </LoadingLink>
+            );
+          }}
+        />
+        <Column
+          accessorKey="wfaStatusId"
+          accessorFn={(row: MatchSummaryReadModel) =>
+            (lang === 'en' ? row.profile?.wfaStatus?.nameEn : row.profile?.wfaStatus?.nameFr) ?? '-'
+          }
+          header={({ column }) => (
+            <ColumnOptions
+              column={column}
+              title={t('matches-tables.wfa-status')}
+              options={wfaStatuses}
+              searchParams={searchParams}
+              setSearchParams={setSearchParams}
+              showClearAll
+            />
+          )}
+          cell={(info) => {
+            return (
+              <p>
+                {lang === 'en'
+                  ? (info.row.original.profile?.wfaStatus?.nameEn ?? '-')
+                  : (info.row.original.profile?.wfaStatus?.nameFr ?? '-')}
+              </p>
+            );
+          }}
+        />
+      </ServerTable>
+    </section>
   );
 }

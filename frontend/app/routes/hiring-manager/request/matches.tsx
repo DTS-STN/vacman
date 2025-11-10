@@ -32,7 +32,7 @@ import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
 import MatchesTables from '~/routes/page-components/requests/matches-tables';
 import { formatDateTimeForTimezone } from '~/utils/date-utils';
-import { formString } from '~/utils/string-utils';
+import { formatWithMask, formString } from '~/utils/string-utils';
 import { extractValidationKey } from '~/utils/validation-utils';
 
 export const handle = {
@@ -271,6 +271,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     requestMatches,
     wfaStatuses,
     requestId: requestData.id,
+    requestIdFormatted: formatWithMask(requestData.id, '####-####-##'),
     requestStatus: requestData.status,
     branch: lang === 'en' ? requestData.workUnit?.parent?.nameEn : requestData.workUnit?.parent?.nameFr,
     requestDate: requestData.createdDate,
@@ -328,7 +329,7 @@ export default function HiringManagerRequestMatches({ loaderData, actionData, pa
         <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 md:grid-cols-4">
           <div>
             <p>{t('app:matches.request-id')}</p>
-            <p className="text-[#9FA3AD]">{loaderData.requestId}</p>
+            <p className="text-[#9FA3AD]">{loaderData.requestIdFormatted}</p>
           </div>
           <div>
             <p>{t('app:matches.request-date')}</p>

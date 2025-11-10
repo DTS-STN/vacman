@@ -94,7 +94,6 @@ export default function MatchesTables({
   return (
     <div className="mb-8">
       <section className="mb-8">
-        <h2 className="font-lato text-xl font-bold">{t('requests-tables.active-requests')}</h2>
         <ServerTable page={page} data={requestMatches} searchParams={searchParams} setSearchParams={setSearchParams}>
           <Column
             accessorKey="employeeName"
