@@ -60,7 +60,9 @@ exports[`InputCheckbox > should render input checkbox with error message > expec
       class="flex items-center"
     >
       <input
+        aria-describedby="input-checkbox-test-id-error"
         aria-errormessage="input-checkbox-test-id-error"
+        aria-invalid="true"
         aria-labelledby="input-checkbox-test-id-label"
         class="size-5 rounded-sm bg-gray-50 focus:ring-2 focus:outline-hidden border-red-500 text-red-700 focus:border-red-500 focus:ring-red-500"
         data-testid="input-checkbox"
