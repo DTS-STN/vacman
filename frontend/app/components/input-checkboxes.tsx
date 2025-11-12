@@ -53,9 +53,10 @@ export function InputCheckboxes({
     },
   };
 
-  const ariaDescribedbyIds =
+  const descriptiveIds =
     [
-      !!helpMessagePrimary && ids.help.primary, //
+      !!errorMessage && ids.error, //
+      !!helpMessagePrimary && ids.help.primary,
       !!helpMessageSecondary && ids.help.secondary,
     ]
       .filter(Boolean)
@@ -82,10 +83,10 @@ export function InputCheckboxes({
           return (
             <li key={checkboxId}>
               <InputCheckbox
-                aria-describedby={ariaDescribedbyIds}
+                aria-describedby={descriptiveIds}
                 aria-errormessage={errorMessage ? ids.error : undefined}
-                aria-invalid={errorMessage ? true : undefined}
-                aria-required={required ? true : undefined}
+                aria-invalid={errorMessage ? 'true' : undefined}
+                aria-required={required ? 'true' : undefined}
                 hasError={!!errorMessage}
                 id={checkboxId}
                 name={name}

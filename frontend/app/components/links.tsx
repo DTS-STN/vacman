@@ -28,6 +28,7 @@ type BilingualLinkProps = OmitStrict<ComponentProps<typeof Link>, 'to'> & {
   search?: URLSearchParams | string;
   to?: never;
   newTabIndicator?: boolean;
+  ariaDescribedbyId?: string;
 };
 
 /**
@@ -45,6 +46,7 @@ type UnilingualLinkProps = OmitStrict<ComponentProps<typeof Link>, 'lang'> & {
   params?: never;
   search?: never;
   newTabIndicator?: boolean;
+  ariaDescribedbyId?: string;
 };
 
 /**
@@ -84,6 +86,7 @@ export function AppLink({
   search,
   to,
   newTabIndicator,
+  ariaDescribedbyId,
   ...props
 }: AppLinkProps): JSX.Element {
   const { currentLanguage } = useLanguage();
@@ -133,6 +136,7 @@ export function AppLink({
         search: search ? search.toString() : undefined,
       }}
       reloadDocument={reloadDocumentProp}
+      aria-describedby={ariaDescribedbyId}
       {...props}
     >
       {children}

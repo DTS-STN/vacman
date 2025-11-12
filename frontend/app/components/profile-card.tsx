@@ -114,11 +114,20 @@ export function ProfileCardEditLink({ isNew, file, params, errorState, children 
 
   return (
     <>
-      {errorState && <h3 className="pb-4 text-lg font-bold text-[#333333]">{t('profile.field-incomplete')}</h3>}
+      {errorState && (
+        <h3 id="field-incomplete-error" className="pb-4 text-lg font-bold text-[#333333]">
+          {t('profile.field-incomplete')}
+        </h3>
+      )}
       <span className="flex items-center gap-x-2">
         {errorState && <FontAwesomeIcon icon={faTriangleExclamation} className="text-red-800" />}
         {!errorState && (isNew ? <FontAwesomeIcon icon={faPlus} /> : <FontAwesomeIcon icon={faPenToSquare} />)}
-        <LoadingLink className={`${errorState && 'text-red-800'} font-semibold`} file={file} params={params}>
+        <LoadingLink
+          className={`${errorState && 'text-red-800'} font-semibold`}
+          file={file}
+          params={params}
+          ariaDescribedbyId={errorState ? 'field-incomplete-error' : undefined}
+        >
           {`${isNew ? t('profile.add') : t('profile.edit')}\u0020`}
           {children}
         </LoadingLink>

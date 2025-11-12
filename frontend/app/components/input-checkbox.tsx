@@ -45,7 +45,9 @@ export function InputCheckbox({
           type="checkbox"
           id={ids.input}
           aria-labelledby={ids.label}
+          aria-describedby={errorMessage ? ids.error : undefined}
           aria-errormessage={errorMessage ? ids.error : undefined}
+          aria-invalid={errorMessage || hasError ? 'true' : undefined}
           className={cn(
             'size-5 rounded-sm border-gray-500 bg-gray-50 text-blue-600 focus:ring-2 focus:ring-blue-500 focus:outline-hidden',
             (restProps.readOnly === true || restProps.disabled === true) && 'pointer-events-none cursor-not-allowed opacity-70',
