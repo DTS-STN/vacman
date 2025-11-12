@@ -236,18 +236,7 @@ function RequestsColumns({
           />
         )}
         cell={(info) => {
-          const requestId = info.row.original.id.toString();
-          return (
-            <LoadingLink
-              className="text-sky-800 decoration-slate-400 decoration-2"
-              file={`routes/${view}/request/index.tsx`}
-              params={{ requestId }}
-              search={searchParams}
-              aria-label={t('requests-tables.view-link', { requestId })}
-            >
-              {formatWithMask(info.row.original.id, '####-####-##')}
-            </LoadingLink>
-          );
+          return <span>{formatWithMask(info.row.original.id, '####-####-##')}</span>;
         }}
         sortingFn={(rowA, rowB) => {
           const a = rowA.original.id;
@@ -269,7 +258,7 @@ function RequestsColumns({
             showClearAll
           />
         )}
-        cell={(info) => <p>{info.row.original.classification?.code}</p>}
+        cell={(info) => <span>{info.row.original.classification?.code}</span>}
       />
       {view === 'hr-advisor' && (
         <Column
@@ -289,11 +278,11 @@ function RequestsColumns({
             />
           )}
           cell={(info) => (
-            <p>
+            <span>
               {currentLanguage === 'en'
                 ? (info.row.original.workUnit?.parent?.nameEn ?? '-')
                 : (info.row.original.workUnit?.parent?.nameFr ?? '-')}
-            </p>
+            </span>
           )}
         />
       )}
@@ -305,7 +294,7 @@ function RequestsColumns({
           const lastModifiedDate = info.row.original.lastModifiedDate;
           const userUpdated = info.row.original.lastModifiedBy ?? 'Unknown User';
           const dateUpdated = formatDateYMD(lastModifiedDate);
-          return <p className="text-neutral-600">{`${dateUpdated}: ${userUpdated}`}</p>;
+          return <span className="text-neutral-600">{`${dateUpdated}: ${userUpdated}`}</span>;
         }}
       />
       <Column
@@ -314,7 +303,7 @@ function RequestsColumns({
         header={({ column }) => <ColumnHeader column={column} title={t('requests-tables.hr-advisor')} />}
         cell={(info) => {
           const hrAdvisorName = getHrAdvisorName(info.row.original.hrAdvisor) || t('requests-tables.not-assigned');
-          return <p className="text-neutral-600">{hrAdvisorName}</p>;
+          return <span className="text-neutral-600">{hrAdvisorName}</span>;
         }}
       />
       <Column
