@@ -725,7 +725,7 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
         </div>
       </div>
       <Dialog open={showDialog} onOpenChange={setShowDialog}>
-        <DialogContent aria-describedby="delete-dialog-description" role="alertdialog">
+        <DialogContent aria-describedby="delete-dialog-description" aria-labelledby="delete-dialog-title" role="alertdialog">
           <DialogHeader>
             <DialogTitle id="delete-dialog-title">{t('app:hiring-manager-referral-requests.delete-request.title')}</DialogTitle>
           </DialogHeader>
