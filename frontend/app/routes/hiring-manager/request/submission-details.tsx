@@ -15,13 +15,14 @@ import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { extractUniqueBranchesFromDirectorates } from '~/.server/utils/directorate-utils';
 import { mapRequestToUpdateModelWithOverrides } from '~/.server/utils/request-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
+import { resolveSubmissionDetailUserIds } from '~/.server/utils/submission-details-utils';
 import { BackLink } from '~/components/back-link';
 import { REQUEST_STATUS_CODE, REQUIRE_OPTIONS } from '~/domain/constants';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
 import { SubmissionDetailsForm } from '~/routes/page-components/requests/submission-detail-form';
-import type { Errors, SubmissionDetailSchema } from '~/routes/page-components/requests/validation.server';
+import type { SubmissionDetailSchema } from '~/routes/page-components/requests/validation.server';
 import { createSubmissionDetailSchema } from '~/routes/page-components/requests/validation.server';
 import { formString } from '~/utils/string-utils';
 
@@ -67,47 +68,23 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     );
   }
 
-  const errors: Errors = {};
-  let hiringManagerId: number | undefined;
-  let subDelegatedManagerId: number | undefined;
   const userService = getUserService();
+  const userNotFoundMessage = t('app:submission-details.errors.no-user-found-with-this-email');
 
-  const registerFieldError = (field: 'hiringManagerEmailAddress' | 'subDelegatedManagerEmailAddress') => {
-    Object.assign(errors, {
-      [field]: [t('app:submission-details.errors.no-user-found-with-this-email')],
-    });
-  };
+  const {
+    errors,
+    hiringManagerId: resolvedHiringManagerId,
+    subDelegatedManagerId: resolvedSubDelegatedManagerId,
+  } = await resolveSubmissionDetailUserIds({
+    userService,
+    accessToken: session.authState.accessToken,
+    hiringManagerEmailAddress: parseResult.output.hiringManagerEmailAddress,
+    subDelegatedManagerEmailAddress: parseResult.output.subDelegatedManagerEmailAddress,
+    userNotFoundMessage,
+  });
 
-  const resolveUserId = async (
-    email: string | undefined,
-    field: 'hiringManagerEmailAddress' | 'subDelegatedManagerEmailAddress',
-  ) => {
-    if (!email) {
-      return undefined;
-    }
-
-    const result = await userService.getOrCreateUserByEmail(email, session.authState.accessToken);
-
-    if (result.isErr()) {
-      const error = result.unwrapErr();
-
-      if (error.httpStatusCode === HttpStatusCodes.NOT_FOUND) {
-        registerFieldError(field);
-        return undefined;
-      }
-
-      throw error;
-    }
-
-    return result.unwrap().id;
-  };
-
-  hiringManagerId = await resolveUserId(parseResult.output.hiringManagerEmailAddress, 'hiringManagerEmailAddress');
-
-  subDelegatedManagerId = await resolveUserId(
-    parseResult.output.subDelegatedManagerEmailAddress,
-    'subDelegatedManagerEmailAddress',
-  );
+  let hiringManagerId = resolvedHiringManagerId;
+  let subDelegatedManagerId = resolvedSubDelegatedManagerId;
 
   // Check for errors again after checking subDelegatedManager
   if (Object.keys(errors).length > 0) {
