@@ -174,6 +174,11 @@ public class DataSeederConfig {
 		final var bilingual = languageReferralTypes.stream().filter(byCode("BILINGUAL")).findFirst().orElseThrow();
 		final var englishOnly = languageReferralTypes.stream().filter(byCode("ENGLISH")).findFirst().orElseThrow();
 
+		// Find directorate work units for testing
+		final var workplaceDirectorate = workUnits.stream().filter(byCode("100712")).findFirst().orElseThrow();        // Workplace Directorate
+		final var digitalServiceDirectorate = workUnits.stream().filter(byCode("100570")).findFirst().orElseThrow();   // Digital Service Directorate
+		final var accessibleCanadaDirectorate = workUnits.stream().filter(byCode("106061")).findFirst().orElseThrow(); // Accessible Canada Directorate
+
 		final var users = Stream.generate(() -> UserEntity.builder()
 				.businessEmailAddress(faker.internet().safeEmailAddress())
 				.firstName(faker.name().firstName())
@@ -197,6 +202,7 @@ public class DataSeederConfig {
 			.user(users.get(0))
 			.profileStatus(approvedStatus)
 			.wfaStatus(affectedWfa)
+			.substantiveWorkUnit(workplaceDirectorate)
 			.preferredClassifications(List.of(as05))
 			.preferredCities(List.of(ottawa, gatineau))
 			.preferredLanguages(List.of(bilingual))
@@ -208,6 +214,7 @@ public class DataSeederConfig {
 			.user(users.get(1))
 			.profileStatus(approvedStatus)
 			.wfaStatus(surplusWfa)
+			.substantiveWorkUnit(digitalServiceDirectorate)
 			.preferredClassifications(List.of(as05, pm05))
 			.preferredCities(List.of(ottawa, gatineau, montreal))
 			.preferredLanguages(List.of(bilingual))
@@ -219,6 +226,7 @@ public class DataSeederConfig {
 			.user(users.get(2))
 			.profileStatus(approvedStatus)
 			.wfaStatus(surplusWfa)
+			.substantiveWorkUnit(accessibleCanadaDirectorate)
 			.preferredClassifications(List.of(as05))
 			.preferredCities(List.of(ottawa, gatineau))
 			.preferredLanguages(List.of(englishOnly))
@@ -230,6 +238,7 @@ public class DataSeederConfig {
 			.user(users.get(3))
 			.profileStatus(approvedStatus)
 			.wfaStatus(affectedWfa)
+			.substantiveWorkUnit(workplaceDirectorate)
 			.preferredClassifications(List.of(as05))
 			.preferredCities(List.of(ottawa, gatineau))
 			.preferredLanguages(List.of(bilingual))
