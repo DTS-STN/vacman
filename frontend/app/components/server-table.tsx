@@ -5,6 +5,7 @@ import type { SetURLSearchParams } from 'react-router';
 
 import { faEllipsis, faSearch, faSliders, faSort, faSortDown, faSortUp, faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Popover } from '@radix-ui/react-popover';
 import type { ColumnDef, SortingState, Column, ColumnFiltersState } from '@tanstack/react-table';
 import { flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import { useTranslation } from 'react-i18next';
@@ -14,6 +15,7 @@ import { Button } from '~/components/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '~/components/dropdown-menu';
 import { InputField } from '~/components/input-field';
 import Pagination from '~/components/pagination';
+import { PopoverContent, PopoverTrigger } from '~/components/popover';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '~/components/table';
 import { useLanguage } from '~/hooks/use-language';
 import { useFetchLoading } from '~/hooks/use-loading';
@@ -428,8 +430,7 @@ export function ColumnOptions<TData, TValue>({
                 }}
                 onKeyDown={(e) => {
                   switch (e.key) {
-                    case 'Enter':
-                    case 'Tab': {
+                    case 'Enter': {
                       e.preventDefault();
                       setOpen(false);
                       break;
@@ -502,12 +503,11 @@ export function ColumnSearch<TData, TValue>({
   const { t } = useTranslation(['gcweb']);
   const [open, setOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
-  const forceUpdate = useRef(false);
   const prevSearchValue = searchParams.get(column.id) ?? '';
   const search = useRef(prevSearchValue);
 
   const updateURLParam = () => {
-    if (search.current === prevSearchValue && !forceUpdate.current) return;
+    if (search.current === prevSearchValue) return;
     onSearchChange?.(search.current);
     const params = new URLSearchParams(searchParams.toString());
     if (page) params.delete(page);
@@ -518,13 +518,13 @@ export function ColumnSearch<TData, TValue>({
 
   return (
     <div className={cn('flex items-center space-x-2', className)}>
-      <DropdownMenu
+      <Popover
         open={open}
         onOpenChange={(open) => {
           setOpen(open);
         }}
       >
-        <DropdownMenuTrigger asChild>
+        <PopoverTrigger asChild>
           <Button
             type="button"
             variant="ghost"
@@ -547,28 +547,10 @@ export function ColumnSearch<TData, TValue>({
               <FontAwesomeIcon icon={faSearch} />
             </span>
           </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent
-          onFocus={() => {
-            inputRef.current?.focus();
-          }}
+        </PopoverTrigger>
+        <PopoverContent
           onCloseAutoFocus={() => {
             updateURLParam();
-          }}
-          onKeyDown={(e) => {
-            switch (e.key) {
-              case 'ArrowDown':
-              case 'ArrowUp': {
-                e.preventDefault();
-                inputRef.current?.focus();
-                break;
-              }
-              case 'Tab': {
-                e.preventDefault();
-                setOpen(false);
-                break;
-              }
-            }
           }}
           align="start"
           className="flex w-full justify-center overflow-y-auto p-4"
@@ -588,14 +570,13 @@ export function ColumnSearch<TData, TValue>({
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
                 e.preventDefault();
-                forceUpdate.current = true;
                 setOpen(false);
               }
             }}
             className="block h-10 w-75 rounded-lg border-gray-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-hidden"
           />
-        </DropdownMenuContent>
-      </DropdownMenu>
+        </PopoverContent>
+      </Popover>
     </div>
   );
 }
