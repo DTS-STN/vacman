@@ -12,8 +12,8 @@ type SubmissionDetailUserIdsArgs = {
 
 type SubmissionDetailUserIdsResult = {
   errors: Errors;
-  hiringManagerId?: number;
-  subDelegatedManagerId?: number;
+  resolvedHiringManagerId?: number;
+  resolvedSubDelegatedManagerId?: number;
 };
 
 type SubmissionDetailEmailField = 'hiringManagerEmailAddress' | 'subDelegatedManagerEmailAddress';
@@ -54,12 +54,12 @@ export async function resolveSubmissionDetailUserIds({
     return result.unwrap().id;
   };
 
-  const hiringManagerId = await resolveUserId(hiringManagerEmailAddress, 'hiringManagerEmailAddress');
-  const subDelegatedManagerId = await resolveUserId(subDelegatedManagerEmailAddress, 'subDelegatedManagerEmailAddress');
+  const resolvedHiringManagerId = await resolveUserId(hiringManagerEmailAddress, 'hiringManagerEmailAddress');
+  const resolvedSubDelegatedManagerId = await resolveUserId(subDelegatedManagerEmailAddress, 'subDelegatedManagerEmailAddress');
 
   return {
     errors,
-    hiringManagerId,
-    subDelegatedManagerId,
+    resolvedHiringManagerId,
+    resolvedSubDelegatedManagerId,
   };
 }

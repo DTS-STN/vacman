@@ -71,11 +71,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   const userService = getUserService();
   const userNotFoundMessage = t('app:submission-details.errors.no-user-found-with-this-email');
 
-  const {
-    errors,
-    hiringManagerId: resolvedHiringManagerId,
-    subDelegatedManagerId: resolvedSubDelegatedManagerId,
-  } = await resolveSubmissionDetailUserIds({
+  const { errors, resolvedHiringManagerId, resolvedSubDelegatedManagerId } = await resolveSubmissionDetailUserIds({
     userService,
     accessToken: session.authState.accessToken,
     hiringManagerEmailAddress: parseResult.output.hiringManagerEmailAddress,
