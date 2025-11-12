@@ -10,6 +10,9 @@ import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 
+const failedCallbacks = createCounter('auth.login.failure');
+const successfulCallbacks = createCounter('auth.login.success');
+
 /**
  * Allows errors to be handled by root.tsx
  */
@@ -84,7 +87,7 @@ async function handleCallback(
 
     if (session.loginState === undefined) {
       span.addEvent('login_state.invalid');
-      createCounter('auth.callback.failure').add(1, { provider: authStrategy.name, reason: 'invalid_login_state' });
+      failedCallbacks.add(1, { provider: authStrategy.name, reason: 'invalid_login_state' });
       return Response.json({ message: 'Invalid login state' }, { status: HttpStatusCodes.BAD_REQUEST });
     }
 
@@ -106,7 +109,7 @@ async function handleCallback(
       idTokenClaims: tokenSet.idTokenClaims,
     };
 
-    createCounter('auth.callback.success').add(1, { provider: authStrategy.name });
+    successfulCallbacks.add(1, { provider: authStrategy.name });
 
     return redirect(returnUrl.toString());
   });

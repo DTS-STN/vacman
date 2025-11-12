@@ -12,6 +12,9 @@ import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 
+const attemptedLogins = createCounter('auth.login.attempts');
+const failedLogins = createCounter('auth.login.failure');
+
 /**
  * Allows errors to be handled by root.tsx
  */
@@ -96,7 +99,7 @@ async function handleLogin(
   span?.setAttribute('returnto', returnTo ?? 'not_provided');
   span?.setAttribute('strategy', authStrategy.name);
 
-  createCounter('auth.login.attempts').add(1, { provider: authStrategy.name });
+  attemptedLogins.add(1, { provider: authStrategy.name });
 
   span?.addEvent('signin_request.start');
   const signinRequest = await authStrategy.generateSigninRequest(callbackUrl, serverEnvironment.AUTH_SCOPES.split(' '));
@@ -104,7 +107,7 @@ async function handleLogin(
 
   if (returnTo && !returnTo.startsWith('/')) {
     span?.addEvent('returnto.invalid');
-    createCounter('auth.login.failure').add(1, { provider: authStrategy.name, reason: 'invalid_return_path' });
+    failedLogins.add(1, { provider: authStrategy.name, reason: 'invalid_return_path' });
     return Response.json('Invalid returnto path', { status: HttpStatusCodes.BAD_REQUEST });
   }
 
