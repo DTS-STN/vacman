@@ -70,7 +70,7 @@ describe('NodeSDK', () => {
       url: 'http://metrics.example.com/',
       compression: CompressionAlgorithm.GZIP,
       headers: { authorization: 'Api-Key Sleep-Token' },
-      temporalityPreference: AggregationTemporality.DELTA,
+      temporalityPreference: AggregationTemporality.CUMULATIVE,
     });
   });
 
