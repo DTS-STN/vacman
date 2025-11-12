@@ -7,9 +7,13 @@ import type { Route } from './+types/login';
 import type { AuthenticationStrategy } from '~/.server/auth/auth-strategies';
 import { AzureADAuthenticationStrategy, LocalAuthenticationStrategy } from '~/.server/auth/auth-strategies';
 import { serverEnvironment } from '~/.server/environment';
+import { createCounter } from '~/.server/utils/telemetry-utils';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
+
+const authLoginAttempts = createCounter('auth.login.attempts');
+const authLoginFailures = createCounter('auth.login.failure');
 
 /**
  * Allows errors to be handled by root.tsx
@@ -95,12 +99,15 @@ async function handleLogin(
   span?.setAttribute('returnto', returnTo ?? 'not_provided');
   span?.setAttribute('strategy', authStrategy.name);
 
+  authLoginAttempts.add(1, { provider: authStrategy.name });
+
   span?.addEvent('signin_request.start');
   const signinRequest = await authStrategy.generateSigninRequest(callbackUrl, serverEnvironment.AUTH_SCOPES.split(' '));
   span?.addEvent('signin_request.success');
 
   if (returnTo && !returnTo.startsWith('/')) {
     span?.addEvent('returnto.invalid');
+    authLoginFailures.add(1, { provider: authStrategy.name, reason: 'invalid_return_path' });
     return Response.json('Invalid returnto path', { status: HttpStatusCodes.BAD_REQUEST });
   }
 
