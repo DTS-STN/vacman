@@ -71,7 +71,10 @@ const nodeSdk = new NodeSDK({
           url: serverEnvironment.OTEL_METRICS_ENDPOINT,
           compression: CompressionAlgorithm.GZIP,
           headers: { authorization: serverEnvironment.OTEL_AUTH_HEADER.value() },
-          temporalityPreference: AggregationTemporality.DELTA, // req'd by dynatrace
+          temporalityPreference:
+            serverEnvironment.OTEL_METRICS_TEMPORALITY_PREFERENCE === 'delta'
+              ? AggregationTemporality.DELTA // required by Dynatrace
+              : AggregationTemporality.CUMULATIVE, // required by Prometheus
         }),
   }),
 
