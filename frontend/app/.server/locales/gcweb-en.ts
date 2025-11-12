@@ -117,6 +117,7 @@ export default {
   },
   'search-bar': {
     search: 'Search',
+    clear: 'Clear',
   },
   'choice-tag': {
     'clear-all': 'Clear all',

@@ -119,6 +119,7 @@ export default {
   },
   'search-bar': {
     search: 'Rechercher',
+    clear: 'Effacer',
   },
   'choice-tag': {
     'clear-all': 'Tout effacer',
