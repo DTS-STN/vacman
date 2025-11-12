@@ -5,7 +5,7 @@ import type { Route } from './+types/callback';
 import type { AuthenticationStrategy } from '~/.server/auth/auth-strategies';
 import { AzureADAuthenticationStrategy, LocalAuthenticationStrategy } from '~/.server/auth/auth-strategies';
 import { serverEnvironment } from '~/.server/environment';
-import { withSpan } from '~/.server/utils/telemetry-utils';
+import { createCounter, withSpan } from '~/.server/utils/telemetry-utils';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
@@ -84,6 +84,7 @@ async function handleCallback(
 
     if (session.loginState === undefined) {
       span.addEvent('login_state.invalid');
+      createCounter('auth.callback.failure').add(1, { provider: authStrategy.name, reason: 'invalid_login_state' });
       return Response.json({ message: 'Invalid login state' }, { status: HttpStatusCodes.BAD_REQUEST });
     }
 
@@ -104,6 +105,8 @@ async function handleCallback(
       idToken: tokenSet.idToken,
       idTokenClaims: tokenSet.idTokenClaims,
     };
+
+    createCounter('auth.callback.success').add(1, { provider: authStrategy.name });
 
     return redirect(returnUrl.toString());
   });
