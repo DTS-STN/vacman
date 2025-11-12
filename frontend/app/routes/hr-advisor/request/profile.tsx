@@ -161,7 +161,7 @@ export default function HiringManagerRequestProfile({ loaderData, params }: Rout
             </DescriptionListItem>
           </DescriptionList>
         </DetailsCard>
-        <DetailsCard title={t('app:profile.personal-information.title')}>
+        <DetailsCard title={t('app:profile.employment.title')}>
           <div>
             <h3 className="font-lato text-xl font-bold">{t('app:employment-information.substantive-position-heading')}</h3>
             <DescriptionList>
