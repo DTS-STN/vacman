@@ -146,11 +146,11 @@ export default function MatchesTables({
             )}
             cell={(info) => {
               return (
-                <p>
+                <span>
                   {lang === 'en'
                     ? (info.row.original.profile?.wfaStatus?.nameEn ?? '-')
                     : (info.row.original.profile?.wfaStatus?.nameFr ?? '-')}
-                </p>
+                </span>
               );
             }}
           />
@@ -311,7 +311,7 @@ export default function MatchesTables({
                 return (
                   <div className="flex items-baseline gap-4">
                     {isApproved ? (
-                      <p>{t('matches-tables.approval-popup.approved')}</p>
+                      <span>{t('matches-tables.approval-popup.approved')}</span>
                     ) : (
                       <>
                         <LoadingButton
