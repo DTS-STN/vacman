@@ -4,9 +4,14 @@ import { Err, None, Ok, Some } from 'oxide.ts';
 import type { PagedUserResponse, Profile, User, UserCreate, UserQueryParams, UserUpdate } from '~/.server/domain/models';
 import { apiClient } from '~/.server/domain/services/api-client';
 import type { UserService } from '~/.server/domain/services/user-service';
+import { createCounter } from '~/.server/utils/telemetry-utils';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
+
+const failedUserRegistrations = createCounter('users.registration.failure');
+const successfulUserRegistrations = createCounter('users.registration.success');
+const successfulUserUpdates = createCounter('users.updates.success');
 
 export function getDefaultUserService(): UserService {
   return {
@@ -123,6 +128,11 @@ export function getDefaultUserService(): UserService {
       if (result.isErr()) {
         const originalError = result.unwrapErr();
 
+        failedUserRegistrations.add(1, {
+          reason: originalError.message,
+          http_status_code: originalError.httpStatusCode.toString() || 'unknown',
+        });
+
         return Err(
           new AppError(`Failed to register user. Reason: ${originalError.message}`, ErrorCodes.VACMAN_API_ERROR, {
             httpStatusCode: originalError.httpStatusCode,
@@ -130,6 +140,8 @@ export function getDefaultUserService(): UserService {
           }),
         );
       }
+
+      successfulUserRegistrations.add(1);
 
       return result;
     },
@@ -152,6 +164,8 @@ export function getDefaultUserService(): UserService {
         }
         return Err(error);
       }
+
+      successfulUserUpdates.add(1);
 
       return result;
     },
