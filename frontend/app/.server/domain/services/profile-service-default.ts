@@ -1,19 +1,23 @@
-import { Err, Ok } from 'oxide.ts';
 import type { Option, Result } from 'oxide.ts';
+import { Err, Ok } from 'oxide.ts';
 
 import type {
+  CollectionProfileResponse,
+  PagedProfileResponse,
   Profile,
   ProfilePutModel,
-  ProfileStatusUpdate,
-  PagedProfileResponse,
-  CollectionProfileResponse,
   ProfileQueryParams,
+  ProfileStatusUpdate,
 } from '~/.server/domain/models';
 import { apiClient } from '~/.server/domain/services/api-client';
 import type { ProfileService } from '~/.server/domain/services/profile-service';
+import { createCounter } from '~/.server/utils/telemetry-utils';
 import { AppError } from '~/errors/app-error';
 import { ErrorCodes } from '~/errors/error-codes';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
+
+const successfulProfileCreations = createCounter('profiles.creation.success');
+const successfulProfileUpdates = createCounter('profiles.updates.success');
 
 export function getDefaultProfileService(): ProfileService {
   return {
@@ -135,6 +139,8 @@ export function getDefaultProfileService(): ProfileService {
         );
       }
 
+      successfulProfileCreations.add(1);
+
       return result;
     },
 
@@ -193,6 +199,8 @@ export function getDefaultProfileService(): ProfileService {
           }),
         );
       }
+
+      successfulProfileUpdates.add(1);
 
       return result;
     },
