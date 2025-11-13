@@ -116,7 +116,7 @@ export default {
       'work-phone-required': 'Numéro de téléphone professionnel est requis.',
       'work-phone-invalid': "Numéro de téléphone professionnel n'est pas valide.",
       'personal-phone-required': 'Numéro du téléphone personnel est requis.',
-      'personal-phone-invalid': "Numéro du téléphone personnel n'est pas valide.",
+      'personal-phone-invalid': "Numéro de téléphone personnel n'est pas valide.",
     },
   },
   'employment-information': {
