@@ -10,7 +10,11 @@ exports[`PageTitle > should render a h1 tag with default styles > expected html 
       id="wb-cont"
       tabindex="-1"
     >
-      Test Title
+      <span
+        class="block"
+      >
+        Test Title
+      </span>
     </h1>
   </div>
 </div>
