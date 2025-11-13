@@ -24,7 +24,7 @@ export function PageTitle({
   return (
     <div className={cn('mt-10 mb-8', containerClassName)}>
       <h1 id="wb-cont" tabIndex={-1} className={cn('font-lato text-3xl font-bold focus-visible:ring-3', className)} {...props}>
-        {topSubTitle ? <span className={cn('block', subTitleClassName)}>{subTitle}</span> : null}
+        {topSubTitle ? <span className={cn('block', subTitleClassName)}>{topSubTitle}</span> : null}
         {typeof children === 'string' ? <span className="block">{children}</span> : children}
         {bottomSubTitle ? <span className={cn('block', subTitleClassName)}>{subTitle}</span> : null}
       </h1>
