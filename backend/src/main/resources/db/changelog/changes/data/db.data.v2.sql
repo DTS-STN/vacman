@@ -48,10 +48,9 @@ SET [NAME_FR] = CASE [CODE]
   WHEN 'AENA' THEN 'Nomination - Externe non-annoncée (de l''extérieur de la fonction publique)'
   WHEN 'AIA' THEN 'Nomination - Interne annoncée (au sein de la fonction publique)'
   WHEN 'AINA' THEN 'Nomination - Interne non-annoncée (au sein de la fonction publique)'
-  WHEN 'IAP' THEN 'Initiation d''un processus annoncée (Interne ou externe)'
   ELSE [NAME_FR]
 END
-WHERE [CODE] IN ('AEA', 'AENA', 'AIA', 'AINA', 'IAP');
+WHERE [CODE] IN ('AEA', 'AENA', 'AIA', 'AINA');
 
 --changeset system:update_cd_employment_tenure_fr_name dbms:mssql,h2
 UPDATE [CD_EMPLOYMENT_TENURE] SET [NAME_FR] = 'Déterminée' WHERE [CODE] = 'TERM';
@@ -131,3 +130,20 @@ VALUES (11, 'CRV', 'Candidate referrals from VMS', 'Présentation de candidats d
 
 --changeset system:cd_selection_process_type_off dbms:mssql
 SET IDENTITY_INSERT CD_SELECTION_PROCESS_TYPE OFF;
+
+--------------------------------------------------------------------------------
+
+--
+-- Update French names for request status and match feedback
+--
+
+--changeset system:update_cd_request_status_fr_name dbms:mssql,h2
+UPDATE [CD_REQUEST_STATUS] SET [NAME_FR] = 'Approuvée - En attente de rétroaction d''évaluation' WHERE [CODE] = 'FDBK_PENDING';
+
+--changeset system:update_cd_match_feedback_fr_name dbms:mssql,h2
+UPDATE [CD_MATCH_FEEDBACK] SET [NAME_FR] = 'Qualifié - Offre acceptée (indéterminé)' WHERE [CODE] = 'QA-QOA';
+
+--changeset system:update_cd_match_feedback_en_name dbms:mssql,h2
+UPDATE [CD_MATCH_FEEDBACK] SET [NAME_EN] = 'Qualified - Not selected' WHERE [CODE] = 'QNS';
+
+--------------------------------------------------------------------------------

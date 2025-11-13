@@ -76,7 +76,7 @@
       "id": 6,
       "code": "IAP",
       "nameEn": "Initiate an Avertised Process (Internal or External)",
-      "nameFr": "Initiation d'un processus annoncée (Interne ou externe)",
+      "nameFr": "Initiation d'un processus annoncé (Interne ou externe)",
       "effectiveDate": "1970-01-01T00:00:00Z",
       "expiryDate": null,
       "createdBy": "system",

@@ -398,7 +398,7 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
                   <span>{loaderData.hrAdvisor.businessEmailAddress}</span>
                 </div>
               ) : (
-                t('app:referral-requests.not-provided')
+                t('app:hiring-manager-referral-requests.not-assigned')
               )}
             </DescriptionListItem>
           </DescriptionList>
