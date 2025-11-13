@@ -318,7 +318,7 @@ export default {
     },
   },
   'hr-advisor-requests': {
-    'page-title': 'Requests',
+    'page-title': 'HR advisor - Requests',
     'back': 'Back to request details',
   },
   'hiring-manager-dashboard': {
@@ -328,6 +328,7 @@ export default {
   },
   'hiring-manager-referral-requests': {
     'page-title': 'Priority clearance request',
+    'create-title': 'Create priority clearance request',
     'request-details': 'Request details',
     'request-id': 'Request ID',
     'request-date': 'Request date',
@@ -492,7 +493,7 @@ export default {
     },
   },
   'hiring-manager-requests': {
-    'page-title': 'Requests',
+    'page-title': 'Hiring manager - Requests',
     'back': 'Back to request details',
     'back-to-dashboard': 'Back to dashboard',
   },

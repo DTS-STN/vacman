@@ -321,7 +321,7 @@ export default {
     },
   },
   'hr-advisor-requests': {
-    'page-title': 'Demandes',
+    'page-title': 'Conseiller(ère) - Demandes',
     'back': "Retour à l'information sur la demande",
   },
   'hiring-manager-dashboard': {
@@ -331,6 +331,7 @@ export default {
   },
   'hiring-manager-referral-requests': {
     'page-title': "Demande d'autorisation en matière de priorité",
+    'create-title': "Créer une demande d'autorisation en matière de priorité",
     'request-details': 'Information sur la demande',
     'request-id': 'No. de la demande',
     'request-date': 'Date de la demande',
@@ -500,7 +501,7 @@ export default {
     },
   },
   'hiring-manager-requests': {
-    'page-title': 'Demandes',
+    'page-title': "Gestionnaire d'embauche - Demandes",
     'back': "Retour à l'information sur la demande",
     'back-to-dashboard': 'Retour au tableau de bord',
   },

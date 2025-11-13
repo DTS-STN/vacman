@@ -337,7 +337,10 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     .join(', ');
 
   return {
-    documentTitle: t('app:hiring-manager-referral-requests.page-title'),
+    documentTitle:
+      requestData.status?.code === REQUEST_STATUS_CODE.DRAFT
+        ? t('app:hiring-manager-referral-requests.create-title')
+        : t('app:hiring-manager-referral-requests.page-title'),
     amountCompleted: amountCompleted,
     isRequestComplete:
       isCompleteProcessInformation &&
@@ -452,7 +455,11 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
           <RequestStatusTag status={loaderData.status} lang={loaderData.lang} rounded view="hiring-manager" />
         )}
 
-        <PageTitle>{t('app:hiring-manager-referral-requests.page-title')}</PageTitle>
+        <PageTitle>
+          {isDraft
+            ? t('app:hiring-manager-referral-requests.create-title')
+            : t('app:hiring-manager-referral-requests.page-title')}
+        </PageTitle>
 
         {loaderData.status?.code !== REQUEST_STATUS_CODE.DRAFT && (
           <div>
