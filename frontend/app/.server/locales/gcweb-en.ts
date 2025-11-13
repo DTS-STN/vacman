@@ -19,6 +19,8 @@ export default {
       href: 'https://www.canada.ca/en/transparency/terms.html',
     },
     'gc-symbol': 'Symbol of the Government of Canada',
+    'privacy': { text: 'Privacy', href: 'https://www.canada.ca/en/transparency/privacy.html' },
+    'back-to-top': 'Back to top',
   },
   'language-switcher': {
     'alt-lang': 'Français',

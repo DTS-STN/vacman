@@ -21,6 +21,8 @@ export default {
       href: 'https://www.canada.ca/fr/transparence/avis.html',
     },
     'gc-symbol': 'Symbole du gouvernement du Canada',
+    'privacy': { text: 'Confidentialité', href: 'https://www.canada.ca/fr/transparence/confidentialite.html' },
+    'back-to-top': 'Retour en haut',
   },
   'language-switcher': {
     'alt-lang': 'English',
