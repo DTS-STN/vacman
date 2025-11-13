@@ -51,6 +51,43 @@ export function createRedisStore(environment: ServerEnvironment): RedisStore {
     observableResult.observe(keys.length);
   });
 
+  //
+  // Register an observable gauge to track the number of unique active users
+  //
+
+  createObservableGauge('users.active', async (observableResult) => {
+    const keys = await redisClient.keys(`${environment.SESSION_KEY_PREFIX}*`);
+
+    if (keys.length === 0) {
+      // we can't call redisClient.mget() with an empty array of keys
+      // so just return zero directly...
+      return observableResult.observe(0);
+    }
+
+    // Use a Set<> to disallow duplicate user IDs
+    const uniqueUsers = new Set<string>();
+
+    const sessionsData = await redisClient.mget(keys);
+
+    sessionsData.forEach((data) => {
+      if (data) {
+        try {
+          const appSession = JSON.parse(data) as AppSession;
+          const userId = appSession.authState?.idTokenClaims.oid;
+
+          if (userId) {
+            uniqueUsers.add(userId);
+          }
+        } catch {
+          // ignore JSON parse errors and continue
+          log.warn('Failed to parse session data from Redis for active user count');
+        }
+      }
+    });
+
+    observableResult.observe(uniqueUsers.size);
+  });
+
   return redisStore;
 }
 
