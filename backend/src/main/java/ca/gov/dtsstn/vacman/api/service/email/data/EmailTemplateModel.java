@@ -27,7 +27,7 @@ public final class EmailTemplateModel {
 		String securityClearance,
 		String submitterName,
 		String submitterEmail,
-		String bilingual,
+		boolean bilingual,
 		String statementOfMeritCriteria
 	) {}
 

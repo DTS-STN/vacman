@@ -18,9 +18,11 @@ Pour en savoir davantage au sujet des exigences du poste, consultez l'énoncé d
 Si vous croyez répondre aux qualifications essentielles et aux conditions d'emploi pour ce poste, vous devez fournir les informations suivantes à ${submitterName} par courriel à ${submitterEmail} dans les 2 jours ouvrables.
 
 1. Curriculum vitae;
-2. Brève description de la manière dont vous répondez aux critères d'expérience essentiels;
-3. ${bilingual} : Résultats valides de l'évaluation de seconde langue (ELS) ou indiquez si vous devez être testé;
-4. S'il y a plus d'un lieu de travail identifié ci-dessus, veuillez indiquer votre ordre de préférence.
+1. Brève description de la manière dont vous répondez aux critères d'expérience essentiels;
+<#if bilingual>
+1. Résultats valides de l'évaluation de seconde langue (ELS) ou indiquez si vous devez être testé;
+</#if>
+1. S'il y a plus d'un lieu de travail identifié ci-dessus, veuillez indiquer votre ordre de préférence.
 
 Veuillez prendre soin d'inclure le numéro de demande du SGPV dans l'objet de votre courriel ou de répondre en vous servant de ce courriel.
 

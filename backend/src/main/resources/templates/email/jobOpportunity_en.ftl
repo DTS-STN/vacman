@@ -18,9 +18,11 @@ For information on the position's requirements, please refer to the Statement of
 If you believe that you meet the essential qualifications and conditions of employment for this position, you must provide the following information to ${submitterName} by email at ${submitterEmail} within 2 working days.
 
 1. Résumé;
-2. Short description of how you meet the essential experience criteria;
-3. ${bilingual}: Valid Second Language Evaluation (SLE) results or indicate if you need to be tested;
-4. If there is more than one work location identified above, please indicate your order of preference.
+1. Short description of how you meet the essential experience criteria;
+<#if bilingual>
+1. Valid Second Language Evaluation (SLE) results or indicate if you need to be tested;
+</#if>
+1. If there is more than one work location identified above, please indicate your order of preference.
 
 Please ensure to include the VMS request number in the subject line of your email or respond using this email.
 
