@@ -87,6 +87,7 @@ public class NotificationService {
 		Assert.hasText(email, "email is required; it must not be blank or null");
 		Assert.hasText(profileId, "profileId is required; it must not be blank or null");
 		Assert.hasText(username, "username is required; it must not be blank or null");
+		Assert.hasText(language, "language is required; it must not be blank or null");
 
 		final var templateName = switch (profileStatus) {
 			case APPROVED -> "vmsProfileActivation.ftl";
@@ -138,6 +139,7 @@ public class NotificationService {
 		Assert.notEmpty(emails, "emails is required; it must not be blank or null");
 		Assert.hasText(profileId, "profileId is required; it must not be blank or null");
 		Assert.hasText(username, "username is required; it must not be blank or null");
+		Assert.hasText(language, "language is required; it must not be blank or null");
 
 		return emails.parallelStream()
 			.filter(StringUtils::hasText)
@@ -161,6 +163,7 @@ public class NotificationService {
 		Assert.hasText(email, "email is required; it must not be blank or null");
 		Assert.notNull(requestId, "requestId is required; it must not be null");
 		Assert.hasText(requestTitle, "requestTitle is required; it must not be blank or null");
+		Assert.hasText(language, "language is required; it must not be blank or null");
 
 		final var templateName = switch (requestEvent) {
 			case SUBMITTED, VMS_NOT_REQUIRED, PSC_REQUIRED -> "requestAssigned.ftl";
@@ -222,6 +225,7 @@ public class NotificationService {
 		Assert.notEmpty(emails, "emails is required; it must not be empty or null");
 		Assert.notNull(requestId, "requestId is required; it must not be null");
 		Assert.hasText(requestTitle, "requestTitle is required; it must not be blank or null");
+		Assert.hasText(language, "language is required; it must not be blank or null");
 
 		return emails.parallelStream()
 			.filter(StringUtils::hasText)
@@ -262,23 +266,18 @@ public class NotificationService {
 		final var templateId = applicationProperties.gcnotify().genericTemplateId();
 
 		// Create the rows array for bulk sending
-		// First row is the header with column names - only need email address
-		List<String[]> rows = new ArrayList<>();
-		rows.add(new String[]{"email address"});
+		// First row is the header with column names
+		List<List<String>> rows = new ArrayList<>();
+		rows.add(List.of("email address", "email_body", "email_subject"));
 
-		// Add all recipient emails
 		for (String email : recipientEmails) {
-			rows.add(new String[]{email});
+			rows.add(List.of(email, emailContent.body(), emailContent.subject()));
 		}
 
 		final var bulkRequest = Map.of(
 			"name", "Job Opportunity Notification - " + requestId,
 			"template_id", templateId,
-			"rows", rows,
-			"personalisation", Map.of(
-				"email_subject", emailContent.subject(),
-				"email_body", emailContent.body()
-			)
+			"rows", rows
 		);
 
 		log.trace("Request to send bulk job opportunity notifications to {} recipients for request ID: [{}]",
