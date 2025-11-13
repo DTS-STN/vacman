@@ -4,7 +4,7 @@
  * functions in spans for tracing. It also includes helper functions for extracting error
  * information and managing telemetry attributes.
  */
-import type { Attributes, Context, Counter, Span } from '@opentelemetry/api';
+import type { Attributes, Context, Counter, ObservableCallback, ObservableResult, Span } from '@opentelemetry/api';
 import { metrics, SpanStatusCode, trace } from '@opentelemetry/api';
 import { ATTR_SERVICE_NAME, ATTR_SERVICE_VERSION } from '@opentelemetry/semantic-conventions';
 import { ATTR_DEPLOYMENT_ENVIRONMENT_NAME } from '@opentelemetry/semantic-conventions/incubating';
@@ -33,6 +33,38 @@ export function createCounter(name: string): Counter {
       return counter.add(value, { ...baseAttributes, ...attributes }, context);
     },
   };
+}
+
+/**
+ * Creates an observable gauge metric with the given name
+ * and callback with some default attributes added.
+ */
+export function createObservableGauge(name: string, observableCallback: ObservableCallback): void {
+  const observableGauge = metrics
+    .getMeter(serverEnvironment.OTEL_SERVICE_NAME, serverEnvironment.OTEL_SERVICE_VERSION)
+    .createObservableGauge(name);
+
+  const baseAttributes = {
+    // add some base attributes to all metrics so we can split by them in the metrics dashboard
+    // (for some reason, OpenTelemetry doesn't add these attributes automatically)
+    [ATTR_SERVICE_NAME]: serverEnvironment.OTEL_SERVICE_NAME,
+    [ATTR_SERVICE_VERSION]: serverEnvironment.OTEL_SERVICE_VERSION,
+    [ATTR_DEPLOYMENT_ENVIRONMENT_NAME]: serverEnvironment.OTEL_ENVIRONMENT_NAME,
+  };
+
+  //
+  // Wrap the observable callback to add default attributes
+  //
+
+  observableGauge.addCallback(async (observableResult: ObservableResult) => {
+    await observableCallback({
+      observe: (value, attributes) =>
+        observableResult.observe(value, {
+          ...baseAttributes,
+          ...attributes,
+        }),
+    });
+  });
 }
 
 /**
