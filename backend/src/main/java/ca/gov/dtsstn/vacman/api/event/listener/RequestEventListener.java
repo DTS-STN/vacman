@@ -599,8 +599,11 @@ public class RequestEventListener {
 			.map(UserEntity::getBusinessEmailAddress)
 			.orElse("N/A");
 
-		// TODO: Unsure what this should hold.
-		final var bilingual = "Test test, please replace";
+		// Set bilingual flag based on language requirement code
+		final var languageRequirementCode = Optional.ofNullable(request.getLanguageRequirement())
+			.map(LanguageRequirementEntity::getCode)
+			.orElse("");
+		final var bilingual = "BI".equals(languageRequirementCode) || "BNI".equals(languageRequirementCode);
 
 		// Get statement of merit criteria
 		final var statementOfMeritCriteria = Optional.ofNullable(
