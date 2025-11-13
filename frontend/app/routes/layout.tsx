@@ -43,6 +43,8 @@ export async function loader({ context, request }: Route.LoaderArgs) {
   };
 }
 
+const footerLinkClassName = 'text-slate-700 hover:text-blue-700 hover:underline focus:text-blue-700';
+
 export default function Layout({ loaderData }: Route.ComponentProps) {
   const { currentLanguage } = useLanguage();
   const { t } = useTranslation(['gcweb', 'app']);
@@ -122,14 +124,31 @@ export default function Layout({ loaderData }: Route.ComponentProps) {
       </main>
 
       <footer className="mt-auto bg-stone-50 print:hidden">
-        <div className="container flex items-center justify-end gap-6 py-2.5 sm:py-3.5">
+        <div className="xs:flex xs:justify-between xs:gap-6 xs:items-center container py-2.5 sm:py-3.5">
+          <ul className="my-3 gap-6.5 space-y-3 font-medium marker:text-sm sm:my-0 sm:flex sm:list-disc sm:space-y-0">
+            <li className="first:list-none">
+              <AppLink className={footerLinkClassName} to={t('gcweb:footer.terms-conditions.href')}>
+                {t('gcweb:footer.terms-conditions.text')}
+              </AppLink>
+            </li>
+            <li>
+              <AppLink className={footerLinkClassName} to={t('gcweb:footer.privacy.href')}>
+                {t('gcweb:footer.privacy.text')}
+              </AppLink>
+            </li>
+            <li>
+              <AppLink className={footerLinkClassName} to="#top">
+                {t('gcweb:footer.back-to-top')}
+              </AppLink>
+            </li>
+          </ul>
           <div>
             <img
               src="https://www.canada.ca/etc/designs/canada/wet-boew/assets/wmms-blk.svg"
               alt={t('gcweb:footer.gc-symbol')}
               width={300}
               height={71}
-              className="h-10 w-auto"
+              className="ml-auto h-10 w-auto"
             />
           </div>
         </div>
