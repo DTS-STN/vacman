@@ -262,7 +262,7 @@ class NotificationServiceTest {
 			"Secret",
 			"John Doe",
 			"john.doe@example.com",
-			"Yes",
+			true,
 			"Experience with Java"
 		);
 		final var language = lookupCodes.languages().english();
@@ -300,7 +300,7 @@ class NotificationServiceTest {
 			"Secret",
 			"Jean Dupont",
 			"jean.dupont@example.com",
-			"Oui",
+			true,
 			"Expérience avec Java"
 		);
 		final var language = lookupCodes.languages().french();
@@ -338,7 +338,7 @@ class NotificationServiceTest {
 			"Secret",
 			"John Doe",
 			"john.doe@example.com",
-			"Yes",
+			true,
 			"Experience with Java"
 		);
 		final var language = lookupCodes.languages().english();
@@ -372,7 +372,7 @@ class NotificationServiceTest {
 			"Secret",
 			"John Doe",
 			"john.doe@example.com",
-			"Yes",
+			true,
 			"Experience with Java"
 		);
 		final var language = lookupCodes.languages().english();
@@ -405,7 +405,7 @@ class NotificationServiceTest {
 			"Secret",
 			"John Doe",
 			"john.doe@example.com",
-			"Yes",
+			true,
 			"Experience with Java"
 		);
 		final var language = lookupCodes.languages().english();
@@ -438,7 +438,7 @@ class NotificationServiceTest {
 			"Secret",
 			"John Doe",
 			"john.doe@example.com",
-			"Yes",
+			true,
 			"Experience with Java"
 		);
 		final var language = lookupCodes.languages().english();
@@ -494,7 +494,7 @@ class NotificationServiceTest {
 			"Secret",
 			"John Doe",
 			"john.doe@example.com",
-			"Yes",
+			true,
 			"Experience with Java"
 		);
 		final var language = "";
