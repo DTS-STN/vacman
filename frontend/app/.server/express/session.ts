@@ -5,6 +5,7 @@ import { setInterval } from 'node:timers';
 import type { ServerEnvironment } from '~/.server/environment';
 import { LogFactory } from '~/.server/logging';
 import { getRedisClient } from '~/.server/redis';
+import { createObservableGauge } from '~/.server/utils/telemetry-utils';
 
 const log = LogFactory.getLogger(import.meta.url);
 
@@ -31,13 +32,26 @@ export function createMemoryStore(): MemoryStore {
 export function createRedisStore(environment: ServerEnvironment): RedisStore {
   log.info('      initializing new Redis session store');
 
-  return new RedisStore({
-    client: getRedisClient(),
+  const redisClient = getRedisClient();
+
+  const redisStore = new RedisStore({
+    client: redisClient,
     prefix: environment.SESSION_KEY_PREFIX,
     // The Redis TTL is set to the session expiration
     // time, plus 5% to allow for clock drift
     ttl: environment.SESSION_EXPIRES_SECONDS * 1.05,
   });
+
+  //
+  // Register an observable gauge to track the number of sessions in Redis
+  //
+
+  createObservableGauge('redis.sessions', async (observableResult) => {
+    const keys = await redisClient.keys(`${environment.SESSION_KEY_PREFIX}*`);
+    observableResult.observe(keys.length);
+  });
+
+  return redisStore;
 }
 
 /**
