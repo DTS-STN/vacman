@@ -1,4 +1,4 @@
-import type { ComponentProps } from 'react';
+import type { ComponentProps, ReactNode } from 'react';
 
 import { cn } from '~/utils/tailwind-utils';
 
@@ -13,18 +13,22 @@ export function PageTitle({
   children,
   className,
   subTitle,
-  subTitleClassName,
+  subTitleClassName = 'text-lg font-normal',
   containerClassName,
   variant = 'top',
   ...props
 }: PageTitleProps) {
+  const topSubTitle = variant === 'top' && subTitle;
+  const bottomSubTitle = variant === 'bottom' && subTitle;
+  const renderChildren = (): ReactNode => (typeof children === 'string' ? <span className="block">{children}</span> : children);
+
   return (
     <div className={cn('mt-10 mb-8', containerClassName)}>
-      {variant === 'top' && subTitle && <h2 className={subTitleClassName}>{subTitle}</h2>}
       <h1 id="wb-cont" tabIndex={-1} className={cn('font-lato text-3xl font-bold focus-visible:ring-3', className)} {...props}>
-        {children}
+        {topSubTitle ? <span className={cn('block', subTitleClassName)}>{subTitle}</span> : null}
+        {renderChildren()}
+        {bottomSubTitle ? <span className={cn('block', subTitleClassName)}>{subTitle}</span> : null}
       </h1>
-      {variant === 'bottom' && subTitle && <h2 className={subTitleClassName}>{subTitle}</h2>}
     </div>
   );
 }
