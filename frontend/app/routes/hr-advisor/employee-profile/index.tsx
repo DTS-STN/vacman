@@ -25,6 +25,7 @@ import {
   ProfileCardFooter,
   ProfileCardHeader,
 } from '~/components/profile-card';
+import { SectionErrorSummary } from '~/components/section-error-summary';
 import { ProfileStatusTag } from '~/components/status-tag';
 import { VacmanBackground } from '~/components/vacman-background';
 import { PROFILE_STATUS } from '~/domain/constants';
@@ -114,6 +115,7 @@ export async function action({ context, request, params }: Route.ActionArgs) {
   return {
     status: 'submitted',
     profileStatus: submitResult.unwrap(),
+    isEmployeeProfileComplete: true,
   };
 }
 
@@ -311,26 +313,26 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
         </div>
       </div>
 
-      {fetcher.data &&
-        (fetcher.data.personalInfoComplete === false ||
-        fetcher.data.employmentInfoComplete === false ||
-        fetcher.data.referralComplete === false ? (
-          <AlertMessage
-            ref={alertRef}
-            type={'error'}
-            message={t('app:profile.profile-incomplete-for-approval')}
-            role="alert"
-            ariaLive="assertive"
+      {fetcher.data && (
+        <>
+          {fetcher.data.isEmployeeProfileComplete === true && (
+            <AlertMessage
+              ref={alertRef}
+              type={'success'}
+              message={t('app:profile.hr-approved')}
+              role="alert"
+              ariaLive="assertive"
+            />
+          )}
+          <SectionErrorSummary
+            sectionCompleteness={{
+              personalInfoComplete: fetcher.data.personalInfoComplete,
+              employmentInfoComplete: fetcher.data.employmentInfoComplete,
+              referralComplete: fetcher.data.referralComplete,
+            }}
           />
-        ) : (
-          <AlertMessage
-            ref={alertRef}
-            type={'success'}
-            message={t('app:profile.hr-approved')}
-            role="alert"
-            ariaLive="assertive"
-          />
-        ))}
+        </>
+      )}
 
       <div className="mt-8 max-w-prose space-y-10">
         <ProfileCard errorState={fetcher.data?.personalInfoComplete === false}>
@@ -346,7 +348,11 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
             />
           </ProfileCardContent>
           <ProfileCardFooter>
-            <ProfileCardEditLink file="routes/hr-advisor/employee-profile/personal-information.tsx" params={params}>
+            <ProfileCardEditLink
+              file="routes/hr-advisor/employee-profile/personal-information.tsx"
+              params={params}
+              sectionId="personal-information-section"
+            >
               {t('app:profile.personal-information.link-label')}
             </ProfileCardEditLink>
           </ProfileCardFooter>
@@ -369,7 +375,11 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
             />
           </ProfileCardContent>
           <ProfileCardFooter>
-            <ProfileCardEditLink file="routes/hr-advisor/employee-profile/employment-information.tsx" params={params}>
+            <ProfileCardEditLink
+              file="routes/hr-advisor/employee-profile/employment-information.tsx"
+              params={params}
+              sectionId="employment-information-section"
+            >
               {t('app:profile.employment.link-label')}
             </ProfileCardEditLink>
           </ProfileCardFooter>
@@ -389,7 +399,11 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
             />
           </ProfileCardContent>
           <ProfileCardFooter>
-            <ProfileCardEditLink file="routes/hr-advisor/employee-profile/referral-preferences.tsx" params={params}>
+            <ProfileCardEditLink
+              file="routes/hr-advisor/employee-profile/referral-preferences.tsx"
+              params={params}
+              sectionId="referral-preferences-section"
+            >
               {t('app:profile.referral.link-label')}
             </ProfileCardEditLink>
           </ProfileCardFooter>

@@ -107,9 +107,17 @@ interface ProfileCardEditLinkProps extends ProfileBaseProps {
   isNew?: boolean;
   file: I18nRouteFile;
   params?: Params;
+  sectionId?: string;
 }
 
-export function ProfileCardEditLink({ isNew, file, params, errorState, children }: ProfileCardEditLinkProps): JSX.Element {
+export function ProfileCardEditLink({
+  isNew,
+  file,
+  params,
+  errorState,
+  children,
+  sectionId,
+}: ProfileCardEditLinkProps): JSX.Element {
   const { t } = useTranslation('app');
 
   return (
@@ -127,6 +135,7 @@ export function ProfileCardEditLink({ isNew, file, params, errorState, children 
           file={file}
           params={params}
           ariaDescribedbyId={errorState ? 'field-incomplete-error' : undefined}
+          id={sectionId}
         >
           {`${isNew ? t('profile.add') : t('profile.edit')}\u0020`}
           {children}

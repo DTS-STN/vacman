@@ -38,6 +38,7 @@ import {
   ProfileCardViewLink,
 } from '~/components/profile-card';
 import { Progress } from '~/components/progress';
+import { SectionErrorSummary } from '~/components/section-error-summary';
 import { RequestStatusTag } from '~/components/status-tag';
 import { VacmanBackground } from '~/components/vacman-background';
 import {
@@ -220,6 +221,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   return {
     status: 'submitted',
     requestStatus: updatedRequest.status,
+    isRequestComplete: true,
   };
 }
 
@@ -439,12 +441,12 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
         message: fetcher.data.errorMessage ?? defaultDeleteErrorMessage,
       };
     }
-    return {
-      type: loaderData.isRequestComplete ? ('success' as const) : ('error' as const),
-      message: loaderData.isRequestComplete
-        ? t('app:hiring-manager-referral-requests.request-submitted')
-        : t('app:hiring-manager-referral-requests.request-incomplete'),
-    };
+    if (fetcher.data.isRequestComplete) {
+      return {
+        type: 'success' as const,
+        message: t('app:hiring-manager-referral-requests.request-submitted'),
+      };
+    }
   }
   const alertConfig = getAlertConfig();
 
@@ -559,6 +561,16 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
       {alertConfig && (
         <AlertMessage ref={alertRef} type={alertConfig.type} message={alertConfig.message} role="alert" ariaLive="assertive" />
       )}
+      {fetcher.data && (
+        <SectionErrorSummary
+          sectionCompleteness={{
+            processInformationComplete: fetcher.data.processInfoComplete,
+            positionInformationComplete: fetcher.data.positionInfoComplete,
+            statementOfMeritCriteriaInformationComplete: fetcher.data.statementOfMeritCriteriaInfoComplete,
+            submissionInformationComplete: fetcher.data.submissionInfoComplete,
+          }}
+        />
+      )}
 
       <div className="w-full">
         {loaderData.status?.code === REQUEST_STATUS_CODE.DRAFT && (
@@ -608,6 +620,7 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
                     isNew={loaderData.isProcessNew}
                     file="routes/hiring-manager/request/process-information.tsx"
                     params={params}
+                    sectionId="process-information-section"
                   >
                     {t('app:hiring-manager-referral-requests.edit-process-information')}
                   </ProfileCardEditLink>
@@ -631,6 +644,7 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
                     isNew={loaderData.isPositionNew}
                     file="routes/hiring-manager/request/position-information.tsx"
                     params={params}
+                    sectionId="position-information-section"
                   >
                     {t('app:hiring-manager-referral-requests.edit-position-information')}
                   </ProfileCardEditLink>
@@ -656,6 +670,7 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
                     isNew={loaderData.isStatementOfMeritCriteriaNew}
                     file="routes/hiring-manager/request/somc-conditions.tsx"
                     params={params}
+                    sectionId="somc-information-section"
                   >
                     {t('app:hiring-manager-referral-requests.edit-somc-conditions')}
                   </ProfileCardEditLink>
@@ -683,6 +698,7 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
                     isNew={loaderData.isSubmissionNew}
                     file="routes/hiring-manager/request/submission-details.tsx"
                     params={params}
+                    sectionId="submission-information-section"
                   >
                     {t('app:hiring-manager-referral-requests.edit-submission-details')}
                   </ProfileCardEditLink>
