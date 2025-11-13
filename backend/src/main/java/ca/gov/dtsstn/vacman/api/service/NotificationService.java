@@ -87,7 +87,7 @@ public class NotificationService {
 		Assert.hasText(email, "email is required; it must not be blank or null");
 		Assert.hasText(profileId, "profileId is required; it must not be blank or null");
 		Assert.hasText(username, "username is required; it must not be blank or null");
-		Assert.notNull(language, "language is required; it must not be blank or null");
+		Assert.hasText(language, "language is required; it must not be blank or null");
 
 		final var templateName = switch (profileStatus) {
 			case APPROVED -> "vmsProfileActivation.ftl";
@@ -139,7 +139,7 @@ public class NotificationService {
 		Assert.notEmpty(emails, "emails is required; it must not be blank or null");
 		Assert.hasText(profileId, "profileId is required; it must not be blank or null");
 		Assert.hasText(username, "username is required; it must not be blank or null");
-		Assert.notNull(language, "language is required; it must not be blank or null");
+		Assert.hasText(language, "language is required; it must not be blank or null");
 
 		return emails.parallelStream()
 			.filter(StringUtils::hasText)
@@ -163,7 +163,7 @@ public class NotificationService {
 		Assert.hasText(email, "email is required; it must not be blank or null");
 		Assert.notNull(requestId, "requestId is required; it must not be null");
 		Assert.hasText(requestTitle, "requestTitle is required; it must not be blank or null");
-		Assert.notNull(language, "language is required; it must not be blank or null");
+		Assert.hasText(language, "language is required; it must not be blank or null");
 
 		final var templateName = switch (requestEvent) {
 			case SUBMITTED, VMS_NOT_REQUIRED, PSC_REQUIRED -> "requestAssigned.ftl";
@@ -225,7 +225,7 @@ public class NotificationService {
 		Assert.notEmpty(emails, "emails is required; it must not be empty or null");
 		Assert.notNull(requestId, "requestId is required; it must not be null");
 		Assert.hasText(requestTitle, "requestTitle is required; it must not be blank or null");
-		Assert.notNull(language, "language is required; it must not be blank or null");
+		Assert.hasText(language, "language is required; it must not be blank or null");
 
 		return emails.parallelStream()
 			.filter(StringUtils::hasText)
@@ -256,7 +256,7 @@ public class NotificationService {
 		Assert.notNull(requestId, "requestId is required; it must not be null");
 		Assert.hasText(requestTitle, "requestTitle is required; it must not be blank or null");
 		Assert.notNull(jobModel, "jobModel is required; it must not be null");
-		Assert.notNull(language, "language is required; it must not be blank or null");
+		Assert.hasText(language, "language is required; it must not be blank or null");
 
 		final var templateName = "jobOpportunity.ftl";
 		final var model = recordToMap(jobModel);
@@ -303,7 +303,7 @@ public class NotificationService {
 	public NotificationReceipt sendJobOpportunityHRNotification(String email, EmailTemplateModel.JobOpportunityHR jobOpportunityHR, String language) {
 		Assert.hasText(email, "email is required; it must not be blank or null");
 		Assert.notNull(jobOpportunityHR, "jobOpportunityHR is required; it must not be null");
-		Assert.notNull(language, "language is required; it must not be blank or null");
+		Assert.hasText(language, "language is required; it must not be blank or null");
 
 		final var templateName = "jobOpportunityHR.ftl";
 		final var model = recordToMap(jobOpportunityHR);
@@ -343,7 +343,7 @@ public class NotificationService {
 	public List<NotificationReceipt> sendJobOpportunityHRNotification(List<String> emails, EmailTemplateModel.JobOpportunityHR jobOpportunityHR, String language) {
 		Assert.notEmpty(emails, "emails is required; it must not be empty or null");
 		Assert.notNull(jobOpportunityHR, "jobOpportunityHR is required; it must not be null");
-		Assert.notNull(language, "language is required; it must not be blank or null");
+		Assert.hasText(language, "language is required; it must not be blank or null");
 
 		return emails.parallelStream()
 			.filter(StringUtils::hasText)
