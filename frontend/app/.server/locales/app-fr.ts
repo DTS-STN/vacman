@@ -54,8 +54,18 @@ export default {
     'not-provided': 'Non communiqué',
     'last-updated': 'Dernière mise-à-jour\u00A0: {{date}} par {{name}}',
     'field-incomplete': 'Champs obligatoires incomplets',
-    'profile-incomplete': 'Veuillez remplir tous les champs obligatoires avant de soumettre votre profil',
-    'profile-incomplete-for-approval': "Veuillez remplir tous les champs obligatoires avant d'approuver le profil",
+    'profile-personal-info-incomplete':
+      'Veuillez remplir tous les champs obligatoires de la section des informations personnelles avant de soumettre votre profil.',
+    'profile-employment-info-incomplete':
+      "Veuillez remplir tous les champs obligatoires dans la section des informations sur l'emploi avant de soumettre votre profil.",
+    'profile-referral-preferences-incomplete':
+      'Veuillez remplir tous les champs obligatoires dans la section des préférences de parrainage avant de soumettre votre profil.',
+    'profile-personal-info-incomplete-for-approval':
+      "Veuillez remplir tous les champs obligatoires de la section des informations personnelles avant d'approuver le profil.",
+    'profile-employment-info-incomplete-for-approval':
+      "Veuillez remplir tous les champs obligatoires de la section des informations sur l'emploi avant d'approuver le profil.",
+    'profile-referral-preferences-incomplete-for-approval':
+      "Veuillez remplir tous les champs obligatoires dans la section des préférences de parrainage avant d'approuver le profil.",
     'profile-submitted': "Profil soumis avec succès! Votre conseiller(ère) RH va maintenant l'examiner pour approbation",
     'hr-approved': "Profil de l'employé-e approuvé",
     'profile-pending-approval':
@@ -372,6 +382,14 @@ export default {
     'priority-clearance-href':
       'https://iservice.prv/fra/rh/dotation/sujets/actions-dotation/demande-matiere-priorite-cfp-gg.shtml',
     'request-incomplete': 'Veuillez remplir tous les champs obligatoires avant de soumettre votre demande',
+    'request-incomplete-process-information':
+      'Veuillez remplir tous les champs obligatoires dans la section des informations sur le processus avant de soumettre la demande.',
+    'request-incomplete-position-information':
+      'Veuillez remplir tous les champs obligatoires dans la section des informations sur le poste avant de soumettre la demande.',
+    'request-incomplete-somc-information':
+      "Veuillez remplir tous les champs requis dans la section des critères de mérite et des conditions d'emploi avant de soumettre votre demande.",
+    'request-incomplete-submission-information':
+      'Veuillez remplir tous les champs obligatoires dans la section des détails de la soumission avant de soumettre la demande.',
     'request-submitted': "Demande soumise avec succès! Un-e conseiller(ère) RH va l'examiner pour approbation",
     'matches-available': 'Candidatures disponibles',
     'matches-available-hiring-manager-detail':

@@ -52,8 +52,18 @@ export default {
     'not-provided': 'Not provided',
     'last-updated': 'Last updated: {{date}} by {{name}}',
     'field-incomplete': 'Required fields incomplete',
-    'profile-incomplete': 'Please complete all required fields before submitting your profile',
-    'profile-incomplete-for-approval': 'Please complete all required fields before approving the profile',
+    'profile-personal-info-incomplete':
+      'Please complete all required fields in the personal information section before submitting your profile.',
+    'profile-employment-info-incomplete':
+      'Please complete all required fields in the employment information section before submitting your profile.',
+    'profile-referral-preferences-incomplete':
+      'Please complete all required fields in the referral preferences section before submitting your profile.',
+    'profile-personal-info-incomplete-for-approval':
+      'Please complete all required fields in the personal information section before approving the profile.',
+    'profile-employment-info-incomplete-for-approval':
+      'Please complete all required fields in the employment information section before approving the profile.',
+    'profile-referral-preferences-incomplete-for-approval':
+      'Please complete all required fields in the referral preferences section before approving the profile.',
     'profile-submitted': 'Profile submitted successfully! Your HR advisor will now review it for approval',
     'hr-approved': 'Employee profile successfully approved',
     'profile-pending-approval': 'Your profile edits will require re-approval by your HR advisor',
@@ -368,6 +378,14 @@ export default {
     'priority-clearance-href':
       'https://iservice.prv/eng/hr/staffing/topics/staffing-actions/request-psc-priority-referrals-mg.shtml',
     'request-incomplete': 'Please complete all required fields before submitting request',
+    'request-incomplete-process-information':
+      'Please complete all required fields in the process information section before submitting request.',
+    'request-incomplete-position-information':
+      'Please complete all required fields in the position information section before submitting request.',
+    'request-incomplete-somc-information':
+      'Please complete all required fields in the statement of merit criteria and conditions of employment section before submitting request.',
+    'request-incomplete-submission-information':
+      'Please complete all required fields in the submission details section before submitting request.',
     'request-submitted': 'Request submitted successfully! An HR advisor will review it for approval',
     'matches-available': 'Matches available',
     'matches-available-hiring-manager-detail':

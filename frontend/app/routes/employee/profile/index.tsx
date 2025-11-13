@@ -32,6 +32,7 @@ import {
   ProfileCardHeader,
 } from '~/components/profile-card';
 import { Progress } from '~/components/progress';
+import { SectionErrorSummary } from '~/components/section-error-summary';
 import { ProfileStatusTag } from '~/components/status-tag';
 import { VacmanBackground } from '~/components/vacman-background';
 import { PROFILE_STATUS } from '~/domain/constants';
@@ -122,6 +123,7 @@ export async function action({ context, request }: Route.ActionArgs) {
   return {
     status: 'submitted',
     profileStatus: submitResult.unwrap(),
+    isProfileComplete: true,
   };
 }
 
@@ -392,13 +394,25 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
       </div>
 
       {fetcher.data && (
-        <AlertMessage
-          ref={alertRef}
-          type={loaderData.isProfileComplete ? 'success' : 'error'}
-          message={loaderData.isProfileComplete ? t('app:profile.profile-submitted') : t('app:profile.profile-incomplete')}
-          role="alert"
-          ariaLive="assertive"
-        />
+        <>
+          {fetcher.data.isProfileComplete === true && (
+            <AlertMessage
+              ref={alertRef}
+              type={'success'}
+              message={t('app:profile.profile-submitted')}
+              role="alert"
+              ariaLive="assertive"
+            />
+          )}
+          <SectionErrorSummary
+            sectionCompleteness={{
+              personalInfoComplete: fetcher.data.personalInfoComplete,
+              employmentInfoComplete: fetcher.data.employmentInfoComplete,
+              referralComplete: fetcher.data.referralComplete,
+            }}
+            isForApproval={false}
+          />
+        </>
       )}
 
       {(hasEmploymentChanged || hasReferralPreferenceChanged) && (
@@ -452,6 +466,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
               isNew={loaderData.personalInformation.isNew}
               file="routes/employee/profile/personal-information.tsx"
               params={params}
+              sectionId="personal-information-section"
             >
               {t('app:profile.personal-information.link-label')}
             </ProfileCardEditLink>
@@ -488,6 +503,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
               isNew={loaderData.employmentInformation.isNew}
               file="routes/employee/profile/employment-information.tsx"
               params={params}
+              sectionId="employment-information-section"
             >
               {t('app:profile.employment.link-label')}
             </ProfileCardEditLink>
@@ -521,6 +537,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
               isNew={loaderData.referralPreferences.isNew}
               file="routes/employee/profile/referral-preferences.tsx"
               params={params}
+              sectionId="referral-preferences-section"
             >
               {t('app:profile.referral.link-label')}
             </ProfileCardEditLink>
