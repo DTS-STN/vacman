@@ -8,6 +8,8 @@ import org.springframework.core.style.ToStringCreator;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 
 @Entity(name = "Event")
@@ -40,6 +42,18 @@ public class EventEntity extends AbstractBaseEntity {
 		super(id, createdBy, createdDate, lastModifiedBy, lastModifiedDate);
 		this.type = type;
 		this.details = details;
+	}
+
+	/**
+	 * Truncates the details field to a maximum length of 4000 characters before persisting or updating,
+	 * adding ellipsis ("...") to indicate truncation if the original string was longer.
+	 */
+	@PreUpdate
+	@PrePersist
+	public void truncateDetails() {
+		if (details != null && details.length() > 4000) {
+			this.details = details.substring(0, 3997) + "...";
+		}
 	}
 
 	public String getType() {
