@@ -15,13 +15,9 @@ export function LoadingLink({ children, className, spinner = 'right', ...props }
   const isLoading = useLinkLoading(props.file ?? props.to, props.params);
   return (
     <InlineLink className={cn('relative inline-flex items-center', className)} {...props}>
-      {spinner === 'left' && (
-        <FontAwesomeIcon className={cn('mr-1', isLoading ? '' : 'invisible')} icon={faSpinner} spin={true} />
-      )}
+      {spinner === 'left' && isLoading && <FontAwesomeIcon className={cn('mr-1')} icon={faSpinner} spin={true} />}
       {children}
-      {spinner === 'right' && (
-        <FontAwesomeIcon className={cn('ml-1', isLoading ? '' : 'invisible')} icon={faSpinner} spin={true} />
-      )}
+      {spinner === 'right' && isLoading && <FontAwesomeIcon className={cn('ml-1')} icon={faSpinner} spin={true} />}
     </InlineLink>
   );
 }
