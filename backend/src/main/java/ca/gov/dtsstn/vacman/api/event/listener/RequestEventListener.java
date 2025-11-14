@@ -1,13 +1,13 @@
 package ca.gov.dtsstn.vacman.api.event.listener;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import java.util.ArrayList;
-
-import ca.gov.dtsstn.vacman.api.config.properties.ApplicationProperties;
-import ca.gov.dtsstn.vacman.api.data.entity.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
@@ -19,6 +19,14 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
+import ca.gov.dtsstn.vacman.api.config.properties.ApplicationProperties;
+import ca.gov.dtsstn.vacman.api.data.entity.EventEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.LanguageEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.LanguageRequirementEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.MatchEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.RequestEntity;
+import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 import ca.gov.dtsstn.vacman.api.data.repository.EventRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.MatchRepository;
 import ca.gov.dtsstn.vacman.api.event.MatchStatusChangeEvent;
@@ -104,6 +112,7 @@ public class RequestEventListener {
 
 		var emails = Stream.<UserEntity>builder();
 
+		Optional.ofNullable(request.getAdditionalContact()).ifPresent(emails::add);
 		Optional.ofNullable(request.getSubmitter()).ifPresent(emails::add);
 		Optional.ofNullable(request.getHiringManager()).ifPresent(emails::add);
 		Optional.ofNullable(request.getSubDelegatedManager()).ifPresent(emails::add);
@@ -313,6 +322,7 @@ public class RequestEventListener {
 		// Collect emails from submitter, hiring manager, and HR delegate
 		var emails = Stream.<UserEntity>builder();
 
+		Optional.ofNullable(request.getAdditionalContact()).ifPresent(emails::add);
 		Optional.ofNullable(request.getSubmitter()).ifPresent(emails::add);
 		Optional.ofNullable(request.getHiringManager()).ifPresent(emails::add);
 		Optional.ofNullable(request.getSubDelegatedManager()).ifPresent(emails::add);
@@ -345,7 +355,7 @@ public class RequestEventListener {
 	/**
 	 * Sends a notification when a request is submitted.
 	 * The notification is sent to the HR inbox email.
-	 * 
+	 *
 	 * @param request The request entity
 	 */
 	private void sendSubmittedNotification(RequestEntity request) {
@@ -367,7 +377,7 @@ public class RequestEventListener {
 	/**
 	 * Sends a notification when a request is marked as VMS not required.
 	 * The notification is sent to the PIMS SLE team email.
-	 * 
+	 *
 	 * @param request The request entity
 	 */
 	private void sendVmsNotRequiredNotification(RequestEntity request) {
@@ -388,9 +398,9 @@ public class RequestEventListener {
 
 	/**
 	 * Sends a notification when a request is marked as PSC not required.
-	 * The notification is sent to the request owner which could be the submitter, 
+	 * The notification is sent to the request owner which could be the submitter,
 	 * the hiring manager or the hr delegate. Send email to all 3.
-	 * 
+	 *
 	 * @param request The request entity
 	 */
 	private void sendPscNotRequiredNotification(RequestEntity request) {
@@ -401,6 +411,7 @@ public class RequestEventListener {
 		// Collect emails from submitter, hiring manager, and HR delegate
 		var emails = Stream.<UserEntity>builder();
 
+		Optional.ofNullable(request.getAdditionalContact()).ifPresent(emails::add);
 		Optional.ofNullable(request.getSubmitter()).ifPresent(emails::add);
 		Optional.ofNullable(request.getHiringManager()).ifPresent(emails::add);
 		Optional.ofNullable(request.getSubDelegatedManager()).ifPresent(emails::add);
@@ -421,7 +432,7 @@ public class RequestEventListener {
 	/**
 	 * Sends a notification when a request is marked as PSC required.
 	 * The notification is sent to the PIMS team email.
-	 * 
+	 *
 	 * @param request The request entity
 	 */
 	private void sendPscRequiredNotification(RequestEntity request) {
@@ -461,7 +472,7 @@ public class RequestEventListener {
 	/**
 	 * Sends a notification when a request is cancelled.
 	 * The notification is sent to the submitter, hiring manager, and HR delegate.
-	 * 
+	 *
 	 * @param request The request entity
 	 */
 	private void sendCancelledNotification(RequestEntity request) {
@@ -472,6 +483,7 @@ public class RequestEventListener {
 		// Collect emails from submitter, hiring manager, and HR delegate
 		var emails = Stream.<UserEntity>builder();
 
+		Optional.ofNullable(request.getAdditionalContact()).ifPresent(emails::add);
 		Optional.ofNullable(request.getSubmitter()).ifPresent(emails::add);
 		Optional.ofNullable(request.getHiringManager()).ifPresent(emails::add);
 		Optional.ofNullable(request.getSubDelegatedManager()).ifPresent(emails::add);

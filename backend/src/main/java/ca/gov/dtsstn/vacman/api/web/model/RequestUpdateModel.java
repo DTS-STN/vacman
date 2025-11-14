@@ -32,6 +32,9 @@ public record RequestUpdateModel(
 	@Size(max = 100)
 	String additionalComment,
 
+	@ValidUserId
+	Long additionalContactId,
+
 	@Email
 	@Size(max = 320)
 	String alternateContactEmailAddress,
