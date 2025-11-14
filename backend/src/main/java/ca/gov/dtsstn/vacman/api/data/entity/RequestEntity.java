@@ -36,6 +36,10 @@ public class RequestEntity extends AbstractBaseEntity implements Ownable {
 	@Column(name = "[ADDITIONAL_COMMENT]", length = 100)
 	private String additionalComment;
 
+	@ManyToOne
+	@JoinColumn(name = "[USER_ID_ADDITIONAL_CONTACT]")
+	private UserEntity additionalContact;
+
 	@Column(name = "[ALTERNATE_CONTACT_EMAIL_ADDRESS]", length = 320)
 	private String alternateContactEmailAddress;
 
@@ -166,6 +170,7 @@ public class RequestEntity extends AbstractBaseEntity implements Ownable {
 	public RequestEntity(
 			@Nullable Long id,
 			@Nullable String additionalComment,
+			@Nullable UserEntity additionalContact,
 			@Nullable String alternateContactEmailAddress,
 			@Nullable NonAdvertisedAppointmentEntity appointmentNonAdvertised,
 			@Nullable Collection<CityEntity> cities,
@@ -208,6 +213,7 @@ public class RequestEntity extends AbstractBaseEntity implements Ownable {
 			@Nullable Instant lastModifiedDate) {
 		super(id, createdBy, createdDate, lastModifiedBy, lastModifiedDate);
 		this.additionalComment = additionalComment;
+		this.additionalContact = additionalContact;
 		this.alternateContactEmailAddress = alternateContactEmailAddress;
 		this.appointmentNonAdvertised = appointmentNonAdvertised;
 		this.classification = classification;
@@ -253,6 +259,14 @@ public class RequestEntity extends AbstractBaseEntity implements Ownable {
 
 	public void setAdditionalComment(String additionalComment) {
 		this.additionalComment = additionalComment;
+	}
+
+	public UserEntity getAdditionalContact() {
+		return additionalContact;
+	}
+
+	public void setAdditionalContact(UserEntity additionalContact) {
+		this.additionalContact = additionalContact;
 	}
 
 	public String getAlternateContactEmailAddress() {
@@ -585,7 +599,7 @@ public class RequestEntity extends AbstractBaseEntity implements Ownable {
 
 	@Override
 	public Set<Long> getDelegateIds() {
-		return Stream.of(hiringManager, subDelegatedManager)
+		return Stream.of(additionalContact, hiringManager, subDelegatedManager)
 			.filter(Objects::nonNull)
 			.map(UserEntity::getId)
 			.collect(Collectors.toSet());
@@ -596,6 +610,7 @@ public class RequestEntity extends AbstractBaseEntity implements Ownable {
 		return new ToStringCreator(this)
 			.append("super", super.toString())
 			.append("additionalComment", additionalComment)
+			.append("additionalContact", additionalContact)
 			.append("alternateContactEmailAddress", alternateContactEmailAddress)
 			.append("appointmentNonAdvertised", appointmentNonAdvertised)
 			.append("cities", cities)

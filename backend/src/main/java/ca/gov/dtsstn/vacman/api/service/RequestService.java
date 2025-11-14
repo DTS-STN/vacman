@@ -23,8 +23,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-
-import ca.gov.dtsstn.vacman.api.event.*;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.mapstruct.factory.Mappers;
 import org.slf4j.Logger;
@@ -58,8 +56,14 @@ import ca.gov.dtsstn.vacman.api.data.repository.SecurityClearanceRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.SelectionProcessTypeRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.WorkScheduleRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.WorkUnitRepository;
+import ca.gov.dtsstn.vacman.api.event.RequestCompletedEvent;
+import ca.gov.dtsstn.vacman.api.event.RequestCreatedEvent;
+import ca.gov.dtsstn.vacman.api.event.RequestFeedbackCompletedEvent;
+import ca.gov.dtsstn.vacman.api.event.RequestFeedbackPendingEvent;
+import ca.gov.dtsstn.vacman.api.event.RequestStatusChangeEvent;
+import ca.gov.dtsstn.vacman.api.event.RequestSubmittedEvent;
+import ca.gov.dtsstn.vacman.api.event.RequestUpdatedEvent;
 import ca.gov.dtsstn.vacman.api.security.SecurityUtils;
-import ca.gov.dtsstn.vacman.api.service.NotificationService.RequestEvent;
 import ca.gov.dtsstn.vacman.api.service.dto.MatchQuery;
 import ca.gov.dtsstn.vacman.api.service.dto.RequestQuery;
 import ca.gov.dtsstn.vacman.api.web.exception.ResourceConflictException;
@@ -375,6 +379,7 @@ public class RequestService {
 			.map(cityRepository::getReferenceById)
 			.toList());
 
+		request.setAdditionalContact(resolveUser(updateModel.additionalContactId()));
 		request.setHiringManager(resolveUser(updateModel.hiringManagerId()));
 		request.setHrAdvisor(resolveUser(updateModel.hrAdvisorId()));
 		request.setSubDelegatedManager(resolveUser(updateModel.subDelegatedManagerId()));

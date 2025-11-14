@@ -14,6 +14,9 @@ public record RequestReadModel(
 	@Schema(description = "Additional comments on this request.", example = "One cool request.")
 	String additionalComment,
 
+	@Schema(description = "Additional contact user of this request.")
+	UserReadModel additionalContact,
+
 	@Schema(description = "Alternate contact email address.", example = "user@example.com")
 	String alternateContactEmailAddress,
 

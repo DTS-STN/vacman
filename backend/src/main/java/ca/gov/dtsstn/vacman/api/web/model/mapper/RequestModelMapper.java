@@ -55,6 +55,7 @@ public interface RequestModelMapper {
 	@Mapping(target = "classification", source = "classificationId")
 	@Mapping(target = "languageRequirement", source = "languageRequirementId")
 	@Mapping(target = "securityClearance", source = "securityClearanceId")
+	@Mapping(target = "additionalContact", ignore = true)
 	@Mapping(target = "employmentEquities", ignore = true)
 	@Mapping(target = "cities", ignore = true)
 	@Mapping(target = "hiringManager", ignore = true)
@@ -94,6 +95,7 @@ public interface RequestModelMapper {
 	@Mapping(target = "classification", source = "classificationId")
 	@Mapping(target = "languageRequirement", source = "languageRequirementId")
 	@Mapping(target = "securityClearance", source = "securityClearanceId")
+	@Mapping(target = "additionalContact", ignore = true)
 	@Mapping(target = "employmentEquities", ignore = true)
 	@Mapping(target = "id", ignore = true)
 	@Mapping(target = "createdBy", ignore = true)
@@ -111,6 +113,7 @@ public interface RequestModelMapper {
 	@Mapping(target = "workUnit", ignore = true)
 	RequestEntity requestUpdateModelToRequestEntity(RequestUpdateModel request);
 
+	@Mapping(target = "additionalContactId", source = "additionalContact.id")
 	@Mapping(target = "appointmentNonAdvertisedId", source = "appointmentNonAdvertised.id")
 	@Mapping(target = "cityIds", source = "cities")
 	@Mapping(target = "classificationId", source = "classification.id")
