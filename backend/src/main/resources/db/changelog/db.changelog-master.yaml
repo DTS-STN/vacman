@@ -9,3 +9,5 @@ databaseChangeLog:
       path: db/changelog/changes/mssql/
   - includeAll:
       path: db/changelog/changes/data/
+  - include:
+      file: db/changelog/changes/db.schema.v0001.sql
