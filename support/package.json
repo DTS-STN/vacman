@@ -22,8 +22,8 @@
     "typecheck": "tsc"
   },
   "dependencies": {
-    "@effect/platform": "^0.93.x",
-    "@effect/platform-node": "^0.100.x",
+    "@effect/platform": "^0.91.x",
+    "@effect/platform-node": "^0.97.x",
     "effect": "^3.19.x"
   },
   "devDependencies": {
