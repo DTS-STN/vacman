@@ -544,7 +544,8 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
                 components={{
                   InlineLink: (
                     <InlineLink
-                      className="text-sky-800 decoration-slate-400"
+                      newTabIndicator
+                      className="external-link text-sky-800 decoration-slate-400"
                       to={t('app:hiring-manager-referral-requests.priority-clearance-href')}
                       lang={loaderData.lang}
                     />

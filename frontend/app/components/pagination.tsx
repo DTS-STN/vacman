@@ -47,12 +47,12 @@ function PaginationPrevious({ className, children, ...props }: ComponentProps<ty
   return (
     <Button
       type="button"
-      aria-label={t('gcweb:data-table.pagination.previous-page', { defaultValue: 'Go to previous page' })}
+      aria-label={t('gcweb:data-table.pagination.previous-page-aria-label')}
       variant="ghost"
       className={cn('h-8 border-hidden px-2 text-sm font-medium underline transition-colors duration-200', className)}
       {...props}
     >
-      <span className="hidden sm:inline">{children ?? 'Previous'}</span>
+      <span className="hidden sm:inline">{children ?? t('gcweb:data-table.pagination.previous-page')}</span>
     </Button>
   );
 }
@@ -63,12 +63,12 @@ function PaginationNext({ className, children, ...props }: ComponentProps<typeof
   return (
     <Button
       type="button"
-      aria-label={t('gcweb:data-table.pagination.next-page', { defaultValue: 'Go to next page' })}
+      aria-label={t('gcweb:data-table.pagination.next-page-aria-label')}
       variant="ghost"
       className={cn('h-8 border-hidden px-2 text-sm font-medium underline transition-colors duration-200', className)}
       {...props}
     >
-      <span className="hidden sm:inline">{children ?? 'Next'}</span>
+      <span className="hidden sm:inline">{children ?? t('gcweb:data-table.pagination.next-page')}</span>
     </Button>
   );
 }
@@ -84,7 +84,7 @@ function PaginationEllipsis({ className, ...props }: ComponentProps<'span'>) {
       {...props}
     >
       <FontAwesomeIcon icon={faEllipsis} className="h-4 w-4" />
-      <span className="sr-only">{t('gcweb:data-table.pagination.more-pages', { defaultValue: 'More pages' })}</span>
+      <span className="sr-only">{t('gcweb:data-table.pagination.more-pages')}</span>
     </span>
   );
 }

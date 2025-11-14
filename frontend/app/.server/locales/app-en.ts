@@ -1,15 +1,8 @@
 export default {
   'generic-error': 'Something went wrong. Try again later.',
   'index': {
-    'about': 'The VacMan initiative!',
-    'dashboard': 'Dashboard',
-    'page-title': 'Select your dashboard',
-    'get-started': 'Get started',
-    'navigate': 'Go to the employee portal',
-    'register': 'Register',
-    'employees': 'Employees',
-    'employee-dashboard': 'Employee dashboard',
-    'hiring-manager-dashboard': 'Hiring manager dashboard',
+    dashboard: 'Dashboard',
+    employees: 'Employees',
   },
   'privacy-consent': {
     'privacy-notice-statement': 'Privacy notice statement',
@@ -38,7 +31,7 @@ export default {
       'title': 'Employment information',
       'link-label': 'employment information',
       'detail':
-        'Share information about your current job and your Work Force Adjustment (WFA) or Career Transition (CT) status',
+        'Share information about your current job and your Work Force Adjustment (WFA) or Career Transition (CT) status.',
     },
     'referral': {
       'title': 'Referral preferences',
@@ -103,7 +96,7 @@ export default {
     'personal-email': 'Personal email address',
     'work-phone': 'Work phone number',
     'personal-phone': 'Personal phone number',
-    'personal-phone-help-message-primary': 'Cell, home, or other. For example <noWrap>123 456 7890</noWrap>',
+    'personal-phone-help-message-primary': 'Cell, home or other. For example: <noWrap>123 456 7890</noWrap>',
     'work-phone-help-message-primary': 'For example: <noWrap>123 456 7890</noWrap>',
     'additional-information':
       'For any additional information regarding your personal information (for example, changes to your contact details or leave of absence) please contact the HR advisor indicated on your workforce adjustment status letter.',
@@ -186,7 +179,7 @@ export default {
     'city': 'City',
     'referral-availibility': 'Are you currently available for referrals?',
     'referral-availibility-help-message-primary':
-      'Select no if your current situation does not allow you to consider job offers (for example, extended leave, waiting for a job offer, etc.)',
+      'Select "no" if your current situation does not allow you to consider job offers (for example, extended leave, waiting for a job offer, etc.). Consult the HR advisor indicated on your letter should you need guidance.',
     'alternate-opportunity': 'Are you interested in alternation opportunities?',
     'what-is-alternation': 'What is alternation?',
     'alternation-description-text-para-1':
@@ -352,8 +345,6 @@ export default {
     'position-information': 'Position information',
     'somc-conditions': 'Statement of merit criteria and conditions of employment',
     'submission-details': 'Submission details',
-    'add-process-information': 'process information',
-    'add-position-information': 'position information',
     'add-somc-conditions': 'statement of merit criteria and conditions of employment',
     'add-submission-details': 'submission details',
     'edit-process-information': 'process information',
@@ -629,7 +620,7 @@ export default {
       'comment-max-length': 'Comments must be less than 100 characters.',
       'retraining-required':
         'The confirmation regarding retraining rights for affected, surplus, or lay-off priorities is required.',
-      'feedback-missing': 'Please complete all feedbacks before submitting matches.',
+      'feedback-missing': 'Please complete all feedbacks before submitting.',
     },
   },
   'matches-tables': {
