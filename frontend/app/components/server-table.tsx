@@ -280,6 +280,7 @@ interface ColumnOptionsProps<TData, TValue> extends ColumnHeaderProps<TData, TVa
   page?: string;
   onSelectionChange?: (selected: FilterOption[]) => void;
   showClearAll?: boolean;
+  id?: string;
 }
 
 /**
@@ -304,6 +305,7 @@ export function ColumnOptions<TData, TValue>({
   className,
   onSelectionChange,
   showClearAll = false,
+  id,
 }: ColumnOptionsProps<TData, TValue>) {
   const { t } = useTranslation(['gcweb']);
   const { currentLanguage } = useLanguage();
@@ -383,6 +385,7 @@ export function ColumnOptions<TData, TValue>({
       >
         <DropdownMenuTrigger asChild>
           <Button
+            id={id}
             type="button"
             variant="ghost"
             size="sm"

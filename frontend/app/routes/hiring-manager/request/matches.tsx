@@ -21,6 +21,7 @@ import { AlertMessage } from '~/components/alert-message';
 import { BackLink } from '~/components/back-link';
 import { Button } from '~/components/button';
 import { InputCheckbox } from '~/components/input-checkbox';
+import { AnchorLink } from '~/components/links';
 import { PageTitle } from '~/components/page-title';
 import { Progress } from '~/components/progress';
 import { RequestStatusTag } from '~/components/status-tag';
@@ -295,6 +296,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 export default function HiringManagerRequestMatches({ loaderData, actionData, params }: Route.ComponentProps) {
   const { t } = useTranslation(handle.i18nNamespace);
   const alertRef = useRef<HTMLDivElement>(null);
+  const sectionRef = useRef<HTMLElement>(null);
   const fetcher = useFetcher<typeof action>();
   const fetcherState = useFetcherState(fetcher);
   const isSubmitting = fetcherState.submitting;
@@ -316,6 +318,13 @@ export default function HiringManagerRequestMatches({ loaderData, actionData, pa
       setBrowserTZ(formatDateTimeForTimezone(loaderData.requestDate, browserTZ, loaderData.lang));
     }
   }, [loaderData.requestDate, loaderData.lang]);
+
+  useEffect(() => {
+    if ((formErrors?.confirmRetraining || formErrors?.feedbackMissing) && sectionRef.current) {
+      sectionRef.current.scrollIntoView({ behavior: 'smooth' });
+      sectionRef.current.focus();
+    }
+  }, [formErrors?.confirmRetraining, formErrors?.feedbackMissing]);
 
   return (
     <div className="mb-8 space-y-4">
@@ -362,12 +371,42 @@ export default function HiringManagerRequestMatches({ loaderData, actionData, pa
       </BackLink>
 
       {(formErrors?.confirmRetraining ?? formErrors?.feedbackMissing) && (
-        <AlertMessage ref={alertRef} type={'error'} role="alert" ariaLive="assertive">
+        <section
+          ref={sectionRef}
+          className="my-5 border-4 border-red-600 p-4"
+          tabIndex={-1}
+          aria-live="assertive"
+          aria-atomic={true}
+          role="alert"
+        >
+          <h2 className="font-lato text-lg font-semibold">
+            {t('gcweb:error-summary.header', {
+              count: (formErrors.confirmRetraining ? 1 : 0) + (formErrors.feedbackMissing ? 1 : 0),
+            })}
+          </h2>
           <ol className="mt-1.5 list-decimal space-y-2 pl-7">
-            {formErrors.confirmRetraining && <li>{t(extractValidationKey(formErrors.confirmRetraining))}</li>}
-            {formErrors.feedbackMissing && <li>{t(extractValidationKey(formErrors.feedbackMissing))}</li>}
+            {formErrors.confirmRetraining && (
+              <li>
+                <AnchorLink
+                  className="text-red-700 underline hover:decoration-2 focus:decoration-2"
+                  anchorElementId="input-checkbox-confirm-retraining-input"
+                >
+                  {t(extractValidationKey(formErrors.confirmRetraining))}
+                </AnchorLink>
+              </li>
+            )}
+            {formErrors.feedbackMissing && (
+              <li>
+                <AnchorLink
+                  className="text-red-700 underline hover:decoration-2 focus:decoration-2"
+                  anchorElementId="feedback-column-header"
+                >
+                  {t(extractValidationKey(formErrors.feedbackMissing))}
+                </AnchorLink>
+              </li>
+            )}
           </ol>
-        </AlertMessage>
+        </section>
       )}
       <h2 className="font-lato mt-4 text-2xl font-bold">{t('app:matches.request-candidates')}</h2>
       <p className="sm:w-2/3 md:w-3/4">{t('app:matches.page-info')}</p>
