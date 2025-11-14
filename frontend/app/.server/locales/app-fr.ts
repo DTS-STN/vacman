@@ -52,13 +52,13 @@ export default {
     'profile-employment-info-incomplete':
       "Veuillez remplir tous les champs obligatoires dans la section des informations sur l'emploi avant de soumettre votre profil.",
     'profile-referral-preferences-incomplete':
-      'Veuillez remplir tous les champs obligatoires dans la section des préférences de parrainage avant de soumettre votre profil.',
+      'Veuillez remplir tous les champs obligatoires dans la section des préférences de présentation de candidature avant de soumettre votre profil.',
     'profile-personal-info-incomplete-for-approval':
       "Veuillez remplir tous les champs obligatoires de la section des informations personnelles avant d'approuver le profil.",
     'profile-employment-info-incomplete-for-approval':
       "Veuillez remplir tous les champs obligatoires de la section des informations sur l'emploi avant d'approuver le profil.",
     'profile-referral-preferences-incomplete-for-approval':
-      "Veuillez remplir tous les champs obligatoires dans la section des préférences de parrainage avant d'approuver le profil.",
+      "Veuillez remplir tous les champs obligatoires dans la section des préférences de présentation de candidature avant d'approuver le profil.",
     'profile-submitted': "Profil soumis avec succès! Votre conseiller(ère) RH va maintenant l'examiner pour approbation",
     'hr-approved': "Profil de l'employé-e approuvé",
     'profile-pending-approval':
@@ -372,15 +372,14 @@ export default {
       "Consultez le <InlineLink>Guide du gestionnaire sur les autorisations en matière de priorité</InlineLink> pour plus d'informations.",
     'priority-clearance-href':
       'https://iservice.prv/fra/rh/dotation/sujets/actions-dotation/demande-matiere-priorite-cfp-gg.shtml',
-    'request-incomplete': 'Veuillez remplir tous les champs obligatoires avant de soumettre votre demande',
     'request-incomplete-process-information':
-      'Veuillez remplir tous les champs obligatoires dans la section des informations sur le processus avant de soumettre la demande.',
+      'Veuillez remplir tous les champs obligatoires dans la section des informations sur le processus avant de soumettre votre demande.',
     'request-incomplete-position-information':
-      'Veuillez remplir tous les champs obligatoires dans la section des informations sur le poste avant de soumettre la demande.',
+      'Veuillez remplir tous les champs obligatoires dans la section des informations sur le poste avant de soumettre votre demande.',
     'request-incomplete-somc-information':
       "Veuillez remplir tous les champs requis dans la section des critères de mérite et des conditions d'emploi avant de soumettre votre demande.",
     'request-incomplete-submission-information':
-      'Veuillez remplir tous les champs obligatoires dans la section des détails de la soumission avant de soumettre la demande.',
+      'Veuillez remplir tous les champs obligatoires dans la section des détails de la soumission avant de soumettre votre demande.',
     'request-submitted': "Demande soumise avec succès! Un-e conseiller-ère RH l'examinera pour approbation.",
     'matches-available': 'Candidatures disponibles',
     'matches-available-hiring-manager-detail':
@@ -621,11 +620,11 @@ export default {
     'page-info':
       "Consulter la rétroaction sur les candidat-e-s ci-dessous pour approbation. Si des modifications sont nécessaires, communiquez directement avec le-la gestionnaire d'embauche pour en discuter et mettre à jour la demande avant de sélectionner l'action appropriée sur la page l'information sur la demande.",
     'confirm-info':
-      'Je confirme que les droits en matière de recyclage ont été appliqués et/ou pris en compte pour chaque employé-e touché-e, excédentaire ou mis-e en disponibilité considéré-e.',
+      'Je confirme que les droits en matière de recyclage ont été appliqués et/ou pris en compte pour chaque employé-e touché-e ou excédentaire considéré-e.',
     'approval-completion-progress': "État d'avancement de l'approbation",
     'feedback-completion-progress': "État d'avancement des rétroactions",
     'matches-available-hr-advisor-detail':
-      "Le processus d'appariement a réussi. Des candidat-e-s correspondant à cette demande ont été trouvé-e-s. Un gestionnaire d'embauche examinera les résultats.",
+      "Le processus de repérage s'est déroulé avec succès. Des candidats pour cette demande ont été repérés. Un gestionnaire d’embauche examinera les candidatures potentielles et fournira de la rétroaction.",
     'errors': {
       'match-id': "L'identifiant doit être un nombre.",
       'feedback-required': 'Une rétroaction est requise.',

@@ -368,15 +368,14 @@ export default {
     'notice-line-7': "Consult the <InlineLink>Manager's Guide on Priority Clearances</InlineLink> for more information.",
     'priority-clearance-href':
       'https://iservice.prv/eng/hr/staffing/topics/staffing-actions/request-psc-priority-referrals-mg.shtml',
-    'request-incomplete': 'Please complete all required fields before submitting request',
     'request-incomplete-process-information':
-      'Please complete all required fields in the process information section before submitting request.',
+      'Please complete all required fields in the process information section before submitting your request.',
     'request-incomplete-position-information':
-      'Please complete all required fields in the position information section before submitting request.',
+      'Please complete all required fields in the position information section before submitting your request.',
     'request-incomplete-somc-information':
-      'Please complete all required fields in the statement of merit criteria and conditions of employment section before submitting request.',
+      'Please complete all required fields in the statement of merit criteria and conditions of employment section before submitting your request.',
     'request-incomplete-submission-information':
-      'Please complete all required fields in the submission details section before submitting request.',
+      'Please complete all required fields in the submission details section before submitting your request.',
     'request-submitted': 'Request submitted successfully! An HR advisor will review it for approval',
     'matches-available': 'Matches available',
     'matches-available-hiring-manager-detail':
@@ -608,19 +607,19 @@ export default {
     'page-info':
       'Review candidate feedback below for approval. If changes are needed, contact the hiring manager directly to discuss, and update before selecting the appropriate action on the request details page.',
     'confirm-info':
-      'I confirm that retraining rights for any affected, surplus or lay-off priorities were applied and or considered.',
+      'I confirm that retraining rights were applied and/or taken into account for each affected or surplus priority considered.',
     'approval-completion-progress': 'Approval completion progress',
     'feedback-completion-progress': 'Feedback completion progress',
     'matches-available-hr-advisor-detail':
-      'Matching process ran successfully. Candidates for this request have been found. A hiring manager will review the results.',
+      'The matching process ran successfully. Candidates for this request have been matched. A hiring manager will review the potential candidates and provide feedback.',
     'errors': {
       'match-id': 'ID must be a number.',
       'feedback-required': 'Feedback is required.',
       'comment-required': 'Comments are required.',
       'comment-max-length': 'Comments must be less than 100 characters.',
       'retraining-required':
-        'The confirmation regarding retraining rights for affected, surplus, or lay-off priorities is required.',
-      'feedback-missing': 'Please complete all feedbacks before submitting.',
+        'The confirmation regarding the application and/or consideration for retraining rights is required.',
+      'feedback-missing': 'Please complete all feedback before submitting.',
     },
   },
   'matches-tables': {
