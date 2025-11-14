@@ -59,7 +59,6 @@ export function SomcConditionsForm({
                 errorMessage={t(extractValidationKey(formErrors?.englishStatementOfMerit))}
                 required
                 lang="en"
-                requiredForm="masculine"
               />
               <InputTextarea
                 id="frenchStatementOfMerit"
@@ -71,7 +70,6 @@ export function SomcConditionsForm({
                 errorMessage={t(extractValidationKey(formErrors?.frenchStatementOfMerit))}
                 required
                 lang="fr"
-                requiredForm="masculine"
               />
               <div className="mt-8 flex flex-wrap items-center justify-start gap-3">
                 <ButtonLink file={cancelLink} params={params} id="cancel-button" variant="alternative">

@@ -41,7 +41,6 @@ export interface InputMultiSelectProps extends OmitStrict<ComponentProps<'div'>,
   placeholder?: string;
   required?: boolean;
   disabled?: boolean;
-  requiredForm?: 'feminine' | 'masculine';
 }
 
 export function InputMultiSelect(props: InputMultiSelectProps) {
@@ -59,7 +58,6 @@ export function InputMultiSelect(props: InputMultiSelectProps) {
     disabled,
     placeholder,
     name,
-    requiredForm,
     ...restDivProps
   } = props;
 
@@ -114,7 +112,7 @@ export function InputMultiSelect(props: InputMultiSelectProps) {
   return (
     <div className={cn('relative', className)} ref={wrapperRef} {...restDivProps}>
       <fieldset>
-        <InputLegend id={legendId} required={required} className="mb-2" requiredForm={requiredForm}>
+        <InputLegend id={legendId} required={required} className="mb-2">
           {legend}
         </InputLegend>
 

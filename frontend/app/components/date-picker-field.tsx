@@ -57,7 +57,6 @@ export interface DatePickerFieldProps {
     year?: string;
   };
   required?: boolean;
-  requiredForm?: 'feminine' | 'masculine';
 }
 
 /**
@@ -79,7 +78,6 @@ export const DatePickerField = ({
   legend,
   names,
   required,
-  requiredForm,
 }: DatePickerFieldProps): JSX.Element => {
   const { t } = useTranslation(['gcweb']);
   const { currentLanguage = 'en' } = useLanguage(); // english by default
@@ -180,7 +178,7 @@ export const DatePickerField = ({
   return (
     <div id={ids.wrapper}>
       <fieldset className="space-y-2" aria-describedby={ariaDescribedbyId}>
-        <InputLegend id={ids.legend} required={required} requiredForm={requiredForm}>
+        <InputLegend id={ids.legend} required={required}>
           {legend}
         </InputLegend>
 

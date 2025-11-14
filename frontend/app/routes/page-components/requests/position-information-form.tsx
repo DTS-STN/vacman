@@ -172,7 +172,6 @@ export function PositionInformationForm({
               helpMessagePrimary={tApp('position-information.position-number-instruction')}
               maxLength={100}
               required
-              requiredForm="masculine"
             />
             <InputSelect
               id="group-and-level"
@@ -183,7 +182,6 @@ export function PositionInformationForm({
               label={tApp('employment-information.substantive-position-group-and-level')}
               defaultValue={formValues?.classification !== undefined ? String(formValues.classification.id) : ''}
               className="w-full sm:w-1/2"
-              requiredForm="masculine"
             />
             <InputField
               className="w-full"
@@ -194,7 +192,6 @@ export function PositionInformationForm({
               errorMessage={tApp(extractValidationKey(formErrors?.titleEn))}
               required
               maxLength={200}
-              requiredForm="masculine"
             />
             <InputField
               className="w-full"
@@ -205,11 +202,10 @@ export function PositionInformationForm({
               errorMessage={tApp(extractValidationKey(formErrors?.titleFr))}
               required
               maxLength={200}
-              requiredForm="masculine"
             />
 
             <fieldset id="location-fieldset" aria-describedby="locationLegend locationHelpMessage" className="space-y-2">
-              <InputLegend id="locationLegend" required requiredForm="masculine">
+              <InputLegend id="locationLegend" required>
                 {tApp('position-information.locations')}
               </InputLegend>
               <InputHelp id="locationHelpMessage">{tApp('position-information.select-locations')}</InputHelp>

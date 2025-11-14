@@ -25,7 +25,6 @@ export interface InputTextareaProps
   id: string;
   label: string;
   name: string;
-  requiredForm?: 'feminine' | 'masculine';
 }
 
 export function InputTextarea({
@@ -40,7 +39,6 @@ export function InputTextarea({
   defaultValue,
   value,
   onChange,
-  requiredForm,
   ...restInputProps
 }: InputTextareaProps) {
   const inputErrorId = `input-${id}-error`;
@@ -72,7 +70,7 @@ export function InputTextarea({
 
   return (
     <div id={inputWrapperId} data-testid={inputWrapperId} className="form-group space-y-2">
-      <InputLabel id={inputLabelId} htmlFor={id} required={required} requiredForm={requiredForm}>
+      <InputLabel id={inputLabelId} htmlFor={id} required={required}>
         {label}
       </InputLabel>
       {errorMessage && <InputError id={inputErrorId}>{errorMessage}</InputError>}

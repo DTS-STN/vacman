@@ -30,7 +30,6 @@ export interface InputPhoneFieldProps
   id: string;
   label: string;
   name: string;
-  requiredForm?: 'feminine' | 'masculine';
 }
 
 export function InputPhoneField({
@@ -46,7 +45,6 @@ export function InputPhoneField({
   id,
   label,
   required,
-  requiredForm,
   ...restProps
 }: InputPhoneFieldProps) {
   const [value, setValue] = useState(defaultValue);
@@ -71,7 +69,7 @@ export function InputPhoneField({
 
   return (
     <div id={inputWrapperId} data-testid={inputWrapperId}>
-      <InputLabel id={inputLabelId} htmlFor={id} className="mb-2" required={required} requiredForm={requiredForm}>
+      <InputLabel id={inputLabelId} htmlFor={id} className="mb-2" required={required}>
         {label}
       </InputLabel>
       {errorMessage && (
