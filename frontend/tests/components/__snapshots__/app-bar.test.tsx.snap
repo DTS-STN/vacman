@@ -11,12 +11,12 @@ exports[`AppBar > should correctly render an AppBar with a MenuItem when the fil
       <div
         class="align-center flex"
       >
-        <span
+        <h2
           class="my-auto py-2 text-white sm:text-2xl"
           id="app-bar-title-label"
         >
           gcweb:app.title
-        </span>
+        </h2>
       </div>
       <div
         class="flex items-center space-x-4 text-right"
@@ -37,12 +37,12 @@ exports[`AppBar > should correctly render an AppBar with a MenuItem when the to 
       <div
         class="align-center flex"
       >
-        <span
+        <h2
           class="my-auto py-2 text-white sm:text-2xl"
           id="app-bar-title-label"
         >
           gcweb:app.title
-        </span>
+        </h2>
       </div>
       <div
         class="flex items-center space-x-4 text-right"
@@ -63,12 +63,12 @@ exports[`AppBar > should render render an AppBar with a name provided > expected
       <div
         class="align-center flex"
       >
-        <span
+        <h2
           class="my-auto py-2 text-white sm:text-2xl"
           id="app-bar-title-label"
         >
           gcweb:app.title
-        </span>
+        </h2>
       </div>
       <div
         class="flex items-center space-x-4 text-right"
@@ -140,12 +140,12 @@ exports[`AppBar > should render render an AppBar with a profile item provided > 
       <div
         class="align-center flex"
       >
-        <span
+        <h2
           class="my-auto py-2 text-white sm:text-2xl"
           id="app-bar-title-label"
         >
           gcweb:app.title
-        </span>
+        </h2>
       </div>
       <div
         class="flex items-center space-x-4 text-right"
