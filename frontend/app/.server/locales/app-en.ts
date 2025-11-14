@@ -351,7 +351,6 @@ export default {
     'edit-position-information': 'position information',
     'edit-somc-conditions': 'statement of merit criteria and conditions of employment',
     'edit-submission-details': 'submission details',
-    'required': 'Required',
     'complete': 'Complete',
     'in-progress': 'In Progress',
     'cancel': 'Cancel',
