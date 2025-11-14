@@ -25,7 +25,6 @@ export interface InputCheckboxesProps {
   legend: ReactNode;
   name: string;
   required?: boolean;
-  requiredForm?: 'feminine' | 'masculine';
 }
 
 export function InputCheckboxes({
@@ -39,7 +38,6 @@ export function InputCheckboxes({
   name,
   options,
   required,
-  requiredForm,
 }: InputCheckboxesProps) {
   const defaultId = useId();
   const baseId = `input-checkboxes-${id ?? defaultId}`;
@@ -64,7 +62,7 @@ export function InputCheckboxes({
 
   return (
     <fieldset id={ids.wrapper} className="space-y-2">
-      <InputLegend id={ids.legend} required={required} requiredForm={requiredForm}>
+      <InputLegend id={ids.legend} required={required}>
         {legend}
       </InputLegend>
       {errorMessage && (

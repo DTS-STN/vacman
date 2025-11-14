@@ -73,8 +73,7 @@ export default {
     'new-tab': "s'ouvre dans un nouvel onglet",
   },
   'input': {
-    'required': 'requise',
-    'required-masculine': 'requis',
+    'required': 'obligatoire',
     'input-items-selected': '{{count}} éléments sélectionnés',
   },
   'input-file': {

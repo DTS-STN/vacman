@@ -21,7 +21,7 @@ export default {
     'view': 'Voir',
     'in-progress': 'En cours',
     'complete': 'Complet',
-    'required': 'Requise',
+    'required': 'Obligatoire',
     'updated': 'Mise à jour',
     'pending-status-employee': "En attente d'examen et d'approbation des RH",
     'personal-information': {
@@ -224,7 +224,7 @@ export default {
     'page-title': 'Information sur le processus',
     'selection-process-number': 'Numéro du processus de sélection (si applicable)',
     'approval-received':
-      "L'approbation au niveau approprié selon les paramètres du Comité de gestion des effectifs (CGE) et/ou du Comité de gestion des personnes et leadership (CGPL) a été obtenue (requise)",
+      "L'approbation au niveau approprié selon les paramètres du Comité de gestion des effectifs (CGE) et/ou du Comité de gestion des personnes et leadership (CGPL) a été obtenue (obligatoire)",
     'priority-entitlement':
       "Est-ce que la nomination d'un bénéficiaire de priorité aurait pour effet de conférer un droit de priorité à un-e autre fonctionnaire nommé-e pour une période indéterminée?",
     'priority-entitlement-rationale': 'Veuillez fournir la justification',

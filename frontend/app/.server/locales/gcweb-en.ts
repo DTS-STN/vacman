@@ -72,7 +72,6 @@ export default {
   },
   'input': {
     'required': 'required',
-    'required-masculine': 'required',
     'input-items-selected': '{{count}} items selected',
   },
   'input-file': {
