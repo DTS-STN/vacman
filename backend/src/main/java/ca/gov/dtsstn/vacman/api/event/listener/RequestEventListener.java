@@ -108,7 +108,7 @@ public class RequestEventListener {
 
 		final var language = Optional.ofNullable(request.getLanguage())
 			.map(LanguageEntity::getCode)
-			.orElse(null);
+			.orElse("en");
 
 		var emails = Stream.<UserEntity>builder();
 
@@ -283,7 +283,7 @@ public class RequestEventListener {
 
 		final var language = Optional.ofNullable(request.getLanguage())
 			.map(LanguageEntity::getCode)
-			.orElse(null);
+			.orElse("en");
 
 		Optional.ofNullable(request.getHrAdvisor())
 			.map(UserEntity::getBusinessEmailAddress)
