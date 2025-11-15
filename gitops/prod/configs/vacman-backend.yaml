@@ -14,11 +14,16 @@ management:
     metrics:
       export:
         enabled: true
+        aggregation-temporality: delta
         url: https://dynatrace.prod-dp.admin.dts-stn.com/e/676a0299-9802-4933-99d4-481318a557db/api/v2/otlp/v1/metrics
 
 spring:
   datasource:
     url: jdbc:sqlserver://esdcvacmansqlsrv.database.windows.net;databaseName=EsDVacManDB_PRD;encrypt=true;trustServerCertificate=true;
+    #
+    #  XXX ::: GjB ::: We must switch to the new server once it's ready.
+    #
+    # url: jdbc:sqlserver://esccprodvacmansqlsrv.database.windows.net;databaseName=EsDVacManDB_PRD;encrypt=true;trustServerCertificate=true;
   liquibase:
     contexts: prod
 
@@ -26,29 +31,8 @@ application:
   entra-id:
     client-id: 61e40073-c461-4ec8-8397-99f2976d4982
   gcnotify:
-    profile-approved-template-id-eng: 4a9843c1-465d-41cf-a05d-caa0d428f993 # VMS profile activation english
-    profile-approved-template-id-fra: c4facfbc-9bb2-4307-ab26-f9fa260c551b # VMS profile activation french
-    profile-created-template-id-eng: 4fcdff75-2ff5-4ae5-8edb-5be5233ca8bf # approval required english
-    profile-created-template-id-fra: d62c72ce-ffea-4598-86ad-7f8aca6fa15d # approval required french
-    profile-updated-template-id-eng: 4fcdff75-2ff5-4ae5-8edb-5be5233ca8bf # approval required english
-    profile-updated-template-id-fra: d62c72ce-ffea-4598-86ad-7f8aca6fa15d # approval required french
-    profile-closed-template-id-eng: cecb0690-df87-4af6-9661-4b87b31efd7e # VMS profile closed english
-    profile-closed-template-id-fra: 53ada681-6b15-442b-a36d-7216bfcce288 # VMS profile closed french
-    request-feedback-approved-psc-template-id-eng: b57246e6-c787-4dc0-8a6b-1bffa79df610 # feedback approved PSC priority english
-    request-feedback-approved-psc-template-id-fra: a6606023-417a-45b4-9b13-438486d63273 # feedback approved PSC priority french
-    request-feedback-approved-template-id-eng: 60315e71-36ae-4f4f-b91e-bbe3960fa94d # feedback approved english
-    request-feedback-approved-template-id-fra: 9df8510b-057e-420f-a861-d7516f3f8910 # feedback approved french
-    request-cancelled-template-id-eng: c84b460c-ccdf-43a3-993f-189ffc6f37aa # request cancelled english
-    request-cancelled-template-id-fra: 1811845c-f3fd-4487-898a-e22b9642a738 # request cancelled french
-    hr-approved-manager-template-id-eng: eb188631-c827-405e-b2c8-ac13c2ad79d8 # priorities identified english
-    hr-approved-manager-template-id-fra: 5bfe8918-bd17-4e1e-aead-7a78db859389 # priorities identified french
-    job-hr-approved-template-id-eng: 13da1bd7-e99a-4187-84d2-3d3e12063663 # job opportunity HR approved english
-    job-hr-approved-template-id-fra: a1dc35e5-e5b8-4ea9-80b1-a3c098cd28eb # job opportunity HR approved french
-    job-opportunity-template-id-eng: 9e5f835b-2579-47da-b1de-037744493560 # job opportunity english
-    job-opportunity-template-id-fra: a97ecc42-0441-4492-a875-ba1981e913b3 # job opportunity french 
-    # unknown to which template should these go to
-    profile-pending-template-id: 4fcdff75-2ff5-4ae5-8edb-5be5233ca8bf # must be set externally (ex: 00000000-0000-0000-0000-000000000000)
-    request-created-template-id: 00000000-0000-0000-0000-000000000000 # must be set externally (ex: 00000000-0000-0000-0000-000000000000)
-    request-feedback-pending-template-id: 00000000-0000-0000-0000-000000000000 # must be set externally (ex: 00000000-0000-0000-0000-000000000000)
-    request-feedback-completed-template-id: 00000000-0000-0000-0000-000000000000 # must be set externally (ex: 00000000-0000-0000-0000-000000000000)
-
+    generic-template-id: 52b26a60-94b7-4b07-8c4c-5cbaaf43b3af
+    hr-gd-inbox-email: EDSC.Priorites.2-2.Priorities.ESDC@hrsdc-rhdcc.gc.ca
+    pims-sle-team-email: EDSC.Priorites.2-2.Priorities.ESDC@hrsdc-rhdcc.gc.ca
+  metrics:
+    environment-name: prod
