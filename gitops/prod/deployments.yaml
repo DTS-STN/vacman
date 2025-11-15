@@ -49,14 +49,14 @@ spec:
               mountPath: /workspace/BOOT-INF/classes/application-local.yaml
               subPath: application.yaml
       hostAliases:
-        # Override DNS so that esdcvacmansqlsrv.database.windows.net
-        # always resolves to 10.72.61.197 inside this pod.
+        # Override DNS so that esccprodvacmansqlsrv.database.windows.net
+        # always resolves to 10.71.101.5 inside this pod.
         #
         # ⚠️ WARNING:
         # - This hardcodes the IP, so if it ever changes, the pod config must be updated.
         # - Storing IPs in YAML can reveal internal network details.
-        - hostnames: [esdcvacmansqlsrv.database.windows.net]
-          ip: 10.72.61.197
+        - hostnames: [esccprodvacmansqlsrv.database.windows.net]
+          ip: 10.71.101.5
       volumes:
         - name: config
           configMap:
