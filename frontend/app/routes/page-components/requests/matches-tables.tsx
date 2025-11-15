@@ -165,6 +165,7 @@ export default function MatchesTables({
                 searchParams={searchParams}
                 setSearchParams={setSearchParams}
                 showClearAll
+                id="feedback-column-header"
               />
             )}
             cell={(info) => {
