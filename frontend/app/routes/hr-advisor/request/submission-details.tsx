@@ -41,22 +41,22 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 
   const formData = await request.formData();
   const parseResult = v.safeParse(await createSubmissionDetailSchema('hr-advisor'), {
-    isSubmiterHiringManager: formData.get('isSubmiterHiringManager')
+    'isSubmiterHiringManager': formData.get('isSubmiterHiringManager')
       ? formData.get('isSubmiterHiringManager') === REQUIRE_OPTIONS.yes
       : undefined,
-    isSubmiterSubdelegate: formData.get('isSubmiterSubdelegate')
+    'isSubmiterSubdelegate': formData.get('isSubmiterSubdelegate')
       ? formData.get('isSubmiterSubdelegate') === REQUIRE_OPTIONS.yes
       : undefined,
-    isHiringManagerASubDelegate: formData.get('isHiringManagerASubDelegate')
+    'isHiringManagerASubDelegate': formData.get('isHiringManagerASubDelegate')
       ? formData.get('isHiringManagerASubDelegate') === REQUIRE_OPTIONS.yes
       : undefined,
-    hiringManagerEmailAddress: formString(formData.get('hiringManagerEmailAddress')),
-    subDelegatedManagerEmailAddress: formString(formData.get('subDelegatedManagerEmailAddress')),
-    branchOrServiceCanadaRegion: formString(formData.get('branchOrServiceCanadaRegion')),
-    directorate: formString(formData.get('directorate')),
-    languageOfCorrespondenceId: formString(formData.get('languageOfCorrespondenceId')),
-    additionalComment: formString(formData.get('additionalComment')),
-    alternateContactEmailAddress: formString(formData.get('alternateContactEmailAddress')),
+    'hiringManagerEmailAddress': formString(formData.get('hiringManagerEmailAddress')),
+    'subDelegatedManagerEmailAddress': formString(formData.get('subDelegatedManagerEmailAddress')),
+    'branchOrServiceCanadaRegion': formString(formData.get('branchOrServiceCanadaRegion')),
+    'directorate': formString(formData.get('directorate')),
+    'languageOfCorrespondenceId': formString(formData.get('languageOfCorrespondenceId')),
+    'additionalComment': formString(formData.get('additionalComment')),
+    'additionalContact.businessEmailAddress': formString(formData.get('additionalContact.businessEmailAddress')),
   });
 
   if (!parseResult.success) {
@@ -69,19 +69,19 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   const userService = getUserService();
   const userNotFoundMessage = t('app:submission-details.errors.no-user-found-with-this-email');
 
-  const { errors, resolvedHiringManagerId, resolvedSubDelegatedManagerId, resolvedAlternateContactId } =
+  const { errors, resolvedHiringManagerId, resolvedSubDelegatedManagerId, resolvedAdditionalContactId } =
     await resolveSubmissionDetailUserIds({
       userService,
       accessToken: session.authState.accessToken,
       hiringManagerEmailAddress: parseResult.output.hiringManagerEmailAddress,
       subDelegatedManagerEmailAddress: parseResult.output.subDelegatedManagerEmailAddress,
-      alternateContactEmailAddress: parseResult.output.alternateContactEmailAddress,
+      additionalContactBusinessEmailAddress: parseResult.output['additionalContact.businessEmailAddress'],
       userNotFoundMessage,
     });
 
   let hiringManagerId = resolvedHiringManagerId;
   let subDelegatedManagerId = resolvedSubDelegatedManagerId;
-  const additionalContactId = resolvedAlternateContactId;
+  const additionalContactId = resolvedAdditionalContactId;
 
   // Check for errors again after checking subDelegatedManager
   if (Object.keys(errors).length > 0) {
@@ -162,15 +162,15 @@ export async function loader({ context, params, request }: Route.LoaderArgs) {
   return {
     documentTitle: t('app:submission-details.page-title'),
     defaultValues: {
-      submitter: requestData.submitter, // The Hr-advisor can't create a Request. The submitter information is coming from the saved Request.
-      hiringManager: requestData.hiringManager,
-      subDelegatedManager: requestData.subDelegatedManager,
-      hrAdvisor: requestData.hrAdvisor,
-      workUnit: requestData.workUnit,
-      languageOfCorrespondence: requestData.languageOfCorrespondence,
-      additionalComment: requestData.additionalComment,
-      additionalContact: requestData.additionalContact,
-      alternateContactEmailAddress: requestData.additionalContact?.businessEmailAddress,
+      'submitter': requestData.submitter, // The Hr-advisor can't create a Request. The submitter information is coming from the saved Request.
+      'hiringManager': requestData.hiringManager,
+      'subDelegatedManager': requestData.subDelegatedManager,
+      'hrAdvisor': requestData.hrAdvisor,
+      'workUnit': requestData.workUnit,
+      'languageOfCorrespondence': requestData.languageOfCorrespondence,
+      'additionalComment': requestData.additionalComment,
+      'additionalContact': requestData.additionalContact,
+      'additionalContact.businessEmailAddress': requestData.additionalContact?.businessEmailAddress,
     },
     branchOrServiceCanadaRegions,
     directorates,

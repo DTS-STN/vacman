@@ -208,7 +208,7 @@ export async function createSubmissionDetailSchema(view: 'hr-advisor' | 'hiring-
       v.nonEmpty('app:submission-details.errors.sub-delegate-email-required'),
       v.email('app:submission-details.errors.sub-delegate-email-invalid'),
     ),
-    alternateContactEmailAddressSchema: v.optional(
+    additionalContactBusinessEmailAddressSchema: v.optional(
       v.pipe(
         v.string('app:submission-details.errors.alternate-contact-email-invalid'),
         v.trim(),
@@ -253,11 +253,11 @@ export async function createSubmissionDetailSchema(view: 'hr-advisor' | 'hiring-
 
   const baseCombinedSchema = v.intersect([
     v.object({
-      branchOrServiceCanadaRegion: submissionDetail.branchOrServiceCanadaRegionSchema,
-      directorate: submissionDetail.directorateSchema,
-      languageOfCorrespondenceId: submissionDetail.languageOfCorrespondenceIdSchema,
-      additionalComment: submissionDetail.additionalCommentSchema,
-      alternateContactEmailAddress: submissionDetail.alternateContactEmailAddressSchema,
+      'branchOrServiceCanadaRegion': submissionDetail.branchOrServiceCanadaRegionSchema,
+      'directorate': submissionDetail.directorateSchema,
+      'languageOfCorrespondenceId': submissionDetail.languageOfCorrespondenceIdSchema,
+      'additionalComment': submissionDetail.additionalCommentSchema,
+      'additionalContact.businessEmailAddress': submissionDetail.additionalContactBusinessEmailAddressSchema,
     }),
     v.variant(
       'isSubmiterHiringManager',
