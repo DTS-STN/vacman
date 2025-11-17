@@ -625,7 +625,7 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
                 {t('app:hiring-manager-referral-requests.process-information')}
               </ProfileCardHeader>
               <ProfileCardContent>
-                <ProcessInformationSection view="hiring-manager" {...loaderData} />
+                <ProcessInformationSection {...loaderData} />
               </ProfileCardContent>
               {loaderData.status?.code === REQUEST_STATUS_CODE.DRAFT && (
                 <ProfileCardFooter>
@@ -649,7 +649,7 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
                 {t('app:hiring-manager-referral-requests.position-information')}
               </ProfileCardHeader>
               <ProfileCardContent>
-                <PositionInformationSection view="hiring-manager" {...loaderData} />
+                <PositionInformationSection {...loaderData} />
               </ProfileCardContent>
               {loaderData.status?.code === REQUEST_STATUS_CODE.DRAFT && (
                 <ProfileCardFooter>
@@ -675,7 +675,7 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
                 {t('app:hiring-manager-referral-requests.somc-conditions')}
               </ProfileCardHeader>
               <ProfileCardContent>
-                <SomcConditionsSection view="hiring-manager" {...loaderData} />
+                <SomcConditionsSection {...loaderData} />
               </ProfileCardContent>
               <ProfileCardFooter>
                 {loaderData.status?.code === REQUEST_STATUS_CODE.DRAFT ? (
@@ -703,7 +703,7 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
                 {t('app:hiring-manager-referral-requests.submission-details')}
               </ProfileCardHeader>
               <ProfileCardContent>
-                <SubmissionDetailSection view="hiring-manager" {...loaderData} />
+                <SubmissionDetailSection {...loaderData} />
               </ProfileCardContent>
               {loaderData.status?.code === REQUEST_STATUS_CODE.DRAFT && (
                 <ProfileCardFooter>
