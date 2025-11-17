@@ -170,7 +170,7 @@ export function ServerTable<TData>({
                 className={cn('h-24 w-fit justify-items-center text-center', isLoading ? 'opacity-50' : '')}
               >
                 {isLoading ? (
-                  <FontAwesomeIcon className="h-10 w-10" icon={faSpinner} spin={true} />
+                  <FontAwesomeIcon className="mx-auto h-10 w-10" icon={faSpinner} spin={true} />
                 ) : (
                   t('gcweb:data-table.zero-records')
                 )}
@@ -386,6 +386,7 @@ export function ColumnOptions<TData, TValue>({
         <DropdownMenuTrigger asChild>
           <Button
             id={id}
+            role="button"
             type="button"
             variant="ghost"
             size="sm"
@@ -431,15 +432,7 @@ export function ColumnOptions<TData, TValue>({
                   e.preventDefault();
                   toggleOption(option);
                 }}
-                onKeyDown={(e) => {
-                  switch (e.key) {
-                    case 'Enter': {
-                      e.preventDefault();
-                      setOpen(false);
-                      break;
-                    }
-                  }
-                }}
+                onKeyDown={() => {}}
                 tabIndex={0}
               >
                 <input
@@ -456,6 +449,7 @@ export function ColumnOptions<TData, TValue>({
           {showClearAll && (
             <DropdownMenuItem asChild>
               <Button
+                role="button"
                 id="clear-all-button"
                 variant="alternative"
                 size="sm"
@@ -529,6 +523,7 @@ export function ColumnSearch<TData, TValue>({
       >
         <PopoverTrigger asChild>
           <Button
+            role="button"
             type="button"
             variant="ghost"
             size="sm"

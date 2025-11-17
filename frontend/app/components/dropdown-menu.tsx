@@ -4,11 +4,45 @@ import { faChevronRight, faCircle, faCheck } from '@fortawesome/free-solid-svg-i
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import * as DropdownMenuPrimitive from '@radix-ui/react-dropdown-menu';
 
+import { useComposedRefs } from '~/hooks/use-composed-refs';
 import { cn } from '~/utils/tailwind-utils';
 
 const DropdownMenu = DropdownMenuPrimitive.Root;
 
-const DropdownMenuTrigger = DropdownMenuPrimitive.Trigger;
+const DropdownMenuTrigger = React.forwardRef<
+  React.ComponentRef<typeof DropdownMenuPrimitive.DropdownMenuTrigger>,
+  React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.DropdownMenuTrigger>
+>(({ onClick, onPointerDown, ...props }, forwardedRef) => {
+  const clickEvent = React.useRef<PointerEvent>(null);
+  const baseRef = React.useRef<HTMLElement>(null);
+  const ref = useComposedRefs(baseRef, forwardedRef);
+  return (
+    <DropdownMenuPrimitive.Trigger
+      ref={ref}
+      onPointerDown={(e) => {
+        onPointerDown?.(e);
+        if (e.nativeEvent !== clickEvent.current) {
+          e.preventDefault();
+        }
+      }}
+      onClick={(e) => {
+        /**
+         * Fixes an issue with NVDA's browse mode not able to open dropdowns in Firefox
+         * This is caused from radix-ui dropdowns using onPointerDown (rather than onClick)
+         */
+        onClick?.(e);
+        clickEvent.current = new PointerEvent('pointerdown', {
+          bubbles: true,
+          cancelable: true,
+          composed: true,
+        });
+        baseRef.current?.dispatchEvent(clickEvent.current);
+      }}
+      {...props}
+    />
+  );
+});
+DropdownMenuTrigger.displayName = DropdownMenuPrimitive.DropdownMenuTrigger.displayName;
 
 const DropdownMenuGroup = DropdownMenuPrimitive.Group;
 
