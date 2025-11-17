@@ -40,9 +40,6 @@ public class RequestEntity extends AbstractBaseEntity implements Ownable {
 	@JoinColumn(name = "[USER_ID_ADDITIONAL_CONTACT]")
 	private UserEntity additionalContact;
 
-	@Column(name = "[ALTERNATE_CONTACT_EMAIL_ADDRESS]", length = 320)
-	private String alternateContactEmailAddress;
-
 	@ManyToOne
 	@JoinColumn(name = "[APPOINTMENT_NON_ADVERTISED_ID]")
 	private NonAdvertisedAppointmentEntity appointmentNonAdvertised;
@@ -171,7 +168,6 @@ public class RequestEntity extends AbstractBaseEntity implements Ownable {
 			@Nullable Long id,
 			@Nullable String additionalComment,
 			@Nullable UserEntity additionalContact,
-			@Nullable String alternateContactEmailAddress,
 			@Nullable NonAdvertisedAppointmentEntity appointmentNonAdvertised,
 			@Nullable Collection<CityEntity> cities,
 			@Nullable ClassificationEntity classification,
@@ -214,7 +210,6 @@ public class RequestEntity extends AbstractBaseEntity implements Ownable {
 		super(id, createdBy, createdDate, lastModifiedBy, lastModifiedDate);
 		this.additionalComment = additionalComment;
 		this.additionalContact = additionalContact;
-		this.alternateContactEmailAddress = alternateContactEmailAddress;
 		this.appointmentNonAdvertised = appointmentNonAdvertised;
 		this.classification = classification;
 		this.employmentEquityNeedIdentifiedIndicator = employmentEquityNeedIdentifiedIndicator;
@@ -267,14 +262,6 @@ public class RequestEntity extends AbstractBaseEntity implements Ownable {
 
 	public void setAdditionalContact(UserEntity additionalContact) {
 		this.additionalContact = additionalContact;
-	}
-
-	public String getAlternateContactEmailAddress() {
-		return alternateContactEmailAddress;
-	}
-
-	public void setAlternateContactEmailAddress(String alternateContactEmailAddress) {
-		this.alternateContactEmailAddress = alternateContactEmailAddress;
 	}
 
 	public NonAdvertisedAppointmentEntity getAppointmentNonAdvertised() {
@@ -611,7 +598,6 @@ public class RequestEntity extends AbstractBaseEntity implements Ownable {
 			.append("super", super.toString())
 			.append("additionalComment", additionalComment)
 			.append("additionalContact", additionalContact)
-			.append("alternateContactEmailAddress", alternateContactEmailAddress)
 			.append("appointmentNonAdvertised", appointmentNonAdvertised)
 			.append("cities", cities)
 			.append("classification", classification)
