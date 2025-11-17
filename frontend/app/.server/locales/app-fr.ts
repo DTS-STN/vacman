@@ -544,7 +544,7 @@ export default {
     'sub-delegate-email': 'Adresse courriel du (de la) gestionnaire subdélégué-e à la dotation',
     'sub-delegate-name': 'Gestionnaire subdélégué-e à la dotation\u00A0:{{name}}',
     'alternate-contact-email': 'Adresse courriel du contact secondaire',
-    'alternate-contact-name': 'Contact secondaire\u00A0:{{name}}',
+    'alternate-contact-name': 'Contact secondaire\u00A0: {{name}}',
     'alternate-contact-title': 'Contact secondaire',
     'branch-or-service-canada-region': 'Direction générale ou Région de Service Canada',
     'directorate': 'Direction',
