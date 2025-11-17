@@ -221,33 +221,45 @@ export function PositionInformationForm({
               maxLength={200}
             />
 
-            <fieldset id="location-fieldset" aria-describedby="locationLegend locationHelpMessage" className="space-y-4">
-              <InputLegend id="locationLegend" required>
+            <fieldset
+              id="location-fieldset"
+              aria-describedby="locationLegend location-province-legend location-cities-legend"
+              className="space-y-4"
+            >
+              <InputLegend id="locationLegend" className="text-xl" required>
                 {tApp('position-information.locations')}
               </InputLegend>
-              <InputHelp id="locationHelpMessage">{tApp('position-information.select-locations')}</InputHelp>
-              <Button variant="primary" onClick={handleSelectAllLocations}>
-                {tApp('position-information.select-all')}
-              </Button>
-              <InputSelect
-                ariaDescribedbyId="locationHelpMessage"
-                id="province"
-                name="province"
-                label={tApp('position-information.province')}
-                options={provinceOptions}
-                value={province ?? ''}
-                onChange={({ target }) => setProvince(target.value || undefined)}
-                errorMessage={tApp(extractValidationKey(formErrors?.province))}
-                className="w-full sm:w-1/2"
-                required
-              />
+              <fieldset className="space-y-2" id="location-province-fieldset" aria-describedby="location-province-legend">
+                <InputLegend id="location-province-legend" required>
+                  {tApp('position-information.province')}
+                </InputLegend>
+                <InputHelp id="locationHelpMessage">{tApp('position-information.select-locations')}</InputHelp>
+                <Button variant="primary" onClick={handleSelectAllLocations} aria-describedby="locationHelpMessage">
+                  {tApp('position-information.select-all')}
+                </Button>
+                <InputSelect
+                  ariaDescribedbyId="locationHelpMessage"
+                  id="province"
+                  name="province"
+                  label=""
+                  options={provinceOptions}
+                  value={province ?? ''}
+                  onChange={({ target }) => setProvince(target.value || undefined)}
+                  errorMessage={tApp(extractValidationKey(formErrors?.province))}
+                  className="w-full sm:w-1/2"
+                />
+              </fieldset>
               {province && (
-                <>
+                <fieldset className="space-y-2" id="location-cities-fieldset" aria-describedby="location-cities-legend">
+                  <InputLegend id="location-cities-legend" required>
+                    {tApp('position-information.city')}
+                  </InputLegend>
                   <InputHelp id="selectCitiesLegend">{tApp('position-information.select-all-cities-help message')}</InputHelp>
                   <Button variant="primary" onClick={handleSelectAllCities} aria-describedby="selectCitiesLegend">
                     {tApp('position-information.select-all-cities')}
                   </Button>
                   <InputMultiSelect
+                    ariaDescribedbyId="selectCitiesLegend"
                     id="cities"
                     name="cities"
                     errorMessage={tApp(extractValidationKey(formErrors?.cities))}
@@ -255,11 +267,10 @@ export function PositionInformationForm({
                     value={selectedCities}
                     onChange={(values) => setSelectedCities(values)}
                     placeholder={tApp('form.select-all-that-apply')}
-                    legend={tApp('position-information.city')}
+                    legend=""
                     className="w-full sm:w-1/2"
-                    required
                   />
-                </>
+                </fieldset>
               )}
 
               {citiesChoiceTags.length > 0 && (

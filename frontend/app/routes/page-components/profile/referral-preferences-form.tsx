@@ -246,34 +246,45 @@ export function ReferralPreferencesForm({
               />
             )}
 
-            <fieldset id="workLocationFieldset" className="space-y-4">
-              <InputLegend id="workLocationLegend" required>
+            <fieldset
+              id="workLocationFieldset"
+              aria-describedby="workLocationLegend location-province-legend location-cities-legend"
+              className="space-y-4"
+            >
+              <InputLegend id="workLocationLegend" className="text-xl" required>
                 {tApp('referral-preferences.work-location')}
               </InputLegend>
-              <InputHelp id="workLocationHelpMessage">{tApp('referral-preferences.select-work-locations')}</InputHelp>
-              <Button variant="primary" onClick={handleSelectAllLocations}>
-                {tApp('referral-preferences.select-all')}
-              </Button>
-              <InputSelect
-                ariaDescribedbyId="workLocationHelpMessage"
-                className="w-full sm:w-1/2"
-                id="preferred-province"
-                name="preferredProvince"
-                label={tApp('referral-preferences.province')}
-                options={provinceOptions}
-                errorMessage={tApp(extractValidationKey(formErrors?.preferredProvince))}
-                value={province ?? ''}
-                onChange={({ target }) => setProvince(target.value)}
-                required
-              />
+              <fieldset className="space-y-2" id="location-province-fieldset" aria-describedby="location-province-legend">
+                <InputLegend id="location-province-legend" required>
+                  {tApp('referral-preferences.province')}
+                </InputLegend>
+                <InputHelp id="workLocationHelpMessage">{tApp('referral-preferences.select-work-locations')}</InputHelp>
+                <Button variant="primary" onClick={handleSelectAllLocations} aria-describedby="workLocationHelpMessage">
+                  {tApp('referral-preferences.select-all')}
+                </Button>
+                <InputSelect
+                  ariaDescribedbyId="workLocationHelpMessage"
+                  className="w-full sm:w-1/2"
+                  id="preferred-province"
+                  name="preferredProvince"
+                  label=""
+                  options={provinceOptions}
+                  errorMessage={tApp(extractValidationKey(formErrors?.preferredProvince))}
+                  value={province ?? ''}
+                  onChange={({ target }) => setProvince(target.value)}
+                />
+              </fieldset>
               {province && (
-                <>
+                <fieldset className="space-y-2" id="location-cities-fieldset" aria-describedby="location-cities-legend">
+                  <InputLegend id="location-cities-legend" required>
+                    {tApp('referral-preferences.city')}
+                  </InputLegend>
                   <InputHelp id="selectCitiesLegend">{tApp('referral-preferences.select-all-cities-help message')}</InputHelp>
                   <Button variant="primary" onClick={handleSelectAllCities} aria-describedby="selectCitiesLegend">
                     {tApp('referral-preferences.select-all-cities')}
                   </Button>
                   <InputMultiSelect
-                    ariaDescribedbyId="workLocationHelpMessage"
+                    ariaDescribedbyId="selectCitiesLegend"
                     id="preferred-cities"
                     name="preferredCities"
                     errorMessage={tApp(extractValidationKey(formErrors?.preferredCities))}
@@ -281,11 +292,10 @@ export function ReferralPreferencesForm({
                     value={selectedCities}
                     onChange={(values) => setSelectedCities(values)}
                     placeholder={tApp('form.select-all-that-apply')}
-                    legend={tApp('referral-preferences.city')}
+                    legend=""
                     className="w-full sm:w-1/2"
-                    required
                   />
-                </>
+                </fieldset>
               )}
             </fieldset>
 

@@ -187,8 +187,9 @@ export default {
     'alternation-description-text-para-2':
       'For executives (EXs), alternation under Career Transition allows a surplus EX who has chosen Option 2 (to remain in the core public administration (CPA)) by exchanging positions with a non-affected EX willing to leave under the Directive on Terms and Conditions of Employment for Executives. The alternation must occur at the same group and level, on a mutually agreed date, and must result in the permanent elimination of a function or position. The surplus EX must meet the requirements of the unaffected role. Alternation is only permitted within the core public administration and is not available to employees of separate agencies.',
     'select-work-locations':
-      'Select a province to see available cities. You can choose as many cities as you\'d like from any province. "Select all work locations" will select every province and city available.',
-    'select-all-cities-help message': '"Select all cities" will select every city available for this province.',
+      'Select a province to see available cities. "Select all work locations" will select every province and city available.',
+    'select-all-cities-help message':
+      'You can choose as many cities as you\'d like from any province. "Select all cities" will select every city available for the province selected.',
     'select-all': 'Select all work locations',
     'select-all-cities': 'Select all cities',
     'select-all-sr': 'All work locations in Canada selected.',
@@ -460,8 +461,9 @@ export default {
     'title-fr': 'Title in French',
     'locations': 'Location(s)',
     'select-locations':
-      'Select a province to see available cities. You can choose as many cities as you\'d like from any province. "Select all work locations" will select every province and city available.',
-    'select-all-cities-help message': '"Select all cities" will select every city available for this province.',
+      'Select a province to see available cities. "Select all work locations" will select every province and city available.',
+    'select-all-cities-help message':
+      'You can choose as many cities as you\'d like from any province. "Select all cities" will select every city available for the province selected.',
     'select-all': 'Select all work locations',
     'select-all-cities': 'Select all cities',
     'select-all-sr': 'All work locations in Canada selected.',
