@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 
 import type { User } from '~/.server/domain/models';
 import { DescriptionList, DescriptionListItem } from '~/components/description-list';
+import { getUserFullName } from '~/utils/string-utils';
 
 interface BaseProps {
   submitter: User | undefined;
@@ -86,7 +87,7 @@ export default function SubmissionDetailSection({
           <DescriptionListItem term={t('app:submission-details.alternate-contact-title')}>
             {additionalContact ? (
               <>
-                {additionalContact.firstName} {additionalContact.lastName}
+                {getUserFullName(additionalContact)}
                 <br />
                 {additionalContact.businessEmailAddress ??
                   alternateContactEmailAddress ??
