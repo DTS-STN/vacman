@@ -1,24 +1,74 @@
+# NONPROD SENTINEL PATCH
+#
+# Configures Sentinels for nonprod with minimal setup.
+#
+# This patch overrides the base Sentinel StatefulSet with nonprod-specific settings:
+#
+#   - 1 replica: Single Sentinel for basic monitoring (no quorum/failover)
+#   - Minimal resources: suitable for nonprod environments
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: redis-sentinel
+  annotations:
+    # Enable automatic configmap and secret reloading for nonprod Sentinel
+    reloader.stakater.com/auto: 'true'
+spec:
+  # Only use a single Sentinel in nonprod for basic monitoring
+  replicas: 1
+  template:
+    spec:
+      containers:
+        # Configure minimal resources for nonprod Sentinel
+        - name: sentinel
+          resources:
+            requests:
+              cpu: 25m
+              memory: 64Mi
+            limits:
+              cpu: 100m
+              memory: 128Mi
+
+---
+
+#
+# NONPROD REDIS PATCH
+#
+# Configures Redis for nonprod and basic testing.
+#
+# This patch overrides the base StatefulSet with nonprod-specific settings:
+#
+#   - 3 replicas: Basic HA setup for nonprod testing
+#   - Minimal resources: suitable for nonprod environments
+#   - Smaller storage: 256Mi for nonprod datasets
+
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: redis
   annotations:
-    secret.reloader.stakater.com/auto: 'true'
+    # Enable automatic configmap and secret reloading for nonprod Redis
+    reloader.stakater.com/auto: 'true'
 spec:
-  serviceName: redis-headless
-  selector:
-    matchLabels:
-      app.kubernetes.io/name: redis
   template:
-    #
-    # pin all versions to v7.4
-    #
     spec:
-      initContainers:
-        - name: init
-          image: docker.io/redis:7.4
       containers:
+        # Configure minimal resources for nonprod Redis
         - name: redis
-          image: docker.io/redis:7.4
-        - name: redis-sentinel
-          image: docker.io/redis:7.4
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              cpu: 200m
+              memory: 256Mi
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 256Mi
