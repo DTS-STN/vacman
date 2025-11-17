@@ -468,7 +468,7 @@ export default {
     'title-fr': 'Titre  en français',
     'locations': 'Lieu(x)',
     'select-locations':
-      'Sélectionnez une province pour voir les villes disponibles. Vous pouvez choisir autant de villes que nécessaire dans chaque province. «\u00a0Sélectionner tous les lieux de travail\u00a0» sélectionnera toutes les provinces et toutes les villes disponibles.',
+      'Sélectionnez une province pour voir les villes disponibles. Vous pouvez choisir autant de villes que vous le souhaitez dans chaque province. «\u00a0Sélectionner tous les lieux de travail\u00a0» sélectionnera toutes les provinces et toutes les villes disponibles',
     'select-all-cities-help message':
       '«\u00a0Sélectionnez toutes les villes\u00a0» sélectionnera toutes les villes disponibles pour cette province.',
     'select-all': 'Sélectionner tous les lieux de travail',
