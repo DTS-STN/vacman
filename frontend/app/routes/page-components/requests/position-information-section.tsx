@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 
 import type { Classification, LanguageRequirement, SecurityClearance } from '~/.server/domain/models';
 import { DescriptionList, DescriptionListItem } from '~/components/description-list';
+import { LocationScopeDisplay } from '~/components/location-scope-display';
 import { LANGUAGE_REQUIREMENT_CODES } from '~/domain/constants';
 
 interface BaseProps {
@@ -9,7 +10,12 @@ interface BaseProps {
   classification: Classification | undefined;
   englishTitle: string | undefined;
   frenchTitle: string | undefined;
-  cities: City[] | undefined;
+  locationScope: 'anywhere-in-provinces' | 'not-provided' | 'anywhere-in-country' | 'specific-cities';
+  preferredCities: {
+    province: string;
+    city: string;
+  }[];
+  provinceNames: string[];
   languageRequirement: LanguageRequirement | undefined;
   englishLanguageProfile: string | undefined;
   frenchLanguageProfile: string | undefined;
@@ -33,13 +39,6 @@ interface HrAdvisorProps extends BaseProps {
 
 type ProcessInformationSectionProps = HiringManagerProps | HrAdvisorProps;
 
-type City = {
-  province: string;
-  city: string;
-};
-
-type GroupedCities = Record<City['province'], City['city'][]>;
-
 export default function PositionInformationSection({
   view,
   isPositionNew,
@@ -47,7 +46,9 @@ export default function PositionInformationSection({
   classification,
   englishTitle,
   frenchTitle,
-  cities,
+  locationScope,
+  preferredCities,
+  provinceNames,
   languageRequirementName,
   languageRequirement,
   englishLanguageProfile,
@@ -80,25 +81,14 @@ export default function PositionInformationSection({
           </DescriptionListItem>
 
           <DescriptionListItem term={t('app:position-information.locations')}>
-            {cities === undefined
-              ? t('app:referral-requests.not-provided')
-              : cities.length > 0 && (
-                  <div>
-                    {/* Group cities by province */}
-                    {Object.entries(
-                      (cities as City[]).reduce((acc: GroupedCities, city: City) => {
-                        const provinceName = city.province;
-                        acc[provinceName] ??= [];
-                        acc[provinceName].push(city.city);
-                        return acc;
-                      }, {} as GroupedCities),
-                    ).map(([province, cities]) => (
-                      <div key={province}>
-                        <strong>{province}:</strong> {cities.join(', ')}
-                      </div>
-                    ))}
-                  </div>
-                )}
+            <LocationScopeDisplay
+              locationScope={locationScope}
+              preferredCities={preferredCities}
+              provinceNames={provinceNames}
+              notProvidedText={t('app:profile.not-provided')}
+              anywhereInCountryText={t('app:anywhere-in-canada')}
+              allWorkLocationsText={t('app:all-work-locations')}
+            />
           </DescriptionListItem>
 
           {view === 'hiring-manager' ? (
