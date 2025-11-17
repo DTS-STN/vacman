@@ -27,7 +27,6 @@ export default function SubmissionDetailSection({
   directorate,
   languageOfCorrespondence,
   additionalComment,
-  alternateContactEmailAddress,
 }: SubmissionDetailSectionProps) {
   const { t } = useTranslation(['gcweb', 'app']);
 
@@ -78,12 +77,10 @@ export default function SubmissionDetailSection({
               <>
                 {getUserFullName(additionalContact)}
                 <br />
-                {additionalContact.businessEmailAddress ??
-                  alternateContactEmailAddress ??
-                  t('app:referral-requests.not-provided')}
+                {additionalContact.businessEmailAddress ?? t('app:referral-requests.not-provided')}
               </>
             ) : (
-              (alternateContactEmailAddress ?? t('app:referral-requests.not-provided'))
+              t('app:referral-requests.not-provided')
             )}
           </DescriptionListItem>
 

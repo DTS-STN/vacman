@@ -292,7 +292,7 @@ export function SubmissionDetailsForm({
               id="alternate-contact-email-address"
               name="alternateContactEmailAddress"
               label={tApp('submission-details.alternate-contact-email')}
-              defaultValue={formValues?.alternateContactEmailAddress}
+              defaultValue={formValues?.additionalContact?.businessEmailAddress}
               errorMessage={tApp(extractValidationKey(formErrors?.alternateContactEmailAddress))}
               onChange={onAlternateContactEmailChange}
             />

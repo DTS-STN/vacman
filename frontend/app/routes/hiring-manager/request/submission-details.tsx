@@ -122,7 +122,6 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     languageOfCorrespondenceId: parseResult.output.languageOfCorrespondenceId,
     additionalComment: parseResult.output.additionalComment,
     additionalContactId,
-    alternateContactEmailAddress: parseResult.output.alternateContactEmailAddress,
   });
 
   const updateResult = await requestService.updateRequestById(requestData.id, requestPayload, session.authState.accessToken);
@@ -171,7 +170,7 @@ export async function loader({ context, params, request }: Route.LoaderArgs) {
       languageOfCorrespondence: requestData.languageOfCorrespondence,
       additionalComment: requestData.additionalComment,
       additionalContact: requestData.additionalContact,
-      alternateContactEmailAddress: requestData.alternateContactEmailAddress,
+      alternateContactEmailAddress: requestData.additionalContact?.businessEmailAddress,
     },
     branchOrServiceCanadaRegions,
     directorates,

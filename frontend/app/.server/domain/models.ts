@@ -249,7 +249,6 @@ export type RequestReadModel = Readonly<{
   // Main fields
   additionalComment?: string;
   additionalContact?: User;
-  alternateContactEmailAddress?: string;
   appointmentNonAdvertised?: NonAdvertisedAppointment;
   cities?: City[];
   classification?: Classification;
@@ -306,7 +305,6 @@ export type EmploymentEquityId = {
 export type RequestUpdateModel = Partial<{
   additionalComment: string;
   additionalContactId: number;
-  alternateContactEmailAddress: string;
   appointmentNonAdvertisedId: number;
   cityIds: CityId[];
   classificationId: number;

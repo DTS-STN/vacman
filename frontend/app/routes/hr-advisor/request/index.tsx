@@ -147,7 +147,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     languageOfCorrespondence:
       lang === 'en' ? currentRequest.languageOfCorrespondence?.nameEn : currentRequest.languageOfCorrespondence?.nameFr,
     additionalComment: currentRequest.additionalComment,
-    alternateContactEmailAddress: currentRequest.alternateContactEmailAddress,
+    alternateContactEmailAddress: currentRequest.additionalContact?.businessEmailAddress,
     status: currentRequest.status,
     hasMatches: currentRequest.hasMatches,
     languageRequirementName:
