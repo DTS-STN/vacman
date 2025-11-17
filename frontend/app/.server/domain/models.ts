@@ -248,6 +248,7 @@ export type ProfileQueryParams = {
 export type RequestReadModel = Readonly<{
   // Main fields
   additionalComment?: string;
+  additionalContact?: User;
   alternateContactEmailAddress?: string;
   appointmentNonAdvertised?: NonAdvertisedAppointment;
   cities?: City[];
@@ -304,6 +305,7 @@ export type EmploymentEquityId = {
 // Request Update Model
 export type RequestUpdateModel = Partial<{
   additionalComment: string;
+  additionalContactId: number;
   alternateContactEmailAddress: string;
   appointmentNonAdvertisedId: number;
   cityIds: CityId[];

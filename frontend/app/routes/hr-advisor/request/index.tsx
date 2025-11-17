@@ -130,12 +130,14 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     frenchStatementOfMerit: currentRequest.frenchStatementOfMerit,
     submitter: currentRequest.submitter,
     subDelegatedManager: currentRequest.subDelegatedManager,
+    additionalContact: currentRequest.additionalContact,
     branchOrServiceCanadaRegion:
       lang === 'en' ? currentRequest.workUnit?.parent?.nameEn : currentRequest.workUnit?.parent?.nameFr,
     directorate: lang === 'en' ? currentRequest.workUnit?.nameEn : currentRequest.workUnit?.nameFr,
     languageOfCorrespondence:
       lang === 'en' ? currentRequest.languageOfCorrespondence?.nameEn : currentRequest.languageOfCorrespondence?.nameFr,
     additionalComment: currentRequest.additionalComment,
+    alternateContactEmailAddress: currentRequest.alternateContactEmailAddress,
     status: currentRequest.status,
     hasMatches: currentRequest.hasMatches,
     lang,

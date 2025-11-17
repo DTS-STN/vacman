@@ -7,6 +7,7 @@ type SubmissionDetailUserIdsArgs = {
   accessToken: string;
   hiringManagerEmailAddress?: string | null;
   subDelegatedManagerEmailAddress?: string | null;
+  alternateContactEmailAddress?: string | null;
   userNotFoundMessage: string;
 };
 
@@ -14,15 +15,20 @@ type SubmissionDetailUserIdsResult = {
   errors: Errors;
   resolvedHiringManagerId?: number;
   resolvedSubDelegatedManagerId?: number;
+  resolvedAlternateContactId?: number;
 };
 
-type SubmissionDetailEmailField = 'hiringManagerEmailAddress' | 'subDelegatedManagerEmailAddress';
+type SubmissionDetailEmailField =
+  | 'hiringManagerEmailAddress'
+  | 'subDelegatedManagerEmailAddress'
+  | 'alternateContactEmailAddress';
 
 export async function resolveSubmissionDetailUserIds({
   userService,
   accessToken,
   hiringManagerEmailAddress,
   subDelegatedManagerEmailAddress,
+  alternateContactEmailAddress,
   userNotFoundMessage,
 }: SubmissionDetailUserIdsArgs): Promise<SubmissionDetailUserIdsResult> {
   const errors: Errors = {};
@@ -56,10 +62,12 @@ export async function resolveSubmissionDetailUserIds({
 
   const resolvedHiringManagerId = await resolveUserId(hiringManagerEmailAddress, 'hiringManagerEmailAddress');
   const resolvedSubDelegatedManagerId = await resolveUserId(subDelegatedManagerEmailAddress, 'subDelegatedManagerEmailAddress');
+  const resolvedAlternateContactId = await resolveUserId(alternateContactEmailAddress, 'alternateContactEmailAddress');
 
   return {
     errors,
     resolvedHiringManagerId,
     resolvedSubDelegatedManagerId,
+    resolvedAlternateContactId,
   };
 }

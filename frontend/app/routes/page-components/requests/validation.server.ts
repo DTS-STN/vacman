@@ -208,6 +208,13 @@ export async function createSubmissionDetailSchema(view: 'hr-advisor' | 'hiring-
       v.nonEmpty('app:submission-details.errors.sub-delegate-email-required'),
       v.email('app:submission-details.errors.sub-delegate-email-invalid'),
     ),
+    alternateContactEmailAddressSchema: v.optional(
+      v.pipe(
+        v.string('app:submission-details.errors.alternate-contact-email-invalid'),
+        v.trim(),
+        v.email('app:submission-details.errors.alternate-contact-email-invalid'),
+      ),
+    ),
     branchOrServiceCanadaRegionSchema: v.lazy(() =>
       v.pipe(
         stringToIntegerSchema('app:submission-details.errors.branch-or-service-canada-region-required'),
@@ -250,6 +257,7 @@ export async function createSubmissionDetailSchema(view: 'hr-advisor' | 'hiring-
       directorate: submissionDetail.directorateSchema,
       languageOfCorrespondenceId: submissionDetail.languageOfCorrespondenceIdSchema,
       additionalComment: submissionDetail.additionalCommentSchema,
+      alternateContactEmailAddress: submissionDetail.alternateContactEmailAddressSchema,
     }),
     v.variant(
       'isSubmiterHiringManager',

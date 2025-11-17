@@ -76,9 +76,16 @@ export function SubmissionDetailsForm({
   const [subDelegatedManagerName, setSubDelegatedManagerName] = useState(
     `${formValues?.subDelegatedManager?.firstName ?? ''} ${formValues?.subDelegatedManager?.lastName ?? ''}`.trim(),
   );
+  const [alternateContactName, setAlternateContactName] = useState(
+    `${formValues?.additionalContact?.firstName ?? ''} ${formValues?.additionalContact?.lastName ?? ''}`.trim(),
+  );
 
   function onSubDelegatedManagerEmailChange() {
     setSubDelegatedManagerName(''); // email changed
+  }
+
+  function onAlternateContactEmailChange() {
+    setAlternateContactName(''); // email changed
   }
 
   const [branch, setBranch] = useState(formValues?.workUnit ? String(formValues.workUnit.parent?.id) : undefined);
@@ -284,6 +291,22 @@ export function SubmissionDetailsForm({
                   />
                 )}
               </>
+            )}
+            <InputField
+              className="w-full"
+              id="alternate-contact-email-address"
+              name="alternateContactEmailAddress"
+              label={tApp('submission-details.alternate-contact-email')}
+              defaultValue={formValues?.alternateContactEmailAddress}
+              errorMessage={tApp(extractValidationKey(formErrors?.alternateContactEmailAddress))}
+              onChange={onAlternateContactEmailChange}
+            />
+            {alternateContactName && (
+              <NameTag
+                name={tApp('submission-details.alternate-contact-name', {
+                  name: alternateContactName,
+                })}
+              />
             )}
             <InputSelect
               id="branchOrServiceCanadaRegion"

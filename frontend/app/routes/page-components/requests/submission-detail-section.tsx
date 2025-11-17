@@ -7,10 +7,12 @@ interface BaseProps {
   submitter: User | undefined;
   hiringManager: User | undefined;
   subDelegatedManager: User | undefined;
+  additionalContact: User | undefined;
   branchOrServiceCanadaRegion: string | undefined;
   directorate: string | undefined;
   languageOfCorrespondence: string | undefined;
   additionalComment: string | undefined;
+  alternateContactEmailAddress: string | undefined;
 }
 
 interface HrAdvisorProps extends BaseProps {
@@ -30,10 +32,12 @@ export default function SubmissionDetailSection({
   submitter,
   hiringManager,
   subDelegatedManager,
+  additionalContact,
   branchOrServiceCanadaRegion,
   directorate,
   languageOfCorrespondence,
   additionalComment,
+  alternateContactEmailAddress,
 }: SubmissionDetailSectionProps) {
   const { t } = useTranslation(['gcweb', 'app']);
 
@@ -76,6 +80,20 @@ export default function SubmissionDetailSection({
               </>
             ) : (
               t('app:referral-requests.not-provided')
+            )}
+          </DescriptionListItem>
+
+          <DescriptionListItem term={t('app:submission-details.alternate-contact-title')}>
+            {additionalContact ? (
+              <>
+                {additionalContact.firstName} {additionalContact.lastName}
+                <br />
+                {additionalContact.businessEmailAddress ??
+                  alternateContactEmailAddress ??
+                  t('app:referral-requests.not-provided')}
+              </>
+            ) : (
+              (alternateContactEmailAddress ?? t('app:referral-requests.not-provided'))
             )}
           </DescriptionListItem>
 
