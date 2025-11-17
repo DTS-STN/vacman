@@ -191,6 +191,8 @@ export default {
       "Pour les cadres, l'échange de postes dans le cadre de la transition de carrière permet à un cadre excédentaire ayant choisi l'option 2 (de demeurer au sein de l'administration publique centrale (APC)) en échangeant son poste avec un EX non touché qui accepte de quitter en vertu de la Directive sur les conditions d'emploi pour les cadres supérieurs. L'échange doit se faire au même groupe et niveau, à une date convenue mutuellement, et doit entraîner l'élimination permanente d'une fonction ou d'un poste. Le cadre excédentaire doit satisfaire aux exigences du poste non touché. L'échange de poste est uniquement permise au sein de l'administration publique centrale et n'est pas offerte aux employés des organismes distincts.",
     'select-work-locations':
       'Sélectionnez une province pour voir les villes disponibles. Vous pouvez choisir autant de villes que vous le souhaitez dans chaque province. «\u00a0Sélectionner tous les lieux de travail\u00a0» sélectionnera toutes les provinces et toutes les villes disponibles',
+    'select-all-cities-help message':
+      '«\u00a0Sélectionnez toutes les villes\u00a0» sélectionnera toutes les villes disponibles pour cette province.',
     'select-all': 'Sélectionner tous les lieux de travail',
     'select-all-cities': 'Sélectionnez toutes les villes',
     'select-all-sr': 'Tous les lieux de travail au Canada ont été sélectionnés.',
@@ -466,7 +468,13 @@ export default {
     'title-fr': 'Titre  en français',
     'locations': 'Lieu(x)',
     'select-locations':
-      'Sélectionnez une province pour voir les villes disponibles. Vous pouvez choisir autant de villes que nécessaire dans chaque province',
+      'Sélectionnez une province pour voir les villes disponibles. Vous pouvez choisir autant de villes que vous le souhaitez dans chaque province. «\u00a0Sélectionner tous les lieux de travail\u00a0» sélectionnera toutes les provinces et toutes les villes disponibles',
+    'select-all-cities-help message':
+      '«\u00a0Sélectionnez toutes les villes\u00a0» sélectionnera toutes les villes disponibles pour cette province.',
+    'select-all': 'Sélectionner tous les lieux de travail',
+    'select-all-cities': 'Sélectionnez toutes les villes',
+    'select-all-sr': 'Tous les lieux de travail au Canada ont été sélectionnés.',
+    'select-all-cities-sr': 'Toutes les villes de {{province}} ont été sélectionnées.',
     'province': 'Province',
     'city': 'Ville',
     'language-profile': 'Profil linguistique',
