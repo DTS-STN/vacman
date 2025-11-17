@@ -14,10 +14,11 @@ labels:
       app.kubernetes.io/tier: nonprod
   # It is essential for this label (or at least one unique label per environment)
   # to be part of selectors to ensure they are applied correctly.
-  - pairs:
+  - includeSelectors: true
+    pairs:
       app.kubernetes.io/instance: shared
-    includeSelectors: true
 resources:
+  - github.com/stn-dts/kustomize-manifests/components/reloader?ref=reloader-1.4.10.000
   - ../../base/redis/
   - ./external-secrets.yaml
 patches:
