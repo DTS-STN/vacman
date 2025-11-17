@@ -19,6 +19,7 @@ import type { MatchReadModel, MatchUpdateModel, RequestReadModel, RequestUpdateM
 export function mapRequestToUpdateModel(request: RequestReadModel): RequestUpdateModel {
   return {
     additionalComment: request.additionalComment,
+    additionalContactId: request.additionalContact?.id,
     alternateContactEmailAddress: request.alternateContactEmailAddress,
     appointmentNonAdvertisedId: request.appointmentNonAdvertised?.id,
     cityIds: request.cities?.map((city) => ({ value: city.id })) ?? [],

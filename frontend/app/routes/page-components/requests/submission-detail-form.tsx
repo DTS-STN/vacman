@@ -24,6 +24,7 @@ import { PageTitle } from '~/components/page-title';
 import { REQUIRE_OPTIONS } from '~/domain/constants';
 import type { I18nRouteFile } from '~/i18n-routes';
 import type { Errors } from '~/routes/page-components/requests/validation.server';
+import { getUserFullName } from '~/utils/string-utils';
 import { extractValidationKey } from '~/utils/validation-utils';
 
 interface SubmissionDetailsFormProps {
@@ -70,15 +71,16 @@ export function SubmissionDetailsForm({
     setHiringManagerName(''); // email changed
   }
 
-  const [hiringManagerName, setHiringManagerName] = useState(
-    `${formValues?.hiringManager?.firstName ?? ''} ${formValues?.hiringManager?.lastName ?? ''}`.trim(),
-  );
-  const [subDelegatedManagerName, setSubDelegatedManagerName] = useState(
-    `${formValues?.subDelegatedManager?.firstName ?? ''} ${formValues?.subDelegatedManager?.lastName ?? ''}`.trim(),
-  );
+  const [hiringManagerName, setHiringManagerName] = useState(getUserFullName(formValues?.hiringManager));
+  const [subDelegatedManagerName, setSubDelegatedManagerName] = useState(getUserFullName(formValues?.subDelegatedManager));
+  const [alternateContactName, setAlternateContactName] = useState(getUserFullName(formValues?.additionalContact));
 
   function onSubDelegatedManagerEmailChange() {
     setSubDelegatedManagerName(''); // email changed
+  }
+
+  function onAlternateContactEmailChange() {
+    setAlternateContactName(''); // email changed
   }
 
   const [branch, setBranch] = useState(formValues?.workUnit ? String(formValues.workUnit.parent?.id) : undefined);
@@ -181,7 +183,7 @@ export function SubmissionDetailsForm({
       setDirectorate(undefined);
     }
   };
-  const submitterName = `${formValues?.submitter?.firstName ?? ''} ${formValues?.submitter?.lastName ?? ''}`.trim();
+  const submitterName = getUserFullName(formValues?.submitter);
 
   return (
     <>
@@ -284,6 +286,22 @@ export function SubmissionDetailsForm({
                   />
                 )}
               </>
+            )}
+            <InputField
+              className="w-full"
+              id="alternate-contact-email-address"
+              name="alternateContactEmailAddress"
+              label={tApp('submission-details.alternate-contact-email')}
+              defaultValue={formValues?.alternateContactEmailAddress}
+              errorMessage={tApp(extractValidationKey(formErrors?.alternateContactEmailAddress))}
+              onChange={onAlternateContactEmailChange}
+            />
+            {alternateContactName && (
+              <NameTag
+                name={tApp('submission-details.alternate-contact-name', {
+                  name: alternateContactName,
+                })}
+              />
             )}
             <InputSelect
               id="branchOrServiceCanadaRegion"

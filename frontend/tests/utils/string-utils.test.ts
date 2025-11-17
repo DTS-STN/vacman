@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { formatAddress, randomString } from '~/utils/string-utils';
+import { formatAddress, getUserFullName, randomString } from '~/utils/string-utils';
 
 describe('string-utils', () => {
   describe('randomString', () => {
@@ -134,6 +134,43 @@ describe('string-utils', () => {
       });
 
       expect(result).toEqual('123 Main St Suite 4B\nAnytown ON  A1A 1A1\nCanada');
+    });
+  });
+
+  describe('getUserFullName', () => {
+    it('should return full name when both firstName and lastName are provided', () => {
+      const result = getUserFullName({ firstName: 'John', lastName: 'Doe' });
+      expect(result).toEqual('John Doe');
+    });
+
+    it('should return only firstName when lastName is not provided', () => {
+      const result = getUserFullName({ firstName: 'Jane' });
+      expect(result).toEqual('Jane');
+    });
+
+    it('should return only lastName when firstName is not provided', () => {
+      const result = getUserFullName({ lastName: 'Smith' });
+      expect(result).toEqual('Smith');
+    });
+
+    it('should return empty string when both names are missing', () => {
+      const result = getUserFullName({});
+      expect(result).toEqual('');
+    });
+
+    it('should return empty string when user is undefined', () => {
+      const result = getUserFullName(undefined);
+      expect(result).toEqual('');
+    });
+
+    it('should trim extra whitespace correctly', () => {
+      const result = getUserFullName({ firstName: '  John  ', lastName: '  Doe  ' });
+      expect(result).toEqual('John     Doe');
+    });
+
+    it('should handle empty string names', () => {
+      const result = getUserFullName({ firstName: '', lastName: '' });
+      expect(result).toEqual('');
     });
   });
 });

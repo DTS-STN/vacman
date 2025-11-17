@@ -220,3 +220,24 @@ export function removeNumberMask(input: string | null | undefined): number | und
   const cleaned = input.replace(/\D/g, '');
   return cleaned ? Number(cleaned) : undefined;
 }
+
+/**
+ * Gets the full name from a user object by combining first and last name.
+ * Returns an empty string if both names are missing.
+ *
+ * @param user - The user object containing firstName and lastName properties.
+ * @returns The user's full name as a trimmed string.
+ *
+ * @example
+ * ```typescript
+ * getUserFullName({ firstName: 'John', lastName: 'Doe' }); // "John Doe"
+ * getUserFullName({ firstName: 'Jane' }); // "Jane"
+ * getUserFullName({ lastName: 'Smith' }); // "Smith"
+ * getUserFullName({}); // ""
+ * getUserFullName(undefined); // ""
+ * ```
+ */
+export function getUserFullName(user: { firstName?: string; lastName?: string } | undefined): string {
+  if (!user) return '';
+  return `${user.firstName ?? ''} ${user.lastName ?? ''}`.trim();
+}

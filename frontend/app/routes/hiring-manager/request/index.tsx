@@ -389,11 +389,13 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     submitter: requestData.submitter,
     hiringManager: requestData.hiringManager,
     subDelegatedManager: requestData.subDelegatedManager,
+    additionalContact: requestData.additionalContact,
     branchOrServiceCanadaRegion: lang === 'en' ? requestData.workUnit?.parent?.nameEn : requestData.workUnit?.parent?.nameFr,
     directorate: lang === 'en' ? requestData.workUnit?.nameEn : requestData.workUnit?.nameFr,
     languageOfCorrespondence:
       lang === 'en' ? requestData.languageOfCorrespondence?.nameEn : requestData.languageOfCorrespondence?.nameFr,
     additionalComment: requestData.additionalComment,
+    alternateContactEmailAddress: requestData.alternateContactEmailAddress,
     status: requestData.status,
     hrAdvisor: requestData.hrAdvisor,
     priorityClearanceNumber: requestData.priorityClearanceNumber,
