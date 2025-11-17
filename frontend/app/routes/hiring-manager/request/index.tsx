@@ -405,7 +405,6 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     languageOfCorrespondence:
       lang === 'en' ? requestData.languageOfCorrespondence?.nameEn : requestData.languageOfCorrespondence?.nameFr,
     additionalComment: requestData.additionalComment,
-    alternateContactEmailAddress: requestData.additionalContact?.businessEmailAddress,
     status: requestData.status,
     hrAdvisor: requestData.hrAdvisor,
     priorityClearanceNumber: requestData.priorityClearanceNumber,
