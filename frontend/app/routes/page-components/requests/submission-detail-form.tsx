@@ -24,6 +24,7 @@ import { PageTitle } from '~/components/page-title';
 import { REQUIRE_OPTIONS } from '~/domain/constants';
 import type { I18nRouteFile } from '~/i18n-routes';
 import type { Errors } from '~/routes/page-components/requests/validation.server';
+import { getUserFullName } from '~/utils/string-utils';
 import { extractValidationKey } from '~/utils/validation-utils';
 
 interface SubmissionDetailsFormProps {
@@ -70,15 +71,9 @@ export function SubmissionDetailsForm({
     setHiringManagerName(''); // email changed
   }
 
-  const [hiringManagerName, setHiringManagerName] = useState(
-    `${formValues?.hiringManager?.firstName ?? ''} ${formValues?.hiringManager?.lastName ?? ''}`.trim(),
-  );
-  const [subDelegatedManagerName, setSubDelegatedManagerName] = useState(
-    `${formValues?.subDelegatedManager?.firstName ?? ''} ${formValues?.subDelegatedManager?.lastName ?? ''}`.trim(),
-  );
-  const [alternateContactName, setAlternateContactName] = useState(
-    `${formValues?.additionalContact?.firstName ?? ''} ${formValues?.additionalContact?.lastName ?? ''}`.trim(),
-  );
+  const [hiringManagerName, setHiringManagerName] = useState(getUserFullName(formValues?.hiringManager));
+  const [subDelegatedManagerName, setSubDelegatedManagerName] = useState(getUserFullName(formValues?.subDelegatedManager));
+  const [alternateContactName, setAlternateContactName] = useState(getUserFullName(formValues?.additionalContact));
 
   function onSubDelegatedManagerEmailChange() {
     setSubDelegatedManagerName(''); // email changed
@@ -188,7 +183,7 @@ export function SubmissionDetailsForm({
       setDirectorate(undefined);
     }
   };
-  const submitterName = `${formValues?.submitter?.firstName ?? ''} ${formValues?.submitter?.lastName ?? ''}`.trim();
+  const submitterName = getUserFullName(formValues?.submitter);
 
   return (
     <>
