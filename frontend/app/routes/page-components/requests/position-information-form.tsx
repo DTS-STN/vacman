@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { JSX } from 'react';
+import type { JSX, SyntheticEvent } from 'react';
 
 import type { Params } from 'react-router';
 import { Form } from 'react-router';
@@ -14,6 +14,7 @@ import type {
   LocalizedSecurityClearance,
   RequestReadModel,
 } from '~/.server/domain/models';
+import { Button } from '~/components/button';
 import { ButtonLink } from '~/components/button-link';
 import type {
   ChoiceTag,
@@ -154,6 +155,22 @@ export function PositionInformationForm({
     );
   };
 
+  const handleSelectAllLocations = (e: SyntheticEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    setSrAnnouncement(tApp('position-information.select-all-sr'));
+    setSelectedCities(cities.map(({ id }) => id.toString()));
+    setProvince((provinces.at(0)?.id ?? 0).toString());
+  };
+
+  const handleSelectAllCities = (e: SyntheticEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    const selectedP = provinces.find((p) => p.id === Number(province));
+    setSrAnnouncement(tApp('position-information.select-all-cities-sr', { province: selectedP?.name }));
+    const selectedC = cities.filter((c) => c.provinceTerritory.id === Number(province));
+    const newCityIds = selectedC.map(({ id }) => id.toString());
+    setSelectedCities((prev) => [...new Set([...prev, ...newCityIds])]);
+  };
+
   return (
     <>
       <PageTitle className="after:w-14" subTitle={tApp('referral-request')}>
@@ -204,11 +221,14 @@ export function PositionInformationForm({
               maxLength={200}
             />
 
-            <fieldset id="location-fieldset" aria-describedby="locationLegend locationHelpMessage" className="space-y-2">
+            <fieldset id="location-fieldset" aria-describedby="locationLegend locationHelpMessage" className="space-y-4">
               <InputLegend id="locationLegend" required>
                 {tApp('position-information.locations')}
               </InputLegend>
               <InputHelp id="locationHelpMessage">{tApp('position-information.select-locations')}</InputHelp>
+              <Button variant="primary" onClick={handleSelectAllLocations}>
+                {tApp('position-information.select-all')}
+              </Button>
               <InputSelect
                 ariaDescribedbyId="locationHelpMessage"
                 id="province"
@@ -222,18 +242,24 @@ export function PositionInformationForm({
                 required
               />
               {province && (
-                <InputMultiSelect
-                  id="cities"
-                  name="cities"
-                  errorMessage={tApp(extractValidationKey(formErrors?.cities))}
-                  options={cityOptions}
-                  value={selectedCities}
-                  onChange={(values) => setSelectedCities(values)}
-                  placeholder={tApp('form.select-all-that-apply')}
-                  legend={tApp('position-information.city')}
-                  className="w-full sm:w-1/2"
-                  required
-                />
+                <>
+                  <InputHelp id="selectCitiesLegend">{tApp('position-information.select-all-cities-help message')}</InputHelp>
+                  <Button variant="primary" onClick={handleSelectAllCities} aria-describedby="selectCitiesLegend">
+                    {tApp('position-information.select-all-cities')}
+                  </Button>
+                  <InputMultiSelect
+                    id="cities"
+                    name="cities"
+                    errorMessage={tApp(extractValidationKey(formErrors?.cities))}
+                    options={cityOptions}
+                    value={selectedCities}
+                    onChange={(values) => setSelectedCities(values)}
+                    placeholder={tApp('form.select-all-that-apply')}
+                    legend={tApp('position-information.city')}
+                    className="w-full sm:w-1/2"
+                    required
+                  />
+                </>
               )}
 
               {citiesChoiceTags.length > 0 && (

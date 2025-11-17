@@ -246,7 +246,7 @@ export function ReferralPreferencesForm({
               />
             )}
 
-            <fieldset id="workLocationFieldset" className="space-y-2">
+            <fieldset id="workLocationFieldset" className="space-y-4">
               <InputLegend id="workLocationLegend" required>
                 {tApp('referral-preferences.work-location')}
               </InputLegend>
@@ -268,7 +268,8 @@ export function ReferralPreferencesForm({
               />
               {province && (
                 <>
-                  <Button variant="primary" onClick={handleSelectAllCities}>
+                  <InputHelp id="selectCitiesLegend">{tApp('referral-preferences.select-all-cities-help message')}</InputHelp>
+                  <Button variant="primary" onClick={handleSelectAllCities} aria-describedby="selectCitiesLegend">
                     {tApp('referral-preferences.select-all-cities')}
                   </Button>
                   <InputMultiSelect
