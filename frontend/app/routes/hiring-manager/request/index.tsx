@@ -7,6 +7,7 @@ import { Trans, useTranslation } from 'react-i18next';
 
 import type { Route } from './+types/index';
 
+import { getCityService } from '~/.server/domain/services/city-service';
 import { getRequestService } from '~/.server/domain/services/request-service';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { countCompletedItems } from '~/.server/utils/profile-utils';
@@ -58,6 +59,7 @@ import { RequestSummaryCard } from '~/routes/page-components/requests/request-su
 import SomcConditionsSection from '~/routes/page-components/requests/somc-conditions-section';
 import SubmissionDetailSection from '~/routes/page-components/requests/submission-detail-section';
 import { formatISODate } from '~/utils/date-utils';
+import { calculateLocationScope } from '~/utils/location-utils';
 import { formatWithMask } from '~/utils/string-utils';
 
 export const handle = {
@@ -239,6 +241,8 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 
   const { lang, t } = await getTranslation(request, handle.i18nNamespace);
 
+  const allLocalizedCities = await getCityService().listAllLocalized(lang);
+
   // Process information from Request type
   const requiredProcessInformation = {
     workforceMgmtApprovalRecvd: requestData.workforceMgmtApprovalRecvd,
@@ -338,6 +342,13 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     .filter(Boolean) // Remove any null or undefined names
     .join(', ');
 
+  // Display Canada wide or province wide or list of cities on referral preferences section
+  const preferredCityIds = new Set(requestData.cities?.map((city) => city.id) ?? []);
+  const { locationScope, provinceNames, partiallySelectedCities } = calculateLocationScope(
+    preferredCityIds,
+    allLocalizedCities,
+  );
+
   return {
     documentTitle:
       requestData.status?.code === REQUEST_STATUS_CODE.DRAFT
@@ -373,10 +384,9 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     classification: requestData.classification,
     englishTitle: requestData.englishTitle,
     frenchTitle: requestData.frenchTitle,
-    cities: requestData.cities?.map((city) => ({
-      province: lang === 'en' ? city.provinceTerritory.nameEn : city.provinceTerritory.nameFr,
-      city: lang === 'en' ? city.nameEn : city.nameFr,
-    })),
+    preferredCities: partiallySelectedCities,
+    locationScope,
+    provinceNames,
     languageRequirement: requestData.languageRequirement,
     englishLanguageProfile: requestData.englishLanguageProfile,
     frenchLanguageProfile: requestData.frenchLanguageProfile,

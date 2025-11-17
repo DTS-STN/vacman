@@ -655,6 +655,6 @@ export default {
     'no-candidates': "You don't have any candidates at the moment.",
     'next-page': 'Next',
   },
-  'anywhere-in-canada': 'Anywhere in Canada',
-  'anywhere-in-provinces': 'Anywhere in {{provinceNames}}',
+  'anywhere-in-canada': 'All work locations in Canada',
+  'all-work-locations': 'All work locations',
 };

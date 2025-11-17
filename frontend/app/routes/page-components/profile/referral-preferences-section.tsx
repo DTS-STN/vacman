@@ -3,6 +3,7 @@ import type { JSX } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { DescriptionList, DescriptionListItem } from '~/components/description-list';
+import { LocationScopeDisplay } from '~/components/location-scope-display';
 
 interface ReferralPreferencesSectionProps {
   isAvailableForReferral?: boolean;
@@ -29,13 +30,6 @@ export function ReferralPreferencesSection({
   const { t: tApp } = useTranslation('app');
   const { t: tGcweb } = useTranslation('gcweb');
 
-  type CityPreference = {
-    province: string;
-    city: string;
-  };
-
-  type GroupedCities = Record<string, string[]>;
-
   return (
     <>
       <DescriptionList>
@@ -50,44 +44,14 @@ export function ReferralPreferencesSection({
             : preferredClassifications.length > 0 && preferredClassifications.join(', ')}
         </DescriptionListItem>
         <DescriptionListItem term={tApp('referral-preferences.work-location')}>
-          {locationScope === 'not-provided' && <p>{tApp('profile.not-provided')}</p>}
-
-          {locationScope === 'anywhere-in-country' && <p>{tApp('anywhere-in-canada')}</p>}
-
-          {locationScope === 'anywhere-in-provinces' && (
-            <p>
-              {tApp('anywhere-in-provinces', {
-                provinceNames: provinceNames.join(', '),
-              })}
-            </p>
-          )}
-
-          {locationScope === 'specific-cities' && preferredCities.length > 0 && (
-            <>
-              {provinceNames.length > 0 && (
-                <p>
-                  {tApp('anywhere-in-provinces', {
-                    provinceNames: provinceNames.join(', '),
-                  })}
-                </p>
-              )}
-              <div>
-                {/* Group cities by province */}
-                {Object.entries(
-                  (preferredCities as CityPreference[]).reduce((acc: GroupedCities, city: CityPreference) => {
-                    const provinceName = city.province;
-                    acc[provinceName] ??= [];
-                    acc[provinceName].push(city.city);
-                    return acc;
-                  }, {} as GroupedCities),
-                ).map(([province, cities]) => (
-                  <div key={province}>
-                    <strong>{province}:</strong> {cities.join(', ')}
-                  </div>
-                ))}
-              </div>
-            </>
-          )}
+          <LocationScopeDisplay
+            locationScope={locationScope}
+            preferredCities={preferredCities}
+            provinceNames={provinceNames}
+            notProvidedText={tApp('profile.not-provided')}
+            anywhereInCountryText={tApp('anywhere-in-canada')}
+            allWorkLocationsText={tApp('all-work-locations')}
+          />
         </DescriptionListItem>
         <DescriptionListItem term={tApp('referral-preferences.referral-availibility')}>
           {isAvailableForReferral === undefined

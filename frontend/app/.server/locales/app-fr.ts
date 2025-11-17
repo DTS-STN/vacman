@@ -670,5 +670,5 @@ export default {
     'next-page': 'Suivant',
   },
   'anywhere-in-canada': 'Tous les lieux de travail au Canada',
-  'anywhere-in-provinces': 'Tous les lieux de travail en {{provinceNames}}',
+  'all-work-locations': 'Tous les lieux de travail',
 } satisfies typeof appEn;

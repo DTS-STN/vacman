@@ -7,7 +7,6 @@ import { useTranslation } from 'react-i18next';
 
 import type { Route } from '../profile/+types/index';
 
-import type { LocalizedCity } from '~/.server/domain/models';
 import { getCityService } from '~/.server/domain/services/city-service';
 import { getProfileService } from '~/.server/domain/services/profile-service';
 import { serverEnvironment } from '~/.server/environment';
@@ -43,6 +42,7 @@ import { EmploymentInformationSection } from '~/routes/page-components/profile/e
 import { PersonalInformationSection } from '~/routes/page-components/profile/personal-information-section';
 import { ReferralPreferencesSection } from '~/routes/page-components/profile/referral-preferences-section';
 import { formatDateTimeForTimezone } from '~/utils/date-utils';
+import { calculateLocationScope } from '~/utils/location-utils';
 import { formatWithMask } from '~/utils/string-utils';
 
 export const handle = {
@@ -203,58 +203,11 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const amountCompleted = (profileCompleted / profileTotalFields) * 100;
 
   // Display Canada wide or province wide or list of cities on referral preferences section
-
-  const allProvinceIds = Array.from(new Set(allLocalizedCities.map((city) => city.provinceTerritory.id)));
-
   const preferredCityIds = new Set(profileData.preferredCities?.map((city) => city.id) ?? []);
-  const provinceToCitiesMap = new Map<number, LocalizedCity[]>();
-
-  // Group all cities by province
-  for (const city of allLocalizedCities) {
-    const provinceId = city.provinceTerritory.id;
-    if (!provinceToCitiesMap.has(provinceId)) {
-      provinceToCitiesMap.set(provinceId, []);
-    }
-    provinceToCitiesMap.get(provinceId)?.push(city);
-  }
-
-  // Determine which provinces are fully selected
-  const fullySelectedProvinces: string[] = [];
-  const partiallySelectedCities: { province: string; city: string }[] = [];
-
-  for (const [, cities] of provinceToCitiesMap.entries()) {
-    const selectedCities = cities.filter((city) => preferredCityIds.has(city.id));
-    if (selectedCities.length === cities.length) {
-      // All cities in this province are selected
-      const provinceName = cities[0]?.provinceTerritory.name;
-      if (provinceName) {
-        fullySelectedProvinces.push(provinceName);
-      }
-    } else if (selectedCities.length > 0) {
-      // Some cities in this province are selected
-      for (const city of selectedCities) {
-        partiallySelectedCities.push({
-          province: city.provinceTerritory.name,
-          city: city.name,
-        });
-      }
-    }
-  }
-
-  let locationScope: 'anywhere-in-country' | 'anywhere-in-provinces' | 'specific-cities' | 'not-provided';
-  let provinceNames: string[] = [];
-
-  if (preferredCityIds.size === 0) {
-    locationScope = 'not-provided';
-  } else if (fullySelectedProvinces.length === allProvinceIds.length) {
-    locationScope = 'anywhere-in-country';
-  } else if (fullySelectedProvinces.length > 0 && partiallySelectedCities.length === 0) {
-    locationScope = 'anywhere-in-provinces';
-    provinceNames = fullySelectedProvinces;
-  } else {
-    locationScope = 'specific-cities';
-    provinceNames = fullySelectedProvinces;
-  }
+  const { locationScope, provinceNames, partiallySelectedCities } = calculateLocationScope(
+    preferredCityIds,
+    allLocalizedCities,
+  );
 
   return {
     documentTitle: t('app:profile.page-title'),
