@@ -529,6 +529,7 @@ export function ColumnSearch<TData, TValue>({
             size="sm"
             className="-ml-3.5 h-10 data-[state=open]:bg-neutral-100"
             aria-label={title}
+            title={prevSearchValue ? `${t('search-bar.search')}: ${prevSearchValue}` : undefined}
           >
             <span className="w-full text-left font-sans">{title}</span>
             {prevSearchValue && (
