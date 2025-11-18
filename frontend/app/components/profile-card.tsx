@@ -72,10 +72,20 @@ export function ProfileCardHeader({ status, required, updated, children }: Profi
             ) : (
               <>
                 <InProgressTag />
-                {required && <RequiredTag />}
+                {required && (
+                  <>
+                    <span className="sr-only">, </span>
+                    <RequiredTag />
+                  </>
+                )}
               </>
             ))}
-          {updated && <UpdatedTag />}
+          {updated && (
+            <>
+              <span className="sr-only">, </span>
+              <UpdatedTag />
+            </>
+          )}
         </div>
       </div>
     </CardHeader>
@@ -165,41 +175,65 @@ export function ProfileCardViewLink({ file, params, children }: ProfileCardViewL
 
 function CompleteTag(): JSX.Element {
   const { t } = useTranslation('app');
+  const { t: tGcweb } = useTranslation('gcweb');
 
   return (
     <span className="flex w-fit items-center gap-2 rounded-2xl border border-green-700 bg-green-700 px-3 py-0.5 text-sm font-semibold text-white">
-      <FontAwesomeIcon icon={faCheck} />
-      {t('profile.complete')}
+      <span className="sr-only">
+        {tGcweb('aria-label-for-status', {
+          label: t('profile.complete'),
+        })}
+      </span>
+      <FontAwesomeIcon icon={faCheck} aria-hidden="true" />
+      <span aria-hidden="true">{t('profile.complete')}</span>
     </span>
   );
 }
 
 function InProgressTag(): JSX.Element {
   const { t } = useTranslation('app');
+  const { t: tGcweb } = useTranslation('gcweb');
 
   return (
     <span className="w-fit rounded-2xl border border-blue-400 bg-blue-100 px-3 py-0.5 text-sm font-semibold text-blue-800">
-      {t('profile.in-progress')}
+      <span className="sr-only">
+        {tGcweb('aria-label-for-status', {
+          label: t('profile.in-progress'),
+        })}
+      </span>
+      <span aria-hidden="true">{t('profile.in-progress')}</span>
     </span>
   );
 }
 
 function RequiredTag(): JSX.Element {
   const { t } = useTranslation('app');
+  const { t: tGcweb } = useTranslation('gcweb');
 
   return (
     <span className="rounded-2xl border border-gray-400 bg-gray-100 px-3 py-0.5 text-sm font-semibold text-black">
-      {t('profile.required')}
+      <span className="sr-only">
+        {tGcweb('aria-label-for-status', {
+          label: t('profile.required'),
+        })}
+      </span>
+      <span aria-hidden="true">{t('profile.required')}</span>
     </span>
   );
 }
 
 function UpdatedTag(): JSX.Element {
   const { t } = useTranslation('app');
+  const { t: tGcweb } = useTranslation('gcweb');
 
   return (
     <span className="w-fit rounded-2xl border border-blue-400 bg-blue-100 px-3 py-0.5 text-sm font-semibold text-blue-800">
-      {t('profile.updated')}
+      <span className="sr-only">
+        {tGcweb('aria-label-for-status', {
+          label: t('profile.updated'),
+        })}
+      </span>
+      <span aria-hidden="true">{t('profile.updated')}</span>
     </span>
   );
 }

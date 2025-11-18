@@ -246,11 +246,7 @@ export function ReferralPreferencesForm({
               />
             )}
 
-            <fieldset
-              id="workLocationFieldset"
-              aria-describedby="workLocationLegend location-province-legend location-cities-legend"
-              className="space-y-4"
-            >
+            <fieldset id="workLocationFieldset" aria-describedby="workLocationLegend" className="space-y-4">
               <InputLegend id="workLocationLegend" className="text-xl" required>
                 {tApp('referral-preferences.work-location')}
               </InputLegend>

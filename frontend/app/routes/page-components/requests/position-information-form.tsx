@@ -221,11 +221,7 @@ export function PositionInformationForm({
               maxLength={200}
             />
 
-            <fieldset
-              id="location-fieldset"
-              aria-describedby="locationLegend location-province-legend location-cities-legend"
-              className="space-y-4"
-            >
+            <fieldset id="location-fieldset" aria-describedby="locationLegend" className="space-y-4">
               <InputLegend id="locationLegend" className="text-xl" required>
                 {tApp('position-information.locations')}
               </InputLegend>

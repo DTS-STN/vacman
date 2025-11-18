@@ -31,6 +31,8 @@ interface ProfileStatusTagProps {
 
 export function ProfileStatusTag({ status, lang, rounded = false, view }: ProfileStatusTagProps): JSX.Element {
   const { t } = useTranslation('app');
+  const { t: tGcweb } = useTranslation('gcweb');
+
   const styleMap: Record<string, TagStyle> = {
     [PROFILE_STATUS.ARCHIVED.code]: TagVariants.inactive,
     ...(view === 'hr-advisor'
@@ -62,7 +64,14 @@ export function ProfileStatusTag({ status, lang, rounded = false, view }: Profil
   return (
     <div className={`${style?.className} ${baseClasses} ${rounded ? roundedTrueClasses : defaultRoundedClasses}`}>
       {style && <FontAwesomeIcon icon={style.icon} />}
-      <p className="mr-0.5">{displayName}</p>
+      <span className="sr-only">
+        {tGcweb('aria-label-for-status', {
+          label: displayName,
+        })}
+      </span>
+      <p className="mr-0.5" aria-hidden="true">
+        {displayName}
+      </p>
     </div>
   );
 }
@@ -76,6 +85,8 @@ interface RequestStatusTagProps {
 
 export function RequestStatusTag({ status, lang, rounded = false, view }: RequestStatusTagProps): JSX.Element {
   const { t } = useTranslation('app');
+  const { t: tGcweb } = useTranslation('gcweb');
+
   const styleMap: Record<string, TagStyle> = {
     [REQUEST_STATUS_CODE.CLR_GRANTED]: TagVariants.inactive,
     [REQUEST_STATUS_CODE.PSC_GRANTED]: TagVariants.inactive,
@@ -111,7 +122,14 @@ export function RequestStatusTag({ status, lang, rounded = false, view }: Reques
   return (
     <div className={cn(style?.className, baseClasses, rounded ? roundedTrueClasses : defaultRoundedClasses)}>
       {style && <FontAwesomeIcon icon={style.icon} />}
-      <p className="mr-0.5">{displayName}</p>
+      <span className="sr-only">
+        {tGcweb('aria-label-for-status', {
+          label: displayName,
+        })}
+      </span>
+      <p className="mr-0.5" aria-hidden="true">
+        {displayName}
+      </p>
     </div>
   );
 }
