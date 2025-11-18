@@ -4,6 +4,7 @@
 #
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
+nameSuffix: -shared
 labels:
   - pairs:
       app.kubernetes.io/part-of: vacancy-management
@@ -17,9 +18,21 @@ labels:
     pairs:
       app.kubernetes.io/instance: shared
 resources:
-  - github.com/stn-dts/kustomize-manifests/components/redis?ref=redis-7.4.7.000
   - github.com/stn-dts/kustomize-manifests/components/reloader?ref=reloader-1.4.10.000
+  - ../../base/redis/
   - ./external-secrets.yaml
 patches:
-  - path: ./patches/config-maps.yaml
   - path: ./patches/stateful-sets.yaml
+configMapGenerator:
+  - name: redis
+    behavior: merge
+    files:
+      - ./configs/redis/replica.conf
+      - ./configs/redis/sentinel.conf
+secretGenerator:
+  - name: redis
+    behavior: create
+    options:
+      # disable suffix hash so it can effectively
+      # be managed by external secrets operator
+      disableNameSuffixHash: true
