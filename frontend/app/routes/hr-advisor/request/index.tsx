@@ -369,26 +369,26 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
         <PageTitle>{t('app:hr-advisor-referral-requests.page-title')}</PageTitle>
 
         <div>
-          <DescriptionList className="flex">
+          <DescriptionList className="grid:cols-1 grid grid-cols-1 gap-x-10 gap-y-5 sm:grid-cols-2 md:flex md:flex-wrap md:space-x-10">
             <DescriptionListItem
-              className="mr-10 w-min whitespace-nowrap"
-              ddClassName="mt-1 text-white sm:col-span-2 sm:mt-0"
+              className="w-min whitespace-nowrap"
+              ddClassName="mt-1 text-white sm:col-span-2"
               term={t('app:hr-advisor-referral-requests.request-id')}
             >
               {loaderData.requestId}
             </DescriptionListItem>
 
             <DescriptionListItem
-              className="mx-10 w-min whitespace-nowrap"
-              ddClassName="mt-1 text-white sm:col-span-2 sm:mt-0"
+              className="w-min whitespace-nowrap"
+              ddClassName="mt-1 text-white sm:col-span-2"
               term={t('app:hr-advisor-referral-requests.request-date')}
             >
               {loaderData.requestDate ? formatISODate(loaderData.requestDate) : t('app:referral-requests.not-provided')}
             </DescriptionListItem>
 
             <DescriptionListItem
-              className="mx-10 w-min whitespace-nowrap"
-              ddClassName="mt-1 text-white sm:col-span-2 sm:mt-0"
+              className="w-min whitespace-nowrap"
+              ddClassName="mt-1 text-white sm:col-span-2"
               term={t('app:hr-advisor-referral-requests.hiring-manager')}
             >
               {loaderData.hiringManager ? (
@@ -402,8 +402,8 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
             </DescriptionListItem>
 
             <DescriptionListItem
-              className="ml-10 w-min whitespace-nowrap"
-              ddClassName="mt-1 text-white sm:col-span-2 sm:mt-0"
+              className="w-min whitespace-nowrap"
+              ddClassName="mt-1 text-white sm:col-span-2"
               term={t('app:hr-advisor-referral-requests.hr-advisor')}
             >
               {loaderData.hrAdvisor ? (

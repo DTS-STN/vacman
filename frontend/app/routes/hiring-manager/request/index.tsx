@@ -476,9 +476,9 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
 
         {loaderData.status?.code !== REQUEST_STATUS_CODE.DRAFT && (
           <div>
-            <DescriptionList className="flex">
+            <DescriptionList className="grid:cols-1 grid grid-cols-1 gap-x-10 gap-y-5 sm:grid-cols-2 md:flex md:flex-wrap md:space-x-10">
               <DescriptionListItem
-                className="mr-10 w-min whitespace-nowrap"
+                className="w-min whitespace-nowrap"
                 ddClassName="mt-1 text-white sm:col-span-2 sm:mt-0"
                 term={t('app:hiring-manager-referral-requests.request-id')}
               >
@@ -486,7 +486,7 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
               </DescriptionListItem>
 
               <DescriptionListItem
-                className="mx-10 w-min whitespace-nowrap"
+                className="w-min whitespace-nowrap"
                 ddClassName="mt-1 text-white sm:col-span-2 sm:mt-0"
                 term={t('app:hiring-manager-referral-requests.request-date')}
               >
@@ -494,7 +494,7 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
               </DescriptionListItem>
 
               <DescriptionListItem
-                className="mx-10 w-min whitespace-nowrap"
+                className="w-min whitespace-nowrap"
                 ddClassName="mt-1 text-white sm:col-span-2 sm:mt-0"
                 term={t('app:hiring-manager-referral-requests.hiring-manager')}
               >
@@ -509,7 +509,7 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
               </DescriptionListItem>
 
               <DescriptionListItem
-                className="ml-10 w-min whitespace-nowrap"
+                className="w-min whitespace-nowrap"
                 ddClassName="mt-1 text-white sm:col-span-2 sm:mt-0"
                 term={t('app:hiring-manager-referral-requests.hr-advisor')}
               >
