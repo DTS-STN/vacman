@@ -32,7 +32,6 @@ interface PersonalInformationFormProps {
   cancelLink: I18nRouteFile;
   formValues: Partial<UserPersonalInformation> | undefined;
   formErrors?: Errors;
-  isReadOnly: boolean;
   languagesOfCorrespondence: readonly LocalizedLanguageOfCorrespondence[];
   params: Params;
   isSubmitting?: boolean;
@@ -40,7 +39,6 @@ interface PersonalInformationFormProps {
 
 export function PersonalInformationForm({
   cancelLink,
-  isReadOnly,
   formValues,
   formErrors,
   languagesOfCorrespondence,
@@ -64,7 +62,6 @@ export function PersonalInformationForm({
             <input type="hidden" name="firstName" value={formValues?.firstName} />
             <input type="hidden" name="lastName" value={formValues?.lastName} />
             <InputField
-              readOnly={isReadOnly}
               className="w-full"
               id="personal-record-identifier"
               name="personalRecordIdentifier"
@@ -92,7 +89,6 @@ export function PersonalInformationForm({
               required
             />
             <InputField
-              readOnly={isReadOnly}
               className="w-full"
               id="personal-email-address"
               name="personalEmailAddress"
@@ -103,7 +99,6 @@ export function PersonalInformationForm({
             />
 
             <InputPhoneField
-              readOnly={isReadOnly}
               id="business-phone-number"
               name="businessPhoneNumber"
               type="tel"
@@ -121,7 +116,6 @@ export function PersonalInformationForm({
             />
 
             <InputPhoneField
-              readOnly={isReadOnly}
               id="personal-phone-number"
               name="personalPhoneNumber"
               type="tel"

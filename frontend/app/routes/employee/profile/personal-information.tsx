@@ -160,7 +160,6 @@ export default function PersonalInformation({ loaderData, actionData, params }: 
           cancelLink="routes/employee/profile/index.tsx"
           formErrors={actionData?.errors}
           formValues={loaderData.defaultValues}
-          isReadOnly={false}
           languagesOfCorrespondence={loaderData.languagesOfCorrespondence}
           params={params}
           isSubmitting={isSubmitting}
