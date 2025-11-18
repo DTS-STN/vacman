@@ -10,6 +10,7 @@ import { findRouteByFile } from '~/utils/route-utils';
 
 /**
  * @param path The link's location, either a `I18nRouteFile` or `To`.
+ * @param params The parameters that were parsed from the URL path.
  * @returns `boolean` Indicates if the link is loading.
  */
 export function useLinkLoading(path: I18nRouteFile | To | undefined, params: Params | undefined): boolean {

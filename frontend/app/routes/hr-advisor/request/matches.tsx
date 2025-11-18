@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useRef } from 'react';
 import type { JSX } from 'react';
 
 import { data, useFetcher, useSearchParams } from 'react-router';
@@ -34,10 +34,10 @@ import { RequestStatusTag } from '~/components/status-tag';
 import { VacmanBackground } from '~/components/vacman-background';
 import { MATCH_STATUS, REQUEST_STATUS_CODE } from '~/domain/constants';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
+import { useFormattedDate } from '~/hooks/use-formatted-date';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
 import MatchesTables from '~/routes/page-components/requests/matches-tables';
-import { formatDateTimeForTimezone } from '~/utils/date-utils';
 import { formatWithMask, formString } from '~/utils/string-utils';
 
 export const handle = {
@@ -286,21 +286,7 @@ export default function HrAdvisorMatches({ loaderData, params }: Route.Component
   const alertRef = useRef<HTMLDivElement>(null);
   const matchesFetcher = useFetcher();
   const isUpdating = matchesFetcher.state !== 'idle';
-
-  const [browserTZ, setBrowserTZ] = useState(() =>
-    loaderData.requestDate
-      ? formatDateTimeForTimezone(loaderData.requestDate, loaderData.baseTimeZone, loaderData.lang)
-      : '0000-00-00 00:00',
-  );
-
-  useEffect(() => {
-    if (!loaderData.requestDate) return;
-
-    const browserTZ = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    if (browserTZ) {
-      setBrowserTZ(formatDateTimeForTimezone(loaderData.requestDate, browserTZ, loaderData.lang));
-    }
-  }, [loaderData.requestDate, loaderData.lang]);
+  const requestDate = useFormattedDate(loaderData.requestDate, loaderData.baseTimeZone);
 
   return (
     <div className="mb-8 space-y-4">
@@ -318,7 +304,7 @@ export default function HrAdvisorMatches({ loaderData, params }: Route.Component
           </div>
           <div>
             <p>{t('app:matches.request-date')}</p>
-            <p className="text-[#9FA3AD]">{browserTZ}</p>
+            <p className="text-[#9FA3AD]">{requestDate}</p>
           </div>
           <div>
             <p>{t('app:matches.hiring-manager')}</p>
@@ -408,7 +394,7 @@ function DisplayCandidatesTable({
   const [searchParams, setSearchParams] = useSearchParams({ filter: 'all' });
 
   return (
-    <section className="mb-8 sm:w-1/2">
+    <section className="mb-8">
       <ServerTable page={page} data={requestMatches} searchParams={searchParams} setSearchParams={setSearchParams}>
         <Column
           accessorKey="employeeName"

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useRef } from 'react';
 
 import type { RouteHandle } from 'react-router';
 import { useFetcher } from 'react-router';
@@ -31,12 +31,12 @@ import { VacmanBackground } from '~/components/vacman-background';
 import { PROFILE_STATUS } from '~/domain/constants';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { useFetcherState } from '~/hooks/use-fetcher-state';
+import { useFormattedDate } from '~/hooks/use-formatted-date';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
 import { EmploymentInformationSection } from '~/routes/page-components/profile/employment-information-section';
 import { PersonalInformationSection } from '~/routes/page-components/profile/personal-information-section';
 import { ReferralPreferencesSection } from '~/routes/page-components/profile/referral-preferences-section';
-import { formatDateTimeForTimezone } from '~/utils/date-utils';
 import { calculateLocationScope } from '~/utils/location-utils';
 import { formatWithMask } from '~/utils/string-utils';
 
@@ -214,27 +214,13 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
   const fetcher = useFetcher<typeof action>();
   const fetcherState = useFetcherState(fetcher);
   const isSubmitting = fetcherState.submitting;
+  const lastModifiedDate = useFormattedDate(loaderData.lastModifiedDate, loaderData.baseTimeZone);
 
   const alertRef = useRef<HTMLDivElement>(null);
   if (fetcher.data && alertRef.current) {
     alertRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
     alertRef.current.focus();
   }
-
-  const [browserTZ, setBrowserTZ] = useState(() =>
-    loaderData.lastModifiedDate
-      ? formatDateTimeForTimezone(loaderData.lastModifiedDate, loaderData.baseTimeZone, loaderData.lang)
-      : '0000-00-00 00:00',
-  );
-
-  useEffect(() => {
-    if (!loaderData.lastModifiedDate) return;
-
-    const browserTZ = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    if (browserTZ) {
-      setBrowserTZ(formatDateTimeForTimezone(loaderData.lastModifiedDate, browserTZ, loaderData.lang));
-    }
-  }, [loaderData.lastModifiedDate, loaderData.lang]);
 
   return (
     <div className="space-y-8">
@@ -247,7 +233,7 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
         </PageTitle>
         {loaderData.email && <p className="mt-1">{loaderData.email}</p>}
         <p className="font-normal text-[#9FA3AD]">
-          {t('app:profile.last-updated', { date: browserTZ, name: loaderData.lastUpdatedBy })}
+          {t('app:profile.last-updated', { date: lastModifiedDate, name: loaderData.lastUpdatedBy })}
         </p>
       </VacmanBackground>
       <div className="justify-between md:grid md:grid-cols-2">

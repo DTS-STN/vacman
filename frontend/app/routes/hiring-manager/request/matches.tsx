@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 
 import { data, useFetcher } from 'react-router';
 import type { RouteHandle } from 'react-router';
@@ -29,10 +29,10 @@ import { VacmanBackground } from '~/components/vacman-background';
 import { REQUEST_EVENT_TYPE, REQUEST_STATUS_CODE } from '~/domain/constants';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { useFetcherState } from '~/hooks/use-fetcher-state';
+import { useFormattedDate } from '~/hooks/use-formatted-date';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
 import MatchesTables from '~/routes/page-components/requests/matches-tables';
-import { formatDateTimeForTimezone } from '~/utils/date-utils';
 import { formatWithMask, formString } from '~/utils/string-utils';
 import { extractValidationKey } from '~/utils/validation-utils';
 
@@ -303,21 +303,7 @@ export default function HiringManagerRequestMatches({ loaderData, actionData, pa
   const matchesFetcher = useFetcher();
   const isUpdating = matchesFetcher.state !== 'idle';
   const formErrors = fetcher.data?.errors;
-
-  const [browserTZ, setBrowserTZ] = useState(() =>
-    loaderData.requestDate
-      ? formatDateTimeForTimezone(loaderData.requestDate, loaderData.baseTimeZone, loaderData.lang)
-      : '0000-00-00 00:00',
-  );
-
-  useEffect(() => {
-    if (!loaderData.requestDate) return;
-
-    const browserTZ = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    if (browserTZ) {
-      setBrowserTZ(formatDateTimeForTimezone(loaderData.requestDate, browserTZ, loaderData.lang));
-    }
-  }, [loaderData.requestDate, loaderData.lang]);
+  const requestDate = useFormattedDate(loaderData.requestDate, loaderData.baseTimeZone);
 
   useEffect(() => {
     if ((formErrors?.confirmRetraining || formErrors?.feedbackMissing) && sectionRef.current) {
@@ -342,7 +328,7 @@ export default function HiringManagerRequestMatches({ loaderData, actionData, pa
           </div>
           <div>
             <p>{t('app:matches.request-date')}</p>
-            <p className="text-[#9FA3AD]">{browserTZ}</p>
+            <p className="text-[#9FA3AD]">{requestDate}</p>
           </div>
           <div>
             <p>{t('app:matches.hiring-manager')}</p>
