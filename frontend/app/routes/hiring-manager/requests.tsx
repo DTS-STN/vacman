@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import RequestsTables from '../page-components/requests/requests-tables';
 import type { Route } from './+types/requests';
 
-import type { RequestUpdateModel } from '~/.server/domain/models';
+import type { PagedRequestResponse, RequestQueryParams, RequestUpdateModel } from '~/.server/domain/models';
 import { getClassificationService } from '~/.server/domain/services/classification-service';
 import { getRequestService } from '~/.server/domain/services/request-service';
 import { getRequestStatusService } from '~/.server/domain/services/request-status-service';
@@ -14,6 +14,7 @@ import { getWorkUnitService } from '~/.server/domain/services/workunit-service';
 import { serverEnvironment } from '~/.server/environment';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { extractUniqueBranchesFromDirectorates, workUnitIdsFromBranchIds } from '~/.server/utils/directorate-utils';
+import { resolveClassificationSearch } from '~/.server/utils/request-classification-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { BackLink } from '~/components/back-link';
 import { PageTitle } from '~/components/page-title';
@@ -123,7 +124,10 @@ export async function loader({ context, request }: Route.LoaderArgs) {
   // Active requests query
   const activeSortParam = searchParams.getAll('activeSort');
   const activeStatusIds = searchParams.getAll('activeStatus');
-  const activeRequestsQuery = {
+  const activeClassificationFilter = resolveClassificationSearch(searchParams.getAll('activeGroup'), classifications);
+  const inactiveClassificationFilter = resolveClassificationSearch(searchParams.getAll('inactiveGroup'), classifications);
+
+  const activeRequestsQuery: RequestQueryParams = {
     page: Math.max(1, Number.parseInt(searchParams.get('activePage') ?? '1', 10) || 1),
     statusId:
       activeStatusIds.length > 0
@@ -132,17 +136,16 @@ export async function loader({ context, request }: Route.LoaderArgs) {
           )
         : REQUEST_STATUSES.filter((req) => req.category === REQUEST_CATEGORY.active).map((req) => req.id.toString()),
     workUnitId: workUnitIdsFromBranchIds(directorates, searchParams.getAll('activeBranch')),
-    classificationId: searchParams.getAll('activeGroup').map((id) => id),
+    classificationId: activeClassificationFilter.classificationIds,
     requestId: removeNumberMask(searchParams.get('activeId') ?? undefined)?.toString(),
     sort: activeSortParam.length > 0 ? activeSortParam : undefined,
     size: 10,
-    //TODO: Add id search, searchParams.get('activeId'),
   };
 
   // Inactive requests query
   const inactiveSortParam = searchParams.getAll('inactiveSort');
   const inactiveStatusIds = searchParams.getAll('inactiveStatus');
-  const inactiveRequestsQuery = {
+  const inactiveRequestsQuery: RequestQueryParams = {
     page: Math.max(1, Number.parseInt(searchParams.get('inactivePage') ?? '1', 10) || 1),
     statusId:
       inactiveStatusIds.length > 0
@@ -153,11 +156,10 @@ export async function loader({ context, request }: Route.LoaderArgs) {
           )
         : REQUEST_STATUSES.filter((req) => req.category === REQUEST_CATEGORY.inactive).map((req) => req.id.toString()),
     workUnitId: workUnitIdsFromBranchIds(directorates, searchParams.getAll('inactiveBranch')),
-    classificationId: searchParams.getAll('inactiveGroup').map((id) => id),
+    classificationId: inactiveClassificationFilter.classificationIds,
     requestId: removeNumberMask(searchParams.get('inactiveId') ?? undefined)?.toString(),
     sort: inactiveSortParam.length > 0 ? inactiveSortParam : undefined,
     size: 10,
-    //TODO: Add id search, searchParams.get('inactiveId'),
   };
 
   const requestStatuses = (await getRequestStatusService().listAllLocalized(lang)).toSorted((a, b) =>
@@ -166,24 +168,46 @@ export async function loader({ context, request }: Route.LoaderArgs) {
 
   const workUnits = extractUniqueBranchesFromDirectorates(directorates);
 
-  const activeRequestsResult = await getRequestService().getCurrentUserRequests(
-    activeRequestsQuery,
-    session.authState.accessToken,
-  );
-  if (activeRequestsResult.isErr()) {
-    throw activeRequestsResult.unwrapErr();
+  const buildEmptyPagedResponse = (query: RequestQueryParams): PagedRequestResponse => ({
+    content: [],
+    page: {
+      number: query.page ?? 1,
+      size: query.size ?? 10,
+      totalElements: 0,
+      totalPages: 0,
+    },
+  });
+
+  let activeRequestsData: PagedRequestResponse;
+  if (activeClassificationFilter.applied && !activeClassificationFilter.matched) {
+    activeRequestsData = buildEmptyPagedResponse(activeRequestsQuery);
+  } else {
+    const activeRequestsResult = await getRequestService().getCurrentUserRequests(
+      activeRequestsQuery,
+      session.authState.accessToken,
+    );
+    if (activeRequestsResult.isErr()) {
+      throw activeRequestsResult.unwrapErr();
+    }
+    activeRequestsData = activeRequestsResult.unwrap();
   }
 
-  const inactiveRequestsResult = await getRequestService().getCurrentUserRequests(
-    inactiveRequestsQuery,
-    session.authState.accessToken,
-  );
-  if (inactiveRequestsResult.isErr()) {
-    throw inactiveRequestsResult.unwrapErr();
+  let inactiveRequestsData: PagedRequestResponse;
+  if (inactiveClassificationFilter.applied && !inactiveClassificationFilter.matched) {
+    inactiveRequestsData = buildEmptyPagedResponse(inactiveRequestsQuery);
+  } else {
+    const inactiveRequestsResult = await getRequestService().getCurrentUserRequests(
+      inactiveRequestsQuery,
+      session.authState.accessToken,
+    );
+    if (inactiveRequestsResult.isErr()) {
+      throw inactiveRequestsResult.unwrapErr();
+    }
+    inactiveRequestsData = inactiveRequestsResult.unwrap();
   }
 
-  const { content: activeRequests, page: activeRequestsPage } = activeRequestsResult.unwrap();
-  const { content: inactiveRequests, page: inactiveRequestsPage } = inactiveRequestsResult.unwrap();
+  const { content: activeRequests, page: activeRequestsPage } = activeRequestsData;
+  const { content: inactiveRequests, page: inactiveRequestsPage } = inactiveRequestsData;
 
   return {
     documentTitle: t('app:hiring-manager-requests.page-title'),

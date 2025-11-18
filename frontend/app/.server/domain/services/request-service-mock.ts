@@ -73,12 +73,35 @@ export function getMockRequestService(): RequestService {
         }
       }
 
+      if (params.requestId) {
+        const requestIdFilter = Number.parseInt(params.requestId, 10);
+        if (Number.isNaN(requestIdFilter)) {
+          filteredRequests = [];
+          log.debug('Request ID filter provided but not a number; returning zero requests');
+        } else {
+          filteredRequests = filteredRequests.filter((request) => request.id === requestIdFilter);
+          log.debug(`Applied requestId filter (${requestIdFilter}): ${filteredRequests.length} requests remaining`);
+        }
+      }
+
       // Apply status filter using statusIds param (array of ids)
       if (params.statusId?.length) {
         const statusIds = params.statusId.filter((id) => id && id.trim() !== '');
         if (statusIds.length > 0) {
           filteredRequests = filteredRequests.filter((r) => (r.status ? statusIds.includes(r.status.id.toString()) : false));
           log.debug(`Applied statusId filter (${statusIds.join(',')}): ${filteredRequests.length} requests remaining`);
+        }
+      }
+
+      if (params.classificationId?.length) {
+        const classificationIds = params.classificationId.filter((id) => id && id.trim() !== '');
+        if (classificationIds.length > 0) {
+          filteredRequests = filteredRequests.filter((request) =>
+            request.classification ? classificationIds.includes(request.classification.id.toString()) : false,
+          );
+          log.debug(
+            `Applied classificationId filter (${classificationIds.join(',')}): ${filteredRequests.length} requests remaining`,
+          );
         }
       }
 
@@ -138,6 +161,31 @@ export function getMockRequestService(): RequestService {
         if (statusIds.length > 0) {
           filteredRequests = filteredRequests.filter((r) => (r.status ? statusIds.includes(r.status.id.toString()) : false));
           log.debug(`Applied statusId filter (${statusIds.join(',')}): ${filteredRequests.length} requests remaining`);
+        }
+      }
+
+      if (params.requestId) {
+        const requestIdFilter = Number.parseInt(params.requestId, 10);
+        if (Number.isNaN(requestIdFilter)) {
+          filteredRequests = [];
+          log.debug('Request ID filter provided but not a number for current user requests; returning zero requests');
+        } else {
+          filteredRequests = filteredRequests.filter((request) => request.id === requestIdFilter);
+          log.debug(
+            `Applied requestId filter for current user (${requestIdFilter}): ${filteredRequests.length} requests remaining`,
+          );
+        }
+      }
+
+      if (params.classificationId?.length) {
+        const classificationIds = params.classificationId.filter((id) => id && id.trim() !== '');
+        if (classificationIds.length > 0) {
+          filteredRequests = filteredRequests.filter((request) =>
+            request.classification ? classificationIds.includes(request.classification.id.toString()) : false,
+          );
+          log.debug(
+            `Applied classificationId filter for current user (${classificationIds.join(',')}): ${filteredRequests.length} requests remaining`,
+          );
         }
       }
 

@@ -36,7 +36,7 @@ export default function RequestsTables({
   inactiveRequestsPage,
   inactiveRequests,
   requestStatuses,
-  classifications,
+  classifications: _classifications, // preserve prop for future table filters while avoiding lint warnings
   workUnits,
   baseTimeZone,
   view,
@@ -148,7 +148,6 @@ export default function RequestsTables({
             page={activeRequestsPage}
             requests={activeRequests}
             requestStatuses={activeRequestsOptions}
-            classifications={classifications}
             workUnits={workUnits}
             view={view}
             isSubmitting={isSubmitting}
@@ -166,7 +165,6 @@ export default function RequestsTables({
             page={inactiveRequestsPage}
             requests={inactiveRequests}
             requestStatuses={inactiveRequestsOptions}
-            classifications={classifications}
             workUnits={workUnits}
             view={view}
             isSubmitting={isSubmitting}
@@ -186,7 +184,6 @@ interface RequestColumnsProps {
   page: PageMetadata;
   requests: RequestReadModel[];
   requestStatuses: readonly LocalizedLookupModel[];
-  classifications: readonly LocalizedLookupModel[];
   workUnits: LocalizedLookupModel[];
   view: 'hr-advisor' | 'hiring-manager';
   isSubmitting: boolean;
@@ -202,7 +199,6 @@ function RequestsColumns({
   requests,
   view,
   requestStatuses,
-  classifications,
   workUnits,
   isSubmitting,
   formatDateYMD,
@@ -248,14 +244,12 @@ function RequestsColumns({
         accessorKey={`${keyPrefix}Group`}
         accessorFn={(row: RequestReadModel) => row.classification?.code ?? ''}
         header={({ column }) => (
-          <ColumnOptions
+          <ColumnSearch
             column={column}
             title={t('requests-tables.classification')}
-            options={classifications}
             page={urlParam.page}
             searchParams={searchParams}
             setSearchParams={setSearchParams}
-            showClearAll
           />
         )}
         cell={(info) => <span>{info.row.original.classification?.code}</span>}

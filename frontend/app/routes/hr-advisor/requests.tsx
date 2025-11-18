@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import RequestsTables from '../page-components/requests/requests-tables';
 import type { Route } from './+types/requests';
 
-import type { RequestQueryParams } from '~/.server/domain/models';
+import type { PagedRequestResponse, RequestQueryParams } from '~/.server/domain/models';
 import { getClassificationService } from '~/.server/domain/services/classification-service';
 import { getRequestService } from '~/.server/domain/services/request-service';
 import { getRequestStatusService } from '~/.server/domain/services/request-status-service';
@@ -14,6 +14,7 @@ import { getWorkUnitService } from '~/.server/domain/services/workunit-service';
 import { serverEnvironment } from '~/.server/environment';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { extractUniqueBranchesFromDirectorates, workUnitIdsFromBranchIds } from '~/.server/utils/directorate-utils';
+import { resolveClassificationSearch } from '~/.server/utils/request-classification-utils';
 import { BackLink } from '~/components/back-link';
 import { PageTitle } from '~/components/page-title';
 import { REQUEST_CATEGORY, REQUEST_STATUS_CODE, REQUEST_STATUSES } from '~/domain/constants';
@@ -45,6 +46,9 @@ export async function loader({ context, request }: Route.LoaderArgs) {
   // Active requests query, either 'me' or 'all' requests
   const activeSortParam = searchParams.getAll('activeSort');
   const activeStatusIds = searchParams.getAll('activeStatus');
+  const activeClassificationFilter = resolveClassificationSearch(searchParams.getAll('activeGroup'), classifications);
+  const inactiveClassificationFilter = resolveClassificationSearch(searchParams.getAll('inactiveGroup'), classifications);
+
   const activeRequestsQuery: RequestQueryParams = {
     page: Math.max(1, Number.parseInt(searchParams.get('activePage') ?? '1', 10) || 1),
     statusId:
@@ -59,7 +63,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
           ).map((req) => req.id.toString()),
     workUnitId: workUnitIdsFromBranchIds(directorates, searchParams.getAll('activeBranch')),
     hrAdvisorId: searchParams.get('filter') === 'me' ? ['me'] : undefined,
-    classificationId: searchParams.getAll('activeGroup').map((id) => id),
+    classificationId: activeClassificationFilter.classificationIds,
     requestId: removeNumberMask(searchParams.get('activeId') ?? undefined)?.toString(),
     sort: activeSortParam.length > 0 ? activeSortParam : undefined,
     size: 10,
@@ -82,20 +86,42 @@ export async function loader({ context, request }: Route.LoaderArgs) {
           ).map((req) => req.id.toString()),
     workUnitId: workUnitIdsFromBranchIds(directorates, searchParams.getAll('inactiveBranch')),
     hrAdvisorId: searchParams.get('filter') === 'me' ? ['me'] : undefined,
-    classificationId: searchParams.getAll('inactiveGroup').map((id) => id),
+    classificationId: inactiveClassificationFilter.classificationIds,
     requestId: removeNumberMask(searchParams.get('inactiveId'))?.toString(),
     sort: inactiveSortParam.length > 0 ? inactiveSortParam : undefined,
     size: 10,
   };
 
-  const activeRequestsResult = await getRequestService().getRequests(activeRequestsQuery, session.authState.accessToken);
-  if (activeRequestsResult.isErr()) {
-    throw activeRequestsResult.unwrapErr();
+  const buildEmptyPagedResponse = (query: RequestQueryParams): PagedRequestResponse => ({
+    content: [],
+    page: {
+      number: query.page ?? 1,
+      size: query.size ?? 10,
+      totalElements: 0,
+      totalPages: 0,
+    },
+  });
+
+  let activeRequestsData: PagedRequestResponse;
+  if (activeClassificationFilter.applied && !activeClassificationFilter.matched) {
+    activeRequestsData = buildEmptyPagedResponse(activeRequestsQuery);
+  } else {
+    const activeRequestsResult = await getRequestService().getRequests(activeRequestsQuery, session.authState.accessToken);
+    if (activeRequestsResult.isErr()) {
+      throw activeRequestsResult.unwrapErr();
+    }
+    activeRequestsData = activeRequestsResult.unwrap();
   }
 
-  const inactiveRequestsResult = await getRequestService().getRequests(inactiveRequestsQuery, session.authState.accessToken);
-  if (inactiveRequestsResult.isErr()) {
-    throw inactiveRequestsResult.unwrapErr();
+  let inactiveRequestsData: PagedRequestResponse;
+  if (inactiveClassificationFilter.applied && !inactiveClassificationFilter.matched) {
+    inactiveRequestsData = buildEmptyPagedResponse(inactiveRequestsQuery);
+  } else {
+    const inactiveRequestsResult = await getRequestService().getRequests(inactiveRequestsQuery, session.authState.accessToken);
+    if (inactiveRequestsResult.isErr()) {
+      throw inactiveRequestsResult.unwrapErr();
+    }
+    inactiveRequestsData = inactiveRequestsResult.unwrap();
   }
 
   const requestStatuses = (await getRequestStatusService().listAllLocalized(lang))
@@ -111,7 +137,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
     .toSorted((a, b) => a.name.localeCompare(b.name, lang));
   const workUnits = extractUniqueBranchesFromDirectorates(directorates);
 
-  const { content: activeBaseRequests, page: activeRequestsPage } = activeRequestsResult.unwrap();
+  const { content: activeBaseRequests, page: activeRequestsPage } = activeRequestsData;
   const activeRequests = activeBaseRequests.map((req) =>
     //Replace REQUEST_STATUS_CODE.SUBMIT name with "Request pending approval" for table filtering
     req.status?.code === REQUEST_STATUS_CODE.SUBMIT
@@ -126,7 +152,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
       : req,
   );
 
-  const { content: inactiveBaseRequests, page: inactiveRequestsPage } = inactiveRequestsResult.unwrap();
+  const { content: inactiveBaseRequests, page: inactiveRequestsPage } = inactiveRequestsData;
   const inactiveRequests = inactiveBaseRequests.map((req) =>
     //Replace REQUEST_STATUS_CODE.SUBMIT name with "Request pending approval" for table filtering
     req.status?.code === REQUEST_STATUS_CODE.SUBMIT
