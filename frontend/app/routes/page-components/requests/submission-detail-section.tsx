@@ -4,29 +4,18 @@ import type { User } from '~/.server/domain/models';
 import { DescriptionList, DescriptionListItem } from '~/components/description-list';
 import { getUserFullName } from '~/utils/string-utils';
 
-interface BaseProps {
-  submitter: User | undefined;
-  hiringManager: User | undefined;
-  subDelegatedManager: User | undefined;
-  additionalContact: User | undefined;
-  branchOrServiceCanadaRegion: string | undefined;
-  directorate: string | undefined;
-  languageOfCorrespondence: string | undefined;
-  additionalComment: string | undefined;
-  alternateContactEmailAddress: string | undefined;
+interface SubmissionDetailSectionProps {
+  submitter?: User;
+  hiringManager?: User;
+  subDelegatedManager?: User;
+  additionalContact?: User;
+  branchOrServiceCanadaRegion?: string;
+  directorate?: string;
+  languageOfCorrespondence?: string;
+  additionalComment?: string;
+  alternateContactEmailAddress?: string;
+  isSubmissionNew?: boolean;
 }
-
-interface HrAdvisorProps extends BaseProps {
-  view: 'hr-advisor';
-  isSubmissionNew?: never;
-}
-
-interface HiringManagerProps extends BaseProps {
-  view: 'hiring-manager';
-  isSubmissionNew: boolean | undefined;
-}
-
-type SubmissionDetailSectionProps = HrAdvisorProps | HiringManagerProps;
 
 export default function SubmissionDetailSection({
   isSubmissionNew,

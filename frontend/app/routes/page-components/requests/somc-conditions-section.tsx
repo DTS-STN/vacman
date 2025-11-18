@@ -2,22 +2,11 @@ import { useTranslation } from 'react-i18next';
 
 import { trimToUndefined } from '~/utils/string-utils';
 
-interface BaseProps {
-  englishStatementOfMerit: string | undefined;
-  frenchStatementOfMerit: string | undefined;
+interface SomcConditionsSectionProps {
+  englishStatementOfMerit?: string;
+  frenchStatementOfMerit?: string;
+  isStatementOfMeritCriteriaNew?: boolean;
 }
-
-interface HrAdvisorProps extends BaseProps {
-  view: 'hr-advisor';
-  isStatementOfMeritCriteriaNew?: never;
-}
-
-interface HiringManagerProps extends BaseProps {
-  view: 'hiring-manager';
-  isStatementOfMeritCriteriaNew: boolean | undefined;
-}
-
-type SomcConditionsSectionProps = HrAdvisorProps | HiringManagerProps;
 
 export default function SomcConditionsSection({
   isStatementOfMeritCriteriaNew,

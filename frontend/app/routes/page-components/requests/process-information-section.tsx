@@ -3,38 +3,26 @@ import { useTranslation } from 'react-i18next';
 import { DescriptionList, DescriptionListItem } from '~/components/description-list';
 import { EMPLOYMENT_TENURE, SELECTION_PROCESS_TYPE } from '~/domain/constants';
 
-interface BaseProps {
-  selectionProcessNumber: string | undefined;
-  workforceMgmtApprovalRecvd: boolean | undefined;
-  priorityEntitlement: boolean | undefined;
-  priorityEntitlementRationale: string | undefined;
-  selectionProcessType: string | undefined;
-  selectionProcessTypeCode: string | undefined;
-  hasPerformedSameDuties: boolean | undefined;
-  appointmentNonAdvertised: string | undefined;
-  employmentTenure: string | undefined;
-  employmentTenureCode: string | undefined;
-  projectedStartDate: string | undefined;
-  projectedEndDate: string | undefined;
-  workSchedule: string | undefined;
-  equityNeeded: boolean | undefined;
-  employmentEquities: string | undefined;
-}
-
-interface HiringManagerProps extends BaseProps {
-  view: 'hiring-manager';
+interface ProcessInformationSectionProps {
+  selectionProcessNumber?: string;
+  workforceMgmtApprovalRecvd?: boolean;
+  priorityEntitlement?: boolean;
+  priorityEntitlementRationale?: string;
+  selectionProcessType?: string;
+  selectionProcessTypeCode?: string;
+  hasPerformedSameDuties?: boolean;
+  appointmentNonAdvertised?: string;
+  employmentTenure?: string;
+  employmentTenureCode?: string;
+  projectedStartDate?: string;
+  projectedEndDate?: string;
+  workSchedule?: string;
+  equityNeeded?: boolean;
+  employmentEquities?: string;
   isProcessNew?: boolean;
 }
 
-interface HrAdvisorProps extends BaseProps {
-  view: 'hr-advisor';
-  isProcessNew?: never;
-}
-
-type ProcessInformationSectionProps = HiringManagerProps | HrAdvisorProps;
-
 export default function ProcessInformationSection({
-  view,
   isProcessNew,
   selectionProcessNumber,
   workforceMgmtApprovalRecvd,
@@ -60,13 +48,7 @@ export default function ProcessInformationSection({
         <>{t('app:referral-requests.process-intro')}</>
       ) : (
         <DescriptionList>
-          <DescriptionListItem
-            term={
-              view === 'hr-advisor'
-                ? t('app:process-information.selection-process-number')
-                : t('app:referral-requests.selection-process-number')
-            }
-          >
+          <DescriptionListItem term={t('app:process-information.selection-process-number')}>
             {selectionProcessNumber ?? t('app:referral-requests.not-provided')}
           </DescriptionListItem>
 

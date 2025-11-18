@@ -150,6 +150,9 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
     alternateContactEmailAddress: currentRequest.alternateContactEmailAddress,
     status: currentRequest.status,
     hasMatches: currentRequest.hasMatches,
+    languageRequirementName:
+      lang === 'en' ? currentRequest.languageRequirement?.nameEn : currentRequest.languageRequirement?.nameFr,
+    securityClearanceName: lang === 'en' ? currentRequest.securityClearance?.nameEn : currentRequest.securityClearance?.nameFr,
     lang,
     isRequestAssignedToCurrentUser: currentUser.id === currentRequest.hrAdvisor?.id,
     backLinkSearchParams: new URL(request.url).searchParams.toString(),
@@ -457,7 +460,7 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
           <ProfileCard>
             <ProfileCardHeader>{t('app:hr-advisor-referral-requests.process-information')}</ProfileCardHeader>
             <ProfileCardContent>
-              <ProcessInformationSection view="hr-advisor" {...loaderData} />
+              <ProcessInformationSection {...loaderData} />
             </ProfileCardContent>
             {loaderData.isRequestAssignedToCurrentUser && (
               <ProfileCardFooter>
@@ -471,7 +474,7 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
           <ProfileCard>
             <ProfileCardHeader>{t('app:hr-advisor-referral-requests.position-information')}</ProfileCardHeader>
             <ProfileCardContent>
-              <PositionInformationSection view="hr-advisor" {...loaderData} />
+              <PositionInformationSection {...loaderData} />
             </ProfileCardContent>
             {loaderData.isRequestAssignedToCurrentUser && (
               <ProfileCardFooter>
@@ -485,7 +488,7 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
           <ProfileCard>
             <ProfileCardHeader>{t('app:hr-advisor-referral-requests.somc-conditions')}</ProfileCardHeader>
             <ProfileCardContent>
-              <SomcConditionsSection view="hr-advisor" {...loaderData} />
+              <SomcConditionsSection {...loaderData} />
             </ProfileCardContent>
 
             <ProfileCardFooter>
@@ -504,7 +507,7 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
           <ProfileCard>
             <ProfileCardHeader>{t('app:hr-advisor-referral-requests.submission-details')}</ProfileCardHeader>
             <ProfileCardContent>
-              <SubmissionDetailSection view="hr-advisor" {...loaderData} />
+              <SubmissionDetailSection {...loaderData} />
             </ProfileCardContent>
             {loaderData.isRequestAssignedToCurrentUser && (
               <ProfileCardFooter>
