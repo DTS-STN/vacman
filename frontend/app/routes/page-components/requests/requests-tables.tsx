@@ -36,7 +36,7 @@ export default function RequestsTables({
   inactiveRequestsPage,
   inactiveRequests,
   requestStatuses,
-  classifications: _classifications, // preserve prop for future table filters while avoiding lint warnings
+  classifications,
   workUnits,
   baseTimeZone,
   view,
@@ -148,6 +148,7 @@ export default function RequestsTables({
             page={activeRequestsPage}
             requests={activeRequests}
             requestStatuses={activeRequestsOptions}
+            classifications={classifications}
             workUnits={workUnits}
             view={view}
             isSubmitting={isSubmitting}
@@ -165,6 +166,7 @@ export default function RequestsTables({
             page={inactiveRequestsPage}
             requests={inactiveRequests}
             requestStatuses={inactiveRequestsOptions}
+            classifications={classifications}
             workUnits={workUnits}
             view={view}
             isSubmitting={isSubmitting}
@@ -184,6 +186,7 @@ interface RequestColumnsProps {
   page: PageMetadata;
   requests: RequestReadModel[];
   requestStatuses: readonly LocalizedLookupModel[];
+  classifications: readonly LocalizedLookupModel[];
   workUnits: LocalizedLookupModel[];
   view: 'hr-advisor' | 'hiring-manager';
   isSubmitting: boolean;
@@ -200,6 +203,7 @@ function RequestsColumns({
   view,
   requestStatuses,
   workUnits,
+  classifications,
   isSubmitting,
   formatDateYMD,
   searchParams,
