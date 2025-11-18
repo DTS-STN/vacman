@@ -14,7 +14,6 @@ import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { mapProfileToPutModelWithOverrides } from '~/.server/utils/profile-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { BackLink } from '~/components/back-link';
-import { PROFILE_STATUS } from '~/domain/constants';
 import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
@@ -173,7 +172,6 @@ export default function PersonalInformation({ loaderData, actionData, params }: 
           cancelLink="routes/hr-advisor/employee-profile/index.tsx"
           formValues={loaderData.defaultValues}
           formErrors={actionData?.errors}
-          isReadOnly={loaderData.profileStatus?.code !== PROFILE_STATUS.INCOMPLETE.code}
           languagesOfCorrespondence={loaderData.languagesOfCorrespondence}
           params={params}
           isSubmitting={isSubmitting}
