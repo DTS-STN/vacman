@@ -14,6 +14,10 @@ import { getWorkUnitService } from '~/.server/domain/services/workunit-service';
 import { serverEnvironment } from '~/.server/environment';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { extractUniqueBranchesFromDirectorates, workUnitIdsFromBranchIds } from '~/.server/utils/directorate-utils';
+import {
+  fetchRequestsWithClassificationFallback,
+  resolveClassificationSearch,
+} from '~/.server/utils/request-classification-utils';
 import { BackLink } from '~/components/back-link';
 import { PageTitle } from '~/components/page-title';
 import { REQUEST_CATEGORY, REQUEST_STATUS_CODE, REQUEST_STATUSES } from '~/domain/constants';
@@ -41,10 +45,14 @@ export async function loader({ context, request }: Route.LoaderArgs) {
   const classifications = await getClassificationService().listAllLocalized(lang);
   const directorates = await getWorkUnitService().listAllLocalized(lang);
   const searchParams = new URL(request.url).searchParams;
+  const requestService = getRequestService();
 
   // Active requests query, either 'me' or 'all' requests
   const activeSortParam = searchParams.getAll('activeSort');
   const activeStatusIds = searchParams.getAll('activeStatus');
+  const activeClassificationFilter = resolveClassificationSearch(searchParams.getAll('activeGroup'), classifications);
+  const inactiveClassificationFilter = resolveClassificationSearch(searchParams.getAll('inactiveGroup'), classifications);
+
   const activeRequestsQuery: RequestQueryParams = {
     page: Math.max(1, Number.parseInt(searchParams.get('activePage') ?? '1', 10) || 1),
     statusId:
@@ -59,7 +67,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
           ).map((req) => req.id.toString()),
     workUnitId: workUnitIdsFromBranchIds(directorates, searchParams.getAll('activeBranch')),
     hrAdvisorId: searchParams.get('filter') === 'me' ? ['me'] : undefined,
-    classificationId: searchParams.getAll('activeGroup').map((id) => id),
+    classificationId: activeClassificationFilter.classificationIds,
     requestId: removeNumberMask(searchParams.get('activeId') ?? undefined)?.toString(),
     sort: activeSortParam.length > 0 ? activeSortParam : undefined,
     size: 10,
@@ -82,21 +90,23 @@ export async function loader({ context, request }: Route.LoaderArgs) {
           ).map((req) => req.id.toString()),
     workUnitId: workUnitIdsFromBranchIds(directorates, searchParams.getAll('inactiveBranch')),
     hrAdvisorId: searchParams.get('filter') === 'me' ? ['me'] : undefined,
-    classificationId: searchParams.getAll('inactiveGroup').map((id) => id),
+    classificationId: inactiveClassificationFilter.classificationIds,
     requestId: removeNumberMask(searchParams.get('inactiveId'))?.toString(),
     sort: inactiveSortParam.length > 0 ? inactiveSortParam : undefined,
     size: 10,
   };
 
-  const activeRequestsResult = await getRequestService().getRequests(activeRequestsQuery, session.authState.accessToken);
-  if (activeRequestsResult.isErr()) {
-    throw activeRequestsResult.unwrapErr();
-  }
+  const activeRequestsData = await fetchRequestsWithClassificationFallback({
+    filter: activeClassificationFilter,
+    query: activeRequestsQuery,
+    fetcher: (params) => requestService.getRequests(params, session.authState.accessToken),
+  });
 
-  const inactiveRequestsResult = await getRequestService().getRequests(inactiveRequestsQuery, session.authState.accessToken);
-  if (inactiveRequestsResult.isErr()) {
-    throw inactiveRequestsResult.unwrapErr();
-  }
+  const inactiveRequestsData = await fetchRequestsWithClassificationFallback({
+    filter: inactiveClassificationFilter,
+    query: inactiveRequestsQuery,
+    fetcher: (params) => requestService.getRequests(params, session.authState.accessToken),
+  });
 
   const requestStatuses = (await getRequestStatusService().listAllLocalized(lang))
     .filter((s) => s.code !== REQUEST_STATUS_CODE.DRAFT)
@@ -111,7 +121,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
     .toSorted((a, b) => a.name.localeCompare(b.name, lang));
   const workUnits = extractUniqueBranchesFromDirectorates(directorates);
 
-  const { content: activeBaseRequests, page: activeRequestsPage } = activeRequestsResult.unwrap();
+  const { content: activeBaseRequests, page: activeRequestsPage } = activeRequestsData;
   const activeRequests = activeBaseRequests.map((req) =>
     //Replace REQUEST_STATUS_CODE.SUBMIT name with "Request pending approval" for table filtering
     req.status?.code === REQUEST_STATUS_CODE.SUBMIT
@@ -126,7 +136,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
       : req,
   );
 
-  const { content: inactiveBaseRequests, page: inactiveRequestsPage } = inactiveRequestsResult.unwrap();
+  const { content: inactiveBaseRequests, page: inactiveRequestsPage } = inactiveRequestsData;
   const inactiveRequests = inactiveBaseRequests.map((req) =>
     //Replace REQUEST_STATUS_CODE.SUBMIT name with "Request pending approval" for table filtering
     req.status?.code === REQUEST_STATUS_CODE.SUBMIT

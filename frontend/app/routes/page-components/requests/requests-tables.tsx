@@ -248,14 +248,12 @@ function RequestsColumns({
         accessorKey={`${keyPrefix}Group`}
         accessorFn={(row: RequestReadModel) => row.classification?.code ?? ''}
         header={({ column }) => (
-          <ColumnOptions
+          <ColumnSearch
             column={column}
             title={t('requests-tables.classification')}
-            options={classifications}
             page={urlParam.page}
             searchParams={searchParams}
             setSearchParams={setSearchParams}
-            showClearAll
           />
         )}
         cell={(info) => <span>{info.row.original.classification?.code}</span>}
