@@ -122,9 +122,9 @@ export default {
     'clear-all': 'Clear all',
     'clear-group': 'Clear group',
     'clear-group-label': 'Clear group {{groupName}} of items {{items}}',
-    'choice-tag-added-aria-label': 'Selected {{item}} added: {{choice}}, Activate to remove selected {{item}}.',
+    'choice-tag-added-aria-label': 'Selected {{item}}: {{choice}}, Activate to remove selected {{item}}.',
     'choice-tag-with-group-added-aria-label':
-      'Selected {{item}} added: {{choice}} {{groupName}}, Activate to remove selected {{item}}.',
+      'Selected {{item}}: {{choice}} {{groupName}}, Activate to remove selected {{item}}.',
     'clear-all-sr-message': 'All selected {{item}} removed.',
     'removed-choice-tag-sr-message': 'Selected {{item}} removed: {{choice}}',
   },
