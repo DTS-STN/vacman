@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import RequestsTables from '../page-components/requests/requests-tables';
 import type { Route } from './+types/requests';
 
-import type { PagedRequestResponse, RequestQueryParams, RequestUpdateModel } from '~/.server/domain/models';
+import type { RequestQueryParams, RequestUpdateModel } from '~/.server/domain/models';
 import { getClassificationService } from '~/.server/domain/services/classification-service';
 import { getRequestService } from '~/.server/domain/services/request-service';
 import { getRequestStatusService } from '~/.server/domain/services/request-status-service';
@@ -14,7 +14,10 @@ import { getWorkUnitService } from '~/.server/domain/services/workunit-service';
 import { serverEnvironment } from '~/.server/environment';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { extractUniqueBranchesFromDirectorates, workUnitIdsFromBranchIds } from '~/.server/utils/directorate-utils';
-import { resolveClassificationSearch } from '~/.server/utils/request-classification-utils';
+import {
+  fetchRequestsWithClassificationFallback,
+  resolveClassificationSearch,
+} from '~/.server/utils/request-classification-utils';
 import { i18nRedirect } from '~/.server/utils/route-utils';
 import { BackLink } from '~/components/back-link';
 import { PageTitle } from '~/components/page-title';
@@ -120,12 +123,12 @@ export async function loader({ context, request }: Route.LoaderArgs) {
   const classifications = await getClassificationService().listAllLocalized(lang);
   const directorates = await getWorkUnitService().listAllLocalized(lang);
   const searchParams = new URL(request.url).searchParams;
+  const requestService = getRequestService();
 
   // Active requests query
   const activeSortParam = searchParams.getAll('activeSort');
   const activeStatusIds = searchParams.getAll('activeStatus');
   const activeClassificationFilter = resolveClassificationSearch(searchParams.getAll('activeGroup'), classifications);
-  const inactiveClassificationFilter = resolveClassificationSearch(searchParams.getAll('inactiveGroup'), classifications);
 
   const activeRequestsQuery: RequestQueryParams = {
     page: Math.max(1, Number.parseInt(searchParams.get('activePage') ?? '1', 10) || 1),
@@ -145,6 +148,8 @@ export async function loader({ context, request }: Route.LoaderArgs) {
   // Inactive requests query
   const inactiveSortParam = searchParams.getAll('inactiveSort');
   const inactiveStatusIds = searchParams.getAll('inactiveStatus');
+  const inactiveClassificationFilter = resolveClassificationSearch(searchParams.getAll('inactiveGroup'), classifications);
+
   const inactiveRequestsQuery: RequestQueryParams = {
     page: Math.max(1, Number.parseInt(searchParams.get('inactivePage') ?? '1', 10) || 1),
     statusId:
@@ -168,43 +173,17 @@ export async function loader({ context, request }: Route.LoaderArgs) {
 
   const workUnits = extractUniqueBranchesFromDirectorates(directorates);
 
-  const buildEmptyPagedResponse = (query: RequestQueryParams): PagedRequestResponse => ({
-    content: [],
-    page: {
-      number: query.page ?? 1,
-      size: query.size ?? 10,
-      totalElements: 0,
-      totalPages: 0,
-    },
+  const activeRequestsData = await fetchRequestsWithClassificationFallback({
+    filter: activeClassificationFilter,
+    query: activeRequestsQuery,
+    fetcher: (params) => requestService.getCurrentUserRequests(params, session.authState.accessToken),
   });
 
-  let activeRequestsData: PagedRequestResponse;
-  if (activeClassificationFilter.applied && !activeClassificationFilter.matched) {
-    activeRequestsData = buildEmptyPagedResponse(activeRequestsQuery);
-  } else {
-    const activeRequestsResult = await getRequestService().getCurrentUserRequests(
-      activeRequestsQuery,
-      session.authState.accessToken,
-    );
-    if (activeRequestsResult.isErr()) {
-      throw activeRequestsResult.unwrapErr();
-    }
-    activeRequestsData = activeRequestsResult.unwrap();
-  }
-
-  let inactiveRequestsData: PagedRequestResponse;
-  if (inactiveClassificationFilter.applied && !inactiveClassificationFilter.matched) {
-    inactiveRequestsData = buildEmptyPagedResponse(inactiveRequestsQuery);
-  } else {
-    const inactiveRequestsResult = await getRequestService().getCurrentUserRequests(
-      inactiveRequestsQuery,
-      session.authState.accessToken,
-    );
-    if (inactiveRequestsResult.isErr()) {
-      throw inactiveRequestsResult.unwrapErr();
-    }
-    inactiveRequestsData = inactiveRequestsResult.unwrap();
-  }
+  const inactiveRequestsData = await fetchRequestsWithClassificationFallback({
+    filter: inactiveClassificationFilter,
+    query: inactiveRequestsQuery,
+    fetcher: (params) => requestService.getCurrentUserRequests(params, session.authState.accessToken),
+  });
 
   const { content: activeRequests, page: activeRequestsPage } = activeRequestsData;
   const { content: inactiveRequests, page: inactiveRequestsPage } = inactiveRequestsData;

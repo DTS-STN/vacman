@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import RequestsTables from '../page-components/requests/requests-tables';
 import type { Route } from './+types/requests';
 
-import type { PagedRequestResponse, RequestQueryParams } from '~/.server/domain/models';
+import type { RequestQueryParams } from '~/.server/domain/models';
 import { getClassificationService } from '~/.server/domain/services/classification-service';
 import { getRequestService } from '~/.server/domain/services/request-service';
 import { getRequestStatusService } from '~/.server/domain/services/request-status-service';
@@ -14,7 +14,10 @@ import { getWorkUnitService } from '~/.server/domain/services/workunit-service';
 import { serverEnvironment } from '~/.server/environment';
 import { requireAuthentication } from '~/.server/utils/auth-utils';
 import { extractUniqueBranchesFromDirectorates, workUnitIdsFromBranchIds } from '~/.server/utils/directorate-utils';
-import { resolveClassificationSearch } from '~/.server/utils/request-classification-utils';
+import {
+  fetchRequestsWithClassificationFallback,
+  resolveClassificationSearch,
+} from '~/.server/utils/request-classification-utils';
 import { BackLink } from '~/components/back-link';
 import { PageTitle } from '~/components/page-title';
 import { REQUEST_CATEGORY, REQUEST_STATUS_CODE, REQUEST_STATUSES } from '~/domain/constants';
@@ -42,6 +45,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
   const classifications = await getClassificationService().listAllLocalized(lang);
   const directorates = await getWorkUnitService().listAllLocalized(lang);
   const searchParams = new URL(request.url).searchParams;
+  const requestService = getRequestService();
 
   // Active requests query, either 'me' or 'all' requests
   const activeSortParam = searchParams.getAll('activeSort');
@@ -92,37 +96,17 @@ export async function loader({ context, request }: Route.LoaderArgs) {
     size: 10,
   };
 
-  const buildEmptyPagedResponse = (query: RequestQueryParams): PagedRequestResponse => ({
-    content: [],
-    page: {
-      number: query.page ?? 1,
-      size: query.size ?? 10,
-      totalElements: 0,
-      totalPages: 0,
-    },
+  const activeRequestsData = await fetchRequestsWithClassificationFallback({
+    filter: activeClassificationFilter,
+    query: activeRequestsQuery,
+    fetcher: (params) => requestService.getRequests(params, session.authState.accessToken),
   });
 
-  let activeRequestsData: PagedRequestResponse;
-  if (activeClassificationFilter.applied && !activeClassificationFilter.matched) {
-    activeRequestsData = buildEmptyPagedResponse(activeRequestsQuery);
-  } else {
-    const activeRequestsResult = await getRequestService().getRequests(activeRequestsQuery, session.authState.accessToken);
-    if (activeRequestsResult.isErr()) {
-      throw activeRequestsResult.unwrapErr();
-    }
-    activeRequestsData = activeRequestsResult.unwrap();
-  }
-
-  let inactiveRequestsData: PagedRequestResponse;
-  if (inactiveClassificationFilter.applied && !inactiveClassificationFilter.matched) {
-    inactiveRequestsData = buildEmptyPagedResponse(inactiveRequestsQuery);
-  } else {
-    const inactiveRequestsResult = await getRequestService().getRequests(inactiveRequestsQuery, session.authState.accessToken);
-    if (inactiveRequestsResult.isErr()) {
-      throw inactiveRequestsResult.unwrapErr();
-    }
-    inactiveRequestsData = inactiveRequestsResult.unwrap();
-  }
+  const inactiveRequestsData = await fetchRequestsWithClassificationFallback({
+    filter: inactiveClassificationFilter,
+    query: inactiveRequestsQuery,
+    fetcher: (params) => requestService.getRequests(params, session.authState.accessToken),
+  });
 
   const requestStatuses = (await getRequestStatusService().listAllLocalized(lang))
     .filter((s) => s.code !== REQUEST_STATUS_CODE.DRAFT)

@@ -1,4 +1,7 @@
-import type { LocalizedLookupModel } from '~/.server/domain/models';
+import type { Result } from 'oxide.ts';
+
+import type { LocalizedLookupModel, PagedRequestResponse, RequestQueryParams } from '~/.server/domain/models';
+import type { AppError } from '~/errors/app-error';
 
 /**
  * Result describing how classification search terms were interpreted.
@@ -65,4 +68,45 @@ export function resolveClassificationSearch(
 
   const classificationIds = Array.from(matches).sort((a, b) => Number(a) - Number(b));
   return { classificationIds, applied: true, matched: true };
+}
+
+/**
+ * Builds an empty paged response while preserving pagination metadata from the provided query parameters.
+ */
+export function buildEmptyPagedRequestResponse(query: RequestQueryParams): PagedRequestResponse {
+  return {
+    content: [],
+    page: {
+      number: query.page ?? 1,
+      size: query.size ?? 10,
+      totalElements: 0,
+      totalPages: 0,
+    },
+  };
+}
+
+type RequestFetcher = (params: RequestQueryParams) => Promise<Result<PagedRequestResponse, AppError>>;
+
+/**
+ * Returns either an empty paged response (when the classification filter had no matches) or delegates to the provided fetcher.
+ */
+export async function fetchRequestsWithClassificationFallback({
+  filter,
+  query,
+  fetcher,
+}: {
+  filter: ClassificationSearchResult;
+  query: RequestQueryParams;
+  fetcher: RequestFetcher;
+}): Promise<PagedRequestResponse> {
+  if (filter.applied && !filter.matched) {
+    return buildEmptyPagedRequestResponse(query);
+  }
+
+  const result = await fetcher(query);
+  if (result.isErr()) {
+    throw result.unwrapErr();
+  }
+
+  return result.unwrap();
 }
