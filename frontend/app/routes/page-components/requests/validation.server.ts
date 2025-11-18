@@ -253,11 +253,11 @@ export async function createSubmissionDetailSchema(view: 'hr-advisor' | 'hiring-
 
   const baseCombinedSchema = v.intersect([
     v.object({
-      'branchOrServiceCanadaRegion': submissionDetail.branchOrServiceCanadaRegionSchema,
-      'directorate': submissionDetail.directorateSchema,
-      'languageOfCorrespondenceId': submissionDetail.languageOfCorrespondenceIdSchema,
-      'additionalComment': submissionDetail.additionalCommentSchema,
-      'additionalContact.businessEmailAddress': submissionDetail.additionalContactBusinessEmailAddressSchema,
+      branchOrServiceCanadaRegion: submissionDetail.branchOrServiceCanadaRegionSchema,
+      directorate: submissionDetail.directorateSchema,
+      languageOfCorrespondenceId: submissionDetail.languageOfCorrespondenceIdSchema,
+      additionalComment: submissionDetail.additionalCommentSchema,
+      additionalContactBusinessEmailAddress: submissionDetail.additionalContactBusinessEmailAddressSchema,
     }),
     v.variant(
       'isSubmiterHiringManager',

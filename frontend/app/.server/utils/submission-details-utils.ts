@@ -21,7 +21,7 @@ type SubmissionDetailUserIdsResult = {
 type SubmissionDetailEmailField =
   | 'hiringManagerEmailAddress'
   | 'subDelegatedManagerEmailAddress'
-  | 'additionalContact.businessEmailAddress';
+  | 'additionalContactBusinessEmailAddress';
 
 export async function resolveSubmissionDetailUserIds({
   userService,
@@ -64,7 +64,7 @@ export async function resolveSubmissionDetailUserIds({
   const resolvedSubDelegatedManagerId = await resolveUserId(subDelegatedManagerEmailAddress, 'subDelegatedManagerEmailAddress');
   const resolvedAdditionalContactId = await resolveUserId(
     additionalContactBusinessEmailAddress,
-    'additionalContact.businessEmailAddress',
+    'additionalContactBusinessEmailAddress',
   );
 
   return {

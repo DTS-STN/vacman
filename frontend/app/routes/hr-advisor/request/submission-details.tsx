@@ -41,22 +41,22 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 
   const formData = await request.formData();
   const parseResult = v.safeParse(await createSubmissionDetailSchema('hr-advisor'), {
-    'isSubmiterHiringManager': formData.get('isSubmiterHiringManager')
+    isSubmiterHiringManager: formData.get('isSubmiterHiringManager')
       ? formData.get('isSubmiterHiringManager') === REQUIRE_OPTIONS.yes
       : undefined,
-    'isSubmiterSubdelegate': formData.get('isSubmiterSubdelegate')
+    isSubmiterSubdelegate: formData.get('isSubmiterSubdelegate')
       ? formData.get('isSubmiterSubdelegate') === REQUIRE_OPTIONS.yes
       : undefined,
-    'isHiringManagerASubDelegate': formData.get('isHiringManagerASubDelegate')
+    isHiringManagerASubDelegate: formData.get('isHiringManagerASubDelegate')
       ? formData.get('isHiringManagerASubDelegate') === REQUIRE_OPTIONS.yes
       : undefined,
-    'hiringManagerEmailAddress': formString(formData.get('hiringManagerEmailAddress')),
-    'subDelegatedManagerEmailAddress': formString(formData.get('subDelegatedManagerEmailAddress')),
-    'branchOrServiceCanadaRegion': formString(formData.get('branchOrServiceCanadaRegion')),
-    'directorate': formString(formData.get('directorate')),
-    'languageOfCorrespondenceId': formString(formData.get('languageOfCorrespondenceId')),
-    'additionalComment': formString(formData.get('additionalComment')),
-    'additionalContact.businessEmailAddress': formString(formData.get('additionalContact.businessEmailAddress')),
+    hiringManagerEmailAddress: formString(formData.get('hiringManagerEmailAddress')),
+    subDelegatedManagerEmailAddress: formString(formData.get('subDelegatedManagerEmailAddress')),
+    branchOrServiceCanadaRegion: formString(formData.get('branchOrServiceCanadaRegion')),
+    directorate: formString(formData.get('directorate')),
+    languageOfCorrespondenceId: formString(formData.get('languageOfCorrespondenceId')),
+    additionalComment: formString(formData.get('additionalComment')),
+    additionalContactBusinessEmailAddress: formString(formData.get('additionalContactBusinessEmailAddress')),
   });
 
   if (!parseResult.success) {
@@ -75,7 +75,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
       accessToken: session.authState.accessToken,
       hiringManagerEmailAddress: parseResult.output.hiringManagerEmailAddress,
       subDelegatedManagerEmailAddress: parseResult.output.subDelegatedManagerEmailAddress,
-      additionalContactBusinessEmailAddress: parseResult.output['additionalContact.businessEmailAddress'],
+      additionalContactBusinessEmailAddress: parseResult.output.additionalContactBusinessEmailAddress,
       userNotFoundMessage,
     });
 
@@ -162,15 +162,15 @@ export async function loader({ context, params, request }: Route.LoaderArgs) {
   return {
     documentTitle: t('app:submission-details.page-title'),
     defaultValues: {
-      'submitter': requestData.submitter, // The Hr-advisor can't create a Request. The submitter information is coming from the saved Request.
-      'hiringManager': requestData.hiringManager,
-      'subDelegatedManager': requestData.subDelegatedManager,
-      'hrAdvisor': requestData.hrAdvisor,
-      'workUnit': requestData.workUnit,
-      'languageOfCorrespondence': requestData.languageOfCorrespondence,
-      'additionalComment': requestData.additionalComment,
-      'additionalContact': requestData.additionalContact,
-      'additionalContact.businessEmailAddress': requestData.additionalContact?.businessEmailAddress,
+      submitter: requestData.submitter, // The Hr-advisor can't create a Request. The submitter information is coming from the saved Request.
+      hiringManager: requestData.hiringManager,
+      subDelegatedManager: requestData.subDelegatedManager,
+      hrAdvisor: requestData.hrAdvisor,
+      workUnit: requestData.workUnit,
+      languageOfCorrespondence: requestData.languageOfCorrespondence,
+      additionalComment: requestData.additionalComment,
+      additionalContact: requestData.additionalContact,
+      additionalContactBusinessEmailAddress: requestData.additionalContact?.businessEmailAddress,
     },
     branchOrServiceCanadaRegions,
     directorates,
