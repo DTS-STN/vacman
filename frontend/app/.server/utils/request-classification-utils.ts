@@ -13,6 +13,9 @@ export type ClassificationSearchResult = {
   matched: boolean;
 };
 
+/**
+ * Normalizes user-entered classification strings for case-insensitive, punctuation-agnostic comparisons.
+ */
 const normalize = (value: string) => value.replace(/[^a-z0-9]/gi, '').toLowerCase();
 
 /**
@@ -85,6 +88,9 @@ export function buildEmptyPagedRequestResponse(query: RequestQueryParams): Paged
   };
 }
 
+/**
+ * Shape for request service functions used by the fallback helper.
+ */
 type RequestFetcher = (params: RequestQueryParams) => Promise<Result<PagedRequestResponse, AppError>>;
 
 /**
