@@ -154,4 +154,5 @@ export default {
       text: 'Vacancy Management System',
     },
   },
+  'aria-label-for-status': 'Status: {{label}}',
 };

@@ -156,4 +156,5 @@ export default {
       text: 'Système de gestion des postes vacants',
     },
   },
+  'aria-label-for-status': 'Statut: {{label}}',
 } satisfies typeof gcwebEn;
