@@ -932,36 +932,6 @@ class RequestsControllerTest {
 		}
 
 		@Test
-		@DisplayName("Should return 400 when validation fails - invalid email format")
-		@WithMockUser(username = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", authorities = { "hr-advisor" })
-		void testUpdateRequestValidationFailsInvalidEmail() throws Exception {
-			final var request = requestRepository.save(RequestEntity.builder()
-				.classification(classificationRepository.getReferenceById(1L))
-				.hiringManager(hiringManager)
-				.languageRequirement(languageRequirementRepository.getReferenceById(1L))
-				.nameEn("Test Position")
-				.nameFr("Poste de test")
-				.requestNumber("REQ-006")
-				.requestStatus(requestStatusRepository.findByCode(lookupCodes.requestStatuses().draft()).orElseThrow())
-				.submitter(submitter)
-				.workUnit(workUnitRepository.getReferenceById(1L))
-				.build());
-
-			final var updateModel = RequestUpdateModelBuilder.builder()
-				.classificationId(1L)
-				.englishTitle("Test Position")
-				.frenchTitle("Poste de test")
-				.languageRequirementId(1L)
-				.alternateContactEmailAddress("not-a-valid-email") // Invalid email
-				.build();
-
-			mockMvc.perform(put("/api/v1/requests/{id}", request.getId())
-					.contentType(MediaType.APPLICATION_JSON)
-					.content(objectMapper.writeValueAsString(updateModel)))
-				.andExpect(status().isBadRequest());
-		}
-
-		@Test
 		@DisplayName("Should return 400 when validation fails - field size exceeds limit")
 		@WithMockUser(username = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", authorities = { "hr-advisor" })
 		void testUpdateRequestValidationFailsFieldTooLong() throws Exception {

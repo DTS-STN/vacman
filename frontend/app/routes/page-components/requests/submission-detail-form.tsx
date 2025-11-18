@@ -289,11 +289,11 @@ export function SubmissionDetailsForm({
             )}
             <InputField
               className="w-full"
-              id="alternate-contact-email-address"
-              name="alternateContactEmailAddress"
+              id="additional-contact-email-address"
+              name="additionalContactBusinessEmailAddress"
               label={tApp('submission-details.alternate-contact-email')}
-              defaultValue={formValues?.alternateContactEmailAddress}
-              errorMessage={tApp(extractValidationKey(formErrors?.alternateContactEmailAddress))}
+              defaultValue={formValues?.additionalContact?.businessEmailAddress}
+              errorMessage={tApp(extractValidationKey(formErrors?.additionalContactBusinessEmailAddress))}
               onChange={onAlternateContactEmailChange}
             />
             {alternateContactName && (

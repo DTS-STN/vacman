@@ -20,7 +20,6 @@ export function mapRequestToUpdateModel(request: RequestReadModel): RequestUpdat
   return {
     additionalComment: request.additionalComment,
     additionalContactId: request.additionalContact?.id,
-    alternateContactEmailAddress: request.alternateContactEmailAddress,
     appointmentNonAdvertisedId: request.appointmentNonAdvertised?.id,
     cityIds: request.cities?.map((city) => ({ value: city.id })) ?? [],
     classificationId: request.classification?.id,

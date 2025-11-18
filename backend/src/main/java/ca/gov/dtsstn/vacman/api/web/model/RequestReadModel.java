@@ -17,9 +17,6 @@ public record RequestReadModel(
 	@Schema(description = "Additional contact user of this request.")
 	UserReadModel additionalContact,
 
-	@Schema(description = "Alternate contact email address.", example = "user@example.com")
-	String alternateContactEmailAddress,
-
 	@Schema(description = "Reason for the appointment from a non-advertised process of this request.")
 	NonAdvertisedAppointmentReadModel appointmentNonAdvertised,
 

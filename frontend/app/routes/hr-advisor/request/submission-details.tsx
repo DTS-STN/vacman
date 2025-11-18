@@ -56,7 +56,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     directorate: formString(formData.get('directorate')),
     languageOfCorrespondenceId: formString(formData.get('languageOfCorrespondenceId')),
     additionalComment: formString(formData.get('additionalComment')),
-    alternateContactEmailAddress: formString(formData.get('alternateContactEmailAddress')),
+    additionalContactBusinessEmailAddress: formString(formData.get('additionalContactBusinessEmailAddress')),
   });
 
   if (!parseResult.success) {
@@ -69,19 +69,19 @@ export async function action({ context, params, request }: Route.ActionArgs) {
   const userService = getUserService();
   const userNotFoundMessage = t('app:submission-details.errors.no-user-found-with-this-email');
 
-  const { errors, resolvedHiringManagerId, resolvedSubDelegatedManagerId, resolvedAlternateContactId } =
+  const { errors, resolvedHiringManagerId, resolvedSubDelegatedManagerId, resolvedAdditionalContactId } =
     await resolveSubmissionDetailUserIds({
       userService,
       accessToken: session.authState.accessToken,
       hiringManagerEmailAddress: parseResult.output.hiringManagerEmailAddress,
       subDelegatedManagerEmailAddress: parseResult.output.subDelegatedManagerEmailAddress,
-      alternateContactEmailAddress: parseResult.output.alternateContactEmailAddress,
+      additionalContactBusinessEmailAddress: parseResult.output.additionalContactBusinessEmailAddress,
       userNotFoundMessage,
     });
 
   let hiringManagerId = resolvedHiringManagerId;
   let subDelegatedManagerId = resolvedSubDelegatedManagerId;
-  const additionalContactId = resolvedAlternateContactId;
+  const additionalContactId = resolvedAdditionalContactId;
 
   // Check for errors again after checking subDelegatedManager
   if (Object.keys(errors).length > 0) {
@@ -122,7 +122,6 @@ export async function action({ context, params, request }: Route.ActionArgs) {
     languageOfCorrespondenceId: parseResult.output.languageOfCorrespondenceId,
     additionalComment: parseResult.output.additionalComment,
     additionalContactId,
-    alternateContactEmailAddress: parseResult.output.alternateContactEmailAddress,
   });
 
   const updateResult = await requestService.updateRequestById(requestData.id, requestPayload, session.authState.accessToken);
@@ -171,7 +170,7 @@ export async function loader({ context, params, request }: Route.LoaderArgs) {
       languageOfCorrespondence: requestData.languageOfCorrespondence,
       additionalComment: requestData.additionalComment,
       additionalContact: requestData.additionalContact,
-      alternateContactEmailAddress: requestData.alternateContactEmailAddress,
+      additionalContactBusinessEmailAddress: requestData.additionalContact?.businessEmailAddress,
     },
     branchOrServiceCanadaRegions,
     directorates,

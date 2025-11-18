@@ -19,7 +19,6 @@ import ca.gov.dtsstn.vacman.api.web.validator.ValidWorkUnitCode;
 import io.soabase.recordbuilder.core.RecordBuilder;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -34,10 +33,6 @@ public record RequestUpdateModel(
 
 	@ValidUserId
 	Long additionalContactId,
-
-	@Email
-	@Size(max = 320)
-	String alternateContactEmailAddress,
 
 	@ValidNonAdvertisedAppointmentCode
 	Long appointmentNonAdvertisedId,
