@@ -4,6 +4,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import java.util.List;
@@ -18,18 +19,15 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import ca.gov.dtsstn.vacman.api.config.properties.ApplicationProperties;
 import ca.gov.dtsstn.vacman.api.data.entity.EventEntity;
-import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
-import ca.gov.dtsstn.vacman.api.data.entity.RequestEntity;
-import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 import ca.gov.dtsstn.vacman.api.data.repository.EventRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.MatchRepository;
 import ca.gov.dtsstn.vacman.api.event.RequestCreatedEvent;
 import ca.gov.dtsstn.vacman.api.event.RequestFeedbackCompletedEvent;
 import ca.gov.dtsstn.vacman.api.event.RequestFeedbackPendingEvent;
-import ca.gov.dtsstn.vacman.api.event.RequestSubmittedEvent;
 import ca.gov.dtsstn.vacman.api.event.RequestUpdatedEvent;
 import ca.gov.dtsstn.vacman.api.service.NotificationService;
 import ca.gov.dtsstn.vacman.api.service.NotificationService.RequestEvent;
+import ca.gov.dtsstn.vacman.api.service.dto.RequestEventDtoBuilder;
 
 @ExtendWith({ MockitoExtension.class })
 @DisplayName("RequestEventListener tests")
@@ -61,12 +59,10 @@ class RequestEventListenerTest {
 		@Test
 		@DisplayName("Should send notification when HR advisor has business email")
 		void sendNotificationWhenHrAdvisorHasBusinessEmail() {
-			final var request = RequestEntity.builder()
+			final var request = RequestEventDtoBuilder.builder()
 				.id(123L)
 				.nameEn("Test Request")
-				.hrAdvisor(UserEntity.builder()
-					.businessEmailAddress("hradvisor@example.com")
-					.build())
+				.hrAdvisorEmail("hradvisor@example.com")
 				.build();
 
 			requestEventListener.sendRequestFeedbackCompletedNotification(new RequestFeedbackCompletedEvent(request));
@@ -83,8 +79,7 @@ class RequestEventListenerTest {
 		@Test
 		@DisplayName("Should not send notification when HR advisor is null")
 		void shouldNotSendNotificationWhenHrAdvisorIsNull() {
-			final var request = RequestEntity.builder()
-				.hrAdvisor(null) // intentional
+			final var request = RequestEventDtoBuilder.builder()
 				.build();
 
 			requestEventListener.sendRequestFeedbackCompletedNotification(new RequestFeedbackCompletedEvent(request));
@@ -101,10 +96,7 @@ class RequestEventListenerTest {
 		@Test
 		@DisplayName("Should not send notification when HR advisor business email is null")
 		void shouldNotSendNotificationWhenBusinessEmailIsNull() {
-			final var request = RequestEntity.builder()
-				.hrAdvisor(UserEntity.builder()
-					.businessEmailAddress(null) // intentional
-					.build())
+			final var request = RequestEventDtoBuilder.builder()
 				.build();
 
 			requestEventListener.sendRequestFeedbackCompletedNotification(new RequestFeedbackCompletedEvent(request));
@@ -127,121 +119,67 @@ class RequestEventListenerTest {
 		@Test
 		@DisplayName("Should send notification to submitter, hiring manager, and HR delegate when they have business emails")
 		void sendNotificationWhenSubmitterHasBusinessEmail() {
-			final var request = RequestEntity.builder()
+			final var request = RequestEventDtoBuilder.builder()
 				.id(789L)
 				.nameEn("Feedback Pending Request")
-				.submitter(UserEntity.builder()
-					.businessEmailAddress("submitter@example.com")
-					.profiles(List.of())
-					.build())
-				.hiringManager(UserEntity.builder()
-					.businessEmailAddress("hiringmanager@example.com")
-					.profiles(List.of())
-					.build())
-				.subDelegatedManager(UserEntity.builder()
-					.businessEmailAddress("hrdelegate@example.com")
-					.profiles(List.of())
-					.build())
+				.additionalContactEmails(List.of())
+				.submitterEmails(List.of("submitter@example.com"))
+				.hiringManagerEmails(List.of("hiringmanager@example.com"))
+				.subDelegatedManagerEmails(List.of("hrdelegate@example.com"))
 				.build();
 
 			requestEventListener.sendRequestFeedbackPendingNotification(new RequestFeedbackPendingEvent(request));
 
-			verify(notificationService).sendRequestNotification(
-				eq(List.of("submitter@example.com", "hiringmanager@example.com", "hrdelegate@example.com")),
-				eq(789L),
-				eq("Feedback Pending Request"),
-				eq(RequestEvent.FEEDBACK_PENDING),
-				any()
-			);
+			verify(notificationService).sendRequestNotification(eq("submitter@example.com"), eq(789L), eq("Feedback Pending Request"), eq(RequestEvent.FEEDBACK_PENDING), any());
+			verify(notificationService).sendRequestNotification(eq("hiringmanager@example.com"), eq(789L), eq("Feedback Pending Request"), eq(RequestEvent.FEEDBACK_PENDING), any());
+			verify(notificationService).sendRequestNotification(eq("hrdelegate@example.com"), eq(789L), eq("Feedback Pending Request"), eq(RequestEvent.FEEDBACK_PENDING), any());
 		}
 
 		@Test
 		@DisplayName("Should send notification to both business and personal emails for all roles")
 		void sendNotificationToBothEmails() {
-			final var request = RequestEntity.builder()
+			final var request = RequestEventDtoBuilder.builder()
 				.id(999L)
 				.nameEn("Multi Email Request")
-				.submitter(UserEntity.builder()
-					.businessEmailAddress("submitter_business@example.com")
-					.profiles(List.of(ProfileEntity.builder()
-						.personalEmailAddress("submitter_personal@example.com")
-						.build()))
-					.build())
-				.hiringManager(UserEntity.builder()
-					.businessEmailAddress("manager_business@example.com")
-					.profiles(List.of(ProfileEntity.builder()
-						.personalEmailAddress("manager_personal@example.com")
-						.build()))
-					.build())
-				.subDelegatedManager(UserEntity.builder()
-					.businessEmailAddress("delegate_business@example.com")
-					.profiles(List.of(ProfileEntity.builder()
-						.personalEmailAddress("delegate_personal@example.com")
-						.build()))
-					.build())
+				.additionalContactEmails(List.of())
+				.submitterEmails(List.of("submitter_business@example.com", "submitter_personal@example.com"))
+				.hiringManagerEmails(List.of("manager_business@example.com", "manager_personal@example.com"))
+				.subDelegatedManagerEmails(List.of("delegate_business@example.com", "delegate_personal@example.com"))
 				.build();
 
 			requestEventListener.sendRequestFeedbackPendingNotification(new RequestFeedbackPendingEvent(request));
 
-			verify(notificationService).sendRequestNotification(
-				eq(List.of(
-					"submitter_business@example.com", "submitter_personal@example.com",
-					"manager_business@example.com", "manager_personal@example.com",
-					"delegate_business@example.com", "delegate_personal@example.com"
-				)),
-				eq(999L),
-				eq("Multi Email Request"),
-				eq(RequestEvent.FEEDBACK_PENDING),
-				any()
-			);
+			verify(notificationService, times(6)).sendRequestNotification(any(String.class), eq(999L), eq("Multi Email Request"), eq(RequestEvent.FEEDBACK_PENDING), any());
 		}
 
 		@Test
 		@DisplayName("Should still send notification when submitter is null but other roles are present")
 		void shouldNotSendNotificationWhenSubmitterIsNull() {
-			final var request = RequestEntity.builder()
+			final var request = RequestEventDtoBuilder.builder()
 				.id(555L)
 				.nameEn("No Submitter Request")
-				.submitter(null) // intentional
-				.hiringManager(UserEntity.builder()
-					.businessEmailAddress("hiringmanager@example.com")
-					.profiles(List.of())
-					.build())
-				.subDelegatedManager(UserEntity.builder()
-					.businessEmailAddress("hrdelegate@example.com")
-					.profiles(List.of())
-					.build())
+				.additionalContactEmails(List.of())
+				.submitterEmails(List.of())
+				.hiringManagerEmails(List.of("hiringmanager@example.com"))
+				.subDelegatedManagerEmails(List.of("hrdelegate@example.com"))
 				.build();
 
 			requestEventListener.sendRequestFeedbackPendingNotification(new RequestFeedbackPendingEvent(request));
 
-			verify(notificationService).sendRequestNotification(
-				eq(List.of("hiringmanager@example.com", "hrdelegate@example.com")),
-				eq(555L),
-				eq("No Submitter Request"),
-				eq(RequestEvent.FEEDBACK_PENDING),
-				any()
-			);
+			verify(notificationService).sendRequestNotification(eq("hiringmanager@example.com"), eq(555L), eq("No Submitter Request"), eq(RequestEvent.FEEDBACK_PENDING), any());
+			verify(notificationService).sendRequestNotification(eq("hrdelegate@example.com"), eq(555L), eq("No Submitter Request"), eq(RequestEvent.FEEDBACK_PENDING), any());
 		}
 
 		@Test
 		@DisplayName("Should not send notification when all roles have no email addresses")
 		void shouldNotSendNotificationWhenNoEmailAddresses() {
-			final var request = RequestEntity.builder()
+			final var request = RequestEventDtoBuilder.builder()
 				.id(222L)
 				.nameEn("No Emails Request")
-				.submitter(UserEntity.builder()
-					.businessEmailAddress(null) // intentional
-					.profiles(List.of())
-					.build())
-				.hiringManager(UserEntity.builder()
-					.businessEmailAddress(null) // intentional
-					.profiles(List.of())
-					.build())
-				.subDelegatedManager(UserEntity.builder()
-					.businessEmailAddress(null) // intentional
-					.profiles(List.of())
-					.build())
+				.additionalContactEmails(List.of())
+				.submitterEmails(List.of())
+				.hiringManagerEmails(List.of())
+				.subDelegatedManagerEmails(List.of())
 				.build();
 
 			requestEventListener.sendRequestFeedbackPendingNotification(new RequestFeedbackPendingEvent(request));
@@ -258,39 +196,18 @@ class RequestEventListenerTest {
 		@Test
 		@DisplayName("Should send notification to personal emails when business emails are null")
 		void sendNotificationToPersonalEmailOnly() {
-			final var request = RequestEntity.builder()
+			final var request = RequestEventDtoBuilder.builder()
 				.id(333L)
 				.nameEn("Personal Email Only Request")
-				.submitter(UserEntity.builder()
-					.profiles(List.of(ProfileEntity.builder()
-						.personalEmailAddress("submitter_personal@example.com")
-						.build()))
-					.build())
-				.hiringManager(UserEntity.builder()
-					.profiles(List.of(ProfileEntity.builder()
-						.personalEmailAddress("manager_personal@example.com")
-						.build()))
-					.build())
-				.subDelegatedManager(UserEntity.builder()
-					.profiles(List.of(ProfileEntity.builder()
-						.personalEmailAddress("delegate_personal@example.com")
-						.build()))
-					.build())
+				.additionalContactEmails(List.of())
+				.submitterEmails(List.of("submitter_personal@example.com"))
+				.hiringManagerEmails(List.of("manager_personal@example.com"))
+				.subDelegatedManagerEmails(List.of("delegate_personal@example.com"))
 				.build();
 
 			requestEventListener.sendRequestFeedbackPendingNotification(new RequestFeedbackPendingEvent(request));
 
-			verify(notificationService).sendRequestNotification(
-				eq(List.of(
-					"submitter_personal@example.com",
-					"manager_personal@example.com",
-					"delegate_personal@example.com"
-				)),
-				eq(333L),
-				eq("Personal Email Only Request"),
-				eq(RequestEvent.FEEDBACK_PENDING),
-				any()
-			);
+			verify(notificationService, times(3)).sendRequestNotification(any(String.class), eq(333L), eq("Personal Email Only Request"), eq(RequestEvent.FEEDBACK_PENDING), any());
 		}
 
 	}
@@ -302,7 +219,7 @@ class RequestEventListenerTest {
 		@Test
 		@DisplayName("Should save event to repository")
 		void shouldSaveEventToRepository() throws Exception {
-			final var request = RequestEntity.builder()
+			final var request = RequestEventDtoBuilder.builder()
 				.id(456L)
 				.build();
 
@@ -319,7 +236,7 @@ class RequestEventListenerTest {
 		@Test
 		@DisplayName("Should save event to repository")
 		void shouldSaveEventToRepository() throws Exception {
-			final var request = RequestEntity.builder()
+			final var request = RequestEventDtoBuilder.builder()
 				.id(789L)
 				.build();
 

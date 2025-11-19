@@ -66,6 +66,7 @@ import ca.gov.dtsstn.vacman.api.event.RequestUpdatedEvent;
 import ca.gov.dtsstn.vacman.api.security.SecurityUtils;
 import ca.gov.dtsstn.vacman.api.service.dto.MatchQuery;
 import ca.gov.dtsstn.vacman.api.service.dto.RequestQuery;
+import ca.gov.dtsstn.vacman.api.service.mapper.RequestEntityMapper;
 import ca.gov.dtsstn.vacman.api.web.exception.ResourceConflictException;
 import ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException;
 import ca.gov.dtsstn.vacman.api.web.exception.UnauthorizedException;
@@ -98,7 +99,7 @@ public class RequestService {
 
 	private final NonAdvertisedAppointmentRepository nonAdvertisedAppointmentRepository;
 
-	private final NotificationService notificationService;
+	private final RequestEntityMapper requestEntityMapper = Mappers.getMapper(RequestEntityMapper.class);
 
 	private final RequestModelMapper requestModelMapper = Mappers.getMapper(RequestModelMapper.class);
 
@@ -132,7 +133,6 @@ public class RequestService {
 			LookupCodes lookupCodes,
 			MatchRepository matchRepository,
 			NonAdvertisedAppointmentRepository nonAdvertisedAppointmentRepository,
-			NotificationService notificationService,
 			ProvinceRepository provinceRepository,
 			RequestMatchingService requestMatchingService,
 			RequestRepository requestRepository,
@@ -152,7 +152,6 @@ public class RequestService {
 		this.languageRequirementRepository = languageRequirementRepository;
 		this.matchRepository = matchRepository;
 		this.nonAdvertisedAppointmentRepository = nonAdvertisedAppointmentRepository;
-		this.notificationService = notificationService;
 		this.requestMatchingService = requestMatchingService;
 		this.requestRepository = requestRepository;
 		this.requestStatusRepository = requestStatusRepository;
@@ -178,7 +177,7 @@ public class RequestService {
 			.requestStatus(draftStatus)
 			.build());
 
-		eventPublisher.publishEvent(new RequestCreatedEvent(request));
+		eventPublisher.publishEvent(new RequestCreatedEvent(requestEntityMapper.toEventDto(request)));
 
 		return request;
 	}
@@ -312,7 +311,7 @@ public class RequestService {
 	@Counted("service.request.updateRequest.count")
 	public RequestEntity updateRequest(RequestEntity request) {
 		final var updatedRequest = requestRepository.save(request);
-		eventPublisher.publishEvent(new RequestUpdatedEvent(updatedRequest));
+		eventPublisher.publishEvent(new RequestUpdatedEvent(requestEntityMapper.toEventDto(updatedRequest)));
 		return updatedRequest;
 	}
 
@@ -462,7 +461,7 @@ public class RequestService {
 		request.setRequestStatus(getRequestStatusByCode(requestStatuses.submitted()));
 
 		// Send notification
-		eventPublisher.publishEvent(new RequestSubmittedEvent(request, requestStatuses.draft(), requestStatuses.submitted()));
+		eventPublisher.publishEvent(new RequestSubmittedEvent(requestEntityMapper.toEventDto(request), requestStatuses.draft(), requestStatuses.submitted()));
 
 		return request;
 	}
@@ -519,7 +518,7 @@ public class RequestService {
 		// Set status to PENDING_PSC_NO_VMS
 		request.setRequestStatus(getRequestStatusByCode(requestStatuses.pendingPscClearanceNoVms()));
 
-		eventPublisher.publishEvent(new RequestStatusChangeEvent(request, requestStatuses.hrReview(), requestStatuses.pendingPscClearanceNoVms()));
+		eventPublisher.publishEvent(new RequestStatusChangeEvent(requestEntityMapper.toEventDto(request), requestStatuses.hrReview(), requestStatuses.pendingPscClearanceNoVms()));
 
 		return request;
 	}
@@ -557,7 +556,7 @@ public class RequestService {
 		 * }
 		 */
 
-		eventPublisher.publishEvent(new RequestFeedbackCompletedEvent(request));
+		eventPublisher.publishEvent(new RequestFeedbackCompletedEvent(requestEntityMapper.toEventDto(request)));
 
 		return request;
 	}
@@ -590,7 +589,7 @@ public class RequestService {
 		final var clearanceNumber = RandomStringUtils.insecure().nextAlphanumeric(16).toUpperCase();
 		request.setPscClearanceNumber(clearanceNumber);
 
-		eventPublisher.publishEvent(new RequestStatusChangeEvent(request, currentStatus, requestStatuses.clearanceGranted()));
+		eventPublisher.publishEvent(new RequestStatusChangeEvent(requestEntityMapper.toEventDto(request), currentStatus, requestStatuses.clearanceGranted()));
 
 		return request;
 	}
@@ -627,7 +626,7 @@ public class RequestService {
 		request.setPscClearanceNumber(clearanceNumber);
 
 		// Publish a RequestStatusChangeEvent
-		eventPublisher.publishEvent(new RequestStatusChangeEvent(request, previousStatusCode, requestStatuses.pendingPscClearance()));
+		eventPublisher.publishEvent(new RequestStatusChangeEvent(requestEntityMapper.toEventDto(request), previousStatusCode, requestStatuses.pendingPscClearance()));
 
 		return request;
 	}
@@ -651,7 +650,7 @@ public class RequestService {
 
 		// Set status to PSC_GRANTED
 		request.setRequestStatus(getRequestStatusByCode(requestStatuses.pscClearanceGranted()));
-		eventPublisher.publishEvent(new RequestCompletedEvent(request));
+		eventPublisher.publishEvent(new RequestCompletedEvent(requestEntityMapper.toEventDto(request)));
 
 		return request;
 	}
@@ -672,7 +671,7 @@ public class RequestService {
 		request.setRequestStatus(getRequestStatusByCode(requestStatuses.cancelled()));
 		final var updatedRequest = updateRequest(request);
 
-		eventPublisher.publishEvent(new RequestStatusChangeEvent(updatedRequest, previousStatusCode, requestStatuses.cancelled()));
+		eventPublisher.publishEvent(new RequestStatusChangeEvent(requestEntityMapper.toEventDto(updatedRequest), previousStatusCode, requestStatuses.cancelled()));
 
 		return updatedRequest;
 	}
@@ -704,7 +703,7 @@ public class RequestService {
 		if (!matches.isEmpty()) {
 			// Set status to FDBK_PENDING and send notification to the owner and matched users.
 			request.setRequestStatus(getRequestStatusByCode(requestStatuses.feedbackPending()));
-			eventPublisher.publishEvent(new RequestFeedbackPendingEvent(request));
+			eventPublisher.publishEvent(new RequestFeedbackPendingEvent(requestEntityMapper.toEventDto(request)));
 		}
 		else {
 			// Set status to NO_MATCH_HR_REVIEW
