@@ -16,6 +16,3 @@ ALTER TABLE REQUEST
     )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION;
-
---changeset system:update-event-detail-nvarcharmax dbms:mssql,h2
-ALTER TABLE [EVENT] ALTER COLUMN [DETAIL] NVARCHAR (MAX);
