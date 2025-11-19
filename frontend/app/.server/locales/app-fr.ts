@@ -611,6 +611,7 @@ export default {
       'my-requests': 'Tableau mis à jour : affichage de Mes demandes',
       'all-requests': 'Tableau mis à jour : affichage de Toutes les demandes',
     },
+    'filter-by': 'Filtrer par toutes les demandes ou celles qui me sont attribuées',
   },
   'matches': {
     'page-title': 'Candidatures de la demande',

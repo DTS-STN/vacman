@@ -110,9 +110,9 @@ export default {
       'more-pages': 'Plus de pages',
     },
     'sorting': {
-      'sorted-ascending': '{{column}}, trié en ordre croissant. Cliquez pour supprimer le tri.',
-      'sorted-descending': '{{column}}, trié en ordre décroissant. Cliquez pour trier en ordre croissant.',
-      'not-sorted': '{{column}}, non trié. Cliquez pour trier en ordre décroissant.',
+      'sorted-ascending': '{{column}}, trié en ordre croissant. Cliquez pour trier en ordre décroissant.',
+      'sorted-descending': '{{column}}, trié en ordre décroissant. Cliquez pour supprimer le tri.',
+      'not-sorted': '{{column}}, non trié. Cliquez pour trier en ordre croissant.',
       'cleared': 'Tri effacé. Utilisez les en-têtes pour trier.',
     },
   },

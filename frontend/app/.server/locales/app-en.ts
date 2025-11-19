@@ -302,7 +302,7 @@ export default {
     'action': 'Action',
     'branch': 'Branch',
     'next-page': 'Next',
-    'filter-by': 'Filter table by all employees or profile assigned to me',
+    'filter-by': 'Filter table by all employees or profiles assigned to me',
     'view-link': 'View profile information for {{profileUserName}}',
     'table-updated-my-employees': 'Table updated: showing My Employees',
     'table-updated-all-employees': 'Table updated: showing All Employees',
@@ -599,6 +599,7 @@ export default {
       'my-requests': 'Table updated: showing My requests',
       'all-requests': 'Table updated: showing All requests',
     },
+    'filter-by': 'Filter table by all requests or requests assigned to me',
   },
   'matches': {
     'page-title': 'Request candidates',

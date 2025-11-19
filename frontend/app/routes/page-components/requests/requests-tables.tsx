@@ -120,7 +120,7 @@ export default function RequestsTables({
                 name="selectRequests"
                 required={false}
                 options={requestsOptions}
-                aria-label={t('hr-advisor-employees-table.filter-by')}
+                title={t('requests-tables.filter-by')}
                 defaultValue={requestsFilter}
                 onChange={({ target }) => {
                   const params = new URLSearchParams(searchParams.toString());
