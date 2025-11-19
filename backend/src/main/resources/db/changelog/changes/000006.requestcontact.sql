@@ -1,6 +1,6 @@
 --liquibase formatted sql
 
---changeset system:update-requests-add-additional-contact
+--changeset system:update-requests-add-additional-contact dbms:mssql,h2
 
 ALTER TABLE REQUEST
     ADD USER_ID_ADDITIONAL_CONTACT BIGINT;
@@ -16,3 +16,6 @@ ALTER TABLE REQUEST
     )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION;
+
+--changeset system:update-event-detail-nvarcharmax dbms:mssql,h2
+ALTER TABLE [EVENT] ALTER COLUMN [DETAIL] NVARCHAR (MAX);
