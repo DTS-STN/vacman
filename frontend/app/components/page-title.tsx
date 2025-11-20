@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import type { ComponentProps } from 'react';
 
 import { cn } from '~/utils/tailwind-utils';
@@ -21,9 +22,23 @@ export function PageTitle({
   const topSubTitle = variant === 'top' && subTitle;
   const bottomSubTitle = variant === 'bottom' && subTitle;
 
+  const headingRef = useRef<HTMLHeadingElement>(null);
+
+  useEffect(() => {
+    if (headingRef.current) {
+      headingRef.current.focus();
+    }
+  }, []);
+
   return (
     <div className={cn('mt-10 mb-8', containerClassName)}>
-      <h1 id="wb-cont" tabIndex={-1} className={cn('font-lato text-3xl font-bold focus-visible:ring-3', className)} {...props}>
+      <h1
+        ref={headingRef}
+        id="wb-cont"
+        tabIndex={-1}
+        className={cn('font-lato text-3xl font-bold focus-visible:ring-3', className)}
+        {...props}
+      >
         {topSubTitle ? <span className={cn('block', subTitleClassName)}>{topSubTitle}</span> : null}
         {typeof children === 'string' ? <span className="block">{children}</span> : children}
         {bottomSubTitle ? <span className={cn('block', subTitleClassName)}>{bottomSubTitle}</span> : null}
