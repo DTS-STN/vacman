@@ -4,6 +4,7 @@ import static ca.gov.dtsstn.vacman.api.data.entity.AbstractCodeEntity.byCode;
 
 import java.util.Optional;
 
+import org.mapstruct.factory.Mappers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
@@ -24,6 +25,7 @@ import ca.gov.dtsstn.vacman.api.event.UserDeletedEvent;
 import ca.gov.dtsstn.vacman.api.event.UserReadEvent;
 import ca.gov.dtsstn.vacman.api.event.UserUpdatedEvent;
 import ca.gov.dtsstn.vacman.api.security.SecurityUtils;
+import ca.gov.dtsstn.vacman.api.service.mapper.UserEntityEventMapper;
 import ca.gov.dtsstn.vacman.api.service.mapper.UserEntityMapper;
 import io.micrometer.core.annotation.Counted;
 
@@ -37,6 +39,8 @@ public class UserService {
 	private final CodeService codeService;
 
 	private final RolesProperties entraRoles;
+
+	private final UserEntityEventMapper userEntityEventMapper = Mappers.getMapper(UserEntityEventMapper.class);
 
 	private final UserEntityMapper userEntityMapper;
 
@@ -74,7 +78,7 @@ public class UserService {
 		final var createdUser = userRepository.save(user);
 
 		// Publish created event
-		eventPublisher.publishEvent(new UserCreatedEvent(createdUser));
+		eventPublisher.publishEvent(new UserCreatedEvent(userEntityEventMapper.toEventDto(createdUser)));
 		log.info("User created with ID: {}", createdUser.getId());
 
 		return createdUser;
@@ -84,7 +88,7 @@ public class UserService {
 	@Counted("service.user.getUserById.count")
 	public Optional<UserEntity> getUserById(long id) {
 		return userRepository.findById(id).map(user -> {
-			eventPublisher.publishEvent(new UserReadEvent(user));
+			eventPublisher.publishEvent(new UserReadEvent(userEntityEventMapper.toEventDto(user)));
 			return user;
 		});
 	}
@@ -108,7 +112,7 @@ public class UserService {
 	@Counted("service.user.getUsers.count")
 	public Page<UserEntity> getUsers(Pageable pageable) {
 		final var users = userRepository.findAll(pageable);
-		users.forEach(user -> eventPublisher.publishEvent(new UserReadEvent(user)));
+		users.forEach(user -> eventPublisher.publishEvent(new UserReadEvent(userEntityEventMapper.toEventDto(user))));
 		return users;
 	}
 
@@ -126,7 +130,7 @@ public class UserService {
 	@Counted("service.user.findUsers.count")
 	public Page<UserEntity> findUsers(UserEntity example, Pageable pageable) {
 		final var users = userRepository.findAll(Example.of(example), pageable);
-		users.forEach(user -> eventPublisher.publishEvent(new UserReadEvent(user)));
+		users.forEach(user -> eventPublisher.publishEvent(new UserReadEvent(userEntityEventMapper.toEventDto(user))));
 		return users;
 	}
 
@@ -136,7 +140,7 @@ public class UserService {
 		final var existingUser = userRepository.findById(id).orElseThrow();
 		userEntityMapper.overwrite(updates, existingUser);
 		final var updatedUser = userRepository.save(existingUser);
-		eventPublisher.publishEvent(new UserUpdatedEvent(updatedUser));
+		eventPublisher.publishEvent(new UserUpdatedEvent(userEntityEventMapper.toEventDto(updatedUser)));
 		log.info("User updated with ID: {}", updatedUser.getId());
 		return updatedUser;
 	}
@@ -147,7 +151,7 @@ public class UserService {
 		final var existingUser = userRepository.findById(id).orElseThrow();
 		userEntityMapper.update(updates, existingUser);
 		final var updatedUser = userRepository.save(existingUser);
-		eventPublisher.publishEvent(new UserUpdatedEvent(updatedUser));
+		eventPublisher.publishEvent(new UserUpdatedEvent(userEntityEventMapper.toEventDto(updatedUser)));
 		log.info("User updated with ID: {}", updatedUser.getId());
 		return updatedUser;
 	}
@@ -157,7 +161,7 @@ public class UserService {
 	public void deleteUser(long id) {
 		userRepository.findById(id).ifPresent(user -> {
 			userRepository.deleteById(id);
-			eventPublisher.publishEvent(new UserDeletedEvent(user));
+			eventPublisher.publishEvent(new UserDeletedEvent(userEntityEventMapper.toEventDto(user)));
 			log.info("User deleted with ID: {}", id);
 		});
 	}
