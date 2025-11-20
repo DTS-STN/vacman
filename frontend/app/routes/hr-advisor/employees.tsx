@@ -346,7 +346,7 @@ export default function EmployeeDashboard({ loaderData, params }: Route.Componen
             required={false}
             options={employeesOptions}
             label=""
-            aria-label={t('app:hr-advisor-employees-table.filter-by')}
+            title={t('app:hr-advisor-employees-table.filter-by')}
             defaultValue={searchParams.get('filter') ?? 'all'}
             onChange={({ target }) => {
               const size = searchParams.get('size') ?? '10';
