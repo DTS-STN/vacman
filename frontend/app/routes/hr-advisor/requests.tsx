@@ -1,3 +1,4 @@
+import { data } from 'react-router';
 import type { RouteHandle } from 'react-router';
 
 import { useTranslation } from 'react-i18next';
@@ -5,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import RequestsTables from '../page-components/requests/requests-tables';
 import type { Route } from './+types/requests';
 
-import type { RequestQueryParams } from '~/.server/domain/models';
+import type { RequestQueryParams, RequestReadModel, RequestUpdateModel } from '~/.server/domain/models';
 import { getClassificationService } from '~/.server/domain/services/classification-service';
 import { getRequestService } from '~/.server/domain/services/request-service';
 import { getRequestStatusService } from '~/.server/domain/services/request-status-service';
@@ -18,9 +19,11 @@ import {
   fetchRequestsWithClassificationFallback,
   resolveClassificationSearch,
 } from '~/.server/utils/request-classification-utils';
+import { mapRequestToUpdateModelWithOverrides } from '~/.server/utils/request-utils';
 import { BackLink } from '~/components/back-link';
 import { PageTitle } from '~/components/page-title';
 import { REQUEST_CATEGORY, REQUEST_STATUS_CODE, REQUEST_STATUSES } from '~/domain/constants';
+import { HttpStatusCodes } from '~/errors/http-status-codes';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
 import { removeNumberMask } from '~/utils/string-utils';
@@ -33,6 +36,32 @@ export function meta({ loaderData }: Route.MetaArgs) {
   return [{ title: loaderData.documentTitle }];
 }
 
+export async function action({ context, params, request }: Route.ActionArgs) {
+  const { session } = context.get(context.applicationContext);
+  requireAuthentication(session, request);
+  const formData = await request.formData();
+  const requestId = Number(formData.get('requestId'));
+
+  const requestService = getRequestService();
+  const requestResult = await requestService.getRequestById(requestId, session.authState.accessToken);
+  if (requestResult.isErr()) {
+    throw new Response('Request not found', { status: HttpStatusCodes.NOT_FOUND });
+  }
+
+  const requestData: RequestReadModel = requestResult.unwrap();
+  const hrAdvisorId = formData.get('hrAdvisorId');
+  const requestPayload: RequestUpdateModel = mapRequestToUpdateModelWithOverrides(requestData, {
+    hrAdvisorId: hrAdvisorId ? Number(formData.get('hrAdvisorId')) : undefined,
+  });
+
+  const updatedRequestResult = await requestService.updateRequestById(requestId, requestPayload, session.authState.accessToken);
+  if (updatedRequestResult.isErr()) {
+    throw new Response('Failed updating hr-advisor', { status: HttpStatusCodes.NOT_FOUND });
+  }
+
+  return data({ success: true });
+}
+
 export async function loader({ context, request }: Route.LoaderArgs) {
   const { session } = context.get(context.applicationContext);
   requireAuthentication(session, request);
@@ -41,6 +70,16 @@ export async function loader({ context, request }: Route.LoaderArgs) {
 
   const currentUserResult = await getUserService().getCurrentUser(session.authState.accessToken);
   const currentUser = currentUserResult.unwrap();
+
+  const hrAdvisors = (
+    await getUserService().getUsers(
+      {
+        page: 0,
+        userType: 'hr-advisor',
+      },
+      session.authState.accessToken,
+    )
+  ).unwrap().content;
 
   const classifications = await getClassificationService().listAllLocalized(lang);
   const directorates = await getWorkUnitService().listAllLocalized(lang);
@@ -160,6 +199,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
     requestStatuses,
     classifications,
     workUnits,
+    hrAdvisors,
     baseTimeZone: serverEnvironment.BASE_TIMEZONE,
     userId: currentUser.id,
   };

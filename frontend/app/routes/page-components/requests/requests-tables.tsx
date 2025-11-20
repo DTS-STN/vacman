@@ -1,12 +1,12 @@
-import { useEffect, useMemo, useState } from 'react';
-import type { JSX } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import type { ChangeEvent, JSX } from 'react';
 
 import type { FetcherWithComponents, SetURLSearchParams } from 'react-router';
 import { useFetcher, useSearchParams } from 'react-router';
 
 import { useTranslation } from 'react-i18next';
 
-import type { LocalizedLookupModel, PageMetadata, RequestReadModel } from '~/.server/domain/models';
+import type { LocalizedLookupModel, PageMetadata, RequestReadModel, User } from '~/.server/domain/models';
 import { InputSelect } from '~/components/input-select';
 import { LoadingButton } from '~/components/loading-button';
 import { LoadingLink } from '~/components/loading-link';
@@ -24,8 +24,8 @@ interface RequestTablesProps {
   inactiveRequestsPage: PageMetadata;
   inactiveRequests: RequestReadModel[];
   requestStatuses: readonly LocalizedLookupModel[];
-  classifications: readonly LocalizedLookupModel[];
   workUnits: LocalizedLookupModel[];
+  hrAdvisors?: readonly User[];
   baseTimeZone: string;
   view: 'hr-advisor' | 'hiring-manager';
 }
@@ -36,8 +36,8 @@ export default function RequestsTables({
   inactiveRequestsPage,
   inactiveRequests,
   requestStatuses,
-  classifications,
   workUnits,
+  hrAdvisors,
   baseTimeZone,
   view,
 }: RequestTablesProps): JSX.Element {
@@ -148,8 +148,8 @@ export default function RequestsTables({
             page={activeRequestsPage}
             requests={activeRequests}
             requestStatuses={activeRequestsOptions}
-            classifications={classifications}
             workUnits={workUnits}
+            hrAdvisors={hrAdvisors}
             view={view}
             isSubmitting={isSubmitting}
             formatDateYMD={formatDateYMD}
@@ -166,8 +166,8 @@ export default function RequestsTables({
             page={inactiveRequestsPage}
             requests={inactiveRequests}
             requestStatuses={inactiveRequestsOptions}
-            classifications={classifications}
             workUnits={workUnits}
+            hrAdvisors={hrAdvisors}
             view={view}
             isSubmitting={isSubmitting}
             formatDateYMD={formatDateYMD}
@@ -186,8 +186,8 @@ interface RequestColumnsProps {
   page: PageMetadata;
   requests: RequestReadModel[];
   requestStatuses: readonly LocalizedLookupModel[];
-  classifications: readonly LocalizedLookupModel[];
   workUnits: LocalizedLookupModel[];
+  hrAdvisors?: readonly User[];
   view: 'hr-advisor' | 'hiring-manager';
   isSubmitting: boolean;
   formatDateYMD: (iso?: string | undefined) => string;
@@ -202,8 +202,8 @@ function RequestsColumns({
   requests,
   view,
   requestStatuses,
-  classifications,
   workUnits,
+  hrAdvisors = [],
   isSubmitting,
   formatDateYMD,
   searchParams,
@@ -215,6 +215,16 @@ function RequestsColumns({
     page: `${keyPrefix}Page`,
     sort: `${keyPrefix}Sort`,
   };
+
+  const updateHrAdvisor = useCallback(
+    (id: string, hrAdvisorId: string) => {
+      const formData = new FormData();
+      formData.set('requestId', id);
+      formData.set('hrAdvisorId', hrAdvisorId);
+      void fetcher.submit(formData, { method: 'post' });
+    },
+    [fetcher.submit],
+  );
 
   // Helper function to get HR advisor name
   const getHrAdvisorName = (hrAdvisor: RequestReadModel['hrAdvisor']) => {
@@ -285,6 +295,43 @@ function RequestsColumns({
         />
       )}
       <Column
+        accessorKey="hrAdvisor"
+        accessorFn={(row: RequestReadModel) => getHrAdvisorName(row.hrAdvisor)}
+        header={({ column }) => <ColumnHeader column={column} title={t('requests-tables.hr-advisor')} />}
+        cell={(info) => {
+          if (view !== 'hr-advisor') {
+            const hrAdvisorName = getHrAdvisorName(info.row.original.hrAdvisor) || t('requests-tables.not-assigned');
+            return <span className="text-neutral-600">{hrAdvisorName}</span>;
+          }
+          const hrAdvisorValue = info.row.original.hrAdvisor?.id;
+          const selectOptions = [{ id: 'not-assigned', firstName: undefined, lastName: undefined }, ...hrAdvisors].map(
+            (hrAdvisor) => {
+              const id = String(hrAdvisor.id);
+              return {
+                value: id === 'not-assigned' ? undefined : id,
+                children:
+                  id === 'not-assigned' ? t('requests-tables.not-assigned') : `${hrAdvisor.firstName} ${hrAdvisor.lastName}`,
+              };
+            },
+          );
+
+          return (
+            <InputSelect
+              id={info.cell.id}
+              name={t('matches-tables.feedback')}
+              options={selectOptions}
+              value={hrAdvisorValue ?? ''}
+              aria-label={t('matches-tables.feedback')}
+              disabled={isSubmitting}
+              variant="alternative"
+              onChange={(event: ChangeEvent<HTMLSelectElement>) =>
+                updateHrAdvisor(info.row.original.id.toString(), event.target.value)
+              }
+            />
+          );
+        }}
+      />
+      <Column
         accessorKey="lastModifiedDate"
         accessorFn={(row: RequestReadModel) => row.lastModifiedDate ?? ''}
         header={({ column }) => <ColumnHeader column={column} title={t('requests-tables.updated')} />}
@@ -293,15 +340,6 @@ function RequestsColumns({
           const userUpdated = info.row.original.lastModifiedBy ?? 'Unknown User';
           const dateUpdated = formatDateYMD(lastModifiedDate);
           return <span className="text-neutral-600">{`${dateUpdated}: ${userUpdated}`}</span>;
-        }}
-      />
-      <Column
-        accessorKey="hrAdvisor"
-        accessorFn={(row: RequestReadModel) => getHrAdvisorName(row.hrAdvisor)}
-        header={({ column }) => <ColumnHeader column={column} title={t('requests-tables.hr-advisor')} />}
-        cell={(info) => {
-          const hrAdvisorName = getHrAdvisorName(info.row.original.hrAdvisor) || t('requests-tables.not-assigned');
-          return <span className="text-neutral-600">{hrAdvisorName}</span>;
         }}
       />
       <Column
