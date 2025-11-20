@@ -2,17 +2,17 @@ package ca.gov.dtsstn.vacman.api.event;
 
 import java.time.Instant;
 
-import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
+import ca.gov.dtsstn.vacman.api.service.dto.UserEventDto;
 import io.soabase.recordbuilder.core.RecordBuilder;
 
 /**
  * Event that is published when a user creation conflicts with an existing user.
  */
 @RecordBuilder
-public record UserCreateConflictEvent(UserEntity entity, Instant timestamp) {
+public record UserCreateConflictEvent(UserEventDto dto, Instant timestamp) {
 
-	public UserCreateConflictEvent(UserEntity entity) {
-		this(entity, Instant.now());
+	public UserCreateConflictEvent(UserEventDto dto) {
+		this(dto, Instant.now());
 	}
 
 }
