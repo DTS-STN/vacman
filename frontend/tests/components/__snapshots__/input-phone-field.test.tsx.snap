@@ -166,14 +166,9 @@ exports[`InputPhoneField > should render with required > expected html 1`] = `
       >
         label test
       </span>
-       
-      <span
-        aria-hidden="true"
-      >
-        (
-        input.required
-        )
-      </span>
+       (
+      input.required
+      )
     </label>
     <input
       aria-invalid="false"

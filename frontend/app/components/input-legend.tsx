@@ -21,7 +21,7 @@ export function InputLegend(props: InputLegendProps) {
         // Using a regular space entity (&#32;) to ensure consistent spacing before the required text,
         // preventing accidental collapse or omission in rendering.
         <>
-          &#32;<span aria-hidden="true">({t('input.required')})</span>
+          &#32;({t('input.required')})
         </>
       )}
     </legend>

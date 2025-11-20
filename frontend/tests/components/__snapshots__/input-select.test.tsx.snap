@@ -86,14 +86,9 @@ exports[`InputSelect - Snapshot Only > should render input select component as r
       >
         Test Label
       </span>
-       
-      <span
-        aria-hidden="true"
-      >
-        (
-        input.required
-        )
-      </span>
+       (
+      input.required
+      )
     </label>
     <select
       aria-invalid="false"
@@ -137,14 +132,9 @@ exports[`InputSelect - Snapshot Only > should render input select component as r
       >
         Test Label
       </span>
-       
-      <span
-        aria-hidden="true"
-      >
-        (
-        input.required
-        )
-      </span>
+       (
+      input.required
+      )
     </legend>
     <select
       aria-invalid="false"

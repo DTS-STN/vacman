@@ -6,7 +6,7 @@ exports[`DropdownMenu > should render all DropdownMenu components > expected htm
     aria-expanded="false"
     aria-haspopup="menu"
     data-state="closed"
-    id="radix-_r_0_"
+    id="radix-«r0»"
     type="button"
   >
     Open

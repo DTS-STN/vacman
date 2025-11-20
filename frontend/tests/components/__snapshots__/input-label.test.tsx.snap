@@ -28,14 +28,9 @@ exports[`InputLabel > should render input label component with required > expect
     >
       input test
     </span>
-     
-    <span
-      aria-hidden="true"
-    >
-      (
-      input.required
-      )
-    </span>
+     (
+    input.required
+    )
   </label>
 </div>
 `;

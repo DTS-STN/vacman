@@ -124,14 +124,9 @@ exports[`InputField > should render input field with required > expected html 1`
       >
         label test
       </span>
-       
-      <span
-        aria-hidden="true"
-      >
-        (
-        input.required
-        )
-      </span>
+       (
+      input.required
+      )
     </label>
     <input
       aria-labelledby="input-text-field-test-id-label"
