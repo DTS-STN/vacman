@@ -8,6 +8,7 @@ import static ca.gov.dtsstn.vacman.api.data.repository.MatchRepository.hasProfil
 import static ca.gov.dtsstn.vacman.api.data.repository.MatchRepository.hasProfileMiddleNameContaining;
 import static ca.gov.dtsstn.vacman.api.data.repository.MatchRepository.hasProfileWfaStatusIdIn;
 import static ca.gov.dtsstn.vacman.api.data.repository.MatchRepository.hasRequestId;
+import static ca.gov.dtsstn.vacman.api.data.repository.RequestRepository.hasAdditionalContactId;
 import static ca.gov.dtsstn.vacman.api.data.repository.RequestRepository.hasClassificationIdIn;
 import static ca.gov.dtsstn.vacman.api.data.repository.RequestRepository.hasHiringManagerId;
 import static ca.gov.dtsstn.vacman.api.data.repository.RequestRepository.hasHrAdvisorIdIn;
@@ -192,9 +193,10 @@ public class RequestService {
 	@Counted("service.request.getAllRequestsAssociatedWithUser.count")
 	public Page<RequestEntity> getAllRequestsAssociatedWithUser(Pageable pageable, Long userId, RequestQuery query) {
 		final var requestsAssociatedWithUser = anyOf(
-			hasSubmitterId(userId),
+			hasAdditionalContactId(userId),
 			hasHiringManagerId(userId),
-			hasSubDelegatedManagerId(userId)
+			hasSubDelegatedManagerId(userId),
+			hasSubmitterId(userId)
 		);
 
 		final var specification = allOf(

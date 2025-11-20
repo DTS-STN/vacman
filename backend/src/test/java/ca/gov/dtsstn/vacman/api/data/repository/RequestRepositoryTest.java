@@ -1,9 +1,11 @@
 package ca.gov.dtsstn.vacman.api.data.repository;
 
-import static ca.gov.dtsstn.vacman.api.data.repository.RequestRepository.hasHrAdvisorId;
-import static ca.gov.dtsstn.vacman.api.data.repository.RequestRepository.hasHrAdvisorIdIn;
+import static ca.gov.dtsstn.vacman.api.data.repository.RequestRepository.hasAdditionalContactId;
+import static ca.gov.dtsstn.vacman.api.data.repository.RequestRepository.hasAdditionalContactIdIn;
 import static ca.gov.dtsstn.vacman.api.data.repository.RequestRepository.hasHiringManagerId;
 import static ca.gov.dtsstn.vacman.api.data.repository.RequestRepository.hasHiringManagerIdIn;
+import static ca.gov.dtsstn.vacman.api.data.repository.RequestRepository.hasHrAdvisorId;
+import static ca.gov.dtsstn.vacman.api.data.repository.RequestRepository.hasHrAdvisorIdIn;
 import static ca.gov.dtsstn.vacman.api.data.repository.RequestRepository.hasRequestStatusId;
 import static ca.gov.dtsstn.vacman.api.data.repository.RequestRepository.hasRequestStatusIdIn;
 import static ca.gov.dtsstn.vacman.api.data.repository.RequestRepository.hasStatusCode;
@@ -1105,6 +1107,129 @@ class RequestRepositoryTest {
 			final var results = requestRepository.findAll(hasSubDelegatedManagerIdIn((Collection<Long>) null));
 
 			assertThat(results).as("Should match all requests when sub-delegated manager ID collection is null").hasSize(1);
+		}
+
+	}
+
+	@Nested
+	@DisplayName("Additional Contact Specification Tests")
+	class AdditionalContactSpecificationTests {
+
+		@Test
+		@DisplayName("hasAdditionalContactId should find requests by additional contact ID")
+		void testHasAdditionalContactId() {
+			final var request1 = requestRepository.save(
+				RequestEntity.builder()
+					.submitter(submitter)
+					.requestStatus(statusDraft)
+					.additionalContact(hrAdvisor1)
+					.build());
+
+			final var request2 = requestRepository.save(
+				RequestEntity.builder()
+					.submitter(submitter)
+					.requestStatus(statusDraft)
+					.additionalContact(hrAdvisor1)
+					.build());
+
+			@SuppressWarnings("unused")
+			final var request3 = requestRepository.save(
+				RequestEntity.builder()
+					.submitter(submitter)
+					.requestStatus(statusDraft)
+					.additionalContact(hrAdvisor2)
+					.build());
+
+			final var results = requestRepository.findAll(hasAdditionalContactId(hrAdvisor1.getId()));
+
+			assertThat(results).as("Should find 2 requests with additional contact HR advisor 1").hasSize(2);
+			assertThat(results).extracting(RequestEntity::getId)
+				.as("Should contain the IDs of the two requests with additional contact HR advisor 1")
+				.containsExactlyInAnyOrder(request1.getId(), request2.getId());
+		}
+
+		@Test
+		@DisplayName("hasAdditionalContactId should return empty list when no requests match")
+		void testHasAdditionalContactIdNoMatches() {
+			requestRepository.save(
+				RequestEntity.builder()
+					.submitter(submitter)
+					.requestStatus(statusDraft)
+					.additionalContact(hrAdvisor1)
+					.build());
+
+			final var results = requestRepository.findAll(hasAdditionalContactId(999999L));
+
+			assertThat(results).as("Should return empty list when no requests match the additional contact ID").isEmpty();
+		}
+
+		@Test
+		@DisplayName("hasAdditionalContactIdIn should find requests by multiple additional contact IDs")
+		void testHasAdditionalContactIdIn() {
+			final var request1 = requestRepository.save(
+				RequestEntity.builder()
+					.submitter(submitter)
+					.requestStatus(statusDraft)
+					.additionalContact(hrAdvisor1)
+					.build());
+
+			final var request2 = requestRepository.save(
+				RequestEntity.builder()
+					.submitter(submitter)
+					.requestStatus(statusDraft)
+					.additionalContact(hrAdvisor1)
+					.build());
+
+			final var request3 = requestRepository.save(
+				RequestEntity.builder()
+					.submitter(submitter)
+					.requestStatus(statusDraft)
+					.additionalContact(hrAdvisor2)
+					.build());
+
+			@SuppressWarnings("unused")
+			final var request4 = requestRepository.save(
+				RequestEntity.builder()
+					.submitter(submitter)
+					.requestStatus(statusDraft)
+					.build()); // no additionalContact
+
+			final var results = requestRepository.findAll(hasAdditionalContactIdIn(hrAdvisor1.getId(), hrAdvisor2.getId()));
+
+			assertThat(results).as("Should find 3 requests with either additional contact HR advisor 1 or 2").hasSize(3);
+			assertThat(results).extracting(RequestEntity::getId)
+				.as("Should contain the IDs of the three requests with additional contacts HR advisor 1 or 2")
+				.containsExactlyInAnyOrder(request1.getId(), request2.getId(), request3.getId());
+		}
+
+		@Test
+		@DisplayName("hasAdditionalContactIdIn should match all when collection is empty")
+		void testHasAdditionalContactIdInEmptyCollection() {
+			requestRepository.save(
+				RequestEntity.builder()
+					.submitter(submitter)
+					.requestStatus(statusDraft)
+					.additionalContact(hrAdvisor1)
+					.build());
+
+			final var results = requestRepository.findAll(hasAdditionalContactIdIn(List.of()));
+
+			assertThat(results).as("Should match all requests when additional contact ID collection is empty").hasSize(1);
+		}
+
+		@Test
+		@DisplayName("hasAdditionalContactIdIn should match all when collection is null")
+		void testHasAdditionalContactIdInNullCollection() {
+			requestRepository.save(
+				RequestEntity.builder()
+					.submitter(submitter)
+					.requestStatus(statusDraft)
+					.additionalContact(hrAdvisor1)
+					.build());
+
+			final var results = requestRepository.findAll(hasAdditionalContactIdIn((Collection<Long>) null));
+
+			assertThat(results).as("Should match all requests when additional contact ID collection is null").hasSize(1);
 		}
 
 	}
