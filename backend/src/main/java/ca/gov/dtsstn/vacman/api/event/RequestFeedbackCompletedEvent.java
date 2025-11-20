@@ -2,17 +2,17 @@ package ca.gov.dtsstn.vacman.api.event;
 
 import java.time.Instant;
 
-import ca.gov.dtsstn.vacman.api.data.entity.RequestEntity;
+import ca.gov.dtsstn.vacman.api.service.dto.RequestEventDto;
 import io.soabase.recordbuilder.core.RecordBuilder;
 
 /**
  * Event that is published when feedback is completed on a request.
  */
 @RecordBuilder
-public record RequestFeedbackCompletedEvent(RequestEntity entity, Instant timestamp) {
+public record RequestFeedbackCompletedEvent(RequestEventDto dto, Instant timestamp) {
 
-	public RequestFeedbackCompletedEvent(RequestEntity entity) {
-		this(entity, Instant.now());
+	public RequestFeedbackCompletedEvent(RequestEventDto dto) {
+		this(dto, Instant.now());
 	}
 
 }

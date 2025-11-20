@@ -1,7 +1,8 @@
 package ca.gov.dtsstn.vacman.api.event.listener;
 
+import static java.util.stream.Collectors.toSet;
+
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -23,8 +24,6 @@ import ca.gov.dtsstn.vacman.api.config.properties.ApplicationProperties;
 import ca.gov.dtsstn.vacman.api.data.entity.EventEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.LanguageEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.LanguageRequirementEntity;
-import ca.gov.dtsstn.vacman.api.data.entity.MatchEntity;
-import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.RequestEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 import ca.gov.dtsstn.vacman.api.data.repository.EventRepository;
@@ -39,6 +38,7 @@ import ca.gov.dtsstn.vacman.api.event.RequestSubmittedEvent;
 import ca.gov.dtsstn.vacman.api.event.RequestUpdatedEvent;
 import ca.gov.dtsstn.vacman.api.service.NotificationService;
 import ca.gov.dtsstn.vacman.api.service.NotificationService.RequestEvent;
+import ca.gov.dtsstn.vacman.api.service.dto.RequestEventDto;
 import ca.gov.dtsstn.vacman.api.service.email.data.EmailTemplateModel;
 
 /**
@@ -49,10 +49,10 @@ public class RequestEventListener {
 
 	private static final Logger log = LoggerFactory.getLogger(RequestEventListener.class);
 
-	private final EventRepository eventRepository;
-	private final NotificationService notificationService;
 	private final ApplicationProperties applicationProperties;
+	private final EventRepository eventRepository;
 	private final MatchRepository matchRepository;
+	private final NotificationService notificationService;
 
 	private final ObjectMapper objectMapper = new ObjectMapper()
 		.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
@@ -69,9 +69,6 @@ public class RequestEventListener {
 		this.matchRepository = matchRepository;
 	}
 
-	/**
-	 * Handles the RequestCreatedEvent and saves it to the event repository.
-	 */
 	@Async
 	@EventListener({ RequestCreatedEvent.class })
 	public void handleRequestCreated(RequestCreatedEvent event) throws JsonProcessingException {
@@ -80,12 +77,9 @@ public class RequestEventListener {
 			.details(objectMapper.writeValueAsString(event))
 			.build());
 
-		log.info("Event: request created - ID: {}", event.entity().getId());
+		log.info("Event: request created - ID: {}", event.dto().id());
 	}
 
-	/**
-	 * Handles the RequestUpdatedEvent and saves it to the event repository.
-	 */
 	@Async
 	@EventListener({ RequestUpdatedEvent.class })
 	public void handleRequestUpdated(RequestUpdatedEvent event) throws JsonProcessingException {
@@ -94,7 +88,7 @@ public class RequestEventListener {
 			.details(objectMapper.writeValueAsString(event))
 			.build());
 
-		log.info("Event: request updated - ID: {}", event.entity().getId());
+		log.info("Event: request updated - ID: {}", event.dto().id());
 	}
 
 	/**
@@ -103,71 +97,58 @@ public class RequestEventListener {
 	@Async
 	@EventListener({ RequestFeedbackPendingEvent.class })
 	public void sendRequestFeedbackPendingNotification(RequestFeedbackPendingEvent event) {
-		// Send a notification to the request owner
-		final var request = event.entity();
+		final var request = event.dto();
+		final var language = Optional.ofNullable(request.languageCode()).orElse("en");
 
-		final var language = Optional.ofNullable(request.getLanguage())
-			.map(LanguageEntity::getCode)
-			.orElse("en");
+		final var emails = Stream.of(
+			request.additionalContactEmails(),
+			request.submitterEmails(),
+			request.hiringManagerEmails(),
+			request.subDelegatedManagerEmails()
+		).flatMap(List::stream).collect(toSet());
 
-		var emails = Stream.<UserEntity>builder();
-
-		Optional.ofNullable(request.getAdditionalContact()).ifPresent(emails::add);
-		Optional.ofNullable(request.getSubmitter()).ifPresent(emails::add);
-		Optional.ofNullable(request.getHiringManager()).ifPresent(emails::add);
-		Optional.ofNullable(request.getSubDelegatedManager()).ifPresent(emails::add);
-
-		final var allEmails = emails.build()
-			.flatMap(user -> getEmployeeEmails(user).stream())
-			.toList();
-
-		if (allEmails.isEmpty()) {
-			log.warn("No email addresses found for request ID: [{}]", request.getId());
+		if (emails.isEmpty()) {
+			log.warn("No email addresses found for request ID: [{}]", request.id());
 			return;
 		}
 
-		notificationService.sendRequestNotification(
-			allEmails,
-			request.getId(),
-			request.getNameEn(),
+		emails.forEach(email -> notificationService.sendRequestNotification(
+			email,
+			request.id(),
+			request.nameEn(),
 			RequestEvent.FEEDBACK_PENDING,
 			language
-		);
+		));
 
-		// Send job opportunity notifications to matched profiles
 		sendJobOpportunityNotificationsToMatchedProfiles(request);
 	}
 
 	/**
 	 * Sends job opportunity notifications to the personal and business emails of matched profiles.
 	 *
-	 * @param request The request entity
+	 * @param request The request DTO
 	 */
-	private void sendJobOpportunityNotificationsToMatchedProfiles(RequestEntity request) {
-		// Get matches for the request
-		final var matches = matchRepository.findAll(MatchRepository.hasRequestId(request.getId()));
+	private void sendJobOpportunityNotificationsToMatchedProfiles(RequestEventDto request) {
+		final var matches = matchRepository.findAll(MatchRepository.hasRequestId(request.id()));
 
 		if (matches.isEmpty()) {
-			log.warn("No matches found for request ID: [{}]", request.getId());
+			log.warn("No matches found for request ID: [{}]", request.id());
 			return;
 		}
 
-		// Collect emails by language preference
-		Map<String, List<String>> emailsByLanguage = new HashMap<>();
-		emailsByLanguage.put("en", new ArrayList<>());
-		emailsByLanguage.put("fr", new ArrayList<>());
+		final var emailsByLanguage = Map.of(
+			"en", new ArrayList<String>(),
+			"fr", new ArrayList<String>()
+		);
 
-		// Process each match to collect recipient emails by language
-		for (MatchEntity match : matches) {
+		for (final var match : matches) {
 			final var profile = match.getProfile();
 			final var user = profile.getUser();
 
 			// Get the preferred language of correspondence for this profile
 			final var language = Optional.ofNullable(profile.getLanguageOfCorrespondence())
 				.map(LanguageEntity::getCode)
-				.orElseGet(() -> Optional.ofNullable(request.getLanguage())
-					.map(LanguageEntity::getCode)
-					.orElse("en"));
+				.orElseGet(() -> Optional.ofNullable(request.languageCode()).orElse("en"));
 
 			// Add personal email if available
 			Optional.ofNullable(profile.getPersonalEmailAddress())
@@ -182,20 +163,31 @@ public class RequestEventListener {
 		}
 
 		// Send bulk notifications by language preference
-		int totalEmailsSent = 0;
+		var totalEmailsSent = 0;
 
 		// Send English emails
-		List<String> englishEmails = emailsByLanguage.get("en");
-		if (!englishEmails.isEmpty()) {
-			log.info("Sending bulk job opportunity notifications to {} English-speaking recipients for request ID: [{}]",
-				englishEmails.size(), request.getId());
+		final var englishEmails = emailsByLanguage.get("en");
 
-			final var jobModelEn = createJobModel(request, "en");
+		if (!englishEmails.isEmpty()) {
+			log.info("Sending bulk job opportunity notifications () {} English-speaking recipients for request ID: [{}]", englishEmails.size(), request.id());
+
+			final var jobModelEn = new EmailTemplateModel.JobOpportunity(
+				request.requestNumber(),
+				request.nameEn(),
+				Optional.ofNullable(request.classificationNameEn()).orElse("N/A"),
+				Optional.ofNullable(request.languageRequirementNameEn()).orElse("N/A"),
+				request.location(),
+				Optional.ofNullable(request.securityClearanceNameEn()).orElse("N/A"),
+				request.submitterName(),
+				request.submitterEmail(),
+				request.bilingual(),
+				Optional.ofNullable(request.somcAndConditionEmploymentEn()).orElse("N/A")
+			);
 
 			notificationService.sendBulkJobOpportunityNotification(
 				englishEmails,
-				request.getId(),
-				request.getNameEn(),
+				request.id(),
+				request.nameEn(),
 				jobModelEn,
 				"en"
 			);
@@ -203,42 +195,51 @@ public class RequestEventListener {
 			totalEmailsSent += englishEmails.size();
 		}
 
-		// Send French emails
-		List<String> frenchEmails = emailsByLanguage.get("fr");
-		if (!frenchEmails.isEmpty()) {
-			log.info("Sending bulk job opportunity notifications to {} French-speaking recipients for request ID: [{}]",
-				frenchEmails.size(), request.getId());
+		final var frenchEmails = emailsByLanguage.get("fr");
 
-			final var jobModelFr = createJobModel(request, "fr");
+		if (!frenchEmails.isEmpty()) {
+			log.info("Sending bulk job opportunity notifications () {} French-speaking recipients for request ID: [{}]", frenchEmails.size(), request.id());
+
+			final var jobModelFr = new EmailTemplateModel.JobOpportunity(
+				request.requestNumber(),
+				request.nameFr(),
+				Optional.ofNullable(request.classificationNameFr()).orElse("N/A"),
+				Optional.ofNullable(request.languageRequirementNameFr()).orElse("N/A"),
+				request.location(),
+				Optional.ofNullable(request.securityClearanceNameFr()).orElse("N/A"),
+				request.submitterName(),
+				request.submitterEmail(),
+				request.bilingual(),
+				Optional.ofNullable(request.somcAndConditionEmploymentFr()).orElse("N/A")
+			);
 
 			notificationService.sendBulkJobOpportunityNotification(
 				frenchEmails,
-				request.getId(),
-				request.getNameFr(),
+				request.id(),
+				request.nameFr(),
 				jobModelFr,
 				"fr"
 			);
 		}
 
-		log.info("Sent job opportunity notifications to {} total recipients for request ID: [{}]",
-			totalEmailsSent, request.getId());
+		log.info("Sent job opportunity notifications () {} total recipients for request ID: [{}]", totalEmailsSent, request.id());
 	}
 
-	/**
-	 * Handles the RequestSubmittedEvent and sends a notification when a request is submitted.
-	 */
 	@Async
 	@EventListener({ RequestSubmittedEvent.class })
 	public void handleRequestSubmitted(RequestSubmittedEvent event) throws JsonProcessingException {
 		eventRepository.save(EventEntity.builder()
 			.type("REQUEST_SUBMITTED")
 			.details(objectMapper.writeValueAsString(event))
-			.build());
+			.build()
+		);
 
-		log.info("Event: request submitted - ID: {}, from status: {}, to status: {}",
-			event.entity().getId(), event.previousStatusCode(), event.newStatusCode());
+		log.info(
+			"Event: request submitted - ID: {}, from status: {}, to status: {}",
+			event.dto().id(), event.previousStatusCode(), event.newStatusCode()
+		);
 
-		sendSubmittedNotification(event.entity());
+		sendSubmittedNotification(event.dto());
 	}
 
 	/**
@@ -252,13 +253,13 @@ public class RequestEventListener {
 			.details(objectMapper.writeValueAsString(event))
 			.build());
 
-		log.info("Event: request status changed - ID: {}, from status: {}, to status: {}",
-			event.entity().getId(), event.previousStatusCode(), event.newStatusCode());
+		log.info("Event: request status changed - ID: {}, from status: {}, () status: {}",
+			event.dto().id(), event.previousStatusCode(), event.newStatusCode());
 
-		final var request = event.entity();
+		final var request = event.dto();
 		final var newStatusCode = event.newStatusCode();
 
-		// Determine which users to notify based on the status change
+		// Determine which users () notify based on the status change
 		if ("PENDING_PSC_NO_VMS".equals(newStatusCode)) {
 			sendVmsNotRequiredNotification(request);
 		} else if ("CLR_GRANTED".equals(newStatusCode)) {
@@ -279,24 +280,19 @@ public class RequestEventListener {
 	@Async
 	@EventListener({ RequestFeedbackCompletedEvent.class })
 	public void sendRequestFeedbackCompletedNotification(RequestFeedbackCompletedEvent event) {
-		final var request = event.entity();
+		final var request = event.dto();
+		final var language = Optional.ofNullable(request.languageCode()).orElse("en");
 
-		final var language = Optional.ofNullable(request.getLanguage())
-			.map(LanguageEntity::getCode)
-			.orElse("en");
-
-		Optional.ofNullable(request.getHrAdvisor())
-			.map(UserEntity::getBusinessEmailAddress)
-			.ifPresentOrElse(
-				email -> {
-					notificationService.sendRequestNotification(
-						email,
-						request.getId(),
-						request.getNameEn(),
-						RequestEvent.FEEDBACK_COMPLETED,
-						language
-					);
-				}, () -> log.warn("No HR advisor or business email address found for request ID: [{}]", event.entity().getId()));
+		Optional.ofNullable(request.hrAdvisorEmail()).ifPresentOrElse(
+			email -> notificationService.sendRequestNotification(
+				email,
+				request.id(),
+				request.nameEn(),
+				RequestEvent.FEEDBACK_COMPLETED,
+				language
+			),
+			() -> log.warn("No HR advisor email found for request ID: [{}]", request.id())
+		);
 	}
 
 	/**
@@ -306,69 +302,56 @@ public class RequestEventListener {
 	@Async
 	@EventListener({ RequestCompletedEvent.class })
 	public void handleRequestCompleted(RequestCompletedEvent event) throws JsonProcessingException {
-		final var request = event.entity();
+		final var request = event.dto();
 
 		eventRepository.save(EventEntity.builder()
 			.type("REQUEST_COMPLETED")
 			.details(objectMapper.writeValueAsString(event))
 			.build());
 
-		log.info("Event: request completed - ID: {}", request.getId());
+		log.info("Event: request completed - ID: {}", request.id());
 
-		final var language = Optional.ofNullable(request.getLanguage())
-			.map(LanguageEntity::getCode)
-			.orElse("en");
+		final var language = Optional.ofNullable(request.languageCode()).orElse("en");
 
-		// Collect emails from submitter, hiring manager, and HR delegate
-		var emails = Stream.<UserEntity>builder();
+		final var emails = Stream.of(
+			request.additionalContactEmails(),
+			request.submitterEmails(),
+			request.hiringManagerEmails(),
+			request.subDelegatedManagerEmails(),
+			Optional.ofNullable(request.hrAdvisorEmail()).map(List::of).orElse(List.<String>of())
+		).flatMap(List::stream).collect(toSet());
 
-		Optional.ofNullable(request.getAdditionalContact()).ifPresent(emails::add);
-		Optional.ofNullable(request.getSubmitter()).ifPresent(emails::add);
-		Optional.ofNullable(request.getHiringManager()).ifPresent(emails::add);
-		Optional.ofNullable(request.getSubDelegatedManager()).ifPresent(emails::add);
-
-		// Get all emails from the users
-		final var userEmails = emails.build()
-			.flatMap(user -> getEmployeeEmails(user).stream())
-			.collect(Collectors.toList());
-
-		// Add HR Advisor's business email if available
-		Optional.ofNullable(request.getHrAdvisor())
-			.map(UserEntity::getBusinessEmailAddress)
-			.filter(StringUtils::hasText)
-			.ifPresent(userEmails::add);
-
-		if (userEmails.isEmpty()) {
-			log.warn("No email addresses found for request ID: [{}]", request.getId());
+		if (emails.isEmpty()) {
+			log.warn("No email addresses found for request ID: [{}]", request.id());
 			return;
 		}
 
-		notificationService.sendRequestNotification(
-			userEmails,
-			request.getId(),
-			request.getNameEn(),
-			RequestEvent.COMPLETED,
-			language
-		);
+		emails.forEach(email -> {
+			notificationService.sendRequestNotification(
+				email,
+				request.id(),
+				request.nameEn(),
+				RequestEvent.COMPLETED,
+				language
+			);
+		});
 	}
 
 	/**
 	 * Sends a notification when a request is submitted.
 	 * The notification is sent to the HR inbox email.
 	 *
-	 * @param request The request entity
+	 * @param request The request DTO
 	 */
-	private void sendSubmittedNotification(RequestEntity request) {
-		final var language = Optional.ofNullable(request.getLanguage())
-			.map(LanguageEntity::getCode)
-			.orElse("en");
+	private void sendSubmittedNotification(RequestEventDto request) {
+		final var language = request.languageCode() != null ? request.languageCode() : "en";
 
 		final var hrEmail = applicationProperties.gcnotify().hrGdInboxEmail();
 
 		notificationService.sendRequestNotification(
 			hrEmail,
-			request.getId(),
-			request.getNameEn(),
+			request.id(),
+			request.nameEn(),
 			RequestEvent.SUBMITTED,
 			language
 		);
@@ -378,19 +361,17 @@ public class RequestEventListener {
 	 * Sends a notification when a request is marked as VMS not required.
 	 * The notification is sent to the PIMS SLE team email.
 	 *
-	 * @param request The request entity
+	 * @param request The request DTO
 	 */
-	private void sendVmsNotRequiredNotification(RequestEntity request) {
-		final var language = Optional.ofNullable(request.getLanguage())
-			.map(LanguageEntity::getCode)
-			.orElse("en");
+	private void sendVmsNotRequiredNotification(RequestEventDto request) {
+		final var language = request.languageCode() != null ? request.languageCode() : "en";
 
 		final var pimsEmail = applicationProperties.gcnotify().pimsSleTeamEmail();
 
 		notificationService.sendRequestNotification(
 			pimsEmail,
-			request.getId(),
-			request.getNameEn(),
+			request.id(),
+			request.nameEn(),
 			RequestEvent.VMS_NOT_REQUIRED,
 			language
 		);
@@ -401,104 +382,72 @@ public class RequestEventListener {
 	 * The notification is sent to the request owner which could be the submitter,
 	 * the hiring manager or the hr delegate. Send email to all 3.
 	 *
-	 * @param request The request entity
+	 * @param request The request DTO
 	 */
-	private void sendPscNotRequiredNotification(RequestEntity request) {
-		final var language = Optional.ofNullable(request.getLanguage())
-			.map(LanguageEntity::getCode)
-			.orElse("en");
+	private void sendPscNotRequiredNotification(RequestEventDto request) {
+		final var language = request.languageCode() != null ? request.languageCode() : "en";
 
-		// Collect emails from submitter, hiring manager, and HR delegate
-		var emails = Stream.<UserEntity>builder();
+		final var emails = Stream.of(
+			request.additionalContactEmails(),
+			request.submitterEmails(),
+			request.hiringManagerEmails(),
+			request.subDelegatedManagerEmails()
+		).flatMap(List::stream).collect(toSet());
 
-		Optional.ofNullable(request.getAdditionalContact()).ifPresent(emails::add);
-		Optional.ofNullable(request.getSubmitter()).ifPresent(emails::add);
-		Optional.ofNullable(request.getHiringManager()).ifPresent(emails::add);
-		Optional.ofNullable(request.getSubDelegatedManager()).ifPresent(emails::add);
-
-		final var allEmails = emails.build()
-			.flatMap(user -> getEmployeeEmails(user).stream())
-			.toList();
-
-		notificationService.sendRequestNotification(
-			allEmails,
-			request.getId(),
-			request.getNameEn(),
+		emails.forEach(email -> notificationService.sendRequestNotification(
+			email,
+			request.id(),
+			request.nameEn(),
 			RequestEvent.PSC_NOT_REQUIRED,
 			language
-		);
+		));
 	}
 
 	/**
 	 * Sends a notification when a request is marked as PSC required.
 	 * The notification is sent to the PIMS team email.
 	 *
-	 * @param request The request entity
+	 * @param request The request DTO
 	 */
-	private void sendPscRequiredNotification(RequestEntity request) {
-		final var language = Optional.ofNullable(request.getLanguage())
-			.map(LanguageEntity::getCode)
-			.orElse("en");
+	private void sendPscRequiredNotification(RequestEventDto request) {
+		final var language = request.languageCode() != null ? request.languageCode() : "en";
 
 		final var pimsEmail = applicationProperties.gcnotify().pimsSleTeamEmail();
 
 		notificationService.sendRequestNotification(
 			pimsEmail,
-			request.getId(),
-			request.getNameEn(),
+			request.id(),
+			request.nameEn(),
 			RequestEvent.PSC_REQUIRED,
 			language
 		);
 	}
 
-	/**
-	 * Returns a list of all known emails for the user.
-	 */
-	private List<String> getEmployeeEmails(UserEntity employee) {
-		final var businessEmail = Optional.ofNullable(employee.getBusinessEmailAddress())
-			.filter(StringUtils::hasText);
 
-		final var personalEmail = employee.getProfiles().stream()
-			.map(ProfileEntity::getPersonalEmailAddress)
-			.filter(StringUtils::hasText)
-			.findFirst();
-
-		return Stream.of(businessEmail, personalEmail)
-			.filter(Optional::isPresent)
-			.map(Optional::get)
-			.toList();
-	}
 
 	/**
 	 * Sends a notification when a request is cancelled.
 	 * The notification is sent to the submitter, hiring manager, and HR delegate.
 	 *
-	 * @param request The request entity
+	 * @param request The request DTO
 	 */
-	private void sendCancelledNotification(RequestEntity request) {
-		final var language = Optional.ofNullable(request.getLanguage())
-			.map(LanguageEntity::getCode)
-			.orElse("en");
+	private void sendCancelledNotification(RequestEventDto request) {
+		final var language = request.languageCode() != null ? request.languageCode() : "en";
 
-		// Collect emails from submitter, hiring manager, and HR delegate
-		var emails = Stream.<UserEntity>builder();
+		final var emails = Stream.of(
+			request.additionalContactEmails(),
+			request.submitterEmails(),
+			request.hiringManagerEmails(),
+			request.subDelegatedManagerEmails()
+		).flatMap(List::stream).collect(toSet());
 
-		Optional.ofNullable(request.getAdditionalContact()).ifPresent(emails::add);
-		Optional.ofNullable(request.getSubmitter()).ifPresent(emails::add);
-		Optional.ofNullable(request.getHiringManager()).ifPresent(emails::add);
-		Optional.ofNullable(request.getSubDelegatedManager()).ifPresent(emails::add);
-
-		final var allEmails = emails.build()
-			.flatMap(user -> getEmployeeEmails(user).stream())
-			.toList();
-
-		notificationService.sendRequestNotification(
-			allEmails,
-			request.getId(),
-			request.getNameEn(),
+		emails.forEach(email -> notificationService.sendRequestNotification(
+			email,
+			request.id(),
+			request.nameEn(),
 			RequestEvent.CANCELLED,
 			language
-		);
+		));
 	}
 
 	/**
@@ -544,7 +493,7 @@ public class RequestEventListener {
 				.map(LanguageEntity::getCode)
 				.orElse("en");
 
-			log.info("Sending job opportunity HR notification to profile owner for match ID: [{}]", match.getId());
+			log.info("Sending job opportunity HR notification () profile owner for match ID: [{}]", match.getId());
 
 			final var jobModel = createJobModel(request, language);
 
@@ -567,7 +516,7 @@ public class RequestEventListener {
 
 			notificationService.sendJobOpportunityHRNotification(profileEmails, jobOpportunityHR, language);
 
-			log.info("Sent job opportunity HR notifications to {} recipient(s) for match ID: [{}]",
+			log.info("Sent job opportunity HR notifications () {} recipient(s) for match ID: [{}]",
 				profileEmails.size(), match.getId());
 		}
 	}

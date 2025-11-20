@@ -2,17 +2,17 @@ package ca.gov.dtsstn.vacman.api.event;
 
 import java.time.Instant;
 
-import ca.gov.dtsstn.vacman.api.data.entity.RequestEntity;
+import ca.gov.dtsstn.vacman.api.service.dto.RequestEventDto;
 import io.soabase.recordbuilder.core.RecordBuilder;
 
 /**
  * Event that is published when feedback is pending on a request.
  */
 @RecordBuilder
-public record RequestFeedbackPendingEvent(RequestEntity entity, Instant timestamp) {
+public record RequestFeedbackPendingEvent(RequestEventDto dto, Instant timestamp) {
 
-	public RequestFeedbackPendingEvent(RequestEntity entity) {
-		this(entity, Instant.now());
+	public RequestFeedbackPendingEvent(RequestEventDto dto) {
+		this(dto, Instant.now());
 	}
 
 }
