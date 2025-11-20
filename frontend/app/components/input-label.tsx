@@ -15,7 +15,7 @@ export function InputLabel(props: InputLabelProps) {
   const { children, className, required, ...restProps } = props;
 
   return (
-    <label className={cn('block', className)} {...(required ? { 'aria-required': 'true' } : {})} {...restProps}>
+    <label className={cn('block', className)} {...restProps}>
       <span className="font-semibold">{children}</span>
       {required && (
         // Using a regular space entity (&#32;) to ensure consistent spacing before the required text,
