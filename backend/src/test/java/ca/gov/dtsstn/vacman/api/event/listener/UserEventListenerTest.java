@@ -14,7 +14,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import ca.gov.dtsstn.vacman.api.data.entity.EventEntity;
-import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 import ca.gov.dtsstn.vacman.api.data.repository.EventRepository;
 import ca.gov.dtsstn.vacman.api.event.CurrentUserReadEvent;
 import ca.gov.dtsstn.vacman.api.event.UserCreateConflictEvent;
@@ -22,6 +21,7 @@ import ca.gov.dtsstn.vacman.api.event.UserCreatedEvent;
 import ca.gov.dtsstn.vacman.api.event.UserDeletedEvent;
 import ca.gov.dtsstn.vacman.api.event.UserReadEvent;
 import ca.gov.dtsstn.vacman.api.event.UserUpdatedEvent;
+import ca.gov.dtsstn.vacman.api.service.dto.UserEventDto;
 
 @ExtendWith({ MockitoExtension.class })
 @DisplayName("UserEventListener tests")
@@ -47,9 +47,7 @@ class UserEventListenerTest {
 		@Test
 		@DisplayName("Should save event to repository")
 		void shouldSaveEventToRepository() throws Exception {
-			final var user = UserEntity.builder()
-				.id(123L)
-				.build();
+			final var user = new UserEventDto(123L, null, null, null, null, null, null, null, null);
 
 			userEventListener.handleUserCreated(new UserCreatedEvent(user));
 
@@ -61,15 +59,13 @@ class UserEventListenerTest {
 		@Test
 		@DisplayName("Should save event with valid JSON details")
 		void shouldSaveEventWithValidJsonDetails() throws Exception {
-			final var user = UserEntity.builder()
-				.id(456L)
-				.build();
+			final var user = new UserEventDto(456L, null, null, null, null, null, null, null, null);
 
 			userEventListener.handleUserCreated(new UserCreatedEvent(user));
 
 			verify(eventRepository).save(eventEntityCaptor.capture());
 			assertThat(eventEntityCaptor.getValue().getDetails()).isNotNull();
-			assertThat(eventEntityCaptor.getValue().getDetails()).contains("entity");
+			assertThat(eventEntityCaptor.getValue().getDetails()).contains("dto");
 			assertThat(eventEntityCaptor.getValue().getDetails()).contains("timestamp");
 		}
 
@@ -82,9 +78,7 @@ class UserEventListenerTest {
 		@Test
 		@DisplayName("Should save event to repository")
 		void shouldSaveEventToRepository() throws Exception {
-			final var user = UserEntity.builder()
-				.id(789L)
-				.build();
+			final var user = new UserEventDto(789L, null, null, null, null, null, null, null, null);
 
 			userEventListener.handleUserCreateConflict(new UserCreateConflictEvent(user));
 
@@ -96,15 +90,13 @@ class UserEventListenerTest {
 		@Test
 		@DisplayName("Should save event with valid JSON details")
 		void shouldSaveEventWithValidJsonDetails() throws Exception {
-			final var user = UserEntity.builder()
-				.id(999L)
-				.build();
+			final var user = new UserEventDto(999L, null, null, null, null, null, null, null, null);
 
 			userEventListener.handleUserCreateConflict(new UserCreateConflictEvent(user));
 
 			verify(eventRepository).save(eventEntityCaptor.capture());
 			assertThat(eventEntityCaptor.getValue().getDetails()).isNotNull();
-			assertThat(eventEntityCaptor.getValue().getDetails()).contains("entity");
+			assertThat(eventEntityCaptor.getValue().getDetails()).contains("dto");
 			assertThat(eventEntityCaptor.getValue().getDetails()).contains("timestamp");
 		}
 
@@ -117,9 +109,7 @@ class UserEventListenerTest {
 		@Test
 		@DisplayName("Should save event to repository")
 		void shouldSaveEventToRepository() throws Exception {
-			final var user = UserEntity.builder()
-				.id(111L)
-				.build();
+			final var user = new UserEventDto(111L, null, null, null, null, null, null, null, null);
 
 			userEventListener.handleUserUpdated(new UserUpdatedEvent(user));
 
@@ -131,15 +121,13 @@ class UserEventListenerTest {
 		@Test
 		@DisplayName("Should save event with valid JSON details")
 		void shouldSaveEventWithValidJsonDetails() throws Exception {
-			final var user = UserEntity.builder()
-				.id(222L)
-				.build();
+			final var user = new UserEventDto(222L, null, null, null, null, null, null, null, null);
 
 			userEventListener.handleUserUpdated(new UserUpdatedEvent(user));
 
 			verify(eventRepository).save(eventEntityCaptor.capture());
 			assertThat(eventEntityCaptor.getValue().getDetails()).isNotNull();
-			assertThat(eventEntityCaptor.getValue().getDetails()).contains("entity");
+			assertThat(eventEntityCaptor.getValue().getDetails()).contains("dto");
 			assertThat(eventEntityCaptor.getValue().getDetails()).contains("timestamp");
 		}
 
@@ -152,9 +140,7 @@ class UserEventListenerTest {
 		@Test
 		@DisplayName("Should save event to repository")
 		void shouldSaveEventToRepository() throws Exception {
-			final var user = UserEntity.builder()
-				.id(333L)
-				.build();
+			final var user = new UserEventDto(333L, null, null, null, null, null, null, null, null);
 
 			userEventListener.handleUserDeleted(new UserDeletedEvent(user));
 
@@ -166,15 +152,13 @@ class UserEventListenerTest {
 		@Test
 		@DisplayName("Should save event with valid JSON details")
 		void shouldSaveEventWithValidJsonDetails() throws Exception {
-			final var user = UserEntity.builder()
-				.id(444L)
-				.build();
+			final var user = new UserEventDto(444L, null, null, null, null, null, null, null, null);
 
 			userEventListener.handleUserDeleted(new UserDeletedEvent(user));
 
 			verify(eventRepository).save(eventEntityCaptor.capture());
 			assertThat(eventEntityCaptor.getValue().getDetails()).isNotNull();
-			assertThat(eventEntityCaptor.getValue().getDetails()).contains("entity");
+			assertThat(eventEntityCaptor.getValue().getDetails()).contains("dto");
 			assertThat(eventEntityCaptor.getValue().getDetails()).contains("timestamp");
 		}
 
@@ -187,9 +171,7 @@ class UserEventListenerTest {
 		@Test
 		@DisplayName("Should save event to repository")
 		void shouldSaveEventToRepository() throws Exception {
-			final var user = UserEntity.builder()
-				.id(555L)
-				.build();
+			final var user = new UserEventDto(555L, null, null, null, null, null, null, null, null);
 
 			userEventListener.handleUserRead(new UserReadEvent(user));
 
@@ -201,15 +183,13 @@ class UserEventListenerTest {
 		@Test
 		@DisplayName("Should save event with valid JSON details")
 		void shouldSaveEventWithValidJsonDetails() throws Exception {
-			final var user = UserEntity.builder()
-				.id(666L)
-				.build();
+			final var user = new UserEventDto(666L, null, null, null, null, null, null, null, null);
 
 			userEventListener.handleUserRead(new UserReadEvent(user));
 
 			verify(eventRepository).save(eventEntityCaptor.capture());
 			assertThat(eventEntityCaptor.getValue().getDetails()).isNotNull();
-			assertThat(eventEntityCaptor.getValue().getDetails()).contains("entity");
+			assertThat(eventEntityCaptor.getValue().getDetails()).contains("dto");
 			assertThat(eventEntityCaptor.getValue().getDetails()).contains("timestamp");
 		}
 

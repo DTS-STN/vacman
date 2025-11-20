@@ -42,7 +42,7 @@ public class UserEventListener {
 			.details(objectMapper.writeValueAsString(event))
 			.build());
 
-		log.info("Event: user created - ID: {}", event.entity().getId());
+		log.info("Event: user created - ID: {}", event.dto().id());
 	}
 
 	@Async
@@ -53,7 +53,7 @@ public class UserEventListener {
 			.details(objectMapper.writeValueAsString(event))
 			.build());
 
-		log.info("Event: user create conflict - ID: {}", event.entity().getId());
+		log.info("Event: user create conflict - ID: {}", event.dto().id());
 	}
 
 	@Async
@@ -64,7 +64,7 @@ public class UserEventListener {
 			.details(objectMapper.writeValueAsString(event))
 			.build());
 
-		log.info("Event: user updated - ID: {}", event.entity().getId());
+		log.info("Event: user updated - ID: {}", event.dto().id());
 	}
 
 	@Async
@@ -75,7 +75,7 @@ public class UserEventListener {
 			.details(objectMapper.writeValueAsString(event))
 			.build());
 
-		log.info("Event: user deleted - ID: {}", event.entity().getId());
+		log.info("Event: user deleted - ID: {}", event.dto().id());
 	}
 
 	@Async
@@ -86,7 +86,7 @@ public class UserEventListener {
 			.details(objectMapper.writeValueAsString(event))
 			.build());
 
-		log.info("Event: user read - ID: {}", event.entity().getId());
+		log.info("Event: user read - ID: {}", event.dto().id());
 	}
 
 	@Async

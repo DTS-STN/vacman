@@ -2,17 +2,17 @@ package ca.gov.dtsstn.vacman.api.event;
 
 import java.time.Instant;
 
-import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
+import ca.gov.dtsstn.vacman.api.service.dto.UserEventDto;
 import io.soabase.recordbuilder.core.RecordBuilder;
 
 /**
  * Event that is published when a user is created.
  */
 @RecordBuilder
-public record UserCreatedEvent(UserEntity entity, Instant timestamp) {
+public record UserCreatedEvent(UserEventDto dto, Instant timestamp) {
 
-	public UserCreatedEvent(UserEntity entity) {
-		this(entity, Instant.now());
+	public UserCreatedEvent(UserEventDto dto) {
+		this(dto, Instant.now());
 	}
 
 }
