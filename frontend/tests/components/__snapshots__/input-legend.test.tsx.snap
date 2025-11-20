@@ -28,14 +28,9 @@ exports[`InputLegend > should render input legend component with required > expe
     >
       input legend
     </span>
-     
-    <span
-      aria-hidden="true"
-    >
-      (
-      input.required
-      )
-    </span>
+     (
+    input.required
+    )
   </legend>
 </div>
 `;

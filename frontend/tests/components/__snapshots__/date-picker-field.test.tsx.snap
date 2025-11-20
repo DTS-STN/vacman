@@ -1044,14 +1044,9 @@ exports[`DatePickerField > should render date picker field component with requir
         >
           legend date picker field test
         </span>
-         
-        <span
-          aria-hidden="true"
-        >
-          (
-          input.required
-          )
-        </span>
+         (
+        input.required
+        )
       </legend>
       <div
         class="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2"
