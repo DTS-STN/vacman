@@ -304,7 +304,8 @@ function RequestsColumns({
             return <span className="text-neutral-600">{hrAdvisorName}</span>;
           }
           const hrAdvisorValue = info.row.original.hrAdvisor?.id;
-          const selectOptions = [{ id: 'not-assigned', firstName: undefined, lastName: undefined }, ...hrAdvisors].map(
+          const sortedHrAdvisors = [...hrAdvisors].sort((a, b) => (a.firstName ?? '').localeCompare(b.firstName ?? ''));
+          const selectOptions = [{ id: 'not-assigned', firstName: undefined, lastName: undefined }, ...sortedHrAdvisors].map(
             (hrAdvisor) => {
               const id = String(hrAdvisor.id);
               return {
