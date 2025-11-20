@@ -44,6 +44,7 @@ import ca.gov.dtsstn.vacman.api.event.ProfileStatusChangeEvent;
 import ca.gov.dtsstn.vacman.api.event.ProfileUpdatedEvent;
 import ca.gov.dtsstn.vacman.api.security.SecurityUtils;
 import ca.gov.dtsstn.vacman.api.service.dto.ProfileQuery;
+import ca.gov.dtsstn.vacman.api.service.mapper.ProfileEntityEventMapper;
 import ca.gov.dtsstn.vacman.api.service.mapper.ProfileEntityMapper;
 import ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException;
 import ca.gov.dtsstn.vacman.api.web.model.ProfilePutModel;
@@ -59,6 +60,8 @@ public class ProfileService {
 	public static final Set<String> INACTIVE_PROFILE_STATUS = Set.of("ARCHIVED");
 
 	private final ProfileEntityMapper profileEntityMapper = Mappers.getMapper(ProfileEntityMapper.class);
+
+	private final ProfileEntityEventMapper profileEntityEventMapper = Mappers.getMapper(ProfileEntityEventMapper.class);
 
 	private final ProfileRepository profileRepository;
 
@@ -228,7 +231,7 @@ public class ProfileService {
 				.profileStatus(incompleteStatus)
 				.build());
 
-		eventPublisher.publishEvent(new ProfileCreateEvent(savedProfile));
+		eventPublisher.publishEvent(new ProfileCreateEvent(profileEntityEventMapper.toEventDto(savedProfile)));
 
 		return savedProfile;
 	}
@@ -262,7 +265,7 @@ public class ProfileService {
 
 		existingProfile.setProfileStatus(newStatus);
 		final var updatedProfile = profileRepository.save(existingProfile);
-		eventPublisher.publishEvent(new ProfileStatusChangeEvent(updatedProfile, previousStatusId, newStatus.getId()));
+		eventPublisher.publishEvent(new ProfileStatusChangeEvent(profileEntityEventMapper.toEventDto(updatedProfile), previousStatusId, newStatus.getId()));
 	}
 
 	/**
@@ -329,7 +332,7 @@ public class ProfileService {
 			.ifPresent(profile::setWfaStatus);
 
 		final var updatedEntity = profileRepository.save(profile);
-		eventPublisher.publishEvent(new ProfileUpdatedEvent(updatedEntity));
+		eventPublisher.publishEvent(new ProfileUpdatedEvent(profileEntityEventMapper.toEventDto(updatedEntity)));
 
 		return updatedEntity;
 	}
