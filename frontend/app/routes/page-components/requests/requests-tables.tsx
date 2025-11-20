@@ -231,6 +231,12 @@ function RequestsColumns({
     return hrAdvisor ? `${hrAdvisor.firstName} ${hrAdvisor.lastName}` : '';
   };
 
+  // Sort HR advisors once, outside the cell renderer
+  const sortedHrAdvisors = useMemo(
+    () => [...hrAdvisors].sort((a, b) => (a.firstName ?? '').localeCompare(b.firstName ?? '')),
+    [hrAdvisors],
+  );
+
   return (
     <ServerTable page={page} data={requests} searchParams={searchParams} setSearchParams={setSearchParams} urlParam={urlParam}>
       <Column
@@ -304,7 +310,6 @@ function RequestsColumns({
             return <span className="text-neutral-600">{hrAdvisorName}</span>;
           }
           const hrAdvisorValue = info.row.original.hrAdvisor?.id;
-          const sortedHrAdvisors = [...hrAdvisors].sort((a, b) => (a.firstName ?? '').localeCompare(b.firstName ?? ''));
           const selectOptions = [{ id: 'not-assigned', firstName: undefined, lastName: undefined }, ...sortedHrAdvisors].map(
             (hrAdvisor) => {
               const id = String(hrAdvisor.id);
