@@ -2,17 +2,17 @@ package ca.gov.dtsstn.vacman.api.event;
 
 import java.time.Instant;
 
-import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
+import ca.gov.dtsstn.vacman.api.service.dto.ProfileEventDto;
 import io.soabase.recordbuilder.core.RecordBuilder;
 
 /**
  * Event that is published when a profile is created.
  */
 @RecordBuilder
-public record ProfileCreateEvent(ProfileEntity entity, Instant timestamp) {
+public record ProfileCreateEvent(ProfileEventDto dto, Instant timestamp) {
 
-	public ProfileCreateEvent(ProfileEntity entity) {
-		this(entity, Instant.now());
+	public ProfileCreateEvent(ProfileEventDto dto) {
+		this(dto, Instant.now());
 	}
 
 }

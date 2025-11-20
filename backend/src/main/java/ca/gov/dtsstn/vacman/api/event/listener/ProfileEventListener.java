@@ -1,7 +1,7 @@
 package ca.gov.dtsstn.vacman.api.event.listener;
 
+import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,9 +16,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes;
 import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes.ProfileStatuses;
 import ca.gov.dtsstn.vacman.api.data.entity.EventEntity;
-import ca.gov.dtsstn.vacman.api.data.entity.ProfileEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.ProfileStatusEntity;
-import ca.gov.dtsstn.vacman.api.data.entity.UserEntity;
 import ca.gov.dtsstn.vacman.api.data.repository.EventRepository;
 import ca.gov.dtsstn.vacman.api.data.repository.ProfileStatusRepository;
 import ca.gov.dtsstn.vacman.api.event.ProfileCreateEvent;
@@ -27,7 +25,7 @@ import ca.gov.dtsstn.vacman.api.event.ProfileStatusChangeEvent;
 import ca.gov.dtsstn.vacman.api.event.ProfileUpdatedEvent;
 import ca.gov.dtsstn.vacman.api.service.NotificationService;
 import ca.gov.dtsstn.vacman.api.service.NotificationService.ProfileStatus;
-import org.springframework.util.StringUtils;
+import ca.gov.dtsstn.vacman.api.service.dto.ProfileEventDto;
 
 /**
  * Listener for profile-related events.
@@ -66,7 +64,7 @@ public class ProfileEventListener {
 			.details(objectMapper.writeValueAsString(event))
 			.build());
 
-		log.info("Event: profile created - ID: {}", event.entity().getId());
+		log.info("Event: profile created - ID: {}", event.dto().id());
 	}
 
 	@Async
@@ -88,7 +86,7 @@ public class ProfileEventListener {
 			.details(objectMapper.writeValueAsString(event))
 			.build());
 
-		log.info("Event: profile updated - ID: {}", event.entity().getId());
+		log.info("Event: profile updated - ID: {}", event.dto().id());
 	}
 
 	@Async
@@ -100,10 +98,10 @@ public class ProfileEventListener {
 			.build());
 
 		log.info("Event: profile status changed - ID: {}, from status ID: {}, to status ID: {}",
-			event.entity().getId(), event.previousStatusId(), event.newStatusId());
+			event.dto().id(), event.previousStatusId(), event.newStatusId());
 
-		final var profile = event.entity();
-		final var newStatus = profile.getProfileStatus();
+		final var profile = event.dto();
+		final var newStatus = profileStatusRepository.findById(event.newStatusId()).orElse(null);
 		final var previousStatus = profileStatusRepository.findById(event.previousStatusId()).orElse(null);
 
 		final var hasNewStatus = newStatus != null;
@@ -133,38 +131,34 @@ public class ProfileEventListener {
 		return profileStatusCodes.pending().equals(previousStatus.getCode());
 	}
 
-	private void sendApprovalNotification(ProfileEntity profile) {
-		Optional.ofNullable(profile.getUser())
-			.ifPresentOrElse(user -> {
-				final var profileId = profile.getId().toString();
-				final var name = String.format("%s %s", user.getFirstName(), user.getLastName());
-				final var language = user.getLanguage().getCode();
+	private void sendApprovalNotification(ProfileEventDto profile) {
+		final var profileId = profile.id().toString();
+		final var firstName = Optional.ofNullable(profile.userFirstName()).orElse("");
+		final var lastName = Optional.ofNullable(profile.userLastName()).orElse("");
+		final var rawName = (firstName + " " + lastName).trim();
+		final var name = rawName.isEmpty() ? "Unknown User" : rawName;
+		final var language = Optional.ofNullable(profile.userLanguageCode()).orElse("en");
 
-				// Gather available emails
-				final var emails = Stream.of(
-					user.getBusinessEmailAddress(),
-					profile.getPersonalEmailAddress())
-						.filter(StringUtils::hasText)
-						.toList();
+		// Gather available emails
+		final var emails = Optional.ofNullable(profile.userEmails()).orElse(List.of());
 
-				if (!emails.isEmpty()) {
-					notificationService.sendProfileNotification(emails, profileId, name, language, ProfileStatus.APPROVED);
-				} else {
-					log.warn("Could not send approval notification - no email addresses found for profile ID: {}", profile.getId());
-				}
-			}, () -> log.warn("Could not send approval notification - no user found for profile ID: {}", profile.getId()));
+		if (!emails.isEmpty()) {
+			notificationService.sendProfileNotification(emails, profileId, name, language, ProfileStatus.APPROVED);
+		} else {
+			log.warn("Could not send approval notification - no email addresses found for profile ID: {}", profile.id());
+		}
 	}
 
-	private void sendPendingNotificationToHrAdvisor(ProfileEntity profile) {
-		Optional.ofNullable(profile.getHrAdvisor())
-			.map(UserEntity::getBusinessEmailAddress)
-			.ifPresentOrElse(email -> {
-				final var profileId = profile.getId().toString();
-				final var user = profile.getUser();
-				final var name = String.format("%s %s", user.getFirstName(), user.getLastName());
-				final var language = user.getLanguage().getCode();
+	private void sendPendingNotificationToHrAdvisor(ProfileEventDto profile) {
+		Optional.ofNullable(profile.hrAdvisorEmail()).ifPresentOrElse(email -> {
+			final var profileId = profile.id().toString();
+			final var firstName = Optional.ofNullable(profile.userFirstName()).orElse("");
+			final var lastName = Optional.ofNullable(profile.userLastName()).orElse("");
+			final var rawName = (firstName + " " + lastName).trim();
+			final var name = rawName.isEmpty() ? "Unknown User" : rawName;
+			final var language = Optional.ofNullable(profile.userLanguageCode()).orElse("en");
 
-				notificationService.sendProfileNotification(email, profileId, name, language, ProfileStatus.PENDING);
-			}, () -> log.warn("Could not send pending notification - no HR advisor found for profile ID: {}", profile.getId()));
+			notificationService.sendProfileNotification(email, profileId, name, language, ProfileStatus.PENDING);
+		}, () -> log.warn("Could not send pending notification - no HR advisor found for profile ID: {}", profile.id()));
 	}
 }
