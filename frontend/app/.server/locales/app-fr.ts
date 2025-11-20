@@ -96,7 +96,7 @@ export default {
     'personal-record-identifier-help-message-primary': 'No. à 9 chiffres. Par exemple\u00A0: 012345678',
     'language-of-correspondence': 'Langue de préférence pour la correspondance',
     'work-email': 'Adresse courriel professionnelle',
-    'personal-email': 'Adresse courriel personnel',
+    'personal-email': 'Adresse courriel personnelle',
     'work-phone': 'Numéro de téléphone professionnel',
     'personal-phone': 'Numéro de téléphone personnel',
     'personal-phone-help-message-primary': 'Cellulaire, domicile ou autre. Par exemple\u00A0: <noWrap>123 456 7890</noWrap>',
