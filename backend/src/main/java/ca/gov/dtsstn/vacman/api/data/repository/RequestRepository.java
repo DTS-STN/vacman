@@ -15,6 +15,28 @@ import ca.gov.dtsstn.vacman.api.data.entity.RequestEntity;
 public interface RequestRepository extends AbstractBaseRepository<RequestEntity> {
 
 	/**
+	 * JPA specification to find requests with a specific additional contact.
+	 */
+	static Specification<RequestEntity> hasAdditionalContactId(Long id) {
+		return (root, query, cb) -> cb.equal(root.get("additionalContact").get("id"), id);
+	}
+
+	/**
+	 * JPA specification to find requests with specific additional contacts.
+	 */
+	static Specification<RequestEntity> hasAdditionalContactIdIn(Long ... ids) {
+		return hasAdditionalContactIdIn(Arrays.asList(ids));
+	}
+
+	/**
+	 * JPA specification to find requests with specific additional contacts.
+	 */
+	static Specification<RequestEntity> hasAdditionalContactIdIn(Collection<Long> ids) {
+		if (CollectionUtils.isEmpty(ids)) { return unrestricted(); }
+		return (root, query, cb) -> root.get("additionalContact").get("id").in(ids);
+	}
+
+	/**
 	 * JPA specification to find requests assigned to a specific HR Advisor.
 	 */
 	static Specification<RequestEntity> hasHrAdvisorId(Long id) {
