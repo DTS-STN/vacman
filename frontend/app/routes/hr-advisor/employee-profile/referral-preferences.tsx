@@ -84,6 +84,7 @@ export async function action({ context, params, request }: Route.ActionArgs) {
 
   return i18nRedirect('routes/hr-advisor/employee-profile/index.tsx', request, {
     params: { profileId: profileResult.unwrap().id.toString() },
+    search: new URLSearchParams({ success: 'referral' }),
   });
 }
 
