@@ -57,9 +57,12 @@ export default {
       'Please complete all required fields in the employment information section before approving the profile.',
     'profile-referral-preferences-incomplete-for-approval':
       'Please complete all required fields in the referral preferences section before approving the profile.',
-    'profile-submitted': 'Profile submitted successfully! Your HR advisor will now review it for approval',
-    'hr-approved': 'Employee profile successfully approved',
-    'profile-pending-approval': 'Your profile edits will require re-approval by your HR advisor',
+    'profile-submitted': 'Profile submitted successfully! Your HR advisor will now review it for approval.',
+    'profile-personal-info-saved': 'Personal information saved successfully.',
+    'profile-employment-saved': 'Employment information saved successfully.',
+    'profile-referral-saved': 'Referral preferences saved successfully.',
+    'hr-approved': 'Employee profile successfully approved.',
+    'profile-pending-approval': 'Your profile edits will require re-approval by your HR advisor.',
     'page-title': 'Profile',
   },
   'employee-profile': {

@@ -37,6 +37,7 @@ import { VacmanBackground } from '~/components/vacman-background';
 import { PROFILE_STATUS } from '~/domain/constants';
 import { useFetcherState } from '~/hooks/use-fetcher-state';
 import { useFormattedDate } from '~/hooks/use-formatted-date';
+import { useSaveSuccessMessage } from '~/hooks/use-save-success-message';
 import { getTranslation } from '~/i18n-config.server';
 import { handle as parentHandle } from '~/routes/layout';
 import { EmploymentInformationSection } from '~/routes/page-components/profile/employment-information-section';
@@ -276,15 +277,23 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
   const incompleteProfile = loaderData.profileStatus?.code === PROFILE_STATUS.INCOMPLETE.code;
   const lastModifiedDate = useFormattedDate(loaderData.lastModifiedDate, loaderData.baseTimeZone);
 
+  const [searchParams] = useSearchParams();
+  const location = useLocation();
+  const navigate = useNavigate();
+
   const alertRef = useRef<HTMLDivElement>(null);
+  const successMessage = useSaveSuccessMessage({
+    searchParams,
+    location,
+    navigate,
+    i18nNamespace: handle.i18nNamespace,
+    fetcherData: fetcher.data,
+  });
+
   if (fetcher.data && alertRef.current) {
     alertRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
     alertRef.current.focus();
   }
-
-  const [searchParams] = useSearchParams();
-  const location = useLocation();
-  const navigate = useNavigate();
 
   const [hasEmploymentChanged, setHasEmploymentChanged] = useState<boolean>(loaderData.hasEmploymentChanged);
   const [hasReferralPreferenceChanged, setHasReferralPreferenceChanged] = useState<boolean>(
@@ -332,6 +341,10 @@ export default function EditProfile({ loaderData, params }: Route.ComponentProps
           )}
         </fetcher.Form>
       </div>
+
+      {successMessage && (
+        <AlertMessage ref={alertRef} type="success" message={successMessage} role="alert" ariaLive="assertive" />
+      )}
 
       {fetcher.data && (
         <>

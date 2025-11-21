@@ -59,10 +59,13 @@ export default {
       "Veuillez remplir tous les champs obligatoires de la section des informations sur l'emploi avant d'approuver le profil.",
     'profile-referral-preferences-incomplete-for-approval':
       "Veuillez remplir tous les champs obligatoires dans la section des préférences de présentation de candidature avant d'approuver le profil.",
-    'profile-submitted': "Profil soumis avec succès! Votre conseiller(ère) RH va maintenant l'examiner pour approbation",
-    'hr-approved': "Profil de l'employé-e approuvé",
+    'profile-submitted': "Profil soumis avec succès! Votre conseiller(ère) RH va maintenant l'examiner pour approbation.",
+    'profile-personal-info-saved': 'Informations personnelles enregistrées avec succès.',
+    'profile-employment-saved': "Informations sur l'emploi enregistrées avec succès.",
+    'profile-referral-saved': 'Préférences de référence enregistrées avec succès.',
+    'hr-approved': "Profil de l'employé-e approuvé.",
     'profile-pending-approval':
-      'Les modifications de votre profil nécessiteront une nouvelle approbation de votre conseiller(ère) RH',
+      'Les modifications de votre profil nécessiteront une nouvelle approbation de votre conseiller(ère) RH.',
     'page-title': 'Profil',
   },
   'employee-profile': {
