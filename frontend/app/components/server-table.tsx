@@ -19,7 +19,14 @@ import { PopoverContent, PopoverTrigger } from '~/components/popover';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '~/components/table';
 import { useLanguage } from '~/hooks/use-language';
 import { useFetchLoading } from '~/hooks/use-loading';
-import { getCurrentPage, getPageItems, makePageClickHandler, nextPage, prevPage } from '~/utils/pagination-utils';
+import {
+  getCurrentPage,
+  getPageItems,
+  getPageItemsRange,
+  makePageClickHandler,
+  nextPage,
+  prevPage,
+} from '~/utils/pagination-utils';
 import { parseCSVString } from '~/utils/string-utils';
 import { cn } from '~/utils/tailwind-utils';
 
@@ -36,6 +43,8 @@ interface ServerTableProps<TData> {
   searchParams: URLSearchParams;
   /** `SetURLSearchParams` from `useSearchParams(...)` */
   setSearchParams: SetURLSearchParams;
+  /** Optional title used in displaying results */
+  title?: string;
   /** Optional URL parameters override. */
   urlParam?: {
     /** Pagination parameter, defaults to `'page'`. */
@@ -54,6 +63,7 @@ interface ServerTableProps<TData> {
  * @param data The data to display in the table.
  * @param searchParams `URLSearchParams` from `useSearchParams(...)`
  * @param setSearchParams `SetURLSearchParams` from `useSearchParams(...)`
+ * @param title `Optional title used in displaying results`
  * @param urlParam `Optional` URL parameters override.
  * @param onSortingChange `Optional` Change notifier when sorting updates
  *
@@ -64,10 +74,12 @@ export function ServerTable<TData>({
   data,
   searchParams,
   setSearchParams,
+  title,
   urlParam = {},
   onSortingChange,
 }: ServerTableProps<TData>) {
   const { t } = useTranslation(['gcweb']);
+  const { currentLanguage } = useLanguage();
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const { page: pageParam = 'page', sort: sortParam = 'sort' } = urlParam;
   const columns = React.Children.map(baseColumns, (column) => (column ? column.props : undefined)) ?? [];
@@ -90,6 +102,8 @@ export function ServerTable<TData>({
   const pageItems = getPageItems(totalPages, currentPage, { threshold: 9, delta: 2 });
   const handlePageClick = (target: number) => makePageClickHandler(searchParams, setSearchParams, target, pageParam);
   const isLoading = useFetchLoading();
+  const isSinglePage = totalPages <= 1;
+  const { start, end } = getPageItemsRange(data.length, page);
 
   const table = useReactTable({
     data,
@@ -115,6 +129,21 @@ export function ServerTable<TData>({
 
   return (
     <>
+      {/* ARIA live region for screen reader announcements */}
+      <div aria-live="polite" role="status" className="my-2 font-medium">
+        {start === end
+          ? t('gcweb:data-table.pagination.showing-result-one', {
+              count: start,
+              total: page.totalElements,
+              title: title?.toLocaleLowerCase(currentLanguage) ?? t('gcweb:data-table.pagination.results'),
+            })
+          : t('gcweb:data-table.pagination.showing-result', {
+              start: start,
+              end: end,
+              total: page.totalElements,
+              title: title?.toLocaleLowerCase(currentLanguage) ?? t('gcweb:data-table.pagination.results'),
+            })}
+      </div>
       <Table className="rounded-md border-b border-neutral-300">
         <TableHeader className="bg-neutral-200">
           {table.getHeaderGroups().map((headerGroup) => (
@@ -179,60 +208,57 @@ export function ServerTable<TData>({
           )}
         </TableBody>
       </Table>
-      {totalPages > 1 && (
-        <>
-          <Pagination className="my-4" aria-label={t('gcweb:data-table.pagination.label', { defaultValue: 'Pagination' })}>
-            <p className="sr-only">
-              {t('gcweb:data-table.pagination.page-info', {
-                index: currentPage,
-                count: totalPages,
-              })}
-            </p>
-            <Pagination.Content>
-              {/* Previous */}
-              <Pagination.Item>
-                <Pagination.Previous disabled={currentPage <= 1} onClick={handlePageClick(prevPage(currentPage))} />
-              </Pagination.Item>
+      <Pagination className="my-4" aria-label={t('gcweb:data-table.pagination.label', { defaultValue: 'Pagination' })}>
+        <p className="sr-only">
+          {t('gcweb:data-table.pagination.page-info', {
+            index: currentPage,
+            count: totalPages,
+          })}
+        </p>
+        <Pagination.Content>
+          {/* Previous */}
+          <Pagination.Item>
+            <Pagination.Previous disabled={currentPage <= 1} onClick={handlePageClick(prevPage(currentPage))} />
+          </Pagination.Item>
 
-              {/* Page numbers */}
-              {pageItems.map((item, idx) => {
-                if (item === 'ellipsis') {
-                  return (
-                    <Pagination.Item key={`ellipsis-${idx}`}>
-                      <Pagination.Ellipsis />
-                    </Pagination.Item>
-                  );
-                }
-                const p = item as number;
-                const isActive = p === currentPage;
-                return (
-                  <Pagination.Item key={p}>
-                    <Pagination.Link
-                      isActive={isActive}
-                      aria-label={
-                        isActive
-                          ? t('gcweb:data-table.pagination.page-button-current', { index: p })
-                          : t('gcweb:data-table.pagination.page-button-go-to', { index: p })
-                      }
-                      onClick={handlePageClick(p)}
-                    >
-                      {p}
-                    </Pagination.Link>
-                  </Pagination.Item>
-                );
-              })}
-
-              {/* Next */}
-              <Pagination.Item>
-                <Pagination.Next
-                  disabled={currentPage >= totalPages}
-                  onClick={handlePageClick(nextPage(currentPage, totalPages))}
-                />
+          {/* Page numbers */}
+          {pageItems.map((item, idx) => {
+            if (item === 'ellipsis') {
+              return (
+                <Pagination.Item key={`ellipsis-${idx}`}>
+                  <Pagination.Ellipsis />
+                </Pagination.Item>
+              );
+            }
+            const p = item as number;
+            const isActive = p === currentPage;
+            return (
+              <Pagination.Item key={p}>
+                <Pagination.Link
+                  disabled={isSinglePage}
+                  isActive={isActive}
+                  aria-label={
+                    isActive
+                      ? t('gcweb:data-table.pagination.page-button-current', { index: p })
+                      : t('gcweb:data-table.pagination.page-button-go-to', { index: p })
+                  }
+                  onClick={handlePageClick(p)}
+                >
+                  {p}
+                </Pagination.Link>
               </Pagination.Item>
-            </Pagination.Content>
-          </Pagination>
-        </>
-      )}
+            );
+          })}
+
+          {/* Next */}
+          <Pagination.Item>
+            <Pagination.Next
+              disabled={currentPage >= totalPages}
+              onClick={handlePageClick(nextPage(currentPage, totalPages))}
+            />
+          </Pagination.Item>
+        </Pagination.Content>
+      </Pagination>
     </>
   );
 }

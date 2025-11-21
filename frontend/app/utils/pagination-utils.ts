@@ -2,6 +2,7 @@ import type React from 'react';
 
 import type { SetURLSearchParams } from 'react-router';
 
+import type { PageMetadata } from '~/.server/domain/models';
 import { clamp } from '~/utils/math-utils';
 
 /**
@@ -94,4 +95,21 @@ export function prevPage(currentPage: number): number {
 /** Next page, clamped to totalPages. */
 export function nextPage(currentPage: number, totalPages: number): number {
   return clampPage(currentPage + 1, totalPages);
+}
+
+/**
+ * Returns a range based on current rows and PageMetadata.
+ */
+export function getPageItemsRange(rows: number, page: PageMetadata): { start: number; end: number } {
+  if (rows <= 0) {
+    return {
+      start: 0,
+      end: 0,
+    };
+  }
+  const base = page.number * page.size;
+  return {
+    start: base + 1,
+    end: base + rows,
+  };
 }

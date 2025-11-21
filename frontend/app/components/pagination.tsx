@@ -33,7 +33,11 @@ function PaginationLink({ className, isActive, children, ...props }: PaginationL
       type="button"
       variant="outline"
       aria-current={isActive ? 'page' : undefined}
-      className={cn('h-8 w-8 p-0 text-sm', isActive ? 'bg-slate-700 text-white' : 'border-hidden underline', className)}
+      className={cn(
+        'h-8 w-8 p-0 text-sm',
+        isActive ? 'bg-slate-700 text-white disabled:text-white' : 'border-hidden underline',
+        className,
+      )}
       {...props}
     >
       {children}

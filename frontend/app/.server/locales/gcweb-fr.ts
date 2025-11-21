@@ -108,6 +108,9 @@ export default {
       'next-page-aria-label': 'Aller à la page suivante',
       'last-page': 'Aller à la dernière page',
       'more-pages': 'Plus de pages',
+      'showing-result': 'Affichage de {{start}}-{{end}} sur {{total}} {{title}}',
+      'showing-result-one': 'Affichage de {{count}} sur {{total}} {{title}}',
+      'results': 'résultats',
     },
     'sorting': {
       'sorted-ascending': '{{column}}, trié en ordre croissant. Cliquez pour trier en ordre décroissant.',
