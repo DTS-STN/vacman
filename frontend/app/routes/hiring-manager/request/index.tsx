@@ -118,7 +118,9 @@ export async function action({ context, params, request }: Route.ActionArgs) {
       };
     }
 
-    return i18nRedirect('routes/hiring-manager/requests.tsx', request);
+    return i18nRedirect('routes/hiring-manager/requests.tsx', request, {
+      search: new URLSearchParams({ success: 'delete-request' }),
+    });
   }
 
   // For process information from Request Model
