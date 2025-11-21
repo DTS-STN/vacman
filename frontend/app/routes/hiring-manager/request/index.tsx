@@ -479,9 +479,11 @@ export default function EditRequest({ loaderData, params }: Route.ComponentProps
   return (
     <div className="space-y-8">
       <VacmanBackground variant="bottom-right">
-        {loaderData.status && (
-          <RequestStatusTag status={loaderData.status} lang={loaderData.lang} rounded view="hiring-manager" />
-        )}
+        <div aria-live="polite" aria-atomic="true">
+          {loaderData.status && (
+            <RequestStatusTag status={loaderData.status} lang={loaderData.lang} rounded view="hiring-manager" />
+          )}
+        </div>
 
         <PageTitle>
           {isDraft

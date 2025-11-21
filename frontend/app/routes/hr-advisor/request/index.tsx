@@ -375,9 +375,11 @@ export default function HiringManagerRequestIndex({ loaderData, params }: Route.
   return (
     <div className="space-y-8">
       <VacmanBackground variant="bottom-right">
-        {loaderData.status && (
-          <RequestStatusTag status={loaderData.status} lang={loaderData.lang} rounded view={'hr-advisor'} />
-        )}
+        <div aria-live="polite" aria-atomic="true">
+          {loaderData.status && (
+            <RequestStatusTag status={loaderData.status} lang={loaderData.lang} rounded view="hr-advisor" />
+          )}
+        </div>
 
         <PageTitle>{t('app:hr-advisor-referral-requests.page-title')}</PageTitle>
 
