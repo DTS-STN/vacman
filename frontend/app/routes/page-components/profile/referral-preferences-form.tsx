@@ -227,6 +227,7 @@ export function ReferralPreferencesForm({
               onChange={(values) => setSelectedClassifications(values)}
               placeholder={tApp('form.select-all-that-apply')}
               errorMessage={tApp(extractValidationKey(formErrors?.preferredClassifications))}
+              className="w-full sm:w-1/2"
               required
               helpMessage={
                 <>
