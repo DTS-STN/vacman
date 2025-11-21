@@ -1,6 +1,6 @@
 --liquibase formatted sql
 
---changeset system:1 dbms:mssql,h2
+--changeset system:1 dbms:mssql,h2 logicalFilePath:db/changelog/changes/db.init.changelog.sql
 CREATE TABLE CD_APPOINTMENT_NON_ADVERTISED 
 (
 	ID BIGINT NOT NULL IDENTITY, 

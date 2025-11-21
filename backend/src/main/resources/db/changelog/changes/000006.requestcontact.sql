@@ -1,6 +1,6 @@
 --liquibase formatted sql
 
---changeset system:update-requests-add-additional-contact
+--changeset system:update-requests-add-additional-contact dbms:mssql,h2 logicalFilePath:db/changelog/changes/db.schema.v0001.sql
 
 ALTER TABLE REQUEST
     ADD USER_ID_ADDITIONAL_CONTACT BIGINT;
