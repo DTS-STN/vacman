@@ -1,6 +1,6 @@
 --liquibase formatted sql
 
---changeset system:h2-modify dbms:h2
+--changeset system:h2-modify dbms:h2 logicalFilePath:db/changelog/changes/h2/db.h2.v1.init.sql
 ALTER TABLE CD_APPOINTMENT_NON_ADVERTISED ADD EFFECTIVE_DATE TIMESTAMP WITH TIME ZONE NOT NULL; 
 
 ALTER TABLE CD_APPOINTMENT_NON_ADVERTISED ADD EXPIRY_DATE TIMESTAMP WITH TIME ZONE;
