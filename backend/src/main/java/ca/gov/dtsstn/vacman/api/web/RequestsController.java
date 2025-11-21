@@ -5,6 +5,7 @@ import static ca.gov.dtsstn.vacman.api.data.entity.AbstractCodeEntity.byCode;
 import static ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException.asResourceNotFoundException;
 import static ca.gov.dtsstn.vacman.api.web.exception.ResourceNotFoundException.asUserResourceNotFoundException;
 import static ca.gov.dtsstn.vacman.api.web.exception.UnauthorizedException.asEntraIdUnauthorizedException;
+import static java.util.Comparator.comparingDouble;
 import static org.springframework.data.domain.Pageable.unpaged;
 
 import java.util.Collection;
@@ -15,8 +16,11 @@ import org.mapstruct.factory.Mappers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedModel;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -27,6 +31,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import ca.gov.dtsstn.vacman.api.config.SpringDocConfig;
@@ -54,6 +60,9 @@ import ca.gov.dtsstn.vacman.api.web.model.mapper.MatchModelMapper;
 import ca.gov.dtsstn.vacman.api.web.model.mapper.ProfileModelMapper;
 import ca.gov.dtsstn.vacman.api.web.model.mapper.RequestModelMapper;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -66,6 +75,10 @@ import jakarta.validation.Valid;
 @SecurityRequirement(name = SpringDocConfig.AZURE_AD)
 @Tag(name = "Requests", description = "Hiring manager requests for departmental clearance.")
 public class RequestsController {
+
+	public static final String OPENDOCUMENT_SPREADSHEET_MEDIA_TYPE_VALUE = "application/vnd.oasis.opendocument.spreadsheet";
+
+	public static final MediaType OPENDOCUMENT_SPREADSHEET_MEDIA_TYPE = MediaType.valueOf(OPENDOCUMENT_SPREADSHEET_MEDIA_TYPE_VALUE);
 
 	private static final Logger log = LoggerFactory.getLogger(RequestsController.class);
 
@@ -277,14 +290,23 @@ public class RequestsController {
 	//
 	//
 
-	@ApiResponses.Ok
 	@ApiResponses.BadRequestError
 	@ApiResponses.ResourceNotFoundError
-	@GetMapping({ "/{requestId}/matches" })
-	@Operation(summary = "Get all matches for a request.")
 	@PreAuthorize("hasAuthority('hr-advisor') || hasPermission(#requestId, 'REQUEST', 'READ')")
-	public ResponseEntity<PagedModel<MatchSummaryReadModel>> getAllRequestMatches(@PathVariable Long requestId, @ParameterObject Pageable pageable, @ParameterObject MatchReadFilterModel filter) {
-		log.info("Received request to get all matches for request; ID: [{}]", requestId);
+	@ApiResponse(responseCode = "200", description = "Returned if the request has succeeded.", content = {
+		@Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = MatchSummaryPagedModel.class)),
+		@Content(mediaType = OPENDOCUMENT_SPREADSHEET_MEDIA_TYPE_VALUE, schema = @Schema(format = "binary"))
+	})
+	@Operation(summary = "Get or Download matches for a request. Note that pagination is ignored when downloading a spreadsheet.")
+	@GetMapping(value = "/{requestId}/matches", produces = { MediaType.APPLICATION_JSON_VALUE, OPENDOCUMENT_SPREADSHEET_MEDIA_TYPE_VALUE })
+	public ResponseEntity<?> getAllRequestMatches(
+			@PathVariable Long requestId,
+			@ParameterObject Pageable pageable,
+			@ParameterObject MatchReadFilterModel filter) {
+		final var requestAttributes = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
+		final var acceptHeader = Optional.ofNullable(requestAttributes.getRequest().getHeader(HttpHeaders.ACCEPT)).orElse(MediaType.APPLICATION_JSON_VALUE);
+
+		log.info("Received request for matches; ID: [{}], Accept: [{}]", requestId, acceptHeader);
 
 		final var request = requestService.getRequestById(requestId)
 			.orElseThrow(asResourceNotFoundException("request", requestId));
@@ -300,10 +322,22 @@ public class RequestsController {
 			matchQueryBuilder.profileWfaStatusIds(profile.wfaStatusId());
 		});
 
-		final var matches = requestService.getMatchesByRequestId(pageable, matchQueryBuilder.build())
-			.map(matchModelMapper::toSummaryModel);
+		// Since accept headers can be qualified with weights, we need to parse them
+		// and determine if the client prefers a spreadsheet response.
+		final var requestedSpreadsheet = MediaType.parseMediaTypes(acceptHeader).stream()
+			.max(comparingDouble(MediaType::getQualityValue))
+			.map(mediaType -> mediaType.isCompatibleWith(OPENDOCUMENT_SPREADSHEET_MEDIA_TYPE))
+			.orElse(false);
 
-		return ResponseEntity.ok(new PagedModel<>(matches));
+		// if the client requested a spreadsheet, we ignore pagination and return all results
+		final var pageableToUse = requestedSpreadsheet ?  Pageable.unpaged() : pageable;
+		final var matches = requestService.getMatchesByRequestId(pageableToUse, matchQueryBuilder.build()).map(matchModelMapper::toSummaryModel);
+
+		return requestedSpreadsheet
+			? ResponseEntity.ok()
+				.header(HttpHeaders.CONTENT_DISPOSITION, String.format("attachment; filename=req-%03d-matches.ods", requestId))
+				.body(matchModelMapper.toOds(matches.getContent()))
+			: ResponseEntity.ok(new PagedModel<>(matches));
 	}
 
 	@ApiResponses.Ok
@@ -441,6 +475,20 @@ public class RequestsController {
 		return hrAdvisorIds.stream()
 			.map(id -> "me".equals(id) ? currentUserId.toString() : id)
 			.toList();
+	}
+
+	/**
+	 * This class only is used to provide a type for the Swagger documentation for the
+	 * {@link #getAllRequestMatches(Long, Pageable, MatchReadFilterModel, String)} method.
+	 * <p>
+	 * Because PagedModel is a generic class, Swagger has difficulty determining the actual
+	 * type returned by that method. By creating this subclass, we can provide a concrete
+	 * type that Swagger can use for documentation purposes.
+	 */
+	private static class MatchSummaryPagedModel extends PagedModel<MatchSummaryReadModel> {
+		public MatchSummaryPagedModel(Page<MatchSummaryReadModel> page) {
+			super(page);
+		}
 	}
 
 }
