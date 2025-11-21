@@ -36,6 +36,7 @@ public class ProfileEventListener {
 	private static final Logger log = LoggerFactory.getLogger(ProfileEventListener.class);
 
 	private final EventRepository eventRepository;
+	private final LookupCodes lookupCodes;
 	private final ProfileStatusRepository profileStatusRepository;
 	private final ProfileStatuses profileStatusCodes;
 	private final NotificationService notificationService;
@@ -44,13 +45,13 @@ public class ProfileEventListener {
 		.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
 		.findAndRegisterModules();
 
-
 	public ProfileEventListener(
 			EventRepository eventRepository,
 			LookupCodes lookupCodes,
 			ProfileStatusRepository profileStatusRepository,
 			NotificationService notificationService) {
 		this.eventRepository = eventRepository;
+		this.lookupCodes = lookupCodes;
 		this.profileStatusRepository = profileStatusRepository;
 		this.profileStatusCodes = lookupCodes.profileStatuses();
 		this.notificationService = notificationService;
@@ -137,7 +138,7 @@ public class ProfileEventListener {
 		final var lastName = Optional.ofNullable(profile.userLastName()).orElse("");
 		final var rawName = (firstName + " " + lastName).trim();
 		final var name = rawName.isEmpty() ? "Unknown User" : rawName;
-		final var language = Optional.ofNullable(profile.userLanguageCode()).orElse("en");
+		final var language = Optional.ofNullable(profile.userLanguageCode()).orElse(lookupCodes.languages().english());
 
 		// Gather available emails
 		final var emails = Optional.ofNullable(profile.userEmails()).orElse(List.of());
@@ -156,7 +157,7 @@ public class ProfileEventListener {
 			final var lastName = Optional.ofNullable(profile.userLastName()).orElse("");
 			final var rawName = (firstName + " " + lastName).trim();
 			final var name = rawName.isEmpty() ? "Unknown User" : rawName;
-			final var language = Optional.ofNullable(profile.userLanguageCode()).orElse("en");
+			final var language = Optional.ofNullable(profile.userLanguageCode()).orElse(lookupCodes.languages().english());
 
 			notificationService.sendProfileNotification(email, profileId, name, language, ProfileStatus.PENDING);
 		}, () -> log.warn("Could not send pending notification - no HR advisor found for profile ID: {}", profile.id()));

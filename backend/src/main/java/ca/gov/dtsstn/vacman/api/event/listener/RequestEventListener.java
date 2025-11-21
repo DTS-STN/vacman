@@ -21,6 +21,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
 import ca.gov.dtsstn.vacman.api.config.properties.ApplicationProperties;
+import ca.gov.dtsstn.vacman.api.config.properties.LookupCodes;
 import ca.gov.dtsstn.vacman.api.data.entity.EventEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.LanguageEntity;
 import ca.gov.dtsstn.vacman.api.data.entity.LanguageRequirementEntity;
@@ -51,6 +52,7 @@ public class RequestEventListener {
 
 	private final ApplicationProperties applicationProperties;
 	private final EventRepository eventRepository;
+	private final LookupCodes lookupCodes;
 	private final MatchRepository matchRepository;
 	private final NotificationService notificationService;
 
@@ -60,10 +62,12 @@ public class RequestEventListener {
 
 	public RequestEventListener(
 			EventRepository eventRepository,
+			LookupCodes lookupCodes,
 			NotificationService notificationService,
 			ApplicationProperties applicationProperties,
 			MatchRepository matchRepository) {
 		this.eventRepository = eventRepository;
+		this.lookupCodes = lookupCodes;
 		this.notificationService = notificationService;
 		this.applicationProperties = applicationProperties;
 		this.matchRepository = matchRepository;
@@ -98,7 +102,8 @@ public class RequestEventListener {
 	@EventListener({ RequestFeedbackPendingEvent.class })
 	public void sendRequestFeedbackPendingNotification(RequestFeedbackPendingEvent event) {
 		final var request = event.dto();
-		final var language = Optional.ofNullable(request.languageCode()).orElse("en");
+		final var language = Optional.ofNullable(request.languageCode())
+			.orElse(lookupCodes.languages().english());
 
 		final var emails = Stream.of(
 			request.additionalContactEmails(),
@@ -137,8 +142,8 @@ public class RequestEventListener {
 		}
 
 		final var emailsByLanguage = Map.of(
-			"en", new ArrayList<String>(),
-			"fr", new ArrayList<String>()
+			lookupCodes.languages().english(), new ArrayList<String>(),
+			lookupCodes.languages().french(), new ArrayList<String>()
 		);
 
 		for (final var match : matches) {
@@ -148,7 +153,8 @@ public class RequestEventListener {
 			// Get the preferred language of correspondence for this profile
 			final var language = Optional.ofNullable(profile.getLanguageOfCorrespondence())
 				.map(LanguageEntity::getCode)
-				.orElseGet(() -> Optional.ofNullable(request.languageCode()).orElse("en"));
+				.orElse(Optional.ofNullable(request.languageCode())
+					.orElse(lookupCodes.languages().english()));
 
 			// Add personal email if available
 			Optional.ofNullable(profile.getPersonalEmailAddress())
@@ -166,7 +172,7 @@ public class RequestEventListener {
 		var totalEmailsSent = 0;
 
 		// Send English emails
-		final var englishEmails = emailsByLanguage.get("en");
+		final var englishEmails = emailsByLanguage.get(lookupCodes.languages().english());
 
 		if (!englishEmails.isEmpty()) {
 			log.info("Sending bulk job opportunity notifications () {} English-speaking recipients for request ID: [{}]", englishEmails.size(), request.id());
@@ -189,13 +195,13 @@ public class RequestEventListener {
 				request.id(),
 				request.nameEn(),
 				jobModelEn,
-				"en"
+				lookupCodes.languages().english()
 			);
 
 			totalEmailsSent += englishEmails.size();
 		}
 
-		final var frenchEmails = emailsByLanguage.get("fr");
+		final var frenchEmails = emailsByLanguage.get(lookupCodes.languages().french());
 
 		if (!frenchEmails.isEmpty()) {
 			log.info("Sending bulk job opportunity notifications () {} French-speaking recipients for request ID: [{}]", frenchEmails.size(), request.id());
@@ -218,7 +224,7 @@ public class RequestEventListener {
 				request.id(),
 				request.nameFr(),
 				jobModelFr,
-				"fr"
+				lookupCodes.languages().french()
 			);
 		}
 
@@ -344,7 +350,8 @@ public class RequestEventListener {
 	 * @param request The request DTO
 	 */
 	private void sendSubmittedNotification(RequestEventDto request) {
-		final var language = request.languageCode() != null ? request.languageCode() : "en";
+		final var language = Optional.ofNullable(request.languageCode())
+			.orElse(lookupCodes.languages().english());
 
 		final var hrEmail = applicationProperties.gcnotify().hrGdInboxEmail();
 
@@ -364,7 +371,8 @@ public class RequestEventListener {
 	 * @param request The request DTO
 	 */
 	private void sendVmsNotRequiredNotification(RequestEventDto request) {
-		final var language = request.languageCode() != null ? request.languageCode() : "en";
+		final var language = Optional.ofNullable(request.languageCode())
+			.orElse(lookupCodes.languages().english());
 
 		final var pimsEmail = applicationProperties.gcnotify().pimsSleTeamEmail();
 
@@ -385,7 +393,8 @@ public class RequestEventListener {
 	 * @param request The request DTO
 	 */
 	private void sendPscNotRequiredNotification(RequestEventDto request) {
-		final var language = request.languageCode() != null ? request.languageCode() : "en";
+		final var language = Optional.ofNullable(request.languageCode()).
+			orElse(lookupCodes.languages().english());
 
 		final var emails = Stream.of(
 			request.additionalContactEmails(),
@@ -410,7 +419,8 @@ public class RequestEventListener {
 	 * @param request The request DTO
 	 */
 	private void sendPscRequiredNotification(RequestEventDto request) {
-		final var language = request.languageCode() != null ? request.languageCode() : "en";
+		final var language = Optional.ofNullable(request.languageCode())
+			.orElse(lookupCodes.languages().english());
 
 		final var pimsEmail = applicationProperties.gcnotify().pimsSleTeamEmail();
 
@@ -432,7 +442,8 @@ public class RequestEventListener {
 	 * @param request The request DTO
 	 */
 	private void sendCancelledNotification(RequestEventDto request) {
-		final var language = request.languageCode() != null ? request.languageCode() : "en";
+		final var language = Optional.ofNullable(request.languageCode())
+			.orElse(lookupCodes.languages().english());
 
 		final var emails = Stream.of(
 			request.additionalContactEmails(),
@@ -491,7 +502,7 @@ public class RequestEventListener {
 			// Get the profile owner's language preference
 			final var language = Optional.ofNullable(profile.getLanguageOfCorrespondence())
 				.map(LanguageEntity::getCode)
-				.orElse("en");
+				.orElse(lookupCodes.languages().english());
 
 			log.info("Sending job opportunity HR notification () profile owner for match ID: [{}]", match.getId());
 
@@ -499,7 +510,7 @@ public class RequestEventListener {
 
 			// Get match feedback if available
 			final var matchFeedback = Optional.ofNullable(match.getMatchFeedback())
-				.map(feedback -> "en".equals(language) ? feedback.getNameEn() : feedback.getNameFr())
+				.map(feedback -> lookupCodes.languages().english().equals(language) ? feedback.getNameEn() : feedback.getNameFr())
 				.orElse("N/A");
 
 			final var jobOpportunityHR = new EmailTemplateModel.JobOpportunityHR(
@@ -529,7 +540,7 @@ public class RequestEventListener {
 	 * @return A job opportunity model with properties in the specified language
 	 */
 	private EmailTemplateModel.JobOpportunity createJobModel(RequestEntity request, String language) {
-		boolean isEnglish = "en".equals(language);
+		boolean isEnglish = lookupCodes.languages().english().equals(language);
 
 		// Get location cities
 		final var location = request.getCities().stream()

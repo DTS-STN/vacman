@@ -246,7 +246,7 @@ class NotificationServiceTest {
 	@DisplayName("Test send bulk job opportunity notification with English language")
 	void sendBulkJobOpportunityNotificationEnglishSuccess() {
 		// Mock the response from the REST template
-		when(restTemplate.postForObject(eq("/v2/notifications/bulk"), any(Map.class), eq(NotificationReceipt.class)))
+		when(restTemplate.postForObject(eq("/bulk"), any(Map.class), eq(NotificationReceipt.class)))
 			.thenReturn(ImmutableNotificationReceipt.builder().build());
 
 		// Create test data
@@ -284,7 +284,7 @@ class NotificationServiceTest {
 	@DisplayName("Test send bulk job opportunity notification with French language")
 	void sendBulkJobOpportunityNotificationFrenchSuccess() {
 		// Mock the response from the REST template
-		when(restTemplate.postForObject(eq("/v2/notifications/bulk"), any(Map.class), eq(NotificationReceipt.class)))
+		when(restTemplate.postForObject(eq("/bulk"), any(Map.class), eq(NotificationReceipt.class)))
 			.thenReturn(ImmutableNotificationReceipt.builder().build());
 
 		// Create test data
@@ -322,7 +322,7 @@ class NotificationServiceTest {
 	@DisplayName("Test send bulk job opportunity notification with single recipient")
 	void sendBulkJobOpportunityNotificationSingleRecipientSuccess() {
 		// Mock the response from the REST template
-		when(restTemplate.postForObject(eq("/v2/notifications/bulk"), any(Map.class), eq(NotificationReceipt.class)))
+		when(restTemplate.postForObject(eq("/bulk"), any(Map.class), eq(NotificationReceipt.class)))
 			.thenReturn(ImmutableNotificationReceipt.builder().build());
 
 		// Create test data with a single recipient
